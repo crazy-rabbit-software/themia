@@ -34,116 +34,6 @@ public static class ShellMetrics
     }
 
     /// <summary>
-    /// [S-3734] The menu engine's rectangle and rows, Karpo's configuration menus (Explorer's rows):
-    /// one fixed 320 × 440 on every level, rows 32 apart with a 28 fill inset 5 from the edge.
-    /// </summary>
-    public static class Menu
-    {
-        /// <summary>The one width of the menu and every level at a text size of 100 % (Karpo's SettingsWidthDip).</summary>
-        public const double Width = 320;
-
-        /// <summary>The one height of the menu and every level at a text size of 100 % (Karpo's SettingsHeightDip).</summary>
-        public const double Height = 440;
-
-        /// <summary>The rows' pitch: the fill with <see cref="FillInset"/> over and under it.</summary>
-        public const double Pitch = 32;
-
-        /// <summary>The fill under a row, as Explorer's menu draws it.</summary>
-        public const double Fill = 28;
-
-        /// <summary>The room over and under a row's fill inside its pitch.</summary>
-        public const double FillInset = (Pitch - Fill) / 2;
-
-        /// <summary>Where a row's fill starts in from the menu's edge (5), less the rim the frame draws there.</summary>
-        public const double RowInset = 5 - FamilyShape.Hairline;
-
-        /// <summary>The room over the first row and under the last (Karpo's panel padding).</summary>
-        public const double BandPadding = 3;
-
-        /// <summary>Inside a row's fill: the room before its icon (which then stands 16 in from the menu's edge).</summary>
-        public const double PadStart = 11;
-
-        /// <summary>Inside a row's fill: the room after the end slot (the chevron's box ends 13 in from the menu's edge).</summary>
-        public const double PadEnd = 8;
-
-        /// <summary>[S-3741] Windows' toggle switch at a row's end: a 40 × 20 track with a 12 knob.</summary>
-        public const double SwitchWidth = 40;
-
-        public const double SwitchHeight = 20;
-
-        public const double Knob = 12;
-
-        /// <summary>The knob's room from the track's end: centred in the track's height.</summary>
-        public const double KnobInset = (SwitchHeight - Knob) / 2;
-
-        /// <summary>[S-3731] A slider row's compact track, the least it gives way to long words, and its value's column.</summary>
-        public const double SliderWidth = 96;
-
-        public const double SliderMinWidth = 64;
-
-        public const double SliderValueWidth = 40;
-
-        /// <summary>[S-3740] A heading row's height.</summary>
-        public const double HeadingHeight = 32;
-
-        /// <summary>A rule: one hairline with this much over and under it.</summary>
-        public const double RuleGap = 4;
-
-        /// <summary>[S-3722] A field in a row's fill: Windows' text box padding, held to the 28 fill (10 and 6 either side, 3 over and under).</summary>
-        public const double FieldPadStart = 10;
-
-        public const double FieldPadEnd = 6;
-
-        public const double FieldPadY = 3;
-
-        /// <summary>[S-3746] A note row's room under its words, so a wrapped note clears the next row's fill.</summary>
-        public const double NotePadBottom = 6;
-
-        /// <summary>A tool row's small square buttons and the room between two.</summary>
-        public const double Tool = 24;
-
-        public const double ToolGap = 2;
-
-        /// <summary>[S-3723] A colour level's swatches: 24 in 32 cells, eight to a line (Karpo's).</summary>
-        public const double Swatch = 24;
-
-        public const double SwatchCell = 32;
-
-        /// <summary>A swatch's room inside its cell, either side.</summary>
-        public const double SwatchInset = (SwatchCell - Swatch) / 2;
-
-        /// <summary>[S-3738] How far a level's rows slide in (Karpo's 16 over 167 ms).</summary>
-        public const float SlideDip = 16;
-
-        /// <summary>How far a notch of the mouse wheel scrolls.</summary>
-        public const double WheelStep = 48;
-
-        /// <summary>[S-3717] The properties menu's top row: 40 squares, the plate under the pointer 4 in from each side, a 20 hairline between two.</summary>
-        public const double TopRow = 40;
-
-        public const double TopPlate = 4;
-
-        public const double TopRule = 20;
-    }
-
-    /// <summary>
-    /// [S-3500] The edit bar, Karpo's: 48 tall, 36 buttons with radius 4 in a 6 padding, 6 between
-    /// two, 12 either side of a 20 hairline, Done at least 80 wide.
-    /// </summary>
-    public static class EditBar
-    {
-        public const double Button = 36;
-
-        public const double Gap = 6;
-
-        public const double Height = Button + (2 * Gap);
-
-        public const double Divider = 20;
-
-        public const double DoneWidth = 80;
-    }
-
-    /// <summary>
     /// [S-2320] The edit bar, Karpo's command bar (karpo-app, docs/widgets.md §575, §578, §608): one row 48
     /// tall (8, a 32 control, 8), 8 under the work area's top; an entry 12, its 16 icon, 8, its words, 12
     /// (40 with its icon alone), entries 4 apart; 8, the 20 hairline, 8; the selection's 256 room; a
@@ -198,6 +88,8 @@ public static class ShellMetrics
         public const double PillWidth = 16;
 
         public const double PillHeight = 3;
+
+        public const double PillRadius = PillHeight / 2;
     }
 
     /// <summary>
@@ -260,6 +152,13 @@ public static class ShellMetrics
         /// <summary>A number box's and a text box's width.</summary>
         public const double ControlWide = 240;
 
+        /// <summary>[S-2302] A number box's − and + inside it: 28 squares, 2 from its end; the room its words leave them.</summary>
+        public const double Spin = 28;
+
+        public const double SpinInset = 2;
+
+        public const double SpinsRoom = (2 * Spin) + (4 * SpinInset);
+
         public const double ActionLeast = 120;
 
         public const double ActionMost = 240;
@@ -276,6 +175,15 @@ public static class ShellMetrics
 
         /// <summary>The words (On, Off) before a switch.</summary>
         public const double SwitchWords = 40;
+
+        /// <summary>[S-2302] Windows' toggle switch: a 40 × 20 track with a 12 knob, centred in its height.</summary>
+        public const double SwitchWidth = 40;
+
+        public const double SwitchHeight = 20;
+
+        public const double Knob = 12;
+
+        public const double KnobInset = (SwitchHeight - Knob) / 2;
 
         /// <summary>[S-2305] How far a row is lit when a deep link lands on it.</summary>
         public const int LitMs = 1500;
@@ -303,6 +211,13 @@ public static class ShellMetrics
         public const double Swatch = 36;
 
         public const double SwatchGap = 4;
+
+        /// <summary>A swatch's corners, and the accent ring round the one that holds (its width, its gap) and its corners.</summary>
+        public const double SwatchRadius = 2;
+
+        public const double Ring = 2;
+
+        public const double RingRadius = SwatchRadius + Ring;
 
         public const double Spectrum = 96;
     }
@@ -332,10 +247,10 @@ public static class ShellMetrics
         public const double ActionMinWidth = 96;
     }
 
-    /// <summary>[S-891] The error details' flyout: a menu's width, scrolling past 240.</summary>
+    /// <summary>[S-891] The error details' flyout: 320 wide, scrolling past 240.</summary>
     public static class Details
     {
-        public const double Width = Menu.Width;
+        public const double Width = 320;
 
         public const double MaxHeight = 240;
     }
@@ -468,6 +383,9 @@ public enum ShellRole
 
     /// <summary>A strong fill (the card's resize marks).</summary>
     StrongFill,
+
+    /// <summary>[S-2308] An opened inline picker's ground inside its card: Windows' secondary card fill.</summary>
+    CardSecondary,
 }
 
 /// <summary>[S-6746] The theme resource each shell role is drawn with: the one table.</summary>
@@ -495,6 +413,7 @@ public static class ShellRoles
         [ShellRole.SwitchRim] = "ControlStrongStrokeColorDefaultBrush",
         [ShellRole.SwitchRimDisabled] = "ControlStrongStrokeColorDisabledBrush",
         [ShellRole.StrongFill] = "ControlStrongFillColorDefaultBrush",
+        [ShellRole.CardSecondary] = "CardBackgroundFillColorSecondaryBrush",
     };
 
     /// <summary>The resource key of <paramref name="role"/> (a <c>…Brush</c> name).</summary>

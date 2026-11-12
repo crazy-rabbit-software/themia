@@ -70,10 +70,9 @@ internal sealed partial class DesktopWindow
         UiLanguage.ApplyLanguageOnly(_root);
         UiLanguage.ApplyFlow(_menuAnchor);
         UiLanguage.ApplyFlow(_toolbar);
-        UiLanguage.ApplyFlow(_properties);
-        foreach (var menu in _barMenus.Values)
+        if (_flyout is { } flyout)
         {
-            UiLanguage.ApplyFlow(menu);
+            UiLanguage.ApplyFlow(flyout.Page);
         }
 
         UiLanguage.ApplyFlow(_viewBar);
@@ -92,8 +91,6 @@ internal sealed partial class DesktopWindow
         {
             _toolbar.Fill(ToolbarCommands());
         }
-
-        _properties.Fill(PropertiesCommands());
 
         RebuildBarMenu();
     }

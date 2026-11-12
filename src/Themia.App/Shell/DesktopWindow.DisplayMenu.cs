@@ -6,22 +6,15 @@ using Themia.Core.Settings;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3543] The edit bar's Display menu (Display ▾) on this display: its scale and view bar, and what
-/// every display shares, through the host. Opened and closed as every bar menu is (<see cref="OpenBarMenu"/>).
+/// [S-3543] [S-2300] The edit bar's Display page on this display: its scale and view bar, and what
+/// every display shares, through the host. Opened and closed as every page is (<see cref="OpenPage"/>).
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-3543] The Display menu's lines, as the state and the connected displays are now.</summary>
-    private Func<IReadOnlyList<SettingsLine>> DisplayMenuLines()
-    {
-        var host = new SurfaceDisplayHost(this);
-        return () => DisplayMenu.Root(host);
-    }
-
     /// <summary>[S-3545] A display pass ran: an open Display menu lists the displays as they are now (one plugged in, one switched off).</summary>
     internal void DisplaysPassed()
     {
-        if (_openBarMenu == BarMenu.Display)
+        if (_openPage == SettingsPageId.Display)
         {
             SyncBarMenu();
         }
@@ -56,7 +49,7 @@ internal sealed partial class DesktopWindow
                 return Host.SetDisplayEnabled(displayId, on);
             }
 
-            surface.CloseBarMenu(focusButton: false);
+            surface.CloseFlyout(focusEntry: false);
             if (surface._root.DispatcherQueue is not { } queue || !queue.TryEnqueue(() => Host.SetDisplayEnabled(displayId, false)))
             {
                 Log.Error(Scope, "could not queue switching Themia off on this display");

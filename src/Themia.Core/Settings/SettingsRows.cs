@@ -102,15 +102,23 @@ public static class SettingsRows
     }
 
     /// <summary>
-    /// [S-2304] The cards of a section: its lines parted at every break, a heading starting a card of its
-    /// own; no card is empty, and the breaks themselves are gone.
+    /// [S-2304] The cards of a section, Windows' settings cards: each row a card of its own, with the notes
+    /// under it (what holds against it, how a try went: they only matter after it); options of a choice
+    /// standing open, and the user's own things of one list, share one card; a heading's card holds the
+    /// rows under it to the next break. A break ends a card; no card is empty.
     /// </summary>
-    public static IReadOnlyList<IReadOnlyList<SettingsLine>> Cards(IReadOnlyList<SettingsLine> lines)
-    {
-        ArgumentNullException.ThrowIfNull(lines);
+    public static IReadOnlyList<IReadOnlyList<SettingsLine>> Cards(IReadOnlyList<SettingsLine> lines) => Cards(lines, KindOf);
 
-        var cards = new List<IReadOnlyList<SettingsLine>>();
-        var card = new List<SettingsLine>();
+    /// <summary>[S-2304] The same parting for any rows whose kinds are known (a page's rows built from the selection's lines).</summary>
+    public static IReadOnlyList<IReadOnlyList<T>> Cards<T>(IReadOnlyList<T> rows, Func<T, SettingsRowKind> kind)
+    {
+        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(kind);
+
+        var cards = new List<IReadOnlyList<T>>();
+        var card = new List<T>();
+        var headed = false;
+        SettingsRowKind? last = null;
         void Close()
         {
             if (card.Count > 0)
@@ -118,22 +126,38 @@ public static class SettingsRows
                 cards.Add(card);
                 card = [];
             }
+
+            headed = false;
+            last = null;
         }
 
-        foreach (var line in lines)
+        foreach (var row in rows)
         {
-            if (line is SettingsSeparator)
+            var now = kind(row);
+            switch (now)
             {
-                Close();
-                continue;
+                case SettingsRowKind.Break:
+                    Close();
+                    continue;
+                case SettingsRowKind.Heading:
+                    Close();
+                    headed = true;
+                    break;
+                case SettingsRowKind.Note:
+                    break;
+                case SettingsRowKind.Radio or SettingsRowKind.Item when last == now:
+                    break;
+                default:
+                    if (!headed)
+                    {
+                        Close();
+                    }
+
+                    break;
             }
 
-            if (line is SettingsHeading)
-            {
-                Close();
-            }
-
-            card.Add(line);
+            card.Add(row);
+            last = now;
         }
 
         Close();

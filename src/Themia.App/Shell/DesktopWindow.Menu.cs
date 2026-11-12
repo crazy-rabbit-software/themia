@@ -68,9 +68,9 @@ internal sealed partial class DesktopWindow
     private List<ItemMenuEntry> SurfaceMenu(SurfaceMenuFacts facts, Point at)
         => SurfaceEntries(facts, new SurfaceMenuActions(
             AddWidget: () => OpenPickerAt(at),
-            View: () => OpenBarMenu(BarMenu.View, []),
-            Display: () => OpenBarMenu(BarMenu.Display, []),
-            Settings: () => OpenBarMenu(BarMenu.Settings, []),
+            View: () => OpenPage(Core.Settings.SettingsPageId.Views, []),
+            Display: () => OpenPage(Core.Settings.SettingsPageId.Display, []),
+            Settings: () => OpenPage(Core.Settings.SettingsPageId.General, []),
             Paste: _host.Paste,
             SelectAll: SelectAll,
             Done: () => _host.SetEditMode(false)));

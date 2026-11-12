@@ -14,58 +14,46 @@ using Windows.Foundation;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-3535] The edit bar's settings menu open under ⚙ on the stand-in display, over the busy
-/// wallpaper: <c>settings-&lt;theme&gt;.png</c> (its first level), then its submenus opened along their
-/// keys (<c>-appearance</c>, <c>-style</c>, <c>-theme</c>, <c>-accent</c> (a colour submenu),
-/// <c>-background</c> (a fill's), <c>-items</c>, <c>-cards</c>, <c>-border</c>, <c>-text</c>,
-/// <c>-font</c> (the font picker), <c>-layout</c>, <c>-motion</c>, <c>-motion-startup</c>,
-/// <c>-online</c>, <c>-online-weather</c>, <c>-language</c>, <c>-language-display</c>, <c>-language-clock</c>),
-/// <c>-language-find</c> (the languages' box holding "deu"), <c>-advice</c> (Start with Windows turned off in
-/// Windows, game mode holding the widgets, Windows' animations off) and <c>-replace</c> (a preset
-/// picked over a look of one's own: its "are you sure?" level), <c>-language-end</c> (the languages scrolled to their end). A stand-in
-/// host: nothing reaches Windows or the user's state.
+/// [S-2328] The General, Appearance and Accounts pages open from their entries on the stand-in display, over
+/// the busy wallpaper: each page at its top (<c>page-&lt;theme&gt;-general.png</c>, <c>-appearance</c>), then opened at a
+/// row as a deep link opens it, its picker open (<c>-appearance-style</c>, <c>-theme</c>, <c>-accent</c> (a colour),
+/// <c>-background</c> (a fill), <c>-border</c>, <c>-font</c>, <c>-general-motion</c> (an expander), <c>-online-weather</c>,
+/// <c>-language</c> (a lookup), <c>-language-find</c> ("deu" typed), <c>-link-temperature</c> (where a widget's link
+/// lands), <c>-advice</c>, <c>-replace</c> (an "are you sure?" page), the assistants', Pro's, Back up's and About's,
+/// and Accounts'. A stand-in host: nothing reaches Windows or the user's state.
 /// </summary>
 internal static partial class EditBarRender
 {
     private static async Task SettingsShots(Grid screen, string outDir, string theme)
     {
         const string a = SettingsMenu.Keys.Appearance;
-        (string Name, string[] Open)[] cases =
+        (string Name, string? Key)[] cases =
         [
-            (string.Empty, []),
-            ("-appearance", [a]),
-            ("-style", [a, a + "/style"]),
-            ("-theme", [a, a + "/theme"]),
-            ("-accent", [a, a + "/theme", a + "/theme/accent"]),
-            ("-background", [a, a + "/theme", a + "/theme/background"]),
-            ("-items", [a, a + "/items"]),
-            ("-cards", [a, a + "/cards"]),
-            ("-border", [a, a + "/cards", a + "/cards/border"]),
-            ("-text", [a, a + "/text"]),
-            ("-font", [a, a + "/text", a + "/text/font"]),
-            ("-motion", [a, a + "/motion"]),
-            ("-motion-startup", [a, a + "/motion", a + "/motion/startup"]),
-            ("-online", [SettingsMenu.Keys.Online]),
-            ("-online-weather", [SettingsMenu.Keys.Online, SettingsMenu.Keys.Online + "/weather"]),
-            ("-language", [SettingsMenu.Keys.Language]),
-            ("-language-display", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"]),
-            ("-language-clock", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/clock"]),
+            ("general", null),
+            ("general-end", null),
+            ("appearance", null),
+            ("appearance-style", a + "/style"),
+            ("appearance-theme", a + "/theme/theme"),
+            ("appearance-accent", a + "/theme/accent"),
+            ("appearance-background", a + "/theme/background"),
+            ("appearance-border", a + "/cards/border"),
+            ("appearance-font", a + "/text/font"),
+            ("general-motion", SettingsMenu.Keys.Motion + "/startup"),
+            ("general-online-weather", SettingsMenu.Keys.Online + "/weather"),
+            ("general-language", SettingsMenu.Keys.Language + "/display"),
+            ("general-clock", SettingsMenu.Keys.Language + "/clock"),
 
-            // [S-3749] Where a widget's link lands: the temperature unit's level, as RequestSetting opens it.
-            ("-link-temperature", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Format(Themia.Sdk.OwnedSetting.TemperatureUnit)]),
+            // [S-3749] Where a widget's link lands: the temperature unit's row, lit, as RequestSetting opens it.
+            ("general-link-temperature", SettingsMenu.Keys.Format(Themia.Sdk.OwnedSetting.TemperatureUnit)),
         ];
 
-        foreach (var (name, open) in cases)
+        foreach (var (name, key) in cases)
         {
-            await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}{name}.png"), new RenderSettingsHost(), open).ConfigureAwait(true);
+            await SettingsShot(screen, outDir, theme, name, new RenderSettingsHost(), key, after: name.EndsWith("-end", StringComparison.Ordinal) ? f => f.Scroll(Windows.System.VirtualKey.End) : null).ConfigureAwait(true);
         }
 
-        // [S-3742] The languages' filter finds a language as it is typed; [S-3734] the list scrolled to
-        // its end under its pinned head and filter.
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-language-find.png"), new RenderSettingsHost(),
-            [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"], menu => menu.DebugType("deu")).ConfigureAwait(true);
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-language-end.png"), new RenderSettingsHost(),
-            [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"], menu => menu.DebugScrollToEnd()).ConfigureAwait(true);
+        // [S-2308] The languages' lookup finds a language as it is typed.
+        await SettingsShot(screen, outDir, theme, "general-language-find", new RenderSettingsHost(), SettingsMenu.Keys.Language + "/display", view => view.DebugType("deu")).ConfigureAwait(true);
 
         // [S-3525] [S-3529] What holds against a setting is said: start with Windows turned off in
         // Windows (the advice under it), game mode holding the widgets, Windows' animations off.
@@ -76,34 +64,47 @@ internal static partial class EditBarRender
             AnimationsEnabled = false,
         };
         advice.State.Preferences.GameModeSuspend = true;
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-advice.png"), advice, [a, a + "/motion"]).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "general-advice", advice, null).ConfigureAwait(true);
 
-        // [S-3527] A preset picked over a look of one's own asks first, on a level of its own.
+        // [S-3527] A preset picked over a look of one's own asks first, on a page of its own.
         var custom = new RenderSettingsHost();
         custom.State.Design.CornerRadiusPx = 17;
         custom.State.Design.PrimaryColor = "#3A6EA5";
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-replace.png"), custom, [a, a + "/style", a + "/style/" + DesignPresets.All[1].Id]).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "appearance-replace", custom, a + "/style", view => Click(view, a + "/style/" + DesignPresets.All[1].Id)).ConfigureAwait(true);
 
-        // [S-9979] ⚙ › AI assistants: off (the default), listening with its setups, and a port taken.
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-assistants.png"), new RenderSettingsHost(), [SettingsMenu.Keys.Mcp]).ConfigureAwait(true);
+        // [S-9979] AI assistants: off (the default), listening with its setups, and a port taken.
+        await SettingsShot(screen, outDir, theme, "general-assistants", new RenderSettingsHost(), SettingsMenu.Keys.McpServer).ConfigureAwait(true);
         var listening = new RenderSettingsHost { Mcp = new RenderMcpHost(new McpServerStatus(McpServerState.Listening, RenderMcpHost.Address)) };
         listening.State.Preferences.McpServer = true;
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-assistants-on.png"), listening, [SettingsMenu.Keys.Mcp]).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "general-assistants-on", listening, SettingsMenu.Keys.McpServer).ConfigureAwait(true);
         var taken = new RenderSettingsHost { Mcp = new RenderMcpHost(new McpServerStatus(McpServerState.Failed, RenderMcpHost.Address, McpProblem.PortTaken)) };
         taken.State.Preferences.McpServer = true;
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-assistants-failed.png"), taken, [SettingsMenu.Keys.Mcp]).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "general-assistants-failed", taken, SettingsMenu.Keys.McpServer).ConfigureAwait(true);
 
-        // [S-3560] ⚙ › Accounts over stand-in accounts.
+        // [S-3560] Accounts over stand-in accounts.
         await AccountsShots(screen, outDir, theme).ConfigureAwait(true);
 
-        // [S-3583] ⚙ › Themia Pro in each licence state, Back up & reset with its questions, About Themia.
+        // [S-3583] Themia Pro in each licence state, Back up & reset with its questions, About Themia.
         await ProShots(screen, outDir, theme).ConfigureAwait(true);
         await BackupShots(screen, outDir, theme).ConfigureAwait(true);
         await AboutShots(screen, outDir, theme).ConfigureAwait(true);
     }
 
-    private static Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open, Action<BarMenuView>? then = null)
-        => MenuShot(screen, path, BarMenu.Settings, () => host.Menu = new BarMenuView(nameof(BarMenu.Settings), () => DesktopWindow.PagesAsMenu(host), () => { }), open, then);
+    /// <summary>
+    /// [S-2328] The page that holds <paramref name="key"/> (General without one) open at it over <paramref name="host"/>:
+    /// <c>page-&lt;theme&gt;-&lt;name&gt;.png</c>.
+    /// </summary>
+    private static Task SettingsShot(Grid screen, string outDir, string theme, string name, RenderSettingsHost host, string? key, Action<PageView>? then = null, Action<PageFlyout>? after = null)
+    {
+        Func<SettingsPage>[] pages = [() => SettingsPages.General(host), () => SettingsPages.Accounts(host), () => SettingsPages.Appearance(host)];
+        var core = key is null
+            ? (name.StartsWith("appearance", StringComparison.Ordinal) ? pages[2] : name.StartsWith("account", StringComparison.Ordinal) ? pages[1] : pages[0])
+            : pages.FirstOrDefault(p => SettingsPages.PathTo(p(), key) is not null) ?? pages[0];
+        var page = core().Id;
+        var view = new PageView(() => PageRows.Of(core(), edit => host.Page?.Ask(edit)));
+        host.Page = view;
+        return PageShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-{name}.png"), page, view, core, key, then, after);
+    }
 
     /// <summary>
     /// A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change
@@ -117,10 +118,10 @@ internal static partial class EditBarRender
         public RenderSettingsHost()
         {
             Accounts = new RenderAccountsHost();
-            Outcomes.Changed += () => Menu?.Show();
+            Outcomes.Changed += () => Page?.Show();
         }
 
-        public BarMenuView? Menu { get; set; }
+        public PageView? Page { get; set; }
 
         /// <summary>[S-3560] Stand-in accounts; what is typed or tried is drawn at once.</summary>
         public IAccountsMenuHost? Accounts
@@ -131,7 +132,7 @@ internal static partial class EditBarRender
                 _accounts = value;
                 if (value is { } accounts)
                 {
-                    accounts.Menu.Changed += () => Menu?.Show();
+                    accounts.Menu.Changed += () => Page?.Show();
                 }
             }
         }
@@ -147,7 +148,7 @@ internal static partial class EditBarRender
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
             change(State);
-            Menu?.Show();
+            Page?.Show();
         }
 
         public void SetStartup(bool on)
@@ -169,7 +170,7 @@ internal static partial class EditBarRender
 
         public void SetLanguage(AppLanguage language) => Mutate(s => s.Preferences.Language = language);
 
-        public void Confirm(SettingsConfirm confirm) => Menu?.Confirm(confirm);
+        public void Confirm(SettingsConfirm confirm) => Page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
 
         public void Quit()
         {
@@ -247,7 +248,7 @@ internal static partial class EditBarRender
         public void SetDeleteData(bool on)
         {
             DeleteData = on;
-            Menu?.Show();
+            Page?.Show();
         }
 
         public void UninstallNow(bool deleteData)

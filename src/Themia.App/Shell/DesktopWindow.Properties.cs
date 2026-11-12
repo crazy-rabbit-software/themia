@@ -1,34 +1,31 @@
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Themia.Core.Geometry;
-using Windows.Foundation;
+using Themia.Core.Diagnostics;
+using Themia.Core.Model;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3707]..[S-3710] The selected widgets' properties panel on this display: what it offers, where
-/// it stands beside the selection, and stepping aside while the selection is dragged or resized.
+/// [S-2340]..[S-2343] The selection's entry on this display's edit bar and its page: selecting a widget
+/// adds its entry and opens its flyout, once per selection (closed by the user it stays closed; a click
+/// on the widget again opens it again).
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-3710] A drag or a resize is under way: the strip is away until it ends.</summary>
-    private bool _propertiesHeld;
+    /// <summary>[S-3701] What the selection on this display offers, as last read.</summary>
+    private QuickSetOffer _selectionOffer = QuickSetOffer.None;
 
-    private PropertiesStrip BuildProperties()
-    {
-        var strip = new PropertiesStrip(PropertiesCommands());
+    /// <summary>[S-2343] The selection whose flyout has opened on its own once: the same selection does not open it again.</summary>
+    private string? _selectionShown;
 
-        // Its real width arrives with layout (a title box, words in the current language): place it again.
-        strip.SizeChanged += (_, _) => PlaceProperties();
-        return strip;
-    }
+    /// <summary>[S-3719] The one selected widget's own lines as last built, and the selection they were built for.</summary>
+    private WidgetMenuLines? _widgetLines;
 
-    /// <summary>What this display's strip does: everything goes through the host, as one undo step each.</summary>
-    private PropertiesCommands PropertiesCommands() => new(
+    /// <summary>What the selection's page does: everything goes through the host, as one undo step each.</summary>
+    private SelectionCommands SelectionCommands() => new(
         SetHeader: _host.SetSelectedHeader,
         SetBackground: _host.SetSelectedBackground,
         SetTitle: _host.SetTitle,
-        ReleaseFocus: () => _root.Focus(FocusState.Programmatic),
         SetStyle: _host.SetSelectedStyle,
         SetItemBackground: _host.SetSelectedItemBackground,
         SetItemTextColor: _host.SetSelectedItemTextColor,
@@ -42,9 +39,52 @@ internal sealed partial class DesktopWindow
         SetBackgroundImage: _host.SetSelectedBackgroundImage);
 
     /// <summary>
-    /// [S-3731] While a slider of the menu is dragged the selected cards here show its value (their
-    /// scale, a fill at an opacity) without storing it; null shows what they hold again.
+    /// [S-2340] The selection's page as the selection is now: its widget's own lines built again on every
+    /// change (their closures hold the config as it is now; an undo replaces it).
     /// </summary>
+    private PageModel SelectionModel()
+    {
+        var commands = SelectionCommands();
+        _widgetLines = null;
+        if (_selectionOffer.TitleWidgetId is { } id && commands.WidgetLines is { } lines)
+        {
+            try
+            {
+                var built = lines(
+                    id,
+                    ask => AskOnFlyout(new PageEdit(ask.Placeholder, ask.Initial ?? string.Empty, ask.Done)
+                    {
+                        Refuse = ask.Refuse,
+                        AllowEmpty = ask.AllowEmpty,
+                        Accept = ask.Accept,
+                        Title = ask.Title,
+                    }),
+                    confirm => _flyout?.Page.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail)));
+
+                // [S-3746] A line still reading (an account's calendars) asks to be built again once its answer has come.
+                if (built is not null)
+                {
+                    built.Outdated += () => _root.DispatcherQueue?.TryEnqueue(() =>
+                    {
+                        if (ReferenceEquals(_widgetLines, built))
+                        {
+                            SyncBarMenu();
+                        }
+                    });
+                }
+
+                _widgetLines = built;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, "a widget's lines could not be built", ex);
+            }
+        }
+
+        return SelectionRows.Of(_selectionOffer, commands, _widgetLines);
+    }
+
+    /// <summary>[S-3731] The selected cards here show a value not yet kept (a fill's opacity); null shows what they hold again.</summary>
     private void PreviewSelected(CardPreview? preview)
     {
         var selection = _host.Selection;
@@ -55,79 +95,65 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-3701] The strip shows what is selected in the view this display shows, and nothing otherwise.</summary>
+    /// <summary>
+    /// [S-2343] The selection on this display as it is now: its entry on the bar; a new selection opens its
+    /// flyout (once: closed, it stays closed for that selection); none closes it.
+    /// </summary>
     private void SyncProperties()
     {
-        _properties.ShowSelection(_host.QuickSetFor(CurrentViewId));
-        PlaceProperties();
-    }
-
-    /// <summary>[S-3710] Put the strip away while a drag or resize runs, and back where the widgets landed.</summary>
-    private void HoldProperties(bool held)
-    {
-        if (_propertiesHeld == held)
+        _selectionOffer = EditMode ? _host.QuickSetFor(CurrentViewId) : QuickSetOffer.None;
+        if (!_selectionOffer.Shows)
         {
-            return;
-        }
+            _selectionShown = null;
+            if (_selectionOpen)
+            {
+                CloseFlyout(focusEntry: false);
+            }
 
-        _propertiesHeld = held;
-        PlaceProperties();
-    }
-
-    /// <summary>
-    /// [S-3708]/[S-3710] Show the panel beside the selection's box (its end side, else its start side,
-    /// else below or above it), inside the work area and clear of the edit bar and the view bar; or
-    /// hide it: outside edit mode, while placing, while held, while an edit bar's menu is open
-    /// ([S-3523]), while the widget crumb put it away ([S-3508]), with nothing selected here.
-    /// </summary>
-    private void PlaceProperties()
-    {
-        if (_closed)
-        {
-            return;
-        }
-
-        var metrics = Metrics;
-        if (!EditMode || _host.Placing is not null || _propertiesHeld || BarMenuOpen || _propertiesDismissed || !_properties.Offer.Shows
-            || !metrics.IsUsable || SelectionBox(metrics) is not { } target)
-        {
-            _properties.Visibility = Visibility.Collapsed;
             ShowToolbar();
             return;
         }
 
-        var area = GridGeometry.AllowedPixels(metrics);
-
-        // [S-3734] Its one rectangle, no taller than the work area with a gap at either end.
-        _properties.RoomHeight = area.Height - (2 * StripPlacement.Gap);
-        _properties.Visibility = Visibility.Visible;
-        _properties.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var size = _properties.DesiredSize;
-
-        var avoid = new List<PixelRect> { ToolbarRect(area) };
-        if (ViewBarBox() is { } bar)
+        var key = string.Join(",", _host.Selection.Ids.Order(StringComparer.Ordinal));
+        if (_selectionShown != key)
         {
-            avoid.Add(bar);
+            _selectionShown = key;
+            if (_host.Placing is null && !_propertiesHeld)
+            {
+                OpenSelectionPage(focus: false);
+            }
         }
 
-        // [S-3708] Right to left, the sides mirror: the panel stands on the selection's left first.
-        var spot = StripPlacement.Place(target, size.Width, size.Height, area, avoid, UiLanguage.Flow == FlowDirection.RightToLeft);
-        Canvas.SetLeft(_properties, Math.Round(spot.X));
-        Canvas.SetTop(_properties, Math.Round(spot.Y));
         ShowToolbar();
     }
 
-    /// <summary>[S-3709] The painted box around every selected card this display shows, where it is now.</summary>
-    private PixelRect? SelectionBox(ScreenMetrics metrics)
+    /// <summary>[S-2343] A click on a widget already selected: its flyout opened again.</summary>
+    private void ReopenSelectionPage()
     {
-        var selection = _host.Selection;
-        if (selection.IsEmpty || !string.Equals(selection.ViewId, CurrentViewId, StringComparison.Ordinal))
+        if (_selectionOffer.Shows && !_selectionOpen)
         {
-            return null;
+            OpenSelectionPage(focus: false);
         }
-
-        return StripPlacement.Bounds(_cards
-            .Where(c => c.Visibility == Visibility.Visible && selection.Contains(c.Model.Id))
-            .Select(c => GridGeometry.Inset(GridGeometry.ToPixels(c.LiveRect, metrics), Design.WidgetGapPx)));
     }
+
+    /// <summary>[S-2343] The selection's entry: its flyout opened, or closed again.</summary>
+    private void ToggleSelectionPage()
+    {
+        if (_selectionOpen)
+        {
+            CloseFlyout(focusEntry: false);
+        }
+        else
+        {
+            OpenSelectionPage(focus: true);
+        }
+    }
+
+    /// <summary>[S-3710] A drag or a resize is under way: nothing opens until it ends.</summary>
+    private bool _propertiesHeld;
+
+    private void HoldProperties(bool held) => _propertiesHeld = held;
+
+    /// <summary>[S-2325] The flyout stays hung from its entry as the surface lays out again.</summary>
+    private void PlaceProperties() => PlaceFlyout();
 }

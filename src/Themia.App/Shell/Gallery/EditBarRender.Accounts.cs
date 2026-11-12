@@ -28,36 +28,33 @@ internal static partial class EditBarRender
 {
     private static async Task AccountsShots(Grid screen, string outDir, string theme)
     {
-        const string a = SettingsMenu.Keys.Accounts;
         const string add = SettingsMenu.Keys.AddAccount;
         var ms = SettingsMenu.AccountKey(RenderAccountsHost.MicrosoftId);
         var imap = SettingsMenu.AccountKey(RenderAccountsHost.ImapId);
 
-        (string Name, string[] Open, string? Click, Action<RenderAccountsHost>? Fill)[] cases =
+        (string Name, string? Open, string? Click, Action<RenderAccountsHost>? Fill)[] cases =
         [
-            ("-accounts", [a], null, null),
-            ("-account", [a, ms], null, null),
-            ("-account-again", [a, imap], null, null),
-            ("-signout", [a, ms], ms + "/signout", null),
-            ("-add", [a, add], null, null),
-            ("-signin", [a, add], add + "/microsoft", null),
-            ("-imap", [a, add, add + "/imap"], null, null),
-            ("-imap-filled", [a, add, add + "/imap"], null, FillImap),
-            ("-imap-address", [a, add, add + "/imap", add + "/imap/address"], null, null),
-            ("-imap-password", [a, add, add + "/imap", add + "/imap/password"], null, FillImap),
-            ("-imap-testing", [a, add, add + "/imap"], null, h =>
+            ("-accounts", null, null, null),
+            ("-account", ms, null, null),
+            ("-account-again", imap, null, null),
+            ("-signout", ms, ms + "/signout", null),
+            ("-add", add, null, null),
+            ("-signin", add, add + "/microsoft", null),
+            ("-imap", add + "/imap", null, null),
+            ("-imap-filled", add + "/imap", null, FillImap),
+            ("-imap-testing", add + "/imap", null, h =>
             {
                 FillImap(h);
                 h.Outcome = RenderTry.StaysOut;
                 h.Try(h.Menu.Imap, AccountTry.Test);
             }),
-            ("-imap-failed", [a, add, add + "/imap"], null, h =>
+            ("-imap-failed", add + "/imap", null, h =>
             {
                 FillImap(h);
                 h.Outcome = RenderTry.Refused;
                 h.Try(h.Menu.Imap, AccountTry.Add);
             }),
-            ("-caldav", [a, add, add + "/caldav"], null, h =>
+            ("-caldav", add + "/caldav", null, h =>
             {
                 h.Menu.CalDav.SetAddress("alex@fabrikam.example");
                 h.Menu.CalDav.SetPassword(MadeUpPassword());
@@ -71,9 +68,9 @@ internal static partial class EditBarRender
             var accounts = new RenderAccountsHost();
             fill?.Invoke(accounts);
             var host = new RenderSettingsHost { Accounts = accounts };
-            await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}{name}.png"), host, open, menu =>
+            await SettingsShot(screen, outDir, theme, "accounts" + (name == "-accounts" ? string.Empty : name), host, open, view =>
             {
-                if (click is not null && !menu.DebugClickKey(click))
+                if (click is not null && !view.DebugClick(click))
                 {
                     Console.WriteLine($"editbar: no line {click} to click");
                 }

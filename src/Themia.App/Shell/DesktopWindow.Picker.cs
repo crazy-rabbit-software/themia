@@ -292,7 +292,7 @@ internal sealed partial class DesktopWindow
             _placementHintText.Text = Str.Shell_Place_Hint.Format(("action", PlacementVerb(placing)));
             _placementHint.Visibility = Visibility.Visible;
             _toolbar.Visibility = Visibility.Collapsed;
-            CloseBarMenu(focusButton: false);
+            CloseFlyout(focusEntry: false);
             PlaceProperties();
 
             // The command was given with the pointer already somewhere: show the ghost there at once

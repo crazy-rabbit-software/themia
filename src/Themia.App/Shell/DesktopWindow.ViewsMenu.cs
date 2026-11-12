@@ -5,21 +5,14 @@ using Themia.Core.Settings;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3541] The edit bar's View menu (View ▾) on this display: the view it shows and every view's
-/// order, names and deletion, through the host's view commands. Opened and closed as every bar menu is (<see cref="OpenBarMenu"/>).
+/// [S-3541] [S-2300] The edit bar's Views page on this display: the view it shows and every view's
+/// order, names and deletion, through the host's view commands. Opened and closed as every page is (<see cref="OpenPage"/>).
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-3541] The View menu's lines, as the state holds them now.</summary>
-    private Func<IReadOnlyList<SettingsLine>> ViewsMenuLines()
-    {
-        var host = new SurfaceViewsHost(this);
-        return () => ViewsMenu.Root(host);
-    }
-
     /// <summary>
-    /// [S-3546] A view chip's View settings: that view shown here (View ▾ is the shown view's), then
-    /// View ▾ open on this display.
+    /// [S-3546] A view chip's View settings: that view shown here (the Views page is the shown view's), then
+    /// the Views page open on this display.
     /// </summary>
     private void OpenViewSettings(string viewId)
     {
@@ -28,7 +21,7 @@ internal sealed partial class DesktopWindow
             _host.ShowView(_monitor.Id, viewId);
         }
 
-        OpenBarMenu(BarMenu.View, []);
+        OpenPage(SettingsPageId.Views, []);
     }
 
     /// <summary>[S-3541] What this display's View menu reads and writes: the views, shown, made and moved through the host, for this display.</summary>
@@ -50,6 +43,6 @@ internal sealed partial class DesktopWindow
 
         public void Reorder(string viewId, string targetId) => Host.ReorderView(viewId, targetId);
 
-        public void Confirm(SettingsConfirm confirm) => surface.BarMenuOf(BarMenu.View).Confirm(confirm);
+        public void Confirm(SettingsConfirm confirm) => surface.ConfirmOnFlyout(confirm);
     }
 }

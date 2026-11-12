@@ -234,12 +234,8 @@ internal sealed partial class DesktopWindow
         _host.SettingsOutdated -= SyncBarMenu;
         _host.SuspendedChanged -= OnSuspendedForSettings;
 
-        // [S-3557] ⚙ open here closes with the surface: with the last one the accounts' forms empty.
-        if (_openBarMenu == BarMenu.Settings)
-        {
-            _openBarMenu = null;
-            SettingsMenuClosed();
-        }
+        // [S-3557] A settings page open here closes with the surface: with the last one the accounts' forms empty.
+        CloseFlyout(focusEntry: false);
 
         Strings.Changed -= OnLanguageChanged;
 

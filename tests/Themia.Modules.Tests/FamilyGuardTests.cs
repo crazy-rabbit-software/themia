@@ -276,7 +276,7 @@ public sealed partial class FamilyGuardTests
     public void S6747_the_chromes_tokens_are_the_shells_and_its_fixed_colours_have_one_file()
     {
         const string code = """
-            menu.Width = ShellMetrics.Menu.Width;
+            menu.Width = ShellMetrics.Page.ControlWide;
             frame.Background = ShellBrush.Of(ShellRole.Flyout);
             shadow.Color = ShellColours.Shadow;
             plate.Brush = compositor.CreateColorBrush(Colors.Black);
@@ -288,7 +288,7 @@ public sealed partial class FamilyGuardTests
 
         // A widget or one of the family's blocks may not draw with the chrome's tokens.
         Assert.Equal(
-            [("shell", "ShellMetrics.Menu"), ("shell", "ShellBrush.Of"), ("shell", "ShellRole.Flyout"), ("shell", "ShellColours.Shadow"), ("colour", "Colors.Black")],
+            [("shell", "ShellMetrics.Page"), ("shell", "ShellBrush.Of"), ("shell", "ShellRole.Flyout"), ("shell", "ShellColours.Shadow"), ("colour", "Colors.Black")],
             Offences("src/Widgets/Themia.Widget.Sample/SampleView.cs", code).ToList());
         Assert.Contains(("shell", "ShellRole.Flyout"), Offences("src/Themia.Sdk.WinUI/Kit/Family/RowBlock.cs", code));
 

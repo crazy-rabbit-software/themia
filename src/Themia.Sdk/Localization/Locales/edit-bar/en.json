@@ -4,7 +4,6 @@
     "editBar.selection.same",
     "editBar.page.shows",
     "editBar.page.errors",
-    "editBar.page.noResults",
     "editBar.page.found"
   ],
   "editBar.link.updateInterval": "Update interval",
@@ -15,6 +14,5 @@
   "editBar.selection.same": "{count} × {kind}",
   "editBar.page.shows": "What it shows",
   "editBar.page.errors": "Problems",
-  "editBar.page.noResults": "No results",
   "editBar.page.found": "{count} found"
 }

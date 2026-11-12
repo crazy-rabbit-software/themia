@@ -7,23 +7,23 @@ namespace Themia.Core.Tests;
 public sealed class ShellTokensTests
 {
     [Fact]
-    public void S6745_the_menu_keeps_karpos_fixed_rectangle_and_explorers_rows()
+    public void S2320_the_edit_bar_is_karpos_command_bar()
     {
-        // [S-3734] One rectangle on every level, never moving or resizing: these must not change.
-        Assert.Equal((320d, 440d), (ShellMetrics.Menu.Width, ShellMetrics.Menu.Height));
-        Assert.Equal((32d, 28d, 2d), (ShellMetrics.Menu.Pitch, ShellMetrics.Menu.Fill, ShellMetrics.Menu.FillInset));
-        Assert.Equal(4, ShellMetrics.Menu.RowInset);
-        Assert.Equal(16, ShellMetrics.Menu.RowInset + ShellMetrics.Menu.PadStart + FamilyShape.Hairline);
-        Assert.Equal((40d, 20d, 12d, 4d), (ShellMetrics.Menu.SwitchWidth, ShellMetrics.Menu.SwitchHeight, ShellMetrics.Menu.Knob, ShellMetrics.Menu.KnobInset));
-        Assert.Equal(ShellMetrics.Menu.Pitch, ShellMetrics.Menu.Fill + (2 * ShellMetrics.Menu.FillInset));
-        Assert.Equal(ShellMetrics.Menu.Width, ShellMetrics.Details.Width);
+        Assert.Equal(48, ShellMetrics.Bar.Height);
+        Assert.Equal((8d, 32d, 8d), (ShellMetrics.Bar.Pad, ShellMetrics.Bar.Control, ShellMetrics.Bar.Top));
+        Assert.Equal(40, ShellMetrics.Bar.IconOnly);
+        Assert.Equal((256d, 16d, 80d, 20d), (ShellMetrics.Bar.Selection, ShellMetrics.Bar.Gutter, ShellMetrics.Bar.DoneLeast, ShellMetrics.Bar.Divider));
     }
 
     [Fact]
-    public void S6745_the_edit_bar_is_karpos_48_tall()
+    public void S2325_a_flyout_is_580_wide_with_its_cards_inside_16_gutters_and_an_8_beak()
     {
-        Assert.Equal((36d, 6d, 48d), (ShellMetrics.EditBar.Button, ShellMetrics.EditBar.Gap, ShellMetrics.EditBar.Height));
-        Assert.Equal(20, ShellMetrics.EditBar.Divider);
+        Assert.Equal(580, ShellMetrics.Flyout.Width);
+        Assert.Equal(548, ShellMetrics.Flyout.Cards);
+        Assert.Equal((12d, 8d, 16d, 0.7), (ShellMetrics.Flyout.Gap, ShellMetrics.Flyout.BeakHeight, ShellMetrics.Flyout.BeakWidth, ShellMetrics.Flyout.MostShare));
+        Assert.Equal((48d, 60d, 16d, 48d, 16d), (ShellMetrics.Page.OneLine, ShellMetrics.Page.TwoLines, ShellMetrics.Page.IconAt, ShellMetrics.Page.NameAt, ShellMetrics.Page.EndInset));
+        Assert.Equal((24d, 8d, 4d, 4d), (ShellMetrics.Page.SectionTop, ShellMetrics.Page.HeadingGap, ShellMetrics.Page.CardGap, ShellMetrics.Page.CardRadius));
+        Assert.Equal((40d, 20d, 12d, 4d), (ShellMetrics.Page.SwitchWidth, ShellMetrics.Page.SwitchHeight, ShellMetrics.Page.Knob, ShellMetrics.Page.KnobInset));
     }
 
     [Fact]

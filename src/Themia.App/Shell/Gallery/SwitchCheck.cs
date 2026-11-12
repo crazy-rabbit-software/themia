@@ -345,10 +345,10 @@ internal static class SwitchCheck
             await Task.Delay(1000).ConfigureAwait(true);
             Say(Measure("a widget selected (its menu)", host, view));
 
-            Say(Timed("first open: Display", () => surface.OpenBarMenu(BarMenu.Display, [])));
-            Say(Timed("first open: View", () => surface.OpenBarMenu(BarMenu.View, [])));
-            Say(Timed("first open: Settings", () => surface.OpenBarMenu(BarMenu.Settings, [])));
-            Say(Timed("first open: Settings › Appearance", () => surface.OpenBarMenu(BarMenu.Settings, [Core.Settings.SettingsMenu.Keys.Appearance])));
+            Say(Timed("first open: Display", () => surface.OpenPage(Core.Settings.SettingsPageId.Display, [])));
+            Say(Timed("first open: View", () => surface.OpenPage(Core.Settings.SettingsPageId.Views, [])));
+            Say(Timed("first open: General", () => surface.OpenPage(Core.Settings.SettingsPageId.General, [])));
+            Say(Timed("first open: Appearance", () => surface.OpenPage(Core.Settings.SettingsPageId.Appearance, [])));
             await Task.Delay(1000).ConfigureAwait(true);
             Say(Measure("every bar menu opened", host, view));
 
@@ -358,7 +358,7 @@ internal static class SwitchCheck
 
             host.SetEditMode(true);
             await Task.Delay(500).ConfigureAwait(true);
-            Say(Timed("open again after Done: Settings", () => surface.OpenBarMenu(BarMenu.Settings, [])));
+            Say(Timed("open again after Done: General", () => surface.OpenPage(Core.Settings.SettingsPageId.General, [])));
             host.SetEditMode(false);
             await Task.Delay(1500).ConfigureAwait(true);
             Say(Measure("after Done again", host, view));

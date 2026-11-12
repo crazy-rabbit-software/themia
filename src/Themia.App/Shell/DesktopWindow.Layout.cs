@@ -71,8 +71,7 @@ internal sealed partial class DesktopWindow
 
         DrawGroupFrames();
 
-        // [S-3508] A new selection brings its properties menu back beside it.
-        _propertiesDismissed = false;
+        // [S-2343] A new selection: its entry on the bar, its flyout opened once.
         SyncProperties();
         ShowToolbar();
     }
@@ -97,7 +96,6 @@ internal sealed partial class DesktopWindow
                 _toolbar.Fill(ToolbarCommands());
             }
 
-            _propertiesDismissed = false;
             SyncProperties();
             ShowToolbar();
         }
@@ -257,7 +255,6 @@ internal sealed partial class DesktopWindow
         ApplyChromeInsets();
         RefreshViewBar();
         PlaceProperties();
-        PlaceBarMenu();
         ApplyHitRegion();
 
         if (EditMode)

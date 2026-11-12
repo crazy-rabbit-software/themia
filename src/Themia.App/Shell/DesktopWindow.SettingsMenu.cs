@@ -9,26 +9,13 @@ using Themia.Sdk;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3520] The edit bar's settings menu (⚙) on this display: its lines, what they read and write,
-/// and what it follows of Windows while it is open. Opened and closed as every bar menu is
-/// (<see cref="OpenBarMenu"/>).
+/// [S-2300] [S-3534] The edit bar's settings pages on this display (General, Accounts, Appearance): what
+/// they read and write, what they follow of Windows while one is open, and every way into them, which
+/// lands on its row (page and row, the row lit for a moment). Opened and closed as every page is
+/// (<see cref="OpenPage"/>).
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-3524] The settings menu's lines, as the state and Windows hold them now.</summary>
-    private Func<IReadOnlyList<SettingsLine>> SettingsMenuLines()
-    {
-        var host = new SurfaceSettingsHost(this);
-        return () => PagesAsMenu(host);
-    }
-
-    /// <summary>The settings pages' sections as the old menu's submenus, until the pages have their own flyouts.</summary>
-    internal static IReadOnlyList<SettingsLine> PagesAsMenu(ISettingsMenuHost host) =>
-    [
-        .. new[] { SettingsPages.General(host), SettingsPages.Accounts(host), SettingsPages.Appearance(host) }
-            .SelectMany(p => p.Sections.Select(s => (SettingsLine)new SettingsSubmenu(s.Key == "page" ? p.Id.ToString() : s.Key, s.Heading ?? p.Name, null, s.Lines))),
-    ];
-
     /// <summary>
     /// [S-3525] What Windows owns is read now and followed while the menu is open; [S-3559] so are
     /// the accounts and their numbers.
@@ -45,25 +32,37 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-3573] [S-3558] Edit mode entered and ⚙ open on this display at <paramref name="path"/> (the
-    /// lines' keys): where "See plans" and a widget's way to its accounts land. Whether it opened.
+    /// [S-3573] [S-3558] [S-3534] Edit mode entered and the settings page that holds the row
+    /// <paramref name="key"/> open on this display at it (its section's key opens it at the section): where
+    /// "See plans" and a widget's way to its accounts land. Whether it opened.
     /// </summary>
-    public bool RequestSettings(IReadOnlyList<string> path)
+    public bool RequestSettings(string key)
     {
+        ArgumentNullException.ThrowIfNull(key);
         if (_closed)
         {
             return false;
         }
 
         _host.SetEditMode(true);
-        OpenBarMenu(BarMenu.Settings, path);
-        return BarMenuOpen;
+        var host = new SurfaceSettingsHost(this);
+        foreach (var page in new[] { SettingsPages.General(host), SettingsPages.Accounts(host), SettingsPages.Appearance(host) })
+        {
+            if (SettingsPages.PathTo(page, key) is { } path)
+            {
+                OpenPage(page.Id, path);
+                return _openPage == page.Id;
+            }
+        }
+
+        Core.Diagnostics.Log.Warn(Scope, $"no settings page holds '{key}'");
+        return false;
     }
 
     /// <summary>
     /// [S-66] Themia started again by hand: this display's surface takes the foreground (the copy
-    /// that stood down handed it the right) and ⚙ opens at its first level, the keyboard in it; ⚙
-    /// already open closes its submenus. Reached from the command window's message.
+    /// that stood down handed it the right) and the General page opens at its top, the keyboard in it; one
+    /// already open starts again at its top. Reached from the command window's message.
     /// </summary>
     internal void OpenSettingsOnStart()
     {
@@ -79,12 +78,14 @@ internal sealed partial class DesktopWindow
                 Core.Diagnostics.Log.Info(Scope, "could not take the foreground for the settings menu; typing will not reach it");
             }
 
-            if (_openBarMenu == BarMenu.Settings)
+            if (_openPage == SettingsPageId.General)
             {
-                BarMenuOf(BarMenu.Settings).ShowRoot();
+                CloseFlyout(focusEntry: false);
             }
 
-            if (!RequestSettings([]))
+            _host.SetEditMode(true);
+            OpenPage(SettingsPageId.General, []);
+            if (_openPage != SettingsPageId.General)
             {
                 Core.Diagnostics.Log.Warn(Scope, "Themia was started again, but the settings menu did not open");
             }
@@ -100,15 +101,7 @@ internal sealed partial class DesktopWindow
     /// [S-3576] ⚙ open at <paramref name="path"/> on this display, for a question asked once Windows'
     /// dialog has gone (an import's): opened again where it was closed meanwhile. Whether it is open.
     /// </summary>
-    private bool SettingsOpenAt(IReadOnlyList<string> path)
-    {
-        if (_openBarMenu != BarMenu.Settings)
-        {
-            OpenBarMenu(BarMenu.Settings, path);
-        }
-
-        return _openBarMenu == BarMenu.Settings;
-    }
+    private bool SettingsOpenAt(string key) => _openPage == SettingsPageId.General || RequestSettings(key);
 
     /// <summary>[S-3572] [S-3576] This display's window: what the Store's dialog and Windows' file dialogs are owned by.</summary>
     private Microsoft.UI.WindowId WindowId => Microsoft.UI.Win32Interop.GetWindowIdFromWindow(_hwnd);
@@ -125,10 +118,14 @@ internal sealed partial class DesktopWindow
             return false;
         }
 
-        string[] path = (AppServices.Accounts?.Accounts.Count ?? 0) == 0
-            ? [SettingsMenu.Keys.Accounts, SettingsMenu.Keys.AddAccount]
-            : [SettingsMenu.Keys.Accounts];
-        return RequestSettings(path);
+        if ((AppServices.Accounts?.Accounts.Count ?? 0) == 0)
+        {
+            return RequestSettings(SettingsMenu.Keys.AddAccount);
+        }
+
+        _host.SetEditMode(true);
+        OpenPage(SettingsPageId.Accounts, []);
+        return _openPage == SettingsPageId.Accounts;
     }
 
     /// <summary>
@@ -142,8 +139,8 @@ internal sealed partial class DesktopWindow
         return link.Setting switch
         {
             OwnedSetting.Accounts => RequestAccounts(),
-            OwnedSetting.OnlineUpdates => RequestSettings(link.Cadence is { } row ? [SettingsMenu.Keys.Online, SettingsMenu.Keys.Online + "/" + row.Id.Value] : [SettingsMenu.Keys.Online]),
-            _ => RequestSettings([SettingsMenu.Keys.Language, SettingsMenu.Keys.Format(link.Setting)]),
+            OwnedSetting.OnlineUpdates => RequestSettings(link.Cadence is { } row ? SettingsMenu.Keys.Online + "/" + row.Id.Value : SettingsMenu.Keys.Online),
+            _ => RequestSettings(SettingsMenu.Keys.Format(link.Setting)),
         };
     }
 
@@ -186,7 +183,7 @@ internal sealed partial class DesktopWindow
 
         public void SetLanguage(AppLanguage language) => Host.SetLanguage(language);
 
-        public void Confirm(SettingsConfirm confirm) => surface.BarMenuOf(BarMenu.Settings).Confirm(confirm);
+        public void Confirm(SettingsConfirm confirm) => surface.ConfirmOnFlyout(confirm);
 
         public void Quit() => Host.RequestExit();
 
@@ -223,7 +220,7 @@ internal sealed partial class DesktopWindow
         public void Import() => Host.Backup.Import(surface.WindowId, confirm =>
         {
             // Asked beside this display's menu, open again at Back up & reset if it closed meanwhile.
-            if (surface.SettingsOpenAt([SettingsMenu.Keys.Backup]))
+            if (surface.SettingsOpenAt(SettingsMenu.Keys.Backup))
             {
                 Confirm(confirm);
             }

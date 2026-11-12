@@ -42,10 +42,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly SnapGridOverlay _gridOverlay;
     private readonly EditBar _toolbar;
 
-    /// <summary>[S-3707] The selected widgets' properties strip, on its own layer over the cards and under the edit bar.</summary>
-    private readonly PropertiesStrip _properties;
-
-    private readonly Canvas _propertiesLayer = new();
 
     private readonly Border _placementHint;
     private readonly TextBlock _placementHintText;
@@ -89,8 +85,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _gridOverlay = new SnapGridOverlay { Visibility = Visibility.Collapsed };
 
         _toolbar = BuildToolbar();
-        _properties = BuildProperties();
-        _propertiesLayer.Children.Add(_properties);
 
         // [S-906] The view bar sits on its own layer, over the widgets and under the toolbar.
         _viewBar = new ViewBar(this) { Visibility = Visibility.Collapsed };
@@ -110,7 +104,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = Themia.Sdk.WinUI.Kit.Family.Brush(Themia.Sdk.Kit.ColourRole.Clear),
-            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _groupFrames.Halos, _groupFrames.Inks, _barLayer, _ghostLayer, _propertiesLayer, _toolbar, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _groupFrames.Halos, _groupFrames.Inks, _barLayer, _ghostLayer, _toolbar, _flyoutLayer, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.
@@ -302,10 +296,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     }
 
     /// <summary>
-    /// [S-1862] Set up goes where the missing piece is set: ⚙ › Accounts when an account is all
-    /// the widget lacks ([S-3558]); otherwise edit mode, the widget selected alone and its properties menu opened
-    /// at the line its module names (<see cref="PropertiesStrip.OpenSetup"/>), or the menu as it
-    /// stands where it names none.
+    /// [S-1862] Set up goes where the missing piece is set: the Accounts page when an account is all
+    /// the widget lacks ([S-3558]); otherwise edit mode, the widget selected alone and its page opened
+    /// at the row its module names, or the page as it stands where it names none.
     /// </summary>
     public void RequestSetup(WidgetCard card)
     {
@@ -319,10 +312,10 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         }
 
         _host.SetEditMode(true);
-        CloseBarMenu(focusButton: false);
         _host.Select(id);
         SyncProperties();
-        if (!_properties.OpenSetup())
+        OpenSelectionPage(focus: false);
+        if (_flyout is not { } flyout || !flyout.Page.OpenSetup())
         {
             Log.Debug(Scope, $"widget '{id}' ({card.Model.Kind}) names no setup line; its menu stands as it is");
         }
@@ -349,7 +342,13 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             ? Themia.Core.Desktop.DesktopBackground.RemovesFromView([card.Model.Config])
             : Themia.Core.Desktop.DesktopBackground.RemovesFromView(view.Widgets.Where(w => _host.Selection.Contains(w.Id)).Select(w => w.Config));
 
-    public void RequestSelect(WidgetCard card) => _host.Select(card.Model.Id);
+    public void RequestSelect(WidgetCard card)
+    {
+        _host.Select(card.Model.Id);
+
+        // [S-2343] A click on the widget again opens its page again.
+        ReopenSelectionPage();
+    }
 
     public void RequestToggleSelect(WidgetCard card) => _host.ToggleSelect(card.Model.Id);
 

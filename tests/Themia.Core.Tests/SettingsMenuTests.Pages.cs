@@ -118,23 +118,32 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S2304_a_section_parts_into_cards_at_its_breaks_and_headings()
+    public void S2304_each_row_is_a_card_with_its_notes_a_choices_options_and_a_lists_things_share_one()
     {
+        static void Nothing()
+        {
+        }
+
         SettingsLine[] lines =
         [
             new SettingsSeparator("-0"),
-            new SettingsNote("a", "a"),
-            new SettingsNote("b", "b"),
+            new SettingsToggle("a", "a", null, true, _ => { }),
+            new SettingsNote("a/why", "why"),
+            new SettingsCommand("b", "b", null, Nothing),
+            new SettingsRadio("r1", "1", true, Nothing),
+            new SettingsRadio("r2", "2", false, Nothing),
+            new SettingsItem("i1", "1", null, []),
+            new SettingsItem("i2", "2", null, []),
             new SettingsSeparator("-1"),
-            new SettingsSeparator("-2"),
             new SettingsHeading("h", "H"),
-            new SettingsNote("c", "c"),
-            new SettingsSeparator("-3"),
+            new SettingsCommand("c", "c", null, Nothing),
+            new SettingsCommand("d", "d", null, Nothing),
+            new SettingsSeparator("-2"),
         ];
 
         var cards = SettingsRows.Cards(lines);
 
-        Assert.Equal([["a", "b"], ["h", "c"]], cards.Select(c => c.Select(l => l.Key).ToArray()));
+        Assert.Equal([["a", "a/why"], ["b"], ["r1", "r2"], ["i1", "i2"], ["h", "c", "d"]], cards.Select(c => c.Select(l => l.Key).ToArray()));
     }
 
     [Fact]

@@ -3,94 +3,76 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.Core.Geometry;
-using Windows.Foundation;
+using Themia.Core.Settings;
+using Windows.System;
 
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3520]..[S-3523] The edit bar's drop-down menus on this display, one mechanism for every one of
-/// them (<see cref="BarMenu"/>): each opens under its button, at most one at a time, and closes on its
-/// button again, Escape, a press elsewhere on the surface, another of the bar's menus opening, a
-/// placement or leaving edit mode; the selection's properties menu is away while one is open.
+/// [S-2325]..[S-2327] The edit bar's flyouts on this display, one mechanism for every one of them: a page's
+/// entry, or the selection's, opens its flyout hung from it; one open at a time; it closes on its entry
+/// again, Escape (after going back out of what it opened), a press anywhere that is not the bar or the
+/// flyout, the add menu opening, a placement, and leaving edit mode. Nothing is open as edit mode starts.
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>
-    /// [S-3520] The bar's menus, each built as it first opens, on the properties' layer (over the
-    /// cards, under the edit bar); [S-3593] dropped as edit mode ends.
-    /// </summary>
-    private readonly Dictionary<BarMenu, BarMenuView> _barMenus = [];
+    /// <summary>[S-2325] The flyouts' layer: over the cards and the edit bar, after it in the keyboard's order.</summary>
+    private readonly Canvas _flyoutLayer = new();
 
-    /// <summary>[S-3521] The bar's menu open on this display, if any: one at a time.</summary>
-    private BarMenu? _openBarMenu;
+    /// <summary>The open flyout, if any.</summary>
+    private PageFlyout? _flyout;
 
-    /// <summary>[S-3520] Whether one of the edit bar's menus is open on this display.</summary>
-    internal bool BarMenuOpen => _openBarMenu is not null;
+    /// <summary>The page whose flyout is open; null with the selection's open or none.</summary>
+    private SettingsPageId? _openPage;
 
-    /// <summary>The open menu, if any.</summary>
-    private BarMenuView? OpenBarMenuView => _openBarMenu is { } open ? _barMenus[open] : null;
+    /// <summary>[S-2343] The selection's flyout is open.</summary>
+    private bool _selectionOpen;
 
-    /// <summary>[S-3520] One of the bar's menus: built and put on the properties' layer, hidden, as it is first asked for.</summary>
-    private BarMenuView BarMenuOf(BarMenu which)
+    /// <summary>[S-2327] Whether one of the edit bar's flyouts is open on this display.</summary>
+    internal bool BarMenuOpen => _flyout is not null;
+
+    /// <summary>[S-2300] A page's rows, as the state and Windows hold them now.</summary>
+    private Func<PageModel> PageOf(SettingsPageId page)
     {
-        if (_barMenus.TryGetValue(which, out var built))
+        var settings = new SurfaceSettingsHost(this);
+        var display = new SurfaceDisplayHost(this);
+        var views = new SurfaceViewsHost(this);
+        return page switch
         {
-            return built;
-        }
-
-        var lines = which switch
-        {
-            BarMenu.View => ViewsMenuLines(),
-            BarMenu.Display => DisplayMenuLines(),
-            _ => SettingsMenuLines(),
+            SettingsPageId.General => () => PageRows.Of(SettingsPages.General(settings), AskOnFlyout),
+            SettingsPageId.Accounts => () => PageRows.Of(SettingsPages.Accounts(settings), AskOnFlyout),
+            SettingsPageId.Display => () => PageRows.Of(SettingsPages.Display(display), AskOnFlyout),
+            SettingsPageId.Views => () => PageRows.Of(SettingsPages.Views(views), AskOnFlyout),
+            _ => () => PageRows.Of(SettingsPages.Appearance(settings), AskOnFlyout),
         };
-        var menu = new BarMenuView(which.ToString(), lines, () => CloseBarMenu(focusButton: true));
-        UiLanguage.ApplyFlow(menu);
-
-        // Its real height arrives with layout (a submenu's words in the current language): place it again.
-        menu.SizeChanged += (_, _) => PlaceBarMenu();
-        _barMenus[which] = menu;
-        _propertiesLayer.Children.Add(menu);
-        return menu;
     }
 
-    /// <summary>
-    /// [S-3593] Edit mode ended: the bar's menus, the properties menu's rows and the bar's buttons
-    /// (with the add menu) are dropped, what they drew with them; each is built again as it is next
-    /// needed. Only what is cheap stays: the surface's layers and the bar's frame.
-    /// </summary>
-    private void ReleaseEditMenus()
-    {
-        CloseBarMenu(focusButton: false);
-        foreach (var menu in _barMenus.Values)
-        {
-            _propertiesLayer.Children.Remove(menu);
-        }
+    /// <summary>[S-3736] A line of text asked on a page of its own in the open flyout.</summary>
+    private void AskOnFlyout(PageEdit edit) => _flyout?.Page.Ask(edit);
 
-        _barMenus.Clear();
-        _properties.Release();
-        _toolbar.Release();
-    }
+    /// <summary>[S-3737] An "are you sure?" on a page of its own in the open flyout.</summary>
+    private void ConfirmOnFlyout(SettingsConfirm confirm)
+        => _flyout?.Page.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
 
-    /// <summary>[S-3521] A menu's button opens it, or closes it again; another menu open closes first.</summary>
-    private void ToggleBarMenu(BarMenu which)
+    /// <summary>[S-2327] A page's entry opens its flyout, or closes it again; another open closes first.</summary>
+    private void TogglePage(SettingsPageId page)
     {
-        if (_openBarMenu == which)
+        if (_openPage == page)
         {
-            CloseBarMenu(focusButton: false);
+            CloseFlyout(focusEntry: false);
         }
         else
         {
-            OpenBarMenu(which, []);
+            OpenPage(page, []);
         }
     }
 
     /// <summary>
-    /// [S-3520] [S-3534] Open one of the bar's menus under its button on this display, at
-    /// <paramref name="path"/> (the lines' keys; empty for its first level), the keyboard in it. Only
-    /// in edit mode and not while placing: the bar is not there otherwise. Another menu open closes.
+    /// [S-2327] [S-3534] Open a page's flyout on this display at the row along <paramref name="path"/> (a
+    /// section's key, then the rows'; empty for its top), the keyboard in it. Only in edit mode and not
+    /// while placing: the bar is not there otherwise.
     /// </summary>
-    internal void OpenBarMenu(BarMenu which, IReadOnlyList<string> path)
+    internal void OpenPage(SettingsPageId page, IReadOnlyList<string> path)
     {
         ArgumentNullException.ThrowIfNull(path);
         if (_closed || !EditMode || _host.Placing is not null)
@@ -98,123 +80,172 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        if (_openBarMenu is { } other && other != which)
+        if (_openPage != page)
         {
-            CloseBarMenu(focusButton: false);
+            CloseFlyout(focusEntry: false);
+            Show(new PageView(PageOf(page)));
+            _openPage = page;
+            if (page is SettingsPageId.General or SettingsPageId.Accounts)
+            {
+                SettingsMenuOpened();
+            }
         }
 
-        var menu = BarMenuOf(which);
-        if (_openBarMenu is null)
+        _flyout!.Page.Show();
+        ShowToolbar();
+        PlaceFlyout();
+        if (path.Count > 0 ? !_flyout.Page.Open(path) : !_flyout.Page.FocusFirst())
         {
-            // [S-3523] One menu at a time: the selection's goes away (the selection stays) and comes back on close.
-            _properties.ShowRoot();
-            _openBarMenu = which;
-            menu.Visibility = Visibility.Visible;
-            _toolbar.MenuOpen(which);
-            PlaceProperties();
-            BarMenuOpened(which);
+            Core.Diagnostics.Log.Debug(Scope, $"the {page} page opened, but not at '{string.Join('/', path)}'");
         }
 
-        menu.Show();
-        _root.UpdateLayout();
-        PlaceBarMenu();
-
-        // [S-3520] The keyboard goes into it, on its first line or the deepest level opened.
-        if (path.Count > 0 ? !menu.Open(path, focus: true) : !menu.FocusFirst())
-        {
-            Core.Diagnostics.Log.Debug(Scope, $"the {which} menu opened, but not at '{string.Join('/', path)}'");
-        }
+        PlaceFlyout();
     }
 
-    /// <summary>[S-3521] Close the open menu; the keyboard back on its button where it was closed from the keyboard.</summary>
-    private void CloseBarMenu(bool focusButton)
+    /// <summary>[S-2343] The selection's flyout: its page built over the selection as it is now.</summary>
+    private void OpenSelectionPage(bool focus)
     {
-        if (_openBarMenu is not { } which)
+        if (_closed || !EditMode || _host.Placing is not null || !_selectionOffer.Shows)
         {
             return;
         }
 
-        _openBarMenu = null;
-        _barMenus[which].Visibility = Visibility.Collapsed;
-        BarMenuClosed(which);
-        _toolbar.MenuOpen(null);
-        PlaceProperties();
-
-        if (focusButton)
+        if (!_selectionOpen)
         {
-            _toolbar.FocusMenu(which);
+            CloseFlyout(focusEntry: false);
+            Show(new PageView(SelectionModel));
+            _selectionOpen = true;
+        }
+
+        _flyout!.Page.Show();
+        ShowToolbar();
+        PlaceFlyout();
+        if (focus && !_flyout.Page.FocusFirst())
+        {
+            Core.Diagnostics.Log.Debug(Scope, "the selection's page opened with nothing to focus");
         }
     }
 
-    /// <summary>What a menu follows only while it is open starts (the settings menu: what Windows owns).</summary>
-    private void BarMenuOpened(BarMenu which)
+    /// <summary>The flyout of <paramref name="page"/> put on its layer.</summary>
+    private void Show(PageView page)
     {
-        if (which == BarMenu.Settings)
-        {
-            SettingsMenuOpened();
-        }
+        UiLanguage.ApplyFlow(page);
+        _flyout = new PageFlyout(page);
+        _flyout.KeyDown += OnFlyoutKey;
+        page.SizeChanged += (_, _) => PlaceFlyout();
+        _flyoutLayer.Children.Add(_flyout);
     }
 
-    /// <summary>What a menu followed while it was open stops.</summary>
-    private void BarMenuClosed(BarMenu which)
+    /// <summary>[S-2327] Close the open flyout; the keyboard back on its entry where it was closed from the keyboard.</summary>
+    private void CloseFlyout(bool focusEntry)
     {
-        if (which == BarMenu.Settings)
+        if (_flyout is not { } flyout)
+        {
+            return;
+        }
+
+        var page = _openPage;
+        var selection = _selectionOpen;
+        flyout.Page.Close();
+        _flyoutLayer.Children.Remove(flyout);
+        _flyout = null;
+        _openPage = null;
+        _selectionOpen = false;
+        if (page is SettingsPageId.General or SettingsPageId.Accounts)
         {
             SettingsMenuClosed();
         }
-    }
 
-    /// <summary>[S-3531] The open menu shows the state as it is now (an undo, an import, another display's change).</summary>
-    private void SyncBarMenu()
-    {
-        if (!_closed && OpenBarMenuView is { } menu)
+        ShowToolbar();
+        if (focusEntry)
         {
-            menu.Show();
-            PlaceBarMenu();
-        }
-    }
-
-    /// <summary>[S-3531] A language switch: the open menu's words in the new language; the keys stay, so what is open stays open.</summary>
-    private void RebuildBarMenu()
-    {
-        if (OpenBarMenuView is { } menu)
-        {
-            menu.Show(rebuild: true);
-            PlaceBarMenu();
+            _toolbar.FocusEntry(selection ? null : page);
         }
     }
 
     /// <summary>
-    /// [S-3521] A press anywhere on the surface outside the open menu (and not on one of the bar's
-    /// menu buttons, whose click toggles or swaps it) closes it, and the press goes on to do what it
-    /// does: a click on a widget selects it. Seen with the presses the cards and the bars handle too.
+    /// [S-3593] Edit mode ended: the open flyout and the bar's buttons (with the add menu) are dropped;
+    /// each is built again as it is next needed.
+    /// </summary>
+    private void ReleaseEditMenus()
+    {
+        CloseFlyout(focusEntry: false);
+        _selectionShown = null;
+        _toolbar.Release();
+    }
+
+    /// <summary>[S-3531] The open flyout shows the state as it is now (an undo, an import, another display's change).</summary>
+    private void SyncBarMenu()
+    {
+        if (!_closed && _flyout is { } flyout)
+        {
+            flyout.Page.Show();
+            PlaceFlyout();
+        }
+    }
+
+    /// <summary>[S-3531] A language switch: the open flyout's words in the new language; the keys stay, so what is open stays open.</summary>
+    private void RebuildBarMenu() => SyncBarMenu();
+
+    /// <summary>
+    /// [S-2327] A press anywhere on the surface that is not the bar or the open flyout closes it, and the
+    /// press goes on to do what it does: a click on a widget selects it.
     /// </summary>
     private void OnPressForBarMenu(object sender, PointerRoutedEventArgs e)
     {
-        if (OpenBarMenuView is not { } menu || e.OriginalSource is not DependencyObject source)
+        if (_flyout is not { } flyout || e.OriginalSource is not DependencyObject source)
         {
             return;
         }
 
         for (var node = source; node is not null; node = VisualTreeHelper.GetParent(node))
         {
-            if (ReferenceEquals(node, menu) || _toolbar.IsMenuButton(node))
+            if (ReferenceEquals(node, flyout) || ReferenceEquals(node, _toolbar))
             {
                 return;
             }
         }
 
-        CloseBarMenu(focusButton: false);
+        CloseFlyout(focusEntry: false);
     }
 
-    /// <summary>
-    /// [S-3522] Under its button: its start edge level with the button's, 4 DIPs under the bar, inside
-    /// the work area, clear of the view bar (<see cref="DropDownPlacement"/>); [S-3734] its one
-    /// rectangle no taller than the work area under the bar.
-    /// </summary>
-    private void PlaceBarMenu()
+    /// <summary>[S-2327] Escape goes back out of what the flyout opened, then closes it; Page Up / Down, Home and End scroll it.</summary>
+    private void OnFlyoutKey(object sender, KeyRoutedEventArgs e)
     {
-        if (_closed || _openBarMenu is not { } which)
+        if (_flyout is not { } flyout)
+        {
+            return;
+        }
+
+        switch (e.Key)
+        {
+            case VirtualKey.Escape:
+                if (!flyout.Page.Back())
+                {
+                    CloseFlyout(focusEntry: true);
+                }
+
+                e.Handled = true;
+                break;
+            case VirtualKey.PageUp or VirtualKey.PageDown or VirtualKey.Home or VirtualKey.End when !TextHasFocus():
+                e.Handled = flyout.Scroll(e.Key);
+                break;
+        }
+    }
+
+    /// <summary>[S-2327] Down from the bar: the keyboard into the open flyout.</summary>
+    private void FocusFlyout()
+    {
+        if (_flyout is { } flyout && !flyout.Page.FocusFirst())
+        {
+            Core.Diagnostics.Log.Debug(Scope, "the open flyout has nothing to focus");
+        }
+    }
+
+    /// <summary>[S-2325] Hung from its entry: centred on it, 12 under the bar, inside the work area, as tall as its page up to 70 % of it.</summary>
+    private void PlaceFlyout()
+    {
+        if (_closed || _flyout is not { } flyout)
         {
             return;
         }
@@ -225,24 +256,9 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var menu = BarMenuOf(which);
         var area = GridGeometry.AllowedPixels(metrics);
         var bar = ToolbarRect(area);
-        var bars = new List<PixelRect> { bar };
-        if (ViewBarBox() is { } viewBar)
-        {
-            bars.Add(viewBar);
-        }
-
-        var button = _toolbar.MenuButtonBox(which, _propertiesLayer) ?? new PixelRect(bar.X + bar.Width - (2 * EditBar.ButtonSize), bar.Y, EditBar.ButtonSize, bar.Height);
-
-        // [S-3540] [S-918] [S-3734] The menu's one height, no taller than the work area under the bar: a long level scrolls inside.
-        menu.RoomHeight = DropDownPlacement.Room(bar, area);
-        menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var size = menu.DesiredSize;
-
-        var (x, y) = DropDownPlacement.Place(button, bar, size.Width, size.Height, area, bars);
-        Canvas.SetLeft(menu, Math.Round(x));
-        Canvas.SetTop(menu, Math.Round(y));
+        var entry = _toolbar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new PixelRect(bar.X, bar.Y, bar.Width, bar.Height);
+        flyout.Place(FlyoutPlacement.Place(entry, bar, area, flyout.ContentHeight));
     }
 }

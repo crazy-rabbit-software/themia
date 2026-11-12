@@ -55,7 +55,7 @@ internal sealed partial class AppHost
         }
 
         LicenceMenu.Refusal = refusal;
-        surface.RequestSettings([Themia.Core.Settings.SettingsMenu.Keys.Pro]);
+        surface.RequestSettings(Themia.Core.Settings.SettingsMenu.Keys.Pro);
     }
 
     /// <summary>[S-1065] The paste gate: what the paste adds once a cut's original is gone.</summary>

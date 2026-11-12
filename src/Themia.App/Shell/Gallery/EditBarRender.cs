@@ -11,6 +11,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -20,26 +21,15 @@ using Windows.Graphics;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-3506] Debug only: draw the real edit bar ([S-3500]) at the top centre of a stand-in display,
-/// off-screen, to PNGs. <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark]</c> writes
-/// <c>editbar-&lt;theme&gt;.png</c> (snap on), <c>editbar-&lt;theme&gt;-snapoff.png</c>,
-/// <c>editbar-&lt;theme&gt;-add.png</c> (the add menu open under Add widget, as the flyout hangs) and
-/// <c>editbar-&lt;theme&gt;-placing.png</c> (the placement line in the bar's place), and [S-3713]
-/// the properties panel on a stand-in display with real cards in edit mode:
-/// <c>props-&lt;theme&gt;-right.png</c> (a widget in the middle, of its own item colour),
-/// <c>-left.png</c> (a widget at the right edge), <c>-below.png</c> (a widget spanning the width),
-/// <c>-many.png</c> (three of mixed headers), <c>-toggle.png</c> (no Header choice) and
-/// <c>-hidden.png</c> (header hidden, beside the same widget with one), [S-6569] <c>-fills.png</c>
-/// (backgrounds Default, Transparent and a colour at 50 %, item backgrounds Default, Transparent and
-/// a colour), <c>-noitems.png</c> (a stopwatch's Appearance: no item lines) and
-/// <c>-picker.png</c> (Appearance › Background open: Transparent and the opacity), [S-6586]
-/// <c>-align.png</c> (a clock aligned right), <c>-alignmany.png</c> (a clock and a quote of different
-/// alignments) and <c>-alignstyle.png</c> (the moon's month: no Alignment line), and the submenus
-/// open along a path (<c>-countdown-appearance.png</c>, a countdown's Appearance;
-/// <c>-many-appearance.png</c>, several; the searches with few and many answers; [S-1862]
-/// <c>-setup-*.png</c>, the menu as the Set up button opens it; [S-3724]..[S-3730]
-/// <c>-vocabulary*.png</c>, one line of each kind on a stand-in widget) — all over a busy
-/// stand-in wallpaper, so the panel's surface is judged against one ([S-3715]).
+/// [S-2328] Debug only: draw the real edit bar ([S-2320]) and its flyouts off-screen to PNGs.
+/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|select]</c> writes the bar
+/// (<c>editbar-&lt;theme&gt;.png</c>: nothing selected; <c>-widget</c>, one widget; <c>-many</c>, two of a kind;
+/// <c>-mixed</c>, three of several; <c>-errors</c>, the problems' button; <c>-open</c>, General's entry lit;
+/// <c>-narrow</c> and <c>-narrowest</c>, 900- and 640-wide displays; <c>-add</c>, the add menu; <c>-placing</c>,
+/// the placement line), every page's flyout hung from its entry and its pickers opened
+/// (<c>page-&lt;theme&gt;-&lt;page&gt;[-…].png</c>), and the selection's page beside real cards
+/// (<c>select-&lt;theme&gt;-….png</c>), over a busy stand-in wallpaper; and the edit markers (<c>marks-…</c>).
+/// Stand-in hosts: nothing reaches Windows or the user's state.
 /// </summary>
 internal static partial class EditBarRender
 {
@@ -47,11 +37,8 @@ internal static partial class EditBarRender
     private const string Flag = "--editbar-png";
 
     private const double ScreenWidth = 1280;
-    private const double ScreenHeight = 140;
+    private const double ScreenHeight = 64;
     private const double OpenHeight = 900;
-
-    /// <summary>[S-3713] The stand-in display the strip is drawn on.</summary>
-    private const double PropsHeight = 560;
 
     /// <summary>
     /// The <c>--theme</c> of this render or of <c>--picker-png</c> / <c>--viewbar-png</c> / <c>--menu-png</c>, read before the app's resources
@@ -92,13 +79,23 @@ internal static partial class EditBarRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark]");
+            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|select]");
             app.Exit();
             return true;
         }
 
         var outDir = System.IO.Path.GetFullPath(args[at + 1]);
         var theme = app.RequestedTheme == ApplicationTheme.Light ? "light" : "dark";
+        var only = Option(args, "--only");
+
+        // What went wrong while drawing is said with the pictures.
+        Log.AddSink(static record =>
+        {
+            if (record.Level >= LogLevel.Warn)
+            {
+                Console.WriteLine($"editbar: {record.Level} {record.Scope}: {record.Message} {record.Detail}");
+            }
+        });
 
         _ = dispatcher.TryEnqueue(async () =>
         {
@@ -117,7 +114,7 @@ internal static partial class EditBarRender
                     HorizontalAlignment = HorizontalAlignment.Left,
                     VerticalAlignment = VerticalAlignment.Top,
 
-                    // A stand-in wallpaper: the bar's acrylic over a flat tint.
+                    // A stand-in wallpaper: the bar over a flat tint.
                     Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
                 };
 
@@ -132,52 +129,26 @@ internal static partial class EditBarRender
                 window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((OpenHeight + 80) * scale)));
                 window.AppWindow.Show(activateWindow: false);
 
-                // [S-3535] --only settings: the settings menu's pictures alone; [S-3548] --only bar the View and Display menus'.
-                switch (Option(args, "--only"))
+                if (only is null or "bar")
                 {
-                    case "settings":
-                        await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
-                        return;
-                    case "bar":
-                        await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
-                        return;
+                    await BarShots(screen, outDir, theme).ConfigureAwait(true);
                 }
 
-                // [S-3507] [S-3509] The bar: nothing selected (no widget crumb), a step to undo and none
-                // to redo; snap off; one widget selected (its crumb, lit while its menu stands beside
-                // it); several; both steps live and none; long names on a narrow display, every crumb
-                // giving up the same.
-                await Shot(screen, Bar(), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
-                await Shot(screen, Bar(Plain(snapOn: false)), null, outDir, $"editbar-{theme}-snapoff.png").ConfigureAwait(true);
-                var clockName = ModuleCatalog.Of(new WidgetId("clock"));
-                await Shot(screen, Bar(Plain(widget: new BarCrumb("Zürich", clockName.Glyph))), null, outDir, $"editbar-{theme}-widget.png").ConfigureAwait(true);
-                await Shot(screen, Bar(Plain(widget: new BarCrumb(Str.Shell_Views_WidgetCount.Plural(3), Glyphs.Apps))), null, outDir, $"editbar-{theme}-many.png").ConfigureAwait(true);
-                await Shot(screen, Bar(Plain(canUndo: true, canRedo: true)), null, outDir, $"editbar-{theme}-history.png").ConfigureAwait(true);
-                await Shot(screen, Bar(Plain(canUndo: false, canRedo: false)), null, outDir, $"editbar-{theme}-nohistory.png").ConfigureAwait(true);
-                var longNames = new EditBarState(
-                    new BarCrumb("Samsung Odyssey Neo G9 Ultrawide", Glyphs.Display),
-                    new BarCrumb("Evening and weekend at home", Glyphs.Moon),
-                    new BarCrumb("Weather in San Francisco", ModuleCatalog.Of(new WidgetId("weatherNow")).Glyph),
-                    WidgetOpen: true, CanUndo: true, CanRedo: false, SnapOn: true);
-                await Shot(screen, Bar(longNames), null, outDir, $"editbar-{theme}-long.png").ConfigureAwait(true);
-                await Shot(screen, Bar(longNames), null, outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
-
-                await Shot(screen, Bar(), AddMenu(), outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
-
-                var hint = new TextBlock
+                if (only is null or "pages")
                 {
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Text = Str.Shell_Place_Hint.Format(("action", Str.Shell_Place_PlaceOne.Format(("name", ModuleCatalog.Of(new WidgetId("clock")).Label.Text())))),
-                };
-                var line = new Border { Child = hint, MinHeight = EditBar.ButtonSize + (2 * Fluent.Space1), Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0) };
-                ChromeFrame.Apply(line);
-                await Shot(screen, line, null, outDir, $"editbar-{theme}-placing.png").ConfigureAwait(true);
+                    await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
+                    await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
+                }
 
-                ticker = new Ticker(dispatcher);
-                await PropsShots(screen, ticker, outDir, theme).ConfigureAwait(true);
-                await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
-                await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
-                await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
+                if (only is null or "select")
+                {
+                    ticker = new Ticker(dispatcher);
+                    await SelectionShots(screen, ticker, outDir, theme).ConfigureAwait(true);
+                    if (only is null)
+                    {
+                        await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -194,36 +165,50 @@ internal static partial class EditBarRender
         return true;
     }
 
-    /// <summary>[S-3507] The stand-in display and view the bar's trail names: a real monitor's name, a view with its mark.</summary>
-    private static readonly BarCrumb RenderDisplay = new("DELL U2723QE", Glyphs.Display, Detail: "DELL U2723QE — 3840 × 2160 (primary)");
+    /// <summary>[S-2320]..[S-2324] The bar in its states, and the add menu and the placement line.</summary>
+    private static async Task BarShots(Grid screen, string outDir, string theme)
+    {
+        var clockKind = ModuleCatalog.Of(new WidgetId("clock"));
+        var clock = new BarSelection(clockKind.Name, clockKind.Glyph);
+        var two = new BarSelection(Core.Shell.SelectionPage.Words(new QuickSetOffer(2, null, null, null, null, null) { CommonKind = new WidgetId("clock") }, id => ModuleCatalog.Of(id).Name)!, clock.Glyph);
+        var mixed = new BarSelection(Str.Shell_Views_WidgetCount.Plural(3), Glyphs.Apps);
+        var wide = ScreenWidth - (2 * ShellMetricsBarTop);
 
-    private static readonly BarCrumb RenderView = new("Work", Glyphs.Mail, "#0099BC");
+        await Shot(screen, Bar(new EditBarState(null, 0, null, false, wide)), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(clock, 0, null, true, wide)), null, outDir, $"editbar-{theme}-widget.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(two, 0, null, false, wide)), null, outDir, $"editbar-{theme}-many.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(mixed, 0, null, false, wide)), null, outDir, $"editbar-{theme}-mixed.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(clock, 2, null, false, wide)), null, outDir, $"editbar-{theme}-errors.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(null, 0, SettingsPageId.General, false, wide)), null, outDir, $"editbar-{theme}-open.png").ConfigureAwait(true);
+        var longName = new BarSelection("Weather in San Francisco and the Bay Area", ModuleCatalog.Of(new WidgetId("weatherNow")).Glyph);
+        await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 900 - (2 * ShellMetricsBarTop))), null, outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 640 - (2 * ShellMetricsBarTop))), null, outDir, $"editbar-{theme}-narrowest.png", room: 640).ConfigureAwait(true);
 
-    /// <summary>[S-3500] The bar as a render shows it: nothing selected, a step to undo and none to redo, snap on.</summary>
-    private static EditBarState Plain(bool snapOn = true, BarCrumb? widget = null, bool canUndo = true, bool canRedo = false)
-        => new(RenderDisplay, RenderView, widget, WidgetOpen: widget is not null, canUndo, canRedo, snapOn);
+        await Shot(screen, Bar(new EditBarState(null, 0, null, false, wide)), AddMenu(), outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
 
-    /// <summary>[S-3500] The real bar, built and showing <paramref name="state"/>, its commands doing nothing.</summary>
-    private static EditBar Bar(EditBarState? state = null)
+        var hint = new TextBlock
+        {
+            VerticalAlignment = VerticalAlignment.Center,
+            Text = Str.Shell_Place_Hint.Format(("action", Str.Shell_Place_PlaceOne.Format(("name", clockKind.Label.Text())))),
+        };
+        var line = new Border { Child = hint, MinHeight = EditBar.BarHeight, Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0) };
+        ChromeFrame.Apply(line);
+        await Shot(screen, line, null, outDir, $"editbar-{theme}-placing.png").ConfigureAwait(true);
+    }
+
+    /// <summary>[S-2320] The real bar, built and showing <paramref name="state"/>, its commands doing nothing.</summary>
+    private static EditBar Bar(EditBarState state)
     {
         var commands = new EditBarCommands(
             AddFlyout: () => new Flyout(),
-            Menu: _ => { },
-            Widget: () => { },
-            MenuOpening: () => { },
-            Undo: () => { },
-            Redo: () => { },
-            SetSnap: _ => { },
+            Page: _ => { },
+            Selection: () => { },
+            AddOpening: () => { },
+            IntoFlyout: () => { },
             Done: () => { });
         var bar = new EditBar(commands);
         bar.Fill(commands);
-        bar.Show(state ?? Plain());
-        return Flowing(bar);
-    }
-
-    /// <summary>[S-1113] The bar flows with the language, as the desktop sets it; the screen around it does not.</summary>
-    private static EditBar Flowing(EditBar bar)
-    {
+        bar.Show(state);
         UiLanguage.ApplyFlow(bar);
         return bar;
     }
@@ -237,25 +222,15 @@ internal static partial class EditBarRender
 
         var canvas = new Canvas();
         screen.Children.Add(canvas);
-
-        // [S-3507] On a narrow display the bar has the display's width (less 8 DIPs either side, its
-        // own margin), centred in it as the surface centres it in the work area.
-        FrameworkElement placed = bar;
-        if (room is { } narrow)
-        {
-            placed = new Grid { Width = narrow, Children = { bar } };
-        }
-
-        canvas.Children.Add(placed);
-        placed.Measure(new Size(room ?? double.PositiveInfinity, double.PositiveInfinity));
-        var barX = room is null ? Math.Round((ScreenWidth - bar.DesiredSize.Width) / 2) : 0;
-        Canvas.SetLeft(placed, barX);
-        Canvas.SetTop(placed, Fluent.Space2);
+        canvas.Children.Add(bar);
+        bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var barX = Math.Round(((room ?? ScreenWidth) - bar.DesiredSize.Width) / 2);
+        Canvas.SetLeft(bar, barX);
+        Canvas.SetTop(bar, ShellMetricsBarTop);
 
         if (menu is not null)
         {
-            // A flyout opened from Add widget: centred under the button (the bar's first, 4 DIPs in), a gap below the bar.
-            HangAddMenu(canvas, menu, bar, barX, Fluent.Space2, ScreenWidth);
+            HangAddMenu(canvas, menu, bar, barX, ShellMetricsBarTop, ScreenWidth);
         }
 
         await Task.Delay(500).ConfigureAwait(true);
@@ -266,251 +241,93 @@ internal static partial class EditBarRender
         screen.Width = ScreenWidth;
     }
 
-    /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
-
-    /// <summary>[S-3713] The panel beside real cards in edit mode, each case on the stand-in display.</summary>
-    private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
+    /// <summary>
+    /// [S-2325] One page's flyout open from its entry on the stand-in display over the busy wallpaper: the
+    /// page opened at <paramref name="key"/> (its row, as a deep link opens it; none for its top), then
+    /// <paramref name="then"/> (typing, a click), then <paramref name="after"/> on the flyout (a scroll).
+    /// </summary>
+    private static async Task PageShot(Grid screen, string path, SettingsPageId page, PageView view, Func<SettingsPage>? core, string? key, Action<PageView>? then = null, Action<PageFlyout>? after = null)
     {
-        PropsCard[][] cases =
-        [
-            // [S-6521] A widget of its own item colour: the Item opacity row shows. [S-6531] At 125 %.
-            // [S-6544] Its own item text colour too: white figures on its dark flip cards in either theme.
-            [new(new WidgetId("clock"), 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")],
-            [new(new WidgetId("countdown"), 980, 160, 280, 180, HeaderPlacement.Top, true)],
-            [new(new WidgetId("shortcuts"), 16, 72, 1248, 150, HeaderPlacement.Top, true)],
-            [
-                new(new WidgetId("clock"), 300, 200, 220, 160, HeaderPlacement.Top, true),
-                new(new WidgetId("countdown"), 540, 240, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
-                new(new WidgetId("clock"), 820, 200, 200, 140, HeaderPlacement.Hidden, true),
-            ],
-            [new(new WidgetId("wifiToggle"), 580, 260, 120, 120, HeaderPlacement.Hidden, true)],
-            [
-                new(new WidgetId("countdown"), 360, 260, 280, 180, HeaderPlacement.Hidden, true),
-                new(new WidgetId("countdown"), 680, 260, 280, 180, HeaderPlacement.Top, false),
-            ],
+        screen.Children.Clear();
+        screen.Height = OpenHeight;
+        var flat = screen.Background;
+        screen.Background = Wallpaper();
+        var canvas = new Canvas { Clip = new RectangleGeometry { Rect = new Rect(0, 0, ScreenWidth, OpenHeight) } };
+        screen.Children.Add(canvas);
+        Blobs(canvas);
 
-            // [S-6569] Backgrounds Default, Transparent and a colour at 50 %; items Default,
-            // Transparent and a colour. The selected one (a colour at 50 %) has the panel.
-            [
-                new(new WidgetId("clock"), 40, 80, 300, 200, HeaderPlacement.Top, false, "Default", "flip"),
-                new(new WidgetId("clock"), 40, 320, 300, 200, HeaderPlacement.Top, false, "Transparent", "flip", Background: FillChoice.Transparent(), Items: FillChoice.Transparent()),
-                new(new WidgetId("clock"), 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", "flip", Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
-            ],
-
-            // [S-6584] A clock aligned right: Right lit. Two of different alignments: none lit. The
-            // moon's month style: no Alignment line.
-            [new(new WidgetId("clock"), 500, 200, 300, 180, HeaderPlacement.Top, true, "Right", Align: ContentAlign.Right)],
-            [
-                new(new WidgetId("clock"), 300, 200, 280, 160, HeaderPlacement.Top, true, "Left", Align: ContentAlign.Left),
-                new(new WidgetId("quote"), 620, 200, 320, 180, HeaderPlacement.Top, true, Align: ContentAlign.Right),
-            ],
-            [new(new WidgetId("moon"), 500, 200, 280, 220, HeaderPlacement.Top, true, Style: "phaseMonth")],
-        ];
-        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills", "align", "alignmany", "alignstyle"];
-
-        for (var i = 0; i < cases.Length; i++)
+        var bar = Bar(new EditBarState(null, 0, page, false, ScreenWidth - (2 * ShellMetricsBarTop)));
+        var barRect = PlaceBar(canvas, bar, ScreenWidth);
+        UiLanguage.ApplyFlow(view);
+        var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);
+        var flyout = HangFlyout(canvas, view, bar, barRect, page, area);
+        view.Show();
+        if (key is not null && core?.Invoke() is { } built && (SettingsPages.PathTo(built, key) is not { } at || !view.Open(at)))
         {
-            await PropsShot(screen, ticker, cases[i], System.IO.Path.Combine(outDir, $"props-{theme}-{names[i]}.png")).ConfigureAwait(true);
+            Console.WriteLine($"editbar: no row {key} on {page} for {path}");
         }
 
-        // [S-3718] [S-3723] [S-3725] The submenus along a path open (and a search typed into).
-        var appearance = Str.Settings_Section_Appearance.Text();
-        var header = Str.App_ConfigHeaderLabel.Text();
-        PropsCard[] picker = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, Style: "flip", Background: FillChoice.Of("#1B2030", 0.5))];
-        PropsCard[] stopwatch = [new(new WidgetId("stopwatch"), 200, 160, 280, 180, HeaderPlacement.Top, true)];
-        PropsCard[] countdown = [new(new WidgetId("countdown"), 200, 160, 280, 180, HeaderPlacement.Top, true)];
+        then?.Invoke(view);
+        await Task.Delay(300).ConfigureAwait(true);
+        canvas.UpdateLayout();
+        flyout.Place(FlyoutPlacement.Place(bar.EntryBox(page, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
+        canvas.UpdateLayout();
+        after?.Invoke(flyout);
+
+        await Task.Delay(500).ConfigureAwait(true);
+        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
+        Console.WriteLine($"editbar: wrote {path}");
+        view.Close();
+        screen.Background = flat;
+    }
+
+    /// <summary>One widget of a selection shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
+    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
+
+    /// <summary>[S-2340]..[S-2343] The selection's page beside real cards, each case on the stand-in display.</summary>
+    private static async Task SelectionShots(Grid screen, Ticker ticker, string outDir, string theme)
+    {
+        PropsCard[] clock = [new(new WidgetId("clock"), 140, 160, 300, 200, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")];
         PropsCard[] many =
         [
             new(new WidgetId("clock"), 120, 160, 220, 160, HeaderPlacement.Top, true),
-            new(new WidgetId("countdown"), 360, 160, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
+            new(new WidgetId("countdown"), 120, 360, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
+            new(new WidgetId("clock"), 120, 580, 200, 140, HeaderPlacement.Hidden, true),
         ];
-        PropsCard[] shortcuts = [new(new WidgetId("shortcuts"), 120, 140, 520, 220, HeaderPlacement.Top, true)];
-        PropsCard[] clock = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, "Zürich", "digital")];
-        PropsCard[] weather = [new(new WidgetId("weatherNow"), 200, 160, 300, 200, HeaderPlacement.Top, true)];
-        (PropsCard[] Layout, string Name, string? Open, string? Type)[] submenus =
-        [
-            (picker, "picker", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
-            (stopwatch, "noitems", appearance, null),
-            (countdown, "countdown-appearance", appearance, null),
-            (many, "many-appearance", appearance + "/" + Str.Shell_Items_TextShort.Text(), null),
-            (shortcuts, "shortcuts-style", Str.Styles_Label.Text(), null),
-            (shortcuts, "shortcuts-appearance", Str.Settings_Section_Appearance.Text(), null),
-            (shortcuts, "shortcuts-background", Str.Settings_Section_Appearance.Text() + "/" + Str.Settings_Style_BgLabel.Text(), null),
-            (shortcuts, "shortcuts-add", Str.Common_Add.Text(), null),
-            (shortcuts, "shortcuts-items", "Shortcuts", null),
-
-            // [S-1417] A shortcut's own level and its Icon submenu.
-            (shortcuts, "shortcuts-item", "Shortcuts/Recycle Bin", null),
-            (shortcuts, "shortcuts-icon", "Shortcuts/Recycle Bin/Icon", null),
-            (clock, "clock-style", Str.Styles_Label.Text(), null),
-
-            // [S-3735] The Header level: the Title row and the positions for one, the positions for several;
-            // [S-3736] the Title's own level, the field alone.
-            (clock, "header", header, null),
-            (clock, "header-title", header + "/" + Str.Group_Title_Label.Text(), null),
-            (many, "many-header", header, null),
-
-            // [S-3734] The one rectangle wherever it stands: beside a widget at the work area's right
-            // edge (on its left), one at its bottom (slid up inside the area), and a wide one.
-            ([new(new WidgetId("clock"), 940, 160, 320, 220, HeaderPlacement.Top, true, Style: "flip")], "flip-right", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
-            ([new(new WidgetId("clock"), 200, 700, 300, 180, HeaderPlacement.Top, true, Style: "flip")], "flip-bottom", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
-            ([new(new WidgetId("clock"), 400, 120, 400, 300, HeaderPlacement.Top, true, Style: "flip")], "flip-wide", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
-            (clock, "clock-zone", "Timezone", "tok"),
-            (clock, "clock-zone-many", "Timezone", "a"),
-            (clock, "clock-zone-none", "Timezone", "qqqq"),
-            (weather, "weather-location", Str.Shell_Place_Location.Text(), null),
-
-            // [S-1862] What the Set up button opens: the line the module names, through its submenus.
-            (weather, "setup-weather", SetupOpen, null),
-            ([new(new WidgetId("rss"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "setup-rss", SetupOpen, null),
-            ([new(new WidgetId("stocks"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "setup-stocks", SetupOpen, null),
-            ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "setup-gallery", SetupOpen, null),
-
-            // The meters' and details' lines: the span under Style, a drive, the ping host, a choice.
-            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-span", Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), null),
-            ([new(new WidgetId("ping"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "ping-style", Str.Styles_Label.Text(), null),
-            ([new(new WidgetId("disk"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "disk-drive", "Drive", null),
-            ([new(new WidgetId("pingDetails"), 200, 160, 300, 220, HeaderPlacement.Top, true)], "pingdetails-window", "Statistics cover", null),
-            ([new(new WidgetId("topProcesses"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "processes-rows", "Rows", null),
-            ([new(new WidgetId("networkDetails"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "networkdetails-appearance", appearance, null),
-
-            // The sky's and the rain's location searches, typed into against the fixture geocoder; the
-            // screen-time lines over the sample history.
-            ([new(new WidgetId("sun"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "sun-location", Str.Shell_Place_Location.Text(), "zur"),
-            ([new(new WidgetId("sun"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "sun-style", Str.Styles_Label.Text(), null),
-            ([new(new WidgetId("moon"), 200, 160, 280, 220, HeaderPlacement.Top, true, Style: "phaseMonth")], "moon-location", Str.Shell_Place_Location.Text(), null),
-            ([new(new WidgetId("rainNextHour"), 200, 160, 300, 180, HeaderPlacement.Top, true)], "rain-location", Str.Shell_Place_Location.Text(), "spring"),
-            ([new(new WidgetId("screenTimeApps"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "screentimeapps-limits", Str.WidgetsC_ScreenTime_Settings_Limits.Text(), null),
-            ([new(new WidgetId("screenTimeChart"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "screentimechart-limits", Str.WidgetsC_ScreenTime_Settings_Limits.Text(), null),
-            ([new(new WidgetId("screenTimeDonut"), 200, 160, 240, 240, HeaderPlacement.Top, true)], "screentimedonut-period", Str.Screentime_Cfg_Period.Text(), null),
-
-            // The time and the local stores' widgets: their first levels and a submenu each.
-            ([new(new WidgetId("alarm"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "alarm-repeat", "Repeats on", null),
-            ([new(new WidgetId("alarm"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "alarm-sound", "Sound", null),
-            ([new(new WidgetId("countdown"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "countdown-format", "Format", null),
-            ([new(new WidgetId("pomodoro"), 200, 160, 280, 200, HeaderPlacement.Top, true)], "pomodoro-volume", "Alarm volume", null),
-            ([new(new WidgetId("focusSession"), 200, 160, 240, 200, HeaderPlacement.Top, true)], "focussession", appearance, null),
-            ([new(new WidgetId("clipboard"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "clipboard", appearance, null),
-            ([new(new WidgetId("scratchpad"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "scratchpad-pen", "Pen color", null),
-            ([new(new WidgetId("habitTracker"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "habits-list", "Habit list", null),
-            ([new(new WidgetId("habitTracker"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "habits-style", Str.Styles_Label.Text(), null),
-            ([new(new WidgetId("notes"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "notes-note", "Note", null),
-            ([new(new WidgetId("quote"), 200, 160, 320, 180, HeaderPlacement.Top, true)], "quote-quotes", "Quotes", null),
-
-            // The files', media's, devices' and markets' widgets: what is under Style, a path, a device, a pair.
-            ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true, Style: "list")], "folder-style", "Sort by", null),
-            ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "folder-folder", "Folder", null),
-            ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "gallery-source", "Source", null),
-            // [S-1236] With one output device the line is there while a device is chosen, so the choice can go back to the default.
-            ([new(new WidgetId("mixer"), 200, 160, 320, 240, HeaderPlacement.Top, true, Config: """{"deviceId":"{0.0.0.00000000}.{render-headphones}","deviceName":"Headphones (Render)"}""")], "mixer-device", "Output device", null),
-            ([new(new WidgetId("music"), 200, 160, 340, 160, HeaderPlacement.Top, true)], "music-hide", "Hide when idle", null),
-            ([new(new WidgetId("bluetooth"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "bluetooth", appearance, null),
-            ([new(new WidgetId("videoStream"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "videostream-rotation", "Rotation", null),
-            ([new(new WidgetId("stocks"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "stocks-period", "Timeframe", null),
-            ([new(new WidgetId("exchangeRates"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "rates-base", "Base currency", "c"),
-
-            // The account and list widgets: the feeds, the accounts (none signed in to a render), a
-            // style's own lines, where tasks come from and their filters.
-            ([new(new WidgetId("rss"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "rss-feeds", "Feeds", null),
-            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "table")], "email-columns", "Columns", null),
-            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "email-accounts", Str.WidgetUi_AccountsLabel.Text(), null),
-            ([new(new WidgetId("calendar"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "agenda")], "calendar-range", "Date range", null),
-            ([new(new WidgetId("contacts"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "contacts-layout", "Layout", null),
-            // [S-5324] No task account is signed in to a render: a chosen one since signed out keeps the line, listed by its id.
-            ([new(new WidgetId("weekPlanner"), 200, 160, 400, 240, HeaderPlacement.Top, true, Config: """{"taskAccountId":"signed-out-account"}""")], "weekplanner-tasks", "Tasks from", null),
-
-            // [S-7516] No task service runs in a render: the first level says so, over the lines that do not need one.
-            ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-lines", null, null),
-            ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-filter", "Filter", null),
-
-            // [S-6075] A gallery of one picture: no Style line, its Picture size on top. [S-728] A weather
-            // widget under a typed title. [S-6573] [S-6574] A meter's graph: no item lines; its cores:
-            // Item background without Item text. The chart's styles ([S-3336]).
-            ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true, Config: """{"source":"Bing"}""")], "gallery-one", null, null),
-            ([new(new WidgetId("weatherNow"), 200, 160, 300, 200, HeaderPlacement.Top, true, "Home")], "weather-titled", Str.Shell_Place_Location.Text(), null),
-            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-appearance", appearance, null),
-            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true, Style: "cores")], "cores-appearance", appearance, null),
-            ([new(new WidgetId("screenTimeChart"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "screentimechart-style", Str.Styles_Label.Text(), null),
-
-            // [S-3749] [S-3590] Link rows to what a widget follows and does not set: the weather's unit and
-            // interval, the clock's time format, a month's start of the week, the feeds' interval, the
-            // mail's accounts (none signed in to a render: Add account).
-            (weather, "links-weather", null, null),
-            (clock, "links-clock", null, null),
-            ([new(new WidgetId("calendar"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "month")], "links-calendar", null, null),
-            ([new(new WidgetId("rss"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "links-rss", null, null),
-            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "links-email", Str.WidgetUi_AccountsLabel.Text(), null),
-        ];
+        PropsCard[] two = [new(new WidgetId("clock"), 120, 160, 220, 160, HeaderPlacement.Top, true), new(new WidgetId("clock"), 120, 360, 220, 160, HeaderPlacement.Bottom, true)];
+        PropsCard[] toggle = [new(new WidgetId("wifiToggle"), 200, 260, 120, 120, HeaderPlacement.Hidden, true)];
+        PropsCard[] weather = [new(new WidgetId("weatherNow"), 140, 160, 300, 200, HeaderPlacement.Top, true)];
+        PropsCard[] shortcuts = [new(new WidgetId("shortcuts"), 40, 200, 300, 400, HeaderPlacement.Top, true)];
+        PropsCard[] countdown = [new(new WidgetId("countdown"), 140, 160, 280, 180, HeaderPlacement.Top, true)];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
         PlaceRender.UseFixture();
         AppServices.ScreenTime ??= new SampleScreenTime();
         UseSamplePools();
 
-        foreach (var (layout, name, path, type) in submenus)
-        {
-            await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type).ConfigureAwait(true);
-        }
-
-        // [S-3722] [S-3734] A search in the one rectangle: nothing typed, a question out, two answers,
-        // five, six; the zone's 41 answers scrolled to their end under the pinned head and field.
-        (PropsCard[] Layout, string Name, string Open, string? Type, bool End)[] heights =
+        (PropsCard[] Layout, string Name, string? Click, string? Type, Action<WidgetMenuLines>? Lines)[] cases =
         [
-            (weather, "search-empty", Str.Shell_Place_Location.Text(), null, false),
-            (weather, "search-searching", Str.Shell_Place_Location.Text(), PlaceRender.Unanswered, false),
-            (weather, "search-two", Str.Shell_Place_Location.Text(), "zur", false),
-            (weather, "search-five", Str.Shell_Place_Location.Text(), "spring", false),
-            (weather, "search-six", Str.Shell_Place_Location.Text(), "san", false),
-            (clock, "search-zone-end", "Timezone", "a", true),
+            (clock, "one", null, null, null),
+            (clock, "style", "style", null, null),
+            (clock, "header", "header", null, null),
+            (clock, "background", "background", null, null),
+            (clock, "appearance-end", null, null, null),
+            (two, "two", null, null, null),
+            (many, "many", null, null, null),
+            (toggle, "toggle", null, null, null),
+            (weather, "weather", null, null, null),
+            (weather, "weather-location", "w/" + Str.Shell_Place_Location.Text(), "zur", null),
+            (weather, "setup-weather", SetupOpen, null, null),
+            (shortcuts, "shortcuts", null, null, null),
+            (countdown, "vocabulary", null, null, Vocabulary),
+            (countdown, "vocabulary-colour", "w/Accent", null, Vocabulary),
+            (countdown, "vocabulary-feeds", "w/Feeds", null, Vocabulary),
+            (countdown, "vocabulary-confirm", "w/Clear history", null, Vocabulary),
         ];
-        foreach (var (layout, name, path, type, end) in heights)
+
+        foreach (var (layout, name, click, type, lines) in cases)
         {
-            await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type, scrollToEnd: end).ConfigureAwait(true);
-        }
-
-        // [S-2855] Use my location on the first level: off (the search under it), on and located (no
-        // search), finding it, turned off in Windows (with the settings line) and not available; and
-        // the Sun's, on. A stand-in state, never Windows' own.
-        PropsCard[] sun = [new(new WidgetId("sun"), 200, 160, 320, 240, HeaderPlacement.Top, true)];
-        (PropsCard[] Layout, string Name, string? Device)[] devices =
-        [
-            (weather, "device-off", null),
-            (weather, "device-located", "located"),
-            (weather, "device-locating", "locating"),
-            (weather, "device-denied", "denied"),
-            (weather, "device-unavailable", "unavailable"),
-            (sun, "device-sun", "located"),
-        ];
-        foreach (var (layout, name, device) in devices)
-        {
-            AppServices.DebugDeviceLocation = device is null ? null : PlaceRender.Device(device);
-            var config = device is null ? null : """{"useDeviceLocation":true}""";
-            await PropsShot(screen, ticker, [.. layout.Select(c => c with { Config = config })], System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png")).ConfigureAwait(true);
-        }
-
-        AppServices.DebugDeviceLocation = null;
-
-        // [S-3732] The shortcuts' list with its first line held over the gap after the last.
-        await PropsShot(screen, ticker, shortcuts, System.IO.Path.Combine(outDir, $"props-{theme}-shortcuts-drag.png"), open: "Shortcuts", drag: "drag:0:2").ConfigureAwait(true);
-
-        // [S-3724]..[S-3730] Every row of the menu vocabulary on a stand-in widget's menu: the first
-        // level (a note, a colour, a fill, numbers, a switch, a slider, a folder, a link, a confirmed
-        // danger row), the list open, an item's own level, the colour open; [S-3736] a number asked
-        // for as text (its field's level, refused while it is out of range); [S-3737] the "are you sure?".
-        (string Name, string? Open, string? Type)[] vocabulary =
-        [
-            ("vocabulary", null, null),
-            ("vocabulary-list", "Feeds", null),
-            ("vocabulary-item", "Feeds/Blog feed", null),
-            ("vocabulary-colour", "Accent", null),
-            ("vocabulary-ask", "Refresh every", null),
-            ("vocabulary-ask-refused", "Refresh every", "9999"),
-            ("vocabulary-confirm", "Clear history", null),
-        ];
-        foreach (var (name, path, type) in vocabulary)
-        {
-            await PropsShot(screen, ticker, countdown, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, lines: Vocabulary, type: type).ConfigureAwait(true);
+            await SelectionShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"select-{theme}-{name}.png"), click, type, lines, scrollToEnd: name.EndsWith("-end", StringComparison.Ordinal)).ConfigureAwait(true);
         }
     }
 
@@ -615,15 +432,18 @@ internal static partial class EditBarRender
         }
     }
 
-    /// <summary>[S-1862] The path that opens the menu as the card's Set up button does.</summary>
+    /// <summary>[S-1862] The click that opens the page as the card's Set up button does.</summary>
     private const string SetupOpen = "<setup>";
 
-    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null, string? drag = null, string? click = null, bool scrollToEnd = false)
+    /// <summary>
+    /// [S-2340] [S-2343] The selection's page as edit mode shows it: real cards in edit mode, the bar with the
+    /// selection's entry lit, its flyout hung from that entry; a row clicked (a picker opened), a lookup typed
+    /// into, the page scrolled to its end.
+    /// </summary>
+    private static async Task SelectionShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? click = null, string? type = null, Action<WidgetMenuLines>? lines = null, bool scrollToEnd = false)
     {
         screen.Children.Clear();
-
-        // The open control's panel hangs below the display's lower edge: the picture is taller.
-        screen.Height = open is not null ? OpenHeight : PropsHeight;
+        screen.Height = OpenHeight;
         var flat = screen.Background;
         screen.Background = Wallpaper();
 
@@ -645,21 +465,23 @@ internal static partial class EditBarRender
             model.Align = spec.Align;
             if (spec.Config is { } fragment)
             {
-                // A config other than the default, as the state file would hold it (a chosen device, a signed-out account).
                 model.Config = Themia.Core.Storage.StateJson.Merged(model.Config, fragment);
             }
 
             if (spec.Style is { } style && WidgetStyles.Find(spec.Kind, style) is { } option)
             {
-                WidgetStyles.Set(model.Config, option.Value); // [S-6007] the strip's Style shows the current one's icon
+                WidgetStyles.Set(model.Config, option.Value);
             }
+
             view.Widgets.Add(model);
             widgets.Add((model, spec));
         }
 
-        var barRect = PlaceBar(canvas, SelectionBar(SelectionCrumb([.. widgets.Where(w => w.Spec.Selected).Select(w => w.Model)])), ScreenWidth);
+        var chosen = widgets.Where(w => w.Spec.Selected).Select(w => w.Model).ToList();
+        var bar = SelectionBar(SelectionEntry(chosen), open: true);
+        var barRect = PlaceBar(canvas, bar, ScreenWidth);
 
-        var selected = widgets.Where(w => w.Spec.Selected).Select(w => w.Model.Id).ToList();
+        var selected = chosen.Select(w => w.Id).ToList();
         var host = new NoticeRender.RenderCardHost(ticker) { EditMode = true, Selected = new HashSet<string>(selected, StringComparer.Ordinal) };
 
         var cards = new List<WidgetCard>();
@@ -681,64 +503,43 @@ internal static partial class EditBarRender
         canvas.Children.Add(markers.Halos);
         canvas.Children.Add(markers.Inks);
 
-        var strip = Properties(view, selected, screen.Height - (2 * StripPlacement.Gap), lines);
-        PlaceProperties(canvas, strip, widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H)), new PixelRect(0, 0, ScreenWidth, screen.Height), barRect);
-
-        // [S-3718] The levels along a path open, as clicks would open them; a field is typed into.
-        if (open is not null)
+        var page = SelectionPageOf(view, selected, lines);
+        var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);
+        var flyout = HangFlyout(canvas, page, bar, barRect, null, area);
+        page.Show();
+        if (click is not null)
         {
-            strip.UpdateLayout();
-            if (open == SetupOpen ? !strip.OpenSetup() : !strip.DebugOpen(open))
+            if (click == SetupOpen ? !page.OpenSetup() : !page.DebugClick(click))
             {
-                Console.WriteLine($"editbar: no submenu {open} for {path}");
+                Console.WriteLine($"editbar: no row {click} for {path}");
             }
 
             if (type is not null)
             {
-                await Task.Delay(100).ConfigureAwait(true);
-                strip.DebugType(type);
-            }
-
-            // A row of the level clicked once its answers have come.
-            if (click is not null)
-            {
-                await Task.Delay(700).ConfigureAwait(true);
-                if (!strip.DebugClick(click))
-                {
-                    Console.WriteLine($"editbar: no line {click} for {path}");
-                }
-            }
-
-            // [S-3734] A long level scrolled to its end under its pinned head and field.
-            if (scrollToEnd)
-            {
-                await Task.Delay(700).ConfigureAwait(true);
-                strip.DebugScrollToEnd();
-            }
-
-            // [S-3732] A list's line held mid-drag: "drag:<from>:<gap>".
-            if (drag is { } held && held.Split(':') is [_, var from, var gap] && !strip.DebugDrag(int.Parse(from, System.Globalization.CultureInfo.InvariantCulture), int.Parse(gap, System.Globalization.CultureInfo.InvariantCulture)))
-            {
-                Console.WriteLine($"editbar: no drag {held} for {path}");
+                page.DebugType(type);
+                await Task.Delay(900).ConfigureAwait(true);
             }
         }
 
-        await Task.Delay(800).ConfigureAwait(true);
+        await Task.Delay(300).ConfigureAwait(true);
+        canvas.UpdateLayout();
+        flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
+        canvas.UpdateLayout();
+        if (scrollToEnd)
+        {
+            flyout.Scroll(Windows.System.VirtualKey.End);
+        }
+
+        await Task.Delay(700).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
+        page.Close();
         screen.Background = flat;
 
         foreach (var card in cards)
         {
             card.Detach();
         }
-    }
-
-    private static WidgetMenuLines Stand(Action<WidgetMenuLines> build, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
-    {
-        var menu = new WidgetMenuLines(() => { }, ask, confirm);
-        build(menu);
-        return menu;
     }
 
     /// <summary>

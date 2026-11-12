@@ -41,9 +41,9 @@ internal sealed partial class DesktopWindow
             return false;
         }
 
-        // [S-3523] The keyboard in an edit bar's menu is the menu's: the selection behind it is away,
-        // so no key reaches it there but the undo and redo of what the menu changed, and F6.
-        if (OpenBarMenuView is { } barMenu && FocusIsIn(barMenu) && action.Command is not (EditCommand.Undo or EditCommand.Redo or EditCommand.SwitchPane))
+        // [S-2327] The keyboard in an edit bar's flyout is the flyout's: no edit key reaches the
+        // selection from there but the undo and redo of what it changed, and F6.
+        if (_flyout is { } flyout && FocusIsIn(flyout) && action.Command is not (EditCommand.Undo or EditCommand.Redo or EditCommand.SwitchPane))
         {
             return false;
         }
@@ -137,7 +137,12 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void BackOneStep()
     {
-        if (_host.Placing is not null)
+        if (_flyout is not null)
+        {
+            // [S-2327] Escape closes the open flyout before it ends edit mode.
+            CloseFlyout(focusEntry: false);
+        }
+        else if (_host.Placing is not null)
         {
             _host.CancelPlacement();
         }
@@ -304,14 +309,9 @@ internal sealed partial class DesktopWindow
     private void SwitchPane(bool backwards)
     {
         var panes = new List<FrameworkElement?> { null, _toolbar };
-        if (_properties.Visibility == Visibility.Visible)
+        if (_flyout is { } flyout)
         {
-            panes.Add(_properties);
-        }
-
-        if (OpenBarMenuView is { } barMenu)
-        {
-            panes.Add(barMenu);
+            panes.Add(flyout);
         }
 
         if (_viewBar.Visibility == Visibility.Visible)
@@ -355,17 +355,17 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private bool FocusProperties()
     {
-        if (_properties.Visibility != Visibility.Visible || FocusManager.FindFirstFocusableElement(_properties) is not Control first)
+        if (!_selectionOffer.Shows)
         {
             return false;
         }
 
-        first.Focus(FocusState.Keyboard);
-        return true;
+        OpenSelectionPage(focus: true);
+        return _flyout is { } flyout && FocusIsIn(flyout);
     }
 
     /// <summary>Whether the keyboard is on the surface's chrome (the toolbar, the properties strip, the view bar, a notice) rather than the widgets.</summary>
-    private bool FocusOnChrome() => FocusIsIn(_toolbar) || FocusIsIn(_properties) || (OpenBarMenuView is { } menu && FocusIsIn(menu)) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
+    private bool FocusOnChrome() => FocusIsIn(_toolbar) || (_flyout is { } flyout && FocusIsIn(flyout)) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
 
     /// <summary>Whether the focused element is <paramref name="container"/> or inside it.</summary>
     private bool FocusIsIn(DependencyObject container)

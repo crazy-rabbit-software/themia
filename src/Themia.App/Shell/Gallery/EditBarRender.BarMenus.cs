@@ -15,151 +15,77 @@ using Windows.Foundation;
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// [S-3548] The edit bar's View and Display menus open under their buttons on the stand-in display,
-/// over the busy wallpaper, as the surface places them (<see cref="DropDownPlacement"/>, the list
-/// capped at the work area under the bar): <c>views-&lt;theme&gt;.png</c> (five views, the one shown
-/// here ticked), <c>-view</c> (a view's own level), <c>-icon</c> (its icon picker), <c>-colour</c>,
-/// <c>-rename</c> (its name's field level) and <c>-delete</c> (its "are you sure?" level),
-/// <c>-drag</c> (a view's row dragged, its drop line), <c>-many</c> (40 views: the rows scroll inside
-/// the one rectangle), <c>-many-end</c> (scrolled to their end) and <c>-many-view</c>; <c>display-&lt;theme&gt;.png</c>, <c>-viewbar</c>,
-/// <c>-type</c>, <c>-labels</c>, <c>-position</c>, <c>-bar-views</c>, <c>-new</c> and <c>-showon</c> (three displays, one switched
-/// off). Stand-in hosts: nothing reaches Windows, the displays or the user's state.
+/// [S-2328] The Views and Display pages open from their entries on the stand-in display, over the busy
+/// wallpaper, hung as the surface hangs them: <c>page-&lt;theme&gt;-views.png</c> (five views, the shown one's
+/// rows, every view as an item), <c>-views-icon</c> (its icon picker), <c>-views-colour</c>, <c>-views-rename</c> (a
+/// view's Rename tool: its page of its own), <c>-views-delete</c> (its "are you sure?" page), <c>-views-many</c>
+/// (40 views: the page scrolls), <c>-views-many-end</c>; <c>page-&lt;theme&gt;-display.png</c>, <c>-display-type</c>,
+/// <c>-display-position</c>, <c>-display-bar-views</c>, <c>-display-new</c> and <c>-display-end</c> (three displays,
+/// one switched off). Stand-in hosts: nothing reaches Windows, the displays or the user's state.
 /// </summary>
 internal static partial class EditBarRender
 {
     private static async Task BarMenuShots(Grid screen, string outDir, string theme)
     {
-        const string manage = ViewsMenu.Keys.Manage;
         var work = ViewsMenu.Keys.View("work");
-        (string Name, int Views, string[] Open, string? Click)[] views =
+        (string Name, int Views, string? Key, string? Click)[] views =
         [
-            (string.Empty, 5, [], null),
-            ("-icon", 5, [ViewsMenu.Keys.Icon], null),
-            ("-colour", 5, [ViewsMenu.Keys.Colour], null),
-            ("-rename", 5, [], ViewsMenu.Keys.Name),
-            ("-delete", 5, [], ViewsMenu.Keys.Delete),
-            ("-manage", 5, [manage], null),
-            ("-manage-rename", 5, [manage], "<tool>" + work + "|0"),
-            ("-manage-delete", 5, [manage], "<tool>" + work + "|1"),
-            ("-many", 40, [manage], null),
-            ("-many-end", 40, [manage], "<end>"),
+            (string.Empty, 5, null, null),
+            ("-icon", 5, ViewsMenu.Keys.Icon, null),
+            ("-colour", 5, ViewsMenu.Keys.Colour, null),
+            ("-rename", 5, null, "<tool>" + work + "|0"),
+            ("-delete", 5, null, ViewsMenu.Keys.Delete),
+            ("-many", 40, ViewsMenu.Keys.Manage, null),
+            ("-many-end", 40, null, "<end>"),
         ];
 
-        foreach (var (name, count, open, click) in views)
+        foreach (var (name, count, key, click) in views)
         {
             var host = new RenderViewsHost(count);
-            await MenuShot(screen, System.IO.Path.Combine(outDir, $"views-{theme}{name}.png"), BarMenu.View, host.Menu, open, menu =>
+            var view = new PageView(() => PageRows.Of(SettingsPages.Views(host), edit => host.Page?.Ask(edit)));
+            host.Page = view;
+            await PageShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-views{name}.png"), SettingsPageId.Views, view, () => SettingsPages.Views(host), key, page =>
             {
-                if (click == "<end>")
+                if (click is not null && click.StartsWith("<tool>", StringComparison.Ordinal))
                 {
-                    // [S-3734] The 40 views scrolled to their end inside the one rectangle.
-                    menu.DebugScrollToEnd();
-                }
-                else if (click is not null && click.StartsWith("<tool>", StringComparison.Ordinal))
-                {
-                    // [S-3549] A view's Rename or Delete at the end of its row in Manage views.
+                    // [S-3549] A view's Rename or Delete at the end of its row.
                     var (row, tool) = (click[6..].Split('|')[0], int.Parse(click.Split('|')[1], System.Globalization.CultureInfo.InvariantCulture));
-                    if (!menu.DebugTool(row, tool))
+                    if (!page.DebugTool(row, tool))
                     {
                         Console.WriteLine($"editbar: no tool {tool} on {row}");
                     }
                 }
-                else if (click is not null && !menu.DebugClickKey(click))
+                else if (click is not null and not "<end>")
                 {
-                    Console.WriteLine($"editbar: no line {click} to click");
+                    Click(page, click);
                 }
-            }).ConfigureAwait(true);
+            }, click == "<end>" ? f => f.Scroll(Windows.System.VirtualKey.End) : null).ConfigureAwait(true);
         }
-
-        // [S-3732] A view's row held by the pointer, its drop line two places down.
-        await MenuShot(screen, System.IO.Path.Combine(outDir, $"views-{theme}-drag.png"), BarMenu.View, new RenderViewsHost(5).Menu, [manage], menu =>
-        {
-            if (!menu.DebugDrag(0, 3))
-            {
-                Console.WriteLine("editbar: the view's line could not be dragged");
-            }
-        }).ConfigureAwait(true);
 
         const string bar = DisplayMenu.Keys.ViewBar;
-        (string Name, string[] Open)[] display =
+        (string Name, string? Key)[] display =
         [
-            (string.Empty, []),
-            ("-viewbar", [bar]),
-            ("-type", [bar, bar + "/type"]),
-            ("-labels", [bar, bar + "/labels"]),
-            ("-position", [bar, bar + "/position"]),
-            ("-bar-views", [bar, bar + "/views"]),
-            ("-new", [DisplayMenu.Keys.NewDisplays]),
-            ("-showon", [DisplayMenu.Keys.ShowOn]),
+            (string.Empty, null),
+            ("-type", bar + "/type"),
+            ("-position", bar + "/position"),
+            ("-bar-views", bar + "/views"),
+            ("-new", DisplayMenu.Keys.NewDisplays),
+            ("-end", null),
         ];
 
-        foreach (var (name, open) in display)
+        foreach (var (name, key) in display)
         {
-            await MenuShot(screen, System.IO.Path.Combine(outDir, $"display-{theme}{name}.png"), BarMenu.Display, new RenderDisplayHost().Menu, open, null).ConfigureAwait(true);
+            var host = new RenderDisplayHost();
+            var view = new PageView(() => PageRows.Of(SettingsPages.Display(host), _ => { }));
+            host.Page = view;
+            await PageShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-display{name}.png"), SettingsPageId.Display, view, () => SettingsPages.Display(host), key,
+                after: name == "-end" ? f => f.Scroll(Windows.System.VirtualKey.End) : null).ConfigureAwait(true);
         }
-    }
-
-    /// <summary>
-    /// One picture of one of the bar's menus: the real bar centred 8 DIPs under the stand-in display's
-    /// top, the menu under its button, placed and capped as the surface does it ([S-3522], [S-3540]),
-    /// its submenus opened along <paramref name="open"/> (the lines' keys), then <paramref name="then"/>.
-    /// </summary>
-    private static async Task MenuShot(Grid screen, string path, BarMenu which, Func<BarMenuView> make, string[] open, Action<BarMenuView>? then)
-    {
-        screen.Children.Clear();
-        screen.Height = OpenHeight;
-        var flat = screen.Background;
-        screen.Background = Wallpaper();
-
-        var canvas = new Canvas { Clip = new RectangleGeometry { Rect = new Rect(0, 0, ScreenWidth, screen.Height) } };
-        screen.Children.Add(canvas);
-        Blobs(canvas);
-
-        // Laid out before it is measured: the first picture's bar was measured before its words were.
-        var editBar = Bar();
-        canvas.Children.Add(editBar);
-        screen.UpdateLayout();
-        editBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var barRect = new PixelRect(Math.Round((ScreenWidth - editBar.DesiredSize.Width) / 2), Fluent.Space2, editBar.DesiredSize.Width, editBar.DesiredSize.Height);
-        Canvas.SetLeft(editBar, barRect.X);
-        Canvas.SetTop(editBar, barRect.Y);
-
-        var menu = make();
-        UiLanguage.ApplyFlow(menu);
-        menu.Visibility = Visibility.Visible;
-        canvas.Children.Add(menu);
-        menu.Show();
-        editBar.MenuOpen(which);
-        screen.UpdateLayout();
-
-        // [S-3522] Under its button, as the surface places it; [S-3540] the list capped under the bar.
-        var area = new PixelRect(0, 0, ScreenWidth, screen.Height);
-        var button = editBar.MenuButtonBox(which, canvas) ?? barRect;
-        menu.RoomHeight = DropDownPlacement.Room(barRect, area);
-        menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var (x, y) = DropDownPlacement.Place(button, barRect, menu.DesiredSize.Width, menu.DesiredSize.Height, area, [barRect]);
-        Canvas.SetLeft(menu, Math.Round(x));
-        Canvas.SetTop(menu, Math.Round(y));
-        screen.UpdateLayout();
-
-        if (open.Length > 0 && !menu.Open(open, focus: false))
-        {
-            Console.WriteLine($"editbar: no submenu {string.Join('/', open)} for {path}");
-        }
-
-        then?.Invoke(menu);
-
-        await Task.Delay(800).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"editbar: wrote {path}");
-        screen.Background = flat;
     }
 
     /// <summary>A stand-in for the View menu's host: views of its own (Work shown here), every change drawn at once.</summary>
     private sealed class RenderViewsHost : IViewsMenuHost
     {
-        private BarMenuView? _menu;
-
         public RenderViewsHost(int count)
         {
             State = AppState.CreateDefault();
@@ -193,7 +119,7 @@ internal static partial class EditBarRender
             State.MonitorViews[DisplayId] = "work";
         }
 
-        public Func<BarMenuView> Menu => () => _menu = new BarMenuView(nameof(BarMenu.View), () => ViewsMenu.Root(this), () => { });
+        public PageView? Page { get; set; }
 
         public AppState State { get; }
 
@@ -202,7 +128,7 @@ internal static partial class EditBarRender
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
             change(State);
-            _menu?.Show();
+            Page?.Show();
         }
 
         public void Add()
@@ -222,14 +148,12 @@ internal static partial class EditBarRender
 
         public void Reorder(string viewId, string targetId) => Mutate(s => ViewOps.Reorder(s.Views, viewId, targetId));
 
-        public void Confirm(SettingsConfirm confirm) => _menu?.Confirm(confirm);
+        public void Confirm(SettingsConfirm confirm) => Page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
     }
 
     /// <summary>A stand-in for the Display menu's host: three displays (the third switched off), this one the first.</summary>
     private sealed class RenderDisplayHost : IDisplayMenuHost
     {
-        private BarMenuView? _menu;
-
         public RenderDisplayHost()
         {
             State = AppState.CreateDefault();
@@ -259,7 +183,7 @@ internal static partial class EditBarRender
             });
         }
 
-        public Func<BarMenuView> Menu => () => _menu = new BarMenuView(nameof(BarMenu.Display), () => DisplayMenu.Root(this), () => { });
+        public PageView? Page { get; set; }
 
         public AppState State { get; }
 
@@ -275,7 +199,7 @@ internal static partial class EditBarRender
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
             change(State);
-            _menu?.Show();
+            Page?.Show();
         }
 
         public bool SetEnabled(string displayId, bool on)

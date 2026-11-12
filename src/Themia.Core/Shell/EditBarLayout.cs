@@ -134,10 +134,11 @@ public static class EditBarLayout
         }
 
         x += M.IconOnly + M.EntryGap;
-        var addWidth = EntryWidth(add);
+        // Add and Done are Windows' standard and accent buttons: their rim round the entry's room.
+        var addWidth = EntryWidth(add) + (2 * FamilyShape.Hairline);
         parts.Add(new BarPart(BarPartKind.Add, 0, x, addWidth, false));
         x += addWidth + M.Pad;
-        var doneWidth = Math.Max(M.DoneLeast, EntryWidth(done));
+        var doneWidth = Math.Max(M.DoneLeast, EntryWidth(done) + (2 * FamilyShape.Hairline));
         parts.Add(new BarPart(BarPartKind.Done, 0, x, doneWidth, false));
         x += doneWidth + M.Pad;
 

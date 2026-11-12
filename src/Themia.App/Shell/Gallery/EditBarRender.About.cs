@@ -41,12 +41,9 @@ internal static partial class EditBarRender
             ("-pro-buying", new RenderSettingsHost { Status = new(LicenseTier.Free, LicenseBasis.StoreFree), CanPurchase = true, Price = "CHF 19.00" }, SettingsMenu.Keys.ProUpgrade),
         ];
 
-        // The first level too, its Themia Pro line saying the tier.
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-root-free.png"), cases[0].Host, []).ConfigureAwait(true);
-
         foreach (var (name, host, click) in cases)
         {
-            await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}{name}.png"), host, [p], menu => Click(menu, click)).ConfigureAwait(true);
+            await SettingsShot(screen, outDir, theme, "general" + name, host, p, view => Click(view, click)).ConfigureAwait(true);
         }
     }
 
@@ -54,14 +51,14 @@ internal static partial class EditBarRender
     {
         const string b = SettingsMenu.Keys.Backup;
 
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-backup.png"), new RenderSettingsHost(), [b]).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "general-backup", new RenderSettingsHost(), b).ConfigureAwait(true);
 
         // [S-3576] How an export and an import went, under their lines; the reset's refusal under its.
         var done = new RenderSettingsHost();
         done.Outcomes.Say(SettingsMenu.Keys.BackupExport, new MenuOutcome(Str.SettingsMenu_Exported.Format(("file", "Themia settings 2026-10-25.json"))));
         done.Outcomes.Say(SettingsMenu.Keys.BackupImport, new MenuOutcome(Str.SettingsMenu_Imported.Format(("backup", "state.before-import-20261025-104200.json"))));
         done.Outcomes.Say(SettingsMenu.Keys.BackupReset, new MenuOutcome(Str.Shell_Transfer_NotAllowed.Text(), Failed: true));
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-backup-done.png"), done, [b]).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "general-backup-done", done, b).ConfigureAwait(true);
 
         // [S-3577] The question an import asks, over a made-up file: a view renamed, one added, the look changed.
         var asking = new RenderSettingsHost();
@@ -72,10 +69,10 @@ internal static partial class EditBarRender
         incoming.Design.CornerRadiusPx = 4;
         incoming.Design.Theme = AppTheme.Light;
         var preview = SettingsTransfer.Compare(asking.State, incoming, [], ["\\\\.\\DISPLAY1"]);
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-backup-import.png"), asking, [b], menu =>
-            menu.Confirm(SettingsMenu.ImportQuestion(preview, "state.json", "state.before-import-20261025-104200.json", () => { }))).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "general-backup-import", asking, b, view =>
+            asking.Confirm(SettingsMenu.ImportQuestion(preview, "state.json", "state.before-import-20261025-104200.json", () => { }))).ConfigureAwait(true);
 
-        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-backup-reset.png"), new RenderSettingsHost(), [b], menu => Click(menu, SettingsMenu.Keys.BackupReset)).ConfigureAwait(true);
+        await SettingsShot(screen, outDir, theme, "general-backup-reset", new RenderSettingsHost(), b, view => Click(view, SettingsMenu.Keys.BackupReset)).ConfigureAwait(true);
     }
 
     private static async Task AboutShots(Grid screen, string outDir, string theme)
@@ -83,26 +80,26 @@ internal static partial class EditBarRender
         const string a = SettingsMenu.Keys.About;
         const string u = SettingsMenu.Keys.Uninstall;
 
-        (string Name, RenderSettingsHost Host, string[] Open, string? Click)[] cases =
+        (string Name, RenderSettingsHost Host, string Open, string? Click)[] cases =
         [
-            ("-about", new RenderSettingsHost(), [a], null),
-            ("-uninstall-packaged", new RenderSettingsHost { Packaged = true }, [a, u], null),
-            ("-uninstall-loose", new RenderSettingsHost(), [a, u], null),
-            ("-uninstall-loose-data", new RenderSettingsHost { DeleteData = true }, [a, u], null),
-            ("-uninstall-confirm", new RenderSettingsHost { DeleteData = true }, [a, u], u + "/now"),
-            ("-uninstall-packaged-confirm", new RenderSettingsHost { Packaged = true }, [a, u], u + "/now"),
+            ("-about", new RenderSettingsHost(), a, null),
+            ("-uninstall-packaged", new RenderSettingsHost { Packaged = true }, u, null),
+            ("-uninstall-loose", new RenderSettingsHost(), u, null),
+            ("-uninstall-loose-data", new RenderSettingsHost { DeleteData = true }, u, null),
+            ("-uninstall-confirm", new RenderSettingsHost { DeleteData = true }, u, u + "/now"),
+            ("-uninstall-packaged-confirm", new RenderSettingsHost { Packaged = true }, u, u + "/now"),
         ];
 
         foreach (var (name, host, open, click) in cases)
         {
-            await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}{name}.png"), host, open, menu => Click(menu, click)).ConfigureAwait(true);
+            await SettingsShot(screen, outDir, theme, "general" + name, host, open, view => Click(view, click)).ConfigureAwait(true);
         }
     }
 
     /// <summary>A line clicked by its key once the menu is open, as a click would.</summary>
-    private static void Click(BarMenuView menu, string? key)
+    private static void Click(PageView view, string? key)
     {
-        if (key is not null && !menu.DebugClickKey(key))
+        if (key is not null && !view.DebugClick(key))
         {
             Console.WriteLine($"editbar: no line {key} to click");
         }

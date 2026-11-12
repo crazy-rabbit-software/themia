@@ -499,9 +499,9 @@ internal static class SceneRender
     }
 
     /// <summary>
-    /// [S-1077] Edit mode as the edit bar's pictures compose it: the real bar at the top centre, its
-    /// trail naming the selection; the add menu hung under it; the real properties menu beside the
-    /// selection, a submenu path opened in it.
+    /// [S-1077] Edit mode as the edit bar's pictures compose it: the real bar at the top centre, the
+    /// selection's entry on it; the add menu hung under it; the selection's page hung from its entry, a
+    /// row (by its key) opened in it.
     /// </summary>
     private static async Task<bool> ComposeEditAsync(Canvas canvas, SceneEdit edit, ViewState view, Job job, ScreenMetrics metrics, DesignState design)
     {
@@ -515,7 +515,7 @@ internal static class SceneRender
         EditBar? bar = null;
         if (edit.Bar)
         {
-            bar = EditBarRender.SelectionBar(EditBarRender.SelectionCrumb([.. selected.Select(w => w.Model)]));
+            bar = EditBarRender.SelectionBar(EditBarRender.SelectionEntry([.. selected.Select(w => w.Model)]), open: selected.Count > 0);
             barRect = EditBarRender.PlaceBar(canvas, bar, width);
         }
 
@@ -535,23 +535,26 @@ internal static class SceneRender
             return true;
         }
 
-        // [S-2202] The menu's room is the work area: above the taskbar, as on a desktop.
+        // [S-2202] The flyout's room is the work area: above the taskbar, as on a desktop. [S-2343] The selection's page hangs from its entry.
         var bottom = job.Scene.WorkBottom(job.File.Screen);
-        var strip = EditBarRender.Properties(view, [.. selected.Select(w => w.Model.Id)], bottom - (2 * StripPlacement.Gap));
-        var painted = selected.Select(w => GridGeometry.Inset(GridGeometry.ToPixels(Shown(w.Model), metrics), design.WidgetGapPx));
-        EditBarRender.PlaceProperties(canvas, strip, painted, new PixelRect(0, 0, metrics.Width, bottom), barRect);
-
-        if (edit.Open is { } open)
+        if (bar is null)
         {
-            strip.UpdateLayout();
-            if (!strip.DebugOpen(open))
-            {
-                Console.WriteLine($"scene: {job.Scene.Name}: the properties menu has no submenu \"{open}\"");
-                return false;
-            }
-
-            await Task.Delay(400).ConfigureAwait(true);
+            Console.WriteLine($"scene: {job.Scene.Name}: a selection's page hangs from the bar, and \"edit.bar\" is false");
+            return false;
         }
+
+        var page = EditBarRender.SelectionPageOf(view, [.. selected.Select(w => w.Model.Id)]);
+        var flyout = EditBarRender.HangFlyout(canvas, page, bar, barRect, null, new PixelRect(0, 0, metrics.Width, bottom));
+        page.Show();
+        if (edit.Open is { } open && !page.DebugClick(open))
+        {
+            Console.WriteLine($"scene: {job.Scene.Name}: the selection's page has no row \"{open}\"");
+            return false;
+        }
+
+        canvas.UpdateLayout();
+        flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, new PixelRect(0, 0, metrics.Width, bottom), flyout.ContentHeight));
+        await Task.Delay(400).ConfigureAwait(true);
 
         return true;
     }

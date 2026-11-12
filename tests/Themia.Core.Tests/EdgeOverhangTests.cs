@@ -239,37 +239,4 @@ public class EdgeOverhangTests
         Assert.Equal(1, BlockGeometry.Apply(start[1], delta, screen).Right, 9);
         Assert.Equal(0.15, BlockGeometry.Apply(start[1], delta, screen).X - BlockGeometry.Apply(start[0], delta, screen).X, 9);
     }
-
-    // ---- [S-6610] the properties panel ----------------------------------------------------------
-
-    [Fact]
-    public void S6610_the_panel_stands_beside_the_visible_part_of_a_selection_hanging_off_the_left()
-    {
-        var area = new PixelRect(0, 0, 1920, 1032);
-        var target = new PixelRect(-400, -100, 432, 300);
-
-        var spot = StripPlacement.Place(target, 280, 120, area, []);
-
-        Assert.Equal(StripSide.Right, spot.Side);
-        Assert.Equal(32 + StripPlacement.Gap, spot.X);
-        Assert.Equal((200 - 120) / 2.0, spot.Y, 9);
-    }
-
-    [Fact]
-    public void S6610_the_panel_stays_inside_the_area_for_a_selection_hanging_off_any_edge()
-    {
-        var area = new PixelRect(0, 0, 1920, 1032);
-
-        foreach (var target in new[]
-                 {
-                     new PixelRect(1888, 400, 600, 300), new PixelRect(700, 1000, 300, 600),
-                     new PixelRect(700, -568, 300, 600), new PixelRect(-1500, -1000, 3500, 2050),
-                 })
-        {
-            var spot = StripPlacement.Place(target, 280, 120, area, []);
-
-            Assert.InRange(spot.X, area.X - Eps, area.Width - 280 + Eps);
-            Assert.InRange(spot.Y, area.Y - Eps, area.Height - 120 + Eps);
-        }
-    }
 }
