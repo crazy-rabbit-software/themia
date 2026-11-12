@@ -44,8 +44,18 @@ public enum CountdownStyle
 /// [S-6036] One countdown: a target, its name and how it reads. A widget counts to one target;
 /// several countdowns are several widgets. A new widget has no target and asks to be set up.
 /// </summary>
-public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, ISetupRule
+public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, ISetupRule, IReadoutSized
 {
+    /// <summary>[S-11303] How big the time left is: Small, Medium, Large; the card follows it.</summary>
+    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
+
+    /// <summary>[S-11303] Whether the progress bar stands under the time left (the Text and Flip styles); off for a new one.</summary>
+    public bool ShowProgress { get; set; }
+
+    /// <summary>[S-11303] Whether the bar is drawn: asked for, on a style that has it (a ring is its own progress).</summary>
+    [JsonIgnore]
+    public bool DrawsProgress => ShowProgress && Style != CountdownStyle.Ring;
+
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => Target is null;
 
@@ -115,12 +125,20 @@ public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, IS
         Target = Target,
         Format = Format,
         Created = Created,
+        Size = Size,
+        ShowProgress = ShowProgress,
     };
 
     /// <summary>[S-6036] A hand-edited file: an unknown format reads Auto, a name is one line of at most <see cref="MostLabel"/>.</summary>
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
+
+        if (!Enum.IsDefined(Size))
+        {
+            repairs.Add($"countdown: size {(int)Size} is not one; medium");
+            Size = ReadoutSizes.Default;
+        }
 
         if (!Enum.IsDefined(Format))
         {

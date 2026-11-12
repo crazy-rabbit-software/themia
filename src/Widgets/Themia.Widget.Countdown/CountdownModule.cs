@@ -28,7 +28,7 @@ public sealed class CountdownModule : IWidgetModule
         Label = CountdownStr.Widget_Countdown_Label.Local(),
         Description = CountdownStr.WidgetsA_Catalog_Countdown_Description.Local(),
         Glyph = Glyphs.Countdown,
-        Sizing = _ => WidgetSizing.Legacy(300, 200),
+        Sizing = c => CountdownLayout.Sizing((CountdownConfig)c, Strings.Current),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 2),
     };

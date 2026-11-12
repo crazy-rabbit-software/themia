@@ -1,5 +1,6 @@
 {
   "$englishOnly": [
+    "countdown.progress",
     "widgetsA.countdown.menu.date",
     "widgetsA.countdown.menu.dateRefused",
     "widgetsA.countdown.menu.nameTooLong",
@@ -57,5 +58,6 @@
   "widgetsA.countdown.settings.format.label": "Format",
   "widgetsA.countdown.settings.name.label": "Name",
   "widgetsA.countdown.untitled": "Untitled",
-  "styles.clock.flip": "Flip"
+  "styles.clock.flip": "Flip",
+  "countdown.progress": "Progress bar"
 }

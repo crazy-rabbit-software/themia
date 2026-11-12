@@ -15,15 +15,15 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Time left until one date the user cares about ([S-6036]): one widget, one target. [C-01]
 /// <para>
-/// [S-1447] [S-6739] The face is the timers': the duration as the Readout on the Hero steps with the
-/// target's date under it, sized on the reading's shape (<see cref="CountdownLayout.Plan"/>), and on L
-/// and XL the progress bar 8 under it; the name is the card's header ([S-6037]). It sits where the
+/// [S-11303] The face is the timers' at its Size: the duration as the Readout on the Size's step with
+/// the target's date under it, sized on the widest reading of its format (<see cref="CountdownLayout.Plan"/>),
+/// and where it is on the progress bar 8 under it; the name is the card's header ([S-6037]). It sits where the
 /// widget's alignment puts it ([S-6580], centred by default).
 /// </para>
 /// <para>
 /// [S-6030] The style is how the duration draws: the text, the Chart ring of the time left with the
 /// text in its hole ([S-6031]), or split-flap cards ([S-6032], <see cref="FlipCard"/>, <see cref="FlipRules"/>)
-/// with their units under them; a tile too small for its ring or its cards draws the text.
+/// with their units under them.
 /// </para>
 /// </summary>
 internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAware, IWidgetAligned, IWidgetSurfaceAware
@@ -40,9 +40,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
     private CountdownPlan _plan;
 
-    /// <summary>The reading's shape the face was laid out for ([S-1447]): a new one lays it out again.</summary>
-    private string _shape = string.Empty;
-
     private IWidgetSurface? _surface;
     private Ticker? _ticker;
     private CountdownConfig _config = new();
@@ -51,7 +48,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private WidgetArea _area;
     private bool _detached;
 
     public CountdownView()
@@ -109,10 +105,9 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     }
 
     /// <inheritdoc />
+    /// <summary>[S-11303] The face is the config's, not the box's: a wider card centres the same face.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Rebuild();
     }
 
     /// <summary>The target, its format or the room changed: cadence, layout and letters.</summary>
@@ -155,7 +150,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         _subscription = _ticker?.Subscribe(interval, OnTick);
     }
 
-    /// <summary>[S-1447] [S-6030] The face for the tile, the style and the reading's shape.</summary>
+    /// <summary>[S-11303] The face at the countdown's Size and style.</summary>
     private void Lay()
     {
         // [S-1862] No target: the card shows its Set up row over this, so draw nothing.
@@ -166,16 +161,9 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         }
 
         _column.Visibility = Visibility.Visible;
-        if (!_area.IsMeasured)
-        {
-            return;
-        }
-
         var now = _clock();
-        var reading = CountdownFormatter.Read(target, now, _config.Format, Strings.Current).Text;
         var cards = CountdownLayout.Cards(target, now, _config.Format == CountdownFormat.DaysHoursMinutesSeconds);
-        _shape = CountdownLayout.Shape(reading);
-        _plan = CountdownLayout.Plan(_config.Style, _area, reading, cards, CountdownLayout.Progress(_config, now) is not null);
+        _plan = CountdownLayout.Plan(_config, Strings.Current);
 
         // [S-6583] The face where the widget's alignment puts it; the bar keeps the content's width.
         var ringed = _plan.Look == CountdownLook.Ring;
@@ -191,7 +179,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         _face.Height = ringed ? _plan.Ring : double.NaN;
         _face.Visibility = _plan.Look == CountdownLook.Flip ? Visibility.Collapsed : Visibility.Visible;
         _flipRow.Visibility = _plan.Look == CountdownLook.Flip ? Visibility.Visible : Visibility.Collapsed;
-        _bar.Visibility = _plan.Bar ? Visibility.Visible : Visibility.Collapsed;
+        _bar.Visibility = _config.DrawsProgress ? Visibility.Visible : Visibility.Collapsed;
 
         if (_plan.Look == CountdownLook.Flip)
         {
@@ -205,7 +193,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         }
     }
 
-    /// <summary>[S-6032] One card per unit, its unit under it on the cards' line under where it fits.</summary>
+    /// <summary>[S-6032] One card per unit, its unit under it on the cards' line under.</summary>
     private void LayFlip(IReadOnlyList<CountdownCard> cards)
     {
         if (_flips.Count != cards.Count)
@@ -232,7 +220,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
             Family.Step(_flips[i].Unit, under);
             _flips[i].Unit.Text = UnitText(cards[i].Unit);
             _flips[i].Unit.MaxWidth = _plan.Flip.CardWidth;
-            _flips[i].Unit.Visibility = _plan.Under ? Visibility.Visible : Visibility.Collapsed;
+            _flips[i].Unit.Visibility = Visibility.Visible;
         }
     }
 
@@ -252,7 +240,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         }
     }
 
-    /// <summary>[S-6330] Re-letter the readout. Called on every tick, so it allocates nothing but strings; a new shape lays the face out again.</summary>
+    /// <summary>[S-6330] Re-letter the readout. Called on every tick, so it allocates nothing but strings.</summary>
     private void Refresh()
     {
         if (_config.Target is not { } target)
@@ -263,14 +251,10 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         var now = _clock();
         var zone = TimeZoneInfo.Local;
         var reading = CountdownFormatter.Read(target, now, _config.Format, Strings.Current);
-        if (_area.IsMeasured && CountdownLayout.Shape(reading.Text) != _shape)
-        {
-            Lay();
-        }
 
         // [C-40] Gone by: the readout carries it in the critical role.
         var role = reading.Elapsed ? ColourRole.Critical : ColourRole.TextPrimary;
-        _readout.Show(reading.Text, under: _plan.Under ? CountdownFormatter.TargetLabel(target, now, zone, Strings.Current) : null, valueRole: role);
+        _readout.Show(reading.Text, under: CountdownFormatter.TargetLabel(target, now, zone, Strings.Current), valueRole: role);
 
         if (_plan.Look == CountdownLook.Ring)
         {
@@ -298,9 +282,10 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
         // [C-05] The whole instant, for a date line that is necessarily abbreviated (or not shown).
         ToolTipService.SetToolTip(_column, CountdownFormatter.FullTargetLabel(target, zone, Strings.Current));
 
-        if (_plan.Bar && CountdownLayout.Progress(_config, now) is { } progress)
+        // [S-11303] Without the time the target was set the bar is its track alone.
+        if (_config.DrawsProgress)
         {
-            _bar.Show(progress);
+            _bar.Show(CountdownLayout.Progress(_config, now) ?? 0);
         }
     }
 

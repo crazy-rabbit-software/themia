@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Countdown;
 
 namespace Themia.App.Shell.Config;
@@ -33,6 +34,13 @@ internal static class CountdownMenu
         ArgumentNullException.ThrowIfNull(now);
 
         var locale = Strings.Current;
+
+        // [S-11303] Under the look: how big the time left is, and the bar under it where the style has one.
+        menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, config));
+        if (config.Style != CountdownStyle.Ring)
+        {
+            menu.StyleLines.Add(menu.Toggle(null, CountdownStr.Countdown_Progress.Text(), config.ShowProgress, on => config.ShowProgress = on));
+        }
 
         // [S-6037] After the look, each group behind a divider: what is counted to (its name, its
         // day and time); how the time left reads.

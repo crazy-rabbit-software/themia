@@ -7,19 +7,10 @@ using Xunit;
 namespace Themia.Widget.Countdown.Tests;
 
 /// <summary>
-/// [S-1447] [S-1448] [S-6031] [S-6032] The countdown's ladder, progress, ring and flip cards. Moved
-/// with the widget from Core's TrackersLayoutTests and TimeStylesTests, unchanged in what they
-/// assert (the tiers' slots are the card less a 36 header).
+/// [S-1447] [S-1448] [S-6031] [S-6032] [S-11303] The countdown's face at its Size, progress, ring and flip cards.
 /// </summary>
 public sealed class CountdownLayoutTests
 {
-    private static readonly WidgetArea XS = new(120, 84);
-    private static readonly WidgetArea S = new(200, 114);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea Wide = new(480, 124);
-    private static readonly WidgetArea Tall = new(200, 364);
-    private static readonly WidgetArea L = new(560, 384);
-    private static readonly WidgetArea XL = new(800, 524);
 
     private static readonly DateTimeOffset Now = new(2026, 10, 4, 12, 0, 0, TimeSpan.FromHours(2));
 
@@ -58,18 +49,6 @@ public sealed class CountdownLayoutTests
     }
 
     [Fact]
-    public void S1447_the_progress_bar_is_a_rung_of_the_large_tiles_alone()
-    {
-        Assert.False(CountdownLayout.ShowsProgress(XS));
-        Assert.False(CountdownLayout.ShowsProgress(S));
-        Assert.False(CountdownLayout.ShowsProgress(M));
-        Assert.False(CountdownLayout.ShowsProgress(Wide));
-        Assert.False(CountdownLayout.ShowsProgress(Tall));
-        Assert.True(CountdownLayout.ShowsProgress(L));
-        Assert.True(CountdownLayout.ShowsProgress(XL));
-    }
-
-    [Fact]
     public void S1448_progress_runs_from_when_the_target_was_set_to_the_target()
     {
         var config = new CountdownConfig();
@@ -101,51 +80,43 @@ public sealed class CountdownLayoutTests
     }
 
     [Fact]
-    public void S1447_the_text_climbs_the_hero_steps_and_the_bar_stands_under_it_on_l_and_xl_only()
+    public void S11303_the_readout_is_on_the_sizes_step_sized_on_the_widest_reading_of_its_format()
     {
-        var m = CountdownLayout.Plan(CountdownStyle.Text, M, "3d 5h", [], progress: true);
-        Assert.Equal(CountdownLook.Text, m.Look);
-        Assert.Equal(FamilyType.Hero96, m.Step);
-        Assert.True(m.Under);
-        Assert.False(m.Bar);
+        Assert.Equal("888 days ago", CountdownLayout.Widest(CountdownFormat.Days, Locale.En));
+        Assert.True(HeroFit.Ems(CountdownLayout.Widest(CountdownFormat.DaysHoursMinutesSeconds, Locale.En)) > HeroFit.Ems(CountdownLayout.Widest(CountdownFormat.DaysHoursMinutes, Locale.En)));
 
-        var l = CountdownLayout.Plan(CountdownStyle.Text, L, "3d 5h", [], progress: true);
-        Assert.True(l.Bar);
-        Assert.False(CountdownLayout.Plan(CountdownStyle.Text, L, "3d 5h", [], progress: false).Bar);
-
-        var xs = CountdownLayout.Plan(CountdownStyle.Text, XS, "3d 5h", [], progress: true);
-        Assert.Equal(FamilyType.Big28, xs.Step);
+        var medium = CountdownLayout.Plan(new CountdownConfig(), Locale.En);
+        Assert.Equal(CountdownLook.Text, medium.Look);
+        Assert.Equal(FamilyType.Hero68, medium.Step);
+        Assert.Equal(FamilyType.Big40, CountdownLayout.Plan(new CountdownConfig { Size = ReadoutSize.Small }, Locale.En).Step);
     }
 
     [Fact]
-    public void S6031_the_ring_holds_the_text_where_its_hole_can_and_never_has_a_bar()
+    public void S11303_the_ring_and_the_cards_are_one_step_under_and_the_cards_as_wide_as_three_figures()
     {
-        var m = CountdownLayout.Plan(CountdownStyle.Ring, M, "3d 5h", [], progress: true);
-        Assert.Equal(CountdownLook.Ring, m.Look);
-        Assert.Equal(192, m.Ring);
-        Assert.Equal(FamilyType.Big40, m.Step);
+        var ring = CountdownLayout.Plan(new CountdownConfig { Style = CountdownStyle.Ring }, Locale.En);
+        Assert.Equal(CountdownLook.Ring, ring.Look);
+        Assert.Equal(FamilyType.Big40, ring.Step);
+        Assert.True(ring.Ring > 0 && ring.Width == ring.Ring && ring.Height == ring.Ring);
 
-        var xl = CountdownLayout.Plan(CountdownStyle.Ring, XL, "3d 5h", [], progress: true);
-        Assert.False(xl.Bar);
-
-        // XS: a 60 ring's hole cannot hold "8d 8h" on 28; the text instead, still without a bar.
-        var xs = CountdownLayout.Plan(CountdownStyle.Ring, XS, "3d 5h", [], progress: true);
-        Assert.Equal(CountdownLook.Text, xs.Look);
-        Assert.False(xs.Bar);
+        var flip = CountdownLayout.Plan(new CountdownConfig { Style = CountdownStyle.Flip, Format = CountdownFormat.DaysHoursMinutesSeconds }, Locale.En);
+        Assert.Equal(CountdownLook.Flip, flip.Look);
+        Assert.Equal(FamilyType.Big40, flip.Step);
+        Assert.Equal(FlipRules.RowWidth(FamilyType.Big40, 4, "888"), flip.Width);
     }
 
     [Fact]
-    public void S6032_the_cards_take_the_largest_step_their_row_fits_else_the_text()
+    public void S11303_the_card_is_its_face_under_its_header_with_the_bar_where_it_is_on_but_never_on_a_ring()
     {
-        CountdownCard[] cards = [new("3", CountdownUnit.Days), new("05", CountdownUnit.Hours), new("19", CountdownUnit.Minutes)];
+        var plain = CountdownLayout.Sizing(new CountdownConfig(), Locale.En);
+        var barred = CountdownLayout.Sizing(new CountdownConfig { ShowProgress = true }, Locale.En);
+        var ring = new CountdownConfig { Style = CountdownStyle.Ring, ShowProgress = true };
 
-        var xl = CountdownLayout.Plan(CountdownStyle.Flip, XL, "3d 5h", cards, progress: true);
-        Assert.Equal(CountdownLook.Flip, xl.Look);
-        Assert.Equal(FamilyType.Hero192, xl.Step);
-        Assert.True(xl.Under);
-        Assert.False(xl.Bar);
-
-        // XS: three cards on 28 are 3 × (33 + 24) + 16 = 187 wide in an 88 box: the text.
-        Assert.Equal(CountdownLook.Text, CountdownLayout.Plan(CountdownStyle.Flip, XS, "3d 5h", cards, progress: true).Look);
+        Assert.True(plain.FixedHeight && !plain.FixedWidth);
+        Assert.Equal(36 + 92 + 20 + 12 + 2, plain.Natural.Height);
+        Assert.Equal(plain.Natural.Height + 12, barred.Natural.Height);
+        Assert.False(ring.DrawsProgress);
+        Assert.Equal(CountdownLayout.Sizing(ring, Locale.En), CountdownLayout.Sizing(new CountdownConfig { Style = CountdownStyle.Ring }, Locale.En));
+        Assert.False(new CountdownConfig().ShowProgress);
     }
 }
