@@ -42,10 +42,11 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            # a wrong --state prints the kind's states (Stocks: quote|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
-Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
+Themia.exe --picker-png <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
+Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
 Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|select]   # the edit bar (editbar-*: nothing,
-           # one, several selected, problems, an entry open, narrow), add menu open, placing; every page's flyout with
+           # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*); the selection's page
            # beside real cards (select-*) [S-2328]. --picker-png takes --theme too. There is no settings window [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
@@ -99,7 +100,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Shell/ (EditBarLayout, SelectionPage) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
-  Model/ReadyMadeGroups.cs (the add menu's ready-made groups as data: kinds, boxes in DIPs, config fragments)
+  Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
   Model/WidgetGroups.cs (groups: a view's Groups, a widget's Group; the rules), WidgetSelection (units, entered group)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
                    Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
@@ -311,9 +312,14 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   of fewer than two dissolves (load validation and every `Mutate`). Ctrl+G / Ctrl+Shift+G and the card
   menu group and ungroup. Everything that produces or moves widgets is the one placement session
   (`PlacementPayload`: a new widget, a ready-made group, a copy, a move).
-- **The add menu** ([S-3510]..[S-3515], [S-2473]): Core's tree (`AddTree`, `AddMenuKeys`), drawn by
-  `WidgetPicker`: Ready-made (the recipes of `ReadyMadeGroups`, docs/WIDGET-KIT.md 18), Popular,
-  Browse; a widget places itself in it through its descriptor; a recipe is data only.
+- **The add page** ([S-11700]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593): Add opens a flyout as
+  wide as the bar, flush under it: a search box and tabs (Start: the starter groups, `ReadyMadeGroup.Starter`,
+  then Popular; then a tab per subject: its ready-made groups, its widgets, each family under its name), tiles
+  of at least 200 with a picture of the thing itself (`AddPictures`: real cards on sample data, Debug only;
+  a glyph until drawn and in Release). The model is Core's (`AddTree` the subjects and families, `AddPage`
+  the tabs, sections and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a
+  widget places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the
+  placement session.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
 - **The selection's page** ([S-2340]..[S-2343]): selecting widgets adds their entry to the bar ("Clock",

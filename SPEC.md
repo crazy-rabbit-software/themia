@@ -1764,7 +1764,7 @@ service layer knows strategies, never services: a service is a descriptor that p
 ## Adding a widget
 
 - **[S-420]** *(Retired: the picker whose sections were never split across columns (`ColumnLayout`)
-  is the edit bar's add menu, [S-3501]; it is a tree of subjects, [S-3510].)* There
+  is the edit bar's add page, [S-3501], [S-11700].)* There
   is no second way in: there is no settings window ([S-3585]).
 - **[S-421]** Picking a widget does **not** add it and does not open its settings. It starts the
   placement session ([S-1587]): a ghost of the widget at its default size follows the pointer across
@@ -1888,7 +1888,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 - **[S-2327]** **One flyout at a time**, nothing open as edit mode starts. A page's entry opens its
   flyout, or closes it again; another entry swaps it. It closes on Escape (after going back out of a
   sub-page or an opened card first), on a press anywhere that is not the bar or the flyout (which then
-  does what it does: a press on a widget selects it), when the add menu opens, when a placement starts,
+  does what it does: a press on a widget selects it), when the add page opens ([S-11707]), when a placement starts,
   and as edit mode ends; Escape with no flyout open backs out of placing, the selection, then edit mode
   ([S-1583]). Keys: Tab and Shift+Tab walk the bar then the flyout; Left and Right walk the bar (mirrored
   right to left); Enter or Space opens an entry; Down from the bar goes into the open flyout; F6 reaches
@@ -1899,7 +1899,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   bar|pages|select]` draws the real bar on a stand-in display (`editbar-<theme>.png`, nothing selected;
   `-widget`, one widget, its flyout open; `-many`, two of a kind; `-mixed`, three of several; `-errors`,
   the problems' button; `-open`, General's entry lit; `-narrow` and `-narrowest`, 900- and 640-wide
-  displays; `-add`, the add menu; `-placing`), every page's flyout hung from its entry over a busy
+  displays; `-add*`, the add page, [S-11712]; `-placing`), every page's flyout hung from its entry over a busy
   stand-in wallpaper, opened at a row as a deep link opens it, its picker open (`page-<theme>-general`,
   `-general-end`, `-general-motion`, `-general-language`, `-general-language-find`, `-general-advice`,
   `-general-link-temperature`, `-general-assistants*`, `-general-pro-*`, `-general-backup*`,
@@ -1946,11 +1946,17 @@ Down into a flyout, Escape out of a sub-page then the flyout then edit mode, F6,
 item, F2 and Delete on a view); a screen reader on the entries, the cards and the pickers; the selection's
 flyout opening once per selection and again on a click; a language switch with a flyout open.
 
-### The edit bar and its add menu (EDITBAR)
+### The edit bar and its add page (EDITBAR)
 
-The bar itself is EDITBAR-PAGES' ([S-2320]); what stays here is its add menu. Owning
-files: `Shell/WidgetPicker.cs`,
-`Shell/DesktopWindow.Picker.cs`; rules in Core `Widgets/AddMenu.cs` (tests `AddMenuTests`).
+The bar itself is EDITBAR-PAGES' ([S-2320]); what stays here is its add page (owner 2026-11-12: "when
+adding a widget there should also already be premade groups, not just those atoms, so that it is easier
+to get started"; after Karpo's add page, `karpo-app` docs/widgets.md §593, §578, §592). Owning files: Core
+`Widgets/AddTree.cs` (the tree), `Widgets/AddPage.cs` (the page's tabs, sections, tiles and search, and
+`AddSearch`), `Widgets/AddPageKeys.cs`, `Shell/AddPageLayout.cs`, `Geometry/FlyoutPlacement.Under`, the
+metrics `ShellMetrics.AddPage`, `ReadyMadeGroup.Starter`; App `Shell/Pages/AddPageView.cs`,
+`AddPageFlyout.cs`, `AddPictures.cs`, `Shell/DesktopWindow.Picker.cs`, the Add entry of `EditBar.cs`;
+renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tests `AddPageTests`,
+`AddMenuTests` (the tree), `ReadyMadeGroupsTests.S2473_`.
 
 - **[S-3500]** *(Retired by [S-2320] (2026-11-12): the bar is Karpo's command bar of page entries; the trail, Undo, Redo, Snap and ⚙ are gone from it.)*
 - **[S-3507]** *(Retired by [S-2320], [S-2341]: there is no trail; the selection has an entry of its own, Display and View are pages.)*
@@ -1959,26 +1965,24 @@ files: `Shell/WidgetPicker.cs`,
 - **[S-3516]** **Snap to grid** (grid snap while moving and resizing, [S-06]) is a switch in the General
   page's first section ([S-2300], key `snap`), set there and nowhere else ([S-3590]): not on the bar,
   not on the Appearance page, not in the surface menu.
-- **[S-3501]** **Add widget** opens the **add menu** under it ([S-1749]; the surface menu's Add widget
-  opens the same menu at the click, [S-1744]): a search box over every widget kind in the catalogue
-  (the module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change), then the tree of [S-3510],
-  each row the widget's icon and name on a 32-DIP line, its description the tooltip. No previews.
-  Choosing one starts the placement session of [S-421] unchanged.
+- **[S-3501]** **Add widget** opens the **add page** ([S-11700]): every widget kind in the catalogue (the
+  module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change) and
+  every ready-made group ([S-2470]) as tiles with pictures. Every way in opens the same page under that
+  display's bar: the bar's Add, the surface menu's Add widget ([S-1744]), the desktop's background menu's
+  ([S-5551]) and the keys ([S-1998]). Picking a tile starts the placement session of [S-421] unchanged.
 - **[S-3502]** *(Retired: the catalogue's sections no longer flow through columns as a newspaper's;
-  the menu is a tree of subjects, [S-3510].)*
-- **[S-3503]** *(Retired with it: two top columns fit every work area; the cascade scrolls sideways
-  past 75 % of its width, [S-3512].)*
-- **[S-3504]** *(Retired: a search lists its matches flat, [S-3515].)*
-- **[S-3505]** *(Retired: the keys walk the tree, [S-3514].)*
-- **[S-3510]** The menu is a **tree of subjects**, after Karpo's add list (`karpo-app`,
+  the page is tabs of subjects, [S-11700].)*
+- **[S-3503]** *(Retired with it.)*
+- **[S-3504]** *(Retired: a search lists its matches under a heading per kind, [S-11706].)*
+- **[S-3505]** *(Retired: the keys walk the tiles, [S-11708].)*
+- **[S-3510]** The page's source is a **tree of subjects**, after Karpo's add list (`karpo-app`,
   docs/widgets.md §7b, §136): it answers the one question a person adding a widget has (what do I
   want?) by subject. Its folders are declared once in Core (`Widgets/AddTree.cs`: `AddFolderId`,
-  a closed set, each with its words; its row wears its first widget's icon), and each widget places
-  itself in one ([S-6907]); lines part the runs. Three top columns under their headings: **Ready-made**
-  (the ready-made groups, [S-2473]), **Popular** and **Browse**; Browse is a row per
-  subject; inside a subject a **family** (one widget in several layouts or parts) is one row
-  opening its own submenu. Never deeper than that. The catalogue has no sections of its own any more.
-- **[S-3511]** What is where. **Ready-made**: This PC, My day, Weather ([S-2474]). **Popular** (each again from its home): Clock, Weather, Forecast,
+  a closed set, each with its words; a folder wears its first widget's glyph), and each widget places
+  itself in one ([S-6907]). **Popular** and **Browse**; Browse is a folder per subject (a tab of the
+  page); inside a subject a **family** (one widget in several parts) is a folder of its own (a heading
+  on the page). Never deeper than that. The catalogue has no sections of its own.
+- **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,
   Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcuts. **Browse**, in
   order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session);
   **Calendar & mail** (calendar, next meeting, week planner | mail, tasks,
@@ -1990,52 +1994,92 @@ files: `Shell/WidgetPicker.cs`,
   GPU ›, Network ›, Ping ›, each a meter and its details; the disk meter | Screen
   time › chart, donut, apps); **Devices & power** (Battery › meter and details, Power buttons › the
   seven | brightness, Bluetooth | drive, removable drives); **Quick settings** (the thirteen
-  toggles: the radios | the sound | the screen | the PC). Every kind has exactly one home; only
-  Popular shows rows again. The calendar, the audio visualizer and the folder are one widget each,
-  their former variants its styles ([S-3640], [S-3216], [S-4123]): a row of their subject, and found
-  by the variants' old names too ([S-943]). `AddTree.On` resolves the tree against the catalogue's kinds: a folder
-  left with one row is that row, with none it is gone, a line stands only between two rows, and a
-  kind the tree does not know stands in **More** at Browse's end, never missing, while
-  `AddMenuTests` fail until it has a home.
-- **[S-3512]** Layout: 240-DIP columns 8 DIPs apart; a heading line, then 32-DIP rows; a line is a
-  hairline with 4 DIPs either side. A folder's row ends in a chevron (mirrored right to left). An
-  open submenu is **not part of the menu** (user requirement, after Karpo's add list, whose
-  submenus are windows of their own): it is a card of its own in a popup, on the flyout's own
-  chrome (acrylic, stroke, 8-DIP corners, shadow), with no heading — the row that opened it stays
-  lit and names it. It stands beside that row, its first row level with it, lapping the column 4
-  DIPs; it opens forward (right, left to right) while it fits in the work area, else backward, and a
-  cascade that turned keeps that way; it never leaves the work area (`AddCascade`, tests
-  `AddMenuTests`). Opening or closing one moves and resizes nothing else. The popups are the
-  picker's children, so the flyout's one light dismiss closes all of it. The menu itself is its two
-  top columns, as tall as the taller one (at most 70 % of the work area). A folder holds at most 12
-  rows, a line counted, except Quick settings (every toggle).
+  toggles). Every kind has exactly one home; only Popular shows kinds again. The calendar, the audio
+  visualizer and the folder are one widget each, their former variants its styles ([S-3640], [S-3216],
+  [S-4123]), found by the variants' old names too ([S-943]). A family left with one widget is that
+  widget among its subject's own; a subject with none is no tab; a kind the tree does not know stands
+  in **More**, the last tab, never missing, while `AddMenuTests` fail until it has a home.
+- **[S-3512]** *(Retired by [S-11707]: there is no cascade and no column of rows; the page is tiles.)*
 - **[S-3513]** Search lists each widget once, at its home, and matches it on its name, keywords,
   kind, description and **the names of the folders it is in** (subject and family: [S-940]'s
-  category field), so "calendar" finds the week view and "system" the meters.
-- **[S-3514]** Keys and pointer (`AddMenuKeys`): the search box keeps the focus, so typing searches
-  at any time, and the highlight is drawn, not focused. Down from the box goes to Popular's first
-  row, Up from a top column's first row back to the box; Up and Down skip lines and stay in their
-  column, and a move in a column closes the submenus it had opened; Home and End go to its ends.
-  Right on Popular goes to the nearest row of Browse, Left back. **Right, Enter or Space on a folder
-  opens it** with the highlight on its first row; **Left closes a submenu** back to its row; Escape
-  closes the innermost submenu, and with none open closes the menu. Enter or Space on a widget adds
-  it. In the box, Left, Right, Home and End move the caret and Space is typed. Right to left the
-  arrows swap, as the cascade opens to the left. The pointer opens a folder by a click at once, or
-  by resting on its row for Windows' menu delay (`SPI_GETMENUSHOWDELAY`); resting on another row of
-  a column closes what that column had opened.
-- **[S-3515]** Typing lists the matches **flat, in place of the tree**, best first: one column of
-  rows, each its icon, its name and under it where it lives ("System › CPU", "Quick settings"). The
-  menu keeps its size; nothing matching says so. Down from the box walks the results, Up from the
-  first goes back; Enter adds the highlighted one, else the best match (drawn highlighted); Escape
-  empties the box, back to the tree with nothing open, and an empty box's Escape is the tree's.
-- **[S-3506]** *(Retired by [S-2328]: the bar's pictures are `editbar-<theme>*.png` of the new bar; `--picker-png` is unchanged.)*
+  category field), so "calendar" finds the week view and "system" the meters (`AddSearch`).
+- **[S-3514]** *(Retired by [S-11708]: the keys walk the tiles; there is no tree to open.)*
+- **[S-3515]** *(Retired by [S-11706].)*
+- **[S-3506]** *(Retired by [S-11712]: the add page's pictures are `--picker-png` and `--editbar-png`'s `-add*`.)*
+- **[S-11700]** The **add page** (`AddPage`): a top row of the search box (240) and the **tabs**: **Start**
+  first, then a tab per subject in Browse's order (Time, Calendar & mail, Weather & sky, News & markets,
+  Music & media, Notes & tools, Files & apps, System, Devices & power, Quick settings), then More while
+  anything stands in it. The tabs are a strip as Karpo's and WinUI's SelectorBar draw theirs: 40 tall, no
+  fill until pointed at, words in Body and secondary, the chosen tab's in BodyStrong and primary over the
+  accent's 16 × 3 pill; the strip scrolls sideways where it does not fit beside the box. The page opens on
+  Start, the caret in the search box; it is built afresh each time it opens ([S-1109]: its words follow
+  the language).
+- **[S-11701]** A tab is **sections**, each a heading in BodyStrong (24 after the section before, 8 over its
+  tiles) over its tiles; no section is empty and each has a key the same in every language (`tab/kind`,
+  a family's `tab/family:Id`).
+- **[S-11702]** A **tile** is one button on a page card (Windows' card fill and rim, radius 4; the subtle
+  fills under the pointer and pressed): a 120-tall picture box ([S-11710]), then its name in Body and one
+  Caption line (a group: "n widgets"; a widget: its description; a desktop item: "On the desktop"), each
+  cut short with an ellipsis; the caption is its tooltip. It places a widget at its natural size, a
+  ready-made group whole ([S-2471]), or a desktop item's widget ([S-5523]). Picking one closes the page and
+  starts the placement session ([S-421], [S-1587]). Where placing it would pass the free plan's widgets
+  ([S-1065]) the tile shows **Pro** at its picture's corner, the limit in its tooltip; picking it meets the
+  gate as before (refused with the notice, nothing placed). The limit is unchanged.
+- **[S-11703]** **Start**: **Ready-made**, the starter groups in their order (data: `ReadyMadeGroup.Starter`
+  on My day, This PC, Weather station, Now playing, My files, Screen time, Inbox and tasks), then
+  **Popular** ([S-3511]).
+- **[S-11704]** A **subject's tab**: **Ready-made**, the groups whose `Home` is the subject or a family
+  of it, in `ReadyMadeGroups.All`' order; **Widgets**, the subject's own widgets in the tree's order (a
+  family of one among them); [S-5523] **On the desktop**, the view's unplaced desktop items, in the
+  subject the item kind is at home in (the kind itself is never a tile); then each family of two or more
+  under its name (Processor's under "CPU", …), its widgets in order.
+- **[S-11705]** Every kind and every ready-made group the build offers has **exactly one home** on the
+  page (a subject's tab, or More); Start shows some again. `AddTree.SubjectOf` gives a family's subject.
+- **[S-11706]** **Typing searches** every tab ([S-3513], [S-2473]): in place of the tab, **Ready-made**
+  over the groups that match and **Widgets** over the widgets, each best first; spaces alone search
+  nothing; nothing matching shows the family's status row ("No results for “…”", [S-6714]); clearing the
+  box returns to the tab. Choosing a tab clears the box.
+- **[S-11707]** The page's **flyout** (`AddPageFlyout`, `FlyoutPlacement.Under`): exactly as wide as the bar,
+  flush with its sides, 12 under it, no beak (Karpo's §593: no one entry to point at); the pages' ground,
+  rim, radius and shadow, Windows' colours always; as tall as its page has wanted since it opened (it
+  grows, it never jumps back) up to 70 % of the work area, scrolling inside. Tiles of at least 200 fill
+  the width evenly, 8 apart either way (`AddPageLayout`, `ShellMetrics.AddPage`). It is one of the bar's
+  flyouts ([S-2327]): one at a time, the open one closes as it opens and it closes as another opens; Add
+  opens it and closes it again, Add marked with the accent's pill while it is open; a press outside it
+  and the bar closes it, as do a placement and leaving edit mode.
+- **[S-11708]** **Keys** (`AddPageKeys`): the caret is in the search box as the page opens; Tab walks the
+  box, the tabs and the tiles; Down from the box goes to the first tile, Up from a tile's first row back
+  to the box; the arrows walk the tiles as they stand (a section a grid, Left and Right in reading order
+  across sections, Up and Down to the same column of the row above or below, held to its tiles; mirrored
+  right to left); Home and End go to the first and last tile; Enter or Space on a tile picks it, Enter in
+  the box picks the first tile shown; typing on a tile goes to the box; Ctrl+Tab and Ctrl+Shift+Tab step
+  the tabs round; Escape empties the box first, then closes the page, the keyboard back on Add.
+- **[S-11709]** [S-5523] The desktop item kind is never a tile and has no home; its view's unplaced items are
+  tiles of **On the desktop** in its subject (Files & apps), none when nothing is unplaced.
+- **[S-11710]** A tile's **picture** is the thing itself (`AddPictures`): its widget at its natural size, or
+  its group's widgets at their boxes joined as one panel ([S-2240]), built as real cards on a preview host
+  with the design applied, so the user sees their look, and with **sample data only**: the sample PC's hub
+  for the system readings ([S-1931]), handed to those cards alone; each view's "sample" preview state, else
+  its first (never an "are you sure?"); the providers' recordings for a kit list ([S-9929]); never this
+  PC's readings, files or accounts. Drawn to a bitmap off the UI's hot path (one at a time at low
+  priority after the page shows, the cards on a stage under the page's ground and detached once drawn),
+  then fitted into its box 8 in, scaled down and never up, centred. Cached per look (the design as
+  stored, light or dark, the language) and tile; a new look starts the cache again. A picture not yet
+  drawn shows the tile's glyph on its box, never a blank.
+- **[S-11711]** The samples (the views' preview states, the sample PC) exist in Debug builds only, so a
+  Release build draws no picture: every tile shows its glyph (`AddPictures.Draws`). Moving the samples
+  into Release is its own change.
+- **[S-11712]** Debug renders: `--picker-png <out.png> [--tab Id] [--search text] [--width w] [--height h]
+  [--theme light|dark] [--lang xx]` draws the page open under the real bar on a stand-in display (1920 ×
+  1032 unless sized), every picture drawn before the shot (a minute at most, said when cut short);
+  `--editbar-png`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
+  `-add-weather`, `-add-search` ("music"), `-add-none` (nothing found), `-add-narrow` (a 900-wide display).
 
-Needs a live pass: the bar on every display at mixed DPI and with a top taskbar (the trail's one
-width, a narrow display's crumbs shrinking, the bar 8 DIPs off its sides), the widget crumb coming
-and going with a selection and putting the properties menu away and back, Undo and Redo greying and
-lighting as changes, drags and steps happen, Snap in step with the grid, the menus built again after
-Done and opened at once; the menu opening under Add widget and at a right-click (and growing sideways as a submenu opens, near a display's
-edge too), the hover delay, the keys in the menu, and a pick starting the placement.
+Needs a live pass: the page under the bar on every display at mixed DPI and with a top taskbar (as wide as
+the bar, 70 % of a short display); the pointer (hover fills, a press outside closing it, a tile's click
+starting the placement with the ghost of the widget or the whole group under the pointer, Escape and a
+right-click cancelling); the keys of [S-11708]; the pictures drawing in the running app (Debug), their cache
+across openings and after a design or language change; a screen reader on the tabs and tiles.
 
 ### The edit bar's settings menu (SETTINGS-MENU)
 
@@ -5608,12 +5652,12 @@ there: Themia never takes a key from the app the user is typing in.
 | Add menu | Arrows, Home / End, Enter, Space, Escape | Walk the tree, open a subject or family (Right, Enter), close it (Left, Escape), place, empty the search then close ([S-3514], [S-3515]) |
 | Menus, flyouts, dialogs | Arrows, Enter, Escape | WinUI's own: Escape closes the innermost |
 
-- **[S-1998]** The add menu straight from the keyboard (issue #120). **Ctrl+Alt+Shift+W** anywhere
+- **[S-1998]** The add page straight from the keyboard (issue #120). **Ctrl+Alt+Shift+W** anywhere
   (a second global hotkey: Ctrl+Alt+W with Shift for "and add") and **Ctrl+N** in edit mode take one
-  path, `AppHost.OpenAddMenu`: edit mode on, a placement in progress dropped, and the add menu
-  ([S-3501]) opened on the display under the pointer (as a paste lands there, [S-74]), at the
-  pointer, else mid work area. The surface takes the foreground (the hotkey press is what lets it)
-  so typing reaches the menu's search ([S-3514]). Both hotkeys are rows of one table, Core
+  path, `AppHost.OpenAddMenu`: edit mode on, a placement in progress dropped, and the add page
+  ([S-3501]) opened under the bar of the display under the pointer (as a paste lands there, [S-74]), [S-11707].
+  The surface takes the foreground (the hotkey press is what lets it)
+  so typing reaches the page's search ([S-11708]). Both hotkeys are rows of one table, Core
   `ShellHotkeys`, registered `MOD_NOREPEAT` and unregistered on shutdown by the command window's one
   loop; one another program owns is logged and skipped, as [S-65]. The surface menu's Add widget
   shows Ctrl+N. (Tests `S1998_`.)
@@ -6812,7 +6856,7 @@ proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX
 
 Search is `Core/Widgets/WidgetSearch.cs` over each descriptor's `Keywords` and `Providers` (their ids) ([S-6902]; ported from `widgetSearch.ts`,
 `searchKeywords.ts`, WidgetPicker.SPEC S-01..S-11; tests `WidgetSearchTests`, the original's cases);
-the menu it searches is the edit bar's add menu ([S-3501]), `Shell/WidgetPicker.cs`.
+the page it searches is the edit bar's add page ([S-3501], [S-11706]), `Core/Widgets/AddPage.cs`.
 
 - **[S-940]** A query matches six weighted fields: label 1.0, curated keywords 0.9, the kind's name
   split on camel case 0.8, the add menu's folders it is in 0.55 ([S-3513]), account providers 0.55, description 0.45 (S-01).
@@ -7218,7 +7262,7 @@ Owning files: `Themia.Core/Model/WidgetGroups.cs` (the rules), `AppState.cs` (`W
 Ctrl+click, Escape and Tab), `PlacementPayload.cs`, `WidgetTransfer.cs`, `LayoutHistory.cs`,
 `Widgets/CardJoins.cs` (sets), `Model/ReadyMadeGroups.cs` (the recipes), `Scenes/ReadyMadeScene.cs`;
 `AppHost.Groups.cs`, `GroupFrameLayer.cs`, `WidgetCard.cs` (the press), `DesktopWindow.Keys.cs`,
-`WidgetPicker.cs`. Tests: `WidgetGroupsTests`, `GroupShellTests`, `SceneGroupsTests`, `ReadyMadeGroupsTests`.
+`Shell/Pages/AddPageView.cs`. Tests: `WidgetGroupsTests`, `GroupShellTests`, `SceneGroupsTests`, `ReadyMadeGroupsTests`.
 
 Small widgets put side by side already draw as one panel ([S-2240]); a group is what makes such a
 composition one thing to arrange: an optional lock over ordinary cards, never a card of its own.
@@ -7363,11 +7407,11 @@ grouped, so a first desktop is a few clicks.
   config property one its kind has; two widgets or more; no two boxes overlapping; every widget touching
   another, so the recipe draws as one panel ([S-2240]); the whole within a 1280 × 720 work area. A build
   lacking one of a recipe's kinds leaves the recipe out whole.
-- **[S-2473]** **The add menu**: its first column, **Ready-made**, before Popular and Browse, a row per
-  recipe with its glyph, its name and how many widgets it places ("4 widgets"), its description the
-  row's tooltip; the keys and the pointer pick it as a widget's row. The search finds recipes with the
-  widgets, by name, description and the names of the widgets they hold; a result says "Ready-made · n
-  widgets".
+- **[S-2473]** **The add page** ([S-11700]): the starters first on Start ([S-11703]), every recipe under
+  **Ready-made** in its subject's tab ([S-11704]), a tile each: its joined panel's picture, its name and
+  how many widgets it places ("4 widgets"); picked as a widget's tile is. The search finds recipes with
+  the widgets, by name, description and the names of the widgets they hold, under their own heading
+  ([S-11706]).
 - **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid, each reading over its history, [S-11090]), **My day**
   (the clock on top, the next meeting, After this and the tasks under it as one panel, [S-11409]) and **Weather station** ([S-11172]: the
   reading, its facts, the forecast and the rain in the next hour, stacked), each with its kinds'
@@ -8742,7 +8786,7 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   another app or a card ends it. The selection stays (drawn inactive) when the keys go elsewhere.
 - **[S-5551]** **Themia's lines in the background menu**: with Themia's items, empty desktop's
   right-click menu ([S-5548]) holds **Edit widgets** (edit mode on, as the card menu's Edit layout and
-  Ctrl+Alt+W) and **Add widget** (edit mode on, then the picker where the right-click was, as the
+  Ctrl+Alt+W) and **Add widget** (edit mode on, then the add page under that display's bar, [S-11707], as the
   surface menu's Add widget, [S-1744]), so edit mode is reachable with no widget on screen and no
   shortcut known. One group where Windows puts an app's lines: right after Paste and Paste shortcut,
   else first, before the third-party lines, New › and Display settings, a separator on either side and
@@ -8922,8 +8966,8 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   `ShellMenus.ForCard`; tests `S1758_`.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu, a list with no icon row (Paste is its one row command, and one is
-  none, [S-1741]), an action menu that holds no setting ([S-3590]): **Add widget** (opens the picker
-  at the click, whose choice then follows the pointer to be placed, [S-1587]), **Paste** and **Select
+  none, [S-1741]), an action menu that holds no setting ([S-3590]): **Add widget** (opens the add page under the bar, [S-11707], whose tile then
+  follows the pointer to be placed, [S-1587]), **Paste** and **Select
   all** ([S-1582], off with no widget); then the ways into the bar's menus in the bar's order,
   **Display**, **View** and **Settings** (each opened under its button on that display, [S-3540],
   [S-3534]); and Done editing. Snap is not here: it is the bar's alone ([S-3516]). Outside edit
@@ -8970,9 +9014,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   and at most 64 px (`MenuArtRules.RasterPixels`), and decoded once per theme and raster size into one source every
   menu line showing it shares. Explorer's SVGs carry only a viewBox, and a source given no raster size drew each
   line at 2858² px, 32 MB held until a collection (user report 2026-10-17: 1 GB after opening some menus).
-- **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
-  or the point of a right-click on the surface — and flips above only
-  when there is no room below.
+- **[S-1749]** *(Retired by [S-11707]: the add page hangs under the bar, as wide, whatever opened it.)*
 - **[S-1750]** *(Retired 2026-10-19 by [S-6536]: no widget has a settings page, so none has a
   Settings command anywhere; the edit bar has no per-widget Settings button either.)*
 - **[S-1752]** *(Retired 2026-10-19 with the widget pages: `PageSections` went with the only pages
