@@ -41,14 +41,19 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     private readonly Button _longer;
     private readonly Button _end;
 
+    // [S-11305] At Small the rows are icon buttons: Start the accent's Play, End session Stop.
+    private readonly ControlsBlock _idleIcons = new() { HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly ControlsBlock _runningIcons = new() { HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly Button _shorterIcon;
+    private readonly Button _longerIcon;
+
     private FocusSessionConfig _config = new();
     private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
     private IDisposable? _lease;
     private Ticker? _ticker;
     private IDisposable? _seconds;
-    private WidgetArea _area;
-    private FocusPlan _plan;
+    private TimerSized _face;
     private FocusSnapshot _preview = new(FocusSessionState.Idle, ToggleReading.Pending, false, false);
     private bool _ticking;
     private bool _detached = true;
@@ -57,6 +62,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     {
         _host = host;
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        RowSpacing = FamilySpace.S2;
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -68,16 +74,18 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         _shorter = _idleRow.Icon(Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text(), () => StepLength(-1));
         _longer = _idleRow.Icon(Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text(), () => StepLength(+1));
         _end = _runningRow.Button(FocusSessionStr.Panels_Focus_End.Text(), Toggle);
+        _idleIcons.MainIcon(Glyphs.Play, FocusSessionStr.Panels_Focus_Start.Text(), Toggle);
+        _shorterIcon = _idleIcons.Icon(Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text(), () => StepLength(-1));
+        _longerIcon = _idleIcons.Icon(Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text(), () => StepLength(+1));
+        _runningIcons.Icon(Glyphs.Stop, FocusSessionStr.Panels_Focus_End.Text(), Toggle);
 
         Children.Add(_dial);
-        foreach (var row in new[] { _idleRow, _runningRow })
+        foreach (var row in new[] { _idleRow, _runningRow, _idleIcons, _runningIcons })
         {
             SetRow(row, 1);
             Children.Add(row);
         }
 
-        // The whole tile is hit-testable: on the smallest tile a click on it starts or ends.
-        Background = Family.Brush(ColourRole.Clear);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -91,7 +99,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
             _lease = _host.Focus.Acquire(OnChanged);
         }
 
-        Tapped += OnTapped;
         PointerEntered += OnPointerEntered;
         Strings.Changed += OnLanguage;
         ApplyConfig(config);
@@ -103,10 +110,9 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         Lay();
     }
 
+    /// <summary>[S-11305] The face is the config's, not the box's: a wider card centres the same face.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
     }
 
     public void Detach()
@@ -117,7 +123,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         }
 
         _detached = true;
-        Tapped -= OnTapped;
         PointerEntered -= OnPointerEntered;
         Strings.Changed -= OnLanguage;
         _seconds?.Dispose();
@@ -132,37 +137,22 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
 
     // ---- layout ------------------------------------------------------------------------------
 
-    /// <summary>[S-4426] The ladder (<see cref="FocusSessionLayout.Plan"/>): the time's step, the ring, the line and the controls.</summary>
+    /// <summary>[S-11305] The face at the widget's Size: the time's step, in its ring where Ring is on.</summary>
     private void Lay()
     {
-        if (_detached || !_area.IsMeasured)
+        if (_detached)
         {
             return;
         }
 
-        var snapshot = Snapshot;
-        var running = snapshot.Session.Running;
-        var widest = FocusSessionRules.WidestClock(running ? (int)Math.Ceiling(snapshot.Session.Remaining(DateTimeOffset.Now).TotalMinutes) : _config.Minutes);
-        _plan = FocusSessionLayout.Plan(_area, widest);
+        _face = FocusSessionLayout.Sized(_config);
+        _dial.Width = _face.Ring > 0 ? _face.Ring : double.NaN;
+        _dial.Height = _face.Ring > 0 ? _face.Ring : double.NaN;
+        _ring.Visibility = _face.Ring > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _clock.Use(_face.Step, centred: true);
 
-        var worst = new ReadoutText(widest, LineUnder: true, OneReadout: true);
-        if (_plan.Ring > 0)
-        {
-            var (holeWidth, holeHeight) = ChartRules.Hole(_plan.Ring);
-            _dial.Width = _plan.Ring;
-            _dial.Height = _plan.Ring;
-            _ring.Visibility = Visibility.Visible;
-            _clock.Size(_area, holeWidth, holeHeight, worst);
-        }
-        else
-        {
-            _dial.Width = double.NaN;
-            _dial.Height = double.NaN;
-            _ring.Visibility = Visibility.Collapsed;
-            _clock.Size(_area, _area.Width - (2 * FamilySpace.Inset), _plan.Box, worst);
-        }
-
-        RowSpacing = _plan.Controls ? FamilySpace.S2 : 0;
+        // In the ring the status line is cut at the hole's edge, never drawn over the arc.
+        _clock.MaxWidth = _face.Ring > 0 ? ChartRules.Hole(_face.Ring).Width : double.PositiveInfinity;
         Paint();
     }
 
@@ -182,15 +172,18 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
             ? FocusSessionRules.Clock(snapshot.Session.Remaining(now))
             : FocusSessionRules.Clock(TimeSpan.FromMinutes(FocusSessionRules.ClampMinutes(_config.Minutes)));
         var status = Status(snapshot);
-        _clock.Show(clock, under: _plan.Status ? status : null);
+        _clock.Show(clock, under: status);
 
-        if (_plan.Ring > 0)
+        if (_face.Ring > 0)
         {
             _ring.Show(running ? snapshot.Session.Progress(now) : 0);
         }
 
-        _idleRow.Visibility = _plan.Controls && !running ? Visibility.Visible : Visibility.Collapsed;
-        _runningRow.Visibility = _plan.Controls && running ? Visibility.Visible : Visibility.Collapsed;
+        var icons = TimerFace.IconControls(_config.Size);
+        _idleRow.Visibility = !icons && !running ? Visibility.Visible : Visibility.Collapsed;
+        _runningRow.Visibility = !icons && running ? Visibility.Visible : Visibility.Collapsed;
+        _idleIcons.Visibility = icons && !running ? Visibility.Visible : Visibility.Collapsed;
+        _runningIcons.Visibility = icons && running ? Visibility.Visible : Visibility.Collapsed;
         ControlsBlock.Relabel(_start, FocusSessionStr.Panels_Focus_Start.Text());
         ControlsBlock.Relabel(_end, FocusSessionStr.Panels_Focus_End.Text());
         ControlsBlock.Reglyph(_shorter, Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text());
@@ -198,7 +191,9 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         ToolTipService.SetToolTip(_shorter, FocusSessionStr.Panels_Focus_Shorter.Text());
         ToolTipService.SetToolTip(_longer, FocusSessionStr.Panels_Focus_Longer.Text());
         _shorter.IsEnabled = _config.Minutes > FocusSessionRules.MinMinutes;
+        _shorterIcon.IsEnabled = _shorter.IsEnabled;
         _longer.IsEnabled = _config.Minutes < FocusSessionRules.MaxMinutes;
+        _longerIcon.IsEnabled = _longer.IsEnabled;
 
         var left = FocusSessionStr.Panels_Focus_Left.Format(("time", clock));
         AutomationProperties.SetName(this, running ? left : FocusSessionRules.Length(_config.Minutes));
@@ -291,16 +286,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         _config.Minutes = next;
         _surface?.RequestSave();
         Lay();
-    }
-
-    /// <summary>On the smallest tile the time is the button.</summary>
-    private void OnTapped(object sender, TappedRoutedEventArgs args)
-    {
-        if (!_plan.Controls && !Inert)
-        {
-            args.Handled = true;
-            Toggle();
-        }
     }
 
     private void OnPointerEntered(object sender, PointerRoutedEventArgs args)

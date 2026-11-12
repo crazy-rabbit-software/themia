@@ -1,5 +1,5 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["focusSession.ring"],
   "panels.focus.desc": "Time to focus, with notifications held back",
   "panels.focus.end": "End session",
   "panels.focus.label": "Focus session",
@@ -12,5 +12,6 @@
   "panels.focus.shorter": "Shorter",
   "panels.focus.start": "Start",
   "panels.focus.willQuiet": "Turns on do not disturb",
-  "panels.focus.windows": "A Windows focus session is on"
+  "panels.focus.windows": "A Windows focus session is on",
+  "focusSession.ring": "Ring"
 }

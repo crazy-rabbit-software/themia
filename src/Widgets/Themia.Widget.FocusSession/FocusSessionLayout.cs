@@ -1,41 +1,41 @@
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Widget.FocusSession;
 
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-4426] What the focus widget shows at a size, on the timers' face ([S-6739]): the ring's diameter
-/// (0 without one), the time's step, whether its status line and the Controls row show, and the box
-/// over that row.
+/// [S-11305] The focus widget on the timers' sized face ([S-11300]): the time a one-readout Readout on the
+/// step its Size names, centred, its status line under it, or with Ring on, one step under in the least
+/// ring that holds it; the Controls row under it (Start with − and + while idle, End session while it
+/// runs; at Small icon buttons). Sized for the widest reading of its length
+/// (<see cref="FocusSessionRules.WidestClock"/>), so it never resizes as it counts.
 /// </summary>
-public readonly record struct FocusPlan(double Ring, TypeStep Step, bool Status, bool Controls, double Box);
-
-/// <summary>[S-4426] The focus widget's ladder.</summary>
 public static class FocusSessionLayout
 {
-    /// <summary>
-    /// [S-4426] The ladder: the time as a one-readout Readout, centred, the status line under it as it fits,
-    /// the Controls row (Start with −/+ while idle, End session while it runs) where the floor step and it
-    /// fit — the time alone otherwise, a click on it starting or ending; the ring of the time gone around
-    /// the time from expanded both ways (<see cref="TimerFace.Ring"/>). Sized for the widest reading of the
-    /// length (<see cref="FocusSessionRules.WidestClock"/>), so it never resizes as it counts.
-    /// </summary>
-    public static FocusPlan Plan(WidgetArea area, string widest)
+    /// <summary>[S-11305] The widest the time reads for <paramref name="config"/>'s length, with its line under.</summary>
+    public static ReadoutText Worst(FocusSessionConfig config)
     {
-        if (!area.IsMeasured)
-        {
-            return new FocusPlan(0, FamilyType.Big28, false, false, 0);
-        }
+        ArgumentNullException.ThrowIfNull(config);
+        return new ReadoutText(FocusSessionRules.WidestClock(config.Minutes), LineUnder: true, OneReadout: true);
+    }
 
-        var worst = new ReadoutText(widest, LineUnder: true, OneReadout: true);
-        var width = area.Width - (2 * FamilySpace.Inset);
-        var height = area.Height - FamilySpace.Inset;
-        if (area.AtLeast(SizeClass.Expanded, SizeClass.Expanded))
-        {
-            var ring = TimerFace.Ring(area, width, height, worst, controls: true);
-            return new FocusPlan(ring.Ring, ring.Step, ring.Under, ring.Controls, ring.Box);
-        }
+    /// <summary>[S-11305] The face at the widget's Size, in its ring where Ring is on.</summary>
+    public static TimerSized Sized(FocusSessionConfig config) => TimerFace.Sized(config.Size, Worst(config), ring: config.Ring);
 
-        var plain = TimerFace.Plan(area, width, height, worst, controls: true);
-        return new FocusPlan(0, plain.Step, plain.Under, plain.Controls, plain.Box);
+    /// <summary>
+    /// [S-11305] The focus widget's sizing ([S-2438]): its face over the Controls row, as wide as the
+    /// wider of the idle row (Start worded, − and +) and the running one (End session worded); one height,
+    /// up to half again wider. No header by default.
+    /// </summary>
+    public static WidgetSizing Sizing(FocusSessionConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var controls = Math.Max(
+            TimerFace.ControlsWidth(config.Size, [FocusSessionStr.Panels_Focus_Start.Text(locale)], icons: 2),
+            TimerFace.ControlsWidth(config.Size, [FocusSessionStr.Panels_Focus_End.Text(locale)]));
+        return TimerFace.Sizing(Sized(config), controls, header: false);
     }
 }

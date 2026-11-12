@@ -1,7 +1,9 @@
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.FocusSession;
 
 namespace Themia.App.Shell.Config;
@@ -17,7 +19,6 @@ internal static class FocusSessionMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-
         // [S-4421] Five-minute steps, as Windows' Clock; more steps than dots, so it is typed.
         menu.Lines.Add(menu.Number(FocusSessionModule.Glyph, FocusSessionStr.Panels_Focus_LengthLabel.Text(),
             FocusSessionRules.ClampMinutes(config.Minutes), FocusSessionRules.MinMinutes, FocusSessionRules.MaxMinutes, FocusSessionRules.StepMinutes,
@@ -25,6 +26,11 @@ internal static class FocusSessionMenu
 
         // [S-4423] Windows' Focus turns on do not disturb; so does this unless it is turned off.
         menu.Lines.Add(menu.Toggle(Glyphs.QuietHours, FocusSessionStr.Panels_Focus_QuietLabel.Text(), config.DoNotDisturb, on => config.DoNotDisturb = on));
+
+        // [S-11305] How big the time is, and whether it stands in its ring; the card follows.
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, config));
+        menu.Lines.Add(menu.Toggle(null, FocusSessionStr.FocusSession_Ring.Text(), config.Ring, on => config.Ring = on));
     }
 
     /// <summary>"30 min".</summary>

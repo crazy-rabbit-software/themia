@@ -1,46 +1,44 @@
+using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.FocusSession.Tests;
 
-/// <summary>[S-4426] The focus widget's ladder on the timers' face.</summary>
+/// <summary>[S-11305] The focus widget on the timers' sized face.</summary>
 public sealed class FocusSessionTests
 {
     [Fact]
-    public void S4426_the_time_alone_on_a_tile_too_short_for_the_controls()
+    public void S11305_the_time_is_on_its_sizes_step_and_in_a_ring_only_where_ring_is_on()
     {
-        // 8 shorter than XS's view: the floor step's line, 8 and the row do not fit together.
-        var xs = FocusSessionLayout.Plan(new WidgetArea(120, 76), "00:00");
-        Assert.False(xs.Controls);
-        Assert.Equal(0, xs.Ring);
-        Assert.Equal(FamilyType.Big28, xs.Step);
+        var plain = FocusSessionLayout.Sized(new FocusSessionConfig());
+        Assert.Equal(FamilyType.Hero68, plain.Step);
+        Assert.Equal(0, plain.Ring);
+
+        var ring = FocusSessionLayout.Sized(new FocusSessionConfig { Ring = true });
+        Assert.Equal(FamilyType.Big40, ring.Step);
+        Assert.True(ring.Ring > 0);
+        Assert.False(new FocusSessionConfig().Ring);
     }
 
     [Fact]
-    public void S4426_the_controls_and_the_line_as_they_fit_the_ring_from_expanded_both_ways()
+    public void S11305_a_session_of_an_hour_or_more_is_sized_for_its_hours()
     {
-        var s = FocusSessionLayout.Plan(new WidgetArea(200, 114), "00:00");
-        Assert.True(s.Controls);
-        Assert.True(s.Status);
-
-        var m = FocusSessionLayout.Plan(new WidgetArea(320, 204), "00:00");
-        Assert.True(m.Controls);
-        Assert.True(m.Status);
-        Assert.Equal(0, m.Ring);
-
-        // L: a ring the box's short side over the row, the time and its line in its hole.
-        var l = FocusSessionLayout.Plan(new WidgetArea(560, 384), "00:00");
-        Assert.Equal(384 - FamilySpace.Inset - FamilyShape.Button - FamilySpace.S2, l.Ring);
-        Assert.True(l.Status);
-        Assert.Equal(FamilyType.Hero96, l.Step);
+        var minutes = FocusSessionLayout.Sizing(new FocusSessionConfig { Minutes = 30 }, Locale.En);
+        var hours = FocusSessionLayout.Sizing(new FocusSessionConfig { Minutes = 90 }, Locale.En);
+        Assert.True(hours.Natural.Width > minutes.Natural.Width);
+        Assert.Equal(minutes.Natural.Height, hours.Natural.Height);
     }
 
     [Fact]
-    public void S4426_a_session_of_an_hour_or_more_is_sized_for_its_hours()
+    public void S11305_the_card_is_the_face_and_its_row_one_height_up_to_half_again_wider()
     {
-        var minutes = FocusSessionLayout.Plan(new WidgetArea(320, 204), FocusSessionRules.WidestClock(30));
-        var hours = FocusSessionLayout.Plan(new WidgetArea(320, 204), FocusSessionRules.WidestClock(90));
-        Assert.True(FamilyType.BaseOf(hours.Step) <= FamilyType.BaseOf(minutes.Step));
+        var sizing = FocusSessionLayout.Sizing(new FocusSessionConfig(), Locale.En);
+        Assert.True(sizing.FixedHeight && !sizing.FixedWidth);
+        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, sizing.Natural.Height);
+
+        var copy = (FocusSessionConfig)new FocusSessionConfig { Size = ReadoutSize.Large, Ring = true }.Clone();
+        Assert.Equal((ReadoutSize.Large, true), (copy.Size, copy.Ring));
     }
 }

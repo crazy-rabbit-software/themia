@@ -1056,13 +1056,11 @@ module author's guide is docs/WIDGET-KIT.md 16.
   by its owner on fixed slots (a meter's history, `ChartRules.Y`). A part's role, fraction and points
   are set again only when they change ([S-6330]).
 - **[S-6739]** **A timer's face** (Alarm, Countdown, Stopwatch, Pomodoro, Focus session; `TimerFace`):
-  a one-readout widget ([S-6737]), so its Readout climbs the Hero steps as far as they fit, on fixed
-  steps, with its line under. Its Controls row stands at the bottom inset, 8 under the readout's box,
-  and only where the floor step's line, that gap and the row fit; a tile too short for both keeps the
-  readout, which is the widget. A ring face draws the Chart block's ring as large as the box's short
-  side and sets the readout in its hole, three quarters of the hole wide and half of it tall
-  (`ChartRules.Hole`); a ring under 48, or whose hole cannot hold the floor step's value and line,
-  is not drawn and the readout stands alone.
+  a one-readout widget ([S-6737]) whose Readout is on the step its Size names, with its line under,
+  over its Controls row at the bottom inset; a ring face sets the readout in the Chart block's ring,
+  in its hole, three quarters of the hole wide and half of it tall (`ChartRules.Hole`). *(The face by
+  the box, the row given way on a short tile and the ring as large as the box are retired with the
+  ladder: [S-11300].)*
 - **[S-11300]** **A timer's face at its Size** (owner decision 2026-11-12: content decides the size;
   `TimerFace.Sized`, `.Sizing`): a timer converted to the sizing ([S-2438]) draws its Readout on the
   step its **Size** names (Small, Medium, Large: 40, 68, 96, `IReadoutSized`, [S-2449]), never the
