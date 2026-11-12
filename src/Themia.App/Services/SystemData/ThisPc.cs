@@ -7,42 +7,37 @@ using Themia.Sdk;
 
 namespace Themia.App.Services.SystemData;
 
-internal sealed partial class SystemHub
+/// <summary>
+/// [S-2500] This PC: every source read from Windows (the counters, the kernel's lists, the battery,
+/// the probes). The hub's machine unless a render asks for the sample one ([S-1931]). What a reading
+/// means on a chart is the hub's (<see cref="SeriesProjections"/>), the same for every machine.
+/// </summary>
+internal sealed partial class ThisPc(Ticker ticker) : SystemMachine
 {
-    /// <summary>The reader for a feed's source; opened here, when the feed is made.</summary>
-    private Feed OpenSource(FeedKey key) => key.Source switch
-    {
-        SystemSource.Cpu => Make(key, new CpuSource()),
-        SystemSource.Memory => Make(key, new MemorySource()),
-        SystemSource.Performance => Make(key, new PerformanceSource()),
-        SystemSource.Processor => Make(key, new ProcessorSource()),
-        SystemSource.CpuCores => Make(key, new CpuCoresSource()),
-        SystemSource.Processes => Make(key, new ProcessesSource()),
-        SystemSource.DiskActivity => Make(key, new DiskActivitySource(_ticker)),
-        SystemSource.LocalAddresses => Make(key, new LocalAddressesSource()),
-        SystemSource.PublicAddress => Make(key, new PublicAddressSource()),
-        SystemSource.Network => Make(key, new NetworkSource()),
-        SystemSource.Battery => Make(key, new BatterySource()),
-        SystemSource.BatteryPack => Make(key, new BatteryPackSource()),
-        SystemSource.Gpu => Make(key, new GpuSource()),
-        SystemSource.Ping => Make(key, new PingSource(key.Target)),
-        _ => throw new ArgumentOutOfRangeException(nameof(key), key, "not a hub source"),
-    };
+    private const string Scope = "system-hub";
 
-    private static Feed<T> Make<T>(FeedKey key, HubSource<T> reader)
-    {
-        try
-        {
-            reader.Open();
-        }
-        catch (Exception ex)
-        {
-            // Reads will say what is missing; the feed still exists so its widgets are not left hanging.
-            Log.Error(Scope, $"could not open {key}", ex);
-        }
+    /// <inheritdoc />
+    public override bool Live => true;
 
-        return new Feed<T>(key, reader);
-    }
+    /// <inheritdoc />
+    public override HubSource<T> Open<T>(SourceId<T> source, string target) => (HubSource<T>)(source.Source switch
+    {
+        SystemSource.Cpu => (HubSource)new CpuSource(),
+        SystemSource.Memory => new MemorySource(),
+        SystemSource.Performance => new PerformanceSource(),
+        SystemSource.Processor => new ProcessorSource(),
+        SystemSource.CpuCores => new CpuCoresSource(),
+        SystemSource.Processes => new ProcessesSource(),
+        SystemSource.DiskActivity => new DiskActivitySource(ticker),
+        SystemSource.LocalAddresses => new LocalAddressesSource(),
+        SystemSource.PublicAddress => new PublicAddressSource(),
+        SystemSource.Network => new NetworkSource(),
+        SystemSource.Battery => new BatterySource(),
+        SystemSource.BatteryPack => new BatteryPackSource(),
+        SystemSource.Gpu => new GpuSource(),
+        SystemSource.Ping => new PingSource(target),
+        _ => throw new ArgumentOutOfRangeException(nameof(source), source, "not a hub source"),
+    });
 
     // ---- sources --------------------------------------------------------------------------------
 
@@ -51,7 +46,6 @@ internal sealed partial class SystemHub
     {
         public override MeterReading Read() => SystemMetrics.Cpu();
 
-        public override MeterSample Project(MeterReading snapshot, string instance) => MeterSample.Of(snapshot, ChartScale.Share);
     }
 
     /// <summary>[S-1130] Physical memory in use.</summary>
@@ -59,10 +53,6 @@ internal sealed partial class SystemHub
     {
         public override MemorySnapshot? Read() => MemoryCounters.Read();
 
-        public override MeterSample Project(MemorySnapshot? snapshot, string instance)
-            => snapshot is { } s && MemoryFigures.UsedFraction(s) is { } fraction
-                ? MeterSample.Of(new MeterReading(fraction, Formatting.Percent(fraction), true), ChartScale.Share)
-                : new MeterSample(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()), null);
     }
 
     private sealed class PerformanceSource : HubSource<PerformanceSnapshot>
@@ -119,30 +109,6 @@ internal sealed partial class SystemHub
 
         public override DiskSnapshot Read() => new(DiskMetrics.Volumes(), DiskMetrics.Activity());
 
-        public override MeterSample Project(DiskSnapshot snapshot, string instance)
-        {
-            var all = instance == Sources.AllDrives;
-            var root = all ? SystemDrive.Root : instance;
-            var sample = DiskRules.Read(all ? DiskScope.AllDrives : DiskScope.OneDrive, root, snapshot.Activity?.Rates);
-
-            var reading = sample.State switch
-            {
-                // The fraction is only the "this is a sample" mark: a window-scaled chart plots the value.
-                DiskReadingState.Rate => new MeterReading(
-                    ChartScale.Fraction(sample.Rates.Total, DiskRules.ChartFloor),
-                    Formatting.Rate(sample.Rates.Total),
-                    true,
-                    Value: sample.Rates.Total),
-
-                // The counters' first collection: no rate yet, so no number and no point on the chart.
-                DiskReadingState.Waiting => new MeterReading(null, "--", false),
-                DiskReadingState.DriveMissing => MeterReading.Unavailable(Str.WidgetsB_Disk_Unavailable.Format(("drive", DiskRules.Instance(root)))),
-                _ => MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()),
-            };
-
-            return MeterSample.Of(reading, DiskRules.Scale);
-        }
-
         public override void Close()
         {
             _counters?.Dispose();
@@ -188,29 +154,6 @@ internal sealed partial class SystemHub
     private sealed class NetworkSource : HubSource<ThroughputSample?>
     {
         public override ThroughputSample? Read() => NetworkThroughput.Read();
-
-        public override MeterSample Project(ThroughputSample? snapshot, string instance)
-        {
-            if (snapshot is null)
-            {
-                return new MeterSample(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()), null);
-            }
-
-            if (snapshot.Interfaces.Count == 0)
-            {
-                return new MeterSample(MeterReading.Unavailable(Str.WidgetsB_Network_NoConnection.Text()), null);
-            }
-
-            // The fraction only marks a sample: the chart is window-scaled and plots the values.
-            var reading = new MeterReading(
-                ChartScale.Fraction(snapshot.Down, Sources.NetworkChartFloor),
-                Formatting.Rate(snapshot.Down),
-                true,
-                Value: snapshot.Down,
-                Second: snapshot.Up);
-
-            return MeterSample.Of(reading, ChartScale.Peak(Sources.NetworkChartFloor));
-        }
     }
 
     /// <summary>[S-1180] [S-1187] Charge and source from <c>GetSystemPowerStatus</c>; refreshed at once by power events ([S-2509]).</summary>
@@ -218,26 +161,6 @@ internal sealed partial class SystemHub
     {
         public override BatteryPower? Read() => SystemMetrics.Battery();
 
-        public override MeterSample Project(BatteryPower? snapshot, string instance)
-        {
-            if (snapshot is not { } power)
-            {
-                return new MeterSample(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()), null);
-            }
-
-            if (!power.HasBattery)
-            {
-                return new MeterSample(MeterReading.Missing(Str.WidgetsB_Battery_None.Text()), null);
-            }
-
-            if (power.Percent is not { } percent)
-            {
-                return new MeterSample(MeterReading.Unavailable(Str.WidgetsB_Meters_Unavailable.Text()), null);
-            }
-
-            var reading = new MeterReading(percent / 100.0, LocaleFormat.Percent(Strings.Current, percent), true, Charging: power.Charging);
-            return MeterSample.Of(reading, ChartScale.Share);
-        }
     }
 
     /// <summary>[S-2423] What the battery device reports, asked only while Windows says there is a battery: a desktop costs one status call.</summary>
@@ -285,27 +208,6 @@ internal sealed partial class SystemHub
 
         public override Task<GpuSnapshot> ReadAsync(CancellationToken token) => GpuSampler.SampleAsync();
 
-        public override MeterSample Project(GpuSnapshot snapshot, string instance)
-        {
-            if (!int.TryParse(instance, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var index)
-                || index >= snapshot.Readings.Count)
-            {
-                // [S-433] An adapter that has gone (undocked, or not on this machine).
-                return new MeterSample(new MeterReading(null, "--", false), null);
-            }
-
-            var reading = snapshot.Readings[index];
-
-            // [S-430] Load is a rate: the first sample has none, which is "--", never a 0% that did not happen.
-            if (!reading.HasLoad)
-            {
-                return new MeterSample(new MeterReading(null, "--", false), null);
-            }
-
-            var fraction = Math.Clamp(reading.Utilization / 100, 0, 1);
-            return MeterSample.Of(new MeterReading(fraction, Formatting.Percent(fraction), true, Value: reading.Utilization), ChartScale.Share);
-        }
-
         public override void Close()
         {
             Held(false);
@@ -334,16 +236,6 @@ internal sealed partial class SystemHub
             var outcome = await NetworkMetrics.PingAsync(host, token).ConfigureAwait(true);
             Note(outcome.Detail);
             return outcome;
-        }
-
-        /// <summary>[S-1170] [S-1172] An answer is its latency; an unanswered probe a dimmed "--" that plots on the baseline.</summary>
-        public override MeterSample Project(PingOutcome snapshot, string instance)
-        {
-            var reading = snapshot.Reading is { Available: true, Value: { } ms }
-                ? new MeterReading(Math.Clamp(ms / PingStats.LatencyCeilingMs, 0, 1), Formatting.Latency(ms), true, Value: ms)
-                : new MeterReading(0, "--", false, Value: 0, Reason: snapshot.Reading.Reason ?? PingStats.StatusText(PingStatus.Offline));
-
-            return MeterSample.Of(reading, ChartScale.Peak(1));
         }
 
         /// <summary>A probe is logged only when it says something the previous one did not.</summary>

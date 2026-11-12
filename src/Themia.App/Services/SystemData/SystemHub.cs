@@ -37,13 +37,55 @@ internal sealed partial class SystemHub : ISystemFeeds, IDisposable
     private bool _joinedDuringTick;
     private bool _disposed;
 
-    public SystemHub(Ticker ticker, DispatcherQueue dispatcher)
+    private readonly SystemMachine _machine;
+
+    /// <param name="machine">[S-1931] What it reads: this PC unless a render hands it the sample machine.</param>
+    public SystemHub(Ticker ticker, DispatcherQueue dispatcher, SystemMachine? machine = null)
     {
         ArgumentNullException.ThrowIfNull(ticker);
         ArgumentNullException.ThrowIfNull(dispatcher);
         _ticker = ticker;
         _dispatcher = dispatcher;
+        _machine = machine ?? new ThisPc(ticker);
         _feeds = new FeedTable<Feed>(OpenFeed);
+    }
+
+    /// <summary>The reader for a feed's source, with what its snapshots mean on a chart; opened here, when the feed is made.</summary>
+    private Feed OpenSource(FeedKey key) => key.Source switch
+    {
+        SystemSource.Cpu => Make(key, Sources.Cpu, SeriesProjections.Cpu),
+        SystemSource.Memory => Make(key, Sources.Memory, SeriesProjections.Memory),
+        SystemSource.Performance => Make(key, Sources.Performance),
+        SystemSource.Processor => Make(key, Sources.Processor),
+        SystemSource.CpuCores => Make(key, Sources.CpuCores),
+        SystemSource.Processes => Make(key, Sources.Processes),
+        SystemSource.DiskActivity => Make(key, Sources.DiskActivity, SeriesProjections.Disk),
+        SystemSource.LocalAddresses => Make(key, Sources.LocalAddresses),
+        SystemSource.PublicAddress => Make(key, Sources.PublicAddress),
+        SystemSource.Network => Make(key, Sources.Network, SeriesProjections.Network),
+        SystemSource.Battery => Make(key, Sources.Battery, SeriesProjections.Battery),
+        SystemSource.BatteryPack => Make(key, Sources.BatteryPack),
+        SystemSource.Gpu => Make(key, Sources.Gpu, SeriesProjections.Gpu),
+        SystemSource.Ping => Make(key, Sources.Ping, SeriesProjections.Ping),
+        _ => throw new ArgumentOutOfRangeException(nameof(key), key, "not a hub source"),
+    };
+
+    /// <param name="project">[S-2504] What a snapshot is on a meter's chart; null for a source no meter charts.</param>
+    private Feed<T> Make<T>(FeedKey key, SourceId<T> source, Func<T, string, MeterSample>? project = null)
+    {
+        var reader = _machine.Open(source, key.Target);
+
+        try
+        {
+            reader.Open();
+        }
+        catch (Exception ex)
+        {
+            // Reads will say what is missing; the feed still exists so its widgets are not left hanging.
+            Log.Error(Scope, $"could not open {key}", ex);
+        }
+
+        return new Feed<T>(key, reader, project);
     }
 
     /// <summary>Open feeds (each one source read). Exposed for diagnostics (the switch check, [S-2511]).</summary>
@@ -236,7 +278,8 @@ internal sealed partial class SystemHub : ISystemFeeds, IDisposable
     /// <summary>[S-2503] Hold the one ticker subscription while any feed is open. True when it subscribed (which ticks at once).</summary>
     private bool UpdateTicker()
     {
-        if (_feeds.Count == 0)
+        // [S-1931] A recording is one moment: each feed is read once, when it is made.
+        if (_feeds.Count == 0 || !_machine.Live)
         {
             _tick?.Dispose();
             _tick = null;

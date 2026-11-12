@@ -16,11 +16,11 @@ internal sealed partial class SystemHub
     private bool _powerHooked;
     private bool _networkHooked;
 
-    /// <summary>Listen to exactly the events an open source wants; called whenever a source opens or closes.</summary>
+    /// <summary>Listen to exactly the events an open source wants (none for a recording, [S-1931]); called whenever a source opens or closes.</summary>
     private void UpdateEventHooks()
     {
-        var wantPower = !_disposed && _order.Any(f => f.Key.Source is SystemSource.Battery or SystemSource.BatteryPack);
-        var wantNetwork = !_disposed && _order.Any(f => f.Key.Source is SystemSource.Network or SystemSource.LocalAddresses or SystemSource.PublicAddress);
+        var wantPower = !_disposed && _machine.Live && _order.Any(f => f.Key.Source is SystemSource.Battery or SystemSource.BatteryPack);
+        var wantNetwork = !_disposed && _machine.Live && _order.Any(f => f.Key.Source is SystemSource.Network or SystemSource.LocalAddresses or SystemSource.PublicAddress);
 
         if (wantPower != _powerHooked)
         {

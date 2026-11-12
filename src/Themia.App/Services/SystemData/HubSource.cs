@@ -24,6 +24,20 @@ internal readonly record struct MeterSample(MeterReading Reading, SeriesPoint? P
 }
 
 /// <summary>
+/// [S-2500] [S-1931] The machine the hub reads: where each source's readings come from. This PC
+/// (<see cref="ThisPc"/>) is read on the hub's cadence and on Windows' events; a recording (the
+/// sample machine) is one moment, read once per feed and again only on a Refresh.
+/// </summary>
+internal abstract class SystemMachine
+{
+    /// <summary>Whether its readings move: the hub then ticks and listens to Windows' events.</summary>
+    public abstract bool Live { get; }
+
+    /// <summary>A reader of <paramref name="source"/> (<paramref name="target"/>: a ping host, else empty); the hub opens it.</summary>
+    public abstract HubSource<T> Open<T>(SourceId<T> source, string target);
+}
+
+/// <summary>
 /// [S-2501] One place system figures come from, read by the hub alone: at most once per due tick,
 /// however many widgets show it. What it holds between reads (a PDH query, a GPU session, a pinned
 /// buffer) is taken in <see cref="Open"/> and given back in <see cref="Close"/>, which the hub calls
@@ -77,9 +91,9 @@ internal abstract class HubSource<T> : HubSource
     public virtual Task<T> ReadAsync(CancellationToken token) => Task.FromResult(Read());
 
     /// <summary>
-    /// [S-2504] The meter reading for one series of this source (<paramref name="instance"/>: a drive,
-    /// an adapter; empty for the source's one series). Only sources a meter charts implement it.
+    /// [S-1932] What the source read before its first read here, oldest first: a recording's history
+    /// (the sample machine's, [S-1931]), so a chart is full from its first frame. This PC has none: its
+    /// history accrues read by read ([S-2504]).
     /// </summary>
-    public virtual MeterSample Project(T snapshot, string instance)
-        => throw new NotSupportedException($"{GetType().Name} has no charted series");
+    public virtual IReadOnlyList<T> Past => [];
 }

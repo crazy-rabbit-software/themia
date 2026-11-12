@@ -20,8 +20,11 @@ internal sealed partial class SystemHub
 
         public Dictionary<string, Series> Series { get; } = new(StringComparer.Ordinal);
 
-        /// <summary>The newest snapshot's reading for a series instance, or null before the first read.</summary>
-        protected abstract MeterReading? Latest(string instance);
+        /// <summary>
+        /// A new series' start: the newest snapshot's reading (null before the first read) and, from a
+        /// source with a past ([S-1932]), the history up to it.
+        /// </summary>
+        protected abstract void Begin(Series series);
 
         /// <summary>Read once; <paramref name="point"/> when the answer adds a point to every series' history.</summary>
         public abstract void Read(bool point);
@@ -36,7 +39,8 @@ internal sealed partial class SystemHub
 
         /// <summary>
         /// The series for an instance, made on first ask (a watch, or the state wanting it). A new
-        /// series gets the newest snapshot's reading at once, without a point.
+        /// series gets the newest snapshot's reading at once, without a point; [S-1932] a recording's
+        /// series its whole history as well.
         /// </summary>
         public Series SeriesFor(string instance)
         {
@@ -45,7 +49,8 @@ internal sealed partial class SystemHub
                 return series;
             }
 
-            series = new Series(instance, SeriesHistory.Capacity(Key.Source)) { Latest = Latest(instance) };
+            series = new Series(instance, SeriesHistory.Capacity(Key.Source));
+            Begin(series);
             Series[instance] = series;
             return series;
         }
@@ -77,7 +82,8 @@ internal sealed partial class SystemHub
         }
     }
 
-    internal sealed class Feed<T>(FeedKey key, HubSource<T> reader) : Feed(key)
+    /// <param name="project">[S-2504] What a snapshot is on a chart (<see cref="SeriesProjections"/>); null for a source no meter charts.</param>
+    internal sealed class Feed<T>(FeedKey key, HubSource<T> reader, Func<T, string, MeterSample>? project) : Feed(key)
     {
         // The token source is both the cancel handle and the "a read is out" flag ([S-2507]).
         private CancellationTokenSource? _inFlight;
@@ -90,13 +96,41 @@ internal sealed partial class SystemHub
 
         public List<FeedWatch<T>> Watches { get; } = [];
 
-        protected override MeterReading? Latest(string instance) => HasValue ? Project(Value, instance).Reading : null;
+        protected override void Begin(Series series)
+        {
+            var past = reader.Past;
+
+            foreach (var snapshot in past)
+            {
+                if (Project(snapshot, series.Instance).Point is { } point)
+                {
+                    series.Ring.Add(point);
+                }
+            }
+
+            if (!HasValue)
+            {
+                return;
+            }
+
+            var now = Project(Value, series.Instance);
+            series.Latest = now.Reading;
+
+            // [S-1932] A recording's history ends at the reading; a series made after its read has
+            // the reading's point too (one made before gets it from that read).
+            if (past.Count > 0 && now.Point is { } newest)
+            {
+                series.Ring.Add(newest);
+            }
+        }
 
         private MeterSample Project(T value, string instance)
         {
             try
             {
-                return reader.Project(value, instance);
+                return project is null
+                    ? throw new NotSupportedException($"{Key} has no charted series")
+                    : project(value, instance);
             }
             catch (Exception ex)
             {

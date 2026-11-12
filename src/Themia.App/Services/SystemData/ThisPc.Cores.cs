@@ -4,7 +4,7 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services.SystemData;
 
-internal sealed partial class SystemHub
+internal sealed partial class ThisPc
 {
     /// <summary>
     /// [S-6310] Each logical processor's load, for the CPU meter's All cores and Core grid styles:
