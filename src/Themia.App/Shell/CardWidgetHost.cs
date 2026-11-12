@@ -10,7 +10,9 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-6913] The host as a card's view sees it: the card's surface decides the ticker and whether it
-/// is a preview; the launcher and ⚙ › Accounts are the app's one of each.
+/// is a preview; the launcher and ⚙ › Accounts are the app's one of each. [S-11851] A card whose host
+/// hands it a sample world (the add page's pictures) reads the sample PC's hub and its own gallery
+/// service from it, never the app's, and copies nothing to the clipboard.
 /// </summary>
 internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 {
@@ -47,7 +49,7 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
     /// <summary>[S-9925] The host's one service sync; a preview card replays the providers' recorded answers ([S-9929]).</summary>
     public IServiceSources Services => Themia.App.Services.Kit.HostServiceSources.For(card);
 
-    public ISystemFeeds? System => AppServices.System;
+    public ISystemFeeds? System => card.Samples is { } samples ? samples.System : AppServices.System;
 
     public IDrives Drives => AppServices.Drives;
 
@@ -75,9 +77,9 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IScreenTimeSource? ScreenTime => AppServices.ScreenTime;
 
-    public IGalleries? Gallery => AppServices.Gallery;
+    public IGalleries? Gallery => card.Samples is { } samples ? samples.Gallery : AppServices.Gallery;
 
-    public bool CopyText(string text) => ClipboardWatcher.SetText(text);
+    public bool CopyText(string text) => !card.IsPreview && ClipboardWatcher.SetText(text);
 
     public IFileIcons FileIcons => Themia.App.Services.Files.HostFileIcons.Instance;
 

@@ -29,7 +29,9 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 
 ### Looking at the UI without the desktop (Debug builds only)
 
-Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified.
+Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified. One
+check exists in every build, Release and the Store's included ([S-11854]): `Themia.exe --add-pictures-check
+<out.png>` draws the add page's Start tab through the shipped path and says how many pictures it drew.
 
 ```
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range] [--keys k1,k2|text:abc]
@@ -126,8 +128,9 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    Pages/ (PageFlyout, PageView: every page drawn as Windows' settings cards; PageRows, SelectionRows)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
-src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 108): module, config, view, Preview/,
-                   Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
+src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 108): module, config, view, Samples/
+                   (its sample, ships), Preview/ (render-only states, Debug), Localization/Locales/ (its own
+                   <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum
 src/Themia.Modules.Generator/        build-time generator: [assembly: ThemiaWidget] -> the static ModuleRegistry
@@ -310,11 +313,20 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 - **The add page** ([S-11700]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593): Add opens a flyout as
   wide as the bar, flush under it: a search box and tabs (Start: the starter groups, `ReadyMadeGroup.Starter`,
   then Popular; then a tab per subject: its ready-made groups, its widgets, each family under its name), tiles
-  of at least 200 with a picture of the thing itself (`AddPictures`: real cards on sample data, Debug only;
-  a glyph until drawn and in Release). The model is Core's (`AddTree` the subjects and families, `AddPage`
+  of at least 200 with a picture of the thing itself (`AddPictures`: real cards on sample data, in every
+  build; a glyph until drawn). The model is Core's (`AddTree` the subjects and families, `AddPage`
   the tabs, sections and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a
   widget places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the
   placement session.
+- **Samples and previews** ([S-11850]..[S-11854]; docs/WIDGET-KIT.md 6.8): **a widget's sample ships, its
+  render-only states do not, by folder.** The sample (the add page's picture, on the sample day's data in
+  `Themia.Sdk/Samples`) is `IWidgetSample.ShowSampleAsync` in the module's `Samples/<Name>View.Sample.cs`,
+  compiled in every configuration; error, loading, empty, hovered and edge-case states are
+  `IWidgetPreviewState` in `Preview/`, removed outside Debug by `src/Widgets/Directory.Build.targets`, and
+  their `sample` state calls the sample. No `#if` in either. A sample holds its data in the view alone, never
+  writes a store, the clipboard or anything the assistants' server reads; a view whose host already hands it
+  sample data (the meters over the sample PC) has none. The sample PC and a gallery service reach a
+  picture's cards only through their host (`SampleWorld`, `PreviewCardHost.Samples`), never a static.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
 - **The selection's page** ([S-2340]..[S-2343]): selecting widgets adds their entry to the bar ("Clock",

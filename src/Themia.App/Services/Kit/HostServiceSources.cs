@@ -7,20 +7,24 @@ namespace Themia.App.Services.Kit;
 
 /// <summary>
 /// [S-9925] [S-6913] The service sources a card's view reads: the host's one <see cref="ServiceSync"/>
-/// on the desktop; on a preview card (a debug render) the providers' recorded answers
-/// ([S-9929]); where neither runs, a sync with no accounts and no network that holds nothing.
+/// on the desktop; on a preview card the providers' recorded answers in a Debug build ([S-9929]) and,
+/// in any other, a sync with no accounts and no network: a picture's card never reads the user's
+/// accounts ([S-11851]); where no sync runs, the same.
 /// </summary>
 internal static class HostServiceSources
 {
     public static IServiceSources For(IWidgetCardHost card)
     {
         ArgumentNullException.ThrowIfNull(card);
-#if DEBUG
         if (card.IsPreview)
         {
+#if DEBUG
             return Shell.Gallery.FixtureServices.For(card);
-        }
+#else
+            return new Detached(card.Ticker);
 #endif
+        }
+
         return AppServices.Services is { } sync ? sync : new Detached(card.Ticker);
     }
 

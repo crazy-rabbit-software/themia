@@ -436,7 +436,8 @@ combined options.
   point constant in its project instead of editing `Glyphs`; the menu-art rule applies to it as to
   any glyph.
 - **Preview states** (`IWidgetPreviewState`, section 6.7) live in the module's `Preview/` folder,
-  compiled in Debug only by the shared props; the gallery finds a module by its id.
+  compiled in Debug only by the shared props; the gallery finds a module by its id. The widget's
+  **sample** (`IWidgetSample`, section 6.8) lives in `Samples/` and ships.
 
 ### 4.9 Tests
 
@@ -1200,6 +1201,36 @@ set: a first page, a paged answer (Link header or `pageInfo`) or for a replica a
 partial sync, an empty answer, a `304` where its freshness allows one, a throttle as that service signals it, a 401, a 403 and an
 error body in its own error format (a GraphQL `errors` array, a Todoist `error_tag`).
 
+### 6.8 The sample (the add page's picture)
+
+The add page shows every widget as a picture of itself ([S-11710]) in every build, the Store's included,
+so a widget's sample ships and its render-only states do not ([S-11850]). The rule is the folder:
+
+| Folder | Holds | Compiled |
+|---|---|---|
+| `Samples/<Name>View.Sample.cs` | `IWidgetSample.ShowSampleAsync`: the sample day's data (`Themia.Sdk.Samples`: `SampleDay`, `SampleCast`, `SampleSchedule`, `SampleWeather`, `SamplePictures`, ...) in place of the view's live sources, and the helpers the preview states share with it | every configuration |
+| `Preview/<Name>View.Preview.cs` | `IWidgetPreviewState`: errors, loading, empty, hovered, focused, edge cases; its `sample` state (or the first data state: `messages`, `tasks`) calls `ShowSampleAsync` | Debug only (`src/Widgets/Directory.Build.targets`) |
+
+Neither folder has an `#if`; a field the sample writes (a frozen clock, a held snapshot) is an ordinary
+field of the view. `scripts/new-module.ps1` writes a sample that draws the view as it is: replace it
+with the widget's sample data. Rules for a sample:
+
+- **Hold, never write.** The data lives in the view (a held list, a pinned instant, an in-memory source);
+  nothing goes into a store, the clipboard, an account or anything the assistants' server reads. A sample
+  that needs files writes them under `%TEMP%\themia-sample` (`SampleFiles`, `SamplePictureFiles`).
+- **No sample where the host hands sample data.** The meters, the details and Top processes read the
+  sample PC's hub from their host ([S-1931]); they have no sample, and neither has a kind whose states are
+  not data (an "are you sure?", a pressed look).
+- **The host decides, not a static.** A picture's cards get the sample world (`SampleWorld`: the sample
+  PC's hub, a gallery service) through their host (`PreviewCardHost.Samples`, [S-11851]); a desktop card's
+  host has none. A preview card reads no account and copies nothing.
+- **Drawn at once.** A picture is taken when the view has settled and its rows' icons came in; a sample
+  shows its final state (a switch where it is, not animating) and waits for its own asynchronous
+  pictures itself (the gallery's decodes).
+
+`Themia.exe --add-pictures-check <out.png>` ([S-11854]) runs in a Release build and says how many of the
+Start tab's pictures it drew.
+
 ## 7. Building a service widget (the recipe)
 
 Example: "Pull requests waiting on my review" for GitHub. The steps are the same for any service;
@@ -1260,7 +1291,8 @@ A widget module:
 | `<Name>View.cs` | the kit view of section 6.4, or a `Stat`/`Custom` skeleton implementing `IWidgetSizeAware` |
 | `<Name>Menu.cs` | `KitMenuLines` calls for `MenuLines` (section 15), or nothing |
 | `Localization/Locales/en.json` | label, description, keywords, sentences, `$englishOnly` |
-| `Preview/` | preview states when the widget is not a kit list (kit lists get theirs from fixtures) |
+| `Samples/<Name>View.Sample.cs` | the widget's sample, the add page's picture (section 6.8), shipped |
+| `Preview/` | render-only preview states when the widget is not a kit list (kit lists get theirs from fixtures), Debug only |
 | `Tests/<Name>Tests.cs` | one failing test per skeleton tag |
 | `SPEC.md` | the section skeleton, the next free tag block, "Needs a manual pass" |
 

@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.App.Widgets;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
@@ -17,26 +18,40 @@ internal sealed record AddPicture(ImageSource Image, double Width, double Height
 
 /// <summary>
 /// [S-11710] The add page's pictures: each tile's widget, or its ready-made group as one joined panel,
-/// built as real cards (the renders' path: a preview card host, the kind's natural size, a group's boxes
-/// joined as the desktop joins them, [S-2240]) with sample data only — the sample PC's hub for the system
-/// readings ([S-1931]), each view's "sample" preview state (else its first, never an "are you sure?"),
-/// the providers' recordings for a kit list ([S-9929]) — and drawn to a bitmap off the UI's hot path:
-/// one at a time, after the page is up, the cards on a stage under the page's ground and gone once
-/// drawn. Cached per look (the design, light or dark, the language) and tile, so a page opened again
-/// shows them at once; a new look starts the cache again.
-/// <para>
-/// Sample data lives in Debug builds only (the views' preview states, the sample PC); a Release build
-/// draws no picture, and every tile keeps its kind's glyph on its box ([S-11711]).
-/// </para>
+/// built as real cards (a preview card host, the kind's natural size, a group's boxes joined as the
+/// desktop joins them, [S-2240]) with sample data only, in every build ([S-11850]): the cards' host hands
+/// them a sample world of their own ([S-11851]: the sample PC's hub, [S-1931], a gallery service), each
+/// view that has one shows its sample (<see cref="IWidgetSample"/>), a kit list reads no account — and
+/// drawn to a bitmap off the UI's hot path: one at a time, after the page is up, the cards on a stage
+/// under the page's ground and gone once drawn. Cached per look (the design, light or dark, the language)
+/// and tile, so a page opened again shows them at once; a new look starts the cache again. The cache is
+/// bounded ([S-11853]) and dropped a minute after the last page closed.
 /// </summary>
 internal sealed class AddPictures : IDisposable
 {
     private const string Scope = "add-pictures";
 
+    /// <summary>[S-11853] At most this many pictures are kept (every tab's tiles, and a search's, twice over).</summary>
+    internal const int MaxPictures = 160;
+
+    /// <summary>[S-11853] At most this many bytes of their pixels.</summary>
+    internal const long MaxBytes = 48L * 1024 * 1024;
+
+    /// <summary>[S-11853] How long the pictures stay once the last page closed: a page opened again soon shows them at once.</summary>
+    private static readonly TimeSpan KeepAfterClose = TimeSpan.FromMinutes(1);
+
+    /// <summary>[S-11852] The longest a picture waits for its rows' icons before it is drawn without them.</summary>
+    private static readonly TimeSpan IconWait = TimeSpan.FromSeconds(2);
+
     /// <summary>The look the cache holds pictures for, and the pictures by tile key.</summary>
     private static string _look = string.Empty;
 
-    private static readonly Dictionary<string, AddPicture> Cache = new(StringComparer.Ordinal);
+    private static readonly AddPictureCache<AddPicture> Cache = new(MaxPictures, MaxBytes);
+
+    /// <summary>How many pages are open (one per display at most), and the timer that drops the cache once none is.</summary>
+    private static int _open;
+
+    private static DispatcherQueueTimer? _drop;
 
     private readonly Canvas _stage;
     private readonly Queue<(AddTile Tile, Action<AddPicture> Ready)> _wanted = new();
@@ -46,10 +61,10 @@ internal sealed class AddPictures : IDisposable
     private bool _running;
     private bool _disposed;
 
-#if DEBUG
+    /// <summary>[S-11851] This page's sample world and the ticker its cards run on, made with the first picture.</summary>
     private Services.Ticker? _ticker;
-    private Services.SystemData.SystemHub? _hub;
-#endif
+
+    private SampleWorld? _samples;
 
     /// <param name="stage">Where the cards stand while drawn: in the live tree, under the page's ground.</param>
     public AddPictures(Canvas stage)
@@ -57,6 +72,8 @@ internal sealed class AddPictures : IDisposable
         _stage = stage ?? throw new ArgumentNullException(nameof(stage));
         _dispatcher = DispatcherQueue.GetForCurrentThread();
         _idle.SetResult();
+        _open++;
+        _drop?.Stop();
         var look = Look();
         if (!string.Equals(look, _look, StringComparison.Ordinal))
         {
@@ -65,26 +82,21 @@ internal sealed class AddPictures : IDisposable
         }
     }
 
-    /// <summary>[S-11711] Whether this build draws pictures at all (its samples exist only in Debug).</summary>
-    public static bool Draws =>
-#if DEBUG
-        true;
-#else
-        false;
-#endif
-
     /// <summary>Done once every picture asked for is drawn (or failed): a render waits for it.</summary>
     public Task Idle => _idle.Task;
 
     /// <summary>The tile's picture in the cache, or null.</summary>
-    public static AddPicture? Cached(AddTile tile) => Cache.GetValueOrDefault(tile.Key);
+    public static AddPicture? Cached(AddTile tile) => Cache.Get(tile.Key);
+
+    /// <summary>[S-11853] How many pictures are kept, and the bytes of their pixels.</summary>
+    internal static (int Count, long Bytes) Held => (Cache.Count, Cache.Bytes);
 
     /// <summary>Draw <paramref name="tile"/>'s picture when its turn comes; <paramref name="ready"/> runs with it.</summary>
     public void Want(AddTile tile, Action<AddPicture> ready)
     {
         ArgumentNullException.ThrowIfNull(tile);
         ArgumentNullException.ThrowIfNull(ready);
-        if (!Draws || _disposed || tile is AddItemTile || !_queued.Add(tile.Key))
+        if (_disposed || tile is AddItemTile || !_queued.Add(tile.Key))
         {
             return;
         }
@@ -114,14 +126,40 @@ internal sealed class AddPictures : IDisposable
 
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
         _wanted.Clear();
-#if DEBUG
-        _hub?.Dispose();
-        _hub = null;
+        _samples?.Dispose();
+        _samples = null;
         _ticker?.Dispose();
         _ticker = null;
-#endif
+
+        // [S-11853] The last page closed: the pictures stay a minute for a page opened again, then go.
+        if (--_open == 0 && _dispatcher is not null)
+        {
+            _drop ??= CreateDrop(_dispatcher);
+            _drop.Start();
+        }
+    }
+
+    private static DispatcherQueueTimer CreateDrop(DispatcherQueue dispatcher)
+    {
+        var timer = dispatcher.CreateTimer();
+        timer.Interval = KeepAfterClose;
+        timer.IsRepeating = false;
+        timer.Tick += (_, _) =>
+        {
+            if (_open == 0)
+            {
+                Log.Info(Scope, $"no add page for {KeepAfterClose.TotalSeconds:0} s: {Cache.Count} pictures ({Cache.Bytes / 1024} KB) let go");
+                Cache.Clear();
+            }
+        };
+        return timer;
     }
 
     /// <summary>The look a picture belongs to: the design as stored, light or dark, the language.</summary>
@@ -133,23 +171,32 @@ internal sealed class AddPictures : IDisposable
 
     private async Task RunAsync()
     {
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        var drawn = 0;
         try
         {
             while (!_disposed && _wanted.TryDequeue(out var next))
             {
                 _queued.Remove(next.Tile.Key);
-                if (Cache.GetValueOrDefault(next.Tile.Key) is not { } picture)
+                if (Cache.Get(next.Tile.Key) is not { } picture)
                 {
-                    picture = await DrawAsync(next.Tile).ConfigureAwait(true);
-                    if (picture is null || _disposed)
+                    var (bitmap, bytes) = await DrawAsync(next.Tile).ConfigureAwait(true);
+                    if (bitmap is null || _disposed)
                     {
                         continue;
                     }
 
-                    Cache[next.Tile.Key] = picture;
+                    picture = bitmap;
+                    drawn++;
+                    Cache.Put(next.Tile.Key, picture, bytes);
                 }
 
                 next.Ready(picture);
+            }
+
+            if (drawn > 0)
+            {
+                Log.Info(Scope, $"drew {drawn} pictures in {clock.ElapsedMilliseconds} ms; {Cache.Count} kept, {Cache.Bytes / 1024} KB");
             }
         }
         catch (Exception ex)
@@ -163,16 +210,17 @@ internal sealed class AddPictures : IDisposable
         }
     }
 
-#if DEBUG
-    /// <summary>One tile's cards on the stage, their samples shown, drawn to a bitmap, then taken away.</summary>
-    private async Task<AddPicture?> DrawAsync(AddTile tile)
+    /// <summary>One tile's cards on the stage, their samples shown, drawn to a bitmap (and the bytes of its pixels), then taken away.</summary>
+    private async Task<(AddPicture? Picture, long Bytes)> DrawAsync(AddTile tile)
     {
         var dispatcher = _dispatcher!;
         _ticker ??= new Services.Ticker(dispatcher);
-        _hub ??= Services.SystemData.SampleMachine.Hub(_ticker, dispatcher);
+        _samples ??= new SampleWorld(_ticker, dispatcher);
 
         var design = DesignApplier.Current ?? new DesignState();
-        var host = new Gallery.NoticeRender.RenderCardHost(_ticker) { Design = design };
+
+        // [S-11851] The cards are handed the sample world through their host: nothing static is swapped.
+        var host = new PreviewCardHost(_ticker) { Design = design, Samples = _samples };
         var metrics = host.Metrics;
         List<WidgetInstance> models;
         switch (tile)
@@ -185,16 +233,13 @@ internal sealed class AddPictures : IDisposable
                 models = built.Widgets;
                 break;
             default:
-                return null;
+                return (null, 0);
         }
 
         var panel = new Canvas();
         var cards = new List<WidgetCard>();
-        var before = Services.AppServices.System;
         try
         {
-            // [S-1931] The sample PC's hub, for these cards alone: a view watches its hub as it attaches.
-            Services.AppServices.System = _hub;
             foreach (var model in models)
             {
                 var shown = Core.Geometry.SizeFit.Shown(model.Rect, Core.Geometry.SizeFit.Limits(model, metrics, 1, design.WidgetGapPx), metrics);
@@ -208,14 +253,7 @@ internal sealed class AddPictures : IDisposable
                 panel.Children.Add(card);
                 cards.Add(card);
             }
-        }
-        finally
-        {
-            Services.AppServices.System = before;
-        }
 
-        try
-        {
             var right = cards.Max(c => Canvas.GetLeft(c) + c.Width);
             var bottom = cards.Max(c => Canvas.GetTop(c) + c.Height);
             panel.Width = right;
@@ -226,9 +264,10 @@ internal sealed class AddPictures : IDisposable
             WidgetCard.Join(cards, metrics, design.WidgetGapPx, panel.XamlRoot?.RasterizationScale ?? 1, editMode: false, _ => 0);
             await SettleAsync(panel).ConfigureAwait(true);
 
+            // [S-11850] Each view with a sample shows it; one without draws what its host hands it (the sample PC's readings).
             foreach (var card in cards)
             {
-                if (card.View is Gallery.IWidgetPreviewState preview && SampleOf(preview) is { } state)
+                if (card.View is IWidgetSample)
                 {
                     if (card.ShowsSetup)
                     {
@@ -236,27 +275,35 @@ internal sealed class AddPictures : IDisposable
                         await SettleAsync(panel).ConfigureAwait(true);
                     }
 
-                    if (card.View is Gallery.IWidgetPreviewState shown)
+                    if (card.View is IWidgetSample shown)
                     {
-                        await shown.ShowPreviewStateAsync(state).ConfigureAwait(true);
+                        await shown.ShowSampleAsync().ConfigureAwait(true);
                     }
                 }
             }
 
             await SettleAsync(panel).ConfigureAwait(true);
+
+            // [S-11852] The rows' program and file icons come from the shell asynchronously: wait for them, within a bound.
+            if (!AppIconSource.Quiet.IsCompleted)
+            {
+                await Task.WhenAny(AppIconSource.Quiet, Task.Delay(IconWait)).ConfigureAwait(true);
+                await SettleAsync(panel).ConfigureAwait(true);
+            }
+
             if (_disposed || panel.XamlRoot is null)
             {
-                return null;
+                return (null, 0);
             }
 
             var bitmap = new RenderTargetBitmap();
             await bitmap.RenderAsync(panel);
-            return new AddPicture(bitmap, right, bottom);
+            return (new AddPicture(bitmap, right, bottom), 4L * bitmap.PixelWidth * bitmap.PixelHeight);
         }
         catch (Exception ex)
         {
             Log.Warn(Scope, $"the picture of {tile.Key} could not be drawn; its tile keeps its glyph", ex);
-            return null;
+            return (null, 0);
         }
         finally
         {
@@ -268,12 +315,6 @@ internal sealed class AddPictures : IDisposable
             _stage.Children.Remove(panel);
         }
     }
-
-    /// <summary>[S-11710] The state a picture shows: "sample" where the view has it, else its first, never an "are you sure?".</summary>
-    private static string? SampleOf(Gallery.IWidgetPreviewState preview)
-        => preview.PreviewStates.Contains("sample", StringComparer.Ordinal)
-            ? "sample"
-            : preview.PreviewStates.FirstOrDefault(s => !string.Equals(s, "confirm", StringComparison.Ordinal));
 
     /// <summary>
     /// What is on the stage laid out, and the work it queued (a view's first fill, its bindings) run: the
@@ -295,7 +336,4 @@ internal sealed class AddPictures : IDisposable
 
         return done.Task;
     }
-#else
-    private static Task<AddPicture?> DrawAsync(AddTile tile) => Task.FromResult<AddPicture?>(null);
-#endif
 }

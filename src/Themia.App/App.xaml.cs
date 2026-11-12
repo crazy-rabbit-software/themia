@@ -112,6 +112,12 @@ public partial class App : Application
             return;
         }
 
+        // [S-11854] The add page's pictures drawn off-screen to a PNG, then exit: in every build.
+        if (Shell.AddPicturesCheck.TryRunFromCommandLine(this, commandLine))
+        {
+            return;
+        }
+
 #if DEBUG
         // [S-1814] Showcase views into a state file, then exit. Before the single-instance hand-off,
         // which would toggle the running copy's edit mode instead.
@@ -291,9 +297,9 @@ public partial class App : Application
     /// <summary>[S-68] The renders and checks this build runs instead of the app: none in a Release build.</summary>
     private static IReadOnlyCollection<string> KnownRenderFlags =>
 #if DEBUG
-        Shell.Gallery.RenderFlags.All;
+        [Shell.AddPicturesCheck.Flag, .. Shell.Gallery.RenderFlags.All];
 #else
-        [];
+        [Shell.AddPicturesCheck.Flag];
 #endif
 
     /// <summary>[S-68] Say why nothing started, on the console and in the log, and exit non-zero.</summary>

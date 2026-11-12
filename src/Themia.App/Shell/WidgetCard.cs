@@ -90,6 +90,13 @@ internal interface IWidgetCardHost
     bool IsPreview => false;
 
     /// <summary>
+    /// [S-11851] What this host's cards read in place of this PC (the add page's pictures: the sample PC's
+    /// hub, their own gallery service), handed to them explicitly; null for every desktop surface, whose
+    /// cards read the app's own. Only a preview host has one.
+    /// </summary>
+    SampleWorld? Samples => null;
+
+    /// <summary>
     /// [S-2118] The blurred wallpaper of the display these cards are on, shared by all of them, or null
     /// where there is none (most debug renders): the cards then draw without it ([S-2111]).
     /// </summary>

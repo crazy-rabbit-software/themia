@@ -1698,7 +1698,8 @@ service layer knows strategies, never services: a service is a descriptor that p
 - **[S-9928]** The client's memory is in memory only: conditional bodies by account and request (at
   most 256, the least recently used out), the blocks by account and bucket, the steps' answers; a
   sign-out forgets the account's.
-- **[S-9929]** A preview card's kit widget (a debug render) reads its provider's recorded answers
+- **[S-9929]** A preview card's kit widget (a debug render, an add page picture in Debug; in a Release build
+  a sync with no accounts and no network, [S-11851]) reads its provider's recorded answers
   through the real rules and sync (`FixtureReplay` over `Fixtures/<state>.json`, copied into Debug
   builds only under the provider's own folder): `items`, `many`, `empty`, `nomatch`, `forbidden`,
   `ratelimited`, `problem` are recordings; `accounts` reads one through two stand-in accounts,
@@ -2038,28 +2039,72 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   tiles of **On the desktop** in its subject (Files & apps), none when nothing is unplaced.
 - **[S-11710]** A tile's **picture** is the thing itself (`AddPictures`): its widget at its natural size, or
   its group's widgets at their boxes joined as one panel ([S-2240]), built as real cards on a preview host
-  with the design applied, so the user sees their look, and with **sample data only**: the sample PC's hub
-  for the system readings ([S-1931]), handed to those cards alone; each view's "sample" preview state, else
-  its first (never an "are you sure?"); the providers' recordings for a kit list ([S-9929]); never this
-  PC's readings, files or accounts. Drawn to a bitmap off the UI's hot path (one at a time at low
-  priority after the page shows, the cards on a stage under the page's ground and detached once drawn),
-  then fitted into its box 8 in, scaled down and never up, centred. Cached per look (the design as
-  stored, light or dark, the language) and tile; a new look starts the cache again. A picture not yet
-  drawn shows the tile's glyph on its box, never a blank.
-- **[S-11711]** The samples (the views' preview states, the sample PC) exist in Debug builds only, so a
-  Release build draws no picture: every tile shows its glyph (`AddPictures.Draws`). Moving the samples
-  into Release is its own change.
+  with the design applied, so the user sees their look, and with **sample data only**, in every build
+  ([S-11850]): the sample world handed to those cards alone ([S-11851]: the sample PC's hub for the system
+  readings, [S-1931], a gallery service of their own); each view's own sample ([S-11852]); a kit list reads
+  no account (the providers' recordings in Debug, [S-9929]); never this PC's readings, files or accounts.
+  Drawn to a bitmap off the UI's hot path (one at a time at low priority after the page shows, the cards on
+  a stage under the page's ground and detached once drawn), then fitted into its box 8 in, scaled down and
+  never up, centred. Cached per look (the design as stored, light or dark, the language) and tile, within a
+  bound ([S-11853]); a new look starts the cache again. A picture not yet drawn shows the tile's glyph on
+  its box, never a blank.
+- **[S-11711]** *(Retired by [S-11850]: the samples ship, and every build draws the pictures.)*
 - **[S-11712]** Debug renders: `--picker-png <out.png> [--tab Id] [--search text] [--width w] [--height h]
   [--theme light|dark] [--lang xx]` draws the page open under the real bar on a stand-in display (1920 ×
   1032 unless sized), every picture drawn before the shot (a minute at most, said when cut short);
   `--editbar-png`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
   `-add-weather`, `-add-search` ("music"), `-add-none` (nothing found), `-add-narrow` (a 900-wide display).
 
+#### The pictures in every build ([S-11850]..[S-11854])
+
+The pictures are the point of the page (the owner's "easy to get started"), so the Store's build draws them
+too. What they need at run time ships; the render tooling does not.
+
+- **[S-11850]** **Samples ship, previews do not, by folder.** A view's sample is `IWidgetSample.ShowSampleAsync`
+  (`Themia.Sdk.WinUI/Samples`): the sample day's data (`Themia.Sdk/Samples`, [S-2050]..[S-2056]) in place of
+  its live sources, held by the view alone. It lives in the module's `Samples/` folder, compiled in every
+  configuration; the render-only states (`IWidgetPreviewState`: errors, loading, empty, hovered, edge
+  cases) stay in `Preview/`, removed outside Debug by the one rule in `src/Widgets/Directory.Build.targets`,
+  and their `sample` state (or the first data state a scene names: `messages`, `tasks`, `set`, ...) calls the
+  sample, so a render and a picture draw the same. No `#if` in either folder; `scripts/new-module.ps1`
+  writes a `Samples/<Name>View.Sample.cs`. What stays Debug: the render flags and their PNG tooling
+  (`Shell/Gallery`), the family check, the showcase command, the scenes, the stand-in taskbar and
+  wallpapers, the providers' recordings (`Fixtures/`, tests and renders only) and every state but the
+  sample. Shipped besides the samples: the sample PC's hub (`SampleMachine.Hub`), the preview card host
+  (`PreviewCardHost`, the renders' `RenderCardHost` derives from it), the card's run past its Set up for a
+  preview (`WidgetCard.RunForPreview`, a preview host only). Tests `AddPictureSamplesTests`.
+- **[S-11851]** **The sample world is handed, never installed.** A picture's cards get a `SampleWorld`
+  (the sample PC's hub, a gallery service of their own) through their host (`PreviewCardHost.Samples`,
+  `IWidgetCardHost.Samples`, null for every desktop surface), and `CardWidgetHost` reads it in place of
+  the app's (`System`, `Gallery`); nothing static is swapped, so no desktop card can observe it. A preview
+  card copies nothing to the clipboard, runs no power action ([S-1251]) and reads no account: the
+  recordings in Debug, a sync with no accounts and no network otherwise. A sample writes into no store,
+  so nothing of it reaches search, the clipboard or the assistants' server ([S-9969]). Only `AppHost`
+  (the app) and the Debug render tooling, which runs instead of the app (`RenderMachine.Install`, `--machine
+  sample`), set the app's hub.
+- **[S-11852]** **A picture shows a view's own sample**, never a state chosen by position: a view without one
+  draws what its host hands it (the meters, the details and Top processes read the sample PC; the power
+  buttons are drawn at rest). Before, the meters' first state, `unavailable`, drew the GPU and battery
+  groups as "--". The gallery decodes through the sample world's service (it was blank where the app's
+  was not running). A picture waits for its rows' icons (`AppIconSource.Quiet`, at most 2 s) and a switch
+  is drawn where it is, not on its way.
+- **[S-11853]** **The cache is bounded**: at most 160 pictures and 48 MB of their pixels (`AddPictureCache`,
+  Core: the least recently shown go first; one larger than the budget is not kept), dropped a minute after
+  the last page closed; the next opening draws them again (measured 2026-11-12: the Start tab's eighteen
+  in about 4.3 s in the Native AOT build, 13 MB of pixels; every tab's 152 about 64 MB, so the bound
+  drops the oldest; at low priority, the glyphs meanwhile).
+- **[S-11854]** `Themia.exe --add-pictures-check <out.png>`, in **every build**, the one flag a Release build
+  knows besides the app's own ([S-68]): draws the page's Start tab off-screen through the shipped path,
+  writes it to the PNG, prints how many pictures of how many, their bytes and the time, and exits (0 when
+  every picture was drawn). Only as the first argument, with a `.png` path; it reads and writes no state
+  and never reaches the hand-off.
+
 Needs a live pass: the page under the bar on every display at mixed DPI and with a top taskbar (as wide as
 the bar, 70 % of a short display); the pointer (hover fills, a press outside closing it, a tile's click
 starting the placement with the ghost of the widget or the whole group under the pointer, Escape and a
-right-click cancelling); the keys of [S-11708]; the pictures drawing in the running app (Debug), their cache
-across openings and after a design or language change; a screen reader on the tabs and tiles.
+right-click cancelling); the keys of [S-11708]; the pictures drawing in the running app, Debug and the
+packaged Store build, their cache across openings, after a design or language change and dropped a minute
+after closing; a screen reader on the tabs and tiles.
 
 ### The edit bar's settings menu (SETTINGS-MENU)
 
@@ -4748,8 +4793,9 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   (`SeriesProjections`) draw it: no second look in any view. A recording is one moment: the hub reads
   each feed once and never ticks or listens to Windows' events over it, so two renders draw the same
   picture. Nothing in `SamplePc` reads the machine, the clock or a random source. Any render installs
-  it in one line, before its cards are built: `using var machine = SampleMachine.Install(ticker,
-  dispatcher);` (`Themia.App.Services.SystemData.SampleMachine`, Debug builds). The quick toggles
+  it in one line, before its cards are built: `using var machine = RenderMachine.Install(ticker,
+  dispatcher);` (`Themia.App.Shell.Gallery`, Debug builds); the add page's pictures hand their cards a
+  hub of their own instead, in every build (`SampleMachine.Hub`, [S-11851]). The quick toggles
   draw `--state on|off` (the shared `QuickToggleView`, so a scene can show Wi-Fi on beside others
   off) and the power buttons stay inert in every render ([S-1251]). It is the one fixed picture of
   the system widgets: the meters' `history` and `sample` states and the details' `sample` state
@@ -9160,7 +9206,8 @@ away when an account is added.
 The Debug previews ([S-1917]) are the Store's screenshots: whole desktops of widgets side by side.
 Every kind's main data state (`sample`, or its first data state: `messages`, `tasks`, `list`, ...)
 tells one story, so any set of them agrees with itself. The facts live once, in the SDK
-(`Themia.Sdk/Samples/`, Debug only), and the previews read them; tests `SampleDayTests`.
+(`Themia.Sdk/Samples/`, in every build since the add page's pictures draw them, [S-11850]), and the
+samples and previews read them; tests `SampleDayTests`.
 
 - **[S-2050]** One moment: `SampleDay.Now` is the day the render runs on at 10:42 local (the clock's
   sample). A preview that shows a time relative to now, today, a countdown or an age computes it

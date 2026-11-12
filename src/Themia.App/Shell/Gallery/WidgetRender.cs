@@ -229,7 +229,7 @@ internal static class WidgetRender
                 // [S-1931] --machine sample: they read the sample machine instead of this PC.
                 if (string.Equals(Option(args, "--machine"), "sample", StringComparison.OrdinalIgnoreCase))
                 {
-                    machine = Services.SystemData.SampleMachine.Install(ticker, dispatcher);
+                    machine = RenderMachine.Install(ticker, dispatcher);
                 }
                 else
                 {

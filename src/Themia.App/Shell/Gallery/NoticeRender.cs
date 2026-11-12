@@ -231,113 +231,17 @@ internal static class NoticeRender
         Fill = DesignApplier.Brush("SolidBackgroundFillColorBaseBrush", Colors.Black),
     };
 
-    /// <summary>A card host with nothing behind it: every request is accepted and ignored. Also the motion render's ([S-1016]).</summary>
-    internal sealed class RenderCardHost(Ticker ticker) : IWidgetCardHost
+    /// <summary>A preview card host for the renders: the stand-in wallpaper's screen and backdrop while one is in use ([S-2119]), and the kit services' preview state. Also the motion render's ([S-1016]).</summary>
+    internal sealed class RenderCardHost(Ticker ticker) : PreviewCardHost(ticker)
     {
-        private readonly ScreenMetrics _metrics = new(1920, 1080);
-
-        /// <summary>The render's screen: the stand-in wallpaper's while one is in use ([S-2119]), else the host's own (1920 × 1080 unless set).</summary>
-        public ScreenMetrics Metrics
-        {
-            get => RenderWallpaper.Screen ?? _metrics;
-            init => _metrics = value;
-        }
+        /// <summary>The render's screen: the stand-in wallpaper's while one is in use ([S-2119]).</summary>
+        protected override ScreenMetrics? Screen => RenderWallpaper.Screen;
 
         /// <summary>[S-9929] The preview state this host's kit service cards replay; null for <c>items</c>.</summary>
         public string? FixtureState { get; set; }
 
         /// <summary>[S-2119] The stand-in wallpaper's backdrop while one is in use.</summary>
-        public Backdrop? Backdrop => RenderWallpaper.Backdrop;
-
-        public DesignState Design { get; init; } = new();
-
-        public Ticker Ticker => ticker;
-
-        /// <summary>[S-3713] Edit mode, for the properties strip's render; false elsewhere.</summary>
-        public bool EditMode { get; init; }
-
-        /// <summary>[S-3713] The ids drawn selected; none elsewhere.</summary>
-        public IReadOnlySet<string> Selected { get; init; } = new HashSet<string>();
-
-        /// <summary>[S-2458] The group a scene draws entered (its selected member shows its own markers), or null.</summary>
-        public string? Entered { get; init; }
-
-        /// <summary>[S-2453] A group's member draws no markers of its own unless it is the entered, selected one.</summary>
-        public bool ShowsOwnMarkers(WidgetCard card)
-            => card.Model.Group is null || (string.Equals(card.Model.Group, Entered, StringComparison.Ordinal) && Selected.Contains(card.Model.Id));
-
-        public ViewState? ViewForCards => null;
-
-        /// <summary>[S-3300] Every card of a render is on one stand-in view, so a linked preview state shows on each.</summary>
-        public Themia.Core.Links.LinkBoard Links { get; init; } = new();
-
-        public bool CanPaste => false;
-
-        public bool IsPreview => true;
-
-        public void OnGeometryPreview(WidgetCard card)
-        {
-            // ignore: a render does not move cards
-        }
-
-        public void OnGeometryCommitted(WidgetCard card)
-        {
-            // ignore: as above
-        }
-
-        public void RequestSetup(WidgetCard card)
-        {
-            // ignore: a render has no edit mode to enter and no menu to open
-        }
-
-        public bool RequestAccounts() => false;
-
-        public void RequestDelete(WidgetCard card)
-        {
-            // ignore: a fixed set of cards
-        }
-
-        public void RequestEditMode(bool enabled)
-        {
-            // ignore: a render's edit mode is fixed
-        }
-
-        public bool IsSelected(WidgetCard card) => Selected.Contains(card.Model.Id);
-
-        public void RequestSelect(WidgetCard card)
-        {
-            // ignore: nothing to select into
-        }
-
-        public void RequestCopy(WidgetCard card)
-        {
-            // ignore: no clipboard here
-        }
-
-        public void RequestCut(WidgetCard card)
-        {
-            // ignore: as above
-        }
-
-        public void RequestPaste()
-        {
-            // ignore: as above
-        }
-
-        public void RequestSaveConfig()
-        {
-            // ignore: nothing is persisted
-        }
-
-        public void RequestTextInput(WidgetCard card, bool wanted)
-        {
-            // ignore: no keyboard here
-        }
-
-        public void KeyboardPress(WidgetCard card)
-        {
-            // ignore: as above
-        }
+        public override Backdrop? Backdrop => RenderWallpaper.Backdrop;
     }
 }
 #endif

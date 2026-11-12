@@ -1,4 +1,3 @@
-#if DEBUG
 using Microsoft.UI.Dispatching;
 using Themia.Core.SystemData;
 using Themia.Sdk;
@@ -7,31 +6,17 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Services.SystemData;
 
 /// <summary>
-/// [S-1931] Debug renders: the system widgets read the sample machine instead of this PC. One line
-/// for any render, before its cards are built:
-/// <code>using var machine = SampleMachine.Install(ticker, dispatcher);</code>
-/// It puts a hub over the sample machine (<see cref="SamplePc"/>) in <see cref="AppServices.System"/>,
-/// which every card's <c>IWidgetHost.System</c> is, so the meters, the details and the process list
-/// draw it through their own code: the hub's rules, its series with a full history from the first
-/// frame ([S-1932]), the widgets' views. Nothing is read from this PC and nothing moves (the hub does
-/// not tick over a recording), so two renders draw the same picture. [S-11802] The drive widgets read
-/// its drives (<see cref="SamplePc.Drives"/>) the same way, through <see cref="AppServices.Drives"/>.
-/// Dispose to put back what was there (none, in a render). <c>--widget-png ... --machine sample</c> is this.
+/// [S-1931] [S-11851] The sample machine (<see cref="SamplePc"/>) as a hub: the system widgets read it
+/// instead of this PC through their own code (the hub's rules, its series with a full history from the
+/// first frame, [S-1932], the widgets' views). Nothing is read from this PC and nothing moves (the hub
+/// does not tick over a recording), so two pictures draw the same. In every build: the add page's
+/// pictures hand it to the cards they build, and only to them (a <see cref="Shell.SampleWorld"/>, a
+/// preview card host's own); it is never installed where a desktop card reads its hub. Debug renders
+/// install one for a whole render (<c>--machine sample</c>, <c>RenderMachine.Install</c>).
 /// </summary>
 public static class SampleMachine
 {
-    /// <summary>[S-1931] Install the sample machine's hub; dispose to take it away again.</summary>
-    public static IDisposable Install(Ticker ticker, DispatcherQueue dispatcher)
-    {
-        ArgumentNullException.ThrowIfNull(ticker);
-        ArgumentNullException.ThrowIfNull(dispatcher);
-        return new Installed(Hub(ticker, dispatcher), new SampleDrives());
-    }
-
-    /// <summary>
-    /// [S-11710] A hub over the sample machine that is not installed: the add page's pictures hand it to
-    /// the cards they build, so the app's own hub (this PC) stays every desktop card's. Dispose it.
-    /// </summary>
+    /// <summary>[S-11851] A hub over the sample machine, for the cards that are handed it alone. Dispose it.</summary>
     internal static SystemHub Hub(Ticker ticker, DispatcherQueue dispatcher)
     {
         ArgumentNullException.ThrowIfNull(ticker);
@@ -39,41 +24,8 @@ public static class SampleMachine
         return new SystemHub(ticker, dispatcher, new Recording());
     }
 
-    private sealed class Installed : IDisposable
-    {
-        private readonly SystemHub _hub;
-        private readonly SystemHub? _before;
-        private readonly IDrives _drivesBefore;
-        private bool _disposed;
-
-        public Installed(SystemHub hub, IDrives drives)
-        {
-            _hub = hub;
-            _before = AppServices.System;
-            AppServices.System = hub;
-            _drivesBefore = AppServices.Drives;
-            AppServices.Drives = drives;
-        }
-
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-
-            if (ReferenceEquals(AppServices.System, _hub))
-            {
-                AppServices.System = _before;
-            }
-
-            AppServices.Drives = _drivesBefore;
-
-            _hub.Dispose();
-        }
-    }
+    /// <summary>[S-11802] The sample machine's drives (<see cref="SamplePc.Drives"/>), for whoever is handed the sample machine.</summary>
+    internal static IDrives Drives() => new SampleDrives();
 
     /// <summary>[S-11802] The sample machine's drives: one fixed walk, nothing watched, nothing walked again.</summary>
     private sealed class SampleDrives : IDrives
@@ -114,4 +66,3 @@ public static class SampleMachine
         public override T Read() => readings[^1];
     }
 }
-#endif

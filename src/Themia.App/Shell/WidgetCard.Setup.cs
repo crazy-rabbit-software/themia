@@ -206,14 +206,20 @@ internal sealed partial class WidgetCard
             yield return _view;
         }
     }
+#endif
 
     /// <summary>
-    /// Debug renders only ([S-2711]): run the view though the widget would need setting up, so a
-    /// preview state can draw it over fixture data. A render has no accounts, so without this every
-    /// account widget is its Set up button.
+    /// [S-2711] [S-11850] A preview card only (a render, an add page picture): run the view though the
+    /// widget would need setting up, so its sample can draw it. A preview has no accounts, so without
+    /// this every account widget is its Set up button. A desktop card is never run past its Set up.
     /// </summary>
     internal void RunForPreview()
     {
+        if (!_host.IsPreview)
+        {
+            return;
+        }
+
         if (_setup is not null)
         {
             _content.Children.Remove(_setup);
@@ -235,7 +241,9 @@ internal sealed partial class WidgetCard
         }
 
         _running = true;
+#if DEBUG
         Gallery.LiveCensus.ViewAttached(_view);
+#endif
         widgetView.Attach(_host.Ticker, ViewConfig);
 
         // The slot was measured while the view was parked, which it did not hear ([S-1881]).
@@ -244,5 +252,4 @@ internal sealed partial class WidgetCard
             sizeAware.ApplySize(new WidgetArea(_view.ActualWidth, _view.ActualHeight));
         }
     }
-#endif
 }

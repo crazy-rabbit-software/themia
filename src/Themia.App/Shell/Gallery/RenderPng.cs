@@ -15,13 +15,7 @@ internal static class RenderPng
     /// </summary>
     public const int MaxSide = 4096;
 
-    public static async Task SaveAsync(UIElement element, string path)
-    {
-        var bitmap = new RenderTargetBitmap();
-        await bitmap.RenderAsync(element);
-        var pixels = await bitmap.GetPixelsAsync();
-        await EncodeAsync(path, bitmap.PixelWidth, bitmap.PixelHeight, pixels.ToArray()).ConfigureAwait(true);
-    }
+    public static Task SaveAsync(UIElement element, string path) => PngFile.SaveAsync(element, path);
 
     /// <summary>
     /// [S-1074] A picture of exactly <paramref name="width"/> × <paramref name="height"/> pixels, drawn
@@ -60,23 +54,6 @@ internal static class RenderPng
         await EncodeAsync(path, width, height, all).ConfigureAwait(true);
     }
 
-    private static async Task EncodeAsync(string path, int width, int height, byte[] pixels)
-    {
-        // Encoded straight into the file's stream. Reading the encoded bytes back out of an
-        // InMemoryRandomAccessStream through a DataReader blocked the UI thread for good in a Native
-        // AOT build, so the render never finished; a file stream has nothing to read back.
-        using var file = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-        using var stream = file.AsRandomAccessStream();
-        var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
-        encoder.SetPixelData(
-            BitmapPixelFormat.Bgra8,
-            BitmapAlphaMode.Premultiplied,
-            (uint)width,
-            (uint)height,
-            96,
-            96,
-            pixels);
-        await encoder.FlushAsync();
-    }
+    private static Task EncodeAsync(string path, int width, int height, byte[] pixels) => PngFile.EncodeAsync(path, width, height, pixels);
 }
 #endif

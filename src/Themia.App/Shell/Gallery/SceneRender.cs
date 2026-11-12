@@ -91,7 +91,7 @@ internal static class SceneRender
                 ticker = new Ticker(dispatcher);
 
                 // [S-1931] A store picture never shows this PC: the system widgets read the sample machine.
-                machine = Services.SystemData.SampleMachine.Install(ticker, dispatcher);
+                machine = RenderMachine.Install(ticker, dispatcher);
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 code = await DrawAsync(window, ticker, job, cards).ConfigureAwait(true);
             }
