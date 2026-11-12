@@ -742,7 +742,7 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   the phase, or the month's phases, [S-11120]) and **Moon times** (`moonTimes`, moonrise, moonset, the
   next full and new moon as a pick, [S-11125]); the ready-made groups "Sun" and "Moon" are the old
   cards ([S-11172]). All sit in the add menu's Weather & sky subject ([S-3511]), name their place in
-  the header's label where they show a header ([S-2260]), start at Zurich, so they
+  the header's label where they show a header ([S-2260]), start at Zürich ([S-11801]), so they
   need setting up only once their place is cleared ([S-2848]), and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
@@ -7461,7 +7461,7 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its facts), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
   **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
-  weather's none, the sky's Zurich); the previews and `--recipe-png` draw every atom at the one sample
+  weather's none, the sky's Zürich); the previews and `--recipe-png` draw every atom at the one sample
   place (`SamplePlace`) on the sample day.
 
 - **[S-11806]** **The sun's arc fits its box in every season** (`SunPathPlot.For`, 2026-11-12): the
@@ -7472,6 +7472,9 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   place along the curve is still the time of day; the curve's height is the day's own shape, not the
   true elevation against another day's. A polar night has no day arc (the axis 1, the night's dip alone).
   Tests `SunPathGeometryTests.S11806_`.
+- **[S-11801]** **One spelling of the place**: the sky's default place is "Zürich"
+  (`SkyPlaceConfig.DefaultPlace`), as the sample place (`SamplePlace.Name`) every weather preview names,
+  so a weather atom and a sky atom side by side say the same town (the sky said "Zurich").
 ## Music and Pomodoro: parity and the whole tile (PF)
 
 - [S-1460], [S-1466], [S-1467], [S-1987]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).

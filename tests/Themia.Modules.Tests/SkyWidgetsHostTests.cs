@@ -121,4 +121,13 @@ public sealed class SkyWidgetsHostTests
         var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
         return JsonSerializer.Deserialize(json, StateJson.WidgetConfig)!;
     }
+
+    [Fact]
+    public void S11801_the_sky_starts_at_the_place_every_sample_names_spelled_the_same()
+    {
+        Assert.Equal("Zürich", SkyPlaceConfig.DefaultPlace);
+#if DEBUG
+        Assert.Equal(Themia.Sdk.Samples.SamplePlace.Name, SkyPlaceConfig.DefaultPlace);
+#endif
+    }
 }

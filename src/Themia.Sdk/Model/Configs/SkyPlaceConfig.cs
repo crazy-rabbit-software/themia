@@ -13,12 +13,12 @@ namespace Themia.Core.Model;
 /// </summary>
 public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
 {
-    /// <summary>Zurich, the original's default.</summary>
+    /// <summary>[S-11801] Zürich, the original's default, spelled as every sample place is (the weather's, the sample day's).</summary>
     public const double DefaultLatitude = 47.37;
 
     public const double DefaultLongitude = 8.54;
 
-    public const string DefaultPlace = "Zurich";
+    public const string DefaultPlace = "Zürich";
 
     /// <summary>A place name is a header title, not a document.</summary>
     public const int MaxPlaceLength = 80;
