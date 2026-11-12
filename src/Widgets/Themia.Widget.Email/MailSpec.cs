@@ -24,7 +24,8 @@ public static class MailSpec
 
     /// <summary>
     /// [S-6403] The spec of a style: List and Compact are the stacked look, Table the table. An empty
-    /// folder says which folder it is ("No messages in Inbox").
+    /// folder says which folder it is ("No messages in Inbox"). [S-2270] Unread is told by the sender's
+    /// name alone: BodyStrong primary unread, Body secondary read; no row leads.
     /// </summary>
     /// <param name="folder">The folder the widget lists now; Inbox when null.</param>
     public static KitSpec Spec(EmailStyle style, Func<MailFolder>? folder = null)
@@ -36,8 +37,9 @@ public static class MailSpec
             {
                 ColumnHeading = column => Column(column).Label(),
                 ColumnTime = KitTime.Stamp,
+                Unread = true,
             }
-            : new(KitRowLook.TwoLine, KitShow.All, () => string.Empty, Empty, KitTime.Compact);
+            : new(KitRowLook.TwoLine, KitShow.All, () => string.Empty, Empty, KitTime.Compact) { Unread = true };
     }
 
     /// <summary>[S-543] [S-6403] The fields the user has on: subject and account as chosen, the preview the List style's own.</summary>
@@ -45,7 +47,8 @@ public static class MailSpec
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        var shows = KitShow.Lead | KitShow.When
+        // [S-2270] No lead: every row would show an envelope; unread is the name's own weight and role.
+        var shows = KitShow.When
             | (config.Shows(MailListField.Subject) ? KitShow.Subtitle : KitShow.None)
             | (config.Shows(MailListField.Account) ? KitShow.Badges : KitShow.None)
             | (config.ShowsPreview ? KitShow.Preview : KitShow.None);
@@ -74,8 +77,8 @@ public static class MailSpec
 
     /// <summary>
     /// [S-1282] [S-1284] A message as a row: the sender, the subject, the preview, its time; unread is
-    /// the strong title, the accent bar and time, the closed envelope; read the open envelope. The
-    /// account's name is its badge, at every size, never its provider.
+    /// the strong name in the primary role, read the plain name in the secondary ([S-2270]); no lead.
+    /// The account's name is its badge, at every size, never its provider.
     /// </summary>
     /// <param name="account">The account it came to, for its name and the tooltip; null when it is gone.</param>
     public static KitItem Item(MailMessage message, MailAccount? account)
@@ -88,7 +91,7 @@ public static class MailSpec
             message.Sender,
             message.SubjectLine,
             message.Preview,
-            new KitLead(KitLeadKind.Icon, (unread ? KitIcon.Mail : KitIcon.MailRead).ToString(), unread ? KitTone.Accent : KitTone.Neutral),
+            KitLead.None,
             message.Received is { } at ? KitWhen.Instant(at) : null,
             unread ? KitTone.Accent : KitTone.Neutral,
             unread,

@@ -6,7 +6,10 @@ using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
-/// <summary>Debug renders only ([S-1917], [S-2056]): the sample day's notifications, never the person's.</summary>
+/// <summary>
+/// Debug renders only ([S-1917], [S-2056]): the sample day's notifications, never the person's. A render
+/// holds no lease, so no sender's icon is read and every row shows the fallback bell ([S-2271]).
+/// </summary>
 internal sealed partial class NotificationsView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["list", "many", "open", "empty", "denied", "unspecified", "unsupported"];

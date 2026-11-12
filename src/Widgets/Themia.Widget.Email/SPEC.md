@@ -56,9 +56,13 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   rest a scroll away. The table's column titles from 140px of height. No provider name and no
   folder summary ([S-1285], retired). With no mail account the Set up row says "Add an account to
   show your mail" ([S-1862]).
-- **[S-1282]** Envelope: a closed envelope in front of unread mail, an open one in front of read
-  mail, both secondary (the lead), from a column of 180, in every view. Unread is the strong name
-  alone: no accent envelope, no accent bar, no accent time.
+- **[S-1282]** *(Retired by [S-2270]: no envelope leads a row.)* Unread is the strong name alone: no
+  accent envelope, no accent bar, no accent time.
+- **[S-2270]** No row leads: an envelope on every row tells nothing ([S-6711]: a lead only where it
+  tells rows apart), so the sender's name starts at the inset, in line with the header's name. Unread
+  is told by the name alone: BodyStrong in the primary role unread, Body in the secondary role read
+  (`KitSpec.Unread`, the kit's quiet row, `RowRules.Roles(quiet)`), in the stacked looks and the
+  table's From column alike; the second line, the badge and the time are as before.
 - **[S-1283]** Retired (G2, 2026-10-29): one-line rows with a sender column, the subject and preview
   after an en dash and an account column on a strip or a wide tile. Every row is the Row block; a
   strip shows one line, the sender and the time; Compact holds the rows to the sender and subject.

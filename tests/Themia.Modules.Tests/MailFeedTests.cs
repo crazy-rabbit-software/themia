@@ -469,7 +469,10 @@ public class MailLayoutTests
         var config = new EmailConfig();
 
         var large = Plan(config, 560, 376);
-        Assert.True(large.Subtitle && large.Badges && large.When && large.Lead && large.Preview);
+        Assert.True(large.Subtitle && large.Badges && large.When && large.Preview);
+
+        // [S-2270] No envelope leads a row at any size: the sender starts at the inset.
+        Assert.False(large.Lead);
         Assert.Equal(3, large.Lines);
 
         // Narrow: the account tag goes, the subject stays.

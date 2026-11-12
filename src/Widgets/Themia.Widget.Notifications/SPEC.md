@@ -25,6 +25,10 @@ JSON context), `NotificationsConfig.cs` (empty: nothing to set, no settings page
   as fit, never ending on a heading, the rest a scroll away under the fade. "No new notifications",
   a missing access ([S-4403]) and an unsupported Windows are the state row's sentence at the top, with
   the one button that fixes it (Open settings for Denied, a problem; Allow for Unspecified).
+- **[S-2271]** A row leads with its sender's own icon (`AppIconSource`), so the leads tell the rows
+  apart and stay ([S-6711]); the widget's bell stands in only while an icon loads and for a sender
+  Windows gives none. A render reads no notification list and so no sender's icon: every preview row
+  shows that fallback, the bell, which is what a live row shows for a sender without an icon.
 - **[S-4409]** Keys while the widget holds the lease: Up/Down, Page Up/Down, Home/End move the row
   cursor (`ListKeys`), Enter opens the app, Delete dismisses, the Menu key opens the row's menu (Open,
   Dismiss, Clear all from the app), Escape lets go. In edit mode nothing is opened or cleared.

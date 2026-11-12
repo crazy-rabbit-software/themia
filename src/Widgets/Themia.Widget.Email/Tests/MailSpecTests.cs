@@ -59,7 +59,7 @@ public sealed class MailSpecTests
         => Assert.Equal(MailSpec.OpenId, KitMenu.Primary(MailSpec.Actions(Message(), canChange: false))?.Id);
 
     [Fact]
-    public void S1282_an_unread_message_is_emphasised_with_the_closed_envelope_and_the_accent()
+    public void S2270_an_unread_message_is_told_by_its_name_alone_and_no_row_leads()
     {
         var account = new MailAccount("work", HostProviders.Microsoft, "Work", "me@example.com", null);
         var unread = MailSpec.Item(Message(), account);
@@ -67,16 +67,25 @@ public sealed class MailSpecTests
 
         Assert.True(unread.Emphasis);
         Assert.Equal(KitTone.Accent, unread.Tone);
-        Assert.Equal(nameof(KitIcon.Mail), unread.Lead.Value);
+        Assert.Equal(KitLeadKind.None, unread.Lead.Kind);
         Assert.Equal("Work", unread.Badges![0].Text);
         Assert.Contains("Dana Ruiz <dana@example.com>", unread.Tooltip, StringComparison.Ordinal);
 
         Assert.False(read.Emphasis);
         Assert.Equal(KitTone.Neutral, read.Tone);
-        Assert.Equal(nameof(KitIcon.MailRead), read.Lead.Value);
+        Assert.Equal(KitLeadKind.None, read.Lead.Kind);
         Assert.Null(read.Badges);
         Assert.Equal("Dana Ruiz", read.Title);
         Assert.Equal("Quarterly numbers", read.Subtitle);
+    }
+
+    [Theory]
+    [InlineData(EmailStyle.List)]
+    [InlineData(EmailStyle.Table)]
+    public void S2270_the_list_tells_unread_by_its_names_and_asks_for_no_lead(EmailStyle style)
+    {
+        Assert.True(MailSpec.Spec(style).Unread);
+        Assert.False(MailSpec.Choices(new EmailConfig()).Shows.HasFlag(KitShow.Lead));
     }
 
     [Fact]
