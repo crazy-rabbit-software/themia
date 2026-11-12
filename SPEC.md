@@ -6190,9 +6190,35 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-834]** *(Retired by [S-3526] and [S-3527]: there is no Appearance page; its rows are the settings
   menu's Appearance lines, in the same groups, each written in place.)*
 
+### Blur behind widgets (FROSTED)
+
+A translucent card over a busy wallpaper is hard to read. Themia's surface is on the desktop layer,
+so what lies behind a card is (almost) always the wallpaper: the card shows the wallpaper itself,
+blurred, under its tint. Windows' Mica, done by hand.
+
+- **[S-2112]** The picture (`WallpaperPicture`, Core `Desktop/Wallpaper.cs`): the display's wallpaper as
+  Windows shows it there, at 1/12 of its pixels per side (`WallpaperLayout.Downscale`,
+  `PictureSize`), BGRA premultiplied and opaque. A solid colour is a picture of that colour
+  (`WallpaperLayout.Solid`). Where it comes from is a seam, `IWallpaperSource`: per display (its bounds
+  in virtual screen pixels) the picture already placed for it, or none, and a `Changed` event.
+- **[S-2113]** Placement, value for value with Windows' `DESKTOP_WALLPAPER_POSITION` (`WallpaperFit`,
+  `WallpaperLayout.Place`): **Fill** covers the display, centred and cropped; **Fit** fits inside it,
+  centred, the background colour around; **Stretch** is the display's size; **Center** the image's own
+  size, centred (cropped when larger); **Tile** repeats it at its own size from the display's top-left;
+  **Span** fills the bounding box of every display and each shows its part. `Plan` brings the
+  placement into the picture (one image size for every copy), `Compose` lays the image over the
+  background colour there (its own transparency shows the colour) and never reads outside either buffer.
+- **[S-2114]** A card shows the part of its display's picture that lies behind it
+  (`WallpaperLayout.Part`): its rectangle on the display, in DIPs from the display's top-left, scaled
+  from the display's DIP size to the picture's; it moves with the card by the same fraction.
+- **[S-2115]** The blur (`BoxBlur`): box passes over the pixel buffer, rows then columns, radius 3 at
+  1/12 scale, three passes (close to a Gaussian of about 40 display pixels). Integer arithmetic, so it
+  is deterministic; an edge repeats its last pixel (no darkening toward the display's edge) and no read
+  leaves the buffer, whatever the radius. No package, no Win2D.
+
 Not ported, on purpose: the original's preset preview tiles (a drop-down lists them, through the
-shared `FluentLayout` row like every setting); the blur that tracked opacity (there is no blur layer
-behind a card here); the eyedropper (optional in the audit). Motion settings are WP9's.
+shared `FluentLayout` row like every setting); the blur that tracked opacity (the blur behind widgets
+is one switch, [S-2110]); the eyedropper (optional in the audit). Motion settings are WP9's.
 
 ## Logging (WP7)
 
