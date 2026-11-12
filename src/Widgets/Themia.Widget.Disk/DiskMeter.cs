@@ -11,9 +11,6 @@ internal sealed class DiskMeter(IWidgetHost host) : DiskPart(host)
 {
     public override WidgetId Kind => new WidgetId("disk");
 
-    /// <inheritdoc />
-    public override bool Sized => true;
-
     public override MeterLook Look(WidgetConfig config) => Look((config as DiskConfig)?.Style ?? DiskStyle.Number);
 
     /// <summary>[S-6271] The drawing a style is: the bars are rows under the rate.</summary>

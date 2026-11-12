@@ -43,9 +43,6 @@ internal sealed class BatteryMeter : MeterPart
         _ => MeterLook.Number,
     };
 
-    /// <inheritdoc />
-    public override bool Sized => true;
-
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, reading.Charging);
 

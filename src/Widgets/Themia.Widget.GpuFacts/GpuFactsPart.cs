@@ -24,10 +24,9 @@ internal sealed class GpuFactsPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("gpuFacts");
 
-    public override bool HasHero => false;
 
     /// <summary>[S-11016] Fact rows alone, as the config picks them.</summary>
-    public override DetailAtom? Atom => DetailAtom.Facts;
+    public override DetailAtom Atom => DetailAtom.Facts;
 
     public override IReadOnlyList<FactOption> FactOptions => GpuDetailRules.Facts;
 

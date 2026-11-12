@@ -53,13 +53,17 @@ public static class ReadyMadeGroups
 {
     private const string Scope = "ready-made";
 
-    /// <summary>[S-2474] This PC: the four meters as a 2 × 2 grid.</summary>
+    /// <summary>[S-2474] [S-11090] This PC: the four readings as a 2 × 2 grid, each over its history.</summary>
     public static ReadyMadeGroup ThisPc { get; } = new("thisPc", Str.Groups_Recipe_ThisPc, Str.Groups_Recipe_ThisPcAbout, Glyphs.Display, AddFolderId.System,
     [
-        new("cpu", new(0, 0, 200, 150)),
-        new("memory", new(200, 0, 200, 150)),
-        new("network", new(0, 150, 200, 150)),
-        new("disk", new(200, 150, 200, 150)),
+        new("cpu", new(0, 0, 180, 84)),
+        new("cpuHistory", new(0, 84, 180, 64)),
+        new("memory", new(180, 0, 180, 84)),
+        new("memoryHistory", new(180, 84, 180, 64)),
+        new("network", new(0, 148, 180, 128)),
+        new("networkHistory", new(0, 276, 180, 64)),
+        new("disk", new(180, 148, 180, 84)),
+        new("diskHistory", new(180, 232, 180, 108)),
     ]);
 
     /// <summary>[S-2474] My day: the clock on top, the next meeting and the tasks under it.</summary>

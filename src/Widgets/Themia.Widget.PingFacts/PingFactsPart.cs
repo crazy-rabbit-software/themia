@@ -29,10 +29,9 @@ internal sealed class PingFactsPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("pingFacts");
 
-    public override bool HasHero => false;
 
     /// <summary>[S-11023] Fact rows alone, as the config picks them.</summary>
-    public override DetailAtom? Atom => DetailAtom.Facts;
+    public override DetailAtom Atom => DetailAtom.Facts;
 
     public override IReadOnlyList<FactOption> FactOptions => PingDetailRules.Facts;
 

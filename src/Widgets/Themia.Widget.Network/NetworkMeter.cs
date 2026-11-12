@@ -15,9 +15,6 @@ internal sealed class NetworkMeter : MeterPart
 
     public override WidgetId Kind => new WidgetId("network");
 
-    /// <inheritdoc />
-    public override bool Sized => true;
-
     /// <summary>"1023 KB/s": the widest a rate is written.</summary>
     public override ReadoutText Reading => Worst;
 

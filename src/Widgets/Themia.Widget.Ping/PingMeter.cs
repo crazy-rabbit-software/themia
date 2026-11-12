@@ -9,9 +9,6 @@ internal sealed class PingMeter : PingPart
 {
     public override WidgetId Kind => new WidgetId("ping");
 
-    /// <inheritdoc />
-    public override bool Sized => true;
-
     public override MeterLook Look(WidgetConfig config) => Look((config as PingConfig)?.Style ?? PingStyle.Number);
 
     /// <summary>[S-6273] The drawing a style is.</summary>

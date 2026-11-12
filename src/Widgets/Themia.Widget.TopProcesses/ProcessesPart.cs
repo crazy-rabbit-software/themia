@@ -39,10 +39,9 @@ internal sealed class ProcessesPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("topProcesses");
 
-    public override bool HasHero => false;
 
     /// <summary>[S-2412] A list of the config's rows, two lines each: the program over its other figure.</summary>
-    public override DetailAtom? Atom => DetailAtom.List;
+    public override DetailAtom Atom => DetailAtom.List;
 
     public override int ListLines => 2;
 

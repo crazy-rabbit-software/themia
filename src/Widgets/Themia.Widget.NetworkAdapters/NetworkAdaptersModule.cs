@@ -106,9 +106,8 @@ internal sealed class NetworkAdaptersPart : DetailPart
 
     public override WidgetId Kind => new("networkAdapters");
 
-    public override bool HasHero => false;
 
-    public override DetailAtom? Atom => DetailAtom.List;
+    public override DetailAtom Atom => DetailAtom.List;
 
     public override int ListLines => 2;
 

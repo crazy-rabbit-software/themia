@@ -82,17 +82,10 @@ public sealed partial class DetailView : IWidgetKeys
         // [S-6712] As tall as its whole rows: never a part of one at its foot.
         _scroll.Height = p.ListHeight;
         _lines = p.ListLines;
-        SetColumn(_scroll, p.Side ? 1 : 0);
-        SetRow(_scroll, p.Side ? 1 : 2);
-        SetRowSpan(_scroll, p.Side ? 2 : 1);
-
-        // Under the figure and no facts: 8 down from it, as the facts would be.
-        var underHero = !p.Side && p.Facts == 0 && _hero.Visibility == Visibility.Visible;
-        _scroll.Margin = new Thickness(0, underHero ? FamilySpace.S2 : 0, 0, 0);
+        SetRow(_scroll, 2);
     }
 
-    private int ListCount => _scroll.Visibility != Visibility.Visible ? 0
-        : _part.MaxRows > 0 ? Math.Min(_part.MaxRows, _sheet.Rows.Count) : _sheet.Rows.Count;
+    private int ListCount => _scroll.Visibility != Visibility.Visible ? 0 : _sheet.Rows.Count;
 
     /// <summary>The rows for the sheet: reused by position, created as needed, extra ones hidden.</summary>
     private void FillList()

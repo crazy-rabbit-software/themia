@@ -71,8 +71,6 @@ internal sealed class NetworkHistoryMeter : MeterPart
 {
     public override WidgetId Kind => new("networkHistory");
 
-    public override bool Sized => true;
-
     public override MeterAtom Atom => MeterAtom.History;
 
     public override MeterLook Look(WidgetConfig config) => MeterLook.History;

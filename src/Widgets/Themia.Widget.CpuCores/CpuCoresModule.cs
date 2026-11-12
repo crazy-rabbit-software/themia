@@ -123,8 +123,6 @@ internal sealed class CpuCoresMeter : MeterPart
 {
     public override WidgetId Kind => new("cpuCores");
 
-    public override bool Sized => true;
-
     public override MeterAtom Atom => MeterAtom.Items;
 
     public override CardOpen? Opens(WidgetConfig config) => CpuCoresModule.Opens;

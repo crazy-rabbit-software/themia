@@ -14,10 +14,10 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-2400] The face every system detail widget shares, built from the family's blocks: a Readout
-/// (the main figure and the line under it), fact rows (the value primary, the name secondary,
-/// [S-6711]) and, for some kinds, a list of rows (processes, adapters). Where the figures come from
-/// is the kind's <see cref="DetailPart"/>; where each goes at each size is <see cref="DetailFace"/>'s.
+/// [S-2400] [S-11007] [S-11008] The face every system facts and list atom shares, built from the
+/// family's blocks: fact rows (the value primary, the name secondary, [S-6711]) as the config picks
+/// them, or a list of the config's rows (processes, adapters). Where the figures come from is the
+/// kind's <see cref="DetailPart"/>; nothing appears with size.
 /// Elements are kept and re-filled between reads, never rebuilt per tick ([S-6332]).
 /// <para>
 /// [S-2500] The figures are the system hub's: the part watches its feeds from Attach and lets go in
@@ -32,7 +32,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
-    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
     private readonly StackPanel _facts = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly List<RowBlock> _factRows = [];
     private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
@@ -53,21 +52,14 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         _part = part;
         _config = WidgetConfig.CreateDefault(_kind);
 
-        _hero.Show("--", valueRole: ColourRole.TextDisabled);
-
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
-
-        Children.Add(_hero);
         Children.Add(_facts);
 
         BuildList();
 
         _empty.Visibility = Visibility.Collapsed;
-        SetColumnSpan(_empty, 2);
         SetRowSpan(_empty, 3);
         Children.Add(_empty);
     }
@@ -172,10 +164,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     /// </summary>
     private bool ShowsEmpty => _sheet.Hero is null && _sheet.Facts.Count == 0 && _sheet.Rows.Count == 0 && _sheet.Note is not null;
 
-    /// <summary>The figure's widest case, with the line under it when the sheet has one.</summary>
-    private ReadoutText? HeroOf(DetailSheet sheet)
-        => _part.HasHero && sheet.Hero is not null ? ReadoutRules.Split(_part.HeroWorst) with { LineUnder = sheet.Caption is not null } : null;
-
     /// <summary>[S-11007] The fact rows the tile shows: a facts atom's pick, else the sheet's own.</summary>
     private IReadOnlyList<DetailFact> FactsOf(DetailSheet sheet)
         => _part.Atom == DetailAtom.Facts && _config is FactsConfig facts
@@ -186,22 +174,16 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private DetailFacePlan PlanFor(DetailSheet sheet)
     {
         // [S-11007] [S-11008] An atom shows what its config says at every size: its picked facts, or
-        // its list's rows (more scroll inside them), from the view's top.
+        // its list's rows (more scroll inside them, [S-11008]), from the view's top.
         switch (_part.Atom)
         {
             case DetailAtom.Facts:
                 return new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, FactsOf(sheet).Count, 0, 1);
 
-            case DetailAtom.List:
-                var shown = _config is Themia.Sdk.Kit.IKitRows list ? Themia.Sdk.Kit.KitSizing.ClampRows(list.Rows) : 1;
-                return new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, 0, sheet.Rows.Count == 0 ? 0 : shown, Math.Clamp(_part.ListLines, 1, 3));
-
             default:
-                break;
+                var rows = _config is Themia.Sdk.Kit.IKitRows list ? Themia.Sdk.Kit.KitSizing.ClampRows(list.Rows) : 1;
+                return new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, 0, sheet.Rows.Count == 0 ? 0 : rows, Math.Clamp(_part.ListLines, 1, 3));
         }
-
-        var rows = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, sheet.Rows.Count) : sheet.Rows.Count;
-        return DetailFace.Plan(_area, new DetailShape(HeroOf(sheet), sheet.Facts.Count, rows, DetailFace.ListLines(sheet.Rows)));
     }
 
     /// <summary>[S-2402] Plan the face for the area and the sheet's shape, then fill it.</summary>
@@ -216,7 +198,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         {
             _empty.Show(StatusKind.Empty, ModuleCatalog.Of(_kind).Glyph, _sheet.Note ?? string.Empty);
             _empty.Visibility = Visibility.Visible;
-            _hero.Visibility = Visibility.Collapsed;
             _facts.Visibility = Visibility.Collapsed;
             ShowList(null);
             _plan = null;
@@ -227,26 +208,10 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
 
         var plan = PlanFor(_sheet);
         _plan = plan;
-        var hero = HeroOf(_sheet);
 
-        ColumnDefinitions[0].Width = plan.Side ? new GridLength(plan.HeroColumn) : new GridLength(1, GridUnitType.Star);
-        ColumnDefinitions[1].Width = plan.Side ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-
-        // The figure at the view's top, in the inset (on the side its column holds the inset on its left only).
-        _hero.Visibility = hero is null ? Visibility.Collapsed : Visibility.Visible;
-        SetRowSpan(_hero, plan.Side ? 3 : 1);
-        _hero.Margin = plan.Side ? new Thickness(FamilySpace.Inset, 0, 0, 0) : Family.SideInset;
-        if (hero is { } worst)
-        {
-            var (width, height) = MeterPlan.Content(_area);
-            _hero.Size(_area, plan.Side ? plan.HeroColumn - FamilySpace.Inset : width, height, worst);
-        }
-
-        // The rows: under the figure, 8 down, or beside it from the top. They carry their own side inset.
+        // The rows from the view's top. They carry their own side inset.
         _facts.Visibility = plan.Facts > 0 ? Visibility.Visible : Visibility.Collapsed;
-        SetRow(_facts, plan.Side ? 0 : 1);
-        SetColumn(_facts, plan.Side ? 1 : 0);
-        _facts.Margin = new Thickness(0, !plan.Side && hero is not null ? FamilySpace.S2 : 0, 0, 0);
+        SetRow(_facts, 1);
         LayFacts(plan.Facts);
 
         ShowList(plan);
@@ -275,14 +240,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         if (_plan is not { } plan)
         {
             return;
-        }
-
-        var hero = ReadoutRules.Split(_sheet.Hero);
-        _hero.Show(hero.Value, hero.Unit, _sheet.Caption, valueRole: _sheet.HeroAvailable && !_sheet.Absent ? ColourRole.TextPrimary : ColourRole.TextDisabled);
-        var tip = _sheet.HeroAvailable || _sheet.Absent ? null : _sheet.Note;
-        if (!Equals(ToolTipService.GetToolTip(_hero), tip))
-        {
-            ToolTipService.SetToolTip(_hero, tip);
         }
 
         // [S-1940] Not on this machine: the whole tile says why, every part of it disabled.

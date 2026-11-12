@@ -75,8 +75,6 @@ internal sealed class GpuEnginesMeter : GpuPart
 {
     public override WidgetId Kind => new("gpuEngines");
 
-    public override bool Sized => true;
-
     public override MeterAtom Atom => MeterAtom.Items;
 
     public override MeterLook Look(WidgetConfig config) => MeterLook.Rows;

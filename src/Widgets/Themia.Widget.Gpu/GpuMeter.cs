@@ -9,9 +9,6 @@ internal sealed class GpuMeter : GpuPart
 {
     public override WidgetId Kind => new WidgetId("gpu");
 
-    /// <inheritdoc />
-    public override bool Sized => true;
-
     public override MeterLook Look(WidgetConfig config) => Look((config as GpuConfig)?.Style ?? GpuStyle.Number);
 
     /// <summary>[S-6320] The drawing a style is.</summary>

@@ -42,21 +42,11 @@ public abstract class DetailPart
 
     public abstract WidgetId Kind { get; }
 
-    /// <summary>Whether the kind has a main figure at all (a list may not).</summary>
-    public virtual bool HasHero => true;
-
-    /// <summary>[S-6702] The hero's widest case, formatted ("10.00 GHz"): the kind's worst, never the live text, so the figure does not change step between reads.</summary>
-    public virtual string HeroWorst => "100%";
-
-    /// <summary>[S-2412] At most this many rows (0: as many as there are).</summary>
-    public virtual int MaxRows => 0;
-
     /// <summary>
     /// [S-11007] [S-11008] Which atom the face is: its kind's facts as a pick (<see cref="FactOptions"/>,
-    /// the config a <c>FactsConfig</c>), or its list of a set number of rows (the config an <c>IKitRows</c>);
-    /// null for the legacy ladder ([S-2402]).
+    /// the config a <c>FactsConfig</c>), or its list of a set number of rows (the config an <c>IKitRows</c>).
     /// </summary>
-    public virtual DetailAtom? Atom => null;
+    public abstract DetailAtom Atom { get; }
 
     /// <summary>[S-11007] Every fact a facts atom can pick, in its kind's order.</summary>
     public virtual IReadOnlyList<FactOption> FactOptions => [];

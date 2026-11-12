@@ -70,8 +70,6 @@ internal sealed class CpuHistoryMeter : MeterPart
 {
     public override WidgetId Kind => new("cpuHistory");
 
-    public override bool Sized => true;
-
     public override MeterAtom Atom => MeterAtom.History;
 
     public override MeterLook Look(WidgetConfig config) => MeterLook.History;

@@ -4406,6 +4406,10 @@ is gone ([S-3585]). Owning files: `Shell/ColorChoice.cs`, `Interop/ScreenColorPi
 
 ## Meter framework and memory
 
+*Split into atoms (2026-11-12, SYS-ATOMS [S-11000]..[S-11009]): every meter is now its reading, its history
+and, for the CPU and the GPU, its items, each a widget of its own with its sizes; where a line below
+speaks of the reading over its history in one card, or of a size ladder, it is the atoms' now.*
+
 The six meters (CPU, memory, disk, battery, network, ping) share one view, `MeterView` (the SDK's,
 `Themia.Sdk.WinUI`), and differ only in a `MeterPart` per kind, each in its module project
 (`src/Widgets/Themia.Widget.<Kind>/<Kind>Meter.cs`): where the number comes from, what the chart
@@ -4422,7 +4426,7 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   screen and a burst is not averaged away. Slots are fixed by each point's absolute position
   (`SampleRing.Added`), so only the newest slot moves as points arrive. Defaults: CPU, memory,
   network, GPU 1 min; disk 5 min; battery and ping 15 min.
-- **[S-1122]** A meter's history lines are shared (`MeterMenuLines`, on the properties menu since 2026-10-19,
+- **[S-1122]** *(Superseded by [S-11002]: a history atom's one setting is its span, on its first level, `AtomMenuLines.Span`; `MeterMenuLines` is gone.)* A meter's history lines are shared (`MeterMenuLines`, on the properties menu since 2026-10-19,
   [S-3719]; no settings page): Chart span under Style in the look that draws a history, none in a look
   without one ([S-6074]); no Refresh, no interval ([S-1120]). A styled meter has no Show history: its
   graph style is the history ([S-6267]); a meter without styles would have Show history and the span
@@ -4442,7 +4446,7 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   series: the first a line at 2 in its role over a 16 % wash, the second a line at 2 in the tertiary
   role (upload, writes, kernel time). The battery draws its history when Show history is on.
 - [S-1130], [S-6315], [S-6316]: moved with the Memory widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Memory/`).
-- **[S-1762]** **A system meter shows its label, its reading and its history — nothing else** (user
+- **[S-1762]** *(The reading and its history are two atoms now, [S-11001], [S-11002]; the ladder below is retired.)* **A system meter shows its label, its reading and its history — nothing else** (user
   requirement): the card's header is the label (a drive's, a host's or an adapter's name where the kind
   knows one), the reading is the number (the battery's glyph before it, [S-1187]), the history is the
   chart. No caption, detail lines, stat tiles, scale line, usage / composition bar, per-core strip
@@ -5823,6 +5827,12 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
 
 ## System details (SYS-DETAILS)
 
+*Split into atoms (2026-11-12, [S-11007], [S-11008]): the six detail widgets are facts atoms (`cpuFacts`,
+`memoryFacts`, `gpuFacts`, `networkFacts`, `pingFacts`, `batteryFacts`, an ordered pick of facts, no hero:
+the reading atom is the hero), Top processes and Network adapters lists of rows; `DetailView` has no
+ladder left. The ladder lines below ([S-2400]'s "shows more as it grows", [S-2402]) hold for no kind of
+this section any more; `DetailFace.Plan` stays for the weather and sky faces that use it.*
+
 The details the original's meters showed, back as their own placeable widgets; the meters themselves
 stay label, reading and history ([S-1762]). Seven kinds, each in its meter's family of the
 add menu ([S-3511]): CPU details, Memory details, Top processes, Network details, Battery
@@ -7195,7 +7205,7 @@ grouped, so a first desktop is a few clicks.
   row's tooltip; the keys and the pointer pick it as a widget's row. The search finds recipes with the
   widgets, by name, description and the names of the widgets they hold; a result says "Ready-made · n
   widgets".
-- **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid), **My day**
+- **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid, each reading over its history, [S-11090]), **My day**
   (the clock on top, the next meeting and the tasks under it) and **Weather** (now, the forecast and
   the rain in the next hour, stacked), each with its kinds' default configs.
 - **[S-11209]** **My files** (files family): the Documents folder as a list (300 × 308) on the left;

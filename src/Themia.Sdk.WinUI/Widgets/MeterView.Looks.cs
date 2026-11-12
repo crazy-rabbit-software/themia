@@ -488,104 +488,12 @@ public sealed partial class MeterView
         }
     }
 
-    /// <summary>[S-1762] Place the reading and the look's part for the current area.</summary>
+    /// <summary>[S-11000] Place the atom's parts for the current area.</summary>
     private void Lay()
     {
-        if (!_area.IsMeasured)
-        {
-            return;
-        }
-
-        if (_part.Sized)
+        if (_area.IsMeasured)
         {
             LaySized();
-            return;
-        }
-
-        var worst = Worst;
-
-        // [S-2449] A converted meter's reading is the family's 28 whatever the card's size.
-        var sized = _part.Sized;
-        var step = sized ? FamilyType.Big28 : MeterPlan.Reading(_area, worst);
-
-        switch (_look)
-        {
-            case MeterLook.Graph:
-                _reading.Use(step);
-                _band.Visibility = (sized ? _graph : MeterPlan.Band(_area, step, _graph) > 0) ? Visibility.Visible : Visibility.Collapsed;
-                break;
-
-            case MeterLook.Gauge:
-            case MeterLook.Ring:
-                LayDial(worst, step);
-                break;
-
-            case MeterLook.Numbers when _box is not null && _second is not null:
-                var (side, pair) = MeterPlan.Numbers(_area, worst with { Lead = true });
-                _box.RowDefinitions.Clear();
-                _box.ColumnDefinitions.Clear();
-                if (side)
-                {
-                    _box.ColumnDefinitions.Add(new ColumnDefinition());
-                    _box.ColumnDefinitions.Add(new ColumnDefinition());
-                }
-                else
-                {
-                    _box.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-                    _box.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-                }
-
-                SetColumn(_second, side ? 1 : 0);
-                SetRow(_second, side ? 0 : 1);
-                _reading.Use(pair);
-                _second.Use(pair);
-                break;
-
-            case MeterLook.Columns when _body is not null:
-                _reading.Use(step);
-                _body.Visibility = MeterPlan.Columns(_area, step, _columns.Count) ? Visibility.Visible : Visibility.Collapsed;
-                break;
-
-            case MeterLook.Rows:
-                _reading.Use(step);
-                var shown = sized ? _rows.Count : MeterPlan.Rows(_area, step, _rows.Count);
-                var nameRoom = MeterPlan.Content(_area).Width / 2;
-                for (var i = 0; i < _rows.Count; i++)
-                {
-                    _rows[i].Visibility = i < shown ? Visibility.Visible : Visibility.Collapsed;
-                    _rows[i].NameText.MaxWidth = nameRoom;
-                }
-
-                break;
-
-            case MeterLook.Tiles when _body is Grid grid:
-                _reading.Use(step);
-                LayGrid(grid, MeterPlan.Rings(_area, step, _rings.Count), _rings);
-                break;
-
-            case MeterLook.Graphs when _body is Grid grid:
-                _reading.Use(step);
-                var plan = MeterPlan.Graphs(_area, step, _cells.Count);
-                LayGrid(grid, plan, [.. _cells.Select(c => (FrameworkElement)c.Root)]);
-                foreach (var cell in _cells)
-                {
-                    cell.Figured(MeterPlan.GraphFigure(plan.CellHeight));
-                }
-                break;
-
-            case MeterLook.Battery when _body is not null:
-                _reading.Use(step);
-                LayBattery(MeterPlan.Battery(_area, step));
-                break;
-
-            case MeterLook.Signal when _body is not null:
-                _reading.Use(step);
-                LaySignal(MeterPlan.Signal(_area, step));
-                break;
-
-            default:
-                _reading.Use(step);
-                break;
         }
     }
 
@@ -703,8 +611,8 @@ public sealed partial class MeterView
         _reading.VerticalAlignment = gauge ? VerticalAlignment.Bottom : VerticalAlignment.Center;
     }
 
-    /// <summary>[S-6262] The battery's picture laid out (none: not drawn), its charge painted again.</summary>
-    private void LayBattery(BatteryPicture? plan)
+    /// <summary>[S-6262] The battery's picture laid out, its charge painted again.</summary>
+    private void LayBattery(BatteryPicture plan)
     {
         if (_body is null || _batteryBody is null || _batteryCap is null || _bolt is null || _batteryFill is null)
         {
@@ -754,36 +662,6 @@ public sealed partial class MeterView
         {
             signal.Height = bars[^1].Height;
         }
-    }
-
-    /// <summary>[S-6302] [S-6266] The gauge or ring as large as the content takes, the reading in it; too small, the reading alone.</summary>
-    private void LayDial(ReadoutText worst, TypeStep step)
-    {
-        if (_box is null || _dial is null)
-        {
-            return;
-        }
-
-        var gauge = _look == MeterLook.Gauge;
-        var diameter = gauge ? MeterPlan.Gauge(_area) : MeterPlan.Ring(_area);
-
-        if (diameter <= 0)
-        {
-            _dial.Visibility = Visibility.Collapsed;
-            _box.Width = double.NaN;
-            _box.Height = double.NaN;
-            _reading.HorizontalAlignment = HorizontalAlignment.Left;
-            _reading.VerticalAlignment = VerticalAlignment.Top;
-            _reading.Use(step);
-            return;
-        }
-
-        _dial.Visibility = Visibility.Visible;
-        _box.Width = diameter;
-        _box.Height = gauge ? ChartRules.GaugeHeight(diameter) : diameter;
-        _reading.HorizontalAlignment = HorizontalAlignment.Center;
-        _reading.VerticalAlignment = gauge ? VerticalAlignment.Bottom : VerticalAlignment.Center;
-        _reading.Use(_part.Sized ? FamilyType.Big28 : gauge ? MeterPlan.GaugeReading(_area, diameter, worst) : MeterPlan.RingReading(_area, diameter, worst));
     }
 
     /// <summary>A grid of square or graph cells, row by row from the top left; none when the plan shows none.</summary>
@@ -843,13 +721,6 @@ public sealed partial class MeterView
         public Grid Root { get; }
 
         public SparkBand Band { get; }
-
-        /// <summary>The figure over the graph, or the graph alone in a cell too short for both.</summary>
-        public void Figured(bool shown)
-        {
-            _figure.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-            Root.RowSpacing = shown ? FamilySpace.S1 : 0;
-        }
 
         /// <summary>[S-11005] The figure over the graph's top corner, the graph the whole cell: one face at every cell size.</summary>
         public void Overlay()

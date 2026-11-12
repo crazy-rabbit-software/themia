@@ -84,8 +84,6 @@ internal sealed class GpuHistoryMeter : GpuPart
 {
     public override WidgetId Kind => new("gpuHistory");
 
-    public override bool Sized => true;
-
     public override MeterAtom Atom => MeterAtom.History;
 
     public override MeterLook Look(WidgetConfig config) => MeterLook.History;

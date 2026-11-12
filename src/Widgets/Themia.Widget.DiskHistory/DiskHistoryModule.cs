@@ -81,8 +81,6 @@ internal sealed class DiskHistoryMeter(IWidgetHost host) : DiskPart(host)
 {
     public override WidgetId Kind => new("diskHistory");
 
-    public override bool Sized => true;
-
     public override MeterAtom Atom => MeterAtom.History;
 
     public override MeterLook Look(WidgetConfig config) => MeterLook.History;

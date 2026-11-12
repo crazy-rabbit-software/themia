@@ -160,7 +160,7 @@ public sealed class ReadyMadeGroupsTests
         var view = state.Views[0];
         var group = Assert.Single(view.Groups);
         Assert.Equal(Str.Groups_Recipe_ThisPc.Text(), group.Name);
-        Assert.Equal(4, WidgetGroups.Members(view, group.Id).Count);
+        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, WidgetGroups.Members(view, group.Id).Count);
         Assert.Equal(plan.Roots, view.Widgets.Select(w => w.Id));
         Assert.Equal(1, history.UndoCount);
 
@@ -191,9 +191,9 @@ public sealed class ReadyMadeGroupsTests
         var payload = PlacementPayload.ForReadyMade(ReadyMadeGroups.ThisPc);
         var state = new AppState { Views = [ViewState.Create("v")] };
 
-        Assert.Equal(4, payload.Creates);
-        Assert.Equal(4, payload.Count);
-        Assert.Equal(4, payload.Plan(0.5, 0.5, Screen, snapEnabled: false).NetAdded(state));
+        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, payload.Creates);
+        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, payload.Count);
+        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, payload.Plan(0.5, 0.5, Screen, snapEnabled: false).NetAdded(state));
         Assert.Equal(UndoAction.Add, UndoActions.ForPlacement(payload.Mode));
     }
 

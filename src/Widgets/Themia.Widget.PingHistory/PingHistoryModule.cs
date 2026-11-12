@@ -80,8 +80,6 @@ internal sealed class PingHistoryMeter : PingPart
 {
     public override WidgetId Kind => new("pingHistory");
 
-    public override bool Sized => true;
-
     public override MeterAtom Atom => MeterAtom.History;
 
     public override MeterLook Look(WidgetConfig config) => MeterLook.History;
