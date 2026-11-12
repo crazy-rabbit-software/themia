@@ -39,7 +39,8 @@ public readonly record struct ShowcaseKind(WidgetId Kind, string Name, string Gl
 
 /// <summary>
 /// [S-1810..S-1814] One view per widget kind holding that widget at every <see cref="WidgetTiers"/>
-/// size, so the whole responsive ladder can be looked at on the real desktop. Built by the Debug
+/// size, so the whole responsive ladder can be looked at on the real desktop; [S-2448] a converted
+/// kind at its min, natural and max instead. Built by the Debug
 /// flag <c>--add-showcase-views</c>; nothing in the app's own UI creates them.
 /// <para>
 /// Ids are derived from the kind and the tier, never random, so a second run replaces the first
@@ -87,11 +88,12 @@ public static class ShowcaseViews
             throw new ArgumentException("the screen has no usable size", nameof(screen));
         }
 
-        var pages = Layout(screen, gap, contentScale);
         var views = new List<ViewState>();
 
         foreach (var kind in kinds)
         {
+            // [S-2448] A converted kind is shown at its min, natural and max; a legacy one at the seven tiers.
+            var pages = Layout(screen, gap, contentScale, SizeFit.CheckedAt(SizeFit.Of(kind.Kind, kind.Style?.Value)));
             for (var p = 0; p < pages.Count; p++)
             {
                 var view = new ViewState
@@ -162,7 +164,7 @@ public static class ShowcaseViews
     /// tallest first, each placed at the lowest, then leftmost, spot inside the work area less
     /// <see cref="Margin"/>. Whole DIPs, so the painted edges ([S-04]) land on the tier exactly.
     /// </summary>
-    internal static List<List<(WidgetTier Tier, PixelRect Cell)>> Layout(ScreenMetrics screen, double gap, double contentScale)
+    internal static List<List<(WidgetTier Tier, PixelRect Cell)>> Layout(ScreenMetrics screen, double gap, double contentScale, IReadOnlyList<WidgetTier>? tiers = null)
     {
         var scale = double.IsFinite(contentScale) && contentScale > 0 ? contentScale : 1;
         var spacing = double.IsFinite(gap) && gap > 0 ? gap : 0;
@@ -173,7 +175,7 @@ public static class ShowcaseViews
         var width = Math.Max(1, Math.Floor(work.X + work.Width - Margin) - left);
         var height = Math.Max(1, Math.Floor(work.Y + work.Height - Margin) - top);
 
-        var pending = WidgetTiers.All
+        var pending = (tiers ?? WidgetTiers.All)
             .Select(tier => (Tier: tier,
                 W: Math.Min(width, Math.Ceiling((tier.Width * scale) + spacing)),
                 H: Math.Min(height, Math.Ceiling((tier.Height * scale) + spacing))))

@@ -7,6 +7,7 @@ using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -81,8 +82,19 @@ internal static class FamilyCheckRender
             {
                 var design = new DesignState { Theme = theme };
                 DesignApplier.Apply(design);
+                // [S-2448] A converted kind is walked at its range (min, natural, max), a legacy one at
+                // the seven tiers: the page holds the largest of them.
                 List<WidgetTier> tiers = [.. WidgetTiers.All];
                 var (width, height) = WidgetRender.PageSize(tiers);
+                foreach (var kind in kinds)
+                {
+                    foreach (var style in (IEnumerable<int?>)[null, .. WidgetStyles.For(kind).Select(s => (int?)s.Value)])
+                    {
+                        var (w, h) = WidgetRender.PageSize([.. SizeFit.CheckedAt(SizeFit.Of(kind, style))]);
+                        (width, height) = (Math.Max(width, w), Math.Max(height, h));
+                    }
+                }
+
                 var page = new Canvas { Width = width, Height = height };
                 window = new Window { Content = new Grid { Children = { page } }, Title = "Themia family check" };
                 UiLanguage.ApplyLanguageOnly(page);
@@ -108,7 +120,7 @@ internal static class FamilyCheckRender
                     foreach (var (state, style) in await VariantsAsync(page, host, kind).ConfigureAwait(true))
                     {
                         var name = (state ?? "default") + (style is null ? string.Empty : "/" + style.Value.Name);
-                        await CheckAsync(page, host, kind, state, style?.Value, tiers, name, found).ConfigureAwait(true);
+                        await CheckAsync(page, host, kind, state, style?.Value, [.. SizeFit.CheckedAt(SizeFit.Of(kind, style?.Value))], name, found).ConfigureAwait(true);
                     }
 
                     Console.WriteLine($"family-check: {kind.Value} {found.Count} findings ({found.Values.Sum(f => f.Count)} elements)");

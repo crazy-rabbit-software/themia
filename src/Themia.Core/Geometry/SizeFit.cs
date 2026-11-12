@@ -181,6 +181,38 @@ public static class SizeFit
         return ForHeader(ModuleCatalog.Of(config.Kind).Sizing(config), WidgetInstance.DefaultHeader(config.Kind), shown);
     }
 
+    /// <summary>
+    /// [S-2448] The sizing a new widget of <paramref name="kind"/> has in <paramref name="style"/> (its
+    /// default config, that style), on a card showing <paramref name="header"/> (its default when null):
+    /// what the renders and the showcase draw a converted kind at.
+    /// </summary>
+    public static WidgetSizing Of(WidgetId kind, int? style = null, HeaderPlacement? header = null)
+    {
+        var config = WidgetConfig.CreateDefault(kind);
+        if (style is { } chosen && config is IStyled styled)
+        {
+            styled.StyleValue = chosen;
+        }
+
+        return Of(config, header ?? WidgetInstance.DefaultHeader(kind));
+    }
+
+    /// <summary>
+    /// [S-2448] A converted kind is checked at its range, not the seven tiers: its Min, its Natural and
+    /// its Max, named so. None for a legacy kind (it keeps the tiers).
+    /// </summary>
+    public static IReadOnlyList<WidgetTier> RangeTiers(WidgetSizing sizing)
+    {
+        ArgumentNullException.ThrowIfNull(sizing);
+        return sizing.IsLegacy
+            ? []
+            : [new("min", sizing.Min.Width, sizing.Min.Height), new("natural", sizing.Natural.Width, sizing.Natural.Height), new("max", sizing.Max.Width, sizing.Max.Height)];
+    }
+
+    /// <summary>[S-2448] The sizes a kind is checked at: its range when converted, else the seven tiers.</summary>
+    public static IReadOnlyList<WidgetTier> CheckedAt(WidgetSizing sizing)
+        => RangeTiers(sizing) is { Count: > 0 } range ? range : WidgetTiers.All;
+
     /// <summary>[S-2444] <see cref="Of(WidgetInstance)"/> on a display.</summary>
     public static SizeLimits? Limits(WidgetInstance widget, ScreenMetrics screen, double scale, double gapPx)
         => Limits(Of(widget), screen, scale, gapPx);

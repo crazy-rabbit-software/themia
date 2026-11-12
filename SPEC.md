@@ -3962,6 +3962,13 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   resize of a kind whose size follows a count stores the config that size means with the rect, in
   one mutation and one undo step; while it is dragged the view already shows that config
   (`WidgetCard.LandResize`, `SizeFit.ConfigFor`; the keyboard's run of resizes lands the same way).
+- **[S-2448]** **A converted kind is checked at its range**, not the seven tiers: its Min, its Natural
+  and its Max (`SizeFit.RangeTiers`, named `min`, `natural`, `max`; `SizeFit.CheckedAt` picks the range
+  or the tiers). `--widget-png <Kind>` draws a converted kind at its range by default and a legacy one
+  at the tiers; `--sizes range|tiers|WxH,..` picks (`range` on a legacy kind says it has none). The
+  showcase views ([S-1810]) hold a converted kind at min, natural and max, packed as the tiers are; the
+  family render walk (`--family-check`) walks the range, its page sized for the largest. A store scene
+  ([S-1074]) paints a converted kind fitted into its sizing as the desktop does ([S-2446]).
 
 ## Responsive layout (shared foundation)
 

@@ -83,10 +83,12 @@ public sealed class ShowcaseViewsTests
             Assert.Equal(ShowcaseViews.ViewId(kinds[k].Kind), view.Id);
             Assert.Equal(kinds[k].Name, view.Name);
             Assert.Equal(kinds[k].Glyph, view.Icon);
-            Assert.Equal(7, view.Widgets.Count);
+            // [S-2448] A converted kind holds its min, natural and max; a legacy one the seven tiers.
+            var checkedAt = SizeFit.CheckedAt(SizeFit.Of(kinds[k].Kind));
+            Assert.Equal(checkedAt.Count, view.Widgets.Count);
             Assert.All(view.Widgets, w => Assert.Equal(kinds[k].Kind, w.Kind));
 
-            foreach (var tier in WidgetTiers.All)
+            foreach (var tier in checkedAt)
             {
                 var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(kinds[k].Kind, tier));
 

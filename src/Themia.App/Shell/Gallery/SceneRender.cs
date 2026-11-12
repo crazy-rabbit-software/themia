@@ -373,13 +373,16 @@ internal static class SceneRender
                 Links = links,
                 FixtureState = spec.State,
             };
-            var cell = GridGeometry.ToPixels(model.Rect, metrics);
+            // [S-2446] A converted kind is painted in its rect fitted into its sizing, as on the desktop.
+            var contentScale = WidgetScale.Effective(job.Scene.Scale, model.Scale);
+            var shown = SizeFit.Shown(model.Rect, SizeFit.Limits(model, metrics, contentScale, design.WidgetGapPx), metrics);
+            var cell = GridGeometry.ToPixels(shown, metrics);
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
-            card.SetLiveRect(model.Rect);
+            card.SetLiveRect(shown);
             card.ApplyEditMode(edit is not null);
             card.ApplySelection();
             // [S-1080] The scene's display scale times the widget's own, as the desktop applies them.
-            card.ApplyContentScale(WidgetScale.Effective(job.Scene.Scale, model.Scale));
+            card.ApplyContentScale(contentScale);
             card.ApplyGap(design.WidgetGapPx);
             Canvas.SetLeft(card, cell.X);
             Canvas.SetTop(card, cell.Y);
@@ -502,6 +505,10 @@ internal static class SceneRender
     /// </summary>
     private static async Task<bool> ComposeEditAsync(Canvas canvas, SceneEdit edit, ViewState view, Job job, ScreenMetrics metrics, DesignState design)
     {
+        // [S-2446] Where a card is painted: its rect fitted into its sizing, as the cards were placed.
+        FracRect Shown(WidgetInstance model)
+            => SizeFit.Shown(model.Rect, SizeFit.Limits(model, metrics, WidgetScale.Effective(job.Scene.Scale, model.Scale), design.WidgetGapPx), metrics);
+
         var width = job.File.Screen.Width;
         var selected = job.Widgets.Where(w => job.Scene.Selected.Contains(w.Spec)).ToList();
         var barRect = new PixelRect(0, 0, 0, 0);
@@ -531,7 +538,7 @@ internal static class SceneRender
         // [S-2202] The menu's room is the work area: above the taskbar, as on a desktop.
         var bottom = job.Scene.WorkBottom(job.File.Screen);
         var strip = EditBarRender.Properties(view, [.. selected.Select(w => w.Model.Id)], bottom - (2 * StripPlacement.Gap));
-        var painted = selected.Select(w => GridGeometry.Inset(GridGeometry.ToPixels(w.Model.Rect, metrics), design.WidgetGapPx));
+        var painted = selected.Select(w => GridGeometry.Inset(GridGeometry.ToPixels(Shown(w.Model), metrics), design.WidgetGapPx));
         EditBarRender.PlaceProperties(canvas, strip, painted, new PixelRect(0, 0, metrics.Width, bottom), barRect);
 
         if (edit.Open is { } open)

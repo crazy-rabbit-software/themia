@@ -93,8 +93,8 @@ internal static class WidgetRender
             || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
             app.Exit();
             return true;
         }
@@ -150,9 +150,12 @@ internal static class WidgetRender
             ? spanValue
             : null;
 
+        // [S-2448] A converted kind is drawn at its range (min, natural, max) unless sizes are asked for;
+        // a legacy kind at the seven tiers. --sizes range|tiers|WxH,.. picks.
+        var sizing = SizeFit.Of(kind, style, _header);
         List<WidgetTier> tiers = Size(args, at + 3) is { } size
             ? [new WidgetTier($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
-            : Sizes(Option(args, "--sizes")) is { Count: > 0 } sizes ? sizes : [.. WidgetTiers.All];
+            : Sizes(Option(args, "--sizes"), sizing) is { Count: > 0 } sizes ? sizes : [.. SizeFit.CheckedAt(sizing)];
 
         _ = dispatcher.TryEnqueue(async () =>
         {
@@ -534,8 +537,11 @@ internal static class WidgetRender
         return null;
     }
 
-    /// <summary>[S-1917] <c>--sizes 100x100,160x100</c>: several in-between sizes on one page, beside or instead of the tiers.</summary>
-    private static List<WidgetTier>? Sizes(string? list)
+    /// <summary>
+    /// [S-1917] <c>--sizes 100x100,160x100</c>: several in-between sizes on one page, beside or instead of
+    /// the tiers. [S-2448] <c>range</c> is a converted kind's min, natural and max.
+    /// </summary>
+    private static List<WidgetTier>? Sizes(string? list, WidgetSizing sizing)
     {
         if (list is null)
         {
@@ -548,6 +554,20 @@ internal static class WidgetRender
             if (item.Equals("tiers", StringComparison.OrdinalIgnoreCase))
             {
                 tiers.AddRange(WidgetTiers.All);
+                continue;
+            }
+
+            if (item.Equals("range", StringComparison.OrdinalIgnoreCase))
+            {
+                if (SizeFit.RangeTiers(sizing) is { Count: > 0 } range)
+                {
+                    tiers.AddRange(range);
+                }
+                else
+                {
+                    Console.WriteLine("widget: a legacy kind has no range ([S-2443]); use tiers or WxH");
+                }
+
                 continue;
             }
 
