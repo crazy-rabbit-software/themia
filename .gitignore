@@ -4,6 +4,8 @@ obj/
 artifacts/
 TestResults/
 *.binlog
+# Render sets written for looking at (agents cannot read artifacts/).
+store/out/
 
 # ---- IDEs ----------------------------------------------------------------------------------
 .vs/

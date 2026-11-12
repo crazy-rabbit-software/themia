@@ -6279,20 +6279,28 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   its rows and nothing else at any size: no device line (was: name, "N playing", chevron).
 - **[S-1229]** *(Retired: the XL mixer has no side panel — no device name, master level beside the
   list, microphone or device list. Nor is the master a row of the list any more, [S-3251].)*
-- **[S-1230]** *(Retired: the volume tile has no ladder. The number, the level meter and its
-  `ShowPeaks` setting, and the `ShowSlider` setting are gone; see [S-2730].)*
+- **[S-1230]** *(Retired: the level meter and its `ShowPeaks` setting, and the `ShowSlider` setting
+  are gone; the number is back as the tile's Readout, [S-2150].)*
 - **[S-1231]** *(Retired: the volume tile lists no apps; that is the mixer's job.)*
-- **[S-1232]** *(Retired: no caption and no device name on the tile; muted reads from the speaker
-  glyph and its tooltip. `VolumeRules.Caption`/`Readout` are gone.)*
+- **[S-1232]** *(Retired: `VolumeRules.Caption`/`Readout` are gone; the level, muted and the device
+  name are the tile's Readout now, [S-2150], the Volume module's [S-2151].)*
 - **[S-1233]** Previews never write (sliders, buttons, keys and device picks are inert); they read
   the machine.
 - **[S-1234]** Stepping lands on the whole-percent grid and clamps (`AudioRules.Step`).
 - [S-2730]: moved with the Volume widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Volume/`).
 - **[S-2731]** The slider lies along the tile's foot: it is the Controls block's row at the bottom
   inset on every shape ([S-6716]: the speaker a 32 icon button at its start, the rail the Track
-  role, the value the accent), on the volume tile and the brightness tile alike. Growing a tile only
-  lengthens the slider ([S-666]); a column no longer stands it up (G5, 2026-10-29: the family has
-  one Controls row, and `VolumeRules.Axis` is gone).
+  role, the value the accent), on the volume tile and the brightness tile alike. Growing a tile
+  lengthens the slider and grows the level's Readout over it ([S-2150]); a column no longer stands
+  it up (G5, 2026-10-29: the family has one Controls row, and `VolumeRules.Axis` is gone).
+- **[S-2150]** A level tile (volume, brightness) is a meter over its controls (owner decision
+  2026-11-12, "the widgets come together"; `LevelFace.Plan`, tests `LevelFaceTests`): the level is
+  a Readout at the view's top, start-aligned, on the step its widest case ("100%") takes in the room
+  the Controls row (32, and 8 over it) leaves, so it climbs 28 (S) → 40 (M, Wide, Tall) → 68 (L, XL)
+  exactly as CPU's reading; the step is chosen on the value alone, never lowered for a line under.
+  The controls come first: a card too short for the floor step's line over the row (XS) is the row
+  alone. The widget's own line under stands only where the step's line and it fit over the row (M,
+  Tall, L, XL; not S or Wide); else it gives way, never the value.
 - **[S-2732]** The mouse wheel anywhere on the tile steps the level one arrow step (2 points) per
   notch (120); a touchpad's part-notches carry to the next event, turning back drops the carry
   (`AudioRules.Wheel`). Ignored when `AllowControl` is off; no keyboard lease needed.
