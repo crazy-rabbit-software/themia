@@ -3936,6 +3936,32 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   Natural its old default size, Min the 32 floor ([S-08]), no Max. It keeps the old way whole: no fit,
   `IWidgetSizeAware` with the ladder ([S-660]..[S-666]) and the seven tiers. The module host's
   `WidgetSizingTests.Legacy` lists those kinds and only shrinks.
+- **[S-2444]** **On a display** a sizing is DIPs times the card's content scale ([S-6532]: the display's
+  and the widget's own) plus the gap, as fractions of that screen's cell (`SizeFit.Limits`,
+  `SizeLimits`, `AxisLimits`). It is stated with the kind's default header ([S-700]); a card that
+  shows a header the kind did not count adds its line and gap (24) to the height (a side strip: to the
+  width), one that hides a header the kind counted takes it away (`SizeFit.ForHeader`). A fixed axis
+  has no handle: its two side handles lose their grip and bar, a corner resizes the free axis alone
+  with that axis's cursor, and on a widget fixed both ways the corners keep their brackets as marks
+  but take no press (`EditMarkers.Moves`, `WidgetCard.ApplyResizable`).
+- **[S-2445]** **Resizing a converted kind** ([S-31a]): the moved edge also stops at the sizing's Min
+  and Max, and on a stepped axis lands on the nearest step, which replaces the grid as its snap
+  (`GridGeometry.Settle(…, limits)`); a fixed axis does not move. Shift+arrows obey the same, a press
+  on a stepped axis being one step (`KeyboardNudge.Resize(…, limits)`).
+- **[S-2446]** **Layout on any display.** Geometry stays fractions of the monitor ([S-01], [S-02]).
+  Where the stored rect comes out outside the sizing in DIPs on this display (another monitor, DPI or
+  scale, a changed config), the card is painted in the stored rect fitted into the sizing, anchored at
+  its top-left (an axis that follows the config at the config's step), then kept in reach as any rect
+  ([S-09]) (`SizeFit.Shown`, in `PositionCard`; the card's `LiveRect` is that box, so the hit region,
+  the markers, a move and a resize start from what is seen). Being shown never rewrites the stored
+  rect; a gesture (a move, a resize) or a config change does.
+- **[S-2447]** **A config change that changes the sizing refits** the widget's stored rect in the same
+  mutation, one undo step: fitted into the new sizing at its top-left and shifted back into reach
+  where it would leave the work area, on the display that shows its view (`AppHost.NoteSizings`, over
+  every `Mutate`; a widget first seen, loaded or brought back by an undo, is noted as it is). A
+  resize of a kind whose size follows a count stores the config that size means with the rect, in
+  one mutation and one undo step; while it is dragged the view already shows that config
+  (`WidgetCard.LandResize`, `SizeFit.ConfigFor`; the keyboard's run of resizes lands the same way).
 
 ## Responsive layout (shared foundation)
 

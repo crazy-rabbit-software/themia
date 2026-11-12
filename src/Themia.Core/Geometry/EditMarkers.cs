@@ -35,6 +35,14 @@ public static class EditMarkers
     /// <summary>The contrast stroke drawn round every bar so it reads on any wallpaper, DIPs.</summary>
     public const double Halo = 1;
 
+    /// <summary>
+    /// [S-2444] Which axes <paramref name="handle"/> resizes when only the free ones may move: a side
+    /// handle its own axis if that is free, a corner each free axis. Neither: the handle takes no press.
+    /// </summary>
+    public static (bool Width, bool Height) Moves(ResizeHandle handle, bool freeWidth, bool freeHeight)
+        => (freeWidth && (GridGeometry.MovesLeft(handle) || GridGeometry.MovesRight(handle)),
+            freeHeight && (GridGeometry.MovesTop(handle) || GridGeometry.MovesBottom(handle)));
+
     /// <summary>The eight markers for a cell of <paramref name="width"/> by <paramref name="height"/> DIPs.</summary>
     public static IReadOnlyList<EditMarker> For(double width, double height, double scale)
     {

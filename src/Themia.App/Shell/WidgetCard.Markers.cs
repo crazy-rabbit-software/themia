@@ -226,6 +226,35 @@ internal sealed partial class WidgetCard
         }
     }
 
+    /// <summary>
+    /// [S-2444] A fixed axis has no handle: the edges of that axis lose their grip and their bar, a
+    /// corner resizes the free axis alone (with that axis's cursor) and, on a widget fixed both ways,
+    /// keeps its bracket as a mark but takes no press.
+    /// </summary>
+    public void ApplyResizable()
+    {
+        var limits = Limits;
+        var (freeW, freeH) = (limits is not { Width.Fixed: true }, limits is not { Height.Fixed: true });
+        foreach (var part in _markerParts)
+        {
+            var (w, h) = EditMarkers.Moves(part.Handle, freeW, freeH);
+            var resizes = w || h;
+            part.Grip.IsHitTestVisible = resizes;
+            part.Grip.SetCursorShape(CursorFor(part.Handle, w, h));
+            var inked = resizes || IsCorner(part.Handle) ? Visibility.Visible : Visibility.Collapsed;
+            foreach (var bar in part.Inks.Concat(part.Halos))
+            {
+                bar.Visibility = inked;
+            }
+        }
+    }
+
+    private static InputSystemCursorShape CursorFor(ResizeHandle handle, bool width, bool height)
+        => width && height ? CursorFor(handle)
+            : width ? InputSystemCursorShape.SizeWestEast
+            : height ? InputSystemCursorShape.SizeNorthSouth
+            : InputSystemCursorShape.SizeAll;
+
     private static bool IsCorner(ResizeHandle handle)
         => handle is ResizeHandle.TopLeft or ResizeHandle.TopRight or ResizeHandle.BottomLeft or ResizeHandle.BottomRight;
 

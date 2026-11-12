@@ -74,7 +74,7 @@ internal sealed partial class WidgetCard
     /// uses the device's location, a copy at the device's position (rounded) named "My location".
     /// The stored config is never touched.
     /// </summary>
-    private WidgetConfig ViewConfig => DevicePlaces.Resolve(Model.Config, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
+    private WidgetConfig ViewConfig => DevicePlaces.Resolve(_resizeConfig ?? Model.Config, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
 
     /// <summary>[S-1881] [S-2854] Whether the view runs: set up, and not waiting for the device's location.</summary>
     private bool Runs(FeatureSet signedIn)

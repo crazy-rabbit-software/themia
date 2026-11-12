@@ -748,6 +748,66 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     public void SetLiveRect(FracRect rect) => LiveRect = rect;
 
+    // -----------------------------------------------------------------------------------------
+    // Sizing ([S-2444]..[S-2447])
+    // -----------------------------------------------------------------------------------------
+
+    /// <summary>[S-2442] The config a resize in progress means, shown by the view before it is stored; null otherwise.</summary>
+    private WidgetConfig? _resizeConfig;
+
+    /// <summary>[S-2442] Whether the last resize that landed changed the config too (the commit then relays the card out).</summary>
+    public bool ResizeSetConfig { get; private set; }
+
+    /// <summary>
+    /// [S-2444] This card's sizing on its display, as fractions of the screen; null for a legacy kind
+    /// (the old way) or before the display is measured. Follows a resize's previewed config.
+    /// </summary>
+    public SizeLimits? Limits
+        => _host.Metrics is { IsUsable: true } metrics
+            ? SizeFit.Limits(SizeFit.Of(_resizeConfig ?? Model.Config, Model.ShownHeader), metrics, _contentScale, _host.Design.WidgetGapPx)
+            : null;
+
+    /// <summary>[S-2442] While a resize is dragged, the view shows the config its size means (a list's rows).</summary>
+    private void PreviewResizedConfig(ScreenMetrics metrics)
+    {
+        var current = _resizeConfig ?? Model.Config;
+        var next = SizeFit.ConfigFor(current, LiveRect, metrics, _contentScale, _host.Design.WidgetGapPx, Model.ShownHeader);
+        if (ReferenceEquals(next, current))
+        {
+            return;
+        }
+
+        _resizeConfig = next;
+        ApplyViewConfig();
+    }
+
+    /// <summary>
+    /// [S-2442] A resize lands on <paramref name="rect"/>: for a kind whose size follows a count the
+    /// config that size means goes on the model with it (the caller stores both in one undo step).
+    /// The pointer's drag and the keyboard's Shift+arrows both land here.
+    /// </summary>
+    public void LandResize(FracRect rect)
+    {
+        var metrics = _host.Metrics;
+        var config = _resizeConfig ?? Model.Config;
+        if (metrics.IsUsable)
+        {
+            config = SizeFit.ConfigFor(config, rect, metrics, _contentScale, _host.Design.WidgetGapPx, Model.ShownHeader);
+        }
+
+        _resizeConfig = null;
+        ResizeSetConfig = !ReferenceEquals(config, Model.Config);
+        Model.Rect = rect;
+        LiveRect = rect;
+        if (ResizeSetConfig)
+        {
+            Model.Config = config;
+            ApplyConfig();
+        }
+
+        ApplyResizable();
+    }
+
     /// <summary>
     /// [S-850] Magnify the card's content — header, text, icons, padding — without touching its cell:
     /// the card stays exactly where it is and the same size, and the view lays out in the smaller
@@ -933,7 +993,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         if (_activeHandle is { } handle)
         {
-            LiveRect = GridGeometry.Settle(GridGeometry.Resize(_dragStartRect, handle, dxFrac, dyFrac, metrics), metrics, snap, handle);
+            // [S-2445] The moved edge stops at the sizing's Min and Max and lands on its steps.
+            LiveRect = GridGeometry.Settle(GridGeometry.Resize(_dragStartRect, handle, dxFrac, dyFrac, metrics), metrics, snap, handle, Limits);
+            PreviewResizedConfig(metrics);
             _host.OnGeometryPreview(this);
         }
         else if (_moved)
@@ -983,7 +1045,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // pointer over another screen is still a resize.
         if (resizing)
         {
-            Model.Rect = LiveRect;
+            LandResize(LiveRect);
             _host.OnGeometryCommitted(this);
             return;
         }

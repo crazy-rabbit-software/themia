@@ -46,6 +46,9 @@ internal sealed partial class AppHost : IDisposable
         _dispatcher = dispatcher;
         _store = store;
         State = state;
+
+        // [S-2447] What each widget's sizing is as loaded: a later config change is compared with it.
+        NoteSizings(refit: false);
         Ticker = new Ticker(dispatcher);
 
         // [S-2500] One hub for every system widget, for the app's lifetime, on the shared ticker.

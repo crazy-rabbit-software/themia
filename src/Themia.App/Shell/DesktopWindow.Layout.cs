@@ -300,7 +300,12 @@ internal sealed partial class DesktopWindow
             return;
         }
 
+        // [S-2446] A converted kind is painted in its stored rect fitted into its sizing on this
+        // display (another monitor, DPI or scale), anchored at its top-left and kept in reach. The
+        // stored rect is not rewritten by being shown: only a gesture or a config change does that.
+        rect = SizeFit.Shown(rect, card.Limits, metrics);
         card.SetLiveRect(rect);
+        card.ApplyResizable();
 
         // The card occupies the whole CELL. The gap is applied inside it, so the edit outline and
         // handles trace the cell rather than the painted surface, and changing the gap does not
@@ -397,7 +402,7 @@ internal sealed partial class DesktopWindow
             // The mask traces the PAINTED surface, not the cell: the gap is empty desktop, so a
             // click there should reach the desktop rather than an invisible widget edge. And it
             // follows paint ([S-872]): a hidden widget takes nothing.
-            var painted = GridGeometry.Inset(GridGeometry.ToPixels(card.Model.Rect, metrics), Design.WidgetGapPx);
+            var painted = GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics), Design.WidgetGapPx);
             if (CardFrame.Hit(painted, card.IsShown(EditMode)) is not { } box)
             {
                 continue;

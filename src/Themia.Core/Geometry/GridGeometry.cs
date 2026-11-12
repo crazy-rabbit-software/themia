@@ -197,8 +197,13 @@ public static class GridGeometry
     /// rounded the anchored edge too, and clamping the whole rect pushed the widget about instead
     /// of stopping the moved edge.
     /// </para>
+    /// <para>
+    /// [S-2445] A resize of a converted kind passes its <paramref name="limits"/> too: the moved edge
+    /// also stops at the sizing's Min and Max, and on a stepped axis lands on the nearest step (the
+    /// steps, not the grid, are its snap); a fixed axis does not move.
+    /// </para>
     /// </summary>
-    public static FracRect Settle(FracRect r, ScreenMetrics screen, bool snapEnabled, ResizeHandle? resizing = null)
+    public static FracRect Settle(FracRect r, ScreenMetrics screen, bool snapEnabled, ResizeHandle? resizing = null, SizeLimits? limits = null)
     {
         if (!r.IsFinite)
         {
@@ -230,30 +235,36 @@ public static class GridGeometry
 
         // Each moved edge: snapped, then stopped before the widget outgrows the allowed area or
         // leaves less than the visible minimum on it, and the [S-08] floor last so it always wins.
+        var (snapX, snapY) = (snapEnabled && limits is not { Width.Stepped: true }, snapEnabled && limits is not { Height.Stepped: true });
+
         if (MovesLeft(handle))
         {
-            left = snapEnabled ? SnapEdge(left, a.X, a.Right, cols, screen.Width) : left;
+            left = snapX ? SnapEdge(left, a.X, a.Right, cols, screen.Width) : left;
+            left = limits is null ? left : right - limits.Width.Range(right - left);
             left = Math.Min(Math.Max(left, right - a.W), a.Right - keepX);
             left = Math.Min(left, right - minW);
         }
 
         if (MovesRight(handle))
         {
-            right = snapEnabled ? SnapEdge(right, a.X, a.Right, cols, screen.Width) : right;
+            right = snapX ? SnapEdge(right, a.X, a.Right, cols, screen.Width) : right;
+            right = limits is null ? right : left + limits.Width.Range(right - left);
             right = Math.Max(Math.Min(right, left + a.W), a.X + keepX);
             right = Math.Max(right, left + minW);
         }
 
         if (MovesTop(handle))
         {
-            top = snapEnabled ? SnapEdge(top, a.Y, a.Bottom, rows, screen.Height) : top;
+            top = snapY ? SnapEdge(top, a.Y, a.Bottom, rows, screen.Height) : top;
+            top = limits is null ? top : bottom - limits.Height.Range(bottom - top);
             top = Math.Min(Math.Max(top, bottom - a.H), a.Bottom - keepY);
             top = Math.Min(top, bottom - minH);
         }
 
         if (MovesBottom(handle))
         {
-            bottom = snapEnabled ? SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height) : bottom;
+            bottom = snapY ? SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height) : bottom;
+            bottom = limits is null ? bottom : top + limits.Height.Range(bottom - top);
             bottom = Math.Max(Math.Min(bottom, top + a.H), a.Y + keepY);
             bottom = Math.Max(bottom, top + minH);
         }

@@ -1,10 +1,13 @@
 ﻿using Microsoft.UI.Dispatching;
 using Themia.App.Interop;
 using Themia.App.Shell;
+using System.Runtime.CompilerServices;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Sdk;
 
 namespace Themia.App.Services;
 
@@ -39,6 +42,9 @@ internal sealed partial class AppHost
         // [S-2450] A change that left a group with one member (a delete, a cut, a move) dissolves it.
         WidgetGroups.Settle(State);
 
+        // [S-2447] A config the change gave another sizing refits its widget in this same mutation.
+        NoteSizings(refit: true);
+
         if (undo is { } step)
         {
             _history?.Commit(State, step);
@@ -57,6 +63,38 @@ internal sealed partial class AppHost
         if (relayout)
         {
             StateChanged?.Invoke();
+        }
+    }
+
+    /// <summary>The sizing each widget had at the last mutation, by instance: what a config change is compared with ([S-2447]).</summary>
+    private readonly ConditionalWeakTable<WidgetInstance, WidgetSizing> _sizings = [];
+
+    /// <summary>
+    /// [S-2447] Note every widget's sizing; with <paramref name="refit"/>, a converted widget whose
+    /// sizing changed since it was last noted (its config changed: a style, a count, a size) has its
+    /// stored rect fitted into the new one, anchored at its top-left and kept in reach, on the display
+    /// that shows its view. A widget first seen (loaded, brought back by an undo) is noted as it is:
+    /// being shown never rewrites a rect ([S-2446]).
+    /// </summary>
+    private void NoteSizings(bool refit)
+    {
+        foreach (var view in State.Views)
+        {
+            DesktopWindow? surface = null;
+            foreach (var widget in view.Widgets)
+            {
+                var sizing = SizeFit.Of(widget);
+                if (refit && !sizing.IsLegacy && _sizings.TryGetValue(widget, out var was) && was != sizing)
+                {
+                    surface ??= _windows.FirstOrDefault(w => w.IsAlive && string.Equals(w.CurrentViewId, view.Id, StringComparison.Ordinal));
+                    if (surface is { Metrics.IsUsable: true })
+                    {
+                        SizeFit.Refit(widget, surface.Metrics, surface.ContentScaleOf(widget), State.Design.WidgetGapPx);
+                    }
+                }
+
+                _sizings.AddOrUpdate(widget, sizing);
+            }
         }
     }
 

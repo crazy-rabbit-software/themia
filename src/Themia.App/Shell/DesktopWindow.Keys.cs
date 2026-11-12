@@ -190,12 +190,22 @@ internal sealed partial class DesktopWindow
         var snap = Design.GridSnap;
         var rects = action.Command == EditCommand.Move
             ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics, snap)
-            : [.. cards.Select(c => KeyboardNudge.Resize(c.Model.Rect, action.Direction, action.Step, metrics, snap))];
+            : [.. cards.Select(c => KeyboardNudge.Resize(c.LiveRect, action.Direction, action.Step, metrics, snap, c.Limits))];
 
         for (var i = 0; i < cards.Count; i++)
         {
-            cards[i].Model.Rect = rects[i];
-            cards[i].SetLiveRect(rects[i]);
+            // [S-2442] A resize by keys lands as a drag does: a list's rows follow its height.
+            if (action.Command == EditCommand.Move)
+            {
+                cards[i].Model.Rect = rects[i];
+                cards[i].SetLiveRect(rects[i]);
+            }
+            else
+            {
+                cards[i].LandResize(rects[i]);
+                _nudgeSetConfig |= cards[i].ResizeSetConfig;
+            }
+
             PositionCard(cards[i], rects[i]);
         }
 
@@ -206,6 +216,9 @@ internal sealed partial class DesktopWindow
         return true;
     }
 
+    /// <summary>[S-2442] The run of nudges set a config too (a list's rows).</summary>
+    private bool _nudgeSetConfig;
+
     /// <summary>[S-1972] The run of nudges ends: persist it as one undo step.</summary>
     private void FlushNudge()
     {
@@ -215,6 +228,15 @@ internal sealed partial class DesktopWindow
         }
 
         _nudging = null;
+
+        // [S-2442] A run of resizes that changed a config is stored with it as one step and lays the card out again.
+        if (_nudgeSetConfig)
+        {
+            _nudgeSetConfig = false;
+            _host.Mutate(_ => { }, relayout: true, action);
+            return;
+        }
+
         _host.CommitGeometry(action);
     }
 

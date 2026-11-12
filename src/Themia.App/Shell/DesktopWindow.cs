@@ -241,6 +241,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         return WidgetScale.Effective(display, previewed ?? widget.Scale);
     }
 
+    /// <summary>[S-2444] The content scale a widget of this display is drawn at: what its sizing is multiplied by.</summary>
+    internal double ContentScaleOf(WidgetInstance widget) => ContentScale(widget);
+
     /// <summary>The id of the view this surface is currently showing.</summary>
     public string CurrentViewId => ViewForThisMonitor(_host.State).Id;
 
@@ -269,7 +272,18 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     {
         PositionCard(card, card.LiveRect);
         JoinCards();
-        _host.CommitGeometry(UndoAction.Resize);
+
+        // [S-2442] A resize that set the config too (a list's rows) is stored with it as one step,
+        // and the surface lays out again so everything that reads the config sees the new one.
+        if (card.ResizeSetConfig)
+        {
+            _host.Mutate(_ => { }, relayout: true, UndoAction.Resize);
+        }
+        else
+        {
+            _host.CommitGeometry(UndoAction.Resize);
+        }
+
         HoldProperties(false);
     }
 
