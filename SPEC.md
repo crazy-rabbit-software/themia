@@ -75,13 +75,13 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **[S-08]** Minimum widget size is a **pixel floor** (`MinWidgetPx`, 32 DIP, [S-06b]), converted to a
   fractional floor at the moment of resize, so it means the same physical size on every monitor. It
-  is every widget's last floor; a legacy kind has no other, a converted kind stops at its sizing's Min
-  first ([S-2445]).
+  is every widget's last floor: a kind's sizing never starts under it ([S-11800]), and a resize stops at
+  the sizing's Min first ([S-2445]).
 - **[S-09]** Widgets are kept **in reach** (`GridGeometry.Clamp`), not inside: at load against the
   whole screen, and against the display's **work area** for drag, resize, placement, paste, drop and
   the arrow keys ([S-841]), each by the one rule of [S-6608]. No widget is ever bigger than that area.
   Clamping is **total**: a non-finite or inverted rect collapses to a valid one rather than
-  propagating NaN into storage. A converted kind is also held to its sizing: painted fitted into it
+  propagating NaN into storage. A widget is also held to its sizing: painted fitted into it
   ([S-2446]), resized within it ([S-2445]); its Max may be larger than the work area allows, and the
   work area wins.
 - **[S-6608]** A widget may hang over **any edge** of its display, but always keeps at least
@@ -112,7 +112,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-31a]** Settling a resize snaps and limits **only the edges the handle moves**: a moved edge
   rounds to the grid (or lands on a work-area edge within the magnet, [S-6609]), may pass the
   work-area edge, and stops where the widget would outgrow the work area or keep less than the visible
-  minimum on it ([S-6608]); an anchored edge never moves. A converted kind's moved edge also stops at its
+  minimum on it ([S-6608]); an anchored edge never moves. The moved edge also stops at the widget's
   sizing's Min and Max and lands on its steps, a fixed axis has no handle ([S-2444], [S-2445]). Snapping the whole rect rounded the anchored
   edge too, and clamping the whole rect pushed the widget about instead of stopping the moved edge.
 - **[S-31b]** Edit mode draws no outline round a widget. The eight handles are its markers
@@ -138,8 +138,8 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-10]** A widget kind states its sizes ([S-2438]); a new widget lands at its **Natural** size in
   DIPs (`WidgetDescriptor.Natural`, the default config's; `DefaultWidth`/`DefaultHeight` are gone). At
   placement that is converted to a fraction of the current screen, so a newly dropped widget has a
-  consistent physical size on any monitor, and scales per [S-02] thereafter (a converted kind then
-  painted fitted into its sizing, [S-2446]).
+  consistent physical size on any monitor, and scales per [S-02] thereafter (painted fitted into its
+  sizing, [S-2446]).
 - **[S-11]** Placement centres the widget on the drop point, then snaps ([S-06], [S-6609]) and keeps
   it in reach ([S-09]): one dropped near an edge or on the taskbar may hang over it, but keeps the
   visible minimum on the work area ([S-6608]). The ghost shows exactly that.
@@ -769,7 +769,7 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   (`SkyEventRow`) is the fact row ([S-6711]): a 16 lead (a glyph, or the moon drawn at 16), the name
   secondary, the time at the end primary; the next event's name is BodyStrong, never in the accent,
   and its countdown, or a plain row's note ("civil", "35°", "−3m 20s"), is the row's second line where
-  the tier gives rows two lines ([S-6712]). Its name takes its short form ("Rise" for "Moonrise") where
+  its widget's rows have two lines ([S-6712]). Its name takes its short form ("Rise" for "Moonrise") where
   the long one and the value do not fit side by side in its room, the row's width less the insets, the
   lead and its gap and the gap before the value (`SkyRows`, the ramp's width estimate). The moon's
   drawing (`SkyMoonDisc`, [S-169]) is a lead: its lit part in the secondary role, the unlit rim a
@@ -866,19 +866,18 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   card's) and the view's own foot. Brought in line with it: CPU cores' items, the clock (it no longer
   owns its top edge, so with a header its face keeps its size), the sun, the stock's and the rate's
   charts (each padded its own top, 24 headerless and 12 too many under an added header). The edges
-  are measured on the renders' visual trees (`--widget-png … --tree`): every converted kind, with the
+  are measured on the renders' visual trees (`--widget-png … --tree`): every kind, with the
   header on top and hidden, at its min, natural and max.
-- **[S-402]** The header sheds on a tile too short to carry it, **once**, in the card. Every widget
-  had independently drawn that conclusion with a slightly different threshold.
+- **[S-402]** *(Retired by [S-11009] and [S-11800]: every kind's sizing counts its header, so no card sheds
+  it; only the person hides it. `HeaderStrip.Sheds` is gone.)*
 - **[S-403]** The title is the user's own when they set one (on the properties strip, [S-3704]), otherwise the catalogue's. A widget has
   no say in it: a view that wants to label itself differently is a view that has drifted.
 - **[S-404]** **Left** and **Right** stand the header as a strip down that edge of the card, as thick
   as a top header is high (it is the same header, measured against the card's height). The card's
   content is a 3 × 3 grid (auto, star, auto both ways, `HeaderStrip`): the view always sits in the
   middle cell, a top or bottom strip takes the whole outer row, a side strip the whole outer column,
-  so the content area is the card less the strip's width and the size ladder ([S-660]) classifies on
-  that box. A side strip sheds ([S-402]) on a card too narrow for it (`HeaderStrip.Sheds`: the axis
-  the strip eats), a top or bottom one on a card too short. Debug: `--widget-png <Kind> <out.png>
+  so the content area is the card less the strip's width, which the kind's sizing counts ([S-2444]).
+  Debug: `--widget-png <Kind> <out.png>
   --header top|bottom|left|right|hidden` draws the cards with that header; `--menu-png` writes
   `props-header.png`, the properties panel's Header menu opened from its drop-down, Left ticked.
 - **[S-405]** On the left the header is turned a quarter **counter-clockwise** (it reads bottom to
@@ -899,11 +898,8 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   part (a badge, a caption, a picker, Notes' formatting bar) is sized by its view for a header as
   wide as the content, and along a strip it would be measured against the card's height and read
   sideways. It stays with the view and comes back with a top or bottom header.
-- **[S-409]** A side strip sheds on a card under **160 DIPs** wide (`HeaderStrip.SideShedsBelow`; a
-  top or bottom one under 96 high, `FlatShedsBelow`). Derived: the strip eats about 40 DIPs (a
-  header's height), and the content beside it must stay at least as wide as the narrowest card every
-  widget is laid out for, the XS tier's 120 ([S-1810]). Under 96 (the old threshold) an XS card kept
-  about 76 DIPs of content: Notes' empty text wrapped per letter and Mail's Set up button clipped.
+- **[S-409]** *(Retired by [S-11009] and [S-11800]: a side strip is counted in the sizing's width, so
+  no card is too narrow for it; the 160 and 96 floors went with the legacy kinds.)*
 
 ## The widget family: tokens and blocks (FAMILY)
 
@@ -929,20 +925,17 @@ module author's guide is docs/WIDGET-KIT.md 16.
 - **[S-6701]** A value's **unit** and the **line under** it follow from its step: the unit (400,
   secondary) is 14 beside 28, 20 beside 40, 28 beside 68, 40 beside 96 and 136, 68 beside 192; the
   line under is Caption under 28, Body under 40 and 68, Title (400) under 96, 136 and 192.
-- **[S-6702]** *(Legacy until converted: a converted kind's number is 28, or its Size's step for a
-  one-readout widget, whatever the box, [S-2449].)* The **Readout**'s step is chosen, never computed: the largest whose line (and the line
-  under it) fits the box and whose lead glyph, value and unit fit its width (`ReadoutRules.Step`,
-  widths by `HeroFit.Ems`), never below 28. A data widget's number has two sizes ([S-2220]): 28, and
-  40 once the view area is expanded both ways (L, XL), never 68 (`ReadoutRules.Ceiling`). Room left
-  goes to more of the widget's own content, never a bigger number ([S-666]). A one-readout widget
-  climbs the Big steps and then the Hero steps (68, 96, 136, 192) as far as they fit, on fixed steps,
-  never filling the box. A box too short for the line under the floor step sheds that line, never the
-  value.
+- **[S-6702]** The **Readout**'s step is stated, never computed and never the box's: a data widget's
+  number is the family's 28 (40 where its kind states it, [S-2220]), a one-readout widget's the step
+  its Size names (40, 68, 96; [S-2449]), and the kind's sizing is made from that step's widest text
+  (`ReadoutRules.Width`, `Height`, widths by `HeroFit.Ems`), so its box always holds it ([S-11800]).
+  `ReadoutRules.Step` measures which of a text's steps a box holds, never below 28 (the clock's faces
+  ask it of the card their Size made).
 - **[S-6703]** Space is one 4-based scale, **4 · 8 · 12 · 16 · 24**, and its sums: the card inset 12
-  on every side at every tier; the header one 20 line at 12, then 4, so the content starts at 36; a
+  on every side at every size; the header one 20 line at 12, then 4, so the content starts at 36; a
   glyph 8 from its text; a name 12 from its value and a column 12 from the next; the text edge 36
   with a 16 lead (12 without); a 24 header button stands 2 over the header's line (`FamilySpace`).
-- **[S-6704]** Shapes: rows 28 · 40 · 56 (one, two, three lines) at every tier; icons 16 (header,
+- **[S-6704]** Shapes: rows 28 · 40 · 56 (one, two, three lines) at every size; icons 16 (header,
   row, status, inline), 32 (an avatar, an app or file icon, a cell), 48 (a large cell); one radius,
   4, for every inner rectangle, a pill, dot, ring or track round (half its short side); one stroke,
   2, with a 16 % wash under a chart line; one track, 4; a hairline 1. Buttons: a text button 28 tall
@@ -953,10 +946,9 @@ module author's guide is docs/WIDGET-KIT.md 16.
   led row's text at 36 ([S-6703]); rows are 28 · 40 · 56, one Body line with 4 over and under it, two
   or three lines with 2 ([S-6704], [S-6712]); a text button and a content icon button are 28, as tall
   as a one-line row; a header button stays 24, a button's sides 12 and the icons 16, 32, 48. A data
-  widget's number is 28, or 40 once expanded both ways, never 68 ([S-6702]): 68 is the first Hero step,
-  a one-readout widget's alone. The tier sizes, the breakpoints, the type's nine sizes, the card's
-  radius and the gap between cards do not change. Tests `FamilyTokensTests.S2220_`,
-  `FamilyBlockRulesTests.S2220_`.
+  widget's number is 28 (40 where its kind states it), never 68 ([S-6702]): 68 is the first Hero step,
+  a one-readout widget's alone. The type's nine sizes, the card's radius and the gap between cards do
+  not change. Tests `FamilyTokensTests.S2220_`.
 - **[S-2221]** **The shell keeps its sizes** when the family gets denser: the edit bar, its menus, the
   properties menu's 320 × 440 panel and its 32 rows, the picker, the notices and the view bar draw on
   `ShellMetrics`, never on a widget's row, button or inset token; the widget picker's rows (32) and
@@ -1011,12 +1003,11 @@ module author's guide is docs/WIDGET-KIT.md 16.
   (`RowBlock.Cells`, [S-7034]). A row of a part missing on this PC is all disabled
   (`RowBlock.Available`). The keyboard's ring on a row is a stroke-2 outline over its whole width in
   the accent, clear otherwise, so focusing it moves nothing (`RowBlock.Focused`, [S-1288]).
-- **[S-6712]** A row's **lines come from the tier**, its pitch from its lines: one while the view
-  area is compact either way (XS, S, Wide), two from regular both ways (M, Tall), three from expanded
-  both ways (L, XL); a row of one line is 28, of two 40, of three 56 ([S-2220]); only whole rows are
-  shown (`RowRules.Lines`, `Fit`).
-- **[S-6713]** **Row.Cell** (`RowCell`): a grid's item (Shortcuts', a folder's icons), its lead (32,
-  48 from an expanded width) over its name in Caption, primary, centred and cut with its ellipsis at
+- **[S-6712]** A row's **lines are its widget's config** (Lines per row, [S-2440]), its pitch from its
+  lines: a row of one line is 28, of two 40, of three 56 ([S-2220]); only whole rows are shown
+  (`RowRules.Fit`). No size gives a row more lines or fewer ([S-11800]).
+- **[S-6713]** **Row.Cell** (`RowCell`): a grid's item (Shortcuts', a folder's icons), its lead (32 or
+  48, as its widget's config states) over its name in Caption, primary, centred and cut with its ellipsis at
   the cell's edge, 4 apart; cells 12 apart, their marks 4 around them, so a grid's marks start at the
   inset less 4 (`RowRules.CellMarkEdge`, [S-2220]) and the first cell's lead and name at the inset.
 - **[S-6714]** **Status** (empty, problem, set up): one 28 row where the content's first row would
@@ -1026,8 +1017,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the accent Set up button ([S-1862]). A row with an action and less than 96 left for the sentence
   drops it and keeps the glyph and the action (`StatusRules`); without an action the sentence stays. Tile widgets show their state in the tile.
 - **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the step the
-  widget's Size names (`TileRules.GlyphAt`, [S-11307]; `TileRules.GlyphStep`, the largest that fits,
-  is left for the gallery's samples) above its label (Body, 8 under it) and its state line (Caption), in
+  widget's Size names (`TileRules.GlyphAt`, [S-11307]) above its label (Body, 8 under it) and its state line (Caption), in
   the card's inset of 12. On,
   the **whole tile** is the accent with the text and glyph on it; Round puts the glyph in a circle
   (the accent when on, the item layer's tile otherwise) at the largest family glyph size within half
@@ -1130,7 +1120,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the GPU's own view are gone. The lists and the calendar are on the blocks (G2, 2026-10-29): the
   kit's `KitHeader` is the Header block's parts (`HeaderParts`, at most two 24 buttons, the neutral
   count), `KitStatePanel` the Status block's row at the top, every `KitList` look (rich, message,
-  table, schedule, check) the Row block of 28, 40 or 56 by the tier, `AddFooterRow` a Row block of
+  table, schedule, check) the Row block of 28, 40 or 56 by its lines, `AddFooterRow` a Row block of
   32; `HeaderTrail`, `Fluent.Badge`, `KitHeaderParts` (folded into `HeaderRules.Wants`),
   `KitList.Lined` and the old ladders' measures are gone. `Fluent.Row`, `SetDensity`, `RowHeight`,
   `CompactBelow` and `EmptyStatePanel`, `EmptyStateFit`, `Fluent.EmptyState` stay for the groups
@@ -1207,7 +1197,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   offenders that only shrank; the shell sweep (2026-10-30) emptied it and the list is gone: **any**
   offence fails the test.
 - **[S-6731]** The **render walk** (`Themia.exe --family-check <out.json> [--theme] [--kinds]`, Debug):
-  every kind at its sizes ([S-2448]: a converted one its range) in its default, its preview states and its styles, each card's header,
+  every kind at its min, natural and max ([S-2448]) in its default, its preview states and its styles, each card's header,
   view and Set up row walked element by element (a control's template skipped, its content walked)
   and judged by `FamilyCheck` (a glyph is judged as a glyph: the text inside its `FontIcon` is not
   walked): a text's size, line and weight, a glyph's size (a Hero step only in a one-readout kind,
@@ -1222,11 +1212,9 @@ module author's guide is docs/WIDGET-KIT.md 16.
   script's total) besides how many offend, and a kind whose cards drew nothing is the finding "nothing
   drawn", so a clean run is a run over something. (Its "0 elements" per kind counted the offending
   elements, not the walked ones.)
-- **[S-6732]** `Themia.exe --family-blocks-png <outDir> [--theme] [--only]` draws each block in every
-  variant (32 since G5) at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
-  writes the same for a widget). The family's mockups draw the same variants over the same data, and
-  their texts and glyphs are paired with the render's and held to ±1 DIP in position and size with the
-  same colour role (DECISIONS 11).
+- **[S-6732]** *(Retired by [S-11800]: `--family-blocks-png` drew each block at the seven tiers, which are
+  gone; a block is looked at in its widgets' renders. `--widget-png … --tree` still writes a card's visual
+  tree beside it, `TreeDump`.)*
 - **[S-6733]** **A name over the wallpaper** (a widget with no card, the desktop item's, [S-5606]) is
   drawn in the family's two wallpaper roles, not the card's text roles: `OnWallpaper`, light in either
   theme as Windows' desktop draws its icons' names, over `OnWallpaperShadow`, the same text cast
@@ -1444,22 +1432,14 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7030]** `KitSpec`: a kit widget's shape (its row look, the optional fields it offers
   (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
   sentence); the user's own fields are bounded by it.
-- **[S-7031]** *(Retired by [S-11580]: every kit list states its rows, [S-2440].)* `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]) on the family's
-  rows ([S-6711], [S-6712]): every look is the Row block, one row of 28, 40 or 56 for one, two or
-  three lines, never taller for a long title (one line, ending in an ellipsis). The lines grow with
-  the tile both ways (`RowRules.Lines`: one while the view's area is compact either way, two from
-  regular, three from expanded), up to what the row has to say (the title; the subtitle with the badge
-  after it; the preview, on the second line when there is no subtitle); the title always, the lead
-  (a 16 glyph or the site's icon) and the time (the value, secondary) from a column of 180, the badge
-  from 260. From 400 wide a spec may go to two columns (three from 720) while a column keeps 320,
-  never more than the spec allows. The list shows the rows that fit whole in the view's area less the
-  card's bottom inset (`KitLadder.Fit`), the rest a scroll away under the fade ([S-639], [S-1281]).
-  The rich look (the feed's, [S-1305]): the title, its age, the source on the second line, the
-  summary on the third.
+- **[S-7031]** *(Retired by [S-11580] and [S-11800]: every kit list states its rows, [S-2440]; the kit's
+  ladder is gone and `KitLadder` is `KitPlanner`, which plans the rows, lines, columns and fields the config
+  states. The rich look (the feed's, [S-1305]) stands: the title, its age, the source on the second line,
+  the summary on the third.)*
 - **[S-7032]** The message looks (Mail's, [S-556], as the kit's): `TwoLine` rows are the sender (the
   name, BodyStrong while unread), the time as the value, the subject with the account's badge after
   it ("Quarterly numbers · Work") on the second line, the preview on the third; the lead the
-  message's glyph, secondary. `Line` holds the same row to one line at every tier (a compact style:
+  message's glyph, secondary. `Line` holds the same row to one line (a compact style:
   `KitChoices.OneLine`). An item's tone colours its time (Caution, Critical) and its lead; the accent
   never colours a text, and no bar marks a row. Times are re-labelled without rebuilding a row.
 - **[S-7035]** `KitOverflow.Page`: pages of the rows that fit whole, never scrolled ([S-2709]): a
@@ -2786,7 +2766,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   dots ("24.12.2026", "24.12.26"). A slash with the day or the month first means two days in two
   countries and is refused, as is a day the month lacks; a refused text changes nothing.
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
-  reserved row; the content area is the whole card less the inset over it ([S-5700]) at every size tier.
+  reserved row; the content area is the whole card less the inset over it ([S-5700]) at every size.
 - **[S-3714]** *(Retired by [S-2325].)*
 - **[S-3715]** *(Retired by [S-2325]: the flyout is Windows' ground and cards.)*
 - **[S-6521]** *(Retired by [S-6566]: the Item background colour control and the Item opacity row
@@ -2812,8 +2792,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   style, the network meter in both its styles and the battery meter in its graph and battery
   styles (the shared meter view paints items only in its bars, rows, tiles, gauge, ring, core graphs
   and signal bars); Pomodoro in Bar (a progress bar of its own) and Digits; a power button's Round style (its circle is an item only for
-  the moment a press failed, [S-1915], which is no reason to offer it). Size is not a state: a part a
-  small tile sheds still counts. A config without the contract draws what its kind's trait says;
+  the moment a press failed, [S-1915], which is no reason to offer it). Size is not a state. A config without the contract draws what its kind's trait says;
   only a kind with items may carry it (conformance).
 - **[S-6574]** Item text never reaches a track ([S-6546]), so where every item a widget draws is a
   track (`IDrawsItems.DrawsItemText` false, `ItemKinds.DrawsText`) the menu has **Item background**
@@ -2947,7 +2926,7 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   the menu lines through `Offers(setting)`, never a check written in a menu; an option every style
   and state uses is not listed and always offered. A line left out is not built at all (no greyed
   lines). The values of options left out are kept for when they apply again. Size is not a state
-  here: an option a small tile sheds ([S-660]) is still offered. A rule never reads a typed value,
+  here: no size sheds a part ([S-11800]), so no option depends on one. A rule never reads a typed value,
   so typing a number never reshapes the menu.
 - **[S-6071]** *(Retired 2026-10-19 with the widget pages: no page shape to rebuild; the menu is
   built again on every change and redraws only lines whose shape changed, [S-3716].)*
@@ -3709,7 +3688,7 @@ important mark). Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`
   the title alone, its body written with a JSON writer so a quote cannot break out.
 - **[S-601]** A title is one line, cut with an ellipsis; the tooltip carries the whole title, its
   state, due date and priority. The "Title lines" setting is retired (G2, 2026-10-29): a row's
-  height is the tier's, never its title's.
+  height is its lines' ([S-6712]), never its title's.
 - **[S-603]** Lists on this PC are one pool in `tasks.json` beside the state (`schemaVersion` 1),
   shared by every widget: renaming a list retitles each widget showing it, and deleting a widget keeps
   its tasks. Load validates every entry (a list needs a non-empty id and a name, a task an id and a
@@ -3935,8 +3914,8 @@ Content decides a widget's size; the size no longer decides its content (owner's
 2026-11-12: widgets grew without end and filled the room; they get a largest size and are split into
 small widgets instead). Owning files: `Themia.Sdk/Modules/WidgetSizing.cs` (the contract),
 `WidgetDescriptor.Sizing` / `.SizeSets` (each kind's), `Themia.Core/Geometry/SizeFit.cs` (the host's
-side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the legacy list),
-`SizeFitTests`. How a kind is converted: docs/WIDGET-KIT.md 17.
+side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `SizeFitTests`,
+`OnePathSizingTests` (the guard). How a kind is converted: docs/WIDGET-KIT.md 17.
 
 - **[S-2438]** A kind states its sizes as a pure function of its config (`WidgetDescriptor.Sizing`,
   a `WidgetSizing`): `Min`, `Natural` and `Max` (`SizeDip`, a width and a height) in DIPs of the
@@ -3962,7 +3941,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   ladder that fitted rows, lines, columns, the lead, the time, the badge, the column titles and the add
   row by the card's height and width (`KitLadder`'s legacy branch, the schedule's two columns from 720,
   `KitChecks`' tiers and Huge-wide columns, `AddFooter.Show`) is gone with its tests; `RowRules.Lines`
-  by tier stays for the legacy kinds that are not kit lists. Tests `KitRowsTests`.
+  went with the legacy kinds ([S-11800]). Tests `KitRowsTests`.
 - **[S-11400]** **Three lines and two columns, as settings.** A kit list whose rows have a preview may
   offer three lines a row (the title, the subtitle, the preview; 56 a row, `KitMenuLines.Rows(..,
   mostLines: 3)`, `KitSizing.ClampLines(lines, most)`); a list that grew columns with its width offers
@@ -3970,25 +3949,39 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   range (440..1040, a new one 600) and split the width evenly; its rows count down each column, the
   height follows them as before. No width ever adds a column. Tests `KitRowsTests.S11400_`.
 - **[S-11401]** **A table that states its rows** (`KitRowLook.Table` with `KitChoices.Rows`): one line
-  a row, the user's columns fitted to the width as [S-7034] (the least essential given up first on a
-  narrow one), its column titles over the rows when the config says so (`KitRowsChoice.ColumnTitles`,
-  never the height; they are part of the height's base). A look that needs other widths than the
-  kit's states its own (`KitWidths`, passed to `KitSizing.Sizing`). Tests `KitRowsTests.S11401_`.
+  a row, every one of the user's columns in the user's order (`KitPlanner.TableColumns`: the title, the
+  time and the badge at their widths, the subtitle and the preview sharing the rest), its column titles
+  over the rows when the config says so (`KitRowsChoice.ColumnTitles`, never the height; they are part
+  of the height's base). Its width range starts where every chosen column fits at its least
+  (`KitPlanner.TableLeast`, Email's `TableWidthsOf`), so no width drops a column or adds one (the
+  preview no longer joins a wide row by itself). A look that needs other widths than the kit's states
+  its own (`KitWidths`, passed to `KitSizing.Sizing`). Tests `KitRowsTests.S11401_`,
+  `KitLinedTests.S11401_`, `MailLayoutTests.S11402_`.
 - **[S-11541]** **A schedule that states its rows** (`KitRowLook.Schedule` with `KitChoices.Rows`, the
   calendar's agenda, [S-11540]): one column at every width, its lines (the span and where on the
-  second) as chosen, never the tier's; its pages hold the rows its height was made for, a day's
+  second) as chosen; its pages hold the rows its height was made for, a day's
   heading taking a row. Tests `KitRowsTests.S11541_`.
-- **[S-2441]** Every kind's sizing holds, for its defaults and every style: sizes positive and finite
-  (a legacy Max unbounded), Min ≤ Natural ≤ Max on both axes, a stepped axis's Min, Natural and Max
+- **[S-2441]** Every kind's sizing holds, for its defaults and every style: sizes positive and finite,
+  Min ≤ Natural ≤ Max on both axes, a stepped axis's Min, Natural and Max
   on its steps and its count in range (`WidgetSizing.Problems`, checked over the registry).
 - **[S-2442]** A kind whose size follows a count answers, for its config and a wanted size, with the
   config that size means (`WidgetDescriptor.SizeSets`: a list dragged to five rows tall has Rows = 5).
   It returns a copy and never changes the config it is given. A kind has the hook exactly when one of
   its axes follows its config.
-- **[S-2443]** **Legacy until converted.** A kind not yet converted states `WidgetSizing.Legacy(w, h)`:
-  Natural its old default size, Min the 32 floor ([S-08]), no Max. It keeps the old way whole: no fit,
-  `IWidgetSizeAware` with the ladder ([S-660]..[S-666]) and the seven tiers. The module host's
-  `WidgetSizingTests.Legacy` lists those kinds and only shrinks.
+- **[S-2443]** *(Retired by [S-11800] on 2026-11-12, once every kind was converted: `WidgetSizing.Legacy`,
+  `IsLegacy`, `LegacyFloor`, `SizeDip.Unbounded` and the shrink-only list in `WidgetSizingTests` are gone.)*
+- **[S-11800]** **One path.** Every kind states a bounded range ([S-2438]), never under the [S-08] floor,
+  and inside it shows the same parts: what a widget shows is its config (its rows, lines, facts, columns,
+  Size, style), never its box. A view may measure its box to lay out those fixed parts (a graph's length,
+  where a text wraps, a grid's cells, a scroll ending on a whole line: `IWidgetSizeAware`, `WidgetArea`,
+  `LayoutMath`), never to choose them. The old way is gone with everything that existed for it: the
+  legacy sizing, the seven tiers (`WidgetTiers`, `--sizes tiers`, the showcase's tiers,
+  `--family-blocks-png`), the ladder (`Disclosure`, `TakeRows`, `WholeRows`, `SecondLines`), the area's
+  classes and breakpoints (`SizeClass`, `AreaShape`), and the rules that chose by them (`RowRules.Lines`
+  and `CellIcon`, `ReadoutRules.Ceiling`, `TileRules.GlyphStep`, `DetailFace.Plan`, the kit table's dropped
+  and added columns, the header's shedding). `OnePathSizingTests` fail on a source that names any of them
+  again, and on a kind whose range has no maximum or starts under the floor. Tests
+  `OnePathSizingTests.S11800_`.
 - **[S-2444]** **On a display** a sizing is DIPs times the card's content scale ([S-6532]: the display's
   and the widget's own) plus the gap, as fractions of that screen's cell (`SizeFit.Limits`,
   `SizeLimits`, `AxisLimits`). It is stated with the kind's default header ([S-700]); a card that
@@ -3999,7 +3992,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   has no handle: its two side handles lose their grip and bar, a corner resizes the free axis alone
   with that axis's cursor, and on a widget fixed both ways the corners keep their brackets as marks
   but take no press (`EditMarkers.Moves`, `WidgetCard.ApplyResizable`).
-- **[S-2445]** **Resizing a converted kind** ([S-31a]): the moved edge also stops at the sizing's Min
+- **[S-2445]** **Resizing** ([S-31a]): the moved edge also stops at the sizing's Min
   and Max, and on a stepped axis lands on the nearest step, which replaces the grid as its snap
   (`GridGeometry.Settle(…, limits)`); a fixed axis does not move. Shift+arrows obey the same, a press
   on a stepped axis being one step (`KeyboardNudge.Resize(…, limits)`).
@@ -4018,19 +4011,16 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   one mutation and one undo step; while it is dragged the view already shows that config
   (`WidgetCard.LandResize`, `SizeFit.ConfigFor`; the keyboard's run of resizes lands the same way).
 - **[S-2449]** **A big number's size is a setting.** A one-readout widget (the clock, the timers, the
-  toggles) converted to the sizing states its readout's size in its config (`IReadoutSized.Size`,
+  toggles) states its readout's size in its config (`IReadoutSized.Size`,
   `ReadoutSize` Small, Medium, Large: the family's 40, 68 and 96, `ReadoutSizes.Step`; a new one
   Medium), set by one menu line, Size (`KitMenuLines.ReadoutSize`), and its sizing follows from the
   widest text at that step (`HeroFit` widths, [S-6702]); the number never grows with the card. A data
-  widget's converted number is the family's 28 ([S-2220]; the 40 step stays for a kind that states
-  it): `ReadoutRules.Ceiling` by area is retired for converted kinds and kept for legacy ones.
-- **[S-2448]** **A converted kind is checked at its range**, not the seven tiers: its Min, its Natural
-  and its Max (`SizeFit.RangeTiers`, named `min`, `natural`, `max`; `SizeFit.CheckedAt` picks the range
-  or the tiers). `--widget-png <Kind>` draws a converted kind at its range by default and a legacy one
-  at the tiers; `--sizes range|tiers|WxH,..` picks (`range` on a legacy kind says it has none). The
-  showcase views ([S-1810]) hold a converted kind at min, natural and max, packed as the tiers are; the
-  family render walk (`--family-check`) walks the range, its page sized for the largest. A store scene
-  ([S-1074]) paints a converted kind fitted into its sizing as the desktop does ([S-2446]).
+  widget's number is the family's 28 ([S-2220]; the 40 step stays for a kind that states it).
+- **[S-2448]** **A kind is checked at its range**: its Min, its Natural and its Max (`SizeFit.CheckedAt`,
+  `CheckedSize` named `min`, `natural`, `max`). `--widget-png <Kind>` draws a kind at its range by
+  default, side by side; `--sizes range|WxH,..` picks. The showcase views ([S-1810]) hold a kind at min,
+  natural and max; the family render walk (`--family-check`) walks the range, its page sized for the
+  largest. A store scene ([S-1074]) paints a kind fitted into its sizing as the desktop does ([S-2446]).
 - **[S-11601]** **A render draws a box as a resize to it leaves the widget** (`SizeFit.Resized`): the
   config that size means (`SizeFit.ConfigAt`, the kind's `SizeSets`, [S-2442]: a list's rows, a pick's
   facts, the forecast's days) and the box that config is painted at (an axis that follows the other, as
@@ -4045,29 +4035,27 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
 
 ## Responsive layout (shared foundation)
 
-*Legacy until converted ([S-2443]):* [S-660]..[S-666] hold for the kinds on the legacy list only. A
-converted kind states its sizes and shows the same content inside them ([S-2438]..[S-2449]): no
-`Disclosure`, no `WidgetArea` classes, no tiers. The types stay until the list is empty.
+*Retired by [S-11800] (2026-11-12): content decides a widget's size ([S-2438]..[S-2449]); no size decides
+its content. What is left of this section is how a view measures the fixed parts its config states.*
 
-- **[S-660]** A widget's content area (the card less its header) is classified per axis into
-  `SizeClass` Compact / Regular / Expanded / Huge (width breakpoints 180 / 400 / 720, height
-  128 / 280 / 480 DIPs) plus a shape (Wide ≥ 2:1, Tall ≥ 1:1.6). The seven size tiers (`WidgetTiers`) land in
-  seven distinct (width, height) pairs. An unmeasured area is Compact. (`WidgetArea`)
-- **[S-661]** Optional parts are disclosed in priority order from one height budget: a part is shown
-  only when it fits whole; once a part misses, no later part is shown (growing a tile only ever adds
-  parts); a part too narrow is skipped without closing the ladder. (`Disclosure`) Which parts a
-  ladder may have at all is [S-666].
-- **[S-662]** Lists and line budgets count whole rows only, one arithmetic for all of them
-  (`Disclosure.WholeRows` / `TakeRows`, 0.5 DIP rounding tolerance).
-- **[S-663]** The card tells a view that implements `IWidgetSizeAware` its slot, once per layout pass
-  that changed it, never unmeasured; views that do not implement it are unaffected.
-- **[S-664]** Meters: the reading, then the history growing to fill the tile; a tiny tile is the
-  reading alone (the ladder is [S-1762]). A wider chart spans more history (one sample per ~6 DIPs).
+- **[S-660]** *(Retired by [S-11800]: the area's size classes (`SizeClass`, breakpoints 180 / 400 / 720
+  and 128 / 280 / 480), its shape (`AreaShape`) and the seven tiers they were chosen for are gone;
+  `WidgetArea` is the slot's width and height.)*
+- **[S-661]** *(Retired by [S-11800]: the disclosure ladder, `Disclosure`, is gone; a widget's parts are
+  its config's at every size.)*
+- **[S-662]** Lines and rows are counted whole, one arithmetic and one 0.5 DIP rounding tolerance for
+  all of them (`LayoutMath.WholeLines`, `LayoutMath.Tolerance`; a family row's `RowRules.Fit`).
+- **[S-663]** The card tells a view that implements `IWidgetSizeAware` its slot (`WidgetArea`, the card
+  less its header), once per layout pass that changed it, never unmeasured; the view measures its fixed
+  parts on it (a graph's length, where a text wraps, a grid's cells), never chooses them by it. A view
+  that lays out by its own measure does not implement it.
+- **[S-664]** *(Retired by [S-11000] and [S-11800]: a meter is its reading and its history, two atoms,
+  each one size of parts; a wider history spans more time, one sample per ~6 DIPs.)*
 - [S-665]: moved with the Clock widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Clock/`).
-- **[S-666]** **Concise first** (user rule, replaces "empty space at L/XL means a missing rung"):
-  every rung is the widget's own content. Growing may show more of its own items (more rows or
-  columns, a larger hero, a meter's history) or one closely related detail of them, never a new
-  feature: no control that belongs to another widget or to Windows (the mixer's output-device
+- **[S-666]** **Concise first** (user rule, replaces "empty space at L/XL means a missing rung"; since
+  [S-11800] nothing grows with the card, and the rule holds for what a config may add): a widget shows
+  its own content. A setting may show more of its own items (more rows or columns, a larger number, a
+  meter's history) or one closely related detail of them, never a new feature: no control that belongs to another widget or to Windows (the mixer's output-device
   picker), no secondary panel (detail, reading or Today panes, a note list), no counts or stats
   footer, nothing "because there is room". Room the core content cannot use stays empty. The
   rungs retired under this rule are marked *(Retired …)* in their sections ([S-1222], [S-1229],
@@ -4082,12 +4070,8 @@ converted kind states its sizes and shows the same content inside them ([S-2438]
   gone; a reading is a fact row of the Row block, the value primary, [S-6711].)*
 - **[S-669]** *(Retired 2026-10-29, group G3: the forecast's days are the family's Row block and tokens at
   every size ([S-725], [S-726], [S-6171], [S-6711]); the day-row parts, `DayScale` and its ramp steps are gone.)*
-- **[S-3860]** **One hero ladder for chart and reading widgets.** While a hero shares its tile with
-  the content it heads (a chart, readings) it grows to the tier's step, by the tile's smaller size
-  class: Title up to Regular, TitleLarge at Expanded, Display at Huge, fitted down where the width
-  is short. No widget uses it any more (Stocks left it with group G3, `HeroLayout.TierStep` is gone):
-  the meters, the GPU, the detail widgets, the price and the rate are on the family's Readout ([S-6702]: 28 at XS to Tall, 40 at L and
-  XL, and no larger; [S-1762], [S-2402]). A formatted reading is split for a
+- **[S-3860]** *(Its hero ladder retired: no widget's number grows with its tile; the meters, the GPU,
+  the detail widgets, the price and the rate are on the family's Readout, [S-6702].)* A formatted reading is split for a
   readout by `ReadoutRules.Split`: the leading figure (digits of any script, `.` `,` and the Arabic
   separators) and the unit after it with the space that stood between ("42" + "%", "1.2" + " MB/s");
   a text that does not start with a figure and a unit ("--", "%42", a direction mark, "1 234 ms")
@@ -4685,8 +4669,8 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   holds every item (16 cores as 4 × 4 or 8 × 2 by the room); not drawn when a ring would be under 16
   (`MeterPlan.Rings`).
 - Not ported / different: the original's `visibleMetrics` multi-select and everything it switched
-  (removed by [S-1762]). The audit's `MeterLadder` was not built: `MeterFace` and `Disclosure` are
-  the ladders.
+  (removed by [S-1762]). The audit's `MeterLadder` was not built; `MeterFace` and `Disclosure` went
+  with [S-11000] and [S-11800].
 
 ## Power and Bluetooth
 
@@ -4741,12 +4725,12 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
 - **[S-1916]** One run at a time per widget: a press while the action is still running (sleep runs
   until the machine resumes) does nothing.
 - **[S-1917]** Debug: `--widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name]`
-  draws one widget in a real card on a preview host ([S-1251]), off-screen, at the seven tiers of
-  `WidgetTiers` (or once at `w h`), labelled. `--state` asks a view that implements
+  draws one widget in a real card on a preview host ([S-1251]), off-screen, at its min, natural and
+  max ([S-2448]) (or once at `w h`), labelled. `--state` asks a view that implements
   `IWidgetPreviewState` for an interaction state a render cannot click into — for the power widgets
   `hover`, `pressed`, `armed`, `failed`, `unavailable`. States, not sample data ([S-1863]).
-  `--style tile|round` draws either style ([S-6006]). `--sizes 100x100,160x100[,tiers]` draws several
-  in-between sizes on one page (with `tiers`, the seven as well).
+  `--style tile|round` draws either style ([S-6006]). `--sizes 100x100,160x100[,range]` draws several
+  in-between sizes on one page (with `range`, the min, natural and max as well).
 - **[S-1931]** Debug: `--widget-png ... --machine sample` draws the system widgets (the meters, the
   details, Top processes) on the sample machine instead of this PC; without it they read this PC, as
   a developer wants. The sample machine (`SamplePc`, Core) is one ordinary good laptop: a 12-core
@@ -4971,13 +4955,11 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   dated heading the language writes (every weekday and month, `AgendaHeadingDated`), the two named
   days carry their date too ("Today · Sun, Oct 4"); else the word alone (concise first), so the
   date never comes and goes with the day of the week.
-- **[S-2717]** Long titles wrap: a week column's chip and a timeline block take a second line where a
-  title runs past its one (word wrap, an ellipsis after the second). A list is fitted at one title
-  line a row first, so a wrap never costs an event its place; what is left under the column (less
-  the "+N" line) goes to the wrapping titles in order, one line each (`Disclosure.SecondLines`). A
-  timeline block spends its whole caption lines on the title, its time, the title's second line,
-  then where and who (`CalendarFit.BlockParts`). Month and band chips and the agenda's rows stay one
-  line ([S-7036]).
+- **[S-2717]** Long titles wrap in a timeline block: it takes a second line where a title runs past its
+  one (word wrap, an ellipsis after the second), spending its whole caption lines on the title, its
+  time, the title's second line, then where and who (`CalendarFit.BlockParts`). Week, month and band
+  chips and the agenda's rows stay one line ([S-7036]); the week chips' share of a column's leftover
+  room (`Disclosure.SecondLines`) had no caller left and went with [S-11800].
 - **[S-2718]** *(One band line since [S-11543]: its item's bar, or chips shared among several; the bar's look stands.)* The day's all-day band (`CalendarFit.DayBand`): each all-day or multi-day item and
   birthday is a full-width span bar a body line tall (with room around it), up to three, as long as
   the timeline keeps three hours. Its colour runs along the leading edge; an item that began before
@@ -4992,7 +4974,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   period moves nothing and one outside pages to its period ([S-3621]). Columns share the width, so
   fewer days are roomier columns; with titles in the week the least width is the days' × 96 ([S-11546]).
 - **[S-1270]** *(Its size rule retired by [S-11406]: what each layout shows is its config's.)* Contacts list rows are Row blocks ([S-6711], `ContactsPlan.Of`): one, two or three
-  lines by the tier ([S-6712], `RowRules.Lines` on the view's area): the name primary; then the role
+  lines as the config states ([S-6712]): the name primary; then the role
   (else the address, else the number) secondary; then the address (else the number) tertiary. Every
   row of a render is one height (28, 40, 56). Rows flow into columns of 240 px (up to 4), row-major;
   the 32 monogram leads from 180 px columns; the rows that fit whole in the view's area less the
@@ -5904,7 +5886,7 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   its **reading** (the kind id stays: `cpu`, `memory`, ...), its **history** (`cpuHistory`, ...), and
   where it had details its **facts** (`cpuFacts`, ...); extra atoms: CPU cores, GPU engines, network
   adapters. Every atom of a subject reads the subject's one series or feed from the hub ([S-2504]).
-  Inside its range an atom shows the same parts: no `Disclosure`, no tiers, nothing appearing with size.
+  Inside its range an atom shows the same parts, nothing appearing with size ([S-11800]).
 - **[S-11001]** **A reading** keeps its header (the subject's name; the device as its label) and draws
   the number at the family's 28 with its unit (`FamilyType.Big28`): one height (36 + 36 + 12 = 84),
   120..320 wide, a new one 160 (`MeterSizing.Reading`); two readings (network's both directions) stand
@@ -5937,11 +5919,9 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   the defaults.
 - **[S-11008]** **A list** (top processes, network adapters, removable drives, device batteries) keeps
   the header and shows the config's rows (`IKitRows`), the rest scrolling inside them ([S-2440]).
-- **[S-11009]** **A header counted in the sizing never sheds**: a converted kind's header stays on a
-  card shorter than the legacy 96 floor or narrower than the side strip's 160 ([S-402], [S-409]), on
-  every edge, since its sizing counts it there ([S-2444]); only a legacy kind keeps the floors
-  (`HeaderStrip.Sheds(placement, width, height, sized)`, asked by `WidgetCard`). Tests
-  `HeaderStripTests.S11009_`.
+- **[S-11009]** **A header counted in the sizing never sheds**: a kind's header stays on every edge at
+  every size of its range, since its sizing counts it there ([S-2444]); only the person hides it. The
+  floors that shed it (96 high, 160 wide, `HeaderStrip.Sheds`) went with the legacy kinds ([S-11800]).
 - **[S-11090]** **The groups of the old cards** (`ReadyMadeGroups`, home: the subject's family): each
   old card is a group of its atoms, touching, the first with the header, the others headerless, about
   as wide as the old card and tighter: **CPU** (`cpu` 160 × 84 over `cpuHistory` 160 × 64), **CPU cores**
@@ -5960,7 +5940,7 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
 `memoryFacts`, `gpuFacts`, `networkFacts`, `pingFacts`, `batteryFacts`, an ordered pick of facts, no hero:
 the reading atom is the hero), Top processes and Network adapters lists of rows; `DetailView` has no
 ladder left. The ladder lines below ([S-2400]'s "shows more as it grows", [S-2402]) hold for no kind of
-this section any more; `DetailFace.Plan` stays for the weather and sky faces that use it.*
+this section any more; `DetailFace.Plan` is gone ([S-11800]).*
 
 The details the original's meters showed, back as their own placeable widgets; the meters themselves
 stay label, reading and history ([S-1762]). Seven kinds, each in its meter's family of the
@@ -5979,7 +5959,8 @@ strings in `Locales/widgets-details`.
   `Detach` ([S-1881]); a parked widget holds none.
 - **[S-2401]** A detail widget reads on the hub's one cadence ([S-2503]); `DetailConfig` has no cadence
   of its own and a stored `intervalSeconds` is not read.
-- **[S-2402]** The ladder (`DetailFace.Plan`, tests `DetailFaceTests`), on the family's blocks: the
+- **[S-2402]** *(Retired by [S-11007], [S-11008] and [S-11800]: `DetailFace.Plan` is gone; an atom shows
+  its config's facts or rows.)* The ladder, on the family's blocks: the
   figure is a Readout at the view's top, start-aligned, its line under it (Caption under 28, Body under
   40 and 68) where it fits, on the step its widest case takes (`DetailPart.HeroWorst`): 28 or 40 and
   no larger ([S-6702]). On an expanded width (Wide, L, XL) the figure stands in a column of two fifths
@@ -5991,7 +5972,7 @@ strings in `Locales/widgets-details`.
   read but is not available right now (a lost probe) is a dimmed "--". A thing that is not on the machine
   (no battery, no adapter) is its facts, each "--", dimmed ([S-1942]). Why the hero is dimmed is its tooltip.
 - **[S-2404]** A list is the family's list rows ([S-6711]: a 16 lead, the name primary, its figure
-  secondary at the end; a second figure on the second line and a detail on the third, as the tier's
+  secondary at the end; a second figure on the second line and a detail on the third, as the row's
   lines allow, [S-6712]) in a scroller of whole rows with the foot fade ([S-1281]) and the row's focus
   ring (stroke 2, the accent) walked by the keyboard lease ([S-800], `ListKeys`): Up/Down, Page,
   Home/End, Escape; Enter opens where a row opens. The ring stays on its row's key across reads. Only
@@ -6702,7 +6683,7 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   ([S-2733]), M or Space mute. Ignored when `AllowControl` is off.
 - **[S-1227]** *(Retired by [S-449] on the family's rows, G5 2026-10-29: the compact, two-line and
   one-line row styles by width (`MixerRules.RowStyle`) and their 32/48/40 heights are gone; a row is
-  a Row block of 32 or 48 by the tier, whole rows only.)*
+  a Row block of 28 or 40 by its lines, whole rows only.)*
 - **[S-1228]** Mixer rows by room: apps holding a session but silent are drawn dimmed; with
   `OnlyActive`, the silent apps it hid follow the list dimmed when all playing rows fit. The mixer is
   its rows and nothing else at any size: no device line (was: name, "N playing", chevron).
@@ -7681,7 +7662,7 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   the view bar, the notices, the placement hint, the anchor menus on the bare surface open from —
   and never on a desktop surface itself: its canvases, the hit region (`SetWindowRgn`), the rubber
   band and every stored geometry stay physical, so no widget moves when the language changes and
-  `WidgetArea`/`Disclosure`/view-bar fit (widths and heights only) are unchanged. Flyouts, menus and
+  `WidgetArea`/view-bar fit (widths and heights only) are unchanged. Flyouts, menus and
   tooltips take the direction of the element they open on. Kept left to right on purpose: a card's
   resize grips (physical corners), media transport and the seek bar (Music, the Gallery slideshow),
   charts over time (meter sparklines, Stocks, Screen time, the Sun's day arc), the audio spectrum and
@@ -8358,10 +8339,9 @@ the original had is ported, what it never had is recorded here and not built.
 
 - [S-1620]: moved with the Gallery widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gallery/`).
 - [S-1621]: moved with the Habit tracker widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.HabitTracker/`).
-- **[S-1622]** `Disclosure.Fits` / `Disclosure.TakeFirst`: a rung offered in several sizes takes the
-  richest that fits, and only a total miss closes the ladder.
+- **[S-1622]** *(Retired by [S-11800]: the ladder and its `Fits` / `TakeFirst` are gone.)*
 - **[S-1623]** *(Retired: the power tile and its side panel are gone, [S-1910].)*
-- **[S-1624]** A mixer row's second line, where the tier gives its rows two ([S-449], [S-6712]), says
+- **[S-1624]** A mixer row's second line, where its config gives its rows two ([S-449], [S-6712]), says
   what the app is doing (`MixerFill.Detail`: "Playing", "Silent", "Muted", "Windows sounds"). The rows
   no longer share an expanded card's height (G5): what a short list leaves stays empty, and no hint
   or link to Windows' mixer fills it (user decision: a widget shows its own content, not filler).
@@ -9035,9 +9015,9 @@ leaving edit mode, and both menus on a second display with another DPI.
 ## Icon picker and showcase views (R4-ICONS)
 
 The icon a view is given, chosen from the whole Segoe Fluent Icons set, and a Debug tool
-that puts every widget on the real desktop at every size tier. Owning files: Core
+that puts every widget on the real desktop at its min, natural and max. Owning files: Core
 `Icons/FluentIcons.cs` (+ the generated `FluentIconData.g.cs`, from `scripts/fluent-icons.py`),
-`Icons/IconSearch.cs`, `Widgets/WidgetTiers.cs`, `Model/ShowcaseViews.cs`; App
+`Icons/IconSearch.cs`, `Model/ShowcaseViews.cs`, `Geometry/SizeFit.cs` (`CheckedAt`); App
 `Shell/IconPicker.cs`, `Shell/Gallery/IconPickerRender.cs`, `Shell/Gallery/ShowcaseCommand.cs`. Tests
 `IconSearchTests`, `ShowcaseViewsTests`.
 
@@ -9061,18 +9041,16 @@ that puts every widget on the real desktop at every size tier. Owning files: Cor
   match says so in the grid's place, which keeps its size. Debug render:
   `Themia.exe --iconpicker-png <out.png> [--search text] [--theme light|dark] [--initials]`.
 - **[S-1810]** Showcase views: one view per widget kind in the registry's order (by id, [S-6902]), named after the widget
-  and with its glyph as the view icon, holding seven default instances of it (a converted kind: three,
-  at its min, natural and max, [S-2448]), one per size tier
-  (`WidgetTiers`: XS 120×120, S 200×150, M 320×240, Wide 480×160, Tall 200×400, L 560×420, XL 800×560
-  DIPs). Each cell is the tier times the display's content
-  scale ([S-850]) plus the widget gap, so the content lays out at exactly the tier.
+  and with its glyph as the view icon, holding three default instances of it, at its min, natural and
+  max ([S-2448], each with the config that size means, [S-11601]). Each cell is the size times the
+  display's content scale ([S-850]) plus the widget gap, so the content lays out at exactly the size.
   The cells are packed tallest first, lowest-then-leftmost, inside the work area less 16 DIP, without
   overlap, on whole DIPs.
-- **[S-1811]** Ids are derived, not random: `showcase-<kind>` for a view, `showcase-<kind>-<tier>` for
-  a widget, so a rerun produces the same ids.
-- **[S-1812]** When the seven do not fit one work area (1920×1080 at 125 %, for one), the rest go on
-  further views of the same kind ("Clock (1)", "Clock (2)", ids `showcase-clock`, `showcase-clock-2`).
-  A tier larger than the whole work area is shrunk to it.
+- **[S-1811]** Ids are derived, not random: `showcase-<kind>` for a view, `showcase-<kind>-<size>`
+  (`min`, `natural`, `max`) for a widget, so a rerun produces the same ids.
+- **[S-1812]** When the three do not fit one work area (a note's max on a 640 × 480 display, for one),
+  the rest go on further views of the same kind ("Notes (1)", "Notes (2)", ids `showcase-notes`,
+  `showcase-notes-2`). A size larger than the whole work area is shrunk to it.
 - **[S-1813]** A rerun replaces the showcase rather than adding a second: the fresh views go to the
   end, an old one whose id comes back is replaced (a display showing it keeps it), one that does not is
   deleted with its references repaired ([S-902]). Widgets the user added to a showcase view go with it.
@@ -9085,12 +9063,12 @@ that puts every widget on the real desktop at every size tier. Owning files: Cor
   limits ([S-1065]) are not involved: they gate creating in the running app, a loose build is
   unrestricted ([S-1064]), and nothing over a limit is ever hidden or deleted.
 - **[S-1815]** A kind with styles ([S-6000]) gets one showcase view per style, in its menu order,
-  named "<widget> · <style>" (ids `showcase-<kind>-<style>`, `showcase-<kind>-<style>-<tier>`), every
-  widget of it in that style, so each look can be gone through at every tier. A kind without styles
+  named "<widget> · <style>" (ids `showcase-<kind>-<style>`, `showcase-<kind>-<style>-<size>`), every
+  widget of it in that style, so each look can be gone through at its min, natural and max. A kind without styles
   keeps its one view.
 
 Needs a manual pass: the picker's keyboard path inside the real flyout (Down from the box, Enter,
-Escape), and the showcase views on a real desktop (each tier's size at
+Escape), and the showcase views on a real desktop (each size at
 the display's scale, the second page on a small or scaled display, the refusal while the app runs).
 
 ## The Set up button (R5-SETUP)
@@ -9144,8 +9122,8 @@ gallery ([S-1863]).
 
 - **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
   toolbar entry, and no `#if DEBUG` sample data inside widget views or services. A widget's layout at
-  the seven size tiers (`WidgetTiers`) is checked on the showcase views ([S-1810]) on the live
-  desktop, or off-screen with `--widget-png` (one card at every tier, default config, [S-1917]); the other debug render flags (`--editbar-png`, `--picker-png`, `--viewbar-png`,
+  its min, natural and max is checked on the showcase views ([S-1810]) on the live
+  desktop, or off-screen with `--widget-png` (one card at each, default config, [S-1917]); the other debug render flags (`--editbar-png`, `--picker-png`, `--viewbar-png`,
   `--notices-png`, `--menu-png`, `--iconpicker-png`, `--motion-png`, `--layout-editor-png`) stay and
   draw widgets with their default config. The tags that described the gallery's fixtures are retired.
 

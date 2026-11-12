@@ -198,8 +198,8 @@ using Themia.Core.Widgets;
 
 namespace {{Project}};
 
-/// <summary>[S-{{tag}}] The {{id}} widget's view: lays itself out for the room it has ([S-663]).</summary>
-internal sealed partial class {{Name}}View : Grid, IWidgetView, IWidgetSizeAware
+/// <summary>[S-{{tag}}] The {{id}} widget's view: what its config states, the same at every size of its range ([S-11800]).</summary>
+internal sealed partial class {{Name}}View : Grid, IWidgetView
 {
     private readonly TextBlock _text = Fluent.Text(FluentType.Body);
 
@@ -218,8 +218,6 @@ internal sealed partial class {{Name}}View : Grid, IWidgetView, IWidgetSizeAware
 
     public void ApplyConfig(WidgetConfig config) => Render();
 
-    public void ApplySize(WidgetArea area) => Render();
-
     public void Detach() => Strings.Changed -= OnLanguage;
 
     private void OnLanguage(Locale locale) => Render();
@@ -237,9 +235,10 @@ The module `{{id}}` ([S-6911]). Its tags are [S-{{tag}}]..[S-{{tagEnd}}], this f
 Owning files: everything in this folder. Tests: `Tests/{{Name}}Tests.cs` (run by
 `tests/Themia.Modules.Tests`).
 
-- **[S-{{tag}}]** What it shows, at every size tier ([S-660]..[S-666], concise first).
+- **[S-{{tag}}]** What it shows, as its config states it, and the sizes that holds (its `Sizing`:
+  min, natural, max, [S-2438]); the same parts at every size of its range ([S-11800]).
 
-Needs a manual pass: every size tier on the live desktop (showcase views, [S-1810]).
+Needs a manual pass: its min, natural and max on the live desktop (showcase views, [S-1810]).
 '@
 
     Write-ModuleFile "Tests\$($Name)Tests.cs" @'

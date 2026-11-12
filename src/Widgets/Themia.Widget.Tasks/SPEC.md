@@ -27,7 +27,7 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
   it states its rows (`Rows`, 1..20, default 6; `Lines` 1 or 2, offered and drawn only where a row
   has a second line, default 2), its height follows them with the add footer, 220..520 wide, a new
   one 300 (the kit's [S-2440]); dragging its bottom edge sets Rows; more tasks scroll inside the rows.
-  Nothing appears or disappears with its size: no tier ladder ([S-780] is the legacy kit lists').
+  Nothing appears or disappears with its size: no ladder ([S-780] is retired, root [S-11800]).
 - **[S-6400]** Tasks' styles ([S-6000]), `TasksConfig.Style` (`TasksStyle`, `"style": "list"`):
   **List** and **Compact** ([S-602]), what was its Layout setting; no other look option exists.
 - **[S-605]** Retired (the app is unreleased: no hearth-era config is read). Nulls a hand edit leaves in

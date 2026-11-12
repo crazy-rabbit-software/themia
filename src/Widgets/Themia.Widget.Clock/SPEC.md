@@ -39,7 +39,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   may be widened to twice their face (the line under then takes its longer form), Analog, Words and
   Date are one size. A bigger card never draws a bigger face; the planners ([S-6741]..[S-6744]) pick
   the step the box was made for;
-  every style but Minimal and Date draws one line under (beside a dial on a strip) its face
+  every style but Minimal and Date draws one line under its face
   ([S-6741]). The settings (seconds, date, zone, offset, alignment) are the same for the six time
   styles; Date has only the alignment and the zone ([S-5303]).
 - **[S-6012]** **Flip**: a split-flap card per part of the time (hours, minutes, and seconds when
@@ -124,9 +124,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   the room the line leaves (no fill, [S-6702]). No week, day-of-year or zone line (retired,
   [S-665]). Not ported: an XL list of extra world-clock rows (each world clock is its own widget, as
   in the original).
-- **[S-1488]** The analog dial at every tier ([S-6743]): the dial alone where its line does not fit,
-  the line under it on panels and columns, beside it on a wide strip. The second hand still sweeps
-  (S-51, deliberate).
+- **[S-1488]** The analog dial ([S-6743]) at every size of its range: its line under it (the card is
+  made for both, [S-2449]). The second hand still sweeps (S-51, deliberate).
 - **[S-1476]** *(Retired, group G5, 2026-10-29: the clock's own Label and date size, Small / Default /
   Large, `ClockConfig.TextSize`, its menu line and its strings. The line under the time is the
   readout's step's line under ([S-6701], [S-6741]), and the size of text is ⚙ › Appearance's text size
@@ -165,12 +164,12 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   minute marks, hairlines, tertiary; the hour hand a track (4) and the minute hand a stroke (2) in the
   primary role, round; the second hand a stroke (2) in the accent, the dial's one moving meter; the
   hub an 8 dot, primary. Its line (Body, secondary) stands 8 under the dial while the dial keeps 96,
-  else the dial is alone; on a strip of a regular width or more the line stands 16 beside a dial of
-  the content's height (at most 0.45 of its width). A dial is never under 40.
+  else the dial is alone; the line never stands beside it ([S-11800]: no strip layout). A dial is never
+  under 40.
 - **[S-6744]** **The Date style on the steps** (`ClockFace.Date`): the day of the month a Readout
   ("88") on the largest step on which it fits the width and its weekday over it and its month under
-  it, both on the step's line under, secondary, fit the height (on a strip: the day's line and the
-  two words beside it, 12 after the day); the weekday is no longer the accent (no text in the
+  it, both on the step's line under, secondary, fit the height (always a column: the strip layout
+  went with [S-11800]); the weekday is no longer the accent (no text in the
   accent, [S-6706]). A word too wide for its line in its wide name takes the short one; where the
   lines do not fit even 28 the month gives way, then the weekday.
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
@@ -179,10 +178,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   GotoToday, [S-6011]). A state file holding a `Date` widget drops it at load like any unknown kind,
   [S-1900], [S-1050].)* The style keeps the rules below, in the clock's own zone: a world clock's
   date is that place's.
-- **[S-5301]** Ladder: [S-6744]. A column (weekday, day, month) on every tile but a strip; on a Wide
-  strip of Regular width or more the day stands with the weekday over the month beside it, the pair
-  placed by the alignment. Concise ([S-666]): a larger tile sets the date on a larger step and adds
-  nothing else.
+- **[S-5301]** [S-6744]: a column (weekday, day, month), placed by the alignment, on the step its Size
+  names ([S-2449]); the card is one size and nothing is added to it ([S-666], [S-11800]).
 - **[S-5302]** Words through `LocaleFormat` only (`DateText`): the weekday wide or short, the day in
   the language's digits, the month by name. Widths are judged on worst-case names (13 characters
   for a weekday, 11 for a month): a line too narrow for its wide form takes the short name. The

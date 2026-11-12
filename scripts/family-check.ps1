@@ -8,8 +8,8 @@
 # phase of the family shrank; since group G5 every kind walks clean and the list is gone (shell sweep,
 # 2026-10-30). The full findings with their values and the first variant each was seen in are in
 # <Out>/<theme>-<kind>.json, with how many elements each kind drew ("walked"); a kind that drew
-# nothing is the finding "nothing drawn". A converted kind is walked at its range (min, natural,
-# max), each box with the config that size means (its SizeSets hook), a legacy one at the seven tiers.
+# nothing is the finding "nothing drawn". Every kind is walked at its range (min, natural, max),
+# each box with the config that size means (its SizeSets hook).
 # Never starts Themia.exe without a render flag; draws off-screen, touches no user state.
 
 param(

@@ -32,13 +32,13 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified.
 
 ```
-Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc]
+Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range] [--keys k1,k2|text:abc]
            [--place-cleared]   # a widget about a place with its place cleared [S-2848]
            [--transparent]     # no page behind the cards: the PNG keeps their alpha, for compositing
            [--background-image <full path>]   # the cards' own background image [S-6590]
            [--machine sample]  # the system widgets read the sample laptop, not this PC [S-1931]; any render: SampleMachine.Install(ticker, dispatcher)
            [--wallpaper <image path>]   # the page is a screen with that wallpaper; the cards frost over it [S-2119]
-           # a converted kind at its range (min, natural, max), a legacy one at the 7 tiers (or w×h);
+           # a kind at its range (min, natural, max), side by side (or w×h);
            # a wrong --state prints the kind's states (Stocks: quote|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
@@ -50,7 +50,7 @@ Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|select]
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*); the selection's page
            # beside real cards (select-*) [S-2328]. --picker-png takes --theme too. There is no settings window [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
-Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes (a converted kind: min, natural, max); quit Themia first
+Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at its min, natural and max; quit Themia first
 Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
            # to one PNG of exactly screen × scale px (default 2) [S-1074]; store/capture.ps1 draws every scene of store/scenes.json
            # a scene widget may carry "group": "<name>"; the "edit" block "group": "<name>" or "enter": "<widget id>" [S-2458]
@@ -77,7 +77,7 @@ state store.
 ```
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
   Localization/ (+ Locales/*.json: the host's Str; StringTable, LocalText) Diagnostics/ (Log) Links/ Time/ (CalendarDays) Shell/ (Glyphs)
-  Kit/ (the widget kit's pure parts: KitItem, KitAction/KitMenu, KitKeys, KitSpec/KitLadder (rich, lined, table, schedule, check looks), KitPages/KitDays, KitChecks, KitScreens, KitFreshness, IKitConfig, IKitSource)
+  Kit/ (the widget kit's pure parts: KitItem, KitAction/KitMenu, KitKeys, KitSpec/KitPlanner (rich, lined, table, schedule, check looks), KitPages/KitDays, KitChecks, KitScreens, KitFreshness, IKitConfig, IKitSource)
   Services/ (the service layer: ServiceDescriptor and its strategy sets, sign-in members, RateLimitRules, ServiceFailures, paging, GraphQL/form envelopes)
   Model/ (WidgetConfig, FillChoice, RefreshPreferences, ContentAlign; Configs/: the shared config bases QuickToggle-,
   PowerButton-, Weather-, SkyPlace-, Detail-, GaugeConfig and the config contracts ISetupRule, IPlaced, IContentAligned)
@@ -88,13 +88,13 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   and the file widgets' shared data (FolderBadges, RecentFileRules, the app layouts: AppLayoutModel, LayoutTree,
   LayoutPlan, IHoldsAppLayouts; VideoStreamRules, HlsVariants, the stream's facts; Files/: FileNames, FileDrops,
   SurfaceDrops and the records the file contracts carry)
-  Widgets/ (WidgetArea, Disclosure, tiers, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
+  Widgets/ (WidgetArea, LayoutMath, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
   HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
   WidgetDescriptor, ModuleCatalog, IProviderModule, ProviderCatalog, FeatureSet, CadenceRow, WidgetTraits, AddPlacement)
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's rules, and the widgets not yet moved.
   Geometry/ Model/ (state, Configs/* with each in-Core widget's descriptor) Storage/ (atomic store, load validation, StateJson)
-  Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/ (NoteStore) Habits/ (HabitListStore)
+  Widgets/ (per-widget rules) Accounts/ Mail/ Office/ Tasks/ Notes/ (NoteStore) Habits/ (HabitListStore)
   Settings/ (the settings as lines: SettingsMenu*.cs, one builder per section, ViewsMenu, DisplayMenu, AccountsMenu,
   AccountForm, UninstallPlan; SettingsPages: the edit bar's five pages over them; SettingsRows: the row vocabulary)
   Shell/ (EditBarLayout, SelectionPage) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
@@ -213,27 +213,22 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 
 ## Working conventions
 
-- **Widget sizing** (SPEC "Widget sizing (SIZE)", [S-2438]..[S-2449]; docs/WIDGET-KIT.md 17 is how
-  to convert a kind): **content decides a widget's size; size no longer decides its content.** A kind
-  states `WidgetDescriptor.Sizing` (a `WidgetSizing`: Min, Natural, Max, optional steps) from its
-  config; the host adds it at Natural, stops resizes at Min/Max and on the steps, paints the stored
-  rect fitted into the sizing and refits on a config change. Inside its range a converted kind shows
-  the same content (no `Disclosure`, no tiers): what it shows is config (rows, lines, facts, Size
-  S/M/L). A kit list states its rows (`IKitRows`, `KitSizing`). Clock, Memory and Tasks are the
-  references; every other kind is legacy (`WidgetSizing.Legacy`, the shrink-only list in
-  `WidgetSizingTests`) and keeps the ladder below until converted.
-- **Responsive widgets, legacy until converted** (`Themia.Core/Widgets`, S-660..S-666): a legacy
-  widget adapts as it grows, by a ladder of parts, not by scaling one layout. Implement `IWidgetSizeAware.ApplySize(WidgetArea)`;
-  classify on the `WidgetArea` (`WidthClass`/`HeightClass`/`Shape`, breakpoints 180/400/720 and
-  128/280/480 DIPs), measure on the deflated box, spend height through one `Disclosure`
-  (`Reserve` for the must-show part, `Take` for optional rungs in priority order, `TakeRows` for the
-  list). Costs are line heights, not font sizes; use worst-case text lengths. **Concise first**
-  ([S-666], user rule): a rung may only add more of the widget's own items (rows, columns, a bigger
-  hero, a meter's graph) or one closely related detail of them — never a control, panel or fact that
-  is another widget's or Windows' job (a device picker, a detail/reading pane, a note list, a
-  counts footer, the next days on "weather now"). Room left at L/XL goes to the core content (a
-  larger ramp step, more rows); if that is used up, empty space is fine. Clock and the meters are the
-  reference. Check every size tier on the showcase views (a converted kind: its min, natural, max).
+- **Widget sizing, one path** (SPEC "Widget sizing (SIZE)", [S-2438]..[S-2449], [S-11800];
+  docs/WIDGET-KIT.md 17): **content decides a widget's size; size never decides its content.** A kind
+  states `WidgetDescriptor.Sizing` (a `WidgetSizing`: Min, Natural, Max, optional steps, always bounded)
+  from its config; the host adds it at Natural, stops resizes at Min/Max and on the steps, paints the
+  stored rect fitted into the sizing and refits on a config change. Inside its range a kind shows the
+  same parts: what it shows is config (rows, lines, facts, columns, Size S/M/L). A kit list states its
+  rows (`IKitRows`, `KitSizing`). A view may measure its box to lay out those fixed parts
+  (`IWidgetSizeAware.ApplySize(WidgetArea)`: a graph's length, where a text wraps, a grid's cells;
+  `LayoutMath` for whole lines), never to choose them; costs are line heights, worst-case text lengths.
+  There is no legacy sizing, no tier, no ladder, no size class: `OnePathSizingTests` fail on their
+  names. Clock, Memory and Tasks are the references. Check a kind at its min, natural and max (renders,
+  the showcase views).
+- **Concise first** ([S-666], user rule): a setting may only add more of the widget's own items (rows,
+  columns, a larger number, a meter's history) or one closely related detail of them — never a control,
+  panel or fact that is another widget's or Windows' job (a device picker, a detail/reading pane, a note
+  list, a counts footer, the next days on "weather now").
 - **One family** (SPEC "FAMILY", [S-6700]..[S-6732]; docs/WIDGET-KIT.md 16): a widget is drawn from the
   family's tokens (`FamilyType`, `FamilySpace`, `FamilyShape`, `ColourRole`; `Family.*` in WinUI) and its
   seven blocks (Header, Row, Readout, Chart, Status, Tile, Controls in `Themia.Sdk.WinUI.Kit`); the
@@ -250,8 +245,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   that owns a `KitBinding` and forwards to it (`Attach`, `ApplyConfig` to `Apply`, `ApplySize` to
   `Size`, `Bind` to `Surface`, `HandleKey`, `ContextActions` to `CardActions`, `HeaderTrailing` to
   `Header`, `Detach` to `Dispose`; children `List` and `State`); its page lines from `KitMenuLines`
-  (`Accounts`, `Count`, `Shows`; a free input is the menu's ask or list, [S-3719]). The kit decides the screen (`KitScreens`), the breakpoints
-  (`KitLadder`), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
+  (`Accounts`, `Count`, `Shows`; a free input is the menu's ask or list, [S-3719]). The kit decides the screen (`KitScreens`), the plan
+  (`KitPlanner`: the rows, lines and fields the config states), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
   (`KitMenu`, through `ItemMenu`), the stale rule (`KitFreshness`: a problem glyph, the age on the
   Refresh line, never in the header) and opening (through `IWidgetHost.Launcher` only). A kit view
   builds no scroll viewer, row focus, menu entry, ring or empty state of its own, and the kit's
@@ -352,7 +347,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 1. `dotnet build` (Debug) is green with warnings as errors, and the scoped tests pass.
 2. New behaviour has a test; a fixed bug has a regression test.
 3. UI work: rendered through `--editbar-png`, `--widget-png` (and the other render flags) and looked at. Widget layout is
-   checked on the showcase views (`--add-showcase-views`) on the live desktop: a manual pass, say so.
+   checked at its min, natural and max on the showcase views (`--add-showcase-views`) on the live desktop: a manual pass, say so.
 4. Touched interop, focus, z-order, displays, autostart, Store or sign-in code that cannot run in CI:
    say exactly what still needs a manual pass (multi-monitor, mixed DPI, a live account, the
    packaged build). Never imply it was verified.

@@ -53,8 +53,8 @@ The kit is distilled from the widgets that already show a service's data. What e
 
 Shared pieces that already exist and that the kit builds on (*exists*):
 
-- Core: `FetchStatus`/`FetchState`/`Backoff` (`Widgets/FetchState.cs`), `Disclosure`, `WidgetArea`,
-  `WidgetTiers`, `ListKeys`, `ItemCursor`, `TypeAhead`, `ListFade`, `WidgetSetup`, `IStyled`/`WidgetStyles`,
+- Core: `FetchStatus`/`FetchState`/`Backoff` (`Widgets/FetchState.cs`), `LayoutMath`, `WidgetArea`,
+  `ListKeys`, `ItemCursor`, `TypeAhead`, `ListFade`, `WidgetSetup`, `IStyled`/`WidgetStyles`,
   `IShownSettings<T>`/`SettingRules`, `PageSections.Keep`, `ItemKinds`, `ContentAlignment`, `AddTree`,
   `WidgetKeywords`, `SyncSchedule`, `SyncFreshness`, `SyncInterests`, `SyncVault`/`SealedBlob`,
   `UpdateCadence`, `RateLimitRules`, `AccountHttpRules` (`AccountError`, `AccountException.ToFetchStatus`,
@@ -151,7 +151,7 @@ Themia.Sdk  (pure, tested; what modules may use)     Themia.Sdk.WinUI  (WinUI pa
 KitItem, KitLead, KitBadge, KitTone, KitTime         KitList          rows, columns, groups, overflow
 KitAction, KitActionKind  ---- KitMenu.Entries -->   KitMenu          -> ItemMenuEntry, KeyChord
 KitKeys (one key map)                                KitHeader        busy ring, problem glyph, badge
-KitPlan = KitLadder.Plan(area, spec, show)           KitStatePanel    loading / empty / problem + link
+KitPlan = KitPlanner.Plan(area, spec, choices)       KitStatePanel    loading / empty / problem + link
 KitScreen = KitScreens.Decide(...)                   KitBinding       source <-> KitList, Detach-safe
 KitFreshness (the one stale rule)                    KitMenuLines     standard properties-menu lines
 IKitConfig  (setup, interest, shown rows)            IWidgetModule, IWidgetView & co, Fluent, Glyphs
@@ -195,7 +195,7 @@ outside the folder.
                   | Themia.Sdk  (net10.0, pure, AOT/trim-compatible)                  |
                   |  module contracts, ids, WidgetConfig base, IStyled, setup/liveness/|
                   |  interest contracts, Kit core (5.1-5.6), service strategies (5.7), |
-                  |  localization runtime, LocaleFormat, Log, WidgetArea, Disclosure  |
+                  |  localization runtime, LocaleFormat, Log, WidgetArea, LayoutMath  |
                   +------------------------------------------------------------------+
                      ^             ^                    ^                     ^
                      |             |                    |                     |
@@ -218,7 +218,7 @@ outside the folder.
   contracts and ids (4.3, 4.5), `WidgetConfig` and the config contracts (`IStyled`,
   `IShownSettings<T>`, `IKitConfig`, `ISetupRule`, `IInterests`), the Kit core of sections
   5.1..5.6, the service strategy layer of 5.7, and the shared pure rules modules call today from
-  Core (`Strings`/`Locale`/`LocaleFormat`, `Log`, `WidgetArea`, `Disclosure`, `WidgetTiers`,
+  Core (`Strings`/`Locale`/`LocaleFormat`, `Log`, `WidgetArea`, `LayoutMath`,
   `ListKeys`, `TypeAhead`, `FetchState`, `SyncFreshness`, `LaunchTargets`, ...). Those files move
   out of Core into the SDK (refactor commits, section 11).
 - **`Themia.Core`** becomes host-only: `AppState`, the atomic store and load validation, the shell
@@ -643,40 +643,15 @@ runs the primary action; Space a `Toggle`; F2 `Rename`; Delete `Delete`; Ctrl+C 
 Menu opens the menu; Escape drops the cursor ([S-813]). With `Overflow = Page`, Left/Right and
 PgUp/PgDn page instead ([S-3624]). Optional type-ahead goes through the existing `TypeAhead`.
 
-### 5.4 The ladder
+### 5.4 The plan
 
-*(Legacy until converted, [S-2443]: a kit list that states its rows (`IKitRows`, section 17.3) plans
-by them, the same at every size; the ladder below is the not yet converted lists'.)*
-
-```csharp
-public sealed record KitSpec(
-    KitRowLook Looks,                // which row looks the widget allows (flags)
-    KitShow Optional,                // which optional fields exist: Subtitle, Preview, When, Lead, Badges, Group headings
-    KitOverflow Overflow,            // Scroll (default) or Page
-    bool Summary = false,            // a summary line above the list (a repository's name and check state)
-    int MaxColumns = 1);
-
-public readonly record struct KitPlan(
-    KitRowLook Look,                 // Line, TwoLine, Rich (title + subtitle + preview), Table
-    bool Lead, bool Subtitle, int PreviewLines, bool When, bool Badges,
-    bool Summary, bool Headings, int Columns, int Rows);
-
-public static class KitLadder
-{
-    public static KitPlan Plan(WidgetArea area, KitSpec spec, KitShow userShows, int count);
-}
-```
-
-`Plan` is the only place a kit widget's breakpoints live, and it follows [S-660]..[S-666]:
-classify on the area, measure on the deflated box, `Reserve` one row of the plainest look (the
-must-show part), then `Take` the optional rungs in this fixed priority order: the summary line,
-the lead, the subtitle, the second column of the time, badges, preview lines, a second (third)
-column at Huge width; then `TakeRows` for whole rows ([S-639]), never a partial one. Costs are
-`FluentType` line heights plus `Fluent` spacing, measured on worst-case text ("Wednesday 23:59",
-the longest German age). Rows are a fixed Fluent height per look ([S-213]); a bigger tile shows
-more rows, never taller ones. Concise first ([S-666]): no rung may add a control, a detail pane,
-counts footer or another widget's job. `FeedLayout`, `MailLayout`'s row parts and `CalendarFit`'s
-agenda rules become specs over this one ladder when those widgets migrate.
+A kit list states its rows (`IKitRows`, section 17.3): how many, how many lines each, and in a table
+which columns. `KitPlanner.Plan(area, spec, choices)` turns them, the spec's optional fields and the
+user's choices into one `KitPlan` (its look, columns, lines, lead, subtitle, preview, time, badges, a
+table's columns at their widths), the same at every size of the list's range: the box only gives the
+columns their widths. Rows are the family's Row block (16.2); more items than rows scroll inside them.
+Concise first ([S-666]): no field adds a control, a detail pane, a counts footer or another widget's
+job. (The disclosure ladder that once lived here, `KitLadder` over `Disclosure`, is gone: SPEC [S-11800].)
 
 ### 5.5 Screens: the one state machine
 
@@ -1068,7 +1043,7 @@ A `sealed partial class KitList : Grid` that a kit view puts in its slot and fee
 - Keys: implements the body of `IWidgetKeys.HandleKey`/`HandleText` through `KitKeys`; the view
   forwards to it (one line each).
 - Rows (G2, 2026-10-29): every look is the family's Row block (16.2), one row of 28, 40 or 56 for
-  one, two or three lines by the tier (`RowRules.Lines`), whole rows only (`KitLadder.Fit`); a row
+  one, two or three lines as its config states ([S-2440]), whole rows only (`KitPlanner.Fit`); a row
   has no controls of its own (the hover actions are retired, [S-7033]: the menu and keys carry them).
 - Detach: every hook disposed, every handler unsubscribed, safe twice.
 
@@ -1251,7 +1226,7 @@ section 13 walks them for Linear and Todoist.
    actions per item (Open; the "<verb> on <Service>" web actions; copy), the empty and no-match
    sentences, the card actions; the descriptor's add-menu shelf, keywords and default size.
 5. **Test first** where it is logic, in the module's `Tests/`: the mapping on fixtures, the merge
-   across accounts, the query key, the ladder plan at all seven tiers (`WidgetTiers`), the screen
+   across accounts, the query key, the plan at its min, natural and max (`SizeFit.CheckedAt`), the screen
    decisions. Names mirror tags: `S7104_a_draft_pull_request_carries_the_draft_badge`.
 6. **View and menu lines**: the generated view is complete for a kit list; its options are
    `KitMenuLines` calls in its `MenuLines` (section 15). Write the strings into the module's `Localization/Locales/en.json` (new keys in
@@ -1330,7 +1305,7 @@ Behaviour the checks cannot see stays in the render checklist and the manual pas
 For every kit widget, before calling it done (outputs outside `artifacts/`, e.g.
 `TestResults/render/<kind>/`):
 
-- `--widget-png <id> <out.png>` (all seven tiers on one page) × `--theme light` and `dark` × `--lang en`,
+- `--widget-png <id> <out.png>` (its min, natural and max on one page) × `--theme light` and `dark` × `--lang en`,
   `de` (longest words), `ar` (right to left, own digits), `ja` (no spaces to wrap at).
 - The same at `--state` `items`, `many`, `loading`, `empty`, `stale`, `signin`, `ratelimited`, `hovered`, `focused`.
 - Each style (`--style`) when the kind has styles; `--header left` and `--header hidden` once.
@@ -1385,7 +1360,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   `Office/LenientJson` (the lenient enum converter the persisted enums use), the language and
   region vocabulary (`AppLanguage`, `ClockHours`, `FirstWeekday`, `TemperatureScale`,
   `RegionPreferences`, `TemperatureUnit`, `WeekStartDay`, `ContentAlign`, split out of the Core
-  files that declared them) and the shared widget rules `WidgetArea`, `Disclosure`, `WidgetTiers`,
+  files that declared them) and the shared widget rules `WidgetArea`, `LayoutMath`,
   `ListKeys`, `WidgetKey`, `TypeAhead`, `FetchState`, `LaunchTarget` (with `FolderPath`),
   `FluentType`, `HeaderFit`, `HeroFit`, `ListFade`, `EmptyStateFit`. `CalendarRules.WeekStartOf`
   delegates to `RegionFormat.WeekStartOf`, which the region rules need below Core.
@@ -2894,20 +2869,19 @@ is `TextDisabled` (`UnavailableLook`).
 | block | part | what a view calls | its rules |
 |---|---|---|---|
 | Header | `HeaderBlock` (the card's), `HeaderParts` | its `HeaderTrailing` returns a `HeaderParts` with `Add(kind, HeaderBlock.Problem(lines) / Busy() / Label(text) / Button(glyph, tooltip, run) / Count(text))`, `Want(part, bool)` for a part with nothing to say now | `HeaderRules.Shown`: label, then buttons from the last, then the count give way; two buttons at most |
-| Row | `RowBlock(kind, lead)`, `RowCell(icon)` | `Show(name, value, second, third)`, `Lines`, `Strong`, `LeadGlyph`/`Lead`, `Meter(bar, width)` (`double.NaN`: the meter takes the room between name and value), `Available`, `Focused`, `Interactive`, `Detach` | `RowRules.Roles(kind)`, `Lines(area, wanted)`, `Fit(height, lines)`, `CellIcon`, `CellHeight` |
-| Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Size(area, width, height, worst)` or `Use(step)` | `ReadoutRules.Step` (28/40 by the area, Hero for `OneReadout`), `Width`, `Height` |
+| Row | `RowBlock(kind, lead)`, `RowCell(icon)` | `Show(name, value, second, third)`, `Lines`, `Strong`, `LeadGlyph`/`Lead`, `Meter(bar, width)` (`double.NaN`: the meter takes the room between name and value), `Available`, `Focused`, `Interactive`, `Detach` | `RowRules.Roles(kind)`, `Fit(height, lines)`, `Cells`, `CellHeight` |
+| Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Use(step)` (28, 40 where the kind states it, or a one-readout widget's Size) | `ReadoutRules.Width`, `Height`, `Fold`, `Split` |
 | Chart | `ChartSeries`, `ChartBar` (`vertical`: a column), `ChartRing` (`half`: a gauge) | `Show(values, second)` or `Show(points, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Y`, `Bar`, `Sweep`, `GaugeSweep`, `GaugeHeight` |
 | Status | `StatusBlock` | `Show(kind, glyph, sentence, action, run)`, `Hide` | `StatusRules.Look(kind)`, `ShowsSentence(width, actionWidth)` |
-| Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Size(width, height, label, state)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.GlyphStep`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
+| Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Use(step, width, label, state)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.GlyphAt(size)`, `SideAt(size)`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
 | Controls | `ControlsBlock` | `Main(label, run)` or `MainIcon(glyph, tooltip, run)` (a transport's Play), `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`, `Switch(on, name, changed)` (and `Set` to show a state read back); `Relabel`/`Reglyph` (Start → Pause); `ControlsBlock.TextButton`/`IconButton`/`RailSlider` alone (a control in a row's meter place) | `ControlsRules.Check` (one main action), `Shown` (the main action and the switch stay) |
 
 Layout around them is the family's too: the header in the card's header inset; content from 36 (12
 without a header); rows, the status and a band full width (they carry their own inset); everything
 else inside the 12 inset; Controls at the bottom inset. The meters (`MeterView`, `MeterPlan`) and the
 detail widgets (`DetailView`, `DetailFace`) are the reference for a widget of a Readout and a part under
-it, or a Readout and rows beside or under it. The render flag `--family-blocks-png <dir>`
-draws every variant at every tier; `TestResults/family/mockups/blocksheet.py` draws the same as
-mockups and `TestResults/family/match.py blocks` compares them box by box.
+it, or a Readout and rows under it. A block is looked at in its widgets' renders (`--widget-png`,
+`--tree` for the visual tree).
 
 ### 16.2a The kit on the blocks (G2, 2026-10-29)
 
@@ -2915,19 +2889,17 @@ A list widget gets the family for free through the kit: `KitHeader` is the Heade
 `KitStatePanel` the Status row, `KitList` the Row block for every look, `AddFooterRow` a Row block
 of 28. What a list widget still decides is its data (the `KitItem`s: title, subtitle, preview, time,
 lead, tone, emphasis) and its Set up sentence. A widget with a list of its own (notifications, recent
-files, the clipboard, contacts, the week planner) builds `RowBlock`s the same way: lines from
-`RowRules.Lines`, whole rows from `RowRules.Fit` in the view's area less the card's bottom inset
-(`KitLadder.ListHeight`), a scroll under `ScrollFade`, the ring from `RowBlock.Focused`. A table's
+files, the clipboard, contacts, the week planner) builds `RowBlock`s the same way: the rows and lines
+its config states, the list as tall as those rows, a scroll under `ScrollFade` for the rest, the ring from `RowBlock.Focused`. A table's
 columns go in the name's place (`RowBlock.Cells`). A data colour (a calendar's) is a 2 px bar or a dot
 through `Family.Data`, never the accent; a count is the neutral pill; no text is in the accent.
 
 ### 16.2b A Readout and its facts, online (G3, 2026-10-29)
 
 A widget about one number (weather now, air quality, a price, a rate) is the detail widgets' face:
-a `ReadoutBlock` at the view's top, start-aligned, sized on its widest case (`ReadoutRules.Step`:
-28 or 40 by the area), the line under it its own (the sky, the band, the session), and fact rows
-(`RowBlock(RowKind.Fact)`, the value primary) placed by `DetailFace.Plan`: beside it in a column of
-two fifths on an expanded width, else 8 under it, whole rows only, room left empty. A change is the
+a `ReadoutBlock` at the view's top, start-aligned, on the family's 28 (`Use(FamilyType.Big28)`; the
+kind's sizing made from its widest case), the line under it its own (the sky, the band, the session), and
+the fact rows its config picks (`RowBlock(RowKind.Fact)`, the value primary) 8 under it. A change is the
 Readout's delta, folded beside the value or under it by `ReadoutRules.Fold`, secondary when rising,
 Critical when falling ([S-6707]); a history is a `ChartSeries` band to the card's foot in the same
 role. With no answer the view calls `OnlineParts.ShowState(row, status, glyph, retry)`: the Status row
@@ -2938,8 +2910,8 @@ failure stays on screen and the header's problem glyph (`OnlineParts.Problems`) 
 
 A widget that is one glyph and its name (the quick toggles, the power buttons) is a `TileBlock` filling
 the view in the card's inset (`Padding = Family.Inset`): the view keeps the whole slot as its hit target
-(its background `Family.Brush(ColourRole.Clear)`), sizes the block on the area less the inset
-(`Size(w, h, label, state)`, both lines planned at every size so a change of state moves nothing), and on
+(its background `Family.Brush(ColourRole.Clear)`), lays the block out on its Size's step
+(`Use(TileRules.GlyphAt(size), width, label, state)`, both lines planned so a change of state moves nothing), and on
 every change calls `Show(glyph, name, state, tone)` and `Face(pointer)`. The tone says it all: on is the
 accent tile (or circle), off the item layer's, not known secondary, unavailable disabled, critical (a
 power button armed or failed) the glyph, the text and the ring in Critical; no Status row, the tile shows
@@ -2952,7 +2924,7 @@ trait.
 ### 16.2d Files, stores and special widgets (G6, 2026-10-29)
 
 A grid of items (Shortcuts, a folder's Grid and Icons) is `RowCell`s placed by `RowRules.Cells`: the
-family's icon (32, 48 from an expanded width) over its name in one Caption line, the columns sharing the
+family's icon (32 or 48, as its config states) over its name in one Caption line, the columns sharing the
 width 12 apart, each cell's selection mark (`SelectionChrome`, its look `SelectionLook`'s) 4 around its
 lead and name. A list or a table of files is the Row block (a table's columns on `RowBlock.Cells`, the
 titles a Caption line at the text edge), the mark behind the row over its full width. A count over a
@@ -2991,7 +2963,7 @@ row's meter place is `ControlsBlock.RailSlider`.
   shell's own tokens (16.4). Each fails: there is no list of exceptions any more (it held 505 entries
   on 2026-10-29 and every phase shrank it; the shell sweep emptied it and it is gone).
 - **Render** (`powershell -ExecutionPolicy Bypass -File scripts/family-check.ps1`, needs a Debug
-  build): every kind, tier, theme, state and style walked; any finding fails it (the list it once held
+  build): every kind at its min, natural and max, in each theme, state and style, walked; any finding fails it (the list it once held
   has been empty since group G5 and is gone). Run it in the definition of done of any widget work;
   `-Kinds a,b` for the ones you touched.
 
@@ -3014,12 +2986,13 @@ family has no token for, the shell's alone (the guard fails on a module or a blo
 The card's fault and waiting states and the Set up row are the Status block ([S-6714]); a notice's
 severity is the accent, Caution or Critical (no success green).
 
-## 17. Sizing: how to convert a kind
+## 17. Sizing: how a kind states its sizes
 
-Owner's decision 2026-11-12: **content decides a widget's size; the size no longer decides its
-content.** A kind states the sizes it may take, the host keeps it inside them, and inside its range it
-shows the same thing. SPEC "Widget sizing (SIZE)", [S-2438]..[S-2449]. Clock, Memory and Tasks are
-the references; every other kind is legacy until converted.
+Owner's decision 2026-11-12: **content decides a widget's size; the size never decides its content.**
+A kind states the sizes it may take, the host keeps it inside them, and inside its range it shows the
+same thing. SPEC "Widget sizing (SIZE)", [S-2438]..[S-2449], [S-11800]. Clock, Memory and Tasks are
+the references. Every kind is on this one path; there is no other (no legacy sizing, no tiers, no
+ladder), and `OnePathSizingTests` fail on the old names.
 
 ### 17.1 The contract (`Themia.Sdk`, pure)
 
@@ -3031,11 +3004,10 @@ public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCo
                                                                               // axis follows the config
 public sealed record WidgetSizing                                             // Min <= Natural <= Max
 {
-    SizeDip Min, Natural, Max; SizeSteps? WidthSteps, HeightSteps; bool IsLegacy;
+    SizeDip Min, Natural, Max; SizeSteps? WidthSteps, HeightSteps;               // all finite
     bool FixedWidth, FixedHeight;                                             // Min == Max: no handle
     static WidgetSizing Range(SizeDip min, SizeDip natural, SizeDip max);
     static WidgetSizing Fixed(SizeDip size);
-    static WidgetSizing Legacy(double w, double h);                           // the old way
     WidgetSizing WithHeightSteps(SizeSteps s);  WidgetSizing WithWidthSteps(SizeSteps s);
     SizeDip Fit(SizeDip wanted);  IReadOnlyList<string> Problems();
 }
@@ -3063,10 +3035,10 @@ text size) but nothing of the instance (not its rect, scale or header).
   the same mutation, one undo step.
 - **Count**: with `SizeSets`, a resize drop stores the config that size means with the rect, one undo
   step; while dragging the view already shows that config.
-- **Renders**: `--widget-png <Kind>` draws a converted kind at min, natural and max
-  (`--sizes range|tiers|WxH`); the showcase views and the family check walk the range.
+- **Renders**: `--widget-png <Kind>` draws a kind at min, natural and max (`SizeFit.CheckedAt`;
+  `--sizes range|WxH`); the showcase views and the family check walk the range.
 
-### 17.3 Converting a kind, step by step
+### 17.3 Stating a kind's sizes, step by step
 
 1. **Decide what it shows, as config.** Everything that used to appear with size becomes a setting or
    goes: rows, lines per row, which facts, a Size (S/M/L). A kind that shows several things that each
@@ -3077,9 +3049,9 @@ text size) but nothing of the instance (not its rect, scale or header).
    range in which nothing has to drop (look at min and max); a height that is one size when nothing in
    the card can use more. Run `WidgetSizingTests` (module host): it checks the invariants for the
    defaults and every style.
-3. **Rewrite the view without the ladder.** No `Disclosure`, no `WidgetArea` classes, no tier logic,
-   no "largest step that fits": it lays out its fixed parts in the box it is given (`ApplySize` may stay
-   to learn the box). Text wraps or is cut with its ellipsis; a graph gets longer; nothing appears or
+3. **Lay the view out from its config.** No "largest step that fits", nothing chosen by the box: it
+   lays out its fixed parts in the box it is given (`IWidgetSizeAware.ApplySize` only where it measures
+   the box: a graph's length, a grid's cells, a text's wrap; `LayoutMath` for whole lines). Text wraps or is cut with its ellipsis; a graph gets longer; nothing appears or
    disappears. A data widget's number is the family's 28 (`FamilyType.Big28`; 40 only where the kind
    states it); a one-readout widget implements `IReadoutSized` (`Size`, `ReadoutSizes.Step`: 40, 68, 96)
    and adds `KitMenuLines.ReadoutSize(menu, config)` under its Style.
@@ -3092,13 +3064,13 @@ text size) but nothing of the instance (not its rect, scale or header).
    to its lines. An `IKitConfig` passes its rows to the plan by itself (`IKitConfig.Choices`); a view that
    plans itself passes `KitChoices.Rows`. The kit then plans one column, its lines, every field it has
    on, at every size; more items scroll inside the rows.
-5. **Take it off the legacy list** (`WidgetSizingTests.Legacy`, module host; it only shrinks) and fix
-   the tests that walked its seven tiers to walk its range (`SizeFit.CheckedAt`).
+5. **Test it at its range** (`SizeFit.CheckedAt`: its min, natural and max): what it shows is the same
+   at each, and the box holds it.
 6. **Renders**: `--widget-png <Kind> <out.png> --theme dark|light` (its range, every style) before and
    after; a store scene with the kind (`--scene-png store/scenes.json <scene> <out.png>`) shows it
    fitted: say what moved.
 7. **SPEC**: the kind's own `SPEC.md` says its sizing (ranges, what is one size, its settings) on the
-   tag that describes its layout, and that no tier ladder is left.
+   tag that describes its layout, and that nothing appears or disappears with its size.
 
 Pitfalls: the sizing must not depend on the instance (header, scale, rect): the host adds those. A
 planner that picks "the largest that fits" on an exact box picks a smaller step after pixel rounding:
