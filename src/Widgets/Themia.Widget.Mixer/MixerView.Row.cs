@@ -103,7 +103,12 @@ internal sealed partial class MixerView
             var slider = plan.Slider is 0 ? Visibility.Collapsed : Visibility.Visible;
             _slider.Visibility = slider;
             _mute.Margin = new Thickness(slider == Visibility.Visible ? FamilySpace.S2 : 0, 0, 0, 0);
-            var mute = FamilyShape.IconButton;
+
+            // [S-11805] On a one-line row (28) the mute is the 24 button inset 2 in the row, so the rows'
+            // buttons stand 4 apart and read as separate; on a two-line row (40) it is the 28 button.
+            var mute = MixerLayout.Mute(plan.Lines);
+            _mute.Width = mute;
+            _mute.Height = mute;
             Host.Meter(_controls, plan.Slider switch
             {
                 0 => mute,

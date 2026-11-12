@@ -29,6 +29,13 @@ public static class MixerLayout
     /// <summary>The room a row's lead, its gaps and its mute take from its inner width: lead 16 + 8, 12 before the meter, 8 + the 32 mute.</summary>
     public static double Fixed(bool icons) => (icons ? FamilyShape.Icon + FamilySpace.GlyphGap : 0) + FamilySpace.ColumnGap + FamilySpace.S2 + FamilyShape.IconButton;
 
+    /// <summary>
+    /// [S-11805] The mute button's side on a row of <paramref name="lines"/> lines: the 24 (the family's header
+    /// button) inset 2 in a one-line row of 28, so stacked rows' buttons stand 4 apart; the 28 icon button in
+    /// a two-line row of 40.
+    /// </summary>
+    public static double Mute(int lines) => lines >= 2 ? FamilyShape.IconButton : FamilyShape.HeaderButton;
+
     /// <summary>[S-11309] The fewest, the most and a new mixer's rows.</summary>
     public const int MinRows = 1, MaxRows = 12, DefaultRows = 4;
 

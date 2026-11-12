@@ -58,4 +58,13 @@ public sealed class MixerLayoutTests
         Assert.Equal((12, 2), (config.Rows, config.Lines));
         Assert.Equal((12, 2), (((MixerConfig)config.Clone()).Rows, ((MixerConfig)config.Clone()).Lines));
     }
+
+    [Fact]
+    public void S11805_a_one_line_rows_mute_is_inset_so_stacked_buttons_stand_apart()
+    {
+        Assert.Equal(24, MixerLayout.Mute(1));
+        Assert.Equal(28, MixerLayout.Mute(2));
+        Assert.Equal(4, Themia.Sdk.Kit.FamilyShape.RowHeight(1) - MixerLayout.Mute(1));
+        Assert.True(Themia.Sdk.Kit.FamilyShape.RowHeight(2) - MixerLayout.Mute(2) >= 4);
+    }
 }

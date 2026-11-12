@@ -24,12 +24,17 @@ volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTe
   audio"). Failures are logged once, and again only when they change.
 - **[S-449]** The rows are the family's Row block ([S-6711], [S-6712]; `MixerLayout`): [lead 16: the
   app's icon, or the system sounds' bell or an app's window glyph, secondary] 8 [name, primary] 12
-  [slider: the Controls slider, rail Track, value the accent] 8 [mute: a 28 icon button whose glyph is
-  the level's band], 28 tall, 40 with a second line ([S-1624]: what the app is doing) where Lines is
+  [slider: the Controls slider, rail Track, value the accent] 8 [mute: an icon button whose glyph is
+  the level's band, [S-11805]], 28 tall, 40 with a second line ([S-1624]: what the app is doing) where Lines is
   two ([S-11309]). The slider takes three fifths of the room the lead, the gaps and the mute leave,
   never under its least (80), which the list's least width keeps beside the name. The config's rows
   show the playing apps, the rest a scroll away; the quiet rows fill the rows left ([S-1228]). A short
   list keeps its rows: no row is stretched.
+- **[S-11805]** **Rows read as separate** (2026-11-12): on a one-line row (28) the mute is the family's 24
+  button, inset 2 in the row, so the buttons of stacked rows stand 4 apart (the 28 button filled the row
+  and the buttons stacked into one column with no gap); on a two-line row (40) it is the 28 icon button
+  (`MixerLayout.Mute`). The row keeps its height: a setting's lines decide it, never the control.
+  Tests `MixerLayoutTests.S11805_`.
 - **[S-11309]** **A list atom.** The mixer's **Rows** (1 to 12, a new one 4) and **Lines** (one or two
   a row, a new one one) are settings on its menu, after App icons; the card follows
   (`MixerLayout.Sizing`): under its header the rows and the inset, stepped by a row and following
