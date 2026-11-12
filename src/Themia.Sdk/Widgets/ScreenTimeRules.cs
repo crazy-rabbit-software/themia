@@ -39,6 +39,15 @@ public enum ScreenTimeEmphasis
     Dimmed = 2,
 }
 
+/// <summary>
+/// [S-2272] How one app's part is drawn: in the accent at a ramp step of its rank, or (Other, and every
+/// app past the ramp) in the tertiary text role at the family's wash. The alpha goes on the shape, never
+/// on the shared brush.
+/// </summary>
+/// <param name="Accent">The accent role; false for the tertiary text role.</param>
+/// <param name="Alpha">The shape's opacity, 0..1.</param>
+public readonly record struct ScreenTimeTone(bool Accent, double Alpha);
+
 /// <summary>Whether a pinned day is today, yesterday, or just a date.</summary>
 /// <summary>[S-1210] The donut's figure: its text, its step, and whether the line under it is shown.</summary>
 public readonly record struct ScreenTimeFigure(string Text, TypeStep Step, bool Under);
@@ -511,50 +520,49 @@ public static class ScreenTimeRules
             : key == focusPart ? ScreenTimeEmphasis.Lit
             : ScreenTimeEmphasis.Dimmed;
 
-    /// <summary>[S-452] A colour per app, stable across days: a hash of its key picks the hue.</summary>
-    /// <returns>The hue in degrees, 0..359.</returns>
-    public static int Hue(string app)
+    /// <summary>
+    /// [S-2272] The accent's ramp by rank: the app with the most time of the period at 100 %, then 72 %,
+    /// 50 % and 32 %. Every app past it and Other are the tertiary text role at the family's wash.
+    /// </summary>
+    public static IReadOnlyList<double> Ramp { get; } = [1, 0.72, 0.50, 0.32];
+
+    /// <summary>[S-2272] The tone of the app at <paramref name="rank"/> (0 the busiest), or of Other.</summary>
+    public static ScreenTimeTone Tone(int rank, bool isOther = false)
+        => !isOther && rank >= 0 && rank < Ramp.Count ? new(true, Ramp[rank]) : new(false, FamilyShape.Wash);
+
+    /// <summary>
+    /// [S-2272] Each part's tone by its rank among what one widget shows (<paramref name="segments"/>,
+    /// busiest first as <see cref="Segments"/> orders them, ties by key), so an app has one tone in every
+    /// bar of the period, the legend's dot and the ring. Other keeps its own tone.
+    /// </summary>
+    public static IReadOnlyDictionary<string, ScreenTimeTone> Tones(IEnumerable<ScreenTimeSegment> segments)
     {
-        // djb2, wrapped to 32 bits exactly as the original computed it, so an app keeps the colour it
-        // had there.
-        var hash = 5381;
-        foreach (var c in app ?? string.Empty)
+        ArgumentNullException.ThrowIfNull(segments);
+
+        var tones = new Dictionary<string, ScreenTimeTone>(StringComparer.Ordinal);
+        var rank = 0;
+        foreach (var segment in segments)
         {
-            hash = unchecked((hash << 5) + hash + c);
+            tones[segment.Key] = segment.IsOther ? Tone(-1, isOther: true) : Tone(rank++);
         }
 
-        return ((hash % 360) + 360) % 360;
+        return tones;
     }
 
-    /// <summary>[S-452] [S-6705] An app's data colour as <c>#RRGGBB</c>: its hue at one saturation and lightness, the same in every widget.</summary>
-    public static string Colour(string app)
+    /// <summary>[S-2272] The tone of <paramref name="key"/> in <paramref name="tones"/>; a key not among them is drawn as Other.</summary>
+    public static ScreenTimeTone ToneOf(IReadOnlyDictionary<string, ScreenTimeTone> tones, string key)
+        => tones is not null && tones.TryGetValue(key, out var tone) ? tone : Tone(-1, isOther: true);
+
+    /// <summary>
+    /// [S-2272] [S-3312] A part's opacity against the focus: its tone's alpha, the focused part at full
+    /// strength, every other part while one is focused at most the wash.
+    /// </summary>
+    public static double Opacity(ScreenTimeTone tone, ScreenTimeEmphasis emphasis) => emphasis switch
     {
-        var (r, g, b) = HslToRgb(Hue(app), 0.62, 0.60);
-        return $"#{r:X2}{g:X2}{b:X2}";
-    }
-
-    /// <summary>An HSL colour as RGB, for the per-app hues. Saturation and lightness are 0..1.</summary>
-    public static (byte R, byte G, byte B) HslToRgb(double hue, double saturation, double lightness)
-    {
-        var c = (1 - Math.Abs((2 * lightness) - 1)) * saturation;
-        var h = ((hue % 360) + 360) % 360 / 60;
-        var x = c * (1 - Math.Abs((h % 2) - 1));
-        var m = lightness - (c / 2);
-
-        var (r, g, b) = h switch
-        {
-            < 1 => (c, x, 0d),
-            < 2 => (x, c, 0d),
-            < 3 => (0d, c, x),
-            < 4 => (0d, x, c),
-            < 5 => (x, 0d, c),
-            _ => (c, 0d, x),
-        };
-
-        return (ToByte(r + m), ToByte(g + m), ToByte(b + m));
-
-        static byte ToByte(double v) => (byte)Math.Round(Math.Clamp(v, 0, 1) * 255);
-    }
+        ScreenTimeEmphasis.Lit => 1,
+        ScreenTimeEmphasis.Dimmed => Math.Min(tone.Alpha, FamilyShape.Wash),
+        _ => tone.Alpha,
+    };
 
     /// <summary>The letter on an app's chip when it has no icon.</summary>
     public static string Initial(string name)

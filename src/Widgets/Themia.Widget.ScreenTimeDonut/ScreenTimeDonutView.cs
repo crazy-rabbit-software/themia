@@ -55,6 +55,9 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     private ScreenTimeDonutConfig _config = new();
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
+
+    /// <summary>[S-2272] Each wedge's tone by its app's rank in the period.</summary>
+    private IReadOnlyDictionary<string, ScreenTimeTone> _tones = new Dictionary<string, ScreenTimeTone>();
     private ScreenTimeDonutPlan _plan;
     private WidgetArea _area;
     private bool _detached;
@@ -213,6 +216,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
         _plan = ScreenTimeDonutLayout.Donut(_area);
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
+        _tones = ScreenTimeRules.Tones(_segments);
 
         var size = _plan.Ring;
         var radius = (size - _plan.Thickness) / 2;
@@ -233,6 +237,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             var wedge = wedges[i];
             wedge.Place(centre, radius, segment.Start, segment.Fraction);
             wedge.Tip(ScreenTimeLook.Tip(segment, data.Total));
+            wedge.Path.Stroke = ScreenTimeLook.Brush(ScreenTimeRules.ToneOf(_tones, segment.Key));
             _arcs.Add((segment, wedge));
         }
 
@@ -259,7 +264,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
         foreach (var (segment, wedge) in _arcs)
         {
-            wedge.Path.Opacity = ScreenTimeLook.Opacity(ScreenTimeRules.Emphasis(segment.Key, part));
+            wedge.Path.Opacity = ScreenTimeRules.Opacity(ScreenTimeRules.ToneOf(_tones, segment.Key), ScreenTimeRules.Emphasis(segment.Key, part));
         }
 
         var focused = part is null ? null : _segments.FirstOrDefault(s => s.Key == part);
@@ -292,12 +297,11 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         return (data.Total, Str.Screentime_PerDay.Format(("value", ScreenTimeRules.FormatDuration(average))), over);
     }
 
-    /// <summary>[S-3325] A new app on the ring: its wedge, its colour, its hover, tap and hide menu, once.</summary>
+    /// <summary>[S-3325] A new app on the ring: its wedge, its hover, tap and hide menu, once (its tone is set as the ring is drawn).</summary>
     private Wedge NewWedge(string key)
     {
         var wedge = new Wedge(key);
         var arc = wedge.Path;
-        arc.Stroke = ScreenTimeLook.For(key);
         arc.StrokeThickness = _plan.Thickness;
         arc.PointerEntered += (_, _) => Hover(key);
         arc.PointerExited += (_, _) => Hover(null);

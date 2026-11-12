@@ -19,7 +19,7 @@ internal sealed partial class ScreenTimeAppsView
 {
     /// <summary>
     /// [S-3350] One row, the family's Row block ([S-6711]): the app's icon as its lead (or, while it
-    /// loads and when it has none, a 16 dot in the app's colour), its name (primary), its time as the
+    /// loads and when it has none, a 16 dot in the app's tone, [S-2272]), its name (primary), its time as the
     /// value (secondary; Critical over its own limit), and on a second line the share and a window's
     /// average when the tier gives rows two. [S-3353] The row is lit, dimmed, filled as selected and
     /// ringed for the keyboard from the view's links, never from its own pointer alone, so a hover in
@@ -31,7 +31,7 @@ internal sealed partial class ScreenTimeAppsView
         private readonly Grid _icon = new() { VerticalAlignment = VerticalAlignment.Center };
         private readonly Image _image = new() { Stretch = Stretch.Uniform };
 
-        /// <summary>[S-6705] The app's colour as a data dot: where it has no icon, and under it while the icon loads.</summary>
+        /// <summary>[S-2272] The app's tone as a dot: where it has no icon, and under it while the icon loads.</summary>
         private readonly Border _dot = new()
         {
             Width = FamilyShape.Icon,
@@ -76,8 +76,11 @@ internal sealed partial class ScreenTimeAppsView
         /// <summary>The lead's size the row was made for.</summary>
         public double Lead { get; }
 
-        public void Show(ScreenTimeSegment segment, string? figures, ScreenTimeGoal? goal, ScreenTimeAppsPlan plan)
+        public void Show(ScreenTimeSegment segment, ScreenTimeTone tone, string? figures, ScreenTimeGoal? goal, ScreenTimeAppsPlan plan)
         {
+            // [S-2272] The dot is the app's tone: the accent at its rank's step, its alpha on the dot.
+            _dot.Background = ScreenTimeLook.Brush(tone);
+            _dot.Opacity = tone.Alpha;
             _segment = segment;
             _goal = goal;
             var time = ScreenTimeRules.FormatDuration(segment.Seconds);
@@ -125,8 +128,6 @@ internal sealed partial class ScreenTimeAppsView
         /// <summary>The app's icon at the lead's size; while it loads, or when it has none, the dot of its colour.</summary>
         private void ShowIcon(ScreenTimeSegment segment)
         {
-            _dot.Background = ScreenTimeLook.For(segment.Key);
-
             if (segment.Path is not { } path)
             {
                 _iconPath = null;

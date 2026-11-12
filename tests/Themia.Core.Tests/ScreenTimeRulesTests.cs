@@ -119,12 +119,54 @@ public sealed class ScreenTimeRulesTests
     }
 
     [Fact]
-    public void S452_an_apps_colour_is_its_hue_as_a_data_colour()
+    public void S2272_apps_are_a_ramp_of_the_accent_by_rank_and_other_is_tertiary_at_the_wash()
     {
-        var (r, g, b) = ScreenTimeRules.HslToRgb(ScreenTimeRules.Hue("code"), 0.62, 0.60);
-        Assert.Equal($"#{r:X2}{g:X2}{b:X2}", ScreenTimeRules.Colour("code"));
-        Assert.Matches("^#[0-9A-F]{6}$", ScreenTimeRules.Colour("chrome"));
-        Assert.Equal(ScreenTimeRules.Colour("chrome"), ScreenTimeRules.Colour("chrome"));
+        var segments = ScreenTimeRules.Segments([App("e", 5), App("a", 60), App("c", 15), App("b", 30), App("d", 10), App("f", 1)], 121, 5, "Other");
+
+        var tones = ScreenTimeRules.Tones(segments);
+
+        Assert.Equal(new ScreenTimeTone(true, 1), tones["a"]);
+        Assert.Equal(new ScreenTimeTone(true, 0.72), tones["b"]);
+        Assert.Equal(new ScreenTimeTone(true, 0.50), tones["c"]);
+        Assert.Equal(new ScreenTimeTone(true, 0.32), tones["d"]);
+
+        // Past the fourth and Other: the tertiary text role at the family's wash.
+        Assert.Equal(new ScreenTimeTone(false, FamilyShape.Wash), tones["e"]);
+        Assert.Equal(new ScreenTimeTone(false, FamilyShape.Wash), tones[ScreenTimeRules.OtherKey]);
+        Assert.Equal(new ScreenTimeTone(false, FamilyShape.Wash), ScreenTimeRules.ToneOf(tones, "not-drawn"));
+    }
+
+    [Fact]
+    public void S2272_an_apps_tone_is_its_rank_in_the_period_in_every_bar_and_stable_on_a_tie()
+    {
+        // The period's legend ranks the apps; each day's stack takes its tone from there, whatever that day's order.
+        var days = new[] { Day("2026-10-12", App("a", 10), App("b", 50)), Day("2026-10-13", App("a", 70), App("b", 5)) };
+        var legend = ScreenTimeRules.Segments(ScreenTimeRules.Aggregate(days, None), 135, 7, "Other");
+        var tones = ScreenTimeRules.Tones(legend);
+
+        Assert.True(tones["a"].Alpha > tones["b"].Alpha);
+        foreach (var day in days)
+        {
+            Assert.All(ScreenTimeRules.Stack(day.Apps, legend, 75), part => Assert.Equal(tones[part.Key], ScreenTimeRules.ToneOf(tones, part.Key)));
+        }
+
+        // Two apps with the same time keep one order: by key, so the tones do not swap between draws.
+        var tied = ScreenTimeRules.Tones(ScreenTimeRules.Segments([App("y", 30), App("x", 30)], 60, 7, "Other"));
+        Assert.Equal((1d, 0.72), (tied["x"].Alpha, tied["y"].Alpha));
+    }
+
+    [Theory]
+    [InlineData(0, ScreenTimeEmphasis.Normal, 1)]
+    [InlineData(1, ScreenTimeEmphasis.Normal, 0.72)]
+    [InlineData(3, ScreenTimeEmphasis.Lit, 1)]
+    public void S2272_a_parts_opacity_is_its_tone_full_when_focused(int rank, ScreenTimeEmphasis emphasis, double expected)
+        => Assert.Equal(expected, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(rank), emphasis), 6);
+
+    [Fact]
+    public void S2272_a_part_out_of_focus_is_at_most_the_wash()
+    {
+        Assert.Equal(FamilyShape.Wash, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(0), ScreenTimeEmphasis.Dimmed), 6);
+        Assert.True(ScreenTimeRules.Opacity(ScreenTimeRules.Tone(-1, isOther: true), ScreenTimeEmphasis.Dimmed) <= FamilyShape.Wash);
     }
 
     [Fact]
@@ -160,25 +202,6 @@ public sealed class ScreenTimeRulesTests
         var over = ScreenTimeRules.Segments([App("a", 120)], 100, 5, "Other");
         Assert.Single(over);
         Assert.Equal(1, over[0].Fraction);
-    }
-
-    [Fact]
-    public void S452_app_colours_are_stable_and_distinct()
-    {
-        Assert.Equal(ScreenTimeRules.Hue("chrome"), ScreenTimeRules.Hue("chrome"));
-        Assert.NotEqual(ScreenTimeRules.Hue("chrome"), ScreenTimeRules.Hue("code"));
-        Assert.NotEqual(ScreenTimeRules.Hue("discord"), ScreenTimeRules.Hue("spotify"));
-        Assert.InRange(ScreenTimeRules.Hue(string.Empty), 0, 359);
-        Assert.InRange(ScreenTimeRules.Hue("日本語"), 0, 359);
-    }
-
-    [Fact]
-    public void S452_hsl_converts_the_primary_hues()
-    {
-        Assert.Equal((255, 0, 0), ScreenTimeRules.HslToRgb(0, 1, 0.5));
-        Assert.Equal((0, 255, 0), ScreenTimeRules.HslToRgb(120, 1, 0.5));
-        Assert.Equal((0, 0, 255), ScreenTimeRules.HslToRgb(240, 1, 0.5));
-        Assert.Equal((128, 128, 128), ScreenTimeRules.HslToRgb(42, 0, 0.5));
     }
 
     [Fact]

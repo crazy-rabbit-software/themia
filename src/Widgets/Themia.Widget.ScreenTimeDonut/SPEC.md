@@ -20,7 +20,8 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
 - **[S-3345]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), then the shared
   lines ([S-3323]: of the limits the day's).
-- **[S-3341]** The wedges: the busiest seven apps and one Other, from cumulative seconds ([S-452]).
+- **[S-3341]** The wedges: the busiest seven apps and one Other, from cumulative seconds ([S-452]),
+  each in its app's tone: the accent's ramp by rank, Other tertiary at the wash ([S-2272]).
   No legend: the list is its own widget ([S-666]); a wedge's tooltip names it.
 - **[S-3342]** Ladder (`ScreenTimeDonutLayout.Donut`): the ring as large as the view's area less the
   card's insets allows (16 at the sides and the foot), centred there, its wedges in the family's track

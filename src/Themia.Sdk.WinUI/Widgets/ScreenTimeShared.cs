@@ -212,8 +212,8 @@ public sealed class ScreenTimeLinks
 }
 
 /// <summary>
-/// The screen-time widgets' shared look on the family's roles ([S-6705]): an app's colour is data, a
-/// part not in focus is drawn as its wash, durations in tooltips.
+/// The screen-time widgets' shared look on the family's roles ([S-6705]): an app is the accent at its
+/// rank's step ([S-2272]), a part not in focus is drawn as its wash, durations in tooltips.
 /// </summary>
 public static class ScreenTimeLook
 {
@@ -223,30 +223,12 @@ public static class ScreenTimeLook
     /// </summary>
     public const double DimOpacity = FamilyShape.Wash;
 
-    /// <summary>[S-452] "Other": no app, so no colour of its own: the disabled role.</summary>
-    public static Brush Other => Family.Brush(ColourRole.TextDisabled);
-
-    private static readonly Dictionary<string, Brush> AppBrushes = new(StringComparer.Ordinal);
-
-    /// <summary>[S-452] [S-6705] An app's colour: the hue its key hashes to, a data colour (<see cref="Family.Data"/>), the same in every widget.</summary>
-    public static Brush For(string key)
-    {
-        if (key == ScreenTimeRules.OtherKey)
-        {
-            return Other;
-        }
-
-        if (!AppBrushes.TryGetValue(key, out var brush))
-        {
-            brush = Family.Data(ScreenTimeRules.Colour(key));
-            AppBrushes[key] = brush;
-        }
-
-        return brush;
-    }
-
-    /// <summary>[S-3312] The opacity a part is drawn at for its emphasis.</summary>
-    public static double Opacity(ScreenTimeEmphasis emphasis) => emphasis == ScreenTimeEmphasis.Dimmed ? DimOpacity : 1;
+    /// <summary>
+    /// [S-2272] [S-6706] A part's brush: the accent for an app on the ramp, the tertiary text role for
+    /// Other and the apps past it. Shared brushes: the tone's alpha goes on the shape
+    /// (<see cref="ScreenTimeRules.Opacity"/>), never on the brush.
+    /// </summary>
+    public static Brush Brush(ScreenTimeTone tone) => Family.Brush(tone.Accent ? ColourRole.Accent : ColourRole.TextTertiary);
 
     /// <summary>"Name — 3h 24m · 41%".</summary>
     public static string Tip(ScreenTimeSegment segment, long total)

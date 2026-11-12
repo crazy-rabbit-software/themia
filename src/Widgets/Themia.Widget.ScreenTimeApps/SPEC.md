@@ -21,7 +21,7 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
 - **[S-3350]** `ScreenTimeAppsConfig`: `Period`, `MaxApps` ([S-1211]), `ShowAverage` (on),
   `ShowPercent` (off). A row is the family's Row block ([S-6711], G6 2026-10-29): the app's icon as
   its lead (32 from a width of 180, else 16, [S-6704]; while it loads and when it has none, a 16 dot
-  in the app's data colour, [S-6705]: the initial chip went), the name (Body, primary), the time as the
+  in the app's tone, the accent at its rank's step, [S-2272]: the initial chip went), the name (Body, primary), the time as the
   value (Body, secondary; Critical over its own limit, and the tooltip says the limit). The share and,
   over a window, the per-day average (as far as they are on) are the row's second line ("38% · 2h
   10m/day", Caption secondary) where the tier gives rows two lines; else they are in the tooltip only.

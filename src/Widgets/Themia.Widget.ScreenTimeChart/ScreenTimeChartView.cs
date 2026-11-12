@@ -62,6 +62,9 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     private ScreenTimeChartConfig _config = new();
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
+
+    /// <summary>[S-2272] Each drawn app's tone by its rank in the period.</summary>
+    private IReadOnlyDictionary<string, ScreenTimeTone> _tones = new Dictionary<string, ScreenTimeTone>();
     private ScreenTimeChartPlan _plan;
     private WidgetArea _area;
     private int? _day;
@@ -232,6 +235,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
         _plan = ScreenTimeChartLayout.Chart(_area, ChartStyle, ScreenTimeRules.FormatDuration(WorstSeconds));
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
+        _tones = ScreenTimeRules.Tones(_segments);
 
         _readout.Visibility = _plan.Total is null ? Visibility.Collapsed : Visibility.Visible;
         if (_plan.Total is { } step)
@@ -398,6 +402,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
                 var block = blocks[b];
                 block.Height = Math.Max(FamilyShape.Hairline, part.Fraction * area);
                 block.CornerRadius = Corners(b == 0, b == blocks.Count - 1);
+                block.Background = ScreenTimeLook.Brush(ScreenTimeRules.ToneOf(_tones, part.Key));
                 _parts.Add((part.Key, block));
             }
 
@@ -414,10 +419,10 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     private static CornerRadius Corners(bool top, bool foot)
         => new(top ? FamilyShape.Radius : 0, top ? FamilyShape.Radius : 0, foot ? FamilyShape.Radius : 0, foot ? FamilyShape.Radius : 0);
 
-    /// <summary>[S-3325] An app's part of a bar, made the first time the app is in that bar: its colour, hover, tap and hide menu.</summary>
+    /// <summary>[S-3325] An app's part of a bar, made the first time the app is in that bar: its hover, tap and hide menu (its tone is set as the bar is filled).</summary>
     private Border NewPart(string key)
     {
-        var block = new Border { Background = ScreenTimeLook.For(key) };
+        var block = new Border();
         block.PointerEntered += (_, _) => HoverApp(key);
         block.PointerExited += (_, _) => HoverApp(null);
         block.PointerCanceled += (_, _) => HoverApp(null);
@@ -622,7 +627,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
         foreach (var (key, block) in _parts)
         {
-            block.Opacity = ScreenTimeLook.Opacity(ScreenTimeRules.Emphasis(key, part));
+            block.Opacity = ScreenTimeRules.Opacity(ScreenTimeRules.ToneOf(_tones, key), ScreenTimeRules.Emphasis(key, part));
         }
 
         // [S-3312] A day the figure speaks of (pointer or Left / Right): every other day at its wash.

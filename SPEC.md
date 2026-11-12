@@ -1096,7 +1096,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   Controls row's one main action; a habit is a Row block with its days as the inline meter, the
   heatmap's cells filled from their foot; the scratchpad's tools are two header buttons and a bar of
   32 tools, its inks data colours; the screen-time widgets' day is the header's label and buttons,
-  their apps' colours data colours (`Family.Data`), the chart's total a Readout, the donut's wedges
+  their apps the accent's ramp by rank ([S-2272], once data colours), the chart's total a Readout, the donut's wedges
   stroke 4; the gallery and the video stream say a missing picture in the Status row and draw their
   overlays on the Solid role; the visualizer's styles are the Chart's tokens; `UnavailableLook` is
   the disabled role ([S-6706]). `RingFace`, `HeroLayout`, `ScreenTimeLayout` and
@@ -3301,8 +3301,8 @@ are cited from there, the ones it replaced are marked.
   colours and "Other" stand.)* The ring's wedges are the busiest apps up to the cap plus one "Other" wedge, offsets
   from cumulative seconds; the total sits in the hole. A day of Bars is one bar split the same way.
   Durations read `3h 24m`, `12m`, `<1m`. How many apps the legend and the drawing name is
-  [S-1211]/[S-1212] (`MaxApps` is a ceiling over what fits, `ShowList` hides the legend). Each app's colour is a stable hash of its key; a legend row
-  carries the icon (or an initial chip in that colour), the name with the colour dot right after it,
+  [S-1211]/[S-1212] (`MaxApps` is a ceiling over what fits, `ShowList` hides the legend). Each app's tone is its rank's step of the accent ([S-2272]; the hash of its key
+  that picked a hue is gone); a legend row carries the icon (or a dot in that tone), the name,
   and the time as its last column. Hovering a wedge, segment or row lights it, dims the rest and
   names it in the readout.
 - **[S-1989]** *(Superseded by [S-3307]/[S-3334]/[S-3344]/[S-3354]: the same keys in each of the three,
@@ -3369,7 +3369,7 @@ side by side and they light the same app together. Each is a module of its own
 its own ladder). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,
 ScreenTimePreferences,ScreenTimeDay}.cs` and `Model/Configs/ScreenTimeSettings.cs` (the period, the chart
 style and the settings the configs share), Themia.Sdk.WinUI's `Widgets/ScreenTimeShared.cs`
-(data, links, the look on the family's roles with each app's colour a data colour through `Family.Data`
+(data, links, the look on the family's roles with each app the accent at its rank's step, `ScreenTimeLook.Brush`,
 and a part not in focus at its wash, the day navigation on the Header block's parts), `Widgets/ScreenTimeSample.cs` (the previews' fixture) and
 `Shell/ScreenTimeMenuLines.cs` (the menus' shared lines), the `IScreenTimeSource` contract; Core's
 `Widgets/ScreenTimeTracker.cs` and `Storage/ScreenTimeStore.cs`; the host's `Services/ScreenTimeService.cs`.
@@ -3452,6 +3452,14 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   again when their theme changes.
 - **[S-3351]** As many whole rows as fit, up to the ceiling; when apps are left over the last row is
   Other, so the rows add up to the total (`ScreenTimeRules.ListNamed`). Rows are reused by position.
+- **[S-2272]** **One palette: the apps of a period are a ramp of the accent by rank**
+  (`ScreenTimeRules.Ramp`, `Tones`, `ToneOf`, `ScreenTimeTone`): the app with the most time among what
+  the widget shows (its segments, busiest first, ties by key, so the order is stable) the accent at
+  100 %, then 72 %, 50 %, 32 %; Other and every app past the fourth the tertiary text role at the
+  family's wash ([S-6706]: no data colour, no hue of an app's own). The same app has the same tone in
+  every bar of the period, the list's dot and the ring. The alpha is the shape's opacity, never the
+  shared brush's (`ScreenTimeLook.Brush`); a focused part is drawn at full strength and every other at
+  most the wash (`ScreenTimeRules.Opacity`, [S-3312]). Tests `ScreenTimeRulesTests.S2272_`.
 - **[S-3355]** Debug renders: `--widget-png <ScreenTimeChart|ScreenTimeDonut|ScreenTimeApps>
   --state sample|hovered|selected` draw a fixed month of sample use (ten apps, quieter weekends, a
   6 h day limit, Microsoft Edge over its 1 h; Google is named nowhere Themia shows of itself, [S-3562]) through

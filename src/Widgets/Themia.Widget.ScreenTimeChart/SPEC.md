@@ -26,8 +26,8 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   (`StyleJsonConverter`; an unknown name is repaired to Bars at load, [S-6004]), copied in `Clone`,
   its labels `styles.screenTimeChart.*`. `--widget-png ScreenTimeChart … --style calendar` draws it.
 - **[S-3331]** Bars: one bar per day, oldest left, 8 apart for a week and 4 for a month, stacked by
-  app in the ring's order (the busiest seven, `ScreenTimeRules.DrawingApps`, then Other in the
-  disabled role) in the apps' data colours ([S-6705]), scaled to the busiest day, the stack one
+  app in the ring's order (the busiest seven, `ScreenTimeRules.DrawingApps`, then Other) in the
+  accent's ramp by rank, Other and the apps past the fourth tertiary at the wash ([S-2272]), scaled to the busiest day, the stack one
   rectangle of the family's radius (its top part's top corners, its foot part's foot, [S-6704]); under
   them only the two ends are labelled ([S-6717]: Caption, tertiary): the first day and today, a week's
   by weekday ("Fri", "Thu"), a month's by date ("Sep 30", "Oct 29"); today's accent label and the

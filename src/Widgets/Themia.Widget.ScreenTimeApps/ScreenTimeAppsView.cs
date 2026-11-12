@@ -198,6 +198,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         var named = ScreenTimeRules.ListNamed(plan.Rows, data.Apps.Count);
         _segments = plan.Rows == 0 ? [] : ScreenTimeRules.Segments(data.Apps, data.Total, named, Str.Screentime_Other.Text());
         var rows = Math.Min(plan.Rows, _segments.Count);
+        var tones = ScreenTimeRules.Tones(_segments);
 
         // A row's lead is made for its size: rows of another lead are made again.
         if (_rows.Count > 0 && !_rows[0].Lead.Equals(plan.Lead))
@@ -238,7 +239,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
             }
 
             _rows[i].Host.Visibility = Visibility.Visible;
-            _rows[i].Show(segment, figures.Count == 0 ? null : string.Join(" · ", figures), goal, plan);
+            _rows[i].Show(segment, ScreenTimeRules.ToneOf(tones, segment.Key), figures.Count == 0 ? null : string.Join(" · ", figures), goal, plan);
         }
 
         ApplyFocus();
