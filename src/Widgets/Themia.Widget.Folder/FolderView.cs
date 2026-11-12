@@ -125,7 +125,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
         _config = next;
         _applied = (FolderConfig)next.Clone();
 
-        var resolved = FolderPath.Resolve(next.Path, ProfileFolder);
+        var resolved = FolderPath.Resolve(next.Path, ProfileFolder, Environment.ExpandEnvironmentVariables);
         var pathChanged = resolved.Path != _resolved.Path || resolved.Problem != _resolved.Problem;
         _resolved = resolved;
 

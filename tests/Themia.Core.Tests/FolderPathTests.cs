@@ -70,6 +70,22 @@ public class FolderPathTests
         Assert.False(result.UsedFallback);
     }
 
+    [Fact]
+    public void S11608_a_path_naming_the_environment_s_variables_is_read_as_they_stand_and_then_checked()
+    {
+        static string Expand(string s) => s.Replace("%USERPROFILE%", @"C:\Users\Robin", StringComparison.OrdinalIgnoreCase);
+
+        var documents = FolderPath.Resolve(@"%USERPROFILE%\Documents", Fallback, Expand);
+        Assert.True(documents.IsValid);
+        Assert.Equal(@"C:\Users\Robin\Documents", documents.Path);
+
+        // A variable the environment lacks stays as written, which is not a rooted path: refused, not guessed.
+        Assert.Equal(FolderPathProblem.NotRooted, FolderPath.Resolve(@"%NOWHERE%\Documents", Fallback, Expand).Problem);
+
+        // Without an expander a value is taken as it is.
+        Assert.Equal(FolderPathProblem.NotRooted, FolderPath.Resolve(@"%USERPROFILE%\Documents", Fallback).Problem);
+    }
+
     [Theory]
     [InlineData(@"C:\Users\Some<one>")]
     [InlineData("C:\\Users\\Some\"one\"")]

@@ -73,9 +73,18 @@ public static class FolderPath
     /// something real rather than an error. Passed in rather than read from the environment so this
     /// stays a pure function.
     /// </param>
-    public static FolderPathResult Resolve(string? configured, string fallback)
+    /// <param name="expand">
+    /// [S-11608] What the environment's variables in a value stand for (<c>%USERPROFILE%\Documents</c>, as
+    /// a ready-made group names the user's own Documents, [S-11209]); the result is then checked as any
+    /// value. Passed in for the same reason as the fallback; null leaves a value as it is.
+    /// </param>
+    public static FolderPathResult Resolve(string? configured, string fallback, Func<string, string>? expand = null)
     {
         var trimmed = Clean(configured);
+        if (expand is not null && trimmed.Contains('%', StringComparison.Ordinal))
+        {
+            trimmed = Clean(expand(trimmed));
+        }
 
         if (trimmed.Length > 0)
         {

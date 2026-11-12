@@ -159,6 +159,11 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   else its own) in File Explorer (`FolderModule.Opens`). The file area is the widget's own: a click
   there selects, starts a band or clears the selection and never reaches the card ([S-2004]), so the
   click that opens is on the header (its icon and title).
+- **[S-11608]** A folder's path may name the environment's variables (`%USERPROFILE%\Documents`, as the
+  My files group names the user's own Documents, [S-11209]): they are read as they stand when the path is
+  resolved, and the result is checked as any path (`FolderPath.Resolve(…, expand)`); a variable the
+  environment lacks stays as written and is refused as not rooted, never guessed. The stored value
+  keeps the variable. Tests `FolderPathTests.S11608_`.
 
 Not ported: header double-click opens Explorer (orig. S-07; a single click on the header does,
 [S-2031], and "Open in Explorer" is in the card menu); image-item inline toggles (orig. S-29).
