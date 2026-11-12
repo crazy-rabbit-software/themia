@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Wskaźnik zamknięcia",
   "widget.stocks.label": "Akcje",
   "widgetsA.catalog.stocks.description": "Notowania i kryptowaluty z wykresem",
   "widgetsC.stocks.holding.amount": "Posiadane: {amount}",

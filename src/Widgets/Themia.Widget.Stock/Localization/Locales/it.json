@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Indicatore di chiusura",
   "widget.stocks.label": "Borsa",
   "widgetsA.catalog.stocks.description": "Titoli e cripto, con minigrafico",
   "widgetsC.stocks.holding.amount": "{amount} posseduti",

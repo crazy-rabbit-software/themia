@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "休市指示器",
   "widget.stocks.label": "股票",
   "widgetsA.catalog.stocks.description": "股票和加密货币，附迷你走势图",
   "widgetsC.stocks.holding.amount": "持有 {amount}",

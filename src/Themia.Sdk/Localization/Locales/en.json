@@ -1,5 +1,5 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["stocks.marketOpen"],
   "common.add": "Add",
   "common.back": "Back",
   "common.cancel": "Cancel",
@@ -227,6 +227,7 @@
   "stocks.preMarket": "Pre-market",
   "stocks.afterHours": "After hours",
   "stocks.marketClosed": "Market closed",
+  "stocks.marketOpen": "Market open",
   "weather.unitLabel": "Temperature unit",
   "screentime.noActivity": "No activity yet",
   "screentime.prevDay": "Previous day",

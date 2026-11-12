@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Indicator de închidere",
   "widget.stocks.label": "Acțiuni",
   "widgetsA.catalog.stocks.description": "Simboluri bursiere și cripto, cu un minigrafic",
   "widgetsC.stocks.holding.amount": "{amount} deținute",

@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Geschlossen-Symbol",
   "widget.stocks.label": "Aktien",
   "widgetsA.catalog.stocks.description": "Aktien und Krypto, mit Verlaufskurve",
   "widgetsC.stocks.holding.amount": "{amount} im Besitz",

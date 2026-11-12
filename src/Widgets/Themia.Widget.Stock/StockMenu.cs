@@ -34,7 +34,7 @@ internal static class StockMenu
         // [S-6074] Only where the market closes: not a coin.
         if (config.Market != QuoteMarket.Crypto)
         {
-            lines.Add(menu.Toggle(Glyphs.Moon, StockStr.Stocks_DimWhenClosed.Text(), config.ShowMarketState, on => config.ShowMarketState = on));
+            lines.Add(menu.Toggle(Glyphs.Moon, StockStr.Stocks_MarketHours.Text(), config.ShowMarketState, on => config.ShowMarketState = on));
         }
 
         lines.Add(ItemMenuEntry.Separator);

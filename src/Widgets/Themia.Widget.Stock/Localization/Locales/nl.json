@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Indicator beurs gesloten",
   "widget.stocks.label": "Aandelen",
   "widgetsA.catalog.stocks.description": "Aandelen en crypto, met een minigrafiek",
   "widgetsC.stocks.holding.amount": "{amount} in bezit",

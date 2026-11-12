@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Chỉ báo đóng cửa",
   "widget.stocks.label": "Chứng khoán",
   "widgetsA.catalog.stocks.description": "Mã cổ phiếu và tiền mã hóa, kèm biểu đồ nhỏ",
   "widgetsC.stocks.holding.amount": "Nắm giữ {amount}",

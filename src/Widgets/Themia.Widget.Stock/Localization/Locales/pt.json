@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Indicador de fecho",
   "widget.stocks.label": "Ações",
   "widgetsA.catalog.stocks.description": "Ações e cripto, com minigráfico",
   "widgetsC.stocks.holding.amount": "{amount} em carteira",

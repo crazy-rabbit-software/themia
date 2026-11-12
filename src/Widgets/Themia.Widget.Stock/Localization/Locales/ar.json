@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "مؤشر الإغلاق",
   "widget.stocks.label": "الأسهم",
   "widgetsA.catalog.stocks.description": "رموز الأسهم والعملات المشفرة، مع خط بياني",
   "widgetsC.stocks.holding.amount": "{amount} مملوكة",

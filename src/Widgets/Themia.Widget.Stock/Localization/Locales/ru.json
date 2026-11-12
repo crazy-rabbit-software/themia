@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Индикатор закрытия",
   "widget.stocks.label": "Акции",
   "widgetsA.catalog.stocks.description": "Тикеры и криптовалюты с мини-графиком",
   "widgetsC.stocks.holding.amount": "В собственности {amount}",

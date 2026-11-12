@@ -319,6 +319,16 @@ public static class MarketQuote
     /// <summary>The badge text for a phase, or empty when there is nothing worth saying.</summary>
     public static string PhaseLabel(MarketPhase phase) => PhaseLabel(Strings.Current, phase);
 
+    /// <summary>
+    /// [S-11800] The stock's "Market hours" line: the phase in words, an open market too ("Market open");
+    /// a reply with no schedule says nothing.
+    /// </summary>
+    public static string SessionLine(MarketPhase phase) => SessionLine(Strings.Current, phase);
+
+    /// <inheritdoc cref="SessionLine(MarketPhase)"/>
+    public static string SessionLine(Locale locale, MarketPhase phase)
+        => phase == MarketPhase.Open ? Strings.Get(locale, Str.Stocks_MarketOpen) : PhaseLabel(locale, phase);
+
     public static string PhaseLabel(Locale locale, MarketPhase phase) => phase switch
     {
         MarketPhase.Pre => Strings.Get(locale, Str.Stocks_PreMarket),

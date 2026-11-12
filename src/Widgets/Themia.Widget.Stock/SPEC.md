@@ -43,10 +43,13 @@ stay Core's (`StockWidgetTests`, `S1307_`, `S1308_`, `S1309_`, `S1310_`, `S2775_
 - **[S-1311]** The price (`StockLayout`), on the family's blocks and read as a meter reads ([S-1762]):
   the price a Readout on the family's 28 at the content's top ([S-2449]), start-aligned (or where the
   widget's alignment puts it, [S-6582]); the currency after it and the signed change (Body) beside it
-  where they fit the card's width, else the currency gives way, else the change is the line under the
-  price (`ReadoutRules.Fold`, [S-6707]); otherwise the line under says the market's session ("Market
-  closed", "After hours", "Pre-market"; [S-1309]: its tooltip names the exchange's zone), the line kept
-  whether said or not. The session is told every minute on the shared ticker (render only).
+  where they fit the card's width, else the currency gives way (`ReadoutRules.Fold`, [S-6707]; the
+  narrowest card, 240, keeps a price of eight figures and the change side by side). With **Market
+  hours** on ([S-11800], off by default, not for a coin) the line under says the market's session
+  ("Market open", "Pre-market", "After hours", "Market closed"; [S-1309]: the price's tooltip names the
+  exchange's zone); without it the card has no such line. Until 2026-11-12 that line was always kept
+  and empty while the market was open, a spare 16 (28 with its gap) at the card's foot. The session is
+  told every minute on the shared ticker (render only).
   **Refresh** in the card menu, with the quote's age; a failed refresh under the price on screen is the
   header's problem glyph ([S-7042]). No quote: the Status row at the top ([S-6734]): "“X” is not a
   symbol" for a refused symbol, "No quote for that symbol" for an empty answer, else the fetch's own
@@ -59,15 +62,15 @@ stay Core's (`StockWidgetTests`, `S1307_`, `S1308_`, `S1309_`, `S1310_`, `S2775_
 - **[S-11160]** **An atom**: the reading and its rows, the same at every size in its range; no styles
   (the old Number style is this atom, the Chart style the ready-made group "Stocks", [S-11172]). The
   price and the chart, set to one instrument, period and extended hours, ask one quote and agree.
-- **[S-11161]** **Sizes** (`StockLayout.Sizing`, with its header): the 28's line and the line under it,
-  then 8 down a 28 row for the holding where one is set and one for the extended print where it is asked
-  for (a listed symbol over one or five days), one height by those rows (100, 136, 164); 200..360 wide, a
-  new one 240. A row with nothing to show yet keeps its place with the dash.
+- **[S-11161]** **Sizes** (`StockLayout.Sizing`, with its header): the 28's line, the line under it where
+  Market hours is on, then 8 down a 28 row for the holding where one is set and one for the extended print
+  where it is asked for (a listed symbol over one or five days), one height by those rows (84, 120, 148;
+  16 more with Market hours); 240..360 wide, a new one 240. A row with nothing to show yet keeps its place with the dash.
 - **[S-2778]** Its options are all on the properties menu ([S-3719]); it has no settings page: Appearance
   ([S-3723]), what it quotes: **Symbol** (the search of [S-1307]; the line Set up opens: until a symbol
   is chosen the card's Set up row says "Choose a symbol", [S-1862]) and **Shares owned** ([S-2776]);
   after a divider the time it covers: **Timeframe** (1 day … 10 years), **Extended hours** (only a
-  listed symbol over one or five days, [S-1308]) and **Dim when closed** (not for a coin); after another
+  listed symbol over one or five days, [S-1308]) and **Market hours** (the session's line, [S-1311]; not for a coin); after another
   a link to **Update interval** (⚙ › Online updates › Markets, [S-3749]). Nothing under Style. (Tests
   `StockMenuTests`.)
 - **[S-6165]**, **[S-6166]** *(Retired by [S-11160]: no styles; the chart is the `stockHistory` atom, [S-11165].)*

@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Kapalı göstergesi",
   "widget.stocks.label": "Hisseler",
   "widgetsA.catalog.stocks.description": "Mini grafikle hisseler ve kripto",
   "widgetsC.stocks.holding.amount": "{amount} adet",

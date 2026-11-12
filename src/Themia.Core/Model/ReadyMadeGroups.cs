@@ -254,8 +254,8 @@ public static class ReadyMadeGroups
     /// <summary>[S-11172] Stocks: a stock's or a coin's price and its chart.</summary>
     public static ReadyMadeGroup Stocks { get; } = new("stocks", Str.Groups_Recipe_Stocks, Str.Groups_Recipe_StocksAbout, Glyphs.Stocks, AddFolderId.Markets,
     [
-        new("stock", new(0, 0, 280, 100)),
-        new("stockHistory", new(0, 100, 280, 108), Header: HeaderPlacement.Hidden),
+        new("stock", new(0, 0, 280, 84)),
+        new("stockHistory", new(0, 84, 280, 108), Header: HeaderPlacement.Hidden),
     ]);
 
     /// <summary>[S-11340] Now playing: the cover at the side, the track beside it, the progress under both (the old card, tighter).</summary>

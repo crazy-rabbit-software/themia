@@ -40,7 +40,7 @@ public sealed class StockMenuTests
                 string.Empty,
                 Str.Stocks_Timeframe.Text(),
                 Str.Stocks_ExtendedHours.Text(),
-                StockStr.Stocks_DimWhenClosed.Text(),
+                StockStr.Stocks_MarketHours.Text(),
                 string.Empty,
                 Str.EditBar_Link_UpdateInterval.Text(),
             ],
@@ -54,7 +54,7 @@ public sealed class StockMenuTests
     {
         var texts = Build(new StockConfig { Symbol = "bitcoin", Market = QuoteMarket.Crypto }).Lines.Select(l => l.Text).ToList();
 
-        Assert.DoesNotContain(StockStr.Stocks_DimWhenClosed.Text(), texts);
+        Assert.DoesNotContain(StockStr.Stocks_MarketHours.Text(), texts);
         Assert.DoesNotContain(Str.Stocks_ExtendedHours.Text(), texts);
     }
 

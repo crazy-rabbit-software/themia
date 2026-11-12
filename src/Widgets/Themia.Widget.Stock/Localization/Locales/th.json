@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "ตัวบ่งชี้ตลาดปิด",
   "widget.stocks.label": "หุ้น",
   "widgetsA.catalog.stocks.description": "หุ้นและคริปโต พร้อมกราฟเส้นขนาดเล็ก",
   "widgetsC.stocks.holding.amount": "ถือ {amount}",

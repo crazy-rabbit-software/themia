@@ -138,8 +138,8 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         ShowHolding(quote);
         var extendedShown = ShowExtended(quote, extended, phase, now);
 
-        // [S-1311] The session under the price, unless the extended print's row names it already.
-        var session = !_config.ShowMarketState || _config.Market == QuoteMarket.Crypto || extendedShown ? string.Empty : MarketQuote.PhaseLabel(phase);
+        // [S-11800] The session under the price where the config asks for it, unless the extended print's row names it already.
+        var session = !_config.ShowsSession || extendedShown ? string.Empty : MarketQuote.SessionLine(phase);
         var fold = StockLayout.Fold(new ReadoutText(price, currency), width);
         var changeRole = falling ? ColourRole.Critical : ColourRole.TextSecondary;
         _price.Show(

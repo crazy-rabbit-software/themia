@@ -10,8 +10,16 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class StockConfig : StockQuoteConfig, IContentAligned
 {
-    /// <summary>Say so when the listing exchange is shut. Crypto is never marked: it trades all week.</summary>
-    public bool ShowMarketState { get; set; } = true;
+    /// <summary>
+    /// [S-11800] The "Market hours" line under the price: the listing's session ("Market open", "Pre-market",
+    /// "After hours", "Market closed"). Off by default: the line is in the card only when it is asked for,
+    /// never a spare line kept empty. Crypto has none: it trades all week.
+    /// </summary>
+    public bool ShowMarketState { get; set; }
+
+    /// <summary>[S-11800] Whether the card has the session's line: asked for, on a market that closes.</summary>
+    [JsonIgnore]
+    public bool ShowsSession => ShowMarketState && Market != QuoteMarket.Crypto;
 
     /// <summary>
     /// [S-2776] How many of the instrument the user owns, for the holding's row under the price. Null

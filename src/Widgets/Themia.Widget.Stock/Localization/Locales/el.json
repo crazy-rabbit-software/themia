@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Ένδειξη κλειστής αγοράς",
   "widget.stocks.label": "Μετοχές",
   "widgetsA.catalog.stocks.description": "Μετοχές και κρυπτονομίσματα, με μικρογράφημα",
   "widgetsC.stocks.holding.amount": "{amount} στην κατοχή σου",

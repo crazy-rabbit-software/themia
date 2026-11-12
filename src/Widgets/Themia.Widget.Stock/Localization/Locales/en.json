@@ -1,6 +1,6 @@
 {
-  "$englishOnly": [],
-  "stocks.dimWhenClosed": "Closed indicator",
+  "$englishOnly": ["stocks.marketHours"],
+  "stocks.marketHours": "Market hours",
   "widget.stocks.label": "Stocks",
   "widgetsA.catalog.stocks.description": "Tickers and crypto, with a sparkline",
   "widgetsC.stocks.holding.amount": "{amount} held",

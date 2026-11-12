@@ -1,5 +1,4 @@
 {
-  "stocks.dimWhenClosed": "Indicator kapag sarado",
   "widget.stocks.label": "Mga stock",
   "widgetsA.catalog.stocks.description": "Mga ticker at crypto, may sparkline",
   "widgetsC.stocks.holding.amount": "{amount} hawak",
