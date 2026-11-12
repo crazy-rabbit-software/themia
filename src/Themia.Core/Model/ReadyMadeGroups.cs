@@ -69,7 +69,9 @@ public static class ReadyMadeGroups
         new("network", new(0, 148, 180, 128)),
         new("networkHistory", new(0, 276, 180, 64)),
         new("disk", new(180, 148, 180, 84)),
-        new("diskHistory", new(180, 232, 180, 108)),
+        // The disk's own span is five minutes; in this group the four charts span one minute alike, so the
+        // group's page reads one Chart span, not "Mixed" ([S-11751]).
+        new("diskHistory", new(180, 232, 180, 108), Config: """{ "graphSpanSeconds": 60 }"""),
     ]) { Starter = 2 };
 
     /// <summary>[S-2474] My day: the clock on top, the next meeting and the tasks under it.</summary>
