@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozono",
+  "online.air.pollen": "Pollini",
+  "online.air.pollenLevel.high": "Alta",
+  "online.air.pollenLevel.low": "Bassa",
+  "online.air.pollenLevel.moderate": "Moderata",
+  "online.air.pollenNone": "Nessuno nell’aria",
+  "online.air.pollenType.alder": "Ontano",
+  "online.air.pollenType.birch": "Betulla",
+  "online.air.pollenType.grass": "Graminacee",
+  "online.air.pollenType.mugwort": "Artemisia",
+  "online.air.pollenType.olive": "Olivo",
+  "online.air.pollenType.ragweed": "Ambrosia",
+  "online.air.uv": "Indice UV",
+  "online.air.uvLevel.extreme": "Estremo",
+  "online.air.uvLevel.high": "Alto",
+  "online.air.uvLevel.low": "Basso",
+  "online.air.uvLevel.moderate": "Moderato",
+  "online.air.uvLevel.veryHigh": "Molto alto"
+}

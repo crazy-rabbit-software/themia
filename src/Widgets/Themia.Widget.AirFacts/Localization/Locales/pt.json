@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozono",
+  "online.air.pollen": "Pólen",
+  "online.air.pollenLevel.high": "Alto",
+  "online.air.pollenLevel.low": "Baixo",
+  "online.air.pollenLevel.moderate": "Moderado",
+  "online.air.pollenNone": "Nenhum no ar",
+  "online.air.pollenType.alder": "Amieiro",
+  "online.air.pollenType.birch": "Bétula",
+  "online.air.pollenType.grass": "Gramíneas",
+  "online.air.pollenType.mugwort": "Artemísia",
+  "online.air.pollenType.olive": "Oliveira",
+  "online.air.pollenType.ragweed": "Ambrósia",
+  "online.air.uv": "Índice UV",
+  "online.air.uvLevel.extreme": "Extremo",
+  "online.air.uvLevel.high": "Alto",
+  "online.air.uvLevel.low": "Baixo",
+  "online.air.uvLevel.moderate": "Moderado",
+  "online.air.uvLevel.veryHigh": "Muito alto"
+}

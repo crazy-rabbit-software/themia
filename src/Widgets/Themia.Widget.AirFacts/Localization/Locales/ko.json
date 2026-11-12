@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "오존",
+  "online.air.pollen": "꽃가루",
+  "online.air.pollenLevel.high": "높음",
+  "online.air.pollenLevel.low": "낮음",
+  "online.air.pollenLevel.moderate": "보통",
+  "online.air.pollenNone": "공기 중에 없음",
+  "online.air.pollenType.alder": "오리나무",
+  "online.air.pollenType.birch": "자작나무",
+  "online.air.pollenType.grass": "잔디",
+  "online.air.pollenType.mugwort": "쑥",
+  "online.air.pollenType.olive": "올리브",
+  "online.air.pollenType.ragweed": "돼지풀",
+  "online.air.uv": "자외선 지수",
+  "online.air.uvLevel.extreme": "위험",
+  "online.air.uvLevel.high": "높음",
+  "online.air.uvLevel.low": "낮음",
+  "online.air.uvLevel.moderate": "보통",
+  "online.air.uvLevel.veryHigh": "매우 높음"
+}

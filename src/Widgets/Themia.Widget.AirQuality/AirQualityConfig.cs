@@ -7,20 +7,6 @@ using Themia.Widget.AirQuality;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-5103] Which air quality index the widget reads out.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<AirQualityScale>))]
-public enum AirQualityScale
-{
-    /// <summary>The European index for a place in Europe, the US index everywhere else.</summary>
-    Auto = 0,
-
-    /// <summary>The European Environment Agency's index (EAQI), 0 to 100+.</summary>
-    European = 1,
-
-    /// <summary>The US EPA's index, 0 to 500.</summary>
-    Us = 2,
-}
-
 /// <summary>[S-6169] The air widget's styles: the same reading, two looks.</summary>
 [JsonConverter(typeof(StyleJsonConverter<AirQualityStyle>))]
 public enum AirQualityStyle
@@ -49,11 +35,10 @@ public sealed class AirQualityConfig : WeatherConfig, IStyled, IContentAligned, 
     }
 
     /// <summary>[S-5101] What it asks for, or null without a place; the running app's cadence ([S-3780]).</summary>
-    public AirInterest? Interest() => Interest(OnlineCadence.Air(UpdateCadence.Current));
+    public AirInterest? Interest() => AirInterests.For(this);
 
     /// <summary>[S-5101] <see cref="Interest()"/> at a given cadence.</summary>
-    public AirInterest? Interest(TimeSpan interval)
-        => WebInput.AreCoordinates(Latitude, Longitude) ? new AirInterest(Latitude!.Value, Longitude!.Value, interval) : null;
+    public AirInterest? Interest(TimeSpan interval) => AirInterests.For(this, interval);
 
     private static readonly StyleOption[] AirStyles =
     [

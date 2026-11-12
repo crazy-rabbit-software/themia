@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "الأوزون",
+  "online.air.pollen": "حبوب اللقاح",
+  "online.air.pollenLevel.high": "مرتفعة",
+  "online.air.pollenLevel.low": "منخفضة",
+  "online.air.pollenLevel.moderate": "متوسطة",
+  "online.air.pollenNone": "لا شيء في الهواء",
+  "online.air.pollenType.alder": "الجار",
+  "online.air.pollenType.birch": "البتولا",
+  "online.air.pollenType.grass": "الأعشاب",
+  "online.air.pollenType.mugwort": "الشيح",
+  "online.air.pollenType.olive": "الزيتون",
+  "online.air.pollenType.ragweed": "الأمبروسيا",
+  "online.air.uv": "مؤشر الأشعة فوق البنفسجية",
+  "online.air.uvLevel.extreme": "شديد",
+  "online.air.uvLevel.high": "مرتفع",
+  "online.air.uvLevel.low": "منخفض",
+  "online.air.uvLevel.moderate": "متوسط",
+  "online.air.uvLevel.veryHigh": "مرتفع جدًا"
+}

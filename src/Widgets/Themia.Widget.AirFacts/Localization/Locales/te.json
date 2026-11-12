@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "ఓజోన్",
+  "online.air.pollen": "పుప్పొడి",
+  "online.air.pollenLevel.high": "ఎక్కువ",
+  "online.air.pollenLevel.low": "తక్కువ",
+  "online.air.pollenLevel.moderate": "మధ్యస్థం",
+  "online.air.pollenNone": "గాలిలో ఏదీ లేదు",
+  "online.air.pollenType.alder": "ఆల్డర్",
+  "online.air.pollenType.birch": "బర్చ్",
+  "online.air.pollenType.grass": "గడ్డి",
+  "online.air.pollenType.mugwort": "మగ్‌వర్ట్",
+  "online.air.pollenType.olive": "ఆలివ్",
+  "online.air.pollenType.ragweed": "రాగ్‌వీడ్",
+  "online.air.uv": "UV సూచిక",
+  "online.air.uvLevel.extreme": "తీవ్రం",
+  "online.air.uvLevel.high": "ఎక్కువ",
+  "online.air.uvLevel.low": "తక్కువ",
+  "online.air.uvLevel.moderate": "మధ్యస్థం",
+  "online.air.uvLevel.veryHigh": "చాలా ఎక్కువ"
+}

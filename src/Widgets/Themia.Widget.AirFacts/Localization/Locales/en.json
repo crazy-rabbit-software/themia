@@ -1,0 +1,32 @@
+{
+  "$englishOnly": [
+    "airFacts.label",
+    "airFacts.desc",
+    "online.air.pm25",
+    "online.air.pm10",
+    "airFacts.menu.facts"
+  ],
+  "airFacts.desc": "UV, fine dust and pollen where you are",
+  "airFacts.label": "Air facts",
+  "airFacts.menu.facts": "Facts",
+  "online.air.ozone": "Ozone",
+  "online.air.pm10": "PM10",
+  "online.air.pm25": "PM2.5",
+  "online.air.pollen": "Pollen",
+  "online.air.pollenLevel.high": "High",
+  "online.air.pollenLevel.low": "Low",
+  "online.air.pollenLevel.moderate": "Moderate",
+  "online.air.pollenNone": "None in the air",
+  "online.air.pollenType.alder": "Alder",
+  "online.air.pollenType.birch": "Birch",
+  "online.air.pollenType.grass": "Grass",
+  "online.air.pollenType.mugwort": "Mugwort",
+  "online.air.pollenType.olive": "Olive",
+  "online.air.pollenType.ragweed": "Ragweed",
+  "online.air.uv": "UV index",
+  "online.air.uvLevel.extreme": "Extreme",
+  "online.air.uvLevel.high": "High",
+  "online.air.uvLevel.low": "Low",
+  "online.air.uvLevel.moderate": "Moderate",
+  "online.air.uvLevel.veryHigh": "Very high"
+}

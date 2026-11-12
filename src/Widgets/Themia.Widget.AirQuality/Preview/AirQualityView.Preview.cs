@@ -8,7 +8,7 @@ using Themia.Sdk.Samples;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2052]): fixture readings (<c>sample</c>: the sample day's, at its place and its UV; <c>poor</c>), so the ladder can be
+/// Debug renders only ([S-1917], [S-2052]): fixture readings (<c>sample</c>: the sample day's, at its place and its UV; <c>poor</c>), so the index can be
 /// looked at without a place, the network or the sync. Built through the SDK's parser, so a fixture
 /// is exactly what a reply would have become. Nothing is fetched or saved. <c>stale</c> is the sample
 /// kept through a failed refresh, <c>failed</c> no answer at all.
@@ -35,22 +35,20 @@ internal sealed partial class AirQualityView : IWidgetPreviewState
                   + ",\"alder_pollen\":0,\"birch_pollen\":0,\"grass_pollen\":12,\"mugwort_pollen\":0.2,\"olive_pollen\":0,\"ragweed_pollen\":0")
             + "}}";
 
-        _config = new AirQualityConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName, Style = _config.Style };
-        _applied = (AirQualityConfig)_config.Clone();
-        _want = null;
+        _config = new AirQualityConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName, Style = _config.Style, Scale = _config.Scale };
+        PublishPlace();
         var reading = new Fetched<AirReading>(FetchStatus.Ok, AirQualityWire.Parse(json).Value, null, SampleDay.MinutesAgo(12));
 
         // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
         // [S-6734] failed: no answer, and the service out of reach: the Status row.
-        _reading = state switch
-        {
-            "stale" => reading.Stale(FetchStatus.Offline, null),
-            "failed" => null,
-            _ => reading,
-        };
-        _status = state == "failed" ? FetchStatus.Unreachable : FetchStatus.Ok;
-        PublishPlace();
-        Render();
+        _feed.Preview(
+            state switch
+            {
+                "stale" => reading.Stale(FetchStatus.Offline, null),
+                "failed" => null,
+                _ => reading,
+            },
+            state == "failed" ? FetchStatus.Unreachable : FetchStatus.Ok);
         return Task.CompletedTask;
     }
 }

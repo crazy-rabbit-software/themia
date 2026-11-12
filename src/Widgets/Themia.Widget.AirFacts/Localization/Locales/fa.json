@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "ازن",
+  "online.air.pollen": "گرده",
+  "online.air.pollenLevel.high": "زیاد",
+  "online.air.pollenLevel.low": "کم",
+  "online.air.pollenLevel.moderate": "متوسط",
+  "online.air.pollenNone": "گرده‌ای در هوا نیست",
+  "online.air.pollenType.alder": "توسکا",
+  "online.air.pollenType.birch": "غان",
+  "online.air.pollenType.grass": "علف",
+  "online.air.pollenType.mugwort": "درمنه",
+  "online.air.pollenType.olive": "زیتون",
+  "online.air.pollenType.ragweed": "ابروسیا",
+  "online.air.uv": "شاخص UV",
+  "online.air.uvLevel.extreme": "شدید",
+  "online.air.uvLevel.high": "زیاد",
+  "online.air.uvLevel.low": "کم",
+  "online.air.uvLevel.moderate": "متوسط",
+  "online.air.uvLevel.veryHigh": "بسیار زیاد"
+}

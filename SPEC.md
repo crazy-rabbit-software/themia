@@ -7249,7 +7249,7 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
 - **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
   (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
-  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), and
+  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its facts), and
   **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
   weather's none, the sky's Zurich); the previews and `--recipe-png` draw every atom at the one sample

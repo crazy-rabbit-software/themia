@@ -31,7 +31,7 @@ public sealed class RainNextHourModule : IWidgetModule
         Label = RainNextHourStr.Online_Rain_Label.Local(),
         Description = RainNextHourStr.Online_Rain_Desc.Local(),
         Glyph = Glyphs.Rain,
-        Sizing = _ => WidgetSizing.Legacy(300, 180),
+        Sizing = _ => RainLayout.Sizing(),
         DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 0, 3),

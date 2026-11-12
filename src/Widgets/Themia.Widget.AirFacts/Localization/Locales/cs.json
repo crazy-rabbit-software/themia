@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozon",
+  "online.air.pollen": "Pyl",
+  "online.air.pollenLevel.high": "Vysoký",
+  "online.air.pollenLevel.low": "Nízký",
+  "online.air.pollenLevel.moderate": "Střední",
+  "online.air.pollenNone": "Ve vzduchu žádný",
+  "online.air.pollenType.alder": "Olše",
+  "online.air.pollenType.birch": "Bříza",
+  "online.air.pollenType.grass": "Tráva",
+  "online.air.pollenType.mugwort": "Pelyněk",
+  "online.air.pollenType.olive": "Olivovník",
+  "online.air.pollenType.ragweed": "Ambrozie",
+  "online.air.uv": "UV index",
+  "online.air.uvLevel.extreme": "Extrémní",
+  "online.air.uvLevel.high": "Vysoký",
+  "online.air.uvLevel.low": "Nízký",
+  "online.air.uvLevel.moderate": "Střední",
+  "online.air.uvLevel.veryHigh": "Velmi vysoký"
+}

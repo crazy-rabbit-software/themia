@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozoni",
+  "online.air.pollen": "Chavua",
+  "online.air.pollenLevel.high": "Juu",
+  "online.air.pollenLevel.low": "Chini",
+  "online.air.pollenLevel.moderate": "Wastani",
+  "online.air.pollenNone": "Hakuna hewani",
+  "online.air.pollenType.alder": "Mwalda",
+  "online.air.pollenType.birch": "Mbetula",
+  "online.air.pollenType.grass": "Nyasi",
+  "online.air.pollenType.mugwort": "Artemisia",
+  "online.air.pollenType.olive": "Mzeituni",
+  "online.air.pollenType.ragweed": "Ambrosia",
+  "online.air.uv": "Kielezo cha UV",
+  "online.air.uvLevel.extreme": "Kupita kiasi",
+  "online.air.uvLevel.high": "Juu",
+  "online.air.uvLevel.low": "Chini",
+  "online.air.uvLevel.moderate": "Wastani",
+  "online.air.uvLevel.veryHigh": "Juu sana"
+}

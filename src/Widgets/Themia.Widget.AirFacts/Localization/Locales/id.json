@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozon",
+  "online.air.pollen": "Serbuk sari",
+  "online.air.pollenLevel.high": "Tinggi",
+  "online.air.pollenLevel.low": "Rendah",
+  "online.air.pollenLevel.moderate": "Sedang",
+  "online.air.pollenNone": "Tidak ada di udara",
+  "online.air.pollenType.alder": "Alder",
+  "online.air.pollenType.birch": "Birch",
+  "online.air.pollenType.grass": "Rumput",
+  "online.air.pollenType.mugwort": "Mugwort",
+  "online.air.pollenType.olive": "Zaitun",
+  "online.air.pollenType.ragweed": "Ragweed",
+  "online.air.uv": "Indeks UV",
+  "online.air.uvLevel.extreme": "Ekstrem",
+  "online.air.uvLevel.high": "Tinggi",
+  "online.air.uvLevel.low": "Rendah",
+  "online.air.uvLevel.moderate": "Sedang",
+  "online.air.uvLevel.veryHigh": "Sangat tinggi"
+}

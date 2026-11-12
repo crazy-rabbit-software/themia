@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozone",
+  "online.air.pollen": "Polen",
+  "online.air.pollenLevel.high": "Mataas",
+  "online.air.pollenLevel.low": "Mababa",
+  "online.air.pollenLevel.moderate": "Katamtaman",
+  "online.air.pollenNone": "Wala sa hangin",
+  "online.air.pollenType.alder": "Alder",
+  "online.air.pollenType.birch": "Birch",
+  "online.air.pollenType.grass": "Damo",
+  "online.air.pollenType.mugwort": "Mugwort",
+  "online.air.pollenType.olive": "Olibo",
+  "online.air.pollenType.ragweed": "Ragweed",
+  "online.air.uv": "Indeks ng UV",
+  "online.air.uvLevel.extreme": "Matindi",
+  "online.air.uvLevel.high": "Mataas",
+  "online.air.uvLevel.low": "Mababa",
+  "online.air.uvLevel.moderate": "Katamtaman",
+  "online.air.uvLevel.veryHigh": "Napakataas"
+}

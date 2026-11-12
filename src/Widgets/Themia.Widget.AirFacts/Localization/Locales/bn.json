@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "ওজোন",
+  "online.air.pollen": "পরাগ",
+  "online.air.pollenLevel.high": "বেশি",
+  "online.air.pollenLevel.low": "কম",
+  "online.air.pollenLevel.moderate": "মাঝারি",
+  "online.air.pollenNone": "বাতাসে নেই",
+  "online.air.pollenType.alder": "অ্যাল্ডার",
+  "online.air.pollenType.birch": "বার্চ",
+  "online.air.pollenType.grass": "ঘাস",
+  "online.air.pollenType.mugwort": "নাগদানা",
+  "online.air.pollenType.olive": "জলপাই",
+  "online.air.pollenType.ragweed": "র‍্যাগউইড",
+  "online.air.uv": "UV সূচক",
+  "online.air.uvLevel.extreme": "চরম",
+  "online.air.uvLevel.high": "বেশি",
+  "online.air.uvLevel.low": "কম",
+  "online.air.uvLevel.moderate": "মাঝারি",
+  "online.air.uvLevel.veryHigh": "খুব বেশি"
+}

@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "ኦዞን",
+  "online.air.pollen": "የአበባ ብናኝ",
+  "online.air.pollenLevel.high": "ከፍተኛ",
+  "online.air.pollenLevel.low": "ዝቅተኛ",
+  "online.air.pollenLevel.moderate": "መካከለኛ",
+  "online.air.pollenNone": "በአየር ውስጥ የለም",
+  "online.air.pollenType.alder": "አልደር",
+  "online.air.pollenType.birch": "በርች",
+  "online.air.pollenType.grass": "ሣር",
+  "online.air.pollenType.mugwort": "ሙግዎርት",
+  "online.air.pollenType.olive": "ወይራ",
+  "online.air.pollenType.ragweed": "ራግዊድ",
+  "online.air.uv": "የUV መረጃ ጠቋሚ",
+  "online.air.uvLevel.extreme": "እጅግ ከፍተኛ",
+  "online.air.uvLevel.high": "ከፍተኛ",
+  "online.air.uvLevel.low": "ዝቅተኛ",
+  "online.air.uvLevel.moderate": "መካከለኛ",
+  "online.air.uvLevel.veryHigh": "በጣም ከፍተኛ"
+}

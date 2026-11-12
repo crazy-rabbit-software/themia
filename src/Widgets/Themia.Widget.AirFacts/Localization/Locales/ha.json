@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozon",
+  "online.air.pollen": "Garin fure",
+  "online.air.pollenLevel.high": "Sama",
+  "online.air.pollenLevel.low": "Ƙasa",
+  "online.air.pollenLevel.moderate": "Tsaka-tsaki",
+  "online.air.pollenNone": "Babu a cikin iska",
+  "online.air.pollenType.alder": "Bishiyar alder",
+  "online.air.pollenType.birch": "Bishiyar birch",
+  "online.air.pollenType.grass": "Ciyawa",
+  "online.air.pollenType.mugwort": "Artemisia",
+  "online.air.pollenType.olive": "Zaitun",
+  "online.air.pollenType.ragweed": "Ambrosia",
+  "online.air.uv": "Ma'aunin UV",
+  "online.air.uvLevel.extreme": "Matuƙa",
+  "online.air.uvLevel.high": "Sama",
+  "online.air.uvLevel.low": "Ƙasa",
+  "online.air.uvLevel.moderate": "Tsaka-tsaki",
+  "online.air.uvLevel.veryHigh": "Sama sosai"
+}

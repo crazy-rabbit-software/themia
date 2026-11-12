@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "臭氧",
+  "online.air.pollen": "花粉",
+  "online.air.pollenLevel.high": "高",
+  "online.air.pollenLevel.low": "低",
+  "online.air.pollenLevel.moderate": "中等",
+  "online.air.pollenNone": "空氣中沒有",
+  "online.air.pollenType.alder": "榿木",
+  "online.air.pollenType.birch": "樺樹",
+  "online.air.pollenType.grass": "禾草",
+  "online.air.pollenType.mugwort": "艾草",
+  "online.air.pollenType.olive": "橄欖",
+  "online.air.pollenType.ragweed": "豚草",
+  "online.air.uv": "紫外線指數",
+  "online.air.uvLevel.extreme": "極高",
+  "online.air.uvLevel.high": "高",
+  "online.air.uvLevel.low": "低",
+  "online.air.uvLevel.moderate": "中等",
+  "online.air.uvLevel.veryHigh": "很高"
+}

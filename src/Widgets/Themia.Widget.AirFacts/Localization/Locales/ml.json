@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "ഓസോൺ",
+  "online.air.pollen": "പൂമ്പൊടി",
+  "online.air.pollenLevel.high": "ഉയർന്നത്",
+  "online.air.pollenLevel.low": "കുറവ്",
+  "online.air.pollenLevel.moderate": "മിതം",
+  "online.air.pollenNone": "വായുവിൽ ഒന്നുമില്ല",
+  "online.air.pollenType.alder": "ആൽഡർ",
+  "online.air.pollenType.birch": "ബിർച്ച്",
+  "online.air.pollenType.grass": "പുല്ല്",
+  "online.air.pollenType.mugwort": "മഗ്‌വോർട്ട്",
+  "online.air.pollenType.olive": "ഒലിവ്",
+  "online.air.pollenType.ragweed": "റാഗ്‌വീഡ്",
+  "online.air.uv": "UV സൂചിക",
+  "online.air.uvLevel.extreme": "അതിതീവ്രം",
+  "online.air.uvLevel.high": "ഉയർന്നത്",
+  "online.air.uvLevel.low": "കുറവ്",
+  "online.air.uvLevel.moderate": "മിതം",
+  "online.air.uvLevel.veryHigh": "വളരെ ഉയർന്നത്"
+}

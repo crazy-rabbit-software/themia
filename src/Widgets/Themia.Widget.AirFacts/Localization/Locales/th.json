@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "โอโซน",
+  "online.air.pollen": "ละอองเกสร",
+  "online.air.pollenLevel.high": "สูง",
+  "online.air.pollenLevel.low": "ต่ำ",
+  "online.air.pollenLevel.moderate": "ปานกลาง",
+  "online.air.pollenNone": "ไม่มีในอากาศ",
+  "online.air.pollenType.alder": "ต้นอัลเดอร์",
+  "online.air.pollenType.birch": "ต้นเบิร์ช",
+  "online.air.pollenType.grass": "หญ้า",
+  "online.air.pollenType.mugwort": "โกฐจุฬาลัมพา",
+  "online.air.pollenType.olive": "มะกอก",
+  "online.air.pollenType.ragweed": "แร็กวีด",
+  "online.air.uv": "ดัชนี UV",
+  "online.air.uvLevel.extreme": "รุนแรง",
+  "online.air.uvLevel.high": "สูง",
+  "online.air.uvLevel.low": "ต่ำ",
+  "online.air.uvLevel.moderate": "ปานกลาง",
+  "online.air.uvLevel.veryHigh": "สูงมาก"
+}

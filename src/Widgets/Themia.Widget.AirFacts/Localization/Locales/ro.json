@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozon",
+  "online.air.pollen": "Polen",
+  "online.air.pollenLevel.high": "Ridicat",
+  "online.air.pollenLevel.low": "Scăzut",
+  "online.air.pollenLevel.moderate": "Moderat",
+  "online.air.pollenNone": "Nimic în aer",
+  "online.air.pollenType.alder": "Arin",
+  "online.air.pollenType.birch": "Mesteacăn",
+  "online.air.pollenType.grass": "Iarbă",
+  "online.air.pollenType.mugwort": "Pelin",
+  "online.air.pollenType.olive": "Măslin",
+  "online.air.pollenType.ragweed": "Ambrozie",
+  "online.air.uv": "Indice UV",
+  "online.air.uvLevel.extreme": "Extrem",
+  "online.air.uvLevel.high": "Ridicat",
+  "online.air.uvLevel.low": "Scăzut",
+  "online.air.uvLevel.moderate": "Moderat",
+  "online.air.uvLevel.veryHigh": "Foarte ridicat"
+}

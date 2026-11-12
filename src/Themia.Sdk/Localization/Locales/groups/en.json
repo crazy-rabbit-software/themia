@@ -50,7 +50,9 @@
     "groups.recipe.sun",
     "groups.recipe.sunAbout",
     "groups.recipe.moon",
-    "groups.recipe.moonAbout"
+    "groups.recipe.moonAbout",
+    "groups.recipe.airQuality",
+    "groups.recipe.airQualityAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -105,5 +107,7 @@
   "groups.recipe.sun": "Sun",
   "groups.recipe.sunAbout": "The sun's path across the sky and its times",
   "groups.recipe.moon": "Moon",
-  "groups.recipe.moonAbout": "How much of the moon is lit, its rise, set and next full moon"
+  "groups.recipe.moonAbout": "How much of the moon is lit, its rise, set and next full moon",
+  "groups.recipe.airQuality": "Air quality",
+  "groups.recipe.airQualityAbout": "The air quality index, UV, fine dust and pollen"
 }

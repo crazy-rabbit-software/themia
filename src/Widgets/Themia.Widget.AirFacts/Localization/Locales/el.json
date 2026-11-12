@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Όζον",
+  "online.air.pollen": "Γύρη",
+  "online.air.pollenLevel.high": "Υψηλή",
+  "online.air.pollenLevel.low": "Χαμηλή",
+  "online.air.pollenLevel.moderate": "Μέτρια",
+  "online.air.pollenNone": "Καθόλου στον αέρα",
+  "online.air.pollenType.alder": "Σκλήθρο",
+  "online.air.pollenType.birch": "Σημύδα",
+  "online.air.pollenType.grass": "Αγρωστώδη",
+  "online.air.pollenType.mugwort": "Αρτεμισία",
+  "online.air.pollenType.olive": "Ελιά",
+  "online.air.pollenType.ragweed": "Αμβροσία",
+  "online.air.uv": "Δείκτης UV",
+  "online.air.uvLevel.extreme": "Ακραίος",
+  "online.air.uvLevel.high": "Υψηλός",
+  "online.air.uvLevel.low": "Χαμηλός",
+  "online.air.uvLevel.moderate": "Μέτριος",
+  "online.air.uvLevel.veryHigh": "Πολύ υψηλός"
+}

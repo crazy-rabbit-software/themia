@@ -14,7 +14,7 @@ using Themia.Widget.AirQuality;
 
 namespace Themia.Widget.AirQuality;
 
-/// <summary>[S-5100] Air quality, UV and pollen at a place: the index and its band, then the readings as the tile grows. SPEC.md beside this file.</summary>
+/// <summary>[S-11130] The air quality index at a place and its band, as a number or on a gauge. SPEC.md beside this file.</summary>
 public sealed class AirQualityModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (U+EC0A, a leaf: air quality and pollen; checked on a rendered sheet of SegoeIcons.ttf).</summary>
@@ -27,12 +27,12 @@ public sealed class AirQualityModule : IWidgetModule
         ConfigType = typeof(AirQualityConfig),
         CreateDefault = () => new AirQualityConfig(),
         Json = AirQualityJsonContext.Default,
-        Keywords = ["aqi", "pollution", "smog", "pm2.5", "particulates", "ozone", "uv", "sunburn", "pollen", "allergy", "hay fever"],
+        Keywords = ["aqi", "air quality index", "pollution", "smog", "eaqi"],
         Label = AirQualityStr.Online_Air_Label.Local(),
         Description = AirQualityStr.Online_Air_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(260, 200),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Sizing = c => AirLayout.Sizing((AirQualityConfig)c),
+        Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 0, 4),
     };
 

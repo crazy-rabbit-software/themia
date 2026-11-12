@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Озон",
+  "online.air.pollen": "Пилок",
+  "online.air.pollenLevel.high": "Високий",
+  "online.air.pollenLevel.low": "Низький",
+  "online.air.pollenLevel.moderate": "Помірний",
+  "online.air.pollenNone": "У повітрі немає",
+  "online.air.pollenType.alder": "Вільха",
+  "online.air.pollenType.birch": "Береза",
+  "online.air.pollenType.grass": "Трави",
+  "online.air.pollenType.mugwort": "Полин",
+  "online.air.pollenType.olive": "Оливка",
+  "online.air.pollenType.ragweed": "Амброзія",
+  "online.air.uv": "УФ-індекс",
+  "online.air.uvLevel.extreme": "Екстремальний",
+  "online.air.uvLevel.high": "Високий",
+  "online.air.uvLevel.low": "Низький",
+  "online.air.uvLevel.moderate": "Помірний",
+  "online.air.uvLevel.veryHigh": "Дуже високий"
+}

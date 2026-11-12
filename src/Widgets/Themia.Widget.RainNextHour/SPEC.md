@@ -7,7 +7,7 @@ header's stale rule [S-5160], the offline shelf [S-5161]; the background web syn
 
 Owning files: everything in this folder: `RainNextHourModule.cs` (descriptor, view factory, menu
 lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads the nowcast through
-`IWidgetHost.Weather`), `RainLayout.cs` (its ladder), `RainText.cs` (its words), `RainNextHourMenu.cs`
+`IWidgetHost.Weather`), `RainLayout.cs` (its layout and size), `RainText.cs` (its words), `RainNextHourMenu.cs`
 (its properties menu: the weather family's `WeatherPlaceRows.LocationLine` and the source line), `Preview/` (Debug renders:
 `--state sample|dry`), `Localization/Locales/` (its own `RainNextHourStr`, 30 languages). Tests:
 `Tests/RainNextHourTests.cs`, `Tests/RainNextHourMenuTests.cs` (run by `tests/Themia.Modules.Tests`); the nowcast's own tests stay Core's
@@ -21,13 +21,16 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   across the content, filled from the foot on a fixed scale (heavy rain fills the chart), a wet quarter
   never under 8 %, a dry one its empty track; the window's two ends under them in Caption tertiary
   ("Now" and the time two hours on), left to right in every language.
-- **[S-5126]** Ladder (`RainLayout.Rain`), at the top of the content: the sentence in Title where its
-  line holds it, else BodyStrong, on two lines where even that cannot hold it on one (it never grows
-  past Title: room left goes to the bars, [S-666]); then the caption (Body, secondary: the heaviest
-  rain, the total, the chance); then the bars 8 under the text, taking the rest to the content's foot
-  where 32 of bars and their time line fit. A dry window, or one too short to speak for the hour, is
-  the Status row's one plain sentence ([S-6714]: the widget's glyph, "No rain in the next 2 hours"),
-  nothing else; no answer at all is [S-6734]'s row.
+- **[S-5126]** The layout (`RainLayout`), at the top of the content: the sentence on one Title line
+  (its ellipsis where the card is narrow); then the caption (Body, secondary: the heaviest rain, the
+  total, the chance; its ellipsis too); then 8 down the bars, 48 tall, and their time line 4 under them.
+  A dry window, or one too short to speak for the hour, is the Status row's one plain sentence
+  ([S-6714]: the widget's glyph, "No rain in the next 2 hours"), nothing else; no answer at all is
+  [S-6734]'s row.
+- **[S-11140]** **An atom** ([S-11170]): the sentence, its caption and the bars, the same at every size
+  in its range (no ladder, no part that comes or goes with the box). **Sizes** (`RainLayout.Sizing`,
+  with its header): one height (172), 220..420 wide, a new one 300: the bars get wider. It follows the
+  sync through the SDK's `SkyFeed` ([S-11171]).
 - **[S-5127]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), then behind a divider each **Location** (the weather family's search, [S-2840],
   [S-3722]; the place's city is the header's label, [S-728], [S-2260]), a link to **Update interval** (⚙ ›

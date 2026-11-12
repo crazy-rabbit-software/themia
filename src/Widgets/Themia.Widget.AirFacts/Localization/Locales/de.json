@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozon",
+  "online.air.pollen": "Pollen",
+  "online.air.pollenLevel.high": "Stark",
+  "online.air.pollenLevel.low": "Gering",
+  "online.air.pollenLevel.moderate": "Mäßig",
+  "online.air.pollenNone": "Keine in der Luft",
+  "online.air.pollenType.alder": "Erle",
+  "online.air.pollenType.birch": "Birke",
+  "online.air.pollenType.grass": "Gräser",
+  "online.air.pollenType.mugwort": "Beifuß",
+  "online.air.pollenType.olive": "Olive",
+  "online.air.pollenType.ragweed": "Ambrosia",
+  "online.air.uv": "UV-Index",
+  "online.air.uvLevel.extreme": "Extrem",
+  "online.air.uvLevel.high": "Hoch",
+  "online.air.uvLevel.low": "Niedrig",
+  "online.air.uvLevel.moderate": "Mäßig",
+  "online.air.uvLevel.veryHigh": "Sehr hoch"
+}

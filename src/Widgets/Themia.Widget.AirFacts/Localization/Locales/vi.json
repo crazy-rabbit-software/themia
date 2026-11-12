@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ôzôn",
+  "online.air.pollen": "Phấn hoa",
+  "online.air.pollenLevel.high": "Cao",
+  "online.air.pollenLevel.low": "Thấp",
+  "online.air.pollenLevel.moderate": "Trung bình",
+  "online.air.pollenNone": "Không có trong không khí",
+  "online.air.pollenType.alder": "Tống quán sủi",
+  "online.air.pollenType.birch": "Bạch dương",
+  "online.air.pollenType.grass": "Cỏ",
+  "online.air.pollenType.mugwort": "Ngải cứu",
+  "online.air.pollenType.olive": "Ô liu",
+  "online.air.pollenType.ragweed": "Cỏ phấn hương",
+  "online.air.uv": "Chỉ số UV",
+  "online.air.uvLevel.extreme": "Cực cao",
+  "online.air.uvLevel.high": "Cao",
+  "online.air.uvLevel.low": "Thấp",
+  "online.air.uvLevel.moderate": "Trung bình",
+  "online.air.uvLevel.veryHigh": "Rất cao"
+}

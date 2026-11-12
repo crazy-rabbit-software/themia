@@ -4,13 +4,12 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Xunit;
 using static Themia.Core.Tests.OnlineReplies;
-using static Themia.Core.Tests.StyleTiers;
 
 namespace Themia.Widget.AirQuality.Tests;
 
 /// <summary>
 /// [S-5103]..[S-5107] [S-6170] The air quality widget: the index rules and their roles, both styles'
-/// faces on the family's blocks and the scale's repair.
+/// sizes and the scale's repair.
 /// </summary>
 public sealed class AirQualityTests
 {
@@ -106,24 +105,14 @@ public sealed class AirQualityTests
     }
 
     [Fact]
-    public void S5107_the_number_style_is_the_detail_plan_its_readings_beside_on_an_expanded_width()
+    public void S11131_the_number_is_the_28_readout_and_its_band_at_one_height_160_to_320_wide()
     {
-        var small = AirLayout.Number(Xs, 7);
-        var medium = AirLayout.Number(M, 7);
-        var tall = AirLayout.Number(Tall, 7);
-        var wide = AirLayout.Number(Wide, 7);
-        var xl = AirLayout.Number(Xl, 7);
+        var sizing = AirLayout.Sizing(new AirQualityConfig());
 
-        Assert.Equal(0, small.Facts);
-        Assert.True(small.Under, "the band under the index");
-        Assert.False(medium.Side);
-        Assert.Equal(4, medium.Facts);
-        Assert.Equal(7, tall.Facts);
-        Assert.True(wide.Side);
-        Assert.Equal(4, wide.Facts);
-        Assert.True(xl.Side);
-        Assert.Equal(7, xl.Facts);
-        Assert.Equal(FamilyType.Big40, xl.Hero);
+        Assert.Equal(36 + 36 + 16 + 12, sizing.Natural.Height);
+        Assert.True(sizing.FixedHeight);
+        Assert.Equal((160.0, 200.0, 320.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.True(ReadoutRules.Width(FamilyType.Big28, AirLayout.Worst) <= 160 - 24);
     }
 
     [Theory]
@@ -137,30 +126,13 @@ public sealed class AirQualityTests
         => Assert.Equal(fraction, AirQualityRules.ScalePosition(scale, index), 6);
 
     [Fact]
-    public void S6170_the_gauge_takes_its_box_while_its_half_and_the_band_fit_and_the_readings_follow()
+    public void S11131_the_gauge_is_one_size_its_160_ring_and_its_band_in_the_inset()
     {
-        foreach (var tier in Tiers)
-        {
-            var plan = AirLayout.Gauge(tier, 7);
-            var (width, height) = MeterPlan.Content(tier);
-            Assert.True(plan.Diameter >= MeterPlan.GaugeFloor, $"{tier}: a gauge at every tier");
-            Assert.True(plan.Part <= height + 0.01, $"{tier}: the gauge and its band fit");
-            Assert.True(plan.Diameter <= (plan.Side ? plan.Column - FamilySpace.Inset : width), $"{tier}: the gauge fits its box");
-        }
+        var sizing = AirLayout.Sizing(new AirQualityConfig { Style = AirQualityStyle.Gauge });
 
-        var small = AirLayout.Gauge(S, 7);
-        Assert.Equal(170, small.Diameter);
-        Assert.Equal(0, small.Facts);
-        var tall = AirLayout.Gauge(Tall, 7);
-        Assert.Equal(176, tall.Diameter);
-        Assert.Equal(7, tall.Facts);
-        var wide = AirLayout.Gauge(Wide, 7);
-        Assert.True(wide.Side);
-        Assert.Equal(4, wide.Facts);
-        Assert.Equal(FamilyType.Big40, AirLayout.Gauge(Xl, 7).Reading);
+        Assert.True(sizing.FixedHeight && sizing.FixedWidth);
+        Assert.Equal(24 + 160, sizing.Natural.Width);
+        Assert.Equal(36 + Math.Ceiling(ChartRules.GaugeHeight(160) + 16) + 12, sizing.Natural.Height);
+        Assert.True(ReadoutRules.Width(FamilyType.Big28, AirLayout.Worst with { LineUnder = false }) <= 160 - 48, "the widest index fits the bowl");
     }
-
-    [Fact]
-    public void S6170_a_box_too_small_for_a_ring_is_the_index_alone()
-        => Assert.Equal(0, AirLayout.Gauge(new WidgetArea(80, 50), 0).Diameter);
 }

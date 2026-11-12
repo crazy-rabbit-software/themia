@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Core.Sync;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
@@ -198,5 +199,21 @@ public static class AirQualityRules
     {
         ArgumentNullException.ThrowIfNull(reading);
         return reading.Pollen.Count > 0;
+    }
+}
+
+/// <summary>
+/// [S-5101] [S-11171] What an air atom (the index, its facts) asks the sync for at its place, or null
+/// without one: both read the one answer, so they agree to the digit.
+/// </summary>
+public static class AirInterests
+{
+    /// <summary>At the running app's cadence (the weather's, never faster than hourly, [S-3780]).</summary>
+    public static AirInterest? For(WeatherConfig config) => For(config, OnlineCadence.Air(UpdateCadence.Current));
+
+    public static AirInterest? For(WeatherConfig config, TimeSpan interval)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return WebInput.AreCoordinates(config.Latitude, config.Longitude) ? new AirInterest(config.Latitude!.Value, config.Longitude!.Value, interval) : null;
     }
 }

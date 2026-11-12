@@ -14,7 +14,7 @@ public class PlaceClearTests
 {
     private static readonly WidgetId[] Placed =
     [
-        new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"),
+        new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
         new WidgetId("sun"), new WidgetId("sunTimes"), new WidgetId("moon"), new WidgetId("moonTimes"),
     ];
 

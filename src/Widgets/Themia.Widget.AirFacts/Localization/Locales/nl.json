@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "Ozon",
+  "online.air.pollen": "Pollen",
+  "online.air.pollenLevel.high": "Hoog",
+  "online.air.pollenLevel.low": "Laag",
+  "online.air.pollenLevel.moderate": "Matig",
+  "online.air.pollenNone": "Niets in de lucht",
+  "online.air.pollenType.alder": "Els",
+  "online.air.pollenType.birch": "Berk",
+  "online.air.pollenType.grass": "Gras",
+  "online.air.pollenType.mugwort": "Bijvoet",
+  "online.air.pollenType.olive": "Olijf",
+  "online.air.pollenType.ragweed": "Ambrosia",
+  "online.air.uv": "Uv-index",
+  "online.air.uvLevel.extreme": "Extreem",
+  "online.air.uvLevel.high": "Hoog",
+  "online.air.uvLevel.low": "Laag",
+  "online.air.uvLevel.moderate": "Matig",
+  "online.air.uvLevel.veryHigh": "Zeer hoog"
+}

@@ -229,8 +229,15 @@ public static class ReadyMadeGroups
         new("moonTimes", new(0, 100, 240, 108), Header: HeaderPlacement.Hidden),
     ]);
 
+    /// <summary>[S-11172] Air quality: the air quality index, UV, fine dust and pollen.</summary>
+    public static ReadyMadeGroup AirQuality { get; } = new("airQuality", Str.Groups_Recipe_AirQuality, Str.Groups_Recipe_AirQualityAbout, Glyphs.EnergySaver, AddFolderId.Weather,
+    [
+        new("airQuality", new(0, 0, 240, 100)),
+        new("airFacts", new(0, 100, 240, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

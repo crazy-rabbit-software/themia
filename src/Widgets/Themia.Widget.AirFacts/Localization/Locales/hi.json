@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "ओज़ोन",
+  "online.air.pollen": "पराग",
+  "online.air.pollenLevel.high": "अधिक",
+  "online.air.pollenLevel.low": "कम",
+  "online.air.pollenLevel.moderate": "मध्यम",
+  "online.air.pollenNone": "हवा में नहीं",
+  "online.air.pollenType.alder": "एल्डर",
+  "online.air.pollenType.birch": "भोजपत्र",
+  "online.air.pollenType.grass": "घास",
+  "online.air.pollenType.mugwort": "नागदौना",
+  "online.air.pollenType.olive": "जैतून",
+  "online.air.pollenType.ragweed": "रैगवीड",
+  "online.air.uv": "UV सूचकांक",
+  "online.air.uvLevel.extreme": "चरम",
+  "online.air.uvLevel.high": "अधिक",
+  "online.air.uvLevel.low": "कम",
+  "online.air.uvLevel.moderate": "मध्यम",
+  "online.air.uvLevel.veryHigh": "बहुत अधिक"
+}

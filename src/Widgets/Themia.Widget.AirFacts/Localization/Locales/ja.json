@@ -1,0 +1,20 @@
+{
+  "online.air.ozone": "オゾン",
+  "online.air.pollen": "花粉",
+  "online.air.pollenLevel.high": "多い",
+  "online.air.pollenLevel.low": "少ない",
+  "online.air.pollenLevel.moderate": "やや多い",
+  "online.air.pollenNone": "飛散なし",
+  "online.air.pollenType.alder": "ハンノキ",
+  "online.air.pollenType.birch": "シラカバ",
+  "online.air.pollenType.grass": "イネ科",
+  "online.air.pollenType.mugwort": "ヨモギ",
+  "online.air.pollenType.olive": "オリーブ",
+  "online.air.pollenType.ragweed": "ブタクサ",
+  "online.air.uv": "UV 指数",
+  "online.air.uvLevel.extreme": "極端に強い",
+  "online.air.uvLevel.high": "強い",
+  "online.air.uvLevel.low": "弱い",
+  "online.air.uvLevel.moderate": "中程度",
+  "online.air.uvLevel.veryHigh": "非常に強い"
+}
