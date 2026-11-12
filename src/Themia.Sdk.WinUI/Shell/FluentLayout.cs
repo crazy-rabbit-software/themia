@@ -180,8 +180,8 @@ public static class FluentLayout
         var button = new Button
         {
             Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize }),
-            Width = FamilyShape.IconButton,
-            Height = FamilyShape.IconButton,
+            Width = ShellMetrics.Window.IconButton,
+            Height = ShellMetrics.Window.IconButton,
             Padding = new Thickness(0),
             CornerRadius = Family.Radius,
             VerticalAlignment = VerticalAlignment.Center,

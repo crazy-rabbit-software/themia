@@ -248,7 +248,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _headerHost = new Grid
         {
             Children = { _header },
-            Padding = Fluent.HeaderMargin,
+            Padding = Themia.Sdk.WinUI.Kit.Family.HeaderInset,
         };
 
         _headerTurn = new TurnedHeader(_headerHost);
@@ -277,8 +277,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // No padding: the content area goes edge to edge and each view insets its own parts. A card
         // that padded everything pushed every list row away from the edge and stopped its hover
-        // highlight short of it, so a row read as a box inside a box rather than as a row. See
-        // WidgetLayout.
+        // highlight short of it, so a row read as a box inside a box rather than as a row ([S-6711]:
+        // a row carries the side inset itself).
         // Auto, star, auto both ways, the outer ones empty but for the header: it takes the whole
         // outer row or column its placement asks for ([S-404], HeaderStrip), and the view stays in
         // the middle cell, so switching it costs a cell rather than a rebuild.
@@ -454,8 +454,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // view's element hidden, which views show and hide for their own reasons.
         _header.ColumnDefinitions[2].MaxWidth = HeaderStrip.ShowsTrailing(placement) ? double.PositiveInfinity : 0;
 
-        _headerHost.Padding = far ? new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space4)
-            : Fluent.HeaderMargin;
+        // [S-6703] The inset on three sides and the header's gap toward the content, which is under it or, at the foot, over it.
+        _headerHost.Padding = far ? new Thickness(FamilySpace.Inset, FamilySpace.HeaderGap, FamilySpace.Inset, FamilySpace.Inset)
+            : Themia.Sdk.WinUI.Kit.Family.HeaderInset;
 
         ApplyHeaderFill();
     }

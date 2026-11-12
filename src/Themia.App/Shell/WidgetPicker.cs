@@ -51,14 +51,14 @@ internal sealed partial class WidgetPicker : Grid
     /// <summary>The gap between two columns.</summary>
     private const double ColumnGap = Fluent.Space2;
 
-    /// <summary>[S-3512] One row, heading or entry: Fluent's compact list row.</summary>
-    private const double LineHeight = Fluent.RowHeightCompact;
+    /// <summary>[S-3512] One row, heading or entry.</summary>
+    private const double LineHeight = ShellMetrics.Picker.Row;
 
     /// <summary>A line between two runs of rows: a hairline in a small gap.</summary>
     private const double RuleHeight = Fluent.Space2 + Fluent.Hairline;
 
     /// <summary>[S-3515] A result: its name over where it lives.</summary>
-    private const double ResultHeight = FamilyShape.Row2;
+    private const double ResultHeight = ShellMetrics.Picker.Result;
 
     /// <summary>
     /// The search index, built once per language: the catalogue does not change while the app runs,

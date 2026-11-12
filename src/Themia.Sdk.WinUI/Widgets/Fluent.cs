@@ -32,7 +32,6 @@ public static class Fluent
 
     public const double Space3 = FamilySpace.S3;
 
-    /// <summary>The standard content inset for a card.</summary>
     public const double Space4 = FamilySpace.S4;
 
     public const double Space6 = FamilySpace.S6;
@@ -41,9 +40,6 @@ public static class Fluent
 
     /// <summary>Fluent's control radius. Buttons, text fields, row highlights.</summary>
     public const double ControlRadius = FamilyShape.Radius;
-
-    /// <summary>A list row of one line ([S-6704]: the family's row, <see cref="FamilyShape.Row1"/>).</summary>
-    public const double RowHeightCompact = FamilyShape.Row1;
 
     // ---- type ------------------------------------------------------------------------------
 
@@ -144,9 +140,6 @@ public static class Fluent
             ItemFill.Paint(_row, ItemRole.Row);
         }
     }
-
-    /// <summary>The margin a header carries when it sits above a full-bleed list.</summary>
-    public static Thickness HeaderMargin { get; } = new(Space4, Space4, Space4, Space2);
 
     /// <summary>
     /// A clear fill that still takes the pointer, for a surface that is not an item (a list's

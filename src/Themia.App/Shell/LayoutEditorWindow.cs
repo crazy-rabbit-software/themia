@@ -48,7 +48,7 @@ internal sealed class LayoutEditorWindow
     private const double MaxCanvasHeight = ShellMetrics.LayoutEditor.MaxCanvasHeight;
 
     /// <summary>A pane's band over its middle that its tool buttons stand in: a button with the 4 round it.</summary>
-    private const double ToolBand = FamilyShape.IconButton + (2 * FamilySpace.S1);
+    private const double ToolBand = ShellMetrics.Window.IconButton + (2 * FamilySpace.S1);
 
     /// <summary>What a pane can open, labelled in the current language (built per pane, not cached).</summary>
     private static (LayoutSource Value, string Label)[] Sources() =>

@@ -199,6 +199,9 @@ public static class ShellMetrics
         public const double ChoiceMinWidth = 200;
 
         public const double VerdictMaxWidth = 300;
+
+        /// <summary>[S-2221] An icon command in the window (a layout cell's remove): Windows' 32 square, not a widget's button.</summary>
+        public const double IconButton = 32;
     }
 
     /// <summary>
@@ -218,9 +221,17 @@ public static class ShellMetrics
         public const double PaneColumn = 260;
     }
 
-    /// <summary>[S-903] The icon grid: 32 cells, the glyph in Settings' 20 icon box; [S-6440] the font list 360 tall.</summary>
+    /// <summary>
+    /// [S-903] The icon grid: 32 cells, the glyph in Settings' 20 icon box; [S-6440] the font list 360 tall;
+    /// [S-2221] the widget picker's rows (Karpo's 32, a heading or an entry) and its search results (48:
+    /// a name over where it lives), its own and not a widget's rows.
+    /// </summary>
     public static class Picker
     {
+        public const double Row = 32;
+
+        public const double Result = 48;
+
         public const double Cell = 32;
 
         public const double Glyph = IconBox;
