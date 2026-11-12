@@ -1,10 +1,12 @@
 {
   "$englishOnly": [
-    "widgetsB.email.menu.columns"
+    "widgetsB.email.menu.columns",
+    "email.columnTitles"
   ],
   "ctxMenu.archive": "Archive",
   "ctxMenu.copySubject": "Copy subject",
   "ctxMenu.reply": "Reply",
+  "email.columnTitles": "Column titles",
   "email.folder.label": "Folder",
   "styles.email.compact": "Compact list",
   "styles.email.list": "List with preview",

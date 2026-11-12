@@ -34,8 +34,42 @@ public enum EmailStyle
 /// would refuse the whole state file and blank every desktop.
 /// </para>
 /// </summary>
-public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, IKitConfig, IInterests
+public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, IKitConfig, IInterests, IKitRows
 {
+    /// <summary>[S-11402] A new Mail widget's rows.</summary>
+    public const int DefaultRows = 5;
+
+    /// <summary>[S-11402] How many messages the list shows; more scroll inside them. Its height follows.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-11402] Lines per message: the sender, then the subject, then the preview (List only).</summary>
+    public int Lines { get; set; } = 2;
+
+    /// <summary>[S-11402] The Table's column titles over its rows: the user's choice, never the height's.</summary>
+    public bool ColumnTitles { get; set; } = true;
+
+    /// <summary>
+    /// [S-11402] The most lines a message can have in this style with these fields: the sender, a second
+    /// line where the subject or the account is on, the preview's line in List; the Table one.
+    /// </summary>
+    [JsonIgnore]
+    public int MostLines => Style == EmailStyle.Table
+        ? 1
+        : 1 + (Shows(MailListField.Subject) || Shows(MailListField.Account) ? 1 : 0) + (ShowsPreview ? 1 : 0);
+
+    /// <summary>[S-11402] The rows as drawn: the chosen count, at most the lines a message has, the Table's titles where on.</summary>
+    [JsonIgnore]
+    public KitRowsChoice RowsShown => Style == EmailStyle.Table
+        ? new(KitSizing.ClampRows(Rows), 1, ColumnTitles: ColumnTitles)
+        : new(KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, MostLines));
+
+    /// <summary>[S-11402] Each style's own widths: the stacked looks the kit's (220..520), the Table's columns 320..720.</summary>
+    [JsonIgnore]
+    public KitWidths? Widths => Style == EmailStyle.Table ? TableWidths : null;
+
+    /// <summary>[S-11402] A table's sender, subject and date read whole from 320; past 720 the subject is a sentence across a room.</summary>
+    public static KitWidths TableWidths { get; } = new(320, 420, 720);
+
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
     string? ISetupRule.SetupSentence => EmailStr.Email_Setup_Sentence.Text();
 
@@ -129,7 +163,7 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
     public IReadOnlyList<EmailSetting> ShownSettings => Style switch
     {
         EmailStyle.List or EmailStyle.Compact => [EmailSetting.ListFields],
-        _ => [EmailSetting.Columns],
+        _ => [EmailSetting.Columns, EmailSetting.ColumnTitles],
     };
 
     /// <summary>[S-540] Bring every value back inside its range.</summary>
@@ -178,11 +212,20 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
             }
         }
 
+        if (Rows != KitSizing.ClampRows(Rows) || Lines != KitSizing.ClampLines(Lines, KitSizing.MaxLines))
+        {
+            (Rows, Lines) = (KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, KitSizing.MaxLines));
+            repairs.Add("mail widget's rows or lines were out of range");
+        }
+
         return repairs;
     }
 
     public override WidgetConfig Clone() => new EmailConfig
     {
+        Rows = Rows,
+        Lines = Lines,
+        ColumnTitles = ColumnTitles,
         AccountIds = AccountIds is null ? null : [.. AccountIds],
         Folder = Folder,
         Style = Style,
@@ -200,6 +243,9 @@ public enum EmailSetting
 
     /// <summary>The table's columns (Table).</summary>
     Columns,
+
+    /// <summary>[S-11402] The table's column titles (Table).</summary>
+    ColumnTitles,
 }
 
 /// <summary>[S-540] The mail folders the widget offers.</summary>

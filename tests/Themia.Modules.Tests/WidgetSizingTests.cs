@@ -22,12 +22,12 @@ public sealed class WidgetSizingTests
     private static readonly string[] Legacy =
     [
         "airplaneModeToggle", "alarm", "audioVisualizer", "bluetooth", "bluetoothToggle", "brightness", "calendar",
-        "clipboard", "colorFiltersToggle", "contacts", "countdown", "doNotDisturbToggle", "email",
-        "energySaverToggle", "focusSession", "gameModeToggle", "habitTracker", "hibernate", "lock",
-        "microphoneToggle", "mixer", "monoAudioToggle", "music", "nextMeeting", "nightLightToggle", "notifications",
-        "pomodoro", "quote", "restart", "rotationLockToggle", "rss", "screenOff", "screenTimeApps",
-        "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle",
-        "stopwatch", "volume", "weekPlanner", "wifiToggle",
+        "clipboard", "colorFiltersToggle", "contacts", "countdown", "doNotDisturbToggle", "energySaverToggle",
+        "focusSession", "gameModeToggle", "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer",
+        "monoAudioToggle", "music", "nextMeeting", "nightLightToggle", "notifications", "pomodoro", "quote",
+        "restart", "rotationLockToggle", "rss", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut",
+        "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle", "stopwatch", "volume", "weekPlanner",
+        "wifiToggle",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

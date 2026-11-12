@@ -43,6 +43,15 @@ internal static class EmailMenu
             look.Add(Columns(menu, email));
         }
 
+        if (email.Offers(EmailSetting.ColumnTitles))
+        {
+            look.Add(menu.Toggle(null, EmailStr.Email_ColumnTitles.Text(), email.ColumnTitles, on => email.ColumnTitles = on));
+        }
+
+        // [S-11402] How many messages, and their lines where a message has more than one.
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, email, offersLines: email.MostLines >= 2, mostLines: email.MostLines));
+        menu.Lines.Add(ItemMenuEntry.Separator);
+
         menu.Lines.Add(OfficeMenuLines.Accounts(menu, accounts, Glyphs.Mail,
             new KitAccountWords(EmailStr.WidgetsB_Settings_Email_NoAccount_Label.Text(), EmailStr.WidgetsB_Settings_Email_Every_Label.Text()),
             email.EffectiveAccountIds, ids => email.AccountIds = ids));

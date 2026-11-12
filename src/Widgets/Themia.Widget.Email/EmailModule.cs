@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Email;
 using Themia.App.Services.Accounts;
@@ -35,7 +36,8 @@ public sealed class EmailModule : IWidgetModule
         Label = EmailStr.WidgetsA_Catalog_Mail_Label.Local(),
         Description = EmailStr.WidgetsA_Catalog_Mail_Description.Local(),
         Glyph = Glyphs.Mail,
-        Sizing = _ => WidgetSizing.Legacy(380, 260),
+        Sizing = c => KitSizing.Sizing(((EmailConfig)c).RowsShown, addFooter: false, ((EmailConfig)c).Widths),
+        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((EmailConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),
     };

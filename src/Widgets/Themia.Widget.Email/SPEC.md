@@ -49,7 +49,16 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   is removed for good (Graph DELETE; IMAP `\Deleted` + `UID EXPUNGE`, UIDPLUS-scoped). A change shows
   at once and waits in the account's queue until the provider has it ([S-2610], [S-2624]); a refusal
   is the header warning's tooltip and the next probe fetches the truth.
-- **[S-1280]** Mail's ladder (the kit's message and table looks on the family's rows, [S-7032],
+- **[S-11402]** **Mail states its rows** ([S-2440]): `Rows` (1..20, default 5) and `Lines` per
+  message (the sender with its time; the subject with the account; the preview, List only), offered
+  up to the lines its style and fields have (List 3, Compact 2, none in the Table; a Compact list with
+  subject and account off is one line), default 2. Each style states its own sizes: List and Compact
+  the kit's (220..520, a new one 300 × 248), the Table 320..720 (a new one 420), its rows one line,
+  its **Column titles** a setting under Style (on by default) and never the height's ([S-11401]).
+  The height follows the rows; dragging the bottom edge sets Rows; more messages scroll inside them
+  (the wheel as before). Nothing appears or disappears with the size: [S-1280]'s ladder is gone. Tests
+  `EmailSizingTests`, `EmailMenuTests.S11402_`.
+- **[S-1280]** *(Retired by [S-11402]: what a row shows is its lines, never the tile.)* Mail's ladder (the kit's message and table looks on the family's rows, [S-7032],
   [S-7034]): a Row block per message, the sender the name (BodyStrong while unread), the time the
   value, the subject with the account after it ("Quarterly numbers · Work") on the second line
   from a regular tile, the preview on the third from an expanded one; the rows that fit whole, the

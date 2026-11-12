@@ -43,7 +43,7 @@ public sealed class EmailMenuTests
         Assert.Equal(
             [EmailStr.WidgetsB_Settings_Email_ShowSubject.Text(), EmailStr.WidgetsB_Settings_Email_ShowAccount_Label.Text()],
             Build(new EmailConfig { Style = EmailStyle.Compact }).StyleLines.Select(l => l.Text));
-        Assert.Equal([Columns], Build(new EmailConfig { Style = EmailStyle.Table }).StyleLines.Select(l => l.Text));
+        Assert.Equal([Columns, EmailStr.Email_ColumnTitles.Text()], Build(new EmailConfig { Style = EmailStyle.Table }).StyleLines.Select(l => l.Text));
     }
 
     [Fact]
@@ -51,8 +51,29 @@ public sealed class EmailMenuTests
     {
         var lines = Build(new EmailConfig());
 
-        Assert.Equal([Str.WidgetUi_AccountsLabel.Text(), EmailStr.Email_Folder_Label.Text()], lines.Lines.Select(l => l.Text));
-        Assert.Equal(EmailFolders.Listable.Select(f => f.Label()), lines.Lines[1].Children!.Select(c => c.Text));
+        Assert.Equal(
+            [Str.Kit_Rows.Text(), Str.Kit_Lines.Text(), string.Empty, Str.WidgetUi_AccountsLabel.Text(), EmailStr.Email_Folder_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
+        Assert.Equal(EmailFolders.Listable.Select(f => f.Label()), lines.Lines[4].Children!.Select(c => c.Text));
+    }
+
+    [Fact]
+    public void S11402_rows_always_lines_up_to_three_in_list_two_in_compact_and_none_in_the_table()
+    {
+        int Most(EmailConfig c) => Line(Build(c).Lines, Str.Kit_Lines.Text()).Children!.Count(l => !l.IsSeparator);
+
+        Assert.Equal(3, Most(new EmailConfig { Style = EmailStyle.List }));
+        Assert.Equal(2, Most(new EmailConfig { Style = EmailStyle.Compact }));
+        Assert.DoesNotContain(Build(new EmailConfig { Style = EmailStyle.Table }).Lines, l => l.Text == Str.Kit_Lines.Text());
+        Assert.Contains(Build(new EmailConfig { Style = EmailStyle.Table }).Lines, l => l.Text == Str.Kit_Rows.Text());
+    }
+
+    [Fact]
+    public void S11402_column_titles_turned_off_are_saved()
+    {
+        var config = new EmailConfig { Style = EmailStyle.Table };
+        Line(Build(config).StyleLines, EmailStr.Email_ColumnTitles.Text()).Action!();
+        Assert.False(config.ColumnTitles);
     }
 
     [Fact]
