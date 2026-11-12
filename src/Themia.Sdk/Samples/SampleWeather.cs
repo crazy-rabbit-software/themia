@@ -71,6 +71,6 @@ public static class SampleWeather
     /// Rain over the quarter hours from the one under way at the sample moment (10:30), in mm: dry
     /// until about eleven, then the shower that today's forecast names (the same 2.6 mm).
     /// </summary>
-    public static IReadOnlyList<double> NextQuarters { get; } = [0, 0, 0, 0.2, 0.5, 0.9, 0.6, 0.3, 0.1, 0];
+    public static IReadOnlyList<double> NextQuarters { get; } = [0, 0, 0, 0.2, 0.5, 0.6, 0.6, 0.5, 0.2, 0];
 }
 #endif
