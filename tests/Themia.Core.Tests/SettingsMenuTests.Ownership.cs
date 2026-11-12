@@ -12,7 +12,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-3592] The ownership guard, after Karpo's <c>ConfigCoverageTests.NoSettingIsSetAtTwoLevels</c>
-/// (karpo-app): every line of every bar menu (⚙, Display ▾, View ▾) and the bar's own Snap is run on
+/// (karpo-app): every line of every page of the edit bar (General, Accounts, Display, Views, Appearance) is run on
 /// a state of its own, and what each changed is read back from the state file's shape. Every field of
 /// the app's look and behaviour is set from exactly one level, and the bar's menus set nothing twice:
 /// a setting moved, copied or added in a second place fails here.
@@ -53,13 +53,22 @@ public sealed partial class SettingsMenuTests
 
         public OwnViewsHost Views { get; }
 
-        /// <summary>The menus' roots, by the menu, as the state holds them now.</summary>
+        /// <summary>[S-2306] The edit bar's pages, by the page, as the state holds them now: each section a level of its own.</summary>
         public IEnumerable<(string Menu, IReadOnlyList<SettingsLine> Lines)> Menus()
         {
-            yield return ("settings", SettingsMenu.Root(Settings));
-            yield return ("display", DisplayMenu.Root(Display));
-            yield return ("view", ViewsMenu.Root(Views));
+            foreach (var page in new[]
+            {
+                SettingsPages.General(Settings), SettingsPages.Accounts(Settings), SettingsPages.Display(Display),
+                SettingsPages.Views(Views), SettingsPages.Appearance(Settings),
+            })
+            {
+                yield return (page.Id.ToString().ToLowerInvariant(), Levels(page));
+            }
         }
+
+        /// <summary>A page's sections as the levels the walk goes down: a section's key, then its lines' keys.</summary>
+        internal static IReadOnlyList<SettingsLine> Levels(SettingsPage page)
+            => [.. page.Sections.Select(s => (SettingsLine)new SettingsSubmenu(s.Key, s.Heading ?? string.Empty, null, s.Lines))];
 
         /// <summary>What the state holds, every leaf by its path ("design.cornerRadiusPx"), with what Windows was asked as paths of their own.</summary>
         public Dictionary<string, string> Shape()
@@ -294,11 +303,6 @@ public sealed partial class SettingsMenuTests
             }
         }
 
-        // [S-3516] The bar's Snap: its one setting of its own.
-        var bar = new World();
-        var shape = bar.Shape();
-        EditBarSnap.Set(bar.Settings.State, !bar.Settings.State.Design.GridSnap);
-        Record("bar:snap", bar, shape);
         return writers;
     }
 
@@ -306,7 +310,7 @@ public sealed partial class SettingsMenuTests
     /// [S-3592] One field of one level reached from two rows of it, by design: a view's name is View ▾'s,
     /// on the shown view's Name row and on its row of Manage views (Karpo's level of things, [S-3549]).
     /// </summary>
-    private static readonly (string Path, string[] Levels)[] SameLevelTwice = [("views[].name", ["view", "view:manage"])];
+    private static readonly (string Path, string[] Levels)[] SameLevelTwice = [("views[].name", ["views:page", "views:manage"])];
 
     [Fact]
     public void S3592_no_setting_is_set_at_two_levels()
@@ -386,10 +390,10 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S3516_snap_is_the_bars_alone()
+    public void S3516_snap_is_generals_alone()
     {
         var snap = WritersByPath()["design.gridSnap"];
 
-        Assert.Equal(["bar:snap"], snap);
+        Assert.Equal(["general:page"], snap);
     }
 }

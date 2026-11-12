@@ -30,8 +30,11 @@ public static partial class SettingsMenu
     ];
 
     /// <summary>[S-3529] The Motion line: the three moments, and why nothing plays while Windows' animations are off ([S-1010]).</summary>
-    private static SettingsSubmenu Motion(ISettingsMenuHost host, string key)
+    public static SettingsSubmenu Motion(ISettingsMenuHost host)
     {
+        ArgumentNullException.ThrowIfNull(host);
+
+        const string key = Keys.Motion;
         var lines = new List<SettingsLine>
         {
             Moment(host, key + "/startup", IntroMode.Startup, Glyphs.Startup, Str.Shell_Motion_Startup.Text()),

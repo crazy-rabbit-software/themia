@@ -26,7 +26,7 @@ internal sealed partial class DesktopWindow
         MenuOpening: () => CloseBarMenu(focusButton: false),
         Undo: _host.Undo,
         Redo: _host.Redo,
-        SetSnap: on => _host.Mutate(state => EditBarSnap.Set(state, on)),
+        SetSnap: on => _host.Mutate(state => state.Design.GridSnap = on),
         Done: () => _host.SetEditMode(false));
 
     /// <summary>

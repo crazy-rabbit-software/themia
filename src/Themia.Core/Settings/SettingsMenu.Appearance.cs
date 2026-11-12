@@ -9,7 +9,7 @@ namespace Themia.Core.Settings;
 /// <summary>
 /// [S-3526] Appearance ›: the look of every widget, in the groups the Appearance page had ([S-3830]):
 /// Style (the presets, [S-834]), Theme and colours, Item background, Cards (the gap between them
-/// with them), Text and size, then Motion ([S-3529]). Snap is the edit bar's ([S-3516]) and a scale
+/// with them), Text and size; Motion is General's ([S-2310]). Snap is General's too ([S-3516]) and a scale
 /// a display's or a widget's ([S-3590]): neither is here. Every line writes the very field the page wrote, through one
 /// <see cref="ISettingsMenuHost.Mutate"/>, and the appearance engine applies it live.
 /// </summary>
@@ -29,8 +29,6 @@ public static partial class SettingsMenu
             Items(host, at + "/items"),
             Cards(host, at + "/cards"),
             TextAndSize(host, at + "/text"),
-            new SettingsSeparator(at + "/-motion"),
-            Motion(host, at + "/motion"),
         ]);
     }
 

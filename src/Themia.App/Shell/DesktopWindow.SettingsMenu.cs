@@ -19,8 +19,15 @@ internal sealed partial class DesktopWindow
     private Func<IReadOnlyList<SettingsLine>> SettingsMenuLines()
     {
         var host = new SurfaceSettingsHost(this);
-        return () => SettingsMenu.Root(host);
+        return () => PagesAsMenu(host);
     }
+
+    /// <summary>The settings pages' sections as the old menu's submenus, until the pages have their own flyouts.</summary>
+    internal static IReadOnlyList<SettingsLine> PagesAsMenu(ISettingsMenuHost host) =>
+    [
+        .. new[] { SettingsPages.General(host), SettingsPages.Accounts(host), SettingsPages.Appearance(host) }
+            .SelectMany(p => p.Sections.Select(s => (SettingsLine)new SettingsSubmenu(s.Key == "page" ? p.Id.ToString() : s.Key, s.Heading ?? p.Name, null, s.Lines))),
+    ];
 
     /// <summary>
     /// [S-3525] What Windows owns is read now and followed while the menu is open; [S-3559] so are

@@ -98,7 +98,14 @@ public sealed partial class SettingsMenuTests
         public void Quit() => Quits++;
     }
 
-    private static IReadOnlyList<SettingsLine> Root(FakeHost host) => SettingsMenu.Root(host);
+    /// <summary>Every section builder's lines, as the pages group them ([S-2300]), Quit Themia last: the lines found by their keys' paths.</summary>
+    private static IReadOnlyList<SettingsLine> Root(FakeHost host) =>
+    [
+        .. SettingsMenu.General(host), SettingsMenu.Appearance(host), SettingsMenu.Accounts(host), SettingsMenu.Language(host),
+        SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host), .. (SettingsMenu.Assistants(host) is { } assistants ? [assistants] : Array.Empty<SettingsLine>()),
+        SettingsMenu.Pro(host), SettingsMenu.Backup(host), SettingsMenu.About(host),
+        .. SettingsPages.General(host).Sections[^1].Lines,
+    ];
 
     private static T At<T>(FakeHost host, params string[] path)
         where T : SettingsLine
@@ -117,16 +124,6 @@ public sealed partial class SettingsMenuTests
     }
 
     // ---- [S-3524] the first level ----------------------------------------------------------------
-
-    [Fact]
-    public void S3524_the_root_is_general_then_the_sections_then_pro_backup_and_about_then_quit()
-    {
-        var keys = Root(new FakeHost()).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
-
-        Assert.Equal(
-            ["startup", "desktop", "gameMode", "-", "appearance", "accounts", "language", "online", "-", "pro", "backup", "about", "-", "quit"],
-            keys);
-    }
 
     [Fact]
     public void S3532_quit_themia_is_the_last_line_and_quits()
@@ -227,7 +224,7 @@ public sealed partial class SettingsMenuTests
 
         var host = new FakeHost { Startup = new AutostartStatus(AutostartState.Off, AutostartProblem.Failed, "0x80070005") };
         var keys = SettingsMenu.General(host).Select(l => l.Key).ToArray();
-        Assert.Equal(["startup", "startup/advice", "startup/detail", "desktop", "gameMode"], keys);
+        Assert.Equal(["startup", "startup/advice", "startup/detail", "desktop", "gameMode", "snap"], keys);
     }
 
     [Fact]
@@ -265,7 +262,7 @@ public sealed partial class SettingsMenuTests
         var appearance = At<SettingsSubmenu>(new FakeHost(), "appearance");
 
         Assert.Equal(
-            ["appearance/style", "-", "appearance/theme", "appearance/items", "appearance/cards", "appearance/text", "-", "appearance/motion"],
+            ["appearance/style", "-", "appearance/theme", "appearance/items", "appearance/cards", "appearance/text"],
             appearance.Lines.Select(l => l is SettingsSeparator ? "-" : l.Key));
     }
 
@@ -432,7 +429,7 @@ public sealed partial class SettingsMenuTests
     public void S3529_a_moments_style_and_length_are_stored_and_played(string name, IntroMode mode)
     {
         var host = new FakeHost();
-        string[] path = ["appearance", "appearance/motion", "appearance/motion/" + name];
+        string[] path = ["motion", "motion/" + name];
         var moment = At<SettingsSubmenu>(host, path);
 
         Assert.Equal(10, moment.Lines.OfType<SettingsRadio>().Count());
@@ -455,7 +452,7 @@ public sealed partial class SettingsMenuTests
     public void S3529_a_moments_length_is_called_length_its_submenu_names_the_moment()
     {
         // Regression: "Animation length" read "Animation len…" beside its track at the menu's width.
-        var length = At<SettingsSubmenu>(new FakeHost(), "appearance", "appearance/motion", "appearance/motion/startup").Lines.OfType<SettingsSlider>().Single();
+        var length = At<SettingsSubmenu>(new FakeHost(), "motion", "motion/startup").Lines.OfType<SettingsSlider>().Single();
 
         Assert.Equal("Length", length.Text);
     }
@@ -475,10 +472,10 @@ public sealed partial class SettingsMenuTests
     public void S3529_with_windows_animations_off_motion_says_so()
     {
         var host = new FakeHost();
-        Assert.DoesNotContain(At<SettingsSubmenu>(host, "appearance", "appearance/motion").Lines, l => l is SettingsNote);
+        Assert.DoesNotContain(At<SettingsSubmenu>(host, "motion").Lines, l => l is SettingsNote);
 
         host.AnimationsEnabled = false;
-        var note = Assert.Single(At<SettingsSubmenu>(host, "appearance", "appearance/motion").Lines.OfType<SettingsNote>());
+        var note = Assert.Single(At<SettingsSubmenu>(host, "motion").Lines.OfType<SettingsNote>());
         Assert.Equal(Str.Shell_Motion_AnimationsOff.Text(), note.Text);
     }
 

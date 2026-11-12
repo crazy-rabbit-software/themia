@@ -144,6 +144,170 @@ public static class ShellMetrics
     }
 
     /// <summary>
+    /// [S-2320] The edit bar, Karpo's command bar (karpo-app, docs/widgets.md §575, §578, §608): one row 48
+    /// tall (8, a 32 control, 8), 8 under the work area's top; an entry 12, its 16 icon, 8, its words, 12
+    /// (40 with its icon alone), entries 4 apart; 8, the 20 hairline, 8; the selection's 256 room; a
+    /// 16 gutter; the errors' 40 room; 4; Add; 8; Done (at least 80), 8 from the bar's end.
+    /// </summary>
+    public static class Bar
+    {
+        /// <summary>Around the row of controls, and between Add and Done.</summary>
+        public const double Pad = 8;
+
+        /// <summary>An entry's and a button's height.</summary>
+        public const double Control = 32;
+
+        public const double Height = Pad + Control + Pad;
+
+        /// <summary>The bar's top under the work area's.</summary>
+        public const double Top = 8;
+
+        /// <summary>Between two entries, and between the errors' room and Add.</summary>
+        public const double EntryGap = 4;
+
+        /// <summary>Inside an entry: before its icon and after its words.</summary>
+        public const double Lead = 12;
+
+        public const double Icon = 16;
+
+        /// <summary>Between an entry's icon and its words.</summary>
+        public const double IconGap = 8;
+
+        /// <summary>An entry with its icon alone (a narrow display; the errors' button).</summary>
+        public const double IconOnly = Lead + Icon + Lead;
+
+        /// <summary>[S-2323] The room either side of the divider's hairline.</summary>
+        public const double DividerRoom = 8;
+
+        /// <summary>The divider's hairline height.</summary>
+        public const double Divider = 20;
+
+        /// <summary>[S-2324] The selection's room, kept whether anything is selected or not.</summary>
+        public const double Selection = 256;
+
+        /// <summary>After the selection's room.</summary>
+        public const double Gutter = 16;
+
+        /// <summary>[S-2324] The least an entry's words are cut to before it shows its icon alone.</summary>
+        public const double NameLeast = 40;
+
+        /// <summary>Done's least width.</summary>
+        public const double DoneLeast = 80;
+
+        /// <summary>[S-2321] The open entry's accent pill at its foot.</summary>
+        public const double PillWidth = 16;
+
+        public const double PillHeight = 3;
+    }
+
+    /// <summary>
+    /// [S-2325] A page's flyout (Karpo's §575, §584): 580 wide (a 16 gutter either side of 548 of cards),
+    /// 12 off the bar, its beak 8 tall and 16 across pointing at its entry, at most 70 % of the work
+    /// area tall, 12 from the work area's sides where it is pushed in.
+    /// </summary>
+    public static class Flyout
+    {
+        public const double Width = 580;
+
+        public const double Gutter = 16;
+
+        public const double Cards = Width - (2 * Gutter);
+
+        /// <summary>Off the bar: the beak's 8 and 4 of air before its tip.</summary>
+        public const double Gap = 12;
+
+        public const double BeakHeight = 8;
+
+        public const double BeakWidth = 2 * BeakHeight;
+
+        /// <summary>The most of the work area's height a flyout takes before it scrolls.</summary>
+        public const double MostShare = 0.7;
+
+        /// <summary>Kept from the work area's sides.</summary>
+        public const double EdgeMargin = 12;
+    }
+
+    /// <summary>
+    /// [S-2305] A page's sections, cards and rows (Karpo's PanelMetrics): a heading 24 after the previous
+    /// group and 8 over its cards; cards 4 apart and radius 4, 16 under the last; a row 48 tall, 60 with a
+    /// caption, its icon at 16, its name at 48, its control ending 16 from the card's edge.
+    /// </summary>
+    public static class Page
+    {
+        public const double SectionTop = 24;
+
+        public const double HeadingGap = 8;
+
+        public const double CardGap = 4;
+
+        public const double Bottom = 16;
+
+        public const double CardRadius = 4;
+
+        public const double OneLine = 48;
+
+        public const double TwoLines = 60;
+
+        public const double IconAt = 16;
+
+        public const double NameAt = 48;
+
+        public const double EndInset = 16;
+
+        /// <summary>A control's height (a box, a button).</summary>
+        public const double Control = 32;
+
+        /// <summary>A number box's and a text box's width.</summary>
+        public const double ControlWide = 240;
+
+        public const double ActionLeast = 120;
+
+        public const double ActionMost = 240;
+
+        /// <summary>[S-2307] A sub-page's back head.</summary>
+        public const double BackHead = 32;
+
+        /// <summary>[S-2340] The selection page's header card, its tile and the tile's glyph.</summary>
+        public const double HeaderCard = 80;
+
+        public const double HeaderTile = 48;
+
+        public const double HeaderGlyph = 24;
+
+        /// <summary>The words (On, Off) before a switch.</summary>
+        public const double SwitchWords = 40;
+
+        /// <summary>[S-2305] How far a row is lit when a deep link lands on it.</summary>
+        public const int LitMs = 1500;
+    }
+
+    /// <summary>
+    /// [S-2308] An inline picker inside its card (Karpo's PickerMetrics, §670): 12 in, radio rows 36 tall
+    /// (more than six in up to three columns, each at least 180), 36 swatches 4 apart, a lookup's
+    /// eight results, the custom colour's 96 spectrum.
+    /// </summary>
+    public static class Inline
+    {
+        public const double Pad = 12;
+
+        public const double Option = 36;
+
+        public const double OptionLeast = 180;
+
+        public const int Columns = 3;
+
+        public const int InColumn = 6;
+
+        public const int Found = 8;
+
+        public const double Swatch = 36;
+
+        public const double SwatchGap = 4;
+
+        public const double Spectrum = 96;
+    }
+
+    /// <summary>
     /// [S-911] The view bar's three sizes (M, L, XL): a chip at least this tall, and this square when it
     /// shows the mark alone. Its words are the family's Caption, Body and Title (regular), its marks the
     /// family's 16 icon (the 20 icon box at XL), its paddings on the scale.

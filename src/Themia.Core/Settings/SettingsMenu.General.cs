@@ -6,8 +6,8 @@ using Themia.Core.Shell;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3525] General, on the menu's first level: start with Windows, what the desktop shows and game
-/// mode. Start with Windows and game mode show something Windows owns or decides, so the host reads
+/// [S-3525] General, the General page's first section: start with Windows, what the desktop shows,
+/// game mode and snap to grid ([S-3516]). Start with Windows and game mode show something Windows owns or decides, so the host reads
 /// Windows for them rather than trusting what Themia last wrote; the desktop is Themia's own choice
 /// ([S-5500]).
 /// </summary>
@@ -54,6 +54,10 @@ public static partial class SettingsMenu
         {
             Value = host.Suspended ? Str.Shell_Settings_General_PausedNow.Text() : null,
         });
+
+        // [S-3516] Snap to grid while widgets are moved and resized: set here and nowhere else.
+        lines.Add(new SettingsToggle(Keys.Snap, Str.Shell_Toolbar_SnapName.Text(), Glyphs.Grid, state.Design.GridSnap,
+            on => host.Mutate(s => s.Design.GridSnap = on, relayout: false)));
 
         return lines;
     }

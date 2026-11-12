@@ -227,11 +227,20 @@ public sealed class SettingOwnershipTests
             }
         }
 
-        Walk(SettingsMenu.Root(settings));
-        Walk(DisplayMenu.Root(new QuietDisplayHost(settings.State)));
-        Walk(ViewsMenu.Root(new QuietViewsHost(settings.State)));
+        // [S-2306] Every page of the edit bar.
+        foreach (var page in new[]
+        {
+            SettingsPages.General(settings), SettingsPages.Accounts(settings), SettingsPages.Appearance(settings),
+            SettingsPages.Display(new QuietDisplayHost(settings.State)), SettingsPages.Views(new QuietViewsHost(settings.State)),
+        })
+        {
+            foreach (var section in page.Sections)
+            {
+                Walk(section.Lines);
+            }
+        }
 
-        // The bar's Snap, and the card's own rows ([S-3735], [S-3739]): Style, Header and the Appearance foot.
+        // Snap to grid, and the card's own rows ([S-3735], [S-3739]): Style, Header and the Appearance foot.
         words.UnionWith(
         [
             Str.Shell_Toolbar_SnapName.Text(), Str.Styles_Label.Text(), Str.App_ConfigHeaderLabel.Text(), Str.Group_Title_Label.Text(),

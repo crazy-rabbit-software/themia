@@ -144,6 +144,9 @@ public sealed record SettingsSubmenu(string Key, string Text, string? Glyph, IRe
 
     /// <summary>[S-3732] An item of an ordered list: its line is dragged up and down among the list's.</summary>
     public SettingsOrder? Order { get; init; }
+
+    /// <summary>[S-2303] It opens as a page of its own behind a back head (an account), not inside its card.</summary>
+    public bool Page { get; init; }
 }
 
 /// <summary>
@@ -303,46 +306,13 @@ public interface ISettingsMenuHost
 }
 
 /// <summary>
-/// [S-3524] The edit bar's settings menu (⚙): its sections, one builder each in its own file
-/// (<c>SettingsMenu.&lt;Section&gt;.cs</c>), in bands with a divider between them. A section with no
-/// lines is not there, nor a band with none: nothing stands empty or greyed for what is not built.
+/// [S-3524] The settings' sections, one builder each in its own file (<c>SettingsMenu.&lt;Section&gt;.cs</c>);
+/// the edit bar's pages group them ([S-2300], <see cref="SettingsPages"/>). A section with no lines
+/// is not there: nothing stands empty or greyed for what is not built.
 /// After Karpo's <c>KarpoMenu</c> (karpo-app, docs/widgets.md §335).
 /// </summary>
 public static partial class SettingsMenu
 {
-    /// <summary>
-    /// [S-3524] The first level: General's lines; Appearance, Accounts, Language &amp; region, Online
-    /// updates and AI assistants ([S-9979]); Themia Pro, Back up &amp; reset and About Themia; then Quit Themia.
-    /// </summary>
-    public static IReadOnlyList<SettingsLine> Root(ISettingsMenuHost host)
-    {
-        ArgumentNullException.ThrowIfNull(host);
-
-        IReadOnlyList<SettingsLine>[] bands =
-        [
-            General(host),
-            [Appearance(host), Accounts(host), Language(host), OnlineUpdates(host), .. Optional(Assistants(host))],
-            [Pro(host), Backup(host), About(host)],
-            [new SettingsCommand(Keys.Quit, Str.Settings_Quit_Label.Text(), Glyphs.Power, host.Quit)],
-        ];
-
-        var lines = new List<SettingsLine>();
-        foreach (var band in bands.Where(b => b.Count > 0))
-        {
-            if (lines.Count > 0)
-            {
-                lines.Add(new SettingsSeparator("-" + band[0].Key));
-            }
-
-            lines.AddRange(band);
-        }
-
-        return lines;
-    }
-
-    /// <summary>A line that may not be there, as a band's part: none, or itself.</summary>
-    private static IEnumerable<SettingsLine> Optional(SettingsLine? line) => line is null ? [] : [line];
-
     /// <summary>
     /// The lines along <paramref name="path"/> (keys, first level first), as the menu would open
     /// them; null when a key on the way is not there. Tests and the deep links use it.
@@ -380,6 +350,8 @@ public static partial class SettingsMenu
         public const string Desktop = "desktop";
         public const string GameMode = "gameMode";
         public const string Appearance = "appearance";
+        public const string Motion = "motion";
+        public const string Snap = "snap";
         public const string Language = "language";
         public const string Accounts = "accounts";
         public const string AddAccount = "accounts/add";

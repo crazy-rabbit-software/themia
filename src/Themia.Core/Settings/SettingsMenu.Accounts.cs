@@ -131,6 +131,7 @@ public static partial class SettingsMenu
         return new SettingsSubmenu(key, account.Label, account.NeedsSignIn ? Glyphs.Warning : ProviderGlyph(account.Provider), lines)
         {
             Value = account.NeedsSignIn ? Str.Shell_Accounts_Reconnect.Text() : null,
+            Page = true,
         };
     }
 
@@ -184,7 +185,7 @@ public static partial class SettingsMenu
             lines.Add(new SettingsSubmenu(row, text.Text(), glyph, FormLines(host, form, row)));
         }
 
-        return new SettingsSubmenu(Keys.AddAccount, Str.Account_AddAccount.Text(), Glyphs.Add, lines);
+        return new SettingsSubmenu(Keys.AddAccount, Str.Account_AddAccount.Text(), Glyphs.Add, lines) { Page = true };
     }
 
     /// <summary>

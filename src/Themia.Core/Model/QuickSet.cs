@@ -26,6 +26,7 @@ namespace Themia.Core.Model;
 /// <param name="Align">[S-6584] Where the widgets that can align draw their content, or null when they differ.</param>
 /// <param name="HasItemText">[S-6574] Whether any selected widget draws items with text on them (not tracks only); the Item text line is not shown without.</param>
 /// <param name="BackgroundImage">[S-6593] Their background image's path (empty: none), or null when they differ.</param>
+/// <param name="CommonKind">[S-2341] The kind every selected widget is of (the selection's entry says "2 × Clock"); null when they differ.</param>
 /// <param name="RemovesFromView">[S-5524] Every selected widget is a desktop item's: Delete reads "Remove from this view".</param>
 public sealed record QuickSetOffer(
     int Count,
@@ -45,7 +46,8 @@ public sealed record QuickSetOffer(
     ContentAlign? Align = null,
     bool HasItemText = true,
     string? BackgroundImage = "",
-    bool RemovesFromView = false)
+    bool RemovesFromView = false,
+    WidgetId? CommonKind = null)
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -129,10 +131,10 @@ public static class QuickSet
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, kind);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, widgets.TrueForAll(w => w.Kind == kind) ? kind : null);
     }
 
     /// <summary>

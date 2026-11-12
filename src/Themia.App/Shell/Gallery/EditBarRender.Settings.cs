@@ -103,7 +103,7 @@ internal static partial class EditBarRender
     }
 
     private static Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open, Action<BarMenuView>? then = null)
-        => MenuShot(screen, path, BarMenu.Settings, () => host.Menu = new BarMenuView(nameof(BarMenu.Settings), () => SettingsMenu.Root(host), () => { }), open, then);
+        => MenuShot(screen, path, BarMenu.Settings, () => host.Menu = new BarMenuView(nameof(BarMenu.Settings), () => DesktopWindow.PagesAsMenu(host), () => { }), open, then);
 
     /// <summary>
     /// A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change

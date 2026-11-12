@@ -39,12 +39,12 @@ public sealed partial class SettingsMenuTests
     private static McpServerStatus Listening => new(McpServerState.Listening, new McpAddress(48213, McpToken));
 
     [Fact]
-    public void S9979_ai_assistants_follows_online_updates_and_is_absent_without_a_server()
+    public void S9979_ai_assistants_follows_motion_on_general_and_is_absent_without_a_server()
     {
-        var keys = Root(WithServer(on: false).Host).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
-        Assert.Equal(["startup", "desktop", "gameMode", "-", "appearance", "accounts", "language", "online", "assistants", "-", "pro", "backup", "about", "-", "quit"], keys);
+        var keys = SettingsPages.General(WithServer(on: false).Host).Sections.Select(s => s.Key).ToArray();
+        Assert.Equal(["page", "language", "online", "motion", "assistants", "backup", "pro", "about", "-about"], keys);
 
-        Assert.DoesNotContain(Root(new FakeHost()), l => l.Key == SettingsMenu.Keys.Mcp);
+        Assert.DoesNotContain(SettingsPages.General(new FakeHost()).Sections, s => s.Key == SettingsMenu.Keys.Mcp);
     }
 
     [Fact]
