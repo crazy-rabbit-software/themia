@@ -139,6 +139,32 @@ internal interface IWidgetCardHost
     {
         // ignore: as above
     }
+
+    /// <summary>
+    /// [S-2451] A press on the card in edit mode selects by the group rules (its whole group, or a member
+    /// of the entered group). Returns whether the selection changed; one that kept it lets the release
+    /// decide (<see cref="RequestClick"/>).
+    /// </summary>
+    bool RequestPress(WidgetCard card, bool onHandle)
+    {
+        RequestSelect(card);
+        return true;
+    }
+
+    /// <summary>[S-2451] Released without moving after a press that kept the selection: enter the group, or narrow to the card's unit.</summary>
+    void RequestClick(WidgetCard card) => RequestSelect(card);
+
+    /// <summary>[S-2453] Whether the card draws its own edit markers: not a member of a group, unless it is the entered one.</summary>
+    bool ShowsOwnMarkers(WidgetCard card) => true;
+
+    /// <summary>[S-2454] The card menu's facts with what it may offer about groups.</summary>
+    CardMenuFacts WithGroups(CardMenuFacts facts) => facts;
+
+    /// <summary>[S-2454] Group, Ungroup or Remove from group, from the card menu.</summary>
+    void RequestGroupCommand(ShellCommand command)
+    {
+        // ignore: a debug render's cards are not grouped by hand
+    }
 }
 
 /// <summary>
@@ -659,6 +685,16 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     public void ApplySelection()
     {
+        // [S-2453] A group's member draws no markers (no handles) of its own: its group's frame stands for
+        // it, until the group is entered with it.
+        var own = _host.EditMode && _host.ShowsOwnMarkers(this);
+        if (own != _markersShown)
+        {
+            _markersShown = own;
+            _markers.Visibility = own ? Visibility.Visible : Visibility.Collapsed;
+            FollowPlates();
+        }
+
         PaintMarkers(_host.IsSelected(this));
     }
 
@@ -855,11 +891,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // [S-1593] A press on a widget already in a multi-selection keeps the selection, so the drag
         // that may follow carries all of it. A resize is about this one widget only.
-        _narrowOnRelease = _activeHandle is null && _host.IsSelected(this) && _host.SelectionCount > 1;
-        if (!_narrowOnRelease)
-        {
-            _host.RequestSelect(this);
-        }
+        // [S-2451] The group rules decide: a press selects the card's unit (its whole group), or keeps
+        // a selection that holds it so the drag carries all of it; the release then enters the group or narrows.
+        _narrowOnRelease = !_host.RequestPress(this, onHandle: _activeHandle is not null) && _activeHandle is null;
 
         Focus(FocusState.Pointer);
         _dragStartRect = LiveRect;
@@ -959,7 +993,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-1593] A click, not a drag, on a card of a multi-selection selects just that card.
         if (narrow)
         {
-            _host.RequestSelect(this);
+            _host.RequestClick(this);
         }
     }
 
@@ -1023,7 +1057,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             // all of it. On any other card it selects just that one first.
             if (!_host.IsSelected(this))
             {
-                _host.RequestSelect(this);
+                // ignore: whether it changed; the menu acts on what is selected now
+                _ = _host.RequestPress(this, onHandle: false);
             }
 
             ItemMenu.Show(this, e, CardMenu());
@@ -1039,12 +1074,12 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     internal List<ItemMenuEntry> CardMenu()
     {
         var cards = _host.ViewForCards;
-        var facts = new CardMenuFacts(
+        var facts = _host.WithGroups(new CardMenuFacts(
             EditMode: _host.EditMode,
             CanBringToFront: cards?.CanBringToFront(Model.Id) == true,
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
             SelectionCount: _host.SelectionCount,
-            CanPaste: _host.CanPaste);
+            CanPaste: _host.CanPaste));
 
         var entries = new List<ItemMenuEntry>();
         foreach (var item in ShellMenus.ForCard(facts))
@@ -1085,6 +1120,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             ShellCommand.Delete => new(Glyphs.Delete, _host.DeleteRemovesFromView(this) ? Str.Desktop_Delete_FromView.Text() : Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: KeyChord.Plain(ChordKey.Delete)),
             ShellCommand.BringToFront => new(Glyphs.MoveUp, Str.Shell_Card_BringToFront.Text(), () => _host.RequestZOrder(this, front: true), Disabled: disabled),
             ShellCommand.SendToBack => new(Glyphs.MoveDown, Str.Shell_Card_SendToBack.Text(), () => _host.RequestZOrder(this, front: false), Disabled: disabled),
+            ShellCommand.Group => new(Glyphs.Group, Str.Groups_Card_Group.Text(), () => _host.RequestGroupCommand(ShellCommand.Group), Shortcut: KeyChord.Ctrl(ChordKey.G)),
+            ShellCommand.Ungroup => new(Glyphs.Clear, Str.Groups_Card_Ungroup.Text(), () => _host.RequestGroupCommand(ShellCommand.Ungroup), Shortcut: KeyChord.CtrlShift(ChordKey.G)),
+            ShellCommand.LeaveGroup => new(Glyphs.Back, Str.Groups_Card_Leave.Text(), () => _host.RequestGroupCommand(ShellCommand.LeaveGroup)),
             ShellCommand.ToggleEditMode => _host.EditMode
                 ? new(Glyphs.Done, Str.Shell_Card_DoneEditing.Text(), () => _host.RequestEditMode(false))
                 : new(Glyphs.Edit, Str.Shell_Card_EditLayout.Text(), () => _host.RequestEditMode(true)),

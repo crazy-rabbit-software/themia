@@ -323,7 +323,7 @@ internal static class SceneRender
         }
 
         // [S-2240] Cards that touch join, by the desktop's own path; nothing is dragged in a scene.
-        WidgetCard.Join(cards, metrics, design.WidgetGapPx, job.Scale, edit is not null, _ => false);
+        WidgetCard.Join(cards, metrics, design.WidgetGapPx, job.Scale, edit is not null, _ => 0);
 
         if (edit is not null)
         {

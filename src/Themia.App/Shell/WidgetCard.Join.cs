@@ -39,26 +39,31 @@ internal sealed partial class WidgetCard
     /// <summary>
     /// [S-2240] [S-2244] The one path that joins the cards of a surface, the desktop's and a scene's:
     /// each card's painted box (its live rect's cell inside the gap), none for a card that draws no
-    /// surface, is hidden, or is <paramref name="free"/> (dragged or resized), then the rule.
+    /// surface, is hidden, or is free (<paramref name="set"/> null: resized), then the rule. [S-2457]
+    /// Cards join only within their set: the dragged ones are a set of their own, so they stay joined
+    /// among themselves while they move.
     /// </summary>
-    public static void Join(IReadOnlyList<WidgetCard> cards, ScreenMetrics metrics, double gapPx, double rasterScale, bool editMode, Func<WidgetCard, bool> free)
+    public static void Join(IReadOnlyList<WidgetCard> cards, ScreenMetrics metrics, double gapPx, double rasterScale, bool editMode, Func<WidgetCard, int?> set)
     {
         ArgumentNullException.ThrowIfNull(cards);
-        ArgumentNullException.ThrowIfNull(free);
+        ArgumentNullException.ThrowIfNull(set);
         if (!metrics.IsUsable)
         {
             return;
         }
 
         var boxes = new PixelRect?[cards.Count];
+        var sets = new int[cards.Count];
         for (var i = 0; i < cards.Count; i++)
         {
             var card = cards[i];
-            var joins = card.Visibility == Visibility.Visible && card.IsShown(editMode) && card.DrawsSurface && !free(card);
+            var inSet = set(card);
+            var joins = card.Visibility == Visibility.Visible && card.IsShown(editMode) && card.DrawsSurface && inSet is not null;
             boxes[i] = joins ? GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics), gapPx) : null;
+            sets[i] = inSet ?? -1;
         }
 
-        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(rasterScale));
+        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(rasterScale), sets);
         for (var i = 0; i < cards.Count; i++)
         {
             cards[i].ApplyOutline(outlines[i]);

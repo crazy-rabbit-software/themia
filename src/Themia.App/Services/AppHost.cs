@@ -187,12 +187,12 @@ internal sealed partial class AppHost : IDisposable
     public void Select(string? widgetId)
         => ChangeSelection(Selection.Set(widgetId is null ? null : Find(widgetId)?.View.Id, widgetId));
 
-    /// <summary>[S-1580] Ctrl+click: add the widget to the selection, or take it out.</summary>
+    /// <summary>[S-1580] [S-2451] Ctrl+click: add the widget's unit (its whole group) to the selection, or take it out.</summary>
     public void ToggleSelect(string widgetId)
     {
         if (Find(widgetId) is var (view, _))
         {
-            ChangeSelection(Selection.Toggle(view.Id, widgetId));
+            ChangeSelection(Selection.ToggleUnit(view, widgetId));
         }
     }
 

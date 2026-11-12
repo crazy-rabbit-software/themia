@@ -15,6 +15,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Windows.Foundation;
 using Windows.Graphics;
@@ -72,6 +73,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>[S-31b] The cards' edit markers, drawn above all of them so neighbours' marks meet as one line.</summary>
     private readonly EditMarkerLayer _markerLayer;
 
+    /// <summary>[S-2453] The groups' frames, over the cards' markers.</summary>
+    private readonly GroupFrameLayer _groupFrames = new();
+
     public DesktopWindow(AppHost host, MonitorTarget monitor)
     {
         _host = host;
@@ -106,7 +110,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = Themia.Sdk.WinUI.Kit.Family.Brush(Themia.Sdk.Kit.ColourRole.Clear),
-            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _barLayer, _ghostLayer, _propertiesLayer, _toolbar, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _groupFrames.Halos, _groupFrames.Inks, _barLayer, _ghostLayer, _propertiesLayer, _toolbar, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.
@@ -334,6 +338,35 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public void RequestSelect(WidgetCard card) => _host.Select(card.Model.Id);
 
     public void RequestToggleSelect(WidgetCard card) => _host.ToggleSelect(card.Model.Id);
+
+    /// <inheritdoc />
+    public bool RequestPress(WidgetCard card, bool onHandle) => _host.PressSelect(card.Model.Id, onHandle);
+
+    /// <inheritdoc />
+    public void RequestClick(WidgetCard card) => _host.ClickSelect(card.Model.Id);
+
+    /// <inheritdoc />
+    public bool ShowsOwnMarkers(WidgetCard card) => _host.ShowsOwnMarkers(card.Model);
+
+    /// <inheritdoc />
+    public CardMenuFacts WithGroups(CardMenuFacts facts) => _host.WithGroups(facts);
+
+    /// <inheritdoc />
+    public void RequestGroupCommand(ShellCommand command)
+    {
+        switch (command)
+        {
+            case ShellCommand.Group:
+                _host.GroupSelected();
+                break;
+            case ShellCommand.Ungroup:
+                _host.UngroupSelected();
+                break;
+            case ShellCommand.LeaveGroup:
+                _host.LeaveGroupSelected();
+                break;
+        }
+    }
 
     public void RequestCopy(WidgetCard card) => _host.CopySelected();
 

@@ -69,6 +69,8 @@ internal sealed partial class DesktopWindow
             card.ApplySelection();
         }
 
+        DrawGroupFrames();
+
         // [S-3508] A new selection brings its properties menu back beside it.
         _propertiesDismissed = false;
         SyncProperties();
@@ -115,6 +117,7 @@ internal sealed partial class DesktopWindow
             card.ApplyEditMode(editing);
         }
 
+        DrawGroupFrames();
         FadeLeaving();
 
         // [S-802] Edit mode ends a keyboard lease: the keys are the edit shortcuts now.
@@ -317,11 +320,32 @@ internal sealed partial class DesktopWindow
     /// a relayout (a view switch, a design change such as the gap), a move, a resize, a nudge.
     /// </summary>
     private void JoinCards()
-        => WidgetCard.Join(_cards, Metrics, Design.WidgetGapPx, RasterScale, EditMode, IsFree);
+    {
+        WidgetCard.Join(_cards, Metrics, Design.WidgetGapPx, RasterScale, EditMode, JoinSet);
 
-    /// <summary>[S-2244] Whether a card is being dragged (with the selection it carries) or resized.</summary>
-    private bool IsFree(WidgetCard card)
-        => card.IsResizing || (_move is { Moved: true } move && move.Cards.Exists(c => ReferenceEquals(c.Card, card)));
+        // [S-2453] The groups' frames follow the cards wherever they are joined again: a drag, a nudge, a relayout.
+        DrawGroupFrames();
+    }
+
+    /// <summary>[S-2453] Draw this surface's group frames for the cards as they stand and the selection now.</summary>
+    private void DrawGroupFrames()
+    {
+        if (_closed)
+        {
+            return;
+        }
+
+        _groupFrames.Draw(GroupFrameLayer.Frames(ViewForThisMonitor(_host.State), _cards, Metrics, Design.WidgetGapPx, EditMode, _host.Selection), RasterScale);
+    }
+
+    /// <summary>
+    /// [S-2244] [S-2457] Which cards a card may join: a resized one none (null); the cards a drag carries
+    /// (a group, a selection) one another (1), free of the cards standing still (0).
+    /// </summary>
+    private int? JoinSet(WidgetCard card)
+        => card.IsResizing ? null
+            : _move is { Moved: true } move && move.Cards.Exists(c => ReferenceEquals(c.Card, card)) ? 1
+            : 0;
 
     /// <summary>
     /// Restrict the window to the widgets themselves, so every click that is not on a widget lands

@@ -44,6 +44,12 @@ public enum EditCommand
 
     /// <summary>[S-1998] Ctrl+N opens the add menu, as the global Ctrl+Alt+Shift+W does.</summary>
     AddWidget,
+
+    /// <summary>[S-2454] Ctrl+G groups the selection.</summary>
+    Group,
+
+    /// <summary>[S-2454] Ctrl+Shift+G dissolves the selection's groups.</summary>
+    Ungroup,
 }
 
 /// <summary>Which way an arrow key points.</summary>
@@ -110,6 +116,7 @@ public static class EditKeys
     private const int Vk9 = 0x39;
     private const int VkA = 0x41;
     private const int VkC = 0x43;
+    private const int VkG = 0x47;
     private const int VkN = 0x4E;
     private const int VkV = 0x56;
     private const int VkX = 0x58;
@@ -143,6 +150,7 @@ public static class EditKeys
                 VkV when !shift => new(EditCommand.Paste),
                 VkA when !shift => new(EditCommand.SelectAll),
                 VkN when !shift => new(EditCommand.AddWidget),
+                VkG => new(shift ? EditCommand.Ungroup : EditCommand.Group),
                 VkZ => new(shift ? EditCommand.Redo : EditCommand.Undo),
                 VkY when !shift => new(EditCommand.Redo),
                 >= Vk1 and <= Vk9 when !shift => new(EditCommand.ShowView, ViewNumber: virtualKey - Vk1 + 1),

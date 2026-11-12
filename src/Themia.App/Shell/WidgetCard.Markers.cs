@@ -37,7 +37,7 @@ internal sealed partial class WidgetCard
     private XamlRoot? _markerRoot;
 
     /// <summary>The contrast stroke under every bar, opaque.</summary>
-    private static readonly Brush MarkerHalo = ShellBrush.Of(ShellRole.CardBase);
+    internal static readonly Brush MarkerHalo = ShellBrush.Of(ShellRole.CardBase);
 
     /// <summary>The theme's neutral strong stroke, translucent: never drawn itself (see <see cref="NeutralInk"/>).</summary>
     private static readonly Brush MarkerNeutral = ShellBrush.Of(ShellRole.StrongFill);
@@ -49,7 +49,7 @@ internal sealed partial class WidgetCard
     /// bar stands on, made opaque, so where two neighbours' bars overlap they read as one bar instead
     /// of a brighter square. Follows both theme brushes as they are recoloured in place.
     /// </summary>
-    private static SolidColorBrush NeutralInk()
+    internal static SolidColorBrush NeutralInk()
     {
         if (_neutralInk is null)
         {

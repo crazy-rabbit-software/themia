@@ -196,10 +196,20 @@ public static class CardJoins
     /// [S-2240]..[S-2242] The outline of every card, in the order given. A null box is a card that
     /// draws no card surface (a bare widget, a hidden one) or one being dragged: it is
     /// <see cref="CardOutline.Free"/>, and joins nothing.
+    /// <para>
+    /// [S-2457] <paramref name="sets"/>, when given, says which set each card is in: two cards join only
+    /// within one set. The cards a drag carries are a set of their own, so a dragged group (or any
+    /// selection dragged together) stays one panel while it moves, free of the cards standing still.
+    /// </para>
     /// </summary>
-    public static CardOutline[] Outlines(IReadOnlyList<PixelRect?> boxes, double tolerance)
+    public static CardOutline[] Outlines(IReadOnlyList<PixelRect?> boxes, double tolerance, IReadOnlyList<int>? sets = null)
     {
         ArgumentNullException.ThrowIfNull(boxes);
+        if (sets is not null && sets.Count != boxes.Count)
+        {
+            throw new ArgumentException("one set per box", nameof(sets));
+        }
+
         var tol = double.IsFinite(tolerance) && tolerance > 0 ? tolerance : 0;
         var n = boxes.Count;
         var joins = new List<Join>();
@@ -213,7 +223,7 @@ public static class CardJoins
 
             for (var j = i + 1; j < n; j++)
             {
-                if (boxes[j] is not { } b)
+                if (boxes[j] is not { } b || (sets is not null && sets[i] != sets[j]))
                 {
                     continue;
                 }

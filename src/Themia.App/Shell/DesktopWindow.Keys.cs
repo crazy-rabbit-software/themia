@@ -117,6 +117,14 @@ internal sealed partial class DesktopWindow
                 _host.OpenAddMenu();
                 return true;
 
+            case EditCommand.Group:
+                _host.GroupSelected();
+                return true;
+
+            case EditCommand.Ungroup:
+                _host.UngroupSelected();
+                return true;
+
             default:
                 return false;
         }
@@ -133,10 +141,13 @@ internal sealed partial class DesktopWindow
         {
             _host.CancelPlacement();
         }
-        else if (!_host.Selection.IsEmpty)
+        else if (_host.StepOutOfSelection())
         {
-            _host.Select(null);
-            _root.Focus(FocusState.Keyboard);
+            // [S-2451] Out of an entered group to the group, then to nothing.
+            if (_host.Selection.IsEmpty)
+            {
+                _root.Focus(FocusState.Keyboard);
+            }
         }
         else
         {
@@ -153,6 +164,13 @@ internal sealed partial class DesktopWindow
             || !string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal))
         {
             return false;
+        }
+
+        // [S-2453] Resizing is a member's alone: a selection holding a whole group is moved, never resized.
+        if (action.Command == EditCommand.Resize && _host.Selection.Entered is null
+            && WidgetGroups.Whole(view, _host.Selection.Ids).Count > 0)
+        {
+            return true;
         }
 
         var cards = new List<WidgetCard>();
@@ -216,14 +234,13 @@ internal sealed partial class DesktopWindow
             return true; // ignore: a ghost follows the pointer; Tab must not walk focus off the surface under it
         }
 
+        // [S-2451] Units in reading order (a group whole); inside an entered group, its members.
         var view = ViewForThisMonitor(_host.State);
-        var current = string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal) ? _host.Selection.Primary : null;
-        if (SelectionRules.Cycle(view, current, backwards, HiddenIds()) is not { } next)
+        if (_host.CycleSelection(view, backwards, HiddenIds()) is not { } next)
         {
             return true; // ignore: no widget on this display; focus stays on the surface
         }
 
-        _host.Select(next);
         CardFor(next)?.Focus(FocusState.Keyboard);
         return true;
     }
