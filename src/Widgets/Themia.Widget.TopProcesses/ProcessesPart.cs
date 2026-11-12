@@ -1,6 +1,7 @@
 using Themia.App.Services;
-using Themia.App.Shell;
 using Themia.App.Services.SystemData;
+using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -44,6 +45,9 @@ internal sealed class ProcessesPart : DetailPart
     public override DetailAtom Atom => DetailAtom.List;
 
     public override int ListLines => 2;
+
+    /// <summary>[S-11930] A row is its program on the view: it publishes the app pointed at and lights for it and for the app picked.</summary>
+    public override (LinkTopic<AppLink> Hovered, LinkTopic<AppLink> Picked)? AppLinks => (LinkTopics.HoveredApp, LinkTopics.SelectedApp);
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

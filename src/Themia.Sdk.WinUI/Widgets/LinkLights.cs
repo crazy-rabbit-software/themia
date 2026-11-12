@@ -64,10 +64,26 @@ public sealed class LinkLights<T>
     public T? Picked => _selected;
 
     /// <summary>Forget every part (before the widget draws its parts again).</summary>
-    public void Clear() => _parts.Clear();
+    public void Clear()
+    {
+        foreach (var element in _wired)
+        {
+            Unwire(element);
+        }
+
+        _wired.Clear();
+        _parts.Clear();
+    }
 
     /// <summary>Forget one part (a mark the widget took down while the rest stay).</summary>
-    public void Remove(UIElement element) => _parts.Remove(element);
+    public void Remove(UIElement element)
+    {
+        _parts.Remove(element);
+        if (_wired.Remove(element))
+        {
+            Unwire(element);
+        }
+    }
 
     /// <summary>
     /// [S-11901] A row (or a cell, a card) that is <paramref name="key"/>: lit as pointed or picked;
@@ -175,6 +191,15 @@ public sealed class LinkLights<T>
         }
     }
 
+    /// <summary>A part forgotten lets go of its pointer, so a list drawn anew holds none of its old rows.</summary>
+    private void Unwire(UIElement element)
+    {
+        element.PointerEntered -= OnEntered;
+        element.PointerExited -= OnLeft;
+        element.PointerCanceled -= OnLeft;
+        element.PointerCaptureLost -= OnLeft;
+    }
+
     private void OnEntered(object sender, PointerRoutedEventArgs args)
     {
         if (sender is UIElement element && _parts.TryGetValue(element, out var part) && part.Key is { } key)
@@ -185,9 +210,20 @@ public sealed class LinkLights<T>
 
     private void OnLeft(object sender, PointerRoutedEventArgs args)
     {
-        if (sender is UIElement element && _parts.TryGetValue(element, out var part) && Equals(part.Key, _own))
+        if (sender is not UIElement element || !_parts.TryGetValue(element, out var part))
+        {
+            return;
+        }
+
+        if (Equals(part.Key, _own))
         {
             Point(null);
+        }
+
+        // An interactive row paints itself at rest as the pointer leaves: one still lit (a pick) is lit again.
+        if (part.Kind == PartKind.Row && part.Shown != LinkLight.None && element is FrameworkElement row)
+        {
+            LinkLook.Row(row, part.Shown, part.Role);
         }
     }
 

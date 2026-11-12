@@ -160,6 +160,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         _ticker = ticker;
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
+        _links.Join(_surfaceHost?.Links);
         ApplyConfig(config);
     }
 
@@ -555,6 +556,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         LeaveDrop();
         _fade.Dispose();
         ClearCells();
+        _links.Leave();
     }
 
     /// <summary>What the cells were last built for; a different one rebuilds them.</summary>

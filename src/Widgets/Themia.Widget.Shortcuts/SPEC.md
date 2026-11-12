@@ -182,6 +182,12 @@ Not ported: Ctrl+Z op log (S-36: one-step "Undo remove" instead); "Change fileâ€
 (the picker needs an owner window the desktop layer cannot lend; a wrong target is removed and added again);
 the dedicated "Add shortcut" window (S-66: the menu's Add carries the same affordances);
 favicons are cached per run in memory, not on disk.
+- **[S-11934]** View links ([S-11930]): an item whose target is an executable (`â€¦.exe`, a local path) is that
+  app (`ShortcutRules.AppKey`, keyed by `LinkKeys.App`); a folder, a document, a site, a shell location or a
+  layout is none. The pointer or the keyboard cursor on it publishes the app pointed at; an item that is the
+  app pointed at elsewhere on the view is drawn as under the pointer (the desktop's hover), one that is the app
+  picked takes the item layer's selected fill (`LinkLook.Row`: a tile, whose mark fills the cell, without the pill). A click keeps its meaning (select, open):
+  shortcuts never pick.
 
 Needs a live pass: drops from Explorer, Edge, Chrome and the Start menu, pointer reorder and the drag
 out on the real surface, a full and an empty Recycle Bin item, real icons and site icons, a picture and an emoji chosen through the Icon submenu (the picker on

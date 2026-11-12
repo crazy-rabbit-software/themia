@@ -114,6 +114,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 #endif
 
         _fade ??= new ScrollFade(_scroll, _list);
+        _links.Join(_surface?.Links);
         PointerEntered += OnPointerEntered;
         Strings.Changed += OnLanguage;
 
@@ -157,6 +158,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _fade?.Dispose();
         _fade = null;
         ClearRows();
+        _links.Leave();
         _header.Detach();
         _state.Detach();
         _open.Clear();
@@ -366,6 +368,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         ToolTipService.SetToolTip(row, NotificationsStr.Panels_Notifications_Open.Format(("app", app)));
 
         _rows.Add((row, item));
+        LinkRow(row, item);
         AddLine(row, _plan.RowHeight, heading: false);
     }
 
@@ -412,6 +415,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         }
 
         _rowHandles.Clear();
+        Apps.Clear();
         _rows.Clear();
         _lines.Clear();
         _list.Children.Clear();
@@ -557,6 +561,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             case ListCommand.Focus:
                 _cursor = decision.Index;
                 ShowCursor();
+                PointCursor();
                 return true;
 
             case ListCommand.Open:
@@ -576,6 +581,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
                 var had = _cursor is not null;
                 _cursor = null;
                 ShowCursor();
+                PointCursor();
                 return had;
 
             default:

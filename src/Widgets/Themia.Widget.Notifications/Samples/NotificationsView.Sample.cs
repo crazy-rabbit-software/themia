@@ -40,7 +40,8 @@ internal sealed partial class NotificationsView : IWidgetSample
     {
         var now = SampleDay.Now;
         const string chat = SampleChat;
-        const string outlook = "Microsoft.OutlookForWindows_8wekyb3d8bbwe!App";
+        // A classic app id that names its executable, so the sender links to the same app elsewhere ([S-11930]).
+        const string outlook = "Microsoft.Office.OUTLOOK.EXE.15";
         NotificationItem[] all =
         [
             new(12, chat, "Contoso Chat", SampleCast.Ana.Name, "I'll share the onboarding flow first, see you at 11.", now.AddMinutes(-3)),

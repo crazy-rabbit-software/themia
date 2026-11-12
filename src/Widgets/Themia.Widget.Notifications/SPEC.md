@@ -39,6 +39,9 @@ JSON context), `NotificationsConfig.cs` (its rows, lines and app headings, [S-11
 - **[S-4409]** Keys while the widget holds the lease: Up/Down, Page Up/Down, Home/End move the row
   cursor (`ListKeys`), Enter opens the app, Delete dismisses, the Menu key opens the row's menu (Open,
   Dismiss, Clear all from the app), Escape lets go. In edit mode nothing is opened or cleared.
+- View links: a row is its sender's app where its id names one (Windows' own toasts none); the pointer or the
+  keyboard cursor on it publishes the app pointed at, and a row lights for the app pointed at or picked on the
+  view, never picking it ([S-11930], [S-11933]).
 
 Needs a manual pass: the widget on a live desktop ([S-4409]: real toasts arriving, a sender opened, one,
 an app's and all dismissed, access asked for and denied, the keys through the lease) and in the packaged

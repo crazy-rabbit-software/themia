@@ -20,6 +20,7 @@ public readonly record struct DetailFact(string Label, string Value, bool Availa
 /// <param name="Pressure">The bar's colour.</param>
 /// <param name="Symbol">[S-2416] The icon leading the row (an adapter's kind, a program); none by default.</param>
 /// <param name="IconPath">[S-2433] A file whose own icon leads the row (a process's executable), drawn instead of the symbol when it has one.</param>
+/// <param name="App">[S-11932] The app the row is on its view's links (<c>LinkKeys</c>' key: a process's program), or null for none.</param>
 public readonly record struct DetailRow(
     string Key,
     string Name,
@@ -29,7 +30,8 @@ public readonly record struct DetailRow(
     double? Fraction = null,
     MeterPressure Pressure = MeterPressure.Normal,
     RowSymbol Symbol = RowSymbol.None,
-    string? IconPath = null);
+    string? IconPath = null,
+    string? App = null);
 
 /// <summary>[S-2416] [S-2433] The symbol leading a detail row, drawn from the shared glyphs.</summary>
 public enum RowSymbol

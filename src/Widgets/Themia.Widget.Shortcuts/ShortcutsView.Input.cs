@@ -302,6 +302,7 @@ internal sealed partial class ShortcutsView
         {
             PaintAll();
             CursorCell()?.Root.StartBringIntoView();
+            PointCursor();
             return true;
         }
 
@@ -314,6 +315,7 @@ internal sealed partial class ShortcutsView
                 EndRename(commit: true);
                 _selection.Deactivate();
                 PaintAll();
+                PointCursor();
                 return true;
 
             case WidgetKey.Escape:
@@ -332,6 +334,7 @@ internal sealed partial class ShortcutsView
 
                 var had = _selection.Clear();
                 PaintAll();
+                PointCursor();
                 return had;
 
             case WidgetKey.Enter:

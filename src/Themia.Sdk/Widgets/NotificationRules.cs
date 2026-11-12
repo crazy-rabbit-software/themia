@@ -1,3 +1,5 @@
+using Themia.Core.Links;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>[S-4401] One notification from Windows' list, as the widget shows it.</summary>
@@ -162,6 +164,82 @@ public static class NotificationRules
 
         return PackagedAppsFolder + appId;
     }
+
+    /// <summary>
+    /// [S-11933] The app a notification's sender is on its view's links, keyed as screen time keys an app
+    /// (<c>LinkKeys.App</c>: its executable's lower-case stem), where its AppUserModelID says which:
+    /// an id that is the executable's path (a desktop app's: a known folder's id and the path under it) is
+    /// that executable; an id that names its executable (<c>Microsoft.Office.OUTLOOK.EXE.15</c>) that name;
+    /// an installer's id of the Squirrel kind (<c>com.squirrel.slack.slack</c>) its last word; File
+    /// Explorer's and the apps in <see cref="KnownSenders"/> (packaged apps by their package's name,
+    /// <c>Microsoft.WindowsTerminal_8wekyb3d8bbwe!App</c>) their known executable. Windows' own toasts
+    /// (<c>Windows.SystemToast.*</c>) and every other id are none: a sender is never guessed.
+    /// </summary>
+    public static string? AppKey(string? appId)
+    {
+        var id = appId?.Trim();
+        if (string.IsNullOrEmpty(id) || id.Length > 512 || id.StartsWith("Windows.SystemToast.", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        if (id.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && id.IndexOfAny(['\\', '/']) >= 0)
+        {
+            return LinkKeys.App(id);
+        }
+
+        // A packaged app: "<name>_<publisher hash>!<app>", its package's name what it is known by.
+        var bang = id.IndexOf('!', StringComparison.Ordinal);
+        var family = bang > 0 ? id[..bang] : id;
+        var hash = family.LastIndexOf('_');
+        var name = hash > 0 ? family[..hash] : family;
+        if (KnownSenders.TryGetValue(name, out var known))
+        {
+            return known;
+        }
+
+        var exe = id.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+        if (exe > 0 && bang < 0)
+        {
+            var before = id[..exe];
+            var word = before[(before.LastIndexOfAny(['.', '\\', '/']) + 1)..];
+            return word.Length == 0 ? null : LinkKeys.AppOfProcess(word);
+        }
+
+        if (id.StartsWith("com.squirrel.", StringComparison.OrdinalIgnoreCase) && bang < 0)
+        {
+            var word = id[(id.LastIndexOf('.') + 1)..];
+            return word.Length == 0 ? null : LinkKeys.AppOfProcess(word);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// [S-11933] Senders whose id does not say their executable, by the id (a packaged app's package name),
+    /// each with the executable's stem Windows runs it as.
+    /// </summary>
+    public static IReadOnlyDictionary<string, string> KnownSenders { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Microsoft.Windows.Explorer"] = "explorer",
+        ["Microsoft.WindowsTerminal"] = "windowsterminal",
+        ["Microsoft.WindowsTerminalPreview"] = "windowsterminal",
+        ["Microsoft.OutlookForWindows"] = "olk",
+        ["Microsoft.WindowsNotepad"] = "notepad",
+        ["Microsoft.WindowsCalculator"] = "calculatorapp",
+        ["Microsoft.WindowsStore"] = "winstore.app",
+        ["Microsoft.Windows.Photos"] = "photos",
+        ["Microsoft.ScreenSketch"] = "snippingtool",
+        ["Microsoft.Todos"] = "todo",
+        ["Microsoft.YourPhone"] = "phoneexperiencehost",
+        ["Microsoft.SkyDrive.Desktop"] = "onedrive",
+        ["windows.immersivecontrolpanel"] = "systemsettings",
+        ["MSTeams"] = "ms-teams",
+        ["MSEdge"] = "msedge",
+        ["Chrome"] = "chrome",
+        ["SpotifyAB.SpotifyMusic"] = "spotify",
+        ["5319275A.WhatsAppDesktop"] = "whatsapp.root",
+    };
 
     /// <summary>The Apps folder of the shell, where every app with an AUMID is an item.</summary>
     public const string PackagedAppsFolder = @"shell:AppsFolder\";

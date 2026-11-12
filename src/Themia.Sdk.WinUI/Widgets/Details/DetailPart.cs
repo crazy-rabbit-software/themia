@@ -1,4 +1,5 @@
 using Themia.App.Services.SystemData;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -53,6 +54,13 @@ public abstract class DetailPart
 
     /// <summary>[S-11008] How many lines a list atom's rows have (1 or 2): its pitch follows.</summary>
     public virtual int ListLines => 1;
+
+    /// <summary>
+    /// [S-11930] The view links a list's rows take part in, named by the kind ([S-11906]): the hover its
+    /// rows publish and light for, and the pick they light (and never set). A row is its
+    /// <see cref="DetailRow.App"/>. Null, the default: the rows take no part.
+    /// </summary>
+    public virtual (LinkTopic<AppLink> Hovered, LinkTopic<AppLink> Picked)? AppLinks => null;
 
     /// <summary>[S-2404] Whether Enter on a row does something (opens a drive).</summary>
     public virtual bool RowsOpen => false;

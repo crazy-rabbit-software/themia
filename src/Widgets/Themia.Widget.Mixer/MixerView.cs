@@ -90,6 +90,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        _links.Join(_surface?.Links);
         ApplyConfig(config);
     }
 
@@ -213,6 +214,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
 
             _rows.Clear();
             _list.Children.Clear();
+            Apps.Clear();
             _rowsLead = _config.ShowIcons;
         }
 
@@ -240,6 +242,8 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
                 _rows[i].Host.Visibility = Visibility.Collapsed;
             }
         }
+
+        LinkRows();
     }
 
     // ---- following the default ([S-1222]) ----------------------------------------------------
@@ -347,6 +351,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
                 var had = _focused is not null;
                 _focused = null;
                 Ring(-1);
+                PointCursor(-1);
                 return had;
 
             case AudioKeyKind.Move:
@@ -382,6 +387,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         _focused = _shown[index].Key;
         Ring(index);
+        PointCursor(index);
     }
 
     /// <summary>[S-1225] The keyboard cursor is the Row block's ring on its row ([S-1288]); the others' ring is clear.</summary>
@@ -424,6 +430,8 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         _rows.Clear();
         _list.Children.Clear();
         _focused = null;
+        _links.Leave();
+        Apps.Clear();
     }
 
     private static string RowName(MixerRow row) => row.IsSystem ? MixerStr.Mixer_SystemSounds.Text()

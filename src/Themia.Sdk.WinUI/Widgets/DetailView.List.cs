@@ -124,6 +124,8 @@ public sealed partial class DetailView : IWidgetKeys
             }
         }
 
+        LinkRows(count);
+
         // The ring stays on its row's key; a row that left the list gives it to the one in its place.
         if (_focusKey is not null)
         {
@@ -168,6 +170,7 @@ public sealed partial class DetailView : IWidgetKeys
         {
             case ListCommand.Focus:
                 Focus(decision.Index, bringIntoView: true);
+                PointCursor(decision.Index);
                 return true;
 
             case ListCommand.Open when _part.RowsOpen && decision.Index >= 0 && decision.Index < _sheet.Rows.Count:
@@ -180,6 +183,7 @@ public sealed partial class DetailView : IWidgetKeys
             case ListCommand.Release:
                 var had = _focus >= 0;
                 Focus(-1, bringIntoView: false);
+                PointCursor(-1);
                 return had;
 
             default:

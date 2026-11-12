@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -37,6 +38,7 @@ public sealed class NotificationsModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(((NotificationsConfig)c).RowsShown, addFooter: false),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((NotificationsConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.CalendarMail, 2, 0),
     };
 

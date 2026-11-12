@@ -1,13 +1,14 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
-using Themia.App.Shell.Config;
 using Themia.App.Shell;
+using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.WinUI;
 using Themia.Widget.Shortcuts;
 
 [assembly: ThemiaWidget("shortcuts", typeof(ShortcutsModule))]
@@ -34,6 +35,7 @@ public sealed class ShortcutsModule : IWidgetModule
         Sizing = c => ShortcutLayout.Sizing((ShortcutsConfig)c),
         SizeSets = (c, size) => ShortcutLayout.SizeSets((ShortcutsConfig)c, size),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.Files, 0, 1, Popular: 10),
     };
 

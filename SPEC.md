@@ -5761,13 +5761,35 @@ The event under the pointer (`HoveredEvent`, [S-3623]) beyond the calendars and 
   "home", "id": "one-on-one-0" }` (the calendar optional: the account's default one), keyed as the calendars
   key it, refused where it is written when it is not an object of those words ([S-11909]).
 
+The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyond the screen-time widgets:
+
+- **[S-11930]** `topProcesses`, `mixer`, `notifications` and `shortcuts` take part: the pointer (or the keyboard
+  cursor, [S-3307]) on a row or an item that is an app publishes it, and a row lights in the one look for the
+  app pointed at anywhere on the view (the item layer's hover fill; a shortcut as the pointer would draw it,
+  the desktop's hover) and for the app picked (the selected fill and the accent pill), in place, never
+  rebuilt. A click keeps its own meaning (focus, open, launch): only the screen-time widgets pick an app
+  ([S-3310]), so these publish the hover and follow both. A row that is no app takes no part.
+- **[S-11932]** Every kind keys an app as screen time records it (`LinkKeys.App`, the executable's lower-case
+  stem): a process by its executable's path when it is known, else by its image name (`ProcessTable.AppKey`,
+  each row's `DetailRow.App`; the detail list's rows light through `DetailPart.AppLinks`, the topics its part
+  names); a mixer row by its session's executable (`MixerRules.AppKey`: its path, or a grouped row's key, which
+  is that path); the system sounds and a session whose process could not be read are none.
+- **[S-11933]** A notification is its sender's app where its AppUserModelID says which
+  (`NotificationRules.AppKey`): an id that is the executable's path (a desktop app's, a known folder and the
+  path under it), an id that names its executable (`Microsoft.Office.OUTLOOK.EXE.15` → `outlook`), a Squirrel
+  installer's (`com.squirrel.slack.slack` → `slack`), and the senders whose id does not say it, by their id or
+  package name (`NotificationRules.KnownSenders`: File Explorer's `Microsoft.Windows.Explorer` → `explorer`,
+  `Microsoft.WindowsTerminal_8wekyb3d8bbwe!App` → `windowsterminal`, the new Outlook → `olk`, Teams, Edge,
+  Spotify, …). Windows' own toasts (`Windows.SystemToast.*`) and any other id are none: a sender is never
+  guessed. A shortcut is its app when its target is an executable ([S-11934]).
+
 Topics:
 
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
 | Topic | Lifetime | Published by | Followed by |
 |---|---|---|---|
-| `HoveredApp` | Hover | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` |
-| `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` |
+| `HoveredApp` | Hover | `mixer`, `notifications`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `shortcuts`, `topProcesses` | `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `shortcuts`, `topProcesses` |
+| `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `shortcuts`, `topProcesses` |
 | `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |

@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Details;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -36,6 +37,7 @@ public sealed class TopProcessesModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(Shown((TopProcessesConfig)c), addFooter: false),
         SizeSets = (c, s) => KitSizing.SizeSets(c, s, Shown((TopProcessesConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.Processor, 0, 4),
     };
 

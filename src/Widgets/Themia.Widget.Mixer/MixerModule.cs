@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -34,6 +35,7 @@ public sealed class MixerModule : IWidgetModule
         Sizing = c => MixerLayout.Sizing((MixerConfig)c),
         SizeSets = (c, s) => MixerLayout.SizeSets((MixerConfig)c, s),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.Media, 0, 3),
     };
 

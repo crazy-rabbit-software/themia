@@ -1,3 +1,5 @@
+using Themia.Core.Links;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>One audio session as Core Audio reported it, before grouping.</summary>
@@ -62,6 +64,29 @@ public static class MixerRules
     /// every output device has, at the middle. Never written: the view refuses every write while it shows.
     /// </summary>
     public static MixerRow StandIn { get; } = new(SystemSoundsKey, string.Empty, null, Unavailable.Share, false, false, true, 1);
+
+    /// <summary>
+    /// [S-11932] The app a mixer row is on its view's links: its executable's lower-case stem (the path,
+    /// else a grouped row's key, which is the executable's path). The system sounds, and a session whose
+    /// process could not be read (<c>pid:N</c>, an instance id without a path), are no app.
+    /// </summary>
+    public static string? AppKey(MixerRow row)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+        if (row.IsSystem || row.Key == SystemSoundsKey || row.Key == MasterKey)
+        {
+            return null;
+        }
+
+        if (LinkKeys.App(row.Path) is { } fromPath)
+        {
+            return fromPath;
+        }
+
+        return row.Key.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && !row.Key.Contains('%', StringComparison.Ordinal) && !row.Key.Contains('|', StringComparison.Ordinal)
+            ? LinkKeys.App(row.Key)
+            : null;
+    }
 
     /// <summary>
     /// [S-442] Sessions into rows. Grouped, every session of one executable is one row: the loudest

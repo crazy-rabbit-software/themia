@@ -1,15 +1,16 @@
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml;
-using Microsoft.UI;
-using Themia.App.Services.Web;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.App.Services;
+using Themia.App.Services.Web;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -436,6 +437,7 @@ internal sealed partial class ShortcutsView
         {
             cell.Hovered = true;
             Paint(cell);
+            PointCell(cell, on: true);
         }
     }
 
@@ -445,6 +447,7 @@ internal sealed partial class ShortcutsView
         {
             cell.Hovered = false;
             Paint(cell);
+            PointCell(cell, on: false);
         }
     }
 
@@ -470,8 +473,11 @@ internal sealed partial class ShortcutsView
     private void Paint(Cell cell)
     {
         var id = cell.Item.Id;
-        var cue = new SelectionCue(_selection.IsSelected(id), cell.Hovered, _selection.IsFocus(id), _selection.Cues, _active);
+        // [S-11930] The app pointed at elsewhere on the view looks as the pointer would make it; the app picked there the item layer's pick.
+        var link = LinkLightOf(cell);
+        var cue = new SelectionCue(_selection.IsSelected(id), cell.Hovered || link == LinkLight.Pointed, _selection.IsFocus(id), _selection.Cues, _active);
         SelectionChrome.Paint(cell.Chrome, cue);
+        LinkLook.Row(cell.Root, link == LinkLight.Picked ? LinkLight.Picked : LinkLight.None);
 
         if (cell.Tile && cue.Focused)
         {

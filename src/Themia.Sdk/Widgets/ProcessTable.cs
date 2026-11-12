@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Text;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 
@@ -250,13 +251,21 @@ public static class ProcessTable
             var name = s.Count > 1 ? $"{s.Name} ({LocaleFormat.Integer(locale, s.Count)})" : s.Name;
             var icon = iconPath?.Invoke(s);
             var key = RowKey(s, grouped);
+            var app = AppKey(s.Name, icon);
             rows.Add(sort == ProcessSort.Memory
-                ? new DetailRow(key, name, memory, cpu, Symbol: RowSymbol.App, IconPath: icon)
-                : new DetailRow(key, name, cpu, memory, Symbol: RowSymbol.App, IconPath: icon));
+                ? new DetailRow(key, name, memory, cpu, Symbol: RowSymbol.App, IconPath: icon, App: app)
+                : new DetailRow(key, name, cpu, memory, Symbol: RowSymbol.App, IconPath: icon, App: app));
         }
 
         return rows;
     }
+
+    /// <summary>
+    /// [S-11932] The app a process is on its view's links, keyed as screen time keys it: its executable's
+    /// lower-case stem when its path is known, else its image name lower-cased (<c>Code</c> → <c>code</c>).
+    /// </summary>
+    public static string? AppKey(string? processName, string? executable)
+        => LinkKeys.App(executable) ?? LinkKeys.AppOfProcess(processName);
 
     /// <summary>
     /// [S-2437] A row's identity: grouped, the program's name (one row per program); one row per

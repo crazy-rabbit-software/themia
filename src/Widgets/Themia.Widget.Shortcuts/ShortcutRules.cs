@@ -1,4 +1,5 @@
 using System.Globalization;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Widget.Shortcuts;
@@ -169,6 +170,16 @@ public static class ShortcutRules
 
         return items.RemoveAll(item => LaunchTargets.SameTarget(item.Target, target)) > 0;
     }
+
+    /// <summary>
+    /// [S-11934] The app a shortcut is on its view's links: a local executable (<c>….exe</c>) is that app,
+    /// keyed as screen time keys it (<c>LinkKeys.App</c>); a folder, a document, a web address, a shell
+    /// location, an app layout or a refused target is none.
+    /// </summary>
+    public static string? AppKey(LaunchTarget target)
+        => target.Kind == LaunchKind.LocalPath && target.Value.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+            ? LinkKeys.App(target.Value)
+            : null;
 
     /// <summary>[S-1389] Whether an item is the Recycle Bin.</summary>
     public static bool IsRecycleBin(string? target) => LaunchTargets.SameTarget(target, RecycleBinState.Target);

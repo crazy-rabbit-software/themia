@@ -32,6 +32,8 @@ is the module host's `DetailHostTests`.
   over `ProcessTable.Members`): the program's every process when grouped, else that one process. A
   refused end (a system or elevated process) is a warning notice; the list reads again at once. Themia's
   own row, and a row whose processes have gone, have no menu of their own (the card's opens).
+- View links: a row is its program; the pointer or the keyboard cursor on it publishes the app pointed at, and
+  a row lights for the app pointed at or picked on the view, never picking it ([S-11930], [S-11932]).
 
 Needs a manual pass: the widget on a live desktop (a busy program rising, sort by memory, grouping
 off, a list of 50 scrolled; End task on a program of one and of several processes, grouped and not,

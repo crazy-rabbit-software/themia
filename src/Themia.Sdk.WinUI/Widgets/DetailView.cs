@@ -51,6 +51,7 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         _kind = part.Kind;
         _part = part;
         _config = WidgetConfig.CreateDefault(_kind);
+        FollowLinks();
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -73,6 +74,7 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     {
         // [S-1881] The feeds are watched here, never in the constructor, so a parked view holds nothing.
         _detached = false;
+        JoinLinks();
         ApplyConfig(config);
     }
 
@@ -103,6 +105,7 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
 
         // [S-2513] The feeds (and a ping window's probes) stay in the hub while the state wants them.
         _part.Detach();
+        LeaveLinks();
         DetachList();
     }
 
