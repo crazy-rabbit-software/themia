@@ -7313,6 +7313,12 @@ grouped, so a first desktop is a few clicks.
   group on a sample wallpaper, no edit chrome, so the picture is the panel; `--edit` draws it in edit
   mode, the new group selected under the bar with its page hung from the bar's entry. A widget given no
   state shows its "sample" preview where it has one.
+- **[S-11606]** **A recipe is one panel** (`ReadyMadeGroupsTests`, every recipe): each widget's box is a
+  size its kind takes for the recipe's config and header (placing it moves nothing, [S-2446]), and the
+  boxes fill the group's bounds with no notch. Every recipe is looked at in `--recipe-png` (a contact
+  sheet of all of them): no double line, no spare air, and text edges in line from one atom to the next.
+- **[S-11607]** **An old card's group carries one header**, on its first atom ([S-11090], [S-11172]); the
+  other recipes (This PC, My day, My files, Next meeting, Inbox and tasks) say their own.
 
 Not live-verified: entering a group by clicks, dragging a group and an entered member, the keys,
 the card menu's lines, a group handed to another display, placing a recipe on a display with a

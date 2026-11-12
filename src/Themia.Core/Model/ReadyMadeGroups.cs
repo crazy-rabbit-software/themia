@@ -172,7 +172,7 @@ public static class ReadyMadeGroups
     [
         new("network", new(0, 0, 300, 128)),
         new("networkFacts", new(0, 128, 300, 136), Header: HeaderPlacement.Hidden),
-        new("networkAdapters", new(0, 264, 300, 112), Header: HeaderPlacement.Hidden, Config: """{ "rows": 2 }"""),
+        new("networkAdapters", new(0, 264, 300, 104), Header: HeaderPlacement.Hidden, Config: """{ "rows": 2 }"""),
     ]);
 
     /// <summary>[S-11090] Ping: the latency over its history.</summary>
@@ -293,7 +293,6 @@ public static class ReadyMadeGroups
         new("shutdown", new(360, 0, 120, 120)),
     ]);
 
-    /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
     /// <summary>[S-11409] The meeting block over the meetings after it: what the Next meeting card was.</summary>
     public static ReadyMadeGroup NextMeetings { get; } = new("nextMeetings", Str.Groups_Recipe_NextMeeting, Str.Groups_Recipe_NextMeetingAbout, Glyphs.Meeting, AddFolderId.CalendarMail,
     [
@@ -316,6 +315,7 @@ public static class ReadyMadeGroups
         new("screenTimeApps", new(0, 216, 300, 164), Config: """{ "period": "Week" }""", Header: HeaderPlacement.Hidden),
     ]);
 
+    /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
     public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>

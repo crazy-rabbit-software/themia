@@ -100,6 +100,57 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
+    public void S11606_every_widget_s_box_is_a_size_its_kind_takes_for_its_config_and_header(string id)
+    {
+        foreach (var part in Of(id).Widgets)
+        {
+            var kind = new WidgetId(part.Kind);
+            var config = WidgetConfig.CreateDefault(kind);
+            if (part.Config is { } fragment)
+            {
+                config = StateJson.Merged(config, fragment)!;
+            }
+
+            // Placed, the box is painted fitted into the sizing ([S-2446]): a box it is not moves the panel apart.
+            var shown = WidgetInstance.CanHaveHeader(kind) ? part.Header ?? WidgetInstance.DefaultHeader(kind) : HeaderPlacement.Hidden;
+            var box = new SizeDip(part.Box.Width, part.Box.Height);
+            var fitted = SizeFit.Of(config, shown).Fit(box);
+            Assert.True(fitted == box, $"{id}: {part.Kind} at {box.Width} x {box.Height} is painted {fitted.Width} x {fitted.Height}");
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Recipes))]
+    public void S11606_the_boxes_fill_the_group_s_bounds_with_no_notch(string id)
+    {
+        var recipe = Of(id);
+        var bounds = recipe.Bounds;
+
+        // No two overlap (S2472_), so they fill the box round them exactly when their areas add up to it.
+        Assert.Equal(bounds.Width * bounds.Height, recipe.Widgets.Sum(w => w.Box.Width * w.Box.Height), 3);
+    }
+
+    /// <summary>[S-11607] The groups that are an old card's atoms ([S-11090], [S-11172]): its first atom names it.</summary>
+    public static TheoryData<string> OldCards() =>
+    [
+        "cpu", "cpuCores", "cpuDetails", "memory", "memoryDetails", "gpu", "gpuDetails", "disk", "network", "networkDetails",
+        "ping", "pingDetails", "battery", "batteryDetails", "drive",
+        "weatherStation", "weather", "sun", "moon", "airQuality", "exchangeRates", "stocks",
+    ];
+
+    [Theory]
+    [MemberData(nameof(OldCards))]
+    public void S11607_an_old_card_s_group_carries_one_header_on_its_first_atom(string id)
+    {
+        var recipe = Of(id);
+        HeaderPlacement Shown(ReadyMadeWidget w) => w.Header ?? WidgetInstance.DefaultHeader(new WidgetId(w.Kind));
+
+        Assert.Equal(HeaderPlacement.Top, Shown(recipe.Widgets[0]));
+        Assert.All(recipe.Widgets.Skip(1), w => Assert.True(Shown(w) == HeaderPlacement.Hidden, $"{id}: {w.Kind} shows a header"));
+    }
+
+    [Theory]
+    [MemberData(nameof(Recipes))]
     public void S2472_fits_a_1280_by_720_work_area(string id)
     {
         var bounds = Of(id).Bounds;
