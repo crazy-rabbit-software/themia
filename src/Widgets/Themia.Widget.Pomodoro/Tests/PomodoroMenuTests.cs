@@ -1,4 +1,5 @@
 using Themia.App.Shell.Config;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
@@ -20,11 +21,11 @@ public sealed class PomodoroMenuTests
     }
 
     [Fact]
-    public void S8110_appearance_then_the_lengths_then_the_sound_and_its_volume()
+    public void S11304_size_under_the_style_S8110_appearance_then_the_lengths_then_the_sound_and_its_volume()
     {
         var lines = Build(new PomodoroConfig());
 
-        Assert.Empty(lines.StyleLines);
+        Assert.Equal([Str.Kit_Size.Text()], lines.StyleLines.Select(l => l.Text));
         Assert.Equal(
             [
                 PomodoroStr.Pomodoro_FocusLength_Label.Text(), PomodoroStr.Pomodoro_BreakLength_Label.Text(),

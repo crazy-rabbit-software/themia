@@ -20,8 +20,11 @@ public enum PomodoroStyle
 }
 
 /// <summary>A focus/break timer. [S-01] Run state is deliberately not persisted.</summary>
-public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<SoundSetting>
+public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<SoundSetting>, IReadoutSized
 {
+    /// <summary>[S-11304] How big the time left is: Small, Medium, Large; the card follows it.</summary>
+    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
+
     /// <summary>[S-1460] The original's default level.</summary>
     public const int DefaultVolume = 70;
 
@@ -88,6 +91,12 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
     {
         var repairs = new List<string>();
 
+        if (!Enum.IsDefined(Size))
+        {
+            repairs.Add($"Pomodoro size {(int)Size} unknown; medium");
+            Size = ReadoutSizes.Default;
+        }
+
         if (Volume != EffectiveVolume)
         {
             repairs.Add($"Pomodoro volume {Volume} was out of range");
@@ -110,5 +119,6 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
         BreakMinutes = BreakMinutes,
         Sound = Sound,
         Volume = Volume,
+        Size = Size,
     };
 }

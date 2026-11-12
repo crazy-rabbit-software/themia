@@ -24,7 +24,7 @@ public sealed class WidgetSizingTests
         "airplaneModeToggle", "audioVisualizer", "bluetooth", "bluetoothToggle", "brightness", "calendar",
         "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "focusSession", "gameModeToggle",
         "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer", "monoAudioToggle", "music",
-        "nightLightToggle", "pomodoro", "quote", "restart", "rotationLockToggle", "screenOff", "screenTimeApps",
+        "nightLightToggle", "quote", "restart", "rotationLockToggle", "screenOff", "screenTimeApps",
         "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle",
         "volume", "wifiToggle",
     ];

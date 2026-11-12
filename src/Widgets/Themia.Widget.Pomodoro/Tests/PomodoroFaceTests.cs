@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -5,16 +6,9 @@ using Xunit;
 
 namespace Themia.Widget.Pomodoro.Tests;
 
-/// <summary>[S-1466] [S-6035] [S-644] The pomodoro on the timers' face: the ring, the bar, the digits, the controls by the tier.</summary>
+/// <summary>[S-1466] [S-6035] [S-644] The pomodoro on the timers' face: the ring, the bar, the digits and the controls at its Size.</summary>
 public sealed class PomodoroFaceTests
 {
-    // The tiers' views: the card less its 36 header.
-    private static readonly WidgetArea XS = new(120, 84);
-    private static readonly WidgetArea S = new(200, 114);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea Tall = new(200, 364);
-    private static readonly WidgetArea XL = new(800, 524);
-
     private static PomodoroConfig Of(PomodoroStyle style) => new() { Style = style };
 
     [Fact]
@@ -26,47 +20,32 @@ public sealed class PomodoroFaceTests
     }
 
     [Fact]
-    public void S6035_the_ring_style_draws_a_ring_wherever_one_holds_the_time_else_the_bar()
+    public void S11304_the_ring_is_the_ring_style_at_every_size_the_bar_the_bar_style_digits_neither()
     {
-        var m = PomodoroFace.Plan(Of(PomodoroStyle.Ring), M);
-        Assert.Equal(PomodoroLook.Ring, m.Look);
-        Assert.Equal(156, m.Ring);
-        Assert.True(m.Controls);
+        var ring = PomodoroFace.Plan(Of(PomodoroStyle.Ring));
+        Assert.Equal(PomodoroLook.Ring, ring.Look);
+        Assert.Equal(FamilyType.Big40, ring.Step);
+        Assert.True(ring.Ring > 0);
+        Assert.Equal(PomodoroLook.Ring, PomodoroFace.Plan(new PomodoroConfig { Size = ReadoutSize.Small }).Look);
 
-        var xl = PomodoroFace.Plan(Of(PomodoroStyle.Ring), XL);
-        Assert.Equal(FamilyType.Hero136, xl.Step);
-        Assert.True(xl.Under);
-
-        // S: a 50 ring's hole cannot hold "88:88" on 28: the bar's face instead.
-        Assert.Equal(PomodoroLook.Bar, PomodoroFace.Plan(Of(PomodoroStyle.Ring), S).Look);
+        Assert.Equal(PomodoroLook.Bar, PomodoroFace.Plan(Of(PomodoroStyle.Bar)).Look);
+        Assert.Equal(FamilyType.Hero68, PomodoroFace.Plan(Of(PomodoroStyle.Bar)).Step);
+        Assert.Equal(PomodoroLook.Digits, PomodoroFace.Plan(Of(PomodoroStyle.Digits)).Look);
+        Assert.Equal(0, PomodoroFace.Plan(Of(PomodoroStyle.Digits)).Ring);
     }
 
     [Fact]
-    public void S6035_bar_never_rings_and_digits_draw_neither()
+    public void S11304_the_card_is_the_face_the_bar_on_its_style_and_the_controls_one_height()
     {
-        Assert.Equal(PomodoroLook.Bar, PomodoroFace.Plan(Of(PomodoroStyle.Bar), Tall).Look);
-        Assert.Equal(PomodoroLook.Digits, PomodoroFace.Plan(Of(PomodoroStyle.Digits), Tall).Look);
-        Assert.Equal(0, PomodoroFace.Plan(Of(PomodoroStyle.Digits), XL).Ring);
-    }
+        var digits = PomodoroFace.Sizing(Of(PomodoroStyle.Digits), Locale.En);
+        var bar = PomodoroFace.Sizing(Of(PomodoroStyle.Bar), Locale.En);
+        var small = PomodoroFace.Sizing(new PomodoroConfig { Style = PomodoroStyle.Digits, Size = ReadoutSize.Small }, Locale.En);
 
-    [Fact]
-    public void S644_a_short_tile_keeps_the_time_the_controls_going_first_then_the_bar()
-    {
-        // 8 shorter than XS (96 × 64 of content): no room for the 28 row under the time; the bar still fits.
-        var xs = PomodoroFace.Plan(Of(PomodoroStyle.Bar), new WidgetArea(120, 76));
-        Assert.False(xs.Controls);
-        Assert.Equal(PomodoroLook.Bar, xs.Look);
-        Assert.Equal(FamilyType.Big28, xs.Step);
+        Assert.True(digits.FixedHeight && !digits.FixedWidth);
+        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, digits.Natural.Height);
+        Assert.Equal(digits.Natural.Height + 12, bar.Natural.Height);
 
-        // S (176 × 102): the time, the phase under it, the bar and the row fit.
-        var s = PomodoroFace.Plan(Of(PomodoroStyle.Bar), S);
-        Assert.True(s.Controls);
-        Assert.Equal(PomodoroLook.Bar, s.Look);
-        Assert.True(s.Under);
-
-        // A strip too short for the time, the bar and the row keeps the time and the row.
-        var strip = PomodoroFace.Plan(Of(PomodoroStyle.Bar), new WidgetArea(480, 84));
-        Assert.True(strip.Controls);
-        Assert.Equal(PomodoroLook.Digits, strip.Look);
+        // At Small the five controls are icon buttons, wider than the 40 time.
+        Assert.Equal((5 * 28) + (4 * 8) + 24 + 2, small.Natural.Width);
     }
 }

@@ -41,6 +41,14 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     private readonly Button _shorterButton;
     private readonly Button _longerButton;
 
+    // [S-11304] At Small the row is icon buttons: Start/Pause the accent's Play or Pause.
+    private readonly ControlsBlock _iconControls = new() { HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+    private readonly Button _runIcon;
+    private readonly Button _shorterIcon;
+    private readonly Button _longerIcon;
+    private readonly Button _resetIcon;
+    private readonly Button _skipIcon;
+
     private Ticker? _ticker;
     private PomodoroConfig _config = new();
     private PomodoroState _state;
@@ -48,7 +56,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     /// <summary>[S-8111] How long the current phase runs in all: the menu's length, or a nudged one until the phase ends.</summary>
     private int _length;
     private IDisposable? _subscription;
-    private WidgetArea _area;
     private PomodoroPlan _plan;
     private bool _preview;
 
@@ -72,6 +79,11 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _longerButton = _controls.Icon(Glyphs.Add, PomodoroStr.Pomodoro_Longer.Text(), () => Nudge(+1));
         _resetButton = _controls.Icon(Glyphs.Reset, PomodoroStr.Pomodoro_Reset.Text(), Reset);
         _skipButton = _controls.Icon(Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text(), Skip);
+        _runIcon = _iconControls.MainIcon(Glyphs.Play, PomodoroStr.WidgetsC_Pomodoro_Start.Text(), () => SetRunning(!_running));
+        _shorterIcon = _iconControls.Icon(Glyphs.Minus, PomodoroStr.Pomodoro_Shorter.Text(), () => Nudge(-1));
+        _longerIcon = _iconControls.Icon(Glyphs.Add, PomodoroStr.Pomodoro_Longer.Text(), () => Nudge(+1));
+        _resetIcon = _iconControls.Icon(Glyphs.Reset, PomodoroStr.Pomodoro_Reset.Text(), Reset);
+        _skipIcon = _iconControls.Icon(Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text(), Skip);
 
         _face.Children.Add(_ring);
         _face.Children.Add(_readout);
@@ -83,8 +95,10 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         SetRow(_controls, 1);
+        SetRow(_iconControls, 1);
         Children.Add(_column);
         Children.Add(_controls);
+        Children.Add(_iconControls);
 
         Render();
     }
@@ -112,6 +126,10 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         ToolTipService.SetToolTip(_longerButton, PomodoroStr.Pomodoro_Longer.Text());
         ToolTipService.SetToolTip(_resetButton, PomodoroStr.Pomodoro_Reset.Text());
         ToolTipService.SetToolTip(_skipButton, PomodoroStr.WidgetsC_Pomodoro_Skip.Text());
+        ToolTipService.SetToolTip(_shorterIcon, PomodoroStr.Pomodoro_Shorter.Text());
+        ToolTipService.SetToolTip(_longerIcon, PomodoroStr.Pomodoro_Longer.Text());
+        ToolTipService.SetToolTip(_resetIcon, PomodoroStr.Pomodoro_Reset.Text());
+        ToolTipService.SetToolTip(_skipIcon, PomodoroStr.WidgetsC_Pomodoro_Skip.Text());
         Render();
     }
 
@@ -131,11 +149,9 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         Render();
     }
 
+    /// <summary>[S-11304] The face is the config's, not the box's: a wider card centres the same face.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
-        Render();
     }
 
     /// <summary>
@@ -275,7 +291,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         var fraction = PomodoroCycle.Progress(_state, _length);
 
         // [S-6706] The phase is said by its word; neither it nor the break is coloured (no accent text, no success green).
-        _readout.Show(PomodoroCycle.Clock(_state.RemainingSeconds), under: _plan.Under ? PomodoroCycle.PhaseLabel(_state.Phase) : null);
+        _readout.Show(PomodoroCycle.Clock(_state.RemainingSeconds), under: PomodoroCycle.PhaseLabel(_state.Phase));
         ToolTipService.SetToolTip(_readout, PomodoroCycle.NextLine(_state.Phase, _config));
 
         if (_plan.Look == PomodoroLook.Ring)
@@ -289,18 +305,17 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
 
         _shorterButton.IsEnabled = PomodoroNudge.Can(_state, _length, -1);
         _longerButton.IsEnabled = PomodoroNudge.Can(_state, _length, +1);
-        ControlsBlock.Relabel(_runButton, (_running ? PomodoroStr.WidgetsC_Pomodoro_Pause : PomodoroStr.WidgetsC_Pomodoro_Start).Text());
+        _shorterIcon.IsEnabled = _shorterButton.IsEnabled;
+        _longerIcon.IsEnabled = _longerButton.IsEnabled;
+        var run = (_running ? PomodoroStr.WidgetsC_Pomodoro_Pause : PomodoroStr.WidgetsC_Pomodoro_Start).Text();
+        ControlsBlock.Relabel(_runButton, run);
+        ControlsBlock.Reglyph(_runIcon, _running ? Glyphs.Pause : Glyphs.Play, run);
     }
 
-    /// <summary>[S-1466] [S-6739] The face for the tile and the style: the look, the readout's step and line under, the ring, the bar, the controls.</summary>
+    /// <summary>[S-11304] The face at the pomodoro's Size and style: the look, the readout's step, the ring, the bar, the controls worded or as icons.</summary>
     private void Lay()
     {
-        if (!_area.IsMeasured)
-        {
-            return;
-        }
-
-        _plan = PomodoroFace.Plan(_config, _area);
+        _plan = PomodoroFace.Plan(_config);
         _readout.Use(_plan.Step, centred: true);
 
         var ringed = _plan.Look == PomodoroLook.Ring;
@@ -308,7 +323,9 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         _face.Width = ringed ? _plan.Ring : double.NaN;
         _face.Height = ringed ? _plan.Ring : double.NaN;
         _bar.Visibility = _plan.Look == PomodoroLook.Bar ? Visibility.Visible : Visibility.Collapsed;
-        _controls.Visibility = _plan.Controls ? Visibility.Visible : Visibility.Collapsed;
+        var icons = TimerFace.IconControls(_config.Size);
+        _controls.Visibility = icons ? Visibility.Collapsed : Visibility.Visible;
+        _iconControls.Visibility = icons ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public void Detach()
