@@ -240,6 +240,11 @@
           "scale": 1,
           "config": {
             "kind": "contacts",
+            "rows": 5,
+            "lines": 2,
+            "searchBox": true,
+            "gridColumns": 3,
+            "gridRows": 2,
             "accountIds": [],
             "layout": "list",
             "columns": [

@@ -488,15 +488,15 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     {
         var ready = _screen == Screen.Ready;
         var problems = ready && _warningText is not null ? _warningText().Split(Environment.NewLine) : [];
-        var search = ready && ContactRules.Search(_area.Height) == ContactSearch.OnDemand && !SearchShown(ready);
+        var search = ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && !SearchShown(ready);
         IReadOnlyList<KitHeaderButton> buttons = search ? [new KitHeaderButton(Glyphs.Search, ContactsStr.Contacts_SearchPlaceholder.Text(), OpenSearch)] : [];
         _header.Show(problems, _busy, _warningOpensAccounts, ready && _visible.Count > 0 ? _visible.Count : null, buttons);
     }
 
-    /// <summary>[S-1275] The box is there when it costs little, on request on a mid-size tile, never on a small one.</summary>
+    /// <summary>[S-11406] The box is there when the config has it, else on request through the header's button.</summary>
     private bool SearchShown(bool ready)
     {
-        var search = ContactRules.Search(_area.Height);
+        var search = ContactRules.Search(_config.SearchBox);
         return ready && (search == ContactSearch.Shown || (search == ContactSearch.OnDemand && (_searchOpen || _query.Length > 0)));
     }
 
@@ -555,7 +555,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         _state.Hide();
 
-        var plan = ContactsPlan.Of(_area, _config.EffectiveLayout, _config.EffectiveColumns.Count, showSearch);
+        var plan = ContactsPlan.Of(_area, _config);
         switch (plan.Layout)
         {
             case ContactsLayout.Details:
@@ -598,7 +598,12 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>[S-6712] The list is as tall as its whole rows; the rest is a scroll away.</summary>
     private void WholeRows(int lines, ContactsLayoutPlan plan)
     {
-        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
+        // [S-11406] The rows its box holds: the config's at rest, the box's while a drag is setting them.
+        var room = _area.Height - FamilySpace.Inset
+            - (_search.Visibility == Visibility.Visible ? ContactsPlan.SearchHeight : 0)
+            - (plan.Layout == ContactsLayout.Details ? ContactsPlan.HeaderHeight : 0);
+        var fit = _area.IsMeasured ? (int)Math.Floor((room + 0.5) / plan.Pitch) : plan.Rows;
+        var shown = Math.Max(1, Math.Min(lines, fit));
         _scroll.Height = lines > shown ? shown * plan.Pitch : double.NaN;
     }
 
@@ -732,7 +737,12 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         // The panel's last gap is not a line of its own.
         var lines = (contacts.Count + plan.Columns - 1) / plan.Columns;
-        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
+        // [S-11406] The rows its box holds: the config's at rest, the box's while a drag is setting them.
+        var room = _area.Height - FamilySpace.Inset
+            - (_search.Visibility == Visibility.Visible ? ContactsPlan.SearchHeight : 0)
+            - (plan.Layout == ContactsLayout.Details ? ContactsPlan.HeaderHeight : 0);
+        var fit = _area.IsMeasured ? (int)Math.Floor((room + 0.5) / plan.Pitch) : plan.Rows;
+        var shown = Math.Max(1, Math.Min(lines, fit));
         _scroll.Height = lines > shown ? (shown * plan.Pitch) - FamilySpace.ColumnGap : double.NaN;
         Use(panel);
     }

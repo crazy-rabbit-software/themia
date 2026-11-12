@@ -22,7 +22,7 @@ public sealed class WidgetSizingTests
     private static readonly string[] Legacy =
     [
         "airplaneModeToggle", "alarm", "audioVisualizer", "bluetooth", "bluetoothToggle", "brightness", "calendar",
-        "colorFiltersToggle", "contacts", "countdown", "doNotDisturbToggle", "energySaverToggle", "focusSession",
+        "colorFiltersToggle", "countdown", "doNotDisturbToggle", "energySaverToggle", "focusSession",
         "gameModeToggle", "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer", "monoAudioToggle",
         "music", "nextMeeting", "nightLightToggle", "pomodoro", "quote", "restart", "rotationLockToggle",
         "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep",

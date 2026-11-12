@@ -3800,7 +3800,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   Config: `accountIds` (empty = every contacts account), `layout`, `columns`, `count`.
   Clicking selects (the keyboard's ring, [S-1288]), clicking the background clears. With no contacts
   account the card's Set up row says "Add an account to show your contacts" ([S-1862]).
-- **[S-581]** Layouts: list (monogram, name, role, address/number), compact (name and one field),
+- **[S-581]** *(The width fallbacks retired by [S-11406]: each layout states its own sizes.)* Layouts: list (monogram, name, role, address/number), compact (name and one field),
   details (table), grid (cells). Details narrower than 88 px a column fall back to the list, a grid
   under two cells to compact. The count is the header's neutral pill and folds with its extras
   ([S-7064]).
@@ -4878,20 +4878,20 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   period moves nothing and one outside pages to its period ([S-3621]). Columns share the width
   (`CalendarFit.Week(width, height, days)`), so fewer days are roomier columns; the band, lists and
   hour grid are the same layout for any count.
-- **[S-1270]** Contacts list rows are Row blocks ([S-6711], `ContactsPlan.Of`): one, two or three
+- **[S-1270]** *(Its size rule retired by [S-11406]: what each layout shows is its config's.)* Contacts list rows are Row blocks ([S-6711], `ContactsPlan.Of`): one, two or three
   lines by the tier ([S-6712], `RowRules.Lines` on the view's area): the name primary; then the role
   (else the address, else the number) secondary; then the address (else the number) tertiary. Every
   row of a render is one height (28, 40, 56). Rows flow into columns of 240 px (up to 4), row-major;
   the 32 monogram leads from 180 px columns; the rows that fit whole in the view's area less the
   card's bottom inset and the search box show, the rest a scroll away under the fade ([S-1281]).
-- **[S-1271]** Compact rows are one line: the name and, from 240 px columns, the one field (address,
+- **[S-1271]** *(Its size rule retired by [S-11406]: what each layout shows is its config's.)* Compact rows are one line: the name and, from 240 px columns, the one field (address,
   else company, else number) as the row's value, secondary and end-aligned.
-- **[S-1273]** Grid cells are the family's `Row.Cell` ([S-6713]): the monogram (32, 48 from an
+- **[S-1273]** *(Its size rule retired by [S-11406]: what each layout shows is its config's.)* Grid cells are the family's `Row.Cell` ([S-6713]): the monogram (32, 48 from an
   expanded width) over the name in Caption, each the icon and 24 either side wide, 12 apart, whole
   lines only.
 - **[S-1274]** *(Retired: no detail pane beside the list on an XL tile. The list keeps the whole
   width; a person's actions (Send email, Call, Message, Copy …) are the row menu's, [S-1277].)*
-- **[S-1275]** Search box: always from 220 px tall; from 128 a header search button (one of the kit's
+- **[S-1275]** *(Its size rule retired by [S-11406]: what each layout shows is its config's.)* Search box: always from 220 px tall; from 128 a header search button (one of the kit's
   24 header buttons, [S-7064]) opens it (it folds away again when left empty); below 128 none. A
   typed query keeps the box open. The box is one control of 32 at the card's inset, 8 over the list.
 - **[S-1277]** Keys (classic S-31/32), `ContactsView.HandleKey`: Up/Down move the selection through the

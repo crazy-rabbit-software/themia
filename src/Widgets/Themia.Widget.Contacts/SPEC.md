@@ -9,7 +9,7 @@ source ([S-588]), the ladder and the keys ([S-1270], [S-1271], [S-1273], [S-1275
 `ContactRules`, in the SDK).
 
 Owning files: everything in this folder: `ContactsModule.cs` (descriptor, view factory, JSON
-context), `ContactsConfig.cs` (with its Set up sentence), `ContactsPlan.cs` (the ladder on the family's
+context), `ContactsConfig.cs` (with its Set up sentence), `ContactsPlan.cs` (each layout's plan and sizes on the family's
 rows and cells), `ContactsView.cs` (the layouts drawn from the family's blocks, the search box, the
 selection and the keys, the person's menu, over `IWidgetHost.Office`), `ContactsMenu.cs` (its
 properties-menu lines: the SDK's account lines, the layout, the columns, the count), `Preview/` (Debug
@@ -19,7 +19,20 @@ renders: `--state sample`, a fixed address book on the reserved `.example` domai
 config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the menu's are
 `Tests/ContactsMenuTests.cs`.
 
-- **[S-584]** A search box (from 150 px tall) asks for the keyboard while focused (Esc clears). It
+- **[S-11406]** **Contacts states its sizes** ([S-2438]), each layout its own, all from the config:
+  **List** rows of `Lines` (1..3, default 2: the name; the role, else a way to reach; the address,
+  else the number), each led by its 32 monogram; **Compact** rows of one line with the one field as
+  their value; **Details** one line a person under the column titles, as wide as its columns need
+  (24 + 88 a column, at least two) to 720, a new one 420; these three show `Rows` people (1..20,
+  default 5), 220..520 wide for List and Compact (a new one 300 × 284), their height the search box
+  where on, the rows and the inset, dragging the bottom edge sets Rows, more scroll inside them.
+  **Grid**: `GridColumns` cells a line (2..6, default 3) and `GridRows` lines (1..6, default 2) of
+  48 monograms over their names, one size (no handle), more scroll inside it. **Search box**
+  (`SearchBox`, on by default): over the people; off, the header's search button opens it. One
+  column at every width; no layout falls back to another. The ladder ([S-1270], [S-1271], [S-1273],
+  [S-1275], `ContactRules.Effective`) is gone. Tests `ContactsPlanTests`, `ContactsMenuTests.S11406_`,
+  `ContactsFitTests.S11406_`.
+- **[S-584]** A search box asks for the keyboard while focused (Esc clears). It
   starts empty: the `defaultSearch` setting is gone ([S-3796]).
 - **[S-1272]** Details: one row of 28 per person, the chosen columns in the Row block's place for the
   name (`RowBlock.Cells`), 12 apart, the name primary and the rest secondary, their titles (Caption,

@@ -111,50 +111,11 @@ public static class ContactRules
             : ContactColumns.All.Where(next.Contains).ToList();
     }
 
-    /// <summary>
-    /// [S-581] What a layout becomes at a size: a details table too narrow for its columns falls back
-    /// to the list, and a grid too narrow for two cards to compact rows.
-    /// </summary>
-    public static ContactsLayout Effective(ContactsLayout wanted, double width, int columns)
-        => wanted switch
-        {
-            ContactsLayout.Details when width > 0 && width < Math.Max(2, columns) * 88 => ContactsLayout.List,
-            ContactsLayout.Grid when width > 0 && width < 2 * 96 => ContactsLayout.Compact,
-            _ => wanted,
-        };
-
     private static string FirstOf(params string?[] values)
         => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v))?.Trim() ?? string.Empty;
 
-    // ---- the disclosure ladder ([S-1270]..[S-1275]) -----------------------------------------------
-
-    /// <summary>[S-1270] One list column's width: an avatar, a name and an address without trimming.</summary>
-    public const double ListColumnWidth = 240;
-
-    /// <summary>[S-1270] Below this column width a row gives the avatar's room to the name.</summary>
-    public const double AvatarFrom = 180;
-
-    /// <summary>[S-1275] From this height the search box is always there.</summary>
-    public const double SearchFrom = 220;
-
-    /// <summary>[S-1275] Below this height there is no search at all: two names are the whole tile.</summary>
-    public const double SearchOnDemandFrom = 128;
-
-    /// <summary>[S-1270] How many columns the list and compact layouts flow their rows into: one per 240 px, up to four.</summary>
-    public static int ListColumns(double width)
-        => width > 0 ? Math.Clamp((int)Math.Floor(width / ListColumnWidth), 1, 4) : 1;
-
-    /// <summary>[S-1271] A compact row keeps its right-aligned field only in a column this wide; else the name has the row.</summary>
-    public static bool CompactAside(double columnWidth) => !(columnWidth > 0) || columnWidth >= ListColumnWidth;
-
-    /// <summary>[S-1270] Whether a row of this column width carries the avatar.</summary>
-    public static bool ShowsAvatar(double columnWidth) => !(columnWidth > 0) || columnWidth >= AvatarFrom;
-
-    /// <summary>[S-1275] Where the search box is at a height: always, behind a header button, or not at all.</summary>
-    public static ContactSearch Search(double height)
-        => !(height > 0) || height >= SearchFrom ? ContactSearch.Shown
-            : height >= SearchOnDemandFrom ? ContactSearch.OnDemand
-            : ContactSearch.Hidden;
+    /// <summary>[S-11406] Where the search box is: over the people when the config has it, else behind the header's button.</summary>
+    public static ContactSearch Search(bool box) => box ? ContactSearch.Shown : ContactSearch.OnDemand;
 
     // ---- keys ([S-1277]) -------------------------------------------------------------------------
 
@@ -208,7 +169,6 @@ public static class ContactRules
 /// <summary>[S-1275] Where the contacts search box is.</summary>
 public enum ContactSearch
 {
-    Hidden,
     OnDemand,
     Shown,
 }

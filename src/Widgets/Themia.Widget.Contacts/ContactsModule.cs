@@ -35,7 +35,8 @@ public sealed class ContactsModule : IWidgetModule
         Label = ContactsStr.Widget_Contacts_Label.Local(),
         Description = ContactsStr.WidgetsA_Catalog_Contacts_Description.Local(),
         Glyph = Glyphs.Contact,
-        Sizing = _ => WidgetSizing.Legacy(320, 260),
+        Sizing = c => ContactsPlan.Sizing((ContactsConfig)c),
+        SizeSets = ContactsPlan.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 1, 2),
     };

@@ -1,3 +1,4 @@
+using Themia.Sdk.Kit;
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
@@ -21,8 +22,35 @@ public enum ContactsSetting
 /// [S-580] The contacts widget's settings: which accounts, the layout, the columns of the details
 /// table, how many to list and a search to start with. Data comes from Themia's own accounts.
 /// </summary>
-public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests
+public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests, IKitRows
 {
+    /// <summary>[S-11406] A new contacts list's rows.</summary>
+    public const int DefaultRows = 5;
+
+    /// <summary>[S-11406] The grid's cells a line: 2 to <see cref="MaxGrid"/>.</summary>
+    public const int DefaultGridColumns = 3;
+
+    /// <summary>[S-11406] The grid's lines of cells.</summary>
+    public const int DefaultGridRows = 2;
+
+    /// <summary>[S-11406] The most cells a grid line, and the most lines.</summary>
+    public const int MaxGrid = 6;
+
+    /// <summary>[S-11406] How many people the List, Compact and Details layouts show; more scroll inside them.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-11406] Lines per person in the List layout: the name; the role or a way to reach them; the address or the number.</summary>
+    public int Lines { get; set; } = 2;
+
+    /// <summary>[S-11406] The search box over the people (off: the header's search button opens it).</summary>
+    public bool SearchBox { get; set; } = true;
+
+    /// <summary>[S-11406] The Grid layout's cells a line.</summary>
+    public int GridColumns { get; set; } = DefaultGridColumns;
+
+    /// <summary>[S-11406] The Grid layout's lines of cells; more scroll inside them.</summary>
+    public int GridRows { get; set; } = DefaultGridRows;
+
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
     string? ISetupRule.SetupSentence => ContactsStr.Contacts_Setup_Sentence.Text();
 
@@ -92,11 +120,23 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
             Layout = ContactsLayout.List;
         }
 
+        var (rows, lines, gridColumns, gridRows) = (KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, KitSizing.MaxLines), Math.Clamp(GridColumns, 2, MaxGrid), Math.Clamp(GridRows, 1, MaxGrid));
+        if ((rows, lines, gridColumns, gridRows) != (Rows, Lines, GridColumns, GridRows))
+        {
+            (Rows, Lines, GridColumns, GridRows) = (rows, lines, gridColumns, gridRows);
+            repairs.Add("contacts widget's rows, lines or grid were out of range");
+        }
+
         return repairs;
     }
 
     public override WidgetConfig Clone() => new ContactsConfig
     {
+        Rows = Rows,
+        Lines = Lines,
+        SearchBox = SearchBox,
+        GridColumns = GridColumns,
+        GridRows = GridRows,
         AccountIds = [.. AccountIds],
         Layout = Layout,
         Columns = [.. Columns],

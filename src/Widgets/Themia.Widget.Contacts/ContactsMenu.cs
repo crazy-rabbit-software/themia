@@ -46,6 +46,20 @@ internal static class ContactsMenu
             menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Grid, ContactsStr.WidgetsA_Contacts_Menu_Columns.Text(), Columns(menu, config)));
         }
 
+        // [S-11406] What each layout shows: the List's rows and lines, Compact's and Details' rows, the
+        // Grid's cells a line and lines; then the search box.
+        if (config.EffectiveLayout == ContactsLayout.Grid)
+        {
+            menu.Lines.Add(KitMenuLines.Count(menu, null, Str.Kit_Columns.Text(), Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid), 2, ContactsConfig.MaxGrid, 1, v => config.GridColumns = v));
+            menu.Lines.Add(KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid), 1, ContactsConfig.MaxGrid, 1, v => config.GridRows = v));
+        }
+        else
+        {
+            menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: config.EffectiveLayout == ContactsLayout.List, mostLines: 3));
+        }
+
+        menu.Lines.Add(menu.Toggle(Glyphs.Search, ContactsStr.Contacts_SearchBox.Text(), config.SearchBox, on => config.SearchBox = on));
+
         // [S-583] / [S-1276] At least five, in steps of five.
         menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Count, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text(), config.EffectiveCount, 5, MaxCount, 5, value => config.Count = value));
     }

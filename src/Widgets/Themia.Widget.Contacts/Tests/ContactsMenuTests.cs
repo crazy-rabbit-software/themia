@@ -33,8 +33,24 @@ public sealed class ContactsMenuTests
         var lines = Build(new ContactsConfig());
 
         Assert.Equal(
-            [Str.WidgetUi_AccountsLabel.Text(), string.Empty, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(), ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()],
+            [
+                Str.WidgetUi_AccountsLabel.Text(), string.Empty, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(),
+                Str.Kit_Rows.Text(), Str.Kit_Lines.Text(), ContactsStr.Contacts_SearchBox.Text(), ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text(),
+            ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
+    }
+
+    [Fact]
+    public void S11406_compact_offers_rows_alone_and_the_grid_its_columns_and_rows()
+    {
+        var compact = Build(new ContactsConfig { Layout = ContactsLayout.Compact }).Lines.Select(l => l.Text).ToList();
+        Assert.Contains(Str.Kit_Rows.Text(), compact);
+        Assert.DoesNotContain(Str.Kit_Lines.Text(), compact);
+
+        var grid = Build(new ContactsConfig { Layout = ContactsLayout.Grid }).Lines.Select(l => l.Text).ToList();
+        Assert.Contains(Str.Kit_Columns.Text(), grid);
+        Assert.Contains(Str.Kit_Rows.Text(), grid);
+        Assert.DoesNotContain(Str.Kit_Lines.Text(), grid);
     }
 
     [Fact]

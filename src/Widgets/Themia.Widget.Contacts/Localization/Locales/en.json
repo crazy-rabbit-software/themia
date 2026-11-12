@@ -1,11 +1,13 @@
 {
   "$englishOnly": [
+    "contacts.searchBox",
     "widgetsA.contacts.menu.columns"
   ],
   "apps.viewCompact": "Compact",
   "apps.viewGrid": "Grid",
   "apps.viewList": "List",
   "contacts.noContacts": "No contacts found.",
+  "contacts.searchBox": "Search box",
   "contacts.searchPlaceholder": "Search contacts…",
   "ctxMenu.call": "Call",
   "ctxMenu.copyEmail": "Copy email",

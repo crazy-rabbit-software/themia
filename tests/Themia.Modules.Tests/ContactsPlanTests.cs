@@ -7,73 +7,71 @@ using Xunit;
 
 namespace Themia.Modules.Tests;
 
-/// <summary>[S-1270]..[S-1275] The contacts widget's ladder on the family's rows and cells.</summary>
+/// <summary>[S-11406] The contacts widget's plan and sizes from its config, each layout its own.</summary>
 public sealed class ContactsPlanTests
 {
-    private static ContactsLayoutPlan Plan(double width, double height, ContactsLayout layout = ContactsLayout.List, bool search = false)
-        => ContactsPlan.Of(new WidgetArea(width, height), layout, 3, search);
+    private static ContactsLayoutPlan Plan(ContactsConfig config, double width = 300) => ContactsPlan.Of(new WidgetArea(width, 400), config);
 
-    [Theory]
-    [InlineData(120, 84, 1, false)]   // XS: the name alone
-    [InlineData(200, 114, 1, true)]   // S
-    [InlineData(480, 124, 1, true)]   // Wide
-    [InlineData(320, 204, 2, true)]   // M: the role (else a way to reach)
-    [InlineData(200, 364, 2, true)]   // Tall
-    [InlineData(560, 384, 3, true)]   // L: and the address
-    [InlineData(800, 524, 3, true)]   // XL
-    public void S1270_list_rows_add_lines_with_the_tier_and_the_monogram_from_a_column_of_180(double width, double height, int lines, bool avatar)
+    [Fact]
+    public void S11406_a_new_list_is_five_people_of_two_lines_under_the_search_box()
     {
-        var plan = Plan(width, height);
+        var config = new ContactsConfig();
+        var plan = Plan(config);
+        var sizing = ContactsPlan.Sizing(config);
 
-        Assert.Equal(lines, plan.Lines);
-        Assert.Equal(FamilyShape.RowHeight(lines), plan.Pitch);
-        Assert.Equal(avatar, plan.Avatar);
+        Assert.Equal((ContactsLayout.List, 1, 2, true, 5), (plan.Layout, plan.Columns, plan.Lines, plan.Avatar, plan.Rows));
+        Assert.Equal(new Themia.Sdk.SizeDip(300, 36 + ContactsPlan.SearchHeight + (5 * 40) + 12), sizing.Natural);
+        Assert.Equal((220, 520), (sizing.Min.Width, sizing.Max.Width));
+        Assert.Empty(sizing.Problems());
     }
 
     [Fact]
-    public void S1270_rows_flow_into_columns_of_240_and_whole_rows_fit_under_the_search_box()
+    public void S11406_the_plan_is_the_same_at_any_width()
     {
-        Assert.Equal(1, Plan(320, 204).Columns);
-        Assert.Equal(2, Plan(560, 384).Columns);
-        Assert.Equal(3, Plan(800, 524).Columns);
-
-        // 204 less the bottom inset (12) and the search box (28 and 8 under it): 156, three rows of 40.
-        Assert.Equal(3, Plan(320, 204, search: true).Rows);
-        Assert.Equal(4, Plan(320, 204).Rows);
+        var config = new ContactsConfig { Lines = 3 };
+        Assert.Equal(Plan(config, 220) with { ColumnWidth = 0 }, Plan(config, 520) with { ColumnWidth = 0 });
+        Assert.Equal(3, Plan(config).Lines);
     }
 
     [Fact]
-    public void S1271_compact_rows_are_one_line_with_the_field_as_their_value_from_240()
+    public void S11406_without_the_box_the_list_is_shorter_by_it()
+        => Assert.Equal(ContactsPlan.SearchHeight, ContactsPlan.Sizing(new ContactsConfig()).Natural.Height - ContactsPlan.Sizing(new ContactsConfig { SearchBox = false }).Natural.Height);
+
+    [Fact]
+    public void S11406_compact_is_one_line_with_its_field_and_details_has_its_titles_and_column_widths()
     {
-        Assert.Equal(1, Plan(560, 384, ContactsLayout.Compact).Lines);
-        Assert.False(Plan(200, 364, ContactsLayout.Compact).Aside);
-        Assert.True(Plan(320, 204, ContactsLayout.Compact).Aside);
-        Assert.False(Plan(320, 204, ContactsLayout.Compact).Avatar);
+        var compact = Plan(new ContactsConfig { Layout = ContactsLayout.Compact });
+        Assert.Equal((1, true, false), (compact.Lines, compact.Aside, compact.Avatar));
+
+        var details = new ContactsConfig { Layout = ContactsLayout.Details, SearchBox = false };
+        var sizing = ContactsPlan.Sizing(details);
+        Assert.Equal(36 + ContactsPlan.HeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(24 + (details.EffectiveColumns.Count * 88), sizing.Min.Width);
+        Assert.Equal(ContactsLayout.Details, Plan(details, 200).Layout);
     }
 
     [Fact]
-    public void S582_the_details_table_keeps_a_line_for_its_titles()
+    public void S11406_the_grid_is_one_size_its_cells_and_lines_the_config_s()
     {
-        var plan = Plan(560, 384, ContactsLayout.Details);
-        Assert.Equal(ContactsLayout.Details, plan.Layout);
-        Assert.Equal(12, plan.Rows);   // (372 - 24) / 28
+        var config = new ContactsConfig { Layout = ContactsLayout.Grid, SearchBox = false, GridColumns = 3, GridRows = 2 };
+        var sizing = ContactsPlan.Sizing(config);
+        var plan = Plan(config);
 
-        // Too narrow for its columns: the list.
-        Assert.Equal(ContactsLayout.List, Plan(200, 364, ContactsLayout.Details).Layout);
+        Assert.True(sizing.FixedWidth && sizing.FixedHeight);
+        Assert.Equal(new Themia.Sdk.SizeDip(24 + (3 * 96) + (2 * 12), 36 + (2 * ContactsPlan.CellHeight) + 12 + 12), sizing.Natural);
+        Assert.Equal((48.0, 3, 2), (plan.Icon, plan.Columns, plan.Rows));
+        Assert.Same(config, ContactsPlan.SizeSets(config, new Themia.Sdk.SizeDip(400, 400)));
     }
 
     [Fact]
-    public void S1273_grid_cells_are_the_family_cells_12_apart()
+    public void S11406_dragging_sets_rows_and_out_of_range_is_repaired()
     {
-        var m = Plan(320, 204, ContactsLayout.Grid);
-        Assert.Equal(32, m.Icon);
-        Assert.Equal(80, m.ColumnWidth);            // the icon and 24 either side
-        Assert.Equal(3, m.Columns);                 // (296 + 12) / 92
-        Assert.Equal(3, m.Rows);                    // (192 + 12) / (52 + 12)
+        var next = (ContactsConfig)ContactsPlan.SizeSets(new ContactsConfig { SearchBox = false }, new Themia.Sdk.SizeDip(300, 36 + (8 * 40) + 12));
+        Assert.Equal(8, next.Rows);
 
-        var l = Plan(560, 384, ContactsLayout.Grid);
-        Assert.Equal(48, l.Icon);
-        Assert.Equal(5, l.Columns);
+        var wild = new ContactsConfig { Rows = 0, Lines = 9, GridColumns = 1, GridRows = 30 };
+        Assert.NotEmpty(wild.Repair());
+        Assert.Equal((1, 3, 2, 6), (wild.Rows, wild.Lines, wild.GridColumns, wild.GridRows));
     }
 
     [Fact]

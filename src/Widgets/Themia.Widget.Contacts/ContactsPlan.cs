@@ -1,3 +1,4 @@
+using Themia.Sdk;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
@@ -5,67 +6,118 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Contacts;
 
-/// <summary>[S-1270]..[S-1275] What one size of the contacts widget draws, chosen by <see cref="ContactsPlan.Of"/>.</summary>
-/// <param name="Layout">The layout drawn (the wanted one, or its fallback on a tile too narrow for it, [S-581]).</param>
-/// <param name="Columns">List and compact rows: columns of rows, read left to right; the grid: cells per row.</param>
+/// <summary>[S-11406] What the contacts widget draws, from its config alone (<see cref="ContactsPlan.Of"/>).</summary>
+/// <param name="Layout">The layout drawn: the chosen one, at every size.</param>
+/// <param name="Columns">List and compact rows: one column; the grid: cells per line.</param>
 /// <param name="ColumnWidth">A column's width (the grid: a cell's).</param>
 /// <param name="Lines">[S-6712] The lines every row shows (1 to 3).</param>
 /// <param name="Avatar">The list's rows lead with the person's 32 monogram.</param>
 /// <param name="Aside">Compact rows carry the one field as their value.</param>
-/// <param name="Icon">The grid: a cell's monogram (32, 48 on an expanded width).</param>
+/// <param name="Icon">The grid: a cell's monogram (48).</param>
 /// <param name="Pitch">A row's (a grid line's) height.</param>
-/// <param name="Rows">How many whole rows (grid lines) fit; the rest is a scroll away.</param>
+/// <param name="Rows">How many rows (grid lines) show; the rest is a scroll away.</param>
 public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Columns, double ColumnWidth, int Lines, bool Avatar, bool Aside, double Icon, double Pitch, int Rows);
 
 /// <summary>
-/// [S-1270]..[S-1275] The contacts widget's ladder on the family's parts ([S-6711]..[S-6713]): list
-/// rows of one, two or three lines by the tier (the name; then the role, else a way to reach the
-/// person; then the address, else the number), leading with a 32 monogram from a column of 180;
-/// compact rows of one line with the one field as their value from a column of 240; the details
-/// table of one line under its column titles; the grid's cells (<c>Row.Cell</c>: the monogram over the
-/// name). Columns of 240, at most four. Whole rows only, in the view's area less the card's bottom
-/// inset and the search box.
+/// [S-11406] The contacts widget's plan and sizes on the family's parts ([S-6711]..[S-6713]), each
+/// layout its own: list rows of the chosen lines (the name; then the role, else a way to reach the
+/// person; then the address, else the number) led by a 32 monogram; compact rows of one line with the
+/// one field as their value; the details table of one line under its column titles; the grid's cells
+/// (<c>Row.Cell</c>: a 48 monogram over the name), the chosen cells a line and lines. The search box
+/// over them where the config has it. No size decides any of it.
 /// </summary>
 public static class ContactsPlan
 {
-    /// <summary>[S-1275] The search box: one control of 32 and the gap under it.</summary>
+    /// <summary>[S-1275] The search box: one control of 28 and the gap under it.</summary>
     public const double SearchHeight = FamilyShape.Button + FamilySpace.S2;
 
     /// <summary>[S-582] The details table's column titles: one Caption line and the gap under it.</summary>
     public static double HeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
-    public static ContactsLayoutPlan Of(WidgetArea area, ContactsLayout wanted, int detailColumns, bool search)
+    /// <summary>[S-11406] The grid's monogram: one size, the cells' line and the card's width follow it.</summary>
+    public const double CellIcon = FamilyShape.IconHuge;
+
+    /// <summary>[S-11406] A grid cell's width: its monogram and 24 either side for the name.</summary>
+    public const double CellWidth = CellIcon + (2 * FamilySpace.S6);
+
+    /// <summary>[S-11406] A grid line's height: the monogram, 4, the name's Caption line.</summary>
+    public static double CellHeight => RowRules.CellHeight(CellIcon, named: true);
+
+    /// <summary>[S-582] The narrowest a details column says anything in.</summary>
+    public const double DetailColumn = 88;
+
+    public static ContactsLayoutPlan Of(WidgetArea area, ContactsConfig config)
     {
-        var layout = ContactRules.Effective(wanted, area.Width, detailColumns);
-        var list = Math.Max(0, area.Height - FamilySpace.Inset - (search ? SearchHeight : 0));
-        var columns = ContactRules.ListColumns(area.Width);
-        var column = area.Width > 0 ? area.Width / columns : 0;
+        ArgumentNullException.ThrowIfNull(config);
+        var width = Math.Max(0, area.Width);
+        var rows = KitSizing.ClampRows(config.Rows);
 
-        switch (layout)
+        return config.EffectiveLayout switch
         {
-            case ContactsLayout.Grid:
-            {
-                var icon = RowRules.CellIcon(area);
-                var cell = icon + (2 * FamilySpace.S6);
-                var height = RowRules.CellHeight(icon, named: true);
-                var inner = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
-                var perRow = Math.Max(1, (int)Math.Floor((inner + FamilySpace.ColumnGap) / (cell + FamilySpace.ColumnGap)));
-                var rows = (int)Math.Floor((list + FamilySpace.ColumnGap + 0.01) / (height + FamilySpace.ColumnGap));
-                return new ContactsLayoutPlan(layout, perRow, cell, 1, false, false, icon, height + FamilySpace.ColumnGap, rows);
-            }
+            ContactsLayout.Grid => new ContactsLayoutPlan(ContactsLayout.Grid, Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid), CellWidth, 1, false, false, CellIcon, CellHeight + FamilySpace.ColumnGap, Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid)),
+            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, FamilyShape.Row1, rows),
+            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, FamilyShape.Row1, rows),
+            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, KitSizing.ClampLines(config.Lines, KitSizing.MaxLines), true, false, 0, FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)), rows),
+        };
+    }
 
-            case ContactsLayout.Details:
-                return new ContactsLayoutPlan(layout, 1, area.Width, 1, false, false, 0, FamilyShape.Row1, RowRules.Fit(list - HeaderHeight, 1));
+    /// <summary>
+    /// [S-11406] Each layout's own sizes, with the search box where it is on: List and Compact the
+    /// kit's widths (220..520, a new one 300), their height the rows; Details as wide as its columns
+    /// need (88 a column) to 720, its height the column titles and the rows; the Grid one size, its
+    /// cells and lines (no handle).
+    /// </summary>
+    public static WidgetSizing Sizing(ContactsConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var top = FamilySpace.ContentTop + (config.SearchBox ? SearchHeight : 0);
 
-            case ContactsLayout.Compact:
-                return new ContactsLayoutPlan(layout, columns, column, 1, false, ContactRules.CompactAside(column), 0, FamilyShape.Row1, RowRules.Fit(list, 1));
-
-            default:
-            {
-                var lines = area.IsMeasured ? RowRules.Lines(area, 3) : 1;
-                return new ContactsLayoutPlan(layout, columns, column, lines, ContactRules.ShowsAvatar(column), false, 0, FamilyShape.RowHeight(lines), RowRules.Fit(list, lines));
-            }
+        if (config.EffectiveLayout == ContactsLayout.Grid)
+        {
+            var columns = Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid);
+            var lines = Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid);
+            return WidgetSizing.Fixed(new(
+                (2 * FamilySpace.Inset) + (columns * CellWidth) + ((columns - 1) * FamilySpace.ColumnGap),
+                top + (lines * CellHeight) + ((lines - 1) * FamilySpace.ColumnGap) + FamilySpace.Inset));
         }
+
+        var widths = config.EffectiveLayout == ContactsLayout.Details ? DetailWidths(config.EffectiveColumns.Count) : new KitWidths(KitSizing.MinWidth, KitSizing.NaturalWidth, KitSizing.MaxWidth);
+        return WidgetSizing.Range(new(widths.Min, 1), new(widths.Natural, 1), new(widths.Max, 1)).WithHeightSteps(Steps(config, top));
+    }
+
+    /// <summary>[S-11406] The rows a height means (List, Compact, Details): a copy when they change; the Grid has one size.</summary>
+    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size)
+    {
+        if (config is not ContactsConfig contacts || contacts.EffectiveLayout == ContactsLayout.Grid)
+        {
+            return config;
+        }
+
+        var wanted = Steps(contacts, FamilySpace.ContentTop + (contacts.SearchBox ? SearchHeight : 0)).Nearest(size.Height);
+        if (wanted == contacts.Rows)
+        {
+            return config;
+        }
+
+        var copy = (ContactsConfig)contacts.Clone();
+        copy.Rows = wanted;
+        return copy;
+    }
+
+    /// <summary>[S-582] A details table reads from two columns of 88 (or its own count) to 720.</summary>
+    public static KitWidths DetailWidths(int columns)
+    {
+        var min = (2 * FamilySpace.Inset) + (Math.Max(2, columns) * DetailColumn);
+        var natural = Math.Max(min, 420);
+        return new KitWidths(min, natural, Math.Max(natural, 720));
+    }
+
+    private static SizeSteps Steps(ContactsConfig config, double top)
+    {
+        var layout = config.EffectiveLayout;
+        var row = layout == ContactsLayout.List ? FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)) : FamilyShape.Row1;
+        var head = layout == ContactsLayout.Details ? HeaderHeight : 0;
+        return new SizeSteps(top + head + FamilySpace.Inset, row, KitSizing.MinRows, KitSizing.MaxRows, KitSizing.ClampRows(config.Rows));
     }
 
     /// <summary>

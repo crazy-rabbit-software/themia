@@ -5,7 +5,7 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// The contacts widget's disclosure ladder and key map ([S-1270]..[S-1277]), and vCard 2.1
+/// The contacts widget's search box ([S-11406]) and key map ([S-1277]), and vCard 2.1
 /// quoted-printable values ([S-1278]), at the size tiers' slots.
 /// </summary>
 public sealed class ContactsFitTests
@@ -20,38 +20,14 @@ public sealed class ContactsFitTests
         Company = "Contoso",
     };
 
-    // ---- [S-1270] lines and columns ----------------------------------------------------------------
-
-    [Theory]
-    [InlineData(0, 1)]
-    [InlineData(200, 1)]
-    [InlineData(480, 2)]
-    [InlineData(560, 2)]
-    [InlineData(800, 3)]
-    [InlineData(5000, 4)]
-    public void S1270_RowsFlowIntoColumnsOf240(double width, int columns)
-        => Assert.Equal(columns, ContactRules.ListColumns(width));
+    // ---- [S-11406] the search box -------------------------------------------------------------------
 
     [Fact]
-    public void S1270_S1271_AvatarAndCompactAsideNeedTheirWidth()
+    public void S11406_the_search_box_is_the_config_s_else_the_header_button_opens_it()
     {
-        Assert.False(ContactRules.ShowsAvatar(120));
-        Assert.True(ContactRules.ShowsAvatar(200));
-        Assert.True(ContactRules.ShowsAvatar(0));
-        Assert.False(ContactRules.CompactAside(200));
-        Assert.True(ContactRules.CompactAside(266));
+        Assert.Equal(ContactSearch.Shown, ContactRules.Search(box: true));
+        Assert.Equal(ContactSearch.OnDemand, ContactRules.Search(box: false));
     }
-
-    // ---- [S-1273] / [S-1274] / [S-1275] -----------------------------------------------------------
-
-    [Theory]
-    [InlineData(76, ContactSearch.Hidden)]
-    [InlineData(116, ContactSearch.Hidden)]
-    [InlineData(196, ContactSearch.OnDemand)]
-    [InlineData(220, ContactSearch.Shown)]
-    [InlineData(0, ContactSearch.Shown)]
-    public void S1275_SearchIsThereWhenItCostsLittle(double height, ContactSearch expected)
-        => Assert.Equal(expected, ContactRules.Search(height));
 
     // ---- [S-1277] keys -----------------------------------------------------------------------------
 
