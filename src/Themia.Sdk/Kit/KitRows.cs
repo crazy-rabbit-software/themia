@@ -14,12 +14,29 @@ public interface IKitRows
     /// <summary>How many rows the list shows: <see cref="KitSizing.MinRows"/>..<see cref="KitSizing.MaxRows"/>; more items scroll.</summary>
     int Rows { get; set; }
 
-    /// <summary>How many lines each row has: 1 or 2.</summary>
+    /// <summary>How many lines each row has: 1 to the kind's most (2, or 3 where a row has a third: a preview).</summary>
     int Lines { get; set; }
 }
 
-/// <summary>[S-2440] What a kit list with rows of its own shows, for its plan: a number of rows of a number of lines.</summary>
-public readonly record struct KitRowsChoice(int Rows, int Lines);
+/// <summary>
+/// [S-11400] A kit list that may show its rows in two columns side by side: the user's choice, never the
+/// width's. Two columns double the width range; the rows count down each column.
+/// </summary>
+public interface IKitColumns
+{
+    /// <summary>1 or 2.</summary>
+    int Columns { get; set; }
+}
+
+/// <summary>
+/// [S-2440] What a kit list with rows of its own shows, for its plan: a number of rows of a number of
+/// lines, in <paramref name="Columns"/> columns ([S-11400]), with a table's column titles over them
+/// where <paramref name="ColumnTitles"/> ([S-11401]).
+/// </summary>
+public readonly record struct KitRowsChoice(int Rows, int Lines, int Columns = 1, bool ColumnTitles = false);
+
+/// <summary>[S-11401] A list's own width range, where a look needs another than the kit's (a table of columns).</summary>
+public readonly record struct KitWidths(double Min, double Natural, double Max);
 
 /// <summary>
 /// [S-2440] The size of a kit list that states its rows: the family's content top (36), its rows (28
@@ -46,20 +63,35 @@ public static class KitSizing
     /// <summary>Rows held to their range; a stored count out of it is repaired to the nearest.</summary>
     public static int ClampRows(int rows) => Math.Clamp(rows, MinRows, MaxRows);
 
+    /// <summary>[S-11400] The most lines a row has: the title, the subtitle and the preview.</summary>
+    public const int MaxLines = 3;
+
+    /// <summary>[S-11400] The most columns a list shows side by side.</summary>
+    public const int MaxColumns = 2;
+
     /// <summary>Lines held to 1 or 2.</summary>
     public static int ClampLines(int lines) => Math.Clamp(lines, 1, 2);
 
-    /// <summary>[S-2440] The config's choice, held to its ranges.</summary>
+    /// <summary>[S-11400] Lines held to 1..<paramref name="most"/> (a kind whose rows have a third line: 3).</summary>
+    public static int ClampLines(int lines, int most) => Math.Clamp(lines, 1, Math.Clamp(most, 1, MaxLines));
+
+    /// <summary>[S-11400] Columns held to 1 or 2.</summary>
+    public static int ClampColumns(int columns) => Math.Clamp(columns, 1, MaxColumns);
+
+    /// <summary>[S-2440] The config's choice, held to its ranges (its columns where it has them, [S-11400]).</summary>
     public static KitRowsChoice Choice(IKitRows rows)
     {
         ArgumentNullException.ThrowIfNull(rows);
-        return new(ClampRows(rows.Rows), ClampLines(rows.Lines));
+        return new(ClampRows(rows.Rows), ClampLines(rows.Lines, MaxLines), rows is IKitColumns c ? ClampColumns(c.Columns) : 1);
     }
 
-    /// <summary>[S-2440] The height's steps: everything but the rows as the base, a row as the step, the config's rows as the count.</summary>
+    /// <summary>
+    /// [S-2440] The height's steps: everything but the rows as the base (a table's column titles
+    /// included, [S-11401]), a row as the step, the config's rows as the count.
+    /// </summary>
     public static SizeSteps Steps(KitRowsChoice choice, bool addFooter)
         => new(
-            FamilySpace.ContentTop + (addFooter ? FamilyShape.Row1 : 0) + FamilySpace.Inset,
+            FamilySpace.ContentTop + (choice.ColumnTitles ? KitLadder.ColumnHeaderHeight : 0) + (addFooter ? FamilyShape.Row1 : 0) + FamilySpace.Inset,
             FamilyShape.RowHeight(choice.Lines),
             MinRows,
             MaxRows,
@@ -67,11 +99,16 @@ public static class KitSizing
 
     /// <summary>
     /// [S-2440] The sizing of a kit list showing <paramref name="shown"/> (the config's rows and the lines
-    /// its rows really have: a one-line style has one): its width range, its height in rows.
+    /// its rows really have: a one-line style has one): its width range (the kit's, or the look's own
+    /// <paramref name="widths"/>; times its columns, [S-11400]), its height in rows.
     /// </summary>
-    public static WidgetSizing Sizing(KitRowsChoice shown, bool addFooter)
-        => WidgetSizing.Range(new(MinWidth, 1), new(NaturalWidth, 1), new(MaxWidth, 1))
+    public static WidgetSizing Sizing(KitRowsChoice shown, bool addFooter, KitWidths? widths = null)
+    {
+        var w = widths ?? new KitWidths(MinWidth, NaturalWidth, MaxWidth);
+        var columns = ClampColumns(shown.Columns);
+        return WidgetSizing.Range(new(w.Min * columns, 1), new(w.Natural * columns, 1), new(w.Max * columns, 1))
             .WithHeightSteps(Steps(shown, addFooter));
+    }
 
     /// <summary>
     /// [S-2442] The config a list of <paramref name="size"/> means: the rows that height holds, its rows

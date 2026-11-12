@@ -3861,6 +3861,17 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   heading always, its due in the short words). Its menu has Rows and, where its rows can have a second
   line, Lines per row (`KitMenuLines.Rows`). A kit list without it keeps the ladder and the rows
   fitted by height ([S-7031], [S-2443]). Tests `KitRowsTests`.
+- **[S-11400]** **Three lines and two columns, as settings.** A kit list whose rows have a preview may
+  offer three lines a row (the title, the subtitle, the preview; 56 a row, `KitMenuLines.Rows(..,
+  mostLines: 3)`, `KitSizing.ClampLines(lines, most)`); a list that grew columns with its width offers
+  **Columns** instead (`IKitColumns`, 1 or 2, `KitMenuLines.Columns`): two columns double its width
+  range (440..1040, a new one 600) and split the width evenly; its rows count down each column, the
+  height follows them as before. No width ever adds a column. Tests `KitRowsTests.S11400_`.
+- **[S-11401]** **A table that states its rows** (`KitRowLook.Table` with `KitChoices.Rows`): one line
+  a row, the user's columns fitted to the width as [S-7034] (the least essential given up first on a
+  narrow one), its column titles over the rows when the config says so (`KitRowsChoice.ColumnTitles`,
+  never the height; they are part of the height's base). A look that needs other widths than the
+  kit's states its own (`KitWidths`, passed to `KitSizing.Sizing`). Tests `KitRowsTests.S11401_`.
 - **[S-2441]** Every kind's sizing holds, for its defaults and every style: sizes positive and finite
   (a legacy Max unbounded), Min ≤ Natural ≤ Max on both axes, a stepped axis's Min, Natural and Max
   on its steps and its count in range (`WidgetSizing.Problems`, checked over the registry).

@@ -270,9 +270,9 @@ public static class KitLadder
         var on = choices.Shows & spec.Optional;
         bool Has(KitShow field) => (on & field) == field;
 
-        if (choices.Rows is { } sized && spec.Look != KitRowLook.Table)
+        if (choices.Rows is { } sized)
         {
-            return Sized(area, spec, sized, Has);
+            return spec.Look == KitRowLook.Table ? SizedTable(area, choices, sized, Has) : Sized(area, spec, sized, Has);
         }
 
         var width = Math.Max(0, area.Width);
@@ -313,10 +313,25 @@ public static class KitLadder
     /// </summary>
     private static KitPlan Sized(WidgetArea area, KitSpec spec, KitRowsChoice rows, Func<KitShow, bool> has)
     {
-        var lines = spec.Look == KitRowLook.Line ? 1 : KitSizing.ClampLines(rows.Lines);
+        var lines = spec.Look == KitRowLook.Line ? 1 : KitSizing.ClampLines(rows.Lines, KitSizing.MaxLines);
         var subtitle = (has(KitShow.Subtitle) || has(KitShow.Badges)) && lines >= 2;
         var preview = has(KitShow.Preview) && lines >= (subtitle ? 3 : 2);
-        return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), lines, has(KitShow.Lead), subtitle, preview, has(KitShow.When), has(KitShow.Badges) && subtitle, RowHeight: FamilyShape.RowHeight(lines));
+        var columns = KitSizing.ClampColumns(rows.Columns);
+        return new KitPlan(spec.Look, columns, Math.Max(0, area.Width) / columns, lines, has(KitShow.Lead), subtitle, preview, has(KitShow.When), has(KitShow.Badges) && subtitle, RowHeight: FamilyShape.RowHeight(lines));
+    }
+
+    /// <summary>
+    /// [S-11401] A table that states its rows: one line a row, the user's columns fitted to the width
+    /// (the least essential given up first on a narrow one, as [S-7034]), its column titles where the
+    /// user has them on, never by the height.
+    /// </summary>
+    private static KitPlan SizedTable(WidgetArea area, KitChoices choices, KitRowsChoice rows, Func<KitShow, bool> has)
+    {
+        var width = Math.Max(0, area.Width);
+        var lead = has(KitShow.Lead);
+        var chosen = choices.Columns is { Count: > 0 } picked ? picked : [KitColumn.Title];
+        var fits = TableColumns(chosen, InnerWidth(width, lead), ColumnGap);
+        return new KitPlan(KitRowLook.Table, 1, width, 1, lead, false, false, false, ColumnHeader: rows.ColumnTitles, Table: fits);
     }
 
     /// <summary>A row's width inside its side insets and past its lead: what its text has to share.</summary>

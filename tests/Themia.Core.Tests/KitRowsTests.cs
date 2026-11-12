@@ -74,4 +74,42 @@ public sealed class KitRowsTests
         Assert.Equal(2, KitSizing.ClampLines(3));
         Assert.Equal(1, KitSizing.ClampLines(-1));
     }
+    [Fact]
+    public void S11400_two_columns_double_the_width_range_and_split_the_width()
+    {
+        var one = KitSizing.Sizing(new KitRowsChoice(5, 2), addFooter: false);
+        var two = KitSizing.Sizing(new KitRowsChoice(5, 2, Columns: 2), addFooter: false);
+        Assert.Equal(2 * one.Min.Width, two.Min.Width);
+        Assert.Equal(2 * one.Natural.Width, two.Natural.Width);
+        Assert.Equal(2 * one.Max.Width, two.Max.Width);
+        Assert.Equal(one.Natural.Height, two.Natural.Height);
+
+        var plan = KitLadder.Plan(new WidgetArea(600, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(5, 2, Columns: 2) });
+        Assert.Equal(2, plan.Columns);
+        Assert.Equal(300, plan.ColumnWidth);
+    }
+
+    [Fact]
+    public void S11400_a_row_may_have_three_lines_the_preview_its_third()
+    {
+        var plan = KitLadder.Plan(new WidgetArea(300, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(4, 3) });
+        Assert.Equal(3, plan.Lines);
+        Assert.True(plan.Subtitle && plan.Preview);
+        Assert.Equal(36 + (4 * FamilyShape.RowHeight(3)) + 12, KitSizing.Sizing(new KitRowsChoice(4, 3), false).Natural.Height);
+        Assert.Equal(3, KitSizing.ClampLines(9, KitSizing.MaxLines));
+        Assert.Equal(2, KitSizing.ClampColumns(5));
+    }
+
+    [Fact]
+    public void S11401_a_table_with_rows_has_its_titles_by_choice_and_its_own_widths()
+    {
+        var table = new KitSpec(KitRowLook.Table, KitShow.All, () => "Untitled", () => "Empty");
+        var choices = new KitChoices(KitShow.All, [KitColumn.Title, KitColumn.When]) { Rows = new KitRowsChoice(5, 1, ColumnTitles: true) };
+        Assert.True(KitLadder.Plan(new WidgetArea(400, 40), table, choices).ColumnHeader);
+        Assert.False(KitLadder.Plan(new WidgetArea(400, 900), table, choices with { Rows = new KitRowsChoice(5, 1) }).ColumnHeader);
+
+        var sizing = KitSizing.Sizing(new KitRowsChoice(5, 1, ColumnTitles: true), false, new KitWidths(320, 420, 720));
+        Assert.Equal((320, 420, 720), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(36 + KitLadder.ColumnHeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
+    }
 }

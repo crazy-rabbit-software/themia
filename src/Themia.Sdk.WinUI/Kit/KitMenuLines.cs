@@ -112,7 +112,8 @@ public static class KitMenuLines
     /// [S-2440] A list that states its rows ([S-2440]): how many rows it shows (1 to 20; dragging its
     /// bottom edge sets the same) and, where its rows can have a second line, how many lines each has.
     /// </summary>
-    public static IEnumerable<ItemMenuEntry> Rows(WidgetMenuLines menu, IKitRows config, bool offersLines = true)
+    /// <param name="mostLines">[S-11400] The most lines its rows have (3 where a row has a preview).</param>
+    public static IEnumerable<ItemMenuEntry> Rows(WidgetMenuLines menu, IKitRows config, bool offersLines = true, int mostLines = 2)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -120,13 +121,23 @@ public static class KitMenuLines
         yield return Count(menu, null, Str.Kit_Rows.Text(), KitSizing.ClampRows(config.Rows), KitSizing.MinRows, KitSizing.MaxRows, 1, v => config.Rows = v);
         if (offersLines)
         {
+            (int, string)[] words = [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text()), (3, Str.Kit_LinesThree.Text())];
+            var most = Math.Clamp(mostLines, 2, KitSizing.MaxLines);
             yield return menu.Choice(
                 null,
                 Str.Kit_Lines.Text(),
-                [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())],
-                KitSizing.ClampLines(config.Lines),
+                [.. words.Take(most)],
+                KitSizing.ClampLines(config.Lines, most),
                 v => config.Lines = v);
         }
+    }
+
+    /// <summary>[S-11400] How many columns the rows stand in, side by side (1 or 2): the user's, never the width's.</summary>
+    public static ItemMenuEntry Columns(WidgetMenuLines menu, IKitColumns config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+        return Count(menu, null, Str.Kit_Columns.Text(), KitSizing.ClampColumns(config.Columns), 1, KitSizing.MaxColumns, 1, v => config.Columns = v);
     }
 
     /// <summary>
