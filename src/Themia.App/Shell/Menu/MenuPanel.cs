@@ -1022,13 +1022,15 @@ internal partial class MenuPanel : Grid
     /// <summary>
     /// Debug renders only: open the levels along <paramref name="path"/> (the rows' words, "/"
     /// between levels), as clicks would; a last row that opens nothing is clicked. False when a row
-    /// on the way is not there.
+    /// on the way is not there. A step may name a row by its key instead of its words (the card's
+    /// own rows: <c>appearance</c>, <c>style</c>, <c>header</c>, <c>align</c>), which reads the same in
+    /// every language ([S-1077]).
     /// </summary>
     internal bool DebugOpen(string path)
     {
         foreach (var words in path.Split('/'))
         {
-            if (Picks().FirstOrDefault(n => n.Kind == MenuNodeKind.Line && n.Text == words) is not { } node || !Enter(node, keys: false))
+            if (Picks().FirstOrDefault(n => n.Kind == MenuNodeKind.Line && (n.Text == words || n.Key == words)) is not { } node || !Enter(node, keys: false))
             {
                 return false;
             }

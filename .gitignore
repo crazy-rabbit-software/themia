@@ -24,3 +24,7 @@ TestResults/
 !.claude/skills/
 .claude/skills/*/runs/
 *.log
+
+# ---- Store screenshots -------------------------------------------------------------------
+# store/capture.ps1 writes here; the scenes and wallpapers next to it are the source.
+store/out/

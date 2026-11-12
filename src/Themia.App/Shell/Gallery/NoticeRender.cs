@@ -252,7 +252,7 @@ internal static class NoticeRender
         public ViewState? ViewForCards => null;
 
         /// <summary>[S-3300] Every card of a render is on one stand-in view, so a linked preview state shows on each.</summary>
-        public Themia.Core.Links.LinkBoard Links { get; } = new();
+        public Themia.Core.Links.LinkBoard Links { get; init; } = new();
 
         public bool CanPaste => false;
 

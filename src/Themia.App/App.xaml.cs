@@ -51,7 +51,8 @@ public partial class App : Application
             ?? Shell.Gallery.EditBarRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.FamilyCheckRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.FamilyBlocksRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
+            ?? Shell.Gallery.FamilyBlocksRender.RequestedTheme(Environment.GetCommandLineArgs())
+            ?? Shell.Gallery.SceneRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
         {
             RequestedTheme = theme;
         }
@@ -194,6 +195,12 @@ public partial class App : Application
 
         // And a stand-in desktop of item widgets with the band ([S-5544]).
         if (Shell.Gallery.DesktopRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
+        // And a store scene: a whole stand-in desktop of widgets to one PNG ([S-1074]).
+        if (Shell.Gallery.SceneRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;
         }

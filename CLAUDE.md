@@ -47,6 +47,8 @@ Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   #
            # --picker-png takes --theme too. There is no settings window and no --settings-png [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
+Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
+           # to one PNG of exactly screen × scale px (default 2) [S-1074]; store/capture.ps1 draws every scene of store/scenes.json
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
 ```
 

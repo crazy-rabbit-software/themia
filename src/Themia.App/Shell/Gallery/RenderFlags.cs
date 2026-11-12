@@ -30,6 +30,7 @@ internal static class RenderFlags
         "--family-blocks-png",
         "--clock-style-check",
         DesktopRender.Flag,
+        SceneRender.Flag,
     ];
 }
 #endif

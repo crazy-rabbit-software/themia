@@ -1,0 +1,41 @@
+{
+  "screen": { "width": 1920, "height": 1080 },
+  "scenes": [
+    {
+      "name": "desk",
+      "theme": "dark",
+      "design": "preset=Default",
+      "wallpaper": "wallpapers/dusk.jpg",
+      "widgets": [
+        { "kind": "weatherNow", "at": [40, 40, 400, 220], "state": "sample" },
+        { "kind": "weatherForecast", "at": [40, 260, 400, 220], "state": "sample" },
+        { "kind": "calendar", "at": [40, 480, 400, 420], "state": "sample" },
+        { "kind": "stocks", "at": [440, 40, 300, 180], "state": "quote" },
+        { "kind": "quote", "at": [440, 220, 300, 260], "state": "sample" },
+        { "kind": "clock", "at": [760, 60, 400, 220], "state": "sample", "style": "flip", "bare": true,
+          "config": { "showDate": false } },
+        { "kind": "moon", "at": [1180, 40, 280, 220], "state": "sample" },
+        { "kind": "countdown", "at": [1180, 260, 280, 200], "state": "sample" },
+        { "kind": "tasks", "at": [1480, 40, 400, 400], "state": "tasks" },
+        { "kind": "notes", "at": [1480, 440, 400, 280], "state": "sample" },
+        { "kind": "music", "at": [1480, 720, 400, 180], "state": "sample" },
+        { "kind": "airQuality", "at": [1180, 460, 280, 200], "state": "sample" }
+      ]
+    },
+    { "name": "desk-paper", "like": "desk", "theme": "light", "design": "preset=Paper,gap=12" },
+    {
+      "name": "edit-clock",
+      "like": "desk",
+      "widgets": [
+        { "kind": "weatherNow", "at": [40, 40, 400, 220], "state": "sample" },
+        { "kind": "weatherForecast", "at": [40, 260, 400, 220], "state": "sample" },
+        { "kind": "calendar", "at": [40, 480, 400, 420], "state": "sample" },
+        { "kind": "clock", "at": [760, 300, 400, 220], "state": "sample", "style": "flip", "label": "Zürich",
+          "items": "#2A3248@80%", "itemText": "#FFFFFF", "selected": true },
+        { "kind": "tasks", "at": [1480, 40, 400, 400], "state": "tasks" },
+        { "kind": "notes", "at": [1480, 440, 400, 280], "state": "sample" }
+      ],
+      "edit": { "open": "appearance", "grid": true }
+    }
+  ]
+}
