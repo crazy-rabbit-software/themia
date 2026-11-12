@@ -12,7 +12,7 @@
     "• Prozessor, Arbeitsspeicher, Grafik, Laufwerke, Netzwerk, Ping und Akku, mit Live-Diagrammen",
     "• Ordner, Verknüpfungen, deine neuesten Dateien, Laufwerke und der Papierkorb",
     "• Musik, Lautstärke, Mixer, Helligkeit und Schnelleinstellungen wie WLAN, Bluetooth und Nachtmodus",
-    "• Aktien, Wechselkurse, Newsfeeds, Bildschirmzeit, Gewohnheiten, Fotos und mehr",
+    "• Aktien, Wechselkurse, Newsfeeds, Bildschirmzeit, Gewohnheiten und mehr",
     "",
     "DEIN TAG AUF DEINEM DESKTOP",
     "Sieh deine nächste Besprechung und tritt ihr mit einem Klick bei. Lies neue Mails, hake Aufgaben ab und schau auf deine Woche, ohne eine App zu öffnen. Themia arbeitet mit Microsoft-Konten (Outlook.com, Microsoft 365), iCloud, jedem IMAP-Mailkonto und mit CalDAV- und CardDAV-Servern wie Fastmail oder Nextcloud.",
@@ -30,7 +30,7 @@
     "Starte mit einer Vorlage wie Glas, Mitternacht oder Papier oder mische deine eigene: Farben, Transparenz, Rahmen, Ecken und Schriften. Jedes Widget kann seinen eigenen Hintergrund haben, und Themia folgt dem hellen oder dunklen Design von Windows.",
     "",
     "EIN DESKTOP FÜR JEDEN TEIL DEINES TAGES",
-    "Ansichten halten mehrere Desktops bereit: einen für die Arbeit mit Kalender und Mail, einen für den Abend mit Musik und Fotos, einen für den Fokus mit nichts als einem Timer. Wechsle mit einem Klick, und gib jedem Bildschirm seine eigene.",
+    "Ansichten halten mehrere Desktops bereit: einen für die Arbeit mit Kalender und Mail, einen für den Abend mit Musik und Wetter, einen für den Fokus mit nichts als einem Timer. Wechsle mit einem Klick, und gib jedem Bildschirm seine eigene.",
     "",
     "PRIVAT VON GRUND AUF",
     "Themia hat keine Werbung, kein Tracking, keine Analyse und kein eigenes Konto. Mail, Kalender und Aufgaben verbinden sich direkt von deinem PC mit deinem Anbieter; nichts läuft über uns. Deine Anmeldungen verschlüsselt Windows allein für dein Windows-Konto.",
@@ -85,8 +85,8 @@
       "shot": "desktop",
       "label": "Themia",
       "headline": "Widgets, die auf deinem Desktop leben.",
-      "sub": "Dein Tag, dein PC und deine Dateien auf dem Hintergrundbild, hinter deinen Fenstern und immer einen Blick entfernt.",
-      "caption": "Ein Windows-Desktop mit Themias Widgets auf dem Hintergrundbild: Uhr, Wetter, Kalender, nächste Besprechung, Mail, Aufgaben, Nachrichten, Systemanzeigen, Aktien und Verknüpfungen."
+      "sub": "Auf deinem Hintergrundbild, hinter deinen Fenstern, über der Taskleiste. Immer einen Blick entfernt, nie im Weg.",
+      "caption": "Ein Windows-Desktop mit Themias Widgets auf dem Hintergrundbild: Uhr, Kalender, nächste Besprechung, Musik, Wetter, Aufgaben und Mail, über der Windows-Taskleiste."
     },
     {
       "shot": "widgets",
@@ -114,7 +114,7 @@
       "label": "Dein PC",
       "headline": "Dein PC auf einen Blick.",
       "sub": "Prozessor, Arbeitsspeicher, Grafik, Netzwerk und Akku mit Live-Diagrammen. Ganz ohne Task-Manager.",
-      "caption": "Ein Desktop mit Systemwidgets: Prozessorlast pro Kern, Arbeitsspeicher, Grafik, Netzwerk, Laufwerke, die Programme mit der höchsten Last, Ping und Akku.",
+      "caption": "Ein Desktop mit Systemwidgets auf einer Seite: Prozessorlast pro Kern, Arbeitsspeicher, Grafik, Netzwerk, die Programme mit der höchsten Last, Akku und ein Laufwerk.",
       "callouts": [
         "Jeder Kern",
         "Was deinen PC belastet",
@@ -127,21 +127,14 @@
       "label": "Dateien",
       "headline": "Deine Dateien, direkt auf dem Desktop.",
       "sub": "Ordner zum Durchblättern, Verknüpfungen, deine neuesten Dateien und der freie Platz auf jedem Laufwerk.",
-      "caption": "Ein Desktop mit einem Ordner zum Durchblättern, Verknüpfungen, den neuesten Dateien, Laufwerken mit freiem Platz, dem Verlauf der Zwischenablage und einem Foto.",
+      "caption": "Ein Desktop mit Desktopsymbolen, einem Ordner zum Durchblättern, einem Bilderordner, Verknüpfungen, den neuesten Dateien und Laufwerken mit freiem Platz.",
       "callouts": [
         "Jeder Ordner",
         "Deine Bilder",
         "Freier Platz",
-        "Was du kopiert hast",
-        "Deine Fotos"
+        "Verknüpfungen",
+        "Deine neuesten Dateien"
       ]
-    },
-    {
-      "shot": "sizes",
-      "label": "Grössen",
-      "headline": "Mach es grösser, sieh mehr.",
-      "sub": "Jedes Widget nutzt den Platz, den du ihm gibst: klein behält es das Wichtigste, gross zeigt es die Details.",
-      "caption": "Das Wetter in vier Grössen, der Kalender in zwei und die Prozessoranzeige in drei: Jede grössere zeigt mehr."
     },
     {
       "shot": "styles",
@@ -169,14 +162,14 @@
       "label": "Looks",
       "headline": "Ein Look für jedes Hintergrundbild.",
       "sub": "Farben, Glas, Rahmen, Ecken und Schriften. Wähle eine Vorlage oder mische deine eigene.",
-      "caption": "Ein Desktop in vier Looks: Themias eigener, Tageslicht, Glas und Terminal."
+      "caption": "Ein Desktop in vier Looks, jeder auf seinem eigenen Hintergrundbild: Themias eigener, Tageslicht, Glas und Terminal."
     },
     {
       "shot": "views",
       "label": "Ansichten",
       "headline": "Ein Desktop für jeden Teil deines Tages.",
       "sub": "Einer für die Arbeit, einer für den Abend, einer für den Fokus. Wechsle mit einem Klick oder gib jedem Bildschirm seinen eigenen.",
-      "caption": "Drei Desktops eines PCs: der Abend mit Musik und Fotos, der Arbeitstag und ein Fokus-Desktop mit Pomodoro-Timer.",
+      "caption": "Drei Desktops eines PCs: der Abend mit Musik und Vorhersage, der Arbeitstag und ein Fokus-Desktop mit Pomodoro-Timer.",
       "callouts": [
         "Abend",
         "Arbeit",

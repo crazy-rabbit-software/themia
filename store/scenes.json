@@ -4,75 +4,57 @@
     {
       "name": "desktop",
       "theme": "dark",
-      "wallpaper": "wallpapers/dusk.jpg",
       "scale": 1.25,
+      "wallpaper": "sample:lake-at-dusk",
+      "taskbar": true,
       "widgets": [
-        { "kind": "clock", "at": [30, 30, 430, 200], "state": "sample", "bare": true },
-        { "kind": "weatherNow", "at": [30, 230, 430, 270], "state": "sample" },
-        { "kind": "weatherForecast", "at": [30, 500, 430, 330], "state": "sample" },
-        { "kind": "music", "at": [30, 830, 430, 220], "state": "sample" },
-        { "kind": "calendar", "at": [460, 30, 520, 400], "state": "sample", "style": "week" },
-        { "kind": "nextMeeting", "at": [460, 430, 520, 250], "state": "sample" },
-        { "kind": "email", "at": [460, 680, 520, 370], "state": "messages" },
-        { "kind": "tasks", "at": [980, 30, 460, 340], "state": "tasks" },
-        { "kind": "notes", "at": [980, 370, 460, 230], "state": "sample" },
-        { "kind": "rss", "at": [980, 600, 460, 450], "state": "sample" },
-        { "kind": "cpu", "at": [1440, 30, 225, 160] },
-        { "kind": "memory", "at": [1665, 30, 225, 160] },
-        { "kind": "gpu", "at": [1440, 190, 225, 160] },
-        { "kind": "network", "at": [1665, 190, 225, 160] },
-        { "kind": "stocks", "at": [1440, 350, 450, 310], "state": "quote" },
-        { "kind": "shortcuts", "at": [1440, 660, 450, 250], "state": "sample" },
-        { "id": "wifi", "kind": "wifiToggle", "at": [1440, 910, 113, 140], "state": "on" },
-        { "id": "bluetooth", "kind": "bluetoothToggle", "at": [1553, 910, 112, 140], "state": "on" },
-        { "id": "nightLight", "kind": "nightLightToggle", "at": [1665, 910, 113, 140], "state": "off" },
-        { "id": "quiet", "kind": "doNotDisturbToggle", "at": [1778, 910, 112, 140], "state": "off" }
+        { "kind": "clock", "at": [30, 30, 520, 190], "state": "sample", "bare": true },
+        { "kind": "calendar", "at": [30, 220, 520, 330], "state": "sample", "style": "week" },
+        { "kind": "nextMeeting", "at": [30, 550, 520, 230], "state": "sample" },
+        { "kind": "music", "at": [30, 780, 520, 180], "state": "sample" },
+        { "kind": "weatherNow", "at": [1430, 30, 460, 220], "state": "sample" },
+        { "kind": "tasks", "at": [1430, 250, 460, 330], "state": "tasks" },
+        { "kind": "email", "at": [1430, 580, 460, 380], "state": "messages" }
       ]
     },
     {
       "name": "pc",
       "theme": "dark",
-      "wallpaper": "wallpapers/pine.jpg",
       "scale": 1.25,
+      "wallpaper": "sample:morning-mist",
+      "taskbar": true,
       "widgets": [
-        { "kind": "cpu", "at": [30, 30, 465, 220] },
-        { "id": "cores", "kind": "cpu", "at": [30, 250, 465, 260], "style": "cores" },
-        { "kind": "topProcesses", "at": [30, 510, 465, 540] },
-        { "kind": "memory", "at": [495, 30, 465, 220] },
-        { "kind": "memoryDetails", "at": [495, 250, 465, 300] },
-        { "kind": "cpuDetails", "at": [495, 550, 465, 280] },
-        { "kind": "ping", "at": [495, 830, 465, 220] },
-        { "kind": "gpu", "at": [960, 30, 465, 220] },
-        { "kind": "gpuDetails", "at": [960, 250, 465, 320] },
-        { "kind": "disk", "at": [960, 570, 465, 220] },
-        { "kind": "drive", "at": [960, 790, 465, 260], "state": "local" },
-        { "kind": "network", "at": [1425, 30, 465, 220] },
-        { "kind": "networkDetails", "at": [1425, 250, 465, 320] },
-        { "kind": "battery", "at": [1425, 570, 465, 220] },
-        { "kind": "deviceBatteries", "at": [1425, 790, 465, 260], "state": "sample" }
+        { "kind": "cpu", "at": [870, 30, 340, 200] },
+        { "id": "cores", "kind": "cpu", "at": [870, 230, 340, 240], "style": "cores" },
+        { "kind": "topProcesses", "at": [870, 470, 340, 540] },
+        { "kind": "memory", "at": [1210, 30, 340, 200] },
+        { "kind": "memoryDetails", "at": [1210, 230, 340, 280] },
+        { "kind": "gpu", "at": [1210, 510, 340, 200] },
+        { "kind": "gpuDetails", "at": [1210, 710, 340, 300] },
+        { "kind": "network", "at": [1550, 30, 340, 200] },
+        { "kind": "networkDetails", "at": [1550, 230, 340, 300] },
+        { "kind": "battery", "at": [1550, 530, 340, 200] },
+        { "kind": "drive", "at": [1550, 730, 340, 280], "state": "local" }
       ]
     },
     {
       "name": "files",
       "theme": "dark",
-      "wallpaper": "wallpapers/dusk.jpg",
       "scale": 1.25,
+      "wallpaper": "sample:sunset-over-the-hills",
+      "taskbar": true,
       "widgets": [
         { "id": "icon1", "kind": "desktopItem", "at": [30, 30, 120, 120], "state": "recycleBin", "bare": true },
         { "id": "icon2", "kind": "desktopItem", "at": [30, 150, 120, 120], "state": "thisPc", "bare": true },
         { "id": "icon3", "kind": "desktopItem", "at": [30, 270, 120, 120], "state": "folder", "bare": true },
         { "id": "icon4", "kind": "desktopItem", "at": [30, 390, 120, 120], "state": "document", "bare": true },
         { "id": "icon5", "kind": "desktopItem", "at": [30, 510, 120, 120], "state": "shortcut", "bare": true },
-        { "kind": "folder", "at": [160, 28, 560, 520], "state": "documents" },
-        { "id": "pictures", "kind": "folder", "at": [160, 548, 560, 504], "state": "pictures", "style": "grid" },
-        { "kind": "shortcuts", "at": [720, 28, 480, 320], "state": "sample" },
-        { "kind": "recentFiles", "at": [720, 348, 480, 400], "state": "sample" },
-        { "kind": "recycleBin", "at": [720, 748, 240, 304], "state": "sample" },
-        { "kind": "removableDrives", "at": [960, 748, 240, 304], "state": "one" },
-        { "kind": "drive", "at": [1200, 28, 360, 280], "state": "local" },
-        { "id": "usb", "kind": "drive", "at": [1560, 28, 332, 280], "state": "usb", "style": "ring" },
-        { "kind": "clipboard", "at": [1200, 308, 692, 360], "state": "sample" },
-        { "kind": "gallery", "at": [1200, 668, 692, 384], "state": "sample" }
+        { "kind": "folder", "at": [170, 30, 520, 460], "state": "documents" },
+        { "id": "pictures", "kind": "folder", "at": [170, 490, 520, 430], "state": "pictures", "style": "grid" },
+        { "kind": "drive", "at": [1400, 30, 245, 210], "state": "local" },
+        { "id": "usb", "kind": "drive", "at": [1645, 30, 245, 210], "state": "usb", "style": "ring" },
+        { "kind": "shortcuts", "at": [1400, 240, 490, 240], "state": "sample" },
+        { "kind": "recentFiles", "at": [1400, 480, 490, 440], "state": "sample" }
       ]
     },
     {
@@ -85,22 +67,6 @@
         { "kind": "contacts", "at": [1200, 0, 400, 500], "state": "sample" },
         { "kind": "nextMeeting", "at": [0, 500, 400, 500], "state": "sample" },
         { "kind": "weekPlanner", "at": [400, 500, 400, 500], "state": "sample" }
-      ]
-    },
-    {
-      "name": "sizes",
-      "theme": "dark",
-      "widgets": [
-        { "id": "xs", "kind": "weatherNow", "at": [0, 0, 128, 128], "state": "sample" },
-        { "id": "s", "kind": "weatherNow", "at": [128, 0, 208, 158], "state": "sample" },
-        { "id": "m", "kind": "weatherNow", "at": [336, 0, 328, 248], "state": "sample" },
-        { "id": "l", "kind": "weatherNow", "at": [664, 0, 568, 428], "state": "sample" },
-        { "id": "cal-s", "kind": "calendar", "at": [0, 440, 208, 158], "state": "sample" },
-        { "id": "cal-m", "kind": "calendar", "at": [208, 440, 328, 248], "state": "sample" },
-        { "id": "cal-l", "kind": "calendar", "at": [536, 440, 696, 520], "state": "sample" },
-        { "id": "cpu-s", "kind": "cpu", "at": [1240, 0, 208, 158] },
-        { "id": "cpu-m", "kind": "cpu", "at": [1448, 0, 328, 248] },
-        { "id": "cpu-l", "kind": "cpu", "at": [1240, 440, 568, 428] }
       ]
     },
     {
@@ -151,61 +117,83 @@
         { "kind": "brightness", "at": [1600, 160, 320, 160], "state": "levels" },
         { "kind": "focusSession", "at": [1600, 320, 320, 240], "state": "idle" },
         { "kind": "audioVisualizer", "at": [1600, 560, 320, 200], "state": "playing" },
-        { "kind": "videoStream", "at": [1600, 760, 320, 280], "state": "live" }
+        { "kind": "recycleBin", "at": [1600, 760, 320, 280], "state": "sample" }
       ]
     },
     {
       "name": "edit",
-      "like": "desktop",
+      "theme": "dark",
+      "scale": 1.25,
+      "wallpaper": "sample:lake-at-dusk",
+      "taskbar": true,
       "edit": {"grid": true},
+      "widgets": [
+        { "kind": "clock", "at": [30, 30, 520, 190], "state": "sample", "bare": true },
+        { "kind": "calendar", "at": [30, 220, 520, 330], "state": "sample", "style": "week", "selected": true },
+        { "kind": "nextMeeting", "at": [30, 550, 520, 230], "state": "sample" },
+        { "kind": "music", "at": [30, 780, 520, 180], "state": "sample" },
+        { "kind": "weatherNow", "at": [1430, 30, 460, 220], "state": "sample" },
+        { "kind": "tasks", "at": [1430, 250, 460, 330], "state": "tasks" },
+        { "kind": "email", "at": [1430, 580, 460, 380], "state": "messages" }
+      ]
+    },
+    {
+      "name": "looks",
+      "theme": "dark",
+      "scale": 1.25,
+      "wallpaper": "sample:lake-at-dusk",
+      "taskbar": true,
       "widgets": [
         { "kind": "clock", "at": [30, 30, 430, 200], "state": "sample", "bare": true },
         { "kind": "weatherNow", "at": [30, 230, 430, 270], "state": "sample" },
-        { "kind": "weatherForecast", "at": [30, 500, 430, 330], "state": "sample" },
-        { "kind": "music", "at": [30, 830, 430, 220], "state": "sample" },
-        { "kind": "calendar", "at": [460, 110, 520, 400], "state": "sample", "style": "week", "selected": true },
-        { "kind": "nextMeeting", "at": [460, 510, 520, 250], "state": "sample" },
-        { "kind": "email", "at": [460, 760, 520, 290], "state": "messages" },
-        { "kind": "tasks", "at": [980, 110, 460, 320], "state": "tasks" },
-        { "kind": "notes", "at": [980, 430, 460, 230], "state": "sample" },
-        { "kind": "rss", "at": [980, 660, 460, 390], "state": "sample" },
+        { "kind": "weatherForecast", "at": [30, 500, 430, 290], "state": "sample" },
+        { "kind": "music", "at": [30, 790, 430, 220], "state": "sample" },
+        { "kind": "calendar", "at": [460, 30, 520, 400], "state": "sample", "style": "week" },
+        { "kind": "nextMeeting", "at": [460, 430, 520, 250], "state": "sample" },
+        { "kind": "email", "at": [460, 680, 520, 330], "state": "messages" },
+        { "kind": "tasks", "at": [980, 30, 460, 340], "state": "tasks" },
+        { "kind": "notes", "at": [980, 370, 460, 230], "state": "sample" },
+        { "kind": "rss", "at": [980, 600, 460, 410], "state": "sample" },
         { "kind": "cpu", "at": [1440, 30, 225, 160] },
         { "kind": "memory", "at": [1665, 30, 225, 160] },
         { "kind": "gpu", "at": [1440, 190, 225, 160] },
         { "kind": "network", "at": [1665, 190, 225, 160] },
-        { "kind": "stocks", "at": [1440, 350, 450, 310], "state": "quote" },
-        { "kind": "shortcuts", "at": [1440, 660, 450, 250], "state": "sample" }
+        { "kind": "stocks", "at": [1440, 350, 450, 270], "state": "quote" },
+        { "kind": "shortcuts", "at": [1440, 620, 450, 250], "state": "sample" },
+        { "id": "wifi", "kind": "wifiToggle", "at": [1440, 870, 113, 140], "state": "on" },
+        { "id": "bluetooth", "kind": "bluetoothToggle", "at": [1553, 870, 112, 140], "state": "on" },
+        { "id": "nightLight", "kind": "nightLightToggle", "at": [1665, 870, 113, 140], "state": "off" },
+        { "id": "quiet", "kind": "doNotDisturbToggle", "at": [1778, 870, 112, 140], "state": "off" }
       ]
     },
-    { "name": "look-daylight", "like": "desktop", "theme": "light", "wallpaper": "wallpapers/dawn.jpg", "design": "preset=Daylight" },
-    { "name": "look-glass", "like": "desktop", "design": "preset=Glass" },
-    { "name": "look-terminal", "like": "desktop", "wallpaper": "wallpapers/pine.jpg", "design": "preset=Terminal" },
+    { "name": "look-daylight", "like": "looks", "theme": "light", "wallpaper": "sample:coast", "design": "preset=Daylight" },
+    { "name": "look-glass", "like": "looks", "wallpaper": "sample:glacier", "design": "preset=Glass" },
+    { "name": "look-terminal", "like": "looks", "wallpaper": "sample:forest-path", "design": "preset=Terminal" },
     {
       "name": "evening",
       "theme": "dark",
-      "wallpaper": "wallpapers/pine.jpg",
       "scale": 1.25,
+      "wallpaper": "sample:quiet-street",
+      "taskbar": true,
       "widgets": [
-        { "kind": "music", "at": [30, 30, 560, 620], "state": "sample", "style": "cover" },
-        { "kind": "weatherForecast", "at": [30, 650, 560, 400], "state": "sample", "style": "curve" },
-        { "kind": "clock", "at": [640, 60, 640, 400], "state": "sample", "style": "analog", "bare": true, "scale": 1.6 },
-        { "kind": "quote", "at": [640, 760, 640, 290], "state": "sample", "bare": true, "align": "center" },
-        { "kind": "gallery", "at": [1330, 30, 560, 440], "state": "sample" },
-        { "kind": "countdown", "at": [1330, 470, 560, 230], "state": "sample", "style": "flip" },
-        { "kind": "habitTracker", "at": [1330, 700, 560, 350], "state": "sample", "style": "heatmap" }
+        { "kind": "music", "at": [30, 30, 480, 560], "state": "sample", "style": "cover" },
+        { "kind": "clock", "at": [640, 60, 640, 380], "state": "sample", "style": "analog", "bare": true, "scale": 1.6 },
+        { "kind": "quote", "at": [640, 700, 640, 290], "state": "sample", "bare": true, "align": "center" },
+        { "kind": "weatherForecast", "at": [1410, 30, 480, 380], "state": "sample", "style": "curve" },
+        { "kind": "countdown", "at": [1410, 410, 480, 220], "state": "sample", "style": "flip" }
       ]
     },
     {
       "name": "focus",
       "theme": "dark",
-      "wallpaper": "wallpapers/ember.jpg",
       "scale": 1.25,
+      "wallpaper": "sample:cover",
+      "taskbar": true,
       "widgets": [
-        { "kind": "tasks", "at": [30, 30, 520, 500], "state": "few" },
-        { "kind": "notes", "at": [30, 530, 520, 520], "state": "sample" },
+        { "kind": "tasks", "at": [30, 30, 480, 420], "state": "few" },
         { "kind": "clock", "at": [1490, 30, 400, 170], "state": "sample", "style": "minimal", "bare": true },
         { "kind": "pomodoro", "at": [1180, 230, 640, 600], "state": "running", "bare": true, "scale": 1.6 },
-        { "id": "quiet", "kind": "doNotDisturbToggle", "at": [1750, 910, 140, 140], "state": "on" }
+        { "id": "quiet", "kind": "doNotDisturbToggle", "at": [1750, 870, 140, 140], "state": "on" }
       ]
     }
   ]

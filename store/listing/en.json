@@ -12,7 +12,7 @@
     "• Processor, memory, graphics, disks, network, ping and battery, with live graphs",
     "• Folders, shortcuts, your newest files, drives and the Recycle Bin",
     "• Music, volume, the mixer, brightness and quick settings such as Wi-Fi, Bluetooth and night light",
-    "• Stocks, exchange rates, news feeds, screen time, habits, photos and more",
+    "• Stocks, exchange rates, news feeds, screen time, habits and more",
     "",
     "YOUR DAY ON YOUR DESKTOP",
     "See your next meeting and join it with one click. Read new mail, tick off tasks and look at your week without opening an app. Themia works with Microsoft accounts (Outlook.com, Microsoft 365), iCloud, any IMAP mail account, and CalDAV and CardDAV servers such as Fastmail or Nextcloud.",
@@ -30,7 +30,7 @@
     "Start from a preset such as Glass, Midnight or Paper, or mix your own: colours, transparency, borders, corners and fonts. Each widget can have its own background, and Themia follows the light or dark theme of Windows.",
     "",
     "A DESKTOP FOR EVERY PART OF YOUR DAY",
-    "Views keep several desktops ready: one for work with your calendar and mail, one for the evening with music and photos, one for focus with nothing but a timer. Switch with a click, and give every display its own.",
+    "Views keep several desktops ready: one for work with your calendar and mail, one for the evening with music and the weather, one for focus with nothing but a timer. Switch with a click, and give every display its own.",
     "",
     "PRIVATE BY DESIGN",
     "Themia has no ads, no tracking, no analytics and no account of its own. Mail, calendars and tasks connect straight from your PC to your provider; nothing passes through us. Your sign-ins are encrypted by Windows for your Windows user alone.",
@@ -85,8 +85,8 @@
       "shot": "desktop",
       "label": "Themia",
       "headline": "Widgets that live on your desktop.",
-      "sub": "Your day, your PC and your files on the wallpaper, behind your windows and always a glance away.",
-      "caption": "A Windows desktop with Themia's widgets on the wallpaper: clock, weather, calendar, next meeting, mail, tasks, news, system meters, stocks and shortcuts."
+      "sub": "On your wallpaper, behind your windows, above the taskbar. Always a glance away, never in the way.",
+      "caption": "A Windows desktop with Themia's widgets on the wallpaper: clock, calendar, next meeting, music, weather, tasks and mail, above the Windows taskbar."
     },
     {
       "shot": "widgets",
@@ -114,7 +114,7 @@
       "label": "Your PC",
       "headline": "Your PC at a glance.",
       "sub": "Processor, memory, graphics, network and battery with live graphs. No Task Manager needed.",
-      "caption": "A desktop of system widgets: processor load per core, memory, graphics, network, disks, the programs using the most, ping and battery.",
+      "caption": "A desktop with system widgets on one side: processor load per core, memory, graphics, network, the programs using the most, battery and a drive.",
       "callouts": [
         "Every core",
         "What's using your PC",
@@ -127,21 +127,14 @@
       "label": "Files",
       "headline": "Your files, right on the desktop.",
       "sub": "Folders you can browse, shortcuts, your newest files and the free space on every drive.",
-      "caption": "A desktop with a folder to browse, shortcuts, the newest files, drives with their free space, the clipboard's history and a photo.",
+      "caption": "A desktop with desktop icons, a folder to browse, a folder of pictures, shortcuts, the newest files and drives with their free space.",
       "callouts": [
         "Any folder",
         "Your pictures",
         "Free space",
-        "What you copied",
-        "Your photos"
+        "Shortcuts",
+        "Your newest files"
       ]
-    },
-    {
-      "shot": "sizes",
-      "label": "Sizes",
-      "headline": "Make it bigger, see more.",
-      "sub": "Every widget fits the room you give it: small keeps what matters, large shows the details.",
-      "caption": "The weather at four sizes, the calendar at two and the processor meter at three: each larger one shows more."
     },
     {
       "shot": "styles",
@@ -169,14 +162,14 @@
       "label": "Looks",
       "headline": "A look for every wallpaper.",
       "sub": "Colours, glass, borders, corners and fonts. Pick a preset or mix your own.",
-      "caption": "One desktop in four looks: Themia's own, Daylight, Glass and Terminal."
+      "caption": "One desktop in four looks, each on its own wallpaper: Themia's own, Daylight, Glass and Terminal."
     },
     {
       "shot": "views",
       "label": "Views",
       "headline": "A desktop for every part of your day.",
       "sub": "One for work, one for the evening, one for focus. Switch with a click, or give every display its own.",
-      "caption": "Three desktops of one PC: the evening with music and photos, the working day, and a focus desktop with a Pomodoro timer.",
+      "caption": "Three desktops of one PC: the evening with music and the forecast, the working day, and a focus desktop with a Pomodoro timer.",
       "callouts": [
         "Evening",
         "Work",

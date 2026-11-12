@@ -11,9 +11,8 @@ added. The steps in Partner Center (reservation, identity, the Pro add-on, the p
 | File | What it is |
 | --- | --- |
 | `listing/<lang>.json` | The listing of one language: name, descriptions, features, keywords, each screenshot's label, headline, line and caption, its callouts, and the Pro add-on's words. English is the source. |
-| `scenes.json` | The scenes the pictures are made of: stand-in desktops and sheets of widgets, each widget by its kind, its box in DIPs, its preview state, its style and its config. `Themia.exe --scene-png` draws one. |
+| `scenes.json` | The scenes the pictures are made of: stand-in desktops (a wallpaper, one of the app's own drawn landscapes; Windows' taskbar; widgets) and sheets of widgets, each widget by its kind, its box in DIPs, its preview state, its style and its config. `Themia.exe --scene-png` draws one. |
 | `capture.ps1` | Builds the Debug app and draws every scene to `out/shots/<lang>/<scene>.png` (3840 x 2160). |
-| `wallpaper.mjs`, `wallpapers/` | The stand-in desktops' wallpapers and what draws them, so no picture of anyone else's is in a screenshot. |
 | `panorama.mjs` | The ten pages: which scene or widget stands where, the monitors, the callouts. Widgets are named by scene and id, never by pixel. |
 | `compose.mjs` | Makes the Store's pictures from the captures and the listings with headless Chrome: the screenshots per language, the hero art, the tile icon and the add-on's icon. |
 | `fill-csv.mjs` | Fills a listing CSV exported from Partner Center with every language and lays out the folder to import. |
@@ -29,7 +28,6 @@ Everything made lands in `store/out/`, which git ignores.
 ./store/capture.ps1 -Only desktop,pc        # or some
 ./store/capture.ps1 -Lang de                # Themia in another language
 node store/compose.mjs en                   # the pages, to store/out/images/en
-node store/wallpaper.mjs                    # only after changing a wallpaper: store/wallpapers/*.jpg
 ```
 
 Nothing appears on the screen and nothing of the PC is read: a scene is drawn off-screen by a Debug
@@ -40,22 +38,24 @@ out the same each time.
 A language's pages show Themia in that language once it has captures of its own
 (`out/shots/<lang>`); until then they show the English ones under that language's words.
 
-## The ten pages
+## The nine pages
 
-They are one picture, 10 x 1920 px wide, cut into the Store's pages: side by side in the Store's row
+They are one picture, 9 x 1920 px wide, cut into the Store's pages: side by side in the Store's row
 they are one scene. They tell Themia in the order somebody meets it:
 
-1. **What it is.** A desktop with widgets on the wallpaper; then a wall of the widgets no other page
-   shows.
+1. **What it is.** A desktop with widgets down both sides of the wallpaper, Windows' taskbar under
+   them; then a wall of the widgets no other page shows.
 2. **What it shows.** Your accounts (calendars, mail, tasks, contacts, the next meeting: each as Themia
    shows it, over the services it comes from); your PC (meters with their graphs); your files (folders,
    shortcuts, drives).
-3. **How a widget adapts.** One widget at several sizes; the same widgets in their styles.
-4. **How the desktop becomes yours.** Edit mode with its bar and the menu beside a widget; one desktop
-   cut into four looks; three desktops of one PC, one per part of the day.
+3. **How the desktop becomes yours.** The same widgets in their styles; edit mode with its bar and the
+   menu beside a widget; one desktop cut into four looks; three desktops of one PC, one per part of the
+   day.
 
-A widget kind is shown once where it can be: the wall holds none of the first page's
-(`panorama.test.mjs`).
+Rules the pictures keep (`panorama.test.mjs`): every desktop shows Windows' taskbar, so it is plain
+where Themia lives; some desktops leave the wallpaper open (the first covers less than half of it);
+neither the video stream nor the gallery widget is shown; a widget kind is shown once where it can be
+(the wall holds none of the first page's).
 
 ## Changing something
 

@@ -102,17 +102,33 @@ test("a scene's widgets lie inside the screen and on none of its others", () => 
   }
 });
 
-test("every desktop a page shows has a wallpaper, and the picture is there", () => {
+test("every desktop a page shows has a wallpaper and Windows' taskbar", () => {
+  // A wallpaper is one of the app's sample pictures (sample:<name>, checked by the app's own test) or a file here.
   for (const frame of frames) {
     for (const card of cardsOf(frame)) {
       const names = card.cuts ?? (card.screen ? [card.screen] : card.ground ? [card.piece[0]] : []);
-      for (const name of names) assert.ok(scenes.get(name).wallpaper, `${frame.shot}: ${name} has no wallpaper`);
+      for (const name of names) {
+        const scene = scenes.get(name);
+        assert.ok(scene.wallpaper, `${frame.shot}: ${name} has no wallpaper`);
+        assert.ok(scene.taskbar, `${frame.shot}: ${name} has no taskbar, so nobody sees where Themia lives`);
+        if (!scene.wallpaper.startsWith("sample:")) assert.ok(existsSync(new URL("./" + scene.wallpaper, import.meta.url)), `${name}: no ${scene.wallpaper}`);
+      }
     }
   }
+});
+
+test("no page shows the camera or the picture view", () => {
+  // The owner's rule for the Store's pictures (2026-11-12): neither the video stream nor the gallery widget.
   for (const name of usedScenes()) {
-    const wallpaper = scenes.get(name).wallpaper;
-    if (wallpaper) assert.ok(existsSync(new URL("./" + wallpaper, import.meta.url)), `${name}: no ${wallpaper} (node store/wallpaper.mjs)`);
+    for (const kind of scenes.get(name).kinds) assert.ok(!["videoStream", "gallery"].includes(kind), `${name} shows ${kind}`);
   }
+});
+
+test("some desktops leave the wallpaper open", () => {
+  // Not every desktop is filled edge to edge: the first page's widgets cover less than half of its display.
+  const covered = (name) => [...scenes.get(name).widgets.values()].reduce((sum, r) => sum + r.w * r.h, 0) / (page.w * page.h);
+  assert.ok(covered(frames[0].cards[0].screen) < 0.5, "the first page's desktop is crowded");
+  assert.ok(usedScenes().filter((name) => scenes.get(name).taskbar && covered(name) < 0.6).length >= 4, "too few open desktops");
 });
 
 test("a sheet of widgets, cut into pieces, stands on nothing", () => {
