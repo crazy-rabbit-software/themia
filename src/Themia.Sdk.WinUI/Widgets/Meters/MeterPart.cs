@@ -211,6 +211,13 @@ public abstract class MeterPart
     public virtual MeterLook Look(WidgetConfig config) => MeterLook.Graph;
 
     /// <summary>
+    /// [S-2438] The kind is converted to the sizing: its reading is the family's 28 at every size and
+    /// nothing appears or disappears with the card (the history band, the rows, the dial are always
+    /// drawn, longer or larger as the card is). False: the legacy ladder ([S-1762], [S-2443]).
+    /// </summary>
+    public virtual bool Sized => false;
+
+    /// <summary>
     /// [S-6300] Watch the items a <see cref="MeterLook.Columns"/>, <see cref="MeterLook.Rows"/> or
     /// <see cref="MeterLook.Tiles"/> look draws; null for a kind that has none. Never calls back
     /// from inside this call ([S-2506]): what is already read is <see cref="MeterItemsWatch.Current"/>.

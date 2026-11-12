@@ -497,13 +497,16 @@ public sealed partial class MeterView
         }
 
         var worst = Worst;
-        var step = MeterPlan.Reading(_area, worst);
+
+        // [S-2449] A converted meter's reading is the family's 28 whatever the card's size.
+        var sized = _part.Sized;
+        var step = sized ? FamilyType.Big28 : MeterPlan.Reading(_area, worst);
 
         switch (_look)
         {
             case MeterLook.Graph:
                 _reading.Use(step);
-                _band.Visibility = MeterPlan.Band(_area, step, _graph) > 0 ? Visibility.Visible : Visibility.Collapsed;
+                _band.Visibility = (sized ? _graph : MeterPlan.Band(_area, step, _graph) > 0) ? Visibility.Visible : Visibility.Collapsed;
                 break;
 
             case MeterLook.Gauge:
@@ -539,7 +542,7 @@ public sealed partial class MeterView
 
             case MeterLook.Rows:
                 _reading.Use(step);
-                var shown = MeterPlan.Rows(_area, step, _rows.Count);
+                var shown = sized ? _rows.Count : MeterPlan.Rows(_area, step, _rows.Count);
                 var nameRoom = MeterPlan.Content(_area).Width / 2;
                 for (var i = 0; i < _rows.Count; i++)
                 {
@@ -641,7 +644,7 @@ public sealed partial class MeterView
         _box.Height = gauge ? ChartRules.GaugeHeight(diameter) : diameter;
         _reading.HorizontalAlignment = HorizontalAlignment.Center;
         _reading.VerticalAlignment = gauge ? VerticalAlignment.Bottom : VerticalAlignment.Center;
-        _reading.Use(gauge ? MeterPlan.GaugeReading(_area, diameter, worst) : MeterPlan.RingReading(_area, diameter, worst));
+        _reading.Use(_part.Sized ? FamilyType.Big28 : gauge ? MeterPlan.GaugeReading(_area, diameter, worst) : MeterPlan.RingReading(_area, diameter, worst));
     }
 
     /// <summary>A grid of square or graph cells, row by row from the top left; none when the plan shows none.</summary>

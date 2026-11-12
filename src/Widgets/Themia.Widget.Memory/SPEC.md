@@ -12,7 +12,12 @@ free bar), `Localization/Locales/` (its
 own `MemoryStr`, 30 languages, its style names included). Tests: `Tests/MemoryTests.cs` (run by
 `tests/Themia.Modules.Tests`); the meters' shared settings are the module host's `MeterHostTests`.
 
-- **[S-1130]** Memory: percent used, from `GlobalMemoryStatusEx` (total less available).
+- **[S-1130]** Memory: percent used, from `GlobalMemoryStatusEx` (total less available). Converted to
+  the sizing ([S-2438], not split yet): the reading is the family's 28 at every size ([S-2449]) over its
+  part, which is always drawn and only grows: the Graph's history band and the Gauge 160..480 wide and
+  112..200 high (a new one 220 x 144, the band at least 32), the Bar's row 240..480 wide (its meter
+  needs the room) at one height, the Graph without its history the reading alone at one height
+  (`MemoryModule.Sizing`, `MeterPart.Sized`). The meter ladder ([S-1762]) stays the other meters'.
 - **[S-6315]** Memory styles, `MemoryConfig.Style` (`MemoryStyle`): **Graph** ([S-1762]), **Bar**
   ([S-6316]), **Gauge** ([S-6302]).
 - **[S-6316]** **Bar**: one row ([S-6304]), the used share filled against the free: "9.6 GB used" as

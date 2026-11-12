@@ -16,6 +16,9 @@ internal sealed class MemoryMeter : MeterPart
 
     public override WidgetId Kind => new WidgetId("memory");
 
+    /// <inheritdoc />
+    public override bool Sized => true;
+
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Usage, reading.Available ? reading.Fraction : null);
 

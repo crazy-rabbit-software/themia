@@ -32,7 +32,7 @@ public sealed class WidgetSizingTests
         "screenTimeChart", "screenTimeDonut", "shortcuts", "shutdown", "signOut", "sleep", "soundToggle",
         "spatialSoundToggle", "stocks", "stopwatch", "sun", "topProcesses", "videoStream", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
-        "clock", "memory",
+        "clock",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];
