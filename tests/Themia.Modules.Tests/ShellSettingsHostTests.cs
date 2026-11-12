@@ -47,7 +47,6 @@ public sealed class ShellSettingsHostTests
     [InlineData("disk")]
     [InlineData("notes")]
     [InlineData("countdown")]
-    [InlineData("pomodoro")]
     [InlineData("sun")]
     [InlineData("moon")]
     [InlineData("drive")]

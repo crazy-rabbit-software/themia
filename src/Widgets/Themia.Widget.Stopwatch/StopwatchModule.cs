@@ -32,7 +32,7 @@ public sealed class StopwatchModule : IWidgetModule
         Description = StopwatchStr.Stopwatch_Desc.Local(),
         Glyph = Glyph,
         Sizing = _ => WidgetSizing.Legacy(260, 200),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 3),
     };
 

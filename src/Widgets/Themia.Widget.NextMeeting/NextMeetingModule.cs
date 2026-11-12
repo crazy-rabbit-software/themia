@@ -37,7 +37,7 @@ public sealed class NextMeetingModule : IWidgetModule
         Glyph = Glyphs.Meeting,
         Sizing = _ => WidgetSizing.Legacy(320, 200),
         // [S-2160] The meetings after it are rows: items of the card's item layer ([S-6570]).
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.CalendarMail, 0, 1),
     };
 

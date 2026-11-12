@@ -28,7 +28,7 @@ public sealed class QuoteModule : IWidgetModule
         Description = QuoteStr.WidgetsA_Catalog_Quote_Description.Local(),
         Glyph = Glyphs.Quote,
         Sizing = _ => WidgetSizing.Legacy(320, 180),
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.Notes, 1, 1),
     };
 

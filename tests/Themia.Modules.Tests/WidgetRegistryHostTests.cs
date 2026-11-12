@@ -120,15 +120,20 @@ public sealed class WidgetRegistryHostTests
         Assert.False(traits.HasFlag(WidgetTraits.StartsHeaderless) && !traits.HasFlag(WidgetTraits.CanHaveHeader), $"{id}: {traits}");
     }
 
-    /// <summary>[S-2590] The kinds whose content says what they are start headerless, the option kept where they may have one.</summary>
-    public static TheoryData<string> Headerless() => ["clock", "alarm", "audioVisualizer", "gallery", "videoStream"];
+    /// <summary>
+    /// [S-2590] The kinds whose content says what they are start headerless, the option kept where they may
+    /// have one: those drawn to their edges or in their own inset, and since the card insets a view with no
+    /// header above it ([S-5700]) those laid from the view's top, and the next meeting ([S-5710]).
+    /// </summary>
+    public static TheoryData<string> Headerless() =>
+        ["clock", "alarm", "audioVisualizer", "gallery", "videoStream", "music", "quote", "stopwatch", "pomodoro", "focusSession", "nextMeeting"];
 
-    /// <summary>[S-2590] Kinds laid from the view's top keep their header until the card says whether one stands above.</summary>
-    public static TheoryData<string> KeepHeader() => ["music", "quote", "stopwatch", "pomodoro", "focusSession"];
+    /// <summary>[S-2590] Kinds that keep their header: a sample of the rest (a meter, a list, the weather, a calendar).</summary>
+    public static TheoryData<string> KeepHeader() => ["memory", "rss", "weatherNow", "calendar", "tasks"];
 
     [Theory]
     [MemberData(nameof(KeepHeader))]
-    public void S2590_a_widget_laid_from_its_top_keeps_its_header(string id)
+    public void S2590_a_widget_not_listed_keeps_its_header(string id)
         => Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(new WidgetId(id)));
 
     [Theory]

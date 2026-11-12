@@ -20,6 +20,9 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   rotation shows the original's quote for the day (`QUOTES[localDay % 16]`, regression-tested). The
   header button shows a random *other* quote (`QuoteRotation.RandomStep`); a tap steps to the next.
   Both stay ephemeral (original S-02).
+- **[S-5711]** It starts headerless ([S-2590]), so the header's Show another quote is on its card's
+  right-click menu as well (`QuoteView.ContextActions`, the Reset glyph), only with two quotes or more,
+  doing what the button does; the button comes back with the header.
 - **[S-1990]** Quote keys (`QuoteKeys.Of`), only with two or more quotes: Right, Space or Enter
   the next quote (what a tap does), Left the one before. Ephemeral, like the tap.
 - **[S-1496]** Quote ladder (`QuoteLayout.Plan`, in the view's area: the card less its header, the

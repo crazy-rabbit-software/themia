@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// per click for something that is supposed to come back to today's quote in the morning.
 /// </para>
 /// </summary>
-internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetAligned
+internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetAligned, IWidgetContextActions
 {
     /// <summary>[S-1495] The header's one button, "Show another quote", wanted only with somewhere to go.</summary>
     private readonly HeaderParts _header = new();
@@ -100,6 +100,14 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     /// the constructor because the card reads this once, when it builds that header.
     /// </summary>
     public FrameworkElement? HeaderTrailing => _header;
+
+    /// <summary>
+    /// [S-5711] Show another quote on the card's right-click menu too, with two quotes or more: the widget
+    /// starts headerless ([S-2590]), and the header's button is then not there to press.
+    /// </summary>
+    public IReadOnlyList<WidgetAction> ContextActions => !_detached && _config.EffectiveQuotes.Count > 1
+        ? [new(Glyphs.Reset, QuoteStr.WidgetsC_Quote_ShowAnother.Text(), OnNext)]
+        : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
