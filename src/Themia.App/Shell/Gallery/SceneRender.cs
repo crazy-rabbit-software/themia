@@ -75,12 +75,15 @@ internal static class SceneRender
             var code = Failed;
             Window? window = null;
             Ticker? ticker = null;
+            IDisposable? machine = null;
             var cards = new List<WidgetCard>();
             try
             {
                 window = new Window { Title = "Themia scene render" };
                 ticker = new Ticker(dispatcher);
-                StartSystemReadings(ticker, dispatcher);
+
+                // [S-1931] A store picture never shows this PC: the system widgets read the sample machine.
+                machine = Services.SystemData.SampleMachine.Install(ticker, dispatcher);
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 code = await DrawAsync(window, ticker, job, cards).ConfigureAwait(true);
             }
@@ -97,8 +100,7 @@ internal static class SceneRender
                     card.Detach();
                 }
 
-                AppServices.System?.Dispose();
-                AppServices.System = null;
+                machine?.Dispose();
                 AppServices.Gallery?.Dispose();
                 AppServices.Gallery = null;
                 ticker?.Dispose();
@@ -110,13 +112,6 @@ internal static class SceneRender
 
         return true;
     }
-
-    /// <summary>
-    /// The system widgets' readings: for now the render's own hub over this PC, started exactly as
-    /// <c>--widget-png</c> starts it. The one place a sample machine will take over.
-    /// </summary>
-    private static void StartSystemReadings(Ticker ticker, DispatcherQueue dispatcher)
-        => AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
 
     /// <summary>What a run draws, every part checked before a window opens.</summary>
     private sealed record Job(SceneFile File, Scene Scene, IReadOnlyList<(SceneWidget Spec, WidgetInstance Model)> Widgets, string? Wallpaper, string OutPath, double Scale);

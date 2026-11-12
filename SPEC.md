@@ -6649,8 +6649,7 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   (the command line, the file, an unknown scene, kind or style, a missing wallpaper), each named on the
   console; 1 the drawing failed (a preview state a view does not have, a submenu the properties menu does
   not have, a card showing its error card, a tile of the wrong size), nothing written. The system widgets
-  read this PC through the render's own hub (`StartSystemReadings`, the one call a sample machine will
-  replace).
+  read the sample machine ([S-1931]), never this PC.
 - **[S-1075]** The scenes file (`store/scenes.json`) is read by Core's `SceneParser`, a trust boundary: the
   whole file or a refusal naming the JSON path and the problem. `screen` (whole DIPs, 320 to 8192, default
   1920 × 1080) and `scenes`, each `name` (unique, `[a-z0-9-]+`), `like` (another scene, before or after it;
@@ -6663,6 +6662,9 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   `config` (an object) and `selected`. A property the reader does not know or one written twice is refused,
   numbers are finite, closed sets are their names; a selection needs `edit` and `edit.open` a selection.
   Tests `SceneParserTests.S1075_`.
+- **[S-1079]** A scene's widget has a name, for what points at it (the store's pages, `store/panorama.mjs`):
+  its `id` (letters, digits and `-`), its kind where it gives none. Two widgets of a scene with one name are
+  refused, so two of a kind need ids. Tests `SceneParserTests.S1079_`.
 - **[S-1076]** A scene's widget (`SceneWidgets.Build`): the kind installed, its default config with the
   `config` fragment merged over it (`StateJson.Merged`; a property the kind's config does not have is
   refused rather than dropped, a value of the wrong type too), the style one of the kind's, then `bare`

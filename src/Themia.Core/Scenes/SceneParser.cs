@@ -127,6 +127,16 @@ public static class SceneParser
     /// <summary>What only the whole scene can tell: a selection needs edit mode, an open submenu a selection.</summary>
     private static void Check(Scene scene, string path)
     {
+        // [S-1079] A widget is named by its id, its kind where it gives none: two of a kind need ids to be told apart.
+        var named = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var widget in scene.Widgets)
+        {
+            if (!named.Add(widget.Id))
+            {
+                throw Refuse(widget.Path, $"the scene has another widget named \"{widget.Id}\": give one an \"id\"");
+            }
+        }
+
         if (scene.Edit is null && scene.Selected.FirstOrDefault() is { } selected)
         {
             throw Refuse(path, $"the widget at {selected.Path} is selected, but the scene has no \"edit\"");
@@ -279,7 +289,7 @@ public static class SceneParser
     private static SceneWidget Widget(JsonElement element, string path, SceneScreen screen)
     {
         var props = Properties(element, path,
-            "kind", "at", "state", "style", "header", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected");
+            "id", "kind", "at", "state", "style", "header", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected");
 
         if (!props.TryGetValue("kind", out var kindElement))
         {
@@ -301,6 +311,7 @@ public static class SceneParser
 
         return new SceneWidget(
             path,
+            props.TryGetValue("id", out var id) ? Id(id, path + ".id") : kind.Value,
             kind,
             at,
             State: props.TryGetValue("state", out var state) ? Word(state, path + ".state") : null,
@@ -315,6 +326,15 @@ public static class SceneParser
             Bare: props.TryGetValue("bare", out var bare) && Bool(bare, path + ".bare"),
             Config: props.TryGetValue("config", out var config) ? Config(config, path + ".config") : null,
             Selected: props.TryGetValue("selected", out var selected) && Bool(selected, path + ".selected"));
+    }
+
+    /// <summary>[S-1079] A widget's name in its scene, for what points at it (the store's pages): letters, digits and '-'.</summary>
+    private static string Id(JsonElement element, string path)
+    {
+        var text = Text(element, path);
+        return text.Length > 0 && text.All(c => char.IsAsciiLetterOrDigit(c) || c == '-')
+            ? text
+            : throw Refuse(path, $"\"{text}\" is not an id of letters, digits and '-'");
     }
 
     /// <summary>[S-1075] <c>[x, y, width, height]</c>: finite, a positive size, wholly on the display.</summary>

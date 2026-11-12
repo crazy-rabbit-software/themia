@@ -200,6 +200,33 @@ public sealed class SceneParserTests
     }
 
     [Fact]
+    public void S1079_a_widget_is_named_by_its_id_or_its_kind()
+    {
+        var scene = Parsed("""{ "scenes": [ { "name": "a", "widgets": [ { "kind": "clock", "at": [0, 0, 100, 100] }, { "id": "second-clock", "kind": "clock", "at": [100, 0, 100, 100] } ] } ] }""").Scenes[0];
+
+        Assert.Equal(["clock", "second-clock"], scene.Widgets.Select(w => w.Id));
+    }
+
+    [Fact]
+    public void S1079_two_widgets_of_one_name_are_refused()
+    {
+        var refusal = Refused("""{ "scenes": [ { "name": "a", "widgets": [ { "kind": "clock", "at": [0, 0, 100, 100] }, { "kind": "clock", "at": [100, 0, 100, 100] } ] } ] }""");
+
+        Assert.Equal("$.scenes[0].widgets[1]", refusal.Path);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("two words")]
+    [InlineData("dot.ted")]
+    public void S1079_an_id_is_letters_digits_and_dashes(string id)
+    {
+        var refusal = Refused($$"""{ "scenes": [ { "name": "a", "widgets": [ { "id": "{{id}}", "kind": "clock", "at": [0, 0, 100, 100] } ] } ] }""");
+
+        Assert.Equal("$.scenes[0].widgets[0].id", refusal.Path);
+    }
+
+    [Fact]
     public void S1075_names_are_unique()
     {
         var refusal = Refused("""{ "scenes": [ { "name": "a", "widgets": [] }, { "name": "a", "widgets": [] } ] }""");

@@ -16,7 +16,7 @@ public sealed class SceneWidgetsTests
 {
     private static readonly SceneScreen Screen = new(1920, 1080);
 
-    private static SceneWidget Clock(string? config = null, string? style = null) => new("$.w", new WidgetId("clock"), new SceneRect(192, 108, 480, 216), Style: style, Config: config);
+    private static SceneWidget Clock(string? config = null, string? style = null) => new("$.w", "clock", new WidgetId("clock"), new SceneRect(192, 108, 480, 216), Style: style, Config: config);
 
     [Fact]
     public void S1076_a_widget_is_its_kind_where_the_scene_puts_it_with_what_the_scene_names()

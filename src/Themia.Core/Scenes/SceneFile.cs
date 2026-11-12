@@ -44,6 +44,7 @@ public readonly record struct SceneRect(double X, double Y, double Width, double
 /// </summary>
 public sealed record SceneWidget(
     string Path,
+    string Id,
     WidgetId Kind,
     SceneRect At,
     string? State = null,
