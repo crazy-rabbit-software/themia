@@ -51,8 +51,8 @@ public sealed class OnlineStateFixtureTests
         var rain = Assert.IsType<RainNextHourConfig>(configs[3]);
         Assert.Equal((52.52, 13.405, "Berlin, Land Berlin, Germany"), (rain.Latitude, rain.Longitude, rain.LocationName));
 
-        var rates = Assert.IsType<ExchangeRatesConfig>(configs[4]);
-        Assert.Equal(("CHF", "JPY", ExchangeRatesStyle.Number), (rates.BaseCurrency, rates.QuoteCurrency, rates.Style));
+        var rates = Assert.IsType<ExchangeRateConfig>(configs[4]);
+        Assert.Equal(("CHF", "JPY"), (rates.BaseCurrency, rates.QuoteCurrency));
 
         var stocks = Assert.IsType<StocksConfig>(configs[5]);
         Assert.Equal(("bitcoin", QuoteMarket.Crypto, QuoteRange.Month, StocksStyle.Number), (stocks.Symbol, stocks.Market, stocks.Range, stocks.Style));

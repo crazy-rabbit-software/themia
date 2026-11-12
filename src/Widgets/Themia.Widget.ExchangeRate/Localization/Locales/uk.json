@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Довідкові курси Європейського центрального банку",
+  "online.rates.fix": "ЄЦБ, {date}",
+  "online.rates.fixTooltip": "Довідкові курси на {date} від Європейського центрального банку",
+  "online.rates.label": "Курси валют",
+  "online.rates.perBase": "за {code}"
+}

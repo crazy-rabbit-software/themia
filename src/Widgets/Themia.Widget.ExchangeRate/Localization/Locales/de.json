@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Referenzkurse der Europäischen Zentralbank",
+  "online.rates.fix": "EZB, {date}",
+  "online.rates.fixTooltip": "Referenzkurse vom {date} der Europäischen Zentralbank",
+  "online.rates.label": "Wechselkurse",
+  "online.rates.perBase": "pro {code}"
+}

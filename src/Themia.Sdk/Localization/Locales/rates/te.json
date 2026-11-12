@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "ప్రచురించబడలేదు",
+  "online.rates.settings.base.label": "మూల కరెన్సీ",
+  "online.rates.settings.base.region": "Windows ప్రాంతం ({code})",
+  "online.rates.settings.quote.default": "డిఫాల్ట్ ({code})",
+  "online.rates.settings.quote.label": "కరెన్సీ"
+}

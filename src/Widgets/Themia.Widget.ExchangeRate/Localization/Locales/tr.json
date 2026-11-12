@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Avrupa Merkez Bankası referans kurları",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Avrupa Merkez Bankası'nın {date} tarihli referans kurları",
+  "online.rates.label": "Döviz kurları",
+  "online.rates.perBase": "{code} başına"
+}

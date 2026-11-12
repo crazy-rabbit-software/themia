@@ -1,0 +1,8 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "online.rates.desc": "Referenční kurzy Evropské centrální banky",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Referenční kurzy Evropské centrální banky k {date}",
+  "online.rates.label": "Směnné kurzy",
+  "online.rates.perBase": "za {code}"
+}

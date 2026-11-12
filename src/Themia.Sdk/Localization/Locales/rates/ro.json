@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "Nepublicat",
+  "online.rates.settings.base.label": "Moneda de bază",
+  "online.rates.settings.base.region": "Regiunea Windows ({code})",
+  "online.rates.settings.quote.default": "Implicit ({code})",
+  "online.rates.settings.quote.label": "Monedă"
+}

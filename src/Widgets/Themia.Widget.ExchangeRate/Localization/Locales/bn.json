@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "ইউরোপীয় কেন্দ্রীয় ব্যাংকের রেফারেন্স হার",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "ইউরোপীয় কেন্দ্রীয় ব্যাংকের {date} তারিখের রেফারেন্স হার",
+  "online.rates.label": "বিনিময় হার",
+  "online.rates.perBase": "প্রতি {code}"
+}

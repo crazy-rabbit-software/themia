@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "Không công bố",
+  "online.rates.settings.base.label": "Tiền tệ cơ sở",
+  "online.rates.settings.base.region": "Khu vực Windows ({code})",
+  "online.rates.settings.quote.default": "Mặc định ({code})",
+  "online.rates.settings.quote.label": "Đồng tiền"
+}

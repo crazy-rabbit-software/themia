@@ -2184,7 +2184,7 @@
         },
         {
           "id": "w77",
-          "kind": "ExchangeRates",
+          "kind": "ExchangeRate",
           "x": 0.07,
           "y": 0.07,
           "w": 0.2,
@@ -2203,10 +2203,9 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "exchangeRates",
+            "kind": "exchangeRate",
             "baseCurrency": "",
-            "quoteCurrency": "",
-            "style": "chart"
+            "quoteCurrency": ""
           }
         },
         {

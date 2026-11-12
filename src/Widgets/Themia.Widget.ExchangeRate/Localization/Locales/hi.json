@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "यूरोपीय सेंट्रल बैंक की संदर्भ दरें",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "यूरोपीय सेंट्रल बैंक की {date} की संदर्भ दरें",
+  "online.rates.label": "विनिमय दरें",
+  "online.rates.perBase": "प्रति {code}"
+}

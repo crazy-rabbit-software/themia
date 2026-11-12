@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Cursuri de referință de la Banca Centrală Europeană",
+  "online.rates.fix": "BCE, {date}",
+  "online.rates.fixTooltip": "Cursuri de referință din {date} de la Banca Centrală Europeană",
+  "online.rates.label": "Cursuri de schimb",
+  "online.rates.perBase": "per {code}"
+}

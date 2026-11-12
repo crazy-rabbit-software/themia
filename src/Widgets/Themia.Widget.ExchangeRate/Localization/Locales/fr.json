@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Taux de référence de la Banque centrale européenne",
+  "online.rates.fix": "BCE, {date}",
+  "online.rates.fixTooltip": "Taux de référence du {date} de la Banque centrale européenne",
+  "online.rates.label": "Taux de change",
+  "online.rates.perBase": "pour 1 {code}"
+}

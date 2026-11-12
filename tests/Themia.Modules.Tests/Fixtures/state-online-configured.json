@@ -141,10 +141,9 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "exchangeRates",
+            "kind": "exchangeRate",
             "baseCurrency": "CHF",
-            "quoteCurrency": "JPY",
-            "style": "number"
+            "quoteCurrency": "JPY"
           }
         },
         {

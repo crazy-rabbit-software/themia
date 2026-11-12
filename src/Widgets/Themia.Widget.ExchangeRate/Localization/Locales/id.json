@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Kurs acuan dari Bank Sentral Eropa",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Kurs acuan {date} dari Bank Sentral Eropa",
+  "online.rates.label": "Kurs mata uang",
+  "online.rates.perBase": "per {code}"
+}

@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Ισοτιμίες αναφοράς της Ευρωπαϊκής Κεντρικής Τράπεζας",
+  "online.rates.fix": "ΕΚΤ, {date}",
+  "online.rates.fixTooltip": "Ισοτιμίες αναφοράς της {date} από την Ευρωπαϊκή Κεντρική Τράπεζα",
+  "online.rates.label": "Συναλλαγματικές ισοτιμίες",
+  "online.rates.perBase": "ανά {code}"
+}

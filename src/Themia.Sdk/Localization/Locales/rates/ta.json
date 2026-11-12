@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "வெளியிடப்படவில்லை",
+  "online.rates.settings.base.label": "அடிப்படை நாணயம்",
+  "online.rates.settings.base.region": "Windows பிராந்தியம் ({code})",
+  "online.rates.settings.quote.default": "இயல்புநிலை ({code})",
+  "online.rates.settings.quote.label": "நாணயம்"
+}

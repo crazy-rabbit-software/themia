@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "公表されていません",
+  "online.rates.settings.base.label": "基準通貨",
+  "online.rates.settings.base.region": "Windows の地域 ({code})",
+  "online.rates.settings.quote.default": "デフォルト ({code})",
+  "online.rates.settings.quote.label": "通貨"
+}

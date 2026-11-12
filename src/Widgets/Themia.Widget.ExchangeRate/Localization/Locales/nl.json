@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Referentiekoersen van de Europese Centrale Bank",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Referentiekoersen van {date} van de Europese Centrale Bank",
+  "online.rates.label": "Wisselkoersen",
+  "online.rates.perBase": "per {code}"
+}

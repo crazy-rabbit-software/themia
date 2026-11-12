@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "ከአውሮፓ ማዕከላዊ ባንክ የማጣቀሻ ተመኖች",
+  "online.rates.fix": "ECB፣ {date}",
+  "online.rates.fixTooltip": "የ{date} የማጣቀሻ ተመኖች ከአውሮፓ ማዕከላዊ ባንክ",
+  "online.rates.label": "የምንዛሪ ተመኖች",
+  "online.rates.perBase": "በ{code}"
+}

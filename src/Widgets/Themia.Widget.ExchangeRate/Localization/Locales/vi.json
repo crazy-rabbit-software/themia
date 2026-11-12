@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Tỷ giá tham chiếu của Ngân hàng Trung ương châu Âu",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Tỷ giá tham chiếu ngày {date} của Ngân hàng Trung ương châu Âu",
+  "online.rates.label": "Tỷ giá hối đoái",
+  "online.rates.perBase": "mỗi {code}"
+}

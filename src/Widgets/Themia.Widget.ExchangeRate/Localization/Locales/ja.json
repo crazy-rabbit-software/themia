@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "欧州中央銀行の参照レート",
+  "online.rates.fix": "ECB、{date}",
+  "online.rates.fixTooltip": "欧州中央銀行による {date} の参照レート",
+  "online.rates.label": "為替レート",
+  "online.rates.perBase": "1 {code} あたり"
+}

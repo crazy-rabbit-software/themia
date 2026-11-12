@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "యూరోపియన్ సెంట్రల్ బ్యాంక్ నుండి రిఫరెన్స్ రేట్లు",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "యూరోపియన్ సెంట్రల్ బ్యాంక్ నుండి {date} నాటి రిఫరెన్స్ రేట్లు",
+  "online.rates.label": "మారకపు రేట్లు",
+  "online.rates.perBase": "ప్రతి {code}కి"
+}

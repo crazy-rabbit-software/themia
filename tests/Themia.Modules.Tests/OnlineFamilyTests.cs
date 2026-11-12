@@ -19,8 +19,8 @@ public sealed class OnlineFamilyTests
         var view = ViewState.Create("Online");
         view.Widgets.Add(WidgetInstance.Create(new Sdk.WidgetId("airQuality"), new Geometry.FracRect(0, 0, 0.2, 0.2)));
         view.Widgets.Add(WidgetInstance.Create(new Sdk.WidgetId("rainNextHour"), new Geometry.FracRect(0.3, 0, 0.2, 0.2)));
-        view.Widgets.Add(WidgetInstance.Create(new Sdk.WidgetId("exchangeRates"), new Geometry.FracRect(0.6, 0, 0.2, 0.2)));
-        view.Widgets.Add(WidgetInstance.Create(new Sdk.WidgetId("exchangeRates"), new Geometry.FracRect(0.6, 0.5, 0.2, 0.2)));
+        view.Widgets.Add(WidgetInstance.Create(new Sdk.WidgetId("exchangeRate"), new Geometry.FracRect(0.6, 0, 0.2, 0.2)));
+        view.Widgets.Add(WidgetInstance.Create(new Sdk.WidgetId("exchangeHistory"), new Geometry.FracRect(0.6, 0.5, 0.2, 0.2)));
 
         foreach (var w in view.Widgets)
         {
@@ -56,16 +56,15 @@ public sealed class OnlineFamilyTests
     public void S5100_the_configs_round_trip_and_clone()
     {
         var air = new AirQualityConfig { Latitude = 1, Longitude = 2, LocationName = "X", Scale = AirQualityScale.Us };
-        var rates = new ExchangeRatesConfig { BaseCurrency = "CHF", QuoteCurrency = "USD", Style = ExchangeRatesStyle.Chart };
+        var rates = new ExchangeRateConfig { BaseCurrency = "CHF", QuoteCurrency = "USD" };
 
         var airCopy = (AirQualityConfig)air.Clone();
-        var ratesCopy = (ExchangeRatesConfig)rates.Clone();
+        var ratesCopy = (ExchangeRateConfig)rates.Clone();
         rates.QuoteCurrency = "GBP";
 
         Assert.Equal(AirQualityScale.Us, airCopy.Scale);
         Assert.Equal(2, airCopy.Longitude);
         Assert.Equal(("CHF", "USD"), (ratesCopy.BaseCurrency, ratesCopy.QuoteCurrency));
-        Assert.Equal(ExchangeRatesStyle.Chart, ratesCopy.Style);
         Assert.Equal(new Sdk.WidgetId("rainNextHour"), new RainNextHourConfig().Kind);
     }
 

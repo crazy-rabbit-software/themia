@@ -7249,7 +7249,7 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
 - **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
   (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
-  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its facts), and
+  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its facts), **Exchange rates** (the rate over its 90 days), and
   **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
   weather's none, the sky's Zurich); the previews and `--recipe-png` draw every atom at the one sample
@@ -9625,7 +9625,7 @@ Rain next hour (`RainNextHour`, 129):
 
 Exchange rates (`ExchangeRates`, 130):
 
-- [S-5140], [S-5143], [S-5144], [S-5146], [S-5147], [S-5148], [S-6167], [S-6168]: moved with the Exchange rates widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ExchangeRates/`).
+- [S-5140], [S-5143], [S-5144], [S-5146], [S-5147], [S-5148], [S-6167], [S-6168]: moved with the Exchange rates widget into its module's `SPEC.md`, now the exchange rate's (`src/Widgets/Themia.Widget.ExchangeRate/`; its 90 days `Themia.Widget.ExchangeHistory/`).
 - **[S-5141]** One document for every pair: `eurofxref-hist-90d.xml` (about 70 KB, the last 90 days,
   newest first; the daily file is the same shape). `EcbWire.Parse`: XML with DTDs prohibited and no
   resolver, at most 320 KB; no dated `Cube` is rejected; a bad date, a rate that is not a positive

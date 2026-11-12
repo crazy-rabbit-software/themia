@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "Δεν δημοσιεύτηκε",
+  "online.rates.settings.base.label": "Νόμισμα βάσης",
+  "online.rates.settings.base.region": "Περιοχή των Windows ({code})",
+  "online.rates.settings.quote.default": "Προεπιλογή ({code})",
+  "online.rates.settings.quote.label": "Νόμισμα"
+}

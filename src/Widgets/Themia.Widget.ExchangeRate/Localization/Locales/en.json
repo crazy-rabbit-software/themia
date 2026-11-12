@@ -1,0 +1,8 @@
+{
+  "$englishOnly": [],
+  "online.rates.desc": "Reference rates from the European Central Bank",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Reference rates of {date} from the European Central Bank",
+  "online.rates.label": "Exchange rates",
+  "online.rates.perBase": "per {code}"
+}

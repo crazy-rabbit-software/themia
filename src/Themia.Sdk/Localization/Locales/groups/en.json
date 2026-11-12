@@ -52,7 +52,9 @@
     "groups.recipe.moon",
     "groups.recipe.moonAbout",
     "groups.recipe.airQuality",
-    "groups.recipe.airQualityAbout"
+    "groups.recipe.airQualityAbout",
+    "groups.recipe.exchangeRates",
+    "groups.recipe.exchangeRatesAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -109,5 +111,7 @@
   "groups.recipe.moon": "Moon",
   "groups.recipe.moonAbout": "How much of the moon is lit, its rise, set and next full moon",
   "groups.recipe.airQuality": "Air quality",
-  "groups.recipe.airQualityAbout": "The air quality index, UV, fine dust and pollen"
+  "groups.recipe.airQualityAbout": "The air quality index, UV, fine dust and pollen",
+  "groups.recipe.exchangeRates": "Exchange rates",
+  "groups.recipe.exchangeRatesAbout": "A currency pair's rate today and its last 90 days"
 }

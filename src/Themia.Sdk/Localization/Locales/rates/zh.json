@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "未公布",
+  "online.rates.settings.base.label": "基准货币",
+  "online.rates.settings.base.region": "Windows 区域 ({code})",
+  "online.rates.settings.quote.default": "默认 ({code})",
+  "online.rates.settings.quote.label": "货币"
+}

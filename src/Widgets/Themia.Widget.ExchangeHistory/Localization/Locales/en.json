@@ -1,0 +1,10 @@
+{
+  "$englishOnly": [
+    "exchangeHistory.label",
+    "exchangeHistory.desc",
+    "exchangeHistory.title"
+  ],
+  "exchangeHistory.desc": "An exchange rate's last 90 days",
+  "exchangeHistory.label": "Rate history",
+  "exchangeHistory.title": "Rate history · {pair}"
+}

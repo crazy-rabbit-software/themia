@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "یورپی مرکزی بینک کی حوالہ شرحیں",
+  "online.rates.fix": "ECB، {date}",
+  "online.rates.fixTooltip": "یورپی مرکزی بینک کی {date} کی حوالہ شرحیں",
+  "online.rates.label": "شرح مبادلہ",
+  "online.rates.perBase": "فی {code}"
+}

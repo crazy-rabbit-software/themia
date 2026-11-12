@@ -20,13 +20,11 @@ public sealed class OnlineStylesTests
         Assert.Equal(["standard", "largeIcon", "minimal"], Names(new WidgetId("weatherNow")));
         Assert.Equal(["rows", "columns", "curve", "grid"], Names(new WidgetId("weatherForecast")));
         Assert.Equal(["chart", "number"], Names(new WidgetId("stocks")));
-        Assert.Equal(["chart", "number"], Names(new WidgetId("exchangeRates")));
         Assert.Equal(["number", "gauge"], Names(new WidgetId("airQuality")));
 
         Assert.Equal(WeatherNowStyle.Standard, new WeatherNowConfig().Style);
         Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);
         Assert.Equal(StocksStyle.Chart, new StocksConfig().Style);
-        Assert.Equal(ExchangeRatesStyle.Chart, new ExchangeRatesConfig().Style);
         Assert.Equal(AirQualityStyle.Number, new AirQualityConfig().Style);
     }
 

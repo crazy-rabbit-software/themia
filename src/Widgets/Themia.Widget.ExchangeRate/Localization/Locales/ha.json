@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Farashin tunani daga Babban Bankin Turai",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Farashin tunani na {date} daga Babban Bankin Turai",
+  "online.rates.label": "Farashin canjin kuɗi",
+  "online.rates.perBase": "kowace {code}"
+}

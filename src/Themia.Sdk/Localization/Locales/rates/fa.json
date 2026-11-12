@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "منتشر نشده",
+  "online.rates.settings.base.label": "ارز پایه",
+  "online.rates.settings.base.region": "منطقه Windows ({code})",
+  "online.rates.settings.quote.default": "پیش‌فرض ({code})",
+  "online.rates.settings.quote.label": "ارز"
+}

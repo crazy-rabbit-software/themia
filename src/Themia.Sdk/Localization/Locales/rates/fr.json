@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "Non publié",
+  "online.rates.settings.base.label": "Devise de base",
+  "online.rates.settings.base.region": "Région Windows ({code})",
+  "online.rates.settings.quote.default": "Par défaut ({code})",
+  "online.rates.settings.quote.label": "Devise"
+}

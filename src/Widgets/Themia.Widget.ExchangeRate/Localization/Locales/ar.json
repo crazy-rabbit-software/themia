@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "الأسعار المرجعية للبنك المركزي الأوروبي",
+  "online.rates.fix": "البنك المركزي الأوروبي، {date}",
+  "online.rates.fixTooltip": "الأسعار المرجعية ليوم {date} من البنك المركزي الأوروبي",
+  "online.rates.label": "أسعار الصرف",
+  "online.rates.perBase": "لكل {code}"
+}

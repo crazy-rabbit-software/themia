@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Kursy referencyjne Europejskiego Banku Centralnego",
+  "online.rates.fix": "EBC, {date}",
+  "online.rates.fixTooltip": "Kursy referencyjne z {date} Europejskiego Banku Centralnego",
+  "online.rates.label": "Kursy walut",
+  "online.rates.perBase": "za 1 {code}"
+}

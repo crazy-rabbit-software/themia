@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "प्रकाशित नहीं",
+  "online.rates.settings.base.label": "आधार मुद्रा",
+  "online.rates.settings.base.region": "Windows क्षेत्र ({code})",
+  "online.rates.settings.quote.default": "डिफ़ॉल्ट ({code})",
+  "online.rates.settings.quote.label": "मुद्रा"
+}

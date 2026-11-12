@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "อัตราอ้างอิงจากธนาคารกลางยุโรป",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "อัตราอ้างอิงวันที่ {date} จากธนาคารกลางยุโรป",
+  "online.rates.label": "อัตราแลกเปลี่ยน",
+  "online.rates.perBase": "ต่อ {code}"
+}

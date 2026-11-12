@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "ထုတ်ပြန်မထားပါ",
+  "online.rates.settings.base.label": "အခြေခံ ငွေကြေး",
+  "online.rates.settings.base.region": "Windows ဒေသ ({code})",
+  "online.rates.settings.quote.default": "မူလ ({code})",
+  "online.rates.settings.quote.label": "ငွေကြေး"
+}

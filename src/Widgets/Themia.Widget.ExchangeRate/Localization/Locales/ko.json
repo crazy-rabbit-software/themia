@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "유럽중앙은행 기준 환율",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "유럽중앙은행의 {date} 기준 환율",
+  "online.rates.label": "환율",
+  "online.rates.perBase": "1 {code}당"
+}

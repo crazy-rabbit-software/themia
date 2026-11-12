@@ -1,0 +1,8 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "online.rates.desc": "Kadar rujukan daripada Bank Pusat Eropah",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Kadar rujukan {date} daripada Bank Pusat Eropah",
+  "online.rates.label": "Kadar pertukaran",
+  "online.rates.perBase": "bagi setiap {code}"
+}

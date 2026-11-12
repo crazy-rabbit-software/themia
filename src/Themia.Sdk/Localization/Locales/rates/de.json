@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "Nicht veröffentlicht",
+  "online.rates.settings.base.label": "Basiswährung",
+  "online.rates.settings.base.region": "Windows-Region ({code})",
+  "online.rates.settings.quote.default": "Standard ({code})",
+  "online.rates.settings.quote.label": "Währung"
+}

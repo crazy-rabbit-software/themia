@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "歐洲中央銀行參考匯率",
+  "online.rates.fix": "歐洲央行，{date}",
+  "online.rates.fixTooltip": "歐洲中央銀行 {date} 的參考匯率",
+  "online.rates.label": "匯率",
+  "online.rates.perBase": "每 1 {code}"
+}

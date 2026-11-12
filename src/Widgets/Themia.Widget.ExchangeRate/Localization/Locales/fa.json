@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "نرخ‌های مرجع بانک مرکزی اروپا",
+  "online.rates.fix": "ECB، {date}",
+  "online.rates.fixTooltip": "نرخ‌های مرجع {date} از بانک مرکزی اروپا",
+  "online.rates.label": "نرخ ارز",
+  "online.rates.perBase": "به ازای {code}"
+}

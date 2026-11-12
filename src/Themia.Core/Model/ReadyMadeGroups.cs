@@ -236,8 +236,15 @@ public static class ReadyMadeGroups
         new("airFacts", new(0, 100, 240, 136), Header: HeaderPlacement.Hidden),
     ]);
 
+    /// <summary>[S-11172] Exchange rates: a currency pair's rate today and its last 90 days.</summary>
+    public static ReadyMadeGroup ExchangeRates { get; } = new("exchangeRates", Str.Groups_Recipe_ExchangeRates, Str.Groups_Recipe_ExchangeRatesAbout, Glyphs.Stocks, AddFolderId.Markets,
+    [
+        new("exchangeRate", new(0, 0, 280, 100)),
+        new("exchangeHistory", new(0, 100, 280, 96), Header: HeaderPlacement.Hidden),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

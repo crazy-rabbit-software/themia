@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "പ്രസിദ്ധീകരിച്ചിട്ടില്ല",
+  "online.rates.settings.base.label": "അടിസ്ഥാന കറൻസി",
+  "online.rates.settings.base.region": "Windows പ്രദേശം ({code})",
+  "online.rates.settings.quote.default": "സ്ഥിരസ്ഥിതി ({code})",
+  "online.rates.settings.quote.label": "കറൻസി"
+}

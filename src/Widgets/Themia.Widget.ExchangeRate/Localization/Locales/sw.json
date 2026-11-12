@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Viwango rejea kutoka Benki Kuu ya Ulaya",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Viwango rejea vya {date} kutoka Benki Kuu ya Ulaya",
+  "online.rates.label": "Viwango vya ubadilishaji",
+  "online.rates.perBase": "kwa {code}"
+}

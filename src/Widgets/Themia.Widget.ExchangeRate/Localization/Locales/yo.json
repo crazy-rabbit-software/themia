@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Iye ìtọ́kasí láti ọ̀dọ̀ European Central Bank",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Iye ìtọ́kasí ti {date} láti ọ̀dọ̀ European Central Bank",
+  "online.rates.label": "Iye pàṣípààrọ̀ owó",
+  "online.rates.perBase": "fún {code} kan"
+}

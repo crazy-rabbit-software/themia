@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "ಯುರೋಪಿಯನ್ ಸೆಂಟ್ರಲ್ ಬ್ಯಾಂಕ್‌ನ ಉಲ್ಲೇಖ ದರಗಳು",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "ಯುರೋಪಿಯನ್ ಸೆಂಟ್ರಲ್ ಬ್ಯಾಂಕ್‌ನ {date} ರ ಉಲ್ಲೇಖ ದರಗಳು",
+  "online.rates.label": "ವಿನಿಮಯ ದರಗಳು",
+  "online.rates.perBase": "ಪ್ರತಿ {code}"
+}

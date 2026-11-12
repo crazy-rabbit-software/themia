@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("weatherNow"), new WidgetId("stocks"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRates")];
+        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("weatherNow"), new WidgetId("stocks"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRate")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[new WidgetId("tasks"), new WidgetId("email"), new WidgetId("calendar"), new WidgetId("cpu"), new WidgetId("mixer"), new WidgetId("wifiToggle"), new WidgetId("shutdown"), new WidgetId("folder")])
@@ -70,8 +70,6 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_some_styles_of_a_kind_align_and_others_do_not()
     {
-        Assert.True(ContentAlignment.Applies(Widget(new WidgetId("exchangeRates"), (int)ExchangeRatesStyle.Number)));
-        Assert.False(ContentAlignment.Applies(Widget(new WidgetId("exchangeRates"), (int)ExchangeRatesStyle.Chart)));
         Assert.True(ContentAlignment.Applies(Widget(new WidgetId("stocks"), (int)StocksStyle.Number)));
         Assert.False(ContentAlignment.Applies(Widget(new WidgetId("stocks"), (int)StocksStyle.Chart)));
         Assert.True(ContentAlignment.Applies(Widget(new WidgetId("moon"), (int)MoonStyle.Disc)));
@@ -104,7 +102,7 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("quote"))));
         // [S-6739] A timer centres its readout.
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("countdown"))));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("exchangeRates"), (int)ExchangeRatesStyle.Number)));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("exchangeRate"))));
 
         // A new widget stores no choice: its default follows its style.
         Assert.Null(Widget(new WidgetId("weatherNow")).Align);

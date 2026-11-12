@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "ဥရောပ ဗဟိုဘဏ်မှ ရည်ညွှန်းနှုန်းများ",
+  "online.rates.fix": "ECB၊ {date}",
+  "online.rates.fixTooltip": "ဥရောပ ဗဟိုဘဏ်မှ {date} ရက်စွဲ ရည်ညွှန်းနှုန်းများ",
+  "online.rates.label": "ငွေလဲနှုန်းများ",
+  "online.rates.perBase": "{code} လျှင်"
+}

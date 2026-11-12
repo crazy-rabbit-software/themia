@@ -103,7 +103,7 @@
         { "kind": "airQuality", "at": [0, 760, 400, 280], "state": "sample" },
         { "kind": "screenTimeChart", "at": [400, 0, 400, 280], "state": "sample" },
         { "kind": "alarm", "at": [400, 280, 400, 240], "state": "set" },
-        { "kind": "exchangeRates", "at": [400, 520, 400, 240], "state": "sample" },
+        { "kind": "exchangeRate", "at": [400, 520, 400, 240], "state": "sample" },
         { "kind": "notifications", "at": [400, 760, 400, 280], "state": "list" },
         { "kind": "sun", "at": [800, 0, 400, 280], "state": "sample" },
         { "kind": "mixer", "at": [800, 280, 400, 240], "state": "sample" },

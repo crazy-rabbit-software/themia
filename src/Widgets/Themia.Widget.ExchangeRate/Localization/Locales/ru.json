@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "Справочные курсы Европейского центрального банка",
+  "online.rates.fix": "ЕЦБ, {date}",
+  "online.rates.fixTooltip": "Справочные курсы Европейского центрального банка на {date}",
+  "online.rates.label": "Курсы валют",
+  "online.rates.perBase": "за 1 {code}"
+}

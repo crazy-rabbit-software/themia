@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "Не опубліковано",
+  "online.rates.settings.base.label": "Базова валюта",
+  "online.rates.settings.base.region": "Регіон Windows ({code})",
+  "online.rates.settings.quote.default": "За замовчуванням ({code})",
+  "online.rates.settings.quote.label": "Валюта"
+}

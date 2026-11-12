@@ -1,0 +1,7 @@
+{
+  "online.rates.desc": "ਯੂਰਪੀ ਕੇਂਦਰੀ ਬੈਂਕ ਦੀਆਂ ਹਵਾਲਾ ਦਰਾਂ",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "ਯੂਰਪੀ ਕੇਂਦਰੀ ਬੈਂਕ ਦੀਆਂ {date} ਦੀਆਂ ਹਵਾਲਾ ਦਰਾਂ",
+  "online.rates.label": "ਵਟਾਂਦਰਾ ਦਰਾਂ",
+  "online.rates.perBase": "ਪ੍ਰਤੀ {code}"
+}

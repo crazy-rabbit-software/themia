@@ -14,7 +14,7 @@ namespace Themia.Modules.Tests;
 public sealed class SkyRecipesTests
 {
     /// <summary>The family's recipes.</summary>
-    public static TheoryData<string> Recipes() => ["weather", "sun", "moon", "airQuality"];
+    public static TheoryData<string> Recipes() => ["weather", "sun", "moon", "airQuality", "exchangeRates"];
 
     [Theory]
     [MemberData(nameof(Recipes))]

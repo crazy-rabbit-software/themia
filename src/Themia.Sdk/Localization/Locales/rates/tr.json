@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "Yayımlanmıyor",
+  "online.rates.settings.base.label": "Temel para birimi",
+  "online.rates.settings.base.region": "Windows bölgesi ({code})",
+  "online.rates.settings.quote.default": "Varsayılan ({code})",
+  "online.rates.settings.quote.label": "Para birimi"
+}

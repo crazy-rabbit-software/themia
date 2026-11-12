@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "প্রকাশিত নয়",
+  "online.rates.settings.base.label": "ভিত্তি মুদ্রা",
+  "online.rates.settings.base.region": "Windows অঞ্চল ({code})",
+  "online.rates.settings.quote.default": "ডিফল্ট ({code})",
+  "online.rates.settings.quote.label": "মুদ্রা"
+}

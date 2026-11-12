@@ -1,0 +1,7 @@
+{
+  "online.rates.missing": "ಪ್ರಕಟಿಸಲಾಗಿಲ್ಲ",
+  "online.rates.settings.base.label": "ಮೂಲ ಕರೆನ್ಸಿ",
+  "online.rates.settings.base.region": "Windows ಪ್ರದೇಶ ({code})",
+  "online.rates.settings.quote.default": "ಡಿಫಾಲ್ಟ್ ({code})",
+  "online.rates.settings.quote.label": "ಕರೆನ್ಸಿ"
+}
