@@ -85,7 +85,39 @@ public static class SceneWidgets
         model.Scale = widget.Scale ?? model.Scale;
         model.Align = widget.Align ?? model.Align;
         model.Label = widget.Label ?? model.Label;
+
+        // [S-2458] A scene's group is named; its name is its id on the scene's one view (Groups).
+        model.Group = widget.Group;
         return model;
+    }
+
+    /// <summary>[S-2458] The scene's groups as its view holds them: each named, its name its id.</summary>
+    public static List<WidgetGroup> Groups(Scene scene)
+    {
+        ArgumentNullException.ThrowIfNull(scene);
+        return [.. scene.Groups.Select(name => new WidgetGroup { Id = name, Name = name })];
+    }
+
+    /// <summary>
+    /// [S-2458] The selection a scene draws: the widgets marked selected and the group <c>edit.group</c>
+    /// selects, or the member <c>edit.enter</c> enters inside its group.
+    /// </summary>
+    public static WidgetSelection Selection(Scene scene, ViewState view)
+    {
+        ArgumentNullException.ThrowIfNull(scene);
+        ArgumentNullException.ThrowIfNull(view);
+
+        var selection = new WidgetSelection();
+        if (scene.Edit?.Enter is { } entered && scene.Widgets.FirstOrDefault(w => w.Id == entered) is { Group: { } group } spec)
+        {
+            var index = scene.Widgets.ToList().IndexOf(spec);
+            selection.Enter(view.Id, group, view.Widgets[index].Id);
+            return selection;
+        }
+
+        var widgets = scene.Widgets.ToList();
+        selection.Replace(view.Id, scene.Selected.Select(s => view.Widgets[widgets.IndexOf(s)].Id));
+        return selection;
     }
 
     /// <summary>Every widget of <paramref name="scene"/> that the installed widgets cannot give, each with why.</summary>

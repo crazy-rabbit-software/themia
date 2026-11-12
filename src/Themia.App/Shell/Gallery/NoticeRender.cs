@@ -259,6 +259,13 @@ internal static class NoticeRender
         /// <summary>[S-3713] The ids drawn selected; none elsewhere.</summary>
         public IReadOnlySet<string> Selected { get; init; } = new HashSet<string>();
 
+        /// <summary>[S-2458] The group a scene draws entered (its selected member shows its own markers), or null.</summary>
+        public string? Entered { get; init; }
+
+        /// <summary>[S-2453] A group's member draws no markers of its own unless it is the entered, selected one.</summary>
+        public bool ShowsOwnMarkers(WidgetCard card)
+            => card.Model.Group is null || (string.Equals(card.Model.Group, Entered, StringComparison.Ordinal) && Selected.Contains(card.Model.Id));
+
         public ViewState? ViewForCards => null;
 
         /// <summary>[S-3300] Every card of a render is on one stand-in view, so a linked preview state shows on each.</summary>

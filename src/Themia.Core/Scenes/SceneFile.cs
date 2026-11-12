@@ -33,8 +33,16 @@ public sealed record Scene(string Name, AppTheme Theme, string Design, string? W
     /// <summary>[S-2210] The prefix of a wallpaper that is one of the sample pictures, drawn in code: <c>sample:lake-at-dusk</c>.</summary>
     public const string SamplePrefix = "sample:";
 
-    /// <summary>The widgets drawn selected (in edit mode only, [S-1077]).</summary>
-    public IEnumerable<SceneWidget> Selected => Widgets.Where(w => w.Selected);
+    /// <summary>
+    /// The widgets drawn selected (in edit mode only, [S-1077]): those marked <c>selected</c>, [S-2458] the
+    /// members of the group <c>edit.group</c> selects, and the member <c>edit.enter</c> enters.
+    /// </summary>
+    public IEnumerable<SceneWidget> Selected => Widgets.Where(w => w.Selected
+        || (Edit?.Group is { } group && string.Equals(w.Group, group, StringComparison.Ordinal))
+        || (Edit?.Enter is { } entered && string.Equals(w.Id, entered, StringComparison.Ordinal)));
+
+    /// <summary>[S-2458] The scene's groups by name, in the order their first member stands; each holds two or more widgets.</summary>
+    public IReadOnlyList<string> Groups => [.. Widgets.Select(w => w.Group).OfType<string>().Distinct(StringComparer.Ordinal)];
 
     /// <summary>[S-2210] The sample picture's name when the wallpaper is one (<c>lake-at-dusk</c>), else null.</summary>
     public string? SampleWallpaper => Wallpaper is { } w && w.StartsWith(SamplePrefix, StringComparison.Ordinal) ? w[SamplePrefix.Length..] : null;
@@ -83,14 +91,16 @@ public sealed record SceneWidget(
     string? Label = null,
     bool Bare = false,
     string? Config = null,
-    bool Selected = false);
+    bool Selected = false,
+    string? Group = null);
 
 /// <summary>
 /// [S-1077] Edit mode as a scene draws it: the edit bar (<see cref="Bar"/>), a submenu path opened
 /// in the selection's properties menu (<see cref="Open"/>), the add menu open under the bar
-/// (<see cref="Add"/>) and the snap grid (<see cref="Grid"/>).
+/// (<see cref="Add"/>) and the snap grid (<see cref="Grid"/>). [S-2458] <see cref="Group"/> selects a
+/// group of the scene whole; <see cref="Enter"/> enters its group with one member (a widget's id).
 /// </summary>
-public sealed record SceneEdit(bool Bar = true, string? Open = null, bool Add = false, bool Grid = false);
+public sealed record SceneEdit(bool Bar = true, string? Open = null, bool Add = false, bool Grid = false, string? Group = null, string? Enter = null);
 
 /// <summary>[S-1075] Why a scenes file was refused: where (a JSON path such as <c>$.scenes[1].widgets[0].at</c>) and what.</summary>
 public sealed record SceneRefusal(string Path, string Problem)

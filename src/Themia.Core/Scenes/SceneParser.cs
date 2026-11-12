@@ -151,6 +151,33 @@ public static class SceneParser
             throw Refuse(path, $"the widget at {selected.Path} is selected, but the scene has no \"edit\"");
         }
 
+        // [S-2458] A group holds two or more widgets; the edit block selects one, or enters one with a member.
+        foreach (var name in scene.Groups)
+        {
+            if (scene.Widgets.Count(w => string.Equals(w.Group, name, StringComparison.Ordinal)) < 2)
+            {
+                throw Refuse(path, $"the group \"{name}\" holds one widget: a group holds two or more");
+            }
+        }
+
+        if (scene.Edit is { Group: { } selectsGroup } && !scene.Groups.Contains(selectsGroup, StringComparer.Ordinal))
+        {
+            throw Refuse(path + ".edit.group", $"no widget is in a group \"{selectsGroup}\"");
+        }
+
+        if (scene.Edit is { Enter: { } enters })
+        {
+            if (scene.Edit.Group is not null)
+            {
+                throw Refuse(path + ".edit", "\"group\" selects a group whole and \"enter\" one member inside it: one of the two");
+            }
+
+            if (scene.Widgets.FirstOrDefault(w => string.Equals(w.Id, enters, StringComparison.Ordinal)) is not { Group: not null })
+            {
+                throw Refuse(path + ".edit.enter", $"\"{enters}\" is no widget of a group in the scene");
+            }
+        }
+
         if (scene.Edit is { Open: not null } && !scene.Selected.Any())
         {
             throw Refuse(path, "\"edit.open\" opens a submenu of the properties menu, but no widget is selected");
@@ -292,7 +319,7 @@ public static class SceneParser
 
     private static SceneEdit Edit(JsonElement element, string path)
     {
-        var props = Properties(element, path, "bar", "open", "add", "grid");
+        var props = Properties(element, path, "bar", "open", "add", "grid", "group", "enter");
         string? open = null;
         if (props.TryGetValue("open", out var o))
         {
@@ -307,13 +334,15 @@ public static class SceneParser
             props.TryGetValue("bar", out var bar) ? Bool(bar, path + ".bar") : true,
             open,
             props.TryGetValue("add", out var add) && Bool(add, path + ".add"),
-            props.TryGetValue("grid", out var grid) && Bool(grid, path + ".grid"));
+            props.TryGetValue("grid", out var grid) && Bool(grid, path + ".grid"),
+            props.TryGetValue("group", out var group) ? Text(group, path + ".group") : null,
+            props.TryGetValue("enter", out var enter) ? Text(enter, path + ".enter") : null);
     }
 
     private static SceneWidget Widget(JsonElement element, string path, SceneScreen screen)
     {
         var props = Properties(element, path,
-            "id", "kind", "at", "state", "style", "header", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected");
+            "id", "kind", "at", "state", "style", "header", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected", "group");
 
         if (!props.TryGetValue("kind", out var kindElement))
         {
@@ -349,7 +378,15 @@ public static class SceneParser
             Label: props.TryGetValue("label", out var label) ? Text(label, path + ".label") : null,
             Bare: props.TryGetValue("bare", out var bare) && Bool(bare, path + ".bare"),
             Config: props.TryGetValue("config", out var config) ? Config(config, path + ".config") : null,
-            Selected: props.TryGetValue("selected", out var selected) && Bool(selected, path + ".selected"));
+            Selected: props.TryGetValue("selected", out var selected) && Bool(selected, path + ".selected"),
+            Group: props.TryGetValue("group", out var group) ? GroupName(group, path + ".group") : null);
+    }
+
+    /// <summary>[S-2458] A group's name in a scene: any text that is not blank.</summary>
+    private static string GroupName(JsonElement element, string path)
+    {
+        var text = Text(element, path);
+        return text.Trim().Length > 0 ? text : throw Refuse(path, "a group's name is not blank");
     }
 
     /// <summary>[S-1079] A widget's name in its scene, for what points at it (the store's pages): letters, digits and '-'.</summary>

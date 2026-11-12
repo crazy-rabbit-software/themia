@@ -287,7 +287,11 @@ internal static class SceneRender
 
         var view = ViewState.Create("scene");
         view.Widgets.AddRange(job.Widgets.Select(w => w.Model));
-        var selected = job.Widgets.Where(w => w.Spec.Selected).Select(w => w.Model.Id).ToHashSet(StringComparer.Ordinal);
+
+        // [S-2458] The scene's groups and the selection its edit block draws: a group whole, or one member entered.
+        view.Groups.AddRange(SceneWidgets.Groups(job.Scene));
+        var selection = SceneWidgets.Selection(job.Scene, view);
+        var selected = selection.Ids.ToHashSet(StringComparer.Ordinal);
         var links = new Themia.Core.Links.LinkBoard();
         var markers = new EditMarkerLayer();
 
@@ -301,6 +305,7 @@ internal static class SceneRender
                 Metrics = metrics,
                 EditMode = edit is not null,
                 Selected = selected,
+                Entered = selection.Entered,
                 Links = links,
                 FixtureState = spec.State,
             };
@@ -329,6 +334,12 @@ internal static class SceneRender
         {
             canvas.Children.Add(markers.Halos);
             canvas.Children.Add(markers.Inks);
+
+            // [S-2453] The groups' frames, as the desktop draws them over the markers.
+            var frames = new GroupFrameLayer();
+            frames.Draw(GroupFrameLayer.Frames(view, cards, metrics, design.WidgetGapPx, editMode: true, selection), job.Scale);
+            canvas.Children.Add(frames.Halos);
+            canvas.Children.Add(frames.Inks);
         }
 
         // [S-1500] A confirmation a state opens is drawn inside the window, as on --widget-png.
@@ -423,7 +434,7 @@ internal static class SceneRender
     private static async Task<bool> ComposeEditAsync(Canvas canvas, SceneEdit edit, ViewState view, Job job, ScreenMetrics metrics, DesignState design)
     {
         var width = job.File.Screen.Width;
-        var selected = job.Widgets.Where(w => w.Spec.Selected).ToList();
+        var selected = job.Widgets.Where(w => job.Scene.Selected.Contains(w.Spec)).ToList();
         var barRect = new PixelRect(0, 0, 0, 0);
         EditBar? bar = null;
         if (edit.Bar)
