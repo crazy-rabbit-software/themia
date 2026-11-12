@@ -135,8 +135,15 @@ internal sealed partial class AddPageView : Grid
     /// <summary>[S-11708] The caret in the search box: as the page opens, typing searches at once.</summary>
     public void FocusSearch() => _search.Focus(FocusState.Programmatic);
 
-    /// <summary>Type into the search box (a render).</summary>
-    internal void SetQuery(string text) => _search.Text = text;
+    /// <summary>
+    /// Type into the search box (a render). Drawn at once: a box not yet loaded raises no TextChanged, and
+    /// a render typing into a page that has just opened drew the tab.
+    /// </summary>
+    internal void SetQuery(string text)
+    {
+        _search.Text = text;
+        Draw();
+    }
 
     /// <summary>The pictures the page asked for are drawn (a render waits for it).</summary>
     internal Task PicturesDrawn => _pictures?.Idle ?? Task.CompletedTask;
