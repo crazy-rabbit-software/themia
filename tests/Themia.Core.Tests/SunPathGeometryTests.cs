@@ -119,11 +119,20 @@ public class SunPathGeometryTests
     }
 
     [Fact]
-    public void S_11_The_axis_tops_out_at_the_highest_the_sun_ever_gets_there()
+    public void S11806_the_axis_tops_out_at_the_days_own_noon_so_its_curve_uses_the_height()
     {
-        Assert.Equal(66.0697, SunPathPlot.For(200, 150, 47.37, 15.6).AxisMaxDegrees, 3);  // Zurich
-        Assert.Equal(90, SunPathPlot.For(200, 150, 0, 0).AxisMaxDegrees, 9);              // the tropics cap at overhead
-        Assert.Equal(35.4397, SunPathPlot.For(200, 150, -78, -20).AxisMaxDegrees, 3);     // deep south, low sun
+        Assert.Equal(90 - (47.37 - 15.6), SunPathPlot.For(200, 150, 47.37, 15.6).AxisMaxDegrees, 9);   // Zurich, late summer
+        Assert.Equal(90 - (47.37 + 18), SunPathPlot.For(200, 150, 47.37, -18).AxisMaxDegrees, 9);      // Zurich, November
+        Assert.Equal(90, SunPathPlot.For(200, 150, 0, 0).AxisMaxDegrees, 9);                           // the tropics cap at overhead
+        Assert.Equal(1, SunPathPlot.For(200, 150, 78, -23).AxisMaxDegrees, 9);                         // a polar night: no arc to scale
+
+        // Noon of any day stands just under the box's top, whatever the season: no empty sky over a winter arc.
+        foreach (var (latitude, declination) in new[] { (47.37, 23.4), (47.37, -23.4), (69.6, 23.4), (69.6, -5), (-33.9, -23.4) })
+        {
+            var plot = SunPathPlot.For(256, 128, latitude, declination);
+            var noon = plot.PointAt(new SkySample(0.5, plot.AxisMaxDegrees));
+            Assert.Equal(SunPathPlot.MarkerHalf, noon.Y, 9);
+        }
     }
 
     [Fact]

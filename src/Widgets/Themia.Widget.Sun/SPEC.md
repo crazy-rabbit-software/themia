@@ -18,7 +18,8 @@ JSON context), `SunConfig.cs`, `SunLayout.cs` (its sizes), `SunDayBar.cs` (the d
   says what it is, `StartsHeaderless`); a header it is given names it, the place its label ([S-2260]).
 - **[S-11111]** **Sizes** (`SunLayout.Sizing`, headerless): 200..480 wide, a new one 280. The arc's
   height a free range round half its content's width (112..252, a new one 152); the day bar one dot
-  tall in the inset, one height (36).
+  tall in the inset, one height (36). The arc fits its box in every season ([S-11806], root): the
+  horizon near the foot (the night's dip under it), the day's curve up to the top inset.
 - **[S-6045]** The sun's styles ([S-6000]), `SunConfig.Style` (`SunStyle`): **Arc** (the default: the
   path, [S-167], from the Chart's tokens: where the sun has been the accent at the stroke over its 16 %
   wash, the stretch still to come the Track role at the stroke, the night stretch a Track hairline,

@@ -15,9 +15,10 @@ public readonly record struct PlotPoint(double X, double Y);
 /// <param name="HorizonY">y of the horizon line, i.e. altitude zero.</param>
 /// <param name="AboveHeight">Pixels the axis gives to <paramref name="AxisMaxDegrees"/> of altitude.</param>
 /// <param name="AxisMaxDegrees">
-/// Top of the altitude axis. Set per location to the highest the sun gets there all year, so the
-/// curve uses the height available while the seasonal difference between a June arc and a December
-/// one stays visible.
+/// [S-11806] Top of the altitude axis: the highest the sun gets on the day drawn (its noon altitude), so
+/// the day's curve reaches the top of the box in December as in June and the box holds no empty sky
+/// over a low winter arc. The sun's place along the curve is still the time of day; the curve's height
+/// is the day's own shape, not the true elevation against another day's.
 /// </param>
 /// <param name="BelowHeight">
 /// Pixels the night dip may use. The underside is compressed against the daylight scale on purpose:
@@ -47,7 +48,9 @@ public readonly record struct SunPathPlot(
         var h = Math.Max(1, height);
 
         var below = h * 0.16;
-        var topPadding = h * 0.12;
+
+        // [S-11806] The noon point stands the marker's half under the box's top: the curve uses the height.
+        var topPadding = Math.Min(h * 0.12, MarkerHalf);
         var horizon = h - below;
 
         return new SunPathPlot(
@@ -55,10 +58,21 @@ public readonly record struct SunPathPlot(
             X1: w * 0.87,
             HorizonY: horizon,
             AboveHeight: Math.Max(1, horizon - topPadding),
-            AxisMaxDegrees: Math.Min(90, 90 - Math.Abs(latitudeDegrees) + AstroMath.ObliquityDegrees),
+            AxisMaxDegrees: NoonAltitude(latitudeDegrees, sunDeclinationDegrees),
             BelowHeight: below,
             NightDepthDegrees: Math.Max(1, -SkyPath.AltitudeAtHourAngle(180, sunDeclinationDegrees, latitudeDegrees)));
     }
+
+    /// <summary>[S-11806] Half the sun's marker (12): the room over the curve's top.</summary>
+    public const double MarkerHalf = 6;
+
+    /// <summary>
+    /// [S-11806] The sun's highest altitude on a day of <paramref name="sunDeclinationDegrees"/> at
+    /// <paramref name="latitudeDegrees"/>: 90 less their difference, at least 1 (a polar night has no day
+    /// arc to scale) and at most 90.
+    /// </summary>
+    public static double NoonAltitude(double latitudeDegrees, double sunDeclinationDegrees)
+        => Math.Clamp(90 - Math.Abs(latitudeDegrees - sunDeclinationDegrees), 1, 90);
 
     /// <summary>Place one reading. Never leaves the plot box, whatever altitude it is handed.</summary>
     public PlotPoint PointAt(SkySample sample)

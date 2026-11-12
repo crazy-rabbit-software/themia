@@ -7464,6 +7464,14 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   weather's none, the sky's Zurich); the previews and `--recipe-png` draw every atom at the one sample
   place (`SamplePlace`) on the sample day.
 
+- **[S-11806]** **The sun's arc fits its box in every season** (`SunPathPlot.For`, 2026-11-12): the
+  altitude axis tops out at the day's own noon (`SunPathPlot.NoonAltitude`: 90 less the latitude's
+  difference from the sun's declination, at least 1), not the year's highest, so a November arc rises to
+  the box's top as a June one does instead of standing low under empty sky; the noon point stands the
+  marker's half (6) under the top, the horizon 16 % over the foot (the night's dip under it). The sun's
+  place along the curve is still the time of day; the curve's height is the day's own shape, not the
+  true elevation against another day's. A polar night has no day arc (the axis 1, the night's dip alone).
+  Tests `SunPathGeometryTests.S11806_`.
 ## Music and Pomodoro: parity and the whole tile (PF)
 
 - [S-1460], [S-1466], [S-1467], [S-1987]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).
