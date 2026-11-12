@@ -24,7 +24,7 @@ public sealed class WidgetSizingTests
         "airQuality", "airplaneModeToggle", "alarm", "audioVisualizer", "battery", "batteryDetails", "bluetooth",
         "bluetoothToggle", "brightness", "calendar", "clipboard", "colorFiltersToggle", "contacts", "countdown",
         "cpu", "cpuDetails", "desktopItem", "deviceBatteries", "disk", "doNotDisturbToggle", "drive", "email",
-        "energySaverToggle", "exchangeRates", "focusSession", "folder", "gallery", "gameModeToggle", "gpu",
+        "energySaverToggle", "exchangeRates", "focusSession", "gallery", "gameModeToggle", "gpu",
         "gpuDetails", "habitTracker", "hibernate", "lock", "memoryDetails", "microphoneToggle", "mixer",
         "monoAudioToggle", "moon", "music", "network", "networkDetails", "nextMeeting", "nightLightToggle", "notes",
         "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour",

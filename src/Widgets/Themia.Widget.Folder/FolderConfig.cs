@@ -45,6 +45,12 @@ public enum FolderSetting
 
     /// <summary>Sort by and Reverse; the details table sorts from its column headers instead.</summary>
     Sort,
+
+    /// <summary>[S-11203] The details table's column titles.</summary>
+    ColumnTitles,
+
+    /// <summary>[S-11203] The list's date modified, each row's value.</summary>
+    Date,
 }
 
 /// <summary>
@@ -97,8 +103,20 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
     /// <summary>[S-1321] Off by default, as in the original: "report" rather than "report.docx".</summary>
     public bool ShowExtensions { get; set; }
 
-    /// <summary>[S-4121] The details table's columns after Name, in the order they are drawn.</summary>
+    /// <summary>[S-4121] The details table's columns after Name, in the order they are drawn: every one, whatever the width ([S-11203]).</summary>
     public List<FolderColumn> Columns { get; set; } = [.. FolderColumns.Defaults];
+
+    /// <summary>[S-11203] The search box always stands over the items (off: the header's Search opens it).</summary>
+    public bool SearchBox { get; set; }
+
+    /// <summary>[S-11203] The path as a row over the items.</summary>
+    public bool ShowPath { get; set; }
+
+    /// <summary>[S-11203] The details table's column titles over it.</summary>
+    public bool ColumnTitles { get; set; } = true;
+
+    /// <summary>[S-11203] The list's date modified as each row's value.</summary>
+    public bool ShowDate { get; set; } = true;
 
     /// <summary>
     /// [S-4121] [S-4122] [S-6070] The lines the properties menu shows for the current style, in
@@ -107,10 +125,10 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
     [JsonIgnore]
     public IReadOnlyList<FolderSetting> ShownSettings => Style switch
     {
-        FolderStyle.Details => [FolderSetting.Columns, FolderSetting.Extensions],
+        FolderStyle.Details => [FolderSetting.Columns, FolderSetting.ColumnTitles, FolderSetting.Extensions],
         FolderStyle.Grid => [FolderSetting.Extensions, FolderSetting.Sort],
         FolderStyle.Icons => [FolderSetting.Sort],
-        _ => [FolderSetting.Extensions, FolderSetting.Sort],
+        _ => [FolderSetting.Date, FolderSetting.Extensions, FolderSetting.Sort],
     };
 
     /// <summary>[S-1321] Whether names keep their extension; the icons draw no names.</summary>
@@ -156,5 +174,9 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
         ShowHidden = ShowHidden,
         ShowExtensions = ShowExtensions,
         Columns = [.. Columns ?? []],
+        SearchBox = SearchBox,
+        ShowPath = ShowPath,
+        ColumnTitles = ColumnTitles,
+        ShowDate = ShowDate,
     };
 }

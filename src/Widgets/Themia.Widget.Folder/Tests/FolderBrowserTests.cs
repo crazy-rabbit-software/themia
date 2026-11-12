@@ -3,6 +3,7 @@ using System.Text;
 using Themia.Core.Files;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Widget.Folder.Tests;
@@ -178,27 +179,27 @@ public sealed class FolderBrowserTests
         Assert.Equal(FolderHistory.Depth, steps);
     }
 
-    // ---- the ladder -----------------------------------------------------------------------------
+    // ---- the layout and the sizing ----------------------------------------------------------------
 
     [Theory]
-    [InlineData(FolderStyle.Grid, 330, 32, true, 4)]
-    [InlineData(FolderStyle.Icons, 330, 32, false, 7)]
-    [InlineData(FolderStyle.Grid, 560, 48, true, 5)]
-    public void S1323_cells_are_the_family_s_32_or_48_from_an_expanded_width(FolderStyle style, double width, double icon, bool named, int columns)
+    [InlineData(FolderStyle.Grid, 330, true, 4)]
+    [InlineData(FolderStyle.Icons, 330, false, 7)]
+    [InlineData(FolderStyle.Grid, 560, true, 7)]
+    public void S11203_cells_are_the_family_s_32_at_every_width_and_more_room_shows_more_of_them(FolderStyle style, double width, bool named, int columns)
     {
         var plan = FolderLayout.Plan(new WidgetArea(width, 300), new FolderConfig { Style = style }, 20, true, false, false, false);
         var grid = plan.Grid!.Value;
 
-        Assert.Equal(icon, grid.Icon);
+        Assert.Equal(32, grid.Icon);
         Assert.Equal(named, grid.Named);
         Assert.Equal(columns, grid.Columns);
-        Assert.Equal(Themia.Sdk.Kit.RowRules.CellHeight(icon, named), grid.Height);
+        Assert.Equal(Themia.Sdk.Kit.RowRules.CellHeight(32, named), grid.Height);
     }
 
     [Theory]
-    [InlineData(84, 2)]    // XS: 72 for the items, two rows
-    [InlineData(204, 6)]   // M: 192, six whole rows
-    [InlineData(524, 18)]  // XL: 512
+    [InlineData(84, 2)]
+    [InlineData(204, 6)]
+    [InlineData(524, 18)]
     public void S1323_rows_are_the_row_block_s_one_line_of_28_and_only_whole_ones_show(double height, int rows)
     {
         var area = new WidgetArea(320, height);
@@ -210,12 +211,48 @@ public sealed class FolderBrowserTests
     }
 
     [Fact]
-    public void S1323_the_list_shows_the_date_modified_from_a_width_of_180_and_no_other_column()
+    public void S11203_what_stands_over_the_items_is_the_configs_at_every_size()
     {
-        Assert.False(FolderLayout.Plan(new WidgetArea(150, 100), new FolderConfig(), 4, true, false, false, false).Modified);
-        var wide = FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig(), 4, true, false, false, false);
-        Assert.True(wide.Modified);
-        Assert.Empty(wide.Columns);
+        var plain = new FolderConfig { Style = FolderStyle.Details };
+        foreach (var area in new[] { new WidgetArea(200, 114), new WidgetArea(800, 524) })
+        {
+            var plan = FolderLayout.Plan(area, plain, 20, true, false, false, false);
+            Assert.False(plan.Breadcrumb);
+            Assert.False(plan.SearchBox);
+            Assert.True(plan.ColumnHeader);
+            Assert.Equal(plain.Columns, plan.Columns);
+        }
+
+        var all = new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true, ColumnTitles = false };
+        var small = FolderLayout.Plan(new WidgetArea(200, 114), all, 20, true, false, false, false);
+        Assert.True(small.Breadcrumb && small.SearchBox && !small.ColumnHeader);
+
+        Assert.True(FolderLayout.Plan(new WidgetArea(150, 100), new FolderConfig(), 4, true, false, false, false).Modified);
+        Assert.False(FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig { ShowDate = false }, 4, true, false, false, false).Modified);
+        Assert.Empty(FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig(), 4, true, false, false, false).Columns);
+        Assert.True(FolderLayout.Plan(new WidgetArea(300, 96), plain, 20, true, searchOpen: true, navigate: false, hasGit: false).SearchBox);
+    }
+
+    [Fact]
+    public void S11203_a_folder_keeps_a_free_size_in_its_range_and_details_is_as_wide_as_its_columns()
+    {
+        var list = FolderLayout.Sizing(new FolderConfig());
+        Assert.Equal((new SizeDip(220, 160), new SizeDip(300, 36 + (8 * 28) + 12), new SizeDip(800, 640)), (list.Min, list.Natural, list.Max));
+        Assert.Equal(36 + (4 * 64) - 12 + 12, FolderLayout.Sizing(new FolderConfig { Style = FolderStyle.Grid }).Natural.Height);
+        Assert.Empty(list.Problems());
+
+        var details = new FolderConfig { Style = FolderStyle.Details };
+        var least = 24 + 24 + 120 + (72 + 12) + (96 + 12) + (120 + 12);
+        Assert.Equal(least, FolderLayout.Sizing(details).Min.Width);
+        Assert.Equal(least + 60, FolderLayout.Sizing(details).Natural.Width);
+
+        details.Columns = [.. FolderColumns.All];
+        Assert.Empty(FolderLayout.Sizing(details).Problems());
+        Assert.True(FolderLayout.Sizing(details).Min.Width <= 800);
+
+        // Everything over the items on: the least height holds them and one row.
+        var tall = new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true };
+        Assert.Equal(36 + 36 + 28 + 24 + 28 + 12, FolderLayout.Sizing(tall).Min.Height);
     }
 
     [Fact]
@@ -225,17 +262,11 @@ public sealed class FolderBrowserTests
         // the slot's slack as an empty strip at the row's end.
         foreach (var last in FolderColumns.All)
         {
-            List<FolderColumn> chosen = [.. FolderColumns.All.Where(c => c != last), last];
-
-            for (var width = 200; width <= 1400; width += 20)
+            List<FolderColumn> shown = [.. FolderColumns.All.Where(c => c != last), last];
+            for (var i = 0; i < shown.Count; i++)
             {
-                var shown = FolderColumns.Fit(chosen, width);
-
-                for (var i = 0; i < shown.Count; i++)
-                {
-                    var end = FolderColumns.AlignsRight(shown[i], last: i == shown.Count - 1);
-                    Assert.True(i < shown.Count - 1 || end, $"{shown[i]} last at {width}");
-                }
+                var end = FolderColumns.AlignsRight(shown[i], last: i == shown.Count - 1);
+                Assert.True(i < shown.Count - 1 || end, $"{shown[i]} last");
             }
         }
 
@@ -244,53 +275,19 @@ public sealed class FolderBrowserTests
     }
 
     [Fact]
-    public void S1323_chrome_appears_on_big_tiles_only()
-    {
-        var config = new FolderConfig { Style = FolderStyle.Details };
-
-        var small = FolderLayout.Plan(new WidgetArea(200, 114), config, 20, true, searchOpen: false, navigate: true, hasGit: false);
-        Assert.False(small.Breadcrumb);
-
-        var big = FolderLayout.Plan(new WidgetArea(800, 524), config, 20, true, false, true, false);
-        Assert.True(big.Breadcrumb);
-        Assert.True(big.ColumnHeader);
-        Assert.Equal(config.Columns, big.Columns);
-    }
-
-    [Fact]
-    public void S1323_a_big_tile_has_a_breadcrumb_and_no_column_header_outside_details()
-    {
-        var plan = FolderLayout.Plan(new WidgetArea(800, 524), new FolderConfig { Style = FolderStyle.Grid }, 6, true, false, true, false);
-
-        Assert.True(plan.Breadcrumb);
-        Assert.False(plan.ColumnHeader);
-        Assert.Empty(plan.Columns);
-        Assert.NotNull(plan.Grid);
-    }
-
-    [Fact]
-    public void S1323_an_open_search_box_is_shown_before_the_column_header()
-    {
-        var config = new FolderConfig { Style = FolderStyle.Details };
-
-        var plan = FolderLayout.Plan(new WidgetArea(300, 96), config, 20, true, searchOpen: true, navigate: false, hasGit: false);
-
-        Assert.True(plan.SearchBox);
-        Assert.False(plan.ColumnHeader);
-    }
-
-    [Fact]
     public void S1326_the_header_holds_two_buttons_at_most_back_and_up_or_search_and_sort()
     {
-        Assert.Equal(new FolderHeaderPlan(Back: true, Up: true, Search: false, Sort: false, Git: true), FolderLayout.Header(FolderStyle.List, navigate: true, hasGit: true));
-        Assert.Equal(new FolderHeaderPlan(Back: false, Up: false, Search: true, Sort: true, Git: false), FolderLayout.Header(FolderStyle.Grid, navigate: false, hasGit: true));
-        Assert.Equal(new FolderHeaderPlan(Back: false, Up: false, Search: true, Sort: false, Git: true), FolderLayout.Header(FolderStyle.Details, navigate: false, hasGit: true));
+        FolderConfig Of(FolderStyle style) => new() { Style = style };
+        Assert.Equal(new FolderHeaderPlan(Back: true, Up: true, Search: false, Sort: false, Git: true), FolderLayout.Header(Of(FolderStyle.List), navigate: true, hasGit: true));
+        Assert.Equal(new FolderHeaderPlan(Back: false, Up: false, Search: true, Sort: true, Git: false), FolderLayout.Header(Of(FolderStyle.Grid), navigate: false, hasGit: true));
+        Assert.Equal(new FolderHeaderPlan(Back: false, Up: false, Search: true, Sort: false, Git: true), FolderLayout.Header(Of(FolderStyle.Details), navigate: false, hasGit: true));
+        Assert.False(FolderLayout.Header(new FolderConfig { SearchBox = true }, navigate: false, hasGit: false).Search);
 
         foreach (var style in Enum.GetValues<FolderStyle>())
         {
             foreach (var navigate in new[] { true, false })
             {
-                Assert.True(FolderLayout.Header(style, navigate, hasGit: true).Buttons <= 2);
+                Assert.True(FolderLayout.Header(Of(style), navigate, hasGit: true).Buttons <= 2);
             }
         }
     }

@@ -70,34 +70,6 @@ public static class FolderColumns
         => last || column is FolderColumn.Size or FolderColumn.ItemCount or FolderColumn.Modified;
 
     /// <summary>
-    /// [S-1322] The chosen columns that fit <paramref name="width"/> beside a Name column of at least
-    /// <see cref="NameMinWidth"/>, taken in the user's order: the first one that does not fit closes
-    /// the row, so a column never appears without the ones the user put before it.
-    /// </summary>
-    public static IReadOnlyList<FolderColumn> Fit(IReadOnlyList<FolderColumn> chosen, double width)
-    {
-        ArgumentNullException.ThrowIfNull(chosen);
-
-        var left = width - NameMinWidth;
-        var fitted = new List<FolderColumn>(chosen.Count);
-
-        foreach (var column in chosen)
-        {
-            var cost = Width(column) + Gap;
-
-            if (cost > left)
-            {
-                break;
-            }
-
-            left -= cost;
-            fitted.Add(column);
-        }
-
-        return fitted;
-    }
-
-    /// <summary>
     /// A stored column list with unknown values and repeats removed, order kept. Returns how many
     /// were dropped so the caller can say so.
     /// </summary>

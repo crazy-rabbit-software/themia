@@ -40,7 +40,11 @@
               "Git",
               "Size",
               "ItemCount"
-            ]
+            ],
+            "searchBox": false,
+            "showPath": false,
+            "columnTitles": true,
+            "showDate": true
           }
         },
         {
@@ -76,7 +80,11 @@
               "Size",
               "Modified",
               "Type"
-            ]
+            ],
+            "searchBox": false,
+            "showPath": false,
+            "columnTitles": true,
+            "showDate": true
           }
         },
         {
@@ -108,7 +116,11 @@
             "descending": false,
             "showHidden": false,
             "showExtensions": false,
-            "columns": []
+            "columns": [],
+            "searchBox": false,
+            "showPath": false,
+            "columnTitles": true,
+            "showDate": true
           }
         },
         {

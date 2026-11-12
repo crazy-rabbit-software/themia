@@ -23,15 +23,19 @@ public sealed class FolderPropertiesMenuTests
     }
 
     [Theory]
-    [InlineData(FolderStyle.List, new[] { "ext", "sort" })]
-    [InlineData(FolderStyle.Details, new[] { "columns", "ext" })]
-    [InlineData(FolderStyle.Grid, new[] { "ext", "sort" })]
-    [InlineData(FolderStyle.Icons, new[] { "sort" })]
-    public void S1337_each_style_offers_only_what_it_draws_under_style(FolderStyle style, string[] expected)
+    [InlineData(FolderStyle.List, new[] { "date", "search", "path", "ext", "sort" })]
+    [InlineData(FolderStyle.Details, new[] { "columns", "titles", "search", "path", "ext" })]
+    [InlineData(FolderStyle.Grid, new[] { "search", "path", "ext", "sort" })]
+    [InlineData(FolderStyle.Icons, new[] { "search", "path", "sort" })]
+    public void S11203_each_style_offers_only_what_it_draws_under_style_and_the_search_box_and_path_always(FolderStyle style, string[] expected)
     {
         var names = new Dictionary<string, string>
         {
             [FolderStr.WidgetsB_Settings_Folder_Columns_Label.Text()] = "columns",
+            [FolderStr.Folder_Settings_ColumnTitles.Text()] = "titles",
+            [FolderStr.WidgetsB_Settings_Folder_DateModified.Text()] = "date",
+            [FolderStr.Folder_Settings_SearchBox.Text()] = "search",
+            [FolderStr.Folder_Settings_Path.Text()] = "path",
             [Str.Folder_ShowExtMenu.Text()] = "ext",
             [FolderStr.WidgetsB_Settings_Folder_SortBy_Label.Text()] = "sort",
         };

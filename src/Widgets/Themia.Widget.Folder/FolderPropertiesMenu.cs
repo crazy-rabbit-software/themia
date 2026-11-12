@@ -50,6 +50,20 @@ internal static class FolderPropertiesMenu
                     _ => config.Columns = FolderColumns.Toggle(config.Columns, column)))]));
         }
 
+        // [S-11203] What stands over the items is set, never decided by the box.
+        if (config.Offers(FolderSetting.ColumnTitles))
+        {
+            look.Add(menu.Toggle(null, FolderStr.Folder_Settings_ColumnTitles.Text(), config.ColumnTitles, on => config.ColumnTitles = on));
+        }
+
+        if (config.Offers(FolderSetting.Date))
+        {
+            look.Add(menu.Toggle(null, FolderStr.WidgetsB_Settings_Folder_DateModified.Text(), config.ShowDate, on => config.ShowDate = on));
+        }
+
+        look.Add(menu.Toggle(null, FolderStr.Folder_Settings_SearchBox.Text(), config.SearchBox, on => config.SearchBox = on));
+        look.Add(menu.Toggle(null, FolderStr.Folder_Settings_Path.Text(), config.ShowPath, on => config.ShowPath = on));
+
         if (config.Offers(FolderSetting.Extensions))
         {
             look.Add(menu.Toggle(Glyphs.File, Str.Folder_ShowExtMenu.Text(), config.ShowExtensions, on => config.ShowExtensions = on));

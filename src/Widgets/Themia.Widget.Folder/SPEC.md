@@ -33,19 +33,32 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   `ShowHidden`, `ShowExtensions` (default off), `Style`. `ShowDetail`/`MaxCount`, and since [S-4121] `View`, `StretchTiles`,
   `Filter` and `FoldersFirst`, are gone (no compatibility); so are `ItemSize` (rows of 24/28/32/40) and `TileSize`
   (tiles of 80/110/150) since the family's rows and cells decide their size ([S-6704], [S-6713]; group G6 2026-10-29).
-- **[S-1323]** Ladder (`FolderLayout.Plan`, on the family's blocks): one row (or one row of cells) always; an open
-  search box (a 32 text box at the side inset, 8 over the items); the details column titles (a Caption line and 8, as
-  the kit's table, [S-7034]); at Expanded x Expanded the path as a row of 28 (tail first, clickable: the folders above
-  in Body secondary, the shown one primary, 16 chevrons tertiary, 4 apart); no status footer ("24 items · 2 selected",
-  retired [S-666]). Rows are the Row block's one line of 32 at every tier ([S-6711], [S-6712]): the file's own 16 icon
-  as the lead, the name primary; List's one value is the date modified (secondary) from a width of 180, Details puts
-  its columns in the name's place (`RowBlock.Cells`, Body secondary, 12 apart). Grid and Icons are Row.Cell grids
-  ([S-6713], `RowRules.Cells`): the icon (or the picture's thumbnail) 32, 48 from an expanded width, Grid's name one
+- **[S-1323]** Layout (`FolderLayout.Plan`, on the family's blocks): over the items, as the config says
+  ([S-11203]), the search box (a 32 text box at the side inset, 8 over the items; also while the header's Search
+  has it open), the path as a row of 28 (tail first, clickable: the folders above in Body secondary, the shown one
+  primary, 16 chevrons tertiary, 4 apart) and the details column titles (a Caption line and 8, as the kit's table,
+  [S-7034]); no status footer ("24 items · 2 selected", retired [S-666]). Rows are the Row block's one line of 28
+  ([S-6711], [S-6712]): the file's own 16 icon as the lead, the name primary; List's one value is the date modified
+  (secondary) where Date modified is on, Details puts every chosen column in the name's place (`RowBlock.Cells`, Body
+  secondary, 12 apart; none dropped for want of room). Grid and Icons are Row.Cell grids ([S-6713],
+  `RowRules.Cells`): the icon (or the picture's thumbnail) 32 at every width, Grid's name one
   Caption line under it (the whole name on selection, [S-6629]), Icons the icon alone; the cells share the width out
   12 apart, their marks 4 around them. Only whole rows (or rows of cells) show; the rest scrolls under the fade.
   Over 1000 items: the first 1000 and a "N more in Explorer…" row (a Row block with the open glyph, its name
   secondary). Retired with group G6: the list's unlabelled Size and Type columns (Details is the table), XL's one-size-up
   tiles and the tiles' two- and three-line names.
+- **[S-11203]** Converted to the sizing ([S-2438]), not split: a file browser keeps a **free size**, 220..800
+  wide and 160..640 high (`FolderLayout.Sizing`), and is the one kind where more room shows more of the user's
+  own entries, as a window does (more rows, more columns of cells; the rest scrolls). What stood or fell with
+  the box is a setting under Style, each on or off: **Search box** (off: the header's Search opens it, as
+  before; on: it always stands and the header has no Search), **Path** (off), and in Details **Column
+  titles** (on) and in List **Date modified** (on). Each style states its own natural size and least: the
+  list, the grid and the icons 300 wide, Details its least width and 60 more, its least the insets, the 16
+  lead, a name of 120 and every chosen column with its 12 (492 for Size, Modified, Type); a new one's height
+  the whole rows (or rows of cells) nearest 280 under what stands over them (the list 272, the grid 292,
+  the icons 300, Details 268); its least height holds what stands over the items and one row. No tier
+  decides anything: the path at Expanded × Expanded, the columns that fit, the 48 cells and the list's date
+  from 180 are gone (`FolderColumns.Fit` with them).
 - **[S-6411]** The rightmost column ends at the row's right inset, the same as the header's buttons, at
   every width and in every style (user report 2026-10-16: from 400 DIPs the list put Size last, blank for
   every folder, so the dates stopped a column short of the edge). The list has one value, the date modified,

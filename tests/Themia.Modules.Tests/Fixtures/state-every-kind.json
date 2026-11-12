@@ -416,7 +416,11 @@
               "Size",
               "Modified",
               "Type"
-            ]
+            ],
+            "searchBox": false,
+            "showPath": false,
+            "columnTitles": true,
+            "showDate": true
           }
         },
         {

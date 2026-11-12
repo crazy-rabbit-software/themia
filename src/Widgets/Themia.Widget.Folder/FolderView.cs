@@ -369,7 +369,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
         {
             // Asked whether the badge would have room if there were a repository, not whether it is
             // shown now: it is not shown until the status exists.
-            var wanted = (_area.IsMeasured && FolderLayout.Header(_config.Style, Navigates, hasGit: true).Git)
+            var wanted = (_area.IsMeasured && FolderLayout.Header(_config, Navigates, hasGit: true).Git)
                 || (_config.Style == FolderStyle.Details && _config.DetailColumns.Contains(FolderColumn.Git));
 
             var status = wanted ? await _widgetHost.Folders.GitStatusAsync(path).ConfigureAwait(true) : null;

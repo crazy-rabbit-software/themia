@@ -1,7 +1,13 @@
 {
   "$englishOnly": [
-    "folder.menu.typePath"
+    "folder.menu.typePath",
+    "folder.settings.columnTitles",
+    "folder.settings.path",
+    "folder.settings.searchBox"
   ],
+  "folder.settings.columnTitles": "Column titles",
+  "folder.settings.path": "Path",
+  "folder.settings.searchBox": "Search box",
   "ctxMenu.folder": "Folder",
   "folder.menu.typePath": "Type a path…",
   "folderMenu.chooseAnotherApp": "Choose another app",

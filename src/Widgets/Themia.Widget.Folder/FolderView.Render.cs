@@ -279,7 +279,7 @@ internal sealed partial class FolderView
     {
         // Re-planned here rather than read from the last pass: the git badge's rung depends on a status
         // that arrives after the listing, and must not wait for the next resize to appear.
-        var header = _area.IsMeasured ? FolderLayout.Header(_config.Style, Navigates, _git is not null) : FolderHeaderPlan.None;
+        var header = _area.IsMeasured ? FolderLayout.Header(_config, Navigates, _git is not null) : FolderHeaderPlan.None;
 
         _header.Want(_backButton, header.Back);
         Enable(_backButton, _history.CanGoBack);

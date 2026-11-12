@@ -60,7 +60,7 @@ public sealed class FolderKindsTests
     [Fact]
     public void S4121_the_folder_stores_the_shared_settings_and_the_union_of_its_styles()
     {
-        string[] expected = ["kind", "style", "path", "navigation", "clickMode", "sort", "descending", "showHidden", "showExtensions", "columns"];
+        string[] expected = ["kind", "style", "path", "navigation", "clickMode", "sort", "descending", "showHidden", "showExtensions", "columns", "searchBox", "showPath", "columnTitles", "showDate"];
         Assert.Equal(expected.Order(StringComparer.Ordinal), Properties(new FolderConfig()).Order(StringComparer.Ordinal));
     }
 
@@ -78,8 +78,8 @@ public sealed class FolderKindsTests
 
     public static TheoryData<FolderStyle, FolderSetting[]> StyleSettings() => new()
     {
-        { FolderStyle.List, [FolderSetting.Extensions, FolderSetting.Sort] },
-        { FolderStyle.Details, [FolderSetting.Columns, FolderSetting.Extensions] },
+        { FolderStyle.List, [FolderSetting.Date, FolderSetting.Extensions, FolderSetting.Sort] },
+        { FolderStyle.Details, [FolderSetting.Columns, FolderSetting.ColumnTitles, FolderSetting.Extensions] },
         { FolderStyle.Grid, [FolderSetting.Extensions, FolderSetting.Sort] },
         { FolderStyle.Icons, [FolderSetting.Sort] },
     };

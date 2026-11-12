@@ -17,19 +17,6 @@ public sealed class FolderHostTests
     // ---- columns --------------------------------------------------------------------------------
 
     [Fact]
-    public void S1322_columns_fit_in_the_users_order_and_the_first_miss_closes_the_row()
-    {
-        IReadOnlyList<FolderColumn> chosen = [FolderColumn.Type, FolderColumn.Size, FolderColumn.Cloud];
-
-        Assert.Empty(FolderColumns.Fit(chosen, 200));
-        Assert.Equal([FolderColumn.Type], FolderColumns.Fit(chosen, FolderColumns.NameMinWidth + 132));
-
-        // Cloud (16 + 12) would fit after Type alone, but Size (72 + 12) came first and did not.
-        Assert.Equal([FolderColumn.Type], FolderColumns.Fit(chosen, FolderColumns.NameMinWidth + 132 + 40));
-        Assert.Equal(chosen, FolderColumns.Fit(chosen, 1000));
-    }
-
-    [Fact]
     public void S1322_toggling_a_column_back_on_restores_its_place()
     {
         List<FolderColumn> chosen = [FolderColumn.Size, FolderColumn.Type];
