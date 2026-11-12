@@ -8,42 +8,6 @@ namespace Themia.Widget.Notes.Tests;
 /// <summary>[S-1363] [S-3963] The note widget's body and its header bar.</summary>
 public sealed class NotesLayoutTests
 {
-    private static NotesLayoutPlan Plan(double width, double height)
-        => NotesLayout.Plan(new WidgetArea(width, height - 44), lineHeight: 20);
-
-    [Fact]
-    public void S1363_xs_and_s_show_the_text_alone_at_least_two_lines()
-    {
-        foreach (var plan in new[] { Plan(120, 120), Plan(200, 150) })
-        {
-            Assert.True(plan.TextLines >= NotesLayout.MinTextLines);
-        }
-    }
-
-    [Fact]
-    public void S3963_the_body_gives_no_row_to_a_formatting_bar()
-    {
-        // [S-3963] The bar lives in the header: at M the body is the text alone, every whole line the
-        // view's area holds under the card's bottom inset.
-        Assert.Equal((240 - 44 - 16) / 20, Plan(320, 240).TextLines);
-    }
-
-    [Fact]
-    public void S1363_xl_gives_the_rest_to_the_text()
-        => Assert.True(Plan(800, 560).TextLines > Plan(560, 420).TextLines);
-
-    /// <summary>
-    /// [S-1363] The widget is the one note at every size: the text takes the whole width less the card's
-    /// inset even at XL, where a note list used to sit beside it (user decision: never a list on the left).
-    /// </summary>
-    [Fact]
-    public void S1363_xl_never_gives_width_to_a_note_list()
-        => Assert.Equal(800 - (2 * FamilySpace.Inset), NotesLayout.Plan(new WidgetArea(800, 524), lineHeight: 20).TextWidth);
-
-    [Fact]
-    public void S1363_unmeasured_shows_the_text_only()
-        => Assert.Equal(NotesLayout.MinTextLines, NotesLayout.Plan(default, 20).TextLines);
-
     [Theory]
     [InlineData(400, true, 9, false)]
     [InlineData(800, true, 9, false)]

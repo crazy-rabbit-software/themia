@@ -26,7 +26,8 @@ public enum ClipboardContent
 /// <param name="Lines">The rows' lines: 1, or 2 with how much it is.</param>
 /// <param name="Lead">The marker (what the entry looks like it is, [S-1442]) before the preview.</param>
 /// <param name="Time">When it was copied, as the row's value (when the user shows it).</param>
-public readonly record struct ClipboardPlan(int Lines, bool Lead, bool Time)
+/// <param name="Rows">[S-2440] The rows the list shows at a time, as its config states (more scroll inside them).</param>
+public readonly record struct ClipboardPlan(int Lines, bool Lead, bool Time, int Rows)
 {
     /// <summary>The rows' one height (28 or 40).</summary>
     public double RowHeight => FamilyShape.RowHeight(Lines);
@@ -38,16 +39,12 @@ public static class ClipboardLayout
     /// <summary>[S-1441] The characters a row's one-line preview keeps before its ellipsis.</summary>
     public const int PreviewLength = 120;
 
-    /// <summary>[S-11405] The config's plan: its lines, the marker and the time at every size.</summary>
+    /// <summary>[S-11405] The config's plan: its rows and lines, the marker and the time at every size.</summary>
     public static ClipboardPlan Plan(Themia.Core.Model.ClipboardConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return new ClipboardPlan(config.RowsShown.Lines, Lead: true, Time: true);
+        return new ClipboardPlan(config.RowsShown.Lines, Lead: true, Time: true, Math.Max(1, config.RowsShown.Rows));
     }
-
-    /// <summary>[S-6712] The whole rows of <paramref name="plan"/> in the view's area less the card's bottom inset (at least one).</summary>
-    public static int Rows(WidgetArea area, ClipboardPlan plan)
-        => Math.Max(1, RowRules.Fit(KitLadder.ListHeight(area), plan.Lines));
 
     /// <summary>
     /// [S-1442] What an entry looks like it is. Conservative: a hex colour needs its <c>#</c> (a bare

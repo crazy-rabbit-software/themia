@@ -85,7 +85,7 @@ public sealed partial class KitList
 
         var today = DateOnly.FromDateTime(now.DateTime);
         var keys = _items.Select(i => i.Group?.Key ?? string.Empty).ToList();
-        var box = KitLadder.ListHeight(_area);
+        var box = KitPlanner.ListHeight(_area);
         var firstHeading = KitPages.ShowsFirstHeading(_items[0].Group?.Day, today, _area.Height);
 
         _pageStarts = KitPages.Pages(keys, _plan.Columns, box, _plan.HeadingHeight, _plan.RowHeight, firstHeading);

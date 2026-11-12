@@ -6,7 +6,7 @@ using Themia.Sdk;
 namespace Themia.Core.Model;
 
 /// <summary>A widget kind as a showcase view names and marks it.</summary>
-/// <param name="Kind">The kind shown at every tier.</param>
+/// <param name="Kind">The kind shown at its min, natural and max.</param>
 /// <param name="Name">The view's name: the kind's label.</param>
 /// <param name="Glyph">The view's icon: the kind's glyph.</param>
 /// <param name="Style">[S-1815] The style every widget of the view is in (its wire name in the ids), or null for the kind's default.</param>
@@ -38,12 +38,11 @@ public readonly record struct ShowcaseKind(WidgetId Kind, string Name, string Gl
 }
 
 /// <summary>
-/// [S-1810..S-1814] One view per widget kind holding that widget at every <see cref="WidgetTiers"/>
-/// size, so the whole responsive ladder can be looked at on the real desktop; [S-2448] a converted
-/// kind at its min, natural and max instead. Built by the Debug
-/// flag <c>--add-showcase-views</c>; nothing in the app's own UI creates them.
+/// [S-1810..S-1814] One view per widget kind holding that widget at its min, natural and max
+/// (<see cref="SizeFit.CheckedAt"/>, [S-2448]), so its whole range can be looked at on the real
+/// desktop. Built by the Debug flag <c>--add-showcase-views</c>; nothing in the app's own UI creates them.
 /// <para>
-/// Ids are derived from the kind and the tier, never random, so a second run replaces the first
+/// Ids are derived from the kind and the size's name, never random, so a second run replaces the first
 /// instead of adding another set beside it.
 /// </para>
 /// </summary>
@@ -59,9 +58,9 @@ public static class ShowcaseViews
     public static string ViewId(WidgetId kind, int page = 0, string? style = null)
         => page == 0 ? IdPrefix + Slug(kind, style) : $"{IdPrefix}{Slug(kind, style)}-{(page + 1).ToString(CultureInfo.InvariantCulture)}";
 
-    /// <summary>[S-1811] The widget showing <paramref name="kind"/> (in <paramref name="style"/>, [S-1815]) at <paramref name="tier"/>.</summary>
-    public static string WidgetId(WidgetId kind, WidgetTier tier, string? style = null)
-        => $"{IdPrefix}{Slug(kind, style)}-{tier.Name.ToLowerInvariant()}";
+    /// <summary>[S-1811] The widget showing <paramref name="kind"/> (in <paramref name="style"/>, [S-1815]) at <paramref name="size"/>.</summary>
+    public static string WidgetId(WidgetId kind, CheckedSize size, string? style = null)
+        => $"{IdPrefix}{Slug(kind, style)}-{size.Name.ToLowerInvariant()}";
 
     public static bool IsShowcase(ViewState view)
     {
@@ -72,12 +71,12 @@ public static class ShowcaseViews
     /// <summary>
     /// [S-1810] The showcase views for <paramref name="kinds"/>, in that order, laid out for
     /// <paramref name="screen"/> (the whole monitor in DIPs, with its work area as
-    /// <see cref="ScreenMetrics.Allowed"/>). Each widget's cell is its tier times
+    /// <see cref="ScreenMetrics.Allowed"/>). Each widget's cell is its size times
     /// <paramref name="contentScale"/> plus <paramref name="gap"/>, so after the gap inset ([S-04])
-    /// and the content scale ([S-850]) the widget lays out in exactly the tier's DIPs.
+    /// and the content scale ([S-850]) the widget lays out in exactly its size in DIPs.
     /// <para>
-    /// [S-1812] When the tiers do not all fit in one work area, the rest go on a second view of the
-    /// same kind ("Clock (2)"); a tier larger than the whole work area is shrunk to it.
+    /// [S-1812] When the sizes do not all fit in one work area, the rest go on a second view of the
+    /// same kind ("Clock (2)"); a size larger than the whole work area is shrunk to it.
     /// </para>
     /// </summary>
     public static List<ViewState> Build(IReadOnlyList<ShowcaseKind> kinds, ScreenMetrics screen, double gap, double contentScale = 1)
@@ -92,7 +91,7 @@ public static class ShowcaseViews
 
         foreach (var kind in kinds)
         {
-            // [S-2448] A converted kind is shown at its min, natural and max; a legacy one at the seven tiers.
+            // [S-2448] Every kind is shown at its min, natural and max.
             var pages = Layout(screen, gap, contentScale, SizeFit.CheckedAt(SizeFit.Of(kind.Kind, kind.Style?.Value)));
             for (var p = 0; p < pages.Count; p++)
             {
@@ -103,21 +102,21 @@ public static class ShowcaseViews
                     Icon = string.IsNullOrEmpty(kind.Glyph) ? null : kind.Glyph,
                 };
 
-                foreach (var (tier, cell) in pages[p])
+                foreach (var (size, cell) in pages[p])
                 {
                     var widget = WidgetInstance.Create(kind.Kind, new FracRect(
                         cell.X / screen.Width,
                         cell.Y / screen.Height,
                         cell.Width / screen.Width,
                         cell.Height / screen.Height));
-                    widget.Id = WidgetId(kind.Kind, tier, kind.Style?.Name);
+                    widget.Id = WidgetId(kind.Kind, size, kind.Style?.Name);
                     if (kind.Style is { } style)
                     {
                         WidgetStyles.Set(widget.Config, style.Value);
                     }
 
                     // [S-11601] A widget held at its min or max has the config that size means, as a resize leaves it.
-                    widget.Config = SizeFit.ConfigAt(widget.Config, new SizeDip(tier.Width, tier.Height), widget.ShownHeader);
+                    widget.Config = SizeFit.ConfigAt(widget.Config, new SizeDip(size.Width, size.Height), widget.ShownHeader);
                     view.Widgets.Add(widget);
                 }
 
@@ -162,11 +161,11 @@ public static class ShowcaseViews
     }
 
     /// <summary>
-    /// The cells, in DIPs of the whole monitor, page by page. Skyline bottom-left packing of the tiers
+    /// The cells, in DIPs of the whole monitor, page by page. Skyline bottom-left packing of the sizes
     /// tallest first, each placed at the lowest, then leftmost, spot inside the work area less
-    /// <see cref="Margin"/>. Whole DIPs, so the painted edges ([S-04]) land on the tier exactly.
+    /// <see cref="Margin"/>. Whole DIPs, so the painted edges ([S-04]) land on the size exactly.
     /// </summary>
-    internal static List<List<(WidgetTier Tier, PixelRect Cell)>> Layout(ScreenMetrics screen, double gap, double contentScale, IReadOnlyList<WidgetTier>? tiers = null)
+    internal static List<List<(CheckedSize Size, PixelRect Cell)>> Layout(ScreenMetrics screen, double gap, double contentScale, IReadOnlyList<CheckedSize> sizes)
     {
         var scale = double.IsFinite(contentScale) && contentScale > 0 ? contentScale : 1;
         var spacing = double.IsFinite(gap) && gap > 0 ? gap : 0;
@@ -177,19 +176,19 @@ public static class ShowcaseViews
         var width = Math.Max(1, Math.Floor(work.X + work.Width - Margin) - left);
         var height = Math.Max(1, Math.Floor(work.Y + work.Height - Margin) - top);
 
-        var pending = (tiers ?? WidgetTiers.All)
-            .Select(tier => (Tier: tier,
-                W: Math.Min(width, Math.Ceiling((tier.Width * scale) + spacing)),
-                H: Math.Min(height, Math.Ceiling((tier.Height * scale) + spacing))))
+        var pending = sizes
+            .Select(size => (Size: size,
+                W: Math.Min(width, Math.Ceiling((size.Width * scale) + spacing)),
+                H: Math.Min(height, Math.Ceiling((size.Height * scale) + spacing))))
             .OrderByDescending(t => t.H)
             .ThenByDescending(t => t.W)
             .ToList();
 
-        var pages = new List<List<(WidgetTier, PixelRect)>>();
+        var pages = new List<List<(CheckedSize, PixelRect)>>();
         while (pending.Count > 0)
         {
             var skyline = new List<Segment> { new(0, width, 0) };
-            var page = new List<(WidgetTier, PixelRect)>();
+            var page = new List<(CheckedSize, PixelRect)>();
 
             foreach (var item in pending.ToList())
             {
@@ -199,7 +198,7 @@ public static class ShowcaseViews
                 }
 
                 Raise(skyline, spot.X, item.W, spot.Y + item.H);
-                page.Add((item.Tier, new PixelRect(left + spot.X, top + spot.Y, item.W, item.H)));
+                page.Add((item.Size, new PixelRect(left + spot.X, top + spot.Y, item.W, item.H)));
                 pending.Remove(item);
             }
 
@@ -207,7 +206,7 @@ public static class ShowcaseViews
             // check only keeps a future change to that from looping for ever.
             if (page.Count == 0)
             {
-                throw new InvalidOperationException("a showcase tier fits no empty page");
+                throw new InvalidOperationException("a showcase size fits no empty page");
             }
 
             pages.Add(page);

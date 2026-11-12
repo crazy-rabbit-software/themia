@@ -34,7 +34,7 @@ namespace Themia.App.Widgets;
 /// click gate, the keys and edit mode are one path.
 /// </para>
 /// </summary>
-public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetTopEdge
+public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetTopEdge
 {
     /// <summary>[S-5700] It owns its top edge: the whole tile is the switch, padded by itself.</summary>
     public bool OwnsTopEdge => true;
@@ -127,11 +127,6 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAwar
         _size = config is QuickToggleConfig sized ? ReadoutSizes.Normalise(sized.Size) : ReadoutSizes.Default;
 
         Lay();
-    }
-
-    /// <summary>[S-11307] The card is fixed by the Size and the look: the box changes nothing.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     /// <summary>[S-11307] Its one option past its look, under the Style: its Size.</summary>

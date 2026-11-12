@@ -446,16 +446,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         var placement = Model.ShownHeader;
 
-        // Shed it on a tile too short to carry it, here rather than in twenty views: below this
-        // the label is taking the room the content needs, and every widget drew the same
-        // conclusion separately with a slightly different threshold. A size of zero is a card
-        // that has not been measured yet, not a short one.
-        // [S-404] [S-409] A strip down a side sheds on a card too narrow for it instead.
-        // [S-11009] A converted kind's sizing counts its header on every edge, so it never sheds: a
-        // one-line reading is 84 tall with it. Only a legacy kind, sized by hand, keeps the floors.
-        var sized = ModuleCatalog.TryGet(Model.Kind, out var kind) && !kind.SizingOf(Model.Config).IsLegacy;
-        var tooShort = HeaderStrip.Sheds(placement, ActualWidth, ActualHeight, sized);
-        var hidden = placement == HeaderPlacement.Hidden || tooShort;
+        // [S-11009] A kind's sizing counts its header on every edge, so the header is there at every size
+        // of its range and never sheds: only the person hides it.
+        var hidden = placement == HeaderPlacement.Hidden;
 
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
 
@@ -496,7 +489,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         ApplyHeaderFill();
     }
 
-    /// <summary>[S-5700] The edge the header stands on now: none while it is hidden or shed.</summary>
+    /// <summary>[S-5700] The edge the header stands on now: none while it is hidden.</summary>
     private HeaderEdge ViewEdge => _headerBand.Visibility == Visibility.Visible ? ShownEdge : HeaderEdge.None;
 
     /// <summary>[S-1862] [S-5700] Where a row the card lays over the view starts: right under a header above it, else at the inset.</summary>
@@ -771,8 +764,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     public bool ResizeSetConfig { get; private set; }
 
     /// <summary>
-    /// [S-2444] This card's sizing on its display, as fractions of the screen; null for a legacy kind
-    /// (the old way) or before the display is measured. Follows a resize's previewed config.
+    /// [S-2444] This card's sizing on its display, as fractions of the screen; null before the display
+    /// is measured. Follows a resize's previewed config.
     /// </summary>
     public SizeLimits? Limits
         => _host.Metrics is { IsUsable: true } metrics

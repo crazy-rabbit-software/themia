@@ -163,9 +163,9 @@ public class ClockFormatterTests
         Assert.Equal("AM", ClockFormatter.WidestMeridiem(Locale.En));
         Assert.True(HeroFit.Ems(ClockFormatter.WidestMeridiem(Locale.Ta)) > 2 * HeroFit.Ems("PM"));
 
-        var area = new WidgetArea(320, 432);
-        var english = ClockFace.Readout(area, 288, 400, ClockStyle.Digital, false, ClockFormatter.WidestMeridiem(Locale.En), under: true);
-        var tamil = ClockFace.Readout(area, 288, 400, ClockStyle.Digital, false, ClockFormatter.WidestMeridiem(Locale.Ta), under: true);
-        Assert.True(FamilyType.BaseOf(tamil.Step) < FamilyType.BaseOf(english.Step));
+        // [S-2449] The card is as wide as its widest time: Tamil's clock is wider than English's.
+        var english = ClockFace.Sizing(new ClockConfig(), ClockFormatter.WidestMeridiem(Locale.En));
+        var tamil = ClockFace.Sizing(new ClockConfig(), ClockFormatter.WidestMeridiem(Locale.Ta));
+        Assert.True(tamil.Natural.Width > english.Natural.Width);
     }
 }

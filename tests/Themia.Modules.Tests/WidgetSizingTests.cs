@@ -9,21 +9,11 @@ using Xunit;
 namespace Themia.Modules.Tests;
 
 /// <summary>
-/// [S-2438]..[S-2443] Every kind states its sizes, and they hold: over the registry this build
-/// generates, for the default config and for every style a styled kind offers. The kinds not yet
-/// converted are listed here, shrink-only: a later agent converts a kind and takes it off.
+/// [S-2438]..[S-2449] Every kind states its sizes, and they hold: over the registry this build
+/// generates, for the default config and for every style a styled kind offers.
 /// </summary>
 public sealed class WidgetSizingTests
 {
-    /// <summary>
-    /// [S-2443] The kinds still on the old way (legacy sizing, the size ladder, the seven tiers). This
-    /// list only shrinks: a converted kind is taken off, and no new kind may join it.
-    /// </summary>
-    private static readonly string[] Legacy =
-    [
-
-    ];
-
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];
 
     /// <summary>The configs a kind's sizing is checked over: its defaults, then each of its styles.</summary>
@@ -210,30 +200,5 @@ public sealed class WidgetSizingTests
         Assert.True(dial.FixedHeight && dial.FixedWidth);
         Assert.Equal(ReadoutSize.Medium, new ClockConfig().Size);
         Assert.Equal(ReadoutSize.Large, ((ClockConfig)new ClockConfig { Size = ReadoutSize.Large }.Clone()).Size);
-    }
-
-    [Fact]
-    public void S2443_the_legacy_kinds_are_exactly_the_list_and_the_list_only_shrinks()
-    {
-        var legacy = ModuleRegistry.WidgetIds.Where(id => ModuleCatalog.Of(new WidgetId(id)).SizingOf().IsLegacy).Order(StringComparer.Ordinal).ToList();
-
-        Assert.Empty(legacy.Except(Legacy, StringComparer.Ordinal));
-        Assert.Empty(Legacy.Except(legacy, StringComparer.Ordinal));
-    }
-
-    [Theory]
-    [MemberData(nameof(Kinds))]
-    public void S2443_a_legacy_kind_keeps_the_old_floor_no_maximum_and_lands_at_its_old_default_size(string id)
-    {
-        var sizing = ModuleCatalog.Of(new WidgetId(id)).SizingOf();
-        if (!sizing.IsLegacy)
-        {
-            return;
-        }
-
-        Assert.Equal(new SizeDip(WidgetSizing.LegacyFloor, WidgetSizing.LegacyFloor), sizing.Min);
-        Assert.Equal(SizeDip.Unbounded, sizing.Max);
-        Assert.Null(sizing.HeightSteps);
-        Assert.Null(sizing.WidthSteps);
     }
 }

@@ -486,7 +486,7 @@ public static class CalendarFit
         return (Math.Min(top, 1 - height), height);
     }
 
-    // ---- the agenda: the kit's paged schedule ([S-7035], [S-7036]: KitPages, KitDays, KitLadder) ------
+    // ---- the agenda: the kit's paged schedule ([S-7035], [S-7036]: KitPages, KitDays, KitPlanner) ------
 
     // ---- wrapped titles ([S-2717]) -----------------------------------------------------------------
 

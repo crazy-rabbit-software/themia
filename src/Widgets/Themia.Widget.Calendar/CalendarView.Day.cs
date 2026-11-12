@@ -276,7 +276,7 @@ internal sealed partial class CalendarView
         var meta = string.Join(" · ", new[] { e.Location, e.Organizer }.Where(s => !string.IsNullOrWhiteSpace(s)));
 
         // The block's padding and coloured edge come off the title's line.
-        var lines = Disclosure.WholeRows(height, line);
+        var lines = LayoutMath.WholeLines(height, line);
         var parts = CalendarFit.BlockParts(lines, Overflows(title, width - (2 * FamilySpace.S1) - FamilyShape.Stroke), meta.Length > 0);
 
         if (parts.TitleLines > 1)

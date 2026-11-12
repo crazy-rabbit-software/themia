@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-1810]..[S-1814] One view per widget kind, holding the widget at every size tier.</summary>
+/// <summary>[S-1810]..[S-1815] One view per widget kind, holding the widget at its min, natural and max.</summary>
 public sealed class ShowcaseViewsTests
 {
     private const double Gap = 8;
@@ -18,8 +18,11 @@ public sealed class ShowcaseViewsTests
     /// <summary>2560 × 1440 at 150 %: 1706.67 × 960 DIPs, taskbar at the top.</summary>
     private static readonly ScreenMetrics QhdAt150 = Screen(2560 / 1.5, 960, new PixelRect(0, 32, 2560 / 1.5, 928));
 
-    /// <summary>1920 × 1080 at 125 %: 1536 × 864 DIPs, too small for every tier on one view.</summary>
-    private static readonly ScreenMetrics FullHdAt125 = Screen(1536, 864, new PixelRect(0, 0, 1536, 816));
+    /// <summary>640 × 480 with a 40-DIP taskbar: too small for a note's three sizes on one view.</summary>
+    private static readonly ScreenMetrics Tiny = Screen(640, 480, new PixelRect(0, 0, 640, 440));
+
+    /// <summary>A kind whose max (600 × 600) is larger than <see cref="Tiny"/>'s work area.</summary>
+    private static readonly WidgetId Notes = new("notes");
 
     private static ScreenMetrics Screen(double width, double height, PixelRect work)
         => new(width, height) { Allowed = GridGeometry.AllowedArea(new PixelRect(0, 0, width, height), work) };
@@ -33,13 +36,13 @@ public sealed class ShowcaseViewsTests
     private static bool Overlap(PixelRect a, PixelRect b)
         => a.X < b.X + b.Width - 1e-6 && b.X < a.X + a.Width - 1e-6 && a.Y < b.Y + b.Height - 1e-6 && b.Y < a.Y + a.Height - 1e-6;
 
-    public static TheoryData<string> Screens => new() { "fullhd", "qhd150", "fullhd125" };
+    public static TheoryData<string> Screens => new() { "fullhd", "qhd150", "tiny" };
 
     private static ScreenMetrics Named(string name) => name switch
     {
         "fullhd" => FullHd,
         "qhd150" => QhdAt150,
-        _ => FullHdAt125,
+        _ => Tiny,
     };
 
     [Theory]
@@ -70,7 +73,7 @@ public sealed class ShowcaseViewsTests
     [Theory]
     [InlineData("fullhd")]
     [InlineData("qhd150")]
-    public void S1810_one_view_per_kind_with_all_seven_tiers_at_their_size(string name)
+    public void S1810_one_view_per_kind_with_its_min_natural_and_max_at_their_size(string name)
     {
         var screen = Named(name);
         var kinds = AllKinds();
@@ -83,16 +86,16 @@ public sealed class ShowcaseViewsTests
             Assert.Equal(ShowcaseViews.ViewId(kinds[k].Kind), view.Id);
             Assert.Equal(kinds[k].Name, view.Name);
             Assert.Equal(kinds[k].Glyph, view.Icon);
-            // [S-2448] A converted kind holds its min, natural and max; a legacy one the seven tiers.
+            // [S-2448] Every kind holds its min, natural and max.
             var checkedAt = SizeFit.CheckedAt(SizeFit.Of(kinds[k].Kind));
-            Assert.Equal(checkedAt.Count, view.Widgets.Count);
+            Assert.Equal(3, view.Widgets.Count);
             Assert.All(view.Widgets, w => Assert.Equal(kinds[k].Kind, w.Kind));
 
             foreach (var tier in checkedAt)
             {
                 var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(kinds[k].Kind, tier));
 
-                // The painted card is the cell less the gap ([S-04]): exactly the tier.
+                // The painted card is the cell less the gap ([S-04]): exactly the size.
                 var painted = GridGeometry.Inset(GridGeometry.ToPixels(widget.Rect, screen), Gap);
                 Assert.Equal(tier.Width, painted.Width, 3);
                 Assert.Equal(tier.Height, painted.Height, 3);
@@ -100,19 +103,15 @@ public sealed class ShowcaseViewsTests
         }
     }
 
-    /// <summary>A kind still on the old way (its seven tiers): the first the registry lists, whichever is left.</summary>
-    private static WidgetId Legacy()
-        => ModuleCatalog.Widgets.Select(w => w.Id).First(id => ModuleCatalog.Of(id).SizingOf().IsLegacy);
-
     [Fact]
-    public void S1810_a_content_scale_grows_the_cell_so_the_content_keeps_its_tier()
+    public void S1810_a_content_scale_grows_the_cell_so_the_content_keeps_its_size()
     {
-        var legacy = Legacy();
-        var view = ShowcaseViews.Build([new(legacy, "Clock", "x")], FullHd, Gap, contentScale: 1.25).First();
-        var xs = view.Widgets.Single(w => w.Id == ShowcaseViews.WidgetId(legacy, WidgetTiers.All[0]));
-        var cell = Dips(xs, FullHd);
+        var view = ShowcaseViews.Build([new(Notes, "Notes", "x")], FullHd, Gap, contentScale: 1.25).First();
+        var min = SizeFit.CheckedAt(SizeFit.Of(Notes))[0];
+        var cell = Dips(view.Widgets.Single(w => w.Id == ShowcaseViews.WidgetId(Notes, min)), FullHd);
 
-        Assert.Equal((120 * 1.25) + Gap, cell.Width, 3);
+        Assert.Equal(CheckedSize.Min, min.Name);
+        Assert.Equal((min.Width * 1.25) + Gap, cell.Width, 3);
     }
 
     [Fact]
@@ -153,7 +152,7 @@ public sealed class ShowcaseViewsTests
     {
         var clock = new WidgetId("clock");
         var view = Assert.Single(ShowcaseViews.Build([new(clock, "Clock", "x")], FullHd, Gap));
-        var range = SizeFit.RangeTiers(SizeFit.Of(clock));
+        var range = SizeFit.CheckedAt(SizeFit.Of(clock));
 
         Assert.Equal(["min", "natural", "max"], range.Select(t => t.Name));
         Assert.Equal(3, view.Widgets.Count);
@@ -172,7 +171,7 @@ public sealed class ShowcaseViewsTests
         var facts = new WidgetId("cpuFacts");
         var view = Assert.Single(ShowcaseViews.Build([new(facts, "CPU facts", "x")], FullHd, Gap));
 
-        foreach (var tier in SizeFit.RangeTiers(SizeFit.Of(facts)))
+        foreach (var tier in SizeFit.CheckedAt(SizeFit.Of(facts)))
         {
             var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(facts, tier));
             var laidOut = SizeFit.Of(widget);
@@ -181,29 +180,27 @@ public sealed class ShowcaseViewsTests
     }
 
     [Fact]
-    public void S1812_tiers_that_do_not_fit_one_work_area_continue_on_a_second_view()
+    public void S1812_sizes_that_do_not_fit_one_work_area_continue_on_a_second_view()
     {
-        var legacy = Legacy();
-        var views = ShowcaseViews.Build([new(legacy, "Clock", "x")], FullHdAt125, Gap);
+        var views = ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny, Gap);
 
         Assert.Equal(2, views.Count);
-        Assert.Equal([ShowcaseViews.ViewId(legacy), ShowcaseViews.ViewId(legacy, 1)], views.Select(v => v.Id));
-        Assert.Equal(["Clock (1)", "Clock (2)"], views.Select(v => v.Name));
-        Assert.Equal(7, views.Sum(v => v.Widgets.Count));
-        Assert.Equal(7, views.SelectMany(v => v.Widgets).Select(w => w.Id).Distinct().Count());
+        Assert.Equal([ShowcaseViews.ViewId(Notes), ShowcaseViews.ViewId(Notes, 1)], views.Select(v => v.Id));
+        Assert.Equal(["Notes (1)", "Notes (2)"], views.Select(v => v.Name));
+        Assert.Equal(3, views.Sum(v => v.Widgets.Count));
+        Assert.Equal(3, views.SelectMany(v => v.Widgets).Select(w => w.Id).Distinct().Count());
     }
 
     [Fact]
-    public void S1812_a_tier_larger_than_the_work_area_is_shrunk_to_it()
+    public void S1812_a_size_larger_than_the_work_area_is_shrunk_to_it()
     {
-        var tiny = Screen(640, 480, new PixelRect(0, 0, 640, 440));
-        var views = ShowcaseViews.Build([new(Legacy(), "Clock", "x")], tiny, Gap);
-        var work = GridGeometry.AllowedPixels(tiny);
+        var views = ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny, Gap);
+        var work = GridGeometry.AllowedPixels(Tiny);
 
-        Assert.Equal(7, views.Sum(v => v.Widgets.Count));
+        Assert.Equal(3, views.Sum(v => v.Widgets.Count));
         Assert.All(views.SelectMany(v => v.Widgets), w =>
         {
-            var c = Dips(w, tiny);
+            var c = Dips(w, Tiny);
             Assert.True(c.X + c.Width <= work.X + work.Width + 1e-6 && c.Y + c.Height <= work.Y + work.Height + 1e-6);
         });
     }
@@ -216,7 +213,7 @@ public sealed class ShowcaseViewsTests
         var kinds = AllKinds();
 
         Assert.Equal(0, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd, Gap)));
-        var shown = ShowcaseViews.ViewId(Legacy());
+        var shown = ShowcaseViews.ViewId(Notes);
         state.MonitorViews["display-a"] = shown;
 
         Assert.Equal(kinds.Count, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd, Gap)));
@@ -234,14 +231,13 @@ public sealed class ShowcaseViewsTests
     public void S1813_a_showcase_view_that_does_not_come_back_is_deleted_with_its_references()
     {
         var state = AppState.CreateDefault();
-        var legacy = Legacy();
-        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(legacy, "Clock", "x")], FullHdAt125, Gap));
-        var second = ShowcaseViews.ViewId(legacy, 1);
+        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny, Gap));
+        var second = ShowcaseViews.ViewId(Notes, 1);
         state.MonitorViews["display-a"] = second;
         state.ActiveViewId = second;
 
         // On a larger screen the kind fits one view, so its second page goes.
-        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(legacy, "Clock", "x")], FullHd, Gap));
+        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(Notes, "Notes", "x")], FullHd, Gap));
 
         Assert.Null(state.FindView(second));
         Assert.False(state.MonitorViews.ContainsKey("display-a"));
@@ -266,7 +262,7 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S1815_a_styled_kind_gets_one_view_per_style_each_widget_in_that_style()
     {
-        var clock = ModuleCatalog.Widgets.Select(w => w.Id).First(id => ModuleCatalog.Of(id).SizingOf().IsLegacy && WidgetStyles.For(id).Count >= 2);
+        var clock = ModuleCatalog.Widgets.Select(w => w.Id).First(id => WidgetStyles.For(id).Count >= 2);
         var styles = WidgetStyles.For(clock);
         var catalog = ShowcaseKind.Catalog();
         var views = ShowcaseViews.Build(catalog, FullHd, Gap);
@@ -276,7 +272,7 @@ public sealed class ShowcaseViewsTests
         {
             var view = Assert.Single(views, v => v.Id == ShowcaseViews.ViewId(clock, style: style.Name));
             Assert.Contains(style.Label.Text(), view.Name, StringComparison.Ordinal);
-            Assert.Equal(7, view.Widgets.Count);
+            Assert.Equal(3, view.Widgets.Count);
             Assert.All(view.Widgets, w => Assert.Equal(style.Value, WidgetStyles.Current(w.Config)));
         }
 

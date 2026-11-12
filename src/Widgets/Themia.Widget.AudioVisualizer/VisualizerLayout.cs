@@ -140,7 +140,7 @@ public static class VisualizerLayout
         {
             // Square cells where they fit, stretched a little so the column ends at the edge exactly.
             var cells = across > 0 && thickness > 0
-                ? Math.Clamp((int)Math.Floor((across + gap + Disclosure.Tolerance) / (thickness + gap)), 1, MaxCells)
+                ? Math.Clamp((int)Math.Floor((across + gap + LayoutMath.Tolerance) / (thickness + gap)), 1, MaxCells)
                 : 1;
             var cell = Math.Max(0, (across - (gap * (cells - 1))) / cells);
             return new VisualizerPlan(style, bars, thickness, gap, across, 1.0 / cells, cells, cell);

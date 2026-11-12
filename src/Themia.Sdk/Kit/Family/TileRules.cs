@@ -55,9 +55,6 @@ public readonly record struct SwitchParts(bool Glyph, bool Lines);
 /// </summary>
 public static class TileRules
 {
-    /// <summary>The glyph's share of the box's width at most: a glyph wider than this crowds its label.</summary>
-    public const double WidthShare = 0.6;
-
     /// <summary>[S-6736] A ringed glyph's share of its ring at most: the glyph stands clear of the ring's stroke.</summary>
     public const double RingShare = 0.75;
 
@@ -67,30 +64,6 @@ public static class TileRules
     /// <summary>The label and state lines under a Tile's glyph, with the gap above them.</summary>
     public static double Below(bool label, bool state)
         => (label || state ? FamilySpace.S2 : 0) + (label ? FamilyType.Body.LineHeight : 0) + (state ? FamilyType.Caption.LineHeight : 0);
-
-    /// <summary>
-    /// [S-6715] The glyph's step in a <paramref name="width"/> × <paramref name="height"/> box (the tile
-    /// less its inset): the largest Readout or Hero step that fits above the label and state lines and
-    /// takes at most <see cref="WidthShare"/> of the width, never below Big 28.
-    /// </summary>
-    public static TypeStep GlyphStep(double width, double height, bool label = true, bool state = true)
-    {
-        var chosen = FamilyType.Big28;
-        if (!double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0)
-        {
-            return chosen;
-        }
-
-        foreach (var step in FamilyType.Big.Concat(FamilyType.Hero))
-        {
-            if (step.FontSize + Below(label, state) <= height && step.FontSize <= width * WidthShare)
-            {
-                chosen = step;
-            }
-        }
-
-        return chosen;
-    }
 
     /// <summary>
     /// [S-6715] A Round tile's glyph inside its circle of <paramref name="circle"/>: the largest of the

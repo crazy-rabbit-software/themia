@@ -17,43 +17,40 @@ public sealed class KitLinedTests
     private static readonly KitSpec Table = new(KitRowLook.Table, KitShow.All, () => "(untitled)", () => "Empty", KitTime.Compact);
 
     private static KitPlan Plan(KitSpec spec, double width, double height, KitShow? shows = null, IReadOnlyList<KitColumn>? columns = null)
-        => KitLadder.Plan(new WidgetArea(width, height), spec, new KitChoices(shows ?? KitShow.All, columns));
+        => KitPlanner.Plan(new WidgetArea(width, height), spec, new KitChoices(shows ?? KitShow.All, columns));
 
     [Fact]
     public void S7032_the_one_line_look_and_a_compact_style_keep_one_line_everywhere()
     {
         var line = Stacked with { Look = KitRowLook.Line };
         Assert.Equal(1, Plan(line, 800, 524).Lines);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(800, 524), Stacked, new KitChoices(KitShow.All) { OneLine = true }).Lines);
+        Assert.Equal(1, KitPlanner.Plan(new WidgetArea(800, 524), Stacked, new KitChoices(KitShow.All) { OneLine = true }).Lines);
     }
 
     [Fact]
-    public void S7034_a_wide_table_adds_the_preview_after_a_lone_subtitle()
-    {
-        KitColumn[] chosen = [KitColumn.Title, KitColumn.Subtitle, KitColumn.When];
-
-        Assert.Equal(chosen, KitLadder.TableColumns(chosen, 600, 12).Select(c => c.Column));
-        Assert.Equal(
-            [KitColumn.Title, KitColumn.Subtitle, KitColumn.Preview, KitColumn.When],
-            KitLadder.TableColumns(chosen, 760, 8).Select(c => c.Column));
-
-        KitColumn[] own = [KitColumn.Preview, KitColumn.Title, KitColumn.Subtitle];
-        Assert.Equal(own, KitLadder.TableColumns(own, 760, 8).Select(c => c.Column));
-        KitColumn[] noSubtitle = [KitColumn.Title, KitColumn.When];
-        Assert.Equal(noSubtitle, KitLadder.TableColumns(noSubtitle, 760, 8).Select(c => c.Column));
-    }
-
-    [Fact]
-    public void S7034_a_narrow_table_keeps_the_most_essential_columns_in_the_users_order()
+    public void S11401_a_table_shows_every_chosen_column_in_the_users_order_at_every_width()
     {
         KitColumn[] chosen = [KitColumn.Subtitle, KitColumn.Badge, KitColumn.Title, KitColumn.When];
 
-        // Title (80) + When (56) + Subtitle (96) and their gaps fit 260; the badge is shed.
-        Assert.Equal([KitColumn.Subtitle, KitColumn.Title, KitColumn.When], KitLadder.TableColumns(chosen, 260, 8).Select(c => c.Column));
-        Assert.Equal([KitColumn.Title], KitLadder.TableColumns(chosen, 40, 8).Select(c => c.Column));
+        // No width adds a column or drops one ([S-11800]): the range starts where they all fit.
+        foreach (var width in new double[] { 260, 600, 760 })
+        {
+            Assert.Equal(chosen, KitPlanner.TableColumns(chosen, width, 8).Select(c => c.Column));
+        }
 
+        KitColumn[] lone = [KitColumn.Title, KitColumn.Subtitle, KitColumn.When];
+        Assert.Equal(lone, KitPlanner.TableColumns(lone, 760, 8).Select(c => c.Column));
+
+        // The least width holds every column at its own least, the gaps, the insets and a lead.
+        Assert.Equal((84 + 96 + 80 + 56) + (3 * KitPlanner.ColumnGap) + (2 * FamilySpace.Inset), KitPlanner.TableLeast(chosen, lead: false));
+        Assert.Equal(KitPlanner.TableLeast(chosen, lead: false) + RowRules.NameStart(FamilyShape.Icon), KitPlanner.TableLeast(chosen, lead: true));
+    }
+
+    [Fact]
+    public void S7034_the_flexible_columns_share_the_rest()
+    {
         // With no flexible column the first one takes the slack.
-        var fixedOnly = KitLadder.TableColumns([KitColumn.When, KitColumn.Title], 400, 8);
+        var fixedOnly = KitPlanner.TableColumns([KitColumn.When, KitColumn.Title], 400, 8);
         Assert.Equal(1, fixedOnly[0].Star);
         Assert.Equal(0, fixedOnly[1].Star);
     }

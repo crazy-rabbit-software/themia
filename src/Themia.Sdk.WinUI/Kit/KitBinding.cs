@@ -13,7 +13,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// [S-7061] The glue of a kit view: a source on one side, the list and its state panel on the
 /// other. It reads the source on attach and whenever the source says it changed (never on a timer
 /// of its own), decides the screen (<see cref="KitScreens.Decide"/>), plans the rows
-/// (<see cref="KitLadder.Plan"/>) and draws them; redraws on a language change and on its tick (the
+/// (<see cref="KitPlanner.Plan"/>) and draws them; redraws on a language change and on its tick (the
 /// ages); publishes the header title the data suggests ([S-403]: the user's own still wins); and
 /// carries out the actions the user picks: an open through the host's one launcher, a copy through
 /// the host's clipboard, Refresh through the source, the rest through the view's handler.
@@ -240,7 +240,7 @@ public sealed class KitBinding : IDisposable
                 State.Hide();
                 List.Visibility = Visibility.Visible;
                 var now = _clock();
-                List.Show(items, KitLadder.Plan(_area, _spec, _config.Choices), _area, now);
+                List.Show(items, KitPlanner.Plan(_area, _spec, _config.Choices), _area, now);
 
                 // [S-7042] The one stale rule: a copy on screen the last attempt of some source could
                 // not improve on is the header's problem glyph, one line per source and problem, after

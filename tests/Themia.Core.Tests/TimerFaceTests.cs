@@ -22,7 +22,7 @@ public sealed class TimerFaceTests
         Assert.Equal(Math.Ceiling(HeroFit.Ems("88") * 96) + 24, FlipRules.CardWidth(FamilyType.Hero96, "88"));
         Assert.Equal((2 * FlipRules.CardWidth(FamilyType.Big40, "88")) + 8, FlipRules.RowWidth(FamilyType.Big40, 2, "88"));
 
-        var plan = FlipRules.Plan(new WidgetArea(800, 560), 768, 528, 2, "88", oneReadout: true);
+        var plan = FlipRules.Plan(768, 528, 2, "88");
         Assert.Equal(FamilyType.Hero192, plan.Step);
         Assert.Equal(252, plan.CardHeight);
     }
@@ -31,12 +31,11 @@ public sealed class TimerFaceTests
     public void S6740_cards_take_the_largest_step_on_which_the_row_and_what_stands_beside_it_fit()
     {
         // Two cards on 96 are 2 × (112 + 24) + 8 = 280 wide: a 288 box holds them, not with 40 beside them.
-        Assert.Equal(FamilyType.Hero96, FlipRules.Plan(new WidgetArea(320, 204), 288, 180, 2, "88", oneReadout: true).Step);
-        Assert.Equal(FamilyType.Hero68, FlipRules.Plan(new WidgetArea(320, 204), 288, 180, 2, "88", oneReadout: true, beside: _ => 40).Step);
+        Assert.Equal(FamilyType.Hero96, FlipRules.Plan(288, 180, 2, "88").Step);
+        Assert.Equal(FamilyType.Hero68, FlipRules.Plan(288, 180, 2, "88", beside: _ => 40).Step);
 
-        // A data widget's cards stop at the area's ceiling (28 on a regular tile); a box too short for the line under sheds it.
-        Assert.Equal(FamilyType.Big28, FlipRules.Plan(new WidgetArea(320, 204), 288, 180, 2, "88", oneReadout: false).Step);
-        Assert.False(FlipRules.Plan(new WidgetArea(120, 84), 88, 40, 3, "88", oneReadout: true, under: true).Under);
+        // A box too short for the line under sheds it.
+        Assert.False(FlipRules.Plan(88, 40, 3, "88", under: true).Under);
     }
 
     [Fact]

@@ -141,7 +141,7 @@ public static class ShortcutLayout
         }
 
         var plan = Rows(config);
-        var rows = FamilySpace.ContentTop + (plan.ColumnHeader ? KitLadder.ColumnHeaderHeight : 0) + (ListRows(count) * plan.RowHeight) + FamilySpace.Inset;
+        var rows = FamilySpace.ContentTop + (plan.ColumnHeader ? KitPlanner.ColumnHeaderHeight : 0) + (ListRows(count) * plan.RowHeight) + FamilySpace.Inset;
         if (config.Style == ShortcutsStyle.List)
         {
             return WidgetSizing.Range(new(ListMin, rows), new(ListNatural, rows), new(ListMax, rows));

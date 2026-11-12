@@ -20,8 +20,8 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
-/// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
+/// [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
+/// (<see cref="SizeFit.CheckedAt"/>, [S-2448]), labelled, side by side on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
 /// the framework's own CardBackgroundFillColorDefault / CardStrokeColorDefault over
@@ -61,9 +61,6 @@ internal static class WidgetRender
 
     /// <summary>Height reserved above each frame for its size label.</summary>
     private const double LabelHeight = 22;
-
-    /// <summary>Which row each tier sits on: four across the top, Tall and L under them, XL alone.</summary>
-    private static readonly int[] RowOf = [0, 0, 0, 0, 1, 1, 2];
 
     /// <summary>The application theme can only be chosen before the resources load: read by <c>App</c>.</summary>
     public static ApplicationTheme? RequestedTheme(string[] args)
@@ -150,11 +147,11 @@ internal static class WidgetRender
             ? spanValue
             : null;
 
-        // [S-2448] A converted kind is drawn at its range (min, natural, max) unless sizes are asked for;
-        // a legacy kind at the seven tiers. --sizes range|tiers|WxH,.. picks.
+        // [S-2448] A kind is drawn at its range (min, natural, max) unless sizes are asked for:
+        // --sizes range|WxH,.. picks.
         var sizing = SizeFit.Of(kind, style, _header);
-        List<WidgetTier> tiers = Size(args, at + 3) is { } size
-            ? [new WidgetTier($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
+        List<CheckedSize> tiers = Size(args, at + 3) is { } size
+            ? [new CheckedSize($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
             : Sizes(Option(args, "--sizes"), sizing) is { Count: > 0 } sizes ? sizes : [.. SizeFit.CheckedAt(sizing)];
 
         _ = dispatcher.TryEnqueue(async () =>
@@ -392,12 +389,12 @@ internal static class WidgetRender
     }
 
     /// <summary>
-    /// One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).
-    /// [S-11601] Each tier is drawn as a resize to it leaves the widget: the config that size means and the
-    /// box that config is painted at, which replaces the tier in <paramref name="tiers"/> (and sizes the
+    /// One labelled card per size, side by side.
+    /// [S-11601] Each size is drawn as a resize to it leaves the widget: the config that size means and the
+    /// box that config is painted at, which replaces the size in <paramref name="tiers"/> (and sizes the
     /// page). Returns the labels, one per card, for <see cref="Refit"/>.
     /// </summary>
-    internal static List<TextBlock> Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
+    internal static List<TextBlock> Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<CheckedSize> tiers, List<WidgetCard> cards)
     {
         var labels = new List<TextBlock>();
         for (var index = 0; index < tiers.Count; index++)
@@ -437,7 +434,7 @@ internal static class WidgetRender
             // its width). Nothing changes for a kind without the hook.
             var (config, box) = SizeFit.Resized(model.Config, new SizeDip(tier.Width, tier.Height), model.ShownHeader);
             model.Config = config;
-            tiers[index] = new WidgetTier(tier.Name, box.Width, box.Height);
+            tiers[index] = new CheckedSize(tier.Name, box.Width, box.Height);
 
             var card = new WidgetCard(host, model);
 
@@ -452,8 +449,8 @@ internal static class WidgetRender
         return labels;
     }
 
-    /// <summary>Each card at its tier's size under its label, in <see cref="Rows"/>' order, and the page round them.</summary>
-    private static void Arrange(Canvas page, List<WidgetCard> cards, List<TextBlock> labels, List<WidgetTier> tiers)
+    /// <summary>Each card at its size under its label, side by side, and the page round them.</summary>
+    private static void Arrange(Canvas page, List<WidgetCard> cards, List<TextBlock> labels, List<CheckedSize> tiers)
     {
         var at = Positions(tiers);
         for (var i = 0; i < cards.Count && i < at.Count; i++)
@@ -470,21 +467,15 @@ internal static class WidgetRender
         (page.Width, page.Height) = PageSize(tiers);
     }
 
-    /// <summary>Where each tier's label stands (its card under it), in <see cref="Rows"/>' order.</summary>
-    private static List<(double Left, double Top)> Positions(List<WidgetTier> tiers)
+    /// <summary>Where each size's label stands (its card under it), left to right.</summary>
+    private static List<(double Left, double Top)> Positions(List<CheckedSize> tiers)
     {
         var at = new List<(double, double)>();
-        var top = Gap;
-        foreach (var row in Rows(tiers))
+        var x = Gap;
+        foreach (var tier in tiers)
         {
-            var x = Gap;
-            foreach (var tier in row)
-            {
-                at.Add((x, top));
-                x += tier.Width + Gap;
-            }
-
-            top += LabelHeight + row.Max(t => t.Height) + Gap;
+            at.Add((x, Gap));
+            x += tier.Width + Gap;
         }
 
         return at;
@@ -496,9 +487,9 @@ internal static class WidgetRender
     /// its tier (its min, natural or max; another box fitted into it), that size's config handed to the
     /// view as a resize would ([S-2442]), and the page laid out again. Returns the tiers as drawn.
     /// </summary>
-    internal static List<WidgetTier> Refit(Canvas page, List<WidgetCard> cards, List<TextBlock> labels, List<WidgetTier> tiers)
+    internal static List<CheckedSize> Refit(Canvas page, List<WidgetCard> cards, List<TextBlock> labels, List<CheckedSize> tiers)
     {
-        var drawn = new List<WidgetTier>(tiers);
+        var drawn = new List<CheckedSize>(tiers);
         for (var i = 0; i < cards.Count && i < tiers.Count; i++)
         {
             if (cards[i].View is not IWidgetPreviewState { DrawnConfig: { } config } || cards[i].View is not IWidgetView view)
@@ -507,17 +498,12 @@ internal static class WidgetRender
             }
 
             var sizing = SizeFit.Of(config, cards[i].Model.ShownHeader);
-            if (sizing.IsLegacy)
-            {
-                continue;
-            }
-
             var tier = tiers[i];
             var asked = tier.Name switch
             {
-                "min" => sizing.Min,
-                "natural" => sizing.Natural,
-                "max" => sizing.Max,
+                CheckedSize.Min => sizing.Min,
+                CheckedSize.Natural => sizing.Natural,
+                CheckedSize.Max => sizing.Max,
                 _ => new SizeDip(tier.Width, tier.Height),
             };
 
@@ -527,7 +513,7 @@ internal static class WidgetRender
                 view.ApplyConfig(sized);
             }
 
-            drawn[i] = new WidgetTier(tier.Name, box.Width, box.Height);
+            drawn[i] = new CheckedSize(tier.Name, box.Width, box.Height);
         }
 
         Arrange(page, cards, labels, drawn);
@@ -539,7 +525,7 @@ internal static class WidgetRender
     /// render sets from <c>--theme</c> before the resources load), and the colours it should composite
     /// to, printed for the pixel comparison.
     /// </summary>
-    private static void PlaceReference(Canvas page, WidgetTier tier, double left)
+    private static void PlaceReference(Canvas page, CheckedSize tier, double left)
     {
         var resources = Application.Current.Resources;
         var radius = resources["OverlayCornerRadius"] is CornerRadius r ? r : new CornerRadius(ShellMetrics.OverlayRadius);
@@ -583,34 +569,8 @@ internal static class WidgetRender
         }
     }
 
-    private static List<List<WidgetTier>> Rows(List<WidgetTier> tiers)
-    {
-        if (tiers.Count != RowOf.Length)
-        {
-            return [tiers];
-        }
-
-        var rows = new List<List<WidgetTier>>();
-        for (var i = 0; i < tiers.Count; i++)
-        {
-            while (rows.Count <= RowOf[i])
-            {
-                rows.Add([]);
-            }
-
-            rows[RowOf[i]].Add(tiers[i]);
-        }
-
-        return rows;
-    }
-
-    internal static (double Width, double Height) PageSize(List<WidgetTier> tiers)
-    {
-        var rows = Rows(tiers);
-        var width = rows.Max(r => r.Sum(t => t.Width + Gap)) + Gap;
-        var height = Gap + rows.Sum(r => LabelHeight + r.Max(t => t.Height) + Gap);
-        return (width, height);
-    }
+    internal static (double Width, double Height) PageSize(List<CheckedSize> tiers)
+        => (tiers.Sum(t => t.Width + Gap) + Gap, Gap + LabelHeight + tiers.Max(t => t.Height) + Gap);
 
     /// <summary>An optional "w h" pair right after the output path.</summary>
     private static (double Width, double Height)? Size(string[] args, int at)
@@ -628,42 +588,28 @@ internal static class WidgetRender
 
     /// <summary>
     /// [S-1917] <c>--sizes 100x100,160x100</c>: several in-between sizes on one page, beside or instead of
-    /// the tiers. [S-2448] <c>range</c> is a converted kind's min, natural and max.
+    /// the range. [S-2448] <c>range</c> is the kind's min, natural and max.
     /// </summary>
-    private static List<WidgetTier>? Sizes(string? list, WidgetSizing sizing)
+    private static List<CheckedSize>? Sizes(string? list, WidgetSizing sizing)
     {
         if (list is null)
         {
             return null;
         }
 
-        var tiers = new List<WidgetTier>();
+        var tiers = new List<CheckedSize>();
         foreach (var item in list.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            if (item.Equals("tiers", StringComparison.OrdinalIgnoreCase))
-            {
-                tiers.AddRange(WidgetTiers.All);
-                continue;
-            }
-
             if (item.Equals("range", StringComparison.OrdinalIgnoreCase))
             {
-                if (SizeFit.RangeTiers(sizing) is { Count: > 0 } range)
-                {
-                    tiers.AddRange(range);
-                }
-                else
-                {
-                    Console.WriteLine("widget: a legacy kind has no range ([S-2443]); use tiers or WxH");
-                }
-
+                tiers.AddRange(SizeFit.CheckedAt(sizing));
                 continue;
             }
 
             var parts = item.Split('x');
             if (parts.Length == 2 && Size(parts, 0) is { } size)
             {
-                tiers.Add(new WidgetTier(item, size.Width, size.Height));
+                tiers.Add(new CheckedSize(item, size.Width, size.Height));
             }
             else
             {

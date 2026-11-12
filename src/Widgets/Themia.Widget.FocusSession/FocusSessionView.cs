@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// ([S-4422]).
 /// </para>
 /// </summary>
-internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys
 {
     private readonly Grid _dial = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly ChartRing _ring = new();
@@ -108,11 +108,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     {
         _config = config as FocusSessionConfig ?? new FocusSessionConfig();
         Lay();
-    }
-
-    /// <summary>[S-11305] The face is the config's, not the box's: a wider card centres the same face.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     public void Detach()

@@ -595,15 +595,11 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _columnHeader.Visibility = Visibility.Collapsed;
     }
 
-    /// <summary>[S-6712] The list is as tall as its whole rows; the rest is a scroll away.</summary>
-    private void WholeRows(int lines, ContactsLayoutPlan plan)
+    /// <summary>[S-11406] The list is as tall as the rows its config states; the rest is a scroll away.</summary>
+    private void StatedRows(int lines, ContactsLayoutPlan plan)
     {
-        // [S-11406] The rows its box holds: the config's at rest, the box's while a drag is setting them.
-        var room = _area.Height - FamilySpace.Inset
-            - (_search.Visibility == Visibility.Visible ? ContactsPlan.SearchHeight : 0)
-            - (plan.Layout == ContactsLayout.Details ? ContactsPlan.HeaderHeight : 0);
-        var fit = _area.IsMeasured ? (int)Math.Floor((room + 0.5) / plan.Pitch) : plan.Rows;
-        var shown = Math.Max(1, Math.Min(lines, fit));
+        // A resize being dragged hands the view the config that size means ([S-2447]): never the box's own count.
+        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
         _scroll.Height = lines > shown ? shown * plan.Pitch : double.NaN;
     }
 
@@ -647,7 +643,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             grid.Children.Add(row);
         }
 
-        WholeRows((contacts.Count + plan.Columns - 1) / plan.Columns, plan);
+        StatedRows((contacts.Count + plan.Columns - 1) / plan.Columns, plan);
         Use(grid);
     }
 
@@ -690,7 +686,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             list.Children.Add(Item(block, contact));
         }
 
-        WholeRows(contacts.Count, plan);
+        StatedRows(contacts.Count, plan);
         Use(list);
     }
 
@@ -737,12 +733,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         // The panel's last gap is not a line of its own.
         var lines = (contacts.Count + plan.Columns - 1) / plan.Columns;
-        // [S-11406] The rows its box holds: the config's at rest, the box's while a drag is setting them.
-        var room = _area.Height - FamilySpace.Inset
-            - (_search.Visibility == Visibility.Visible ? ContactsPlan.SearchHeight : 0)
-            - (plan.Layout == ContactsLayout.Details ? ContactsPlan.HeaderHeight : 0);
-        var fit = _area.IsMeasured ? (int)Math.Floor((room + 0.5) / plan.Pitch) : plan.Rows;
-        var shown = Math.Max(1, Math.Min(lines, fit));
+        // [S-11406] The lines its config states; the rest is a scroll away.
+        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
         _scroll.Height = lines > shown ? (shown * plan.Pitch) - FamilySpace.ColumnGap : double.NaN;
         Use(panel);
     }

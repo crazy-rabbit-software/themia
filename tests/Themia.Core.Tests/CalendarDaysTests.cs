@@ -167,17 +167,6 @@ public sealed class CalendarDaysTests
         Assert.All(Enumerable.Range(from, 200), w => Assert.True(KitDays.Dated(Locale.En, w)));
     }
 
-    // ---- [S-2717] wrapped titles -------------------------------------------------------------------
-
-    [Fact]
-    public void S2717_second_lines_go_in_order_to_the_rows_that_wrap_while_the_room_lasts()
-    {
-        Assert.Equal([true, false, true, false], Disclosure.SecondLines([true, false, true, true], 40, 16));
-        Assert.Equal([false, false], Disclosure.SecondLines([true, true], 10, 16));
-        Assert.Equal([false, true], Disclosure.SecondLines([false, true], 16, 16));
-        Assert.Empty(Disclosure.SecondLines([], 100, 16));
-    }
-
     [Theory]
     [InlineData(0, true, true, 1, false, false)]
     [InlineData(1, true, true, 1, false, false)]

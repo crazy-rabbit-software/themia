@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// Controls row at the bottom inset, centred under it, where the tile has room for them.
 /// </para>
 /// </summary>
-internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys
 {
     private readonly ReadoutBlock _readout = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly ChartRing _ring = new();
@@ -147,11 +147,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
 
         Lay();
         Render();
-    }
-
-    /// <summary>[S-11304] The face is the config's, not the box's: a wider card centres the same face.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     /// <summary>

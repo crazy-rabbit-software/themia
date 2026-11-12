@@ -140,7 +140,7 @@ internal sealed partial class CalendarView
 
         var rowsShown = CalendarSizing.ClampWeekRows(_config.WeekRows);
         var labels = CalendarFit.Weekdays(Math.Max(0, width - (2 * FamilySpace.Inset)) / Math.Max(1, days));
-        var plan = KitLadder.Plan(new WidgetArea(width, rowsShown * FamilyShape.Row1), AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = new KitRowsChoice(rowsShown, 1) });
+        var plan = KitPlanner.Plan(new WidgetArea(width, rowsShown * FamilyShape.Row1), AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = new KitRowsChoice(rowsShown, 1) });
 
         // The strip, the family's gap, then the empty day's sentence: rows of the content, no margins.
         _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });

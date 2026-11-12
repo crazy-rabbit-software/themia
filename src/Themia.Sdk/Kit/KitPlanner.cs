@@ -4,8 +4,8 @@ namespace Themia.Sdk.Kit;
 
 /// <summary>
 /// The row looks a kit list draws. Every look is the family's Row block ([S-6711]): one row of 28, 40
-/// or 64 for one, two or three lines by the tier ([S-6712], <see cref="RowRules.Lines"/>), never by
-/// the length of its text; the name (the item's title) primary, Strong for the one emphasised row
+/// or 56 for the one, two or three lines its config states ([S-2440], [S-6712]), never by the length
+/// of its text; the name (the item's title) primary, Strong for the one emphasised row
 /// (unread, today), the value (the time) secondary at the end, a second line in Caption secondary, a
 /// third in Caption tertiary; the lead a 16 glyph or the site's icon. No divider.
 /// </summary>
@@ -23,12 +23,12 @@ public enum KitRowLook
     /// </summary>
     TwoLine,
 
-    /// <summary>[S-7032] The same row as <see cref="TwoLine"/> held to one line at every tier: the sender and the time.</summary>
+    /// <summary>[S-7032] The same row as <see cref="TwoLine"/> held to one line: the sender and the time.</summary>
     Line,
 
     /// <summary>
-    /// [S-7034] One line of the user's columns in the user's order (<see cref="KitColumn"/>), the
-    /// least essential shed first, with the columns' titles over them where the height affords it. Mail.
+    /// [S-7034] One line of the user's columns in the user's order (<see cref="KitColumn"/>), each at
+    /// least its own width, with the columns' titles over them where the config has them. Mail.
     /// </summary>
     Table,
 
@@ -73,7 +73,7 @@ public sealed record KitChoices(KitShow Shows, IReadOnlyList<KitColumn>? Columns
     /// <summary>[S-7038] An item can be added (the add row has a purpose).</summary>
     public bool CanAdd { get; init; }
 
-    /// <summary>[S-7037] One line per row at every tier (a compact style): the subtitle line left out.</summary>
+    /// <summary>[S-7037] One line per row (a compact style): the subtitle line left out.</summary>
     public bool OneLine { get; init; }
 
     /// <summary>
@@ -120,8 +120,8 @@ public enum KitOverflow
 
 /// <summary>
 /// [S-7030] A kit list widget's shape: which look its rows have, which optional fields exist, how
-/// many columns it may grow to, how its time is written, and its sentences. The widget's own data,
-/// so its breakpoints live in one place, <see cref="KitLadder.Plan"/>.
+/// many columns it may have, how its time is written, and its sentences. The widget's own data,
+/// planned in one place, <see cref="KitPlanner.Plan"/>.
 /// </summary>
 /// <param name="Untitled">The title of an item that has none, in the current language.</param>
 /// <param name="Empty">What the widget says when its sources answered with nothing ([S-7040]).</param>
@@ -148,7 +148,7 @@ public sealed record KitSpec(
 
     /// <summary>
     /// [S-7073] The row's value is a reading (<see cref="KitItem.Value"/>: a battery's level), the
-    /// item's point: kept at every width, where a time gives way below 180; the title ellipsises first.
+    /// item's point: the title ellipsises first.
     /// </summary>
     public bool Readings { get; init; }
 
@@ -160,7 +160,7 @@ public sealed record KitSpec(
     public bool Unread { get; init; }
 }
 
-/// <summary>[S-7030] What one size of a kit list shows; chosen by <see cref="KitLadder.Plan"/>.</summary>
+/// <summary>[S-7030] What a kit list shows, the same at every size of its range; made by <see cref="KitPlanner.Plan"/>.</summary>
 /// <param name="Columns">How many columns of rows, read left to right, then down (a check look's: top to bottom, then across).</param>
 /// <param name="ColumnWidth">The width one column is laid out in (0 before the box is measured).</param>
 /// <param name="Lines">[S-6712] The lines every row shows (1 to 3); its height is <see cref="RowHeight"/>.</param>
@@ -202,26 +202,14 @@ public readonly record struct KitPlan(
 }
 
 /// <summary>
-/// [S-7031] The kit's disclosure ladder ([S-660]..[S-666]), the one place a kit list's breakpoints
-/// live. Rows are the family's ([S-6711], [S-6712]): a tile shows more lines per row as it grows both
-/// ways (one while compact either way, two from regular, three from expanded) and as many whole rows
-/// as fit; from 400 wide a spec may go to two columns (three from 720) while a column keeps 320. In a
-/// row the title always shows; the lead and the time from a column of 180, the badge from 260.
-/// Concise first ([S-666]): no rung adds a control or a pane.
+/// [S-11580] The kit's planner, the one place a kit list's plan is made: the rows, lines, columns and
+/// fields its config states ([S-2440]), the same at every size of its range ([S-11800]). Rows are the
+/// family's ([S-6711], [S-6712]).
 /// </summary>
-public static class KitLadder
+public static class KitPlanner
 {
-    /// <summary>A column narrower than this cannot hold a one-line title worth reading beside its time (a list's name box).</summary>
-    public const double MinColumn = 320;
-
     /// <summary>[S-7034] The table's column titles: one Caption line and the gap under it.</summary>
     public static double ColumnHeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
-
-    /// <summary>[S-7034] From this width the table adds the preview column when the subtitle would hog the line.</summary>
-    public const double RoomyPreviewFromWidth = 700;
-
-    /// <summary>[S-7034] The share of the line a lone subtitle column may take before the preview joins it.</summary>
-    public const double RoomySubtitleShare = 0.4;
 
     /// <summary>[S-7034] The gap between table columns: the family's column gap.</summary>
     public const double ColumnGap = FamilySpace.ColumnGap;
@@ -273,9 +261,9 @@ public static class KitLadder
     }
 
     /// <summary>
-    /// [S-11401] A table that states its rows: one line a row, the user's columns fitted to the width
-    /// (the least essential given up first on a narrow one, as [S-7034]), its column titles where the
-    /// user has them on, never by the height.
+    /// [S-11401] A table that states its rows: one line a row, every one of the user's columns
+    /// (<see cref="TableColumns"/>; its width range holds them, <see cref="TableLeast"/>), its column
+    /// titles where the user has them on.
     /// </summary>
     private static KitPlan SizedTable(WidgetArea area, KitChoices choices, KitRowsChoice rows, Func<KitShow, bool> has)
     {
@@ -299,55 +287,29 @@ public static class KitLadder
         _ => 96,
     };
 
-    /// <summary>The order columns are given up in when the tile is too narrow for all of them.</summary>
-    private static int Expendability(KitColumn column) => column switch
+    /// <summary>
+    /// [S-11401] The least card width a table of <paramref name="chosen"/> columns takes: every column at
+    /// its <see cref="MinWidth"/>, the gaps between them, the row's insets and its lead. A table's width
+    /// range starts there, so no width drops a column.
+    /// </summary>
+    public static double TableLeast(IReadOnlyList<KitColumn> chosen, bool lead)
     {
-        KitColumn.Preview => 0,
-        KitColumn.Badge => 1,
-        KitColumn.When => 2,
-        KitColumn.Subtitle => 3,
-        _ => 4,
-    };
+        ArgumentNullException.ThrowIfNull(chosen);
+        var columns = chosen.Distinct().ToList();
+        var text = columns.Sum(MinWidth) + (Math.Max(0, columns.Count - 1) * ColumnGap);
+        return Math.Ceiling(text + (2 * FamilySpace.Inset) + (lead ? RowRules.NameStart(FamilyShape.Icon) : 0));
+    }
 
     /// <summary>
-    /// [S-7034] A table's columns at <paramref name="width"/> (the row's inner width): the title, the
-    /// time and the badge have fixed widths, the subtitle and the preview share what is left. The most
-    /// essential columns are kept first as long as their minimums fit, in the user's order, so a narrow
-    /// tile keeps the title and the time rather than the title alone; the most essential always stays.
-    /// A wide row with the subtitle as its only flexible column gives the rest of the line to the
-    /// preview, after the subtitle.
+    /// [S-7034] [S-11401] A table's columns at <paramref name="width"/> (the row's inner width), every one the
+    /// user chose, in the user's order: the title, the time and the badge have fixed widths, the subtitle and
+    /// the preview share what is left (with neither, the first column takes the slack).
     /// </summary>
     public static IReadOnlyList<KitColumnFit> TableColumns(IReadOnlyList<KitColumn> chosen, double width, double gap)
     {
         ArgumentNullException.ThrowIfNull(chosen);
 
-        var distinct = chosen.Distinct().ToList();
-        var keep = new HashSet<KitColumn>();
-        var used = 0.0;
-
-        foreach (var column in distinct.OrderByDescending(Expendability))
-        {
-            var cost = MinWidth(column) + (keep.Count > 0 ? gap : 0);
-            if (keep.Count == 0 || used + cost <= width)
-            {
-                keep.Add(column);
-                used += cost;
-            }
-        }
-
-        var kept = distinct.Where(keep.Contains).ToList();
-
-        if (width >= RoomyPreviewFromWidth && !kept.Contains(KitColumn.Preview) && kept.Contains(KitColumn.Subtitle))
-        {
-            var fixedWidth = kept.Where(c => c != KitColumn.Subtitle).Sum(c => c == KitColumn.Title ? Math.Clamp(width * 0.28, MinWidth(c), 200) : MinWidth(c));
-            var share = (width - fixedWidth - ((kept.Count - 1) * gap)) / width;
-
-            if (share > RoomySubtitleShare && share * width >= MinWidth(KitColumn.Subtitle) + MinWidth(KitColumn.Preview) + gap)
-            {
-                kept.Insert(kept.IndexOf(KitColumn.Subtitle) + 1, KitColumn.Preview);
-            }
-        }
-
+        var kept = chosen.Distinct().ToList();
         var hasStar = kept.Any(c => c is KitColumn.Subtitle or KitColumn.Preview);
 
         return
@@ -367,9 +329,8 @@ public static class KitLadder
     // ---- the schedule look ([S-7035], [S-7036]) -------------------------------------------------
 
     /// <summary>
-    /// [S-7036] The schedule's plan: two columns from 720, rows of two lines (the title and its start,
-    /// the span and where under them) from regular both ways and of one on a compact tile, headings
-    /// one row of 28.
+    /// [S-7036] The schedule's plan: one column, rows of the lines its config states (the title and its
+    /// start, the span and where under them), headings one row of 28.
     /// </summary>
     private static KitPlan Scheduled(WidgetArea area, KitChoices choices)
     {

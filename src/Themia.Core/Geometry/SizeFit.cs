@@ -6,6 +6,19 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Geometry;
 
 /// <summary>
+/// [S-2448] One size a kind is drawn and checked at, in DIPs of the painted card: its Min, its Natural
+/// or its Max (<see cref="SizeFit.CheckedAt"/>), or a size a render was asked for ("320x240").
+/// </summary>
+public readonly record struct CheckedSize(string Name, double Width, double Height)
+{
+    public const string Min = "min";
+
+    public const string Natural = "natural";
+
+    public const string Max = "max";
+}
+
+/// <summary>
 /// [S-2444] One axis of a widget's sizing on a display, as fractions of the screen of the widget's
 /// <b>cell</b> (the card plus the gap): the range a resize may take (<see cref="Min"/>..<see cref="Max"/>,
 /// on steps where the axis has them) and, where the axis follows the config, the one size it is laid
@@ -61,16 +74,11 @@ public static class SizeFit
     /// <summary>
     /// [S-2444] <paramref name="sizing"/>, stated with <paramref name="stated"/> (the kind's default
     /// header), for a card that shows <paramref name="shown"/>: a header the kind did not count adds its
-    /// line, one it counted and the card hides takes it away. A legacy sizing is left as it is.
+    /// line, one it counted and the card hides takes it away.
     /// </summary>
     public static WidgetSizing ForHeader(WidgetSizing sizing, HeaderPlacement stated, HeaderPlacement shown)
     {
         ArgumentNullException.ThrowIfNull(sizing);
-        if (sizing.IsLegacy)
-        {
-            return sizing;
-        }
-
         var (sw, sh) = Cost(stated);
         var (cw, ch) = Cost(shown);
         var (dw, dh) = (cw - sw, ch - sh);
@@ -94,13 +102,13 @@ public static class SizeFit
     /// <summary>
     /// [S-2444] A widget's sizing on <paramref name="screen"/>: each DIP size times the content
     /// <paramref name="scale"/> ([S-6532]: the display's and the widget's own) plus the
-    /// <paramref name="gapPx"/> round the card, as a fraction of the screen. Null for a legacy sizing
-    /// or an unusable screen: the old way.
+    /// <paramref name="gapPx"/> round the card, as a fraction of the screen. Null for an unusable
+    /// screen (one not measured yet): nothing to fit against.
     /// </summary>
     public static SizeLimits? Limits(WidgetSizing sizing, ScreenMetrics screen, double scale, double gapPx)
     {
         ArgumentNullException.ThrowIfNull(sizing);
-        if (sizing.IsLegacy || !screen.IsUsable)
+        if (!screen.IsUsable)
         {
             return null;
         }
@@ -124,7 +132,7 @@ public static class SizeFit
     /// <summary>
     /// [S-2446] The box a widget is painted in: its stored rect fitted into its sizing, anchored at its
     /// top-left, then kept in reach as any rect ([S-09]). The stored rect is not changed by being shown;
-    /// without limits (a legacy kind) it is shown as stored.
+    /// without limits (a screen not measured yet) it is shown as stored.
     /// </summary>
     public static FracRect Shown(FracRect stored, SizeLimits? limits, ScreenMetrics screen)
     {
@@ -158,7 +166,7 @@ public static class SizeFit
     /// <summary>
     /// [S-2442] The config a card box of <paramref name="box"/> DIPs (at widget scale 1, its header
     /// <paramref name="shown"/> included) means, for a kind that has the hook: what a resize to that box
-    /// gives, and what the renders draw a converted kind's min, natural and max with ([S-2448]). The
+    /// gives, and what the renders draw a kind's min, natural and max with ([S-2448]). The
     /// config itself (the same instance) for every other kind or when the kind answers with it.
     /// </summary>
     public static WidgetConfig ConfigAt(WidgetConfig config, SizeDip box, HeaderPlacement shown)
@@ -179,13 +187,12 @@ public static class SizeFit
     /// [S-11601] What a resize to <paramref name="box"/> DIPs leaves, as the desktop does it: the config
     /// that size means (<see cref="ConfigAt"/>) and the box that config is painted at, the asked one fitted
     /// into its sizing ([S-2446]: an axis that follows the other, as a camera's height its width, or a
-    /// grid's rows its columns, takes the size its config gives). A legacy kind keeps the box.
+    /// grid's rows its columns, takes the size its config gives).
     /// </summary>
     public static (WidgetConfig Config, SizeDip Box) Resized(WidgetConfig config, SizeDip box, HeaderPlacement shown)
     {
         var drawn = ConfigAt(config, box, shown);
-        var sizing = Of(drawn, shown);
-        return (drawn, sizing.IsLegacy ? box : sizing.Fit(box));
+        return (drawn, Of(drawn, shown).Fit(box));
     }
 
     /// <summary>What a header at <paramref name="h"/> costs the card: its line and gap, across the edge it stands on.</summary>
@@ -214,7 +221,7 @@ public static class SizeFit
     /// <summary>
     /// [S-2448] The sizing a new widget of <paramref name="kind"/> has in <paramref name="style"/> (its
     /// default config, that style), on a card showing <paramref name="header"/> (its default when null):
-    /// what the renders and the showcase draw a converted kind at.
+    /// what the renders and the showcase draw a kind at.
     /// </summary>
     public static WidgetSizing Of(WidgetId kind, int? style = null, HeaderPlacement? header = null)
     {
@@ -229,21 +236,17 @@ public static class SizeFit
         return Of(config, shown);
     }
 
-    /// <summary>
-    /// [S-2448] A converted kind is checked at its range, not the seven tiers: its Min, its Natural and
-    /// its Max, named so. None for a legacy kind (it keeps the tiers).
-    /// </summary>
-    public static IReadOnlyList<WidgetTier> RangeTiers(WidgetSizing sizing)
+    /// <summary>[S-2448] The sizes a kind is checked at: its range, its Min, its Natural and its Max, named so.</summary>
+    public static IReadOnlyList<CheckedSize> CheckedAt(WidgetSizing sizing)
     {
         ArgumentNullException.ThrowIfNull(sizing);
-        return sizing.IsLegacy
-            ? []
-            : [new("min", sizing.Min.Width, sizing.Min.Height), new("natural", sizing.Natural.Width, sizing.Natural.Height), new("max", sizing.Max.Width, sizing.Max.Height)];
+        return
+        [
+            new(CheckedSize.Min, sizing.Min.Width, sizing.Min.Height),
+            new(CheckedSize.Natural, sizing.Natural.Width, sizing.Natural.Height),
+            new(CheckedSize.Max, sizing.Max.Width, sizing.Max.Height),
+        ];
     }
-
-    /// <summary>[S-2448] The sizes a kind is checked at: its range when converted, else the seven tiers.</summary>
-    public static IReadOnlyList<WidgetTier> CheckedAt(WidgetSizing sizing)
-        => RangeTiers(sizing) is { Count: > 0 } range ? range : WidgetTiers.All;
 
     /// <summary>[S-2444] <see cref="Of(WidgetInstance)"/> on a display.</summary>
     public static SizeLimits? Limits(WidgetInstance widget, ScreenMetrics screen, double scale, double gapPx)

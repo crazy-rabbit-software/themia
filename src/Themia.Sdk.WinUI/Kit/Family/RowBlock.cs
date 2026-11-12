@@ -94,7 +94,7 @@ public sealed partial class RowBlock : Grid
     }
 
     /// <summary>
-    /// [S-6712] How many lines the row shows (1 to 3, by <see cref="RowRules.Lines"/>): its height
+    /// [S-6712] How many lines the row shows (1 to 3, as its widget's config states): its height
     /// follows, 28, 40 or 56, and the lines it does not show take no room.
     /// </summary>
     public int Lines
@@ -306,8 +306,8 @@ public sealed partial class RowBlock : Grid
 }
 
 /// <summary>
-/// [S-6713] <c>Row.Cell</c>: one item of a grid (Shortcuts', a folder's icons) — its lead (32, or 48 on
-/// an expanded tile, <see cref="RowRules.CellIcon"/>) over its name in Caption, primary, centred,
+/// [S-6713] <c>Row.Cell</c>: one item of a grid (Shortcuts', a folder's icons) — its lead (32 or 48, as
+/// its widget's config states) over its name in Caption, primary, centred,
 /// 4 apart. Cells stand 12 apart; the grid that lays them out is the widget's.
 /// </summary>
 public sealed partial class RowCell : StackPanel

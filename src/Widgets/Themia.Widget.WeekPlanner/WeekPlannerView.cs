@@ -37,7 +37,7 @@ namespace Themia.App.Widgets;
 /// is <see cref="WeekPlannerRules"/>.
 /// </para>
 /// </summary>
-internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions
 {
     /// <inheritdoc />
     public CardOpen? Opens => WeekPlannerModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
@@ -64,7 +64,6 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     private IDisposable? _poll;
     private IDisposable? _tick;
     private WeekPlannerConfig _config = new();
-    private WidgetArea _area;
     private Screen _screen = Screen.Loading;
     private Func<string> _problemText = () => string.Empty;
     private bool _problemOffersAccounts;
@@ -136,12 +135,6 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         _colorBrushes.Clear();
         BindTasks();
         _ = RefreshAsync(force: false);
-    }
-
-    public void ApplySize(WidgetArea area)
-    {
-        _area = area;
-        Render();
     }
 
     /// <summary>Refresh, as every calendar widget has: the events and the tasks both.</summary>
@@ -391,9 +384,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         // [S-11410] The config's days side by side, its rows under each heading; rows carry the card's
         // side inset, so the columns meet. An empty today still takes a row, to say nothing is planned ([S-5323]).
         var counts = days.Select((d, i) => i == 0 ? Math.Max(1, d.Count) : d.Count).ToList();
-        // The config's rows at rest; while a drag is setting them, the rows its box holds.
-        var fit = _area.IsMeasured ? Math.Max(1, (int)Math.Floor((_area.Height - FamilySpace.Inset - FamilyShape.Row1 + 0.5) / FamilyShape.Row1)) : _config.RowsPerDay;
-        var slots = WeekPlannerRules.Columns(counts, _config.Days, Math.Min(_config.RowsPerDay, fit));
+        // The config's rows; a resize being dragged hands the view the config that size means ([S-2447]).
+        var slots = WeekPlannerRules.Columns(counts, _config.Days, _config.RowsPerDay);
         var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
 
         for (var c = 0; c < slots.Count; c++)

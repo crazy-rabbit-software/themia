@@ -12,15 +12,16 @@ public readonly record struct ClockReadoutPlan(TypeStep Step, bool Stacked, bool
     public int Lines => Stacked ? (Seconds ? 3 : 2) : 1;
 }
 
-/// <summary>[S-6743] The analog dial as planned: its diameter, whether its line stands under it or beside it, and the line's width beside it.</summary>
-public readonly record struct ClockDialPlan(double Dial, bool Line, bool Side, double LineWidth);
+/// <summary>[S-6743] The analog dial as planned: its diameter and whether its line stands under it.</summary>
+public readonly record struct ClockDialPlan(double Dial, bool Line);
 
-/// <summary>[S-6744] The Date style as planned: the day's step, the face, which words show and whether in their short names.</summary>
-public readonly record struct ClockDatePlan(TypeStep Step, DateFace Face, bool Weekday, bool ShortWeekday, bool Month, bool ShortMonth, double WordsWidth);
+/// <summary>[S-6744] The Date style as planned: the day's step, which words show and whether in their short names.</summary>
+public readonly record struct ClockDatePlan(TypeStep Step, bool Weekday, bool ShortWeekday, bool Month, bool ShortMonth);
 
 /// <summary>
-/// The clock's faces on the family's steps (one-readout, [S-6737]): never filling the box, always the
-/// largest fixed step that fits the content box (the card less its inset of 12, the clock has no header).
+/// The clock's faces on the family's steps (one-readout, [S-6737]): the step its Size names, which its
+/// sizing made the card for ([S-2449]), measured in the content box (the card less its inset of 12, the
+/// clock has no header). The box never changes what the face holds ([S-11800]).
 /// </summary>
 public static class ClockFace
 {
@@ -30,11 +31,8 @@ public static class ClockFace
     /// <summary>[S-6743] The least dial that keeps its line under it.</summary>
     public const double DialWithLine = 96;
 
-    /// <summary>[S-6743] The gap between a dial and its line, under or beside it.</summary>
+    /// <summary>[S-6743] The gap between a dial and its line under it.</summary>
     public const double DialGap = FamilySpace.S2;
-
-    /// <summary>[S-6744] The gap between the day and its words on a strip.</summary>
-    public const double DateGap = FamilySpace.ColumnGap;
 
     /// <summary>A part of the time at its widest: two figures.</summary>
     public const string Figures = "88";
@@ -49,7 +47,7 @@ public static class ClockFace
     /// that draws a larger step, or where the row is too wide even on the floor step and the stack is not. Where
     /// neither fits the floor step, the meridiem gives way first, then the seconds: the figures are the widget.
     /// </summary>
-    public static ClockReadoutPlan Readout(WidgetArea area, double width, double height, ClockStyle style, bool seconds, string meridiem, bool under)
+    public static ClockReadoutPlan Readout(double width, double height, ClockStyle style, bool seconds, string meridiem, bool under)
     {
         var unit = string.IsNullOrEmpty(meridiem) ? string.Empty : " " + meridiem;
         foreach (var (withSeconds, withMeridiem) in Folds(seconds, unit.Length > 0))
@@ -76,7 +74,7 @@ public static class ClockFace
                 continue;
             }
 
-            var rowStep = ReadoutRules.Step(area, width, height, row);
+            var rowStep = ReadoutRules.Step(width, height, row);
             var stackStep = StackedStep(width, height, stacked, lines);
             var stack = FamilyType.BaseOf(stackStep) > FamilyType.BaseOf(rowStep) || (!rowFits && stackFits);
             return stack
@@ -128,14 +126,14 @@ public static class ClockFace
     /// them on a larger step (a tall column), or where a row would not fit even on the floor step. A meridiem that
     /// would not fit beside one floor step's card gives way.
     /// </summary>
-    public static (FlipPlan Plan, bool Vertical, bool Meridiem) Flip(WidgetArea area, double width, double height, int cards, string meridiem, bool under)
+    public static (FlipPlan Plan, bool Vertical, bool Meridiem) Flip(double width, double height, int cards, string meridiem, bool under)
     {
         double Beside(TypeStep step) => string.IsNullOrEmpty(meridiem) ? 0 : FamilySpace.S2 + (HeroFit.Ems(meridiem) * FamilyType.Unit(step).FontSize);
 
         var withMeridiem = !string.IsNullOrEmpty(meridiem)
             && FlipRules.RowWidth(FamilyType.Big28, 1, Figures) + Beside(FamilyType.Big28) <= width;
         Func<TypeStep, double>? beside = withMeridiem ? Beside : null;
-        var row = FlipRules.Plan(area, width, height, cards, Figures, oneReadout: true, beside, under);
+        var row = FlipRules.Plan(width, height, cards, Figures, beside, under);
 
         // One above the other: each card's line and the gaps between them, the line under once.
         var chosen = FamilyType.Big28;
@@ -162,71 +160,54 @@ public static class ClockFace
     }
 
     /// <summary>
-    /// [S-6743] The analog dial: on a strip of a regular width or more its line stands beside it (the dial the
-    /// content's height, at most 0.45 of its width, the line 16 after it); otherwise under it, 8 apart, while the
-    /// dial keeps <see cref="DialWithLine"/>, else the dial alone. Never under <see cref="DialFloor"/>.
+    /// [S-6743] The analog dial: its line under it, 8 apart, while the dial keeps <see cref="DialWithLine"/>,
+    /// else the dial alone. Never under <see cref="DialFloor"/>.
     /// </summary>
-    public static ClockDialPlan Dial(WidgetArea area, double width, double height, bool line)
+    public static ClockDialPlan Dial(double width, double height, bool line)
     {
         if (!double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0)
         {
-            return new ClockDialPlan(0, false, false, 0);
+            return new ClockDialPlan(0, false);
         }
 
-        var lineHeight = FamilyType.Body.LineHeight;
-        if (line && area.Shape == AreaShape.Wide && area.WidthClass >= SizeClass.Regular)
-        {
-            var side = Math.Floor(Math.Max(DialFloor, Math.Min(height, width * 0.45)));
-            return new ClockDialPlan(side, true, true, Math.Max(0, width - side - FamilySpace.S4));
-        }
-
-        var withLine = Math.Floor(Math.Min(width, height - DialGap - lineHeight));
+        var withLine = Math.Floor(Math.Min(width, height - DialGap - FamilyType.Body.LineHeight));
         if (line && withLine >= DialWithLine)
         {
-            return new ClockDialPlan(withLine, true, false, width);
+            return new ClockDialPlan(withLine, true);
         }
 
-        return new ClockDialPlan(Math.Floor(Math.Max(DialFloor, Math.Min(width, height))), false, false, width);
+        return new ClockDialPlan(Math.Floor(Math.Max(DialFloor, Math.Min(width, height))), false);
     }
 
     /// <summary>
     /// [S-6744] The Date style: the day of the month a Readout ("88") on the largest step that fits, the weekday
-    /// over it and the month under it, both on the step's line under, secondary. On a strip of a regular width or
-    /// more the weekday stands over the month beside the day (12 after it). A word too wide for its line in its
-    /// wide name takes the short one; where the lines do not fit even the floor step, the month gives way, then
-    /// the weekday.
+    /// over it and the month under it, both on the step's line under, secondary. A word too wide for its line in
+    /// its wide name takes the short one; where the lines do not fit even the floor step, the month gives way,
+    /// then the weekday.
     /// </summary>
-    public static ClockDatePlan Date(WidgetArea area, double width, double height)
+    public static ClockDatePlan Date(double width, double height)
     {
         var number = new ReadoutText(Figures, OneReadout: true);
-        var row = area.Shape == AreaShape.Wide && area.WidthClass >= SizeClass.Regular;
 
         var chosen = FamilyType.Big28;
         foreach (var step in ReadoutRules.Steps(oneReadout: true))
         {
             var under = FamilyType.Under(step);
-            var day = ReadoutRules.Width(step, number);
-            var fits = row
-                ? day + DateGap + Words(under, ShortCharacters) <= width && Math.Max(step.LineHeight, 2 * under.LineHeight) <= height
-                : day <= width && step.LineHeight + (2 * under.LineHeight) <= height;
-            if (fits)
+            if (ReadoutRules.Width(step, number) <= width && step.LineHeight + (2 * under.LineHeight) <= height)
             {
                 chosen = step;
             }
         }
 
         var line = FamilyType.Under(chosen);
-        var wordsWidth = row ? Math.Max(0, width - ReadoutRules.Width(chosen, number) - DateGap) : width;
-        var weekday = row ? line.LineHeight <= height : chosen.LineHeight + line.LineHeight <= height;
-        var month = row ? 2 * line.LineHeight <= height : chosen.LineHeight + (2 * line.LineHeight) <= height;
+        var weekday = chosen.LineHeight + line.LineHeight <= height;
+        var month = chosen.LineHeight + (2 * line.LineHeight) <= height;
         return new ClockDatePlan(
             chosen,
-            row ? DateFace.Row : DateFace.Column,
             weekday,
-            Words(line, WeekdayCharacters) > wordsWidth,
+            Words(line, WeekdayCharacters) > width,
             month && weekday,
-            Words(line, MonthCharacters) > wordsWidth,
-            wordsWidth);
+            Words(line, MonthCharacters) > width);
     }
 
     private static double Words(TypeStep step, int characters) => FamilyType.EstimateWidth(step, characters);

@@ -58,8 +58,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     /// <summary>[S-6744] The date style's words: the weekday over the day, the month under it (beside it on a strip).</summary>
     private readonly TextBlock _weekday = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly TextBlock _month = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly StackPanel _dayWords = new() { VerticalAlignment = VerticalAlignment.Center };
-    private readonly StackPanel _dayRow = new() { Orientation = Orientation.Horizontal, Spacing = ClockFace.DateGap };
 
     private Ticker? _ticker;
     private ClockConfig _config = new();
@@ -192,8 +190,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         _underWidth = width;
         // Every part leaves its last parent first: a part has one parent, and the styles share some.
         _stack.Children.Clear();
-        _dayWords.Children.Clear();
-        _dayRow.Children.Clear();
         _dialLine.Children.Clear();
 
         switch (style)
@@ -221,7 +217,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
                 break;
 
             default:
-                _digits = ClockFace.Readout(_area, width, height, style, _config.DrawsSeconds, meridiem, wantsLine);
+                _digits = ClockFace.Readout(width, height, style, _config.DrawsSeconds, meridiem, wantsLine);
                 _secondsDrawn = _config.DrawsSeconds && _digits.Seconds;
 
                 // [S-6014] The minimal clock: the same readout at the regular weight, alone.
@@ -249,7 +245,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     private void LayFlip(double width, double height, string meridiem, bool wantsLine)
     {
         var count = _config.DrawsSeconds ? 3 : 2;
-        var (plan, vertical, withMeridiem) = ClockFace.Flip(_area, width, height, count, meridiem, wantsLine);
+        var (plan, vertical, withMeridiem) = ClockFace.Flip(width, height, count, meridiem, wantsLine);
 
         if (_flipCards.Count != count)
         {
@@ -277,60 +273,45 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         AddUnder();
     }
 
-    /// <summary>[S-6743] The dial, its line under it or beside it.</summary>
+    /// <summary>[S-6743] The dial, its line under it.</summary>
     private void LayDial(double width, double height, bool wantsLine)
     {
-        var plan = ClockFace.Dial(_area, width, height, wantsLine);
+        var plan = ClockFace.Dial(width, height, wantsLine);
         SizeDial(plan.Dial);
         _underStep = FamilyType.Body;
         _underShown = plan.Line;
-        _underWidth = plan.LineWidth;
         Family.Step(_under, _underStep);
 
-        _dialLine.Orientation = plan.Side ? Orientation.Horizontal : Orientation.Vertical;
-        _dialLine.Spacing = plan.Side ? FamilySpace.S4 : ClockFace.DialGap;
+        _dialLine.Spacing = ClockFace.DialGap;
         _dialLine.Children.Add(_dial);
         if (plan.Line)
         {
             _under.VerticalAlignment = VerticalAlignment.Center;
-            _under.MaxWidth = plan.Side ? Math.Max(1, plan.LineWidth) : double.PositiveInfinity;
+            _under.MaxWidth = double.PositiveInfinity;
             _dialLine.Children.Add(_under);
         }
 
         _stack.Children.Add(_dialLine);
     }
 
-    /// <summary>[S-6744] The day a Readout, the weekday over it and the month under it, or both beside it on a strip.</summary>
+    /// <summary>[S-6744] The day a Readout, the weekday over it and the month under it.</summary>
     private void LayDate(double width, double height)
     {
-        _date = ClockFace.Date(_area, width, height);
+        _date = ClockFace.Date(width, height);
         _secondsDrawn = false;
-        _readout.Use(_date.Step, _date.Face == DateFace.Row ? HorizontalAlignment.Left : Aligned.Horizontal(_align));
+        _readout.Use(_date.Step, Aligned.Horizontal(_align));
         var line = FamilyType.Under(_date.Step);
         Family.Step(_weekday, line);
         Family.Step(_month, line);
         _weekday.Visibility = _date.Weekday ? Visibility.Visible : Visibility.Collapsed;
         _month.Visibility = _date.Month ? Visibility.Visible : Visibility.Collapsed;
 
-        if (_date.Face == DateFace.Row)
-        {
-            _dayWords.MaxWidth = Math.Max(1, _date.WordsWidth);
-            _dayWords.Children.Add(_weekday);
-            _dayWords.Children.Add(_month);
-            _dayRow.Children.Add(_readout);
-            _dayRow.Children.Add(_dayWords);
-            _stack.Children.Add(_dayRow);
-        }
-        else
-        {
-            _dayWords.MaxWidth = double.PositiveInfinity;
-            _stack.Children.Add(_weekday);
-            _stack.Children.Add(_readout);
-            _stack.Children.Add(_month);
-        }
+        _stack.Children.Add(_weekday);
+        _stack.Children.Add(_readout);
+        _stack.Children.Add(_month);
     }
 
-    /// <summary>[S-1484] Left, centre or right ([S-6583]) for the face and every line of it; beside a dial or a day the words read from it outwards.</summary>
+    /// <summary>[S-1484] Left, centre or right ([S-6583]) for the face and every line of it.</summary>
     private void ApplyAlignment()
     {
         var horizontal = Aligned.Horizontal(_align);
@@ -341,11 +322,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         _flipLine.HorizontalAlignment = horizontal;
         _dial.HorizontalAlignment = horizontal;
 
-        var beside = (_config.Style == ClockStyle.Date && _date.Face == DateFace.Row) || (_config.Style == ClockStyle.Analog && _dialLine.Orientation == Orientation.Horizontal);
         foreach (var line in new[] { _under, _weekday, _month })
         {
-            line.HorizontalAlignment = beside ? HorizontalAlignment.Left : horizontal;
-            line.TextAlignment = beside ? TextAlignment.Left : text;
+            line.HorizontalAlignment = horizontal;
+            line.TextAlignment = text;
         }
     }
 

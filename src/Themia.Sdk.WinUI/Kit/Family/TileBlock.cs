@@ -7,8 +7,8 @@ using Themia.Sdk.Kit;
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-6715] The Tile block, a one-readout widget's whole body: the glyph centred on the step
-/// <see cref="TileRules.GlyphStep"/> gives its box, its label (Body) 8 under it and its state line
+/// [S-6715] The Tile block, a one-readout widget's whole body: the glyph centred on the step its
+/// widget's Size names (<see cref="TileRules.GlyphAt"/>), its label (Body) 8 under it and its state line
 /// (Caption) under that. On, <see cref="TileLook.Tile"/> fills the whole tile with the accent and
 /// draws on it in the on-accent roles; <see cref="TileLook.Round"/> puts the glyph in a circle (the
 /// accent when on); <see cref="TileLook.Switch"/> is a Row with a switch as its value. Not on, the
@@ -141,20 +141,6 @@ public sealed partial class TileBlock : Grid
             _face = face;
             Apply();
         }
-    }
-
-    /// <summary>
-    /// [S-6715] Lay the glyph out for the tile's box less its inset, planned for a
-    /// <paramref name="label"/> and a <paramref name="state"/> line whether or not they say anything
-    /// now, so a change of state moves nothing.
-    /// </summary>
-    public void Size(double width, double height, bool label = true, bool state = true)
-    {
-        _width = width;
-        _planLabel = label;
-        _planState = state;
-        _step = TileRules.GlyphStep(width, height, label, state);
-        Apply();
     }
 
     /// <summary>

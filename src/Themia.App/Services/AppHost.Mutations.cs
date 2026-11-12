@@ -70,7 +70,7 @@ internal sealed partial class AppHost
     private readonly ConditionalWeakTable<WidgetInstance, WidgetSizing> _sizings = [];
 
     /// <summary>
-    /// [S-2447] Note every widget's sizing; with <paramref name="refit"/>, a converted widget whose
+    /// [S-2447] Note every widget's sizing; with <paramref name="refit"/>, a widget whose
     /// sizing changed since it was last noted (its config changed: a style, a count, a size) has its
     /// stored rect fitted into the new one, anchored at its top-left and kept in reach, on the display
     /// that shows its view. A widget first seen (loaded, brought back by an undo) is noted as it is:
@@ -84,7 +84,7 @@ internal sealed partial class AppHost
             foreach (var widget in view.Widgets)
             {
                 var sizing = SizeFit.Of(widget);
-                if (refit && !sizing.IsLegacy && _sizings.TryGetValue(widget, out var was) && was != sizing)
+                if (refit && _sizings.TryGetValue(widget, out var was) && was != sizing)
                 {
                     surface ??= _windows.FirstOrDefault(w => w.IsAlive && string.Equals(w.CurrentViewId, view.Id, StringComparison.Ordinal));
                     if (surface is { Metrics.IsUsable: true })

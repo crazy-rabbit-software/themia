@@ -297,7 +297,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        // [S-2446] A converted kind is painted in its stored rect fitted into its sizing on this
+        // [S-2446] A widget is painted in its stored rect fitted into its sizing on this
         // display (another monitor, DPI or scale), anchored at its top-left and kept in reach. The
         // stored rect is not rewritten by being shown: only a gesture or a config change does that.
         rect = SizeFit.Shown(rect, card.Limits, metrics);

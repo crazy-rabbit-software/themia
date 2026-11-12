@@ -153,26 +153,13 @@ public sealed class FamilyTokensTests
         Assert.Equal(FamilyShape.Row1, FamilyShape.IconButton);
     }
 
-    [Theory]
-    [InlineData(150, 100, 28)]   // XS
-    [InlineData(300, 200, 28)]   // M: regular both ways
-    [InlineData(800, 200, 28)]   // Wide: expanded one way
-    [InlineData(300, 500, 28)]   // Tall
-    [InlineData(500, 200, 28)]   // expanded one way, regular the other
-    [InlineData(800, 500, 40)]   // L, XL: expanded both ways
-    public void S2220_a_data_widgets_number_is_28_or_40_once_expanded_both_ways(double width, double height, double ceiling)
-    {
-        Assert.Equal(ceiling, ReadoutRules.Ceiling(new WidgetArea(width, height)));
-    }
-
     [Fact]
     public void S2220_a_data_widgets_number_never_takes_68()
     {
-        // A huge box: a data widget stops at 40, a one-readout widget climbs on through the Hero steps.
-        var area = new WidgetArea(1200, 900);
-        Assert.Equal(40, FamilyType.BaseOf(ReadoutRules.Step(area, 1200, 900, new ReadoutText("88"))));
-        Assert.Equal(192, FamilyType.BaseOf(ReadoutRules.Step(area, 1200, 900, new ReadoutText("88", OneReadout: true))));
-        Assert.Equal(68, FamilyType.BaseOf(ReadoutRules.Step(area, 1200, 100, new ReadoutText("88", OneReadout: true))));
+        // A huge box: a data reading stops at 40, a one-readout widget's goes on through the Hero steps.
+        Assert.Equal(40, FamilyType.BaseOf(ReadoutRules.Step(1200, 900, new ReadoutText("88"))));
+        Assert.Equal(192, FamilyType.BaseOf(ReadoutRules.Step(1200, 900, new ReadoutText("88", OneReadout: true))));
+        Assert.Equal(68, FamilyType.BaseOf(ReadoutRules.Step(1200, 100, new ReadoutText("88", OneReadout: true))));
         Assert.DoesNotContain(ReadoutRules.Steps(oneReadout: false), s => FamilyType.BaseOf(s) > 40);
     }
 

@@ -29,13 +29,6 @@ public class WeekPlannerTests
     private static TaskItem Due(string id, DateOnly? due, bool completed = false)
         => new(id, "list", id, completed, DueRaw: due is { } day ? TaskDue.Wire(day) : null);
 
-    /// <summary>The view's area at a tier: the card's width, its height less the header.</summary>
-    private static WidgetArea Box(string tier)
-    {
-        var t = WidgetTiers.All.Single(x => x.Name == tier);
-        return new WidgetArea(t.Width, t.Height - 44);
-    }
-
     [Fact]
     public void S5321_the_planner_reads_a_rolling_week_from_today()
     {

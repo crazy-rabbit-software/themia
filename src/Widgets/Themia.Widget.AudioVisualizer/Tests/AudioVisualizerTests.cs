@@ -16,13 +16,24 @@ public class AudioVisualizerTests
     private static readonly AudioVisualizerStyle[] Linear =
         [AudioVisualizerStyle.Bars, AudioVisualizerStyle.Mirrored, AudioVisualizerStyle.Wave, AudioVisualizerStyle.Led];
 
-    private static WidgetArea Tier(string name)
+    /// <summary>
+    /// Boxes of every shape the drawing's measure is checked over (a square, a strip, a column, a large
+    /// panel), named: the layout is pure, so it is held over more shapes than the range draws.
+    /// </summary>
+    private static readonly Dictionary<string, (double Width, double Height)> Boxes = new()
     {
-        var tier = WidgetTiers.All.Single(t => t.Name == name);
-        return new WidgetArea(tier.Width, tier.Height);
-    }
+        ["XS"] = (120, 120),
+        ["S"] = (200, 150),
+        ["M"] = (320, 240),
+        ["Wide"] = (480, 160),
+        ["Tall"] = (200, 400),
+        ["L"] = (560, 420),
+        ["XL"] = (800, 560),
+    };
 
-    public static TheoryData<string> Tiers() => [.. WidgetTiers.All.Select(t => t.Name)];
+    private static WidgetArea Tier(string name) => new(Boxes[name].Width, Boxes[name].Height);
+
+    public static TheoryData<string> Tiers() => [.. Boxes.Keys];
 
     [Fact]
     public void S3200_the_config_round_trips_under_its_own_kind()

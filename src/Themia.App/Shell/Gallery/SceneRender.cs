@@ -376,7 +376,7 @@ internal static class SceneRender
                 Links = links,
                 FixtureState = spec.State,
             };
-            // [S-2446] A converted kind is painted in its rect fitted into its sizing, as on the desktop.
+            // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop.
             var contentScale = WidgetScale.Effective(job.Scene.Scale, model.Scale);
             var shown = SizeFit.Shown(model.Rect, SizeFit.Limits(model, metrics, contentScale, design.WidgetGapPx), metrics);
             var cell = GridGeometry.ToPixels(shown, metrics);

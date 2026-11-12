@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// pointer comes by; while the thumb is held a reading never moves it.
 /// </para>
 /// </summary>
-internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => BrightnessModule.Opens;
@@ -110,11 +110,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     {
         _config = config as BrightnessConfig ?? new BrightnessConfig();
         Lay();
-    }
-
-    /// <summary>[S-11308] The level and the slider are always both: the box changes nothing.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     public void Detach()

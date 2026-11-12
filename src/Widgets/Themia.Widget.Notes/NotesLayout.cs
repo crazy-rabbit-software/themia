@@ -4,11 +4,6 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Core.Notes;
 
-/// <summary>What the note widget's body shows at one size.</summary>
-/// <param name="TextWidth">The width the text has: the whole box at every size, never shared with a note list.</param>
-/// <param name="TextLines">Whole lines of text the editor shows at least (for tests; the editor scrolls).</param>
-public sealed record NotesLayoutPlan(double TextWidth, int TextLines);
-
 /// <summary>
 /// [S-3963] The formatting bar in the card's header: how many buttons stand in it, and whether the
 /// rest are behind a "More" button.
@@ -49,9 +44,6 @@ public static class NotesLayout
 
     public const double ButtonGap = 0;
 
-    /// <summary>Lines of text the editor reserves before anything else is shown.</summary>
-    public const int MinTextLines = 2;
-
     /// <summary>The header's own inset on each side.</summary>
     public const double HeaderInset = FamilySpace.Inset;
 
@@ -72,20 +64,6 @@ public static class NotesLayout
 
     /// <summary>The rename box under the picker: room for a title of a few words.</summary>
     public const double RenameWidth = 200;
-
-    /// <param name="area">The view's slot (the card less its header).</param>
-    /// <param name="lineHeight">One line of the note (the Body line at the text size).</param>
-    public static NotesLayoutPlan Plan(WidgetArea area, double lineHeight)
-    {
-        if (!area.IsMeasured)
-        {
-            return new NotesLayoutPlan(0, MinTextLines);
-        }
-
-        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
-        var height = Math.Max(0, area.Height - FamilySpace.Inset);
-        return new NotesLayoutPlan(width, Math.Max(MinTextLines, Disclosure.WholeRows(height, lineHeight)));
-    }
 
     /// <summary>
     /// [S-3963] What of the header a bar may take: all of it but the insets, the icon, the title's
@@ -120,7 +98,7 @@ public static class NotesLayout
             return default;
         }
 
-        var inline = Math.Clamp(Disclosure.WholeRows(room - ButtonSize - ButtonGap, ButtonSize, ButtonGap), 0, AllButtons - 1);
+        var inline = Math.Clamp((int)Math.Floor((room - ButtonSize + LayoutMath.Tolerance) / (ButtonSize + ButtonGap)), 0, AllButtons - 1);
         return new NotesHeaderBar(inline, true);
     }
 }

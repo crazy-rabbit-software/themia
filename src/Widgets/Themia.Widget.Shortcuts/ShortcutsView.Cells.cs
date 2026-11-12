@@ -266,7 +266,7 @@ internal sealed partial class ShortcutsView
 
         DetailColumns(_columnHeader, plan);
         _columnHeader.ColumnSpacing = FamilySpace.ColumnGap;
-        _columnHeader.Height = KitLadder.ColumnHeaderHeight;
+        _columnHeader.Height = KitPlanner.ColumnHeaderHeight;
         _columnHeader.Padding = new Thickness(FamilySpace.Inset + RowRules.NameStart(plan.Lead), 0, FamilySpace.Inset, 0);
 
         // The titles of the columns the table has: the name, then the target and the kind where shown.

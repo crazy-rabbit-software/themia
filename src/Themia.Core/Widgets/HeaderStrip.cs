@@ -101,38 +101,6 @@ public static class HeaderStrip
         _ => new HeaderRotation(0, 0, 0),
     };
 
-    /// <summary>[S-402] Below this card height a top or bottom header sheds: the content is worth more than its label.</summary>
-    public const double FlatShedsBelow = 96;
-
-    /// <summary>
-    /// [S-409] Below this card width a side header sheds. A side strip eats width, about 40 DIPs
-    /// (a header's height), so a card keeps one only while the content beside it is still at least
-    /// as wide as the narrowest card every widget is laid out for, the XS tier's 120 DIPs
-    /// (<see cref="WidgetTiers"/>): 120 + 40. Narrower, text wraps per letter and buttons clip.
-    /// </summary>
-    public const double SideShedsBelow = 160;
-
-    /// <summary>
-    /// [S-402] [S-404] The header sheds on a card too small across the strip to carry it: too short
-    /// for a top or bottom strip, too narrow for a side one ([S-409]), since that is the axis the
-    /// strip eats. A size of zero is a card not measured yet, not a small one.
-    /// </summary>
-    public static bool Sheds(HeaderPlacement placement, double width, double height)
-    {
-        var side = IsSide(placement);
-        var across = side ? width : height;
-        return across > 0 && across < (side ? SideShedsBelow : FlatShedsBelow);
-    }
-
-    /// <summary>
-    /// [S-11009] Whether the card sheds its header, for a kind whose sizing does or does not count it
-    /// (<paramref name="sized"/>: a converted kind, [S-2444]). A converted kind's header is in its sizing
-    /// on every edge (a top one its 24, a foot or side strip its 36), so it is there at every size of the
-    /// range and never sheds; only a legacy kind, sized by hand, keeps the floors of <see cref="Sheds(HeaderPlacement, double, double)"/>.
-    /// </summary>
-    public static bool Sheds(HeaderPlacement placement, double width, double height, bool sized)
-        => !sized && Sheds(placement, width, height);
-
     /// <summary>
     /// [S-5700] How far below the card's top edge the view's cell starts, for a header shown on
     /// <paramref name="shown"/> (<see cref="HeaderEdge.None"/> when hidden or shed): nothing under a header

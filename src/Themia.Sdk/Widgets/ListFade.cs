@@ -42,5 +42,5 @@ public static class ListFade
     }
 
     /// <summary>Whether a list of <paramref name="extent"/> continues past a viewport ending at <paramref name="viewBottom"/>.</summary>
-    public static bool MoreBelow(double viewBottom, double extent) => viewBottom < extent - Disclosure.Tolerance;
+    public static bool MoreBelow(double viewBottom, double extent) => viewBottom < extent - LayoutMath.Tolerance;
 }

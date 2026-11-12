@@ -30,7 +30,6 @@ public sealed partial class ReadoutBlock : StackPanel
     private bool _painted;
     private bool _centred;
     private HorizontalAlignment? _align;
-    private bool _underFits = true;
 
     public ReadoutBlock()
     {
@@ -103,22 +102,6 @@ public sealed partial class ReadoutBlock : StackPanel
         }
     }
 
-    /// <summary>
-    /// [S-6702] Choose the step for the box the readout has (<paramref name="width"/> × <paramref name="height"/>
-    /// in a view given <paramref name="area"/>) and the widest case <paramref name="worst"/>; a
-    /// one-readout case also centres it.
-    /// </summary>
-    public void Size(WidgetArea area, double width, double height, ReadoutText worst)
-    {
-        _step = ReadoutRules.Step(area, width, height, worst);
-        _centred = worst.OneReadout;
-        _align = null;
-
-        // A box too short for the line under even the floor step sheds that line, never the value.
-        _underFits = !worst.LineUnder || ReadoutRules.Height(_step, worst) <= height;
-        Apply();
-    }
-
     /// <summary>Draw the readout on a step chosen elsewhere (a Tile's, a row of readouts sharing one).</summary>
     public void Use(TypeStep step, bool centred = false)
     {
@@ -172,7 +155,7 @@ public sealed partial class ReadoutBlock : StackPanel
         Paint();
     }
 
-    private void ShowUnder() => _under.Visibility = _underFits && _under.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+    private void ShowUnder() => _under.Visibility = _under.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
     /// <summary>The roles' brushes: a missing part's unit and line under are disabled with its value.</summary>
     private void Paint()

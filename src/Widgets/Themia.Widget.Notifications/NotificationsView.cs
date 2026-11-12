@@ -237,11 +237,11 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         }
 
         // [S-6712] As tall as the whole lines that fit, never ending on a heading.
-        var room = KitLadder.ListHeight(_area);
+        var room = KitPlanner.ListHeight(_area);
         var bottoms = _lines.Select(l => l.Bottom).ToList();
         var content = bottoms.Count > 0 ? bottoms[^1] : 0;
         _scroll.Height = !_area.IsMeasured ? double.NaN
-            : content <= room + Disclosure.Tolerance ? content
+            : content <= room + LayoutMath.Tolerance ? content
             : KitChecks.WholeLineCap(bottoms, room, [.. _lines.Select(l => l.Heading)]);
 
         _cursor = _cursor is { } cursor && cursor < _rows.Count ? cursor : null;

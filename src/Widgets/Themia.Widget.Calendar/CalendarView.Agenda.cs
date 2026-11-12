@@ -80,7 +80,7 @@ internal sealed partial class CalendarView
 
         var area = new Themia.Core.Widgets.WidgetArea(width, height);
         // [S-11540] The config's rows and lines at every size: the height was made for them.
-        var plan = KitLadder.Plan(area, AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = Themia.Widget.Calendar.CalendarSizing.AgendaShown(_config) });
+        var plan = KitPlanner.Plan(area, AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = Themia.Widget.Calendar.CalendarSizing.AgendaShown(_config) });
         _rowsTop.Height = 0;
         _agenda.Visibility = Visibility.Visible;
         _agenda.Page = _agendaPage;

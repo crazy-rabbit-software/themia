@@ -780,7 +780,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         text.Language = UiLanguage.Tag(Strings.Current);
         text.TextTrimming = TextTrimming.None;
         text.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-        var wide = text.DesiredSize.Width > width + Disclosure.Tolerance;
+        var wide = text.DesiredSize.Width > width + LayoutMath.Tolerance;
         text.TextTrimming = trimming;
         return wide;
     }

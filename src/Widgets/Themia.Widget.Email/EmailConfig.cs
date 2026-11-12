@@ -66,12 +66,24 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         ? new(KitSizing.ClampRows(Rows), 1, ColumnTitles: ColumnTitles)
         : new(KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, MostLines));
 
-    /// <summary>[S-11402] Each style's own widths: the stacked looks the kit's (220..520), the Table's columns 320..720.</summary>
+    /// <summary>[S-11402] Each style's own widths: the stacked looks the kit's (220..520), the Table's for its columns.</summary>
     [JsonIgnore]
-    public KitWidths? Widths => Style == EmailStyle.Table ? TableWidths : null;
+    public KitWidths? Widths => Style == EmailStyle.Table ? TableWidthsOf(EffectiveColumns) : null;
 
     /// <summary>[S-11402] A table's sender, subject and date read whole from 320; past 720 the subject is a sentence across a room.</summary>
     public static KitWidths TableWidths { get; } = new(320, 420, 720);
+
+    /// <summary>
+    /// [S-11402] [S-11401] A table's widths for <paramref name="columns"/>: <see cref="TableWidths"/>, its least
+    /// raised to what holds every chosen column at its own least (<see cref="KitPlanner.TableLeast"/>), so no
+    /// width drops a column.
+    /// </summary>
+    public static KitWidths TableWidthsOf(IReadOnlyList<MailColumn> columns)
+    {
+        ArgumentNullException.ThrowIfNull(columns);
+        var least = Math.Max(TableWidths.Min, KitPlanner.TableLeast([.. columns.Select(MailSpec.Kit)], lead: false));
+        return new KitWidths(least, Math.Max(least, TableWidths.Natural), Math.Max(least, TableWidths.Max));
+    }
 
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
     string? ISetupRule.SetupSentence => EmailStr.Email_Setup_Sentence.Text();

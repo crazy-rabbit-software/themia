@@ -7,14 +7,6 @@ namespace Themia.Core.Tests;
 /// <summary>[S-3212]..[S-3215] The sixth visualizer design: the waveform (issue #136).</summary>
 public class VisualizerScopeTests
 {
-    public static TheoryData<string> Tiers() => [.. WidgetTiers.All.Select(t => t.Name)];
-
-    private static WidgetArea Tier(string name)
-    {
-        var tier = WidgetTiers.All.Single(t => t.Name == name);
-        return new WidgetArea(tier.Width, tier.Height);
-    }
-
     private static float[] Sine(int length, double period, double shift, double amplitude = 0.5)
     {
         var samples = new float[length];

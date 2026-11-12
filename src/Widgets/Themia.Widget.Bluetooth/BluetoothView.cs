@@ -33,7 +33,7 @@ namespace Themia.App.Widgets;
 /// Every empty list says which empty list it is, in the Status row at the top ([S-244], [S-6714]).
 /// </para>
 /// </summary>
-internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetContextActions
 {
     /// <inheritdoc />
     public CardOpen? Opens => BluetoothModule.Opens;
@@ -162,13 +162,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         {
             Render();
         }
-    }
-
-    /// <inheritdoc />
-    /// <summary>[S-11310] What the list shows is its config's: the box changes nothing.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        Render();
     }
 
     /// <summary>

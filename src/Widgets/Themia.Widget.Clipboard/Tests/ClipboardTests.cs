@@ -54,9 +54,9 @@ public sealed class ClipboardTests
     public void S11405_a_new_clipboard_is_five_one_line_entries_with_marker_and_time()
     {
         var config = new ClipboardConfig();
-        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true), ClipboardLayout.Plan(config));
+        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true, Rows: 5), ClipboardLayout.Plan(config));
         Assert.Equal(new Themia.Sdk.SizeDip(300, 36 + (5 * 28) + 12), new ClipboardModule().Descriptor.Sizing(config).Natural);
-        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(new ClipboardConfig { Lines = 2 }));
+        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true, Rows: 5), ClipboardLayout.Plan(new ClipboardConfig { Lines = 2 }));
     }
 
     [Fact]

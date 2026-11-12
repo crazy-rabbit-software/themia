@@ -27,7 +27,6 @@ internal static class RenderFlags
         "--switch-check",
         "--drop-check",
         "--family-check",
-        "--family-blocks-png",
         "--clock-style-check",
         DesktopRender.Flag,
         SceneRender.Flag,

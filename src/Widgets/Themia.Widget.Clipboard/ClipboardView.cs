@@ -39,7 +39,7 @@ namespace Themia.App.Widgets;
 /// copied from 180 wide; the clear is the header's button; nothing but the entries.
 /// </para>
 /// </summary>
-internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetKeys
 {
     private const string Scope = "clipboard-widget";
 
@@ -62,7 +62,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
     private ClipboardConfig _config = new();
     private ClipboardPlan _plan = ClipboardLayout.Plan(new ClipboardConfig());
-    private WidgetArea _area;
     private readonly IWidgetHost _host;
     private IClipboardHistory? _source;
     private IDisposable? _subscription;
@@ -134,17 +133,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         Render();
     }
 
-    /// <summary>[S-11405] A new size: the same plan; draw again only when the rows that fit change.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        var moved = ClipboardLayout.Rows(area, _plan) != ClipboardLayout.Rows(_area, _plan);
-        _area = area;
-        if (moved)
-        {
-            Render();
-        }
-    }
-
     /// <summary>The entries this widget shows: the newest, as many as its own setting keeps.</summary>
     private IReadOnlyList<ClipboardEntry> Entries
     {
@@ -207,8 +195,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             _list.Children.Add(row);
         }
 
-        // [S-6712] As tall as its whole rows: never a part of one at its foot.
-        _scroll.Height = _area.IsMeasured ? Math.Min(_rows.Count, ClipboardLayout.Rows(_area, _plan)) * _plan.RowHeight : double.NaN;
+        // [S-2440] As tall as the rows its config states: never a part of one at its foot.
+        _scroll.Height = Math.Min(_rows.Count, _plan.Rows) * _plan.RowHeight;
 
         _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;
         ShowCursor();

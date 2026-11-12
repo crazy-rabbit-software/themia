@@ -46,7 +46,6 @@ public sealed class RecycleBinTests
     {
         var sizing = ModuleCatalog.Of(new WidgetId("recycleBin")).SizingOf();
 
-        Assert.False(sizing.IsLegacy);
         Assert.True(sizing.FixedWidth && sizing.FixedHeight);
         Assert.Equal(new SizeDip(180, 36 + 36 + 16 + 8 + 28 + 12), sizing.Natural);
         Assert.Empty(sizing.Problems());

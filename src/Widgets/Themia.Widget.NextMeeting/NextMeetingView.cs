@@ -32,7 +32,7 @@ namespace Themia.App.Widgets;
 /// lights the event in the calendar widgets there (<see cref="LinkTopics.HoveredEvent"/>).
 /// </para>
 /// </summary>
-internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions
 {
     /// <inheritdoc />
     public CardOpen? Opens => NextMeetingModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
@@ -161,11 +161,6 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _config = config as NextMeetingConfig ?? new NextMeetingConfig();
         Render();
         _ = _feed.RefreshAsync(force: false);
-    }
-
-    /// <summary>[S-11407] The block is the same at every size: the title is cut with its ellipsis.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     /// <summary>Refresh, as every calendar widget has.</summary>

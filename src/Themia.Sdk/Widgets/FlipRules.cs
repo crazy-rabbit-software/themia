@@ -12,10 +12,10 @@ public readonly record struct FlipPlan(TypeStep Step, double CardWidth, bool Und
 /// <summary>
 /// [S-6740] The split-flap cards of the clock's Flip style and the Countdown's (<c>FlipCard</c>): one
 /// card per part of the time, 8 apart, each its figures' widest case on a family step with 12 either
-/// side, as tall as the step's line. The step is chosen as a Readout's is, never computed: the largest
-/// of the steps the widget may take (the Hero steps for a one-readout widget, [S-6737]) on which every
-/// card, the gaps and what stands beside the row fit the width, and the line and the line under the
-/// row (<see cref="FamilyType.Under"/>) fit the height; never below Big 28.
+/// side, as tall as the step's line. The step is the one the box was made for: the largest of a
+/// one-readout widget's steps ([S-6737]) on which every card, the gaps and what stands beside the row
+/// fit the width, and the line and the line under the row (<see cref="FamilyType.Under"/>) fit the
+/// height; never below Big 28.
 /// </summary>
 public static class FlipRules
 {
@@ -34,23 +34,17 @@ public static class FlipRules
 
     /// <summary>
     /// [S-6740] The plan for <paramref name="cards"/> cards of <paramref name="widest"/> in a
-    /// <paramref name="width"/> × <paramref name="height"/> box of a view given <paramref name="area"/>:
-    /// <paramref name="beside"/> is how wide what stands after the row is on a step (the clock's
-    /// meridiem, its gap included), <paramref name="under"/> whether a line stands under the row.
+    /// <paramref name="width"/> × <paramref name="height"/> box: <paramref name="beside"/> is how wide what
+    /// stands after the row is on a step (the clock's meridiem, its gap included), <paramref name="under"/>
+    /// whether a line stands under the row.
     /// </summary>
-    public static FlipPlan Plan(WidgetArea area, double width, double height, int cards, string widest, bool oneReadout, Func<TypeStep, double>? beside = null, bool under = false)
+    public static FlipPlan Plan(double width, double height, int cards, string widest, Func<TypeStep, double>? beside = null, bool under = false)
     {
         var chosen = FamilyType.Big28;
         if (double.IsFinite(width) && double.IsFinite(height) && width > 0 && height > 0)
         {
-            var ceiling = oneReadout ? double.PositiveInfinity : ReadoutRules.Ceiling(area);
-            foreach (var step in ReadoutRules.Steps(oneReadout))
+            foreach (var step in ReadoutRules.Steps(oneReadout: true))
             {
-                if (FamilyType.BaseOf(step) > ceiling)
-                {
-                    continue;
-                }
-
                 var wide = RowWidth(step, cards, widest) + (beside?.Invoke(step) ?? 0);
                 var tall = step.LineHeight + (under ? FamilyType.Under(step).LineHeight : 0);
                 if (wide <= width && tall <= height)

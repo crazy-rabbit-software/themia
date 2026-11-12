@@ -32,15 +32,17 @@ public static class KitPages
             return 0;
         }
 
-        var room = new Disclosure(1, height);
+        var room = double.IsFinite(height) && height > 0 ? height : 0;
         var count = 0;
         for (var i = start; i < groups.Count; i++)
         {
-            if (!room.Take(rowHeight + (HeadingBefore(groups, start, i, firstHeading) ? headingHeight : 0)))
+            var cost = rowHeight + (HeadingBefore(groups, start, i, firstHeading) ? headingHeight : 0);
+            if (cost > room + LayoutMath.Tolerance)
             {
                 break;
             }
 
+            room = Math.Max(0, room - cost);
             count++;
         }
 

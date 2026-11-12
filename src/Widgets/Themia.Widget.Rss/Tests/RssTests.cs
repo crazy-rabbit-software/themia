@@ -121,7 +121,7 @@ public sealed class RssTests
 
     // The size tiers as content slots (the card less a 36 header).
     private static KitPlan Plan(RssConfig config, double width)
-        => KitLadder.Plan(new WidgetArea(width, 400), RssSpec.Spec, ((IKitConfig)config).Choices);
+        => KitPlanner.Plan(new WidgetArea(width, 400), RssSpec.Spec, ((IKitConfig)config).Choices);
 
     [Fact]
     public void S11403_a_new_feed_is_five_headlines_of_two_lines_in_one_column_at_any_width()

@@ -65,15 +65,10 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
-    public void S2443_a_legacy_sizing_is_the_old_way_and_fits_nothing()
+    public void S2441_a_sizing_without_a_finite_maximum_does_not_hold()
     {
-        var legacy = WidgetSizing.Legacy(280, 140);
+        var unbounded = WidgetSizing.Range(new(32, 32), new(280, 140), new(double.PositiveInfinity, double.PositiveInfinity));
 
-        Assert.True(legacy.IsLegacy);
-        Assert.Equal(new SizeDip(32, 32), legacy.Min);
-        Assert.Equal(new SizeDip(280, 140), legacy.Natural);
-        Assert.Equal(SizeDip.Unbounded, legacy.Max);
-        Assert.Equal(new SizeDip(5000, 10), legacy.Fit(new(5000, 10)));
-        Assert.Empty(legacy.Problems());
+        Assert.NotEmpty(unbounded.Problems());
     }
 }

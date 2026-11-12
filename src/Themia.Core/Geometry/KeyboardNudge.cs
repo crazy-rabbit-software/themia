@@ -56,7 +56,7 @@ public static class KeyboardNudge
     /// <summary>
     /// [S-1971] Resize one rect one press: Right and Down grow it, Left and Up shrink it, always by the
     /// right or bottom edge so the top-left corner stays put. The [S-08] floor and the visible
-    /// minimum ([S-6608]) stop the edge. [S-2445] A converted kind's <paramref name="limits"/> stop it
+    /// minimum ([S-6608]) stop the edge. [S-2445] The widget's sizing's <paramref name="limits"/> stop it
     /// at its Min and Max too; on a stepped axis a press is one step (a row), whatever the step size.
     /// </summary>
     public static FracRect Resize(FracRect rect, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, bool snapEnabled, SizeLimits? limits = null)

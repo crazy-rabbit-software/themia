@@ -34,7 +34,7 @@ public sealed class KitRowsTests
         var choices = new KitChoices(KitShow.Subtitle | KitShow.When) { Count = 30, CanAdd = true, Rows = new KitRowsChoice(6, 2) };
         var sizing = KitSizing.Sizing(choices.Rows, addFooter: true);
 
-        KitPlan At(double w, double h) => KitLadder.Plan(new WidgetArea(w, h - 36), Checks, choices);
+        KitPlan At(double w, double h) => KitPlanner.Plan(new WidgetArea(w, h - 36), Checks, choices);
         var small = At(sizing.Min.Width, sizing.Natural.Height);
         var large = At(sizing.Max.Width, sizing.Natural.Height);
 
@@ -49,8 +49,8 @@ public sealed class KitRowsTests
     public void S2440_a_rich_list_with_rows_keeps_one_column_and_every_field_it_has_on_at_any_width()
     {
         var choices = new KitChoices(KitShow.All) { Rows = new KitRowsChoice(4, 2) };
-        var narrow = KitLadder.Plan(new WidgetArea(220, 300), Rich, choices);
-        var wide = KitLadder.Plan(new WidgetArea(800, 300), Rich, choices);
+        var narrow = KitPlanner.Plan(new WidgetArea(220, 300), Rich, choices);
+        var wide = KitPlanner.Plan(new WidgetArea(800, 300), Rich, choices);
 
         Assert.Equal(narrow with { ColumnWidth = 0 }, wide with { ColumnWidth = 0 });
         Assert.Equal(1, wide.Columns);
@@ -76,7 +76,7 @@ public sealed class KitRowsTests
         Assert.Equal(2 * one.Max.Width, two.Max.Width);
         Assert.Equal(one.Natural.Height, two.Natural.Height);
 
-        var plan = KitLadder.Plan(new WidgetArea(600, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(5, 2, Columns: 2) });
+        var plan = KitPlanner.Plan(new WidgetArea(600, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(5, 2, Columns: 2) });
         Assert.Equal(2, plan.Columns);
         Assert.Equal(300, plan.ColumnWidth);
     }
@@ -84,7 +84,7 @@ public sealed class KitRowsTests
     [Fact]
     public void S11400_a_row_may_have_three_lines_the_preview_its_third()
     {
-        var plan = KitLadder.Plan(new WidgetArea(300, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(4, 3) });
+        var plan = KitPlanner.Plan(new WidgetArea(300, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(4, 3) });
         Assert.Equal(3, plan.Lines);
         Assert.True(plan.Subtitle && plan.Preview);
         Assert.Equal(36 + (4 * FamilyShape.RowHeight(3)) + 12, KitSizing.Sizing(new KitRowsChoice(4, 3), false).Natural.Height);
@@ -97,12 +97,12 @@ public sealed class KitRowsTests
     {
         var table = new KitSpec(KitRowLook.Table, KitShow.All, () => "Untitled", () => "Empty");
         var choices = new KitChoices(KitShow.All, [KitColumn.Title, KitColumn.When]) { Rows = new KitRowsChoice(5, 1, ColumnTitles: true) };
-        Assert.True(KitLadder.Plan(new WidgetArea(400, 40), table, choices).ColumnHeader);
-        Assert.False(KitLadder.Plan(new WidgetArea(400, 900), table, choices with { Rows = new KitRowsChoice(5, 1) }).ColumnHeader);
+        Assert.True(KitPlanner.Plan(new WidgetArea(400, 40), table, choices).ColumnHeader);
+        Assert.False(KitPlanner.Plan(new WidgetArea(400, 900), table, choices with { Rows = new KitRowsChoice(5, 1) }).ColumnHeader);
 
         var sizing = KitSizing.Sizing(new KitRowsChoice(5, 1, ColumnTitles: true), false, new KitWidths(320, 420, 720));
         Assert.Equal((320, 420, 720), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(36 + KitLadder.ColumnHeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(36 + KitPlanner.ColumnHeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
     }
 
     [Fact]
@@ -114,12 +114,12 @@ public sealed class KitRowsTests
             var choices = new KitChoices(KitShow.None) { Rows = new KitRowsChoice(6, lines) };
             foreach (var area in new[] { new WidgetArea(260, 100), new WidgetArea(900, 700) })
             {
-                var plan = KitLadder.Plan(area, schedule, choices);
+                var plan = KitPlanner.Plan(area, schedule, choices);
                 Assert.Equal((1, lines, lines >= 2, FamilyShape.RowHeight(lines)), (plan.Columns, plan.Lines, plan.Subtitle, plan.RowHeight));
             }
         }
 
         // A schedule that names no rows of its own is the kit's default rows: one column too ([S-11580]).
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(900, 700), schedule, KitShow.None).Columns);
+        Assert.Equal(1, KitPlanner.Plan(new WidgetArea(900, 700), schedule, KitShow.None).Columns);
     }
 }

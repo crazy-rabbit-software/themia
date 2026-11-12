@@ -2,13 +2,6 @@ using Themia.Core.Localization;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>[S-6744] How the clock's Date style stands: a column (weekday, day, month) or, on a strip, the day beside the words.</summary>
-public enum DateFace
-{
-    Column = 0,
-    Row = 1,
-}
-
 /// <summary>[S-5302] The clock's Date style words, through <see cref="LocaleFormat"/>: never culture data.</summary>
 public static class DateText
 {

@@ -11,7 +11,6 @@ public sealed class NotesSizingTests
     {
         var sizing = ModuleCatalog.Of(new WidgetId("notes")).SizingOf();
 
-        Assert.False(sizing.IsLegacy);
         Assert.Equal((new SizeDip(160, 100), new SizeDip(300, 220), new SizeDip(600, 600)), (sizing.Min, sizing.Natural, sizing.Max));
         Assert.Null(sizing.HeightSteps);
         Assert.Empty(sizing.Problems());

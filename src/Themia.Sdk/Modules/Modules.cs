@@ -59,8 +59,7 @@ public sealed record WidgetDescriptor
 
     /// <summary>
     /// [S-2438] The sizes the widget may take, from its config alone: a pure function, so the host, the
-    /// renders and the tests ask it as often as they like. A kind not yet converted returns
-    /// <see cref="WidgetSizing.Legacy"/> ([S-2443]). [S-10] A new widget lands at its Natural.
+    /// renders and the tests ask it as often as they like. [S-10] A new widget lands at its Natural.
     /// </summary>
     public required Func<WidgetConfig, WidgetSizing> Sizing { get; init; }
 

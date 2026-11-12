@@ -32,9 +32,9 @@ public sealed class SizeFitTests
     }
 
     [Fact]
-    public void S2443_a_legacy_kind_has_no_limits_and_is_shown_as_stored()
+    public void S2444_a_screen_not_measured_yet_has_no_limits_and_shows_the_rect_as_stored()
     {
-        Assert.Null(SizeFit.Limits(WidgetSizing.Legacy(280, 140), Screen, 1, 0));
+        Assert.Null(SizeFit.Limits(WidgetSizing.Range(new(32, 32), new(280, 140), new(560, 420)), new ScreenMetrics(0, 0), 1, 0));
         var stored = new FracRect(0.9, 0.9, 0.9, 0.01);
         Assert.Equal(stored, SizeFit.Shown(stored, null, Screen));
     }

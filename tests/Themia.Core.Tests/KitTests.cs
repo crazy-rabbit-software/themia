@@ -271,17 +271,17 @@ public sealed class KitTests
     public void S7031_one_whole_row_fits_at_every_tier(string tier, double width, double height)
     {
         var area = new WidgetArea(width, height);
-        var plan = KitLadder.Plan(area, Rich, KitShow.All);
+        var plan = KitPlanner.Plan(area, Rich, KitShow.All);
 
-        Assert.True(KitLadder.Fit(plan, KitLadder.ListHeight(area)) >= 1, tier);
+        Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(area)) >= 1, tier);
         Assert.Equal(FamilyShape.RowHeight(plan.Lines), plan.RowHeight);
     }
 
     [Fact]
     public void S7030_a_field_the_spec_does_not_offer_or_the_user_turned_off_stays_off()
     {
-        var off = KitLadder.Plan(new WidgetArea(560, 384), Rich, KitShow.None);
-        var unoffered = KitLadder.Plan(new WidgetArea(560, 384), Rich with { Optional = KitShow.When }, KitShow.All);
+        var off = KitPlanner.Plan(new WidgetArea(560, 384), Rich, KitShow.None);
+        var unoffered = KitPlanner.Plan(new WidgetArea(560, 384), Rich with { Optional = KitShow.When }, KitShow.All);
 
         Assert.False(off.Lead || off.Subtitle || off.When || off.Preview);
         Assert.Equal(1, off.Lines);

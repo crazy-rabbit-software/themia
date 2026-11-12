@@ -357,17 +357,17 @@ public class PowerActionTests
     }
 
     [Fact]
-    public void S1912_the_glyph_stands_inside_its_ring_at_every_tier_so_arming_moves_nothing()
+    public void S1912_the_glyph_stands_inside_its_ring_at_every_size_so_arming_moves_nothing()
     {
         // The name's line is planned at every size and the sentence takes it; the glyph is the
         // ringed one whether the ring shows or not.
-        foreach (var tier in WidgetTiers.All)
+        foreach (var size in new[] { ReadoutSize.Small, ReadoutSize.Medium, ReadoutSize.Large })
         {
-            var (w, h) = (tier.Width - 32, tier.Height - 32);
-            var ring = Themia.Sdk.Kit.TileRules.GlyphStep(w, h, label: true, state: false).FontSize;
+            var h = Themia.Sdk.Kit.TileRules.SideAt(size) - (2 * Themia.Sdk.Kit.FamilySpace.Inset);
+            var ring = Themia.Sdk.Kit.TileRules.GlyphAt(size).FontSize;
             var glyph = Themia.Sdk.Kit.TileRules.RingGlyph(ring);
-            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare, tier.Name);
-            Assert.True(ring + Themia.Sdk.Kit.TileRules.Below(label: true, state: false) <= h, tier.Name);
+            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare, size.ToString());
+            Assert.True(ring + Themia.Sdk.Kit.TileRules.Below(label: true, state: false) <= h, size.ToString());
         }
     }
 

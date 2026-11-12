@@ -18,7 +18,8 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-6731] Debug only: the family's render walk. <c>Themia.exe --family-check &lt;out.json&gt;
-/// [--theme light|dark] [--kinds a,b]</c> draws every kind (or those named) at the seven tiers, in its
+/// [--theme light|dark] [--kinds a,b]</c> draws every kind (or those named) at its min, natural and max
+/// ([S-2448], each box with the config that size means), in its
 /// default state, each of its preview states (not the interaction ones: a hover, a press, a lasso)
 /// and each of its styles (at its first data state), off-screen as <c>--widget-png</c> does, walks
 /// what each card's header, view and Set up row draw (<see cref="FamilyWalk"/>) and judges every
@@ -83,10 +84,8 @@ internal static class FamilyCheckRender
             {
                 var design = new DesignState { Theme = theme };
                 DesignApplier.Apply(design);
-                // [S-2448] A converted kind is walked at its range (min, natural, max), a legacy one at
-                // the seven tiers: the page holds the largest of them.
-                List<WidgetTier> tiers = [.. WidgetTiers.All];
-                var (width, height) = WidgetRender.PageSize(tiers);
+                // [S-2448] A kind is walked at its range (min, natural, max): the page holds the largest of them.
+                var (width, height) = (0.0, 0.0);
                 foreach (var kind in kinds)
                 {
                     foreach (var style in (IEnumerable<int?>)[null, .. WidgetStyles.For(kind).Select(s => (int?)s.Value)])
@@ -163,7 +162,7 @@ internal static class FamilyCheckRender
     {
         // One card tells the kind's states.
         var probe = new List<WidgetCard>();
-        WidgetRender.Place(page, host, kind, null, [WidgetTiers.All[2]], probe);
+        WidgetRender.Place(page, host, kind, null, [SizeFit.CheckedAt(SizeFit.Of(kind))[1]], probe);
         await Task.Delay(100).ConfigureAwait(true);
         var states = probe[0].View is IWidgetPreviewState preview ? preview.PreviewStates.Where(s => !Skip.Contains(s)).ToList() : [];
         Clear(page, probe);
@@ -176,7 +175,7 @@ internal static class FamilyCheckRender
     }
 
     /// <summary>Check one variant at <paramref name="tiers"/>: the number of elements walked, 0 when nothing was drawn.</summary>
-    private static async Task<int> CheckAsync(Canvas page, NoticeRender.RenderCardHost host, WidgetId kind, string? state, int? style, List<WidgetTier> tiers, string variant, SortedDictionary<string, (int Count, string First)> found)
+    private static async Task<int> CheckAsync(Canvas page, NoticeRender.RenderCardHost host, WidgetId kind, string? state, int? style, List<CheckedSize> tiers, string variant, SortedDictionary<string, (int Count, string First)> found)
     {
         var cards = new List<WidgetCard>();
         var walked = 0;

@@ -198,7 +198,7 @@ public static class GridGeometry
     /// of stopping the moved edge.
     /// </para>
     /// <para>
-    /// [S-2445] A resize of a converted kind passes its <paramref name="limits"/> too: the moved edge
+    /// [S-2445] A resize passes the widget's sizing's <paramref name="limits"/> too: the moved edge
     /// also stops at the sizing's Min and Max, and on a stepped axis lands on the nearest step (the
     /// steps, not the grid, are its snap); a fixed axis does not move.
     /// </para>

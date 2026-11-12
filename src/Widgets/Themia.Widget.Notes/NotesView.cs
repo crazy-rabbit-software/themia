@@ -83,7 +83,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private string? _shownId;
     private NoteState _state = NoteState.Unbound;
     private WidgetArea _area;
-    private NotesLayoutPlan _plan = new(0, NotesLayout.MinTextLines);
     private bool _dirty;
     private bool _resolving;
     private bool _editorFocused;
@@ -495,15 +494,13 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     // Layout
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>[S-1363] Apply the ladder. Cheap: nothing is rebuilt here.</summary>
+    /// <summary>[S-1363] [S-3963] The picker and the header bar for the card's width. Cheap: nothing is rebuilt here.</summary>
     private void Lay()
     {
         if (_detached)
         {
             return;
         }
-
-        _plan = NotesLayout.Plan(_area, FamilyType.Body.LineHeight);
 
         UpdatePicker();
         UpdateBar();

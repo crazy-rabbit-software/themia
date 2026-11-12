@@ -2,23 +2,11 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>[S-2402] What a detail widget has to place, in its own terms.</summary>
-/// <param name="Hero">The main figure's widest case (its value and unit, whether a line stands under it), or null for a widget without one (a list).</param>
-/// <param name="Facts">How many facts it has, most wanted first.</param>
-/// <param name="ListRows">How many list rows it has (processes, adapters); 0 for none.</param>
-/// <param name="ListLines">How many lines a list row would show at most (a name, a second figure, a detail line): 1 to 3.</param>
-public readonly record struct DetailShape(ReadoutText? Hero, int Facts, int ListRows = 0, int ListLines = 1);
-
-/// <summary>[S-2402] One detail widget's face for its view's area.</summary>
-/// <param name="Side">The figure in a column on the left and the rows beside it (an expanded width), else the rows under it.</param>
-/// <param name="Hero">The figure's Readout step.</param>
-/// <param name="Under">Whether the line under the figure (its caption) is shown.</param>
-/// <param name="HeroColumn">On the side: the figure's column, from the card's edge to where the rows begin (the inset included).</param>
-/// <param name="RowsTop">Where the rows start in the view: 8 under the figure, or at its top.</param>
-/// <param name="Facts">How many fact rows are shown (the first ones).</param>
-/// <param name="ListRows">How many list rows are shown at a time (whole rows; the list scrolls for the rest).</param>
+/// <summary>[S-11007] [S-11008] What a detail atom shows: its fact rows, or its list's rows, as its config states them.</summary>
+/// <param name="Facts">How many fact rows are shown (the atom's pick).</param>
+/// <param name="ListRows">How many list rows are shown at a time (the rows its config states; the list scrolls for the rest).</param>
 /// <param name="ListLines">How many lines each list row shows (its pitch follows: 28, 40, 56).</param>
-public readonly record struct DetailFacePlan(bool Side, TypeStep Hero, bool Under, double HeroColumn, double RowsTop, int Facts, int ListRows, int ListLines)
+public readonly record struct DetailFacePlan(int Facts, int ListRows, int ListLines)
 {
     public bool List => ListRows > 0;
 
@@ -27,58 +15,12 @@ public readonly record struct DetailFacePlan(bool Side, TypeStep Hero, bool Unde
 }
 
 /// <summary>
-/// [S-2402] The ladder every system detail widget grows by, on the family's blocks ([S-6702],
-/// [S-6711], [S-6712]). A detail widget is a main figure (the speed, the memory in use, the charge)
-/// with a line under it saying what it is of, facts in priority order and, for some, a list
-/// (processes, adapters). The figure is a Readout at the view's top, start-aligned, on the step its
-/// widest case takes: 28, or 40 once expanded both ways, and no larger ([S-666]). The facts are fact rows (the
-/// value primary, the name secondary), one line, 32 each; the list's rows show one, two or three
-/// lines by the tier. Only whole rows are shown, facts first, then the list.
-/// <list type="bullet">
-/// <item>An expanded width (Wide, L, XL): the figure in a column of two fifths of the width, the rows
-/// beside it from the top, so a large tile shows more rows, not a larger figure.</item>
-/// <item>Otherwise the rows stand 8 under the figure, as many as fit; a tiny tile is the figure alone.</item>
-/// <item>No figure (Top processes): the rows from the top.</item>
-/// </list>
+/// [S-11007] [S-11008] The rules every system detail atom shares, on the family's blocks ([S-6711]):
+/// when a new read lays the tile out again, and how many lines a list's rows have. What an atom shows
+/// is its config at every size ([S-11800]).
 /// </summary>
 public static class DetailFace
 {
-    /// <summary>On the side, the figure's column takes this share of the card's width (its inset included).</summary>
-    public const double HeroShare = 0.4;
-
-    /// <summary>The plan for a view of <paramref name="area"/> and a sheet of <paramref name="shape"/>.</summary>
-    public static DetailFacePlan Plan(WidgetArea area, DetailShape shape)
-    {
-        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
-        var height = Math.Max(0, area.Height - FamilySpace.Inset);
-        var lines = RowRules.Lines(area, Math.Clamp(shape.ListLines, 1, 3));
-        var rows = shape.Facts + shape.ListRows;
-
-        if (shape.Hero is not { } hero)
-        {
-            return Fill(new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, 0, 0, lines), shape, height);
-        }
-
-        var side = rows > 0 && area.WidthClass >= SizeClass.Expanded;
-        var column = side ? Math.Floor(area.Width * HeroShare) : area.Width;
-        var room = side ? column - FamilySpace.Inset : width;
-        var step = ReadoutRules.Step(area, room, height, hero);
-        var under = hero.LineUnder && ReadoutRules.Height(step, hero) <= height;
-        var figure = step.LineHeight + (under ? FamilyType.Under(step).LineHeight : 0);
-
-        var plan = new DetailFacePlan(side, step, under, side ? column : 0, side ? 0 : figure + FamilySpace.S2, 0, 0, lines);
-        return Fill(plan, shape, height - plan.RowsTop);
-    }
-
-    /// <summary>The facts, then the list, in the whole rows <paramref name="room"/> takes.</summary>
-    private static DetailFacePlan Fill(DetailFacePlan plan, DetailShape shape, double room)
-    {
-        var facts = Math.Min(shape.Facts, RowRules.Fit(room, 1));
-        var left = room - (facts * FamilyShape.RowHeight(1));
-        var list = Math.Min(shape.ListRows, RowRules.Fit(left, plan.ListLines));
-        return plan with { Facts = facts, ListRows = list };
-    }
-
     /// <summary>
     /// [S-6333] Whether a new read lays the tile out again rather than filling the rows it has: when
     /// what the face is made of changes (the facts' count, the caption, the figure coming or going, the

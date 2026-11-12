@@ -178,11 +178,11 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         switch (_part.Atom)
         {
             case DetailAtom.Facts:
-                return new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, FactsOf(sheet).Count, 0, 1);
+                return new DetailFacePlan(FactsOf(sheet).Count, 0, 1);
 
             default:
                 var rows = _config is Themia.Sdk.Kit.IKitRows list ? Themia.Sdk.Kit.KitSizing.ClampRows(list.Rows) : 1;
-                return new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, 0, sheet.Rows.Count == 0 ? 0 : rows, Math.Clamp(_part.ListLines, 1, 3));
+                return new DetailFacePlan(0, sheet.Rows.Count == 0 ? 0 : rows, Math.Clamp(_part.ListLines, 1, 3));
         }
     }
 

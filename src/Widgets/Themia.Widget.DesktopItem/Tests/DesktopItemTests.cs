@@ -37,7 +37,7 @@ public sealed class DesktopItemTests
 
         // 8 + 48 + 4 + lines × 16 + 8, 90 wide; the design's gap is the host's to add.
         var two = kind.Sizing(new DesktopItemConfig());
-        Assert.True(two.FixedWidth && two.FixedHeight && !two.IsLegacy);
+        Assert.True(two.FixedWidth && two.FixedHeight);
         Assert.Equal(new SizeDip(90, 100), two.Natural);
         Assert.Equal(new SizeDip(90, 84), kind.Sizing(new DesktopItemConfig { LabelLines = 1 }).Natural);
         Assert.Equal(new ItemFit(FamilyShape.IconHuge, 1), DesktopItemLayout.Fit(1));

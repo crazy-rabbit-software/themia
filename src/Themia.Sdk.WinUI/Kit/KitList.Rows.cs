@@ -197,7 +197,7 @@ public sealed partial class KitList
         }
 
         _columnHeader.ColumnSpacing = template.ColumnSpacing;
-        _columnHeader.Height = KitLadder.ColumnHeaderHeight;
+        _columnHeader.Height = KitPlanner.ColumnHeaderHeight;
         _columnHeader.Padding = new Thickness(FamilySpace.Inset + (_plan.Lead ? RowRules.NameStart(FamilyShape.Icon) : 0), 0, FamilySpace.Inset, 0);
 
         for (var i = 0; i < columns.Count; i++)
@@ -221,7 +221,7 @@ public sealed partial class KitList
     /// <summary>The table's columns as a grid: fixed widths, the flexible ones sharing the rest, 12 apart.</summary>
     private static Grid ColumnGrid(IReadOnlyList<KitColumnFit> columns)
     {
-        var grid = new Grid { ColumnSpacing = KitLadder.ColumnGap };
+        var grid = new Grid { ColumnSpacing = KitPlanner.ColumnGap };
 
         foreach (var column in columns)
         {

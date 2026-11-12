@@ -57,7 +57,7 @@ public static class FolderLayout
     public const double SearchHeight = FamilyShape.Button + FamilySpace.S2;
 
     /// <summary>The details table's titles: a Caption line and 8, as the kit's table ([S-7034]).</summary>
-    public static double ColumnHeaderHeight => KitLadder.ColumnHeaderHeight;
+    public static double ColumnHeaderHeight => KitPlanner.ColumnHeaderHeight;
 
     /// <summary>Where a row's name starts inside its own inset: after the 16 lead and its gap.</summary>
     public static double NameStart => RowRules.NameStart(Lead);

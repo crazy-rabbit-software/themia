@@ -31,7 +31,7 @@ public sealed class CalendarSizingTests
     public void S11540_the_agenda_plans_one_column_of_its_lines_at_every_width()
     {
         var choices = new KitChoices(KitShow.None) { Rows = CalendarSizing.AgendaShown(new CalendarWidgetConfig { Lines = 2 }) };
-        var plan = KitLadder.Plan(new WidgetArea(900, 300), AgendaSpec.Spec, choices);
+        var plan = KitPlanner.Plan(new WidgetArea(900, 300), AgendaSpec.Spec, choices);
         Assert.Equal((1, 2), (plan.Columns, plan.Lines));
     }
 

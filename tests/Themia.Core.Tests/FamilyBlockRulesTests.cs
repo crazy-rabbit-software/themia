@@ -7,59 +7,28 @@ namespace Themia.Core.Tests;
 /// <summary>[S-6702], [S-6710]..[S-6717] The seven blocks' rules: which step, which parts, how many lines, what folds.</summary>
 public sealed class FamilyBlockRulesTests
 {
-    /// <summary>A tier's view area under a header, and the box inside the inset a readout has.</summary>
-    private static (WidgetArea Area, double Width, double Height) Under(string tier, bool header = true)
-    {
-        var t = WidgetTiers.All.Single(x => x.Name == tier);
-        var top = header ? FamilySpace.ContentTop : FamilySpace.Inset;
-        var area = new WidgetArea(t.Width, t.Height - (header ? FamilySpace.ContentTop : 0));
-        return (area, t.Width - (2 * FamilySpace.Inset), t.Height - top - FamilySpace.Inset);
-    }
-
     [Theory]
-    [InlineData("XS", 28)]
-    [InlineData("S", 28)]
-    [InlineData("M", 28)]
-    [InlineData("Wide", 28)]
-    [InlineData("Tall", 28)]
-    [InlineData("L", 40)]
-    [InlineData("XL", 40)]
-    public void S2220_a_data_widgets_number_is_28_and_40_from_expanded_both_ways(string tier, double expected)
+    [InlineData(96, 96, 28)]
+    [InlineData(296, 216, 68)]
+    [InlineData(536, 396, 136)]
+    [InlineData(776, 536, 192)]
+    public void S6702_a_one_readout_box_holds_the_largest_hero_step_that_fits_it(double width, double height, double expected)
     {
-        var (area, width, height) = Under(tier);
-
-        var step = ReadoutRules.Step(area, width, height, new ReadoutText("62", "%", LineUnder: true));
-
-        Assert.Equal(expected, step.FontSize);
-        Assert.True(step.SemiBold);
-    }
-
-    [Theory]
-    [InlineData("XS", 28)]
-    [InlineData("M", 68)]
-    [InlineData("L", 136)]
-    [InlineData("XL", 192)]
-    public void S6702_a_one_readout_widget_climbs_the_hero_steps_as_far_as_they_fit(string tier, double expected)
-    {
-        var (area, width, height) = Under(tier, header: false);
-
-        var step = ReadoutRules.Step(area, width, height, new ReadoutText("10:42", " AM", LineUnder: true, OneReadout: true));
+        var step = ReadoutRules.Step(width, height, new ReadoutText("10:42", " AM", LineUnder: true, OneReadout: true));
 
         Assert.Equal(expected, step.FontSize);
     }
 
     [Fact]
-    public void S6702_a_readout_that_does_not_fit_its_ceiling_takes_the_step_that_does()
+    public void S6702_a_readout_takes_the_largest_step_that_fits_and_never_less_than_28()
     {
-        var (area, _, height) = Under("L");
-
-        // A long reading in a narrow column of an L tile: 68 is allowed but too wide, 40 fits.
-        var step = ReadoutRules.Step(area, 200, height, new ReadoutText("188.8", " KB/s"));
+        // A long reading in a narrow box: no Hero step for a data reading, 40 fits.
+        var step = ReadoutRules.Step(200, 372, new ReadoutText("188.8", " KB/s"));
         Assert.Equal(40, step.FontSize);
 
         // An unmeasured box is the floor, never a NaN.
-        Assert.Equal(28, ReadoutRules.Step(area, double.NaN, 0, new ReadoutText("1")).FontSize);
-        Assert.Equal(28, ReadoutRules.Step(area, 10, 10, new ReadoutText("123456")).FontSize);
+        Assert.Equal(28, ReadoutRules.Step(double.NaN, 0, new ReadoutText("1")).FontSize);
+        Assert.Equal(28, ReadoutRules.Step(10, 10, new ReadoutText("123456")).FontSize);
     }
 
     [Fact]
@@ -151,22 +120,6 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(ColourRole.TextDisabled, RowRules.Roles(RowKind.List, available: false, quiet: true).Name);
     }
 
-    [Theory]
-    [InlineData("XS", 1)]
-    [InlineData("S", 1)]
-    [InlineData("Wide", 1)]
-    [InlineData("M", 2)]
-    [InlineData("Tall", 2)]
-    [InlineData("L", 3)]
-    [InlineData("XL", 3)]
-    public void S6712_a_rows_lines_come_from_the_tier_and_the_pitch_from_the_lines(string tier, int lines)
-    {
-        var (area, _, _) = Under(tier);
-
-        Assert.Equal(lines, RowRules.Lines(area, 3));
-        Assert.Equal(1, RowRules.Lines(area, 1));
-    }
-
     [Fact]
     public void S6712_only_whole_rows_fit()
     {
@@ -195,8 +148,6 @@ public sealed class FamilyBlockRulesTests
     [Fact]
     public void S6713_a_cell_is_its_icon_over_a_caption()
     {
-        Assert.Equal(32, RowRules.CellIcon(new WidgetArea(320, 204)));
-        Assert.Equal(48, RowRules.CellIcon(new WidgetArea(560, 384)));
         Assert.Equal(32 + 4 + 16, RowRules.CellHeight(32, named: true));
         Assert.Equal(48, RowRules.CellHeight(48, named: false));
     }
@@ -217,15 +168,6 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(new StatusLook(ColourRole.Caution, MainAction: false), StatusRules.Look(StatusKind.Problem));
         Assert.Equal(new StatusLook(ColourRole.TextTertiary, MainAction: false), StatusRules.Look(StatusKind.Empty));
     }
-
-    [Theory]
-    [InlineData(88, 88, 40)]
-    [InlineData(168, 118, 68)]
-    [InlineData(288, 208, 136)]
-    [InlineData(768, 528, 192)]
-    [InlineData(40, 30, 28)]
-    public void S6715_a_tiles_glyph_climbs_the_steps_above_its_two_lines(double width, double height, double expected)
-        => Assert.Equal(expected, TileRules.GlyphStep(width, height).FontSize);
 
     [Fact]
     public void S6715_on_is_the_whole_tile_in_the_accent_and_missing_is_disabled()

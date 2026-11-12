@@ -13,7 +13,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-6732] Debug only: every drawn element of each card (its type, position and size in the card,
 /// margin, padding, radius, text step, glyph and colours), as JSON beside a render
-/// (<c>--widget-png … --tree</c>, <c>--family-blocks-png</c>). What a group phase compares with its
+/// (<c>--widget-png … --tree</c>). What a group phase compares with its
 /// mockups' boxes (TestResults/family/match.py): a render matches when every text and glyph stands
 /// within a DIP of the mockup's in the same colour role.
 /// </summary>
@@ -31,7 +31,7 @@ internal static class TreeDump
         "CardBackgroundFillColorDefaultBrush", "SolidBackgroundFillColorBaseBrush", "SolidBackgroundFillColorTertiaryBrush", "ControlSolidFillColorDefaultBrush",
     ];
 
-    public static void Write(IReadOnlyList<WidgetCard> cards, IReadOnlyList<Themia.Core.Widgets.WidgetTier> tiers, string path)
+    public static void Write(IReadOnlyList<WidgetCard> cards, IReadOnlyList<Themia.Core.Geometry.CheckedSize> tiers, string path)
         => Write([.. cards.Select((card, i) => (i < tiers.Count ? tiers[i].Name : "?", (FrameworkElement)card, (DependencyObject?)card.View))], path);
 
     /// <summary>Each named root's elements, positions relative to the root; <c>v</c> marks those under its view.</summary>

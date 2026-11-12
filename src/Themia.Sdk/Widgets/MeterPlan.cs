@@ -55,17 +55,6 @@ public static class MeterPlan
     /// <summary>The signal bars' box: a little wider than tall, as Windows' Wi-Fi glyph.</summary>
     public const double SignalAspect = 1.25;
 
-    /// <summary>The content box of a view <paramref name="area"/>: the inset at the sides and the foot (the weather and air widgets' faces read it).</summary>
-    public static (double Width, double Height) Content(WidgetArea area)
-        => (Math.Max(0, area.Width - (2 * FamilySpace.Inset)), Math.Max(0, area.Height - FamilySpace.Inset));
-
-    /// <summary>
-    /// [S-6302] The reading in a gauge's bowl: the Readout's step for the room inside the half ring (its
-    /// width less 24 a side, its height less 8), standing on the gauge's foot (the air quality's gauge reads it).
-    /// </summary>
-    public static TypeStep GaugeReading(WidgetArea area, double diameter, ReadoutText worst)
-        => ReadoutRules.Step(area, diameter - (2 * FamilySpace.S6), (diameter / 2) - FamilySpace.S2, worst);
-
     /// <summary>[S-6305] [S-11005] The rings' grid in a box of <paramref name="width"/> × <paramref name="height"/>.</summary>
     public static MeterGrid Rings(double width, double height, int count)
     {

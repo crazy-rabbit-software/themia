@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// paused one shows its tenth ([S-4603]).
 /// </para>
 /// </summary>
-internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys
 {
     /// <summary>Every view of one stopwatch (the same view on two displays): one press reaches all of them.</summary>
     private static event Action<StopwatchConfig>? Acted;
@@ -105,11 +105,6 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
 
         Run();
         Lay();
-    }
-
-    /// <summary>[S-11302] The face is the config's, not the box's: a wider card centres the same face.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     private void OnLanguage(Locale locale)

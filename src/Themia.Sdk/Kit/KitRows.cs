@@ -97,7 +97,7 @@ public static class KitSizing
     /// </summary>
     public static SizeSteps Steps(KitRowsChoice choice, bool addFooter)
         => new(
-            FamilySpace.ContentTop + (choice.ColumnTitles ? KitLadder.ColumnHeaderHeight : 0) + (addFooter ? FamilyShape.Row1 : 0) + FamilySpace.Inset,
+            FamilySpace.ContentTop + (choice.ColumnTitles ? KitPlanner.ColumnHeaderHeight : 0) + (addFooter ? FamilyShape.Row1 : 0) + FamilySpace.Inset,
             FamilyShape.RowHeight(choice.Lines),
             MinRows,
             MaxRows,

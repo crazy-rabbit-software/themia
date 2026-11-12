@@ -68,7 +68,7 @@ public static class KitChecks
         for (var i = 0; i < lineBottoms.Count; i++)
         {
             var bottom = lineBottoms[i];
-            if (bottom > room + Disclosure.Tolerance)
+            if (bottom > room + LayoutMath.Tolerance)
             {
                 break;
             }

@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// per click for something that is supposed to come back to today's quote in the morning.
 /// </para>
 /// </summary>
-internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetAligned, IWidgetContextActions
+internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetKeys, IWidgetAligned, IWidgetContextActions
 {
     /// <summary>[S-1495] The header's one button, "Show another quote", wanted only with somewhere to go.</summary>
     private readonly HeaderParts _header = new();
@@ -261,11 +261,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
         _align = align;
         Lay();
-    }
-
-    /// <summary>[S-11306] What the quote shows is the config's, not the box's: a wider card only rewraps it.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     /// <summary>

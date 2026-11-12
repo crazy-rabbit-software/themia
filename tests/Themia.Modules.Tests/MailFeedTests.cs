@@ -453,14 +453,14 @@ public class MailFeedTests
     }
 }
 
-/// <summary>[S-556] Shedding detail to fit the tile: Mail's styles on the kit's lined ladder ([S-7032], [S-7034]).</summary>
+/// <summary>[S-556] [S-11402] Mail's styles on the kit's lined looks ([S-7032], [S-7034]): what its config states at every size.</summary>
 public class MailLayoutTests
 {
     private static Themia.Sdk.Kit.KitPlan Plan(EmailConfig config, double width, double height)
-        => Themia.Sdk.Kit.KitLadder.Plan(new WidgetArea(width, height), Themia.Widget.Email.MailSpec.Spec(config.Style), Themia.Widget.Email.MailSpec.Choices(config));
+        => Themia.Sdk.Kit.KitPlanner.Plan(new WidgetArea(width, height), Themia.Widget.Email.MailSpec.Spec(config.Style), Themia.Widget.Email.MailSpec.Choices(config));
 
     private static IEnumerable<MailColumn> Columns(IReadOnlyList<MailColumn> chosen, double width)
-        => Themia.Sdk.Kit.KitLadder.TableColumns([.. chosen.Select(Themia.Widget.Email.MailSpec.Kit)], width, 8)
+        => Themia.Sdk.Kit.KitPlanner.TableColumns([.. chosen.Select(Themia.Widget.Email.MailSpec.Kit)], width, 8)
             .Select(c => chosen.First(m => Themia.Widget.Email.MailSpec.Kit(m) == c.Column));
 
     [Fact]
@@ -484,23 +484,26 @@ public class MailLayoutTests
     }
 
     [Fact]
-    public void S556_row_view_drops_the_least_essential_columns_first()
+    public void S11402_a_table_shows_every_chosen_column_and_its_width_range_holds_them()
     {
         MailColumn[] all = [MailColumn.From, MailColumn.Subject, MailColumn.Date, MailColumn.Preview, MailColumn.Account];
 
         Assert.Equal(all, Columns(all, 600));
-        Assert.Equal([MailColumn.From, MailColumn.Subject, MailColumn.Date], Columns(all, 260));
-        Assert.Equal([MailColumn.From], Columns(all, 50));
+        Assert.Equal(all, Columns(all, 260));
 
-        // Too narrow for a subject: the date still fits beside the sender, so it stays.
-        Assert.Equal([MailColumn.From, MailColumn.Date], Columns(all, 168));
+        // [S-11800] Five columns need more than the table's 320: its least is raised to hold them, so no width drops one.
+        var config = new EmailConfig { Style = EmailStyle.Table, RowColumns = [.. all] };
+        var least = Themia.Sdk.Kit.KitPlanner.TableLeast([.. all.Select(Themia.Widget.Email.MailSpec.Kit)], lead: false);
+        Assert.True(least > EmailConfig.TableWidths.Min);
+        Assert.Equal(least, config.Widths!.Value.Min);
+        Assert.Equal(EmailConfig.TableWidths.Min, new EmailConfig { Style = EmailStyle.Table }.Widths!.Value.Min);
 
         // The user's order is kept; the flexible column takes the slack.
-        var fits = Themia.Sdk.Kit.KitLadder.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Subtitle], 300, 8);
+        var fits = Themia.Sdk.Kit.KitPlanner.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Subtitle], 300, 8);
         Assert.Equal([MailColumn.Date, MailColumn.Subject], Columns([MailColumn.Date, MailColumn.Subject], 300));
         Assert.Equal(1, fits[1].Star);
 
         // With no flexible column the first one stretches so the row still fills.
-        Assert.Equal(1, Themia.Sdk.Kit.KitLadder.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Badge], 400, 8)[0].Star);
+        Assert.Equal(1, Themia.Sdk.Kit.KitPlanner.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Badge], 400, 8)[0].Star);
     }
 }

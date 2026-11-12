@@ -26,7 +26,7 @@ namespace Themia.App.Widgets;
 /// with their units under them.
 /// </para>
 /// </summary>
-internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAware, IWidgetAligned, IWidgetSurfaceAware
+internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned, IWidgetSurfaceAware
 {
     private readonly ReadoutBlock _readout = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly ChartRing _ring = new();
@@ -102,12 +102,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
         _align = align;
         Rebuild();
-    }
-
-    /// <inheritdoc />
-    /// <summary>[S-11303] The face is the config's, not the box's: a wider card centres the same face.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     /// <summary>The target, its format or the room changed: cadence, layout and letters.</summary>

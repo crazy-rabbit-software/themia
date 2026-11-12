@@ -24,7 +24,7 @@ public sealed class TaskLayoutTests
     private static Detail Due(KitPlan plan) => !plan.When ? Detail.None : plan.UrgentOnly ? Detail.Urgent : plan.LongWhen ? Detail.Long : Detail.Short;
 
     private static KitPlan Kit(WidgetArea area, int count, bool writable, bool today, TasksStyle mode)
-        => KitLadder.Plan(area, Check, new KitChoices((today ? KitShow.Subtitle : KitShow.None) | KitShow.When) { Count = count, CanAdd = writable, OneLine = mode == TasksStyle.Compact });
+        => KitPlanner.Plan(area, Check, new KitChoices((today ? KitShow.Subtitle : KitShow.None) | KitShow.When) { Count = count, CanAdd = writable, OneLine = mode == TasksStyle.Compact });
 
     // The size tiers as content areas (card less the 36 header).
     private static readonly WidgetArea XS = new(120, 84);

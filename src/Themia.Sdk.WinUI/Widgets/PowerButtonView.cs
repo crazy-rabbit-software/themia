@@ -37,7 +37,7 @@ namespace Themia.App.Widgets;
 /// differs; the whole slot stays the hit target, so arming, edit mode and the click are one path.
 /// </para>
 /// </summary>
-public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetTopEdge
+public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetTopEdge
 {
     /// <summary>[S-5700] It owns its top edge: the button is centred in its own inset.</summary>
     public bool OwnsTopEdge => true;
@@ -146,11 +146,6 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
         _expiry?.Stop();
         _button?.Disarm();
         Lay();
-    }
-
-    /// <summary>[S-11307] The card is fixed by the Size and the look: the box changes nothing.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     /// <summary>[S-11307] Its one option past its look, under the Style: its Size.</summary>

@@ -190,8 +190,8 @@ public sealed partial class KitList
             headings.Add(heading);
         }
 
-        var room = KitLadder.ListHeight(_area) - (_addRow?.Element.Visibility == Visibility.Visible ? FamilyShape.Row1 : 0);
-        _scroll.MaxHeight = total <= room + Disclosure.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
+        var room = KitPlanner.ListHeight(_area) - (_addRow?.Element.Visibility == Visibility.Visible ? FamilyShape.Row1 : 0);
+        _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
     }
 
     /// <summary>[S-784] A group's heading (the done ones): one row of 28, BodyStrong, secondary.</summary>

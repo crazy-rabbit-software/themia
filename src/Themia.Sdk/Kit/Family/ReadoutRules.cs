@@ -15,13 +15,12 @@ public readonly record struct ReadoutText(string Value, string Unit = "", bool L
 public readonly record struct ReadoutFold(bool Unit, bool DeltaBeside);
 
 /// <summary>
-/// [S-6702] The Readout's step: the largest step whose line (and the line under it) fits the box and
-/// whose value, unit and lead fit its width, never below Big 28.
+/// [S-6702] The Readout's measures: how wide and tall it is on a step, where its delta and unit fold,
+/// and how a formatted reading splits into its figure and unit.
 /// <para>
-/// [S-2220] A data widget's number has two sizes: 28, and 40 once the area is expanded both ways (L,
-/// XL); never 68. Room left goes to more of the widget's own content, never a bigger number ([S-666],
-/// concise first). A one-readout widget is its readout, so it climbs the Big steps and then the Hero
-/// steps (68, 96, 136, 192) as far as they fit, on fixed steps, never filling the box.
+/// [S-2220] [S-2449] A data widget's number is the family's 28 (40 where its kind states it); a
+/// one-readout widget's is the step its Size names (40, 68, 96). The box never chooses it: a kind
+/// states its sizes from the step, so its box always holds it ([S-11800]).
 /// </para>
 /// <para>
 /// Widths come from <see cref="HeroFit.Ems"/>, the advances of Segoe UI Variable by glyph class, so a
@@ -40,25 +39,21 @@ public static class ReadoutRules
     /// <summary>[S-6702] [S-6737] The steps a Readout may take: the Big ramp, and the Hero steps after it for a one-readout widget.</summary>
     public static IReadOnlyList<TypeStep> Steps(bool oneReadout) => oneReadout ? [.. FamilyType.Big, .. FamilyType.Hero] : FamilyType.Big;
 
-    /// <summary>The Readout step for <paramref name="text"/> in a <paramref name="width"/> × <paramref name="height"/> box of a view given <paramref name="area"/>.</summary>
-    public static TypeStep Step(WidgetArea area, double width, double height, ReadoutText text)
+    /// <summary>
+    /// The largest of <paramref name="text"/>'s steps that fits a <paramref name="width"/> ×
+    /// <paramref name="height"/> box, never below Big 28: the step a box made for a stated step holds
+    /// (a clock's face in the card its Size gave it).
+    /// </summary>
+    public static TypeStep Step(double width, double height, ReadoutText text)
     {
-        var floor = FamilyType.Big28;
+        var chosen = FamilyType.Big28;
         if (!Usable(width) || !Usable(height))
         {
-            return floor;
+            return chosen;
         }
-
-        var ceiling = text.OneReadout ? double.PositiveInfinity : Ceiling(area);
-        var chosen = floor;
 
         foreach (var step in Steps(text.OneReadout))
         {
-            if (FamilyType.BaseOf(step) > ceiling)
-            {
-                continue;
-            }
-
             if (Width(step, text) <= width && Height(step, text) <= height)
             {
                 chosen = step;
@@ -67,13 +62,6 @@ public static class ReadoutRules
 
         return chosen;
     }
-
-    /// <summary>
-    /// [S-6702] [S-2220] The largest base step a data widget's number may take in <paramref name="area"/>:
-    /// 40 once it is expanded both ways (L, XL), 28 at every other size.
-    /// </summary>
-    public static double Ceiling(WidgetArea area)
-        => area.AtLeast(SizeClass.Expanded, SizeClass.Expanded) ? FamilyType.BigCap : FamilyType.BaseOf(FamilyType.Big28);
 
     /// <summary>How wide the readout is on <paramref name="step"/>: the lead glyph and its gap, the value, the unit at its step.</summary>
     public static double Width(TypeStep step, ReadoutText text)

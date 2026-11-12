@@ -17,7 +17,7 @@ namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
 /// [S-7060] The list part of every kit widget: the family's rows ([S-6711], <see cref="RowBlock"/>) for
-/// the plan the ladder chose (<see cref="KitLadder.Plan"/>), full-bleed with their own inset ([S-190]),
+/// the plan the ladder chose (<see cref="KitPlanner.Plan"/>), full-bleed with their own inset ([S-190]),
 /// no separators, in columns read left to right, as many whole rows as fit under a scroll with the
 /// shared fade ([S-639], [S-1281]), the card's bottom inset kept under them.
 /// <para>
@@ -271,7 +271,7 @@ public sealed partial class KitList : Grid
         }
 
         var lines = (_rowElements.Count + columns - 1) / columns;
-        var shown = Math.Max(1, Math.Min(lines, KitLadder.Fit(_plan, KitLadder.ListHeight(_area))));
+        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area))));
         _scroll.Height = shown * _plan.RowHeight;
     }
 

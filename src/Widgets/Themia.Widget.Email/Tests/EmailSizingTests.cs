@@ -39,7 +39,7 @@ public sealed class EmailSizingTests
         var without = Sizing(new EmailConfig { Style = EmailStyle.Table, ColumnTitles = false });
 
         Assert.Equal((320, 420, 720), (with.Min.Width, with.Natural.Width, with.Max.Width));
-        Assert.Equal(KitLadder.ColumnHeaderHeight, with.Natural.Height - without.Natural.Height);
+        Assert.Equal(KitPlanner.ColumnHeaderHeight, with.Natural.Height - without.Natural.Height);
         Assert.Equal(36 + (5 * 28) + 12, without.Natural.Height);
     }
 
@@ -47,7 +47,7 @@ public sealed class EmailSizingTests
     public void S11402_the_table_plans_its_titles_from_the_setting_at_any_height()
     {
         var config = new EmailConfig { Style = EmailStyle.Table, ColumnTitles = true };
-        var plan = KitLadder.Plan(new Themia.Core.Widgets.WidgetArea(420, 60), MailSpec.Spec(EmailStyle.Table), MailSpec.Choices(config));
+        var plan = KitPlanner.Plan(new Themia.Core.Widgets.WidgetArea(420, 60), MailSpec.Spec(EmailStyle.Table), MailSpec.Choices(config));
         Assert.True(plan.ColumnHeader);
         Assert.Equal(1, plan.Lines);
     }

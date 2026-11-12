@@ -51,7 +51,6 @@ public partial class App : Application
             ?? Shell.Gallery.EditBarRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.FamilyCheckRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.FamilyBlocksRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.SceneRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
         {
             RequestedTheme = theme;
@@ -225,11 +224,6 @@ public partial class App : Application
 
         // And the family's render walk over every kind ([S-6731]), and its blocks drawn alone ([S-6732]).
         if (Shell.Gallery.FamilyCheckRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        if (Shell.Gallery.FamilyBlocksRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;
         }

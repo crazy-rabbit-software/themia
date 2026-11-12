@@ -109,10 +109,13 @@ internal sealed partial class TasksView
         Rebind();
     }
 
+    /// <summary>The rename box: room for a list's name of a few words.</summary>
+    private const double RenameWidth = 320;
+
     /// <summary>Rename the shown list in a small box under the picker: Enter or leaving it commits, Escape does not.</summary>
     private void RenameInFlyout(string current)
     {
-        var box = new TextBox { Text = current, MinWidth = KitLadder.MinColumn, PlaceholderText = TasksStr.Todo_LocalLists_NamePlaceholder.Text() };
+        var box = new TextBox { Text = current, MinWidth = RenameWidth, PlaceholderText = TasksStr.Todo_LocalLists_NamePlaceholder.Text() };
         // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
         var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
         var cancelled = false;

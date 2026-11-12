@@ -1,11 +1,7 @@
 namespace Themia.Sdk;
 
 /// <summary>[S-2438] A size in DIPs of the card's box (its header included) at widget scale 1.</summary>
-public readonly record struct SizeDip(double Width, double Height)
-{
-    /// <summary>No bound: a legacy kind's maximum ([S-2443]).</summary>
-    public static SizeDip Unbounded { get; } = new(double.PositiveInfinity, double.PositiveInfinity);
-}
+public readonly record struct SizeDip(double Width, double Height);
 
 /// <summary>
 /// [S-2439] An axis that only takes steps: <c>Base + n × Step</c> for n in
@@ -36,18 +32,11 @@ public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCo
 /// (<see cref="WidgetDescriptor.Sizing"/>): <see cref="Min"/> ≤ <see cref="Natural"/> ≤ <see cref="Max"/>
 /// on both axes, in DIPs of the card's box at widget scale 1 with the kind's default header
 /// (<c>WidgetInstance.DefaultHeader</c>). An axis whose Min equals its Max is fixed: it has no resize
-/// handle. Content decides the size; the size never decides the content ([S-2445]).
-/// <para>
-/// [S-2443] A kind not yet converted states a <see cref="Legacy"/> sizing: Natural its old default size,
-/// Min the 32 floor, no Max. The host then keeps today's behaviour for it: no fit, the size ladder
-/// (<c>IWidgetSizeAware</c>, <c>Disclosure</c>, the seven tiers).
-/// </para>
+/// handle. Content decides the size; the size never decides the content ([S-2445]): inside its range a
+/// kind shows the same parts, and what it shows is its config ([S-11800]).
 /// </summary>
 public sealed record WidgetSizing
 {
-    /// <summary>[S-08] The floor every legacy kind keeps.</summary>
-    public const double LegacyFloor = 32;
-
     public required SizeDip Min { get; init; }
 
     /// <summary>[S-10] Where a newly added widget lands.</summary>
@@ -61,21 +50,9 @@ public sealed record WidgetSizing
     /// <summary>[S-2439] The height's steps (a list's rows), or null for a free height in the range.</summary>
     public SizeSteps? HeightSteps { get; init; }
 
-    /// <summary>[S-2443] Not converted yet: the old way (the ladder, the 32 floor, no maximum).</summary>
-    public bool IsLegacy { get; init; }
-
     public bool FixedWidth => Min.Width >= Max.Width;
 
     public bool FixedHeight => Min.Height >= Max.Height;
-
-    /// <summary>[S-2443] A kind not yet converted: <paramref name="width"/> × <paramref name="height"/> its natural (old default) size.</summary>
-    public static WidgetSizing Legacy(double width, double height) => new()
-    {
-        Min = new(LegacyFloor, LegacyFloor),
-        Natural = new(width, height),
-        Max = SizeDip.Unbounded,
-        IsLegacy = true,
-    };
 
     /// <summary>A range on both axes.</summary>
     public static WidgetSizing Range(SizeDip min, SizeDip natural, SizeDip max) => new() { Min = min, Natural = natural, Max = max };
@@ -114,8 +91,7 @@ public sealed record WidgetSizing
 
     /// <summary>
     /// [S-2438] <paramref name="wanted"/> fitted into the sizing: each axis held to Min..Max, a stepped
-    /// axis on its nearest step, an axis that follows the config at the config's step. A legacy sizing
-    /// fits nothing: the old floor is the host's ([S-08]).
+    /// axis on its nearest step, an axis that follows the config at the config's step.
     /// </summary>
     public SizeDip Fit(SizeDip wanted) => new(FitWidth(wanted.Width), FitHeight(wanted.Height));
 
@@ -125,13 +101,8 @@ public sealed record WidgetSizing
     /// <inheritdoc cref="Fit"/>
     public double FitHeight(double height) => FitAxis(height, Min.Height, Natural.Height, Max.Height, HeightSteps);
 
-    private double FitAxis(double size, double min, double natural, double max, SizeSteps? steps)
+    private static double FitAxis(double size, double min, double natural, double max, SizeSteps? steps)
     {
-        if (IsLegacy)
-        {
-            return size;
-        }
-
         if (steps is { Count: { } count })
         {
             return steps.At(count);
@@ -148,7 +119,7 @@ public sealed record WidgetSizing
 
     /// <summary>
     /// [S-2441] What is wrong with the sizing, in words; empty when it holds: every size positive and
-    /// finite (a legacy Max may be unbounded), Min ≤ Natural ≤ Max on both axes, and a stepped axis's
+    /// finite, Min ≤ Natural ≤ Max on both axes, and a stepped axis's
     /// Min, Natural and Max on its steps with a positive step and a count in its range.
     /// </summary>
     public IReadOnlyList<string> Problems()
@@ -162,9 +133,9 @@ public sealed record WidgetSizing
                 problems.Add($"{name}: Min and Natural must be positive and finite");
             }
 
-            if (!(max > 0) || (!IsLegacy && !double.IsFinite(max)))
+            if (!(double.IsFinite(max) && max > 0))
             {
-                problems.Add($"{name}: Max must be positive{(IsLegacy ? string.Empty : " and finite")}");
+                problems.Add($"{name}: Max must be positive and finite");
             }
 
             if (!(min <= natural && natural <= max))
@@ -175,11 +146,6 @@ public sealed record WidgetSizing
             if (steps is null)
             {
                 return;
-            }
-
-            if (IsLegacy)
-            {
-                problems.Add($"{name}: a legacy sizing takes no steps");
             }
 
             if (!(steps.Step > 0) || !double.IsFinite(steps.Base) || steps.MinCount < 0 || steps.MaxCount < steps.MinCount)

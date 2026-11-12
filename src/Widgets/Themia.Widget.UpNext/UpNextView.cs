@@ -25,7 +25,7 @@ namespace Themia.Widget.UpNext;
 /// which meeting is next; it never fetches on its own (a 5-minute poll and the accounts' change event).
 /// A click on a row opens that meeting in its calendar ([S-1268]).
 /// </summary>
-internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions
 {
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);
 
@@ -42,7 +42,6 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
     private IDisposable? _poll;
     private IDisposable? _tick;
     private UpNextConfig _config = new();
-    private WidgetArea _area;
     private bool _detached = true;
 
     /// <summary>[S-2050] The clock the rows read: the real one, or a preview's sample moment.</summary>
@@ -92,16 +91,6 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
         _ = _feed.RefreshAsync(force: false);
     }
 
-    /// <summary>[S-11408] A new size: the same rows; the list as tall as the whole rows the box holds.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        var moved = area.Height != _area.Height;
-        _area = area;
-        if (moved)
-        {
-            Render();
-        }
-    }
 
     /// <summary>Refresh, as every calendar widget has.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = _feed.RefreshAsync(force: true))];
@@ -193,8 +182,8 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
             ToolTipService.SetToolTip(row, $"{(string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject)}{Environment.NewLine}{NextMeetingRules.Range(locale, item, zone)}");
         }
 
-        // [S-6712] As tall as the whole rows the box holds (the config's at rest); the rest a scroll away.
-        var fit = _area.IsMeasured ? Math.Max(1, (int)Math.Floor((KitLadder.ListHeight(_area) + 0.5) / FamilyShape.Row1)) : after.Count;
+        // [S-2440] As tall as the rows its config states; the rest a scroll away.
+        var fit = Math.Max(1, _config.RowsShown.Rows);
         _scroll.Height = after.Count > fit ? fit * FamilyShape.Row1 : double.NaN;
         _scroll.Visibility = Visibility.Visible;
         _fade?.Refresh();

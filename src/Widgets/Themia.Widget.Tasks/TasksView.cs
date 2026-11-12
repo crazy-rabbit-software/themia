@@ -556,7 +556,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     /// <summary>[S-780] [S-7037] The kit's check ladder for the slot the card gave this view, and the rows there are to show.</summary>
-    private KitPlan Plan(int count) => KitLadder.Plan(
+    private KitPlan Plan(int count) => KitPlanner.Plan(
         _area,
         TaskSpec.Spec,
         new KitChoices((_feed?.IsToday == true && !IsLocal ? KitShow.Subtitle : KitShow.None) | (_config.ShowDueDate ? KitShow.When : KitShow.None))

@@ -19,7 +19,7 @@ namespace Themia.App.Widgets;
 /// What the alarm is <i>doing</i> is the app's alarm service's ([S-4623]), which rings it whether or not
 /// this view exists. Several alarms are several widgets.
 /// </summary>
-internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
     /// <inheritdoc />
     public CardOpen? Opens => AlarmModule.Opens;
@@ -102,11 +102,6 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _config = config as AlarmConfig ?? new AlarmConfig();
         Lay();
-    }
-
-    /// <summary>[S-11301] The face is the config's, not the box's: a wider card centres the same face.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     private void OnLanguage(Locale locale) => Lay();

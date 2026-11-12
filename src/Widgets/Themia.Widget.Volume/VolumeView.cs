@@ -31,7 +31,7 @@ namespace Themia.App.Widgets;
 /// that fits ([S-2150], <see cref="LevelFace"/>). Muted, the Readout is drawn in the disabled role.
 /// </para>
 /// </summary>
-internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
     /// <inheritdoc />
     public CardOpen? Opens => VolumeModule.Opens;
@@ -145,11 +145,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
     {
         _config = config as VolumeConfig ?? new VolumeConfig();
         Lay();
-    }
-
-    /// <summary>[S-11308] The level and the controls are always both: the box changes nothing.</summary>
-    public void ApplySize(WidgetArea area)
-    {
     }
 
     /// <inheritdoc />
