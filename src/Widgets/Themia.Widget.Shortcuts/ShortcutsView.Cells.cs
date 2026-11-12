@@ -610,6 +610,9 @@ internal sealed partial class ShortcutsView
         Child = new TextBlock
         {
             Text = emoji,
+
+            // [S-6706] A colour glyph draws its own colours; a monochrome fallback draws in the text's role.
+            Foreground = Family.Brush(ColourRole.TextPrimary),
             IsColorFontEnabled = true,
             TextLineBounds = TextLineBounds.Tight,
             IsTextScaleFactorEnabled = false,
