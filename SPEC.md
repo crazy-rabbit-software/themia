@@ -849,7 +849,7 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   (`HeaderStrip.ViewTop`, the cell's margin, `WidgetCard.ApplyHeader`), so the content stands at the
   inset on all four sides. A view that owns its top edge says so (`IWidgetTopEdge`, re-read whenever the
   card places its header) and gets its whole box as before: one drawn to the edge on purpose (Gallery's
-  pictures, Video stream, the audio visualizer's spectrum, now playing's Cover style) or padded on all
+  pictures, Video stream, the audio visualizer's spectrum, the album art atom, [S-11320]) or padded on all
   four sides by itself (the clock, the quick toggles, the power buttons) *(the alarm's time no longer:
   sized at its Size, it stands under the inset, [S-11301])*. The Set up row, the waiting
   row and the error card follow the same rule as a view that does not own the edge (they each carried

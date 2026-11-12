@@ -2970,14 +2970,14 @@ over it (the Solid role, radius 4, 28 icon buttons) follow the family. `RingFace
 
 ### 16.2d A timer, the clock and a transport (G5, 2026-10-29)
 
-A timer (alarm, countdown, stopwatch, pomodoro, focus session) plans its face with `TimerFace.Plan` (or
-`Ring` for a ring face) on the content box: the Readout on the Hero steps, centred both ways in the box it
-gets, its line under, and the `ControlsBlock` centred at the bottom inset where `TimerFace.ControlsFit` says
-the row fits under the floor step; a ring is the Chart block's `ChartRing` with the readout in its hole
-(`ChartRules.Hole`), drawn only where the hole holds the floor step. One main action: the start/pause toggle
+A timer (alarm, countdown, stopwatch, pomodoro, focus session) takes its face from its Size
+(`TimerFace.Sized`, [S-11300]): the Readout on the Size's step (40, 68, 96), centred, its line under, and the
+`ControlsBlock` centred at the bottom inset, always (icon buttons at Small, `TimerFace.IconControls`); a
+ring is the Chart block's `ChartRing` with the readout one step under in its hole (`ChartRules.Hole`), the
+least ring that holds it. The card is that face (`TimerFace.Sizing`), never the face grown to the card. One main action: the start/pause toggle
 (`Main`, `Relabel` to Pause), an alarm's Dismiss; icon buttons for reset, lap, skip and steppers; an on/off
-state is the row's `Switch` (`Set` to show a state read back). What the row drops at a small tier stays on
-the card menu or the keys. Split-flap cards are `FlipCard`s sized by `FlipRules.Plan` (the figures' widest
+state is the row's `Switch` (`Set` to show a state read back). The row never drops a button; the keys
+and the card menu reach them too. Split-flap cards are `FlipCard`s sized by `FlipRules.Plan` (the figures' widest
 case and 12 either side, 8 apart, the step's line tall). A transport's Play is `MainIcon`; a slider in a
 row's meter place is `ControlsBlock.RailSlider`.
 
