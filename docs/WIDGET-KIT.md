@@ -2771,24 +2771,23 @@ the service's SPEC section.
 - [T8] Todoist API v1, Sync (request and response fields, full sync delay) and the User object (`tz_info`): https://developer.todoist.com/api/v1/ (sections "Sync", "User")
 - [N1] The module spike (section 4.11), 2026-10-17. The .NET behaviour it relied on was measured, not read: module initializer timing under CoreCLR and Native AOT, resolver combination and contract modifiers under AOT, XAML in a WinUI class library.
 
-## 15. A widget's options: the properties menu
+## 15. A widget's options: the selection's page
 
-User decision 2026-10-19: a widget's options live on the selection's properties menu in edit mode
-(SPEC "QUICKSET", [S-3716]..[S-3749]). There is no widget settings page: every widget has moved, and
-`IWidgetModule.SettingsRows`, `WidgetSettingsRows`, the widget pages, More settings and the card
-menu's Settings are gone ([S-6536]). Shortcuts (`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`)
-and Clock (`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references. The menu engine that
-draws it (`MenuPanel`, `src/Themia.App/Shell/Menu/`) also draws the edit bar's menus, which are the
-app's settings (⚙, Display ▾, View ▾; SPEC [S-3520]): there is no settings window ([S-3585]). On
-the edit bar the selection's menu is the trail's last crumb, **Widget ▾** ([S-3508]): one menu, which
-stands beside the selection.
+User decision 2026-10-19: a widget's options live on the selection in edit mode, never on a settings
+page: every widget has moved, and `IWidgetModule.SettingsRows`, `WidgetSettingsRows`, the widget
+pages, More settings and the card menu's Settings are gone ([S-6536]). Shortcuts
+(`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`) and Clock
+(`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references.
 
-The menu is drawn as Karpo's configuration menus are (user request 2026-10-26): one fixed 320 × 440
-DIP rectangle beside the selection ([S-3734]), its rows Explorer's (32 apart, the icon at 16, the
-words at 44), the menu's type and Cut, Copy and Delete on its top row ([S-3717]), and every row
-**one row high**. A row with a level of its own opens it **in place**, under a head with the back
-arrow and the level's name ([S-3718]); the card's look is the **Appearance** foot pinned at the
-menu's bottom ([S-3739]), never among a widget's lines. A widget writes rows, never a layout.
+Since 2026-11-12 (SPEC "EDITBAR-PAGES", [S-2300]..[S-2343]) the selection is an entry on the edit bar,
+Karpo's command bar, and its options its **page**: a flyout hung from that entry, drawn as Windows'
+settings cards by the one page view (`src/Themia.App/Shell/Pages/`) that draws the app's own pages
+(General, Accounts, Display, Views, Appearance). The page is a header card (the kind's tile, the name,
+Cut / Copy / Remove), then **What it shows** (the Style picker, the widget's `StyleLines`, its
+`Lines`), **Header** and **Appearance** (the card's own look). A row is 48 tall (60 with a caption); a
+card opens one level inside it (a choice, a colour, a lookup, a group of lines), never a third; a line
+of text asked or an "are you sure?" is a page of its own behind a back head. A widget writes lines,
+never a layout.
 
 ### 15.1 The vocabulary
 
@@ -2800,33 +2799,32 @@ change, so a closure may keep the value it was built with.
 
 | Setting | Helper | On the menu |
 |---|---|---|
-| bool | `menu.Toggle(glyph, text, on, set)` | Windows' toggle switch at the row's end; a click anywhere on the row flips it ([S-3741]) |
-| enum, any closed set | `menu.Choice(glyph, text, [(value, words)…], current, set)` | a level of the options, the tick on the one that holds; the row shows it as its value |
+| bool | `menu.Toggle(glyph, text, on, set)` | On / Off and Windows' toggle switch at the row's end; a click anywhere on the row flips it ([S-2302]) |
+| enum, any closed set | `menu.Choice(glyph, text, [(value, words)…], current, set)` | an inline picker: its radio rows open in the card, more than six in columns ([S-2308]); the head shows the one that holds |
 | number | `menu.Number(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | ticks up to `MaxNumberSteps` (20) steps, else a text level, range-checked and rounded to a step; the value at the end |
-| number set by feel (a volume, a size) | `menu.Slider(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | a one-row slider (words, a compact track, the value); a drag shows the value and stores once on the release, a key steps and stores ([S-3731]) |
-| colour `#RRGGBB` or empty | `menu.Colour(text, current, set, options?)` (`ColorChoiceOptions`: `DefaultLabel` null when a colour is required, `Presets` `ColorPresets.Surfaces` by default or `ColorPresets.Windows`, `AllowCustom`) | the one colour level, as Appearance › Item text's; the swatch is the row's icon |
+| number set by feel (a volume, a size) | `menu.Slider(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | a 240 × 32 number box with − and + inside; a typed value is read in the box's units and held to the range and step ([S-2309]) |
+| colour `#RRGGBB` or empty | `menu.Colour(text, current, set, options?)` (`ColorChoiceOptions`: `DefaultLabel` null when a colour is required, `Presets` `ColorPresets.Surfaces` by default or `ColorPresets.Windows`, `AllowCustom`) | the one inline colour picker, as Appearance's Item text: swatches, the custom picker, the eyedropper; the head shows the swatch and its words |
 | `FillChoice` | `menu.Fill(text, current, set, options?)` (`FillChoiceOptions`) | the same level as Appearance › Background |
-| text | `new ItemMenuEntry(glyph, text, () => menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:)), Value: …, Asks: true)` | a level holding the field alone, the reason under it, `accept`'s row ([S-3736]); `Asks` gives the row its chevron; `refuse` is the trust boundary (validate as typed) |
-| a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | the field pinned under the level's head, every answer a row, fixed rows under them |
+| text | `new ItemMenuEntry(glyph, text, () => menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:)), Value: …, Asks: true)` | a page of its own holding the box, the reason under it, `accept`'s button ([S-2303]); `Asks` gives the row its chevron; `refuse` is the trust boundary (validate as typed) |
+| a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | an inline lookup: the box over at most eight answers and a status line, fixed rows under them ([S-2308]) |
 | a folder | `menu.PickFolder(glyph, text, path, set)` | Windows' folder picker; the folder's name at the end |
 | the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`: a link row to ⚙ › Accounts, [S-3745], [S-3749]) |
 | something read asynchronously (an account's calendars, its lists) | a static `MenuLoads<T>` keyed per source, `Read(key, menu, read)` | what is held now ("Looking…" note until it comes); an answer that differs outdates the menu (`WidgetMenuLines.Outdated`) and the host builds it again ([S-3746]) |
 | a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a level of items (each a level: Rename…, own lines, Remove greyed at `Min`), Add…; the item rows are dragged up and down to reorder, or Ctrl+Up / Down (`ItemMenuEntry.Order`, [S-3732], [S-3748]) |
-| a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | its "are you sure?" level first ([S-3737]); danger rows in the critical colour |
+| a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | its "are you sure?" page first ([S-2303]); danger rows in the critical colour |
 | a change, a command | `menu.Command(glyph, text, change, disabled:)` or a plain `new ItemMenuEntry(glyph, text, action)` | runs on a click (a plain command does not save) |
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
 | where setup happens | `WidgetMenuLines.SetsUp(line)` around the line that sets what the widget waits for (`ISetupRule`) | the card's Set up button opens the menu at it, as a click would ([S-1862]); one per widget |
-| a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | a level of its own, opened in place |
+| a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | an expander card (its lines inside it); a separator ends a card |
 | a setting a higher level owns (the time format, the start of the week, the temperature unit, how often its source is asked, the accounts) | `menu.Link(new SettingLink(OwnedSetting.TimeFormat))`, `OwnedSetting.WeekStart`, `.TemperatureUnit`, `new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Weather)` (its cadence row), `menu.AccountsLine(glyph, text)` | a link row: the setting's icon and words, what is in force at its end, "open in new window" after it, no chevron; a pick closes the menu and opens ⚙ at the level that sets it ([S-3749]); it changes and saves nothing |
 
 Where lines go: `menu.StyleLines` (on the first level right under the Style row, in its section;
-the Style level holds the styles only) for what only the current look draws, `menu.Lines` for the
-rest, in groups the widget marks with `ItemMenuEntry.Separator` (the host draws the rules and
-drops stray ones). The host draws the Header row (title and positions) after Style for every widget
-that can have a header ([S-3735]), and the card's Appearance as the pinned foot ([S-3739]): a
-widget never places it. Something the vocabulary lacks is an SDK change first, in its own commit, with tests
+the Style picker holds the styles only) for what only the current look draws, `menu.Lines` for the
+rest, in groups the widget marks with `ItemMenuEntry.Separator` (the host parts the cards there).
+The host draws the Header section (title and positions) for every widget that can have a header and
+the card's Appearance section ([S-2342]): a widget never places them. Something the vocabulary lacks is an SDK change first, in its own commit, with tests
 in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-png`
-(`props-*-vocabulary*.png`).
+(`select-*-vocabulary*.png`, [S-2328]).
 
 ### 15.2 The rules
 
@@ -2858,8 +2856,8 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
   the `refuse` checks of every typed value.
 - **The module's `SPEC.md`** says its options are on the properties menu ([S-3719], with the date of
   the user's request) and lists them; retire the page's lines there.
-- **Render it**: `--editbar-png` with the widget selected and its levels open (add a case to
-  `EditBarRender.PropsShots`), and look at the PNGs.
+- **Render it**: `--editbar-png --only select` with the widget selected and its rows open (add a case to
+  `EditBarRender.SelectionShots`), and look at the PNGs.
 
 ## 16. One family: tokens, blocks and the guard
 
@@ -3009,7 +3007,7 @@ family has no token for, the shell's alone (the guard fails on a module or a blo
 
 | what | token | for |
 |---|---|---|
-| measurements | `ShellMetrics` (`Themia.Sdk/Kit/Family/ShellTokens.cs`): `OverlayRadius`, `Chevron`, `Shadow.*`, `Menu.*`, `EditBar.*`, `ViewBar.*`, `Notice.*`, `Details.*`, `Window.*`, `LayoutEditor.*`, `Picker.*` | Windows' and Karpo's measures, each with its source: the menu's fixed 320 × 440 and its 32 rows (pinned by `ShellTokensTests`), the edit bar's 48, the view bar's squares, the toast's 364, the settings page's 48 title bar and 36 inset |
+| measurements | `ShellMetrics` (`Themia.Sdk/Kit/Family/ShellTokens.cs`): `OverlayRadius`, `Chevron`, `Shadow.*`, `Bar.*`, `Flyout.*`, `Page.*`, `Inline.*`, `ViewBar.*`, `Notice.*`, `Details.*`, `Window.*`, `LayoutEditor.*`, `Picker.*` | Windows' and Karpo's measures, each with its source: the edit bar's 48 and its 256 selection room, a flyout's 580 and its 8 beak, a page's 48 and 60 rows (pinned by `ShellTokensTests`), the view bar's squares, the toast's 364, the settings page's 48 title bar and 36 inset |
 | colours | `ShellRole` (`ShellRoles.Key`, drawn by `ShellBrush.Of`): `Flyout`, `FlyoutStroke`, `Acrylic`, `Raised`, `Layer`, `CardBase`, `CardFill`, `CardStroke`, `AccentText`, `AccentHover`, `AccentPressed`, `AccentDisabled`, `TextOnAccentDisabled`, `ControlHover`, `ControlStrokeHover`, `SwitchTrack`(`Disabled`), `SwitchRim`(`Disabled`), `StrongFill` | the chrome's sheets, the card's own brushes, the accent's states, a drawn switch |
 | fixed colours | `ShellColours`: `Shadow`, `None`, `WindowsAccent`, the motion palettes (`Phosphor`, `Space`, `Star`) | colours no role or data gives; with `HexBrush` (data, the user's design, `Wash`, `Ink`) the only places a colour is made from numbers |
 

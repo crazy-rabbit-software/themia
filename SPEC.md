@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -1737,56 +1737,182 @@ service layer knows strategies, never services: a service is a descriptor that p
   radius — one outline per widget at its offset in the block ([S-1585]): it shows what the user will
   see once the widgets are there, not the cells they own.
 
+### The edit bar and its pages (EDITBAR-PAGES)
+
+The edit bar is Karpo's command bar (user request 2026-11-12: "the top edit bar should be designed in
+the same way that karpo has it"; `karpo-app`, `docs/widgets.md` §575, §578, §584, §593, §594, §596,
+§608, §670–§679): a row of page entries, each opening its own flyout hung from it by a beak, the
+selection's entry and its page, Add and Done. It replaces the trail, the drop-down menus (⚙, Display ▾,
+View ▾) and the properties menu beside the selection, which are gone with their engine. Owning files:
+Core `Settings/SettingsPages.cs` (the pages), `Settings/SettingsRows.cs` (the row vocabulary, the
+cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPage.cs`,
+`Geometry/FlyoutPlacement.cs`; the metrics `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`; App
+`Shell/EditBar.cs`, `Shell/Pages/` (`PageFlyout`, `PageView*`, `PageRows`, `SelectionRows`),
+`Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing the flyouts, one mechanism),
+`.Properties.cs` (the selection's entry and page), `.Toolbar.cs`, `.SettingsMenu.cs`. Tests
+`SettingsMenuTests` (`S23*`), `EditBarLayoutTests`, `NumberEntryTests`, `ShellTokensTests`.
+
+- **[S-2300]** The bar's **pages**, in its order, each an entry (its glyph and its name) and the flyout
+  it opens: **General** (the gear: General's own lines with Snap to grid, then Language & region,
+  Online updates, Motion, AI assistants where a server runs, Back up & reset, Themia Pro, About Themia,
+  and Quit Themia last), **Accounts** (every account, a page of its own, then Add account), **Display**
+  (the display this bar stands on: the view it shows, its scale, its view bar, then what every display
+  shares), **Views** (the view shown here: its name, icon and colour, Duplicate, Delete; then every
+  view as the user's own things) and **Appearance** (the style, theme and colours, item background, the
+  cards, text and size). The lines are the settings' own (`SettingsMenu.*`, `DisplayMenu.Root`,
+  `ViewsMenu.Root`); a page only groups them (`SettingsPages.General` … `.Appearance`).
+- **[S-2301]** One rule makes a page of lines (`SettingsPages.Sectioned`): a heading line starts a
+  section under its words; a submenu that is not a page of its own is a section of its own (its words
+  the heading, its lines the section's); every other line joins the section it follows. No section is
+  empty; a section's key is the line's it came from, so a deep link finds it in every language.
+- **[S-2302]** The **row vocabulary** (`SettingsRowKind`, decided once by `SettingsRows.KindOf` for the
+  settings' lines and by `PageRows` for the selection's entries, so a row that does the same is drawn
+  the same): a **toggle** (On / Off before Windows' switch, the whole row the switch); a **number** (a
+  240 × 32 box showing the value as its line writes it, − and + inside, Up and Down step it, a typed
+  value read in the box's units and held to the range and grain, [S-2309]); a **text** box (240 × 32;
+  Enter or leaving keeps it, Escape restores it; why a text cannot be kept under the name in the
+  critical colour; a form's field hands on every letter; a password's never shows what it holds); an
+  **action** (the whole row a button, a danger's in the critical colour, a chevron where it asks first);
+  a **link** (a chevron, its tooltip "Opens …"); an **item** (the user's own thing: its icon buttons at
+  its end, their keys F2 and Delete while it has the keyboard, dragged or Ctrl+Up / Down to reorder); a
+  **note** (words; a reading with its value at the end); the **pickers** (choice, lookup, colour, font,
+  icon, [S-2308]); an **expander**; a **sub-page**.
+- **[S-2303]** At most **two levels** (Karpo's §594): a card, and one level opened inside it (an
+  expander, a picker). A submenu marked a page of its own (`SettingsSubmenu.Page`: an account, Add
+  account) or one whose lines open further is a **sub-page**: it stands in the page's place behind a
+  32-DIP back head (the back arrow and its title in BodyStrong; the whole head goes back). Inside an
+  expander a picker stands open under its name. A line of text asked on its own (a view's Rename tool,
+  a widget's Ask) and an "are you sure?" (a preset over one's own look, deleting a view, an import, a
+  widget's Confirm) are pages of their own too, the question their head; only their button does it.
+- **[S-2304]** **Cards** (`SettingsRows.Cards`), Windows' settings cards: each row a card of its own,
+  with the notes under it (what holds against it, how a try went); options of a choice standing open,
+  and the things of one list, share one card; a heading's card holds the rows under it to the next
+  break. Cards are Windows' card fill and stroke, radius 4, 4 apart.
+- **[S-2305]** A page as drawn (`PageView`): 16 in from the flyout's sides and top, 16 under the last
+  card; a section's heading in BodyStrong 24 after the previous group and 8 over its cards (the first
+  section's heading where the page has one: General's); a row 48 tall, 60 with a caption, its icon at
+  16, its name at 48, its control ending 16 from the card's edge. The page is drawn again on every change
+  of the state; what is open, the sub-page, the scroll and the keyboard's place (a box's caret too) are
+  kept by the rows' keys.
+- **[S-2306]** Every setting has **exactly one page** (`SettingsMenuTests.S2306_`): every setting line of
+  the section builders, Display ▾'s and View ▾'s lines stands once on one page, and the ownership guard
+  ([S-3592]) walks the pages, each section a level of its own. A deep link names a row by its key
+  (`SettingsPages.PathTo`: its section, the rows down to it).
+- **[S-2307]** A sub-page's **back head**: Escape or the head goes back to the page it stands on.
+- **[S-2308]** The **inline pickers** (Karpo's §670–§676): every choice of one, every colour, every font,
+  every icon and every lookup is a card that opens, never a popup or a drop-down: its head shows the
+  icon, the name, what holds (a colour's swatch and words, a choice's words) and a chevron (up while
+  open); opened, the picker stands inside the card under a hairline on Windows' secondary card fill, 12
+  in. One card is open at a time, scrolled to the top of the flyout as it opens. A **choice**: radio rows
+  36 tall, more than six in up to three columns of at least 180. A **lookup** (the language, a place, a
+  time zone): a search box over at most eight results and a status line ("3 found", "No results",
+  "Searching…"), the card the same height whatever is typed; its own options filtered as typed
+  (`SettingsMenu.Matches`), a search that asks as typing settles; Enter picks the first. A **colour**: 36
+  swatches 4 apart (Default first, a fill's Transparent next), the one that holds ringed in the accent;
+  a fill's opacity as a number; then the custom picker inline (Windows' spectrum, its hue, a fill's
+  opacity, the hex box: letting go of a drag keeps the colour, as leaving the hex box does) and the
+  eyedropper. A **font**: the font picker and Add fonts. An **icon**: the icon picker.
+- **[S-2309]** A number typed into a number box is read in the units the box shows (`NumberEntry`: the
+  digits, one decimal mark of either kind, a minus; "42 %" is 0.42 of a fraction, "1.5 s" 1500 ms), then
+  held to the range and the grain (`MenuSlider.Snap`); nothing that reads as a number restores the box.
+- **[S-2320]** The **bar** (`EditBar`, laid out by `EditBarLayout.Lay`): one row 48 DIPs tall (8, a 32
+  control, 8) at the top centre of each display's work area, 8 under its top, Windows' ground with the
+  flyout's rim, radius 8 and a flyout's shadow. Left to right: the pages' entries 4 apart (each 12, its
+  16 icon, 8, its words in Body, 12; no fill or rim until pointed at); 8, a 1-DIP hairline 20 tall, 8
+  (drawn only while something is selected, its room always kept); the **selection's room**, 256 DIPs
+  always kept ([S-2324]); a 16 gutter; the **problems' room** (a 40 icon button while there are
+  problems; Themia keeps no standing list of them yet, so the room stays empty); 4; **Add widget**
+  (Windows' standard button, its "+" in the accent, [S-3501]); 8; **Done** (the one accent button, at
+  least 80, ending 8 from the bar's end). One width whatever is selected and however many problems there
+  are. There is no grip (the bar does not move), no Undo or Redo (Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z still
+  step the history, [S-885]), no search, no fold and no close button.
+- **[S-2321]** The entry whose flyout is open is lit: the subtle fill and the accent's 16 × 3 pill at
+  its foot. Each entry's words are its tooltip and its name.
+- **[S-2322]** On a display too narrow for the bar the pages' entries show their **icon alone** (40
+  wide, their words the tooltip) first; then the selection's room narrows, never under 40.
+- **[S-2323]** The divider stands between the pages and the selection only while something is selected.
+- **[S-2324]** The selection's entry in its room (`EditBarLayout.Fit`): its natural width, cut short with
+  an ellipsis where it does not fit but never under 12 + 16 + 8 + 40 + 12, else its icon alone.
+- **[S-2325]** A page's **flyout** (`PageFlyout`, placed by `FlyoutPlacement.Place`): 580 DIPs wide (a 16
+  gutter either side of 548 of cards), as tall as its page up to 70 % of the work area (then it scrolls:
+  the wheel, Page Up / Down, Home and End), centred on its entry 12 under the bar, pushed in to stay 12
+  from the work area's sides and its foot; radius 8, Windows' own colours always (the ground
+  `SolidBackgroundFillColorBase`, the cards `CardBackgroundFillColorDefault` with `CardStrokeColorDefault`),
+  never the widgets' look. No title: the entry names the page.
+- **[S-2326]** Its **beak**: 8 tall and 16 across at its top, its tip over the entry's middle, held to the
+  top's straight (the corner's radius and half the beak in from either end), so a flyout pushed in at a
+  screen edge still points at its entry; the beak and the panel one outline with one rim and one shadow.
+- **[S-2327]** **One flyout at a time**, nothing open as edit mode starts. A page's entry opens its
+  flyout, or closes it again; another entry swaps it. It closes on Escape (after going back out of a
+  sub-page or an opened card first), on a press anywhere that is not the bar or the flyout (which then
+  does what it does: a press on a widget selects it), when the add menu opens, when a placement starts,
+  and as edit mode ends; Escape with no flyout open backs out of placing, the selection, then edit mode
+  ([S-1583]). Keys: Tab and Shift+Tab walk the bar then the flyout; Left and Right walk the bar (mirrored
+  right to left); Enter or Space opens an entry; Down from the bar goes into the open flyout; F6 reaches
+  it ([S-1975]); while the keyboard is in a flyout no edit key reaches the selection but Undo, Redo and
+  F6. What the General and Accounts pages follow of Windows and the accounts is followed while one is
+  open ([S-3525], [S-3559]).
+- **[S-2328]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
+  bar|pages|select]` draws the real bar on a stand-in display (`editbar-<theme>.png`, nothing selected;
+  `-widget`, one widget, its flyout open; `-many`, two of a kind; `-mixed`, three of several; `-errors`,
+  the problems' button; `-open`, General's entry lit; `-narrow` and `-narrowest`, 900- and 640-wide
+  displays; `-add`, the add menu; `-placing`), every page's flyout hung from its entry over a busy
+  stand-in wallpaper, opened at a row as a deep link opens it, its picker open (`page-<theme>-general`,
+  `-general-end`, `-general-motion`, `-general-language`, `-general-language-find`, `-general-advice`,
+  `-general-link-temperature`, `-general-assistants*`, `-general-pro-*`, `-general-backup*`,
+  `-general-about`, `-general-uninstall-*`; `-appearance`, `-appearance-style`, `-theme`, `-accent`,
+  `-background`, `-border`, `-font`, `-replace`; `-accounts`, `-accounts-account`, `-accounts-add`,
+  `-accounts-imap*`, `-accounts-caldav`; `-views`, `-views-icon`, `-colour`, `-rename`, `-delete`,
+  `-many`, `-many-end`; `-display`, `-display-type`, `-position`, `-bar-views`, `-new`, `-end`), and the
+  selection's page beside real cards in edit mode (`select-<theme>-one`, `-style`, `-header`,
+  `-background`, `-appearance-end`, `-two`, `-many`, `-toggle`, `-weather`, `-weather-location`,
+  `-setup-weather`, `-shortcuts`, `-vocabulary`, `-vocabulary-colour`, `-vocabulary-feeds`,
+  `-vocabulary-confirm`), over stand-in hosts that reach neither Windows nor the user's state; then the
+  edit markers ([S-31b]). `--editbar-png` writes no `settings-*`, `views-*`, `display-*` or `props-*`
+  pictures any more.
+- **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
+  80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
+  under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,
+  Copy and Remove as icon buttons at its end, their words and keys the tooltip; Remove reads "Remove
+  from this view" for desktop items, [S-5524]), then its sections ([S-2342]). It is where a widget's
+  options are: there is no widget settings page ([S-6536]).
+- **[S-2341]** The **selection's entry** on the bar of the display the selection is on
+  (`SelectionPage.Words`): the kind's glyph and name for one widget; "2 × Clock" for several of one kind
+  (`QuickSetOffer.CommonKind`); "3 widgets" for several kinds.
+- **[S-2342]** Its sections (`SelectionPage.Sections`): **What it shows** (the style first as an inline
+  picker, only for one kind with styles ([S-6007]), what that look draws under it, then the widget's own
+  lines, [S-3719]; for one widget); **Header** (the one widget's title as a text box, the kind's name its
+  hint, [S-3704]; where the header stands, an inline picker; not where a widget selected can never have
+  a header, [S-3711]); **Appearance** (Alignment ([S-6584]), Background, Item background, Item text
+  ([S-6566], [S-6571], [S-6574]), the background image ([S-6593]), Scale ([S-6531])). Several selected:
+  the count in the header card and the shared sections only ([S-3702]); a mixed value reads as a dash.
+- **[S-2343]** Selecting a widget adds its entry and **opens its flyout, once per selection**: closed by
+  the user it stays closed for that selection; a click on a selected widget opens it again; nothing
+  selected removes the entry and closes it. Nothing opens while a drag or a resize runs ([S-3710]) or
+  while placing. The card's Set up button selects the widget alone and opens its page at the row its
+  module names ([S-1862]). Enter from the selection opens its flyout with the keyboard in it ([S-1974]).
+
+Needs a live pass: the bar and its flyouts on every display at mixed DPI and with a top taskbar (the bar
+8 under the work area, a flyout pushed in at a screen edge with its beak over its entry, 70 % of a short
+display); the pointer (hover fills, a press outside closing a flyout and selecting a widget, an item
+dragged to a new place, a colour's spectrum dragged); the keyboard (Tab and the arrows along the bar,
+Down into a flyout, Escape out of a sub-page then the flyout then edit mode, F6, Ctrl+Up / Down on an
+item, F2 and Delete on a view); a screen reader on the entries, the cards and the pickers; the selection's
+flyout opening once per selection and again on a click; a language switch with a flyout open.
+
 ### The edit bar and its add menu (EDITBAR)
 
-After Karpo's edit bar (`karpo-app`, `docs/widgets.md` §43 and §50, `Dock.EditDeck.cs`). Owning
-files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker.cs`,
+The bar itself is EDITBAR-PAGES' ([S-2320]); what stays here is its add menu. Owning
+files: `Shell/WidgetPicker.cs`,
 `Shell/DesktopWindow.Picker.cs`; rules in Core `Widgets/AddMenu.cs` (tests `AddMenuTests`).
 
-- **[S-3500]** In edit mode each display's surface shows the **edit bar** at the top centre of its
-  work area, 8 DIPs under the work area's top ([S-852]) and at least 8 off its sides, after Karpo's
-  (`karpo-app`, `docs/widgets.md` §352; user request 2026-10-26: the bar was "all over the place").
-  It reads **where → add → tools → global → finish**: the **trail** of where one is ([S-3507]:
-  **Display ▾** › **View ▾** › **Widget ▾**), then **Add widget** (Windows' standard button, its "+"
-  in the accent, [S-3501]), a hairline, **Undo** and **Redo** ([S-3509]) and **Snap** ([S-3516]), a
-  hairline, **⚙** (icon-only, a drop-down: Themia's settings as a whole, [S-3520]; quitting is its
-  last line, [S-67]) and **Done** (the accent button with its word, at least 80 DIPs, ending edit
-  mode). Metrics (Karpo's): 48 DIPs tall, 36-DIP buttons with radius 4 in a 6-DIP padding, 6 DIPs
-  between two, 12 either side of a 20-DIP hairline, 24 between the trail and Add widget; inside a
-  button 12 DIPs in, a 16-DIP glyph, 8, then its words in 14. Subtle buttons have no fill at rest and
-  the subtle fills under the pointer and pressed; an icon-only button's words (and keys) are its
-  tooltip and its name. One button, one menu, toggled: a click on the button of the open menu closes
-  it, another's swaps it ([S-3540]). On the flyouts' acrylic, stroke, 8-DIP corners and shadow. There
-  is no More button. Each display has its own bar; the bar is inside the edit-mode hit region (the
-  whole work area). While placing, a line in the bar's frame and height stands in its place ([S-421]).
-- **[S-3507]** The **trail**: three crumbs, subtle drop-downs each its icon, its name and a 12-DIP
-  chevron down, a 12-DIP › centred in the 20 DIPs between two (mirrored right to left). **Display**
-  (this display's name, `MonitorTarget.Name`, "DELL U2723QE"; opens Display ▾, [S-3543]), **View**
-  (the view this display shows, its icon in its colour, [S-3810]; opens View ▾, [S-3541]) and
-  **Widget** (only while something is selected on this display: the widget's title, else its kind's
-  name, with the kind's icon; "3 widgets" for several; [S-3508]). Each crumb's tooltip and name say
-  what it is and its whole name ("Display: DELL U2723QE — 3840 × 2160 (primary)", "View: Work").
-  **One width always**: the trail reserves room for all three at their widest (170, 160 and 160 DIPs
-  and the two gaps, 530: Karpo's four crumbs' room shared by three), so nothing after it moves as the widget crumb comes and goes; a crumb is as
-  wide as its words need up to that, trimmed with an ellipsis. On a display too narrow for the bar
-  every crumb gives up the same amount, none under 96 DIPs (`EditBarTrail.Widths`, tests
-  `EditBarTrailTests`).
-- **[S-3508]** **Widget ▾ is the properties menu's button**, never a second menu: the selection's
-  properties menu ([S-3716]) is one instance that stands beside the selection ([S-3708]) and opens as
-  a widget is selected. The crumb is lit while it stands there; a click on it puts it away (the
-  selection stays) and a click again brings it back beside the selection, the keyboard in it; with
-  one of the bar's menus open the click closes that menu and the properties menu comes back
-  ([S-3523]). A new selection brings it back. A press on the crumb never closes a bar menu first (it
-  is one of the bar's menu buttons, [S-3521]).
-- **[S-3509]** **Undo** and **Redo** (E7A7, E7A6), icon-only, their tooltips "Undo (Ctrl+Z)" and
-  "Redo (Ctrl+Y)": the history's step back and forward ([S-885], the same `AppHost.Undo`/`Redo` and
-  notices as the keys, which are unchanged); greyed while there is nothing to step
-  (`AppHost.CanUndo`/`CanRedo`), followed after every change, drag, step and import
-  (`AppHost.HistoryChanged`).
-- **[S-3516]** **Snap** (the grid glyph), an icon-only toggle lit with the accent while on, its
-  tooltip what it does: grid snap while moving and resizing ([S-06], `EditBarSnap.Set`). It is the
-  bar's one setting of its own, and set nowhere else ([S-3590]): not in ⚙ › Appearance, not in the
-  surface menu.
+- **[S-3500]** *(Retired by [S-2320] (2026-11-12): the bar is Karpo's command bar of page entries; the trail, Undo, Redo, Snap and ⚙ are gone from it.)*
+- **[S-3507]** *(Retired by [S-2320], [S-2341]: there is no trail; the selection has an entry of its own, Display and View are pages.)*
+- **[S-3508]** *(Retired by [S-2343]: the selection's entry opens its page; there is no properties menu to put away.)*
+- **[S-3509]** *(Retired by [S-2320]: the bar has no Undo or Redo; Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z step the history ([S-885]).)*
+- **[S-3516]** **Snap to grid** (grid snap while moving and resizing, [S-06]) is a switch in the General
+  page's first section ([S-2300], key `snap`), set there and nowhere else ([S-3590]): not on the bar,
+  not on the Appearance page, not in the surface menu.
 - **[S-3501]** **Add widget** opens the **add menu** under it ([S-1749]; the surface menu's Add widget
   opens the same menu at the click, [S-1744]): a search box over every widget kind in the catalogue
   (the module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change), then the tree of [S-3510],
@@ -1856,16 +1982,7 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   menu keeps its size; nothing matching says so. Down from the box walks the results, Up from the
   first goes back; Enter adds the highlighted one, else the best match (drawn highlighted); Escape
   empties the box, back to the tree with nothing open, and an empty box's Escape is the tree's.
-- **[S-3506]** Debug renders: `--editbar-png <outDir> [--theme light|dark]` draws the real bar on a
-  stand-in display (`editbar-<theme>.png`: nothing selected, a step to undo and none to redo;
-  `-snapoff`; `-widget`, one widget selected; `-many`, three; `-history` and `-nohistory`, both steps
-  live and none; `-long`, long names trimmed; `-narrow`, the same on a 900-DIP display, every crumb
-  giving up the same; `-add`, the add menu open under Add widget; `-placing`, the placement line),
-  the properties menu ([S-3713]; `props-<theme>-links-*`, a widget's link rows, [S-3749]), and
-  `--picker-png <out.png> [--search text] [--open Subject[/Family]] [--theme light|dark]` the open
-  menu, `--open` opening the cascade by `AddFolderId` names
-  (`CalendarMail`, `System/Processor`, `QuickSettings`); the render draws the
-  submenus on a layer over a 1280 × 800-DIP stand-in work area, where the popups would stand.
+- **[S-3506]** *(Retired by [S-2328]: the bar's pictures are `editbar-<theme>*.png` of the new bar; `--picker-png` is unchanged.)*
 
 Needs a live pass: the bar on every display at mixed DPI and with a top taskbar (the trail's one
 width, a narrow display's crumbs shrinking, the bar 8 DIPs off its sides), the widget crumb coming
@@ -1876,59 +1993,31 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 
 ### The edit bar's settings menu (SETTINGS-MENU)
 
-The app's settings moved out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
+Since 2026-11-12 these sections are the edit bar's General, Accounts and Appearance pages
+(EDITBAR-PAGES, [S-2300]); the ⚙ drop-down and its menu engine are gone, and "⚙ › X" below names
+the section X of its page. The app's settings moved out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
 `docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance,
 Accounts (SETTINGS-ACCOUNTS, [S-3550]), Language & region, the online update intervals, and Themia
 Pro, Back up & reset and About (SETTINGS-ABOUT, [S-3570]) are here; then the window, empty, went
 ([S-3585]): every way into settings opens the edit bar's menus ([S-3534]). The Displays and Views pages are the bar's
 Display and View menus (BAR-MENUS, [S-3540]). Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
 first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
-`.Accounts.cs`, `.Language.cs`, `.Online.cs`, `.Pro.cs`, `.Backup.cs`, `.About.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
-the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus over Core's lines),
-`Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing every one of the bar's menus, one
-mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
+`.Accounts.cs`, `.Language.cs`, `.Online.cs`, `.Pro.cs`, `.Backup.cs`, `.About.cs`), `Settings/SettingsPages.cs` (the pages); App `Shell/Pages/` (the pages
+drawn, [S-2302]), `Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing every flyout, one
+mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`.
 
-- **[S-3520]** **⚙** on the edit bar (icon-only, [S-3500]) is a drop-down: a click opens the
-  **settings menu** under it on that display — Themia's settings as a whole, every one at this level
-  alone ([S-3590]) — the keyboard in it on its first row, and ⚙ stays lit while it is open. The menu is
-  the properties menu's engine (`MenuPanel`, [S-3716]) with no top row or foot of its own: the one
-  fixed rectangle of every configuration menu (320 × 440 DIPs, [S-3734]) whose levels open in place
-  ([S-3718]), every row one row high: the switch, the tick or the chevron at a row's end ([S-3741]),
-  one-row sliders ([S-3731]), the one colour level ([S-3724]), notes ([S-3728]), headings
-  ([S-3740]), rows whose level is a line of text ([S-3736]) and its "are you sure?" on a level of its
-  own ([S-3737]). Its keys are the engine's ([S-3743]); F6 reaches it while it is open ([S-1975]).
-- **[S-3521]** It stays open while it is used: a pick changes the setting and the menu stays as it
-  was. It closes on ⚙ again; on Escape on its own rows (Escape on a level goes back first, [S-3743];
-  the keyboard back on ⚙); on a press anywhere on the surface outside it, which then does what it does (a press on a
-  widget selects it, one on empty surface starts a rubber band); when the Add widget menu or another
-  of the bar's menus (Display ▾, View ▾, [S-3540]) opens, or the widget crumb is clicked ([S-3508]); when a placement starts; and on Done or leaving edit mode any other way. Each display has
-  its own, opened from that display's bar. Closed, its levels close as going back closes them: it
-  opens again on its own rows.
-- **[S-3522]** Where it stands (`DropDownPlacement`): 4 DIPs under the bar, centred under the button
-  it drops from (⚙, Display ▾, View ▾; the same in either reading direction), slid along to stay
-  inside the work area,
-  stepped down below the view bar where it would cover it while the work area leaves room, and never
-  outside the work area: its one rectangle is no taller than the work area under the bar
-  (`DropDownPlacement.Room`, [S-3734]). It stays where it stands while it is used: a level opening or
-  closing moves nothing.
-- **[S-3523]** One menu at a time: while the settings menu is open the selection's properties menu
-  is away (back on its own rows; the selection stays), and it comes back where it was when the
-  settings menu closes. The keyboard in the settings menu is the menu's: no edit key reaches the
-  selection behind it (Delete, Cut, Copy, the arrows, Ctrl+A) but Undo and Redo, which undo what the
-  menu changed, and F6.
-- **[S-3524]** Its first level, in bands with a divider between them: General's lines, inline
-  ([S-3525]); **Appearance ›** ([S-3526]), **Accounts ›** ([S-3550]), **Language & region ›**
-  ([S-3536]) and **Online updates ›** ([S-3530]); **Themia Pro ›** ([S-3570]), **Back up & reset ›**
-  ([S-3575]) and **About Themia ›** ([S-3580]); then **Quit Themia** ([S-3532]). The sections stand in
-  the agreed order (General, Appearance, Accounts, Language & region, Online updates, Themia Pro, Back
-  up & reset, About, Quit Themia); a section with no lines, and a band with none, is not there: nothing
-  stands empty or greyed for what has not moved yet. The lines are Core's (`SettingsMenu.Root` over
-  an `ISettingsMenuHost`: `SettingsToggle`, `SettingsChoice` of `SettingsRadio`s, `SettingsSlider`,
-  `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`,
-  `SettingsNote`, `SettingsHeading` ([S-3740]), `SettingsLink` ([S-3749]); a long choice has a filter
-  under its head, [S-3742]; `SettingsReading`, `SettingsField` and what a note says of a try,
-  [S-3561]), each keyed by a path that is the same in every language
-  (`appearance/cards/radius`); the app draws each as the engine's row of that kind.
+- **[S-3520]** *(Retired by [S-2300], [S-2327] (2026-11-12): there is no ⚙ drop-down; Themia's settings are the General, Accounts and Appearance pages, each a flyout hung from its entry.)*
+- **[S-3521]** *(Retired by [S-2327]: one flyout at a time, closed on its entry, Escape, a press elsewhere, the add menu, a placement or Done.)*
+- **[S-3522]** *(Retired by [S-2325]: a flyout hangs from its entry by a beak (`FlyoutPlacement`); `DropDownPlacement` is gone.)*
+- **[S-3523]** *(Retired by [S-2327]: the keyboard in a flyout reaches no edit key of the selection but Undo, Redo and F6.)*
+- **[S-3524]** The settings' sections are Core lines (`SettingsMenu.General`, `.Language`, `.OnlineUpdates`,
+  `.Motion`, `.Assistants`, `.Backup`, `.Pro`, `.About`, `.Accounts`, `.Appearance`, over an
+  `ISettingsMenuHost`: `SettingsToggle`, `SettingsChoice` of `SettingsRadio`s, `SettingsSlider`,
+  `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`, `SettingsNote`,
+  `SettingsHeading`, `SettingsLink`, `SettingsReading`, `SettingsField`), each keyed by a path that is the
+  same in every language (`appearance/cards/radius`); the pages group them ([S-2300], [S-2301]) and draw
+  each line as the row of its kind ([S-2302]). A section with no lines is not there. There is no first
+  level any more: `SettingsMenu.Root` is gone.
 - **[S-3525]** **General**: **Start with Windows** ([S-933]; its glyph a speedometer, as Task Manager
   marks its Startup apps, never the power button Quit Themia wears; ticked while Windows will start Themia,
   read from Windows each time the menu opens and the stored value until then; a click asks Windows and
@@ -1973,16 +2062,17 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   where they are; what Windows reports (start with Windows, the desktop icons, game mode holding the
   widgets) updates it the same way. A language switch writes its words in the new language and keeps
   what is open open: the lines' keys do not change.
-- **[S-3532]** **Quit Themia** is the menu's last line ([S-67]): it quits on every display, as the
-  bar's More › Exit did; the More button is gone.
+- **[S-3532]** **Quit Themia** is the General page's last row ([S-67]): it quits on every display.
 - **[S-3533]** *(Retired by [S-3584]: the settings window has no page left, so there is no All
   settings… and nothing opens it.)*
-- **[S-3534]** The ways in: ⚙; the surface menu's Settings ([S-1744]), which opens it on that
-  display; starting Themia again by hand ([S-66]), which opens it on the main display; a widget's
-  way to its accounts ([S-3558]) and a refusal's See plans ([S-3573]), which open it at their
-  level. Nothing opens a settings window: there is none ([S-3585]). `DesktopWindow.RequestSettings(path)` opens it at a level, by the lines' keys, as clicks
-  would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]); every bar menu opens
-  the same way (`OpenBarMenu(menu, path)`, [S-3540]).
+- **[S-3534]** The ways in, each landing on its row (page and row, the row scrolled into view and lit for
+  a moment): the General entry; the surface menu's Settings, View settings and Display settings
+  ([S-1744]: the General, Views and Display pages on that display); starting Themia again by hand
+  ([S-66]: the General page at its top on the main display); a widget's way to its accounts ([S-3558]:
+  the Accounts page, or Add account while there is none), a widget's link row ([S-3749]: the row that
+  owns the setting) and a refusal's See plans ([S-3573]: Themia Pro). Nothing opens a settings window:
+  there is none ([S-3585]). `DesktopWindow.RequestSettings(key)` opens the page that holds the row
+  `key` at it (`SettingsPages.PathTo`), as clicks would; `OpenPage(page, path)` opens any page.
 - **[S-3536]** **Language & region ›**, every localisation choice in one place, as the settings
   window's Language & region page held them ([S-3797]; the page is gone, with its navigation entry,
   search entries and globe icon): **Language ›** ([S-1109]), its value the language Themia speaks in
@@ -2001,18 +2091,7 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   it, whatever the case (`SettingsMenu.Matches`), "No results" when none does; Enter picks the first
   kept, Down moves to it; nothing goes out to be asked, so nothing waits. Tests `SettingsMenuTests`
   (`S3536_`, `S3537_`).
-- **[S-3535]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
-  settings]` draws the menu open under ⚙ on the stand-in display (`settings-<theme>.png`) and its
-  levels opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
-  `-cards`, `-border`, `-text`, `-font`, `-motion`, `-motion-startup`, `-online`,
-  `-online-weather`, `-language`, `-language-display`, `-language-clock`, `-link-temperature`: where a
-  widget's Temperature unit link lands, [S-3749]), `-language-find` (the
-  languages' filter holding "deu"), `-language-end` (the languages scrolled to their end under their
-  pinned head and filter), ⚙ › Accounts' pictures ([S-3560]), Themia Pro's, Back up &
-  reset's and About's ([S-3583]), `-advice` (start with Windows switched off in Windows, game mode holding the
-  widgets, Windows' animations off) and `-replace` (a preset over a look of one's own: its "are you
-  sure?" level), over a stand-in host that reaches neither Windows nor the user's
-  state; `--only settings` draws these alone.
+- **[S-3535]** *(Retired by [S-2328]: the settings pages' pictures are `page-<theme>-general*`, `-appearance*` and `-accounts*`.)*
 
 Needs a live pass: ⚙ on every display at mixed DPI and with a top taskbar (the menu under the
 button, its one rectangle inside the work area, the view bar at the top); Windows' text size above
@@ -2027,24 +2106,18 @@ level open; Quit Themia.
 
 ### The edit bar's View and Display menus (BAR-MENUS)
 
+Since 2026-11-12 View ▾ and Display ▾ are the Views and Display pages (EDITBAR-PAGES, [S-2300]): their
+first levels are the pages' sections, their submenus the sections or expanders of [S-2301].
+
 The Views and Displays pages of the settings window moved onto the edit bar (user request
 2026-10-25, step 2 of the move of [S-3520]), after Karpo's Display ▾ and Layouts menu (`karpo-app`,
 `docs/widgets.md` §336, §348). Owning files: Core `Settings/ViewsMenu.cs`, `Settings/DisplayMenu.cs`
-(the lines, over `IViewsMenuHost` / `IDisplayMenuHost`), `Geometry/DropDownPlacement.cs`; App
-`Shell/DesktopWindow.BarMenus.cs` (the one mechanism every bar menu opens, closes and is placed
-by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
-`Shell/Menu/BarMenuView.cs`, `Shell/IconPicker.cs`. Tests `ViewsMenuTests`, `DisplayMenuTests`,
-`DropDownPlacementTests`.
+(the lines, over `IViewsMenuHost` / `IDisplayMenuHost`), `Settings/SettingsPages.cs` (the Views and Display
+pages); App `Shell/DesktopWindow.BarMenus.cs` (the one mechanism every flyout opens, closes and is
+placed by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
+`Shell/Pages/`, `Shell/IconPicker.cs`. Tests `ViewsMenuTests`, `DisplayMenuTests`.
 
-- **[S-3540]** **Display ▾** and **View ▾**, the trail's first two crumbs ([S-3507]), are drop-downs
-  like ⚙: a click opens the menu under its crumb on that display, the keyboard in it, the crumb lit
-  while it is open, and a click again closes it. The three are one mechanism (`BarMenu` Display, View, Settings;
-  `DesktopWindow.OpenBarMenu(menu, path)`, `CloseBarMenu`, `PlaceBarMenu`): at most one is open on a
-  display, the others' buttons swap it, and every rule of [S-3520]..[S-3523] holds for each (the
-  engine's look and keys, open while it is used, the ways it closes, where it stands, the selection's
-  properties menu away while one is open). Each is the one fixed rectangle ([S-3734]), no taller than
-  the work area under the bar (`DropDownPlacement.Room`: from under the bar to a gap above the work
-  area's bottom; [S-918]'s promise for the View menu, kept); a long level (many views) scrolls inside it.
+- **[S-3540]** *(Retired by [S-2300], [S-2327] (2026-11-12): Display ▾ and View ▾ are the Display and Views pages; their content is [S-3541]..[S-3545], [S-3549].)*
 - **[S-3541]** **View ▾** is the view this display shows (its assignment, else the active view,
   [S-1706]) and, behind Manage views ›, every view (Karpo's Layout ▾). Which view a display shows is
   set in Display ▾ alone ([S-3543], [S-3590]): no line here shows a view. The lines are Core's
@@ -2096,24 +2169,10 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
   display on is greyed, with "Themia has to stay on at least one display" under the list. Switching
   this display off puts its menu away first and runs once the click has finished: the surface the
   click came from closes.
-- **[S-3546]** The ways in: the crumbs, the surface menu ([S-1744]), and a view chip's **View
-  settings** ([S-915]), which shows the chip's view on that display (View ▾ is the shown view's) and
-  opens View ▾ there.
-  There is no Displays or Views page: there is no settings window ([S-3585]).
-- **[S-3547]** The vocabulary of [S-3524] grows what these menus need, for every bar menu: a row's
-  glyph may carry a colour of its own (`GlyphColour`, a view's mark); a submenu row may stand for an
-  item (`Holds`, the tick before its chevron; `Run`, what a click does as it opens; `Order`, a place in
-  an ordered list, one move shared by the list's rows); `SettingsAsk` (a row whose level is a line of
-  text, [S-3736]); `SettingsIcon` (the icon picker as its level); a `SettingsCommand` may be
-  `Danger`, and so may a `SettingsConfirm` ([S-3737]).
-- **[S-3548]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only bar]`
-  draws View ▾ open under its crumb (`views-<theme>.png`: the shown view's lines; `-icon`, its icon
-  picker; `-colour`; `-rename`, its name's field level; `-delete`, its "are you sure?" level;
-  `-manage`, Manage views; `-manage-rename` and `-manage-delete`, a view's tools; `-drag`, a view's
-  row dragged in Manage views, its drop line; `-many` and `-many-end`, 40 views: the rows scroll
-  inside the one rectangle) and Display ▾ (`display-<theme>.png` with the views to show, `-viewbar`,
-  `-position`, `-bar-views`, `-new`, `-showon`: three displays, one switched off), over stand-in
-  hosts that reach neither the displays nor the user's state; `--only bar` draws these alone.
+- **[S-3546]** The ways in: the Display and Views entries, the surface menu ([S-1744]), and a view
+  chip's **View settings** ([S-1708]: that view shown here, then the Views page open on this display).
+- **[S-3547]** *(Retired by [S-2302]: the row vocabulary is the pages' one, for every page.)*
+- **[S-3548]** *(Retired by [S-2328]: `page-<theme>-views*` and `page-<theme>-display*`.)*
 
 Needs a live pass: View ▾ and Display ▾ on every display at mixed DPI and with a top taskbar; a
 click on a view showing it and opening its level; dragging a view's row ([S-3747]: the list holds the
@@ -2127,11 +2186,11 @@ plugged in while Display ▾ is open; a long list of views scrolling under the b
 After Karpo's rule (`karpo-app`, `docs/widgets.md` §351, `OptionLinks.cs`; user request 2026-10-26:
 "global settings are linked to and not repeated in the widget menus, so that it is clear when i am
 editing a global setting vs local widget setting; settings should generally not be repeated").
-Owning files: SDK `Modules/SettingLink.cs`, `WidgetMenuLines.Link`; Core `Shell/EditBarSnap.cs`;
+Owning files: SDK `Modules/SettingLink.cs`, `WidgetMenuLines.Link`; Core `Settings/SettingsPages.cs`;
 tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` and Modules
 `SettingOwnershipTests` (`S3592_`).
 
-- **[S-3590]** Every setting is at **one level** — a widget's (its properties menu, [S-3716]), a
+- **[S-3590]** Every setting is at **one level** — a widget's (the selection's page, [S-2340]), a
   view's (View ▾), a display's (Display ▾) or Themia's as a whole (⚙) — and that level's menu alone
   sets it. A lower level that follows something a higher one owns gets a **link row** to it
   ([S-3749]), never a copy: no widget carries its own clock format, start of week, temperature unit,
@@ -2170,10 +2229,9 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   clock, a week start, a cadence, a theme, a language).
 - **[S-3593]** Edit mode's menus live only while edit mode does (user request 2026-10-26: "release
   the edit-mode menus when edit mode ends"). The bar's buttons and its add menu are built as edit
-  mode starts (`EditBar.Fill`), each bar menu as it first opens (`BarMenuOf`), the properties menu's
-  rows as something is selected; when edit mode ends the bar menus are taken off the surface and
-  dropped, the properties menu's rows, head and foot and the widget's lines go
-  (`PropertiesStrip.Release`), and the bar's buttons and add menu with them (`EditBar.Release`);
+  mode starts (`EditBar.Fill`), a page's flyout as it opens (`OpenPage`, `OpenSelectionPage`) and
+  dropped as it closes; when edit mode ends the open flyout goes, the widget's lines with it, and the
+  bar's buttons and add menu with them (`EditBar.Release`);
   only the surface's layers and the bar's empty frame stay. Each is built again as it is next
   needed. Measured (`--switch-check 1 <out.txt> --edit-menus`, Debug, the ordinary view): every bar
   menu opened 150.9 MB private, after Done 136.9 MB (14 MB given back; the native heaps 59 → 45 MB);
@@ -2186,8 +2244,8 @@ The settings window's Accounts page moved into ⚙ (user request 2026-10-25, ste
 `Settings/SettingsMenu.Accounts.cs` (the lines), `Settings/AccountsMenu.cs` (`IAccountsMenuHost`,
 `AccountsMenuState`, `AccountStatus`), `Settings/AccountForm.cs` (the forms as drafts),
 `Accounts/AccountRules.ImapServerProblem`; App `Services/Accounts/AccountsMenuHost.cs` (the flows over
-the account service), `Shell/Menu/MenuPanel.Fields.cs` (the field levels, the masked one, notes
-written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
+the account service), `Shell/Pages/PageView.Rows.cs` (the fields, the masked one, notes written in
+place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
 `SettingsMenuTests` (`S355x_`, `S3561_`), `AccountFormTests`.
 
 - **[S-3550]** **Accounts ›** on ⚙'s first level, after Appearance: what the Accounts page said
@@ -2281,13 +2339,11 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   window for an account.
 - **[S-3559]** While ⚙ is open it follows the accounts and their numbers (`AccountsChanged`,
   `SyncHost.StatsChanged`) and every flow's progress, written into its lines in place ([S-3531]).
-- **[S-3560]** Debug renders (`--editbar-png`, with the settings menu's): `settings-<theme>-accounts`,
-  `-account`, `-account-again`, `-signout` (its "are you sure?" level), `-add`, `-signin`, `-imap`,
-  `-imap-filled`, `-imap-address` (a field's level), `-imap-password` (the password's level),
-  `-imap-testing`, `-imap-failed`, `-caldav`, over a stand-in host with three made-up
+- **[S-3560]** Debug renders (`--editbar-png`, [S-2328]): `page-<theme>-accounts`,
+  `-accounts-account` (a page of its own), `-account-again`, `-signout` (its "are you sure?" page),
+  `-add`, `-signin`, `-imap`, `-imap-filled`, `-imap-testing`, `-imap-failed`, `-caldav`, over a stand-in host with three made-up
   accounts and their numbers; no sign-in, server or account file is reached, and the password drawn
-  is made up for the picture. `props-<theme>-email-accounts` is a mail widget's Accounts, whose Add an
-  account leads here (the renders' widget lines offer the way, as the desktop's do).
+  is made up for the picture.
 - **[S-3561]** The vocabulary of [S-3524] grows what forms need, for every menu: `SettingsReading`
   (words and a value, nothing to do), `SettingsField` (a row whose level is a line of text typed in
   the menu, [S-3736], each letter handed on as it is typed, Enter going back; `Numeric`, `Masked`), a
@@ -2383,8 +2439,7 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   question ("Uninstall Themia?", what happens and, ticked, that the data goes too). Only its
   Uninstall does it (`Uninstaller.Run`, the one plan, [S-1071]); nothing is removed or deleted
   before that answer ([S-1555]).
-- **[S-3583]** Debug renders (`--editbar-png`, with the settings menu's): `settings-<theme>-root-free`
-  (the first level, Themia Pro saying Free), `-pro-free`, `-pro-refused`, `-pro-pro`, `-pro-grace`,
+- **[S-3583]** Debug renders (`--editbar-png`, [S-2328]): `page-<theme>-general-pro-free`, `-pro-refused`, `-pro-pro`, `-pro-grace`,
   `-pro-offline` (the License page's `--license` states, gone with the page), `-pro-developer`,
   `-pro-onsale` (the price on Upgrade), `-pro-buying` (the Store waited for); `-backup`,
   `-backup-done` (outcomes under the lines), `-backup-import` (an import's question over a made-up
@@ -2423,15 +2478,20 @@ removed, `%LOCALAPPDATA%\Packages\<family>` gone); Narrator on the pictures.
 
 ### The selected widget's properties strip (QUICKSET)
 
+Since 2026-11-12 the selection's options are its page (EDITBAR-PAGES, [S-2340]..[S-2343]); the menu
+beside the selection, its engine and its placement are gone. What a line of a widget is and does
+([S-3719]..[S-3733], [S-3744]..[S-3749]) stands, drawn as the rows of [S-2302]; "the menu" below is the
+selection's page and "a level" a card opened inside it or a page of its own.
+
 How a widget's card looks — its header, its background, its title — is set where the widget is, in
 edit mode, not in a window, and not on the edit bar: on a small panel that stands beside
 the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §145: a click in edit mode
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
-files: `Shell/PropertiesStrip.cs` (the selection's top row, rows and foot over the one menu engine, `Shell/Menu/MenuPanel*.cs`), `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
-rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
+files: `Shell/Pages/SelectionRows.cs` (the selection's page, [S-2340]), `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
+rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
 `Settings/ListDrop.cs`, `Settings/ListDrag.cs` and `Settings/MenuShare.cs` (tests `QuickSetTests`,
-`StripPlacementTests`, `ListDropTests`, `ListDragTests`, `MenuShareTests`); a widget's own lines in the SDK's
+`ListDropTests`, `ListDragTests`, `MenuShareTests`); a widget's own lines in the SDK's
 `Modules/WidgetMenuLines.cs` and `Modules/MenuSlider.cs` (tests `WidgetMenuLinesTests` in the module host).
 
 - **[S-3700]** *(Retired by [S-3707]: the controls are no longer a group on the edit bar. A user
@@ -2461,83 +2521,20 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
 - **[S-3705]** *(Retired 2026-10-19: a widget has no settings page any more; its options are its properties menu's, [S-3719].) Delete stays on the icon row, the card menu, the Delete key and the undo
   notice ([S-1743]); a widget's own destructive line (clearing a history) is a confirmed line, [S-3727].)*
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
-- **[S-3707]** The strip is a small **panel** on a flyout's surface ([S-3715]: the flyout's solid
-  fill, stroke, 8-DIP corners and drop shadow), on its own layer over the cards and under the edit
-  bar, one per display, laid out as a context menu ([S-3716]). **[S-6520]** *(Was: one row per
-  property, its name before a 176-DIP drop-down; replaced by the menu's lines, [S-3716].)* A press
-  on its padding or words stays on it, so it never starts a rubber band or clears the selection. It
-  is inside the work area ([S-3708]), and in edit mode the hit region is the whole work area
-  ([S-851]), so it always takes its clicks. F6 reaches it after the edit bar while it shows
-  ([S-1975]), and the keyboard on it counts as the chrome's, not the widgets': its keys are the
-  engine's ([S-3743]), and Escape on its own rows hands the keyboard back to the surface.
-- **[S-3708]** Where it stands (`StripPlacement.Place`): **beside** the selection's box, 8 DIPs off
-  its edge — to its **right**, or to its **left** where the right has no room (right to left the
-  sides mirror: left first) — centred on the box's height ([S-3714]) and slid to stay inside the display's
-  work area; where that meets the edit bar or the view bar, the nearest clear place in that column
-  (just under or over the bar). Only when neither side has room (a widget spanning the work area's
-  width) is it **below** the box, 8 DIPs off its bottom edge, its start edge level with the box's
-  and slid along inside the area, else **above** it on the same terms. It never covers the widgets
-  while anywhere has room; a selection that fills the work area has it **over** its top end corner,
-  pressed inside the area.
-- **[S-3709]** The box is the selected widgets' **painted** rects on this display (the gap is not
-  the widget, [S-1585]), one widget's or the bounding box of several (`StripPlacement.Bounds`),
-  where they are now, so it follows a nudge with the arrow keys, an undo and a paste.
-- **[S-3710]** While the selection is dragged or a widget resized, the strip is away (Karpo's
-  flyout while a block is carried, §65): following the pointer it would hang off the widgets and
-  flip sides on every move. It comes back on the drop, placed against where the widgets landed. It
-  is away too outside edit mode, while placing ([S-421]) and with nothing selected on the display.
+- **[S-3707]** *(Retired by [S-2340], [S-2343] (2026-11-12): the selection's options are its page, a flyout hung from its entry on the bar; the panel beside the selection is gone.)*
+- **[S-3708]** *(Retired by [S-2325]: the page hangs from the bar; `StripPlacement` is gone.)*
+- **[S-3709]** *(Retired by [S-2325]: nothing is placed by the selection's box.)*
+- **[S-3710]** While the selection is dragged or a widget resized, the selection's page does not open
+  on its own ([S-2343]); one open stays where it hangs.
 - **[S-3711]** Some kinds can never have a header (`WidgetInstance.CanHaveHeader`): the thirteen
   quick-setting toggles ([S-3901]) and all six audio visualizer designs ([S-3200], [S-3212]). For a selection holding one, the strip has no Header line at all
   (no positions, and such a widget's title is shown nowhere, so it has no title box either) and
   shows only what every selected widget can take; `SetHeader`
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
-- **[S-3716]** The panel is drawn as **Karpo's configuration menus** are (user request 2026-10-26:
-  "the size of the menus should be the same as in karpo … the menu behaviour should be the same as
-  it is in karpo"), which are Windows 11's context menu's rows (Explorer's): one fixed rectangle
-  ([S-3734]) on a flyout's surface, its rows 32 DIPs apart, each a 28-DIP fill 5 DIPs in from the
-  menu's sides with 4-DIP corners and the hover plate (`SubtleFillColorSecondary`), the 16-DIP icon
-  16 DIPs in, the words (14-DIP Segoe UI Variable Text) 44 DIPs in where the level has icons (16
-  without), the value right-aligned in the secondary colour 8 DIPs before the end slot, and in the
-  16-DIP end slot 8 DIPs in from the fill's end the thin chevron (E76C, mirrored right to left) of a
-  row with a level of its own, the tick (E73E) of the option that holds, or a link's mark
-  ([S-3749]); a switch's toggle ends where the slot does ([S-3741]). Every row of a level keeps the
-  end slot when any has one, so the values stand in one column. Rules between groups (9 DIPs: 4,
-  the hairline, 4; none leading, trailing or doubled). It is not a light-dismiss menu: it stays
-  standing beside the selection while it is used. The rows are handed in again on every change; a
-  level is drawn again only when its shape (which rows there are) changed, and a change of value (a
-  switch, a tick, the words at the end, an icon) is written into the rows in place, so the open
-  level, a field being typed in, the focus and the scroll stay where they are. (`MenuPanel`, the
-  engine `PropertiesStrip` and the edit bar's menus are drawn with; renders `--editbar-png` `props-*`.)
-- **[S-3717]** The **top row** (Karpo's, §323 and §350), on the menu's own rows only (a level has
-  its head there): the menu's type at its start in the 14-DIP semibold, 16 DIPs in and trimmed short
-  of the buttons (the widget kind's name, "Clock"; "3 widgets" for several), and **Cut**, **Copy**
-  and **Delete** packed against its far end as 40-DIP icon buttons (Explorer's two-tone icons, the
-  plate 4 DIPs in from each side), a 20-DIP hairline between each two, a rule the menu's full width
-  under the row; the words with the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several),
-  the same commands as the keys and the card menu (`CutSelected`, `CopySelected`, `DeleteSelected`).
-  No Paste (user request 2026-10-19): a paste lands where the desktop is clicked ([S-74]), never on
-  the selection, so on the panel it could only ever stand greyed; Ctrl+V and the desktop's menu
-  paste. A cut shows at once: in edit mode the widgets cut and not yet pasted are faded (0.35, as a
-  move's originals while it is aimed, [S-78]), as Explorer dims a cut file, until the paste lands or
-  another cut or copy replaces it.
-- **[S-3718]** A row with a level of its own opens it **in place** (Karpo's inline levels, user
-  request 2026-10-26: "in karpo the menus change inline and have a fixed size"), on a click, Enter,
-  Space or the arrow towards it, never on hover: the same rectangle shows the level's rows under a
-  pinned **head**, an ordinary row of the back arrow (E72B, mirrored right to left) and the level's
-  name in the semibold, "Back" its tooltip and what Narrator calls it, a rule under it; the top row
-  is not shown on a level. The rest of the level scrolls under the head. **Back** (the head, Escape,
-  Backspace, the arrow away, the mouse's back button) shows the level under it again, the row it
-  came from highlighted and scrolled where it was; Escape on the menu's own rows is the menu's
-  ([S-3707]). A click in a level does what it does and leaves it open: a pick moves the tick, a
-  switch flips, a command runs. Choices of one are ticks (`ItemMenuEntry.Group`), switches Windows'
-  toggles ([S-3741]); the row of a choice shows the option that holds. After every change the whole
-  tree is handed in again and the open levels are found again by their rows' keys, the deepest shown
-  with its highlight and scroll kept; a level whose row is gone closes with those under it. A card
-  row that cannot apply is **not there** (user request 2026-10-19), never greyed: Header for a kind
-  that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), Item background
-  and Item text where nothing selected has items in its look ([S-6571], [S-6573]), Item text where
-  they are tracks only ([S-6574]), Style where every look draws the same ([S-6075]).
+- **[S-3716]** *(Retired by [S-2302], [S-2340]: the 320 × 440 menu engine (`MenuPanel`, `MenuNode`) is gone; the page draws Karpo's cards.)*
+- **[S-3717]** *(Retired by [S-2340]: Cut, Copy and Remove are the header card's icon buttons.)*
+- **[S-3718]** *(Retired by [S-2308]: a choice is an inline picker in its card.)*
 - **[S-3719]** A widget's **own lines** come from its module (`IWidgetModule.MenuLines`, over a
   `WidgetMenuLines`): `StyleLines` on the first level right under the Style line, in its section
   (what only the current look draws with, [S-6070]; user request 2026-10-19: not inside the Style
@@ -2648,86 +2645,23 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   on it. Each item line carries a grip before its chevron and says both ways in its tooltip and its
   automation help ("Drag to reorder, or press Ctrl+Up or Ctrl+Down"). A release on the
   line it started on is not a click.
-- **[S-3747]** Once a press has travelled far enough to drag, the **list** takes the pointer (the
-  line's button lets go of it, so its release raises no click on the line) and the release comes to
-  the list, which drops; a capture lost while the button is up is that release being handled and
-  drops too, and only one taken away with the button still down cancels (`ListDrag`; user bug
-  2026-10-26: "reordering views does not work": the line's button gave up its capture as it handled
-  the release, before the release reached the menu, and the menu took that for a cancel, so no drag
-  ever moved anything). A drag ends once. Tests `ListDragTests`.
-- **[S-3748]** **Ctrl+Up / Down** on a menu list's highlighted row moves it a place, as Karpo's menus
-  do (`ReorderKeys.MenuDelta`); the Windows lists' Alt+Shift+Up / Down ([S-3802]) does the same there.
+- **[S-3747]** *(Retired by [S-2302]: an item is dragged within its card.)*
+- **[S-3748]** *(Retired by [S-2302]: Ctrl+Up / Down on an item.)*
 - **[S-3733]** *(Retired by [S-3718]: a level opens in place in the one rectangle, so no submenu
   stands beside another and nothing places one; `SubmenuPlacement` and `MenuRoom` are gone.)*
-- **[S-3734]** The panel is **one fixed rectangle**, 320 × 440 DIPs (Karpo's `SettingsWidthDip` and
-  `SettingsHeightDip`; user request 2026-10-26: "the size of the menus should be the same as in
-  karpo … right now they are a little bigger"), times Windows' text size where that is above 100 %,
-  its height no more than the room where it stands (the work area beside the selection, under the
-  edit bar): the same on every level, a field's and a question's too, and the same for every widget
-  and every bar menu. A shorter level's rows stand at its top, a longer one scrolls inside (a notch of
-  the wheel 48 DIPs, the scroll bar between the pinned bands). Going in and back, a refresh, typing:
-  it never moves or changes size. Karpo's padding: 3 DIPs (its rim counted) over the first row and
-  under the last, 1 over the top row and 3 under its rule. Words or a value longer than their room
-  share the row as Karpo's do (`MenuShare`): both whole where both fit; else the shorter keeps all it
-  needs where that is within its share (the value two fifths, the words the rest) and the other has
-  what is left; else each its share, both trimmed with an ellipsis and shown whole as their tooltip.
-  (Renders `props-*`, `settings-*`, `views-*`, `display-*`; measured 320 × 440 with rows 32 apart,
-  the icon at 16 and the words at 44.)
-- **[S-3735]** The menu's **sections** (user request 2026-10-19), a rule between each: the top row;
-  Style and the options only that look draws; the **Header** row; the widget's own rows in the
-  sections it marks with separators; and the pinned Appearance foot ([S-3739]). The Header row's
-  value is the title as it reads (the kind's name for none) for one widget, where the header stands
-  for several (a dash when they differ); its level holds, for one widget, the Title row ([S-3704]) and
-  a rule, then the header's positions (Top, Bottom, Left, Right, Hidden, each with its icon, the tick
-  on the one that holds). Several get the positions only. A selection holding a kind that never has a
-  header has no Header row ([S-3711]).
-- **[S-3736]** **A line of text is a level of its own** (Karpo's, §246; user request 2026-10-26: "if
-  possible bring everything into the context menu form"): its row is its words, what it holds as its
-  value and the chevron (a password's ●●●●●●●●, [S-3556]); a click opens a level holding the field
-  alone, filling a row's 28-DIP fill (Windows 11's text box: its faint fill, the accent line while it
-  has the keyboard, its clear button), the hint saying what to type, the keyboard in it with its words
-  selected; under it the reason it cannot be given while it cannot (the critical colour), and where
-  the question has words for it the row that gives it (Add, Save), greyed while refused. Enter gives
-  it and goes back; Escape puts back what it held and goes back; going back any other way keeps what
-  was typed for a value being edited (a title, a form's field) and drops it for a question with a
-  giving row. A form's field hands each letter to the form as it is typed. Every free text of the
-  menus takes this one path: a widget's `Ask` ([S-3721]), a list's Rename… and Add… ([S-3729]), a
-  number typed ([S-3726]), the title ([S-3704]), a view's or an account's name ([S-3542], [S-3551]),
-  and every field of the account forms ([S-3554]); nothing is asked beside the menu any more.
-- **[S-3737]** **An "are you sure?" is a level of its own**: its head the row that asked (or, asked
-  with none in hand, the question's action: an import's, once Windows' dialog has gone), the question
-  in the text's colour and size and what goes with it under it as a note, a rule, then the action
-  (the critical colour where it destroys something) and Cancel, each one row. The action goes back
-  and does it; Cancel, Escape and going back do nothing. A dangerous question has the keyboard on
-  Cancel. Every confirmation of the menus takes this one path ([S-3727], [S-3527], [S-3542],
-  [S-3551], [S-3576], [S-3578]).
-- **[S-3738]** A level's rows (and its head) **slide in** 16 DIPs over 167 ms, decelerating
+- **[S-3734]** *(Retired by [S-2325]: the flyout is as tall as its page up to 70 % of the work area.)*
+- **[S-3735]** *(Retired by [S-2342]: What it shows, Header, Appearance.)*
+- **[S-3736]** *(Retired by [S-2302], [S-2303]: a text is a box in its row; a widget's Ask is a page of its own.)*
+- **[S-3737]** *(Retired by [S-2303]: an "are you sure?" is a page of its own.)*
+- **[S-3738]** *(Retired by [S-2303]: nothing slides; a sub-page stands in the page's place.)* A level's rows (and its head) slid in 16 DIPs over 167 ms, decelerating
   (cubic-bezier (0, 0)–(0, 1)): entering from the end, going back from the start, right to left
   mirrored; only their offset moves, never their opacity, and not at all while Windows' animations
   are off ([S-1010]).
-- **[S-3739]** The card's look is the **pinned foot** of the widget menu (Karpo's, §276, §311, §314;
-  user request 2026-10-26: "appearance settings are pinned on the bottom"): one rule, then the
-  **Appearance ›** row (the palette glyph, its value the card's own background swatch while it has
-  one), standing still at the bottom of the rectangle while the rows scroll under it, on the menu's
-  own rows only (a level has none). Its level is [S-3723]'s. The bar's menus have no foot.
-- **[S-3740]** A **heading** (`SettingsHeading`) is a 32-DIP row of 12-DIP semibold words in the
-  secondary colour, 16 DIPs in, over a group (Display ▾'s All displays); never picked.
-- **[S-3741]** A **switch** (a toggle: `WidgetMenuLines.Toggle`, `SettingsToggle`) is Windows' toggle
-  at the row's end (40 × 20 DIPs, the 12-DIP knob, the accent while on), never a tick; the whole row
-  is the switch: a click anywhere on it flips it and the menu stays. Narrator hears On or Off.
-- **[S-3742]** A level with **more than ten rows to pick** and no field of its own (a long choice: the
-  languages, the time zones' answers aside) has a **filter** pinned under its head (Karpo's,
-  `MenuPanel.Searchable`), taking the keyboard as the level opens: each letter typed keeps the rows
-  whose words or keywords hold it ("No results" when none does), Enter picks the first kept, Down
-  moves to it, Escape empties it first. Ten or fewer stay a plain list. Its hint is the choice's own
-  ("Find a language") or "Search".
-- **[S-3743]** The menus' **keys** (Karpo's): Up and Down move to the nearest row, no wrap; Tab and
-  Shift+Tab go round and stay in the menu; Home and End reach the first and the last row; Right (Left
-  right to left), Enter and Space open a row's level; Left (Right right to left), Escape, Backspace
-  and the mouse's back button go back; Escape on the menu's own rows is the menu's ([S-3521],
-  [S-3707]); Ctrl+Up / Down reorders ([S-3748]). A field keeps its own Backspace and arrows. A level
-  opened from the keyboard puts the keyboard on its field or its first row; one left puts it back on
-  the row it came from.
+- **[S-3739]** *(Retired by [S-2342]: Appearance is a section of the page.)*
+- **[S-3740]** *(Retired by [S-2301], [S-2304]: a heading starts a section or a card.)*
+- **[S-3741]** *(Retired by [S-2302]: a toggle row with On / Off before the switch.)*
+- **[S-3742]** *(Retired by [S-2308]: a long choice is a lookup.)*
+- **[S-3743]** *(Retired by [S-2327]: the keys of the bar and its flyouts.)*
 - **[S-3749]** A **link row** (Karpo's, §351): a setting another menu owns, never a copy of it
   (`ItemMenuEntry.LinkTo`, `SettingsLink`): the owner's icon and words, Windows' "open in new window"
   mark (E8A7) at its end and no chevron, its tooltip "Opens Accounts"; a pick closes the menu and
@@ -2757,18 +2691,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   countries and is refused, as is a day the month lacks; a refused text changes nothing.
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
-- **[S-3714]** Beside the selection the panel is **centred on its height** (`StripPlacement.Place`:
-  its middle level with the box's middle, as a flyout opened to the side of its anchor stands), then
-  pressed inside the work area and stepped clear of the edit bar and the view bar as [S-3708] says.
-  Below or above (no side has room) it keeps its start edge level with the box's.
-- **[S-3715]** The panel's surface is a Windows 11 flyout's (`FlyoutSurface`), so it stands apart
-  from the cards and any wallpaper: the flyout presenter's solid fill (`SolidBackgroundFillColor
-  Quarternary`, #2C2C2C dark / #FFFFFF light, the fallback of `AcrylicInAppFillColorDefault`), a 1 px
-  `SurfaceStrokeColorFlyout`, 8-DIP corners and a flyout's drop shadow (8 DIPs down, blurred over 32,
-  42 % dark / 18 % light). Not acrylic: in-app acrylic blurs only what the window draws, and the
-  surface window draws nothing behind the panel, so it came out a faint tint the colour of the cards.
-  The shadow is a composition drop shadow cast by a plate under the frame (a theme shadow needs
-  receivers, and nothing under the panel can receive one); it falls inside the edit-mode hit region.
+- **[S-3714]** *(Retired by [S-2325].)*
+- **[S-3715]** *(Retired by [S-2325]: the flyout is Windows' ground and cards.)*
 - **[S-6521]** *(Retired by [S-6566]: the Item background colour control and the Item opacity row
   are one fill control; there is no opacity row.)*
 - **[S-6566]** **Background** and **Item background** each set the selected widgets' own fill
@@ -2867,38 +2791,14 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
 - **[S-6585]** Load validation drops an alignment outside the set, or one on a kind that never
   aligns, and says so; one on a style that does not align is kept for the style that does.
 - **[S-6586]** Debug: `--widget-png <Kind> <out.png> --align left|center|right` draws the cards with
-  that alignment; `--editbar-png` also writes `props-<theme>-align.png` (a clock aligned right),
-  `-alignmany.png` (a clock and a quote of different alignments: none lit) and `-alignstyle.png`
-  (the moon's month: no Alignment line).
-- **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the panel beside
-  real cards in edit mode on a stand-in display: `props-<theme>-right.png` (one flip clock in the
-  middle with a title, an item colour of its own and a scale of 125 %), `-left.png` (a widget at the
-  right edge of the display), `-below.png` (a widget spanning the width), `-many.png` (three of mixed
-  headers and scales, "3 selected"), `-toggle.png` (a Wi-Fi toggle), `-hidden.png` (header hidden,
-  beside the same kind with a header), [S-6569] `-fills.png` (flip clocks with the background
-  Default, Transparent and a colour at 50 %, and item backgrounds to match), and levels opened
-  along a path as clicks open them: `-picker.png` (Appearance › Background: Default, Transparent, the
-  swatches, Opacity), `-noitems.png` (a stopwatch's Appearance: no item lines), `-countdown-appearance.png`
-  (a countdown's Appearance), `-many-appearance.png` (two selected, Appearance › Item text), the
-  Shortcuts, Clock and weather levels, `-clock-zone*.png` (a search with a few answers, many, and
-  none), `-search-zone-end.png` (the zone's 41 answers scrolled to their end under the pinned head
-  and field), [S-1862] `-setup-*.png` (the menu as the Set up button opens it: the weather's
-  location search, the feeds, the stock's symbol search, the pictures' folder), [S-3724]..[S-3731] `-vocabulary*.png` (a stand-in widget with one line of
-  each kind, switches and sliders among them, a link, its list, an item's level, its colour, a
-  number's field level, refused, and its "are you sure?" level), [S-3735] `-header.png` and
-  `-many-header.png` (the Header level for one and for several), [S-3736] `-header-title.png` (the
-  title's field level), [S-3734] `-flip-right.png` (a widget at the right edge: the menu on its left),
-  `-flip-bottom.png` (one at the bottom: the menu slid up inside the area), `-flip-wide.png` (a wide widget), and
-  [S-3732] `-shortcuts-drag.png` (the shortcuts' list with a line held mid-drag over its drop line),
-  all over a busy stand-in wallpaper so the panel's surface
-  is judged against one ([S-3715]). The render cannot show the drop shadow (a composition visual is
-  not in a `RenderTargetBitmap`).
+  that alignment.
+- **[S-3713]** *(Retired by [S-2328]: the selection's pictures are `select-<theme>-*.png`.)*
 ## Widget styles (STYLES)
 
 A different look of the same widget with the same data and the same settings, chosen next to the
 widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files:
 `Themia.Core/Widgets/WidgetStyles.cs` (the registry), each styled kind's config (its style enum),
-`Themia.App/Shell/PropertiesStrip.cs`. Tests:
+`Themia.App/Shell/Pages/SelectionRows.cs`. Tests:
 `WidgetStylesTests`; the weather, forecast, stock, exchange-rate and air styles in `WeatherStylesTests`.
 
 - **[S-6000]** A kind's styles are one setting: where a kind already had a look option (the clock's
@@ -7040,12 +6940,10 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   `SceneWidgetsTests.S1076_`.
 - **[S-1077]** A scene with `edit` is drawn in edit mode as the edit bar's pictures compose it ([S-3713]):
   every card in edit mode with the marker layer, the real bar (`bar`, default true) at the top centre with
-  its trail naming the selection, the add menu hung under Add widget (`add`), the snap grid (`grid`, the real
-  `SnapGridOverlay`, its lines on whole output pixels), and with a selection the real properties menu placed
-  by `StripPlacement` beside its painted box and clear of the bar, `open` a submenu path opened in it. A
-  step of the path is a row's words in the language drawn or a row's key; the card's own rows
-  (`appearance`, `style`, `header`, `align`) have keys that read the same in every language, a module's own
-  lines only their words.
+  the selection's entry on it, the add menu hung under Add widget (`add`), the snap grid (`grid`, the real
+  `SnapGridOverlay`, its lines on whole output pixels), and with a selection its page hung from its entry
+  ([S-2343]), `open` the key of a row opened in it (the card's own rows `style`, `header`, `align`,
+  `background`, `items`, `itemText`, `image`, `scale`; a module's own lines `w/<their words>`).
 - **[S-1078]** `store/capture.ps1 [-Lang en] [-Only a,b] [-NoBuild] [-Jobs 4]` builds the Debug app into
   `artifacts/store` (unless `-NoBuild`), draws every scene of `store/scenes.json` (or those named) one
   process per scene, a few at a time, to `store/out/shots/<lang>/<scene>.png` (git-ignored; the console
@@ -8835,7 +8733,7 @@ the display's scale, the second page on a small or scaled display, the refusal w
 ## The Set up button (R5-SETUP)
 
 Owning files: `Themia.Core/Widgets/WidgetSetup.cs`, `Themia.App/Shell/WidgetCard.Setup.cs`,
-`Themia.App/Widgets/SetupPrompt.cs`, `DesktopWindow.RequestSetup`, `PropertiesStrip.OpenSetup`; tests
+`Themia.App/Widgets/SetupPrompt.cs`, `DesktopWindow.RequestSetup`, `PageView.OpenSetup`; tests
 `WidgetSetupTests` (module host). The section also records the removal of the debug widget
 gallery ([S-1863]).
 
@@ -8869,10 +8767,10 @@ gallery ([S-1863]).
   set up with every feature the installed providers offer: Mail, Calendar, Contacts, Next meeting, the
   week planner, Tasks from an account), **⚙ › Accounts** on that display, edit mode entered ([S-3558]),
   since an account is added there and never from a widget's menu ([S-3745]); otherwise **edit mode**
-  is entered, the widget is selected alone and its **properties menu** ([S-3716]) opens at the line
-  its module names for it (`WidgetMenuLines.SetsUp`, one per widget), through the levels on the
-  way, as clicks would (`MenuPanel.OpenSetup`): a level or a search opens in place, a line of text
-  its field's level, any other line runs as its click does. The lines named: the location's search for Weather now, the forecast, Air
+  is entered, the widget is selected alone and its **page** ([S-2340]) opens at the row its module
+  names for it (`WidgetMenuLines.SetsUp`, one per widget), as a deep link opens a row
+  (`PageView.OpenSetup`): its card opened where it opens (a choice, a lookup), the row scrolled into
+  view and lit. The lines named: the location's search for Weather now, the forecast, Air
   quality and Rain; the feeds for Feed; the symbol's search for Stocks; the day, asked for, for
   Countdown; the address, asked for, for Video stream; the quotes for Quote; Add for Shortcuts; the
   folder or the picture for Pictures. A module that names none leaves the menu as it stands. The card

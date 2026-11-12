@@ -44,10 +44,10 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
-Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   # edit bar (the trail, undo/redo, snap, long and
-           # narrow), add menu open, placing, the properties menu (props-*-links-*: link rows), ⚙ (settings-*), View ▾ and
-           # Display ▾ (views-*, display-*);
-           # --picker-png takes --theme too. There is no settings window and no --settings-png [S-3585]
+Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|select]   # the edit bar (editbar-*: nothing,
+           # one, several selected, problems, an entry open, narrow), add menu open, placing; every page's flyout with
+           # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*); the selection's page
+           # beside real cards (select-*) [S-2328]. --picker-png takes --theme too. There is no settings window [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes (a converted kind: min, natural, max); quit Themia first
 Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
@@ -94,8 +94,9 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's rules, and the widgets not yet moved.
   Geometry/ Model/ (state, Configs/* with each in-Core widget's descriptor) Storage/ (atomic store, load validation, StateJson)
   Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/ (NoteStore) Habits/ (HabitListStore)
-  Settings/ (the edit bar's menus as lines: SettingsMenu*.cs for ⚙ and its sections, ViewsMenu, DisplayMenu, AccountsMenu,
-  AccountForm, UninstallPlan) Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
+  Settings/ (the settings as lines: SettingsMenu*.cs, one builder per section, ViewsMenu, DisplayMenu, AccountsMenu,
+  AccountForm, UninstallPlan; SettingsPages: the edit bar's five pages over them; SettingsRows: the row vocabulary)
+  Shell/ (EditBarLayout, SelectionPage) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
   Model/ReadyMadeGroups.cs (the add menu's ready-made groups as data: kinds, boxes in DIPs, config fragments)
@@ -118,9 +119,10 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
   Services/        AppHost*.cs (state, displays, placement, clipboard, keyboard lease, suspend, license),
                    shared samplers and sync services (accounts, mail, tasks, files, web);
                    Kit/ServiceSync.cs (the one service sync, IWidgetHost.Services)
-  Shell/           DesktopWindow*.cs (one surface per display; .BarMenus/.SettingsMenu: the edit bar's menus), WidgetCard,
-                   picker, view bar, CardWidgetHost (a card's IWidgetHost), Gallery/ (render flags),
-                   Menu/ (MenuPanel: the one menu engine, the properties menu's and the edit bar's; BarMenuView)
+  Shell/           DesktopWindow*.cs (one surface per display; .BarMenus: the edit bar's flyouts, .Properties: the
+                   selection's entry and page, .SettingsMenu: the settings pages' hosts and deep links), EditBar,
+                   WidgetCard, picker, view bar, CardWidgetHost (a card's IWidgetHost), Gallery/ (render flags),
+                   Pages/ (PageFlyout, PageView: every page drawn as Windows' settings cards; PageRows, SelectionRows)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
 src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 78): module, config, view, Preview/,
@@ -145,7 +147,7 @@ and the module test host pick it up; nothing in the app, Core or the SDK is edit
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
-⚙ › Accounts, the Recycle Bin, the power backend, the quick-setting toggles' sources, the web
+the Accounts page, the Recycle Bin, the power backend, the quick-setting toggles' sources, the web
 answers the sync keeps fresh (`Weather`, `Quotes`, `Rates` over `Fetched<T>`, `Feeds`) and the system widgets'
 sources (`System`: the hub's `Watch`/`WatchSeries` over `Sources`; `Drives`, `Audio`, `Brightness`,
 `Media`, `Loopback`) and the local stores (`ClipboardHistory` with `CopyText`, `Alarms`, `Focus`,
@@ -162,7 +164,7 @@ their menu lines read `SettingsHost.Office`, `Tasks` and `AccountsWith(feature)`
 `usage_stats.json`) stay host code with their validation; `LocalStoreFixtureTests` pins their shapes. A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
 Core's internals; Core's own tests run over a registry of no widget. The app's settings are the edit
-bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has no settings page ([S-6536]).
+bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has no settings page ([S-6536]).
 
 ## Engineering principles (non-negotiable)
 
@@ -246,7 +248,7 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
   one `KitOutcome` per source, the title; `Changed`; `Busy`; `Show(refresh)`); a view of a few lines
   that owns a `KitBinding` and forwards to it (`Attach`, `ApplyConfig` to `Apply`, `ApplySize` to
   `Size`, `Bind` to `Surface`, `HandleKey`, `ContextActions` to `CardActions`, `HeaderTrailing` to
-  `Header`, `Detach` to `Dispose`; children `List` and `State`); its properties-menu lines from `KitMenuLines`
+  `Header`, `Detach` to `Dispose`; children `List` and `State`); its page lines from `KitMenuLines`
   (`Accounts`, `Count`, `Shows`; a free input is the menu's ask or list, [S-3719]). The kit decides the screen (`KitScreens`), the breakpoints
   (`KitLadder`), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
   (`KitMenu`, through `ItemMenu`), the stale rule (`KitFreshness`: a problem glyph, the age on the
@@ -280,20 +282,27 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
 - **Colours are never typed.** A colour is a menu's one colour submenu (`menu.Colour`, a Core
   `SettingsColour`; `ColorChoice` behind it: accent presets, custom `ColorPicker`, the eyedropper).
   Stored as `#RRGGBB`.
-- **The edit bar** ([S-3500]..[S-3516]) reads where → add → tools → global → finish: the trail
-  Display ▾ › View ▾ › Widget ▾ (the widget crumb is the properties menu's button, never a second
-  menu), Add widget, Undo, Redo, Snap, ⚙, Done. **One setting, one level** ([S-3590]..[S-3592]): a
-  setting is a widget's, a view's (View ▾), a display's (Display ▾) or Themia's (⚙), and that menu
-  alone sets it; a lower level that follows it gets a link row (`WidgetMenuLines.Link(SettingLink)`,
-  `SettingsLink`), never a copy, and no widget config holds a format, cadence, theme or language of
-  its own. The guard tests (`S3592_`) fail on a setting set twice.
-- **The app's settings are the edit bar's menus** (⚙, Display ▾, View ▾; [S-3520]..[S-3585]), never a
-  window or a page. A section is Core lines (`SettingsMenu.<Section>.cs`: `SettingsToggle`, `SettingsChoice`,
-  `SettingsSlider`, `SettingsColour`, `SettingsSubmenu`, `SettingsCommand`, `SettingsNote`, `SettingsField`, ...)
-  keyed by paths that are the same in every language, over a host interface, tested in Core
-  (`SettingsMenuTests`); the app draws them with `MenuPanel` and opens them by path
-  (`OpenBarMenu`, `RequestSettings`). Every way into settings lands there ([S-3534]). `FluentLayout`
-  (`SettingsCard` rows) is only the app-layout editor's, Themia's one window.
+- **The edit bar** ([S-2320]..[S-2328], Karpo's command bar, `karpo-app` docs/widgets.md §575): one 48-DIP row
+  per display, never moving and one width: the pages' entries (General, Accounts, Display, Views, Appearance),
+  the divider and the selection's entry in its kept room, the problems' room, Add widget, Done. Each entry opens
+  its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
+  never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay), no Snap button (Snap
+  to grid is General's, [S-3516]). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
+  `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
+  is a widget's (its page), a view's (Views), a display's (Display) or Themia's (General, Accounts,
+  Appearance), and that page alone sets it; a lower level that follows it gets a link row
+  (`WidgetMenuLines.Link(SettingLink)`, `SettingsLink`), never a copy, and no widget config holds a format,
+  cadence, theme or language of its own. The guard tests (`S3592_`, `S2306_`) fail on a setting set twice
+  or without a page.
+- **The app's settings are the edit bar's pages** ([S-2300]..[S-2309]), never a window. A page is Core
+  lines (`SettingsMenu.<Section>.cs`: `SettingsToggle`, `SettingsChoice`, `SettingsSlider`, `SettingsColour`,
+  `SettingsSubmenu`, `SettingsCommand`, `SettingsNote`, `SettingsField`, ...) keyed by paths that are the same
+  in every language, grouped by one rule (`SettingsPages.Sectioned`) and tested in Core (`SettingsMenuTests`);
+  the app draws them as Karpo's/Windows' settings cards (`Shell/Pages/PageView`): a row 48 tall (60 with a
+  caption), at most two levels (a card and one level opened inside it; deeper is a sub-page behind a back
+  head), every choice, colour, font, icon and lookup an inline picker in its card, never a popup. Every way
+  into settings lands on its row (`RequestSettings(key)`, [S-3534]). `FluentLayout` (`SettingsCard` rows) is
+  only the app-layout editor's, Themia's one window.
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
 - **Widget selection and groups** ([S-1580]..[S-1594], [S-2450]..[S-2458]): edit mode selects units, a
   lone widget or a whole group (a view's `Groups`, a widget's `Group`: a lock over ordinary cards, never
@@ -307,21 +316,17 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
   Browse; a widget places itself in it through its descriptor; a recipe is data only.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
-- **The properties menu** ([S-3716]..[S-3749]): the selection's panel in edit mode, drawn by the
-  menu engine (`MenuPanel`, Shell/Menu/) the edit bar's menus share, as Karpo's configuration menus:
-  one fixed 320 × 440 DIP rectangle on every level (never moving or resizing while used), the menu's
-  type and Cut, Copy, Delete on its top row, every row one row high (a switch, a tick or a chevron at
-  its end), levels opening in place under a pinned head (back arrow and name), a filter on a level of
-  more than ten rows, a line of text or an "are you sure?" a level of its own, the card's Appearance
-  pinned at the foot. Every option a widget has
-  lives there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines,
-  config)` adds `Lines` (first level) and `StyleLines` (right under the Style row, what
-  `config.Offers` says the look draws) as `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`,
-  `Colour`, `Fill`, `Submenu`, `Search`, `Command`, `Ask` (its line `Asks: true`), `Confirm`, `Note`,
-  `List` (its items dragged or Ctrl+Up/Down to reorder), `PickFolder`, a link row `LinkTo`),
-  separators between its groups, and marks the line the Set up button opens with
-  `WidgetMenuLines.SetsUp` ([S-1862]). Shortcuts and Clock are the references; docs/WIDGET-KIT.md 15
-  is the guide.
+- **The selection's page** ([S-2340]..[S-2343]): selecting widgets adds their entry to the bar ("Clock",
+  "2 × Clock", "3 widgets") and opens its flyout once per selection: a header card (the kind's tile, the
+  name, Cut / Copy / Remove), then What it shows, Header and Appearance. Every option a widget has lives
+  there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines, config)` adds
+  `Lines` and `StyleLines` (under the Style picker, what `config.Offers` says the look draws) as
+  `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`,
+  `Ask` (its line `Asks: true`), `Confirm`, `Note`, `List` (its items dragged or Ctrl+Up/Down to reorder),
+  `PickFolder`, a link row `LinkTo`), separators between its groups, and marks the line the Set up button
+  opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` turns each into the page's row of its kind. An
+  Ask or a Confirm is a page of its own. Shortcuts and Clock are the references; docs/WIDGET-KIT.md 15 is
+  the guide.
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
   `$englishOnly` list. Dates and numbers through `LocaleFormat`.
 - **Out of scope by decision:** tray icon, always-on-top pin, pop-out windows, Lemon Squeezy, updater,
