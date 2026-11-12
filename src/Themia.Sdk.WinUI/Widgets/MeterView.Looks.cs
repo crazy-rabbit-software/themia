@@ -524,16 +524,12 @@ public sealed partial class MeterView
 
         if (atom == MeterAtom.Items && _body is not null)
         {
-            // [S-11005] Items alone, from the view's top. Rows carry their own side inset and stand
-            // under the header; the cores' bars, rings and graphs start headerless, in the card's inset.
+            // [S-11005] Items alone, from the view's top, which is the card's ([S-11600]: under a header
+            // or at the inset). Rows carry their own side inset; the cores' bars, rings and graphs stand
+            // in the card's inset on the sides and the foot.
             SetRow(_body, 0);
             SetRowSpan(_body, 2);
-            var rows = _look == MeterLook.Rows;
-            _body.Margin = rows ? new Thickness(0, 0, 0, FamilySpace.Inset) : Family.Inset;
-            if (!rows)
-            {
-                height = Math.Max(0, _area.Height - (2 * FamilySpace.Inset));
-            }
+            _body.Margin = _look == MeterLook.Rows ? new Thickness(0, 0, 0, FamilySpace.Inset) : Family.Inset with { Top = 0 };
         }
 
         switch (_look)

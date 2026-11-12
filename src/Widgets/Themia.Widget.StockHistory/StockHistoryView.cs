@@ -44,8 +44,7 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
             Render);
         BuildChart();
 
-        // [S-6703] The inset over the chart: it starts headerless, as the clock; the sides and the foot are edge to edge.
-        _chart.Margin = new Thickness(0, FamilySpace.Inset, 0, 0);
+        // [S-11600] The sides and the foot are edge to edge; the top is the card's (the inset, or the header's gap).
         _chart.Visibility = Visibility.Collapsed;
         Children.Add(_chart);
         Children.Add(_state);

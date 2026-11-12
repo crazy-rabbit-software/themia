@@ -85,8 +85,8 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
         _canvas.Children.Add(_horizon);
         _canvas.Children.Add(_bar);
         _canvas.Children.Add(_sun);
-        // [S-6703] The card's inset on every side: the graphic starts headerless, as the clock.
-        _canvas.Margin = Family.Inset;
+        // [S-6703] The card's inset on the sides and the foot; the top is the card's ([S-11600]).
+        _canvas.Margin = Family.Inset with { Top = 0 };
         Children.Add(_canvas);
 
         // Nothing shows until the first lay: a view waiting for setup is never attached, and the card's Set up row stands alone.
@@ -160,7 +160,7 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
         }
 
         var bar = _config.Style == SunStyle.DayBar;
-        _box = (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), bar ? SunLayout.Dot : Math.Max(0, _area.Height - (2 * FamilySpace.Inset)));
+        _box = (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), bar ? SunLayout.Dot : Math.Max(0, _area.Height - FamilySpace.Inset));
         _canvas.Visibility = Visibility.Visible;
         _canvas.Width = _box.Width;
         _canvas.Height = _box.Height;

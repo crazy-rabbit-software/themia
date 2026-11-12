@@ -28,11 +28,8 @@ namespace Themia.App.Widgets;
 /// they fit (<see cref="ClockFace.Under"/>), on the step's line under.
 /// </para>
 /// </summary>
-public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned, IWidgetTopEdge
+public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned
 {
-    /// <summary>[S-5700] It owns its top edge: its face is centred in its own inset on all four sides.</summary>
-    public bool OwnsTopEdge => true;
-
     /// <inheritdoc />
     public CardOpen? Opens => ClockModule.Opens;
 
@@ -101,8 +98,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     {
         InitializeComponent();
 
-        // [S-6703] The card's inset on every side: the clock has no header.
-        Root.Padding = Family.Inset;
+        // [S-6703] The card's inset on the sides and the foot; the top is the card's ([S-11600]: the inset
+        // when no header stands above, the header's gap under one), so a header added moves the face down
+        // by its own cost and leaves it its size.
+        Root.Padding = Family.Inset with { Top = 0 };
         Root.Children.Add(_stack);
         _under.TextTrimming = TextTrimming.CharacterEllipsis;
         _weekday.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -177,9 +176,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         Lay();
     }
 
-    /// <summary>The content box: the card less its inset of 12 on every side.</summary>
+    /// <summary>The content box: the view less its inset of 12 on the sides and the foot (the card's is over it).</summary>
     private (double Width, double Height) ContentBox()
-        => (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - (2 * FamilySpace.Inset)));
+        => (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - FamilySpace.Inset));
 
     /// <summary>Plan the face for the area and the style, then draw the instant into it.</summary>
     private void Lay()

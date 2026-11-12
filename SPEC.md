@@ -850,11 +850,24 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   inset on all four sides. A view that owns its top edge says so (`IWidgetTopEdge`, re-read whenever the
   card places its header) and gets its whole box as before: one drawn to the edge on purpose (Gallery's
   pictures, Video stream, the audio visualizer's spectrum, the album art atom, [S-11320]) or padded on all
-  four sides by itself (the clock, the quick toggles, the power buttons) *(the alarm's time no longer:
-  sized at its Size, it stands under the inset, [S-11301])*. The Set up row, the waiting
+  four sides by itself (the quick toggles, the power buttons) *(the clock no longer: its top is the card's,
+  [S-11600]; the alarm's time no longer: sized at its Size, it stands under the inset, [S-11301])*. The Set up row, the waiting
   row and the error card follow the same rule as a view that does not own the edge (they each carried
   a copy of it before). The sizing counts it ([S-2444]). Tests `HeaderStripTests.S5700_`,
   `SizeFitTests.S5700_`.
+- **[S-11600]** **The top is the card's, the sides and the foot the view's** (one rule, 2026-11-12):
+  a view never pads its own top, whether it starts with a header or without one; the card gives it
+  the inset or the header's gap ([S-5700]), so its content starts exactly one inset under the card's
+  top edge with no header above, and right under a header (36) with one, at every size of its range,
+  and adding or hiding a header moves the content by the header's cost (24) and leaves it its size. A
+  chart drawn edge to edge (a history, a stock's chart) reaches the sides and the foot; its top is the
+  card's as well. `IWidgetTopEdge` is only for a view whose drawing reaches the card's very top edge
+  (a picture, a video, a spectrum). The sizing counts the inset over a headerless view once (the
+  card's) and the view's own foot. Brought in line with it: CPU cores' items, the clock (it no longer
+  owns its top edge, so with a header its face keeps its size), the sun, the stock's and the rate's
+  charts (each padded its own top, 24 headerless and 12 too many under an added header). The edges
+  are measured on the renders' visual trees (`--widget-png … --tree`): every converted kind, with the
+  header on top and hidden, at its min, natural and max.
 - **[S-402]** The header sheds on a tile too short to carry it, **once**, in the card. Every widget
   had independently drawn that conclusion with a slightly different threshold.
 - **[S-403]** The title is the user's own when they set one (on the properties strip, [S-3704]), otherwise the catalogue's. A widget has

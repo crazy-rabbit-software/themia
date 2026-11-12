@@ -22,7 +22,8 @@ namespace Themia.Widget.ExchangeHistory;
 internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions
 {
     private readonly KitHeader _header;
-    private readonly ChartSeries _chart = new() { FlowDirection = FlowDirection.LeftToRight, Margin = Family.Inset, Visibility = Visibility.Collapsed };
+    /// <summary>[S-11600] In the inset on the sides and the foot; the top is the card's (the inset, or the header's gap).</summary>
+    private readonly ChartSeries _chart = new() { FlowDirection = FlowDirection.LeftToRight, Margin = Family.Inset with { Top = 0 }, Visibility = Visibility.Collapsed };
     private readonly StatusBlock _state = new() { Visibility = Visibility.Collapsed };
     private readonly IWidgetHost _host;
     private IRateAnswers? _web;
