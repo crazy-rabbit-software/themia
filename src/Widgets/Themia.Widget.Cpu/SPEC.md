@@ -1,38 +1,26 @@
-# CPU (meter)
+# CPU (reading)
 
-The module `cpu` ([S-6911]): processor load across all cores. Its tags are this file's alone; the
-root `SPEC.md` holds the host's sections and what the meters share (the meter framework [S-1120]..
-[S-1123], [S-1762], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the readouts' rule [S-6330],
-the system hub [S-2500]..[S-2513]; the per-core reads [S-6310], the cores' history [S-6318] and the
-core graphs' cells [S-6319], which the SDK's `CoreHistory`, `MeterPlan` and the host's
-`CpuCores` source keep).
+The module `cpu` ([S-6911]): processor load across all cores, the reading alone. Its tags are this
+file's alone; the root `SPEC.md` holds the host's sections and what the system atoms share (the atoms
+[S-11000]..[S-11009], the meter framework [S-1120]..[S-1123], the gauge [S-6302], the readouts' rule
+[S-6330], the system hub [S-2500]..[S-2513]). The id `cpu` stays the reading's when the old CPU card
+was split (2026-11-12): its history is `cpuHistory`, its cores `cpuCores`, its details `cpuFacts`; the
+old card's look is the ready-made group "CPU" ([S-11090]).
 
-Owning files: everything in this folder: `CpuModule.cs` (descriptor, view factory, menu lines,
-JSON context), `CpuConfig.cs` (with its styles and what it asks the hub, `IReadsSystem`),
-`CpuMeter.cs` (its half of the shared `MeterView`: the pressure, the look per style, the cores as
-items with their history, the debug sample's sixteen cores), `Localization/Locales/` (its own `CpuStr`, 30 languages, its style names included).
-The view, its looks and the core graphs (`MeterView`, `SparkBand`, on the family's blocks) are the SDK's.
-Tests: `Tests/CpuTests.cs` (run by `tests/Themia.Modules.Tests`); what the hub reads for a style is
-the module host's `MeterHostTests` (`S6310_`, `S6318_`).
+Owning files: everything in this folder: `CpuModule.cs` (descriptor, sizing, view factory, JSON
+context), `CpuConfig.cs` (its styles and what it asks the hub, `IReadsSystem`), `CpuMeter.cs` (its half
+of the shared `MeterView`: the pressure, the drawing per style), `Localization/Locales/` (its own
+`CpuStr`, its style names included). Tests: `Tests/CpuTests.cs` (run by `tests/Themia.Modules.Tests`);
+what the hub reads is the module host's `MeterHostTests` (`S6310_`).
 
-- **[S-1140]** CPU: percent of all cores (`GetSystemTimes` delta, shared per tick [S-643]); the reading
-  and its history only ([S-1762]). The clock, per-core strip, sensors, totals and top processes of the
-  earlier ladder ([S-1141], [S-1142], [S-1146]..[S-1150]) are removed with their settings.
-- **[S-6311]** CPU styles, `CpuConfig.Style` (`CpuStyle`): **Graph** ([S-1762]), **All cores**
-  ([S-6312]), **Core grid** ([S-6313]), **Gauge** ([S-6302]), **Core graphs** ([S-6317]).
-- **[S-6312]** **All cores**: a column per logical processor ([S-6303]), each in its own pressure colour.
-- **[S-6313]** **Core grid**: a ring per logical processor ([S-6305]), its load's share in its role ([S-6301]).
-- **[S-6317]** **Core graphs** (`CpuStyle.CoreGraphs`, user request 2026-10-16): the reading over a
-  cell per logical processor ([S-6319], `MeterPlan.Graphs`), each that core's history drawn by the
-  shared `SparkBand` edge to edge in its cell (stepping as the main graph does, [S-6331]) in its load's
-  role, its load in Caption over it where the cell has room. The Chart span applies (the span line is offered in this
-  style as in Graph, `GaugeConfig.StyleChartsHistory`). Debug: `--style coregraphs --machine sample`
-  draws the sample machine's sixteen cores, each its own history ([S-1932]).
-- Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
-  Appearance, and under Style in the Graph and Core graphs styles the Chart span every meter has
-  ([S-1122], `MeterMenuHostTests`).
+- **[S-1140]** CPU: percent of all cores (`GetSystemTimes` delta, shared per tick [S-643]), the reading
+  alone ([S-11001]): the header ("CPU") and the number at 28 with its unit, one height (84), 120..320
+  wide, a new one 160 (`MeterSizing.Reading`). Nothing appears with size; no tier ladder is left.
+- **[S-6311]** CPU styles, `CpuConfig.Style` (`CpuStyle`): **Number** (the reading alone) and **Gauge**
+  ([S-6302], [S-11003]: the dial as large as the box takes, 136..320 wide). The old Graph, All cores,
+  Core grid and Core graphs styles are the CPU history and CPU cores atoms.
+- Its options are on the properties menu ([S-3719]): Style and Appearance; nothing of its own.
 - **[S-2010]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
   folder's `Taskmgr.exe`); the module decides it (`CpuModule.Opens`, through its part's `Opens`).
 
-Needs a manual pass: the meter on a live desktop (the load moving, each style, the core graphs on a
-machine with many cores).
+Needs a manual pass: the reading on a live desktop (the load moving, both styles).

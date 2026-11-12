@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Τα Windows δεν έδωσαν τη λίστα διεργασιών",
   "details.catalog.processes.label": "Κορυφαίες διεργασίες",
   "details.settings.processes.group.label": "Ομαδοποίηση ανά εφαρμογή",
-  "details.settings.processes.rows.fit": "Όσες χωρούν",
-  "details.settings.processes.rows.label": "Γραμμές",
   "details.settings.processes.sort.cpu": "Επεξεργαστής",
   "details.settings.processes.sort.label": "Κατάταξη κατά",
   "details.settings.processes.sort.memory": "Μνήμη"

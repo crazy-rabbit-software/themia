@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows 未列出處理程序",
   "details.catalog.processes.label": "主要處理程序",
   "details.settings.processes.group.label": "依應用程式分組",
-  "details.settings.processes.rows.fit": "盡可能多",
-  "details.settings.processes.rows.label": "列數",
   "details.settings.processes.sort.cpu": "處理器",
   "details.settings.processes.sort.label": "排序依據",
   "details.settings.processes.sort.memory": "記憶體"

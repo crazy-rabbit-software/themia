@@ -2,7 +2,7 @@
 
 The module `topProcesses` ([S-6911]): the busiest processes, by processor or by memory. Its tags are
 this file's alone; the root `SPEC.md` holds the host's sections and what the detail widgets share (the
-detail ladder [S-2400]..[S-2404], the virtualized list [S-6603], the system hub [S-2500]..[S-2513]);
+detail list [S-2404], the list atoms [S-11008], the virtualized list [S-6603], the system hub [S-2500]..[S-2513]);
 the list's rules are the SDK's `ProcessTable` with their root tags ([S-2410] the snapshot, [S-2411] the
 ranking, [S-2412] the ceiling, [S-2413] grouping, [S-2414] the share, [S-2433] the icons).
 
@@ -15,10 +15,14 @@ properties menu), `Localization/Locales/` (its own `TopProcessesStr`, 30 languag
 is the module host's `DetailHostTests`.
 
 - **[S-9700]** Top processes as a module: it reads the hub's process snapshot
-  (`SystemSource.Processes`) and charts nothing; it ranks by processor, lists as many rows as the tile
-  has room for and groups a program's processes into one row by default, and a clone keeps all three.
-  Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
-  Appearance, Sort by, Rows (Fit, 3, 5, 10, 20, 50; a count not offered holds Fit), Group by program.
+  (`SystemSource.Processes`) and charts nothing; it ranks by processor, shows five rows and groups a
+  program's processes into one row by default, and a clone keeps all three. It is a list atom
+  ([S-11008]): its rows are a setting (`Rows`, 1..20, `IKitRows`), each two lines (the program, the other
+  figure under it), the value column as before; every process is in the list and the rows past its
+  count scroll inside them. Its height follows the rows (36 + 40 a row + 12, `KitSizing`, 220..520 wide,
+  a new one 300 × 248) and dragging its bottom edge sets them; "Fit" is gone, and no tier ladder is
+  left. Its options are on the properties menu ([S-3719]), no settings page: Appearance, Sort by, Rows
+  (`KitMenuLines.Rows`, no lines choice), Group by program.
 - **[S-2017]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
   folder's `Taskmgr.exe`) (a row's click stays the row's, [S-2004]); the module decides it
   (`TopProcessesModule.Opens`, through its part's `Opens`).

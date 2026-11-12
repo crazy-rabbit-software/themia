@@ -41,7 +41,10 @@ internal sealed class ProcessesPart : DetailPart
 
     public override bool HasHero => false;
 
-    public override int MaxRows => _config.MaxRows;
+    /// <summary>[S-2412] A list of the config's rows, two lines each: the program over its other figure.</summary>
+    public override DetailAtom? Atom => DetailAtom.List;
+
+    public override int ListLines => 2;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {
@@ -70,7 +73,7 @@ internal sealed class ProcessesPart : DetailPart
         Paths.Retain(samples.Select(s => s.Process));
         _shown = samples;
         var ranked = ProcessTable.Rank(samples, _config.SortBy, _config.GroupByName);
-        host.Present(new DetailSheet(null, null, [], ProcessTable.Rows(Strings.Current, ranked, _config.SortBy, _config.MaxRows, s => s.Image ?? Paths.PathOf(s.Process) ?? SystemImage(s.Name), _config.GroupByName)));
+        host.Present(new DetailSheet(null, null, [], ProcessTable.Rows(Strings.Current, ranked, _config.SortBy, 0, s => s.Image ?? Paths.PathOf(s.Process) ?? SystemImage(s.Name), _config.GroupByName)));
     }
 
     /// <summary>

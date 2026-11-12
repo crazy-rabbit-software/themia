@@ -4,8 +4,6 @@
   "details.processes.unavailable": "Windows tidak mahu menyenaraikan proses",
   "details.catalog.processes.label": "Proses teratas",
   "details.settings.processes.group.label": "Kumpulkan mengikut apl",
-  "details.settings.processes.rows.fit": "Seberapa banyak yang muat",
-  "details.settings.processes.rows.label": "Baris",
   "details.settings.processes.sort.cpu": "Pemproses",
   "details.settings.processes.sort.label": "Susun kedudukan mengikut",
   "details.settings.processes.sort.memory": "Memori"

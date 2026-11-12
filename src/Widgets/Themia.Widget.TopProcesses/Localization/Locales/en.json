@@ -8,8 +8,6 @@
   "details.processes.unavailable": "Windows would not list the processes",
   "details.catalog.processes.label": "Top processes",
   "details.settings.processes.group.label": "Group by app",
-  "details.settings.processes.rows.fit": "As many as fit",
-  "details.settings.processes.rows.label": "Rows",
   "details.settings.processes.sort.cpu": "Processor",
   "details.settings.processes.sort.label": "Rank by",
   "details.settings.processes.sort.memory": "Memory",

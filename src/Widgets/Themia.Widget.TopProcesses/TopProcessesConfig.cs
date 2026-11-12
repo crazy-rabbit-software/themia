@@ -4,20 +4,32 @@ using Themia.Core.Localization;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-2410] The busiest processes, by processor or by memory.</summary>
-public sealed class TopProcessesConfig : DetailConfig, IReadsSystem
+/// <summary>[S-2410] The busiest processes, by processor or by memory: a list of a set number of rows.</summary>
+public sealed class TopProcessesConfig : DetailConfig, IReadsSystem, IKitRows
 {
-    /// <summary>The most rows the list ever holds; a ceiling, not a target ([S-2412]).</summary>
-    public const int MaxRowsLimit = 50;
+    /// <summary>[S-2412] A new list's rows.</summary>
+    public const int DefaultRows = 5;
 
     /// <summary>[S-2411] The ranking.</summary>
     public ProcessSort SortBy { get; set; } = ProcessSort.Cpu;
 
-    /// <summary>[S-2412] At most this many rows; 0 lists as many as the tile has whole rows for.</summary>
-    public int MaxRows { get; set; }
+    /// <summary>[S-2412] How many rows the list shows (1..20); more processes scroll inside them.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-2412] Every row has two lines: the program, and the other figure under it.</summary>
+    [JsonIgnore]
+    public int Lines
+    {
+        get => 2;
+        set
+        {
+            // ignore: a process row always has its two lines; the menu offers no choice.
+        }
+    }
 
     /// <summary>[S-2413] Every process of one executable is one row (Chrome's twenty are one Chrome).</summary>
     public bool GroupByName { get; set; } = true;
@@ -25,17 +37,12 @@ public sealed class TopProcessesConfig : DetailConfig, IReadsSystem
     /// <summary>[S-2513] The process list.</summary>
     public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Processes);
 
-    public override WidgetConfig Clone()
+    public override WidgetConfig Clone() => new TopProcessesConfig
     {
-        var copy = new TopProcessesConfig
-        {
-            SortBy = SortBy,
-            MaxRows = MaxRows,
-            GroupByName = GroupByName,
-        };
-
-        return copy;
-    }
+        SortBy = SortBy,
+        Rows = Rows,
+        GroupByName = GroupByName,
+    };
 
     public override IReadOnlyList<string> Repair()
     {
@@ -47,11 +54,11 @@ public sealed class TopProcessesConfig : DetailConfig, IReadsSystem
             SortBy = ProcessSort.Cpu;
         }
 
-        if (MaxRows is < 0 or > MaxRowsLimit)
+        var rows = KitSizing.ClampRows(Rows);
+        if (rows != Rows)
         {
-            var repaired = Math.Clamp(MaxRows, 0, MaxRowsLimit);
-            notes.Add($"{Kind}: {MaxRows} rows is outside 0..{MaxRowsLimit}; using {repaired}");
-            MaxRows = repaired;
+            notes.Add($"{Kind}: {Rows} rows is outside {KitSizing.MinRows}..{KitSizing.MaxRows}; using {rows}");
+            Rows = rows;
         }
 
         return notes;

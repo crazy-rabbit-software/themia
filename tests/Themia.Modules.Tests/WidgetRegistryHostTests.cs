@@ -66,7 +66,8 @@ public sealed class WidgetRegistryHostTests
         Assert.DoesNotContain("{", widget.Describe(Locale.En), StringComparison.Ordinal);
         Assert.Single(widget.Glyph.EnumerateRunes());
         Assert.InRange(widget.Natural.Width, 80, 800);
-        Assert.InRange(widget.Natural.Height, 80, 800);
+        // [S-11002] An atom may be a strip: a history under its reading is 64 tall.
+        Assert.InRange(widget.Natural.Height, 48, 800);
     }
 
     [Theory]

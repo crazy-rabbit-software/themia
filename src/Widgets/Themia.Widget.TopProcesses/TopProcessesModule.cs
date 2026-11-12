@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.TopProcesses;
 
@@ -32,10 +33,14 @@ public sealed class TopProcessesModule : IWidgetModule
         Label = TopProcessesStr.Details_Catalog_Processes_Label.Local(),
         Description = TopProcessesStr.Details_Catalog_Processes_Desc.Local(),
         Glyph = Glyphs.ListLayout,
-        Sizing = _ => WidgetSizing.Legacy(300, 300),
+        Sizing = c => KitSizing.Sizing(Shown((TopProcessesConfig)c), addFooter: false),
+        SizeSets = (c, s) => KitSizing.SizeSets(c, s, Shown((TopProcessesConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Processor, 0, 2),
+        Add = new(AddFolderId.Processor, 0, 4),
     };
+
+    /// <summary>[S-2412] [S-2440] Its rows as drawn: the config's count, two lines each (the list scrolls the rest).</summary>
+    private static KitRowsChoice Shown(TopProcessesConfig config) => new(KitSizing.ClampRows(config.Rows), 2);
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)

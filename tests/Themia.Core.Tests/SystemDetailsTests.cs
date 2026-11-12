@@ -49,7 +49,7 @@ public sealed class SystemDetailsTests
 
         Assert.Equal("3.00 GHz", sheet.Hero);
         Assert.Equal("25% utilization", sheet.Caption);
-        Assert.Equal(["Cores"], sheet.Facts.Select(f => f.Label));
+        Assert.Equal(["Speed", "Cores"], sheet.Facts.Select(f => f.Label));
         Assert.False(CpuDetailRules.Sheet(Locale.En, new CpuFigures()).HeroAvailable);
     }
 

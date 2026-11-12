@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows からプロセスの一覧を取得できませんでした",
   "details.catalog.processes.label": "上位のプロセス",
   "details.settings.processes.group.label": "アプリごとにまとめる",
-  "details.settings.processes.rows.fit": "収まるだけ",
-  "details.settings.processes.rows.label": "行数",
   "details.settings.processes.sort.cpu": "プロセッサー",
   "details.settings.processes.sort.label": "並べ替えの基準",
   "details.settings.processes.sort.memory": "メモリ"

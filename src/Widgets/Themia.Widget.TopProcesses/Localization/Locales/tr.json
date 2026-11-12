@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows işlemleri listelemedi",
   "details.catalog.processes.label": "En yoğun işlemler",
   "details.settings.processes.group.label": "Uygulamaya göre grupla",
-  "details.settings.processes.rows.fit": "Sığdığı kadar",
-  "details.settings.processes.rows.label": "Satırlar",
   "details.settings.processes.sort.cpu": "İşlemci",
   "details.settings.processes.sort.label": "Sıralama ölçütü",
   "details.settings.processes.sort.memory": "Bellek"

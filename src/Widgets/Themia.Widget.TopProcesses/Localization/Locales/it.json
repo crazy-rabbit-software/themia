@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows non ha elencato i processi",
   "details.catalog.processes.label": "Processi principali",
   "details.settings.processes.group.label": "Raggruppa per app",
-  "details.settings.processes.rows.fit": "Quanti ne entrano",
-  "details.settings.processes.rows.label": "Righe",
   "details.settings.processes.sort.cpu": "Processore",
   "details.settings.processes.sort.label": "Ordina per",
   "details.settings.processes.sort.memory": "Memoria"

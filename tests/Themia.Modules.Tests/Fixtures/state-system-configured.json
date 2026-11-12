@@ -27,9 +27,7 @@
           "scale": 1,
           "config": {
             "kind": "cpu",
-            "style": "coreGraphs",
-            "showGraph": true,
-            "graphSpanSeconds": 300
+            "style": "gauge"
           }
         },
         {
@@ -212,7 +210,11 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "cpuDetails"
+            "kind": "cpuFacts",
+            "facts": [
+              "uptime",
+              "speed"
+            ]
           }
         },
         {
@@ -260,7 +262,7 @@
           "config": {
             "kind": "topProcesses",
             "sortBy": "Memory",
-            "maxRows": 10,
+            "rows": 10,
             "groupByName": false
           }
         },

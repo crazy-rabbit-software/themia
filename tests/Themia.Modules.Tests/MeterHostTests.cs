@@ -6,6 +6,7 @@ using Themia.Core.SystemData;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.CpuCores;
 using Xunit;
 
 namespace Themia.Modules.Tests;
@@ -34,7 +35,7 @@ public sealed class MeterHostTests
     [Fact]
     public void S1120_each_meter_has_its_default_span()
     {
-        Assert.Equal(60, new CpuConfig().GraphSpanSeconds);
+        Assert.Equal(60, new Themia.Widget.CpuHistory.CpuHistoryConfig().GraphSpanSeconds);
         Assert.Equal(60, new MemoryConfig().GraphSpanSeconds);
         Assert.Equal(60, new NetworkConfig().GraphSpanSeconds);
         Assert.Equal(60, new GpuConfig().GraphSpanSeconds);
@@ -42,7 +43,7 @@ public sealed class MeterHostTests
         Assert.Equal(900, new BatteryConfig().GraphSpanSeconds);
         Assert.Equal(900, new PingConfig().GraphSpanSeconds);
 
-        foreach (var config in new GaugeConfig[] { new CpuConfig(), new MemoryConfig(), new NetworkConfig(), new GpuConfig(), new DiskConfig(), new BatteryConfig(), new PingConfig() })
+        foreach (var config in new GaugeConfig[] { new MemoryConfig(), new NetworkConfig(), new GpuConfig(), new DiskConfig(), new BatteryConfig(), new PingConfig() })
         {
             Assert.Contains(config.GraphSpanSeconds, MeterTiming.SpanChoices);
         }
@@ -51,7 +52,7 @@ public sealed class MeterHostTests
     [Fact]
     public void S1120_repair_snaps_the_span()
     {
-        var cpu = new CpuConfig { GraphSpanSeconds = 7 };
+        var cpu = new Themia.Widget.CpuHistory.CpuHistoryConfig { GraphSpanSeconds = 7 };
         var notes = cpu.Repair();
 
         Assert.Single(notes);
@@ -69,49 +70,48 @@ public sealed class MeterHostTests
     }
 
     [Fact]
-    public void S6310_only_the_core_styles_ask_the_hub_for_every_processor()
+    public void S6310_only_the_cores_ask_the_hub_for_every_processor()
     {
-        static bool ReadsCores(CpuStyle style)
-            => SystemInterests.For(new CpuConfig { Style = style }, @"C:\").Feeds.Contains(FeedKey.Create(SystemSource.CpuCores));
-
-        Assert.True(ReadsCores(CpuStyle.Cores));
-        Assert.True(ReadsCores(CpuStyle.Grid));
-        Assert.True(ReadsCores(CpuStyle.CoreGraphs));
-        Assert.False(ReadsCores(CpuStyle.Graph));
-        Assert.False(ReadsCores(CpuStyle.Gauge));
-
-        // Every style keeps the total's history, so switching back to the graph finds it already there.
-        foreach (var style in Enum.GetValues<CpuStyle>())
+        foreach (var style in Enum.GetValues<CpuCoresStyle>())
         {
-            Assert.Contains(new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty), SystemInterests.For(new CpuConfig { Style = style }, @"C:\").Series);
+            Assert.Contains(FeedKey.Create(SystemSource.CpuCores), SystemInterests.For(new CpuCoresConfig { Style = style }, @"C:\").Feeds);
         }
+
+        Assert.DoesNotContain(FeedKey.Create(SystemSource.CpuCores), SystemInterests.For(new CpuConfig(), @"C:\").Feeds);
+        Assert.DoesNotContain(FeedKey.Create(SystemSource.CpuCores), SystemInterests.For(new Themia.Widget.CpuHistory.CpuHistoryConfig(), @"C:\").Feeds);
+
+        // [S-11000] The reading, the history and the cores read the one series, so they agree to the point.
+        var series = new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty);
+        Assert.Contains(series, SystemInterests.For(new CpuConfig(), @"C:\").Series);
+        Assert.Contains(series, SystemInterests.For(new Themia.Widget.CpuHistory.CpuHistoryConfig(), @"C:\").Series);
+        Assert.Contains(series, SystemInterests.For(new CpuCoresConfig(), @"C:\").Series);
     }
 
     [Fact]
     public void S6318_only_core_graphs_ask_the_hub_for_each_cores_history_and_for_their_span()
     {
-        var graphs = SystemInterests.For(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 300 }, @"C:\");
+        var graphs = SystemInterests.For(new CpuCoresConfig { Style = CpuCoresStyle.Graphs, GraphSpanSeconds = 300 }, @"C:\");
         Assert.Contains(FeedKey.Create(SystemSource.CpuCores), graphs.Feeds);
         Assert.Equal(300, graphs.CoreHistorySeconds);
 
-        Assert.Equal(0, SystemInterests.For(new CpuConfig { Style = CpuStyle.Grid, GraphSpanSeconds = 300 }, @"C:\").CoreHistorySeconds);
-        Assert.Equal(0, SystemInterests.For(new CpuConfig { Style = CpuStyle.Cores }, @"C:\").CoreHistorySeconds);
+        Assert.Equal(0, SystemInterests.For(new CpuCoresConfig { Style = CpuCoresStyle.Grid, GraphSpanSeconds = 300 }, @"C:\").CoreHistorySeconds);
+        Assert.Equal(0, SystemInterests.For(new CpuCoresConfig { Style = CpuCoresStyle.Bars }, @"C:\").CoreHistorySeconds);
         Assert.Equal(0, SystemInterests.For(new CpuConfig(), @"C:\").CoreHistorySeconds);
     }
 
     [Fact]
     public void S6318_the_hub_keeps_the_longest_span_any_view_shows_and_hears_of_a_change()
     {
-        var minute = SystemInterests.From(State(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 60 }, new CpuConfig { Style = CpuStyle.Grid, GraphSpanSeconds = 3600 }), @"C:\");
+        var minute = SystemInterests.From(State(new CpuCoresConfig { Style = CpuCoresStyle.Graphs, GraphSpanSeconds = 60 }, new CpuCoresConfig { Style = CpuCoresStyle.Grid, GraphSpanSeconds = 3600 }), @"C:\");
         Assert.Equal(60, minute.CoreHistorySeconds);
 
-        var both = SystemInterests.From(State(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 60 }, new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 900 }), @"C:\");
+        var both = SystemInterests.From(State(new CpuCoresConfig { Style = CpuCoresStyle.Graphs, GraphSpanSeconds = 60 }, new CpuCoresConfig { Style = CpuCoresStyle.Graphs, GraphSpanSeconds = 900 }), @"C:\");
         Assert.Equal(900, both.CoreHistorySeconds);
 
         // The same feeds and series but a longer span is a change the hub must hear of.
         Assert.False(minute.SameAs(both));
-        Assert.True(both.SameAs(SystemInterests.From(State(new CpuConfig { Style = CpuStyle.CoreGraphs, GraphSpanSeconds = 900 }), @"C:\")));
-        Assert.Equal(0, SystemInterests.From(State(new CpuConfig { Style = CpuStyle.Grid }), @"C:\").CoreHistorySeconds);
+        Assert.True(both.SameAs(SystemInterests.From(State(new CpuCoresConfig { Style = CpuCoresStyle.Graphs, GraphSpanSeconds = 900 }), @"C:\")));
+        Assert.Equal(0, SystemInterests.From(State(new CpuCoresConfig { Style = CpuCoresStyle.Grid }), @"C:\").CoreHistorySeconds);
     }
 
     [Fact]

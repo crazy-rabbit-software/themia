@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows n’a pas listé les processus",
   "details.catalog.processes.label": "Processus principaux",
   "details.settings.processes.group.label": "Regrouper par application",
-  "details.settings.processes.rows.fit": "Autant que possible",
-  "details.settings.processes.rows.label": "Lignes",
   "details.settings.processes.sort.cpu": "Processeur",
   "details.settings.processes.sort.label": "Classer par",
   "details.settings.processes.sort.memory": "Mémoire"

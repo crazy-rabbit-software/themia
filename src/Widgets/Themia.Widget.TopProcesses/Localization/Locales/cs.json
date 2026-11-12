@@ -4,8 +4,6 @@
   "details.processes.unavailable": "Windows nevydal seznam procesů",
   "details.catalog.processes.label": "Nejnáročnější procesy",
   "details.settings.processes.group.label": "Seskupit podle aplikace",
-  "details.settings.processes.rows.fit": "Kolik se vejde",
-  "details.settings.processes.rows.label": "Řádky",
   "details.settings.processes.sort.cpu": "Procesor",
   "details.settings.processes.sort.label": "Řadit podle",
   "details.settings.processes.sort.memory": "Paměť"

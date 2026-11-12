@@ -96,8 +96,31 @@ public static class ReadyMadeGroups
         new("recentFiles", new(300, 100, 316, 208), Config: """{ "rows": 4 }"""),
     ]);
 
+    // ---- [S-11090] The system readings' groups: each old card's look, made of its atoms ----------------
+
+    /// <summary>[S-11090] CPU: the reading over its history.</summary>
+    public static ReadyMadeGroup Cpu { get; } = new("cpu", Str.Groups_Recipe_Cpu, Str.Groups_Recipe_CpuAbout, Glyphs.Cpu, AddFolderId.Processor,
+    [
+        new("cpu", new(0, 0, 160, 84)),
+        new("cpuHistory", new(0, 84, 160, 64)),
+    ]);
+
+    /// <summary>[S-11090] CPU cores: the reading over a bar per core.</summary>
+    public static ReadyMadeGroup CpuCores { get; } = new("cpuCores", Str.Groups_Recipe_CpuCores, Str.Groups_Recipe_CpuCoresAbout, Glyphs.Cpu, AddFolderId.Processor,
+    [
+        new("cpu", new(0, 0, 160, 84)),
+        new("cpuCores", new(0, 84, 160, 64)),
+    ]);
+
+    /// <summary>[S-11090] CPU details: the reading over the processor's facts.</summary>
+    public static ReadyMadeGroup CpuDetails { get; } = new("cpuDetails", Str.Groups_Recipe_CpuDetails, Str.Groups_Recipe_CpuDetailsAbout, Glyphs.Cpu, AddFolderId.Processor,
+    [
+        new("cpu", new(0, 0, 240, 84)),
+        new("cpuFacts", new(0, 84, 240, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles, Cpu, CpuCores, CpuDetails];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

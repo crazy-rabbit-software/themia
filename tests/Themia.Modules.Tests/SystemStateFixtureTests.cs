@@ -42,7 +42,7 @@ public sealed class SystemStateFixtureTests
         Assert.Equal(21, configs.Count);
 
         var cpu = Assert.IsType<CpuConfig>(configs[0]);
-        Assert.Equal((CpuStyle.CoreGraphs, 300), (cpu.Style, cpu.GraphSpanSeconds));
+        Assert.Equal(CpuStyle.Gauge, cpu.Style);
         var memory = Assert.IsType<MemoryConfig>(configs[1]);
         Assert.Equal((MemoryStyle.Bar, 900), (memory.Style, memory.GraphSpanSeconds));
         var battery = Assert.IsType<BatteryConfig>(configs[2]);
@@ -56,10 +56,10 @@ public sealed class SystemStateFixtureTests
         var gpu = Assert.IsType<GpuConfig>(configs[6]);
         Assert.Equal((GpuStyle.Engines, 1, 900), (gpu.Style, gpu.Adapter, gpu.GraphSpanSeconds));
 
-        Assert.IsType<CpuDetailsConfig>(configs[7]);
+        Assert.Equal(["uptime", "speed"], Assert.IsType<CpuFactsConfig>(configs[7]).Facts);
         Assert.IsType<MemoryDetailsConfig>(configs[8]);
         var processes = Assert.IsType<TopProcessesConfig>(configs[9]);
-        Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.MaxRows, processes.GroupByName));
+        Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.Rows, processes.GroupByName));
         Assert.True(Assert.IsType<NetworkDetailsConfig>(configs[10]).ShowPublicAddress);
         Assert.IsType<BatteryDetailsConfig>(configs[11]);
         var pingDetails = Assert.IsType<PingDetailsConfig>(configs[12]);

@@ -34,6 +34,23 @@ public sealed record CpuFigures(
 /// <summary>[S-2405]..[S-2407] The CPU details widget's rules, pure.</summary>
 public static class CpuDetailRules
 {
+    /// <summary>
+    /// [S-11012] Every fact the CPU facts atom can show, in the kind's order: the speed (the old hero),
+    /// then the figures the details listed. A new one shows the first four.
+    /// </summary>
+    public static IReadOnlyList<FactOption> Facts { get; } =
+    [
+        new("speed", Str.Details_Cpu_Speed),
+        new("baseSpeed", Str.Details_Cpu_BaseSpeed),
+        new("cores", Str.Details_Cpu_Cores),
+        new("logical", Str.Details_Cpu_Logical),
+        new("processes", Str.Details_Cpu_Processes),
+        new("threads", Str.Details_Cpu_Threads),
+        new("handles", Str.Details_Cpu_Handles),
+        new("uptime", Str.Details_Cpu_Uptime),
+        new("temperature", Str.Details_Cpu_Temperature),
+    ];
+
     /// <summary>The widest hero: "10.00 GHz".</summary>
     public const string HeroWorst = "10.00 GHz";
 
@@ -165,25 +182,28 @@ public static class CpuDetailRules
         ArgumentNullException.ThrowIfNull(f);
         var facts = new List<DetailFact>(10);
 
-        void Add(Str label, string? value)
+        void Add(string key, Str label, string? value)
         {
             if (value is not null)
             {
-                facts.Add(new DetailFact(Strings.Get(locale, label), value));
+                facts.Add(new DetailFact(Strings.Get(locale, label), value, Key: key));
             }
         }
 
-        Add(Str.Details_Cpu_BaseSpeed, f.BaseMhz is > 0 and var b ? Gigahertz(locale, b) : null);
-        Add(Str.Details_Cpu_Cores, f.Cores is > 0 and var c ? LocaleFormat.Integer(locale, c) : null);
-        Add(Str.Details_Cpu_Logical, f.Logical is > 0 and var l ? LocaleFormat.Integer(locale, l) : null);
-        Add(Str.Details_Cpu_Processes, f.Processes is >= 0 and var p ? LocaleFormat.Integer(locale, p) : null);
-        Add(Str.Details_Cpu_Threads, f.Threads is >= 0 and var t ? LocaleFormat.Integer(locale, t) : null);
-        Add(Str.Details_Cpu_Handles, f.Handles is >= 0 and var h ? LocaleFormat.Integer(locale, h) : null);
-        Add(Str.Details_Cpu_Uptime, f.Uptime is { } up ? CpuRules.Uptime(locale, up) : null);
+        // [S-11012] The speed is a fact too: the facts atom has no hero (the reading is the CPU atom's).
+        Add("speed", Str.Details_Cpu_Speed, f.Mhz is { } speed ? Gigahertz(locale, speed) : null);
+
+        Add("baseSpeed", Str.Details_Cpu_BaseSpeed, f.BaseMhz is > 0 and var b ? Gigahertz(locale, b) : null);
+        Add("cores", Str.Details_Cpu_Cores, f.Cores is > 0 and var c ? LocaleFormat.Integer(locale, c) : null);
+        Add("logical", Str.Details_Cpu_Logical, f.Logical is > 0 and var l ? LocaleFormat.Integer(locale, l) : null);
+        Add("processes", Str.Details_Cpu_Processes, f.Processes is >= 0 and var p ? LocaleFormat.Integer(locale, p) : null);
+        Add("threads", Str.Details_Cpu_Threads, f.Threads is >= 0 and var t ? LocaleFormat.Integer(locale, t) : null);
+        Add("handles", Str.Details_Cpu_Handles, f.Handles is >= 0 and var h ? LocaleFormat.Integer(locale, h) : null);
+        Add("uptime", Str.Details_Cpu_Uptime, f.Uptime is { } up ? CpuRules.Uptime(locale, up) : null);
         // [S-2434] The label says what was measured: the package (a tool's sensor) or the board's zone.
         if (f.Temperature is { } temperature)
         {
-            Add(temperature.IsPackage ? Str.Details_Cpu_Package : Str.Details_Cpu_Temperature, Celsius(locale, temperature.Celsius));
+            Add("temperature", temperature.IsPackage ? Str.Details_Cpu_Package : Str.Details_Cpu_Temperature, Celsius(locale, temperature.Celsius));
         }
 
         var caption = f.Load is { } load

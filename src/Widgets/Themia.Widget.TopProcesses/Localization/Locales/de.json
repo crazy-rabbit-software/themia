@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows hat die Prozesse nicht aufgelistet",
   "details.catalog.processes.label": "Top-Prozesse",
   "details.settings.processes.group.label": "Nach App gruppieren",
-  "details.settings.processes.rows.fit": "So viele wie passen",
-  "details.settings.processes.rows.label": "Zeilen",
   "details.settings.processes.sort.cpu": "Prozessor",
   "details.settings.processes.sort.label": "Sortieren nach",
   "details.settings.processes.sort.memory": "Arbeitsspeicher"

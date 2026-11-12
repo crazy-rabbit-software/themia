@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows فهرست فرایندها را ارائه نکرد",
   "details.catalog.processes.label": "فرایندهای برتر",
   "details.settings.processes.group.label": "گروه‌بندی بر اساس برنامه",
-  "details.settings.processes.rows.fit": "هر تعداد که جا شود",
-  "details.settings.processes.rows.label": "ردیف‌ها",
   "details.settings.processes.sort.cpu": "پردازنده",
   "details.settings.processes.sort.label": "رتبه‌بندی بر اساس",
   "details.settings.processes.sort.memory": "حافظه"

@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows не надала список процесів",
   "details.catalog.processes.label": "Найактивніші процеси",
   "details.settings.processes.group.label": "Групувати за програмами",
-  "details.settings.processes.rows.fit": "Скільки вміститься",
-  "details.settings.processes.rows.label": "Рядки",
   "details.settings.processes.sort.cpu": "Процесор",
   "details.settings.processes.sort.label": "Упорядкувати за",
   "details.settings.processes.sort.memory": "Пам’ять"

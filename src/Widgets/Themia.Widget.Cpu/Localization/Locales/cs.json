@@ -1,10 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.cpu.coreGraphs": "Grafy jader",
-  "styles.cpu.cores": "Všechna jádra",
   "styles.cpu.gauge": "Ukazatel",
-  "styles.cpu.graph": "Graf",
-  "styles.cpu.grid": "Mřížka jader",
   "widgetsA.catalog.cpu.label": "Procesor",
   "widgetsA.catalog.cpu.description": "Zatížení procesoru napříč všemi jádry"
 }

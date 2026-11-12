@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows không liệt kê được các tiến trình",
   "details.catalog.processes.label": "Tiến trình hàng đầu",
   "details.settings.processes.group.label": "Nhóm theo ứng dụng",
-  "details.settings.processes.rows.fit": "Nhiều nhất có thể",
-  "details.settings.processes.rows.label": "Số hàng",
   "details.settings.processes.sort.cpu": "Bộ xử lý",
   "details.settings.processes.sort.label": "Xếp hạng theo",
   "details.settings.processes.sort.memory": "Bộ nhớ"

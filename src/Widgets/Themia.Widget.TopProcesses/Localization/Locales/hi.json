@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows ने प्रोसेस की सूची नहीं दी",
   "details.catalog.processes.label": "शीर्ष प्रोसेस",
   "details.settings.processes.group.label": "ऐप के अनुसार समूह",
-  "details.settings.processes.rows.fit": "जितने समा सकें",
-  "details.settings.processes.rows.label": "पंक्तियाँ",
   "details.settings.processes.sort.cpu": "प्रोसेसर",
   "details.settings.processes.sort.label": "क्रम का आधार",
   "details.settings.processes.sort.memory": "मेमोरी"

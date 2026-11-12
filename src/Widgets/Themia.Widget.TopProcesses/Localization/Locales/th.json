@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows ไม่แสดงรายการโปรเซส",
   "details.catalog.processes.label": "โปรเซสสูงสุด",
   "details.settings.processes.group.label": "จัดกลุ่มตามแอป",
-  "details.settings.processes.rows.fit": "เท่าที่พื้นที่พอ",
-  "details.settings.processes.rows.label": "แถว",
   "details.settings.processes.sort.cpu": "ตัวประมวลผล",
   "details.settings.processes.sort.label": "จัดอันดับตาม",
   "details.settings.processes.sort.memory": "หน่วยความจำ"

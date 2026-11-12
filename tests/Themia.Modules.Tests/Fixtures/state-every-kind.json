@@ -57,9 +57,7 @@
           "scale": 1,
           "config": {
             "kind": "cpu",
-            "style": "graph",
-            "showGraph": true,
-            "graphSpanSeconds": 60
+            "style": "number"
           }
         },
         {
@@ -1173,7 +1171,13 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "cpuDetails"
+            "kind": "cpuFacts",
+            "facts": [
+              "speed",
+              "baseSpeed",
+              "cores",
+              "logical"
+            ]
           }
         },
         {
@@ -1223,7 +1227,7 @@
           "config": {
             "kind": "topProcesses",
             "sortBy": "Cpu",
-            "maxRows": 0,
+            "rows": 5,
             "groupByName": true
           }
         },

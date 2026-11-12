@@ -30,18 +30,18 @@ public sealed class DetailHostTests
     [Fact]
     public void S2412_rows_and_sort_are_repaired()
     {
-        var config = new TopProcessesConfig { MaxRows = 400, SortBy = (ProcessSort)7 };
+        var config = new TopProcessesConfig { Rows = 400, SortBy = (ProcessSort)7 };
 
         Assert.Equal(2, config.Repair().Count);
-        Assert.Equal(TopProcessesConfig.MaxRowsLimit, config.MaxRows);
+        Assert.Equal(Themia.Sdk.Kit.KitSizing.MaxRows, config.Rows);
         Assert.Equal(ProcessSort.Cpu, config.SortBy);
     }
 
     [Fact]
     public void S2400_every_detail_config_round_trips_through_the_state_file()
     {
-        var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "sortBy": "Memory", "maxRows": 10, "groupByName": false }""");
-        Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.MaxRows, processes.GroupByName));
+        var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "sortBy": "Memory", "rows": 10, "groupByName": false }""");
+        Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.Rows, processes.GroupByName));
 
         var network = (NetworkDetailsConfig)ConfigJson.Read("NetworkDetails", """{ "kind": "networkDetails", "showPublicAddress": true }""");
         Assert.True(network.ShowPublicAddress);

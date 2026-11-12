@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows نے پروسیسز کی فہرست نہیں دی",
   "details.catalog.processes.label": "سرفہرست پروسیسز",
   "details.settings.processes.group.label": "ایپ کے لحاظ سے گروپ کریں",
-  "details.settings.processes.rows.fit": "جتنے سما سکیں",
-  "details.settings.processes.rows.label": "قطاریں",
   "details.settings.processes.sort.cpu": "پروسیسر",
   "details.settings.processes.sort.label": "ترتیب بلحاظ",
   "details.settings.processes.sort.memory": "میموری"

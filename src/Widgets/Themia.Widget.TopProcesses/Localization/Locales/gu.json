@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows એ પ્રક્રિયાઓની સૂચિ આપી નહીં",
   "details.catalog.processes.label": "ટોચની પ્રક્રિયાઓ",
   "details.settings.processes.group.label": "ઍપ પ્રમાણે જૂથ",
-  "details.settings.processes.rows.fit": "જેટલી સમાય તેટલી",
-  "details.settings.processes.rows.label": "પંક્તિઓ",
   "details.settings.processes.sort.cpu": "પ્રોસેસર",
   "details.settings.processes.sort.label": "આ પ્રમાણે ક્રમ",
   "details.settings.processes.sort.memory": "મેમરી"

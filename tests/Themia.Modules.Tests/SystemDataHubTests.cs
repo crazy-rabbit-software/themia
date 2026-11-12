@@ -376,7 +376,7 @@ public sealed class SystemDataHubTests
     public void S2513_two_widgets_on_one_feed_want_it_once_and_a_ping_meter_shares_the_statistics_prober()
     {
         var state = State(
-            [new CpuConfig(), new CpuDetailsConfig(), new PingConfig { Host = "1.1.1.1" }],
+            [new CpuConfig(), new CpuFactsConfig(), new PingConfig { Host = "1.1.1.1" }],
             [new CpuConfig(), new PingDetailsConfig { Host = " 1.1.1.1 " }]);
 
         var interests = SystemInterests.From(state, Root);
@@ -423,7 +423,7 @@ public sealed class SystemDataHubTests
         {
             var config = WidgetConfig.CreateDefault(kind);
             var wants = SystemInterests.For(config, Root);
-            var system = config is GaugeConfig or DetailConfig;
+            var system = config is GaugeConfig or DetailConfig or ReadingConfig or HistoryConfig;
 
             Assert.Equal(system, wants.Feeds.Count > 0);
 
@@ -435,11 +435,11 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2513_a_change_that_wants_the_same_is_no_change()
     {
-        var state = State([new CpuConfig(), new MemoryDetailsConfig()]);
+        var state = State([new Themia.Widget.CpuHistory.CpuHistoryConfig(), new MemoryDetailsConfig()]);
         var before = SystemInterests.From(state, Root);
 
         // Moving a widget or changing a span reads nothing new.
-        ((CpuConfig)state.Views[0].Widgets[0].Config).GraphSpanSeconds = 3600;
+        ((Themia.Widget.CpuHistory.CpuHistoryConfig)state.Views[0].Widgets[0].Config).GraphSpanSeconds = 3600;
         Assert.True(before.SameAs(SystemInterests.From(state, Root)));
 
         state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Config = new NetworkDetailsConfig() });

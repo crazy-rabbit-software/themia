@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows ने प्रक्रियांची सूची दिली नाही",
   "details.catalog.processes.label": "प्रमुख प्रक्रिया",
   "details.settings.processes.group.label": "अ‍ॅपनुसार गट करा",
-  "details.settings.processes.rows.fit": "जितक्या बसतील तितक्या",
-  "details.settings.processes.rows.label": "ओळी",
   "details.settings.processes.sort.cpu": "प्रोसेसर",
   "details.settings.processes.sort.label": "यानुसार क्रम",
   "details.settings.processes.sort.memory": "मेमरी"

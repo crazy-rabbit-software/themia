@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows no mostró los procesos",
   "details.catalog.processes.label": "Procesos principales",
   "details.settings.processes.group.label": "Agrupar por app",
-  "details.settings.processes.rows.fit": "Tantos como quepan",
-  "details.settings.processes.rows.label": "Filas",
   "details.settings.processes.sort.cpu": "Procesador",
   "details.settings.processes.sort.label": "Ordenar por",
   "details.settings.processes.sort.memory": "Memoria"

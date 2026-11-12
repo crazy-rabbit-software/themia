@@ -1,13 +1,13 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Shell;
-using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Cpu;
 
@@ -15,7 +15,7 @@ using Themia.Widget.Cpu;
 
 namespace Themia.Widget.Cpu;
 
-/// <summary>[S-1140] Processor load across all cores: the reading and its history, or each processor (bars, tiles, their own graphs) or a gauge ([S-6311]). SPEC.md beside this file.</summary>
+/// <summary>[S-1140] Processor load across all cores: the reading alone, the number or a gauge ([S-6311]). SPEC.md beside this file.</summary>
 public sealed class CpuModule : IWidgetModule
 {
     /// <summary>[S-2010] A click on the card opens Task Manager.</summary>
@@ -28,19 +28,22 @@ public sealed class CpuModule : IWidgetModule
         ConfigType = typeof(CpuConfig),
         CreateDefault = () => new CpuConfig(),
         Json = CpuJsonContext.Default,
-        Keywords = ["processor", "load", "usage", "performance", "cores", "task manager", "system monitor"],
+        Keywords = ["processor", "load", "usage", "performance", "task manager", "system monitor"],
         Label = CpuStr.WidgetsA_Catalog_Cpu_Label.Local(),
         Description = CpuStr.WidgetsA_Catalog_Cpu_Description.Local(),
         Glyph = Glyphs.Cpu,
-        Sizing = _ => WidgetSizing.Legacy(200, 150),
+        Sizing = c => Sizing((CpuConfig)c),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Processor, 0, 0, Popular: 8),
     };
 
-    /// <summary>[S-3719] Every option is on the properties menu (the chart span under Style, [S-1122]): the widget has no settings page.</summary>
+    /// <summary>[S-1140] [S-11001] The reading's sizing in its drawing: the number one height, 120..320 wide; the gauge as its dial.</summary>
+    internal static WidgetSizing Sizing(CpuConfig config)
+        => MeterSizing.Reading(CpuMeter.Look(config.Style), ReadoutRules.Split(Formatting.Percent(1)));
+
+    /// <summary>[S-3719] Nothing to set but the style and the card's look.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
-        MeterMenuLines.Lines(menu, (CpuConfig)config);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new CpuMeter());

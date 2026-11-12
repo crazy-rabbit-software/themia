@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows செயல்முறைகளைப் பட்டியலிடவில்லை",
   "details.catalog.processes.label": "முன்னணி செயல்முறைகள்",
   "details.settings.processes.group.label": "பயன்பாட்டின்படி குழுவாக்கு",
-  "details.settings.processes.rows.fit": "பொருந்தும் அளவு",
-  "details.settings.processes.rows.label": "வரிசைகள்",
   "details.settings.processes.sort.cpu": "செயலி",
   "details.settings.processes.sort.label": "வரிசைப்படுத்து",
   "details.settings.processes.sort.memory": "நினைவகம்"

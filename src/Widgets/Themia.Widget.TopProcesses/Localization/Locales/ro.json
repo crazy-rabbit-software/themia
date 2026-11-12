@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows nu a vrut să listeze procesele",
   "details.catalog.processes.label": "Procese de top",
   "details.settings.processes.group.label": "Grupează pe aplicații",
-  "details.settings.processes.rows.fit": "Câte încap",
-  "details.settings.processes.rows.label": "Rânduri",
   "details.settings.processes.sort.cpu": "Procesor",
   "details.settings.processes.sort.label": "Ordonează după",
   "details.settings.processes.sort.memory": "Memorie"

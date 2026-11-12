@@ -1,9 +1,5 @@
 {
-  "styles.cpu.coreGraphs": "കോർ ഗ്രാഫുകൾ",
-  "styles.cpu.cores": "എല്ലാ കോറുകളും",
   "styles.cpu.gauge": "ഗേജ്",
-  "styles.cpu.graph": "ഗ്രാഫ്",
-  "styles.cpu.grid": "കോർ ഗ്രിഡ്",
   "widgetsA.catalog.cpu.label": "CPU",
   "widgetsA.catalog.cpu.description": "എല്ലാ കോറുകളിലുമായുള്ള പ്രോസസർ ലോഡ്"
 }

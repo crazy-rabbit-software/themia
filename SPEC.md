@@ -19,7 +19,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
+- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
@@ -5759,6 +5759,61 @@ Tests `SystemDataHubTests` (`S25xx_`).
   list's own refresh (once a minute), so a full-charge capacity or a cycle count is never older than
   that. Windows has no event for the rate, so the rate a tile shows is at most five seconds old.
 
+## System atoms (SYS-ATOMS)
+
+Owner's decision 2026-11-12 (Widget sizing (SIZE), [S-2438]): the system readings are split into
+small widgets (atoms) that each show one part at a fixed content, composed side by side or in a group;
+the old big cards come back only as ready-made groups ([S-2470]). Shared code (one path, so atoms of
+one subject read the same source and agree to the digit): `MeterView` (the reading, history and items
+faces), `MeterPart.Atom`, `MeterLook`, `MeterSizing` and `MeterPlan` (the sizes and where the parts
+stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsConfig`/`FactsRules`
+(the pick), `AtomMenuLines`; configs `ReadingConfig`, `HistoryConfig`. Tests `SystemAtomsTests`
+(Core), each atom's module tests.
+
+- **[S-11000]** **A subject's atoms.** Each of CPU, memory, GPU, disk, network, ping and battery is
+  its **reading** (the kind id stays: `cpu`, `memory`, ...), its **history** (`cpuHistory`, ...), and
+  where it had details its **facts** (`cpuFacts`, ...); extra atoms: CPU cores, GPU engines, network
+  adapters. Every atom of a subject reads the subject's one series or feed from the hub ([S-2504]).
+  Inside its range an atom shows the same parts: no `Disclosure`, no tiers, nothing appearing with size.
+- **[S-11001]** **A reading** keeps its header (the subject's name; the device as its label) and draws
+  the number at the family's 28 with its unit (`FamilyType.Big28`): one height (36 + 36 + 12 = 84),
+  120..320 wide, a new one 160 (`MeterSizing.Reading`); two readings (network's both directions) stand
+  one over the other, 8 apart (128). Its other drawings are styles of the same atom, each its own
+  sizing.
+- **[S-11002]** **A history** starts headerless and draws the band alone, edge to edge, no number:
+  160..640 wide, 48..200 tall, a new one 160 × 64 (`MeterSizing.History`); a wider card is a longer
+  chart of its span, which is its one setting (`HistoryConfig.GraphSpanSeconds`, [S-1121], on its
+  menu's first level, `AtomMenuLines.Span`).
+- **[S-11003]** **A dial** (Gauge, Ring): as large as the content box takes (`MeterSizing.GaugeIn`,
+  `RingIn`), the reading at 28 in its bowl or hole; its least diameter holds the widest reading there
+  (24 either side of a gauge's bowl, 8 over its foot; three quarters of a ring's hole), up to 296.
+- **[S-11004]** **A picture under the reading** (the battery, the signal bars): 8 under the reading, its
+  height the room left (a battery's body 24..64, twice as wide, its cap 4; the bars' box 24..48), so a
+  taller card is a larger picture (`MeterSizing.BatteryIn`, `SignalIn`).
+- **[S-11005]** **Items** (the cores' bars, rings and graphs) start headerless and stand in the card's
+  12 inset on every side; they only grow with the card (`MeterSizing.Columns`, `Tiles`, `Graphs`). A
+  graph cell's figure stands over its history's top corner, so every cell draws both at every size.
+- **[S-11006]** **Rows of items** (the GPU's engines) keep the header: one 28 row per item at a fixed
+  count, 200..420 wide (`MeterSizing.ItemRows`).
+- **[S-11007]** **Facts** keep the header and show fact rows alone, no hero (the reading atom is the
+  hero): which of the kind's facts and in what order is the config's pick (`FactsConfig.Facts`, keys;
+  a new one the kind's first four). Its height is 36 + 28 a fact + 12, stepped by the count, 200..420
+  wide, a new one 240 (`FactsRules.Sizing`); dragging the bottom edge keeps the first facts or adds the
+  kind's next ones in its order (`FactsRules.SizeSets`). A picked fact this read has none of (Windows
+  does not report it here, or not yet) is its name over a dimmed "--", so the rows stay ([S-2403] keeps
+  leaving such a fact out of a sheet; the pick is what keeps its row). Its menu has one line, Facts: the
+  pick as the menu's list (dragged to reorder, Remove, the last one kept), then a line per fact not
+  shown, which adds it (`AtomMenuLines.Facts`). Unknown and repeated keys are repaired, none left is
+  the defaults.
+- **[S-11008]** **A list** (top processes, network adapters, removable drives, device batteries) keeps
+  the header and shows the config's rows (`IKitRows`), the rest scrolling inside them ([S-2440]).
+- **[S-11009]** **A header counted in the sizing never sheds**: a converted kind's flat header stays
+  on a card shorter than the legacy 96 floor ([S-402]), since its sizing counts it (`WidgetCard`).
+- **[S-11090]** **The groups of the old cards** (`ReadyMadeGroups`, home: the subject's family): each
+  old card is a group of its atoms, touching, the first with the header, the others headerless, about
+  as wide as the old card and tighter: **CPU** (`cpu` 160 × 84 over `cpuHistory` 160 × 64), **CPU cores**
+  (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over `cpuFacts` 240 × 136).
+
 ## System details (SYS-DETAILS)
 
 The details the original's meters showed, back as their own placeable widgets; the meters themselves
@@ -5850,7 +5905,7 @@ strings in `Locales/widgets-details`.
   menu of their own unless their part gives one (`DetailPart.RowMenu`); without one a right-click is
   the card's menu, as before.
 - **[S-2411]** `SortBy`: processor (default) or memory; ties by the other figure, then name.
-- **[S-2412]** `MaxRows`: 0 (default) lists every process the list can scroll to, 1–50 a ceiling.
+- **[S-2412]** `Rows`: how many rows the list shows (1..20, five for a new one, [S-11008]); every process is in the list, the rest scroll inside them. The old `MaxRows` ceiling and its "Fit" are gone.
 - **[S-2413]** `GroupByName` (on): every process of one image name is one row, figures added, the count
   after the name ("brave (26)").
 - **[S-2414]** A share is processor time over wall time over the logical processors (the CPU meter's

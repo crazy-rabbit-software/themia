@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows ಪ್ರಕ್ರಿಯೆಗಳ ಪಟ್ಟಿ ನೀಡಲಿಲ್ಲ",
   "details.catalog.processes.label": "ಪ್ರಮುಖ ಪ್ರಕ್ರಿಯೆಗಳು",
   "details.settings.processes.group.label": "ಆ್ಯಪ್ ಪ್ರಕಾರ ಗುಂಪು ಮಾಡು",
-  "details.settings.processes.rows.fit": "ಹಿಡಿಸುವಷ್ಟು",
-  "details.settings.processes.rows.label": "ಸಾಲುಗಳು",
   "details.settings.processes.sort.cpu": "ಪ್ರೊಸೆಸರ್",
   "details.settings.processes.sort.label": "ಶ್ರೇಣಿಯ ಆಧಾರ",
   "details.settings.processes.sort.memory": "ಮೆಮೊರಿ"

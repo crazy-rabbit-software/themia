@@ -4,29 +4,34 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
-using Themia.Widget.CpuDetails;
+using Themia.Widget.CpuFacts;
 
 namespace Themia.App.Widgets.Details;
 
 /// <summary>
-/// [S-2405] The processor's speed, cores, processes and uptime; the header names the processor. The
+/// [S-2405] [S-11012] The processor's facts (speed, cores, processes, uptime, ...) as the config picks them; the header names the processor. The
 /// load is the CPU meter's own feed and the counts the memory details' one:
 /// the hub reads both before the processor on a tick ([S-2501]), so the sheet is one tick's figures and
 /// the CPU baseline is never moved by a second reader.
 /// </summary>
-internal sealed class CpuDetailPart : DetailPart
+internal sealed class CpuFactsPart : DetailPart
 {
     /// <inheritdoc />
-    public override CardOpen? Opens(WidgetConfig config) => CpuDetailsModule.Opens;
+    public override CardOpen? Opens(WidgetConfig config) => CpuFactsModule.Opens;
 
     private readonly WatchSlot<MeterReading> _load = new();
     private readonly WatchSlot<PerformanceSnapshot> _counts = new();
     private readonly WatchSlot<CpuFigures> _processor = new();
     private IDetailHost? _host;
 
-    public override WidgetId Kind => new WidgetId("cpuDetails");
+    public override WidgetId Kind => new WidgetId("cpuFacts");
 
-    public override string HeroWorst => CpuDetailRules.HeroWorst;
+    public override bool HasHero => false;
+
+    /// <summary>[S-11012] Fact rows alone, as the config picks them.</summary>
+    public override DetailAtom? Atom => DetailAtom.Facts;
+
+    public override IReadOnlyList<FactOption> FactOptions => CpuDetailRules.Facts;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

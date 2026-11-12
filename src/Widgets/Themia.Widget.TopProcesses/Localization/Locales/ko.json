@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows에서 프로세스 목록을 제공하지 않았습니다",
   "details.catalog.processes.label": "상위 프로세스",
   "details.settings.processes.group.label": "앱별로 그룹화",
-  "details.settings.processes.rows.fit": "들어가는 만큼",
-  "details.settings.processes.rows.label": "행",
   "details.settings.processes.sort.cpu": "프로세서",
   "details.settings.processes.sort.label": "정렬 기준",
   "details.settings.processes.sort.memory": "메모리"

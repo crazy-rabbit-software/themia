@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows gaf de processen niet weer",
   "details.catalog.processes.label": "Topprocessen",
   "details.settings.processes.group.label": "Groeperen per app",
-  "details.settings.processes.rows.fit": "Zoveel als er passen",
-  "details.settings.processes.rows.label": "Rijen",
   "details.settings.processes.sort.cpu": "Processor",
   "details.settings.processes.sort.label": "Rangschikken op",
   "details.settings.processes.sort.memory": "Geheugen"

@@ -14,7 +14,13 @@
     "groups.recipe.weather",
     "groups.recipe.weatherAbout",
     "groups.recipe.myFiles",
-    "groups.recipe.myFilesAbout"
+    "groups.recipe.myFilesAbout",
+    "groups.recipe.cpu",
+    "groups.recipe.cpuAbout",
+    "groups.recipe.cpuCores",
+    "groups.recipe.cpuCoresAbout",
+    "groups.recipe.cpuDetails",
+    "groups.recipe.cpuDetailsAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -33,5 +39,11 @@
   "groups.recipe.weather": "Weather",
   "groups.recipe.weatherAbout": "Now, the days ahead and rain in the next hour",
   "groups.recipe.myFiles": "My files",
-  "groups.recipe.myFilesAbout": "Your documents, your shortcuts and the files you opened last"
+  "groups.recipe.myFilesAbout": "Your documents, your shortcuts and the files you opened last",
+  "groups.recipe.cpu": "CPU",
+  "groups.recipe.cpuAbout": "The processor's load over its history",
+  "groups.recipe.cpuCores": "CPU cores",
+  "groups.recipe.cpuCoresAbout": "The processor's load over each core's",
+  "groups.recipe.cpuDetails": "CPU details",
+  "groups.recipe.cpuDetailsAbout": "The processor's load over its speed, cores and more"
 }

@@ -1,5 +1,7 @@
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.TopProcesses;
 
 namespace Themia.App.Shell.Config;
@@ -12,14 +14,12 @@ internal static class TopProcessesMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-
         menu.Lines.Add(menu.Choice(Glyphs.Sort, TopProcessesStr.Details_Settings_Processes_Sort_Label.Text(),
             [(ProcessSort.Cpu, TopProcessesStr.Details_Settings_Processes_Sort_Cpu.Text()), (ProcessSort.Memory, TopProcessesStr.Details_Settings_Processes_Sort_Memory.Text())],
             config.SortBy, value => config.SortBy = value));
 
-        (int Value, string Text)[] counts = [(0, TopProcessesStr.Details_Settings_Processes_Rows_Fit.Text()), (3, "3"), (5, "5"), (10, "10"), (20, "20"), (TopProcessesConfig.MaxRowsLimit, "50")];
-        var current = counts.Any(c => c.Value == config.MaxRows) ? config.MaxRows : 0;
-        menu.Lines.Add(menu.Choice(Glyphs.ListLayout, TopProcessesStr.Details_Settings_Processes_Rows_Label.Text(), counts, current, value => config.MaxRows = value));
+        // [S-2412] How many rows, as every list states them ([S-2440]); a row always has its two lines.
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: false));
 
         menu.Lines.Add(menu.Toggle(Glyphs.Group, TopProcessesStr.Details_Settings_Processes_Group_Label.Text(), config.GroupByName, on => config.GroupByName = on));
     }

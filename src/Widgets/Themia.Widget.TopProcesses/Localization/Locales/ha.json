@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows ba ta lissafa tsare-tsaren ba",
   "details.catalog.processes.label": "Manyan tsare-tsare",
   "details.settings.processes.group.label": "Tara ta manhaja",
-  "details.settings.processes.rows.fit": "Gwargwadon yadda suka dace",
-  "details.settings.processes.rows.label": "Layuka",
   "details.settings.processes.sort.cpu": "Na'ura mai sarrafawa",
   "details.settings.processes.sort.label": "Jera ta",
   "details.settings.processes.sort.memory": "Ƙwaƙwalwa"

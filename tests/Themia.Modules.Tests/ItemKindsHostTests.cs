@@ -80,9 +80,10 @@ public sealed class ItemKindsHostTests
     [InlineData("clock", "analog", false)]
     [InlineData("clock", "word", false)]
     [InlineData("clock", "flip", true)]
-    [InlineData("cpu", "graph", false)]
-    [InlineData("cpu", "cores", true)]
-    [InlineData("cpu", "coreGraphs", true)]
+    [InlineData("cpu", "number", false)]
+    [InlineData("cpu", "gauge", true)]
+    [InlineData("cpuCores", "bars", true)]
+    [InlineData("cpuCores", "graphs", true)]
     [InlineData("memory", "graph", false)]
     [InlineData("memory", "gauge", true)]
     [InlineData("disk", "graph", false)]
@@ -139,8 +140,8 @@ public sealed class ItemKindsHostTests
     [Fact]
     public void S6574_items_that_are_only_tracks_take_a_background_but_no_text_colour()
     {
-        var (state, view, selection) = Selected(new WidgetId("cpu"));
-        WidgetStyles.Set(view.Widgets[0].Config, WidgetStyles.Find(new WidgetId("cpu"), "cores")!.Value.Value);
+        var (state, view, selection) = Selected(new WidgetId("cpuCores"));
+        WidgetStyles.Set(view.Widgets[0].Config, WidgetStyles.Find(new WidgetId("cpuCores"), "bars")!.Value.Value);
 
         var offer = QuickSet.For(state, selection, view.Id);
         Assert.True(offer.HasItems);
@@ -152,8 +153,8 @@ public sealed class ItemKindsHostTests
     [Fact]
     public void S6574_a_mixed_selection_offers_the_text_colour_for_the_widgets_whose_items_carry_text()
     {
-        var (state, view, selection) = Selected(new WidgetId("cpu"), new WidgetId("tasks"));
-        WidgetStyles.Set(view.Widgets[0].Config, WidgetStyles.Find(new WidgetId("cpu"), "cores")!.Value.Value);
+        var (state, view, selection) = Selected(new WidgetId("cpuCores"), new WidgetId("tasks"));
+        WidgetStyles.Set(view.Widgets[0].Config, WidgetStyles.Find(new WidgetId("cpuCores"), "bars")!.Value.Value);
         view.Widgets[1].ItemTextColor = "#123456";
 
         var offer = QuickSet.For(state, selection, view.Id);

@@ -71,7 +71,6 @@ public class SettingRulesTests
     }
 
     [Theory]
-    [InlineData("cpu")]
     [InlineData("memory")]
     [InlineData("gpu")]
     [InlineData("disk")]
@@ -89,7 +88,7 @@ public class SettingRulesTests
             Assert.Equal(style.Value, WidgetStyles.Current(gauge));
 
             // The graph, and the CPU's core graphs ([S-6317]): a history per core.
-            var history = style.Value == 0 || (kind == new WidgetId("cpu") && style.Value == (int)CpuStyle.CoreGraphs);
+            var history = style.Value == 0;
             Assert.Equal(history ? [MeterSetting.Span] : (MeterSetting[])[], gauge.ShownSettings);
         }
     }
@@ -97,7 +96,6 @@ public class SettingRulesTests
     [Fact]
     public void S6074_the_first_style_of_every_meter_is_its_graph()
     {
-        Assert.Equal(0, (int)CpuStyle.Graph);
         Assert.Equal(0, (int)MemoryStyle.Graph);
         Assert.Equal(0, (int)GpuStyle.Graph);
         Assert.Equal(0, (int)DiskStyle.Graph);

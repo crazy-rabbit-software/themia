@@ -1,4 +1,5 @@
 using Themia.App.Shell.Config;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
 using Xunit;
@@ -18,19 +19,17 @@ public sealed class TopProcessesMenuTests
     }
 
     [Fact]
-    public void S9700_the_first_level_is_appearance_sort_rows_then_grouping()
+    public void S9700_the_first_level_is_sort_rows_then_grouping_and_a_row_has_no_lines_choice()
     {
         var menu = Build(new TopProcessesConfig());
 
         Assert.Equal(
             [
                 TopProcessesStr.Details_Settings_Processes_Sort_Label.Text(),
-                TopProcessesStr.Details_Settings_Processes_Rows_Label.Text(),
+                Str.Kit_Rows.Text(),
                 TopProcessesStr.Details_Settings_Processes_Group_Label.Text(),
             ],
             menu.Lines.Select(l => l.Text));
-        Assert.Equal([TopProcessesStr.Details_Settings_Processes_Rows_Fit.Text(), "3", "5", "10", "20", "50"], menu.Lines[1].Children!.Select(c => c.Text));
-        Assert.True(menu.Lines[1].Children![0].Checked);
         Assert.True(menu.Lines[2].Checked);
     }
 
@@ -42,18 +41,11 @@ public sealed class TopProcessesMenuTests
         Build(config).Lines[0].Children![1].Action!();
         Assert.Equal(ProcessSort.Memory, config.SortBy);
 
-        Build(config).Lines[1].Children![3].Action!();
-        Assert.Equal(10, config.MaxRows);
-
         Build(config).Lines[2].Action!();
         Assert.False(config.GroupByName);
-        Assert.Equal(3, _saves);
+        Assert.Equal(2, _saves);
 
         Build(config).Lines[0].Children![1].Action!();
-        Assert.Equal(3, _saves);
+        Assert.Equal(2, _saves);
     }
-
-    [Fact]
-    public void S9700_a_row_count_not_offered_holds_fit()
-        => Assert.True(Build(new TopProcessesConfig { MaxRows = 7 }).Lines[1].Children![0].Checked);
 }

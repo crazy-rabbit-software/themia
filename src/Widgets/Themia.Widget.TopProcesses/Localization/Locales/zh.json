@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows 未列出进程",
   "details.catalog.processes.label": "主要进程",
   "details.settings.processes.group.label": "按应用分组",
-  "details.settings.processes.rows.fit": "尽可能多",
-  "details.settings.processes.rows.label": "行数",
   "details.settings.processes.sort.cpu": "处理器",
   "details.settings.processes.sort.label": "排序依据",
   "details.settings.processes.sort.memory": "内存"

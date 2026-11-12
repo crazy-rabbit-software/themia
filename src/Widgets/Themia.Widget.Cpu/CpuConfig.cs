@@ -8,45 +8,27 @@ using Themia.Widget.Cpu;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-6311] The processor meter's looks: the same load, five ways ([S-6000]).</summary>
+/// <summary>[S-6311] The processor reading's drawings: the number, or the number in a gauge ([S-6000]).</summary>
 [JsonConverter(typeof(StyleJsonConverter<CpuStyle>))]
 public enum CpuStyle
 {
-    /// <summary>[S-1762] The reading over its history.</summary>
-    Graph = 0,
+    /// <summary>[S-1140] The load alone, at 28.</summary>
+    Number = 0,
 
-    /// <summary>[S-6312] The reading over one bar per logical processor.</summary>
-    Cores = 1,
-
-    /// <summary>[S-6313] The reading over a tile per logical processor, shaded by its load.</summary>
-    Grid = 2,
-
-    /// <summary>[S-6314] The reading inside a half-circle gauge.</summary>
-    Gauge = 3,
-
-    /// <summary>[S-6317] The reading over a tile per logical processor, each its own history and load.</summary>
-    CoreGraphs = 4,
+    /// <summary>[S-6314] The load inside a half-circle gauge.</summary>
+    Gauge = 1,
 }
 
-/// <summary>[S-1140] Processor load: the reading and its history, nothing else ([S-1762]).</summary>
-public sealed class CpuConfig : GaugeConfig, IStyled, IReadsSystem
+/// <summary>[S-1140] Processor load: the reading alone. Its history is the CPU history atom's, its cores the CPU cores atom's.</summary>
+public sealed class CpuConfig : ReadingConfig, IStyled, IReadsSystem
 {
-    /// <summary>A minute of history, as Task Manager shows.</summary>
-    public CpuConfig()
-        : base(graphSpanSeconds: 60)
-    {
-    }
-
-    /// <summary>[S-6311] The meter's look.</summary>
-    public CpuStyle Style { get; set; } = CpuStyle.Graph;
+    /// <summary>[S-6311] The reading's drawing.</summary>
+    public CpuStyle Style { get; set; } = CpuStyle.Number;
 
     private static readonly StyleOption[] CpuStyles =
     [
-        StyleOption.Of(CpuStyle.Graph, CpuStr.Styles_Cpu_Graph.Local(), 0xE9D2),
-        StyleOption.Of(CpuStyle.Cores, CpuStr.Styles_Cpu_Cores.Local(), 0xE9E9),
-        StyleOption.Of(CpuStyle.Grid, CpuStr.Styles_Cpu_Grid.Local(), 0xF0E2),
+        StyleOption.Of(CpuStyle.Number, CpuStr.Styles_Cpu_Number.Local(), 0xE8EF),
         StyleOption.Of(CpuStyle.Gauge, CpuStr.Styles_Cpu_Gauge.Local(), 0xEC4A),
-        StyleOption.Of(CpuStyle.CoreGraphs, CpuStr.Styles_Cpu_CoreGraphs.Local(), 0xF246),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => CpuStyles;
@@ -57,29 +39,8 @@ public sealed class CpuConfig : GaugeConfig, IStyled, IReadsSystem
         set => Style = (CpuStyle)value;
     }
 
-    /// <summary>[S-6310] Whether this look draws each logical processor, so the hub reads them.</summary>
-    [JsonIgnore]
-    public bool ShowsCores => Style is CpuStyle.Cores or CpuStyle.Grid or CpuStyle.CoreGraphs;
+    /// <summary>[S-2513] The load, the one series the CPU history and the CPU cores read too.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(SystemSource.Cpu);
 
-    /// <summary>[S-6318] Whether this look draws each processor's history, so the hub keeps one per core.</summary>
-    [JsonIgnore]
-    public bool ChartsCores => Style == CpuStyle.CoreGraphs;
-
-    /// <summary>[S-6317] The graph and the core graphs draw a history: both offer its span.</summary>
-    protected override bool StyleChartsHistory => Style is CpuStyle.Graph or CpuStyle.CoreGraphs;
-
-    /// <summary>[S-2513] The load and its history; [S-6310] the core styles read each processor too, beside the total and its history; [S-6318] the core graphs keep each processor's history for their span.</summary>
-    public SystemInterests SystemWants(string systemRoot) => ShowsCores
-        ? new SystemInterests([FeedKey.Create(SystemSource.Cpu), FeedKey.Create(SystemSource.CpuCores)], [new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty)])
-        {
-            CoreHistorySeconds = ChartsCores ? Math.Max(1, GraphSpanSeconds) : 0,
-        }
-        : SystemInterests.Chart(SystemSource.Cpu);
-
-    public override WidgetConfig Clone()
-    {
-        var copy = new CpuConfig { Style = Style };
-        CopyTo(copy);
-        return copy;
-    }
+    public override WidgetConfig Clone() => new CpuConfig { Style = Style };
 }

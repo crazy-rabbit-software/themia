@@ -8,6 +8,8 @@
     <Project Path="src/Themia.Sdk.WinUI/Themia.Sdk.WinUI.csproj" />
   </Folder>
   <Folder Name="/src/Widgets/">
+    <Project Path="src/Widgets/Themia.Widget.CpuCores/Themia.Widget.CpuCores.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.CpuHistory/Themia.Widget.CpuHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DeviceBatteries/Themia.Widget.DeviceBatteries.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DesktopItem/Themia.Widget.DesktopItem.csproj" />
     <Project Path="src/Widgets/Themia.Widget.AirQuality/Themia.Widget.AirQuality.csproj" />
@@ -26,7 +28,7 @@
     <Project Path="src/Widgets/Themia.Widget.Contacts/Themia.Widget.Contacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Countdown/Themia.Widget.Countdown.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Cpu/Themia.Widget.Cpu.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.CpuDetails/Themia.Widget.CpuDetails.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.CpuFacts/Themia.Widget.CpuFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Disk/Themia.Widget.Disk.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DoNotDisturbToggle/Themia.Widget.DoNotDisturbToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Drive/Themia.Widget.Drive.csproj" />

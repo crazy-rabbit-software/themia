@@ -1,0 +1,11 @@
+{
+  "$englishOnly": [
+    "cpuCores.label",
+    "cpuCores.desc"
+  ],
+  "cpuCores.label": "CPU cores",
+  "cpuCores.desc": "Each logical processor's load",
+  "styles.cpu.cores": "All cores",
+  "styles.cpu.grid": "Core grid",
+  "styles.cpu.coreGraphs": "Core graphs"
+}

@@ -32,7 +32,7 @@ public sealed class MeterMenuHostTests
 
     [Fact]
     public void S1122_the_build_has_meters()
-        => Assert.Contains(HostCatalog.ModuleWidgets, d => d.Id.Value == "cpu" && d.CreateDefault() is GaugeConfig);
+        => Assert.Contains(HostCatalog.ModuleWidgets, d => d.Id.Value == "memory" && d.CreateDefault() is GaugeConfig);
 
     [Theory]
     [MemberData(nameof(Meters))]
@@ -53,15 +53,13 @@ public sealed class MeterMenuHostTests
     [Fact]
     public void S1122_a_look_without_a_history_offers_no_span()
     {
-        Assert.Empty(Build(new CpuConfig { Style = CpuStyle.Grid }).StyleLines);
         Assert.Empty(Build(new MemoryConfig { Style = MemoryStyle.Gauge }).StyleLines);
-        Assert.Single(Build(new CpuConfig { Style = CpuStyle.CoreGraphs }).StyleLines);
     }
 
     [Fact]
     public void S1122_a_span_picked_is_stored_once_and_the_current_one_stores_nothing()
     {
-        var cpu = new CpuConfig { GraphSpanSeconds = 60 };
+        var cpu = new MemoryConfig { GraphSpanSeconds = 60 };
         var span = Assert.Single(Build(cpu).StyleLines);
 
         span.Children!.Single(c => c.Checked == true).Action!();

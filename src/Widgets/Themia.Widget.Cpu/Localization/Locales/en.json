@@ -1,10 +1,9 @@
 {
-  "$englishOnly": [],
-  "styles.cpu.coreGraphs": "Core graphs",
-  "styles.cpu.cores": "All cores",
+  "$englishOnly": [
+    "styles.cpu.number"
+  ],
   "styles.cpu.gauge": "Gauge",
-  "styles.cpu.graph": "Graph",
-  "styles.cpu.grid": "Core grid",
   "widgetsA.catalog.cpu.label": "CPU",
-  "widgetsA.catalog.cpu.description": "Processor load across all cores"
+  "widgetsA.catalog.cpu.description": "Processor load across all cores",
+  "styles.cpu.number": "Number"
 }

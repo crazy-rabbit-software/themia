@@ -255,11 +255,11 @@ public sealed class CpuSensorMemoryTests
     public void S2434_the_fact_says_package_or_thermal_zone_by_its_source()
     {
         string Label(CpuTemperatureSource source)
-            => Assert.Single(CpuDetailRules.Sheet(Locale.En, new CpuFigures(Mhz: 3000, Temperature: new CpuTemperature(55, source))).Facts).Label;
+            => Assert.Single(CpuDetailRules.Sheet(Locale.En, new CpuFigures(Mhz: 3000, Temperature: new CpuTemperature(55, source))).Facts, f => f.Key == "temperature").Label;
 
         Assert.Equal("CPU package", Label(CpuTemperatureSource.CoreTemp));
         Assert.Equal("CPU package", Label(CpuTemperatureSource.HwInfo));
         Assert.Equal("Thermal zone", Label(CpuTemperatureSource.ThermalZone));
-        Assert.Equal("CPU-Package", Assert.Single(CpuDetailRules.Sheet(Locale.De, new CpuFigures(Mhz: 3000, Temperature: new CpuTemperature(55, CpuTemperatureSource.HwInfo))).Facts).Label);
+        Assert.Equal("CPU-Package", Assert.Single(CpuDetailRules.Sheet(Locale.De, new CpuFigures(Mhz: 3000, Temperature: new CpuTemperature(55, CpuTemperatureSource.HwInfo))).Facts, f => f.Key == "temperature").Label);
     }
 }

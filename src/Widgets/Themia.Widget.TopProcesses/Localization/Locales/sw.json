@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows haikuorodhesha michakato",
   "details.catalog.processes.label": "Michakato mikuu",
   "details.settings.processes.group.label": "Panga kwa programu",
-  "details.settings.processes.rows.fit": "Nyingi kadiri zinavyotosha",
-  "details.settings.processes.rows.label": "Safu mlalo",
   "details.settings.processes.sort.cpu": "Prosesa",
   "details.settings.processes.sort.label": "Panga kwa",
   "details.settings.processes.sort.memory": "Kumbukumbu"

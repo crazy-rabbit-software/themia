@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows ሂደቶቹን አልዘረዘረም",
   "details.catalog.processes.label": "ዋና ሂደቶች",
   "details.settings.processes.group.label": "በመተግበሪያ ቧድን",
-  "details.settings.processes.rows.fit": "የሚገጥሙትን ያህል",
-  "details.settings.processes.rows.label": "ረድፎች",
   "details.settings.processes.sort.cpu": "ፕሮሰሰር",
   "details.settings.processes.sort.label": "ደረጃ በ",
   "details.settings.processes.sort.memory": "ማህደረ ትውስታ"

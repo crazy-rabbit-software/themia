@@ -3,8 +3,6 @@
   "details.processes.unavailable": "Windows kò ṣe àtòjọ àwọn prósẹ́ẹ̀sì",
   "details.catalog.processes.label": "Àwọn prósẹ́ẹ̀sì tó ga jù",
   "details.settings.processes.group.label": "Kó jọ nípa áàpù",
-  "details.settings.processes.rows.fit": "Iye tó bá gbà",
-  "details.settings.processes.rows.label": "Àwọn ìlà",
   "details.settings.processes.sort.cpu": "Ẹ̀rọ ìṣiṣẹ́",
   "details.settings.processes.sort.label": "Tò ní ìbámu pẹ̀lú",
   "details.settings.processes.sort.memory": "Ìrántí"
