@@ -101,7 +101,8 @@ internal static partial class EditBarRender
             return lines is not null ? Stand(lines, Ask, Confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, Ask, Confirm, openSetting: _ => { }) : null;
         }
 
-        page = new PageView(() => SelectionRows.Of(offer, commands, Lines()));
+        var kinds = view.Widgets.Where(w => selected.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
+        page = new PageView(() => SelectionRows.Of(offer, commands, Lines(), kinds));
         UiLanguage.ApplyFlow(page);
         return page;
     }

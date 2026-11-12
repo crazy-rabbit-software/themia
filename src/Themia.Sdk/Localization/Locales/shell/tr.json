@@ -140,8 +140,6 @@
   "shell.setup.button": "Ayarla",
   "shell.setup.hint": "Bu pencere öğesinin ihtiyacını ayarla",
   "shell.toolbar.addWidget": "Pencere öğesi ekle",
-  "shell.toolbar.snap": "Yasla",
-  "shell.toolbar.snapTip": "Taşırken ve boyutlandırırken pencere öğelerini ızgaraya yasla",
   "shell.toolbar.snapName": "Izgaraya yasla",
   "shell.editBar.selected": {
     "one": "{count} seçili",

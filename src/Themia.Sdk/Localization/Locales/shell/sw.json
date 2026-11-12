@@ -140,8 +140,6 @@
   "shell.setup.button": "Weka",
   "shell.setup.hint": "Weka kile ambacho wijeti hii inahitaji",
   "shell.toolbar.addWidget": "Ongeza wijeti",
-  "shell.toolbar.snap": "Shikamanisha",
-  "shell.toolbar.snapTip": "Shikamanisha wijeti na gridi unapozihamisha na kubadilisha ukubwa",
   "shell.toolbar.snapName": "Shikamana na gridi",
   "shell.editBar.selected": {
     "one": "{count} imechaguliwa",

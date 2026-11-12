@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "Bijwerken",
-  "editBar.widget": "Widget",
   "editBar.display.view": "Weergave op dit beeldscherm",
-  "editBar.view.manage": "Weergaven beheren",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "Weergaven beheren"
 }

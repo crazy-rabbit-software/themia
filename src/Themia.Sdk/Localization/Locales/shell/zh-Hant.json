@@ -137,8 +137,6 @@
   "shell.setup.button": "設定",
   "shell.setup.hint": "設定此小工具所需的項目",
   "shell.toolbar.addWidget": "新增小工具",
-  "shell.toolbar.snap": "對齊",
-  "shell.toolbar.snapTip": "移動和調整大小時將小工具對齊格線",
   "shell.toolbar.snapName": "對齊格線",
   "shell.editBar.selected": {
     "other": "已選取 {count} 個"

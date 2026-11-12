@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "editBar.link.updateInterval": "Interval aktualizace",
-  "editBar.widget": "Widget",
   "editBar.display.view": "Pohled na tomto displeji",
-  "editBar.view.manage": "Spravovat pohledy",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "Spravovat pohledy"
 }

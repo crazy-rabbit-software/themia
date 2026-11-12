@@ -147,8 +147,6 @@
   "shell.setup.place": "Choose a place",
   "shell.setup.account": "Add an account to show this",
   "shell.toolbar.addWidget": "Add widget",
-  "shell.toolbar.snap": "Snap",
-  "shell.toolbar.snapTip": "Snap widgets to the grid while moving and resizing",
   "shell.toolbar.snapName": "Snap to grid",
   "shell.editBar.selected": {
     "one": "{count} selected",

@@ -140,8 +140,6 @@
   "shell.setup.button": "አዘጋጅ",
   "shell.setup.hint": "ይህ ዊጀት የሚያስፈልገውን ያዘጋጁ",
   "shell.toolbar.addWidget": "ዊጀት አክል",
-  "shell.toolbar.snap": "አጣብቅ",
-  "shell.toolbar.snapTip": "በማንቀሳቀስና መጠን በመቀየር ጊዜ ዊጀቶችን ከፍርግርጉ ጋር አጣብቅ",
   "shell.toolbar.snapName": "ከፍርግርግ ጋር አጣብቅ",
   "shell.editBar.selected": {
     "one": "{count} ተመርጧል",

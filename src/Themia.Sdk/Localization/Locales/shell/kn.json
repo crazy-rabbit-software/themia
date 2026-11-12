@@ -140,8 +140,6 @@
   "shell.setup.button": "ಹೊಂದಿಸು",
   "shell.setup.hint": "ಈ ವಿಜೆಟ್‌ಗೆ ಬೇಕಾದುದನ್ನು ಹೊಂದಿಸು",
   "shell.toolbar.addWidget": "ವಿಜೆಟ್ ಸೇರಿಸು",
-  "shell.toolbar.snap": "ಸ್ನ್ಯಾಪ್",
-  "shell.toolbar.snapTip": "ಸರಿಸುವಾಗ ಮತ್ತು ಗಾತ್ರ ಬದಲಾಯಿಸುವಾಗ ವಿಜೆಟ್‌ಗಳನ್ನು ಗ್ರಿಡ್‌ಗೆ ಹೊಂದಿಸು",
   "shell.toolbar.snapName": "ಗ್ರಿಡ್‌ಗೆ ಹೊಂದಿಸು",
   "shell.editBar.selected": {
     "one": "{count} ಆಯ್ಕೆಯಾಗಿದೆ",

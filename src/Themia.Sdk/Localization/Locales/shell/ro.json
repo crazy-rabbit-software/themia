@@ -143,8 +143,6 @@
   "shell.setup.button": "Configurează",
   "shell.setup.hint": "Configurează ce are nevoie acest widget",
   "shell.toolbar.addWidget": "Adaugă widget",
-  "shell.toolbar.snap": "Aliniere",
-  "shell.toolbar.snapTip": "Aliniază widgeturile la grilă când le muți și le redimensionezi",
   "shell.toolbar.snapName": "Aliniază la grilă",
   "shell.editBar.selected": {
     "one": "{count} selectat",

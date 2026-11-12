@@ -152,8 +152,6 @@
   "shell.setup.button": "إعداد",
   "shell.setup.hint": "إعداد ما تحتاجه هذه الأداة",
   "shell.toolbar.addWidget": "إضافة أداة",
-  "shell.toolbar.snap": "محاذاة",
-  "shell.toolbar.snapTip": "محاذاة الأدوات إلى الشبكة أثناء النقل وتغيير الحجم",
   "shell.toolbar.snapName": "المحاذاة إلى الشبكة",
   "shell.editBar.selected": {
     "zero": "{count} محدد",

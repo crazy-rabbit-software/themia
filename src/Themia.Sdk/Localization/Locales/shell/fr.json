@@ -140,8 +140,6 @@
   "shell.setup.button": "Configurer",
   "shell.setup.hint": "Configurer ce dont ce widget a besoin",
   "shell.toolbar.addWidget": "Ajouter un widget",
-  "shell.toolbar.snap": "Aligner",
-  "shell.toolbar.snapTip": "Aligner les widgets sur la grille pendant le déplacement et le redimensionnement",
   "shell.toolbar.snapName": "Aligner sur la grille",
   "shell.editBar.selected": {
     "one": "{count} sélectionné",

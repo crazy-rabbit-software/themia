@@ -140,8 +140,6 @@
   "shell.setup.button": "Saita",
   "shell.setup.hint": "Saita abin da wannan widget ke bukata",
   "shell.toolbar.addWidget": "Ƙara widget",
-  "shell.toolbar.snap": "Manne",
-  "shell.toolbar.snapTip": "Manne widget a grid yayin motsawa da sake girma",
   "shell.toolbar.snapName": "Manne wa grid",
   "shell.editBar.selected": {
     "one": "An zaɓi {count}",

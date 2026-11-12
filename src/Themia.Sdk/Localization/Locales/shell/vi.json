@@ -137,8 +137,6 @@
   "shell.setup.button": "Thiết lập",
   "shell.setup.hint": "Thiết lập những gì tiện ích này cần",
   "shell.toolbar.addWidget": "Thêm tiện ích",
-  "shell.toolbar.snap": "Bám",
-  "shell.toolbar.snapTip": "Cho tiện ích bám theo lưới khi di chuyển và đổi kích thước",
   "shell.toolbar.snapName": "Bám theo lưới",
   "shell.editBar.selected": {
     "other": "Đã chọn {count}"

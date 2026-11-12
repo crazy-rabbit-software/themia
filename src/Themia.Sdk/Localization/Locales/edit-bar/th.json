@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "ช่วงเวลาอัปเดต",
-  "editBar.widget": "วิดเจ็ต",
   "editBar.display.view": "มุมมองบนจอแสดงผลนี้",
-  "editBar.view.manage": "จัดการมุมมอง",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "จัดการมุมมอง"
 }

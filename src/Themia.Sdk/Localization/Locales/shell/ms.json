@@ -137,8 +137,6 @@
   "shell.setup.button": "Sediakan",
   "shell.setup.hint": "Sediakan apa yang diperlukan widget ini",
   "shell.toolbar.addWidget": "Tambah widget",
-  "shell.toolbar.snap": "Jajar",
-  "shell.toolbar.snapTip": "Jajarkan widget pada grid semasa mengalih dan mengubah saiz",
   "shell.toolbar.snapName": "Jajarkan pada grid",
   "shell.editBar.selected": {
     "other": "{count} dipilih"

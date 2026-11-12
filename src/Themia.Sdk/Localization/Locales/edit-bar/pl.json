@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "Aktualizacja",
-  "editBar.widget": "Widżet",
   "editBar.display.view": "Widok na tym ekranie",
-  "editBar.view.manage": "Zarządzaj widokami",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "Zarządzaj widokami"
 }

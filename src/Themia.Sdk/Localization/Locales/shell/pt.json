@@ -140,8 +140,6 @@
   "shell.setup.button": "Configurar",
   "shell.setup.hint": "Configurar o que este widget precisa",
   "shell.toolbar.addWidget": "Adicionar widget",
-  "shell.toolbar.snap": "Ajustar",
-  "shell.toolbar.snapTip": "Ajustar os widgets à grade ao mover e redimensionar",
   "shell.toolbar.snapName": "Ajustar à grade",
   "shell.editBar.selected": {
     "one": "{count} selecionado",

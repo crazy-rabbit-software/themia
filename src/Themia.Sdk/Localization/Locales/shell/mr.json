@@ -140,8 +140,6 @@
   "shell.setup.button": "सेट अप करा",
   "shell.setup.hint": "या विजेटला जे हवे ते सेट करा",
   "shell.toolbar.addWidget": "विजेट जोडा",
-  "shell.toolbar.snap": "स्नॅप",
-  "shell.toolbar.snapTip": "हलवताना आणि आकार बदलताना विजेट ग्रिडला स्नॅप करा",
   "shell.toolbar.snapName": "ग्रिडला स्नॅप करा",
   "shell.editBar.selected": {
     "one": "{count} निवडले",

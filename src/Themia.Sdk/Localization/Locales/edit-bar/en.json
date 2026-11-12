@@ -7,10 +7,8 @@
     "editBar.page.found"
   ],
   "editBar.link.updateInterval": "Update interval",
-  "editBar.widget": "Widget",
   "editBar.display.view": "View on this display",
   "editBar.view.manage": "Manage views",
-  "editBar.crumbName": "{kind}: {name}",
   "editBar.selection.same": "{count} × {kind}",
   "editBar.page.shows": "What it shows",
   "editBar.page.errors": "Problems",

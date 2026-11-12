@@ -140,8 +140,6 @@
   "shell.setup.button": "ਸੈੱਟ ਅੱਪ ਕਰੋ",
   "shell.setup.hint": "ਇਸ ਵਿਜੇਟ ਨੂੰ ਜੋ ਚਾਹੀਦਾ ਹੈ ਉਹ ਸੈੱਟ ਕਰੋ",
   "shell.toolbar.addWidget": "ਵਿਜੇਟ ਜੋੜੋ",
-  "shell.toolbar.snap": "ਜੋੜੋ",
-  "shell.toolbar.snapTip": "ਹਿਲਾਉਂਦੇ ਅਤੇ ਆਕਾਰ ਬਦਲਦੇ ਸਮੇਂ ਵਿਜੇਟਾਂ ਨੂੰ ਗਰਿੱਡ ਨਾਲ ਜੋੜੋ",
   "shell.toolbar.snapName": "ਗਰਿੱਡ ਨਾਲ ਜੋੜੋ",
   "shell.editBar.selected": {
     "one": "{count} ਚੁਣਿਆ",

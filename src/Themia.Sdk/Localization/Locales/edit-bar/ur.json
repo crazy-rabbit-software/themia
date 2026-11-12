@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "اپ ڈیٹ کا وقفہ",
-  "editBar.widget": "ویجیٹ",
   "editBar.display.view": "اس ڈسپلے پر منظر",
-  "editBar.view.manage": "مناظر کا نظم کریں",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "مناظر کا نظم کریں"
 }

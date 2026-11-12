@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "editBar.link.updateInterval": "Selang kemas kini",
-  "editBar.widget": "Widget",
   "editBar.display.view": "Paparan pada skrin ini",
-  "editBar.view.manage": "Urus paparan",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "Urus paparan"
 }

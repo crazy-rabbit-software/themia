@@ -140,8 +140,6 @@
   "shell.setup.button": "سیٹ اپ کریں",
   "shell.setup.hint": "اس ویجیٹ کو جو چاہیے وہ سیٹ اپ کریں",
   "shell.toolbar.addWidget": "ویجیٹ شامل کریں",
-  "shell.toolbar.snap": "سنیپ",
-  "shell.toolbar.snapTip": "منتقل کرتے اور سائز بدلتے وقت ویجیٹس کو گرڈ پر سنیپ کریں",
   "shell.toolbar.snapName": "گرڈ پر سنیپ کریں",
   "shell.editBar.selected": {
     "one": "{count} منتخب",

@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "Διάστημα ενημέρωσης",
-  "editBar.widget": "Γραφικό στοιχείο",
   "editBar.display.view": "Προβολή σε αυτή την οθόνη",
-  "editBar.view.manage": "Διαχείριση προβολών",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "Διαχείριση προβολών"
 }

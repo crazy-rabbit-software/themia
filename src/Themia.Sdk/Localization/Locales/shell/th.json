@@ -137,8 +137,6 @@
   "shell.setup.button": "ตั้งค่า",
   "shell.setup.hint": "ตั้งค่าสิ่งที่วิดเจ็ตนี้ต้องใช้",
   "shell.toolbar.addWidget": "เพิ่มวิดเจ็ต",
-  "shell.toolbar.snap": "จัดชิด",
-  "shell.toolbar.snapTip": "จัดชิดวิดเจ็ตกับเส้นตารางขณะย้ายและปรับขนาด",
   "shell.toolbar.snapName": "จัดชิดเส้นตาราง",
   "shell.editBar.selected": {
     "other": "เลือก {count} รายการ"

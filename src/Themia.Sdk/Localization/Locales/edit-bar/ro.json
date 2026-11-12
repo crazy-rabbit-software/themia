@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "Interval de actualizare",
-  "editBar.widget": "Widget",
   "editBar.display.view": "Vizualizarea de pe acest afișaj",
-  "editBar.view.manage": "Gestionează vizualizările",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "Gestionează vizualizările"
 }

@@ -62,8 +62,8 @@ internal static class SelectionRows
     /// <summary>What a mixed selection's value reads: a dash, as Explorer's properties show differing values.</summary>
     private const string Mixed = "—";
 
-    /// <summary>[S-2340] The page for <paramref name="offer"/>; <paramref name="widget"/> the one widget's own lines.</summary>
-    public static PageModel Of(QuickSetOffer offer, SelectionCommands commands, WidgetMenuLines? widget)
+    /// <summary>[S-2340] The page for <paramref name="offer"/>; <paramref name="widget"/> the one widget's own lines, <paramref name="kinds"/> the kinds selected.</summary>
+    public static PageModel Of(QuickSetOffer offer, SelectionCommands commands, WidgetMenuLines? widget, IReadOnlyList<WidgetId> kinds)
     {
         ArgumentNullException.ThrowIfNull(offer);
         ArgumentNullException.ThrowIfNull(commands);
@@ -81,19 +81,20 @@ internal static class SelectionRows
             sections.Add(new PageSection(section.ToString().ToLowerInvariant(), SelectionPage.Heading(section), rows));
         }
 
-        return new PageModel("selection", sections) { Header = HeaderCard(offer, commands) };
+        return new PageModel("selection", sections) { Header = HeaderCard(offer, commands, kinds) };
     }
 
     /// <summary>[S-2340] The header card: the kind, the name, Cut / Copy / Remove (their words with their keys).</summary>
-    private static PageHeader HeaderCard(QuickSetOffer offer, SelectionCommands commands)
+    private static PageHeader HeaderCard(QuickSetOffer offer, SelectionCommands commands, IReadOnlyList<WidgetId> kinds)
     {
         var kind = offer.TitleKind ?? offer.CommonKind;
         var glyph = kind is { } k ? ModuleCatalog.Of(k).Glyph : Glyphs.Apps;
         var kindName = kind is { } named ? ModuleCatalog.Of(named).Name : null;
         var name = offer is { HasTitle: true } && !string.IsNullOrWhiteSpace(offer.Label) ? offer.Label! : kindName ?? Str.Shell_Views_WidgetCount.Plural(offer.Count);
-        // Under a title of its own the kind; under the kind's name what the kind is; under several, how many of what.
+        // Under a title of its own the kind; under the kind's name what the kind is; under several of one kind how many,
+        // under several kinds which.
         var caption = offer.Count != 1
-            ? SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) ?? string.Empty
+            ? offer.CommonKind is not null ? SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) ?? string.Empty : string.Join(", ", kinds.Select(k => ModuleCatalog.Of(k).Name))
             : name != kindName ? kindName ?? string.Empty : kind is { } described ? ModuleCatalog.Of(described).Describe() : string.Empty;
 
         string Verb(Str one, Str many) => offer.Count > 1 ? many.Plural(offer.Count) : one.Text();

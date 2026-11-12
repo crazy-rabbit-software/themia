@@ -146,8 +146,6 @@
   "shell.setup.button": "Skonfiguruj",
   "shell.setup.hint": "Skonfiguruj to, czego potrzebuje ten widżet",
   "shell.toolbar.addWidget": "Dodaj widżet",
-  "shell.toolbar.snap": "Przyciąganie",
-  "shell.toolbar.snapTip": "Przyciągaj widżety do siatki podczas przenoszenia i zmiany rozmiaru",
   "shell.toolbar.snapName": "Przyciągaj do siatki",
   "shell.editBar.selected": {
     "one": "Zaznaczono {count}",

@@ -137,8 +137,6 @@
   "shell.setup.button": "Siapkan",
   "shell.setup.hint": "Siapkan yang dibutuhkan widget ini",
   "shell.toolbar.addWidget": "Tambah widget",
-  "shell.toolbar.snap": "Jepret",
-  "shell.toolbar.snapTip": "Jepret widget ke kisi saat memindahkan dan mengubah ukuran",
   "shell.toolbar.snapName": "Jepret ke kisi",
   "shell.editBar.selected": {
     "other": "{count} dipilih"

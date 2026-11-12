@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "അപ്ഡേറ്റ് ഇടവേള",
-  "editBar.widget": "വിജറ്റ്",
   "editBar.display.view": "ഈ ഡിസ്‌പ്ലേയിലെ കാഴ്ച",
-  "editBar.view.manage": "കാഴ്ചകൾ നിയന്ത്രിക്കുക",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "കാഴ്ചകൾ നിയന്ത്രിക്കുക"
 }

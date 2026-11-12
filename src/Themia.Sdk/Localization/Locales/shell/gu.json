@@ -140,8 +140,6 @@
   "shell.setup.button": "સેટ અપ કરો",
   "shell.setup.hint": "આ વિજેટને જે જોઈએ તે સેટ કરો",
   "shell.toolbar.addWidget": "વિજેટ ઉમેરો",
-  "shell.toolbar.snap": "સ્નેપ",
-  "shell.toolbar.snapTip": "ખસેડતી અને કદ બદલતી વખતે વિજેટને ગ્રિડ પર સ્નેપ કરો",
   "shell.toolbar.snapName": "ગ્રિડ પર સ્નેપ કરો",
   "shell.editBar.selected": {
     "one": "{count} પસંદ કરેલ",

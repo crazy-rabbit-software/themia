@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "فاصلهٔ به‌روزرسانی",
-  "editBar.widget": "ابزارک",
   "editBar.display.view": "نما در این نمایشگر",
-  "editBar.view.manage": "مدیریت نماها",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "مدیریت نماها"
 }

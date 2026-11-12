@@ -146,8 +146,6 @@
   "shell.setup.button": "Настроить",
   "shell.setup.hint": "Настроить то, что нужно этому виджету",
   "shell.toolbar.addWidget": "Добавить виджет",
-  "shell.toolbar.snap": "Привязка",
-  "shell.toolbar.snapTip": "Привязывать виджеты к сетке при перемещении и изменении размера",
   "shell.toolbar.snapName": "Привязка к сетке",
   "shell.editBar.selected": {
     "one": "Выбрано: {count}",

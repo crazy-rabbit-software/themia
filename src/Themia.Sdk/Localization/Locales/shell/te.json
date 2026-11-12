@@ -140,8 +140,6 @@
   "shell.setup.button": "సెటప్ చేయి",
   "shell.setup.hint": "ఈ విడ్జెట్‌కు కావలసినది సెటప్ చేయి",
   "shell.toolbar.addWidget": "విడ్జెట్ జోడించు",
-  "shell.toolbar.snap": "అతికించు",
-  "shell.toolbar.snapTip": "తరలించేటప్పుడు మరియు పరిమాణం మార్చేటప్పుడు విడ్జెట్‌లను గ్రిడ్‌కు అతికించు",
   "shell.toolbar.snapName": "గ్రిడ్‌కు అతికించు",
   "shell.editBar.selected": {
     "one": "{count} ఎంచుకోబడింది",

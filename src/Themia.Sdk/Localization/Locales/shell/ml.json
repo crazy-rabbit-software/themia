@@ -140,8 +140,6 @@
   "shell.setup.button": "സജ്ജമാക്കുക",
   "shell.setup.hint": "ഈ വിജറ്റിന് ആവശ്യമുള്ളത് സജ്ജമാക്കുക",
   "shell.toolbar.addWidget": "വിജറ്റ് ചേർക്കുക",
-  "shell.toolbar.snap": "സ്നാപ്പ്",
-  "shell.toolbar.snapTip": "നീക്കുമ്പോഴും വലുപ്പം മാറ്റുമ്പോഴും വിജറ്റുകൾ ഗ്രിഡിലേക്ക് ചേർക്കുക",
   "shell.toolbar.snapName": "ഗ്രിഡിലേക്ക് ചേർക്കുക",
   "shell.editBar.selected": {
     "one": "{count} തിരഞ്ഞെടുത്തു",

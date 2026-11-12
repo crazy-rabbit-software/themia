@@ -140,8 +140,6 @@
   "shell.setup.button": "সেট আপ",
   "shell.setup.hint": "এই উইজেটের যা প্রয়োজন তা সেট আপ করুন",
   "shell.toolbar.addWidget": "উইজেট যোগ করুন",
-  "shell.toolbar.snap": "স্ন্যাপ",
-  "shell.toolbar.snapTip": "সরানো ও আকার বদলের সময় উইজেট গ্রিডে স্ন্যাপ করুন",
   "shell.toolbar.snapName": "গ্রিডে স্ন্যাপ",
   "shell.editBar.selected": {
     "one": "{count}টি নির্বাচিত",

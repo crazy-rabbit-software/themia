@@ -146,8 +146,6 @@
   "shell.setup.button": "Налаштувати",
   "shell.setup.hint": "Налаштуй те, що потрібно цьому віджету",
   "shell.toolbar.addWidget": "Додати віджет",
-  "shell.toolbar.snap": "Прив’язка",
-  "shell.toolbar.snapTip": "Прив’язувати віджети до сітки під час переміщення й зміни розміру",
   "shell.toolbar.snapName": "Прив’язка до сітки",
   "shell.editBar.selected": {
     "one": "Вибрано {count}",

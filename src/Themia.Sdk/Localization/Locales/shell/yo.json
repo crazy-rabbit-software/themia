@@ -137,8 +137,6 @@
   "shell.setup.button": "Ṣètò",
   "shell.setup.hint": "Ṣètò ohun tí wíjẹ́ẹ̀tì yìí nílò",
   "shell.toolbar.addWidget": "Ṣàfikún wíjẹ́ẹ̀tì",
-  "shell.toolbar.snap": "Tò mọ́",
-  "shell.toolbar.snapTip": "Tò àwọn wíjẹ́ẹ̀tì mọ́ àwọ̀n ìlà nígbà tí o bá ń gbé wọn tàbí yí ìwọ̀n wọn padà",
   "shell.toolbar.snapName": "Tò mọ́ àwọ̀n ìlà",
   "shell.editBar.selected": {
     "other": "a yan {count}"

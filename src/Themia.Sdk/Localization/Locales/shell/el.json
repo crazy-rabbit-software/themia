@@ -140,8 +140,6 @@
   "shell.setup.button": "Ρύθμιση",
   "shell.setup.hint": "Ρύθμισε ό,τι χρειάζεται αυτό το γραφικό στοιχείο",
   "shell.toolbar.addWidget": "Προσθήκη γραφικού στοιχείου",
-  "shell.toolbar.snap": "Κούμπωμα",
-  "shell.toolbar.snapTip": "Κούμπωμα των γραφικών στοιχείων στο πλέγμα κατά τη μετακίνηση και την αλλαγή μεγέθους",
   "shell.toolbar.snapName": "Κούμπωμα στο πλέγμα",
   "shell.editBar.selected": {
     "one": "{count} επιλεγμένο",

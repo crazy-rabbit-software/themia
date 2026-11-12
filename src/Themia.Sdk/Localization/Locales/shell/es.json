@@ -140,8 +140,6 @@
   "shell.setup.button": "Configurar",
   "shell.setup.hint": "Configurar lo que necesita este widget",
   "shell.toolbar.addWidget": "Agregar widget",
-  "shell.toolbar.snap": "Ajustar",
-  "shell.toolbar.snapTip": "Ajustar los widgets a la cuadrícula al moverlos y cambiar su tamaño",
   "shell.toolbar.snapName": "Ajustar a la cuadrícula",
   "shell.editBar.selected": {
     "one": "{count} seleccionado",

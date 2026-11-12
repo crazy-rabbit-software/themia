@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "અપડેટ અંતરાલ",
-  "editBar.widget": "વિજેટ",
   "editBar.display.view": "આ ડિસ્પ્લે પરનો વ્યૂ",
-  "editBar.view.manage": "વ્યૂ મેનેજ કરો",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "વ્યૂ મેનેજ કરો"
 }

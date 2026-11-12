@@ -140,8 +140,6 @@
   "shell.setup.button": "راه‌اندازی",
   "shell.setup.hint": "تنظیم آنچه این ویجت نیاز دارد",
   "shell.toolbar.addWidget": "افزودن ویجت",
-  "shell.toolbar.snap": "چسبیدن",
-  "shell.toolbar.snapTip": "چسبیدن ویجت‌ها به شبکه هنگام جابه‌جایی و تغییر اندازه",
   "shell.toolbar.snapName": "چسبیدن به شبکه",
   "shell.editBar.selected": {
     "one": "{count} انتخاب‌شده",

@@ -140,8 +140,6 @@
   "shell.setup.button": "அமை",
   "shell.setup.hint": "இந்த விட்ஜெட்டுக்குத் தேவையானதை அமை",
   "shell.toolbar.addWidget": "விட்ஜெட்டைச் சேர்",
-  "shell.toolbar.snap": "ஒட்டு",
-  "shell.toolbar.snapTip": "நகர்த்தும்போதும் அளவை மாற்றும்போதும் விட்ஜெட்களைக் கட்டத்துடன் ஒட்டு",
   "shell.toolbar.snapName": "கட்டத்துடன் ஒட்டு",
   "shell.editBar.selected": {
     "one": "{count} தேர்ந்தெடுக்கப்பட்டது",

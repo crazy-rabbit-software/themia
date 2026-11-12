@@ -143,8 +143,6 @@
   "shell.setup.button": "Nastavit",
   "shell.setup.hint": "Nastav, co tento widget potřebuje",
   "shell.toolbar.addWidget": "Přidat widget",
-  "shell.toolbar.snap": "Přichytit",
-  "shell.toolbar.snapTip": "Přichytávat widgety k mřížce při přesouvání a změně velikosti",
   "shell.toolbar.snapName": "Přichytit k mřížce",
   "shell.editBar.selected": {
     "one": "{count} vybraný",

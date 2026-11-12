@@ -81,7 +81,9 @@ internal sealed partial class DesktopWindow
             }
         }
 
-        return SelectionRows.Of(_selectionOffer, commands, _widgetLines);
+        var selection = _host.Selection;
+        var kinds = ViewForThisMonitor(_host.State).Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
+        return SelectionRows.Of(_selectionOffer, commands, _widgetLines, kinds);
     }
 
     /// <summary>[S-3731] The selected cards here show a value not yet kept (a fill's opacity); null shows what they hold again.</summary>

@@ -140,8 +140,6 @@
   "shell.setup.button": "Instellen",
   "shell.setup.hint": "Instellen wat deze widget nodig heeft",
   "shell.toolbar.addWidget": "Widget toevoegen",
-  "shell.toolbar.snap": "Uitlijnen",
-  "shell.toolbar.snapTip": "Widgets uitlijnen op het raster tijdens verplaatsen en formaat wijzigen",
   "shell.toolbar.snapName": "Uitlijnen op raster",
   "shell.editBar.selected": {
     "one": "{count} geselecteerd",

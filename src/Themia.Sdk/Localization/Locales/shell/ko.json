@@ -137,8 +137,6 @@
   "shell.setup.button": "설정",
   "shell.setup.hint": "이 위젯에 필요한 항목 설정",
   "shell.toolbar.addWidget": "위젯 추가",
-  "shell.toolbar.snap": "맞추기",
-  "shell.toolbar.snapTip": "이동하고 크기를 조정할 때 위젯을 그리드에 맞춥니다",
   "shell.toolbar.snapName": "그리드에 맞추기",
   "shell.editBar.selected": {
     "other": "{count}개 선택됨"

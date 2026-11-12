@@ -1,7 +1,5 @@
 {
   "editBar.link.updateInterval": "Kusasisha",
-  "editBar.widget": "Wijeti",
   "editBar.display.view": "Mwonekano kwenye skrini hii",
-  "editBar.view.manage": "Dhibiti mionekano",
-  "editBar.crumbName": "{kind}: {name}"
+  "editBar.view.manage": "Dhibiti mionekano"
 }

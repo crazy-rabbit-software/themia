@@ -137,8 +137,6 @@
   "shell.setup.button": "セットアップ",
   "shell.setup.hint": "このウィジェットに必要なものを設定",
   "shell.toolbar.addWidget": "ウィジェットを追加",
-  "shell.toolbar.snap": "スナップ",
-  "shell.toolbar.snapTip": "移動やサイズ変更のときにウィジェットをグリッドに合わせる",
   "shell.toolbar.snapName": "グリッドにスナップ",
   "shell.editBar.selected": {
     "other": "{count} 個を選択中"

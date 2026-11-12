@@ -140,8 +140,6 @@
   "shell.setup.button": "I-set up",
   "shell.setup.hint": "I-set up ang kailangan ng widget na ito",
   "shell.toolbar.addWidget": "Magdagdag ng widget",
-  "shell.toolbar.snap": "I-snap",
-  "shell.toolbar.snapTip": "I-snap ang mga widget sa grid habang inililipat at binabago ang laki",
   "shell.toolbar.snapName": "I-snap sa grid",
   "shell.editBar.selected": {
     "one": "{count} napili",

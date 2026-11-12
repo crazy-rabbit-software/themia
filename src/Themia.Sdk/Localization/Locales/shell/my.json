@@ -137,8 +137,6 @@
   "shell.setup.button": "ပြင်ဆင်ရန်",
   "shell.setup.hint": "ဤဝစ်ဂျက် လိုအပ်သည်ကို ပြင်ဆင်ပါ",
   "shell.toolbar.addWidget": "ဝစ်ဂျက် ထည့်ရန်",
-  "shell.toolbar.snap": "ကပ်ရန်",
-  "shell.toolbar.snapTip": "ရွှေ့နေစဉ်နှင့် အရွယ်ပြောင်းနေစဉ် ဝစ်ဂျက်များကို grid တွင် ကပ်ရန်",
   "shell.toolbar.snapName": "Grid တွင် ကပ်ရန်",
   "shell.editBar.selected": {
     "other": "{count} ခု ရွေးထားသည်"
