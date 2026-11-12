@@ -8466,7 +8466,7 @@ tells one story, so any set of them agrees with itself. The facts live once, in 
   Morgan and Sam Okafor, the client Bea Lindqvist and Liam O'Brien of Northwind, and friends Lena
   Fischer, Mia Chen and Jonas Weber write the mail, organise the meetings, fill the address book and
   send the notifications.
-- **[S-2054]** One schedule: `SampleSchedule` (Work on a Microsoft account, Home on a Google one) over
+- **[S-2054]** One schedule: `SampleSchedule` (Work on a Microsoft account, Home on a CalDAV one: only what Themia offers, [S-3562]) over
   the `SampleCalendarData` seam the calendar, the week planner and the next meeting all read. Today:
   Standup 9:00, "Design review: new onboarding" 11:00 to 11:45 in Room 4.12 · Microsoft Teams,
   organised by Ana Silva (the next meeting, "in 18 min"), Lunch with Lena 12:30, 1:1 with Sam 14:00,

@@ -8,7 +8,7 @@ namespace Themia.Sdk.Samples;
 
 /// <summary>
 /// Debug renders only ([S-2054]): Robin's calendar around the sample day, two calendars (Work on a
-/// Microsoft account, Home on a Google one). Today is fixed: standup at nine, the design review at
+/// Microsoft account, Home on a CalDAV one: only what Themia offers, [S-3562]). Today is fixed: standup at nine, the design review at
 /// eleven (the next meeting, eighteen minutes after the sample moment), lunch with Lena, a 1:1 with
 /// Sam and the budget check-in with Northwind. Every other day of the four weeks around it follows its
 /// weekday (two or three events on a workday, one or two at the weekend), with a few trips of several
@@ -45,7 +45,7 @@ public static class SampleSchedule
     public static IReadOnlyDictionary<string, ProviderId> Providers { get; } = new Dictionary<string, ProviderId>(StringComparer.Ordinal)
     {
         [WorkAccount] = HostProviders.Microsoft,
-        [HomeAccount] = HostProviders.Google,
+        [HomeAccount] = HostProviders.CalDav,
     };
 
     public static IReadOnlyDictionary<string, string> Labels { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
