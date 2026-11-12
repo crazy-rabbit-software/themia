@@ -9,7 +9,7 @@ public sealed class WidgetSizingTests
     private static WidgetSizing Meter => WidgetSizing.Range(new(160, 112), new(220, 144), new(480, 200));
 
     [Fact]
-    public void S2440_a_size_is_held_to_min_and_max_on_each_axis()
+    public void S2438_a_size_is_held_to_min_and_max_on_each_axis()
     {
         Assert.Equal(new SizeDip(160, 200), Meter.Fit(new(100, 900)));
         Assert.Equal(new SizeDip(300, 150), Meter.Fit(new(300, 150)));

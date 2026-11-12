@@ -6,7 +6,15 @@
     "kit.allSignInAgain",
     "kit.forbidden",
     "kit.retryAt",
-    "kit.grantPage"
+    "kit.grantPage",
+    "kit.rows",
+    "kit.lines",
+    "kit.linesOne",
+    "kit.linesTwo",
+    "kit.size",
+    "kit.sizeSmall",
+    "kit.sizeMedium",
+    "kit.sizeLarge"
   ],
   "kit.ownerProblem": "{name}: {reason}",
   "kit.refreshUpdated": "Refresh · updated {age}",
@@ -16,5 +24,13 @@
   "kit.forbidden": "These accounts did not allow this widget to read this.",
   "kit.retryAt": "{state} · asking again at {time}",
   "kit.grantPage": "Choose what it may read",
-  "kit.problemSeveral": "{name} and {count} more could not be loaded"
+  "kit.problemSeveral": "{name} and {count} more could not be loaded",
+  "kit.rows": "Rows",
+  "kit.lines": "Lines per row",
+  "kit.linesOne": "One",
+  "kit.linesTwo": "Two",
+  "kit.size": "Size",
+  "kit.sizeSmall": "Small",
+  "kit.sizeMedium": "Medium",
+  "kit.sizeLarge": "Large"
 }

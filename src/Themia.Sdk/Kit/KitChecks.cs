@@ -40,6 +40,18 @@ public static class KitChecks
         var on = choices.Shows & spec.Optional;
         bool Has(KitShow field) => (on & field) == field;
 
+        // [S-2440] A list that states its rows shows the same at every size: its lines, one column, the
+        // add row where it can add, the due in its short words, the done group under its heading.
+        if (choices.Rows is { } sized)
+        {
+            var rowLines = choices.OneLine ? 1 : KitSizing.ClampLines(sized.Lines);
+            return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), RowHeight: FamilyShape.RowHeight(rowLines))
+            {
+                AddRow = choices.CanAdd,
+                Headings = true,
+            };
+        }
+
         var measured = area.IsMeasured;
         var lines = measured ? RowRules.Lines(area, Has(KitShow.Subtitle) && !choices.OneLine ? 2 : 1) : 1;
         var row = FamilyShape.RowHeight(lines);

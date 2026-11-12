@@ -1,6 +1,8 @@
 using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
+using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 
 namespace Themia.Sdk.WinUI.Kit;
 
@@ -104,6 +106,47 @@ public static class KitMenuLines
     {
         ArgumentNullException.ThrowIfNull(menu);
         return menu.Number(glyph, label, value, min, max, step, v => LocaleFormat.Integer(v), set);
+    }
+
+    /// <summary>
+    /// [S-2440] A list that states its rows ([S-2440]): how many rows it shows (1 to 20; dragging its
+    /// bottom edge sets the same) and, where its rows can have a second line, how many lines each has.
+    /// </summary>
+    public static IEnumerable<ItemMenuEntry> Rows(WidgetMenuLines menu, IKitRows config, bool offersLines = true)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+
+        yield return Count(menu, null, Str.Kit_Rows.Text(), KitSizing.ClampRows(config.Rows), KitSizing.MinRows, KitSizing.MaxRows, 1, v => config.Rows = v);
+        if (offersLines)
+        {
+            yield return menu.Choice(
+                null,
+                Str.Kit_Lines.Text(),
+                [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())],
+                KitSizing.ClampLines(config.Lines),
+                v => config.Lines = v);
+        }
+    }
+
+    /// <summary>
+    /// [S-2449] A one-readout widget's Size: Small, Medium or Large (the family's 40, 68, 96); its card
+    /// follows the size, never the other way round.
+    /// </summary>
+    public static ItemMenuEntry ReadoutSize(WidgetMenuLines menu, IReadoutSized config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+        return menu.Choice(
+            null,
+            Str.Kit_Size.Text(),
+            [
+                (Themia.Core.Widgets.ReadoutSize.Small, Str.Kit_SizeSmall.Text()),
+                (Themia.Core.Widgets.ReadoutSize.Medium, Str.Kit_SizeMedium.Text()),
+                (Themia.Core.Widgets.ReadoutSize.Large, Str.Kit_SizeLarge.Text()),
+            ],
+            ReadoutSizes.Normalise(config.Size),
+            v => config.Size = v);
     }
 
     /// <summary>[S-7063] One switch per optional field the widget offers ([S-6070]: only fields the current style draws).</summary>

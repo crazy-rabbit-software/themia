@@ -75,6 +75,13 @@ public sealed record KitChoices(KitShow Shows, IReadOnlyList<KitColumn>? Columns
 
     /// <summary>[S-7037] One line per row at every tier (a compact style): the subtitle line left out.</summary>
     public bool OneLine { get; init; }
+
+    /// <summary>
+    /// [S-2440] A list that states its rows (<see cref="IKitRows"/>): its plan is the same at every size
+    /// in its range (its lines, one column, every field it has on), no tier decides it. Null: the
+    /// legacy ladder, rows fitted by height ([S-2443]).
+    /// </summary>
+    public KitRowsChoice? Rows { get; init; }
 }
 
 /// <summary>[S-7030] The optional fields of a kit row, which a spec offers and the user may turn off.</summary>
@@ -263,6 +270,11 @@ public static class KitLadder
         var on = choices.Shows & spec.Optional;
         bool Has(KitShow field) => (on & field) == field;
 
+        if (choices.Rows is { } sized && spec.Look != KitRowLook.Table)
+        {
+            return Sized(area, spec, sized, Has);
+        }
+
         var width = Math.Max(0, area.Width);
         var columns = Math.Min(Math.Max(1, spec.MaxColumns), width >= 720 ? 3 : width >= 400 ? 2 : 1);
         while (columns > 1 && width / columns < MinColumn)
@@ -292,6 +304,19 @@ public static class KitLadder
         var shown = preview && lines >= (subtitle ? 3 : 2);
 
         return new KitPlan(spec.Look, columns, column, lines, lead, subtitle, shown, when, badges && subtitle, RowHeight: FamilyShape.RowHeight(lines));
+    }
+
+    /// <summary>
+    /// [S-2440] A list that states its rows: one column, the lines it chose (a one-line look keeps one),
+    /// every field it has on whatever the width (text is cut with its ellipsis, never dropped), the
+    /// subtitle on the second line where it has two, the preview where the lines leave room.
+    /// </summary>
+    private static KitPlan Sized(WidgetArea area, KitSpec spec, KitRowsChoice rows, Func<KitShow, bool> has)
+    {
+        var lines = spec.Look == KitRowLook.Line ? 1 : KitSizing.ClampLines(rows.Lines);
+        var subtitle = (has(KitShow.Subtitle) || has(KitShow.Badges)) && lines >= 2;
+        var preview = has(KitShow.Preview) && lines >= (subtitle ? 3 : 2);
+        return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), lines, has(KitShow.Lead), subtitle, preview, has(KitShow.When), has(KitShow.Badges) && subtitle, RowHeight: FamilyShape.RowHeight(lines));
     }
 
     /// <summary>A row's width inside its side insets and past its lead: what its text has to share.</summary>

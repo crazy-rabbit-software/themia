@@ -113,7 +113,7 @@ public sealed record WidgetSizing
     }
 
     /// <summary>
-    /// [S-2440] <paramref name="wanted"/> fitted into the sizing: each axis held to Min..Max, a stepped
+    /// [S-2438] <paramref name="wanted"/> fitted into the sizing: each axis held to Min..Max, a stepped
     /// axis on its nearest step, an axis that follows the config at the config's step. A legacy sizing
     /// fits nothing: the old floor is the host's ([S-08]).
     /// </summary>

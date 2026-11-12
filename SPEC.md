@@ -1392,7 +1392,8 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7030]** `KitSpec`: a kit widget's shape (its row look, the optional fields it offers
   (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
   sentence); the user's own fields are bounded by it.
-- **[S-7031]** `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]) on the family's
+- **[S-7031]** *(Legacy until converted, [S-2443]: a kit list that states its rows plans by them,
+  [S-2440].)* `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]) on the family's
   rows ([S-6711], [S-6712]): every look is the Row block, one row of 28, 40 or 56 for one, two or
   three lines, never taller for a long title (one line, ending in an ellipsis). The lines grow with
   the tile both ways (`RowRules.Lines`: one while the view's area is compact either way, two from
@@ -3921,10 +3922,21 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
 - **[S-2438]** A kind states its sizes as a pure function of its config (`WidgetDescriptor.Sizing`,
   a `WidgetSizing`): `Min`, `Natural` and `Max` (`SizeDip`, a width and a height) in DIPs of the
   card's box, its header included, at widget scale 1 and with the kind's default header. An axis
-  whose Min equals its Max is fixed.
+  whose Min equals its Max is fixed. A size is fitted into the sizing axis by axis: held to Min..Max,
+  a stepped axis on its nearest step (`WidgetSizing.Fit`).
 - **[S-2439]** An axis may take only steps (`SizeSteps`: `Base + n × Step` for n in
   `MinCount..MaxCount`; a list's n rows). With `Count` set the axis follows the config: its size is
   the config's step, whatever is asked of it.
+- **[S-2440]** **A kit list that states its rows** (`IKitRows` on its config: `Rows`, 1..20, default 6;
+  `Lines` per row, 1 or 2): its height is the family's content top (36), its rows (28 or 40 each,
+  [S-6704]), the add footer (28) where it adds in place and the bottom inset (12), stepped by a row
+  and following the config's rows; its width 220..520, a new one 300 (`KitSizing`). Dragging its
+  bottom edge sets Rows ([S-2442], `KitSizing.SizeSets`); more items than rows scroll inside them (the
+  wheel as before). Its plan is the same at every size in its range (`KitChoices.Rows`: one column,
+  its lines, every field it has on, the text cut with its ellipsis; a check list's add row and done
+  heading always, its due in the short words). Its menu has Rows and, where its rows can have a second
+  line, Lines per row (`KitMenuLines.Rows`). A kit list without it keeps the ladder and the rows
+  fitted by height ([S-7031], [S-2443]). Tests `KitRowsTests`.
 - **[S-2441]** Every kind's sizing holds, for its defaults and every style: sizes positive and finite
   (a legacy Max unbounded), Min ≤ Natural ≤ Max on both axes, a stepped axis's Min, Natural and Max
   on its steps and its count in range (`WidgetSizing.Problems`, checked over the registry).
@@ -3962,6 +3974,13 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   resize of a kind whose size follows a count stores the config that size means with the rect, in
   one mutation and one undo step; while it is dragged the view already shows that config
   (`WidgetCard.LandResize`, `SizeFit.ConfigFor`; the keyboard's run of resizes lands the same way).
+- **[S-2449]** **A big number's size is a setting.** A one-readout widget (the clock, the timers, the
+  toggles) converted to the sizing states its readout's size in its config (`IReadoutSized.Size`,
+  `ReadoutSize` Small, Medium, Large: the family's 40, 68 and 96, `ReadoutSizes.Step`; a new one
+  Medium), set by one menu line, Size (`KitMenuLines.ReadoutSize`), and its sizing follows from the
+  widest text at that step (`HeroFit` widths, [S-6702]); the number never grows with the card. A data
+  widget's converted number is the family's 28 ([S-2220]; the 40 step stays for a kind that states
+  it): `ReadoutRules.Ceiling` by area is retired for converted kinds and kept for legacy ones.
 - **[S-2448]** **A converted kind is checked at its range**, not the seven tiers: its Min, its Natural
   and its Max (`SizeFit.RangeTiers`, named `min`, `natural`, `max`; `SizeFit.CheckedAt` picks the range
   or the tiers). `--widget-png <Kind>` draws a converted kind at its range by default and a legacy one
