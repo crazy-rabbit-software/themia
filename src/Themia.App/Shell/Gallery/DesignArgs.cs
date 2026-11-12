@@ -1,17 +1,13 @@
 #if DEBUG
-using System.Globalization;
 using Themia.Core.Model;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug renders only: <c>--design key=value,...</c> sets appearance values on the design a render
-/// draws its cards with, so a border, radius or fill can be looked at without ⚙ › Appearance.
-/// Keys: <c>border</c> (none|solid|dashed|dotted), <c>borderWidth</c>, <c>borderOpacity</c> (0..1 or
-/// a percentage such as 25%), <c>borderColor</c> (#RRGGBB), <c>radius</c>, <c>background</c>
-/// (default|transparent|#RRGGBB[@percent], [S-6569]), <c>opacity</c> (the background colour's),
-/// <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
-/// <c>itemOpacity</c> (the item background, on the same terms, [S-6510]), <c>itemText</c> (its text colour, [S-6547]), <c>preset</c> (applied first, so later keys refine it). An unknown key or a bad value is printed and skipped.
+/// draws its cards with, so a border, radius or fill can be looked at without ⚙ › Appearance. The
+/// text is read by <see cref="DesignText"/> (its keys are listed there); a pair it cannot read is
+/// printed and skipped.
 /// </summary>
 internal static class DesignArgs
 {
@@ -22,13 +18,9 @@ internal static class DesignArgs
         var at = Array.IndexOf(args, "--design");
         if (at >= 0 && at + 1 < args.Length)
         {
-            foreach (var pair in args[at + 1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            foreach (var pair in DesignText.Apply(design, args[at + 1]))
             {
-                var eq = pair.IndexOf('=');
-                if (eq <= 0 || !Set(design, pair[..eq].Trim(), pair[(eq + 1)..].Trim()))
-                {
-                    Console.WriteLine($"design: skipped '{pair}'");
-                }
+                Console.WriteLine($"design: skipped '{pair}'");
             }
         }
 
@@ -40,91 +32,5 @@ internal static class DesignArgs
 
         return design;
     }
-
-    /// <summary>
-    /// [S-6569] A fill choice from a render argument: <c>default</c>, <c>transparent</c> (or
-    /// <c>none</c>), or <c>#RRGGBB</c> with an optional <c>@percent</c> opacity (else
-    /// <paramref name="opacity"/>). Null for anything else.
-    /// </summary>
-    public static FillChoice? Fill(string? value, double opacity = 1)
-    {
-        var text = value?.Trim() ?? string.Empty;
-        switch (text.ToLowerInvariant())
-        {
-            case "default":
-                return FillChoice.Default();
-            case "transparent" or "none":
-                return FillChoice.Transparent();
-        }
-
-        var at = text.IndexOf('@');
-        if (at > 0 && Fraction(text[(at + 1)..]) is { } own)
-        {
-            opacity = own;
-            text = text[..at];
-        }
-
-        return Themia.Core.Widgets.HexColor.TryParse(text, out _, out _, out _) ? FillChoice.Of(text, opacity) : null;
-    }
-
-    private static bool Set(DesignState d, string key, string value)
-    {
-        switch (key.ToLowerInvariant())
-        {
-            case "preset" when Enum.TryParse<DesignPresetId>(value, true, out var id) && Enum.IsDefined(id):
-                DesignPresets.Apply(d, id);
-                return true;
-            case "border" when Enum.TryParse<WidgetBorderStyle>(value, true, out var style) && Enum.IsDefined(style):
-                d.BorderStyle = style;
-                return true;
-            case "borderwidth" when Number(value) is { } w:
-                d.BorderWidthPx = w;
-                return true;
-            case "borderopacity" when Fraction(value) is { } o:
-                d.BorderOpacity = o;
-                return true;
-            case "bordercolor" or "bordercolour":
-                d.BorderColor = value;
-                return true;
-            case "radius" when Number(value) is { } r:
-                d.CornerRadiusPx = r;
-                return true;
-            case "background" when Fill(value, d.Background.Opacity) is { } fill:
-                d.Background = fill;
-                return true;
-            case "opacity" when Fraction(value) is { } o:
-                d.Background.Opacity = o;
-                return true;
-            case "header":
-                d.HeaderBackgroundColor = value;
-                return true;
-            case "headeropacity" when Fraction(value) is { } o:
-                d.HeaderOpacity = o;
-                return true;
-            case "accent":
-                d.PrimaryColor = value;
-                return true;
-            case "font":
-                d.FontFamily = value;
-                return true;
-            case "items" or "itemcolor" or "itemcolour" when Fill(value, d.ItemBackground.Opacity) is { } fill:
-                d.ItemBackground = fill;
-                return true;
-            case "itemopacity" when Fraction(value) is { } o:
-                d.ItemBackground.Opacity = o;
-                return true;
-            case "itemtext" or "itemtextcolor" or "itemtextcolour":
-                d.ItemTextColor = value;
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private static double? Number(string value)
-        => double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var n) && double.IsFinite(n) ? n : null;
-
-    private static double? Fraction(string value)
-        => value.EndsWith('%') ? Number(value[..^1]) / 100 : Number(value);
 }
 #endif

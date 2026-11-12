@@ -101,7 +101,7 @@ internal static class WidgetRender
         var state = Option(args, "--state");
 
         // [S-6569] --background default|transparent|#RRGGBB[@percent]: the cards' own background.
-        _background = DesignArgs.Fill(Option(args, "--background")) ?? new FillChoice();
+        _background = DesignText.Fill(Option(args, "--background")) ?? new FillChoice();
 
         // [S-6535] --scale 0.75|1.5: the widget's own content scale, through the same path as on the desktop.
         _scale = Option(args, "--scale") is { } scaleText
@@ -123,7 +123,7 @@ internal static class WidgetRender
                 : null;
 
         // [S-6547] The widget's own item layer, over the app-wide one --design sets: the per-widget override.
-        _ownItems = DesignArgs.Fill(Option(args, "--own-items")) ?? new FillChoice();
+        _ownItems = DesignText.Fill(Option(args, "--own-items")) ?? new FillChoice();
         _ownItemText = HexColor.Normalise(Option(args, "--own-item-text"));
 
         // [S-6590] --background-image <path>: the cards' own background image, a picture file's full path.
