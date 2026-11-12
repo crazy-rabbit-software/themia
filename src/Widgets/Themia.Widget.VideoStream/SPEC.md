@@ -44,16 +44,20 @@ releases everything.
   on hover** and **Status chip** ([S-1312]); and a note: pause, rotate and reconnect are on the
   right-click menu, cameras that need a password are not supported.
   (Tests `VideoStreamMenuTests`.)
-- **[S-1312]** Video stream chrome ladder (`StreamChromeRules.Chrome`, `IWidgetSizeAware`). The
-  picture is the widget at every size; nothing else ever shows on XS, S or a Wide strip (height
-  under Regular). From M (Regular × Regular, so Tall too), with the pointer on the picture, a
-  bottom strip shows a state dot, the state and the frame's age ([S-1314] its look). From L (Expanded × Expanded) the
-  strip adds Pause/Resume, Rotate and Refresh (the same handlers as the context menu's) and
-  the camera's resolution and measured frame rate. At XL (Huge × Huge) a persistent top-left chip
-  shows the state and transport. Two switches ([S-473]): `HoverControls` (default **on**: invisible until
-  hovered, and never on the small sizes) gates every hover part; `ShowStatus` (default **off**,
-  because the original had no chrome) gates the chip. The view's own `SizeChanged` is gone: the
-  decode size, the message's shedding and the chrome all follow the card's area.
+- **[S-1312]** Video stream chrome (`StreamChromeRules.Chrome`), the same at every size
+  ([S-11208]): with the pointer on the picture, a bottom strip with a state dot, the state and the
+  frame's age ([S-1314] its look), Pause/Resume, Rotate and Refresh (the same handlers as the context
+  menu's) and the camera's resolution and measured frame rate; a persistent top-left chip with the
+  state and transport. Two switches ([S-473]) and nothing else decide them: `HoverControls` (default
+  **on**: invisible until hovered) gates every hover part; `ShowStatus` (default **off**, because the
+  original had no chrome) gates the chip. Only the decode size follows the card's area.
+- **[S-11208]** Converted to the sizing ([S-2438]), headerless by default: the picture keeps its
+  **Shape** (a menu line: 16:9, the default, 4:3, 1:1 or Free; a quarter turn of Rotation stands it
+  up): with a shape the width is 160 + n × 32 (the config's `Span`, a new one 320) up to 800 and never
+  past 600 high, the height following the width (`VideoStreamSizing`), so dragging the side sets the
+  span and the card keeps the stream's shape; Free keeps a free 160..800 × 120..600 (a new one
+  320 × 240). The stream's own frame size is not read for it (the sizing is the config's alone): the
+  user picks the shape that matches the camera. No tier shows or hides the strip, the controls or the chip.
 - **[S-1313]** What the chrome says (`StreamChromeRules`): "LIVE" for an open stream, "every 10 s"
   in interval mode, "connecting" before the first frame, "reconnecting n" after the n-th failure in
   a row (reset by a frame), "paused"; frame age "now" / "4 s ago" / "2 min ago" / "3 h ago";

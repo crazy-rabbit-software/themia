@@ -304,7 +304,9 @@
             "paused": true,
             "refreshSeconds": 10,
             "showStatus": true,
-            "hoverControls": false
+            "hoverControls": false,
+            "aspect": "Wide",
+            "span": 5
           }
         },
         {
@@ -334,7 +336,9 @@
             "paused": false,
             "refreshSeconds": 0,
             "showStatus": false,
-            "hoverControls": true
+            "hoverControls": true,
+            "aspect": "Wide",
+            "span": 5
           }
         }
       ]

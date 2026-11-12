@@ -972,7 +972,9 @@
             "paused": false,
             "refreshSeconds": 0,
             "showStatus": false,
-            "hoverControls": true
+            "hoverControls": true,
+            "aspect": "Wide",
+            "span": 5
           }
         },
         {

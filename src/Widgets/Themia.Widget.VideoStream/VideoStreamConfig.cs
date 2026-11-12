@@ -39,17 +39,26 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
     public int RefreshSeconds { get; set; }
 
     /// <summary>
-    /// [S-1312] A persistent status chip (LIVE, reconnecting, "every 10 s", the transport) at the
-    /// largest size. Off by default: the original was the picture and nothing else.
+    /// [S-1312] [S-11208] A persistent status chip (LIVE, reconnecting, "every 10 s", the transport) at
+    /// every size. Off by default: the original was the picture and nothing else.
     /// </summary>
     public bool ShowStatus { get; set; }
 
     /// <summary>
-    /// [S-1312] On pointer-over, a strip with the stream's state and age (from M) and Pause, Rotate
-    /// and Refresh with the resolution and frame rate (from L). On by default: it is invisible until
-    /// the pointer is on the picture, and never at the small sizes.
+    /// [S-1312] [S-11208] On pointer-over, a strip with the stream's state and age and Pause, Rotate
+    /// and Refresh with the resolution and frame rate, at every size. On by default: it is invisible
+    /// until the pointer is on the picture.
     /// </summary>
     public bool HoverControls { get; set; } = true;
+
+    /// <summary>[S-11208] The picture's shape the card keeps; Free keeps none.</summary>
+    public StreamAspect Aspect { get; set; } = StreamAspect.Wide;
+
+    /// <summary>[S-11208] With a shape, the card's width in steps of 32 from 160; the height follows.</summary>
+    public int Span { get; set; } = VideoStreamSizing.DefaultSpan;
+
+    [JsonIgnore]
+    public StreamAspect EffectiveAspect => Enum.IsDefined(Aspect) ? Aspect : StreamAspect.Wide;
 
     /// <summary>The checked address, or why it was refused. Read on every use, never cached.</summary>
     [JsonIgnore]
@@ -74,5 +83,7 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
         RefreshSeconds = RefreshSeconds,
         ShowStatus = ShowStatus,
         HoverControls = HoverControls,
+        Aspect = Aspect,
+        Span = Span,
     };
 }

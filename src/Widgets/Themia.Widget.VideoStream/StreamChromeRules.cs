@@ -6,8 +6,7 @@ using Themia.Widget.VideoStream;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-1312] What the camera shows besides the picture at one size. The picture is the widget, so
-/// every part is optional and none of it appears on the small tiles at all.
+/// [S-1312] [S-11208] What the camera shows besides the picture: what its two settings say, at every size.
 /// </summary>
 /// <param name="HoverStrip">On pointer-over: a bottom strip with the live dot and the frame's age.</param>
 /// <param name="HoverDetails">On pointer-over: Pause/Resume, Rotate and Refresh, the resolution and the frame rate.</param>
@@ -133,22 +132,11 @@ public static class StreamChromeRules
     public static ColourRole DotRole(bool live, bool paused) => live ? ColourRole.Accent : paused ? ColourRole.TextTertiary : ColourRole.Caution;
 
     /// <summary>
-    /// [S-1312] The ladder. Nothing on XS and S (or any strip under Regular height: a Wide strip is
-    /// all picture). M and Tall: the hover strip. L: plus controls and details. XL: plus the status
-    /// chip, when the user turned it on. Hover parts only when the user left hover controls on.
+    /// [S-1312] [S-11208] The hover strip with its controls and details while Hover controls is on, the
+    /// status chip while Show status is on; never by size.
     /// </summary>
-    public static StreamChrome Chrome(WidgetArea area, bool hoverControls, bool showStatus)
-    {
-        if (!area.IsMeasured)
-        {
-            return default;
-        }
-
-        var strip = hoverControls && area.AtLeast(SizeClass.Regular, SizeClass.Regular);
-        var details = strip && area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
-        var chip = showStatus && area.AtLeast(SizeClass.Huge, SizeClass.Huge);
-        return new StreamChrome(strip, details, chip);
-    }
+    public static StreamChrome Chrome(bool hoverControls, bool showStatus)
+        => new(hoverControls, hoverControls, showStatus);
 
     /// <summary>
     /// [S-1313] The status words: "LIVE" for an open stream, "every 10 s" for an interval grab,

@@ -33,6 +33,7 @@ public sealed class VideoStreamMenuTests
                 string.Empty,
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Label.Text(),
                 VideoStreamStr.VideoStream_RotationLabel.Text(),
+                VideoStreamStr.VideoStream_Aspect.Text(),
                 string.Empty,
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Hover_Label.Text(),
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Chip_Label.Text(),

@@ -1,7 +1,11 @@
 {
   "$englishOnly": [
+    "videoStream.aspect",
+    "videoStream.aspectFree",
     "videoStream.menu.live"
   ],
+  "videoStream.aspect": "Shape",
+  "videoStream.aspectFree": "Free",
   "videoStream.connecting": "Connecting…",
   "videoStream.fitStretch": "Stretch",
   "videoStream.menu.live": "Live",

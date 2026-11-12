@@ -151,7 +151,7 @@ internal sealed partial class VideoStreamView
 
     // ---- IWidgetSizeAware ------------------------------------------------------------------------
 
-    /// <summary>The card's slot: the decode size, the message's shedding and the chrome all follow it.</summary>
+    /// <summary>The card's slot: only the decode size follows it ([S-11208]).</summary>
     public void ApplySize(WidgetArea area)
     {
         _area = area;
@@ -216,7 +216,7 @@ internal sealed partial class VideoStreamView
             return;
         }
 
-        _chrome = StreamChromeRules.Chrome(_area, _config.HoverControls, _config.ShowStatus);
+        _chrome = StreamChromeRules.Chrome(_config.HoverControls, _config.ShowStatus);
 
         var configured = _config.ResolvedUrl.IsValid;
         var live = _phase == StreamPhase.Live && !_config.Paused && (_session is not null || _still);

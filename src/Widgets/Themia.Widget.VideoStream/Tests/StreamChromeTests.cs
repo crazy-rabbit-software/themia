@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Widget.VideoStream;
 using Xunit;
 
 namespace Themia.Widget.VideoStream.Tests;
@@ -8,51 +9,45 @@ namespace Themia.Widget.VideoStream.Tests;
 /// <summary>[S-1312]/[S-1313] The camera's optional chrome: which parts show at which size, and their words. Moved with the widget from Core's StreamChromeTests, unchanged.</summary>
 public sealed class StreamChromeTests
 {
-    // The size tiers, as the card's slot (card less a 36 header).
-    private static readonly WidgetArea Xs = new(120, 84);
-    private static readonly WidgetArea S = new(200, 114);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea Wide = new(480, 124);
-    private static readonly WidgetArea Tall = new(200, 364);
-    private static readonly WidgetArea L = new(560, 384);
-    private static readonly WidgetArea Xl = new(800, 524);
-
     [Fact]
-    public void S1312_nothing_but_the_picture_on_the_small_tiles_and_a_wide_strip()
+    public void S11208_the_chrome_is_the_settings_at_every_size()
     {
-        foreach (var area in new[] { Xs, S, Wide })
-        {
-            Assert.Equal(default, StreamChromeRules.Chrome(area, hoverControls: true, showStatus: true));
-        }
+        Assert.Equal(new StreamChrome(true, true, false), StreamChromeRules.Chrome(hoverControls: true, showStatus: false));
+        Assert.Equal(new StreamChrome(false, false, true), StreamChromeRules.Chrome(hoverControls: false, showStatus: true));
+        Assert.Equal(default, StreamChromeRules.Chrome(false, false));
     }
 
     [Fact]
-    public void S1312_the_hover_strip_from_M_and_controls_from_L()
+    public void S11208_a_shaped_stream_keeps_its_shape_its_height_following_its_width()
     {
-        Assert.Equal(new StreamChrome(true, false, false), StreamChromeRules.Chrome(M, true, false));
-        Assert.Equal(new StreamChrome(true, false, false), StreamChromeRules.Chrome(Tall, true, false));
-        Assert.Equal(new StreamChrome(true, true, false), StreamChromeRules.Chrome(L, true, false));
-        Assert.Equal(new StreamChrome(true, true, false), StreamChromeRules.Chrome(Xl, true, false));
+        var wide = VideoStreamSizing.Sizing(new VideoStreamConfig());
+        Assert.Equal(new Themia.Sdk.SizeDip(320, 180), wide.Natural);
+        Assert.True(wide.FixedHeight);
+        Assert.Equal((160.0, 800.0), (wide.Min.Width, wide.Max.Width));
+        Assert.Empty(wide.Problems());
+
+        // A quarter turn stands the shape up; never taller than 600.
+        var standing = VideoStreamSizing.Sizing(new VideoStreamConfig { Rotation = StreamRotation.Quarter, Span = 99 });
+        Assert.True(standing.Natural.Height <= 600);
+        Assert.Equal(standing.Natural.Width * 16 / 9, standing.Natural.Height, 3);
+
+        var free = VideoStreamSizing.Sizing(new VideoStreamConfig { Aspect = StreamAspect.Free });
+        Assert.Equal((new Themia.Sdk.SizeDip(160, 120), new Themia.Sdk.SizeDip(320, 240), new Themia.Sdk.SizeDip(800, 600)), (free.Min, free.Natural, free.Max));
     }
 
     [Fact]
-    public void S1312_the_status_chip_only_at_XL_and_only_when_turned_on()
+    public void S11208_dragging_a_shaped_stream_sets_its_span_on_a_copy()
     {
-        Assert.False(StreamChromeRules.Chrome(L, true, showStatus: true).StatusChip);
-        Assert.True(StreamChromeRules.Chrome(Xl, true, showStatus: true).StatusChip);
-        Assert.False(StreamChromeRules.Chrome(Xl, true, showStatus: false).StatusChip);
+        var config = new VideoStreamConfig();
+        var next = Assert.IsType<VideoStreamConfig>(VideoStreamSizing.SizeSets(config, new Themia.Sdk.SizeDip(480, 10)));
+
+        Assert.Equal(10, next.Span);
+        Assert.Equal(VideoStreamSizing.DefaultSpan, config.Span);
+        Assert.Equal(270, VideoStreamSizing.Sizing(next).Natural.Height, 3);
+
+        var free = new VideoStreamConfig { Aspect = StreamAspect.Free };
+        Assert.Same(free, VideoStreamSizing.SizeSets(free, new Themia.Sdk.SizeDip(480, 300)));
     }
-
-    [Fact]
-    public void S1312_hover_controls_off_hides_every_hover_part_but_not_the_chip()
-    {
-        Assert.Equal(new StreamChrome(false, false, true), StreamChromeRules.Chrome(Xl, hoverControls: false, showStatus: true));
-    }
-
-    [Fact]
-    public void S1312_an_unmeasured_area_shows_nothing()
-        => Assert.Equal(default, StreamChromeRules.Chrome(new WidgetArea(0, 0), true, true));
-
     [Fact]
     public void S1312_the_defaults_are_hover_on_and_status_off()
     {

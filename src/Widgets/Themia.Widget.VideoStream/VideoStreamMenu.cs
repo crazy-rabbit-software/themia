@@ -41,7 +41,12 @@ internal static class VideoStreamMenu
             [(StreamRotation.None, Str.Common_None.Text()), (StreamRotation.Quarter, "90°"), (StreamRotation.Half, "180°"), (StreamRotation.ThreeQuarter, "270°")],
             config.EffectiveRotation, value => config.Rotation = value));
 
-        // [S-1312] Both off the picture until there is room: never on the small sizes.
+        // [S-11208] The shape the card keeps; its height follows its width.
+        lines.Add(menu.Choice(null, VideoStreamStr.VideoStream_Aspect.Text(),
+            [(StreamAspect.Wide, "16:9"), (StreamAspect.Standard, "4:3"), (StreamAspect.Square, "1:1"), (StreamAspect.Free, VideoStreamStr.VideoStream_AspectFree.Text())],
+            config.EffectiveAspect, value => config.Aspect = value));
+
+        // [S-1312] [S-11208] Each a setting, at every size.
         lines.Add(ItemMenuEntry.Separator);
         lines.Add(menu.Toggle(Glyphs.Mouse, VideoStreamStr.WidgetsC_VideoStream_Settings_Hover_Label.Text(), config.HoverControls, on => config.HoverControls = on));
         lines.Add(menu.Toggle(Glyphs.Info, VideoStreamStr.WidgetsC_VideoStream_Settings_Chip_Label.Text(), config.ShowStatus, on => config.ShowStatus = on));

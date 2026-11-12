@@ -30,7 +30,7 @@ public sealed class WidgetSizingTests
         "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour",
         "removableDrives", "restart", "rotationLockToggle", "rss", "screenOff", "screenTimeApps",
         "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle",
-        "spatialSoundToggle", "stocks", "stopwatch", "sun", "topProcesses", "videoStream", "volume",
+        "spatialSoundToggle", "stocks", "stopwatch", "sun", "topProcesses", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
     ];
 
