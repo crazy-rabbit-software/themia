@@ -144,6 +144,13 @@ public sealed record KitSpec(
     /// item's point: kept at every width, where a time gives way below 180; the title ellipsises first.
     /// </summary>
     public bool Readings { get; init; }
+
+    /// <summary>
+    /// [S-2270] The rows tell unread from read by their names alone (a mailbox): the emphasised one
+    /// (<see cref="KitItem.Emphasis"/>) BodyStrong in the primary role, every other Body in the secondary
+    /// (<see cref="RowRules.Roles"/> quiet), so no lead glyph is needed to say it.
+    /// </summary>
+    public bool Unread { get; init; }
 }
 
 /// <summary>[S-7030] What one size of a kit list shows; chosen by <see cref="KitLadder.Plan"/>.</summary>

@@ -28,8 +28,12 @@ public readonly record struct RowRoles(ColourRole Name, ColourRole Value, Colour
 /// </summary>
 public static class RowRules
 {
-    /// <summary>The roles of a row of <paramref name="kind"/>; a row of a part that is missing on this PC is all disabled ([S-1940]).</summary>
-    public static RowRoles Roles(RowKind kind, bool available = true)
+    /// <summary>
+    /// The roles of a row of <paramref name="kind"/>; a row of a part that is missing on this PC is all
+    /// disabled ([S-1940]). [S-2270] A <paramref name="quiet"/> list row (a read message in a list that
+    /// tells unread from read by its names) has its name in the secondary role.
+    /// </summary>
+    public static RowRoles Roles(RowKind kind, bool available = true, bool quiet = false)
     {
         if (!available)
         {
@@ -38,7 +42,7 @@ public static class RowRules
 
         return kind == RowKind.Fact
             ? new RowRoles(ColourRole.TextSecondary, ColourRole.TextPrimary, ColourRole.TextSecondary, ColourRole.TextSecondary, ColourRole.TextTertiary)
-            : new RowRoles(ColourRole.TextPrimary, ColourRole.TextSecondary, ColourRole.TextSecondary, ColourRole.TextSecondary, ColourRole.TextTertiary);
+            : new RowRoles(quiet ? ColourRole.TextSecondary : ColourRole.TextPrimary, ColourRole.TextSecondary, ColourRole.TextSecondary, ColourRole.TextSecondary, ColourRole.TextTertiary);
     }
 
     /// <summary>

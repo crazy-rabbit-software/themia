@@ -139,6 +139,18 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(0, RowRules.NameStart(0));
     }
 
+    [Fact]
+    public void S2270_a_read_row_of_a_list_that_tells_unread_by_its_names_has_a_secondary_name()
+    {
+        var read = RowRules.Roles(RowKind.List, quiet: true);
+        var unread = RowRules.Roles(RowKind.List);
+
+        Assert.Equal(ColourRole.TextSecondary, read.Name);
+        Assert.Equal(ColourRole.TextPrimary, unread.Name);
+        Assert.Equal((unread.Value, unread.Second, unread.Third), (read.Value, read.Second, read.Third));
+        Assert.Equal(ColourRole.TextDisabled, RowRules.Roles(RowKind.List, available: false, quiet: true).Name);
+    }
+
     [Theory]
     [InlineData("XS", 1)]
     [InlineData("S", 1)]

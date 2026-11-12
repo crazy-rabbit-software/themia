@@ -129,6 +129,19 @@ public sealed partial class RowBlock : Grid
         }
     }
 
+    /// <summary>[S-2270] A read row of a list that tells unread from read by its names: its name in the secondary role.</summary>
+    public bool Quiet
+    {
+        get => _quiet;
+        set
+        {
+            _quiet = value;
+            Apply();
+        }
+    }
+
+    private bool _quiet;
+
     /// <summary>Lead the row with a 16 glyph in the lead's role.</summary>
     public void LeadGlyph(string glyph)
     {
@@ -275,7 +288,7 @@ public sealed partial class RowBlock : Grid
 
     private void Apply()
     {
-        var roles = RowRules.Roles(_kind, _available);
+        var roles = RowRules.Roles(_kind, _available, _quiet);
         if (_lead.Child is FontIcon lead)
         {
             lead.Foreground = Family.Brush(roles.Lead);

@@ -950,7 +950,10 @@ module author's guide is docs/WIDGET-KIT.md 16.
   and its hover reach both edges; no divider (`RowBlock`). **What is read is primary**: a fact's
   value (Humidity 71 %) is primary and its name secondary; a list item's name (a task, a mail, a
   file) is primary and its value (a time, a size) secondary (`RowRules.Roles`). A widget's rows all
-  lead or none do. The one emphasised row of a list (today, unread) is BodyStrong. A meter's own rows
+  lead or none do, and lead only when the glyph tells rows apart: where every row would show the same
+  glyph by construction (an envelope on every mail) none leads and the name starts at the inset
+  ([S-2270]); a list that tells unread from read then does it by the name alone, unread BodyStrong
+  primary, read Body secondary (`KitSpec.Unread`, `RowBlock.Quiet`). The one emphasised row of a list (today, unread) is BodyStrong. A meter's own rows
   (an engine's load, reads and writes) let their meter take all the room between the name and the
   value (`RowBlock.Meter` with no width); a table's row puts its columns in the name's place
   (`RowBlock.Cells`, [S-7034]). A row of a part missing on this PC is all disabled

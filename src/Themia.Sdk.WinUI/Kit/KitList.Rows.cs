@@ -10,7 +10,8 @@ namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
 /// [S-7031] [S-7032] [S-7034] The kit's rows as the family's Row block ([S-6711]): the item's title as
-/// the name (BodyStrong for the emphasised one: unread, today), the time as the value (secondary, or
+/// the name (BodyStrong for the emphasised one: unread, today; a read row of a list that tells unread by
+/// its names in the secondary role, [S-2270]), the time as the value (secondary, or
 /// its tone's Caution or Critical; never the accent), the subtitle (and the badge after it) on the
 /// second line, the preview on the third, the lead a 16 glyph or the site's icon; the lines the plan
 /// chose ([S-6712]). The table look is the same row's tokens laid out in the user's columns, their
@@ -64,7 +65,7 @@ public sealed partial class KitList
         }
         else
         {
-            var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = item.Emphasis };
+            var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = item.Emphasis, Quiet = _spec.Unread && !item.Emphasis };
             var second = _plan.Subtitle ? SubtitleLine(item) : _plan.Preview ? item.Preview : null;
             var third = _plan.Subtitle && _plan.Preview ? item.Preview : null;
             // [S-7072] A reading stands in the time's place, and is not rewritten on the ticker.
@@ -147,7 +148,7 @@ public sealed partial class KitList
         for (var i = 0; i < columns.Count; i++)
         {
             var column = columns[i].Column;
-            var cell = Family.Text(column == KitColumn.Title && item.Emphasis ? FamilyType.BodyStrong : FamilyType.Body, column == KitColumn.Title ? ColourRole.TextPrimary : ColourRole.TextSecondary);
+            var cell = Family.Text(column == KitColumn.Title && item.Emphasis ? FamilyType.BodyStrong : FamilyType.Body, column == KitColumn.Title && !(_spec.Unread && !item.Emphasis) ? ColourRole.TextPrimary : ColourRole.TextSecondary);
             cell.VerticalAlignment = VerticalAlignment.Center;
             cell.Text = column switch
             {
