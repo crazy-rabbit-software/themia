@@ -1,5 +1,8 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "meeting.after"
+  ],
+  "meeting.after": "After this",
   "meeting.desc": "Your next event, with Join for online meetings",
   "meeting.join": "Join",
   "meeting.joinTip": "Join the online meeting",

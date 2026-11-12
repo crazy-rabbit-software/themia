@@ -6,7 +6,7 @@ drawn by, with their root tags: which event ([S-4821], `NextMeetingRules.Pick`),
 ([S-4822], `MeetingLinks`), when in words ([S-4823]) and the ladder ([S-4824], `NextMeetingLayout`).
 
 Owning files: everything in this folder: `NextMeetingModule.cs` (descriptor, view factory, JSON
-context), `NextMeetingConfig.cs`, `NextMeetingView.cs` (the event, Join through its launcher, the
+context), `NextMeetingConfig.cs`, `NextMeetingView.cs` (the event, the meetings after it (`NextMeetingFollowing.cs`), Join through its launcher, the
 calendars' data seam over `IWidgetHost.Office`, the hover link), `NextMeetingMenu.cs` (its properties-menu
 lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|running|none`),
 `Localization/Locales/` (its own `NextMeetingStr`, 30 languages). Tests: `Tests/NextMeetingTests.cs` and `Tests/NextMeetingMenuTests.cs`
@@ -20,6 +20,23 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   the shared sync, [S-2701]) for yesterday to fourteen days on, on the calendars' 5-minute poll and
   the accounts' change event; it never fetches on its own. It never asks for birthdays (all-day,
   never a meeting; `Repair` puts `showBirthdays` back to false).
+- **[S-2160]** What comes after it (owner decision 2026-11-12; `NextMeetingFollowing`, tests
+  `NextMeetingFollowingTests`): room left under the meeting's own lines goes to more of the widget's
+  own items, the meetings after this one, from what the calendars' seam already reads (yesterday to
+  fourteen days on; no new host contract). They are the timed events not declined that start after
+  now and not before the one shown (an event under way is not "after"), in the order `Pick` breaks a
+  tie, today's first. Each is a one-line Row (`RowBlock`, no lead, [S-6711]: the title the name,
+  primary, cut with an ellipsis; the start the value, secondary, on the regional clock), under a
+  Caption label in the secondary role, "After this", at the text edge. On an expanded width (L, XL)
+  they go on to the next days, their value then the day and the time ("Tomorrow, 9:30 AM", as the
+  when line says it); narrower they are today's alone, so a value is a time and never crushes the
+  title. A click on a row opens that meeting in its calendar ([S-1268]); the hover link stays the
+  shown meeting's. Debug: `--state sample` and `running` have two more meetings today and three
+  tomorrow after the first.
+- **[S-2161]** Where they stand (`NextMeetingFollowing.Rows`): 8 under the details, the label's 16,
+  then as many whole 32 rows as fit over Join (its 32 and 8) or the bottom inset, and only once the
+  details reach their range line; none fitting, no label either. At the tiers: XS, S, Wide and M none
+  (the details fill them), Tall four, L five, XL nine (as many as there are).
 - **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event
   lights in the calendar widgets there, the others dim ([S-3623]); one another widget points at
   dims this one unless it is the same event.

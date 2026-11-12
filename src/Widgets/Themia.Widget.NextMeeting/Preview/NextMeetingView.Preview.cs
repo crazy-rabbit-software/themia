@@ -10,7 +10,8 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Debug renders only ([S-1917], [S-2711]): a fixture calendar, so <c>--widget-png NextMeeting
 /// --state sample</c> draws a Teams meeting twelve minutes away without an account; <c>running</c>
-/// is the same meeting under way; <c>none</c> a calendar with nothing coming.
+/// is the same meeting under way; <c>none</c> a calendar with nothing coming. The meetings after it
+/// (today's, then tomorrow's) are what a tall card lists under the meeting ([S-2160]).
 /// </summary>
 internal sealed partial class NextMeetingView : IWidgetPreviewState
 {
@@ -61,6 +62,13 @@ internal sealed partial class NextMeetingView : IWidgetPreviewState
                 },
                 At("Lunch", 12, 0, 60) with { Declined = true },
                 At("1:1 with Sam", 14, 0, 30),
+
+                // [S-2160] The meetings after it: today's, then tomorrow's.
+                At("Product sync", 15, 30, 30),
+                At("Hiring panel", 16, 30, 45),
+                At("Release planning", 24 + 9, 30, 60),
+                At("Customer call: Northwind", 24 + 11, 0, 30),
+                At("Team retro", 24 + 15, 0, 60),
                 CalendarEvent.AllDayEvent("holiday", "Public holiday", DateOnly.FromDateTime(today), DateOnly.FromDateTime(today).AddDays(1)),
             ];
 

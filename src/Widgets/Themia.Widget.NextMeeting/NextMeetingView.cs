@@ -48,10 +48,19 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
     private readonly KitStatePanel _state;
 
-    /// <summary>[S-4824] The meeting: its lines from the content top, Join in the Controls row at the foot.</summary>
-    private readonly Grid _content = new() { Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset), Visibility = Visibility.Collapsed };
+    /// <summary>
+    /// [S-4824] [S-2160] The meeting: its lines from the content top, the meetings after it under them,
+    /// Join in the Controls row at the foot. The bottom inset is the content's; the side inset is each
+    /// part's, so the following meetings' rows reach both edges as every Row does.
+    /// </summary>
+    private readonly Grid _content = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Visibility = Visibility.Collapsed };
 
-    private readonly StackPanel _text = new() { Spacing = NextMeetingLayout.Gap, VerticalAlignment = VerticalAlignment.Top };
+    private readonly StackPanel _text = new() { Spacing = NextMeetingLayout.Gap, Margin = Family.SideInset };
+
+    /// <summary>[S-2160] The meetings after this one: a Caption label in the secondary role over one-line Rows.</summary>
+    private readonly StackPanel _after = new() { Margin = new Thickness(0, NextMeetingFollowing.Gap, 0, 0), Visibility = Visibility.Collapsed };
+    private readonly TextBlock _afterLabel = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    private readonly List<RowBlock> _afterRows = [];
 
     /// <summary>"in 12 min.", "Now · ends 11:30 AM": the secondary role; the accent is never a text's ([S-6706]).</summary>
     private readonly TextBlock _when = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
@@ -103,7 +112,10 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _text.Children.Add(_location.Row);
         _text.Children.Add(_organizer.Row);
 
-        _content.Children.Add(_text);
+        _afterLabel.Margin = Family.SideInset;
+        _after.Children.Add(_afterLabel);
+        _controls.Margin = Family.SideInset;
+        _content.Children.Add(new StackPanel { VerticalAlignment = VerticalAlignment.Top, Children = { _text, _after } });
         _content.Children.Add(_controls);
         _content.Background = Family.Brush(ColourRole.Clear);
         _content.PointerEntered += OnPointerEntered;
@@ -342,8 +354,9 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         var locale = Strings.Current;
         var zone = TimeZoneInfo.Local;
         var join = item.JoinUrl is not null;
+        var box = new WidgetArea(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - FamilySpace.Inset));
         var plan = NextMeetingLayout.Plan(
-            new WidgetArea(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - FamilySpace.Inset)),
+            box,
             join,
             !string.IsNullOrWhiteSpace(item.Location),
             !string.IsNullOrWhiteSpace(item.Organizer));
@@ -359,10 +372,60 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _organizer.Text.Text = item.Organizer ?? string.Empty;
         _organizer.Row.Visibility = Show(plan.Organizer);
 
+        ShowAfter(NextMeetingFollowing.After(_events, item, now, zone, NextMeetingFollowing.LaterDays(_area)), NextMeetingFollowing.Rows(box.Height, plan, join, int.MaxValue), locale, now, zone);
+
         _controls.Visibility = Show(join);
         ToolTipService.SetToolTip(_join, NextMeetingStr.Meeting_JoinTip.Text());
         ToolTipService.SetToolTip(_text, Describe(item, locale, zone));
         _content.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// [S-2160] [S-2161] The meetings after this one, as many whole one-line rows as the plan leaves room
+    /// for (the title the name, the start the value), under their label; nothing where not one fits.
+    /// </summary>
+    private void ShowAfter(IReadOnlyList<CalendarEvent> after, int room, Locale locale, DateTimeOffset now, TimeZoneInfo zone)
+    {
+        var count = Math.Min(room, after.Count);
+        _after.Visibility = Show(count > 0);
+        _afterLabel.Text = NextMeetingStr.Meeting_After.Text();
+
+        while (_afterRows.Count < count)
+        {
+            var row = new RowBlock(RowKind.List, lead: 0) { Lines = 1 };
+            _afterRows.Add(row);
+            _after.Children.Add(row);
+        }
+
+        for (var i = 0; i < _afterRows.Count; i++)
+        {
+            var row = _afterRows[i];
+            row.Visibility = Show(i < count);
+            if (i >= count)
+            {
+                row.Tag = null;
+                continue;
+            }
+
+            var item = after[i];
+            row.Tag = item;
+            row.Show(string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject, NextMeetingFollowing.Start(locale, item, now, zone));
+            ToolTipService.SetToolTip(row, Describe(item, locale, zone));
+        }
+    }
+
+    /// <summary>[S-2160] The following meeting a click landed on, or null for the shown one.</summary>
+    private static CalendarEvent? RowItem(DependencyObject? source)
+    {
+        for (var node = source; node is not null; node = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(node))
+        {
+            if (node is RowBlock { Tag: CalendarEvent item })
+            {
+                return item;
+            }
+        }
+
+        return null;
     }
 
     private void SetShown(CalendarEvent? item)
@@ -411,13 +474,18 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _widgetHost.Launcher.OpenMeetingLink(link);
     }
 
-    /// <summary>A click on the event opens it in its calendar, as a calendar widget's does ([S-1268]).</summary>
+    /// <summary>
+    /// A click on the event opens it in its calendar, as a calendar widget's does ([S-1268]); a click on a
+    /// following meeting's row opens that one ([S-2160]).
+    /// </summary>
     private void OnTapped(object sender, TappedRoutedEventArgs args)
     {
-        if (_surface?.IsPreview == true || _surface?.EditMode == true || _shown is not { } item || args.OriginalSource is DependencyObject source && IsInJoin(source))
+        if (_surface?.IsPreview == true || _surface?.EditMode == true || _shown is not { } shown || args.OriginalSource is DependencyObject source && IsInJoin(source))
         {
             return;
         }
+
+        var item = RowItem(args.OriginalSource as DependencyObject) ?? shown;
 
         ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
         if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
