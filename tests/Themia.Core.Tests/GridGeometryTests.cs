@@ -162,6 +162,34 @@ public class GridGeometryTests
         Assert.Equal(l.X + l.Width, r.X, 9);
     }
 
+    [Theory]
+    [InlineData(1.25)]
+    [InlineData(1.5)]
+    [InlineData(1.75)]
+    [InlineData(2.5)]
+    public void S11872_cells_put_every_edge_on_a_whole_device_pixel_and_neighbours_share_it(double scale)
+    {
+        // A column of a group on a 1536 × 864 display: edges at 40, 178 (an odd number of half DIPs
+        // at 125 %), 302 and 411 DIPs; the second card's box computed from fractions of its own.
+        var screen = new ScreenMetrics(1536, 864);
+        var upper = new FracRect(40.0 / 1536, 40.0 / 864, 320.0 / 1536, 138.0 / 864);
+        var lower = new FracRect(40.0 / 1536, 178.0 / 864, 320.0 / 1536, 124.0 / 864);
+        var third = new FracRect(40.0 / 1536, 302.0 / 864, 320.0 / 1536, 109.0 / 864);
+
+        var a = GridGeometry.ToPixels(upper, screen, scale);
+        var b = GridGeometry.ToPixels(lower, screen, scale);
+        var c = GridGeometry.ToPixels(third, screen, scale);
+
+        foreach (var edge in new[] { a.X, a.Y, a.Y + a.Height, b.Y, b.Y + b.Height, c.Y, c.Y + c.Height })
+        {
+            Assert.Equal(Math.Round(edge * scale), edge * scale, 9);
+        }
+
+        Assert.Equal(a.Y + a.Height, b.Y);
+        Assert.Equal(b.Y + b.Height, c.Y);
+        Assert.Equal(GridGeometry.ToPixels(upper, screen), GridGeometry.ToPixels(upper, screen, 1));
+    }
+
     [Fact]
     public void S04_the_cell_is_the_same_whatever_the_gap()
     {

@@ -220,6 +220,151 @@ public class CardJoinsTests
     }
 
     [Fact]
+    public void S11870_a_column_of_three_in_one_group_draws_no_line_inside_and_its_outer_border_whole()
+    {
+        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(0, 100, 100, 50)], Tol, groups: ["g", "g", "g"]);
+
+        Assert.Equal(O("TL TR", "LTR"), o[0]);
+        Assert.Equal(O("", "LR"), o[1]);
+        Assert.Equal(O("BL BR", "LRB"), o[2]);
+        Assert.All(o, x => Assert.Null(x.Seams));
+
+        // The outer border is one unbroken line down each side: the left and the right run to the
+        // card's edge where the inner sides are left out.
+        var middle = o[1].Stroke(100, 50, 1, 8);
+        Assert.Equal(2, middle.Count);
+        Assert.Contains(middle, f => (f.StartX, f.StartY) == (99.5, 0) && f.Segments[^1] == new OutlineSegment(99.5, 50, 0));
+        Assert.Contains(middle, f => (f.StartX, f.StartY) == (0.5, 50) && f.Segments[^1] == new OutlineSegment(0.5, 0, 0));
+    }
+
+    [Fact]
+    public void S11870_the_same_cards_ungrouped_draw_their_one_line_again()
+    {
+        PixelRect?[] boxes = [Box(0, 0, 100, 50), Box(0, 50, 100, 50)];
+
+        Assert.Equal(CardJoins.Outlines(boxes, Tol), CardJoins.Outlines(boxes, Tol, groups: [null, null]));
+        Assert.Equal(O("BL BR", "LRB"), CardJoins.Outlines(boxes, Tol, groups: [null, null])[1]);
+        Assert.Equal(O("BL BR", "LRB"), CardJoins.Outlines(boxes, Tol, groups: ["g", "h"])[1]);
+    }
+
+    [Fact]
+    public void S11870_two_groups_side_by_side_draw_one_line_between_and_none_inside_either()
+    {
+        // Two columns of two, each a group: a | b over c | d, the left column "g", the right "h".
+        var o = CardJoins.Outlines(
+            [Box(0, 0, 50, 40), Box(0, 40, 50, 40), Box(50, 0, 50, 40), Box(50, 40, 50, 40)],
+            Tol,
+            groups: ["g", "g", "h", "h"]);
+
+        Assert.False(o[0].DrawsBottom);
+        Assert.False(o[1].DrawsTop);
+        Assert.False(o[2].DrawsBottom);
+        Assert.False(o[3].DrawsTop);
+
+        // Between the groups one line: the left column draws it, the right leaves its own out.
+        Assert.True(o[0].DrawsRight && o[1].DrawsRight);
+        Assert.False(o[2].DrawsLeft || o[3].DrawsLeft);
+        Assert.All(o, x => Assert.Null(x.Seams));
+    }
+
+    [Fact]
+    public void S11870_a_lone_card_against_a_group_keeps_its_one_line()
+    {
+        // A group of two side by side, a lone card as wide as both under it.
+        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), Box(0, 40, 100, 40)], Tol, groups: ["g", "g", null]);
+
+        Assert.False(o[0].DrawsRight);
+        Assert.False(o[1].DrawsLeft);
+        Assert.True(o[0].DrawsBottom && o[1].DrawsBottom);
+        Assert.False(o[2].DrawsTop);
+    }
+
+    [Fact]
+    public void S11870_a_side_partly_across_a_group_mate_leaves_out_only_that_stretch()
+    {
+        // A wide member over a narrow mate (x 20..60) and a lone card (x 60..100): the wide card draws
+        // its bottom only over the lone card; the lone card leaves its top to it.
+        var o = CardJoins.Outlines([Box(0, 0, 100, 40), Box(20, 40, 40, 40), Box(60, 40, 40, 40)], Tol, groups: ["g", "g", null]);
+
+        Assert.True(o[0].DrawsBottom);
+        Assert.Equal([new OutlineSeam(CardSide.Bottom, 0.2, 0.6)], o[0].Seams);
+        Assert.False(o[1].DrawsTop);
+        Assert.False(o[2].DrawsTop);
+
+        // A narrow member on a wide mate: the wide one draws its top on either side of the narrow one.
+        var under = CardJoins.Outlines([Box(20, 0, 40, 30), Box(0, 30, 100, 50)], Tol, groups: ["g", "g"]);
+        Assert.Equal(O("TL TR", "LTR"), under[0]);
+        Assert.True(under[1].DrawsTop);
+        Assert.Equal([new OutlineSeam(CardSide.Top, 0.2, 0.6)], under[1].Seams);
+    }
+
+    [Fact]
+    public void S11870_a_member_apart_from_its_mates_draws_its_whole_border()
+    {
+        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(300, 0, 100, 50)], Tol, groups: ["g", "g", "g"]);
+
+        Assert.Equal(CardOutline.Free, o[2]);
+    }
+
+    [Fact]
+    public void S11870_a_dragged_group_keeps_its_seamless_inside_free_of_the_cards_standing_still()
+    {
+        // The dragged pair (set 1, one group) over a still card of the same group (set 0).
+        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), Box(0, 40, 100, 40)], Tol, sets: [1, 1, 0], groups: ["g", "g", "g"]);
+
+        Assert.False(o[0].DrawsRight);
+        Assert.False(o[1].DrawsLeft);
+        Assert.True(o[0].DrawsBottom && o[1].DrawsBottom);
+        Assert.Equal(CardOutline.Free, o[2]);
+    }
+
+    [Fact]
+    public void S11870_right_to_left_mirrors_the_seams()
+    {
+        var o = new CardOutline(true, true, false, false, true, true, true, true, [new OutlineSeam(CardSide.Bottom, 0.25, 0.5), new OutlineSeam(CardSide.Left, 0.125, 0.5)]);
+        var m = o.Mirrored();
+
+        Assert.Equal([new OutlineSeam(CardSide.Bottom, 0.5, 0.75), new OutlineSeam(CardSide.Right, 0.125, 0.5)], m.Seams);
+        Assert.Equal(o, m.Mirrored());
+        Assert.NotEqual(o, o with { Seams = null });
+    }
+
+    [Fact]
+    public void S11870_one_group_per_box()
+    {
+        Assert.Throws<ArgumentException>(() => CardJoins.Outlines([Box(0, 0, 1, 1)], Tol, groups: ["g", "g"]));
+    }
+
+    [Fact]
+    public void S11871_a_seam_breaks_its_side_into_runs_that_reach_into_it_by_the_stroke()
+    {
+        // A card whose top is drawn but for 20..60 of 100, square on top, round below.
+        var o = new CardOutline(false, false, true, true, true, true, true, true, [new OutlineSeam(CardSide.Top, 0.2, 0.6)]);
+        var f = Assert.Single(o.Stroke(100, 50, 1, 8));
+
+        Assert.False(f.Closed);
+
+        // From the seam's far end less the stroke, round the right, the bottom and the left, back
+        // along the top to the seam's near end plus the stroke.
+        Assert.Equal((59, 0.5), (f.StartX, f.StartY));
+        Assert.Equal(new OutlineSegment(21, 0.5, 0), f.Segments[^1]);
+        Assert.Equal(2, f.Segments.Count(s => s.ArcRadius > 0));
+    }
+
+    [Fact]
+    public void S11871_seams_at_both_ends_of_a_side_end_its_neighbours_at_the_edge_and_leave_a_run_between()
+    {
+        // The top drawn only between 0.3 and 0.7: the left and the right run to the top edge, the
+        // middle stretch is a figure of its own.
+        var o = new CardOutline(false, false, false, false, true, true, true, true, [new OutlineSeam(CardSide.Top, 0, 0.3), new OutlineSeam(CardSide.Top, 0.7, 1)]);
+        var figures = o.Stroke(100, 50, 1, 0);
+
+        Assert.Equal(2, figures.Count);
+        Assert.Contains(figures, f => (f.StartX, f.StartY) == (29, 0.5) && f.Segments.Single() == new OutlineSegment(71, 0.5, 0));
+        Assert.Contains(figures, f => (f.StartX, f.StartY) == (99.5, 0) && f.Segments[^1] == new OutlineSegment(0.5, 0, 0));
+    }
+
+    [Fact]
     public void S2247_a_fresh_design_has_no_gap_so_cards_side_by_side_join()
     {
         Assert.Equal(0, new Themia.Core.Model.DesignState().WidgetGapPx);

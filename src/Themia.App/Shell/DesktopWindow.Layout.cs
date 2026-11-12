@@ -307,7 +307,8 @@ internal sealed partial class DesktopWindow
         // The card occupies the whole CELL. The gap is applied inside it, so the edit outline and
         // handles trace the cell rather than the painted surface, and changing the gap does not
         // move or resize anything.
-        var cell = GridGeometry.ToPixels(rect, metrics);
+        // [S-11872] Every edge on a whole device pixel, so two cards that meet share one.
+        var cell = GridGeometry.ToPixels(rect, metrics, RasterScale);
         Canvas.SetLeft(card, cell.X);
         Canvas.SetTop(card, cell.Y);
         card.Width = cell.Width;
@@ -399,7 +400,7 @@ internal sealed partial class DesktopWindow
             // The mask traces the PAINTED surface, not the cell: the gap is empty desktop, so a
             // click there should reach the desktop rather than an invisible widget edge. And it
             // follows paint ([S-872]): a hidden widget takes nothing.
-            var painted = GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics), Design.WidgetGapPx);
+            var painted = GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics, RasterScale), Design.WidgetGapPx);
             if (CardFrame.Hit(painted, card.IsShown(EditMode)) is not { } box)
             {
                 continue;

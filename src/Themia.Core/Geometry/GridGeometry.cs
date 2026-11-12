@@ -418,13 +418,24 @@ public static class GridGeometry
     /// <para>
     /// Edges are rounded to a shared whole-pixel boundary, so adjacent cells meet exactly.
     /// </para>
+    /// <para>
+    /// [S-11872] With the display's <paramref name="rasterScale"/> each edge is then put on a whole
+    /// device pixel. A card edge between two device pixels (an odd DIP at 150 %, most at 125 %) was
+    /// drawn half by each of two neighbours: their translucent fills, half covering one row each, let
+    /// the wallpaper through there, a light line across a group even with no border drawn; a layout
+    /// that rounds offset and size apart could open or overlap a pixel. Every edge is rounded from the
+    /// same whole DIP, so a side two cards share is the same device pixel in both.
+    /// </para>
     /// </summary>
-    public static PixelRect ToPixels(FracRect r, ScreenMetrics screen)
+    public static PixelRect ToPixels(FracRect r, ScreenMetrics screen, double rasterScale = 1)
     {
-        var left = Math.Round(r.X * screen.Width);
-        var top = Math.Round(r.Y * screen.Height);
-        var right = Math.Round(r.Right * screen.Width);
-        var bottom = Math.Round(r.Bottom * screen.Height);
+        var scale = double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1;
+        double Edge(double dip) => Math.Round(Math.Round(dip) * scale) / scale;
+
+        var left = Edge(r.X * screen.Width);
+        var top = Edge(r.Y * screen.Height);
+        var right = Edge(r.Right * screen.Width);
+        var bottom = Edge(r.Bottom * screen.Height);
 
         return new PixelRect(left, top, Math.Max(1, right - left), Math.Max(1, bottom - top));
     }

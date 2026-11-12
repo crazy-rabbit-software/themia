@@ -6260,7 +6260,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   opacity; without one the header opacity does nothing.
 - **[S-824]** Border: style None/Solid/Dashed (3-on-2 stroke widths)/Dotted (round dots two widths
   apart), width 0..8, colour (empty = the theme's card stroke), opacity 0..1. Drawn as a shape over
-  the content and inset with the gap; none on a transparent widget. Where cards touch, one line between them ([S-2242]).
+  the content and inset with the gap; none on a transparent widget. Where cards touch, one line between them ([S-2242]),
+  none between members of one group ([S-11870]).
 - **[S-6481]** Every border setting shows (`DesignLook.Ink`). A colour of the user's own is drawn
   exactly, opaque, and the border opacity fades the line once (the element's opacity, never also the
   brush's). The theme's colour is Themia's hairline ([S-2102]) for a solid line up to 1px, and the
@@ -6569,7 +6570,8 @@ is one switch, [S-2110]); the eyedropper (optional in the audit). Motion setting
 
 At a small gap neighbouring cards meet. Each used to round all four corners and draw its whole
 border, so a stack showed a notch of wallpaper at every meeting point and a double hairline between
-two cards. Cards that touch now read as one panel: round on the outside, one line between.
+two cards. Cards that touch now read as one panel: round on the outside, one line between; the
+members of one group draw none between them ([S-11870]).
 
 - **[S-2240]** **When the painted boxes of two cards touch along a side, they join** (`CardJoins.Outlines`,
   Core, pure: the painted box of each card in, an outline per card out). Two cards are joined on a side
@@ -6628,6 +6630,37 @@ two cards. Cards that touch now read as one panel: round on the outside, one lin
 - **[S-2247]** The default gap is none, so widgets put side by side join without a setting: a column
   or a grid of them is one panel. The gap is still the design's to widen (⚙ › Appearance). A gap that
   is not a number is repaired to none. Test `CardJoinsTests.S2247_`.
+- **[S-11870]** **No line inside a group** (owner, 2026-11-12: "the lines in between the widgets in one
+  group dont look good. remove them."). Between two joined cards that are members of the same group
+  ([S-2450]) no line is drawn at all: neither card draws a side, or the stretch of a side, where a
+  member of its own group lies across it. A group reads as one sheet: its outer border stays whole,
+  round outside ([S-2241]). Two cards that touch but are not of one group (two lone widgets, a lone
+  widget and a member, members of two groups) keep the one line of [S-2242], so the user still sees
+  where one thing ends and the next begins. `CardJoins.Outlines` takes each card's group (null: none);
+  group mates count as neighbours for [S-2242]'s rule, and then the stretches across them are left out
+  of whatever side is drawn: a side wholly across mates is not drawn, a side partly across them keeps
+  its other stretches (`CardOutline.Seams`, fractions of the side from its physical start, mirrored
+  for a right-to-left card). It follows the join's own life ([S-2244]): a group change (Ctrl+G,
+  Ctrl+Shift+G, Remove from group, an undo) is a state change, which lays the cards out and joins them
+  again, so the lines go or come back at once though no box moved; an entered member dragged away
+  from its mates is free while it moves ([S-2457]) and, dropped where it touches none, draws its whole
+  border; a dragged group keeps its seamless inside. Edit mode is unchanged: the group's frame and an
+  entered member's own markers ([S-2453]) show what is what. Tests `CardJoinsTests.S11870_`.
+- **[S-11871]** **A side in runs** (`CardOutline.Stroke`): a seam breaks its side, so a side draws as
+  one or more runs. A run that stops at a seam runs on into it by the stroke's width, under the end
+  of the line the group mate across draws down its own side to that edge ([S-2243]), so the two meet
+  with no notch; a run that reaches a corner turns it as before. Tests `CardJoinsTests.S11871_`.
+- **[S-11872]** **One sheet, no seam.** With no line between them, nothing else may mark where two
+  members meet. The card's fill is one flat colour at one opacity ([S-2100]; no gradient, no header
+  band, [S-2103]), so it needs no shading over the group's bounds; the frost is the display's one
+  blurred picture placed by the card's place on it ([S-2114]), so it runs on across a join (measured
+  across every join of the groups at 100, 150 and 250 %: equal on both sides). What did show was
+  the edge itself: a card edge between two device pixels (an odd DIP at 150 %, most at 125 %) was drawn
+  half by each neighbour, their translucent fills each half covering one row, so the wallpaper showed
+  through there as a light line. A card's cell now puts each edge on a whole device pixel
+  (`GridGeometry.ToPixels(rect, screen, rasterScale)`, rounded from the same whole DIP, so a side two
+  cards share is one device pixel in both): the desktop's layout, its hit region and the join, and a
+  scene's cards. Test `GridGeometryTests.S11872_`.
 
 ## Logging (WP7)
 
@@ -7298,7 +7331,8 @@ Ctrl+click, Escape and Tab), `PlacementPayload.cs`, `WidgetTransfer.cs`, `Layout
 `Shell/Pages/AddPageView.cs`. Tests: `WidgetGroupsTests`, `GroupShellTests`, `SceneGroupsTests`, `ReadyMadeGroupsTests`.
 
 Small widgets put side by side already draw as one panel ([S-2240]); a group is what makes such a
-composition one thing to arrange: an optional lock over ordinary cards, never a card of its own.
+composition one thing to arrange: an optional lock over ordinary cards, never a card of its own. Its
+members draw no line between them, so the group reads as one sheet ([S-11870]).
 
 - **[S-2450]** **State.** A view holds its groups (`Groups`: an id and an optional name); a widget holds
   the id of its group (`group`, not written when it has none). No nesting: a widget is in one group at
@@ -7343,7 +7377,8 @@ composition one thing to arrange: an optional lock over ordinary cards, never a 
   (and Remove from group) are one step each, named "group" and "ungroup".
 - **[S-2457]** **Joined while dragged.** The cards a drag carries (a group, any selection dragged
   together) stay joined among themselves while they move, a set of their own free of the cards standing
-  still ([S-2244]; `CardJoins.Outlines` takes a set per card: two cards join only within one set).
+  still ([S-2244]; `CardJoins.Outlines` takes a set per card: two cards join only within one set), with no
+  line between them ([S-11870]).
 - **[S-2458]** **Scenes** ([S-1076]): a widget may carry `"group": "<name>"` (two widgets or more to a
   group, its name its id on the scene's view); the `edit` block may select a group whole (`"group"`) or
   enter one with a member (`"enter": "<widget id>"`), so the pictures show both frames and the page of

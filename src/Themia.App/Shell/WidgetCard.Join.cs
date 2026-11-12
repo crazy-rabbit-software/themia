@@ -54,16 +54,19 @@ internal sealed partial class WidgetCard
 
         var boxes = new PixelRect?[cards.Count];
         var sets = new int[cards.Count];
+        var groups = new string?[cards.Count];
         for (var i = 0; i < cards.Count; i++)
         {
             var card = cards[i];
             var inSet = set(card);
             var joins = card.Visibility == Visibility.Visible && card.IsShown(editMode) && card.DrawsSurface && inSet is not null;
-            boxes[i] = joins ? GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics), gapPx) : null;
+            boxes[i] = joins ? GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics, rasterScale), gapPx) : null;
             sets[i] = inSet ?? -1;
+            groups[i] = card.Model.Group;
         }
 
-        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(rasterScale), sets);
+        // [S-11870] Members of one group draw no line between them: the group reads as one sheet.
+        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(rasterScale), sets, groups);
         for (var i = 0; i < cards.Count; i++)
         {
             cards[i].ApplyOutline(outlines[i]);
@@ -122,8 +125,8 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-2243] The border's path for the surface's size: one closed rounded figure for a free card,
-    /// broken where a side is left to the neighbour. Redrawn when the size, the stroke or the outline
-    /// changes; content insets never depend on it.
+    /// broken where a side is left to the neighbour or, [S-11871], where a group mate lies across.
+    /// Redrawn when the size, the stroke or the outline changes; content insets never depend on it.
     /// </summary>
     private void DrawStroke()
     {

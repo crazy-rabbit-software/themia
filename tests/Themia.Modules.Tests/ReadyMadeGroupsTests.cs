@@ -100,6 +100,60 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
+    public void S11870_a_recipe_placed_as_one_group_draws_its_outer_border_only(string id)
+    {
+        var boxes = Of(id).Widgets.Select(w => new PixelRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height)).ToList();
+        var tol = CardJoins.Tolerance(1);
+
+        var outlines = CardJoins.Outlines([.. boxes.Select(b => (PixelRect?)b)], tol, groups: [.. boxes.Select(_ => (string?)"group")]);
+
+        for (var i = 0; i < boxes.Count; i++)
+        {
+            var box = boxes[i];
+            foreach (var side in Enum.GetValues<CardSide>())
+            {
+                var drawn = side switch
+                {
+                    CardSide.Left => outlines[i].DrawsLeft,
+                    CardSide.Top => outlines[i].DrawsTop,
+                    CardSide.Right => outlines[i].DrawsRight,
+                    _ => outlines[i].DrawsBottom,
+                };
+                if (!drawn)
+                {
+                    continue;
+                }
+
+                // The side's own axis, and what of it the seams leave out.
+                var (from, length) = side is CardSide.Top or CardSide.Bottom ? (box.X, box.Width) : (box.Y, box.Height);
+                var seams = (outlines[i].Seams ?? []).Where(s => s.Side == side).Select(s => (From: from + (s.From * length), To: from + (s.To * length))).ToList();
+
+                for (var j = 0; j < boxes.Count; j++)
+                {
+                    var other = boxes[j];
+                    var meets = side switch
+                    {
+                        CardSide.Left => Math.Abs((other.X + other.Width) - box.X) <= tol,
+                        CardSide.Top => Math.Abs((other.Y + other.Height) - box.Y) <= tol,
+                        CardSide.Right => Math.Abs(other.X - (box.X + box.Width)) <= tol,
+                        _ => Math.Abs(other.Y - (box.Y + box.Height)) <= tol,
+                    };
+                    if (j == i || !meets)
+                    {
+                        continue;
+                    }
+
+                    var (a, b) = side is CardSide.Top or CardSide.Bottom ? (other.X, (other.X + other.Width)) : (other.Y, (other.Y + other.Height));
+                    var across = Math.Min(b, from + length) - Math.Max(a, from);
+                    var left = across - seams.Sum(s => Math.Max(0, Math.Min(b, s.To) - Math.Max(a, s.From)));
+                    Assert.True(across <= tol || left <= tol, $"{id}: widget {i} draws a line along widget {j}");
+                }
+            }
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Recipes))]
     public void S11606_every_widget_s_box_is_a_size_its_kind_takes_for_its_config_and_header(string id)
     {
         foreach (var part in Of(id).Widgets)

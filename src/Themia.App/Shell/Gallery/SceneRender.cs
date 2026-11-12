@@ -379,7 +379,7 @@ internal static class SceneRender
             // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop.
             var contentScale = WidgetScale.Effective(job.Scene.Scale, model.Scale);
             var shown = SizeFit.Shown(model.Rect, SizeFit.Limits(model, metrics, contentScale, design.WidgetGapPx), metrics);
-            var cell = GridGeometry.ToPixels(shown, metrics);
+            var cell = GridGeometry.ToPixels(shown, metrics, job.Scale);
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
             card.SetLiveRect(shown);
             card.ApplyEditMode(edit is not null);
