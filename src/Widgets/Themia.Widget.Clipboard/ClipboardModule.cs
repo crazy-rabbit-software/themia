@@ -31,7 +31,8 @@ public sealed class ClipboardModule : IWidgetModule
         Label = ClipboardStr.WidgetsA_Catalog_Clipboard_Label.Local(),
         Description = ClipboardStr.WidgetsA_Catalog_Clipboard_Description.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(320, 260),
+        Sizing = c => Themia.Sdk.Kit.KitSizing.Sizing(((ClipboardConfig)c).RowsShown, addFooter: false),
+        SizeSets = (c, size) => Themia.Sdk.Kit.KitSizing.SizeSets(c, size, ((ClipboardConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 0, 2),
     };

@@ -27,6 +27,9 @@
           "scale": 1,
           "config": {
             "kind": "email",
+            "rows": 5,
+            "lines": 2,
+            "columnTitles": true,
             "accountIds": [
               "work-graph-id",
               "imap:me@mail.example"
@@ -66,6 +69,9 @@
           "scale": 1,
           "config": {
             "kind": "email",
+            "rows": 5,
+            "lines": 2,
+            "columnTitles": true,
             "accountIds": [],
             "folder": "inbox",
             "style": "compact",
@@ -94,6 +100,9 @@
           "scale": 1,
           "config": {
             "kind": "email",
+            "rows": 5,
+            "lines": 2,
+            "columnTitles": true,
             "accountIds": [],
             "folder": "inbox",
             "style": "list",

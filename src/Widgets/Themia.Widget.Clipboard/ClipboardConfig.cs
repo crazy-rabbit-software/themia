@@ -20,8 +20,33 @@ namespace Themia.Core.Model;
 /// the one control that genuinely reduces exposure.
 /// </para>
 /// </summary>
-public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory
+public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory, Themia.Sdk.Kit.IKitRows
 {
+    /// <summary>[S-11405] A new clipboard list's rows.</summary>
+    public const int DefaultRows = 5;
+
+    /// <summary>[S-11405] How many entries show; the rest of what is kept scrolls inside them.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-11405] Lines per entry: its preview, then how much it is.</summary>
+    public int Lines { get; set; } = 1;
+
+    /// <summary>[S-11405] The rows as drawn.</summary>
+    [JsonIgnore]
+    public Themia.Sdk.Kit.KitRowsChoice RowsShown => new(Themia.Sdk.Kit.KitSizing.ClampRows(Rows), Themia.Sdk.Kit.KitSizing.ClampLines(Lines));
+
+    public override IReadOnlyList<string> Repair()
+    {
+        var shown = RowsShown;
+        if ((shown.Rows, shown.Lines) == (Rows, Lines))
+        {
+            return [];
+        }
+
+        (Rows, Lines) = (shown.Rows, shown.Lines);
+        return ["clipboard: rows or lines out of range"];
+    }
+
     /// <summary>[S-1440] How many entries to keep, 1 to 200 (default 50, as the original).</summary>
     public int Capacity { get; set; } = ClipboardHistory.DefaultCapacity;
 
@@ -46,5 +71,7 @@ public sealed class ClipboardConfig : WidgetConfig, IKeepsClipboardHistory
     {
         Capacity = Capacity,
         ShowTimestamp = ShowTimestamp,
+        Rows = Rows,
+        Lines = Lines,
     };
 }

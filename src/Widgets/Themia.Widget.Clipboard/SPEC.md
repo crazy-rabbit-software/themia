@@ -23,7 +23,13 @@ the host's history under its config is the module host's `ClipboardHostTests`.
   secondary role: link (http/https/ftp), address, number (leading digit/sign), colour (`#hex`, `rgb()`,
   `hsl()` → a 16 dot of it, a data colour, [S-6705]), several lines, else text; the entry on the clipboard
   now keeps the tick and its preview in BodyStrong (no accent: [S-6706]). Display only, never opened.
-- **[S-1443]** Clipboard ladder (`ClipboardLayout.Plan`) on the family's rows ([S-6711], [S-6712]): one
+- **[S-11405]** **It states its rows** ([S-2440]): `Rows` (1..20, default 5) entries and `Lines` per
+  entry (1: the preview with when it was copied, default; 2: how much it is under it); the marker and
+  the time at every width. 220..520 wide, a new one 300 × 188; the height follows the rows; dragging the
+  bottom edge sets Rows; the rest of what is kept ([S-1440]) scrolls inside them (the wheel as before).
+  Nothing appears or disappears with the size: [S-1443]'s ladder is gone, its other lines hold. Tests
+  `ClipboardTests.S11405_`, `ClipboardMenuTests`.
+- **[S-1443]** *(Its ladder retired by [S-11405].)* Clipboard ladder (`ClipboardLayout.Plan`) on the family's rows ([S-6711], [S-6712]): one
   row per entry, the preview the name, when it was copied the value (when shown), how much it is on the
   second line from a regular tile (M, Tall, L, XL); the marker and the time from a column of 180; as
   many whole rows as fit, the rest a scroll away under the fade; no count footer (concise: the entries

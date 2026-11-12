@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
@@ -23,11 +24,13 @@ public sealed class ClipboardMenuTests
     {
         var lines = Build(new ClipboardConfig());
 
-        Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(), lines.Lines[0].Text);
-        Assert.True(lines.Lines[1].IsSeparator);
-        Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), lines.Lines[2].Text);
-        Assert.Equal("50", lines.Lines[2].Value);
-        Assert.Equal(4, lines.Lines.Count);
+        Assert.Equal(Str.Kit_Rows.Text(), lines.Lines[0].Text);
+        Assert.Equal(Str.Kit_Lines.Text(), lines.Lines[1].Text);
+        Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(), lines.Lines[2].Text);
+        Assert.True(lines.Lines[3].IsSeparator);
+        Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), lines.Lines[4].Text);
+        Assert.Equal("50", lines.Lines[4].Value);
+        Assert.Equal(6, lines.Lines.Count);
         var note = lines.Lines[^1];
         Assert.True(note.Note);
         Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_PrivacyNote.Text(), note.Text);
@@ -58,7 +61,7 @@ public sealed class ClipboardMenuTests
     public void S1450_the_timestamp_switch_turns_them_off_and_saves_once()
     {
         var config = new ClipboardConfig { ShowTimestamp = true };
-        Build(config).Lines[0].Action!();
+        Build(config).Lines[2].Action!();
 
         Assert.False(config.ShowTimestamp);
         Assert.Equal(1, _saves);

@@ -109,6 +109,8 @@
           "scale": 1,
           "config": {
             "kind": "clipboard",
+            "rows": 5,
+            "lines": 1,
             "capacity": 120,
             "showTimestamp": false
           }

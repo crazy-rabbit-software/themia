@@ -25,6 +25,8 @@ internal static class ClipboardMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
+        // [S-11405] How many entries show and their lines (the preview; how much it is).
+        menu.Lines.AddRange(Themia.Sdk.WinUI.Kit.KitMenuLines.Rows(menu, config));
         menu.Lines.Add(menu.Toggle(Glyphs.Clock, ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(), config.ShowTimestamp, on => config.ShowTimestamp = on));
 
         // [S-1440] What is kept, apart from how it reads: the one setting that changes exposure (fewer

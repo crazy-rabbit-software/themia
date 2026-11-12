@@ -159,6 +159,9 @@
           "scale": 1,
           "config": {
             "kind": "email",
+            "rows": 5,
+            "lines": 2,
+            "columnTitles": true,
             "accountIds": [],
             "folder": "inbox",
             "style": "list",
@@ -601,6 +604,9 @@
           "scale": 1,
           "config": {
             "kind": "rss",
+            "rows": 5,
+            "lines": 2,
+            "columns": 1,
             "feeds": [],
             "maxItems": 20,
             "showSource": true,
@@ -675,6 +681,8 @@
           "scale": 1,
           "config": {
             "kind": "clipboard",
+            "rows": 5,
+            "lines": 1,
             "capacity": 50,
             "showTimestamp": true
           }
@@ -1994,7 +2002,10 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "notifications"
+            "kind": "notifications",
+            "rows": 4,
+            "lines": 2,
+            "appHeadings": false
           }
         },
         {

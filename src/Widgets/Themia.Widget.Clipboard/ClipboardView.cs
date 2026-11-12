@@ -61,7 +61,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     private readonly List<RowBlock> _rows = [];
 
     private ClipboardConfig _config = new();
-    private ClipboardPlan _plan = ClipboardLayout.Plan(default);
+    private ClipboardPlan _plan = ClipboardLayout.Plan(new ClipboardConfig());
     private WidgetArea _area;
     private readonly IWidgetHost _host;
     private IClipboardHistory? _source;
@@ -126,6 +126,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ClipboardConfig ?? new ClipboardConfig();
+        _plan = ClipboardLayout.Plan(_config);
 
         // Lowering the capacity shows fewer entries at once; the shared history drops what no
         // Clipboard widget keeps any more when the state saves the setting ([S-1458]): a shorter
@@ -133,19 +134,15 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         Render();
     }
 
-    /// <summary>[S-1443] [S-663] A new size: draw again only when the ladder lands elsewhere or the rows that fit change.</summary>
+    /// <summary>[S-11405] A new size: the same plan; draw again only when the rows that fit change.</summary>
     public void ApplySize(WidgetArea area)
     {
-        var plan = ClipboardLayout.Plan(area);
-        var moved = plan != _plan || ClipboardLayout.Rows(area, plan) != ClipboardLayout.Rows(_area, _plan);
+        var moved = ClipboardLayout.Rows(area, _plan) != ClipboardLayout.Rows(_area, _plan);
         _area = area;
-        if (!moved)
+        if (moved)
         {
-            return;
+            Render();
         }
-
-        _plan = plan;
-        Render();
     }
 
     /// <summary>The entries this widget shows: the newest, as many as its own setting keeps.</summary>

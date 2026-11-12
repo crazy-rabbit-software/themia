@@ -10,13 +10,6 @@ namespace Themia.Widget.Clipboard.Tests;
 public sealed class ClipboardTests
 {
     // The size tiers' slots (card less a 36 header).
-    private static readonly WidgetArea XS = new(120, 84);
-    private static readonly WidgetArea S = new(200, 114);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea Wide = new(480, 124);
-    private static readonly WidgetArea Tall = new(200, 364);
-    private static readonly WidgetArea L = new(560, 384);
-    private static readonly WidgetArea XL = new(800, 524);
 
 
     [Fact]
@@ -58,21 +51,23 @@ public sealed class ClipboardTests
     }
 
     [Fact]
-    public void S1443_clipboard_ladder_by_tier()
+    public void S11405_a_new_clipboard_is_five_one_line_entries_with_marker_and_time()
     {
-        // [S-6712] The preview, and how much it is under it from a regular tile; the marker and the
-        // time from 180 wide; never more lines (concise: the entries only).
-        Assert.Equal(new ClipboardPlan(1, Lead: false, Time: false), ClipboardLayout.Plan(XS));
-        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true), ClipboardLayout.Plan(S));
-        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(M));
-        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true), ClipboardLayout.Plan(Wide));
-        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(Tall));
-        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(L));
-        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(XL));
-        Assert.Equal(4, ClipboardLayout.Rows(M, ClipboardLayout.Plan(M)));
+        var config = new ClipboardConfig();
+        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true), ClipboardLayout.Plan(config));
+        Assert.Equal(new Themia.Sdk.SizeDip(300, 36 + (5 * 28) + 12), new ClipboardModule().Descriptor.Sizing(config).Natural);
+        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(new ClipboardConfig { Lines = 2 }));
     }
 
     [Fact]
-    public void S1443_unmeasured_area_is_one_plain_line()
-        => Assert.Equal(1, ClipboardLayout.Plan(default).Lines);
+    public void S11405_dragging_sets_rows_and_out_of_range_is_repaired_and_copied()
+    {
+        var next = (ClipboardConfig)new ClipboardModule().Descriptor.SizeSets!(new ClipboardConfig(), new Themia.Sdk.SizeDip(300, 36 + (8 * 28) + 12));
+        Assert.Equal(8, next.Rows);
+
+        var wild = new ClipboardConfig { Rows = 50, Lines = 0 };
+        Assert.NotEmpty(wild.Repair());
+        var copy = (ClipboardConfig)wild.Clone();
+        Assert.Equal((20, 1), (copy.Rows, copy.Lines));
+    }
 }
