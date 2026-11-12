@@ -126,7 +126,7 @@ public sealed class DeviceLocationTests
 
         var read = Assert.IsType<Weather>(DevicePlaces.Resolve(config, Zurich, "My location"));
 
-        Assert.Equal((47.38, 8.54, "My location", "My location"), (read.Latitude, read.Longitude, read.LocationName, read.Title));
+        Assert.Equal((47.38, 8.54, "My location", "My location"), (read.Latitude, read.Longitude, read.LocationName, read.PlaceLabel));
         Assert.Equal((1d, 2d, "Accra, Ghana"), (config.Latitude, config.Longitude, config.LocationName));
     }
 
