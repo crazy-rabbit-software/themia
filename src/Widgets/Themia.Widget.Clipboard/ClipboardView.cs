@@ -44,6 +44,9 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     private const string Scope = "clipboard-widget";
 
     /// <summary>[S-1444] The header's clear: a header button ([S-6710]), there only while there is something to clear.</summary>
+    /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
+    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
+
     private readonly HeaderParts _trailing = new();
     private readonly Border _clear;
     private readonly StackPanel _list = new();
@@ -198,7 +201,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
         // One clock reading for the whole list, so a list drawn across a minute boundary cannot
         // show two different ideas of "now".
-        var now = DateTimeOffset.Now;
+        var now = _clock();
 
         for (var i = 0; i < entries.Count; i++)
         {

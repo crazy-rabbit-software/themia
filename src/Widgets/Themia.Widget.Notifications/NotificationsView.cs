@@ -38,6 +38,9 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     private static readonly Uri AccessPage = new("ms-settings:privacy-notifications");
 
     /// <summary>[S-6710] The header's extras: the neutral count and Clear all.</summary>
+    /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
+    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
+
     private readonly KitHeader _header;
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroll;
@@ -204,7 +207,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         }
 
         _scroll.Visibility = Visibility.Visible;
-        var now = DateTimeOffset.Now;
+        var now = _clock();
 
         if (_plan.Grouped)
         {
