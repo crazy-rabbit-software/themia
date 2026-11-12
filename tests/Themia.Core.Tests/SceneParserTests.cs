@@ -392,6 +392,19 @@ public sealed class SceneParserTests
     }
 
     [Fact]
+    public void S6480_design_text_switches_the_blur_behind_widgets()
+    {
+        var design = new DesignState();
+
+        var refused = DesignText.Apply(design, "blur=off,blur=maybe");
+
+        Assert.False(design.BlurBehind);
+        Assert.Equal(["blur=maybe"], refused);
+        Assert.Empty(DesignText.Apply(design, "blur=on"));
+        Assert.True(design.BlurBehind);
+    }
+
+    [Fact]
     public void S6480_design_text_reads_fills_with_their_own_opacity()
     {
         Assert.Equal(FillKind.Transparent, DesignText.Fill("none")!.Kind);

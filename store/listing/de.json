@@ -141,7 +141,7 @@
       "label": "Grössen",
       "headline": "Mach es grösser, sieh mehr.",
       "sub": "Jedes Widget nutzt den Platz, den du ihm gibst: klein behält es das Wichtigste, gross zeigt es die Details.",
-      "caption": "Das Wetter-Widget in vier Grössen und der Kalender in drei: Jede grössere zeigt mehr."
+      "caption": "Das Wetter in vier Grössen, der Kalender in zwei und die Prozessoranzeige in drei: Jede grössere zeigt mehr."
     },
     {
       "shot": "styles",
@@ -176,7 +176,12 @@
       "label": "Ansichten",
       "headline": "Ein Desktop für jeden Teil deines Tages.",
       "sub": "Einer für die Arbeit, einer für den Abend, einer für den Fokus. Wechsle mit einem Klick oder gib jedem Bildschirm seinen eigenen.",
-      "caption": "Drei Desktops eines PCs: der Abend mit Musik und Fotos, der Arbeitstag und ein Fokus-Desktop mit Pomodoro-Timer."
+      "caption": "Drei Desktops eines PCs: der Abend mit Musik und Fotos, der Arbeitstag und ein Fokus-Desktop mit Pomodoro-Timer.",
+      "callouts": [
+        "Abend",
+        "Arbeit",
+        "Fokus"
+      ]
     }
   ],
   "addOn": {

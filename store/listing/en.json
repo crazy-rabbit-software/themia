@@ -141,7 +141,7 @@
       "label": "Sizes",
       "headline": "Make it bigger, see more.",
       "sub": "Every widget fits the room you give it: small keeps what matters, large shows the details.",
-      "caption": "The weather widget at four sizes and the calendar at three: each larger one shows more."
+      "caption": "The weather at four sizes, the calendar at two and the processor meter at three: each larger one shows more."
     },
     {
       "shot": "styles",
@@ -176,7 +176,12 @@
       "label": "Views",
       "headline": "A desktop for every part of your day.",
       "sub": "One for work, one for the evening, one for focus. Switch with a click, or give every display its own.",
-      "caption": "Three desktops of one PC: the evening with music and photos, the working day, and a focus desktop with a Pomodoro timer."
+      "caption": "Three desktops of one PC: the evening with music and photos, the working day, and a focus desktop with a Pomodoro timer.",
+      "callouts": [
+        "Evening",
+        "Work",
+        "Focus"
+      ]
     }
   ],
   "addOn": {

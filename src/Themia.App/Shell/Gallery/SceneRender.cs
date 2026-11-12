@@ -245,6 +245,9 @@ internal static class SceneRender
             place.TranslateY = -tile.Y / dpi;
         }
 
+        // [S-2119] The scene's wallpaper is the display's: the cards frost over it as on a desktop ([S-2110]).
+        // In use before a card is built, until the picture is written.
+        using var backdrop = job.Wallpaper is { } behind ? RenderWallpaper.Use(behind, new ScreenMetrics(width, height)) : null;
         if (job.Wallpaper is { } wallpaper)
         {
             screen.Children.Add(await WallpaperAsync(wallpaper, width, height).ConfigureAwait(true));
@@ -319,6 +322,7 @@ internal static class SceneRender
         }
 
         await Task.Delay(800).ConfigureAwait(true);
+        await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
         if (cards.FirstOrDefault(c => c.IsFaulted) is { } broken)
         {
             Console.WriteLine($"scene: {job.Widgets[cards.IndexOf(broken)].Spec.Path}: the card broke (its error card shows); see the log");

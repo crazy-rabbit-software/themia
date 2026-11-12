@@ -6752,7 +6752,8 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   (the command line, the file, an unknown scene, kind or style, a missing wallpaper), each named on the
   console; 1 the drawing failed (a preview state a view does not have, a submenu the properties menu does
   not have, a card showing its error card, a tile of the wrong size), nothing written. The system widgets
-  read the sample machine ([S-1931]), never this PC.
+  read the sample machine ([S-1931]), never this PC, and a scene's wallpaper is its display's: the cards
+  frost over it ([S-2119]).
 - **[S-1075]** The scenes file (`store/scenes.json`) is read by Core's `SceneParser`, a trust boundary: the
   whole file or a refusal naming the JSON path and the problem. `screen` (whole DIPs, 320 to 8192, default
   1920 × 1080) and `scenes`, each `name` (unique, `[a-z0-9-]+`), `like` (another scene, before or after it;

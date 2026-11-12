@@ -181,7 +181,7 @@ export const frames = [
     // One widget from its smallest to a large one, standing on one line; two more under it.
     cards: [
       ...row([["sizes", "xs"], ["sizes", "s"], ["sizes", "m"], ["sizes", "l"]], 640, 0.9),
-      ...row([["sizes", "cal-s"], ["sizes", "cal-m"], ["sizes", "cal-l"], ["sizes", "cpu-s"], ["sizes", "cpu-m"]], 1050, 0.75),
+      ...row([["sizes", "cal-s"], ["sizes", "cal-m"], ["sizes", "cpu-s"], ["sizes", "cpu-m"], ["sizes", "cpu-l"]], 1050, 0.75),
     ],
   },
   {
@@ -227,10 +227,10 @@ export const frames = [
   {
     shot: "views",
     cards: [
-      // Three desktops of one PC, fanned: the evening's, the day's on top, the one for focus.
-      { piece: ["evening"], ground: true, x: 90, y: 400, w: 760, r: -5, z: 2 },
-      { piece: ["focus"], ground: true, x: 1070, y: 400, w: 760, r: 5, z: 2 },
-      { piece: ["desktop"], ground: true, x: 500, y: 290, w: 920, z: 3 },
+      // Three desktops of one PC, fanned: the evening's, the day's on top, the one for focus; each named.
+      { piece: ["evening"], ground: true, x: 30, y: 500, w: 820, r: -6, z: 2, bubbles: [{ at: [420, 56], dy: -44 }] },
+      { piece: ["desktop"], ground: true, x: 510, y: 300, w: 900, z: 3, bubbles: [{ at: [960, 0], dy: -44 }] },
+      { piece: ["focus"], ground: true, x: 1070, y: 500, w: 820, r: 6, z: 2, bubbles: [{ at: [1500, 74], dy: -44 }] },
     ],
   },
 ];
