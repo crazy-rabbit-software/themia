@@ -134,6 +134,21 @@ public class SampleDayTests
     }
 
     [Fact]
+    public void S2056_a_price_series_is_a_seeded_walk_of_small_moves_ending_at_its_last_value()
+    {
+        var usd = SampleSeries.Walk("ecb-USD", 63, 1.1584, 0.0035);
+
+        Assert.Equal(usd, SampleSeries.Walk("ecb-USD", 63, 1.1584, 0.0035));
+        Assert.NotEqual(usd, SampleSeries.Walk("ecb-GBP", 63, 1.1584, 0.0035));
+        Assert.Equal(63, usd.Count);
+        Assert.Equal(1.1584, usd[^1], 10);
+        var steps = usd.Zip(usd.Skip(1), (a, b) => Math.Abs(Math.Log(b / a))).ToList();
+        Assert.All(steps, s => Assert.True(s <= (4 * 0.0035) + (0.03 * 0.2), $"step {s}"));
+        Assert.True(steps.Count(s => s > 0.0005) > steps.Count / 2, "it moves most days");
+        Assert.True(steps.Zip(steps.Skip(1), (a, b) => Math.Abs(a - b)).Distinct().Count() > 50, "not a regular curve");
+    }
+
+    [Fact]
     public void S2056_a_sample_picture_is_the_same_every_run_opaque_and_unlike_the_others()
     {
         var first = SamplePictures.Pixels(0, 32, 20);
