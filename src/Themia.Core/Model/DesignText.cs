@@ -12,7 +12,8 @@ namespace Themia.Core.Model;
 /// (default|transparent|#RRGGBB[@percent], [S-6569]), <c>opacity</c> (the background colour's),
 /// <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
 /// <c>itemOpacity</c> (the item background, on the same terms, [S-6510]), <c>itemText</c> (its text
-/// colour, [S-6547]). Pure.
+/// colour, [S-6547]), <c>gap</c> (between neighbouring cards, DIPs, [S-04]). A colour is #RRGGBB, or
+/// empty for the design's own; anything else is refused, not passed on ([S-1075]). Pure.
 /// </summary>
 public static class DesignText
 {
@@ -80,8 +81,8 @@ public static class DesignText
             case "borderopacity" when Fraction(value) is { } o:
                 d.BorderOpacity = o;
                 return true;
-            case "bordercolor" or "bordercolour":
-                d.BorderColor = value;
+            case "bordercolor" or "bordercolour" when Colour(value) is { } border:
+                d.BorderColor = border;
                 return true;
             case "radius" when Number(value) is { } r:
                 d.CornerRadiusPx = r;
@@ -92,14 +93,14 @@ public static class DesignText
             case "opacity" when Fraction(value) is { } o:
                 d.Background.Opacity = o;
                 return true;
-            case "header":
-                d.HeaderBackgroundColor = value;
+            case "header" when Colour(value) is { } header:
+                d.HeaderBackgroundColor = header;
                 return true;
             case "headeropacity" when Fraction(value) is { } o:
                 d.HeaderOpacity = o;
                 return true;
-            case "accent":
-                d.PrimaryColor = value;
+            case "accent" when Colour(value) is { } accent:
+                d.PrimaryColor = accent;
                 return true;
             case "font":
                 d.FontFamily = value;
@@ -110,13 +111,20 @@ public static class DesignText
             case "itemopacity" when Fraction(value) is { } o:
                 d.ItemBackground.Opacity = o;
                 return true;
-            case "itemtext" or "itemtextcolor" or "itemtextcolour":
-                d.ItemTextColor = value;
+            case "itemtext" or "itemtextcolor" or "itemtextcolour" when Colour(value) is { } text:
+                d.ItemTextColor = text;
+                return true;
+            case "gap" when Number(value) is { } g && g >= 0:
+                d.WidgetGapPx = g;
                 return true;
             default:
                 return false;
         }
     }
+
+    /// <summary>A colour as stored (<c>#RRGGBB</c>), empty for the design's own, null for anything else.</summary>
+    private static string? Colour(string value)
+        => value.Length == 0 ? string.Empty : HexColor.TryParse(value, out _, out _, out _) ? HexColor.Normalise(value) : null;
 
     private static double? Number(string value)
         => double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var n) && double.IsFinite(n) ? n : null;

@@ -5921,7 +5921,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-6480]** `--widget-png … --design key=value,...` draws the cards with appearance values (`border`,
   `borderWidth`, `borderOpacity`, `borderColor`, `radius`, `background` and `items` (a fill, [S-6569]),
   `opacity` and `itemOpacity` (their colours' opacity), `header`, `headerOpacity`, `accent`, `font`,
-  `preset`), so a look is checked without ⚙ › Appearance.
+  `itemText`, `gap`, `preset`), so a look is checked without ⚙ › Appearance. The text is read by Core's one
+  `DesignText` parser, which a store scene's `design` uses too ([S-1075]): pairs in order, a colour
+  `#RRGGBB` or empty for the design's own; a pair it cannot read is named (the render prints and skips it,
+  a scene is refused). Tests `SceneParserTests.S6480_`.
 - **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip. The edit markers stay square ([S-31b]).
 - **[S-6482]** The default corner radius is 4px (`DesignState.DefaultCornerRadiusPx`; a radius that is
   not a number loads as 4), by the user's decision: Fluent gives an overlay card 8px. The Default
@@ -6603,6 +6606,57 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   with the Store's code for it (`zh` is `zh-Hans`, `pt` is `pt-BR`, as the translation is
   Brazilian), so the listing shows them; English (`en-US`) is first, the default. It targets Windows
   11 (`MinVersion` 10.0.22000.0), the only Windows it is built and tested on.
+- **[S-1074]** Debug: `--scene-png <scenes.json> <scene> <out.png> [--lang <code>] [--scale <n>]` draws one
+  scene of a store scenes file ([S-1075]), a whole stand-in desktop of real widget cards, off-screen, to one
+  PNG of exactly the display's width and height times `--scale` pixels (default 2, from 0.5 to 4: a
+  1920 × 1080 display is 3840 × 2160) whatever the machine's DPI: the display is laid out in DIPs at the
+  window's scale with layout rounding off (so an edge at any whole or half DIP lands on output pixels)
+  and magnified by scale / DPI, and drawn in tiles of at most 4096 pixels (a `RenderTargetBitmap` scales a
+  larger element down), each a whole number of the window's DIPs, stitched; the display is drawn
+  transparent under its cards (a bitmap covers only what is drawn), so without a wallpaper the PNG keeps
+  the cards' alpha. A bitmap of another size fails the run. One scene per process; the scene's theme is the
+  application theme, chosen before the resources load. Exit codes: 0 written; 2 refused before drawing
+  (the command line, the file, an unknown scene, kind or style, a missing wallpaper), each named on the
+  console; 1 the drawing failed (a preview state a view does not have, a submenu the properties menu does
+  not have, a card showing its error card, a tile of the wrong size), nothing written. The system widgets
+  read this PC through the render's own hub (`StartSystemReadings`, the one call a sample machine will
+  replace).
+- **[S-1075]** The scenes file (`store/scenes.json`) is read by Core's `SceneParser`, a trust boundary: the
+  whole file or a refusal naming the JSON path and the problem. `screen` (whole DIPs, 320 to 8192, default
+  1920 × 1080) and `scenes`, each `name` (unique, `[a-z0-9-]+`), `like` (another scene, before or after it;
+  what it does not set comes from that one; `wallpaper` or `edit` null drops the one it would take; a circle
+  or a missing name is refused), `theme` (`dark`|`light`, default dark), `design` (the `--design` text, read
+  by the one `DesignText` parser, [S-6480]; every pair must read: a colour is `#RRGGBB` or empty, `gap` the
+  card gap), `wallpaper` (a picture's path relative to the file, filled UniformToFill), `widgets` and `edit`.
+  A widget: `kind`, `at` (`[x, y, w, h]` DIPs, wholly on the display), and optionally `state`, `style`,
+  `header`, `background`/`items` (fills), `itemText`, `scale` (0.5 to 2), `align`, `label`, `bare`,
+  `config` (an object) and `selected`. A property the reader does not know or one written twice is refused,
+  numbers are finite, closed sets are their names; a selection needs `edit` and `edit.open` a selection.
+  Tests `SceneParserTests.S1075_`.
+- **[S-1076]** A scene's widget (`SceneWidgets.Build`): the kind installed, its default config with the
+  `config` fragment merged over it (`StateJson.Merged`; a property the kind's config does not have is
+  refused rather than dropped, a value of the wrong type too), the style one of the kind's, then `bare`
+  (transparent, no header, as the first-run desktop's) and over it what the widget names itself. Its card
+  stands where the desktop puts it: the whole cell (`GridGeometry.ToPixels` of its fractions), the
+  design's gap inside it (`ApplyGap`), its own content scale, the language's flow. Each card has a preview
+  host of its own, so its `state` (applied as `--widget-png --state` does: a widget waiting for setup runs
+  for the preview first) and a kit widget's recordings ([S-9929]) are its own; the hosts share one link
+  board. A preview state's name lives in the view, so it is checked when drawn ([S-1074]). Tests
+  `SceneWidgetsTests.S1076_`.
+- **[S-1077]** A scene with `edit` is drawn in edit mode as the edit bar's pictures compose it ([S-3713]):
+  every card in edit mode with the marker layer, the real bar (`bar`, default true) at the top centre with
+  its trail naming the selection, the add menu hung under Add widget (`add`), the snap grid (`grid`, the real
+  `SnapGridOverlay`, its lines on whole output pixels), and with a selection the real properties menu placed
+  by `StripPlacement` beside its painted box and clear of the bar, `open` a submenu path opened in it. A
+  step of the path is a row's words in the language drawn or a row's key; the card's own rows
+  (`appearance`, `style`, `header`, `align`) have keys that read the same in every language, a module's own
+  lines only their words.
+- **[S-1078]** `store/capture.ps1 [-Lang en] [-Only a,b] [-NoBuild] [-Jobs 4]` builds the Debug app into
+  `artifacts/store` (unless `-NoBuild`), draws every scene of `store/scenes.json` (or those named) one
+  process per scene, a few at a time, to `store/out/shots/<lang>/<scene>.png` (git-ignored; the console
+  beside it as `<scene>.log`), and fails naming each scene whose PNG did not appear or whose process did not
+  exit 0. A test reads the checked-in `store/scenes.json`: every scene parses, every kind, style and config
+  fragment is one this build has, every wallpaper exists (`SceneWidgetsTests.S1078_`).
 - Not ported: Lemon Squeezy keys, activation counting, masked-key reveal, the newsletter row and the
   `THEMIA-DEV-PRO` bypass (Store only, by decision); per-device limits (the Store ties Pro to the
   Microsoft account). Not verified here: anything needing a published Store listing (purchase
