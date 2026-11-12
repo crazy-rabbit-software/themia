@@ -26,8 +26,8 @@ the module host's `MeterHostTests` (`S6310_`, `S6318_`).
   cell per logical processor ([S-6319], `MeterPlan.Graphs`), each that core's history drawn by the
   shared `SparkBand` edge to edge in its cell (stepping as the main graph does, [S-6331]) in its load's
   role, its load in Caption over it where the cell has room. The Chart span applies (the span line is offered in this
-  style as in Graph, `GaugeConfig.StyleChartsHistory`). Debug: `--style coregraphs --state history`
-  draws sixteen fixture cores.
+  style as in Graph, `GaugeConfig.StyleChartsHistory`). Debug: `--style coregraphs --machine sample`
+  draws the sample machine's sixteen cores, each its own history ([S-1932]).
 - Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
   Appearance, and under Style in the Graph and Core graphs styles the Chart span every meter has
   ([S-1122], `MeterMenuHostTests`).

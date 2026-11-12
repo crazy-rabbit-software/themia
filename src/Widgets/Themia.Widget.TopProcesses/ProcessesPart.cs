@@ -136,23 +136,6 @@ internal sealed class ProcessesPart : DetailPart
         return path;
     }
 
-#if DEBUG
-    /// <summary>[S-1917] A fixed set of processes, so the renders are one picture on every machine.</summary>
-    public override DetailSheet? SampleSheet()
-    {
-        ProcessSample[] samples =
-        [
-            new("dwm", 0.08, 249L << 20), new("Themia", 0.07, 492L << 20, 9), new("MsMpEng", 0.04, 589L << 20), new("System", 0.02, 16L << 10),
-            new("explorer", 0.012, 154L << 20), new("Karpo", 0.011, 43L << 20, 2), new("python", 0.01, 8L << 20), new("claude", 0.009, 1900L << 20, 14),
-            new("csrss", 0.008, 2L << 20, 2), new("Memory Compression", 0.004, 9900L << 20), new("dotnet", 0.003, 2200L << 20, 24),
-            new("VBCSCompiler", 0.002, 581L << 20), new("brave", 0.002, 524L << 20, 17), new("msedgewebview2", 0.001, 522L << 20, 26),
-            new("Spotify", 0.001, 448L << 20, 8), new("svchost", 0.001, 366L << 20, 98),
-        ];
-        var ranked = ProcessTable.Rank(samples, _config.SortBy, _config.GroupByName);
-        return new DetailSheet(null, null, [], ProcessTable.Rows(Strings.Current, ranked, _config.SortBy, _config.MaxRows, _ => null));
-    }
-#endif
-
     public override void Detach()
     {
         _shown = [];

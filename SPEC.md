@@ -4406,8 +4406,8 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   into it would show that at the right edge. So nothing on screen changes value as points arrive, and
   a folded chart steps one slot each time a slot finishes ([S-6331]). The traces sit in a `Canvas`,
   not a `Grid`, so the shapes keep their own coordinates and the band's own clip is the only edge. A
-  rate chart's top is the drawn slots' peak ([S-1124]). Debug: `--widget-png <Kind> --state history
-  [--span s]` draws a fixture history at a span (an hour folds on any tile). *(Its slide, its lag of
+  rate chart's top is the drawn slots' peak ([S-1124]). Debug: `--widget-png <Kind> --machine sample
+  [--span s]` draws the sample machine's full history at a span ([S-1932]) (an hour folds on any tile). *(Its slide, its lag of
   a slot less one sample and `--progress` are retired by [S-6330].)*
 - **[S-6323]** *(Retired by [S-6330]: readouts no longer glide between readings.)*
 - **[S-6324]** *(Retired by [S-6330].)*
@@ -4464,7 +4464,7 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   the reading, inside the content inset. A kind's items come from the hub like its reading
   (`MeterPart.WatchItems`, [S-2500]): one read per tick for every widget, watched only while a style
   draws them and let go when another style is chosen ([S-6005]). Show history and Chart span stay
-  the Graph style's settings. Debug: `--state sample` draws the kind's fixed reading and items in
+  the Graph style's settings. Debug: `--machine sample` draws the sample machine's reading and items ([S-1931]) in
   every style.
 - **[S-6301]** An item's role: the usage pressure's ([S-1123]: the accent, Caution from 70 %, Critical
   from 90 %); an item with no reading is the disabled role, never "idle". The heat-map shades
@@ -4564,7 +4564,9 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   it in one line, before its cards are built: `using var machine = SampleMachine.Install(ticker,
   dispatcher);` (`Themia.App.Services.SystemData.SampleMachine`, Debug builds). The quick toggles
   draw `--state on|off` (the shared `QuickToggleView`, so a scene can show Wi-Fi on beside others
-  off) and the power buttons stay inert in every render ([S-1251]).
+  off) and the power buttons stay inert in every render ([S-1251]). It is the one fixed picture of
+  the system widgets: the meters' `history` and `sample` states and the details' `sample` state
+  (a second look, a sine-wave fixture) are gone; `unavailable` stays.
 - **[S-1932]** The sample's charted sources answer their whole history, oldest first, as many points
   as the hub keeps (`SeriesHistory.Capacity`), and the hub starts a series of a source with a past
   (`HubSource.Past`) with it, so every chart is full on the first frame. Each has its own shape, out

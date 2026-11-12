@@ -64,14 +64,6 @@ internal sealed class BatteryDetailPart : DetailPart
     }
 
 #if DEBUG
-    /// <summary>[S-1917] A laptop's battery on a desktop: fixture figures through the real <see cref="BatteryDetailRules"/>.</summary>
-    public override DetailSheet? SampleSheet()
-    {
-        var power = new BatteryPower(true, 82, false, false, TimeSpan.FromMinutes(194));
-        var pack = new BatteryPack(false, 57_000, 51_300, 42_000, -9_400, 12_380, 214, 31, "Li-polymer", "SMP", 1);
-        return BatteryDetailRules.Sheet(Strings.Current, power, pack);
-    }
-
     /// <summary>[S-1942] A desktop's sheet on any machine.</summary>
     public override DetailSheet? AbsentSheet()
         => BatteryDetailRules.Sheet(Strings.Current, new BatteryPower(false, null, true, false, null), null);

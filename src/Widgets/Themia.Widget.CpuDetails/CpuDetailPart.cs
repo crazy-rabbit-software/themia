@@ -60,12 +60,6 @@ internal sealed class CpuDetailPart : DetailPart
         host.Present(CpuDetailRules.Sheet(Strings.Current, figures));
     }
 
-#if DEBUG
-    /// <summary>[S-1917] A fixed processor, so the renders are one picture on every machine.</summary>
-    public override DetailSheet? SampleSheet()
-        => CpuDetailRules.Sheet(Strings.Current, new CpuFigures(0.33, 4620, 3190, 16, 24, 382, 7393, 209_439, TimeSpan.FromHours(67), new CpuTemperature(48, CpuTemperatureSource.CoreTemp), "Core i9-12900K"));
-#endif
-
     public override void Detach()
     {
         _processor.Release();

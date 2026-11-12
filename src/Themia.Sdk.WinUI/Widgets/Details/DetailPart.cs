@@ -80,9 +80,6 @@ public abstract class DetailPart
     public abstract void Detach();
 
 #if DEBUG
-    /// <summary>[S-1917] Debug renders: the sheet <c>--state sample</c> shows instead of the live one (what a render machine cannot show), or null to keep the live one.</summary>
-    public virtual DetailSheet? SampleSheet() => null;
-
     /// <summary>[S-1942] Debug renders: the sheet <c>--state unavailable</c> shows, a thing not on this machine; null for a kind that cannot be absent.</summary>
     public virtual DetailSheet? AbsentSheet() => null;
 #endif

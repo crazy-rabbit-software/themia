@@ -216,11 +216,4 @@ public abstract class MeterPart
 
     /// <summary>[S-1940] The items a look draws for a thing not on this PC (the GPU's engines, each "--"); none by default.</summary>
     public virtual IReadOnlyList<MeterItem> AbsentItems => [];
-
-    /// <summary>[S-1917] Debug renders: fixed items for the bar and tile looks (<c>--state sample</c>).</summary>
-    public virtual IReadOnlyList<MeterItem> SampleItems => [];
-
-    /// <summary>[S-1917] Debug renders: the fixed reading <c>--state sample</c> shows, in this kind's own terms.</summary>
-    public virtual MeterReading SampleReading => new(0.62, Formatting.Percent(0.62), true);
-
 }

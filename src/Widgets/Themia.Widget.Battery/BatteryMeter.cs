@@ -40,9 +40,6 @@ internal sealed class BatteryMeter : MeterPart
         _ => MeterLook.Graph,
     };
 
-    /// <summary>64 %, charging.</summary>
-    public override MeterReading SampleReading => new(0.64, Formatting.Percent(0.64), true, Charging: true);
-
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, reading.Charging);
 

@@ -1771,8 +1771,8 @@ registration path: when a table becomes a descriptor member, the table is delete
   row's shell icon (`AppIconSource`, `ThemeOf` with it). The shared parts into the SDK, public,
   namespaces kept: `MeterView` with its looks, faces and preview states, `MeterPart`/`MeterItemsWatch`,
   `BarList`/`TileGrid`, `CoreGraphGrid`, `SparkBand` (`SparkScroll` with the data), `MeterMenuLines` (was `MeterSettingsRows`),
-  `GaugeConfig`/`MeterTiming`; `DetailView` and `DetailPart` (the sample state asks the part for its
-  fixture sheet, `DetailPart.SampleSheet`, instead of naming the battery details), `DetailFace`,
+  `GaugeConfig`/`MeterTiming`; `DetailView` and `DetailPart` (the unavailable state asks the part for its
+  absent sheet, `DetailPart.AbsentSheet`, instead of naming the battery details), `DetailFace`,
   `FolderRealize`; the pairs' parts: `DriveIcon`/`DriveBar`, `AudioLook`, `AudioDeviceLine`,
   `GpuAdapterLine`, `PingHostLine` (were the page rows) with `HostAddress.DefaultPingHost`. Widget-only rules went with their
   widget (`PingWindow` to the ping details, `VisualizerLayout` and `SpectrumCanvas` to the visualizer,

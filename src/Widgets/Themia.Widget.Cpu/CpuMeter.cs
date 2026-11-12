@@ -37,10 +37,6 @@ internal sealed class CpuMeter : MeterPart
             static (cores, core, max) => cores.History.Newest(core, max),
             static cores => cores.History.Added);
 
-    /// <summary>Sixteen cores, some idle, some busy, one pegged: every shade of the grid at once.</summary>
-    public override IReadOnlyList<MeterItem> SampleItems => Items(
-        [0.12, 0.64, 0.05, 0.31, 0.92, 0.18, 0.44, 0.02, 0.73, 0.27, 0.58, 0.09, 0.36, 1.0, 0.21, 0.48]);
-
     private static IReadOnlyList<MeterItem> Items(IReadOnlyList<double?> loads)
         => [.. loads.Select(load => new MeterItem(load, MeterPressures.For(PressureScale.Usage, load)))];
 }

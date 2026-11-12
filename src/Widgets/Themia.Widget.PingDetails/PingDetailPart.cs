@@ -78,12 +78,6 @@ internal sealed class PingDetailPart : DetailPart
         host.Present(PingDetailRules.Sheet(Strings.Current, stats, _config.EffectiveHost, status));
     }
 
-#if DEBUG
-    /// <summary>[S-1917] A fixed minute of answers, so the renders are one picture on every machine.</summary>
-    public override DetailSheet? SampleSheet()
-        => PingDetailRules.Sheet(Strings.Current, new PingWindowStats(12, 12, 23, 18, 24, 41, 4, 0), _config.EffectiveHost, PingStatus.Online);
-#endif
-
     public override void Detach()
     {
         _watch?.Dispose();

@@ -36,16 +36,6 @@ internal sealed class MemoryDetailPart : DetailPart
         }
     }
 
-#if DEBUG
-    /// <summary>[S-1917] A fixed 64 GB machine, so the renders are one picture on every machine.</summary>
-    public override DetailSheet? SampleSheet()
-    {
-        const ulong Gb = 1UL << 30;
-        var figures = new PerformanceFigures(98 * Gb, 114 * Gb, 64 * Gb, 29 * Gb, 24 * Gb, 41 * Gb / 10, 29 * Gb / 10, 209_439, 382, 7393);
-        return MemoryDetailRules.Sheet(Strings.Current, figures, new PagefileUsage(50 * Gb, 17 * Gb / 10));
-    }
-#endif
-
     public override void Detach()
     {
         _figures.Release();

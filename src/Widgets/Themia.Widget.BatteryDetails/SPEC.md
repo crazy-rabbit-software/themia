@@ -8,8 +8,8 @@ driver's structures, [S-2425] the status, times and health), read by the host's 
 
 Owning files: everything in this folder: `BatteryDetailsModule.cs` (descriptor, view factory, JSON
 context; no settings rows), `BatteryDetailsConfig.cs` (what it asks the hub, `IReadsSystem`),
-`BatteryDetailPart.cs` (its half of the shared `DetailView`, and the debug sample: a laptop's
-battery on a desktop, `--state sample`), `Localization/Locales/` (its own `BatteryDetailsStr`, 30
+`BatteryDetailPart.cs` (its half of the shared `DetailView`; a laptop's
+battery on a desktop is `--machine sample`, [S-1931]), `Localization/Locales/` (its own `BatteryDetailsStr`, 30
 languages). Tests: `Tests/BatteryDetailsTests.cs` (run by `tests/Themia.Modules.Tests`).
 
 - **[S-9800]** Battery details as a module: it reads the hub's charge and battery pack feeds

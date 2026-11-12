@@ -30,9 +30,6 @@ internal sealed class MemoryMeter : MeterPart
     public override MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems)
         => MeterItemsWatch.Of(hub, Sources.Memory, snapshot => snapshot is { } s ? Items(s) : [], onItems);
 
-    /// <summary>Ten of sixteen gigabytes in use.</summary>
-    public override IReadOnlyList<MeterItem> SampleItems => Items(new MemorySnapshot(16UL << 30, 6UL << 30));
-
     private static IReadOnlyList<MeterItem> Items(MemorySnapshot snapshot)
     {
         // The reading's own figures ([S-1130]), so the bar and the number agree to the byte.

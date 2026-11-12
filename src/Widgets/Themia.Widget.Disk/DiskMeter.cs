@@ -86,11 +86,6 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
     public override MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems)
         => MeterItemsWatch.Of(hub, Sources.DiskActivity, snapshot => Items(snapshot.Activity?.Rates), onItems);
 
-    /// <summary>42 MB/s read, 8 MB/s written.</summary>
-    public override IReadOnlyList<MeterItem> SampleItems => Items(new DiskRates(42 * 1024 * 1024, 8 * 1024 * 1024), [64 * 1024 * 1024]);
-
-    public override MeterReading SampleReading => new(0.4, Formatting.Rate(50 * 1024 * 1024), true, Value: 50 * 1024 * 1024);
-
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {
         var previous = (_config.Scope, _root);

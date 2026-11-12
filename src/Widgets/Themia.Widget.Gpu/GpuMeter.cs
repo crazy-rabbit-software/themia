@@ -105,18 +105,6 @@ internal sealed class GpuMeter : MeterPart
         _ => GpuStr.Styles_Gpu_EngineVideoDecode.Text(),
     };
 
-    /// <summary>A 62 % load.</summary>
-    public override MeterReading SampleReading => new(0.62, Formatting.Percent(0.62), true, Value: 62);
-
-    /// <summary>The sample's engines.</summary>
-    public override IReadOnlyList<MeterItem> SampleItems => Items(
-    [
-        new GpuEngineLoad(GpuEngineKind.ThreeD, 62),
-        new GpuEngineLoad(GpuEngineKind.Copy, 8),
-        new GpuEngineLoad(GpuEngineKind.VideoEncode, 0),
-        new GpuEngineLoad(GpuEngineKind.VideoDecode, 23),
-    ]);
-
 #if DEBUG
     /// <summary>[S-1940] A PC with no adapter to read.</summary>
     public override MeterReading? AbsentReading => MeterReading.Missing(GpuStr.WidgetsB_Gpu_NoAdapter.Text());
