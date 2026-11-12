@@ -51,7 +51,7 @@ public sealed class KitBinding : IDisposable
         _spec = spec;
         _actions = actions;
         _handle = handle;
-        List = new KitList(host, spec, actions, Run);
+        List = new KitList(host, spec, actions, Run) { Clock = _clock };
         Header = new KitHeader(host);
         State = new KitStatePanel(glyph, host) { Visibility = Visibility.Collapsed };
     }
@@ -74,6 +74,23 @@ public sealed class KitBinding : IDisposable
     /// <summary>The area of the last draw.</summary>
     public WidgetArea Area => _area;
 
+    /// <summary>
+    /// [S-2050] The clock the rows' ages and times and the stale rule read: the real one, or a preview's
+    /// sample moment, so a render draws the same ages at any hour.
+    /// </summary>
+    public Func<DateTimeOffset> Clock
+    {
+        get => _clock;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            _clock = value;
+            List.Clock = value;
+        }
+    }
+
+    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
+
     /// <summary>[S-7064] The widget's own header buttons for a screen (Mail's compose and sort), asked on every draw.</summary>
     public Func<KitScreen, IReadOnlyList<KitHeaderButton>>? HeaderButtons { get; init; }
 
@@ -85,7 +102,7 @@ public sealed class KitBinding : IDisposable
     /// </summary>
     public IReadOnlyList<WidgetAction> CardActions
         => _config is { Configured: true } && _source is not null
-            ? [new WidgetAction(Glyphs.Refresh, KitFreshness.RefreshLabel(Strings.Current, Last.Outcomes, DateTimeOffset.Now), () => _source?.Show(refresh: true))]
+            ? [new WidgetAction(Glyphs.Refresh, KitFreshness.RefreshLabel(Strings.Current, Last.Outcomes, _clock()), () => _source?.Show(refresh: true))]
             : [];
 
     /// <summary>Start: listen to the source and the language, draw what it holds, and tell it the widget is on screen.</summary>
@@ -162,7 +179,7 @@ public sealed class KitBinding : IDisposable
 
         _spec = spec;
         List.Detach();
-        List = new KitList(_host, spec, _actions, Run);
+        List = new KitList(_host, spec, _actions, Run) { Clock = _clock };
 
         if (_attached)
         {
@@ -216,13 +233,13 @@ public sealed class KitBinding : IDisposable
         {
             var items = KitItems.Clean(read.Items, read.WebHosts);
             var empty = read.EmptySentence is { } own ? own.Text() : _spec.Empty();
-            Screen = KitScreens.Decide(Strings.Current, read.Accounts, read.Chosen ?? [], read.Outcomes, items.Count, empty, grantPage: read.GrantPage, now: DateTimeOffset.Now);
+            Screen = KitScreens.Decide(Strings.Current, read.Accounts, read.Chosen ?? [], read.Outcomes, items.Count, empty, grantPage: read.GrantPage, now: _clock());
 
             if (Screen.Kind == KitScreenKind.Items)
             {
                 State.Hide();
                 List.Visibility = Visibility.Visible;
-                var now = DateTimeOffset.Now;
+                var now = _clock();
                 List.Show(items, KitLadder.Plan(_area, _spec, _config.Choices), _area, now);
 
                 // [S-7042] The one stale rule: a copy on screen the last attempt of some source could

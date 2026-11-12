@@ -565,7 +565,7 @@ public sealed partial class KitList
             return;
         }
 
-        Show(_items, _plan, _area, DateTimeOffset.Now);
+        Show(_items, _plan, _area, Clock());
     }
 
     // ---- the drag ([S-786]) ---------------------------------------------------------------------

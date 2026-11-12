@@ -47,6 +47,9 @@ public sealed partial class KitList : Grid
 
     private ScrollFade? _fade;
 
+    /// <summary>[S-2050] The clock a redraw of its own reads (the binding's).</summary>
+    internal Func<DateTimeOffset> Clock { get; set; } = static () => DateTimeOffset.Now;
+
     /// <summary>[S-7037] A show held back under a drag or an editor, drawn when they let go.</summary>
     private (IReadOnlyList<KitItem> Items, KitPlan Plan, WidgetArea Area, DateTimeOffset Now)? _held;
     private IReadOnlyList<KitItem> _items = [];
