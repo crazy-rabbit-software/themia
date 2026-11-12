@@ -18,12 +18,13 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-4840] The files opened last, as Windows lists them in Recent Items, newest first, on the
 /// family's rows ([S-6711]): the file's icon as the lead, its name primary, when it was opened as the
-/// value, its folder on the second line where the tile is regular both ways ([S-4842]). A click focuses
+/// value, its folder on the second line where Lines per row says so ([S-11200]: as many rows as the
+/// config says, at every size; more files scroll). A click focuses
 /// a row and a double-click opens the file, as every list ([S-7065]); the row menu opens its location
 /// or takes it off the list. The list is the shared <see cref="RecentItems"/>, redrawn when its folder
 /// changes; the minute tick only keeps "2h" honest. Keys through the lease, as every list ([S-1288]).
 /// </summary>
-internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => RecentFilesModule.Opens;
@@ -49,11 +50,9 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
     private IDisposable? _tick;
     private IReadOnlyList<RecentFile> _files = [];
     private bool _unreadable;
-    private WidgetArea _area;
-    private RecentFilesPlan _plan = RecentFilesLayout.Plan(default);
+    private RecentFilesConfig _config = new();
     private int _cursor = -1;
     private bool _detached;
-    private double _scale = 1;
 
     /// <summary>[S-6913] What the view asks of the host: the recent items, the file icons, the launcher, the file operations.</summary>
     private readonly IWidgetHost _widgetHost;
@@ -89,24 +88,15 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
             _items ??= _widgetHost.RecentFiles.Subscribe(OnItems);
         }
 
-        _tick ??= ticker.Subscribe(((config as RecentFilesConfig) ?? new RecentFilesConfig()).TickInterval, Render);
+        _config = config as RecentFilesConfig ?? new RecentFilesConfig();
+        _tick ??= ticker.Subscribe(_config.TickInterval, Render);
     }
 
-    public void ApplyConfig(WidgetConfig config) => Render();
-
-    /// <summary>[S-4842] [S-663] A new size: draw again only when the ladder lands somewhere else or the rows that fit change.</summary>
-    public void ApplySize(WidgetArea area)
+    /// <summary>[S-11200] Rows and Lines are the config's; the size follows them, never the other way.</summary>
+    public void ApplyConfig(WidgetConfig config)
     {
-        var plan = RecentFilesLayout.Plan(area);
-        var rows = RecentFilesLayout.Rows(area, plan);
-        var moved = plan != _plan || rows != RecentFilesLayout.Rows(_area, _plan);
-        _area = area;
-        _scale = XamlRoot?.RasterizationScale ?? 1;
-        if (moved)
-        {
-            _plan = plan;
-            Render();
-        }
+        _config = config as RecentFilesConfig ?? new RecentFilesConfig();
+        Render();
     }
 
     public void Detach()
@@ -174,8 +164,9 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
             _list.Children.Add(row);
         }
 
-        // [S-6712] As tall as its whole rows: never a part of one at its foot.
-        _scroll.Height = _area.IsMeasured ? Math.Min(_rows.Count, RecentFilesLayout.Rows(_area, _plan)) * _plan.RowHeight : double.NaN;
+        // [S-11200] As tall as the rows the config asks for: never a part of one at its foot.
+        var shown = _config.RowsShown;
+        _scroll.Height = Math.Min(_rows.Count, shown.Rows) * FamilyShape.RowHeight(shown.Lines);
 
         _cursor = _cursor < _rows.Count ? _cursor : -1;
         ShowCursor();
@@ -184,28 +175,26 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
 
     private Grid BuildRow(RecentFile file, DateTimeOffset now)
     {
-        var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines };
-        block.Show(file.Name, _plan.Time ? Formatting.Ago(file.Opened, now) : null, file.Folder);
+        // [S-11200] The icon and the time always; the folder on the second line as Lines says.
+        var block = new RowBlock(RowKind.List, FamilyShape.Icon) { Lines = _config.RowsShown.Lines };
+        block.Show(file.Name, Formatting.Ago(file.Opened, now), file.Folder);
 
-        if (_plan.Lead)
+        // The shell's icon for the file; a page glyph until it comes, and for a file that has none.
+        var image = new Image { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
+        var fallback = Family.Glyph(Glyphs.File);
+        var icon = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Children = { fallback, image } };
+        var entry = new FolderEntry(file.Name, file.Path, false, 0, file.Opened, false);
+        var pixels = (int)Math.Ceiling(FamilyShape.Icon * (XamlRoot?.RasterizationScale ?? 1));
+        if (_widgetHost.FileIcons.TryIcon(entry, pixels, out var known))
         {
-            // The shell's icon for the file; a page glyph until it comes, and for a file that has none.
-            var image = new Image { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
-            var fallback = Family.Glyph(Glyphs.File);
-            var icon = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Children = { fallback, image } };
-            var entry = new FolderEntry(file.Name, file.Path, false, 0, file.Opened, false);
-            var pixels = (int)Math.Ceiling(FamilyShape.Icon * _scale);
-            if (_widgetHost.FileIcons.TryIcon(entry, pixels, out var known))
-            {
-                ShowIcon(image, fallback, known);
-            }
-            else
-            {
-                _ = LoadIconAsync(image, fallback, entry, pixels);
-            }
-
-            block.Lead(icon);
+            ShowIcon(image, fallback, known);
         }
+        else
+        {
+            _ = LoadIconAsync(image, fallback, entry, pixels);
+        }
+
+        block.Lead(icon);
 
         // [S-6627] The focused file is marked as the desktop marks a selected one: the one selection
         // chrome, laid behind the row over the whole of it, so marking it moves nothing.

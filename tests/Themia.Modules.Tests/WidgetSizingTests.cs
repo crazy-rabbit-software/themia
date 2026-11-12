@@ -27,7 +27,7 @@ public sealed class WidgetSizingTests
         "energySaverToggle", "exchangeRates", "focusSession", "folder", "gallery", "gameModeToggle", "gpu",
         "gpuDetails", "habitTracker", "hibernate", "lock", "memoryDetails", "microphoneToggle", "mixer",
         "monoAudioToggle", "moon", "music", "network", "networkDetails", "nextMeeting", "nightLightToggle", "notes",
-        "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour", "recentFiles", "recycleBin",
+        "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour",
         "removableDrives", "restart", "rotationLockToggle", "rss", "scratchpad", "screenOff", "screenTimeApps",
         "screenTimeChart", "screenTimeDonut", "shortcuts", "shutdown", "signOut", "sleep", "soundToggle",
         "spatialSoundToggle", "stocks", "stopwatch", "sun", "topProcesses", "videoStream", "volume",

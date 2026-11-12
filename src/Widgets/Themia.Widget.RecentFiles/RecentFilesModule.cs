@@ -7,7 +7,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.RecentFiles;
 
 [assembly: ThemiaWidget("recentFiles", typeof(RecentFilesModule))]
@@ -34,12 +36,17 @@ public sealed class RecentFilesModule : IWidgetModule
         Label = RecentFilesStr.RecentFiles_Label.Local(),
         Description = RecentFilesStr.RecentFiles_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(320, 300),
+        Sizing = c => KitSizing.Sizing(((RecentFilesConfig)c).RowsShown, addFooter: false),
+        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((RecentFilesConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Files, 0, 2),
     };
 
     public FrameworkElement CreateView(IWidgetHost host) => new RecentFilesView(host);
+
+    /// <summary>[S-11200] Rows and Lines per row, the kit's two lines ([S-2440]): its only settings.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => menu.Lines.AddRange(KitMenuLines.Rows(menu, (RecentFilesConfig)config, offersLines: true));
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

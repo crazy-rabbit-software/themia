@@ -42,16 +42,13 @@ public sealed class RecycleBinTests
     }
 
     [Fact]
-    public void S4862_the_size_climbs_its_steps_the_count_comes_under_it_and_empty_where_the_controls_fit()
+    public void S11201_one_fixed_size_holds_the_header_the_reading_its_count_and_empty()
     {
-        // The view's area: the card less its header (36 of a card's height).
-        static RecycleBinPlan At(double width, double cardHeight) => RecycleBinLayout.Plan(new WidgetArea(width, cardHeight - FamilySpace.ContentTop));
+        var sizing = ModuleCatalog.Of(new WidgetId("recycleBin")).SizingOf();
 
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: false), At(120, 120));
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: true), At(200, 150));
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: true), At(320, 240));
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: true), At(480, 160));
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big40, Count: true, Button: true), At(800, 560));
-        Assert.False(RecycleBinLayout.Plan(default).Button);
+        Assert.False(sizing.IsLegacy);
+        Assert.True(sizing.FixedWidth && sizing.FixedHeight);
+        Assert.Equal(new SizeDip(180, 36 + 36 + 16 + 8 + 28 + 12), sizing.Natural);
+        Assert.Empty(sizing.Problems());
     }
 }

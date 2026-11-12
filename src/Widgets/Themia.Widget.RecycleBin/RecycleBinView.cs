@@ -16,12 +16,13 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-4860] How full the Recycle Bin is, on the family's blocks: its size as a Readout with the item
 /// count under it, and Empty as the one main action in the Controls row at the bottom inset, which
-/// hands the emptying to Windows, confirmation and all. An empty bin is the Status row. A click
+/// hands the emptying to Windows, confirmation and all: all three always there, at one fixed size
+/// ([S-11201]); an empty bin reads "0 bytes", "No items", with Empty disabled. A click
 /// elsewhere on the tile opens the bin. The answer is the host's one answer
 /// (<see cref="IWidgetHost.RecycleBin"/>) the Shortcuts badge reads, on its cadence: one query for
 /// every widget showing the bin.
 /// </summary>
-internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions
 {
     /// <inheritdoc />
     public CardOpen? Opens => RecycleBinModule.Opens;
@@ -29,12 +30,9 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
     private readonly ReadoutBlock _size = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly ControlsBlock _controls = new();
     private readonly Button _empty;
-    private readonly StatusBlock _status = new();
 
     private IWidgetSurface? _surface;
     private IDisposable? _binWatch;
-    private WidgetArea _area;
-    private RecycleBinPlan _plan = RecycleBinLayout.Plan(default);
     private bool _detached;
 
     /// <summary>The answer drawn: the shared one, which a preview replaces.</summary>
@@ -51,11 +49,10 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
         _empty = _controls.Main(RecycleBinStr.RecycleBin_Empty.Text(), () => _ = EmptyAsync());
         _controls.VerticalAlignment = VerticalAlignment.Bottom;
         _controls.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        _status.Hide();
+        _size.Use(FamilyType.Big28);
 
         Children.Add(_size);
         Children.Add(_controls);
-        Children.Add(_status);
 
         // The whole tile is the way into the bin, as its icon on the desktop is.
         Background = Family.Brush(ColourRole.Clear);
@@ -74,14 +71,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config) => Render();
 
-    public void ApplySize(WidgetArea area)
-    {
-        _area = area;
-        _plan = RecycleBinLayout.Plan(area);
-        Render();
-    }
-
-    /// <summary>[S-4863] Open the bin, and Empty — the same command as the button, for a tile too small for it.</summary>
+    /// <summary>[S-4863] Open the bin, and Empty: the same command as the button, from the card's menu too.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
     [
         new(Glyphs.Open, RecycleBinStr.RecycleBin_Open.Text(), OpenBin),
@@ -104,7 +94,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
 
     private void OnLanguage(Locale locale) => Render();
 
-    /// <summary>[S-4861] [S-4862] The size, its count and Empty as the plan has room; an empty bin, the Status row.</summary>
+    /// <summary>[S-4861] [S-11201] The size, its count and Empty, always; Empty disabled while there is nothing to empty.</summary>
     private void Render()
     {
         if (_detached)
@@ -116,27 +106,15 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
         var state = _state();
         ToolTipService.SetToolTip(this, RecycleBinState.Tooltip(locale, RecycleBinStr.WidgetsC_Location_RecycleBin.Text(), state));
 
-        if (state is { IsEmpty: true })
-        {
-            _status.Show(StatusKind.Empty, Glyphs.RecycleBin, RecycleBinLayout.CountText(locale, state) ?? string.Empty);
-            _size.Visibility = Visibility.Collapsed;
-            _controls.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        _status.Hide();
         if (_empty.Content is TextBlock label)
         {
             label.Text = RecycleBinStr.RecycleBin_Empty.Text();
         }
 
-        _size.Visibility = Visibility.Visible;
-        _size.Use(_plan.Step);
         var size = ReadoutRules.Split(RecycleBinLayout.SizeText(locale, state));
-        _size.Show(size.Value, size.Unit, _plan.Count ? RecycleBinLayout.CountText(locale, state) : null);
+        _size.Show(size.Value, size.Unit, RecycleBinLayout.CountText(locale, state) ?? string.Empty);
 
-        // Empty is offered only when there is something to empty, and not twice at once (process-wide).
-        _controls.Visibility = _plan.Button && state is not null ? Visibility.Visible : Visibility.Collapsed;
+        // Empty is always there; it works only when there is something to empty, and not twice at once (process-wide).
         _empty.IsEnabled = RecycleBinState.CanEmpty(state, _widgetHost.RecycleBin.Emptying);
     }
 
