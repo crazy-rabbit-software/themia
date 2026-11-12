@@ -88,15 +88,21 @@ ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview
   (16 either side and above the foot, [S-6703]), at least two lines; the formatting bar is not a row of
   the body ([S-3963]). The widget is the one note at every size: there is no note list beside the text,
   at any size (user decision; the header's picker switches notes). The note is drawn in the family's
-  steps ([S-6700]): a first-level heading (the note's title) Title, 20 on its 28 line, BodyStrong on a
-  compact width where a larger heading wraps its marker onto a line of its own; every other line Body,
+  steps ([S-6700]): a first-level heading (the note's title) Title, 20 on its 28 line, at every width
+  ([S-11206]); every other line Body,
   14 on 20, lower headings BodyStrong; two weights (a bold span 600); the markdown marks tertiary, a done
   task, code and a quote secondary, everything else primary, given to the RichEdit as the roles' opaque
   colours on the card ([S-6738]). A note it cannot show (deleted, unreadable, no notes on this PC) is the
   Status row at the top ([S-6714]; the warning for an unreadable one).
 - **[S-1364]** The header title is the note's title (the user's own widget label still wins). A
-  chevron in the header opens the note picker (every note, New note, Rename…, Delete note…), except at
-  XS (it would push the title out).
+  chevron in the header opens the note picker (every note, New note, Rename…, Delete note…), at every
+  size ([S-11206]).
+- **[S-11206]** Converted to the sizing ([S-2438]): the text alone in a free range, 160..600 wide and
+  100..600 high (a new one 300 × 220, `NotesLayout.Sizing`); the text wraps and scrolls. Nothing appears
+  or disappears with the size: the title is Title at every width (its BodyStrong step on a compact
+  width is gone) and the picker is there at every width. The formatting bar while editing ([S-3963])
+  stands in the header and folds its buttons behind More by the header's width, as a header folds its
+  buttons; it is not a part of the body.
 - **[S-1365]** The bar's buttons never take focus, so a command runs on the note's selection. Bold,
   italic, strikethrough, bulleted list and checklist are Segoe Fluent glyphs checked against the font;
   heading and numbered list are lettered ("H", "1.") because the font has neither.

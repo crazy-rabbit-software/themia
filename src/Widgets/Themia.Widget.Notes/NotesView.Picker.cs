@@ -60,11 +60,11 @@ internal sealed partial class NotesView
     }
 
     /// <summary>
-    /// The picker shows wherever there is a pool to pick from — except on the narrowest tile, where
-    /// it would push the note's title out of the header.
+    /// [S-11206] The picker shows wherever there is a pool to pick from, at every size (the header's
+    /// title gives way to it by the header's own rule).
     /// </summary>
     private void UpdatePicker()
-        => _picker.Visibility = _pool is not null && _area.WidthClass > SizeClass.Compact ? Visibility.Visible : Visibility.Collapsed;
+        => _picker.Visibility = _pool is not null ? Visibility.Visible : Visibility.Collapsed;
 
     private void OnPickerClick(object sender, RoutedEventArgs args)
     {

@@ -46,7 +46,7 @@ namespace Themia.App.Widgets;
 /// actually saw: a press it never sees the end of was a widget being dragged, and is discarded.
 /// </para>
 /// </summary>
-internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetContextActions
 {
     private const string Scope = "scratchpad";
 
@@ -627,7 +627,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// <summary>
     /// The pad is an inner drawing host, so it re-plots on its own size: the drawing is in pad units,
     /// so a resize is a re-plot, not a resample — the whole reason the strokes are geometry. The
-    /// widget's own layout (header tools, the ink bar) comes from <see cref="ApplySize"/>.
+    /// widget's own layout (header tools, the ink bar) comes from its config.
     /// </summary>
     private void OnPadSizeChanged(object sender, SizeChangedEventArgs args) => RenderAll();
 

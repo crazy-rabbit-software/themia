@@ -26,7 +26,7 @@ namespace Themia.Widget.DesktopItem;
 /// (<see cref="IWidgetHost.DesktopItems"/>), which paints back what it decided; F2's box is drawn here.
 /// A right-click never reaches the card, which would open its menu.
 /// </summary>
-internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAware, IWidgetKeys, IWidgetSurfaceAware, IWidgetDropTarget
+internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, IWidgetSurfaceAware, IWidgetDropTarget
 {
     private const string Scope = "desktop-item";
 
@@ -42,7 +42,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     /// <summary>[S-5605] What a debug render's preview state sets (never set on the desktop).</summary>
     private readonly PreviewFixture _fixture = new();
     private bool _hovered;
-    private ItemFit _fit = DesktopItemLayout.For(DesktopItemModule.CellWidth, DesktopItemModule.CellHeight);
+    private ItemFit _fit = DesktopItemLayout.Fit(2);
     private int _iconRequest;
 
     /// <summary>[S-5549] A left press waiting to become a drag (or a release), and where it was.</summary>
@@ -118,7 +118,6 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         PointerCanceled += OnPressLost;
         DoubleTapped += OnDoubleTapped;
         RightTapped += OnRightTapped;
-        SizeChanged += OnSizeChanged;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
         _hover = SelectionChrome.Hover(this, hovered =>
@@ -132,23 +131,11 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as DesktopItemConfig;
+
+        // [S-11204] The name's lines are the config's; the cell's size follows them.
+        _fit = DesktopItemLayout.Fit(_config?.LabelLines ?? 2);
         Render();
     }
-
-    /// <summary>[S-5601] The ladder is measured on what the view is really given (the cell less the design's gap), on its size change.</summary>
-    public void ApplySize(WidgetArea area) => Fit(ActualWidth > 0 ? ActualWidth : area.Width, ActualHeight > 0 ? ActualHeight : area.Height);
-
-    private void Fit(double width, double height)
-    {
-        var fit = DesktopItemLayout.For(width, height);
-        if (fit != _fit)
-        {
-            _fit = fit;
-            Render();
-        }
-    }
-
-    private void OnSizeChanged(object sender, SizeChangedEventArgs e) => Fit(e.NewSize.Width, e.NewSize.Height);
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -162,7 +149,6 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         PointerCanceled -= OnPressLost;
         DoubleTapped -= OnDoubleTapped;
         RightTapped -= OnRightTapped;
-        SizeChanged -= OnSizeChanged;
         Loaded -= OnLoaded;
         Unloaded -= OnUnloaded;
         WatchScale(null);

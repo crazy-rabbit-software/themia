@@ -5,6 +5,7 @@ using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Notes;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -28,7 +29,7 @@ public sealed class NotesModule : IWidgetModule
         Label = NotesStr.Widget_Notes_Label.Local(),
         Description = NotesStr.WidgetsA_Catalog_Notes_Description.Local(),
         Glyph = Glyphs.Note,
-        Sizing = _ => WidgetSizing.Legacy(300, 220),
+        Sizing = _ => NotesLayout.Sizing,
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 0, 0, Popular: 6),
     };

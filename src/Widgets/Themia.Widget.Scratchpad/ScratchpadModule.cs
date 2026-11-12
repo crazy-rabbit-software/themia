@@ -31,7 +31,7 @@ public sealed class ScratchpadModule : IWidgetModule
         Label = ScratchpadStr.Widget_Scratchpad_Label.Local(),
         Description = ScratchpadStr.WidgetsA_Catalog_Scratchpad_Description.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(300, 260),
+        Sizing = c => ScratchpadLayout.Sizing((ScratchpadConfig)c, InkPalette.Inks.Count, InkPalette.Widths.Count),
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 0, 1),
     };

@@ -99,7 +99,6 @@ internal sealed class MarkdownEditor
     private string? _baseFont;
     private double _fontSize = FamilyType.Body.FontSize;
     private bool _composing;
-    private bool _flatHeadings;
     private bool _readOnly;
     private bool _detached;
     private int _visibleButtons = NotesLayout.AllButtons;
@@ -188,22 +187,6 @@ internal sealed class MarkdownEditor
             foreach (var (_, button, _) in _buttons)
             {
                 button.IsEnabled = !value;
-            }
-        }
-    }
-
-    /// <summary>
-    /// [S-1363] Headings at the body size (still semibold): on a tile this narrow a heading drawn
-    /// half as large again wraps its marker onto a line of its own.
-    /// </summary>
-    public bool FlatHeadings
-    {
-        set
-        {
-            if (value != _flatHeadings)
-            {
-                _flatHeadings = value;
-                Restyle();
             }
         }
     }
@@ -521,7 +504,7 @@ internal sealed class MarkdownEditor
     /// Body, 14 on 20, a lower heading in BodyStrong. On a compact width the title is BodyStrong too
     /// ([S-1363]): there a heading half as large again wraps its marker onto a line of its own.
     /// </summary>
-    private bool IsTitle(NoteLine line) => !_flatHeadings && line.Kind == NoteLineKind.Heading1;
+    private bool IsTitle(NoteLine line) => line.Kind == NoteLineKind.Heading1;
 
     /// <summary>The line a note's line stands on, in DIPs: the title's or the body's, at the note's text size.</summary>
     private double LineOf(NoteLine line)

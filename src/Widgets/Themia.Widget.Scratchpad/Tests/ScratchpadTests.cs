@@ -51,21 +51,18 @@ public sealed class ScratchpadTests
         Assert.Equal(InkPalette.Inks[0].Hex, ScratchpadConfig.DefaultPenColor);
     }
 
-    [Theory]
-    [InlineData(120, 84, false, false)]   // XS: the pad is the widget
-    [InlineData(200, 114, false, false)]  // S: compact height
-    [InlineData(480, 124, false, false)]  // Wide: compact height
-    [InlineData(200, 364, false, false)]  // Tall: 176 inside the inset holds no 204 of inks and eraser
-    [InlineData(320, 204, true, true)]    // M: 296 holds the inks, the eraser and the nibs (204 + 92)
-    [InlineData(280, 204, true, false)]   // 256 wide: the inks and the eraser; the nibs need 296
-    [InlineData(560, 384, true, true)]    // L: everything
-    [InlineData(800, 524, true, true)]    // XL
-    public void S1497_the_ink_bar_by_tier(double width, double height, bool bar, bool nibs)
-        => Assert.Equal(new InkBarPlan(bar, nibs), ScratchpadLayout.Bar(new WidgetArea(width, height), showTools: true, inks: 6, nibs: 3));
-
     [Fact]
-    public void S1497_show_tools_off_has_no_bar()
-        => Assert.False(ScratchpadLayout.Bar(new WidgetArea(800, 524), showTools: false, inks: 6, nibs: 3).Bar);
+    public void S11205_a_free_range_never_narrower_than_the_whole_ink_bar_while_it_is_on()
+    {
+        // The inks (6 x 28), 8, the eraser, then 8 and the nibs (3 x 28): 296 in the 12 insets.
+        Assert.Equal(296, ScratchpadLayout.BarWidth(6, 3));
+        var on = ScratchpadLayout.Sizing(new ScratchpadConfig(), 6, 3);
+        Assert.Equal((new SizeDip(320, 160), new SizeDip(320, 260), new SizeDip(800, 600)), (on.Min, on.Natural, on.Max));
+
+        var off = ScratchpadLayout.Sizing(new ScratchpadConfig { ShowTools = false }, 6, 3);
+        Assert.Equal(new SizeDip(200, 160), off.Min);
+        Assert.Empty(off.Problems());
+    }
 
     [Fact]
     public async Task A_drawing_survives_the_state_file()

@@ -8331,7 +8331,7 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   each read and after an undo or redo (which may bring back a widget whose item has gone), only
   while a listing is held. A rename made while Themia was not running reads as a removal and an
   arrival. Nothing in the reconcile touches a file.
-- **[S-5521]** **The next free cell** (`DesktopGrid.NextFree`): cells of the item's size (90 × 110
+- **[S-5521]** **The next free cell** (`DesktopGrid.NextFree`): cells of the item's size (90 × 100 with two name lines
   DIPs, [S-5601]) from the work area's top-left corner, down a column and then the next column to
   the right (Explorer's order), as fractions of the display ([S-01]); the first that overlaps no
   widget of the view. A view with no free cell leaves the item unplaced, logged, and Add widget
@@ -8486,7 +8486,7 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   an item with no large image, which the jumbo list returns as a small image in a corner of an empty
   square, is the extra-large image drawn up (`HoldsOnlySmallImage`). A display's scale changing, or
   the widget moving to a display of another scale, asks for the icon again at the new pixels. The cell
-  stays 90 × 110 DIPs on every display; the selection's boxes are in physical pixels across displays
+  stays its size (90 × 100 with two name lines, [S-11204]) on every display; the selection's boxes are in physical pixels across displays
   ([S-5540]).
 - **[S-5570]** **Each item to a screen reader** (UI Automation, the item view's peer): a list item
   named as Explorer shows it, its place in the desktop's order and the count ("3 of 12",

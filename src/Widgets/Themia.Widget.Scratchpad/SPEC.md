@@ -18,9 +18,8 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   the header has no eraser (the ink bar's is the one, [S-1498]). A hidden eraser is switched off.
 - **[S-1497]** Scratchpad ink bar (original S-02 toolbar): six preset inks (`InkPalette`, shared
   with the pen colour's swatches on the properties menu, [S-1501]) and the original's three nibs
-  2/4/8 px at the foot of the pad from Regular × Regular, when the width inside the card's inset
-  holds the inks and the eraser; the nibs when it holds those too (`ScratchpadLayout.Bar`); nothing
-  more on a larger pad (the stroke count at W ≥ Expanded is retired, concise widgets). The bar is a
+  2/4/8 px at the foot of the pad, whole, while Ink bar is on ([S-11205]); nothing more on a larger
+  pad (the stroke count at W ≥ Expanded is retired, concise widgets). The bar is a
   row of 28 tools on the card's bottom inset ([S-6716]), each a subtle button (the subtle fills on
   hover and press, no border): an ink a 16 dot in its colour (a data colour, `Family.Data`,
   [S-6705]), a nib a dot of its width + 2 in the secondary role, the chosen ink and nib ringed by a 24
@@ -54,6 +53,10 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   confirmation ([S-1500]). It paints no item fill, so it has no Item background or Item text
   ([S-6570], [S-6571]).
   (Tests `ScratchpadMenuTests`.)
+- **[S-11205]** Converted to the sizing ([S-2438]): a free range, 200..800 wide and 160..600 high (a new
+  one 320 × 260, `ScratchpadLayout.Sizing`); the pad takes what the card has. The ink bar is Show tools'
+  (on by default): one row of 28 at every size, whole (inks, nibs, eraser) or not there, so with it on the
+  card is never narrower than the bar in its inset (320). No tier shows or sheds a part of it any more.
 
 Needs a manual pass: pen, touch and mouse drawing on the live desktop at every tier, and full
 screen on a top or side taskbar and mixed DPI ([S-1499]).

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -20,12 +21,6 @@ public sealed class DesktopItemModule : IWidgetModule
     /// <summary>[S-5601] One desktop cell, in DIPs (on the 10-DIP snap grid).</summary>
     public const double CellWidth = 90;
 
-    /// <summary>
-    /// [S-5601] One desktop cell, in DIPs: the design's gap between widgets (8 by default, half on each
-    /// side), then an 8 inset, a 48 icon, a 4 gap, two 16 lines and the inset again (100).
-    /// </summary>
-    public const double CellHeight = 110;
-
     /// <summary>Its glyph (Segoe Fluent Icons U+E8A5, a document), the module's own.</summary>
     internal static readonly string Glyph = char.ConvertFromUtf32(0xE8A5);
 
@@ -39,7 +34,7 @@ public sealed class DesktopItemModule : IWidgetModule
         Label = DesktopItemStr.DesktopItem_Label.Local(),
         Description = DesktopItemStr.DesktopItem_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(CellWidth, CellHeight),
+        Sizing = c => WidgetSizing.Fixed(DesktopItemLayout.Size(((DesktopItemConfig)c).LabelLines)),
 
         // [S-5600] The name is under the icon: no header, no item layer.
         Traits = WidgetTraits.None,
@@ -51,9 +46,17 @@ public sealed class DesktopItemModule : IWidgetModule
 
     public FrameworkElement CreateView(IWidgetHost host) => new DesktopItemView(host);
 
-    /// <summary>[S-3719] No lines of its own in D1: what an item is follows from the desktop, not a setting.</summary>
+    /// <summary>[S-3719] [S-11204] What an item is follows from the desktop; its one line is how many lines its name has.</summary>
     public void MenuLines(WidgetMenuLines menu, Themia.Core.Model.WidgetConfig config)
     {
+        ArgumentNullException.ThrowIfNull(menu);
+        var item = (DesktopItemConfig)config;
+        menu.Lines.Add(menu.Choice(
+            null,
+            DesktopItemStr.DesktopItem_NameLines.Text(),
+            [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())],
+            DesktopItemLayout.ClampLines(item.LabelLines),
+            v => item.LabelLines = v));
     }
 }
 

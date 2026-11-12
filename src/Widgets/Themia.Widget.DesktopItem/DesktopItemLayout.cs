@@ -1,16 +1,15 @@
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.DesktopItem;
 
-/// <summary>[S-5601] How much of an item fits its cell: the icon's size and how many lines of its name.</summary>
+/// <summary>[S-5601] What an item's cell draws: the icon's size and how many lines of its name.</summary>
 public readonly record struct ItemFit(double Icon, int Lines);
 
 /// <summary>
-/// [S-5601] The item widget's ladder, concise first ([S-666]): the icon over its name, as Explorer's
-/// desktop draws an icon. Measured on the cell less an 8 inset (no card to stand off): a 48 icon
-/// with two name lines at the default cell, one line, a 32 icon with one, then the icon alone. A
-/// larger cell keeps the 48 icon and two lines centred; the room left is empty, as it is round a
-/// desktop icon.
+/// [S-5601] [S-11204] The item widget's one cell, as Explorer's desktop draws an icon: an 8 inset (no
+/// card to stand off), the 48 icon, 4, the name's Caption lines (the config's, 1 or 2) and the inset
+/// again; 90 wide. One fixed size per its lines: nothing in it follows a box.
 /// </summary>
 public static class DesktopItemLayout
 {
@@ -23,29 +22,13 @@ public static class DesktopItemLayout
     /// <summary>The narrowest a name is worth showing in.</summary>
     public const double MinNameWidth = FamilyShape.IconLarge;
 
-    private static readonly ItemFit[] Ladder =
-    [
-        new(FamilyShape.IconHuge, 2),
-        new(FamilyShape.IconHuge, 1),
-        new(FamilyShape.IconLarge, 1),
-        new(FamilyShape.IconHuge, 0),
-        new(FamilyShape.IconLarge, 0),
-    ];
+    /// <summary>[S-11204] The name's lines: 1 or 2, a new one 2.</summary>
+    public static int ClampLines(int lines) => Math.Clamp(lines, 1, 2);
 
-    /// <summary>The first rung of the ladder that fits a <paramref name="width"/> × <paramref name="height"/> DIP cell; a 16 icon alone below them all.</summary>
-    public static ItemFit For(double width, double height)
-    {
-        var room = (Width: width - (2 * Inset), Height: height - (2 * Inset));
-        foreach (var fit in Ladder)
-        {
-            var tall = fit.Icon + (fit.Lines > 0 ? Gap + (fit.Lines * FamilyType.CaptionLine) : 0);
-            var wide = fit.Lines > 0 ? Math.Max(fit.Icon, MinNameWidth) : fit.Icon;
-            if (tall <= room.Height + 0.01 && wide <= room.Width + 0.01)
-            {
-                return fit;
-            }
-        }
+    /// <summary>[S-11204] What the cell draws for <paramref name="lines"/> name lines: the 48 icon and them.</summary>
+    public static ItemFit Fit(int lines) => new(FamilyShape.IconHuge, ClampLines(lines));
 
-        return new ItemFit(FamilyShape.Icon, 0);
-    }
+    /// <summary>[S-11204] The one cell for <paramref name="lines"/> name lines: 90 × 100 with two, 90 × 84 with one.</summary>
+    public static SizeDip Size(int lines)
+        => new(DesktopItemModule.CellWidth, (2 * Inset) + FamilyShape.IconHuge + Gap + (ClampLines(lines) * FamilyType.CaptionLine));
 }

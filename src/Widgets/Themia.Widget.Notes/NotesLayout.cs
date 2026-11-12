@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Notes;
@@ -62,6 +63,12 @@ public static class NotesLayout
 
     /// <summary>The note picker's chevron button (side by side with the bar's).</summary>
     public const double PickerWidth = FamilyShape.HeaderButton;
+
+    /// <summary>
+    /// [S-11206] The note's sizes: the text alone, a free range 160..600 × 100..600 (a new one 300 × 220).
+    /// The text wraps and scrolls; nothing else appears with the size.
+    /// </summary>
+    public static WidgetSizing Sizing { get; } = WidgetSizing.Range(new(160, 100), new(300, 220), new(600, 600));
 
     /// <summary>The rename box under the picker: room for a title of a few words.</summary>
     public const double RenameWidth = 200;

@@ -504,7 +504,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         }
 
         _plan = NotesLayout.Plan(_area, FamilyType.Body.LineHeight);
-        _editor.FlatHeadings = _area.WidthClass == SizeClass.Compact;
 
         UpdatePicker();
         UpdateBar();

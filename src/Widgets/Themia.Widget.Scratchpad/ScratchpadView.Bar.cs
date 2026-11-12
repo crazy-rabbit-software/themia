@@ -41,15 +41,6 @@ internal sealed partial class ScratchpadView
     private readonly List<(double Width, Ellipse Ring)> _nibRings = [];
     private readonly List<(Border Button, Func<string> Tip)> _barTips = [];
 
-    private WidgetArea _area;
-
-    /// <summary>[S-663] The card's word on how much room there is: the bar's ladder.</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        _area = area;
-        LayBar();
-    }
-
     private void BuildBar()
     {
         foreach (var ink in InkPalette.Inks)
@@ -221,12 +212,12 @@ internal sealed partial class ScratchpadView
             return;
         }
 
-        var plan = ScratchpadLayout.Bar(_area, _config.ShowTools, InkPalette.Inks.Count, InkPalette.Widths.Count);
-        _nibs.Visibility = Shown(plan.Nibs);
-        _barRow.Visibility = Shown(plan.Bar);
+        // [S-11205] The bar is the Ink bar setting's, whole or not at all; the card is never narrower than it.
+        _nibs.Visibility = Shown(_config.ShowTools);
+        _barRow.Visibility = Shown(_config.ShowTools);
 
         // A hidden eraser must not leave the pad in erase mode with no way out of it.
-        if (!plan.Bar)
+        if (!_config.ShowTools)
         {
             SetEraser(false);
         }

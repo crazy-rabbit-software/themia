@@ -1,5 +1,8 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "desktopItem.nameLines"
+  ],
   "desktopItem.label": "Desktop item",
-  "desktopItem.desc": "A file, folder or shortcut from your desktop"
+  "desktopItem.desc": "A file, folder or shortcut from your desktop",
+  "desktopItem.nameLines": "Name lines"
 }

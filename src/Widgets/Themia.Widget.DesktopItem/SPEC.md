@@ -14,12 +14,13 @@ Owning files: everything in this folder. Tests: `Tests/DesktopItemTests.cs` (run
   has no header and no item layer (`WidgetTraits.None`). Nothing else, at any size (concise first,
   [S-666]). It has no properties-menu lines of its own; an unusable key is cleared at load, loudly,
   and the reconcile then removes the widget.
-- **[S-5601]** One cell, 90 × 110 DIPs (the descriptor's default size, on the 10-DIP snap grid): the
-  design's gap between widgets (8 by default), then an 8 inset (`FamilySpace.S2`; there is no card to
-  stand off), a 48 icon (`FamilyShape.IconHuge`), a 4 gap and two 16 Caption lines. The ladder
-  (`DesktopItemLayout.For`, measured on the size the view is really given): a 48 icon and two lines, one line,
-  a 32 icon and one line, the 48 icon alone, the 32 alone, else a 16; a name needs 32 of width. A cell
-  larger than one keeps the 48 icon and two lines at the top, centred; the room left is empty.
+- **[S-5601]** One cell: an 8 inset (`FamilySpace.S2`; there is no card to stand off), a 48 icon
+  (`FamilyShape.IconHuge`), a 4 gap and the name's 16 Caption lines, centred; the design's gap between
+  widgets is the host's to add ([S-2444]), not the cell's.
+- **[S-11204]** Converted to the sizing ([S-2438]): **one fixed size per its Name lines** (1 or 2, a new one
+  2; the item's one menu line): 90 × 100 with two, 90 × 84 with one (`DesktopItemLayout.Size`), no
+  handle. It was 90 × 110, which counted the old 8 gap between widgets (now 0 and the host's) and 2 to
+  spare. The ladder that shed lines and shrank the icon in a smaller box is gone.
 - **[S-5602]** The selection look is the SDK's one (`SelectionChrome`, [S-6627]) round the icon and the
   name, from the host's one desktop selection ([S-5540]): selected, the focus cue after keyboard use
   ([S-6628]), hovered under the pointer, a drag's drop target ([S-5549]), and drawn inactive while
