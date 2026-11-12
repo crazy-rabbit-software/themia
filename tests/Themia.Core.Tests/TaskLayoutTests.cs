@@ -39,70 +39,6 @@ public sealed class TaskLayoutTests
         => Kit(area, count, writable: true, today, mode);
 
     [Fact]
-    public void S780_XS_shows_one_line_rows_and_no_due_with_no_add_row()
-    {
-        var plan = Plan(XS);
-        Assert.Equal(1, plan.Lines);
-        Assert.Equal(FamilyShape.Row1, plan.RowHeight);
-        Assert.Equal(Detail.None, Due(plan));
-        Assert.Equal(Detail.Urgent, Due(Plan(new WidgetArea(120, 356))));
-        Assert.False(plan.AddRow);
-    }
-
-    [Fact]
-    public void S780_S_and_a_wide_strip_say_the_short_due_and_drop_the_add_row()
-    {
-        foreach (var area in new[] { S, Wide })
-        {
-            var plan = Plan(area);
-            Assert.Equal(1, plan.Lines);
-            Assert.Equal(Detail.Short, Due(plan));
-            Assert.False(plan.AddRow);
-            Assert.Equal(1, plan.Columns);
-        }
-    }
-
-    [Fact]
-    public void S780_M_and_a_tall_column_have_the_add_row_and_rows_of_one_line_without_a_subtitle()
-    {
-        foreach (var area in new[] { M, Tall })
-        {
-            var plan = Plan(area);
-            Assert.True(plan.AddRow);
-            Assert.Equal(1, plan.Lines);
-        }
-
-        Assert.True(Plan(Tall).Headings);
-        Assert.False(Plan(M).Headings);
-    }
-
-    [Fact]
-    public void S789_the_list_names_under_Today_take_a_second_line_from_a_regular_tile_and_the_long_due_from_an_expanded_one()
-    {
-        var m = Plan(M, today: true);
-        Assert.Equal(2, m.Lines);
-        Assert.True(m.Subtitle);
-        Assert.Equal(Detail.Short, Due(m));
-
-        var l = Plan(L, today: true);
-        Assert.Equal(Detail.Long, Due(l));
-        Assert.Equal(FamilyShape.Row2, l.RowHeight);
-        Assert.False(Plan(L).Subtitle);
-
-        // [S-7037] The compact style keeps one line everywhere.
-        Assert.Equal(1, Plan(L, today: true, mode: TasksStyle.Compact).Lines);
-    }
-
-    [Fact]
-    public void S782_XL_goes_to_two_columns_only_when_one_would_not_hold_the_list()
-    {
-        // 524 less the bottom inset and the add row: 484, seventeen rows of 28.
-        Assert.Equal(1, Plan(XL, count: 17).Columns);
-        Assert.Equal(2, Plan(XL, count: 18).Columns);
-        Assert.Equal(1, Plan(L, count: 30).Columns);
-    }
-
-    [Fact]
     public void S780_an_unwritable_list_has_no_add_row()
     {
         var readOnly = Kit(L, 5, writable: false, false, TasksStyle.List);
@@ -116,15 +52,6 @@ public sealed class TaskLayoutTests
         Assert.True(Plan(Wide, count: 0).AddRow);
         var readOnly = Kit(XS, 0, writable: false, false, TasksStyle.List);
         Assert.False(readOnly.AddRow);
-    }
-
-    [Fact]
-    public void S780_an_unmeasured_area_starts_minimal()
-    {
-        var plan = Plan(default);
-        Assert.Equal(1, plan.Lines);
-        Assert.False(plan.AddRow);
-        Assert.Equal(1, plan.Columns);
     }
 
     [Fact]

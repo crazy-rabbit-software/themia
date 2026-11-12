@@ -26,7 +26,7 @@ public interface IKitConfig : ISetupRule
     KitShow Shows { get; }
 
     /// <summary>[S-7030] What the user chose for the list: the fields, and where a look has them its preview lines and table columns.</summary>
-    KitChoices Choices => new(Shows) { Rows = this is IKitRows rows ? KitSizing.Choice(rows) : null };
+    KitChoices Choices => this is IKitRows rows ? new(Shows) { Rows = KitSizing.Choice(rows) } : new(Shows);
 
     bool ISetupRule.NeedsSetup(FeatureSet signedIn) => KitSetup.Needed(this, signedIn);
 }

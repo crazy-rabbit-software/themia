@@ -1850,7 +1850,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   apps). Into the SDK, the data the host's stores and the views share and the parts two widgets share,
   each its own commit: `ClipboardHistory` (with its entry and formatting), `ColorFormats`, `AlarmRules`,
   `FocusSessionRules`, `NotificationRules`, `NoteMeta`/`NoteRead`, `HabitLists` with `HabitRules`,
-  `HabitPeriods` and `LocalDay`, `AddFooterRow`/`AddFooter` (the habit tracker and the task list),
+  `HabitPeriods` and `LocalDay`, `AddFooterRow` (the habit tracker and the task list),
   `ScreenTimeDay`/`ScreenTimePreferences`/`ScreenTimeRules`/`ScreenTimeLayout` (the measures the three
   share) and the configs' shared settings, the three screen-time widgets' shared view parts
   (`ScreenTimeShared`), their preview fixture (`SampleScreenTime`) and menu lines

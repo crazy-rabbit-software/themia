@@ -1427,8 +1427,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7030]** `KitSpec`: a kit widget's shape (its row look, the optional fields it offers
   (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
   sentence); the user's own fields are bounded by it.
-- **[S-7031]** *(Legacy until converted, [S-2443]: a kit list that states its rows plans by them,
-  [S-2440].)* `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]) on the family's
+- **[S-7031]** *(Retired by [S-11580]: every kit list states its rows, [S-2440].)* `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]) on the family's
   rows ([S-6711], [S-6712]): every look is the Row block, one row of 28, 40 or 56 for one, two or
   three lines, never taller for a long title (one line, ending in an ellipsis). The lines grow with
   the tile both ways (`RowRules.Lines`: one while the view's area is compact either way, two from
@@ -1561,7 +1560,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   battery), cut to 24 characters, an empty one none; the ticker never rewrites it. `KitIcon` names
   a peripheral by kind for a row's lead (headphones, mouse, keyboard, phone, controller, pen, watch,
   any other device).
-- **[S-7073]** A spec whose value is a reading (`KitSpec.Readings`) keeps it at every width: it is
+- **[S-7073]** *(Every width since [S-11580]: the time no longer gives way either.)* A spec whose value is a reading (`KitSpec.Readings`) keeps it at every width: it is
   the item's point, where a time gives way below a column of 180; the title ellipsises first.
 - **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
@@ -3885,8 +3884,14 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   wheel as before). Its plan is the same at every size in its range (`KitChoices.Rows`: one column,
   its lines, every field it has on, the text cut with its ellipsis; a check list's add row and done
   heading always, its due in the short words). Its menu has Rows and, where its rows can have a second
-  line, Lines per row (`KitMenuLines.Rows`). A kit list without it keeps the ladder and the rows
-  fitted by height ([S-7031], [S-2443]). Tests `KitRowsTests`.
+  line, Lines per row (`KitMenuLines.Rows`). Tests `KitRowsTests`.
+- **[S-11580]** **The kit has one path** (2026-11-12, once the calendar's agenda stated its rows): every
+  kit plan is the rows a list states (`KitChoices.Rows`, never null; a list naming none is planned as
+  the kit's default six rows of one line), in every look (rich, lined, table, schedule, check). The
+  ladder that fitted rows, lines, columns, the lead, the time, the badge, the column titles and the add
+  row by the card's height and width (`KitLadder`'s legacy branch, the schedule's two columns from 720,
+  `KitChecks`' tiers and Huge-wide columns, `AddFooter.Show`) is gone with its tests; `RowRules.Lines`
+  by tier stays for the legacy kinds that are not kit lists. Tests `KitRowsTests`.
 - **[S-11400]** **Three lines and two columns, as settings.** A kit list whose rows have a preview may
   offer three lines a row (the title, the subtitle, the preview; 56 a row, `KitMenuLines.Rows(..,
   mostLines: 3)`, `KitSizing.ClampLines(lines, most)`); a list that grew columns with its width offers
@@ -4019,11 +4024,8 @@ converted kind states its sizes and shows the same content inside them ([S-2438]
   open, leaving it adds and closes, Escape cancels). It is **pinned to the bottom of the content
   box**: the list sits at the top and scrolls or pages above it, and the room a short list leaves is
   between them, never under the footer (the Windows 11 list-ends-in-its-add-row pattern, held in
-  place). Whether it shows is one rule (`AddFooter.Show`): only where an add is possible; always
-  under an empty list, at any size (it is then the way to begin); otherwise a rung right after the
-  first row, from Regular height, when a whole row is left for it (a list that states its rows,
-  Tasks [S-2440] and Habits [S-11530], counts it in its height and shows it always where an add is
-  possible). Where it hides, the widget's settings still add. It takes no keys of its own; the editor in it keeps the widget's lease
+  place). It shows wherever an add is possible, always, and the list's height counts it (Tasks
+  [S-2440], Habits [S-11530]; the rung rule `AddFooter.Show` is gone, [S-11580]). It takes no keys of its own; the editor in it keeps the widget's lease
   ([S-809]) while it is open.
 
 ## Shell skeleton and shared settings
@@ -4288,7 +4290,7 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 
 ## Tasks: using the whole tile, and the rest of the original
 
-- **[S-780]** Tasks ladder (the kit's check look, `KitChecks.Plan`, [S-7037], from the card's `WidgetArea`) on the family's
+- **[S-780]** *(Its ladder retired by [S-2440] and [S-11580]: the list's rows, lines and add row are its config's.)* Tasks ladder (the kit's check look, `KitChecks.Plan`, [S-7037], from the card's `WidgetArea`) on the family's
   rows ([S-6711]): one task always; rows of 28, or of 40 with the list's name under Today from a
   regular tile ([S-789]), never taller for a long title (one line, the tooltip has it whole); the
   add footer ([S-3850], one row of 28) from Regular height, and at any size under an empty list
@@ -4302,7 +4304,7 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
   a section heading) and the lines near its bottom fade while more is below: row opacity, not a
   painted gradient, because the card may be transparent. Without an add row the list's foot padding
   goes to rows.
-- **[S-782]** Two columns, filled top to bottom then left to right, the two cells of a line sharing
+- **[S-782]** *(Retired by [S-11580]: one column.)* Two columns, filled top to bottom then left to right, the two cells of a line sharing
   its height — only on a Huge-wide tile and only when one column would not hold the list.
 - **[S-783]** *(Retired: no summary strip ("7 open · 2 overdue · …") on a panel; a larger tile shows
   more tasks, not counts of them. The header badge keeps the open count.)*

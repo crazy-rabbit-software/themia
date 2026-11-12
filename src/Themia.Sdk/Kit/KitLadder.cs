@@ -77,11 +77,11 @@ public sealed record KitChoices(KitShow Shows, IReadOnlyList<KitColumn>? Columns
     public bool OneLine { get; init; }
 
     /// <summary>
-    /// [S-2440] A list that states its rows (<see cref="IKitRows"/>): its plan is the same at every size
-    /// in its range (its lines, one column, every field it has on), no tier decides it. Null: the
-    /// legacy ladder, rows fitted by height ([S-2443]).
+    /// [S-2440] [S-11580] The rows the list states (<see cref="IKitRows"/>; a list without its own, the
+    /// kit's default six of one line): its plan is the same at every size in its range (its lines, one
+    /// column, every field it has on), no tier decides it.
     /// </summary>
-    public KitRowsChoice? Rows { get; init; }
+    public KitRowsChoice Rows { get; init; } = new(KitSizing.DefaultRows, 1);
 }
 
 /// <summary>[S-7030] The optional fields of a kit row, which a spec offers and the user may turn off.</summary>
@@ -211,20 +211,8 @@ public readonly record struct KitPlan(
 /// </summary>
 public static class KitLadder
 {
-    /// <summary>A column narrower than this cannot hold a one-line title worth reading beside its time.</summary>
+    /// <summary>A column narrower than this cannot hold a one-line title worth reading beside its time (a list's name box).</summary>
     public const double MinColumn = 320;
-
-    /// <summary>From here a row carries its lead.</summary>
-    public const double LeadNeedsWidth = 180;
-
-    /// <summary>[S-7032] Below this width the badge has no room after the subtitle.</summary>
-    public const double BadgeNeedsWidth = 260;
-
-    /// <summary>[S-7032] Below this width (a compact one) a time beside the title leaves it a handful of letters.</summary>
-    public const double WhenNeedsWidth = 180;
-
-    /// <summary>[S-7034] Below this height the table's column titles cost a row.</summary>
-    public const double ColumnHeaderNeedsHeight = 140;
 
     /// <summary>[S-7034] The table's column titles: one Caption line and the gap under it.</summary>
     public static double ColumnHeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
@@ -237,9 +225,6 @@ public static class KitLadder
 
     /// <summary>[S-7034] The gap between table columns: the family's column gap.</summary>
     public const double ColumnGap = FamilySpace.ColumnGap;
-
-    /// <summary>[S-1267] From this width a schedule flows its days into two columns.</summary>
-    public const double TwoScheduleColumnsFrom = 720;
 
     /// <param name="shows">The optional fields the user has on (the spec's <see cref="KitSpec.Optional"/> bounds them).</param>
     public static KitPlan Plan(WidgetArea area, KitSpec spec, KitShow shows) => Plan(area, spec, new KitChoices(shows));
@@ -270,40 +255,7 @@ public static class KitLadder
         var on = choices.Shows & spec.Optional;
         bool Has(KitShow field) => (on & field) == field;
 
-        if (choices.Rows is { } sized)
-        {
-            return spec.Look == KitRowLook.Table ? SizedTable(area, choices, sized, Has) : Sized(area, spec, sized, Has);
-        }
-
-        var width = Math.Max(0, area.Width);
-        var columns = Math.Min(Math.Max(1, spec.MaxColumns), width >= 720 ? 3 : width >= 400 ? 2 : 1);
-        while (columns > 1 && width / columns < MinColumn)
-        {
-            columns--;
-        }
-
-        var column = width / columns;
-        var measured = area.IsMeasured;
-        var lead = Has(KitShow.Lead) && (!measured || column >= LeadNeedsWidth);
-        var when = Has(KitShow.When) && (!measured || column >= WhenNeedsWidth || spec.Readings);
-
-        if (spec.Look == KitRowLook.Table)
-        {
-            var chosen = choices.Columns is { Count: > 0 } picked ? picked : [KitColumn.Title];
-            var fits = TableColumns(chosen, InnerWidth(column, lead), ColumnGap);
-            var header = measured && area.Height >= ColumnHeaderNeedsHeight;
-            return new KitPlan(KitRowLook.Table, 1, column, 1, lead, false, false, false, ColumnHeader: header, Table: fits);
-        }
-
-        var badges = Has(KitShow.Badges) && measured && column >= BadgeNeedsWidth;
-        var second = Has(KitShow.Subtitle) || badges;
-        var preview = Has(KitShow.Preview);
-        var wanted = spec.Look == KitRowLook.Line || choices.OneLine ? 1 : 1 + (second ? 1 : 0) + (preview ? 1 : 0);
-        var lines = measured ? RowRules.Lines(area, wanted) : 1;
-        var subtitle = second && lines >= 2;
-        var shown = preview && lines >= (subtitle ? 3 : 2);
-
-        return new KitPlan(spec.Look, columns, column, lines, lead, subtitle, shown, when, badges && subtitle, RowHeight: FamilyShape.RowHeight(lines));
+        return spec.Look == KitRowLook.Table ? SizedTable(area, choices, choices.Rows, Has) : Sized(area, spec, choices.Rows, Has);
     }
 
     /// <summary>
@@ -421,18 +373,9 @@ public static class KitLadder
     /// </summary>
     private static KitPlan Scheduled(WidgetArea area, KitChoices choices)
     {
-        var width = Math.Max(0, area.Width);
-
         // [S-11541] A schedule that states its rows: one column, its lines (the span and where on the
         // second) at every size; the pages hold the rows its height was made for.
-        if (choices.Rows is { } sized)
-        {
-            var chosen = KitSizing.ClampLines(sized.Lines);
-            return new KitPlan(KitRowLook.Schedule, 1, width, chosen, true, chosen >= 2, false, true, RowHeight: FamilyShape.RowHeight(chosen));
-        }
-
-        var columns = width >= TwoScheduleColumnsFrom ? 2 : 1;
-        var lines = area.IsMeasured ? RowRules.Lines(area, 2) : 1;
-        return new KitPlan(KitRowLook.Schedule, columns, width / columns, lines, true, lines >= 2, false, true, RowHeight: FamilyShape.RowHeight(lines));
+        var chosen = KitSizing.ClampLines(choices.Rows.Lines);
+        return new KitPlan(KitRowLook.Schedule, 1, Math.Max(0, area.Width), chosen, true, chosen >= 2, false, true, RowHeight: FamilyShape.RowHeight(chosen));
     }
 }

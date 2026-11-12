@@ -32,7 +32,7 @@ public sealed class KitRowsTests
     public void S2440_a_check_list_shows_the_same_at_its_min_and_its_max()
     {
         var choices = new KitChoices(KitShow.Subtitle | KitShow.When) { Count = 30, CanAdd = true, Rows = new KitRowsChoice(6, 2) };
-        var sizing = KitSizing.Sizing(choices.Rows!.Value, addFooter: true);
+        var sizing = KitSizing.Sizing(choices.Rows, addFooter: true);
 
         KitPlan At(double w, double h) => KitLadder.Plan(new WidgetArea(w, h - 36), Checks, choices);
         var small = At(sizing.Min.Width, sizing.Natural.Height);
@@ -56,14 +56,6 @@ public sealed class KitRowsTests
         Assert.Equal(1, wide.Columns);
         Assert.True(wide.Lead && wide.When && wide.Subtitle);
         Assert.False(wide.Preview);
-    }
-
-    [Fact]
-    public void S2443_a_kit_list_without_rows_keeps_the_ladder()
-    {
-        var wide = KitLadder.Plan(new WidgetArea(800, 500), Rich, new KitChoices(KitShow.All));
-        Assert.Equal(2, wide.Columns);
-        Assert.Equal(3, wide.Lines);
     }
 
     [Fact]
@@ -127,7 +119,7 @@ public sealed class KitRowsTests
             }
         }
 
-        // Without rows it keeps the ladder: two columns from 720.
-        Assert.Equal(2, KitLadder.Plan(new WidgetArea(900, 700), schedule, KitShow.None).Columns);
+        // A schedule that names no rows of its own is the kit's default rows: one column too ([S-11580]).
+        Assert.Equal(1, KitLadder.Plan(new WidgetArea(900, 700), schedule, KitShow.None).Columns);
     }
 }

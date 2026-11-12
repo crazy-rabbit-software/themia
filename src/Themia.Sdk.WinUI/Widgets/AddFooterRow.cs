@@ -14,7 +14,7 @@ namespace Themia.App.Widgets;
 /// leading with the + glyph, its name the line ("Add a task") in the secondary role, pinned to the
 /// bottom of the content box under the list, the way a Windows 11 list ends in its add row. A tap
 /// opens the widget's own text box in place of the line; whether it shows at all is
-/// <see cref="AddFooter.Show"/>.
+/// the widget's plan's (where it can add, [S-2440]).
 /// <para>
 /// The view owns the editor (what Enter, Tab and Escape do is its own rule); this owns the shape, so
 /// every widget's add row has the same height, glyph, type and inset.

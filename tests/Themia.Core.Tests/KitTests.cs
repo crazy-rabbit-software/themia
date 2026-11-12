@@ -278,15 +278,6 @@ public sealed class KitTests
     }
 
     [Fact]
-    public void S7031_the_columns_follow_the_width_and_the_specs_cap()
-    {
-        Assert.Equal(2, KitLadder.Plan(new WidgetArea(800, 524), Rich, KitShow.All).Columns);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(480, 124), Rich, KitShow.All).Columns);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(320, 204), Rich, KitShow.All).Columns);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(800, 524), Rich with { MaxColumns = 1 }, KitShow.All).Columns);
-    }
-
-    [Fact]
     public void S7030_a_field_the_spec_does_not_offer_or_the_user_turned_off_stays_off()
     {
         var off = KitLadder.Plan(new WidgetArea(560, 384), Rich, KitShow.None);
@@ -299,38 +290,12 @@ public sealed class KitTests
     }
 
     [Fact]
-    public void S7031_the_source_line_from_a_regular_tile_the_preview_from_an_expanded_one()
-    {
-        var m = KitLadder.Plan(new WidgetArea(320, 204), Rich, KitShow.All);
-        Assert.True(m.Subtitle);
-        Assert.False(m.Preview);
-
-        var tall = KitLadder.Plan(new WidgetArea(200, 364), Rich, KitShow.All);
-        Assert.Equal(2, tall.Lines);
-        Assert.True(tall.Lead);
-
-        var xl = KitLadder.Plan(new WidgetArea(800, 524), Rich, KitShow.All);
-        Assert.Equal(3, xl.Lines);
-        Assert.True(xl.Preview);
-    }
-
-    [Fact]
     public void S7072_a_reading_is_cut_to_its_bound_and_an_empty_one_is_none()
     {
         var clean = KitItems.Clean([new KitItem("a", "Headset", Value: new string('9', 100)), new KitItem("b", "Mouse", Value: "")]);
 
         Assert.Equal(KitBounds.Value, clean[0].Value!.Length);
         Assert.Null(clean[1].Value);
-    }
-
-    [Fact]
-    public void S7073_a_reading_stays_at_every_width_where_a_time_gives_way()
-    {
-        var xs = new WidgetArea(120, 84);
-
-        Assert.False(KitLadder.Plan(xs, Rich, KitShow.All).When);
-        Assert.True(KitLadder.Plan(xs, Rich with { Readings = true }, KitShow.All).When);
-        Assert.False(KitLadder.Plan(xs, Rich with { Readings = true }, KitShow.None).When);
     }
 
     // ---- [S-7040] [S-7041] screens ------------------------------------------------------------
