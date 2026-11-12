@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "Skrýt při nečinnosti",
+  "music.hideWhenIdle.never": "Nikdy",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Když není otevřený žádný přehrávač",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Když nic nehraje"
+}

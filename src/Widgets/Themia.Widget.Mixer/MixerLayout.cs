@@ -33,7 +33,7 @@ public static class MixerLayout
     public const int MinRows = 1, MaxRows = 12, DefaultRows = 4;
 
     /// <summary>[S-11309] The card's width: 240 to 520, a new one 300; at 240 the slider keeps its least travel beside the name.</summary>
-    public const double MinWidth = 240, NaturalWidth = 300, MaxWidth = 520;
+    public const double Narrowest = 240, NaturalWidth = 300, Widest = 520;
 
     /// <summary>[S-11309] The rows the config gives, held to <see cref="MinRows"/>..<see cref="MaxRows"/>.</summary>
     public static int ClampRows(int rows) => Math.Clamp(rows, MinRows, MaxRows);
@@ -49,7 +49,7 @@ public static class MixerLayout
     public static Sdk.WidgetSizing Sizing(Model.MixerConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return Sdk.WidgetSizing.Range(new(MinWidth, 1), new(NaturalWidth, 1), new(MaxWidth, 1)).WithHeightSteps(Steps(config.Rows, config.Lines));
+        return Sdk.WidgetSizing.Range(new(Narrowest, 1), new(NaturalWidth, 1), new(Widest, 1)).WithHeightSteps(Steps(config.Rows, config.Lines));
     }
 
     /// <summary>[S-11309] The config a mixer dragged to <paramref name="size"/> means: the rows that height holds.</summary>
@@ -74,7 +74,7 @@ public static class MixerLayout
     /// </summary>
     public static MixerPlan Plan(double width, bool icons, int lines, int rows, int playing, int quiet)
     {
-        var room = (double.IsFinite(width) ? width : MinWidth) - (2 * FamilySpace.Inset) - Fixed(icons);
+        var room = (double.IsFinite(width) ? width : Narrowest) - (2 * FamilySpace.Inset) - Fixed(icons);
         var slider = Math.Max(ControlsRules.MinSlider, Math.Floor(room * SliderShare));
         var shown = ClampRows(rows);
         var quietRows = Math.Max(0, Math.Min(shown - Math.Max(0, playing), quiet));

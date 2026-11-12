@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Скрывать без воспроизведения",
   "music.hideWhenIdle.never": "Никогда",
-  "styles.music.artwork": "Обложка и текст",
-  "styles.music.cover": "Обложка целиком",
-  "styles.music.text": "Только текст",
   "widgetsA.catalog.music.description": "Все, что воспроизводит Windows",
   "widgetsA.catalog.music.label": "Сейчас играет",
   "widgetsB.music.next": "Следующий",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Воспроизведение или пауза",
   "widgetsB.music.previous": "Предыдущий",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Когда проигрыватель не открыт",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Когда ничего не играет",
-  "widgetsB.settings.music.progress.label": "Показывать ход",
-  "widgetsB.settings.music.transport.label": "Показывать кнопки управления"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Когда ничего не играет"
 }

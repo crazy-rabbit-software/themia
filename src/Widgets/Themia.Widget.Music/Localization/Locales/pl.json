@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Ukryj, gdy nic nie gra",
   "music.hideWhenIdle.never": "Nigdy",
-  "styles.music.artwork": "Okładka i tekst",
-  "styles.music.cover": "Cała okładka",
-  "styles.music.text": "Tylko tekst",
   "widgetsA.catalog.music.description": "To, co odtwarza Windows",
   "widgetsA.catalog.music.label": "Teraz odtwarzane",
   "widgetsB.music.next": "Następny",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Odtwórz lub wstrzymaj",
   "widgetsB.music.previous": "Poprzedni",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Gdy żaden odtwarzacz nie jest otwarty",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Gdy nic nie jest odtwarzane",
-  "widgetsB.settings.music.progress.label": "Pokaż postęp",
-  "widgetsB.settings.music.transport.label": "Pokaż przyciski odtwarzania"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Gdy nic nie jest odtwarzane"
 }

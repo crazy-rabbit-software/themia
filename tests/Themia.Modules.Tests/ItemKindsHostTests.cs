@@ -128,11 +128,11 @@ public sealed class ItemKindsHostTests
     public void S6570_music_draws_no_items_its_seek_bar_is_a_rail()
     {
         // [S-1475] The seek bar is the Controls slider's rail (the Track role), not an item of the item layer.
-        var (state, view, selection) = Selected(new WidgetId("music"));
-        Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
-
-        ((MusicConfig)view.Widgets[0].Config).ShowProgress = false;
-        Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
+        foreach (var kind in new[] { "music", "musicProgress", "musicCover" })
+        {
+            var (state, view, selection) = Selected(new WidgetId(kind));
+            Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
+        }
     }
 
     [Fact]

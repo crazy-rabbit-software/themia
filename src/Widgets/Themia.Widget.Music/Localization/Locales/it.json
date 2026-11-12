@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Nascondi quando inattivo",
   "music.hideWhenIdle.never": "Mai",
-  "styles.music.artwork": "Copertina e testo",
-  "styles.music.cover": "Copertina intera",
-  "styles.music.text": "Solo testo",
   "widgetsA.catalog.music.description": "Quello che Windows sta riproducendo",
   "widgetsA.catalog.music.label": "In riproduzione",
   "widgetsB.music.next": "Successivo",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Riproduci o metti in pausa",
   "widgetsB.music.previous": "Precedente",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Quando nessun lettore è aperto",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Quando non è in riproduzione nulla",
-  "widgetsB.settings.music.progress.label": "Mostra l'avanzamento",
-  "widgetsB.settings.music.transport.label": "Mostra i controlli di riproduzione"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Quando non è in riproduzione nulla"
 }

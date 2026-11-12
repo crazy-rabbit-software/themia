@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "Скрывать без воспроизведения",
+  "music.hideWhenIdle.never": "Никогда",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Когда проигрыватель не открыт",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Когда ничего не играет"
+}

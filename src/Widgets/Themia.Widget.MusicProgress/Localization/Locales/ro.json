@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "Ascunde în repaus",
+  "music.hideWhenIdle.never": "Niciodată",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Când niciun player nu e deschis",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Când nu se redă nimic"
+}

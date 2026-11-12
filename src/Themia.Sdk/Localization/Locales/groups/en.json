@@ -60,7 +60,17 @@
     "groups.recipe.nextMeeting",
     "groups.recipe.nextMeetingAbout",
     "groups.recipe.inboxAndTasks",
-    "groups.recipe.inboxAndTasksAbout"
+    "groups.recipe.inboxAndTasksAbout",
+    "groups.recipe.nowPlaying",
+    "groups.recipe.nowPlayingAbout",
+    "groups.recipe.nowPlayingLarge",
+    "groups.recipe.nowPlayingLargeAbout",
+    "groups.recipe.sound",
+    "groups.recipe.soundAbout",
+    "groups.recipe.quickSettings",
+    "groups.recipe.quickSettingsAbout",
+    "groups.recipe.power",
+    "groups.recipe.powerAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -125,5 +135,15 @@
   "groups.recipe.nextMeeting": "Next meeting",
   "groups.recipe.nextMeetingAbout": "Your next meeting with Join, and what comes after it",
   "groups.recipe.inboxAndTasks": "Inbox and tasks",
-  "groups.recipe.inboxAndTasksAbout": "Your mail beside your to-do list"
+  "groups.recipe.inboxAndTasksAbout": "Your mail beside your to-do list",
+  "groups.recipe.nowPlaying": "Now playing",
+  "groups.recipe.nowPlayingAbout": "The cover, the track and its progress",
+  "groups.recipe.nowPlayingLarge": "Now playing, large",
+  "groups.recipe.nowPlayingLargeAbout": "A large cover with the track and its progress under it",
+  "groups.recipe.sound": "Sound",
+  "groups.recipe.soundAbout": "The volume and every app's level",
+  "groups.recipe.quickSettings": "Quick settings",
+  "groups.recipe.quickSettingsAbout": "Wi-Fi, Bluetooth, do not disturb and night light",
+  "groups.recipe.power": "Power",
+  "groups.recipe.powerAbout": "Lock, sleep, restart and shut down"
 }

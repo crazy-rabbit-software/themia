@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Sembunyikan saat diam",
   "music.hideWhenIdle.never": "Tidak pernah",
-  "styles.music.artwork": "Sampul dan teks",
-  "styles.music.cover": "Sampul penuh",
-  "styles.music.text": "Hanya teks",
   "widgetsA.catalog.music.description": "Apa pun yang sedang diputar Windows",
   "widgetsA.catalog.music.label": "Sedang diputar",
   "widgetsB.music.next": "Berikutnya",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Putar atau jeda",
   "widgetsB.music.previous": "Sebelumnya",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Saat tidak ada pemutar yang terbuka",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Saat tidak ada yang diputar",
-  "widgetsB.settings.music.progress.label": "Tampilkan kemajuan",
-  "widgetsB.settings.music.transport.label": "Tampilkan kontrol putar"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Saat tidak ada yang diputar"
 }

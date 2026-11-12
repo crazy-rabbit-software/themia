@@ -7246,6 +7246,16 @@ grouped, so a first desktop is a few clicks.
   block, headerless, over After this with its header, 320 wide, 124 + 132), **Inbox and tasks**
   (`inboxAndTasks`: Mail beside Tasks, 300 + 300), and **My day** rebuilt as [S-2474] says. Tests
   `ReadyMadeGroupsTests` (the rules of [S-2472]).
+- **[S-11340]** **Now playing** and **Now playing, large** (owner decision 2026-11-12: the old card's
+  styles come back as groups of its atoms): Now playing is a Small cover (96) at the side, the track
+  atom (244 × 96) beside it and the progress (340 × 40) under both, 340 × 136, the old 340 × 160 card
+  tighter; Now playing, large is a Large cover (240) on top, the track and the progress under it, 240
+  wide. No header on any of them (the old card started without one, [S-2590]).
+- **[S-11341]** **Sound**: the volume (300 × 136, its header on) over the mixer (300 wide, its four
+  rows, its header hidden: the first atom carries the header).
+- **[S-11342]** **Quick settings**: Wi-Fi, Bluetooth, Do not disturb and Night light, four Medium tiles
+  (120) in a row.
+- **[S-11343]** **Power**: Lock, Sleep, Restart and Shut down, four Medium tiles (120) in a row.
 - **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>]` draws a recipe
   placed: a scene built from it (`ReadyMadeScene`), edit mode, the new group selected, on a sample
   wallpaper; a widget given no state shows its "sample" preview where it has one.

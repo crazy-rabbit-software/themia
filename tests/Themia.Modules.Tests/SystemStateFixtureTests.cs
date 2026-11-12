@@ -75,7 +75,7 @@ public sealed class SystemStateFixtureTests
         var volume = Assert.IsType<VolumeConfig>(configs[18]);
         Assert.Equal(("{0.0.0.00000000}.{volume}", "Speakers", false), (volume.DeviceId, volume.DeviceName, volume.AllowControl));
         var music = Assert.IsType<MusicConfig>(configs[19]);
-        Assert.Equal((MusicStyle.Text, false, false, MusicHideWhenIdle.NotPlaying), (music.Style, music.ShowTransport, music.ShowProgress, music.HideWhenIdle));
+        Assert.Equal(MusicHideWhenIdle.NotPlaying, music.HideWhenIdle);
         Assert.Equal(AudioVisualizerStyle.Waveform, Assert.IsType<AudioVisualizerConfig>(configs[20]).Style);
     }
 }

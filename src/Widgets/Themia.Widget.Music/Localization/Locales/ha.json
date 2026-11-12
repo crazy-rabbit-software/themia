@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Ɓoye lokacin da babu aiki",
   "music.hideWhenIdle.never": "Ba taɓa ba",
-  "styles.music.artwork": "Bango da rubutu",
-  "styles.music.cover": "Cikakken bango",
-  "styles.music.text": "Rubutu kawai",
   "widgetsA.catalog.music.description": "Duk abin da Windows ke kunnawa",
   "widgetsA.catalog.music.label": "Ana kunnawa yanzu",
   "widgetsB.music.next": "Na gaba",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Kunna ko dakata",
   "widgetsB.music.previous": "Na baya",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Idan babu mai kunnawa a buɗe",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Idan babu abin da ke kunnawa",
-  "widgetsB.settings.music.progress.label": "Nuna ci gaba",
-  "widgetsB.settings.music.transport.label": "Nuna maɓallan kunnawa"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Idan babu abin da ke kunnawa"
 }

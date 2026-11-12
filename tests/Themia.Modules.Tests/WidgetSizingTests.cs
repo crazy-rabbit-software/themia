@@ -21,8 +21,7 @@ public sealed class WidgetSizingTests
     /// </summary>
     private static readonly string[] Legacy =
     [
-        "audioVisualizer", "calendar", "habitTracker", "music", "screenTimeApps", "screenTimeChart",
-        "screenTimeDonut",
+        "audioVisualizer", "calendar", "habitTracker", "screenTimeApps", "screenTimeChart", "screenTimeDonut",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

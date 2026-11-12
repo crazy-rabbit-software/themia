@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "ሥራ ሲፈታ ደብቅ",
   "music.hideWhenIdle.never": "በጭራሽ",
-  "styles.music.artwork": "የአልበም ሥዕልና ጽሑፍ",
-  "styles.music.cover": "ሙሉ የአልበም ሥዕል",
-  "styles.music.text": "ጽሑፍ ብቻ",
   "widgetsA.catalog.music.description": "Windows የሚያጫውተው ማንኛውም ነገር",
   "widgetsA.catalog.music.label": "አሁን በመጫወት ላይ",
   "widgetsB.music.next": "ቀጣይ",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "አጫውት ወይም ለአፍታ አቁም",
   "widgetsB.music.previous": "ያለፈው",
   "widgetsB.settings.music.hideWhenIdle.noSession": "ምንም ማጫወቻ ሳይከፈት",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ምንም ሳይጫወት",
-  "widgetsB.settings.music.progress.label": "ሂደቱን አሳይ",
-  "widgetsB.settings.music.transport.label": "የማጫወቻ መቆጣጠሪያዎችን አሳይ"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ምንም ሳይጫወት"
 }

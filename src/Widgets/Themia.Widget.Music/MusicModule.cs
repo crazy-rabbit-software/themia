@@ -15,7 +15,7 @@ using Themia.App.Services;
 
 namespace Themia.Widget.Music;
 
-/// <summary>[S-1475] What Windows is playing: the art, the title and artist, the transport and the seek bar, through Windows' own media session. SPEC.md beside this file.</summary>
+/// <summary>[S-11311] What Windows is playing: the title, the artist and album, the transport, through Windows' own media session (the cover and the progress are atoms of their own). SPEC.md beside this file.</summary>
 public sealed class MusicModule : IWidgetModule
 {
     /// <summary>[S-2030] A click on the card opens the app that owns the media session (its id as Windows reported it, [S-2003]); nothing with no session.</summary>
@@ -32,7 +32,7 @@ public sealed class MusicModule : IWidgetModule
         Label = MusicStr.WidgetsA_Catalog_Music_Label.Local(),
         Description = MusicStr.WidgetsA_Catalog_Music_Description.Local(),
         Glyph = Glyphs.Music,
-        Sizing = _ => WidgetSizing.Legacy(340, 160),
+        Sizing = _ => MusicFace.Sizing(),
         Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.Media, 0, 0, Popular: 7),
     };

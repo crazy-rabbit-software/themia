@@ -19,7 +19,7 @@ public static class QuoteLayout
     public const int MinLines = 2, MostLines = 6, DefaultLines = 3;
 
     /// <summary>[S-11306] The card's width: from 200 to 520, a new one 320.</summary>
-    public const double MinWidth = 200, NaturalWidth = 320, MaxWidth = 520;
+    public const double Narrowest = 200, NaturalWidth = 320, Widest = 520;
 
     /// <summary>[S-11306] The quote's step at each size: Body, Title, Big 28.</summary>
     public static TypeStep StepAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
@@ -57,9 +57,9 @@ public static class QuoteLayout
         var author = config.ShowAuthor ? FamilyType.Under(step).LineHeight : 0;
         var lines = new Sdk.SizeSteps(top + author + FamilySpace.Inset, step.LineHeight, MinLines, MostLines, LinesOf(config));
         return Sdk.WidgetSizing.Range(
-                new Sdk.SizeDip(MinWidth, lines.At(MinLines)),
+                new Sdk.SizeDip(Narrowest, lines.At(MinLines)),
                 new Sdk.SizeDip(NaturalWidth, lines.At(LinesOf(config))),
-                new Sdk.SizeDip(MaxWidth, lines.At(MostLines)))
+                new Sdk.SizeDip(Widest, lines.At(MostLines)))
             .WithHeightSteps(lines);
     }
 

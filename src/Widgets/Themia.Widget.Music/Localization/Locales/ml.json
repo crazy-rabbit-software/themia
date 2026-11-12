@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "നിഷ്‌ക്രിയമാകുമ്പോൾ മറയ്ക്കുക",
   "music.hideWhenIdle.never": "ഒരിക്കലുമില്ല",
-  "styles.music.artwork": "ചിത്രവും വാചകവും",
-  "styles.music.cover": "മുഴുവൻ ചിത്രം",
-  "styles.music.text": "വാചകം മാത്രം",
   "widgetsA.catalog.music.description": "Windows പ്ലേ ചെയ്യുന്നതെന്തും",
   "widgetsA.catalog.music.label": "ഇപ്പോൾ പ്ലേ ചെയ്യുന്നത്",
   "widgetsB.music.next": "അടുത്തത്",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "പ്ലേ ചെയ്യുക അല്ലെങ്കിൽ നിർത്തുക",
   "widgetsB.music.previous": "മുമ്പത്തേത്",
   "widgetsB.settings.music.hideWhenIdle.noSession": "പ്ലെയർ തുറന്നിട്ടില്ലാത്തപ്പോൾ",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ഒന്നും പ്ലേ ചെയ്യാത്തപ്പോൾ",
-  "widgetsB.settings.music.progress.label": "പുരോഗതി കാണിക്കുക",
-  "widgetsB.settings.music.transport.label": "നിയന്ത്രണങ്ങൾ കാണിക്കുക"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ഒന്നും പ്ലേ ചെയ്യാത്തപ്പോൾ"
 }

@@ -19,7 +19,7 @@ public sealed class MixerLayoutTests
     [Fact]
     public void S11309_at_its_least_width_the_slider_keeps_its_least_travel_beside_the_name()
     {
-        var plan = MixerLayout.Plan(MixerLayout.MinWidth, icons: true, lines: 1, rows: 4, playing: 5, quiet: 0);
+        var plan = MixerLayout.Plan(MixerLayout.Narrowest, icons: true, lines: 1, rows: 4, playing: 5, quiet: 0);
         Assert.True(plan.Slider >= Themia.Sdk.Kit.ControlsRules.MinSlider);
         Assert.True(plan.Names);
     }

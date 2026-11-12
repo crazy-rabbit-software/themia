@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "Ẩn khi không phát",
+  "music.hideWhenIdle.never": "Không bao giờ",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Khi không có trình phát nào mở",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Khi không có gì đang phát"
+}

@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Boştayken gizle",
   "music.hideWhenIdle.never": "Hiçbir zaman",
-  "styles.music.artwork": "Kapak ve metin",
-  "styles.music.cover": "Tam kapak",
-  "styles.music.text": "Yalnızca metin",
   "widgetsA.catalog.music.description": "Windows'un o an çaldığı her şey",
   "widgetsA.catalog.music.label": "Şimdi çalıyor",
   "widgetsB.music.next": "Sonraki",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Oynat veya duraklat",
   "widgetsB.music.previous": "Önceki",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Açık oynatıcı yokken",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Hiçbir şey çalmıyorken",
-  "widgetsB.settings.music.progress.label": "İlerlemeyi göster",
-  "widgetsB.settings.music.transport.label": "Oynatma denetimlerini göster"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Hiçbir şey çalmıyorken"
 }

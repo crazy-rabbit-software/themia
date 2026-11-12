@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "再生していないときは非表示",
   "music.hideWhenIdle.never": "常に表示",
-  "styles.music.artwork": "アートワークとテキスト",
-  "styles.music.cover": "全面アートワーク",
-  "styles.music.text": "テキストのみ",
   "widgetsA.catalog.music.description": "Windows で再生中のメディア",
   "widgetsA.catalog.music.label": "再生中",
   "widgetsB.music.next": "次へ",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "再生または一時停止",
   "widgetsB.music.previous": "前へ",
   "widgetsB.settings.music.hideWhenIdle.noSession": "プレーヤーが開いていないとき",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "何も再生していないとき",
-  "widgetsB.settings.music.progress.label": "進行状況を表示",
-  "widgetsB.settings.music.transport.label": "再生コントロールを表示"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "何も再生していないとき"
 }

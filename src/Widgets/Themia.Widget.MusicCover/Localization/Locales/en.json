@@ -1,0 +1,12 @@
+{
+  "$englishOnly": [
+    "musicCover.label",
+    "musicCover.desc"
+  ],
+  "musicCover.label": "Album art",
+  "musicCover.desc": "The cover of what is playing, from Windows' media session",
+  "music.hideWhenIdle.label": "Hide when idle",
+  "music.hideWhenIdle.never": "Never",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "When no player is open",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "When nothing is playing"
+}

@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Itago kapag idle",
   "music.hideWhenIdle.never": "Hindi kailanman",
-  "styles.music.artwork": "Cover at teksto",
-  "styles.music.cover": "Buong cover",
-  "styles.music.text": "Teksto lang",
   "widgetsA.catalog.music.description": "Anumang pinapatugtog ng Windows",
   "widgetsA.catalog.music.label": "Tumutugtog ngayon",
   "widgetsB.music.next": "Susunod",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "I-play o i-pause",
   "widgetsB.music.previous": "Nakaraan",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Kapag walang bukas na player",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Kapag walang tumutugtog",
-  "widgetsB.settings.music.progress.label": "Ipakita ang progreso",
-  "widgetsB.settings.music.transport.label": "Ipakita ang mga kontrol"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Kapag walang tumutugtog"
 }

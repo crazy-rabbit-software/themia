@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Приховувати в простої",
   "music.hideWhenIdle.never": "Ніколи",
-  "styles.music.artwork": "Обкладинка й текст",
-  "styles.music.cover": "Уся обкладинка",
-  "styles.music.text": "Лише текст",
   "widgetsA.catalog.music.description": "Усе, що відтворює Windows",
   "widgetsA.catalog.music.label": "Зараз відтворюється",
   "widgetsB.music.next": "Далі",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Відтворити або призупинити",
   "widgetsB.music.previous": "Назад",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Коли не відкрито жодного програвача",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Коли нічого не відтворюється",
-  "widgetsB.settings.music.progress.label": "Показувати поступ",
-  "widgetsB.settings.music.transport.label": "Показувати кнопки керування"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Коли нічого не відтворюється"
 }

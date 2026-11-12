@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "الإخفاء عند الخمول",
+  "music.hideWhenIdle.never": "أبدًا",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "عند عدم فتح أي مشغّل",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "عند عدم تشغيل أي شيء"
+}

@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "Masquer en veille",
+  "music.hideWhenIdle.never": "Jamais",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Quand aucun lecteur n'est ouvert",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Quand rien n'est en lecture"
+}

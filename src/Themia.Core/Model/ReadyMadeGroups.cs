@@ -252,6 +252,47 @@ public static class ReadyMadeGroups
         new("stockHistory", new(0, 100, 280, 108), Header: HeaderPlacement.Hidden),
     ]);
 
+    /// <summary>[S-11340] Now playing: the cover at the side, the track beside it, the progress under both (the old card, tighter).</summary>
+    public static ReadyMadeGroup NowPlaying { get; } = new("nowPlaying", Str.Groups_Recipe_NowPlaying, Str.Groups_Recipe_NowPlayingAbout, Glyphs.Music, AddFolderId.Media,
+    [
+        new("musicCover", new(0, 0, 96, 96), Config: """{ "size": "Small" }"""),
+        new("music", new(96, 0, 244, 96)),
+        new("musicProgress", new(0, 96, 340, 40)),
+    ]);
+
+    /// <summary>[S-11340] Now playing, large: the cover on top, the track and the progress under it.</summary>
+    public static ReadyMadeGroup NowPlayingLarge { get; } = new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.Media,
+    [
+        new("musicCover", new(0, 0, 240, 240), Config: """{ "size": "Large" }"""),
+        new("music", new(0, 240, 240, 96)),
+        new("musicProgress", new(0, 336, 240, 40)),
+    ]);
+
+    /// <summary>[S-11341] Sound: the volume over the mixer, one header (the volume's).</summary>
+    public static ReadyMadeGroup Sound { get; } = new("sound", Str.Groups_Recipe_Sound, Str.Groups_Recipe_SoundAbout, Glyphs.Volume3, AddFolderId.Media,
+    [
+        new("volume", new(0, 0, 300, 136)),
+        new("mixer", new(0, 136, 300, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
+    /// <summary>[S-11342] Quick settings: Wi-Fi, Bluetooth, Do not disturb and Night light in a row.</summary>
+    public static ReadyMadeGroup QuickSettings { get; } = new("quickSettings", Str.Groups_Recipe_QuickSettings, Str.Groups_Recipe_QuickSettingsAbout, Glyphs.Settings, AddFolderId.QuickSettings,
+    [
+        new("wifiToggle", new(0, 0, 120, 120)),
+        new("bluetoothToggle", new(120, 0, 120, 120)),
+        new("doNotDisturbToggle", new(240, 0, 120, 120)),
+        new("nightLightToggle", new(360, 0, 120, 120)),
+    ]);
+
+    /// <summary>[S-11343] Power: Lock, Sleep, Restart and Shut down in a row.</summary>
+    public static ReadyMadeGroup Power { get; } = new("power", Str.Groups_Recipe_Power, Str.Groups_Recipe_PowerAbout, Glyphs.Power, AddFolderId.PowerButtons,
+    [
+        new("lock", new(0, 0, 120, 120)),
+        new("sleep", new(120, 0, 120, 120)),
+        new("restart", new(240, 0, 120, 120)),
+        new("shutdown", new(360, 0, 120, 120)),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
     /// <summary>[S-11409] The meeting block over the meetings after it: what the Next meeting card was.</summary>
     public static ReadyMadeGroup NextMeetings { get; } = new("nextMeetings", Str.Groups_Recipe_NextMeeting, Str.Groups_Recipe_NextMeetingAbout, Glyphs.Meeting, AddFolderId.CalendarMail,
@@ -267,7 +308,7 @@ public static class ReadyMadeGroups
         new("tasks", new(300, 0, 300, 248), Config: """{ "rows": 7 }""", Header: HeaderPlacement.Hidden),
     ]);
 
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks, NextMeetings, InboxAndTasks];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

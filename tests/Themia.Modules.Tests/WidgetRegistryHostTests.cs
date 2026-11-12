@@ -66,8 +66,9 @@ public sealed class WidgetRegistryHostTests
         Assert.DoesNotContain("{", widget.Describe(Locale.En), StringComparison.Ordinal);
         Assert.Single(widget.Glyph.EnumerateRunes());
         Assert.InRange(widget.Natural.Width, 80, 800);
-        // [S-11002] An atom may be a strip: a history under its reading is 64 tall.
-        Assert.InRange(widget.Natural.Height, 48, 800);
+        // [S-11002] [S-2438] An atom may be a strip (a history under its reading: 64) or one row tall (a track's
+        // progress: 40); never under the floor ([S-08]).
+        Assert.InRange(widget.Natural.Height, WidgetSizing.LegacyFloor, 800);
     }
 
     [Theory]
@@ -127,7 +128,7 @@ public sealed class WidgetRegistryHostTests
     /// header above it ([S-5700]) those laid from the view's top, and the next meeting ([S-5710]).
     /// </summary>
     public static TheoryData<string> Headerless() =>
-        ["clock", "alarm", "audioVisualizer", "gallery", "videoStream", "music", "quote", "stopwatch", "pomodoro", "focusSession", "nextMeeting"];
+        ["clock", "alarm", "audioVisualizer", "gallery", "videoStream", "music", "musicCover", "musicProgress", "quote", "stopwatch", "pomodoro", "focusSession", "nextMeeting"];
 
     /// <summary>[S-2590] Kinds that keep their header: a sample of the rest (a meter, a list, the weather, a calendar).</summary>
     public static TheoryData<string> KeepHeader() => ["memory", "rss", "weatherNow", "calendar", "tasks"];

@@ -1,0 +1,12 @@
+{
+  "$englishOnly": [
+    "musicProgress.label",
+    "musicProgress.desc"
+  ],
+  "musicProgress.label": "Track progress",
+  "musicProgress.desc": "How far into the track it is, and seeking in it",
+  "music.hideWhenIdle.label": "Hide when idle",
+  "music.hideWhenIdle.never": "Never",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "When no player is open",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "When nothing is playing"
+}

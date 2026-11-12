@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "空闲时隐藏",
+  "music.hideWhenIdle.never": "从不",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "没有打开播放器时",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "没有播放内容时"
+}

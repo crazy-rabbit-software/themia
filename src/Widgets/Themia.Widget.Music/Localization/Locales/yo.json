@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Bò mọ́lẹ̀ nígbà tí kò bá ṣiṣẹ́",
   "music.hideWhenIdle.never": "Rárá",
-  "styles.music.artwork": "Àwòrán àti ọ̀rọ̀",
-  "styles.music.cover": "Àwòrán kíkún",
-  "styles.music.text": "Ọ̀rọ̀ nìkan",
   "widgetsA.catalog.music.description": "Ohunkóhun tí Windows ń ṣe",
   "widgetsA.catalog.music.label": "Ohun tó ń dún",
   "widgetsB.music.next": "Èyí tó kàn",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Dún tàbí dánudúró",
   "widgetsB.music.previous": "Ti tẹ́lẹ̀",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Nígbà tí kò sí ẹ̀rọ orin tó ṣí",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Nígbà tí kò sí ohun tó ń dún",
-  "widgetsB.settings.music.progress.label": "Fi ìlọsíwájú hàn",
-  "widgetsB.settings.music.transport.label": "Fi àwọn bọ́tìnnì ìdarí hàn"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Nígbà tí kò sí ohun tó ń dún"
 }

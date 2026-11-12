@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "အလုပ်မရှိချိန် ဖျောက်ရန်",
   "music.hideWhenIdle.never": "ဘယ်တော့မှ",
-  "styles.music.artwork": "ပုံနှင့် စာသား",
-  "styles.music.cover": "ပုံ အပြည့်",
-  "styles.music.text": "စာသားသာ",
   "widgetsA.catalog.music.description": "Windows ဖွင့်နေသမျှ",
   "widgetsA.catalog.music.label": "ယခု ဖွင့်နေသည်",
   "widgetsB.music.next": "နောက်",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "ဖွင့် သို့မဟုတ် ခဏရပ်",
   "widgetsB.music.previous": "ယခင်",
   "widgetsB.settings.music.hideWhenIdle.noSession": "player မဖွင့်ထားချိန်",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ဘာမှ မဖွင့်နေချိန်",
-  "widgetsB.settings.music.progress.label": "တိုးတက်မှု ပြရန်",
-  "widgetsB.settings.music.transport.label": "ထိန်းချုပ်ခလုတ်များ ပြရန်"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ဘာမှ မဖွင့်နေချိန်"
 }

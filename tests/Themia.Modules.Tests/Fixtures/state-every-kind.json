@@ -499,9 +499,6 @@
           "scale": 1,
           "config": {
             "kind": "music",
-            "style": "artwork",
-            "showTransport": true,
-            "showProgress": true,
             "hideWhenIdle": "never"
           }
         },

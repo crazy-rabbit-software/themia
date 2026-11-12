@@ -517,9 +517,6 @@
           "scale": 1,
           "config": {
             "kind": "music",
-            "style": "text",
-            "showTransport": false,
-            "showProgress": false,
             "hideWhenIdle": "notPlaying"
           }
         },

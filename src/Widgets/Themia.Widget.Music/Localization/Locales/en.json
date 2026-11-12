@@ -2,9 +2,6 @@
   "$englishOnly": [],
   "music.hideWhenIdle.label": "Hide when idle",
   "music.hideWhenIdle.never": "Never",
-  "styles.music.artwork": "Artwork and text",
-  "styles.music.cover": "Full artwork",
-  "styles.music.text": "Text only",
   "widgetsA.catalog.music.description": "Whatever Windows is playing",
   "widgetsA.catalog.music.label": "Now playing",
   "widgetsB.music.next": "Next",
@@ -13,7 +10,5 @@
   "widgetsB.music.playPause": "Play or pause",
   "widgetsB.music.previous": "Previous",
   "widgetsB.settings.music.hideWhenIdle.noSession": "When no player is open",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "When nothing is playing",
-  "widgetsB.settings.music.progress.label": "Show progress",
-  "widgetsB.settings.music.transport.label": "Show the transport"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "When nothing is playing"
 }

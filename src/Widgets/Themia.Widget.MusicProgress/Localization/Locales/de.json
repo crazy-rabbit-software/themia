@@ -1,0 +1,6 @@
+{
+  "music.hideWhenIdle.label": "Ausblenden bei Inaktivität",
+  "music.hideWhenIdle.never": "Nie",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Wenn kein Player geöffnet ist",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Wenn nichts wiedergegeben wird"
+}

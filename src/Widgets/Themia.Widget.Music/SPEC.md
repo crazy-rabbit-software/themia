@@ -1,64 +1,52 @@
-# Music (now playing)
+# Music (now playing: the track)
 
-The module `music` ([S-6911]): what Windows is playing, through its own media session. Its tags are
+The module `music` ([S-6911]): what Windows is playing, through its own media session, as its track
+atom (the id stays `music`; owner decision 2026-11-12, the old card is split into atoms). Its tags are
 this file's alone; the root `SPEC.md` holds the host's sections and the session's and the rules' root
 tags: hide when idle [S-1464], the seek bar's mapping [S-1465], the keys [S-1468] and the album line
 [S-1469] are the SDK's `MusicRules`; the WinRT session manager is the host's (`MediaSession`, behind
-`IWidgetHost.Media`).
+`IWidgetHost.Media`), one widget's connection to it the SDK's `NowPlayingFeed` ([S-11311]). The cover
+and the progress are atoms of their own (`musicCover`, `musicProgress`, their own SPEC.md); the old
+styles come back as the ready-made groups Now playing and Now playing, large ([S-11340]).
 
 Owning files: everything in this folder: `MusicModule.cs` (descriptor, view factory, menu lines,
-JSON context), `MusicConfig.cs` (with its styles and when it hides), `MusicView.cs` (the session
-through its host, the transport, the keys) with `MusicView.Layout.cs` (the ladder and the styles) and
-`MusicSeekBar.cs`, `MusicMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `--state sample`),
-`Localization/Locales/` (its own `MusicStr`, 30 languages, its style names included). Tests:
-`Tests/MusicTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's rules is the
-module host's `MusicHostTests`.
+JSON context), `MusicConfig.cs` (when it hides), `MusicFace.cs` (its sizing), `MusicView.cs` (the lines,
+the transport, the keys), `MusicMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
+`--state sample`), `Localization/Locales/` (its own `MusicStr`, 30 languages). The seek bar
+(`MusicSeekBar`) and the session's connection (`NowPlayingFeed`) are the SDK's, shared by the atoms.
+Tests: `Tests/MusicTests.cs`, `Tests/MusicMenuTests.cs` (run by `tests/Themia.Modules.Tests`); its config
+under the root's rules is the module host's `MusicHostTests`.
 
 - **[S-650]** *(Retired by [S-1475], G5 2026-10-29: the transport is always the Controls row at the
   foot, so it never stands beside the lines.)*
-- **[S-1475]** Now playing on the family's blocks (`MusicFace`): the lines at the content's top, the
-  track on the Title step (BodyStrong on a compact width) and the artist and album in one Body line,
-  secondary, each cut with an ellipsis; the transport the Controls row at the bottom inset
-  (Previous, Play/Pause as the one main action in the accent, Next; on a narrow card Next and then
-  Previous give way, [S-6716]); the progress row 8 over it: the elapsed time and the total in
-  Caption, tertiary, at its two ends in columns as wide as their widest case (every figure an 8, so
-  the bar does not move as the seconds go by), the seek bar between them 8 from each (its rail the
-  Track role, its fill and thumb the accent). Height goes to the title, then the transport, then the
-  artist, then the progress ([S-666]). The art is data: where the side cover does not hold
-  ([S-2155]: XS, S, Tall), a 48 lead beside the two lines from a regular width; once the view area
-  is expanded in height a square over the lines, as large as the room left allows (at least 96). No album line of its own, no larger title or 40 transport on L/XL (concise
-  first). A disabled transport button keeps its place, its glyph disabled. Nothing playing is the
-  Status row at the top (the music glyph and why, [S-6714]). No spectrum ([S-3200]).
-- **[S-2155]** In the Artwork style the art takes the room (owner decision 2026-11-12;
-  `MusicFace.Side`, tests `MusicFaceTests`): from a regular width the cover is a square at the
-  content's left, as tall as the room between the header and the bottom inset, at most half the
-  content's width, in the one radius (no picture: today's placeholder, the music glyph on the control
-  fill, 32); 12 from it a column with the title and the artist at its top
-  and the progress row and the transport (Play the one accent action) at its bottom, by the ladder
-  above. Where that column would be narrower than the whole transport (100: three 28 buttons 8
-  apart) the cover gives way first, a smaller square, never the controls; a square that would be
-  under the family's 48 is not drawn and the compact ladder above stands, and one under the least
-  over square (96) gives way to the square over the lines where the height is expanded (XS at its
-  tier size; S 64, M 148, Wide 112, L 268, XL 388; Tall the square over the lines, 176). At L and XL the square is half the width and the
-  room under it, beside the column's foot, stays empty ([S-666]). The Cover and Text styles keep
-  their ladders.
-- **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
-  `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
-  **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
-  art", which is gone. Transport, progress and hide-when-idle stay options for every style ([S-1479]).
-- **[S-6407]** Full artwork: the art is a band the card's width (cropped to fill; the music glyph on
-  the control fill without one) from the view's top to 8 over the lines, which stand with the
-  progress row and the transport at the content's foot as [S-1475] has them; the band takes what
-  they leave, and under 48 it is not drawn (a strip shows the lines alone). Nothing is laid over the
-  art, so no scrim (a colour made from numbers) is needed: the text keeps the card's roles.
+- **[S-1475]** *(Retired with the split: the ladder of the art, the lines, the progress and the
+  transport by the card's size; the track atom is [S-11311], the cover [S-11320], the progress
+  [S-11330].)*
+- **[S-11311]** **The track atom** (`MusicFace`, `MusicView`): the track's title (BodyStrong,
+  primary) over the artist and album in one Body line (secondary), each cut with its ellipsis, at the
+  content's top; the transport (Previous, Play/Pause as the one main action in the accent, Next: 28
+  icon buttons, left to right in every language) 4 under them at the bottom inset. A disabled
+  transport button keeps its place, its glyph disabled. Nothing playing is the Status row at the top
+  (the music glyph and why, [S-6714]). What it shows is fixed: no art, no progress, no styles. Its
+  card (`MusicFace.Sizing`): the inset, the two lines, 4, the transport, the inset (96, a Small cover's
+  side), one height, 200 to 420 wide (a new one 244), where a wider card only gives the lines more
+  room. It starts without a header. It reads the session through the SDK's `NowPlayingFeed`, as the
+  cover and the progress do, so the three show the same track at the same moment. Tests
+  `MusicTests.S11311_`.
+- **[S-2155]** *(Retired with the split: the side cover is the cover atom beside the track atom, the
+  Now playing group, [S-11340].)*
+- **[S-6406]** *(Retired with the split: the styles Artwork and text, Full artwork and Text only; the
+  first two come back as the ready-made groups Now playing and Now playing, large, [S-11340], the
+  third is the track atom alone.)*
+- **[S-6407]** *(Retired with [S-6406].)*
 - **[S-1479]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Appearance ([S-3723]), then **Show the transport** and **Show progress**
-  (switches, for every style), a divider, and **Hide when idle** (Never / When no player is open /
-  When nothing is playing, [S-1464]; edit mode still shows it). (Tests `MusicMenuTests`.)
+  has no settings page. Appearance ([S-3723]), then **Hide when idle** (Never / When no player is open
+  / When nothing is playing, [S-1464]; edit mode still shows it). *(Show the transport and Show
+  progress are retired with the split.)* (Tests `MusicMenuTests`.)
 - **[S-2030]** A click on the card ([S-2000]) opens the app that is playing: the media session's own
   app (`NowPlaying.AppId`, `SourceAppUserModelId`), a packaged app by its Apps-folder item, a
   desktop player brought to the front when it runs ([S-2003]); nothing with no session. The
-  transport buttons and the seek bar keep their clicks ([S-2004]). `MusicModule.Opens`.
+  transport buttons keep their clicks ([S-2004]). `MusicModule.Opens`.
 
-Needs a manual pass: the widget on a live desktop (a player started, paused, skipped and sought, a
-stream with nothing to seek, art and no art, each style, hide when idle).
+Needs a manual pass: the widget on a live desktop (a player started, paused, skipped, a stream with
+nothing to seek, hide when idle), and the three atoms of a Now playing group agreeing on a live track.

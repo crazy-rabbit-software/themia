@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "ನಿಷ್ಕ್ರಿಯವಾಗಿದ್ದಾಗ ಮರೆಮಾಡು",
   "music.hideWhenIdle.never": "ಎಂದಿಗೂ ಇಲ್ಲ",
-  "styles.music.artwork": "ಕಲಾಕೃತಿ ಮತ್ತು ಪಠ್ಯ",
-  "styles.music.cover": "ಪೂರ್ಣ ಕಲಾಕೃತಿ",
-  "styles.music.text": "ಪಠ್ಯ ಮಾತ್ರ",
   "widgetsA.catalog.music.description": "Windows ಏನನ್ನು ಪ್ಲೇ ಮಾಡುತ್ತಿದೆಯೋ ಅದು",
   "widgetsA.catalog.music.label": "ಈಗ ಪ್ಲೇ ಆಗುತ್ತಿದೆ",
   "widgetsB.music.next": "ಮುಂದಿನದು",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "ಪ್ಲೇ ಅಥವಾ ವಿರಾಮ",
   "widgetsB.music.previous": "ಹಿಂದಿನದು",
   "widgetsB.settings.music.hideWhenIdle.noSession": "ಯಾವುದೇ ಪ್ಲೇಯರ್ ತೆರೆದಿಲ್ಲದಿದ್ದಾಗ",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ಏನೂ ಪ್ಲೇ ಆಗದಿದ್ದಾಗ",
-  "widgetsB.settings.music.progress.label": "ಪ್ರಗತಿ ತೋರಿಸು",
-  "widgetsB.settings.music.transport.label": "ಪ್ಲೇಬ್ಯಾಕ್ ನಿಯಂತ್ರಣಗಳನ್ನು ತೋರಿಸು"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ಏನೂ ಪ್ಲೇ ಆಗದಿದ್ದಾಗ"
 }

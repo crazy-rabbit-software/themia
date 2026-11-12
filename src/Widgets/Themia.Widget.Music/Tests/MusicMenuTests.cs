@@ -18,30 +18,19 @@ public sealed class MusicMenuTests
     }
 
     [Fact]
-    public void S1479_appearance_then_transport_progress_and_behind_a_divider_hide_when_idle()
+    public void S1479_appearance_then_hide_when_idle_and_nothing_about_what_it_shows()
     {
         var lines = Build(new MusicConfig());
 
         Assert.Empty(lines.StyleLines);
-        string?[] shape = [MusicStr.WidgetsB_Settings_Music_Transport_Label.Text(), MusicStr.WidgetsB_Settings_Music_Progress_Label.Text(), null, MusicStr.Music_HideWhenIdle_Label.Text()];
-        Assert.Equal(shape, lines.Lines.Select(l => l.IsSeparator ? null : l.Text));
-    }
-
-    [Fact]
-    public void S1479_the_transport_switch_turns_it_off_and_saves_once()
-    {
-        var config = new MusicConfig { ShowTransport = true };
-        Build(config).Lines[0].Action!();
-
-        Assert.False(config.ShowTransport);
-        Assert.Equal(1, _saves);
+        Assert.Equal([MusicStr.Music_HideWhenIdle_Label.Text()], lines.Lines.Select(l => l.Text));
     }
 
     [Fact]
     public void S1479_hide_when_idle_is_a_choice_and_the_current_one_saves_nothing()
     {
         var config = new MusicConfig { HideWhenIdle = MusicHideWhenIdle.Never };
-        var choice = Build(config).Lines[3].Children!;
+        var choice = Build(config).Lines[0].Children!;
 
         choice[0].Action!();
         Assert.Equal(0, _saves);

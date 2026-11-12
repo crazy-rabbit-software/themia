@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Απόκρυψη σε αδράνεια",
   "music.hideWhenIdle.never": "Ποτέ",
-  "styles.music.artwork": "Εξώφυλλο και κείμενο",
-  "styles.music.cover": "Πλήρες εξώφυλλο",
-  "styles.music.text": "Μόνο κείμενο",
   "widgetsA.catalog.music.description": "Ό,τι παίζουν τα Windows",
   "widgetsA.catalog.music.label": "Παίζει τώρα",
   "widgetsB.music.next": "Επόμενο",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Αναπαραγωγή ή παύση",
   "widgetsB.music.previous": "Προηγούμενο",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Όταν δεν είναι ανοιχτό πρόγραμμα αναπαραγωγής",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Όταν δεν παίζει τίποτα",
-  "widgetsB.settings.music.progress.label": "Εμφάνιση προόδου",
-  "widgetsB.settings.music.transport.label": "Εμφάνιση κουμπιών αναπαραγωγής"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Όταν δεν παίζει τίποτα"
 }

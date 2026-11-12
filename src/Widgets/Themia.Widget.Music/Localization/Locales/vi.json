@@ -1,9 +1,6 @@
 {
   "music.hideWhenIdle.label": "Ẩn khi không phát",
   "music.hideWhenIdle.never": "Không bao giờ",
-  "styles.music.artwork": "Ảnh bìa và chữ",
-  "styles.music.cover": "Ảnh bìa toàn thẻ",
-  "styles.music.text": "Chỉ chữ",
   "widgetsA.catalog.music.description": "Những gì Windows đang phát",
   "widgetsA.catalog.music.label": "Đang phát",
   "widgetsB.music.next": "Tiếp",
@@ -12,7 +9,5 @@
   "widgetsB.music.playPause": "Phát hoặc tạm dừng",
   "widgetsB.music.previous": "Trước",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Khi không có trình phát nào mở",
-  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Khi không có gì đang phát",
-  "widgetsB.settings.music.progress.label": "Hiện tiến trình",
-  "widgetsB.settings.music.transport.label": "Hiện nút điều khiển"
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Khi không có gì đang phát"
 }
