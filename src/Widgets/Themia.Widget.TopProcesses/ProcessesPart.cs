@@ -70,7 +70,7 @@ internal sealed class ProcessesPart : DetailPart
         Paths.Retain(samples.Select(s => s.Process));
         _shown = samples;
         var ranked = ProcessTable.Rank(samples, _config.SortBy, _config.GroupByName);
-        host.Present(new DetailSheet(null, null, [], ProcessTable.Rows(Strings.Current, ranked, _config.SortBy, _config.MaxRows, s => Paths.PathOf(s.Process) ?? SystemImage(s.Name), _config.GroupByName)));
+        host.Present(new DetailSheet(null, null, [], ProcessTable.Rows(Strings.Current, ranked, _config.SortBy, _config.MaxRows, s => s.Image ?? Paths.PathOf(s.Process) ?? SystemImage(s.Name), _config.GroupByName)));
     }
 
     /// <summary>

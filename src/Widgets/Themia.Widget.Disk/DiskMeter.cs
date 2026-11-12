@@ -34,6 +34,36 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
     private DiskConfig _config = new();
     private string _root = SystemDrive.Root;
 
+    /// <summary>[S-1161] The volumes of the hub's last disk read, which the title names the drive from.</summary>
+    private IReadOnlyList<DiskVolume> _volumes = [];
+    private IFeedWatch<DiskSnapshot>? _snapshots;
+
+    /// <summary>
+    /// [S-1161] The volumes come with the disk feed's snapshot, the one the reading itself is read
+    /// from: no second walk, and a render on the sample machine names its drives ([S-1931]).
+    /// </summary>
+    public override void Watch(ISystemFeeds hub, IMeterHost host)
+    {
+        _snapshots?.Dispose();
+        _snapshots = hub.Watch(Sources.DiskActivity, snapshot => Volumes(snapshot, host));
+        if (_snapshots.HasValue)
+        {
+            Volumes(_snapshots.Value, host);
+        }
+    }
+
+    public override void Unwatch()
+    {
+        _snapshots?.Dispose();
+        _snapshots = null;
+    }
+
+    private void Volumes(DiskSnapshot snapshot, IMeterHost host)
+    {
+        _volumes = snapshot.Volumes;
+        host.SetTitle(Title());
+    }
+
     public override WidgetId Kind => new WidgetId("disk");
 
     /// <summary>
@@ -125,5 +155,5 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
     /// [S-1161] "System (C:)" for a drive Windows lists, "C:" for one it does not, "All drives" for
     /// every one. From the last walk, never a new one: a title touches no drive.
     /// </summary>
-    private string Title() => DiskRules.HeaderTitle(Strings.Current, _config.Scope, _root, DriveRules.LocalVolumes(widgetHost.Drives.Drives));
+    private string Title() => DiskRules.HeaderTitle(Strings.Current, _config.Scope, _root, _volumes);
 }

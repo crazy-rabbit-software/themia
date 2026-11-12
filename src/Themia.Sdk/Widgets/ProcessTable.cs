@@ -19,7 +19,8 @@ public readonly record struct ProcessEntry(int Pid, string Name, long CreateTime
 /// <param name="Memory">Private working set in bytes.</param>
 /// <param name="Count">How many processes the row stands for (1 ungrouped).</param>
 /// <param name="Process">[S-2433] Whose executable the row's icon is (a group's first member); default when unknown.</param>
-public readonly record struct ProcessSample(string Name, double Cpu, long Memory, int Count = 1, ProcessIdentity Process = default);
+/// <param name="Image">[S-1933] The executable's path when the read already knows it (the sample machine's); null: asked by <paramref name="Process"/>.</param>
+public readonly record struct ProcessSample(string Name, double Cpu, long Memory, int Count = 1, ProcessIdentity Process = default, string? Image = null);
 
 /// <summary>[S-2414] [S-2433] A process as Windows tells two apart: its pid and when it started (a pid is reused within seconds).</summary>
 public readonly record struct ProcessIdentity(int Pid, long CreateTime);
@@ -214,7 +215,7 @@ public static class ProcessTable
         {
             rows = samples
                 .GroupBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
-                .Select(g => new ProcessSample(g.First().Name, Math.Min(1, g.Sum(s => s.Cpu)), g.Sum(s => s.Memory), g.Sum(s => s.Count), FirstKnown(g)));
+                .Select(g => new ProcessSample(g.First().Name, Math.Min(1, g.Sum(s => s.Cpu)), g.Sum(s => s.Memory), g.Sum(s => s.Count), FirstKnown(g), g.Select(s => s.Image).FirstOrDefault(i => i is not null)));
         }
 
         return sort == ProcessSort.Memory

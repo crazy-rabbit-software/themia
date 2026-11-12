@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -90,8 +90,8 @@ internal static class WidgetRender
             || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...] [--tree]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
             app.Exit();
             return true;
         }
@@ -155,6 +155,7 @@ internal static class WidgetRender
         {
             Window? window = null;
             Ticker? ticker = null;
+            IDisposable? machine = null;
             var cards = new List<WidgetCard>();
 
             try
@@ -206,7 +207,16 @@ internal static class WidgetRender
                 ConfirmFlyout.RenderInWindow = true;
 
                 // [S-2500] The render's own hub: the system widgets read through it as on the desktop.
-                AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
+                // [S-1931] --machine sample: they read the sample machine instead of this PC.
+                if (string.Equals(Option(args, "--machine"), "sample", StringComparison.OrdinalIgnoreCase))
+                {
+                    machine = Services.SystemData.SampleMachine.Install(ticker, dispatcher);
+                }
+                else
+                {
+                    AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
+                }
+
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 // [S-9929] A kit service widget's preview states are its provider's recordings.
                 var host = new NoticeRender.RenderCardHost(ticker) { Design = design, FixtureState = state };
@@ -309,6 +319,7 @@ internal static class WidgetRender
                     card.Detach();
                 }
 
+                machine?.Dispose();
                 AppServices.System?.Dispose();
                 AppServices.System = null;
                 AppServices.Gallery?.Dispose();

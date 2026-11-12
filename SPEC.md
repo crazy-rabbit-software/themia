@@ -4550,6 +4550,34 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   `hover`, `pressed`, `armed`, `failed`, `unavailable`. States, not sample data ([S-1863]).
   `--style tile|round` draws either style ([S-6006]). `--sizes 100x100,160x100[,tiers]` draws several
   in-between sizes on one page (with `tiers`, the seven as well).
+- **[S-1931]** Debug: `--widget-png ... --machine sample` draws the system widgets (the meters, the
+  details, Top processes) on the sample machine instead of this PC; without it they read this PC, as
+  a developer wants. The sample machine (`SamplePc`, Core) is one ordinary good laptop: a 12-core
+  processor (16 logical) at 31 %, 32 GB of memory 52 % used, a discrete GPU at 14 %, a system drive
+  and a data drive, Wi-Fi at 3.4 MB/s down, a ping of 12 ms, a battery at 78 % discharging (3 h 41 min
+  left), a private local address (`192.168.1.42`) and a documentation public one (`203.0.113.24`).
+  It answers every `Sources` member in its own snapshot type, through the hub (`SystemHub` over a
+  `SystemMachine`: `ThisPc` or the recording), so the widgets' own code and the hub's rules
+  (`SeriesProjections`) draw it: no second look in any view. A recording is one moment: the hub reads
+  each feed once and never ticks or listens to Windows' events over it, so two renders draw the same
+  picture. Nothing in `SamplePc` reads the machine, the clock or a random source. Any render installs
+  it in one line, before its cards are built: `using var machine = SampleMachine.Install(ticker,
+  dispatcher);` (`Themia.App.Services.SystemData.SampleMachine`, Debug builds). The quick toggles
+  draw `--state on|off` (the shared `QuickToggleView`, so a scene can show Wi-Fi on beside others
+  off) and the power buttons stay inert in every render ([S-1251]).
+- **[S-1932]** The sample's charted sources answer their whole history, oldest first, as many points
+  as the hub keeps (`SeriesHistory.Capacity`), and the hub starts a series of a source with a past
+  (`HubSource.Past`) with it, so every chart is full on the first frame. Each has its own shape, out
+  of a fixed seed (SplitMix64, not `Random`, whose algorithm is not promised): the processor spiky,
+  each core its own level and spikes with all-core bursts, the total their mean (the Core graphs read
+  the same cores' history); memory in slow steps; the network idling with short blips and long
+  downloads, upload a share of them; the disks in bursts, the data drive rarely; the ping jittering
+  about 12 ms with a slow answer now and then and no probe lost; the GPU low with a long plateau and a
+  video's rhythm at the end; the battery falling from 91 % to 78 % over the hour.
+- **[S-1933]** The sample's process list is programs every Windows PC runs (Desktop Window Manager,
+  Explorer, the service hosts, Search, Task Manager, Notepad, Settings ...), each with its executable
+  where Windows keeps it (`ProcessSample.Image`), so Top processes draws their real icons; a read that
+  knows a process's image is not asked for it by pid. Grouping keeps the image.
 - **[S-1919]** Styles ([S-6000]): one `PowerButtonStyle` on the base `PowerButtonConfig`, shared by all
   seven kinds: **Tile** (the default, [S-1911], [S-1912]) and **Round button** (`round`), named,
   labelled and drawn as the toggles' Round style ([S-3917]: the Tile block's round look). The circle
@@ -5587,7 +5615,7 @@ menu), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
 
 Every system widget — the meters (CPU, memory, disk, network, battery, ping), the GPU tile and the
 detail widgets — reads through one hub that lives as long as the app. Owning files:
-`Themia.App/Services/SystemData/*` (`SystemHub*.cs`, `HubSources.cs`, `HubSource.cs`, `WatchSlot.cs`),
+`Themia.App/Services/SystemData/*` (`SystemHub*.cs`, `ThisPc*.cs` (this PC's sources), `SeriesProjections.cs`, `HubSource.cs` (with `SystemMachine`), `SampleMachine.cs` ([S-1931]), `WatchSlot.cs`),
 Core `Themia.Core/SystemData/*` (`FeedKey`, `SystemCadence`, `FeedTable`, `SystemInterests`, `SampleRing`, `SeriesPoint`).
 Tests `SystemDataHubTests` (`S25xx_`).
 
