@@ -12,8 +12,11 @@ namespace Themia.Core.Model;
 /// alarms are several widgets. Kept in the file, unlike a timer: an alarm is a promise about tomorrow.
 /// What it is <i>doing</i> (ringing, snoozed) is the alarm service's, in memory.
 /// </summary>
-public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>, IAlarm
+public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>, IAlarm, IReadoutSized
 {
+    /// <summary>[S-11301] How big the time is: Small, Medium, Large (40, 68, 96); the card follows it.</summary>
+    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
+
     /// <summary>The most a name says, in characters.</summary>
     public const int MostName = 40;
 
@@ -63,6 +66,12 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>, IA
     {
         var repairs = new List<string>();
 
+        if (!Enum.IsDefined(Size))
+        {
+            repairs.Add($"Alarm size {(int)Size} unknown; medium");
+            Size = ReadoutSizes.Default;
+        }
+
         var time = AlarmTimes.Text(AlarmTimes.Minutes(Time));
         var days = AlarmDays.Normalized(Days);
         var name = (Label ?? string.Empty).ReplaceLineEndings(" ").Trim();
@@ -106,5 +115,6 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>, IA
         Sound = Sound,
         Volume = Volume,
         SnoozeMinutes = SnoozeMinutes,
+        Size = Size,
     };
 }

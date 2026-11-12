@@ -24,12 +24,13 @@ public sealed class AlarmMenuTests
     private static ItemMenuEntry Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
 
     [Fact]
-    public void S4631_appearance_then_when_it_rings_what_it_says_how_it_sounds_and_the_note_each_apart()
+    public void S11301_size_then_when_it_rings_S4631_appearance_then_when_it_rings_what_it_says_how_it_sounds_and_the_note_each_apart()
     {
         var lines = Build(new AlarmConfig());
 
         Assert.Equal(
             [
+                Str.Kit_Size.Text(), "|",
                 AlarmStr.Alarm_Settings_Time_Label.Text(), AlarmStr.Alarm_Settings_Repeat.Text(), AlarmStr.Alarm_Settings_On_Label.Text(),
                 "|", AlarmStr.Alarm_Settings_Name_Label.Text(),
                 "|", AlarmStr.Alarm_Settings_Sound_Label.Text(), AlarmStr.Alarm_Settings_Volume_Label.Text(), AlarmStr.Alarm_Settings_Snooze_Label.Text(),

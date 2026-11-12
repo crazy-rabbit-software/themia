@@ -7,6 +7,7 @@ using Themia.Core.Model;
 using Themia.Core.Motion;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
+using Themia.Core.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -284,6 +285,9 @@ public sealed class SettingOwnershipTests
     /// </summary>
     private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("clock", "Size")];
 
+    /// <summary>[S-2449] [S-11300] Every one-readout widget's Size (<c>IReadoutSized</c>) is its face's, as the clock's.</summary>
+    private static bool OwnSize(WidgetConfig config, string words) => config is IReadoutSized && words == "Size";
+
     /// <summary>
     /// The kinds whose menus read a list only the running host installs (the displays with a brightness,
     /// the drives, the graphics adapters, the launcher): built with stand-ins by their own menu tests.
@@ -314,7 +318,7 @@ public sealed class SettingOwnershipTests
             foreach (var (words, where) in SettingLines(menu.StyleLines.Concat(menu.Lines), kind))
             {
                 seen++;
-                if (owned.Contains(words) && !OwnWords.Contains((kind, words)))
+                if (owned.Contains(words) && !OwnWords.Contains((kind, words)) && !OwnSize(module.Descriptor.CreateDefault(), words))
                 {
                     found.Add(where);
                 }

@@ -13,7 +13,7 @@ internal sealed partial class AlarmView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        _config = new AlarmConfig { Time = "06:45", Days = ["mon", "tue", "wed", "thu", "fri"], On = state != "off", Label = "Wake up" };
+        _config = new AlarmConfig { Time = "06:45", Days = ["mon", "tue", "wed", "thu", "fri"], On = state != "off", Label = "Wake up", Size = _config.Size };
 
         var now = SampleDay.Now.UtcDateTime;
         _clock = () => now;

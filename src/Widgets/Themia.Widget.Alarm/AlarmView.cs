@@ -19,20 +19,20 @@ namespace Themia.App.Widgets;
 /// What the alarm is <i>doing</i> is the app's alarm service's ([S-4623]), which rings it whether or not
 /// this view exists. Several alarms are several widgets.
 /// </summary>
-internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetTopEdge
+internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
-    /// <summary>[S-5700] It owns its top edge: its time is centred in the whole card ([S-2590]), not laid from the top.</summary>
-    public bool OwnsTopEdge => true;
-
     /// <inheritdoc />
     public CardOpen? Opens => AlarmModule.Opens;
 
     private readonly ReadoutBlock _time = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
-    // Three rows of controls, one shown: a row folds its own parts, so a part is never hidden by hand.
+    // The rows of controls, one shown: the switch, and while it rings or is snoozed the buttons that
+    // answer it, worded or (at Small, [S-11301]) as icon buttons.
     private readonly ControlsBlock _switchRow = new();
     private readonly ControlsBlock _ringRow = new();
     private readonly ControlsBlock _snoozedRow = new();
+    private readonly ControlsBlock _ringIcons = new();
+    private readonly ControlsBlock _snoozedIcons = new();
     private readonly ToggleSwitch _switch;
 
     private Ticker? _ticker;
@@ -43,8 +43,6 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     /// <summary>[S-2050] The clock the alarm reads (UTC): the real one, or a preview's sample moment.</summary>
     private Func<DateTime> _clock = static () => DateTime.UtcNow;
-    private WidgetArea _area;
-    private TimerPlan _plan;
     private bool _detached;
 
     /// <summary>Debug renders: what the alarm is doing, in place of the service's answer.</summary>
@@ -66,9 +64,13 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         _ringRow.Main(Str.Alarm_Dismiss.Text(), Dismiss);
         _ringRow.Button(Str.Alarm_Snooze.Text(), Snooze);
         _snoozedRow.Main(Str.Alarm_Dismiss.Text(), Dismiss);
+        _ringIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
+        _ringIcons.Icon(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze);
+        _snoozedIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
+        RowSpacing = FamilySpace.S2;
 
         Children.Add(_time);
-        foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow })
+        foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow, _ringIcons, _snoozedIcons })
         {
             row.HorizontalAlignment = HorizontalAlignment.Center;
             SetRow(row, 1);
@@ -102,10 +104,9 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         Lay();
     }
 
+    /// <summary>[S-11301] The face is the config's, not the box's: a wider card centres the same face.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
     }
 
     private void OnLanguage(Locale locale) => Lay();
@@ -148,7 +149,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     private void Dismiss() => _host.Alarms?.Dismiss(WidgetId);
 
-    /// <summary>[S-4628] The card menu answers a ring too, and a snooze (a tile too small for the Controls row).</summary>
+    /// <summary>[S-4628] The card menu answers a ring too, and a snooze.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => Status().Phase switch
     {
         AlarmPhase.Ringing => [new WidgetAction(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze), new WidgetAction(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss)],
@@ -192,7 +193,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     // ---- the face ([S-4629]) ------------------------------------------------------------------
 
-    /// <summary>[S-4629] The face for this size: the time's step, its line under and the controls as they fit.</summary>
+    /// <summary>[S-11301] The face at the alarm's Size: the time's step, whatever the box.</summary>
     private void Lay()
     {
         if (_detached)
@@ -200,18 +201,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
             return;
         }
 
-        var area = _area.IsMeasured ? _area : new WidgetArea(ActualWidth, ActualHeight);
-        if (!area.IsMeasured)
-        {
-            Render();
-            return;
-        }
-
-        var (_, unit) = AlarmFace.Split(AlarmWords.Time(Strings.Current, _config.Plan));
-        var worst = AlarmFace.Worst(unit);
-        _plan = AlarmFace.Plan(area, unit);
-        _time.Size(area, area.Width - (2 * FamilySpace.Inset), _plan.Box, worst);
-        RowSpacing = _plan.Controls ? FamilySpace.S2 : 0;
+        _time.Use(AlarmFace.Sized(_config, Strings.Current).Step, centred: true);
         Render();
     }
 
@@ -234,12 +224,16 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         // [S-4628] Off, the time and its words are secondary: the alarm is there, not set.
         var role = status.Phase == AlarmPhase.Off ? ColourRole.TextSecondary : ColourRole.TextPrimary;
-        _time.Show(value, unit, _plan.Under ? $"{name} · {AlarmWords.Hint(locale, status, _config.Plan, now, zone)}" : null, valueRole: role);
+        _time.Show(value, unit, $"{name} · {AlarmWords.Hint(locale, status, _config.Plan, now, zone)}", valueRole: role);
 
-        // [S-4628] While it rings (or waits out a snooze), the buttons that answer it stand where the switch was.
-        Show(_switchRow, _plan.Controls && !ringing && !snoozed);
-        Show(_ringRow, _plan.Controls && ringing);
-        Show(_snoozedRow, _plan.Controls && snoozed);
+        // [S-4628] While it rings (or waits out a snooze), the buttons that answer it stand where the switch
+        // was; [S-11301] at Small as icon buttons.
+        var icons = TimerFace.IconControls(_config.Size);
+        Show(_switchRow, !ringing && !snoozed);
+        Show(_ringRow, ringing && !icons);
+        Show(_snoozedRow, snoozed && !icons);
+        Show(_ringIcons, ringing && icons);
+        Show(_snoozedIcons, snoozed && icons);
 
         _switchRow.Set(_switch, _config.On);
         var label = (_config.On ? AlarmStr.Alarm_SwitchOff : AlarmStr.Alarm_SwitchOn).Format(("name", name));

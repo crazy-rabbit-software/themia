@@ -17,24 +17,27 @@ public sealed class AlarmFaceTests
         => Assert.Equal((value, unit), AlarmFace.Split(time));
 
     [Fact]
-    public void S4629_a_tile_too_short_for_the_switch_keeps_the_time_and_a_larger_one_climbs_the_hero_steps()
+    public void S11301_the_card_follows_the_size_setting_one_height_a_small_width_range()
     {
-        // A tile 8 shorter than XS's view: the time alone, on the floor step.
-        var xs = AlarmFace.Plan(new WidgetArea(120, 76), " AM");
-        Assert.False(xs.Controls);
-        Assert.Equal(FamilyType.Big28, xs.Step);
+        var locale = Themia.Core.Localization.Locale.En;
+        Themia.Sdk.WidgetSizing At(ReadoutSize size) => AlarmFace.Sizing(new Themia.Core.Model.AlarmConfig { Size = size }, locale);
 
-        // S: the switch's row fits under the 28 line and its words.
-        var s = AlarmFace.Plan(new WidgetArea(200, 114), " AM");
-        Assert.True(s.Controls);
-        Assert.True(s.Under);
+        var (small, medium, large) = (At(ReadoutSize.Small), At(ReadoutSize.Medium), At(ReadoutSize.Large));
+        Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
+        Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
+        Assert.True(medium.FixedHeight && !medium.FixedWidth);
+        Assert.Equal(medium.Min, medium.Natural);
 
-        // L and XL: a Hero step with its Title line under, the row 8 under its box.
-        var xl = AlarmFace.Plan(new WidgetArea(800, 524), " AM");
-        Assert.True(xl.Controls);
-        Assert.True(xl.Under);
-        Assert.Equal(FamilyType.Hero192, xl.Step);
-        Assert.Equal(524 - FamilySpace.Inset - FamilyShape.Button - FamilySpace.S2, xl.Box);
+        // The inset, the 68 line and its Body line under, 8, the Controls row, the inset, the slack.
+        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, medium.Natural.Height);
+        Assert.Equal(FamilyType.Hero68, AlarmFace.Sized(new Themia.Core.Model.AlarmConfig(), locale).Step);
+    }
+
+    [Fact]
+    public void S11301_the_meridiem_is_the_languages_widest_and_none_on_a_24_hour_clock()
+    {
+        Assert.Equal(" AM", AlarmFace.Unit(Themia.Core.Localization.Locale.En));
+        Assert.Equal(string.Empty, AlarmFace.Unit(Themia.Core.Localization.Locale.De));
     }
 
     [Fact]

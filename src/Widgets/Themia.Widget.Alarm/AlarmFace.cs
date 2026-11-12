@@ -1,3 +1,6 @@
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
@@ -36,7 +39,40 @@ public static class AlarmFace
     /// <summary>The widest case the face is sized on: every figure an 8, the language's meridiem, a line under.</summary>
     public static ReadoutText Worst(string unit) => new(WidestTime, unit, LineUnder: true, OneReadout: true);
 
-    /// <summary>[S-4629] The face for a view of <paramref name="area"/>: its content is the area less the inset either side and at the foot.</summary>
-    public static TimerPlan Plan(WidgetArea area, string unit)
-        => TimerFace.Plan(area, area.Width - (2 * FamilySpace.Inset), area.Height - FamilySpace.Inset, Worst(unit), controls: true);
+    /// <summary>
+    /// [S-11301] The meridiem the face is sized on: the wider of the language's AM and PM where its clock
+    /// writes one ("7:00 AM"), none where it is a 24-hour clock, so the card does not move with the time.
+    /// </summary>
+    public static string Unit(Locale locale)
+    {
+        var (_, unit) = Split(LocaleFormat.Time(locale, new TimeOnly(7, 0)));
+        if (unit.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var (am, pm) = (LocaleFormat.Am(locale), LocaleFormat.Pm(locale));
+        return " " + (HeroFit.Ems(pm) > HeroFit.Ems(am) ? pm : am);
+    }
+
+    /// <summary>[S-11301] The face at the alarm's Size: the time on 40, 68 or 96 with its line under.</summary>
+    public static TimerSized Sized(AlarmConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return TimerFace.Sized(config.Size, Worst(Unit(locale)));
+    }
+
+    /// <summary>
+    /// [S-11301] The alarm's sizing ([S-2438]): its face at its Size over the Controls row, which holds the
+    /// switch, or Dismiss and Snooze while it rings (worded, icon buttons at Small); in the inset, the
+    /// width up to half again wider. No header by default.
+    /// </summary>
+    public static WidgetSizing Sizing(AlarmConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var controls = Math.Max(
+            TimerFace.ControlsWidth(config.Size, [], aSwitch: true),
+            TimerFace.ControlsWidth(config.Size, [Strings.Get(locale, Str.Alarm_Dismiss), Strings.Get(locale, Str.Alarm_Snooze)]));
+        return TimerFace.Sizing(Sized(config, locale), controls, header: false);
+    }
 }

@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Alarm;
 
 namespace Themia.App.Shell.Config;
@@ -30,6 +31,10 @@ internal static class AlarmMenu
         ArgumentNullException.ThrowIfNull(alarm);
 
         var locale = Strings.Current;
+
+        // [S-11301] How big the time is; the card follows.
+        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, alarm));
+        menu.Lines.Add(ItemMenuEntry.Separator);
 
         // When it rings: the time, the days and whether it is set at all.
         // [S-4621] Typed ([S-3738]), in either clock; the line shows it in the language's.

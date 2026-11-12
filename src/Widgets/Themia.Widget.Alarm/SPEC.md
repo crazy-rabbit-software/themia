@@ -27,16 +27,21 @@ rules and the book under its config are the module host's `AlarmTests`.
   the time and its words are secondary (no tertiary ink, no accent words while it rings). The card
   menu has Snooze and Dismiss while it rings and Dismiss while it is snoozed, for a tile too small for
   the row. There is no alarm list *(the list's rows, [S-1281] fade and per-row keys retired with it)*.
-- **[S-4629]** The face (`AlarmFace.Plan`, `TimerFace.Plan`): the time on the Hero steps, sized on
-  every figure an 8 with the language's meridiem ("88:88 AM"), centred both ways over the Controls row,
-  which stands centred at the bottom inset only where the 28 line, 8 and the row fit (XS keeps the
-  time alone); the line under on the step's own (Caption under 28, Body under 40 and 68, Title under a
-  Hero step) where it fits. One face at every size: the strip's switch beside the time, the worded or
-  glyph buttons by width and the Caption/Body choice of the words are gone.
+- **[S-4629]** *(Retired: the face by the tile's size and the time alone on XS; the face is the
+  alarm's Size, [S-11301].)*
+- **[S-11301]** **Its size is a setting** (`AlarmConfig.Size`, the first line of its menu): the time on
+  the step the Size names (40, 68, 96, [S-11300]) sized on every figure an 8 with the language's wider
+  meridiem where its clock writes one ("88:88 AM", `AlarmFace.Unit`; none on a 24-hour clock), "name ·
+  hint" always under it, the Controls row always under that: the switch, or while it rings Dismiss and
+  Snooze (Dismiss alone while snoozed), worded, at Small as icon buttons (Dismiss, and Snooze the
+  alarm's glyph). The card follows (`AlarmFace.Sizing`): the inset, the face, 8, the row, the inset, as
+  wide as the face or the ringing row; one height, up to half again wider, the face centred. It starts
+  without a header and lays its face under the card's top inset ([S-5700]: no longer its own top edge).
+  No tier ladder is left. Tests `AlarmFaceTests.S11301_`, `AlarmMenuTests.S11301_`.
 - **[S-4630]** Keys: Space or Enter switch the alarm, or dismiss it while it rings or is snoozed; S
   snoozes it while it rings; Escape lets go. The minute tick turns "Today" into "Tomorrow".
 - **[S-4631]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Appearance ([S-3723]), then in groups apart (dividers, user request
+  has no settings page. Size ([S-11301]), Appearance ([S-3723]), then in groups apart (dividers, user request
   2026-10-19): when it rings: **Time** (typed in either clock, [S-3738]; anything else refused with
   the reason; the line shows it in the language's clock), **Repeats on** (a switch per day of the
   week from the start of the week ⚙ › Language & region sets, [S-3770], [S-3590]; the days at the end

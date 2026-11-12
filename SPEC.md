@@ -850,8 +850,8 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   inset on all four sides. A view that owns its top edge says so (`IWidgetTopEdge`, re-read whenever the
   card places its header) and gets its whole box as before: one drawn to the edge on purpose (Gallery's
   pictures, Video stream, the audio visualizer's spectrum, now playing's Cover style) or padded on all
-  four sides by itself (the clock, the quick toggles, the power buttons), or centred in the whole card
-  (the alarm's time, [S-2590]). The Set up row, the waiting
+  four sides by itself (the clock, the quick toggles, the power buttons) *(the alarm's time no longer:
+  sized at its Size, it stands under the inset, [S-11301])*. The Set up row, the waiting
   row and the error card follow the same rule as a view that does not own the edge (they each carried
   a copy of it before). The sizing counts it ([S-2444]). Tests `HeaderStripTests.S5700_`,
   `SizeFitTests.S5700_`.
@@ -1063,6 +1063,18 @@ module author's guide is docs/WIDGET-KIT.md 16.
   side and sets the readout in its hole, three quarters of the hole wide and half of it tall
   (`ChartRules.Hole`); a ring under 48, or whose hole cannot hold the floor step's value and line,
   is not drawn and the readout stands alone.
+- **[S-11300]** **A timer's face at its Size** (owner decision 2026-11-12: content decides the size;
+  `TimerFace.Sized`, `.Sizing`): a timer converted to the sizing ([S-2438]) draws its Readout on the
+  step its **Size** names (Small, Medium, Large: 40, 68, 96, `IReadoutSized`, [S-2449]), never the
+  largest that fits, its line under always; a ring face draws the readout one step under (28, 40, 68)
+  in the least ring (in fours) whose hole holds it with its line under. The Controls row is always
+  there, 8 under the face at the bottom inset; at Small its buttons are icon buttons (the main action
+  too), larger the main action and the other worded buttons as text, the icon buttons after them
+  (`TimerFace.ControlsWidth`, each worded button at its longest label). The card is the inset all
+  round (the header's content top over it where the kind starts with one), the face, what the kind
+  adds under it (a bar, laps), the row and its 8, plus 2 of slack, as wide as the wider of the face
+  and the row: one height, the width up to half again wider with the face centred; nothing appears or
+  goes with the size. Tests `TimerFaceTests.S11300_`.
 - **[S-6740]** **Split-flap cards** (the clock's Flip style, the Countdown's; `FlipCard`, `FlipRules`):
   one card per part of the time, 8 apart, each its figures' widest case on a family step with 12
   either side and the step's line tall, an item of the card's item layer in the one radius with a
