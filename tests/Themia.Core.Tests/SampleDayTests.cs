@@ -163,6 +163,31 @@ public class SampleDayTests
     }
 
     [Fact]
+    public void S2210_every_sample_picture_has_one_unique_slug_of_its_names_words()
+    {
+        Assert.Equal(SamplePictures.Names.Count, SamplePictures.Slugs.Count);
+        Assert.Equal(SamplePictures.Slugs.Count + 1, SamplePictures.WallpaperSlugs.Distinct(StringComparer.Ordinal).Count());
+        Assert.Contains(SamplePictures.CoverSlug, SamplePictures.WallpaperSlugs);
+        Assert.All(SamplePictures.Names.Zip(SamplePictures.Slugs), pair =>
+        {
+            var words = System.IO.Path.GetFileNameWithoutExtension(pair.First).ToLowerInvariant().Split(' ');
+            Assert.Equal(string.Join('-', words), pair.Second);
+        });
+    }
+
+    [Fact]
+    public void S2210_a_sample_wallpaper_is_painted_by_its_slug_at_the_size_asked_and_an_unknown_slug_is_none()
+    {
+        for (var i = 0; i < SamplePictures.Count; i++)
+        {
+            Assert.Equal(SamplePictures.Pixels(i, 48, 27), SamplePictures.Wallpaper(SamplePictures.Slugs[i], 48, 27));
+        }
+
+        Assert.Equal(SamplePictures.AlbumCover(48, 27), SamplePictures.Wallpaper(SamplePictures.CoverSlug, 48, 27));
+        Assert.Null(SamplePictures.Wallpaper("nowhere", 48, 27));
+    }
+
+    [Fact]
     public void S2056_a_sample_picture_is_the_same_at_every_size_and_tells_its_landscape_apart_even_as_a_thumbnail()
     {
         // Thumbnails and odd shapes repeat byte for byte too (the rows are painted in parallel).

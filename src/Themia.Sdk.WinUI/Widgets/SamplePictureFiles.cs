@@ -21,6 +21,16 @@ public static class SamplePictureFiles
     public static Task<byte[]> CoverPngAsync(int size) =>
         EncodeAsync(SamplePictures.AlbumCover(size, size), size, size);
 
+    /// <summary>
+    /// [S-2210] The sample picture named <paramref name="slug"/> (<see cref="SamplePictures.WallpaperSlugs"/>)
+    /// painted at <paramref name="width"/> × <paramref name="height"/> off the UI thread, as a PNG; null for a name there is not.
+    /// </summary>
+    public static async Task<byte[]?> WallpaperPngAsync(string slug, int width, int height)
+    {
+        var pixels = await Task.Run(() => SamplePictures.Wallpaper(slug, width, height)).ConfigureAwait(true);
+        return pixels is null ? null : await EncodeAsync(pixels, width, height).ConfigureAwait(true);
+    }
+
     private static async Task<byte[]> EncodeAsync(byte[] pixels, int width, int height)
     {
         using var stream = new InMemoryRandomAccessStream();

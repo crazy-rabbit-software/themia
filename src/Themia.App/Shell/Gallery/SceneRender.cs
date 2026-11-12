@@ -13,6 +13,8 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Scenes;
 using Themia.Sdk;
+using Themia.Sdk.Samples;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using Windows.Graphics;
 
@@ -24,9 +26,10 @@ namespace Themia.App.Shell.Gallery;
 /// this machine's DPI is. <c>Themia.exe --scene-png &lt;scenes.json&gt; &lt;scene&gt; &lt;out.png&gt;
 /// [--lang &lt;code&gt;] [--scale &lt;n&gt;]</c>. Cards stand where the desktop would put them
 /// ([S-1076]); a scene with <c>edit</c> is drawn in edit mode as the edit bar's pictures are
-/// ([S-1077]). One scene per process: its theme is the application's, chosen before the resources load.
+/// ([S-1077]); a scene with <c>taskbar</c> has Windows' taskbar stood in along the bottom ([S-2200]), a
+/// <c>sample:</c> wallpaper is painted at the output's size ([S-2210]). One scene per process: its theme is the application's, chosen before the resources load.
 /// Exit codes: 0 written; 2 the command line, the file, a scene, a kind, a style or the wallpaper
-/// refused before anything is drawn; 1 the drawing failed (a preview state or submenu a widget does
+/// refused before anything is drawn (a sample wallpaper this build does not have too); 1 the drawing failed (a preview state or submenu a widget does
 /// not have, a card that broke, a bitmap of the wrong size).
 /// </summary>
 internal static class SceneRender
@@ -114,7 +117,11 @@ internal static class SceneRender
     }
 
     /// <summary>What a run draws, every part checked before a window opens.</summary>
-    private sealed record Job(SceneFile File, Scene Scene, IReadOnlyList<(SceneWidget Spec, WidgetInstance Model)> Widgets, string? Wallpaper, string OutPath, double Scale);
+    private sealed record Job(SceneFile File, Scene Scene, IReadOnlyList<(SceneWidget Spec, WidgetInstance Model)> Widgets, string? Wallpaper, string OutPath, double Scale)
+    {
+        /// <summary>[S-2210] The sample picture painted as the wallpaper, or null.</summary>
+        public string? SampleWallpaper => Scene.SampleWallpaper;
+    }
 
     /// <summary>The command line, the file, the scene and its widgets, read; null and why when any is refused.</summary>
     private static Job? Read(string[] args, out string? problem)
@@ -171,8 +178,15 @@ internal static class SceneRender
             widgets.Add((spec, model));
         }
 
+        // [S-2210] What knows the sample pictures refuses a name it does not have, before drawing.
+        if (scene.SampleWallpaper is { } sample && !SamplePictures.WallpaperSlugs.Contains(sample, StringComparer.Ordinal))
+        {
+            problem = $"{path}: scene \"{scene.Name}\" names the wallpaper {Scene.SamplePrefix}{sample}, and there is no such sample picture (has: {string.Join(", ", SamplePictures.WallpaperSlugs.Select(s => Scene.SamplePrefix + s))})";
+            return null;
+        }
+
         string? wallpaper = null;
-        if (scene.Wallpaper is { } relative)
+        if (scene.WallpaperFile is { } relative)
         {
             wallpaper = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(path)!, relative));
             if (!File.Exists(wallpaper))
@@ -245,10 +259,16 @@ internal static class SceneRender
             place.TranslateY = -tile.Y / dpi;
         }
 
+        // [S-2210] A sample wallpaper is painted at the output's pixel size into a file of this run's
+        // own, used as a file wallpaper is and deleted when the run ends (after the backdrop is let go).
+        var (pixelWidth, pixelHeight) = ((int)Math.Round(width * job.Scale), (int)Math.Round(height * job.Scale));
+        using var sample = job.SampleWallpaper is { } slug ? await SampleWallpaperFile.WriteAsync(slug, pixelWidth, pixelHeight).ConfigureAwait(true) : null;
+        var wallpaperPath = job.Wallpaper ?? sample?.FullPath;
+
         // [S-2119] The scene's wallpaper is the display's: the cards frost over it as on a desktop ([S-2110]).
         // In use before a card is built, until the picture is written.
-        using var backdrop = job.Wallpaper is { } behind ? RenderWallpaper.Use(behind, new ScreenMetrics(width, height)) : null;
-        if (job.Wallpaper is { } wallpaper)
+        using var backdrop = wallpaperPath is { } behind ? RenderWallpaper.Use(behind, new ScreenMetrics(width, height)) : null;
+        if (wallpaperPath is { } wallpaper)
         {
             screen.Children.Add(await WallpaperAsync(wallpaper, width, height).ConfigureAwait(true));
         }
@@ -323,6 +343,14 @@ internal static class SceneRender
 
         await Task.Delay(800).ConfigureAwait(true);
         await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
+
+        // [S-2200] Windows' taskbar over the desktop layer, over the same frosted wallpaper as the cards.
+        if (job.Scene.Taskbar)
+        {
+            screen.Children.Add(await TaskbarStandIn.BuildAsync(job.Scene, width, height, job.Scale, RenderWallpaper.Backdrop?.Picture).ConfigureAwait(true));
+            await Task.Delay(300).ConfigureAwait(true);
+        }
+
         if (cards.FirstOrDefault(c => c.IsFaulted) is { } broken)
         {
             Console.WriteLine($"scene: {job.Widgets[cards.IndexOf(broken)].Spec.Path}: the card broke (its error card shows); see the log");
@@ -330,7 +358,6 @@ internal static class SceneRender
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(job.OutPath)!);
-        var (pixelWidth, pixelHeight) = ((int)Math.Round(width * job.Scale), (int)Math.Round(height * job.Scale));
         await RenderPng.SaveTiledAsync(frame, job.OutPath, pixelWidth, pixelHeight, step, async tile =>
         {
             Show(tile);
@@ -417,9 +444,11 @@ internal static class SceneRender
             return true;
         }
 
-        var strip = EditBarRender.Properties(view, [.. selected.Select(w => w.Model.Id)], metrics.Height - (2 * StripPlacement.Gap));
+        // [S-2202] The menu's room is the work area: above the taskbar, as on a desktop.
+        var bottom = job.Scene.WorkBottom(job.File.Screen);
+        var strip = EditBarRender.Properties(view, [.. selected.Select(w => w.Model.Id)], bottom - (2 * StripPlacement.Gap));
         var painted = selected.Select(w => GridGeometry.Inset(GridGeometry.ToPixels(w.Model.Rect, metrics), design.WidgetGapPx));
-        EditBarRender.PlaceProperties(canvas, strip, painted, new PixelRect(0, 0, metrics.Width, metrics.Height), barRect);
+        EditBarRender.PlaceProperties(canvas, strip, painted, new PixelRect(0, 0, metrics.Width, bottom), barRect);
 
         if (edit.Open is { } open)
         {
@@ -458,6 +487,41 @@ internal static class SceneRender
         }
 
         return new Image { Source = bitmap, Width = width, Height = height, Stretch = Stretch.UniformToFill };
+    }
+
+    /// <summary>
+    /// [S-2210] A sample wallpaper as a PNG of this run's own under the sample pictures' temp folder
+    /// (<c>%TEMP%\themia-sample\wallpapers</c>), named for the process so parallel captures never share
+    /// one; deleted when disposed. Nothing else there is touched.
+    /// </summary>
+    private sealed class SampleWallpaperFile : IDisposable
+    {
+        private SampleWallpaperFile(string fullPath) => FullPath = fullPath;
+
+        public string FullPath { get; }
+
+        public static async Task<SampleWallpaperFile> WriteAsync(string slug, int width, int height)
+        {
+            var png = await SamplePictureFiles.WallpaperPngAsync(slug, width, height).ConfigureAwait(true)
+                ?? throw new InvalidOperationException($"no sample picture \"{slug}\"");
+            var folder = Path.Combine(Path.GetTempPath(), "themia-sample", "wallpapers");
+            Directory.CreateDirectory(folder);
+            var file = Path.Combine(folder, $"{slug}-{width}x{height}-{Environment.ProcessId}.png");
+            await File.WriteAllBytesAsync(file, png).ConfigureAwait(true);
+            return new SampleWallpaperFile(file);
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                File.Delete(FullPath);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Log.Warn(Scope, $"the sample wallpaper {FullPath} could not be deleted", ex);
+            }
+        }
     }
 
     /// <summary>Done when <paramref name="element"/> is in the live tree (it has a XamlRoot and a scale to read).</summary>

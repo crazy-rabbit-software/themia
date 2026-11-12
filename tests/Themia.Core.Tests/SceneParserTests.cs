@@ -243,6 +243,92 @@ public sealed class SceneParserTests
     }
 
     [Fact]
+    public void S2200_a_scene_has_a_taskbar_only_when_it_says_so_and_a_like_scene_takes_it()
+    {
+        var file = Parsed("""
+            { "scenes": [
+              { "name": "a", "taskbar": true, "widgets": [] },
+              { "name": "b", "like": "a" },
+              { "name": "c", "like": "a", "taskbar": false },
+              { "name": "d", "widgets": [] }
+            ] }
+            """);
+
+        Assert.Equal([true, true, false, false], file.Scenes.Select(s => s.Taskbar));
+        Assert.Equal([48.0, 48.0, 0.0, 0.0], file.Scenes.Select(s => s.TaskbarHeight));
+    }
+
+    [Fact]
+    public void S2200_a_taskbar_is_true_or_false()
+    {
+        var refusal = Refused("""{ "scenes": [ { "name": "a", "taskbar": "yes", "widgets": [] } ] }""");
+
+        Assert.Equal("$.scenes[0].taskbar", refusal.Path);
+    }
+
+    [Theory]
+    [InlineData(1.0, "[0, 1000, 10, 32]", true)]
+    [InlineData(1.0, "[0, 1000, 10, 33]", false)]
+    [InlineData(1.25, "[0, 980, 10, 40]", true)]
+    [InlineData(1.25, "[0, 980, 10, 41]", false)]
+    [InlineData(2.0, "[0, 900, 10, 84]", true)]
+    [InlineData(2.0, "[0, 900, 10, 85]", false)]
+    public void S2202_with_a_taskbar_a_widget_stays_above_it_at_the_scenes_scale(double scale, string at, bool fits)
+    {
+        var json = $$"""{ "scenes": [ { "name": "a", "scale": {{scale.ToString(System.Globalization.CultureInfo.InvariantCulture)}}, "taskbar": true, "widgets": [ { "kind": "clock", "at": {{at}} } ] } ] }""";
+
+        if (fits)
+        {
+            Assert.True(Parsed(json).Scenes[0].Taskbar);
+            return;
+        }
+
+        var refusal = Refused(json);
+        Assert.Equal("$.scenes[0].widgets[0].at", refusal.Path);
+        Assert.Contains($"above y = {(1080 - (48 * scale)).ToString(System.Globalization.CultureInfo.InvariantCulture)}", refusal.Problem, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void S2202_without_a_taskbar_a_widget_may_reach_the_bottom_and_a_like_scene_that_adds_one_is_checked()
+    {
+        var refusal = Refused("""
+            { "scenes": [
+              { "name": "a", "widgets": [ { "kind": "clock", "at": [0, 880, 400, 200] } ] },
+              { "name": "b", "like": "a", "taskbar": true }
+            ] }
+            """);
+
+        Assert.Equal("$.scenes[0].widgets[0].at", refusal.Path);
+        Assert.Contains("taskbar", refusal.Problem, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("sample:lake-at-dusk", "lake-at-dusk", null)]
+    [InlineData("sample:cover", "cover", null)]
+    [InlineData("walls/dusk.jpg", null, "walls/dusk.jpg")]
+    [InlineData("samples/a.png", null, "samples/a.png")]
+    public void S2210_a_wallpaper_is_a_file_or_a_sample_picture_by_name(string wallpaper, string? sample, string? file)
+    {
+        var scene = Parsed($$"""{ "scenes": [ { "name": "a", "wallpaper": "{{wallpaper}}", "widgets": [] } ] }""").Scenes[0];
+
+        Assert.Equal(wallpaper, scene.Wallpaper);
+        Assert.Equal(sample, scene.SampleWallpaper);
+        Assert.Equal(file, scene.WallpaperFile);
+    }
+
+    [Theory]
+    [InlineData("sample:")]
+    [InlineData("sample:Lake at dusk")]
+    [InlineData("sample:lake_at_dusk")]
+    [InlineData("sample:../lake.png")]
+    public void S2210_a_sample_wallpaper_is_refused_when_its_name_is_not_in_form(string wallpaper)
+    {
+        var refusal = Refused($$"""{ "scenes": [ { "name": "a", "wallpaper": "{{wallpaper}}", "widgets": [] } ] }""");
+
+        Assert.Equal("$.scenes[0].wallpaper", refusal.Path);
+    }
+
+    [Fact]
     public void S1075_names_are_unique()
     {
         var refusal = Refused("""{ "scenes": [ { "name": "a", "widgets": [] }, { "name": "a", "widgets": [] } ] }""");

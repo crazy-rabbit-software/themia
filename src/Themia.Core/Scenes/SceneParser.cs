@@ -80,7 +80,7 @@ public static class SceneParser
         var scenes = drafts.Select(d => resolved[d.Name]).ToList();
         foreach (var (scene, draft) in scenes.Zip(drafts))
         {
-            Check(scene, draft.Path);
+            Check(scene, draft.Path, screen);
         }
 
         return new SceneFile(screen, scenes);
@@ -120,14 +120,22 @@ public static class SceneParser
             draft.HasWallpaper ? draft.Wallpaper : basis?.Wallpaper,
             draft.Widgets ?? basis!.Widgets,
             draft.HasEdit ? draft.Edit : basis?.Edit,
-            draft.Scale ?? basis?.Scale ?? 1);
+            draft.Scale ?? basis?.Scale ?? 1,
+            draft.Taskbar ?? basis?.Taskbar ?? false);
         resolved[draft.Name] = scene;
         return scene;
     }
 
-    /// <summary>What only the whole scene can tell: a selection needs edit mode, an open submenu a selection.</summary>
-    private static void Check(Scene scene, string path)
+    /// <summary>What only the whole scene can tell: a selection needs edit mode, an open submenu a selection, a widget the work area.</summary>
+    private static void Check(Scene scene, string path, SceneScreen screen)
     {
+        // [S-2202] With the taskbar, the desktop ends above it, as Windows' work area does.
+        var bottom = scene.WorkBottom(screen);
+        foreach (var widget in scene.Widgets.Where(w => w.At.Y + w.At.Height > bottom))
+        {
+            throw Refuse(widget.Path + ".at", $"reaches under the taskbar: with \"taskbar\" at scale {Show(scene.Scale)} a widget stays above y = {Show(bottom)} (the display's {Show(screen.Height)} less the taskbar's {Show(scene.TaskbarHeight)})");
+        }
+
         // [S-1079] A widget is named by its id, its kind where it gives none: two of a kind need ids to be told apart.
         var named = new HashSet<string>(StringComparer.Ordinal);
         foreach (var widget in scene.Widgets)
@@ -164,6 +172,8 @@ public static class SceneParser
 
         public double? Scale { get; init; }
 
+        public bool? Taskbar { get; init; }
+
         public bool HasWallpaper { get; init; }
 
         public string? Wallpaper { get; init; }
@@ -181,7 +191,7 @@ public static class SceneParser
     /// </summary>
     private static Draft ReadDraft(JsonElement element, string path, SceneScreen screen)
     {
-        var props = Properties(element, path, "name", "like", "theme", "design", "scale", "wallpaper", "widgets", "edit");
+        var props = Properties(element, path, "name", "like", "theme", "design", "scale", "taskbar", "wallpaper", "widgets", "edit");
         if (!props.TryGetValue("name", out var nameElement))
         {
             throw Refuse(path, "no \"name\"");
@@ -210,6 +220,7 @@ public static class SceneParser
             Theme = props.TryGetValue("theme", out var theme) ? Theme(theme, path + ".theme") : null,
             Design = props.TryGetValue("design", out var design) ? DesignOf(design, path + ".design") : null,
             Scale = props.TryGetValue("scale", out var scale) ? Scale(scale, path + ".scale") : null,
+            Taskbar = props.TryGetValue("taskbar", out var taskbar) ? Bool(taskbar, path + ".taskbar") : null,
             HasWallpaper = hasWallpaper,
             Wallpaper = hasWallpaper ? Wallpaper(wallpaper, path + ".wallpaper") : null,
             Widgets = widgets,
@@ -262,9 +273,18 @@ public static class SceneParser
         }
 
         var text = Text(element, path);
+        if (text.StartsWith(Scene.SamplePrefix, StringComparison.Ordinal))
+        {
+            // [S-2210] The form only: which sample pictures there are is the renderer's to know.
+            var name = text[Scene.SamplePrefix.Length..];
+            return name.Length > 0 && name.All(c => c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-')
+                ? text
+                : throw Refuse(path, $"\"{text}\" is not a sample picture's name (sample: and its name of a-z, 0-9 and '-', as sample:lake-at-dusk)");
+        }
+
         if (text.Trim().Length == 0 || System.IO.Path.IsPathRooted(text))
         {
-            throw Refuse(path, "a wallpaper is a picture's path relative to the scenes file");
+            throw Refuse(path, "a wallpaper is a picture's path relative to the scenes file, or sample:<name>");
         }
 
         return text;

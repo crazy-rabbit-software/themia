@@ -95,7 +95,7 @@ public sealed class SceneWidgetsTests
     }
 
     [Fact]
-    public void S1078_every_checked_in_scene_parses_and_every_widget_is_one_this_build_has()
+    public void S1078_S2210_every_checked_in_scene_parses_and_every_widget_and_wallpaper_is_one_this_build_has()
     {
         var path = RepoFiles.At("store", "scenes.json");
         var file = SceneParser.Parse(File.ReadAllText(path), out var refusal);
@@ -104,9 +104,17 @@ public sealed class SceneWidgetsTests
         var problems = file!.Scenes.SelectMany(scene => SceneWidgets.Check(scene, file.Screen).Select(r => $"{scene.Name}: {r}")).ToList();
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
 
-        foreach (var scene in file.Scenes.Where(s => s.Wallpaper is not null))
+        foreach (var scene in file.Scenes.Where(s => s.WallpaperFile is not null))
         {
-            Assert.True(File.Exists(Path.Combine(Path.GetDirectoryName(path)!, scene.Wallpaper!)), $"{scene.Name}: no wallpaper {scene.Wallpaper}");
+            Assert.True(File.Exists(Path.Combine(Path.GetDirectoryName(path)!, scene.WallpaperFile!)), $"{scene.Name}: no wallpaper {scene.WallpaperFile}");
+        }
+
+        // [S-2210] A sample wallpaper names a picture this build paints.
+        foreach (var scene in file.Scenes.Where(s => s.SampleWallpaper is not null))
+        {
+            Assert.True(
+                Themia.Sdk.Samples.SamplePictures.WallpaperSlugs.Contains(scene.SampleWallpaper!, StringComparer.Ordinal),
+                $"{scene.Name}: no sample picture \"{scene.SampleWallpaper}\" (has: {string.Join(", ", Themia.Sdk.Samples.SamplePictures.WallpaperSlugs)})");
         }
     }
 }

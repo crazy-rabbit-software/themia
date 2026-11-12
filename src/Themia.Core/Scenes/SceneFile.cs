@@ -24,13 +24,38 @@ public sealed record SceneScreen(double Width, double Height)
 
 /// <summary>
 /// [S-1075] One picture: its application theme, the design text (<see cref="DesignText"/>), an
-/// optional wallpaper (a path relative to the scenes file), its widgets and, when present, the edit
-/// mode it is drawn in.
+/// optional wallpaper (a path relative to the scenes file, or a sample picture, [S-2210]), its
+/// widgets, when present the edit mode it is drawn in, and whether Windows' taskbar stands in along
+/// the bottom ([S-2200]).
 /// </summary>
-public sealed record Scene(string Name, AppTheme Theme, string Design, string? Wallpaper, IReadOnlyList<SceneWidget> Widgets, SceneEdit? Edit, double Scale = 1)
+public sealed record Scene(string Name, AppTheme Theme, string Design, string? Wallpaper, IReadOnlyList<SceneWidget> Widgets, SceneEdit? Edit, double Scale = 1, bool Taskbar = false)
 {
+    /// <summary>[S-2210] The prefix of a wallpaper that is one of the sample pictures, drawn in code: <c>sample:lake-at-dusk</c>.</summary>
+    public const string SamplePrefix = "sample:";
+
     /// <summary>The widgets drawn selected (in edit mode only, [S-1077]).</summary>
     public IEnumerable<SceneWidget> Selected => Widgets.Where(w => w.Selected);
+
+    /// <summary>[S-2210] The sample picture's name when the wallpaper is one (<c>lake-at-dusk</c>), else null.</summary>
+    public string? SampleWallpaper => Wallpaper is { } w && w.StartsWith(SamplePrefix, StringComparison.Ordinal) ? w[SamplePrefix.Length..] : null;
+
+    /// <summary>[S-1075] The wallpaper's path relative to the scenes file when it is a file, else null.</summary>
+    public string? WallpaperFile => Wallpaper is not null && SampleWallpaper is null ? Wallpaper : null;
+
+    /// <summary>
+    /// [S-2201] The stand-in taskbar's height in DIPs: Windows' 48 at the scene's display scale
+    /// ([S-1080]: 60 at 1.25), or 0 for a scene without one.
+    /// </summary>
+    public double TaskbarHeight => Taskbar ? SceneTaskbar.Height * Scale : 0;
+
+    /// <summary>[S-2202] How far down a widget may reach on <paramref name="screen"/>: the display less the taskbar.</summary>
+    public double WorkBottom(SceneScreen screen) => screen.Height - TaskbarHeight;
+}
+
+/// <summary>[S-2201] Windows 11's taskbar as the scenes stand it in: its height at 100 %, in DIPs.</summary>
+public static class SceneTaskbar
+{
+    public const double Height = 48;
 }
 
 /// <summary>[S-1075] A rectangle on the stand-in display, in DIPs.</summary>

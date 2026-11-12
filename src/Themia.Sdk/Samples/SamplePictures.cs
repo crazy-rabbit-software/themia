@@ -12,24 +12,51 @@ namespace Themia.Sdk.Samples;
 /// </summary>
 public static class SamplePictures
 {
-    private static readonly (string Name, Func<Landscape> Scene)[] Pictures =
+    private static readonly (string Name, string Slug, Func<Landscape> Scene)[] Pictures =
     [
-        ("Lake at dusk.png", LakeAtDusk),
-        ("Evening light.png", EveningLight),
-        ("Forest path.png", ForestPath),
-        ("Autumn field.png", AutumnField),
-        ("Harbour fog.png", HarbourFog),
-        ("Meadow.png", Meadow),
-        ("Sunset over the hills.png", SunsetOverTheHills),
-        ("Old town.png", OldTown),
-        ("Morning mist.png", MorningMist),
-        ("Coast.png", Coast),
-        ("Quiet street.png", QuietStreet),
-        ("Glacier.png", Glacier),
+        ("Lake at dusk.png", "lake-at-dusk", LakeAtDusk),
+        ("Evening light.png", "evening-light", EveningLight),
+        ("Forest path.png", "forest-path", ForestPath),
+        ("Autumn field.png", "autumn-field", AutumnField),
+        ("Harbour fog.png", "harbour-fog", HarbourFog),
+        ("Meadow.png", "meadow", Meadow),
+        ("Sunset over the hills.png", "sunset-over-the-hills", SunsetOverTheHills),
+        ("Old town.png", "old-town", OldTown),
+        ("Morning mist.png", "morning-mist", MorningMist),
+        ("Coast.png", "coast", Coast),
+        ("Quiet street.png", "quiet-street", QuietStreet),
+        ("Glacier.png", "glacier", Glacier),
     ];
 
     /// <summary>The pictures' file names: the pictures folder the gallery and the folder widget show.</summary>
     public static IReadOnlyList<string> Names { get; } = [.. Pictures.Select(p => p.Name)];
+
+    /// <summary>
+    /// [S-2210] Each picture's stable name, in the order of <see cref="Names"/>: its words in lower case
+    /// joined by <c>-</c> (<c>sunset-over-the-hills</c>), what a store scene's <c>sample:</c> wallpaper names.
+    /// </summary>
+    public static IReadOnlyList<string> Slugs { get; } = [.. Pictures.Select(p => p.Slug)];
+
+    /// <summary>[S-2210] The album cover's name as a wallpaper (<see cref="AlbumCover"/>).</summary>
+    public const string CoverSlug = "cover";
+
+    /// <summary>[S-2210] Every name a <c>sample:</c> wallpaper may give: the pictures', then the cover's.</summary>
+    public static IReadOnlyList<string> WallpaperSlugs { get; } = [.. Slugs, CoverSlug];
+
+    /// <summary>
+    /// [S-2210] The picture named <paramref name="slug"/> (one of <see cref="WallpaperSlugs"/>) as
+    /// <paramref name="width"/> × <paramref name="height"/> BGRA pixels, painted at that size; null for a name there is not.
+    /// </summary>
+    public static byte[]? Wallpaper(string slug, int width, int height)
+    {
+        if (string.Equals(slug, CoverSlug, StringComparison.Ordinal))
+        {
+            return AlbumCover(width, height);
+        }
+
+        var index = Array.FindIndex(Pictures, p => string.Equals(p.Slug, slug, StringComparison.Ordinal));
+        return index < 0 ? null : Pixels(index, width, height);
+    }
 
     /// <summary>How many different pictures there are before they repeat.</summary>
     public static int Count => Pictures.Length;

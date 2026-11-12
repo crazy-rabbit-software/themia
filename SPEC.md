@@ -6749,8 +6749,8 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   transparent under its cards (a bitmap covers only what is drawn), so without a wallpaper the PNG keeps
   the cards' alpha. A bitmap of another size fails the run. One scene per process; the scene's theme is the
   application theme, chosen before the resources load. Exit codes: 0 written; 2 refused before drawing
-  (the command line, the file, an unknown scene, kind or style, a missing wallpaper), each named on the
-  console; 1 the drawing failed (a preview state a view does not have, a submenu the properties menu does
+  (the command line, the file, an unknown scene, kind or style, a missing wallpaper or a sample wallpaper
+  this build does not paint, [S-2210]), each named on the console; 1 the drawing failed (a preview state a view does not have, a submenu the properties menu does
   not have, a card showing its error card, a tile of the wrong size), nothing written. The system widgets
   read the sample machine ([S-1931]), never this PC, and a scene's wallpaper is its display's: the cards
   frost over it ([S-2119]).
@@ -6760,7 +6760,9 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   what it does not set comes from that one; `wallpaper` or `edit` null drops the one it would take; a circle
   or a missing name is refused), `theme` (`dark`|`light`, default dark), `design` (the `--design` text, read
   by the one `DesignText` parser, [S-6480]; every pair must read: a colour is `#RRGGBB` or empty, `gap` the
-  card gap), `wallpaper` (a picture's path relative to the file, filled UniformToFill), `widgets` and `edit`.
+  card gap), `scale` ([S-1080]), `taskbar` (`true`|`false`, default false: Windows' taskbar stood in,
+  [S-2200]), `wallpaper` (a picture's path relative to the file, filled UniformToFill, or `sample:<name>`,
+  [S-2210]), `widgets` and `edit`; what a `like` scene does not set comes from the other, `taskbar` too.
   A widget: `kind`, `at` (`[x, y, w, h]` DIPs, wholly on the display), and optionally `state`, `style`,
   `header`, `background`/`items` (fills), `itemText`, `scale` (0.5 to 2), `align`, `label`, `bare`,
   `config` (an object) and `selected`. A property the reader does not know or one written twice is refused,
@@ -6772,6 +6774,45 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1080]** A scene's `scale` is its display's content scale (Display ▾, [S-6535]: 0.5 to 2, default 1; a
   `like` scene takes the other's): every card's content is drawn at it times the widget's own, as on a
   display set to it, so a desktop made for a picture reads like one at 125 %. Tests `SceneParserTests.S1080_`.
+- **[S-2200]** A scene with `"taskbar": true` is drawn with a stand-in of Windows 11's taskbar along the
+  bottom of its display, over the desktop layer (over the cards, as on a desktop), so a picture shows where
+  Themia lives (`TaskbarStandIn`). It is a render fixture standing for Windows' own chrome, as the stand-in
+  wallpaper is ([S-2119]): not Themia UI, compiled into Debug builds only, its colours and sizes Windows'
+  rather than the family's tokens. Tests `SceneParserTests.S2200_`.
+- **[S-2201]** Its height is Windows' 48 DIPs times the scene's display scale ([S-1080]: 60 at 1.25), and
+  everything in it is laid out at 100 % and magnified by that scale with it.
+- **[S-2202]** With a taskbar a scene's work area ends above it: a widget whose `at` reaches into the
+  taskbar's strip is refused by the parser, naming the widget's path and the height it must stay above
+  (`Scene.WorkBottom`); in edit mode the properties menu's room and placement area is the work area
+  ([S-1077]). Tests `SceneParserTests.S2202_`.
+- **[S-2203]** Its look, as Windows 11 draws it in the scene's theme: the frosted wallpaper under it (the
+  cards' backdrop, [S-2119]), a translucent neutral over that (`#1C1C1C` at 85 % dark, `#F3F3F3` at 85 %
+  light) and a one-pixel hairline along its top; in the centre the Start logo (four squares in Windows'
+  blue), the Search pill (200 × 32, radius 16: the magnifier and the word, the host's `menu.filter`, in the
+  language drawn), Task view and the pinned apps, each a 24 DIP icon in a 40 DIP button, 4 between, the
+  first in front (a highlight and Windows' wide accent pill), two more running (small pills).
+- **[S-2204]** The pinned apps are the sample PC's (`SamplePc.TaskbarApps`, [S-1931]): File Explorer, Edge,
+  Terminal, Notepad, Settings, Calculator, the Microsoft Store, at the fixed paths every Windows 11 PC has
+  them (a packaged app as its `shell:AppsFolder` name), drawn through the process list's icon loader
+  (`AppIconSource`) at the output's pixel size; one missing on the PC drawing it is left out, never a failure.
+- **[S-2205]** On the right the tray: the hidden-icons chevron, Wi-Fi, volume and the battery (the sample
+  PC's 78 %), the clock in two lines right-aligned (the sample moment's short time and short date,
+  `SampleDay`, through `LocaleFormat` in the language drawn) and the notification bell, 12 DIPs right of
+  the clock.
+- **[S-2206]** On the left Windows' weather button: the sample day's condition glyph, temperature and
+  condition (`SampleWeather`, `WeatherReport`, the region's unit), so it agrees with the scene's weather
+  widgets.
+- **[S-2210]** A scene's `wallpaper` may be `sample:<name>`: one of the sample pictures painted in code
+  ([S-2056]) by its stable name, defined once beside the pictures (`SamplePictures.Slugs`: the file name's
+  words in lower case joined by `-`, `lake-at-dusk`, `sunset-over-the-hills`, …) or `sample:cover`, the
+  album cover. The parser checks the form (`sample:` and `[a-z0-9-]+`); the renderer, which knows the names,
+  refuses one it does not have before drawing, listing those it has (exit 2). The picture is painted at the
+  output's pixel size (the display's DIPs times `--scale`: 3840 × 2160 for a full-HD display at 2, sharp
+  at 1:1), written as a PNG of the run's own under `%TEMP%\themia-sample\wallpapers` (named for the
+  process, deleted when the run ends) and used exactly as a file wallpaper: filling the display, the cards
+  and the taskbar frosting over it ([S-2119]). A file path keeps working. `SceneWidgetsTests.S1078_` checks a
+  checked-in sample wallpaper's name as it checks a file wallpaper's existence. Tests
+  `SceneParserTests.S2210_`, `SampleDayTests.S2210_`.
 - **[S-1076]** A scene's widget (`SceneWidgets.Build`): the kind installed, its default config with the
   `config` fragment merged over it (`StateJson.Merged`; a property the kind's config does not have is
   refused rather than dropped, a value of the wrong type too), the style one of the kind's, then `bare`

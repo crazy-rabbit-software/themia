@@ -281,14 +281,33 @@ public static class SamplePc
 
     // ---- processes ------------------------------------------------------------------------------
 
+    private const string Windows = @"C:\Windows\";
+    private const string System32 = Windows + @"System32\";
+
+    /// <summary>
+    /// [S-2204] The apps pinned to the sample PC's taskbar, in their order: File Explorer, Edge,
+    /// Terminal, Notepad, Settings, Calculator and the Microsoft Store, each where every Windows 11 PC
+    /// keeps it (a file as the process list's are, a packaged app as its Apps-folder name), so a
+    /// render's stand-in taskbar draws the real icons. Fixed, not read from this PC; one that is
+    /// missing there is skipped by whoever draws it.
+    /// </summary>
+    public static IReadOnlyList<string> TaskbarApps { get; } =
+    [
+        Windows + "explorer.exe",
+        @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        @"shell:AppsFolder\Microsoft.WindowsTerminal_8wekyb3d8bbwe!App",
+        @"shell:AppsFolder\Microsoft.WindowsNotepad_8wekyb3d8bbwe!App",
+        Windows + @"ImmersiveControlPanel\SystemSettings.exe",
+        @"shell:AppsFolder\Microsoft.WindowsCalculator_8wekyb3d8bbwe!App",
+        @"shell:AppsFolder\Microsoft.WindowsStore_8wekyb3d8bbwe!App",
+    ];
+
     /// <summary>
     /// [S-1933] The programs every Windows PC runs, each with its executable where Windows keeps it,
     /// so a row draws the real icon. The paths are the same on every Windows PC, not read from this one.
     /// </summary>
     private static IReadOnlyList<ProcessSample> Processes()
     {
-        const string Windows = @"C:\Windows\";
-        const string System32 = Windows + @"System32\";
         const string Cbs = Windows + @"SystemApps\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\";
         const long M = 1L << 20;
 

@@ -71,6 +71,12 @@ public static class Glyphs
     public static readonly string Memory = From(0xE964);
     public static readonly string Disk = From(0xEDA2);
     public static readonly string Battery = From(0xE83F);
+
+    /// <summary>[S-2205] A battery about four fifths full: the sample PC's 78 % in the stand-in taskbar's tray.</summary>
+    public static readonly string Battery8 = From(0xE858);
+
+    /// <summary>[S-2205] The tray's "show hidden icons" chevron.</summary>
+    public static readonly string ChevronUp = From(0xE70E);
     public static readonly string Network = From(0xE968);
 
     /// <summary>[S-6264] [S-6262] The network numbers' download and upload, and the battery style's charging bolt (LightningBolt).</summary>
