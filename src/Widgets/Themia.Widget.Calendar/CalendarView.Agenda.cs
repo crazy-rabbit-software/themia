@@ -33,7 +33,7 @@ internal sealed partial class CalendarView
     {
         var today = Today;
         var (first, last) = CalendarRules.ViewRange(CalendarStyle.Agenda, _anchor, today, _config.Period);
-        var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config.EffectiveAgendaCount, DateTimeOffset.Now);
+        var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config.EffectiveAgendaCount, _clock());
         var rows = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 
         _agendaItems.Clear();
@@ -48,7 +48,7 @@ internal sealed partial class CalendarView
         }
 
         var showColors = ShowColors;
-        var now = DateTimeOffset.Now;
+        var now = _clock();
         var items = new List<KitItem>(rows.Count);
         foreach (var (day, item) in rows)
         {

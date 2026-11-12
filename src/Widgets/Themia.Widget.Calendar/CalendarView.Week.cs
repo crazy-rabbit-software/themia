@@ -351,7 +351,7 @@ internal sealed partial class CalendarView
         }
 
         var focusDay = today >= start && today < start.AddDays(days) ? today : start;
-        var focus = CalendarFit.FocusHour(all.Where(e => CalendarRules.StartDay(e, zone) >= focusDay), focusDay, today, DateTimeOffset.Now, zone);
+        var focus = CalendarFit.FocusHour(all.Where(e => CalendarRules.StartDay(e, zone) >= focusDay), focusDay, today, _clock(), zone);
         var window = CalendarFit.Hours(height, earliest, latest, focus);
 
         var labels = HourLabels(window, long_: true);
@@ -451,7 +451,7 @@ internal sealed partial class CalendarView
         // [S-2705] Today's timeline marks the time now with an accent rule.
         if (day == Today)
         {
-            var now = DateTimeOffset.Now;
+            var now = _clock();
             if (CalendarFit.Place(now, now, day, zone, window) is { } at)
             {
                 var rule = new Border { Height = FamilyShape.Stroke, Background = Accent(), IsHitTestVisible = false };

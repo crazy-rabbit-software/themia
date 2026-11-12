@@ -58,7 +58,7 @@ internal sealed partial class CalendarView
         }
 
         var (earliest, latest) = CalendarFit.EventHours(timed, day, zone);
-        var window = CalendarFit.Hours(room.Remaining, earliest, latest, CalendarFit.FocusHour(timed, day, Today, DateTimeOffset.Now, zone));
+        var window = CalendarFit.Hours(room.Remaining, earliest, latest, CalendarFit.FocusHour(timed, day, Today, _clock(), zone));
 
         var labels = HourLabels(window, long_: gutter == HourLabelWidth);
         SetRow(labels, 1);

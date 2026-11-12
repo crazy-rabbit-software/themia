@@ -61,7 +61,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     private ICalendarData? _data;
     private IDisposable? _poll;
     private CalendarWidgetConfig _config = new();
-    private DateOnly _anchor = Today;
+    private DateOnly _anchor = DateOnly.FromDateTime(DateTime.Now);
     private bool _followToday = true;
 
     /// <summary>[S-2709] The agenda page on screen, and how many the last draw had.</summary>
@@ -113,7 +113,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         Ready,
     }
 
-    private static DateOnly Today => DateOnly.FromDateTime(DateTime.Now);
+    /// <summary>[S-2050] The clock the view reads: the real one, or a preview's sample moment.</summary>
+    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
+
+    private DateOnly Today => DateOnly.FromDateTime(_clock().LocalDateTime);
 
     private CalendarStyle Layout => _config.Style;
 
@@ -217,7 +220,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
             ? [new(Glyphs.Calendar, CalendarStr.Calendar_Today.Text(), GoToday), Refresh()]
             : [Refresh()];
 
-    private WidgetAction Refresh() => new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, DateTimeOffset.Now), () => _ = RefreshAsync(force: true));
+    private WidgetAction Refresh() => new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, _clock()), () => _ = RefreshAsync(force: true));
 
     public void Detach()
     {
@@ -374,7 +377,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// </summary>
     private void UpdateHeader()
     {
-        var lines = _screen == Screen.Ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _outcomes, DateTimeOffset.Now) : [];
+        var lines = _screen == Screen.Ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _outcomes, _clock()) : [];
         _header.Show(lines, _refreshing, _outcomesNeedUser, buttons: NavigationButtons());
     }
 
