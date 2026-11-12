@@ -25,12 +25,11 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private EditBarState ToolbarState()
     {
-        var offer = _selectionOffer;
+        // [S-2341] [S-11754] The selection's entry: a group's name and glyph, else the kind's or the count.
         BarSelection? selection = null;
-        if (SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) is { } words)
+        if (_selectionModel is { } model && SelectionPage.Words(model, id => ModuleCatalog.Of(id).Name) is { } words)
         {
-            var kind = offer.TitleKind ?? offer.CommonKind;
-            selection = new BarSelection(words, kind is { } k ? ModuleCatalog.Of(k).Glyph : Glyphs.Apps);
+            selection = new BarSelection(words, SelectionPage.Glyph(model));
         }
 
         var metrics = Metrics;

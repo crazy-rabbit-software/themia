@@ -24,15 +24,16 @@ internal static class ModuleHost
     public static FrameworkElement CreateView(WidgetId kind, IWidgetHost host) => Module(kind).CreateView(host);
 
     /// <summary>
-    /// [S-3719] A widget's own lines on its properties menu, built by its module over
-    /// <paramref name="widget"/>'s config (the live one: the lines change it in place and
-    /// <paramref name="save"/> stores it), asking for text and confirmations beside the menu. A
-    /// module that throws is logged and has none. [S-3749] <paramref name="openSetting"/> opens the
-    /// level a link row leads to (⚙ › Accounts, [S-3558]; a format; an update interval).
+    /// [S-3719] A widget's own lines on its properties menu, built by <paramref name="kind"/>'s module over
+    /// <paramref name="config"/> (the live one: the lines change it in place and <paramref name="save"/>
+    /// stores it; or [S-11751] a scratch copy whose save sets what it holds on every widget of a group),
+    /// asking for text and confirmations beside the menu. A module that throws is logged and has none.
+    /// [S-3749] <paramref name="openSetting"/> opens the level a link row leads to (⚙ › Accounts,
+    /// [S-3558]; a format; an update interval).
     /// </summary>
-    public static WidgetMenuLines? MenuLines(WidgetInstance widget, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action<SettingLink>? openSetting = null)
+    public static WidgetMenuLines? MenuLines(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action<SettingLink>? openSetting = null)
     {
-        ArgumentNullException.ThrowIfNull(widget);
+        ArgumentNullException.ThrowIfNull(config);
 
         // [S-2851] Where Windows' location stands, and its settings page where there is a host to open it.
         var lines = new WidgetMenuLines(save, ask, confirm)
@@ -43,11 +44,11 @@ internal static class ModuleHost
         };
         try
         {
-            Module(widget.Kind).MenuLines(lines, widget.Config);
+            Module(kind).MenuLines(lines, config);
         }
         catch (Exception ex)
         {
-            Themia.Core.Diagnostics.Log.Error("modules", $"the {widget.Kind} widget's menu lines could not be built", ex);
+            Themia.Core.Diagnostics.Log.Error("modules", $"the {kind} widget's menu lines could not be built", ex);
             return null;
         }
 

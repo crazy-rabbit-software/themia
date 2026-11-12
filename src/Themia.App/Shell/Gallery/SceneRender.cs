@@ -510,11 +510,14 @@ internal static class SceneRender
     {
         var width = job.File.Screen.Width;
         var selected = job.Widgets.Where(w => job.Scene.Selected.Contains(w.Spec)).ToList();
+
+        // [S-2458] [S-11754] The selection as the desktop holds it: a group whole, or one member entered.
+        var selection = SceneWidgets.Selection(job.Scene, view);
         var barRect = new PixelRect(0, 0, 0, 0);
         EditBar? bar = null;
         if (edit.Bar)
         {
-            bar = EditBarRender.SelectionBar(EditBarRender.SelectionEntry([.. selected.Select(w => w.Model)]), open: selected.Count > 0);
+            bar = EditBarRender.SelectionBar(selected.Count > 0 ? EditBarRender.SelectionEntry(view, selection) : null, open: selected.Count > 0);
             barRect = EditBarRender.PlaceBar(canvas, bar, width);
         }
 
@@ -542,10 +545,10 @@ internal static class SceneRender
             return false;
         }
 
-        var page = EditBarRender.SelectionPageOf(view, [.. selected.Select(w => w.Model.Id)]);
+        var page = EditBarRender.SelectionPageOf(view, selection);
         var flyout = EditBarRender.HangFlyout(canvas, page, bar, barRect, null, new PixelRect(0, 0, metrics.Width, bottom));
         page.Show();
-        if (edit.Open is { } open && !page.DebugClick(open))
+        if (edit.Open is { } named && MemberKey(named, job) is var open && !page.DebugClick(open))
         {
             Console.WriteLine($"scene: {job.Scene.Name}: the selection's page has no row \"{open}\"");
             return false;
@@ -556,6 +559,26 @@ internal static class SceneRender
         await Task.Delay(400).ConfigureAwait(true);
 
         return true;
+    }
+
+    /// <summary>
+    /// [S-11755] A row key that opens a group member's own page names the member by its scene id
+    /// (<c>member/facts</c>): the page names it by the widget's, which a scene does not know.
+    /// </summary>
+    private static string MemberKey(string open, Job job)
+    {
+        const string Member = "member/";
+        if (!open.StartsWith(Member, StringComparison.Ordinal))
+        {
+            return open;
+        }
+
+        var rest = open[Member.Length..];
+        var cut = rest.IndexOf('/', StringComparison.Ordinal);
+        var name = cut < 0 ? rest : rest[..cut];
+        return job.Widgets.FirstOrDefault(w => string.Equals(w.Spec.Id, name, StringComparison.Ordinal)) is { } widget
+            ? Member + widget.Model.Id + (cut < 0 ? string.Empty : rest[cut..])
+            : open;
     }
 
     /// <summary>

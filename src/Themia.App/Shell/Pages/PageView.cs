@@ -98,7 +98,16 @@ internal sealed partial class PageView : StackPanel
             {
                 case SubStep sub when Find(_model, sub.Key) is { } row:
                     Children.Add(BackHead(row.Text));
-                    AddCards(row.Rows ?? [], false);
+                    if (row.Page is { } whole)
+                    {
+                        // [S-11755] A member's page as a lone selection of it shows it: its header card, its sections.
+                        DrawRoot(whole);
+                    }
+                    else
+                    {
+                        AddCards(row.Rows ?? [], false);
+                    }
+
                     break;
                 case AskStep ask:
                     Children.Add(BackHead(ask.Edit.Title ?? string.Empty));
@@ -354,6 +363,11 @@ internal sealed partial class PageView : StackPanel
                 if (row.Rows is { } inner && In(inner, key) is { } found)
                 {
                     return found;
+                }
+
+                if (row.Page is { } page && page.Sections.Select(s => In(s.Rows, key)).FirstOrDefault(r => r is not null) is { } deeper)
+                {
+                    return deeper;
                 }
             }
 

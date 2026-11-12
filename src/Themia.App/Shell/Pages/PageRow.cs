@@ -80,6 +80,9 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
 
     /// <summary>[S-1862] The row the card's Set up button opens the page at.</summary>
     public bool SetsUp { get; init; }
+
+    /// <summary>[S-11755] A sub-page that is a whole page of its own (a group's member: its header card and sections) rather than rows.</summary>
+    public PageModel? Page { get; init; }
 }
 
 /// <summary>
@@ -123,7 +126,11 @@ internal sealed record PageTool(string Key, string Glyph, string Name, Windows.S
 internal sealed record PageSection(string Key, string? Heading, IReadOnlyList<PageRow> Rows);
 
 /// <summary>[S-2340] The selection page's header card: the kind's glyph on a tile, the name over a caption, icon buttons at its end.</summary>
-internal sealed record PageHeader(string Glyph, string Name, string Caption, IReadOnlyList<PageTool> Tools);
+internal sealed record PageHeader(string Glyph, string Name, string Caption, IReadOnlyList<PageTool> Tools)
+{
+    /// <summary>[S-11754] The name as a box that renames (a group's): its hint, what it holds, what keeping it does. Null: words only.</summary>
+    public PageEdit? Rename { get; init; }
+}
 
 /// <summary>[S-2300] A page as drawn: its sections, under a header card where it has one.</summary>
 internal sealed record PageModel(string Key, IReadOnlyList<PageSection> Sections)

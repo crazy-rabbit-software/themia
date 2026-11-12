@@ -30,10 +30,15 @@ internal static partial class EditBarRender
         var view = new ViewState { Id = "render", Name = "render", Widgets = [.. selected] };
         var selection = new WidgetSelection();
         selection.Replace(view.Id, [.. selected.Select(w => w.Id)]);
-        var offer = QuickSet.For(new AppState { Views = [view] }, selection, view.Id);
-        var kind = offer.TitleKind ?? offer.CommonKind;
-        return SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) is { } words
-            ? new BarSelection(words, kind is { } k ? ModuleCatalog.Of(k).Glyph : Glyphs.Apps)
+        return SelectionEntry(view, selection);
+    }
+
+    /// <summary>[S-2341] [S-11754] The bar's selection entry for <paramref name="selection"/> on <paramref name="view"/>: a group's name and glyph too.</summary>
+    internal static BarSelection? SelectionEntry(ViewState view, WidgetSelection selection)
+    {
+        var model = SelectionPage.Of(new AppState { Views = [view] }, selection, view.Id);
+        return model is not null && SelectionPage.Words(model, id => ModuleCatalog.Of(id).Name) is { } words
+            ? new BarSelection(words, SelectionPage.Glyph(model))
             : null;
     }
 
@@ -83,26 +88,50 @@ internal static partial class EditBarRender
     /// </summary>
     internal static PageView SelectionPageOf(ViewState view, IReadOnlyList<string> selected, Action<WidgetMenuLines>? lines = null)
     {
-        var state = new AppState { Views = [view] };
         var selection = new WidgetSelection();
         selection.Replace(view.Id, selected);
-        var offer = QuickSet.For(state, selection, view.Id);
-        PageView? page = null;
-        var commands = new SelectionCommands(_ => { }, _ => { }, (_, _) => { }, _ => { }, _ => { }, _ => { }, _ => { }, Cut: () => { }, Copy: () => { }, Delete: () => { });
-        WidgetMenuLines? Lines()
-        {
-            if (offer.TitleWidgetId is not { } id)
-            {
-                return null;
-            }
+        return SelectionPageOf(view, selection, lines);
+    }
 
-            void Ask(WidgetTextAsk ask) => page?.Ask(new PageEdit(ask.Placeholder, ask.Initial ?? string.Empty, ask.Done) { Title = ask.Title, Accept = ask.Accept });
-            void Confirm(WidgetConfirm confirm) => page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
-            return lines is not null ? Stand(lines, Ask, Confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, Ask, Confirm, openSetting: _ => { }) : null;
+    /// <summary>
+    /// [S-2340] [S-11754] The selection's page over <paramref name="selection"/> of <paramref name="view"/> (a
+    /// group whole, an entered member, several, one), its lines the modules' own (or <paramref name="lines"/>'
+    /// stand-in for the one widget), its shared lines built as the surface builds them, its commands doing nothing.
+    /// </summary>
+    internal static PageView SelectionPageOf(ViewState view, WidgetSelection selection, Action<WidgetMenuLines>? lines = null)
+    {
+        var state = new AppState { Views = [view] };
+        PageView? page = null;
+        void Ask(WidgetTextAsk ask) => page?.Ask(new PageEdit(ask.Placeholder, ask.Initial ?? string.Empty, ask.Done) { Title = ask.Title, Accept = ask.Accept });
+        void Confirm(WidgetConfirm confirm) => page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
+        WidgetMenuLines? Over(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
+            => Services.ModuleHost.MenuLines(kind, config, save, ask, confirm, openSetting: _ => { });
+
+        SelectionCommands Commands(bool whole) => new(_ => { }, _ => { }, (_, _) => { }, _ => { }, _ => { }, _ => { }, _ => { },
+            Cut: whole ? () => { } : null,
+            Copy: whole ? () => { } : null,
+            Delete: whole ? () => { } : null,
+            WidgetLines: id => lines is not null ? Stand(lines, Ask, Confirm) : view.Find(id) is { } found ? Over(found.Kind, found.Config, () => { }, Ask, Confirm) : null)
+        {
+            SharedLines = row => SharedRowLines.Of(row, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id))], Over, Ask, Confirm, _ => { }),
+            RenameGroup = whole ? (_, _) => { } : null,
+            Ungroup = whole ? () => { } : null,
+            RemoveFromGroup = whole ? _ => { } : null,
+            OpenGroup = whole ? () => { } : null,
+            Member = whole ? Member : null,
+        };
+
+        (SelectionModel, SelectionCommands)? Member(string id)
+        {
+            var alone = new WidgetSelection();
+            alone.Replace(view.Id, [id]);
+            return SelectionPage.Of(state, alone, view.Id) is { } model ? (model, Commands(whole: false)) : null;
         }
 
-        var kinds = view.Widgets.Where(w => selected.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
-        page = new PageView(() => SelectionRows.Of(offer, commands, Lines(), kinds));
+        var kinds = view.Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
+        page = new PageView(() => SelectionPage.Of(state, selection, view.Id) is { } model
+            ? SelectionRows.Of(model, Commands(whole: true), kinds)
+            : new PageModel("selection", []));
         UiLanguage.ApplyFlow(page);
         return page;
     }

@@ -39,13 +39,69 @@ internal sealed partial class PageView
             SettingsRowKind.Note => NoteRow(row, first),
             SettingsRowKind.Heading => HeadingRow(row),
             SettingsRowKind.Radio => RadioRow(row),
-            SettingsRowKind.SubPage => ClickRow(row, End(row.Value, Glyphs.ChevronRight), () => Push(row)),
+            SettingsRowKind.SubPage => SubPageRow(row),
             SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon or SettingsRowKind.Expander
                 => inside ? StandingOpen(row) : Expander(row),
             _ => new Border(),
         };
 
         return new Border { Child = body, Tag = row.Key + "#row", CornerRadius = new CornerRadius(P.CardRadius) };
+    }
+
+    /// <summary>
+    /// [S-2303] [S-11755] A sub-page's row: the whole row opens it; its icon buttons (a member's Remove from
+    /// group) stand before the chevron, their keys working while the row has the keyboard (Delete).
+    /// </summary>
+    private Button SubPageRow(PageRow row)
+    {
+        var button = ClickRow(row, SubPageEnd(row), () => Push(row));
+        if (row.Tools is { Count: > 0 } tools)
+        {
+            button.KeyDown += (_, e) =>
+            {
+                if (tools.FirstOrDefault(t => t.Shortcut == e.Key && !t.Disabled) is { } keyed)
+                {
+                    Do(keyed.Run);
+                    e.Handled = true;
+                }
+            };
+        }
+
+        return button;
+    }
+
+    /// <summary>[S-11755] A sub-page's end: its value, its icon buttons (a member's Remove from group), the chevron.</summary>
+    private StackPanel? SubPageEnd(PageRow row)
+    {
+        var end = End(row.Value, Glyphs.ChevronRight)!;
+        var at = 0;
+        foreach (var tool in row.Tools ?? [])
+        {
+            end.Children.Insert(at++, ToolButton(row, tool));
+        }
+
+        return end;
+    }
+
+    /// <summary>[S-3549] An icon button at a row's end: its words the tooltip and its name.</summary>
+    private static Button ToolButton(PageRow row, PageTool tool)
+    {
+        var button = Plain(new Button
+        {
+            Content = UiLanguage.Mirrored(new FontIcon { Glyph = tool.Glyph, FontSize = Fluent.IconSize }),
+            Width = P.Control,
+            Height = P.Control,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            VerticalContentAlignment = VerticalAlignment.Center,
+            IsEnabled = !tool.Disabled,
+            Tag = row.Key + "#" + tool.Key,
+        });
+        button.HorizontalAlignment = HorizontalAlignment.Right;
+        ToolTipService.SetToolTip(button, tool.Name);
+        AutomationProperties.SetName(button, tool.Name);
+        var run = tool.Run;
+        button.Click += (_, e) => Do(run);
+        return button;
     }
 
     /// <summary>[S-2307] A page of its own under this one: the keyboard on its first control.</summary>
@@ -527,22 +583,7 @@ internal sealed partial class PageView
         var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
         foreach (var tool in row.Tools ?? [])
         {
-            var button = Plain(new Button
-            {
-                Content = UiLanguage.Mirrored(new FontIcon { Glyph = tool.Glyph, FontSize = Fluent.IconSize }),
-                Width = P.Control,
-                Height = P.Control,
-                HorizontalContentAlignment = HorizontalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center,
-                IsEnabled = !tool.Disabled,
-                Tag = row.Key + "#" + tool.Key,
-            });
-            button.HorizontalAlignment = HorizontalAlignment.Right;
-            ToolTipService.SetToolTip(button, tool.Name);
-            AutomationProperties.SetName(button, tool.Name);
-            var run = tool.Run;
-            button.Click += (_, _) => Do(run);
-            tools.Children.Add(button);
+            tools.Children.Add(ToolButton(row, tool));
         }
 
         var item = new ContentControl
@@ -796,14 +837,24 @@ internal sealed partial class PageView
             Background = ShellBrush.Of(ShellRole.CardSecondary),
             Child = new FontIcon { Glyph = header.Glyph, FontSize = P.HeaderGlyph, Foreground = ShellBrush.Of(ShellRole.AccentText) },
         };
-        var name = Fluent.Text(FamilyType.Title);
-        name.Text = header.Name;
-        name.TextTrimming = TextTrimming.CharacterEllipsis;
+        FrameworkElement name;
+        if (header.Rename is { } rename)
+        {
+            name = TitleBox(header, rename);
+        }
+        else
+        {
+            var words = Fluent.Text(FamilyType.Title);
+            words.Text = header.Name;
+            words.TextTrimming = TextTrimming.CharacterEllipsis;
+            name = words;
+        }
+
         var caption = CaptionText(header.Caption);
         caption.TextWrapping = TextWrapping.NoWrap;
         caption.TextTrimming = TextTrimming.CharacterEllipsis;
         ToolTipService.SetToolTip(caption, header.Caption);
-        var words = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(P.IconAt, 0, Fluent.Space3, 0), Children = { name, caption } };
+        var named = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(P.IconAt, 0, Fluent.Space3, 0), Children = { name, caption } };
 
         var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, VerticalAlignment = VerticalAlignment.Center };
         foreach (var tool in header.Tools)
@@ -835,10 +886,10 @@ internal sealed partial class PageView
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
                 new ColumnDefinition { Width = GridLength.Auto },
             },
-            Children = { tile, words, tools },
+            Children = { tile, named, tools },
         };
         tile.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetColumn(words, 1);
+        Grid.SetColumn(named, 1);
         Grid.SetColumn(tools, 2);
         return new Border
         {
@@ -850,6 +901,54 @@ internal sealed partial class PageView
             Margin = new Thickness(0, 0, 0, P.CardGap),
             Tag = "header#card",
         };
+    }
+
+    /// <summary>
+    /// [S-11754] A name that renames (a group's): a box in the title's type with no rim until pointed at or
+    /// typed in; Enter or leaving keeps it, Escape restores it, empty keeps the hint ("Group").
+    /// </summary>
+    private TextBox TitleBox(PageHeader header, PageEdit edit)
+    {
+        var box = new TextBox
+        {
+            Text = edit.Initial,
+            PlaceholderText = edit.Placeholder,
+            FontSize = FamilyType.Title.FontSize,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
+            Margin = new Thickness(-Fluent.Space1, 0, 0, 0),
+            MinHeight = P.Control,
+            BorderThickness = new Thickness(0),
+            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
+            VerticalContentAlignment = VerticalAlignment.Center,
+            Tag = "header#name",
+        };
+        AutomationProperties.SetName(box, header.Name);
+        void Keep()
+        {
+            var typed = box.Text.Trim();
+            if (typed != edit.Initial)
+            {
+                Do(() => edit.Commit(typed));
+            }
+        }
+
+        box.KeyDown += (_, e) =>
+        {
+            switch (e.Key)
+            {
+                case VirtualKey.Enter:
+                    Keep();
+                    e.Handled = true;
+                    break;
+                case VirtualKey.Escape when box.Text != edit.Initial:
+                    box.Text = edit.Initial;
+                    e.Handled = true;
+                    break;
+            }
+        };
+        box.LostFocus += (_, _) => Keep();
+        return box;
     }
 
     /// <summary>Run what a row does: an exception is logged, never raised out of a click.</summary>
