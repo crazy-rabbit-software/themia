@@ -28,7 +28,8 @@ public sealed record SceneScreen(double Width, double Height)
 /// widgets, when present the edit mode it is drawn in, and whether Windows' taskbar stands in along
 /// the bottom ([S-2200]).
 /// </summary>
-public sealed record Scene(string Name, AppTheme Theme, string Design, string? Wallpaper, IReadOnlyList<SceneWidget> Widgets, SceneEdit? Edit, double Scale = 1, bool Taskbar = false)
+/// <param name="Links">[S-11909] What the picture points at and has picked on the scene's one board, or null.</param>
+public sealed record Scene(string Name, AppTheme Theme, string Design, string? Wallpaper, IReadOnlyList<SceneWidget> Widgets, SceneEdit? Edit, double Scale = 1, bool Taskbar = false, SceneLinks? Links = null)
 {
     /// <summary>[S-2210] The prefix of a wallpaper that is one of the sample pictures, drawn in code: <c>sample:lake-at-dusk</c>.</summary>
     public const string SamplePrefix = "sample:";

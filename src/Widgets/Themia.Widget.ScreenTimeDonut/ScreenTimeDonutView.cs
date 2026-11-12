@@ -4,14 +4,15 @@ using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
-using Windows.Foundation;
 using Themia.Widget.ScreenTimeDonut;
+using Windows.Foundation;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -66,7 +67,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     public ScreenTimeDonutView(IWidgetHost host)
     {
         _host = host;
-        _links = new ScreenTimeLinks(ApplyFocus);
+        _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
 
         // The whole tile takes taps, so a click on its empty space lets the selection go ([S-3302]).
@@ -255,10 +256,12 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         }
 
         var part = ScreenTimeRules.FocusPart(_links.Focus, _segments, data.Apps);
+        var pointed = ScreenTimeRules.FocusPart(_links.Pointed, _segments, data.Apps);
+        var picked = ScreenTimeRules.FocusPart(_links.Picked, _segments, data.Apps);
 
         foreach (var (segment, wedge) in _arcs)
         {
-            wedge.Path.Opacity = ScreenTimeRules.Opacity(ScreenTimeRules.ToneOf(_tones, segment.Key), ScreenTimeRules.Emphasis(segment.Key, part));
+            wedge.Path.Opacity = ScreenTimeRules.Opacity(ScreenTimeRules.ToneOf(_tones, segment.Key), segment.Key, pointed, picked);
         }
 
         var focused = part is null ? null : _segments.FirstOrDefault(s => s.Key == part);

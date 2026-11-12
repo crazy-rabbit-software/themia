@@ -421,6 +421,14 @@ internal static class SceneRender
             return Failed;
         }
 
+        // [S-11909] What the picture points at and has picked, set on the scene's one board by a member of
+        // its own after the cards drew their states, so every card that follows a topic shows it.
+        if (job.Scene.Links is { } pointing)
+        {
+            pointing.Apply(links.Join(), DateTimeOffset.Now);
+            await Task.Delay(300).ConfigureAwait(true);
+        }
+
         if (edit is not null && !await ComposeEditAsync(canvas, edit, view, job, metrics, design).ConfigureAwait(true))
         {
             return Failed;

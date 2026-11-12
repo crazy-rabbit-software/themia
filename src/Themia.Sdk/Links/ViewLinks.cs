@@ -23,6 +23,24 @@ public enum LinkTopicId
 
     /// <summary>[S-3623] The calendar event under the pointer in a calendar widget.</summary>
     HoveredEvent = 4,
+
+    /// <summary>[S-11910] A moment in time under the pointer on a history chart, with what the chart is of.</summary>
+    HoveredInstant = 5,
+
+    /// <summary>[S-11920] A day under the pointer: a calendar's cell, a forecast's day, a task's due day.</summary>
+    HoveredDate = 6,
+
+    /// <summary>[S-11940] A person under the pointer: a sender, a contact, an organiser.</summary>
+    HoveredPerson = 7,
+
+    /// <summary>[S-11945] A file or folder under the pointer, by its full path.</summary>
+    HoveredFile = 8,
+
+    /// <summary>[S-11950] A drive under the pointer, by its root.</summary>
+    HoveredDrive = 9,
+
+    /// <summary>[S-11955] A Bluetooth device under the pointer, by its address.</summary>
+    HoveredDevice = 10,
 }
 
 /// <summary>[S-3302] How long a shared value lives.</summary>
@@ -76,8 +94,26 @@ public sealed record EventLink(string Account, string? Calendar, string Event);
 /// <summary>[S-3310] An app, by its screen-time key (the lower-case executable stem, or "Other").</summary>
 public sealed record AppLink(string App);
 
-/// <summary>[S-3311] One calendar day.</summary>
+/// <summary>[S-3311] [S-11920] One calendar day.</summary>
 public sealed record DateLink(DateOnly Date);
+
+/// <summary>
+/// [S-11910] A moment on a history chart and what the chart is of (<see cref="Subject"/>: a series key, a
+/// symbol, a pair), so the reading of the same subject can show its value then.
+/// </summary>
+public sealed record InstantLink(DateTimeOffset At, string Subject);
+
+/// <summary>[S-11940] A person, by <see cref="LinkKeys.Person"/>: the address lower-cased, else the name folded.</summary>
+public sealed record PersonLink(string Person);
+
+/// <summary>[S-11945] A file or folder, by <see cref="LinkKeys.File"/>: its full path, case-folded.</summary>
+public sealed record FileLink(string Path);
+
+/// <summary>[S-11950] A drive, by <see cref="LinkKeys.Drive"/>: its root ("C:").</summary>
+public sealed record DriveLink(string Root);
+
+/// <summary>[S-11955] A Bluetooth device, by <see cref="LinkKeys.Device"/>: its address, upper-case without separators.</summary>
+public sealed record DeviceLink(string Address);
 
 /// <summary>[S-3311] A run of days, both ends included. Built in order whichever way round the ends are given.</summary>
 public sealed record RangeLink
@@ -108,6 +144,21 @@ public static class LinkTopics
 
     public static readonly LinkTopic<EventLink> HoveredEvent = new(LinkTopicId.HoveredEvent, LinkLifetime.Hover);
 
+    public static readonly LinkTopic<InstantLink> HoveredInstant = new(LinkTopicId.HoveredInstant, LinkLifetime.Hover);
+
+    public static readonly LinkTopic<DateLink> HoveredDate = new(LinkTopicId.HoveredDate, LinkLifetime.Hover);
+
+    public static readonly LinkTopic<PersonLink> HoveredPerson = new(LinkTopicId.HoveredPerson, LinkLifetime.Hover);
+
+    public static readonly LinkTopic<FileLink> HoveredFile = new(LinkTopicId.HoveredFile, LinkLifetime.Hover);
+
+    public static readonly LinkTopic<DriveLink> HoveredDrive = new(LinkTopicId.HoveredDrive, LinkLifetime.Hover);
+
+    public static readonly LinkTopic<DeviceLink> HoveredDevice = new(LinkTopicId.HoveredDevice, LinkLifetime.Hover);
+
+    /// <summary>Every topic, in its id's order.</summary>
+    public static IReadOnlyList<LinkTopic> All { get; } =
+        [HoveredApp, SelectedApp, SelectedDate, VisibleRange, HoveredEvent, HoveredInstant, HoveredDate, HoveredPerson, HoveredFile, HoveredDrive, HoveredDevice];
 }
 
 /// <summary>
@@ -129,6 +180,34 @@ public sealed class LinkBoard
     /// <summary>Widgets taking part right now. A view that is not shown has none ([S-3305]).</summary>
     public int MemberCount => _members.Count;
 
+    /// <summary>
+    /// [S-11908] While the app is in edit mode nothing is published: a pointer over a card being arranged
+    /// lights nothing elsewhere. Going quiet takes every hover away (telling the members); a selection stays.
+    /// </summary>
+    public bool Quiet
+    {
+        get => _quiet;
+        set
+        {
+            if (_quiet == value)
+            {
+                return;
+            }
+
+            _quiet = value;
+            if (value)
+            {
+                foreach (var id in _values.Where(pair => pair.Value.Lifetime == LinkLifetime.Hover).Select(pair => pair.Key).ToList())
+                {
+                    _values.Remove(id);
+                    Notify(id, null);
+                }
+            }
+        }
+    }
+
+    private bool _quiet;
+
     /// <summary>Take part: watch topics and publish to them until the member is disposed.</summary>
     public LinkMember Join()
     {
@@ -146,6 +225,11 @@ public sealed class LinkBoard
         where T : class, IEquatable<T>
     {
         var had = _values.TryGetValue(topic.Id, out var entry);
+
+        if (value is not null && _quiet)
+        {
+            return false;
+        }
 
         if (value is null)
         {
@@ -304,6 +388,22 @@ public sealed class LinkRegistry
 
     public int Count => _boards.Count;
 
+    /// <summary>[S-11908] Edit mode: every board is quiet, a board made meanwhile too.</summary>
+    public bool Quiet
+    {
+        get => _quiet;
+        set
+        {
+            _quiet = value;
+            foreach (var board in _boards.Values)
+            {
+                board.Quiet = value;
+            }
+        }
+    }
+
+    private bool _quiet;
+
     /// <summary>The board of the view with this id, made on first use.</summary>
     public LinkBoard For(string viewId)
     {
@@ -311,7 +411,7 @@ public sealed class LinkRegistry
 
         if (!_boards.TryGetValue(viewId, out var board))
         {
-            board = new LinkBoard();
+            board = new LinkBoard { Quiet = _quiet };
             _boards[viewId] = board;
         }
 

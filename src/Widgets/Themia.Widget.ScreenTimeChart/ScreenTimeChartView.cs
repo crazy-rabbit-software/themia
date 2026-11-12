@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -72,7 +73,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     public ScreenTimeChartView(IWidgetHost host)
     {
         _host = host;
-        _links = new ScreenTimeLinks(ApplyFocus);
+        _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
 
         Background = Family.Brush(ColourRole.Clear);
@@ -578,16 +579,18 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         }
 
         var part = ScreenTimeRules.FocusPart(_links.Focus, _segments, data.Apps);
+        var pointed = ScreenTimeRules.FocusPart(_links.Pointed, _segments, data.Apps);
+        var picked = ScreenTimeRules.FocusPart(_links.Picked, _segments, data.Apps);
 
         foreach (var (key, block) in _parts)
         {
-            block.Opacity = ScreenTimeRules.Opacity(ScreenTimeRules.ToneOf(_tones, key), ScreenTimeRules.Emphasis(key, part));
+            block.Opacity = ScreenTimeRules.Opacity(ScreenTimeRules.ToneOf(_tones, key), key, pointed, picked);
         }
 
-        // [S-3312] A day picked (pointer or Left / Right): every other day at its wash.
+        // [S-3312] [S-11902] A day pointed at (pointer or Left / Right): every other day at the links' "less".
         for (var i = 0; i < _columns.Count; i++)
         {
-            _columns[i].Opacity = _day is { } d && d != i ? ScreenTimeLook.DimOpacity : 1;
+            _columns[i].Opacity = DayStrength(i);
         }
 
         ShadeCells(data, part);
@@ -607,9 +610,12 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         foreach (var (index, mark) in _cells)
         {
             mark.Show(busiest > 0 ? Math.Min(1, (double)seconds[index] / busiest) : 0);
-            mark.Box.Opacity = _day is { } d && d != index ? ScreenTimeLook.DimOpacity : 1;
+            mark.Box.Opacity = DayStrength(index);
         }
     }
+
+    /// <summary>[S-11902] A day's column or cell against the day pointed at: whole, or the others at 0.6.</summary>
+    private double DayStrength(int index) => _day is { } d && d != index ? LinkEmphasis.Others(pointed: true, picked: false) : 1;
 
     /// <summary>A day's seconds of one part: an app, "Other" (the apps off the ring), or the whole day.</summary>
     private long PartSeconds(ScreenTimeData data, ScreenTimeDay day, string? part)

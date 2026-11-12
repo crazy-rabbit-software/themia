@@ -38,7 +38,11 @@ public sealed class ViewLinksTests
         Assert.Equal(LinkLifetime.Sticky, LinkTopics.SelectedApp.Lifetime);
         Assert.Equal(LinkLifetime.Sticky, LinkTopics.SelectedDate.Lifetime);
         Assert.Equal(LinkLifetime.Sticky, LinkTopics.VisibleRange.Lifetime);
-        Assert.Equal(Enum.GetValues<LinkTopicId>().Length, new[] { LinkTopics.HoveredApp.Id, LinkTopics.SelectedApp.Id, LinkTopics.SelectedDate.Id, LinkTopics.VisibleRange.Id, LinkTopics.HoveredEvent.Id }.Distinct().Count());
+        Assert.Equal(Enum.GetValues<LinkTopicId>().Length, LinkTopics.All.Select(topic => topic.Id).Distinct().Count());
+
+        // [S-11910]..[S-11955] Every new topic is a hover: a moment, a day, a person, a file, a drive, a device.
+        Assert.All(new LinkTopic[] { LinkTopics.HoveredInstant, LinkTopics.HoveredDate, LinkTopics.HoveredPerson, LinkTopics.HoveredFile, LinkTopics.HoveredDrive, LinkTopics.HoveredDevice },
+            topic => Assert.Equal(LinkLifetime.Hover, topic.Lifetime));
     }
 
     [Fact]

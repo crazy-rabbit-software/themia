@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -39,7 +40,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     public ScreenTimeView(IWidgetHost host)
     {
         _host = host;
-        _links = new ScreenTimeLinks(ApplyFocus);
+        _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
         _readout.Use(FamilyType.Big28);
         Children.Add(_readout);

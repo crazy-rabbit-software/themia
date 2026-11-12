@@ -146,17 +146,25 @@ public sealed class ScreenTimeRulesTests
     }
 
     [Theory]
-    [InlineData(0, ScreenTimeEmphasis.Normal, 1)]
-    [InlineData(1, ScreenTimeEmphasis.Normal, 0.72)]
-    [InlineData(3, ScreenTimeEmphasis.Lit, 1)]
-    public void S2272_a_parts_opacity_is_its_tone_full_when_focused(int rank, ScreenTimeEmphasis emphasis, double expected)
-        => Assert.Equal(expected, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(rank), emphasis), 6);
+    [InlineData(0, null, null, 1)]
+    [InlineData(1, null, null, 0.72)]
+    [InlineData(3, "a", null, 1)]
+    [InlineData(3, null, "a", 1)]
+    public void S2272_a_parts_opacity_is_its_tone_full_when_lit(int rank, string? pointed, string? picked, double expected)
+        => Assert.Equal(expected, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(rank), "a", pointed, picked), 6);
 
     [Fact]
-    public void S2272_a_part_out_of_focus_is_at_most_the_wash()
+    public void S11902_a_part_not_lit_keeps_its_tone_times_the_links_less()
     {
-        Assert.Equal(FamilyShape.Wash, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(0), ScreenTimeEmphasis.Dimmed), 6);
-        Assert.True(ScreenTimeRules.Opacity(ScreenTimeRules.Tone(-1, isOther: true), ScreenTimeEmphasis.Dimmed) <= FamilyShape.Wash);
+        // Pointed at elsewhere: the rest at 0.6 of their tone; picked: at 0.3.
+        Assert.Equal(FamilyShape.LinkPointed, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(0), "a", "b", null), 6);
+        Assert.Equal(0.72 * FamilyShape.LinkPointed, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(1), "a", "b", null), 6);
+        Assert.Equal(FamilyShape.LinkPicked, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(0), "a", null, "b"), 6);
+
+        // Pointed and picked together: the picked look, the pointed part whole too.
+        Assert.Equal(1, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(2), "b", "b", "c"), 6);
+        Assert.Equal(1, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(2), "c", "b", "c"), 6);
+        Assert.Equal(0.5 * FamilyShape.LinkPicked, ScreenTimeRules.Opacity(ScreenTimeRules.Tone(2), "a", "b", "c"), 6);
     }
 
     [Fact]
@@ -442,14 +450,6 @@ public sealed class ScreenTimeRulesTests
         Assert.Null(ScreenTimeRules.FocusPart("spotify", parts, apps));
         var all = ScreenTimeRules.Segments([App("code", 100)], 100, 7, "Other");
         Assert.Null(ScreenTimeRules.FocusPart("slack", all, [App("code", 100)]));
-    }
-
-    [Fact]
-    public void S3312_the_focused_part_is_lit_and_the_rest_dim()
-    {
-        Assert.Equal(ScreenTimeEmphasis.Normal, ScreenTimeRules.Emphasis("code", null));
-        Assert.Equal(ScreenTimeEmphasis.Lit, ScreenTimeRules.Emphasis("code", "code"));
-        Assert.Equal(ScreenTimeEmphasis.Dimmed, ScreenTimeRules.Emphasis("chrome", "code"));
     }
 
     [Fact]

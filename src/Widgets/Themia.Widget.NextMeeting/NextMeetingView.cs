@@ -41,9 +41,6 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
     private static readonly TimeSpan Minute = TimeSpan.FromMinutes(1);
 
-    /// <summary>[S-4825] How far the event fades while another widget points at a different one.</summary>
-    private const double DimOpacity = 0.35;
-
     private readonly KitStatePanel _state;
 
     /// <summary>
@@ -398,17 +395,18 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         if (_shown is { } item)
         {
             _member?.Set(LinkTopics.HoveredEvent, CalendarShare.Key(item));
-            _content.Opacity = 1;
+            LinkLook.Row(this, LinkLight.None);
         }
     }
 
     private void OnPointerExited(object sender, PointerRoutedEventArgs args) => _member?.Clear(LinkTopics.HoveredEvent);
 
-    /// <summary>[S-4825] Another widget points at an event: this one fades unless it is the same.</summary>
+    /// <summary>
+    /// [S-4825] [S-11903] Another widget points at an event: when it is this one's, the whole card takes the
+    /// item layer's hover fill; another event changes nothing here (this widget does not show it).
+    /// </summary>
     private void OnHoveredElsewhere(EventLink? value)
-    {
-        _content.Opacity = _shown is { } item && CalendarShare.Dimmed(value, item) ? DimOpacity : 1;
-    }
+        => LinkLook.Row(this, _shown is { } item && value is not null && value.Equals(CalendarShare.Key(item)) ? LinkLight.Pointed : LinkLight.None);
 
     /// <summary>A line of the meeting: its 16 glyph, 8, the text in Body secondary.</summary>
     private static (Grid Row, TextBlock Text) DetailLine(string glyph)

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -43,7 +44,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     public ScreenTimeAppsView(IWidgetHost host)
     {
         _host = host;
-        _links = new ScreenTimeLinks(ApplyFocus);
+        _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
 
         // The space under the rows takes taps, so a click there lets the selection go ([S-3302]).
@@ -245,7 +246,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         ApplyFocus();
     }
 
-    /// <summary>[S-3353] Light the focused row, dim the rest, mark the selection and the keyboard cursor.</summary>
+    /// <summary>[S-3353] [S-11901] Light the row pointed at and the row picked (the links' one look), and the keyboard cursor.</summary>
     private void ApplyFocus()
     {
         if (_detached || _data is not { } data)
@@ -253,8 +254,8 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
             return;
         }
 
-        var part = ScreenTimeRules.FocusPart(_links.Focus, _segments, data.Apps);
-        var selected = ScreenTimeRules.FocusPart(_links.Selected, _segments, data.Apps);
+        var pointed = ScreenTimeRules.FocusPart(_links.Pointed, _segments, data.Apps);
+        var picked = ScreenTimeRules.FocusPart(_links.Picked, _segments, data.Apps);
 
         foreach (var row in _rows)
         {
@@ -263,7 +264,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
                 continue;
             }
 
-            row.Mark(ScreenTimeRules.Emphasis(key, part), key == selected, key == _links.Cursor);
+            row.Mark(LinkEmphasis.Light(key, pointed, picked), key == _links.Cursor);
         }
     }
 

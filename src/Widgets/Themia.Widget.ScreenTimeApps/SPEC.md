@@ -40,10 +40,10 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
   ([S-3351]); fewer apps leave the rows under them empty. No headline, no footer ([S-666]): the total
   is the reading's. Nothing to list (not recording, no activity) is the Status block's one row at the
   top ([S-6714]). Stored rows or lines out of range are repaired to the nearest.
-- **[S-3353]** Linked focus: the focused row has the item layer's hover fill and every other row's
-  texts are tertiary (a row has no opacity of its own, [S-6705]); the selected row keeps the selected
-  fill (Fluent's 3 DIP selection pill went: not a family shape); the keyboard cursor has the Row
-  block's ring ([S-1288]). Hover a row hovers the app; click selects (again: lets go); the space under
+- **[S-3353]** Linked focus in the links' one look ([S-11901]): the row of the app pointed at has the item
+  layer's hover fill, the row of the app picked the selected fill and the accent pill at its start;
+  nothing else in the list changes (no row dims, [S-6705]); the keyboard cursor has the Row block's ring
+  ([S-1288]). Hover a row hovers the app; click selects (again: lets go); the space under
   the rows clears. A past day pinned in the header ([S-454]) goes back to today from the card menu.
 - **[S-3354]** Keys: Up/Down, PgUp/PgDn, Home/End move the cursor down the list; Enter/Space select;
   Left / Right step the day (a day period); Menu hides; Escape lets the cursor go and keeps the

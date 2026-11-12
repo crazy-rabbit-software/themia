@@ -13,9 +13,6 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class CalendarView
 {
-    /// <summary>[S-3623] How far an event another widget does not point at fades: the screen-time widgets' dim.</summary>
-    private const double DimOpacity = 0.35;
-
     /// <summary>[S-3623] Every event element drawn now, so a hover from another widget dims without a redraw.</summary>
     private readonly List<(FrameworkElement Element, CalendarEvent Event)> _eventElements = [];
 
@@ -146,7 +143,7 @@ internal sealed partial class CalendarView
     private void LinkEvent(FrameworkElement element, CalendarEvent item)
     {
         _eventElements.Add((element, item));
-        element.Opacity = CalendarShare.Dimmed(_linkedHover, item) ? DimOpacity : 1;
+        element.Opacity = EventStrength(_linkedHover, item);
 
         var key = CalendarShare.Key(item);
         element.PointerEntered += (_, _) =>
@@ -167,7 +164,16 @@ internal sealed partial class CalendarView
 
         foreach (var (element, item) in _eventElements)
         {
-            element.Opacity = CalendarShare.Dimmed(value, item) ? DimOpacity : 1;
+            element.Opacity = EventStrength(value, item);
         }
     }
+
+    /// <summary>
+    /// [S-3623] [S-11902] An event's chip against the event pointed at elsewhere: whole, or the links' "less"
+    /// (0.6) while another event this calendar draws is the one; an event it does not draw dims nothing.
+    /// </summary>
+    private double EventStrength(EventLink? hovered, CalendarEvent item)
+        => CalendarShare.Dimmed(hovered, item) && _eventElements.Any(drawn => !CalendarShare.Dimmed(hovered, drawn.Event))
+            ? LinkEmphasis.Others(pointed: true, picked: false)
+            : 1;
 }

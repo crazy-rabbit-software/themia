@@ -44,10 +44,11 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   weeks 160). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
   The total over it is the reading atom's ([S-11500]); the ready-made group "Screen time" stands that
   reading over it ([S-11520]). Nothing to draw is the Status block's one row ([S-6714]).
-- **[S-3333]** Linked focus ([S-3310]): the focused app's part of every bar is drawn whole and every
-  other part at its wash (the family's 16 %, [S-6704]; it was 35 %); the calendar's rings show that
-  app's seconds per day against its busiest (the reading atom says that app's time, [S-11503]). A day
-  picked (the pointer over its bar or ring, or Left / Right) keeps every other day at its wash.
+- **[S-3333]** Linked focus ([S-3310]) in the links' one look ([S-11902]): the app pointed at or picked
+  has its part of every bar whole and every other part at its tone times 0.6 (pointed) or 0.3 (picked,
+  `ScreenTimeRules.Opacity`); the calendar's rings show the focused app's seconds per day against its
+  busiest (the reading atom says that app's time, [S-11503]). A day pointed at (the pointer over its bar
+  or ring, or Left / Right) keeps every other day at 0.6.
   Hovering a part hovers its app; clicking it selects (again: lets go); clicking empty space clears
   the selection.
 - **[S-3334]** Keys: Up/Down, PgUp/PgDn, Home/End step through the apps in the ring's order (the

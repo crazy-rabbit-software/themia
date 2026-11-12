@@ -59,8 +59,9 @@ files' is the module host's `DeskInfoHostTests`.
 - **[S-2160]** *(Moved to After this, [S-11408]: the meetings after this one are its own atom.)*
 - **[S-2161]** *(Retired by [S-11407]: no rows under the block.)*
 - **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event
-  lights in the calendar widgets there, the others dim ([S-3623]); one another widget points at
-  dims this one unless it is the same event.
+  lights in the calendar widgets there, the others at 0.6 ([S-3623]); when another widget points at
+  this one's event the whole card takes the item layer's hover fill ([S-11903]); another event changes
+  nothing here.
 - **[S-4826]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone): its Place and Organiser switches ([S-11407]), then the calendar widgets'
   **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) without their colours

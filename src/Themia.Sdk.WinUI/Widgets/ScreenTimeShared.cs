@@ -67,10 +67,25 @@ public sealed record ScreenTimeData(
 public sealed class ScreenTimeLinks
 {
     private readonly Action _changed;
+    private readonly LinkTopic<AppLink> _hoveredTopic;
+    private readonly LinkTopic<AppLink> _selectedTopic;
     private LinkMember? _member;
 
     /// <param name="changed">Called when another widget hovered or selected something; never for this one's own change.</param>
-    public ScreenTimeLinks(Action changed) => _changed = changed;
+    /// <param name="hovered">[S-11905] The hover topic, named by the kind that takes part (<see cref="LinkTopics.HoveredApp"/>).</param>
+    /// <param name="selected">The selection's topic (<see cref="LinkTopics.SelectedApp"/>).</param>
+    public ScreenTimeLinks(Action changed, LinkTopic<AppLink> hovered, LinkTopic<AppLink> selected)
+    {
+        _changed = changed;
+        _hoveredTopic = hovered;
+        _selectedTopic = selected;
+    }
+
+    /// <summary>[S-11900] The app pointed at, for the look: the hover (this widget's or another's).</summary>
+    public string? Pointed => Hovered;
+
+    /// <summary>[S-11900] The app picked, for the look.</summary>
+    public string? Picked => Selected;
 
     /// <summary>The app under the pointer or the keyboard cursor, in this widget or another.</summary>
     public string? Hovered { get; private set; }
@@ -92,10 +107,10 @@ public sealed class ScreenTimeLinks
         }
 
         _member = board.Join();
-        Hovered = _member.Get(LinkTopics.HoveredApp)?.App;
-        Selected = _member.Get(LinkTopics.SelectedApp)?.App;
-        _member.Watch(LinkTopics.HoveredApp, value => { Hovered = value?.App; _changed(); });
-        _member.Watch(LinkTopics.SelectedApp, value => { Selected = value?.App; _changed(); });
+        Hovered = _member.Get(_hoveredTopic)?.App;
+        Selected = _member.Get(_selectedTopic)?.App;
+        _member.Watch(_hoveredTopic, value => { Hovered = value?.App; _changed(); });
+        _member.Watch(_selectedTopic, value => { Selected = value?.App; _changed(); });
     }
 
     /// <summary>Leave the board (Detach): this widget's hover goes with it, the selection stays ([S-3304]).</summary>
@@ -115,8 +130,8 @@ public sealed class ScreenTimeLinks
 
         if (_member is { } member)
         {
-            member.Set(LinkTopics.HoveredApp, app is null ? null : new AppLink(app));
-            Hovered = member.Get(LinkTopics.HoveredApp)?.App;
+            member.Set(_hoveredTopic, app is null ? null : new AppLink(app));
+            Hovered = member.Get(_hoveredTopic)?.App;
         }
         else
         {
@@ -130,7 +145,7 @@ public sealed class ScreenTimeLinks
     public void Toggle(string app)
     {
         Selected = _member is { } member
-            ? member.Toggle(LinkTopics.SelectedApp, new AppLink(app))?.App
+            ? member.Toggle(_selectedTopic, new AppLink(app))?.App
             : Selected == app ? null : app;
     }
 
@@ -193,7 +208,7 @@ public sealed class ScreenTimeLinks
     /// <summary>Select an app outright, whatever was selected (a debug render's preview state).</summary>
     public void Select(string app)
     {
-        _member?.Set(LinkTopics.SelectedApp, new AppLink(app));
+        _member?.Set(_selectedTopic, new AppLink(app));
         Selected = app;
     }
 
@@ -205,7 +220,7 @@ public sealed class ScreenTimeLinks
             return false;
         }
 
-        _member?.Clear(LinkTopics.SelectedApp);
+        _member?.Clear(_selectedTopic);
         Selected = null;
         return true;
     }
@@ -217,12 +232,6 @@ public sealed class ScreenTimeLinks
 /// </summary>
 public static class ScreenTimeLook
 {
-    /// <summary>
-    /// [S-3312] A dimmed part's opacity: the family's wash ([S-6704]), the one "less" a chart has, so the
-    /// whole still reads but is clearly not the point.
-    /// </summary>
-    public const double DimOpacity = FamilyShape.Wash;
-
     /// <summary>
     /// [S-2272] [S-6706] A part's brush: the accent for an app on the ramp, the tertiary text role for
     /// Other and the apps past it. Shared brushes: the tone's alpha goes on the shape

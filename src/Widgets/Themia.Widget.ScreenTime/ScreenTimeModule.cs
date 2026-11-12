@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -29,6 +30,7 @@ public sealed class ScreenTimeModule : IWidgetModule
         Glyph = Glyphs.Hours,
         Sizing = _ => ScreenTimeReading.Sizing(),
         Traits = WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.ScreenTime, 0, 0),
     };
 

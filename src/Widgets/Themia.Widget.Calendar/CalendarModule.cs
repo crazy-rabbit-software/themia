@@ -1,16 +1,17 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.App.Services.Accounts;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Calendar;
-using Themia.App.Services.Accounts;
 
 [assembly: ThemiaWidget("calendar", typeof(CalendarModule))]
 
@@ -44,6 +45,7 @@ public sealed class CalendarModule : IWidgetModule
         Sizing = c => CalendarSizing.Sizing((CalendarWidgetConfig)c),
         SizeSets = CalendarSizing.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.SelectedDate, LinkTopicId.VisibleRange, LinkTopicId.HoveredEvent], [LinkTopicId.SelectedDate, LinkTopicId.HoveredEvent]),
         Add = new(AddFolderId.CalendarMail, 0, 0, Popular: 3),
     };
 

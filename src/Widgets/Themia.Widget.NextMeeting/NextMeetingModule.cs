@@ -1,16 +1,17 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.App.Services.Accounts;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.NextMeeting;
-using Themia.App.Services.Accounts;
 
 [assembly: ThemiaWidget("nextMeeting", typeof(NextMeetingModule))]
 
@@ -36,7 +37,8 @@ public sealed class NextMeetingModule : IWidgetModule
         Description = NextMeetingStr.Meeting_Desc.Local(),
         Glyph = Glyphs.Meeting,
         Sizing = c => NextMeetingJoin.Sizing((NextMeetingConfig)c),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredEvent], [LinkTopicId.HoveredEvent]),
         Add = new(AddFolderId.CalendarMail, 0, 1),
     };
 

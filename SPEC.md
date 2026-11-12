@@ -3507,8 +3507,8 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   100 %, then 72 %, 50 %, 32 %; Other and every app past the fourth the tertiary text role at the
   family's wash ([S-6706]: no data colour, no hue of an app's own). The same app has the same tone in
   every bar of the period, the list's dot and the ring. The alpha is the shape's opacity, never the
-  shared brush's (`ScreenTimeLook.Brush`); a focused part is drawn at full strength and every other at
-  most the wash (`ScreenTimeRules.Opacity`, [S-3312]). Tests `ScreenTimeRulesTests.S2272_`.
+  shared brush's (`ScreenTimeLook.Brush`); a part pointed at or picked on the view is drawn at full
+  strength and every other at its tone times the links' 0.6 or 0.3 (`ScreenTimeRules.Opacity`, [S-11902]). Tests `ScreenTimeRulesTests.S2272_`.
 - **[S-3355]** Debug renders: `--widget-png <ScreenTimeChart|ScreenTimeDonut|ScreenTimeApps>
   --state sample|hovered|selected` draw a fixed month of sample use (ten apps, quieter weekends, a
   6 h day limit, Microsoft Edge over its 1 h; Google is named nowhere Themia shows of itself, [S-3562]) through
@@ -5135,8 +5135,9 @@ Shared dates and events on a view ([S-3300], [S-3311]):
   holding the selected day: the page with the first row on or after it (`CalendarShare.AgendaPageOf`);
   a day after every row moves nothing.
 - **[S-3623]** The event under the pointer is shared (`HoveredEvent`, `EventLink(account, calendar,
-  id)`, a hover): while it is pointed at in one calendar, every other calendar on the view dims its
-  other events to 35 % (`CalendarShare.Dimmed`), without a redraw; the same provider id in another
+  id)`, a hover): while it is pointed at in one calendar, every other calendar on the view that draws it
+  keeps it whole and its other events at the links' 0.6 ([S-11902]; `CalendarShare.Dimmed`), without a
+  redraw; a calendar that does not draw it changes nothing; the same provider id in another
   account or calendar is another event. The hover goes when the pointer leaves, the chip is redrawn
   or its widget leaves ([S-3304]).
 - **[S-3624]** The keys' cursor day is the selected day: Up / Down move it a week (from the selection
@@ -5599,10 +5600,16 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
 
 ## View links (VIEW-LINKS)
 
-Widgets on one view share what the user is pointing at and what they picked, so a hover in one
-lights the same thing in the others. Owning files: SDK `Themia.Sdk/Links/ViewLinks.cs`
-(`LinkTopicId`, `LinkTopics`, `LinkBoard`, `LinkMember`, `LinkRegistry`); App
-`AppServices.Links`, `IWidgetSurface.Links`, `IWidgetCardHost.Links`. Tests `ViewLinksTests` (`S33xx_`).
+Widgets on one view share what the user is pointing at and what they picked, so a hover in one lights
+the same thing in the others and a composition of small widgets reads as one (Karpo's channels, its
+`docs/widgets.md` §9, taken over in breadth: the declaration in data and the two emphasis levels; the
+engine is Themia's own). Owning files: SDK `Themia.Sdk/Links/` (`ViewLinks.cs`: `LinkTopicId`,
+`LinkTopics`, `LinkBoard`, `LinkMember`, `LinkRegistry`; `LinkUse`, `LinkEmphasis`, `LinkKeys`,
+`LinkInstants`); WinUI SDK `Widgets/WidgetLinks.cs` (`WidgetLinks`, `LinkLights<T>`, `LinkLook`); App
+`AppServices.Links`, `IWidgetSurface.Links`, `IWidgetCardHost.Links`. Tests `ViewLinksTests` (`S33xx_`),
+`ViewLinksLookTests` (`S119xx_`), `ViewLinksConformanceTests` (Modules).
+
+The board:
 
 - **[S-3300]** Each view has one **board** (`LinkBoard`), keyed by the view id in the host's one
   `LinkRegistry` (`AppServices.Links`), so every display showing a view shares it and two views never
@@ -5633,15 +5640,67 @@ lights the same thing in the others. Owning files: SDK `Themia.Sdk/Links/ViewLin
 - **[S-3307]** A widget holding the keyboard lease ([S-800]) that moves a cursor over linked items
   publishes the cursor as the hover, and Enter / Space as the selection, exactly as the pointer does.
 
+The one look, everywhere ([S-6706]: the family's item layer and accent; no hue of its own):
+
+- **[S-11900]** What a widget lights is what another widget (or its own pointer) points at or picked,
+  landed on one of its own parts (`LinkEmphasis.Shown`): a value the widget does not show changes nothing
+  in it. `LinkEmphasis.Light` says how one part stands: `Pointed`, `Picked` (which wins), or `None`.
+- **[S-11901]** In a list, the row that is the thing pointed at takes the item layer's hover fill, as if
+  the pointer were on it; the row that is the thing picked takes the selected fill and the accent pill at
+  its start (`FamilyShape.LinkPillWidth` × `LinkPillHeight`, 3 × 16, round, centred in the side inset).
+  Nothing else in the list changes: no row dims, no text changes role (`LinkLook.Row`).
+- **[S-11902]** In a chart or a set of marks (bars, a ring's parts, event chips, day marks), the part that
+  is the thing stays whole and every other part goes to `FamilyShape.LinkPointed` (0.6) of its own
+  opacity while something is pointed at, `FamilyShape.LinkPicked` (0.3) while something is picked.
+  Pointed and picked together: the picked look, the pointed part at full strength too
+  (`LinkEmphasis.Strength`, `Others`). These two replace every earlier "dim" (screen time's 16 % wash, the
+  calendar's 35 %).
+- **[S-11903]** A whole card that is the match (the next meeting for its event, a drive's card for its
+  drive) takes the item layer's hover fill over its content.
+- **[S-11904]** No animation: a part lights in the frame the value arrives. High contrast: the item layer's
+  own states, the system's highlight colours.
+
+Declared in data:
+
+- **[S-11905]** A kind declares in its descriptor what it publishes and what it follows
+  (`WidgetDescriptor.Links`, a `LinkUse`: topic ids, each once, in order), as Karpo's list records
+  declare their channels. There is no per-widget opt-out: following is not a choice (Karpo §241). A topic
+  some kind follows is published by some kind.
+- **[S-11906]** A kind's code names exactly the topics its descriptor declares: every `LinkTopics.X` in its
+  module folder (its tests aside) is one of them, and each declared topic is named there. Shared parts
+  take the topics as arguments (`ScreenTimeLinks`, `LinkLights<T>`, a meter part's instant topic), so the
+  kind names them.
+- **[S-11907]** The table below is made from the descriptors (`ViewLinksConformanceTests` fails while it
+  differs and prints the one they make).
+- **[S-11908]** A kind in edit mode publishes nothing: while the app is in edit mode every board is
+  quiet (`LinkRegistry.Quiet`, set by `AppHost.SetEditMode`), takes no value and drops its hovers; a
+  selection stays.
+- **[S-11909]** A store scene can set links, so a picture shows the effect: `"links": { "hoveredDate":
+  "today+1", "selectedDate": "2026-11-13", "hoveredApp": "code", "selectedApp": "msedge",
+  "hoveredInstant": "-00:00:30" | { "at": "-00:00:30", "subject": "cpu" }, "hoveredPerson": "a@b.c",
+  "hoveredFile": "C:\\…", "hoveredDrive": "C:", "hoveredDevice": "A4:C1:38:0B:22:9F" }` (`SceneLinks`),
+  parsed and checked like the rest of the scene file (each value keyed as its widgets key it; an empty
+  block or a wrong value refused where it is written; inherited through `like`). The renderer sets them
+  on the scene's one board through a member of its own after the cards drew their states, before the
+  picture is taken.
+
 Topics:
 
-| Topic | Value | Lifetime | Published by | Shown by |
-|---|---|---|---|---|
-| `HoveredApp` | `AppLink(app key)` | Hover | Screen time chart, donut, apps ([S-3310]) | the same three |
-| `SelectedApp` | `AppLink(app key)` | Sticky | the same three | the same three |
-| `SelectedDate` | `DateLink(DateOnly)` | Sticky | date widgets (calendar) ([S-3311]) | date widgets |
-| `VisibleRange` | `RangeLink(first, last)` inclusive, ordered | Sticky | date widgets (calendar) ([S-3311]) | date widgets |
-| `HoveredEvent` | `EventLink(account, calendar, id)` | Hover | the calendar widgets ([S-3623]) | the calendar widgets |
+<!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
+| Topic | Lifetime | Published by | Followed by |
+|---|---|---|---|
+| `HoveredApp` | Hover | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` |
+| `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` |
+| `SelectedDate` | Sticky | `calendar` | `calendar` |
+| `VisibleRange` | Sticky | `calendar` | none |
+| `HoveredEvent` | Hover | `calendar`, `nextMeeting` | `calendar`, `nextMeeting` |
+| `HoveredInstant` | Hover | none | none |
+| `HoveredDate` | Hover | none | none |
+| `HoveredPerson` | Hover | none | none |
+| `HoveredFile` | Hover | none | none |
+| `HoveredDrive` | Hover | none | none |
+| `HoveredDevice` | Hover | none | none |
+<!-- /view-links:table -->
 
 - **[S-3310]** The screen-time widgets ([S-3320]) share `HoveredApp` and `SelectedApp` by app key
   (`ScreenTimeRules.OtherKey` for the "Other" remainder). What a widget emphasises is the hover when

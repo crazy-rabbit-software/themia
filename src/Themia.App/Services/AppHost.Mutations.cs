@@ -113,6 +113,12 @@ internal sealed partial class AppHost
 
         _editMode = enabled;
 
+        // [S-11908] A card being arranged lights nothing in the others.
+        if (AppServices.Links is { } links)
+        {
+            links.Quiet = enabled;
+        }
+
         // A ghost has nowhere to land outside edit mode: the surface stops taking clicks.
         if (!enabled)
         {

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.Kit;
@@ -25,19 +26,6 @@ public sealed record ScreenTimeStackPart(string Key, long Seconds, double Fracti
 /// <summary>How a figure stands against its daily limit.</summary>
 /// <param name="Ratio">Share of the limit, uncapped: 1.4 is 40% over.</param>
 public readonly record struct ScreenTimeGoal(long Limit, double Used, double Ratio, bool Over);
-
-/// <summary>[S-3312] How a ring wedge, a bar segment or a list row is drawn against the linked focus.</summary>
-public enum ScreenTimeEmphasis
-{
-    /// <summary>Nothing is focused: every part as it is.</summary>
-    Normal = 0,
-
-    /// <summary>The focused part: lifted, full strength.</summary>
-    Lit = 1,
-
-    /// <summary>Every other part while one is focused.</summary>
-    Dimmed = 2,
-}
 
 /// <summary>
 /// [S-2272] How one app's part is drawn: in the accent at a ramp step of its rank, or (Other, and every
@@ -494,12 +482,6 @@ public static class ScreenTimeRules
         return parts.Any(part => part.IsOther) && apps.Any(app => app.App == focus) ? OtherKey : null;
     }
 
-    /// <summary>[S-3312] How one part is drawn against the focus: lit, dimmed, or as it is when nothing is focused.</summary>
-    public static ScreenTimeEmphasis Emphasis(string key, string? focusPart)
-        => focusPart is null ? ScreenTimeEmphasis.Normal
-            : key == focusPart ? ScreenTimeEmphasis.Lit
-            : ScreenTimeEmphasis.Dimmed;
-
     /// <summary>
     /// [S-2272] The accent's ramp by rank: the app with the most time of the period at 100 %, then 72 %,
     /// 50 % and 32 %. Every app past it and Other are the tertiary text role at the family's wash.
@@ -534,15 +516,15 @@ public static class ScreenTimeRules
         => tones is not null && tones.TryGetValue(key, out var tone) ? tone : Tone(-1, isOther: true);
 
     /// <summary>
-    /// [S-2272] [S-3312] A part's opacity against the focus: its tone's alpha, the focused part at full
-    /// strength, every other part while one is focused at most the wash.
+    /// [S-2272] [S-3312] [S-11902] A part's opacity against the view's links (each already landed on a part,
+    /// <see cref="FocusPart"/>): the part pointed at or picked at full strength; every other its tone's
+    /// alpha times the links' "less" (<see cref="LinkEmphasis.Others"/>: 0.3 while one is picked, 0.6 while
+    /// one is only pointed at); its tone's alpha while nothing is.
     /// </summary>
-    public static double Opacity(ScreenTimeTone tone, ScreenTimeEmphasis emphasis) => emphasis switch
-    {
-        ScreenTimeEmphasis.Lit => 1,
-        ScreenTimeEmphasis.Dimmed => Math.Min(tone.Alpha, FamilyShape.Wash),
-        _ => tone.Alpha,
-    };
+    public static double Opacity(ScreenTimeTone tone, string key, string? pointedPart, string? pickedPart)
+        => LinkEmphasis.Light(key, pointedPart, pickedPart) != LinkLight.None
+            ? 1
+            : tone.Alpha * LinkEmphasis.Others(pointedPart is not null, pickedPart is not null);
 
     /// <summary>The letter on an app's chip when it has no icon.</summary>
     public static string Initial(string name)

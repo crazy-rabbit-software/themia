@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Themia.Core.Localization;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -122,7 +123,8 @@ public static class SceneParser
             draft.Widgets ?? basis!.Widgets,
             draft.HasEdit ? draft.Edit : basis?.Edit,
             draft.Scale ?? basis?.Scale ?? 1,
-            draft.Taskbar ?? basis?.Taskbar ?? false);
+            draft.Taskbar ?? basis?.Taskbar ?? false,
+            draft.HasLinks ? draft.Links : basis?.Links);
         resolved[draft.Name] = scene;
         return scene;
     }
@@ -211,6 +213,10 @@ public static class SceneParser
         public bool HasEdit { get; init; }
 
         public SceneEdit? Edit { get; init; }
+
+        public bool HasLinks { get; init; }
+
+        public SceneLinks? Links { get; init; }
     }
 
     /// <summary>
@@ -219,7 +225,7 @@ public static class SceneParser
     /// </summary>
     private static Draft ReadDraft(JsonElement element, string path, SceneScreen screen)
     {
-        var props = Properties(element, path, "name", "like", "theme", "design", "scale", "taskbar", "wallpaper", "widgets", "edit");
+        var props = Properties(element, path, "name", "like", "theme", "design", "scale", "taskbar", "wallpaper", "widgets", "edit", "links");
         if (!props.TryGetValue("name", out var nameElement))
         {
             throw Refuse(path, "no \"name\"");
@@ -240,6 +246,7 @@ public static class SceneParser
 
         var hasWallpaper = props.TryGetValue("wallpaper", out var wallpaper);
         var hasEdit = props.TryGetValue("edit", out var edit);
+        var hasLinks = props.TryGetValue("links", out var links);
         return new Draft
         {
             Name = name,
@@ -254,7 +261,63 @@ public static class SceneParser
             Widgets = widgets,
             HasEdit = hasEdit,
             Edit = hasEdit && edit.ValueKind != JsonValueKind.Null ? Edit(edit, path + ".edit") : null,
+            HasLinks = hasLinks,
+            Links = hasLinks && links.ValueKind != JsonValueKind.Null ? Links(links, path + ".links") : null,
         };
+    }
+
+    /// <summary>
+    /// [S-11909] What the picture points at and has picked: days (<c>2026-11-13</c>, <c>today+1</c>), apps
+    /// (an executable's stem), a moment (<c>-00:00:30</c>, or <c>{ "at": .., "subject": "cpu" }</c>), a
+    /// person, a file, a drive, a device. Each is checked as its widgets key it; an empty block is refused.
+    /// </summary>
+    private static SceneLinks Links(JsonElement element, string path)
+    {
+        var props = Properties(element, path, [.. SceneLinks.Names]);
+        if (props.Count == 0)
+        {
+            throw Refuse(path, "no link is set (known: " + string.Join(", ", SceneLinks.Names) + ")");
+        }
+
+        SceneDay? Day(string name)
+            => props.TryGetValue(name, out var value)
+                ? SceneDay.Parse(Text(value, $"{path}.{name}")) ?? throw Refuse($"{path}.{name}", "not a day (2026-11-13, today, today+1)")
+                : null;
+
+        string? Keyed(string name, Func<string, string?> key, string what)
+            => props.TryGetValue(name, out var value)
+                ? key(Text(value, $"{path}.{name}")) is not null ? Text(value, $"{path}.{name}") : throw Refuse($"{path}.{name}", $"not {what}")
+                : null;
+
+        SceneInstant? instant = null;
+        if (props.TryGetValue("hoveredInstant", out var moment))
+        {
+            var at = $"{path}.hoveredInstant";
+            string text, subject = string.Empty;
+            if (moment.ValueKind == JsonValueKind.Object)
+            {
+                var parts = Properties(moment, at, "at", "subject");
+                text = parts.TryGetValue("at", out var when) ? Text(when, at + ".at") : throw Refuse(at, "no \"at\"");
+                subject = parts.TryGetValue("subject", out var of) ? Text(of, at + ".subject").Trim() : string.Empty;
+            }
+            else
+            {
+                text = Text(moment, at);
+            }
+
+            instant = SceneInstant.Parse(text, subject) ?? throw Refuse(at, "not a moment (-00:00:30, or 2026-11-12T14:05:00+01:00)");
+        }
+
+        return new SceneLinks(
+            HoveredDate: Day("hoveredDate"),
+            SelectedDate: Day("selectedDate"),
+            HoveredApp: Keyed("hoveredApp", LinkKeys.AppOfProcess, "an app"),
+            SelectedApp: Keyed("selectedApp", LinkKeys.AppOfProcess, "an app"),
+            HoveredInstant: instant,
+            HoveredPerson: Keyed("hoveredPerson", text => LinkKeys.Person(text, text), "a person"),
+            HoveredFile: Keyed("hoveredFile", text => Path.IsPathFullyQualified(text) ? LinkKeys.File(text) : null, "a full path"),
+            HoveredDrive: Keyed("hoveredDrive", LinkKeys.Drive, "a drive (C:)"),
+            HoveredDevice: Keyed("hoveredDevice", LinkKeys.Device, "a device address (A4:C1:38:0B:22:9F)"));
     }
 
     private static SceneScreen Screen(JsonElement element, string path)

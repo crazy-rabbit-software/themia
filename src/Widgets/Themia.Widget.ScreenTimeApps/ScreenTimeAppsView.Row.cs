@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -105,23 +106,15 @@ internal sealed partial class ScreenTimeAppsView
         }
 
         /// <summary>
-        /// [S-3353] The row against the view's links: the focused one in the item layer's hover fill,
-        /// the selected one in its selected fill, every other row's texts in the tertiary role while
-        /// something is focused; the keyboard cursor's ring.
+        /// [S-3353] [S-11901] The row against the view's links, in their one look: the app pointed at in the
+        /// item layer's hover fill, the app picked in its selected fill with the accent pill; nothing else in
+        /// the list changes. The keyboard cursor's ring.
         /// </summary>
-        public void Mark(ScreenTimeEmphasis emphasis, bool selected, bool cursor)
+        public void Mark(LinkLight light, bool cursor)
         {
-            var dim = emphasis == ScreenTimeEmphasis.Dimmed;
-            Host.NameText.Foreground = Family.Brush(dim ? ColourRole.TextTertiary : ColourRole.TextPrimary);
-            Host.Second.Foreground = Family.Brush(dim ? ColourRole.TextTertiary : ColourRole.TextSecondary);
-
             // [S-457] Over its own daily limit, the app's time says so in the critical role.
-            Host.ValueText.Foreground = Family.Brush(_goal is { Over: true } ? ColourRole.Critical : dim ? ColourRole.TextTertiary : ColourRole.TextSecondary);
-
-            // [S-6513] Selected keeps the item layer's lighter step (SubtleFillColorTertiary).
-            ItemFill.Paint(Host, ItemRole.Row, emphasis == ScreenTimeEmphasis.Lit ? ItemState.Hover
-                : selected ? ItemState.SelectedHover
-                : ItemState.Rest);
+            Host.ValueText.Foreground = Family.Brush(_goal is { Over: true } ? ColourRole.Critical : ColourRole.TextSecondary);
+            LinkLook.Row(Host, light);
             Host.Focused = cursor;
         }
 

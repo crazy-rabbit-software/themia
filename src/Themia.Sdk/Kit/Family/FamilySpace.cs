@@ -138,6 +138,23 @@ public static class FamilyShape
     /// <summary>The alpha of the wash under a chart line, on the shape, never on the shared brush.</summary>
     public const double Wash = 0.16;
 
+    /// <summary>
+    /// [S-11902] While a thing is pointed at in another widget of the view, how strong a chart's or a set
+    /// of marks' other parts stay (a factor on the part's own opacity): still read, plainly not the point.
+    /// </summary>
+    public const double LinkPointed = 0.6;
+
+    /// <summary>[S-11902] While a thing is picked (a sticky selection) on the view, how strong the other parts stay.</summary>
+    public const double LinkPicked = 0.3;
+
+    /// <summary>[S-11901] The accent pill at a picked row's start: its width and height.</summary>
+    public const double LinkPillWidth = 3;
+
+    public const double LinkPillHeight = 16;
+
+    /// <summary>[S-11901] Where the pill stands from a row's text edge: centred in its side inset of <paramref name="inset"/>.</summary>
+    public static double LinkPillStart(double inset) => -(Math.Max(inset, LinkPillWidth) + LinkPillWidth) / 2;
+
     /// <summary>A text button's height (Body text, 12 either side): a one-line row's.</summary>
     public const double Button = Row1;
 

@@ -98,6 +98,12 @@ public sealed record WidgetDescriptor
     /// </summary>
     public IReadOnlyList<ProviderId> Providers { get; init; } = [];
 
+    /// <summary>
+    /// [S-11905] What the kind takes part in on its view's links: the topics it publishes and those it
+    /// follows. Its code names exactly these (the conformance test); SPEC's topic table is made from them.
+    /// </summary>
+    public Themia.Core.Links.LinkUse Links { get; init; } = Themia.Core.Links.LinkUse.None;
+
     /// <summary>The name in the current language, read each time so a language switch reaches every caller.</summary>
     public string Name => Label.Text();
 
