@@ -67,5 +67,14 @@
   "details.gpu.fan": "Ventilátor",
   "details.gpu.clock": "Takt GPU",
   "details.gpu.memoryClock": "Takt paměti",
-  "details.settings.gpu.adapter.label": "Adaptér"
+  "details.settings.gpu.adapter.label": "Adaptér",
+  "details.gpu.adapterMissing": "Vybraný grafický adaptér tu není",
+  "details.gpu.noAdapter": "Žádný grafický adaptér ke čtení",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Kopírování",
+  "details.gpu.engineVideoDecode": "Dekódování videa",
+  "details.gpu.engineVideoEncode": "Kódování videa",
+  "details.disk.drive": "Jednotka",
+  "details.disk.read": "Čtení",
+  "details.disk.write": "Zápis"
 }

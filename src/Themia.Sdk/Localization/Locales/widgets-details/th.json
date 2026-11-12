@@ -67,5 +67,14 @@
   "details.gpu.fan": "พัดลม",
   "details.gpu.clock": "สัญญาณนาฬิกา GPU",
   "details.gpu.memoryClock": "สัญญาณนาฬิกาหน่วยความจำ",
-  "details.settings.gpu.adapter.label": "อะแดปเตอร์"
+  "details.settings.gpu.adapter.label": "อะแดปเตอร์",
+  "details.gpu.adapterMissing": "ไม่พบอะแดปเตอร์กราฟิกที่เลือก",
+  "details.gpu.noAdapter": "ไม่มีอะแดปเตอร์กราฟิกให้อ่าน",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "คัดลอก",
+  "details.gpu.engineVideoDecode": "ถอดรหัสวิดีโอ",
+  "details.gpu.engineVideoEncode": "เข้ารหัสวิดีโอ",
+  "details.disk.drive": "ไดรฟ์",
+  "details.disk.read": "อ่าน",
+  "details.disk.write": "เขียน"
 }

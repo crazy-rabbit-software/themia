@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Disk;
 
@@ -15,7 +16,7 @@ using Themia.Widget.Disk;
 
 namespace Themia.Widget.Disk;
 
-/// <summary>[S-1820] Disk activity: the drive's reads and writes together per second, over their history, or as two bars; the header names the drive ([S-1161]). SPEC.md beside this file.</summary>
+/// <summary>[S-1820] Disk activity: the drive's reads and writes together per second, the reading alone, or over reads and writes as two bars; the header names the drive ([S-1161]). SPEC.md beside this file.</summary>
 public sealed class DiskModule : IWidgetModule
 {
     /// <summary>[S-2016] A click on the card opens Task Manager.</summary>
@@ -32,7 +33,7 @@ public sealed class DiskModule : IWidgetModule
         Label = DiskStr.WidgetsA_Catalog_Disk_Label.Local(),
         Description = DiskStr.WidgetsA_Catalog_Disk_Description.Local(),
         Glyph = Glyphs.Disk,
-        Sizing = _ => WidgetSizing.Legacy(200, 150),
+        Sizing = c => MeterSizing.Reading(DiskMeter.Look(((DiskConfig)c).Style), ReadoutRules.Split(Formatting.Rate(1023 * 1024)), rows: 2),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.System, 0, 3),
     };

@@ -67,5 +67,14 @@
   "details.gpu.fan": "Ανεμιστήρας",
   "details.gpu.clock": "Ρολόι GPU",
   "details.gpu.memoryClock": "Ρολόι μνήμης",
-  "details.settings.gpu.adapter.label": "Προσαρμογέας"
+  "details.settings.gpu.adapter.label": "Προσαρμογέας",
+  "details.gpu.adapterMissing": "Ο επιλεγμένος προσαρμογέας γραφικών δεν είναι εδώ",
+  "details.gpu.noAdapter": "Δεν υπάρχει προσαρμογέας γραφικών για ανάγνωση",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Αντιγραφή",
+  "details.gpu.engineVideoDecode": "Αποκωδικοποίηση βίντεο",
+  "details.gpu.engineVideoEncode": "Κωδικοποίηση βίντεο",
+  "details.disk.drive": "Μονάδα δίσκου",
+  "details.disk.read": "Ανάγνωση",
+  "details.disk.write": "Εγγραφή"
 }

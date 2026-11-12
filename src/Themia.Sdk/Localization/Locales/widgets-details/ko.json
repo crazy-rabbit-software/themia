@@ -67,5 +67,14 @@
   "details.gpu.fan": "팬",
   "details.gpu.clock": "GPU 클럭",
   "details.gpu.memoryClock": "메모리 클럭",
-  "details.settings.gpu.adapter.label": "어댑터"
+  "details.settings.gpu.adapter.label": "어댑터",
+  "details.gpu.adapterMissing": "선택한 그래픽 어댑터가 없습니다",
+  "details.gpu.noAdapter": "읽을 그래픽 어댑터가 없습니다",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "복사",
+  "details.gpu.engineVideoDecode": "비디오 디코딩",
+  "details.gpu.engineVideoEncode": "비디오 인코딩",
+  "details.disk.drive": "드라이브",
+  "details.disk.read": "읽기",
+  "details.disk.write": "쓰기"
 }

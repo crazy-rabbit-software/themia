@@ -20,7 +20,7 @@ public sealed class IoStylesHostTests
 
     [Theory]
     [InlineData("network", "graph,numbers")]
-    [InlineData("disk", "graph,bars")]
+    [InlineData("disk", "number,bars")]
     [InlineData("battery", "graph,battery,ring")]
     [InlineData("ping", "graph,signal")]
     [InlineData("drive", "bar,ring")]
@@ -35,7 +35,6 @@ public sealed class IoStylesHostTests
     {
         Assert.True(new NetworkConfig().DrawsHistory);
         Assert.False(new NetworkConfig { Style = NetworkStyle.Numbers }.DrawsHistory);
-        Assert.False(new DiskConfig { Style = DiskStyle.Bars }.DrawsHistory);
         Assert.False(new BatteryConfig { Style = BatteryStyle.Battery }.DrawsHistory);
         Assert.False(new BatteryConfig { Style = BatteryStyle.Ring }.DrawsHistory);
         Assert.False(new PingConfig { Style = PingStyle.Signal }.DrawsHistory);

@@ -67,5 +67,14 @@
   "details.gpu.fan": "Вентилятор",
   "details.gpu.clock": "Частота GPU",
   "details.gpu.memoryClock": "Частота памяти",
-  "details.settings.gpu.adapter.label": "Адаптер"
+  "details.settings.gpu.adapter.label": "Адаптер",
+  "details.gpu.adapterMissing": "Выбранного графического адаптера нет",
+  "details.gpu.noAdapter": "Нет графического адаптера для чтения",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Копирование",
+  "details.gpu.engineVideoDecode": "Декодирование видео",
+  "details.gpu.engineVideoEncode": "Кодирование видео",
+  "details.disk.drive": "Диск",
+  "details.disk.read": "Чтение",
+  "details.disk.write": "Запись"
 }

@@ -46,7 +46,7 @@ public sealed class DetailHostTests
         var network = (NetworkDetailsConfig)ConfigJson.Read("NetworkDetails", """{ "kind": "networkDetails", "showPublicAddress": true }""");
         Assert.True(network.ShowPublicAddress);
 
-        var gpu = (GpuDetailsConfig)ConfigJson.Read("GpuDetails", """{ "kind": "gpuDetails", "adapter": 1 }""");
+        var gpu = (GpuFactsConfig)ConfigJson.Read("GpuFacts", """{ "kind": "gpuFacts", "adapter": 1 }""");
         Assert.Equal(1, gpu.Adapter);
     }
 }

@@ -82,7 +82,7 @@ public static class FactsRules
 
     public const double MinWidth = 200;
 
-    public const double NaturalWidth = 240;
+    public const double NaturalWidth = 260;
 
     public const double MaxWidth = 420;
 

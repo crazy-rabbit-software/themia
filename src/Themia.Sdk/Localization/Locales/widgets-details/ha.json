@@ -67,5 +67,14 @@
   "details.gpu.fan": "Fanka",
   "details.gpu.clock": "Agogon GPU",
   "details.gpu.memoryClock": "Agogon ƙwaƙwalwa",
-  "details.settings.gpu.adapter.label": "Adafta"
+  "details.settings.gpu.adapter.label": "Adafta",
+  "details.gpu.adapterMissing": "Adaftar zane da aka zaɓa ba ta nan",
+  "details.gpu.noAdapter": "Babu adaftar zane da za a karanta",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Kwafi",
+  "details.gpu.engineVideoDecode": "Buɗe bidiyo",
+  "details.gpu.engineVideoEncode": "Sanya bidiyo",
+  "details.disk.drive": "Faifai",
+  "details.disk.read": "Karatu",
+  "details.disk.write": "Rubutu"
 }

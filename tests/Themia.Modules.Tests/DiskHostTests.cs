@@ -52,10 +52,6 @@ public sealed class DiskHostTests
     }
 
     [Fact]
-    public void S1163_the_history_is_on_by_default_because_it_charts_reads_and_writes()
-        => Assert.True(new DiskConfig().ShowGraph);
-
-    [Fact]
     public void S1822_an_unknown_scope_is_repaired_loudly_to_one_drive()
     {
         var unknown = new DiskConfig { Scope = (DiskScope)9 };

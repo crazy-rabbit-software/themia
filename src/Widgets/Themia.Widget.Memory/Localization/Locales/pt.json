@@ -2,7 +2,6 @@
   "styles.memory.bar": "Barra",
   "styles.memory.free": "{size} livres",
   "styles.memory.gauge": "Medidor",
-  "styles.memory.graph": "Gráfico",
   "styles.memory.used": "{size} em uso",
   "widgetsA.catalog.memory.description": "Memória física em uso",
   "widgetsA.catalog.memory.label": "Memória"

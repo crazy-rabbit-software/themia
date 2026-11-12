@@ -1,0 +1,9 @@
+{
+  "$englishOnly": [
+    "gpuFacts.label",
+    "gpuFacts.desc"
+  ],
+  "details.gpu.none": "No graphics adapter",
+  "gpuFacts.label": "GPU facts",
+  "gpuFacts.desc": "Video memory, temperature, clocks and more, as you pick them"
+}

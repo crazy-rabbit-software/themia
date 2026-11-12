@@ -67,5 +67,14 @@
   "details.gpu.fan": "فن",
   "details.gpu.clock": "فرکانس GPU",
   "details.gpu.memoryClock": "فرکانس حافظه",
-  "details.settings.gpu.adapter.label": "آداپتور"
+  "details.settings.gpu.adapter.label": "آداپتور",
+  "details.gpu.adapterMissing": "آداپتور گرافیکی انتخاب‌شده اینجا نیست",
+  "details.gpu.noAdapter": "آداپتور گرافیکی برای خواندن نیست",
+  "details.gpu.engine3d": "سه‌بعدی",
+  "details.gpu.engineCopy": "کپی",
+  "details.gpu.engineVideoDecode": "رمزگشایی ویدیو",
+  "details.gpu.engineVideoEncode": "رمزگذاری ویدیو",
+  "details.disk.drive": "درایو",
+  "details.disk.read": "خواندن",
+  "details.disk.write": "نوشتن"
 }

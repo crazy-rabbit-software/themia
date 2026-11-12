@@ -67,5 +67,14 @@
   "details.gpu.fan": "ఫ్యాన్",
   "details.gpu.clock": "GPU క్లాక్",
   "details.gpu.memoryClock": "మెమరీ క్లాక్",
-  "details.settings.gpu.adapter.label": "అడాప్టర్"
+  "details.settings.gpu.adapter.label": "అడాప్టర్",
+  "details.gpu.adapterMissing": "ఎంచుకున్న గ్రాఫిక్స్ అడాప్టర్ ఇక్కడ లేదు",
+  "details.gpu.noAdapter": "చదవడానికి గ్రాఫిక్స్ అడాప్టర్ లేదు",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "కాపీ",
+  "details.gpu.engineVideoDecode": "వీడియో డీకోడ్",
+  "details.gpu.engineVideoEncode": "వీడియో ఎన్‌కోడ్",
+  "details.disk.drive": "డ్రైవ్",
+  "details.disk.read": "చదవడం",
+  "details.disk.write": "రాయడం"
 }

@@ -67,5 +67,14 @@
   "details.gpu.fan": "விசிறி",
   "details.gpu.clock": "GPU கடிகாரம்",
   "details.gpu.memoryClock": "நினைவகக் கடிகாரம்",
-  "details.settings.gpu.adapter.label": "அடாப்டர்"
+  "details.settings.gpu.adapter.label": "அடாப்டர்",
+  "details.gpu.adapterMissing": "தேர்ந்தெடுத்த கிராஃபிக்ஸ் அடாப்டர் இங்கே இல்லை",
+  "details.gpu.noAdapter": "படிக்க கிராஃபிக்ஸ் அடாப்டர் இல்லை",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "நகல்",
+  "details.gpu.engineVideoDecode": "வீடியோ குறிவிலக்கம்",
+  "details.gpu.engineVideoEncode": "வீடியோ குறியாக்கம்",
+  "details.disk.drive": "இயக்ககம்",
+  "details.disk.read": "படித்தல்",
+  "details.disk.write": "எழுதுதல்"
 }

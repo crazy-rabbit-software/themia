@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Gpu;
 
@@ -15,7 +16,7 @@ using Themia.Widget.Gpu;
 
 namespace Themia.Widget.Gpu;
 
-/// <summary>[S-430] One graphics adapter's load: the reading over its history, or a row per engine type, or a gauge ([S-6320]). SPEC.md beside this file.</summary>
+/// <summary>[S-430] One graphics adapter's load: the reading alone, the number or a gauge ([S-6320]). SPEC.md beside this file.</summary>
 public sealed class GpuModule : IWidgetModule
 {
     /// <summary>[S-2014] A click on the card opens Task Manager.</summary>
@@ -32,7 +33,7 @@ public sealed class GpuModule : IWidgetModule
         Label = GpuStr.WidgetsA_Catalog_Gpu_Label.Local(),
         Description = GpuStr.Shell_Meters_GpuDescription.Local(),
         Glyph = Glyphs.Gpu,
-        Sizing = _ => WidgetSizing.Legacy(220, 220),
+        Sizing = c => MeterSizing.Reading(GpuMeter.Look(((GpuConfig)c).Style), ReadoutRules.Split(Formatting.Percent(1))),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Graphics, 0, 0),
     };

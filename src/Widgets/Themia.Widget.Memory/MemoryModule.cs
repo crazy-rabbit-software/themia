@@ -16,7 +16,7 @@ using Themia.Widget.Memory;
 
 namespace Themia.Widget.Memory;
 
-/// <summary>[S-1130] Physical memory in use: the reading and its history, or the used share against the free, or a gauge ([S-6315]). SPEC.md beside this file.</summary>
+/// <summary>[S-1130] Physical memory in use: the reading alone, the number, the used share against the free, or a gauge ([S-6315]). SPEC.md beside this file.</summary>
 public sealed class MemoryModule : IWidgetModule
 {
     /// <summary>[S-2012] A click on the card opens Task Manager.</summary>
@@ -38,33 +38,13 @@ public sealed class MemoryModule : IWidgetModule
         Add = new(AddFolderId.MemoryReading, 0, 0),
     };
 
-    /// <summary>
-    /// [S-1130] [S-2438] Memory is converted to the sizing: 160..480 wide (a new one 220), the reading at
-    /// 28 over its part (the Bar 240..480, a new one 280). The graph's history band and the gauge take 112..200 high (a new one 144: the
-    /// band at least 32); the Bar is the reading over its one row, and the graph without its history
-    /// the reading alone, each one height.
-    /// </summary>
+    /// <summary>[S-1130] [S-11001] The reading's sizing in its drawing: the number one height, the bar one row under it, the gauge as its dial.</summary>
     internal static WidgetSizing Sizing(MemoryConfig config)
-    {
-        var reading = FamilySpace.ContentTop + FamilyType.Big28.LineHeight;
-        double? fixedHeight = config.Style switch
-        {
-            MemoryStyle.Bar => reading + FamilySpace.S2 + FamilyShape.Row1 + FamilySpace.Inset,
-            MemoryStyle.Graph when !config.DrawsHistory => reading + FamilySpace.Inset,
-            _ => null,
-        };
+        => MeterSizing.Reading(MemoryMeter.Look(config.Style), ReadoutRules.Split(Formatting.Percent(1)), rows: 1);
 
-        // The Bar's row keeps its meter between its two figures only from 240 wide.
-        var (least, start) = config.Style == MemoryStyle.Bar ? (240.0, 280.0) : (160.0, 220.0);
-        return fixedHeight is { } h
-            ? WidgetSizing.Range(new(least, h), new(start, h), new(480, h))
-            : WidgetSizing.Range(new(160, 112), new(220, 144), new(480, 200));
-    }
-
-    /// <summary>[S-3719] Every option is on the properties menu (the chart span under Style, [S-1122]): the widget has no settings page.</summary>
+    /// <summary>[S-3719] Nothing to set but the style and the card's look.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
-        MeterMenuLines.Lines(menu, (MemoryConfig)config);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new MemoryMeter());

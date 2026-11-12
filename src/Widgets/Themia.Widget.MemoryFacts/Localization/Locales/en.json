@@ -1,0 +1,8 @@
+{
+  "$englishOnly": [
+    "memoryFacts.label",
+    "memoryFacts.desc"
+  ],
+  "memoryFacts.label": "Memory facts",
+  "memoryFacts.desc": "In use, available, committed and more, as you pick them"
+}

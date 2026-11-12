@@ -31,12 +31,12 @@ public sealed class DiskMenuTests
     private ItemMenuEntry Drive(DiskConfig disk) => Assert.Single(Build(disk).Lines);
 
     [Fact]
-    public void S1168_the_first_level_is_appearance_then_the_drive_and_the_span_is_under_style()
+    public void S1168_the_first_level_is_the_drive_and_there_is_nothing_under_style()
     {
         var menu = Build(new DiskConfig());
 
-        Assert.Equal(DiskStr.Shell_Meters_Drive_Label.Text(), Assert.Single(menu.Lines).Text);
-        Assert.Equal(Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), Assert.Single(menu.StyleLines).Text);
+        Assert.Equal(Str.Details_Disk_Drive.Text(), Assert.Single(menu.Lines).Text);
+        Assert.Empty(menu.StyleLines);
     }
 
     [Fact]

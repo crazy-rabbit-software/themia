@@ -67,5 +67,14 @@
   "details.gpu.fan": "Fan",
   "details.gpu.clock": "GPU saat hızı",
   "details.gpu.memoryClock": "Bellek saat hızı",
-  "details.settings.gpu.adapter.label": "Bağdaştırıcı"
+  "details.settings.gpu.adapter.label": "Bağdaştırıcı",
+  "details.gpu.adapterMissing": "Seçilen grafik bağdaştırıcısı burada değil",
+  "details.gpu.noAdapter": "Okunacak grafik bağdaştırıcısı yok",
+  "details.gpu.engine3d": "3B",
+  "details.gpu.engineCopy": "Kopyalama",
+  "details.gpu.engineVideoDecode": "Video kod çözme",
+  "details.gpu.engineVideoEncode": "Video kodlama",
+  "details.disk.drive": "Sürücü",
+  "details.disk.read": "Okuma",
+  "details.disk.write": "Yazma"
 }

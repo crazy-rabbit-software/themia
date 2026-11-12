@@ -67,5 +67,14 @@
   "details.gpu.fan": "Wentylator",
   "details.gpu.clock": "Taktowanie GPU",
   "details.gpu.memoryClock": "Taktowanie pamięci",
-  "details.settings.gpu.adapter.label": "Karta"
+  "details.settings.gpu.adapter.label": "Karta",
+  "details.gpu.adapterMissing": "Wybranej karty graficznej nie ma",
+  "details.gpu.noAdapter": "Brak karty graficznej do odczytu",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Kopiowanie",
+  "details.gpu.engineVideoDecode": "Dekodowanie wideo",
+  "details.gpu.engineVideoEncode": "Kodowanie wideo",
+  "details.disk.drive": "Dysk",
+  "details.disk.read": "Odczyt",
+  "details.disk.write": "Zapis"
 }

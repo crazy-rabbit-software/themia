@@ -403,7 +403,8 @@ public sealed class SystemDetailsTests
 
         Assert.Equal("2.0 GB", sheet.Hero);
         Assert.Equal("of 16 GB shared memory", sheet.Caption);
-        Assert.Equal("Load", Assert.Single(sheet.Facts).Label);
+        // [S-11016] The shared memory is a fact too (the facts atom has no hero); no dedicated memory to show.
+        Assert.Equal(["Load", "Shared memory"], sheet.Facts.Select(f => f.Label));
     }
 
     // ---- helpers -------------------------------------------------------------------------------

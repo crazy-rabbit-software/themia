@@ -224,8 +224,8 @@ public sealed class NoticesBootTests : IDisposable
 
         Assert.Equal(WeatherNowStyle.LargeIcon, Assert.IsType<WeatherNowConfig>(widgets[2].Config).Style);
         Assert.Equal(CpuStyle.Number, Assert.IsType<CpuConfig>(widgets[3].Config).Style);
-        Assert.Equal(MemoryStyle.Graph, Assert.IsType<MemoryConfig>(widgets[4].Config).Style);
-        Assert.Equal(GpuStyle.Graph, Assert.IsType<GpuConfig>(widgets[5].Config).Style);
+        Assert.Equal(MemoryStyle.Number, Assert.IsType<MemoryConfig>(widgets[4].Config).Style);
+        Assert.Equal(GpuStyle.Number, Assert.IsType<GpuConfig>(widgets[5].Config).Style);
         Assert.Equal(NetworkStyle.Graph, Assert.IsType<NetworkConfig>(widgets[6].Config).Style);
 
         // Everything but the quick settings sits on the wallpaper: no card, no header.

@@ -67,5 +67,14 @@
   "details.gpu.fan": "Feni",
   "details.gpu.clock": "Saa ya GPU",
   "details.gpu.memoryClock": "Saa ya kumbukumbu",
-  "details.settings.gpu.adapter.label": "Adapta"
+  "details.settings.gpu.adapter.label": "Adapta",
+  "details.gpu.adapterMissing": "Adapta ya michoro iliyochaguliwa haipo hapa",
+  "details.gpu.noAdapter": "Hakuna adapta ya michoro ya kusoma",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Nakili",
+  "details.gpu.engineVideoDecode": "Usimbuaji wa video",
+  "details.gpu.engineVideoEncode": "Usimbaji wa video",
+  "details.disk.drive": "Hifadhi",
+  "details.disk.read": "Kusoma",
+  "details.disk.write": "Kuandika"
 }

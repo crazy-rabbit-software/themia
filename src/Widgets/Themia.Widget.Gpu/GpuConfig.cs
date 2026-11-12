@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.App.Widgets.Meters;
 using Themia.Core.Localization;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
@@ -8,46 +9,35 @@ using Themia.Widget.Gpu;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-6320] The graphics meter's looks: the adapter's load, three ways ([S-6000]).</summary>
+/// <summary>[S-6320] The graphics reading's drawings: the adapter's load, two ways ([S-6000]).</summary>
 [JsonConverter(typeof(StyleJsonConverter<GpuStyle>))]
 public enum GpuStyle
 {
-    /// <summary>[S-430] The load over its history.</summary>
-    Graph = 0,
-
-    /// <summary>[S-6322] The load over a bar per engine type (3D, copy, video encode, video decode).</summary>
-    Engines = 1,
+    /// <summary>[S-430] The load alone, at 28.</summary>
+    Number = 0,
 
     /// <summary>[S-6314] The load inside a half-circle gauge.</summary>
-    Gauge = 2,
+    Gauge = 1,
 }
 
 /// <summary>
-/// [S-430] The graphics meter: one adapter's load of the busiest engine and its history ([S-1762]).
-/// A gauge, so it carries the history setting the other meters do, and it draws the same sparkline.
-/// Two adapters are two widgets ([S-433]).
+/// [S-430] The graphics reading: one adapter's load of the busiest engine, alone. Its history is the
+/// GPU history atom's, its engines the GPU engines atom's. Two adapters are two widgets ([S-433]).
 /// </summary>
-public sealed class GpuConfig : GaugeConfig, IStyled, IReadsSystem
+public sealed class GpuConfig : ReadingConfig, IStyled, IReadsSystem, IGpuAdapter
 {
-    /// <summary>[S-436] A minute of history.</summary>
-    public GpuConfig()
-        : base(graphSpanSeconds: 60)
-    {
-    }
-
     /// <summary>
     /// [S-433] The adapter, as its position in DXGI's list (software adapters left out). DXGI lists
     /// the adapter driving the primary display first, so the default 0 is that one, else the first.
     /// </summary>
     public int Adapter { get; set; }
 
-    /// <summary>[S-6320] The meter's look.</summary>
-    public GpuStyle Style { get; set; } = GpuStyle.Graph;
+    /// <summary>[S-6320] The reading's drawing.</summary>
+    public GpuStyle Style { get; set; } = GpuStyle.Number;
 
     private static readonly StyleOption[] GpuStyles =
     [
-        StyleOption.Of(GpuStyle.Graph, GpuStr.Styles_Gpu_Graph.Local(), 0xE9D2),
-        StyleOption.Of(GpuStyle.Engines, GpuStr.Styles_Gpu_Engines.Local(), 0xE8BC),
+        StyleOption.Of(GpuStyle.Number, GpuStr.Styles_Gpu_Number.Local(), 0xE8EF),
         StyleOption.Of(GpuStyle.Gauge, GpuStr.Styles_Gpu_Gauge.Local(), 0xEC4A),
     ];
 
@@ -59,31 +49,11 @@ public sealed class GpuConfig : GaugeConfig, IStyled, IReadsSystem
         set => Style = (GpuStyle)value;
     }
 
-    /// <summary>[S-2513] Every adapter's sample, and its adapter's history.</summary>
-    public SystemInterests SystemWants(string systemRoot)
-    {
-        var key = FeedKey.Create(SystemSource.Gpu);
-        return new SystemInterests([key], [new SeriesInterest(key, Math.Max(0, Adapter).ToString(System.Globalization.CultureInfo.InvariantCulture))]);
-    }
+    /// <summary>[S-2513] Every adapter's sample, and its adapter's series (the history's and the engines' too).</summary>
+    public SystemInterests SystemWants(string systemRoot) => GpuInterests.Of(Adapter);
 
-    public override WidgetConfig Clone()
-    {
-        var copy = new GpuConfig { Adapter = Adapter, Style = Style };
-        CopyTo(copy);
-        return copy;
-    }
+    public override WidgetConfig Clone() => new GpuConfig { Adapter = Adapter, Style = Style };
 
     /// <summary>[S-433] A position that is none (negative, hand-edited) is the first adapter, loudly.</summary>
-    public override IReadOnlyList<string> Repair()
-    {
-        var notes = new List<string>(base.Repair());
-
-        if (Adapter < 0)
-        {
-            notes.Add($"{Kind}: adapter {Adapter} is not a position; using the first");
-            Adapter = 0;
-        }
-
-        return notes;
-    }
+    public override IReadOnlyList<string> Repair() => GpuInterests.Repair(Kind, Adapter, a => Adapter = a);
 }

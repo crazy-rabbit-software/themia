@@ -1,13 +1,5 @@
 {
   "shell.meters.gpuDescription": "የአንድ ግራፊክስ ካርድ ጭነት",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "ቅዳ",
-  "styles.gpu.engineVideoDecode": "የቪዲዮ መፍቻ",
-  "styles.gpu.engineVideoEncode": "የቪዲዮ ኮድ ማድረጊያ",
-  "styles.gpu.engines": "ሞተሮች",
   "styles.gpu.gauge": "መለኪያ",
-  "styles.gpu.graph": "ግራፍ",
-  "widgetsA.catalog.gpu.label": "GPU",
-  "widgetsB.gpu.adapterMissing": "የተመረጠው የግራፊክስ አስማሚ እዚህ የለም",
-  "widgetsB.gpu.noAdapter": "የሚነበብ የግራፊክስ አስማሚ የለም"
+  "widgetsA.catalog.gpu.label": "GPU"
 }

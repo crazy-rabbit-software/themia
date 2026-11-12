@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "Lecteur",
   "styles.io.bars": "Barres",
-  "styles.io.read": "Lecture",
-  "styles.io.write": "Écriture",
   "widgetsA.catalog.disk.description": "Lectures et écritures disque par seconde",
   "widgetsA.catalog.disk.label": "Disque"
 }

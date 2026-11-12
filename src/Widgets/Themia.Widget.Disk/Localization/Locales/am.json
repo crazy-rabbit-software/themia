@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "አንጻፊ",
   "styles.io.bars": "አሞሌዎች",
-  "styles.io.read": "ንባብ",
-  "styles.io.write": "ጽሕፈት",
   "widgetsA.catalog.disk.description": "በሰከንድ የዲስክ ንባቦችና ጽሕፈቶች",
   "widgetsA.catalog.disk.label": "ዲስክ"
 }

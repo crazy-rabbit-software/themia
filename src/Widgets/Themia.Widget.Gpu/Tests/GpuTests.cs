@@ -39,13 +39,22 @@ public sealed class GpuTests
     }
 
     [Fact]
-    public void S6320_the_gpu_offers_graph_engines_and_gauge_and_keeps_its_adapter_through_a_clone()
+    public void S6320_the_gpu_reading_offers_the_number_and_a_gauge_and_keeps_its_adapter_through_a_clone()
     {
-        Assert.Equal(["graph", "engines", "gauge"], WidgetStyles.For(new WidgetId("gpu")).Select(s => s.Name));
+        Assert.Equal(["number", "gauge"], WidgetStyles.For(new WidgetId("gpu")).Select(s => s.Name));
 
-        var gpu = new GpuConfig { Adapter = 1, Style = GpuStyle.Engines };
+        var gpu = new GpuConfig { Adapter = 1, Style = GpuStyle.Gauge };
         var copy = (GpuConfig)gpu.Clone();
-        Assert.Equal(GpuStyle.Engines, copy.Style);
+        Assert.Equal(GpuStyle.Gauge, copy.Style);
         Assert.Equal(1, copy.Adapter);
+    }
+
+    [Fact]
+    public void S6320_the_reading_is_one_height_and_the_gauge_its_dial()
+    {
+        var kind = ModuleCatalog.Of(new WidgetId("gpu"));
+        Assert.Equal(84, kind.Sizing(new GpuConfig()).Natural.Height);
+        Assert.True(kind.Sizing(new GpuConfig()).FixedHeight);
+        Assert.Empty(kind.Sizing(new GpuConfig { Style = GpuStyle.Gauge }).Problems());
     }
 }

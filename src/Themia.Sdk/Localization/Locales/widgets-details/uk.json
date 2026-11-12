@@ -67,5 +67,14 @@
   "details.gpu.fan": "Вентилятор",
   "details.gpu.clock": "Частота ГП",
   "details.gpu.memoryClock": "Частота пам’яті",
-  "details.settings.gpu.adapter.label": "Адаптер"
+  "details.settings.gpu.adapter.label": "Адаптер",
+  "details.gpu.adapterMissing": "Вибраного графічного адаптера тут немає",
+  "details.gpu.noAdapter": "Немає графічного адаптера для читання",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Копіювання",
+  "details.gpu.engineVideoDecode": "Декодування відео",
+  "details.gpu.engineVideoEncode": "Кодування відео",
+  "details.disk.drive": "Диск",
+  "details.disk.read": "Читання",
+  "details.disk.write": "Запис"
 }

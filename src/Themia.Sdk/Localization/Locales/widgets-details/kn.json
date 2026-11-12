@@ -67,5 +67,14 @@
   "details.gpu.fan": "ಫ್ಯಾನ್",
   "details.gpu.clock": "GPU ಕ್ಲಾಕ್",
   "details.gpu.memoryClock": "ಮೆಮೊರಿ ಕ್ಲಾಕ್",
-  "details.settings.gpu.adapter.label": "ಅಡಾಪ್ಟರ್"
+  "details.settings.gpu.adapter.label": "ಅಡಾಪ್ಟರ್",
+  "details.gpu.adapterMissing": "ಆಯ್ಕೆಮಾಡಿದ ಗ್ರಾಫಿಕ್ಸ್ ಅಡಾಪ್ಟರ್ ಇಲ್ಲಿ ಇಲ್ಲ",
+  "details.gpu.noAdapter": "ಓದಲು ಯಾವುದೇ ಗ್ರಾಫಿಕ್ಸ್ ಅಡಾಪ್ಟರ್ ಇಲ್ಲ",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "ನಕಲು",
+  "details.gpu.engineVideoDecode": "ವೀಡಿಯೊ ಡಿಕೋಡ್",
+  "details.gpu.engineVideoEncode": "ವೀಡಿಯೊ ಎನ್‌ಕೋಡ್",
+  "details.disk.drive": "ಡ್ರೈವ್",
+  "details.disk.read": "ಓದುವಿಕೆ",
+  "details.disk.write": "ಬರೆಯುವಿಕೆ"
 }

@@ -67,5 +67,14 @@
   "details.gpu.fan": "پنکھا",
   "details.gpu.clock": "GPU کلاک",
   "details.gpu.memoryClock": "میموری کلاک",
-  "details.settings.gpu.adapter.label": "اڈاپٹر"
+  "details.settings.gpu.adapter.label": "اڈاپٹر",
+  "details.gpu.adapterMissing": "منتخب گرافکس اڈاپٹر یہاں نہیں ہے",
+  "details.gpu.noAdapter": "پڑھنے کو کوئی گرافکس اڈاپٹر نہیں",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "کاپی",
+  "details.gpu.engineVideoDecode": "ویڈیو ڈی کوڈ",
+  "details.gpu.engineVideoEncode": "ویڈیو انکوڈ",
+  "details.disk.drive": "ڈرائیو",
+  "details.disk.read": "پڑھنا",
+  "details.disk.write": "لکھنا"
 }

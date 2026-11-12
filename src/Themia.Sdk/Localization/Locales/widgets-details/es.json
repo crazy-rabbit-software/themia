@@ -67,5 +67,14 @@
   "details.gpu.fan": "Ventilador",
   "details.gpu.clock": "Frecuencia de GPU",
   "details.gpu.memoryClock": "Frecuencia de memoria",
-  "details.settings.gpu.adapter.label": "Adaptador"
+  "details.settings.gpu.adapter.label": "Adaptador",
+  "details.gpu.adapterMissing": "El adaptador gráfico elegido no está",
+  "details.gpu.noAdapter": "No hay ningún adaptador gráfico que leer",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Copia",
+  "details.gpu.engineVideoDecode": "Descodificación de vídeo",
+  "details.gpu.engineVideoEncode": "Codificación de vídeo",
+  "details.disk.drive": "Unidad",
+  "details.disk.read": "Lectura",
+  "details.disk.write": "Escritura"
 }

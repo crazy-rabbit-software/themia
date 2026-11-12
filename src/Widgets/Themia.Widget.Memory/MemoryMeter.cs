@@ -22,11 +22,14 @@ internal sealed class MemoryMeter : MeterPart
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Usage, reading.Available ? reading.Fraction : null);
 
-    public override MeterLook Look(WidgetConfig config) => (config as MemoryConfig)?.Style switch
+    public override MeterLook Look(WidgetConfig config) => Look((config as MemoryConfig)?.Style ?? MemoryStyle.Number);
+
+    /// <summary>[S-6315] The drawing a style is.</summary>
+    internal static MeterLook Look(MemoryStyle style) => style switch
     {
         MemoryStyle.Bar => MeterLook.Rows,
         MemoryStyle.Gauge => MeterLook.Gauge,
-        _ => MeterLook.Graph,
+        _ => MeterLook.Number,
     };
 
     /// <summary>[S-6316] One bar, used against free, from the snapshot the reading itself comes from.</summary>

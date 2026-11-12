@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "ಡ್ರೈವ್",
   "styles.io.bars": "ಬಾರ್‌ಗಳು",
-  "styles.io.read": "ಓದುವಿಕೆ",
-  "styles.io.write": "ಬರೆಯುವಿಕೆ",
   "widgetsA.catalog.disk.description": "ಪ್ರತಿ ಸೆಕೆಂಡಿಗೆ ಡಿಸ್ಕ್ ಓದುವಿಕೆ ಮತ್ತು ಬರೆಯುವಿಕೆ",
   "widgetsA.catalog.disk.label": "ಡಿಸ್ಕ್"
 }

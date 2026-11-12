@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "ड्राइव",
   "styles.io.bars": "बार",
-  "styles.io.read": "पढ़ना",
-  "styles.io.write": "लिखना",
   "widgetsA.catalog.disk.description": "प्रति सेकंड डिस्क रीड और राइट",
   "widgetsA.catalog.disk.label": "डिस्क"
 }

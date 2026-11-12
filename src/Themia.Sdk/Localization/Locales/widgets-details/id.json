@@ -67,5 +67,14 @@
   "details.gpu.fan": "Kipas",
   "details.gpu.clock": "Clock GPU",
   "details.gpu.memoryClock": "Clock memori",
-  "details.settings.gpu.adapter.label": "Adaptor"
+  "details.settings.gpu.adapter.label": "Adaptor",
+  "details.gpu.adapterMissing": "Adaptor grafis yang dipilih tidak ada",
+  "details.gpu.noAdapter": "Tidak ada adaptor grafis untuk dibaca",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Salin",
+  "details.gpu.engineVideoDecode": "Dekode video",
+  "details.gpu.engineVideoEncode": "Enkode video",
+  "details.disk.drive": "Drive",
+  "details.disk.read": "Baca",
+  "details.disk.write": "Tulis"
 }

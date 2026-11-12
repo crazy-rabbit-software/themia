@@ -2,7 +2,6 @@
   "styles.memory.bar": "Bilah",
   "styles.memory.free": "{size} kosong",
   "styles.memory.gauge": "Pengukur",
-  "styles.memory.graph": "Grafik",
   "styles.memory.used": "{size} terpakai",
   "widgetsA.catalog.memory.description": "Memori fisik yang terpakai",
   "widgetsA.catalog.memory.label": "Memori"

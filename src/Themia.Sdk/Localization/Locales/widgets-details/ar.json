@@ -67,5 +67,14 @@
   "details.gpu.fan": "المروحة",
   "details.gpu.clock": "تردد GPU",
   "details.gpu.memoryClock": "تردد الذاكرة",
-  "details.settings.gpu.adapter.label": "المحول"
+  "details.settings.gpu.adapter.label": "المحول",
+  "details.gpu.adapterMissing": "محول الرسومات المختار غير موجود",
+  "details.gpu.noAdapter": "لا يوجد محول رسومات لقراءته",
+  "details.gpu.engine3d": "ثلاثي الأبعاد",
+  "details.gpu.engineCopy": "نسخ",
+  "details.gpu.engineVideoDecode": "فك ترميز الفيديو",
+  "details.gpu.engineVideoEncode": "ترميز الفيديو",
+  "details.disk.drive": "محرك الأقراص",
+  "details.disk.read": "قراءة",
+  "details.disk.write": "كتابة"
 }

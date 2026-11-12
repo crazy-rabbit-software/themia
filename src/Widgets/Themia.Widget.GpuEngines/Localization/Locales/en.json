@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["gpuEngines.label", "gpuEngines.desc"],
+  "gpuEngines.label": "GPU engines",
+  "gpuEngines.desc": "The load of each engine: 3D, copy, video"
+}

@@ -71,9 +71,6 @@ public class SettingRulesTests
     }
 
     [Theory]
-    [InlineData("memory")]
-    [InlineData("gpu")]
-    [InlineData("disk")]
     [InlineData("network")]
     [InlineData("battery")]
     [InlineData("ping")]
@@ -96,9 +93,6 @@ public class SettingRulesTests
     [Fact]
     public void S6074_the_first_style_of_every_meter_is_its_graph()
     {
-        Assert.Equal(0, (int)MemoryStyle.Graph);
-        Assert.Equal(0, (int)GpuStyle.Graph);
-        Assert.Equal(0, (int)DiskStyle.Graph);
         Assert.Equal(0, (int)NetworkStyle.Graph);
         Assert.Equal(0, (int)BatteryStyle.Graph);
         Assert.Equal(0, (int)PingStyle.Graph);

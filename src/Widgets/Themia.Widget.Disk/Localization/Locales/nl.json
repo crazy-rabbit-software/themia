@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "Station",
   "styles.io.bars": "Balken",
-  "styles.io.read": "Lezen",
-  "styles.io.write": "Schrijven",
   "widgetsA.catalog.disk.description": "Lees- en schrijfbewerkingen per seconde",
   "widgetsA.catalog.disk.label": "Schijf"
 }

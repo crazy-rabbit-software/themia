@@ -27,8 +27,7 @@ public sealed class GpuMenuTests
         var menu = Build(new GpuConfig(), [Two[0]]);
 
         Assert.Empty(menu.Lines);
-        Assert.Equal(Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), Assert.Single(menu.StyleLines).Text);
-        Assert.Empty(Build(new GpuConfig { Style = GpuStyle.Gauge }, [Two[0]]).StyleLines);
+        Assert.Empty(menu.StyleLines);
     }
 
     [Fact]

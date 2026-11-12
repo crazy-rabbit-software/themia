@@ -67,5 +67,14 @@
   "details.gpu.fan": "Kipas",
   "details.gpu.clock": "Jam GPU",
   "details.gpu.memoryClock": "Jam memori",
-  "details.settings.gpu.adapter.label": "Penyesuai"
+  "details.settings.gpu.adapter.label": "Penyesuai",
+  "details.gpu.adapterMissing": "Penyesuai grafik yang dipilih tiada di sini",
+  "details.gpu.noAdapter": "Tiada penyesuai grafik untuk dibaca",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Salin",
+  "details.gpu.engineVideoDecode": "Nyahkod video",
+  "details.gpu.engineVideoEncode": "Kod video",
+  "details.disk.drive": "Pemacu",
+  "details.disk.read": "Baca",
+  "details.disk.write": "Tulis"
 }

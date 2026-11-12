@@ -67,5 +67,14 @@
   "details.gpu.fan": "પંખો",
   "details.gpu.clock": "GPU ક્લૉક",
   "details.gpu.memoryClock": "મેમરી ક્લૉક",
-  "details.settings.gpu.adapter.label": "ઍડૅપ્ટર"
+  "details.settings.gpu.adapter.label": "ઍડૅપ્ટર",
+  "details.gpu.adapterMissing": "પસંદ કરેલું ગ્રાફિક્સ ઍડૅપ્ટર અહીં નથી",
+  "details.gpu.noAdapter": "વાંચવા માટે કોઈ ગ્રાફિક્સ ઍડૅપ્ટર નથી",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "કૉપિ",
+  "details.gpu.engineVideoDecode": "વિડિઓ ડિકોડ",
+  "details.gpu.engineVideoEncode": "વિડિઓ એન્કોડ",
+  "details.disk.drive": "ડ્રાઇવ",
+  "details.disk.read": "વાંચન",
+  "details.disk.write": "લેખન"
 }

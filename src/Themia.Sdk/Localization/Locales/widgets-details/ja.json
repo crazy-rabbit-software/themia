@@ -67,5 +67,14 @@
   "details.gpu.fan": "ファン",
   "details.gpu.clock": "GPU クロック",
   "details.gpu.memoryClock": "メモリ クロック",
-  "details.settings.gpu.adapter.label": "アダプター"
+  "details.settings.gpu.adapter.label": "アダプター",
+  "details.gpu.adapterMissing": "選択したグラフィックス アダプターが見つかりません",
+  "details.gpu.noAdapter": "読み取れるグラフィックス アダプターがありません",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "コピー",
+  "details.gpu.engineVideoDecode": "ビデオ デコード",
+  "details.gpu.engineVideoEncode": "ビデオ エンコード",
+  "details.disk.drive": "ドライブ",
+  "details.disk.read": "読み取り",
+  "details.disk.write": "書き込み"
 }

@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["gpuHistory.label", "gpuHistory.desc"],
+  "gpuHistory.label": "GPU history",
+  "gpuHistory.desc": "Graphics load over time"
+}

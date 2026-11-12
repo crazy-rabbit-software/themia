@@ -1,13 +1,5 @@
 {
   "shell.meters.gpuDescription": "Încărcarea unei plăci grafice",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "Copiere",
-  "styles.gpu.engineVideoDecode": "Decodare video",
-  "styles.gpu.engineVideoEncode": "Codare video",
-  "styles.gpu.engines": "Motoare",
   "styles.gpu.gauge": "Indicator",
-  "styles.gpu.graph": "Grafic",
-  "widgetsA.catalog.gpu.label": "GPU",
-  "widgetsB.gpu.adapterMissing": "Adaptorul grafic ales nu este aici",
-  "widgetsB.gpu.noAdapter": "Niciun adaptor grafic de citit"
+  "widgetsA.catalog.gpu.label": "GPU"
 }

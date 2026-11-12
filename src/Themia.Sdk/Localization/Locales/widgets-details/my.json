@@ -67,5 +67,14 @@
   "details.gpu.fan": "ပန်ကာ",
   "details.gpu.clock": "GPU clock နှုန်း",
   "details.gpu.memoryClock": "မမ်မိုရီ clock",
-  "details.settings.gpu.adapter.label": "အဒက်ပ်တာ"
+  "details.settings.gpu.adapter.label": "အဒက်ပ်တာ",
+  "details.gpu.adapterMissing": "ရွေးထားသော ဂရပ်ဖစ် adapter ဤနေရာတွင် မရှိပါ",
+  "details.gpu.noAdapter": "ဖတ်ရန် ဂရပ်ဖစ် adapter မရှိပါ",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "ကူး",
+  "details.gpu.engineVideoDecode": "ဗီဒီယို decode",
+  "details.gpu.engineVideoEncode": "ဗီဒီယို encode",
+  "details.disk.drive": "ဒရိုက်",
+  "details.disk.read": "ဖတ်",
+  "details.disk.write": "ရေး"
 }

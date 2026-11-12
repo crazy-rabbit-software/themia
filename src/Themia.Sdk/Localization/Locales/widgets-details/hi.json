@@ -67,5 +67,14 @@
   "details.gpu.fan": "पंखा",
   "details.gpu.clock": "GPU क्लॉक",
   "details.gpu.memoryClock": "मेमोरी क्लॉक",
-  "details.settings.gpu.adapter.label": "एडेप्टर"
+  "details.settings.gpu.adapter.label": "एडेप्टर",
+  "details.gpu.adapterMissing": "चुना गया ग्राफ़िक्स एडेप्टर मौजूद नहीं है",
+  "details.gpu.noAdapter": "पढ़ने के लिए कोई ग्राफ़िक्स एडेप्टर नहीं",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "कॉपी",
+  "details.gpu.engineVideoDecode": "वीडियो डिकोड",
+  "details.gpu.engineVideoEncode": "वीडियो एन्कोड",
+  "details.disk.drive": "ड्राइव",
+  "details.disk.read": "पढ़ना",
+  "details.disk.write": "लिखना"
 }

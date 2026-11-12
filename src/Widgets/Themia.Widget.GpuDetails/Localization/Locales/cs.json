@@ -1,6 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.gpu.desc": "Videopaměť, teplota a takty",
-  "details.catalog.gpu.label": "Podrobnosti o GPU",
-  "details.gpu.none": "Žádný grafický adaptér"
-}

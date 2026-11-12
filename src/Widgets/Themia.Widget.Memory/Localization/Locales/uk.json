@@ -2,7 +2,6 @@
   "styles.memory.bar": "Смуга",
   "styles.memory.free": "Вільно {size}",
   "styles.memory.gauge": "Шкала",
-  "styles.memory.graph": "Графік",
   "styles.memory.used": "Використано {size}",
   "widgetsA.catalog.memory.description": "Використовувана фізична пам’ять",
   "widgetsA.catalog.memory.label": "Пам’ять"

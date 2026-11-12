@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "ドライブ",
   "styles.io.bars": "バー",
-  "styles.io.read": "読み取り",
-  "styles.io.write": "書き込み",
   "widgetsA.catalog.disk.description": "1 秒あたりのディスクの読み取りと書き込み",
   "widgetsA.catalog.disk.label": "ディスク"
 }

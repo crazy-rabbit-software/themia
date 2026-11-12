@@ -67,5 +67,14 @@
   "details.gpu.fan": "Bentilador",
   "details.gpu.clock": "Clock ng GPU",
   "details.gpu.memoryClock": "Clock ng memory",
-  "details.settings.gpu.adapter.label": "Adapter"
+  "details.settings.gpu.adapter.label": "Adapter",
+  "details.gpu.adapterMissing": "Wala rito ang napiling graphics adapter",
+  "details.gpu.noAdapter": "Walang graphics adapter na mababasa",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Kopya",
+  "details.gpu.engineVideoDecode": "Video decode",
+  "details.gpu.engineVideoEncode": "Video encode",
+  "details.disk.drive": "Drive",
+  "details.disk.read": "Pagbasa",
+  "details.disk.write": "Pagsulat"
 }

@@ -67,5 +67,14 @@
   "details.gpu.fan": "ማራገቢያ",
   "details.gpu.clock": "የGPU ሰዓት",
   "details.gpu.memoryClock": "የማህደረ ትውስታ ሰዓት",
-  "details.settings.gpu.adapter.label": "አስማሚ"
+  "details.settings.gpu.adapter.label": "አስማሚ",
+  "details.gpu.adapterMissing": "የተመረጠው የግራፊክስ አስማሚ እዚህ የለም",
+  "details.gpu.noAdapter": "የሚነበብ የግራፊክስ አስማሚ የለም",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "ቅዳ",
+  "details.gpu.engineVideoDecode": "የቪዲዮ መፍቻ",
+  "details.gpu.engineVideoEncode": "የቪዲዮ ኮድ ማድረጊያ",
+  "details.disk.drive": "አንጻፊ",
+  "details.disk.read": "ንባብ",
+  "details.disk.write": "ጽሕፈት"
 }

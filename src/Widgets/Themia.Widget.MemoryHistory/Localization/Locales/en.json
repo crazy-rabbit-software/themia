@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["memoryHistory.label", "memoryHistory.desc"],
+  "memoryHistory.label": "Memory history",
+  "memoryHistory.desc": "Memory in use over time"
+}

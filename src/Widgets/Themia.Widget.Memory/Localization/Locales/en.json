@@ -1,10 +1,12 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "styles.memory.number"
+  ],
   "styles.memory.bar": "Bar",
   "styles.memory.free": "{size} free",
   "styles.memory.gauge": "Gauge",
-  "styles.memory.graph": "Graph",
   "styles.memory.used": "{size} used",
   "widgetsA.catalog.memory.description": "Physical memory in use",
-  "widgetsA.catalog.memory.label": "Memory"
+  "widgetsA.catalog.memory.label": "Memory",
+  "styles.memory.number": "Number"
 }

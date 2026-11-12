@@ -67,5 +67,14 @@
   "details.gpu.fan": "Fáànù",
   "details.gpu.clock": "Aago GPU",
   "details.gpu.memoryClock": "Aago ìrántí",
-  "details.settings.gpu.adapter.label": "Adáptà"
+  "details.settings.gpu.adapter.label": "Adáptà",
+  "details.gpu.adapterMissing": "Adáptà àwòrán tí a yàn kò sí níbí",
+  "details.gpu.noAdapter": "Kò sí adáptà àwòrán láti kà",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Ẹ̀dà",
+  "details.gpu.engineVideoDecode": "Ìtú kóòdù fídíò",
+  "details.gpu.engineVideoEncode": "Ìfi kóòdù fídíò",
+  "details.disk.drive": "Díráìfù",
+  "details.disk.read": "Kíkà",
+  "details.disk.write": "Kíkọ"
 }

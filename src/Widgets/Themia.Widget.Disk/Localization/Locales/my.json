@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "ဒရိုက်",
   "styles.io.bars": "ဘားများ",
-  "styles.io.read": "ဖတ်",
-  "styles.io.write": "ရေး",
   "widgetsA.catalog.disk.description": "တစ်စက္ကန့်လျှင် ဒစ်ခ် ဖတ်ရေးမှု",
   "widgetsA.catalog.disk.label": "ဒစ်ခ်"
 }

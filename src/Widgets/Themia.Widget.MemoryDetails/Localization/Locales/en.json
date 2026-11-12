@@ -1,5 +1,0 @@
-{
-  "$englishOnly": [],
-  "details.catalog.memory.desc": "In use, committed, cached and the page file",
-  "details.catalog.memory.label": "Memory details"
-}

@@ -118,7 +118,7 @@ public sealed class SystemAtomsTests
         var sizing = FactsRules.Sizing(facts);
         Assert.Empty(sizing.Problems());
         Assert.Equal((36 + 28 + 12, 36 + (4 * 28) + 12, 36 + (6 * 28) + 12), (sizing.Min.Height, sizing.Natural.Height, sizing.Max.Height));
-        Assert.Equal((200, 240, 420), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal((200, 260, 420), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
 
     [Fact]

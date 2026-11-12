@@ -1,14 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.meters.gpuDescription": "Zatížení jedné grafické karty",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "Kopírování",
-  "styles.gpu.engineVideoDecode": "Dekódování videa",
-  "styles.gpu.engineVideoEncode": "Kódování videa",
-  "styles.gpu.engines": "Moduly",
   "styles.gpu.gauge": "Ukazatel",
-  "styles.gpu.graph": "Graf",
-  "widgetsA.catalog.gpu.label": "GPU",
-  "widgetsB.gpu.adapterMissing": "Vybraný grafický adaptér tu není",
-  "widgetsB.gpu.noAdapter": "Žádný grafický adaptér ke čtení"
+  "widgetsA.catalog.gpu.label": "GPU"
 }

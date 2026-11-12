@@ -67,5 +67,14 @@
   "details.gpu.fan": "Quạt",
   "details.gpu.clock": "Xung nhịp GPU",
   "details.gpu.memoryClock": "Xung nhịp bộ nhớ",
-  "details.settings.gpu.adapter.label": "Bộ điều hợp"
+  "details.settings.gpu.adapter.label": "Bộ điều hợp",
+  "details.gpu.adapterMissing": "Không tìm thấy bộ điều hợp đồ họa đã chọn",
+  "details.gpu.noAdapter": "Không có bộ điều hợp đồ họa để đọc",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Sao chép",
+  "details.gpu.engineVideoDecode": "Giải mã video",
+  "details.gpu.engineVideoEncode": "Mã hóa video",
+  "details.disk.drive": "Ổ đĩa",
+  "details.disk.read": "Đọc",
+  "details.disk.write": "Ghi"
 }

@@ -28,6 +28,21 @@ public static class MemoryDetailRules
     /// <summary>"31.7 GB" is 7; "1023.9 MB" the widest a byte figure gets.</summary>
     public const string HeroWorst = "1023.9 MB";
 
+    /// <summary>
+    /// [S-11017] Every fact the memory facts atom can show, in the kind's order: in use (the old hero,
+    /// used of total), then the figures the details listed. A new one shows the first four.
+    /// </summary>
+    public static IReadOnlyList<FactOption> Facts { get; } =
+    [
+        new("inUse", Str.Details_Memory_InUse),
+        new("available", Str.Details_Memory_Available),
+        new("committed", Str.Details_Memory_Committed),
+        new("cached", Str.Details_Memory_Cached),
+        new("pagedPool", Str.Details_Memory_PagedPool),
+        new("nonPagedPool", Str.Details_Memory_NonPagedPool),
+        new("pageFile", Str.Details_Memory_PageFile),
+    ];
+
     /// <summary>The fixed part of one <c>SYSTEM_PAGEFILE_INFORMATION</c> entry on 64-bit Windows.</summary>
     public const int PagefileEntrySize = 32;
 
@@ -90,24 +105,26 @@ public static class MemoryDetailRules
             ("percent", Formatting.Percent(locale, (double)used / f.PhysicalTotal)),
             ("total", Formatting.Bytes(locale, f.PhysicalTotal)));
 
-        var facts = new List<DetailFact>(6)
+        var facts = new List<DetailFact>(7)
         {
-            new(Strings.Get(locale, Str.Details_Memory_Available), Formatting.Bytes(locale, available)),
+            // [S-11017] In use is a fact too: the facts atom has no hero (the share is the Memory reading's).
+            new(Strings.Get(locale, Str.Details_Memory_InUse), UsedOfTotal(locale, used, f.PhysicalTotal), Key: "inUse"),
+            new(Strings.Get(locale, Str.Details_Memory_Available), Formatting.Bytes(locale, available), Key: "available"),
         };
 
         if (f.CommitLimit > 0)
         {
-            facts.Add(new(Strings.Get(locale, Str.Details_Memory_Committed), UsedOfTotal(locale, Math.Min(f.CommitTotal, f.CommitLimit), f.CommitLimit)));
+            facts.Add(new(Strings.Get(locale, Str.Details_Memory_Committed), UsedOfTotal(locale, Math.Min(f.CommitTotal, f.CommitLimit), f.CommitLimit), Key: "committed"));
         }
 
-        facts.Add(new(Strings.Get(locale, Str.Details_Memory_Cached), Formatting.Bytes(locale, f.SystemCache)));
-        facts.Add(new(Strings.Get(locale, Str.Details_Memory_PagedPool), Formatting.Bytes(locale, f.KernelPaged)));
-        facts.Add(new(Strings.Get(locale, Str.Details_Memory_NonPagedPool), Formatting.Bytes(locale, f.KernelNonpaged)));
+        facts.Add(new(Strings.Get(locale, Str.Details_Memory_Cached), Formatting.Bytes(locale, f.SystemCache), Key: "cached"));
+        facts.Add(new(Strings.Get(locale, Str.Details_Memory_PagedPool), Formatting.Bytes(locale, f.KernelPaged), Key: "pagedPool"));
+        facts.Add(new(Strings.Get(locale, Str.Details_Memory_NonPagedPool), Formatting.Bytes(locale, f.KernelNonpaged), Key: "nonPagedPool"));
 
         if (pagefile is { } p)
         {
             facts.Add(new(Strings.Get(locale, Str.Details_Memory_PageFile),
-                p.Total == 0 ? Strings.Get(locale, Str.Details_None) : UsedOfTotal(locale, p.Used, p.Total)));
+                p.Total == 0 ? Strings.Get(locale, Str.Details_None) : UsedOfTotal(locale, p.Used, p.Total), Key: "pageFile"));
         }
 
         return new DetailSheet(Formatting.Bytes(locale, used), caption, facts, []);

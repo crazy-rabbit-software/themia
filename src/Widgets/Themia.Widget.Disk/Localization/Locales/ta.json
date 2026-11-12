@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "இயக்ககம்",
   "styles.io.bars": "பட்டைகள்",
-  "styles.io.read": "படித்தல்",
-  "styles.io.write": "எழுதுதல்",
   "widgetsA.catalog.disk.description": "விநாடிக்கு வட்டு வாசிப்புகளும் எழுதுதல்களும்",
   "widgetsA.catalog.disk.label": "வட்டு"
 }

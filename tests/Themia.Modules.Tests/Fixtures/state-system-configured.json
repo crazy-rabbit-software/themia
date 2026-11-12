@@ -51,9 +51,7 @@
           "scale": 1,
           "config": {
             "kind": "memory",
-            "style": "bar",
-            "showGraph": true,
-            "graphSpanSeconds": 900
+            "style": "bar"
           }
         },
         {
@@ -105,9 +103,7 @@
             "kind": "disk",
             "style": "bars",
             "scope": 0,
-            "drive": "D:\\",
-            "showGraph": true,
-            "graphSpanSeconds": 300
+            "drive": "D:\\"
           }
         },
         {
@@ -185,9 +181,7 @@
           "config": {
             "kind": "gpu",
             "adapter": 1,
-            "style": "engines",
-            "showGraph": true,
-            "graphSpanSeconds": 900
+            "style": "gauge"
           }
         },
         {
@@ -237,7 +231,11 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "memoryDetails"
+            "kind": "memoryFacts",
+            "facts": [
+              "pageFile",
+              "inUse"
+            ]
           }
         },
         {
@@ -358,8 +356,11 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "gpuDetails",
-            "adapter": 1
+            "kind": "gpuFacts",
+            "adapter": 1,
+            "facts": [
+              "temperature"
+            ]
           }
         },
         {

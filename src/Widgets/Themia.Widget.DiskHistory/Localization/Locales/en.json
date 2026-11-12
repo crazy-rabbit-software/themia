@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["diskHistory.label", "diskHistory.desc"],
+  "diskHistory.label": "Disk history",
+  "diskHistory.desc": "Disk reads and writes over time"
+}

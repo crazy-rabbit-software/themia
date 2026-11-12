@@ -37,6 +37,22 @@ public static class GpuDetailRules
     /// <summary>"1023.9 MB".</summary>
     public const string HeroWorst = "1023.9 MB";
 
+    /// <summary>
+    /// [S-11016] Every fact the GPU facts atom can show, in the kind's order: dedicated memory (the old
+    /// hero, used of total), shared memory, the sensors, and the load (the GPU reading's own figure,
+    /// last). A new one shows the first four.
+    /// </summary>
+    public static IReadOnlyList<FactOption> Facts { get; } =
+    [
+        new("dedicated", Str.Details_Gpu_Dedicated),
+        new("shared", Str.Details_Gpu_Shared),
+        new("temperature", Str.Details_Gpu_Temperature),
+        new("fan", Str.Details_Gpu_Fan),
+        new("clock", Str.Details_Gpu_Clock),
+        new("memoryClock", Str.Details_Gpu_MemoryClock),
+        new("load", Str.Details_Gpu_Load),
+    ];
+
     /// <summary>Bytes of <c>D3DKMT_ADAPTER_PERFDATA</c>.</summary>
     public const int AdapterPerfSize = 64;
 
@@ -123,29 +139,32 @@ public static class GpuDetailRules
 
         var facts = new List<DetailFact>(7);
 
-        void Add(Str label, string? value)
+        void Add(string key, Str label, string? value)
         {
             if (value is not null)
             {
-                facts.Add(new DetailFact(Strings.Get(locale, label), value));
+                facts.Add(new DetailFact(Strings.Get(locale, label), value, Key: key));
             }
         }
 
         var integrated = detail.DedicatedTotal == 0;
 
-        facts.Add(detail.Load is { } load
-            ? new DetailFact(Strings.Get(locale, Str.Details_Gpu_Load), Formatting.Percent(locale, Math.Clamp(load / 100, 0, 1)))
-            : DetailFact.Unavailable(Strings.Get(locale, Str.Details_Gpu_Load)));
+        // [S-11016] The memory is a fact too (the facts atom has no hero): dedicated where the adapter has its own.
+        Add("dedicated", Str.Details_Gpu_Dedicated, !integrated && detail.DedicatedUsed is { } dedicated ? MemoryDetailRules.UsedOfTotal(locale, dedicated, detail.DedicatedTotal) : null);
 
-        if (!integrated && detail.SharedTotal > 0)
+        facts.Add(detail.Load is { } load
+            ? new DetailFact(Strings.Get(locale, Str.Details_Gpu_Load), Formatting.Percent(locale, Math.Clamp(load / 100, 0, 1)), Key: "load")
+            : DetailFact.Unavailable(Strings.Get(locale, Str.Details_Gpu_Load)) with { Key = "load" });
+
+        if (detail.SharedTotal > 0)
         {
-            Add(Str.Details_Gpu_Shared, detail.SharedUsed is { } shared ? MemoryDetailRules.UsedOfTotal(locale, shared, detail.SharedTotal) : null);
+            Add("shared", Str.Details_Gpu_Shared, detail.SharedUsed is { } shared ? MemoryDetailRules.UsedOfTotal(locale, shared, detail.SharedTotal) : null);
         }
 
-        Add(Str.Details_Gpu_Temperature, detail.Sensors.Celsius is { } c ? CpuDetailRules.Celsius(locale, c) : null);
-        Add(Str.Details_Gpu_Fan, detail.Sensors.FanRpm is { } rpm ? Strings.Format(locale, Str.Details_Units_Rpm, ("value", LocaleFormat.Integer(locale, (long)Math.Round(rpm)))) : null);
-        Add(Str.Details_Gpu_Clock, detail.Sensors.CoreMhz is { } core ? Megahertz(locale, core) : null);
-        Add(Str.Details_Gpu_MemoryClock, detail.Sensors.MemoryMhz is { } mem ? Megahertz(locale, mem) : null);
+        Add("temperature", Str.Details_Gpu_Temperature, detail.Sensors.Celsius is { } c ? CpuDetailRules.Celsius(locale, c) : null);
+        Add("fan", Str.Details_Gpu_Fan, detail.Sensors.FanRpm is { } rpm ? Strings.Format(locale, Str.Details_Units_Rpm, ("value", LocaleFormat.Integer(locale, (long)Math.Round(rpm)))) : null);
+        Add("clock", Str.Details_Gpu_Clock, detail.Sensors.CoreMhz is { } core ? Megahertz(locale, core) : null);
+        Add("memoryClock", Str.Details_Gpu_MemoryClock, detail.Sensors.MemoryMhz is { } mem ? Megahertz(locale, mem) : null);
 
         var (used, total) = integrated ? (detail.SharedUsed, detail.SharedTotal) : (detail.DedicatedUsed, detail.DedicatedTotal);
         var caption = total > 0

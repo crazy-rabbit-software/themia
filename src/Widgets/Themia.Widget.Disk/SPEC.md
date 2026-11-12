@@ -1,6 +1,8 @@
-# Disk (meter)
+# Disk (reading)
 
-The module `disk` ([S-6911]): a drive's activity, reads and writes per second. Its tags are this
+The module `disk` ([S-6911]): a drive's activity, reads and writes per second, the reading alone (the id
+stays the reading's; its history is `diskHistory`, and the old card's look the ready-made group
+"Disk"). Its tags are this
 file's alone; the root `SPEC.md` holds the host's sections and what the meters share (the meter
 framework [S-1120]..[S-1126], [S-1762], [S-1167], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513],
 the header the meters start with [S-700]); the disk's rules are the SDK's `DiskRules` with their root
@@ -10,9 +12,10 @@ scope, [S-6265] and [S-6271] the bars), and the drives come from the host's walk
 
 Owning files: everything in this folder: `DiskModule.cs` (descriptor, view factory, menu lines,
 JSON context), `DiskConfig.cs` (with its styles, its drive and scope, and what it asks the hub,
-`IReadsSystem`), `DiskMeter.cs` (its half of the shared `MeterView`: the rate, the doubling scale,
-the bars' window, the header's title from the host's drives, Open in Explorer through the host's
-launcher), `DiskMenu.cs` (its properties menu: the drive, then the span every meter has),
+`IReadsSystem`), `DiskMeter.cs` (its half of the shared `MeterView` on the SDK's `DiskPart`, which the
+disk history shares: the rate, the bars' window, the header's title from the host's drives, Open in
+Explorer through the host's launcher), `DiskMenu.cs` (its properties menu: the drive, the SDK's
+`DiskMenuLines`),
 `Localization/Locales/` (its own `DiskStr`, 30 languages, its style names included). Tests: its
 config under the host's disk rules is the module host's `DiskHostTests`; its styles beside the other
 I/O meters' are `IoStylesHostTests`.
@@ -21,8 +24,9 @@ I/O meters' are `IoStylesHostTests`.
   offers no such command.
 - **[S-1168]** Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings
   page: Appearance, then Drive (system drive / all drives / each drive Windows lists, a removed one
-  offered as "not connected", the one held with the dot); under Style in the Graph style the Chart span
-  ([S-1122]).
+  offered as "not connected", the one held with the dot). Its styles (`DiskStyle`): **Number** (the rate
+  alone, [S-11001]) and **Bars** (the rate over reads and writes as two rows, [S-6271]: one height, 148,
+  240..480 wide); the old Graph style is the Disk history atom. No tier ladder is left.
 - **[S-2016]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
   folder's `Taskmgr.exe`); the module decides it (`DiskModule.Opens`, through its part's `Opens`).
 

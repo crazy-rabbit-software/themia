@@ -67,5 +67,14 @@
   "details.gpu.fan": "ফ্যান",
   "details.gpu.clock": "GPU ক্লক",
   "details.gpu.memoryClock": "মেমরি ক্লক",
-  "details.settings.gpu.adapter.label": "অ্যাডাপ্টার"
+  "details.settings.gpu.adapter.label": "অ্যাডাপ্টার",
+  "details.gpu.adapterMissing": "বেছে নেওয়া গ্রাফিক্স অ্যাডাপ্টারটি এখানে নেই",
+  "details.gpu.noAdapter": "পড়ার মতো কোনো গ্রাফিক্স অ্যাডাপ্টার নেই",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "কপি",
+  "details.gpu.engineVideoDecode": "ভিডিও ডিকোড",
+  "details.gpu.engineVideoEncode": "ভিডিও এনকোড",
+  "details.disk.drive": "ড্রাইভ",
+  "details.disk.read": "পড়া",
+  "details.disk.write": "লেখা"
 }

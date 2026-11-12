@@ -20,7 +20,17 @@
     "groups.recipe.cpuCores",
     "groups.recipe.cpuCoresAbout",
     "groups.recipe.cpuDetails",
-    "groups.recipe.cpuDetailsAbout"
+    "groups.recipe.cpuDetailsAbout",
+    "groups.recipe.memory",
+    "groups.recipe.memoryAbout",
+    "groups.recipe.memoryDetails",
+    "groups.recipe.memoryDetailsAbout",
+    "groups.recipe.gpu",
+    "groups.recipe.gpuAbout",
+    "groups.recipe.gpuDetails",
+    "groups.recipe.gpuDetailsAbout",
+    "groups.recipe.disk",
+    "groups.recipe.diskAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -45,5 +55,15 @@
   "groups.recipe.cpuCores": "CPU cores",
   "groups.recipe.cpuCoresAbout": "The processor's load over each core's",
   "groups.recipe.cpuDetails": "CPU details",
-  "groups.recipe.cpuDetailsAbout": "The processor's load over its speed, cores and more"
+  "groups.recipe.cpuDetailsAbout": "The processor's load over its speed, cores and more",
+  "groups.recipe.memory": "Memory",
+  "groups.recipe.memoryAbout": "Memory in use over its history",
+  "groups.recipe.memoryDetails": "Memory details",
+  "groups.recipe.memoryDetailsAbout": "Memory in use over what it is made of",
+  "groups.recipe.gpu": "GPU",
+  "groups.recipe.gpuAbout": "The graphics card's load over its history",
+  "groups.recipe.gpuDetails": "GPU details",
+  "groups.recipe.gpuDetailsAbout": "The graphics card's load over its memory and sensors",
+  "groups.recipe.disk": "Disk",
+  "groups.recipe.diskAbout": "A drive's reads and writes over their history"
 }

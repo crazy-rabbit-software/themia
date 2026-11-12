@@ -67,5 +67,14 @@
   "details.gpu.fan": "ഫാൻ",
   "details.gpu.clock": "GPU ക്ലോക്ക്",
   "details.gpu.memoryClock": "മെമ്മറി ക്ലോക്ക്",
-  "details.settings.gpu.adapter.label": "അഡാപ്റ്റർ"
+  "details.settings.gpu.adapter.label": "അഡാപ്റ്റർ",
+  "details.gpu.adapterMissing": "തിരഞ്ഞെടുത്ത ഗ്രാഫിക്സ് അഡാപ്റ്റർ ഇവിടെയില്ല",
+  "details.gpu.noAdapter": "വായിക്കാൻ ഗ്രാഫിക്സ് അഡാപ്റ്ററില്ല",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "പകർപ്പ്",
+  "details.gpu.engineVideoDecode": "വീഡിയോ ഡീകോഡ്",
+  "details.gpu.engineVideoEncode": "വീഡിയോ എൻകോഡ്",
+  "details.disk.drive": "ഡ്രൈവ്",
+  "details.disk.read": "വായന",
+  "details.disk.write": "എഴുത്ത്"
 }

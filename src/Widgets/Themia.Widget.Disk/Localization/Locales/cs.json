@@ -1,9 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.meters.drive.label": "Jednotka",
   "styles.io.bars": "Sloupce",
-  "styles.io.read": "Čtení",
-  "styles.io.write": "Zápis",
   "widgetsA.catalog.disk.description": "Čtení a zápisy na disk za sekundu",
   "widgetsA.catalog.disk.label": "Disk"
 }

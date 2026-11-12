@@ -44,27 +44,28 @@ public sealed class SystemStateFixtureTests
         var cpu = Assert.IsType<CpuConfig>(configs[0]);
         Assert.Equal(CpuStyle.Gauge, cpu.Style);
         var memory = Assert.IsType<MemoryConfig>(configs[1]);
-        Assert.Equal((MemoryStyle.Bar, 900), (memory.Style, memory.GraphSpanSeconds));
+        Assert.Equal(MemoryStyle.Bar, memory.Style);
         var battery = Assert.IsType<BatteryConfig>(configs[2]);
         Assert.Equal((BatteryStyle.Ring, 1800), (battery.Style, battery.GraphSpanSeconds));
         var disk = Assert.IsType<DiskConfig>(configs[3]);
-        Assert.Equal((DiskStyle.Bars, DiskScope.OneDrive, "D:\\", 300), (disk.Style, disk.Scope, disk.Drive, disk.GraphSpanSeconds));
+        Assert.Equal((DiskStyle.Bars, DiskScope.OneDrive, "D:\\"), (disk.Style, disk.Scope, disk.Drive));
         var network = Assert.IsType<NetworkConfig>(configs[4]);
         Assert.Equal((NetworkStyle.Numbers, 3600), (network.Style, network.GraphSpanSeconds));
         var ping = Assert.IsType<PingConfig>(configs[5]);
         Assert.Equal((PingStyle.Signal, "example.com", 300), (ping.Style, ping.Host, ping.GraphSpanSeconds));
         var gpu = Assert.IsType<GpuConfig>(configs[6]);
-        Assert.Equal((GpuStyle.Engines, 1, 900), (gpu.Style, gpu.Adapter, gpu.GraphSpanSeconds));
+        Assert.Equal((GpuStyle.Gauge, 1), (gpu.Style, gpu.Adapter));
 
         Assert.Equal(["uptime", "speed"], Assert.IsType<CpuFactsConfig>(configs[7]).Facts);
-        Assert.IsType<MemoryDetailsConfig>(configs[8]);
+        Assert.Equal(["pageFile", "inUse"], Assert.IsType<MemoryFactsConfig>(configs[8]).Facts);
         var processes = Assert.IsType<TopProcessesConfig>(configs[9]);
         Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.Rows, processes.GroupByName));
         Assert.True(Assert.IsType<NetworkDetailsConfig>(configs[10]).ShowPublicAddress);
         Assert.IsType<BatteryDetailsConfig>(configs[11]);
         var pingDetails = Assert.IsType<PingDetailsConfig>(configs[12]);
         Assert.Equal(("9.9.9.9", 120), (pingDetails.Host, pingDetails.Window));
-        Assert.Equal(1, Assert.IsType<GpuDetailsConfig>(configs[13]).Adapter);
+        var gpuFacts = Assert.IsType<GpuFactsConfig>(configs[13]);
+        Assert.Equal((1, "temperature"), (gpuFacts.Adapter, Assert.Single(gpuFacts.Facts)));
 
         var drive = Assert.IsType<DriveConfig>(configs[14]);
         Assert.Equal((DriveStyle.Ring, "E:\\"), (drive.Style, drive.Drive));

@@ -67,5 +67,14 @@
   "details.gpu.fan": "Ventilator",
   "details.gpu.clock": "Frecvență GPU",
   "details.gpu.memoryClock": "Frecvență memorie",
-  "details.settings.gpu.adapter.label": "Adaptor"
+  "details.settings.gpu.adapter.label": "Adaptor",
+  "details.gpu.adapterMissing": "Adaptorul grafic ales nu este aici",
+  "details.gpu.noAdapter": "Niciun adaptor grafic de citit",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Copiere",
+  "details.gpu.engineVideoDecode": "Decodare video",
+  "details.gpu.engineVideoEncode": "Codare video",
+  "details.disk.drive": "Unitate",
+  "details.disk.read": "Citire",
+  "details.disk.write": "Scriere"
 }

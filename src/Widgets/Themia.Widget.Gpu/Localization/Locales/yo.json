@@ -1,13 +1,5 @@
 {
   "shell.meters.gpuDescription": "Ẹrù káàdì àwòrán kan",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "Ẹ̀dà",
-  "styles.gpu.engineVideoDecode": "Ìtú kóòdù fídíò",
-  "styles.gpu.engineVideoEncode": "Ìfi kóòdù fídíò",
-  "styles.gpu.engines": "Àwọn ẹ́ńjìnnì",
   "styles.gpu.gauge": "Òṣùwọ̀n",
-  "styles.gpu.graph": "Àtẹ",
-  "widgetsA.catalog.gpu.label": "GPU",
-  "widgetsB.gpu.adapterMissing": "Adáptà àwòrán tí a yàn kò sí níbí",
-  "widgetsB.gpu.noAdapter": "Kò sí adáptà àwòrán láti kà"
+  "widgetsA.catalog.gpu.label": "GPU"
 }

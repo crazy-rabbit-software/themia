@@ -23,13 +23,12 @@ public sealed class WidgetSizingTests
     [
         "airQuality", "airplaneModeToggle", "alarm", "audioVisualizer", "battery", "batteryDetails", "bluetooth",
         "bluetoothToggle", "brightness", "calendar", "clipboard", "colorFiltersToggle", "contacts", "countdown",
-        "deviceBatteries", "disk", "doNotDisturbToggle", "drive", "email", "energySaverToggle", "exchangeRates",
-        "focusSession", "gameModeToggle", "gpu", "gpuDetails", "habitTracker", "hibernate", "lock", "memoryDetails",
-        "microphoneToggle", "mixer", "monoAudioToggle", "moon", "music", "network", "networkDetails", "nextMeeting",
-        "nightLightToggle", "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour",
-        "removableDrives", "restart", "rotationLockToggle", "rss", "screenOff", "screenTimeApps", "screenTimeChart",
-        "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle", "stocks",
-        "stopwatch", "sun", "volume",
+        "deviceBatteries", "doNotDisturbToggle", "drive", "email", "energySaverToggle", "exchangeRates",
+        "focusSession", "gameModeToggle", "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer",
+        "monoAudioToggle", "moon", "music", "network", "networkDetails", "nextMeeting", "nightLightToggle",
+        "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour", "removableDrives", "restart",
+        "rotationLockToggle", "rss", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
+        "signOut", "sleep", "soundToggle", "spatialSoundToggle", "stocks", "stopwatch", "sun", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
     ];
 

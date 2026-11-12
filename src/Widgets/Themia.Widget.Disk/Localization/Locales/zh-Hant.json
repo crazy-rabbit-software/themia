@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "磁碟機",
   "styles.io.bars": "長條",
-  "styles.io.read": "讀取",
-  "styles.io.write": "寫入",
   "widgetsA.catalog.disk.description": "每秒磁碟讀寫量",
   "widgetsA.catalog.disk.label": "磁碟"
 }

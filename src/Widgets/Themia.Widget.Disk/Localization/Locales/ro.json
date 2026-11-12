@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "Unitate",
   "styles.io.bars": "Bare",
-  "styles.io.read": "Citire",
-  "styles.io.write": "Scriere",
   "widgetsA.catalog.disk.description": "Citiri și scrieri pe disc pe secundă",
   "widgetsA.catalog.disk.label": "Disc"
 }

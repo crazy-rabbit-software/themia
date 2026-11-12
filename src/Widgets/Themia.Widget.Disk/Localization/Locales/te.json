@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "డ్రైవ్",
   "styles.io.bars": "బార్లు",
-  "styles.io.read": "చదవడం",
-  "styles.io.write": "రాయడం",
   "widgetsA.catalog.disk.description": "సెకనుకు డిస్క్ రీడ్‌లు మరియు రైట్‌లు",
   "widgetsA.catalog.disk.label": "డిస్క్"
 }

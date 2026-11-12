@@ -8,6 +8,10 @@
     <Project Path="src/Themia.Sdk.WinUI/Themia.Sdk.WinUI.csproj" />
   </Folder>
   <Folder Name="/src/Widgets/">
+    <Project Path="src/Widgets/Themia.Widget.DiskHistory/Themia.Widget.DiskHistory.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.GpuEngines/Themia.Widget.GpuEngines.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.GpuHistory/Themia.Widget.GpuHistory.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.MemoryHistory/Themia.Widget.MemoryHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.CpuCores/Themia.Widget.CpuCores.csproj" />
     <Project Path="src/Widgets/Themia.Widget.CpuHistory/Themia.Widget.CpuHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DeviceBatteries/Themia.Widget.DeviceBatteries.csproj" />
@@ -40,12 +44,12 @@
     <Project Path="src/Widgets/Themia.Widget.Gallery/Themia.Widget.Gallery.csproj" />
     <Project Path="src/Widgets/Themia.Widget.GameModeToggle/Themia.Widget.GameModeToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Gpu/Themia.Widget.Gpu.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.GpuDetails/Themia.Widget.GpuDetails.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.GpuFacts/Themia.Widget.GpuFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.HabitTracker/Themia.Widget.HabitTracker.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Hibernate/Themia.Widget.Hibernate.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Lock/Themia.Widget.Lock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Memory/Themia.Widget.Memory.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.MemoryDetails/Themia.Widget.MemoryDetails.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.MemoryFacts/Themia.Widget.MemoryFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.MicrophoneToggle/Themia.Widget.MicrophoneToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Mixer/Themia.Widget.Mixer.csproj" />
     <Project Path="src/Widgets/Themia.Widget.MonoAudioToggle/Themia.Widget.MonoAudioToggle.csproj" />

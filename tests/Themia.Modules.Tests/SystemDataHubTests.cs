@@ -435,7 +435,7 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2513_a_change_that_wants_the_same_is_no_change()
     {
-        var state = State([new Themia.Widget.CpuHistory.CpuHistoryConfig(), new MemoryDetailsConfig()]);
+        var state = State([new Themia.Widget.CpuHistory.CpuHistoryConfig(), new MemoryFactsConfig()]);
         var before = SystemInterests.From(state, Root);
 
         // Moving a widget or changing a span reads nothing new.

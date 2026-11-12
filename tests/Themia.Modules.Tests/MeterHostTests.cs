@@ -36,14 +36,14 @@ public sealed class MeterHostTests
     public void S1120_each_meter_has_its_default_span()
     {
         Assert.Equal(60, new Themia.Widget.CpuHistory.CpuHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(60, new MemoryConfig().GraphSpanSeconds);
+        Assert.Equal(60, new Themia.Widget.MemoryHistory.MemoryHistoryConfig().GraphSpanSeconds);
         Assert.Equal(60, new NetworkConfig().GraphSpanSeconds);
-        Assert.Equal(60, new GpuConfig().GraphSpanSeconds);
-        Assert.Equal(300, new DiskConfig().GraphSpanSeconds);
+        Assert.Equal(60, new Themia.Widget.GpuHistory.GpuHistoryConfig().GraphSpanSeconds);
+        Assert.Equal(300, new Themia.Widget.DiskHistory.DiskHistoryConfig().GraphSpanSeconds);
         Assert.Equal(900, new BatteryConfig().GraphSpanSeconds);
         Assert.Equal(900, new PingConfig().GraphSpanSeconds);
 
-        foreach (var config in new GaugeConfig[] { new MemoryConfig(), new NetworkConfig(), new GpuConfig(), new DiskConfig(), new BatteryConfig(), new PingConfig() })
+        foreach (var config in new ISpansHistory[] { new Themia.Widget.MemoryHistory.MemoryHistoryConfig(), new NetworkConfig(), new Themia.Widget.GpuHistory.GpuHistoryConfig(), new Themia.Widget.DiskHistory.DiskHistoryConfig(), new BatteryConfig(), new PingConfig() })
         {
             Assert.Contains(config.GraphSpanSeconds, MeterTiming.SpanChoices);
         }
@@ -117,8 +117,8 @@ public sealed class MeterHostTests
     [Fact]
     public void S1120_clone_carries_the_shared_settings()
     {
-        var memory = new MemoryConfig { GraphSpanSeconds = 1800, ShowGraph = false };
-        var copy = (MemoryConfig)memory.Clone();
+        var ping = new PingConfig { GraphSpanSeconds = 1800, ShowGraph = false };
+        var copy = (PingConfig)ping.Clone();
 
         Assert.Equal((1800, false), (copy.GraphSpanSeconds, copy.ShowGraph));
     }

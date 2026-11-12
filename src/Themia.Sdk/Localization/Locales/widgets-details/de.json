@@ -67,5 +67,14 @@
   "details.gpu.fan": "Lüfter",
   "details.gpu.clock": "GPU-Takt",
   "details.gpu.memoryClock": "Speichertakt",
-  "details.settings.gpu.adapter.label": "Grafikkarte"
+  "details.settings.gpu.adapter.label": "Grafikkarte",
+  "details.gpu.adapterMissing": "Der gewählte Grafikadapter ist nicht vorhanden",
+  "details.gpu.noAdapter": "Kein Grafikadapter zum Auslesen",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Kopieren",
+  "details.gpu.engineVideoDecode": "Video-Decoding",
+  "details.gpu.engineVideoEncode": "Video-Encoding",
+  "details.disk.drive": "Laufwerk",
+  "details.disk.read": "Lesen",
+  "details.disk.write": "Schreiben"
 }

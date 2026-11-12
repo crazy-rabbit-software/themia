@@ -5798,7 +5798,7 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
 - **[S-11007]** **Facts** keep the header and show fact rows alone, no hero (the reading atom is the
   hero): which of the kind's facts and in what order is the config's pick (`FactsConfig.Facts`, keys;
   a new one the kind's first four). Its height is 36 + 28 a fact + 12, stepped by the count, 200..420
-  wide, a new one 240 (`FactsRules.Sizing`); dragging the bottom edge keeps the first facts or adds the
+  wide, a new one 260 (`FactsRules.Sizing`); dragging the bottom edge keeps the first facts or adds the
   kind's next ones in its order (`FactsRules.SizeSets`). A picked fact this read has none of (Windows
   does not report it here, or not yet) is its name over a dimmed "--", so the rows stay ([S-2403] keeps
   leaving such a fact out of a sheet; the pick is what keeps its row). Its menu has one line, Facts: the
@@ -5812,7 +5812,10 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
 - **[S-11090]** **The groups of the old cards** (`ReadyMadeGroups`, home: the subject's family): each
   old card is a group of its atoms, touching, the first with the header, the others headerless, about
   as wide as the old card and tighter: **CPU** (`cpu` 160 × 84 over `cpuHistory` 160 × 64), **CPU cores**
-  (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over `cpuFacts` 240 × 136).
+  (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over `cpuFacts` 240 × 136), **Memory**
+  (`memory` over `memoryHistory`, 160 wide), **Memory details** (`memory` over `memoryFacts`, 260 wide),
+  **GPU** (`gpu` over `gpuHistory`, 200 wide), **GPU details** (`gpu` over `gpuFacts`, 260 wide),
+  **Disk** (`disk` over `diskHistory`, 160 wide).
 
 ## System details (SYS-DETAILS)
 

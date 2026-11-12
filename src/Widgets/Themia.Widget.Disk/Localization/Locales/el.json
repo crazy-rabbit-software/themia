@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "Μονάδα δίσκου",
   "styles.io.bars": "Μπάρες",
-  "styles.io.read": "Ανάγνωση",
-  "styles.io.write": "Εγγραφή",
   "widgetsA.catalog.disk.description": "Αναγνώσεις και εγγραφές δίσκου ανά δευτερόλεπτο",
   "widgetsA.catalog.disk.label": "Δίσκος"
 }

@@ -1,13 +1,5 @@
 {
   "shell.meters.gpuDescription": "ဂရပ်ဖစ်ကတ်တစ်ခု၏ ဝန်",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "ကူး",
-  "styles.gpu.engineVideoDecode": "ဗီဒီယို decode",
-  "styles.gpu.engineVideoEncode": "ဗီဒီယို encode",
-  "styles.gpu.engines": "Engine များ",
   "styles.gpu.gauge": "တိုင်းကိရိယာ",
-  "styles.gpu.graph": "ဂရပ်",
-  "widgetsA.catalog.gpu.label": "GPU",
-  "widgetsB.gpu.adapterMissing": "ရွေးထားသော ဂရပ်ဖစ် adapter ဤနေရာတွင် မရှိပါ",
-  "widgetsB.gpu.noAdapter": "ဖတ်ရန် ဂရပ်ဖစ် adapter မရှိပါ"
+  "widgetsA.catalog.gpu.label": "GPU"
 }

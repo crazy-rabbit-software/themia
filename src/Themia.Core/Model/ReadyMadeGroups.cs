@@ -119,8 +119,43 @@ public static class ReadyMadeGroups
         new("cpuFacts", new(0, 84, 240, 136), Header: HeaderPlacement.Hidden),
     ]);
 
+    /// <summary>[S-11090] Memory: the reading over its history.</summary>
+    public static ReadyMadeGroup Memory { get; } = new("memory", Str.Groups_Recipe_Memory, Str.Groups_Recipe_MemoryAbout, Glyphs.Memory, AddFolderId.MemoryReading,
+    [
+        new("memory", new(0, 0, 160, 84)),
+        new("memoryHistory", new(0, 84, 160, 64)),
+    ]);
+
+    /// <summary>[S-11090] Memory details: the reading over its facts.</summary>
+    public static ReadyMadeGroup MemoryDetails { get; } = new("memoryDetails", Str.Groups_Recipe_MemoryDetails, Str.Groups_Recipe_MemoryDetailsAbout, Glyphs.Memory, AddFolderId.MemoryReading,
+    [
+        new("memory", new(0, 0, 260, 84)),
+        new("memoryFacts", new(0, 84, 260, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
+    /// <summary>[S-11090] GPU: the reading over its history.</summary>
+    public static ReadyMadeGroup Gpu { get; } = new("gpu", Str.Groups_Recipe_Gpu, Str.Groups_Recipe_GpuAbout, Glyphs.Gpu, AddFolderId.Graphics,
+    [
+        new("gpu", new(0, 0, 200, 84)),
+        new("gpuHistory", new(0, 84, 200, 64)),
+    ]);
+
+    /// <summary>[S-11090] GPU details: the reading over its facts.</summary>
+    public static ReadyMadeGroup GpuDetails { get; } = new("gpuDetails", Str.Groups_Recipe_GpuDetails, Str.Groups_Recipe_GpuDetailsAbout, Glyphs.Gpu, AddFolderId.Graphics,
+    [
+        new("gpu", new(0, 0, 260, 84)),
+        new("gpuFacts", new(0, 84, 260, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
+    /// <summary>[S-11090] Disk: the reading over its history.</summary>
+    public static ReadyMadeGroup Disk { get; } = new("disk", Str.Groups_Recipe_Disk, Str.Groups_Recipe_DiskAbout, Glyphs.Disk, AddFolderId.System,
+    [
+        new("disk", new(0, 0, 160, 84)),
+        new("diskHistory", new(0, 84, 160, 64)),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles, Cpu, CpuCores, CpuDetails];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

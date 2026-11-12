@@ -83,5 +83,14 @@
   "details.gpu.dedicated": "Dedicated memory",
   "details.network.download": "Download",
   "details.battery.charge": "Charge",
-  "details.battery.status": "Status"
+  "details.battery.status": "Status",
+  "details.gpu.adapterMissing": "The chosen graphics adapter is not here",
+  "details.gpu.noAdapter": "No graphics adapter to read",
+  "details.gpu.engine3d": "3D",
+  "details.gpu.engineCopy": "Copy",
+  "details.gpu.engineVideoDecode": "Video decode",
+  "details.gpu.engineVideoEncode": "Video encode",
+  "details.disk.drive": "Drive",
+  "details.disk.read": "Read",
+  "details.disk.write": "Write"
 }

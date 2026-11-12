@@ -1,8 +1,5 @@
 {
-  "shell.meters.drive.label": "Unidad",
   "styles.io.bars": "Barras",
-  "styles.io.read": "Lectura",
-  "styles.io.write": "Escritura",
   "widgetsA.catalog.disk.description": "Lecturas y escrituras de disco por segundo",
   "widgetsA.catalog.disk.label": "Disco"
 }
