@@ -32,6 +32,28 @@ public sealed class HeaderStripTests
         }
     }
 
+    // ---- [S-11009] a header counted in the sizing never sheds -----------------------------------
+
+    [Theory]
+    [InlineData(HeaderPlacement.Top, 200, 76)]
+    [InlineData(HeaderPlacement.Top, 120, 84)]
+    [InlineData(HeaderPlacement.Bottom, 200, 88)]
+    [InlineData(HeaderPlacement.Left, 150, 60)]
+    [InlineData(HeaderPlacement.Right, 120, 200)]
+    public void S11009_a_sized_kind_keeps_its_header_where_a_legacy_one_sheds_it(HeaderPlacement placement, double width, double height)
+    {
+        Assert.True(HeaderStrip.Sheds(placement, width, height, sized: false));
+        Assert.False(HeaderStrip.Sheds(placement, width, height, sized: true));
+    }
+
+    [Fact]
+    public void S11009_a_legacy_kind_keeps_the_floors_and_a_card_not_measured_yet_never_sheds()
+    {
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Top, 200, 96, sized: false));
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Left, 160, 60, sized: false));
+        Assert.False(HeaderStrip.Sheds(HeaderPlacement.Top, 0, 0, sized: false));
+    }
+
     // ---- [S-404] the strip's cell and the content box ----------------------------------------
 
     [Theory]

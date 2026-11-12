@@ -451,10 +451,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // conclusion separately with a slightly different threshold. A size of zero is a card
         // that has not been measured yet, not a short one.
         // [S-404] [S-409] A strip down a side sheds on a card too narrow for it instead.
-        // [S-2444] A converted kind's sizing counts its header, so a flat one never sheds: a one-line
-        // reading is 84 tall with it. Only a legacy kind, sized by hand, keeps the floor.
-        var counted = !HeaderStrip.IsSide(placement) && ModuleCatalog.TryGet(Model.Kind, out var kind) && !kind.SizingOf(Model.Config).IsLegacy;
-        var tooShort = !counted && HeaderStrip.Sheds(placement, ActualWidth, ActualHeight);
+        // [S-11009] A converted kind's sizing counts its header on every edge, so it never sheds: a
+        // one-line reading is 84 tall with it. Only a legacy kind, sized by hand, keeps the floors.
+        var sized = ModuleCatalog.TryGet(Model.Kind, out var kind) && !kind.SizingOf(Model.Config).IsLegacy;
+        var tooShort = HeaderStrip.Sheds(placement, ActualWidth, ActualHeight, sized);
         var hidden = placement == HeaderPlacement.Hidden || tooShort;
 
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;

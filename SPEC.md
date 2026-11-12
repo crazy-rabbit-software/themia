@@ -5855,8 +5855,11 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   the defaults.
 - **[S-11008]** **A list** (top processes, network adapters, removable drives, device batteries) keeps
   the header and shows the config's rows (`IKitRows`), the rest scrolling inside them ([S-2440]).
-- **[S-11009]** **A header counted in the sizing never sheds**: a converted kind's flat header stays
-  on a card shorter than the legacy 96 floor ([S-402]), since its sizing counts it (`WidgetCard`).
+- **[S-11009]** **A header counted in the sizing never sheds**: a converted kind's header stays on a
+  card shorter than the legacy 96 floor or narrower than the side strip's 160 ([S-402], [S-409]), on
+  every edge, since its sizing counts it there ([S-2444]); only a legacy kind keeps the floors
+  (`HeaderStrip.Sheds(placement, width, height, sized)`, asked by `WidgetCard`). Tests
+  `HeaderStripTests.S11009_`.
 - **[S-11090]** **The groups of the old cards** (`ReadyMadeGroups`, home: the subject's family): each
   old card is a group of its atoms, touching, the first with the header, the others headerless, about
   as wide as the old card and tighter: **CPU** (`cpu` 160 × 84 over `cpuHistory` 160 × 64), **CPU cores**

@@ -125,6 +125,15 @@ public static class HeaderStrip
     }
 
     /// <summary>
+    /// [S-11009] Whether the card sheds its header, for a kind whose sizing does or does not count it
+    /// (<paramref name="sized"/>: a converted kind, [S-2444]). A converted kind's header is in its sizing
+    /// on every edge (a top one its 24, a foot or side strip its 36), so it is there at every size of the
+    /// range and never sheds; only a legacy kind, sized by hand, keeps the floors of <see cref="Sheds(HeaderPlacement, double, double)"/>.
+    /// </summary>
+    public static bool Sheds(HeaderPlacement placement, double width, double height, bool sized)
+        => !sized && Sheds(placement, width, height);
+
+    /// <summary>
     /// [S-5700] How far below the card's top edge the view's cell starts, for a header shown on
     /// <paramref name="shown"/> (<see cref="HeaderEdge.None"/> when hidden or shed): nothing under a header
     /// above (its line and gap are the content's top), else the family's inset, so the content starts
