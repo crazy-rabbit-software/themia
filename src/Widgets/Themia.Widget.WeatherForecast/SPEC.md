@@ -3,7 +3,7 @@
 The module `weatherForecast` ([S-6911]): the next few days at a place, from open-meteo. Its tags are
 this file's alone; the root `SPEC.md` holds the host's sections and what both weather widgets share
 (Weather: current conditions and forecast: the request [S-720], the day labels [S-721], the header's
-place title [S-728], the stored answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2848],
+place label [S-728], [S-2260], the stored answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2848],
 the glyphs [S-733]; the background web sync [S-2663]; the family's blocks [S-6700]..[S-6734]).
 
 Owning files: everything in this folder: `WeatherForecastModule.cs` (descriptor, view factory,

@@ -49,7 +49,7 @@ internal sealed partial class AirQualityView : IWidgetPreviewState
             _ => reading,
         };
         _status = state == "failed" ? FetchStatus.Unreachable : FetchStatus.Ok;
-        PublishTitle();
+        PublishPlace();
         Render();
         return Task.CompletedTask;
     }

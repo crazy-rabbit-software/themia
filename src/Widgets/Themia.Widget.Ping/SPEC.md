@@ -9,7 +9,7 @@ the signal bars, `PingSignal`).
 
 Owning files: everything in this folder: `PingModule.cs` (descriptor, view factory, menu lines,
 JSON context), `PingConfig.cs` (with its styles, its host and what it asks the hub, `IReadsSystem`),
-`PingMeter.cs` (its half of the shared `MeterView`: the latency scale, the header's problem glyph, the title, the
+`PingMeter.cs` (its half of the shared `MeterView`: the latency scale, the header's problem glyph, the host as the header's label ([S-2260]), the
 Refresh command, the look per style), `PingMenu.cs` (its properties menu: the host, then the span every
 meter has), `Localization/Locales/` (its own `PingStr`, 30 languages, its style names included). Tests:
 its config under the root's rules is the module host's `PingHostTests`; its styles beside the other

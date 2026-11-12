@@ -115,7 +115,7 @@ public class PlaceClearTests
         weather.ClearLocation();
 
         Assert.Equal((null, null, string.Empty), (weather.Latitude, weather.Longitude, weather.LocationName));
-        Assert.Null(weather.Title);
+        Assert.Null(weather.PlaceLabel);
     }
 
     [Fact]

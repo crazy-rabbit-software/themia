@@ -61,9 +61,9 @@ internal sealed class PingMeter : MeterPart
 
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {
-        // [S-1173] The header names the host as the user does: its label, else its address.
+        // [S-1173] The header's label names the host as the user does ([S-2260]): its label, else its address.
         var ping = config as PingConfig ?? new PingConfig();
-        host.SetTitle(ping.EffectiveHost);
+        host.SetAbout(ping.EffectiveHost);
     }
 
     /// <summary>[S-1170] The problem glyph while the host does not answer, its status on hover; nothing otherwise.</summary>

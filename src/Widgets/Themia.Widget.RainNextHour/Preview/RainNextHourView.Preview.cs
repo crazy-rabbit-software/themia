@@ -44,7 +44,7 @@ internal sealed partial class RainNextHourView : IWidgetPreviewState
             // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
             _nowcast = _nowcast.Stale(FetchStatus.Offline, null);
         }
-        PublishTitle();
+        PublishPlace();
         Render();
         return Task.CompletedTask;
     }

@@ -36,7 +36,7 @@ namespace Themia.App.Widgets;
 /// instant, so this file only turns numbers into shapes.
 /// </para>
 /// </summary>
-internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware
+internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware
 {
     private readonly Canvas _canvas = new()
     {
@@ -72,7 +72,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
     private SunConfig _config = new();
 
     /// <summary>The card this view draws on, which owns the header it names.</summary>
-    private IWidgetSurface? _surface;
+    /// <summary>[S-2260] The header's trailing parts: the place as its label beside the widget's name.</summary>
+    private readonly HeaderParts _about = new();
+
+    public FrameworkElement? HeaderTrailing => _about;
     private Ticker? _ticker;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
@@ -150,17 +153,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         Lay();
     }
 
-    /// <inheritdoc />
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
-
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as SunConfig ?? new SunConfig();
-        PublishTitle();
+        PublishPlace();
         Resubscribe();
 
         // Lay ends in a Refresh, so the rows and the drawing pick the new config up in the same pass.
@@ -396,10 +392,6 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
 
-    /// <summary>The place names which sun this is; the card's own label when there is none.</summary>
-    private void PublishTitle()
-    {
-        var title = _config.Place;
-        _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
-    }
+    /// <summary>[S-2260] The header names the widget ("Sun"); the place stands in its label, none once it is cleared ([S-2848]).</summary>
+    private void PublishPlace() => _about.SetAbout(_config.PlaceLabel);
 }

@@ -18,8 +18,8 @@ family's `WeatherPlaceRows.LocationLine`, the index and the source line), `Previ
 side-by-side family tests are in the module test host (`OnlineFamilyTests`, `OnlineStylesTests`).
 
 - **[S-5100]** Air quality, UV and pollen at a place. A weather-family config (`AirQualityConfig :
-  WeatherConfig`): the shared place picker ([S-2840]), the location-name switch and header rule
-  ([S-728]); no place is the Set up state ([S-1860]).
+  WeatherConfig`): the shared place picker ([S-2840]), the place as the header's label
+  ([S-728], [S-2260]); no place is the Set up state ([S-1860]).
 - **[S-5101]** The sync asks for it under its own interest (`AirInterest`, before the weather case,
   which never claims it: `WeatherInterests.For(WeatherConfig)` is only WeatherNow and WeatherForecast).
   Cadence: the shared weather cadence ([S-3780]) but never faster than hourly (`OnlineCadence.Air`):

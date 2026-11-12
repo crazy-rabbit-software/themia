@@ -3,7 +3,7 @@
 The module `weatherNow` ([S-6911]): the weather where the user says they are, from open-meteo. Its
 tags are this file's alone; the root `SPEC.md` holds the host's sections and what both weather
 widgets share (Weather: current conditions and forecast: the request [S-720], the header's place
-title [S-728], the stored answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2848], the
+label [S-728], [S-2260], the stored answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2848], the
 glyphs [S-733]; the background web sync [S-2663]; the family's blocks [S-6702], [S-6711], [S-6714] and the
 online widgets' state row [S-6734]).
 
@@ -51,7 +51,7 @@ is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeep
   then Appearance ([S-3723]) and behind a divider **Location**, the weather family's search ([S-3722],
   `WeatherPlaceRows.LocationLine`): the chosen place's city at the end of its line (nothing without one), the geocoder asked once typing pauses ([S-2841]), its places as lines (a click picks one,
   resolved once, [S-2840]) or what it said in their place ([S-2843]); under them Clear location
-  (greyed without a place, [S-2848]); the place's city is the header's title ([S-728]). Then behind a
+  (greyed without a place, [S-2848]); the place's city is the header's label ([S-728], [S-2260]). Then behind a
   divider the links to what it follows and does not set ([S-3749], [S-3590]): **Temperature unit**
   (⚙ › Language & region) and **Update interval** (⚙ › Online updates › Weather), each with what is in
   force. (Tests `WeatherNowMenuTests`.)

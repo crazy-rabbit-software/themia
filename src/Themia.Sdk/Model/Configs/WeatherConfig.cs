@@ -29,20 +29,13 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
     public bool UseDeviceLocation { get; set; }
 
     /// <summary>
-    /// [S-728] The header title for the chosen place: the city, the first part of the name the
-    /// geocoder gave ("Zürich" of "Zürich, Zurich, Switzerland"), not the text that was typed to
-    /// find it, which is as often "zurich" or "zuerich". Null until a place has been picked.
+    /// [S-728] [S-2260] The header's label for the chosen place, beside the widget's name: the city, the
+    /// first part of the name the geocoder gave ("Zürich" of "Zürich, Zurich, Switzerland"), not the
+    /// text that was typed to find it, which is as often "zurich" or "zuerich". Null until a place has
+    /// been picked, and once it is cleared ([S-2848]): then there is no label.
     /// </summary>
     [JsonIgnore]
-    public string? Title
-    {
-        get
-        {
-            var name = LocationName.Split(',', 2)[0].Trim();
-
-            return name.Length > 0 ? name : null;
-        }
-    }
+    public string? PlaceLabel => Themia.Sdk.Kit.HeaderRules.About(LocationName.Split(',', 2)[0]);
 
     /// <summary>
     /// Whether a location has actually been chosen.

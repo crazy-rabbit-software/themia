@@ -22,7 +22,7 @@ namespace Themia.App.Widgets;
 /// ([S-6714]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
 /// between fetches.
 /// </summary>
-internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent,
     IWidgetSizeAware, IWidgetContextActions
 {
     /// <inheritdoc />
@@ -45,7 +45,6 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     private Ticker? _ticker;
     private RainNextHourConfig _config = new();
     private RainNextHourConfig _applied = new();
-    private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private readonly IWidgetHost _host;
     private IWeatherAnswers? _web;
@@ -134,19 +133,13 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         ApplyConfig(config);
     }
 
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
-
     public void ApplyConfig(WidgetConfig config)
     {
         var next = config as RainNextHourConfig ?? new RainNextHourConfig();
         var previous = _applied;
         _config = next;
         _applied = (RainNextHourConfig)next.Clone();
-        PublishTitle();
+        PublishPlace();
 
         if (previous.Latitude != next.Latitude || previous.Longitude != next.Longitude)
         {
@@ -287,5 +280,6 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         _ticker = null;
     }
 
-    private void PublishTitle() => _surface?.SetHeaderTitle(_config.Title);
+    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
+    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

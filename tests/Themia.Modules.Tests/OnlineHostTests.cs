@@ -13,14 +13,14 @@ namespace Themia.Core.Tests;
 public sealed class OnlineHostTests
 {
     [Fact]
-    public void S728_the_title_is_the_chosen_city_not_the_typed_query()
+    public void S728_the_place_label_is_the_chosen_city_not_the_typed_query()
     {
         var config = new WeatherNowConfig { LocationName = "Zürich, Zurich, Switzerland", Latitude = 47.37, Longitude = 8.54 };
 
-        Assert.Equal("Zürich", config.Title);
+        Assert.Equal("Zürich", config.PlaceLabel);
     }
 
     [Fact]
-    public void S2846_with_no_place_picked_there_is_no_title_and_nothing_typed_stands_in()
-        => Assert.Null(new WeatherForecastConfig().Title);
+    public void S2846_with_no_place_picked_there_is_no_place_label_and_nothing_typed_stands_in()
+        => Assert.Null(new WeatherForecastConfig().PlaceLabel);
 }

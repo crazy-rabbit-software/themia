@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// today ringed in the accent, the month's name over them where it fits.
 /// </para>
 /// </summary>
-internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetAligned
+internal sealed partial class MoonView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetAligned
 {
     /// <summary>[S-6050] Under this disc size the month's name gives its line to the discs.</summary>
     private const double MonthNameDisc = FamilyShape.Icon;
@@ -53,7 +53,10 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
     private readonly SkyEventRow[] _rows;
 
     private MoonConfig _config = new();
-    private IWidgetSurface? _surface;
+    /// <summary>[S-2260] The header's trailing parts: the place as its label beside the widget's name.</summary>
+    private readonly HeaderParts _about = new();
+
+    public FrameworkElement? HeaderTrailing => _about;
     private Ticker? _ticker;
     private IDisposable? _subscription;
     private DateTimeOffset _now = DateTimeOffset.Now;
@@ -129,17 +132,10 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
     private void OnLanguage(Locale locale) => Lay();
 
-    /// <inheritdoc />
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
-
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as MoonConfig ?? new MoonConfig();
-        PublishTitle();
+        PublishPlace();
 
         // One cadence for good: the config cannot change it, so subscribe once.
         _subscription ??= _ticker?.Subscribe(_config.TickInterval, Tick);
@@ -388,12 +384,8 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         _majorGlyph.Update(major.Name == MoonPhaseName.FullMoon ? 0.5 : 0, southern, up: true);
     }
 
-    /// <summary>The place names which moon this is: rise and set are that place's.</summary>
-    private void PublishTitle()
-    {
-        var title = _config.Place;
-        _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
-    }
+    /// <summary>[S-2260] The header names the widget ("Moon"); the place stands in its label, none once it is cleared ([S-2848]).</summary>
+    private void PublishPlace() => _about.SetAbout(_config.PlaceLabel);
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
 }

@@ -34,6 +34,13 @@ public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
     /// <summary>The place name shown in the header.</summary>
     public string Place { get; set; } = DefaultPlace;
 
+    /// <summary>
+    /// [S-2260] The header's label for the place, beside the widget's name ("Sun", "Moon"); null once
+    /// the place is cleared ([S-2848]): then there is no label.
+    /// </summary>
+    [JsonIgnore]
+    public string? PlaceLabel => HasLocation ? Themia.Sdk.Kit.HeaderRules.About(Place) : null;
+
     /// <summary>[S-2850] The observer is where Windows says the device is; the place chosen by hand is kept for when this goes off.</summary>
     public bool UseDeviceLocation { get; set; }
 

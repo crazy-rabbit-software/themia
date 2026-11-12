@@ -30,7 +30,7 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   nothing else; no answer at all is [S-6734]'s row.
 - **[S-5127]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), then behind a divider each **Location** (the weather family's search, [S-2840],
-  [S-3722]; the place's city is the header's title, [S-728]), a link to **Update interval** (⚙ ›
+  [S-3722]; the place's city is the header's label, [S-728], [S-2260]), a link to **Update interval** (⚙ ›
   Online updates › Weather, [S-3749]) and the source's credit, a note ("Source: Open-Meteo").
 - **[S-2037]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
   in the UI language's market and the unit shown ([S-2006], `RainNextHourModule.Opens`); nothing

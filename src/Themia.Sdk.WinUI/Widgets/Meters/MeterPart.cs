@@ -11,8 +11,11 @@ namespace Themia.App.Widgets.Meters;
 /// <summary>What a meter part may ask of the shared <see cref="MeterView"/>.</summary>
 public interface IMeterHost
 {
-    /// <summary>[S-1167] Offer the card a title the kind knows (a drive's name, a host's label); null for the catalogue's.</summary>
+    /// <summary>[S-1167] Offer the card a title the kind knows (a drive's name: the user's own source); null for the catalogue's.</summary>
     void SetTitle(string? title);
+
+    /// <summary>[S-2260] Which one the meter reads (an adapter, a host) as the header's label beside the widget's name; null for none.</summary>
+    void SetAbout(string? about);
 
     /// <summary>[S-1167] [S-2510] Read now rather than at the next tick (a Refresh command).</summary>
     void SampleNow();

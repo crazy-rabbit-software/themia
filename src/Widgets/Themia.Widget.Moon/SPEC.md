@@ -13,7 +13,7 @@ renders), `Localization/Locales/` (its own `MoonStr`, 30 languages). Tests: `Tes
 `Tests/MoonMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
 - **[S-3105]** Moon ladder on the family's blocks (`MoonLayout`, G3 2026-10-29): the Header (the moon's
-  glyph, the place's name), then a Readout of how much of the moon is lit ("23%", [S-6702]) with the
+  glyph, the widget's name, the place as its label, [S-2260]), then a Readout of how much of the moon is lit ("23%", [S-6702]) with the
   moon drawn at its phase as its lead at the step's size (`SkyMoonDisc`, [S-169]) and the phase's
   name the line under it, then whole fact rows moonrise, moonset, the next full or new moon ([S-1491],
   [S-6735]: their leads the moon at 16, the next rise or set BodyStrong with its countdown the second

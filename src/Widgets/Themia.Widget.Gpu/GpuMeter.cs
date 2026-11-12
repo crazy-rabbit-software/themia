@@ -70,13 +70,13 @@ internal sealed class GpuMeter : MeterPart
         // in the disabled look, the reason on hover — never an empty state in its place.
         if (snapshot.Adapters.Count == 0 || _index >= snapshot.Readings.Count)
         {
-            host.SetTitle(null);
+            host.SetAbout(null);
             host.SetAbsent(snapshot.Adapters.Count == 0 ? GpuStr.WidgetsB_Gpu_NoAdapter.Text() : GpuStr.WidgetsB_Gpu_AdapterMissing.Text());
             return;
         }
 
         host.SetAbsent(null);
-        host.SetTitle(GpuRules.ShortName(snapshot.Readings[_index].Name));
+        host.SetAbout(GpuRules.ShortName(snapshot.Readings[_index].Name));
     }
 
     /// <summary>[S-6322] The adapter's engine types as the newest snapshot has them.</summary>

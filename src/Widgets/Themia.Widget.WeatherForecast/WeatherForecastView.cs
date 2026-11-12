@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// week that runs 12° to 14° every day should draw seven short marks in the same place.
 /// </para>
 /// </summary>
-internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent,
     IWidgetSizeAware, IWidgetContextActions
 {
     /// <inheritdoc />
@@ -54,7 +54,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     private WeatherForecastConfig _applied = new();
 
     /// <summary>The card this view draws on, which owns the header it names.</summary>
-    private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
     private readonly IWidgetHost _host;
@@ -123,20 +122,13 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         Reload(force: false);
     }
 
-    /// <inheritdoc />
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
-
     public void ApplyConfig(WidgetConfig config)
     {
         var next = config as WeatherForecastConfig ?? new WeatherForecastConfig();
         var previous = _applied;
         _config = next;
         _applied = (WeatherForecastConfig)next.Clone();
-        PublishTitle();
+        PublishPlace();
 
         // Only the fields that change what comes back make another forecast. Toggling the
         // precipitation column or the style redraws the days already in hand.
@@ -370,5 +362,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     }
 
     /// <summary>[S-728] The city as the header title, or the widget's label when the user hid it.</summary>
-    private void PublishTitle() => _surface?.SetHeaderTitle(_config.Title);
+    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
+    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

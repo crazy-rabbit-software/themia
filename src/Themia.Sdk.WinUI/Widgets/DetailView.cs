@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// Detach, and the view only lays out the sheets it is handed.
 /// </para>
 /// </summary>
-public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IDetailHost
+public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetHeaderContent, IWidgetContextActions, IDetailHost
 {
     private const string LogScope = "details";
 
@@ -38,8 +38,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
 
     private WidgetConfig _config;
-    private IWidgetSurface? _surface;
-    private string? _title;
     private WidgetArea _area;
     private DetailSheet _sheet = DetailSheet.Waiting;
     private DetailFacePlan? _plan;
@@ -141,32 +139,19 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         }
     }
 
-    public void SetTitle(string? title)
-    {
-        if (title == _title)
-        {
-            return;
-        }
+    /// <summary>[S-2260] Which one the kind reads (a processor, an adapter, a host) as the header's label; the name stays the widget's.</summary>
+    public void SetAbout(string? about) => _about.SetAbout(about);
 
-        _title = title;
-        _surface?.SetHeaderTitle(title);
-    }
+    /// <summary>[S-2260] The header's trailing parts: the label of <see cref="SetAbout"/>.</summary>
+    public FrameworkElement? HeaderTrailing => _about;
+
+    private readonly HeaderParts _about = new();
 
     public void SampleNow()
     {
         if (!_detached)
         {
             _part.Refresh();
-        }
-    }
-
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-
-        if (_title is not null)
-        {
-            surface.SetHeaderTitle(_title);
         }
     }
 

@@ -47,14 +47,14 @@ internal sealed class GpuDetailPart : DetailPart
 
         if (snapshot.Details.Count == 0)
         {
-            host.SetTitle(null);
+            host.SetAbout(null);
             host.Present(GpuDetailRules.Absent(Strings.Current, GpuDetailsStr.Details_Gpu_None.Text()));
             return;
         }
 
         // [S-2431] An adapter that is gone (a removed eGPU) shows the first one rather than nothing.
         var detail = snapshot.Details[_config.Adapter < snapshot.Details.Count ? _config.Adapter : 0];
-        host.SetTitle(GpuRules.ShortName(detail.Name));
+        host.SetAbout(GpuRules.ShortName(detail.Name));
         host.Present(GpuDetailRules.Sheet(Strings.Current, detail));
     }
 

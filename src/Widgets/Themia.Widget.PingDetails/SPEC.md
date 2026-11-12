@@ -23,7 +23,7 @@ window), `PingWindow.cs` (the window's statistics and the sheet, `PingWindow`, `
   of consecutive answers (a loss between two does not break the pair; under two answers, none); loss the
   unanswered share of every probe.
 - **[S-2429]** The latest latency is the hero, the status (Online, Offline, Checking…) the caption; the
-  header names the host. A lost probe dims the hero, its tooltip naming the host and the status.
+  header's label names the host ([S-2260]). A lost probe dims the hero, its tooltip naming the host and the status.
 - **[S-2021]** A click on the card ([S-2000]) opens Windows' network status page
   (`ms-settings:network-status`) (a row's click stays the row's, [S-2004]); the module decides it
   (`PingDetailsModule.Opens`, through its part's `Opens`).

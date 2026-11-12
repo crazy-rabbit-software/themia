@@ -26,7 +26,7 @@ namespace Themia.App.Widgets;
 /// so; with no reading at all the Status block's one row at the top says why ([S-6734]).
 /// </para>
 /// </summary>
-internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent,
     IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     /// <inheritdoc />
@@ -53,7 +53,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
     private WeatherNowConfig _applied = new();
 
     /// <summary>The card this view draws on, which owns the header it names.</summary>
-    private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
     private readonly IWidgetHost _host;
@@ -135,20 +134,13 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
     /// <summary>[S-3770] The scale of the reading in hand: the one it was asked in.</summary>
     private TemperatureUnit Unit => _want?.Unit ?? RegionFormat.Current.Temperature;
 
-    /// <inheritdoc />
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
-
     public void ApplyConfig(WidgetConfig config)
     {
         var next = config as WeatherNowConfig ?? new WeatherNowConfig();
         var previous = _applied;
         _config = next;
         _applied = (WeatherNowConfig)next.Clone();
-        PublishTitle();
+        PublishPlace();
 
         // A different place is a different reading: the one in hand must not linger under the new heading.
         if (previous.Latitude != next.Latitude || previous.Longitude != next.Longitude)
@@ -372,5 +364,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
     }
 
     /// <summary>[S-728] The city as the header title, or the widget's label when the user hid it.</summary>
-    private void PublishTitle() => _surface?.SetHeaderTitle(_config.Title);
+    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
+    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

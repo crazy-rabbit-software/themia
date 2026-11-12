@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 /// Caution or Critical for the worse bands ([S-5104]: never green, the colour never the only carrier).
 /// The gauge style ([S-6170]) puts the index on the Chart's half ring instead.
 /// </summary>
-internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderContent,
     IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
@@ -36,7 +36,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
     private Ticker? _ticker;
     private AirQualityConfig _config = new();
     private AirQualityConfig _applied = new();
-    private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval;
     private readonly IWidgetHost _host;
@@ -89,19 +88,13 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         ApplyConfig(config);
     }
 
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
-
     public void ApplyConfig(WidgetConfig config)
     {
         var next = config as AirQualityConfig ?? new AirQualityConfig();
         var previous = _applied;
         _config = next;
         _applied = (AirQualityConfig)next.Clone();
-        PublishTitle();
+        PublishPlace();
 
         if (previous.Latitude != next.Latitude || previous.Longitude != next.Longitude)
         {
@@ -352,5 +345,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
     }
 
     /// <summary>[S-728] The city as the header title, or the widget's label when hidden.</summary>
-    private void PublishTitle() => _surface?.SetHeaderTitle(_config.Title);
+    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
+    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

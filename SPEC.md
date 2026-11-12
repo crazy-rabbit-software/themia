@@ -935,6 +935,16 @@ module author's guide is docs/WIDGET-KIT.md 16.
   (`HeaderRules`). Parts stand 4 apart, buttons side by side, a last button's glyph on the inset. A
   part with nothing to say now (a problem glyph while there is none) is not wanted and takes no room
   (`HeaderParts.Want`); the fold decides among the wanted ones.
+- **[S-2260]** **A header names the widget; the place or the device trails.** The name is what the
+  widget is (its module's name: "Sun", "Moon", "Weather", "Forecast", "Rain next hour", "Air quality",
+  "GPU", "GPU details", "CPU details", "Ping", "Ping statistics"); where or which it is about (the place,
+  the adapter, the processor, the host) is the header's informing label (`HeaderParts.SetAbout`,
+  `HeaderRules.About`: trimmed, none when blank), so the label gives way first on a narrow card and four
+  widgets about one place no longer share one name. No place (not set, or cleared, [S-2848]) is no
+  label; a name the user typed still replaces the module's ([S-728]) and the label stays. A part added
+  once there is something to say stands in the header's order (`HeaderRules.InsertAt`). Headers named
+  after the user's own source (a task list, a mailbox, a drive, a folder, a calendar's period, a stock,
+  a camera) keep it as their name. Tests `HeaderAboutTests` (module host), `OnlineHostTests.S728_`.
 - **[S-6711]** **Row**: [lead] 8 [name, Body] 12 [inline meter] 12 [value, Body, end-aligned]; a
   second line Caption secondary, a third Caption tertiary; it carries the side inset itself, so it
   and its hover reach both edges; no divider (`RowBlock`). **What is read is primary**: a fact's
@@ -3190,7 +3200,7 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
 ### GPU
 
 - **[S-430]** The GPU tile reads like the other meters ([S-1762]): the load as the number and the
-  history as a `SparkBand` edge to edge at the bottom of the tile ([S-1824]). The adapter names the card, without vendor and
+  history as a `SparkBand` edge to edge at the bottom of the tile ([S-1824]). The adapter is the header's label beside "GPU" ([S-2260]), without vendor and
   trademark noise (`GpuRules.ShortName`: "RTX 4060 Ti"); its whole name is the tooltip. Load reads `--` for the first sample: it is
   a rate and needs two readings.
 - **[S-431]** Data comes from DXGI (which adapters exist: name, LUID) and the PDH GPU counters
@@ -4064,10 +4074,10 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   runs globalization-invariant).
 - [S-722], [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`).
 - [S-724], [S-725], [S-726], [S-727], [S-6163], [S-6164], [S-6171], [S-6172]: moved with the Weather forecast widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherForecast/`).
-- **[S-728]** The header's title is the chosen place's city (first part of `LocationName`); before a
-  pick there is none and the header reads the catalogue label (the typed query is not kept,
-  [S-2846]). A title the user typed wins; it is the one way to change what the header says
-  ([S-3590]: the Location name switch, `HideLocation`, that hid the city is gone).
+- **[S-728]** The header's label is the chosen place's city (first part of `LocationName`,
+  `WeatherConfig.PlaceLabel`) beside the widget's name ([S-2260]); before a pick there is none (the
+  typed query is not kept, [S-2846]). A title the user typed replaces the name; it is the one way to
+  change what the header says ([S-3590]: the Location name switch, `HideLocation`, that hid the city is gone).
 - **[S-729]** The last good answers persist in the sealed `web` shelf of the offline store
   ([S-2660]; `schemaVersion` 1 inside, one writer, saved after each fetch that brought a new answer).
   At launch they are restored marked `Restored`: drawn at once, fresh only for their real age
@@ -5168,8 +5178,8 @@ they show the label, the reading and the history only ([S-1762]).
 - **[S-1172]** The ping chart is latency against the window's slowest answer (floor 1 ms); an
   unanswered probe is a dimmed "--" that plots on the baseline. Online draws the chart in the accent,
   offline in the critical role ([S-1123]).
-- **[S-1173]** *(Retired by [S-3791]: no `HostLabel`. The header title is the host; a name for it is
-  the card's own title.)*
+- **[S-1173]** *(Retired by [S-3791]: no `HostLabel`. The host is the header's label beside "Ping" ([S-2260]); a name for it
+  is the card's own title.)*
 - [S-1174], [S-1175]: moved with the Ping widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Ping/`).
 
 Not ported / different: several ping hosts (the original had one); several drives in one tile, the
@@ -5732,7 +5742,7 @@ strings in `Locales/widgets-details`.
   a list on screen wants keys.
 - **[S-2405]** CPU details: the effective clock as the hero, "23% utilization" (the CPU meter's own shared
   read) under it; base speed, cores (`GetLogicalProcessorInformationEx`), logical processors, processes,
-  threads, handles (`GetPerformanceInfo`), up time, the thermal zone. The header names the processor from
+  threads, handles (`GetPerformanceInfo`), up time, the thermal zone. The header's label ([S-2260]) names the processor from
   the registry, without vendor and generation noise ("Core i9-12900K").
 - **[S-2406]** The clock is the base clock times `\Processor Information(_Total)\% Processor Performance`
   (Task Manager's figure, past 100 % under turbo); without the counter the reported clock stands in.
@@ -5822,7 +5832,7 @@ strings in `Locales/widgets-details`.
 - **[S-2430]** GPU details: video memory in use (`\GPU Adapter Memory(*)\Dedicated Usage`, summed per
   LUID) as the hero, "of 7.8 GB video memory" (DXGI); load ([S-434]), shared memory, temperature, fan, GPU
   clock, memory clock. An integrated adapter leads with its shared memory. From the GPU meter's own shared
-  sampler (the memory counters join its query); the header names the adapter ([S-430]).
+  sampler (the memory counters join its query); the header's label names the adapter ([S-430], [S-2260]).
 - [S-2431]: moved with the GPU details widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.GpuDetails/`).
 - **[S-2432]** Sensors from the graphics kernel, any vendor's WDDM 2.4+ driver (`D3DKMTQueryAdapterInfo`
   adapter and node performance data and caps, one handle per adapter per sampler session): temperature

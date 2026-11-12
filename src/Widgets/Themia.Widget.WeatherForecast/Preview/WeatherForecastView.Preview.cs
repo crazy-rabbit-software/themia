@@ -39,7 +39,7 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
             // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
             _forecast = _forecast.Stale(FetchStatus.Offline, null);
         }
-        PublishTitle();
+        PublishPlace();
         Render();
         return Task.CompletedTask;
     }

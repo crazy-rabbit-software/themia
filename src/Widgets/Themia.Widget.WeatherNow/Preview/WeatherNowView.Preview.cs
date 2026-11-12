@@ -36,7 +36,7 @@ internal sealed partial class WeatherNowView : IWidgetPreviewState
             _ => reading,
         };
         _status = state == "failed" ? FetchStatus.Unreachable : FetchStatus.Ok;
-        PublishTitle();
+        PublishPlace();
         Render();
         return Task.CompletedTask;
     }

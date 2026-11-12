@@ -18,7 +18,7 @@ renders), `Localization/Locales/` (its own `SunStr`, 30 languages). Tests: `Test
   number strip under the graphic is gone (G3, 2026-10-29): its times are the rows' (concise first,
   [S-666]). The moon percentage it once shed is the Moon widget's ([S-3105]).
 - **[S-3102]** Sun ladder on the family's blocks (`SunLayout`, [S-6711], [S-6712]; G3 2026-10-29):
-  the Header (the sun's glyph, the place's name), then the graphic at the content's top in the
+  the Header (the sun's glyph, the widget's name, the place as its label, [S-2260]), then the graphic at the content's top in the
   inset, then whole fact rows in priority sunrise, sunset, daylight (its change the note), solar noon
   (the sun's height the note), dawn, dusk ("civil" the note), 8 under it ([S-6735]: the next event's
   name BodyStrong, its countdown or a row's note the second line where the tier gives rows two

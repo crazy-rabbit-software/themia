@@ -36,8 +36,8 @@ internal sealed class PingDetailPart : DetailPart
         _host = host;
         _config = config as PingDetailsConfig ?? new PingDetailsConfig();
 
-        // [S-1173] The header names the host as the user does.
-        host.SetTitle(_config.EffectiveHost);
+        // [S-1173] The header's label names the host as the user does ([S-2260]).
+        host.SetAbout(_config.EffectiveHost);
 
         // A different host is a different prober, with its own window; a different window size is
         // the same probes counted again. The series is the one the state asks the hub for ([S-2513]).
