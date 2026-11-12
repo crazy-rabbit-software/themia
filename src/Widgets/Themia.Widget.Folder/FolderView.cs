@@ -37,6 +37,9 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
 
     private const string Scope = "folder";
 
+    /// <summary>[S-2056] A preview's folder as its breadcrumb names it (the sample folder in the temp folder as Robin's); null: the path itself.</summary>
+    private (string Real, string Shown)? _crumbAlias;
+
     /// <summary>
     /// The most items one view draws. A folder of fifty thousand files would be fifty thousand rows
     /// of XAML; past this the last row says how many more there are and opens Explorer.

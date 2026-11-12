@@ -949,7 +949,11 @@ internal sealed partial class FolderView
             return;
         }
 
-        var crumbs = FolderHistory.Crumbs(CurrentPath);
+        // [S-2056] A preview's folder named as its breadcrumb should read, its crumbs still opening the real folders.
+        IReadOnlyList<(string Label, string Path)> crumbs = _crumbAlias is { } alias && CurrentPath.StartsWith(alias.Real, StringComparison.OrdinalIgnoreCase)
+            ? [.. FolderHistory.Crumbs(alias.Shown + CurrentPath[alias.Real.Length..]).Select(c => (c.Label,
+                c.Path.StartsWith(alias.Shown, StringComparison.OrdinalIgnoreCase) ? alias.Real + c.Path[alias.Shown.Length..] : c.Path))]
+            : FolderHistory.Crumbs(CurrentPath);
 
         // The tail is what matters; leading crumbs give way first, as Explorer's address bar does.
         var budget = _area.Width - (2 * FamilySpace.Inset);

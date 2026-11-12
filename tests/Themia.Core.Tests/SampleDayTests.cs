@@ -134,6 +134,45 @@ public class SampleDayTests
     }
 
     [Fact]
+    public void S2056_a_sample_picture_is_the_same_every_run_opaque_and_unlike_the_others()
+    {
+        var first = SamplePictures.Pixels(0, 32, 20);
+
+        Assert.Equal(first, SamplePictures.Pixels(0, 32, 20));
+        Assert.Equal(32 * 20 * 4, first.Length);
+        Assert.All(Enumerable.Range(0, 32 * 20), i => Assert.Equal(255, first[(i * 4) + 3]));
+        Assert.Equal(SamplePictures.Count, Enumerable.Range(0, SamplePictures.Count)
+            .Select(i => Convert.ToHexString(SamplePictures.Pixels(i, 32, 20))).Distinct().Count());
+        Assert.Equal(SamplePictures.Names.Count, SamplePictures.Names.Distinct().Count());
+    }
+
+    [Fact]
+    public void S2056_the_sample_folder_is_written_fresh_with_each_files_size_and_age_and_nothing_else()
+    {
+        var name = "test-" + Guid.NewGuid().ToString("n");
+        var path = SampleFiles.Write(name, [new("a.txt", 10, 1), new("Sub", 0, 2, IsFolder: true)]);
+        Assert.NotNull(path);
+
+        try
+        {
+            File.WriteAllText(Path.Combine(path, "stray.txt"), "x");
+            path = SampleFiles.Write(name, SampleFiles.Documents);
+            Assert.NotNull(path);
+
+            Assert.False(File.Exists(Path.Combine(path, "stray.txt")));
+            Assert.Equal(SampleFiles.Documents.Count, Directory.GetFileSystemEntries(path).Length);
+            var pptx = SampleFiles.Documents.First(f => f.Name.EndsWith(".pptx", StringComparison.Ordinal));
+            var info = new FileInfo(Path.Combine(path, pptx.Name));
+            Assert.Equal(pptx.Size, info.Length);
+            Assert.Equal(SampleDay.Now.AddHours(-pptx.HoursAgo).UtcDateTime, info.LastWriteTimeUtc, TimeSpan.FromSeconds(2));
+        }
+        finally
+        {
+            Directory.Delete(path!, recursive: true);
+        }
+    }
+
+    [Fact]
     public void S2055_the_week_planners_errands_are_the_lists_due_by_today_overdue_first()
     {
         var due = SampleTasks.DueByToday;

@@ -2,32 +2,35 @@
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Samples;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-4122]): point the widget at a folder every Windows PC has, read-only, so a
-/// render shows real names, icons and thumbnails rather than whoever runs it's profile.
-/// "web" is <c>%WINDIR%\Web</c> (folders), "wallpapers" its Windows wallpapers (pictures), "lasso"
-/// the web listing with a band dragged from beside the first name down past the last row ([S-6412]),
-/// "selected" the web listing with two items selected, a third under the pointer and the focus moved
+/// Debug renders only ([S-4122], [S-2056]): point the widget at the sample day's folders, written
+/// under the temp folder (<see cref="SampleFiles"/>), so a render shows ordinary names, the shell's
+/// stock icons and thumbnails, and never a name, path or picture of this PC. "documents" is Robin's
+/// documents (three folders, a dozen files), "pictures" the sample pictures (drawn in code), "lasso"
+/// the documents with a band dragged from beside the first name down past the last row ([S-6412]),
+/// "selected" the documents with two items selected, a third under the pointer and the focus moved
 /// on by Ctrl+Right ([S-6627]), "inactive" the same selection after the widget lost the keyboard
 /// ([S-6626]), and "fullname" a tile whose long name is selected and shown in full ([S-6629]).
 /// </summary>
 internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMenus
 {
     /// <summary>
-    /// [S-1747] For <c>--menu-png</c>: the real item menus of the first file in the wallpapers and of
-    /// the first folder in <c>%WINDIR%\Web</c>, the background menu, and the file's Open with submenu,
+    /// [S-1747] For <c>--menu-png</c>: the real item menus of the first file in the pictures and of
+    /// the first folder in the documents, the background menu, and the file's Open with submenu,
     /// built by the same code a right-click runs.
     /// </summary>
     public async Task<IReadOnlyList<(string Name, IReadOnlyList<ItemMenuEntry> Entries)>> PreviewMenusAsync()
     {
-        await ShowPreviewStateAsync("wallpapers").ConfigureAwait(true);
+        await ShowPreviewStateAsync("pictures").ConfigureAwait(true);
         var file = MenuFor(_shown.FirstOrDefault(e => !e.IsDirectory));
         var openWith = _shown.FirstOrDefault(e => !e.IsDirectory) is { FullPath: { } path } ? OpenWithEntries(path) : [];
 
-        await ShowPreviewStateAsync("web").ConfigureAwait(true);
+        await ShowPreviewStateAsync("documents").ConfigureAwait(true);
         var folder = MenuFor(_shown.FirstOrDefault(e => e.IsDirectory));
         _selection.Clear();
         return [("file", file), ("openwith", openWith), ("folder", folder), ("background", BackgroundEntries())];
@@ -44,15 +47,14 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         return ItemEntries();
     }
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["web", "wallpapers", "lasso", "selected", "inactive", "fullname"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["documents", "pictures", "lasso", "selected", "inactive", "fullname"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
-        var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         var path = state switch
         {
-            "web" or "lasso" or "selected" or "inactive" => System.IO.Path.Combine(windows, "Web"),
-            "wallpapers" or "fullname" => System.IO.Path.Combine(windows, "Web", "Wallpaper", "Windows"),
+            "documents" or "lasso" or "selected" or "inactive" or "fullname" => SampleFiles.Write("Documents", SampleFiles.Documents),
+            "pictures" => await SamplePictureFiles.WriteAsync("Pictures", SamplePictures.Names).ConfigureAwait(true),
             _ => null,
         };
 
@@ -61,6 +63,8 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
             return;
         }
 
+        // The breadcrumb names the sample folder as Robin's, never the temp folder's path.
+        _crumbAlias = (System.IO.Path.GetDirectoryName(path)!, @"C:\Users\Robin");
         var preview = (FolderConfig)_config.Clone();
         preview.Path = path;
         ApplyConfig(preview);

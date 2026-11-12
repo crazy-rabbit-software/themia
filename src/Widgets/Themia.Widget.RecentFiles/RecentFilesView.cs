@@ -28,6 +28,9 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
     /// <inheritdoc />
     public CardOpen? Opens => RecentFilesModule.Opens;
 
+    /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
+    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
+
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroll;
     private readonly ScrollFade _fade;
@@ -162,7 +165,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
 
         _state.Hide();
         _scroll.Visibility = Visibility.Visible;
-        var now = DateTimeOffset.Now;
+        var now = _clock();
 
         foreach (var file in _files)
         {

@@ -2,16 +2,19 @@
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Samples;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only: real pictures without a configured folder. The pictures are Windows' own
-/// wallpapers, handed in as a finished scan so no folder is walked and nothing is configured.
+/// Debug renders only ([S-2056]): pictures without a configured folder. The pictures are the sample
+/// day's, drawn in code (<see cref="SamplePictures"/>), handed in as a finished scan so no folder is walked.
 /// </summary>
 internal sealed partial class GalleryView : IWidgetPreviewState
 {
-    private const string PreviewFolder = @"C:\Windows\Web\Wallpaper";
+    /// <summary>Where the empty, missing and failed states say they looked: a name only, never a folder of this PC.</summary>
+    private const string PreviewFolder = @"C:\Users\Robin\Pictures";
 
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "slideshow", "grid", "scatter", "mosaic", "file", "sticker", "controls", "empty", "missing", "failed"];
 
@@ -49,7 +52,7 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             return;
         }
 
-        // [S-6006] "sample": Windows' wallpapers in whatever style the render chose (--style).
+        // [S-6006] "sample": the sample pictures in whatever style the render chose (--style).
         var (source, layout) = state switch
         {
             "sample" => (GallerySource.Folder, _config.Style),
@@ -66,17 +69,15 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             return;
         }
 
-        List<string> paths;
-
-        try
+        // [S-2056] The sample day's pictures, drawn in code and written under the temp folder: never a
+        // picture of this PC. The scan is handed in, so no folder is walked.
+        var folder = await SamplePictureFiles.WriteAsync("Pictures", SamplePictures.Names).ConfigureAwait(true);
+        if (folder is null)
         {
-            paths = [.. System.IO.Directory.EnumerateFiles(PreviewFolder, "*.jpg", System.IO.SearchOption.AllDirectories).Order(StringComparer.Ordinal).Take(24)];
-        }
-        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
-        {
-            Console.WriteLine($"widget: Gallery preview could not read {PreviewFolder}: {ex.Message}");
             return;
         }
+
+        List<string> paths = [.. SamplePictures.Names.Select(name => System.IO.Path.Combine(folder, name))];
 
         if (chosen == GallerySource.File)
         {
@@ -87,7 +88,7 @@ internal sealed partial class GalleryView : IWidgetPreviewState
         // handed in, and only the decoding goes through the shared cache.
         _watch?.Dispose();
         _watch = null;
-        _config = new GalleryConfig { Source = chosen, Style = layout, Path = PreviewFolder, FilePath = paths.FirstOrDefault() ?? string.Empty, Shuffle = false };
+        _config = new GalleryConfig { Source = chosen, Style = layout, Path = folder, FilePath = paths.FirstOrDefault() ?? string.Empty, Shuffle = false };
         PublishTitle();
         _scan = new GalleryScan(paths.Count == 0 ? GalleryStatus.NoImages : GalleryStatus.Ok, paths);
         Select(keepPath: null, index: 0);
