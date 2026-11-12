@@ -554,6 +554,7 @@
       "colour": "",
       "opacity": 1
     },
+    "blurBehind": true,
     "itemBackground": {
       "kind": "Default",
       "colour": "",

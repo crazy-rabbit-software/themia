@@ -15,30 +15,21 @@ public sealed class HeaderStripTests
     [InlineData(HeaderPlacement.Left)]
     [InlineData(HeaderPlacement.Right)]
     [InlineData(HeaderPlacement.Hidden)]
-    public void S404_the_strip_and_the_body_tile_the_grid_and_the_view_is_in_the_body(HeaderPlacement placement)
+    public void S404_the_strip_never_covers_the_view(HeaderPlacement placement)
     {
         foreach (var rtl in new[] { false, true })
         {
             var edge = HeaderStrip.Edge(placement, rtl);
-            var covered = new int[3, 3];
-            Cover(covered, HeaderStrip.BodyCell(edge));
-            if (edge != HeaderEdge.None)
+            if (edge == HeaderEdge.None)
             {
-                Cover(covered, HeaderStrip.StripCell(edge));
+                continue;
             }
 
-            for (var row = 0; row < 3; row++)
-            {
-                for (var column = 0; column < 3; column++)
-                {
-                    Assert.Equal(1, covered[row, column]);
-                }
-            }
-
-            var body = HeaderStrip.BodyCell(edge);
+            var strip = HeaderStrip.StripCell(edge);
             var view = HeaderStrip.ViewCell;
-            Assert.InRange(view.Row, body.Row, body.Row + body.RowSpan - 1);
-            Assert.InRange(view.Column, body.Column, body.Column + body.ColumnSpan - 1);
+            var rows = view.Row >= strip.Row && view.Row < strip.Row + strip.RowSpan;
+            var columns = view.Column >= strip.Column && view.Column < strip.Column + strip.ColumnSpan;
+            Assert.False(rows && columns);
         }
     }
 
@@ -173,62 +164,21 @@ public sealed class HeaderStripTests
         Assert.Equal(HeaderTurn.CounterClockwise, HeaderStrip.Turn(HeaderPlacement.Left));
     }
 
-    // ---- [S-407] corners and the stroke's sides --------------------------------------------------
+    // ---- [S-407] corners --------------------------------------------------------------------
 
     [Theory]
     [InlineData(HeaderEdge.Top)]
     [InlineData(HeaderEdge.Bottom)]
     [InlineData(HeaderEdge.Start)]
     [InlineData(HeaderEdge.End)]
-    public void S407_the_strip_and_the_body_share_the_cards_four_corners(HeaderEdge edge)
-    {
-        var strip = HeaderStrip.StripCorners(edge);
-        var body = HeaderStrip.BodyCorners(edge);
-
-        Assert.True(strip.TopStart ^ body.TopStart);
-        Assert.True(strip.TopEnd ^ body.TopEnd);
-        Assert.True(strip.BottomEnd ^ body.BottomEnd);
-        Assert.True(strip.BottomStart ^ body.BottomStart);
-        Assert.Equal(2, Count(strip));
-    }
+    public void S407_the_strip_rounds_the_cards_two_corners_on_its_edge(HeaderEdge edge)
+        => Assert.Equal(2, Count(HeaderStrip.StripCorners(edge)));
 
     [Fact]
     public void S407_a_strip_at_the_start_rounds_its_outer_corners()
     {
         Assert.Equal(new CardCorners(true, false, false, true), HeaderStrip.StripCorners(HeaderEdge.Start));
         Assert.Equal(new CardCorners(false, true, true, false), HeaderStrip.StripCorners(HeaderEdge.End));
-        Assert.Equal(new CardCorners(true, true, true, true), HeaderStrip.BodyCorners(HeaderEdge.None));
-    }
-
-    [Theory]
-    [InlineData(HeaderEdge.Top)]
-    [InlineData(HeaderEdge.Bottom)]
-    [InlineData(HeaderEdge.Start)]
-    [InlineData(HeaderEdge.End)]
-    public void S407_the_strip_leaves_only_its_inner_side_off_the_cards_edge_and_the_seam_is_there(HeaderEdge edge)
-    {
-        var strip = HeaderStrip.StripSides(edge);
-        var body = HeaderStrip.BodySides(edge);
-        var seam = HeaderStrip.Seam(edge);
-
-        // Between them the strip and the body reach every side of the card.
-        Assert.True(strip.Start || body.Start);
-        Assert.True(strip.Top || body.Top);
-        Assert.True(strip.End || body.End);
-        Assert.True(strip.Bottom || body.Bottom);
-
-        // The body bleeds under the strip on exactly the one side it does not reach the edge.
-        Assert.Equal(!body.Start, seam.Start);
-        Assert.Equal(!body.Top, seam.Top);
-        Assert.Equal(!body.End, seam.End);
-        Assert.Equal(!body.Bottom, seam.Bottom);
-    }
-
-    [Fact]
-    public void S407_with_no_strip_the_body_reaches_every_side_and_bleeds_nowhere()
-    {
-        Assert.Equal(new CardSides(true, true, true, true), HeaderStrip.BodySides(HeaderEdge.None));
-        Assert.Equal(new CardSides(false, false, false, false), HeaderStrip.Seam(HeaderEdge.None));
     }
 
     // ---- [S-408] the trailing part ---------------------------------------------------------------
@@ -240,17 +190,6 @@ public sealed class HeaderStripTests
     [InlineData(HeaderPlacement.Right, false)]
     public void S408_a_side_strip_carries_the_icon_and_title_only(HeaderPlacement placement, bool trailing)
         => Assert.Equal(trailing, HeaderStrip.ShowsTrailing(placement));
-
-    private static void Cover(int[,] grid, GridCell cell)
-    {
-        for (var row = cell.Row; row < cell.Row + cell.RowSpan; row++)
-        {
-            for (var column = cell.Column; column < cell.Column + cell.ColumnSpan; column++)
-            {
-                grid[row, column]++;
-            }
-        }
-    }
 
     private static int Count(CardCorners c)
         => (c.TopStart ? 1 : 0) + (c.TopEnd ? 1 : 0) + (c.BottomEnd ? 1 : 0) + (c.BottomStart ? 1 : 0);

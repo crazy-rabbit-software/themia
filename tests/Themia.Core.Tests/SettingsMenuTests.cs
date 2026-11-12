@@ -274,6 +274,7 @@ public sealed partial class SettingsMenuTests
     [InlineData("appearance/theme/theme", "Theme")]
     [InlineData("appearance/theme/accent", "PrimaryColor")]
     [InlineData("appearance/theme/background", "Background")]
+    [InlineData("appearance/theme/blur", "BlurBehind")]
     [InlineData("appearance/theme/headerBackground", "HeaderBackgroundColor")]
     [InlineData("appearance/theme/headerOpacity", "HeaderOpacity")]
     [InlineData("appearance/items/background", "ItemBackground")]
@@ -319,6 +320,23 @@ public sealed partial class SettingsMenuTests
 
         Assert.Equal([field], Changed(before, host.State.Design));
         Assert.Equal(1, host.Mutations);
+    }
+
+    [Fact]
+    public void S2110_blur_behind_widgets_is_a_switch_under_the_background_and_says_what_holds()
+    {
+        var host = new FakeHost();
+        var colours = At<SettingsSubmenu>(host, "appearance", "appearance/theme");
+        var keys = colours.Lines.Select(l => l.Key).ToList();
+        Assert.Equal(keys.IndexOf("appearance/theme/background") + 1, keys.IndexOf("appearance/theme/blur"));
+
+        var blur = At<SettingsToggle>(host, "appearance", "appearance/theme", "appearance/theme/blur");
+        Assert.True(blur.On);
+        Assert.Equal(Str.Shell_Appearance_BlurBehind.Text(), blur.Text);
+
+        blur.Set(false);
+        Assert.False(host.State.Design.BlurBehind);
+        Assert.False(At<SettingsToggle>(host, "appearance", "appearance/theme", "appearance/theme/blur").On);
     }
 
     [Fact]

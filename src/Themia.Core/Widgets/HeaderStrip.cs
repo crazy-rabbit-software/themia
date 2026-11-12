@@ -33,9 +33,6 @@ public readonly record struct GridCell(int Row, int Column, int RowSpan, int Col
 /// <summary>Which of the four corners are the card's own, in <c>CornerRadius</c> order and the card's flow.</summary>
 public readonly record struct CardCorners(bool TopStart, bool TopEnd, bool BottomEnd, bool BottomStart);
 
-/// <summary>Which of the four sides lie on the card's edge, in <c>Thickness</c> order and the card's flow.</summary>
-public readonly record struct CardSides(bool Start, bool Top, bool End, bool Bottom);
-
 /// <summary>The render transform that stands a header laid out <c>length × thickness</c> along a side edge.</summary>
 public readonly record struct HeaderRotation(double Degrees, double X, double Y);
 
@@ -135,16 +132,6 @@ public static class HeaderStrip
         _ => new GridCell(0, 0, 1, 3),
     };
 
-    /// <summary>[S-1761] The body fill's cells: all the strip leaves, the whole grid without one.</summary>
-    public static GridCell BodyCell(HeaderEdge edge) => edge switch
-    {
-        HeaderEdge.Top => new GridCell(1, 0, 2, 3),
-        HeaderEdge.Bottom => new GridCell(0, 0, 2, 3),
-        HeaderEdge.Start => new GridCell(0, 1, 3, 2),
-        HeaderEdge.End => new GridCell(0, 0, 3, 2),
-        _ => new GridCell(0, 0, 3, 3),
-    };
-
     /// <summary>[S-407] The strip's rounded corners: the card's two on its edge.</summary>
     public static CardCorners StripCorners(HeaderEdge edge) => edge switch
     {
@@ -154,43 +141,4 @@ public static class HeaderStrip
         HeaderEdge.End => new CardCorners(false, true, true, false),
         _ => new CardCorners(false, false, false, false),
     };
-
-    /// <summary>[S-407] The body's rounded corners: the card's that the strip does not have.</summary>
-    public static CardCorners BodyCorners(HeaderEdge edge)
-    {
-        if (edge == HeaderEdge.None)
-        {
-            return new CardCorners(true, true, true, true);
-        }
-
-        var strip = StripCorners(edge);
-        return new CardCorners(!strip.TopStart, !strip.TopEnd, !strip.BottomEnd, !strip.BottomStart);
-    }
-
-    /// <summary>[S-836] The strip's sides on the card's edge (a solid stroke insets the tint there): all but its inner one.</summary>
-    public static CardSides StripSides(HeaderEdge edge) => edge switch
-    {
-        HeaderEdge.Top => new CardSides(true, true, true, false),
-        HeaderEdge.Bottom => new CardSides(true, false, true, true),
-        HeaderEdge.Start => new CardSides(true, true, false, true),
-        HeaderEdge.End => new CardSides(false, true, true, true),
-        _ => new CardSides(false, false, false, false),
-    };
-
-    /// <summary>[S-836] The body's sides on the card's edge: all but the strip's.</summary>
-    public static CardSides BodySides(HeaderEdge edge) => new(
-        edge != HeaderEdge.Start,
-        edge != HeaderEdge.Top,
-        edge != HeaderEdge.End,
-        edge != HeaderEdge.Bottom);
-
-    /// <summary>
-    /// [S-1761] The side the body's base reaches one DIP under the strip on, so the two fills
-    /// overlap rather than meet at an edge that falls between pixels: the strip's own edge.
-    /// </summary>
-    public static CardSides Seam(HeaderEdge edge) => new(
-        edge == HeaderEdge.Start,
-        edge == HeaderEdge.Top,
-        edge == HeaderEdge.End,
-        edge == HeaderEdge.Bottom);
 }

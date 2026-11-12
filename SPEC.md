@@ -856,11 +856,9 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   `HeaderStrip.Edge`), and the turn is the same. Turned, the header is laid out left to right in
   every language (icon first, so at the bottom on the left edge and the top on the right); the
   title's own text still runs in its script's direction. A flat header flows with the card as before.
-- **[S-407]** A side strip has the card's two corners on its edge and the body the other two
-  (`StripCorners`, `BodyCorners`); its fill follows the header fill rules of a top one ([S-828],
-  [S-1761]: its own colour at the header opacity, or the widget's fill faded by it), the Fluent tint
-  stops inside a solid stroke on its three outer sides ([S-836]), and the body's base reaches one DIP
-  under it on the seam.
+- **[S-407]** A side strip has the card's two corners on its edge (`StripCorners`); a header colour
+  of its own follows the rule of a top one ([S-828], [S-2103]), rounded on those corners. Without
+  one the strip draws nothing: the card's one fill lies under it.
 - **[S-408]** A side strip is the **icon and the title** only (concise first): the header's trailing
   part (a badge, a caption, a picker, Notes' formatting bar) is sized by its view for a header as
   wide as the content, and along a strip it would be measured against the card's height and read
@@ -1897,8 +1895,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
 - **[S-3526]** **Appearance ›**, the look every widget shares ([S-3830]), behind dividers: **Style ›**
   ([S-3527]); **Theme and colours ›** (Theme › Use system setting, Light, Dark; Accent, a colour whose
   Default is the Windows accent and whose swatches are Windows' palette; Background, the widgets'
-  fill, [S-6568]; Header, the header strip's colour, Same as the widget by default, [S-828]; Header
-  opacity, a slider 0–100 % in fives); **Item background ›** (Background, the items' fill; Item text
+  fill, [S-6568]; Blur behind widgets, a switch, [S-2110]; Header, the header strip's colour, Same
+  as the widget by default, [S-828]; Header opacity, a slider 0–100 % in fives); **Item background ›** (Background, the items' fill; Item text
   colour, [S-6545]); **Widget cards ›**, its value the border's style (Corner radius 0–32 px; Gap
   between widgets 0–48 px in twos; Border › None, Solid, Dashed, Dotted; Border width 0–8 px; Border
   colour; Border opacity 0–100 %); **Text and size ›** (Font ›, [S-3528]; Text size 50–200 % in
@@ -5934,32 +5932,52 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   or accent change — a brush looked up from code used to be the app's start-up theme, so code-made
   text stayed white in a light card. A Windows theme or accent change (`ColorValuesChanged`) re-runs
   the apply path.
-- **[S-823]** Widget background ([S-6560]): **Default** is the Fluent base + card tint at full
-  strength; a colour of the user's own replaces both, exactly that colour at its opacity (0..1);
-  **Transparent** has no fill. *(The old 0.2..1 opacity slider and the 60 % "translucent" card are
-  retired: a colour with an opacity replaces them.)*
+- **[S-823]** Widget background ([S-6560]): **Default** is Themia's own card ([S-2100]); a colour of
+  the user's own replaces it, exactly that colour at its opacity (0..1); **Transparent** has no fill.
+  *(The old 0.2..1 opacity slider and the 60 % "translucent" card are retired: a colour with an
+  opacity replaces them.)*
+- **[S-2100]** **Themia's own look** (owner's decision 2026-11-12: the widgets come together on the
+  desktop instead of reading as a wall of opaque slabs). The default card is one neutral colour per
+  theme at one opacity (`DesignLook.Card`): dark `#1C1C1C` at 72 %, light `#F9F9F9` at 78 % over the
+  blurred wallpaper ([S-2110]), and 88 % / 90 % where none lies under it ([S-2111]). Neutral on
+  purpose: the card takes its colour from what is behind it, so the look fits any wallpaper. It
+  follows the effective theme, live when the theme is System ([S-822]). The card paints that one fill
+  across the whole card, header included; there is no Fluent base-and-tint pair any more. The item
+  layer's default (the Fluent subtle and control fills) and the theme's text roles read on it in both
+  themes. Corner radius 8 ([S-6482]), a hairline ([S-2102]), no header band ([S-2103]), gap 8.
+- **[S-2102]** The theme's hairline is Themia's own pair, not Fluent's `CardStrokeColorDefault`
+  (black at 10 % / 6 %, darker than a dark card and so no edge on one): white at 10 % in dark, black
+  at 8 % in light, a 1px solid line (`DesignLook.DarkHairline`, `LightHairline`), drawn over the card
+  at the border opacity.
+- **[S-2103]** **No header band.** By default the header has no fill and no line of its own: it is
+  the card. A translucent card used to show a darker strip with a seam where the header was, because
+  the header painted a second copy of the card's fill (faded by the header opacity) and the body's
+  fill reached 1 DIP under it; both are gone (`WidgetCard`: one `_fill` across the 3 × 3 content grid).
+  A header colour the user sets (`DesignLook.HeaderFill`) is drawn over the card at the header
+  opacity; without one the header opacity does nothing.
 - **[S-824]** Border: style None/Solid/Dashed (3-on-2 stroke widths)/Dotted (round dots two widths
   apart), width 0..8, colour (empty = the theme's card stroke), opacity 0..1. Drawn as a shape over
   the content and inset with the gap; none on a transparent widget.
 - **[S-6481]** Every border setting shows (`DesignLook.Ink`). A colour of the user's own is drawn
   exactly, opaque, and the border opacity fades the line once (the element's opacity, never also the
-  brush's). The theme's colour is Fluent's card hairline (`CardStrokeColorDefault`, [S-835]) for a
-  solid line up to 1px, and the strong stroke (`ControlStrongStrokeColorDefault`, #8BFFFFFF dark /
+  brush's). The theme's colour is Themia's hairline ([S-2102]) for a solid line up to 1px, and the
+  strong stroke (`ControlStrongStrokeColorDefault`, #8BFFFFFF dark /
   #72000000 light) for a heavier, dashed or dotted one. Drawn in the hairline's 6-10 %, a 4px,
   dashed or faded line looked exactly like none, so width, style and opacity all seemed ignored.
   The opacity never swaps the ink, so fading is monotone; at the 1px hairline it is subtle by nature.
 - **[S-6480]** `--widget-png … --design key=value,...` draws the cards with appearance values (`border`,
   `borderWidth`, `borderOpacity`, `borderColor`, `radius`, `background` and `items` (a fill, [S-6569]),
   `opacity` and `itemOpacity` (their colours' opacity), `header`, `headerOpacity`, `accent`, `font`,
-  `itemText`, `gap`, `preset`), so a look is checked without ⚙ › Appearance. The text is read by Core's one
+  `itemText`, `gap`, `blur` (on|off, [S-2110]), `preset`), so a look is checked without ⚙ › Appearance. The text is read by Core's one
   `DesignText` parser, which a store scene's `design` uses too ([S-1075]): pairs in order, a colour
   `#RRGGBB` or empty for the design's own; a pair it cannot read is named (the render prints and skips it,
   a scene is refused). Tests `SceneParserTests.S6480_`.
 - **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip. The edit markers stay square ([S-31b]).
-- **[S-6482]** The default corner radius is 4px (`DesignState.DefaultCornerRadiusPx`; a radius that is
-  not a number loads as 4), by the user's decision: Fluent gives an overlay card 8px. The Default
-  preset reads it from a fresh design ([S-831]); the other presets keep their own (Midnight 6,
-  Daylight 12, Glass 18, Terminal 0, Paper 4), none of which mirrored the old 8.
+- **[S-6482]** The default corner radius is 8px (`DesignState.DefaultCornerRadiusPx`; a radius that is
+  not a number loads as 8): Windows' own radius for a top-level surface, the same as Themia's menus
+  and flyouts (`ShellMetrics.OverlayRadius`), so cards and edit chrome agree; the family's inner
+  radius stays 4. The Default preset reads it from a fresh design ([S-831]); the other presets keep
+  their own ([S-2121]).
 - **[S-826]** Font: `system` (Segoe UI Variable), `sans` (Arial), `serif` (Georgia), `mono` (Cascadia
   Mono, Consolas), or any installed family name; a value that is not a plausible family name is the
   system font. Applied to the card content through a presenter, so text inherits it; icon glyphs
@@ -5967,9 +5985,9 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-827]** The font picker lists every installed family (GDI `EnumFontFamiliesExW`, off the UI
   thread, cached until the installed fonts change, [S-6443]): vertical `@` faces dropped, duplicates
   folded, sorted. Each entry is drawn in its own font ([S-1723]).
-- **[S-828]** Header background (empty = shares the widget's fill) and header opacity (0..1,
-  [S-1761]); the strip reaches the card's edges and follows its corners.
-- **[S-1761]** The header opacity always fades the header strip (it did nothing while the header had
+- **[S-828]** Header background (empty = none: the header is the card, [S-2103]) and header opacity
+  (0..1, the header colour's); the strip reaches the card's edges and follows its corners.
+- **[S-1761]** *(Retired by [S-2103]: the header no longer paints a copy of the card's fill.)* The header opacity always fades the header strip (it did nothing while the header had
   no colour of its own, which is the default — the widget's fill was painted under the header too, so
   a header sharing it could not look any different). The card's fill now paints the body only, in
   the content grid beside the header (`WidgetCard.ApplyBodyFill`), and the strip has its own fill:
@@ -5979,10 +5997,19 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   opens between the two where their edge falls between pixels (widget scale, an intro, fractional DPI).
 - **[S-829]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-830]** Design presets (the original's six): Default, Midnight, Daylight, Glass, Terminal, Paper.
-  Each owns 14 fields (theme, accent, font, widget background (one fill choice, [S-6565]), header
-  fill + opacity, border style/width/colour/opacity, corner radius, widget gap, item background (a
-  fill choice) + item text colour, [S-6515], [S-6545]) and
+  Each owns 15 fields (theme, accent, font, widget background (one fill choice, [S-6565]), header
+  fill + opacity, border style/width/colour/opacity, corner radius, widget gap, blur behind widgets
+  ([S-2120]), item background (a fill choice) + item text colour, [S-6515], [S-6545]) and
   never widget scale, text size or motion.
+- **[S-2120]** Blur behind widgets ([S-2110]) is a preset's: a frosted look and an opaque one differ.
+- **[S-2121]** Each preset is one coherent look on the new base, and none draws a header band or an
+  item pane of its own (`DesignPresets`): **Default** the fresh design ([S-2100]); **Midnight** dark,
+  opaque near-black `#0B0B0F`, a `#7C8CFF` hairline at 18 %, radius 8, gap 10, blur off; **Daylight**
+  light, white at 70 % frosted, a black hairline at 8 %, radius 8, gap 12; **Glass** dark, `#1B2030`
+  at 50 % frosted (thinner than Default), no border, radius 16, gap 16, the items on their Fluent
+  fills (its old header strip and item panes made every card look striped); **Terminal** mono, square,
+  opaque `#050D07`, a green line, blur off; **Paper** serif, opaque `#FAF7F0`, a warm hairline,
+  radius 4, blur off.
 - **[S-831]** Default is read from a fresh `DesignState`, so a fresh install reads as Default.
 - **[S-832]** Applying a preset writes its fields in one mutation and leaves every other field alone.
 - **[S-833]** The picker shows the matching preset, or Custom; only owned fields are compared, colours
@@ -6021,17 +6048,16 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   `Secondary` (hover, selected) / `Tertiary` (pressed, selected under the pointer); Tile
   `ControlFillColorDefault` / `Secondary` / `Tertiary` / `Disabled`; Chip `SubtleFillColorSecondary`
   / `Tertiary` (any lit state); Track `ControlStrongFillColorDefault` / `Disabled`.
-- **[S-6515]** Presets own the item layer too ([S-830]). Default and four others keep the Fluent
-  fills; Glass gives its items a pane of their own (#2A3248 at 60 %), so rows and tiles still read on
-  its thin glass.
+- **[S-6515]** Presets own the item layer too ([S-830]). Every preset keeps the Fluent fills
+  ([S-2121]: Glass's pane of its own striped its cards).
 - **[S-6516]** *(Retired by [S-6568]: the Item colour and Item opacity rows are one fill row.)*
 - **[S-6517]** *(Retired by [S-6569]: `--surface` is gone; `--background` and `--own-items` take a fill.)*
 - **[S-6560]** **One fill choice** (`FillChoice`) for the widget background and the item background,
   app-wide (`DesignState.Background`, `DesignState.ItemBackground`) and per widget
   (`WidgetInstance.Background`, `WidgetInstance.ItemBackground`): **Default**, **Transparent**, or a
   **Colour** (`#RRGGBB`) with an **opacity** 0..1, stored as `{ "kind": "Colour", "colour":
-  "#1B2030", "opacity": 0.55 }` (the kind case-insensitively on read). Default app-wide is the Fluent
-  fill (the Windows card, each item's own fill); on a widget it is "follow the app-wide one". A
+  "#1B2030", "opacity": 0.55 }` (the kind case-insensitively on read). Default app-wide is Themia's
+  card ([S-2100]) and each item's own Fluent fill; on a widget it is "follow the app-wide one". A
   Default or Transparent choice keeps the colour and opacity last picked, so going back to a colour
   finds it; they draw nothing until then and never make two choices differ (`FillChoice.SameAs`).
   Translucent is gone: a colour with an opacity is the see-through card now.
@@ -6041,16 +6067,15 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-6562]** What is drawn (`FillChoice.Effective`): a widget's own choice unless it is Default,
   else the app-wide one — the background and the item background each on their own.
 - **[S-6563]** The card paints its effective background (`DesignLook.Card` → `CardFill`): Default is
-  the Fluent base and card tint at full strength, a colour exactly that colour at its opacity, and
+  Themia's card for the theme ([S-2100]), a colour exactly that colour at its opacity, and
   Transparent nothing — no fill and no border ([S-824]); a colour at 0 % is not transparent and keeps
-  its border. A header sharing the widget's fill fades that fill once more by the header opacity
-  ([S-1761]). The view bar reads the app-wide background, never under 20 %.
+  its border. The header paints no copy of it ([S-2103]). The view bar reads the app-wide background
+  unfrosted (it has no backdrop), never under 20 %.
 - **[S-6564]** Items on a **Transparent** item background have no fill at rest, disabled or as a
   track; a lit item (under the pointer, pressed, selected) still takes the Row's subtle Fluent fill,
   so a list keeps answering the pointer and showing its selection. Default has no opacity of its own.
 - **[S-6565]** Presets own both fills ([S-830]); the old colour + opacity pairs map onto a colour
-  choice: Default is Default and Default; Midnight #0B0B0F at 96 %, Daylight #FFFFFF at 86 %, Glass
-  #1B2030 at 55 % (its items #2A3248 at 60 %), Terminal #050D07 at 97 %, Paper #FAF7F0 at 100 %.
+  choice: Default is Default and Default; the others are [S-2121]'s colours.
   Applying one writes copies, never the preset's own objects.
 - **[S-6567]** *(Retired by [S-3526]: the settings window's fill control went with the Appearance
   page; every fill is a menu's fill line, with Default, Transparent, the swatches, Opacity, Custom
@@ -6126,7 +6151,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-6547]** Debug: `--design itemText=#RRGGBB` sets the app-wide item text colour of a render;
   `--widget-png … --own-items <fill> --own-item-text #RRGGBB` give the cards a layer and a text
   colour of their own, the per-widget override.
-- **[S-835]** The default look is Windows 11's, value for value, with the framework's own theme
+- **[S-835]** *(Retired by [S-2100]: the default card is Themia's own; the text, accent, status and
+  type below still are Windows'.)* The default look was Windows 11's, value for value, with the framework's own theme
   resources (WinUI 1.8 `generic.xaml`, read by key through `ThemeBrush.Of`, never copied):
   card = `CardBackgroundFillColorDefault` (#0DFFFFFF dark / #B3FFFFFF light) over
   `SolidBackgroundFillColorBase` (#202020 / #F3F3F3), i.e. #2B2B2B / #FBFBFB; a 1px
@@ -6149,7 +6175,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   shadow (the surface is clipped to the cards by `SetWindowRgn`, so a shadow outside them cannot
   show), and the header is Body Strong in the secondary colour ending 44px down rather than the
   board's own 48px attribution strip (the board draws that strip itself; it is not a widget's).
-- **[S-836]** The card composites as a WinUI card does: the Fluent tint stops at a solid stroke's
+- **[S-836]** *(Retired by [S-2100]: there is no Fluent tint to inset; `--reference` still draws the
+  stock card to compare.)* The card composited as a WinUI card does: the Fluent tint stops at a solid stroke's
   inner edge (`DesignLook.TintInset`; a `Border`'s background is `InnerBorderEdge`), so the stroke
   lies over the base alone (#1D1D1D / #E5E5E5 at 1px); dashed and dotted lines keep the tint
   full-bleed so their gaps do not show bare base. `DesignLook.Over` is the source-over rule.

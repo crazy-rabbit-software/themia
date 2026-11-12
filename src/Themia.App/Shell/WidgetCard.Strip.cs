@@ -23,10 +23,4 @@ internal sealed partial class WidgetCard
         corners.TopEnd ? radius : 0,
         corners.BottomEnd ? radius : 0,
         corners.BottomStart ? radius : 0);
-
-    private static Thickness Inset(CardSides sides, double by) => new(
-        sides.Start ? by : 0,
-        sides.Top ? by : 0,
-        sides.End ? by : 0,
-        sides.Bottom ? by : 0);
 }

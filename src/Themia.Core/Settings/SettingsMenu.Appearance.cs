@@ -82,7 +82,10 @@ public static partial class SettingsMenu
         Apply();
     }
 
-    /// <summary>[S-3830] Theme and colours: the theme, the accent, the widget background and the header's fill and opacity ([S-828]).</summary>
+    /// <summary>
+    /// [S-3830] Theme and colours: the theme, the accent, the widget background, blur behind widgets
+    /// ([S-2110]) and the header's fill and opacity ([S-828]).
+    /// </summary>
     private static SettingsSubmenu ThemeAndColours(ISettingsMenuHost host, string key)
     {
         var design = host.State.Design;
@@ -101,6 +104,10 @@ public static partial class SettingsMenu
             // group says whose: "Background" here, as on the page's group, so the words fit the menu.
             new SettingsFill(key + "/background", Str.Settings_Style_BgLabel.Text(), design.Background,
                 v => host.Mutate(s => s.Design.Background = v), Str.Shell_Appearance_ThemeColour.Text()),
+
+            // [S-2110] The wallpaper, blurred, under every translucent card: the background's own glass.
+            new SettingsToggle(key + "/blur", Str.Shell_Appearance_BlurBehind.Text(), Glyphs.Photo, design.BlurBehind,
+                v => host.Mutate(s => s.Design.BlurBehind = v)),
             new SettingsSeparator(key + "/-header"),
 
             // [S-828] The header strip, on its own terms: its fill (the line "Header", its value the colour) and its opacity.

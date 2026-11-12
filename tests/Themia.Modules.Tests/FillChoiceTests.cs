@@ -170,10 +170,10 @@ public sealed class FillChoiceTests
         var own = Widget("b");
         own.Background = FillChoice.Transparent();
 
-        var shared = DesignLook.Card(FillChoice.Effective(design.Background, follows.Background));
+        var shared = DesignLook.Card(FillChoice.Effective(design.Background, follows.Background), dark: true, frosted: true);
         Assert.Equal(new CardFill(FillKind.Colour, new RgbColor(0x20, 0x20, 0x20), 0.5), shared);
 
-        var dropped = DesignLook.Card(FillChoice.Effective(design.Background, own.Background));
+        var dropped = DesignLook.Card(FillChoice.Effective(design.Background, own.Background), dark: true, frosted: true);
         Assert.False(dropped.Painted);
         Assert.False(DesignLook.Border(dropped, WidgetBorderStyle.Solid, 1, 1).Visible);
     }
@@ -288,12 +288,12 @@ public sealed class FillChoiceTests
     {
         Assert.Equal(FillKind.Default, DesignPresets.Get(DesignPresetId.Default).Values.Background.Kind);
 
-        // Glass was the translucent look: now a colour with an opacity, card and items alike.
+        // [S-2121] Glass is a colour with an opacity over the frost; its items keep the Fluent fills.
         var glass = DesignPresets.Get(DesignPresetId.Glass).Values;
-        Assert.True(FillChoice.Of("#1B2030", 0.55).SameAs(glass.Background));
-        Assert.True(FillChoice.Of("#2A3248", 0.6).SameAs(glass.Items));
+        Assert.True(FillChoice.Of("#1B2030", 0.50).SameAs(glass.Background));
+        Assert.Equal(FillKind.Default, (glass.Items ?? new FillChoice()).Kind);
 
-        Assert.True(FillChoice.Of("#0B0B0F", 0.96).SameAs(DesignPresets.Get(DesignPresetId.Midnight).Values.Background));
+        Assert.True(FillChoice.Of("#0B0B0F", 1).SameAs(DesignPresets.Get(DesignPresetId.Midnight).Values.Background));
         Assert.True(FillChoice.Of("#FAF7F0", 1).SameAs(DesignPresets.Get(DesignPresetId.Paper).Values.Background));
     }
 
@@ -306,8 +306,8 @@ public sealed class FillChoiceTests
         design.Background.Opacity = 0.1;
         design.ItemBackground.Kind = FillKind.Transparent;
 
-        Assert.Equal(0.55, DesignPresets.Get(DesignPresetId.Glass).Values.Background.Opacity, 3);
-        Assert.Equal(FillKind.Colour, DesignPresets.Get(DesignPresetId.Glass).Values.Items!.Kind);
+        Assert.Equal(0.50, DesignPresets.Get(DesignPresetId.Glass).Values.Background.Opacity, 3);
+        Assert.Equal(FillKind.Default, (DesignPresets.Get(DesignPresetId.Glass).Values.Items ?? new FillChoice()).Kind);
         Assert.Null(DesignPresets.Match(design));
     }
 

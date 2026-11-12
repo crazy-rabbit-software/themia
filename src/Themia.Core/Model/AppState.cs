@@ -194,19 +194,25 @@ public sealed class DesignState
     public bool GridSnap { get; set; } = true;
 
     /// <summary>
-    /// Corner radius of a widget card, in device-independent pixels. [S-6482] 4 by the user's
-    /// decision, not Fluent's 8px OverlayCornerRadius.
+    /// Corner radius of a widget card, in device-independent pixels. [S-6482] 8: Windows' own radius
+    /// for a top-level surface, the same as Themia's menus (<c>ShellMetrics.OverlayRadius</c>).
     /// </summary>
     public double CornerRadiusPx { get; set; } = DefaultCornerRadiusPx;
 
     /// <summary>[S-6482] The default card corner radius.</summary>
-    public const double DefaultCornerRadiusPx = 4;
+    public const double DefaultCornerRadiusPx = 8;
 
     /// <summary>
-    /// [S-823] [S-6560] The app-wide widget background: Default is the Windows card (Fluent base and
-    /// card tint), Transparent no card at all, a colour exactly that colour at its opacity.
+    /// [S-823] [S-6560] The app-wide widget background: Default is Themia's neutral translucent card
+    /// for the theme ([S-2100]), Transparent no card at all, a colour exactly that colour at its opacity.
     /// </summary>
     public FillChoice Background { get; set; } = new();
+
+    /// <summary>
+    /// [S-2110] Blur behind widgets: the display's wallpaper, blurred, under every card whose fill is
+    /// translucent. On by default; a preset owns it.
+    /// </summary>
+    public bool BlurBehind { get; set; } = true;
 
     /// <summary>
     /// [S-6510] The app-wide item background ([S-6560]): what the items inside every card are filled
@@ -239,10 +245,10 @@ public sealed class DesignState
     /// <summary>Duration of that animation, in milliseconds.</summary>
     public double IntroAnimationMs { get; set; } = 500;
 
-    /// <summary>[S-704] The header strip's fill, as <c>#RRGGBB</c>. Empty uses the widget's own fill.</summary>
+    /// <summary>[S-704] [S-2103] The header's own fill, as <c>#RRGGBB</c>. Empty: none, the header is the card.</summary>
     public string HeaderBackgroundColor { get; set; } = string.Empty;
 
-    /// <summary>Opacity of the header strip, 0 to 1. Independent of the body, as in the original.</summary>
+    /// <summary>[S-2103] Opacity of the header's own fill, 0 to 1. Without a header colour it draws nothing.</summary>
     public double HeaderOpacity { get; set; } = 1.0;
 
     /// <summary>[S-704] The animation widgets play when the user switches views.</summary>
@@ -267,6 +273,7 @@ public sealed class DesignState
         GridSnap = GridSnap,
         CornerRadiusPx = CornerRadiusPx,
         Background = Background.Clone(),
+        BlurBehind = BlurBehind,
         ItemBackground = ItemBackground.Clone(),
         ItemTextColor = ItemTextColor,
         PrimaryColor = PrimaryColor,

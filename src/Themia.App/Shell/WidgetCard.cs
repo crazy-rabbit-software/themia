@@ -154,8 +154,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// <summary>[S-6512] The item fills of this widget's view, from its own item layer or the app-wide one.</summary>
     private readonly ItemPalette _items = new();
 
+    /// <summary>[S-2100] The card's one fill, across the whole card, header included ([S-2103]).</summary>
     private readonly Border _fill;
-    private readonly Border _tint;
     private readonly Border _surface;
 
     /// <summary>[S-824] The border, drawn as a shape because a <see cref="Border"/> cannot dash.</summary>
@@ -171,13 +171,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     private double _textScale = FamilyType.TextScale;
     private readonly Grid _headerHost;
 
-    /// <summary>The header strip: its own fill ([S-1761]) under the header row.</summary>
+    /// <summary>The header strip: the header row, on the card's own fill ([S-2103]).</summary>
     private readonly Grid _headerBand;
-
-    /// <summary>[S-1761] The card's surface behind the header strip alone, faded by the header opacity.</summary>
-    private readonly Border _headerBase = new() { IsHitTestVisible = false };
-
-    private readonly Border _headerTint = new() { IsHitTestVisible = false };
 
     /// <summary>[S-405] Stands the header on end for a strip down a side edge.</summary>
     private readonly TurnedHeader _headerTurn;
@@ -248,7 +243,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         };
 
         _headerTurn = new TurnedHeader(_headerHost);
-        _headerBand = new Grid { Children = { _headerBase, _headerTint, _headerTurn } };
+        _headerBand = new Grid { Children = { _headerTurn } };
 
         // The view is bound and attached only once the header exists. A view that names itself
         // during Attach - a weather tile knows its place, a folder listing knows its folder -
@@ -269,18 +264,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             // background only inside the stroke, so the outer pixel of every card was a nearly clear
             // ring over the wallpaper. Two neighbours at a 0px gap read as a visible gap between them.
             BackgroundSizing = BackgroundSizing.OuterBorderEdge,
-        };
-
-        // Windows 11 draws a card as a tint ON something, not as a flat colour. On an opaque
-        // window that something is Mica; here the window is genuinely transparent, so the card
-        // paints the opaque surface colour Fluent expects underneath and then lays the real
-        // CardBackgroundFillColor overlay on top of it. That overlay is the ~5% lift that makes a
-        // Windows card look raised rather than merely filled, and using it alone - as a first
-        // attempt did - left the card almost invisible over the wallpaper.
-        _tint = new Border
-        {
-            Background = ShellBrush.Of(ShellRole.CardFill),
-            IsHitTestVisible = false,
         };
 
         // No padding: the content area goes edge to edge and each view insets its own parts. A card
@@ -308,16 +291,18 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         Place(_view, HeaderStrip.ViewCell);
 
-        // [S-1761] The widget's fill paints the body only, under the view; the header strip has a
-        // fill of its own (_headerBase/_headerTint), so the header opacity can fade it alone. Painted
-        // across the whole card, the body fill sat under the header too, and a header that shares the
-        // widget's fill could never look any different, whatever its opacity.
+        // [S-2103] The widget's fill is one surface across the whole card, header included: the header
+        // is the card, so a translucent card shows no band and no seam where the header is (two
+        // fills that met at the header's edge, or overlapped there, drew both). A header colour of
+        // the user's own is the header's own layer, over it.
         // [S-6590] The background image under everything, across the whole card, header included.
-        Grid.SetRowSpan(_image, 3);
-        Grid.SetColumnSpan(_image, 3);
-        content.Children.Add(_image);
-        content.Children.Add(_fill);
-        content.Children.Add(_tint);
+        foreach (var layer in new FrameworkElement[] { _image, _fill })
+        {
+            Grid.SetRowSpan(layer, 3);
+            Grid.SetColumnSpan(layer, 3);
+            content.Children.Add(layer);
+        }
+
         content.Children.Add(_headerBand);
         content.Children.Add(_view);
 
@@ -427,7 +412,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var hidden = placement == HeaderPlacement.Hidden || tooShort;
 
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
-        ApplyBodyFill();
         _setup?.HeaderAbove(HeaderAbove);
         if (_waiting is not null)
         {
@@ -481,34 +465,22 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var items = _preview?.Items is { } previewed ? FillChoice.Effective(design.ItemBackground ?? new FillChoice(), previewed) : ItemLook.Effective(design, Model);
         _items.Apply(items, ItemLook.TextColour(design, Model), DesignApplier.IsDark);
 
-        ApplyBodyFill();
-
         // The content border is rounded too, so anything drawn edge to edge inside it - a meter's
         // graph reaches the bottom and both sides - is clipped to the card's corners instead of
         // squaring them off.
         _surface.CornerRadius = radius;
 
-        // [S-823] The card paints its OWN base, rather than relying on a window background.
-        //
-        // Fluent's CardBackgroundFillColor is a ~5% white overlay in dark theme: it is designed to
-        // sit on top of an opaque window, not to be the only fill. The widget surface is genuinely
-        // transparent, so using it alone made the card invisible and left the clock floating
-        // unreadably over whatever was behind the window. SolidBackgroundFillColorBase is the
-        // opaque surface colour that overlay is meant to sit on, so it is the correct base here.
-        // A colour of the user's own replaces both: it is meant to be exactly that colour.
+        // [S-823] [S-2100] The card paints its own fill, one colour at one opacity: Themia's neutral
+        // card for the theme by default, the user's colour exactly otherwise. The surface is genuinely
+        // transparent, so what shows through it is the desktop.
         // [S-6592] Over a background image only a colour of the widget's own is painted, as a tint.
         ApplyImage(radiusPx);
         var cardFill = CardFillNow();
         var fill = PaintedFillNow();
-        var opacity = fill.Painted ? fill.Opacity : 0;
-        var custom = ColourBrush(fill);
 
-        _fill.Background = opacity <= 0 ? null
-            : custom ?? ShellBrush.Of(ShellRole.CardBase);
-        _fill.BorderBrush = null;
-        _fill.BorderThickness = new Thickness(0);
-        _fill.Opacity = opacity <= 0 ? 1 : opacity;
-        _tint.Opacity = custom is null ? opacity : 0;
+        _fill.CornerRadius = radius;
+        _fill.Background = fill.Painted && fill.Colour is { } colour ? DesignApplier.UserBrush(HexColor.From(colour.R, colour.G, colour.B)) : null;
+        _fill.Opacity = fill.Painted ? fill.Opacity : 1;
 
         // [S-824] The border: style, width, colour and opacity, over the content.
         var border = DesignLook.Border(cardFill, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
@@ -517,9 +489,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             _stroke.Visibility = Visibility.Visible;
             // [S-6481] The user's colour exactly, else the theme stroke for this weight: the card
             // hairline only for a solid 1px line, the strong stroke for anything heavier or broken.
-            var ink = DesignLook.Ink(border, design.BorderColor);
-            _stroke.Stroke = (ink.Colour is { } colour ? DesignApplier.UserBrush(HexColor.From(colour.R, colour.G, colour.B)) : null)
-                ?? ThemeBrush.Of(ink.ThemeKey ?? DesignLook.HairlineStrokeKey, Colors.Gray);
+            // [S-2102] The theme's hairline is Themia's own pair, a colour at its alpha.
+            var ink = DesignLook.Ink(border, design.BorderColor, DesignApplier.IsDark);
+            _stroke.Stroke = (ink.Colour is { } line ? DesignApplier.UserBrush(HexColor.From(line.R, line.G, line.B), ink.Alpha) : null)
+                ?? ThemeBrush.Of(ink.ThemeKey ?? DesignLook.StrongStrokeKey, Colors.Gray);
             _stroke.StrokeThickness = border.Thickness;
             _stroke.Opacity = border.Opacity;
 
@@ -557,8 +530,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     }
 
     /// <summary>
-    /// [S-828] [S-1761] The header strip's own fill: a colour of its own at the header opacity, or
-    /// else the widget's fill at the widget's opacity times the header opacity. The corners on the
+    /// [S-828] [S-2103] The header's own fill: a header colour of the user's at the header opacity,
+    /// over the card; without one it draws nothing and the header is the card. The corners on the
     /// card's edge follow the card's so the strip does not square them.
     /// </summary>
     private void ApplyHeaderFill()
@@ -568,45 +541,16 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // [S-407] The strip's outer corners. The header inside a side strip is turned, its top
         // facing out, so its own fill rounds its top corners as a top header's does.
-        var edge = ShownEdge;
-        var radius = Round(HeaderStrip.StripCorners(edge), r);
-        var hostRadius = HeaderStrip.IsSide(Model.ShownHeader) ? Round(HeaderStrip.StripCorners(HeaderEdge.Top), r) : radius;
+        var radius = HeaderStrip.IsSide(Model.ShownHeader) ? Round(HeaderStrip.StripCorners(HeaderEdge.Top), r) : Round(HeaderStrip.StripCorners(ShownEdge), r);
+        var own = DesignLook.HeaderFill(design.HeaderBackgroundColor, design.HeaderOpacity);
 
-        var own = DesignApplier.UserBrush(design.HeaderBackgroundColor);
-        var fill = PaintedFillNow();
-        var surface = fill.Painted ? fill.Opacity : 0;
-        var opacity = DesignLook.HeaderFillOpacity(fill, design.HeaderOpacity, own is not null);
-        var custom = ColourBrush(fill);
-
-        _headerHost.Background = own is null ? null : DesignApplier.UserBrush(design.HeaderBackgroundColor, opacity);
-        _headerHost.CornerRadius = hostRadius;
-
-        // Shared with the widget: the same base and Fluent lift as the body, faded on their own.
-        _headerBase.Background = own is null && surface > 0
-            ? custom ?? ShellBrush.Of(ShellRole.CardBase)
-            : null;
-        _headerBase.Opacity = opacity;
-        _headerTint.Background = own is null && custom is null && surface > 0
-            ? ShellBrush.Of(ShellRole.CardFill)
-            : null;
-        _headerTint.Opacity = opacity;
-        _headerBase.CornerRadius = radius;
-
-        // [S-836] Inside a solid stroke on the card's three outer edges, as the body's tint is.
-        var t = TintInset();
-        var ri = Math.Max(0, r - t);
-        (_headerTint.Margin, _headerTint.CornerRadius) = (Inset(HeaderStrip.StripSides(edge), t), Round(HeaderStrip.StripCorners(edge), ri));
-    }
-
-    /// <summary>[S-836] How far the Fluent tint stops short of the card's edge for the current border.</summary>
-    private double TintInset()
-    {
-        var design = _host.Design;
-        return DesignLook.TintInset(DesignLook.Border(CardFillNow(), design.BorderStyle, design.BorderWidthPx, design.BorderOpacity));
+        _headerHost.Background = own is { Colour: { } c } ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B), own.Value.Opacity) : null;
+        _headerHost.CornerRadius = radius;
     }
 
     /// <summary>[S-6563] What this card's background paints: its own choice (or one previewed, [S-3731]), or the app-wide one for Default.</summary>
-    private CardFill CardFillNow() => DesignLook.Card(FillChoice.Effective(_host.Design.Background, _preview?.Background ?? Model.Background));
+    private CardFill CardFillNow()
+        => DesignLook.Card(FillChoice.Effective(_host.Design.Background, _preview?.Background ?? Model.Background), DesignApplier.IsDark, Frosted);
 
     /// <summary>[S-3731] A fill the properties menu's slider shows while it is dragged; null: the card's own.</summary>
     private CardPreview? _preview;
@@ -622,45 +566,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         ApplyDesign();
     }
 
-    /// <summary>[S-823] The user's colour of a colour fill, opaque (the fill's opacity is the element's), else null for the Fluent base.</summary>
-    private static SolidColorBrush? ColourBrush(CardFill fill)
-        => fill.Colour is { } c ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B)) : null;
-
-    /// <summary>
-    /// [S-1761] The body fill covers what the header leaves: the whole card without a header, else
-    /// the rows beside it, with the card's corners only on the edges it reaches.
-    /// </summary>
-    private void ApplyBodyFill()
-    {
-        // A view that names itself while it is attached reaches here through ApplyHeader before the
-        // constructor has built the fill; the constructor's own ApplyHeader places it after.
-        if (_fill is null || _tint is null)
-        {
-            return;
-        }
-
-        var r = DesignLook.CornerRadius(_host.Design.CornerRadiusPx);
-        var edge = _headerBand.Visibility == Visibility.Visible ? ShownEdge : HeaderEdge.None;
-        var radius = Round(HeaderStrip.BodyCorners(edge), r);
-
-        foreach (var layer in new[] { _fill, _tint })
-        {
-            Place(layer, HeaderStrip.BodyCell(edge));
-            layer.CornerRadius = radius;
-        }
-
-        // [S-836] The Fluent tint stops at a solid stroke's inner edge, as a WinUI card's background
-        // does, so the stroke composites over the base alone; its corners are the inner radius.
-        var t = TintInset();
-        var ri = Math.Max(0, r - t);
-        (_tint.Margin, _tint.CornerRadius) = (Inset(HeaderStrip.BodySides(edge), t), Round(HeaderStrip.BodyCorners(edge), ri));
-
-        // The base reaches one DIP under the header strip, which is painted over it: two fills that
-        // only meet at an edge leave an anti-aliased seam of desktop between them wherever that edge
-        // falls between pixels (a widget scale, an intro's scale, a fractional DPI).
-        _fill.Margin = Inset(HeaderStrip.Seam(edge), -1);
-    }
-
     /// <summary>
     /// [S-873] Draw the card or nothing. Hidden, the fill, content and border collapse (the view
     /// stays attached and keeps receiving its updates, so it can show itself again); edit mode
@@ -673,7 +578,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         _image.Visibility = visibility;
         _fill.Visibility = visibility;
-        _tint.Visibility = visibility;
         _surface.Visibility = visibility;
         _surface.Opacity = _hidden && editing ? 0.5 : 1;
     }

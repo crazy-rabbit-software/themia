@@ -12,7 +12,8 @@ namespace Themia.Core.Model;
 /// (default|transparent|#RRGGBB[@percent], [S-6569]), <c>opacity</c> (the background colour's),
 /// <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
 /// <c>itemOpacity</c> (the item background, on the same terms, [S-6510]), <c>itemText</c> (its text
-/// colour, [S-6547]), <c>gap</c> (between neighbouring cards, DIPs, [S-04]). A colour is #RRGGBB, or
+/// colour, [S-6547]), <c>gap</c> (between neighbouring cards, DIPs, [S-04]), <c>blur</c> (on|off: blur
+/// behind widgets, [S-2110]). A colour is #RRGGBB, or
 /// empty for the design's own; anything else is refused, not passed on ([S-1075]). Pure.
 /// </summary>
 public static class DesignText
@@ -117,6 +118,9 @@ public static class DesignText
             case "gap" when Number(value) is { } g && g >= 0:
                 d.WidgetGapPx = g;
                 return true;
+            case "blur" when OnOff(value) is { } on:
+                d.BlurBehind = on;
+                return true;
             default:
                 return false;
         }
@@ -125,6 +129,13 @@ public static class DesignText
     /// <summary>A colour as stored (<c>#RRGGBB</c>), empty for the design's own, null for anything else.</summary>
     private static string? Colour(string value)
         => value.Length == 0 ? string.Empty : HexColor.TryParse(value, out _, out _, out _) ? HexColor.Normalise(value) : null;
+
+    private static bool? OnOff(string value) => value.ToLowerInvariant() switch
+    {
+        "on" or "true" => true,
+        "off" or "false" => false,
+        _ => null,
+    };
 
     private static double? Number(string value)
         => double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var n) && double.IsFinite(n) ? n : null;

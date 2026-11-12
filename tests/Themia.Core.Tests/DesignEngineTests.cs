@@ -83,18 +83,65 @@ public sealed class DesignEngineTests
     public void S822_alpha_clamps_and_treats_garbage_as_opaque(double opacity, byte expected)
         => Assert.Equal(expected, FillChoice.Alpha(opacity));
 
-    /// <summary>The card fill the default design paints: the Fluent card at full strength.</summary>
-    private static readonly CardFill Fluent = DesignLook.Card(new FillChoice());
+    /// <summary>The card fill the default design paints in dark theme over the blurred wallpaper.</summary>
+    private static readonly CardFill Fluent = DesignLook.Card(new FillChoice(), dark: true, frosted: true);
+
+    /// <summary>A fill choice's card in dark theme, frosted (the theme and ground do not touch a colour or transparent).</summary>
+    private static CardFill Card(FillChoice fill) => DesignLook.Card(fill, dark: true, frosted: true);
 
     [Fact]
-    public void S6563_default_is_the_fluent_card_at_full_strength_transparent_is_nothing()
+    public void S2100_default_is_themias_neutral_translucent_card_transparent_is_nothing()
     {
-        Assert.Equal(new CardFill(FillKind.Default, null, 1), Fluent);
+        Assert.Equal(new CardFill(FillKind.Default, new RgbColor(0x1C, 0x1C, 0x1C), 0.72), Fluent);
         Assert.True(Fluent.Painted);
 
-        var none = DesignLook.Card(FillChoice.Transparent());
+        var none = Card(FillChoice.Transparent());
         Assert.Equal(new CardFill(FillKind.Transparent, null, 0), none);
         Assert.False(none.Painted);
+    }
+
+    [Theory]
+    [InlineData(true, true, 0x1C, 0.72)]
+    [InlineData(false, true, 0xF9, 0.78)]
+    [InlineData(true, false, 0x1C, 0.88)]
+    [InlineData(false, false, 0xF9, 0.90)]
+    public void S2100_S2111_the_default_card_per_theme_and_ground(bool dark, bool frosted, byte grey, double opacity)
+    {
+        var fill = DesignLook.Card(new FillChoice(), dark, frosted);
+
+        Assert.Equal(FillKind.Default, fill.Kind);
+        Assert.Equal(new RgbColor(grey, grey, grey), fill.Colour);
+        Assert.Equal(opacity, fill.Opacity, 3);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void S2100_a_colour_or_transparent_ignores_the_theme_and_ground(bool dark, bool frosted)
+    {
+        Assert.Equal(Card(FillChoice.Of("#1B2030", 0.5)), DesignLook.Card(FillChoice.Of("#1B2030", 0.5), dark, frosted));
+        Assert.Equal(Card(FillChoice.Transparent()), DesignLook.Card(FillChoice.Transparent(), dark, frosted));
+    }
+
+    // ---- [S-2110] what a card frosts ---------------------------------------------------------------
+
+    [Fact]
+    public void S2110_a_translucent_card_frosts_when_blur_is_on_and_the_display_has_a_picture()
+    {
+        Assert.True(DesignLook.Frosts(Fluent, blurOn: true, picture: true, ownImage: false));
+        Assert.True(DesignLook.Frosts(Card(FillChoice.Of("#123456", 0.4)), true, true, false));
+
+        Assert.False(DesignLook.Frosts(Fluent, blurOn: false, picture: true, ownImage: false));
+        Assert.False(DesignLook.Frosts(Fluent, blurOn: true, picture: false, ownImage: false));
+        Assert.False(DesignLook.Frosts(Fluent, blurOn: true, picture: true, ownImage: true));
+    }
+
+    [Fact]
+    public void S2110_an_opaque_or_bare_card_never_frosts()
+    {
+        Assert.False(DesignLook.Frosts(Card(FillChoice.Of("#123456", 1)), true, true, false));
+        Assert.False(DesignLook.Frosts(Card(FillChoice.Of("#123456", 0)), true, true, false));
+        Assert.False(DesignLook.Frosts(Card(FillChoice.Transparent()), true, true, false));
     }
 
     [Theory]
@@ -105,7 +152,7 @@ public sealed class DesignEngineTests
     [InlineData(double.NaN, 1.0)]
     public void S6563_a_colour_is_exactly_that_colour_at_its_opacity(double opacity, double expected)
     {
-        var fill = DesignLook.Card(new FillChoice { Kind = FillKind.Colour, Colour = "#1b2030", Opacity = opacity });
+        var fill = Card(new FillChoice { Kind = FillKind.Colour, Colour = "#1b2030", Opacity = opacity });
 
         Assert.Equal(FillKind.Colour, fill.Kind);
         Assert.Equal(new RgbColor(0x1B, 0x20, 0x30), fill.Colour);
@@ -115,32 +162,38 @@ public sealed class DesignEngineTests
 
     [Fact]
     public void S6563_a_colour_choice_without_a_colour_paints_the_default()
-        => Assert.Equal(Fluent, DesignLook.Card(new FillChoice { Kind = FillKind.Colour, Colour = "teal", Opacity = 0.3 }));
+        => Assert.Equal(Fluent, Card(new FillChoice { Kind = FillKind.Colour, Colour = "teal", Opacity = 0.3 }));
 
     [Theory]
-    [InlineData(1.0, 1.0, 1.0)]
-    [InlineData(1.0, 0.5, 0.5)]
-    [InlineData(1.0, 0.0, 0.0)]
-    [InlineData(0.8, 0.5, 0.4)]
-    public void S1761_header_opacity_fades_a_header_that_shares_the_widget_fill(double fill, double header, double expected)
-        => Assert.Equal(expected, DesignLook.HeaderFillOpacity(DesignLook.Card(FillChoice.Of("#202020", fill)), header, ownColour: false), 3);
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData("red")]
+    [InlineData(null)]
+    public void S2103_without_a_header_colour_the_header_draws_nothing(string? colour)
+        => Assert.Null(DesignLook.HeaderFill(colour, 0.5));
 
-    [Fact]
-    public void S1761_a_header_sharing_a_default_or_transparent_fill()
+    [Theory]
+    [InlineData(0.3, 0.3)]
+    [InlineData(1.0, 1.0)]
+    [InlineData(double.NaN, 1.0)]
+    [InlineData(-2.0, 0.0)]
+    [InlineData(7.0, 1.0)]
+    public void S2103_a_header_colour_of_its_own_is_drawn_at_the_header_opacity(double header, double expected)
     {
-        Assert.Equal(0.5, DesignLook.HeaderFillOpacity(Fluent, 0.5, ownColour: false), 3);
-        Assert.Equal(0, DesignLook.HeaderFillOpacity(DesignLook.Card(FillChoice.Transparent()), 1, ownColour: false), 3);
+        var fill = DesignLook.HeaderFill("#336699", header);
+
+        Assert.NotNull(fill);
+        Assert.Equal(new RgbColor(0x33, 0x66, 0x99), fill.Value.Colour);
+        Assert.Equal(expected, fill.Value.Opacity, 3);
     }
 
-    [Theory]
-    [InlineData(FillKind.Default, 0.3)]
-    [InlineData(FillKind.Transparent, 0.7)]
-    public void S1761_a_header_colour_of_its_own_takes_the_header_opacity_alone(FillKind kind, double header)
+    [Fact]
+    public void S2103_no_preset_draws_a_header_band()
     {
-        var fill = DesignLook.Card(new FillChoice { Kind = kind });
-        Assert.Equal(header, DesignLook.HeaderFillOpacity(fill, header, ownColour: true), 3);
-        Assert.Equal(1, DesignLook.HeaderFillOpacity(fill, double.NaN, ownColour: true), 3);
-        Assert.Equal(0, DesignLook.HeaderFillOpacity(fill, -2, ownColour: true), 3);
+        foreach (var preset in DesignPresets.All)
+        {
+            Assert.Null(DesignLook.HeaderFill(preset.Values.HeaderBackgroundColor, preset.Values.HeaderOpacity));
+        }
     }
 
     [Fact]
@@ -185,29 +238,16 @@ public sealed class DesignEngineTests
     }
 
     [Fact]
-    public void S836_the_card_tint_sits_inside_a_solid_stroke_only()
-    {
-        // A Border's background stops at the stroke's inner edge (BackgroundSizing InnerBorderEdge),
-        // so the stroke is drawn over the base alone, as a WinUI card's is over the page.
-        Assert.Equal(1, DesignLook.TintInset(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 1, 1)));
-        Assert.Equal(3, DesignLook.TintInset(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 3, 0.5)));
-
-        // Dash gaps would show a ring of bare base: the tint stays full-bleed under a broken line.
-        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(Fluent, WidgetBorderStyle.Dashed, 1, 1)));
-        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(Fluent, WidgetBorderStyle.Dotted, 2, 1)));
-        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(Fluent, WidgetBorderStyle.None, 1, 1)));
-        Assert.Equal(0, DesignLook.TintInset(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 1, 0)));
-    }
-
-    [Fact]
-    public void S835_the_default_design_is_windows_11s_card()
+    public void S2100_the_default_design_is_themias_own_look()
     {
         var design = new DesignState();
 
-        // [S-6482] 4px corners (the user's choice over Fluent's OverlayCornerRadius 8), a 1px
-        // CardStrokeColorDefault stroke at full strength, the Fluent fill (no colour of the user's
-        // own), opaque, and the Windows accent.
-        Assert.Equal(4, design.CornerRadiusPx);
+        // [S-6482] 8px corners (Windows' overlay radius, the menus' own), a 1px hairline at full
+        // strength, the default (neutral, translucent) fill, blur behind widgets on, no header band,
+        // the Windows accent and an 8px gap.
+        Assert.Equal(8, design.CornerRadiusPx);
+        Assert.Equal(8, design.WidgetGapPx);
+        Assert.True(design.BlurBehind);
         Assert.Equal(WidgetBorderStyle.Solid, design.BorderStyle);
         Assert.Equal(1, design.BorderWidthPx);
         Assert.Equal(1, design.BorderOpacity);
@@ -224,15 +264,20 @@ public sealed class DesignEngineTests
     // ---- [S-6481] the border's ink -----------------------------------------------------------------
 
     [Fact]
-    public void S6481_the_default_border_is_the_fluent_card_hairline()
+    public void S2102_the_default_border_is_themias_hairline_per_theme()
     {
         var design = new DesignState();
         var border = DesignLook.Border(Fluent, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
 
-        var ink = DesignLook.Ink(border, design.BorderColor);
+        var dark = DesignLook.Ink(border, design.BorderColor, dark: true);
+        Assert.Equal(new RgbColor(0xFF, 0xFF, 0xFF), dark.Colour);
+        Assert.Equal(0.10, dark.Alpha, 3);
+        Assert.Null(dark.ThemeKey);
 
-        Assert.Null(ink.Colour);
-        Assert.Equal(DesignLook.HairlineStrokeKey, ink.ThemeKey);
+        var light = DesignLook.Ink(border, design.BorderColor, dark: false);
+        Assert.Equal(new RgbColor(0x00, 0x00, 0x00), light.Colour);
+        Assert.Equal(0.08, light.Alpha, 3);
+        Assert.Null(light.ThemeKey);
     }
 
     [Theory]
@@ -246,10 +291,13 @@ public sealed class DesignEngineTests
     {
         // CardStrokeColorDefault is a 6-10% overlay meant for a 1px line on Mica: a thicker or broken
         // line drawn in it looked the same as none at all, so every width and style read alike.
-        var ink = DesignLook.Ink(DesignLook.Border(Fluent, style, width, 1), "");
+        foreach (var dark in new[] { true, false })
+        {
+            var ink = DesignLook.Ink(DesignLook.Border(Fluent, style, width, 1), "", dark);
 
-        Assert.Null(ink.Colour);
-        Assert.Equal(DesignLook.StrongStrokeKey, ink.ThemeKey);
+            Assert.Null(ink.Colour);
+            Assert.Equal(DesignLook.StrongStrokeKey, ink.ThemeKey);
+        }
     }
 
     [Theory]
@@ -260,8 +308,9 @@ public sealed class DesignEngineTests
     {
         foreach (var width in new[] { 1.0, 4.0 })
         {
-            var ink = DesignLook.Ink(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, width, 0.5), hex);
+            var ink = DesignLook.Ink(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, width, 0.5), hex, dark: true);
             Assert.Equal(new RgbColor(r, g, b), ink.Colour);
+            Assert.Equal(1, ink.Alpha);
             Assert.Null(ink.ThemeKey);
         }
     }
@@ -273,9 +322,8 @@ public sealed class DesignEngineTests
     [InlineData(null)]
     public void S6481_no_or_a_bad_colour_is_the_themes(string? hex)
     {
-        var ink = DesignLook.Ink(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 1, 1), hex);
-        Assert.Null(ink.Colour);
-        Assert.Equal(DesignLook.HairlineStrokeKey, ink.ThemeKey);
+        var ink = DesignLook.Ink(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 1, 1), hex, dark: true);
+        Assert.Equal(DesignLook.DarkHairline, ink);
     }
 
     [Theory]
@@ -289,7 +337,7 @@ public sealed class DesignEngineTests
         // so the setting fades the line exactly once; it never swaps the hairline for the strong stroke.
         var border = DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 1, opacity);
         Assert.Equal(opacity, border.Opacity, 3);
-        Assert.Equal(DesignLook.HairlineStrokeKey, DesignLook.Ink(border, "").ThemeKey);
+        Assert.Equal(DesignLook.LightHairline, DesignLook.Ink(border, "", dark: false));
     }
 
     [Theory]
@@ -318,10 +366,10 @@ public sealed class DesignEngineTests
         Assert.False(DesignLook.Border(Fluent, WidgetBorderStyle.None, 2, 1).Visible);
         Assert.False(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 0, 1).Visible);
         Assert.False(DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 2, 0).Visible);
-        Assert.False(DesignLook.Border(DesignLook.Card(FillChoice.Transparent()), WidgetBorderStyle.Solid, 2, 1).Visible);
+        Assert.False(DesignLook.Border(Card(FillChoice.Transparent()), WidgetBorderStyle.Solid, 2, 1).Visible);
 
         // [S-6563] A colour at 0 % is not transparent: its border stays.
-        Assert.True(DesignLook.Border(DesignLook.Card(FillChoice.Of("#202020", 0)), WidgetBorderStyle.Solid, 2, 1).Visible);
+        Assert.True(DesignLook.Border(Card(FillChoice.Of("#202020", 0)), WidgetBorderStyle.Solid, 2, 1).Visible);
         Assert.Equal(8, DesignLook.Border(Fluent, WidgetBorderStyle.Solid, 50, 1).Thickness);
     }
 
@@ -329,8 +377,8 @@ public sealed class DesignEngineTests
     [InlineData(8, 8)]
     [InlineData(-4, 0)]
     [InlineData(99, 32)]
-    [InlineData(double.PositiveInfinity, 4)]
-    [InlineData(double.NaN, 4)]
+    [InlineData(double.PositiveInfinity, 8)]
+    [InlineData(double.NaN, 8)]
     public void S825_corner_radius_clamps(double setting, double expected)
         => Assert.Equal(expected, DesignLook.CornerRadius(setting));
 
@@ -416,14 +464,40 @@ public sealed class DesignEngineTests
     }
 
     [Fact]
-    public void S6482_the_default_preset_has_4px_corners_and_the_others_keep_their_own()
+    public void S6482_S2121_the_default_preset_has_8px_corners_and_the_others_keep_their_own()
     {
-        Assert.Equal(4, DesignPresets.Get(DesignPresetId.Default).Values.CornerRadiusPx);
-        Assert.Equal(6, DesignPresets.Get(DesignPresetId.Midnight).Values.CornerRadiusPx);
-        Assert.Equal(12, DesignPresets.Get(DesignPresetId.Daylight).Values.CornerRadiusPx);
-        Assert.Equal(18, DesignPresets.Get(DesignPresetId.Glass).Values.CornerRadiusPx);
+        Assert.Equal(8, DesignPresets.Get(DesignPresetId.Default).Values.CornerRadiusPx);
+        Assert.Equal(8, DesignPresets.Get(DesignPresetId.Midnight).Values.CornerRadiusPx);
+        Assert.Equal(8, DesignPresets.Get(DesignPresetId.Daylight).Values.CornerRadiusPx);
+        Assert.Equal(16, DesignPresets.Get(DesignPresetId.Glass).Values.CornerRadiusPx);
         Assert.Equal(0, DesignPresets.Get(DesignPresetId.Terminal).Values.CornerRadiusPx);
         Assert.Equal(4, DesignPresets.Get(DesignPresetId.Paper).Values.CornerRadiusPx);
+    }
+
+    [Theory]
+    [InlineData(DesignPresetId.Default, true)]
+    [InlineData(DesignPresetId.Midnight, false)]
+    [InlineData(DesignPresetId.Daylight, true)]
+    [InlineData(DesignPresetId.Glass, true)]
+    [InlineData(DesignPresetId.Terminal, false)]
+    [InlineData(DesignPresetId.Paper, false)]
+    public void S2121_a_frosted_preset_is_translucent_and_an_opaque_one_does_not_blur(DesignPresetId id, bool blur)
+    {
+        var values = DesignPresets.Get(id).Values;
+        var fill = DesignLook.Card(values.Background, dark: values.Theme != AppTheme.Light, frosted: blur);
+
+        Assert.Equal(blur, values.BlurBehind);
+        Assert.Equal(blur, fill.Opacity < 1);
+    }
+
+    [Fact]
+    public void S2121_glass_is_one_surface_thinner_than_default()
+    {
+        var glass = DesignPresets.Get(DesignPresetId.Glass).Values;
+
+        Assert.Equal(FillKind.Default, (glass.Items ?? new FillChoice()).Kind);
+        Assert.Equal(WidgetBorderStyle.None, glass.BorderStyle);
+        Assert.True(DesignLook.Card(glass.Background, true, true).Opacity < DesignLook.DefaultCardOpacity(dark: true, frosted: true));
     }
 
     // ---- [S-6483] confirm before a preset replaces a custom look ------------------------------------
@@ -447,6 +521,7 @@ public sealed class DesignEngineTests
     [InlineData(nameof(DesignState.ItemBackground))]
     [InlineData(nameof(DesignState.Theme))]
     [InlineData(nameof(DesignState.WidgetGapPx))]
+    [InlineData(nameof(DesignState.BlurBehind))]
     public void S6483_a_customised_design_is_replaced_by_any_preset(string field)
     {
         var design = new DesignState();
@@ -460,6 +535,7 @@ public sealed class DesignEngineTests
             case nameof(DesignState.ItemBackground): design.ItemBackground = FillChoice.Transparent(); break;
             case nameof(DesignState.Theme): design.Theme = AppTheme.Light; break;
             case nameof(DesignState.WidgetGapPx): design.WidgetGapPx = 30; break;
+            case nameof(DesignState.BlurBehind): design.BlurBehind = !design.BlurBehind; break;
         }
 
         foreach (var preset in DesignPresets.All)

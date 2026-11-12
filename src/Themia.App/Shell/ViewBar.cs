@@ -185,9 +185,10 @@ internal sealed partial class ViewBar : Grid
         var radius = Fluent.ControlRadius + metrics.BarPad;
 
         _fill.CornerRadius = new CornerRadius(radius);
-        // [S-6563] The app-wide background: its colour or the Fluent base, at its opacity but never
-        // under 20 %, so the bar can always be found (a transparent design draws it at the floor).
-        var fill = DesignLook.Card(design.Background ?? new FillChoice());
+        // [S-6563] The app-wide background: its colour (Themia's card for Default, unfrosted: the bar
+        // has no backdrop, [S-2110]), at its opacity but never under 20 %, so the bar can always be
+        // found (a transparent design draws it at the floor).
+        var fill = DesignLook.Card(design.Background ?? new FillChoice(), DesignApplier.IsDark, frosted: false);
         _fill.Background = (fill.Colour is { } c ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B)) : null)
             ?? ShellBrush.Of(ShellRole.CardBase);
         _fill.Opacity = Math.Clamp(fill.Opacity, 0.2, 1);

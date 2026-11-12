@@ -35,21 +35,23 @@ public readonly record struct BorderLook(double Thickness, IReadOnlyList<double>
 }
 
 /// <summary>
-/// [S-6481] What a border is drawn in: a colour of the user's own, opaque (the border's opacity is
-/// the line's, applied once), or else a theme stroke named by its resource key.
+/// [S-6481] What a border is drawn in: a colour (the user's own, opaque, or Themia's hairline at its
+/// own alpha, [S-2102]; the border's opacity is the line's, applied once), or else a theme stroke
+/// named by its resource key.
 /// </summary>
-/// <param name="Colour">The user's colour, or null for the theme's.</param>
+/// <param name="Colour">The colour, or null for the theme stroke.</param>
 /// <param name="ThemeKey">The theme brush when <paramref name="Colour"/> is null; otherwise null.</param>
-public readonly record struct BorderInk(RgbColor? Colour, string? ThemeKey);
+/// <param name="Alpha">The colour's own alpha, 0 to 1: 1 for the user's colour, the hairline's few percent.</param>
+public readonly record struct BorderInk(RgbColor? Colour, string? ThemeKey, double Alpha = 1);
 
 /// <summary>
-/// [S-6563] What a card's background paints: the Fluent base and tint (<see cref="FillKind.Default"/>),
-/// nothing (<see cref="FillKind.Transparent"/>), or <see cref="Colour"/> exactly
-/// (<see cref="FillKind.Colour"/>), at <see cref="Opacity"/>.
+/// [S-6563] What a card's background paints: Themia's own neutral card for the theme
+/// (<see cref="FillKind.Default"/>, [S-2100]), nothing (<see cref="FillKind.Transparent"/>), or
+/// <see cref="Colour"/> exactly (<see cref="FillKind.Colour"/>), at <see cref="Opacity"/>.
 /// </summary>
 /// <param name="Kind">Which of the three it is.</param>
-/// <param name="Colour">The colour for a colour fill; otherwise null.</param>
-/// <param name="Opacity">0 to 1: 1 for the default, 0 for transparent, the choice's own for a colour.</param>
+/// <param name="Colour">The colour painted; null only for transparent.</param>
+/// <param name="Opacity">0 to 1: the default's for the theme and ground, 0 for transparent, the choice's own for a colour.</param>
 public readonly record struct CardFill(FillKind Kind, RgbColor? Colour, double Opacity)
 {
     /// <summary>Whether anything is painted at all.</summary>
@@ -140,13 +142,34 @@ public static class DesignLook
         "SystemControlHighlightListAccentHighBrush",
     ];
 
+    /// <summary>[S-2100] The default card's colour in dark theme: a neutral near-black, so it takes its colour from what lies behind it.</summary>
+    public static readonly RgbColor DarkCard = new(0x1C, 0x1C, 0x1C);
+
+    /// <summary>[S-2100] The default card's colour in light theme: a neutral near-white.</summary>
+    public static readonly RgbColor LightCard = new(0xF9, 0xF9, 0xF9);
+
     /// <summary>
-    /// [S-823] [S-6563] What a card's fill is for its effective background choice
-    /// (<see cref="FillChoice.Effective"/>): Default is the Fluent base and card tint at full
-    /// strength, Transparent nothing, a colour exactly that colour at its opacity. A colour choice
-    /// whose colour does not parse (load validation never leaves one) is the default.
+    /// [S-2100] [S-2111] The default card's opacity: translucent over the blurred wallpaper (dark 72 %,
+    /// light 78 %), and higher where no blurred picture lies under it (dark 88 %, light 90 %), so its
+    /// text stays readable over a wallpaper it cannot soften.
     /// </summary>
-    public static CardFill Card(FillChoice fill)
+    public static double DefaultCardOpacity(bool dark, bool frosted)
+        => frosted ? (dark ? 0.72 : 0.78) : (dark ? 0.88 : 0.90);
+
+    /// <summary>
+    /// [S-823] [S-6563] [S-2100] What a card's fill is for its effective background choice
+    /// (<see cref="FillChoice.Effective"/>): Default is Themia's neutral card for the theme
+    /// (<see cref="DarkCard"/> or <see cref="LightCard"/>) at <see cref="DefaultCardOpacity"/>,
+    /// Transparent nothing, a colour exactly that colour at its opacity. A colour choice whose colour
+    /// does not parse (load validation never leaves one) is the default.
+    /// </summary>
+    /// <param name="fill">The effective background choice.</param>
+    /// <param name="dark">Whether the effective theme is dark.</param>
+    /// <param name="frosted">
+    /// Whether the blurred wallpaper can lie under the card ([S-2110]: the setting is on and the
+    /// display has a picture), which lets the default be more translucent.
+    /// </param>
+    public static CardFill Card(FillChoice fill, bool dark, bool frosted)
     {
         ArgumentNullException.ThrowIfNull(fill);
 
@@ -155,20 +178,32 @@ public static class DesignLook
             FillKind.Transparent => new CardFill(FillKind.Transparent, null, 0),
             FillKind.Colour when HexColor.TryParse(fill.Colour, out var r, out var g, out var b)
                 => new CardFill(FillKind.Colour, new RgbColor(r, g, b), FillChoice.ClampOpacity(fill.Opacity)),
-            _ => new CardFill(FillKind.Default, null, 1),
+            _ => new CardFill(FillKind.Default, dark ? DarkCard : LightCard, DefaultCardOpacity(dark, frosted)),
         };
     }
 
     /// <summary>
-    /// [S-1761] How opaque the header strip's fill is. A header colour of its own is drawn at the
-    /// header opacity. One that shares the widget's fill is that fill faded once more by the header
-    /// opacity, so 100% matches the body and 0% leaves the strip clear over the desktop — the header
-    /// opacity always does something, not only once a header colour has been picked.
+    /// [S-2110] Whether a card draws the blurred wallpaper under its fill: the setting is on, the
+    /// display has a picture, the fill it paints is translucent (an opaque fill hides it, a bare one
+    /// has nothing to frost) and it has no picture of its own ([S-6590] covers the card).
     /// </summary>
-    public static double HeaderFillOpacity(CardFill fill, double headerOpacity, bool ownColour)
+    public static bool Frosts(CardFill painted, bool blurOn, bool picture, bool ownImage)
+        => blurOn && picture && !ownImage && painted.Painted && painted.Opacity < 1;
+
+    /// <summary>
+    /// [S-828] [S-2103] The header's own fill: a header colour of its own at the header opacity, laid
+    /// over the card; or null, and the header draws nothing at all: it is the card, with no band and
+    /// no line under it.
+    /// </summary>
+    public static CardFill? HeaderFill(string? headerColour, double headerOpacity)
     {
-        var header = Math.Clamp(double.IsFinite(headerOpacity) ? headerOpacity : 1, 0, 1);
-        return ownColour ? header : fill.Opacity * header;
+        if (!HexColor.TryParse(headerColour, out var r, out var g, out var b))
+        {
+            return null;
+        }
+
+        var opacity = Math.Clamp(double.IsFinite(headerOpacity) ? headerOpacity : 1, 0, 1);
+        return new CardFill(FillKind.Colour, new RgbColor(r, g, b), opacity);
     }
 
     /// <summary>
@@ -195,21 +230,25 @@ public static class DesignLook
         };
     }
 
-    /// <summary>[S-6481] Fluent's card stroke: a 6-10% overlay for a 1px line, the default look's edge ([S-835]).</summary>
-    public const string HairlineStrokeKey = "CardStrokeColorDefaultBrush";
-
     /// <summary>[S-6481] Fluent's strong stroke (a check box's outline, ~45-55%): a theme line that can be seen.</summary>
     public const string StrongStrokeKey = "ControlStrongStrokeColorDefaultBrush";
 
+    /// <summary>[S-2102] Themia's hairline in dark theme: white at 10 %, a light edge on the dark card.</summary>
+    public static readonly BorderInk DarkHairline = new(new RgbColor(0xFF, 0xFF, 0xFF), null, 0.10);
+
+    /// <summary>[S-2102] Themia's hairline in light theme: black at 8 %.</summary>
+    public static readonly BorderInk LightHairline = new(new RgbColor(0x00, 0x00, 0x00), null, 0.08);
+
     /// <summary>
-    /// [S-6481] The border's ink. A colour of the user's own is drawn exactly. With the theme's
-    /// colour, the Fluent card is a solid 1px <see cref="HairlineStrokeKey"/>, and that is what a
-    /// solid line of up to 1px gets; a heavier or a dashed or dotted line — which Fluent never draws
-    /// round a card — takes <see cref="StrongStrokeKey"/>, because the hairline's few percent drawn
-    /// thicker or broken read exactly like no border at all, so every width and style looked alike.
-    /// The opacity is not part of the ink: it stays the line's own, so it fades without swapping.
+    /// [S-6481] [S-2102] The border's ink. A colour of the user's own is drawn exactly. With the
+    /// theme's colour, a solid line of up to 1px is Themia's hairline (<see cref="DarkHairline"/>,
+    /// <see cref="LightHairline"/>; Fluent's <c>CardStrokeColorDefault</c> is a black line in both
+    /// themes, darker than a dark card and so no edge on one); a heavier or a dashed or dotted line
+    /// takes <see cref="StrongStrokeKey"/>, because the hairline's few percent drawn thicker or broken
+    /// read exactly like no border at all. The opacity is not part of the ink: it stays the line's own,
+    /// so it fades without swapping.
     /// </summary>
-    public static BorderInk Ink(BorderLook border, string? colourHex)
+    public static BorderInk Ink(BorderLook border, string? colourHex, bool dark)
     {
         if (HexColor.TryParse(colourHex, out var r, out var g, out var b))
         {
@@ -217,18 +256,8 @@ public static class DesignLook
         }
 
         var hairline = border.Dashes.Count == 0 && border.Thickness <= 1;
-        return new BorderInk(null, hairline ? HairlineStrokeKey : StrongStrokeKey);
+        return hairline ? (dark ? DarkHairline : LightHairline) : new BorderInk(null, StrongStrokeKey);
     }
-
-    /// <summary>
-    /// [S-836] How far the card's Fluent tint stops short of the edge: inside a solid stroke, as a
-    /// WinUI <c>Border</c>'s background stops at the stroke's inner edge (<c>BackgroundSizing</c>
-    /// InnerBorderEdge), so the stroke composites over the base alone, exactly as a Windows card's
-    /// stroke does over the page. A dashed or dotted line keeps the tint full-bleed, or its gaps would
-    /// show a ring of bare base.
-    /// </summary>
-    public static double TintInset(BorderLook border)
-        => border.Visible && border.Dashes.Count == 0 ? border.Thickness : 0;
 
     /// <summary>
     /// [S-836] Source-over compositing of a colour at <paramref name="alpha"/> on an opaque one, per
@@ -241,7 +270,7 @@ public static class DesignLook
         return new RgbColor(Mix(alpha, top.R, under.R), Mix(alpha, top.G, under.G), Mix(alpha, top.B, under.B));
     }
 
-    /// <summary>[S-825] A corner radius from the setting: 0..32, not finite is the default ([S-6482], 4).</summary>
+    /// <summary>[S-825] A corner radius from the setting: 0..32, not finite is the default ([S-6482], 8).</summary>
     public static double CornerRadius(double radiusPx)
         => Math.Clamp(double.IsFinite(radiusPx) ? radiusPx : DesignState.DefaultCornerRadiusPx, 0, 32);
 

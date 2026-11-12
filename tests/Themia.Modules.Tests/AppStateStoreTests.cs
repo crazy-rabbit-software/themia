@@ -242,14 +242,14 @@ public sealed class AppStateStoreTests : IDisposable
     }
 
     [Fact]
-    public void S6482_a_corner_radius_that_is_not_a_number_loads_as_the_4px_default()
+    public void S6482_a_corner_radius_that_is_not_a_number_loads_as_the_8px_default()
     {
         var state = AppState.CreateDefault();
         state.Design.CornerRadiusPx = double.NaN;
 
         AppStateStore.Validate(state);
 
-        Assert.Equal(4, state.Design.CornerRadiusPx);
+        Assert.Equal(8, state.Design.CornerRadiusPx);
     }
 
     [Fact]

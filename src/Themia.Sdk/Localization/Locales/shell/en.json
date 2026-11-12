@@ -2,7 +2,8 @@
   "$englishOnly": [
     "shell.setup.place",
     "shell.setup.account",
-    "shell.tasks.readOnly"
+    "shell.tasks.readOnly",
+    "shell.appearance.blurBehind"
   ],
   "shell.time.justNow": "Just now",
   "shell.fetch.notConfigured": "Not set up yet",
@@ -194,6 +195,7 @@
   "shell.appearance.accent": "Accent",
   "shell.appearance.windowsAccent": "Windows accent colour",
   "shell.appearance.themeColour": "Theme colour",
+  "shell.appearance.blurBehind": "Blur behind widgets",
   "shell.appearance.sameAsWidget": "Same as the widget",
   "shell.appearance.borderColour": "Border colour",
   "shell.appearance.textSize": "Text size",

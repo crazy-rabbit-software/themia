@@ -439,6 +439,7 @@ public static class SettingsTransfer
         Line(Str.Settings_Theme_Label, old.Theme, @new.Theme, Theme);
         Line(Str.Shell_Transfer_Accent, old.PrimaryColor, @new.PrimaryColor, Colour);
         Line(Str.Settings_Style_WidgetBg_Label, Fill(old.Background), Fill(@new.Background), text => text);
+        Line(Str.Shell_Appearance_BlurBehind, old.BlurBehind, @new.BlurBehind, OnOff);
         Line(Str.Shell_Items_Background, Fill(old.ItemBackground), Fill(@new.ItemBackground), text => text);
         Line(Str.Shell_Items_Text, old.ItemTextColor, @new.ItemTextColor, Colour);
         Line(Str.Settings_Style_CornerRadius_Label, old.CornerRadiusPx, @new.CornerRadiusPx, Px);
