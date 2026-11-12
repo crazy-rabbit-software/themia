@@ -34,7 +34,7 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   shown meeting's. Debug: `--state sample` and `running` have two more meetings today and three
   tomorrow after the first.
 - **[S-2161]** Where they stand (`NextMeetingFollowing.Rows`): 8 under the details, the label's 16,
-  then as many whole 32 rows as fit over Join (its 32 and 8) or the bottom inset, and only once the
+  then as many whole 28 rows as fit over Join (its 28 and 8) or the bottom inset, and only once the
   details reach their range line; none fitting, no label either. At the tiers: XS, S, Wide and M none
   (the details fill them), Tall four, L five, XL nine (as many as there are).
 - **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event

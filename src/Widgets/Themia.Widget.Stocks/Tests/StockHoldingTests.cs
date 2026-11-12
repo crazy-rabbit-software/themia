@@ -194,15 +194,16 @@ public sealed class StockHoldingTests
     [Fact]
     public void S2777_a_tile_too_short_for_the_row_and_the_chart_keeps_the_chart()
     {
-        Assert.Equal(0, Plan(new WidgetArea(120, 76), holding: true).Rows);
-        Assert.Equal(0, Plan(new WidgetArea(200, 106), holding: true).Rows);
+        // XS keeps the chart; S's 102 of content holds the price, its line, a row and the chart's floor.
+        Assert.Equal(0, Plan(new WidgetArea(120, 84), holding: true).Rows);
+        Assert.Equal(1, Plan(new WidgetArea(200, 114), holding: true).Rows);
     }
 
     [Theory]
-    [InlineData(320, 196)]
-    [InlineData(200, 356)]
-    [InlineData(560, 376)]
-    [InlineData(800, 516)]
+    [InlineData(320, 204)]
+    [InlineData(200, 364)]
+    [InlineData(560, 384)]
+    [InlineData(800, 524)]
     public void S2777_every_tile_with_room_shows_it_and_the_chart_pays_for_it(double width, double height)
     {
         var with = Plan(new WidgetArea(width, height), holding: true);
@@ -214,5 +215,5 @@ public sealed class StockHoldingTests
 
     [Fact]
     public void S2777_no_holding_asks_no_row()
-        => Assert.Equal(0, Plan(new WidgetArea(560, 376), holding: false).Rows);
+        => Assert.Equal(0, Plan(new WidgetArea(560, 384), holding: false).Rows);
 }

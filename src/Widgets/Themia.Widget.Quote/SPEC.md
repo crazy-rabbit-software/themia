@@ -11,7 +11,7 @@ the key map `QuoteKeys`), `QuoteLayout.cs` (the marks, the ladder's steps), `Quo
 `QuoteMenu.cs` (its properties-menu lines), `Localization/Locales/` (its own `QuoteStr`, 30 languages).
 Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-653]** The quote is the widget: it is set on the Big ramp (28, 40, 68) as far as the area's
+- **[S-653]** The quote is the widget: it is set on the Big ramp (28, or 40 once expanded both ways) as far as the area's
   ceiling lets a data widget's number go (`ReadoutRules.Ceiling`: 28 at XS and S, 40 at M, Wide and
   Tall, 68 at L and XL), on Title or Body where not even 28 holds it, and is held to the lines that fit
   with an ellipsis on the last (G3, 2026-10-29: the family's steps replace the ramp to TitleLarge and

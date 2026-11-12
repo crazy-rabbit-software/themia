@@ -8,7 +8,7 @@ namespace Themia.Core.Widgets;
 /// <param name="Time">When it was opened, as the row's value, from 180.</param>
 public readonly record struct RecentFilesPlan(int Lines, bool Lead, bool Time)
 {
-    /// <summary>The rows' one height (32 or 48).</summary>
+    /// <summary>The rows' one height (28 or 40).</summary>
     public double RowHeight => FamilyShape.RowHeight(Lines);
 }
 

@@ -5,7 +5,7 @@ namespace Themia.Core.Widgets;
 /// <summary>
 /// [S-723] The standard style's face, on the detail widgets' plan ([S-2402], <see cref="DetailFace"/>):
 /// the temperature as the Readout at the view's top, start-aligned, led by the sky's glyph at its step,
-/// the condition as the line under it, on the step the widest reading takes (28, 40, 68 by the area,
+/// the condition as the line under it, on the step the widest reading takes (28, or 40 once expanded both ways,
 /// never larger, [S-666]); the readings as fact rows (their 16 glyphs, the value primary), beside it in
 /// a column of two fifths of the card on an expanded width, else 8 under it, only whole rows. Room left
 /// at L and XL stays empty: no next days, no hours ([S-666]: the forecast widget's job).

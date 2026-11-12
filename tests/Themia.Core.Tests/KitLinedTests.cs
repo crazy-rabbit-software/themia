@@ -22,13 +22,13 @@ public sealed class KitLinedTests
         => KitLadder.Plan(new WidgetArea(width, height), spec, new KitChoices(shows ?? KitShow.All, columns));
 
     [Theory]
-    [InlineData(120, 76, 1)]    // XS
-    [InlineData(200, 106, 1)]   // S
-    [InlineData(480, 116, 1)]   // Wide: compact height
-    [InlineData(320, 196, 2)]   // M
-    [InlineData(200, 356, 2)]   // Tall
-    [InlineData(560, 376, 3)]   // L
-    [InlineData(800, 516, 3)]   // XL
+    [InlineData(120, 84, 1)]    // XS
+    [InlineData(200, 114, 1)]   // S
+    [InlineData(480, 124, 1)]   // Wide: compact height
+    [InlineData(320, 204, 2)]   // M
+    [InlineData(200, 364, 2)]   // Tall
+    [InlineData(560, 384, 3)]   // L
+    [InlineData(800, 524, 3)]   // XL
     public void S7032_a_message_row_shows_more_lines_as_the_tile_grows_both_ways(double width, double height, int lines)
     {
         var plan = Plan(Stacked, width, height);
@@ -43,37 +43,37 @@ public sealed class KitLinedTests
     public void S7032_the_one_line_look_and_a_compact_style_keep_one_line_everywhere()
     {
         var line = Stacked with { Look = KitRowLook.Line };
-        Assert.Equal(1, Plan(line, 800, 516).Lines);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(800, 516), Stacked, new KitChoices(KitShow.All) { OneLine = true }).Lines);
+        Assert.Equal(1, Plan(line, 800, 524).Lines);
+        Assert.Equal(1, KitLadder.Plan(new WidgetArea(800, 524), Stacked, new KitChoices(KitShow.All) { OneLine = true }).Lines);
     }
 
     [Fact]
     public void S7032_without_a_subtitle_the_preview_takes_the_second_line()
     {
-        var plan = Plan(Stacked, 320, 196, KitShow.All & ~(KitShow.Subtitle | KitShow.Badges));
+        var plan = Plan(Stacked, 320, 204, KitShow.All & ~(KitShow.Subtitle | KitShow.Badges));
 
         Assert.Equal(2, plan.Lines);
         Assert.False(plan.Subtitle);
         Assert.True(plan.Preview);
 
         // Neither: the row stays one line, whatever the tile.
-        Assert.Equal(1, Plan(Stacked, 800, 516, KitShow.Lead | KitShow.When).Lines);
-        Assert.Equal(2, Plan(Stacked, 800, 516, NoPreview).Lines);
+        Assert.Equal(1, Plan(Stacked, 800, 524, KitShow.Lead | KitShow.When).Lines);
+        Assert.Equal(2, Plan(Stacked, 800, 524, NoPreview).Lines);
     }
 
     [Fact]
     public void S7032_the_lead_and_the_time_show_from_a_regular_width_the_badge_from_260()
     {
-        Assert.False(Plan(Stacked, 120, 76).Lead);
-        Assert.False(Plan(Stacked, 120, 76).When);
-        Assert.True(Plan(Stacked, 200, 106).Lead);
-        Assert.True(Plan(Stacked, 200, 106).When);
+        Assert.False(Plan(Stacked, 120, 84).Lead);
+        Assert.False(Plan(Stacked, 120, 84).When);
+        Assert.True(Plan(Stacked, 200, 114).Lead);
+        Assert.True(Plan(Stacked, 200, 114).When);
 
-        Assert.False(Plan(Stacked, 200, 356).Badges);
-        Assert.True(Plan(Stacked, 320, 196).Badges);
+        Assert.False(Plan(Stacked, 200, 364).Badges);
+        Assert.True(Plan(Stacked, 320, 204).Badges);
 
         // The badge rides on the subtitle's line: no second line, no badge.
-        Assert.False(Plan(Stacked, 480, 116).Badges);
+        Assert.False(Plan(Stacked, 480, 124).Badges);
     }
 
     [Fact]
@@ -81,23 +81,23 @@ public sealed class KitLinedTests
     {
         var feed = Stacked with { Look = KitRowLook.Rich, MaxColumns = 3 };
 
-        Assert.Equal(1, Plan(feed, 560, 376).Columns);
-        Assert.Equal(2, Plan(feed, 800, 516).Columns);
-        Assert.Equal(400, Plan(feed, 800, 516).ColumnWidth);
+        Assert.Equal(1, Plan(feed, 560, 384).Columns);
+        Assert.Equal(2, Plan(feed, 800, 524).Columns);
+        Assert.Equal(400, Plan(feed, 800, 524).ColumnWidth);
         Assert.Equal(3, Plan(feed, 1000, 516).Columns);
-        Assert.Equal(1, Plan(Stacked, 800, 516).Columns);   // a spec of one column keeps it
+        Assert.Equal(1, Plan(Stacked, 800, 524).Columns);   // a spec of one column keeps it
     }
 
     [Fact]
     public void S6712_whole_rows_fit_the_list_under_the_column_titles()
     {
-        var m = Plan(Stacked, 320, 196);
-        Assert.Equal(3, KitLadder.Fit(m, KitLadder.ListHeight(new WidgetArea(320, 196))));   // 180 / 48
+        var m = Plan(Stacked, 320, 204);
+        Assert.Equal(4, KitLadder.Fit(m, KitLadder.ListHeight(new WidgetArea(320, 204))));   // 192 / 40
 
-        var table = Plan(Table, 320, 196, columns: [KitColumn.Title]);
+        var table = Plan(Table, 320, 204, columns: [KitColumn.Title]);
         Assert.True(table.ColumnHeader);
-        Assert.Equal(4, KitLadder.Fit(table, 180));   // (180 - 24) / 32
-        Assert.Equal(5, KitLadder.Fit(table with { ColumnHeader = false }, 180));
+        Assert.Equal(5, KitLadder.Fit(table, 180));   // (180 - 24) / 28
+        Assert.Equal(6, KitLadder.Fit(table with { ColumnHeader = false }, 180));
     }
 
     [Fact]
@@ -135,9 +135,9 @@ public sealed class KitLinedTests
     public void S7034_the_column_titles_show_where_they_cost_no_row()
     {
         Assert.False(Plan(Table, 320, 116, columns: [KitColumn.Title]).ColumnHeader);
-        Assert.True(Plan(Table, 320, 196, columns: [KitColumn.Title]).ColumnHeader);
-        Assert.NotNull(Plan(Table, 320, 196).Table);
-        Assert.Null(Plan(Stacked, 320, 196).Table);
+        Assert.True(Plan(Table, 320, 204, columns: [KitColumn.Title]).ColumnHeader);
+        Assert.NotNull(Plan(Table, 320, 204).Table);
+        Assert.Null(Plan(Stacked, 320, 204).Table);
     }
 
     [Fact]

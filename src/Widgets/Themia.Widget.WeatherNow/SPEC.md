@@ -26,7 +26,7 @@ is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeep
   `DetailFace`) on the family's blocks: the temperature is the Readout at the view's top, start-aligned
   (or where the widget's alignment puts it in its column, [S-6583]), led by the sky's glyph at its step,
   the condition its line under, on the step the widest reading ("-18°F" with its glyph and line under)
-  takes: 28 (XS, S), 40 (M, Wide, Tall), 68 (L, XL) where it fits, never larger ([S-6702], [S-666]).
+  takes: 28 (XS to Tall), 40 (L, XL) where it fits, never larger ([S-6702], [S-666]).
   The readings are fact rows ([S-6711]: their 16 glyph, the name secondary, the value primary), only
   whole rows: in a column beside the reading from the top on an expanded width (the reading's column
   two fifths of the card), else 8 under it; XS and S are the reading alone. Room left at L and XL stays
@@ -37,14 +37,14 @@ is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeep
   (`WeatherNowStyle`): **Standard** (the ladder, [S-723]), **Large icon** and **Minimal**, in that
   order. "Show detail" is the standard style's; the place and the location name are every style's.
 - **[S-6161]** **Large icon** (`WeatherNowStyles.LargeIcon`): the sky's glyph beside the temperature,
-  the condition under the temperature: the largest Readout step (within the area's ceiling, 28, 40, 68)
+  the condition under the temperature: the largest Readout step (within the area's ceiling, 28 or 40)
   whose block (its line and the condition's) fits the content's height with a glyph beside it; the glyph
-  the largest family glyph size (16, 28, 32, 40, 48, 68) no taller than that block that leaves the
+  the largest family glyph size (16, 28, 32, 40, 48) no taller than that block that leaves the
   temperature its width, 8 between; the condition ends in an ellipsis in the width it has. The pair
   stands at the view's top, centred unless the widget is aligned elsewhere ([S-6582]). No readings and
   no range at any size.
 - **[S-6162]** **Minimal** (`WeatherNowStyles.Minimal`): the temperature and its unit alone, the
-  Readout on the step its content box takes (28, 40, 68, [S-6702]; no light weight, never filling the
+  Readout on the step its content box takes (28 or 40, [S-6702]; no light weight, never filling the
   box), at the view's top, centred unless aligned elsewhere; no glyph, condition, range or readings.
 - **[S-6174]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style the readings line's switch (the standard style only, [S-6074]);

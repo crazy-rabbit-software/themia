@@ -5,7 +5,7 @@ namespace Themia.Core.Widgets;
 
 /// <summary>What the rows style draws at one size. [S-725]</summary>
 /// <param name="Days">How many of the first days are shown: as many whole rows as the content holds.</param>
-/// <param name="Lines">The lines each row shows (1 or 2, by the tier, [S-6712]): its pitch follows, 32 or 48.</param>
+/// <param name="Lines">The lines each row shows (1 or 2, by the tier, [S-6712]): its pitch follows, 28 or 40.</param>
 /// <param name="Meter">The range bar's width between the day and its temperatures; 0 for none.</param>
 /// <param name="Compact">A content too narrow for the glyph and both figures: no lead, the high alone.</param>
 public sealed record ForecastRowsPlan(int Days, int Lines, double Meter, bool Compact);

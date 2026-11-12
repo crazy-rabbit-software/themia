@@ -17,7 +17,7 @@ renders), `Localization/Locales/` (its own `MoonStr`, 30 languages). Tests: `Tes
   moon drawn at its phase as its lead at the step's size (`SkyMoonDisc`, [S-169]) and the phase's
   name the line under it, then whole fact rows moonrise, moonset, the next full or new moon ([S-1491],
   [S-6735]: their leads the moon at 16, the next rise or set BodyStrong with its countdown the second
-  line where the tier gives two lines). The step is the area's (28, 40, 68) for the language's "100%";
+  line where the tier gives two lines). The step is the area's (28, or 40 once expanded both ways) for the language's "100%";
   room left goes to the rows, never a bigger moon ([S-666]). Where the readout is too narrow for the
   moon beside even the floor step (XS), the moon gives way, never the figure. On an expanded width the
   readout stands in a column of two fifths of the card and the rows beside it from the top, as the

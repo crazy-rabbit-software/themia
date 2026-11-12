@@ -257,13 +257,13 @@ public sealed class KitTests
 
     public static TheoryData<string, double, double> Tiers => new()
     {
-        { "XS", 120, 76 },
-        { "S", 200, 106 },
-        { "M", 320, 196 },
-        { "Wide", 480, 116 },
-        { "Tall", 200, 356 },
-        { "L", 560, 376 },
-        { "XL", 800, 516 },
+        { "XS", 120, 84 },
+        { "S", 200, 114 },
+        { "M", 320, 204 },
+        { "Wide", 480, 124 },
+        { "Tall", 200, 364 },
+        { "L", 560, 384 },
+        { "XL", 800, 524 },
     };
 
     [Theory]
@@ -280,17 +280,17 @@ public sealed class KitTests
     [Fact]
     public void S7031_the_columns_follow_the_width_and_the_specs_cap()
     {
-        Assert.Equal(2, KitLadder.Plan(new WidgetArea(800, 516), Rich, KitShow.All).Columns);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(480, 116), Rich, KitShow.All).Columns);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(320, 196), Rich, KitShow.All).Columns);
-        Assert.Equal(1, KitLadder.Plan(new WidgetArea(800, 516), Rich with { MaxColumns = 1 }, KitShow.All).Columns);
+        Assert.Equal(2, KitLadder.Plan(new WidgetArea(800, 524), Rich, KitShow.All).Columns);
+        Assert.Equal(1, KitLadder.Plan(new WidgetArea(480, 124), Rich, KitShow.All).Columns);
+        Assert.Equal(1, KitLadder.Plan(new WidgetArea(320, 204), Rich, KitShow.All).Columns);
+        Assert.Equal(1, KitLadder.Plan(new WidgetArea(800, 524), Rich with { MaxColumns = 1 }, KitShow.All).Columns);
     }
 
     [Fact]
     public void S7030_a_field_the_spec_does_not_offer_or_the_user_turned_off_stays_off()
     {
-        var off = KitLadder.Plan(new WidgetArea(560, 376), Rich, KitShow.None);
-        var unoffered = KitLadder.Plan(new WidgetArea(560, 376), Rich with { Optional = KitShow.When }, KitShow.All);
+        var off = KitLadder.Plan(new WidgetArea(560, 384), Rich, KitShow.None);
+        var unoffered = KitLadder.Plan(new WidgetArea(560, 384), Rich with { Optional = KitShow.When }, KitShow.All);
 
         Assert.False(off.Lead || off.Subtitle || off.When || off.Preview);
         Assert.Equal(1, off.Lines);
@@ -301,15 +301,15 @@ public sealed class KitTests
     [Fact]
     public void S7031_the_source_line_from_a_regular_tile_the_preview_from_an_expanded_one()
     {
-        var m = KitLadder.Plan(new WidgetArea(320, 196), Rich, KitShow.All);
+        var m = KitLadder.Plan(new WidgetArea(320, 204), Rich, KitShow.All);
         Assert.True(m.Subtitle);
         Assert.False(m.Preview);
 
-        var tall = KitLadder.Plan(new WidgetArea(200, 356), Rich, KitShow.All);
+        var tall = KitLadder.Plan(new WidgetArea(200, 364), Rich, KitShow.All);
         Assert.Equal(2, tall.Lines);
         Assert.True(tall.Lead);
 
-        var xl = KitLadder.Plan(new WidgetArea(800, 516), Rich, KitShow.All);
+        var xl = KitLadder.Plan(new WidgetArea(800, 524), Rich, KitShow.All);
         Assert.Equal(3, xl.Lines);
         Assert.True(xl.Preview);
     }
@@ -326,7 +326,7 @@ public sealed class KitTests
     [Fact]
     public void S7073_a_reading_stays_at_every_width_where_a_time_gives_way()
     {
-        var xs = new WidgetArea(120, 76);
+        var xs = new WidgetArea(120, 84);
 
         Assert.False(KitLadder.Plan(xs, Rich, KitShow.All).When);
         Assert.True(KitLadder.Plan(xs, Rich with { Readings = true }, KitShow.All).When);

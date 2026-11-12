@@ -7,17 +7,17 @@ namespace Themia.Widget.WeatherForecast.Tests;
 
 /// <summary>
 /// [S-724]..[S-726] The forecast's rows and columns on the family's blocks, at the seven size tiers
-/// (each card less its 44 header).
+/// (each card less its 36 header).
 /// </summary>
 public class WeatherLayoutTests
 {
-    private static readonly WidgetArea Xs = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea Xl = new(800, 516);
+    private static readonly WidgetArea Xs = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea Xl = new(800, 524);
 
     private static readonly WidgetArea[] Tiers = [Xs, S, M, Wide, Tall, L, Xl];
 
@@ -38,9 +38,9 @@ public class WeatherLayoutTests
         }
 
         Assert.Equal(7, WeatherForecastLayout.Rows(Tall, 7).Days);
-        Assert.Equal(3, WeatherForecastLayout.Rows(M, 7).Days);
-        Assert.Equal(3, WeatherForecastLayout.Rows(Wide, 7).Days);
-        Assert.Equal(1, WeatherForecastLayout.Rows(Xs, 7).Days);
+        Assert.Equal(4, WeatherForecastLayout.Rows(M, 7).Days);
+        Assert.Equal(4, WeatherForecastLayout.Rows(Wide, 7).Days);
+        Assert.Equal(2, WeatherForecastLayout.Rows(Xs, 7).Days);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class WeatherLayoutTests
     public void S725_the_range_bar_comes_with_the_width_and_stops_growing()
     {
         Assert.Equal(0, WeatherForecastLayout.Rows(S, 7).Meter);
-        Assert.Equal(Math.Floor(288 * WeatherForecastLayout.MeterShare), WeatherForecastLayout.Rows(M, 7).Meter);
+        Assert.Equal(Math.Floor((320 - (2 * FamilySpace.Inset)) * WeatherForecastLayout.MeterShare), WeatherForecastLayout.Rows(M, 7).Meter);
         Assert.Equal(WeatherForecastLayout.MeterMax, WeatherForecastLayout.Rows(Xl, 7).Meter);
     }
 
@@ -125,7 +125,9 @@ public class WeatherLayoutTests
     [Fact]
     public void S726_the_glyph_the_low_the_bar_and_the_rain_come_with_the_height()
     {
-        var tiny = WeatherForecastLayout.Columns(Xs, 7);
+        // XS's 72 holds the day, the high and the 16 glyph, 4 apart (64); 16 shorter it does not.
+        Assert.Equal(FamilyShape.Icon, WeatherForecastLayout.Columns(Xs, 7).Icon);
+        var tiny = WeatherForecastLayout.Columns(new WidgetArea(120, 68), 7);
         Assert.Equal(0, tiny.Icon);
         Assert.False(tiny.Low || tiny.Bar || tiny.Precipitation);
 

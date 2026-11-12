@@ -24,7 +24,7 @@ public sealed class DetailRelayTests
     public void S6333_a_scrolling_list_with_another_count_of_rows_is_a_fill(int before, int after)
     {
         // Was a layout of the whole tile on every process that started or exited.
-        var planFor = ListPlan(new WidgetArea(320, 196));
+        var planFor = ListPlan(new WidgetArea(320, 204));
         var shown = Processes(before);
 
         Assert.False(DetailFace.Relays(shown, Processes(after), planFor(shown), planFor));
@@ -33,7 +33,7 @@ public sealed class DetailRelayTests
     [Fact]
     public void S6333_a_list_that_empties_or_fills_is_laid_out()
     {
-        var planFor = ListPlan(new WidgetArea(320, 196));
+        var planFor = ListPlan(new WidgetArea(320, 204));
         var shown = Processes(5);
 
         Assert.True(DetailFace.Relays(shown, Processes(0), planFor(shown), planFor));
@@ -44,7 +44,7 @@ public sealed class DetailRelayTests
     public void S6333_rows_that_change_the_face_are_laid_out()
     {
         // A list whose rows all fit: one more row is a taller list.
-        var area = new WidgetArea(560, 376);
+        var area = new WidgetArea(560, 384);
         Func<DetailSheet, DetailFacePlan> planFor = sheet =>
             DetailFace.Plan(area, new DetailShape(new Themia.Sdk.Kit.ReadoutText("42", "%"), 0, sheet.Rows.Count));
         var shown = Processes(2) with { Hero = "42%" };
@@ -57,7 +57,7 @@ public sealed class DetailRelayTests
     [Fact]
     public void S6333_what_the_face_is_made_of_still_lays_it_out()
     {
-        var planFor = ListPlan(new WidgetArea(320, 196));
+        var planFor = ListPlan(new WidgetArea(320, 204));
         var shown = Processes(5);
         var plan = planFor(shown);
 

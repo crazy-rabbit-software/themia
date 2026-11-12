@@ -3,7 +3,7 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk.Kit;
 
 /// <summary>
-/// The row looks a kit list draws. Every look is the family's Row block ([S-6711]): one row of 32, 48
+/// The row looks a kit list draws. Every look is the family's Row block ([S-6711]): one row of 28, 40
 /// or 64 for one, two or three lines by the tier ([S-6712], <see cref="RowRules.Lines"/>), never by
 /// the length of its text; the name (the item's title) primary, Strong for the one emphasised row
 /// (unread, today), the value (the time) secondary at the end, a second line in Caption secondary, a
@@ -165,7 +165,7 @@ public sealed record KitSpec(
 /// <param name="ColumnHeader">[S-7034] The table's column titles over its rows.</param>
 /// <param name="Table">[S-7034] The table's columns at their widths, in the user's order; null for any other look.</param>
 /// <param name="RowHeight">The rows' one height (<see cref="FamilyShape.RowHeight"/> of <see cref="Lines"/>).</param>
-/// <param name="HeadingHeight">[S-7035] A group heading's height: one row of 32.</param>
+/// <param name="HeadingHeight">[S-7035] A group heading's height: one row of 28.</param>
 public readonly record struct KitPlan(
     KitRowLook Look,
     int Columns,
@@ -377,7 +377,7 @@ public static class KitLadder
     /// <summary>
     /// [S-7036] The schedule's plan: two columns from 720, rows of two lines (the title and its start,
     /// the span and where under them) from regular both ways and of one on a compact tile, headings
-    /// one row of 32.
+    /// one row of 28.
     /// </summary>
     private static KitPlan Scheduled(WidgetArea area)
     {

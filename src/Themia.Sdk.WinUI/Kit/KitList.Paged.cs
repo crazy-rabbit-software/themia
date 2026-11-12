@@ -10,7 +10,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-7035] [S-7036] The paged list and the schedule look on the family's rows. A paged list shows
 /// the rows that fit whole, one page at a time, turned by the widget's own controls and keys; it never
-/// scrolls. The page flows down its columns, a day's heading (one row of 32, BodyStrong secondary;
+/// scrolls. The page flows down its columns, a day's heading (one row of 28, BodyStrong secondary;
 /// primary for the day the widget has chosen) over its first row. A schedule row is a Row block: its
 /// calendar's colour as a 2 px bar in the lead ([S-566], a data colour, [S-6705]) or its lead glyph,
 /// the title as the name, the start as the value ("All day", "Now" Strong), the span, where and who
@@ -121,7 +121,7 @@ public sealed partial class KitList
         }
     }
 
-    /// <summary>[S-7035] A day's heading: one row of 32, BodyStrong, secondary (primary for the chosen day).</summary>
+    /// <summary>[S-7035] A day's heading: one row of 28, BodyStrong, secondary (primary for the chosen day).</summary>
     private static Grid Heading(KitGroup? group, DateOnly today, bool dated)
     {
         var text = Family.Text(FamilyType.BodyStrong, group is { Selected: true } ? ColourRole.TextPrimary : ColourRole.TextSecondary);

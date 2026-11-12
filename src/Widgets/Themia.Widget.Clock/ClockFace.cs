@@ -18,7 +18,7 @@ public readonly record struct ClockDatePlan(TypeStep Step, DateFace Face, bool W
 
 /// <summary>
 /// The clock's faces on the family's steps (one-readout, [S-6737]): never filling the box, always the
-/// largest fixed step that fits the content box (the card less its inset of 16, the clock has no header).
+/// largest fixed step that fits the content box (the card less its inset of 12, the clock has no header).
 /// </summary>
 public static class ClockFace
 {

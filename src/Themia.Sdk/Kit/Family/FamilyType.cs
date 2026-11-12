@@ -3,9 +3,9 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk.Kit;
 
 /// <summary>
-/// [S-6700] The family's type: nine sizes, two weights, every widget. Caption 12/16, Body 14/20
-/// (BodyStrong at 600), Title 20/28, the Readout steps Big 28/36, 40/52 and 68/92 (600), and the
-/// Hero steps 96/128, 136/180 and 192/252 (600) that only a one-readout widget uses (a clock, a
+/// [S-6700] [S-2220] The family's type: nine sizes, two weights, every widget. Caption 12/16, Body
+/// 14/20 (BodyStrong at 600), Title 20/28, the Readout steps Big 28/36 and 40/52 (600), and the Hero
+/// steps 68/92, 96/128, 136/180 and 192/252 (600) that only a one-readout widget uses (a clock, a
 /// timer, a quick toggle, a power button: <see cref="FamilyShape"/>'s Tile).
 /// <para>
 /// A widget used to compute its readout as a fraction of the box (the old Fluent ramp's
@@ -93,17 +93,17 @@ public static class FamilyType
 
     public const double TitleSize = 20, TitleLine = 28;
 
-    /// <summary>The Readout steps, smallest first (size, line), all semibold.</summary>
-    private static readonly (double Size, double Line)[] BigBase = [(28, 36), (40, 52), (68, 92)];
+    /// <summary>The Readout steps, smallest first (size, line), all semibold: a data widget's number takes no other.</summary>
+    private static readonly (double Size, double Line)[] BigBase = [(28, 36), (40, 52)];
 
     /// <summary>The Hero steps, smallest first (size, line), all semibold: one-readout widgets only.</summary>
-    private static readonly (double Size, double Line)[] HeroBase = [(96, 128), (136, 180), (192, 252)];
+    private static readonly (double Size, double Line)[] HeroBase = [(68, 92), (96, 128), (136, 180), (192, 252)];
 
     /// <summary>The nine sizes the family draws text in, unscaled, smallest first.</summary>
     public static IReadOnlyList<double> Sizes { get; } = [CaptionSize, BodySize, TitleSize, 28, 40, 68, 96, 136, 192];
 
-    /// <summary>The largest Readout step's size: a data widget's number caps here ([S-6702]).</summary>
-    public const double BigCap = 68;
+    /// <summary>The largest Readout step's size: a data widget's number caps here ([S-6702], [S-2220]).</summary>
+    public const double BigCap = 40;
 
     /// <summary>12/16. Units beside a 28, timestamps, a row's second and third line, chips, a cell's name.</summary>
     public static TypeStep Caption => At(CaptionSize, CaptionLine, false);
@@ -117,10 +117,10 @@ public static class FamilyType
     /// <summary>20/28 at 600. The one prominent line of a widget that has one (a note's title, a track).</summary>
     public static TypeStep Title => At(TitleSize, TitleLine, true);
 
-    /// <summary>The Readout steps at the live text size: 28/36, 40/52, 68/92, semibold.</summary>
+    /// <summary>The Readout steps at the live text size: 28/36, 40/52, semibold.</summary>
     public static IReadOnlyList<TypeStep> Big => [.. BigBase.Select(s => At(s.Size, s.Line, true))];
 
-    /// <summary>The Hero steps at the live text size: 96/128, 136/180, 192/252, semibold.</summary>
+    /// <summary>The Hero steps at the live text size: 68/92, 96/128, 136/180, 192/252, semibold.</summary>
     public static IReadOnlyList<TypeStep> Hero => [.. HeroBase.Select(s => At(s.Size, s.Line, true))];
 
     /// <summary>The smallest Readout step, 28/36: a readout's floor at every size.</summary>
@@ -128,7 +128,7 @@ public static class FamilyType
 
     public static TypeStep Big40 => At(40, 52, true);
 
-    public static TypeStep Big68 => At(68, 92, true);
+    public static TypeStep Hero68 => At(68, 92, true);
 
     public static TypeStep Hero96 => At(96, 128, true);
 
@@ -147,13 +147,13 @@ public static class FamilyType
         40 => Regular(Title),
         68 => Regular(Big28),
         96 or 136 => Regular(Big40),
-        192 => Regular(Big68),
+        192 => Regular(Hero68),
         _ => Caption,
     };
 
     /// <summary>
     /// [S-6701] The one line under a value on <paramref name="value"/>'s step, regular weight: 28 →
-    /// Caption, 40 and 68 → Body, a Hero step → Title (at 400). Anything else gets Caption.
+    /// Caption, 40 and 68 → Body, 96, 136 and 192 → Title (at 400). Anything else gets Caption.
     /// </summary>
     public static TypeStep Under(TypeStep value) => BaseOf(value) switch
     {
@@ -166,7 +166,7 @@ public static class FamilyType
     public static TypeStep Regular(TypeStep step) => step with { SemiBold = false };
 
     /// <summary>Whether <paramref name="step"/> is one of the Hero steps (at the live text size).</summary>
-    public static bool IsHero(TypeStep step) => BaseOf(step) >= 96;
+    public static bool IsHero(TypeStep step) => BaseOf(step) > BigCap;
 
     /// <summary>
     /// The base size a step stands for, undoing the live text size: 28 for a 42 at 150 %. A step off

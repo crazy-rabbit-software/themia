@@ -9,7 +9,7 @@ namespace Themia.Widget.ScreenTimeDonut.Tests;
 public sealed class ScreenTimeDonutTests
 {
     /// <summary>The card's header, which the content area is the card less.</summary>
-    private const double Header = 44;
+    private const double Header = FamilySpace.ContentTop;
 
     private static WidgetArea Content(WidgetTier tier) => new(tier.Width, tier.Height - Header);
 

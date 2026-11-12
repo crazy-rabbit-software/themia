@@ -22,12 +22,12 @@ public sealed class MeterPlanTests
     [Theory]
     [InlineData("XS", 28)]
     [InlineData("S", 28)]
-    [InlineData("M", 40)]
-    [InlineData("Wide", 40)]
-    [InlineData("Tall", 40)]
-    [InlineData("L", 68)]
-    [InlineData("XL", 68)]
-    public void S1762_the_reading_climbs_28_40_68_and_stops(string tier, double size)
+    [InlineData("M", 28)]
+    [InlineData("Wide", 28)]
+    [InlineData("Tall", 28)]
+    [InlineData("L", 40)]
+    [InlineData("XL", 40)]
+    public void S1762_the_reading_is_28_and_40_once_expanded_both_ways(string tier, double size)
         => Assert.Equal(size, FamilyType.BaseOf(MeterPlan.Reading(Area(tier), Percent)));
 
     [Theory]
@@ -63,10 +63,10 @@ public sealed class MeterPlanTests
     }
 
     [Theory]
-    [InlineData("XS", 88)]
-    [InlineData("M", 288)]
-    [InlineData("Wide", 198)]
-    [InlineData("L", 528)]
+    [InlineData("XS", 96)]
+    [InlineData("M", 296)]
+    [InlineData("Wide", 222)]
+    [InlineData("L", 536)]
     public void S6302_the_gauge_is_as_wide_as_the_content_while_its_half_fits_the_height(string tier, double diameter)
     {
         var area = Area(tier);
@@ -82,7 +82,7 @@ public sealed class MeterPlanTests
     public void S6302_the_reading_in_the_bowl_is_on_the_readout_steps_and_capped_by_the_area()
     {
         var l = Area("L");
-        Assert.Equal(68, FamilyType.BaseOf(MeterPlan.GaugeReading(l, MeterPlan.Gauge(l), Percent)));
+        Assert.Equal(40, FamilyType.BaseOf(MeterPlan.GaugeReading(l, MeterPlan.Gauge(l), Percent)));
         var xs = Area("XS");
         Assert.Equal(28, FamilyType.BaseOf(MeterPlan.GaugeReading(xs, MeterPlan.Gauge(xs), Percent)));
     }
@@ -99,11 +99,11 @@ public sealed class MeterPlanTests
     }
 
     [Theory]
-    [InlineData("XS", 0)]
-    [InlineData("S", 1)]
-    [InlineData("M", 3)]
+    [InlineData("XS", 1)]
+    [InlineData("S", 2)]
+    [InlineData("M", 4)]
     [InlineData("L", 4)]
-    public void S6304_the_items_rows_are_whole_32_rows_under_the_reading(string tier, int rows)
+    public void S6304_the_items_rows_are_whole_28_rows_under_the_reading(string tier, int rows)
     {
         var area = Area(tier);
         Assert.Equal(rows, MeterPlan.Rows(area, MeterPlan.Reading(area, Percent), 4));

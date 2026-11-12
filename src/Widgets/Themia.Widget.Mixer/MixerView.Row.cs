@@ -20,7 +20,7 @@ internal sealed partial class MixerView
     /// <summary>
     /// [S-449] One row's visuals, rewritten in place for whichever row sits at its position: a Row block
     /// ([S-6711]) led by the app's icon (16), its name, and in the meter's place the Controls slider
-    /// (rail Track, value the accent) and the mute, a 32 icon button whose glyph is the level's band.
+    /// (rail Track, value the accent) and the mute, a 28 icon button whose glyph is the level's band.
     /// </summary>
     private sealed class RowVisual
     {

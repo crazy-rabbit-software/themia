@@ -272,7 +272,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         }
     }
 
-    /// <summary>[S-4402] An app's heading: one row of 32, its icon and its name in BodyStrong, secondary.</summary>
+    /// <summary>[S-4402] An app's heading: one row of 28, its icon and its name in BodyStrong, secondary.</summary>
     private Grid Heading(NotificationGroup group)
     {
         var icon = AppIcon(group.AppId);

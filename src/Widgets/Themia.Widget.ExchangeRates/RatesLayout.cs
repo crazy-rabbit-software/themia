@@ -17,7 +17,7 @@ public readonly record struct RatesPlan(TypeStep Rate, ReadoutFold Fold, bool Un
 /// <summary>
 /// [S-5146] [S-6168] The exchange-rate widget's layout, on the family's blocks ([S-6702], [S-6717]), read
 /// as a meter reads ([S-1762]): the rate is a Readout at the view's top, start-aligned, on the step it
-/// takes in the area (28, 40, 68 and no larger, [S-666]), the quote's code after it and the day change
+/// takes in the area (28, or 40 once expanded both ways, and no larger, [S-666]), the quote's code after it and the day change
 /// beside it or, where they do not fit, on the line under it ([S-6707]); else "per CHF" is that line. The
 /// chart style's 90 days run 8 under it, edge to edge and down to the card's foot, from
 /// <see cref="BandFloor"/>. Room left at L and XL is the chart's; the Number style leaves it empty.

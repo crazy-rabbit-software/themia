@@ -19,22 +19,22 @@ public sealed class AlarmFaceTests
     [Fact]
     public void S4629_a_tile_too_short_for_the_switch_keeps_the_time_and_a_larger_one_climbs_the_hero_steps()
     {
-        // XS: 120 × 120 less the header; the time alone, on the floor step.
+        // A tile 8 shorter than XS's view: the time alone, on the floor step.
         var xs = AlarmFace.Plan(new WidgetArea(120, 76), " AM");
         Assert.False(xs.Controls);
         Assert.Equal(FamilyType.Big28, xs.Step);
 
-        // S: the switch's row fits under the 28 line, its words do not.
-        var s = AlarmFace.Plan(new WidgetArea(200, 106), " AM");
+        // S: the switch's row fits under the 28 line and its words.
+        var s = AlarmFace.Plan(new WidgetArea(200, 114), " AM");
         Assert.True(s.Controls);
-        Assert.False(s.Under);
+        Assert.True(s.Under);
 
         // L and XL: a Hero step with its Title line under, the row 8 under its box.
-        var xl = AlarmFace.Plan(new WidgetArea(800, 516), " AM");
+        var xl = AlarmFace.Plan(new WidgetArea(800, 524), " AM");
         Assert.True(xl.Controls);
         Assert.True(xl.Under);
         Assert.Equal(FamilyType.Hero192, xl.Step);
-        Assert.Equal(516 - 16 - 40, xl.Box);
+        Assert.Equal(524 - FamilySpace.Inset - FamilyShape.Button - FamilySpace.S2, xl.Box);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using Themia.Core.Notes;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Notes.Tests;
@@ -37,7 +38,7 @@ public sealed class NotesLayoutTests
     /// </summary>
     [Fact]
     public void S1363_xl_never_gives_width_to_a_note_list()
-        => Assert.Equal(800 - 32, NotesLayout.Plan(new WidgetArea(800, 516), lineHeight: 20).TextWidth);
+        => Assert.Equal(800 - (2 * FamilySpace.Inset), NotesLayout.Plan(new WidgetArea(800, 524), lineHeight: 20).TextWidth);
 
     [Fact]
     public void S1363_unmeasured_shows_the_text_only()
@@ -47,9 +48,10 @@ public sealed class NotesLayoutTests
     [InlineData(400, true, 9, false)]
     [InlineData(800, true, 9, false)]
     [InlineData(320, true, 6, true)]
-    [InlineData(240, true, 2, true)]
+    [InlineData(240, true, 3, true)]
     [InlineData(180, true, 0, true)]
-    [InlineData(170, false, 0, true)]
+    [InlineData(170, false, 1, true)]
+    [InlineData(150, false, 0, true)]
     [InlineData(120, false, 0, false)]
     public void S3963_the_header_bar_keeps_what_fits_and_folds_the_rest_into_more(double width, bool picker, int inline, bool overflow)
     {

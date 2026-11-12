@@ -27,7 +27,7 @@ and the cross rates' own tests stay Core's (`OnlineWidgetsTests`, `S5141_`, `S51
   said; a published one is upper-cased.
 - **[S-5146]** **Number** (`RatesLayout.Rates`), on the family's blocks and read as a meter reads
   ([S-1762]): the pair as a Readout at the view's top, start-aligned, on the step it takes in the area
-  (28 at XS and S, 40 at M, Wide and Tall, 68 at L and XL, never larger, [S-6702]): the rate, the
+  (28 at XS to Tall, 40 at L and XL, never larger, [S-6702]): the rate, the
   quote's code after it and the day change (Body) beside it where they fit, else the code gives way,
   else the change is the line under the rate (`ReadoutRules.Fold`, [S-6707]); otherwise "per CHF" is
   that line. Room left is empty ([S-666]). A rise and an unchanged rate are secondary, a fall Critical

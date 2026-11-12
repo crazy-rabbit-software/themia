@@ -30,9 +30,9 @@ public readonly record struct BatteryPicture(double Height, double CapHeight, do
 /// <summary>
 /// [S-1762] [S-6300] How a meter lays its reading and the part beside it out, on the family's blocks
 /// ([S-6702], [S-6717]): every look reads the same way. The view's area is the card under the header;
-/// the content stands in the 16 inset at the sides and the foot and starts at the view's top (the
+/// the content stands in the 12 inset at the sides and the foot and starts at the view's top (the
 /// header's 8 above it). The reading is a Readout at the top (start-aligned) on the step its widest
-/// case takes in the area, so a data widget's number climbs 28, 40, 68 and stops ([S-6702]); what it
+/// case takes in the area, so a data widget's number takes 28, or 40 once expanded both ways, and stops ([S-6702]); what it
 /// leaves under it, 8 down, is the look's: the history band edge to edge to the card's foot, the gauge,
 /// the items' columns, rows, rings or graphs, the battery or the signal bars. Room left at L and XL goes
 /// to that part (a longer chart, larger rings), never to a bigger number ([S-666]).
@@ -121,7 +121,7 @@ public static class MeterPlan
     public static bool Columns(WidgetArea area, TypeStep step, int count)
         => count > 0 && PartHeight(area, step) >= PartFloor && Content(area).Width / count >= FamilyShape.Track + FamilySpace.S1;
 
-    /// <summary>[S-6304] How many of the items' rows (one 32 row each) fit under the reading.</summary>
+    /// <summary>[S-6304] How many of the items' rows (one 28 row each) fit under the reading.</summary>
     public static int Rows(WidgetArea area, TypeStep step, int count)
         => Math.Min(count, RowRules.Fit(PartHeight(area, step), 1));
 

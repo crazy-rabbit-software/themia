@@ -76,12 +76,12 @@ public sealed class ExchangeRatesTests
     private static RatesPlan Plan(WidgetArea area, ExchangeRatesStyle style) => RatesLayout.Rates(area, style, Rate, "+88.88%");
 
     [Fact]
-    public void S5146_the_rate_climbs_28_40_68_with_the_area_and_stops()
+    public void S5146_the_rate_is_28_and_40_with_the_area_and_stops()
     {
         Assert.Equal(FamilyType.Big28, Plan(Xs, ExchangeRatesStyle.Number).Rate);
-        Assert.Equal(FamilyType.Big40, Plan(M, ExchangeRatesStyle.Number).Rate);
-        Assert.Equal(FamilyType.Big68, Plan(Xl, ExchangeRatesStyle.Number).Rate);
-        Assert.Equal(FamilyType.Big68, Plan(new WidgetArea(1600, 1200), ExchangeRatesStyle.Number).Rate);
+        Assert.Equal(FamilyType.Big28, Plan(M, ExchangeRatesStyle.Number).Rate);
+        Assert.Equal(FamilyType.Big40, Plan(Xl, ExchangeRatesStyle.Number).Rate);
+        Assert.Equal(FamilyType.Big40, Plan(new WidgetArea(1600, 1200), ExchangeRatesStyle.Number).Rate);
     }
 
     [Fact]
@@ -110,5 +110,9 @@ public sealed class ExchangeRatesTests
 
     [Fact]
     public void S6168_a_tile_too_short_for_the_chart_is_the_rate_alone()
-        => Assert.False(Plan(Xs, ExchangeRatesStyle.Chart).Chart);
+    {
+        // XS's 84 holds the 28 line, 8 and the band's floor; 60 does not.
+        Assert.True(Plan(Xs, ExchangeRatesStyle.Chart).Chart);
+        Assert.False(Plan(new WidgetArea(120, 60), ExchangeRatesStyle.Chart).Chart);
+    }
 }

@@ -29,7 +29,7 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
   no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), under a divider
   the list's own (user request 2026-10-19): **Most apps listed** (typed, 0 to 50; 0 reads "As many as fit", [S-1211]), **Daily average** (over a window
   only, [S-6074]: a day's average is its time, so the figure would repeat it), **Share of total**, then the shared lines ([S-3323]: of the limits each app's).
-- **[S-3352]** Ladder (`ScreenTimeAppsLayout.Apps`): whole rows of 32 (48 with the figures' second
+- **[S-3352]** Ladder (`ScreenTimeAppsLayout.Apps`): whole rows of 28 (40 with the figures' second
   line from a regular tile both ways, [S-6712]) in the view's area less the card's bottom inset; the
   time always, the name from 160 DIPs wide (under it a row is the icon and the time, the name in its
   tooltip: a squeezed name read as one letter), the 32 icon from 180. No headline, no footer ([S-666]):

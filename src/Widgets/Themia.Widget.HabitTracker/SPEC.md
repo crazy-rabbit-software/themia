@@ -32,7 +32,7 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   value (Body, secondary), the rate ("Done 5 of the last 7 days", Caption secondary) its second line
   and the best run ("Best run: 16 days", Caption tertiary, with Show streaks only) its third, as many
   lines as the tier gives a row ([S-6712]: one on XS, S and Wide, two on M and Tall, three on L and
-  XL; rows 32, 48, 64). Ladder (`HabitLayout.Plan`): XS check + name, one row → S + the run (a
+  XL; rows 28, 40, 56). Ladder (`HabitLayout.Plan`): XS check + name, one row → S + the run (a
   number) → M + the dots and the add footer ([S-3850], on the card's bottom inset; always under an
   empty list) → Wide/L/XL the run in words. The viewport holds whole rows above the card's bottom
   inset and the rest scroll. The rate and the best run are lines, never columns (the Wide rate

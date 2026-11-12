@@ -74,12 +74,12 @@ releases everything.
   one is plain, the pause glyph tertiary, with no button (Resume is the card menu's, Space's and the
   strip's: a worded button overflows the small tiles); connecting is plain. The strip and the status chip
   are drawn from the tokens over the picture: the solid role with a hairline edge in the control stroke,
-  the one radius, 8 in from the picture's edges; the strip a row of 32 at least (8 and 4 inside), the
+  the one radius, 8 in from the picture's edges; the strip a row of 28 at least (8 and 4 inside), the
   chip one Caption line with 8 and 4 around it, shown only while no Status row is (that row says the
   state itself); their words Caption, the state primary and the details
   secondary; the state dot a round 8 in the accent while live, caution while it waits, tertiary while
   paused (no critical red for a working stream, `StreamChromeRules.DotRole`); the strip's Pause,
-  Rotate and Refresh the family's 32 icon buttons, clear on it, side by side. The acrylic fill is gone.
+  Rotate and Refresh the family's 28 icon buttons, clear on it, side by side. The acrylic fill is gone.
   Debug renders draw stills only, never a camera: `--state live|paused|connecting|dropped|refused`
   (a made-up frame, no address reached). (Tests `StreamStatusTests`.)
 

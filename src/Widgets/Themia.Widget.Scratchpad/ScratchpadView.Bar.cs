@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 /// tile adds, so choosing an ink no longer means opening settings. Picking an ink or a nib also
 /// leaves the eraser, as the original did. Its ladder is <see cref="ScratchpadLayout.Bar"/>.
 /// <para>
-/// The bar is a row of 32 tools on the card's bottom inset ([S-6716]), each a subtle button (the
+/// The bar is a row of 28 tools on the card's bottom inset ([S-6716]), each a subtle button (the
 /// subtle fills on hover and press, no border): an ink is a 16 dot in its own colour (a data colour,
 /// [S-6705]), a nib a dot of its width in the secondary role, the chosen one ringed by a 24 ring of
 /// stroke 2 in the accent (selected); the eraser on is the accent's fill with its glyph on it.

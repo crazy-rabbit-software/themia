@@ -11,7 +11,7 @@ public sealed class RainNextHourTests
     private const string Headline = "Rain in 30 min";
 
     /// <summary>The seven tiers less the card's header.</summary>
-    private static readonly WidgetArea Xs = new(120, 76), S = new(200, 106), M = new(320, 196), Wide = new(480, 116), Xl = new(800, 516);
+    private static readonly WidgetArea Xs = new(120, 84), S = new(200, 114), M = new(320, 204), Wide = new(480, 124), Xl = new(800, 524);
 
     [Fact]
     public void S5126_the_sentence_is_title_where_its_line_holds_it_and_body_strong_on_two_lines_where_not()
@@ -31,13 +31,16 @@ public sealed class RainNextHourTests
     [Fact]
     public void S5126_the_ladder_adds_the_caption_then_the_bars_which_take_the_rest_to_the_foot()
     {
+        // S: the sentence and its caption leave 46, short of the bars' floor and their time line (52).
         Assert.Equal(0, RainLayout.Rain(S, Headline, true).ChartHeight);
         Assert.True(RainLayout.Rain(S, Headline, true).Caption);
-        Assert.Equal(0, RainLayout.Rain(Wide, Headline, true).ChartHeight);
 
-        // M: the content's 180 less the sentence (28), the caption (20) and the 8 over the bars.
+        // Wide: its 112 leaves 56, so the bars come.
+        Assert.Equal(112 - 28 - 20 - 8, RainLayout.Rain(Wide, Headline, true).ChartHeight, 6);
+
+        // M: the content's 192 less the sentence (28), the caption (20) and the 8 over the bars.
         var medium = RainLayout.Rain(M, Headline, true);
-        Assert.Equal(180 - 28 - 20 - 8, medium.ChartHeight, 6);
+        Assert.Equal(192 - 28 - 20 - 8, medium.ChartHeight, 6);
         Assert.Equal(medium.ChartHeight - 4 - 16, medium.BarsHeight, 6);
         Assert.True(medium.BarsHeight >= RainLayout.ChartMin);
 

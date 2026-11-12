@@ -42,7 +42,7 @@ public static class ScreenTimeChartLayout
 
     /// <summary>
     /// [S-3332] The chart in the view's area less the card's bottom inset: the drawing first (never
-    /// dropped, at least 32), then the Readout over it (28, 40 or 68 by the area, sized on
+    /// dropped, at least 32), then the Readout over it (28, or 40 once expanded both ways, sized on
     /// <paramref name="worst"/>, 8 above the drawing), the bars' end labels, and the line under the
     /// figure; the drawing takes what is left.
     /// </summary>

@@ -125,13 +125,13 @@ public sealed class HabitTrackerStylesTests
     }
 
     [Theory]
-    [InlineData(120, 76)]
-    [InlineData(200, 106)]
-    [InlineData(320, 196)]
-    [InlineData(480, 116)]
-    [InlineData(200, 356)]
-    [InlineData(560, 376)]
-    [InlineData(800, 516)]
+    [InlineData(120, 84)]
+    [InlineData(200, 114)]
+    [InlineData(320, 204)]
+    [InlineData(480, 124)]
+    [InlineData(200, 364)]
+    [InlineData(560, 384)]
+    [InlineData(800, 524)]
     public void S6410_a_checklist_is_the_box_and_the_name_at_every_size(double width, double height)
     {
         var dots = HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(5, true, true, 7));

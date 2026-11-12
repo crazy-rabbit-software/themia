@@ -18,8 +18,7 @@ the sun, the levels through `IWidgetHost.Brightness`, its own display through it
   bottom inset as the volume tile's ([S-2731], [S-6716]); the sun is the header's glyph (the one at
   the slider's start went with the family, G5), the level the slider's name and tooltip.
 - **[S-2152]** Over the slider the level is a Readout, as the meters beside it (owner decision
-  2026-11-12; the root's [S-2150], `LevelFace`): "70%" at the view's top on 28 (S), 40 (M, Wide,
-  Tall) or 68 (L, XL), following the slider while it is dragged; XS is the slider alone. It has no
+  2026-11-12; the root's [S-2150], `LevelFace`): "70%" at the view's top on 28 (S to Tall) or 40 (L, XL), following the slider while it is dragged; a card shorter than XS is the slider alone. It has no
   line under: the displays' names are not in the host's answer (`BrightnessDisplay` carries the GDI
   device name only), and a line would need a host contract change first. With several displays
   (`--state levels`) it stays one widget with one Readout: the slider sets them together ([S-4442]),

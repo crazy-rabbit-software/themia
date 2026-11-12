@@ -9,7 +9,7 @@ namespace Themia.Widget.ScreenTimeChart.Tests;
 public sealed class ScreenTimeChartTests
 {
     /// <summary>The card's header, which the content area is the card less.</summary>
-    private const double Header = 44;
+    private const double Header = FamilySpace.ContentTop;
 
     private const string Worst = "888h 59m";
 
@@ -57,8 +57,8 @@ public sealed class ScreenTimeChartTests
         var l = ScreenTimeChartLayout.Chart(Content(Tier("L")), ScreenTimeChartStyle.Bars, Worst);
 
         Assert.Equal(FamilyType.Big28, s.Total);
-        Assert.Equal(FamilyType.Big40, m.Total);
-        Assert.Equal(FamilyType.Big68, l.Total);
+        Assert.Equal(FamilyType.Big28, m.Total);
+        Assert.Equal(FamilyType.Big40, l.Total);
         Assert.True(m.Labels && m.Under);
         Assert.True(l.Drawing > m.Drawing);
     }

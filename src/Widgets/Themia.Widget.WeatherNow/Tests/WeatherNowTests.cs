@@ -25,26 +25,26 @@ public sealed class WeatherNowTests
     // ---- [S-723] the standard style: the detail widgets' plan ------------------------------------
 
     [Fact]
-    public void S723_the_small_tiles_are_the_reading_alone_and_its_condition()
+    public void S723_the_small_tiles_are_the_reading_and_its_condition_and_what_whole_rows_fit()
     {
-        foreach (var tier in new[] { Xs, S })
+        foreach (var (tier, facts) in new[] { (Xs, 0), (S, 1) })
         {
             var plan = WeatherNowLayout.Plan(tier, facts: 11);
-            Assert.Equal(0, plan.Facts);
+            Assert.Equal(facts, plan.Facts);
             Assert.True(plan.Under, $"{tier}: the condition under the reading");
             Assert.Equal(FamilyType.Big28, plan.Hero);
         }
     }
 
     [Fact]
-    public void S723_a_medium_tile_puts_three_readings_under_the_reading_on_40()
+    public void S723_a_medium_tile_puts_four_readings_under_the_reading_on_28()
     {
         var plan = WeatherNowLayout.Plan(M, facts: 11);
 
         Assert.False(plan.Side);
-        Assert.Equal(FamilyType.Big40, plan.Hero);
-        Assert.Equal(52 + 20 + 8, plan.RowsTop);
-        Assert.Equal(3, plan.Facts);
+        Assert.Equal(FamilyType.Big28, plan.Hero);
+        Assert.Equal(36 + 16 + 8, plan.RowsTop);
+        Assert.Equal(4, plan.Facts);
     }
 
     [Fact]
@@ -55,23 +55,23 @@ public sealed class WeatherNowTests
 
         Assert.True(wide.Side);
         Assert.Equal(Math.Floor(480 * 0.4), wide.HeroColumn);
-        Assert.Equal(3, wide.Facts);
+        Assert.Equal(4, wide.Facts);
         Assert.True(xl.Side);
-        Assert.Equal(FamilyType.Big68, xl.Hero);
+        Assert.Equal(FamilyType.Big40, xl.Hero);
         Assert.Equal(11, xl.Facts);
     }
 
     [Fact]
-    public void S723_the_reading_never_passes_68_and_a_tall_column_stacks_the_readings_under_it()
+    public void S723_the_reading_never_passes_40_and_a_tall_column_stacks_the_readings_under_it()
     {
         foreach (var tier in Tiers)
         {
-            Assert.True(FamilyType.BaseOf(WeatherNowLayout.Plan(tier, facts: 11).Hero) <= 68, $"{tier}");
+            Assert.True(FamilyType.BaseOf(WeatherNowLayout.Plan(tier, facts: 11).Hero) <= 40, $"{tier}");
         }
 
         var tall = WeatherNowLayout.Plan(Tall, facts: 11);
         Assert.False(tall.Side);
-        Assert.Equal(8, tall.Facts);
+        Assert.Equal(10, tall.Facts);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public sealed class WeatherNowTests
     [Fact]
     public void S6161_the_large_icon_is_a_family_glyph_no_taller_than_the_reading_beside_it()
     {
-        var family = new double[] { 16, 28, 32, 40, 48, 68 };
+        var family = new double[] { 16, 28, 32, 40, 48 };
         foreach (var tier in Tiers)
         {
             var plan = WeatherNowStyles.LargeIcon(tier);
@@ -100,17 +100,17 @@ public sealed class WeatherNowTests
             Assert.True(plan.Glyph + 8 + ReadoutRules.Width(plan.Temperature, WeatherNowStyles.Worst) <= width + 0.01, $"{tier}: too wide");
         }
 
-        Assert.Equal(68, WeatherNowStyles.LargeIcon(M).Glyph);
-        Assert.Equal(FamilyType.Big40, WeatherNowStyles.LargeIcon(M).Temperature);
-        Assert.Equal(16, WeatherNowStyles.LargeIcon(Xs).Glyph);
+        Assert.Equal(48, WeatherNowStyles.LargeIcon(M).Glyph);
+        Assert.Equal(FamilyType.Big28, WeatherNowStyles.LargeIcon(M).Temperature);
+        Assert.Equal(28, WeatherNowStyles.LargeIcon(Xs).Glyph);
     }
 
     [Fact]
-    public void S6162_the_minimal_temperature_climbs_the_readout_steps_and_stops_at_68()
+    public void S6162_the_minimal_temperature_climbs_the_readout_steps_and_stops_at_40()
     {
         Assert.Equal(FamilyType.Big28, WeatherNowStyles.Minimal(Xs));
-        Assert.Equal(FamilyType.Big40, WeatherNowStyles.Minimal(M));
-        Assert.Equal(FamilyType.Big68, WeatherNowStyles.Minimal(Xl));
+        Assert.Equal(FamilyType.Big28, WeatherNowStyles.Minimal(M));
+        Assert.Equal(FamilyType.Big40, WeatherNowStyles.Minimal(Xl));
     }
 
     [Fact]

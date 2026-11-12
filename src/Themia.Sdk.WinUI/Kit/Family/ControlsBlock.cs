@@ -10,7 +10,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-6716] The Controls block: one row of controls at the card's bottom inset, 8 apart — at most one
 /// main action in the accent (<see cref="Main"/>, or <see cref="MainIcon"/> for a transport's Play),
-/// standard buttons (<see cref="Button"/>), 32 icon buttons (<see cref="Icon"/>), a slider
+/// standard buttons (<see cref="Button"/>), 28 icon buttons (<see cref="Icon"/>), a slider
 /// (<see cref="Slider"/>, its rail the Track role, its value the accent) that takes the room left and
 /// an on/off switch (<see cref="Switch"/>). On a narrow card the icon buttons give way from the last,
 /// then the standard buttons, then the slider (<see cref="ControlsRules"/>); the main action and the
@@ -41,7 +41,7 @@ public sealed partial class ControlsBlock : Grid
     /// <summary>The one main action: a text button in the accent.</summary>
     public Button Main(string label, Action run) => Add(ControlKind.Main, TextButton(label, main: true, run));
 
-    /// <summary>The one main action as a 32 × 32 icon button in the accent (a transport's Play), its tooltip its name.</summary>
+    /// <summary>The one main action as a 28 × 28 icon button in the accent (a transport's Play), its tooltip its name.</summary>
     public Button MainIcon(string glyph, string tooltip, Action run) => Add(ControlKind.Main, IconButton(glyph, tooltip, run, main: true));
 
     /// <summary>
@@ -128,7 +128,7 @@ public sealed partial class ControlsBlock : Grid
     /// <summary>A standard text button.</summary>
     public Button Button(string label, Action run) => Add(ControlKind.Button, TextButton(label, main: false, run));
 
-    /// <summary>A 32 × 32 icon button with a 16 glyph, its tooltip its name.</summary>
+    /// <summary>A 28 × 28 icon button with a 16 glyph, its tooltip its name.</summary>
     public Button Icon(string glyph, string tooltip, Action run) => Add(ControlKind.Icon, IconButton(glyph, tooltip, run));
 
     /// <summary>A slider from <paramref name="minimum"/> to <paramref name="maximum"/>, taking the room left.</summary>
@@ -222,7 +222,7 @@ public sealed partial class ControlsBlock : Grid
     }
 
     /// <summary>
-    /// [S-6716] A text button: 32 tall, 12 either side, Body text, the one radius; the main action in
+    /// [S-6716] A text button: 28 tall (a one-line row), 12 either side, Body text, the one radius; the main action in
     /// the accent. Takes no focus.
     /// </summary>
     public static Button TextButton(string label, bool main, Action run)

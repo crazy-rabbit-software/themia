@@ -32,18 +32,20 @@ public sealed class StocksTests
         => StockLayout.Plan(area, new StockInputs(Price, "+88.88%", rows, chart, MinMax: true));
 
     [Fact]
-    public void S1311_the_price_climbs_28_40_68_with_the_area_and_stops()
+    public void S1311_the_price_is_28_and_40_with_the_area_and_stops()
     {
         Assert.Equal(FamilyType.Big28, Plan(Xs).Price);
-        Assert.Equal(FamilyType.Big40, Plan(M).Price);
-        Assert.Equal(FamilyType.Big68, Plan(L).Price);
-        Assert.Equal(FamilyType.Big68, Plan(new WidgetArea(1600, 1200)).Price);
+        Assert.Equal(FamilyType.Big28, Plan(M).Price);
+        Assert.Equal(FamilyType.Big40, Plan(L).Price);
+        Assert.Equal(FamilyType.Big40, Plan(new WidgetArea(1600, 1200)).Price);
     }
 
     [Fact]
     public void S1311_the_smallest_tile_folds_the_change_under_the_price_and_has_no_chart()
     {
-        var plan = Plan(Xs);
+        // XS's width; 20 shorter, too short for the chart's floor under the price and its line.
+        Assert.True(Plan(Xs).Chart);
+        var plan = Plan(new WidgetArea(120, 64));
 
         Assert.False(plan.Fold.DeltaBeside);
         Assert.True(plan.Under);
@@ -52,12 +54,12 @@ public sealed class StocksTests
 
     /// <summary>[S-1311] [S-2770] The chart runs 8 under the price (or its rows), edge to edge, down to the card's foot.</summary>
     [Theory]
-    [InlineData(200, 106)]
-    [InlineData(320, 196)]
-    [InlineData(480, 116)]
-    [InlineData(200, 356)]
-    [InlineData(560, 376)]
-    [InlineData(800, 516)]
+    [InlineData(200, 114)]
+    [InlineData(320, 204)]
+    [InlineData(480, 124)]
+    [InlineData(200, 364)]
+    [InlineData(560, 384)]
+    [InlineData(800, 524)]
     public void S2770_the_chart_takes_everything_under_the_price_to_the_foot(double width, double height)
     {
         var plan = Plan(new WidgetArea(width, height));

@@ -83,6 +83,12 @@ public static class RowRules
         => icon + (named ? FamilySpace.S1 + FamilyType.Caption.LineHeight : 0);
 
     /// <summary>
+    /// [S-6713] How far in from the card's edge a grid's cell marks start: the inset less the 4 a mark
+    /// stands around its cell, so the first cell's lead and name stand at the inset.
+    /// </summary>
+    public const double CellMarkEdge = FamilySpace.Inset - FamilySpace.S1;
+
+    /// <summary>
     /// [S-6713] The least width of a cell's lead and name: a named cell its icon and 16 either side (room
     /// for a short name in Caption), an unnamed one its icon alone.
     /// </summary>

@@ -8,7 +8,7 @@ namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
 /// [S-6711] The Row block: [lead] 8 [name, Body] 12 [inline meter] 12 [value, Body, end-aligned], a
-/// second line in Caption secondary and a third in Caption tertiary under the name; 32, 48 or 64
+/// second line in Caption secondary and a third in Caption tertiary under the name; 28, 40 or 56
 /// tall by its lines ([S-6712]), never by the tier. What is read is primary (<see cref="RowRules.Roles"/>):
 /// a fact's value, a list item's name. The row carries the card's side inset as its own padding, so
 /// it and its hover reach both edges and its name stands at the widget's one text edge (40 with a
@@ -95,7 +95,7 @@ public sealed partial class RowBlock : Grid
 
     /// <summary>
     /// [S-6712] How many lines the row shows (1 to 3, by <see cref="RowRules.Lines"/>): its height
-    /// follows, 32, 48 or 64, and the lines it does not show take no room.
+    /// follows, 28, 40 or 56, and the lines it does not show take no room.
     /// </summary>
     public int Lines
     {
@@ -318,7 +318,9 @@ public sealed partial class RowCell : StackPanel
     {
         _lead = new Border { Width = icon, Height = icon, HorizontalAlignment = HorizontalAlignment.Center };
         NameText = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
-        NameText.HorizontalAlignment = HorizontalAlignment.Center;
+        // Stretched and centred in it, not centred alone: a name wider than the cell is cut with its
+        // ellipsis at the cell's edge, never clipped mid-letter or past the card's inset.
+        NameText.HorizontalAlignment = HorizontalAlignment.Stretch;
         NameText.TextAlignment = TextAlignment.Center;
         Spacing = FamilySpace.S1;
         Children.Add(_lead);

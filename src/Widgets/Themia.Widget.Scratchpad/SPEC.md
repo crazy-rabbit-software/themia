@@ -21,7 +21,7 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   2/4/8 px at the foot of the pad from Regular × Regular, when the width inside the card's inset
   holds the inks and the eraser; the nibs when it holds those too (`ScratchpadLayout.Bar`); nothing
   more on a larger pad (the stroke count at W ≥ Expanded is retired, concise widgets). The bar is a
-  row of 32 tools on the card's bottom inset ([S-6716]), each a subtle button (the subtle fills on
+  row of 28 tools on the card's bottom inset ([S-6716]), each a subtle button (the subtle fills on
   hover and press, no border): an ink a 16 dot in its colour (a data colour, `Family.Data`,
   [S-6705]), a nib a dot of its width + 2 in the secondary role, the chosen ink and nib ringed by a 24
   ring of stroke 2 in the accent; inks, nibs and the eraser in groups 8 apart. The inks are six

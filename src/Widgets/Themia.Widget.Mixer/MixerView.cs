@@ -18,7 +18,7 @@ namespace Themia.App.Widgets;
 /// icon, its name, a slider and a mute button. No master row and no device name
 /// ([S-3251]): the device's own level is the volume tile's.
 /// <para>
-/// [S-449] The rows are the family's Row block ([S-6711]): 32 or 48 tall by the tier, as many whole
+/// [S-449] The rows are the family's Row block ([S-6711]): 28 or 40 tall by the tier, as many whole
 /// rows as the area holds, the rest a scroll away, never half a row (<see cref="MixerLayout"/>). A short
 /// list on a large card stays a short list ([S-666]): the mixer is the apps' levels and nothing else.
 /// Nothing playing is the Status row at the top; no device is the stand-in row in the disabled role

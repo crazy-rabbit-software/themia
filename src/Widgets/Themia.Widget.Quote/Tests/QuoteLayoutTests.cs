@@ -13,10 +13,10 @@ public class QuoteLayoutTests
 {
     private const string Newton = "“What we know is a drop, what we don’t know is an ocean.”";
 
-    private static readonly WidgetArea XS = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea XL = new(800, 516);
+    private static readonly WidgetArea XS = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea XL = new(800, 524);
 
     private static IEnumerable<TypeStep> Steps => [FamilyType.Body, FamilyType.Title, .. FamilyType.Big];
 
@@ -39,8 +39,8 @@ public class QuoteLayoutTests
     [Fact]
     public void S1496_the_big_steps_stop_at_the_areas_ceiling()
     {
-        Assert.Equal(FamilyType.Big68, QuoteLayout.Plan(new WidgetArea(2000, 1400), "“Done.”", author: true, marks: false).Step);
-        Assert.Equal(FamilyType.Big40, QuoteLayout.Plan(new WidgetArea(320, 400), "“Done.”", author: true, marks: false).Step);
+        Assert.Equal(FamilyType.Big40, QuoteLayout.Plan(new WidgetArea(2000, 1400), "“Done.”", author: true, marks: false).Step);
+        Assert.Equal(FamilyType.Big28, QuoteLayout.Plan(new WidgetArea(320, 400), "“Done.”", author: true, marks: false).Step);
         Assert.Equal(FamilyType.Big28, QuoteLayout.Plan(S, "“Done.”", author: true, marks: false).Step);
     }
 

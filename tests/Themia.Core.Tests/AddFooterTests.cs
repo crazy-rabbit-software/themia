@@ -8,13 +8,13 @@ namespace Themia.Core.Tests;
 /// <summary>[S-3850] The add footer shared by the list widgets that add in place.</summary>
 public sealed class AddFooterTests
 {
-    private static readonly WidgetArea XS = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea XL = new(800, 516);
+    private static readonly WidgetArea XS = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea XL = new(800, 524);
 
     private static bool Show(WidgetArea area, bool writable = true, bool empty = false, double row = 40)
     {

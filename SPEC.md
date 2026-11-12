@@ -880,7 +880,7 @@ and `TreeDump.cs` (the renders); tests `FamilyTokensTests`, `FamilyBlockRulesTes
 module author's guide is docs/WIDGET-KIT.md 16.
 
 - **[S-6700]** Text is drawn in **nine sizes and two weights**: Caption 12/16, Body 14/20 (BodyStrong
-  at 600), Title 20/28 (600), the Readout steps Big 28/36, 40/52, 68/92 (600), and the Hero steps
+  at 600), Title 20/28 (600), the Readout steps Big 28/36, 40/52 (600), and the Hero steps 68/92,
   96/128, 136/180, 192/252 (600) that only a one-readout widget (Clock, Alarm, Countdown, Stopwatch,
   Pomodoro, Focus session, the quick toggles, the power buttons) may use. Weights are 400 and 600,
   nothing else. Every step is the base size times the user's text size ([S-821]). A text's line is the
@@ -892,25 +892,40 @@ module author's guide is docs/WIDGET-KIT.md 16.
   sweep, 2026-10-30).
 - **[S-6701]** A value's **unit** and the **line under** it follow from its step: the unit (400,
   secondary) is 14 beside 28, 20 beside 40, 28 beside 68, 40 beside 96 and 136, 68 beside 192; the
-  line under is Caption under 28, Body under 40 and 68, Title (400) under a Hero step.
+  line under is Caption under 28, Body under 40 and 68, Title (400) under 96, 136 and 192.
 - **[S-6702]** The **Readout**'s step is chosen, never computed: the largest whose line (and the line
   under it) fits the box and whose lead glyph, value and unit fit its width (`ReadoutRules.Step`,
-  widths by `HeroFit.Ems`), never below 28. A data widget's number climbs 28 (XS, S) → 40 (M, Wide,
-  Tall) → 68 (L, XL) and stops: the ceiling is 28 while the view area's two classes sum to less than
-  2, 40 from 2, 68 once it is expanded both ways. Room left at L and XL goes to more of the widget's
-  own content, never a bigger number ([S-666]). A one-readout widget climbs the Hero steps as far as
-  they fit, on fixed steps, never filling the box. A box too short for the line under the floor step
-  sheds that line, never the value.
-- **[S-6703]** Space is one 4-based scale, **4 · 8 · 12 · 16 · 24**, and its sums: the card inset 16
-  on every side at every tier; the header one 20 line at 16, then 8, so the content starts at 44; a
-  glyph 8 from its text; a name 12 from its value and a column 12 from the next; the text edge 40
-  with a 16 lead (16 without); a 24 header button stands 2 over the header's line (`FamilySpace`).
-- **[S-6704]** Shapes: rows 32 · 48 · 64 (one, two, three lines) at every tier; icons 16 (header,
+  widths by `HeroFit.Ems`), never below 28. A data widget's number has two sizes ([S-2220]): 28, and
+  40 once the view area is expanded both ways (L, XL), never 68 (`ReadoutRules.Ceiling`). Room left
+  goes to more of the widget's own content, never a bigger number ([S-666]). A one-readout widget
+  climbs the Big steps and then the Hero steps (68, 96, 136, 192) as far as they fit, on fixed steps,
+  never filling the box. A box too short for the line under the floor step sheds that line, never the
+  value.
+- **[S-6703]** Space is one 4-based scale, **4 · 8 · 12 · 16 · 24**, and its sums: the card inset 12
+  on every side at every tier; the header one 20 line at 12, then 4, so the content starts at 36; a
+  glyph 8 from its text; a name 12 from its value and a column 12 from the next; the text edge 36
+  with a 16 lead (12 without); a 24 header button stands 2 over the header's line (`FamilySpace`).
+- **[S-6704]** Shapes: rows 28 · 40 · 56 (one, two, three lines) at every tier; icons 16 (header,
   row, status, inline), 32 (an avatar, an app or file icon, a cell), 48 (a large cell); one radius,
   4, for every inner rectangle, a pill, dot, ring or track round (half its short side); one stroke,
-  2, with a 16 % wash under a chart line; one track, 4; a hairline 1. Buttons: a text button 32 tall
-  with 12 either side and Body text, an icon button 32 × 32, a header button 24 × 24, each with a 16
-  glyph (`FamilyShape`). The card's own radius is the design's setting.
+  2, with a 16 % wash under a chart line; one track, 4; a hairline 1. Buttons: a text button 28 tall
+  (a one-line row) with 12 either side and Body text, an icon button 28 × 28, a header button 24 × 24,
+  each with a 16 glyph (`FamilyShape`). The card's own radius is the design's setting.
+- **[S-2220]** **The dense family** (owner's decision 2026-11-12: the widgets were too airy and too
+  unlike each other): the card's inset is 12 and the header's gap 4, so the content starts at 36 and a
+  led row's text at 36 ([S-6703]); rows are 28 · 40 · 56, one Body line with 4 over and under it, two
+  or three lines with 2 ([S-6704], [S-6712]); a text button and a content icon button are 28, as tall
+  as a one-line row; a header button stays 24, a button's sides 12 and the icons 16, 32, 48. A data
+  widget's number is 28, or 40 once expanded both ways, never 68 ([S-6702]): 68 is the first Hero step,
+  a one-readout widget's alone. The tier sizes, the breakpoints, the type's nine sizes, the card's
+  radius and the gap between cards do not change. Tests `FamilyTokensTests.S2220_`,
+  `FamilyBlockRulesTests.S2220_`.
+- **[S-2221]** **The shell keeps its sizes** when the family gets denser: the edit bar, its menus, the
+  properties menu's 320 × 440 panel and its 32 rows, the picker, the notices and the view bar draw on
+  `ShellMetrics`, never on a widget's row, button or inset token; the widget picker's rows (32) and
+  results (48) and the layout editor's icon commands (32) are `ShellMetrics.Picker.Row`, `.Result` and
+  `ShellMetrics.Window.IconButton`. Test `ShellTokensTests.S2221_`; the shell's renders are pixel-equal
+  before and after the density pass.
 - **[S-6705]** Colours are **roles**, never values (`ColourRole`, its one table `ColourRoles`): text
   primary, secondary, tertiary and disabled; the accent with text on it (primary, secondary); Caution
   and Critical; Track (a rail), Solid (a pill over an image), Subtle (a count pill, a hover), Clear,
@@ -961,10 +976,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the accent, clear otherwise, so focusing it moves nothing (`RowBlock.Focused`, [S-1288]).
 - **[S-6712]** A row's **lines come from the tier**, its pitch from its lines: one while the view
   area is compact either way (XS, S, Wide), two from regular both ways (M, Tall), three from expanded
-  both ways (L, XL); only whole rows are shown (`RowRules.Lines`, `Fit`).
+  both ways (L, XL); a row of one line is 28, of two 40, of three 56 ([S-2220]); only whole rows are
+  shown (`RowRules.Lines`, `Fit`).
 - **[S-6713]** **Row.Cell** (`RowCell`): a grid's item (Shortcuts', a folder's icons), its lead (32,
-  48 from an expanded width) over its name in Caption, primary, centred, 4 apart; cells 12 apart.
-- **[S-6714]** **Status** (empty, problem, set up): one 32 row where the content's first row would
+  48 from an expanded width) over its name in Caption, primary, centred and cut with its ellipsis at
+  the cell's edge, 4 apart; cells 12 apart, their marks 4 around them, so a grid's marks start at the
+  inset less 4 (`RowRules.CellMarkEdge`, [S-2220]) and the first cell's lead and name at the inset.
+- **[S-6714]** **Status** (empty, problem, set up): one 28 row where the content's first row would
   be, under the header: [state glyph 16] 8 [one sentence, Body, secondary, ellipsis, its whole text
   in the tooltip] 12 [its one action] (`StatusBlock`). Empty: the widget's glyph, tertiary. Problem:
   the caution warning; Try again or Open Accounts as a standard button. Set up: the widget's glyph and
@@ -972,7 +990,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   drops it and keeps the glyph and the action (`StatusRules`); without an action the sentence stays. Tile widgets show their state in the tile.
 - **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the largest
   Readout or Hero step that fits above its label (Body, 8 under it) and its state line (Caption) and
-  takes at most 0.6 of the width (`TileRules.GlyphStep`), in the card's inset of 16 at every size. On,
+  takes at most 0.6 of the width (`TileRules.GlyphStep`), in the card's inset of 12 at every size. On,
   the **whole tile** is the accent with the text and glyph on it; Round puts the glyph in a circle
   (the accent when on, the item layer's tile otherwise) at the largest family glyph size within half
   of it; Switch is a row with a switch as its value. Not on, the tile is an item of the card's item
@@ -997,7 +1015,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the power buttons) says so in its module's descriptor (`WidgetTraits.OneReadout`); it alone may climb
   the Hero steps (`ReadoutRules.OneReadout`, `ReadoutRules.Steps`), and the render walk ([S-6731])
   reads the same trait, so no list of kinds is kept anywhere else.
-- **[S-6716]** **Controls** (`ControlsBlock`): what a person does to a widget, one row of 32 controls
+- **[S-6716]** **Controls** (`ControlsBlock`): what a person does to a widget, one row of 28 controls
   8 apart at the card's bottom inset: at most one main action in the accent (a text button, or a 32
   icon button for a transport's Play: `MainIcon`), standard buttons, icon buttons, a slider (its rail
   Track, its value the accent) taking the room left and an on/off switch (Windows' toggle switch, 40
@@ -1064,13 +1082,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the GPU's own view are gone. The lists and the calendar are on the blocks (G2, 2026-10-29): the
   kit's `KitHeader` is the Header block's parts (`HeaderParts`, at most two 24 buttons, the neutral
   count), `KitStatePanel` the Status block's row at the top, every `KitList` look (rich, message,
-  table, schedule, check) the Row block of 32, 48 or 64 by the tier, `AddFooterRow` a Row block of
+  table, schedule, check) the Row block of 28, 40 or 56 by the tier, `AddFooterRow` a Row block of
   32; `HeaderTrail`, `Fluent.Badge`, `KitHeaderParts` (folded into `HeaderRules.Wants`),
   `KitList.Lined` and the old ladders' measures are gone. `Fluent.Row`, `SetDensity`, `RowHeight`,
   `CompactBelow` and `EmptyStatePanel`, `EmptyStateFit`, `Fluent.EmptyState` stay for the groups
   whose widgets still call them (G5, G6, the card's fault and setup code). The weather, sky, finance
   and text widgets are on the blocks (G3, 2026-10-29): weather now, air quality, stocks and the rates
-  are a Readout (28/40/68) and fact rows laid out as the details are (`DetailFace`), a falling price or
+  are a Readout (28/40/68 then; 28/40 since [S-2220]) and fact rows laid out as the details are (`DetailFace`), a falling price or
   rate Critical (its delta and its line, [S-6707]); the forecast's days are Row blocks with a range
   `ChartBar`, its columns, curve and grid from tokens; rain's bars are `ChartBar` columns; the air
   quality's gauge is `ChartRing` half; the sun and the moon have the Header and their shared rows and
@@ -1375,7 +1393,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
   sentence); the user's own fields are bounded by it.
 - **[S-7031]** `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]) on the family's
-  rows ([S-6711], [S-6712]): every look is the Row block, one row of 32, 48 or 64 for one, two or
+  rows ([S-6711], [S-6712]): every look is the Row block, one row of 28, 40 or 56 for one, two or
   three lines, never taller for a long title (one line, ending in an ellipsis). The lines grow with
   the tile both ways (`RowRules.Lines`: one while the view's area is compact either way, two from
   regular, three from expanded), up to what the row has to say (the title; the subtitle with the badge
@@ -1393,7 +1411,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   `KitChoices.OneLine`). An item's tone colours its time (Caution, Critical) and its lead; the accent
   never colours a text, and no bar marks a row. Times are re-labelled without rebuilding a row.
 - **[S-7035]** `KitOverflow.Page`: pages of the rows that fit whole, never scrolled ([S-2709]): a
-  page is the plan's columns filled one after the other, each group's heading (one row of 32,
+  page is the plan's columns filled one after the other, each group's heading (one row of 28,
   BodyStrong secondary; a day's: "Today", "Tomorrow" with the date where the line holds it whole,
   else the date, [S-2716]; primary for the selected day, [S-3622]) over its first row and again over
   a column that starts mid-group; on a tile under 128px a first group that is today drops its
@@ -1407,7 +1425,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   calendar), the title as the name, the start as the value ("All day"; "Now" BodyStrong while under
   way), the span, where and who (or the item's note) on the second line where the plan gives two.
   Two columns from 720px; rows of two lines from regular both ways, one on a compact tile; headings
-  one row of 32. A view may hook its rows (`KitList.Decorate`: the calendar's links across widgets).
+  one row of 28. A view may hook its rows (`KitList.Decorate`: the calendar's links across widgets).
 - **[S-7037]** The `Check` look (Tasks' ladder, [S-780]..[S-784], as the kit's, `KitChecks`): a Row
   block per item, its lead the item's check (`KitLead.Check`: a 16 ring of stroke 2, secondary or
   the item's tone on a late one; the accent's filled circle with the tick when done; a click on it
@@ -1418,7 +1436,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   line from regular both ways, never with the compact style (`KitChoices.OneLine`). Rows of one
   height in one or two columns (two on a Huge-wide tile when one would not hold them), filled column
   by column, whole lines only, never ending on a heading; the bottom lines fade while there is more
-  below ([S-1281]); the done group under its heading (one row of 32, BodyStrong secondary) from
+  below ([S-1281]); the done group under its heading (one row of 28, BodyStrong secondary) from
   Expanded height. The keyboard's ring is the Row block's.
 - **[S-7038]** The check look's editing: a row renamed in place (the title's column becomes a box with
   the whole title; Enter or leaving it commits, Escape cancels, Tab commits and opens the next row's
@@ -1432,7 +1450,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7033]** Retired (G2, 2026-10-29): the inline actions a `Line` row showed under the pointer on
   a Huge-wide tile. A row is the Row block, a control is not one of its rungs ([S-666]); the menu
   and the keys carry every action.
-- **[S-7034]** The `Table` look: one row of 32 of the user's columns (`KitColumn`: title, subtitle,
+- **[S-7034]** The `Table` look: one row of 28 of the user's columns (`KitColumn`: title, subtitle,
   preview, time, badge) in the user's order, in the Row block's place for the name
   (`RowBlock.Cells`), 12 apart; title, time and badge have fixed widths, subtitle and preview share
   the rest; the most essential columns are kept while their minimums fit, the first always; from
@@ -3929,8 +3947,8 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   the content it heads (a chart, readings) it grows to the tier's step, by the tile's smaller size
   class: Title up to Regular, TitleLarge at Expanded, Display at Huge, fitted down where the width
   is short. No widget uses it any more (Stocks left it with group G3, `HeroLayout.TierStep` is gone):
-  the meters, the GPU, the detail widgets, the price and the rate are on the family's Readout ([S-6702]: 28 at XS and S, 40 at M, Wide and
-  Tall, 68 at L and XL, and no larger; [S-1762], [S-2402]). A formatted reading is split for a
+  the meters, the GPU, the detail widgets, the price and the rate are on the family's Readout ([S-6702]: 28 at XS to Tall, 40 at L and
+  XL, and no larger; [S-1762], [S-2402]). A formatted reading is split for a
   readout by `ReadoutRules.Split`: the leading figure (digits of any script, `.` `,` and the Arabic
   separators) and the unit after it with the space that stood between ("42" + "%", "1.2" + " MB/s");
   a text that does not start with a figure and a unit ("--", "%42", a direction mark, "1 234 ms")
@@ -4201,9 +4219,9 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 ## Tasks: using the whole tile, and the rest of the original
 
 - **[S-780]** Tasks ladder (the kit's check look, `KitChecks.Plan`, [S-7037], from the card's `WidgetArea`) on the family's
-  rows ([S-6711]): one task always; rows of 32, or of 48 with the list's name under Today from a
+  rows ([S-6711]): one task always; rows of 28, or of 40 with the list's name under Today from a
   regular tile ([S-789]), never taller for a long title (one line, the tooltip has it whole); the
-  add footer ([S-3850], one row of 32) from Regular height, and at any size under an empty list
+  add footer ([S-3850], one row of 28) from Regular height, and at any size under an empty list
   (never while a filter narrows the list, [S-611]); the list takes the rest (no summary strip,
   [S-783]). The header's list picker ([S-614]) is the kit header's button, folded by the header.
   The due is the row's value: none on an XS tile (both axes Compact), only Overdue/Today in a
@@ -4404,8 +4422,8 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   chart. No caption, detail lines, stat tiles, scale line, usage / composition bar, per-core strip
   or breakdown list. Why a reading is unavailable is its tooltip. The face is built from the family's
   blocks (`MeterView`, rules `MeterPlan`, tests `MeterPlanTests`): the reading is a Readout at the
-  view's top, start-aligned in the 16 inset, on the step its widest case takes in the area (28 at XS
-  and S, 40 at M, Wide and Tall, 68 at L and XL, [S-6702]); the history runs from 8 under it to the
+  view's top, start-aligned in the 12 inset, on the step its widest case takes in the area (28 at XS
+  to Tall, 40 at L and XL, [S-6702]); the history runs from 8 under it to the
   card's foot ([S-1824]), shown when it is at least 24 tall. A larger tile is a longer chart, never a
   bigger number ([S-666]); with Show history off the reading stands alone at its step. This is the
   **Graph** style; the other styles of a meter ([S-6300]) draw the same reading with another part
@@ -4503,7 +4521,7 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   the room is under 16 or a share under 8 (`MeterPlan.Columns`).
 - **[S-6304]** **Rows**: per item a fact row ([S-6711]: the label secondary, the value primary and
   end-aligned) whose inline meter (`ChartBar`) takes all the room between them, the label at most half
-  the content; whole 32 rows from 8 under the reading, the rest shed from the end (`MeterPlan.Rows`).
+  the content; whole 28 rows from 8 under the reading, the rest shed from the end (`MeterPlan.Rows`).
 - **[S-6305]** **Rings** (the Grid style): one Chart ring per item (stroke 2, its share in the item's
   role), in the grid of square cells 8 apart whose ring is largest in the room under the reading and
   holds every item (16 cores as 4 × 4 or 8 × 2 by the room); not drawn when a ring would be under 16
@@ -4541,7 +4559,7 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   its ring's room (the step is the largest Readout or Hero step above the name's Body line and at
   most 0.6 of the width, the icon the largest family glyph size within three quarters of it), the name
   under it at every size (cut with an ellipsis where it does not fit, whole in the tooltip), no state
-  line, in the card's inset of 16. The armed sentence and a failure take the name's line, so arming
+  line, in the card's inset of 12. The armed sentence and a failure take the name's line, so arming
   moves nothing. Room left at L and XL stays empty past the 192 step (concise first).
 - **[S-1913]** Shut down, restart, sign out and hibernate arm on the first click: the icon, a draining
   ring round it and the name's line turn critical, and the line becomes "Click again to shut down"
@@ -4750,7 +4768,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-2701]** The view reads its data through one seam, `ICalendarData.LoadAsync(config, first,
   last)`, for exactly the range its layout covers ([S-568]): the live one wraps the shared office
   source; the render's fixture is another ([S-2711]).
-- **[S-2702]** Month (`CalendarFit.Month`), inside the card's 16 inset: weekday header as names (≥64 px
+- **[S-2702]** Month (`CalendarFit.Month`), inside the card's 12 inset: weekday header as names (≥64 px
   columns), two-letter initials (≥22), one letter (≥10), dropped where it and every week's number line
   (a Caption line, never squeezed) do not fit; a box too short for every week shows the weeks that fit,
   today's among them (`FirstRow`); then cells of chips (40 wide, holding the 4 padding, the number and a
@@ -4820,7 +4838,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-1270]** Contacts list rows are Row blocks ([S-6711], `ContactsPlan.Of`): one, two or three
   lines by the tier ([S-6712], `RowRules.Lines` on the view's area): the name primary; then the role
   (else the address, else the number) secondary; then the address (else the number) tertiary. Every
-  row of a render is one height (32, 48, 64). Rows flow into columns of 240 px (up to 4), row-major;
+  row of a render is one height (28, 40, 56). Rows flow into columns of 240 px (up to 4), row-major;
   the 32 monogram leads from 180 px columns; the rows that fit whole in the view's area less the
   card's bottom inset and the search box show, the rest a scroll away under the fade ([S-1281]).
 - **[S-1271]** Compact rows are one line: the name and, from 240 px columns, the one field (address,
@@ -5614,7 +5632,7 @@ menu), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
 - [S-1200], [S-1201]: moved with the GPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gpu/`).
 - **[S-1207]** *(Retired: one adapter per widget, [S-433]; nothing shares the tile.)*
 - **[S-1210]** The ring's total stands in its hole on the family's Readout steps (`ScreenTimeRules.Figure`,
-  [S-6702]): the largest of 28, 40 and 68 (capped by the area as every data widget's number) whose line,
+  [S-6702]): the larger of 28 and 40 (capped by the area as every data widget's number) whose line,
   and the line under it where it fits, stands inside the hole as the rectangle the circle holds; when
   `4h 37m` fits on none, the compact form (`4.6h`, `13h` from ten hours, `37m`, `<1m`) on the largest
   that holds it, else in BodyStrong. Never clipped; the line under is cut to the hole's width.
@@ -5736,7 +5754,7 @@ strings in `Locales/widgets-details`.
   of its own and a stored `intervalSeconds` is not read.
 - **[S-2402]** The ladder (`DetailFace.Plan`, tests `DetailFaceTests`), on the family's blocks: the
   figure is a Readout at the view's top, start-aligned, its line under it (Caption under 28, Body under
-  40 and 68) where it fits, on the step its widest case takes (`DetailPart.HeroWorst`): 28, 40, 68 and
+  40 and 68) where it fits, on the step its widest case takes (`DetailPart.HeroWorst`): 28 or 40 and
   no larger ([S-6702]). On an expanded width (Wide, L, XL) the figure stands in a column of two fifths
   of the card and the rows beside it from the top; otherwise the rows start 8 under it. The rows are
   the facts first (fact rows, [S-3862]), then the list, only whole rows ([S-6712]); a tiny tile is the
@@ -6469,18 +6487,18 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
 - **[S-1234]** Stepping lands on the whole-percent grid and clamps (`AudioRules.Step`).
 - [S-2730]: moved with the Volume widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Volume/`).
 - **[S-2731]** The slider lies along the tile's foot: it is the Controls block's row at the bottom
-  inset on every shape ([S-6716]: the speaker a 32 icon button at its start, the rail the Track
+  inset on every shape ([S-6716]: the speaker a 28 icon button at its start, the rail the Track
   role, the value the accent), on the volume tile and the brightness tile alike. Growing a tile
   lengthens the slider and grows the level's Readout over it ([S-2150]); a column no longer stands
   it up (G5, 2026-10-29: the family has one Controls row, and `VolumeRules.Axis` is gone).
 - **[S-2150]** A level tile (volume, brightness) is a meter over its controls (owner decision
   2026-11-12, "the widgets come together"; `LevelFace.Plan`, tests `LevelFaceTests`): the level is
   a Readout at the view's top, start-aligned, on the step its widest case ("100%") takes in the room
-  the Controls row (32, and 8 over it) leaves, so it climbs 28 (S) → 40 (M, Wide, Tall) → 68 (L, XL)
+  the Controls row (28, and 8 over it) leaves, so it climbs 28 (S to Tall) or 40 (L, XL)
   exactly as CPU's reading; the step is chosen on the value alone, never lowered for a line under.
-  The controls come first: a card too short for the floor step's line over the row (XS) is the row
-  alone. The widget's own line under stands only where the step's line and it fit over the row (M,
-  Tall, L, XL; not S or Wide); else it gives way, never the value.
+  The controls come first: a card too short for the floor step's line over the row (shorter than XS)
+  is the row alone. The widget's own line under stands only where the step's line and it fit over the
+  row (S and larger; not XS); else it gives way, never the value.
 - **[S-2732]** The mouse wheel anywhere on the tile steps the level one arrow step (2 points) per
   notch (120); a touchpad's part-notches carry to the next event, turning back drops the carry
   (`AudioRules.Wheel`). Ignored when `AllowControl` is off; no keyboard lease needed.
@@ -7345,7 +7363,7 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   400 ms of the last is the same click (a double-click never flips back). When Windows answers, the
   source's reading stands. Space or Enter switch it while the widget holds the keyboard lease
   ([S-800]); a toggle that cannot be switched does not take the keyboard (`WantsKeys`).
-- **[S-3906]** The face is the Tile block ([S-6715]) in the card's inset of 16: the icon centred on the
+- **[S-3906]** The face is the Tile block ([S-6715]) in the card's inset of 12: the icon centred on the
   largest Readout or Hero step above the name (Body) and the state line ("On", "Off",
   "Unavailable", Caption) and at most 0.6 of the width, the name and the state at every size (cut
   with an ellipsis where they do not fit, whole in the tooltip). Both lines are planned whether or
@@ -7416,7 +7434,7 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   button** (`round`, [S-3917]) and **Switch** ([S-3918]), the Tile block's three looks. Every style is
   drawn over the same whole-tile hit target, so the click gate ([S-3905]), Space/Enter under the
   lease, edit mode, the tooltip and "never a header" ([S-3901]) are the same in each; only the
-  drawing differs. Every style (and the power widgets') insets by the card's 16 at every size
+  drawing differs. Every style (and the power widgets') insets by the card's 12 at every size
   ([S-6703]).
 - **[S-3917]** Round button (the Tile block's round look, which the power widgets' Round style
   shares, [S-1919]): a circle of the Tile's step holding the icon at the largest family glyph size
@@ -7454,7 +7472,7 @@ strings in `Locales/panels/`; tests `WindowsPanelsTests`, the module host's `Win
   and dismisses through the listener; Themia, a Store app, reads only through the listener, so a toast's
   buttons and reply box are not offered — a double-click opens its app instead ([S-4406]).
 - **[S-4402]** Grouped by app as Windows 11's center, from an expanded height ([S-4404]): a heading per
-  app (one row of 32: its icon and its name, BodyStrong secondary), the apps in the order of their
+  app (one row of 28: its icon and its name, BodyStrong secondary), the apps in the order of their
   newest, each app's newest first (two of one moment: the higher id first), its rows leading with an
   empty slot so every title stands at one edge. A group of more than three shows its newest three and a
   "See more (n)" row (secondary, a row of the list's own, never a link); "See fewer" folds it again;
@@ -9421,7 +9439,7 @@ config, its page, setup and sync); the SDK's rules it is drawn by stay here. Tes
   whole day); a click opens it as a calendar's does ([S-1268]). Under today only: the open tasks due
   today or overdue, oldest first ([S-596]), led by a 16 ring of stroke 2 (critical when overdue);
   the ring ticks the task off through the service ([S-597]), inert in a preview and in edit mode.
-- **[S-5323]** Whole rows only (`Columns`, `Stack`): a day shows its heading (one row of 32,
+- **[S-5323]** Whole rows only (`Columns`, `Stack`): a day shows its heading (one row of 28,
   BodyStrong: "Today" primary, "Tomorrow", then the short date secondary; never the accent) and as
   many rows as fit; when it has more, the last row says "+N" (secondary), except in a single row,
   which shows the day's first item. An empty today says "Nothing planned"; stacked, later days with

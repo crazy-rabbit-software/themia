@@ -35,7 +35,7 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   (tiles of 80/110/150) since the family's rows and cells decide their size ([S-6704], [S-6713]; group G6 2026-10-29).
 - **[S-1323]** Ladder (`FolderLayout.Plan`, on the family's blocks): one row (or one row of cells) always; an open
   search box (a 32 text box at the side inset, 8 over the items); the details column titles (a Caption line and 8, as
-  the kit's table, [S-7034]); at Expanded x Expanded the path as a row of 32 (tail first, clickable: the folders above
+  the kit's table, [S-7034]); at Expanded x Expanded the path as a row of 28 (tail first, clickable: the folders above
   in Body secondary, the shown one primary, 16 chevrons tertiary, 4 apart); no status footer ("24 items · 2 selected",
   retired [S-666]). Rows are the Row block's one line of 32 at every tier ([S-6711], [S-6712]): the file's own 16 icon
   as the lead, the name primary; List's one value is the date modified (secondary) from a width of 180, Details puts

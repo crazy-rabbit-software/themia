@@ -13,7 +13,7 @@ public readonly record struct BluetoothRowPlan(int Columns, int Lines, int Visib
 
 /// <summary>
 /// [S-1254] The Bluetooth list's ladder on the family's rows ([S-6711], [S-6712]): every row a Row
-/// block, 32 tall, 48 with its second line where the tier gives rows two; as many whole rows as the
+/// block, 28 tall, 40 with its second line where the tier gives rows two; as many whole rows as the
 /// view's area less the card's bottom inset holds (the device count is a ceiling, not a target); the
 /// battery percentage the row's value from a 180 column; two columns at the Huge width when one
 /// cannot hold the list. A short list on a large tile stays a short list.

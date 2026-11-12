@@ -150,7 +150,7 @@ public sealed class FolderKindsTests
     [Fact]
     public void S4121_the_list_never_has_a_column_header_and_details_always_tries_one()
     {
-        var area = new WidgetArea(800, 516);
+        var area = new WidgetArea(800, 524);
 
         Assert.False(FolderLayout.Plan(area, new FolderConfig(), 20, true, false, false, false).ColumnHeader);
         Assert.True(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, true, false, false, false).ColumnHeader);

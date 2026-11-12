@@ -96,8 +96,8 @@ internal sealed partial class VideoStreamView
         Grid.SetColumn(_controls, 1);
         row.Children.Add(_controls);
 
-        // [S-1314] Over the picture: the solid role with a hairline edge, the one radius, a row of 32 at
-        // least (42 with the buttons), 8 in from the picture's edges.
+        // [S-1314] Over the picture: the solid role with a hairline edge, the one radius, a row of 28 at
+        // least (38 with the buttons), 8 in from the picture's edges.
         var strip = new Border
         {
             Child = row,

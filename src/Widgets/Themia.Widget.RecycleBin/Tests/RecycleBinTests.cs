@@ -44,14 +44,14 @@ public sealed class RecycleBinTests
     [Fact]
     public void S4862_the_size_climbs_its_steps_the_count_comes_under_it_and_empty_where_the_controls_fit()
     {
-        // The view's area: the card less its header (44 of a card's height).
-        static RecycleBinPlan At(double width, double cardHeight) => RecycleBinLayout.Plan(new WidgetArea(width, cardHeight - 44));
+        // The view's area: the card less its header (36 of a card's height).
+        static RecycleBinPlan At(double width, double cardHeight) => RecycleBinLayout.Plan(new WidgetArea(width, cardHeight - FamilySpace.ContentTop));
 
         Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: false), At(120, 120));
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: false), At(200, 150));
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big40, Count: true, Button: true), At(320, 240));
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: true), At(200, 150));
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: true), At(320, 240));
         Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: true), At(480, 160));
-        Assert.Equal(new RecycleBinPlan(FamilyType.Big68, Count: true, Button: true), At(800, 560));
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big40, Count: true, Button: true), At(800, 560));
         Assert.False(RecycleBinLayout.Plan(default).Button);
     }
 }

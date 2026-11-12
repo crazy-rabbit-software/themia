@@ -94,8 +94,8 @@ public static class WordClock
     });
 
     /// <summary>
-    /// [S-6024] The largest family step (Body, Title, then the Readout's 28, 40 and 68: a sentence, never a Hero
-    /// step) at which <paramref name="sample"/>, wrapped at words, fits the box with the line under it when the
+    /// [S-6024] The largest family step (Body, Title, the Readout's 28 and 40, then the first Hero step, 68: a
+    /// sentence, never past it) at which <paramref name="sample"/>, wrapped at words, fits the box with the line under it when the
     /// face has one (<see cref="FamilyType.Under"/>). Never below Body. A script without spaces (Chinese,
     /// Japanese, Thai) wraps anywhere, as the text block does.
     /// </summary>
@@ -132,7 +132,7 @@ public static class WordClock
     }
 
     /// <summary>[S-6024] The steps the sentence may take, smallest first.</summary>
-    public static IReadOnlyList<TypeStep> Steps => [FamilyType.Body, FamilyType.Title, .. FamilyType.Big];
+    public static IReadOnlyList<TypeStep> Steps => [FamilyType.Body, FamilyType.Title, .. FamilyType.Big, FamilyType.Hero68];
 
     /// <summary>[S-6024] How many lines <paramref name="text"/> wraps to at <paramref name="step"/> in <paramref name="width"/>.</summary>
     public static int Lines(string text, double width, TypeStep step)

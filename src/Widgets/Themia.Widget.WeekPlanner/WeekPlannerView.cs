@@ -429,7 +429,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     }
 
     /// <summary>
-    /// [S-5323] A day: its heading (one row of 32, BodyStrong; primary for today, secondary for the rest,
+    /// [S-5323] A day: its heading (one row of 28, BodyStrong; primary for today, secondary for the rest,
     /// never the accent), its events, then its tasks, then "+3" when the day has more than fit.
     /// </summary>
     private void DrawDay(StackPanel stack, PlannerDay day, PlannerSlot slot, DateOnly today, TimeZoneInfo zone, bool showColors, bool times)

@@ -11,7 +11,7 @@ namespace Themia.App.Shell.Gallery;
 /// [S-6732] Debug only: the blocks' variants over fixed sample data, the same the mockups draw
 /// (TestResults/family/mockups/blocks.py, <c>VARIANTS</c>): each a function of the card's size.
 /// The layout around the blocks is the family's: the header in the header inset, the content from
-/// 44 (16 without a header), rows full width with their own inset, everything else inside the inset.
+/// 36 (12 without a header), rows full width with their own inset, everything else inside the inset.
 /// </summary>
 internal static class FamilyBlockSamples
 {

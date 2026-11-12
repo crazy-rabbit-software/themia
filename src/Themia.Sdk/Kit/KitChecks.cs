@@ -28,7 +28,7 @@ public static class KitChecks
     /// the area is compact either way, of two (the subtitle, a list's name, under the title) where the
     /// spec offers it and the area is regular both ways, never more; the due as the row's value, only
     /// when urgent on a compact width and in its long words from expanded both ways; the add row, one
-    /// row of 32, where a regular height has room for it after the first row (always on an empty
+    /// row of 28, where a regular height has room for it after the first row (always on an empty
     /// writable list); two columns on a Huge-wide tile when one would not hold the list; the done
     /// group's heading from an expanded height.
     /// </summary>

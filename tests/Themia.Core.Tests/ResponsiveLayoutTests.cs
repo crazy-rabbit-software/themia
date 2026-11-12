@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -8,8 +9,8 @@ namespace Themia.Core.Tests;
 /// <summary>[S-660..S-665] The shared responsive-layout foundation: size classes, the disclosure ladder, whole rows.</summary>
 public class ResponsiveLayoutTests
 {
-    /// <summary>The card's header takes about this much of the tier cards' heights.</summary>
-    private const double Header = 44;
+    /// <summary>The card's header takes this much of the tier cards' heights: the content top.</summary>
+    private const double Header = FamilySpace.ContentTop;
 
     [Theory]
     [InlineData(120, 120, SizeClass.Compact, SizeClass.Compact)]    // XS
@@ -60,10 +61,10 @@ public class ResponsiveLayoutTests
     }
 
     [Theory]
-    [InlineData(480, 116, AreaShape.Wide)]
-    [InlineData(200, 356, AreaShape.Tall)]
-    [InlineData(320, 196, AreaShape.Square)]
-    [InlineData(560, 376, AreaShape.Square)]
+    [InlineData(480, 124, AreaShape.Wide)]
+    [InlineData(200, 364, AreaShape.Tall)]
+    [InlineData(320, 204, AreaShape.Square)]
+    [InlineData(560, 384, AreaShape.Square)]
     public void S660_shape_follows_the_proportion(double width, double height, AreaShape shape)
         => Assert.Equal(shape, new WidgetArea(width, height).Shape);
 

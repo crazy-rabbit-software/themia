@@ -15,16 +15,16 @@ public class GalleryLayoutTests
 {
     private const double Gap = 4;
 
-    /// <summary>The seven size tiers, less a 44-DIP header: the slots the view is given.</summary>
+    /// <summary>The seven size tiers, less a 36 header: the slots the view is given.</summary>
     public static TheoryData<string, double, double> Tiers => new()
     {
-        { "XS", 120, 76 },
-        { "S", 200, 106 },
-        { "M", 320, 196 },
-        { "Wide", 480, 116 },
-        { "Tall", 200, 356 },
-        { "L", 560, 376 },
-        { "XL", 800, 516 },
+        { "XS", 120, 84 },
+        { "S", 200, 114 },
+        { "M", 320, 204 },
+        { "Wide", 480, 124 },
+        { "Tall", 200, 364 },
+        { "L", 560, 384 },
+        { "XL", 800, 524 },
     };
 
     // -----------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ public class GalleryLayoutTests
     {
         for (var seed = 0; seed < 20; seed++)
         {
-            var prints = GalleryArrangement.Scatter(800, 516, 20, seed);
+            var prints = GalleryArrangement.Scatter(800, 524, 20, seed);
 
             Assert.Contains(prints, p => p.CenterX < 200 && p.CenterY < 129);
             Assert.Contains(prints, p => p.CenterX > 600 && p.CenterY < 129);
@@ -70,9 +70,9 @@ public class GalleryLayoutTests
     [Fact]
     public void S764_scatter_is_reproducible_from_its_seed_and_varies_between_seeds()
     {
-        var first = GalleryArrangement.Scatter(320, 196, 5, 42);
-        var again = GalleryArrangement.Scatter(320, 196, 5, 42);
-        var other = GalleryArrangement.Scatter(320, 196, 5, 43);
+        var first = GalleryArrangement.Scatter(320, 204, 5, 42);
+        var again = GalleryArrangement.Scatter(320, 204, 5, 42);
+        var other = GalleryArrangement.Scatter(320, 204, 5, 43);
 
         Assert.Equal(first, again);
         Assert.NotEqual(first, other);
@@ -81,9 +81,9 @@ public class GalleryLayoutTests
     [Fact]
     public void S764_print_size_follows_the_room_each_print_has_not_the_card_width()
     {
-        // A wide strip: the original's 45%-of-width print would be 216 DIPs on a 116-DIP strip.
-        var prints = GalleryArrangement.Scatter(480, 116, 4, 9);
-        Assert.All(prints, print => Assert.True(print.Side <= 116 * 0.9 + 0.001));
+        // A wide strip: the original's 45%-of-width print would be 216 DIPs on a 124-DIP strip.
+        var prints = GalleryArrangement.Scatter(480, 124, 4, 9);
+        Assert.All(prints, print => Assert.True(print.Side <= 124 * 0.9 + 0.001));
     }
 
     [Theory]
@@ -137,35 +137,35 @@ public class GalleryLayoutTests
     {
         for (var seed = 0; seed < 50; seed++)
         {
-            var cells = GalleryArrangement.Mosaic(480, 116, 2, seed);
+            var cells = GalleryArrangement.Mosaic(480, 124, 2, seed);
 
             // Wide: the cut is vertical, so both cells keep the full height.
-            Assert.All(cells, cell => Assert.Equal(116, cell.Height, 3));
+            Assert.All(cells, cell => Assert.Equal(124, cell.Height, 3));
             Assert.InRange(cells[0].Width / 480, GalleryArrangement.MinSplit - 0.0001, GalleryArrangement.MaxSplit + 0.0001);
         }
     }
 
     [Fact]
     public void S765_mosaic_is_reproducible_from_its_seed()
-        => Assert.Equal(GalleryArrangement.Mosaic(320, 196, 6, 5), GalleryArrangement.Mosaic(320, 196, 6, 5));
+        => Assert.Equal(GalleryArrangement.Mosaic(320, 204, 6, 5), GalleryArrangement.Mosaic(320, 204, 6, 5));
 
     // -----------------------------------------------------------------------------------------
     // [S-766] grid
     // -----------------------------------------------------------------------------------------
 
     [Theory]
-    [InlineData(320, 196, 6, 3, 2)]
-    [InlineData(480, 116, 4, 4, 1)]
-    [InlineData(200, 356, 6, 2, 3)]
-    [InlineData(800, 516, 24, 6, 4)]
+    [InlineData(320, 204, 6, 3, 2)]
+    [InlineData(480, 124, 4, 4, 1)]
+    [InlineData(200, 364, 6, 2, 3)]
+    [InlineData(800, 524, 24, 6, 4)]
     public void S766_grid_shape_keeps_tiles_close_to_square(double width, double height, int count, int columns, int rows)
         => Assert.Equal((columns, rows), GalleryArrangement.GridShape(width, height, count, Gap));
 
     [Fact]
     public void S766_grid_capacity_grows_with_the_card_and_stops_at_the_cap()
     {
-        Assert.Equal(1, GalleryArrangement.GridCapacity(120, 76, Gap));
-        Assert.Equal(6, GalleryArrangement.GridCapacity(320, 196, Gap));
+        Assert.Equal(1, GalleryArrangement.GridCapacity(120, 84, Gap));
+        Assert.Equal(6, GalleryArrangement.GridCapacity(320, 204, Gap));
         Assert.Equal(GalleryArrangement.MaxTiles, GalleryArrangement.GridCapacity(4000, 4000, Gap));
     }
 
@@ -192,7 +192,7 @@ public class GalleryLayoutTests
     [Fact]
     public void S767_xs_is_one_picture_with_nothing_on_it_whatever_the_layout()
     {
-        var xs = new WidgetArea(120, 76);
+        var xs = new WidgetArea(120, 84);
 
         foreach (var layout in Enum.GetValues<GalleryStyle>())
         {
@@ -210,7 +210,7 @@ public class GalleryLayoutTests
         // every size, a wide strip and a tall column included.
         GalleryPlan At(double w, double h) => GalleryPlan.For(new WidgetArea(w, h), GalleryStyle.Slideshow, false, 24, Gap);
 
-        var s = At(200, 106);
+        var s = At(200, 114);
         Assert.True(s.Counter && s.Controls);
 
         foreach (var (w, h) in new[] { (480.0, 116.0), (200.0, 356.0), (560.0, 376.0), (800.0, 516.0) })
@@ -246,9 +246,9 @@ public class GalleryLayoutTests
     {
         foreach (var layout in new[] { GalleryStyle.Grid, GalleryStyle.Scatter, GalleryStyle.Mosaic })
         {
-            var m = GalleryPlan.For(new WidgetArea(320, 196), layout, false, 24, Gap).Pictures;
-            var l = GalleryPlan.For(new WidgetArea(560, 376), layout, false, 24, Gap).Pictures;
-            var xl = GalleryPlan.For(new WidgetArea(800, 516), layout, false, 24, Gap).Pictures;
+            var m = GalleryPlan.For(new WidgetArea(320, 204), layout, false, 24, Gap).Pictures;
+            var l = GalleryPlan.For(new WidgetArea(560, 384), layout, false, 24, Gap).Pictures;
+            var xl = GalleryPlan.For(new WidgetArea(800, 524), layout, false, 24, Gap).Pictures;
 
             Assert.True(m > 1, $"{layout} M");
             Assert.True(l > m, $"{layout} L");
@@ -258,7 +258,7 @@ public class GalleryLayoutTests
 
     [Fact]
     public void S767_a_layout_never_asks_for_more_pictures_than_the_scan_found()
-        => Assert.Equal(3, GalleryPlan.For(new WidgetArea(800, 516), GalleryStyle.Grid, false, 3, Gap).Pictures);
+        => Assert.Equal(3, GalleryPlan.For(new WidgetArea(800, 524), GalleryStyle.Grid, false, 3, Gap).Pictures);
 
     // -----------------------------------------------------------------------------------------
     // [S-760] [S-1620] config

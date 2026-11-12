@@ -19,12 +19,12 @@ public sealed class FamilyBlockRulesTests
     [Theory]
     [InlineData("XS", 28)]
     [InlineData("S", 28)]
-    [InlineData("M", 40)]
-    [InlineData("Wide", 40)]
-    [InlineData("Tall", 40)]
-    [InlineData("L", 68)]
-    [InlineData("XL", 68)]
-    public void S6702_a_data_widgets_number_climbs_28_40_68_and_stops(string tier, double expected)
+    [InlineData("M", 28)]
+    [InlineData("Wide", 28)]
+    [InlineData("Tall", 28)]
+    [InlineData("L", 40)]
+    [InlineData("XL", 40)]
+    public void S2220_a_data_widgets_number_is_28_and_40_from_expanded_both_ways(string tier, double expected)
     {
         var (area, width, height) = Under(tier);
 
@@ -170,17 +170,33 @@ public sealed class FamilyBlockRulesTests
     [Fact]
     public void S6712_only_whole_rows_fit()
     {
-        Assert.Equal(5, RowRules.Fit(180, 1));
-        Assert.Equal(6, RowRules.Fit(192, 1));
-        Assert.Equal(3, RowRules.Fit(180, 2));
+        Assert.Equal(6, RowRules.Fit(180, 1));
+        Assert.Equal(7, RowRules.Fit(196, 1));
+        Assert.Equal(4, RowRules.Fit(180, 2));
+        Assert.Equal(3, RowRules.Fit(180, 3));
         Assert.Equal(0, RowRules.Fit(double.NaN, 1));
+    }
+
+    [Theory]
+    [InlineData(120)]
+    [InlineData(320)]
+    [InlineData(560)]
+    [InlineData(800)]
+    public void S2220_a_grids_marks_start_4_inside_the_inset_and_end_within_the_card(double card)
+    {
+        // The marks stand 4 around the cells: from the card's edge they start at the inset less 4, and
+        // the last one ends no further in from the other edge, so no cell is cut by the card.
+        Assert.Equal(FamilySpace.Inset - FamilySpace.S1, RowRules.CellMarkEdge);
+        var grid = RowRules.Cells(card - (2 * FamilySpace.Inset), 400, FamilyShape.IconLarge, named: true);
+        var marks = (grid.Columns * grid.MarkWidth) + ((grid.Columns - 1) * FamilySpace.S1);
+        Assert.True(RowRules.CellMarkEdge + marks <= card - RowRules.CellMarkEdge + 0.01, $"{card}: {marks}");
     }
 
     [Fact]
     public void S6713_a_cell_is_its_icon_over_a_caption()
     {
-        Assert.Equal(32, RowRules.CellIcon(new WidgetArea(320, 196)));
-        Assert.Equal(48, RowRules.CellIcon(new WidgetArea(560, 376)));
+        Assert.Equal(32, RowRules.CellIcon(new WidgetArea(320, 204)));
+        Assert.Equal(48, RowRules.CellIcon(new WidgetArea(560, 384)));
         Assert.Equal(32 + 4 + 16, RowRules.CellHeight(32, named: true));
         Assert.Equal(48, RowRules.CellHeight(48, named: false));
     }

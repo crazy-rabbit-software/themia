@@ -17,7 +17,7 @@ public readonly record struct FolderHeaderPlan(bool Back, bool Up, bool Search, 
 }
 
 /// <summary>[S-1323] One layout pass of the folder widget: what the body and the header show at this size.</summary>
-/// <param name="Breadcrumb">The path as a row of 32 above the items (L and XL).</param>
+/// <param name="Breadcrumb">The path as a row of 28 above the items (L and XL).</param>
 /// <param name="SearchBox">The open search box above the items.</param>
 /// <param name="ColumnHeader">The details table's column titles.</param>
 /// <param name="Columns">The details table's columns after Name that fit.</param>
@@ -35,7 +35,7 @@ public sealed record FolderPlan(
 
 /// <summary>
 /// [S-1323] The folder widget's ladder, a pure function of the slot and the settings, on the family's
-/// blocks ([S-6711], [S-6713]): rows of 32 (one line, the file's own 16 icon as the lead) or a grid of
+/// blocks ([S-6711], [S-6713]): rows of 28 (one line, the file's own 16 icon as the lead) or a grid of
 /// cells (32, 48 from an expanded width). <list type="bullet">
 /// <item>Must show: one row (or one row of cells).</item>
 /// <item>The search box when it is open (it was asked for).</item>
@@ -115,7 +115,7 @@ public static class FolderLayout
         => Math.Max(0, area.Height - FamilySpace.Inset
             - (search ? SearchHeight : 0) - (header ? ColumnHeaderHeight : 0) - (breadcrumb ? BreadcrumbHeight : 0));
 
-    /// <summary>[S-6712] The whole rows of 32 in <paramref name="height"/>, at least one.</summary>
+    /// <summary>[S-6712] The whole rows of 28 in <paramref name="height"/>, at least one.</summary>
     public static int Rows(double height) => Math.Max(1, RowRules.Fit(height, 1));
 
     /// <summary>

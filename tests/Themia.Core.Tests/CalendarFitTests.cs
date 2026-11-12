@@ -9,7 +9,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// The calendar's layouts fitted to their boxes ([S-2700]..[S-2710]), the Outlook hand-off
-/// ([S-1268]), at the size tiers' slots (card less a ~44 px header).
+/// ([S-1268]), at the size tiers' slots (card less a 36 header).
 /// </summary>
 public sealed class CalendarFitTests
 {
@@ -130,11 +130,11 @@ public sealed class CalendarFitTests
     // ---- [S-2704] week -----------------------------------------------------------------------------
 
     [Theory]
-    [InlineData(800, 516, true, false, WeekdayLabel.Short)]
-    [InlineData(560, 376, false, true, WeekdayLabel.Short)]    // 80 a column: marks, no hour grid
-    [InlineData(320, 196, false, true, WeekdayLabel.Initials)]
-    [InlineData(200, 356, false, true, WeekdayLabel.Initials)]
-    [InlineData(120, 76, false, true, WeekdayLabel.Narrow)]
+    [InlineData(800, 524, true, false, WeekdayLabel.Short)]
+    [InlineData(560, 384, false, true, WeekdayLabel.Short)]    // 80 a column: marks, no hour grid
+    [InlineData(320, 204, false, true, WeekdayLabel.Initials)]
+    [InlineData(200, 364, false, true, WeekdayLabel.Initials)]
+    [InlineData(120, 84, false, true, WeekdayLabel.Narrow)]
     [InlineData(40, 76, false, true, WeekdayLabel.Narrow)]  // never without its day
     public void S2704_AWeekIsAnHourGridOnALargeTileElseColumns(double width, double height, bool timeline, bool marks, WeekdayLabel weekdays)
     {
@@ -263,13 +263,13 @@ public sealed class CalendarFitTests
     // ---- [S-2707] year -----------------------------------------------------------------------------
 
     [Theory]
-    [InlineData(800, 516, 12, 4, 3, true, true)]   // XL
-    [InlineData(560, 376, 12, 4, 3, true, false)]  // L
-    [InlineData(320, 196, 12, 4, 3, false, false)] // M: squares
-    [InlineData(480, 116, 12, 6, 2, false, false)] // Wide
-    [InlineData(200, 356, 12, 3, 4, false, false)] // Tall
-    [InlineData(200, 106, 6, 3, 2, false, false)]  // S: half a year
-    [InlineData(120, 76, 3, 3, 1, false, false)]   // XS: three months
+    [InlineData(800, 524, 12, 4, 3, true, true)]   // XL
+    [InlineData(560, 384, 12, 4, 3, true, false)]  // L
+    [InlineData(320, 204, 12, 4, 3, false, false)] // M: squares
+    [InlineData(480, 124, 12, 6, 2, false, false)] // Wide
+    [InlineData(200, 364, 12, 3, 4, false, false)] // Tall
+    [InlineData(200, 114, 6, 3, 2, false, false)]  // S: half a year
+    [InlineData(120, 84, 3, 3, 1, false, false)]   // XS: three months
     public void S2707_AYearReflowsByShapeAndShowsFewerMonthsWhenTiny(double width, double height, int months, int columns, int rows, bool numbers, bool weekdays)
     {
         var fit = CalendarFit.Year(width, height, gap: 8);

@@ -35,10 +35,11 @@ module host's `MusicHostTests`.
   content's width, in the one radius (no picture: today's placeholder, the music glyph on the control
   fill, 32); 12 from it a column with the title and the artist at its top
   and the progress row and the transport (Play the one accent action) at its bottom, by the ladder
-  above. Where that column would be narrower than the whole transport (112: three 32 buttons 8
+  above. Where that column would be narrower than the whole transport (100: three 28 buttons 8
   apart) the cover gives way first, a smaller square, never the controls; a square that would be
-  under the family's 48 is not drawn and the compact ladder above stands (XS, S and Tall at their
-  tier sizes; M 144, Wide 100, L 264, XL 384). At L and XL the square is half the width and the
+  under the family's 48 is not drawn and the compact ladder above stands, and one under the least
+  over square (96) gives way to the square over the lines where the height is expanded (XS at its
+  tier size; S 64, M 148, Wide 112, L 268, XL 388; Tall the square over the lines, 176). At L and XL the square is half the width and the
   room under it, beside the column's foot, stays empty ([S-666]). The Cover and Text styles keep
   their ladders.
 - **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,

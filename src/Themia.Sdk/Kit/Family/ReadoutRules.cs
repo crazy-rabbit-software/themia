@@ -18,12 +18,10 @@ public readonly record struct ReadoutFold(bool Unit, bool DeltaBeside);
 /// [S-6702] The Readout's step: the largest step whose line (and the line under it) fits the box and
 /// whose value, unit and lead fit its width, never below Big 28.
 /// <para>
-/// A data widget's number climbs 28 → 40 → 68 with the tile and stops there: its ceiling is 28 while
-/// the area is compact both ways or regular one way only (XS, S), 40 from regular both ways or
-/// expanded one way (M, Wide, Tall), 68 once it is expanded both ways (L, XL). Room left at L and XL
-/// goes to more of the widget's own content, never a bigger number ([S-666], concise first). A
-/// one-readout widget is its readout, so it climbs the Hero steps (96, 136, 192) as far as they fit,
-/// on fixed steps, never filling the box.
+/// [S-2220] A data widget's number has two sizes: 28, and 40 once the area is expanded both ways (L,
+/// XL); never 68. Room left goes to more of the widget's own content, never a bigger number ([S-666],
+/// concise first). A one-readout widget is its readout, so it climbs the Big steps and then the Hero
+/// steps (68, 96, 136, 192) as far as they fit, on fixed steps, never filling the box.
 /// </para>
 /// <para>
 /// Widths come from <see cref="HeroFit.Ems"/>, the advances of Segoe UI Variable by glyph class, so a
@@ -71,18 +69,11 @@ public static class ReadoutRules
     }
 
     /// <summary>
-    /// [S-6702] The largest base step a data widget's number may take in <paramref name="area"/>: 28,
-    /// 40 or 68 by the area's classes (their sum: 0 or 1 is 28, from 2 it is 40, expanded both ways 68).
+    /// [S-6702] [S-2220] The largest base step a data widget's number may take in <paramref name="area"/>:
+    /// 40 once it is expanded both ways (L, XL), 28 at every other size.
     /// </summary>
     public static double Ceiling(WidgetArea area)
-    {
-        if (area.AtLeast(SizeClass.Expanded, SizeClass.Expanded))
-        {
-            return 68;
-        }
-
-        return (int)area.WidthClass + (int)area.HeightClass >= 2 ? 40 : 28;
-    }
+        => area.AtLeast(SizeClass.Expanded, SizeClass.Expanded) ? FamilyType.BigCap : FamilyType.BaseOf(FamilyType.Big28);
 
     /// <summary>How wide the readout is on <paramref name="step"/>: the lead glyph and its gap, the value, the unit at its step.</summary>
     public static double Width(TypeStep step, ReadoutText text)

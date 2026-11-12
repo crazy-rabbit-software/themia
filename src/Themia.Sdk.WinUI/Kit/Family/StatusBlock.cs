@@ -5,7 +5,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-6714] The Status block (empty, problem, set up): one row of 32 where the content's first row
+/// [S-6714] The Status block (empty, problem, set up): one row of 28 where the content's first row
 /// would be — [state glyph 16] 8 [one sentence, Body, secondary, ellipsis, its whole text in the
 /// tooltip] 12 [its one action]. A set-up's action is the accent main action; Try again and Open
 /// Accounts are standard buttons. Too narrow for both, the sentence goes and the glyph and action

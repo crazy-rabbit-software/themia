@@ -1,6 +1,7 @@
 using Themia.Core.Habits;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.HabitTracker.Tests;
@@ -18,10 +19,10 @@ public sealed class Polish1Tests
     {
         foreach (var count in new[] { 1, 2, 3, 6, 12 })
         {
-            var plan = Habits(320, 196, count);
-            var used = (plan.AddRow ? 32 : 0) + (plan.Rows * plan.RowHeight);
+            var plan = Habits(320, 204, count);
+            var used = (plan.AddRow ? FamilyShape.Row1 : 0) + (plan.Rows * plan.RowHeight);
 
-            Assert.True(used <= 196 - 16 + Disclosure.Tolerance, $"{count} habits use {used}");
+            Assert.True(used <= 204 - FamilySpace.Inset + Disclosure.Tolerance, $"{count} habits use {used}");
         }
     }
 }

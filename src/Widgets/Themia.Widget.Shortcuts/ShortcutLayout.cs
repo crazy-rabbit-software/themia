@@ -18,7 +18,7 @@ public readonly record struct ShortcutRowPlan(
     bool KindColumn,
     bool ColumnHeader)
 {
-    /// <summary>One row: 32, 48 or 64 by its lines.</summary>
+    /// <summary>One row: 28, 40 or 56 by its lines.</summary>
     public double RowHeight => FamilyShape.RowHeight(Lines);
 }
 

@@ -9,17 +9,17 @@ namespace Themia.Widget.Countdown.Tests;
 /// <summary>
 /// [S-1447] [S-1448] [S-6031] [S-6032] The countdown's ladder, progress, ring and flip cards. Moved
 /// with the widget from Core's TrackersLayoutTests and TimeStylesTests, unchanged in what they
-/// assert (the tiers' slots are the card less a 44px header).
+/// assert (the tiers' slots are the card less a 36 header).
 /// </summary>
 public sealed class CountdownLayoutTests
 {
-    private static readonly WidgetArea XS = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea XL = new(800, 516);
+    private static readonly WidgetArea XS = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea XL = new(800, 524);
 
     private static readonly DateTimeOffset Now = new(2026, 10, 4, 12, 0, 0, TimeSpan.FromHours(2));
 
@@ -122,7 +122,7 @@ public sealed class CountdownLayoutTests
     {
         var m = CountdownLayout.Plan(CountdownStyle.Ring, M, "3d 5h", [], progress: true);
         Assert.Equal(CountdownLook.Ring, m.Look);
-        Assert.Equal(180, m.Ring);
+        Assert.Equal(192, m.Ring);
         Assert.Equal(FamilyType.Big40, m.Step);
 
         var xl = CountdownLayout.Plan(CountdownStyle.Ring, XL, "3d 5h", [], progress: true);

@@ -117,13 +117,13 @@ public sealed class AirQualityTests
         Assert.Equal(0, small.Facts);
         Assert.True(small.Under, "the band under the index");
         Assert.False(medium.Side);
-        Assert.Equal(3, medium.Facts);
+        Assert.Equal(4, medium.Facts);
         Assert.Equal(7, tall.Facts);
         Assert.True(wide.Side);
-        Assert.Equal(3, wide.Facts);
+        Assert.Equal(4, wide.Facts);
         Assert.True(xl.Side);
         Assert.Equal(7, xl.Facts);
-        Assert.Equal(FamilyType.Big68, xl.Hero);
+        Assert.Equal(FamilyType.Big40, xl.Hero);
     }
 
     [Theory]
@@ -145,19 +145,19 @@ public sealed class AirQualityTests
             var (width, height) = MeterPlan.Content(tier);
             Assert.True(plan.Diameter >= MeterPlan.GaugeFloor, $"{tier}: a gauge at every tier");
             Assert.True(plan.Part <= height + 0.01, $"{tier}: the gauge and its band fit");
-            Assert.True(plan.Diameter <= (plan.Side ? plan.Column - 16 : width), $"{tier}: the gauge fits its box");
+            Assert.True(plan.Diameter <= (plan.Side ? plan.Column - FamilySpace.Inset : width), $"{tier}: the gauge fits its box");
         }
 
         var small = AirLayout.Gauge(S, 7);
-        Assert.Equal(146, small.Diameter);
+        Assert.Equal(170, small.Diameter);
         Assert.Equal(0, small.Facts);
         var tall = AirLayout.Gauge(Tall, 7);
-        Assert.Equal(168, tall.Diameter);
+        Assert.Equal(176, tall.Diameter);
         Assert.Equal(7, tall.Facts);
         var wide = AirLayout.Gauge(Wide, 7);
         Assert.True(wide.Side);
-        Assert.Equal(3, wide.Facts);
-        Assert.Equal(FamilyType.Big68, AirLayout.Gauge(Xl, 7).Reading);
+        Assert.Equal(4, wide.Facts);
+        Assert.Equal(FamilyType.Big40, AirLayout.Gauge(Xl, 7).Reading);
     }
 
     [Fact]

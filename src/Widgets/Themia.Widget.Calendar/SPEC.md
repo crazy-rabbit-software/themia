@@ -36,7 +36,7 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   the page with it); Left, Right, Page Up and Page Down page, Home goes to today, Escape lets the
   cursor and the selected day go. The other styles keep their click and Enter ([S-2710]).
 - **[S-3653]** The calendar is drawn from the family's tokens only (G2, 2026-10-29): every grid inside
-  the card's 16 inset, Caption and Body texts at their own lines, today's accent pill or disc, the
+  the card's 12 inset, Caption and Body texts at their own lines, today's accent pill or disc, the
   marks as 2 px bars, 4 dots or fills in the calendar's data colour (`Family.Data`), the accent never
   on a text, the one radius, spacings and paddings on the 4 scale; the states are the kit's state row
   (a problem's warning, the Accounts button); with no account the Set up row says "Add an account to

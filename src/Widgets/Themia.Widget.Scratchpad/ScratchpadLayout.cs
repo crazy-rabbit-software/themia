@@ -12,7 +12,7 @@ public readonly record struct InkBarPlan(bool Bar, bool Nibs);
 /// either way (the pad is the widget); the six inks and the eraser from a Regular × Regular tile
 /// whose width holds them inside the card's inset; the three nibs between them when the width holds all. Nothing more on a larger tile.
 /// <para>
-/// The bar is a row of 32 tools on the card's bottom inset ([S-6716]): the inks side by side, then
+/// The bar is a row of 28 tools on the card's bottom inset ([S-6716]): the inks side by side, then
 /// 8, the nibs side by side, then 8, the eraser.
 /// </para>
 /// </summary>

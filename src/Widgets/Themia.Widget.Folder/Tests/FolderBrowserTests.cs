@@ -196,16 +196,16 @@ public sealed class FolderBrowserTests
     }
 
     [Theory]
-    [InlineData(76, 1)]    // XS: 60 for the items, one row
-    [InlineData(196, 5)]   // M: 180, five whole rows
-    [InlineData(516, 15)]  // XL: 500
-    public void S1323_rows_are_the_row_block_s_one_line_of_32_and_only_whole_ones_show(double height, int rows)
+    [InlineData(84, 2)]    // XS: 72 for the items, two rows
+    [InlineData(204, 6)]   // M: 192, six whole rows
+    [InlineData(524, 18)]  // XL: 512
+    public void S1323_rows_are_the_row_block_s_one_line_of_28_and_only_whole_ones_show(double height, int rows)
     {
         var area = new WidgetArea(320, height);
         var plan = FolderLayout.Plan(area, new FolderConfig(), 40, true, false, false, false);
 
         Assert.Null(plan.Grid);
-        Assert.Equal(32, FolderLayout.RowHeight);
+        Assert.Equal(28, FolderLayout.RowHeight);
         Assert.Equal(rows, FolderLayout.Rows(FolderLayout.ItemsHeight(area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb)));
     }
 
@@ -248,10 +248,10 @@ public sealed class FolderBrowserTests
     {
         var config = new FolderConfig { Style = FolderStyle.Details };
 
-        var small = FolderLayout.Plan(new WidgetArea(200, 106), config, 20, true, searchOpen: false, navigate: true, hasGit: false);
+        var small = FolderLayout.Plan(new WidgetArea(200, 114), config, 20, true, searchOpen: false, navigate: true, hasGit: false);
         Assert.False(small.Breadcrumb);
 
-        var big = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, true, false, true, false);
+        var big = FolderLayout.Plan(new WidgetArea(800, 524), config, 20, true, false, true, false);
         Assert.True(big.Breadcrumb);
         Assert.True(big.ColumnHeader);
         Assert.Equal(config.Columns, big.Columns);
@@ -260,7 +260,7 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S1323_a_big_tile_has_a_breadcrumb_and_no_column_header_outside_details()
     {
-        var plan = FolderLayout.Plan(new WidgetArea(800, 516), new FolderConfig { Style = FolderStyle.Grid }, 6, true, false, true, false);
+        var plan = FolderLayout.Plan(new WidgetArea(800, 524), new FolderConfig { Style = FolderStyle.Grid }, 6, true, false, true, false);
 
         Assert.True(plan.Breadcrumb);
         Assert.False(plan.ColumnHeader);

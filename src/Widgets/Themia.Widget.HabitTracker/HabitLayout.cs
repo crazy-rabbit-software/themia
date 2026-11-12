@@ -16,7 +16,7 @@ public readonly record struct HabitLayoutInput(int Count, bool Writable, bool Sh
 /// add row never disagree.
 /// </summary>
 /// <param name="Lines">[S-6712] The lines each row shows (1 to 3): the name; the rate; the best run.</param>
-/// <param name="RowHeight">The rows' pitch, by their lines (32, 48 or 64).</param>
+/// <param name="RowHeight">The rows' pitch, by their lines (28, 40 or 56).</param>
 /// <param name="Rows">Rows the viewport shows whole; the rest scroll.</param>
 /// <param name="AddRow">The "Add a habit" footer pinned under the list ([S-3850]).</param>
 /// <param name="Streak">The current run as each row's value.</param>

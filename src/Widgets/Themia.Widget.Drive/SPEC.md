@@ -30,7 +30,7 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
 - **[S-4675]** *(Retired in G6: a new Drive card starts with its header like every data widget,
   DECISIONS 7; the body no longer names the drive.)*
 - **[S-4672]** The ladder (`DriveFace.Bar`): the share on the step its widest case ("100%") takes in
-  the box less the bar (28 at XS and S, 40 at M, Wide and Tall, 68 at L and XL); its line under where
+  the box less the bar (28 at XS to Tall, 40 at L and XL); its line under where
   it fits with the bar; on an expanded width (Wide, L, XL) the figure in a column of two fifths of the
   card and the facts beside it from the top, else the facts 8 under the bar; whole rows only, room
   left empty ([S-666]). The four figures' tile and the 8 DIP bar of a large tile are gone.

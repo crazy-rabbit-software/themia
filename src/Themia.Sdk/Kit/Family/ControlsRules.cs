@@ -3,13 +3,13 @@ namespace Themia.Sdk.Kit;
 /// <summary>[S-6716] What a control in a Controls row is.</summary>
 public enum ControlKind
 {
-    /// <summary>The one main action (Start, Play, Join, Empty): a text button, or a 32 icon button (Play), in the accent.</summary>
+    /// <summary>The one main action (Start, Play, Join, Empty): a text button, or a 28 icon button (Play), in the accent.</summary>
     Main,
 
     /// <summary>A standard text button.</summary>
     Button,
 
-    /// <summary>A 32 × 32 icon button with a 16 glyph (transport, steppers).</summary>
+    /// <summary>A 28 × 28 icon button with a 16 glyph (transport, steppers).</summary>
     Icon,
 
     /// <summary>A slider: the rail is the track (4, in Track), the value in the accent; it takes the room left.</summary>
@@ -24,8 +24,8 @@ public readonly record struct ControlPart(ControlKind Kind, double Width);
 
 /// <summary>
 /// [S-6716] The Controls block: what a person does to a widget, not what it shows. One row of
-/// buttons (32 tall, 8 apart) at the card's bottom inset, never mid-content: at most one main action
-/// in the accent (a text button, or a 32 icon button such as Play), the rest standard buttons and 32
+/// buttons (28 tall, 8 apart) at the card's bottom inset, never mid-content: at most one main action
+/// in the accent (a text button, or a 28 icon button such as Play), the rest standard buttons and 28
 /// icon buttons, an optional slider that takes the room left and an optional on/off switch. On a
 /// narrow card the icon buttons give way from the last, then the standard buttons, then the slider;
 /// the main action and the switch stay.

@@ -1,5 +1,6 @@
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 using static Themia.Core.Tests.StyleTiers;
 
@@ -75,7 +76,8 @@ public sealed class ForecastCurveTests
     [Fact]
     public void S6164_the_curve_shows_the_days_that_have_a_column_and_never_invents_one()
     {
-        Assert.Equal(1, ForecastCurve.Plan(Xs, 7, true).Days);
+        Assert.Equal(2, ForecastCurve.Plan(Xs, 7, true).Days);
+        Assert.Equal(1, ForecastCurve.Plan(new WidgetArea(100, 84), 7, true).Days);
         Assert.Equal(7, ForecastCurve.Plan(Xl, 7, true).Days);
         Assert.Equal(3, ForecastCurve.Plan(Xl, 3, true).Days);
         Assert.Equal(7, ForecastCurve.Plan(new WidgetArea(400, 300), 14, true).Days);
@@ -94,7 +96,7 @@ public sealed class ForecastCurveTests
         Assert.False(dry.Precipitation);
 
         // The chart takes what the rungs leave: the day's line, the glyph, the chart and the rain, 4 apart, fill the content.
-        var content = L.Height - 16;
+        var content = L.Height - FamilySpace.Inset;
         var used = 20 + 4 + 16 + 4 + large.ChartHeight + 4 + 16;
         Assert.Equal(content, used, 6);
 

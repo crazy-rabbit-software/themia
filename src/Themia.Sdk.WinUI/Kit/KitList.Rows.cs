@@ -133,7 +133,7 @@ public sealed partial class KitList
     // ---- the table ([S-7034]) -------------------------------------------------------------------
 
     /// <summary>
-    /// [S-7034] A table row: one row of 32 in the Row block's tokens — the lead, then the user's
+    /// [S-7034] A table row: one row of 28 in the Row block's tokens — the lead, then the user's
     /// columns 12 apart at the widths the plan gave them, the title primary (BodyStrong when
     /// emphasised), the rest secondary, the time end-aligned in its tone. The keyboard's ring is a Row
     /// block's (a table row is one with its cells in the name's place, RowBlock.Cells).

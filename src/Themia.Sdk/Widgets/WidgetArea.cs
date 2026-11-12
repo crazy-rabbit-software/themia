@@ -42,7 +42,7 @@ public enum AreaShape
 /// Width and height are judged separately on purpose: a 480×160 strip and a 200×400 column have
 /// about the same area and want opposite things, so a single "small / medium / large" would get
 /// one of them wrong. The breakpoints are chosen so the seven size tiers (<see cref="WidgetTiers"/>) land in seven distinct
-/// pairs (content area = card less the header, about 44 DIPs):
+/// pairs (content area = card less the header, 36 DIPs: [S-6703]):
 /// </para>
 /// <code>
 ///   XS   120×120 → Compact  × Compact      Tall 200×400 → Regular  × Expanded

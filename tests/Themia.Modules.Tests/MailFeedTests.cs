@@ -468,7 +468,7 @@ public class MailLayoutTests
     {
         var config = new EmailConfig();
 
-        var large = Plan(config, 560, 376);
+        var large = Plan(config, 560, 384);
         Assert.True(large.Subtitle && large.Badges && large.When && large.Preview);
 
         // [S-2270] No envelope leads a row at any size: the sender starts at the inset.
@@ -476,19 +476,19 @@ public class MailLayoutTests
         Assert.Equal(3, large.Lines);
 
         // Narrow: the account tag goes, the subject stays.
-        var tall = Plan(config, 200, 356);
+        var tall = Plan(config, 200, 364);
         Assert.False(tall.Badges);
         Assert.True(tall.Subtitle);
         Assert.False(tall.Preview);
 
         // Short: the sender and the time.
-        Assert.Equal(1, Plan(config, 480, 116).Lines);
-        Assert.False(Plan(config, 120, 76).When);
+        Assert.Equal(1, Plan(config, 480, 124).Lines);
+        Assert.False(Plan(config, 120, 84).When);
 
         // Compact view never previews: the sender and the subject.
         config.Style = EmailStyle.Compact;
-        Assert.Equal(2, Plan(config, 560, 376).Lines);
-        Assert.False(Plan(config, 560, 376).Preview);
+        Assert.Equal(2, Plan(config, 560, 384).Lines);
+        Assert.False(Plan(config, 560, 384).Preview);
     }
 
     [Fact]

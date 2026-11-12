@@ -18,7 +18,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// Built on the family's Row block ([S-6711]): the device's kind glyph (16) as the lead, the name
 /// primary, the battery percentage as the value, and a second line (kind · connection · signal) where
-/// the tier gives rows two ([S-6712]). The row carries the 16 inset as its own padding, so the
+/// the tier gives rows two ([S-6712]). The row carries the 12 inset as its own padding, so the
 /// highlight under the pointer reaches both card edges.
 /// </para>
 /// <para>

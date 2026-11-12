@@ -90,15 +90,19 @@ public static class MusicFace
                 size = band;
             }
         }
-        else if (style == MusicStyle.Artwork && Side(area, width, height) is var side && side >= FamilyShape.IconHuge)
-        {
-            art = MusicArt.Side;
-            size = side;
-        }
         else if (style == MusicStyle.Artwork)
         {
+            // [S-2155] A side cover under the least over square gives way to the over square where the
+            // height holds one (a tall column): the art is never smaller than the room allows.
+            var side = Side(area, width, height);
             var square = Math.Floor(Math.Min(width, rest - FamilySpace.S2));
-            if (area.HeightClass >= SizeClass.Expanded && square >= OverFloor)
+            var over = area.HeightClass >= SizeClass.Expanded && square >= OverFloor;
+            if (side >= FamilyShape.IconHuge && !(over && side < OverFloor))
+            {
+                art = MusicArt.Side;
+                size = side;
+            }
+            else if (over)
             {
                 art = MusicArt.Over;
                 size = square;
@@ -115,7 +119,7 @@ public static class MusicFace
 
     /// <summary>
     /// [S-2155] The column beside a side cover is never narrower than the whole transport (Previous,
-    /// Play, Next: three 32 buttons 8 apart), so the cover gives way before the controls do.
+    /// Play, Next: three 28 buttons 8 apart), so the cover gives way before the controls do.
     /// </summary>
     public const double ColumnFloor = (3 * FamilyShape.IconButton) + (2 * ControlsRules.Gap);
 

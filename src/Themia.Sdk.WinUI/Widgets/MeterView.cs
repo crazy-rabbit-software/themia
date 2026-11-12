@@ -23,8 +23,8 @@ namespace Themia.App.Widgets;
 /// history are the system hub's ([S-2500], [S-2504]), so a meter built again shows the history its
 /// series already has. Where the parts go at each size is <see cref="MeterPlan"/>'s.
 /// <para>
-/// [S-1762] The reading stands at the top, start-aligned, on the step its widest case takes (28, 40,
-/// 68 and no larger); the history runs under it to the card's foot, edge to edge ([S-1824]), and grows
+/// [S-1762] The reading stands at the top, start-aligned, on the step its widest case takes (28, or 40
+/// once expanded both ways, and no larger); the history runs under it to the card's foot, edge to edge ([S-1824]), and grows
 /// with the tile, so a large tile is a longer chart, never a bigger number.
 /// </para>
 /// </summary>

@@ -21,20 +21,20 @@ public sealed class MoonTests
     public void S3105_the_lit_share_is_a_readout_on_the_areas_step_and_never_a_bigger_moon()
     {
         Assert.Equal(28, Plan(200, 150).Face.Hero.FontSize);
-        Assert.Equal(40, Plan(320, 240).Face.Hero.FontSize);
-        Assert.Equal(68, Plan(800, 560).Face.Hero.FontSize);
+        Assert.Equal(28, Plan(320, 240).Face.Hero.FontSize);
+        Assert.Equal(40, Plan(800, 560).Face.Hero.FontSize);
 
-        // The moon leads the readout at its step: never larger than the family's 68.
+        // The moon leads the readout at its step: never larger than a data widget's 40.
         foreach (var tier in WidgetTiers.All)
         {
-            Assert.InRange(Plan(tier.Width, tier.Height).Face.Hero.FontSize, 28, 68);
+            Assert.InRange(Plan(tier.Width, tier.Height).Face.Hero.FontSize, 28, 40);
         }
     }
 
     [Fact]
     public void S3105_the_moon_gives_way_before_the_figure_where_the_readout_is_too_narrow_for_both()
     {
-        // 120 wide: "100%" at 28 and the moon beside it want 97, the content has 88.
+        // 120 wide: "100%" at 28 and the moon beside it want 97, the content has 96.
         var tiny = Plan(120, 120);
         Assert.False(tiny.Disc);
         Assert.Equal(28, tiny.Face.Hero.FontSize);
@@ -50,7 +50,7 @@ public sealed class MoonTests
         var medium = Plan(320, 240);
         Assert.False(medium.Face.Side);
         Assert.Equal(2, medium.Face.ListLines);
-        Assert.Equal(2, medium.Face.ListRows);
+        Assert.Equal(3, medium.Face.ListRows);
 
         var tall = Plan(200, 400);
         Assert.Equal(MoonLayout.Ladder.Count, tall.Face.ListRows);

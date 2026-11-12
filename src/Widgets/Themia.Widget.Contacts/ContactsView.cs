@@ -647,7 +647,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     }
 
     /// <summary>
-    /// [S-582] The details table: one row of 32 per person, the chosen columns in the name's place 12
+    /// [S-582] The details table: one row of 28 per person, the chosen columns in the name's place 12
     /// apart (the name primary, the rest secondary), their titles in Caption over them.
     /// </summary>
     private void DrawDetails(IReadOnlyList<Contact> contacts, ContactsLayoutPlan plan)

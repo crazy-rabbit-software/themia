@@ -18,7 +18,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-4440] [S-2152] The display brightness as a meter you can set: the slider is the Controls block's at
 /// the card's bottom inset ([S-6716]: its rail the Track role, its value the accent), and over it the level
-/// is a Readout where a meter's stands, climbing 28, 40, 68 as CPU's does ([S-2150], <see cref="LevelFace"/>).
+/// is a Readout where a meter's stands, on 28, or 40 once expanded both ways, as CPU's does ([S-2150], <see cref="LevelFace"/>).
 /// No display names; the sun is the header's glyph.
 /// <para>
 /// [S-4442] It sets every display whose brightness can be set, together, or with "Only the screen it's

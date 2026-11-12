@@ -119,16 +119,16 @@ public sealed class RssTests
 
     // ---- [S-1305] the ladder -----------------------------------------------------------------
 
-    // The size tiers as content slots (the card less a 44px header).
+    // The size tiers as content slots (the card less a 36 header).
     public static TheoryData<string, double, double> Tiers => new()
     {
-        { "XS", 120, 76 },
-        { "S", 200, 106 },
-        { "M", 320, 196 },
-        { "Wide", 480, 116 },
-        { "Tall", 200, 356 },
-        { "L", 560, 376 },
-        { "XL", 800, 516 },
+        { "XS", 120, 84 },
+        { "S", 200, 114 },
+        { "M", 320, 204 },
+        { "Wide", 480, 124 },
+        { "Tall", 200, 364 },
+        { "L", 560, 384 },
+        { "XL", 800, 524 },
     };
 
     [Theory]
@@ -144,7 +144,7 @@ public sealed class RssTests
     [Fact]
     public void S1305_TheSmallestTileShowsTheHeadlineAlone()
     {
-        var plan = KitLadder.Plan(new WidgetArea(120, 76), RssSpec.Spec, RssSpec.Shows(true, true, true));
+        var plan = KitLadder.Plan(new WidgetArea(120, 84), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
         Assert.Equal(1, plan.Columns);
         Assert.Equal(1, plan.Lines);
@@ -156,7 +156,7 @@ public sealed class RssTests
     [Fact]
     public void S1305_AStripIsOneLineAColumnOfHeadlinesAndTheirTimes()
     {
-        var wide = KitLadder.Plan(new WidgetArea(480, 116), RssSpec.Spec, RssSpec.Shows(true, true, true));
+        var wide = KitLadder.Plan(new WidgetArea(480, 124), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
         Assert.Equal(1, wide.Columns);
         Assert.Equal(1, wide.Lines);
@@ -180,8 +180,8 @@ public sealed class RssTests
     {
         // The feed is its headlines at every size: L and XL add the summary line and, where two
         // columns each keep 320, a second column, never a list beside a pane reading one item.
-        var large = KitLadder.Plan(new WidgetArea(560, 376), RssSpec.Spec, RssSpec.Shows(true, true, true));
-        var xl = KitLadder.Plan(new WidgetArea(800, 516), RssSpec.Spec, RssSpec.Shows(true, true, true));
+        var large = KitLadder.Plan(new WidgetArea(560, 384), RssSpec.Spec, RssSpec.Shows(true, true, true));
+        var xl = KitLadder.Plan(new WidgetArea(800, 524), RssSpec.Spec, RssSpec.Shows(true, true, true));
 
         Assert.Equal(1, large.Columns);
         Assert.True(large.Preview);
@@ -201,7 +201,7 @@ public sealed class RssTests
     [Fact]
     public void S1305_SwitchedOffFieldsStayOff()
     {
-        var plan = KitLadder.Plan(new WidgetArea(560, 376), RssSpec.Spec, RssSpec.Shows(false, false, false));
+        var plan = KitLadder.Plan(new WidgetArea(560, 384), RssSpec.Spec, RssSpec.Shows(false, false, false));
 
         Assert.False(plan.Lead);
         Assert.False(plan.Subtitle);

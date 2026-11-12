@@ -1,9 +1,9 @@
 namespace Themia.Sdk.Kit;
 
 /// <summary>
-/// [S-6703] The family's space: one 4-based scale, 4 · 8 · 12 · 16 · 24, and the insets every widget
-/// shares, which are sums of it. A card is inset 16 on every side at every tier; the header is one
-/// 20 line at 16, then 8 down to the content, so the content starts at 44; a glyph is 8 from its
+/// [S-6703] [S-2220] The family's space: one 4-based scale, 4 · 8 · 12 · 16 · 24, and the insets every
+/// widget shares, which are sums of it. A card is inset 12 on every side at every tier; the header is
+/// one 20 line at 12, then 4 down to the content, so the content starts at 36; a glyph is 8 from its
 /// text, a name 12 from its value (and a column from the next).
 /// <para>
 /// Today's views drew with 37 paddings and 416 margins; most were a token plus or minus a few pixels
@@ -27,13 +27,13 @@ public static class FamilySpace
     public static IReadOnlyList<double> Scale { get; } = [0, S1, S2, S3, S4, S6];
 
     /// <summary>The card's edge to its content, every side, every tier.</summary>
-    public const double Inset = S4;
+    public const double Inset = S3;
 
     /// <summary>The header's one line (BodyStrong).</summary>
     public const double HeaderLine = 20;
 
     /// <summary>From the header's line down to the content.</summary>
-    public const double HeaderGap = S2;
+    public const double HeaderGap = S1;
 
     /// <summary>The content's top under a header: inset, the header's line, the gap.</summary>
     public const double ContentTop = Inset + HeaderLine + HeaderGap;
@@ -88,25 +88,25 @@ public static class FamilySpace
 }
 
 /// <summary>
-/// [S-6704] The family's shapes and part sizes: rows 32 · 48 · 64 (one, two, three lines) at every
-/// tier; icons 16 (header, rows, status, inline), 32 (an avatar, an app or file icon, a cell) and 48
-/// (a large cell); one radius, 4, for every inner rectangle, a pill, dot, ring or track being round
+/// [S-6704] [S-2220] The family's shapes and part sizes: rows 28 · 40 · 56 (one, two, three lines) at
+/// every tier, so one Body line has 4 over and under it and two or three lines 2; icons 16 (header,
+/// rows, status, inline), 32 (an avatar, an app or file icon, a cell) and 48 (a large cell); one radius, 4, for every inner rectangle, a pill, dot, ring or track being round
 /// (half its short side); one stroke, 2 (chart lines, rings), a 16 % wash under a chart line; one
 /// track, 4 (a meter's bar, a range, a slider's rail); a hairline 1. Buttons: <see cref="Button"/>
-/// 32 tall with 12 either side, <see cref="IconButton"/> 32 × 32 in the content,
+/// 28 tall (a one-line row's height) with 12 either side, <see cref="IconButton"/> 28 × 28 in the content,
 /// <see cref="HeaderButton"/> 24 × 24 in the header, each with a 16 glyph. The card's own radius is
 /// the design's setting, not a token.
 /// </summary>
 public static class FamilyShape
 {
-    /// <summary>A row of one line.</summary>
-    public const double Row1 = 32;
+    /// <summary>A row of one line: a Body line with 4 over and under it.</summary>
+    public const double Row1 = 28;
 
-    /// <summary>A row of two lines (a Caption under the name).</summary>
-    public const double Row2 = 48;
+    /// <summary>A row of two lines (a Caption under the name), 2 over and under them.</summary>
+    public const double Row2 = 40;
 
-    /// <summary>A row of three lines.</summary>
-    public const double Row3 = 64;
+    /// <summary>A row of three lines (two Captions under the name), 2 over and under them.</summary>
+    public const double Row3 = 56;
 
     /// <summary>The glyph in a header, a row, a status and inline.</summary>
     public const double Icon = 16;
@@ -138,14 +138,14 @@ public static class FamilyShape
     /// <summary>The alpha of the wash under a chart line, on the shape, never on the shared brush.</summary>
     public const double Wash = 0.16;
 
-    /// <summary>A text button's height (Body text, 12 either side).</summary>
-    public const double Button = 32;
+    /// <summary>A text button's height (Body text, 12 either side): a one-line row's.</summary>
+    public const double Button = Row1;
 
     /// <summary>A text button's side padding.</summary>
     public const double ButtonPadding = 12;
 
-    /// <summary>An icon button in the content (transport, steppers): square.</summary>
-    public const double IconButton = 32;
+    /// <summary>An icon button in the content (transport, steppers): square, a one-line row's height.</summary>
+    public const double IconButton = Row1;
 
     /// <summary>An icon button in the header's trailing slot: square, as tall as fits the header's line.</summary>
     public const double HeaderButton = 24;

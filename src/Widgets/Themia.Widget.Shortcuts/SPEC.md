@@ -53,7 +53,7 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   shared guarded `FaviconCache` (no third-party service). The kind's glyph at the icon's own size shows
   until the icon arrives and stays when there is none. List and details rows are the Row block
   ([S-6711], [S-6712], `ShortcutLayout.Rows`): one line of 32 with a 16 icon while the tile is compact either
-  way; the list's rows two lines of 48 with a 32 icon from a regular tile (the name, the target under it: the
+  way; the list's rows two lines of 40 with a 32 icon from a regular tile (the name, the target under it: the
   site, the folder it is in, or "Windows location"); the details table one line; a list in two columns where
   each keeps 320 (XL). Only whole rows show.
 - **[S-1384]** Details view: the table on the Row block (`RowBlock.Cells`, Body: the name primary, the rest

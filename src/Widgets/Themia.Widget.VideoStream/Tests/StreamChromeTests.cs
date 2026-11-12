@@ -8,14 +8,14 @@ namespace Themia.Widget.VideoStream.Tests;
 /// <summary>[S-1312]/[S-1313] The camera's optional chrome: which parts show at which size, and their words. Moved with the widget from Core's StreamChromeTests, unchanged.</summary>
 public sealed class StreamChromeTests
 {
-    // The size tiers, as the card's slot (card less a ~44 DIP header).
-    private static readonly WidgetArea Xs = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea Xl = new(800, 516);
+    // The size tiers, as the card's slot (card less a 36 header).
+    private static readonly WidgetArea Xs = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea Xl = new(800, 524);
 
     [Fact]
     public void S1312_nothing_but_the_picture_on_the_small_tiles_and_a_wide_strip()

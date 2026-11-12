@@ -54,12 +54,12 @@ public sealed class KitPagesTests
     private static readonly KitSpec Schedule = new(KitRowLook.Schedule, KitShow.None, () => string.Empty, () => string.Empty, Overflow: KitOverflow.Page);
 
     [Theory]
-    [InlineData(120, 76, 1, 1)]
-    [InlineData(320, 196, 1, 2)]
-    [InlineData(480, 116, 1, 1)]
-    [InlineData(560, 376, 1, 2)]
-    [InlineData(800, 516, 2, 2)]
-    [InlineData(200, 356, 1, 2)]
+    [InlineData(120, 84, 1, 1)]
+    [InlineData(320, 204, 1, 2)]
+    [InlineData(480, 124, 1, 1)]
+    [InlineData(560, 384, 1, 2)]
+    [InlineData(800, 524, 2, 2)]
+    [InlineData(200, 364, 1, 2)]
     public void S7036_the_schedule_plan_follows_the_width_and_the_tier(double width, double height, int columns, int lines)
     {
         var plan = KitLadder.Plan(new WidgetArea(width, height), Schedule, KitShow.None);

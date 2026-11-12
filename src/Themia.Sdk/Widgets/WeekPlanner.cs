@@ -35,7 +35,7 @@ public static class WeekPlannerRules
 
     /// <summary>
     /// [S-5321] A day's column at its narrowest, full width (its rows carry the card's side inset): a
-    /// title and its time on one row of 32 ([S-6711]).
+    /// title and its time on one row of 28 ([S-6711]).
     /// </summary>
     public const double MinColumn = 240;
 

@@ -115,7 +115,7 @@ internal sealed partial class FolderView
             _header.Want(part, false);
         }
 
-        // [S-1323] The path: a row of 32 at the side inset.
+        // [S-1323] The path: a row of 28 at the side inset.
         _crumbs = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S1, VerticalAlignment = VerticalAlignment.Center };
         _crumbHost = new Border
         {
@@ -248,11 +248,11 @@ internal sealed partial class FolderView
         _columnHeader.Visibility = plan.ColumnHeader ? Visibility.Visible : Visibility.Collapsed;
 
         // [S-6712] [S-6713] As tall as its whole rows (or rows of cells): never a part of one at its foot.
-        // A cell's mark stands 4 around it, so the grid starts 4 over the items' top and 12 in from the edge.
+        // A cell's mark stands 4 around it, so the grid starts 4 over the items' top and 4 inside the inset.
         var height = FolderLayout.ItemsHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb);
         if (plan.Grid is { } grid)
         {
-            _scroll.Padding = new Thickness(FamilySpace.S3, 0, FamilySpace.S3, 0);
+            _scroll.Padding = new Thickness(RowRules.CellMarkEdge, 0, RowRules.CellMarkEdge, 0);
             _scroll.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
             _scroll.Height = Math.Max(1, grid.Rows) * grid.PitchY;
         }

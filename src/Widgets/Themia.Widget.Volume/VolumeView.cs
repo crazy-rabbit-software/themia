@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-2151] [S-2731] The slider with its speaker (mute) button at the start is the Controls block's
 /// row at the card's bottom inset at every size ([S-6716]); over it the level is a Readout where a
-/// meter's stands, climbing 28, 40, 68 as CPU's does, with the device's name as its line under where
+/// meter's stands, on 28, or 40 once expanded both ways, as CPU's does, with the device's name as its line under where
 /// that fits ([S-2150], <see cref="LevelFace"/>). Muted, the Readout is drawn in the disabled role.
 /// </para>
 /// </summary>

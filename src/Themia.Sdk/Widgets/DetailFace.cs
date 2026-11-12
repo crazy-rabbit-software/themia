@@ -17,7 +17,7 @@ public readonly record struct DetailShape(ReadoutText? Hero, int Facts, int List
 /// <param name="RowsTop">Where the rows start in the view: 8 under the figure, or at its top.</param>
 /// <param name="Facts">How many fact rows are shown (the first ones).</param>
 /// <param name="ListRows">How many list rows are shown at a time (whole rows; the list scrolls for the rest).</param>
-/// <param name="ListLines">How many lines each list row shows (its pitch follows: 32, 48, 64).</param>
+/// <param name="ListLines">How many lines each list row shows (its pitch follows: 28, 40, 56).</param>
 public readonly record struct DetailFacePlan(bool Side, TypeStep Hero, bool Under, double HeroColumn, double RowsTop, int Facts, int ListRows, int ListLines)
 {
     public bool List => ListRows > 0;
@@ -31,7 +31,7 @@ public readonly record struct DetailFacePlan(bool Side, TypeStep Hero, bool Unde
 /// [S-6711], [S-6712]). A detail widget is a main figure (the speed, the memory in use, the charge)
 /// with a line under it saying what it is of, facts in priority order and, for some, a list
 /// (processes, adapters). The figure is a Readout at the view's top, start-aligned, on the step its
-/// widest case takes: 28, 40, 68 by the area and no larger ([S-666]). The facts are fact rows (the
+/// widest case takes: 28, or 40 once expanded both ways, and no larger ([S-666]). The facts are fact rows (the
 /// value primary, the name secondary), one line, 32 each; the list's rows show one, two or three
 /// lines by the tier. Only whole rows are shown, facts first, then the list.
 /// <list type="bullet">

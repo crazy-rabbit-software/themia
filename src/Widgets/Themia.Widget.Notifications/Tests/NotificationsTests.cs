@@ -14,12 +14,12 @@ namespace Themia.Widget.Notifications.Tests;
 public sealed class NotificationsTests
 {
     [Theory]
-    [InlineData(120, 76, 1, false, false)]   // XS: the titles alone
-    [InlineData(200, 106, 1, true, false)]   // S: icon, title, when
-    [InlineData(480, 116, 1, true, false)]   // Wide
-    [InlineData(320, 196, 2, true, false)]   // M: the body under the title
-    [InlineData(200, 356, 2, true, true)]    // Tall: under app headings
-    [InlineData(560, 376, 2, true, true)]    // L
+    [InlineData(120, 84, 1, false, false)]   // XS: the titles alone
+    [InlineData(200, 114, 1, true, false)]   // S: icon, title, when
+    [InlineData(480, 124, 1, true, false)]   // Wide
+    [InlineData(320, 204, 2, true, false)]   // M: the body under the title
+    [InlineData(200, 364, 2, true, true)]    // Tall: under app headings
+    [InlineData(560, 384, 2, true, true)]    // L
     public void S4404_the_ladder_rows_then_the_body_then_app_headings(double width, double height, int lines, bool wide, bool grouped)
     {
         var plan = NotificationsLayout.Plan(new WidgetArea(width, height));

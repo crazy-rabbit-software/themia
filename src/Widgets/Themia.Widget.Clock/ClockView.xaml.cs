@@ -19,7 +19,7 @@ namespace Themia.App.Widgets;
 /// The clock, a one-readout widget on the family's steps ([S-6737]). Subscribes to the shared
 /// <see cref="Ticker"/> at the cadence it actually draws, and unsubscribes when it leaves the tree.
 /// <para>
-/// [S-6011] Seven styles, each one block in the card's inset of 16, centred top to bottom and placed by the
+/// [S-6011] Seven styles, each one block in the card's inset of 12, centred top to bottom and placed by the
 /// widget's alignment ([S-6581]), on the largest fixed step that fits, never filling the box
 /// (<see cref="ClockFace"/>): the Readout block for the digital, stacked and minimal faces ([S-6741]) and the
 /// date style's day ([S-6744]); the sentence on the Body to 68 steps for the words ([S-6024]); split-flap cards
@@ -174,7 +174,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         Lay();
     }
 
-    /// <summary>The content box: the card less its inset of 16 on every side.</summary>
+    /// <summary>The content box: the card less its inset of 12 on every side.</summary>
     private (double Width, double Height) ContentBox()
         => (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - (2 * FamilySpace.Inset)));
 

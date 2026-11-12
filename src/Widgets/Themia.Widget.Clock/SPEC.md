@@ -31,7 +31,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-6011]** The clock's styles ([S-6000]), `ClockConfig.Style` (`ClockStyle`, stored as
   `"style": "digital"`; what was its face): **Digital**, **Analog**, **Stacked** ([S-1483]),
   **Flip**, **Words**, **Minimal** and **Date** ([S-5300]), in that order. Every style is one block in
-  the card's inset of 16 (the clock has no header), centred top to bottom and placed by the
+  the card's inset of 12 (the clock has no header), centred top to bottom and placed by the
   alignment, on the largest fixed family step that fits, never filling the box ([S-6741]..[S-6744]);
   every style but Minimal and Date draws one line under (beside a dial on a strip) its face
   ([S-6741]). The settings (seconds, date, zone, offset, alignment) are the same for the six time
@@ -74,13 +74,13 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   that does not exist) is never shown half-filled: that sentence is English, logged. Every
   language's strings are whole and fill all 288 steps of a day with no marker left (tested over all
   thirty).
-- **[S-6024]** The type: the largest of Body, Title and the Readout's 28, 40 and 68 (a sentence is
-  never set on a Hero step) at which the language's **longest** sentence of the day, wrapped at words,
+- **[S-6024]** The type: the largest of Body, Title, the Readout's 28 and 40 and the first Hero step,
+  68 (a sentence is never set larger, [S-2220]) at which the language's **longest** sentence of the day, wrapped at words,
   and the line under it (Caption under Body, Title and 28; Body under 40 and 68) fit the content box
   (`WordClock.Fit`, `WordClock.Steps`, `WordClock.Longest`), so the text keeps its size through the
   day; Body at least. Width is estimated per character, a Han, kana or Hangul character as 1.75
   average advances; a sentence without spaces wraps anywhere, as the text block does.
-- **[S-645]** *(Retired by [S-6703], group G5: the clock's inset is the card's 16 on every side; its
+- **[S-645]** *(Retired by [S-6703], group G5: the clock's inset is the card's 12 on every side; its
   half inset above and below went with the filled readout, [S-659].)*
 - **[S-665]** Clock: the face, then its one line ([S-6741]): the city of a world clock, the date (short
   "Thu, Oct 29" when the long one does not fit) and the offset ([S-1485]). No week, day of the year or
@@ -145,7 +145,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   larger step, or where the row is too wide even on 28 and the stack is not. Where neither fits 28,
   the meridiem gives way first, then the seconds (and the clock then wakes once a minute, [S-52]). The
   one line under it is the step's line under (Caption under 28, Body under 40 and 68, Title at 400
-  under a Hero step), secondary, cut with an ellipsis: the city, the date and the offset, " · "
+  under 96, 136 and 192), secondary, cut with an ellipsis: the city, the date and the offset, " · "
   between them, as its room holds them: the long date, else the short one, else without the offset,
   else the city alone (`ClockFace.Under`); a box too short for it sheds it.
 - **[S-6742]** **Flip on the cards' steps** (`ClockFace.Flip` over `FlipRules`): the cards ("88"

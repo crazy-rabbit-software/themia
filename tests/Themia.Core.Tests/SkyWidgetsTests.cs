@@ -133,8 +133,8 @@ public class SkyWidgetsTests
     [Fact]
     public void S6735_a_rows_room_is_its_width_less_the_insets_the_lead_and_the_two_gaps()
     {
-        // 16 either side, the 16 lead and its 8, the 12 before the value.
-        Assert.Equal(320 - 16 - 16 - 16 - 8 - 12, SkyRows.Room(320));
+        // 12 either side, the 16 lead and its 8, the 12 before the value.
+        Assert.Equal(320 - 12 - 12 - 16 - 8 - 12, SkyRows.Room(320));
         Assert.Equal(0, SkyRows.Room(40));
     }
 

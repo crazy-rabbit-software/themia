@@ -127,7 +127,7 @@ public sealed class WordClockTests
 
         // [S-6024] Only the family's steps, Body to 68, never a Hero step for a sentence; the line under counted.
         Assert.Contains(large, WordClock.Steps);
-        Assert.Equal(FamilyType.Big68, WordClock.Fit(4000, 4000, sample));
+        Assert.Equal(FamilyType.Hero68, WordClock.Fit(4000, 4000, sample));
         Assert.Equal(FamilyType.Body, WordClock.Fit(40, 20, sample));
         Assert.True(FamilyType.BaseOf(WordClock.Fit(600, 200, sample, under: true)) <= FamilyType.BaseOf(WordClock.Fit(600, 200, sample)));
     }

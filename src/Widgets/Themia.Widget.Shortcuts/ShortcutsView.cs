@@ -420,9 +420,9 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             var tiles = ShortcutLayout.Grid(area, width, height, visible.Count, _config.GridIconOnly);
             shape = new CellShape(_config.Style, tiles, default, visible.Count, width);
 
-            // [S-6713] A cell's mark stands 4 around it: the marks start 4 over the items' top and 12 in
-            // from the edge, and only whole rows of cells show.
-            _scroll.Padding = new Thickness(FamilySpace.S3, 0, FamilySpace.S3, 0);
+            // [S-6713] A cell's mark stands 4 around it: the marks start 4 over the items' top and 4
+            // inside the inset, and only whole rows of cells show.
+            _scroll.Padding = new Thickness(RowRules.CellMarkEdge, 0, RowRules.CellMarkEdge, 0);
             _scroll.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
             _scroll.Height = Math.Max(1, tiles.Rows) * tiles.PitchY;
         }

@@ -9,13 +9,13 @@ namespace Themia.Widget.Bluetooth.Tests;
 /// </summary>
 public class BluetoothLadderTests
 {
-    // Size-tier slots (card less a ~44 px header).
-    private static readonly WidgetArea Xs = new(120, 76);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea Xl = new(800, 516);
+    // Size-tier slots (card less a 36 header).
+    private static readonly WidgetArea Xs = new(120, 84);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea Xl = new(800, 524);
 
     private static BluetoothRowPlan Plan(WidgetArea area, int count) => BluetoothLayout.Plan(area, count);
 
@@ -26,7 +26,7 @@ public class BluetoothLadderTests
 
         Assert.Equal(1, plan.Lines);
         Assert.False(plan.BatteryValue);
-        Assert.Equal(1, plan.VisibleRows);
+        Assert.Equal(2, plan.VisibleRows);
     }
 
     [Fact]
@@ -51,10 +51,10 @@ public class BluetoothLadderTests
     [Fact]
     public void S1254_The_list_takes_every_whole_row_of_the_area_less_the_bottom_inset()
     {
-        Assert.Equal(3, Plan(Wide, 20).VisibleRows);
-        Assert.Equal(3, Plan(M, 20).VisibleRows);
-        Assert.Equal(7, Plan(L, 20).VisibleRows);
-        Assert.Equal(10, Plan(Xl, 20).VisibleRows);
+        Assert.Equal(4, Plan(Wide, 20).VisibleRows);
+        Assert.Equal(4, Plan(M, 20).VisibleRows);
+        Assert.Equal(9, Plan(L, 20).VisibleRows);
+        Assert.Equal(12, Plan(Xl, 20).VisibleRows);
     }
 
     [Fact]

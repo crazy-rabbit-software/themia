@@ -37,7 +37,7 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   (Caption, tertiary, today's column primary) while the cells stay rings; every week while a cell keeps
   8, else the latest weeks that fit (`ScreenTimeChartLayout.Calendar`).
 - **[S-3332]** Ladder (`ScreenTimeChartLayout.Chart`): the drawing (never dropped, at least 32), then the
-  figure over it, the family's Readout ([S-6702]: 28, 40 or 68 by the area, sized on "888h 59m" so it
+  figure over it, the family's Readout ([S-6702]: 28 or 40 by the area, sized on "888h 59m" so it
   does not jump, 8 over the drawing), the bars' end labels (a 4 gap and a Caption line, inside the
   drawing), the line under the figure; the drawing takes the rest of the view's area less the card's
   bottom inset. The figure is the window's total (Critical while its per-day average is over the daily

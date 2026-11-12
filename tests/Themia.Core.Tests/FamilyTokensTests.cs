@@ -15,8 +15,8 @@ public sealed class FamilyTokensTests
         Assert.Equal((14, 20, false), (FamilyType.Body.FontSize, FamilyType.Body.LineHeight, FamilyType.Body.SemiBold));
         Assert.Equal((14, 20, true), (FamilyType.BodyStrong.FontSize, FamilyType.BodyStrong.LineHeight, FamilyType.BodyStrong.SemiBold));
         Assert.Equal((20, 28), (FamilyType.Title.FontSize, FamilyType.Title.LineHeight));
-        Assert.Equal([(28d, 36d), (40d, 52d), (68d, 92d)], FamilyType.Big.Select(s => (s.FontSize, s.LineHeight)));
-        Assert.Equal([(96d, 128d), (136d, 180d), (192d, 252d)], FamilyType.Hero.Select(s => (s.FontSize, s.LineHeight)));
+        Assert.Equal([(28d, 36d), (40d, 52d)], FamilyType.Big.Select(s => (s.FontSize, s.LineHeight)));
+        Assert.Equal([(68d, 92d), (96d, 128d), (136d, 180d), (192d, 252d)], FamilyType.Hero.Select(s => (s.FontSize, s.LineHeight)));
         Assert.All(FamilyType.Big.Concat(FamilyType.Hero), s => Assert.True(s.SemiBold));
         Assert.Equal(400, FamilyType.RegularWeight);
         Assert.Equal(600, FamilyType.StrongWeight);
@@ -35,7 +35,9 @@ public sealed class FamilyTokensTests
     [Fact]
     public void S6700_hero_sizes_are_only_a_one_readout_widgets()
     {
-        Assert.True(FamilyType.IsSize(68, oneReadout: false));
+        Assert.True(FamilyType.IsSize(40, oneReadout: false));
+        Assert.False(FamilyType.IsSize(68, oneReadout: false));
+        Assert.True(FamilyType.IsSize(68, oneReadout: true));
         Assert.False(FamilyType.IsSize(96, oneReadout: false));
         Assert.True(FamilyType.IsSize(96, oneReadout: true));
         Assert.False(FamilyType.IsSize(18, oneReadout: true));
@@ -70,20 +72,23 @@ public sealed class FamilyTokensTests
         Assert.Equal(FamilyType.Caption, FamilyType.Under(offRamp));
         Assert.Equal(28, FamilyType.BaseOf(FamilyType.Big28));
         Assert.True(FamilyType.IsHero(FamilyType.Hero96));
-        Assert.False(FamilyType.IsHero(FamilyType.Big68));
+        Assert.True(FamilyType.IsHero(FamilyType.Hero68));
+        Assert.False(FamilyType.IsHero(FamilyType.Big40));
     }
 
     [Fact]
     public void S6703_the_space_scale_and_its_insets()
     {
         Assert.Equal([0, 4, 8, 12, 16, 24], FamilySpace.Scale);
-        Assert.Equal(16, FamilySpace.Inset);
-        Assert.Equal(44, FamilySpace.ContentTop);
-        Assert.Equal(40, FamilySpace.TextEdge);
+        Assert.Equal(12, FamilySpace.Inset);
+        Assert.Equal(4, FamilySpace.HeaderGap);
+        Assert.Equal(36, FamilySpace.ContentTop);
+        Assert.Equal(36, FamilySpace.TextEdge);
         Assert.Equal(8, FamilySpace.GlyphGap);
         Assert.Equal(12, FamilySpace.ColumnGap);
         Assert.True(FamilySpace.IsSpace(-4));
-        Assert.True(FamilySpace.IsSpace(44));
+        Assert.True(FamilySpace.IsSpace(36));
+        Assert.False(FamilySpace.IsSpace(44));
         Assert.False(FamilySpace.IsSpace(6));
         Assert.False(FamilySpace.IsSpace(20.5));
     }
@@ -91,10 +96,10 @@ public sealed class FamilyTokensTests
     [Fact]
     public void S6704_rows_icons_radius_stroke_and_buttons()
     {
-        Assert.Equal([32d, 48d, 64d], Enumerable.Range(1, 3).Select(FamilyShape.RowHeight));
-        Assert.Equal(64, FamilyShape.RowHeight(7));
+        Assert.Equal([28d, 40d, 56d], Enumerable.Range(1, 3).Select(FamilyShape.RowHeight));
+        Assert.Equal(56, FamilyShape.RowHeight(7));
         Assert.Equal([16d, 32d, 48d], FamilyShape.Icons);
-        Assert.Equal((32, 32, 24), (FamilyShape.Button, FamilyShape.IconButton, FamilyShape.HeaderButton));
+        Assert.Equal((28, 28, 24, 12), (FamilyShape.Button, FamilyShape.IconButton, FamilyShape.HeaderButton, FamilyShape.ButtonPadding));
 
         Assert.True(FamilyShape.IsRadius(4, 100, 32));
         Assert.True(FamilyShape.IsRadius(8, 40, 16));      // a pill: half its short side
@@ -109,6 +114,7 @@ public sealed class FamilyTokensTests
         Assert.True(FamilyShape.IsGlyph(16, oneReadout: false));
         Assert.True(FamilyShape.IsGlyph(40, oneReadout: false));
         Assert.False(FamilyShape.IsGlyph(20, oneReadout: false));
+        Assert.False(FamilyShape.IsGlyph(68, oneReadout: false));
         Assert.False(FamilyShape.IsGlyph(136, oneReadout: false));
         Assert.True(FamilyShape.IsGlyph(136, oneReadout: true));
         Assert.False(FamilyShape.IsGlyph(14, oneReadout: true));
@@ -132,6 +138,42 @@ public sealed class FamilyTokensTests
         Assert.False(ColourRoles.IsRoleKey("SystemFillColorSuccessBrush"));
         Assert.False(ColourRoles.IsRoleKey("AccentTextFillColorPrimaryBrush"));
         Assert.Null(ColourRoles.Of("SystemFillColorSuccessBrush"));
+    }
+
+    [Fact]
+    public void S2220_a_rows_lines_get_even_room_above_and_below()
+    {
+        // One Body line in a 28 row: 4 over and under; two and three lines (Body, then Caption) 2 over and under.
+        Assert.Equal(2 * 4, FamilyShape.Row1 - FamilyType.Body.LineHeight);
+        Assert.Equal(2 * 2, FamilyShape.Row2 - FamilyType.Body.LineHeight - FamilyType.Caption.LineHeight);
+        Assert.Equal(2 * 2, FamilyShape.Row3 - FamilyType.Body.LineHeight - (2 * FamilyType.Caption.LineHeight));
+
+        // A button and a content icon button are as tall as a one-line row.
+        Assert.Equal(FamilyShape.Row1, FamilyShape.Button);
+        Assert.Equal(FamilyShape.Row1, FamilyShape.IconButton);
+    }
+
+    [Theory]
+    [InlineData(150, 100, 28)]   // XS
+    [InlineData(300, 200, 28)]   // M: regular both ways
+    [InlineData(800, 200, 28)]   // Wide: expanded one way
+    [InlineData(300, 500, 28)]   // Tall
+    [InlineData(500, 200, 28)]   // expanded one way, regular the other
+    [InlineData(800, 500, 40)]   // L, XL: expanded both ways
+    public void S2220_a_data_widgets_number_is_28_or_40_once_expanded_both_ways(double width, double height, double ceiling)
+    {
+        Assert.Equal(ceiling, ReadoutRules.Ceiling(new WidgetArea(width, height)));
+    }
+
+    [Fact]
+    public void S2220_a_data_widgets_number_never_takes_68()
+    {
+        // A huge box: a data widget stops at 40, a one-readout widget climbs on through the Hero steps.
+        var area = new WidgetArea(1200, 900);
+        Assert.Equal(40, FamilyType.BaseOf(ReadoutRules.Step(area, 1200, 900, new ReadoutText("88"))));
+        Assert.Equal(192, FamilyType.BaseOf(ReadoutRules.Step(area, 1200, 900, new ReadoutText("88", OneReadout: true))));
+        Assert.Equal(68, FamilyType.BaseOf(ReadoutRules.Step(area, 1200, 100, new ReadoutText("88", OneReadout: true))));
+        Assert.DoesNotContain(ReadoutRules.Steps(oneReadout: false), s => FamilyType.BaseOf(s) > 40);
     }
 
     [Fact]

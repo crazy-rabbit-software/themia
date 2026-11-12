@@ -29,7 +29,7 @@ public readonly record struct StockPlan(TypeStep Price, ReadoutFold Fold, bool U
 /// <summary>
 /// [S-1311] The stock widget's ladder, on the family's blocks ([S-6702], [S-6711], [S-6717]), read as a
 /// meter reads ([S-1762]): the price is a Readout at the view's top, start-aligned, on the step it takes
-/// in the area (28, 40, 68 and no larger, [S-666]), the currency after it and the change beside it or,
+/// in the area (28, or 40 once expanded both ways, and no larger, [S-666]), the currency after it and the change beside it or,
 /// where they do not fit, on the line under it ([S-6707]); the holding and the extended-hours print are
 /// fact rows 8 under it ([S-2777], [S-1308]); the chart style's period runs 8 under them, edge to edge and
 /// down to the card's foot, as a meter's history ([S-1824]). The chart wins over the rows: a row is shown

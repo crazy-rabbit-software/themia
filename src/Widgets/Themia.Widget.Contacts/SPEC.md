@@ -21,7 +21,7 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
 
 - **[S-584]** A search box (from 150 px tall) asks for the keyboard while focused (Esc clears). It
   starts empty: the `defaultSearch` setting is gone ([S-3796]).
-- **[S-1272]** Details: one row of 32 per person, the chosen columns in the Row block's place for the
+- **[S-1272]** Details: one row of 28 per person, the chosen columns in the Row block's place for the
   name (`RowBlock.Cells`), 12 apart, the name primary and the rest secondary, their titles (Caption,
   secondary, one line and 8 under it) over them; no monogram (G2: it was 20 px, off the family's
   sizes).

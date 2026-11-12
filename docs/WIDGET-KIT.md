@@ -1064,7 +1064,7 @@ A `sealed partial class KitList : Grid` that a kit view puts in its slot and fee
   menu is read fresh on each right-tap; the Menu key goes through `ItemMenu.Open`.
 - Keys: implements the body of `IWidgetKeys.HandleKey`/`HandleText` through `KitKeys`; the view
   forwards to it (one line each).
-- Rows (G2, 2026-10-29): every look is the family's Row block (16.2), one row of 32, 48 or 64 for
+- Rows (G2, 2026-10-29): every look is the family's Row block (16.2), one row of 28, 40 or 56 for
   one, two or three lines by the tier (`RowRules.Lines`), whole rows only (`KitLadder.Fit`); a row
   has no controls of its own (the hover actions are retired, [S-7033]: the menu and keys carry them).
 - Detach: every hook disposed, every handler unsubscribed, safe twice.
@@ -2868,19 +2868,20 @@ colours and parts. This section is what a module author uses; the reasons are in
 
 | what | token | values |
 |---|---|---|
-| type | `FamilyType.Caption`, `Body`, `BodyStrong`, `Title`; `Big28`/`Big40`/`Big68` (`Big`); `Hero96`/`Hero136`/`Hero192` (`Hero`, one-readout widgets only) | 12/16, 14/20, 14/20 600, 20/28 600; 28/36, 40/52, 68/92 600; 96/128, 136/180, 192/252 600 |
+| type | `FamilyType.Caption`, `Body`, `BodyStrong`, `Title`; `Big28`/`Big40` (`Big`: a data widget's number, 40 only once expanded both ways); `Hero68`/`Hero96`/`Hero136`/`Hero192` (`Hero`, one-readout widgets only) | 12/16, 14/20, 14/20 600, 20/28 600; 28/36, 40/52 600; 68/92, 96/128, 136/180, 192/252 600 |
 | the user's text size | `FamilyType.TextScale` (every step is its base times this), `StepsAt(scale)`, `EstimateWidth(step, chars)` | 0.5 to 2 |
 | a value's unit, its line under | `FamilyType.Unit(step)`, `FamilyType.Under(step)` | 28→14 / Caption, 40→20 / Body, 68→28 / Body, 96 and 136→40 / Title, 192→68 / Title |
-| space | `FamilySpace.S1`, `S2`, `S3`, `S4`, `S6`; `Inset`, `HeaderLine`, `HeaderGap`, `ContentTop`, `GlyphGap`, `ColumnGap`, `TextEdge` | 4, 8, 12, 16, 24; 16, 20, 8, 44, 8, 12, 40 |
-| shapes | `FamilyShape.Row1`/`Row2`/`Row3` (`RowHeight(lines)`), `Icon`/`IconLarge`/`IconHuge`, `Radius`, `Round(w, h)`, `Stroke`, `Track`, `Hairline`, `Wash`, `Button`, `ButtonPadding`, `IconButton`, `HeaderButton` | 32/48/64, 16/32/48, 4, half the short side, 2, 4, 1, 0.16, 32, 12, 32, 24 |
+| space | `FamilySpace.S1`, `S2`, `S3`, `S4`, `S6`; `Inset`, `HeaderLine`, `HeaderGap`, `ContentTop`, `GlyphGap`, `ColumnGap`, `TextEdge` | 4, 8, 12, 16, 24; 12, 20, 4, 36, 8, 12, 36 |
+| shapes | `FamilyShape.Row1`/`Row2`/`Row3` (`RowHeight(lines)`), `Icon`/`IconLarge`/`IconHuge`, `Radius`, `Round(w, h)`, `Stroke`, `Track`, `Hairline`, `Wash`, `Button`, `ButtonPadding`, `IconButton`, `HeaderButton` | 28/40/56, 16/32/48, 4, half the short side, 2, 4, 1, 0.16, 28, 12, 28, 24 |
 | colour | `ColourRole` (`ColourRoles.Key`): `TextPrimary`, `TextSecondary`, `TextTertiary`, `TextDisabled`, `Accent`, `TextOnAccent`, `TextOnAccentSecondary`, `Caution`, `Critical`, `Track`, `Solid`, `Subtle`, `SubtlePressed`, `Clear`, `Control`, `ControlStroke` | the theme's brushes |
 
 In WinUI: `Family.Text(step, role, text)` (a one-line text, its line exact), `Family.Step(block, step)`,
 `Family.Run(step, role, text)`, `Family.Glyph(glyph, size, role)`, `Family.Brush(role)`,
 `Family.Inset`/`SideInset`/`HeaderInset`, `Family.Radius`, `Family.Round(w, h)`, and
 `Family.Data(hex)`, the one way to draw a data colour (a calendar's, an app's, a pen). The older
-`Fluent.Space1..4`, `Space6`, `ControlRadius`, `IconSize`, `ChartStroke`, `ChartWash` and
-`RowHeightCompact` are these same values; new code names the family's. The family's type is the only
+`Fluent.Space1..4`, `Space6`, `ControlRadius`, `IconSize`, `ChartStroke` and `ChartWash` are
+these same values; new code names the family's. The shell's own sizes (the menus' rows, the
+picker's rows, the layout editor's buttons) are `ShellMetrics`, never a widget's token ([S-2221]). The family's type is the only
 type: there is no second ramp (`FluentType` is folded into `FamilyType`, [S-6748]).
 
 Rules: what is read is primary (a fact's value, a list item's name); the accent is on/selected, the
@@ -2893,15 +2894,15 @@ is `TextDisabled` (`UnavailableLook`).
 |---|---|---|---|
 | Header | `HeaderBlock` (the card's), `HeaderParts` | its `HeaderTrailing` returns a `HeaderParts` with `Add(kind, HeaderBlock.Problem(lines) / Busy() / Label(text) / Button(glyph, tooltip, run) / Count(text))`, `Want(part, bool)` for a part with nothing to say now | `HeaderRules.Shown`: label, then buttons from the last, then the count give way; two buttons at most |
 | Row | `RowBlock(kind, lead)`, `RowCell(icon)` | `Show(name, value, second, third)`, `Lines`, `Strong`, `LeadGlyph`/`Lead`, `Meter(bar, width)` (`double.NaN`: the meter takes the room between name and value), `Available`, `Focused`, `Interactive`, `Detach` | `RowRules.Roles(kind)`, `Lines(area, wanted)`, `Fit(height, lines)`, `CellIcon`, `CellHeight` |
-| Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Size(area, width, height, worst)` or `Use(step)` | `ReadoutRules.Step` (28/40/68 by the area, Hero for `OneReadout`), `Width`, `Height` |
+| Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Size(area, width, height, worst)` or `Use(step)` | `ReadoutRules.Step` (28/40 by the area, Hero for `OneReadout`), `Width`, `Height` |
 | Chart | `ChartSeries`, `ChartBar` (`vertical`: a column), `ChartRing` (`half`: a gauge) | `Show(values, second)` or `Show(points, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Y`, `Bar`, `Sweep`, `GaugeSweep`, `GaugeHeight` |
 | Status | `StatusBlock` | `Show(kind, glyph, sentence, action, run)`, `Hide` | `StatusRules.Look(kind)`, `ShowsSentence(width, actionWidth)` |
 | Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Size(width, height, label, state)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.GlyphStep`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
 | Controls | `ControlsBlock` | `Main(label, run)` or `MainIcon(glyph, tooltip, run)` (a transport's Play), `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`, `Switch(on, name, changed)` (and `Set` to show a state read back); `Relabel`/`Reglyph` (Start → Pause); `ControlsBlock.TextButton`/`IconButton`/`RailSlider` alone (a control in a row's meter place) | `ControlsRules.Check` (one main action), `Shown` (the main action and the switch stay) |
 
-Layout around them is the family's too: the header in the card's header inset; content from 44 (16
+Layout around them is the family's too: the header in the card's header inset; content from 36 (12
 without a header); rows, the status and a band full width (they carry their own inset); everything
-else inside the 16 inset; Controls at the bottom inset. The meters (`MeterView`, `MeterPlan`) and the
+else inside the 12 inset; Controls at the bottom inset. The meters (`MeterView`, `MeterPlan`) and the
 detail widgets (`DetailView`, `DetailFace`) are the reference for a widget of a Readout and a part under
 it, or a Readout and rows beside or under it. The render flag `--family-blocks-png <dir>`
 draws every variant at every tier; `TestResults/family/mockups/blocksheet.py` draws the same as
@@ -2911,7 +2912,7 @@ mockups and `TestResults/family/match.py blocks` compares them box by box.
 
 A list widget gets the family for free through the kit: `KitHeader` is the Header block's parts,
 `KitStatePanel` the Status row, `KitList` the Row block for every look, `AddFooterRow` a Row block
-of 32. What a list widget still decides is its data (the `KitItem`s: title, subtitle, preview, time,
+of 28. What a list widget still decides is its data (the `KitItem`s: title, subtitle, preview, time,
 lead, tone, emphasis) and its Set up sentence. A widget with a list of its own (notifications, recent
 files, the clipboard, contacts, the week planner) builds `RowBlock`s the same way: lines from
 `RowRules.Lines`, whole rows from `RowRules.Fit` in the view's area less the card's bottom inset
@@ -2923,7 +2924,7 @@ through `Family.Data`, never the accent; a count is the neutral pill; no text is
 
 A widget about one number (weather now, air quality, a price, a rate) is the detail widgets' face:
 a `ReadoutBlock` at the view's top, start-aligned, sized on its widest case (`ReadoutRules.Step`:
-28, 40, 68 by the area), the line under it its own (the sky, the band, the session), and fact rows
+28 or 40 by the area), the line under it its own (the sky, the band, the session), and fact rows
 (`RowBlock(RowKind.Fact)`, the value primary) placed by `DetailFace.Plan`: beside it in a column of
 two fifths on an expanded width, else 8 under it, whole rows only, room left empty. A change is the
 Readout's delta, folded beside the value or under it by `ReadoutRules.Fold`, secondary when rising,
@@ -2963,7 +2964,7 @@ Windows' highlight, the item palette's) goes through `Family.Data`/`HexBrush` an
 dot, a series or a wedge of the family's stroke; a part not in focus is drawn at the wash, never at an
 opacity of its own. A picture, a stream or ink is content: only the header, the Status row (a missing
 folder, a stream that dropped: one row at the top, Retry where reading again helps) and the overlays
-over it (the Solid role, radius 4, 32 icon buttons) follow the family. `RingFace`, `HeroLayout` and
+over it (the Solid role, radius 4, 28 icon buttons) follow the family. `RingFace`, `HeroLayout` and
 `ScreenTimeLayout` are gone; `UnavailableLook` stays, the disabled role ([S-1940]).
 
 ### 16.2d A timer, the clock and a transport (G5, 2026-10-29)

@@ -17,7 +17,7 @@ context), `RecycleBinConfig.cs`, `RecycleBinRules.cs` (the texts, the ladder), `
   the count "37 items", "No items" when empty.
 - **[S-4862]** On the family's blocks (group G6, 2026-10-29; `RecycleBinLayout.Plan`): the header
   (the bin's glyph and name); the size as a Readout at the view's top, start-aligned ([S-6702]: on its
-  widest case "1023 MB", 28 at XS, S and Wide, 40 at M and Tall, 68 at L and XL), the count as its line
+  widest case "1023 MB", 28 at XS to Tall, 40 at L and XL), the count as its line
   under; Empty as the one main action in the Controls row at the bottom inset ([S-6716]), kept where it
   fits under the floor step and its line under (not at XS and S), the size taking the largest step the
   rest holds. Where Empty does not fit it stays in the card menu, with Open Recycle Bin. An empty bin is

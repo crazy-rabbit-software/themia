@@ -26,14 +26,14 @@ public sealed class TaskLayoutTests
     private static KitPlan Kit(WidgetArea area, int count, bool writable, bool today, TasksStyle mode)
         => KitLadder.Plan(area, Check, new KitChoices((today ? KitShow.Subtitle : KitShow.None) | KitShow.When) { Count = count, CanAdd = writable, OneLine = mode == TasksStyle.Compact });
 
-    // The size tiers as content areas (card less the ~44 DIP header).
-    private static readonly WidgetArea XS = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea XL = new(800, 516);
+    // The size tiers as content areas (card less the 36 header).
+    private static readonly WidgetArea XS = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea XL = new(800, 524);
 
     private static KitPlan Plan(WidgetArea area, int count = 7, bool today = false, TasksStyle mode = TasksStyle.List)
         => Kit(area, count, writable: true, today, mode);
@@ -96,9 +96,9 @@ public sealed class TaskLayoutTests
     [Fact]
     public void S782_XL_goes_to_two_columns_only_when_one_would_not_hold_the_list()
     {
-        // 516 less the bottom inset and the add row: 468, fourteen rows of 32.
-        Assert.Equal(1, Plan(XL, count: 14).Columns);
-        Assert.Equal(2, Plan(XL, count: 15).Columns);
+        // 524 less the bottom inset and the add row: 484, seventeen rows of 28.
+        Assert.Equal(1, Plan(XL, count: 17).Columns);
+        Assert.Equal(2, Plan(XL, count: 18).Columns);
         Assert.Equal(1, Plan(L, count: 30).Columns);
     }
 

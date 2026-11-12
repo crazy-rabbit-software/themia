@@ -29,7 +29,7 @@ public enum ClipboardContent
 /// <param name="Time">When it was copied, as the row's value (when the user shows it).</param>
 public readonly record struct ClipboardPlan(int Lines, bool Lead, bool Time)
 {
-    /// <summary>The rows' one height (32 or 48).</summary>
+    /// <summary>The rows' one height (28 or 40).</summary>
     public double RowHeight => FamilyShape.RowHeight(Lines);
 }
 

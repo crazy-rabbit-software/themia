@@ -10,7 +10,7 @@ namespace Themia.Core.Widgets;
 /// <param name="Folded">Notifications an app shows before "See more" when grouped.</param>
 public readonly record struct NotificationPlan(int Lines, bool Lead, bool Time, bool Grouped, int Folded)
 {
-    /// <summary>A notification's one height (32 or 48).</summary>
+    /// <summary>A notification's one height (28 or 40).</summary>
     public double RowHeight => FamilyShape.RowHeight(Lines);
 }
 
@@ -18,7 +18,7 @@ public readonly record struct NotificationPlan(int Lines, bool Lead, bool Time, 
 /// [S-4404] The notification widget's ladder on the family's rows ([S-6711]): every tile is the list
 /// (the header's count says how many, so the small tile has no face of its own); the title primary,
 /// when it came as the value, the body on the second line from a regular tile; the icon and the time
-/// from a column of 180, as the kit's lists ([S-7031]); grouped under app headings (one row of 32)
+/// from a column of 180, as the kit's lists ([S-7031]); grouped under app headings (one row of 28)
 /// from an expanded height.
 /// </summary>
 public static class NotificationsLayout

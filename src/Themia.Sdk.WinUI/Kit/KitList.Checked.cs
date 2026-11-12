@@ -194,7 +194,7 @@ public sealed partial class KitList
         _scroll.MaxHeight = total <= room + Disclosure.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
     }
 
-    /// <summary>[S-784] A group's heading (the done ones): one row of 32, BodyStrong, secondary.</summary>
+    /// <summary>[S-784] A group's heading (the done ones): one row of 28, BodyStrong, secondary.</summary>
     private static Grid CheckHeading(string text)
     {
         var heading = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, text);

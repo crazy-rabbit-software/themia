@@ -24,7 +24,7 @@ public readonly record struct MoonPlan(DetailFacePlan Face, bool Disc);
 /// [S-3105] The Moon widget's ladder on the family's blocks ([S-6702], [S-6711]): a Readout of how
 /// much of the moon is lit ("23%"), the moon drawn at its phase as the readout's lead at the step's
 /// size, the phase's name the line under it; then whole fact rows, moonrise, moonset, the next full or
-/// new moon. The readout's step is the area's (28, 40, 68) for the widest figure ("100%"), and room
+/// new moon. The readout's step is the area's (28, or 40 once expanded both ways) for the widest figure ("100%"), and room
 /// left goes to the rows, never a bigger moon ([S-666]). Where the readout is too narrow for the moon
 /// beside even the floor step, the moon gives way. On an expanded width the readout stands in a column
 /// of two fifths of the card and the rows beside it from the top (<see cref="DetailFace"/>).

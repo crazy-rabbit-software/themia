@@ -32,7 +32,7 @@ public readonly record struct NotesHeaderBar(int Inline, bool Overflow)
 
 /// <summary>
 /// [S-1363] The note widget's body: the text, and nothing else, at every size, from the view's top in
-/// the card's inset (16 either side and under it, [S-6703]). A failed write is the header's problem
+/// the card's inset (12 either side and under it, [S-6703]). A failed write is the header's problem
 /// glyph ([S-1362]), never a line of the body. The formatting bar is not part of the body: it stands in the card's header while the note is
 /// being edited ([S-3963], <see cref="HeaderBar"/>). The widget is the one note at every size: a
 /// larger tile gives the text more room, never a note list beside it (switching notes is the

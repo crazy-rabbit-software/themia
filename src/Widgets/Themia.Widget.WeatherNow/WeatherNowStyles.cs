@@ -10,7 +10,7 @@ public readonly record struct LargeIconPlan(TypeStep Temperature, double Glyph, 
 
 /// <summary>
 /// [S-6161] [S-6162] The current conditions' other two styles, on the Readout's steps ([S-6702]): the
-/// same reading, never filling the box (a data widget's number stops at 68, [S-666]).
+/// same reading, never filling the box (a data widget's number stops at 40, [S-666]).
 /// </summary>
 public static class WeatherNowStyles
 {
@@ -63,7 +63,7 @@ public static class WeatherNowStyles
         return GlyphSizes.Where(size => size <= block && size <= room).DefaultIfEmpty(0).Max();
     }
 
-    /// <summary>[S-6162] The temperature alone: the Readout's step for the content box (28, 40, 68 by the area).</summary>
+    /// <summary>[S-6162] The temperature alone: the Readout's step for the content box (28, or 40 once expanded both ways).</summary>
     public static TypeStep Minimal(WidgetArea area)
     {
         var (width, height) = MeterPlan.Content(area);

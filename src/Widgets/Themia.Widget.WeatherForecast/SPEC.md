@@ -24,7 +24,7 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   and the value from a content 240 wide (32 % of it, at most 140), and "low high" as its value. The
   lines come from the tier ([S-6712]): one while the area is compact either way, two from regular
   both ways, the second the sky in words and, with the precipitation on, its chance and amount where
-  there is any ("Light rain · 80% · 4.2 mm"). As many whole rows of 32 or 48 as the content holds,
+  there is any ("Light rain · 80% · 4.2 mm"). As many whole rows of 28 or 40 as the content holds,
   never more than the forecast has; nothing stretches and room left stays empty ([S-666]); no style
   scrolls. Under a content of 120 (the smallest tile) a row is the day and its high, and none leads
   ([S-658]). The wind and a column of chances are gone with the old ladder (the tooltip has the day).

@@ -15,7 +15,7 @@ readout, the slider and the speaker through the shared `AudioFeed`), `VolumeMenu
 
 - **[S-2730]** The volume tile's controls, at every size: a speaker button at the slider's start
   (glyph by level, crossed out when muted; click mutes, tooltip Mute/Unmute) and the 0..100 slider,
-  both the Controls block's row at the card's bottom inset ([S-6716], [S-2731]: a 32 icon button, the
+  both the Controls block's row at the card's bottom inset ([S-6716], [S-2731]: a 28 icon button, the
   rail Track, the value the accent; on a card too narrow for both, the speaker gives way and the keys
   still mute). No level meter. The card header follows the shared header rules. Options
   ([S-2734]): output device and "Allow changes"; read-only greys the controls rather than hiding
@@ -24,9 +24,8 @@ readout, the slider and the speaker through the shared `AudioFeed`), `VolumeMenu
   tile's tooltip, and no Readout; no key, wheel or click does anything. Until Core Audio first
   answers the tile is its frame. Renders `--state level|unavailable`.
 - **[S-2151]** Over the controls the level is a Readout, as the meters beside it (owner decision
-  2026-11-12; the root's [S-2150], `LevelFace`): "60%" at the view's top on 28 (S), 40 (M, Wide,
-  Tall) or 68 (L, XL); XS is the controls alone. Its line under is the output device's name (the
-  widget's own fact, cut with an ellipsis) where it fits (M, Tall, L, XL). Muted reads as an off
+  2026-11-12; the root's [S-2150], `LevelFace`): "60%" at the view's top on 28 (S to Tall) or 40 (L, XL); a card shorter than XS is the controls alone. Its line under is the output
+  device's name (the widget's own fact, cut with an ellipsis) where it fits (S and larger). Muted reads as an off
   reading: the level it returns to, in the disabled role, its unit and line under with it; the
   slider stands at 0 as before.
 - **[S-2734]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it

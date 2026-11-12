@@ -14,7 +14,7 @@ public readonly record struct MixerPlan(int Lines, int Rows, int Quiet, double S
 
 /// <summary>
 /// [S-449] The mixer's ladder on the family's rows ([S-6711], [S-6712]): one Row block per app, [lead 16:
-/// the app's icon] 8 [name] 12 [slider] 8 [mute, a 32 icon button], 32 or 48 tall by the tier (the
+/// the app's icon] 8 [name] 12 [slider] 8 [mute, a 28 icon button], 28 or 40 tall by the tier (the
 /// second line what the app is doing), as many whole rows as the view's area less the card's bottom
 /// inset holds. The slider takes three fifths of the room the lead, the gaps and the mute leave, so
 /// the name keeps two; where that is under the slider's least (80) a row with its app's icon drops

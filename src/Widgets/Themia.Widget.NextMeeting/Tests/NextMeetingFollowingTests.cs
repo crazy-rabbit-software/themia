@@ -21,7 +21,7 @@ public sealed class NextMeetingFollowingTests
         AccountId = "a",
     };
 
-    // A tier's content box: the card less its 44 header, the inset either side and at the foot.
+    // A tier's content box: the card less its 36 header, the inset either side and at the foot.
     private static int RowsAt(double w, double h, int count = 20)
     {
         var box = new WidgetArea(w - (2 * FamilySpace.Inset), h - FamilySpace.ContentTop - FamilySpace.Inset);
@@ -67,10 +67,10 @@ public sealed class NextMeetingFollowingTests
         Assert.Equal(["1:1"], NextMeetingFollowing.After(events, shown, Now, TimeZoneInfo.Utc, laterDays: false).Select(e => e.Subject));
 
         // The view's area (the card less its header): Tall and M are regular in width, L and XL expanded.
-        Assert.False(NextMeetingFollowing.LaterDays(new WidgetArea(200, 356)));
-        Assert.False(NextMeetingFollowing.LaterDays(new WidgetArea(320, 196)));
-        Assert.True(NextMeetingFollowing.LaterDays(new WidgetArea(560, 376)));
-        Assert.True(NextMeetingFollowing.LaterDays(new WidgetArea(800, 516)));
+        Assert.False(NextMeetingFollowing.LaterDays(new WidgetArea(200, 364)));
+        Assert.False(NextMeetingFollowing.LaterDays(new WidgetArea(320, 204)));
+        Assert.True(NextMeetingFollowing.LaterDays(new WidgetArea(560, 384)));
+        Assert.True(NextMeetingFollowing.LaterDays(new WidgetArea(800, 524)));
     }
 
     [Fact]
@@ -82,10 +82,10 @@ public sealed class NextMeetingFollowingTests
         Assert.Equal(0, RowsAt(480, 160));
         Assert.Equal(0, RowsAt(320, 240));
 
-        // Tall: 340 less Join 40, the details' 124, 8 and the label's 16 is 152: four rows of 32.
-        Assert.Equal(4, RowsAt(200, 400));
-        Assert.Equal(5, RowsAt(560, 420));
-        Assert.Equal(9, RowsAt(800, 560));
+        // Tall: 352 less Join 36, the details' 124, 8 and the label's 16 is 168: six rows of 28.
+        Assert.Equal(6, RowsAt(200, 400));
+        Assert.Equal(6, RowsAt(560, 420));
+        Assert.Equal(11, RowsAt(800, 560));
 
         // Never more than there are.
         Assert.Equal(2, RowsAt(800, 560, count: 2));

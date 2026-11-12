@@ -40,7 +40,7 @@ side-by-side family tests are in the module test host (`OnlineFamilyTests`, `Onl
   grass and mugwort 1, 10, 50; ragweed 1, 5, 20. No pollen row where there is no pollen forecast.
 - **[S-5107]** The number style's face (`AirLayout.Number`), the detail widgets' plan ([S-2402],
   `DetailFace`): the index is the Readout at the view's top ("25" and " EAQI", its band the line under
-  it), on the step the widest index ("500 US AQI") takes, 28, 40 or 68 and never larger ([S-6702]); the
+  it), on the step the widest index ("500 US AQI") takes, 28 or 40 and never larger ([S-6702]); the
   readings in priority order UV, PM2.5, pollen, PM10, ozone, then the other agency's index and each
   other pollen in the air with its level, as fact rows with their 16 glyphs (the value primary,
   [S-6711]), whole rows only, beside the index from the top on an expanded width (its column two

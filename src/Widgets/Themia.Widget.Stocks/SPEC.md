@@ -45,7 +45,7 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
   settings are gone (a stored `upColor`/`downColor` is an unknown key, ignored).
 - **[S-1311]** Stocks layout (`StockLayout.Plan`), on the family's blocks and read as a meter reads
   ([S-1762]): the price is a Readout at the view's top, start-aligned, on the step it takes in the area
-  (28 at XS and S, 40 at M, Wide and Tall, 68 at L and XL, never larger, [S-6702]); the currency after
+  (28 at XS to Tall, 40 at L and XL, never larger, [S-6702]); the currency after
   it and the signed change (Body, [S-1310]'s role) beside it where they fit, else the currency gives
   way, else the change is the line under the price (`ReadoutRules.Fold`, [S-6707]); otherwise the line
   under says the market's session ("Market closed", "After hours", "Pre-market"; [S-1309]: its tooltip

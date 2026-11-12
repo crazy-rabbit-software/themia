@@ -13,7 +13,7 @@ public readonly record struct QuotePlan(TypeStep Step, bool Author, double Mark,
 /// <summary>
 /// How a quote is set: on which family step a paragraph of it fits, and how it is punctuated.
 /// <para>
-/// [S-1496] A quote is the widget, so it is set on the Big ramp (28, 40, 68, capped as every data
+/// [S-1496] A quote is the widget, so it is set on the Big ramp (28 and 40, capped as every data
 /// widget's number is by the area, <see cref="ReadoutRules.Ceiling"/>) where its wrapped lines fit,
 /// and on Title, then Body, where even 28 does not. A quote is a paragraph: the question is how many
 /// lines it wraps to on a step (<see cref="Lines"/>, word by word on Segoe UI Variable's advances,

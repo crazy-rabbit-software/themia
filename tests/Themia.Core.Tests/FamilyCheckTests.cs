@@ -38,7 +38,10 @@ public sealed class FamilyCheckTests
     public void S6731_glyphs_lengths_radii_and_strokes_are_held_to_the_tokens()
     {
         Assert.Equal(["glyph-size 12"], Check(new FamilyFact(FamilyPartType.Glyph, "FontIcon", 12)));
-        Assert.Empty(Check(new FamilyFact(FamilyPartType.Glyph, "FontIcon", 68)));
+        Assert.Empty(Check(new FamilyFact(FamilyPartType.Glyph, "FontIcon", 40)));
+
+        // [S-2220] 68 is a Hero step now: a data widget's glyph never takes it.
+        Assert.Equal(["glyph-size 68"], Check(new FamilyFact(FamilyPartType.Glyph, "FontIcon", 68)));
 
         Assert.Equal(["space margin 6", "space padding 2.5"], Check(new FamilyFact(FamilyPartType.Box, "Border", Lengths: [("margin", 6), ("padding", 2.5), ("spacing", 8), ("margin", -4)])));
         Assert.Equal(["radius 6"], Check(new FamilyFact(FamilyPartType.Box, "Border", Radii: [6, 6, 4, 0], Width: 100, Height: 32)));

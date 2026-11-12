@@ -32,7 +32,7 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
   read with Retry. Debug renders: `--state off` is the radio switched off.
 
 - **[S-1254]** Bluetooth ladder (`BluetoothLayout`) on the family's rows ([S-6711], [S-6712]): a device
-  is a Row block, [kind glyph 16] 8 [name, primary] 12 [battery %, the value], 32 tall, 48 with its
+  is a Row block, [kind glyph 16] 8 [name, primary] 12 [battery %, the value], 28 tall, 40 with its
   second line; the list takes every whole row of the view's area less the card's bottom inset
   (the rest scrolls); `BluetoothConfig.MaxDevices` (30) is a ceiling, not a target and not a setting
   ([S-3794]). Battery % the value from a 180 column ([S-3253]); "2 connected" is the header's

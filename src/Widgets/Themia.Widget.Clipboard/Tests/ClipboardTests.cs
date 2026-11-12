@@ -9,14 +9,14 @@ namespace Themia.Widget.Clipboard.Tests;
 /// <summary>[S-1440] [S-1441] [S-1442] [S-1443] The clipboard's capacity, its previews, how a row is marked and its ladder. Moved with the widget from Core's TrackersLayoutTests; the ladder is on the family's rows.</summary>
 public sealed class ClipboardTests
 {
-    // The size tiers' slots (card less a 44px header).
-    private static readonly WidgetArea XS = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea XL = new(800, 516);
+    // The size tiers' slots (card less a 36 header).
+    private static readonly WidgetArea XS = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea XL = new(800, 524);
 
 
     [Fact]
@@ -69,7 +69,7 @@ public sealed class ClipboardTests
         Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(Tall));
         Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(L));
         Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(XL));
-        Assert.Equal(3, ClipboardLayout.Rows(M, ClipboardLayout.Plan(M)));
+        Assert.Equal(4, ClipboardLayout.Rows(M, ClipboardLayout.Plan(M)));
     }
 
     [Fact]

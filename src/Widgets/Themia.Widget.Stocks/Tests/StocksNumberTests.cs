@@ -9,7 +9,7 @@ using static Themia.Core.Tests.StyleTiers;
 namespace Themia.Widget.Stocks.Tests;
 
 /// <summary>
-/// [S-6166] The stock widget's number style at the seven size tiers (each card less its ~44px header).
+/// [S-6166] The stock widget's number style at the seven size tiers (each card less its 36 header).
 /// </summary>
 public sealed class StocksNumberTests
 {

@@ -170,7 +170,7 @@ public static class ScreenTimeRules
 
     /// <summary>
     /// [S-1210] [S-6702] The donut's figure in its hole, on the family's steps: the full duration on the
-    /// largest Readout step (28, 40, 68, capped by the area as every data widget's number) whose line,
+    /// largest Readout step (28 and 40, capped by the area as every data widget's number) whose line,
     /// and the line under it when <paramref name="under"/> asks for one, stands inside the hole as the
     /// rectangle a circle of <paramref name="hole"/> holds; else the compact duration ("4.6h") on the
     /// largest that does; else the compact one in BodyStrong, the family's floor for text. The line under

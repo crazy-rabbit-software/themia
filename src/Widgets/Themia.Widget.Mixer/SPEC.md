@@ -24,8 +24,8 @@ volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTe
   audio"). Failures are logged once, and again only when they change.
 - **[S-449]** The rows are the family's Row block ([S-6711], [S-6712]; `MixerLayout`): [lead 16: the
   app's icon, or the system sounds' bell or an app's window glyph, secondary] 8 [name, primary] 12
-  [slider: the Controls slider, rail Track, value the accent] 8 [mute: a 32 icon button whose glyph is
-  the level's band], 32 tall, 48 with a second line where the tier gives two ([S-1624]: what the app
+  [slider: the Controls slider, rail Track, value the accent] 8 [mute: a 28 icon button whose glyph is
+  the level's band], 28 tall, 40 with a second line where the tier gives two ([S-1624]: what the app
   is doing). The slider takes three fifths of the room the lead, the gaps and the mute leave a named
   row, so long as that is the slider's least (80); narrower, a row with its app's icon drops the name
   for a slider over all of that room (the icon names the app, the tooltip has the name, and the

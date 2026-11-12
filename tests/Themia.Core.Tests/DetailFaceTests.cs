@@ -44,9 +44,9 @@ public sealed class DetailFaceTests
     }
 
     [Theory]
-    [InlineData("S", 0)]
-    [InlineData("M", 3)]
-    [InlineData("Tall", 8)]
+    [InlineData("S", 1)]
+    [InlineData("M", 4)]
+    [InlineData("Tall", 10)]
     public void S2402_otherwise_the_facts_are_whole_rows_8_under_the_figure(string tier, int facts)
     {
         var area = Area(tier);
@@ -65,10 +65,10 @@ public sealed class DetailFaceTests
     [InlineData("Tall")]
     [InlineData("L")]
     [InlineData("XL")]
-    public void S666_the_figure_stops_at_68_and_a_larger_tile_shows_more_rows(string tier)
+    public void S666_the_figure_stops_at_40_and_a_larger_tile_shows_more_rows(string tier)
     {
         var plan = DetailFace.Plan(Area(tier), new DetailShape(Hero, 20));
-        Assert.True(FamilyType.BaseOf(plan.Hero) <= 68);
+        Assert.True(FamilyType.BaseOf(plan.Hero) <= 40);
         Assert.True(FamilyType.BaseOf(plan.Hero) <= ReadoutRules.Ceiling(Area(tier)));
     }
 

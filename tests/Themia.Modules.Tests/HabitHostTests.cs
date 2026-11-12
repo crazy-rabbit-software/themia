@@ -15,14 +15,14 @@ namespace Themia.Modules.Tests;
 /// <summary>[S-812] [S-1420] [S-1422] [S-3802] [S-3850] The habit tracker under the root's rules: its keys without a focused row and the reorder keys beside the task list's, its add footer agreeing with the task list's, its settings through a restart and a hand-edited config repaired: the config and its ladder are the habit tracker module's, so they run here. Moved from Core's KeyboardLeaseTests, WidgetKeyMapTests, AddFooterTests and TrackerPersistenceTests, unchanged in what they assert.</summary>
 public sealed class HabitHostTests : IDisposable
 {
-    // The size tiers' slots (card less a 44px header), as AddFooterTests has them.
-    private static readonly WidgetArea XS = new(120, 76);
-    private static readonly WidgetArea S = new(200, 106);
-    private static readonly WidgetArea M = new(320, 196);
-    private static readonly WidgetArea Wide = new(480, 116);
-    private static readonly WidgetArea Tall = new(200, 356);
-    private static readonly WidgetArea L = new(560, 376);
-    private static readonly WidgetArea XL = new(800, 516);
+    // The size tiers' slots (card less a 36 header), as AddFooterTests has them.
+    private static readonly WidgetArea XS = new(120, 84);
+    private static readonly WidgetArea S = new(200, 114);
+    private static readonly WidgetArea M = new(320, 204);
+    private static readonly WidgetArea Wide = new(480, 124);
+    private static readonly WidgetArea Tall = new(200, 364);
+    private static readonly WidgetArea L = new(560, 384);
+    private static readonly WidgetArea XL = new(800, 524);
 
     private readonly string _dir;
     private readonly string _path;

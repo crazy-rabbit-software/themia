@@ -41,7 +41,7 @@ from the tests that pinned them under those numbers, which are the root's geomet
   the accent in both phases: neither phase is coloured ([S-6706]: no accent text, no success green).
   Debug: `--state sample` (focus, 9:24 left, paused).
 - **[S-644]** A short pomodoro tile keeps the time left: the Controls row is the first part to give
-  way (where the time's floor step, 8 and the 32 row do not fit), then the bar; the keys still start,
+  way (where the time's floor step, 8 and the 28 row do not fit), then the bar; the keys still start,
   skip and reset it ([S-1987]).
 - **[S-1460]** Pomodoro `Sound` (`AlarmSound`: off + the original's twelve — chime (default),
   marimba, crystal, pluck, droplet, birdsong, zen, bell, gong, arcade, digital, buzzer; listed in

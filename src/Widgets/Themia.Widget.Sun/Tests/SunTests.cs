@@ -70,11 +70,11 @@ public sealed class SunTests
             Assert.True(plan.GraphicHeight <= Math.Max(SunLayout.ArcFloor, Math.Floor(plan.GraphicWidth / 2)), tier.Name);
         }
 
-        // 320 x 240: two rows of two lines under an arc of what is left (180 - 2 x 48 - 8).
+        // 320 x 240: three rows of two lines under an arc of what is left (192 - 3 x 40 - 8).
         var medium = Plan(320, 240);
-        Assert.Equal(288, medium.GraphicWidth);
-        Assert.Equal(76, medium.GraphicHeight);
-        Assert.Equal((2, 2, 84.0), (medium.Rows, medium.Lines, medium.RowsTop));
+        Assert.Equal(296, medium.GraphicWidth);
+        Assert.Equal(64, medium.GraphicHeight);
+        Assert.Equal((3, 2, 72.0), (medium.Rows, medium.Lines, medium.RowsTop));
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public sealed class SunTests
         var times = Plan(320, 240, SunStyle.Times);
         Assert.Equal(0, times.GraphicWidth);
         Assert.Equal(0, times.RowsTop);
-        Assert.Equal(3, times.Rows);
+        Assert.Equal(4, times.Rows);
 
         // [S-170] With the graphic gone the rows are on whatever the switch says, and on a compact tile too.
         Assert.True(Plan(120, 120, SunStyle.Times, events: false).Rows > 0);
@@ -100,13 +100,13 @@ public sealed class SunTests
         Assert.True(wide.Side);
         Assert.Equal(Math.Floor(480 * SunLayout.ColumnShare), wide.RowsLeft);
         Assert.Equal(0, wide.RowsTop);
-        Assert.Equal(3, wide.Rows);
+        Assert.Equal(4, wide.Rows);
 
         var bar = Plan(480, 160, SunStyle.DayBar);
         Assert.False(bar.Side);
         Assert.Equal(SunLayout.Dot, bar.GraphicHeight);
         Assert.Equal(SunLayout.Dot + FamilySpace.S2, bar.RowsTop);
-        Assert.Equal(2, bar.Rows);
+        Assert.Equal(3, bar.Rows);
     }
 
     [Fact]
