@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -1793,10 +1793,11 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   docs/widgets.md §7b, §136): it answers the one question a person adding a widget has (what do I
   want?) by subject. Its folders are declared once in Core (`Widgets/AddTree.cs`: `AddFolderId`,
   a closed set, each with its words; its row wears its first widget's icon), and each widget places
-  itself in one ([S-6907]); lines part the runs. Two top columns under their headings, **Popular** and **Browse**; Browse is a row per
+  itself in one ([S-6907]); lines part the runs. Three top columns under their headings: **Ready-made**
+  (the ready-made groups, [S-2473]), **Popular** and **Browse**; Browse is a row per
   subject; inside a subject a **family** (one widget in several layouts or parts) is one row
   opening its own submenu. Never deeper than that. The catalogue has no sections of its own any more.
-- **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,
+- **[S-3511]** What is where. **Ready-made**: This PC, My day, Weather ([S-2474]). **Popular** (each again from its home): Clock, Weather, Forecast,
   Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcuts. **Browse**, in
   order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session);
   **Calendar & mail** (calendar, next meeting, week planner | mail, tasks,
@@ -6367,9 +6368,10 @@ two cards. Cards that touch now read as one panel: round on the outside, one lin
   ([S-1076]) both call `WidgetCard.Join` over a surface's cards (each card's painted box: its live rect's
   cell inside the gap). The desktop joins again whenever the layout is applied: a relayout (a view
   switch, a design change such as the gap slider or a preset), a card hidden or shown, a move, a resize,
-  a keyboard nudge. A card being dragged (with the selection it carries, once the drag has moved) or
-  resized is free, every corner round and its whole border, until it is dropped; its former neighbours
-  get their corners back at once. Edit mode's selection outlines, handles, markers, ghosts and the snap
+  a keyboard nudge. A card being resized is free, every corner round and its whole border, until it is
+  dropped; the cards a drag carries (with the selection, once the drag has moved) are free of the cards
+  standing still but stay joined among themselves, so a dragged group stays one panel ([S-2457]); their
+  former neighbours get their corners back at once. Edit mode's selection outlines, handles, markers, ghosts and the snap
   guides keep their own shapes; so does an intro's cover while it plays ([S-1007]).
 - **[S-2245]** **The window's region follows the shape** ([S-872]): each card's piece is its painted
   box with its round corners cut round at its radius in device pixels and its square ones square
@@ -6973,7 +6975,8 @@ Owning files: `Themia.Core/Model/WidgetSelection.cs` (`WidgetSelection`, `Select
 Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests`.
 
 - **[S-1580]** Edit mode has a **selection** of one or many widgets, always from one view. A click
-  on a card selects it alone; **Ctrl+click** adds it or takes it out without starting a drag; picking
+  on a card selects its unit alone (the card, or its whole group, [S-2451]); **Ctrl+click** adds the
+  unit or takes it out without starting a drag; picking
   on a display that shows another view starts a new selection there. The last widget picked is the
   primary one, which single-widget commands (the picker's "Add to") mean.
 - **[S-1581]** A left-button drag on empty surface draws a **rubber band** on that display; every
@@ -6984,12 +6987,13 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
 - **[S-1583]** Every selected card shows it (accent markers, [S-31c]). A widget that is
   deleted or leaves the view leaves the selection with the change. Escape clears the selection
   before a second Escape leaves edit mode.
-- **[S-1584]** Dragging a selected card moves **every selected widget on that display** by one
+- **[S-1584]** Dragging a selected card moves **every selected widget on that display** (a selected
+  group whole, [S-2452]; an entered member alone) by one
   translation: the block's bounding box is moved, its top-left snapped to the grid or an edge flush
   on the work area's ([S-06], [S-6609], Alt suspends both), and the move stops where the first of its
   widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
   each rect is then kept in reach ([S-09]). Offsets between the widgets never change. Resizing is per
-  card and narrows the selection to it.
+  card and narrows the selection to it; a group's members are resized only once it is entered ([S-2453]).
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
 - **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste),
@@ -7014,7 +7018,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   the clipboard, its originals where they were, nothing is created ([S-1590]). Core `PlacementKeyFilter`;
   tests `S1594_`.
 - **[S-1588]** A payload taken from the selection holds the selected widgets of that view, in view
-  order, as a snapshot with original ids.
+  order, as a snapshot with original ids, and the groups it holds two or more members of ([S-2455]).
 - **[S-1589]** A **copy** (paste of a copy) lands fresh widgets with fresh ids every time, so
   pasting one copy twice gives two sets. There is no separate Duplicate for widgets: Copy then Paste
   is that command.
@@ -7027,8 +7031,9 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   in one landing ([S-76], [S-77]) and selects it there.
 - **[S-1592]** Delete, Copy, Cut, Bring to front and Send to back act on the whole
   selection; the card menu says how many ("Delete 3 widgets"). A right-click on a selected card keeps
-  the selection; on any other card it selects that card alone first. Layering keeps the order the
-  selected widgets had among themselves.
+  the selection; on any other card it selects that card's unit (its whole group, [S-2451]) first.
+  Layering keeps the order the selected widgets had among themselves, a group's members included. The
+  card menu also offers Group, Ungroup and Remove from group where they apply ([S-2454]).
 - **[S-1593]** A press on a card of a multi-selection keeps the selection so the drag that may follow
   carries all of it; released without moving (3 DIPs), it narrows the selection to that card.
 
@@ -7036,6 +7041,100 @@ Not done: a debug render of the multi-widget ghost (the outlines are pinned by
 `S1585_*` instead). Not live-verified: everything pointer- and multi-monitor-driven here — the
 rubber band, Ctrl+click, block drag clamping at the taskbar, hand-off of a selection across
 displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
+
+## Groups and ready-made groups (GROUPS)
+
+Owning files: `Themia.Core/Model/WidgetGroups.cs` (the rules), `AppState.cs` (`WidgetGroup`,
+`ViewState.Groups`, `WidgetInstance.Group`), `WidgetSelection.cs` (the group rules of a press, a click,
+Ctrl+click, Escape and Tab), `PlacementPayload.cs`, `WidgetTransfer.cs`, `LayoutHistory.cs`,
+`Widgets/CardJoins.cs` (sets), `Model/ReadyMadeGroups.cs` (the recipes), `Scenes/ReadyMadeScene.cs`;
+`AppHost.Groups.cs`, `GroupFrameLayer.cs`, `WidgetCard.cs` (the press), `DesktopWindow.Keys.cs`,
+`WidgetPicker.cs`. Tests: `WidgetGroupsTests`, `GroupShellTests`, `SceneGroupsTests`, `ReadyMadeGroupsTests`.
+
+Small widgets put side by side already draw as one panel ([S-2240]); a group is what makes such a
+composition one thing to arrange: an optional lock over ordinary cards, never a card of its own.
+
+- **[S-2450]** **State.** A view holds its groups (`Groups`: an id and an optional name); a widget holds
+  the id of its group (`group`, not written when it has none). No nesting: a widget is in one group at
+  most and a group holds widgets only. A group of fewer than two members does not exist: load
+  validation repairs the groups after the widgets (a group with a blank or repeated id is dropped, a
+  blank name is none, a widget naming a group its view lacks is lone, a group of fewer than two
+  dissolves), logged with the other repairs, and every mutation settles the same rule
+  (`WidgetGroups.Settle` in `AppHost.Mutate`), so a delete, a cut or a move that leaves one member frees
+  it. Export and import carry the groups with the views ([S-494]); the assistants' `list_widgets` says
+  each widget's group and each view's groups (id, name) ([S-9971]).
+- **[S-2451]** **Selection: the unit is a group or a lone widget.** A press on a member of a group that
+  is not selected selects the whole group; a click (released without moving, [S-1593]) on a member of
+  the group that is selected alone **enters** it: that member alone is selected, inside the group
+  (`WidgetSelection.Entered`). Inside, a press on another member enters that one; a press outside
+  selects that unit and leaves the group. **Escape** steps out: an entered member to its whole group,
+  a selection to nothing ([S-1583]). **Ctrl+click** puts a whole group in or out of the selection
+  ([S-1580]); the **rubber band** takes a group when it touches one member ([S-1581]); **Ctrl+A** takes
+  everything. **Tab** cycles units in reading order (a group by its top-left corner); inside an entered
+  group it cycles its members ([S-1973]). An entered group that dissolves is entered no more.
+- **[S-2452]** **A selected group acts as one**: it moves, copies, cuts, pastes, deletes and is layered
+  (Bring to front / Send to back, the members keeping their order among themselves) as the selection
+  of its members does ([S-1584], [S-1592]); the arrow keys nudge it whole ([S-1970]). An entered member
+  is moved on its own and stays a member wherever it is dropped.
+- **[S-2453]** **Resizing is a member's alone.** In edit mode a group draws one frame of the edit
+  markers' brackets and edge bars round its members' painted boxes (`GroupFrameLayer`: neutral, accent
+  while selected, faint accent while entered), with no grips, and its members draw no markers of their
+  own; an entered member shows its own markers and handles. Shift+arrows do nothing to a selection that
+  holds a whole group.
+- **[S-2454]** **Group and ungroup.** **Ctrl+G** makes one group of the selection (two widgets or more,
+  a member bringing its whole group; groups in it merge into the new one, which takes the name of the
+  first of them, in view order, that had one; the new group is selected whole). **Ctrl+Shift+G**
+  dissolves every group the selection touches (inside an entered group, that group); the widgets stay
+  where they are and stay selected. A widget's card menu offers **Group**, **Ungroup** and, on an
+  entered member, **Remove from group**, only where each applies; a group left with one member
+  dissolves.
+- **[S-2455]** **Copies and moves.** A payload carries the groups it holds two or more members of; a
+  member taken alone travels as a lone widget. A copy of a group lands as a new group (fresh id, the
+  same name) every time it is pasted; a move keeps its group, across views and displays too, and the
+  view it left lets it go. A duplicated view ([S-900]) has new groups of its copies.
+- **[S-2456]** **Undo** covers every group change: the layout shapes carry each widget's group and each
+  view's groups (id, name), `SameLayout` compares them, a restore puts them back. Group and Ungroup
+  (and Remove from group) are one step each, named "group" and "ungroup".
+- **[S-2457]** **Joined while dragged.** The cards a drag carries (a group, any selection dragged
+  together) stay joined among themselves while they move, a set of their own free of the cards standing
+  still ([S-2244]; `CardJoins.Outlines` takes a set per card: two cards join only within one set).
+- **[S-2458]** **Scenes** ([S-1076]): a widget may carry `"group": "<name>"` (two widgets or more to a
+  group, its name its id on the scene's view); the `edit` block may select a group whole (`"group"`) or
+  enter one with a member (`"enter": "<widget id>"`), so the pictures show both frames. A group of one,
+  an edit naming a group or a member that is not there, or both at once are refused at their path.
+
+**Ready-made groups.** A ready-made group is a recipe that places several widgets, touching, already
+grouped, so a first desktop is a few clicks.
+
+- **[S-2470]** **Data** (`ReadyMadeGroups.All`): an id, a name and a one-line description (through `Str`,
+  the `groups` locale area), a glyph, its subject in the add menu (`AddFolderId`), and its widgets: a
+  widget id, a box in DIPs from the group's corner, a config fragment merged over the kind's default
+  (as the first-run seed's, [S-893]), an optional header placement and title. Adding one is an entry and
+  its two strings (docs/WIDGET-KIT.md 17). A place, an account or a folder is left to the widget's own
+  Set up, never filled with someone else's.
+- **[S-2471]** **Placing** is the one placement session ([S-1587]): a ghost of every widget at its
+  offset, one click lands them all, touching, as one new group named after the recipe (fresh ids every
+  time), selected whole; one undo step ("add"). The licence counts it as adding its widgets one by one
+  ([S-1065]): the gate before the ghost and on landing see all of them, and it lands whole or not at all.
+- **[S-2472]** **Rules** every recipe keeps (`ReadyMadeGroupsTests`): every kind installed and every
+  config property one its kind has; two widgets or more; no two boxes overlapping; every widget touching
+  another, so the recipe draws as one panel ([S-2240]); the whole within a 1280 × 720 work area. A build
+  lacking one of a recipe's kinds leaves the recipe out whole.
+- **[S-2473]** **The add menu**: its first column, **Ready-made**, before Popular and Browse, a row per
+  recipe with its glyph, its name and how many widgets it places ("4 widgets"), its description the
+  row's tooltip; the keys and the pointer pick it as a widget's row. The search finds recipes with the
+  widgets, by name, description and the names of the widgets they hold; a result says "Ready-made · n
+  widgets".
+- **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid), **My day**
+  (the clock on top, the next meeting and the tasks under it) and **Weather** (now, the forecast and
+  the rain in the next hour, stacked), each with its kinds' default configs.
+- **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>]` draws a recipe
+  placed: a scene built from it (`ReadyMadeScene`), edit mode, the new group selected, on a sample
+  wallpaper; a widget given no state shows its "sample" preview where it has one.
+
+Not live-verified: entering a group by clicks, dragging a group and an entered member, the keys,
+the card menu's lines, a group handed to another display, placing a recipe on a display with a
+taskbar or a scale other than 100 %.
 
 ## Music and Pomodoro: parity and the whole tile (PF)
 
@@ -7833,8 +7932,8 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   shows "Deleted …" with Undo (Delete still asks nothing first). A notice's Undo/Redo acts only while
   the history's `Version` is the one it was offered at; otherwise it says the desktop changed and
   points to Ctrl+Z.
-- **[S-886]** A step restores the arrangement (`LayoutShape`): views (id, name, icon, order) and every
-  widget's kind, geometry, z-order, header, surface and title. Not content: a widget that
+- **[S-886]** A step restores the arrangement (`LayoutShape`): views (id, name, icon, order, groups)
+  and every widget's kind, geometry, z-order, header, surface, title and group ([S-2456]). Not content: a widget that
   survives keeps its current config (text typed after a move is not taken back) and its instance
   (its card stays). A widget brought back gets the config it had (held by reference, never copied).
   A view brought back returns to the displays that showed it; every reference to a view that goes is

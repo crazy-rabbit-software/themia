@@ -23,7 +23,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-3501] [S-3510..S-3515] The body of the edit bar's add menu, after Karpo's add list: a search
-/// box, then two columns under their headings — <b>Popular</b> and <b>Browse</b>, a row per subject
+/// box, then three columns under their headings — <b>Ready-made</b> ([S-2473]), <b>Popular</b> and <b>Browse</b>, a row per subject
 /// — and the cascade a subject opens beside them, a family inside it one more level. Each row is
 /// the widget's icon and name, a folder's with a chevron — no preview. Typing lists what matches in
 /// place of the tree, flat, each with where it lives. Built from <see cref="ModuleCatalog.Widgets"/>
@@ -146,7 +146,7 @@ internal sealed partial class WidgetPicker : Grid
         _search.TextChanged += (_, _) => Refresh();
         _search.PreviewKeyDown += OnSearchKeyDown;
 
-        // [S-3512] The menu is its two top columns, whatever opens beside it.
+        // [S-3512] The menu is its top columns, whatever opens beside it.
         var topWidth = (_menu.Count * ColumnWidth) + (Math.Max(0, _menu.Count - 1) * ColumnGap);
         var box = new Grid { Children = { _search }, HorizontalAlignment = HorizontalAlignment.Left, Width = topWidth };
         Children.Add(box);

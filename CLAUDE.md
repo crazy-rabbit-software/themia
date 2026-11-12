@@ -97,6 +97,8 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   AccountForm, UninstallPlan) Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
+  Model/ReadyMadeGroups.cs (the add menu's ready-made groups as data: kinds, boxes in DIPs, config fragments)
+  Model/WidgetGroups.cs (groups: a view's Groups, a widget's Group; the rules), WidgetSelection (units, entered group)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
                    Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
@@ -283,6 +285,16 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
   (`OpenBarMenu`, `RequestSettings`). Every way into settings lands there ([S-3534]). `FluentLayout`
   (`SettingsCard` rows) is only the app-layout editor's, Themia's one window.
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
+- **Widget selection and groups** ([S-1580]..[S-1594], [S-2450]..[S-2458]): edit mode selects units, a
+  lone widget or a whole group (a view's `Groups`, a widget's `Group`: a lock over ordinary cards, never
+  a card of its own); a second click enters a group (one member, its own handles), Escape steps out.
+  The rules are Core's (`WidgetSelection`, `WidgetGroups`, tested); the surface only asks them. A group
+  of fewer than two dissolves (load validation and every `Mutate`). Ctrl+G / Ctrl+Shift+G and the card
+  menu group and ungroup. Everything that produces or moves widgets is the one placement session
+  (`PlacementPayload`: a new widget, a ready-made group, a copy, a move).
+- **The add menu** ([S-3510]..[S-3515], [S-2473]): Core's tree (`AddTree`, `AddMenuKeys`), drawn by
+  `WidgetPicker`: Ready-made (the recipes of `ReadyMadeGroups`, docs/WIDGET-KIT.md 17), Popular,
+  Browse; a widget places itself in it through its descriptor; a recipe is data only.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
 - **The properties menu** ([S-3716]..[S-3749]): the selection's panel in edit mode, drawn by the
