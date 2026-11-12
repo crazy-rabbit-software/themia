@@ -152,17 +152,40 @@ public static class SizeFit
     public static WidgetConfig ConfigFor(WidgetConfig config, FracRect cell, ScreenMetrics screen, double scale, double gapPx, HeaderPlacement shown)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var kind = ModuleCatalog.Of(config.Kind);
-        if (kind.SizeSets is not { } sets || !screen.IsUsable)
+        return screen.IsUsable ? ConfigAt(config, Wanted(cell, screen, scale, gapPx), shown) : config;
+    }
+
+    /// <summary>
+    /// [S-2442] The config a card box of <paramref name="box"/> DIPs (at widget scale 1, its header
+    /// <paramref name="shown"/> included) means, for a kind that has the hook: what a resize to that box
+    /// gives, and what the renders draw a converted kind's min, natural and max with ([S-2448]). The
+    /// config itself (the same instance) for every other kind or when the kind answers with it.
+    /// </summary>
+    public static WidgetConfig ConfigAt(WidgetConfig config, SizeDip box, HeaderPlacement shown)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        if (ModuleCatalog.Of(config.Kind).SizeSets is not { } sets)
         {
             return config;
         }
 
         // The kind counts its default header; the card's own header is taken off before it is asked.
-        var wanted = Wanted(cell, screen, scale, gapPx);
         var (cw, ch) = Cost(shown);
         var (sw, sh) = Cost(WidgetInstance.DefaultHeader(config.Kind));
-        return sets(config, new SizeDip(wanted.Width - (cw - sw), wanted.Height - (ch - sh)));
+        return sets(config, new SizeDip(box.Width - (cw - sw), box.Height - (ch - sh)));
+    }
+
+    /// <summary>
+    /// [S-11601] What a resize to <paramref name="box"/> DIPs leaves, as the desktop does it: the config
+    /// that size means (<see cref="ConfigAt"/>) and the box that config is painted at, the asked one fitted
+    /// into its sizing ([S-2446]: an axis that follows the other, as a camera's height its width, or a
+    /// grid's rows its columns, takes the size its config gives). A legacy kind keeps the box.
+    /// </summary>
+    public static (WidgetConfig Config, SizeDip Box) Resized(WidgetConfig config, SizeDip box, HeaderPlacement shown)
+    {
+        var drawn = ConfigAt(config, box, shown);
+        var sizing = Of(drawn, shown);
+        return (drawn, sizing.IsLegacy ? box : sizing.Fit(box));
     }
 
     /// <summary>What a header at <paramref name="h"/> costs the card: its line and gap, across the edge it stands on.</summary>
@@ -201,7 +224,9 @@ public static class SizeFit
             styled.StyleValue = chosen;
         }
 
-        return Of(config, header ?? WidgetInstance.DefaultHeader(kind));
+        // [S-3711] A kind that can never have a header is drawn without one, whatever is asked.
+        var shown = WidgetInstance.CanHaveHeader(kind) ? header ?? WidgetInstance.DefaultHeader(kind) : HeaderPlacement.Hidden;
+        return Of(config, shown);
     }
 
     /// <summary>

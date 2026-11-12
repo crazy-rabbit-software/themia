@@ -25,7 +25,11 @@ internal sealed partial class StockView : IWidgetPreviewState
 
         // [S-2777] "quote" and "stale" hold ten shares, so the holding's row can be looked at; "falling" none.
         var rising = state != "falling";
-        _config = new StockConfig { Symbol = "MSFT", SharesOwned = rising ? 10 : null };
+        // [S-2448] The card's own config (its style, its size) with the sample symbol.
+        var sample = (StockConfig)_config.Clone();
+        sample.Symbol = "MSFT";
+        sample.SharesOwned = rising ? 10 : null;
+        _config = sample;
         var quote = SampleQuote.Quote(rising);
 
         // [S-7042] stale: the answer on screen, and the last refresh failed: the header's problem glyph.

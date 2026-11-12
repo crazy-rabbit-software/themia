@@ -1,4 +1,4 @@
-# [S-6731] The family's render walk: every widget kind at the seven tiers, in light and dark, in its
+# [S-6731] The family's render walk: every widget kind at its sizes, in light and dark, in its
 # default, preview states and styles, judged element by element against the family's tokens
 # (Themia.exe --family-check, rules in Core: FamilyCheck). Needs a Debug build of the app.
 #
@@ -7,7 +7,9 @@
 # Fails on any finding (kind, element type, rule). It held a baseline of the day's findings that every
 # phase of the family shrank; since group G5 every kind walks clean and the list is gone (shell sweep,
 # 2026-10-30). The full findings with their values and the first variant each was seen in are in
-# <Out>/<theme>-<kind>.json.
+# <Out>/<theme>-<kind>.json, with how many elements each kind drew ("walked"); a kind that drew
+# nothing is the finding "nothing drawn". A converted kind is walked at its range (min, natural,
+# max), each box with the config that size means (its SizeSets hook), a legacy one at the seven tiers.
 # Never starts Themia.exe without a render flag; draws off-screen, touches no user state.
 
 param(
@@ -73,9 +75,11 @@ if ($failed.Count -gt 0) {
     exit 2
 }
 
-# The findings of this run: kind <TAB> element and rule (values stripped), with their element counts.
+# The findings of this run: kind <TAB> element and rule (values stripped), with how many elements
+# offend; and how many elements the kinds drew and had judged.
 $today = @{}
-$elements = 0
+$offending = 0
+$walked = 0
 foreach ($file in Get-ChildItem $Out -Filter '*.json') {
     $doc = Get-Content $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
     foreach ($kind in $doc.kinds.PSObject.Properties) {
@@ -83,13 +87,14 @@ foreach ($file in Get-ChildItem $Out -Filter '*.json') {
             $key = "$($kind.Name)`t$($f.rule)"
             if (-not $today.ContainsKey($key)) { $today[$key] = 0 }
             $today[$key] += [int]$f.count
-            $elements += [int]$f.count
+            $offending += [int]$f.count
         }
     }
+    foreach ($kind in $doc.walked.PSObject.Properties) { $walked += [int]$kind.Value }
 }
 
 $kindsWith = ($today.Keys | ForEach-Object { $_.Split("`t")[0] } | Sort-Object -Unique).Count
-Write-Host ("family-check: {0} findings (kind, element, rule) in {1} of {2} kinds, {3} elements" -f $today.Count, $kindsWith, $all.Count, $elements)
+Write-Host ("family-check: {0} findings (kind, element, rule) in {1} of {2} kinds, {3} offending of {4} elements judged" -f $today.Count, $kindsWith, $all.Count, $offending, $walked)
 
 if ($today.Count -gt 0) {
     Write-Host "family-check: findings off the family's tokens:" -ForegroundColor Red

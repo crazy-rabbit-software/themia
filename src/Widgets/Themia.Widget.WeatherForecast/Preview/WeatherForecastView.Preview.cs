@@ -23,13 +23,12 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        _config = new WeatherForecastConfig
-        {
-            Latitude = SamplePlace.Latitude,
-            Longitude = SamplePlace.Longitude,
-            LocationName = SamplePlace.LocationName,
-            Style = _config.Style,
-        };
+        // [S-2448] The card's own config (its style, its days: what its size was drawn for) at the sample place.
+        var sample = (WeatherForecastConfig)_config.Clone();
+        sample.Latitude = SamplePlace.Latitude;
+        sample.Longitude = SamplePlace.Longitude;
+        sample.LocationName = SamplePlace.LocationName;
+        _config = sample;
 
         _applied = (WeatherForecastConfig)_config.Clone();
         _want = null;

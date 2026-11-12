@@ -23,7 +23,11 @@ internal sealed partial class ExchangeRateView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        _config = new ExchangeRateConfig { BaseCurrency = "CHF", QuoteCurrency = "EUR" };
+        // [S-2448] The card's own config with the sample pair.
+        var sample = (ExchangeRateConfig)_config.Clone();
+        sample.BaseCurrency = "CHF";
+        sample.QuoteCurrency = "EUR";
+        _config = sample;
         _table = SampleRates.Table();
         if (state == "stale")
         {

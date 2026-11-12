@@ -1207,7 +1207,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   offenders that only shrank; the shell sweep (2026-10-30) emptied it and the list is gone: **any**
   offence fails the test.
 - **[S-6731]** The **render walk** (`Themia.exe --family-check <out.json> [--theme] [--kinds]`, Debug):
-  every kind at the seven tiers in its default, its preview states and its styles, each card's header,
+  every kind at its sizes ([S-2448]: a converted one its range) in its default, its preview states and its styles, each card's header,
   view and Set up row walked element by element (a control's template skipped, its content walked)
   and judged by `FamilyCheck` (a glyph is judged as a glyph: the text inside its `FontIcon` is not
   walked): a text's size, line and weight, a glyph's size (a Hero step only in a one-readout kind,
@@ -1218,6 +1218,10 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the values stripped, `FamilyCheck.Rule`). It needs the Debug app, so it is a definition-of-done
   step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two
   themes); every kind walks clean since group G5, and the shell sweep (2026-10-30) removed the list.
+- **[S-11604]** The walk says how many elements it judged per kind (its line, the JSON's `walked`, the
+  script's total) besides how many offend, and a kind whose cards drew nothing is the finding "nothing
+  drawn", so a clean run is a run over something. (Its "0 elements" per kind counted the offending
+  elements, not the walked ones.)
 - **[S-6732]** `Themia.exe --family-blocks-png <outDir> [--theme] [--only]` draws each block in every
   variant (32 since G5) at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
   writes the same for a widget). The family's mockups draw the same variants over the same data, and
@@ -3973,6 +3977,17 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   showcase views ([S-1810]) hold a converted kind at min, natural and max, packed as the tiers are; the
   family render walk (`--family-check`) walks the range, its page sized for the largest. A store scene
   ([S-1074]) paints a converted kind fitted into its sizing as the desktop does ([S-2446]).
+- **[S-11601]** **A render draws a box as a resize to it leaves the widget** (`SizeFit.Resized`): the
+  config that size means (`SizeFit.ConfigAt`, the kind's `SizeSets`, [S-2442]: a list's rows, a pick's
+  facts, the forecast's days) and the box that config is painted at (an axis that follows the other, as
+  a camera's height its width, takes its config's size). So a count-stepped kind's min is its fewest
+  rows and its max its most, none cut off and none empty, in `--widget-png`, the showcase and the
+  family walk alike. Tests `WidgetSizingTests.S11601_`, `ShowcaseViewsTests.S11601_`.
+- **[S-11602]** A preview state fills in sample data over the card's own config (its counts, its style),
+  never a fresh default one, so it draws what the box was sized for.
+- **[S-11603]** A preview state that swaps in items of its own whose size differs (shortcuts' `grid7`,
+  `list7`, `icons`) says so (`IWidgetPreviewState.DrawnConfig`), and the render draws that card at
+  that config's min, natural or max, the page laid out again.
 
 ## Responsive layout (shared foundation)
 

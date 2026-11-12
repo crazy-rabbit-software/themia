@@ -71,7 +71,9 @@ internal sealed partial class RssView : IWidgetPreviewState
             => new(FetchStatus.Ok, doc, null, now.AddMinutes(-minutesAgo));
 
         var feeds = state == "single" || state == "empty" ? new[] { news } : new[] { news, blog, tech };
-        var config = new RssConfig { Feeds = [.. feeds.Select(url => new RssFeed { Url = url })] };
+        // [S-2448] The card's own config (its rows and lines: what its size was drawn for) with the sample feeds.
+        var config = (RssConfig)_config.Clone();
+        config.Feeds = [.. feeds.Select(url => new RssFeed { Url = url })];
         var parts = new Dictionary<string, Fetched<FeedDocument>>(StringComparer.Ordinal);
 
         switch (state)

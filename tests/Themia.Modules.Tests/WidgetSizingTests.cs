@@ -123,6 +123,41 @@ public sealed class WidgetSizingTests
         Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
     }
 
+    [Theory]
+    [MemberData(nameof(Kinds))]
+    public void S11601_a_render_s_min_and_max_boxes_are_drawn_with_the_config_that_size_means(string id)
+    {
+        var kind = new WidgetId(id);
+        if (ModuleCatalog.Of(kind).SizeSets is null)
+        {
+            return;
+        }
+
+        foreach (var shown in new[] { HeaderPlacement.Top, HeaderPlacement.Hidden, HeaderPlacement.Bottom })
+        {
+            var config = WidgetConfig.CreateDefault(kind);
+            var sizing = SizeFit.Of(config, shown);
+            foreach (var box in new[] { sizing.Min, sizing.Natural, sizing.Max })
+            {
+                var (drawn, painted) = SizeFit.Resized(config, box, shown);
+                var laidOut = SizeFit.Of(drawn, shown);
+
+                // Painted where its config is laid out (no row cut off, no row's room left empty), and on an
+                // axis that follows a count, at the size asked: the min is the fewest, the max the most.
+                Assert.Equal(painted, laidOut.Fit(painted));
+                if (laidOut.HeightSteps is { FollowsConfig: true })
+                {
+                    Assert.True(painted.Height == box.Height, $"{id} ({shown}) asked {box}, painted {painted}");
+                }
+
+                if (laidOut.WidthSteps is { FollowsConfig: true })
+                {
+                    Assert.True(painted.Width == box.Width, $"{id} ({shown}) asked {box}, painted {painted}");
+                }
+            }
+        }
+    }
+
     [Fact]
     public void S2447_a_config_change_of_rows_refits_the_stored_rect_at_its_top_left()
     {

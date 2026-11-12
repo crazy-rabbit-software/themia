@@ -77,6 +77,7 @@ internal static class FamilyCheckRender
             Window? window = null;
             Ticker? ticker = null;
             var results = new SortedDictionary<string, SortedDictionary<string, (int Count, string First)>>(StringComparer.Ordinal);
+            var walkedByKind = new Dictionary<string, int>(StringComparer.Ordinal);
 
             try
             {
@@ -117,16 +118,24 @@ internal static class FamilyCheckRender
                 {
                     var found = new SortedDictionary<string, (int Count, string First)>(StringComparer.Ordinal);
                     results[kind.Value] = found;
+                    var walked = 0;
                     foreach (var (state, style) in await VariantsAsync(page, host, kind).ConfigureAwait(true))
                     {
                         var name = (state ?? "default") + (style is null ? string.Empty : "/" + style.Value.Name);
-                        await CheckAsync(page, host, kind, state, style?.Value, [.. SizeFit.CheckedAt(SizeFit.Of(kind, style?.Value))], name, found).ConfigureAwait(true);
+                        walked += await CheckAsync(page, host, kind, state, style?.Value, [.. SizeFit.CheckedAt(SizeFit.Of(kind, style?.Value))], name, found).ConfigureAwait(true);
                     }
 
-                    Console.WriteLine($"family-check: {kind.Value} {found.Count} findings ({found.Values.Sum(f => f.Count)} elements)");
+                    // A kind whose cards drew nothing was not checked: that is a finding of its own.
+                    if (walked == 0)
+                    {
+                        found["nothing drawn"] = (1, "default");
+                    }
+
+                    walkedByKind[kind.Value] = walked;
+                    Console.WriteLine($"family-check: {kind.Value} {found.Count} findings ({found.Values.Sum(f => f.Count)} offending) over {walked} elements");
                 }
 
-                Write(outPath, theme, results);
+                Write(outPath, theme, results, walkedByKind);
                 Console.WriteLine($"family-check: wrote {outPath}");
             }
             catch (Exception ex)
@@ -166,13 +175,15 @@ internal static class FamilyCheckRender
         return variants;
     }
 
-    private static async Task CheckAsync(Canvas page, NoticeRender.RenderCardHost host, WidgetId kind, string? state, int? style, List<WidgetTier> tiers, string variant, SortedDictionary<string, (int Count, string First)> found)
+    /// <summary>Check one variant at <paramref name="tiers"/>: the number of elements walked, 0 when nothing was drawn.</summary>
+    private static async Task<int> CheckAsync(Canvas page, NoticeRender.RenderCardHost host, WidgetId kind, string? state, int? style, List<WidgetTier> tiers, string variant, SortedDictionary<string, (int Count, string First)> found)
     {
         var cards = new List<WidgetCard>();
+        var walked = 0;
         host.FixtureState = state;
         try
         {
-            WidgetRender.Place(page, host, kind, style, tiers, cards);
+            var labels = WidgetRender.Place(page, host, kind, style, tiers, cards);
             await Task.Delay(700).ConfigureAwait(true);
 
             if (state is not null)
@@ -190,6 +201,8 @@ internal static class FamilyCheckRender
                     }
                 }
 
+                // [S-11603] A state that holds its own items is judged at their size.
+                tiers = WidgetRender.Refit(page, cards, labels, tiers);
                 await Task.Delay(300).ConfigureAwait(true);
             }
 
@@ -203,6 +216,7 @@ internal static class FamilyCheckRender
                 {
                     FamilyWalk.Visit(root, fe =>
                     {
+                        walked++;
                         foreach (var fact in FamilyWalk.Facts(fe))
                         {
                             foreach (var finding in FamilyCheck.Findings(fact, oneReadout, palette, accent))
@@ -224,6 +238,8 @@ internal static class FamilyCheckRender
         {
             Clear(page, cards);
         }
+
+        return walked;
     }
 
     private static void Clear(Canvas page, List<WidgetCard> cards)
@@ -236,7 +252,7 @@ internal static class FamilyCheckRender
         page.Children.Clear();
     }
 
-    private static void Write(string path, AppTheme theme, SortedDictionary<string, SortedDictionary<string, (int Count, string First)>> results)
+    private static void Write(string path, AppTheme theme, SortedDictionary<string, SortedDictionary<string, (int Count, string First)>> results, Dictionary<string, int> walked)
     {
         System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
         using var stream = File.Create(path);
@@ -258,6 +274,15 @@ internal static class FamilyCheckRender
             }
 
             w.WriteEndArray();
+        }
+
+        w.WriteEndObject();
+
+        // How many elements each kind's cards drew and were judged: a check over nothing is no check.
+        w.WriteStartObject("walked");
+        foreach (var (kind, count) in walked.OrderBy(k => k.Key, StringComparer.Ordinal))
+        {
+            w.WriteNumber(kind, count);
         }
 
         w.WriteEndObject();

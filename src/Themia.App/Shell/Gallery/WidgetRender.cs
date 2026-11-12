@@ -242,11 +242,15 @@ internal static class WidgetRender
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 // [S-9929] A kit service widget's preview states are its provider's recordings.
                 var host = new NoticeRender.RenderCardHost(ticker) { Design = design, FixtureState = state };
-                Place(page, host, kind, style, tiers, cards);
+                // [S-11601] The cards are drawn at the boxes their configs take: the page and window follow.
+                var labels = Place(page, host, kind, style, tiers, cards);
                 if (reference)
                 {
-                    PlaceReference(page, tiers[0], width - Gap - tiers[0].Width);
+                    page.Width += tiers[0].Width + Gap;
+                    PlaceReference(page, tiers[0], page.Width - Gap - tiers[0].Width);
                 }
+
+                window.AppWindow.Resize(new SizeInt32((int)((page.Width + 40) * scale), (int)((page.Height + 80) * scale)));
 
                 await Task.Delay(800).ConfigureAwait(true);
                 await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
@@ -278,6 +282,14 @@ internal static class WidgetRender
                     }
 
                     await Task.Delay(400).ConfigureAwait(true);
+
+                    // [S-11603] A state that holds its own items is drawn at their size.
+                    if (!reference && cards.Any(c => c.View is IWidgetPreviewState { DrawnConfig: not null }))
+                    {
+                        tiers = Refit(page, cards, labels, tiers);
+                        window.AppWindow.Resize(new SizeInt32((int)((page.Width + 40) * scale), (int)((page.Height + 80) * scale)));
+                        await Task.Delay(400).ConfigureAwait(true);
+                    }
                 }
 
                 // [S-1980] Keys handed to every card before the shot, to look at a widget's keyboard
@@ -379,70 +391,147 @@ internal static class WidgetRender
         }
     }
 
-    /// <summary>One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).</summary>
-    internal static void Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
+    /// <summary>
+    /// One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).
+    /// [S-11601] Each tier is drawn as a resize to it leaves the widget: the config that size means and the
+    /// box that config is painted at, which replaces the tier in <paramref name="tiers"/> (and sizes the
+    /// page). Returns the labels, one per card, for <see cref="Refit"/>.
+    /// </summary>
+    internal static List<TextBlock> Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
     {
-        var rows = Rows(tiers);
-        var x = new double[rows.Count];
-        var top = new double[rows.Count];
-
-        for (var row = 0; row < rows.Count; row++)
+        var labels = new List<TextBlock>();
+        for (var index = 0; index < tiers.Count; index++)
         {
-            x[row] = Gap;
-            top[row] = row == 0 ? Gap : top[row - 1] + LabelHeight + rows[row - 1].Max(t => t.Height) + Gap;
-        }
+            var tier = tiers[index];
+            var label = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
+            page.Children.Add(label);
+            labels.Add(label);
 
-        for (var row = 0; row < rows.Count; row++)
-        {
-            foreach (var tier in rows[row])
+            var model = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
+            model.Background = _background.Clone();
+            model.BackgroundImage = _backgroundImage;
+            model.Scale = _scale;
+            if (_header is { } header)
             {
-                var label = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
-                label.Text = $"{tier.Name}  {tier.Width:0} x {tier.Height:0}";
-                Canvas.SetLeft(label, x[row]);
-                Canvas.SetTop(label, top[row]);
-                page.Children.Add(label);
-
-                var model = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
-                model.Background = _background.Clone();
-                model.BackgroundImage = _backgroundImage;
-                model.Scale = _scale;
-                if (_header is { } header)
-                {
-                    model.Header = header;
-                }
-                model.ItemBackground = _ownItems.Clone();
-                model.ItemTextColor = _ownItemText;
-                model.Align = _align;
-                if (style is { } chosen)
-                {
-                    WidgetStyles.Set(model.Config, chosen);
-                }
-
-                // [S-2848] --place-cleared: a widget about a place, with its place cleared.
-                PlaceRender.Apply(model.Config);
-
-                if (_span is { } seconds && model.Config is HistoryConfig gauge)
-                {
-                    gauge.GraphSpanSeconds = seconds;
-                }
-
-                var card = new WidgetCard(host, model)
-                {
-                    Width = tier.Width,
-                    Height = tier.Height,
-                };
-
-                // The size is the painted card: there is no neighbour for the gap to separate.
-                card.ApplyGap(0);
-                card.ApplyContentScale(WidgetScale.Effective(1, model.Scale));
-                Canvas.SetLeft(card, x[row]);
-                Canvas.SetTop(card, top[row] + LabelHeight);
-                page.Children.Add(card);
-                cards.Add(card);
-
-                x[row] += tier.Width + Gap;
+                model.Header = header;
             }
+            model.ItemBackground = _ownItems.Clone();
+            model.ItemTextColor = _ownItemText;
+            model.Align = _align;
+            if (style is { } chosen)
+            {
+                WidgetStyles.Set(model.Config, chosen);
+            }
+
+            // [S-2848] --place-cleared: a widget about a place, with its place cleared.
+            PlaceRender.Apply(model.Config);
+
+            if (_span is { } seconds && model.Config is HistoryConfig gauge)
+            {
+                gauge.GraphSpanSeconds = seconds;
+            }
+
+            // [S-11601] The box is a size the widget was resized to, so its config is what that size
+            // means, as a resize on the desktop leaves it ([S-2442]): a list's rows, a pick's facts, the
+            // forecast's days; and it is painted where that config is laid out (a camera's height follows
+            // its width). Nothing changes for a kind without the hook.
+            var (config, box) = SizeFit.Resized(model.Config, new SizeDip(tier.Width, tier.Height), model.ShownHeader);
+            model.Config = config;
+            tiers[index] = new WidgetTier(tier.Name, box.Width, box.Height);
+
+            var card = new WidgetCard(host, model);
+
+            // The size is the painted card: there is no neighbour for the gap to separate.
+            card.ApplyGap(0);
+            card.ApplyContentScale(WidgetScale.Effective(1, model.Scale));
+            page.Children.Add(card);
+            cards.Add(card);
         }
+
+        Arrange(page, cards, labels, tiers);
+        return labels;
+    }
+
+    /// <summary>Each card at its tier's size under its label, in <see cref="Rows"/>' order, and the page round them.</summary>
+    private static void Arrange(Canvas page, List<WidgetCard> cards, List<TextBlock> labels, List<WidgetTier> tiers)
+    {
+        var at = Positions(tiers);
+        for (var i = 0; i < cards.Count && i < at.Count; i++)
+        {
+            labels[i].Text = $"{tiers[i].Name}  {tiers[i].Width:0} x {tiers[i].Height:0}";
+            cards[i].Width = tiers[i].Width;
+            cards[i].Height = tiers[i].Height;
+            Canvas.SetLeft(labels[i], at[i].Left);
+            Canvas.SetTop(labels[i], at[i].Top);
+            Canvas.SetLeft(cards[i], at[i].Left);
+            Canvas.SetTop(cards[i], at[i].Top + LabelHeight);
+        }
+
+        (page.Width, page.Height) = PageSize(tiers);
+    }
+
+    /// <summary>Where each tier's label stands (its card under it), in <see cref="Rows"/>' order.</summary>
+    private static List<(double Left, double Top)> Positions(List<WidgetTier> tiers)
+    {
+        var at = new List<(double, double)>();
+        var top = Gap;
+        foreach (var row in Rows(tiers))
+        {
+            var x = Gap;
+            foreach (var tier in row)
+            {
+                at.Add((x, top));
+                x += tier.Width + Gap;
+            }
+
+            top += LabelHeight + row.Max(t => t.Height) + Gap;
+        }
+
+        return at;
+    }
+
+    /// <summary>
+    /// [S-11603] After the preview states: a card whose state swapped in a config of its own that is
+    /// sized otherwise (<see cref="IWidgetPreviewState.DrawnConfig"/>) is drawn at that config's size for
+    /// its tier (its min, natural or max; another box fitted into it), that size's config handed to the
+    /// view as a resize would ([S-2442]), and the page laid out again. Returns the tiers as drawn.
+    /// </summary>
+    internal static List<WidgetTier> Refit(Canvas page, List<WidgetCard> cards, List<TextBlock> labels, List<WidgetTier> tiers)
+    {
+        var drawn = new List<WidgetTier>(tiers);
+        for (var i = 0; i < cards.Count && i < tiers.Count; i++)
+        {
+            if (cards[i].View is not IWidgetPreviewState { DrawnConfig: { } config } || cards[i].View is not IWidgetView view)
+            {
+                continue;
+            }
+
+            var sizing = SizeFit.Of(config, cards[i].Model.ShownHeader);
+            if (sizing.IsLegacy)
+            {
+                continue;
+            }
+
+            var tier = tiers[i];
+            var asked = tier.Name switch
+            {
+                "min" => sizing.Min,
+                "natural" => sizing.Natural,
+                "max" => sizing.Max,
+                _ => new SizeDip(tier.Width, tier.Height),
+            };
+
+            var (sized, box) = SizeFit.Resized(config, asked, cards[i].Model.ShownHeader);
+            if (!ReferenceEquals(sized, config))
+            {
+                view.ApplyConfig(sized);
+            }
+
+            drawn[i] = new WidgetTier(tier.Name, box.Width, box.Height);
+        }
+
+        Arrange(page, cards, labels, drawn);
+        return drawn;
     }
 
     /// <summary>

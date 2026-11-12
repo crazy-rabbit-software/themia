@@ -167,6 +167,20 @@ public sealed class ShowcaseViewsTests
     }
 
     [Fact]
+    public void S11601_a_count_stepped_kind_is_held_at_its_min_and_max_with_the_config_each_size_means()
+    {
+        var facts = new WidgetId("cpuFacts");
+        var view = Assert.Single(ShowcaseViews.Build([new(facts, "CPU facts", "x")], FullHd, Gap));
+
+        foreach (var tier in SizeFit.RangeTiers(SizeFit.Of(facts)))
+        {
+            var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(facts, tier));
+            var laidOut = SizeFit.Of(widget);
+            Assert.Equal(tier.Height, laidOut.Fit(new SizeDip(tier.Width, tier.Height)).Height);
+        }
+    }
+
+    [Fact]
     public void S1812_tiers_that_do_not_fit_one_work_area_continue_on_a_second_view()
     {
         var legacy = Legacy();

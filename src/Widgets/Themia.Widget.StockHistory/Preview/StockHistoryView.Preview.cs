@@ -19,7 +19,11 @@ internal sealed partial class StockHistoryView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        _config = new StockHistoryConfig { Symbol = "MSFT", ShowMinMax = true };
+        // [S-2448] The card's own config with the sample symbol.
+        var sample = (StockHistoryConfig)_config.Clone();
+        sample.Symbol = "MSFT";
+        sample.ShowMinMax = true;
+        _config = sample;
         var quote = SampleQuote.Quote(state != "falling");
         _feed.Preview(state == "stale" ? quote.Stale(FetchStatus.Offline, null) : quote, FetchStatus.Ok);
         return Task.CompletedTask;

@@ -35,6 +35,9 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
 
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "grid3", "grid7", "grid20", "list7", "details7", "selected", "inactive", "lasso", "fullname", "icons"];
 
+    /// <summary>[S-11603] The items a state holds decide the size ([S-11202]): the render sizes the card by them.</summary>
+    public WidgetConfig? DrawnConfig { get; private set; }
+
     public Task ShowPreviewStateAsync(string state)
     {
         // [S-6006] "sample": as many items as the config holds (its size follows them, [S-11202]) in
@@ -53,7 +56,10 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
 
         if (state == "icons")
         {
-            ApplyConfig(new ShortcutsConfig { Style = _config.Style, Items = IconItems() });
+            var icons = (ShortcutsConfig)_config.Clone();
+            icons.Items = IconItems();
+            ApplyConfig(icons);
+            DrawnConfig = icons;
             UpdateLayout();
             return Task.CompletedTask;
         }
@@ -75,6 +81,7 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
         shown.Style = view;
         shown.Items = items;
         ApplyConfig(shown);
+        DrawnConfig = shown;
         UpdateLayout();
 
         switch (state)
