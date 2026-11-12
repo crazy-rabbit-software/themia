@@ -12,12 +12,13 @@ namespace Themia.App.Widgets;
 /// Debug renders only ([S-1917], [S-2711], [S-2054]): the sample day's calendar at its moment, so
 /// <c>--widget-png NextMeeting --state sample</c> draws the design review at 11:00, eighteen minutes
 /// away, without an account; <c>running</c> is the same meeting under way (11:20); <c>none</c> a
-/// calendar with nothing coming. The schedule's later meetings (today's, then the next days') are what
+/// calendar with nothing coming; <c>nolink</c> the sample with no join link anywhere, so no Join
+/// ([S-2592]). The schedule's later meetings (today's, then the next days') are what
 /// a tall card lists under the meeting ([S-2160]).
 /// </summary>
 internal sealed partial class NextMeetingView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "running", "none"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "running", "none", "nolink"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -30,6 +31,12 @@ internal sealed partial class NextMeetingView : IWidgetPreviewState
         _clock = () => now;
         UseData(new SampleCalendarData(empty: state == "none"));
         await RefreshAsync(force: true).ConfigureAwait(true);
+
+        if (state == "nolink")
+        {
+            _events = [.. _events.Select(e => e with { JoinUrl = null })];
+            Render();
+        }
     }
 }
 #endif

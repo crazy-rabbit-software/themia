@@ -6,9 +6,9 @@ drawn by, with their root tags: which event ([S-4821], `NextMeetingRules.Pick`),
 ([S-4822], `MeetingLinks`), when in words ([S-4823]) and the ladder ([S-4824], `NextMeetingLayout`).
 
 Owning files: everything in this folder: `NextMeetingModule.cs` (descriptor, view factory, JSON
-context), `NextMeetingConfig.cs`, `NextMeetingView.cs` (the event, the meetings after it (`NextMeetingFollowing.cs`), Join through its launcher, the
+context), `NextMeetingConfig.cs`, `NextMeetingJoin.cs` (where Join stands), `NextMeetingView.cs` (the event, the meetings after it (`NextMeetingFollowing.cs`), Join through its launcher, the
 calendars' data seam over `IWidgetHost.Office`, the hover link), `NextMeetingMenu.cs` (its properties-menu
-lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|running|none`),
+lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|running|none|nolink`),
 `Localization/Locales/` (its own `NextMeetingStr`, 30 languages). Tests: `Tests/NextMeetingTests.cs` and `Tests/NextMeetingMenuTests.cs`
 (run by `tests/Themia.Modules.Tests`); its config beside Recent files' is the module host's
 `DeskInfoHostTests`.
@@ -20,6 +20,20 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   the shared sync, [S-2701]) for yesterday to fourteen days on, on the calendars' 5-minute poll and
   the accounts' change event; it never fetches on its own. It never asks for birthdays (all-day,
   never a meeting; `Repair` puts `showBirthdays` back to false).
+- **[S-2591]** Join beside the meeting, not under it (owner decision 2026-11-12; `NextMeetingJoin`,
+  tests `NextMeetingJoinTests`): the meeting's lines (the when line, the title, the time, the place and
+  the organiser, as the ladder [S-4824] shows them) are a column at the start of the content box and
+  Join, the one main action, stands at its end side, vertically centred on the lines, its end on the
+  card's inset, the family's column gap (12) between them; the title is cut with its ellipsis before
+  it would run under Join. The ladder is then planned in the column's width and spends no height on
+  Join. Where the column beside Join would be under 160 (`NextMeetingJoin.MinTextColumn`, measured on
+  the content box less Join's measured width and the gap, so a longer word for Join moves it sooner),
+  Join goes back under the lines as the Controls row at the foot (8 over it) and the ladder spends its
+  height as before. Right to left mirrors: Join at the left, the lines at the right. The meetings after
+  this one ([S-2160]) stay under the block at the full width. At the tiers in English: XS, S and Tall
+  under; Wide, M, L and XL beside.
+- **[S-2592]** A meeting with no join link has no Join anywhere (`JoinPlace.None`): its lines take the
+  content box's full width and the title is always there ([S-4824]).
 - **[S-2160]** What comes after it (owner decision 2026-11-12; `NextMeetingFollowing`, tests
   `NextMeetingFollowingTests`): room left under the meeting's own lines goes to more of the widget's
   own items, the meetings after this one, from what the calendars' seam already reads (yesterday to
@@ -44,7 +58,8 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   settings page is gone): Appearance, then the calendar widgets' **Accounts** and **Calendars**
   (`OfficeMenuLines.CalendarAccounts`, [S-561]) without their colours (`colours: false`, [S-6070]:
   it draws no calendar's colour), so an account with one calendar has nothing to choose and no line,
-  and Calendars is there only while a chosen account has two or more; no display lines (no birthdays). Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`.
+  and Calendars is there only while a chosen account has two or more; no display lines (no birthdays). Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`, `nolink` (the
+  sample without a join link, [S-2592]).
 - **[S-2041]** A click on the card ([S-2000]) opens the calendar of the account it reads on the web:
   Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
   such a page ([S-2005], `NextMeetingModule.Opens`); an IMAP, CalDAV or CardDAV account opens

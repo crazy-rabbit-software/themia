@@ -49,13 +49,25 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     private readonly KitStatePanel _state;
 
     /// <summary>
-    /// [S-4824] [S-2160] The meeting: its lines from the content top, the meetings after it under them,
-    /// Join in the Controls row at the foot. The bottom inset is the content's; the side inset is each
-    /// part's, so the following meetings' rows reach both edges as every Row does.
+    /// [S-4824] [S-2160] [S-2591] The meeting: its lines from the content top with Join beside them (or
+    /// in the Controls row at the foot where the card is too narrow), the meetings after it under them.
+    /// The bottom inset is the content's; the side inset is each part's, so the following meetings'
+    /// rows reach both edges as every Row does.
     /// </summary>
     private readonly Grid _content = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Visibility = Visibility.Collapsed };
 
-    private readonly StackPanel _text = new() { Spacing = NextMeetingLayout.Gap, Margin = Family.SideInset };
+    /// <summary>[S-2591] The meeting's block: its lines a column at the start, Join at the end beside them.</summary>
+    private readonly Grid _block = new()
+    {
+        Margin = Family.SideInset,
+        ColumnDefinitions =
+        {
+            new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+            new ColumnDefinition { Width = GridLength.Auto },
+        },
+    };
+
+    private readonly StackPanel _text = new() { Spacing = NextMeetingLayout.Gap, VerticalAlignment = VerticalAlignment.Center };
 
     /// <summary>[S-2160] The meetings after this one: a Caption label in the secondary role over one-line Rows.</summary>
     private readonly StackPanel _after = new() { Margin = new Thickness(0, NextMeetingFollowing.Gap, 0, 0), Visibility = Visibility.Collapsed };
@@ -72,7 +84,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     private readonly (Grid Row, TextBlock Text) _location = DetailLine(Glyphs.Place);
     private readonly (Grid Row, TextBlock Text) _organizer = DetailLine(Glyphs.Contact);
 
-    /// <summary>[S-4824] Join: the one main action ([S-6716]), at the content's foot.</summary>
+    /// <summary>[S-4824] [S-2591] Join: the one main action ([S-6716]), beside the meeting or at the content's foot.</summary>
     private readonly ControlsBlock _controls = new();
     private readonly Button _join;
 
@@ -105,6 +117,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _state = new(Glyphs.Meeting, host) { Visibility = Visibility.Collapsed };
 
         _join = _controls.Main(NextMeetingStr.Meeting_Join.Text(), Join);
+        _join.Loaded += OnJoinLoaded;
 
         _text.Children.Add(_when);
         _text.Children.Add(_title);
@@ -114,9 +127,9 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
         _afterLabel.Margin = Family.SideInset;
         _after.Children.Add(_afterLabel);
-        _controls.Margin = Family.SideInset;
-        _content.Children.Add(new StackPanel { VerticalAlignment = VerticalAlignment.Top, Children = { _text, _after } });
-        _content.Children.Add(_controls);
+        _block.Children.Add(_text);
+        _content.Children.Add(new StackPanel { VerticalAlignment = VerticalAlignment.Top, Children = { _block, _after } });
+        PlaceJoin(JoinPlace.Under);
         _content.Background = Family.Brush(ColourRole.Clear);
         _content.PointerEntered += OnPointerEntered;
         _content.PointerExited += OnPointerExited;
@@ -189,6 +202,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _content.PointerEntered -= OnPointerEntered;
         _content.PointerExited -= OnPointerExited;
         _content.Tapped -= OnTapped;
+        _join.Loaded -= OnJoinLoaded;
         _state.Detach();
     }
 
@@ -353,10 +367,15 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _state.Hide();
         var locale = Strings.Current;
         var zone = TimeZoneInfo.Local;
-        var join = item.JoinUrl is not null;
         var box = new WidgetArea(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - FamilySpace.Inset));
+        var joinWidth = JoinWidth();
+        var place = NextMeetingJoin.Place(item.JoinUrl is not null, box.Width, joinWidth);
+        PlaceJoin(place);
+
+        // [S-2591] Beside the lines Join costs width, not height: the lines are planned in their column.
+        var join = place == JoinPlace.Under;
         var plan = NextMeetingLayout.Plan(
-            box,
+            box.IsMeasured ? new WidgetArea(NextMeetingJoin.TextWidth(place, box.Width, joinWidth), box.Height) : box,
             join,
             !string.IsNullOrWhiteSpace(item.Location),
             !string.IsNullOrWhiteSpace(item.Organizer));
@@ -374,10 +393,56 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
         ShowAfter(NextMeetingFollowing.After(_events, item, now, zone, NextMeetingFollowing.LaterDays(_area)), NextMeetingFollowing.Rows(box.Height, plan, join, int.MaxValue), locale, now, zone);
 
-        _controls.Visibility = Show(join);
+        _controls.Visibility = Show(place != JoinPlace.None);
         ToolTipService.SetToolTip(_join, NextMeetingStr.Meeting_JoinTip.Text());
         ToolTipService.SetToolTip(_text, Describe(item, locale, zone));
         _content.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// [S-2591] Join's width as the button measures it in this language (its template's own minimum
+    /// and padding included); before its template is applied, its label on the Body step and the
+    /// family's padding either side, and the button's first layout draws again (<see cref="OnJoinLoaded"/>).
+    /// </summary>
+    private double JoinWidth()
+    {
+        _join.Measure(new Windows.Foundation.Size(double.PositiveInfinity, FamilyShape.Button));
+        if (_join.DesiredSize.Width > 0)
+        {
+            return _join.DesiredSize.Width;
+        }
+
+        if (_join.Content is not TextBlock label)
+        {
+            return 0;
+        }
+
+        label.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        return label.DesiredSize.Width + (2 * FamilyShape.ButtonPadding);
+    }
+
+    /// <summary>[S-2591] Join measures its real width once laid out: place it again on that.</summary>
+    private void OnJoinLoaded(object sender, RoutedEventArgs args) => Render();
+
+    /// <summary>
+    /// [S-2591] Put Join where <paramref name="place"/> says: in the block's end column, centred on the
+    /// lines with the family's column gap before it, or the Controls row at the content's foot.
+    /// </summary>
+    private void PlaceJoin(JoinPlace place)
+    {
+        var beside = place == JoinPlace.Beside;
+        Panel parent = beside ? _block : _content;
+        _block.ColumnSpacing = beside ? NextMeetingJoin.Gap : 0;
+
+        if (!ReferenceEquals(_controls.Parent, parent))
+        {
+            (_controls.Parent as Panel)?.Children.Remove(_controls);
+            parent.Children.Add(_controls);
+        }
+
+        SetColumn(_controls, beside ? 1 : 0);
+        _controls.Margin = beside ? new Thickness(0) : Family.SideInset;
+        _controls.VerticalAlignment = beside ? VerticalAlignment.Center : VerticalAlignment.Bottom;
     }
 
     /// <summary>
