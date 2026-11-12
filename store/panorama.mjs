@@ -177,10 +177,10 @@ export const frames = [
         ...screen,
         // On the open wallpaper under the edit bar, a line up to each part of it; one beside the widget's menu.
         bubbles: [
-          { at: [620, 58], to: [790, 334] },
+          { at: [620, 58], to: [790, 324] },
           { at: [1092, 58], to: [1010, 352] },
-          { at: [1236, 58], to: [1130, 432] },
-          { at: [1339, 58], to: [1215, 352] },
+          { at: [1236, 58], to: [1110, 432] },
+          { at: [1339, 58], to: [1200, 352] },
           { at: [873, 420], to: [1100, 530] },
         ],
       },
