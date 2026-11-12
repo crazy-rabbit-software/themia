@@ -130,9 +130,11 @@ public static class MeterPlan
     /// is largest in the room under the reading; none when that ring is under <see cref="RingFloor"/>.
     /// </summary>
     public static MeterGrid Rings(WidgetArea area, TypeStep step, int count)
+        => Rings(Content(area).Width, PartHeight(area, step), count);
+
+    /// <summary>[S-6305] [S-11005] The rings' grid in a box of <paramref name="width"/> × <paramref name="height"/>.</summary>
+    public static MeterGrid Rings(double width, double height, int count)
     {
-        var width = Content(area).Width;
-        var height = PartHeight(area, step);
         var best = MeterGrid.None;
 
         for (var columns = 1; columns <= count; columns++)
@@ -155,9 +157,11 @@ public static class MeterPlan
     /// cell shows its figure over its graph from <see cref="GraphFigureFloor"/>.
     /// </summary>
     public static MeterGrid Graphs(WidgetArea area, TypeStep step, int count)
+        => Graphs(Content(area).Width, PartHeight(area, step), count);
+
+    /// <summary>[S-6317] [S-11005] The graphs' grid in a box of <paramref name="width"/> × <paramref name="height"/>.</summary>
+    public static MeterGrid Graphs(double width, double height, int count)
     {
-        var width = Content(area).Width;
-        var height = PartHeight(area, step);
         var best = MeterGrid.None;
         var bestScore = 0.0;
 
@@ -206,11 +210,12 @@ public static class MeterPlan
     {
         var width = Content(area).Width;
         var height = Math.Floor(Math.Min(PartHeight(area, step), (width - Cap) / 2));
-        if (height < PartFloor)
-        {
-            return null;
-        }
+        return height < PartFloor ? null : Picture(height);
+    }
 
+    /// <summary>[S-6262] [S-11004] The battery's picture for a body <paramref name="height"/> tall: its cap and the bolt that fits it.</summary>
+    public static BatteryPicture Picture(double height)
+    {
         var inner = height - (2 * FillInset);
         var bolt = 0.0;
         foreach (var icon in FamilyShape.Icons)
@@ -255,7 +260,13 @@ public static class MeterPlan
             return [];
         }
 
-        var width = Math.Min(Content(area).Width, Math.Round(height * SignalAspect));
+        return SignalBars(Content(area).Width, height);
+    }
+
+    /// <summary>[S-6263] [S-11004] Four bars in a box <paramref name="height"/> tall, at most <paramref name="room"/> wide.</summary>
+    public static IReadOnlyList<(double Width, double Height)> SignalBars(double room, double height)
+    {
+        var width = Math.Min(room, Math.Round(height * SignalAspect));
         var bar = Math.Floor((width - (3 * FamilySpace.S1)) / PingSignal.BarCount);
         if (bar < 1)
         {

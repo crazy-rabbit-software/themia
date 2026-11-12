@@ -176,9 +176,30 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private ReadoutText? HeroOf(DetailSheet sheet)
         => _part.HasHero && sheet.Hero is not null ? ReadoutRules.Split(_part.HeroWorst) with { LineUnder = sheet.Caption is not null } : null;
 
+    /// <summary>[S-11007] The fact rows the tile shows: a facts atom's pick, else the sheet's own.</summary>
+    private IReadOnlyList<DetailFact> FactsOf(DetailSheet sheet)
+        => _part.Atom == DetailAtom.Facts && _config is FactsConfig facts
+            ? FactsRules.Pick(Strings.Current, sheet, facts.Facts, _part.FactOptions)
+            : sheet.Facts;
+
     /// <summary>[S-2402] The face <paramref name="sheet"/> gets in this tile.</summary>
     private DetailFacePlan PlanFor(DetailSheet sheet)
     {
+        // [S-11007] [S-11008] An atom shows what its config says at every size: its picked facts, or
+        // its list's rows (more scroll inside them), from the view's top.
+        switch (_part.Atom)
+        {
+            case DetailAtom.Facts:
+                return new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, FactsOf(sheet).Count, 0, 1);
+
+            case DetailAtom.List:
+                var shown = _config is Themia.Sdk.Kit.IKitRows list ? Themia.Sdk.Kit.KitSizing.ClampRows(list.Rows) : 1;
+                return new DetailFacePlan(false, FamilyType.Big28, false, 0, 0, 0, sheet.Rows.Count == 0 ? 0 : shown, Math.Clamp(_part.ListLines, 1, 3));
+
+            default:
+                break;
+        }
+
         var rows = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, sheet.Rows.Count) : sheet.Rows.Count;
         return DetailFace.Plan(_area, new DetailShape(HeroOf(sheet), sheet.Facts.Count, rows, DetailFace.ListLines(sheet.Rows)));
     }
@@ -267,9 +288,10 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         // [S-1940] Not on this machine: the whole tile says why, every part of it disabled.
         UnavailableLook.Say(this, _sheet.Absent ? _sheet.Note : null);
 
-        for (var i = 0; i < plan.Facts && i < _sheet.Facts.Count && i < _factRows.Count; i++)
+        var facts = FactsOf(_sheet);
+        for (var i = 0; i < plan.Facts && i < facts.Count && i < _factRows.Count; i++)
         {
-            var fact = _sheet.Facts[i];
+            var fact = facts[i];
             _factRows[i].Show(fact.Label, fact.Value);
             _factRows[i].Available = fact.Available && !_sheet.Absent;
         }

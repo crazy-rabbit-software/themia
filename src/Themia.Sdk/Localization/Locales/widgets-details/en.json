@@ -1,5 +1,14 @@
 {
   "$comment": "[S-2400] The system detail widgets (CPU, memory, processes, network, battery, ping, GPU).",
+  "$englishOnly": [
+    "details.facts",
+    "details.cpu.speed",
+    "details.memory.inUse",
+    "details.gpu.dedicated",
+    "details.network.download",
+    "details.battery.charge",
+    "details.battery.status"
+  ],
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
   "details.units.celsius": "{value} °C",
@@ -67,5 +76,12 @@
   "details.gpu.fan": "Fan",
   "details.gpu.clock": "GPU clock",
   "details.gpu.memoryClock": "Memory clock",
-  "details.settings.gpu.adapter.label": "Adapter"
+  "details.settings.gpu.adapter.label": "Adapter",
+  "details.facts": "Facts",
+  "details.cpu.speed": "Speed",
+  "details.memory.inUse": "In use",
+  "details.gpu.dedicated": "Dedicated memory",
+  "details.network.download": "Download",
+  "details.battery.charge": "Charge",
+  "details.battery.status": "Status"
 }

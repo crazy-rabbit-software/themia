@@ -120,14 +120,14 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         _config = config.Kind == _kind ? config : WidgetConfig.CreateDefault(_kind);
 
         var gauge = _config as GaugeConfig;
-        _graph = gauge is { DrawsHistory: true };
+        _graph = gauge is { DrawsHistory: true } || _part.Atom == MeterAtom.History;
 
         _part.ApplyConfig(_config, this);
         UseLook(_part.Look(_config));
 
         // [S-1121] The span at the series' spacing ([S-2512]: a ping point is five seconds).
         var series = _part.Series(_config);
-        var capacity = MeterTiming.Points(gauge?.GraphSpanSeconds ?? 60, series.Key.PeriodSeconds);
+        var capacity = MeterTiming.Points((_config as ISpansHistory)?.GraphSpanSeconds ?? 60, series.Key.PeriodSeconds);
         var grew = capacity > _band.Capacity;
         _band.Capacity = capacity;
 

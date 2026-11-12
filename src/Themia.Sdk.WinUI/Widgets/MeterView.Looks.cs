@@ -107,7 +107,7 @@ public sealed partial class MeterView
 
     private void Build(MeterLook look)
     {
-        _band.Visibility = look == MeterLook.Graph ? Visibility.Visible : Visibility.Collapsed;
+        _band.Visibility = look is MeterLook.Graph or MeterLook.History ? Visibility.Visible : Visibility.Collapsed;
 
         switch (look)
         {
@@ -496,6 +496,12 @@ public sealed partial class MeterView
             return;
         }
 
+        if (_part.Sized)
+        {
+            LaySized();
+            return;
+        }
+
         var worst = Worst;
 
         // [S-2449] A converted meter's reading is the family's 28 whatever the card's size.
@@ -567,53 +573,186 @@ public sealed partial class MeterView
                 }
                 break;
 
-            case MeterLook.Battery when _body is not null && _batteryBody is not null && _batteryCap is not null && _bolt is not null && _batteryFill is not null:
+            case MeterLook.Battery when _body is not null:
                 _reading.Use(step);
-                _picture = MeterPlan.Battery(_area, step);
-                _body.Visibility = _picture is null ? Visibility.Collapsed : Visibility.Visible;
-                if (_picture is { } picture)
-                {
-                    _batteryBody.Width = picture.BodyWidth;
-                    _batteryBody.Height = picture.Height;
-                    _batteryCap.Height = picture.CapHeight;
-                    _batteryCap.CornerRadius = Family.Round(MeterPlan.Cap, picture.CapHeight);
-                    _batteryFill.Width = picture.FillWidth(_charge);
-                    if (picture.Bolt > 0)
-                    {
-                        _bolt.FontSize = picture.Bolt;
-                        _bolt.Width = picture.Bolt;
-                        _bolt.Height = picture.Bolt;
-                    }
-                }
-
-                if (_last is { } reading)
-                {
-                    PaintBattery(reading, MeterPlan.Role(_part.PressureOf(reading), reading.Absent));
-                }
-
+                LayBattery(MeterPlan.Battery(_area, step));
                 break;
 
             case MeterLook.Signal when _body is not null:
                 _reading.Use(step);
-                var bars = MeterPlan.Signal(_area, step);
-                _body.Visibility = bars.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-                for (var i = 0; i < _bars.Count && i < bars.Count; i++)
-                {
-                    _bars[i].Width = bars[i].Width;
-                    _bars[i].Height = bars[i].Height;
-                    _bars[i].CornerRadius = bars[i].Width >= 2 * FamilyShape.Radius ? Family.Radius : Family.Round(bars[i].Width, bars[i].Height);
-                }
-
-                if (_body is Grid signal && bars.Count > 0)
-                {
-                    signal.Height = bars[^1].Height;
-                }
-
+                LaySignal(MeterPlan.Signal(_area, step));
                 break;
 
             default:
                 _reading.Use(step);
                 break;
+        }
+    }
+
+    /// <summary>
+    /// [S-11000] An atom's face in the box it is given, the same parts at every size ([S-2438]): a
+    /// reading at 28 in its drawing, the history edge to edge, or the items in the card's inset. A
+    /// larger card is a longer chart, a larger dial or wider rows, never more parts.
+    /// </summary>
+    private void LaySized()
+    {
+        var atom = _part.Atom;
+        _reading.Visibility = atom == MeterAtom.Reading ? Visibility.Visible : Visibility.Collapsed;
+        _reading.Use(FamilyType.Big28);
+
+        // The reading's content box: the side insets and the foot's (the header stands above the view).
+        var width = Math.Max(0, _area.Width - (2 * FamilySpace.Inset));
+        var height = Math.Max(0, _area.Height - FamilySpace.Inset);
+
+        if (atom == MeterAtom.History)
+        {
+            // [S-11002] The band alone, edge to edge, from the view's top to its foot.
+            SetRow(_band, 0);
+            SetRowSpan(_band, 2);
+            _band.Margin = default;
+            _band.Visibility = Visibility.Visible;
+            return;
+        }
+
+        if (atom == MeterAtom.Items && _body is not null)
+        {
+            // [S-11005] Items alone, from the view's top. Rows carry their own side inset and stand
+            // under the header; the cores' bars, rings and graphs start headerless, in the card's inset.
+            SetRow(_body, 0);
+            SetRowSpan(_body, 2);
+            var rows = _look == MeterLook.Rows;
+            _body.Margin = rows ? new Thickness(0, 0, 0, FamilySpace.Inset) : Family.Inset;
+            if (!rows)
+            {
+                height = Math.Max(0, _area.Height - (2 * FamilySpace.Inset));
+            }
+        }
+
+        switch (_look)
+        {
+            case MeterLook.Gauge:
+            case MeterLook.Ring:
+                LaySizedDial(width, height);
+                break;
+
+            case MeterLook.Numbers when _box is not null && _second is not null:
+                // [S-11001] Download over upload, 8 apart, both at 28.
+                _box.RowDefinitions.Clear();
+                _box.ColumnDefinitions.Clear();
+                _box.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                _box.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                SetColumn(_second, 0);
+                SetRow(_second, 1);
+                _second.Use(FamilyType.Big28);
+                break;
+
+            case MeterLook.Columns when _body is not null:
+                _body.Visibility = Visibility.Visible;
+                break;
+
+            case MeterLook.Rows:
+                for (var i = 0; i < _rows.Count; i++)
+                {
+                    _rows[i].Visibility = Visibility.Visible;
+                    _rows[i].NameText.MaxWidth = width / 2;
+                }
+
+                break;
+
+            case MeterLook.Tiles when _body is Grid grid:
+                LayGrid(grid, MeterPlan.Rings(width, height, _rings.Count), _rings);
+                break;
+
+            case MeterLook.Graphs when _body is Grid grid:
+                LayGrid(grid, MeterPlan.Graphs(width, height, _cells.Count), [.. _cells.Select(c => (FrameworkElement)c.Root)]);
+                foreach (var cell in _cells)
+                {
+                    cell.Overlay();
+                }
+
+                break;
+
+            case MeterLook.Battery:
+                LayBattery(MeterPlan.Picture(MeterSizing.BatteryIn(width, height).Height));
+                break;
+
+            case MeterLook.Signal:
+                LaySignal(MeterPlan.SignalBars(width, MeterSizing.SignalIn(width, height)));
+                break;
+
+            default:
+                _band.Visibility = Visibility.Collapsed;
+                break;
+        }
+    }
+
+    /// <summary>[S-11003] The gauge or the ring as large as the content box takes, the reading at 28 in it.</summary>
+    private void LaySizedDial(double width, double height)
+    {
+        if (_box is null || _dial is null)
+        {
+            return;
+        }
+
+        var gauge = _look == MeterLook.Gauge;
+        var diameter = gauge ? MeterSizing.GaugeIn(width, height) : MeterSizing.RingIn(width, height);
+        _dial.Visibility = Visibility.Visible;
+        _box.Width = diameter;
+        _box.Height = gauge ? ChartRules.GaugeHeight(diameter) : diameter;
+        _reading.HorizontalAlignment = HorizontalAlignment.Center;
+        _reading.VerticalAlignment = gauge ? VerticalAlignment.Bottom : VerticalAlignment.Center;
+    }
+
+    /// <summary>[S-6262] The battery's picture laid out (none: not drawn), its charge painted again.</summary>
+    private void LayBattery(BatteryPicture? plan)
+    {
+        if (_body is null || _batteryBody is null || _batteryCap is null || _bolt is null || _batteryFill is null)
+        {
+            return;
+        }
+
+        _picture = plan;
+        _body.Visibility = _picture is null ? Visibility.Collapsed : Visibility.Visible;
+        if (_picture is { } picture)
+        {
+            _batteryBody.Width = picture.BodyWidth;
+            _batteryBody.Height = picture.Height;
+            _batteryCap.Height = picture.CapHeight;
+            _batteryCap.CornerRadius = Family.Round(MeterPlan.Cap, picture.CapHeight);
+            _batteryFill.Width = picture.FillWidth(_charge);
+            if (picture.Bolt > 0)
+            {
+                _bolt.FontSize = picture.Bolt;
+                _bolt.Width = picture.Bolt;
+                _bolt.Height = picture.Bolt;
+            }
+        }
+
+        if (_last is { } reading)
+        {
+            PaintBattery(reading, MeterPlan.Role(_part.PressureOf(reading), reading.Absent));
+        }
+    }
+
+    /// <summary>[S-6263] The signal bars laid out (none: not drawn).</summary>
+    private void LaySignal(IReadOnlyList<(double Width, double Height)> bars)
+    {
+        if (_body is null)
+        {
+            return;
+        }
+
+        _body.Visibility = bars.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        for (var i = 0; i < _bars.Count && i < bars.Count; i++)
+        {
+            _bars[i].Width = bars[i].Width;
+            _bars[i].Height = bars[i].Height;
+            _bars[i].CornerRadius = bars[i].Width >= 2 * FamilyShape.Radius ? Family.Radius : Family.Round(bars[i].Width, bars[i].Height);
+        }
+
+        if (_body is Grid signal && bars.Count > 0)
+        {
+            signal.Height = bars[^1].Height;
         }
     }
 
@@ -710,6 +849,22 @@ public sealed partial class MeterView
         {
             _figure.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
             Root.RowSpacing = shown ? FamilySpace.S1 : 0;
+        }
+
+        /// <summary>[S-11005] The figure over the graph's top corner, the graph the whole cell: one face at every cell size.</summary>
+        public void Overlay()
+        {
+            if (Root.Children[^1] != _figure)
+            {
+                Root.Children.Remove(_figure);
+                Root.Children.Add(_figure);
+                SetRow(Band, 0);
+                SetRowSpan(Band, 2);
+                Root.RowSpacing = 0;
+                _figure.Margin = new Thickness(FamilySpace.S1, 0, 0, 0);
+            }
+
+            _figure.Visibility = Visibility.Visible;
         }
 
         /// <summary>One read of a core: a point on its history when <paramref name="point"/>, its figure and its role.</summary>

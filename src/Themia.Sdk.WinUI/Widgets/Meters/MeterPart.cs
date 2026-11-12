@@ -27,44 +27,6 @@ public interface IMeterHost
     void SetAbsent(string? reason);
 }
 
-/// <summary>
-/// [S-6300] What a meter's style draws besides its reading: the history ([S-1762]), a gauge round
-/// the reading, or the kind's items (cores, a used/free bar) as bars or tiles. The shared
-/// <see cref="MeterView"/> lays each on the same ladder; a kind only says which (<see cref="MeterPart.Look"/>).
-/// </summary>
-public enum MeterLook
-{
-    /// <summary>[S-1762] The reading over its history.</summary>
-    Graph = 0,
-
-    /// <summary>[S-6302] The reading inside a half-circle gauge of the same share.</summary>
-    Gauge = 1,
-
-    /// <summary>[S-6303] The reading over a vertical bar per item (<see cref="MeterPart.WatchItems"/>).</summary>
-    Columns = 2,
-
-    /// <summary>[S-6304] The reading over a labelled bar row per item.</summary>
-    Rows = 3,
-
-    /// <summary>[S-6305] The reading over a tile per item, shaded by its load.</summary>
-    Tiles = 4,
-
-    /// <summary>[S-6264] The reading and its second figure (upload beside download), both large, no history.</summary>
-    Numbers = 5,
-
-    /// <summary>[S-6262] A battery filled to the reading, the figure beside or under it.</summary>
-    Battery = 6,
-
-    /// <summary>[S-6266] A ring filled to the reading, the figure inside it.</summary>
-    Ring = 7,
-
-    /// <summary>[S-6263] Signal bars by the reading's latency, the figure beside or under them.</summary>
-    Signal = 8,
-
-    /// <summary>[S-6317] The reading over a tile per item, each the item's own history and figure.</summary>
-    Graphs = 9,
-}
-
 /// <summary>[S-6300] One item a bar or tile look draws: its share (null: no reading), its colour, and a row's words.</summary>
 public readonly record struct MeterItem(double? Fraction, MeterPressure Pressure, string? Label = null, string? Value = null);
 
@@ -216,6 +178,12 @@ public abstract class MeterPart
     /// drawn, longer or larger as the card is). False: the legacy ladder ([S-1762], [S-2443]).
     /// </summary>
     public virtual bool Sized => false;
+
+    /// <summary>
+    /// [S-11000] Which of its subject's atoms this face is: the reading (the default), the history alone,
+    /// or the items alone (the cores, the engines). Only a <see cref="Sized"/> part is anything but the reading.
+    /// </summary>
+    public virtual MeterAtom Atom => MeterAtom.Reading;
 
     /// <summary>
     /// [S-6300] Watch the items a <see cref="MeterLook.Columns"/>, <see cref="MeterLook.Rows"/> or

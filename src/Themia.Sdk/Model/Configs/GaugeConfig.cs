@@ -17,7 +17,7 @@ public enum MeterSetting
 /// How often it samples is not a setting: every system figure moves on the hub's one cadence
 /// ([S-2503]). Each kind's own options live in its own file beside this one.
 /// </summary>
-public abstract class GaugeConfig : WidgetConfig, IShownSettings<MeterSetting>, IDrawsItems
+public abstract class GaugeConfig : WidgetConfig, IShownSettings<MeterSetting>, IDrawsItems, ISpansHistory
 {
     /// <summary>
     /// [S-6573] The shared meter view paints items only in its bar, tile, gauge, ring, core-graph and
