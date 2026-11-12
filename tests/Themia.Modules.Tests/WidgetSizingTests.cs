@@ -1,4 +1,6 @@
+using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
@@ -30,7 +32,7 @@ public sealed class WidgetSizingTests
         "screenTimeChart", "screenTimeDonut", "shortcuts", "shutdown", "signOut", "sleep", "soundToggle",
         "spatialSoundToggle", "stocks", "stopwatch", "sun", "topProcesses", "videoStream", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
-        "clock", "memory", "tasks",
+        "clock", "memory",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];
@@ -99,6 +101,68 @@ public sealed class WidgetSizingTests
 
     private static string StateJsonOf(WidgetConfig config)
         => System.Text.Json.JsonSerializer.Serialize(config, Themia.Core.Storage.StateJson.WidgetConfig);
+
+    private static readonly ScreenMetrics Screen = new(1000, 1000);
+
+    [Fact]
+    public void S2442_a_task_list_dragged_to_five_rows_tall_has_five_rows_and_the_given_config_stays()
+    {
+        var config = new TasksConfig { Rows = 6 };
+        var five = new FracRect(0.1, 0.1, 0.3, (36 + (5 * 28) + 28 + 12) / 1000.0);
+
+        var next = SizeFit.ConfigFor(config, five, Screen, scale: 1, gapPx: 0, HeaderPlacement.Top);
+
+        Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
+        Assert.Equal(6, config.Rows);
+        Assert.Same(config, SizeFit.ConfigFor(config, five with { H = (36 + (6 * 28) + 28 + 12) / 1000.0 }, Screen, 1, 0, HeaderPlacement.Top));
+    }
+
+    [Fact]
+    public void S2442_a_hidden_header_is_taken_off_before_the_kind_is_asked()
+    {
+        var config = new TasksConfig { Rows = 6 };
+        var fiveHeaderless = new FracRect(0.1, 0.1, 0.3, (12 + (5 * 28) + 28 + 12) / 1000.0);
+
+        var next = SizeFit.ConfigFor(config, fiveHeaderless, Screen, 1, 0, HeaderPlacement.Hidden);
+        Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
+    }
+
+    [Fact]
+    public void S2447_a_config_change_of_rows_refits_the_stored_rect_at_its_top_left()
+    {
+        var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, (36 + (6 * 28) + 28 + 12) / 1000.0));
+        ((TasksConfig)widget.Config).Rows = 3;
+
+        Assert.True(SizeFit.Refit(widget, Screen, 1, 0));
+        Assert.Equal(0.2, widget.Rect.X, 9);
+        Assert.Equal(0.2, widget.Rect.Y, 9);
+        Assert.Equal((36 + (3 * 28) + 28 + 12) / 1000.0, widget.Rect.H, 9);
+        Assert.False(SizeFit.Refit(widget, Screen, 1, 0));
+    }
+
+    [Fact]
+    public void S2440_tasks_draws_two_lines_only_where_a_row_has_a_second_line()
+    {
+        var local = new TasksConfig { Source = TaskSource.Local, Lines = 2 };
+        var today = new TasksConfig { ListId = TaskRules.TodayListId, Lines = 2 };
+        var compact = new TasksConfig { ListId = TaskRules.TodayListId, Lines = 2, Style = TasksStyle.Compact };
+
+        Assert.Equal(1, local.RowsShown.Lines);
+        Assert.Equal(2, today.RowsShown.Lines);
+        Assert.Equal(1, compact.RowsShown.Lines);
+        Assert.Equal(36 + (6 * 40) + 28 + 12, ModuleCatalog.Of(new WidgetId("tasks")).Sizing(today).Natural.Height);
+    }
+
+    [Fact]
+    public void S2440_rows_out_of_range_are_repaired_and_a_copy_keeps_them()
+    {
+        var config = new TasksConfig { Rows = 99, Lines = 7 };
+        Assert.NotEmpty(config.Repair());
+        Assert.Equal((20, 2), (config.Rows, config.Lines));
+
+        var copy = (TasksConfig)config.Clone();
+        Assert.Equal((20, 2), (copy.Rows, copy.Lines));
+    }
 
     [Fact]
     public void S2443_the_legacy_kinds_are_exactly_the_list_and_the_list_only_shrinks()

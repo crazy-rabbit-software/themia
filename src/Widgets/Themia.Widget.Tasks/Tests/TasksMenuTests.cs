@@ -74,11 +74,22 @@ public sealed class TasksMenuTests
 
         Assert.Equal(
             [
-                From, ListLabel, string.Empty,
+                From, ListLabel, string.Empty, Str.Kit_Rows.Text(),
                 TasksStr.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), string.Empty,
                 TasksStr.Todo_ShowCompleted_Label.Text(), TasksStr.WidgetsC_Tasks_Settings_Filter.Text(), TasksStr.WidgetsC_Tasks_Settings_NewOnTop_Label.Text(),
             ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
+    }
+
+    [Fact]
+    public void S2440_rows_are_offered_always_and_lines_per_row_only_where_a_task_has_a_second_line()
+    {
+        var plain = Build(new TasksConfig(), Accounts()).Lines.Select(l => l.Text).ToList();
+        var today = Build(new TasksConfig { ListId = Themia.Core.Tasks.TaskRules.TodayListId }, Accounts()).Lines.Select(l => l.Text).ToList();
+
+        Assert.Contains(Str.Kit_Rows.Text(), plain);
+        Assert.DoesNotContain(Str.Kit_Lines.Text(), plain);
+        Assert.Contains(Str.Kit_Lines.Text(), today);
     }
 
     [Fact]

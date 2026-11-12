@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Tasks;
 using Themia.App.Services.Accounts;
@@ -38,7 +39,8 @@ public sealed class TasksModule : IWidgetModule
         Label = TasksStr.WidgetsA_Catalog_Tasks_Label.Local(),
         Description = TasksStr.WidgetsA_Catalog_Tasks_Description.Local(),
         Glyph = Glyphs.Task,
-        Sizing = _ => WidgetSizing.Legacy(320, 320),
+        Sizing = c => KitSizing.Sizing(((TasksConfig)c).RowsShown, addFooter: true),
+        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((TasksConfig)c).RowsShown, addFooter: true),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
     };

@@ -6,6 +6,7 @@ using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Widget.Tasks;
 
 namespace Themia.Core.Model;
@@ -33,8 +34,22 @@ public enum TasksSetting
 /// quietly swapped for another — that widget says so instead.
 /// </para>
 /// </summary>
-public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>, ISetupRule, IInterests
+public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>, ISetupRule, IInterests, IKitRows
 {
+    /// <summary>[S-2440] How many tasks the list shows; more scroll. Its height follows.</summary>
+    public int Rows { get; set; } = KitSizing.DefaultRows;
+
+    /// <summary>[S-2440] Lines per task: two puts the list's name under each task, which only Today's tasks have ([S-596]).</summary>
+    public int Lines { get; set; } = 2;
+
+    /// <summary>[S-2440] Whether a task's row can have a second line: the list it is on, under Today only, and not in the Compact style.</summary>
+    [JsonIgnore]
+    public bool HasSecondLine => Source == TaskSource.Account && TaskRules.IsToday(ListId) && Style != TasksStyle.Compact;
+
+    /// <summary>[S-2440] The rows as drawn: the chosen count, two lines only where a row has a second line.</summary>
+    [JsonIgnore]
+    public KitRowsChoice RowsShown => new(KitSizing.ClampRows(Rows), HasSecondLine ? KitSizing.ClampLines(Lines) : 1);
+
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
     string? ISetupRule.SetupSentence => TasksStr.Tasks_Setup_Sentence.Text();
 
@@ -177,6 +192,12 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
             repairs.Add("a Tasks widget named an unknown source; it reads an account again");
         }
 
+        if (Rows != KitSizing.ClampRows(Rows) || Lines != KitSizing.ClampLines(Lines))
+        {
+            (Rows, Lines) = (KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines));
+            repairs.Add("a Tasks widget's rows or lines were out of range");
+        }
+
         var order = TaskRules.CleanOrder(TaskOrder);
         if (order.Count != TaskOrder.Count)
         {
@@ -202,5 +223,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         ImportantOnly = ImportantOnly,
         TextFilter = TextFilter,
         TaskOrder = [.. TaskOrder],
+        Rows = Rows,
+        Lines = Lines,
     };
 }

@@ -21,9 +21,13 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
 - **[S-592]** The list picker offers the account's default list, Today, then its lists. The lists are
   stored per account ([S-2650]) and read again with every sync (single-flight; a failure with nothing
   stored is said).
-- **[S-602]** Style ([S-6400]): List gives a row its second line (the list's name under Today) where
-  the tile has room for it; Compact keeps every row one line. Rows are the family's fixed heights
-  ([S-6712]); an important task's title is BodyStrong. The size ladder is [S-780].
+- **[S-602]** Style ([S-6400]): List lets a row have its second line (the list's name under Today,
+  as Lines per row says); Compact keeps every row one line. Rows are the family's fixed heights
+  ([S-6704]); an important task's title is BodyStrong. Tasks is converted to the sizing ([S-2438]):
+  it states its rows (`Rows`, 1..20, default 6; `Lines` 1 or 2, offered and drawn only where a row
+  has a second line, default 2), its height follows them with the add footer, 220..520 wide, a new
+  one 300 (the kit's [S-2440]); dragging its bottom edge sets Rows; more tasks scroll inside the rows.
+  Nothing appears or disappears with its size: no tier ladder ([S-780] is the legacy kit lists').
 - **[S-6400]** Tasks' styles ([S-6000]), `TasksConfig.Style` (`TasksStyle`, `"style": "list"`):
   **List** and **Compact** ([S-602]), what was its Layout setting; no other look option exists.
 - **[S-605]** Retired (the app is unreleased: no hearth-era config is read). Nulls a hand edit leaves in
