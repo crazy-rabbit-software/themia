@@ -13,10 +13,21 @@ public sealed record McpScreen(string Id, string Name, int WidthPx, int HeightPx
 public sealed record McpDisplay(int Number, string Name, int WidthPx, int HeightPx, bool Primary, bool Enabled, string? ViewId);
 
 /// <summary>[S-9971] One widget on a view: its kind, its label and where it is, as fractions of its display.</summary>
-public sealed record McpWidget(string Id, string Kind, string Label, double X, double Y, double W, double H);
+public sealed record McpWidget(string Id, string Kind, string Label, double X, double Y, double W, double H)
+{
+    /// <summary>[S-2450] The id of the group the widget is in, or null for a lone widget.</summary>
+    public string? Group { get; init; }
+}
+
+/// <summary>[S-2450] A group of a view: its id and its name (null for none).</summary>
+public sealed record McpGroup(string Id, string? Name);
 
 /// <summary>[S-9971] A view and its widgets.</summary>
-public sealed record McpView(string Id, string Name, bool Active, IReadOnlyList<McpWidget> Widgets);
+public sealed record McpView(string Id, string Name, bool Active, IReadOnlyList<McpWidget> Widgets)
+{
+    /// <summary>[S-2450] The view's groups.</summary>
+    public IReadOnlyList<McpGroup> Groups { get; init; } = [];
+}
 
 /// <summary>[S-9970] [S-9971] The desk at one moment: the displays and the views, read on the UI thread.</summary>
 public sealed record McpDesk(IReadOnlyList<McpDisplay> Displays, IReadOnlyList<McpView> Views)
@@ -44,7 +55,10 @@ public sealed record McpDesk(IReadOnlyList<McpDisplay> Displays, IReadOnlyList<M
         }
 
         var views = state.Views
-            .Select(view => new McpView(view.Id, view.Name, ReferenceEquals(view, active), [.. view.Widgets.Select(Widget)]))
+            .Select(view => new McpView(view.Id, view.Name, ReferenceEquals(view, active), [.. view.Widgets.Select(Widget)])
+            {
+                Groups = [.. view.Groups.Select(g => new McpGroup(g.Id, g.Name))],
+            })
             .ToList();
 
         return new McpDesk(displays, views);
@@ -56,7 +70,7 @@ public sealed record McpDesk(IReadOnlyList<McpDisplay> Displays, IReadOnlyList<M
         var label = !string.IsNullOrWhiteSpace(widget.Label)
             ? widget.Label
             : ModuleCatalog.TryGet(kind, out var descriptor) ? descriptor.Label.Text() : kind.Value ?? string.Empty;
-        return new McpWidget(widget.Id, kind.Value ?? string.Empty, label, widget.X, widget.Y, widget.W, widget.H);
+        return new McpWidget(widget.Id, kind.Value ?? string.Empty, label, widget.X, widget.Y, widget.W, widget.H) { Group = widget.Group };
     }
 }
 

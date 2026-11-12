@@ -46,7 +46,7 @@ public sealed class McpTools(IMcpData data, Func<DateTimeOffset> now)
             "Themia's views (desktop layouts): id, name, whether it is the active one, and how many widgets it holds.",
             NoArguments),
         new("list_widgets", "List widgets",
-            "The widgets on one view (or on every view): id, kind, label, and position and size as fractions of the display (0..1).",
+            "The widgets on one view (or on every view): id, kind, label, position and size as fractions of the display (0..1), and the group a widget is in; each view lists its groups (id, name).",
             """{"type":"object","properties":{"view_id":{"type":"string","description":"A view id from list_views; leave out for every view."}},"additionalProperties":false}"""),
         new("list_notes", "List notes",
             "The notes kept in Themia's Notes widgets: id, title and when each was last changed.",
@@ -245,6 +245,27 @@ public sealed class McpTools(IMcpData data, Func<DateTimeOffset> now)
                     w.WriteNumber("y", Round(widget.Y));
                     w.WriteNumber("width", Round(widget.W));
                     w.WriteNumber("height", Round(widget.H));
+                    if (widget.Group is { } group)
+                    {
+                        w.WriteString("group", group);
+                    }
+
+                    w.WriteEndObject();
+                }
+
+                w.WriteEndArray();
+
+                // [S-2450] The view's groups: a widget's "group" names one of these.
+                w.WriteStartArray("groups");
+                foreach (var group in view.Groups)
+                {
+                    w.WriteStartObject();
+                    w.WriteString("id", group.Id);
+                    if (group.Name is { } name)
+                    {
+                        w.WriteString("name", name);
+                    }
+
                     w.WriteEndObject();
                 }
 

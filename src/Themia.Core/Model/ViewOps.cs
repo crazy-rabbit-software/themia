@@ -28,9 +28,15 @@ public static class ViewOps
         copy.Icon = source.Icon;
         copy.Color = source.Color;
 
+        // [S-2455] The copy's groups are new groups of the copied widgets, named as the originals.
+        var groups = WidgetGroups.FreshCopies(source.Groups);
+        copy.Groups.AddRange(groups.Values);
+
         foreach (var widget in source.Widgets)
         {
-            copy.Widgets.Add(widget.Clone());
+            var clone = widget.Clone();
+            clone.Group = widget.Group is { } g && groups.TryGetValue(g, out var fresh) ? fresh.Id : null;
+            copy.Widgets.Add(clone);
         }
 
         state.Views.Insert(index + 1, copy);

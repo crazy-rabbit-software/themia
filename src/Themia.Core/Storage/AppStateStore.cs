@@ -425,6 +425,9 @@ public sealed class AppStateStore : IAsyncDisposable
 
             view.Widgets ??= [];
             repairs.AddRange(ValidateWidgets(view));
+
+            // [S-2450] Groups after the widgets, whose ids are settled by then: a group of fewer than two dissolves, loudly.
+            repairs.AddRange(WidgetGroups.Repair(view));
         }
 
         if (state.FindView(state.ActiveViewId) is null)

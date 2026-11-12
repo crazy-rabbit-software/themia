@@ -40,6 +40,12 @@ public enum UndoAction
 
     /// <summary>A view moved in the order.</summary>
     ReorderView = 12,
+
+    /// <summary>[S-2454] Widgets grouped.</summary>
+    Group = 13,
+
+    /// <summary>[S-2454] A group dissolved, or a member taken out of it.</summary>
+    Ungroup = 14,
 }
 
 /// <summary>[S-885] The words a notice uses for an <see cref="UndoAction"/>.</summary>
@@ -61,6 +67,8 @@ public static class UndoText
         UndoAction.DeleteView => Str.Shell_Undo_DeleteView,
         UndoAction.DuplicateView => Str.Shell_Undo_DuplicateView,
         UndoAction.ReorderView => Str.Shell_Undo_ReorderView,
+        UndoAction.Group => Str.Groups_Undo_Group,
+        UndoAction.Ungroup => Str.Groups_Undo_Ungroup,
         _ => Str.Shell_Undo_Change,
     });
 

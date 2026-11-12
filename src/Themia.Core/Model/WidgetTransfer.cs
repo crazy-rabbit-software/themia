@@ -59,6 +59,15 @@ public static class WidgetTransfer
 
         var target = state.FindView(targetViewId) ?? state.ActiveView();
 
+        // [S-2455] The plan's groups come with it: a copy's new ones, a move's own where the target lacks them.
+        foreach (var group in plan.Groups)
+        {
+            if (target.FindGroup(group.Id) is null)
+            {
+                target.Groups.Add(group.Copy());
+            }
+        }
+
         foreach (var planned in plan.Added)
         {
             var original = removed.Find(w => string.Equals(w.Id, planned.Id, StringComparison.Ordinal));
@@ -70,10 +79,14 @@ public static class WidgetTransfer
 
             removed.Remove(original);
             original.Rect = planned.Rect;
+            original.Group = planned.Group;
             target.Widgets.Add(original);
         }
 
         target.Widgets.AddRange(removed);
+
+        // [S-2450] A group the move took all but one member from (or every member, to another view) dissolves.
+        WidgetGroups.Settle(state);
     }
 
     /// <summary>

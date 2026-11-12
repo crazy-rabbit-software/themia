@@ -74,6 +74,12 @@ public sealed class WidgetInstance
     /// </summary>
     public ContentAlign? Align { get; set; }
 
+    /// <summary>
+    /// [S-2450] The id of the group this widget is in (<see cref="ViewState.Groups"/>), or null (the
+    /// default, not written) for a lone widget. A widget is in one group at most; groups do not nest.
+    /// </summary>
+    public string? Group { get; set; }
+
     /// <summary>Never null after a successful load; a missing or mismatched config is repaired to the kind's default.</summary>
     public required WidgetConfig Config { get; set; }
 
@@ -132,12 +138,33 @@ public sealed class WidgetInstance
         ItemTextColor = ItemTextColor,
         Scale = Scale,
         Align = Align,
+        Group = Group,
         Config = Config.Clone(),
         X = X,
         Y = Y,
         W = W,
         H = H,
     };
+}
+
+/// <summary>
+/// [S-2450] A group: an optional lock over two or more widgets of one view, not a card of its own.
+/// Its members are the widgets that name it; it holds widgets only, never another group.
+/// </summary>
+public sealed class WidgetGroup
+{
+    public required string Id { get; set; }
+
+    /// <summary>[S-2450] The group's name (a ready-made group's, [S-2470]), or null for none.</summary>
+    public string? Name { get; set; }
+
+    public static WidgetGroup Create(string? name = null) => new()
+    {
+        Id = Guid.NewGuid().ToString("n"),
+        Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
+    };
+
+    public WidgetGroup Copy() => new() { Id = Id, Name = Name };
 }
 
 /// <summary>A named desktop layout. Views are switched as a whole; each holds its own widgets.</summary>
@@ -160,6 +187,16 @@ public sealed class ViewState
     public string? Color { get; set; }
 
     public List<WidgetInstance> Widgets { get; set; } = [];
+
+    /// <summary>
+    /// [S-2450] The view's groups: locks over two or more of its widgets, which then select, move,
+    /// copy and layer as one (<see cref="WidgetGroups"/>). A widget names its group (<see cref="WidgetInstance.Group"/>).
+    /// </summary>
+    public List<WidgetGroup> Groups { get; set; } = [];
+
+    /// <summary>[S-2450] Find a group of this view by id, or null.</summary>
+    public WidgetGroup? FindGroup(string? id)
+        => string.IsNullOrEmpty(id) ? null : Groups.Find(g => string.Equals(g.Id, id, StringComparison.Ordinal));
 
     /// <summary>Find a widget in this view by id, or null.</summary>
     public WidgetInstance? Find(string? id)

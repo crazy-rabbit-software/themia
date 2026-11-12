@@ -37,6 +37,12 @@ public sealed record PastePlan(
     IReadOnlyList<string> RemoveIds)
 {
     /// <summary>
+    /// [S-2455] The groups the added widgets are in: for a copy, new groups with fresh ids and the
+    /// same names; for a move, the same groups. Added to the target view where it lacks them.
+    /// </summary>
+    public IReadOnlyList<WidgetGroup> Groups { get; init; } = [];
+
+    /// <summary>
     /// [S-1065] How many widgets the plan adds on balance: what it adds, less what it only moves
     /// (an added id that is one of the originals it removes). A move therefore adds nothing; a move
     /// whose originals were deleted meanwhile puts them back, and counts.
@@ -69,15 +75,19 @@ public sealed class PlacementPayload
 
     private readonly List<string> _roots;
 
+    /// <summary>[S-2455] The groups the payload holds two or more members of; the snapshots name only these.</summary>
+    private readonly List<WidgetGroup> _groups;
+
     private readonly double _newWidthPx;
     private readonly double _newHeightPx;
 
-    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthPx, double heightPx)
+    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthPx, double heightPx, List<WidgetGroup>? groups = null)
     {
         Mode = mode;
         NewKind = kind;
         _widgets = widgets;
         _roots = roots;
+        _groups = groups ?? [];
         _newWidthPx = widthPx;
         _newHeightPx = heightPx;
     }
@@ -95,6 +105,9 @@ public sealed class PlacementPayload
 
     /// <summary>The snapshots (empty for a new widget).</summary>
     public IReadOnlyList<WidgetInstance> Widgets => _widgets;
+
+    /// <summary>[S-2455] The groups the payload carries (two or more of their members in it).</summary>
+    public IReadOnlyList<WidgetGroup> Groups => _groups;
 
     /// <summary>The ids of the snapshots, in view order (empty for a new widget).</summary>
     public IReadOnlyList<string> RootIds => _roots;
@@ -140,17 +153,31 @@ public sealed class PlacementPayload
             return null;
         }
 
+        // [S-2455] A group travels with the payload when two or more of its members do; a member taken
+        // alone (an entered one) travels as a lone widget.
+        var groups = roots
+            .Select(id => view.Find(id)!.Group)
+            .OfType<string>()
+            .GroupBy(g => g, StringComparer.Ordinal)
+            .Where(g => g.Count() >= 2)
+            .Select(g => view.FindGroup(g.Key))
+            .OfType<WidgetGroup>()
+            .Select(g => g.Copy())
+            .ToList();
+        var kept = new HashSet<string>(groups.Select(g => g.Id), StringComparer.Ordinal);
+
         var widgets = roots
             .Select(id => view.Find(id)!)
             .Select(w =>
             {
                 var snapshot = w.Clone();
                 snapshot.Id = w.Id;
+                snapshot.Group = w.Group is { } g && kept.Contains(g) ? g : null;
                 return snapshot;
             })
             .ToList();
 
-        return new PlacementPayload(mode, null, widgets, roots, 0, 0)
+        return new PlacementPayload(mode, null, widgets, roots, 0, 0, groups)
         {
             AnchorId = anchorId is not null && roots.Contains(anchorId) ? anchorId : null,
         };
@@ -192,15 +219,21 @@ public sealed class PlacementPayload
             ids[w.Id] = move ? w.Id : Guid.NewGuid().ToString("n");
         }
 
+        // [S-2455] A copy of a group is a new group (fresh id, same name) every time; a move keeps it.
+        var groups = move
+            ? _groups.ToDictionary(g => g.Id, g => g.Copy(), StringComparer.Ordinal)
+            : WidgetGroups.FreshCopies(_groups);
+
         var added = _widgets.Select(w =>
         {
             var copy = w.Clone();
             copy.Id = ids[w.Id];
+            copy.Group = w.Group is { } g && groups.TryGetValue(g, out var landed) ? landed.Id : null;
             copy.Rect = BlockGeometry.Apply(w.Rect, at, screen);
             return copy;
         }).ToList();
 
-        return new PastePlan(added, [.. _roots.Select(r => ids[r])], move ? [.. _roots] : []);
+        return new PastePlan(added, [.. _roots.Select(r => ids[r])], move ? [.. _roots] : []) { Groups = [.. groups.Values] };
     }
 
     /// <summary>The widgets the ghost draws and the block's translation: the whole payload moves by that one translation.</summary>

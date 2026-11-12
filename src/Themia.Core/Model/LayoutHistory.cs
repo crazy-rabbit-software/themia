@@ -18,11 +18,14 @@ public sealed record WidgetShape(
     /// <summary>[S-6590] The widget's background image, undone with its background.</summary>
     public string? BackgroundImage { get; init; }
 
+    /// <summary>[S-2456] The group the widget is in: grouping, ungrouping and leaving a group are undone like a move.</summary>
+    public string? Group { get; init; }
+
     public static WidgetShape Of(WidgetInstance widget)
     {
         ArgumentNullException.ThrowIfNull(widget);
         return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Background.Clone(), widget.Header, widget.Config) { BackgroundImage = widget.BackgroundImage };
+            widget.Background.Clone(), widget.Header, widget.Config) { BackgroundImage = widget.BackgroundImage, Group = widget.Group };
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -32,7 +35,8 @@ public sealed record WidgetShape(
         return Id == other.Id && Kind == other.Kind
             && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
             && Label == other.Label && Background.SameAs(other.Background) && Header == other.Header
-            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal);
+            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
+            && string.Equals(Group, other.Group, StringComparison.Ordinal);
     }
 }
 
@@ -41,6 +45,17 @@ public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyLi
 {
     /// <summary>[S-3810] The icon's colour, or null for the theme's.</summary>
     public string? Color { get; init; }
+
+    /// <summary>[S-2456] The view's groups, as (id, name) pairs in order.</summary>
+    public IReadOnlyList<(string Id, string? Name)> Groups { get; init; } = [];
+
+    /// <summary>Whether the groups are the same ids and names, in the same order.</summary>
+    public bool SameGroups(ViewShape other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        return Groups.Count == other.Groups.Count
+            && Groups.Zip(other.Groups).All(p => p.First.Id == p.Second.Id && p.First.Name == p.Second.Name);
+    }
 }
 
 /// <summary>
@@ -87,7 +102,11 @@ public sealed class LayoutShape
                 widgets[i] = WidgetShape.Of(view.Widgets[i]);
             }
 
-            views.Add(new ViewShape(view.Id, view.Name, view.Icon, widgets) { Color = view.Color });
+            views.Add(new ViewShape(view.Id, view.Name, view.Icon, widgets)
+            {
+                Color = view.Color,
+                Groups = [.. view.Groups.Select(g => (g.Id, g.Name))],
+            });
         }
 
         return new LayoutShape(views, new Dictionary<string, string>(state.MonitorViews, StringComparer.Ordinal));
@@ -108,7 +127,7 @@ public sealed class LayoutShape
             var mine = Views[v];
             var theirs = other.Views[v];
             if (mine.Id != theirs.Id || mine.Name != theirs.Name || mine.Icon != theirs.Icon || mine.Color != theirs.Color
-                || mine.Widgets.Count != theirs.Widgets.Count)
+                || mine.Widgets.Count != theirs.Widgets.Count || !mine.SameGroups(theirs))
             {
                 return false;
             }
@@ -174,6 +193,7 @@ public sealed class LayoutShape
                     widget.Background = w.Background.Clone();
                     widget.BackgroundImage = w.BackgroundImage;
                     widget.Header = w.Header;
+                    widget.Group = w.Group;
                 }
                 else
                 {
@@ -188,6 +208,7 @@ public sealed class LayoutShape
                         Background = w.Background.Clone(),
                         BackgroundImage = w.BackgroundImage,
                         Header = w.Header,
+                        Group = w.Group,
                         Config = w.Config,
                     };
                 }
@@ -196,6 +217,7 @@ public sealed class LayoutShape
             }
 
             view.Widgets = widgets;
+            view.Groups = [.. shape.Groups.Select(g => new WidgetGroup { Id = g.Id, Name = g.Name })];
             restored.Add(view);
         }
 

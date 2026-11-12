@@ -4,6 +4,7 @@
     {
       "id": "v00",
       "name": "System",
+      "groups": [],
       "widgets": [
         {
           "id": "w00",

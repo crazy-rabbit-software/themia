@@ -1,0 +1,33 @@
+{
+  "$englishOnly": [
+    "groups.undo.group",
+    "groups.undo.ungroup",
+    "groups.card.group",
+    "groups.card.ungroup",
+    "groups.card.leave",
+    "groups.add.readyMade",
+    "groups.add.count",
+    "groups.recipe.thisPc",
+    "groups.recipe.thisPcAbout",
+    "groups.recipe.myDay",
+    "groups.recipe.myDayAbout",
+    "groups.recipe.weather",
+    "groups.recipe.weatherAbout"
+  ],
+  "groups.undo.group": "group",
+  "groups.undo.ungroup": "ungroup",
+  "groups.card.group": "Group",
+  "groups.card.ungroup": "Ungroup",
+  "groups.card.leave": "Remove from group",
+  "groups.add.readyMade": "Ready-made",
+  "groups.add.count": {
+    "one": "{count} widget",
+    "other": "{count} widgets"
+  },
+  "groups.recipe.thisPc": "This PC",
+  "groups.recipe.thisPcAbout": "Processor, memory, network and disk at a glance",
+  "groups.recipe.myDay": "My day",
+  "groups.recipe.myDayAbout": "The time, your next meeting and your tasks",
+  "groups.recipe.weather": "Weather",
+  "groups.recipe.weatherAbout": "Now, the days ahead and rain in the next hour"
+}

@@ -36,6 +36,9 @@ internal sealed partial class AppHost
             Log.Error(Scope, "a state mutation threw; state may be partially applied", ex);
         }
 
+        // [S-2450] A change that left a group with one member (a delete, a cut, a move) dissolves it.
+        WidgetGroups.Settle(State);
+
         if (undo is { } step)
         {
             _history?.Commit(State, step);
