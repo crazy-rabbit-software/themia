@@ -205,7 +205,7 @@ export const frames = [
         bubbles: [{ at: [620, 12], dy: -52 }, { at: [1092, 12], dy: -52 }, { at: [1236, 56], dy: 52 }, { at: [1339, 12], dy: -52 }],
       },
       {
-        piece: ["edit", [981, 88, 326, 446]],
+        piece: ["edit", [984, 90, 320, 439]],
         ground: true,
         radius: 12,
         lens: 0,
@@ -213,7 +213,7 @@ export const frames = [
         y: 400,
         w: 380,
         z: 3,
-        bubbles: [{ at: [1144, 96], dy: -56 }],
+        bubbles: [{ at: [1144, 92], dy: -52 }],
       },
     ],
   },
