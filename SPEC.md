@@ -3980,11 +3980,26 @@ rules are these.
 
 - **[S-700]** The clock starts with its header **hidden**, as in the original
   (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
-  ([S-3200]). The sun and the moon start with theirs since G3 and the drive card since G6 (user
+  ([S-3200]), Alarm, Gallery and Video stream ([S-2590]). The sun and the moon start with theirs since G3 and the drive card since G6 (user
   decision 2026-10-29: every data widget has the Header, [S-3100]; [S-4675] retired).
   The disk meter starts with its header like the other meters (user requirement), so its reading
   sits where theirs does ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.
+- **[S-2590]** Not every widget starts with a header (owner decision 2026-11-12: "for some it looks
+  better without"): Alarm, Gallery and Video stream start headerless (`WidgetTraits.StartsHeaderless`),
+  as the clock and the audio visualizer already did ([S-700]); their content (a time, the pictures, the
+  stream) says what they are. The time is centred in the card's insets and the pictures and the stream
+  are drawn edge to edge, so nothing of theirs stands where a header would have been. Each that may have
+  a header keeps the choice (the header placement, [S-3711]); only a new widget reads the default, so the
+  add menu's previews, the renders and the showcase follow it and a store scene that sets a header keeps
+  it. Nothing that lived in the header is lost: none of them has a header button (Alarm's actions are
+  its switch and its right-click menu, Video stream's its control bar and right-click menu, Gallery's its
+  right-click menu); Gallery's slideshow counter is the header's informing label and comes back with the
+  header ([S-767]), Video stream's address is its header's name. Now playing, Quote, Stopwatch, Pomodoro
+  and Focus session keep their header for now: their content is laid from the view's top (the cover, the
+  quote, the lap list, the ring), and without a header the card hands the view its whole height, so it
+  would start on the card's edge instead of its inset; a card that tells its view whether a header stands
+  above it comes first. Tests `WidgetRegistryHostTests.S2590_`.
 - **[S-701]** *(Retired by [S-3585]: there is no settings window, so no table of its pages.)*
 - **[S-702]** Behaviour switches live in `AppState.Preferences` (`AppPreferences`), apart from the
   look (`DesignState`): language (`AppLanguage`, default follow Windows), hide in full-screen apps

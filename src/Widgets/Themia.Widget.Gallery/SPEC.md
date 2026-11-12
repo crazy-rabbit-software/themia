@@ -43,7 +43,8 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   with a small penalty per empty cell.
 - **[S-767]** The ladder (`GalleryPlan`): any layout with room for only one picture is that picture
   full-bleed with nothing on it (XS). Slideshow: the counter ("1/20") as the header's informing label
-  (Caption, secondary, the first part to give way, [S-6710]) and the hover bar from Regular width; the picture is the whole slot at every size (no "up next" thumbnails beside or
+  (Caption, secondary, the first part to give way, [S-6710]; a Gallery starts headerless, [S-2590],
+  so the counter is there once the header is) and the hover bar from Regular width; the picture is the whole slot at every size (no "up next" thumbnails beside or
   under it, retired [S-666]; the L file-name line and the XL "N of M · folder" line are retired, [S-2760]). Grid / scatter / mosaic take more pictures as the card grows. Scatter and
   mosaic are dealt from the widget's own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
 - **[S-768]** *(Retired: no "up next" thumbnails to tap, [S-767]. Home / End and the arrows still

@@ -33,7 +33,7 @@ public sealed class VideoStreamModule : IWidgetModule
         Glyph = Glyph,
         DefaultWidth = 320,
         DefaultHeight = 240,
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.Media, 1, 1),
     };
 

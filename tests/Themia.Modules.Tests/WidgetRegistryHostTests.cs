@@ -120,6 +120,29 @@ public sealed class WidgetRegistryHostTests
         Assert.False(traits.HasFlag(WidgetTraits.StartsHeaderless) && !traits.HasFlag(WidgetTraits.CanHaveHeader), $"{id}: {traits}");
     }
 
+    /// <summary>[S-2590] The kinds whose content says what they are start headerless, the option kept where they may have one.</summary>
+    public static TheoryData<string> Headerless() => ["clock", "alarm", "audioVisualizer", "gallery", "videoStream"];
+
+    /// <summary>[S-2590] Kinds laid from the view's top keep their header until the card says whether one stands above.</summary>
+    public static TheoryData<string> KeepHeader() => ["music", "quote", "stopwatch", "pomodoro", "focusSession"];
+
+    [Theory]
+    [MemberData(nameof(KeepHeader))]
+    public void S2590_a_widget_laid_from_its_top_keeps_its_header(string id)
+        => Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(new WidgetId(id)));
+
+    [Theory]
+    [MemberData(nameof(Headerless))]
+    public void S2590_a_widget_whose_content_says_what_it_is_starts_headerless(string id)
+    {
+        var kind = new WidgetId(id);
+        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(kind));
+        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(kind, default).Header);
+
+        // The audio visualizer never has one ([S-3711]); every other kind keeps the choice.
+        Assert.Equal(id != "audioVisualizer", WidgetInstance.CanHaveHeader(kind));
+    }
+
     [Theory]
     [MemberData(nameof(Ids))]
     public void S6906_a_widget_that_reads_an_account_has_a_setup_rule_and_interests(string id)

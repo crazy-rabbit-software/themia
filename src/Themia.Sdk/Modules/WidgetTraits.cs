@@ -23,7 +23,8 @@ public enum WidgetTraits
     /// <summary>
     /// [S-700] A new one starts without its header (the user can still give it one): the clock, a
     /// single readout ([S-700]); the power buttons, whose name is under the icon ([S-1911]); the sun,
-    /// the moon and the drive, which say what they are ([S-1161]).
+    /// the moon and the drive, which say what they are ([S-1161]); [S-2590] the alarm, the gallery and the
+    /// video stream, whose time or pictures say what they are.
     /// </summary>
     StartsHeaderless = 4,
 
