@@ -26,9 +26,8 @@ namespace Themia.App.Widgets;
 /// other window, with no confirmation and no undo, is the wrong place to drop a headset mid-call.
 /// </para>
 /// <para>
-/// <b>Ladder</b> ([S-1254], <see cref="BluetoothLayout"/>): every whole row the tile has, up to the
-/// ceiling; the battery % from a 180 column; the second line from a regular tile both ways; two
-/// columns on the largest. The header's informing label says "2 connected" where it has room and its
+/// <b>Rows</b> ([S-11310], <see cref="BluetoothLayout"/>): the config's rows, one line or two each, the
+/// battery % as the value, more devices a scroll away. The header's informing label says "2 connected" where it has room and its
 /// ring turns while a pass is out ([S-6710]). A connected device's glyph is in the primary text colour,
 /// a merely paired one's in the secondary ([S-3961]). A short list on a large tile stays a short list.
 /// Every empty list says which empty list it is, in the Status row at the top ([S-244], [S-6714]).
@@ -77,8 +76,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
     private CancellationTokenSource? _inFlight;
-    private WidgetArea _area;
-
     private BluetoothSnapshot _snapshot = BluetoothSnapshot.Of(BluetoothStatus.Loading);
 
     /// <summary>
@@ -168,9 +165,9 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     }
 
     /// <inheritdoc />
+    /// <summary>[S-11310] What the list shows is its config's: the box changes nothing.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
         Render();
     }
 
@@ -283,11 +280,11 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         ClearRows();
 
         List<BluetoothDeviceEntry> devices = _snapshot.Status == BluetoothStatus.Ok
-            ? BluetoothRules.Arrange(_snapshot.Devices, _config.ConnectedOnly, BluetoothConfig.MaxDevices, Strings.Current)
+            ? BluetoothRules.Arrange(_snapshot.Devices, _config.ConnectedOnly, Strings.Current)
             : [];
 
         var connected = devices.Count(device => device.Connected);
-        var plan = BluetoothLayout.Plan(_area, devices.Count);
+        var plan = BluetoothLayout.Plan(_config);
 
         // [S-1254] "2 connected" as the header's informing label: the first part to give way ([S-6710]).
         var summary = BluetoothRules.ConnectedSummary(connected, Strings.Current);
@@ -315,32 +312,17 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         _status.Hide();
         _scroll.Visibility = Visibility.Visible;
 
-        // Two columns fill the first before the second, each as tall as the tile allows.
-        var perColumn = plan.Columns == 2
-            ? Math.Max(plan.VisibleRows, (devices.Count + 1) / 2)
-            : devices.Count;
-
+        // [S-11310] One column of the config's rows, the rest a scroll away.
         _columns.ColumnDefinitions.Clear();
-
-        for (var c = 0; c < plan.Columns; c++)
+        _columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        var column = new StackPanel();
+        _columns.Children.Add(column);
+        foreach (var device in devices)
         {
-            _columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            var column = new StackPanel();
-            SetColumn(column, c);
-            _columns.Children.Add(column);
-
-            foreach (var device in devices.Skip(c * perColumn).Take(perColumn))
-            {
-                column.Children.Add(BuildRow(device, plan));
-            }
+            column.Children.Add(BuildRow(device, plan));
         }
 
-        // [S-1254] The list shows whole rows only: snapped to the rows that fit, the rest a scroll
-        // away, so no row is ever cut through its middle at the card's foot.
-        var rows = Math.Min(perColumn, plan.VisibleRows);
-        _scroll.Height = _area.IsMeasured && perColumn > plan.VisibleRows
-            ? rows * FamilyShape.RowHeight(plan.Lines)
-            : double.NaN;
+        _scroll.Height = plan.Rows * FamilyShape.RowHeight(plan.Lines);
     }
 
     /// <summary>
@@ -361,7 +343,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
             row.Lead(new Grid { Children = { glyph } });
         }
 
-        var battery = _config.ShowBattery && plan.BatteryValue ? BluetoothRules.BatteryLabel(device.BatteryPercent, Strings.Current) : null;
+        var battery = _config.ShowBattery ? BluetoothRules.BatteryLabel(device.BatteryPercent, Strings.Current) : null;
         var second = BluetoothRules.DetailLine(device, _config.DrawsConnection, _config.ShowBattery && battery is null, _config.ShowSignal, Strings.Current);
         row.Lines = plan.Lines;
         row.Show(device.Name, battery, second);

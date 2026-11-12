@@ -35,6 +35,8 @@ public sealed class MixerMenuTests
             MixerStr.Mixer_Cfg_SystemLabel.Text(),
             null,
             MixerStr.Mixer_Cfg_IconsLabel.Text(),
+            Str.Kit_Rows.Text(),
+            Str.Kit_Lines.Text(),
             null,
             MixerStr.WidgetsB_Settings_Mixer_Note.Text(),
         ];

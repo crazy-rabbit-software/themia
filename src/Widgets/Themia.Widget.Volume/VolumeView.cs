@@ -56,7 +56,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
     private VolumeConfig _config = new();
     private IWidgetSurface? _surface;
-    private WidgetArea _area;
     private AudioSnapshot? _snapshot;
     private Dictionary<string, double> _overrides = new(StringComparer.Ordinal);
 
@@ -148,10 +147,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         Lay();
     }
 
+    /// <summary>[S-11308] The level and the controls are always both: the box changes nothing.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
     }
 
     /// <inheritdoc />
@@ -194,11 +192,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         if (!_frozen)
         {
             _feed.Want(new AudioWant(_config.DeviceId, Sessions: false));
-        }
-
-        if (!_area.IsMeasured)
-        {
-            return;
         }
 
         if (_snapshot is not { } snapshot)
@@ -253,16 +246,10 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
     /// </summary>
     private void ShowReading(double level, bool muted, string device)
     {
-        var plan = LevelFace.Plan(_area, device.Length > 0);
-        _reading.Visibility = plan.Readout ? Visibility.Visible : Visibility.Collapsed;
-        if (!plan.Readout)
-        {
-            return;
-        }
-
-        _reading.Use(plan.Step);
+        _reading.Visibility = Visibility.Visible;
+        _reading.Use(LevelFace.Step);
         var split = ReadoutRules.Split(Formatting.Percent(VolumeRules.Percent(level) / 100.0));
-        _reading.Show(split.Value, split.Unit, plan.Under ? device : null, valueRole: muted ? ColourRole.TextDisabled : ColourRole.TextPrimary);
+        _reading.Show(split.Value, split.Unit, device, valueRole: muted ? ColourRole.TextDisabled : ColourRole.TextPrimary);
     }
 
     /// <summary>The speaker's glyph role: primary, or disabled with the button (its glyph names its own brush).</summary>

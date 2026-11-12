@@ -75,16 +75,6 @@ public class BluetoothBatteryTests
         Assert.Equal(33, result[0].BatteryPercent);
     }
 
-    [Fact]
-    public void S3253_a_small_row_carries_the_battery_percentage()
-    {
-        var small = new WidgetArea(200, 116);
-        var plan = BluetoothLayout.Plan(small, 4);
-
-        Assert.True(plan.BatteryValue);
-        Assert.Equal(1, plan.Lines);
-    }
-
     [Theory]
     [InlineData(20, true)]
     [InlineData(5, true)]

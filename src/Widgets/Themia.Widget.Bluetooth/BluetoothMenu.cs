@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Bluetooth;
 
 namespace Themia.App.Shell.Config;
@@ -32,5 +33,9 @@ internal static class BluetoothMenu
         // [S-1256] the signal costs a short radio scan: both off the row unless asked for.
         lines.Add(menu.Toggle(Glyphs.Battery, BluetoothStr.Widget_Battery_Label.Text(), config.ShowBattery, on => config.ShowBattery = on));
         lines.Add(menu.Toggle(Glyphs.Signal, BluetoothStr.WidgetsA_Bluetooth_Settings_Signal_Label.Text(), config.ShowSignal, on => config.ShowSignal = on));
+
+        // [S-11310] How many rows, and one line or two each; the card follows.
+        lines.Add(ItemMenuEntry.Separator);
+        lines.AddRange(KitMenuLines.Rows(menu, config));
     }
 }

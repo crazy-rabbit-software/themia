@@ -1,78 +1,36 @@
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Xunit;
 
 namespace Themia.Widget.Bluetooth.Tests;
 
 /// <summary>
-/// The Bluetooth list's ladder and the signal/address rules behind its new columns. [S-1254..S-1257]
+/// The Bluetooth list's rows ([S-11310]) and the signal/address rules behind its second line. [S-1255..S-1257]
 /// </summary>
 public class BluetoothLadderTests
 {
-    // Size-tier slots (card less a 36 header).
-    private static readonly WidgetArea Xs = new(120, 84);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea Wide = new(480, 124);
-    private static readonly WidgetArea Tall = new(200, 364);
-    private static readonly WidgetArea L = new(560, 384);
-    private static readonly WidgetArea Xl = new(800, 524);
-
-    private static BluetoothRowPlan Plan(WidgetArea area, int count) => BluetoothLayout.Plan(area, count);
-
     [Fact]
-    public void S1254_XS_is_one_line_rows_without_the_battery()
+    public void S11310_the_rows_and_lines_are_the_configs_four_one_line_rows_for_a_new_list()
     {
-        var plan = Plan(Xs, 10);
-
-        Assert.Equal(1, plan.Lines);
-        Assert.False(plan.BatteryValue);
-        Assert.Equal(2, plan.VisibleRows);
+        Assert.Equal(new BluetoothRowPlan(1, 4), BluetoothLayout.Plan(new BluetoothConfig()));
+        Assert.Equal(new BluetoothRowPlan(2, 20), BluetoothLayout.Plan(new BluetoothConfig { Rows = 40, Lines = 2 }));
     }
 
     [Fact]
-    public void S3253_the_battery_is_the_rows_value_from_a_180_column()
+    public void S11310_the_height_follows_the_rows_220_to_520_wide_and_dragging_sets_them()
     {
-        Assert.True(Plan(M, 10).BatteryValue);
-        Assert.True(Plan(Tall, 10).BatteryValue);
-        Assert.True(Plan(Wide, 10).BatteryValue);
-        Assert.False(Plan(new WidgetArea(179, 300), 10).BatteryValue);
-    }
+        var kind = Themia.Sdk.ModuleCatalog.Of(new Themia.Sdk.WidgetId("bluetooth"));
+        var config = new BluetoothConfig();
+        var sizing = kind.Sizing(config);
 
-    [Fact]
-    public void S1255_rows_have_two_lines_from_a_regular_tile_both_ways()
-    {
-        // [S-6712] One line while the area is compact either way, two from regular both ways.
-        Assert.Equal(1, Plan(Wide, 10).Lines);
-        Assert.Equal(2, Plan(M, 10).Lines);
-        Assert.Equal(2, Plan(Tall, 10).Lines);
-        Assert.Equal(2, Plan(L, 10).Lines);
-    }
+        Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(36 + (4 * 40) + 12, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
+        Assert.Equal((220d, 520d), (sizing.Min.Width, sizing.Max.Width));
 
-    [Fact]
-    public void S1254_The_list_takes_every_whole_row_of_the_area_less_the_bottom_inset()
-    {
-        Assert.Equal(4, Plan(Wide, 20).VisibleRows);
-        Assert.Equal(4, Plan(M, 20).VisibleRows);
-        Assert.Equal(9, Plan(L, 20).VisibleRows);
-        Assert.Equal(12, Plan(Xl, 20).VisibleRows);
-    }
-
-    [Fact]
-    public void S1254_XL_splits_a_long_list_into_two_columns_and_keeps_a_short_one_whole()
-    {
-        Assert.Equal(2, Plan(Xl, 14).Columns);
-        Assert.Equal(1, Plan(Xl, 3).Columns);
-        Assert.Equal(1, Plan(L, 14).Columns);
-    }
-
-    [Fact]
-    public void S1254_An_unmeasured_area_starts_minimal()
-    {
-        var plan = BluetoothLayout.Plan(default, 5);
-
-        Assert.Equal(1, plan.Lines);
-        Assert.False(plan.BatteryValue);
-        Assert.Equal(1, plan.Columns);
+        var six = Assert.IsType<BluetoothConfig>(kind.SizeSets!(config, sizing.Natural with { Height = 36 + (6 * 28) + 12 }));
+        Assert.Equal(6, six.Rows);
+        Assert.Equal(4, config.Rows);
     }
 
     [Theory]
@@ -118,7 +76,7 @@ public class BluetoothLadderTests
         var classic = new BluetoothDeviceEntry("Headset", "a", true, BluetoothDeviceKind.Audio, null);
         var le = new BluetoothDeviceEntry("Headset", "b", true, BluetoothDeviceKind.Audio, 70, -62);
 
-        var merged = Assert.Single(BluetoothRules.Arrange([classic, le], connectedOnly: false, maxCount: 10, locale: Locale.En));
+        var merged = Assert.Single(BluetoothRules.Arrange([classic, le], connectedOnly: false, locale: Locale.En));
 
         Assert.Equal(-62, merged.SignalDbm);
         Assert.Equal(70, merged.BatteryPercent);

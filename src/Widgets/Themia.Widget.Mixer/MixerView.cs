@@ -141,7 +141,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
             _feed.Want(new AudioWant(_config.DeviceId, Sessions: true));
         }
 
-        if (_snapshot is not { } snapshot || !_area.IsMeasured)
+        if (_snapshot is not { } snapshot)
         {
             return;
         }
@@ -195,12 +195,12 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         _status.Hide();
         _scroller.Visibility = Visibility.Visible;
 
-        // [S-449] Whole rows: the playing apps, then (all of them fitting) the quiet ones under them.
-        var plan = MixerLayout.Plan(_area, _config.ShowIcons, main.Count, quiet.Count);
+        // [S-449] [S-11309] The config's rows: the playing apps, then the quiet ones under them while rows are left.
+        var plan = MixerLayout.Plan(_area.IsMeasured ? _area.Width : MixerLayout.NaturalWidth, _config.ShowIcons, _config.Lines, _config.Rows, main.Count, quiet.Count);
         _shown = [.. main, .. quiet.Take(plan.Quiet)];
 
         ShowRows(plan, main.Count);
-        _scroller.Height = (plan.Rows + plan.Quiet) * FamilyShape.RowHeight(plan.Lines);
+        _scroller.Height = plan.Rows * FamilyShape.RowHeight(plan.Lines);
 
         RestoreFocus();
     }

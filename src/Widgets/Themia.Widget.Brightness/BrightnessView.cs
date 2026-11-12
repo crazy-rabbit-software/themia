@@ -47,7 +47,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     private IWidgetSurface? _surface;
     private readonly IBrightness _brightness;
     private IDisposable? _lease;
-    private WidgetArea _area;
     private string? _own;
     private BrightnessSnapshot _preview = BrightnessSnapshot.Pending;
     private int _wheelCarry;
@@ -113,10 +112,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         Lay();
     }
 
+    /// <summary>[S-11308] The level and the slider are always both: the box changes nothing.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
     }
 
     public void Detach()
@@ -170,7 +168,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     /// <summary>[S-4440] On a new area, config or reading.</summary>
     private void Lay()
     {
-        if (_detached || !_area.IsMeasured)
+        if (_detached)
         {
             return;
         }
@@ -213,15 +211,13 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     /// </summary>
     private void ShowReading(int? level)
     {
-        var plan = LevelFace.Plan(_area, hasUnder: false);
-        var shown = plan.Readout && level is not null;
-        _reading.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-        if (!shown || level is not { } value)
+        _reading.Visibility = level is not null ? Visibility.Visible : Visibility.Collapsed;
+        if (level is not { } value)
         {
             return;
         }
 
-        _reading.Use(plan.Step);
+        _reading.Use(LevelFace.Step);
         var split = ReadoutRules.Split(Formatting.Percent(value / 100.0));
         _reading.Show(split.Value, split.Unit);
     }

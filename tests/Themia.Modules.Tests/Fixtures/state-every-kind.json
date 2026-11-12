@@ -468,6 +468,8 @@
           "scale": 1,
           "config": {
             "kind": "bluetooth",
+            "rows": 4,
+            "lines": 1,
             "showBattery": true,
             "showIcon": true,
             "showConnection": true,
@@ -939,6 +941,8 @@
           "scale": 1,
           "config": {
             "kind": "mixer",
+            "rows": 4,
+            "lines": 1,
             "groupByApp": true,
             "showSystemSounds": false,
             "onlyActive": false,

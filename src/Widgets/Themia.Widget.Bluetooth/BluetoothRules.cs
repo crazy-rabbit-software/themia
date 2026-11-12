@@ -321,7 +321,6 @@ public static class BluetoothRules
     public static List<BluetoothDeviceEntry> Arrange(
         IEnumerable<BluetoothDeviceEntry> devices,
         bool connectedOnly,
-        int maxCount,
         Locale locale)
     {
         ArgumentNullException.ThrowIfNull(devices);
@@ -370,12 +369,6 @@ public static class BluetoothRules
             return string.Compare(left.Name, right.Name, StringComparison.OrdinalIgnoreCase);
         });
 
-        var limit = Math.Clamp(maxCount, 1, 50);
-
-        if (merged.Count > limit)
-        {
-            merged.RemoveRange(limit, merged.Count - limit);
-        }
 
         return merged;
     }

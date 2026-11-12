@@ -31,7 +31,8 @@ public sealed class MixerModule : IWidgetModule
         Label = MixerStr.WidgetsA_Catalog_Mixer_Label.Local(),
         Description = MixerStr.WidgetsA_Catalog_Mixer_Description.Local(),
         Glyph = Glyphs.Mixer,
-        Sizing = _ => WidgetSizing.Legacy(300, 260),
+        Sizing = c => MixerLayout.Sizing((MixerConfig)c),
+        SizeSets = (c, s) => MixerLayout.SizeSets((MixerConfig)c, s),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Media, 0, 3),
     };

@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Bluetooth;
 
@@ -31,7 +32,8 @@ public sealed class BluetoothModule : IWidgetModule
         Label = BluetoothStr.Widget_Bluetooth_Label.Local(),
         Description = BluetoothStr.WidgetsA_Catalog_Bluetooth_Description.Local(),
         Glyph = Glyphs.Bluetooth,
-        Sizing = _ => WidgetSizing.Legacy(300, 240),
+        Sizing = c => KitSizing.Sizing(KitSizing.Choice((BluetoothConfig)c), addFooter: false),
+        SizeSets = (c, s) => KitSizing.SizeSets(c, s, KitSizing.Choice((BluetoothConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Devices, 1, 1),
     };

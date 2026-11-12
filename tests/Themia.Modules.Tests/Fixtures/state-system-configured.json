@@ -460,6 +460,8 @@
           "scale": 1,
           "config": {
             "kind": "mixer",
+            "rows": 4,
+            "lines": 1,
             "deviceId": "{0.0.0.00000000}.{mixer}",
             "deviceName": "Headphones",
             "groupByApp": false,

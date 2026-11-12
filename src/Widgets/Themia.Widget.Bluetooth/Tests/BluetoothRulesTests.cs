@@ -76,7 +76,7 @@ public class BluetoothRulesTests
                 Device("WH-1000XM4", connected: false, battery: 85, id: "le"),
             ],
             connectedOnly: false,
-            maxCount: 10, locale: Locale.En);
+            locale: Locale.En);
 
         var only = Assert.Single(arranged);
 
@@ -94,7 +94,7 @@ public class BluetoothRulesTests
         var arranged = BluetoothRules.Arrange(
             [Device(string.Empty, id: "a"), Device(string.Empty, id: "b"), Device("   ", id: "c")],
             connectedOnly: false,
-            maxCount: 10, locale: Locale.En);
+            locale: Locale.En);
 
         Assert.Equal(3, arranged.Count);
     }
@@ -109,7 +109,7 @@ public class BluetoothRulesTests
                 Device("Omega Buds", connected: true),
             ],
             connectedOnly: false,
-            maxCount: 10, locale: Locale.En);
+            locale: Locale.En);
 
         Assert.Equal(["Omega Buds", "Alpha Mouse", "Zeta Keyboard"], arranged.Select(d => d.Name));
     }
@@ -125,8 +125,8 @@ public class BluetoothRulesTests
             Device("Gamma"),
         ];
 
-        var first = BluetoothRules.Arrange(devices, connectedOnly: false, maxCount: 10, locale: Locale.En);
-        var second = BluetoothRules.Arrange(devices.Reverse(), connectedOnly: false, maxCount: 10, locale: Locale.En);
+        var first = BluetoothRules.Arrange(devices, connectedOnly: false, locale: Locale.En);
+        var second = BluetoothRules.Arrange(devices.Reverse(), connectedOnly: false, locale: Locale.En);
 
         Assert.Equal(first.Select(d => d.Name), second.Select(d => d.Name));
     }
@@ -137,16 +137,12 @@ public class BluetoothRulesTests
         var connectedOnly = BluetoothRules.Arrange(
             [Device("A", connected: true), Device("B")],
             connectedOnly: true,
-            maxCount: 10, locale: Locale.En);
+            locale: Locale.En);
 
         Assert.Equal(["A"], connectedOnly.Select(d => d.Name));
 
-        var capped = BluetoothRules.Arrange(
-            [Device("A"), Device("B"), Device("C")],
-            connectedOnly: false,
-            maxCount: 2, locale: Locale.En);
-
-        Assert.Equal(2, capped.Count);
+        // [S-11310] Every device is listed: more than the rows scroll inside them.
+        Assert.Equal(3, BluetoothRules.Arrange([Device("A"), Device("B"), Device("C")], connectedOnly: false, locale: Locale.En).Count);
     }
 
     [Fact]

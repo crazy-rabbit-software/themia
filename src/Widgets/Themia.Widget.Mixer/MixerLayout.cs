@@ -29,25 +29,55 @@ public static class MixerLayout
     /// <summary>The room a row's lead, its gaps and its mute take from its inner width: lead 16 + 8, 12 before the meter, 8 + the 32 mute.</summary>
     public static double Fixed(bool icons) => (icons ? FamilyShape.Icon + FamilySpace.GlyphGap : 0) + FamilySpace.ColumnGap + FamilySpace.S2 + FamilyShape.IconButton;
 
-    /// <summary>[S-449] The plan for a view of <paramref name="area"/> listing <paramref name="playing"/> rows and <paramref name="quiet"/> quiet ones.</summary>
-    public static MixerPlan Plan(WidgetArea area, bool icons, int playing, int quiet)
+    /// <summary>[S-11309] The fewest, the most and a new mixer's rows.</summary>
+    public const int MinRows = 1, MaxRows = 12, DefaultRows = 4;
+
+    /// <summary>[S-11309] The card's width: 240 to 520, a new one 300; at 240 the slider keeps its least travel beside the name.</summary>
+    public const double MinWidth = 240, NaturalWidth = 300, MaxWidth = 520;
+
+    /// <summary>[S-11309] The rows the config gives, held to <see cref="MinRows"/>..<see cref="MaxRows"/>.</summary>
+    public static int ClampRows(int rows) => Math.Clamp(rows, MinRows, MaxRows);
+
+    /// <summary>[S-11309] The height's steps: the content top and the inset as the base, a row as the step, the config's rows as the count.</summary>
+    public static Sdk.SizeSteps Steps(int rows, int lines)
+        => new(FamilySpace.ContentTop + FamilySpace.Inset, FamilyShape.RowHeight(Math.Clamp(lines, 1, 2)), MinRows, MaxRows, ClampRows(rows));
+
+    /// <summary>
+    /// [S-11309] The mixer's sizing ([S-2438]): its rows (one or two lines each) under its header, stepped
+    /// by a row and following the config's rows, 240..520 wide.
+    /// </summary>
+    public static Sdk.WidgetSizing Sizing(Model.MixerConfig config)
     {
-        if (!area.IsMeasured)
+        ArgumentNullException.ThrowIfNull(config);
+        return Sdk.WidgetSizing.Range(new(MinWidth, 1), new(NaturalWidth, 1), new(MaxWidth, 1)).WithHeightSteps(Steps(config.Rows, config.Lines));
+    }
+
+    /// <summary>[S-11309] The config a mixer dragged to <paramref name="size"/> means: the rows that height holds.</summary>
+    public static Model.WidgetConfig SizeSets(Model.MixerConfig config, Sdk.SizeDip size)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var rows = Steps(config.Rows, config.Lines).Nearest(size.Height);
+        if (rows == ClampRows(config.Rows))
         {
-            return new MixerPlan(1, Math.Max(0, playing), 0, 0, true);
+            return config;
         }
 
-        var room = area.Width - (2 * FamilySpace.Inset) - Fixed(icons);
-        var named = Math.Floor(room * SliderShare);
-        var (slider, names) = named >= ControlsRules.MinSlider ? (named, true)
-            : icons && room >= ControlsRules.MinSlider ? (double.NaN, false)
-            : (0d, true);
+        var copy = (Model.MixerConfig)config.Clone();
+        copy.Rows = rows;
+        return copy;
+    }
 
-        // A row without its name has no second line under it.
-        var lines = names ? RowRules.Lines(area, 2) : 1;
-        var fit = RowRules.Fit(area.Height - FamilySpace.Inset, lines);
-        var rows = Math.Max(1, Math.Min(fit, playing));
-        var quietRows = playing <= fit ? Math.Max(0, Math.Min(fit - playing, quiet)) : 0;
-        return new MixerPlan(lines, Math.Min(rows, Math.Max(0, playing)), quietRows, slider, names);
+    /// <summary>
+    /// [S-449] [S-11309] The rows for a view <paramref name="width"/> wide: the config's rows and lines,
+    /// the playing apps first and the quiet ones under them while rows are left (more scroll inside them);
+    /// the slider 0.6 of the room beside the name and the mute button, never under its least travel.
+    /// </summary>
+    public static MixerPlan Plan(double width, bool icons, int lines, int rows, int playing, int quiet)
+    {
+        var room = (double.IsFinite(width) ? width : MinWidth) - (2 * FamilySpace.Inset) - Fixed(icons);
+        var slider = Math.Max(ControlsRules.MinSlider, Math.Floor(room * SliderShare));
+        var shown = ClampRows(rows);
+        var quietRows = Math.Max(0, Math.Min(shown - Math.Max(0, playing), quiet));
+        return new MixerPlan(Math.Clamp(lines, 1, 2), shown, quietRows, slider, true);
     }
 }

@@ -1,65 +1,61 @@
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Xunit;
 
 namespace Themia.Widget.Mixer.Tests;
 
-/// <summary>[S-449] The mixer's rows on the family's Row block: lines by the tier, the slider's room, whole rows.</summary>
+/// <summary>[S-449] [S-11309] The mixer's rows on the family's Row block: its rows and lines a setting, the slider's room, the card.</summary>
 public sealed class MixerLayoutTests
 {
-    // The view's area per tier: the card less its 36 header.
-    private static readonly WidgetArea Xs = new(120, 84);
-    private static readonly WidgetArea S = new(200, 114);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea Wide = new(480, 124);
-    private static readonly WidgetArea Tall = new(200, 364);
-    private static readonly WidgetArea L = new(560, 384);
-
     [Fact]
-    public void S449_a_named_row_gives_the_slider_three_fifths_of_what_the_lead_the_gaps_and_the_mute_leave()
+    public void S449_a_row_gives_the_slider_three_fifths_of_what_the_lead_the_gaps_and_the_mute_leave()
     {
-        // M: 296 inside the inset, less 16 + 8 lead, 12, 8 and the 28 mute: 224, three fifths 134.
-        var plan = MixerLayout.Plan(M, icons: true, playing: 5, quiet: 0);
-
-        Assert.True(plan.Names);
+        // 320 wide: 296 inside the inset, less 16 + 8 lead, 12, 8 and the 28 mute: 224, three fifths 134.
+        var plan = MixerLayout.Plan(320, icons: true, lines: 1, rows: 4, playing: 5, quiet: 0);
         Assert.Equal(134, plan.Slider);
-        Assert.Equal(72, MixerLayout.Fixed(icons: true));
-        Assert.Equal(48, MixerLayout.Fixed(icons: false));
+        Assert.True(plan.Names);
     }
 
     [Fact]
-    public void S449_a_narrow_row_with_an_icon_drops_the_name_for_the_slider_and_without_one_drops_the_slider()
+    public void S11309_at_its_least_width_the_slider_keeps_its_least_travel_beside_the_name()
     {
-        var narrow = MixerLayout.Plan(S, icons: true, playing: 5, quiet: 0);
-        Assert.False(narrow.Names);
-        Assert.True(double.IsNaN(narrow.Slider));
-        Assert.Equal(1, MixerLayout.Plan(Tall, icons: true, playing: 5, quiet: 0).Lines);
-
-        var bare = MixerLayout.Plan(S, icons: false, playing: 5, quiet: 0);
-        Assert.True(bare.Names);
-        Assert.Equal(0, bare.Slider);
-        Assert.Equal(0, MixerLayout.Plan(Xs, icons: true, playing: 5, quiet: 0).Slider);
-        Assert.True(MixerLayout.Plan(Xs, icons: true, playing: 5, quiet: 0).Names);
+        var plan = MixerLayout.Plan(MixerLayout.MinWidth, icons: true, lines: 1, rows: 4, playing: 5, quiet: 0);
+        Assert.True(plan.Slider >= Themia.Sdk.Kit.ControlsRules.MinSlider);
+        Assert.True(plan.Names);
     }
 
     [Fact]
-    public void S449_rows_are_one_or_two_lines_by_the_tier_and_only_whole_ones_show()
+    public void S11309_the_rows_and_lines_are_the_configs_and_the_quiet_apps_fill_the_rows_left()
     {
-        Assert.Equal(1, MixerLayout.Plan(Wide, icons: true, playing: 9, quiet: 0).Lines);
-        Assert.Equal(4, MixerLayout.Plan(Wide, icons: true, playing: 9, quiet: 0).Rows);
-        Assert.Equal(2, MixerLayout.Plan(M, icons: true, playing: 9, quiet: 0).Lines);
-        Assert.Equal(4, MixerLayout.Plan(M, icons: true, playing: 9, quiet: 0).Rows);
-        Assert.Equal(2, MixerLayout.Plan(L, icons: true, playing: 9, quiet: 0).Lines);
-        Assert.Equal(9, MixerLayout.Plan(L, icons: true, playing: 9, quiet: 0).Rows);
-
-        // A tile too short for one whole row still shows one.
-        Assert.Equal(1, MixerLayout.Plan(new WidgetArea(320, 20), icons: true, playing: 3, quiet: 0).Rows);
+        var plan = MixerLayout.Plan(300, icons: true, lines: 2, rows: 4, playing: 2, quiet: 5);
+        Assert.Equal((2, 4, 2), (plan.Lines, plan.Rows, plan.Quiet));
+        Assert.Equal(0, MixerLayout.Plan(300, icons: true, lines: 1, rows: 4, playing: 6, quiet: 5).Quiet);
+        Assert.Equal(12, MixerLayout.Plan(300, true, 1, 40, 1, 0).Rows);
     }
 
     [Fact]
-    public void S449_the_quiet_apps_follow_only_when_every_playing_row_fits()
+    public void S11309_the_height_follows_the_rows_and_dragging_sets_them()
     {
-        Assert.Equal(2, MixerLayout.Plan(L, icons: true, playing: 3, quiet: 2).Quiet);
-        Assert.Equal(6, MixerLayout.Plan(L, icons: true, playing: 3, quiet: 9).Quiet);
-        Assert.Equal(0, MixerLayout.Plan(Wide, icons: true, playing: 4, quiet: 2).Quiet);
+        var config = new MixerConfig();
+        var sizing = MixerLayout.Sizing(config);
+
+        Assert.Equal((4, 1), (config.Rows, config.Lines));
+        Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal((240d, 300d, 520d), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(36 + (12 * 28) + 12, sizing.Max.Height);
+        Assert.Equal(36 + (4 * 40) + 12, MixerLayout.Sizing(new MixerConfig { Lines = 2 }).Natural.Height);
+
+        var six = Assert.IsType<MixerConfig>(MixerLayout.SizeSets(config, sizing.Natural with { Height = 36 + (6 * 28) + 12 }));
+        Assert.Equal(6, six.Rows);
+        Assert.Equal(4, config.Rows);
+    }
+
+    [Fact]
+    public void S11309_rows_and_lines_out_of_range_are_repaired_and_copied()
+    {
+        var config = new MixerConfig { Rows = 99, Lines = 5 };
+        Assert.NotEmpty(config.Repair());
+        Assert.Equal((12, 2), (config.Rows, config.Lines));
+        Assert.Equal((12, 2), (((MixerConfig)config.Clone()).Rows, ((MixerConfig)config.Clone()).Lines));
     }
 }

@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.App.Shell.Config;
 using Themia.Core.Model;
 using Themia.Sdk.WinUI;
@@ -29,6 +30,8 @@ public sealed class BluetoothMenuTests
                 BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text(),
                 BluetoothStr.Widget_Battery_Label.Text(),
                 BluetoothStr.WidgetsA_Bluetooth_Settings_Signal_Label.Text(),
+                Str.Kit_Rows.Text(),
+                Str.Kit_Lines.Text(),
             ],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
     }

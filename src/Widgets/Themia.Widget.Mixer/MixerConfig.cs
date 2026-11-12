@@ -15,6 +15,12 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class MixerConfig : WidgetConfig
 {
+    /// <summary>[S-11309] How many rows it shows, 1 to 12; a new one 4. More apps scroll inside them.</summary>
+    public int Rows { get; set; } = MixerLayout.DefaultRows;
+
+    /// <summary>[S-11309] One line a row (the app's name) or two (its detail under it); a new one one.</summary>
+    public int Lines { get; set; } = 1;
+
     /// <summary>
     /// [S-1221] The output device's endpoint id, or null to follow Windows' default output (and
     /// move with it when a headset is plugged in).
@@ -44,18 +50,28 @@ public sealed class MixerConfig : WidgetConfig
         ShowSystemSounds = ShowSystemSounds,
         OnlyActive = OnlyActive,
         ShowIcons = ShowIcons,
+        Rows = Rows,
+        Lines = Lines,
     };
 
     /// <summary>A blank id is "follow the default", stored as null so there is one way to say it.</summary>
     public override IReadOnlyList<string> Repair()
     {
+        var repairs = new List<string>();
+        if (Rows != MixerLayout.ClampRows(Rows) || Lines is < 1 or > 2)
+        {
+            repairs.Add($"mixer rows {Rows} or lines {Lines} out of range");
+            Rows = MixerLayout.ClampRows(Rows);
+            Lines = Math.Clamp(Lines, 1, 2);
+        }
+
         if (DeviceId is not null && string.IsNullOrWhiteSpace(DeviceId))
         {
             DeviceId = null;
             DeviceName = null;
-            return ["mixer device id was blank; following the default output"];
+            repairs.Add("mixer device id was blank; following the default output");
         }
 
-        return [];
+        return repairs;
     }
 }

@@ -24,8 +24,8 @@ readout, the slider and the speaker through the shared `AudioFeed`), `VolumeMenu
   tile's tooltip, and no Readout; no key, wheel or click does anything. Until Core Audio first
   answers the tile is its frame. Renders `--state level|unavailable`.
 - **[S-2151]** Over the controls the level is a Readout, as the meters beside it (owner decision
-  2026-11-12; the root's [S-2150], `LevelFace`): "60%" at the view's top on 28 (S to Tall) or 40 (L, XL); a card shorter than XS is the controls alone. Its line under is the output
-  device's name (the widget's own fact, cut with an ellipsis) where it fits (S and larger). Muted reads as an off
+  2026-11-12; the root's [S-2150], [S-11308], `LevelFace`): "60%" at the view's top on 28 at every size, the reading and the controls always both, the card 136 tall and 160 to 360 wide. Its line under is the output
+  device's name (the widget's own fact, cut with an ellipsis), always. Muted reads as an off
   reading: the level it returns to, in the disabled role, its unit and line under with it; the
   slider stands at 0 as before.
 - **[S-2734]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it

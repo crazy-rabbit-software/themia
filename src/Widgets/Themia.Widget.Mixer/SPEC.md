@@ -25,14 +25,17 @@ volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTe
 - **[S-449]** The rows are the family's Row block ([S-6711], [S-6712]; `MixerLayout`): [lead 16: the
   app's icon, or the system sounds' bell or an app's window glyph, secondary] 8 [name, primary] 12
   [slider: the Controls slider, rail Track, value the accent] 8 [mute: a 28 icon button whose glyph is
-  the level's band], 28 tall, 40 with a second line where the tier gives two ([S-1624]: what the app
-  is doing). The slider takes three fifths of the room the lead, the gaps and the mute leave a named
-  row, so long as that is the slider's least (80); narrower, a row with its app's icon drops the name
-  for a slider over all of that room (the icon names the app, the tooltip has the name, and the
-  row has one line); narrower still (or without icons), a row is its lead, its name and its mute. As
-  many whole rows as the view's area less the card's bottom inset holds, the rest a scroll away;
-  the quiet rows follow only when every playing one fits ([S-1228]). A short list on a large card
-  stays short: no row is stretched. The keyboard's cursor is the Row block's ring ([S-1288]); a row
+  the level's band], 28 tall, 40 with a second line ([S-1624]: what the app is doing) where Lines is
+  two ([S-11309]). The slider takes three fifths of the room the lead, the gaps and the mute leave,
+  never under its least (80), which the list's least width keeps beside the name. The config's rows
+  show the playing apps, the rest a scroll away; the quiet rows fill the rows left ([S-1228]). A short
+  list keeps its rows: no row is stretched.
+- **[S-11309]** **A list atom.** The mixer's **Rows** (1 to 12, a new one 4) and **Lines** (one or two
+  a row, a new one one) are settings on its menu, after App icons; the card follows
+  (`MixerLayout.Sizing`): under its header the rows and the inset, stepped by a row and following
+  Rows (dragging its bottom edge sets them, `MixerLayout.SizeSets`), 240 to 520 wide (a new one 300),
+  where a wider card only gives the sliders more travel. No tier ladder is left (the name given way
+  for the slider, the lines by the tier). Tests `MixerLayoutTests.S11309_`, `MixerMenuTests`. The keyboard's cursor is the Row block's ring ([S-1288]); a row
   has the item layer's hover. Render `--state sample` (five apps, Edge's two sessions grouped,
   Discord silent, Steam muted). Retired with it: the 40 and 56 DIP rows, the rows sharing an
   expanded card's height, the slider tucked under the name and the session pill ([S-2771]).

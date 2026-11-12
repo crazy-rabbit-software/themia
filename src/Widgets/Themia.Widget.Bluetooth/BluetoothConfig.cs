@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Model;
 
@@ -15,8 +16,17 @@ public enum BluetoothSetting
 /// <summary>
 /// Paired Bluetooth devices, their connection state, and their battery where they report one.
 /// </summary>
-public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>
+public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>, IKitRows
 {
+    /// <summary>[S-11310] A new list's rows: four.</summary>
+    public const int DefaultRows = 4;
+
+    /// <summary>[S-11310] How many rows it shows (1 to 20); more devices scroll inside them.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-11310] One line a device (its name, its battery) or two (its kind, connection and signal under it); a new one one.</summary>
+    public int Lines { get; set; } = 1;
+
     /// <summary>
     /// [S-3252] Show each connected device's battery: the level Windows holds for it, else a GATT read.
     /// <para>
@@ -53,11 +63,6 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
     [JsonIgnore]
     public IReadOnlyList<BluetoothSetting> ShownSettings => ConnectedOnly ? [] : [BluetoothSetting.Connection];
 
-    /// <summary>
-    /// [S-1254] [S-3794] The most devices the list holds: a ceiling, not a target, and not a
-    /// setting. The tile shows as many whole rows as it has room for, and scrolls to the rest.
-    /// </summary>
-    public const int MaxDevices = 30;
 
     /// <summary>
     /// [S-3794] How often the radios are enumerated: every 30 seconds, not a setting. Enumerating
@@ -73,5 +78,21 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
         ShowConnection = ShowConnection,
         ShowSignal = ShowSignal,
         ConnectedOnly = ConnectedOnly,
+        Rows = Rows,
+        Lines = Lines,
     };
+
+    /// <summary>[S-11310] Rows and lines out of range are held to them.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        if (Rows == KitSizing.ClampRows(Rows) && Lines == KitSizing.ClampLines(Lines))
+        {
+            return [];
+        }
+
+        var said = $"bluetooth rows {Rows} or lines {Lines} out of range";
+        Rows = KitSizing.ClampRows(Rows);
+        Lines = KitSizing.ClampLines(Lines);
+        return [said];
+    }
 }
