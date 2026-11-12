@@ -12,7 +12,9 @@
     "groups.recipe.myDay",
     "groups.recipe.myDayAbout",
     "groups.recipe.weather",
-    "groups.recipe.weatherAbout"
+    "groups.recipe.weatherAbout",
+    "groups.recipe.myFiles",
+    "groups.recipe.myFilesAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -29,5 +31,7 @@
   "groups.recipe.myDay": "My day",
   "groups.recipe.myDayAbout": "The time, your next meeting and your tasks",
   "groups.recipe.weather": "Weather",
-  "groups.recipe.weatherAbout": "Now, the days ahead and rain in the next hour"
+  "groups.recipe.weatherAbout": "Now, the days ahead and rain in the next hour",
+  "groups.recipe.myFiles": "My files",
+  "groups.recipe.myFilesAbout": "Your documents, your shortcuts and the files you opened last"
 }

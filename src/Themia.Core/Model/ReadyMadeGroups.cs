@@ -78,8 +78,26 @@ public static class ReadyMadeGroups
         new("rainNextHour", new(0, 420, 380, 180)),
     ]);
 
+    /// <summary>
+    /// [S-11209] My files: the Documents folder as a list on the left; beside it the shortcuts as a
+    /// grid of four (the Recycle Bin, This PC, Downloads, Documents) over the files opened last, four
+    /// rows. The three are as tall as one another's column, so they join into one panel.
+    /// </summary>
+    public static ReadyMadeGroup MyFiles { get; } = new("myFiles", Str.Groups_Recipe_MyFiles, Str.Groups_Recipe_MyFilesAbout, Glyphs.Folder, AddFolderId.Files,
+    [
+        new("folder", new(0, 0, 300, 308), Config: """{ "style": "list", "path": "%USERPROFILE%\\Documents" }"""),
+        new("shortcuts", new(300, 0, 316, 100), Config: """
+            { "style": "grid", "columns": 4, "items": [
+                { "id": "bin", "target": "shell:RecycleBinFolder" },
+                { "id": "pc", "target": "shell:MyComputerFolder" },
+                { "id": "downloads", "target": "shell:Downloads" },
+                { "id": "documents", "target": "shell:Personal" } ] }
+            """),
+        new("recentFiles", new(300, 100, 316, 208), Config: """{ "rows": 4 }"""),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

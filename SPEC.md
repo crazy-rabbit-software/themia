@@ -7136,6 +7136,11 @@ grouped, so a first desktop is a few clicks.
 - **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid), **My day**
   (the clock on top, the next meeting and the tasks under it) and **Weather** (now, the forecast and
   the rain in the next hour, stacked), each with its kinds' default configs.
+- **[S-11209]** **My files** (files family): the Documents folder as a list (300 × 308) on the left;
+  beside it the shortcuts as a grid of four columns (the Recycle Bin, This PC, Downloads, Documents;
+  316 × 100) over the files opened last, four rows (316 × 208): each box the size its kind's sizing
+  makes of that config, the folder as tall as the column beside it, so the three join into one panel.
+  Its home is Files.
 - **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>]` draws a recipe
   placed: a scene built from it (`ReadyMadeScene`), edit mode, the new group selected, on a sample
   wallpaper; a widget given no state shows its "sample" preview where it has one.

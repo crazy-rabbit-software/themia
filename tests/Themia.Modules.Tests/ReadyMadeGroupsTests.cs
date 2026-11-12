@@ -122,7 +122,25 @@ public sealed class ReadyMadeGroupsTests
     [Fact]
     public void S2474_the_three_seeds_are_offered_in_order()
     {
-        Assert.Equal(["thisPc", "myDay", "weather"], ReadyMadeGroups.Offered().Select(r => r.Id));
+        Assert.Equal(["thisPc", "myDay", "weather"], ReadyMadeGroups.Offered().Select(r => r.Id).Take(3));
+    }
+
+    [Fact]
+    public void S11209_my_files_is_offered_and_its_three_widgets_sit_at_their_kinds_sizes_and_join()
+    {
+        var recipe = Assert.Single(ReadyMadeGroups.Offered(), r => r.Id == "myFiles");
+        Assert.Equal(["folder", "shortcuts", "recentFiles"], recipe.Widgets.Select(w => w.Kind));
+
+        // Each box is what its kind's sizing makes of it, so placing it moves nothing.
+        foreach (var part in recipe.Widgets)
+        {
+            var widget = FirstRunDesktop.Build(new FirstRunDesktop.Seed(part.Kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1), Config: part.Config))!;
+            var sizing = ModuleCatalog.Of(new WidgetId(part.Kind)).Sizing(widget.Config);
+            Assert.Equal(new SizeDip(part.Box.Width, part.Box.Height), sizing.Fit(new SizeDip(part.Box.Width, part.Box.Height)));
+        }
+
+        // One panel: the folder as tall as the column beside it.
+        Assert.Equal(recipe.Widgets[0].Box.Height, recipe.Widgets[1].Box.Height + recipe.Widgets[2].Box.Height);
     }
 
     // ---- [S-2471] placing one ---------------------------------------------------------------------
