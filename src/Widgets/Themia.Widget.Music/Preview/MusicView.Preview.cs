@@ -48,7 +48,7 @@ internal sealed partial class MusicView : IWidgetPreviewState
         }
 
         // [S-2056] Art drawn in code, never a picture of this PC.
-        var bytes = await SamplePictureFiles.PngAsync(2, 600, 600).ConfigureAwait(true);
+        var bytes = await SamplePictureFiles.CoverPngAsync(600).ConfigureAwait(true);
 
         await ShowArtworkAsync(bytes, _now.TrackKey, generation).ConfigureAwait(true);
     }

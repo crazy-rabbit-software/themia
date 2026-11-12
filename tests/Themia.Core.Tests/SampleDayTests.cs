@@ -159,6 +159,46 @@ public class SampleDayTests
         Assert.Equal(SamplePictures.Count, Enumerable.Range(0, SamplePictures.Count)
             .Select(i => Convert.ToHexString(SamplePictures.Pixels(i, 32, 20))).Distinct().Count());
         Assert.Equal(SamplePictures.Names.Count, SamplePictures.Names.Distinct().Count());
+        Assert.Equal(SamplePictures.Count, SamplePictures.Names.Count);
+    }
+
+    [Fact]
+    public void S2056_a_sample_picture_is_the_same_at_every_size_and_tells_its_landscape_apart_even_as_a_thumbnail()
+    {
+        // Thumbnails and odd shapes repeat byte for byte too (the rows are painted in parallel).
+        Assert.Equal(SamplePictures.Pixels(7, 64, 64), SamplePictures.Pixels(7, 64, 64));
+        Assert.Equal(SamplePictures.Pixels(3, 33, 91), SamplePictures.Pixels(3, 33, 91));
+        Assert.Equal(SamplePictures.Pixels(1, 16, 10), SamplePictures.Pixels(1 + SamplePictures.Count, 16, 10));
+
+        // Each picture differs from every other by more than grain: compare their mean colours at 64 px.
+        var means = Enumerable.Range(0, SamplePictures.Count).Select(i => Mean(SamplePictures.Pixels(i, 64, 64))).ToList();
+        for (var a = 0; a < means.Count; a++)
+        {
+            for (var b = a + 1; b < means.Count; b++)
+            {
+                var d = Math.Abs(means[a].R - means[b].R) + Math.Abs(means[a].G - means[b].G) + Math.Abs(means[a].B - means[b].B);
+                Assert.True(d > 6, $"{SamplePictures.Names[a]} and {SamplePictures.Names[b]} look alike ({d:F1})");
+            }
+        }
+
+        var cover = SamplePictures.AlbumCover(48, 48);
+        Assert.Equal(cover, SamplePictures.AlbumCover(48, 48));
+        Assert.All(Enumerable.Range(0, 48 * 48), i => Assert.Equal(255, cover[(i * 4) + 3]));
+        Assert.All(Enumerable.Range(0, SamplePictures.Count), i => Assert.NotEqual(cover, SamplePictures.Pixels(i, 48, 48)));
+
+        static (double R, double G, double B) Mean(byte[] bgra)
+        {
+            double r = 0, g = 0, b = 0;
+            for (var i = 0; i < bgra.Length; i += 4)
+            {
+                b += bgra[i];
+                g += bgra[i + 1];
+                r += bgra[i + 2];
+            }
+
+            var n = bgra.Length / 4.0;
+            return (r / n, g / n, b / n);
+        }
     }
 
     [Fact]

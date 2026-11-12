@@ -8577,7 +8577,9 @@ tells one story, so any set of them agrees with itself. The facts live once, in 
   twelve items. Numbers are believable: the rates and the stock are seeded random walks, the main
   screen-time sample is under its limits (`over` is the state over them), battery devices sit at
   ordinary levels with one low. No preview reads a picture, a folder or a name from this PC: the
-  music art and the gallery's pictures are drawn in code, the folder, recent files and recycle bin
+  music art and the gallery's pictures are drawn in code (`SamplePictures`: each a flat, poster-like
+  landscape matching its file name, the same bytes for the same picture and size on every run; the
+  album cover the northern lights over a winter lake), the folder, recent files and recycle bin
   list invented documents with the shell's stock icons by extension.
 
 ## Opening a widget's app (R7-OPEN, retired)

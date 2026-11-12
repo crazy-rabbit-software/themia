@@ -14,9 +14,15 @@ namespace Themia.Sdk.WinUI;
 public static class SamplePictureFiles
 {
     /// <summary>Picture <paramref name="index"/> as a PNG of <paramref name="width"/> × <paramref name="height"/>.</summary>
-    public static async Task<byte[]> PngAsync(int index, int width, int height)
+    public static Task<byte[]> PngAsync(int index, int width, int height) =>
+        EncodeAsync(SamplePictures.Pixels(index, width, height), width, height);
+
+    /// <summary>The sample track's album cover (<see cref="SamplePictures.AlbumCover"/>) as a PNG of <paramref name="size"/> square.</summary>
+    public static Task<byte[]> CoverPngAsync(int size) =>
+        EncodeAsync(SamplePictures.AlbumCover(size, size), size, size);
+
+    private static async Task<byte[]> EncodeAsync(byte[] pixels, int width, int height)
     {
-        var pixels = SamplePictures.Pixels(index, width, height);
         using var stream = new InMemoryRandomAccessStream();
         var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
         encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint)width, (uint)height, 96, 96, pixels);
