@@ -46,6 +46,9 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     private IWidgetSurface? _surface;
     private Ticker? _ticker;
     private CountdownConfig _config = new();
+
+    /// <summary>[S-2050] The clock the countdown reads: the real one, or a preview's sample moment.</summary>
+    private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
     private WidgetArea _area;
@@ -168,7 +171,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
             return;
         }
 
-        var now = DateTimeOffset.Now;
+        var now = _clock();
         var reading = CountdownFormatter.Read(target, now, _config.Format, Strings.Current).Text;
         var cards = CountdownLayout.Cards(target, now, _config.Format == CountdownFormat.DaysHoursMinutesSeconds);
         _shape = CountdownLayout.Shape(reading);
@@ -257,7 +260,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
             return;
         }
 
-        var now = DateTimeOffset.Now;
+        var now = _clock();
         var zone = TimeZoneInfo.Local;
         var reading = CountdownFormatter.Read(target, now, _config.Format, Strings.Current);
         if (_area.IsMeasured && CountdownLayout.Shape(reading.Text) != _shape)

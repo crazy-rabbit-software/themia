@@ -1,14 +1,15 @@
 #if DEBUG
 using Themia.App.Services;
 using Themia.Sdk;
+using Themia.Sdk.Samples;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): a fixed month of sample usage — ten apps, quieter weekends, a
-/// limit on the whole day and one app over its own — so <c>--widget-png ScreenTimeDonut --state
+/// Debug renders only ([S-1917], [S-2056]): a fixed month of sample usage to the sample moment — ten apps, quieter weekends, the morning so far today, under a
+/// limit on the whole day and one on Chrome (<c>over</c>: tight limits, the readouts over them) — so <c>--widget-png ScreenTimeDonut --state
 /// sample</c> draws what a month of tracking would. <c>hovered</c> and <c>selected</c> light an app
 /// through the render's one board ([S-3300]), so every card on the page shows the link.
 /// <c>packaged</c> lists the packaged (Store) apps running on this machine by their real executables,
@@ -21,30 +22,37 @@ public sealed class SampleScreenTime : IScreenTimeSource
 
     private static readonly (string Key, string Name, int Minutes, string? Path)[] SampleApps =
     [
-        ("code", "Visual Studio Code", 190, null),
-        ("chrome", "Google Chrome", 95, null),
-        ("teams", "Microsoft Teams", 70, null),
-        ("outlook", "Outlook", 45, null),
-        ("spotify", "Spotify", 30, null),
-        ("explorer", "File Explorer", 22, null),
-        ("slack", "Slack", 18, null),
-        ("terminal", "Windows Terminal", 14, null),
-        ("figma", "Figma", 9, null),
-        ("discord", "Discord", 6, null),
+        ("code", "Visual Studio Code", 95, null),
+        ("chrome", "Google Chrome", 45, null),
+        ("teams", "Microsoft Teams", 40, null),
+        ("outlook", "Outlook", 30, null),
+        ("figma", "Figma", 22, null),
+        ("spotify", "Spotify", 15, null),
+        ("explorer", "File Explorer", 12, null),
+        ("slack", "Slack", 9, null),
+        ("terminal", "Windows Terminal", 7, null),
+        ("discord", "Discord", 4, null),
     ];
 
     private readonly (string Key, string Name, int Minutes, string? Path)[] _apps;
 
-    private readonly ScreenTimePreferences _preferences = ScreenTimePreferences.From(null, 6 * 3600, [new("chrome", 3600)]);
+    private readonly ScreenTimePreferences _preferences;
 
     public SampleScreenTime(string state = "sample")
     {
         _apps = state == "packaged" ? RunningPackagedApps() : SampleApps;
+
+        // [S-2056] The sample is under its limits (six hours a day, an hour of Chrome); "over" is
+        // the same morning against tight ones (ninety minutes, a quarter of an hour of Chrome).
+        _preferences = state == "over"
+            ? ScreenTimePreferences.From(null, 90 * 60, [new("chrome", 15 * 60)])
+            : ScreenTimePreferences.From(null, 6 * 3600, [new("chrome", 3600)]);
     }
 
-    public static IReadOnlyList<string> States { get; } = ["sample", "hovered", "selected", "packaged"];
+    public static IReadOnlyList<string> States { get; } = ["sample", "hovered", "selected", "over", "packaged"];
 
-    public LocalDay Today => LocalDay.From(DateTimeOffset.Now);
+    /// <summary>[S-2050] The sample day.</summary>
+    public LocalDay Today => LocalDay.From(SampleDay.Now);
 
     public ScreenTimePreferences Preferences => _preferences;
 
@@ -67,9 +75,11 @@ public sealed class SampleScreenTime : IScreenTimeSource
     /// <summary>One day: the same apps every day, scaled by a weekday factor and a little drift per app, so bars differ.</summary>
     private ScreenTimeDay DayOf(LocalDay day)
     {
-        var offset = day.DaysUntil(LocalDay.From(DateTimeOffset.Now));
+        var offset = day.DaysUntil(Today);
         var weekend = day.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
-        var scale = (weekend ? 0.35 : 1.0) * (0.75 + (0.25 * Math.Abs(Math.Sin(offset * 1.7))));
+
+        // Today is the morning so far (since half past eight): about a third of a day's use.
+        var scale = offset == 0 ? 0.42 : (weekend ? 0.35 : 1.0) * (0.75 + (0.25 * Math.Abs(Math.Sin(offset * 1.7))));
 
         List<ScreenTimeApp> apps = [.. _apps.Select((app, i) => new ScreenTimeApp(
             app.Key,

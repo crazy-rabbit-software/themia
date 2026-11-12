@@ -3,6 +3,7 @@ using Themia.App.Services.Tasks;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
+using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
@@ -36,7 +37,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
 
         if (state == "caldav")
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            var today = SampleDay.Today;
             string Day(int days) => TaskStamp.OfDay(today.AddDays(days)).Wire();
 
             _config.Source = TaskSource.Account;
@@ -52,9 +53,9 @@ internal sealed partial class TasksView : IWidgetPreviewState
                 new("c2", "preview-account-list", "Renew the bike insurance", false, Important: true, DueRaw: Day(3)),
                 new("c3", "preview-account-list", "Descale the kettle", false, DueRaw: Day(-1)),
                 new("c4", "preview-account-list", "Fix the bathroom tap", false),
-                new("c5", "preview-account-list", "Order birthday present", true, CompletedOn: TaskStamp.At(DateTimeOffset.Now)),
+                new("c5", "preview-account-list", "Order birthday present", true, CompletedOn: TaskStamp.At(SampleDay.MinutesAgo(90))),
             ],
-            DateTimeOffset.Now,
+            SampleDay.Now,
             readOnly: true);
             PublishTitle();
             Render();
@@ -76,7 +77,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
                 new("a2", "preview-account-list", "Water the plants", false),
                 new("a3", "preview-account-list", "Send the invoice", false),
             ],
-            DateTimeOffset.Now.AddMinutes(-20));
+            SampleDay.MinutesAgo(20));
             PublishTitle();
             Render();
             return Task.CompletedTask;
@@ -84,19 +85,8 @@ internal sealed partial class TasksView : IWidgetPreviewState
 
         LocalTask[]? tasks = state switch
         {
-            "tasks" =>
-            [
-                new("t1", "Book the dentist appointment", false),
-                new("t2", "Reply to the landlord about the heating", false),
-                new("t3", "Pick up the parcel", false),
-                new("t4", "Renew the passport before the trip in spring", false),
-                new("t5", "Water the plants", false),
-                new("t6", "Send the invoice", false),
-                new("t7", "Call Grandma", false),
-                new("t8", "Back up the laptop", false),
-                new("t9", "Order printer ink", false),
-                new("t10", "Plan the weekend", false),
-            ],
+            // [S-2055] Robin's errands, the week planner's list.
+            "tasks" => [.. SampleTasks.Errands.Select((task, i) => new LocalTask($"t{i + 1}", task.Title, false))],
             "few" => [new("t1", "Pick up the parcel", false), new("t2", "Water the plants", false)],
 
             // [S-784] Finished tasks shown, under their heading.
@@ -120,7 +110,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
         _config.Source = TaskSource.Local;
         _config.ShowCompleted = state == "done";
         _config.LocalListId = PreviewListId;
-        _local = new MemoryTaskLists([new LocalTaskList(PreviewListId, "Errands", tasks)]);
+        _local = new MemoryTaskLists([new LocalTaskList(PreviewListId, SampleTasks.ListName, tasks)]);
         _localListId = PreviewListId;
         PublishTitle();
         Render();

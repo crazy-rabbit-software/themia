@@ -28,7 +28,7 @@ internal sealed partial class ClipboardView : IWidgetPreviewState
                 At(SampleCast.Bea.Email, 25),
                 At("Thursday's review moves to 14:00 in the board room.", 48),
                 At("CHF 48,213.75", 70),
-                At("#3A7BD5", 95),
+                At("rgb(58, 123, 213)", 95),
                 At("Uferweg 12\n8008 Zürich\nSwitzerland", 190),
                 At("Please find the signed contract attached.", 300),
                 At("onboarding-flow-v3.fig", 60 * 20),

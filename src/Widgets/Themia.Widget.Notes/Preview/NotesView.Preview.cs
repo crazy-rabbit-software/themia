@@ -11,7 +11,8 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class NotesView : IWidgetPreviewState
 {
-    private const string SampleNote = "# Groceries\n- [x] Oat milk\n- [ ] **Coffee** beans\n- [ ] Bread\n\nAsk about the *Saturday* market.";
+    // [S-2056] A short real note: a heading, a checklist, one line of text.
+    private const string SampleNote = "# Groceries\n- [x] Oat milk\n- [ ] Coffee beans\n- [ ] Flowers for Mia\n- [ ] Bread\n\nThe bakery closes at six today.";
 
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "editing", "confirm"];
 

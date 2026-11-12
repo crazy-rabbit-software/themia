@@ -37,6 +37,9 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
     private AlarmConfig _config = new();
+
+    /// <summary>[S-2050] The clock the alarm reads (UTC): the real one, or a preview's sample moment.</summary>
+    private Func<DateTime> _clock = static () => DateTime.UtcNow;
     private WidgetArea _area;
     private TimerPlan _plan;
     private bool _detached;
@@ -120,7 +123,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         // No service (a debug render): what the plan alone says.
         var plan = _config.Plan;
-        return plan.On ? new AlarmStatus(AlarmPhase.Set, AlarmSchedule.Next(plan, DateTime.UtcNow, TimeZoneInfo.Local)) : new AlarmStatus(AlarmPhase.Off);
+        return plan.On ? new AlarmStatus(AlarmPhase.Set, AlarmSchedule.Next(plan, _clock(), TimeZoneInfo.Local)) : new AlarmStatus(AlarmPhase.Off);
     }
 
     // ---- actions ----------------------------------------------------------------------------
@@ -217,7 +220,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         var locale = Strings.Current;
-        var now = DateTime.UtcNow;
+        var now = _clock();
         var zone = _host.Alarms?.Zone ?? TimeZoneInfo.Local;
         var status = Status();
         var ringing = status.Phase == AlarmPhase.Ringing;

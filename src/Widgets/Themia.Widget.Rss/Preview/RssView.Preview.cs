@@ -3,12 +3,13 @@ using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Samples;
 using Themia.Widget.Rss;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): sample feeds held in memory, so <c>--widget-png rss --state sample</c>
+/// Debug renders only ([S-1917], [S-2056]): sample feeds held in memory (ten items, ages from the sample moment), so <c>--widget-png rss --state sample</c>
 /// draws the rows, the header's age and the empty and failure sentences without the network. The
 /// sites are on the reserved <c>.example</c> domain, so no icon is ever found and every row keeps its
 /// globe: a render is the same on every run. <c>single</c> is one feed (its own title in the header);
@@ -27,7 +28,7 @@ internal sealed partial class RssView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        var now = DateTimeOffset.Now;
+        var now = SampleDay.Now;
         const string news = "https://news.example/rss";
         const string blog = "https://blog.example/feed.xml";
         const string tech = "https://tech.example/atom";
@@ -51,8 +52,9 @@ internal sealed partial class RssView : IWidgetPreviewState
         [
             Entry("blog.example", "sourdough", "What a year of sourdough taught me about patience", 1.5,
                 "Most of it is waiting, and the rest is learning which waiting matters."),
-            Entry("blog.example", "untitled", string.Empty, 50, string.Empty),
-            new FeedEntry("Notes from a week without a phone", string.Empty, now.AddHours(-30), "No link on this one: it opens nothing."),
+            Entry("blog.example", "lake", "A winter swim club that meets every Sunday at eight", 50,
+                "Nobody stays in long, and everybody comes back the next week."),
+            new FeedEntry("Notes from a week without a phone", string.Empty, now.AddHours(-30), "Less scrolling, more walking, and a lot of old paper maps."),
         ]);
 
         var techDoc = new FeedDocument("Tech Daily",
@@ -61,7 +63,8 @@ internal sealed partial class RssView : IWidgetPreviewState
                 "Early tests agree on the battery, less so on the price."),
             Entry("tech.example", "standards", "A standards body publishes the first draft of the new image format", 7,
                 "Smaller files at the same quality, and a royalty-free licence."),
-            Entry("tech.example", "undated", "An undated item sinks below every dated one", -1, "Its feed gave no date."),
+            Entry("tech.example", "keyboards", "Why quiet keyboards are winning the open office", 20,
+                "Lower switches, softer caps and fewer complaints from the next desk."),
         ]);
 
         Fetched<FeedDocument> Ok(FeedDocument doc, double minutesAgo)
@@ -104,6 +107,7 @@ internal sealed partial class RssView : IWidgetPreviewState
         _applied = (RssConfig)config.Clone();
         _source.HoldForPreview(config, parts);
         _binding.ReleaseCursor();
+        _binding.Clock = () => now;
         _binding.Apply(_source, _config, _config.TickInterval, show: false);
         return Task.CompletedTask;
     }

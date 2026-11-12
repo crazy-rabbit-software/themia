@@ -6,7 +6,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only: a fixed set of paired devices with and without a battery reading, so the
+/// Debug renders only ([S-2056]): the sample day's paired devices (the peripheral batteries' too, one low) with and without a battery reading, so the
 /// battery column ([S-3252]..[S-3254]) can be looked at on a machine whose devices report none; <c>off</c> is the
 /// radio switched off (the Status row, [S-244]), never this PC's radio.
 /// </summary>
@@ -42,9 +42,10 @@ internal sealed partial class BluetoothView : IWidgetPreviewState
 
         _snapshot = new BluetoothSnapshot(BluetoothStatus.Ok,
         [
-            new BluetoothDeviceEntry("Surface Headphones", "fixture:headphones", true, BluetoothDeviceKind.Audio, 80),
-            new BluetoothDeviceEntry("MX Master 3S Mouse", "fixture:mouse", true, BluetoothDeviceKind.Mouse, 15),
-            new BluetoothDeviceEntry("Keychron K2 Keyboard", "fixture:keyboard", true, BluetoothDeviceKind.Keyboard, null),
+            new BluetoothDeviceEntry("Surface Headphones 2", "fixture:headphones", true, BluetoothDeviceKind.Audio, 80),
+            new BluetoothDeviceEntry("MX Master 3S", "fixture:mouse", true, BluetoothDeviceKind.Mouse, 64),
+            new BluetoothDeviceEntry("Keychron K3", "fixture:keyboard", true, BluetoothDeviceKind.Keyboard, 46),
+            new BluetoothDeviceEntry("Surface Slim Pen 2", "fixture:pen", true, BluetoothDeviceKind.Pen, 18),
             new BluetoothDeviceEntry("Pixel 8", "fixture:phone", false, BluetoothDeviceKind.Phone, null),
         ]);
 

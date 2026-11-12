@@ -2,6 +2,7 @@
 using Themia.App.Shell.Gallery;
 using Themia.Core.Habits;
 using Themia.Core.Widgets;
+using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
@@ -17,7 +18,7 @@ internal sealed partial class HabitTrackerView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        var today = Bucket(DateTimeOffset.Now).Key;
+        var today = Bucket(SampleDay.Now).Key;
         Habit[]? habits = state switch
         {
             // [S-6006] Five habits with a year of uneven history, for every style's render.
@@ -69,7 +70,7 @@ internal sealed partial class HabitTrackerView : IWidgetPreviewState
     private string[] History(int seed, int of, int every)
     {
         var keys = new List<string>();
-        var cursor = Bucket(DateTimeOffset.Now);
+        var cursor = Bucket(SampleDay.Now);
 
         for (var i = 0; i < 370; i++)
         {

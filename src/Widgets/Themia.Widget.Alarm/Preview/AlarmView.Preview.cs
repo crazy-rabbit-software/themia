@@ -2,10 +2,11 @@
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
-/// <summary>Debug renders only: a weekday alarm at 6:45 set, ringing, snoozed, or switched off.</summary>
+/// <summary>Debug renders only ([S-2050]): at the sample moment, a weekday alarm at 6:45 set, ringing, snoozed, or switched off.</summary>
 internal sealed partial class AlarmView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["set", "ringing", "snoozed", "off"];
@@ -14,7 +15,8 @@ internal sealed partial class AlarmView : IWidgetPreviewState
     {
         _config = new AlarmConfig { Time = "06:45", Days = ["mon", "tue", "wed", "thu", "fri"], On = state != "off", Label = "Wake up" };
 
-        var now = DateTime.UtcNow;
+        var now = SampleDay.Now.UtcDateTime;
+        _clock = () => now;
         _previewStatus = state switch
         {
             "ringing" => new AlarmStatus(AlarmPhase.Ringing),
