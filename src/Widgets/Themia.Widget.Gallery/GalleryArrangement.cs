@@ -29,15 +29,6 @@ public static class GalleryArrangement
     /// </summary>
     public const int MaxTiles = 24;
 
-    /// <summary>Roughly how big a grid tile wants to be: a wider card shows more tiles, not bigger ones.</summary>
-    public const double TargetTile = 120;
-
-    /// <summary>[S-764] Card area per scatter print. Fewer prints on a small card, more on a big one.</summary>
-    public const double ScatterAreaPerPrint = 12_000;
-
-    /// <summary>[S-765] Card area per mosaic cell; about a 95-DIP square each.</summary>
-    public const double MosaicAreaPerCell = 9_000;
-
     /// <summary>[S-764] How far a print's centre may wander inside its cell, as a share of the cell (the middle half).</summary>
     public const double ScatterJitter = 0.5;
 
@@ -53,23 +44,6 @@ public static class GalleryArrangement
     public const double MinSplit = 0.35;
 
     public const double MaxSplit = 0.65;
-
-    /// <summary>
-    /// How many grid tiles of about <see cref="TargetTile"/> the area holds, capped at
-    /// <see cref="MaxTiles"/>. At least one.
-    /// </summary>
-    public static int GridCapacity(double width, double height, double gap)
-    {
-        if (!Usable(width) || !Usable(height))
-        {
-            return 1;
-        }
-
-        gap = Math.Max(0, gap);
-        var columns = Math.Max(1, (int)Math.Round((width + gap) / (TargetTile + gap)));
-        var rows = Math.Max(1, (int)Math.Round((height + gap) / (TargetTile + gap)));
-        return Math.Clamp(columns * rows, 1, MaxTiles);
-    }
 
     /// <summary>
     /// The columns and rows for <paramref name="count"/> tiles: the shape whose tiles are closest to
@@ -109,14 +83,6 @@ public static class GalleryArrangement
 
         return best;
     }
-
-    /// <summary>[S-764] How many prints the scatter layout deals onto this area. At least one.</summary>
-    public static int ScatterCapacity(double width, double height)
-        => Capacity(width, height, ScatterAreaPerPrint);
-
-    /// <summary>[S-765] How many cells the mosaic cuts this area into. At least one.</summary>
-    public static int MosaicCapacity(double width, double height)
-        => Capacity(width, height, MosaicAreaPerCell);
 
     /// <summary>
     /// [S-764] Deal <paramref name="count"/> prints onto a <paramref name="width"/> ×
@@ -205,16 +171,6 @@ public static class GalleryArrangement
             Subdivide(cells, random, first, area with { Height = top });
             Subdivide(cells, random, count - first, area with { Y = area.Y + top, Height = area.Height - top });
         }
-    }
-
-    private static int Capacity(double width, double height, double per)
-    {
-        if (!Usable(width) || !Usable(height))
-        {
-            return 1;
-        }
-
-        return Math.Clamp((int)(width * height / per), 1, MaxTiles);
     }
 
     private static bool Usable(double value) => double.IsFinite(value) && value > 0;

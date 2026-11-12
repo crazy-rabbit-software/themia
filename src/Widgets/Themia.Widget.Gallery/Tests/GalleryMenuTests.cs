@@ -28,8 +28,14 @@ public sealed class GalleryMenuTests
         Assert.Equal(
             [GalleryStr.WidgetsB_Settings_Gallery_Slide_Label.Text(), GalleryStr.WidgetsB_Settings_Gallery_Fit_Label.Text()],
             Build(new GalleryConfig { Style = GalleryStyle.Slideshow }).StyleLines.Select(l => l.Text));
-        Assert.Empty(Build(new GalleryConfig { Style = GalleryStyle.Mosaic }).StyleLines);
+        Assert.Equal([GalleryStr.Gallery_Shown.Text()], Build(new GalleryConfig { Style = GalleryStyle.Mosaic }).StyleLines.Select(l => l.Text));
     }
+
+    [Fact]
+    public void S11207_the_grid_offers_its_columns_rows_and_cell_size_under_style()
+        => Assert.Equal(
+            [GalleryStr.WidgetsB_Settings_Gallery_Fit_Label.Text(), GalleryStr.Gallery_Columns.Text(), Str.Kit_Rows.Text(), GalleryStr.Gallery_CellSize.Text()],
+            Build(new GalleryConfig { Style = GalleryStyle.Grid }).StyleLines.Select(l => l.Text));
 
     [Fact]
     public void S778_a_folder_source_shows_the_folders_lines_after_appearance()

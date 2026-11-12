@@ -19,7 +19,7 @@ public enum GalleryStyle
     /// <summary>One picture at a time, filling the card, advancing on a timer.</summary>
     Slideshow = 0,
 
-    /// <summary>As many tiles as the card has room for.</summary>
+    /// <summary>[S-11207] Its Columns × Rows tiles at its Cell size.</summary>
     Grid = 1,
 
     /// <summary>[S-764] Prints dropped on a table: random place, size and tilt per picture.</summary>
@@ -27,6 +27,17 @@ public enum GalleryStyle
 
     /// <summary>[S-765] The card cut into rectangles of varied size, one picture each, no gaps.</summary>
     Mosaic = 3,
+}
+
+/// <summary>[S-11207] The grid's cell: Small 64, Medium 96, Large 128.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<GalleryCellSize>))]
+public enum GalleryCellSize
+{
+    Small = 0,
+
+    Medium = 1,
+
+    Large = 2,
 }
 
 /// <summary>What a picture does with a frame that is not its shape.</summary>
@@ -53,6 +64,12 @@ public enum GallerySetting
     OutlineColor,
     OutlineWidth,
     Count,
+
+    /// <summary>[S-11207] The grid's columns, rows and cell size.</summary>
+    Cells,
+
+    /// <summary>[S-11207] How many pictures the scatter and the mosaic show.</summary>
+    Shown,
     Shuffle,
     OpenFolder,
 }
@@ -145,6 +162,37 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
     /// <summary>How many pictures are taken from the folder.</summary>
     public int MaxImages { get; set; } = 24;
 
+    /// <summary>[S-11207] The grid's columns and rows: <see cref="MinCells"/>..<see cref="MaxCells"/> each.</summary>
+    public const int MinCells = 1;
+
+    public const int MaxCells = 6;
+
+    /// <summary>[S-11207] The grid's columns; its width follows them.</summary>
+    public int Columns { get; set; } = 3;
+
+    /// <summary>[S-11207] The grid's rows; its height follows them.</summary>
+    public int Rows { get; set; } = 2;
+
+    /// <summary>[S-11207] The grid's cell size.</summary>
+    public GalleryCellSize CellSize { get; set; } = GalleryCellSize.Medium;
+
+    /// <summary>[S-11207] How many pictures the scatter and the mosaic show, 1..<see cref="MaxShown"/>.</summary>
+    public int Shown { get; set; } = 6;
+
+    public const int MaxShown = 12;
+
+    [JsonIgnore]
+    public int EffectiveColumns => Math.Clamp(Columns, MinCells, MaxCells);
+
+    [JsonIgnore]
+    public int EffectiveRows => Math.Clamp(Rows, MinCells, MaxCells);
+
+    [JsonIgnore]
+    public GalleryCellSize EffectiveCellSize => Enum.IsDefined(CellSize) ? CellSize : GalleryCellSize.Medium;
+
+    [JsonIgnore]
+    public int EffectiveShown => Math.Clamp(Shown, 1, MaxShown);
+
     /// <summary>[S-774] One picture turned by this many degrees (any whole number; read through <see cref="EffectiveRotation"/>).</summary>
     public int Rotation { get; set; }
 
@@ -202,6 +250,16 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
                     if (Style is GalleryStyle.Slideshow or GalleryStyle.Grid)
                     {
                         shown.Add(GallerySetting.Fit);
+                    }
+
+                    if (Style == GalleryStyle.Grid)
+                    {
+                        shown.Add(GallerySetting.Cells);
+                    }
+
+                    if (Style is GalleryStyle.Scatter or GalleryStyle.Mosaic)
+                    {
+                        shown.Add(GallerySetting.Shown);
                     }
 
                     shown.Add(GallerySetting.Count);
@@ -268,5 +326,9 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         Outline = Outline,
         OutlineColor = OutlineColor,
         OutlineWidth = OutlineWidth,
+        Columns = Columns,
+        Rows = Rows,
+        CellSize = CellSize,
+        Shown = Shown,
     };
 }

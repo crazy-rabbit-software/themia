@@ -49,9 +49,9 @@ public class SettingRulesTests
     public static TheoryData<GallerySource, GalleryStyle, bool, GallerySetting[]> GalleryRows => new()
     {
         { GallerySource.Folder, GalleryStyle.Slideshow, false, [GallerySetting.Folder, GallerySetting.Recursive, GallerySetting.SlideSeconds, GallerySetting.Fit, GallerySetting.Count, GallerySetting.Shuffle, GallerySetting.OpenFolder] },
-        { GallerySource.Folder, GalleryStyle.Grid, false, [GallerySetting.Folder, GallerySetting.Recursive, GallerySetting.Fit, GallerySetting.Count, GallerySetting.Shuffle, GallerySetting.OpenFolder] },
-        { GallerySource.Folder, GalleryStyle.Scatter, false, [GallerySetting.Folder, GallerySetting.Recursive, GallerySetting.Count, GallerySetting.Shuffle, GallerySetting.OpenFolder] },
-        { GallerySource.Folder, GalleryStyle.Mosaic, false, [GallerySetting.Folder, GallerySetting.Recursive, GallerySetting.Count, GallerySetting.Shuffle, GallerySetting.OpenFolder] },
+        { GallerySource.Folder, GalleryStyle.Grid, false, [GallerySetting.Folder, GallerySetting.Recursive, GallerySetting.Fit, GallerySetting.Cells, GallerySetting.Count, GallerySetting.Shuffle, GallerySetting.OpenFolder] },
+        { GallerySource.Folder, GalleryStyle.Scatter, false, [GallerySetting.Folder, GallerySetting.Recursive, GallerySetting.Shown, GallerySetting.Count, GallerySetting.Shuffle, GallerySetting.OpenFolder] },
+        { GallerySource.Folder, GalleryStyle.Mosaic, false, [GallerySetting.Folder, GallerySetting.Recursive, GallerySetting.Shown, GallerySetting.Count, GallerySetting.Shuffle, GallerySetting.OpenFolder] },
         { GallerySource.File, GalleryStyle.Mosaic, false, [GallerySetting.File, GallerySetting.Fit, GallerySetting.Rotation, GallerySetting.Outline] },
         { GallerySource.File, GalleryStyle.Slideshow, true, [GallerySetting.File, GallerySetting.Rotation, GallerySetting.Outline, GallerySetting.OutlineColor, GallerySetting.OutlineWidth] },
         { GallerySource.Bing, GalleryStyle.Grid, true, [GallerySetting.Fit] },

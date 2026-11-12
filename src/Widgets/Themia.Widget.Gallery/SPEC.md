@@ -29,24 +29,35 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
 - **[S-764]** Scatter: square prints, one per cell of the grid shape for the count (spare cells left
   empty at random), centre in the middle half of its cell, side 1.05–1.4× the cell's short side
   (capped at 90% of the card's), tilt ±12° as in the original, stacking order shuffled. The
-  original's "within 28% of the centre" heaped every print in the middle of a big card. About one
-  print per 12,000 DIP².
+  original's "within 28% of the centre" heaped every print in the middle of a big card. As many
+  prints as Pictures shown says ([S-11207]).
 - **[S-765]** Mosaic: the card cut recursively, the first half of the pictures getting a 35–65%
   share, across the longer side (the original alternated; same on a square, no slivers on a strip).
-  Cells tile the card exactly with no gaps; always cropped to fill. About one cell per 9,000 DIP².
+  Cells tile the card exactly with no gaps; always cropped to fill. As many cells as Pictures shown
+  says ([S-11207]).
 - **[S-6402]** The gallery's styles ([S-6000]) are its layouts, `GalleryConfig.Style`
   (`GalleryStyle`, `"style": "slideshow"`): **Slideshow**, **Grid**, **Scatter** ([S-764]) and
   **Mosaic** ([S-765]), in that order; the Layout row is gone. A folder's choice: one picture file
   and the photo of the day are drawn whole in any style ([S-762]). The slide time shows under Style
   for Slideshow only and the fit for Slideshow and Grid ([S-6074]); another style builds the menu again.
-- **[S-766]** Grid: about one 120-DIP tile per slot (max 24), shaped so tiles are closest to square
-  with a small penalty per empty cell.
-- **[S-767]** The ladder (`GalleryPlan`): any layout with room for only one picture is that picture
-  full-bleed with nothing on it (XS). Slideshow: the counter ("1/20") as the header's informing label
-  (Caption, secondary, the first part to give way, [S-6710]; a Gallery starts headerless, [S-2590],
-  so the counter is there once the header is) and the hover bar from Regular width; the picture is the whole slot at every size (no "up next" thumbnails beside or
-  under it, retired [S-666]; the L file-name line and the XL "N of M · folder" line are retired, [S-2760]). Grid / scatter / mosaic take more pictures as the card grows. Scatter and
-  mosaic are dealt from the widget's own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
+- **[S-766]** Grid: the config's Columns × Rows tiles (each 1..6, a new one 3 × 2), 4 apart,
+  full-bleed, filled row by row; fewer pictures leave the last cells empty.
+- **[S-767]** The plan (`GalleryPlan.For`, from the config and the pictures, never the size): a
+  layout with one picture to show is that picture full-bleed with nothing on it. Slideshow: the
+  counter ("1/20") as the header's informing label (Caption, secondary, the first part to give way,
+  [S-6710]; a Gallery starts headerless, [S-2590], so the counter is there once the header is) and
+  the hover bar, at every size; the picture is the whole slot (no "up next" thumbnails, retired
+  [S-666]; no file-name or "N of M" line, [S-2760]). Scatter and mosaic are dealt from the widget's
+  own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
+- **[S-11207]** Converted to the sizing ([S-2438]), headerless by default: **Grid** (a folder's) is its
+  cells: Columns and Rows (1..6 each) and Cell size (Small 64, Medium 96, Large 128) under Style, each
+  axis stepped by a cell and following its count (dragging an edge sets Columns or Rows,
+  `GalleryPlan.SizeSets`); a new one 296 × 196. **Slideshow**, **Scatter**, **Mosaic** and a single
+  picture (a file, the photo of the day) keep a free range, 160..800 × 120..600 (a new one 320 × 240);
+  the picture fills it. Scatter and Mosaic show **Pictures shown** (1..12, a new one 6), never more
+  as the card grows. The tile-per-120-DIP grid, the prints per area and the counter and hover bar from
+  Regular width are gone (`GridCapacity`, `ScatterCapacity`, `MosaicCapacity`). It stays in the app;
+  the owner asked that it is not in the store pictures.
 - **[S-768]** *(Retired: no "up next" thumbnails to tap, [S-767]. Home / End and the arrows still
   jump, [S-1992].)*
 - **[S-769]** The hover bar (previous / pause-resume / next) shows only while the pointer is over

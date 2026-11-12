@@ -24,7 +24,7 @@ public sealed class WidgetSizingTests
         "airQuality", "airplaneModeToggle", "alarm", "audioVisualizer", "battery", "batteryDetails", "bluetooth",
         "bluetoothToggle", "brightness", "calendar", "clipboard", "colorFiltersToggle", "contacts", "countdown",
         "cpu", "cpuDetails", "deviceBatteries", "disk", "doNotDisturbToggle", "drive", "email",
-        "energySaverToggle", "exchangeRates", "focusSession", "gallery", "gameModeToggle", "gpu",
+        "energySaverToggle", "exchangeRates", "focusSession", "gameModeToggle", "gpu",
         "gpuDetails", "habitTracker", "hibernate", "lock", "memoryDetails", "microphoneToggle", "mixer",
         "monoAudioToggle", "moon", "music", "network", "networkDetails", "nextMeeting", "nightLightToggle",
         "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour",
@@ -69,17 +69,24 @@ public sealed class WidgetSizingTests
     public void S2442_a_kind_whose_size_follows_a_count_answers_with_a_config_whose_sizing_is_that_size(string id)
     {
         var kind = ModuleCatalog.Of(new WidgetId(id));
-        var config = kind.CreateDefault();
-        var sizing = kind.Sizing(config);
-        var counted = sizing.HeightSteps is { FollowsConfig: true } || sizing.WidthSteps is { FollowsConfig: true };
+        static bool Counted(WidgetSizing s) => s.HeightSteps is { FollowsConfig: true } || s.WidthSteps is { FollowsConfig: true };
 
-        // A count with no hook could never change by a resize; a hook with no count has nothing to set.
-        Assert.Equal(counted, kind.SizeSets is not null);
+        // A count with no hook could never change by a resize; a hook with no count (in any style) has nothing to set.
+        Assert.Equal(Configs(kind).Any(c => Counted(kind.Sizing(c))), kind.SizeSets is not null);
         if (kind.SizeSets is not { } sets)
         {
             return;
         }
 
+        foreach (var config in Configs(kind).Where(c => Counted(kind.Sizing(c))))
+        {
+            Answers(kind, config, sets);
+        }
+    }
+
+    private static void Answers(WidgetDescriptor kind, WidgetConfig config, Func<WidgetConfig, SizeDip, WidgetConfig> sets)
+    {
+        var sizing = kind.Sizing(config);
         foreach (var wanted in new[] { sizing.Min, sizing.Natural, sizing.Max })
         {
             var before = StateJsonOf(config);

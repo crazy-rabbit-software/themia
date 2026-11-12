@@ -44,6 +44,25 @@ internal static class GalleryMenu
                 config.Fit, value => config.Fit = value));
         }
 
+        // [S-11207] What the layout shows is set, never the size: the grid's columns, rows and cell
+        // size, the scatter's and the mosaic's count.
+        if (config.Offers(GallerySetting.Cells))
+        {
+            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Columns.Text(), config.EffectiveColumns, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, v => LocaleFormat.Integer(v), v => config.Columns = v));
+            menu.StyleLines.Add(menu.Number(null, Str.Kit_Rows.Text(), config.EffectiveRows, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, v => LocaleFormat.Integer(v), v => config.Rows = v));
+            menu.StyleLines.Add(menu.Choice(
+                null,
+                GalleryStr.Gallery_CellSize.Text(),
+                [(GalleryCellSize.Small, Str.Kit_SizeSmall.Text()), (GalleryCellSize.Medium, Str.Kit_SizeMedium.Text()), (GalleryCellSize.Large, Str.Kit_SizeLarge.Text())],
+                config.EffectiveCellSize,
+                v => config.CellSize = v));
+        }
+
+        if (config.Offers(GallerySetting.Shown))
+        {
+            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Shown.Text(), config.EffectiveShown, 1, GalleryConfig.MaxShown, 1, v => LocaleFormat.Integer(v), v => config.Shown = v));
+        }
+
         var lines = menu.Lines;
 
         // [S-778] After the look, each group behind a divider: where the pictures come from (the

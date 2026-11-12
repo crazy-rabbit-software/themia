@@ -30,7 +30,7 @@ namespace Themia.App.Widgets;
 internal sealed partial class GalleryView
 {
     /// <summary>The gap between tiles.</summary>
-    private const double Gap = FamilySpace.S1;
+    private const double Gap = GalleryPlan.Gap;
 
     /// <summary>[S-767] The slideshow's "1/20": the header's informing label, the first part to give way ([S-6710]).</summary>
     private readonly TextBlock _counter = HeaderBlock.Label(string.Empty);
@@ -95,7 +95,7 @@ internal sealed partial class GalleryView
             return; // Not arranged yet; ApplySize brings us straight back.
         }
 
-        var plan = GalleryPlan.For(_area, _config.Style, _config.IsSingleSource, _pictures.Count, Gap);
+        var plan = GalleryPlan.For(_area, _config, _pictures.Count);
         _plan = plan;
 
         _index = Math.Clamp(_index, 0, _pictures.Count - 1);
@@ -223,11 +223,11 @@ internal sealed partial class GalleryView
         }
     }
 
-    /// <summary>[S-766] Tiles as close to square as the count allows.</summary>
+    /// <summary>[S-766] [S-11207] The config's columns and rows of tiles, filled row by row; fewer pictures leave the last cells empty.</summary>
     private void DrawGrid(GalleryPlan plan)
     {
         var frames = Frames(_frames, plan.Pictures);
-        var (columns, rows) = GalleryArrangement.GridShape(plan.MainWidth, plan.MainHeight, plan.Pictures, Gap);
+        var (columns, rows) = (plan.Columns, plan.Rows);
         var width = (plan.MainWidth - ((columns - 1) * Gap)) / columns;
         var height = (plan.MainHeight - ((rows - 1) * Gap)) / rows;
 

@@ -161,104 +161,76 @@ public class GalleryLayoutTests
     public void S766_grid_shape_keeps_tiles_close_to_square(double width, double height, int count, int columns, int rows)
         => Assert.Equal((columns, rows), GalleryArrangement.GridShape(width, height, count, Gap));
 
-    [Fact]
-    public void S766_grid_capacity_grows_with_the_card_and_stops_at_the_cap()
-    {
-        Assert.Equal(1, GalleryArrangement.GridCapacity(120, 84, Gap));
-        Assert.Equal(6, GalleryArrangement.GridCapacity(320, 204, Gap));
-        Assert.Equal(GalleryArrangement.MaxTiles, GalleryArrangement.GridCapacity(4000, 4000, Gap));
-    }
+    // -----------------------------------------------------------------------------------------
+    // [S-11207] what it shows is the config's; its size follows the grid's cells
+    // -----------------------------------------------------------------------------------------
 
-    // -----------------------------------------------------------------------------------------
-    // [S-767] the ladder
-    // -----------------------------------------------------------------------------------------
+    private static GalleryConfig Of(GalleryStyle style) => new() { Style = style };
 
     [Theory]
     [MemberData(nameof(Tiers))]
-    public void S767_every_layout_fits_its_slot_at_every_tier(string tier, double width, double height)
+    public void S11207_what_each_layout_shows_is_the_same_at_every_size(string tier, double width, double height)
     {
         var area = new WidgetArea(width, height);
 
-        foreach (var layout in Enum.GetValues<GalleryStyle>())
-        {
-            var plan = GalleryPlan.For(area, layout, singleSource: false, available: 24, Gap);
+        Assert.Equal((6, 3, 2), (GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Pictures, GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Columns, GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Rows));
+        Assert.Equal(6, GalleryPlan.For(area, Of(GalleryStyle.Scatter), 24).Pictures);
+        Assert.Equal(6, GalleryPlan.For(area, Of(GalleryStyle.Mosaic), 24).Pictures);
 
-            Assert.True(plan.MainWidth > 0 && plan.MainHeight > 0, $"{tier} {layout}: no main area");
-            Assert.True(plan.MainWidth <= width + 0.001, $"{tier} {layout}: main too wide");
-            Assert.True(plan.MainHeight <= height + 0.5, $"{tier} {layout}: {plan.MainHeight} > {height}");
-        }
-    }
-
-    [Fact]
-    public void S767_xs_is_one_picture_with_nothing_on_it_whatever_the_layout()
-    {
-        var xs = new WidgetArea(120, 84);
+        var slide = GalleryPlan.For(area, Of(GalleryStyle.Slideshow), 24);
+        Assert.True(slide.Counter && slide.Controls, tier);
 
         foreach (var layout in Enum.GetValues<GalleryStyle>())
         {
-            var plan = GalleryPlan.For(xs, layout, false, 24, Gap);
-            Assert.Equal(1, plan.Pictures);
-            Assert.False(plan.Counter);
-            Assert.False(plan.Controls);
+            // [S-2760] No words under any picture: the picture keeps the whole slot.
+            var plan = GalleryPlan.For(area, Of(layout), 24);
+            Assert.Equal(width, plan.MainWidth, 3);
+            Assert.Equal(height, plan.MainHeight, 3);
         }
     }
 
     [Fact]
-    public void S767_slideshow_discloses_the_counter_and_no_up_next_thumbnails()
+    public void S11207_a_single_source_or_one_picture_is_that_picture_and_a_layout_never_asks_for_more_than_the_scan_found()
     {
-        // The "up next" thumbnails are retired (concise widgets): the slide is the whole slot at
-        // every size, a wide strip and a tall column included.
-        GalleryPlan At(double w, double h) => GalleryPlan.For(new WidgetArea(w, h), GalleryStyle.Slideshow, false, 24, Gap);
+        var area = new WidgetArea(320, 204);
+        var file = new GalleryConfig { Source = GallerySource.File, Style = GalleryStyle.Grid };
 
-        var s = At(200, 114);
-        Assert.True(s.Counter && s.Controls);
-
-        foreach (var (w, h) in new[] { (480.0, 116.0), (200.0, 356.0), (560.0, 376.0), (800.0, 516.0) })
-        {
-            var plan = At(w, h);
-            Assert.Equal(GalleryMode.Slideshow, plan.Mode);
-            Assert.Equal(w, plan.MainWidth, 3);
-            Assert.Equal(h, plan.MainHeight, 3);
-        }
+        Assert.Equal(GalleryMode.Single, GalleryPlan.For(area, file, 1).Mode);
+        Assert.Equal(GalleryMode.Single, GalleryPlan.For(area, Of(GalleryStyle.Mosaic), 1).Mode);
+        Assert.Equal(3, GalleryPlan.For(area, Of(GalleryStyle.Grid), 3).Pictures);
+        Assert.Equal(12, GalleryPlan.For(area, new GalleryConfig { Style = GalleryStyle.Scatter, Shown = 40 }, 24).Pictures);
     }
 
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S2760_no_words_under_any_picture_the_picture_takes_the_height(string tier, double width, double height)
+    [Fact]
+    public void S11207_the_grid_is_its_cells_and_the_other_layouts_a_free_range()
     {
-        var area = new WidgetArea(width, height);
+        // Three columns and two rows of 96, 4 apart, full-bleed.
+        var grid = GalleryPlan.Sizing(Of(GalleryStyle.Grid));
+        Assert.Equal(new Themia.Sdk.SizeDip((3 * 96) + (2 * 4), (2 * 96) + 4), grid.Natural);
+        Assert.Equal((3, 2), (grid.WidthSteps!.Count, grid.HeightSteps!.Count));
 
-        // A single source (a file, the photo of the day) is the picture and nothing else.
-        var single = GalleryPlan.For(area, GalleryStyle.Grid, singleSource: true, available: 1, Gap);
-        Assert.Equal(GalleryMode.Single, single.Mode);
-        Assert.Equal(height, single.MainHeight, 3);
+        var small = new GalleryConfig { Style = GalleryStyle.Grid, CellSize = GalleryCellSize.Small, Columns = 6, Rows = 1 };
+        Assert.Equal(new Themia.Sdk.SizeDip((6 * 64) + (5 * 4), 64), GalleryPlan.Sizing(small).Natural);
 
-        foreach (var layout in Enum.GetValues<GalleryStyle>())
+        foreach (var free in new[] { Of(GalleryStyle.Slideshow), Of(GalleryStyle.Scatter), Of(GalleryStyle.Mosaic), new GalleryConfig { Source = GallerySource.Bing, Style = GalleryStyle.Grid } })
         {
-            // No file name under a slide at any size: the picture keeps all the height.
-            var plan = GalleryPlan.For(area, layout, singleSource: false, available: 24, Gap);
-            Assert.True(Math.Abs(plan.MainHeight - height) < 0.001, $"{tier} {layout}: {plan.MainHeight} != {height}");
+            var sizing = GalleryPlan.Sizing(free);
+            Assert.Equal((new Themia.Sdk.SizeDip(160, 120), new Themia.Sdk.SizeDip(320, 240), new Themia.Sdk.SizeDip(800, 600)), (sizing.Min, sizing.Natural, sizing.Max));
         }
     }
 
     [Fact]
-    public void S767_layouts_show_more_pictures_as_the_card_grows()
+    public void S11207_dragging_the_grid_sets_its_columns_and_rows_on_a_copy()
     {
-        foreach (var layout in new[] { GalleryStyle.Grid, GalleryStyle.Scatter, GalleryStyle.Mosaic })
-        {
-            var m = GalleryPlan.For(new WidgetArea(320, 204), layout, false, 24, Gap).Pictures;
-            var l = GalleryPlan.For(new WidgetArea(560, 384), layout, false, 24, Gap).Pictures;
-            var xl = GalleryPlan.For(new WidgetArea(800, 524), layout, false, 24, Gap).Pictures;
+        var config = Of(GalleryStyle.Grid);
+        var next = Assert.IsType<GalleryConfig>(GalleryPlan.SizeSets(config, new Themia.Sdk.SizeDip((4 * 96) + (3 * 4), (3 * 96) + 8)));
 
-            Assert.True(m > 1, $"{layout} M");
-            Assert.True(l > m, $"{layout} L");
-            Assert.True(xl >= l, $"{layout} XL");
-        }
+        Assert.Equal((4, 3), (next.Columns, next.Rows));
+        Assert.Equal((3, 2), (config.Columns, config.Rows));
+        Assert.Same(config, GalleryPlan.SizeSets(config, new Themia.Sdk.SizeDip(296, 196)));
+        var slide = Of(GalleryStyle.Slideshow);
+        Assert.Same(slide, GalleryPlan.SizeSets(slide, new Themia.Sdk.SizeDip(500, 500)));
     }
-
-    [Fact]
-    public void S767_a_layout_never_asks_for_more_pictures_than_the_scan_found()
-        => Assert.Equal(3, GalleryPlan.For(new WidgetArea(800, 524), GalleryStyle.Grid, false, 3, Gap).Pictures);
 
     // -----------------------------------------------------------------------------------------
     // [S-760] [S-1620] config
