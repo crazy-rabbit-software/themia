@@ -367,7 +367,7 @@ public class MailFeedTests
     [Theory]
     [InlineData(EmailStyle.List, new[] { EmailSetting.ListFields })]
     [InlineData(EmailStyle.Compact, new[] { EmailSetting.ListFields })]
-    [InlineData(EmailStyle.Table, new[] { EmailSetting.Columns })]
+    [InlineData(EmailStyle.Table, new[] { EmailSetting.Columns, EmailSetting.ColumnTitles })]
     public void S6403_the_page_offers_only_what_the_style_draws_with(EmailStyle style, EmailSetting[] expected)
         => Assert.Equal(expected, new EmailConfig { Style = style }.ShownSettings);
 
@@ -464,31 +464,23 @@ public class MailLayoutTests
             .Select(c => chosen.First(m => Themia.Widget.Email.MailSpec.Kit(m) == c.Column));
 
     [Fact]
-    public void S556_rows_add_the_subject_then_the_preview_as_the_tile_grows()
+    public void S11402_a_row_shows_its_lines_at_every_size_the_subject_then_the_preview()
     {
-        var config = new EmailConfig();
+        var config = new EmailConfig { Lines = 3 };
+        Assert.Equal(Plan(config, 220, 300) with { ColumnWidth = 0 }, Plan(config, 520, 300) with { ColumnWidth = 0 });
 
-        var large = Plan(config, 560, 384);
-        Assert.True(large.Subtitle && large.Badges && large.When && large.Preview);
+        var plan = Plan(config, 300, 300);
+        Assert.True(plan.Subtitle && plan.Badges && plan.When && plan.Preview);
+        Assert.Equal(3, plan.Lines);
 
         // [S-2270] No envelope leads a row at any size: the sender starts at the inset.
-        Assert.False(large.Lead);
-        Assert.Equal(3, large.Lines);
+        Assert.False(plan.Lead);
 
-        // Narrow: the account tag goes, the subject stays.
-        var tall = Plan(config, 200, 364);
-        Assert.False(tall.Badges);
-        Assert.True(tall.Subtitle);
-        Assert.False(tall.Preview);
-
-        // Short: the sender and the time.
-        Assert.Equal(1, Plan(config, 480, 124).Lines);
-        Assert.False(Plan(config, 120, 84).When);
-
-        // Compact view never previews: the sender and the subject.
+        // Two lines: the sender and the subject; Compact never previews.
+        Assert.False(Plan(new EmailConfig { Lines = 2 }, 300, 300).Preview);
         config.Style = EmailStyle.Compact;
-        Assert.Equal(2, Plan(config, 560, 384).Lines);
-        Assert.False(Plan(config, 560, 384).Preview);
+        Assert.Equal(2, Plan(config, 300, 300).Lines);
+        Assert.False(Plan(config, 300, 300).Preview);
     }
 
     [Fact]

@@ -23,7 +23,7 @@ public class WidgetSetupTests
     [
         new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
         new WidgetId("videoStream"), new WidgetId("gallery"),
-        new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"),
+        new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"), new WidgetId("upNext"),
         new WidgetId("weekPlanner"), new WidgetId("contacts"), new WidgetId("tasks"),
     ];
 

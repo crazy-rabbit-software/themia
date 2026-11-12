@@ -25,14 +25,11 @@ public static class NextMeetingJoin
     /// <summary>Between two of the meeting's lines.</summary>
     public const double LineGap = FamilySpace.S1;
 
-    /// <summary>[S-11407] The narrowest the block reads at: a title of a dozen letters beside the end column.</summary>
-    public const double MinWidth = 260;
-
-    /// <summary>[S-11407] A new block's width.</summary>
-    public const double NaturalWidth = 320;
-
-    /// <summary>[S-11407] The widest: past it the title is a sentence across a room.</summary>
-    public const double MaxWidth = 520;
+    /// <summary>
+    /// [S-11407] The block's widths: from 260, a title of a dozen letters beside the end column; a new
+    /// one 320; to 520, past which the title is a sentence across a room.
+    /// </summary>
+    public static KitWidths Widths { get; } = new(260, 320, 520);
 
     /// <summary>The countdown's one line (BodyStrong).</summary>
     public static double CountdownLine => FamilyType.BodyStrong.LineHeight;
@@ -70,7 +67,7 @@ public static class NextMeetingJoin
     public static WidgetSizing Sizing(NextMeetingConfig config)
     {
         var height = (2 * FamilySpace.Inset) + Math.Max(LinesHeight(config), EndHeight(hasJoin: true));
-        return WidgetSizing.Range(new(MinWidth, height), new(NaturalWidth, height), new(MaxWidth, height));
+        return WidgetSizing.Range(new(Widths.Min, height), new(Widths.Natural, height), new(Widths.Max, height));
     }
 
     /// <summary>
