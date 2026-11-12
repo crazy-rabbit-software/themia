@@ -34,13 +34,13 @@ public static class MemoryDetailRules
     /// </summary>
     public static IReadOnlyList<FactOption> Facts { get; } =
     [
-        new("inUse", Str.Details_Memory_InUse),
-        new("available", Str.Details_Memory_Available),
-        new("committed", Str.Details_Memory_Committed),
-        new("cached", Str.Details_Memory_Cached),
-        new("pagedPool", Str.Details_Memory_PagedPool),
-        new("nonPagedPool", Str.Details_Memory_NonPagedPool),
-        new("pageFile", Str.Details_Memory_PageFile),
+        new("inUse", Str.Details_Memory_InUse.Local()),
+        new("available", Str.Details_Memory_Available.Local()),
+        new("committed", Str.Details_Memory_Committed.Local()),
+        new("cached", Str.Details_Memory_Cached.Local()),
+        new("pagedPool", Str.Details_Memory_PagedPool.Local()),
+        new("nonPagedPool", Str.Details_Memory_NonPagedPool.Local()),
+        new("pageFile", Str.Details_Memory_PageFile.Local()),
     ];
 
     /// <summary>The fixed part of one <c>SYSTEM_PAGEFILE_INFORMATION</c> entry on 64-bit Windows.</summary>

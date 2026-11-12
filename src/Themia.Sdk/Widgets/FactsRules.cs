@@ -7,7 +7,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Widgets;
 
 /// <summary>[S-11007] One fact a facts atom can show: its key (stored in the config) and its name.</summary>
-public sealed record FactOption(string Key, Str Label);
+public sealed record FactOption(string Key, LocalText Label);
 
 /// <summary>
 /// [S-11007] What every facts atom shares (CPU facts, memory facts, ...): which of its kind's facts it
@@ -161,7 +161,7 @@ public static class FactsRules
             }
 
             var fact = sheet.Facts.FirstOrDefault(f => f.Key == key);
-            rows.Add(fact.Key == key ? fact : DetailFact.Unavailable(Strings.Get(locale, option.Label)) with { Key = key });
+            rows.Add(fact.Key == key ? fact : DetailFact.Unavailable(option.Label.Text(locale)) with { Key = key });
         }
 
         return rows;

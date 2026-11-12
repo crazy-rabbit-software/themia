@@ -1,0 +1,3 @@
+{
+  "details.settings.network.public.desc": "Запитує api.ipify.org не частіше ніж раз на {minutes} хв"
+}

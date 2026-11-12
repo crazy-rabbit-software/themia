@@ -1,6 +1,0 @@
-{
-  "details.catalog.network.desc": "နှုန်း၊ သုံးထားသော ဒေတာ၊ လိပ်စာနှင့် adapter များ",
-  "details.catalog.network.label": "ကွန်ရက် အသေးစိတ်",
-  "details.settings.network.public.desc": "api.ipify.org ကို မေးသည်၊ အများဆုံး {minutes} မိနစ်တိုင်း",
-  "details.settings.network.public.label": "အများသုံး လိပ်စာ"
-}

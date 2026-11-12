@@ -19,12 +19,12 @@ public sealed class SystemAtomsTests
     {
         public static readonly IReadOnlyList<FactOption> All =
         [
-            new("a", Str.Details_Cpu_Speed),
-            new("b", Str.Details_Cpu_Cores),
-            new("c", Str.Details_Cpu_Threads),
-            new("d", Str.Details_Cpu_Handles),
-            new("e", Str.Details_Cpu_Uptime),
-            new("f", Str.Details_Cpu_Processes),
+            new("a", Str.Details_Cpu_Speed.Local()),
+            new("b", Str.Details_Cpu_Cores.Local()),
+            new("c", Str.Details_Cpu_Threads.Local()),
+            new("d", Str.Details_Cpu_Handles.Local()),
+            new("e", Str.Details_Cpu_Uptime.Local()),
+            new("f", Str.Details_Cpu_Processes.Local()),
         ];
 
         public Facts()

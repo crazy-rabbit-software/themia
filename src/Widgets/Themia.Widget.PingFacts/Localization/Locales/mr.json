@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "उत्तर मिळाले",
+  "details.ping.answeredOf": "{sent} पैकी {answered}",
+  "details.ping.average": "सरासरी",
+  "details.ping.jitter": "जिटर",
+  "details.ping.loss": "पॅकेट लॉस",
+  "details.ping.maximum": "कमाल",
+  "details.ping.minimum": "किमान",
+  "details.settings.ping.window.label": "आकडेवारीची व्याप्ती",
+  "details.settings.ping.window.probes": "{count} प्रोब"
+}

@@ -74,6 +74,25 @@ public static class BatteryDetailRules
     /// <summary>"100%".</summary>
     public const string HeroWorst = "100%";
 
+    /// <summary>
+    /// [S-11025] Every fact the battery facts atom can show, in the kind's order: the status (the old
+    /// caption), the time left or to full, then the pack's figures. A new one shows the first four.
+    /// </summary>
+    public static IReadOnlyList<FactOption> Facts { get; } =
+    [
+        new("status", Str.Details_Battery_Status.Local()),
+        new("time", Str.Details_Battery_TimeLeft.Local()),
+        new("health", Str.Details_Battery_Health.Local()),
+        new("fullCapacity", Str.Details_Battery_FullCapacity.Local()),
+        new("designCapacity", Str.Details_Battery_DesignCapacity.Local()),
+        new("cycles", Str.Details_Battery_Cycles.Local()),
+        new("rate", Str.Details_Battery_DischargeRate.Local()),
+        new("voltage", Str.Details_Battery_Voltage.Local()),
+        new("temperature", Str.Details_Battery_Temperature.Local()),
+        new("chemistry", Str.Details_Battery_Chemistry.Local()),
+        new("manufacturer", Str.Details_Battery_Manufacturer.Local()),
+    ];
+
     private const uint CapacityRelative = 0x40000000;
     private const uint UnknownValue = 0xFFFFFFFF;
     private const int UnknownRate = int.MinValue;
@@ -288,44 +307,47 @@ public static class BatteryDetailRules
 
         var facts = new List<DetailFact>(11);
 
-        void Add(Str label, string? value)
+        void Add(string key, Str label, string? value)
         {
             if (value is not null)
             {
-                facts.Add(new DetailFact(Strings.Get(locale, label), value));
+                facts.Add(new DetailFact(Strings.Get(locale, label), value, Key: key));
             }
         }
 
+        // [S-11025] The status is a fact too: the facts atom has no hero (the charge is the Battery reading's).
+        Add("status", Str.Details_Battery_Status, Status(locale, power));
+
         if (power.Charging && pack is { } charging && TimeToFull(charging) is { } toFull)
         {
-            Add(Str.Details_Battery_FullIn, Hours(locale, toFull));
+            Add("time", Str.Details_Battery_FullIn, Hours(locale, toFull));
         }
         else if (!power.OnMains && (power.Remaining ?? (pack is { } draining ? TimeToEmpty(draining) : null)) is { } left)
         {
-            Add(Str.Details_Battery_TimeLeft, Hours(locale, left));
+            Add("time", Str.Details_Battery_TimeLeft, Hours(locale, left));
         }
 
         if (pack is { } p)
         {
-            Add(Str.Details_Battery_Health, Health(p) is { } health ? LocaleFormat.Percent(locale, Math.Round(Math.Min(health, 1.5) * 100)) : null);
+            Add("health", Str.Details_Battery_Health, Health(p) is { } health ? LocaleFormat.Percent(locale, Math.Round(Math.Min(health, 1.5) * 100)) : null);
 
             if (!p.Relative)
             {
-                Add(Str.Details_Battery_FullCapacity, p.FullCapacity is { } full ? WattHours(locale, full) : null);
-                Add(Str.Details_Battery_DesignCapacity, p.DesignCapacity is { } design ? WattHours(locale, design) : null);
+                Add("fullCapacity", Str.Details_Battery_FullCapacity, p.FullCapacity is { } full ? WattHours(locale, full) : null);
+                Add("designCapacity", Str.Details_Battery_DesignCapacity, p.DesignCapacity is { } design ? WattHours(locale, design) : null);
             }
 
-            Add(Str.Details_Battery_Cycles, p.Cycles is { } cycles ? LocaleFormat.Integer(locale, cycles) : null);
+            Add("cycles", Str.Details_Battery_Cycles, p.Cycles is { } cycles ? LocaleFormat.Integer(locale, cycles) : null);
 
             if (!p.Relative && p.Rate is { } rate and not 0)
             {
-                Add(rate > 0 ? Str.Details_Battery_ChargeRate : Str.Details_Battery_DischargeRate, Watts(locale, rate));
+                Add("rate", rate > 0 ? Str.Details_Battery_ChargeRate : Str.Details_Battery_DischargeRate, Watts(locale, rate));
             }
 
-            Add(Str.Details_Battery_Voltage, p.VoltageMillivolts is { } mv ? Volts(locale, mv) : null);
-            Add(Str.Details_Battery_Temperature, p.TemperatureCelsius is { } t ? CpuDetailRules.Celsius(locale, t) : null);
-            Add(Str.Details_Battery_Chemistry, p.Chemistry);
-            Add(Str.Details_Battery_Manufacturer, p.Manufacturer);
+            Add("voltage", Str.Details_Battery_Voltage, p.VoltageMillivolts is { } mv ? Volts(locale, mv) : null);
+            Add("temperature", Str.Details_Battery_Temperature, p.TemperatureCelsius is { } t ? CpuDetailRules.Celsius(locale, t) : null);
+            Add("chemistry", Str.Details_Battery_Chemistry, p.Chemistry);
+            Add("manufacturer", Str.Details_Battery_Manufacturer, p.Manufacturer);
         }
 
         var status = Status(locale, power);

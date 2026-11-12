@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "Risposte",
+  "details.ping.answeredOf": "{answered} su {sent}",
+  "details.ping.average": "Media",
+  "details.ping.jitter": "Jitter",
+  "details.ping.loss": "Perdita di pacchetti",
+  "details.ping.maximum": "Massimo",
+  "details.ping.minimum": "Minimo",
+  "details.settings.ping.window.label": "Statistiche su",
+  "details.settings.ping.window.probes": "{count} sondaggi"
+}

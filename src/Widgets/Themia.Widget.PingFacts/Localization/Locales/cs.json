@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "details.ping.answered": "Odpovědi",
+  "details.ping.answeredOf": "{answered} z {sent}",
+  "details.ping.average": "Průměr",
+  "details.ping.jitter": "Kolísání",
+  "details.ping.loss": "Ztráta paketů",
+  "details.ping.maximum": "Nejvyšší",
+  "details.ping.minimum": "Nejnižší",
+  "details.settings.ping.window.label": "Statistika zahrnuje",
+  "details.settings.ping.window.probes": "{count} pokusů"
+}

@@ -8,6 +8,10 @@
     <Project Path="src/Themia.Sdk.WinUI/Themia.Sdk.WinUI.csproj" />
   </Folder>
   <Folder Name="/src/Widgets/">
+    <Project Path="src/Widgets/Themia.Widget.BatteryHistory/Themia.Widget.BatteryHistory.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.PingHistory/Themia.Widget.PingHistory.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.NetworkAdapters/Themia.Widget.NetworkAdapters.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.NetworkHistory/Themia.Widget.NetworkHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DiskHistory/Themia.Widget.DiskHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.GpuEngines/Themia.Widget.GpuEngines.csproj" />
     <Project Path="src/Widgets/Themia.Widget.GpuHistory/Themia.Widget.GpuHistory.csproj" />
@@ -21,7 +25,7 @@
     <Project Path="src/Widgets/Themia.Widget.Alarm/Themia.Widget.Alarm.csproj" />
     <Project Path="src/Widgets/Themia.Widget.AudioVisualizer/Themia.Widget.AudioVisualizer.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Battery/Themia.Widget.Battery.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.BatteryDetails/Themia.Widget.BatteryDetails.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.BatteryFacts/Themia.Widget.BatteryFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Bluetooth/Themia.Widget.Bluetooth.csproj" />
     <Project Path="src/Widgets/Themia.Widget.BluetoothToggle/Themia.Widget.BluetoothToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Brightness/Themia.Widget.Brightness.csproj" />
@@ -56,13 +60,13 @@
     <Project Path="src/Widgets/Themia.Widget.Moon/Themia.Widget.Moon.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Music/Themia.Widget.Music.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Network/Themia.Widget.Network.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.NetworkDetails/Themia.Widget.NetworkDetails.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.NetworkFacts/Themia.Widget.NetworkFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.NextMeeting/Themia.Widget.NextMeeting.csproj" />
     <Project Path="src/Widgets/Themia.Widget.NightLightToggle/Themia.Widget.NightLightToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Notes/Themia.Widget.Notes.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Notifications/Themia.Widget.Notifications.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Ping/Themia.Widget.Ping.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.PingDetails/Themia.Widget.PingDetails.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.PingFacts/Themia.Widget.PingFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Pomodoro/Themia.Widget.Pomodoro.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Quote/Themia.Widget.Quote.csproj" />
     <Project Path="src/Widgets/Themia.Widget.RainNextHour/Themia.Widget.RainNextHour.csproj" />

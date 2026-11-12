@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "ဖြေပြီး",
+  "details.ping.answeredOf": "{sent} အနက် {answered}",
+  "details.ping.average": "ပျမ်းမျှ",
+  "details.ping.jitter": "Jitter တုန်ခါမှု",
+  "details.ping.loss": "Packet ဆုံးရှုံးမှု",
+  "details.ping.maximum": "အများဆုံး",
+  "details.ping.minimum": "အနည်းဆုံး",
+  "details.settings.ping.window.label": "စာရင်းအင်း ပါဝင်မှု",
+  "details.settings.ping.window.probes": "probe {count} ခု"
+}

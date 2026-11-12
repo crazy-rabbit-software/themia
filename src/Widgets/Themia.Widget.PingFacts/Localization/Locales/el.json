@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "Απαντήθηκαν",
+  "details.ping.answeredOf": "{answered} από {sent}",
+  "details.ping.average": "Μέσος όρος",
+  "details.ping.jitter": "Διακύμανση",
+  "details.ping.loss": "Απώλεια πακέτων",
+  "details.ping.maximum": "Μέγιστο",
+  "details.ping.minimum": "Ελάχιστο",
+  "details.settings.ping.window.label": "Τα στατιστικά καλύπτουν",
+  "details.settings.ping.window.probes": "{count} δοκιμές"
+}

@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "Sinagot",
+  "details.ping.answeredOf": "{answered} sa {sent}",
+  "details.ping.average": "Average",
+  "details.ping.jitter": "Jitter",
+  "details.ping.loss": "Nawalang packet",
+  "details.ping.maximum": "Pinakamataas",
+  "details.ping.minimum": "Pinakamababa",
+  "details.settings.ping.window.label": "Saklaw ng istatistika",
+  "details.settings.ping.window.probes": "{count} probe"
+}

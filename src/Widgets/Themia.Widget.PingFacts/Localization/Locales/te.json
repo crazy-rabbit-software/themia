@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "సమాధానమిచ్చినవి",
+  "details.ping.answeredOf": "{sent}లో {answered}",
+  "details.ping.average": "సగటు",
+  "details.ping.jitter": "జిట్టర్",
+  "details.ping.loss": "ప్యాకెట్ నష్టం",
+  "details.ping.maximum": "గరిష్ఠం",
+  "details.ping.minimum": "కనిష్ఠం",
+  "details.settings.ping.window.label": "గణాంకాల పరిధి",
+  "details.settings.ping.window.probes": "{count} ప్రోబ్‌లు"
+}

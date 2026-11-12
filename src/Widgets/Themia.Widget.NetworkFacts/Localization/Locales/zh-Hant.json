@@ -1,0 +1,3 @@
+{
+  "details.settings.network.public.desc": "查詢 api.ipify.org，最多每 {minutes} 分鐘一次"
+}

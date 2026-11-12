@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "Ó dáhùn",
+  "details.ping.answeredOf": "{answered} nínú {sent}",
+  "details.ping.average": "Àròpín",
+  "details.ping.jitter": "Àìdúróṣinṣin",
+  "details.ping.loss": "Ìpàdánù pákẹ́ẹ̀tì",
+  "details.ping.maximum": "Èyí tó ga jù",
+  "details.ping.minimum": "Èyí tó kéré jù",
+  "details.settings.ping.window.label": "Ìṣirò kárí",
+  "details.settings.ping.window.probes": "Ìdánwò {count}"
+}

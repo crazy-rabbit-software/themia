@@ -421,7 +421,7 @@ internal static class WidgetRender
                 // [S-2848] --place-cleared: a widget about a place, with its place cleared.
                 PlaceRender.Apply(model.Config);
 
-                if (_span is { } seconds && model.Config is GaugeConfig gauge)
+                if (_span is { } seconds && model.Config is HistoryConfig gauge)
                 {
                     gauge.GraphSpanSeconds = seconds;
                 }

@@ -1,5 +1,4 @@
 using Themia.App.Services;
-using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -8,11 +7,7 @@ using Themia.Widget.Network;
 
 namespace Themia.App.Widgets.Meters;
 
-/// <summary>
-/// [S-1190] [S-1191] Throughput across the active adapters: download as the reading, download and
-/// upload as the chart's two series, both against the visible window's peak (the chart's
-/// <see cref="ChartScale"/>, so the two share one top).
-/// </summary>
+/// <summary>[S-1190] [S-1191] Throughput across the active adapters, the reading alone: download over upload, both at 28.</summary>
 internal sealed class NetworkMeter : MeterPart
 {
     /// <inheritdoc />
@@ -20,13 +15,15 @@ internal sealed class NetworkMeter : MeterPart
 
     public override WidgetId Kind => new WidgetId("network");
 
+    /// <inheritdoc />
+    public override bool Sized => true;
+
     /// <summary>"1023 KB/s": the widest a rate is written.</summary>
-    public override ReadoutText Reading => ReadoutRules.Split(Formatting.Rate(1023 * 1024));
+    public override ReadoutText Reading => Worst;
 
-    /// <summary>[S-1124] Against the visible window's peak, never the session's; floor 1 KB/s.</summary>
-    public override ChartScale Scale => ChartScale.Peak(Sources.NetworkChartFloor);
+    /// <summary>"1023 KB/s", the sizing's widest rate too.</summary>
+    internal static ReadoutText Worst => ReadoutRules.Split(Formatting.Rate(1023 * 1024));
 
-    /// <summary>[S-6270] Numbers: download and upload alone, both large.</summary>
-    public override MeterLook Look(WidgetConfig config)
-        => (config as NetworkConfig)?.Style == NetworkStyle.Numbers ? MeterLook.Numbers : MeterLook.Graph;
+    /// <summary>[S-6264] Download over upload, each led by its arrow.</summary>
+    public override MeterLook Look(WidgetConfig config) => MeterLook.Numbers;
 }

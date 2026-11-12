@@ -15,7 +15,7 @@ using Themia.Widget.Network;
 
 namespace Themia.Widget.Network;
 
-/// <summary>[S-1191] Network throughput: download as the reading over both directions' history, or both numbers ([S-6270]). SPEC.md beside this file.</summary>
+/// <summary>[S-1191] Network throughput: the reading alone, download over upload. SPEC.md beside this file.</summary>
 public sealed class NetworkModule : IWidgetModule
 {
     /// <summary>[S-2018] A click on the card opens Windows' network status page.</summary>
@@ -32,15 +32,14 @@ public sealed class NetworkModule : IWidgetModule
         Label = NetworkStr.WidgetsA_Catalog_Network_Label.Local(),
         Description = NetworkStr.WidgetsA_Catalog_Network_Description.Local(),
         Glyph = Glyphs.Network,
-        Sizing = _ => WidgetSizing.Legacy(200, 150),
+        Sizing = _ => MeterSizing.Reading(MeterLook.Numbers, NetworkMeter.Worst),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.NetworkReading, 0, 0),
     };
 
-    /// <summary>[S-3719] Every option is on the properties menu (the chart span under Style, [S-1122]): the widget has no settings page.</summary>
+    /// <summary>[S-3719] Nothing to set but the card's look.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
-        MeterMenuLines.Lines(menu, (NetworkConfig)config);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new NetworkMeter());

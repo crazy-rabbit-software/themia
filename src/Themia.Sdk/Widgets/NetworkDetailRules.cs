@@ -29,6 +29,25 @@ public static class NetworkDetailRules
     /// <summary>"1023.9 MB/s".</summary>
     public const string HeroWorst = "1023.9 MB/s";
 
+    /// <summary>[S-11020] The public address's key: picking it is what asks the public service ([S-2417]).</summary>
+    public const string PublicAddressKey = "publicAddress";
+
+    /// <summary>
+    /// [S-11020] Every fact the network facts atom can show, in the kind's order: the facts the details
+    /// listed after the rates (the rates are the Network reading's), then the public address (it asks a
+    /// third party, so it is never a default), then the two rates. A new one shows the first four.
+    /// </summary>
+    public static IReadOnlyList<FactOption> Facts { get; } =
+    [
+        new("localAddress", Str.Details_Network_LocalAddress.Local()),
+        new("received", Str.Details_Network_Received.Local()),
+        new("sent", Str.Details_Network_Sent.Local()),
+        new("linkSpeed", Str.Details_Network_LinkSpeed.Local()),
+        new(PublicAddressKey, Str.Details_Network_PublicAddress.Local()),
+        new("download", Str.Details_Network_Download.Local()),
+        new("upload", Str.Details_Network_Upload.Local()),
+    ];
+
     /// <summary>[S-2418] How long a public address is trusted before it is asked for again.</summary>
     public static readonly TimeSpan PublicAddressLifetime = TimeSpan.FromMinutes(10);
 
@@ -143,35 +162,37 @@ public static class NetworkDetailRules
         }
 
         var busiest = sample.Interfaces.Count > 0 ? sample.Interfaces[0] : (InterfaceRate?)null;
-        var facts = new List<DetailFact>(6)
+        var facts = new List<DetailFact>(8)
         {
-            new(Strings.Get(locale, Str.Details_Network_Upload), Formatting.Rate(locale, sample.Up)),
+            // [S-11020] The download is a fact too: the facts atom has no hero.
+            new(Strings.Get(locale, Str.Details_Network_Download), Formatting.Rate(locale, sample.Down), Key: "download"),
+            new(Strings.Get(locale, Str.Details_Network_Upload), Formatting.Rate(locale, sample.Up), Key: "upload"),
         };
 
         if (busiest is { } top && addresses.TryGetValue(top.Id, out var local))
         {
-            facts.Add(new(Strings.Get(locale, Str.Details_Network_LocalAddress), local));
+            facts.Add(new(Strings.Get(locale, Str.Details_Network_LocalAddress), local, Key: "localAddress"));
         }
 
-        facts.Add(new(Strings.Get(locale, Str.Details_Network_Received), Formatting.Bytes(locale, sample.SessionDown)));
-        facts.Add(new(Strings.Get(locale, Str.Details_Network_Sent), Formatting.Bytes(locale, sample.SessionUp)));
+        facts.Add(new(Strings.Get(locale, Str.Details_Network_Received), Formatting.Bytes(locale, sample.SessionDown), Key: "received"));
+        facts.Add(new(Strings.Get(locale, Str.Details_Network_Sent), Formatting.Bytes(locale, sample.SessionUp), Key: "sent"));
 
         if (busiest is { LinkBitsPerSecond: > 0 } link)
         {
-            facts.Add(new(Strings.Get(locale, Str.Details_Network_LinkSpeed), LinkSpeed(locale, link.LinkBitsPerSecond)));
+            facts.Add(new(Strings.Get(locale, Str.Details_Network_LinkSpeed), LinkSpeed(locale, link.LinkBitsPerSecond), Key: "linkSpeed"));
         }
 
         switch (publicAddress.State)
         {
             case PublicAddressState.Known when publicAddress.Address is { } address:
-                facts.Add(new(Strings.Get(locale, Str.Details_Network_PublicAddress), address));
+                facts.Add(new(Strings.Get(locale, Str.Details_Network_PublicAddress), address, Key: PublicAddressKey));
                 break;
             case PublicAddressState.Checking:
-                facts.Add(new(Strings.Get(locale, Str.Details_Network_PublicAddress), Strings.Get(locale, Str.Details_Network_Checking), false));
+                facts.Add(new(Strings.Get(locale, Str.Details_Network_PublicAddress), Strings.Get(locale, Str.Details_Network_Checking), false, PublicAddressKey));
                 break;
             case PublicAddressState.Failed:
             case PublicAddressState.Known:
-                facts.Add(DetailFact.Unavailable(Strings.Get(locale, Str.Details_Network_PublicAddress)));
+                facts.Add(DetailFact.Unavailable(Strings.Get(locale, Str.Details_Network_PublicAddress)) with { Key = PublicAddressKey });
                 break;
             default:
                 break;

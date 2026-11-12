@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "details.ping.answered": "Dijawab",
+  "details.ping.answeredOf": "{answered} daripada {sent}",
+  "details.ping.average": "Purata",
+  "details.ping.jitter": "Ketaran",
+  "details.ping.loss": "Kehilangan paket",
+  "details.ping.maximum": "Maksimum",
+  "details.ping.minimum": "Minimum",
+  "details.settings.ping.window.label": "Statistik meliputi",
+  "details.settings.ping.window.probes": "{count} siasatan"
+}

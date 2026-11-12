@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["batteryHistory.label", "batteryHistory.desc"],
+  "batteryHistory.label": "Battery history",
+  "batteryHistory.desc": "Charge over time"
+}

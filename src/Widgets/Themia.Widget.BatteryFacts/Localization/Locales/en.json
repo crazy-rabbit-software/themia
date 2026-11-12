@@ -1,0 +1,8 @@
+{
+  "$englishOnly": [
+    "batteryFacts.label",
+    "batteryFacts.desc"
+  ],
+  "batteryFacts.label": "Battery facts",
+  "batteryFacts.desc": "Status, time left, health and more, as you pick them"
+}

@@ -134,9 +134,7 @@
           "scale": 1,
           "config": {
             "kind": "battery",
-            "style": "graph",
-            "showGraph": true,
-            "graphSpanSeconds": 900
+            "style": "number"
           }
         },
         {
@@ -188,10 +186,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "network",
-            "style": "graph",
-            "showGraph": true,
-            "graphSpanSeconds": 60
+            "kind": "network"
           }
         },
         {
@@ -216,10 +211,8 @@
           "scale": 1,
           "config": {
             "kind": "ping",
-            "style": "graph",
-            "host": "1.1.1.1",
-            "showGraph": true,
-            "graphSpanSeconds": 900
+            "style": "number",
+            "host": "1.1.1.1"
           }
         },
         {
@@ -1252,8 +1245,13 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "networkDetails",
-            "showPublicAddress": false
+            "kind": "networkFacts",
+            "facts": [
+              "localAddress",
+              "received",
+              "sent",
+              "linkSpeed"
+            ]
           }
         },
         {
@@ -1277,7 +1275,13 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "batteryDetails"
+            "kind": "batteryFacts",
+            "facts": [
+              "status",
+              "time",
+              "health",
+              "fullCapacity"
+            ]
           }
         },
         {
@@ -1301,9 +1305,15 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "pingDetails",
+            "kind": "pingFacts",
             "host": "1.1.1.1",
-            "window": 60
+            "window": 60,
+            "facts": [
+              "average",
+              "minimum",
+              "maximum",
+              "jitter"
+            ]
           }
         },
         {

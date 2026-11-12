@@ -154,8 +154,51 @@ public static class ReadyMadeGroups
         new("diskHistory", new(0, 84, 160, 64)),
     ]);
 
+    /// <summary>[S-11090] Network: download over upload, over their history.</summary>
+    public static ReadyMadeGroup Network { get; } = new("network", Str.Groups_Recipe_Network, Str.Groups_Recipe_NetworkAbout, Glyphs.Network, AddFolderId.NetworkReading,
+    [
+        new("network", new(0, 0, 180, 128)),
+        new("networkHistory", new(0, 128, 180, 64)),
+    ]);
+
+    /// <summary>[S-11090] Network details: the reading over the connection's facts and its adapters.</summary>
+    public static ReadyMadeGroup NetworkDetails { get; } = new("networkDetails", Str.Groups_Recipe_NetworkDetails, Str.Groups_Recipe_NetworkDetailsAbout, Glyphs.Network, AddFolderId.NetworkReading,
+    [
+        new("network", new(0, 0, 300, 128)),
+        new("networkFacts", new(0, 128, 300, 136), Header: HeaderPlacement.Hidden),
+        new("networkAdapters", new(0, 264, 300, 112), Header: HeaderPlacement.Hidden, Config: """{ "rows": 2 }"""),
+    ]);
+
+    /// <summary>[S-11090] Ping: the latency over its history.</summary>
+    public static ReadyMadeGroup Ping { get; } = new("ping", Str.Groups_Recipe_Ping, Str.Groups_Recipe_PingAbout, Glyphs.Network, AddFolderId.PingReading,
+    [
+        new("ping", new(0, 0, 160, 84)),
+        new("pingHistory", new(0, 84, 160, 64)),
+    ]);
+
+    /// <summary>[S-11090] Ping details: the latency over its statistics.</summary>
+    public static ReadyMadeGroup PingDetails { get; } = new("pingDetails", Str.Groups_Recipe_PingDetails, Str.Groups_Recipe_PingDetailsAbout, Glyphs.Network, AddFolderId.PingReading,
+    [
+        new("ping", new(0, 0, 260, 84)),
+        new("pingFacts", new(0, 84, 260, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
+    /// <summary>[S-11090] Battery: the charge over its history.</summary>
+    public static ReadyMadeGroup Battery { get; } = new("battery", Str.Groups_Recipe_Battery, Str.Groups_Recipe_BatteryAbout, Glyphs.Battery, AddFolderId.BatteryReading,
+    [
+        new("battery", new(0, 0, 160, 84)),
+        new("batteryHistory", new(0, 84, 160, 64)),
+    ]);
+
+    /// <summary>[S-11090] Battery details: the charge over the battery's facts.</summary>
+    public static ReadyMadeGroup BatteryDetails { get; } = new("batteryDetails", Str.Groups_Recipe_BatteryDetails, Str.Groups_Recipe_BatteryDetailsAbout, Glyphs.Battery, AddFolderId.BatteryReading,
+    [
+        new("battery", new(0, 0, 260, 84)),
+        new("batteryFacts", new(0, 84, 260, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

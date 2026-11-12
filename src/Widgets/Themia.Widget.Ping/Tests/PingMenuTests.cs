@@ -1,3 +1,4 @@
+using Themia.Sdk;
 using Themia.App.Shell.Config;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -21,14 +22,23 @@ public sealed class PingMenuTests
     }
 
     [Fact]
-    public void S1175_the_first_level_is_appearance_then_the_host_and_the_span_is_under_style()
+    public void S1175_the_first_level_is_the_host_and_there_is_nothing_under_style()
     {
         var menu = Build(new PingConfig());
 
         var host = Assert.Single(menu.Lines);
         Assert.Equal(Str.WidgetsB_Settings_Ping_Host_Label.Text(), host.Text);
-        Assert.Equal(Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), Assert.Single(menu.StyleLines).Text);
+        Assert.Empty(menu.StyleLines);
         Assert.Empty(Build(new PingConfig { Style = PingStyle.Signal }).StyleLines);
+    }
+
+    [Fact]
+    public void S1175_the_reading_is_one_height_and_the_signal_bars_a_picture_under_it()
+    {
+        var kind = ModuleCatalog.Of(new WidgetId("ping"));
+        Assert.Equal(["number", "signal"], WidgetStyles.For(new WidgetId("ping")).Select(s => s.Name));
+        Assert.Equal(84, kind.Sizing(new PingConfig()).Natural.Height);
+        Assert.Equal(36 + 44 + 32 + 12, kind.Sizing(new PingConfig { Style = PingStyle.Signal }).Natural.Height);
     }
 
     [Fact]

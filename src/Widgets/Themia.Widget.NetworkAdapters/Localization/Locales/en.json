@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["networkAdapters.label", "networkAdapters.desc"],
+  "networkAdapters.label": "Network adapters",
+  "networkAdapters.desc": "Each adapter's rate, address and link speed"
+}

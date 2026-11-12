@@ -298,7 +298,8 @@ public sealed class SystemDetailsTests
 
         Assert.Equal("2.0 KB/s", sheet.Hero);
         Assert.Equal("Download over Wi-Fi", sheet.Caption);
-        Assert.Equal(("Upload", "1.0 KB/s"), (sheet.Facts[0].Label, sheet.Facts[0].Value));
+        // [S-11020] The rates lead the facts: the download, then the upload.
+        Assert.Equal(("Upload", "1.0 KB/s"), (sheet.Facts[1].Label, sheet.Facts[1].Value));
         Assert.Contains(sheet.Facts, f => f.Value == "10.0.0.2");
         Assert.Contains(sheet.Facts, f => f.Label == "Link speed" && f.Value == "866.7 Mbps");
         Assert.DoesNotContain(sheet.Facts, f => f.Label == "Public address");
@@ -358,7 +359,8 @@ public sealed class SystemDetailsTests
 
         Assert.Equal("64%", sheet.Hero);
         Assert.Equal("On battery", sheet.Caption);
-        Assert.Equal(("Time left", "1h 30m"), (sheet.Facts[0].Label, sheet.Facts[0].Value));
+        // [S-11025] The status leads the facts.
+        Assert.Equal(("Time left", "1h 30m"), (sheet.Facts[1].Label, sheet.Facts[1].Value));
         Assert.Contains(sheet.Facts, f => f.Label == "Discharge rate" && f.Value == "10.0 W");
     }
 

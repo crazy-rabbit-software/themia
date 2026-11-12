@@ -1,0 +1,3 @@
+{
+  "details.settings.network.public.desc": "يستعلم من api.ipify.org، مرة كل {minutes} دقائق على الأكثر"
+}

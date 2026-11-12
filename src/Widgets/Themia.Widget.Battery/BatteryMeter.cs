@@ -33,12 +33,18 @@ internal sealed class BatteryMeter : MeterPart
     public override bool HasBadge => true;
 
     /// <summary>[S-6272] The battery and ring styles draw the charge themselves.</summary>
-    public override MeterLook Look(WidgetConfig config) => (config as BatteryConfig)?.Style switch
+    public override MeterLook Look(WidgetConfig config) => Look((config as BatteryConfig)?.Style ?? BatteryStyle.Number);
+
+    /// <summary>[S-6272] The drawing a style is.</summary>
+    internal static MeterLook Look(BatteryStyle style) => style switch
     {
         BatteryStyle.Battery => MeterLook.Battery,
         BatteryStyle.Ring => MeterLook.Ring,
-        _ => MeterLook.Graph,
+        _ => MeterLook.Number,
     };
+
+    /// <inheritdoc />
+    public override bool Sized => true;
 
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, reading.Charging);

@@ -119,8 +119,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     {
         _config = config.Kind == _kind ? config : WidgetConfig.CreateDefault(_kind);
 
-        var gauge = _config as GaugeConfig;
-        _graph = gauge is { DrawsHistory: true } || _part.Atom == MeterAtom.History;
+        _graph = _part.Atom == MeterAtom.History;
 
         _part.ApplyConfig(_config, this);
         UseLook(_part.Look(_config));

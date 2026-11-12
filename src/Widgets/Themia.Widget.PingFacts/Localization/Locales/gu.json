@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "જવાબ મળ્યો",
+  "details.ping.answeredOf": "{sent} માંથી {answered}",
+  "details.ping.average": "સરેરાશ",
+  "details.ping.jitter": "જિટર",
+  "details.ping.loss": "પૅકેટ લૉસ",
+  "details.ping.maximum": "મહત્તમ",
+  "details.ping.minimum": "ન્યૂનતમ",
+  "details.settings.ping.window.label": "આંકડાનો વ્યાપ",
+  "details.settings.ping.window.probes": "{count} પ્રોબ"
+}

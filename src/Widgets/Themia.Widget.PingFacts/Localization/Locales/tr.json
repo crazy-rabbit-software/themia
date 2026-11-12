@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "Yanıtlanan",
+  "details.ping.answeredOf": "{sent} içinden {answered}",
+  "details.ping.average": "Ortalama",
+  "details.ping.jitter": "Değişkenlik",
+  "details.ping.loss": "Paket kaybı",
+  "details.ping.maximum": "En yüksek",
+  "details.ping.minimum": "En düşük",
+  "details.settings.ping.window.label": "İstatistik kapsamı",
+  "details.settings.ping.window.probes": "{count} yoklama"
+}

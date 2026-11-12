@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "応答",
+  "details.ping.answeredOf": "{sent} 中 {answered}",
+  "details.ping.average": "平均",
+  "details.ping.jitter": "ジッター",
+  "details.ping.loss": "パケット損失",
+  "details.ping.maximum": "最大",
+  "details.ping.minimum": "最小",
+  "details.settings.ping.window.label": "統計の対象",
+  "details.settings.ping.window.probes": "{count} 回"
+}

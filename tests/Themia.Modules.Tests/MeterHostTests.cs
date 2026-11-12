@@ -37,13 +37,13 @@ public sealed class MeterHostTests
     {
         Assert.Equal(60, new Themia.Widget.CpuHistory.CpuHistoryConfig().GraphSpanSeconds);
         Assert.Equal(60, new Themia.Widget.MemoryHistory.MemoryHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(60, new NetworkConfig().GraphSpanSeconds);
+        Assert.Equal(60, new Themia.Widget.NetworkHistory.NetworkHistoryConfig().GraphSpanSeconds);
         Assert.Equal(60, new Themia.Widget.GpuHistory.GpuHistoryConfig().GraphSpanSeconds);
         Assert.Equal(300, new Themia.Widget.DiskHistory.DiskHistoryConfig().GraphSpanSeconds);
-        Assert.Equal(900, new BatteryConfig().GraphSpanSeconds);
-        Assert.Equal(900, new PingConfig().GraphSpanSeconds);
+        Assert.Equal(900, new Themia.Widget.BatteryHistory.BatteryHistoryConfig().GraphSpanSeconds);
+        Assert.Equal(900, new Themia.Widget.PingHistory.PingHistoryConfig().GraphSpanSeconds);
 
-        foreach (var config in new ISpansHistory[] { new Themia.Widget.MemoryHistory.MemoryHistoryConfig(), new NetworkConfig(), new Themia.Widget.GpuHistory.GpuHistoryConfig(), new Themia.Widget.DiskHistory.DiskHistoryConfig(), new BatteryConfig(), new PingConfig() })
+        foreach (var config in new ISpansHistory[] { new Themia.Widget.MemoryHistory.MemoryHistoryConfig(), new Themia.Widget.NetworkHistory.NetworkHistoryConfig(), new Themia.Widget.GpuHistory.GpuHistoryConfig(), new Themia.Widget.DiskHistory.DiskHistoryConfig(), new Themia.Widget.BatteryHistory.BatteryHistoryConfig(), new Themia.Widget.PingHistory.PingHistoryConfig() })
         {
             Assert.Contains(config.GraphSpanSeconds, MeterTiming.SpanChoices);
         }
@@ -66,7 +66,8 @@ public sealed class MeterHostTests
         var cpu = (CpuConfig)ConfigJson.Read("Cpu", """{ "kind": "cpu", "intervalSeconds": 300 }""");
 
         Assert.Empty(cpu.Repair());
-        Assert.Null(typeof(GaugeConfig).GetProperty("IntervalSeconds"));
+        Assert.Null(typeof(ReadingConfig).GetProperty("IntervalSeconds"));
+        Assert.Null(typeof(HistoryConfig).GetProperty("IntervalSeconds"));
     }
 
     [Fact]
@@ -117,10 +118,10 @@ public sealed class MeterHostTests
     [Fact]
     public void S1120_clone_carries_the_shared_settings()
     {
-        var ping = new PingConfig { GraphSpanSeconds = 1800, ShowGraph = false };
-        var copy = (PingConfig)ping.Clone();
+        var ping = new Themia.Widget.PingHistory.PingHistoryConfig { GraphSpanSeconds = 1800, Host = "example.com" };
+        var copy = (Themia.Widget.PingHistory.PingHistoryConfig)ping.Clone();
 
-        Assert.Equal((1800, false), (copy.GraphSpanSeconds, copy.ShowGraph));
+        Assert.Equal((1800, "example.com"), (copy.GraphSpanSeconds, copy.Host));
     }
 
     [Fact]

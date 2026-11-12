@@ -1,6 +1,0 @@
-{
-  "details.catalog.network.desc": "നിരക്കുകൾ, ഉപയോഗിച്ച ഡാറ്റ, വിലാസങ്ങൾ, അഡാപ്റ്ററുകൾ",
-  "details.catalog.network.label": "നെറ്റ്‌വർക്ക് വിശദാംശങ്ങൾ",
-  "details.settings.network.public.desc": "api.ipify.org-നോട് ചോദിക്കുന്നു, പരമാവധി ഓരോ {minutes} മിനിറ്റിലും",
-  "details.settings.network.public.label": "പൊതു വിലാസം"
-}

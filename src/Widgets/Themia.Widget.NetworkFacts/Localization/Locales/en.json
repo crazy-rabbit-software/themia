@@ -1,0 +1,9 @@
+{
+  "$englishOnly": [
+    "networkFacts.label",
+    "networkFacts.desc"
+  ],
+  "details.settings.network.public.desc": "Asks api.ipify.org, at most every {minutes} minutes",
+  "networkFacts.label": "Network facts",
+  "networkFacts.desc": "Addresses, data used, link speed and more, as you pick them"
+}

@@ -226,7 +226,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(CpuStyle.Number, Assert.IsType<CpuConfig>(widgets[3].Config).Style);
         Assert.Equal(MemoryStyle.Number, Assert.IsType<MemoryConfig>(widgets[4].Config).Style);
         Assert.Equal(GpuStyle.Number, Assert.IsType<GpuConfig>(widgets[5].Config).Style);
-        Assert.Equal(NetworkStyle.Graph, Assert.IsType<NetworkConfig>(widgets[6].Config).Style);
+        Assert.IsType<NetworkConfig>(widgets[6].Config);
 
         // Everything but the quick settings sits on the wallpaper: no card, no header.
         Assert.All(widgets.Take(7), w =>

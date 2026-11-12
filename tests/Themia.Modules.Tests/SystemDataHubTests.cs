@@ -211,7 +211,7 @@ public sealed class SystemDataHubTests
         Assert.Equal(MeterTiming.MaxSpanSeconds, SeriesHistory.Capacity(SystemSource.Cpu));
         Assert.Equal(MeterTiming.Points(MeterTiming.SpanChoices.Max(), SystemCadence.TickSeconds), SeriesHistory.Capacity(SystemSource.Gpu));
         Assert.Equal(MeterTiming.Points(MeterTiming.SpanChoices.Max(), SystemCadence.PingSeconds), SeriesHistory.Capacity(SystemSource.Ping));
-        Assert.True(SeriesHistory.Capacity(SystemSource.Ping) >= PingDetailsConfig.MaxWindow);
+        Assert.True(SeriesHistory.Capacity(SystemSource.Ping) >= PingFactsConfig.MaxWindow);
     }
 
     [Fact]
@@ -357,7 +357,7 @@ public sealed class SystemDataHubTests
     {
         var state = State(
             [new CpuConfig(), new ClockConfig()],
-            [new MemoryConfig(), new TopProcessesConfig(), new PingDetailsConfig { Host = "Example.com" }]);
+            [new MemoryConfig(), new TopProcessesConfig(), new PingFactsConfig { Host = "Example.com" }]);
 
         var interests = SystemInterests.From(state, Root);
 
@@ -377,7 +377,7 @@ public sealed class SystemDataHubTests
     {
         var state = State(
             [new CpuConfig(), new CpuFactsConfig(), new PingConfig { Host = "1.1.1.1" }],
-            [new CpuConfig(), new PingDetailsConfig { Host = " 1.1.1.1 " }]);
+            [new CpuConfig(), new PingFactsConfig { Host = " 1.1.1.1 " }]);
 
         var interests = SystemInterests.From(state, Root);
 
@@ -412,8 +412,8 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2513_the_public_address_is_asked_only_while_a_widget_wants_it()
     {
-        Assert.DoesNotContain(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkDetailsConfig(), Root).Feeds);
-        Assert.Contains(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkDetailsConfig { ShowPublicAddress = true }, Root).Feeds);
+        Assert.DoesNotContain(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkFactsConfig(), Root).Feeds);
+        Assert.Contains(FeedKey.Create(SystemSource.PublicAddress), SystemInterests.For(new NetworkFactsConfig { Facts = ["publicAddress"] }, Root).Feeds);
     }
 
     [Fact]
@@ -423,7 +423,7 @@ public sealed class SystemDataHubTests
         {
             var config = WidgetConfig.CreateDefault(kind);
             var wants = SystemInterests.For(config, Root);
-            var system = config is GaugeConfig or DetailConfig or ReadingConfig or HistoryConfig;
+            var system = config is DetailConfig or ReadingConfig or HistoryConfig;
 
             Assert.Equal(system, wants.Feeds.Count > 0);
 
@@ -442,7 +442,7 @@ public sealed class SystemDataHubTests
         ((Themia.Widget.CpuHistory.CpuHistoryConfig)state.Views[0].Widgets[0].Config).GraphSpanSeconds = 3600;
         Assert.True(before.SameAs(SystemInterests.From(state, Root)));
 
-        state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Config = new NetworkDetailsConfig() });
+        state.Views[0].Widgets.Add(new WidgetInstance { Id = "n", Config = new NetworkFactsConfig() });
         Assert.False(before.SameAs(SystemInterests.From(state, Root)));
     }
 

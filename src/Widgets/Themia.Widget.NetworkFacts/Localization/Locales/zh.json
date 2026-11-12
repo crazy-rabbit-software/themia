@@ -1,0 +1,3 @@
+{
+  "details.settings.network.public.desc": "查询 api.ipify.org，最多每 {minutes} 分钟一次"
+}

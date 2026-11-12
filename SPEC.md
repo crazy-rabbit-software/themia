@@ -5815,7 +5815,10 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over `cpuFacts` 240 × 136), **Memory**
   (`memory` over `memoryHistory`, 160 wide), **Memory details** (`memory` over `memoryFacts`, 260 wide),
   **GPU** (`gpu` over `gpuHistory`, 200 wide), **GPU details** (`gpu` over `gpuFacts`, 260 wide),
-  **Disk** (`disk` over `diskHistory`, 160 wide).
+  **Disk** (`disk` over `diskHistory`, 160 wide), **Network** (`network` over `networkHistory`, 180 wide),
+  **Network details** (`network` over `networkFacts` over `networkAdapters` of two rows, 300 wide),
+  **Ping** (`ping` over `pingHistory`), **Ping details** (`ping` over `pingFacts`), **Battery**
+  (`battery` over `batteryHistory`), **Battery details** (`battery` over `batteryFacts`).
 
 ## System details (SYS-DETAILS)
 

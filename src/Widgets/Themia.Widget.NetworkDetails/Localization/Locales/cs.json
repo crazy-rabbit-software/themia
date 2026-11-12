@@ -1,7 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.desc": "Rychlosti, přenesená data, adresy a adaptéry",
-  "details.catalog.network.label": "Podrobnosti o síti",
-  "details.settings.network.public.desc": "Ptá se api.ipify.org, nejčastěji každých {minutes} minut",
-  "details.settings.network.public.label": "Veřejná adresa"
-}

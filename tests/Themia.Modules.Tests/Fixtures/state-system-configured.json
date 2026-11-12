@@ -75,9 +75,7 @@
           "scale": 1,
           "config": {
             "kind": "battery",
-            "style": "ring",
-            "showGraph": true,
-            "graphSpanSeconds": 1800
+            "style": "ring"
           }
         },
         {
@@ -126,10 +124,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "network",
-            "style": "numbers",
-            "showGraph": true,
-            "graphSpanSeconds": 3600
+            "kind": "network"
           }
         },
         {
@@ -154,9 +149,7 @@
           "config": {
             "kind": "ping",
             "style": "signal",
-            "host": "example.com",
-            "showGraph": true,
-            "graphSpanSeconds": 300
+            "host": "example.com"
           }
         },
         {
@@ -284,8 +277,11 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "networkDetails",
-            "showPublicAddress": true
+            "kind": "networkFacts",
+            "facts": [
+              "publicAddress",
+              "localAddress"
+            ]
           }
         },
         {
@@ -308,7 +304,10 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "batteryDetails"
+            "kind": "batteryFacts",
+            "facts": [
+              "cycles"
+            ]
           }
         },
         {
@@ -331,9 +330,13 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "pingDetails",
+            "kind": "pingFacts",
             "host": "9.9.9.9",
-            "window": 120
+            "window": 120,
+            "facts": [
+              "loss",
+              "average"
+            ]
           }
         },
         {

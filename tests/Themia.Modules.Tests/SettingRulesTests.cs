@@ -71,34 +71,6 @@ public class SettingRulesTests
     }
 
     [Theory]
-    [InlineData("network")]
-    [InlineData("battery")]
-    [InlineData("ping")]
-    public void S6074_a_meter_offers_its_chart_span_only_in_the_styles_that_draw_a_history(string kindId)
-    {
-        var kind = new WidgetId(kindId);
-        var gauge = Assert.IsAssignableFrom<GaugeConfig>(WidgetConfig.CreateDefault(kind));
-
-        foreach (var style in WidgetStyles.For(kind))
-        {
-            WidgetStyles.Set(gauge, style.Value);
-            Assert.Equal(style.Value, WidgetStyles.Current(gauge));
-
-            // The graph, and the CPU's core graphs ([S-6317]): a history per core.
-            var history = style.Value == 0;
-            Assert.Equal(history ? [MeterSetting.Span] : (MeterSetting[])[], gauge.ShownSettings);
-        }
-    }
-
-    [Fact]
-    public void S6074_the_first_style_of_every_meter_is_its_graph()
-    {
-        Assert.Equal(0, (int)NetworkStyle.Graph);
-        Assert.Equal(0, (int)BatteryStyle.Graph);
-        Assert.Equal(0, (int)PingStyle.Graph);
-    }
-
-    [Theory]
     [InlineData(WeatherNowStyle.Standard, true)]
     [InlineData(WeatherNowStyle.LargeIcon, false)]
     [InlineData(WeatherNowStyle.Minimal, false)]

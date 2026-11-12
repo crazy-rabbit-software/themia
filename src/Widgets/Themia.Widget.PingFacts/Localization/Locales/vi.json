@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "Đã phản hồi",
+  "details.ping.answeredOf": "{answered} / {sent}",
+  "details.ping.average": "Trung bình",
+  "details.ping.jitter": "Độ dao động",
+  "details.ping.loss": "Mất gói",
+  "details.ping.maximum": "Tối đa",
+  "details.ping.minimum": "Tối thiểu",
+  "details.settings.ping.window.label": "Phạm vi thống kê",
+  "details.settings.ping.window.probes": "{count} lần ping"
+}

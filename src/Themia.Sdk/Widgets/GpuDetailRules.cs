@@ -44,13 +44,13 @@ public static class GpuDetailRules
     /// </summary>
     public static IReadOnlyList<FactOption> Facts { get; } =
     [
-        new("dedicated", Str.Details_Gpu_Dedicated),
-        new("shared", Str.Details_Gpu_Shared),
-        new("temperature", Str.Details_Gpu_Temperature),
-        new("fan", Str.Details_Gpu_Fan),
-        new("clock", Str.Details_Gpu_Clock),
-        new("memoryClock", Str.Details_Gpu_MemoryClock),
-        new("load", Str.Details_Gpu_Load),
+        new("dedicated", Str.Details_Gpu_Dedicated.Local()),
+        new("shared", Str.Details_Gpu_Shared.Local()),
+        new("temperature", Str.Details_Gpu_Temperature.Local()),
+        new("fan", Str.Details_Gpu_Fan.Local()),
+        new("clock", Str.Details_Gpu_Clock.Local()),
+        new("memoryClock", Str.Details_Gpu_MemoryClock.Local()),
+        new("load", Str.Details_Gpu_Load.Local()),
     ];
 
     /// <summary>Bytes of <c>D3DKMT_ADAPTER_PERFDATA</c>.</summary>

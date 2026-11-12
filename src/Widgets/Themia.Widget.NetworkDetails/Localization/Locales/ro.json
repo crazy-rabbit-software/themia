@@ -1,6 +1,0 @@
-{
-  "details.catalog.network.desc": "Rate, date folosite, adrese și adaptoare",
-  "details.catalog.network.label": "Detalii rețea",
-  "details.settings.network.public.desc": "Interoghează api.ipify.org, cel mult o dată la {minutes} minute",
-  "details.settings.network.public.label": "Adresă publică"
-}

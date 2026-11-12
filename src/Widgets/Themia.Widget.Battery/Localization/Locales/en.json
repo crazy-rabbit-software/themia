@@ -1,6 +1,9 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "styles.battery.number"
+  ],
   "shell.meters.batteryDescription": "Charge level",
   "styles.io.battery": "Battery",
-  "widget.battery.label": "Battery"
+  "widget.battery.label": "Battery",
+  "styles.battery.number": "Number"
 }

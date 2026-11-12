@@ -1,0 +1,3 @@
+{
+  "details.settings.network.public.desc": "Interroga api.ipify.org, al massimo ogni {minutes} minuti"
+}

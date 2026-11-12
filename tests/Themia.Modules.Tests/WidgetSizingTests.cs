@@ -21,14 +21,14 @@ public sealed class WidgetSizingTests
     /// </summary>
     private static readonly string[] Legacy =
     [
-        "airQuality", "airplaneModeToggle", "alarm", "audioVisualizer", "battery", "batteryDetails", "bluetooth",
+        "airQuality", "airplaneModeToggle", "alarm", "audioVisualizer", "bluetooth",
         "bluetoothToggle", "brightness", "calendar", "clipboard", "colorFiltersToggle", "contacts", "countdown",
         "deviceBatteries", "doNotDisturbToggle", "drive", "email", "energySaverToggle", "exchangeRates",
         "focusSession", "gameModeToggle", "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer",
-        "monoAudioToggle", "moon", "music", "network", "networkDetails", "nextMeeting", "nightLightToggle",
-        "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour", "removableDrives", "restart",
-        "rotationLockToggle", "rss", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
-        "signOut", "sleep", "soundToggle", "spatialSoundToggle", "stocks", "stopwatch", "sun", "volume",
+        "monoAudioToggle", "moon", "music", "nextMeeting", "nightLightToggle", "notifications", "pomodoro", "quote",
+        "rainNextHour", "removableDrives", "restart", "rotationLockToggle", "rss", "screenOff", "screenTimeApps",
+        "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle",
+        "stocks", "stopwatch", "sun", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
     ];
 

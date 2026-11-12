@@ -1,0 +1,17 @@
+{
+  "$englishOnly": [
+    "pingFacts.label",
+    "pingFacts.desc"
+  ],
+  "details.ping.answered": "Answered",
+  "details.ping.answeredOf": "{answered} of {sent}",
+  "details.ping.average": "Average",
+  "details.ping.jitter": "Jitter",
+  "details.ping.loss": "Packet loss",
+  "details.ping.maximum": "Maximum",
+  "details.ping.minimum": "Minimum",
+  "details.settings.ping.window.label": "Statistics cover",
+  "details.settings.ping.window.probes": "{count} probes",
+  "pingFacts.label": "Ping facts",
+  "pingFacts.desc": "Average, range, jitter and packet loss, as you pick them"
+}

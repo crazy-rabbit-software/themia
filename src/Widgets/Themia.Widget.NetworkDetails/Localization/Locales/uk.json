@@ -1,6 +1,0 @@
-{
-  "details.catalog.network.desc": "Швидкості, використані дані, адреси й адаптери",
-  "details.catalog.network.label": "Відомості про мережу",
-  "details.settings.network.public.desc": "Запитує api.ipify.org не частіше ніж раз на {minutes} хв",
-  "details.settings.network.public.label": "Публічна адреса"
-}

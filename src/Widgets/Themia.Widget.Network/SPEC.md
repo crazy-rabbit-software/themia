@@ -1,25 +1,22 @@
-# Network (meter)
+# Network (reading)
 
-The module `network` ([S-6911]): the machine's network throughput. Its tags are this file's alone;
-the root `SPEC.md` holds the host's sections and what the meters share (the meter framework
-[S-1120]..[S-1126], [S-1762], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513]); the throughput's
-rules are the SDK's `NetworkRules` with their root tags ([S-1190] per adapter, [S-1192] the counted
-adapters), the numbers face the SDK's (`MeterNumbers`, [S-6264]).
+The module `network` ([S-6911]): the machine's network throughput, the reading alone (the id stays the
+reading's; its history is `networkHistory`, its facts `networkFacts`, its adapters `networkAdapters`,
+and the old cards' looks the ready-made groups "Network" and "Network details"). Its tags are this
+file's alone; the root `SPEC.md` holds what the system atoms share ([S-11000]..[S-11009]) and the
+throughput's rules, the SDK's `NetworkRules` ([S-1190] per adapter, [S-1192] the counted adapters).
 
-Owning files: everything in this folder: `NetworkModule.cs` (descriptor, view factory, menu lines,
-JSON context), `NetworkConfig.cs` (with its styles and what it asks the hub, `IReadsSystem`),
-`NetworkMeter.cs` (its half of the shared `MeterView`: the peak-scaled chart with its 1 KB/s floor,
-the look per style), `Localization/Locales/` (its own `NetworkStr`, 30 languages, its style names included). Tests: its
-styles side by side with the other I/O meters' are the module host's `IoStylesHostTests`.
+Owning files: everything in this folder: `NetworkModule.cs` (descriptor, sizing, view factory, JSON
+context), `NetworkConfig.cs` (what it asks the hub, `IReadsSystem`), `NetworkMeter.cs` (its half of
+the shared `MeterView`), `Localization/Locales/` (its own `NetworkStr`). Tests: `Tests/NetworkTests.cs`.
 
-- **[S-1191]** Download is the reading; the chart's two series (download filled in its role, upload a tertiary
-  line) share one top: the window's peak of both, floor 1 KB/s (`RateWindow`), never the session's
-  all-time peak.
-- **[S-6270]** Network: `NetworkConfig.Style`, **Graph** ([S-1191]) and **Numbers** ([S-6264]).
-- Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
-  Appearance, and under Style in the Graph style the Chart span every meter has ([S-1122]).
+- **[S-1191]** Download over upload, both at 28, each led by its arrow ([S-6264], [S-11001]): one height
+  (128), 172..320 wide. It has no style: the old Graph style is the Network history atom, and the old
+  Numbers style is this reading. Nothing appears with size; no tier ladder is left.
+- **[S-6270]** *(Retired: Network has no styles; its reading is both numbers, its history an atom of its own.)*
+- Its options are on the properties menu ([S-3719]): Appearance; nothing of its own.
 - **[S-2018]** A click on the card ([S-2000]) opens Windows' network status page
   (`ms-settings:network-status`); the module decides it (`NetworkModule.Opens`, through its part's
   `Opens`).
 
-Needs a manual pass: the meter on a live desktop (a download and an upload moving the chart, both styles).
+Needs a manual pass: the reading on a live desktop (a download and an upload moving it).

@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "응답",
+  "details.ping.answeredOf": "{sent}개 중 {answered}개",
+  "details.ping.average": "평균",
+  "details.ping.jitter": "지터",
+  "details.ping.loss": "패킷 손실",
+  "details.ping.maximum": "최대",
+  "details.ping.minimum": "최소",
+  "details.settings.ping.window.label": "통계 범위",
+  "details.settings.ping.window.probes": "프로브 {count}개"
+}

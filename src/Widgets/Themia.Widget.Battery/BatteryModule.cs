@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Battery;
 
@@ -32,15 +33,14 @@ public sealed class BatteryModule : IWidgetModule
         Label = BatteryStr.Widget_Battery_Label.Local(),
         Description = BatteryStr.Shell_Meters_BatteryDescription.Local(),
         Glyph = Glyphs.Battery,
-        Sizing = _ => WidgetSizing.Legacy(200, 150),
+        Sizing = c => MeterSizing.Reading(BatteryMeter.Look(((BatteryConfig)c).Style), ReadoutRules.Split(Formatting.Percent(1)) with { Lead = ((BatteryConfig)c).Style == BatteryStyle.Number }),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.BatteryReading, 0, 0),
     };
 
-    /// <summary>[S-3719] Every option is on the properties menu (the chart span under Style, [S-1122]): the widget has no settings page.</summary>
+    /// <summary>[S-3719] Nothing to set but the style and the card's look.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
-        MeterMenuLines.Lines(menu, (BatteryConfig)config);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new BatteryMeter());

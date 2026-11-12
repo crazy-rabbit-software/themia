@@ -1,0 +1,3 @@
+{
+  "details.settings.network.public.desc": "api.ipify.org に問い合わせます (最短 {minutes} 分間隔)"
+}

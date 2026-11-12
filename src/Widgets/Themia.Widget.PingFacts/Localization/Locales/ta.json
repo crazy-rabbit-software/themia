@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "பதிலளித்தவை",
+  "details.ping.answeredOf": "{sent} இல் {answered}",
+  "details.ping.average": "சராசரி",
+  "details.ping.jitter": "ஜிட்டர்",
+  "details.ping.loss": "பாக்கெட் இழப்பு",
+  "details.ping.maximum": "அதிகபட்சம்",
+  "details.ping.minimum": "குறைந்தபட்சம்",
+  "details.settings.ping.window.label": "புள்ளிவிவர வரம்பு",
+  "details.settings.ping.window.probes": "{count} சோதனைகள்"
+}

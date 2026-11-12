@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["networkHistory.label", "networkHistory.desc"],
+  "networkHistory.label": "Network history",
+  "networkHistory.desc": "Download and upload over time"
+}

@@ -40,15 +40,15 @@ public static class CpuDetailRules
     /// </summary>
     public static IReadOnlyList<FactOption> Facts { get; } =
     [
-        new("speed", Str.Details_Cpu_Speed),
-        new("baseSpeed", Str.Details_Cpu_BaseSpeed),
-        new("cores", Str.Details_Cpu_Cores),
-        new("logical", Str.Details_Cpu_Logical),
-        new("processes", Str.Details_Cpu_Processes),
-        new("threads", Str.Details_Cpu_Threads),
-        new("handles", Str.Details_Cpu_Handles),
-        new("uptime", Str.Details_Cpu_Uptime),
-        new("temperature", Str.Details_Cpu_Temperature),
+        new("speed", Str.Details_Cpu_Speed.Local()),
+        new("baseSpeed", Str.Details_Cpu_BaseSpeed.Local()),
+        new("cores", Str.Details_Cpu_Cores.Local()),
+        new("logical", Str.Details_Cpu_Logical.Local()),
+        new("processes", Str.Details_Cpu_Processes.Local()),
+        new("threads", Str.Details_Cpu_Threads.Local()),
+        new("handles", Str.Details_Cpu_Handles.Local()),
+        new("uptime", Str.Details_Cpu_Uptime.Local()),
+        new("temperature", Str.Details_Cpu_Temperature.Local()),
     ];
 
     /// <summary>The widest hero: "10.00 GHz".</summary>

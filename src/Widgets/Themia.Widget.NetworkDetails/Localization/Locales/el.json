@@ -1,6 +1,0 @@
-{
-  "details.catalog.network.desc": "Ρυθμοί, δεδομένα που χρησιμοποιήθηκαν, διευθύνσεις και προσαρμογείς",
-  "details.catalog.network.label": "Λεπτομέρειες δικτύου",
-  "details.settings.network.public.desc": "Ρωτά το api.ipify.org, το πολύ κάθε {minutes} λεπτά",
-  "details.settings.network.public.label": "Δημόσια διεύθυνση"
-}

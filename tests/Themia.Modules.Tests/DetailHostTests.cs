@@ -43,8 +43,8 @@ public sealed class DetailHostTests
         var processes = (TopProcessesConfig)ConfigJson.Read("TopProcesses", """{ "kind": "topProcesses", "sortBy": "Memory", "rows": 10, "groupByName": false }""");
         Assert.Equal((ProcessSort.Memory, 10, false), (processes.SortBy, processes.Rows, processes.GroupByName));
 
-        var network = (NetworkDetailsConfig)ConfigJson.Read("NetworkDetails", """{ "kind": "networkDetails", "showPublicAddress": true }""");
-        Assert.True(network.ShowPublicAddress);
+        var network = (NetworkFactsConfig)ConfigJson.Read("NetworkFacts", """{ "kind": "networkFacts", "facts": ["publicAddress"] }""");
+        Assert.True(network.ShowsPublicAddress);
 
         var gpu = (GpuFactsConfig)ConfigJson.Read("GpuFacts", """{ "kind": "gpuFacts", "adapter": 1 }""");
         Assert.Equal(1, gpu.Adapter);

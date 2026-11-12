@@ -1,0 +1,11 @@
+{
+  "details.ping.answered": "മറുപടി ലഭിച്ചത്",
+  "details.ping.answeredOf": "{sent}-ൽ {answered}",
+  "details.ping.average": "ശരാശരി",
+  "details.ping.jitter": "ജിറ്റർ",
+  "details.ping.loss": "പാക്കറ്റ് നഷ്‌ടം",
+  "details.ping.maximum": "പരമാവധി",
+  "details.ping.minimum": "ഏറ്റവും കുറഞ്ഞത്",
+  "details.settings.ping.window.label": "സ്ഥിതിവിവരക്കണക്കുകൾ ഉൾക്കൊള്ളുന്നത്",
+  "details.settings.ping.window.probes": "{count} പ്രോബുകൾ"
+}
