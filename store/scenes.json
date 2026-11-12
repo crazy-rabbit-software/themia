@@ -176,7 +176,7 @@
       "wallpaper": "sample:quiet-street",
       "taskbar": true,
       "widgets": [
-        { "kind": "music", "at": [30, 30, 480, 560], "state": "sample", "style": "cover" },
+        { "kind": "musicCover", "at": [30, 30, 480, 560], "state": "sample" },
         { "kind": "clock", "at": [640, 60, 640, 380], "state": "sample", "style": "analog", "bare": true, "scale": 1.6 },
         { "kind": "quote", "at": [640, 700, 640, 290], "state": "sample", "bare": true, "align": "center" },
         { "kind": "weatherForecast", "at": [1410, 30, 480, 380], "state": "sample", "style": "curve" },
