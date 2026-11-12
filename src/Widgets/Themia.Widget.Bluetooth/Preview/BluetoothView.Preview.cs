@@ -18,6 +18,7 @@ internal sealed partial class BluetoothView : IWidgetPreviewState
     {
         if (state == "off")
         {
+            _held = true;
             _inFlight?.Cancel();
             _inFlight = null;
             _generation++;
@@ -33,6 +34,7 @@ internal sealed partial class BluetoothView : IWidgetPreviewState
         }
 
         // The radio pass still out would draw over the fixture when it lands: it is now stale.
+        _held = true;
         _inFlight?.Cancel();
         _inFlight = null;
         _generation++;

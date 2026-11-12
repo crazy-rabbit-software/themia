@@ -89,6 +89,13 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
 
     private bool _detached;
 
+#if DEBUG
+    /// <summary>[S-1917] A preview state holds its fixture: no pass of the radio starts over it (the ticker's, a config change's).</summary>
+    private bool _held;
+#else
+    private const bool _held = false;
+#endif
+
     public BluetoothView()
     {
         // [S-6710] The header's ring while a pass is out, then "2 connected" as its informing label.
@@ -193,7 +200,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     /// </summary>
     private void Reload()
     {
-        if (_detached)
+        if (_detached || _held)
         {
             return;
         }
