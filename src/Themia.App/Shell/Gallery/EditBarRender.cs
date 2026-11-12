@@ -162,9 +162,7 @@ internal static partial class EditBarRender
                 await Shot(screen, Bar(longNames), null, outDir, $"editbar-{theme}-long.png").ConfigureAwait(true);
                 await Shot(screen, Bar(longNames), null, outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
 
-                var menu = PickerRender.Presenter(new WidgetPicker(_ => { }, () => { }, new PixelRect(0, 0, PickerRender.WorkWidth, PickerRender.WorkHeight)));
-                UiLanguage.ApplyFlow(menu);
-                await Shot(screen, Bar(), menu, outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
+                await Shot(screen, Bar(), AddMenu(), outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
 
                 var hint = new TextBlock
                 {
@@ -256,15 +254,8 @@ internal static partial class EditBarRender
 
         if (menu is not null)
         {
-            canvas.Children.Add(menu);
-            menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
             // A flyout opened from Add widget: centred under the button (the bar's first, 4 DIPs in), a gap below the bar.
-            screen.UpdateLayout();
-            var addWidth = bar is EditBar edit ? edit.AddWidth : 0;
-            var addCentre = barX + (bar is EditBar hung ? hung.AddOffset : 0) + (addWidth / 2);
-            Canvas.SetLeft(menu, Math.Clamp(addCentre - (menu.DesiredSize.Width / 2), Fluent.Space2, ScreenWidth - menu.DesiredSize.Width - Fluent.Space2));
-            Canvas.SetTop(menu, Fluent.Space2 + bar.DesiredSize.Height + Fluent.Space1);
+            HangAddMenu(canvas, menu, bar, barX, Fluent.Space2, ScreenWidth);
         }
 
         await Task.Delay(500).ConfigureAwait(true);
@@ -640,19 +631,6 @@ internal static partial class EditBarRender
         screen.Children.Add(canvas);
         Blobs(canvas);
 
-        var chosen = layout.Where(s => s.Selected).ToList();
-        var bar = Bar(Plain(widget: chosen.Count switch
-        {
-            0 => null,
-            1 => new BarCrumb(chosen[0].Label ?? ModuleCatalog.Of(chosen[0].Kind).Name, ModuleCatalog.Of(chosen[0].Kind).Glyph),
-            _ => new BarCrumb(Str.Shell_Views_WidgetCount.Plural(chosen.Count), Glyphs.Apps),
-        }));
-        canvas.Children.Add(bar);
-        bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var barRect = new PixelRect(Math.Round((ScreenWidth - bar.DesiredSize.Width) / 2), Fluent.Space2, bar.DesiredSize.Width, bar.DesiredSize.Height);
-        Canvas.SetLeft(bar, barRect.X);
-        Canvas.SetTop(bar, barRect.Y);
-
         var view = ViewState.Create("render");
         var widgets = new List<(WidgetInstance Model, PropsCard Spec)>();
         foreach (var spec in layout)
@@ -679,6 +657,8 @@ internal static partial class EditBarRender
             widgets.Add((model, spec));
         }
 
+        var barRect = PlaceBar(canvas, SelectionBar(SelectionCrumb([.. widgets.Where(w => w.Spec.Selected).Select(w => w.Model)])), ScreenWidth);
+
         var selected = widgets.Where(w => w.Spec.Selected).Select(w => w.Model.Id).ToList();
         var host = new NoticeRender.RenderCardHost(ticker) { EditMode = true, Selected = new HashSet<string>(selected, StringComparer.Ordinal) };
 
@@ -701,28 +681,8 @@ internal static partial class EditBarRender
         canvas.Children.Add(markers.Halos);
         canvas.Children.Add(markers.Inks);
 
-        var state = new AppState { Views = [view] };
-        var selection = new WidgetSelection();
-        selection.Replace(view.Id, selected);
-
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { },
-            Cut: () => { }, Copy: () => { }, Delete: () => { },
-            WidgetLines: (id, ask, confirm) => lines is not null ? Stand(lines, ask, confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask, confirm, openSetting: _ => { }) : null));
-        UiLanguage.ApplyFlow(strip);
-        strip.RoomHeight = screen.Height - (2 * StripPlacement.Gap);
-        strip.ShowSelection(QuickSet.For(state, selection, view.Id));
-        strip.Visibility = Visibility.Visible;
-        canvas.Children.Add(strip);
-        strip.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-        var target = StripPlacement.Bounds(widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H)));
-        if (target is { } box)
-        {
-            var area = new PixelRect(0, 0, ScreenWidth, screen.Height);
-            var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, area, [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
-            Canvas.SetLeft(strip, Math.Round(spot.X));
-            Canvas.SetTop(strip, Math.Round(spot.Y));
-        }
+        var strip = Properties(view, selected, screen.Height - (2 * StripPlacement.Gap), lines);
+        PlaceProperties(canvas, strip, widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H)), new PixelRect(0, 0, ScreenWidth, screen.Height), barRect);
 
         // [S-3718] The levels along a path open, as clicks would open them; a field is typed into.
         if (open is not null)
