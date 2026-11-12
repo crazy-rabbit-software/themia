@@ -77,9 +77,10 @@ public static class ReadyMadeGroups
     /// <summary>[S-2474] [S-11172] Weather station: the reading, its facts, the days ahead and the rain in the next hour, stacked as one panel.</summary>
     public static ReadyMadeGroup WeatherStation { get; } = new("weatherStation", Str.Groups_Recipe_WeatherStation, Str.Groups_Recipe_WeatherStationAbout, Glyphs.Weather, AddFolderId.Weather,
     [
-        new("weatherNow", new(0, 0, 380, 200)),
-        new("weatherForecast", new(0, 200, 380, 220)),
-        new("rainNextHour", new(0, 420, 380, 180)),
+        new("weatherNow", new(0, 0, 300, 100)),
+        new("weatherFacts", new(0, 100, 300, 136), Header: HeaderPlacement.Hidden),
+        new("weatherForecast", new(0, 236, 300, 164), Header: HeaderPlacement.Hidden),
+        new("rainNextHour", new(0, 400, 300, 148), Header: HeaderPlacement.Hidden),
     ]);
 
     /// <summary>

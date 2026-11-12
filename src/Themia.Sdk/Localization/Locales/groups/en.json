@@ -107,7 +107,7 @@
   "groups.recipe.drive": "Drive",
   "groups.recipe.driveAbout": "A drive's used share over its facts",
   "groups.recipe.weatherStation": "Weather station",
-  "groups.recipe.weatherStationAbout": "Now, the days ahead and rain in the next hour",
+  "groups.recipe.weatherStationAbout": "The temperature now, its facts, the days ahead and rain in the next hour",
   "groups.recipe.sun": "Sun",
   "groups.recipe.sunAbout": "The sun's path across the sky and its times",
   "groups.recipe.moon": "Moon",
