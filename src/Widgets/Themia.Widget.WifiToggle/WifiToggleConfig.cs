@@ -9,5 +9,5 @@ public sealed class WifiToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.Wifi;
 
-    public override WidgetConfig Clone() => new WifiToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new WifiToggleConfig());
 }

@@ -9,5 +9,5 @@ public sealed class AirplaneModeToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.AirplaneMode;
 
-    public override WidgetConfig Clone() => new AirplaneModeToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new AirplaneModeToggleConfig());
 }

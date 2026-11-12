@@ -9,5 +9,5 @@ public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.DoNotDisturb;
 
-    public override WidgetConfig Clone() => new DoNotDisturbToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new DoNotDisturbToggleConfig());
 }

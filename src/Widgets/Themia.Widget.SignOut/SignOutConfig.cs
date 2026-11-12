@@ -9,5 +9,5 @@ public sealed class SignOutConfig : PowerButtonConfig
     [JsonIgnore]
     public override PowerAction Action => PowerAction.SignOut;
 
-    public override WidgetConfig Clone() => new SignOutConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new SignOutConfig());
 }

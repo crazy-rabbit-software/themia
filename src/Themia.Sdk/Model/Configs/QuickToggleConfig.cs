@@ -3,6 +3,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Model;
 
@@ -49,8 +50,43 @@ public enum QuickToggleStyle
 /// the card's own settings and its look, so the config carries which toggle its kind stands for and
 /// the style every toggle shares ([S-3916]).
 /// </summary>
-public abstract class QuickToggleConfig : WidgetConfig, IStyled
+public abstract class QuickToggleConfig : WidgetConfig, IStyled, IReadoutSized
 {
+    /// <summary>[S-11307] How big the toggle is: Small, Medium, Large; its card is fixed by it and its look.</summary>
+    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
+
+    /// <summary>[S-11307] The look as the Tile block draws it.</summary>
+    [JsonIgnore]
+    public TileLook Look => Style switch
+    {
+        QuickToggleStyle.Round => TileLook.Round,
+        QuickToggleStyle.Switch => TileLook.Switch,
+        _ => TileLook.Tile,
+    };
+
+    /// <summary>[S-11307] The shared settings onto a kind's new copy (its <c>Clone</c>).</summary>
+    protected T CopyTo<T>(T copy)
+        where T : QuickToggleConfig
+    {
+        ArgumentNullException.ThrowIfNull(copy);
+        copy.Style = Style;
+        copy.Size = Size;
+        return copy;
+    }
+
+    /// <summary>[S-11307] A size this build does not know reads Medium.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        if (Enum.IsDefined(Size))
+        {
+            return [];
+        }
+
+        var was = (int)Size;
+        Size = ReadoutSizes.Default;
+        return [$"toggle size {was} unknown; medium"];
+    }
+
     private static readonly StyleOption[] ToggleStyles =
     [
         StyleOption.Of(QuickToggleStyle.Tile, Str.Styles_Toggles_Tile.Local(), 0xECA5),

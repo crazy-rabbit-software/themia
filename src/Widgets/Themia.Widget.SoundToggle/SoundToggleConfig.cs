@@ -9,5 +9,5 @@ public sealed class SoundToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.Sound;
 
-    public override WidgetConfig Clone() => new SoundToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new SoundToggleConfig());
 }

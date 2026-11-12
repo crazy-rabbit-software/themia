@@ -1012,9 +1012,10 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the caution warning; Try again or Open Accounts as a standard button. Set up: the widget's glyph and
   the accent Set up button ([S-1862]). A row with an action and less than 96 left for the sentence
   drops it and keeps the glyph and the action (`StatusRules`); without an action the sentence stays. Tile widgets show their state in the tile.
-- **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the largest
-  Readout or Hero step that fits above its label (Body, 8 under it) and its state line (Caption) and
-  takes at most 0.6 of the width (`TileRules.GlyphStep`), in the card's inset of 12 at every size. On,
+- **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the step the
+  widget's Size names (`TileRules.GlyphAt`, [S-11307]; `TileRules.GlyphStep`, the largest that fits,
+  is left for the gallery's samples) above its label (Body, 8 under it) and its state line (Caption), in
+  the card's inset of 12. On,
   the **whole tile** is the accent with the text and glyph on it; Round puts the glyph in a circle
   (the accent when on, the item layer's tile otherwise) at the largest family glyph size within half
   of it; Switch is a row with a switch as its value. Not on, the tile is an item of the card's item
@@ -4609,11 +4610,10 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   press is left to the card, which selects and moves the widget, so a click there never runs anything
   (`IWidgetSurface.EditMode`).
 - **[S-1912]** The face is the family's Tile block, ringed ([S-6715], [S-6736]): the icon centred in
-  its ring's room (the step is the largest Readout or Hero step above the name's Body line and at
-  most 0.6 of the width, the icon the largest family glyph size within three quarters of it), the name
-  under it at every size (cut with an ellipsis where it does not fit, whole in the tooltip), no state
-  line, in the card's inset of 12. The armed sentence and a failure take the name's line, so arming
-  moves nothing. Room left at L and XL stays empty past the 192 step (concise first).
+  its ring's room (the ring on the step the Size names, [S-11307], the icon the largest family glyph
+  size within three quarters of it), the name under it (cut with an ellipsis where it does not fit,
+  whole in the tooltip), no state line, in the card's inset of 12. The armed sentence and a failure
+  take the name's line, so arming moves nothing.
 - **[S-1913]** Shut down, restart, sign out and hibernate arm on the first click: the icon, a draining
   ring round it and the name's line turn critical, and the line becomes "Click again to shut down"
   (one Body line, cut where it does not fit; the tooltip carries it whole); the tile itself takes no
@@ -7626,11 +7626,19 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   source's reading stands. Space or Enter switch it while the widget holds the keyboard lease
   ([S-800]); a toggle that cannot be switched does not take the keyboard (`WantsKeys`).
 - **[S-3906]** The face is the Tile block ([S-6715]) in the card's inset of 12: the icon centred on the
-  largest Readout or Hero step above the name (Body) and the state line ("On", "Off",
-  "Unavailable", Caption) and at most 0.6 of the width, the name and the state at every size (cut
-  with an ellipsis where they do not fit, whole in the tooltip). Both lines are planned whether or
-  not they say anything (a reading not answered yet has no state text), so switching moves nothing.
-  Room left at L and XL stays empty past the 192 step (concise first).
+  step its Size names ([S-11307]) above the name (Body) and the state line ("On", "Off",
+  "Unavailable", Caption), both always (cut with an ellipsis where they do not fit, whole in the
+  tooltip). Both lines are planned whether or not they say anything (a reading not answered yet has
+  no state text), so switching moves nothing.
+- **[S-11307]** **A quick toggle's and a power button's size is a setting** (the twenty kinds, two
+  shared views; owner decision 2026-11-12, content decides the size): **Size** under the Style (Small,
+  Medium, Large; `IReadoutSized` on `QuickToggleConfig` and `PowerButtonConfig`, a new one Medium)
+  names the glyph's step (28, 40, 68; a round tile's circle, a power button's ring), and the card is
+  fixed both ways by the Size and the look (`TileRules.Sizing`): the Tile and Round looks a square of
+  100, 120 or 160, the Switch look a row 200, 240 or 280 wide and 60 tall (its glyph, a sentence's
+  room for the name over the state, the switch). Nothing in it changes with the card; at Small a long
+  name ("Do not disturb") is cut with its ellipsis. No tier ladder is left. Tests
+  `FamilyBlockRulesTests.S11307_`.
 - **[S-3907]** One source per toggle for the whole app (`ToggleHub`, host code; a widget reaches it
   through `IWidgetHost.Toggles`, [S-6913]), started by its first widget and stopped by its last; a change reaches each widget on its own thread. No source polls: each follows
   the notification its setting has and reads again when it fires. The pointer coming onto a tile

@@ -9,5 +9,5 @@ public sealed class ScreenOffConfig : PowerButtonConfig
     [JsonIgnore]
     public override PowerAction Action => PowerAction.ScreenOff;
 
-    public override WidgetConfig Clone() => new ScreenOffConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new ScreenOffConfig());
 }

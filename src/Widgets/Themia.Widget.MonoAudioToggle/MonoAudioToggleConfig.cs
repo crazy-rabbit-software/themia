@@ -9,5 +9,5 @@ public sealed class MonoAudioToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.MonoAudio;
 
-    public override WidgetConfig Clone() => new MonoAudioToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new MonoAudioToggleConfig());
 }

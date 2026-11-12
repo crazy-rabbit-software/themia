@@ -9,5 +9,5 @@ public sealed class SleepConfig : PowerButtonConfig
     [JsonIgnore]
     public override PowerAction Action => PowerAction.Sleep;
 
-    public override WidgetConfig Clone() => new SleepConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new SleepConfig());
 }

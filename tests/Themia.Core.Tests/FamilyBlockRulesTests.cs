@@ -367,4 +367,27 @@ public sealed class FamilyBlockRulesTests
     [Fact]
     public void S6707_no_delta_always_stands_beside()
         => Assert.True(ReadoutRules.Fold(FamilyType.Big40, new ReadoutText("1.0675", " EUR"), "", 200).DeltaBeside);
+
+    [Fact]
+    public void S11307_a_toggles_or_power_buttons_card_is_fixed_by_its_size_and_look_and_holds_its_glyph_and_lines()
+    {
+        foreach (var size in new[] { Themia.Core.Widgets.ReadoutSize.Small, Themia.Core.Widgets.ReadoutSize.Medium, Themia.Core.Widgets.ReadoutSize.Large })
+        {
+            var tile = TileRules.Sizing(TileLook.Tile, size);
+            Assert.True(tile.FixedWidth && tile.FixedHeight);
+            Assert.Equal(tile.Natural.Width, tile.Natural.Height);
+            Assert.Equal(tile, TileRules.Sizing(TileLook.Round, size));
+
+            // The glyph, its gap, the label and the state line fit inside the inset.
+            Assert.True(TileRules.GlyphAt(size).FontSize + TileRules.Below(true, true) + 24 <= tile.Natural.Height);
+
+            var row = TileRules.Sizing(TileLook.Switch, size);
+            Assert.True(row.FixedWidth && row.FixedHeight);
+            Assert.Equal(60, row.Natural.Height);
+            Assert.Equal(new SwitchParts(Glyph: true, Lines: true), TileRules.Switch(row.Natural.Width - 24));
+        }
+
+        Assert.Equal(120, TileRules.SideAt(Themia.Core.Widgets.ReadoutSize.Medium));
+        Assert.Equal(FamilyType.Big40, TileRules.GlyphAt(Themia.Core.Widgets.ReadoutSize.Medium));
+    }
 }

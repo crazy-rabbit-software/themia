@@ -157,6 +157,20 @@ public sealed partial class TileBlock : Grid
         Apply();
     }
 
+    /// <summary>
+    /// [S-11307] Lay the glyph out on <paramref name="step"/>, chosen by the widget's Size, in a box
+    /// <paramref name="width"/> wide (the switch look's row), planned for a <paramref name="label"/> and a
+    /// <paramref name="state"/> line whether or not they say anything now.
+    /// </summary>
+    public void Use(TypeStep step, double width, bool label = true, bool state = true)
+    {
+        _width = width;
+        _planLabel = label;
+        _planState = state;
+        _step = step;
+        Apply();
+    }
+
     private void Apply()
     {
         var roles = TileRules.Roles(_look, _tone);

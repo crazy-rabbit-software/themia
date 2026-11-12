@@ -3,6 +3,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Model;
 
@@ -41,8 +42,38 @@ public enum PowerButtonStyle
 /// card's own settings and its look, so the config carries which action its kind stands for and the
 /// style every power widget shares ([S-1919]).
 /// </summary>
-public abstract class PowerButtonConfig : WidgetConfig, IStyled, IDrawsItems
+public abstract class PowerButtonConfig : WidgetConfig, IStyled, IDrawsItems, IReadoutSized
 {
+    /// <summary>[S-11307] How big the button is: Small, Medium, Large; its card is fixed by it and its look.</summary>
+    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
+
+    /// <summary>[S-11307] The look as the Tile block draws it.</summary>
+    [JsonIgnore]
+    public TileLook Look => Style == PowerButtonStyle.Round ? TileLook.Round : TileLook.Tile;
+
+    /// <summary>[S-11307] The shared settings onto a kind's new copy (its <c>Clone</c>).</summary>
+    protected T CopyTo<T>(T copy)
+        where T : PowerButtonConfig
+    {
+        ArgumentNullException.ThrowIfNull(copy);
+        copy.Style = Style;
+        copy.Size = Size;
+        return copy;
+    }
+
+    /// <summary>[S-11307] A size this build does not know reads Medium.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        if (Enum.IsDefined(Size))
+        {
+            return [];
+        }
+
+        var was = (int)Size;
+        Size = ReadoutSizes.Default;
+        return [$"power button size {was} unknown; medium"];
+    }
+
     /// <summary>
     /// [S-6573] The tile is an item; the round button's circle is the accent's own fill, an item only
     /// for the moment a press failed ([S-1915]), which is no reason to offer a colour it would rarely show.

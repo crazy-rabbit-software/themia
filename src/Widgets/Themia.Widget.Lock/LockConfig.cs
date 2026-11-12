@@ -9,5 +9,5 @@ public sealed class LockConfig : PowerButtonConfig
     [JsonIgnore]
     public override PowerAction Action => PowerAction.Lock;
 
-    public override WidgetConfig Clone() => new LockConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new LockConfig());
 }

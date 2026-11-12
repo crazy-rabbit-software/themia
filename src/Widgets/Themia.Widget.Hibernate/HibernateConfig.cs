@@ -9,5 +9,5 @@ public sealed class HibernateConfig : PowerButtonConfig
     [JsonIgnore]
     public override PowerAction Action => PowerAction.Hibernate;
 
-    public override WidgetConfig Clone() => new HibernateConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new HibernateConfig());
 }

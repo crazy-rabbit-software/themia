@@ -9,5 +9,5 @@ public sealed class EnergySaverToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.EnergySaver;
 
-    public override WidgetConfig Clone() => new EnergySaverToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new EnergySaverToggleConfig());
 }

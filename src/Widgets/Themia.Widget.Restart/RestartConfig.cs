@@ -9,5 +9,5 @@ public sealed class RestartConfig : PowerButtonConfig
     [JsonIgnore]
     public override PowerAction Action => PowerAction.Restart;
 
-    public override WidgetConfig Clone() => new RestartConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new RestartConfig());
 }

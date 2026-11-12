@@ -9,5 +9,5 @@ public sealed class MicrophoneToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.Microphone;
 
-    public override WidgetConfig Clone() => new MicrophoneToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new MicrophoneToggleConfig());
 }

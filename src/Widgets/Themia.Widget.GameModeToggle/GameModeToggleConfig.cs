@@ -9,5 +9,5 @@ public sealed class GameModeToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.GameMode;
 
-    public override WidgetConfig Clone() => new GameModeToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new GameModeToggleConfig());
 }

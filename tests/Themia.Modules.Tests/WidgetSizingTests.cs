@@ -21,11 +21,8 @@ public sealed class WidgetSizingTests
     /// </summary>
     private static readonly string[] Legacy =
     [
-        "airplaneModeToggle", "audioVisualizer", "bluetooth", "bluetoothToggle", "brightness", "calendar",
-        "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "gameModeToggle", "habitTracker",
-        "hibernate", "lock", "microphoneToggle", "mixer", "monoAudioToggle", "music", "nightLightToggle", "restart",
-        "rotationLockToggle", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
-        "signOut", "sleep", "soundToggle", "spatialSoundToggle", "volume", "wifiToggle",
+        "audioVisualizer", "bluetooth", "brightness", "calendar", "habitTracker", "mixer", "music", "screenTimeApps",
+        "screenTimeChart", "screenTimeDonut", "volume",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

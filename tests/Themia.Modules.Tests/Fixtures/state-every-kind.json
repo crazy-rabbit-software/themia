@@ -1000,6 +1000,7 @@
           "scale": 1,
           "config": {
             "kind": "shutdown",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1025,6 +1026,7 @@
           "scale": 1,
           "config": {
             "kind": "restart",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1050,6 +1052,7 @@
           "scale": 1,
           "config": {
             "kind": "sleep",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1075,6 +1078,7 @@
           "scale": 1,
           "config": {
             "kind": "hibernate",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1100,6 +1104,7 @@
           "scale": 1,
           "config": {
             "kind": "lock",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1125,6 +1130,7 @@
           "scale": 1,
           "config": {
             "kind": "signOut",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1150,6 +1156,7 @@
           "scale": 1,
           "config": {
             "kind": "screenOff",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1580,6 +1587,7 @@
           "scale": 1,
           "config": {
             "kind": "wifiToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1605,6 +1613,7 @@
           "scale": 1,
           "config": {
             "kind": "bluetoothToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1630,6 +1639,7 @@
           "scale": 1,
           "config": {
             "kind": "airplaneModeToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1655,6 +1665,7 @@
           "scale": 1,
           "config": {
             "kind": "energySaverToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1680,6 +1691,7 @@
           "scale": 1,
           "config": {
             "kind": "nightLightToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1705,6 +1717,7 @@
           "scale": 1,
           "config": {
             "kind": "rotationLockToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1730,6 +1743,7 @@
           "scale": 1,
           "config": {
             "kind": "doNotDisturbToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1755,6 +1769,7 @@
           "scale": 1,
           "config": {
             "kind": "soundToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1780,6 +1795,7 @@
           "scale": 1,
           "config": {
             "kind": "microphoneToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1805,6 +1821,7 @@
           "scale": 1,
           "config": {
             "kind": "spatialSoundToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1830,6 +1847,7 @@
           "scale": 1,
           "config": {
             "kind": "monoAudioToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1855,6 +1873,7 @@
           "scale": 1,
           "config": {
             "kind": "colorFiltersToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1880,6 +1899,7 @@
           "scale": 1,
           "config": {
             "kind": "gameModeToggle",
+            "size": "Medium",
             "style": "tile"
           }
         },

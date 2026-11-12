@@ -9,5 +9,5 @@ public sealed class ShutdownConfig : PowerButtonConfig
     [JsonIgnore]
     public override PowerAction Action => PowerAction.Shutdown;
 
-    public override WidgetConfig Clone() => new ShutdownConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new ShutdownConfig());
 }

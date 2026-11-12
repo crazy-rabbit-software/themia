@@ -9,5 +9,5 @@ public sealed class RotationLockToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.RotationLock;
 
-    public override WidgetConfig Clone() => new RotationLockToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new RotationLockToggleConfig());
 }

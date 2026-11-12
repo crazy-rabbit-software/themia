@@ -9,5 +9,5 @@ public sealed class ColorFiltersToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.ColorFilters;
 
-    public override WidgetConfig Clone() => new ColorFiltersToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new ColorFiltersToggleConfig());
 }

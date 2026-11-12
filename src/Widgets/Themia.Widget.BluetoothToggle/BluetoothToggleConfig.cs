@@ -9,5 +9,5 @@ public sealed class BluetoothToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.Bluetooth;
 
-    public override WidgetConfig Clone() => new BluetoothToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new BluetoothToggleConfig());
 }

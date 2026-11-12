@@ -9,5 +9,5 @@ public sealed class SpatialSoundToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.SpatialSound;
 
-    public override WidgetConfig Clone() => new SpatialSoundToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new SpatialSoundToggleConfig());
 }

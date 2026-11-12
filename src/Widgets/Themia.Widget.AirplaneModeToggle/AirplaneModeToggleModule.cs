@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.AirplaneModeToggle;
 
@@ -28,10 +29,13 @@ public sealed class AirplaneModeToggleModule : IWidgetModule
         Label = AirplaneModeToggleStr.Toggles_AirplaneMode_Label.Local(),
         Description = AirplaneModeToggleStr.Toggles_AirplaneMode_Desc.Local(),
         Glyph = Glyphs.Airplane,
-        Sizing = _ => WidgetSizing.Legacy(120, 120),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 2),
     };
+
+    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

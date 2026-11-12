@@ -9,5 +9,5 @@ public sealed class NightLightToggleConfig : QuickToggleConfig
     [JsonIgnore]
     public override QuickToggle Toggle => QuickToggle.NightLight;
 
-    public override WidgetConfig Clone() => new NightLightToggleConfig { Style = Style };
+    public override WidgetConfig Clone() => CopyTo(new NightLightToggleConfig());
 }

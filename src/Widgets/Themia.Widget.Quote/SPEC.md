@@ -7,7 +7,7 @@ style offers [S-6074], setup [S-1860], the keyboard lease [S-800], the ladder ru
 
 Owning files: everything in this folder: `QuoteModule.cs` (descriptor, view factory, menu lines,
 JSON context), `QuoteConfig.cs`, `QuoteRotation.cs` (which quote shows and when, the bundled list,
-the key map `QuoteKeys`), `QuoteLayout.cs` (the marks, the ladder's steps), `QuoteView.cs`,
+the key map `QuoteKeys`), `QuoteLayout.cs` (the size, the lines, the sizing, the marks), `QuoteView.cs`,
 `QuoteMenu.cs` (its properties-menu lines), `Localization/Locales/` (its own `QuoteStr`, 30 languages).
 Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 

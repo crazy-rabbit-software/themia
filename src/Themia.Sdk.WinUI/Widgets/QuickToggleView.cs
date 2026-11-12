@@ -49,7 +49,7 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAwar
     private IWidgetSurface? _surface;
     private IToggleSource? _lease;
     private ToggleReading _preview = ToggleReading.Of(false);
-    private WidgetArea _area;
+    private ReadoutSize _size = ReadoutSizes.Default;
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -124,15 +124,24 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAwar
             QuickToggleStyle.Switch => TileLook.Switch,
             _ => TileLook.Tile,
         };
+        _size = config is QuickToggleConfig sized ? ReadoutSizes.Normalise(sized.Size) : ReadoutSizes.Default;
 
         Lay();
     }
 
-    /// <inheritdoc />
+    /// <summary>[S-11307] The card is fixed by the Size and the look: the box changes nothing.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
+    }
+
+    /// <summary>[S-11307] Its one option past its look, under the Style: its Size.</summary>
+    public static void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        if (config is QuickToggleConfig toggle)
+        {
+            menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, toggle));
+        }
     }
 
     public void Detach()
@@ -160,8 +169,8 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAwar
     // ---- layout ------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-3906] The Tile block in the card's inset: the glyph on the largest step above the name and
-    /// the state line, both planned at every size so switching moves nothing.
+    /// [S-3906] [S-11307] The Tile block in the card's inset: the glyph on the step its Size names above
+    /// the name and the state line, both planned at every size so switching moves nothing.
     /// </summary>
     private void Lay()
     {
@@ -170,7 +179,8 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAwar
             return;
         }
 
-        _tile.Size(_area.Width - (2 * FamilySpace.Inset), _area.Height - (2 * FamilySpace.Inset));
+        var width = _tile.Look == TileLook.Switch ? TileRules.SwitchWidthAt(_size) : TileRules.SideAt(_size);
+        _tile.Use(TileRules.GlyphAt(_size), width - (2 * FamilySpace.Inset));
         Paint();
     }
 

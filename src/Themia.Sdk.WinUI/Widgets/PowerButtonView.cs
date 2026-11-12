@@ -55,7 +55,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
 
     private IWidgetSurface? _surface;
     private PowerButton? _button;
-    private WidgetArea _area;
+    private ReadoutSize _size = ReadoutSizes.Default;
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -141,17 +141,26 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
     {
         var style = config is PowerButtonConfig { Style: var chosen } && Enum.IsDefined(chosen) ? chosen : PowerButtonStyle.Tile;
         _tile.Look = style == PowerButtonStyle.Round ? TileLook.Round : TileLook.Tile;
+        _size = config is PowerButtonConfig sized ? ReadoutSizes.Normalise(sized.Size) : ReadoutSizes.Default;
 
         _expiry?.Stop();
         _button?.Disarm();
         Lay();
     }
 
-    /// <inheritdoc />
+    /// <summary>[S-11307] The card is fixed by the Size and the look: the box changes nothing.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
+    }
+
+    /// <summary>[S-11307] Its one option past its look, under the Style: its Size.</summary>
+    public static void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        if (config is PowerButtonConfig button)
+        {
+            menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, button));
+        }
     }
 
     public void Detach()
@@ -183,8 +192,8 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
     // ---- layout ------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-1912] The Tile block in the card's inset, ringed: the glyph inside its ring's room, the name
-    /// under it; no state line. The armed sentence and a failure take the name's line, so arming
+    /// [S-1912] [S-11307] The Tile block in the card's inset, ringed: the glyph on the step its Size names
+    /// inside its ring's room, the name under it; no state line. The armed sentence and a failure take the name's line, so arming
     /// moves nothing.
     /// </summary>
     private void Lay()
@@ -194,7 +203,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
             return;
         }
 
-        _tile.Size(_area.Width - (2 * FamilySpace.Inset), _area.Height - (2 * FamilySpace.Inset), state: false);
+        _tile.Use(TileRules.GlyphAt(_size), TileRules.SideAt(_size) - (2 * FamilySpace.Inset), state: false);
         Paint();
     }
 

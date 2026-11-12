@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Sdk.Kit;
 
@@ -130,6 +131,47 @@ public static class TileRules
         (TileLook.Round, TileState.On) => new TileRoles(null, ColourRole.Accent, ColourRole.TextOnAccent, ColourRole.TextPrimary, ColourRole.TextSecondary),
         _ => new TileRoles(null, null, ColourRole.TextPrimary, ColourRole.TextPrimary, ColourRole.TextSecondary),
     };
+
+    // ---- the sized tile ([S-11307]) ---------------------------------------------------------
+
+    /// <summary>[S-11307] The glyph's step at each size: 28, 40, 68 (a round tile's circle, a ringed tile's ring).</summary>
+    public static TypeStep GlyphAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
+    {
+        ReadoutSize.Small => FamilyType.Big28,
+        ReadoutSize.Large => FamilyType.Hero68,
+        _ => FamilyType.Big40,
+    };
+
+    /// <summary>[S-11307] A Tile or Round tile's square at each size: 100, 120, 160 (the glyph, its label and state lines, the inset all round, and room for the name).</summary>
+    public static double SideAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
+    {
+        ReadoutSize.Small => 100,
+        ReadoutSize.Large => 160,
+        _ => 120,
+    };
+
+    /// <summary>
+    /// [S-11307] The Switch look's row at each size: 200, 240, 280 wide (at the least its glyph, a
+    /// sentence's room for its name and state, and the switch, <see cref="Switch"/>), 60 tall.
+    /// </summary>
+    public static double SwitchWidthAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
+    {
+        ReadoutSize.Small => 200,
+        ReadoutSize.Large => 280,
+        _ => 240,
+    };
+
+    /// <summary>[S-11307] The Switch look's height: the name over the state line in the inset.</summary>
+    public const double SwitchHeight = (2 * FamilySpace.Inset) + FamilyType.BodyLine + FamilyType.CaptionLine;
+
+    /// <summary>
+    /// [S-11307] A quick toggle's or a power button's card: fixed both ways by its look and Size, the Tile
+    /// and Round looks a square, the Switch look a row; nothing in it changes with the size but its scale.
+    /// </summary>
+    public static WidgetSizing Sizing(TileLook look, ReadoutSize size)
+        => WidgetSizing.Fixed(look == TileLook.Switch
+            ? new SizeDip(SwitchWidthAt(size), SwitchHeight)
+            : new SizeDip(SideAt(size), SideAt(size)));
 
     /// <summary>The largest of the family's glyph sizes at most <paramref name="room"/>, 16 at least.</summary>
     private static double Largest(double room)
