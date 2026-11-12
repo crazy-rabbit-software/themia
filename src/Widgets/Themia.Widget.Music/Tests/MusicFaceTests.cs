@@ -45,18 +45,43 @@ public sealed class MusicFaceTests
     }
 
     [Fact]
-    public void S1475_the_art_is_a_48_lead_until_the_area_is_tall_then_a_square_over_the_lines()
+    public void S1475_on_a_compact_width_the_art_is_a_48_lead_or_a_square_over_the_lines()
     {
-        Assert.Equal((MusicArt.Lead, 48d), (At(320, 240, MusicStyle.Artwork).Art, At(320, 240, MusicStyle.Artwork).ArtSize));
-        Assert.Equal(MusicArt.Lead, At(480, 160, MusicStyle.Artwork).Art);
+        // S: the column beside a side cover would be narrower than the transport, so the lead it is.
+        Assert.Equal((MusicArt.Lead, 48d), (At(200, 150, MusicStyle.Artwork).Art, At(200, 150, MusicStyle.Artwork).ArtSize));
 
-        // Tall: the content's width; L: the room the lines, the progress and the transport leave, less 8.
+        // Tall: the content's width, over the lines.
         Assert.Equal((MusicArt.Over, 168d), (At(200, 400, MusicStyle.Artwork).Art, At(200, 400, MusicStyle.Artwork).ArtSize));
-        Assert.Equal((MusicArt.Over, 240d), (At(560, 420, MusicStyle.Artwork).Art, At(560, 420, MusicStyle.Artwork).ArtSize));
 
         // A lead beside one line would stand over nothing: no artist, no lead.
-        Assert.Equal(MusicArt.None, At(320, 240, MusicStyle.Artwork, subtitle: false).Art);
+        Assert.Equal(MusicArt.None, At(200, 150, MusicStyle.Artwork, subtitle: false).Art);
         Assert.Equal(MusicArt.None, At(560, 420, MusicStyle.Text).Art);
+    }
+
+    [Fact]
+    public void S2155_from_a_regular_width_the_cover_is_a_square_at_the_left_as_tall_as_the_content()
+    {
+        // M: 180 of content, half of 288 is 144; Wide: the content's 100; L and XL: half the width.
+        Assert.Equal((MusicArt.Side, 144d), (At(320, 240, MusicStyle.Artwork).Art, At(320, 240, MusicStyle.Artwork).ArtSize));
+        Assert.Equal((MusicArt.Side, 100d), (At(480, 160, MusicStyle.Artwork).Art, At(480, 160, MusicStyle.Artwork).ArtSize));
+        Assert.Equal((MusicArt.Side, 264d), (At(560, 420, MusicStyle.Artwork).Art, At(560, 420, MusicStyle.Artwork).ArtSize));
+        Assert.Equal((MusicArt.Side, 384d), (At(800, 560, MusicStyle.Artwork).Art, At(800, 560, MusicStyle.Artwork).ArtSize));
+
+        // Beside it the lines and the transport keep the ladder's order of need; without an artist it stays.
+        Assert.True(At(320, 240, MusicStyle.Artwork) is { Subtitle: true, Progress: true, Controls: true });
+        Assert.Equal(MusicArt.Side, At(320, 240, MusicStyle.Artwork, subtitle: false).Art);
+    }
+
+    [Fact]
+    public void S2155_the_cover_gives_way_to_the_controls_and_never_goes_under_48()
+    {
+        // 240 wide: half of 208 would leave 92 beside it; the transport needs 112, so the cover is 84.
+        Assert.Equal((MusicArt.Side, 84d), (At(240, 240, MusicStyle.Artwork).Art, At(240, 240, MusicStyle.Artwork).ArtSize));
+        Assert.Equal(MusicFace.ColumnFloor, 240 - (2 * FamilySpace.Inset) - 84 - FamilySpace.ColumnGap);
+
+        // Narrower, the square would be under the family's 48: no side cover (the compact ladder).
+        Assert.NotEqual(MusicArt.Side, At(200, 240, MusicStyle.Artwork).Art);
+        Assert.Equal(MusicArt.None, At(120, 120, MusicStyle.Artwork).Art);
     }
 
     [Fact]

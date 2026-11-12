@@ -4,13 +4,17 @@ using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Music;
 
-/// <summary>[S-1475] Where now playing draws its art: none, a 48 lead beside the lines, a square over them, or edge to edge over the content (Cover).</summary>
+/// <summary>
+/// [S-1475] [S-2155] Where now playing draws its art: none, a 48 lead beside the lines, a square over them,
+/// edge to edge over the content (Cover), or a square at the left with the lines and the transport beside it (Side).
+/// </summary>
 public enum MusicArt
 {
     None,
     Lead,
     Over,
     Cover,
+    Side,
 }
 
 /// <summary>
@@ -26,10 +30,12 @@ public readonly record struct MusicPlan(TypeStep Title, bool Subtitle, bool Prog
 /// transport is the Controls row at the bottom inset (Previous, Play as the one main action, Next); the
 /// progress row (the elapsed time, the seek bar, the total, Caption tertiary at its two ends) stands 8
 /// over it. Height is spent in that order of need: the title, the transport, the artist, the progress
-/// ([S-666]: the track and what to do with it first). The art is data: a 48 lead beside the two lines
-/// from a regular width, a square over the lines once the area is expanded in height (at least 96, as
-/// large as the room left allows), or, in the Cover style, a band the card's width over everything
-/// else with the room left (at least 48). Text only draws none.
+/// ([S-666]: the track and what to do with it first). The art is data. In the Artwork style, from a
+/// regular width where it holds 48, it is a square at the left as tall as the content and at most half
+/// its width, the lines, the progress and the transport in the column beside it ([S-2155], so no room is
+/// left over); else a 48 lead beside the two lines, or a square over the lines once the area is
+/// expanded in height (at least 96, as large as the room left allows). In the Cover style it is a band
+/// the card's width over everything else with the room left (at least 48). Text only draws none.
 /// </summary>
 public static class MusicFace
 {
@@ -84,6 +90,11 @@ public static class MusicFace
                 size = band;
             }
         }
+        else if (style == MusicStyle.Artwork && Side(area, width, height) is var side && side >= FamilyShape.IconHuge)
+        {
+            art = MusicArt.Side;
+            size = side;
+        }
         else if (style == MusicStyle.Artwork)
         {
             var square = Math.Floor(Math.Min(width, rest - FamilySpace.S2));
@@ -100,6 +111,29 @@ public static class MusicFace
         }
 
         return new MusicPlan(title, artist, bar, controls, art, size);
+    }
+
+    /// <summary>
+    /// [S-2155] The column beside a side cover is never narrower than the whole transport (Previous,
+    /// Play, Next: three 32 buttons 8 apart), so the cover gives way before the controls do.
+    /// </summary>
+    public const double ColumnFloor = (3 * FamilyShape.IconButton) + (2 * ControlsRules.Gap);
+
+    /// <summary>
+    /// [S-2155] The side cover's square from a regular width: as tall as the content (the room between
+    /// the header and the bottom inset), at most half its width, and smaller where the column beside it
+    /// (12 from it) would be narrower than <see cref="ColumnFloor"/>; 0 on a compact width.
+    /// </summary>
+    public static double Side(WidgetArea area, double width, double height)
+    {
+        if (area.WidthClass < SizeClass.Regular || !double.IsFinite(width) || !double.IsFinite(height))
+        {
+            return 0;
+        }
+
+        var square = Math.Min(height, width / 2);
+        square = Math.Min(square, width - FamilySpace.ColumnGap - ColumnFloor);
+        return Math.Max(0, Math.Floor(square));
     }
 
     /// <summary>

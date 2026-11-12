@@ -12,7 +12,8 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-1475] Now playing's parts placed by <see cref="MusicFace"/>: the lines at the content's
 /// top, the progress row 8 over the transport, the transport (the Controls row) at the bottom inset,
-/// the art beside the lines, over them or, in the Cover style, as a band over everything else. One
+/// the art beside the lines, over them, at the left of them all ([S-2155]) or, in the Cover style, as a
+/// band over everything else. One
 /// pass from the plan; nothing is positioned by a computed offset (rows of a grid and the scale's
 /// margins only).
 /// </summary>
@@ -48,6 +49,7 @@ internal sealed partial class MusicView
         _coverArt.Visibility = Visible(plan.Art == MusicArt.Cover);
         _overArt.Visibility = Visible(plan.Art == MusicArt.Over);
         _leadArt.Visibility = Visible(plan.Art == MusicArt.Lead);
+        _sideArt.Visibility = Visible(plan.Art == MusicArt.Side);
         _content.Margin = new Thickness(FamilySpace.Inset, plan.Art == MusicArt.Cover ? FamilySpace.S2 : 0, FamilySpace.Inset, FamilySpace.Inset);
 
         switch (plan.Art)
@@ -58,6 +60,13 @@ internal sealed partial class MusicView
             case MusicArt.Over:
                 _overArt.Width = plan.ArtSize;
                 _overArt.Height = plan.ArtSize;
+                break;
+            case MusicArt.Side:
+                _sideArt.Width = plan.ArtSize;
+                _sideArt.Height = plan.ArtSize;
+
+                // The placeholder is the largest family glyph within half the square.
+                _sidePlaceholder.FontSize = plan.ArtSize >= 2 * FamilyShape.IconHuge ? FamilyShape.IconHuge : FamilyShape.IconLarge;
                 break;
         }
 

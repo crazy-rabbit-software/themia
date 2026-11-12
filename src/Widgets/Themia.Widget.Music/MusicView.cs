@@ -51,6 +51,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
     private readonly Border _leadArt;
     private readonly Border _overArt;
     private readonly Border _coverArt;
+
+    /// <summary>[S-2155] The side cover: a square at the content's left, the lines and the transport beside it.</summary>
+    private readonly Border _sideArt;
+    private readonly FontIcon _sidePlaceholder;
     private readonly Image[] _pictures;
     private readonly FontIcon[] _placeholders;
     private readonly string _glyph;
@@ -111,6 +115,11 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         var (lead, leadPicture, leadPlaceholder) = ArtFrame(_glyph, FamilyShape.Icon, square: true);
         var (over, overPicture, overPlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: true);
         var (cover, coverPicture, coverPlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: false);
+        var (side, sidePicture, sidePlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: true);
+        side.Margin = new Thickness(0, 0, FamilySpace.ColumnGap, 0);
+        Grid.SetRowSpan(side, 4);
+        _sideArt = side;
+        _sidePlaceholder = sidePlaceholder;
         lead.Width = MusicFace.LeadArt;
         lead.Height = MusicFace.LeadArt;
         lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
@@ -118,8 +127,8 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _leadArt = lead;
         _overArt = over;
         _coverArt = cover;
-        _pictures = [leadPicture, overPicture, coverPicture];
-        _placeholders = [leadPlaceholder, overPlaceholder, coverPlaceholder];
+        _pictures = [leadPicture, overPicture, coverPicture, sidePicture];
+        _placeholders = [leadPlaceholder, overPlaceholder, coverPlaceholder, sidePlaceholder];
 
         _track.TextTrimming = TextTrimming.CharacterEllipsis;
         _subtitle.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -165,6 +174,14 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         Grid.SetRow(_times, 2);
         Grid.SetRow(_controls, 3);
+
+        // [S-2155] The side cover's column (empty, so no room, while it is not shown) and the rest beside it.
+        _content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        Grid.SetColumn(_top, 1);
+        Grid.SetColumn(_times, 1);
+        Grid.SetColumn(_controls, 1);
+        _content.Children.Add(_sideArt);
         _content.Children.Add(_top);
         _content.Children.Add(_times);
         _content.Children.Add(_controls);

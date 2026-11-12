@@ -24,11 +24,23 @@ module host's `MusicHostTests`.
   Caption, tertiary, at its two ends in columns as wide as their widest case (every figure an 8, so
   the bar does not move as the seconds go by), the seek bar between them 8 from each (its rail the
   Track role, its fill and thumb the accent). Height goes to the title, then the transport, then the
-  artist, then the progress ([S-666]). The art is data: a 48 lead beside the two lines from a regular
-  width; once the view area is expanded in height a square over the lines, as large as the room left
-  allows (at least 96). No album line of its own, no larger title or 40 transport on L/XL (concise
+  artist, then the progress ([S-666]). The art is data: where the side cover does not hold
+  ([S-2155]: XS, S, Tall), a 48 lead beside the two lines from a regular width; once the view area
+  is expanded in height a square over the lines, as large as the room left allows (at least 96). No album line of its own, no larger title or 40 transport on L/XL (concise
   first). A disabled transport button keeps its place, its glyph disabled. Nothing playing is the
   Status row at the top (the music glyph and why, [S-6714]). No spectrum ([S-3200]).
+- **[S-2155]** In the Artwork style the art takes the room (owner decision 2026-11-12;
+  `MusicFace.Side`, tests `MusicFaceTests`): from a regular width the cover is a square at the
+  content's left, as tall as the room between the header and the bottom inset, at most half the
+  content's width, in the one radius (no picture: today's placeholder, the music glyph on the control
+  fill, 48 from a 96 square, else 32); 12 from it a column with the title and the artist at its top
+  and the progress row and the transport (Play the one accent action) at its bottom, by the ladder
+  above. Where that column would be narrower than the whole transport (112: three 32 buttons 8
+  apart) the cover gives way first, a smaller square, never the controls; a square that would be
+  under the family's 48 is not drawn and the compact ladder above stands (XS, S and Tall at their
+  tier sizes; M 144, Wide 100, L 264, XL 384). At L and XL the square is half the width and the
+  room under it, beside the column's foot, stays empty ([S-666]). The Cover and Text styles keep
+  their ladders.
 - **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
   `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
   **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
