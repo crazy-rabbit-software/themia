@@ -23,12 +23,17 @@ the wave and the waveform), `Preview/` (Debug renders: `--state playing|unavaila
 - **[S-3205]** Layout (`VisualizerLayout.Plan`): one part, the spectrum, edge to edge (user decision
   2026-10-12, like the meters' charts [S-215]/[S-1824]): no inset, the box is the card's whole
   content area and the card's rounded corners clip what reaches them (the 16/12 DIP inset is gone).
-  The linear designs run along the long side: standing on the floor of a tile or a strip, lying
-  across a Tall column (growing from the start edge, bass at the bottom). The count is the largest
+  The linear designs stand on the card's floor along its width at every size (a column no longer
+  lays them across: [S-11350]). The count is the largest
   of 24/12/8/6 (each a whole group of the 24 bands) whose bars stay ≥ 6 DIP thick (LED columns ≥ 10:
   XS 8, S 12, M and up 24); past 24 they only thicken, so a larger tile draws the same bands larger
   (bars: XS 12, S and up 24). Gap = run/100,
   2..6 DIP. A bar is the loudest band of its group; bad levels clamp to 0..1.
+- **[S-11350]** **Its size is a free range with a maximum** (owner decision 2026-11-12: content decides
+  the size): every style 160 to 800 wide and 80 to 320 tall, a new one 320 × 160; inside it nothing
+  appears or goes, the spectrum only gets longer and taller (more bars as the width allows them,
+  [S-3205]). One atom per style as before; it stays headerless. Tests
+  `AudioVisualizerTests.S11350_`.
 - **[S-3206]** Idle is a flat baseline: every bar (spoke, curve point) a stub as thick as the family's
   track (4 DIP, [S-6704]), the same on every tile, no text; the LED columns light their first cell. A
   device the capture cannot reach ([S-3204]) draws that baseline in the disabled role ([S-1940],
@@ -44,8 +49,8 @@ the wave and the waveform), `Preview/` (Debug renders: `--state playing|unavaila
   **Waveform** (glyph E95E Health): not a spectrum but the sound itself, one accent line
   (`AccentFillColorDefaultBrush`) swinging about the centre line, like an oscilloscope. Same view,
   drawing and capture; never a header ([S-3711]).
-- **[S-3213]** Its plan (`VisualizerLayout.Plan`, `AudioVisualizerStyle.Waveform`): along the long side like
-  the linear designs (down a Tall column), a point every 4 DIP (`ScopeStep`) from 16 up to the
+- **[S-3213]** Its plan (`VisualizerLayout.Plan`, `AudioVisualizerStyle.Waveform`): along the width like
+  the linear designs, a point every 4 DIP (`ScopeStep`) from 16 up to the
   trace's 128 (`Oscilloscope.Points`), the line the family's stroke (2 DIP), its track (4) from a short
   side of 240 (`ThickLineFrom`; never a thickness between, [S-6704]), the swing the short side less the
   line's half-thickness. `Oscilloscope.Resample` fits the 128-point trace to

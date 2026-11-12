@@ -116,8 +116,8 @@ public class AudioVisualizerTests
         foreach (var style in Linear)
         {
             var plan = VisualizerLayout.Plan(area, style);
-            var along = plan.Horizontal ? area.Height : area.Width;
-            var across = plan.Horizontal ? area.Width : area.Height;
+            var along = area.Width;
+            var across = area.Height;
 
             Assert.True(plan.Thickness >= VisualizerLayout.MinThickness, $"{tier} {style}: {plan.Thickness}");
             Assert.Equal(along, (plan.Bars * plan.Thickness) + ((plan.Bars - 1) * plan.Gap), 6);
@@ -126,13 +126,16 @@ public class AudioVisualizerTests
     }
 
     [Fact]
-    public void S3205_a_tall_column_lays_the_bars_across_and_a_strip_or_tile_stands_them_up()
+    public void S11350_its_size_is_a_free_range_with_a_maximum_for_every_style()
     {
-        Assert.True(VisualizerLayout.Plan(Tier("Tall")).Horizontal);
-        Assert.False(VisualizerLayout.Plan(Tier("Wide")).Horizontal);
-        Assert.False(VisualizerLayout.Plan(Tier("M")).Horizontal);
-        Assert.False(VisualizerLayout.Plan(Tier("XL")).Horizontal);
-        Assert.False(VisualizerLayout.Plan(Tier("Tall"), AudioVisualizerStyle.Radial).Horizontal);
+        var kind = ModuleCatalog.Of(new WidgetId("audioVisualizer"));
+        foreach (var style in Enum.GetValues<AudioVisualizerStyle>())
+        {
+            var sizing = kind.Sizing(new AudioVisualizerConfig { Style = style });
+            Assert.Equal((160d, 80d), (sizing.Min.Width, sizing.Min.Height));
+            Assert.Equal((320d, 160d), (sizing.Natural.Width, sizing.Natural.Height));
+            Assert.Equal((800d, 320d), (sizing.Max.Width, sizing.Max.Height));
+        }
     }
 
     [Fact]
@@ -314,10 +317,9 @@ public class AudioVisualizerTests
     {
         var area = Tier(tier);
         var plan = VisualizerLayout.Plan(area, AudioVisualizerStyle.Waveform);
-        var along = plan.Horizontal ? area.Height : area.Width;
-        var across = plan.Horizontal ? area.Width : area.Height;
+        var along = area.Width;
+        var across = area.Height;
 
-        Assert.Equal(area.Shape == AreaShape.Tall, plan.Horizontal);
         Assert.Equal(along, plan.Run);
         Assert.Equal(across, plan.Length);
         Assert.InRange(plan.Bars, VisualizerLayout.MinScopePoints, Oscilloscope.Points);
@@ -352,7 +354,7 @@ public class AudioVisualizerTests
     {
         var area = Tier(tier);
         var plan = VisualizerLayout.Plan(area, AudioVisualizerStyle.Waveform);
-        var across = plan.Horizontal ? area.Width : area.Height;
+        var across = area.Height;
         Assert.Equal(across >= VisualizerLayout.ThickLineFrom ? 4 : 2, plan.Thickness);
     }
 

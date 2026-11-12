@@ -8,8 +8,6 @@ namespace Themia.Core.Widgets;
 /// area, and the card's rounded corners clip what reaches them.
 /// </summary>
 /// <param name="Style">The design.</param>
-/// <param name="Horizontal">The run lies along a tall column's height (levels grow from its start
-/// edge, bass at the bottom) rather than along a tile's or a strip's width.</param>
 /// <param name="Bars">How many bands are drawn (bars, columns, curve points; spokes per side for
 /// <see cref="AudioVisualizerStyle.Radial"/>): a divisor of <see cref="Spectrum.Bands"/>.</param>
 /// <param name="Thickness">One bar's (column's, spoke's) thickness, DIPs.</param>
@@ -24,7 +22,6 @@ namespace Themia.Core.Widgets;
 /// <param name="Run">[S-3213] The waveform's run along the long side (<see cref="AudioVisualizerStyle.Waveform"/>), DIPs; <see cref="Bars"/> is its point count there.</param>
 public readonly record struct VisualizerPlan(
     AudioVisualizerStyle Style,
-    bool Horizontal,
     int Bars,
     double Thickness,
     double Gap,
@@ -76,7 +73,7 @@ public static class VisualizerLayout
     {
         if (!area.IsMeasured)
         {
-            return new VisualizerPlan(style, false, Counts[^1], MinThickness, 2, 0, 1);
+            return new VisualizerPlan(style, Counts[^1], MinThickness, 2, 0, 1);
         }
 
         return style switch
@@ -104,26 +101,24 @@ public static class VisualizerLayout
         => thickness <= 0 ? 0 : Math.Min(FamilyShape.Round(thickness, thickness), FamilyShape.Radius);
 
     /// <summary>
-    /// [S-3213] The waveform: along the long side like the linear designs (down a Tall column), a point
+    /// [S-3213] The waveform: along the width like the linear designs, a point
     /// every <see cref="ScopeStep"/> DIPs up to the trace's <see cref="Oscilloscope.Points"/>, the line the
     /// family's stroke (2), its track (4) from a short side of <see cref="ThickLineFrom"/>, swinging about
     /// the centre line across the short side.
     /// </summary>
     private static VisualizerPlan PlanScope(WidgetArea area)
     {
-        var horizontal = area.Shape == AreaShape.Tall;
-        var along = horizontal ? area.Height : area.Width;
-        var across = horizontal ? area.Width : area.Height;
+        var along = area.Width;
+        var across = area.Height;
         var points = Math.Clamp((int)Math.Floor(along / ScopeStep) + 1, MinScopePoints, Oscilloscope.Points);
         var line = across >= ThickLineFrom ? FamilyShape.Track : FamilyShape.Stroke;
-        return new VisualizerPlan(AudioVisualizerStyle.Waveform, horizontal, points, line, 0, across, 0, Run: along);
+        return new VisualizerPlan(AudioVisualizerStyle.Waveform, points, line, 0, across, 0, Run: along);
     }
 
     private static VisualizerPlan PlanLinear(WidgetArea area, AudioVisualizerStyle style)
     {
-        var horizontal = area.Shape == AreaShape.Tall;
-        var along = horizontal ? area.Height : area.Width;
-        var across = horizontal ? area.Width : area.Height;
+        var along = area.Width;
+        var across = area.Height;
 
         // The gap grows with the run, so a large tile does not read as a fence of thin slits.
         var gap = Math.Clamp(Math.Round(along / 100), 2, 6);
@@ -148,11 +143,11 @@ public static class VisualizerLayout
                 ? Math.Clamp((int)Math.Floor((across + gap + Disclosure.Tolerance) / (thickness + gap)), 1, MaxCells)
                 : 1;
             var cell = Math.Max(0, (across - (gap * (cells - 1))) / cells);
-            return new VisualizerPlan(style, horizontal, bars, thickness, gap, across, 1.0 / cells, cells, cell);
+            return new VisualizerPlan(style, bars, thickness, gap, across, 1.0 / cells, cells, cell);
         }
 
         var floor = across > 0 ? Math.Min(1, Baseline / across) : 1;
-        return new VisualizerPlan(style, horizontal, bars, thickness, gap, across, floor);
+        return new VisualizerPlan(style, bars, thickness, gap, across, floor);
     }
 
     private static VisualizerPlan PlanRadial(WidgetArea area)
@@ -172,7 +167,7 @@ public static class VisualizerLayout
         }
 
         var floor = length > 0 ? Math.Min(1, Baseline / length) : 1;
-        return new VisualizerPlan(AudioVisualizerStyle.Radial, false, bars, Spoke(ring, bars), 0, length, floor,
+        return new VisualizerPlan(AudioVisualizerStyle.Radial, bars, Spoke(ring, bars), 0, length, floor,
             Radius: ring, CenterX: area.Width / 2, CenterY: area.Height / 2);
     }
 

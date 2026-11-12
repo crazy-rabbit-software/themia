@@ -34,7 +34,7 @@ public sealed class AudioVisualizerModule : IWidgetModule
         Label = AudioVisualizerStr.Styles_AudioVisualizer_Label.Local(),
         Description = AudioVisualizerStr.Styles_AudioVisualizer_Desc.Local(),
         Glyph = Glyphs.Visualizer,
-        Sizing = _ => WidgetSizing.Legacy(320, 160),
+        Sizing = _ => WidgetSizing.Range(new(160, 80), new(320, 160), new(800, 320)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 1),
     };

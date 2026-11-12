@@ -196,7 +196,7 @@ internal sealed partial class SpectrumCanvas : Canvas
     private void ArrangeBars(VisualizerPlan plan, bool mirrored)
     {
         var radius = Radius(plan.Thickness);
-        var origin = mirrored ? 0.5 : (plan.Horizontal ? 0 : 1);
+        var origin = mirrored ? 0.5 : 1;
 
         for (var i = 0; i < _bars.Length; i++)
         {
@@ -212,25 +212,12 @@ internal sealed partial class SpectrumCanvas : Canvas
             bar.RadiusX = radius;
             bar.RadiusY = radius;
 
-            if (plan.Horizontal)
-            {
-                // A column: the bars lie across it, the bass at the bottom.
-                bar.Width = plan.Length;
-                bar.Height = plan.Thickness;
-                bar.RenderTransformOrigin = new Point(origin, 0.5);
-                SetLeft(bar, 0);
-                SetTop(bar, ((plan.Bars - 1) * (plan.Thickness + plan.Gap)) - step);
-                _scales[i].ScaleY = 1;
-            }
-            else
-            {
-                bar.Width = plan.Thickness;
-                bar.Height = plan.Length;
-                bar.RenderTransformOrigin = new Point(0.5, origin);
-                SetLeft(bar, step);
-                SetTop(bar, 0);
-                _scales[i].ScaleX = 1;
-            }
+            bar.Width = plan.Thickness;
+            bar.Height = plan.Length;
+            bar.RenderTransformOrigin = new Point(0.5, origin);
+            SetLeft(bar, step);
+            SetTop(bar, 0);
+            _scales[i].ScaleX = 1;
 
             bar.Visibility = Visibility.Visible;
         }
@@ -305,20 +292,10 @@ internal sealed partial class SpectrumCanvas : Canvas
             cell.RadiusX = radius;
             cell.RadiusY = radius;
 
-            if (plan.Horizontal)
-            {
-                cell.Width = plan.Cell;
-                cell.Height = plan.Thickness;
-                SetLeft(cell, rowOffset);
-                SetTop(cell, ((plan.Bars - 1) * (plan.Thickness + plan.Gap)) - columnOffset);
-            }
-            else
-            {
-                cell.Width = plan.Thickness;
-                cell.Height = plan.Cell;
-                SetLeft(cell, columnOffset);
-                SetTop(cell, plan.Length - plan.Cell - rowOffset);
-            }
+            cell.Width = plan.Thickness;
+            cell.Height = plan.Cell;
+            SetLeft(cell, columnOffset);
+            SetTop(cell, plan.Length - plan.Cell - rowOffset);
 
             cell.Fill = _unlit;
             cell.Visibility = Visibility.Visible;
@@ -361,14 +338,7 @@ internal sealed partial class SpectrumCanvas : Canvas
                 {
                     var level = Math.Max(_plan.Floor, _grouped[i]);
 
-                    if (_plan.Horizontal)
-                    {
-                        _scales[i].ScaleX = level;
-                    }
-                    else
-                    {
-                        _scales[i].ScaleY = level;
-                    }
+                    _scales[i].ScaleY = level;
                 }
 
                 break;
@@ -526,7 +496,5 @@ internal sealed partial class SpectrumCanvas : Canvas
     private double ActualRun() => (_plan.Bars * _plan.Thickness) + ((_plan.Bars - 1) * _plan.Gap);
 
     /// <summary>A point of the run (position along it, height above its base) on the canvas.</summary>
-    private Point Map(double position, double height, double along) => _plan.Horizontal
-        ? new Point(height, along - position)
-        : new Point(position, _plan.Length - height);
+    private Point Map(double position, double height, double along) => new(position, _plan.Length - height);
 }
