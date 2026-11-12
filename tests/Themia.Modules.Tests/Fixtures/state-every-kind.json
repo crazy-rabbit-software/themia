@@ -342,6 +342,8 @@
           "scale": 1,
           "config": {
             "kind": "countdown",
+            "size": "Medium",
+            "showProgress": false,
             "style": "text",
             "label": "",
             "format": "Auto",
@@ -370,6 +372,7 @@
           "scale": 1,
           "config": {
             "kind": "pomodoro",
+            "size": "Medium",
             "style": "ring",
             "workMinutes": 25,
             "breakMinutes": 5,
@@ -1900,6 +1903,8 @@
           "scale": 1,
           "config": {
             "kind": "stopwatch",
+            "size": "Medium",
+            "lapRows": 0,
             "phase": "Idle",
             "bankedMs": 0,
             "lapsMs": []
@@ -1927,6 +1932,7 @@
           "scale": 1,
           "config": {
             "kind": "alarm",
+            "size": "Medium",
             "time": "07:00",
             "on": false,
             "label": "",
@@ -2035,6 +2041,8 @@
           "scale": 1,
           "config": {
             "kind": "focusSession",
+            "size": "Medium",
+            "ring": false,
             "minutes": 30,
             "doNotDisturb": true
           }

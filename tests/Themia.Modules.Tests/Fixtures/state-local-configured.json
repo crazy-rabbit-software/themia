@@ -136,6 +136,7 @@
           "scale": 1,
           "config": {
             "kind": "alarm",
+            "size": "Medium",
             "time": "07:30",
             "days": [
               "mon",
@@ -170,6 +171,8 @@
           "scale": 1,
           "config": {
             "kind": "focusSession",
+            "size": "Medium",
+            "ring": false,
             "minutes": 50,
             "doNotDisturb": false
           }
