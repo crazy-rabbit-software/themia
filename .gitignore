@@ -30,3 +30,5 @@ store/out/
 # ---- Store screenshots -------------------------------------------------------------------
 # store/capture.ps1 writes here; the scenes and wallpapers next to it are the source.
 store/out/
+# node store/wallpapers.mjs fetches these from the sources store/wallpapers.json lists.
+store/wallpapers/

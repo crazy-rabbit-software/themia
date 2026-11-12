@@ -1,0 +1,126 @@
+{
+  "$comment": "The Store desktops' wallpapers: illustrations by other people, free to use (each entry names its licence). The files are not in the repository: node store/wallpapers.mjs fetches each from its source and fits it to 3840 x 2160 under store/wallpapers/ (git-ignored). The owner chose these eleven on 2026-11-12.",
+  "wallpapers": [
+    {
+      "name": "beach-sunset",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/sunset-over-the-beach-and-mountains-29qWkaivnac",
+      "download": "https://images.unsplash.com/vector-1752157581850-5d2ef1a868d5?w=3840&fm=png",
+      "author": "karem adem",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Glowing sun over a curving beach and banded peach/teal headlands; rich textures, warm, mid-light."
+    },
+    {
+      "name": "cactus-island",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/tall-cacti-on-rocky-island-in-vast-white-desert-V2P8NmvecQE",
+      "download": "https://images.unsplash.com/vector-1771967673485-8724371df44d?w=3840&fm=png",
+      "author": "WILLIAN REIS",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Rocky island of tall cacti on a white salt flat under a blue sky with clouds, distant blue peaks; detailed, bright daylight. Light."
+    },
+    {
+      "name": "desert-arch",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/hiker-stands-on-natural-arch-in-desert-landscape-hjG1ACswZXk",
+      "download": "https://images.unsplash.com/vector-1777222012494-3c8550637c3d?w=3840&fm=png",
+      "author": "Alghozy",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Cave frame onto a red stone arch, blue sky and snowy peaks, tiny hiker on the arch; vivid daylight, dark edges. Mid."
+    },
+    {
+      "name": "desert-cave",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/lone-figure-stands-at-cave-entrance-overlooking-desert-landscape-P65M-hx199k",
+      "download": "https://images.unsplash.com/vector-1777302627735-6ec93bc2b9b1?w=3840&fm=png",
+      "author": "Alghozy",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Looking out of a dark cave mouth onto a sunlit desert canyon, tiny figure in the opening; dark frame, warm centre. Dark."
+    },
+    {
+      "name": "golden-dunes",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/desert-landscape-with-stylized-sand-dunes-wOddDcCnuZ8",
+      "download": "https://images.unsplash.com/vector-1782311568586-e2c5c29e1b39?h=2160&fm=png",
+      "author": "Balaji Krishnamurty",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Stylised ochre and cream sand dunes, no sky detail; warm, light-mid."
+    },
+    {
+      "name": "night-trees",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/silhouetted-trees-under-moon-and-stars-jwBJOj6gakI",
+      "download": "https://images.unsplash.com/vector-1787878878093-379dbedcccae?w=3840&fm=png",
+      "author": "saatvik 5554",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Black tree silhouettes left and right, big orange moon, starry violet sky; dark night (busy at the edges)."
+    },
+    {
+      "name": "pale-dunes",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/footprints-trail-across-rolling-sand-dunes-under-a-pale-sky-MqdHWXVBWcI",
+      "download": "https://images.unsplash.com/vector-1777223156079-ebb58f00ba68?w=3840&fm=png",
+      "author": "Alghozy",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Coral-peach dune sea with a footprint trail along a ridge, pale off-white sky; bright, warm. Light."
+    },
+    {
+      "name": "red-canyon",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/desert-canyon-landscape-with-mesas-and-sparse-vegetation-gOq_ruZyxns",
+      "download": "https://images.unsplash.com/vector-1777222917128-87054e28f375?w=3840&fm=png",
+      "author": "Alghozy",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Red-rock canyon walls framing a pale-blue sky, sage shrubs in front; bright daylight, warm terracotta; same hand as liked 24. Light."
+    },
+    {
+      "name": "red-desert-dusk",
+      "source": "openclipart",
+      "page": "https://openclipart.org/detail/306089",
+      "download": "https://openclipart.org/download/306089",
+      "author": "GDJ",
+      "licence": "Public domain (CC0 1.0, Openclipart)",
+      "licenceUrl": "https://openclipart.org/share  |  https://creativecommons.org/publicdomain/zero/1.0/",
+      "fetched": "2026-11-12",
+      "shows": "Flat parallax desert at dusk: red/pink mesas, big sun rings, cactus silhouettes; vivid warm, dark base. Mid-dark."
+    },
+    {
+      "name": "tropical-bay",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/lush-green-hills-overlooking-a-tropical-beach-and-ocean-fkMae_hrBrI",
+      "download": "https://images.unsplash.com/vector-1777222917158-18d7de997d83?h=2160&fm=png",
+      "author": "Alghozy",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Turquoise bay with sandy beach seen past green headlands; light daylight coast (busy lower-left)."
+    },
+    {
+      "name": "warm-mountains",
+      "source": "unsplash",
+      "page": "https://unsplash.com/illustrations/warm-toned-mountain-landscape-with-foliage-ua598LHEvBE",
+      "download": "https://images.unsplash.com/vector-1760426759097-b525b5dcfa6f?w=3840&fm=png",
+      "author": "Anna Magenta",
+      "licence": "Unsplash License",
+      "licenceUrl": "https://unsplash.com/license",
+      "fetched": "2026-11-12",
+      "shows": "Terracotta/orange layered mountains with leafy foliage in the bottom corners; warm, mid-light."
+    }
+  ]
+}
