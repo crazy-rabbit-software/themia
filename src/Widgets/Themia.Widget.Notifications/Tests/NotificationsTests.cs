@@ -1,33 +1,57 @@
-using System.Text.Json;
+using Themia.Core.Localization;
 using Themia.Core.Model;
-using Themia.Core.Shell;
-using Themia.Core.Storage;
-using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Xunit;
 
 namespace Themia.Widget.Notifications.Tests;
 
-/// <summary>[S-4404] The notification widget's ladder. Moved with the widget from Core's WindowsPanelsTests, the ladder on the family's rows.</summary>
+/// <summary>[S-11404] The notification list states its rows: its plan and its size from its config.</summary>
 public sealed class NotificationsTests
 {
-    [Theory]
-    [InlineData(120, 84, 1, false, false)]   // XS: the titles alone
-    [InlineData(200, 114, 1, true, false)]   // S: icon, title, when
-    [InlineData(480, 124, 1, true, false)]   // Wide
-    [InlineData(320, 204, 2, true, false)]   // M: the body under the title
-    [InlineData(200, 364, 2, true, true)]    // Tall: under app headings
-    [InlineData(560, 384, 2, true, true)]    // L
-    public void S4404_the_ladder_rows_then_the_body_then_app_headings(double width, double height, int lines, bool wide, bool grouped)
+    [Fact]
+    public void S11404_a_new_list_is_four_notifications_of_two_lines_flat_with_icons_and_times()
     {
-        var plan = NotificationsLayout.Plan(new WidgetArea(width, height));
+        var config = new NotificationsConfig();
+        var plan = NotificationsLayout.Plan(config);
 
-        Assert.Equal(lines, plan.Lines);
-        Assert.Equal(wide, plan.Lead);
-        Assert.Equal(wide, plan.Time);
-        Assert.Equal(grouped, plan.Grouped);
-        Assert.Equal(FamilyShape.RowHeight(lines), plan.RowHeight);
+        Assert.Equal(new NotificationPlan(2, true, true, false, NotificationRules.FoldAt), plan);
+        Assert.Equal(new SizeDip(300, 36 + (4 * 40) + 12), new NotificationsModule().Descriptor.Sizing(config).Natural);
+    }
+
+    [Fact]
+    public void S11404_one_line_and_app_headings_are_the_config_s()
+    {
+        var plan = NotificationsLayout.Plan(new NotificationsConfig { Lines = 1, AppHeadings = true });
+        Assert.Equal(1, plan.Lines);
+        Assert.True(plan.Grouped);
+        Assert.Equal(FamilyShape.Row1, plan.RowHeight);
+    }
+
+    [Fact]
+    public void S11404_the_menu_offers_rows_lines_and_the_headings_switch()
+    {
+        var config = new NotificationsConfig();
+        var menu = new WidgetMenuLines(() => { }, _ => { });
+        new NotificationsModule().MenuLines(menu, config);
+
+        Assert.Equal(
+            [Str.Kit_Rows.Text(), Str.Kit_Lines.Text(), NotificationsStr.Notifications_AppHeadings.Text()],
+            menu.Lines.Select(l => l.Text));
+        menu.Lines[2].Action!();
+        Assert.True(config.AppHeadings);
+    }
+
+    [Fact]
+    public void S11404_dragging_sets_rows_and_out_of_range_is_repaired()
+    {
+        var next = (NotificationsConfig)new NotificationsModule().Descriptor.SizeSets!(new NotificationsConfig(), new SizeDip(300, 36 + (6 * 40) + 12));
+        Assert.Equal(6, next.Rows);
+
+        var wild = new NotificationsConfig { Rows = 0, Lines = 5 };
+        Assert.NotEmpty(wild.Repair());
+        Assert.Equal((1, 2), (wild.Rows, wild.Lines));
     }
 }

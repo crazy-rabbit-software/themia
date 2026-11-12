@@ -1,5 +1,8 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "notifications.appHeadings"
+  ],
+  "notifications.appHeadings": "Under app headings",
   "panels.notifications.allow": "Allow",
   "panels.notifications.clearAll": "Clear all",
   "panels.notifications.clearApp": "Clear all from {app}",

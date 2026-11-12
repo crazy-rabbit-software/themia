@@ -8,16 +8,23 @@ sender's name ([S-4405]), opening a sender ([S-4406]), dismissals ([S-4407]) and
 `NotificationRules`.
 
 Owning files: everything in this folder: `NotificationsModule.cs` (descriptor, glyph, view factory,
-JSON context), `NotificationsConfig.cs` (empty: nothing to set, no settings page, [S-1750]),
+JSON context), `NotificationsConfig.cs` (its rows, lines and app headings, [S-11404]),
 `NotificationsView.cs` (the list through its host, the senders' icons through the installed
-`AppIconSource`, the keys), `NotificationsLayout.cs` (the ladder), `Preview/` (Debug renders:
+`AppIconSource`, the keys), `NotificationsLayout.cs` (the plan from the config), `Preview/` (Debug renders:
 `--state list|many|open|empty|denied|unspecified|unsupported`), `Localization/Locales/` (its own
 `NotificationsStr`, 30 languages). Tests: `Tests/NotificationsTests.cs` (run by
 `tests/Themia.Modules.Tests`); that it asks no setting up is the module host's `WindowsPanelsHostTests`.
 
-- **[S-4400]** Kind `Notifications` (121), add menu Calendar & mail ([S-3511]), 320×320, glyph the bell. No
-  settings (`NotificationsConfig` is empty, so no page, [S-1750]); never needs setting up.
-- **[S-4404]** The ladder (`NotificationsLayout.Plan`) on the family's rows ([S-6711], [S-6712]): the list
+- **[S-4400]** Kind `Notifications` (121), add menu Calendar & mail ([S-3511]), glyph the bell; its
+  settings are [S-11404]'s; never needs setting up.
+- **[S-11404]** **It states its rows** ([S-2440]): `Rows` (1..20, default 4) notifications, `Lines`
+  per notification (1: the title with when it came; 2: its body under it, default) and **Under app
+  headings** (`AppHeadings`, off by default: one list newest first, each row its app's icon; on: the
+  apps' headings of [S-4402], a heading a row of 28 inside the rows). Every row has its icon and its
+  time at every width. 220..520 wide, a new one 300 × 208; the height follows the rows; dragging the
+  bottom edge sets Rows; more scroll inside them (the wheel as before). Nothing appears or disappears
+  with the size: [S-4404]'s ladder is gone. Tests `NotificationsTests`.
+- **[S-4404]** *(Retired by [S-11404]: lines and headings are the config's.)* The ladder (`NotificationsLayout.Plan`) on the family's rows ([S-6711], [S-6712]): the list
   at every size (the header's neutral count says how many, so the small tile has no bell face of its
   own; G2, 2026-10-29); a notification's title the name, when it came the value, its body on one line
   under it (its own breaks read as spaces) from a regular tile; each row's app icon and the time from a

@@ -348,7 +348,10 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "notifications"
+            "kind": "notifications",
+            "rows": 4,
+            "lines": 2,
+            "appHeadings": false
           }
         }
       ]

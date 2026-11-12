@@ -7,7 +7,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Notifications;
 
 [assembly: ThemiaWidget("notifications", typeof(NotificationsModule))]
@@ -32,10 +34,20 @@ public sealed class NotificationsModule : IWidgetModule
         Label = NotificationsStr.Panels_Notifications_Label.Local(),
         Description = NotificationsStr.Panels_Notifications_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(320, 320),
+        Sizing = c => KitSizing.Sizing(((NotificationsConfig)c).RowsShown, addFooter: false),
+        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((NotificationsConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 2, 0),
     };
+
+    /// <summary>[S-11404] Rows, lines per notification, and the app headings.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        var notifications = (NotificationsConfig)config;
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, notifications));
+        menu.Lines.Add(menu.Toggle(null, NotificationsStr.Notifications_AppHeadings.Text(), notifications.AppHeadings, on => notifications.AppHeadings = on));
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new NotificationsView(host);
 }

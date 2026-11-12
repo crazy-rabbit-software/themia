@@ -63,7 +63,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     private IDisposable? _lease;
     private Ticker? _ticker;
     private IDisposable? _minutes;
-    private NotificationPlan _plan = NotificationsLayout.Plan(default);
+    private NotificationPlan _plan = NotificationsLayout.Plan(new NotificationsConfig());
     private WidgetArea _area;
     private NotificationSnapshot _preview = NotificationSnapshot.Pending;
     private int? _cursor;
@@ -99,6 +99,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         _detached = false;
         _ticker = ticker;
+        _plan = NotificationsLayout.Plan((NotificationsConfig)config);
 
         // [S-1251] A debug render never reads the person's notifications.
         if (_surface is not { IsPreview: true })
@@ -121,21 +122,22 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         Render();
     }
 
-    public void ApplyConfig(WidgetConfig config) => Render();
+    /// <summary>[S-11404] The config's plan: its lines and its headings.</summary>
+    public void ApplyConfig(WidgetConfig config)
+    {
+        _plan = NotificationsLayout.Plan((NotificationsConfig)config);
+        Render();
+    }
 
-    /// <summary>[S-4404] [S-663] A new size: the ladder again, and the whole lines that fit.</summary>
+    /// <summary>[S-11404] A new size: the same plan, the whole lines that fit the new height.</summary>
     public void ApplySize(WidgetArea area)
     {
-        var plan = NotificationsLayout.Plan(area);
-        var moved = plan != _plan || area.Height != _area.Height;
+        var moved = area.Height != _area.Height;
         _area = area;
-        if (!moved)
+        if (moved)
         {
-            return;
+            Render();
         }
-
-        _plan = plan;
-        Render();
     }
 
     public void Detach()
