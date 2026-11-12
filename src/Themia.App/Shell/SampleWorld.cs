@@ -1,6 +1,7 @@
 using Microsoft.UI.Dispatching;
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Shell;
@@ -27,6 +28,9 @@ internal sealed class SampleWorld : IDisposable
 
     /// <summary>The pictures' own gallery service.</summary>
     public GalleryService Gallery { get; }
+
+    /// <summary>[S-11802] The sample PC's drives: a picture's drive widgets show them, never this PC's.</summary>
+    public IDrives Drives { get; } = SampleMachine.Drives();
 
     public void Dispose()
     {

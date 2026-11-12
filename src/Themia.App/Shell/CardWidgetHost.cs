@@ -51,7 +51,7 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public ISystemFeeds? System => card.Samples is { } samples ? samples.System : AppServices.System;
 
-    public IDrives Drives => AppServices.Drives;
+    public IDrives Drives => card.Samples is { } samples ? samples.Drives : AppServices.Drives;
 
     public IDeviceBatteries DeviceBatteries => Themia.App.Services.Devices.DeviceBatteryService.Shared;
 
