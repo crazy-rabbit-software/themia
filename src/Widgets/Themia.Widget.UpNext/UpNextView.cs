@@ -64,6 +64,7 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
 
         _list.Background = Family.Brush(ColourRole.Clear);
         _list.Tapped += OnTapped;
+        FollowLinks();
         Children.Add(_scroll);
         Children.Add(_state);
     }
@@ -78,6 +79,7 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
         _feed.Use(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
         _fade ??= new ScrollFade(_scroll, _list);
         Strings.Changed += OnLanguage;
+        _links.Join(_surface?.Links);
 
         // [S-588] The poll fires once on subscribing: the first load.
         _poll = ticker.Subscribe(Poll, () => _ = _feed.RefreshAsync(force: false));
@@ -104,6 +106,7 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
 
         _detached = true;
         Strings.Changed -= OnLanguage;
+        _links.Leave();
         _poll?.Dispose();
         _poll = null;
         _tick?.Dispose();
@@ -187,6 +190,7 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
         _scroll.Height = after.Count > fit ? fit * FamilyShape.Row1 : double.NaN;
         _scroll.Visibility = Visibility.Visible;
         _fade?.Refresh();
+        LightRows();
     }
 
     /// <summary>[S-1268] A click on a row opens that meeting in its calendar.</summary>

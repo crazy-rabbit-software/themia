@@ -30,7 +30,7 @@ public sealed class ScreenTimeModule : IWidgetModule
         Glyph = Glyphs.Hours,
         Sizing = _ => ScreenTimeReading.Sizing(),
         Traits = WidgetTraits.CanHaveHeader,
-        Links = LinkUse.Of([], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
+        Links = LinkUse.Of([], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 0),
     };
 

@@ -26,6 +26,8 @@ internal sealed partial class TasksView
         Added = text => _ = AddAsync(text),
         Reordered = CommitOrder,
         TextInput = _ => UpdateKeyboard(),
+        Decorate = LinkRow,
+        Redrawing = () => DueDays.Clear(),
     };
 
     /// <summary>[S-616] The kit items for the rows, in order: the done ones under their heading, Today's with their lists.</summary>

@@ -58,3 +58,4 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
 Needs a manual pass: the widget on a live desktop ([S-3331], [S-3333], [S-3334]: a real week and month
 of use as bars and as a calendar, an app lit with the donut and the list, the keys through the lease),
 never in a render or a test, which track nothing.
+- View links: its pointed day is the view's day under the pointer, and another widget's day lights its bar or ring ([S-11924]).

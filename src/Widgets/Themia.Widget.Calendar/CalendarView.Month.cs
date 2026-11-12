@@ -98,6 +98,9 @@ internal sealed partial class CalendarView
                 // [S-3620] The selected day (also the keys' cursor day, [S-3624]) is marked in its cell.
                 var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, _selected == day, fit, showColors, dotLimit);
 
+                // [S-11923] The day under the pointer is the view's; the day pointed at elsewhere takes the hover fill.
+                LinkDay(cell, day, rest: fit.Density == MonthDensity.Chips && _selected == day ? () => ItemFill.Paint(cell, ItemRole.Chip, ItemState.Selected) : null);
+
                 // [S-2004] The click is the widget's own: it never reaches the card.
                 cell.Tapped += (_, args) =>
                 {

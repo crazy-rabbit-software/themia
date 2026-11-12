@@ -146,6 +146,13 @@ public static class HabitPeriods
     }
 
     /// <summary>
+    /// [S-11926] The day a period is, for a view's links (<c>HoveredDate</c>): a daily period's date; none
+    /// for an hour, a week, a month or a custom interval, which are not one day.
+    /// </summary>
+    public static DateOnly? Day(HabitBucket bucket, HabitPeriod period)
+        => period == HabitPeriod.Daily && LocalDay.TryParse(bucket.Key, out var day) ? day.Date : null;
+
+    /// <summary>
     /// The period before <paramref name="bucket"/>. One step of the ladder the streak, the history
     /// dots and the best run all walk, so the three can never disagree about what "one back" means.
     /// </summary>

@@ -46,7 +46,7 @@ internal sealed partial class WeatherForecastView
         return grid;
     }
 
-    private static Grid BuildCell(ForecastDay day, DateOnly today, ForecastGridPlan plan)
+    private Grid BuildCell(ForecastDay day, DateOnly today, ForecastGridPlan plan)
     {
         var label = DayText(day, today);
         label.HorizontalAlignment = HorizontalAlignment.Center;
@@ -82,6 +82,7 @@ internal sealed partial class WeatherForecastView
         };
 
         ToolTipService.SetToolTip(host, Describe(day));
+        LinkDay(host, day.Day);
         return host;
     }
 }

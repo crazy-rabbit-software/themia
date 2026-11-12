@@ -1,10 +1,11 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Services.Accounts;
+using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
-using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -37,6 +38,7 @@ public sealed class UpNextModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(((UpNextConfig)c).RowsShown, addFooter: false, Widths),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((UpNextConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([], [LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.CalendarMail, 0, 2),
     };
 

@@ -33,3 +33,4 @@ translations, "of {value}" the donut's). Tests: `Tests/ScreenTimeTests.cs`.
 
 Needs a manual pass: the reading on a live desktop beside the chart and the list (a real week, an app
 lit in the chart shown here), never in a render or a test, which track nothing.
+- View links: with the period Day it shows the day selected on the view, as far as its arrows reach ([S-11928]).

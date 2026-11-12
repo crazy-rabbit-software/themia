@@ -5710,6 +5710,45 @@ A moment in time (`HoveredInstant`, `InstantLink(at, subject)`, a hover):
   (within the minute), "4 min ago" (within the hour), else the time, beside the value in the delta's place
   so the reading keeps its one line; a stock the day and the time and a rate the day, on its line under.
 
+A day (`HoveredDate`, `DateLink`, a hover), and the selected day's (`SelectedDate`, [S-3620]) other followers:
+
+- **[S-11920]** The day under the pointer is shared: a calendar's day ([S-11923]), a forecast's day, a
+  planner's day head, a screen-time chart's day, a habit's daily dot or cell ([S-11924]), a task's due day
+  ([S-11925]). Every day part a follower draws lights for it in the one look: a row, cell or head takes the
+  item layer's hover fill (`LinkLights<DateLink>`, `LinkLook.Row`), a chart's or a set of marks' day stays
+  whole and the others go to 0.6 ([S-11902]). A hover never moves, pages or scrolls anything, and a day a
+  widget does not draw changes nothing in it.
+- **[S-11921]** A task's day is its due day as its row says it, in the viewer's zone (`TaskDue.DayLink`, the
+  due rule of [S-593]); a task without a due date has none and takes no part.
+- **[S-11922]** An event's day is the local day a timed event starts on, an all-day event's first date,
+  never converted (`CalendarShare.Day`, [S-3611]).
+- **[S-11923]** The calendar publishes and lights the day in every style without moving or paging: the
+  month's cell (under its chips; a selected cell with chips keeps its selected fill when the hover goes),
+  the week's column head and the narrow week's head (its marks publish only), the year's day (a plain
+  number the row's, a square without events the chip's hover fill; today's disc and a square in its event's
+  colour keep their face and publish only), the day view whole (its one day, as a card that is the match,
+  [S-11903]), and the agenda's day heading and event rows (a row is its day as well as its event, [S-3623]).
+  A day redrawn under the pointer lets its hover go.
+- **[S-11924]** `weatherForecast` publishes and lights a day's row, column, cell or (curve) column marker
+  behind the line; `weekPlanner` its day heads; `screenTimeChart` the day its pointer or Left / Right is on
+  ([S-3307]) as it always lit it, and another widget's day the same way (its bar or ring whole, the others at
+  0.6) when its period holds it (`ScreenTimeRules.DayIndex`); `habitTracker` its history dots and heatmap
+  cells as marks of their day, for a daily habit only (`HabitPeriods.Day`, [S-11926]).
+- **[S-11925]** `tasks` publishes a row's due day and lights the rows due on the day pointed at (the kit
+  list's rows, through its `Decorate`); `upNext` lights the meetings on that day; the calendar's agenda its
+  rows on it ([S-11923]).
+- **[S-11926]** A habit's period is a day only when it is daily: an hour, a week, a month or a custom
+  interval is none, so a weekly habit's dots take no part.
+- **[S-11927]** The selected day is also followed by `weatherForecast`, which marks it with the picked look
+  where it shows it (the selected fill and the accent pill on its row, column or cell), and by
+  `weekPlanner`, which starts at it (`WeekPlannerRules.Start`): that day and the six after it, on either side
+  of today, the tasks still under today when today is among them; a selection pages the planner and letting
+  it go brings back today.
+- **[S-11928]** The screen-time readings with a day (`screenTime`, `screenTimeDonut`, `screenTimeApps`, their
+  period Day) show the selected day as far as their day arrows reach (`ScreenTimeRules.PinFor`): a day after
+  today is today, a day before the history's oldest (89 days back) that oldest day; a selection let go is
+  today again. `screenTimeChart` draws windows that end today (a week, a month) and does not follow it.
+
 Topics:
 
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
@@ -5717,11 +5756,11 @@ Topics:
 |---|---|---|---|
 | `HoveredApp` | Hover | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` |
 | `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` |
-| `SelectedDate` | Sticky | `calendar` | `calendar` |
+| `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting` | `calendar`, `nextMeeting` |
 | `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
-| `HoveredDate` | Hover | none | none |
+| `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `upNext`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | none | none |
 | `HoveredFile` | Hover | none | none |
 | `HoveredDrive` | Hover | none | none |

@@ -111,3 +111,4 @@ Needs a manual pass: the widget on a live desktop ([S-1425], [S-1428], [S-1429],
 a tick seen in a second widget of the same list, adding, renaming and deleting a habit in place, a
 drag, the keys through the lease, the properties menu's lists and its data folder), never in a render or
 a test, which write no habits.json.
+- View links: a daily habit's dots and heatmap cells publish their day and stay whole for the day pointed at, the others at 0.6 ([S-11924], [S-11926]).

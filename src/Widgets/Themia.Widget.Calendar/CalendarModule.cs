@@ -45,7 +45,7 @@ public sealed class CalendarModule : IWidgetModule
         Sizing = c => CalendarSizing.Sizing((CalendarWidgetConfig)c),
         SizeSets = CalendarSizing.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Links = LinkUse.Of([LinkTopicId.SelectedDate, LinkTopicId.VisibleRange, LinkTopicId.HoveredEvent], [LinkTopicId.SelectedDate, LinkTopicId.HoveredEvent]),
+        Links = LinkUse.Of([LinkTopicId.SelectedDate, LinkTopicId.VisibleRange, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate], [LinkTopicId.SelectedDate, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.CalendarMail, 0, 0, Popular: 3),
     };
 

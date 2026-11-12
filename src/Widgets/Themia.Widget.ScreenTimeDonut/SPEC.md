@@ -43,3 +43,4 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
 Needs a manual pass: the widget on a live desktop ([S-3340], [S-3341], [S-3343], [S-3344]: real apps
 tracked as wedges, a wedge lit with the chart and the list, the keys through the lease), never in a
 render or a test, which track nothing.
+- View links: with the period Day it shows the day selected on the view, as far as its arrows reach ([S-11928]).

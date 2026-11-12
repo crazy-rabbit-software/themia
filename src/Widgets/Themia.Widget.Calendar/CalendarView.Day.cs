@@ -43,7 +43,11 @@ internal sealed partial class CalendarView
         var gutter = width >= HourLabelsLongFrom ? HourLabelWidth : HourLabelNarrowWidth;
         var timelineWidth = Math.Max(0, width - gutter - (2 * FamilySpace.Inset));
 
-        var root = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset) };
+        var root = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset), Background = Family.Brush(ColourRole.Clear) };
+
+        // [S-11923] [S-11903] The day view is its one day: the pointer on it is that day, and that day pointed
+        // at elsewhere lights it whole, as a card that is the match.
+        LinkDay(root, day);
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(gutter) });

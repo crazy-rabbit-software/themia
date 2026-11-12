@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
@@ -77,6 +78,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         _host = host;
         _header = new KitHeader(host);
         _state.Visibility = Visibility.Collapsed;
+        _days = new LinkLights<DateLink>(_links, LinkTopics.HoveredDate, LinkTopics.SelectedDate);
 
         Children.Add(_body);
         Children.Add(_state);
@@ -107,6 +109,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         _web?.Updated -= OnWebUpdated;
         _web = _host.Weather;
         _web.Updated += OnWebUpdated;
+        _links.Join(_surface?.Links);
 
         ApplyConfig(config);
     }
@@ -338,6 +341,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     private void ClearBody()
     {
         _body.Children.Clear();
+        _days.Clear();
         _built = null;
     }
 
@@ -345,6 +349,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     {
         _detached = true;
         Strings.Changed -= OnLanguage;
+        _links.Leave();
 
         ClearBody();
 

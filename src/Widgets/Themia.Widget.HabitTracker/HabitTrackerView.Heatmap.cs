@@ -98,10 +98,12 @@ internal sealed partial class HabitTrackerView
                 if (periods[i] is not { } period)
                 {
                     cell.Visibility = Visibility.Collapsed;
+                    ForgetDay(cell);
                     continue;
                 }
 
                 cell.Visibility = Visibility.Visible;
+                MarkDay(cell, period, cadence.Period); // [S-11924]
                 var when = HabitPeriods.Describe(period, cadence);
 
                 if (plan.PerHabit)
@@ -196,6 +198,7 @@ internal sealed partial class HabitTrackerView
         foreach (var cell in _heatCells)
         {
             cell.Tapped -= OnHeatCellTapped;
+            ForgetDay(cell);
         }
 
         _heatCells.Clear();

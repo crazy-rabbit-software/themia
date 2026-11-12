@@ -140,6 +140,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _detached = false;
         _list.Attach();
+        _links.Join(_surface?.Links);
         _ticker = ticker;
         _service = _widgetHost.Tasks;
         _local = _service?.Local;
@@ -730,6 +731,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _list.Detach();
+        _links.Leave();
         _detached = true;
         _bindGeneration++;
         Strings.Changed -= OnLanguage;

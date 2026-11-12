@@ -42,8 +42,14 @@ public sealed partial class KitList
     /// <summary>The first item on the page on screen.</summary>
     public KitItem? FirstOnPage => _pageStarts.Count > 0 && _pageIndex < _pageStarts.Count && _pageStarts[_pageIndex] < _items.Count ? _items[_pageStarts[_pageIndex]] : null;
 
-    /// <summary>A widget's own touch on a drawn row (the calendar's drag of an event).</summary>
+    /// <summary>A widget's own touch on a drawn row, in every look (an event's links, [S-3623]; a task's day, [S-11925]).</summary>
     public Action<KitItem, FrameworkElement>? Decorate { get; init; }
+
+    /// <summary>A widget's own touch on a drawn day heading of the schedule look (its day's links, [S-11923]).</summary>
+    public Action<KitGroup, FrameworkElement>? DecorateHeading { get; init; }
+
+    /// <summary>Called before the rows are drawn again, so a widget forgets what it touched on the old ones.</summary>
+    public Action? Redrawing { get; init; }
 
     private bool Paged => _spec.Overflow == KitOverflow.Page;
 
@@ -107,7 +113,13 @@ public sealed partial class KitList
                 var item = _items[i];
                 if (KitPages.HeadingBefore(keys, at, i, heading))
                 {
-                    stack.Children.Add(Heading(item.Group, today, dated));
+                    var head = Heading(item.Group, today, dated);
+                    if (item.Group is { } group)
+                    {
+                        DecorateHeading?.Invoke(group, head);
+                    }
+
+                    stack.Children.Add(head);
                 }
 
                 var row = ScheduleRow(item, i);
@@ -172,8 +184,6 @@ public sealed partial class KitList
             block.Lead(lead);
         }
 
-        var row = Item(block, item, index);
-        Decorate?.Invoke(item, row);
-        return row;
+        return Item(block, item, index);
     }
 }

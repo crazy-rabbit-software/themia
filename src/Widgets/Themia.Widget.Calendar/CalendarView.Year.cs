@@ -152,6 +152,17 @@ internal sealed partial class CalendarView
             };
             WidgetItems.Mark(element); // [S-814]
 
+            // [S-11923] A plain day takes the hover fill for the day pointed at; today's disc and a day in its
+            // event's colour keep their face and only publish.
+            if (day == today || (!fit.Numbers && items.Count > 0))
+            {
+                PublishDay(element, day);
+            }
+            else
+            {
+                LinkDay(element, day, fit.Numbers ? ItemRole.Row : ItemRole.Chip);
+            }
+
             SetRow(element, row0 + (i / 7));
             SetColumn(element, i % 7);
             days.Children.Add(element);

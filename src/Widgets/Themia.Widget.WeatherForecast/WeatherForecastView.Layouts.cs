@@ -42,6 +42,7 @@ internal sealed partial class WeatherForecastView
             }
 
             ToolTipService.SetToolTip(row, Describe(day));
+            LinkDay(row, day.Day);
             list.Children.Add(row);
         }
 
@@ -149,6 +150,7 @@ internal sealed partial class WeatherForecastView
         }
 
         ToolTipService.SetToolTip(parts, Describe(day));
+        LinkDay(parts, day.Day);
         return parts;
     }
 

@@ -43,13 +43,21 @@ public static class WeekPlannerRules
     /// <summary>[S-5321] From this column width a timed event's row ends in its start (a compact column keeps the title).</summary>
     public const double TimesFrom = 180;
 
-    /// <summary>[S-5321] The days the planner fetches, whatever it shows, so a resize never asks again.</summary>
-    public static (DateOnly First, DateOnly Last) Range(DateOnly today) => (today, today.AddDays(Days - 1));
+    /// <summary>[S-5321] The days the planner fetches from its first day, whatever it shows, so a resize never asks again.</summary>
+    public static (DateOnly First, DateOnly Last) Range(DateOnly first) => (first, first.AddDays(Days - 1));
 
     /// <summary>
-    /// [S-5322] The planner's days from today: each day's events as a calendar day lists them
-    /// ([S-570]); today without the timed events that have already ended (what is ahead, as the
-    /// agenda's [S-571]); and under today the open tasks due today or overdue ([S-596]).
+    /// [S-11927] The planner's first day: the day selected on the view (<c>SelectedDate</c>, a calendar's
+    /// click) when there is one, whichever side of today it is, so the planner reads that day and the six
+    /// after it; else today.
+    /// </summary>
+    public static DateOnly Start(DateOnly today, DateOnly? selected) => selected ?? today;
+
+    /// <summary>
+    /// [S-5322] The planner's days from <paramref name="first"/> (today unless a day is selected,
+    /// [S-11927]): each day's events as a calendar day lists them ([S-570]); today without the timed
+    /// events that have already ended (what is ahead, as the agenda's [S-571]); and under today, when it
+    /// is among the days, the open tasks due today or overdue ([S-596]).
     /// </summary>
     public static IReadOnlyList<PlannerDay> Build(
         IEnumerable<CalendarEvent> events,
@@ -57,7 +65,8 @@ public static class WeekPlannerRules
         IEnumerable<TaskItem> tasks,
         DateOnly today,
         TimeZoneInfo zone,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        DateOnly? first = null)
     {
         ArgumentNullException.ThrowIfNull(events);
         ArgumentNullException.ThrowIfNull(birthdays);
@@ -69,17 +78,18 @@ public static class WeekPlannerRules
         var due = TaskRules.Today(tasks.Where(t => !t.Completed), today, zone);
         var days = new List<PlannerDay>(Days);
 
+        var start = first ?? today;
         for (var i = 0; i < Days; i++)
         {
-            var day = today.AddDays(i);
+            var day = start.AddDays(i);
             var items = CalendarRules.DayItems(allEvents, allBirthdays, day, zone);
 
-            if (i == 0)
+            if (day == today)
             {
                 items = [.. items.Where(item => item.Event is not { AllDay: false } e || (e.End > e.Start ? e.End > now : e.Start >= now))];
             }
 
-            days.Add(new PlannerDay(day, items, i == 0 ? due : []));
+            days.Add(new PlannerDay(day, items, day == today ? due : []));
         }
 
         return days;

@@ -362,6 +362,23 @@ public sealed class ScreenTimeDayNav
         _parts.Want(_forward, Pinned is not null);
     }
 
+    /// <summary>
+    /// [S-11928] A day selected on the view (a calendar's click): pinned as far as the arrows could take it
+    /// (<see cref="ScreenTimeRules.PinFor"/>: a day after today is today, one before the history its oldest
+    /// day); a selection let go is today again. Returns whether the day shown changed; the caller redraws.
+    /// </summary>
+    public bool Select(DateOnly? day)
+    {
+        var pin = day is { } d ? ScreenTimeRules.PinFor(d, CurrentDay()) : null;
+        if (pin == Pinned)
+        {
+            return false;
+        }
+
+        Pinned = pin;
+        return true;
+    }
+
     /// <summary>[S-1989] Left / Right: the day before or after, never past today. Returns whether it moved.</summary>
     public bool StepKey(bool forward)
     {

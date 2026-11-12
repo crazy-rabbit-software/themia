@@ -434,6 +434,32 @@ public static class ScreenTimeRules
         return to >= today ? null : to.Key;
     }
 
+    /// <summary>
+    /// [S-11928] The pinned day for a day selected on the view (<c>SelectedDate</c>), as the day arrows could
+    /// reach it: today (null, following the clock) for today or any day after it, the oldest day of the
+    /// history (<see cref="MaxHistoryOffset"/> back) for a day before that, else the day itself.
+    /// </summary>
+    public static string? PinFor(DateOnly selected, LocalDay today) => Step(null, today, selected.DayNumber - today.Date.DayNumber);
+
+    /// <summary>
+    /// [S-11924] The index of <paramref name="day"/> among a period's days (each keyed as <see cref="LocalDay.Key"/>),
+    /// or null when the period does not hold it.
+    /// </summary>
+    public static int? DayIndex(IReadOnlyList<ScreenTimeDay> days, DateOnly day)
+    {
+        ArgumentNullException.ThrowIfNull(days);
+        var key = new LocalDay(day).Key;
+        for (var i = 0; i < days.Count; i++)
+        {
+            if (days[i].Date == key)
+            {
+                return i;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>[S-454] Whether the navigation can go one day further back.</summary>
     public static bool CanGoBack(string? pinned, LocalDay today)
         => pinned is null || !LocalDay.TryParse(pinned, out var day) || day > today.AddDays(-MaxHistoryOffset);

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -37,6 +38,7 @@ public sealed class WeatherForecastModule : IWidgetModule
         Sizing = c => WeatherForecastLayout.Sizing((WeatherForecastConfig)c),
         SizeSets = WeatherForecastLayout.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.Weather, 0, 2, Popular: 2),
     };
 

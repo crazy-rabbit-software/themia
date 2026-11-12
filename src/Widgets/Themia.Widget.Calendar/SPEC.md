@@ -141,3 +141,4 @@ chip's times still shorten with the column, as text does).
 Needs a live pass: a signed-in Microsoft, Google and CalDAV calendar in every style (paging, opening
 an event in Outlook or the browser, the hover link with Next meeting and the week planner on the
 view), and the showcase views on the live desktop.
+- View links: publishes and follows the day under the pointer in every style without moving ([S-11923]), besides the selected day, the range and the event ([S-3620]..[S-3625]).

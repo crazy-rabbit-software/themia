@@ -31,6 +31,12 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 {
     private readonly ScreenTimeLinks _links;
 
+    /// <summary>[S-11924] The day on the view's links: this chart's pointed day published, another widget's followed.</summary>
+    private readonly WidgetLinks _dates = new();
+
+    /// <summary>[S-11924] The day another widget points at (a calendar's cell, a forecast's row); null: none.</summary>
+    private DateLink? _linkedDay;
+
     /// <summary>[S-454] The header names the window ("Last 7 days"): the day navigation's label alone.</summary>
     private readonly ScreenTimeDayNav _nav;
 
@@ -75,6 +81,11 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _host = host;
         _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
+        _dates.Follow(LinkTopics.HoveredDate, value =>
+        {
+            _linkedDay = value;
+            ApplyFocus();
+        });
 
         Background = Family.Brush(ColourRole.Clear);
         Tapped += (_, _) =>
@@ -109,6 +120,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         Strings.Changed += OnLanguage;
         UseSource(_host.ScreenTime);
         _links.Join(_surface?.Links);
+        _dates.Join(_surface?.Links);
         Render();
     }
 
@@ -124,6 +136,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         Strings.Changed -= OnLanguage;
         UseSource(null);
         _links.Leave();
+        _dates.Leave();
         Clear();
     }
 
@@ -557,8 +570,18 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         }
 
         _day = index;
+        PublishDay();
         ApplyFocus();
     }
+
+    /// <summary>[S-11924] [S-3307] The day pointed at here (the pointer, or Left / Right) is the view's day under the pointer.</summary>
+    private void PublishDay()
+        => _dates.Set(LinkTopics.HoveredDate, _day is { } index && _data is { } data && index < data.Range.Count && LocalDay.TryParse(data.Range[index].Date, out var day)
+            ? new DateLink(day.Date)
+            : null);
+
+    /// <summary>[S-11924] The day lit: this chart's own, else the one pointed at elsewhere when the period holds it.</summary>
+    private int? LitDay => _day ?? (_linkedDay is { } link && _data is { } data ? ScreenTimeRules.DayIndex(data.Range, link.Date) : null);
 
     private void HoverApp(string? key)
     {
@@ -615,7 +638,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     }
 
     /// <summary>[S-11902] A day's column or cell against the day pointed at: whole, or the others at 0.6.</summary>
-    private double DayStrength(int index) => _day is { } d && d != index ? LinkEmphasis.Others(pointed: true, picked: false) : 1;
+    private double DayStrength(int index) => LitDay is { } d && d != index ? LinkEmphasis.Others(pointed: true, picked: false) : 1;
 
     /// <summary>A day's seconds of one part: an app, "Other" (the apps off the ring), or the whole day.</summary>
     private long PartSeconds(ScreenTimeData data, ScreenTimeDay day, string? part)
@@ -659,6 +682,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             _day = key == WidgetKey.Left
                 ? Math.Max(0, (_day ?? count) - 1)
                 : Math.Min(count - 1, (_day ?? -1) + 1);
+            PublishDay();
             ApplyFocus();
             return true;
         }
@@ -666,6 +690,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         if (key == WidgetKey.Escape && _day is not null)
         {
             _day = null;
+            PublishDay();
             _links.HandleKey(key, [], _ => null, _source);
             ApplyFocus();
             return true;

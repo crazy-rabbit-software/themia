@@ -654,6 +654,11 @@ internal sealed partial class HabitTrackerView
         {
             if (_dots.Count != _recent.Count)
             {
+                foreach (var old in _dots)
+                {
+                    _owner.ForgetDay(old);
+                }
+
                 _dots.Clear();
                 _history.Children.Clear();
 
@@ -678,6 +683,7 @@ internal sealed partial class HabitTrackerView
 
                 // [S-6717] Done is the accent, an open period the track: the Chart block's two.
                 _dots[i].Background = Family.Brush(dot.Done ? ColourRole.Accent : ColourRole.Track);
+                _owner.MarkDay(_dots[i], dot.Bucket, cadence.Period); // [S-11924]
 
                 var label = (dot.Done ? HabitTrackerStr.WidgetsB_Habits_DotDone : HabitTrackerStr.WidgetsB_Habits_DotNotDone).Format(("period", HabitPeriods.Describe(dot.Bucket, cadence)));
                 ToolTipService.SetToolTip(_dots[i], label);
@@ -789,6 +795,11 @@ internal sealed partial class HabitTrackerView
         /// <summary>Safe to call twice: every handle is idempotent.</summary>
         public void Detach()
         {
+            foreach (var dot in _dots)
+            {
+                _owner.ForgetDay(dot);
+            }
+
             Host.Detach();
             _menu.Dispose();
             _box.Tapped -= OnBoxTapped;

@@ -42,3 +42,4 @@ lines: the SDK's calendar lines, then Today's tasks), `Preview/` (Debug renders:
 Needs a live pass: a signed-in Microsoft and Google account (events, colours, opening an event,
 ticking a task off and seeing it leave every Tasks widget), a day turning over at midnight, and the
 showcase views on the live desktop.
+- View links: the day heads publish and light the day under the pointer; the planner starts at the day selected on the view ([S-11924], [S-11927]).

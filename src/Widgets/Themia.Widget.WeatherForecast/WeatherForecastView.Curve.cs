@@ -43,9 +43,11 @@ internal sealed partial class WeatherForecastView
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             var day = shown[i];
 
-            // A hit target per column for the day's summary; the chart itself is not hit-testable.
-            var hit = new Border { Background = Family.Brush(ColourRole.Clear) };
+            // A hit target per column for the day's summary; the chart itself is not hit-testable. It is the
+            // day's column marker for the links ([S-11924]): the hover fill behind the column's parts and the line.
+            var hit = new Border { Background = Family.Brush(ColourRole.Clear), CornerRadius = Family.Radius };
             ToolTipService.SetToolTip(hit, Describe(day));
+            LinkDay(hit, day.Day);
             Grid.SetColumn(hit, i);
             Grid.SetRowSpan(hit, grid.RowDefinitions.Count);
             grid.Children.Add(hit);

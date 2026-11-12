@@ -52,3 +52,4 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
 Needs a manual pass: the widget on a live desktop ([S-3350], [S-3353], [S-3354]: real apps tracked and
 listed with their icons, a limit gone over, the rows lit with the chart and the donut, the keys through
 the lease), never in a render or a test, which track nothing.
+- View links: with the period Day it shows the day selected on the view, as far as its arrows reach ([S-11928]).

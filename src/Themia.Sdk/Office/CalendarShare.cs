@@ -18,6 +18,17 @@ public static class CalendarShare
     }
 
     /// <summary>
+    /// [S-11922] The day an event stands for on a view's links (<c>HoveredDate</c>): the local day a timed
+    /// event starts on, an all-day event's first date (never converted: it is a date, [S-3611]).
+    /// </summary>
+    public static DateLink Day(CalendarEvent item, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(zone);
+        return new DateLink(CalendarRules.StartDay(item, zone));
+    }
+
+    /// <summary>
     /// [S-3623] Whether an event is drawn dimmed: another widget's pointer is on an event, and it is
     /// not this one. Nothing is dimmed while nothing is hovered.
     /// </summary>

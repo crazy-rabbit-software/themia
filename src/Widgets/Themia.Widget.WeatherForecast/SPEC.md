@@ -76,3 +76,4 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   other styles offer nothing there.
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
+- View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).

@@ -97,6 +97,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         // [S-7064] [S-569] The problem glyph, the ring and back and forward are the kit's header extras.
         _header = new KitHeader(host);
 
+        _days = FollowLinks();
         _agenda = NewAgenda(host);
         Children.Add(_content);
         Children.Add(RowsHost());
@@ -202,7 +203,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         if (Layout == CalendarStyle.Agenda)
         {
-            _member?.Clear(LinkTopics.VisibleRange);
+            _links.Set(LinkTopics.VisibleRange, null);
         }
         else
         {
@@ -634,9 +635,12 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         _hovers.Clear();
 
-        // [S-3623] A chip redrawn under the pointer never hears it leave: its hover goes with it.
+        // [S-3623] [S-11923] A chip or a day redrawn under the pointer never hears it leave: its hover goes with it.
         _eventElements.Clear();
-        _member?.Clear(LinkTopics.HoveredEvent);
+        _links.Set(LinkTopics.HoveredEvent, null);
+        _days.Clear();
+        _rowDays.Clear();
+        _days.Point(null);
         _content.Children.Clear();
         _content.RowDefinitions.Clear();
         _content.ColumnDefinitions.Clear();

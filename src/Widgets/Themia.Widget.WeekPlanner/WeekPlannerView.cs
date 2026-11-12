@@ -10,15 +10,16 @@ using Themia.App.Services.Tasks;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.WeekPlanner;
 
@@ -88,6 +89,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     {
         _widgetHost = host;
         _state = new(Glyphs.WeekPlanner, host) { Visibility = Visibility.Collapsed };
+        _heads = FollowLinks();
         // [S-1113] Days run in reading order; the columns follow the language's direction like the week calendar's.
         Children.Add(_content);
         Children.Add(_state);
@@ -118,6 +120,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         }
 
         BindTasks();
+        _links.Join(_surface?.Links);
 
         // [S-588] The poll fires once on subscribing: the first load.
         _poll = ticker.Subscribe(Poll, () => _ = RefreshAsync(force: false));
@@ -152,6 +155,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
 
         _detached = true;
         Strings.Changed -= OnLanguage;
+        _links.Leave();
         _poll?.Dispose();
         _poll = null;
         _tick?.Dispose();
@@ -213,7 +217,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
             return;
         }
 
-        var (first, last) = WeekPlannerRules.Range(DateOnly.FromDateTime(_clock().LocalDateTime));
+        var (first, last) = WeekPlannerRules.Range(Start(DateOnly.FromDateTime(_clock().LocalDateTime)));
         _refreshing = true;
 
         try
@@ -374,11 +378,11 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         var now = _clock();
         var zone = TimeZoneInfo.Local;
         var today = DateOnly.FromDateTime(now.LocalDateTime);
-        var days = WeekPlannerRules.Build(_events, _birthdays, Tasks, today, zone, now);
+        var days = WeekPlannerRules.Build(_events, _birthdays, Tasks, today, zone, now, Start(today));
 
         // [S-11410] The config's days side by side, its rows under each heading; rows carry the card's
         // side inset, so the columns meet. An empty today still takes a row, to say nothing is planned ([S-5323]).
-        var counts = days.Select((d, i) => i == 0 ? Math.Max(1, d.Count) : d.Count).ToList();
+        var counts = days.Select(d => d.Day == today ? Math.Max(1, d.Count) : d.Count).ToList();
         // The config's rows; a resize being dragged hands the view the config that size means ([S-2447]).
         var slots = WeekPlannerRules.Columns(counts, _config.Days, _config.RowsPerDay);
         var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
@@ -409,7 +413,9 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         {
             var title = Family.Text(FamilyType.BodyStrong, day.Day == today ? ColourRole.TextPrimary : ColourRole.TextSecondary, Formatting.DayHeading(day.Day, today));
             title.VerticalAlignment = VerticalAlignment.Center;
-            stack.Children.Add(new Grid { Children = { title }, Height = FamilyShape.Row1, Padding = Family.SideInset });
+            var head = new Grid { Children = { title }, Height = FamilyShape.Row1, Padding = Family.SideInset, Background = Family.Brush(ColourRole.Clear) };
+            LinkHead(head, day.Day);
+            stack.Children.Add(head);
         }
 
         if (day.Count == 0)
@@ -591,6 +597,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         }
 
         _hovers.Clear();
+        _heads.Clear();
         _content.Children.Clear();
         _content.ColumnDefinitions.Clear();
     }

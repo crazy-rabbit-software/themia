@@ -66,6 +66,9 @@ public sealed class LinkLights<T>
     /// <summary>Forget every part (before the widget draws its parts again).</summary>
     public void Clear() => _parts.Clear();
 
+    /// <summary>Forget one part (a mark the widget took down while the rest stay).</summary>
+    public void Remove(UIElement element) => _parts.Remove(element);
+
     /// <summary>
     /// [S-11901] A row (or a cell, a card) that is <paramref name="key"/>: lit as pointed or picked;
     /// <paramref name="publishes"/> sets the hover while the pointer is on it. <paramref name="rest"/> puts

@@ -127,6 +127,7 @@ public sealed partial class KitList
 
         row.Tapped += OnRowTapped;
         row.DoubleTapped += OnRowDoubleTapped;
+        Decorate?.Invoke(item, row);
         return row;
     }
 

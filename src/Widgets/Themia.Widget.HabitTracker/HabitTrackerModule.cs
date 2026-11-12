@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Habits;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -35,6 +36,7 @@ public sealed class HabitTrackerModule : IWidgetModule
         Sizing = c => HabitSizing.Sizing((HabitTrackerConfig)c),
         SizeSets = HabitSizing.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.Notes, 1, 0),
     };
 

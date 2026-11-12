@@ -26,6 +26,9 @@ internal sealed partial class CalendarView
     /// <summary>The agenda's items on screen by id, for the rows' hooks and Enter.</summary>
     private readonly Dictionary<string, DayItem> _agendaItems = new(StringComparer.Ordinal);
 
+    /// <summary>[S-11923] The day each row on screen is listed under.</summary>
+    private readonly Dictionary<string, DateOnly> _agendaDays = new(StringComparer.Ordinal);
+
     /// <summary>
     /// The room over the rows: none in the agenda, the strip and its gap in a narrow week ([S-2283]).
     /// A height, not a margin, so the rows stand on the family's spaces.
@@ -47,6 +50,14 @@ internal sealed partial class CalendarView
     private KitList NewAgenda(Themia.Sdk.WinUI.IWidgetHost host) => new(host, AgendaSpec.Spec, AgendaActions, RunAgenda)
     {
         Decorate = DecorateAgendaRow,
+        DecorateHeading = (group, heading) =>
+        {
+            if (group.Day is { } day)
+            {
+                LinkRowDay(heading, day);
+            }
+        },
+        Redrawing = ForgetRowDays,
         Visibility = Visibility.Collapsed,
     };
 
@@ -58,6 +69,7 @@ internal sealed partial class CalendarView
         var rows = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 
         _agendaItems.Clear();
+        _agendaDays.Clear();
 
         if (rows.Count == 0)
         {
@@ -75,6 +87,7 @@ internal sealed partial class CalendarView
         {
             var kit = AgendaSpec.Item(item, day, now, _selected, showColors ? MarkOf : null);
             _agendaItems[kit.Id] = item;
+            _agendaDays[kit.Id] = day;
             items.Add(kit);
         }
 
@@ -112,6 +125,12 @@ internal sealed partial class CalendarView
         {
             Describe(row, ev);
         }
+
+        // [S-11923] An event's row is its day: the pointer on it publishes that day, that day pointed at lights it.
+        if (_agendaDays.TryGetValue(item.Id, out var listed))
+        {
+            LinkRowDay(row, listed);
+        }
     }
 
     /// <summary>[S-3652] A row's actions: Open, for an event with a page to open.</summary>
@@ -132,5 +151,6 @@ internal sealed partial class CalendarView
         _agenda.Clear();
         _agenda.Visibility = Visibility.Collapsed;
         _agendaItems.Clear();
+        _agendaDays.Clear();
     }
 }

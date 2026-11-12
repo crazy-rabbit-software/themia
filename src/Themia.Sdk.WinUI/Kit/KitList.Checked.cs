@@ -244,6 +244,7 @@ public sealed partial class KitList
         row.Tapped += OnCheckRowTapped;
         row.DoubleTapped += OnRowDoubleTapped;
         HookDrag(row);
+        Decorate?.Invoke(item, row);
         return row;
     }
 

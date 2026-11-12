@@ -99,7 +99,7 @@ internal sealed partial class CalendarView
             }
 
             ChoosesDay(header, day, CalendarRules.DayItems(_events, _birthdays, day, zone));
-
+            LinkDay(header, day); // [S-11923]
 
             SetColumn(header, first + c);
             grid.Children.Add(header);
@@ -157,13 +157,16 @@ internal sealed partial class CalendarView
 
             var day = start.AddDays(c);
             var header = WeekHeader(day, day == today, labels == WeekdayLabel.None ? WeekdayLabel.Narrow : labels);
+            header.CornerRadius = Family.Radius;
             if (day == chosen)
             {
-                header.CornerRadius = Family.Radius;
                 ItemFill.Paint(header, ItemRole.Chip, ItemState.Selected);
             }
 
             ChoosesDay(header, day, byDay[c]);
+
+            // [S-11923] The chosen day's head keeps its selected fill when another day is pointed at.
+            LinkDay(header, day, rest: day == chosen ? () => ItemFill.Paint(header, ItemRole.Chip, ItemState.Selected) : null);
             SetColumn(header, c);
             grid.Children.Add(header);
 
@@ -171,6 +174,7 @@ internal sealed partial class CalendarView
             {
                 var marks = WeekMarks(byDay[c], showColors);
                 ChoosesDay(marks, day, byDay[c]);
+                PublishDay(marks, day);
                 SetRow(marks, 1);
                 SetColumn(marks, c);
                 grid.Children.Add(marks);
@@ -199,10 +203,12 @@ internal sealed partial class CalendarView
         Func<CalendarEvent, string>? mark = showColors ? MarkOf : null;
         var rows = new List<KitItem>(items.Count);
         _agendaItems.Clear();
+        _agendaDays.Clear();
         foreach (var item in items)
         {
             var row = AgendaSpec.DayRow(item, chosen, now, mark);
             _agendaItems[row.Id] = item;
+            _agendaDays[row.Id] = chosen;
             rows.Add(row);
         }
 

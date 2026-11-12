@@ -33,7 +33,7 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(((ScreenTimeAppsConfig)c).RowsShown, addFooter: false),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((ScreenTimeAppsConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
+        Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 3),
     };
 

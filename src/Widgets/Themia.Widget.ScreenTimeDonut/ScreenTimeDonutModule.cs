@@ -31,7 +31,7 @@ public sealed class ScreenTimeDonutModule : IWidgetModule
         Glyph = Glyphs.ScreenTimeDonut,
         Sizing = c => ScreenTimeDonutLayout.Sizing(((ScreenTimeDonutConfig)c).Size),
         Traits = WidgetTraits.CanHaveHeader,
-        Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
+        Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 2),
     };
 

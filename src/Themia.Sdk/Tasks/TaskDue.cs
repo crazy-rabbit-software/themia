@@ -1,4 +1,5 @@
 using System.Globalization;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 
 namespace Themia.Core.Tasks;
@@ -50,6 +51,13 @@ public static class TaskDue
         ArgumentNullException.ThrowIfNull(viewer);
         return TaskStamp.Parse(raw)?.DayIn(viewer);
     }
+
+    /// <summary>
+    /// [S-11921] The day a task stands for on a view's links (<c>HoveredDate</c>): its due day in the
+    /// viewer's zone, as its row says it; none for a task without a due date.
+    /// </summary>
+    public static DateLink? DayLink(string? raw, TimeZoneInfo viewer)
+        => Day(raw, viewer) is { } day ? new DateLink(day) : null;
 
     /// <summary>[S-594] Resolve a due value against <paramref name="today"/>.</summary>
     public static Due? Resolve(string? raw, DateOnly today, TimeZoneInfo viewer)

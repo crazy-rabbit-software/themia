@@ -1,16 +1,17 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.App.Services.Accounts;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.WeekPlanner;
-using Themia.App.Services.Accounts;
 
 [assembly: ThemiaWidget("weekPlanner", typeof(WeekPlannerModule))]
 
@@ -38,6 +39,7 @@ public sealed class WeekPlannerModule : IWidgetModule
         Sizing = c => WeekPlannerRules.Sizing(((WeekPlannerConfig)c).Days, ((WeekPlannerConfig)c).RowsPerDay),
         SizeSets = SetRows,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.CalendarMail, 0, 3),
     };
 

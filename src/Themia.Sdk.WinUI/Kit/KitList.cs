@@ -354,6 +354,7 @@ public sealed partial class KitList : Grid
 
     private void ClearRows()
     {
+        Redrawing?.Invoke();
         foreach (var hook in _rowHooks)
         {
             hook.Dispose();

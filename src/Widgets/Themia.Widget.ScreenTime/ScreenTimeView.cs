@@ -24,6 +24,9 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
+
+    /// <summary>[S-11928] The day selected on the view, followed.</summary>
+    private readonly WidgetLinks _dates = new();
     private readonly ReadoutBlock _readout = new() { Margin = Family.SideInset, VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Left };
 
     /// <summary>[S-6714] Nothing to read: the Status block's one row at the top.</summary>
@@ -42,6 +45,15 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         _host = host;
         _links = new ScreenTimeLinks(ApplyFocus, LinkTopics.HoveredApp, LinkTopics.SelectedApp);
         _nav = new ScreenTimeDayNav(Render);
+
+        // [S-11928] A day selected on the view (a calendar's click) is the day a Day period shows.
+        _dates.Follow(LinkTopics.SelectedDate, value =>
+        {
+            if (ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day && _nav.Select(value?.Date))
+            {
+                Render();
+            }
+        });
         _readout.Use(FamilyType.Big28);
         Children.Add(_readout);
         Children.Add(_empty);
@@ -63,6 +75,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         Strings.Changed += OnLanguage;
         UseSource(_host.ScreenTime);
         _links.Join(_surface?.Links);
+        _dates.Join(_surface?.Links);
         Render();
     }
 
@@ -78,6 +91,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         Strings.Changed -= OnLanguage;
         UseSource(null);
         _links.Leave();
+        _dates.Leave();
     }
 
     private void UseSource(IScreenTimeSource? source)

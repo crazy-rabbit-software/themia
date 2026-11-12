@@ -108,6 +108,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     {
         _ticker = ticker;
         _pool = _host.Habits;
+        _links.Join(_surface?.Links);
 
         if (_pool is not null)
         {
@@ -335,6 +336,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         CancelDrag();
         ReleaseRowFocus();
         _detached = true;
+        _links.Leave();
 
         if (_pool is not null)
         {
