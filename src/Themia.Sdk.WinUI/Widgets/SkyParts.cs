@@ -175,3 +175,45 @@ public sealed class SkyEventRow
         Root.Show(SkyRows.Name(_room, _name, _shortName, _value), _value, _second);
     }
 }
+
+/// <summary>[S-11170] One fact of a fact atom as drawn: its 16 lead glyph, its name and its value.</summary>
+public readonly record struct SkyFact(string Glyph, string Name, string Value);
+
+/// <summary>
+/// [S-11170] A fact atom's rows (weather facts, air facts): the family's fact rows ([S-6711]), one line
+/// each, from the view's top, exactly as many as the atom's pick, in its order. The card's height is
+/// the pick's ([S-2438]), so the rows never shed or add with the box; a name or a value too long for the
+/// width ends in its ellipsis.
+/// </summary>
+public sealed partial class SkyFactList : StackPanel
+{
+    private readonly List<RowBlock> _rows = [];
+
+    public SkyFactList()
+    {
+        VerticalAlignment = VerticalAlignment.Top;
+    }
+
+    /// <summary>Draw <paramref name="facts"/>, one row each, reusing the rows already built.</summary>
+    public void Show(IReadOnlyList<SkyFact> facts)
+    {
+        ArgumentNullException.ThrowIfNull(facts);
+        while (_rows.Count < facts.Count)
+        {
+            var row = new RowBlock(RowKind.Fact);
+            _rows.Add(row);
+            Children.Add(row);
+        }
+
+        for (var i = 0; i < _rows.Count; i++)
+        {
+            var shown = i < facts.Count;
+            _rows[i].Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
+            if (shown)
+            {
+                _rows[i].LeadGlyph(facts[i].Glyph);
+                _rows[i].Show(facts[i].Name, facts[i].Value);
+            }
+        }
+    }
+}

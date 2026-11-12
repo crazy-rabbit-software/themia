@@ -36,7 +36,7 @@ public sealed class WeatherForecastModule : IWidgetModule
         Glyph = Glyph,
         Sizing = _ => WidgetSizing.Legacy(380, 220),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Weather, 0, 1, Popular: 2),
+        Add = new(AddFolderId.Weather, 0, 2, Popular: 2),
     };
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>

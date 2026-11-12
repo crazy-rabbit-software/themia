@@ -3,16 +3,7 @@
   "styles.weatherNow.largeIcon": "Velká ikona",
   "styles.weatherNow.minimal": "Minimalistické",
   "styles.weatherNow.standard": "Standardní",
-  "weather.feelsLike": "Pocitově",
-  "weather.humidity": "Vlhkost",
-  "weather.wind": "Vítr",
   "widget.weatherCurrent.label": "Počasí",
   "widgetsA.catalog.weather.description": "Počasí tam, kde jsi",
-  "widgetsC.weather.fact.cloudCover": "Oblačnost",
-  "widgetsC.weather.fact.gusts": "Nárazy větru",
-  "widgetsC.weather.fact.precipitation": "Srážky",
-  "widgetsC.weather.fact.pressure": "Tlak",
-  "widgetsC.weather.fact.uvIndex": "UV index",
-  "widgetsC.weather.feelsShort": "Pocitově {temperature}",
-  "widgetsC.weather.settings.showDetail.label": "Zobrazit podrobnosti"
+  "widgetsC.weather.feelsShort": "Pocitově {temperature}"
 }

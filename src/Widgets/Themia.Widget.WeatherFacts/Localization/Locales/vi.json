@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Cảm giác như",
+  "weather.humidity": "Độ ẩm",
+  "weather.wind": "Gió",
+  "widgetsC.weather.fact.cloudCover": "Mây che phủ",
+  "widgetsC.weather.fact.gusts": "Gió giật",
+  "widgetsC.weather.fact.precipitation": "Lượng mưa",
+  "widgetsC.weather.fact.pressure": "Áp suất",
+  "widgetsC.weather.fact.uvIndex": "Chỉ số UV"
+}

@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Sensação",
+  "weather.humidity": "Umidade",
+  "weather.wind": "Vento",
+  "widgetsC.weather.fact.cloudCover": "Nebulosidade",
+  "widgetsC.weather.fact.gusts": "Rajadas",
+  "widgetsC.weather.fact.precipitation": "Precipitação",
+  "widgetsC.weather.fact.pressure": "Pressão",
+  "widgetsC.weather.fact.uvIndex": "Índice UV"
+}

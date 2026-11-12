@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "உணர்வது",
+  "weather.humidity": "ஈரப்பதம்",
+  "weather.wind": "காற்று",
+  "widgetsC.weather.fact.cloudCover": "மேக மூட்டம்",
+  "widgetsC.weather.fact.gusts": "காற்று வீச்சு",
+  "widgetsC.weather.fact.precipitation": "மழைப்பொழிவு",
+  "widgetsC.weather.fact.pressure": "அழுத்தம்",
+  "widgetsC.weather.fact.uvIndex": "UV குறியீடு"
+}

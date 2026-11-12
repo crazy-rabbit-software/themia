@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Hissedilen",
+  "weather.humidity": "Nem",
+  "weather.wind": "Rüzgâr",
+  "widgetsC.weather.fact.cloudCover": "Bulut örtüsü",
+  "widgetsC.weather.fact.gusts": "Rüzgâr hamlesi",
+  "widgetsC.weather.fact.precipitation": "Yağış",
+  "widgetsC.weather.fact.pressure": "Basınç",
+  "widgetsC.weather.fact.uvIndex": "UV indeksi"
+}

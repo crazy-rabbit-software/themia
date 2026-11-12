@@ -74,8 +74,8 @@ public static class ReadyMadeGroups
         new("tasks", new(0, 340, 320, 320)),
     ]);
 
-    /// <summary>[S-2474] Weather: now, the days ahead and the rain in the next hour, stacked.</summary>
-    public static ReadyMadeGroup Weather { get; } = new("weather", Str.Groups_Recipe_Weather, Str.Groups_Recipe_WeatherAbout, Glyphs.Weather, AddFolderId.Weather,
+    /// <summary>[S-2474] [S-11172] Weather station: the reading, its facts, the days ahead and the rain in the next hour, stacked as one panel.</summary>
+    public static ReadyMadeGroup WeatherStation { get; } = new("weatherStation", Str.Groups_Recipe_WeatherStation, Str.Groups_Recipe_WeatherStationAbout, Glyphs.Weather, AddFolderId.Weather,
     [
         new("weatherNow", new(0, 0, 380, 200)),
         new("weatherForecast", new(0, 200, 380, 220)),
@@ -208,8 +208,15 @@ public static class ReadyMadeGroups
         new("driveFacts", new(0, 112, 260, 136), Header: HeaderPlacement.Hidden),
     ]);
 
+    /// <summary>[S-11172] Weather: the reading over its facts, the old weather card as two atoms.</summary>
+    public static ReadyMadeGroup Weather { get; } = new("weather", Str.Groups_Recipe_Weather, Str.Groups_Recipe_WeatherAbout, Glyphs.Weather, AddFolderId.Weather,
+    [
+        new("weatherNow", new(0, 0, 240, 100)),
+        new("weatherFacts", new(0, 100, 240, 136), Header: HeaderPlacement.Hidden),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

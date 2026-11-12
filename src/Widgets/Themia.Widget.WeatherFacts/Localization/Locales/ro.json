@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Se simte ca",
+  "weather.humidity": "Umiditate",
+  "weather.wind": "Vânt",
+  "widgetsC.weather.fact.cloudCover": "Nebulozitate",
+  "widgetsC.weather.fact.gusts": "Rafale",
+  "widgetsC.weather.fact.precipitation": "Precipitații",
+  "widgetsC.weather.fact.pressure": "Presiune",
+  "widgetsC.weather.fact.uvIndex": "Indice UV"
+}

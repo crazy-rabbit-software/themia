@@ -515,7 +515,6 @@
           "config": {
             "kind": "weatherNow",
             "style": "standard",
-            "showDetails": true,
             "locationName": "",
             "useDeviceLocation": false
           }

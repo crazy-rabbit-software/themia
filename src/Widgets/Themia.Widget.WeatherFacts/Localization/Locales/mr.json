@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "जाणवते",
+  "weather.humidity": "आर्द्रता",
+  "weather.wind": "वारा",
+  "widgetsC.weather.fact.cloudCover": "ढगांचे आच्छादन",
+  "widgetsC.weather.fact.gusts": "झोत",
+  "widgetsC.weather.fact.precipitation": "पर्जन्य",
+  "widgetsC.weather.fact.pressure": "दाब",
+  "widgetsC.weather.fact.uvIndex": "UV निर्देशांक"
+}

@@ -28,7 +28,6 @@
           "config": {
             "kind": "weatherNow",
             "style": "largeIcon",
-            "showDetails": false,
             "latitude": 47.3667,
             "longitude": 8.55,
             "locationName": "Z\u00FCrich, Zurich, Switzerland",

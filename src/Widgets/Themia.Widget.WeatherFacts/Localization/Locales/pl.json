@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Odczuwalna",
+  "weather.humidity": "Wilgotność",
+  "weather.wind": "Wiatr",
+  "widgetsC.weather.fact.cloudCover": "Zachmurzenie",
+  "widgetsC.weather.fact.gusts": "Porywy",
+  "widgetsC.weather.fact.precipitation": "Opady",
+  "widgetsC.weather.fact.pressure": "Ciśnienie",
+  "widgetsC.weather.fact.uvIndex": "Indeks UV"
+}

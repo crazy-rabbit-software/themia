@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "महसूस होता है",
+  "weather.humidity": "नमी",
+  "weather.wind": "हवा",
+  "widgetsC.weather.fact.cloudCover": "बादल",
+  "widgetsC.weather.fact.gusts": "झोंके",
+  "widgetsC.weather.fact.precipitation": "वर्षा",
+  "widgetsC.weather.fact.pressure": "दबाव",
+  "widgetsC.weather.fact.uvIndex": "UV सूचकांक"
+}

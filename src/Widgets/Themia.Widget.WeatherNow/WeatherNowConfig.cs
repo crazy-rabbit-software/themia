@@ -7,29 +7,22 @@ using Themia.Widget.WeatherNow;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-6074] The current conditions' rows that only some styles draw.</summary>
-public enum WeatherNowSetting
-{
-    /// <summary>The feels-like, humidity and wind line (Standard).</summary>
-    Details,
-}
-
 /// <summary>[S-6160] The current conditions' styles: the same reading, three looks.</summary>
 [JsonConverter(typeof(StyleJsonConverter<WeatherNowStyle>))]
 public enum WeatherNowStyle
 {
-    /// <summary>[S-723] The reading and its readings, on the ladder.</summary>
+    /// <summary>[S-723] The sky's glyph leading the temperature, the condition under it.</summary>
     Standard = 0,
 
     /// <summary>[S-6161] The sky's glyph large, the temperature beside it.</summary>
     LargeIcon = 1,
 
-    /// <summary>[S-6162] The temperature alone, in a light weight.</summary>
+    /// <summary>[S-6162] The temperature alone.</summary>
     Minimal = 2,
 }
 
-/// <summary>Conditions right now, from open-meteo's <c>current</c> block.</summary>
-public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<WeatherNowSetting>, IContentAligned, IInterests
+/// <summary>[S-11100] The reading right now, from open-meteo's <c>current</c> block: the sky, the temperature, the condition.</summary>
+public sealed class WeatherNowConfig : WeatherConfig, IStyled, IContentAligned, IInterests
 {
     [JsonIgnore]
     public override bool ReadsWeather => true;
@@ -65,16 +58,9 @@ public sealed class WeatherNowConfig : WeatherConfig, IStyled, IShownSettings<We
         set => Style = (WeatherNowStyle)value;
     }
 
-    /// <summary>Show the feels-like, humidity and wind line under the temperature.</summary>
-    public bool ShowDetails { get; set; } = true;
-
-    /// <summary>[S-6074] The readings line is the standard style's own: the large icon and the minimal style never draw it.</summary>
-    [JsonIgnore]
-    public IReadOnlyList<WeatherNowSetting> ShownSettings => Style == WeatherNowStyle.Standard ? [WeatherNowSetting.Details] : [];
-
     public override WidgetConfig Clone()
     {
-        var copy = new WeatherNowConfig { Style = Style, ShowDetails = ShowDetails };
+        var copy = new WeatherNowConfig { Style = Style };
         CopyTo(copy);
         return copy;
     }

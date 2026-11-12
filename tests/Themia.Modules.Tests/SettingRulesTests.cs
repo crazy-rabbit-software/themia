@@ -71,13 +71,6 @@ public class SettingRulesTests
     }
 
     [Theory]
-    [InlineData(WeatherNowStyle.Standard, true)]
-    [InlineData(WeatherNowStyle.LargeIcon, false)]
-    [InlineData(WeatherNowStyle.Minimal, false)]
-    public void S6074_the_readings_line_is_the_standard_weather_styles_own(WeatherNowStyle style, bool details)
-        => Assert.Equal(details, new WeatherNowConfig { Style = style }.Offers(WeatherNowSetting.Details));
-
-    [Theory]
     [InlineData(QuoteMarket.Listed, QuoteRange.Day, StocksStyle.Chart, new[] { StocksSetting.MarketState, StocksSetting.ExtendedHours, StocksSetting.MinMax })]
     [InlineData(QuoteMarket.Listed, QuoteRange.FiveDays, StocksStyle.Number, new[] { StocksSetting.MarketState, StocksSetting.ExtendedHours })]
     [InlineData(QuoteMarket.Listed, QuoteRange.Month, StocksStyle.Chart, new[] { StocksSetting.MarketState, StocksSetting.MinMax })]

@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Pocitově",
+  "weather.humidity": "Vlhkost",
+  "weather.wind": "Vítr",
+  "widgetsC.weather.fact.cloudCover": "Oblačnost",
+  "widgetsC.weather.fact.gusts": "Nárazy větru",
+  "widgetsC.weather.fact.precipitation": "Srážky",
+  "widgetsC.weather.fact.pressure": "Tlak",
+  "widgetsC.weather.fact.uvIndex": "UV index"
+}

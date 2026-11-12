@@ -33,7 +33,7 @@ public sealed class AirQualityModule : IWidgetModule
         Glyph = Glyph,
         Sizing = _ => WidgetSizing.Legacy(260, 200),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Weather, 0, 3),
+        Add = new(AddFolderId.Weather, 0, 4),
     };
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>

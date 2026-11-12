@@ -20,10 +20,12 @@ public sealed class WeatherNowMenuTests
     }
 
     [Fact]
-    public void S6174_the_readings_line_is_under_style_in_the_standard_style_only()
+    public void S6174_nothing_stands_under_style_in_any_style()
     {
-        Assert.Single(Build(new WeatherNowConfig { Style = WeatherNowStyle.Standard }).StyleLines);
-        Assert.Empty(Build(new WeatherNowConfig { Style = WeatherNowStyle.LargeIcon }).StyleLines);
+        foreach (var style in Enum.GetValues<WeatherNowStyle>())
+        {
+            Assert.Empty(Build(new WeatherNowConfig { Style = style }).StyleLines);
+        }
     }
 
     [Fact]

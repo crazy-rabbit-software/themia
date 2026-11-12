@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Terasa seperti",
+  "weather.humidity": "Kelembapan",
+  "weather.wind": "Angin",
+  "widgetsC.weather.fact.cloudCover": "Litupan awan",
+  "widgetsC.weather.fact.gusts": "Tiupan angin",
+  "widgetsC.weather.fact.precipitation": "Kerpasan",
+  "widgetsC.weather.fact.pressure": "Tekanan",
+  "widgetsC.weather.fact.uvIndex": "Indeks UV"
+}

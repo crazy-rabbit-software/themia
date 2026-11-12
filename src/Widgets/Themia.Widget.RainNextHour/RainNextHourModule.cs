@@ -34,7 +34,7 @@ public sealed class RainNextHourModule : IWidgetModule
         Sizing = _ => WidgetSizing.Legacy(300, 180),
         DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
         Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Weather, 0, 2),
+        Add = new(AddFolderId.Weather, 0, 3),
     };
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>

@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Ощущается как",
+  "weather.humidity": "Влажность",
+  "weather.wind": "Ветер",
+  "widgetsC.weather.fact.cloudCover": "Облачность",
+  "widgetsC.weather.fact.gusts": "Порывы",
+  "widgetsC.weather.fact.precipitation": "Осадки",
+  "widgetsC.weather.fact.pressure": "Давление",
+  "widgetsC.weather.fact.uvIndex": "УФ-индекс"
+}

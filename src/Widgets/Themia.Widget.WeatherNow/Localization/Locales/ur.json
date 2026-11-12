@@ -2,16 +2,7 @@
   "styles.weatherNow.largeIcon": "بڑا آئیکن",
   "styles.weatherNow.minimal": "کم سے کم",
   "styles.weatherNow.standard": "معیاری",
-  "weather.feelsLike": "محسوس ہوتا ہے",
-  "weather.humidity": "نمی",
-  "weather.wind": "ہوا",
   "widget.weatherCurrent.label": "موسم",
   "widgetsA.catalog.weather.description": "آپ کے مقام کا موسم",
-  "widgetsC.weather.fact.cloudCover": "بادلوں کی مقدار",
-  "widgetsC.weather.fact.gusts": "جھونکے",
-  "widgetsC.weather.fact.precipitation": "بارش",
-  "widgetsC.weather.fact.pressure": "دباؤ",
-  "widgetsC.weather.fact.uvIndex": "UV انڈیکس",
-  "widgetsC.weather.feelsShort": "محسوس {temperature}",
-  "widgetsC.weather.settings.showDetail.label": "تفصیل دکھائیں"
+  "widgetsC.weather.feelsShort": "محسوس {temperature}"
 }

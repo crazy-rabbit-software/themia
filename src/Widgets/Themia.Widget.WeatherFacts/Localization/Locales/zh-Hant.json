@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "體感",
+  "weather.humidity": "濕度",
+  "weather.wind": "風",
+  "widgetsC.weather.fact.cloudCover": "雲量",
+  "widgetsC.weather.fact.gusts": "陣風",
+  "widgetsC.weather.fact.precipitation": "降水",
+  "widgetsC.weather.fact.pressure": "氣壓",
+  "widgetsC.weather.fact.uvIndex": "紫外線指數"
+}

@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "الإحساس",
+  "weather.humidity": "الرطوبة",
+  "weather.wind": "الرياح",
+  "widgetsC.weather.fact.cloudCover": "الغطاء السحابي",
+  "widgetsC.weather.fact.gusts": "الهبات",
+  "widgetsC.weather.fact.precipitation": "الهطول",
+  "widgetsC.weather.fact.pressure": "الضغط",
+  "widgetsC.weather.fact.uvIndex": "مؤشر الأشعة فوق البنفسجية"
+}

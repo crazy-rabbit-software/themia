@@ -28,7 +28,7 @@ public sealed class WidgetSizingTests
         "nextMeeting", "nightLightToggle", "notifications", "pomodoro", "quote", "rainNextHour", "restart",
         "rotationLockToggle", "rss", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
         "signOut", "sleep", "soundToggle", "spatialSoundToggle", "stocks", "stopwatch", "sun", "volume",
-        "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
+        "weatherForecast", "weekPlanner", "wifiToggle",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

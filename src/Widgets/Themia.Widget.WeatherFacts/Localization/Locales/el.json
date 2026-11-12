@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Αίσθηση",
+  "weather.humidity": "Υγρασία",
+  "weather.wind": "Άνεμος",
+  "widgetsC.weather.fact.cloudCover": "Νεφοκάλυψη",
+  "widgetsC.weather.fact.gusts": "Ριπές",
+  "widgetsC.weather.fact.precipitation": "Υετός",
+  "widgetsC.weather.fact.pressure": "Πίεση",
+  "widgetsC.weather.fact.uvIndex": "Δείκτης UV"
+}

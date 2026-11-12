@@ -3,16 +3,7 @@
   "styles.weatherNow.largeIcon": "Ikon besar",
   "styles.weatherNow.minimal": "Minimum",
   "styles.weatherNow.standard": "Standard",
-  "weather.feelsLike": "Terasa seperti",
-  "weather.humidity": "Kelembapan",
-  "weather.wind": "Angin",
   "widget.weatherCurrent.label": "Cuaca",
   "widgetsA.catalog.weather.description": "Keadaan di tempat kamu",
-  "widgetsC.weather.fact.cloudCover": "Litupan awan",
-  "widgetsC.weather.fact.gusts": "Tiupan angin",
-  "widgetsC.weather.fact.precipitation": "Kerpasan",
-  "widgetsC.weather.fact.pressure": "Tekanan",
-  "widgetsC.weather.fact.uvIndex": "Indeks UV",
-  "widgetsC.weather.feelsShort": "Terasa {temperature}",
-  "widgetsC.weather.settings.showDetail.label": "Tunjukkan butiran"
+  "widgetsC.weather.feelsShort": "Terasa {temperature}"
 }

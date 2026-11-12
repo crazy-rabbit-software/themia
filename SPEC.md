@@ -4127,7 +4127,7 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   1..14 days. Every value is range-checked; a missing daily block still yields a reading.
 - **[S-721]** Day labels: "Today", then the culture's own abbreviated weekday (English while the app
   runs globalization-invariant).
-- [S-722], [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`).
+- [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`); [S-722] with the readings into the Weather facts widget's (`src/Widgets/Themia.Widget.WeatherFacts/`).
 - [S-724], [S-725], [S-726], [S-727], [S-6163], [S-6164], [S-6171], [S-6172]: moved with the Weather forecast widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherForecast/`).
 - **[S-728]** The header's label is the chosen place's city (first part of `LocationName`,
   `WeatherConfig.PlaceLabel`) beside the widget's name ([S-2260]); before a pick there is none (the
@@ -7206,8 +7206,9 @@ grouped, so a first desktop is a few clicks.
   widgets, by name, description and the names of the widgets they hold; a result says "Ready-made · n
   widgets".
 - **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid, each reading over its history, [S-11090]), **My day**
-  (the clock on top, the next meeting and the tasks under it) and **Weather** (now, the forecast and
-  the rain in the next hour, stacked), each with its kinds' default configs.
+  (the clock on top, the next meeting and the tasks under it) and **Weather station** ([S-11172]: the
+  reading, its facts, the forecast and the rain in the next hour, stacked), each with its kinds'
+  default configs. The weather, sky and money family adds its own ([S-11172]).
 - **[S-11209]** **My files** (files family): the Documents folder as a list (300 × 308) on the left;
   beside it the shortcuts as a grid of four columns (the Recycle Bin, This PC, Downloads, Documents;
   316 × 100) over the files opened last, four rows (316 × 208): each box the size its kind's sizing
@@ -7220,6 +7221,36 @@ grouped, so a first desktop is a few clicks.
 Not live-verified: entering a group by clicks, dragging a group and an entered member, the keys,
 the card menu's lines, a group handed to another display, placing a recipe on a display with a
 taskbar or a scale other than 100 %.
+
+## Weather, sky and money as atoms (ATOMS-SKY)
+
+Owner's decision 2026-11-12 ([S-2438]): the weather, sky and money widgets are split into atoms, each
+one thing at its own size, and the old cards come back as ready-made groups ([S-2470]). Owning files:
+`Themia.Sdk/Widgets/SkyFacts.cs` (the fact atoms' pick and sizing), `Themia.Sdk.WinUI/Widgets/SkyFeed.cs`
+(how an atom follows its answer), `SkyParts.cs` (`SkyFactList`, `SkyEventRow`, `SkyMoonDisc`),
+`Shell/SkyFactLines.cs` (the pick's menu line), `Themia.Core/Model/ReadyMadeGroups.cs` (the recipes);
+each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyMadeGroupsTests`.
+
+- **[S-11170]** **A fact atom** (weather facts, air facts, sun times, moon times) shows an ordered pick
+  of fact rows, which and in what order its config's own, one 28 row each ([S-6711]). Its height is
+  the content top (36), its rows and the inset (12), stepped by a row and following the pick's count;
+  its width 200..420, a new one 240 (`SkyFacts.Sizing`). Dragging its bottom edge keeps the first rows
+  or adds the next ones not picked yet in the kind's order (`SkyFacts.Resize`, [S-2442]). A stored pick
+  that is empty, holds a fact twice or one the kind lacks is repaired (`SkyFacts.Repair`). Its menu
+  line is a list ([S-3729], `SkyFactLines.Pick`): the picked facts dragged to reorder, each removed but
+  the last, an Add line for each fact not picked.
+- **[S-11171]** **One answer, one path.** The atoms that read the background sync (the weather's
+  reading, forecast, air, rain) follow it through one helper (`SkyFeed`): it tells the sync what is on
+  screen, hears its key, keeps the newest answer through a failure ([S-7042]) or the state to say
+  ([S-6734]), redraws on the cadence's tick and asks again when the language or the shared unit
+  changes. Atoms of one subject at one place read the same answer, so they agree to the digit; the sky
+  atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
+- **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
+  (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
+  and **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
+  called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
+  weather's none, the sky's Zurich); the previews and `--recipe-png` draw every atom at the one sample
+  place (`SamplePlace`) on the sample day.
 
 ## Music and Pomodoro: parity and the whole tile (PF)
 

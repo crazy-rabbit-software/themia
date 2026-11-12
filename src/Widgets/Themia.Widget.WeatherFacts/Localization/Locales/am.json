@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "የሚሰማው",
+  "weather.humidity": "እርጥበት",
+  "weather.wind": "ነፋስ",
+  "widgetsC.weather.fact.cloudCover": "የደመና ሽፋን",
+  "widgetsC.weather.fact.gusts": "ድንገተኛ ነፋሳት",
+  "widgetsC.weather.fact.precipitation": "ዝናብ",
+  "widgetsC.weather.fact.pressure": "ግፊት",
+  "widgetsC.weather.fact.uvIndex": "የUV መረጃ ጠቋሚ"
+}

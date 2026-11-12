@@ -19,6 +19,7 @@
     <Project Path="src/Widgets/Themia.Widget.MemoryHistory/Themia.Widget.MemoryHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.CpuCores/Themia.Widget.CpuCores.csproj" />
     <Project Path="src/Widgets/Themia.Widget.CpuHistory/Themia.Widget.CpuHistory.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.WeatherFacts/Themia.Widget.WeatherFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DeviceBatteries/Themia.Widget.DeviceBatteries.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DesktopItem/Themia.Widget.DesktopItem.csproj" />
     <Project Path="src/Widgets/Themia.Widget.AirQuality/Themia.Widget.AirQuality.csproj" />

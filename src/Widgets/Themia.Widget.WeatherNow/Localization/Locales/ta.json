@@ -2,16 +2,7 @@
   "styles.weatherNow.largeIcon": "பெரிய ஐகான்",
   "styles.weatherNow.minimal": "குறைந்தபட்சம்",
   "styles.weatherNow.standard": "நிலையானது",
-  "weather.feelsLike": "உணர்வது",
-  "weather.humidity": "ஈரப்பதம்",
-  "weather.wind": "காற்று",
   "widget.weatherCurrent.label": "வானிலை",
   "widgetsA.catalog.weather.description": "நீங்கள் இருக்கும் இடத்தின் வானிலை",
-  "widgetsC.weather.fact.cloudCover": "மேக மூட்டம்",
-  "widgetsC.weather.fact.gusts": "காற்று வீச்சு",
-  "widgetsC.weather.fact.precipitation": "மழைப்பொழிவு",
-  "widgetsC.weather.fact.pressure": "அழுத்தம்",
-  "widgetsC.weather.fact.uvIndex": "UV குறியீடு",
-  "widgetsC.weather.feelsShort": "உணர்வது {temperature}",
-  "widgetsC.weather.settings.showDetail.label": "விவரத்தைக் காட்டு"
+  "widgetsC.weather.feelsShort": "உணர்வது {temperature}"
 }

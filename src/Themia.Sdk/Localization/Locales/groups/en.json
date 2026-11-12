@@ -44,7 +44,9 @@
     "groups.recipe.batteryDetails",
     "groups.recipe.batteryDetailsAbout",
     "groups.recipe.drive",
-    "groups.recipe.driveAbout"
+    "groups.recipe.driveAbout",
+    "groups.recipe.weatherStation",
+    "groups.recipe.weatherStationAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -93,5 +95,7 @@
   "groups.recipe.batteryDetails": "Battery details",
   "groups.recipe.batteryDetailsAbout": "The charge over the battery's status and health",
   "groups.recipe.drive": "Drive",
-  "groups.recipe.driveAbout": "A drive's used share over its facts"
+  "groups.recipe.driveAbout": "A drive's used share over its facts",
+  "groups.recipe.weatherStation": "Weather station",
+  "groups.recipe.weatherStationAbout": "Now, the days ahead and rain in the next hour"
 }

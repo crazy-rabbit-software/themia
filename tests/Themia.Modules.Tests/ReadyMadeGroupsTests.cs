@@ -122,7 +122,7 @@ public sealed class ReadyMadeGroupsTests
     [Fact]
     public void S2474_the_three_seeds_are_offered_in_order()
     {
-        Assert.Equal(["thisPc", "myDay", "weather"], ReadyMadeGroups.Offered().Select(r => r.Id).Take(3));
+        Assert.Equal(["thisPc", "myDay", "weatherStation"], ReadyMadeGroups.Offered().Select(r => r.Id).Take(3));
     }
 
     [Fact]

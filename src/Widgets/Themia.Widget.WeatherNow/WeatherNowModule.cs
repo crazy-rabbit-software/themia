@@ -14,7 +14,7 @@ using Themia.Widget.WeatherNow;
 
 namespace Themia.Widget.WeatherNow;
 
-/// <summary>[S-723] The weather where the user says they are: the temperature as the hero readout, then its readings as the tile grows. SPEC.md beside this file.</summary>
+/// <summary>[S-11100] The weather's reading where the user says they are: the sky, the temperature and the condition. SPEC.md beside this file.</summary>
 public sealed class WeatherNowModule : IWidgetModule
 {
     /// <summary>[S-2035] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
@@ -27,12 +27,12 @@ public sealed class WeatherNowModule : IWidgetModule
         ConfigType = typeof(WeatherNowConfig),
         CreateDefault = () => new WeatherNowConfig(),
         Json = WeatherNowJsonContext.Default,
-        Keywords = ["temperature", "forecast", "rain", "wind", "humidity", "climate", "degrees"],
+        Keywords = ["temperature", "now", "conditions", "climate", "degrees", "sky"],
         Label = WeatherNowStr.Widget_WeatherCurrent_Label.Local(),
         Description = WeatherNowStr.WidgetsA_Catalog_Weather_Description.Local(),
         Glyph = Glyphs.Weather,
-        Sizing = _ => WidgetSizing.Legacy(260, 200),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c),
+        Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
     };
 

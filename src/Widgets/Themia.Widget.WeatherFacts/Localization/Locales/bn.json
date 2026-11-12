@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "অনুভূত",
+  "weather.humidity": "আর্দ্রতা",
+  "weather.wind": "বাতাস",
+  "widgetsC.weather.fact.cloudCover": "মেঘের আচ্ছাদন",
+  "widgetsC.weather.fact.gusts": "দমকা হাওয়া",
+  "widgetsC.weather.fact.precipitation": "বৃষ্টিপাত",
+  "widgetsC.weather.fact.pressure": "চাপ",
+  "widgetsC.weather.fact.uvIndex": "UV সূচক"
+}

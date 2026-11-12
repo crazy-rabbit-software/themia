@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Voelt als",
+  "weather.humidity": "Luchtvochtigheid",
+  "weather.wind": "Wind",
+  "widgetsC.weather.fact.cloudCover": "Bewolking",
+  "widgetsC.weather.fact.gusts": "Windstoten",
+  "widgetsC.weather.fact.precipitation": "Neerslag",
+  "widgetsC.weather.fact.pressure": "Luchtdruk",
+  "widgetsC.weather.fact.uvIndex": "UV-index"
+}

@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "รู้สึกเหมือน",
+  "weather.humidity": "ความชื้น",
+  "weather.wind": "ลม",
+  "widgetsC.weather.fact.cloudCover": "ปริมาณเมฆ",
+  "widgetsC.weather.fact.gusts": "ลมกระโชก",
+  "widgetsC.weather.fact.precipitation": "ปริมาณน้ำฝน",
+  "widgetsC.weather.fact.pressure": "ความกดอากาศ",
+  "widgetsC.weather.fact.uvIndex": "ดัชนี UV"
+}

@@ -1,0 +1,18 @@
+{
+  "$englishOnly": [
+    "weatherFacts.label",
+    "weatherFacts.desc",
+    "weatherFacts.menu.facts"
+  ],
+  "weather.feelsLike": "Feels like",
+  "weather.humidity": "Humidity",
+  "weather.wind": "Wind",
+  "weatherFacts.desc": "Today's range, humidity, wind and more where you are",
+  "weatherFacts.label": "Weather facts",
+  "weatherFacts.menu.facts": "Facts",
+  "widgetsC.weather.fact.cloudCover": "Cloud cover",
+  "widgetsC.weather.fact.gusts": "Gusts",
+  "widgetsC.weather.fact.precipitation": "Precipitation",
+  "widgetsC.weather.fact.pressure": "Pressure",
+  "widgetsC.weather.fact.uvIndex": "UV index"
+}

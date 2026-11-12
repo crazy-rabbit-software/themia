@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "Відчувається як",
+  "weather.humidity": "Вологість",
+  "weather.wind": "Вітер",
+  "widgetsC.weather.fact.cloudCover": "Хмарність",
+  "widgetsC.weather.fact.gusts": "Пориви",
+  "widgetsC.weather.fact.precipitation": "Опади",
+  "widgetsC.weather.fact.pressure": "Тиск",
+  "widgetsC.weather.fact.uvIndex": "УФ-індекс"
+}

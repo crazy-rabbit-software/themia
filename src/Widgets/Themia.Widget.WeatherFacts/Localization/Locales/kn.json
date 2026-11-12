@@ -1,0 +1,10 @@
+{
+  "weather.feelsLike": "ಅನಿಸುವುದು",
+  "weather.humidity": "ಆರ್ದ್ರತೆ",
+  "weather.wind": "ಗಾಳಿ",
+  "widgetsC.weather.fact.cloudCover": "ಮೋಡದ ಹೊದಿಕೆ",
+  "widgetsC.weather.fact.gusts": "ಗಾಳಿಯ ರಭಸ",
+  "widgetsC.weather.fact.precipitation": "ಮಳೆಯ ಪ್ರಮಾಣ",
+  "widgetsC.weather.fact.pressure": "ಒತ್ತಡ",
+  "widgetsC.weather.fact.uvIndex": "UV ಸೂಚ್ಯಂಕ"
+}

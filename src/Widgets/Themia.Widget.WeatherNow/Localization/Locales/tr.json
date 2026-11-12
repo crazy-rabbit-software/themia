@@ -2,16 +2,7 @@
   "styles.weatherNow.largeIcon": "Büyük simge",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standart",
-  "weather.feelsLike": "Hissedilen",
-  "weather.humidity": "Nem",
-  "weather.wind": "Rüzgâr",
   "widget.weatherCurrent.label": "Hava durumu",
   "widgetsA.catalog.weather.description": "Bulunduğunuz yerdeki hava koşulları",
-  "widgetsC.weather.fact.cloudCover": "Bulut örtüsü",
-  "widgetsC.weather.fact.gusts": "Rüzgâr hamlesi",
-  "widgetsC.weather.fact.precipitation": "Yağış",
-  "widgetsC.weather.fact.pressure": "Basınç",
-  "widgetsC.weather.fact.uvIndex": "UV indeksi",
-  "widgetsC.weather.feelsShort": "Hissedilen {temperature}",
-  "widgetsC.weather.settings.showDetail.label": "Ayrıntıyı göster"
+  "widgetsC.weather.feelsShort": "Hissedilen {temperature}"
 }
