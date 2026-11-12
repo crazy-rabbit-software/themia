@@ -117,10 +117,8 @@
       "caption": "A desktop of system widgets: processor load per core, memory, graphics, network, disks, the programs using the most, ping and battery.",
       "callouts": [
         "Every core",
-        "Memory",
-        "Graphics",
-        "Network",
         "What's using your PC",
+        "Network, up and down",
         "Battery"
       ]
     },
@@ -132,9 +130,9 @@
       "caption": "A desktop with a folder to browse, shortcuts, the newest files, drives with their free space, the clipboard's history and a photo.",
       "callouts": [
         "Any folder",
-        "Shortcuts",
+        "Your pictures",
         "Free space",
-        "Your newest files",
+        "What you copied",
         "Your photos"
       ]
     },

@@ -117,10 +117,8 @@
       "caption": "Ein Desktop mit Systemwidgets: Prozessorlast pro Kern, Arbeitsspeicher, Grafik, Netzwerk, Laufwerke, die Programme mit der höchsten Last, Ping und Akku.",
       "callouts": [
         "Jeder Kern",
-        "Arbeitsspeicher",
-        "Grafik",
-        "Netzwerk",
         "Was deinen PC belastet",
+        "Netzwerk, hoch und runter",
         "Akku"
       ]
     },
@@ -132,9 +130,9 @@
       "caption": "Ein Desktop mit einem Ordner zum Durchblättern, Verknüpfungen, den neuesten Dateien, Laufwerken mit freiem Platz, dem Verlauf der Zwischenablage und einem Foto.",
       "callouts": [
         "Jeder Ordner",
-        "Verknüpfungen",
+        "Deine Bilder",
         "Freier Platz",
-        "Deine neuesten Dateien",
+        "Was du kopiert hast",
         "Deine Fotos"
       ]
     },

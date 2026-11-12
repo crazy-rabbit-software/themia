@@ -80,12 +80,12 @@ function panoramaHtml(lang, listing, at, n) {
           const z = `z-index:${c.z ?? 1};`;
           if (c.screen) {
             const box = { x: left + c.x, y: c.y, w: c.w, h: Math.round((c.w * 9) / 16) };
-            return `<div class="layer" style="${z}">${monitor(at, c.cuts ?? [c.screen], box, c.tilt ?? 0)}${bubblesHtml(worded(c.bubbles), c.screen, { x: 0, y: 0, w: page.w, h: page.h }, box)}</div>`;
+            return `<div class="layer" style="${z}">${monitor(at, c.cuts ?? [c.screen], box, c.tilt ?? 0)}${bubblesHtml(worded(c.bubbles), c.screen, { x: 0, y: 0, w: page.w, h: page.h }, box, left)}</div>`;
           }
           const crop = pieceRect(scenes, c.piece);
           const box = { x: left + c.x, y: c.y, w: c.w, h: Math.round((c.w * crop.h) / crop.w) };
           const rays = c.lens === undefined ? "" : raysHtml(crop, { x: left + frame.cards[c.lens].x, y: frame.cards[c.lens].y, w: frame.cards[c.lens].w }, box);
-          return `<div class="layer" style="${z}">${rays}${piece(at, c.piece, crop, box, c)}${bubblesHtml(worded(c.bubbles), c.piece[0], crop, box)}</div>`;
+          return `<div class="layer" style="${z}">${rays}${piece(at, c.piece, crop, box, c)}${bubblesHtml(worded(c.bubbles), c.piece[0], crop, box, left)}</div>`;
         })
         .join("");
       const wall = frame.wall ? wallHtml(frame.wall, left, at) : "";
@@ -306,10 +306,11 @@ function lanesHtml(lanes, left, words, at) {
 
 /**
  * Callouts over a card showing crop (a scene's DIPs) in box: each bubble's words where its dx, dy (page px) put them
- * from its point, above it by default; a line from the bubble to a dot on the point. The point is a place in a widget
+ * from its point, above it by default, or at a place of the page (to: its middle, page px); a line from the bubble to
+ * a dot on the point. The point is a place in a widget
  * of the scene (on: its id; at: fractions of its box, its middle by default) or a point of the scene (at, DIPs).
  */
-function bubblesHtml(bubbles, scene, crop, box) {
+function bubblesHtml(bubbles, scene, crop, box, left) {
   const k = box.w / crop.w;
   return bubbles
     .map((bubble) => {
@@ -324,7 +325,7 @@ function bubblesHtml(bubbles, scene, crop, box) {
         [x, y] = bubble.at;
       }
       const point = { x: box.x + (x - crop.x) * k, y: box.y + (y - crop.y) * k };
-      const at = { x: point.x + (bubble.dx ?? 0), y: point.y + (bubble.dy ?? -80) };
+      const at = bubble.to ? { x: left + bubble.to[0], y: bubble.to[1] } : { x: point.x + (bubble.dx ?? 0), y: point.y + (bubble.dy ?? -80) };
       const length = Math.hypot(point.x - at.x, point.y - at.y);
       const angle = (Math.atan2(point.y - at.y, point.x - at.x) * 180) / Math.PI;
       return `<div class="lead" style="left:${at.x}px; top:${at.y - 1}px; width:${length}px; height:2px; transform-origin:0 50%; transform:rotate(${angle}deg);"></div>

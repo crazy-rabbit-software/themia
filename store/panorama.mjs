@@ -16,7 +16,8 @@
 //          neighbours, ground a piece of a desktop with its wallpaper, its corners rounded here (else the widget
 //          alone, a shadow under it), lens enlarging that piece of the screen it names (that card's place among the frame's
 //          cards), marked there, light widening to it. bubbles: a card's callouts, each at a widget of its scene (on:
-//          its id; at: fractions of its box) or at a point (at, DIPs), the bubble dx, dy page px from there, worded by
+//          its id; at: fractions of its box) or at a point (at, DIPs), the bubble dx, dy page px from there or at a
+//          place of the page (to), worded by
 //          the listing's callouts in the frame's order
 //   wall   lists of pieces side by side, each w wide and gap apart from x, y (a list's dy lower), the whole turned r
 //          degrees about the page's middle, fading in between fade's two heights (under the headline): the widgets,
@@ -149,13 +150,12 @@ export const frames = [
       {
         screen: "pc",
         ...screen,
+        // Beside the monitor, a line into the screen to each.
         bubbles: [
-          { on: "cores", at: [0.5, 0.1], dy: -130 },
-          { on: "memory", at: [0.5, 0.1], dy: -70 },
-          { on: "gpu", at: [0.5, 0.1], dy: -130 },
-          { on: "network", at: [0.5, 0.1], dy: -70 },
-          { on: "topProcesses", at: [0.02, 0.5], dx: -190, dy: 0 },
-          { on: "battery", at: [0.98, 0.5], dx: 170, dy: 0 },
+          { on: "cores", at: [0, 0.5], to: [156, 470] },
+          { on: "topProcesses", at: [0, 0.4], to: [156, 760] },
+          { on: "network", at: [1, 0.5], to: [1764, 330] },
+          { on: "battery", at: [1, 0.5], to: [1764, 700] },
         ],
       },
     ],
@@ -167,11 +167,11 @@ export const frames = [
         screen: "files",
         ...screen,
         bubbles: [
-          { on: "folder", at: [0.5, 0.06], dy: -75 },
-          { on: "shortcuts", at: [0.5, 0.08], dy: -125 },
-          { on: "drive", at: [0.6, 0.1], dy: -75 },
-          { on: "recentFiles", at: [0.02, 0.6], dx: -560, dy: 40 },
-          { on: "gallery", at: [0.98, 0.5], dx: 150, dy: 0 },
+          { on: "folder", at: [0, 0.3], to: [156, 380] },
+          { on: "pictures", at: [0, 0.5], to: [156, 790] },
+          { on: "usb", at: [1, 0.5], to: [1764, 330] },
+          { on: "clipboard", at: [1, 0.5], to: [1764, 560] },
+          { on: "gallery", at: [1, 0.5], to: [1764, 820] },
         ],
       },
     ],
