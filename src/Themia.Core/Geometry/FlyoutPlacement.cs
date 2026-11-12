@@ -33,6 +33,19 @@ public static class FlyoutPlacement
         return new FlyoutSpot(Math.Round(x), y, width, height, Tip(middle - Math.Round(x), width));
     }
 
+    /// <summary>
+    /// [S-11707] The add page under <paramref name="bar"/> (Karpo's §593): exactly as wide as the bar and
+    /// flush with its sides, the flyout's gap under it, no beak (its tip NaN); as tall as its page
+    /// (<paramref name="content"/>) up to 70 % of <paramref name="area"/>, never past its foot less the margin.
+    /// </summary>
+    public static FlyoutSpot Under(PixelRect bar, PixelRect area, double content)
+    {
+        var y = bar.Y + bar.Height + M.Gap;
+        var room = Math.Min(Math.Floor(area.Height * M.MostShare), area.Y + area.Height - M.EdgeMargin - y);
+        var height = Math.Max(0, Math.Min(Math.Ceiling(content), room));
+        return new FlyoutSpot(bar.X, y, bar.Width, height, double.NaN);
+    }
+
     /// <summary>[S-2326] The beak's tip <paramref name="at"/> DIPs along a top <paramref name="width"/> wide, held to its straight; its middle where it is too short.</summary>
     public static double Tip(double at, double width)
     {

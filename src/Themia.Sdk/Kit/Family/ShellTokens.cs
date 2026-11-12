@@ -120,6 +120,36 @@ public static class ShellMetrics
     }
 
     /// <summary>
+    /// [S-11707] The add page (Karpo's §593, §578: <c>PanelMetrics.TileLeast</c>, its tab strip): as wide as
+    /// the bar, flush under it at a flyout's gap, no beak; a top row of the 240 search box and a tab strip
+    /// 40 tall; tiles of at least 200 filling the width, 8 apart, each a 120 picture box over its name and
+    /// one caption line, 8 in; the picture fitted 8 inside its box.
+    /// </summary>
+    public static class AddPage
+    {
+        public const double TileLeast = 200;
+
+        public const double TileGap = 8;
+
+        /// <summary>A tile's picture box: as wide as the tile less its padding, this tall.</summary>
+        public const double Picture = 120;
+
+        /// <summary>Inside a tile, round its picture box and words; and round the picture inside its box.</summary>
+        public const double TilePad = 8;
+
+        /// <summary>The tab strip's height (Karpo's tab strips, WinUI's SelectorBar).</summary>
+        public const double TabHeight = 40;
+
+        /// <summary>Inside a tab, before and after its words.</summary>
+        public const double TabPad = 12;
+
+        public const double SearchWidth = 240;
+
+        /// <summary>Between the search box and the tab strip.</summary>
+        public const double TopGap = 12;
+    }
+
+    /// <summary>
     /// [S-2305] A page's sections, cards and rows (Karpo's PanelMetrics): a heading 24 after the previous
     /// group and 8 over its cards; cards 4 apart and radius 4, 16 under the last; a row 48 tall, 60 with a
     /// caption, its icon at 16, its name at 48, its control ending 16 from the card's edge.

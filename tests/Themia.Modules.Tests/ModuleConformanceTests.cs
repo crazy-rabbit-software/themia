@@ -74,7 +74,7 @@ public sealed partial class ModuleConformanceTests
         Assert.Same(widget.Label.Table, widget.Description.Table);
         Assert.False(string.IsNullOrEmpty(widget.Glyph), $"{id} has no glyph");
         Assert.True(widget.Natural.Width > 0 && widget.Natural.Height > 0);
-        Assert.True(Enum.IsDefined(widget.Add.Shelf) && widget.Add.Shelf is not (AddFolderId.Popular or AddFolderId.Browse or AddFolderId.More),
+        Assert.True(Enum.IsDefined(widget.Add.Shelf) && widget.Add.Shelf is not (AddFolderId.Start or AddFolderId.Popular or AddFolderId.Browse or AddFolderId.More),
             $"{id} is at home in {widget.Add.Shelf}");
     }
 

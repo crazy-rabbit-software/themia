@@ -1,4 +1,11 @@
 {
+  "$englishOnly": [
+    "addMenu.start",
+    "addMenu.widgets",
+    "addMenu.noResults",
+    "addMenu.tabs",
+    "addMenu.overLimit"
+  ],
   "addMenu.popular": "Popular",
   "addMenu.browse": "Browse",
   "addMenu.subject.time": "Time",
@@ -12,5 +19,10 @@
   "addMenu.subject.devices": "Devices & power",
   "addMenu.subject.more": "More",
   "addMenu.family.screenTime": "Screen time",
-  "addMenu.family.powerButtons": "Power buttons"
+  "addMenu.family.powerButtons": "Power buttons",
+  "addMenu.start": "Start",
+  "addMenu.widgets": "Widgets",
+  "addMenu.noResults": "No results for “{query}”",
+  "addMenu.tabs": "Subjects",
+  "addMenu.overLimit": "Beyond the free plan's {count} widgets: Pro"
 }

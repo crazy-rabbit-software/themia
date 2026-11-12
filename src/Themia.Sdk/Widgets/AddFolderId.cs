@@ -1,12 +1,15 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-3510] Every folder of the add menu's tree, by name: the two top columns, the subjects under
-/// Browse, and the families inside a subject. A closed set, so a folder's words and a debug render's
-/// <c>--open</c> name one that exists.
+/// [S-3510] Every folder of the add page's tree, by name: Popular and Browse, the subjects under
+/// Browse (each a tab of the page, [S-11700]), and the families inside a subject. A closed set, so a
+/// folder's words and a debug render's <c>--tab</c> name one that exists.
 /// </summary>
 public enum AddFolderId
 {
+    /// <summary>[S-11701] The page's first tab: the starter groups and Popular. No widget is at home here.</summary>
+    Start,
+
     Popular,
     Browse,
 
@@ -22,7 +25,7 @@ public enum AddFolderId
     Devices,
     QuickSettings,
 
-    /// <summary>[S-3511] What the tree leaves out stands here meanwhile, at Browse's end: never missing.</summary>
+    /// <summary>[S-3511] What the tree leaves out stands here meanwhile, the last tab: never missing.</summary>
     More,
 
     /// <summary>[S-5523] "On the desktop": this view's unplaced desktop items, where the item kind's own row would be.</summary>

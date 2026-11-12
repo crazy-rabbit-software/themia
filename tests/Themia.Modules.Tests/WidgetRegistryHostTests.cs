@@ -179,7 +179,7 @@ public sealed class WidgetRegistryHostTests
     {
         var widgets = ModuleCatalog.Widgets;
 
-        Assert.All(widgets, w => Assert.DoesNotContain(w.Add.Shelf, new[] { AddFolderId.Popular, AddFolderId.Browse, AddFolderId.More }));
+        Assert.All(widgets, w => Assert.DoesNotContain(w.Add.Shelf, new[] { AddFolderId.Start, AddFolderId.Popular, AddFolderId.Browse, AddFolderId.More }));
         Assert.Equal(widgets.Count, widgets.Select(w => (w.Add.Shelf, w.Add.Group, w.Add.Rank)).Distinct().Count());
         var popular = widgets.Where(w => w.Add.Popular is not null).Select(w => w.Add.Popular!.Value).ToList();
         Assert.Equal(Enumerable.Range(0, popular.Count), popular.Order());

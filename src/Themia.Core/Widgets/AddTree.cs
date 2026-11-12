@@ -121,6 +121,23 @@ public static class AddTree
     /// <summary>The menu's top: its two columns, left to right.</summary>
     public static IReadOnlyList<AddShelf> Top => [Popular, Browse];
 
+    /// <summary>
+    /// [S-11705] The subject <paramref name="folder"/> is in: itself for a subject, its parent for a
+    /// family; null for Start, Popular, Browse and More, which are no subject.
+    /// </summary>
+    public static AddFolderId? SubjectOf(AddFolderId folder)
+    {
+        for (var at = Folders.FirstOrDefault(f => f.Id == folder); at is not null; at = Folders.FirstOrDefault(f => f.Id == at.Parent))
+        {
+            if (at.Parent == AddFolderId.Browse)
+            {
+                return at.Id;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>The two columns over <paramref name="widgets"/>: the catalogue's, or a part of it in a test.</summary>
     internal static (AddShelf Popular, AddShelf Browse) Build(IReadOnlyList<WidgetDescriptor> widgets)
     {

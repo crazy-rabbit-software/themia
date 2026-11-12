@@ -30,6 +30,12 @@ public sealed record ReadyMadeWidget(string Kind, ReadyMadeBox Box, string? Conf
 /// </summary>
 public sealed record ReadyMadeGroup(string Id, Str Name, Str About, string Glyph, AddFolderId Home, IReadOnlyList<ReadyMadeWidget> Widgets)
 {
+    /// <summary>
+    /// [S-11703] Its place among the starters the add page's Start tab shows first (1 first), or null
+    /// when it is not one: a person's first desktop is a few of these.
+    /// </summary>
+    public int? Starter { get; init; }
+
     /// <summary>The box round every widget, in DIPs from the group's corner.</summary>
     public ReadyMadeBox Bounds
     {
@@ -64,7 +70,7 @@ public static class ReadyMadeGroups
         new("networkHistory", new(0, 276, 180, 64)),
         new("disk", new(180, 148, 180, 84)),
         new("diskHistory", new(180, 232, 180, 108)),
-    ]);
+    ]) { Starter = 2 };
 
     /// <summary>[S-2474] My day: the clock on top, the next meeting and the tasks under it.</summary>
     public static ReadyMadeGroup MyDay { get; } = new("myDay", Str.Groups_Recipe_MyDay, Str.Groups_Recipe_MyDayAbout, Glyphs.Calendar, AddFolderId.CalendarMail,
@@ -73,7 +79,7 @@ public static class ReadyMadeGroups
         new("nextMeeting", new(0, 138, 320, 124)),
         new("upNext", new(0, 262, 320, 108), Header: HeaderPlacement.Hidden),
         new("tasks", new(0, 370, 320, 220), Header: HeaderPlacement.Hidden),
-    ]);
+    ]) { Starter = 1 };
 
     /// <summary>[S-2474] [S-11172] Weather station: the reading, its facts, the days ahead and the rain in the next hour, stacked as one panel.</summary>
     public static ReadyMadeGroup WeatherStation { get; } = new("weatherStation", Str.Groups_Recipe_WeatherStation, Str.Groups_Recipe_WeatherStationAbout, Glyphs.Weather, AddFolderId.Weather,
@@ -82,7 +88,7 @@ public static class ReadyMadeGroups
         new("weatherFacts", new(0, 100, 300, 136), Header: HeaderPlacement.Hidden),
         new("weatherForecast", new(0, 236, 300, 164), Header: HeaderPlacement.Hidden),
         new("rainNextHour", new(0, 400, 300, 148), Header: HeaderPlacement.Hidden),
-    ]);
+    ]) { Starter = 3 };
 
     /// <summary>
     /// [S-11209] My files: the Documents folder as a list on the left; beside it the shortcuts as a
@@ -100,7 +106,7 @@ public static class ReadyMadeGroups
                 { "id": "documents", "target": "shell:Personal" } ] }
             """),
         new("recentFiles", new(300, 100, 316, 208), Config: """{ "rows": 4 }"""),
-    ]);
+    ]) { Starter = 5 };
 
     // ---- [S-11090] The system readings' groups: each old card's look, made of its atoms ----------------
 
@@ -258,7 +264,7 @@ public static class ReadyMadeGroups
         new("musicCover", new(0, 0, 96, 96), Config: """{ "size": "Small" }"""),
         new("music", new(96, 0, 244, 96)),
         new("musicProgress", new(0, 96, 340, 40)),
-    ]);
+    ]) { Starter = 4 };
 
     /// <summary>[S-11340] Now playing, large: the cover on top, the track and the progress under it.</summary>
     public static ReadyMadeGroup NowPlayingLarge { get; } = new("nowPlayingLarge", Str.Groups_Recipe_NowPlayingLarge, Str.Groups_Recipe_NowPlayingLargeAbout, Glyphs.Music, AddFolderId.Media,
@@ -305,7 +311,7 @@ public static class ReadyMadeGroups
     [
         new("email", new(0, 0, 300, 248)),
         new("tasks", new(300, 0, 300, 248), Config: """{ "rows": 7 }""", Header: HeaderPlacement.Hidden),
-    ]);
+    ]) { Starter = 7 };
 
     /// <summary>[S-11520] Screen time: the week's total over its bars over the apps, one panel.</summary>
     public static ReadyMadeGroup ScreenTime { get; } = new("screenTime", Str.Groups_Recipe_ScreenTime, Str.Groups_Recipe_ScreenTimeAbout, Glyphs.ScreenTime, AddFolderId.ScreenTime,
@@ -313,7 +319,7 @@ public static class ReadyMadeGroups
         new("screenTime", new(0, 0, 300, 100)),
         new("screenTimeChart", new(0, 100, 300, 116)),
         new("screenTimeApps", new(0, 216, 300, 164), Config: """{ "period": "Week" }""", Header: HeaderPlacement.Hidden),
-    ]);
+    ]) { Starter = 6 };
 
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
     public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
