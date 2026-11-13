@@ -302,6 +302,12 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   head), every choice, colour, font, icon and lookup an inline picker in its card, never a popup. Every way
   into settings lands on its row (`RequestSettings(key)`, [S-3534]). `FluentLayout` (`SettingsCard` rows) is
   only the app-layout editor's, Themia's one window.
+- **View links** (SPEC "VIEW-LINKS", [S-3300]..[S-3311], [S-11900]..[S-11958]; docs/WIDGET-KIT.md 19):
+  what is pointed at in one widget lights the same thing in the others of the view. A kind declares what it
+  publishes and follows in its descriptor (`WidgetDescriptor.Links`, a `LinkUse`; its code names exactly
+  those `LinkTopics`, `S11906_`), keys through `LinkKeys` only, joins through `WidgetLinks` and draws the one
+  look through `LinkLights`/`LinkLook`/`LinkCard` (hover fill; selected fill and accent pill; others at
+  0.6 or 0.3). SPEC's topic table is made from the descriptors (`S11907_`).
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
 - **Widget selection and groups** ([S-1580]..[S-1594], [S-2450]..[S-2458]): edit mode selects units, a
   lone widget or a whole group (a view's `Groups`, a widget's `Group`: a lock over ordinary cards, never

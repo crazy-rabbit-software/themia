@@ -5605,7 +5605,7 @@ the same thing in the others and a composition of small widgets reads as one (Ka
 `docs/widgets.md` §9, taken over in breadth: the declaration in data and the two emphasis levels; the
 engine is Themia's own). Owning files: SDK `Themia.Sdk/Links/` (`ViewLinks.cs`: `LinkTopicId`,
 `LinkTopics`, `LinkBoard`, `LinkMember`, `LinkRegistry`; `LinkUse`, `LinkEmphasis`, `LinkKeys`,
-`LinkInstants`); WinUI SDK `Widgets/WidgetLinks.cs` (`WidgetLinks`, `LinkLights<T>`, `LinkLook`); App
+`LinkInstants`); WinUI SDK `Widgets/WidgetLinks.cs` (`WidgetLinks`), `LinkLights.cs` (`LinkLights<T>`, `LinkLook`), `LinkCard.cs` (`LinkCard<T>`), `MeterView.Links.cs`; App
 `AppServices.Links`, `IWidgetSurface.Links`, `IWidgetCardHost.Links`. Tests `ViewLinksTests` (`S33xx_`),
 `ViewLinksLookTests` (`S119xx_`), `ViewLinksConformanceTests` (Modules).
 

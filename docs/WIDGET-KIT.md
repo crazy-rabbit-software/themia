@@ -3145,3 +3145,34 @@ touching another, the whole within a 1280 × 720 work area. Look at it placed wi
 its "sample" preview where it has one.
 
 Adding one counts against the free limit as adding its widgets one by one would ([S-1065]): all or nothing.
+
+## 19. Taking part in view links
+
+What a user points at in one widget lights the same thing in the other widgets of the view (SPEC "View
+links (VIEW-LINKS)", [S-3300]..[S-3311], [S-11900]..[S-11958]; Karpo's channels, `docs/widgets.md` §9).
+A kind takes part in four moves:
+
+1. **Declare it.** The descriptor says what the kind publishes and follows:
+   `Links = LinkUse.Of([LinkTopicId.HoveredFile], [LinkTopicId.HoveredFile])`. There is no per-widget
+   opt-out. The kind's code must name exactly those topics (`LinkTopics.X`, the conformance test
+   `S11906_`), so a shared part takes its topics as arguments (`ScreenTimeLinks`, `LinkLights<T>`,
+   `MeterPart.Instant`, `MeterPart.Drive`). SPEC's topic table is made from the declarations
+   (`S11907_` prints the table it wants).
+2. **Key it through `LinkKeys`.** An app is its lower-case executable stem, a person the address
+   lower-cased else the name folded, a file its full path case-folded, a drive "C:", a device its twelve hex
+   digits. Never a key of a kind's own: two kinds that show the same thing must publish the same value.
+3. **Join the board.** Hold a `WidgetLinks`: `Follow(topic, handler)` once (it is told the value at once on
+   every join), `Join(surface.Links)` in Attach (Bind runs first), `Leave()` in Detach,
+   `Set(topic, value or null)` from the pointer and from the keyboard cursor ([S-3307]). Edit mode is
+   handled for you: the boards go quiet.
+4. **Draw the one look.** `LinkLights<T>` registers the parts as they are drawn (`Row` for rows, cells
+   and items, `Mark` for a chart's parts; `Clear` before a redraw) and repaints only fills and opacities:
+   a row pointed at elsewhere takes the item layer's hover fill, a picked row the selected fill and the
+   accent pill, a chart's other parts go to 0.6 (pointed) or 0.3 (picked). A whole card that is the thing
+   uses `LinkCard<T>` or `LinkLook.Row(view, light)`. A kit list decorates its rows through the
+   binding's `Decorate`/`Redrawing` hooks. Using `LinkLights`/`LinkLook` paints items, so the kind has
+   `WidgetTraits.HasItems`.
+
+Never: scroll, page or resize for a hover (a selection may page); rebuild rows to light one; light a value
+the widget does not show; animate. A store scene can set links (`"links": { "hoveredDate": "today+1", ... }`,
+[S-11909]) to picture the effect.
