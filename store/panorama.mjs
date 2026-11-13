@@ -122,7 +122,7 @@ const across = (piece, w, y, r) => ({ piece, x: page.w - Math.round(w / 2), y, w
 export const frames = [
   {
     shot: "desktop",
-    cards: [{ screen: "desktop", ...screen }, across(["more-a", "quote"], 380, 800, -4)],
+    cards: [{ screen: "desktop", ...screen }, across(["more-c", "clock-flip"], 400, 300, 4), across(["more-a", "quote"], 440, 800, -4)],
   },
   {
     shot: "day",
@@ -137,7 +137,8 @@ export const frames = [
           { on: "email", at: [0, 0.4], to: [1120, 860] },
         ],
       },
-      across(["more-a", "notifications"], 300, 420, 3),
+      across(["more-a", "notifications"], 360, 300, 3),
+      across(["more-c", "shortcuts"], 360, 780, -3),
     ],
   },
   {
@@ -156,7 +157,7 @@ export const frames = [
         { glyph: "", piece: ["accounts", "contacts"], from: [["Microsoft 365", "microsoft"], ["Outlook.com", "microsoftoutlook"], ["iCloud", "icloud"], ["CardDAV", "contacts"]] },
       ],
     },
-    cards: [across(group("more-b", "battery"), 260, 640, -4)],
+    cards: [across(["more-c", "year"], 300, 300, 4), across(group("more-b", "battery"), 300, 700, -4)],
   },
   {
     shot: "pc",
@@ -170,7 +171,8 @@ export const frames = [
           { on: "network", at: [0, 0.5], to: [640, 790] },
         ],
       },
-      across(group("more-b", "moon"), 300, 380, 4),
+      across(group("more-b", "moon"), 340, 300, 4),
+      across(["more-c", "focusSession"], 320, 700, -3),
     ],
   },
   {
@@ -193,7 +195,7 @@ export const frames = [
     wall: {
       x: -250,
       y: 110,
-      w: 400,
+      w: 386,
       gap: 20,
       r: -5,
       fade: [200, 300],
@@ -210,12 +212,13 @@ export const frames = [
   {
     shot: "amount",
     cards: [
-      // Four desktops of four people: one clock, a few widgets, a column, everything.
-      { piece: ["one"], ground: true, x: 370, y: 290, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
-      { piece: ["few"], ground: true, x: 980, y: 290, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
-      { piece: ["side"], ground: true, x: 370, y: 660, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
-      { piece: ["full"], ground: true, x: 980, y: 660, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
-      across(["more-b", "pomodoro"], 280, 760, -3),
+      // Four desktops of four people, a stair from the least to the most: one clock, a few widgets, a column,
+      // everything; each larger and higher than the one before, lying on it.
+      { piece: ["one"], ground: true, x: 300, y: 600, w: 470, z: 2, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
+      { piece: ["few"], ground: true, x: 560, y: 500, w: 540, z: 3, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
+      { piece: ["side"], ground: true, x: 850, y: 400, w: 620, z: 4, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
+      { piece: ["full"], ground: true, x: 1130, y: 290, w: 700, z: 5, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
+      across(["more-b", "pomodoro"], 300, 790, -3),
     ],
   },
   {
@@ -223,7 +226,7 @@ export const frames = [
     cards: [
       // One desktop, cut into the look it comes with and three of its others, each on a wallpaper of its own.
       { screen: "looks", cuts: ["looks", "look-daylight", "look-glass", "look-terminal"], tilt: 0.07, ...screen },
-      across(group("more-a", "quickSettings"), 420, 290, 3),
+      across(group("more-a", "quickSettings"), 480, 280, 3),
     ],
   },
   {
@@ -233,13 +236,13 @@ export const frames = [
       { piece: ["evening"], ground: true, x: 30, y: 500, w: 820, r: -6, z: 2, bubbles: [{ at: [336, 45], dy: -44 }] },
       { piece: ["desktop"], ground: true, x: 510, y: 300, w: 900, z: 3, bubbles: [{ at: [768, 0], dy: -44 }] },
       { piece: ["focus"], ground: true, x: 1070, y: 500, w: 820, r: 6, z: 2, bubbles: [{ at: [1200, 60], dy: -44 }] },
-      across(group("more-b", "power"), 400, 300, -3),
+      across(group("more-b", "power"), 440, 270, -3),
     ],
   },
   {
     shot: "promise",
     // What Themia stands for: the listing's points, a tile each.
-    values: { x: 150, y: 400, w: 300, h: 440, gap: 30, glyphs: ["\uE72E", "\uE77B", "\uE8C7", "\uE945", "\uE943"] },
+    values: { x: 150, y: 380, w: 300, h: 440, gap: 30, foot: 900, glyphs: ["\uE72E", "\uE77B", "\uE8C7", "\uE945", "\uE943"] },
   },
 ];
 

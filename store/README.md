@@ -55,7 +55,11 @@ on how a panel is built):
 6. **What Themia stands for.** Its promise, a tile each (the listing's `points`).
 
 The pages hang together: a widget lies across every cut, half on each page; the wall runs into the pages
-beside it; one floor runs under them all. Words and monitors stay whole on their own page.
+beside it; one landscape (a sky, two ranges of hills, a ground the monitors stand on) runs behind them
+all. Words and monitors stay whole on their own page.
+
+They are drawn as the wallpapers are: flat fills, a handful of colours, no glow, no sheen, no gradient
+(`palettes` in `compose.mjs`; `STORE_PALETTE=night` draws the same at night).
 
 Rules the pictures keep (`panorama.test.mjs`, which needs the captures: it reads the layouts): every
 desktop shows Windows' taskbar and one of the listed wallpapers; some desktops leave the wallpaper open

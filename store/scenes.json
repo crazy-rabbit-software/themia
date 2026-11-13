@@ -676,6 +676,119 @@
       ]
     },
     {
+      "name": "more-c",
+      "widgets": [
+        {
+          "id": "clock-flip",
+          "kind": "clock",
+          "style": "flip",
+          "at": [
+            0,
+            0,
+            340,
+            200
+          ]
+        },
+        {
+          "id": "clock-analog",
+          "kind": "clock",
+          "style": "analog",
+          "at": [
+            368,
+            0,
+            240,
+            240
+          ]
+        },
+        {
+          "id": "forecast-curve",
+          "kind": "weatherForecast",
+          "style": "curve",
+          "at": [
+            636,
+            0,
+            320,
+            220
+          ]
+        },
+        {
+          "readyMade": "memoryDetails",
+          "id": "memoryDetails",
+          "at": [
+            984,
+            0
+          ]
+        },
+        {
+          "id": "year",
+          "kind": "calendar",
+          "style": "year",
+          "at": [
+            0,
+            268,
+            300,
+            280
+          ]
+        },
+        {
+          "id": "topProcesses",
+          "kind": "topProcesses",
+          "at": [
+            328,
+            268,
+            300,
+            248
+          ]
+        },
+        {
+          "id": "shortcuts",
+          "kind": "shortcuts",
+          "at": [
+            656,
+            268,
+            320,
+            120
+          ]
+        },
+        {
+          "id": "focusSession",
+          "kind": "focusSession",
+          "at": [
+            1004,
+            268,
+            260,
+            220
+          ]
+        },
+        {
+          "readyMade": "gpu",
+          "id": "gpu",
+          "at": [
+            1292,
+            268
+          ]
+        },
+        {
+          "readyMade": "network",
+          "id": "network",
+          "at": [
+            0,
+            576
+          ]
+        },
+        {
+          "id": "brightness",
+          "kind": "brightness",
+          "at": [
+            208,
+            576,
+            220,
+            130
+          ]
+        }
+      ]
+    },
+    {
       "name": "one",
       "wallpaper": "wallpapers/golden-dunes.png",
       "taskbar": true,
@@ -735,7 +848,7 @@
         {
           "readyMade": "weatherStation",
           "at": [
-            1212,
+            24,
             24
           ],
           "id": "station"
@@ -744,7 +857,7 @@
           "id": "rate",
           "kind": "exchangeRate",
           "at": [
-            1212,
+            24,
             588,
             300,
             100
@@ -755,7 +868,7 @@
           "id": "rateHistory",
           "kind": "exchangeHistory",
           "at": [
-            1212,
+            24,
             688,
             300,
             96

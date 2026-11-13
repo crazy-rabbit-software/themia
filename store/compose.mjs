@@ -41,22 +41,32 @@ const rightToLeft = new Set(["ar", "fa", "ur"]);
 const fonts = (lang, family) => `${scriptFonts[lang] ? scriptFonts[lang] + ", " : ""}"Segoe UI Variable ${family}", "Segoe UI", sans-serif`;
 const escape = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-// The pages' ground: graphite, as the logo's tile, lit by the logo's cyan and a violet. The lights stand over the
-// cuts between the pages, half on each, so the row of screenshots is one picture.
-const lights = [
-  { x: 0, y: -80, r: [1100, 640], rgb: [0, 150, 210], a: 0.5 },
-  { x: 1920, y: 1160, r: [1000, 720], rgb: [96, 80, 230], a: 0.42 },
-  { x: 3840, y: -80, r: [1100, 640], rgb: [0, 170, 220], a: 0.42 },
-  { x: 5760, y: 1160, r: [1000, 720], rgb: [150, 70, 210], a: 0.36 },
-  { x: 7680, y: -80, r: [1100, 640], rgb: [40, 120, 240], a: 0.45 },
-  { x: 9600, y: 1160, r: [1000, 720], rgb: [0, 160, 210], a: 0.4 },
-  { x: 11520, y: -80, r: [1100, 640], rgb: [110, 80, 235], a: 0.45 },
-  { x: 13440, y: 1160, r: [1000, 720], rgb: [0, 150, 210], a: 0.4 },
-  { x: 15360, y: -80, r: [1100, 640], rgb: [150, 70, 210], a: 0.38 },
-  { x: 17280, y: 1160, r: [1000, 720], rgb: [40, 120, 240], a: 0.42 },
-  { x: 19200, y: -80, r: [1100, 640], rgb: [0, 150, 210], a: 0.5 },
-];
-const ground = "linear-gradient(180deg, #10131c 0%, #08090d 100%)";
+// The pages are drawn as the wallpapers are (the owner, 2026-11-13: "more flat ... in a similar design than the images
+// themselves, not a lot of colors / compressed gradients"): flat fills, no glow, no sheen, a handful of colours. A sky,
+// two ranges of hills and a ground run through the whole row, so the pages are one landscape; the monitors stand on
+// its ground. STORE_PALETTE=night draws the same at night.
+const palettes = {
+  sand: { sky: "#F3E7D3", far: "#EAD6B7", near: "#E0C49B", ground: "#D2AE7C", ink: "#211C17", soft: "rgba(33, 28, 23, 0.72)", accent: "#C4532B", paper: "#FBF4E6", on: "#F6EBD8", sun: "#F0C98A" },
+  night: { sky: "#171B28", far: "#1D2233", near: "#242B3F", ground: "#2C3550", ink: "#F2ECE0", soft: "rgba(242, 236, 224, 0.74)", accent: "#E7814F", paper: "#222838", on: "#171B28", sun: "#2A324A" },
+};
+const P = palettes[process.env.STORE_PALETTE ?? "sand"] ?? palettes.sand;
+
+/** One range of hills across the whole row: a flat shape from its crest down to the page's foot. */
+function hills(width, base, swing, step, shift, fill) {
+  let d = `M0 ${page.h} L0 ${base}`;
+  for (let x = 0, i = 0; x < width; x += step, i++) {
+    const y = (k) => (base + swing * Math.sin((x + k * step) / step * 1.7 + shift) * 0.6 + swing * Math.sin((x + k * step) / step * 0.63 + shift * 2.1) * 0.4).toFixed(1);
+    d += ` Q${x + step / 2} ${y(0.5)} ${x + step} ${y(1)}`;
+  }
+  return `<path d="${d} L${width} ${page.h} Z" fill="${fill}"/>`;
+}
+
+/** The landscape behind every page: far hills, near hills and the ground the monitors stand on, flat. */
+function landscape(width) {
+  return `<svg class="land" width="${width}" height="${page.h}" viewBox="0 0 ${width} ${page.h}">
+    ${hills(width, 760, 70, 520, 0.4, P.far)}${hills(width, 880, 54, 380, 2.2, P.near)}
+    <rect x="0" y="1030" width="${width}" height="${page.h - 1030}" fill="${P.ground}"/></svg>`;
+}
 
 /**
  * The listing's screenshots as one picture (panorama.mjs), page n of it: the pages beside it laid out too, moved n
@@ -64,9 +74,6 @@ const ground = "linear-gradient(180deg, #10131c 0%, #08090d 100%)";
  */
 function panoramaHtml(lang, listing, at, n) {
   const width = page.w * frames.length;
-  const light = lights
-    .map((b) => `radial-gradient(${b.r[0]}px ${b.r[1]}px at ${b.x}px ${b.y}px, rgba(${b.rgb.join(", ")}, ${b.a}), rgba(${b.rgb.join(", ")}, 0) 70%)`)
-    .join(", ");
   const content = frames
     .map((frame, i) => {
       // Only what the page shows is drawn: itself and what runs over from the pages beside it.
@@ -90,7 +97,7 @@ function panoramaHtml(lang, listing, at, n) {
         .join("");
       const wall = frame.wall ? wallHtml(frame.wall, left, at) : "";
       const lanes = frame.lanes ? lanesHtml(frame.lanes, left, s.callouts, at) : "";
-      const values = frame.values ? valuesHtml(frame.values, left, s.points ?? []) : "";
+      const values = frame.values ? valuesHtml(frame.values, left, s.points ?? [], s.foot) : "";
       return `${wall}${cards}${lanes}${values}<div class="text" style="left:${left + 160}px; width:${page.w - 320}px; top:44px;">
   <div class="label"><img src="${logo}" alt="">${escape(s.label)}</div>
   <h1>${escape(s.headline)}</h1>
@@ -101,60 +108,58 @@ function panoramaHtml(lang, listing, at, n) {
   const rtl = rightToLeft.has(lang) ? "rtl" : "ltr";
   return `<!doctype html>
 <html lang="${lang}" dir="${rtl}"><head><meta charset="utf-8"><style>
-html, body { margin: 0; width: ${page.w}px; height: ${page.h}px; overflow: hidden; background: #08090d; }
+html, body { margin: 0; width: ${page.w}px; height: ${page.h}px; overflow: hidden; background: ${P.sky}; }
 #world { position: absolute; left: ${-n * page.w}px; top: 0; width: ${width}px; height: ${page.h}px; direction: ltr;
-  background: ${light}, ${ground}; color: #fff; font-family: ${fonts(lang, "Display")}; -webkit-font-smoothing: antialiased; }
+  background: ${P.sky}; color: ${P.ink}; font-family: ${fonts(lang, "Display")}; -webkit-font-smoothing: antialiased; }
+.land { position: absolute; left: 0; top: 0; }
 .layer { position: absolute; inset: 0; pointer-events: none; }
 .text { position: absolute; z-index: 20; text-align: center; direction: ${rtl}; }
-.label { display: inline-flex; align-items: center; gap: 12px; font-family: ${fonts(lang, "Text")}; font-weight: 600; font-size: 22px; color: #7ad9ff; letter-spacing: 0.01em; }
+.label { display: inline-flex; align-items: center; gap: 12px; font-family: ${fonts(lang, "Text")}; font-weight: 600; font-size: 22px; color: ${P.accent}; letter-spacing: 0.01em; }
 .label img { width: 32px; height: 32px; border-radius: 8px; }
 h1, p { text-wrap: balance; word-break: auto-phrase; }
 h1 { margin: 10px 0 0; font-weight: 600; font-size: 60px; line-height: 1.08; letter-spacing: -0.012em; }
-p { margin: 10px 0 0; font-family: ${fonts(lang, "Text")}; font-size: 26px; line-height: 1.35; color: rgba(228, 236, 248, 0.74); }
-.piece { position: absolute; filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.5)); }
+p { margin: 10px 0 0; font-family: ${fonts(lang, "Text")}; font-size: 26px; line-height: 1.35; color: ${P.soft}; }
+.piece { position: absolute; filter: drop-shadow(10px 12px 0 rgba(33, 28, 23, 0.16)); }
 .piece.flat { filter: none; }
 .piece > div { position: absolute; inset: 0; overflow: hidden; }
 .piece img { position: absolute; }
-.bubble { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; padding: 10px 18px 12px; border-radius: 999px; background: #60cdff;
-  color: #04202e; font: 600 22px/1 ${fonts(lang, "Text")}; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); z-index: 6; direction: ${rtl}; }
-.lead { position: absolute; background: rgba(122, 217, 255, 0.9); z-index: 5; }
-.dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #60cdff; box-shadow: 0 0 0 4px rgba(96, 205, 255, 0.32); z-index: 6; }
-.monitor { position: absolute; background: #04050a;
-  box-shadow: 0 0 0 1.5px rgba(214, 224, 240, 0.42), 0 0 0 3px rgba(8, 10, 16, 0.9), 0 0 90px rgba(64, 180, 255, 0.18), 0 46px 110px rgba(0, 0, 0, 0.62); }
-.neck { position: absolute; background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 45%), linear-gradient(90deg, #4d535f, #a4abb8 38%, #c6ccd6 50%, #a4abb8 62%, #4d535f); }
-.foot { position: absolute; border-radius: 999px 999px 6px 6px / 14px 14px 6px 6px; background: linear-gradient(180deg, #d5dae2, #8d94a1 55%, #5a606c);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7); }
-.floor { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)); }
+.bubble { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; padding: 10px 18px 12px; border-radius: 999px; background: ${P.ink};
+  color: ${P.on}; font: 600 22px/1 ${fonts(lang, "Text")}; z-index: 6; direction: ${rtl}; }
+.lead { position: absolute; background: ${P.ink}; z-index: 5; }
+.dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: ${P.accent}; box-shadow: 0 0 0 4px ${P.on}; z-index: 6; }
+.monitor { position: absolute; background: #17130F; }
+.neck { position: absolute; background: #2A241E; }
+.foot { position: absolute; border-radius: 10px 10px 0 0; background: #17130F; }
+.floor { display: none; }
 .screen { position: absolute; overflow: hidden; border-radius: 6px; background: #000; }
 .screen img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
-.glass { position: absolute; inset: 0; background: linear-gradient(118deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 26%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); }
+.glass { display: none; }
 .screen svg { position: absolute; left: 0; top: 0; }
 .rays { position: absolute; }
-.marked { position: absolute; border-radius: 6px; box-shadow: 0 0 0 2px #7ad9ff, 0 0 18px rgba(96, 205, 255, 0.7); }
+.marked { position: absolute; border-radius: 6px; box-shadow: 0 0 0 3px ${P.accent}; }
 .wall { position: absolute; top: 0; z-index: 2; }
-.lane { position: absolute; z-index: 10; border-radius: 30px; background: linear-gradient(180deg, #1a2030, #0e111a);
-  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.12), 0 30px 80px rgba(0, 0, 0, 0.45); direction: ${rtl}; }
+.lane { position: absolute; z-index: 10; border-radius: 30px; background: ${P.paper}; direction: ${rtl}; }
 .gives { position: absolute; top: 20px; height: 68px; display: flex; align-items: center; gap: 14px; font: 600 30px/1.08 ${fonts(lang, "Display")}; }
-.gives i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #60cdff; color: #04202e;
-  font: normal 26px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); }
+.gives i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: ${P.accent}; color: ${P.paper};
+  font: normal 26px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
 .gives span { text-wrap: balance; }
-.flow { position: absolute; width: 2px; border-radius: 1px; background: linear-gradient(180deg, #7ad9ff, rgba(122, 217, 255, 0.15)); }
-.flow::before { content: ""; position: absolute; left: -6px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: #60cdff; box-shadow: 0 0 0 4px rgba(96, 205, 255, 0.3); }
+.flow { position: absolute; width: 2px; border-radius: 1px; background: ${P.accent}; }
+.flow::before { content: ""; position: absolute; left: -6px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: ${P.accent}; }
 .sources { position: absolute; bottom: 26px; display: flex; flex-direction: column; gap: 12px; direction: ltr; }
-.source { display: flex; align-items: center; gap: 14px; font: 600 25px/1 ${fonts("en", "Text")}; color: rgba(236, 242, 255, 0.92); white-space: nowrap; }
-.logo { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; flex: none;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 6px 16px rgba(0, 0, 0, 0.35); }
+.source { display: flex; align-items: center; gap: 14px; font: 600 25px/1 ${fonts("en", "Text")}; color: ${P.ink}; white-space: nowrap; }
+.logo { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; flex: none; }
 .logo.plain { background: #fff; }
-.logo.glyph { background: rgba(255, 255, 255, 0.14); }
+.logo.glyph { background: ${P.ink}; color: ${P.on}; }
 .logo.glyph i { font: normal 24px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
-.floorline { position: absolute; left: 0; top: 1046px; height: 34px; background: linear-gradient(180deg, rgba(122, 217, 255, 0.13), rgba(122, 217, 255, 0)); box-shadow: 0 -1px 0 rgba(160, 225, 255, 0.22); }
-.value { position: absolute; z-index: 10; border-radius: 30px; background: linear-gradient(180deg, #1a2030, #0e111a); box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.12), 0 30px 80px rgba(0, 0, 0, 0.45); direction: ${rtl}; }
-.value i { position: absolute; left: 30px; top: 34px; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 18px; background: #60cdff; color: #04202e;
-  font: normal 34px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); }
-.value h2 { position: absolute; left: 30px; right: 26px; top: 128px; margin: 0; font: 600 34px/1.12 ${fonts(lang, "Display")}; color: #fff; text-wrap: balance; }
-.value p { position: absolute; left: 30px; right: 26px; top: 228px; margin: 0; font: 400 24px/1.36 ${fonts(lang, "Text")}; color: rgba(226, 234, 250, 0.82); }
+.valuefoot { position: absolute; display: flex; align-items: center; justify-content: center; gap: 18px; font: 600 34px/1 ${fonts(lang, "Display")}; color: ${P.ink}; direction: ${rtl}; z-index: 12; }
+.valuefoot img { width: 54px; height: 54px; border-radius: 12px; }
+.value { position: absolute; z-index: 10; border-radius: 30px; background: ${P.paper}; direction: ${rtl}; }
+.value i { position: absolute; left: 30px; top: 34px; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 18px; background: ${P.accent}; color: ${P.paper};
+  font: normal 34px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
+.value h2 { position: absolute; left: 30px; right: 26px; top: 128px; margin: 0; font: 600 34px/1.12 ${fonts(lang, "Display")}; color: ${P.ink}; text-wrap: balance; }
+.value p { position: absolute; left: 30px; right: 26px; top: 228px; margin: 0; font: 400 24px/1.36 ${fonts(lang, "Text")}; color: ${P.soft}; }
 </style></head><body><div id="world">
-<div class="floorline" style="width:${width}px;"></div>
+${landscape(width)}
 ${content}
 </div></body></html>`;
 }
@@ -195,7 +200,7 @@ function piece(at, [name], crop, box, c = {}) {
   const k = box.w / crop.w;
   const turn = c.r ? `transform: rotate(${c.r}deg);` : "";
   return `<div class="piece${c.flat ? " flat" : ""}" style="left:${box.x}px; top:${box.y}px; width:${box.w}px; height:${box.h}px; ${turn}">
-    <div style="${c.ground ? `border-radius:${c.radius ?? 14}px; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.16);` : ""}"><img src="${url(at(name))}" alt="" style="left:${-crop.x * k}px; top:${-crop.y * k}px; width:${display.w * k}px; height:${display.h * k}px;"></div></div>`;
+    <div style="${c.ground ? `border-radius:${c.radius ?? 14}px; box-shadow: inset 0 0 0 2px rgba(33, 28, 23, 0.9);` : ""}"><img src="${url(at(name))}" alt="" style="left:${-crop.x * k}px; top:${-crop.y * k}px; width:${display.w * k}px; height:${display.h * k}px;"></div></div>`;
 }
 
 /**
@@ -228,7 +233,7 @@ function raysHtml(crop, screen, box) {
   // Bright at the card, faint at what it enlarges.
   const axis = beside ? `x1="${fades[0]}" y1="0" x2="${fades[1]}" y2="0"` : `x1="0" y1="${fades[0]}" x2="0" y2="${fades[1]}"`;
   return `<svg class="rays" style="left:${x0}px; top:${y0}px;" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-      <defs><linearGradient id="ray" ${axis}><stop offset="0" stop-color="rgba(122, 217, 255, 0.3)"/><stop offset="1" stop-color="rgba(122, 217, 255, 0.05)"/></linearGradient></defs>
+      <defs><linearGradient id="ray" ${axis}><stop offset="0" stop-color="rgba(196, 83, 43, 0.18)"/><stop offset="1" stop-color="rgba(196, 83, 43, 0.18)"/></linearGradient></defs>
       <polygon points="${points}" fill="url(#ray)"/></svg>
     <div class="marked" style="left:${from.x - 3}px; top:${from.y - 3}px; width:${from.w + 6}px; height:${from.h + 6}px;"></div>`;
 }
@@ -237,8 +242,9 @@ function raysHtml(crop, screen, box) {
  * What Themia stands for (panorama.mjs's values): the page's points, a tile each side by side from x, y, each w wide
  * and h tall, gap apart: a glyph, what is promised and a line on it.
  */
-function valuesHtml(values, left, points) {
-  return points
+function valuesHtml(values, left, points, foot) {
+  const last = foot && values.foot ? `<div class="valuefoot" style="left:${left}px; width:${page.w}px; top:${values.foot}px;"><img src="${logo}" alt="">${escape(foot)}</div>` : "";
+  return last + points
     .map((point, i) => `<div class="value" style="left:${left + values.x + i * (values.w + values.gap)}px; top:${values.y}px; width:${values.w}px; height:${values.h}px;">
       <i>${values.glyphs[i] ?? ""}</i><h2>${escape(point.title)}</h2><p>${escape(point.text)}</p></div>`)
     .join("");
@@ -354,27 +360,17 @@ function bubblesHtml(bubbles, scene, crop, box, left) {
     .join("");
 }
 
-const backdrop = `background:
-    radial-gradient(1100px 640px at 50% -8%, rgba(0, 150, 210, 0.5), rgba(0, 150, 210, 0) 70%),
-    radial-gradient(900px 700px at 6% 110%, rgba(96, 80, 230, 0.4), rgba(96, 80, 230, 0) 70%),
-    radial-gradient(900px 700px at 96% 105%, rgba(0, 170, 220, 0.26), rgba(0, 170, 220, 0) 70%),
-    ${ground};`;
-
 // The 16:9 hero: no words and no UI (the Store lays the title over it and crops it), the logo large in the middle
-// of the upper two thirds.
+// of the upper two thirds, over the pages' own flat landscape.
 function heroHtml() {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
-html, body { margin: 0; width: ${page.w}px; height: ${page.h}px; overflow: hidden; }
-body { ${backdrop} }
-.ring { position: absolute; border-radius: 50%; border: 1.5px solid rgba(122, 217, 255, 0.14); left: 50%; top: 40%; transform: translate(-50%, -50%); }
-.glow { position: absolute; left: 50%; top: 40%; width: 760px; height: 760px; transform: translate(-50%, -50%); background: radial-gradient(closest-side, rgba(96, 205, 255, 0.4), rgba(96, 205, 255, 0)); }
-.logo { position: absolute; left: 50%; top: 40%; width: 380px; transform: translate(-50%, -50%); border-radius: 84px; filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6)); }
+html, body { margin: 0; width: ${page.w}px; height: ${page.h}px; overflow: hidden; background: ${P.sky}; }
+.land { position: absolute; left: 0; top: 0; }
+.sun { position: absolute; left: 50%; top: 40%; width: 820px; height: 820px; border-radius: 50%; transform: translate(-50%, -50%); background: ${P.sun}; }
+.logo { position: absolute; left: 50%; top: 40%; width: 380px; transform: translate(-50%, -50%); border-radius: 84px; filter: drop-shadow(14px 16px 0 rgba(33, 28, 23, 0.18)); }
 </style></head><body>
-<div class="ring" style="width:640px;height:640px"></div>
-<div class="ring" style="width:900px;height:900px;opacity:.7"></div>
-<div class="ring" style="width:1180px;height:1180px;opacity:.45"></div>
-<div class="ring" style="width:1480px;height:1480px;opacity:.25"></div>
-<div class="glow"></div>
+<div class="sun"></div>
+${landscape(page.w)}
 <img class="logo" src="${logo}" alt="">
 </body></html>`;
 }
@@ -384,8 +380,8 @@ function tileHtml(pro) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 html, body { margin: 0; width: 300px; height: 300px; overflow: hidden; background: transparent; }
 img { position: absolute; left: 18px; top: 18px; width: 264px; height: 264px; }
-.pro { position: absolute; right: 10px; bottom: 16px; padding: 7px 16px 9px; border-radius: 999px; background: linear-gradient(180deg, #ffd45c, #f5a623);
-  color: #3a2400; font: 700 34px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: 0.04em; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); }
+.pro { position: absolute; right: 10px; bottom: 16px; padding: 7px 16px 9px; border-radius: 999px; background: #f5b52e;
+  color: #3a2400; font: 700 34px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: 0.04em; }
 </style></head><body><div style="position: relative; width: 300px; height: 300px;"><img src="${logo}" alt="">${pro ? '<div class="pro">PRO</div>' : ""}</div></body></html>`;
 }
 
