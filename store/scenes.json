@@ -1013,6 +1013,344 @@
           "state": "on"
         }
       ]
+    },
+    {
+      "name": "files",
+      "wallpaper": "wallpapers/golden-dunes.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "readyMade": "myFiles",
+          "at": [
+            24,
+            24
+          ],
+          "id": "files"
+        },
+        {
+          "id": "notes",
+          "kind": "notes",
+          "at": [
+            1180,
+            24,
+            332,
+            220
+          ]
+        },
+        {
+          "readyMade": "drive",
+          "at": [
+            1252,
+            268
+          ],
+          "id": "system"
+        },
+        {
+          "id": "recycleBin",
+          "kind": "recycleBin",
+          "at": [
+            1332,
+            628,
+            180,
+            136
+          ]
+        }
+      ]
+    },
+    {
+      "name": "habits",
+      "wallpaper": "wallpapers/beach-sunset.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "id": "habitTracker",
+          "kind": "habitTracker",
+          "at": [
+            24,
+            24,
+            300,
+            188
+          ]
+        },
+        {
+          "readyMade": "screenTime",
+          "at": [
+            1212,
+            24
+          ],
+          "id": "screen"
+        },
+        {
+          "id": "countdown",
+          "kind": "countdown",
+          "at": [
+            1052,
+            606,
+            460,
+            162
+          ]
+        }
+      ]
+    },
+    {
+      "name": "markets",
+      "wallpaper": "wallpapers/warm-mountains.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "readyMade": "stocks",
+          "at": [
+            24,
+            24
+          ]
+        },
+        {
+          "readyMade": "exchangeRates",
+          "at": [
+            24,
+            240
+          ],
+          "id": "rates"
+        },
+        {
+          "id": "rss",
+          "kind": "rss",
+          "at": [
+            1212,
+            24,
+            300,
+            248
+          ]
+        },
+        {
+          "id": "rain",
+          "kind": "rainNextHour",
+          "at": [
+            1212,
+            296,
+            300,
+            148
+          ]
+        }
+      ]
+    },
+    {
+      "name": "clocks",
+      "wallpaper": "wallpapers/cactus-island.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "id": "clock-digital",
+          "kind": "clock",
+          "style": "digital",
+          "at": [
+            80,
+            60,
+            340,
+            200
+          ]
+        },
+        {
+          "id": "clock-analog",
+          "kind": "clock",
+          "style": "analog",
+          "at": [
+            683,
+            60,
+            170,
+            200
+          ]
+        },
+        {
+          "id": "clock-flip",
+          "kind": "clock",
+          "style": "flip",
+          "at": [
+            1116,
+            60,
+            340,
+            200
+          ]
+        },
+        {
+          "id": "clock-word",
+          "kind": "clock",
+          "style": "word",
+          "at": [
+            98,
+            300,
+            305,
+            254
+          ]
+        },
+        {
+          "id": "clock-stacked",
+          "kind": "clock",
+          "style": "stacked",
+          "at": [
+            608,
+            300,
+            320,
+            230
+          ]
+        },
+        {
+          "id": "clock-minimal",
+          "kind": "clock",
+          "style": "minimal",
+          "at": [
+            1116,
+            300,
+            340,
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reel-focus",
+      "wallpaper": "wallpapers/pale-dunes.png",
+      "theme": "light",
+      "design": "preset=Daylight,gap=0",
+      "taskbar": true,
+      "widgets": [
+        {
+          "id": "tasks",
+          "kind": "tasks",
+          "at": [
+            24,
+            24,
+            300,
+            248
+          ],
+          "config": {
+            "rows": 4
+          }
+        },
+        {
+          "id": "clock",
+          "kind": "clock",
+          "style": "flip",
+          "at": [
+            558,
+            60,
+            420,
+            182
+          ],
+          "config": {
+            "size": "Large"
+          }
+        },
+        {
+          "id": "pomodoro",
+          "kind": "pomodoro",
+          "at": [
+            1272,
+            24,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reel-evening",
+      "wallpaper": "wallpapers/red-desert-dusk.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "readyMade": "nowPlayingLarge",
+          "at": [
+            24,
+            24
+          ],
+          "id": "playing"
+        },
+        {
+          "id": "forecast",
+          "kind": "weatherForecast",
+          "at": [
+            1212,
+            24,
+            300,
+            188
+          ],
+          "style": "curve"
+        },
+        {
+          "readyMade": "sun",
+          "at": [
+            1232,
+            236
+          ]
+        },
+        {
+          "readyMade": "moon",
+          "at": [
+            1272,
+            544
+          ]
+        }
+      ]
+    },
+    {
+      "name": "more-d",
+      "widgets": [
+        {
+          "id": "clock",
+          "kind": "clock",
+          "at": [
+            0,
+            0,
+            320,
+            138
+          ]
+        },
+        {
+          "readyMade": "cpu",
+          "id": "cpu",
+          "at": [
+            348,
+            0
+          ]
+        },
+        {
+          "readyMade": "ping",
+          "id": "ping",
+          "at": [
+            536,
+            0
+          ]
+        },
+        {
+          "readyMade": "weather",
+          "id": "weather",
+          "at": [
+            724,
+            0
+          ]
+        },
+        {
+          "id": "folder",
+          "kind": "folder",
+          "at": [
+            0,
+            268,
+            300,
+            308
+          ]
+        },
+        {
+          "id": "scratchpad",
+          "kind": "scratchpad",
+          "at": [
+            328,
+            268,
+            300,
+            200
+          ]
+        }
+      ]
     }
   ]
 }

@@ -66,6 +66,14 @@ desktop shows Windows' taskbar and one of the listed wallpapers; some desktops l
 (the first covers less than half of it); neither the video stream nor the gallery widget is shown; no
 widget leaves its display or lies on another.
 
+## The website's pictures
+
+themia.app shows the same captures (its `scripts/store-shots.mjs` reads `out/shots/en` and the layouts
+beside them; the monitors, the landscape and the callouts there are the site's own, in this folder's
+palette and geometry). Scenes no page of the Store shows are drawn for the site alone: `files`,
+`habits`, `markets`, `clocks`, `reel-focus`, `reel-evening` (desktops) and `more-d` (a sheet of
+widgets). They keep the pictures' rules, and `./store/capture.ps1` draws them with the rest.
+
 ## Changing something
 
 - **Words:** `listing/en.json`, then the same field in the other languages. `listing.test.mjs` holds
