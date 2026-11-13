@@ -7632,6 +7632,16 @@ members draw no line between them, so the group reads as one sheet ([S-11870]).
   widget waiting for setup running for the preview first: a scene is a picture for other people, so it
   never shows this PC's clock, player, accounts or files because a state was left out. A `state` still
   names any render state.
+- **[S-11862]** **A scene's layout beside its picture.** `--scene-png` writes `<picture>.layout.json`
+  next to the PNG: the display's DIPs and every widget's id, kind, group and the box it is painted in,
+  in DIPs (fitted into its sizing, [S-2446]; a ready-made group's widgets where the recipe puts them,
+  [S-11860]). The store's pages take a widget's place from it, never from the scene file's numbers.
+- **[S-11863]** **The store's wallpapers are fetched, not kept.** A store scene's wallpaper file is
+  `wallpapers/<name>.png`, one of the pictures `store/wallpapers.json` lists with its source page, author
+  and licence (illustrations by other people, free to use); `node store/wallpapers.mjs` fetches each and
+  fits it to 3840 x 2160 under `store/wallpapers/`, which is git-ignored, and `store/capture.ps1` draws
+  every scene at 3840 pixels wide whatever the scenes' display is. The checked-in scenes are held to the
+  list, not to the files (`SceneWidgetsTests.S1078_S2210_`).
 
 **The group's page.** Owner's decision 2026-11-12: the atoms each hold their own setting of what they are
 about (their place, account, drive, host, pair, symbol, period, Size), so a group acts as a container: one

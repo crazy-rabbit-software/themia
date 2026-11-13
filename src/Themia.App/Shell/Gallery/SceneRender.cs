@@ -364,6 +364,7 @@ internal static class SceneRender
 
         // [S-1076] Each card where the desktop puts it: its whole cell, the design's gap inside it,
         // its own content scale; each on a host of its own so it replays its own preview state.
+        var placed = new List<(SceneWidget Spec, PixelRect Cell)>(job.Widgets.Count);
         foreach (var (spec, model) in job.Widgets)
         {
             var host = new NoticeRender.RenderCardHost(ticker)
@@ -381,6 +382,7 @@ internal static class SceneRender
             var shown = SizeFit.Shown(model.Rect, SizeFit.Limits(model, metrics, contentScale, design.WidgetGapPx), metrics);
             var cell = GridGeometry.ToPixels(shown, metrics, job.Scale);
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
+            placed.Add((spec, cell));
             card.SetLiveRect(shown);
             card.ApplyEditMode(edit is not null);
             card.ApplySelection();
@@ -396,6 +398,9 @@ internal static class SceneRender
                 markers.Add(card);
             }
         }
+
+        // [S-11862] Where each widget stands, beside the picture, for what points at it (the store's pages).
+        WriteLayout(job, placed);
 
         // [S-2240] Cards that touch join, by the desktop's own path; nothing is dragged in a scene.
         WidgetCard.Join(cards, metrics, design.WidgetGapPx, job.Scale, edit is not null, _ => 0);
@@ -461,6 +466,48 @@ internal static class SceneRender
         }).ConfigureAwait(true);
         Console.WriteLine($"scene: wrote {job.OutPath} ({pixelWidth} x {pixelHeight})");
         return Drawn;
+    }
+
+    /// <summary>
+    /// [S-11862] The scene's layout as drawn, written beside its picture as <c>&lt;picture&gt;.layout.json</c>:
+    /// the display's DIPs and every widget's id, kind, group and box in DIPs (the box it is painted in:
+    /// fitted into its sizing, a ready-made group's widgets where the recipe puts them). What composes
+    /// pictures from scenes reads this, never the scene file's own numbers.
+    /// </summary>
+    private static void WriteLayout(Job job, List<(SceneWidget Spec, PixelRect Cell)> placed)
+    {
+        var path = Path.ChangeExtension(job.OutPath, ".layout.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        using var stream = File.Create(path);
+        using var json = new System.Text.Json.Utf8JsonWriter(stream, new System.Text.Json.JsonWriterOptions { Indented = true });
+        json.WriteStartObject();
+        json.WriteString("scene", job.Scene.Name);
+        json.WriteStartObject("screen");
+        json.WriteNumber("width", job.File.Screen.Width);
+        json.WriteNumber("height", job.File.Screen.Height);
+        json.WriteEndObject();
+        json.WriteStartArray("widgets");
+        foreach (var (spec, cell) in placed)
+        {
+            json.WriteStartObject();
+            json.WriteString("id", spec.Id);
+            json.WriteString("kind", spec.Kind.Value);
+            if (spec.Group is { } group)
+            {
+                json.WriteString("group", group);
+            }
+
+            json.WriteStartArray("at");
+            json.WriteNumberValue(cell.X);
+            json.WriteNumberValue(cell.Y);
+            json.WriteNumberValue(cell.Width);
+            json.WriteNumberValue(cell.Height);
+            json.WriteEndArray();
+            json.WriteEndObject();
+        }
+
+        json.WriteEndArray();
+        json.WriteEndObject();
     }
 
     /// <summary>

@@ -104,9 +104,15 @@ public sealed class SceneWidgetsTests
         var problems = file!.Scenes.SelectMany(scene => SceneWidgets.Check(scene, file.Screen).Select(r => $"{scene.Name}: {r}")).ToList();
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
 
+        // [S-11863] A wallpaper file is one of the store's fetched pictures: store/wallpapers.json names it (the
+        // files themselves are fetched by node store/wallpapers.mjs and are not in the repository).
+        using var listed = System.Text.Json.JsonDocument.Parse(File.ReadAllText(RepoFiles.At("store", "wallpapers.json")));
+        var names = listed.RootElement.GetProperty("wallpapers").EnumerateArray()
+            .Select(w => $"wallpapers/{w.GetProperty("name").GetString()}.png")
+            .ToHashSet(StringComparer.Ordinal);
         foreach (var scene in file.Scenes.Where(s => s.WallpaperFile is not null))
         {
-            Assert.True(File.Exists(Path.Combine(Path.GetDirectoryName(path)!, scene.WallpaperFile!)), $"{scene.Name}: no wallpaper {scene.WallpaperFile}");
+            Assert.True(names.Contains(scene.WallpaperFile!), $"{scene.Name}: store/wallpapers.json lists no {scene.WallpaperFile} (has: {string.Join(", ", names.Order())})");
         }
 
         // [S-2210] A sample wallpaper names a picture this build paints.

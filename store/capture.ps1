@@ -33,7 +33,13 @@ $exe = $exe[0].FullName
 Write-Host "capture: $exe"
 
 # The scene names, in the file's order; the app checks the rest of the file itself.
-$names = @((Get-Content $scenes -Raw -Encoding UTF8 | ConvertFrom-Json).scenes | ForEach-Object { $_.name })
+$file = Get-Content $scenes -Raw -Encoding UTF8 | ConvertFrom-Json
+$names = @($file.scenes | ForEach-Object { $_.name })
+
+# A picture is 3840 pixels wide whatever the scenes' display is: a 1536 DIP display (a full-HD screen at
+# 125 %) is drawn at 2.5 pixels a DIP.
+$screenWidth = if ($file.screen -and $file.screen.width) { [double]$file.screen.width } else { 1920.0 }
+$scale = (3840.0 / $screenWidth).ToString([Globalization.CultureInfo]::InvariantCulture)
 if ($Only) {
     $wanted = @($Only.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })
     $unknown = @($wanted | Where-Object { $names -notcontains $_ })
@@ -56,7 +62,7 @@ while ($queue.Count -gt 0 -or $running.Count -gt 0) {
         $log = Join-Path $out "$name.log"
         if (Test-Path $png) { Remove-Item $png }
         $p = Start-Process -FilePath $exe -PassThru -WindowStyle Hidden -RedirectStandardOutput $log `
-            -ArgumentList @('--scene-png', "`"$scenes`"", $name, "`"$png`"", '--lang', $Lang)
+            -ArgumentList @('--scene-png', "`"$scenes`"", $name, "`"$png`"", '--lang', $Lang, '--scale', $scale)
         $null = $p.Handle # keeps the exit code readable once it has exited
         $running += [pscustomobject]@{ Process = $p; Name = $name; Png = $png; Log = $log; Started = Get-Date }
     }
