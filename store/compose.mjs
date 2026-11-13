@@ -154,11 +154,11 @@ p { margin: 10px 0 0; font-family: ${fonts(lang, "Text")}; font-size: 26px; line
 .logo.glyph i { font: normal 24px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
 .valuefoot { position: absolute; display: flex; align-items: center; justify-content: center; gap: 18px; font: 600 34px/1 ${fonts(lang, "Display")}; color: ${P.ink}; direction: ${rtl}; z-index: 12; }
 .valuefoot img { width: 54px; height: 54px; }
-.value { position: absolute; z-index: 10; border-radius: 30px; background: ${P.paper}; direction: ${rtl}; }
-.value i { position: absolute; left: 30px; top: 34px; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 18px; background: ${P.accent}; color: ${P.ink};
-  font: normal 34px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
-.value h2 { position: absolute; left: 30px; right: 26px; top: 128px; margin: 0; font: 600 34px/1.12 ${fonts(lang, "Display")}; color: ${P.ink}; text-wrap: balance; }
-.value p { position: absolute; left: 30px; right: 26px; top: 228px; margin: 0; font: 400 24px/1.36 ${fonts(lang, "Text")}; color: ${P.soft}; }
+.value { position: absolute; z-index: 10; box-sizing: border-box; border-top: 2px solid rgba(33, 28, 23, 0.14); direction: ${rtl}; }
+.value i { position: absolute; inset-inline-start: 0; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: ${P.accent}; color: ${P.ink};
+  font: normal 30px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
+.value h2 { position: absolute; inset-inline-start: 92px; top: 50%; transform: translateY(-50%); width: 520px; margin: 0; font: 600 44px/1.08 ${fonts(lang, "Display")}; color: ${P.ink}; }
+.value p { position: absolute; inset-inline-start: 640px; inset-inline-end: 0; top: 50%; transform: translateY(-50%); margin: 0; font: 400 27px/1.34 ${fonts(lang, "Text")}; color: ${P.soft}; text-wrap: pretty; }
 </style></head><body><div id="world">
 ${landscape(width)}
 ${content}
@@ -175,7 +175,7 @@ function monitor(at, cuts, box, tilt) {
   const bottom = box.y + box.h + bezel;
   const n = cuts.length;
   const lean = tilt * box.w;
-  const edge = (k, top) => (k === 0 ? -lean - 4 : k === n ? box.w + lean + 4 : (k * box.w) / n + (top ? lean : -lean));
+  const edge = (k, top) => (k === 0 ? -Math.abs(lean) - 4 : k === n ? box.w + Math.abs(lean) + 4 : (k * box.w) / n + (top ? lean : -lean));
   const strips = cuts
     .map((name, k) => `<img src="${url(at(name))}" alt="" style="${n === 1 ? "" : `clip-path: polygon(${edge(k, true)}px 0, ${edge(k + 1, true)}px 0, ${edge(k + 1, false)}px 100%, ${edge(k, false)}px 100%);`}">`)
     .join("");
@@ -240,13 +240,14 @@ function raysHtml(crop, screen, box) {
 }
 
 /**
- * What Themia stands for (panorama.mjs's values): the page's points, a tile each side by side from x, y, each w wide
- * and h tall, gap apart: a glyph, what is promised and a line on it.
+ * What Themia stands for (panorama.mjs's values): the page's points, a line each under one another from x, y, each w
+ * wide and h tall, a rule between them: a glyph, what is promised, and a line on it beside. Under them the page's
+ * last line (foot), the mark before it.
  */
 function valuesHtml(values, left, points, foot) {
-  const last = foot && values.foot ? `<div class="valuefoot" style="left:${left}px; width:${page.w}px; top:${values.foot}px;"><img src="${logo}" alt="">${escape(foot)}</div>` : "";
+  const last = foot ? `<div class="valuefoot" style="left:${left}px; width:${page.w}px; top:${values.foot}px;"><img src="${logo}" alt="">${escape(foot)}</div>` : "";
   return last + points
-    .map((point, i) => `<div class="value" style="left:${left + values.x + i * (values.w + values.gap)}px; top:${values.y}px; width:${values.w}px; height:${values.h}px;">
+    .map((point, i) => `<div class="value" style="left:${left + values.x}px; top:${values.y + i * values.h}px; width:${values.w}px; height:${values.h}px;${i === 0 ? " border-top: 0;" : ""}">
       <i>${values.glyphs[i] ?? ""}</i><h2>${escape(point.title)}</h2><p>${escape(point.text)}</p></div>`)
     .join("");
 }

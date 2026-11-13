@@ -27,7 +27,8 @@
 //   lanes  what Themia reads from the accounts, a lane each, w wide, h tall and gap apart from x, y, pad inside: what
 //          it gives (the listing's callout of its place, and a Segoe Fluent Icons glyph), that as Themia shows it (a
 //          piece), and the services it comes from, each a name and its logo (compose.mjs's logos)
-//   values what Themia stands for: the listing's points of that page as tiles (x, y, w, gap), a glyph each
+//   values what Themia stands for: the listing's points of that page as lines under one another from x, y (w wide,
+//          each h tall), a glyph each, and the page's last line at foot
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -115,6 +116,9 @@ const screen = { x: 320, y: 248, w: 1280 };
 
 /** A ready-made group of a sheet as one piece: every widget the scene names id-<kind>. */
 const group = (scene, id) => [scene, [...(scenes.get(scene)?.widgets.keys() ?? [])].filter((k) => k.startsWith(id + "-"))];
+
+/** Where a monitor w wide has its screen's top, standing on the ground as every band page's does. */
+const stand = (w) => monitorBox({ ...screen, y: 0 }).bottom + screen.y - monitorBox({ x: 0, y: 0, w }).bottom;
 
 /** A widget lying across the cut to the next page, half on each: what makes the row one picture. */
 const across = (piece, w, y, r) => ({ piece, x: page.w - Math.round(w / 2), y, w, r, z: 4 });
@@ -212,13 +216,10 @@ export const frames = [
   {
     shot: "amount",
     cards: [
-      // Four desktops of four people, a stair from the least to the most: one clock, a few widgets, a column,
-      // everything; each larger and higher than the one before, lying on it.
-      { piece: ["one"], ground: true, x: 300, y: 600, w: 470, z: 2, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
-      { piece: ["few"], ground: true, x: 560, y: 500, w: 540, z: 3, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
-      { piece: ["side"], ground: true, x: 850, y: 400, w: 620, z: 4, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
-      { piece: ["full"], ground: true, x: 1130, y: 290, w: 700, z: 5, bubbles: [{ at: [150, 0], dx: 0, dy: -44 }] },
-      across(["more-b", "pomodoro"], 300, 790, -3),
+      // The same desktop twice, a monitor each: with one clock, and full.
+      { screen: "alone", x: 330, y: stand(750), w: 750, bubbles: [{ at: [768, 0], dx: 0, dy: -56 }] },
+      { screen: "full", x: 1120, y: stand(750), w: 750, bubbles: [{ at: [768, 0], dx: 0, dy: -56 }] },
+      across(["more-b", "pomodoro"], 240, 300, -3),
     ],
   },
   {
@@ -241,8 +242,8 @@ export const frames = [
   },
   {
     shot: "promise",
-    // What Themia stands for: the listing's points, a tile each.
-    values: { x: 150, y: 380, w: 300, h: 440, gap: 30, foot: 900, glyphs: ["\uE72E", "\uE77B", "\uE8C7", "\uE945", "\uE943"] },
+    // What Themia stands for: the listing's points, a line each.
+    values: { x: 300, y: 290, w: 1320, h: 116, foot: 950, glyphs: ["\uE72E", "\uE77B", "\uE8C7", "\uE945", "\uE943"] },
   },
 ];
 

@@ -154,11 +154,9 @@
       "label": "Deins",
       "headline": "Von einer Uhr bis zum vollen Dashboard.",
       "sub": "Stell so wenig oder so viel auf deinen Desktop, wie du willst, und wohin du willst.",
-      "caption": "Vier Desktops: einer nur mit einer Uhr, einer mit Uhr, Wetter und Musik, einer mit einer Spalte aus Wetter und Wechselkursen, einer voller Widgets.",
+      "caption": "Zwei Desktops mit demselben Hintergrund: einer nur mit einer Uhr, einer voller Widgets.",
       "callouts": [
         "Eine Uhr",
-        "Ein paar Dinge",
-        "Eine Spalte",
         "Alles"
       ]
     },

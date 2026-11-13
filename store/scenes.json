@@ -789,8 +789,8 @@
       ]
     },
     {
-      "name": "one",
-      "wallpaper": "wallpapers/golden-dunes.png",
+      "name": "alone",
+      "wallpaper": "wallpapers/cactus-island.png",
       "taskbar": true,
       "widgets": [
         {
@@ -802,78 +802,9 @@
             420,
             182
           ],
-          "bare": true,
           "config": {
             "size": "Large"
           }
-        }
-      ]
-    },
-    {
-      "name": "few",
-      "wallpaper": "wallpapers/night-trees.png",
-      "taskbar": true,
-      "widgets": [
-        {
-          "id": "clock",
-          "kind": "clock",
-          "at": [
-            24,
-            24,
-            320,
-            138
-          ]
-        },
-        {
-          "readyMade": "weather",
-          "at": [
-            24,
-            186
-          ]
-        },
-        {
-          "readyMade": "nowPlaying",
-          "at": [
-            24,
-            656
-          ]
-        }
-      ]
-    },
-    {
-      "name": "side",
-      "wallpaper": "wallpapers/tropical-bay.png",
-      "taskbar": true,
-      "widgets": [
-        {
-          "readyMade": "weatherStation",
-          "at": [
-            24,
-            24
-          ],
-          "id": "station"
-        },
-        {
-          "id": "rate",
-          "kind": "exchangeRate",
-          "at": [
-            24,
-            588,
-            300,
-            100
-          ],
-          "group": "Rates"
-        },
-        {
-          "id": "rateHistory",
-          "kind": "exchangeHistory",
-          "at": [
-            24,
-            688,
-            300,
-            96
-          ],
-          "group": "Rates"
         }
       ]
     },

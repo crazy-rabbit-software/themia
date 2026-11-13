@@ -50,9 +50,9 @@ on how a panel is built):
 2. **The office.** Your day (the next meeting, the week, mail, tasks); the accounts it comes from.
 3. **The beautiful desktop.** Your PC with its live graphs; the weather and the time.
 4. **Everything else.** A wall of the widgets no other page shows: more than a hundred.
-5. **Yours.** From one clock to a full dashboard (four desktops); one desktop in four looks; three
+5. **Yours.** From one clock to a full dashboard (the same desktop twice); one desktop in four looks; three
    desktops of one PC, one per part of the day.
-6. **What Themia stands for.** Its promise, a tile each (the listing's `points`).
+6. **What Themia stands for.** Its promise, a line each (the listing's `points`).
 
 The pages hang together: a widget lies across every cut, half on each page; the wall runs into the pages
 beside it; one landscape (a sky, two ranges of hills, a ground the monitors stand on) runs behind them
