@@ -1,8 +1,11 @@
 // The listing's screenshots as one long picture, cut into the Store's pages (compose.mjs): side by side in the Store's
-// row they are one scene. Three parts, in the order somebody meets Themia: what it is (widgets on the desktop; small
-// ones that join into panels; ready-made groups to start from), what it shows (your accounts, your PC, your files,
-// and the same thing lit in every widget) and how the desktop becomes yours (arranging, the look, a desktop for
-// every part of the day). Words and monitors never cross a cut.
+// row they are one scene. It says what Themia does, never how it is used (the owner, 2026-11-13: "you should not
+// explain how to use the product, you should say what it can do"; nothing of the add page, the edit bar or how a
+// panel is built): the promise (a desktop), the office (your day; your accounts), the beautiful desktop (your PC;
+// the weather and the time), everything else (a wall of widgets), yours (from one clock to a dashboard; the looks;
+// a desktop for every part of the day) and what Themia stands for. The pages hang together: a widget lies across
+// every cut, half on each page, the wall runs into the pages beside it, and one floor runs under them all
+// (compose.mjs). Words and monitors stay whole on their own page.
 //
 // Everything shown is a scene of store/scenes.json, drawn by the app (store/capture.ps1): the scenes' display in DIPs (display), a desktop
 // (the widgets on a wallpaper, Windows' taskbar under them) or a sheet of widgets on nothing. A frame is one page, 1920 x 1080 px, in the
@@ -24,6 +27,7 @@
 //   lanes  what Themia reads from the accounts, a lane each, w wide, h tall and gap apart from x, y, pad inside: what
 //          it gives (the listing's callout of its place, and a Segoe Fluent Icons glyph), that as Themia shows it (a
 //          piece), and the services it comes from, each a name and its logo (compose.mjs's logos)
+//   values what Themia stands for: the listing's points of that page as tiles (x, y, w, gap), a glyph each
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -109,44 +113,37 @@ export const scenes = scenesOf(doc, layoutOf);
 // Every band page's monitor: the same place, the same size.
 const screen = { x: 320, y: 248, w: 1280 };
 
+/** A ready-made group of a sheet as one piece: every widget the scene names id-<kind>. */
+const group = (scene, id) => [scene, [...(scenes.get(scene)?.widgets.keys() ?? [])].filter((k) => k.startsWith(id + "-"))];
+
+/** A widget lying across the cut to the next page, half on each: what makes the row one picture. */
+const across = (piece, w, y, r) => ({ piece, x: page.w - Math.round(w / 2), y, w, r, z: 4 });
+
 export const frames = [
   {
     shot: "desktop",
-    cards: [{ screen: "desktop", ...screen }],
+    cards: [{ screen: "desktop", ...screen }, across(["more-a", "quote"], 380, 800, -4)],
   },
   {
-    shot: "compose",
-    cards: [
-      // Three small widgets apart, then the same three side by side: one panel.
-      { piece: ["compose", "a-cpu"], x: 120, y: 330, w: 330, r: -4, bubbles: [{ on: "a-cpu", at: [0.25, 0], dy: -52 }] },
-      { piece: ["compose", "a-history"], x: 170, y: 520, w: 330, r: 3, bubbles: [{ on: "a-history", at: [0.2, 1], dy: 56 }] },
-      { piece: ["compose", "a-facts"], x: 110, y: 690, w: 330, r: -2, bubbles: [{ on: "a-facts", at: [0.3, 1], dy: 56 }] },
-      { piece: ["compose", ["b-cpu", "b-history", "b-facts"]], x: 560, y: 360, w: 380, z: 2, bubbles: [{ on: "b-cpu", at: [0.5, 0], dy: -56 }] },
-      // A bigger one, and two the app has ready.
-      { piece: ["compose", ["b-station-weatherNow", "b-station-weatherFacts", "b-station-weatherForecast", "b-station-rainNextHour"]], x: 1040, y: 300, w: 380, z: 2, bubbles: [{ on: "b-station-weatherNow", at: [0.5, 0], dy: -56 }] },
-      { piece: ["compose", ["b-playing-musicCover", "b-playing-music", "b-playing-musicProgress"]], x: 1470, y: 380, w: 400, r: 3 },
-      { piece: ["compose", ["b-quick-wifiToggle", "b-quick-bluetoothToggle", "b-quick-doNotDisturbToggle", "b-quick-nightLightToggle"]], x: 1450, y: 640, w: 430, r: -3 },
-    ],
-  },
-  {
-    shot: "add",
+    shot: "day",
     cards: [
       {
-        screen: "add",
+        screen: "day",
         ...screen,
-        // The add page hangs under the bar: its ready-made groups, its subjects, its search.
+        // In the open middle of the wallpaper, beside what they name.
         bubbles: [
-          { at: [300, 104], to: [150, 420] },
-          { at: [300, 250], to: [150, 640] },
-          { at: [860, 104], to: [1770, 420] },
+          { on: "myDay-nextMeeting", at: [1, 0.5], to: [780, 470] },
+          { on: "planner", at: [0, 0.6], to: [880, 660] },
+          { on: "email", at: [0, 0.4], to: [1120, 860] },
         ],
       },
+      across(["more-a", "notifications"], 300, 420, 3),
     ],
   },
   {
     shot: "accounts",
     lanes: {
-      x: 70,
+      x: 250,
       y: 250,
       w: 340,
       h: 790,
@@ -157,9 +154,9 @@ export const frames = [
         { glyph: "", piece: ["accounts", "email"], from: [["Microsoft 365", "microsoft"], ["Outlook.com", "microsoftoutlook"], ["iCloud", "icloud"], ["IMAP", "mail"]] },
         { glyph: "", piece: ["accounts", "tasks"], from: [["Microsoft To Do", "microsoft"], ["CalDAV", "tasks"], ["On this PC", "pc"]] },
         { glyph: "", piece: ["accounts", "contacts"], from: [["Microsoft 365", "microsoft"], ["Outlook.com", "microsoftoutlook"], ["iCloud", "icloud"], ["CardDAV", "contacts"]] },
-        { glyph: "", piece: ["accounts", "meeting-nextMeeting"], from: [["Teams", "microsoftteams"], ["Zoom", "zoom"], ["Webex", "webex"]] },
       ],
     },
+    cards: [across(group("more-b", "battery"), 260, 640, -4)],
   },
   {
     shot: "pc",
@@ -167,61 +164,58 @@ export const frames = [
       {
         screen: "pc",
         ...screen,
-        // On the open wallpaper beside what they name; the moment pointed at runs down every chart.
         bubbles: [
-          { on: "cpuHistory", at: [0.6, 0.5], to: [1764, 300] },
-          { on: "memory", at: [1, 0.5], to: [1764, 560] },
-          { on: "processes", at: [0, 0.4], to: [640, 360] },
-          { on: "pingFacts", at: [0, 0.5], to: [640, 650] },
+          { on: "cpuHistory", at: [0, 0.5], to: [640, 330] },
+          { on: "processes", at: [0, 0.5], to: [600, 560] },
+          { on: "network", at: [0, 0.5], to: [640, 790] },
+        ],
+      },
+      across(group("more-b", "moon"), 300, 380, 4),
+    ],
+  },
+  {
+    shot: "weather",
+    cards: [
+      {
+        screen: "weather",
+        ...screen,
+        bubbles: [
+          { on: "sun-sun", at: [1, 0.4], to: [1010, 400] },
+          { on: "station-rainNextHour", at: [0.5, 1], to: [560, 850] },
+          { on: "alarm", at: [0, 0.5], to: [1150, 640] },
         ],
       },
     ],
   },
   {
-    shot: "files",
-    cards: [
-      {
-        screen: "files",
-        ...screen,
-        bubbles: [
-          { on: "files-folder", at: [0, 0.4], to: [860, 390] },
-          { on: "files-shortcuts", at: [1, 0.5], to: [1764, 300] },
-          { on: "files-recentFiles", at: [1, 0.6], to: [1764, 470] },
-          { on: "notes", at: [0, 0.5], to: [880, 640] },
-          { on: "system-drive", at: [1, 0.5], to: [1764, 640] },
-        ],
-      },
-    ],
+    shot: "widgets",
+    // Six lists of widgets no other page shows, tilted, running on into the pages beside.
+    wall: {
+      x: -250,
+      y: 110,
+      w: 400,
+      gap: 20,
+      r: -5,
+      fade: [200, 300],
+      lists: [
+        { dy: 60, pieces: [group("more-a", "screenTime"), ["more-a", "clipboard"], ["more-b", "recycleBin"]] },
+        { dy: 0, pieces: [group("more-b", "sun"), group("more-a", "sound"), ["more-b", "notes"]] },
+        { dy: 80, pieces: [group("more-a", "nowPlayingLarge"), ["more-b", "bluetooth"], ["more-b", "countdown"]] },
+        { dy: 20, pieces: [group("more-b", "airQuality"), ["more-a", "habitTracker"], ["more-b", "alarm"]] },
+        { dy: 100, pieces: [group("more-b", "drive"), ["more-a", "rss"], ["more-b", "stopwatch"]] },
+        { dy: 40, pieces: [["more-b", "contacts"], group("more-a", "stocks"), group("more-a", "exchangeRates")] },
+      ],
+    },
   },
   {
-    shot: "days",
+    shot: "amount",
     cards: [
-      {
-        screen: "days",
-        ...screen,
-        // A day pointed at in the calendar is lit in the forecast and the planner too.
-        bubbles: [
-          { on: "calendar", at: [0, 0.55], to: [1000, 330] },
-          { on: "forecast", at: [1, 0.5], to: [1764, 560] },
-          { on: "planner", at: [0, 0.3], to: [860, 700] },
-        ],
-      },
-    ],
-  },
-  {
-    shot: "edit",
-    cards: [
-      {
-        screen: "edit",
-        ...screen,
-        // The bar, the group's own entry on it, and its page: one setting for all of its widgets.
-        bubbles: [
-          { at: [420, 33], to: [150, 330] },
-          { at: [854, 33], to: [1770, 300] },
-          { at: [700, 269], to: [150, 560] },
-          { at: [900, 468], to: [1770, 640] },
-        ],
-      },
+      // Four desktops of four people: one clock, a few widgets, a column, everything.
+      { piece: ["one"], ground: true, x: 370, y: 290, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
+      { piece: ["few"], ground: true, x: 980, y: 290, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
+      { piece: ["side"], ground: true, x: 370, y: 660, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
+      { piece: ["full"], ground: true, x: 980, y: 660, w: 570, z: 2, bubbles: [{ at: [150, 60], dx: 0, dy: -64 }] },
+      across(["more-b", "pomodoro"], 280, 760, -3),
     ],
   },
   {
@@ -229,6 +223,7 @@ export const frames = [
     cards: [
       // One desktop, cut into the look it comes with and three of its others, each on a wallpaper of its own.
       { screen: "looks", cuts: ["looks", "look-daylight", "look-glass", "look-terminal"], tilt: 0.07, ...screen },
+      across(group("more-a", "quickSettings"), 420, 290, 3),
     ],
   },
   {
@@ -238,7 +233,13 @@ export const frames = [
       { piece: ["evening"], ground: true, x: 30, y: 500, w: 820, r: -6, z: 2, bubbles: [{ at: [336, 45], dy: -44 }] },
       { piece: ["desktop"], ground: true, x: 510, y: 300, w: 900, z: 3, bubbles: [{ at: [768, 0], dy: -44 }] },
       { piece: ["focus"], ground: true, x: 1070, y: 500, w: 820, r: 6, z: 2, bubbles: [{ at: [1200, 60], dy: -44 }] },
+      across(group("more-b", "power"), 400, 300, -3),
     ],
+  },
+  {
+    shot: "promise",
+    // What Themia stands for: the listing's points, a tile each.
+    values: { x: 150, y: 400, w: 300, h: 440, gap: 30, glyphs: ["\uE72E", "\uE77B", "\uE8C7", "\uE945", "\uE943"] },
   },
 ];
 

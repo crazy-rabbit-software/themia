@@ -90,7 +90,8 @@ function panoramaHtml(lang, listing, at, n) {
         .join("");
       const wall = frame.wall ? wallHtml(frame.wall, left, at) : "";
       const lanes = frame.lanes ? lanesHtml(frame.lanes, left, s.callouts, at) : "";
-      return `${wall}${cards}${lanes}<div class="text" style="left:${left + 160}px; width:${page.w - 320}px; top:44px;">
+      const values = frame.values ? valuesHtml(frame.values, left, s.points ?? []) : "";
+      return `${wall}${cards}${lanes}${values}<div class="text" style="left:${left + 160}px; width:${page.w - 320}px; top:44px;">
   <div class="label"><img src="${logo}" alt="">${escape(s.label)}</div>
   <h1>${escape(s.headline)}</h1>
   <p>${escape(s.sub)}</p>
@@ -146,7 +147,14 @@ p { margin: 10px 0 0; font-family: ${fonts(lang, "Text")}; font-size: 26px; line
 .logo.plain { background: #fff; }
 .logo.glyph { background: rgba(255, 255, 255, 0.14); }
 .logo.glyph i { font: normal 24px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
+.floorline { position: absolute; left: 0; top: 1046px; height: 34px; background: linear-gradient(180deg, rgba(122, 217, 255, 0.13), rgba(122, 217, 255, 0)); box-shadow: 0 -1px 0 rgba(160, 225, 255, 0.22); }
+.value { position: absolute; z-index: 10; border-radius: 30px; background: linear-gradient(180deg, #1a2030, #0e111a); box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.12), 0 30px 80px rgba(0, 0, 0, 0.45); direction: ${rtl}; }
+.value i { position: absolute; left: 30px; top: 34px; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 18px; background: #60cdff; color: #04202e;
+  font: normal 34px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); }
+.value h2 { position: absolute; left: 30px; right: 26px; top: 128px; margin: 0; font: 600 34px/1.12 ${fonts(lang, "Display")}; color: #fff; text-wrap: balance; }
+.value p { position: absolute; left: 30px; right: 26px; top: 228px; margin: 0; font: 400 24px/1.36 ${fonts(lang, "Text")}; color: rgba(226, 234, 250, 0.82); }
 </style></head><body><div id="world">
+<div class="floorline" style="width:${width}px;"></div>
 ${content}
 </div></body></html>`;
 }
@@ -223,6 +231,17 @@ function raysHtml(crop, screen, box) {
       <defs><linearGradient id="ray" ${axis}><stop offset="0" stop-color="rgba(122, 217, 255, 0.3)"/><stop offset="1" stop-color="rgba(122, 217, 255, 0.05)"/></linearGradient></defs>
       <polygon points="${points}" fill="url(#ray)"/></svg>
     <div class="marked" style="left:${from.x - 3}px; top:${from.y - 3}px; width:${from.w + 6}px; height:${from.h + 6}px;"></div>`;
+}
+
+/**
+ * What Themia stands for (panorama.mjs's values): the page's points, a tile each side by side from x, y, each w wide
+ * and h tall, gap apart: a glyph, what is promised and a line on it.
+ */
+function valuesHtml(values, left, points) {
+  return points
+    .map((point, i) => `<div class="value" style="left:${left + values.x + i * (values.w + values.gap)}px; top:${values.y}px; width:${values.w}px; height:${values.h}px;">
+      <i>${values.glyphs[i] ?? ""}</i><h2>${escape(point.title)}</h2><p>${escape(point.text)}</p></div>`)
+    .join("");
 }
 
 /**

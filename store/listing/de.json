@@ -94,29 +94,15 @@
       "caption": "Ein Windows-Desktop mit Themias Widgets auf dem Hintergrundbild: Uhr, nächste Besprechung, Aufgaben und Musik auf der einen Seite, Wetter und eine Aktie auf der anderen, über der Windows-Taskleiste."
     },
     {
-      "shot": "compose",
-      "label": "Kleine Widgets",
-      "headline": "Kleine Widgets. Eigene Panels.",
-      "sub": "Jedes Widget zeigt eine Sache. Stell sie nebeneinander und sie werden eins.",
-      "caption": "Drei kleine Widgets einzeln (ein Prozessorwert, sein Verlauf, seine Fakten), dann dieselben drei als ein Panel; daneben eine Wetterstation, ein Musikplayer und Schnelleinstellungen.",
+      "shot": "day",
+      "label": "Dein Tag",
+      "headline": "Dein Tag, bevor du etwas öffnest.",
+      "sub": "Deine nächste Besprechung, deine Woche, neue Mails und deine Aufgaben, direkt auf dem Desktop.",
+      "caption": "Ein Desktop mit der nächsten Besprechung und ihrer Beitreten-Schaltfläche, dem, was danach kommt, Aufgaben, einem Monatskalender, einem Wochenplaner und dem Posteingang.",
       "callouts": [
-        "Ein Wert",
-        "Sein Verlauf",
-        "Seine Fakten",
-        "Nebeneinander: ein Panel",
-        "Oder eine Wetterstation"
-      ]
-    },
-    {
-      "shot": "add",
-      "label": "Fertige Gruppen",
-      "headline": "Starte mit einer fertigen Gruppe.",
-      "sub": "Für deinen Tag, deinen PC, das Wetter und mehr. Oder wähle einzelne Widgets nach Thema.",
-      "caption": "Themias Hinzufügen-Seite unter der Bearbeitungsleiste: ein Suchfeld, Themen als Reiter und fertige Gruppen als Bilder, etwa für den Tag, den PC, das Wetter, die Musik und die Dateien.",
-      "callouts": [
-        "Suche",
-        "Fertige Gruppen",
-        "Jedes Widget, nach Thema"
+        "Mit einem Klick beitreten",
+        "Deine Woche",
+        "Neue Mails"
       ]
     },
     {
@@ -124,65 +110,56 @@
       "label": "Konten",
       "headline": "Dein Kalender, deine Mail, deine Aufgaben.",
       "sub": "Direkt von deinem PC zu deinen Konten. Nichts läuft über uns.",
-      "caption": "Konten, mit denen Themia sich verbindet: Microsoft 365, Outlook.com, iCloud, IMAP, CalDAV und CardDAV. Besprechungen in Teams, Zoom und Webex mit einem Klick.",
+      "caption": "Konten, mit denen sich Themia verbindet: Microsoft 365, Outlook.com, iCloud, IMAP, CalDAV und CardDAV.",
       "callouts": [
         "Kalender",
         "Mail",
         "Aufgaben",
-        "Kontakte",
-        "Beitreten mit einem Klick"
+        "Kontakte"
       ]
     },
     {
       "shot": "pc",
       "label": "Dein PC",
       "headline": "Dein PC auf einen Blick.",
-      "sub": "Prozessor, Speicher, Grafik, Netzwerk und Akku mit Live-Verläufen. Zeig auf einen Moment und jeder Verlauf zeigt ihn.",
-      "caption": "Ein Desktop mit Systemwidgets: Prozessor, Speicher, Grafik, Netzwerk, Ping, Akku, ein Laufwerk und die Programme mit der höchsten Last. Ein gezeigter Moment ist in jedem Verlauf markiert.",
+      "sub": "Prozessor, Speicher, Grafik, Netzwerk und Akku mit Live-Verläufen. Ganz ohne Task-Manager.",
+      "caption": "Ein Desktop mit Systemwidgets auf einer Seite: Prozessor, Speicher, Grafik, Netzwerk, Ping, Akku, ein Laufwerk und die Programme mit der höchsten Last.",
       "callouts": [
-        "Zeig auf einen Moment",
-        "Die Werte folgen",
+        "Live-Verläufe",
         "Was deinen PC nutzt",
-        "Ping, in Zahlen"
+        "Netzwerk, rauf und runter"
       ]
     },
     {
-      "shot": "files",
-      "label": "Dateien",
-      "headline": "Deine Dateien, direkt auf dem Desktop.",
-      "sub": "Ein Ordner zum Durchblättern, Verknüpfungen, deine neuesten Dateien, Notizen und der freie Platz auf deinen Laufwerken.",
-      "caption": "Ein Desktop mit Desktopsymbolen, einem Ordner zum Durchblättern, Verknüpfungen, den neuesten Dateien, einer Notiz und Laufwerken mit freiem Platz.",
+      "shot": "weather",
+      "label": "Wetter und Zeit",
+      "headline": "Wetter und Zeit, immer da.",
+      "sub": "Die Vorhersage, Regen in der nächsten Stunde, Sonne und Mond, Uhren und Wecker.",
+      "caption": "Ein Desktop mit dem Wetter jetzt und für die Woche, Regen in der nächsten Stunde, dem Lauf der Sonne, Luftqualität, dem Mond, einer grossen Uhr und einem Wecker.",
       "callouts": [
-        "Jeder Ordner",
-        "Verknüpfungen",
-        "Deine neuesten Dateien",
-        "Notizen",
-        "Freier Platz"
+        "Sonne, Mond und Luft",
+        "Regen in der nächsten Stunde",
+        "Wecker und Timer"
       ]
     },
     {
-      "shot": "days",
-      "label": "Verbunden",
-      "headline": "Eines zeigen, überall sehen.",
-      "sub": "Ein Tag, eine App, ein Moment im Verlauf: jedes Widget hebt dasselbe hervor.",
-      "caption": "Ein Desktop, auf dem ein im Kalender gezeigter Tag auch in der Wettervorhersage und im Wochenplaner hervorgehoben ist.",
-      "callouts": [
-        "Zeig auf einen Tag",
-        "Sein Wetter",
-        "Seine Pläne"
-      ]
+      "shot": "widgets",
+      "label": "Widgets",
+      "headline": "Über 100 Widgets.",
+      "sub": "Musik, Aktien, Gewohnheiten, Bildschirmzeit, Notizen, Feeds und Schnelleinstellungen. Jedes davon ist in der Gratisversion.",
+      "caption": "Eine Wand aus Themias Widgets: Bildschirmzeit, Ton, Wiedergabe, Luftqualität, Gewohnheiten, Laufwerke, Kontakte, Aktien, Wechselkurse, ein Countdown, Notizen und mehr."
     },
     {
-      "shot": "edit",
-      "label": "Anordnen",
-      "headline": "Ordne es so an, wie du willst.",
-      "sub": "Ziehen, Grösse ändern, am Raster einrasten. Eine Gruppe hat eine Seite für alle ihre Widgets.",
-      "caption": "Themias Bearbeitungsmodus: die Leiste oben am Desktop, eine ausgewählte Gruppe von Wetterwidgets und ihre Seite, auf der der Ort einmal für alle vier gesetzt wird.",
+      "shot": "amount",
+      "label": "Deins",
+      "headline": "Von einer Uhr bis zum vollen Dashboard.",
+      "sub": "Stell so wenig oder so viel auf deinen Desktop, wie du willst, und wohin du willst.",
+      "caption": "Vier Desktops: einer nur mit einer Uhr, einer mit Uhr, Wetter und Musik, einer mit einer Spalte aus Wetter und Wechselkursen, einer voller Widgets.",
       "callouts": [
-        "Themias Einstellungen",
-        "Die gewählte Gruppe",
-        "Einmal für alle gesetzt",
-        "Oder ein Widget öffnen"
+        "Eine Uhr",
+        "Ein paar Dinge",
+        "Eine Spalte",
+        "Alles"
       ]
     },
     {
@@ -202,6 +179,35 @@
         "Abend",
         "Arbeit",
         "Fokus"
+      ]
+    },
+    {
+      "shot": "promise",
+      "label": "Unser Versprechen",
+      "headline": "Dein Desktop gehört dir.",
+      "sub": "Woran wir glauben, und woran du uns messen kannst.",
+      "caption": "Themias Versprechen: keine Werbung und kein Tracking, kein Konto, ein einmaliger Kauf ohne Abo, schonend für deinen PC und öffentlicher Code.",
+      "points": [
+        {
+          "title": "Keine Werbung, kein Tracking",
+          "text": "Wir schauen nicht, was du tust. Nichts in Themia meldet es."
+        },
+        {
+          "title": "Kein Konto",
+          "text": "Themia braucht keine Anmeldung. Mail und Kalender gehen direkt von deinem PC zu deinem Anbieter."
+        },
+        {
+          "title": "Einmal zahlen",
+          "text": "Jedes Widget ist in der Gratisversion. Pro ist ein einmaliger Kauf, kein Abo."
+        },
+        {
+          "title": "Schont deinen PC",
+          "text": "Nativ für Windows gebaut. Es arbeitet nicht, solange sich nichts ändert."
+        },
+        {
+          "title": "Offen zum Lesen",
+          "text": "Der Code ist öffentlich. Jeder kann prüfen, was Themia tut."
+        }
       ]
     }
   ],

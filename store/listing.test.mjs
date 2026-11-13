@@ -46,10 +46,14 @@ test("the listing counts the widgets the app has", () => {
   // A widget kind is a module folder (CLAUDE.md): the number the listing names is theirs.
   const kinds = readdirSync(join(store, "..", "src", "Widgets")).filter((d) => d.startsWith("Themia.Widget.")).length;
   const text = [en.shortDescription, ...en.description, ...en.features, ...en.screenshots.flatMap((s) => [s.label, s.headline])].join("\n");
-  // "80 widgets", not the free version's "up to 20 widgets".
-  const named = [...text.matchAll(/(\d+) widgets?\b/gi)].map((m) => Number(m[1])).filter((n) => n !== 20);
+  // "109 widgets" is the number itself; "more than 100 widgets" a round number under it, within twenty. Not the free
+  // version's "up to 20 widgets".
+  const named = [...text.matchAll(/(more than )?(\d+) widgets?\b/gi)].map((m) => ({ over: Boolean(m[1]), n: Number(m[2]) })).filter((m) => m.n !== 20);
   assert.ok(named.length > 0, "the listing says how many widgets there are");
-  for (const n of named) assert.equal(n, kinds, `the listing says ${n} widgets, the app has ${kinds}`);
+  for (const { over, n } of named) {
+    if (over) assert.ok(n < kinds && kinds - n <= 20, `the listing says more than ${n} widgets, the app has ${kinds}`);
+    else assert.equal(n, kinds, `the listing says ${n} widgets, the app has ${kinds}`);
+  }
 });
 
 test("the listing does not name what Themia does not offer", () => {

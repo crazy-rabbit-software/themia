@@ -1,144 +1,918 @@
 {
-  "screen": { "width": 1536, "height": 864 },
+  "screen": {
+    "width": 1536,
+    "height": 864
+  },
   "scenes": [
     {
       "name": "desktop",
       "wallpaper": "wallpapers/warm-mountains.png",
       "taskbar": true,
       "widgets": [
-        { "readyMade": "myDay", "at": [24, 24] },
-        { "readyMade": "nowPlaying", "at": [24, 638] },
-        { "readyMade": "weatherStation", "at": [1212, 24], "id": "station" },
-        { "id": "stock", "kind": "stock", "at": [1212, 596, 300, 84], "group": "Stocks" },
-        { "id": "stockHistory", "kind": "stockHistory", "at": [1212, 680, 300, 108], "group": "Stocks" }
+        {
+          "readyMade": "myDay",
+          "at": [
+            24,
+            24
+          ]
+        },
+        {
+          "readyMade": "nowPlaying",
+          "at": [
+            24,
+            638
+          ]
+        },
+        {
+          "readyMade": "weatherStation",
+          "at": [
+            1212,
+            24
+          ],
+          "id": "station"
+        },
+        {
+          "id": "stock",
+          "kind": "stock",
+          "at": [
+            1212,
+            596,
+            300,
+            84
+          ],
+          "group": "Stocks"
+        },
+        {
+          "id": "stockHistory",
+          "kind": "stockHistory",
+          "at": [
+            1212,
+            680,
+            300,
+            108
+          ],
+          "group": "Stocks"
+        }
       ]
     },
     {
-      "name": "edit",
-      "like": "desktop",
-      "edit": { "bar": true, "group": "Weather station", "grid": true }
-    },
-    {
-      "name": "add",
-      "wallpaper": "wallpapers/cactus-island.png",
-      "taskbar": true,
-      "widgets": [
-        { "readyMade": "myDay", "at": [24, 24] }
-      ],
-      "edit": { "bar": true, "add": true }
-    },
-    {
-      "name": "pc",
-      "wallpaper": "wallpapers/red-canyon.png",
-      "taskbar": true,
-      "links": { "hoveredInstant": "-00:00:20" },
-      "widgets": [
-        { "id": "processes", "kind": "topProcesses", "at": [660, 24, 280, 248] },
-        { "id": "ping", "kind": "ping", "at": [660, 288, 280, 84], "group": "Ping" },
-        { "id": "pingHistory", "kind": "pingHistory", "at": [660, 372, 280, 64], "group": "Ping" },
-        { "id": "pingFacts", "kind": "pingFacts", "at": [660, 436, 280, 136], "header": "hidden", "group": "Ping" },
-
-        { "id": "gpu", "kind": "gpu", "at": [964, 24, 262, 84], "group": "Graphics" },
-        { "id": "gpuHistory", "kind": "gpuHistory", "at": [964, 108, 262, 64], "group": "Graphics" },
-        { "id": "gpuFacts", "kind": "gpuFacts", "at": [964, 172, 262, 136], "header": "hidden", "group": "Graphics" },
-        { "id": "network", "kind": "network", "at": [964, 324, 262, 128], "group": "Network" },
-        { "id": "networkHistory", "kind": "networkHistory", "at": [964, 452, 262, 64], "group": "Network" },
-        { "id": "networkFacts", "kind": "networkFacts", "at": [964, 516, 262, 136], "header": "hidden", "group": "Network" },
-        { "id": "drive", "kind": "drive", "at": [964, 668, 262, 112] },
-
-        { "id": "cpu", "kind": "cpu", "at": [1250, 24, 262, 84], "group": "Processor" },
-        { "id": "cpuHistory", "kind": "cpuHistory", "at": [1250, 108, 262, 64], "group": "Processor" },
-        { "id": "cpuFacts", "kind": "cpuFacts", "at": [1250, 172, 262, 136], "header": "hidden", "group": "Processor" },
-        { "id": "memory", "kind": "memory", "at": [1250, 324, 262, 84], "group": "Memory" },
-        { "id": "memoryHistory", "kind": "memoryHistory", "at": [1250, 408, 262, 64], "group": "Memory" },
-        { "id": "memoryFacts", "kind": "memoryFacts", "at": [1250, 472, 262, 136], "header": "hidden", "group": "Memory" },
-        { "id": "battery", "kind": "battery", "at": [1250, 624, 262, 84], "group": "Battery" },
-        { "id": "batteryHistory", "kind": "batteryHistory", "at": [1250, 708, 262, 64], "group": "Battery" }
-      ]
-    },
-    {
-      "name": "files",
-      "wallpaper": "wallpapers/golden-dunes.png",
-      "taskbar": true,
-      "widgets": [
-        { "id": "icon-pc", "kind": "desktopItem", "at": [24, 24, 90, 100], "state": "thisPc", "bare": true },
-        { "id": "icon-bin", "kind": "desktopItem", "at": [24, 132, 90, 100], "state": "recycleBin", "bare": true },
-        { "id": "icon-folder", "kind": "desktopItem", "at": [24, 240, 90, 100], "state": "folder", "bare": true },
-        { "id": "icon-file", "kind": "desktopItem", "at": [24, 348, 90, 100], "state": "document", "bare": true },
-        { "readyMade": "myFiles", "at": [896, 24], "id": "files" },
-        { "id": "notes", "kind": "notes", "at": [896, 356, 332, 220] },
-        { "readyMade": "drive", "at": [1252, 356], "id": "system" },
-        { "id": "removable", "kind": "removableDrives", "at": [1252, 628, 260, 136] }
-      ]
-    },
-    {
-      "name": "days",
+      "name": "day",
       "wallpaper": "wallpapers/desert-arch.png",
       "taskbar": true,
-      "links": { "hoveredDate": "today+1" },
       "widgets": [
-        { "readyMade": "myDay", "at": [24, 24] },
-        { "id": "calendar", "kind": "calendar", "at": [1212, 24, 300, 232], "group": "Week" },
-        { "id": "forecast", "kind": "weatherForecast", "at": [1212, 256, 300, 164], "header": "hidden", "group": "Week" },
-        { "id": "planner", "kind": "weekPlanner", "at": [912, 444, 600, 216] },
-        { "id": "habits", "kind": "habitTracker", "at": [1212, 676, 300, 132], "config": { "rows": 2 } }
+        {
+          "readyMade": "myDay",
+          "at": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "calendar",
+          "kind": "calendar",
+          "at": [
+            1212,
+            24,
+            300,
+            232
+          ]
+        },
+        {
+          "id": "planner",
+          "kind": "weekPlanner",
+          "at": [
+            912,
+            280,
+            600,
+            216
+          ]
+        },
+        {
+          "id": "email",
+          "kind": "email",
+          "at": [
+            1212,
+            520,
+            300,
+            248
+          ]
+        }
       ]
     },
     {
       "name": "accounts",
       "widgets": [
-        { "id": "calendar", "kind": "calendar", "at": [0, 0, 300, 216], "style": "agenda" },
-        { "id": "email", "kind": "email", "at": [320, 0, 300, 248] },
-        { "id": "tasks", "kind": "tasks", "at": [640, 0, 300, 248] },
-        { "id": "contacts", "kind": "contacts", "at": [960, 0, 300, 284] },
-        { "readyMade": "nextMeetings", "at": [0, 320], "id": "meeting" }
+        {
+          "id": "calendar",
+          "kind": "calendar",
+          "at": [
+            0,
+            0,
+            300,
+            216
+          ],
+          "style": "agenda"
+        },
+        {
+          "id": "email",
+          "kind": "email",
+          "at": [
+            320,
+            0,
+            300,
+            248
+          ]
+        },
+        {
+          "id": "tasks",
+          "kind": "tasks",
+          "at": [
+            640,
+            0,
+            300,
+            248
+          ]
+        },
+        {
+          "id": "contacts",
+          "kind": "contacts",
+          "at": [
+            960,
+            0,
+            300,
+            284
+          ]
+        },
+        {
+          "readyMade": "nextMeetings",
+          "at": [
+            0,
+            320
+          ],
+          "id": "meeting"
+        }
       ]
     },
     {
-      "name": "compose",
+      "name": "pc",
+      "wallpaper": "wallpapers/red-canyon.png",
+      "taskbar": true,
       "widgets": [
-        { "id": "a-cpu", "kind": "cpu", "at": [0, 0, 260, 84] },
-        { "id": "a-history", "kind": "cpuHistory", "at": [0, 120, 260, 64] },
-        { "id": "a-facts", "kind": "cpuFacts", "at": [0, 220, 260, 160] },
-        { "id": "b-cpu", "kind": "cpu", "at": [320, 0, 260, 84], "group": "Processor" },
-        { "id": "b-history", "kind": "cpuHistory", "at": [320, 84, 260, 64], "group": "Processor" },
-        { "id": "b-facts", "kind": "cpuFacts", "at": [320, 148, 260, 136], "header": "hidden", "group": "Processor" },
-        { "id": "a-weather", "kind": "weatherNow", "at": [640, 0, 300, 100] },
-        { "id": "a-forecast", "kind": "weatherForecast", "at": [640, 136, 300, 188] },
-        { "id": "a-rain", "kind": "rainNextHour", "at": [640, 360, 300, 172] },
-        { "readyMade": "weatherStation", "at": [1000, 0], "id": "b-station" },
-        { "readyMade": "nowPlaying", "at": [0, 440], "id": "b-playing" },
-        { "readyMade": "quickSettings", "at": [0, 620], "id": "b-quick", "states": { "wifiToggle": "on", "bluetoothToggle": "on", "doNotDisturbToggle": "off", "nightLightToggle": "off" } }
+        {
+          "id": "processes",
+          "kind": "topProcesses",
+          "at": [
+            660,
+            24,
+            280,
+            248
+          ]
+        },
+        {
+          "id": "ping",
+          "kind": "ping",
+          "at": [
+            660,
+            288,
+            280,
+            84
+          ],
+          "group": "Ping"
+        },
+        {
+          "id": "pingHistory",
+          "kind": "pingHistory",
+          "at": [
+            660,
+            372,
+            280,
+            64
+          ],
+          "group": "Ping"
+        },
+        {
+          "id": "pingFacts",
+          "kind": "pingFacts",
+          "at": [
+            660,
+            436,
+            280,
+            136
+          ],
+          "header": "hidden",
+          "group": "Ping"
+        },
+        {
+          "id": "gpu",
+          "kind": "gpu",
+          "at": [
+            964,
+            24,
+            262,
+            84
+          ],
+          "group": "Graphics"
+        },
+        {
+          "id": "gpuHistory",
+          "kind": "gpuHistory",
+          "at": [
+            964,
+            108,
+            262,
+            64
+          ],
+          "group": "Graphics"
+        },
+        {
+          "id": "gpuFacts",
+          "kind": "gpuFacts",
+          "at": [
+            964,
+            172,
+            262,
+            136
+          ],
+          "header": "hidden",
+          "group": "Graphics"
+        },
+        {
+          "id": "network",
+          "kind": "network",
+          "at": [
+            964,
+            324,
+            262,
+            128
+          ],
+          "group": "Network"
+        },
+        {
+          "id": "networkHistory",
+          "kind": "networkHistory",
+          "at": [
+            964,
+            452,
+            262,
+            64
+          ],
+          "group": "Network"
+        },
+        {
+          "id": "networkFacts",
+          "kind": "networkFacts",
+          "at": [
+            964,
+            516,
+            262,
+            136
+          ],
+          "header": "hidden",
+          "group": "Network"
+        },
+        {
+          "id": "drive",
+          "kind": "drive",
+          "at": [
+            964,
+            668,
+            262,
+            112
+          ]
+        },
+        {
+          "id": "cpu",
+          "kind": "cpu",
+          "at": [
+            1250,
+            24,
+            262,
+            84
+          ],
+          "group": "Processor"
+        },
+        {
+          "id": "cpuHistory",
+          "kind": "cpuHistory",
+          "at": [
+            1250,
+            108,
+            262,
+            64
+          ],
+          "group": "Processor"
+        },
+        {
+          "id": "cpuFacts",
+          "kind": "cpuFacts",
+          "at": [
+            1250,
+            172,
+            262,
+            136
+          ],
+          "header": "hidden",
+          "group": "Processor"
+        },
+        {
+          "id": "memory",
+          "kind": "memory",
+          "at": [
+            1250,
+            324,
+            262,
+            84
+          ],
+          "group": "Memory"
+        },
+        {
+          "id": "memoryHistory",
+          "kind": "memoryHistory",
+          "at": [
+            1250,
+            408,
+            262,
+            64
+          ],
+          "group": "Memory"
+        },
+        {
+          "id": "memoryFacts",
+          "kind": "memoryFacts",
+          "at": [
+            1250,
+            472,
+            262,
+            136
+          ],
+          "header": "hidden",
+          "group": "Memory"
+        },
+        {
+          "id": "battery",
+          "kind": "battery",
+          "at": [
+            1250,
+            624,
+            262,
+            84
+          ],
+          "group": "Battery"
+        },
+        {
+          "id": "batteryHistory",
+          "kind": "batteryHistory",
+          "at": [
+            1250,
+            708,
+            262,
+            64
+          ],
+          "group": "Battery"
+        }
       ]
+    },
+    {
+      "name": "weather",
+      "wallpaper": "wallpapers/beach-sunset.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "readyMade": "weatherStation",
+          "at": [
+            24,
+            24
+          ],
+          "id": "station"
+        },
+        {
+          "readyMade": "sun",
+          "at": [
+            348,
+            24
+          ]
+        },
+        {
+          "readyMade": "airQuality",
+          "at": [
+            348,
+            332
+          ],
+          "id": "air"
+        },
+        {
+          "id": "clock",
+          "kind": "clock",
+          "at": [
+            1092,
+            24,
+            420,
+            182
+          ],
+          "bare": true,
+          "config": {
+            "size": "Large"
+          }
+        },
+        {
+          "readyMade": "moon",
+          "at": [
+            1272,
+            250
+          ]
+        },
+        {
+          "id": "alarm",
+          "kind": "alarm",
+          "at": [
+            1256,
+            500,
+            256,
+            174
+          ]
+        }
+      ]
+    },
+    {
+      "name": "more-a",
+      "widgets": [
+        {
+          "readyMade": "nowPlayingLarge",
+          "id": "nowPlayingLarge",
+          "at": [
+            0,
+            0
+          ]
+        },
+        {
+          "readyMade": "screenTime",
+          "id": "screenTime",
+          "at": [
+            268,
+            0
+          ]
+        },
+        {
+          "readyMade": "sound",
+          "id": "sound",
+          "at": [
+            596,
+            0
+          ]
+        },
+        {
+          "readyMade": "stocks",
+          "id": "stocks",
+          "at": [
+            924,
+            0
+          ]
+        },
+        {
+          "readyMade": "exchangeRates",
+          "id": "exchangeRates",
+          "at": [
+            1232,
+            0
+          ]
+        },
+        {
+          "id": "habitTracker",
+          "kind": "habitTracker",
+          "at": [
+            0,
+            408,
+            300,
+            188
+          ]
+        },
+        {
+          "id": "notifications",
+          "kind": "notifications",
+          "at": [
+            328,
+            408,
+            300,
+            208
+          ]
+        },
+        {
+          "id": "rss",
+          "kind": "rss",
+          "at": [
+            656,
+            408,
+            300,
+            248
+          ]
+        },
+        {
+          "id": "clipboard",
+          "kind": "clipboard",
+          "at": [
+            984,
+            408,
+            300,
+            188
+          ]
+        },
+        {
+          "id": "quote",
+          "kind": "quote",
+          "at": [
+            0,
+            684,
+            320,
+            124
+          ]
+        },
+        {
+          "readyMade": "quickSettings",
+          "id": "quickSettings",
+          "states": {
+            "wifiToggle": "on",
+            "bluetoothToggle": "on",
+            "doNotDisturbToggle": "off",
+            "nightLightToggle": "off"
+          },
+          "at": [
+            348,
+            684
+          ]
+        }
+      ]
+    },
+    {
+      "name": "more-b",
+      "widgets": [
+        {
+          "readyMade": "sun",
+          "id": "sun",
+          "at": [
+            0,
+            0
+          ]
+        },
+        {
+          "readyMade": "moon",
+          "id": "moon",
+          "at": [
+            308,
+            0
+          ]
+        },
+        {
+          "readyMade": "airQuality",
+          "id": "airQuality",
+          "at": [
+            576,
+            0
+          ]
+        },
+        {
+          "readyMade": "drive",
+          "id": "drive",
+          "at": [
+            844,
+            0
+          ]
+        },
+        {
+          "id": "contacts",
+          "kind": "contacts",
+          "at": [
+            1132,
+            0,
+            300,
+            284
+          ]
+        },
+        {
+          "id": "countdown",
+          "kind": "countdown",
+          "at": [
+            0,
+            312,
+            460,
+            162
+          ]
+        },
+        {
+          "id": "alarm",
+          "kind": "alarm",
+          "at": [
+            488,
+            312,
+            256,
+            174
+          ]
+        },
+        {
+          "id": "stopwatch",
+          "kind": "stopwatch",
+          "at": [
+            772,
+            312,
+            280,
+            180
+          ]
+        },
+        {
+          "id": "pomodoro",
+          "kind": "pomodoro",
+          "at": [
+            1080,
+            312,
+            240,
+            210
+          ]
+        },
+        {
+          "readyMade": "battery",
+          "id": "battery",
+          "at": [
+            1348,
+            312
+          ]
+        },
+        {
+          "id": "recycleBin",
+          "kind": "recycleBin",
+          "at": [
+            0,
+            550,
+            180,
+            136
+          ]
+        },
+        {
+          "id": "notes",
+          "kind": "notes",
+          "at": [
+            208,
+            550,
+            300,
+            220
+          ]
+        },
+        {
+          "id": "bluetooth",
+          "kind": "bluetooth",
+          "at": [
+            536,
+            550,
+            300,
+            160
+          ]
+        },
+        {
+          "readyMade": "power",
+          "id": "power",
+          "at": [
+            864,
+            550
+          ]
+        }
+      ]
+    },
+    {
+      "name": "one",
+      "wallpaper": "wallpapers/golden-dunes.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "id": "clock",
+          "kind": "clock",
+          "at": [
+            80,
+            80,
+            420,
+            182
+          ],
+          "bare": true,
+          "config": {
+            "size": "Large"
+          }
+        }
+      ]
+    },
+    {
+      "name": "few",
+      "wallpaper": "wallpapers/night-trees.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "id": "clock",
+          "kind": "clock",
+          "at": [
+            24,
+            24,
+            320,
+            138
+          ]
+        },
+        {
+          "readyMade": "weather",
+          "at": [
+            24,
+            186
+          ]
+        },
+        {
+          "readyMade": "nowPlaying",
+          "at": [
+            24,
+            656
+          ]
+        }
+      ]
+    },
+    {
+      "name": "side",
+      "wallpaper": "wallpapers/tropical-bay.png",
+      "taskbar": true,
+      "widgets": [
+        {
+          "readyMade": "weatherStation",
+          "at": [
+            1212,
+            24
+          ],
+          "id": "station"
+        },
+        {
+          "id": "rate",
+          "kind": "exchangeRate",
+          "at": [
+            1212,
+            588,
+            300,
+            100
+          ],
+          "group": "Rates"
+        },
+        {
+          "id": "rateHistory",
+          "kind": "exchangeHistory",
+          "at": [
+            1212,
+            688,
+            300,
+            96
+          ],
+          "group": "Rates"
+        }
+      ]
+    },
+    {
+      "name": "full",
+      "like": "looks",
+      "wallpaper": "wallpapers/cactus-island.png"
     },
     {
       "name": "looks",
       "wallpaper": "wallpapers/night-trees.png",
       "taskbar": true,
       "widgets": [
-        { "readyMade": "myDay", "at": [32, 24] },
-        { "readyMade": "screenTime", "at": [426, 24], "id": "screen" },
-        { "readyMade": "sound", "at": [426, 428] },
-        { "readyMade": "thisPc", "at": [780, 24] },
-        { "readyMade": "nowPlaying", "at": [790, 388] },
-        { "readyMade": "stocks", "at": [820, 548] },
-        { "readyMade": "weatherStation", "at": [1194, 24], "id": "station" },
-        { "readyMade": "exchangeRates", "at": [1204, 596], "id": "rates" }
+        {
+          "readyMade": "myDay",
+          "at": [
+            32,
+            24
+          ]
+        },
+        {
+          "readyMade": "screenTime",
+          "at": [
+            426,
+            24
+          ],
+          "id": "screen"
+        },
+        {
+          "readyMade": "sound",
+          "at": [
+            426,
+            428
+          ]
+        },
+        {
+          "readyMade": "thisPc",
+          "at": [
+            780,
+            24
+          ]
+        },
+        {
+          "readyMade": "nowPlaying",
+          "at": [
+            790,
+            388
+          ]
+        },
+        {
+          "readyMade": "stocks",
+          "at": [
+            820,
+            548
+          ]
+        },
+        {
+          "readyMade": "weatherStation",
+          "at": [
+            1194,
+            24
+          ],
+          "id": "station"
+        },
+        {
+          "readyMade": "exchangeRates",
+          "at": [
+            1204,
+            596
+          ],
+          "id": "rates"
+        }
       ]
     },
-    { "name": "look-daylight", "like": "looks", "theme": "light", "wallpaper": "wallpapers/tropical-bay.png", "design": "preset=Daylight,gap=0" },
-    { "name": "look-glass", "like": "looks", "wallpaper": "wallpapers/beach-sunset.png", "design": "preset=Glass,gap=0" },
-    { "name": "look-terminal", "like": "looks", "wallpaper": "wallpapers/desert-cave.png", "design": "preset=Terminal,gap=0" },
+    {
+      "name": "look-daylight",
+      "like": "looks",
+      "theme": "light",
+      "wallpaper": "wallpapers/tropical-bay.png",
+      "design": "preset=Daylight,gap=0"
+    },
+    {
+      "name": "look-glass",
+      "like": "looks",
+      "wallpaper": "wallpapers/beach-sunset.png",
+      "design": "preset=Glass,gap=0"
+    },
+    {
+      "name": "look-terminal",
+      "like": "looks",
+      "wallpaper": "wallpapers/desert-cave.png",
+      "design": "preset=Terminal,gap=0"
+    },
     {
       "name": "evening",
       "wallpaper": "wallpapers/red-desert-dusk.png",
       "taskbar": true,
       "widgets": [
-        { "readyMade": "nowPlayingLarge", "at": [24, 24], "id": "playing" },
-        { "id": "clock", "kind": "clock", "at": [558, 60, 420, 182], "bare": true, "config": { "size": "Large" } },
-        { "id": "quote", "kind": "quote", "at": [600, 560, 340, 124], "bare": true },
-        { "id": "forecast", "kind": "weatherForecast", "at": [1212, 24, 300, 188], "style": "curve" },
-        { "id": "countdown", "kind": "countdown", "at": [1052, 606, 460, 162] }
+        {
+          "readyMade": "nowPlayingLarge",
+          "at": [
+            24,
+            24
+          ],
+          "id": "playing"
+        },
+        {
+          "id": "clock",
+          "kind": "clock",
+          "at": [
+            558,
+            60,
+            420,
+            182
+          ],
+          "bare": true,
+          "config": {
+            "size": "Large"
+          }
+        },
+        {
+          "id": "quote",
+          "kind": "quote",
+          "at": [
+            600,
+            560,
+            340,
+            124
+          ],
+          "bare": true
+        },
+        {
+          "id": "forecast",
+          "kind": "weatherForecast",
+          "at": [
+            1212,
+            24,
+            300,
+            188
+          ],
+          "style": "curve"
+        },
+        {
+          "id": "countdown",
+          "kind": "countdown",
+          "at": [
+            1052,
+            606,
+            460,
+            162
+          ]
+        }
       ]
     },
     {
@@ -148,10 +922,52 @@
       "design": "preset=Daylight,gap=0",
       "taskbar": true,
       "widgets": [
-        { "id": "tasks", "kind": "tasks", "at": [24, 24, 300, 248], "config": { "rows": 4 } },
-        { "id": "clock", "kind": "clock", "at": [628, 60, 280, 140], "bare": true, "style": "minimal" },
-        { "id": "pomodoro", "kind": "pomodoro", "at": [1272, 24, 240, 240] },
-        { "id": "dnd", "kind": "doNotDisturbToggle", "at": [1384, 288, 128, 128], "state": "on" }
+        {
+          "id": "tasks",
+          "kind": "tasks",
+          "at": [
+            24,
+            24,
+            300,
+            248
+          ],
+          "config": {
+            "rows": 4
+          }
+        },
+        {
+          "id": "clock",
+          "kind": "clock",
+          "at": [
+            628,
+            60,
+            280,
+            140
+          ],
+          "bare": true,
+          "style": "minimal"
+        },
+        {
+          "id": "pomodoro",
+          "kind": "pomodoro",
+          "at": [
+            1272,
+            24,
+            240,
+            240
+          ]
+        },
+        {
+          "id": "dnd",
+          "kind": "doNotDisturbToggle",
+          "at": [
+            1384,
+            288,
+            128,
+            128
+          ],
+          "state": "on"
+        }
       ]
     }
   ]

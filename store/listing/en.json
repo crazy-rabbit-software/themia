@@ -94,29 +94,15 @@
       "caption": "A Windows desktop with Themia's widgets on the wallpaper: clock, next meeting, tasks and music on one side, the weather and a stock on the other, above the Windows taskbar."
     },
     {
-      "shot": "compose",
-      "label": "Small widgets",
-      "headline": "Small widgets. Your own panels.",
-      "sub": "Every widget shows one thing. Put them side by side and they join into one.",
-      "caption": "Three small widgets apart (a processor reading, its history, its facts), then the same three joined into one panel; beside them a weather station, a music player and quick settings.",
+      "shot": "day",
+      "label": "Your day",
+      "headline": "Your day, before you open anything.",
+      "sub": "Your next meeting, your week, new mail and your tasks, right on the desktop.",
+      "caption": "A desktop with the next meeting and its Join button, what comes after it, tasks, a month calendar, a week planner and the inbox.",
       "callouts": [
-        "A reading",
-        "Its history",
-        "Its facts",
-        "Side by side: one panel",
-        "Or a whole weather station"
-      ]
-    },
-    {
-      "shot": "add",
-      "label": "Ready-made",
-      "headline": "Start with a ready-made group.",
-      "sub": "My day, This PC, Weather station and more. Or pick single widgets by subject.",
-      "caption": "Themia's add page under the edit bar: a search box, subjects as tabs, and ready-made groups shown as pictures: My day, This PC, Weather station, Now playing, My files, Screen time, Inbox and tasks.",
-      "callouts": [
-        "Search",
-        "Ready-made groups",
-        "Every widget, by subject"
+        "Join in one click",
+        "Your week",
+        "New mail"
       ]
     },
     {
@@ -124,65 +110,56 @@
       "label": "Accounts",
       "headline": "Your calendar, mail and tasks.",
       "sub": "Straight from your PC to your accounts. Nothing passes through us.",
-      "caption": "Accounts Themia connects to: Microsoft 365, Outlook.com, iCloud, IMAP, CalDAV and CardDAV. Teams, Zoom and Webex meetings joined in one click.",
+      "caption": "Accounts Themia connects to: Microsoft 365, Outlook.com, iCloud, IMAP, CalDAV and CardDAV.",
       "callouts": [
         "Calendars",
         "Mail",
         "Tasks",
-        "Contacts",
-        "Join in one click"
+        "Contacts"
       ]
     },
     {
       "shot": "pc",
       "label": "Your PC",
       "headline": "Your PC at a glance.",
-      "sub": "Processor, memory, graphics, network and battery with live graphs. Point at a moment and every graph shows it.",
-      "caption": "A desktop with system widgets on one side: processor, memory, graphics, network, ping, battery, a drive and the programs using the most. A moment pointed at is marked on every graph.",
+      "sub": "Processor, memory, graphics, network and battery with live graphs. No Task Manager needed.",
+      "caption": "A desktop with system widgets on one side: processor, memory, graphics, network, ping, battery, a drive and the programs using the most.",
       "callouts": [
-        "Point at a moment",
-        "The readings follow",
+        "Live graphs",
         "What's using your PC",
-        "Ping, in numbers"
+        "Network, up and down"
       ]
     },
     {
-      "shot": "files",
-      "label": "Files",
-      "headline": "Your files, right on the desktop.",
-      "sub": "A folder you can browse, shortcuts, your newest files, notes and the free space on your drives.",
-      "caption": "A desktop with desktop icons, a folder to browse, shortcuts, the newest files, a note and drives with their free space.",
+      "shot": "weather",
+      "label": "Weather and time",
+      "headline": "The weather and the time, always there.",
+      "sub": "The forecast, rain in the next hour, the sun and the moon, clocks and alarms.",
+      "caption": "A desktop with the weather now and for the week, rain in the next hour, the sun's path, air quality, the moon, a large clock and an alarm.",
       "callouts": [
-        "Any folder",
-        "Shortcuts",
-        "Your newest files",
-        "Notes",
-        "Free space"
+        "Sun, moon and air",
+        "Rain in the next hour",
+        "Alarms and timers"
       ]
     },
     {
-      "shot": "days",
-      "label": "Linked",
-      "headline": "Point at one, see it everywhere.",
-      "sub": "A day, an app, a moment on a graph: every widget lights the same thing.",
-      "caption": "A desktop where a day pointed at in the calendar is lit in the weather forecast and in the week planner as well.",
-      "callouts": [
-        "Point at a day",
-        "Its weather",
-        "Its plans"
-      ]
+      "shot": "widgets",
+      "label": "Widgets",
+      "headline": "More than 100 widgets.",
+      "sub": "Music, stocks, habits, screen time, notes, feeds and quick settings. Every one of them is in the free version.",
+      "caption": "A wall of Themia's widgets: screen time, sound, now playing, air quality, habits, drives, contacts, stocks, exchange rates, a countdown, notes and more."
     },
     {
-      "shot": "edit",
-      "label": "Arrange",
-      "headline": "Arrange it your way.",
-      "sub": "Drag, resize and snap to a grid. A group has one page for all of its widgets.",
-      "caption": "Themia's edit mode: the bar at the top of the desktop, a selected group of weather widgets and its page, where the place is set once for all four.",
+      "shot": "amount",
+      "label": "Yours",
+      "headline": "From one clock to a full dashboard.",
+      "sub": "Put as little or as much on your desktop as you like, wherever you like.",
+      "caption": "Four desktops: one with only a clock, one with a clock, the weather and music, one with a column of weather and exchange rates, one full of widgets.",
       "callouts": [
-        "Themia's settings",
-        "The group you picked",
-        "Set once for all of them",
-        "Or open one widget"
+        "One clock",
+        "A few things",
+        "A tidy column",
+        "Everything"
       ]
     },
     {
@@ -202,6 +179,35 @@
         "Evening",
         "Work",
         "Focus"
+      ]
+    },
+    {
+      "shot": "promise",
+      "label": "Our promise",
+      "headline": "Your desktop is yours.",
+      "sub": "What we believe, and what you can hold us to.",
+      "caption": "Themia's promise: no ads and no tracking, no account, one purchase and no subscription, light on your PC, and code that is public.",
+      "points": [
+        {
+          "title": "No ads, no tracking",
+          "text": "We do not look at what you do. Nothing in Themia reports it."
+        },
+        {
+          "title": "No account",
+          "text": "Themia needs no sign-up. Your mail and calendar go straight from your PC to your provider."
+        },
+        {
+          "title": "Pay once",
+          "text": "Every widget is in the free version. Pro is one purchase, no subscription."
+        },
+        {
+          "title": "Light on your PC",
+          "text": "Built natively for Windows. It does no work while nothing changes."
+        },
+        {
+          "title": "Open to read",
+          "text": "The code is public. Anyone can check what Themia does."
+        }
       ]
     }
   ],

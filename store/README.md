@@ -43,17 +43,19 @@ A language's pages show Themia in that language once it has captures of its own
 ## The ten pages
 
 They are one picture, 10 x 1920 px wide, cut into the Store's pages: side by side in the Store's row
-they are one scene. They tell Themia in the order somebody meets it:
+they are one scene. They say what Themia does, never how it is used (no add page, no edit bar, nothing
+on how a panel is built):
 
-1. **What it is.** A desktop with panels of widgets down both sides of the wallpaper, Windows' taskbar
-   under them; small widgets apart and then joined into one panel; the add page with its ready-made
-   groups.
-2. **What it shows.** Your accounts (calendars, mail, tasks, contacts, the next meeting: each as Themia
-   shows it, over the services it comes from); your PC (readings, their graphs and facts, a moment
-   pointed at marked on every graph); your files (a folder, shortcuts, the newest files, drives); a day
-   pointed at in the calendar, lit in the forecast and the planner too.
-3. **How the desktop becomes yours.** Edit mode with its bar and a group's page; one desktop cut into
-   four looks; three desktops of one PC, one per part of the day.
+1. **The promise.** A desktop with widgets on the wallpaper, Windows' taskbar under them.
+2. **The office.** Your day (the next meeting, the week, mail, tasks); the accounts it comes from.
+3. **The beautiful desktop.** Your PC with its live graphs; the weather and the time.
+4. **Everything else.** A wall of the widgets no other page shows: more than a hundred.
+5. **Yours.** From one clock to a full dashboard (four desktops); one desktop in four looks; three
+   desktops of one PC, one per part of the day.
+6. **What Themia stands for.** Its promise, a tile each (the listing's `points`).
+
+The pages hang together: a widget lies across every cut, half on each page; the wall runs into the pages
+beside it; one floor runs under them all. Words and monitors stay whole on their own page.
 
 Rules the pictures keep (`panorama.test.mjs`, which needs the captures: it reads the layouts): every
 desktop shows Windows' taskbar and one of the listed wallpapers; some desktops leave the wallpaper open
