@@ -1,11 +1,11 @@
 {
   "language": "en-us",
   "title": "Themia",
-  "shortDescription": "Widgets that live on your Windows desktop: clock, weather, calendar, mail, tasks, system meters, files and more, on your wallpaper and behind your windows. 80 widgets, free to start, no ads, no account.",
+  "shortDescription": "Widgets that live on your Windows desktop: clock, weather, calendar, mail, tasks, system meters, files and more, on your wallpaper and behind your windows. 109 widgets that join into your own panels. Free to start, no ads, no account.",
   "description": [
     "Themia puts widgets on the desktop itself: on your wallpaper, behind your windows. They are always a glance away and never in the way. There is no window to open and no icon in the tray, only your desktop with what you want to see on it.",
     "",
-    "80 WIDGETS",
+    "SMALL WIDGETS FOR EVERYTHING",
     "• Clock, alarms, timers, stopwatch, countdown and Pomodoro",
     "• Weather now and for the week, rain in the next hour, air quality, sun and moon",
     "• Calendar, week planner, next meeting, mail, tasks, contacts and notes",
@@ -17,14 +17,17 @@
     "YOUR DAY ON YOUR DESKTOP",
     "See your next meeting and join it with one click. Read new mail, tick off tasks and look at your week without opening an app. Themia works with Microsoft accounts (Outlook.com, Microsoft 365), iCloud, any IMAP mail account, and CalDAV and CardDAV servers such as Fastmail or Nextcloud.",
     "",
-    "WIDGETS THAT FIT THE ROOM YOU GIVE THEM",
-    "Make a widget small and it keeps what matters. Make it bigger and it shows more: the weather grows from a temperature to the whole day, a meter from a number to its history. Nothing is cut off and nothing is stretched.",
+    "SMALL WIDGETS, YOUR OWN PANELS",
+    "Every widget shows one thing: a reading, its history, a list, a forecast. Put them side by side and they join into one panel, so you build exactly the widget you want. Lock them as a group and they move as one. Or start from one of more than 30 ready-made groups such as My day, This PC or Weather station.",
     "",
     "ONE WIDGET, MANY STYLES",
-    "A clock can be digital, analogue, a flip clock or written out in words. Meters come as graphs, bars, rings and gauges, forecasts as rows or a curve. Pick the style from the widget's own menu.",
+    "A clock can be digital, analogue, a flip clock or written out in words. Readings come as numbers, bars, rings and gauges, forecasts as rows or a curve. Pick the style on the widget's own page.",
+    "",
+    "POINT AT ONE, SEE IT EVERYWHERE",
+    "Point at a day in the calendar and the forecast and your week planner light the same day. Point at a moment on a graph and every graph marks it, while the readings show that moment. The same goes for apps, people, files and drives.",
     "",
     "ARRANGE IT YOUR WAY",
-    "Press Ctrl+Alt+W or double-click a widget to edit your desktop. Add widgets from the list, drag them where you want them, resize them and let them snap to a grid. Every option of a widget sits right beside it, and every step can be undone.",
+    "Press Ctrl+Alt+W or double-click a widget to edit your desktop. The add page shows a picture of every widget and every group. Drag things where you want them and let them snap to a grid. A widget's options open from the bar at the top, and a group has one page where its place, its account or its drive is set once for all of its widgets.",
     "",
     "A LOOK FOR EVERY WALLPAPER",
     "Start from a preset such as Glass, Midnight or Paper, or mix your own: colours, transparency, borders, corners and fonts. Each widget can have its own background, and Themia follows the light or dark theme of Windows.",
@@ -44,7 +47,7 @@
     "In 40 languages. Weather data by Open-Meteo.com."
   ],
   "features": [
-    "80 widgets, right on your wallpaper and behind your windows",
+    "109 widgets, right on your wallpaper and behind your windows",
     "Clock, alarms, timers, countdown and Pomodoro",
     "Weather now and for the week, rain, air quality, sun and moon",
     "Calendar, next meeting, mail, tasks, contacts and notes",
@@ -53,9 +56,11 @@
     "Folders, shortcuts, your newest files and free space on every drive",
     "Music, volume, brightness, Wi-Fi, Bluetooth and other quick settings",
     "Stocks, exchange rates, news feeds, screen time and habits",
-    "Widgets show more as you make them bigger",
+    "Small widgets join into your own panels; lock them as a group",
+    "More than 30 ready-made groups: My day, This PC, Weather station",
     "Several styles per widget: digital, analogue, flip and word clocks",
-    "Drag, resize and snap to a grid; every step can be undone",
+    "Drag, resize and snap to a grid; set a whole group on one page",
+    "Point at a day, an app or a moment: every widget lights it",
     "Presets and your own colours, transparency, borders and fonts",
     "Views: a desktop for work, the evening and focus, one per display",
     "Works with Microsoft accounts, iCloud, IMAP, CalDAV and CardDAV",
@@ -86,14 +91,33 @@
       "label": "Themia",
       "headline": "Widgets that live on your desktop.",
       "sub": "On your wallpaper, behind your windows, above the taskbar. Always a glance away, never in the way.",
-      "caption": "A Windows desktop with Themia's widgets on the wallpaper: clock, calendar, next meeting, music, weather, tasks and mail, above the Windows taskbar."
+      "caption": "A Windows desktop with Themia's widgets on the wallpaper: clock, next meeting, tasks and music on one side, the weather and a stock on the other, above the Windows taskbar."
     },
     {
-      "shot": "widgets",
-      "label": "80 widgets",
-      "headline": "80 widgets. Pick yours.",
-      "sub": "Timers, habits, screen time, rates, sound, the sun and the moon. Every one of them is in the free version.",
-      "caption": "A wall of Themia's widgets: habits, a stopwatch, air quality, the sun, screen time, an alarm, notifications, a countdown, exchange rates, the mixer, rain, the moon and more."
+      "shot": "compose",
+      "label": "Small widgets",
+      "headline": "Small widgets. Your own panels.",
+      "sub": "Every widget shows one thing. Put them side by side and they join into one.",
+      "caption": "Three small widgets apart (a processor reading, its history, its facts), then the same three joined into one panel; beside them a weather station, a music player and quick settings.",
+      "callouts": [
+        "A reading",
+        "Its history",
+        "Its facts",
+        "Side by side: one panel",
+        "Or a whole weather station"
+      ]
+    },
+    {
+      "shot": "add",
+      "label": "Ready-made",
+      "headline": "Start with a ready-made group.",
+      "sub": "My day, This PC, Weather station and more. Or pick single widgets by subject.",
+      "caption": "Themia's add page under the edit bar: a search box, subjects as tabs, and ready-made groups shown as pictures: My day, This PC, Weather station, Now playing, My files, Screen time, Inbox and tasks.",
+      "callouts": [
+        "Search",
+        "Ready-made groups",
+        "Every widget, by subject"
+      ]
     },
     {
       "shot": "accounts",
@@ -113,48 +137,52 @@
       "shot": "pc",
       "label": "Your PC",
       "headline": "Your PC at a glance.",
-      "sub": "Processor, memory, graphics, network and battery with live graphs. No Task Manager needed.",
-      "caption": "A desktop with system widgets on one side: processor load per core, memory, graphics, network, the programs using the most, battery and a drive.",
+      "sub": "Processor, memory, graphics, network and battery with live graphs. Point at a moment and every graph shows it.",
+      "caption": "A desktop with system widgets on one side: processor, memory, graphics, network, ping, battery, a drive and the programs using the most. A moment pointed at is marked on every graph.",
       "callouts": [
-        "Every core",
+        "Point at a moment",
+        "The readings follow",
         "What's using your PC",
-        "Network, up and down",
-        "Battery"
+        "Ping, in numbers"
       ]
     },
     {
       "shot": "files",
       "label": "Files",
       "headline": "Your files, right on the desktop.",
-      "sub": "Folders you can browse, shortcuts, your newest files and the free space on every drive.",
-      "caption": "A desktop with desktop icons, a folder to browse, a folder of pictures, shortcuts, the newest files and drives with their free space.",
+      "sub": "A folder you can browse, shortcuts, your newest files, notes and the free space on your drives.",
+      "caption": "A desktop with desktop icons, a folder to browse, shortcuts, the newest files, a note and drives with their free space.",
       "callouts": [
         "Any folder",
-        "Your pictures",
-        "Free space",
         "Shortcuts",
-        "Your newest files"
+        "Your newest files",
+        "Notes",
+        "Free space"
       ]
     },
     {
-      "shot": "styles",
-      "label": "Styles",
-      "headline": "One widget, many styles.",
-      "sub": "A clock can be digital, analogue, flip or written out. Meters, forecasts and timers have styles of their own.",
-      "caption": "Six clocks, four processor meters, two batteries, four forecasts and more: the same widgets in different styles."
+      "shot": "days",
+      "label": "Linked",
+      "headline": "Point at one, see it everywhere.",
+      "sub": "A day, an app, a moment on a graph: every widget lights the same thing.",
+      "caption": "A desktop where a day pointed at in the calendar is lit in the weather forecast and in the week planner as well.",
+      "callouts": [
+        "Point at a day",
+        "Its weather",
+        "Its plans"
+      ]
     },
     {
       "shot": "edit",
       "label": "Arrange",
       "headline": "Arrange it your way.",
-      "sub": "Drag, resize and snap widgets to a grid. Every option sits right beside the widget.",
-      "caption": "Themia's edit mode: the edit bar at the top of the desktop, a selected calendar and its menu of options beside it.",
+      "sub": "Drag, resize and snap to a grid. A group has one page for all of its widgets.",
+      "caption": "Themia's edit mode: the bar at the top of the desktop, a selected group of weather widgets and its page, where the place is set once for all four.",
       "callouts": [
-        "Display and view",
-        "Add a widget",
-        "Undo, redo, snap to grid",
-        "Settings",
-        "Every option of the widget"
+        "Themia's settings",
+        "The group you picked",
+        "Set once for all of them",
+        "Or open one widget"
       ]
     },
     {

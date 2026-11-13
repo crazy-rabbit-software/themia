@@ -12,7 +12,7 @@
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { out, render, repo, url } from "./chrome.mjs";
-import { frames, monitorParts, page, pieceRect, scenes, usedScenes } from "./panorama.mjs";
+import { display, frames, monitorParts, page, pieceRect, scenes, usedScenes } from "./panorama.mjs";
 
 const shots = join(out, "shots");
 const images = join(out, "images");
@@ -80,7 +80,7 @@ function panoramaHtml(lang, listing, at, n) {
           const z = `z-index:${c.z ?? 1};`;
           if (c.screen) {
             const box = { x: left + c.x, y: c.y, w: c.w, h: Math.round((c.w * 9) / 16) };
-            return `<div class="layer" style="${z}">${monitor(at, c.cuts ?? [c.screen], box, c.tilt ?? 0)}${bubblesHtml(worded(c.bubbles), c.screen, { x: 0, y: 0, w: page.w, h: page.h }, box, left)}</div>`;
+            return `<div class="layer" style="${z}">${monitor(at, c.cuts ?? [c.screen], box, c.tilt ?? 0)}${bubblesHtml(worded(c.bubbles), c.screen, { x: 0, y: 0, w: display.w, h: display.h }, box, left)}</div>`;
           }
           const crop = pieceRect(scenes, c.piece);
           const box = { x: left + c.x, y: c.y, w: c.w, h: Math.round((c.w * crop.h) / crop.w) };
@@ -187,7 +187,7 @@ function piece(at, [name], crop, box, c = {}) {
   const k = box.w / crop.w;
   const turn = c.r ? `transform: rotate(${c.r}deg);` : "";
   return `<div class="piece${c.flat ? " flat" : ""}" style="left:${box.x}px; top:${box.y}px; width:${box.w}px; height:${box.h}px; ${turn}">
-    <div style="${c.ground ? `border-radius:${c.radius ?? 14}px; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.16);` : ""}"><img src="${url(at(name))}" alt="" style="left:${-crop.x * k}px; top:${-crop.y * k}px; width:${page.w * k}px; height:${page.h * k}px;"></div></div>`;
+    <div style="${c.ground ? `border-radius:${c.radius ?? 14}px; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.16);` : ""}"><img src="${url(at(name))}" alt="" style="left:${-crop.x * k}px; top:${-crop.y * k}px; width:${display.w * k}px; height:${display.h * k}px;"></div></div>`;
 }
 
 /**
@@ -195,7 +195,7 @@ function piece(at, [name], crop, box, c = {}) {
  * widening from there to the card over or under it.
  */
 function raysHtml(crop, screen, box) {
-  const k = screen.w / page.w;
+  const k = screen.w / display.w;
   const from = { x: screen.x + crop.x * k, y: screen.y + crop.y * k, w: crop.w * k, h: crop.h * k };
   // Over or under what it enlarges, the light runs down or up; beside it, across.
   const beside = box.x + box.w <= from.x + 8 || box.x >= from.x + from.w - 8;

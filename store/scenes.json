@@ -81,7 +81,7 @@
         { "id": "calendar", "kind": "calendar", "at": [1212, 24, 300, 232], "group": "Week" },
         { "id": "forecast", "kind": "weatherForecast", "at": [1212, 256, 300, 164], "header": "hidden", "group": "Week" },
         { "id": "planner", "kind": "weekPlanner", "at": [912, 444, 600, 216] },
-        { "id": "habits", "kind": "habitTracker", "at": [888, 684, 300, 108], "config": { "rows": 2 } }
+        { "id": "habits", "kind": "habitTracker", "at": [1212, 676, 300, 132], "config": { "rows": 2 } }
       ]
     },
     {
@@ -108,7 +108,7 @@
         { "id": "a-rain", "kind": "rainNextHour", "at": [640, 360, 300, 172] },
         { "readyMade": "weatherStation", "at": [1000, 0], "id": "b-station" },
         { "readyMade": "nowPlaying", "at": [0, 440], "id": "b-playing" },
-        { "readyMade": "quickSettings", "at": [0, 620], "id": "b-quick" }
+        { "readyMade": "quickSettings", "at": [0, 620], "id": "b-quick", "states": { "wifiToggle": "on", "bluetoothToggle": "on", "doNotDisturbToggle": "off", "nightLightToggle": "off" } }
       ]
     },
     {
@@ -135,10 +135,10 @@
       "taskbar": true,
       "widgets": [
         { "readyMade": "nowPlayingLarge", "at": [24, 24], "id": "playing" },
-        { "id": "clock", "kind": "clock", "at": [560, 60, 420, 200], "bare": true, "config": { "size": "Large" } },
+        { "id": "clock", "kind": "clock", "at": [558, 60, 420, 182], "bare": true, "config": { "size": "Large" } },
         { "id": "quote", "kind": "quote", "at": [600, 560, 340, 124], "bare": true },
         { "id": "forecast", "kind": "weatherForecast", "at": [1212, 24, 300, 188], "style": "curve" },
-        { "id": "countdown", "kind": "countdown", "at": [1212, 560, 300, 200] }
+        { "id": "countdown", "kind": "countdown", "at": [1052, 606, 460, 162] }
       ]
     },
     {

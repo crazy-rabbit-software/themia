@@ -128,7 +128,7 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    Pages/ (PageFlyout, PageView: every page drawn as Windows' settings cards; PageRows, SelectionRows)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
-src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 108): module, config, view, Samples/
+src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 109): module, config, view, Samples/
                    (its sample, ships), Preview/ (render-only states, Debug), Localization/Locales/ (its own
                    <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)

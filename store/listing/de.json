@@ -1,11 +1,11 @@
 {
   "language": "de-de",
   "title": "Themia",
-  "shortDescription": "Widgets, die auf deinem Windows-Desktop leben: Uhr, Wetter, Kalender, Mail, Aufgaben, Systemanzeigen, Dateien und mehr, auf deinem Hintergrundbild und hinter deinen Fenstern. 80 Widgets, gratis zum Start, ohne Werbung, ohne Konto.",
+  "shortDescription": "Widgets, die auf deinem Windows-Desktop leben: Uhr, Wetter, Kalender, Mail, Aufgaben, Systemanzeigen, Dateien und mehr, auf deinem Hintergrundbild und hinter deinen Fenstern. 109 Widgets, die sich zu eigenen Panels verbinden. Gratis zum Start, ohne Werbung, ohne Konto.",
   "description": [
     "Themia legt Widgets auf den Desktop selbst: auf dein Hintergrundbild, hinter deine Fenster. Sie sind immer einen Blick entfernt und nie im Weg. Kein Fenster zum Öffnen, kein Symbol im Infobereich, nur dein Desktop mit dem, was du darauf sehen willst.",
     "",
-    "80 WIDGETS",
+    "KLEINE WIDGETS FÜR ALLES",
     "• Uhr, Wecker, Timer, Stoppuhr, Countdown und Pomodoro",
     "• Wetter jetzt und für die Woche, Regen in der nächsten Stunde, Luftqualität, Sonne und Mond",
     "• Kalender, Wochenplaner, nächste Besprechung, Mail, Aufgaben, Kontakte und Notizen",
@@ -17,14 +17,17 @@
     "DEIN TAG AUF DEINEM DESKTOP",
     "Sieh deine nächste Besprechung und tritt ihr mit einem Klick bei. Lies neue Mails, hake Aufgaben ab und schau auf deine Woche, ohne eine App zu öffnen. Themia arbeitet mit Microsoft-Konten (Outlook.com, Microsoft 365), iCloud, jedem IMAP-Mailkonto und mit CalDAV- und CardDAV-Servern wie Fastmail oder Nextcloud.",
     "",
-    "WIDGETS, DIE DEN PLATZ NUTZEN, DEN DU IHNEN GIBST",
-    "Mach ein Widget klein, und es behält das Wichtigste. Mach es grösser, und es zeigt mehr: Das Wetter wächst von der Temperatur zum ganzen Tag, eine Anzeige von der Zahl zu ihrem Verlauf. Nichts wird abgeschnitten, nichts wird verzerrt.",
+    "KLEINE WIDGETS, EIGENE PANELS",
+    "Jedes Widget zeigt eine Sache: einen Wert, seinen Verlauf, eine Liste, eine Vorhersage. Stell sie nebeneinander und sie verbinden sich zu einem Panel. So baust du genau das Widget, das du willst. Als Gruppe gesperrt bewegen sie sich wie eines. Oder starte mit einer von über 30 fertigen Gruppen: für deinen Tag, deinen PC, das Wetter und mehr.",
     "",
     "EIN WIDGET, VIELE STILE",
-    "Eine Uhr kann digital sein, analog, eine Klappuhr oder in Worten geschrieben. Anzeigen gibt es als Diagramm, Balken, Ring und Tacho, Vorhersagen als Zeilen oder Kurve. Den Stil wählst du im Menü des Widgets.",
+    "Eine Uhr kann digital, analog, eine Klappuhr oder in Worten geschrieben sein. Werte gibt es als Zahl, Balken, Ring und Tacho, Vorhersagen als Zeilen oder Kurve. Den Stil wählst du auf der Seite des Widgets.",
+    "",
+    "EINES ZEIGEN, ÜBERALL SEHEN",
+    "Zeig auf einen Tag im Kalender, und Vorhersage und Wochenplaner heben denselben Tag hervor. Zeig auf einen Moment in einem Verlauf, und jeder Verlauf markiert ihn, während die Werte diesen Moment zeigen. Dasselbe gilt für Apps, Personen, Dateien und Laufwerke.",
     "",
     "ORDNE ES SO AN, WIE DU WILLST",
-    "Drücke Strg+Alt+W oder doppelklicke ein Widget, um deinen Desktop zu bearbeiten. Füge Widgets aus der Liste hinzu, zieh sie an ihren Platz, ändere ihre Grösse und lass sie am Raster einrasten. Jede Option eines Widgets steht direkt daneben, und jeder Schritt lässt sich rückgängig machen.",
+    "Drück Strg+Alt+W oder doppelklicke ein Widget, um deinen Desktop zu bearbeiten. Die Hinzufügen-Seite zeigt ein Bild von jedem Widget und jeder Gruppe. Zieh alles dorthin, wo du es willst, und lass es am Raster einrasten. Die Optionen eines Widgets öffnen sich aus der Leiste oben, und eine Gruppe hat eine Seite, auf der Ort, Konto oder Laufwerk einmal für alle ihre Widgets gesetzt wird.",
     "",
     "EIN LOOK FÜR JEDES HINTERGRUNDBILD",
     "Starte mit einer Vorlage wie Glas, Mitternacht oder Papier oder mische deine eigene: Farben, Transparenz, Rahmen, Ecken und Schriften. Jedes Widget kann seinen eigenen Hintergrund haben, und Themia folgt dem hellen oder dunklen Design von Windows.",
@@ -44,7 +47,7 @@
     "In 40 Sprachen. Wetterdaten von Open-Meteo.com."
   ],
   "features": [
-    "80 Widgets, direkt auf deinem Hintergrundbild und hinter deinen Fenstern",
+    "109 Widgets, direkt auf deinem Hintergrundbild und hinter deinen Fenstern",
     "Uhr, Wecker, Timer, Countdown und Pomodoro",
     "Wetter jetzt und für die Woche, Regen, Luftqualität, Sonne und Mond",
     "Kalender, nächste Besprechung, Mail, Aufgaben, Kontakte und Notizen",
@@ -53,9 +56,11 @@
     "Ordner, Verknüpfungen, deine neuesten Dateien und der freie Platz auf jedem Laufwerk",
     "Musik, Lautstärke, Helligkeit, WLAN, Bluetooth und weitere Schnelleinstellungen",
     "Aktien, Wechselkurse, Newsfeeds, Bildschirmzeit und Gewohnheiten",
-    "Widgets zeigen mehr, je grösser du sie machst",
+    "Kleine Widgets verbinden sich zu eigenen Panels; als Gruppe gesperrt",
+    "Über 30 fertige Gruppen: für deinen Tag, deinen PC, das Wetter",
     "Mehrere Stile pro Widget: Digital-, Analog-, Klapp- und Wortuhr",
-    "Ziehen, Grösse ändern und am Raster einrasten; jeder Schritt lässt sich rückgängig machen",
+    "Ziehen, Grösse ändern, am Raster einrasten; eine ganze Gruppe auf einer Seite einstellen",
+    "Zeig auf einen Tag, eine App oder einen Moment: jedes Widget hebt es hervor",
     "Vorlagen und eigene Farben, Transparenz, Rahmen und Schriften",
     "Ansichten: ein Desktop für Arbeit, Abend und Fokus, einer pro Bildschirm",
     "Arbeitet mit Microsoft-Konten, iCloud, IMAP, CalDAV und CardDAV",
@@ -86,14 +91,33 @@
       "label": "Themia",
       "headline": "Widgets, die auf deinem Desktop leben.",
       "sub": "Auf deinem Hintergrundbild, hinter deinen Fenstern, über der Taskleiste. Immer einen Blick entfernt, nie im Weg.",
-      "caption": "Ein Windows-Desktop mit Themias Widgets auf dem Hintergrundbild: Uhr, Kalender, nächste Besprechung, Musik, Wetter, Aufgaben und Mail, über der Windows-Taskleiste."
+      "caption": "Ein Windows-Desktop mit Themias Widgets auf dem Hintergrundbild: Uhr, nächste Besprechung, Aufgaben und Musik auf der einen Seite, Wetter und eine Aktie auf der anderen, über der Windows-Taskleiste."
     },
     {
-      "shot": "widgets",
-      "label": "80 Widgets",
-      "headline": "80 Widgets. Such dir deine aus.",
-      "sub": "Timer, Gewohnheiten, Bildschirmzeit, Kurse, Ton, Sonne und Mond. Jedes davon ist in der Gratisversion.",
-      "caption": "Eine Wand aus Themias Widgets: Gewohnheiten, Stoppuhr, Luftqualität, Sonne, Bildschirmzeit, Wecker, Benachrichtigungen, Countdown, Wechselkurse, Mixer, Regen, Mond und mehr."
+      "shot": "compose",
+      "label": "Kleine Widgets",
+      "headline": "Kleine Widgets. Eigene Panels.",
+      "sub": "Jedes Widget zeigt eine Sache. Stell sie nebeneinander und sie werden eins.",
+      "caption": "Drei kleine Widgets einzeln (ein Prozessorwert, sein Verlauf, seine Fakten), dann dieselben drei als ein Panel; daneben eine Wetterstation, ein Musikplayer und Schnelleinstellungen.",
+      "callouts": [
+        "Ein Wert",
+        "Sein Verlauf",
+        "Seine Fakten",
+        "Nebeneinander: ein Panel",
+        "Oder eine Wetterstation"
+      ]
+    },
+    {
+      "shot": "add",
+      "label": "Fertige Gruppen",
+      "headline": "Starte mit einer fertigen Gruppe.",
+      "sub": "Für deinen Tag, deinen PC, das Wetter und mehr. Oder wähle einzelne Widgets nach Thema.",
+      "caption": "Themias Hinzufügen-Seite unter der Bearbeitungsleiste: ein Suchfeld, Themen als Reiter und fertige Gruppen als Bilder, etwa für den Tag, den PC, das Wetter, die Musik und die Dateien.",
+      "callouts": [
+        "Suche",
+        "Fertige Gruppen",
+        "Jedes Widget, nach Thema"
+      ]
     },
     {
       "shot": "accounts",
@@ -113,48 +137,52 @@
       "shot": "pc",
       "label": "Dein PC",
       "headline": "Dein PC auf einen Blick.",
-      "sub": "Prozessor, Arbeitsspeicher, Grafik, Netzwerk und Akku mit Live-Diagrammen. Ganz ohne Task-Manager.",
-      "caption": "Ein Desktop mit Systemwidgets auf einer Seite: Prozessorlast pro Kern, Arbeitsspeicher, Grafik, Netzwerk, die Programme mit der höchsten Last, Akku und ein Laufwerk.",
+      "sub": "Prozessor, Speicher, Grafik, Netzwerk und Akku mit Live-Verläufen. Zeig auf einen Moment und jeder Verlauf zeigt ihn.",
+      "caption": "Ein Desktop mit Systemwidgets: Prozessor, Speicher, Grafik, Netzwerk, Ping, Akku, ein Laufwerk und die Programme mit der höchsten Last. Ein gezeigter Moment ist in jedem Verlauf markiert.",
       "callouts": [
-        "Jeder Kern",
-        "Was deinen PC belastet",
-        "Netzwerk, hoch und runter",
-        "Akku"
+        "Zeig auf einen Moment",
+        "Die Werte folgen",
+        "Was deinen PC nutzt",
+        "Ping, in Zahlen"
       ]
     },
     {
       "shot": "files",
       "label": "Dateien",
       "headline": "Deine Dateien, direkt auf dem Desktop.",
-      "sub": "Ordner zum Durchblättern, Verknüpfungen, deine neuesten Dateien und der freie Platz auf jedem Laufwerk.",
-      "caption": "Ein Desktop mit Desktopsymbolen, einem Ordner zum Durchblättern, einem Bilderordner, Verknüpfungen, den neuesten Dateien und Laufwerken mit freiem Platz.",
+      "sub": "Ein Ordner zum Durchblättern, Verknüpfungen, deine neuesten Dateien, Notizen und der freie Platz auf deinen Laufwerken.",
+      "caption": "Ein Desktop mit Desktopsymbolen, einem Ordner zum Durchblättern, Verknüpfungen, den neuesten Dateien, einer Notiz und Laufwerken mit freiem Platz.",
       "callouts": [
         "Jeder Ordner",
-        "Deine Bilder",
-        "Freier Platz",
         "Verknüpfungen",
-        "Deine neuesten Dateien"
+        "Deine neuesten Dateien",
+        "Notizen",
+        "Freier Platz"
       ]
     },
     {
-      "shot": "styles",
-      "label": "Stile",
-      "headline": "Ein Widget, viele Stile.",
-      "sub": "Eine Uhr kann digital sein, analog, eine Klappuhr oder ausgeschrieben. Anzeigen, Vorhersagen und Timer haben eigene Stile.",
-      "caption": "Sechs Uhren, vier Prozessoranzeigen, zwei Akkus, vier Vorhersagen und mehr: dieselben Widgets in verschiedenen Stilen."
+      "shot": "days",
+      "label": "Verbunden",
+      "headline": "Eines zeigen, überall sehen.",
+      "sub": "Ein Tag, eine App, ein Moment im Verlauf: jedes Widget hebt dasselbe hervor.",
+      "caption": "Ein Desktop, auf dem ein im Kalender gezeigter Tag auch in der Wettervorhersage und im Wochenplaner hervorgehoben ist.",
+      "callouts": [
+        "Zeig auf einen Tag",
+        "Sein Wetter",
+        "Seine Pläne"
+      ]
     },
     {
       "shot": "edit",
       "label": "Anordnen",
       "headline": "Ordne es so an, wie du willst.",
-      "sub": "Zieh Widgets, ändere ihre Grösse und lass sie am Raster einrasten. Jede Option steht direkt neben dem Widget.",
-      "caption": "Themias Bearbeitungsmodus: die Bearbeitungsleiste oben am Desktop, ein ausgewählter Kalender und daneben sein Menü mit den Optionen.",
+      "sub": "Ziehen, Grösse ändern, am Raster einrasten. Eine Gruppe hat eine Seite für alle ihre Widgets.",
+      "caption": "Themias Bearbeitungsmodus: die Leiste oben am Desktop, eine ausgewählte Gruppe von Wetterwidgets und ihre Seite, auf der der Ort einmal für alle vier gesetzt wird.",
       "callouts": [
-        "Bildschirm und Ansicht",
-        "Widget hinzufügen",
-        "Zurück, vor, Raster",
-        "Einstellungen",
-        "Jede Option des Widgets"
+        "Themias Einstellungen",
+        "Die gewählte Gruppe",
+        "Einmal für alle gesetzt",
+        "Oder ein Widget öffnen"
       ]
     },
     {
