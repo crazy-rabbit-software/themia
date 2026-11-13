@@ -16,7 +16,8 @@ import { display, frames, monitorParts, page, pieceRect, scenes, usedScenes } fr
 
 const shots = join(out, "shots");
 const images = join(out, "images");
-const logo = url(join(repo, "src", "Themia.App", "Assets", "themia-logo.png"));
+// The mark, as the vector every raster of it is drawn from (scripts/package-logos.py).
+const logo = url(join(repo, "scripts", "themia-logo.svg"));
 
 // Fonts with each script's letters, after Segoe UI Variable's Latin, Greek and Cyrillic.
 const scriptFonts = {
@@ -46,8 +47,8 @@ const escape = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/
 // two ranges of hills and a ground run through the whole row, so the pages are one landscape; the monitors stand on
 // its ground. STORE_PALETTE=night draws the same at night.
 const palettes = {
-  sand: { sky: "#F3E7D3", far: "#EAD6B7", near: "#E0C49B", ground: "#D2AE7C", ink: "#211C17", soft: "rgba(33, 28, 23, 0.72)", accent: "#C4532B", paper: "#FBF4E6", on: "#F6EBD8", sun: "#F0C98A" },
-  night: { sky: "#171B28", far: "#1D2233", near: "#242B3F", ground: "#2C3550", ink: "#F2ECE0", soft: "rgba(242, 236, 224, 0.74)", accent: "#E7814F", paper: "#222838", on: "#171B28", sun: "#2A324A" },
+  sand: { sky: "#F3E7D3", far: "#EAD6B7", near: "#E0C49B", ground: "#D2AE7C", ink: "#211C17", soft: "rgba(33, 28, 23, 0.72)", accent: "#F29A0B", accentInk: "#9A5600", paper: "#FBF4E6", on: "#F6EBD8", sun: "#F0C98A" },
+  night: { sky: "#171B28", far: "#1D2233", near: "#242B3F", ground: "#2C3550", ink: "#F2ECE0", soft: "rgba(242, 236, 224, 0.74)", accent: "#FFB534", accentInk: "#FFC766", paper: "#222838", on: "#171B28", sun: "#2A324A" },
 };
 const P = palettes[process.env.STORE_PALETTE ?? "sand"] ?? palettes.sand;
 
@@ -114,8 +115,8 @@ html, body { margin: 0; width: ${page.w}px; height: ${page.h}px; overflow: hidde
 .land { position: absolute; left: 0; top: 0; }
 .layer { position: absolute; inset: 0; pointer-events: none; }
 .text { position: absolute; z-index: 20; text-align: center; direction: ${rtl}; }
-.label { display: inline-flex; align-items: center; gap: 12px; font-family: ${fonts(lang, "Text")}; font-weight: 600; font-size: 22px; color: ${P.accent}; letter-spacing: 0.01em; }
-.label img { width: 32px; height: 32px; border-radius: 8px; }
+.label { display: inline-flex; align-items: center; gap: 12px; font-family: ${fonts(lang, "Text")}; font-weight: 600; font-size: 22px; color: ${P.accentInk}; letter-spacing: 0.01em; }
+.label img { width: 32px; height: 32px; }
 h1, p { text-wrap: balance; word-break: auto-phrase; }
 h1 { margin: 10px 0 0; font-weight: 600; font-size: 60px; line-height: 1.08; letter-spacing: -0.012em; }
 p { margin: 10px 0 0; font-family: ${fonts(lang, "Text")}; font-size: 26px; line-height: 1.35; color: ${P.soft}; }
@@ -140,7 +141,7 @@ p { margin: 10px 0 0; font-family: ${fonts(lang, "Text")}; font-size: 26px; line
 .wall { position: absolute; top: 0; z-index: 2; }
 .lane { position: absolute; z-index: 10; border-radius: 30px; background: ${P.paper}; direction: ${rtl}; }
 .gives { position: absolute; top: 20px; height: 68px; display: flex; align-items: center; gap: 14px; font: 600 30px/1.08 ${fonts(lang, "Display")}; }
-.gives i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: ${P.accent}; color: ${P.paper};
+.gives i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: ${P.accent}; color: ${P.ink};
   font: normal 26px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
 .gives span { text-wrap: balance; }
 .flow { position: absolute; width: 2px; border-radius: 1px; background: ${P.accent}; }
@@ -152,9 +153,9 @@ p { margin: 10px 0 0; font-family: ${fonts(lang, "Text")}; font-size: 26px; line
 .logo.glyph { background: ${P.ink}; color: ${P.on}; }
 .logo.glyph i { font: normal 24px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
 .valuefoot { position: absolute; display: flex; align-items: center; justify-content: center; gap: 18px; font: 600 34px/1 ${fonts(lang, "Display")}; color: ${P.ink}; direction: ${rtl}; z-index: 12; }
-.valuefoot img { width: 54px; height: 54px; border-radius: 12px; }
+.valuefoot img { width: 54px; height: 54px; }
 .value { position: absolute; z-index: 10; border-radius: 30px; background: ${P.paper}; direction: ${rtl}; }
-.value i { position: absolute; left: 30px; top: 34px; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 18px; background: ${P.accent}; color: ${P.paper};
+.value i { position: absolute; left: 30px; top: 34px; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 18px; background: ${P.accent}; color: ${P.ink};
   font: normal 34px/1 "Segoe Fluent Icons", "Segoe MDL2 Assets"; }
 .value h2 { position: absolute; left: 30px; right: 26px; top: 128px; margin: 0; font: 600 34px/1.12 ${fonts(lang, "Display")}; color: ${P.ink}; text-wrap: balance; }
 .value p { position: absolute; left: 30px; right: 26px; top: 228px; margin: 0; font: 400 24px/1.36 ${fonts(lang, "Text")}; color: ${P.soft}; }
@@ -233,7 +234,7 @@ function raysHtml(crop, screen, box) {
   // Bright at the card, faint at what it enlarges.
   const axis = beside ? `x1="${fades[0]}" y1="0" x2="${fades[1]}" y2="0"` : `x1="0" y1="${fades[0]}" x2="0" y2="${fades[1]}"`;
   return `<svg class="rays" style="left:${x0}px; top:${y0}px;" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-      <defs><linearGradient id="ray" ${axis}><stop offset="0" stop-color="rgba(196, 83, 43, 0.18)"/><stop offset="1" stop-color="rgba(196, 83, 43, 0.18)"/></linearGradient></defs>
+      <defs><linearGradient id="ray" ${axis}><stop offset="0" stop-color="rgba(242, 154, 11, 0.24)"/><stop offset="1" stop-color="rgba(242, 154, 11, 0.24)"/></linearGradient></defs>
       <polygon points="${points}" fill="url(#ray)"/></svg>
     <div class="marked" style="left:${from.x - 3}px; top:${from.y - 3}px; width:${from.w + 6}px; height:${from.h + 6}px;"></div>`;
 }
@@ -367,7 +368,7 @@ function heroHtml() {
 html, body { margin: 0; width: ${page.w}px; height: ${page.h}px; overflow: hidden; background: ${P.sky}; }
 .land { position: absolute; left: 0; top: 0; }
 .sun { position: absolute; left: 50%; top: 40%; width: 820px; height: 820px; border-radius: 50%; transform: translate(-50%, -50%); background: ${P.sun}; }
-.logo { position: absolute; left: 50%; top: 40%; width: 380px; transform: translate(-50%, -50%); border-radius: 84px; filter: drop-shadow(14px 16px 0 rgba(33, 28, 23, 0.18)); }
+.logo { position: absolute; left: 50%; top: 40%; width: 380px; transform: translate(-50%, -50%); filter: drop-shadow(14px 16px 0 rgba(33, 28, 23, 0.18)); }
 </style></head><body>
 <div class="sun"></div>
 ${landscape(page.w)}
@@ -379,9 +380,9 @@ ${landscape(page.w)}
 function tileHtml(pro) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 html, body { margin: 0; width: 300px; height: 300px; overflow: hidden; background: transparent; }
-img { position: absolute; left: 18px; top: 18px; width: 264px; height: 264px; }
-.pro { position: absolute; right: 10px; bottom: 16px; padding: 7px 16px 9px; border-radius: 999px; background: #f5b52e;
-  color: #3a2400; font: 700 34px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: 0.04em; }
+img { position: absolute; left: 0; top: 0; width: 300px; height: 300px; }
+.pro { position: absolute; right: 10px; bottom: 16px; padding: 7px 16px 9px; border-radius: 999px; background: #211C17;
+  color: #FBF4E6; font: 700 34px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: 0.04em; }
 </style></head><body><div style="position: relative; width: 300px; height: 300px;"><img src="${logo}" alt="">${pro ? '<div class="pro">PRO</div>' : ""}</div></body></html>`;
 }
 

@@ -4183,7 +4183,8 @@ rules are these.
   (blank and repeated ids dropped), `MonitorScales` (clamped to 0.5..2), and
   `DefaultViewForNewDisplays` (null = the active view; a deleted view is repaired to null).
 - Not added: the updater's auto-check switch and an Updates page, since the updater is out of scope.
-- **[S-1850]** One app icon everywhere: `Assets/themia.ico` (the original app's tile logo, 16..256 px) is
+- **[S-1850]** One app icon everywhere: `Assets/themia.ico` (Themia's mark, 16..256 px: Lometics' square in Themia's amber with its
+  five widgets, every raster of it drawn from `scripts/themia-logo.svg` by `scripts/package-logos.py`) is
   the exe's resource icon (`ApplicationIcon`) and is set on every window through `AppIcon.Apply` —
   settings, layout editor, each display surface, the Debug render windows. A missing file is logged, not fatal.
 

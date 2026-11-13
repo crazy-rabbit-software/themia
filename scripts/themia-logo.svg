@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themia's mark: five widgets on Lometics' square (its folds, its white cards), in Themia's amber #F29A0B. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+<linearGradient id="t0" gradientUnits="userSpaceOnUse" x1="310" y1="980" x2="30" y2="1260"><stop offset="0" stop-color="#9A5600" stop-opacity="0"/><stop offset="1" stop-color="#9A5600" stop-opacity=".3"/></linearGradient><linearGradient id="t1" gradientUnits="userSpaceOnUse" x1="590" y1="700" x2="310" y2="980"><stop offset="0" stop-color="#9A5600" stop-opacity="0"/><stop offset="1" stop-color="#9A5600" stop-opacity=".3"/></linearGradient><linearGradient id="t2" gradientUnits="userSpaceOnUse" x1="870" y1="420" x2="590" y2="700"><stop offset="0" stop-color="#9A5600" stop-opacity="0"/><stop offset="1" stop-color="#9A5600" stop-opacity=".3"/></linearGradient><linearGradient id="t3" gradientUnits="userSpaceOnUse" x1="1150" y1="140" x2="870" y2="420"><stop offset="0" stop-color="#9A5600" stop-opacity="0"/><stop offset="1" stop-color="#9A5600" stop-opacity=".3"/></linearGradient><linearGradient id="t4" gradientUnits="userSpaceOnUse" x1="1430" y1="-140" x2="1150" y2="140"><stop offset="0" stop-color="#9A5600" stop-opacity="0"/><stop offset="1" stop-color="#9A5600" stop-opacity=".3"/></linearGradient>
+<clipPath id="tp"><rect width="1024" height="1024" rx="16"/></clipPath>
+</defs>
+<rect width="1024" height="1024" rx="16" fill="#F29A0B"/>
+<g clip-path="url(#tp)">
+<path d="M-560-50V890A560 370 0 0 0 0 1260H60a520 480 0 0 1 520 480v-640h520V-50ZM-280-50V610a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v-360h240V-50Z" fill="url(#t0)" fill-rule="evenodd"/>
+<path d="M-280-50V610a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v-360h240V-50ZM0-50V330a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v-80h-40V-50Z" fill="url(#t1)" fill-rule="evenodd"/>
+<path d="M0-50V330a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v-80h-40V-50ZM280-50V50a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v200h-320V-50Z" fill="url(#t2)" fill-rule="evenodd"/>
+<path d="M280-50V50a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v200h-320V-50ZM560-50v-180a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v480h-500V-50Z" fill="url(#t3)" fill-rule="evenodd"/>
+<path d="M560-50v-180a560 370 0 0 0 560 370h60a520 480 0 0 1 520 480v480h-500V-50Z" fill="url(#t4)" fill-rule="evenodd"/>
+</g>
+<rect x="176" y="176" width="288" height="288" rx="16" fill="#fff"/><rect x="528" y="176" width="320" height="160" rx="16" fill="#fff"/><rect x="528" y="400" width="320" height="224" rx="16" fill="#fff"/><rect x="176" y="528" width="224" height="320" rx="16" fill="#fff"/><rect x="464" y="688" width="384" height="160" rx="16" fill="#fff"/><linearGradient id="tag" gradientUnits="userSpaceOnUse" x1="0" y1="262.4" x2="0" y2="464"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#FCE6C2"/></linearGradient>
+<clipPath id="tac"><rect x="176" y="176" width="288" height="288" rx="16"/></clipPath>
+<path d="M176 262 A 230 202 0 0 0 406 464 H176Z" fill="url(#tag)" clip-path="url(#tac)"/>
+</svg>
