@@ -598,7 +598,18 @@ internal static class SceneRender
                 return false;
             }
 
-            EditBarRender.HangAddMenu(canvas, EditBarRender.AddMenu(), bar, barRect.X, barRect.Y, width);
+            // [S-11864] The add page as it stands once its pictures are drawn: a scene waits for them (a minute
+            // at most, then says so and shows the glyphs), over the work area, so the page ends above the taskbar.
+            var addPage = EditBarRender.AddMenu();
+            EditBarRender.HangAddMenu(canvas, addPage, bar, barRect.X, barRect.Y, width, job.Scene.WorkBottom(job.File.Screen));
+            canvas.UpdateLayout();
+            await Task.Delay(300).ConfigureAwait(true);
+            if (await Task.WhenAny(addPage.View.PicturesDrawn, Task.Delay(TimeSpan.FromMinutes(1))).ConfigureAwait(true) != addPage.View.PicturesDrawn)
+            {
+                Console.WriteLine($"scene: {job.Scene.Name}: the add page's pictures did not finish within a minute");
+            }
+
+            await Task.Delay(300).ConfigureAwait(true);
         }
 
         if (selected.Count == 0)

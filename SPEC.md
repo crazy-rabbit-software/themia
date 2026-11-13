@@ -7642,6 +7642,9 @@ members draw no line between them, so the group reads as one sheet ([S-11870]).
   fits it to 3840 x 2160 under `store/wallpapers/`, which is git-ignored, and `store/capture.ps1` draws
   every scene at 3840 pixels wide whatever the scenes' display is. The checked-in scenes are held to the
   list, not to the files (`SceneWidgetsTests.S1078_S2210_`).
+- **[S-11864]** A scene whose `edit` opens the add page (`"add": true`) is drawn once the page's
+  pictures are ([S-11707]), a minute at most (then the scene says so and shows the glyphs); the page
+  hangs over the scene's work area, ending above its taskbar.
 
 **The group's page.** Owner's decision 2026-11-12: the atoms each hold their own setting of what they are
 about (their place, account, drive, host, pair, symbol, period, Size), so a group acts as a container: one
