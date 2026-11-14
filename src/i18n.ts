@@ -11,6 +11,7 @@ import { it } from './locales/it.ts';
 import { pl } from './locales/pl.ts';
 import { ja } from './locales/ja.ts';
 import { zh } from './locales/zh.ts';
+import { ru } from './locales/ru.ts';
 
 const dictionaries: Record<Language, Record<string, string>> = {
   en: flatten(en),
@@ -22,6 +23,7 @@ const dictionaries: Record<Language, Record<string, string>> = {
   pl: flatten(pl),
   ja: flatten(ja),
   zh: flatten(zh),
+  ru: flatten(ru),
 };
 
 /** Flatten nested dict into "a.b.c" → "value" map. */
@@ -87,6 +89,7 @@ export function detectLanguage(sysLocale: string | null | undefined): Language {
     /^pl/i.test(s) ? 'pl' :
     /^ja/i.test(s) ? 'ja' :
     /^zh/i.test(s) ? 'zh' :
+    /^ru/i.test(s) ? 'ru' :
     'en'
   );
 }

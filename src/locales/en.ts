@@ -216,6 +216,7 @@ export const en = {
       polish: 'Polski',
       japanese: '日本語',
       chinese: '简体中文',
+      russian: 'Русский',
       search: 'Search languages',
     },
     autostart: {

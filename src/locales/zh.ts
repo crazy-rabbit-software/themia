@@ -223,6 +223,7 @@ export const zh: Messages = {
       polish: 'Polski',
       japanese: '日本語',
       chinese: '简体中文',
+      russian: 'Русский',
       search: '搜索语言',
     },
     autostart: {

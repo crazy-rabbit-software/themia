@@ -32,7 +32,7 @@ const MIGRATION_V10_KEY = 'widget-design-migration-v10';
 // Types
 // ---------------------------------------------------------------------------
 
-export type Language = 'en' | 'de' | 'es' | 'fr' | 'pt' | 'it' | 'pl' | 'ja' | 'zh';
+export type Language = 'en' | 'de' | 'es' | 'fr' | 'pt' | 'it' | 'pl' | 'ja' | 'zh' | 'ru';
 
 export type WidgetBorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
 
@@ -238,7 +238,7 @@ export const globalDesignSchema: PersistedSchema<GlobalDesign> = objectSchema<Gl
     fontScale: isNumber,
     demoMode: isBoolean,
     devMode: isBoolean,
-    language: isOneOf('en', 'de', 'es', 'fr', 'pt', 'it', 'pl', 'ja', 'zh'),
+    language: isOneOf('en', 'de', 'es', 'fr', 'pt', 'it', 'pl', 'ja', 'zh', 'ru'),
     desktopIconsVisible: isBoolean,
     allowPrivateNetworkAccess: isBoolean,
     loggingEnabled: isBoolean,

@@ -218,6 +218,7 @@ export const de: Messages = {
       polish: 'Polski',
       japanese: '日本語',
       chinese: '简体中文',
+      russian: 'Русский',
       search: 'Sprachen suchen',
     },
     autostart: {
