@@ -275,7 +275,7 @@ describe('LocationSearch obeys the settings design system', () => {
 
 describe('locationSearch i18n keys ship in every locale', () => {
   const KEYS = ['placeholder', 'searching', 'noResults', 'failed'] as const;
-  const LOCALES = ['en', 'de', 'es', 'fr', 'it', 'ja', 'pl', 'pt', 'zh'];
+  const LOCALES = ['en', 'de', 'es', 'fr', 'it', 'ja', 'pl', 'pt', 'zh', 'ru'];
 
   // Read as source: importing all nine would duplicate locales.test.ts, which
   // already owns key parity. This only pins that none was skipped.

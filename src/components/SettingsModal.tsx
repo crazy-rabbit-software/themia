@@ -495,8 +495,9 @@ export default function SettingsBody(props: SettingsBodyProps) {
                 { label: t('settings.language.polish'), value: 'pl' },
                 { label: t('settings.language.japanese'), value: 'ja' },
                 { label: t('settings.language.chinese'), value: 'zh' },
+                { label: t('settings.language.russian'), value: 'ru' },
               ]}
-              onChange={(v) => setGlobalDesignDirect('language', v as 'en' | 'de' | 'es' | 'fr' | 'pt' | 'it' | 'pl' | 'ja' | 'zh')}
+              onChange={(v) => setGlobalDesignDirect('language', v as 'en' | 'de' | 'es' | 'fr' | 'pt' | 'it' | 'pl' | 'ja' | 'zh' | 'ru')}
             />
           </div>
           <div class="design-row">

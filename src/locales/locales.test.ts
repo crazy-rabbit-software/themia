@@ -8,6 +8,7 @@ import { it as itLocale } from './it.ts';
 import { pl } from './pl.ts';
 import { ja } from './ja.ts';
 import { zh } from './zh.ts';
+import { ru } from './ru.ts'
 
 /** Flatten nested message dict into dotted leaf keys ("a.b.c"). */
 function leafKeys(obj: unknown, prefix = '', out: string[] = []): string[] {
@@ -23,7 +24,7 @@ function leafKeys(obj: unknown, prefix = '', out: string[] = []): string[] {
 }
 
 const enKeys = new Set(leafKeys(en));
-const locales = { de, es, fr, pt, it: itLocale, pl, ja, zh };
+const locales = { de, es, fr, pt, it: itLocale, pl, ja, zh, ru };
 
 describe('locale key parity', () => {
   for (const [name, loc] of Object.entries(locales)) {
