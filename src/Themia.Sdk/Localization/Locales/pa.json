@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "ਪਿਛੋਕੜ",
   "settings.style.cornerRadius.label": "ਕੋਨੇ ਦਾ ਘੇਰਾ",
   "settings.style.gridSnap.label": "ਗਰਿੱਡ ਨਾਲ ਜੋੜੋ",
+  "settings.style.collisions.label": "ਵਿਜੇਟਾਂ ਨੂੰ ਇੱਕ ਦੂਜੇ ਉੱਤੇ ਆਉਣ ਤੋਂ ਰੋਕੋ",
   "settings.style.startupAnim.none": "ਕੋਈ ਨਹੀਂ",
   "settings.style.startupAnim.fade": "ਫਿੱਕਾ",
   "settings.style.startupAnim.scale": "ਸਕੇਲ",

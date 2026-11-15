@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -453,6 +453,7 @@ public static class SettingsTransfer
         Line(Str.Shell_Transfer_StartupLength, old.IntroAnimationMs, @new.IntroAnimationMs, Ms);
         Line(Str.Shell_Layout_Gap, old.WidgetGapPx, @new.WidgetGapPx, Px);
         Line(Str.Settings_Style_GridSnap_Label, old.GridSnap, @new.GridSnap, OnOff);
+        Line(Str.Settings_Style_Collisions_Label, old.WidgetCollisions, @new.WidgetCollisions, OnOff);
         Line(Str.Settings_Style_HeaderBg_Label, old.HeaderBackgroundColor, @new.HeaderBackgroundColor, Colour);
         Line(Str.Settings_Style_HeaderOpacity_Label, old.HeaderOpacity, @new.HeaderOpacity, Percent);
         Line(Str.Shell_Motion_Transition, old.TransitionAnimation, @new.TransitionAnimation, Intro);

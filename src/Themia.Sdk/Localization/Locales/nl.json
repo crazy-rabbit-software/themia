@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Achtergrond",
   "settings.style.cornerRadius.label": "Hoekradius",
   "settings.style.gridSnap.label": "Uitlijnen op raster",
+  "settings.style.collisions.label": "Voorkomen dat widgets overlappen",
   "settings.style.startupAnim.none": "Geen",
   "settings.style.startupAnim.fade": "Vervagen",
   "settings.style.startupAnim.scale": "Schalen",

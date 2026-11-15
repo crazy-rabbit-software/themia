@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "Tło",
   "settings.style.cornerRadius.label": "Promień rogów",
   "settings.style.gridSnap.label": "Przyciągaj do siatki",
+  "settings.style.collisions.label": "Nie pozwalaj widżetom nachodzić na siebie",
   "settings.style.startupAnim.none": "Brak",
   "settings.style.startupAnim.fade": "Zanikanie",
   "settings.style.startupAnim.scale": "Skalowanie",

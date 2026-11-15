@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Background",
   "settings.style.cornerRadius.label": "Corner radius",
   "settings.style.gridSnap.label": "Snap to grid",
+  "settings.style.collisions.label": "Keep widgets from overlapping",
   "settings.style.startupAnim.none": "None",
   "settings.style.startupAnim.fade": "Fade",
   "settings.style.startupAnim.scale": "Scale",

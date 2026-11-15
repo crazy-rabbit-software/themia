@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "背景",
   "settings.style.cornerRadius.label": "角の半径",
   "settings.style.gridSnap.label": "グリッドに吸着",
+  "settings.style.collisions.label": "ウィジェットを重ねない",
   "settings.style.startupAnim.none": "なし",
   "settings.style.startupAnim.fade": "フェード",
   "settings.style.startupAnim.scale": "拡大",

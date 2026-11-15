@@ -138,6 +138,7 @@
   "shell.setup.hint": "ဤဝစ်ဂျက် လိုအပ်သည်ကို ပြင်ဆင်ပါ",
   "shell.toolbar.addWidget": "ဝစ်ဂျက် ထည့်ရန်",
   "shell.toolbar.snapName": "Grid တွင် ကပ်ရန်",
+  "shell.toolbar.collisionsName": "ဝစ်ဂျက်များ ထပ်မနေစေရန်",
   "shell.editBar.selected": {
     "other": "{count} ခု ရွေးထားသည်"
   },

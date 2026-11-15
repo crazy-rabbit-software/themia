@@ -1,4 +1,4 @@
-using Themia.App.Shell;
+﻿using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
@@ -58,6 +58,10 @@ public static partial class SettingsMenu
         // [S-3516] Snap to grid while widgets are moved and resized: set here and nowhere else.
         lines.Add(new SettingsToggle(Keys.Snap, Str.Shell_Toolbar_SnapName.Text(), Glyphs.Grid, state.Design.GridSnap,
             on => host.Mutate(s => s.Design.GridSnap = on, relayout: false)));
+
+        // [S-11959] Widgets kept apart while they are moved: beside Snap to grid, set here and nowhere else.
+        lines.Add(new SettingsToggle(Keys.Collisions, Str.Shell_Toolbar_CollisionsName.Text(), Glyphs.Apps, state.Design.WidgetCollisions,
+            on => host.Mutate(s => s.Design.WidgetCollisions = on, relayout: false)));
 
         return lines;
     }

@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "പശ്ചാത്തലം",
   "settings.style.cornerRadius.label": "കോണിന്റെ വക്രത",
   "settings.style.gridSnap.label": "ഗ്രിഡിലേക്ക് ചേർക്കുക",
+  "settings.style.collisions.label": "വിജറ്റുകൾ ഒന്നിനുമേൽ ഒന്ന് വരുന്നത് തടയുക",
   "settings.style.startupAnim.none": "ഒന്നുമില്ല",
   "settings.style.startupAnim.fade": "മങ്ങൽ",
   "settings.style.startupAnim.scale": "സ്കെയിൽ",

@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "Тло",
   "settings.style.cornerRadius.label": "Радіус кутів",
   "settings.style.gridSnap.label": "Прив’язка до сітки",
+  "settings.style.collisions.label": "Не допускати накладання віджетів",
   "settings.style.startupAnim.none": "Немає",
   "settings.style.startupAnim.fade": "Згасання",
   "settings.style.startupAnim.scale": "Масштаб",

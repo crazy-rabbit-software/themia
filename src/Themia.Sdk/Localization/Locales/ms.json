@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Latar belakang",
   "settings.style.cornerRadius.label": "Jejari bucu",
   "settings.style.gridSnap.label": "Jajarkan pada grid",
+  "settings.style.collisions.label": "Halang widget daripada bertindih",
   "settings.style.startupAnim.none": "Tiada",
   "settings.style.startupAnim.fade": "Pudar",
   "settings.style.startupAnim.scale": "Skala",

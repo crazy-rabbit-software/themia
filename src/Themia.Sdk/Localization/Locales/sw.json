@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Mandharinyuma",
   "settings.style.cornerRadius.label": "Mzingo wa pembe",
   "settings.style.gridSnap.label": "Shikamana na gridi",
+  "settings.style.collisions.label": "Zuia wijeti kupishana",
   "settings.style.startupAnim.none": "Hakuna",
   "settings.style.startupAnim.fade": "Fifia",
   "settings.style.startupAnim.scale": "Kuza",

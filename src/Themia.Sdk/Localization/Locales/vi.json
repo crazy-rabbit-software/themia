@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Nền",
   "settings.style.cornerRadius.label": "Bo góc",
   "settings.style.gridSnap.label": "Bám theo lưới",
+  "settings.style.collisions.label": "Không cho tiện ích chồng lên nhau",
   "settings.style.startupAnim.none": "Không có",
   "settings.style.startupAnim.fade": "Mờ dần",
   "settings.style.startupAnim.scale": "Phóng to",

@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Ẹ̀yìn",
   "settings.style.cornerRadius.label": "Ìrọ̀bọ̀tọ̀ igun",
   "settings.style.gridSnap.label": "Tò mọ́ àwọ̀n ìlà",
+  "settings.style.collisions.label": "Má jẹ́ kí àwọn widget bò ara wọn",
   "settings.style.startupAnim.none": "Kò sí",
   "settings.style.startupAnim.fade": "Ṣíṣá",
   "settings.style.startupAnim.scale": "Fífẹ̀",

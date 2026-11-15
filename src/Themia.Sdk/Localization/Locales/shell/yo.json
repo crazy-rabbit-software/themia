@@ -138,6 +138,7 @@
   "shell.setup.hint": "Ṣètò ohun tí wíjẹ́ẹ̀tì yìí nílò",
   "shell.toolbar.addWidget": "Ṣàfikún wíjẹ́ẹ̀tì",
   "shell.toolbar.snapName": "Tò mọ́ àwọ̀n ìlà",
+  "shell.toolbar.collisionsName": "Má jẹ́ kí àwọn widget bò ara wọn",
   "shell.editBar.selected": {
     "other": "a yan {count}"
   },

@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Fundal",
   "settings.style.cornerRadius.label": "Rază colțuri",
   "settings.style.gridSnap.label": "Aliniază la grilă",
+  "settings.style.collisions.label": "Împiedică suprapunerea widgeturilor",
   "settings.style.startupAnim.none": "Niciuna",
   "settings.style.startupAnim.fade": "Estompare",
   "settings.style.startupAnim.scale": "Scalare",

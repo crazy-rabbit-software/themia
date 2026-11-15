@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Bango",
   "settings.style.cornerRadius.label": "Zagayen kusurwa",
   "settings.style.gridSnap.label": "Manne wa grid",
+  "settings.style.collisions.label": "Hana widget su hau kan juna",
   "settings.style.startupAnim.none": "Babu",
   "settings.style.startupAnim.fade": "Dushewa",
   "settings.style.startupAnim.scale": "Girma",

@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Background",
   "settings.style.cornerRadius.label": "Radius ng sulok",
   "settings.style.gridSnap.label": "I-snap sa grid",
+  "settings.style.collisions.label": "Pigilan ang pagpapatong ng mga widget",
   "settings.style.startupAnim.none": "Wala",
   "settings.style.startupAnim.fade": "Paglaho",
   "settings.style.startupAnim.scale": "Paglaki",

@@ -141,6 +141,7 @@
   "shell.setup.hint": "Ρύθμισε ό,τι χρειάζεται αυτό το γραφικό στοιχείο",
   "shell.toolbar.addWidget": "Προσθήκη γραφικού στοιχείου",
   "shell.toolbar.snapName": "Κούμπωμα στο πλέγμα",
+  "shell.toolbar.collisionsName": "Αποτροπή επικάλυψης γραφικών στοιχείων",
   "shell.editBar.selected": {
     "one": "{count} επιλεγμένο",
     "other": "{count} επιλεγμένα"

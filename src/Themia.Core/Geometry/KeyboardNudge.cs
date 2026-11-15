@@ -1,4 +1,4 @@
-using Themia.Core.Shell;
+﻿using Themia.Core.Shell;
 
 namespace Themia.Core.Geometry;
 
@@ -39,7 +39,8 @@ public static class KeyboardNudge
     /// [S-1970] Move a block of rects one press. The block keeps its shape; the grid applies unless
     /// it is off or the step is <see cref="NudgeStep.Fine"/>.
     /// </summary>
-    public static List<FracRect> Move(IReadOnlyList<FracRect> rects, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, bool snapEnabled)
+    /// <param name="apart">[S-11959] With widgets kept apart: the widgets that stay, which the block may not come over.</param>
+    public static List<FracRect> Move(IReadOnlyList<FracRect> rects, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, bool snapEnabled, IReadOnlyList<FracRect>? apart = null)
     {
         ArgumentNullException.ThrowIfNull(rects);
 
@@ -50,6 +51,11 @@ public static class KeyboardNudge
 
         var (dx, dy) = Delta(direction, step, screen);
         var delta = BlockGeometry.Move(rects, dx, dy, screen, snapEnabled && step != NudgeStep.Fine);
+        if (apart is not null)
+        {
+            delta = BlockGeometry.Apart(rects, delta, default, apart, screen);
+        }
+
         return [.. rects.Select(r => BlockGeometry.Apply(r, delta, screen))];
     }
 

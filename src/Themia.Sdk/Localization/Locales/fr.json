@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "Arrière-plan",
   "settings.style.cornerRadius.label": "Rayon des coins",
   "settings.style.gridSnap.label": "Aligner sur la grille",
+  "settings.style.collisions.label": "Empêcher les widgets de se chevaucher",
   "settings.style.startupAnim.none": "Aucune",
   "settings.style.startupAnim.fade": "Fondu",
   "settings.style.startupAnim.scale": "Échelle",

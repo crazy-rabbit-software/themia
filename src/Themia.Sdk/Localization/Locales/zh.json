@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "背景",
   "settings.style.cornerRadius.label": "圆角半径",
   "settings.style.gridSnap.label": "对齐网格",
+  "settings.style.collisions.label": "防止小组件重叠",
   "settings.style.startupAnim.none": "无",
   "settings.style.startupAnim.fade": "淡入",
   "settings.style.startupAnim.scale": "缩放",

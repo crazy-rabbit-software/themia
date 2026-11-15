@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "પૃષ્ઠભૂમિ",
   "settings.style.cornerRadius.label": "ખૂણાની ત્રિજ્યા",
   "settings.style.gridSnap.label": "ગ્રિડ પર સ્નેપ કરો",
+  "settings.style.collisions.label": "વિજેટ્સને એકબીજા પર આવવા ન દો",
   "settings.style.startupAnim.none": "કોઈ નહીં",
   "settings.style.startupAnim.fade": "ઝાંખું",
   "settings.style.startupAnim.scale": "સ્કેલ",

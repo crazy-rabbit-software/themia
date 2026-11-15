@@ -147,6 +147,7 @@
   "shell.setup.hint": "Настроить то, что нужно этому виджету",
   "shell.toolbar.addWidget": "Добавить виджет",
   "shell.toolbar.snapName": "Привязка к сетке",
+  "shell.toolbar.collisionsName": "Не допускать наложения виджетов",
   "shell.editBar.selected": {
     "one": "Выбрано: {count}",
     "few": "Выбрано: {count}",

@@ -141,6 +141,7 @@
   "shell.setup.hint": "ਇਸ ਵਿਜੇਟ ਨੂੰ ਜੋ ਚਾਹੀਦਾ ਹੈ ਉਹ ਸੈੱਟ ਕਰੋ",
   "shell.toolbar.addWidget": "ਵਿਜੇਟ ਜੋੜੋ",
   "shell.toolbar.snapName": "ਗਰਿੱਡ ਨਾਲ ਜੋੜੋ",
+  "shell.toolbar.collisionsName": "ਵਿਜੇਟਾਂ ਨੂੰ ਇੱਕ ਦੂਜੇ ਉੱਤੇ ਆਉਣ ਤੋਂ ਰੋਕੋ",
   "shell.editBar.selected": {
     "one": "{count} ਚੁਣਿਆ",
     "other": "{count} ਚੁਣੇ"

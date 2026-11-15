@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Sdk;
@@ -230,6 +230,9 @@ public sealed class DesignState
     /// <summary>[S-06] Snap-to-grid aid for drag, resize and placement.</summary>
     public bool GridSnap { get; set; } = true;
 
+    /// <summary>[S-11959] Widgets kept apart: a moved widget never lands over another. Off by default.</summary>
+    public bool WidgetCollisions { get; set; }
+
     /// <summary>
     /// Corner radius of a widget card, in device-independent pixels. [S-6482] 8: Windows' own radius
     /// for a top-level surface, the same as Themia's menus (<c>ShellMetrics.OverlayRadius</c>).
@@ -308,6 +311,7 @@ public sealed class DesignState
         FontScale = FontScale,
         WidgetGapPx = WidgetGapPx,
         GridSnap = GridSnap,
+        WidgetCollisions = WidgetCollisions,
         CornerRadiusPx = CornerRadiusPx,
         Background = Background.Clone(),
         BlurBehind = BlurBehind,

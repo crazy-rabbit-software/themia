@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Arka plan",
   "settings.style.cornerRadius.label": "Köşe yarıçapı",
   "settings.style.gridSnap.label": "Izgaraya yasla",
+  "settings.style.collisions.label": "Pencere öğelerinin üst üste binmesini önle",
   "settings.style.startupAnim.none": "Yok",
   "settings.style.startupAnim.fade": "Solma",
   "settings.style.startupAnim.scale": "Ölçek",

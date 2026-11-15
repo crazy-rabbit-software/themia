@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "পটভূমি",
   "settings.style.cornerRadius.label": "কোণের ব্যাসার্ধ",
   "settings.style.gridSnap.label": "গ্রিডে স্ন্যাপ করুন",
+  "settings.style.collisions.label": "উইজেটগুলোকে একে অপরের উপর পড়তে দেবেন না",
   "settings.style.startupAnim.none": "কোনোটিই নয়",
   "settings.style.startupAnim.fade": "ফেড",
   "settings.style.startupAnim.scale": "স্কেল",

@@ -141,6 +141,7 @@
   "shell.setup.hint": "Configurar lo que necesita este widget",
   "shell.toolbar.addWidget": "Agregar widget",
   "shell.toolbar.snapName": "Ajustar a la cuadrícula",
+  "shell.toolbar.collisionsName": "Evitar que los widgets se superpongan",
   "shell.editBar.selected": {
     "one": "{count} seleccionado",
     "other": "{count} seleccionados"

@@ -138,6 +138,7 @@
   "shell.setup.hint": "設定此小工具所需的項目",
   "shell.toolbar.addWidget": "新增小工具",
   "shell.toolbar.snapName": "對齊格線",
+  "shell.toolbar.collisionsName": "防止小工具重疊",
   "shell.editBar.selected": {
     "other": "已選取 {count} 個"
   },

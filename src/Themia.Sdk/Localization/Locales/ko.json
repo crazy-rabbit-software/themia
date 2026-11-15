@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "배경",
   "settings.style.cornerRadius.label": "모서리 반경",
   "settings.style.gridSnap.label": "그리드에 맞추기",
+  "settings.style.collisions.label": "위젯이 겹치지 않게 하기",
   "settings.style.startupAnim.none": "없음",
   "settings.style.startupAnim.fade": "페이드",
   "settings.style.startupAnim.scale": "확대/축소",

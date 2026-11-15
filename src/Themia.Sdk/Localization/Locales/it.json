@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "Sfondo",
   "settings.style.cornerRadius.label": "Raggio degli angoli",
   "settings.style.gridSnap.label": "Aggancia alla griglia",
+  "settings.style.collisions.label": "Impedisci la sovrapposizione dei widget",
   "settings.style.startupAnim.none": "Nessuna",
   "settings.style.startupAnim.fade": "Dissolvenza",
   "settings.style.startupAnim.scale": "Scala",

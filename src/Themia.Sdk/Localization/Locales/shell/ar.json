@@ -153,6 +153,7 @@
   "shell.setup.hint": "إعداد ما تحتاجه هذه الأداة",
   "shell.toolbar.addWidget": "إضافة أداة",
   "shell.toolbar.snapName": "المحاذاة إلى الشبكة",
+  "shell.toolbar.collisionsName": "منع تداخل الأدوات",
   "shell.editBar.selected": {
     "zero": "{count} محدد",
     "one": "{count} محدد",

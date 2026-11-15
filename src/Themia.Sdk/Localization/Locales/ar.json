@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "الخلفية",
   "settings.style.cornerRadius.label": "استدارة الزوايا",
   "settings.style.gridSnap.label": "المحاذاة إلى الشبكة",
+  "settings.style.collisions.label": "منع تداخل الأدوات",
   "settings.style.startupAnim.none": "بلا",
   "settings.style.startupAnim.fade": "تلاشٍ",
   "settings.style.startupAnim.scale": "تكبير",

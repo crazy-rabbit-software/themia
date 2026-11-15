@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "Fondo",
   "settings.style.cornerRadius.label": "Radio de las esquinas",
   "settings.style.gridSnap.label": "Ajustar a la cuadrícula",
+  "settings.style.collisions.label": "Evitar que los widgets se superpongan",
   "settings.style.startupAnim.none": "Ninguna",
   "settings.style.startupAnim.fade": "Fundido",
   "settings.style.startupAnim.scale": "Escala",

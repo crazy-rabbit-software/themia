@@ -141,6 +141,7 @@
   "shell.setup.hint": "Einrichten, was dieses Widget braucht",
   "shell.toolbar.addWidget": "Widget hinzufügen",
   "shell.toolbar.snapName": "Am Raster ausrichten",
+  "shell.toolbar.collisionsName": "Widgets nicht überlappen lassen",
   "shell.editBar.selected": {
     "one": "{count} ausgewählt",
     "other": "{count} ausgewählt"

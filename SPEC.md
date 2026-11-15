@@ -1946,6 +1946,12 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
 - **[S-3516]** **Snap to grid** (grid snap while moving and resizing, [S-06]) is a switch in the General
   page's first section ([S-2300], key `snap`), set there and nowhere else ([S-3590]): not on the bar,
   not on the Appearance page, not in the surface menu.
+- **[S-11959]** **Keep widgets from overlapping** (`Design.WidgetCollisions`, off by default) is a switch under Snap to
+  grid (key `collisions`). On, a widget moved by drag or by the arrow keys never lands over another: the block goes all
+  the way where it lands clear, else slides along the clear axis, else stays where it stood (`BlockGeometry.Apart`).
+  Touching edges are no overlap. Only the moved widgets are held: widgets already lying over each other are left as they
+  are, and a moved one may stay over or leave the one it started over, but never comes over another. Resizing, placing
+  and a hand-off to another display are not held. `WidgetCollisionsTests.S11959_`.
 - **[S-3501]** **Add widget** opens the **add page** ([S-11700]): every widget kind in the catalogue (the
   module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change) and
   every ready-made group ([S-2470]) as tiles with pictures. Every way in opens the same page under that

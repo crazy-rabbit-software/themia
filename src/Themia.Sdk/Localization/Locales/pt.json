@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "Fundo",
   "settings.style.cornerRadius.label": "Raio dos cantos",
   "settings.style.gridSnap.label": "Encaixar na grelha",
+  "settings.style.collisions.label": "Impedir que os widgets se sobreponham",
   "settings.style.startupAnim.none": "Nenhuma",
   "settings.style.startupAnim.fade": "Desvanecer",
   "settings.style.startupAnim.scale": "Escala",

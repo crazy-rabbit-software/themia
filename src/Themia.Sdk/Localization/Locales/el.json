@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Φόντο",
   "settings.style.cornerRadius.label": "Στρογγύλεμα γωνιών",
   "settings.style.gridSnap.label": "Κούμπωμα στο πλέγμα",
+  "settings.style.collisions.label": "Αποτροπή επικάλυψης γραφικών στοιχείων",
   "settings.style.startupAnim.none": "Κανένα",
   "settings.style.startupAnim.fade": "Σβήσιμο",
   "settings.style.startupAnim.scale": "Μεγέθυνση",

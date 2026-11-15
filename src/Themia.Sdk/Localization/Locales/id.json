@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Latar belakang",
   "settings.style.cornerRadius.label": "Radius sudut",
   "settings.style.gridSnap.label": "Jepret ke kisi",
+  "settings.style.collisions.label": "Cegah widget saling tumpang tindih",
   "settings.style.startupAnim.none": "Tidak ada",
   "settings.style.startupAnim.fade": "Pudar",
   "settings.style.startupAnim.scale": "Skala",

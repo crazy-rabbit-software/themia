@@ -141,6 +141,7 @@
   "shell.setup.hint": "Bu pencere öğesinin ihtiyacını ayarla",
   "shell.toolbar.addWidget": "Pencere öğesi ekle",
   "shell.toolbar.snapName": "Izgaraya yasla",
+  "shell.toolbar.collisionsName": "Pencere öğelerinin üst üste binmesini önle",
   "shell.editBar.selected": {
     "one": "{count} seçili",
     "other": "{count} seçili"

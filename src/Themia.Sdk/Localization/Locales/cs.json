@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Pozadí",
   "settings.style.cornerRadius.label": "Zaoblení rohů",
   "settings.style.gridSnap.label": "Přichytit k mřížce",
+  "settings.style.collisions.label": "Nedovolit překrývání widgetů",
   "settings.style.startupAnim.none": "Žádná",
   "settings.style.startupAnim.fade": "Prolnutí",
   "settings.style.startupAnim.scale": "Zvětšení",

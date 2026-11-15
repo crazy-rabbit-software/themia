@@ -141,6 +141,7 @@
   "shell.setup.hint": "Configura ciò che serve a questo widget",
   "shell.toolbar.addWidget": "Aggiungi widget",
   "shell.toolbar.snapName": "Allinea alla griglia",
+  "shell.toolbar.collisionsName": "Impedisci la sovrapposizione dei widget",
   "shell.editBar.selected": {
     "one": "{count} selezionato",
     "other": "{count} selezionati"

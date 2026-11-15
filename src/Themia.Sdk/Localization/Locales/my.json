@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "နောက်ခံ",
   "settings.style.cornerRadius.label": "ထောင့် အကွေး",
   "settings.style.gridSnap.label": "Grid တွင် ကပ်ရန်",
+  "settings.style.collisions.label": "ဝစ်ဂျက်များ ထပ်မနေစေရန်",
   "settings.style.startupAnim.none": "မရှိ",
   "settings.style.startupAnim.fade": "မှိန်ဝင်",
   "settings.style.startupAnim.scale": "ချဲ့ချုံ့",

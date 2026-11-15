@@ -141,6 +141,7 @@
   "shell.setup.hint": "இந்த விட்ஜெட்டுக்குத் தேவையானதை அமை",
   "shell.toolbar.addWidget": "விட்ஜெட்டைச் சேர்",
   "shell.toolbar.snapName": "கட்டத்துடன் ஒட்டு",
+  "shell.toolbar.collisionsName": "விட்ஜெட்கள் ஒன்றின் மேல் ஒன்று வருவதைத் தடு",
   "shell.editBar.selected": {
     "one": "{count} தேர்ந்தெடுக்கப்பட்டது",
     "other": "{count} தேர்ந்தெடுக்கப்பட்டன"

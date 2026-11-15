@@ -147,6 +147,7 @@
   "shell.setup.hint": "Skonfiguruj to, czego potrzebuje ten widżet",
   "shell.toolbar.addWidget": "Dodaj widżet",
   "shell.toolbar.snapName": "Przyciągaj do siatki",
+  "shell.toolbar.collisionsName": "Nie pozwalaj widżetom nachodzić na siebie",
   "shell.editBar.selected": {
     "one": "Zaznaczono {count}",
     "few": "Zaznaczono {count}",

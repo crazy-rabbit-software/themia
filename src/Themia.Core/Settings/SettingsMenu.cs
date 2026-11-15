@@ -1,4 +1,4 @@
-using Themia.App.Shell;
+﻿using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Motion;
@@ -352,6 +352,7 @@ public static partial class SettingsMenu
         public const string Appearance = "appearance";
         public const string Motion = "motion";
         public const string Snap = "snap";
+        public const string Collisions = "collisions";
         public const string Language = "language";
         public const string Accounts = "accounts";
         public const string AddAccount = "accounts/add";

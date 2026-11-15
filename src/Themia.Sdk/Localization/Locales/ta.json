@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "பின்னணி",
   "settings.style.cornerRadius.label": "மூலை வளைவு",
   "settings.style.gridSnap.label": "கட்டத்துடன் ஒட்டு",
+  "settings.style.collisions.label": "விட்ஜெட்கள் ஒன்றின் மேல் ஒன்று வருவதைத் தடு",
   "settings.style.startupAnim.none": "ஏதுமில்லை",
   "settings.style.startupAnim.fade": "மங்கல்",
   "settings.style.startupAnim.scale": "அளவிடல்",

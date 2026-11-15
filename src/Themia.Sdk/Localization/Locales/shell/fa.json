@@ -141,6 +141,7 @@
   "shell.setup.hint": "تنظیم آنچه این ویجت نیاز دارد",
   "shell.toolbar.addWidget": "افزودن ویجت",
   "shell.toolbar.snapName": "چسبیدن به شبکه",
+  "shell.toolbar.collisionsName": "جلوگیری از هم‌پوشانی ابزارک‌ها",
   "shell.editBar.selected": {
     "one": "{count} انتخاب‌شده",
     "other": "{count} انتخاب‌شده"

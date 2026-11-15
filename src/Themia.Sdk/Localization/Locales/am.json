@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "ዳራ",
   "settings.style.cornerRadius.label": "የማዕዘን ክብነት",
   "settings.style.gridSnap.label": "ከፍርግርግ ጋር አጣብቅ",
+  "settings.style.collisions.label": "ምግብሮች እንዳይደራረቡ ከልክል",
   "settings.style.startupAnim.none": "ምንም",
   "settings.style.startupAnim.fade": "ደብዝዝ",
   "settings.style.startupAnim.scale": "መጠን",

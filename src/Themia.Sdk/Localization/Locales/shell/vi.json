@@ -138,6 +138,7 @@
   "shell.setup.hint": "Thiết lập những gì tiện ích này cần",
   "shell.toolbar.addWidget": "Thêm tiện ích",
   "shell.toolbar.snapName": "Bám theo lưới",
+  "shell.toolbar.collisionsName": "Không cho tiện ích chồng lên nhau",
   "shell.editBar.selected": {
     "other": "Đã chọn {count}"
   },

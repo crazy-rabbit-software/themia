@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "నేపథ్యం",
   "settings.style.cornerRadius.label": "మూల వ్యాసార్థం",
   "settings.style.gridSnap.label": "గ్రిడ్‌కు అతికించు",
+  "settings.style.collisions.label": "విడ్జెట్‌లు ఒకదానిపై ఒకటి రాకుండా ఆపండి",
   "settings.style.startupAnim.none": "ఏదీ లేదు",
   "settings.style.startupAnim.fade": "మసకబారు",
   "settings.style.startupAnim.scale": "స్కేల్",

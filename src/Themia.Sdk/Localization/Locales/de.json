@@ -102,6 +102,7 @@
   "settings.style.bgLabel": "Hintergrund",
   "settings.style.cornerRadius.label": "Eckenradius",
   "settings.style.gridSnap.label": "Am Raster ausrichten",
+  "settings.style.collisions.label": "Widgets nicht überlappen lassen",
   "settings.style.startupAnim.none": "Keine",
   "settings.style.startupAnim.fade": "Einblenden",
   "settings.style.startupAnim.scale": "Skalieren",

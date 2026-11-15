@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "背景",
   "settings.style.cornerRadius.label": "圓角半徑",
   "settings.style.gridSnap.label": "對齊格線",
+  "settings.style.collisions.label": "防止小工具重疊",
   "settings.style.startupAnim.none": "無",
   "settings.style.startupAnim.fade": "淡入",
   "settings.style.startupAnim.scale": "縮放",

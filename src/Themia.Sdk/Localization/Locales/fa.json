@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "پس‌زمینه",
   "settings.style.cornerRadius.label": "گردی گوشه",
   "settings.style.gridSnap.label": "چسبیدن به شبکه",
+  "settings.style.collisions.label": "جلوگیری از هم‌پوشانی ابزارک‌ها",
   "settings.style.startupAnim.none": "هیچ‌کدام",
   "settings.style.startupAnim.fade": "محو",
   "settings.style.startupAnim.scale": "مقیاس",

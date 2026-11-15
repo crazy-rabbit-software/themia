@@ -1,4 +1,4 @@
-using Microsoft.UI;
+﻿using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -36,6 +36,12 @@ internal sealed partial class DesktopWindow
 
         /// <summary>[S-2244] The cards have moved: they are free of their neighbours until dropped.</summary>
         public bool Moved { get; set; }
+
+        /// <summary>[S-11959] With widgets kept apart: the rects of the widgets that stay; null when they may overlap.</summary>
+        public List<FracRect>? Apart { get; init; }
+
+        /// <summary>[S-11959] The translation the block stands at now.</summary>
+        public BlockGeometry.Delta Last { get; set; }
     }
 
     private MoveSession? _move;
@@ -86,7 +92,10 @@ internal sealed partial class DesktopWindow
             cards.Add((card, card.LiveRect));
         }
 
-        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id));
+        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id))
+        {
+            Apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card)) : null,
+        };
     }
 
     /// <summary>
@@ -110,7 +119,15 @@ internal sealed partial class DesktopWindow
         // [S-3710] The strip steps aside while the selection is dragged, and comes back where it lands.
         HoldProperties(true);
 
-        var delta = BlockGeometry.Move([.. move.Cards.Select(c => c.Start)], dxFrac, dyFrac, metrics, snap);
+        var starts = move.Cards.Select(c => c.Start).ToList();
+        var delta = BlockGeometry.Move(starts, dxFrac, dyFrac, metrics, snap);
+        if (move.Apart is { } apart)
+        {
+            // [S-11959] The block never comes over a widget that stays: it slides along it, or waits.
+            delta = BlockGeometry.Apart(starts, delta, move.Last, apart, metrics);
+            move.Last = delta;
+        }
+
         foreach (var (moving, start) in move.Cards)
         {
             PositionCard(moving, BlockGeometry.Apply(start, delta, metrics));
@@ -125,6 +142,13 @@ internal sealed partial class DesktopWindow
         {
             moving.SetLeaving(leaving);
         }
+    }
+
+    /// <summary>[S-11959] The rects of this display's shown widgets other than <paramref name="moving"/>: what a move keeps apart from.</summary>
+    private List<FracRect> Staying(IEnumerable<WidgetCard> moving)
+    {
+        var set = moving.ToHashSet();
+        return [.. _cards.Where(c => c.Visibility == Visibility.Visible && !set.Contains(c)).Select(c => c.LiveRect)];
     }
 
     /// <summary>

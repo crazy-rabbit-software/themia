@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "Фон",
   "settings.style.cornerRadius.label": "Скругление углов",
   "settings.style.gridSnap.label": "Привязка к сетке",
+  "settings.style.collisions.label": "Не допускать наложения виджетов",
   "settings.style.startupAnim.none": "Нет",
   "settings.style.startupAnim.fade": "Проявление",
   "settings.style.startupAnim.scale": "Масштаб",

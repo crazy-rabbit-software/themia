@@ -141,6 +141,7 @@
   "shell.setup.hint": "اس ویجیٹ کو جو چاہیے وہ سیٹ اپ کریں",
   "shell.toolbar.addWidget": "ویجیٹ شامل کریں",
   "shell.toolbar.snapName": "گرڈ پر سنیپ کریں",
+  "shell.toolbar.collisionsName": "ویجٹس کو ایک دوسرے پر آنے سے روکیں",
   "shell.editBar.selected": {
     "one": "{count} منتخب",
     "other": "{count} منتخب"

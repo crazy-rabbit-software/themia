@@ -224,7 +224,7 @@ public sealed partial class SettingsMenuTests
 
         var host = new FakeHost { Startup = new AutostartStatus(AutostartState.Off, AutostartProblem.Failed, "0x80070005") };
         var keys = SettingsMenu.General(host).Select(l => l.Key).ToArray();
-        Assert.Equal(["startup", "startup/advice", "startup/detail", "desktop", "gameMode", "snap"], keys);
+        Assert.Equal(["startup", "startup/advice", "startup/detail", "desktop", "gameMode", "snap", "collisions"], keys);
     }
 
     [Fact]

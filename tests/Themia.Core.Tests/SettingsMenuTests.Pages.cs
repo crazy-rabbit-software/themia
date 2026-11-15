@@ -24,7 +24,7 @@ public sealed partial class SettingsMenuTests
 
         Assert.Equal(["page", "language", "online", "motion", "backup", "pro", "about", "-about"], page.Sections.Select(s => s.Key));
         Assert.Equal(Str.Common_General.Text(), page.Sections[0].Heading);
-        Assert.Equal(["startup", "desktop", "gameMode", "snap"], page.Sections[0].Lines.Select(l => l.Key));
+        Assert.Equal(["startup", "desktop", "gameMode", "snap", "collisions"], page.Sections[0].Lines.Select(l => l.Key));
         Assert.Equal(SettingsMenu.Keys.Quit, Assert.Single(page.Sections[^1].Lines).Key);
     }
 

@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "पार्श्वभूमी",
   "settings.style.cornerRadius.label": "कोपऱ्याची त्रिज्या",
   "settings.style.gridSnap.label": "ग्रिडला स्नॅप करा",
+  "settings.style.collisions.label": "विजेट एकमेकांवर येऊ देऊ नका",
   "settings.style.startupAnim.none": "काहीही नाही",
   "settings.style.startupAnim.fade": "फेड",
   "settings.style.startupAnim.scale": "स्केल",

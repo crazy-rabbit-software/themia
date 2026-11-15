@@ -1,4 +1,4 @@
-namespace Themia.Core.Geometry;
+﻿namespace Themia.Core.Geometry;
 
 /// <summary>
 /// [S-1584]..[S-1586] Geometry for several widgets that move as one: a dragged selection, and a
@@ -111,6 +111,68 @@ public static class BlockGeometry
         // Rects that cannot all stay in reach at once (laid out on a larger area) settle on the
         // nearest the block allows; Apply then keeps each one in reach on its own.
         return new Delta(GridGeometry.Between(x - box.X, loX, hiX), GridGeometry.Between(y - box.Y, loY, hiY));
+    }
+
+    /// <summary>
+    /// [S-11959] With widgets kept apart (<c>Design.WidgetCollisions</c>): the translation a moving block really takes when
+    /// it may not land over a widget that stays. <paramref name="wanted"/> is the drag's or the key's (already
+    /// <see cref="Move"/>d); <paramref name="last"/> where the block stands now. The block goes all the way where it
+    /// lands clear, else slides along whichever axis is clear, else stays. Only the moving widgets are held: one
+    /// already lying over another may stay there, and may leave it, but never comes over one it was not over at the
+    /// start of the move (<paramref name="start"/>); the widgets that stay are never touched.
+    /// </summary>
+    public static Delta Apart(IReadOnlyList<FracRect> start, Delta wanted, Delta last, IReadOnlyList<FracRect> others, ScreenMetrics screen)
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        ArgumentNullException.ThrowIfNull(others);
+
+        if (others.Count == 0 || Clear(start, wanted, others, screen))
+        {
+            return wanted;
+        }
+
+        var alongX = wanted with { Dy = last.Dy };
+        if (Clear(start, alongX, others, screen))
+        {
+            return alongX;
+        }
+
+        var alongY = wanted with { Dx = last.Dx };
+        return Clear(start, alongY, others, screen) ? alongY : last;
+    }
+
+    /// <summary>[S-11959] No moving rect lands over a staying one it did not already lie over at the start.</summary>
+    private static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen)
+    {
+        foreach (var from in start)
+        {
+            if (!from.IsFinite)
+            {
+                continue;
+            }
+
+            var landed = Apply(from, delta, screen);
+            foreach (var other in others)
+            {
+                if (other.IsFinite && Over(landed, other) && !Over(from, other))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// [S-11959] Two rects share area: touching edges do not, nor a sliver under a pixel's thousandth
+    /// (the fractions' rounding).
+    /// </summary>
+    internal static bool Over(FracRect a, FracRect b)
+    {
+        const double Slack = 1e-6;
+        return Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X) > Slack
+            && Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y) > Slack;
     }
 
     /// <summary>A translation, in fractions of the screen.</summary>

@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "พื้นหลัง",
   "settings.style.cornerRadius.label": "ความโค้งของมุม",
   "settings.style.gridSnap.label": "จัดชิดเส้นตาราง",
+  "settings.style.collisions.label": "ไม่ให้วิดเจ็ตซ้อนทับกัน",
   "settings.style.startupAnim.none": "ไม่มี",
   "settings.style.startupAnim.fade": "จางเข้า",
   "settings.style.startupAnim.scale": "ขยาย",

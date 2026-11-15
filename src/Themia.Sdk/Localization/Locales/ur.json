@@ -103,6 +103,7 @@
   "settings.style.bgLabel": "پس منظر",
   "settings.style.cornerRadius.label": "کونوں کی گولائی",
   "settings.style.gridSnap.label": "گرڈ پر سنیپ کریں",
+  "settings.style.collisions.label": "ویجٹس کو ایک دوسرے پر آنے سے روکیں",
   "settings.style.startupAnim.none": "کوئی نہیں",
   "settings.style.startupAnim.fade": "مدھم",
   "settings.style.startupAnim.scale": "اسکیل",
