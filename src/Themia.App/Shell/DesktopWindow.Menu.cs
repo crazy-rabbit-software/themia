@@ -116,7 +116,8 @@ internal sealed partial class DesktopWindow
                     Shortcut: KeyChord.Ctrl(ChordKey.V)),
                 ShellCommand.SelectAll => new(Glyphs.SelectAll, Str.Shell_Menu_SelectAll.Text(), actions.SelectAll, Disabled: disabled,
                     Shortcut: KeyChord.Ctrl(ChordKey.A)),
-                ShellCommand.ToggleEditMode => new(Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text(), actions.Done),
+                // [S-65] Edit mode, checked: this menu is edit mode's; the line leaves it.
+                ShellCommand.ToggleEditMode => new(Glyphs.Edit, Str.Shell_Menu_EditMode.Text(), actions.Done, Checked: true),
                 _ => ItemMenuEntry.Separator,
             });
         }

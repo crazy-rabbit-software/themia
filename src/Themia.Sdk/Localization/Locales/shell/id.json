@@ -135,6 +135,7 @@
   "shell.setup.button": "Siapkan",
   "shell.setup.hint": "Siapkan yang dibutuhkan widget ini",
   "shell.toolbar.addWidget": "Tambah widget",
+  "shell.toolbar.collisionsName": "Cegah widget saling tumpang tindih",
   "shell.editBar.selected": {
     "other": "{count} dipilih"
   },

@@ -262,7 +262,7 @@ internal sealed partial class AppHost : IDisposable
         if (!_command.Create())
         {
             // Without it the hotkey and the second-launch route are both gone, and edit mode is
-            // only reachable from a widget's right-click menu (Unlock widgets, [S-65], [S-1758]).
+            // only reachable from a widget's right-click menu (Edit mode, [S-65], [S-1758]).
             Log.Error(Scope, "no command window; edit mode can only be reached from a widget's right-click menu");
         }
 

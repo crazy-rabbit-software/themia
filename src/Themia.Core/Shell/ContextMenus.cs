@@ -15,7 +15,7 @@ public enum ShellCommand
     Copy,
     Paste,
 
-    /// <summary>[S-65] Enter edit mode ("Unlock widgets"), or leave it ("Lock widgets").</summary>
+    /// <summary>[S-65] Enter or leave edit mode: one line, "Edit mode", checked while on.</summary>
     ToggleEditMode,
 
     Delete,
@@ -159,7 +159,7 @@ public static class ShellMenus
     /// <summary>
     /// [S-1744] The menu of empty surface, in edit mode and not while placing: what is done there —
     /// Add widget (the picker at the click), Paste and Select all — then the ways into the bar's menus
-    /// in the bar's order (Display, View, Settings: each under its button), then Lock widgets. An
+    /// in the bar's order (Display, View, Settings: each under its button), then Edit mode (checked). An
     /// action menu: it holds no setting ([S-3590]; Snap is the bar's alone, [S-3516]). A list alone,
     /// as Windows' own desktop menu is: Paste is the only icon-row command, and one icon is no row
     /// ([S-1741]). Outside edit mode, or while placing, there is none.

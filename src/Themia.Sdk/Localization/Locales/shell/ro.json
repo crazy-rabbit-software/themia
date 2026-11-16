@@ -141,6 +141,7 @@
   "shell.setup.button": "Configurează",
   "shell.setup.hint": "Configurează ce are nevoie acest widget",
   "shell.toolbar.addWidget": "Adaugă widget",
+  "shell.toolbar.collisionsName": "Împiedică suprapunerea widgeturilor",
   "shell.editBar.selected": {
     "one": "{count} selectat",
     "few": "{count} selectate",

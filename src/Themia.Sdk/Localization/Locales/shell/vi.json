@@ -135,6 +135,7 @@
   "shell.setup.button": "Thiết lập",
   "shell.setup.hint": "Thiết lập những gì tiện ích này cần",
   "shell.toolbar.addWidget": "Thêm tiện ích",
+  "shell.toolbar.collisionsName": "Không cho tiện ích chồng lên nhau",
   "shell.editBar.selected": {
     "other": "Đã chọn {count}"
   },

@@ -138,6 +138,7 @@
   "shell.setup.button": "Configurar",
   "shell.setup.hint": "Configurar lo que necesita este widget",
   "shell.toolbar.addWidget": "Agregar widget",
+  "shell.toolbar.collisionsName": "Evitar que los widgets se superpongan",
   "shell.editBar.selected": {
     "one": "{count} seleccionado",
     "other": "{count} seleccionados"

@@ -141,6 +141,7 @@
   "shell.setup.button": "Nastavit",
   "shell.setup.hint": "Nastav, co tento widget potřebuje",
   "shell.toolbar.addWidget": "Přidat widget",
+  "shell.toolbar.collisionsName": "Nedovolit překrývání widgetů",
   "shell.editBar.selected": {
     "one": "{count} vybraný",
     "few": "{count} vybrané",

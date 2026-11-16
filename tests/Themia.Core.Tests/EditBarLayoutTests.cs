@@ -18,7 +18,7 @@ public sealed class EditBarLayoutTests
     private static readonly double[] Pages = [52, 60, 48, 40, 76];
 
     private static EditBarPlan Lay(double? selection = null, bool errors = false, double widest = double.PositiveInfinity)
-        => EditBarLayout.Lay(Pages, selection, 2, errors, 80, 20, widest);
+        => EditBarLayout.Lay(Pages, selection, EditBarToggles.Count, errors, 80, 20, widest);
 
     [Fact]
     public void S2320_the_parts_stand_in_karpos_order_with_karpos_gaps()
@@ -35,14 +35,14 @@ public sealed class EditBarLayoutTests
         Assert.Equal(divider.Right + B.DividerRoom, plan.SelectionX);
         Assert.Equal(plan.SelectionX, plan.Of(BarPartKind.Selection)!.Value.X);
 
-        // [S-2330] The two toggles after the gutter, icon buttons 4 apart, then the errors' room.
-        var snap = plan.Of(BarPartKind.Toggle, 0)!.Value;
-        var edge = plan.Of(BarPartKind.Toggle, 1)!.Value;
-        Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly, true), (snap.X, snap.Width, snap.IconOnly));
-        Assert.Equal(snap.Right + B.EntryGap, edge.X);
+        // [S-2330] The two toggles (Over the edge, Keep widgets from overlapping) after the gutter, icon buttons 4 apart, then the errors' room.
+        var edge = plan.Of(BarPartKind.Toggle, 0)!.Value;
+        var apart = plan.Of(BarPartKind.Toggle, 1)!.Value;
+        Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly, true), (edge.X, edge.Width, edge.IconOnly));
+        Assert.Equal(edge.Right + B.EntryGap, apart.X);
 
         var errors = plan.Of(BarPartKind.Errors)!.Value;
-        Assert.Equal(edge.Right + B.EntryGap, errors.X);
+        Assert.Equal(apart.Right + B.EntryGap, errors.X);
         Assert.Equal(B.IconOnly, errors.Width);
         var add = plan.Of(BarPartKind.Add)!.Value;
         Assert.Equal(errors.Right + B.EntryGap, add.X);

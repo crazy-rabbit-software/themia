@@ -38,6 +38,12 @@ internal sealed partial class DesktopWindow
 
         /// <summary>[S-2244] The cards have moved: they are free of their neighbours until dropped.</summary>
         public bool Moved { get; set; }
+
+        /// <summary>[S-11959] With widgets kept apart: the rects of the cards that stay; null when they may overlap.</summary>
+        public List<FracRect>? Apart { get; init; }
+
+        /// <summary>[S-11959] The translation the block stands at now.</summary>
+        public BlockGeometry.Delta Last { get; set; }
     }
 
     private MoveSession? _move;
@@ -108,7 +114,22 @@ internal sealed partial class DesktopWindow
             cards.Add((card, card.LiveRect));
         }
 
-        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id));
+        // [S-11959] Kept apart in edit mode and on the locked desktop alike: whatever moves (a selection, whole
+        // groups, icons among cards) never lands over a card that stays.
+        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id))
+        {
+            Apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card)) : null,
+        };
+    }
+
+    /// <summary>
+    /// [S-11959] The rects of this display's drawn cards other than <paramref name="moving"/> (widgets and desktop
+    /// icons alike; a card that hides itself, [S-873], is not drawn): what a move keeps apart from.
+    /// </summary>
+    private List<FracRect> Staying(IEnumerable<WidgetCard> moving)
+    {
+        var set = moving.ToHashSet();
+        return [.. _cards.Where(c => c.Visibility == Visibility.Visible && c.IsShown(EditMode) && !set.Contains(c)).Select(c => c.LiveRect)];
     }
 
     /// <summary>
@@ -134,7 +155,15 @@ internal sealed partial class DesktopWindow
         // [S-2343] [S-3710] Nothing hangs over the selection while it is dragged; its page opens where it lands.
         ClearForDrag();
 
-        var delta = BlockGeometry.Move([.. move.Cards.Select(c => c.Start)], dxFrac, dyFrac, metrics, RasterScale);
+        var starts = move.Cards.Select(c => c.Start).ToList();
+        var delta = BlockGeometry.Move(starts, dxFrac, dyFrac, metrics, RasterScale);
+        if (move.Apart is { } apart)
+        {
+            // [S-11959] The block never comes over a card that stays: it slides along it, or waits.
+            delta = BlockGeometry.Apart(starts, delta, move.Last, apart, metrics, RasterScale);
+            move.Last = delta;
+        }
+
         var landing = new List<FracRect>(move.Cards.Count);
         foreach (var (moving, start) in move.Cards)
         {

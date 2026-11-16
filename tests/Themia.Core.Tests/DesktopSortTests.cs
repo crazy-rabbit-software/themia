@@ -133,7 +133,7 @@ public sealed class DesktopSortTests
         Assert.Equal([true, false, false, false], sort.Children.Select(c => c.Chosen));
         Assert.Equal(DesktopMenuCommand.Refresh, top[^1].Command);
         Assert.Null(DesktopBackground.SortOf(DesktopMenuCommand.Refresh));
-        Assert.Null(DesktopBackground.SortOf(DesktopMenuCommand.UnlockWidgets));
+        Assert.Null(DesktopBackground.SortOf(DesktopMenuCommand.EditMode));
         Assert.Null(DesktopBackground.SortOf(DesktopMenuCommand.AutoArrangeIcons));
     }
 

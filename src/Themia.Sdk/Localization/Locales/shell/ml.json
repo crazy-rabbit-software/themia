@@ -138,6 +138,7 @@
   "shell.setup.button": "സജ്ജമാക്കുക",
   "shell.setup.hint": "ഈ വിജറ്റിന് ആവശ്യമുള്ളത് സജ്ജമാക്കുക",
   "shell.toolbar.addWidget": "വിജറ്റ് ചേർക്കുക",
+  "shell.toolbar.collisionsName": "വിജറ്റുകൾ ഒന്നിനുമേൽ ഒന്ന് വരുന്നത് തടയുക",
   "shell.editBar.selected": {
     "one": "{count} തിരഞ്ഞെടുത്തു",
     "other": "{count} തിരഞ്ഞെടുത്തു"

@@ -37,7 +37,8 @@ public static class KeyboardNudge
     /// <summary>
     /// [S-1970] Move a block of rects one press. The block keeps its shape, on the grid ([S-06]).
     /// </summary>
-    public static List<FracRect> Move(IReadOnlyList<FracRect> rects, NudgeDirection direction, NudgeStep step, ScreenMetrics screen)
+    /// <param name="apart">[S-11959] With widgets kept apart: the widgets that stay, which the block may not come over (it then stays).</param>
+    public static List<FracRect> Move(IReadOnlyList<FracRect> rects, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, IReadOnlyList<FracRect>? apart = null)
     {
         ArgumentNullException.ThrowIfNull(rects);
 
@@ -48,6 +49,11 @@ public static class KeyboardNudge
 
         var (dx, dy) = Delta(direction, step, screen);
         var delta = BlockGeometry.Move(rects, dx, dy, screen);
+        if (apart is not null)
+        {
+            delta = BlockGeometry.Apart(rects, delta, default, apart, screen);
+        }
+
         return [.. rects.Select(r => BlockGeometry.Apply(r, delta, screen))];
     }
 

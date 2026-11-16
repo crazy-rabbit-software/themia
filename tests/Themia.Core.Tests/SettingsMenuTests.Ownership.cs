@@ -408,4 +408,23 @@ public sealed partial class SettingsMenuTests
         Assert.DoesNotContain(writers.Keys, key => key.Contains("snap", StringComparison.OrdinalIgnoreCase));
         Assert.Equal(["bar"], writers["design.overEdge"]);
     }
+
+    [Fact]
+    public void S11959_keep_apart_is_the_bars_second_toggle_and_nothing_else_sets_it()
+    {
+        // Regression (owner, 2026-11-16): "is the collision feature implemented? i cannot see the toggle button anywhere".
+        Assert.Equal(["bar"], WritersByPath()["design.widgetCollisions"]);
+
+        var host = new FakeHost();
+        Assert.False(host.State.Design.WidgetCollisions);
+        var toggles = EditBarToggles.Of(host);
+        Assert.Equal([EditBarToggles.OverEdge, EditBarToggles.Collisions], toggles.Select(t => t.Key));
+        Assert.Equal(EditBarToggles.Count, toggles.Count);
+
+        toggles[1].Set(true);
+        Assert.True(host.State.Design.WidgetCollisions);
+        Assert.True(host.State.Design.Clone().WidgetCollisions);
+        Assert.False(toggles[1].On);
+        Assert.True(EditBarToggles.Of(host)[1].On);
+    }
 }

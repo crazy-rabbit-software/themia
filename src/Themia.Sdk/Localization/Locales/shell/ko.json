@@ -135,6 +135,7 @@
   "shell.setup.button": "설정",
   "shell.setup.hint": "이 위젯에 필요한 항목 설정",
   "shell.toolbar.addWidget": "위젯 추가",
+  "shell.toolbar.collisionsName": "위젯이 겹치지 않게 하기",
   "shell.editBar.selected": {
     "other": "{count}개 선택됨"
   },

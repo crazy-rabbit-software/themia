@@ -169,29 +169,50 @@ public static class BlockGeometry
     /// lands clear, else slides along whichever axis is clear, else stays. Only the moving widgets are held: one
     /// already lying over another may stay there, and may leave it, but never comes over one it was not over at the
     /// start of the move (<paramref name="start"/>); the widgets that stay are never touched.
+    /// <para>
+    /// The grid is always on ([S-06]), so a drag's <paramref name="wanted"/> is already whole cells and a key's one
+    /// cell: the block slides cell by cell. With the display's <paramref name="rasterScale"/> given (the drag's
+    /// whole pixel steps, [S-11873]), an overlap thinner than one such step is no overlap: the steps may leave a
+    /// block that far off the grid line its neighbour stands on, and it must still land flush beside it.
+    /// </para>
     /// </summary>
-    public static Delta Apart(IReadOnlyList<FracRect> start, Delta wanted, Delta last, IReadOnlyList<FracRect> others, ScreenMetrics screen)
+    public static Delta Apart(IReadOnlyList<FracRect> start, Delta wanted, Delta last, IReadOnlyList<FracRect> others, ScreenMetrics screen, double? rasterScale = null)
     {
         ArgumentNullException.ThrowIfNull(start);
         ArgumentNullException.ThrowIfNull(others);
 
-        if (others.Count == 0 || Clear(start, wanted, others, screen))
+        var slack = Slack(screen, rasterScale);
+        if (others.Count == 0 || Clear(start, wanted, others, screen, slack))
         {
             return wanted;
         }
 
         var alongX = wanted with { Dy = last.Dy };
-        if (Clear(start, alongX, others, screen))
+        if (Clear(start, alongX, others, screen, slack))
         {
             return alongX;
         }
 
         var alongY = wanted with { Dx = last.Dx };
-        return Clear(start, alongY, others, screen) ? alongY : last;
+        return Clear(start, alongY, others, screen, slack) ? alongY : last;
+    }
+
+    /// <summary>[S-11959] How thin an overlap may be and still count as touching, on each axis, in fractions.</summary>
+    private static (double X, double Y) Slack(ScreenMetrics screen, double? rasterScale)
+    {
+        const double Rounding = 1e-6;
+        if (rasterScale is not { } scale || screen.Width <= 0 || screen.Height <= 0)
+        {
+            return (Rounding, Rounding);
+        }
+
+        // Thinner than one whole pixel step, so just under it.
+        var step = GridGeometry.PixelStep(scale) - 1e-3;
+        return (Math.Max(Rounding, step / screen.Width), Math.Max(Rounding, step / screen.Height));
     }
 
     /// <summary>[S-11959] No moving rect lands over a staying one it did not already lie over at the start.</summary>
-    private static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen)
+    private static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen, (double X, double Y) slack)
     {
         foreach (var from in start)
         {
@@ -203,7 +224,7 @@ public static class BlockGeometry
             var landed = Apply(from, delta, screen);
             foreach (var other in others)
             {
-                if (other.IsFinite && Over(landed, other) && !Over(from, other))
+                if (other.IsFinite && Over(landed, other, slack) && !Over(from, other, slack))
                 {
                     return false;
                 }
@@ -217,12 +238,11 @@ public static class BlockGeometry
     /// [S-11959] Two rects share area: touching edges do not, nor a sliver under a pixel's thousandth
     /// (the fractions' rounding).
     /// </summary>
-    internal static bool Over(FracRect a, FracRect b)
-    {
-        const double Slack = 1e-6;
-        return Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X) > Slack
-            && Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y) > Slack;
-    }
+    internal static bool Over(FracRect a, FracRect b) => Over(a, b, (1e-6, 1e-6));
+
+    private static bool Over(FracRect a, FracRect b, (double X, double Y) slack)
+        => Math.Min(a.Right, b.Right) - Math.Max(a.X, b.X) > slack.X
+            && Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Y, b.Y) > slack.Y;
 
     /// <summary>A translation, in fractions of the screen.</summary>
     public readonly record struct Delta(double Dx, double Dy);

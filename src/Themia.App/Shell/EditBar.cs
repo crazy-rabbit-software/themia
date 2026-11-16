@@ -73,7 +73,7 @@ internal sealed partial class EditBar : Grid
     public const double ButtonSize = B.Control;
 
     /// <summary>[S-2330] How many toggles stand at the bar's root: their room is always kept, so the bar keeps one width.</summary>
-    private const int EditBarToggleCount = 1;
+    private const int EditBarToggleCount = EditBarToggles.Count;
 
     private readonly Border _frame = new();
     private readonly Canvas _row = new() { Height = B.Control };

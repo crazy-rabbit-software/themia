@@ -138,6 +138,7 @@
   "shell.setup.button": "సెటప్ చేయి",
   "shell.setup.hint": "ఈ విడ్జెట్‌కు కావలసినది సెటప్ చేయి",
   "shell.toolbar.addWidget": "విడ్జెట్ జోడించు",
+  "shell.toolbar.collisionsName": "విడ్జెట్‌లు ఒకదానిపై ఒకటి రాకుండా ఆపండి",
   "shell.editBar.selected": {
     "one": "{count} ఎంచుకోబడింది",
     "other": "{count} ఎంచుకోబడ్డాయి"

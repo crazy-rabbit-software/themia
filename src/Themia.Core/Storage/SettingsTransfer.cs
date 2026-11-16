@@ -455,6 +455,7 @@ public static class SettingsTransfer
         Line(Str.Shell_Motion_Startup, old.IntroAnimation, @new.IntroAnimation, Intro);
         Line(Str.Shell_Transfer_StartupLength, old.IntroAnimationMs, @new.IntroAnimationMs, Ms);
         Line(Str.Shell_Toolbar_OverEdgeName, old.OverEdge, @new.OverEdge, OnOff);
+        Line(Str.Shell_Toolbar_CollisionsName, old.WidgetCollisions, @new.WidgetCollisions, OnOff);
         Line(Str.Settings_Style_HeaderBg_Label, old.HeaderBackgroundColor, @new.HeaderBackgroundColor, Colour);
         Line(Str.Settings_Style_HeaderOpacity_Label, old.HeaderOpacity, @new.HeaderOpacity, Percent);
         Line(Str.Shell_Motion_Transition, old.TransitionAnimation, @new.TransitionAnimation, Intro);

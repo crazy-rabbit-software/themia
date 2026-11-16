@@ -555,13 +555,14 @@ busy desktop ([S-6601]), Debug, private bytes.
   edit mode on a global hotkey, and everything that menu offered on the edit toolbar.
 - **[S-65]** **Ctrl+Alt+W** toggles edit mode, registered `MOD_NOREPEAT` so a held key does not
   toggle it dozens of times a second. Edit mode is reached by this hotkey and by launching Themia
-  again ([S-66]); **Unlock widgets** leads there too, and **Lock widgets** back out: one line with one
-  wording on every right-click menu (a card's in and outside edit mode, [S-1743], [S-1758]; empty surface's in
-  edit mode, [S-1744]; a desktop icon's of either source, [S-5582]; empty desktop's, [S-5551]), the open padlock
-  while locked and the closed one while unlocked, both running the one toggle (`ShellCommand.ToggleEditMode`,
-  `SetEditMode`). *(Until 2026-11-14 the line read Edit layout / Done editing on a card and Edit widgets on
-  empty desktop, and a desktop icon's menu had none; user report: "the right click context menu does not allow
-  to lock / unlock".)* Both strings are English only so far. A
+  again ([S-66]); the line **Edit mode** leads there too and back out: one toggle line with one wording on every
+  right-click menu (a card's in and outside edit mode, [S-1743], [S-1758]; empty surface's in edit mode, [S-1744]; a
+  desktop icon's of either source, [S-5582]; empty desktop's, [S-5551]), its pencil and a check mark while edit mode
+  is on, as Windows' own View toggles (`ItemMenuEntry.Checked`), running the one toggle (`ShellCommand.ToggleEditMode`,
+  `SetEditMode`; `shell.menu.editMode`, English only so far). *(Until 2026-11-14 the line read Edit layout / Done
+  editing on a card and Edit widgets on empty desktop, and a desktop icon's menu had none; user report: "the right
+  click context menu does not allow to lock / unlock". 2026-11-14 to -16 it was Unlock widgets / Lock widgets with a
+  padlock; owner, 2026-11-16: "unlock widgets should be renamed into edit mode".)* A
   double-click on a widget does **not** enter edit mode (user decision 2026-11-07, issue 75): a click
   on a widget opens what it is about ([S-2000]), and waiting out the double-click time before every
   such click was the reason the first attempt was retired. Another program may already own the
@@ -1985,16 +1986,31 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   the work area's top on every display, whatever is selected or dragged, and its flyouts hang under it. A
   selected widget its page covers is seen through the page instead ([S-2344]). *(2026-11-14 to -15 it went
   to the foot while it or its flyout covered a selected widget; removed whole.)*
-- **[S-2330]** **One toggle at the bar's root** (owner, 2026-11-15: "widgets can go over the edge toggle
-  should be integrated on the root level of the topbar"; `EditBarToggles`, Core lines the bar draws):
-  **Widgets can go over the screen edge** (`design.overEdge`, default on, [S-6608]), an icon toggle button 40
-  wide after the gutter, its words the tooltip and name; off a subtle button like the entries, on WinUI's
-  checked toggle (the accent's fill, the glyph on it). It is its setting's one place ([S-3590]): no page sets
+- **[S-2330]** **Two toggles at the bar's root** (owner, 2026-11-15: "widgets can go over the edge toggle
+  should be integrated on the root level of the topbar"; `EditBarToggles`, Core lines the bar draws, `Count` their
+  kept room): **Widgets can go over the screen edge** (`design.overEdge`, default on, [S-6608]), then **Keep
+  widgets from overlapping** (`design.widgetCollisions`, default off, [S-11959]), each an icon toggle button 40
+  wide after the gutter, 4 apart, its words the tooltip and name; off a subtle button like the entries, on WinUI's
+  checked toggle (the accent's fill, the glyph on it). Each is its setting's one place ([S-3590]): no page sets
   it. *(Retired 2026-11-15: the Snap to grid toggle; the grid is always on, [S-06].)* Over the edge off: every
   gesture (placing, moving, a block's move, resizing, pasting) keeps the whole widget on the work area
   (`ScreenMetrics.HoldsWhole`, `GridGeometry.Keep`, a resized edge stopping on the work area's edge); a widget
   already hanging over stays until it is next moved. Tests `EditBarLayoutTests.S2320_`,
   `SettingsMenuTests.S2330_`, `EdgeOverhangTests.S2330_`.
+- **[S-11959]** **Keep widgets from overlapping** (`Design.WidgetCollisions`, off by default; key `collisions`), the
+  bar's second toggle ([S-2330]; owner, 2026-11-16: "is the collision feature implemented? i cannot see the toggle
+  button anywhere"; first, 2026-11-15, a General switch under Snap to grid). On, a widget moved never lands over
+  another: every move there is, a drag in edit mode or on the locked desktop ([S-2008], a mixed selection of icons
+  and cards, [S-11879], whole groups, [S-11885]) and the arrow keys (one cell a press on the always-on grid, [S-06];
+  a press that would land over another does not move). The block goes all the way where it lands clear, else
+  slides along the clear axis, else stays where it stood (`BlockGeometry.Apart`). What moves is held, never what
+  stays: desktop icons and cards alike stay clear (a card that hides itself, [S-873], is not drawn, so not in the
+  way); a group's members move together and never hold each other. Touching edges are no overlap, nor an overlap
+  thinner than one whole pixel step of the drag ([S-11873]), so a block still lands flush beside a neighbour on a
+  display whose grid pitch is not whole steps. Widgets already lying over each other are left as they are, and a
+  moved one may stay over or leave the one it started over, but never comes over another. Resizing, placing, a
+  paste, icons dropped back from the shell's drag and a hand-off to another display are not held. Tests
+  `WidgetCollisionsTests.S11959_`, `SettingsMenuTests.S11959_`.
 - **[S-2321]** The entry whose flyout is open is lit: the subtle fill and the accent's 16 × 3 pill at
   its foot. Each entry's words are its tooltip and its name.
 - **[S-2322]** On a display too narrow for the bar the pages' entries show their **icon alone** (40
@@ -9956,7 +9972,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   above go to the one selection. Escape ends the hold and hands the keyboard back; a click on
   another app or a card ends it. The selection stays (drawn inactive) when the keys go elsewhere.
 - **[S-5551]** **Themia's lines in the background menu**: empty desktop's Windows 11 menu ([S-5548])
-  holds **Unlock widgets** (edit mode on, [S-65]: the line every right-click menu has, as Ctrl+Alt+W) and
+  holds **Edit mode** (unchecked, turning edit mode on, [S-65]: the line every right-click menu has, as Ctrl+Alt+W) and
   **Add widget** (edit mode on, then the add page under that display's bar, [S-11707], as the surface
   menu's Add widget, [S-1744]), so edit mode is reachable with no widget on screen and no shortcut known.
   One group where Windows puts an app's lines: after Display settings, Personalise and Open in Terminal,
@@ -10018,7 +10034,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   icon focused does. **Several own icons**: Open (off when none opens), Copy path where every one has a path to
   say, then Delete (one row command is no row, [S-1741]: a labelled line). **A selection of both sources**: Open
   and, where every one has a path to say, Copy path; no Rename and no Delete. **Every menu** then holds
-  **Unlock widgets** ([S-65]) after a separator, and last, after another, **Show more options** where the shell
+  **Edit mode** ([S-65], unchecked) after a separator, and last, after another, **Show more options** where the shell
   has a classic menu for the selection: for desktop items theirs, for one own icon whose path is there that
   path's (the shell's own lines for the target, its Rename and Delete the target's), for any other own icon
   and a selection of both sources none (`DeskMenu.Classic`). Never two separators in a row and none at an end.
@@ -10186,11 +10202,11 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
 - **[S-1743]** A widget card's menu in edit mode: the row is Cut, Copy, Paste (disabled with nothing to paste)
   and Delete, acting on the selection ([S-1592]); no Settings, since a widget's options are its
   properties menu's beside it ([S-6536]); the list is the view's own
-  commands, Bring to front / Send to back, and Lock widgets ([S-65]). There is no Move:
+  commands, Bring to front / Send to back, and Edit mode, checked ([S-65]). There is no Move:
   dragging and the arrow keys move a widget. There is no
   Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough.
 - **[S-1758]** Outside edit mode the card menu is for using the widget, not arranging it: the view's own
-  commands (Refresh, Pause, which folder, [S-1746]) and Unlock widgets ([S-65]), the way to the widget's options
+  commands (Refresh, Pause, which folder, [S-1746]) and Edit mode, unchecked ([S-65]), the way to the widget's options
   ([S-6536]); no Settings. No Cut, Copy, Paste, Delete, layering or icon row: with no
   selection shown and nowhere to paste outside edit mode they did nothing the user could see (user report
   2026-10-17: "I right click and cut a widget, nothing happens"). Item menus inside a widget (a file's
@@ -10202,7 +10218,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   follows the pointer to be placed, [S-1587]), **Paste** and **Select
   all** ([S-1582], off with no widget); then the ways into the bar's menus in the bar's order,
   **Display**, **View** and **Settings** (each opened under its button on that display, [S-3540],
-  [S-3534]); and Lock widgets ([S-65]). Snap is not here: it is the bar's alone ([S-3516]). Outside edit
+  [S-3534]); and Edit mode, checked ([S-65]). Snap is not here: it is the bar's alone ([S-3516]). Outside edit
   mode empty surface is click-through; while placing, the right-click cancels the placement and opens
   nothing.
 - **[S-1745]** In edit mode a press on a card that travels 3 DIPs or more (`CardGestures.Travelled`)
@@ -10477,7 +10493,7 @@ power buttons, whose whole body is their button) open nothing.
   its card arms the move where handled presses are heard too; when the move starts, the card first releases the
   pointer from the button (and every element between it and the card: a held capture makes the card's own capture
   fail, and the release would end as the button's click, a toggle flipped by a drag; found live 2026-11-14), then
-  takes it. Edit mode itself stays (Unlock widgets, the hotkey) for resizing, settings and adding. Not in a debug
+  takes it. Edit mode itself stays (the Edit mode line, the hotkey) for resizing, settings and adding. Not in a debug
   render's preview. Tests `DesktopGridTests.S2008_` (the regression: the locked press starts no edit-mode press,
   only the move).
 - **[S-11874]** **The local grid** (`LocalGrid`, Core; `LocalGridOverlay`): while a block moves on the locked

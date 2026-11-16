@@ -1214,7 +1214,7 @@
       "name": "reel-focus",
       "wallpaper": "wallpapers/pale-dunes.png",
       "theme": "light",
-      "design": "preset=Daylight,gap=0",
+      "design": "preset=Daylight",
       "taskbar": true,
       "widgets": [
         {

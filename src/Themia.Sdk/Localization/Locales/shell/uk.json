@@ -144,6 +144,7 @@
   "shell.setup.button": "Налаштувати",
   "shell.setup.hint": "Налаштуй те, що потрібно цьому віджету",
   "shell.toolbar.addWidget": "Додати віджет",
+  "shell.toolbar.collisionsName": "Не допускати накладання віджетів",
   "shell.editBar.selected": {
     "one": "Вибрано {count}",
     "few": "Вибрано {count}",

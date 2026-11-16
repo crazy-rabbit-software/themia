@@ -193,7 +193,7 @@ internal sealed partial class DesktopWindow
         }
 
         var rects = action.Command == EditCommand.Move
-            ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics)
+            ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics, Design.WidgetCollisions ? Staying(cards) : null)
             : [.. cards.Select(c => KeyboardNudge.Resize(c.LiveRect, action.Direction, action.Step, metrics, c.Limits))];
 
         for (var i = 0; i < cards.Count; i++)

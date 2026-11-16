@@ -135,6 +135,7 @@
   "shell.setup.button": "ตั้งค่า",
   "shell.setup.hint": "ตั้งค่าสิ่งที่วิดเจ็ตนี้ต้องใช้",
   "shell.toolbar.addWidget": "เพิ่มวิดเจ็ต",
+  "shell.toolbar.collisionsName": "ไม่ให้วิดเจ็ตซ้อนทับกัน",
   "shell.editBar.selected": {
     "other": "เลือก {count} รายการ"
   },

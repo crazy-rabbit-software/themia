@@ -239,6 +239,12 @@ public sealed class DesignState
     public bool OverEdge { get; set; } = true;
 
     /// <summary>
+    /// [S-11959] [S-2330] Widgets kept apart: a moved widget never lands over another. Off by default. Set by the
+    /// edit bar's toggle alone.
+    /// </summary>
+    public bool WidgetCollisions { get; set; }
+
+    /// <summary>
     /// Corner radius of a widget card, in device-independent pixels. [S-6482] 8: Windows' own radius
     /// for a top-level surface, the same as Themia's menus (<c>ShellMetrics.OverlayRadius</c>).
     /// </summary>
@@ -336,6 +342,7 @@ public sealed class DesignState
         FontFamily = FontFamily,
         FontScale = FontScale,
         OverEdge = OverEdge,
+        WidgetCollisions = WidgetCollisions,
         CornerRadiusPx = CornerRadiusPx,
         Background = Background.Clone(),
         BlurBehind = BlurBehind,

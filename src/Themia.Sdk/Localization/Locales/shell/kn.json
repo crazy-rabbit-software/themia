@@ -138,6 +138,7 @@
   "shell.setup.button": "ಹೊಂದಿಸು",
   "shell.setup.hint": "ಈ ವಿಜೆಟ್‌ಗೆ ಬೇಕಾದುದನ್ನು ಹೊಂದಿಸು",
   "shell.toolbar.addWidget": "ವಿಜೆಟ್ ಸೇರಿಸು",
+  "shell.toolbar.collisionsName": "ವಿಜೆಟ್‌ಗಳು ಒಂದರ ಮೇಲೊಂದು ಬರದಂತೆ ತಡೆಯಿರಿ",
   "shell.editBar.selected": {
     "one": "{count} ಆಯ್ಕೆಯಾಗಿದೆ",
     "other": "{count} ಆಯ್ಕೆಯಾಗಿವೆ"

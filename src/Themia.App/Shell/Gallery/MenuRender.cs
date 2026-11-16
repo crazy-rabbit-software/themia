@@ -103,7 +103,7 @@ internal static class MenuRender
                 host.Set(editMode: false, selection: 3, canPaste: false);
                 await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
 
-                // [S-1758] Outside edit mode: the view's own commands and Unlock widgets, nothing that arranges.
+                // [S-1758] Outside edit mode: the view's own commands and Edit mode, nothing that arranges.
                 host.Set(editMode: false, selection: 1, canPaste: true);
 
                 var drive = WidgetInstance.Create(new WidgetId("drive"), new FracRect(0.3, 0.6, 0.2, 0.2));

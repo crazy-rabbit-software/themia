@@ -57,8 +57,8 @@ public enum FileCommand
     /// <summary>[S-5582] A desktop icon of Themia's own: its page, in edit mode.</summary>
     IconProperties,
 
-    /// <summary>[S-65] "Unlock widgets": edit mode on, from a desktop icon's menu.</summary>
-    UnlockWidgets,
+    /// <summary>[S-65] "Edit mode" (unchecked here): edit mode on, from a desktop icon's menu.</summary>
+    EditMode,
 
     /// <summary>The shell's full classic menu (<c>IContextMenu</c>).</summary>
     ShowMoreOptions,

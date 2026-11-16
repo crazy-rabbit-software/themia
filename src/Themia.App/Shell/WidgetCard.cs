@@ -1345,9 +1345,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             ShellCommand.Group => new(Glyphs.Group, Str.Groups_Card_Group.Text(), () => _host.RequestGroupCommand(ShellCommand.Group), Shortcut: KeyChord.Ctrl(ChordKey.G)),
             ShellCommand.Ungroup => new(Glyphs.Clear, Str.Groups_Card_Ungroup.Text(), () => _host.RequestGroupCommand(ShellCommand.Ungroup), Shortcut: KeyChord.CtrlShift(ChordKey.G)),
             ShellCommand.LeaveGroup => new(Glyphs.Back, Str.Groups_Card_Leave.Text(), () => _host.RequestGroupCommand(ShellCommand.LeaveGroup)),
-            ShellCommand.ToggleEditMode => _host.EditMode
-                ? new(Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text(), () => _host.RequestEditMode(false))
-                : new(Glyphs.Unlock, Str.Shell_Menu_UnlockWidgets.Text(), () => _host.RequestEditMode(true)),
+            // [S-65] One line, Edit mode, checked while on (Windows' View toggles); a click flips it.
+            ShellCommand.ToggleEditMode => new(Glyphs.Edit, Str.Shell_Menu_EditMode.Text(), () => _host.RequestEditMode(!_host.EditMode), Checked: _host.EditMode),
             _ => ItemMenuEntry.Separator,
         };
     }

@@ -6,8 +6,8 @@ namespace Themia.Core.Desktop;
 /// <summary>[S-5548] A command of the desktop's background menu.</summary>
 public enum DesktopMenuCommand
 {
-    /// <summary>[S-65] "Unlock widgets": enter edit mode, as the card menu's line and Ctrl+Alt+W do.</summary>
-    UnlockWidgets,
+    /// <summary>[S-65] "Edit mode" (unchecked here): enter edit mode, as the card menu's line and Ctrl+Alt+W do.</summary>
+    EditMode,
 
     /// <summary>Enter edit mode and open Add widget ([S-11707]).</summary>
     AddWidget,
@@ -142,7 +142,7 @@ public static class DesktopBackground
     /// **Refresh**; **Paste** and **Paste shortcut** while the clipboard holds files, and **New ›**
     /// (Folder, Shortcut; the host appends the shell's file types); **Display settings**,
     /// **Personalise** and, where Windows Terminal is installed, **Open in Terminal**; Themia's own
-    /// **Unlock widgets** and **Add widget**, where an app's lines go; **Show more options** last. One
+    /// **Edit mode** and **Add widget**, where an app's lines go; **Show more options** last. One
     /// separator between the groups, never two in a row and none at an end. Undo is not offered
     /// ([S-5545]).
     /// </summary>
@@ -186,7 +186,7 @@ public static class DesktopBackground
         }
 
         lines.Add(DesktopMenuEntry.Separator);
-        lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.UnlockWidgets));
+        lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.EditMode));
         lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.AddWidget));
         lines.Add(DesktopMenuEntry.Separator);
         lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.ShowMoreOptions));

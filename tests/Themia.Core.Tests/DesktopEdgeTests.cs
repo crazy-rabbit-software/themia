@@ -69,7 +69,7 @@ public sealed class DesktopEdgeTests
                 DesktopMenuGroup.View, DesktopMenuGroup.SortBy, DesktopMenuCommand.Refresh, null,
                 DesktopMenuCommand.Paste, DesktopMenuCommand.PasteShortcut, DesktopMenuGroup.New, null,
                 DesktopMenuCommand.DisplaySettings, DesktopMenuCommand.Personalise, DesktopMenuCommand.OpenInTerminal, null,
-                DesktopMenuCommand.UnlockWidgets, DesktopMenuCommand.AddWidget, null,
+                DesktopMenuCommand.EditMode, DesktopMenuCommand.AddWidget, null,
                 DesktopMenuCommand.ShowMoreOptions,
             ],
             Flat(menu));
@@ -88,7 +88,7 @@ public sealed class DesktopEdgeTests
                 DesktopMenuGroup.View, DesktopMenuGroup.SortBy, DesktopMenuCommand.Refresh, null,
                 DesktopMenuGroup.New, null,
                 DesktopMenuCommand.DisplaySettings, DesktopMenuCommand.Personalise, null,
-                DesktopMenuCommand.UnlockWidgets, DesktopMenuCommand.AddWidget, null,
+                DesktopMenuCommand.EditMode, DesktopMenuCommand.AddWidget, null,
                 DesktopMenuCommand.ShowMoreOptions,
             ],
             Flat(menu));
@@ -116,9 +116,9 @@ public sealed class DesktopEdgeTests
     public void S5551_themias_lines_are_the_way_into_edit_mode_then_add_widget_between_windows_lines_and_show_more_options()
     {
         var menu = Flat(DesktopBackground.Menu(new DesktopBackgroundFacts(true, true)));
-        var at = Array.IndexOf(menu, DesktopMenuCommand.UnlockWidgets);
+        var at = Array.IndexOf(menu, DesktopMenuCommand.EditMode);
 
-        Assert.Equal([null, DesktopMenuCommand.UnlockWidgets, DesktopMenuCommand.AddWidget, null, DesktopMenuCommand.ShowMoreOptions], menu[(at - 1)..]);
+        Assert.Equal([null, DesktopMenuCommand.EditMode, DesktopMenuCommand.AddWidget, null, DesktopMenuCommand.ShowMoreOptions], menu[(at - 1)..]);
     }
 
     [Fact]

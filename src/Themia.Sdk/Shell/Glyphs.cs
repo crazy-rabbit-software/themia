@@ -122,8 +122,8 @@ public static class Glyphs
     // [S-1910] Power widget glyphs beyond the shared ones (Power, Reset, Moon, Display).
     public static readonly string Lock = From(0xE72E);
 
-    /// <summary>[S-65] "Unlock widgets": the open padlock (Segoe "Unlock").</summary>
-    public static readonly string Unlock = From(0xE785);
+    /// <summary>[S-11959] The edit bar's Keep widgets from overlapping: tiles standing apart (Segoe "GridView").</summary>
+    public static readonly string KeepApart = From(0xF0E2);
 
     /// <summary>[S-5548] The desktop menu's "Paste shortcut" (Explorer's picture, [S-1754]; Segoe "ClipboardList" without it).</summary>
     public static readonly string PasteShortcut = From(0xF0E3);

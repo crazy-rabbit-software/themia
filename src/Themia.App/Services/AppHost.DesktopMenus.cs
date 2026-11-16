@@ -186,7 +186,7 @@ internal sealed partial class AppHost
             case FileCommand.IconProperties:
                 ShowIconProperties(first.Key);
                 break;
-            case FileCommand.UnlockWidgets:
+            case FileCommand.EditMode:
                 SetEditMode(true);
                 break;
             case FileCommand.ShowMoreOptions:
@@ -398,7 +398,8 @@ internal sealed partial class AppHost
                 DesktopMenuCommand.Personalise => new(Glyphs.Personalize, Str.Desktop_Menu_Personalise.Text(), Run),
                 // Windows Terminal's own icon, as Explorer's line has it; the glyph until it is read, or for a Terminal the shell does not list.
                 DesktopMenuCommand.OpenInTerminal => new(Glyphs.Terminal, Str.Desktop_Menu_OpenInTerminal.Text(), Run, IconFile: ShellFileOps.TerminalAppItem),
-                DesktopMenuCommand.UnlockWidgets => new(Glyphs.Unlock, Str.Shell_Menu_UnlockWidgets.Text(), Run),
+                // [S-65] Edit mode, a toggle line as Windows' View toggles: unchecked, the desktop being locked.
+                DesktopMenuCommand.EditMode => new(Glyphs.Edit, Str.Shell_Menu_EditMode.Text(), Run, Checked: false),
                 DesktopMenuCommand.AddWidget => new(Glyphs.Apps, Str.Shell_Toolbar_AddWidget.Text(), Run),
                 DesktopMenuCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), Run, Shortcut: KeyChord.Shift(ChordKey.F10)),
                 _ => throw new ArgumentOutOfRangeException(nameof(lines), command, "a background menu command with no line"),
@@ -474,7 +475,7 @@ internal sealed partial class AppHost
                 }
 
                 break;
-            case DesktopMenuCommand.UnlockWidgets:
+            case DesktopMenuCommand.EditMode:
                 SetEditMode(true);
                 break;
             case DesktopMenuCommand.AddWidget:

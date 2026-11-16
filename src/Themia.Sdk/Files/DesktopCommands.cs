@@ -198,7 +198,7 @@ public static class DesktopCommands
     /// <item>Several own icons: Open, Copy path where every one has a path, Delete.</item>
     /// <item>Both sources: Open and, where every one has a path, Copy path.</item>
     /// </list>
-    /// Every menu then holds Unlock widgets ([S-65]) and, where the shell has a classic menu for it
+    /// Every menu then holds Edit mode ([S-65]) and, where the shell has a classic menu for it
     /// (desktop items; one own icon whose path is there), Show more options last.
     /// </summary>
     public static DeskMenu Menu(IReadOnlyList<DeskIcon> selection, DeskMenuFacts facts, Func<string, bool> isFolder)
@@ -279,7 +279,7 @@ public static class DesktopCommands
         }
 
         lines.Add(FileMenuLine.Separator);
-        lines.Add(new(FileCommand.UnlockWidgets));
+        lines.Add(new(FileCommand.EditMode));
         if (classic.Count > 0)
         {
             lines.Add(FileMenuLine.Separator);

@@ -135,6 +135,7 @@
   "shell.setup.button": "Sediakan",
   "shell.setup.hint": "Sediakan apa yang diperlukan widget ini",
   "shell.toolbar.addWidget": "Tambah widget",
+  "shell.toolbar.collisionsName": "Halang widget daripada bertindih",
   "shell.editBar.selected": {
     "other": "{count} dipilih"
   },

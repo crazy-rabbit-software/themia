@@ -305,8 +305,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 - **The edit bar** ([S-2320]..[S-2329], Karpo's command bar, `karpo-app` docs/widgets.md §575): one 48-DIP row
   per display, one width, at the top, never moved or dragged ([S-2329]; a selected widget under its page is
   seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Appearance),
-  the divider and the selection's entry in its kept room, the toggle (Over the edge:
-  `EditBarToggles`, its setting's one place, [S-2330]; the grid is always on, no Snap to grid, [S-06]), the problems' room, Add widget, Done. Each entry opens
+  the divider and the selection's entry in its kept room, the toggles (Over the edge, Keep widgets from overlapping:
+  `EditBarToggles`, each its setting's one place, [S-2330], [S-11959]; the grid is always on, no Snap to grid, [S-06]), the problems' room, Add widget, Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
   never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
@@ -372,7 +372,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   (with the selection it is in, whole groups as in edit mode: `WidgetGroups.Units`, [S-11885]), snapped, the local
   grid round where it lands (`LocalGrid`: a faint rectangle fading out of the box, [S-11886]) with the moving and nearby cards' corner
   marks ([S-11881]); edit mode never turns
-  on by a drag. Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
+  on by a drag; with Keep widgets from overlapping on, every move (both modes, keys too) goes through
+  `BlockGeometry.Apart` ([S-11959]). Edit mode is entered and left by one checked menu line, **Edit mode** ([S-65]). Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
   an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`). One
   selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them.
 - **Item selection** (files: anything selected like desktop icons) through the SDK's one rule set

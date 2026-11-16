@@ -138,6 +138,7 @@
   "shell.setup.button": "Instellen",
   "shell.setup.hint": "Instellen wat deze widget nodig heeft",
   "shell.toolbar.addWidget": "Widget toevoegen",
+  "shell.toolbar.collisionsName": "Voorkomen dat widgets overlappen",
   "shell.editBar.selected": {
     "one": "{count} geselecteerd",
     "other": "{count} geselecteerd"
