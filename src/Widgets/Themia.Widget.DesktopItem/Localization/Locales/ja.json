@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "デスクトップの項目",
-  "desktopItem.desc": "デスクトップのファイル、フォルダー、ショートカット"
+  "widgetsC.shortcuts.column.target": "リンク先",
+  "widgetsC.shortcuts.kind.location": "Windows の場所",
+  "widgetsC.shortcuts.kind.missing": "見つかりません",
+  "widgetsC.shortcuts.kind.path": "パス",
+  "widgetsC.shortcuts.kind.refused": "許可されていません",
+  "widgetsC.shortcuts.menu.addLayout": "アプリ レイアウト…",
+  "widgetsC.shortcuts.menu.addLink": "Web アドレスまたはパス…",
+  "widgetsC.shortcuts.menu.changeTarget": "リンク先の変更…",
+  "widgetsC.shortcuts.settings.locations": "Windows の場所",
+  "widgetsC.shortcuts.settings.openWith.double": "ダブルクリック",
+  "widgetsC.shortcuts.settings.openWith.label": "開く操作",
+  "widgetsC.shortcuts.settings.openWith.single": "シングルクリック",
+  "widgetsC.shortcuts.settings.pick.file": "ファイル…",
+  "widgetsC.shortcuts.settings.pick.folder": "フォルダー…",
+  "widgetsC.shortcuts.tooltip.missing": "{name}（リンク先が見つかりません）\n{target}"
 }

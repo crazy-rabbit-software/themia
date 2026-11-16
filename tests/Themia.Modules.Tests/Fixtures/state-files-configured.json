@@ -155,11 +155,11 @@
           "w": 0.14,
           "h": 0.25,
           "background": {
-            "kind": "Default",
+            "kind": "Transparent",
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
+          "header": "Hidden",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -168,73 +168,42 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "shortcuts",
-            "items": [
-              {
-                "id": "i1",
-                "label": "",
-                "target": "C:\\Work\\report.docx"
+            "kind": "desktopItem",
+            "item": "",
+            "itemId": "i5",
+            "label": "Morning",
+            "target": "",
+            "layout": {
+              "id": "n1",
+              "kind": "Split",
+              "direction": "Horizontal",
+              "ratio": 0.3,
+              "a": {
+                "id": "n2",
+                "kind": "Pane",
+                "direction": "Vertical",
+                "ratio": 0.5,
+                "assignment": {
+                  "source": "App",
+                  "target": "C:\\Start\\Word.lnk",
+                  "label": "Word",
+                  "reuseIfRunning": false
+                }
               },
-              {
-                "id": "i2",
-                "label": "News \u2713",
-                "target": "https://example.com/news"
-              },
-              {
-                "id": "i3",
-                "label": "",
-                "target": "shell:RecycleBinFolder"
-              },
-              {
-                "id": "i4",
-                "label": "",
-                "target": "C:\\Users\\me\\Desktop\\Game.url",
-                "iconPath": "C:\\Games\\game.ico"
-              },
-              {
-                "id": "i5",
-                "label": "Morning",
-                "target": "",
-                "layout": {
-                  "id": "n1",
-                  "kind": "Split",
-                  "direction": "Horizontal",
-                  "ratio": 0.3,
-                  "a": {
-                    "id": "n2",
-                    "kind": "Pane",
-                    "direction": "Vertical",
-                    "ratio": 0.5,
-                    "assignment": {
-                      "source": "App",
-                      "target": "C:\\Start\\Word.lnk",
-                      "label": "Word",
-                      "reuseIfRunning": false
-                    }
-                  },
-                  "b": {
-                    "id": "n3",
-                    "kind": "Pane",
-                    "direction": "Vertical",
-                    "ratio": 0.5,
-                    "assignment": {
-                      "source": "Folder",
-                      "target": "D:\\Projects",
-                      "label": "",
-                      "reuseIfRunning": true
-                    }
-                  }
+              "b": {
+                "id": "n3",
+                "kind": "Pane",
+                "direction": "Vertical",
+                "ratio": 0.5,
+                "assignment": {
+                  "source": "Folder",
+                  "target": "D:\\Projects",
+                  "label": "",
+                  "reuseIfRunning": true
                 }
               }
-            ],
-            "style": "list",
-            "columns": 4,
-            "iconSize": "Small",
-            "lines": 2,
-            "showTarget": true,
-            "showKind": false,
-            "gridIconOnly": true,
-            "showFileExtension": true,
+            },
+            "labelLines": 1,
             "clickMode": "Single"
           }
         },
@@ -245,11 +214,11 @@
           "w": 0.14,
           "h": 0.25,
           "background": {
-            "kind": "Default",
+            "kind": "Transparent",
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
+          "header": "Hidden",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -258,22 +227,13 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "shortcuts",
-            "items": [
-              {
-                "id": "j1",
-                "label": "",
-                "target": "shell:MyComputerFolder"
-              }
-            ],
-            "style": "details",
-            "columns": 4,
-            "iconSize": "Small",
-            "lines": 2,
-            "showTarget": true,
-            "showKind": false,
-            "gridIconOnly": false,
-            "showFileExtension": false,
+            "kind": "desktopItem",
+            "item": "",
+            "itemId": "j1",
+            "label": "News \u2713",
+            "target": "C:\\Users\\me\\Desktop\\Game.url",
+            "iconPath": "C:\\Games\\game.ico",
+            "labelLines": 2,
             "clickMode": "Double"
           }
         },
@@ -340,6 +300,35 @@
             "aspect": "Wide",
             "span": 5
           }
+        },
+        {
+          "id": "w08",
+          "x": 0.34,
+          "y": 0.35,
+          "w": 0.04,
+          "h": 0.1,
+          "background": {
+            "kind": "Transparent",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Hidden",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "desktopItem",
+            "item": "C:\\Users\\me\\Desktop\\Report.docx",
+            "itemId": "k7",
+            "label": "",
+            "target": "",
+            "labelLines": 1,
+            "clickMode": "Double"
+          }
         }
       ]
     }
@@ -350,8 +339,7 @@
     "theme": "System",
     "fontFamily": "system",
     "fontScale": 1,
-    "widgetGapPx": 8,
-    "gridSnap": true,
+    "overEdge": true,
     "cornerRadiusPx": 4,
     "background": {
       "kind": "Default",
@@ -383,7 +371,7 @@
   "preferences": {
     "language": "System",
     "gameModeSuspend": false,
-    "desktop": 0,
+    "desktopIconSize": "Medium",
     "region": {
       "clock": "System",
       "weekStart": "System",
@@ -395,12 +383,14 @@
       "feeds": 30,
       "accounts": 2
     },
-    "mcpServer": false
+    "mcpServer": false,
+    "recentColours": []
   },
   "disabledMonitors": [],
   "monitorScales": {},
   "viewBars": {},
   "desktop": {
-    "known": []
+    "known": [],
+    "sort": "Name"
   }
 }

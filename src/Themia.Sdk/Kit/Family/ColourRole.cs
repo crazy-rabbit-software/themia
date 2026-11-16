@@ -109,6 +109,20 @@ public static class ColourRoles
         "SolidBackgroundFillColorSecondaryBrush", "AccentFillColorDisabledBrush", "TextOnAccentFillColorDisabledBrush",
     ];
 
+    /// <summary>
+    /// [S-2134] The prefix of a widget's own brush of a role the design's look tokens recolour (the text levels, a track,
+    /// the accent and the text on it, [S-2133], [S-2138]): the same theme resource after it, but its own brush, so the
+    /// tokens reach the widgets and never the shell's pages, which draw Windows' brushes by their plain keys.
+    /// </summary>
+    public const string FamilyPrefix = "Themia.Family/";
+
+    /// <summary>[S-2134] The roles whose widget brushes the look tokens recolour (<see cref="FamilyPrefix"/>).</summary>
+    public static bool IsTokened(ColourRole role) => role is ColourRole.TextPrimary or ColourRole.TextSecondary or ColourRole.TextTertiary
+        or ColourRole.TextDisabled or ColourRole.Track or ColourRole.Accent or ColourRole.TextOnAccent or ColourRole.TextOnAccentSecondary;
+
+    /// <summary>[S-2134] The key a widget's brush of <paramref name="role"/> is asked by: <see cref="FamilyPrefix"/> and the role's resource for a tokened role, the resource alone for the rest.</summary>
+    public static string WidgetKey(ColourRole role) => IsTokened(role) ? FamilyPrefix + Key(role) : Key(role);
+
     /// <summary>The resource key of <paramref name="role"/> (a <c>…Brush</c> name).</summary>
     public static string Key(ColourRole role) => Keys.TryGetValue(role, out var key)
         ? key

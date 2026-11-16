@@ -1,5 +1,19 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "desktopItem.label": "Item desktop",
-  "desktopItem.desc": "Fail, folder atau pintasan daripada desktop kamu"
+  "widgetsC.shortcuts.column.target": "Sasaran",
+  "widgetsC.shortcuts.kind.location": "Lokasi Windows",
+  "widgetsC.shortcuts.kind.missing": "Hilang",
+  "widgetsC.shortcuts.kind.path": "Laluan",
+  "widgetsC.shortcuts.kind.refused": "Tidak dibenarkan",
+  "widgetsC.shortcuts.menu.addLayout": "Susun atur apl…",
+  "widgetsC.shortcuts.menu.addLink": "Alamat web atau laluan…",
+  "widgetsC.shortcuts.menu.changeTarget": "Tukar sasaran…",
+  "widgetsC.shortcuts.settings.locations": "Lokasi Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Klik dua kali",
+  "widgetsC.shortcuts.settings.openWith.label": "Buka dengan",
+  "widgetsC.shortcuts.settings.openWith.single": "Klik sekali",
+  "widgetsC.shortcuts.settings.pick.file": "Fail…",
+  "widgetsC.shortcuts.settings.pick.folder": "Folder…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (sasaran hilang)\n{target}"
 }

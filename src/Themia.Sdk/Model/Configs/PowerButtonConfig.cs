@@ -42,11 +42,8 @@ public enum PowerButtonStyle
 /// card's own settings and its look, so the config carries which action its kind stands for and the
 /// style every power widget shares ([S-1919]).
 /// </summary>
-public abstract class PowerButtonConfig : WidgetConfig, IStyled, IDrawsItems, IReadoutSized
+public abstract class PowerButtonConfig : WidgetConfig, IStyled, IDrawsItems
 {
-    /// <summary>[S-11307] How big the button is: Small, Medium, Large; its card is fixed by it and its look.</summary>
-    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
-
     /// <summary>[S-11307] The look as the Tile block draws it.</summary>
     [JsonIgnore]
     public TileLook Look => Style == PowerButtonStyle.Round ? TileLook.Round : TileLook.Tile;
@@ -57,21 +54,7 @@ public abstract class PowerButtonConfig : WidgetConfig, IStyled, IDrawsItems, IR
     {
         ArgumentNullException.ThrowIfNull(copy);
         copy.Style = Style;
-        copy.Size = Size;
         return copy;
-    }
-
-    /// <summary>[S-11307] A size this build does not know reads Medium.</summary>
-    public override IReadOnlyList<string> Repair()
-    {
-        if (Enum.IsDefined(Size))
-        {
-            return [];
-        }
-
-        var was = (int)Size;
-        Size = ReadoutSizes.Default;
-        return [$"power button size {was} unknown; medium"];
     }
 
     /// <summary>

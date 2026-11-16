@@ -1,7 +1,7 @@
 {
   "language": "en-us",
   "title": "Themia",
-  "shortDescription": "Widgets that live on your Windows desktop: clock, weather, calendar, mail, tasks, system meters, files and more, on your wallpaper and behind your windows. 109 widgets that join into your own panels. Free to start, no ads, no account.",
+  "shortDescription": "Widgets that live on your Windows desktop: clock, weather, calendar, mail, tasks, system meters, files and more, on your wallpaper and behind your windows. 108 widgets that join into your own panels. Free to start, no ads, no account.",
   "description": [
     "Themia puts widgets on the desktop itself: on your wallpaper, behind your windows. They are always a glance away and never in the way. There is no window to open and no icon in the tray, only your desktop with what you want to see on it.",
     "",
@@ -47,7 +47,7 @@
     "In 40 languages. Weather data by Open-Meteo.com."
   ],
   "features": [
-    "109 widgets, right on your wallpaper and behind your windows",
+    "108 widgets, right on your wallpaper and behind your windows",
     "Clock, alarms, timers, countdown and Pomodoro",
     "Weather now and for the week, rain, air quality, sun and moon",
     "Calendar, next meeting, mail, tasks, contacts and notes",

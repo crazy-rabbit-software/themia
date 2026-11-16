@@ -52,7 +52,7 @@ internal sealed partial class AppHost
     public DesktopWindow? DesktopKeysSurface { get; private set; }
 
     /// <summary>
-    /// [S-5550] A press on empty desktop under Themia's items: the keys go to the desktop's items (the
+    /// [S-5550] A press on empty desktop: the keys go to the desktop's items (the
     /// arrows, Ctrl+A, Ctrl+V, F5, the Menu key, typing), as Explorer's desktop takes them on a click.
     /// The card lease ends; the surface takes the foreground, which the click allows.
     /// </summary>
@@ -112,6 +112,8 @@ internal sealed partial class AppHost
     /// <summary>[S-802] Escape reached the holder's surface.</summary>
     public void KeyboardEscape()
     {
+        // [S-11877] Escape clears the desktop's one selection too.
+        ClearDeskSelection();
         ApplyLease(null, _keyboard.Escape(), escaped: true);
         FinishSession();
     }

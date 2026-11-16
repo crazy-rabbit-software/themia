@@ -14,7 +14,7 @@ internal readonly record struct DesktopChange((string Old, string New)? Renamed,
 /// <see cref="Message"/>: the desktop root and both desktop folders (the user's and the Public one),
 /// shell and interrupt level, every event. New delivery, so each message is a handle locked with
 /// <c>SHChangeNotification_Lock</c> while it is handled: that is how a rename's two names are read.
-/// Registered while the desktop shows Themia's items; disposed otherwise.
+/// Registered at start; disposed on quit.
 /// <para>
 /// One registration per folder: on Windows 11 build 26300 a call naming two or more entries crashes
 /// the process inside windows.storage.dll, so each folder is its own call to the same message.
@@ -64,7 +64,7 @@ internal sealed unsafe partial class DesktopNotifications : IDisposable
 
         if (folders.Count == 0)
         {
-            Log.Warn(Scope, "could not locate the desktop's folders; the items are read only when the desktop choice is applied");
+            Log.Warn(Scope, "could not locate the desktop's folders; the items are read only at start");
             return null;
         }
 
@@ -86,7 +86,7 @@ internal sealed unsafe partial class DesktopNotifications : IDisposable
 
         if (registrations.Count == 0)
         {
-            Log.Warn(Scope, "the items are read only when the desktop choice is applied");
+            Log.Warn(Scope, "the items are read only at start");
             foreach (var folder in folders)
             {
                 folder.Dispose();

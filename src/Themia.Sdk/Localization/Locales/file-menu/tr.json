@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Başka bir uygulama seç",
+  "folderMenu.compressToZip": "ZIP dosyasına sıkıştır",
+  "folderMenu.copyAsPath": "Yol olarak kopyala",
+  "folderMenu.openInNewWindow": "Yeni pencerede aç",
+  "folderMenu.openWith": "Birlikte aç",
+  "folderMenu.pinToQuickAccess": "Hızlı erişime sabitle",
+  "folderMenu.pinToStart": "Başlangıç’a sabitle",
+  "folderMenu.share": "Paylaş",
+  "folder.properties": "Özellikler",
+  "widgetsB.folder.freeUpSpace": "Yer aç",
+  "widgetsB.folder.keepOnDevice": "Her zaman bu cihazda tut",
+  "widgetsB.folder.moreOptions": "Daha fazla seçenek göster",
+  "widgetsB.folder.new": "Yeni",
+  "ctxMenu.folder": "Klasör"
+}

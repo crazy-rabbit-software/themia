@@ -22,9 +22,11 @@ public readonly record struct CheckedSize(string Name, double Width, double Heig
 /// [S-2444] One axis of a widget's sizing on a display, as fractions of the screen of the widget's
 /// <b>cell</b> (the card plus the gap): the range a resize may take (<see cref="Min"/>..<see cref="Max"/>,
 /// on steps where the axis has them) and, where the axis follows the config, the one size it is laid
-/// out at (<see cref="Pinned"/>).
+/// out at (<see cref="Pinned"/>). [S-11807] With <see cref="Lines"/> set the axis is on the snap grid
+/// (<see cref="GridFit.Axis"/>): its Min, Max and Pinned are whole cells of <c>1 / Lines</c>, and every
+/// size it gives is whole cells too.
 /// </summary>
-public readonly record struct AxisLimits(double Min, double Max, double StepBase = 0, double Step = 0, double? Pinned = null)
+public readonly record struct AxisLimits(double Min, double Max, double StepBase = 0, double Step = 0, double? Pinned = null, int Lines = 0)
 {
     /// <summary>The axis takes steps.</summary>
     public bool Stepped => Step > 0;
@@ -32,18 +34,44 @@ public readonly record struct AxisLimits(double Min, double Max, double StepBase
     /// <summary>[S-2444] No handle resizes it.</summary>
     public bool Fixed => Max - Min < 1e-9;
 
-    /// <summary>[S-2445] A resize's size on this axis: held to the range, on its nearest step.</summary>
+    /// <summary>[S-11807] The axis is on the snap grid.</summary>
+    public bool OnGrid => Lines > 0;
+
+    /// <summary>
+    /// [S-2445] A resize's size on this axis: held to the range, on its nearest step. [S-11807] On the
+    /// grid: rounded up to whole cells (content never gets less than it was given; a snapped edge is on
+    /// a whole cell already), a stepped axis on the step whose size rounded up to whole cells is nearest.
+    /// </summary>
     public double Range(double size)
     {
-        var held = double.IsFinite(size) ? Math.Clamp(size, Min, Math.Max(Min, Max)) : Min;
+        var top = Math.Max(Min, Max);
+        var held = double.IsFinite(size) ? Math.Clamp(size, Min, top) : Min;
         if (!Stepped)
         {
-            return held;
+            return OnGrid ? Math.Clamp(GridFit.Up(held, Lines), Min, top) : held;
         }
 
-        var n = Math.Round((held - StepBase) / Step, MidpointRounding.AwayFromZero);
-        return Math.Clamp(StepBase + (n * Step), Min, Math.Max(Min, Max));
+        if (OnGrid)
+        {
+            var n = Math.Floor(((held - StepBase) / Step) + 1e-9);
+            var below = GridFit.Up(StepBase + (n * Step), Lines);
+            var above = GridFit.Up(StepBase + ((n + 1) * Step), Lines);
+            return Math.Clamp(held - below <= above - held ? below : above, Min, top);
+        }
+
+        var m = Math.Round((held - StepBase) / Step, MidpointRounding.AwayFromZero);
+        return Math.Clamp(StepBase + (m * Step), Min, top);
     }
+
+    /// <summary>
+    /// [S-11807] What a size of this axis holds of its content: on the grid a stepped axis's largest
+    /// step that fits in it (so the config a resize stores is the rows its whole cells hold); the size
+    /// itself otherwise.
+    /// </summary>
+    public double Holds(double size)
+        => OnGrid && Stepped && double.IsFinite(size)
+            ? StepBase + (Math.Floor(((size - StepBase) / Step) + 1e-9) * Step)
+            : size;
 
     /// <summary>[S-2446] The size the axis is laid out at: the config's where it follows one, else <see cref="Range"/>.</summary>
     public double Hold(double size) => Pinned ?? Range(size);
@@ -101,11 +129,15 @@ public static class SizeFit
 
     /// <summary>
     /// [S-2444] A widget's sizing on <paramref name="screen"/>: each DIP size times the content
-    /// <paramref name="scale"/> ([S-6532]: the display's and the widget's own) plus the
-    /// <paramref name="gapPx"/> round the card, as a fraction of the screen. Null for an unusable
-    /// screen (one not measured yet): nothing to fit against.
+    /// <paramref name="scale"/> ([S-6532]: the display's and the widget's own), as a fraction of the
+    /// screen; the card paints its whole cell ([S-11884]: no gap). Null for an unusable
+    /// screen (one not measured yet): nothing to fit against. [S-11807] Always whole grid cells
+    /// (<see cref="GridFit.OnGrid"/>), every widget, a desktop icon included ([S-5588]): the grid is always on.
     /// </summary>
-    public static SizeLimits? Limits(WidgetSizing sizing, ScreenMetrics screen, double scale, double gapPx)
+    public static SizeLimits? Limits(WidgetSizing sizing, ScreenMetrics screen, double scale)
+        => ContentLimits(sizing, screen, scale) is { } content ? GridFit.OnGrid(content, screen) : null;
+
+    private static SizeLimits? ContentLimits(WidgetSizing sizing, ScreenMetrics screen, double scale)
     {
         ArgumentNullException.ThrowIfNull(sizing);
         if (!screen.IsUsable)
@@ -114,11 +146,10 @@ public static class SizeFit
         }
 
         var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
-        var gap = double.IsFinite(gapPx) && gapPx > 0 ? gapPx : 0;
 
         AxisLimits Axis(double min, double max, SizeSteps? steps, double screenPx)
         {
-            double Cell(double dip) => ((dip * s) + gap) / screenPx;
+            double Cell(double dip) => dip * s / screenPx;
             return steps is null
                 ? new AxisLimits(Cell(min), Cell(max))
                 : new AxisLimits(Cell(min), Cell(max), Cell(steps.Base), steps.Step * s / screenPx, steps.Count is { } n ? Cell(steps.At(n)) : null);
@@ -145,22 +176,60 @@ public static class SizeFit
         return fitted == stored ? stored : GridGeometry.Clamp(fitted, screen);
     }
 
+    /// <summary>
+    /// [S-11809] The boxes a picture paints its widgets in (a scene, the add page's tile): a lone widget
+    /// as <see cref="Shown"/> paints it, the members of a group fitted together as one block
+    /// (<see cref="GridFit.Layout"/>) so the edges they share stay shared at any scale and gap.
+    /// <paramref name="limits"/> gives each widget's limits (its scale, the gap, the grid).
+    /// </summary>
+    public static IReadOnlyList<FracRect> ShownAll(IReadOnlyList<WidgetInstance> widgets, Func<WidgetInstance, SizeLimits?> limits, ScreenMetrics screen)
+    {
+        ArgumentNullException.ThrowIfNull(widgets);
+        ArgumentNullException.ThrowIfNull(limits);
+        var all = widgets.Select(limits).ToList();
+        var shown = widgets.Select((w, i) => Shown(w.Rect, all[i], screen)).ToArray();
+        foreach (var group in widgets.Select((w, i) => (w.Group, i)).Where(m => m.Group is not null).GroupBy(m => m.Group, StringComparer.Ordinal))
+        {
+            var at = group.Select(m => m.i).ToList();
+            if (at.Count < 2)
+            {
+                continue;
+            }
+
+            var laid = GridFit.Layout([.. at.Select(i => widgets[i].Rect)], [.. at.Select(i => all[i])], screen);
+            for (var k = 0; k < at.Count; k++)
+            {
+                shown[at[k]] = laid[k];
+            }
+        }
+
+        return shown;
+    }
+
     /// <summary>[S-2442] The card's box of a cell, in DIPs at widget scale 1: what a resize asks a kind's <see cref="WidgetDescriptor.SizeSets"/> for.</summary>
-    public static SizeDip Wanted(FracRect cell, ScreenMetrics screen, double scale, double gapPx)
+    public static SizeDip Wanted(FracRect cell, ScreenMetrics screen, double scale)
     {
         var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
-        var gap = double.IsFinite(gapPx) && gapPx > 0 ? gapPx : 0;
-        return new(((cell.W * screen.Width) - gap) / s, ((cell.H * screen.Height) - gap) / s);
+        return new(cell.W * screen.Width / s, cell.H * screen.Height / s);
     }
 
     /// <summary>
     /// [S-2442] The config a resize to <paramref name="cell"/> means, for a kind that has the hook; the
     /// config itself (the same instance) for every other kind or when the kind answers with it.
+    /// [S-11807] On the grid (<paramref name="limits"/> on it) a stepped axis's cell is asked as the
+    /// largest step its whole cells hold (<see cref="AxisLimits.Holds"/>), never the step its rounding
+    /// comes nearest.
     /// </summary>
-    public static WidgetConfig ConfigFor(WidgetConfig config, FracRect cell, ScreenMetrics screen, double scale, double gapPx, HeaderPlacement shown)
+    public static WidgetConfig ConfigFor(WidgetConfig config, FracRect cell, ScreenMetrics screen, double scale, HeaderPlacement shown, SizeLimits? limits)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return screen.IsUsable ? ConfigAt(config, Wanted(cell, screen, scale, gapPx), shown) : config;
+        if (!screen.IsUsable)
+        {
+            return config;
+        }
+
+        var held = limits is null ? cell : cell with { W = limits.Width.Holds(cell.W), H = limits.Height.Holds(cell.H) };
+        return ConfigAt(config, Wanted(held, screen, scale), shown);
     }
 
     /// <summary>
@@ -248,19 +317,24 @@ public static class SizeFit
         ];
     }
 
-    /// <summary>[S-2444] <see cref="Of(WidgetInstance)"/> on a display.</summary>
-    public static SizeLimits? Limits(WidgetInstance widget, ScreenMetrics screen, double scale, double gapPx)
-        => Limits(Of(widget), screen, scale, gapPx);
+    /// <summary>
+    /// [S-2444] <see cref="Of(WidgetInstance)"/> on a display, on the grid ([S-11807]).
+    /// </summary>
+    public static SizeLimits? Limits(WidgetInstance widget, ScreenMetrics screen, double scale)
+    {
+        ArgumentNullException.ThrowIfNull(widget);
+        return Limits(Of(widget), screen, scale);
+    }
 
     /// <summary>
     /// [S-2447] A config change that changed the sizing: the stored rect fitted into the new one in the
     /// same mutation (anchored at its top-left, shifted back into reach where that would leave the work
-    /// area). Returns whether the rect changed.
+    /// area); [S-11807] whole grid cells. Returns whether the rect changed.
     /// </summary>
-    public static bool Refit(WidgetInstance widget, ScreenMetrics screen, double scale, double gapPx)
+    public static bool Refit(WidgetInstance widget, ScreenMetrics screen, double scale)
     {
         ArgumentNullException.ThrowIfNull(widget);
-        var shown = Shown(widget.Rect, Limits(widget, screen, scale, gapPx), screen);
+        var shown = Shown(widget.Rect, Limits(widget, screen, scale), screen);
         if (shown == widget.Rect)
         {
             return false;

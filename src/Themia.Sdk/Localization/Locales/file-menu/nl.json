@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Een andere app kiezen",
+  "folderMenu.compressToZip": "Comprimeren tot ZIP-bestand",
+  "folderMenu.copyAsPath": "Kopiëren als pad",
+  "folderMenu.openInNewWindow": "Openen in nieuw venster",
+  "folderMenu.openWith": "Openen met",
+  "folderMenu.pinToQuickAccess": "Vastmaken aan Snelle toegang",
+  "folderMenu.pinToStart": "Vastmaken aan Start",
+  "folderMenu.share": "Delen",
+  "folder.properties": "Eigenschappen",
+  "widgetsB.folder.freeUpSpace": "Ruimte vrijmaken",
+  "widgetsB.folder.keepOnDevice": "Altijd op dit apparaat bewaren",
+  "widgetsB.folder.moreOptions": "Meer opties weergeven",
+  "widgetsB.folder.new": "Nieuw",
+  "ctxMenu.folder": "Map"
+}

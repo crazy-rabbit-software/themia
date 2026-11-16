@@ -62,6 +62,9 @@ public static partial class SettingsMenu
         (AppLanguage.Burmese, Str.Settings_Language_Burmese, "Burmese Myanmar my"),
     ];
 
+    /// <summary>[S-2319] Windows' own regional format page, which the formats follow by default (Karpo's <c>RegionSettings</c>).</summary>
+    public static readonly Uri RegionSettings = new("ms-settings:regionformatting");
+
     /// <summary>[S-3536] The Language &amp; region line and its submenu, its value the language that holds.</summary>
     public static SettingsSubmenu Language(ISettingsMenuHost host)
     {
@@ -118,10 +121,9 @@ public static partial class SettingsMenu
             _ => windows.Temperature == TemperatureUnit.Fahrenheit,
         };
 
-        var lines = new List<SettingsLine>
+        // [S-2315] The regional formats a card of their own under the language (Karpo's "Formats ›", §337), what is in force at its end.
+        var formats = new List<SettingsLine>
         {
-            display,
-            new SettingsSeparator(Keys.Language + "/-region"),
             Format(
                 "clock",
                 Str.LanguageRegion_Clock,
@@ -146,6 +148,32 @@ public static partial class SettingsMenu
                 fahrenheit ? "°F" : "°C",
                 [(TemperatureScale.System, FollowWindows(windows.Temperature == TemperatureUnit.Fahrenheit ? "°F" : "°C")), (TemperatureScale.Celsius, Scale(TemperatureUnit.Celsius)), (TemperatureScale.Fahrenheit, Scale(TemperatureUnit.Fahrenheit))],
                 (r, v) => r.Temperature = v),
+        };
+
+        // [S-2319] Karpo's Formats card (KarpoMenu.Formats): the formats, Windows' region settings, then under a rule
+        // Reset all, greyed while every format follows Windows; at its head whether they follow Windows or are the user's.
+        var follows = region is { Clock: ClockHours.System, WeekStart: FirstWeekday.System, Temperature: TemperatureScale.System };
+        formats.Add(new SettingsCommand(Keys.FormatsRegion, Str.SettingsPages_General_FormatsRegion.Text(), Glyphs.OpenExternal, () => host.About.Open(RegionSettings)));
+        formats.Add(new SettingsSeparator(Keys.FormatsReset + "-"));
+        formats.Add(new SettingsCommand(Keys.FormatsReset, Str.SettingsPages_General_FormatsReset.Text(), Glyphs.Undo, () =>
+        {
+            if (!follows)
+            {
+                host.Mutate(state => state.Preferences.Region = new RegionPreferences(), relayout: false);
+            }
+        })
+        {
+            Disabled = follows,
+        });
+
+        var lines = new List<SettingsLine>
+        {
+            display,
+            new SettingsSubmenu(Keys.Formats, Str.SettingsPages_General_Formats.Text(), Glyphs.DateAndTime, formats)
+            {
+                Card = true,
+                Value = follows ? Str.SettingsPages_General_FormatsWindows.Text() : Str.SettingsPages_General_FormatsCustom.Text(),
+            },
         };
 
         return new SettingsSubmenu(Keys.Language, Str.LanguageRegion_Nav.Text(), Glyphs.TimeLanguage, lines) { Value = display.Value };

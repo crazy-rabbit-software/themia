@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "اختيار تطبيق آخر",
+  "folderMenu.compressToZip": "ضغط إلى ملف ZIP",
+  "folderMenu.copyAsPath": "نسخ كمسار",
+  "folderMenu.openInNewWindow": "فتح في نافذة جديدة",
+  "folderMenu.openWith": "فتح باستخدام",
+  "folderMenu.pinToQuickAccess": "تثبيت في الوصول السريع",
+  "folderMenu.pinToStart": "تثبيت في البدء",
+  "folderMenu.share": "مشاركة",
+  "folder.properties": "الخصائص",
+  "widgetsB.folder.freeUpSpace": "تحرير مساحة",
+  "widgetsB.folder.keepOnDevice": "الاحتفاظ دائمًا على هذا الجهاز",
+  "widgetsB.folder.moreOptions": "إظهار المزيد من الخيارات",
+  "widgetsB.folder.new": "جديد",
+  "ctxMenu.folder": "المجلد"
+}

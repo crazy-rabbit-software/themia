@@ -10,8 +10,7 @@ namespace Themia.App.Widgets;
 /// Debug renders only ([S-4122], [S-2056]): point the widget at the sample day's folders, written
 /// under the temp folder (<see cref="SampleFiles"/>), so a render shows ordinary names, the shell's
 /// stock icons and thumbnails, and never a name, path or picture of this PC. "documents" is the
-/// folder's sample (<see cref="ShowSampleAsync"/>), "pictures" the sample pictures (drawn in code), "lasso"
-/// the documents with a band dragged from beside the first name down past the last row ([S-6412]),
+/// folder's sample (<see cref="ShowSampleAsync"/>), "pictures" the sample pictures (drawn in code),
 /// "selected" the documents with two items selected, a third under the pointer and the focus moved
 /// on by Ctrl+Right ([S-6627]), "inactive" the same selection after the widget lost the keyboard
 /// ([S-6626]), and "fullname" a tile whose long name is selected and shown in full ([S-6629]).
@@ -46,7 +45,7 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         return ItemEntries();
     }
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["documents", "pictures", "lasso", "selected", "inactive", "fullname"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["documents", "pictures", "selected", "inactive", "fullname"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -58,7 +57,7 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
 
         var path = state switch
         {
-            "lasso" or "selected" or "inactive" or "fullname" => SampleFiles.Write("Documents", SampleFiles.Documents),
+            "selected" or "inactive" or "fullname" => SampleFiles.Write("Documents", SampleFiles.Documents),
             "pictures" => await SamplePictureFiles.WriteAsync("Pictures", SamplePictures.Names).ConfigureAwait(true),
             _ => null,
         };
@@ -69,18 +68,6 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         }
 
         await ShowFolderAsync(path).ConfigureAwait(true);
-
-        if (state == "lasso")
-        {
-            // The same calls a real drag makes, from the empty part of the first row.
-            var row = FolderLayout.RowHeight;
-            var x = Math.Max(0, _items.ActualWidth - 140);
-            _active = true;
-            _selection.BeginBand(BandMode.Replace);
-            _gesture.BeginPress(x, row / 2, FolderPress.ItemBlank);
-            _gesture.Move(x + 90, row * 6);
-            DrawBand(_gesture.BandRect);
-        }
 
         if (state is "selected" or "inactive" && _visuals.Count >= 4)
         {

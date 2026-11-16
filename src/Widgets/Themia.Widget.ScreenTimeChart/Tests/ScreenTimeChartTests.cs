@@ -17,8 +17,9 @@ public sealed class ScreenTimeChartTests
         var sizing = Kind.Sizing(new ScreenTimeChartConfig());
         var height = FamilySpace.Inset + ScreenTimeChartLayout.BarHeight + FamilySpace.S1 + FamilyType.Caption.LineHeight + FamilySpace.Inset;
         Assert.Equal(new SizeDip(300, height), sizing.Natural);
-        Assert.Equal((200, 520), (sizing.Min.Width, sizing.Max.Width));
-        Assert.True(sizing.FixedHeight);
+        Assert.Equal((200, 600), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: 300 x 2
+        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        Assert.Equal(SizeStretch.Axis(height, 0, null, 2), sizing.Max.Height);
         Assert.Null(Kind.SizeSets);
         Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
 

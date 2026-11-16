@@ -91,7 +91,7 @@ internal static class GridRender
                         screen.Children.Add(grid);
 
                         // A widget on the grid, so the major lines can be judged against a snapped edge.
-                        var rect = GridGeometry.Settle(new FracRect(0.1, 0.18, 0.3, 0.3), metrics, snapEnabled: true);
+                        var rect = GridGeometry.Settle(new FracRect(0.1, 0.18, 0.3, 0.3), metrics);
                         var cell = GridGeometry.ToPixels(rect, metrics);
                         var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
                         var card = new WidgetCard(host, WidgetInstance.Create(new WidgetId("clock"), rect)) { Width = cell.Width, Height = cell.Height };

@@ -185,7 +185,7 @@ public sealed partial class KitList
         for (var line = 0; line < lines; line++)
         {
             var heading = panel.Children[line] is not Border;
-            total += heading ? FamilyShape.Row1 : _plan.RowHeight;
+            total += heading ? _plan.HeadingHeight : _plan.RowHeight;
             bottoms.Add(total);
             headings.Add(heading);
         }
@@ -194,12 +194,12 @@ public sealed partial class KitList
         _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
     }
 
-    /// <summary>[S-784] A group's heading (the done ones): one row of 28, BodyStrong, secondary.</summary>
-    private static Grid CheckHeading(string text)
+    /// <summary>[S-784] A group's heading (the done ones): one row of 28 (stretched as the rows are, [S-12410]), BodyStrong, secondary.</summary>
+    private Grid CheckHeading(string text)
     {
         var heading = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, text);
         heading.VerticalAlignment = VerticalAlignment.Center;
-        return new Grid { Children = { heading }, Height = FamilyShape.Row1, Padding = Family.SideInset };
+        return new Grid { Children = { heading }, Height = _plan.HeadingHeight, Padding = Family.SideInset };
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ public sealed partial class KitList
     {
         var done = item.Lead.IsDone;
         var marker = CheckMarker(done, item.Lead.Tone, index);
-        var block = new RowBlock(RowKind.List) { Lines = _plan.Lines, Strong = item.Emphasis && !done };
+        var block = new RowBlock(RowKind.List) { Lines = _plan.Lines, Strong = item.Emphasis && !done, Height = _plan.RowHeight };
         block.Show(TitleText(item), _plan.When ? DueText(item) : null, _plan.Subtitle ? item.Subtitle : null);
         block.Lead(marker);
 

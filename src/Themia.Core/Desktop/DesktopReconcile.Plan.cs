@@ -87,15 +87,17 @@ public static partial class DesktopReconcile
     /// <summary>
     /// [S-5520] [S-5521] Carry out <paramref name="plan"/> on <paramref name="state"/>: keys rewritten
     /// and gone widgets removed in every view; each arrival given a widget (<paramref name="create"/>) in
-    /// the view <paramref name="targetViewId"/> at its next free cell of <paramref name="cellDip"/> on
-    /// <paramref name="screen"/>; the known set set. Returns the arrivals left unplaced because the view
-    /// had no free cell (known now, reachable from Add widget). With no target view (no display yet) the
-    /// arrivals are left unknown, so the next reconcile places them.
+    /// the view <paramref name="targetViewId"/> at the first free spot of the widget grid
+    /// (<see cref="DesktopGrid.Arrive"/>, [S-11876]: the icon's box, <paramref name="cellDip"/> in DIPs with
+    /// the gap, in whole grid cells of <paramref name="screen"/>, overlapping no widget); the known set set.
+    /// Returns the arrivals left unplaced because the view had no free spot (known now, reachable from Add
+    /// widget). With no target view (no display yet) the arrivals are left unknown, so the next reconcile
+    /// places them.
     /// <para>
     /// [S-5591] An arrival with a landing spot (<paramref name="spots"/>, by the arrival's position:
-    /// a drop, a paste, New ›) goes to that spot's view instead, at the cell under its point or the next
-    /// free one after it (<see cref="DesktopCells.FreeFrom"/>) on that view's display
-    /// (<paramref name="screenOf"/>); a spot whose view or display is gone falls back to the rule above.
+    /// a drop, a paste, New ›) goes to that spot's view instead, centred on its point on the grid or at the
+    /// free spot nearest to it, on that view's display (<paramref name="screenOf"/>); a spot whose view or
+    /// display is gone falls back to the rule above.
     /// </para>
     /// </summary>
     public static IReadOnlyList<DesktopItem> Apply(
@@ -134,6 +136,20 @@ public static partial class DesktopReconcile
         var unplaced = new List<DesktopItem>();
         var unknown = new HashSet<string>(DesktopItemKeys.Comparer);
         var target = state.FindView(targetViewId);
+
+        // [S-11876] One room per view for the whole pass: every arrival takes its spot in it, so two never share one.
+        var rooms = new Dictionary<string, ((double W, double H) Size, List<FracRect> Occupied)>(StringComparer.Ordinal);
+        ((double W, double H) Size, List<FracRect> Occupied) RoomOf(ViewState view, ScreenMetrics on)
+        {
+            if (!rooms.TryGetValue(view.Id, out var room))
+            {
+                room = (DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), on), DesktopGrid.Occupied(view));
+                rooms[view.Id] = room;
+            }
+
+            return room;
+        }
+
         for (var i = 0; i < plan.Arrivals.Count; i++)
         {
             var item = plan.Arrivals[i];
@@ -143,14 +159,10 @@ public static partial class DesktopReconcile
                 && state.FindView(spot.ViewId) is { } spotView
                 && screenOf?.Invoke(spot.ViewId) is { IsUsable: true } spotScreen)
             {
-                var spotCell = new FracRect(0, 0, cellDip.Width / spotScreen.Width, cellDip.Height / spotScreen.Height);
-                FracRect[] taken = [.. spotView.Widgets.Select(w => w.Rect)];
-                var landed = spot.X is { } x && spot.Y is { } y
-                    ? DesktopCells.FreeFrom(taken, x, y, spotCell, spotScreen.Allowed)
-                    : DesktopGrid.NextFree(taken, spotCell, spotScreen.Allowed);
-                if (landed is { } at)
+                var at = RoomOf(spotView, spotScreen);
+                if (DesktopGrid.Arrive(at.Occupied, at.Size, spot.X, spot.Y, spotScreen) is { } landed)
                 {
-                    spotView.Widgets.Add(create(item, at));
+                    spotView.Widgets.Add(create(item, landed));
                 }
                 else
                 {
@@ -166,8 +178,8 @@ public static partial class DesktopReconcile
                 continue;
             }
 
-            var cell = new FracRect(0, 0, cellDip.Width / screen.Width, cellDip.Height / screen.Height);
-            if (DesktopGrid.NextFree([.. target.Widgets.Select(w => w.Rect)], cell, screen.Allowed) is { } free)
+            var room = RoomOf(target, screen);
+            if (DesktopGrid.Arrive(room.Occupied, room.Size, null, null, screen) is { } free)
             {
                 target.Widgets.Add(create(item, free));
             }
@@ -181,13 +193,6 @@ public static partial class DesktopReconcile
         return unplaced;
     }
 
-    /// <summary>[S-5506] The widgets of <paramref name="widgets"/> a surface builds cards for: the item widgets only while Themia's items show.</summary>
-    public static IReadOnlyList<WidgetInstance> Shown(IReadOnlyList<WidgetInstance> widgets, bool showsItems)
-    {
-        ArgumentNullException.ThrowIfNull(widgets);
-        return showsItems ? widgets : [.. widgets.Where(w => w.Config is not IDesktopItemConfig)];
-    }
-
     /// <summary>
     /// [S-5523] The listed items with no widget in <paramref name="view"/>, in <see cref="DesktopItemOrder"/>:
     /// what Add widget's "On the desktop" offers there.
@@ -198,59 +203,23 @@ public static partial class DesktopReconcile
         ArgumentNullException.ThrowIfNull(listing);
 
         var placed = new HashSet<string>(
-            view.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item),
+            view.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item).Where(key => key.Length > 0),
             DesktopItemKeys.Comparer);
         return DesktopItemOrder.Sort(listing.Where(item => !placed.Contains(item.Key)));
     }
 
+    /// <summary>[S-5520] The widgets of desktop items (a key), never an own icon's: the reconcile leaves those alone.</summary>
     private static IEnumerable<(WidgetInstance Widget, IDesktopItemConfig Config)> ItemWidgets(AppState state)
     {
         foreach (var view in state.Views)
         {
             foreach (var widget in view.Widgets)
             {
-                if (widget.Config is IDesktopItemConfig config)
+                if (widget.Config is IDesktopItemConfig { Item.Length: > 0 } config)
                 {
                     yield return (widget, config);
                 }
             }
         }
     }
-}
-
-/// <summary>[S-5521] The desktop's grid of item cells, as fractions of a display.</summary>
-public static class DesktopGrid
-{
-    private const double Epsilon = 1e-9;
-
-    /// <summary>
-    /// [S-5521] The first cell of <paramref name="cell"/>'s size, from <paramref name="area"/>'s top-left
-    /// corner down a column and then the next column to the right, that overlaps none of
-    /// <paramref name="occupied"/>; null when every whole cell in the area is taken.
-    /// </summary>
-    public static FracRect? NextFree(IReadOnlyList<FracRect> occupied, FracRect cell, FracRect area)
-    {
-        ArgumentNullException.ThrowIfNull(occupied);
-        if (cell.W <= 0 || cell.H <= 0 || !double.IsFinite(cell.W) || !double.IsFinite(cell.H))
-        {
-            return null;
-        }
-
-        for (var x = area.X; x + cell.W <= area.Right + Epsilon; x += cell.W)
-        {
-            for (var y = area.Y; y + cell.H <= area.Bottom + Epsilon; y += cell.H)
-            {
-                var candidate = new FracRect(x, y, cell.W, cell.H);
-                if (!occupied.Any(taken => Overlaps(taken, candidate)))
-                {
-                    return candidate;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static bool Overlaps(FracRect a, FracRect b)
-        => a.X < b.Right - Epsilon && b.X < a.Right - Epsilon && a.Y < b.Bottom - Epsilon && b.Y < a.Bottom - Epsilon;
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.UI.Dispatching;
 using Themia.App.Interop;
 using Themia.App.Shell;
-using System.Runtime.CompilerServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
@@ -42,8 +41,16 @@ internal sealed partial class AppHost
         // [S-2450] A change that left a group with one member (a delete, a cut, a move) dissolves it.
         WidgetGroups.Settle(State);
 
-        // [S-2447] A config the change gave another sizing refits its widget in this same mutation.
-        NoteSizings(refit: true);
+        // [S-5593] Another desktop icon size is in force before the sizings are read: every icon refits
+        // below. The icons follow a setting, which no undo takes back: adopted without a step.
+        if (ApplyDesktopIconSize())
+        {
+            undo = null;
+        }
+
+        // [S-2447] A config the change gave another sizing refits its widget in this same mutation;
+        // [S-854] on a display whose metrics have not settled, once they have.
+        _sizings.Refit(State, SurfacesNow());
 
         if (undo is { } step)
         {
@@ -67,35 +74,41 @@ internal sealed partial class AppHost
     }
 
     /// <summary>The sizing each widget had at the last mutation, by instance: what a config change is compared with ([S-2447]).</summary>
-    private readonly ConditionalWeakTable<WidgetInstance, WidgetSizing> _sizings = [];
+    private readonly SizingNotes _sizings = new();
 
     /// <summary>
-    /// [S-2447] Note every widget's sizing; with <paramref name="refit"/>, a widget whose
-    /// sizing changed since it was last noted (its config changed: a style, a count, a size) has its
-    /// stored rect fitted into the new one, anchored at its top-left and kept in reach, on the display
-    /// that shows its view. A widget first seen (loaded, brought back by an undo) is noted as it is:
-    /// being shown never rewrites a rect ([S-2446]).
+    /// [S-854] The live surfaces, the primary first, as what writes geometry sees them: each with whether
+    /// its metrics have settled.
     /// </summary>
-    private void NoteSizings(bool refit)
-    {
-        foreach (var view in State.Views)
-        {
-            DesktopWindow? surface = null;
-            foreach (var widget in view.Widgets)
-            {
-                var sizing = SizeFit.Of(widget);
-                if (refit && _sizings.TryGetValue(widget, out var was) && was != sizing)
-                {
-                    surface ??= _windows.FirstOrDefault(w => w.IsAlive && string.Equals(w.CurrentViewId, view.Id, StringComparison.Ordinal));
-                    if (surface is { Metrics.IsUsable: true })
-                    {
-                        SizeFit.Refit(widget, surface.Metrics, surface.ContentScaleOf(widget), State.Design.WidgetGapPx);
-                    }
-                }
+    private List<SurfaceMetrics> SurfacesNow()
+        => [.. _windows.Where(w => w.IsAlive).OrderByDescending(w => w.Monitor.IsPrimary).Select(w => w.Surface)];
 
-                _sizings.AddOrUpdate(widget, sizing);
-            }
+    /// <summary>
+    /// [S-854] A surface's metrics settled (its first layout at the real scale, or a display pass after a
+    /// scale change): once every live surface has, what waited for real metrics runs on them: the refits
+    /// a config change left waiting ([S-2447]), a read of the desktop that came in before ([S-5520]), and
+    /// the desktop settled across the displays and onto the grid ([S-5560], [S-5589]).
+    /// </summary>
+    internal void SettleSurfaces()
+    {
+        if (_disposed || !SurfaceMetrics.AllSettled(SurfacesNow()))
+        {
+            return;
         }
+
+        if (_sizings.Waits(State))
+        {
+            Mutate(_ => { }, undo: null);
+        }
+
+        if (_listingWaits is { } renames)
+        {
+            _listingWaits = null;
+            OnDesktopListed(Files.HostDesktopItems.Instance.Items, renames);
+            return;
+        }
+
+        SettleDesktopDisplays();
     }
 
     /// <summary>
@@ -218,6 +231,10 @@ internal sealed partial class AppHost
 
         Select(null);
         Clipboard.Clear();
+
+        // [S-5593] The incoming views were laid out at the incoming icon size: it is put in force as it
+        // is, so the mutation below fits nothing from the old size to it.
+        DesktopCell.Apply(incoming.Preferences.DesktopIconSize);
 
         Mutate(state =>
         {

@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "डेस्कटॉप आयटम",
-  "desktopItem.desc": "तुमच्या डेस्कटॉपवरील फाइल, फोल्डर किंवा शॉर्टकट"
+  "widgetsC.shortcuts.column.target": "लक्ष्य",
+  "widgetsC.shortcuts.kind.location": "Windows स्थान",
+  "widgetsC.shortcuts.kind.missing": "सापडत नाही",
+  "widgetsC.shortcuts.kind.path": "पथ",
+  "widgetsC.shortcuts.kind.refused": "परवानगी नाही",
+  "widgetsC.shortcuts.menu.addLayout": "अ‍ॅप लेआउट…",
+  "widgetsC.shortcuts.menu.addLink": "वेब पत्ता किंवा पथ…",
+  "widgetsC.shortcuts.menu.changeTarget": "लक्ष्य बदला…",
+  "widgetsC.shortcuts.settings.locations": "Windows स्थाने",
+  "widgetsC.shortcuts.settings.openWith.double": "डबल क्लिक",
+  "widgetsC.shortcuts.settings.openWith.label": "यासह उघडा",
+  "widgetsC.shortcuts.settings.openWith.single": "सिंगल क्लिक",
+  "widgetsC.shortcuts.settings.pick.file": "फाइल…",
+  "widgetsC.shortcuts.settings.pick.folder": "फोल्डर…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (लक्ष्य सापडत नाही)\n{target}"
 }

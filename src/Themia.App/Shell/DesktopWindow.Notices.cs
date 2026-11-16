@@ -17,8 +17,7 @@ namespace Themia.App.Shell;
 /// surface stays non-activating: a notice never takes focus or raises the window, and its buttons
 /// refuse focus on click. Each notice leaves after <see cref="NoticeStack.Lifetime"/>, a timer that
 /// waits while the pointer rests on it. The stack's rules (how many, which goes) live in Core
-/// <see cref="NoticeStack"/>; this file only draws them and keeps the hit region round them —
-/// outside edit mode the region is all that is painted and clickable ([S-872]).
+/// <see cref="NoticeStack"/>; this file only draws them.
 /// </para>
 /// </summary>
 internal sealed partial class DesktopWindow
@@ -96,7 +95,6 @@ internal sealed partial class DesktopWindow
             // Unmounted when empty: an idle surface holds nothing for notices.
             _root.Children.Remove(layer);
             _noticeLayer = null;
-            ApplyHitRegion();
         }
     }
 
@@ -113,18 +111,13 @@ internal sealed partial class DesktopWindow
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
 
-            // Windows' own motion: a new notice fades in where it lands and the rest make room. Not a
-            // slide from the edge: outside edit mode the hit region is the stack's final box, and it
-            // clips painting, so a card sliding in from outside it would appear to wipe in.
+            // Windows' own motion: a new notice fades in where it lands and the rest make room.
             ChildrenTransitions =
             {
                 new EntranceThemeTransition { FromHorizontalOffset = 0, FromVerticalOffset = 0 },
                 new RepositionThemeTransition(),
             },
         };
-
-        // Its real size arrives after layout: that, not the moment of adding, is when the hit region can follow it.
-        layer.SizeChanged += (_, _) => ApplyHitRegion();
 
         // Last, so notices sit over the widgets, the view bar and the toolbar.
         UiLanguage.ApplyFlow(layer);
@@ -167,23 +160,7 @@ internal sealed partial class DesktopWindow
         {
             card.Width = Math.Min(NoticeCard.CardWidth, room);
         }
-
-        // A new margin moves the box without resizing it, so SizeChanged alone would miss it.
-        ApplyHitRegion();
     }
-
-    /// <summary>[S-880] The notices' box in the surface's DIPs, for the hit region; null when none is showing.</summary>
-    private PixelRect? NoticeBox()
-    {
-        if (_noticeLayer is not { } layer || layer.ActualWidth <= 0 || layer.ActualHeight <= 0)
-        {
-            return null;
-        }
-
-        var origin = layer.TransformToVisual(_root).TransformPoint(new Point(0, 0));
-        return new PixelRect(origin.X, origin.Y, layer.ActualWidth, layer.ActualHeight);
-    }
-
     // -----------------------------------------------------------------------------------------
     // [S-890] Safe mode
     // -----------------------------------------------------------------------------------------

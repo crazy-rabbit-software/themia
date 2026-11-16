@@ -36,6 +36,11 @@ public enum MenuArt
     Redo,
     Sort,
     View,
+    PasteShortcut,
+    PinToStart,
+    EmptyRecycleBin,
+    DisplaySettings,
+    Personalize,
 }
 
 /// <summary>[S-1754]..[S-1756] Which Explorer picture a menu glyph is, where it lives, and whether a file is one.</summary>
@@ -100,6 +105,11 @@ public static class MenuArtRules
         0xE7A6 => MenuArt.Redo,
         0xE8CB => MenuArt.Sort,
         0xE7C4 => MenuArt.View,
+        0xF0E3 => MenuArt.PasteShortcut,
+        0xE840 => MenuArt.PinToStart,
+        0xEA99 => MenuArt.EmptyRecycleBin,
+        0xE7F4 => MenuArt.DisplaySettings,
+        0xE771 => MenuArt.Personalize,
         _ => null,
     };
 
@@ -132,6 +142,11 @@ public static class MenuArtRules
         MenuArt.Redo => "windows.redo.svg",
         MenuArt.Sort => "SortBy.svg",
         MenuArt.View => "View.svg",
+        MenuArt.PasteShortcut => "windows.pasteshortcut.svg",
+        MenuArt.PinToStart => "PinToStartScreen.svg",
+        MenuArt.EmptyRecycleBin => "windows.recyclebin.empty.svg",
+        MenuArt.DisplaySettings => "DisplaySettings.svg",
+        MenuArt.Personalize => "Personalize.svg",
         _ => throw new ArgumentOutOfRangeException(nameof(art), art, null),
     };
 

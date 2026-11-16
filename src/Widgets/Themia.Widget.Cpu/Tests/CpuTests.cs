@@ -34,9 +34,10 @@ public sealed class CpuTests
     {
         var sizing = Kind.Sizing(new CpuConfig());
         Assert.Empty(sizing.Problems());
-        Assert.True(sizing.FixedHeight);
+        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
         Assert.Equal(36 + 36 + 12, sizing.Natural.Height);
-        Assert.Equal((120, 160, 320), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(2 * (36 + 36 + 12), sizing.Max.Height); // relaxed, [S-12411]
+        Assert.Equal((120, 160, 480), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
         Assert.Null(Kind.SizeSets);
     }
 

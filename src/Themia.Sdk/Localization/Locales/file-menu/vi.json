@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Chọn ứng dụng khác",
+  "folderMenu.compressToZip": "Nén thành tệp ZIP",
+  "folderMenu.copyAsPath": "Sao chép dưới dạng đường dẫn",
+  "folderMenu.openInNewWindow": "Mở trong cửa sổ mới",
+  "folderMenu.openWith": "Mở bằng",
+  "folderMenu.pinToQuickAccess": "Ghim vào Truy nhập nhanh",
+  "folderMenu.pinToStart": "Ghim vào Bắt đầu",
+  "folderMenu.share": "Chia sẻ",
+  "folder.properties": "Thuộc tính",
+  "widgetsB.folder.freeUpSpace": "Giải phóng dung lượng",
+  "widgetsB.folder.keepOnDevice": "Luôn giữ trên thiết bị này",
+  "widgetsB.folder.moreOptions": "Hiện thêm tùy chọn",
+  "widgetsB.folder.new": "Mới",
+  "ctxMenu.folder": "Thư mục"
+}

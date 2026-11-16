@@ -169,10 +169,6 @@ internal sealed partial class DesktopWindow
 
         public void SetStartup(bool on) => Host.SetStartup(on);
 
-        public void SetDesktop(DesktopShows shows) => Host.SetDesktop(shows);
-
-        public Core.Desktop.DesktopHolder DesktopHolder => Host.DesktopHolder;
-
         public void SetGameModeSuspend(bool on) => Host.SetGameModeSuspend(on);
 
         public void ReplayIntro(IntroMode mode) => Host.ReplayIntro(mode);
@@ -184,8 +180,6 @@ internal sealed partial class DesktopWindow
         public void SetLanguage(AppLanguage language) => Host.SetLanguage(language);
 
         public void Confirm(SettingsConfirm confirm) => surface.ConfirmOnFlyout(confirm);
-
-        public void Quit() => Host.RequestExit();
 
         public ILicenceMenuHost Licence => this;
 

@@ -25,8 +25,13 @@ namespace Themia.App.Shell;
 /// sub-page, the scroll and the keyboard's place are kept by the rows' keys, so a change made while one
 /// is typing, dragging or picking leaves it where it was.
 /// </para>
+/// <para>
+/// [S-2346] A drawing is a new panel put in the old one's place, never the old one emptied: a drawing asked from
+/// inside a row's own pointer event (a click, a release) would otherwise take that row out of the panel XAML is
+/// still handing the event through, and XAML throws out of the panel's <c>Clear</c>.
+/// </para>
 /// </summary>
-internal sealed partial class PageView : StackPanel
+internal sealed partial class PageView : ContentControl
 {
     private const string Scope = "pages";
 
@@ -37,6 +42,9 @@ internal sealed partial class PageView : StackPanel
 
     /// <summary>The one card opened inside (an expander, a picker), by its row's key.</summary>
     private string? _open;
+
+    /// <summary>[S-2345] The tab chosen, by its key, kept while the page lives; null: the first.</summary>
+    private string? _tab;
 
     /// <summary>[S-3736] Why a text typed into a box was not kept, by the box's key.</summary>
     private readonly Dictionary<string, string> _refused = new(StringComparer.Ordinal);
@@ -53,11 +61,24 @@ internal sealed partial class PageView : StackPanel
 
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? _lit;
 
+    /// <summary>[S-2346] The panel this drawing fills; the next drawing fills a new one and puts it in this one's place.</summary>
+    private StackPanel _body = Body();
+
+    /// <summary>What this drawing has put on the page so far.</summary>
+    private UIElementCollection Children => _body.Children;
+
     public PageView(Func<PageModel> build)
     {
         _build = build ?? throw new ArgumentNullException(nameof(build));
-        Padding = new Thickness(ShellMetrics.Flyout.Gutter, ShellMetrics.Flyout.Gutter, ShellMetrics.Flyout.Gutter, P.Bottom);
-        Unloaded += (_, _) => Cancel();
+        IsTabStop = false;
+        HorizontalContentAlignment = HorizontalAlignment.Stretch;
+        VerticalContentAlignment = VerticalAlignment.Top;
+        Content = _body;
+        Unloaded += (_, _) =>
+        {
+            Cancel();
+            DropPreview();
+        };
     }
 
     /// <summary>The page's key (its id, or the selection's).</summary>
@@ -71,7 +92,8 @@ internal sealed partial class PageView : StackPanel
 
     /// <summary>
     /// [S-3531] Draw the page as the state holds it now: the open card, the sub-page, the keyboard's
-    /// place kept by the rows' keys.
+    /// place kept by the rows' keys. Called from the rows' own events too (a tab, a back head, an answer): it
+    /// throws nothing.
     /// </summary>
     public void Show()
     {
@@ -86,7 +108,17 @@ internal sealed partial class PageView : StackPanel
             return;
         }
 
-        Children.Clear();
+        // [S-2346] A new panel, the old one left whole: the row under the pointer stays in it until XAML is done with it.
+        // Only the preview, kept from one drawing to the next ([S-2311]), comes out of it to go into the new one.
+        if (_preview is not null)
+        {
+            // ignore: false where the last drawing did not show it (a sub-page, a question).
+            _ = _body.Children.Remove(_preview);
+        }
+
+        _body = Body();
+        _grips.Clear();
+        Drawings++;
         while (_steps.Count > 0 && _steps[^1] is SubStep { Key: var key } && Find(_model, key) is null)
         {
             _steps.RemoveAt(_steps.Count - 1);
@@ -98,16 +130,7 @@ internal sealed partial class PageView : StackPanel
             {
                 case SubStep sub when Find(_model, sub.Key) is { } row:
                     Children.Add(BackHead(row.Text));
-                    if (row.Page is { } whole)
-                    {
-                        // [S-11755] A member's page as a lone selection of it shows it: its header card, its sections.
-                        DrawRoot(whole);
-                    }
-                    else
-                    {
-                        AddCards(row.Rows ?? [], false);
-                    }
-
+                    AddCards(row.Rows ?? [], false);
                     break;
                 case AskStep ask:
                     Children.Add(BackHead(ask.Edit.Title ?? string.Empty));
@@ -127,11 +150,28 @@ internal sealed partial class PageView : StackPanel
             Log.Error(Scope, $"the page '{_model.Key}' could not be drawn", ex);
         }
 
-        if (focused is not null)
+        try
         {
-            Refocus(focused.Value);
+            Content = _body;
+            if (focused is not null)
+            {
+                Refocus(focused.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"the page '{_model.Key}' could not be put in place", ex);
         }
     }
+
+    /// <summary>A drawing's panel: the page's gutters round it.</summary>
+    private static StackPanel Body() => new()
+    {
+        Padding = new Thickness(ShellMetrics.Flyout.Gutter, ShellMetrics.Flyout.Gutter, ShellMetrics.Flyout.Gutter, P.Bottom),
+    };
+
+    /// <summary>[S-2346] How many times the page has been drawn: a render's check that a drawing waited for its turn.</summary>
+    internal int Drawings { get; private set; }
 
     /// <summary>
     /// [S-3534] Open the page at the row along <paramref name="path"/> (the rows' keys, a section's first):
@@ -144,8 +184,15 @@ internal sealed partial class PageView : StackPanel
         _open = null;
         _model ??= _build();
 
+        // [S-2345] A way in lands on the tab its section stands on.
+        if (path.Count > 0 && _model.Tabs.FirstOrDefault(t => t.Sections.Contains(path[0])) is { } holding)
+        {
+            _tab = holding.Key;
+        }
+
         var rows = _model.Sections.FirstOrDefault(s => path.Count > 0 && s.Key == path[0])?.Rows;
         string? target = path.Count > 0 ? path[0] : null;
+        var inCard = false;
         for (var i = 1; i < path.Count && rows is not null; i++)
         {
             var row = rows.FirstOrDefault(r => r.Key == path[i]);
@@ -161,9 +208,11 @@ internal sealed partial class PageView : StackPanel
                 _steps.Add(new SubStep(row.Key));
                 _open = null;
             }
-            else if (row.Kind is SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon)
+            else if (!inCard && row.Kind is SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon)
             {
+                // [S-2310] Inside an opened card a picker stands open already: the card stays the one open.
                 _open = row.Key;
+                inCard = row.Kind == SettingsRowKind.Expander;
             }
 
             rows = row.Rows;
@@ -258,6 +307,7 @@ internal sealed partial class PageView : StackPanel
 
         _steps.Clear();
         Cancel();
+        DropPreview();
     }
 
     /// <summary>The keyboard on the page's first control; false where it has none.</summary>
@@ -270,7 +320,11 @@ internal sealed partial class PageView : StackPanel
         _finding = null;
     }
 
-    /// <summary>[S-2305] The page's own level: its header card, then its sections.</summary>
+    /// <summary>
+    /// [S-2305] The page's own level: its header card, then its sections; [S-2345] where it has tabs, their
+    /// strip 8 under the header card and the chosen tab's sections 8 under it, a section named as its tab
+    /// without its heading.
+    /// </summary>
     private void DrawRoot(PageModel model)
     {
         if (model.Header is { } header)
@@ -279,9 +333,28 @@ internal sealed partial class PageView : StackPanel
         }
 
         var first = model.Header is null;
-        foreach (var section in model.Sections)
+        var sections = model.Sections;
+        string? tabTitle = null;
+        if (model.Tabs.Count > 1)
         {
-            if (section.Heading is { Length: > 0 } heading)
+            var tab = model.Tabs.FirstOrDefault(t => t.Key == _tab) ?? model.Tabs[0];
+            _tab = tab.Key;
+            tabTitle = tab.Title;
+            var strip = PageTabButton.Strip(model.Tabs.Select(t => (t.Key, t.Title)), tab.Key, key =>
+            {
+                _tab = key;
+                _open = null;
+                Show();
+            });
+            strip.Margin = new Thickness(0, first ? 0 : P.TabsGap - P.CardGap, 0, P.TabsGap);
+            Children.Add(strip);
+            sections = [.. model.Sections.Where(s => tab.Sections.Contains(s.Key))];
+            first = true;
+        }
+
+        foreach (var section in sections)
+        {
+            if (section.Heading is { Length: > 0 } heading && heading != tabTitle)
             {
                 var words = Fluent.Text(FamilyType.BodyStrong);
                 words.Text = heading;
@@ -300,12 +373,43 @@ internal sealed partial class PageView : StackPanel
         }
     }
 
-    /// <summary>[S-2304] Rows as cards 4 apart.</summary>
+    /// <summary>
+    /// [S-2304] Rows as cards 4 apart; [S-2311] the preview bare, no card round it; [S-2318] a row that only acts
+    /// its button alone, 8 under the card before it, the next such beside it 8 apart (Karpo's §578), what is said
+    /// of how it went under it.
+    /// </summary>
     private void AddCards(IReadOnlyList<PageRow> rows, bool inside)
     {
+        StackPanel? feet = null;
         foreach (var card in SettingsRows.Cards(rows, r => r.Kind))
         {
-            Children.Add(Card(card, inside));
+            if (card[0] is var lead && Foot(lead) && card.Skip(1).All(r => r.Kind == SettingsRowKind.Note))
+            {
+                if (feet is null)
+                {
+                    feet = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Spacing = P.FootGap,
+                        Margin = new Thickness(0, P.FootGap - P.CardGap, 0, P.CardGap),
+                    };
+                    Children.Add(feet);
+                }
+
+                feet.Children.Add(new Border { Child = FootButton(lead, inside), Tag = lead.Key + "#row", CornerRadius = new CornerRadius(P.CardRadius) });
+                foreach (var note in card.Skip(1).Where(n => n.Text.Length > 0))
+                {
+                    var words = CaptionText(note.Text, note.Danger);
+                    words.Margin = new Thickness(P.Label, 0, P.EndInset, P.CardGap);
+                    Children.Add(words);
+                    feet = null;
+                }
+
+                continue;
+            }
+
+            feet = null;
+            Children.Add(card is [{ Kind: SettingsRowKind.Preview } preview] ? PreviewRow(preview) : Card(card, inside));
         }
     }
 
@@ -318,7 +422,7 @@ internal sealed partial class PageView : StackPanel
             stack.Children.Add(RowOf(rows[i], inside, i == 0));
         }
 
-        return new Border
+        var card = new Border
         {
             Child = stack,
             Background = ShellBrush.Of(ShellRole.CardFill),
@@ -328,6 +432,14 @@ internal sealed partial class PageView : StackPanel
             Margin = new Thickness(0, 0, 0, P.CardGap),
             Tag = rows[0].Key + "#card",
         };
+
+        // [S-2310] A thing put in order is dragged by its grip, the whole card with it.
+        if (rows is [{ Kind: SettingsRowKind.Expander, Order: { } order } thing] && _grips.TryGetValue(thing.Key, out var grip))
+        {
+            Draggable(card, grip, order, P.CardGap);
+        }
+
+        return card;
     }
 
     /// <summary>[S-3534] A row lit for a moment where a way into settings landed.</summary>
@@ -365,10 +477,6 @@ internal sealed partial class PageView : StackPanel
                     return found;
                 }
 
-                if (row.Page is { } page && page.Sections.Select(s => In(s.Rows, key)).FirstOrDefault(r => r is not null) is { } deeper)
-                {
-                    return deeper;
-                }
             }
 
             return null;
@@ -394,7 +502,13 @@ internal sealed partial class PageView : StackPanel
             }
         }
 
-        return root is Border { Child: { } child } ? Tagged(child, tag) : null;
+        // Not laid out yet: a border's child, or the page's own drawing before its template stands.
+        return root switch
+        {
+            Border { Child: { } child } => Tagged(child, tag),
+            ContentControl { Content: DependencyObject content } when count == 0 => Tagged(content, tag),
+            _ => null,
+        };
     }
 
     /// <summary>Where the keyboard is on the page: its control's tag and a text box's caret.</summary>
@@ -463,6 +577,14 @@ internal sealed partial class PageView : StackPanel
         }
 
         return true;
+    }
+
+    /// <summary>[S-2345] A render's click on the tab keyed <paramref name="key"/>.</summary>
+    internal void DebugTab(string key)
+    {
+        _tab = key;
+        _open = null;
+        Show();
     }
 
     /// <summary>[S-2328] A render's typing into the open lookup's box.</summary>

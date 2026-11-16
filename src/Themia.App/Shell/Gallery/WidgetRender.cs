@@ -438,9 +438,7 @@ internal static class WidgetRender
 
             var card = new WidgetCard(host, model);
 
-            // The size is the painted card: there is no neighbour for the gap to separate.
-            card.ApplyGap(0);
-            card.ApplyContentScale(WidgetScale.Effective(1, model.Scale));
+            card.ApplyContentScale(WidgetScale.For(model, 1));
             page.Children.Add(card);
             cards.Add(card);
         }

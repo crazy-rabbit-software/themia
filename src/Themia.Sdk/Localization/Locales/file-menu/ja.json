@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "別のアプリを選択",
+  "folderMenu.compressToZip": "ZIP ファイルに圧縮する",
+  "folderMenu.copyAsPath": "パスのコピー",
+  "folderMenu.openInNewWindow": "新しいウィンドウで開く",
+  "folderMenu.openWith": "プログラムから開く",
+  "folderMenu.pinToQuickAccess": "クイック アクセスにピン留めする",
+  "folderMenu.pinToStart": "スタートにピン留めする",
+  "folderMenu.share": "共有",
+  "folder.properties": "プロパティ",
+  "widgetsB.folder.freeUpSpace": "空き容量を増やす",
+  "widgetsB.folder.keepOnDevice": "このデバイス上に常に保持する",
+  "widgetsB.folder.moreOptions": "その他のオプションを確認",
+  "widgetsB.folder.new": "新規作成",
+  "ctxMenu.folder": "フォルダー"
+}

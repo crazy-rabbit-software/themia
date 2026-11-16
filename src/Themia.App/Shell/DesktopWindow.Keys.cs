@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -192,10 +192,9 @@ internal sealed partial class DesktopWindow
             return false;
         }
 
-        var snap = Design.GridSnap;
         var rects = action.Command == EditCommand.Move
-            ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics, snap, Design.WidgetCollisions ? Staying(cards) : null)
-            : [.. cards.Select(c => KeyboardNudge.Resize(c.LiveRect, action.Direction, action.Step, metrics, snap, c.Limits))];
+            ? KeyboardNudge.Move([.. cards.Select(c => c.Model.Rect)], action.Direction, action.Step, metrics)
+            : [.. cards.Select(c => KeyboardNudge.Resize(c.LiveRect, action.Direction, action.Step, metrics, c.Limits))];
 
         for (var i = 0; i < cards.Count; i++)
         {

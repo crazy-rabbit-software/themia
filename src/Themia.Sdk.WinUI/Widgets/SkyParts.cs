@@ -183,16 +183,13 @@ public readonly record struct SkyFact(string Glyph, string Name, string Value);
 /// [S-11170] A fact atom's rows (weather facts, air facts): the family's fact rows ([S-6711]), one line
 /// each, from the view's top, exactly as many as the atom's pick, in its order. The card's height is
 /// the pick's ([S-2438]), so the rows never shed or add with the box; a name or a value too long for the
-/// width ends in its ellipsis.
+/// width ends in its ellipsis. [S-12400] [S-12410] The rows fill the content top to bottom, down to the
+/// card's edge: a box taller than the pick (whole grid cells, the foot's inset) stretches them up to half
+/// again, then spaces them evenly (<see cref="SpreadStack"/>).
 /// </summary>
-public sealed partial class SkyFactList : StackPanel
+public sealed partial class SkyFactList : SpreadStack
 {
     private readonly List<RowBlock> _rows = [];
-
-    public SkyFactList()
-    {
-        VerticalAlignment = VerticalAlignment.Top;
-    }
 
     /// <summary>Draw <paramref name="facts"/>, one row each, reusing the rows already built.</summary>
     public void Show(IReadOnlyList<SkyFact> facts)

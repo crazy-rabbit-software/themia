@@ -27,7 +27,7 @@ public sealed class ShellSettingsHostTests
           ],
           "activeViewId": "v1",
           "monitorViews": {},
-          "design": { "widgetGapPx": 8, "introAnimation": "Fade", "introAnimationMs": 400 }
+          "design": { "introAnimation": "Fade", "introAnimationMs": 400 }
         }
         """;
 

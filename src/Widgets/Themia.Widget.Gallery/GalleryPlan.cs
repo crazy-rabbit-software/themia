@@ -113,7 +113,7 @@ public sealed record GalleryPlan(
                 .WithHeightSteps(GridSteps(config.EffectiveCellSize, config.EffectiveRows));
         }
 
-        return WidgetSizing.Range(Least, Natural, Largest);
+        return WidgetSizing.Range(Least, Natural, Largest) with { Room = StretchRoom.Picture };
     }
 
     /// <summary>[S-11207] The config a grid of <paramref name="size"/> means: the columns and rows it holds. A copy when they change.</summary>

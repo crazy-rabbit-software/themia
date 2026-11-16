@@ -38,8 +38,7 @@ internal sealed partial class FolderView
     private ScrollViewer _scroll = null!;
     private Grid _scrollContent = null!;
     private Panel _items = null!;
-    private Canvas _bandLayer = null!;
-    private Border _band = null!;
+    private Canvas _overlay = null!;
     private SelectionLabel _fullName = null!;
     private StatusBlock _status = null!;
     private ScrollFade? _fade;
@@ -161,15 +160,13 @@ internal sealed partial class FolderView
         SetRow(_columnHeader, 2);
 
         _items = new StackPanel();
-        // [S-6624] The desktop's rubber band.
-        _band = new Border { Visibility = Visibility.Collapsed, IsHitTestVisible = false };
-        SelectionChrome.PaintBand(_band);
-        _bandLayer = new Canvas { IsHitTestVisible = false, Children = { _band } };
-        _fullName = new SelectionLabel(_bandLayer);
+        // [S-6629] The layer a selected tile's full name is laid on, over the items.
+        _overlay = new Canvas { IsHitTestVisible = false };
+        _fullName = new SelectionLabel(_overlay);
 
-        // Clear, not null: the empty area below the items must still take presses (the band,
-        // the background menu, a click that clears the selection) and drops.
-        _scrollContent = new Grid { Background = Family.Brush(ColourRole.Clear), Children = { _items, _bandLayer } };
+        // Clear, not null: the empty area below the items must still take presses (the
+        // background menu, a click that clears the selection) and drops.
+        _scrollContent = new Grid { Background = Family.Brush(ColourRole.Clear), Children = { _items, _overlay } };
 
         _scroll = new ScrollViewer
         {
@@ -258,9 +255,21 @@ internal sealed partial class FolderView
         }
         else
         {
+            // [S-12410] The list's rows run down to the card's edge, stretched over its foot's inset.
+            var list = FolderLayout.ListHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb);
+            var pitch = FolderLayout.Pitch(list, XamlRoot?.RasterizationScale ?? 1);
+            if (pitch != _rowPitch)
+            {
+                _rowPitch = pitch;
+                foreach (var row in _items.Children.OfType<Border>().Where(b => b.Tag is int))
+                {
+                    row.Height = pitch;
+                }
+            }
+
             _scroll.Padding = new Thickness(0);
             _scroll.Margin = new Thickness(0);
-            _scroll.Height = FolderLayout.Rows(height) * FolderLayout.RowHeight;
+            _scroll.Height = FolderLayout.Rows(list) * pitch;
         }
 
         FillViewport();
@@ -269,7 +278,7 @@ internal sealed partial class FolderView
 
     /// <summary>
     /// [S-6412] The content is at least the viewport tall, so the empty space under a short listing
-    /// takes presses and a band can be drawn down to the bottom.
+    /// takes presses (the background menu, a click that clears) down to the bottom.
     /// </summary>
     private void FillViewport()
         => _scrollContent.MinHeight = Math.Max(0, _scroll.ActualHeight - _scroll.Padding.Top - _scroll.Padding.Bottom);
@@ -406,6 +415,9 @@ internal sealed partial class FolderView
         }
     }
 
+    /// <summary>[S-12410] A list row's height: 28 stretched to fill the list down to the card's edge.</summary>
+    private double _rowPitch = FolderLayout.RowHeight;
+
     /// <summary>When the items on screen were drawn: the clock their "modified" cells read.</summary>
     private DateTimeOffset _renderedAt;
 
@@ -416,7 +428,7 @@ internal sealed partial class FolderView
     private (double Extent, int Columns) ItemExtent()
         => _plan?.Grid is { } grid
             ? (grid.PitchY, Math.Max(1, grid.Columns))
-            : (FolderLayout.RowHeight, 1);
+            : (_rowPitch, 1);
 
     /// <summary>The DIPs of list in view: the scroller's once it is measured, the tile's before.</summary>
     private double Viewport() => _scroll.ViewportHeight > 0 ? _scroll.ViewportHeight : _area.Height;
@@ -617,7 +629,7 @@ internal sealed partial class FolderView
             nameCell = block;
         }
 
-        // [S-6412] As wide as its text: the rest of the row is empty space a band can start from.
+        // [S-6412] As wide as its text: a press on the rest of the row selects, never drags the item out.
         name.HorizontalAlignment = HorizontalAlignment.Left;
 
         // [S-6627] The whole row is the item's mark, as the desktop marks the whole icon and name.
@@ -627,7 +639,7 @@ internal sealed partial class FolderView
         {
             Entry = entry,
             Index = index,
-            Root = new Border { Height = FolderLayout.RowHeight, Child = new Grid { Children = { chrome, block } }, Tag = index },
+            Root = new Border { Height = _rowPitch, Child = new Grid { Children = { chrome, block } }, Tag = index },
             Chrome = chrome,
             Content = block,
             Image = image,

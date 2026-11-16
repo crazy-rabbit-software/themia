@@ -71,11 +71,13 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         _mark.Margin = new Thickness(0, 0, 0, FamilySpace.S2);
         _mark.Visibility = Visibility.Collapsed;
 
-        // [S-6703] At the view's top (the content top under the header), in the card's side inset.
+        // [S-6703] Under the header, in the card's side inset. [S-12410] One block, centred in the room under
+        // the header with the foot's inset counted with it: a wider box wraps the quote on fewer lines than its
+        // height was made for, and the spare stands round it, never under it alone.
         _body = new StackPanel
         {
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = Family.SideInset,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = Family.SideInset with { Bottom = FamilySpace.Inset },
             Children = { _mark, _text, _author },
         };
 

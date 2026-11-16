@@ -3,6 +3,7 @@
   "$englishOnly": [
     "editBar.selection.same",
     "editBar.page.shows",
+    "editBar.page.settingsTab",
     "editBar.page.errors",
     "editBar.page.found"
   ],
@@ -11,6 +12,7 @@
   "editBar.view.manage": "Manage views",
   "editBar.selection.same": "{count} × {kind}",
   "editBar.page.shows": "What it shows",
+  "editBar.page.settingsTab": "Settings",
   "editBar.page.errors": "Problems",
   "editBar.page.found": "{count} found"
 }

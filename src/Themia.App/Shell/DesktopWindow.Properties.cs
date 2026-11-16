@@ -10,7 +10,8 @@ namespace Themia.App.Shell;
 /// <summary>
 /// [S-2340]..[S-2343] [S-11754]..[S-11757] The selection's entry on this display's edit bar and its page:
 /// selecting a widget (or a group) adds its entry and opens its flyout, once per selection (closed by the
-/// user it stays closed; a click on the widget again opens it again).
+/// user it stays closed; a click on the widget again opens it again). While the pointer holds a widget (a
+/// press, a drag, a resize) nothing opens; the page opens when the pointer lets go.
 /// </summary>
 internal sealed partial class DesktopWindow
 {
@@ -26,12 +27,8 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-3719] [S-3746] The lines built for the page as it was last drawn: one that is still reading asks for the page again.</summary>
     private readonly List<WidgetMenuLines> _pageLines = [];
 
-    /// <summary>
-    /// What the selection's page does for <paramref name="ids"/> (the selection, or one member of a group on
-    /// its own page): everything goes through the host, as one change each. <paramref name="whole"/>: the
-    /// selection itself, with its Cut, Copy, Remove and its group's commands.
-    /// </summary>
-    private SelectionCommands SelectionCommands(IReadOnlyList<string> ids, bool whole) => new(
+    /// <summary>What the selection's page does for <paramref name="ids"/>, the selection: everything goes through the host, as one change each.</summary>
+    private SelectionCommands SelectionCommands(IReadOnlyList<string> ids) => new(
         SetHeader: header => _host.SetHeader(ids, header),
         SetBackground: fill => _host.SetBackground(ids, fill),
         SetTitle: _host.SetTitle,
@@ -40,24 +37,19 @@ internal sealed partial class DesktopWindow
         SetItemTextColor: hex => _host.SetItemTextColor(ids, hex),
         SetScale: scale => _host.SetScale(ids, scale),
         SetAlign: align => _host.SetAlign(ids, align),
-        Cut: whole ? _host.CutSelected : null,
-        Copy: whole ? _host.CopySelected : null,
-        Delete: whole ? _host.DeleteSelected : null,
+        Cut: _host.CutSelected,
+        Copy: _host.CopySelected,
+        Delete: _host.DeleteSelected,
         WidgetLines: WidgetLinesOf,
         Preview: preview => PreviewWidgets(ids, preview),
         SetBackgroundImage: path => _host.SetBackgroundImage(ids, path))
     {
         SharedLines = SharedLinesOf,
-        RenameGroup = whole ? _host.RenameGroup : null,
-        Ungroup = whole ? _host.UngroupSelected : null,
-        RemoveFromGroup = whole ? _host.RemoveFromGroup : null,
-        OpenGroup = whole ? _host.SelectGroupOfEntered : null,
-        Member = whole ? MemberPage : null,
+        RenameGroup = _host.RenameGroup,
+        Group = _host.GroupSelected,
+        Ungroup = _host.UngroupSelected,
+        OpenGroup = _host.SelectGroupOfEntered,
     };
-
-    /// <summary>[S-11755] A member's own page: its model as a lone selection of it, acting on it alone.</summary>
-    private (SelectionModel Model, SelectionCommands Commands)? MemberPage(string id)
-        => _host.WidgetModel(id) is { } model ? (model, SelectionCommands([id], whole: false)) : null;
 
     /// <summary>[S-3719] One widget's own lines over its live config, asking on the flyout.</summary>
     private WidgetMenuLines? WidgetLinesOf(string id)
@@ -137,10 +129,10 @@ internal sealed partial class DesktopWindow
     private PageModel SelectionModel()
     {
         _pageLines.Clear();
-        var model = _selectionModel ?? new SelectionModel(SelectionKind.One, QuickSetOffer.None, [], []);
+        var model = _selectionModel ?? new SelectionModel(SelectionKind.One, QuickSetOffer.None, []);
         var selection = _host.Selection;
         var kinds = ViewForThisMonitor(_host.State).Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
-        return SelectionRows.Of(model, SelectionCommands([.. selection.Ids], whole: true), kinds);
+        return SelectionRows.Of(model, SelectionCommands([.. selection.Ids]), kinds);
     }
 
     /// <summary>[S-3731] The widgets' cards here show a value not yet kept (a fill's opacity); null shows what they hold again.</summary>
@@ -174,22 +166,20 @@ internal sealed partial class DesktopWindow
         }
 
         var key = string.Join(",", _host.Selection.Ids.Order(StringComparer.Ordinal)) + "|" + _host.Selection.Entered;
-        if (_selectionShown != key)
+        (_selectionShown, var opens) = SelectionPage.Flyout(_selectionShown, key, _host.Placing is not null, _propertiesHeld);
+        if (opens)
         {
-            _selectionShown = key;
-            if (_host.Placing is null && !_propertiesHeld)
-            {
-                OpenSelectionPage(focus: false);
-            }
+            OpenSelectionPage(focus: false);
         }
 
         ShowToolbar();
+        ShineSelection();
     }
 
-    /// <summary>[S-2343] A click on a widget already selected: its flyout opened again.</summary>
+    /// <summary>[S-2343] A widget selected again by a command (not the pointer): its flyout opened again.</summary>
     private void ReopenSelectionPage()
     {
-        if (_selectionOffer.Shows && !_selectionOpen)
+        if (SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _selectionOpen, _host.Placing is not null) && !_propertiesHeld)
         {
             OpenSelectionPage(focus: false);
         }
@@ -208,10 +198,36 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-3710] A drag or a resize is under way: nothing opens until it ends.</summary>
+    /// <summary>[S-2343] [S-3710] The pointer holds a widget (a press, a move, a resize): nothing opens until it lets go.</summary>
     private bool _propertiesHeld;
 
     private void HoldProperties(bool held) => _propertiesHeld = held;
+
+    /// <summary>
+    /// [S-2343] The pointer let go of a widget (a click, the end of a move or of a resize): in edit mode
+    /// the selection's page opens, for a new selection and for one whose page was closed alike.
+    /// </summary>
+    public void PressEnded(WidgetCard card)
+    {
+        HoldProperties(false);
+        SyncProperties();
+        if (SelectionPage.OpensWhenReleased(_selectionOffer.Shows, _selectionOpen, _host.Placing is not null))
+        {
+            OpenSelectionPage(focus: false);
+        }
+
+        PlaceFlyout();
+    }
+
+    /// <summary>[S-2343] The widget under the pointer starts to move or to change its size: the selection's page, if open, goes until the pointer lets go.</summary>
+    private void ClearForDrag()
+    {
+        HoldProperties(true);
+        if (_selectionOpen)
+        {
+            CloseFlyout(focusEntry: false);
+        }
+    }
 
     /// <summary>[S-2325] The flyout stays hung from its entry as the surface lays out again.</summary>
     private void PlaceProperties() => PlaceFlyout();

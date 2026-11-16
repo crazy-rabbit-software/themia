@@ -47,6 +47,9 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
     private MixerConfig _config = new();
     private IWidgetSurface? _surface;
     private WidgetArea _area;
+
+    /// <summary>[S-12410] A row's height: its lines' natural one stretched to fill the card down to its edge.</summary>
+    private double _pitch = FamilyShape.Row1;
     private AudioSnapshot? _snapshot;
     private Dictionary<string, double> _overrides = new(StringComparer.Ordinal);
 
@@ -196,8 +199,14 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         var plan = MixerLayout.Plan(_area.IsMeasured ? _area.Width : MixerLayout.NaturalWidth, _config.ShowIcons, _config.Lines, _config.Rows, main.Count, quiet.Count);
         _shown = [.. main, .. quiet.Take(plan.Quiet)];
 
+        // [S-12410] The config's rows run down to the card's edge: they stretch into the foot's inset the
+        // sizing counts (up to half again their height), each row exactly that pitch.
+        var natural = FamilyShape.RowHeight(plan.Lines);
+        _pitch = _area.IsMeasured
+            ? ItemStretch.Pitch(_area.Height, MixerLayout.ClampRows(_config.Rows), natural, scale: XamlRoot?.RasterizationScale ?? 1)
+            : natural;
         ShowRows(plan, main.Count);
-        _scroller.Height = plan.Rows * FamilyShape.RowHeight(plan.Lines);
+        _scroller.Height = plan.Rows * _pitch;
 
         RestoreFocus();
     }
@@ -233,6 +242,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
                 var visual = _rows[i];
                 visual.Host.Visibility = Visibility.Visible;
                 visual.Arrange(plan);
+                visual.Host.Height = _pitch;
 
                 // [S-1228] An app holding a session but silent says so, and the quiet rows under the list always do.
                 visual.Show(row, dimmed: i >= mainCount || (!row.Active && !row.IsSystem), available: _unavailable is null);

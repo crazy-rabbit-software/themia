@@ -1,4 +1,4 @@
-﻿using Microsoft.UI;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -15,7 +15,9 @@ namespace Themia.App.Shell;
 /// <summary>
 /// [S-1580]..[S-1586], [S-1591] Multi-select on this display: the rubber band, Ctrl+A, and dragging
 /// the whole selection as one block — clamped and snapped together, and handed to another display
-/// together.
+/// together. [S-2008] [S-11879] The same move on the locked desktop, where the selection is the desktop's
+/// one (icons and cards, <see cref="Themia.Core.Desktop.DesktopPicks"/>) and the local grid shows where
+/// the block lands ([S-11874]).
 /// </summary>
 internal sealed partial class DesktopWindow
 {
@@ -36,12 +38,6 @@ internal sealed partial class DesktopWindow
 
         /// <summary>[S-2244] The cards have moved: they are free of their neighbours until dropped.</summary>
         public bool Moved { get; set; }
-
-        /// <summary>[S-11959] With widgets kept apart: the rects of the widgets that stay; null when they may overlap.</summary>
-        public List<FracRect>? Apart { get; init; }
-
-        /// <summary>[S-11959] The translation the block stands at now.</summary>
-        public BlockGeometry.Delta Last { get; set; }
     }
 
     private MoveSession? _move;
@@ -50,6 +46,23 @@ internal sealed partial class DesktopWindow
     private Point _lassoStart;
     private bool _lassoing;
     private List<string> _lassoBase = [];
+
+    /// <summary>[S-11877] Whether the widget <paramref name="widgetId"/> is drawn on this surface now (a card that hides itself, [S-873], is not).</summary>
+    internal bool Draws(string widgetId) => CardFor(widgetId) is not { } card || card.IsShown(EditMode);
+
+    /// <summary>[S-11877] The desktop's one selection changed: every card on the locked desktop draws whether it is in it.</summary>
+    internal void RepaintDeskSelection()
+    {
+        if (_closed || EditMode)
+        {
+            return;
+        }
+
+        foreach (var card in _cards)
+        {
+            card.ApplySelection();
+        }
+    }
 
     /// <summary>The ids of the cards on this surface that are collapsed, so draw nothing.</summary>
     private HashSet<string> HiddenIds()
@@ -63,16 +76,19 @@ internal sealed partial class DesktopWindow
     /// <summary>
     /// [S-1584] A move starts on <paramref name="card"/>: it moves, and so does every other selected
     /// widget on this display. A card outside the selection moves alone (pressing it
-    /// selected it alone).
+    /// selected it alone). [S-11879] On the locked desktop the selection is the desktop's one: a held card
+    /// in it carries every selected icon and card of this display's view.
     /// </summary>
     public void BeginMove(WidgetCard card)
     {
         ArgumentNullException.ThrowIfNull(card);
 
         var view = ViewForThisMonitor(_host.State);
-        var ids = _host.Selection.Contains(card.Model.Id) && string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal)
-            ? SelectionRules.InView(view, _host.Selection.Ids)
-            : [];
+        var ids = !EditMode
+            ? _host.DeskMoving(view, card.Model.Id)
+            : _host.Selection.Contains(card.Model.Id) && string.Equals(_host.Selection.ViewId, view.Id, StringComparison.Ordinal)
+                ? SelectionRules.InView(view, _host.Selection.Ids)
+                : [];
         if (!ids.Contains(card.Model.Id))
         {
             ids.Add(card.Model.Id);
@@ -92,18 +108,17 @@ internal sealed partial class DesktopWindow
             cards.Add((card, card.LiveRect));
         }
 
-        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id))
-        {
-            Apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card)) : null,
-        };
+        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id));
     }
 
     /// <summary>
     /// [S-1584] The pointer moved: every moving card follows by the same translation, which
-    /// <see cref="BlockGeometry"/> snaps and clamps for the block as a whole. [S-78] The display the
-    /// drop would hand the widgets to shows their ghost, and the cards here fade.
+    /// <see cref="BlockGeometry"/> snaps to the grid and clamps for the block as a whole ([S-11873]: in whole
+    /// device pixels, so the cards keep their spacing to the pixel). [S-78] The display the
+    /// drop would hand the widgets to shows their ghost, and the cards here fade. [S-11874] On the locked
+    /// desktop the local grid shows round where the block lands.
     /// </summary>
-    public void PreviewMove(WidgetCard card, double dxFrac, double dyFrac, bool snap)
+    public void PreviewMove(WidgetCard card, double dxFrac, double dyFrac)
     {
         if (_move is not { } move || !ReferenceEquals(move.Anchor, card))
         {
@@ -116,21 +131,16 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        // [S-3710] The strip steps aside while the selection is dragged, and comes back where it lands.
-        HoldProperties(true);
+        // [S-2343] [S-3710] Nothing hangs over the selection while it is dragged; its page opens where it lands.
+        ClearForDrag();
 
-        var starts = move.Cards.Select(c => c.Start).ToList();
-        var delta = BlockGeometry.Move(starts, dxFrac, dyFrac, metrics, snap);
-        if (move.Apart is { } apart)
-        {
-            // [S-11959] The block never comes over a widget that stays: it slides along it, or waits.
-            delta = BlockGeometry.Apart(starts, delta, move.Last, apart, metrics);
-            move.Last = delta;
-        }
-
+        var delta = BlockGeometry.Move([.. move.Cards.Select(c => c.Start)], dxFrac, dyFrac, metrics, RasterScale);
+        var landing = new List<FracRect>(move.Cards.Count);
         foreach (var (moving, start) in move.Cards)
         {
-            PositionCard(moving, BlockGeometry.Apply(start, delta, metrics));
+            var at = BlockGeometry.Apply(start, delta, metrics);
+            landing.Add(at);
+            PositionCard(moving, at);
         }
 
         // [S-2244] Dragged cards are free; the ones they leave get their corners back at once.
@@ -142,13 +152,97 @@ internal sealed partial class DesktopWindow
         {
             moving.SetLeaving(leaving);
         }
+
+        // [S-11874] Edit mode draws the whole grid; the locked desktop only round the target, and not while
+        // the block is going to another display. [S-11881] The borders near it with it.
+        var target = !EditMode && !leaving ? BlockGeometry.Bounds(landing) : (FracRect?)null;
+        ShowLocalGrid(target);
+        ShowMoveBorders(target, move);
     }
 
-    /// <summary>[S-11959] The rects of this display's shown widgets other than <paramref name="moving"/>: what a move keeps apart from.</summary>
-    private List<FracRect> Staying(IEnumerable<WidgetCard> moving)
+    /// <summary>
+    /// [S-11881] While a block moves on the locked desktop: the moving cards' corner marks, and the marks of the
+    /// cards near where it lands fading as the local grid does (<see cref="LocalGrid.Borders"/>); none with null.
+    /// </summary>
+    private void ShowMoveBorders(FracRect? target, MoveSession move)
     {
-        var set = moving.ToHashSet();
-        return [.. _cards.Where(c => c.Visibility == Visibility.Visible && !set.Contains(c)).Select(c => c.LiveRect)];
+        var moving = move.Cards.Select(c => c.Card).ToHashSet();
+        var borders = target is { } box
+            ? LocalGrid.Borders(
+                box,
+                moving.Select(c => c.Model.Id),
+                _cards.Where(c => !moving.Contains(c) && c.Visibility == Visibility.Visible && c.IsShown(EditMode)).Select(c => (c.Model.Id, c.LiveRect)),
+                Metrics)
+            : new Dictionary<string, double>(StringComparer.Ordinal);
+        foreach (var card in _cards)
+        {
+            card.ShowMoveMarks(borders.TryGetValue(card.Model.Id, out var alpha) ? alpha : null);
+        }
+    }
+
+    /// <summary>
+    /// [S-11878] Whether the move <paramref name="card"/> holds becomes the shell's drag now: it is a desktop
+    /// icon's on the locked desktop, it carries files, and the pointer is off the desktop or over a drop
+    /// target (<see cref="Themia.Core.Desktop.DesktopDragOut"/>).
+    /// </summary>
+    public bool DragsOut(WidgetCard card)
+    {
+        if (_move is not { Moved: true } move || !ReferenceEquals(move.Anchor, card) || EditMode || card.View is not IDesktopIconView
+            || !Interop.Win32.GetCursorPos(out var at))
+        {
+            return false;
+        }
+
+        var moving = move.Cards.Select(c => c.Card).ToHashSet();
+        return Themia.Core.Desktop.DesktopDragOut.Starts(
+            heldIsIcon: true,
+            carriesFiles: _host.DeskCarriesFiles(moving.Select(c => c.Model)),
+            overDesktop: _host.OverDesktop(at),
+            overDropTarget: DropTargetUnder(ToContent(at.X, at.Y), moving));
+    }
+
+    /// <summary>[S-11878] A widget under <paramref name="point"/> that takes a drop of files, the moving cards looked through.</summary>
+    private bool DropTargetUnder(Point point, IReadOnlySet<WidgetCard> moving)
+    {
+        foreach (var element in VisualTreeHelper.FindElementsInHostCoordinates(point, _root))
+        {
+            for (DependencyObject? at = element; at is not null; at = VisualTreeHelper.GetParent(at))
+            {
+                if (at is WidgetCard card)
+                {
+                    if (moving.Contains(card))
+                    {
+                        break;
+                    }
+
+                    return card.View is IDesktopIconView icon ? icon.TakesDrops : card.View is Themia.App.Widgets.IWidgetDropTarget;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>[S-11878] The move became the shell's drag: every moving card back where it started, nothing stored, nothing handed off.</summary>
+    public void CancelMove(WidgetCard card)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+        if (_move is not { } move || !ReferenceEquals(move.Anchor, card))
+        {
+            return;
+        }
+
+        _move = null;
+        _host.EndHandOffPreview();
+        ShowLocalGrid(null);
+        ShowMoveBorders(null, move);
+        foreach (var (moving, start) in move.Cards)
+        {
+            moving.SetLeaving(false);
+            PositionCard(moving, start);
+        }
+
+        JoinCards();
     }
 
     /// <summary>
@@ -165,13 +259,12 @@ internal sealed partial class DesktopWindow
         _move = null;
 
         _host.EndHandOffPreview();
+        ShowLocalGrid(null);
+        ShowMoveBorders(null, move);
         foreach (var (moving, _) in move.Cards)
         {
             moving.SetLeaving(false);
         }
-
-        // Back before the geometry commits, whose state change places it where the widgets landed.
-        HoldProperties(false);
 
         if (move.Payload is { } payload && TryHandOff(payload))
         {

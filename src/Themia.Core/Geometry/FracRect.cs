@@ -56,6 +56,12 @@ public readonly record struct ScreenMetrics(double Width, double Height)
     }
 
     public bool IsUsable => Width > 0 && Height > 0 && double.IsFinite(Width) && double.IsFinite(Height);
+
+    /// <summary>
+    /// [S-2330] Over the edge is off (<c>Design.OverEdge</c>): a gesture keeps the whole widget on the
+    /// allowed area, not only the visible minimum of [S-6608].
+    /// </summary>
+    public bool HoldsWhole { get; init; }
 }
 
 /// <summary>

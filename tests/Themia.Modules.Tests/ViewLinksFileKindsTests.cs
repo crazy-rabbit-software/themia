@@ -10,9 +10,8 @@ public sealed class ViewLinksFileKindsTests
     [Theory]
     [InlineData("folder")]
     [InlineData("recentFiles")]
-    [InlineData("shortcuts")]
     [InlineData("desktopItem")]
-    public void S11945_a_folder_entry_a_recent_file_a_shortcut_and_a_desktop_item_point_at_a_file_and_light_for_one(string id)
+    public void S11945_a_folder_entry_a_recent_file_and_a_desktop_icon_point_at_a_file_and_light_for_one(string id)
     {
         var links = ModuleRegistry.Widgets.Single(m => m.Descriptor.Id.Value == id).Descriptor.Links;
 

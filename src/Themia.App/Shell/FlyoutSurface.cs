@@ -26,8 +26,8 @@ namespace Themia.App.Shell;
 /// The shadow is a composition drop shadow on a plate under the frame rather than a
 /// <see cref="ThemeShadow"/>: outside a popup a theme shadow needs receivers to fall on, and there
 /// is nothing under the panel to receive it but the transparent window. A layer visual's shadow
-/// follows the plate's rounded clip, so it has the panel's corners. It falls inside the edit-mode
-/// hit region (the whole work area, [S-851]); the panel is never shown outside edit mode.
+/// follows the plate's rounded clip, so it has the panel's corners. It falls inside the
+/// surface's region (the whole work area, [S-851]); the panel is never shown outside edit mode.
 /// </para>
 /// </summary>
 internal static class FlyoutSurface

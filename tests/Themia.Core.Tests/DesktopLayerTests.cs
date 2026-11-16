@@ -69,6 +69,80 @@ public sealed partial class DesktopLayerTests
         Assert.True(Themia.Core.Widgets.LaunchTargets.Classify(DesktopItemKeys.LaunchTarget("::{645FF040-5081-101B-9F08-00AA002F954E}")).IsValid);
     }
 
+    [Theory]
+    [InlineData("a")]
+    [InlineData("0f8fad5bd9cb469fa16570867728950e")]
+    [InlineData("A-b_9")]
+    public void S5540_an_own_icons_key_is_never_a_desktop_items(string itemId)
+    {
+        var key = DesktopItemKeys.Own(itemId);
+
+        Assert.Equal("*icon:" + itemId, key);
+        Assert.True(DesktopItemKeys.IsOwn(key));
+        Assert.True(DesktopItemKeys.IsOwnId(itemId));
+        Assert.True(DesktopItemKeys.IsValid(key));
+
+        // Not a shell item, not a path anything could be rooted at, and no launch target.
+        Assert.False(DesktopItemKeys.IsShellItem(key));
+        Assert.False(Path.IsPathRooted(key));
+        Assert.False(Path.IsPathFullyQualified(key));
+        Assert.Contains('*', Path.GetInvalidFileNameChars());
+        Assert.False(Themia.Core.Widgets.LaunchTargets.Classify(key).IsValid);
+    }
+
+    [Fact]
+    public void S5540_no_desktop_items_key_reads_as_an_own_icons()
+    {
+        Assert.False(DesktopItemKeys.IsOwn(@"C:\Users\a\Desktop\Report.docx"));
+        Assert.False(DesktopItemKeys.IsOwn("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"));
+        Assert.False(DesktopItemKeys.IsOwn(@"\\server\share\x"));
+        Assert.False(DesktopItemKeys.IsOwn(@"C:\Users\a\Desktop\*icon:abc"));
+        Assert.False(DesktopItemKeys.IsOwn("icon:abc"));
+        Assert.False(DesktopItemKeys.IsOwn("*ICON:abc"));
+        Assert.False(DesktopItemKeys.IsOwn(string.Empty));
+        Assert.False(DesktopItemKeys.IsOwn(null));
+        Assert.True(DesktopItemKeys.IsOwn("*icon:"));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("a b")]
+    [InlineData("a:b")]
+    [InlineData(@"a\b")]
+    [InlineData("a*b")]
+    [InlineData("a.b")]
+    [InlineData("ä")]
+    [InlineData("a\n")]
+    public void S1411_an_id_of_anything_but_letters_digits_dash_and_underscore_is_no_own_id(string? itemId)
+        => Assert.False(DesktopItemKeys.IsOwnId(itemId));
+
+    [Fact]
+    public void S1411_an_own_id_is_one_to_sixty_four_characters()
+    {
+        Assert.True(DesktopItemKeys.IsOwnId("a"));
+        Assert.True(DesktopItemKeys.IsOwnId(new string('a', 64)));
+        Assert.False(DesktopItemKeys.IsOwnId(new string('a', 65)));
+        Assert.True(DesktopItemKeys.IsOwnId(Guid.NewGuid().ToString("n")));
+        Assert.True(DesktopItemKeys.IsOwnId(Guid.NewGuid().ToString()));
+    }
+
+    [Fact]
+    public void S5540_a_config_is_selected_under_its_items_key_else_its_own_icons()
+    {
+        var item = new DeskIconFake { Item = @"C:\Users\a\Desktop\x.txt", ItemId = "abc", Target = @"C:\other.txt" };
+        var own = new DeskIconFake { ItemId = "abc", Target = @"C:\Users\a\Desktop\x.txt" };
+        var twin = new DeskIconFake { ItemId = "abd", Target = @"C:\Users\a\Desktop\x.txt" };
+
+        Assert.Equal(@"C:\Users\a\Desktop\x.txt", DesktopItemKeys.Of(item));
+        Assert.Equal("*icon:abc", DesktopItemKeys.Of(own));
+
+        // Two own icons on one target are two icons; neither is the desktop item of that path.
+        Assert.NotEqual(DesktopItemKeys.Of(own), DesktopItemKeys.Of(twin));
+        Assert.False(DesktopItemKeys.Comparer.Equals(DesktopItemKeys.Of(own), DesktopItemKeys.Of(item)));
+    }
+
     [Fact]
     public void S5521_items_are_ordered_shell_items_then_folders_then_files_by_name()
     {

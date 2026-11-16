@@ -99,6 +99,8 @@ internal sealed partial class WidgetCard
                 aware.Bind(this);
             }
 
+            ApplyViewCorners();
+
             if (_view is IWidgetView widgetView)
             {
                 // Running before Attach: a view that throws half-way through it has subscribed to
@@ -444,9 +446,9 @@ internal sealed partial class WidgetCard
         public bool Paused { get; }
 
         /// <summary>
-        /// [S-891] The error and a Copy button. A windowed popup, not one inside the surface: outside
-        /// edit mode the surface's region is the cards' own rects ([S-851]), and a flyout inside it
-        /// was cut off at the card's edge.
+        /// [S-891] The error and a Copy button. A windowed popup, not one inside the surface: when the
+        /// surface was cut to the cards' own rects a flyout inside it was cut off at the card's edge
+        /// (the surface is its whole work area now, [S-851]; the popup stays its own window).
         /// </summary>
         private static void ShowDetails(FrameworkElement anchor, string text, string report)
         {

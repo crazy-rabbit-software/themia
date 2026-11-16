@@ -1,9 +1,14 @@
 {
   "$englishOnly": [
+    "shell.toolbar.overEdgeName",
     "shell.setup.place",
     "shell.setup.account",
     "shell.tasks.readOnly",
-    "shell.appearance.blurBehind"
+    "shell.appearance.blurBehind",
+    "shell.color.spectrum",
+    "shell.color.hue",
+    "shell.color.hex",
+    "shell.color.recent"
   ],
   "shell.time.justNow": "Just now",
   "shell.fetch.notConfigured": "Not set up yet",
@@ -130,8 +135,6 @@
     "one": "Delete {count} widget",
     "other": "Delete {count} widgets"
   },
-  "shell.card.doneEditing": "Done editing",
-  "shell.card.editLayout": "Edit layout",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -147,8 +150,7 @@
   "shell.setup.place": "Choose a place",
   "shell.setup.account": "Add an account to show this",
   "shell.toolbar.addWidget": "Add widget",
-  "shell.toolbar.snapName": "Snap to grid",
-  "shell.toolbar.collisionsName": "Keep widgets from overlapping",
+  "shell.toolbar.overEdgeName": "Widgets can go over the screen edge",
   "shell.editBar.selected": {
     "one": "{count} selected",
     "other": "{count} selected"
@@ -200,7 +202,6 @@
   "shell.appearance.textSize": "Text size",
   "shell.appearance.systemFont": "System default",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Gap between widgets",
   "shell.motion.slide": "Slide",
   "shell.motion.sides": "Sides",
   "shell.motion.topBottom": "Top and bottom",
@@ -301,7 +302,10 @@
   "shell.refresh.everyMinute": "Every minute",
   "shell.refresh.everyHour": "Every hour",
   "shell.color.custom": "Custom colour",
-  "shell.color.pickCustom": "Pick a custom colour",
+  "shell.color.spectrum": "Colour spectrum",
+  "shell.color.hue": "Hue",
+  "shell.color.hex": "Hex",
+  "shell.color.recent": "Recent colour",
   "shell.color.pickFromScreen": "Pick a colour from the screen",
   "shell.color.pickFailed": "Couldn't read the colours on the screen",
   "shell.icon.home": "Home",

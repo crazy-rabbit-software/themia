@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "รายการบนเดสก์ท็อป",
-  "desktopItem.desc": "ไฟล์ โฟลเดอร์ หรือทางลัดจากเดสก์ท็อปของคุณ"
+  "widgetsC.shortcuts.column.target": "เป้าหมาย",
+  "widgetsC.shortcuts.kind.location": "ตำแหน่งที่ตั้งของ Windows",
+  "widgetsC.shortcuts.kind.missing": "ไม่พบ",
+  "widgetsC.shortcuts.kind.path": "เส้นทาง",
+  "widgetsC.shortcuts.kind.refused": "ไม่อนุญาต",
+  "widgetsC.shortcuts.menu.addLayout": "เค้าโครงแอป…",
+  "widgetsC.shortcuts.menu.addLink": "ที่อยู่เว็บหรือเส้นทาง…",
+  "widgetsC.shortcuts.menu.changeTarget": "เปลี่ยนเป้าหมาย…",
+  "widgetsC.shortcuts.settings.locations": "ตำแหน่งที่ตั้งของ Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "ดับเบิลคลิก",
+  "widgetsC.shortcuts.settings.openWith.label": "เปิดด้วย",
+  "widgetsC.shortcuts.settings.openWith.single": "คลิกครั้งเดียว",
+  "widgetsC.shortcuts.settings.pick.file": "ไฟล์…",
+  "widgetsC.shortcuts.settings.pick.folder": "โฟลเดอร์…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ไม่พบเป้าหมาย)\n{target}"
 }

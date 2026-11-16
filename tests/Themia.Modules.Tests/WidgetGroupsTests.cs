@@ -198,9 +198,9 @@ public sealed class WidgetGroupsTests
         var state = State(Sample());
         var payload = PlacementPayload.FromView(state.Views[0], ["a", "b"], PlacementMode.Copy)!;
 
-        var first = payload.Plan(0.5, 0.5, Screen, snapEnabled: false);
+        var first = payload.Plan(0.5, 0.5, Screen);
         state.ApplyPlacement(first, "v");
-        var second = payload.Plan(0.3, 0.8, Screen, snapEnabled: false);
+        var second = payload.Plan(0.3, 0.8, Screen);
         state.ApplyPlacement(second, "v");
 
         var view = state.Views[0];
@@ -216,7 +216,7 @@ public sealed class WidgetGroupsTests
         var state = State(Sample());
         var payload = PlacementPayload.FromView(state.Views[0], ["a"], PlacementMode.Copy)!;
 
-        var plan = payload.Plan(0.5, 0.8, Screen, snapEnabled: false);
+        var plan = payload.Plan(0.5, 0.8, Screen);
         state.ApplyPlacement(plan, "v");
 
         Assert.Null(state.Views[0].Find(plan.Roots[0])!.Group);
@@ -230,7 +230,7 @@ public sealed class WidgetGroupsTests
         var state = State(Sample(), other);
         var payload = PlacementPayload.FromView(state.Views[0], ["a", "b"], PlacementMode.Move)!;
 
-        state.ApplyPlacement(payload.Plan(0.5, 0.5, Screen, snapEnabled: false), other.Id);
+        state.ApplyPlacement(payload.Plan(0.5, 0.5, Screen), other.Id);
 
         Assert.Empty(state.Views[0].Groups);
         var moved = Assert.Single(other.Groups);
@@ -282,6 +282,23 @@ public sealed class WidgetGroupsTests
         Assert.True(selection.Press(view, "a"));
         Assert.Equal(["a"], selection.Ids);
         Assert.Equal("g", selection.Entered);
+    }
+
+    [Fact]
+    public void S2459_a_group_selected_whole_or_entered_with_one_member_shows_its_other_members_corners()
+    {
+        var view = Sample();
+        var selection = new WidgetSelection();
+        EditMarks Marks(string id) => SelectionRules.MarksOf(view.Widgets.Single(w => w.Id == id).Group, selection.Entered, selection.Contains(id));
+
+        Assert.Equal(EditMarks.Corners, Marks("a"));
+        selection.Press(view, "a");
+        Assert.Equal(EditMarks.Corners, Marks("a"));
+        Assert.Equal(EditMarks.Corners, Marks("b"));
+
+        selection.Click(view, "a");
+        Assert.Equal(EditMarks.Handles, Marks("a"));
+        Assert.Equal(EditMarks.Corners, Marks("b"));
     }
 
     [Fact]

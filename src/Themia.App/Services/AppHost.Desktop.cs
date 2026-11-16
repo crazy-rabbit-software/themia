@@ -10,136 +10,150 @@ using Themia.Sdk;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-5500]..[S-5506] The desktop layer: what the desktop shows (⚙'s one choice) applied to Explorer's
-/// icons, held across Explorer restarts and given back on quit; [S-5520] the reconcile of every view's
-/// item widgets against the desktop as the shell lists it.
+/// [S-5500]..[S-5506] The desktop layer: Explorer's icons held hidden while Themia runs, across Explorer
+/// restarts, and given back on quit; Themia's items read and watched; [S-5520] the
+/// reconcile of every view's item widgets against the desktop as the shell lists it.
 /// </summary>
 internal sealed partial class AppHost
 {
-    /// <summary>
-    /// [S-5501] Themia's items show: the surfaces cover their displays and the item widgets have cards.
-    /// [S-5575] Not while another program holds the desktop's icons.
-    /// </summary>
-    public bool ShowsDesktopItems => DesktopCoexistence.ShowsItems(State.Preferences.Desktop, _desktopHolder);
-
-    /// <summary>[S-5575] Who else holds the desktop's windows, read when the choice is applied and when Explorer restarts.</summary>
-    private DesktopHolder _desktopHolder = DesktopHolder.None;
-
-    /// <summary>[S-5575] ⚙ › On the desktop's note reads it.</summary>
-    public DesktopHolder DesktopHolder => _desktopHolder;
 
     /// <summary>
-    /// [S-5503] [S-5504] At start, before any surface: the choice applied. A choice that hides holds
-    /// the list hidden (no flash of icons first); any other undoes what an earlier run that crashed or
-    /// was killed may have left hidden.
+    /// [S-5503] At start, before any surface: Explorer's icon list held hidden (no flash of icons
+    /// first), and the desktop's items read when they show.
     /// </summary>
     private void StartDesktop()
     {
         _command.ShellRestarted += OnDesktopShellRestarted;
         _command.DesktopChanged += Files.HostDesktopItems.Instance.OnNotification;
         HostDesktopItems.Instance.Listed += OnDesktopListed;
-        DesktopIcons.GaveUp += OnDesktopIconsKeptShown;
+        _deskSizeSettled = State.Preferences.DesktopIconSize;
         StartDesk();
-        ApplyDesktop(picked: false);
+        DesktopIcons.Hold();
+
+        // [S-5506] [S-5511] The desktop's namespace read and watched (the read reconciles as a first read
+        // does); the icons always show. Explorer's own list stays hidden ([S-5503]).
+        Files.HostDesktopItems.Instance.Start(_command.Handle, _dispatcher);
     }
 
-    /// <summary>[S-5503] [S-5575] Explorer restarted: its new windows read again and the choice applied to them (the re-hide cap starts over).</summary>
-    private void OnDesktopShellRestarted()
-    {
-        DesktopIcons.ForgetKeptShown();
-        ApplyDesktop(picked: false);
-    }
+    /// <summary>[S-5503] Explorer restarted: its new icon list is found, hooked and hidden (the re-hide cap starts over).</summary>
+    private void OnDesktopShellRestarted() => DesktopIcons.Hold();
 
-    /// <summary>[S-5575] Something keeps Explorer's icons shown past the cap: Themia's items stand down, said under the choice.</summary>
-    private void OnDesktopIconsKeptShown() => ApplyDesktop(picked: false);
-
-    /// <summary>[S-5504] Quit: the hook goes and Explorer's icons come back if this run hid them.</summary>
+    /// <summary>[S-5504] Quit: the hook goes and Explorer's icons come back as Windows has them.</summary>
     private void StopDesktop()
     {
         _command.ShellRestarted -= OnDesktopShellRestarted;
         _command.DesktopChanged -= Files.HostDesktopItems.Instance.OnNotification;
         HostDesktopItems.Instance.Listed -= OnDesktopListed;
-        DesktopIcons.GaveUp -= OnDesktopIconsKeptShown;
         StopDesk();
         Files.HostDesktopItems.Instance.Stop();
-        DesktopIcons.RestoreIfHidden();
+        DesktopIcons.Release();
+    }
+
+    /// <summary>[S-5593] The desktop's icon size as the icons were last settled for it.</summary>
+    private DesktopIconSize _deskSizeSettled;
+
+    /// <summary>[S-11875] An icon's box in DIPs at the icon size in force: what the desktop's Core rules size icons by.</summary>
+    private SizeDip DeskCellDip => DeskCellAt(DesktopCell.Current);
+
+    private static SizeDip DeskCellAt(DesktopIconSize size) => DesktopCell.Grid(size);
+
+    /// <summary>[S-11875] An icon's box on a display: whole grid cells (<see cref="DesktopGrid.IconSize"/>).</summary>
+    private (double W, double H) DeskIconSize(ScreenMetrics screen) => DesktopGrid.IconSize(DeskCellDip, screen);
+
+    /// <summary>
+    /// [S-5593] The desktop's icon size as the state has it, put in force (<see cref="DesktopCell.Apply"/>)
+    /// inside the mutation that changed it, whoever made it (View ›, the General page, Ctrl + wheel, an
+    /// import): every icon of a shown view keeps its place in the arrangement, which grows or shrinks with
+    /// the icon (<see cref="DesktopGrid.Rescale"/>: no two overlap, [S-11887]), at its new size in whole grid cells ([S-11875]). A view
+    /// no display shows keeps its rects; its icons are painted at the new size when it is shown. Returns
+    /// whether the size changed.
+    /// </summary>
+    private bool ApplyDesktopIconSize()
+    {
+        var size = State.Preferences.DesktopIconSize;
+        var from = DeskCellAt(DesktopCell.Current);
+        if (!DesktopCell.Apply(size))
+        {
+            return false;
+        }
+
+        var to = DeskCellDip;
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var surface in SurfacesNow())
+        {
+            // [S-854] A surface whose metrics are provisional rescales nothing.
+            var metrics = surface.Screen;
+            if (!seen.Add(surface.ViewId) || !surface.Writable || State.FindView(surface.ViewId) is not { } view)
+            {
+                continue;
+            }
+
+            // [S-11887] The view's icons as one arrangement: no two overlap, none lands on a widget.
+            var (fromBox, toBox) = (DesktopGrid.IconSize(from, metrics), DesktopGrid.IconSize(to, metrics));
+            var icons = view.Widgets.Where(w => w.Config is IDesktopItemConfig).ToList();
+            var others = view.Widgets.Where(w => w.Config is not IDesktopItemConfig).Select(w => w.Rect).ToList();
+            var rescaled = DesktopGrid.Rescale([.. icons.Select(w => w.Rect)], others, fromBox, toBox, metrics);
+            for (var i = 0; i < icons.Count; i++)
+            {
+                icons[i].Rect = rescaled[i];
+            }
+        }
+
+        Log.Info(Scope, $"desktop icons are {size} now");
+        return true;
     }
 
     /// <summary>
-    /// [S-5503] [S-5505] The choice applied to Explorer's icons: hidden for the session under Themia's
-    /// items and Nothing, else shown again as Windows has them, and, on the user's pick of Windows'
-    /// icons while Windows hides them, Windows' own setting asked once.
+    /// [S-5593] The desktop's icon size changed (the state says so, whoever changed it): the displays'
+    /// rules run again for the new size.
     /// </summary>
-    private void ApplyDesktop(bool picked)
+    private void SettleDesktopViewSettings()
     {
-        var shows = State.Preferences.Desktop;
-        var showedItems = ShowsDesktopItems;
-        var before = _desktopHolder;
-
-        // [S-5575] The user's pick tries once more; then who else holds the desktop, read from its windows.
-        if (picked)
+        if (_deskSizeSettled == State.Preferences.DesktopIconSize)
         {
-            DesktopIcons.ForgetKeptShown();
+            return;
         }
 
-        _desktopHolder = DesktopCoexistence.Classify(DesktopIcons.ReadFacts());
-        if (_desktopHolder != before)
-        {
-            Log.Info(Scope, $"the desktop is held by: {_desktopHolder}");
-        }
+        _deskSizeSettled = State.Preferences.DesktopIconSize;
+        SettleDesktopDisplays();
+        RepaintDesk();
+    }
 
-        // [S-5511] The namespace is read and watched only while its items show.
-        if (ShowsDesktopItems)
+    /// <summary>[S-5593] Another desktop icon size: one setting, stored and applied at once (the mutation puts it in force).</summary>
+    public void SetDesktopIconSize(DesktopIconSize size)
+    {
+        if (State.Preferences.DesktopIconSize != size && Enum.IsDefined(size))
         {
-            Files.HostDesktopItems.Instance.Start(_command.Handle, _dispatcher);
-        }
-        else
-        {
-            // [S-5506] No item widget shows: nothing is selected, renamed or expected to land.
-            Files.HostDesktopItems.Instance.Stop();
-            _desk.Clear();
-            _landings.Clear();
-            _renamingWidget = null;
-            _renamingKey = null;
-            DesktopKeysEnd(giveBack: false);
-        }
-
-        // [S-5501] [S-5575] The surfaces' regions and the item cards follow when what shows changed by itself.
-        if (!picked && (ShowsDesktopItems != showedItems || _desktopHolder != before))
-        {
-            StateChanged?.Invoke();
+            Mutate(s => s.Preferences.DesktopIconSize = size, undo: null);
             SettingsOutdated?.Invoke();
         }
-
-        // [S-5575] Never fight another program for the desktop: no hide, and nothing shown that it hid.
-        if (DesktopIconRules.Hides(shows) && !DesktopCoexistence.MayHide(shows, _desktopHolder))
-        {
-            DesktopIcons.Unhold();
-            return;
-        }
-
-        if (DesktopIconRules.Hides(shows))
-        {
-            DesktopIcons.Hold();
-            return;
-        }
-
-        DesktopIcons.Release();
-        if (picked && DesktopIconRules.AsksWindows(shows, DesktopIcons.WindowsHides()))
-        {
-            DesktopIcons.Request(true);
-        }
     }
+
+    /// <summary>[S-5593] Ctrl + mouse wheel on the desktop: one size up or down, as Explorer's.</summary>
+    public void StepDesktopIconSize(int notches) => SetDesktopIconSize(DesktopCell.Step(State.Preferences.DesktopIconSize, notches));
 
     /// <summary>[S-5520] The item kind: the one widget whose config is an <see cref="IDesktopItemConfig"/>, or null in a build without it.</summary>
     private static WidgetDescriptor? ItemKind
         => ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
 
+    /// <summary>
+    /// [S-854] A read of the desktop that came in before every surface's metrics settled: its renames,
+    /// replayed with the listing then held once they have (<see cref="SettleSurfaces"/>). Null while none waits.
+    /// </summary>
+    private List<(string Old, string New)>? _listingWaits;
+
     /// <summary>[S-5520] A read came back: reconciled as one change that is not an undo step.</summary>
     private void OnDesktopListed(IReadOnlyList<DesktopItem> listing, IReadOnlyList<(string Old, string New)> renames)
     {
-        if (!ShowsDesktopItems || ItemKind is null)
+        if (ItemKind is null)
         {
+            return;
+        }
+
+        // [S-854] New items land on cells of the real grid only: before the surfaces settle, the read waits.
+        if (!SurfaceMetrics.AllSettled(SurfacesNow()))
+        {
+            (_listingWaits ??= []).AddRange(renames);
             return;
         }
 
@@ -174,8 +188,15 @@ internal sealed partial class AppHost
     /// </summary>
     private void ReconcileDesktopAfterStep()
     {
-        if (!ShowsDesktopItems || ItemKind is null || !HostDesktopItems.Instance.HasListing)
+        if (ItemKind is null || !HostDesktopItems.Instance.HasListing)
         {
+            return;
+        }
+
+        // [S-854] Before the surfaces settle the held listing is reconciled once they have.
+        if (!SurfaceMetrics.AllSettled(SurfacesNow()))
+        {
+            _listingWaits ??= [];
             return;
         }
 
@@ -202,7 +223,7 @@ internal sealed partial class AppHost
         var spots = LandingSpots(plan.Arrivals);
         var made = new Dictionary<string, string>(DesktopItemKeys.Comparer);
         var unplaced = DesktopReconcile.Apply(
-            state, plan, target, screen, (kind.Natural.Width, kind.Natural.Height),
+            state, plan, target, screen, (DeskCellDip.Width, DeskCellDip.Height),
             (item, rect) =>
             {
                 var widget = NewItemWidget(kind.Id, item, rect);
@@ -233,27 +254,60 @@ internal sealed partial class AppHost
     /// </summary>
     private void SettleDesktopDisplays()
     {
-        if (!ShowsDesktopItems || ItemKind is not { } kind || !HostDesktopItems.Instance.HasListing)
+        if (ItemKind is not { } kind || !HostDesktopItems.Instance.HasListing)
         {
             return;
         }
 
+        // [S-854] Only on every surface's real metrics: a surface not settled would leave its view
+        // looking shown nowhere, and its grid is not the real one. The settle runs this again then.
         var alive = _windows.Where(w => w.IsAlive).OrderByDescending(w => w.Monitor.IsPrimary).ToList();
-        var shown = alive.Where(w => w.Metrics.IsUsable).Select(w => new DesktopShownView(w.CurrentViewId, w.Metrics)).ToList();
-        DesktopShownView? primary = alive.FirstOrDefault(w => w.Monitor.IsPrimary && w.Metrics.IsUsable) is { } main
+        var surfaces = alive.Select(w => w.Surface).ToList();
+        if (!SurfaceMetrics.AllSettled(surfaces))
+        {
+            return;
+        }
+
+        var shown = surfaces.Select(s => new DesktopShownView(s.ViewId, s.Screen)).ToList();
+        DesktopShownView? primary = alive.FirstOrDefault(w => w.Monitor.IsPrimary) is { } main
             ? new DesktopShownView(main.CurrentViewId, main.Metrics)
             : null;
-        var plan = DesktopDisplays.Plan(State, [.. _displays.Select(d => d.Id)], shown, primary, HostDesktopItems.Instance.Items, (kind.Natural.Width, kind.Natural.Height));
-        if (!plan.Changes(State))
+        var plan = DesktopDisplays.Plan(State, [.. _displays.Select(d => d.Id)], shown, primary, HostDesktopItems.Instance.Items, (DeskCellDip.Width, DeskCellDip.Height));
+        if (plan.Changes(State))
+        {
+            Log.Info(Scope, $"desktop items on the displays: +{plan.Adds.Count} stand-in(s), -{plan.Removes.Count}, {plan.Moves.Count} moved into the work area");
+            Mutate(state => DesktopDisplays.Apply(state, plan, (item, rect) => NewItemWidget(kind.Id, item, rect)), undo: null);
+        }
+
+    }
+
+    /// <summary>
+    /// [S-5594] [S-11876] View › Auto arrange icons: once, now, every desktop icon of the views shown packed
+    /// on the widget grid from the work area's top-left corner in reading order round the other widgets
+    /// (<see cref="DesktopGrid.Pack"/>), one undo step. No setting: what is dropped later lands where it is
+    /// dropped, on the grid.
+    /// </summary>
+    public void AutoArrangeDesktopIcons()
+    {
+        var moves = DesktopGrid.Packs(State, SurfacesNow(), DeskCellDip);
+        if (moves.Count == 0)
         {
             return;
         }
 
-        Log.Info(Scope, $"desktop items on the displays: +{plan.Adds.Count} stand-in(s), -{plan.Removes.Count}, {plan.Moves.Count} moved into the work area");
-        Mutate(state => DesktopDisplays.Apply(state, plan, (item, rect) => NewItemWidget(kind.Id, item, rect)), undo: null);
+        Log.Info(Scope, $"{moves.Count} desktop icon(s) packed (Auto arrange icons)");
+        Mutate(_ => MoveDesktopIcons(moves), undo: UndoAction.Move);
     }
 
-    /// <summary>[S-5600] A new item widget: preset to its item, transparent, headerless.</summary>
+    private static void MoveDesktopIcons(List<(WidgetInstance Widget, FracRect Rect)> moves)
+    {
+        foreach (var (widget, rect) in moves)
+        {
+            widget.Rect = rect;
+        }
+    }
+
+    /// <summary>[S-5600] A new item widget: preset to its item (transparent and headerless by its kind's traits).</summary>
     internal static WidgetInstance NewItemWidget(WidgetId kind, DesktopItem item, FracRect rect)
     {
         var widget = WidgetInstance.Create(kind, rect);
@@ -262,13 +316,12 @@ internal sealed partial class AppHost
             config.Item = item.Key;
         }
 
-        widget.Background = FillChoice.Transparent();
         return widget;
     }
 
     /// <summary>[S-5523] What Add widget offers on <paramref name="viewId"/>: the listed items with no widget there.</summary>
     public IReadOnlyList<DesktopItem> UnplacedDesktopItems(string viewId)
-        => ShowsDesktopItems && State.FindView(viewId) is { } view
+        => State.FindView(viewId) is { } view
             ? DesktopReconcile.Unplaced(view, HostDesktopItems.Instance.Items)
             : [];
 
@@ -280,7 +333,8 @@ internal sealed partial class AppHost
             return;
         }
 
-        var widget = NewItemWidget(kind.Id, item, new FracRect(0, 0, kind.Natural.Width / screen.Width, kind.Natural.Height / screen.Height));
+        var (w, h) = DeskIconSize(screen);
+        var widget = NewItemWidget(kind.Id, item, new FracRect(0, 0, w, h));
         var holder = new ViewState { Id = "desktop-item", Name = string.Empty, Widgets = [widget] };
         if (PlacementPayload.FromView(holder, [widget.Id], PlacementMode.Copy) is { } payload)
         {

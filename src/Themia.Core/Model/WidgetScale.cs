@@ -63,6 +63,20 @@ public static class WidgetScale
     public static double Effective(double display, double widget)
         => Sane(display) * Normalise(widget);
 
+    /// <summary>
+    /// [S-6532] [S-5593] The scale <paramref name="widget"/>'s content is drawn at on a display of scale
+    /// <paramref name="display"/> (<paramref name="previewed"/>: its own scale tried on the page, not kept):
+    /// <see cref="Effective"/>, but a desktop icon is drawn at 1 whatever the display's scale or its own. Its
+    /// size is the desktop's one icon size, and the icon grid packs it at that cell ([S-5589], [S-5594]): a
+    /// scaled icon was painted wider than its cell, so the last column ran past the work area's side and
+    /// was cut off (2026-11-15).
+    /// </summary>
+    public static double For(WidgetInstance widget, double display, double? previewed = null)
+    {
+        ArgumentNullException.ThrowIfNull(widget);
+        return widget.Config is IDesktopItemConfig ? 1.0 : Effective(display, previewed ?? widget.Scale);
+    }
+
     /// <summary>The whole number of percent a scale reads as, for its label.</summary>
     public static double Percent(double scale) => Math.Round(Normalise(scale) * 100);
 

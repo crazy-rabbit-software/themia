@@ -38,8 +38,6 @@ public sealed record DesktopDisplayPlan(
 /// </summary>
 public static class DesktopDisplays
 {
-    private const double Epsilon = 1e-9;
-
     /// <summary>
     /// [S-5560] [S-5561] [S-5562] The plan for the displays now.
     /// <paramref name="connected"/> are the ids of every connected display (switched off for Themia or
@@ -52,12 +50,13 @@ public static class DesktopDisplays
     /// again (its display is back) is taken away.</item>
     /// <item>The views of displays not connected (their stored assignments, [S-18]) that no live surface
     /// shows are stranded: each listed item placed there and in no shown view gets a stand-in in the
-    /// primary display's view at its next free cell ([S-5521]), in the stranded view's own order (down
+    /// primary display's view at the first free spot of the widget grid ([S-11876]), in the stranded view's own order (down
     /// each column, then the next).</item>
-    /// <item>In every shown view, an item widget no longer whole inside its display's work area (the
-    /// taskbar moved, grew or stopped hiding) moves to the free cell nearest after where it was
-    /// (<see cref="DesktopCells.FreeFrom"/>), as Explorer keeps its icons off the taskbar; a work area that
-    /// grows moves nothing.</item>
+    /// <item>In every shown view, the icons are settled (<see cref="DesktopGrid.Settle"/>, [S-11887]): an icon
+    /// no longer whole inside its display's work area (the taskbar moved, grew or stopped hiding), not at the
+    /// icon's box, or overlapping an icon before it is laid by the one collision rule round the valid ones, so
+    /// no icon is lost under the taskbar and none overlaps another; a valid layout (a work area that grows)
+    /// moves nothing.</item>
     /// </list>
     /// Pure: nothing in <paramref name="state"/> changes.
     /// </summary>
@@ -117,8 +116,8 @@ public static class DesktopDisplays
                 .Select(state.FindView)
                 .OfType<ViewState>();
 
-            var cell = new FracRect(0, 0, cellDip.Width / main.Screen.Width, cellDip.Height / main.Screen.Height);
-            var occupied = target.Widgets.Where(w => !removes.Contains(w.Id)).Select(w => w.Rect).ToList();
+            var size = DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), main.Screen);
+            var occupied = DesktopGrid.Occupied(target, removes);
             var added = new HashSet<string>(DesktopItemKeys.Comparer);
             foreach (var view in stranded)
             {
@@ -132,13 +131,12 @@ public static class DesktopDisplays
                         continue;
                     }
 
-                    if (DesktopGrid.NextFree(occupied, cell, main.Screen.Allowed) is not { } free)
+                    if (DesktopGrid.Arrive(occupied, size, null, null, main.Screen) is not { } free)
                     {
                         continue;
                     }
 
                     adds.Add(new DesktopFallbackAdd(target.Id, item, free));
-                    occupied.Add(free);
                     added.Add(key);
                 }
             }
@@ -154,29 +152,19 @@ public static class DesktopDisplays
                 continue;
             }
 
-            var area = view.Screen.Allowed;
-            var occupied = held.Widgets.Where(w => !removes.Contains(w.Id)).Select(w => w.Rect).ToList();
-            occupied.AddRange(adds.Where(a => a.ViewId == held.Id).Select(a => a.Rect));
-            foreach (var widget in held.Widgets)
+            // [S-11887] The view's icons settled by the one rule: valid ones stay, an icon outside the work area,
+            // of another box or on another icon is laid round them, the widgets and the stand-ins just laid in.
+            var size = DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), view.Screen);
+            var icons = held.Widgets.Where(w => !removes.Contains(w.Id) && w.Config is IDesktopItemConfig).ToList();
+            var others = held.Widgets.Where(w => !removes.Contains(w.Id) && w.Config is not IDesktopItemConfig).Select(w => w.Rect).ToList();
+            others.AddRange(adds.Where(a => a.ViewId == held.Id).Select(a => a.Rect));
+            var settled = DesktopGrid.Settle([.. icons.Select(w => w.Rect)], others, size, view.Screen);
+            for (var i = 0; i < icons.Count; i++)
             {
-                if (removes.Contains(widget.Id) || widget.Config is not IDesktopItemConfig || Inside(widget.Rect, area))
+                // No room inside: it stays where it was rather than cover another.
+                if (settled[i] is { } rect)
                 {
-                    continue;
-                }
-
-                occupied.Remove(widget.Rect);
-                var x = Math.Clamp(widget.Rect.X + (widget.Rect.W / 2), area.X, area.Right - Epsilon);
-                var y = Math.Clamp(widget.Rect.Y + (widget.Rect.H / 2), area.Y, area.Bottom - Epsilon);
-                var size = new FracRect(0, 0, widget.Rect.W, widget.Rect.H);
-                if (DesktopCells.FreeFrom(occupied, x, y, size, area) is { } spot)
-                {
-                    moves.Add((widget.Id, spot));
-                    occupied.Add(spot);
-                }
-                else
-                {
-                    // No room inside: it stays where it was rather than cover another.
-                    occupied.Add(widget.Rect);
+                    moves.Add((icons[i].Id, rect));
                 }
             }
         }
@@ -260,7 +248,4 @@ public static class DesktopDisplays
 
     private static bool Same(FracRect a, FracRect b)
         => Math.Abs(a.X - b.X) < 1e-6 && Math.Abs(a.Y - b.Y) < 1e-6 && Math.Abs(a.W - b.W) < 1e-6 && Math.Abs(a.H - b.H) < 1e-6;
-
-    private static bool Inside(FracRect r, FracRect area)
-        => r.X >= area.X - Epsilon && r.Y >= area.Y - Epsilon && r.Right <= area.Right + Epsilon && r.Bottom <= area.Bottom + Epsilon;
 }

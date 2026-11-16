@@ -46,6 +46,12 @@ public readonly record struct TileRoles(ColourRole? Fill, ColourRole? Circle, Co
 public readonly record struct SwitchParts(bool Glyph, bool Lines);
 
 /// <summary>
+/// [S-11882] What a Tile or Round tile draws in its box: its glyph's step, whether its name (and a
+/// toggle's state line) stand under it, and their steps.
+/// </summary>
+public readonly record struct TileFace(TypeStep Glyph, bool Texted, TypeStep Name, TypeStep State);
+
+/// <summary>
 /// [S-6715] The Tile block, for the one-readout widgets (the thirteen quick toggles, the seven power
 /// buttons): the glyph centred on the Readout and Hero steps, one Body label under it 8 below, one
 /// Caption state line. On is the whole tile in the accent (text and glyph on it), never a tinted
@@ -105,61 +111,109 @@ public static class TileRules
         _ => new TileRoles(null, null, ColourRole.TextPrimary, ColourRole.TextPrimary, ColourRole.TextSecondary),
     };
 
-    // ---- the sized tile ([S-11307]) ---------------------------------------------------------
-
-    /// <summary>[S-11307] The glyph's step at each size: 28, 40, 68 (a round tile's circle, a ringed tile's ring).</summary>
-    public static TypeStep GlyphAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
-    {
-        ReadoutSize.Small => FamilyType.Big28,
-        ReadoutSize.Large => FamilyType.Hero68,
-        _ => FamilyType.Big40,
-    };
+    // ---- the free tile ([S-11882]) -----------------------------------------------------------
 
     /// <summary>[S-11804] The lines a tile's name may take before it is cut with its ellipsis.</summary>
     public const int NameLines = 2;
 
     /// <summary>
-    /// [S-11307] [S-11804] A Tile or Round tile's square at each size: at least 100, 120, 160, and as tall as the
-    /// glyph, its name on two lines and (a toggle's) the state line under them need in the inset all round,
-    /// on the 4 grid: a quick toggle 116, 128, 160; a power button (no state line) 100, 120, 160.
+    /// [S-11882] The glyph's steps a Tile or Round tile climbs as its box grows (a round tile's circle, a
+    /// ringed tile's ring): the Readout steps, then the Hero steps up to 136 ([S-6737]: a one-readout widget).
     /// </summary>
-    public static double SideAt(ReadoutSize size, bool stateLine = true)
-    {
-        var least = ReadoutSizes.Normalise(size) switch
-        {
-            ReadoutSize.Small => 100.0,
-            ReadoutSize.Large => 160.0,
-            _ => 120.0,
-        };
-
-        var needed = (2 * FamilySpace.Inset) + GlyphAt(size).FontSize + FamilySpace.S2 + (NameLines * FamilyType.Body.LineHeight)
-            + (stateLine ? FamilyType.Caption.LineHeight : 0);
-        return Math.Max(least, Math.Ceiling(needed / FamilySpace.S1) * FamilySpace.S1);
-    }
+    public static IReadOnlyList<TypeStep> GlyphSteps => [FamilyType.Big28, FamilyType.Big40, FamilyType.Hero68, FamilyType.Hero96, FamilyType.Hero136];
 
     /// <summary>
-    /// [S-11307] The Switch look's row at each size: 200, 240, 280 wide (at the least its glyph, a
-    /// sentence's room for its name and state, and the switch, <see cref="Switch"/>), 60 tall.
+    /// [S-11882] The room a name needs beside nothing, on <paramref name="name"/>'s step: a short name
+    /// ("Wi-Fi", "Lock") on one line, as the 100-wide tile always held at Body (76 in the inset), grown
+    /// with the name's step.
     /// </summary>
-    public static double SwitchWidthAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
+    public static double NameRoom(TypeStep name) => 76 * name.FontSize / FamilyType.BodySize;
+
+    /// <summary>
+    /// [S-11882] The name's and the state line's steps under a glyph of <paramref name="glyph"/>: Body
+    /// and Caption under the Readout steps and 68, Title (regular) and Body under the larger Hero steps,
+    /// so the words grow with the glyph.
+    /// </summary>
+    public static (TypeStep Name, TypeStep State) TextAt(TypeStep glyph)
+        => FamilyType.BaseOf(glyph) > 68 ? (FamilyType.Regular(FamilyType.Title), FamilyType.Body) : (FamilyType.Body, FamilyType.Caption);
+
+    /// <summary>
+    /// [S-11882] What a Tile or Round tile draws in a box of <paramref name="width"/> × <paramref name="height"/>
+    /// DIPs (its card, the inset all round): the largest glyph step whose glyph, its name on
+    /// <see cref="NameLines"/> lines and (<paramref name="stateLine"/>: a toggle's) its state line fit, the
+    /// words on <see cref="TextAt"/>'s steps; where no step fits with its words, the glyph alone (the name
+    /// is the tooltip, the state the fill, as Windows' own quick-settings buttons) on the largest step at
+    /// most a third of the inset box's short side, never under 28, so a box that grows into its words
+    /// never sees its glyph shrink. Centred both ways in the box by the block.
+    /// </summary>
+    public static TileFace Face(double width, double height, bool stateLine = true)
     {
-        ReadoutSize.Small => 200,
-        ReadoutSize.Large => 280,
-        _ => 240,
-    };
+        var w = (double.IsFinite(width) ? width : 0) - (2 * FamilySpace.Inset);
+        var h = (double.IsFinite(height) ? height : 0) - (2 * FamilySpace.Inset);
+        TileFace? texted = null;
+        var alone = new TileFace(FamilyType.Big28, false, FamilyType.Body, FamilyType.Caption);
+        foreach (var glyph in GlyphSteps)
+        {
+            var (name, state) = TextAt(glyph);
+            var below = FamilySpace.S2 + (NameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
+            if (glyph.FontSize <= w && glyph.FontSize + below <= h && NameRoom(name) <= w)
+            {
+                texted = new TileFace(glyph, true, name, state);
+            }
+
+            if (glyph.FontSize <= Math.Min(w, h) / AloneShare)
+            {
+                alone = new TileFace(glyph, false, name, state);
+            }
+        }
+
+        return texted ?? alone;
+    }
+
+    /// <summary>[S-11882] A glyph alone is at most this share of its inset box's short side: one third.</summary>
+    public const double AloneShare = 3;
+
+    /// <summary>[S-11882] The smallest a Tile or Round tile may be: its 28 glyph alone in the inset, 52.</summary>
+    public static double MinSide => (2 * FamilySpace.Inset) + FamilyType.Big28.FontSize;
+
+    /// <summary>
+    /// [S-11882] [S-11804] Where a new Tile or Round tile lands: the 28 glyph, its name on two lines and (a
+    /// toggle's) the state line in the inset, on the 4 grid, at least 100: a quick toggle 116, a power
+    /// button 100.
+    /// </summary>
+    public static double NaturalSide(bool stateLine = true)
+    {
+        var (name, state) = TextAt(FamilyType.Big28);
+        var needed = (2 * FamilySpace.Inset) + FamilyType.Big28.FontSize + FamilySpace.S2 + (NameLines * name.LineHeight) + (stateLine ? state.LineHeight : 0);
+        return Math.Max(100, Math.Ceiling(needed / FamilySpace.S1) * FamilySpace.S1);
+    }
+
+    /// <summary>[S-11882] The largest a Tile or Round tile grows to on either axis.</summary>
+    public const double MaxSide = 480;
 
     /// <summary>[S-11307] The Switch look's height: the name over the state line in the inset.</summary>
     public const double SwitchHeight = (2 * FamilySpace.Inset) + FamilyType.BodyLine + FamilyType.CaptionLine;
 
+    /// <summary>[S-11882] The Switch look's narrowest row: its glyph and the switch alone in the inset (<see cref="Switch"/>).</summary>
+    public const double SwitchMinWidth = (2 * FamilySpace.Inset) + FamilyShape.Icon + FamilySpace.GlyphGap + SwitchWidth;
+
+    /// <summary>[S-11882] The Switch look's new row: its glyph, a sentence's room for its name and state, and the switch.</summary>
+    public const double SwitchNaturalWidth = 240;
+
+    /// <summary>[S-11882] The Switch look's widest and tallest row; the row stays centred in a taller box.</summary>
+    public static SizeDip SwitchMax => new(640, 3 * SwitchHeight);
+
     /// <summary>
-    /// [S-11307] A quick toggle's or a power button's card: fixed both ways by its look and Size, the Tile
-    /// and Round looks a square (<paramref name="stateLine"/>: a toggle's, which says on or off under its
-    /// name), the Switch look a row; nothing in it changes with the size but its scale.
+    /// [S-11882] A quick toggle's or a power button's card (owner, 2026-11-15: "widgets like the toggle
+    /// buttons should not have size limitations"): resized freely on both axes, from the glyph alone
+    /// (<see cref="MinSide"/>) to <see cref="MaxSide"/>, landing at <see cref="NaturalSide"/>
+    /// (<paramref name="stateLine"/>: a toggle's, which says on or off under its name); the Switch look a
+    /// row from its glyph and switch alone to 640 wide. What it draws in its box is <see cref="Face"/>.
     /// </summary>
-    public static WidgetSizing Sizing(TileLook look, ReadoutSize size, bool stateLine = true)
-        => WidgetSizing.Fixed(look == TileLook.Switch
-            ? new SizeDip(SwitchWidthAt(size), SwitchHeight)
-            : new SizeDip(SideAt(size, stateLine), SideAt(size, stateLine)));
+    public static WidgetSizing Sizing(TileLook look, bool stateLine = true)
+        => look == TileLook.Switch
+            ? WidgetSizing.Range(new(SwitchMinWidth, SwitchHeight), new(SwitchNaturalWidth, SwitchHeight), SwitchMax) with { Room = StretchRoom.Picture }
+            : WidgetSizing.Range(new(MinSide, MinSide), new(NaturalSide(stateLine), NaturalSide(stateLine)), new(MaxSide, MaxSide)) with { Room = StretchRoom.Picture };
 
     /// <summary>The largest of the family's glyph sizes at most <paramref name="room"/>, 16 at least.</summary>
     private static double Largest(double room)

@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "অন্য অ্যাপ বেছে নিন",
+  "folderMenu.compressToZip": "ZIP ফাইলে সংকুচিত করুন",
+  "folderMenu.copyAsPath": "পাথ হিসেবে কপি করুন",
+  "folderMenu.openInNewWindow": "নতুন উইন্ডোতে খুলুন",
+  "folderMenu.openWith": "এর সাথে খুলুন",
+  "folderMenu.pinToQuickAccess": "দ্রুত অ্যাক্সেসে পিন করুন",
+  "folderMenu.pinToStart": "স্টার্টে পিন করুন",
+  "folderMenu.share": "শেয়ার করুন",
+  "folder.properties": "বৈশিষ্ট্য",
+  "widgetsB.folder.freeUpSpace": "জায়গা খালি করুন",
+  "widgetsB.folder.keepOnDevice": "সবসময় এই ডিভাইসে রাখুন",
+  "widgetsB.folder.moreOptions": "আরও বিকল্প দেখান",
+  "widgetsB.folder.new": "নতুন",
+  "ctxMenu.folder": "ফোল্ডার"
+}

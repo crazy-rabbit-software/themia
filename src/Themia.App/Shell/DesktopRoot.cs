@@ -2,20 +2,21 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Automation.Provider;
 using Microsoft.UI.Xaml.Controls;
+using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-5571] A surface's root: under Themia's items, outside edit mode, it is the desktop itself to a
+/// [S-5571] A surface's root: while the desktop's icons show, outside edit mode, it is the desktop itself to a
 /// screen reader, as Explorer's desktop is a list named "Desktop": its items are the list's items in
 /// the desktop's order (<c>DesktopNav.Order</c>), the selection is the list's (several at once, none
 /// required), and the focused item is what has the keyboard focus. Otherwise it is a plain pane.
 /// </summary>
 internal sealed partial class DesktopRoot(Func<bool> isDesktop) : Grid
 {
-    /// <summary>Whether the root stands for the desktop now: Themia's items show and edit mode is off.</summary>
+    /// <summary>Whether the root stands for the desktop's list now: its icons show and edit mode is off.</summary>
     internal bool IsDesktop => isDesktop();
 
     protected override AutomationPeer OnCreateAutomationPeer() => new DesktopRootAutomationPeer(this);
@@ -36,7 +37,12 @@ internal sealed partial class DesktopRootAutomationPeer(DesktopRoot owner) : Fra
     protected override object? GetPatternCore(PatternInterface patternInterface)
         => patternInterface == PatternInterface.Selection && owner.IsDesktop ? this : base.GetPatternCore(patternInterface);
 
-    /// <summary>The items in the desktop's order (each says its place), the rest after them as they were.</summary>
+    /// <summary>
+    /// [S-5576] The items in the desktop's order (each says its place), the rest after them as they were.
+    /// Reordered in place, in the list XAML handed over: a managed list returned instead cannot be handed
+    /// back to XAML (CsWinRT finds no WinRT vector for it, "Failed to create a CCW"), and the whole
+    /// subtree vanished from UI Automation, the desktop a list with no items.
+    /// </summary>
     protected override IList<AutomationPeer>? GetChildrenCore()
     {
         var children = base.GetChildrenCore();
@@ -47,11 +53,17 @@ internal sealed partial class DesktopRootAutomationPeer(DesktopRoot owner) : Fra
 
         try
         {
-            return [.. children
-                .Select((peer, i) => (peer, i, at: peer.GetPositionInSet()))
-                .OrderBy(c => c.at > 0 ? 0 : 1)
-                .ThenBy(c => c.at > 0 ? c.at : c.i)
-                .Select(c => c.peer)];
+            var peers = children.ToArray();
+            if (DesktopAutomation.Order([.. peers.Select(peer => peer.GetPositionInSet())]) is { } order)
+            {
+                children.Clear();
+                foreach (var at in order)
+                {
+                    children.Add(peers[at]);
+                }
+            }
+
+            return children;
         }
         catch (Exception ex)
         {

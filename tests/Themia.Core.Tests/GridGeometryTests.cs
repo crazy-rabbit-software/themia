@@ -54,16 +54,6 @@ public class GridGeometryTests
         Assert.Equal(once, twice);
     }
 
-    [Fact]
-    public void S06_settle_without_snap_keeps_free_fractional_positioning()
-    {
-        var raw = new FracRect(0.1234, 0.5678, 0.2, 0.2);
-
-        var free = GridGeometry.Settle(raw, Screen, snapEnabled: false);
-
-        Assert.Equal(0.1234, free.X, 6);
-        Assert.Equal(0.5678, free.Y, 6);
-    }
 
     [Theory]
     [InlineData(ResizeHandle.Left)]
@@ -143,8 +133,8 @@ public class GridGeometryTests
         var small = new ScreenMetrics(1280, 720);
         var large = new ScreenMetrics(3840, 2160);
 
-        var onSmall = GridGeometry.PlaceAt(0.5, 0.5, 320, 160, small, snapEnabled: false);
-        var onLarge = GridGeometry.PlaceAt(0.5, 0.5, 320, 160, large, snapEnabled: false);
+        var onSmall = GridGeometry.PlaceAt(0.5, 0.5, 320, 160, small);
+        var onLarge = GridGeometry.PlaceAt(0.5, 0.5, 320, 160, large);
 
         Assert.Equal(320, onSmall.W * small.Width, 1);
         Assert.Equal(320, onLarge.W * large.Width, 1);
@@ -191,67 +181,9 @@ public class GridGeometryTests
     }
 
     [Fact]
-    public void S04_the_cell_is_the_same_whatever_the_gap()
-    {
-        // The whole point: the gap is padding inside the cell, so moving the gap slider must not
-        // move or resize the widget's geometry.
-        var rect = new FracRect(0.25, 0.25, 0.5, 0.5);
-
-        var cell = GridGeometry.ToPixels(rect, Screen);
-
-        Assert.Equal(0.25 * Screen.Width, cell.X, 6);
-        Assert.Equal(0.5 * Screen.Width, cell.Width, 6);
-    }
-
-    [Fact]
-    public void S04_the_gap_insets_the_painted_surface_by_half_on_every_side()
-    {
-        var cell = GridGeometry.ToPixels(new FracRect(0.25, 0.25, 0.5, 0.5), Screen);
-
-        var painted = GridGeometry.Inset(cell, gapPx: 16);
-
-        Assert.Equal(cell.X + 8, painted.X, 9);
-        Assert.Equal(cell.Y + 8, painted.Y, 9);
-        Assert.Equal(cell.Width - 16, painted.Width, 9);
-        Assert.Equal(cell.Height - 16, painted.Height, 9);
-    }
-
-    [Fact]
-    public void S04_two_neighbours_show_a_full_gap_between_their_painted_surfaces()
-    {
-        var left = GridGeometry.Inset(GridGeometry.ToPixels(new FracRect(0, 0, 0.5, 1), Screen), 16);
-        var right = GridGeometry.Inset(GridGeometry.ToPixels(new FracRect(0.5, 0, 0.5, 1), Screen), 16);
-
-        Assert.Equal(16, right.X - (left.X + left.Width), 9);
-    }
-
-    [Fact]
-    public void S04_a_gap_wider_than_the_cell_leaves_something_to_click_rather_than_nothing()
-    {
-        var cell = new PixelRect(100, 100, 20, 20);
-
-        var painted = GridGeometry.Inset(cell, gapPx: 400);
-
-        Assert.True(painted.Width >= 1);
-        Assert.True(painted.Height >= 1);
-        Assert.True(painted.X >= cell.X);
-        Assert.True(painted.X + painted.Width <= cell.X + cell.Width + 0.001);
-    }
-
-    [Fact]
-    public void S04_a_zero_or_nonsense_gap_leaves_the_cell_untouched()
-    {
-        var cell = new PixelRect(10, 20, 300, 200);
-
-        Assert.Equal(cell, GridGeometry.Inset(cell, 0));
-        Assert.Equal(cell, GridGeometry.Inset(cell, -5));
-        Assert.Equal(cell, GridGeometry.Inset(cell, double.NaN));
-    }
-
-    [Fact]
     public void S11_placement_is_centred_on_the_drop_point()
     {
-        var placed = GridGeometry.PlaceAt(0.5, 0.5, 320, 160, Screen, snapEnabled: false);
+        var placed = GridGeometry.PlaceAt(0.5, 0.5, 320, 160, Screen);
 
         Assert.Equal(0.5, placed.X + (placed.W / 2), 6);
         Assert.Equal(0.5, placed.Y + (placed.H / 2), 6);
@@ -260,7 +192,7 @@ public class GridGeometryTests
     [Fact]
     public void S11_S6608_placement_at_a_screen_corner_hangs_over_it_but_stays_in_reach()
     {
-        var placed = GridGeometry.PlaceAt(0.0, 0.0, 320, 160, Screen, snapEnabled: true);
+        var placed = GridGeometry.PlaceAt(0.0, 0.0, 320, 160, Screen);
 
         Assert.True(placed.X < 0);
         Assert.True(placed.Y < 0);

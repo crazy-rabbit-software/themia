@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "Pa wíjẹ́ẹ̀tì {count} rẹ́"
   },
-  "shell.card.doneEditing": "Parí àtúnṣe",
-  "shell.card.editLayout": "Ṣàtúnṣe ìtò",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "Ṣètò",
   "shell.setup.hint": "Ṣètò ohun tí wíjẹ́ẹ̀tì yìí nílò",
   "shell.toolbar.addWidget": "Ṣàfikún wíjẹ́ẹ̀tì",
-  "shell.toolbar.snapName": "Tò mọ́ àwọ̀n ìlà",
-  "shell.toolbar.collisionsName": "Má jẹ́ kí àwọn widget bò ara wọn",
   "shell.editBar.selected": {
     "other": "a yan {count}"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "Ìwọ̀n ọ̀rọ̀",
   "shell.appearance.systemFont": "Àtilẹ̀wá sístẹ́mù",
   "shell.appearance.sansFont": "Láìsí sẹ́rífù",
-  "shell.layout.gap": "Àlàfo láàrín àwọn wíjẹ́ẹ̀tì",
   "shell.motion.slide": "Yíyọ̀",
   "shell.motion.sides": "Ẹ̀gbẹ́",
   "shell.motion.topBottom": "Òkè àti ìsàlẹ̀",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "Ní gbogbo ìṣẹ́jú",
   "shell.refresh.everyHour": "Ní gbogbo wákàtí",
   "shell.color.custom": "Àwọ̀ àdáni",
-  "shell.color.pickCustom": "Yan àwọ̀ àdáni",
   "shell.color.pickFromScreen": "Yan àwọ̀ láti ojú-ìbòjú",
   "shell.color.pickFailed": "A kò lè ka àwọn àwọ̀ lórí ojú-ìbòjú",
   "shell.icon.home": "Ilé",

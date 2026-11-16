@@ -15,7 +15,7 @@ readout, the slider and the speaker through the shared `AudioFeed`), `VolumeMenu
 
 - **[S-2730]** The volume tile's controls, at every size: a speaker button at the slider's start
   (glyph by level, crossed out when muted; click mutes, tooltip Mute/Unmute) and the 0..100 slider,
-  both the Controls block's row at the card's bottom inset ([S-6716], [S-2731]: a 28 icon button, the
+  both the Controls block's row at the card's bottom inset (a larger box keeps the face and its controls one block, centred, [S-12410]) ([S-6716], [S-2731]: a 28 icon button, the
   rail Track, the value the accent; on a card too narrow for both, the speaker gives way and the keys
   still mute). No level meter. The card header follows the shared header rules. Options
   ([S-2734]): output device and "Allow changes"; read-only greys the controls rather than hiding

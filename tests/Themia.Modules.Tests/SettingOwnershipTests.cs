@@ -40,8 +40,6 @@ public sealed class SettingOwnershipTests
             // ignore: nothing is asked of Windows here.
         }
 
-        public void SetDesktop(DesktopShows shows) => State.Preferences.Desktop = shows;
-
         public bool Suspended => false;
 
         public void SetGameModeSuspend(bool on) => State.Preferences.GameModeSuspend = on;
@@ -70,11 +68,6 @@ public sealed class SettingOwnershipTests
         public void Confirm(SettingsConfirm confirm)
         {
             // ignore: nothing is run here.
-        }
-
-        public void Quit()
-        {
-            // ignore: nothing quits here.
         }
 
         public LicenseStatus Status { get; } = new(LicenseTier.Unrestricted, LicenseBasis.DeveloperBuild);
@@ -147,15 +140,18 @@ public sealed class SettingOwnershipTests
 
         public string DisplayId => "a";
 
-        public IReadOnlyList<MenuDisplay> Displays { get; } = [];
+        public IReadOnlyList<MenuDisplay> Displays { get; } =
+        [
+            new("a", "Screen a", "Screen a — 1920 × 1080", new DisplayInfo("a", true, new Core.Geometry.PixelRect(0, 0, 1920, 1080), new Core.Geometry.PixelRect(0, 0, 1920, 1040), true)),
+        ];
 
         public void Mutate(Action<AppState> change, bool relayout = true) => change(State);
 
         public bool SetEnabled(string displayId, bool on) => false;
 
-        public void SetScale(double scale) => State.MonitorScales[DisplayId] = scale;
+        public void SetScale(string displayId, double scale) => State.MonitorScales[displayId] = scale;
 
-        public void Show(string viewId) => State.ShowViewOn(DisplayId, viewId);
+        public void Show(string displayId, string viewId) => State.ShowViewOn(displayId, viewId);
     }
 
     private sealed class QuietViewsHost(AppState state) : IViewsMenuHost
@@ -164,7 +160,14 @@ public sealed class SettingOwnershipTests
 
         public string DisplayId => "a";
 
+        public IReadOnlyList<MenuDisplay> Displays { get; } = [];
+
         public void Mutate(Action<AppState> change, bool relayout = true) => change(State);
+
+        public void Show(string viewId)
+        {
+            // ignore: a command.
+        }
 
         public void Add()
         {
@@ -241,10 +244,10 @@ public sealed class SettingOwnershipTests
             }
         }
 
-        // Snap to grid, and the card's own rows ([S-3735], [S-3739]): Style, Header and the Appearance foot.
+        // The card's own rows ([S-3735], [S-3739]): Style, Header and the Appearance foot.
         words.UnionWith(
         [
-            Str.Shell_Toolbar_SnapName.Text(), Str.Styles_Label.Text(), Str.App_ConfigHeaderLabel.Text(), Str.Group_Title_Label.Text(),
+            Str.Styles_Label.Text(), Str.App_ConfigHeaderLabel.Text(), Str.Group_Title_Label.Text(),
             Str.Widget_Align_Label.Text(), Str.Shell_Items_Background.Text(), Str.Shell_Items_TextShort.Text(), Str.Shell_Fill_Image.Text(),
             Str.Widget_Scale_Label.Text(), Str.Settings_Section_Appearance.Text(),
         ]);
@@ -290,9 +293,10 @@ public sealed class SettingOwnershipTests
 
     /// <summary>
     /// The kinds whose menus read a list only the running host installs (the displays with a brightness,
-    /// the drives, the graphics adapters, the launcher): built with stand-ins by their own menu tests.
+    /// the drives, the graphics adapters, the app-layout editor a new desktop icon's Target offers): built with
+    /// stand-ins by their own menu tests.
     /// </summary>
-    private static readonly string[] NeedsTheHost = ["brightness", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory", "shortcuts"];
+    private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory"];
 
     [Fact]
     public void S3592_no_widget_sets_what_a_higher_level_owns_except_through_a_link()

@@ -139,6 +139,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         _config = config as VolumeConfig ?? new VolumeConfig();
         Lay();
     }

@@ -39,7 +39,7 @@ namespace Themia.App.Widgets;
 /// copied from 180 wide; the clear is the header's button; nothing but the entries.
 /// </para>
 /// </summary>
-internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetKeys, IWidgetSizeAware
 {
     private const string Scope = "clipboard-widget";
 
@@ -147,6 +147,25 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         }
     }
 
+    /// <summary>[S-663] [S-12410] The card's word on its room: the rows' pitch follows it.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        if (area == _area)
+        {
+            return;
+        }
+
+        _area = area;
+        Redraw();
+    }
+
+    private WidgetArea _area;
+
+    /// <summary>[S-12410] A row's height: its lines' natural one stretched over the config's rows down to the card's edge.</summary>
+    private double Pitch => _area.IsMeasured
+        ? ItemStretch.Pitch(_area.Height, _plan.Rows, _plan.RowHeight, scale: XamlRoot?.RasterizationScale ?? 1)
+        : _plan.RowHeight;
+
     private void Redraw()
     {
         if (!_detached)
@@ -184,15 +203,17 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         // show two different ideas of "now".
         var now = _clock();
 
+        var pitch = Pitch;
         for (var i = 0; i < entries.Count; i++)
         {
             var row = BuildRow(entries[i], i == 0, now);
+            row.Height = pitch;
             _rows.Add(row);
             _list.Children.Add(row);
         }
 
         // [S-2440] As tall as the rows its config states: never a part of one at its foot.
-        _scroll.Height = Math.Min(_rows.Count, _plan.Rows) * _plan.RowHeight;
+        _scroll.Height = Math.Min(_rows.Count, _plan.Rows) * pitch;
 
         _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;
         ShowCursor();

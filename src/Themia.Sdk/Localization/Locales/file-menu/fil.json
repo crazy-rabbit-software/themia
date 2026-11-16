@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Pumili ng ibang app",
+  "folderMenu.compressToZip": "I-compress sa ZIP file",
+  "folderMenu.copyAsPath": "Kopyahin bilang path",
+  "folderMenu.openInNewWindow": "Buksan sa bagong window",
+  "folderMenu.openWith": "Buksan gamit ang",
+  "folderMenu.pinToQuickAccess": "I-pin sa Mabilisang pag-access",
+  "folderMenu.pinToStart": "I-pin sa Start",
+  "folderMenu.share": "Ibahagi",
+  "folder.properties": "Mga Property",
+  "widgetsB.folder.freeUpSpace": "Magbakante ng espasyo",
+  "widgetsB.folder.keepOnDevice": "Laging itago sa device na ito",
+  "widgetsB.folder.moreOptions": "Ipakita ang higit pang opsyon",
+  "widgetsB.folder.new": "Bago",
+  "ctxMenu.folder": "Folder"
+}

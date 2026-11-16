@@ -278,20 +278,43 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11709_the_item_kind_is_never_a_tile_and_its_subject_lists_the_unplaced_items()
+    public void S11709_the_desktop_icon_kind_has_its_tile_and_its_subject_lists_the_unplaced_items_too()
     {
         var itemKind = new WidgetId("desktopItem");
         DesktopItem[] unplaced = [new("::{645FF040-5081-101B-9F08-00AA002F954E}", "Recycle Bin", DesktopItemKind.ShellItem), new("a.txt", "a", DesktopItemKind.File)];
 
         var page = AddPage.Of(Every, ReadyMadeGroups.Offered(), itemKind, unplaced);
-        Assert.DoesNotContain(new AddWidgetTile(itemKind), AllTiles(page, withStart: true));
-        Assert.DoesNotContain(page.Homes, h => h.Kind == itemKind);
-
         var files = page.Sections(AddFolderId.Files);
+
+        // The tile (it makes an own icon): among the subject's widgets, once, and at home there.
+        var widgets = files.Single(s => s.Kind == AddSectionKind.Widgets);
+        Assert.Single(widgets.Tiles, t => t.Equals(new AddWidgetTile(itemKind)));
+        Assert.Single(AllTiles(page, withStart: false), t => t.Equals(new AddWidgetTile(itemKind)));
+        Assert.Equal([AddFolderId.Files], page.Homes.Single(h => h.Kind == itemKind).Path.Select(s => s.Id));
+        Assert.Equal("Shortcut", ModuleCatalog.Of(itemKind).AddLabel!.Value.Text(Locale.En));
+        Assert.Equal("Desktop icon", ModuleCatalog.Of(itemKind).Label.Text(Locale.En));
+
+        // And the view's unplaced desktop items, in the same subject, as given.
         var desktop = files.Single(s => s.Kind == AddSectionKind.Desktop);
         Assert.Equal(unplaced, desktop.Tiles.Cast<AddItemTile>().Select(t => t.Item));
+        Assert.True(files.ToList().IndexOf(widgets) < files.ToList().IndexOf(desktop));
+        Assert.DoesNotContain(page.Tabs.Where(t => t.Id != AddFolderId.Files).SelectMany(t => page.Sections(t.Id)), s => s.Kind == AddSectionKind.Desktop);
 
-        // Nothing unplaced: no section.
-        Assert.DoesNotContain(AddPage.Of(Every, ReadyMadeGroups.Offered(), itemKind, []).Sections(AddFolderId.Files), s => s.Kind == AddSectionKind.Desktop);
+        // Nothing unplaced (or none given, or no item kind): no section, the tile stays.
+        foreach (var bare in new[] { AddPage.Of(Every, ReadyMadeGroups.Offered(), itemKind, []), AddPage.Of(Every, ReadyMadeGroups.Offered(), itemKind), AddPage.Of(Every, ReadyMadeGroups.Offered(), null, unplaced), Page })
+        {
+            Assert.DoesNotContain(bare.Sections(AddFolderId.Files), s => s.Kind == AddSectionKind.Desktop);
+            Assert.Contains(new AddWidgetTile(itemKind), bare.Sections(AddFolderId.Files).Single(s => s.Kind == AddSectionKind.Widgets).Tiles);
+        }
+    }
+
+    [Fact]
+    public void S11709_the_desktop_icon_kind_is_among_popular()
+    {
+        var itemKind = new WidgetId("desktopItem");
+        var popular = Page.Sections(AddFolderId.Start).Single(s => s.Kind == AddSectionKind.Popular);
+
+        Assert.Contains(new AddWidgetTile(itemKind), popular.Tiles);
+        Assert.Equal(10, ModuleCatalog.Of(itemKind).Add!.Popular);
     }
 }

@@ -15,7 +15,7 @@ the sun, the levels through `IWidgetHost.Brightness`, its own display through it
 
 - **[S-4440]** Kind `Brightness` (123), add menu Devices & power ([S-3511]), 200×150, glyph the sun. One
   slider, no display names (Karpo §35, §103: no flyout): the Controls block's slider at the card's
-  bottom inset as the volume tile's ([S-2731], [S-6716]); the sun is the header's glyph (the one at
+  bottom inset as the volume tile's (a larger box keeps the face and its controls one block, centred, [S-12410]) ([S-2731], [S-6716]); the sun is the header's glyph (the one at
   the slider's start went with the family, G5), the level the slider's name and tooltip.
 - **[S-2152]** Over the slider the level is a Readout, as the meters beside it (owner decision
   2026-11-12; the root's [S-2150], [S-11308], `LevelFace`): "70%" at the view's top on 28 at every size, following the slider while it is dragged; the reading and the slider are always both, the card 120 tall and 160 to 360 wide. It has no

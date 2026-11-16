@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.UI.ViewManagement;
 using Color = Windows.UI.Color;
 
@@ -83,6 +84,21 @@ internal static class DesignApplier
     /// <summary>The design last applied (the app's own, live), for a debug view that shows it.</summary>
     public static DesignState? Current { get; private set; }
 
+    /// <summary>[S-2130] The look tokens in force: what the widgets' own brushes of the tokened roles are made from.</summary>
+    private static LookTokens _tokens = new();
+
+    /// <summary>[S-2131] The frost every backdrop is made with now.</summary>
+    public static FrostLook Frost { get; private set; } = LookRules.Frost(new LookTokens());
+
+    /// <summary>[S-2131] The frost changed: the backdrops are made again with it.</summary>
+    public static event Action? FrostChanged;
+
+    /// <summary>[S-2133] The accent in force, as a colour: what a card mixes in and the tinted mode tones toward.</summary>
+    public static RgbColor Accent => _shades is { } shades ? new RgbColor(shades[3].R, shades[3].G, shades[3].B) : new RgbColor(0x00, 0x78, 0xD4);
+
+    /// <summary>[S-2130] The look tokens in force (a copy: read only).</summary>
+    public static LookTokens Tokens => _tokens;
+
     private static UISettings Ui => _ui ??= new UISettings();
 
     /// <summary>
@@ -108,6 +124,12 @@ internal static class DesignApplier
 
             var accentChanged = !_applied || accentKey != _accentKey;
             var themeChanged = !_applied || dark != _dark;
+            var tokens = design.Tokens ?? new LookTokens();
+            var tokensChanged = !_applied || !tokens.SameAs(_tokens);
+            if (tokensChanged)
+            {
+                _tokens = tokens.Clone();
+            }
 
             if (accentChanged)
             {
@@ -118,13 +140,39 @@ internal static class DesignApplier
             _dark = dark;
             _applied = true;
 
-            if (accentChanged || themeChanged)
+            if (accentChanged || themeChanged || tokensChanged)
             {
                 RefreshThemed();
             }
 
+            if (accentChanged || tokensChanged)
+            {
+                // [S-2133] The data colours as the rendering mode draws them.
+                var mode = _tokens.Rendering;
+                var accent = Accent;
+                Family.Retone(mode == RenderingMode.FullColour ? null : c => LookRules.Tone(c, mode, accent));
+            }
+
+            if (tokensChanged)
+            {
+                // [S-2135]..[S-2139] The type and the rows' dividers, restyled where they stand.
+                if (FamilyLook.Set(_tokens.Type(), _tokens.RowDividers))
+                {
+                    Family.Restyle();
+                    Themia.Sdk.WinUI.Kit.RowBlock.RestyleRows();
+                }
+
+                // [S-2131] The frost: the backdrops are made again only when it changed.
+                var frost = LookRules.Frost(_tokens);
+                if (frost != Frost)
+                {
+                    Frost = frost;
+                    FrostChanged?.Invoke();
+                }
+            }
+
             // [S-6510] The app-wide item layer, for an item painted before it stands in a card.
-            Widgets.ItemPalette.App.Apply(design.ItemBackground ?? new FillChoice(), ItemLook.TextColour(design, null), dark);
+            Widgets.ItemPalette.App.Apply(design.ItemBackground ?? new FillChoice(), ItemLook.TextColour(design, null), dark, _tokens);
 
             var fontName = DesignLook.FontFamilyName(design.FontFamily);
             if (!string.Equals(fontName, _fontName, StringComparison.Ordinal) || (fontName is not null && ContentFont is null))
@@ -250,6 +298,11 @@ internal static class DesignApplier
     /// </summary>
     private static (Color Color, double Opacity)? Resolve(string key, bool dark)
     {
+        if (key.StartsWith(ColourRoles.FamilyPrefix, StringComparison.Ordinal))
+        {
+            return ResolveWidget(key[ColourRoles.FamilyPrefix.Length..], dark);
+        }
+
         var appBrush = Application.Current.Resources.TryGetValue(key, out var found) ? found as SolidColorBrush : null;
         Color color;
 
@@ -285,7 +338,49 @@ internal static class DesignApplier
         return (color, appBrush?.Opacity ?? 1);
     }
 
+    /// <summary>
+    /// [S-2133] [S-2134] [S-2138] A widget's own brush of a tokened role (<see cref="ColourRoles.WidgetKey"/>): the
+    /// theme's brush of <paramref name="key"/>, as the look tokens draw it: a text level the theme's ink at the level's
+    /// opacity (<see cref="LookRules.Label"/>) once the text is vibrant; a track the ink at the track's opacity on vibrant
+    /// surfaces; the accent toned by the rendering mode. With the tokens a fresh set holds, exactly the theme's.
+    /// </summary>
+    private static (Color Color, double Opacity)? ResolveWidget(string key, bool dark)
+    {
+        if (Resolve(key, dark) is not { } theme)
+        {
+            return null;
+        }
+
+        var tokens = _tokens;
+        var ink = LookRules.Ink(dark);
+        ItemTextTier? tier = ColourRoles.Of(key) switch
+        {
+            ColourRole.TextPrimary => ItemTextTier.Primary,
+            ColourRole.TextSecondary => ItemTextTier.Secondary,
+            ColourRole.TextTertiary => ItemTextTier.Tertiary,
+            ColourRole.TextDisabled => ItemTextTier.Disabled,
+            _ => null,
+        };
+
+        if (tier is { } level && tokens.Vibrancy > 0)
+        {
+            return (HexBrush.Colour(ink, LookRules.Label(level, dark, tokens)), 1);
+        }
+
+        switch (ColourRoles.Of(key))
+        {
+            case ColourRole.Track when tokens.InnerSurface == InnerSurface.Vibrant:
+                return (HexBrush.Colour(ink, LookRules.Inner(ItemRole.Track, ItemState.Rest, tokens)), 1);
+            case ColourRole.Accent when tokens.Rendering != RenderingMode.FullColour:
+                var toned = LookRules.Tone(new RgbColor(theme.Color.R, theme.Color.G, theme.Color.B), tokens.Rendering, Accent);
+                return (HexBrush.Colour(toned, theme.Color.A / 255.0), theme.Opacity);
+            default:
+                return theme;
+        }
+    }
+
     /// <summary>A <see cref="Color"/> resource in one theme, from the theme dictionaries anywhere in the app's resources.</summary>
+
     private static Color? ThemeColor(string key, bool dark)
     {
         foreach (var theme in dark ? DarkThemes : LightThemes)

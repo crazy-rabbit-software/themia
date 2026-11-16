@@ -25,10 +25,20 @@ public partial class App : Application
         Widgets.ItemFill.Install(new Widgets.ItemInks.Engine());
         // A Windows location (shell:) is no file: its icon is its own, not the one every extensionless
         // file shares, which drew This PC with the Recycle Bin's.
-        Widgets.ItemMenu.InstallFileIcons((file, pixels) => file.StartsWith("shell:", StringComparison.OrdinalIgnoreCase)
+        // [S-5559] A kind of file named without a file (New ›'s lines) is its registered type's icon.
+        Widgets.ItemMenu.InstallFileIcons((file, pixels) => file.StartsWith(Services.Files.TypeIconName.Prefix, StringComparison.Ordinal)
+            ? Services.Files.FileIcons.TypeIconAsync(file, pixels)
+            : file.StartsWith("shell:", StringComparison.OrdinalIgnoreCase)
             ? Themia.Sdk.WinUI.AppIconSource.GetAsync(file, pixels, Current.RequestedTheme == ApplicationTheme.Dark ? Themia.Core.Widgets.LogoTheme.Dark : Themia.Core.Widgets.LogoTheme.Light)
             : Services.Files.FileIcons.IconAsync(new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, Directory.Exists(file), 0, default, false), pixels));
+        // [S-5565] The number in the badge of a drag's ghost: real text, drawn at once.
+        Themia.Sdk.WinUI.ItemDrag.InstallInk(Interop.TextInk.Draw);
         Shell.ColorChoice.InstallEyedropper(new Interop.ScreenEyedropper());
+
+        // [S-1575] The picker's recent colours live in the state (none before the host is there: a render).
+        Shell.ColorChoice.InstallRecent(
+            () => _host?.State.Preferences.RecentColours ?? [],
+            hex => _host?.Mutate(s => s.Preferences.RecentColours = [.. Themia.Core.Settings.ColourPicker.Remember(s.Preferences.RecentColours, hex)], relayout: false, undo: null));
         Shell.Config.PlaceSearch.InstallLookup(Services.Web.WeatherService.FindAsync);
         Themia.Sdk.SymbolLookup.Install(Services.Web.MarketService.SearchAsync);
         Themia.Sdk.DriveList.Install(() => Services.Drives.DriveService.Shared.Now());
@@ -216,8 +226,20 @@ public partial class App : Application
             return;
         }
 
+        // [S-11874]..[S-11879] The locked desktop's moves: the local grid, icons on the grid, a mixed lasso.
+        if (Shell.Gallery.DragRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And what a view switch costs, and whether it leaks ([S-1883]).
         if (Shell.Gallery.SwitchCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
+        // And the surface's start on a view: every card at rest, the automation tree whole ([S-1018]).
+        if (Shell.Gallery.StartupCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;
         }

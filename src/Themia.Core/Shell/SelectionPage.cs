@@ -20,10 +20,20 @@ public enum SelectionSection
     /// <summary>Header: the title (one widget) and where the header stands.</summary>
     Header,
 
-    /// <summary>[S-11755] A group's widgets: a row each, opening its own page.</summary>
-    Members,
-
     /// <summary>Appearance: alignment, background, item background, item text, background image, scale.</summary>
+    Appearance,
+}
+
+/// <summary>
+/// [S-2345] The selection page's tabs under its header card, Karpo's tab strip (§592: WinUI's SelectorBar): what
+/// the widgets show and hold, and how they look.
+/// </summary>
+public enum SelectionTab
+{
+    /// <summary>Settings: the link to an entered member's group, What it shows, For all of them, Header.</summary>
+    Settings,
+
+    /// <summary>Appearance: the Appearance section alone.</summary>
     Appearance,
 }
 
@@ -43,17 +53,15 @@ public enum SelectionKind
     Member,
 }
 
-/// <summary>[S-11755] A group's member as its row names it: its kind, and its name as its header shows it.</summary>
-public sealed record SelectionMember(string Id, WidgetId Kind, string Name);
-
 /// <summary>[S-11751] A shared setting as the page shows it: the widgets that hold it (two or more) and whether they disagree.</summary>
 public sealed record SharedRow(SharedSetting Setting, IReadOnlyList<string> Holders, bool Mixed);
 
 /// <summary>
 /// [S-11754] The selection's page as a model: what is selected, what it offers (<see cref="QuickSetOffer"/>:
-/// the header, the look), the group it is or is in, its members and the settings they share.
+/// the header, the look), the group it is or is in and the settings its widgets share. A group's page shows
+/// no member one by one ([S-11755]): what they share, and how they look.
 /// </summary>
-public sealed record SelectionModel(SelectionKind Kind, QuickSetOffer Offer, IReadOnlyList<SelectionMember> Members, IReadOnlyList<SharedRow> Shared)
+public sealed record SelectionModel(SelectionKind Kind, QuickSetOffer Offer, IReadOnlyList<SharedRow> Shared)
 {
     /// <summary>The group selected whole, or the one the entered member is in.</summary>
     public string? GroupId { get; init; }
@@ -63,6 +71,12 @@ public sealed record SelectionModel(SelectionKind Kind, QuickSetOffer Offer, IRe
 
     /// <summary>[S-11754] The group's name as the page and the bar say it: its own, or "Group".</summary>
     public string? GroupTitle => GroupId is null ? null : SelectionPage.GroupTitle(GroupName);
+
+    /// <summary>[S-2454] Group (Ctrl+G) makes one group of the selection: its header card offers it.</summary>
+    public bool CanGroup { get; init; }
+
+    /// <summary>[S-2454] Ungroup (Ctrl+Shift+G) dissolves a group the selection holds: its header card offers it.</summary>
+    public bool CanUngroup { get; init; }
 }
 
 /// <summary>
@@ -74,6 +88,32 @@ public sealed record SelectionModel(SelectionKind Kind, QuickSetOffer Offer, IRe
 /// </summary>
 public static class SelectionPage
 {
+    /// <summary>
+    /// [S-2343] What a selection that has its entry on the bar does to its flyout: it opens it once, when
+    /// the selection is new (<paramref name="selection"/>, its key, is not <paramref name="shown"/>, the
+    /// one the flyout was last opened for), and never while a ghost is being placed. While a widget is
+    /// held by the pointer (<paramref name="held"/>: a press, a drag, a resize, the drag that unlocks the
+    /// desktop, [S-2007]) nothing opens over the widget that is still moving, and the selection stays
+    /// new: the gesture's end opens its page (<see cref="OpensWhenReleased"/>).
+    /// Returns the key now shown and whether the flyout opens.
+    /// </summary>
+    public static (string? Shown, bool Opens) Flyout(string? shown, string selection, bool placing, bool held)
+    {
+        ArgumentNullException.ThrowIfNull(selection);
+        return held
+            ? (shown, false)
+            : (selection, !string.Equals(shown, selection, StringComparison.Ordinal) && !placing);
+    }
+
+    /// <summary>
+    /// [S-2343] A pointer gesture on a widget ended (a click on it, a drag or a resize of it, the drag
+    /// that unlocked the desktop): the selection's page is open afterwards. Whether it has to be opened
+    /// now: the selection has a page (<paramref name="shows"/>), it is not open already, and no ghost is
+    /// being placed. This is the one opening that does not ask whether the selection is new: a click on
+    /// a widget whose page the user closed opens it again.
+    /// </summary>
+    public static bool OpensWhenReleased(bool shows, bool open, bool placing) => shows && !open && !placing;
+
     /// <summary>
     /// [S-11754] The page's model for the selection on the display showing <paramref name="shownViewId"/>:
     /// null while nothing of it is in that view.
@@ -91,22 +131,25 @@ public static class SelectionPage
 
         var picked = new HashSet<string>(selection.Ids, StringComparer.Ordinal);
         var widgets = view.Widgets.Where(w => picked.Contains(w.Id)).ToList();
-        var members = widgets.Select(w => new SelectionMember(w.Id, w.Kind, w.Label ?? ModuleCatalog.Of(w.Kind).Name)).ToList();
-
         if (selection.Entered is { } entered && view.FindGroup(entered) is { } inside)
         {
-            return new SelectionModel(SelectionKind.Member, offer, members, []) { GroupId = inside.Id, GroupName = inside.Name };
+            return new SelectionModel(SelectionKind.Member, offer, []) { GroupId = inside.Id, GroupName = inside.Name };
         }
 
         var shared = Shared(widgets);
         if (WholeGroup(view, widgets) is { } group)
         {
-            return new SelectionModel(SelectionKind.Group, offer, members, shared) { GroupId = group.Id, GroupName = group.Name };
+            return new SelectionModel(SelectionKind.Group, offer, shared) { GroupId = group.Id, GroupName = group.Name, CanUngroup = true };
         }
 
+        // [S-2454] Several units: Group makes them one; Ungroup dissolves a group among them.
         return widgets.Count == 1
-            ? new SelectionModel(SelectionKind.One, offer, members, [])
-            : new SelectionModel(SelectionKind.Several, offer, members, shared);
+            ? new SelectionModel(SelectionKind.One, offer, [])
+            : new SelectionModel(SelectionKind.Several, offer, shared)
+            {
+                CanGroup = WidgetGroups.CanGroup(view, picked),
+                CanUngroup = WidgetGroups.CanUngroup(view, picked),
+            };
     }
 
     /// <summary>[S-11751] The settings two or more of <paramref name="widgets"/> share, each with its holders and whether they disagree.</summary>
@@ -198,8 +241,8 @@ public static class SelectionPage
     /// link to its group): What it shows where the look has a style or the widget has lines of its own
     /// (<paramref name="ownLines"/>) or what its look draws with (<paramref name="styleLines"/>); Header
     /// where it can have one ([S-3711]); Appearance. Several: the style for one kind, For all of them
-    /// where they share a setting, Header, Appearance ([S-3702]). A group: For all of them, its Widgets,
-    /// Appearance.
+    /// where they share a setting, Header, Appearance ([S-3702]). A group: For all of them and Appearance,
+    /// never a member one by one ([S-11755]).
     /// </summary>
     public static IReadOnlyList<SelectionSection> Sections(SelectionModel model, bool ownLines, bool styleLines)
     {
@@ -222,11 +265,7 @@ public static class SelectionPage
             sections.Add(SelectionSection.Shared);
         }
 
-        if (model.Kind == SelectionKind.Group)
-        {
-            sections.Add(SelectionSection.Members);
-        }
-        else if (offer.HasHeader)
+        if (model.Kind != SelectionKind.Group && offer.HasHeader)
         {
             sections.Add(SelectionSection.Header);
         }
@@ -235,6 +274,33 @@ public static class SelectionPage
         return sections;
     }
 
+    /// <summary>[S-2345] The tab a section stands on: Appearance its own, every other Settings.</summary>
+    public static SelectionTab TabOf(SelectionSection section)
+        => section == SelectionSection.Appearance ? SelectionTab.Appearance : SelectionTab.Settings;
+
+    /// <summary>
+    /// [S-2345] The tabs of <paramref name="sections"/>, in order, each with its sections: Settings while one
+    /// stands on it, then Appearance. One tab alone is no strip: its sections stand under the header card.
+    /// </summary>
+    public static IReadOnlyList<(SelectionTab Tab, IReadOnlyList<SelectionSection> Sections)> Tabs(IReadOnlyList<SelectionSection> sections)
+    {
+        ArgumentNullException.ThrowIfNull(sections);
+        return
+        [
+            .. Enum.GetValues<SelectionTab>()
+                .Select(tab => (tab, (IReadOnlyList<SelectionSection>)[.. sections.Where(s => TabOf(s) == tab)]))
+                .Where(t => t.Item2.Count > 0),
+        ];
+    }
+
+    /// <summary>[S-2345] A tab's words.</summary>
+    public static string TabTitle(SelectionTab tab) => tab switch
+    {
+        SelectionTab.Settings => Str.EditBar_Page_SettingsTab.Text(),
+        SelectionTab.Appearance => Str.Settings_Section_Appearance.Text(),
+        _ => throw new ArgumentOutOfRangeException(nameof(tab), tab, "not a tab"),
+    };
+
     /// <summary>[S-2342] [S-11754] A section's heading; null for the link to the group, which stands under the header card alone.</summary>
     public static string? Heading(SelectionSection section) => section switch
     {
@@ -242,7 +308,6 @@ public static class SelectionPage
         SelectionSection.Shows => Str.EditBar_Page_Shows.Text(),
         SelectionSection.Shared => Str.Groups_Page_Shared.Text(),
         SelectionSection.Header => Str.App_ConfigHeaderLabel.Text(),
-        SelectionSection.Members => Str.Groups_Page_Members.Text(),
         SelectionSection.Appearance => Str.Settings_Section_Appearance.Text(),
         _ => throw new ArgumentOutOfRangeException(nameof(section), section, "not a section"),
     };

@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Елемент робочого столу",
-  "desktopItem.desc": "Файл, папка або ярлик із твого робочого столу"
+  "widgetsC.shortcuts.column.target": "Ціль",
+  "widgetsC.shortcuts.kind.location": "Розташування Windows",
+  "widgetsC.shortcuts.kind.missing": "Відсутній",
+  "widgetsC.shortcuts.kind.path": "Шлях",
+  "widgetsC.shortcuts.kind.refused": "Не дозволено",
+  "widgetsC.shortcuts.menu.addLayout": "Розкладка програм…",
+  "widgetsC.shortcuts.menu.addLink": "Веб-адреса або шлях…",
+  "widgetsC.shortcuts.menu.changeTarget": "Змінити ціль…",
+  "widgetsC.shortcuts.settings.locations": "Розташування Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Подвійне клацання",
+  "widgetsC.shortcuts.settings.openWith.label": "Відкривати",
+  "widgetsC.shortcuts.settings.openWith.single": "Одне клацання",
+  "widgetsC.shortcuts.settings.pick.file": "Файл…",
+  "widgetsC.shortcuts.settings.pick.folder": "Папка…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ціль відсутня)\n{target}"
 }

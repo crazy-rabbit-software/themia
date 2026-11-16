@@ -189,8 +189,9 @@ internal sealed partial class AppHost
             window.DisplaysPassed();
         }
 
-        // [S-5560]..[S-5562] A display gone or back, a work area changed: the desktop's items follow.
-        SettleDesktopDisplays();
+        // [S-5560]..[S-5562] A display gone or back, a work area changed: the desktop's items follow;
+        // [S-854] on settled metrics only (a new surface settles when its root has loaded).
+        SettleSurfaces();
 
         if (!plan.IsEmpty || assigned > 0 || rekeyed)
         {

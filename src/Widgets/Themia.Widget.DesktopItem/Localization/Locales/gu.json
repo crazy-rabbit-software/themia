@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "ડેસ્કટોપ આઇટમ",
-  "desktopItem.desc": "તમારા ડેસ્કટોપ પરની ફાઇલ, ફોલ્ડર અથવા શોર્ટકટ"
+  "widgetsC.shortcuts.column.target": "લક્ષ્ય",
+  "widgetsC.shortcuts.kind.location": "Windows સ્થાન",
+  "widgetsC.shortcuts.kind.missing": "ગુમ",
+  "widgetsC.shortcuts.kind.path": "પાથ",
+  "widgetsC.shortcuts.kind.refused": "મંજૂરી નથી",
+  "widgetsC.shortcuts.menu.addLayout": "ઍપ લેઆઉટ…",
+  "widgetsC.shortcuts.menu.addLink": "વેબ સરનામું અથવા પાથ…",
+  "widgetsC.shortcuts.menu.changeTarget": "લક્ષ્ય બદલો…",
+  "widgetsC.shortcuts.settings.locations": "Windows સ્થાનો",
+  "widgetsC.shortcuts.settings.openWith.double": "ડબલ ક્લિક",
+  "widgetsC.shortcuts.settings.openWith.label": "આનાથી ખોલો",
+  "widgetsC.shortcuts.settings.openWith.single": "સિંગલ ક્લિક",
+  "widgetsC.shortcuts.settings.pick.file": "ફાઇલ…",
+  "widgetsC.shortcuts.settings.pick.folder": "ફોલ્ડર…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (લક્ષ્ય ગુમ)\n{target}"
 }

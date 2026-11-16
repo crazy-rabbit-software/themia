@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "انتخاب برنامه دیگر",
+  "folderMenu.compressToZip": "فشرده‌سازی به فایل ZIP",
+  "folderMenu.copyAsPath": "کپی به‌عنوان مسیر",
+  "folderMenu.openInNewWindow": "باز کردن در پنجره جدید",
+  "folderMenu.openWith": "باز کردن با",
+  "folderMenu.pinToQuickAccess": "سنجاق کردن به دسترسی سریع",
+  "folderMenu.pinToStart": "سنجاق کردن به شروع",
+  "folderMenu.share": "اشتراک‌گذاری",
+  "folder.properties": "ویژگی‌ها",
+  "widgetsB.folder.freeUpSpace": "آزادسازی فضا",
+  "widgetsB.folder.keepOnDevice": "همیشه در این دستگاه نگه دار",
+  "widgetsB.folder.moreOptions": "نمایش گزینه‌های بیشتر",
+  "widgetsB.folder.new": "جدید",
+  "ctxMenu.folder": "پوشه"
+}

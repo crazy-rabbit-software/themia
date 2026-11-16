@@ -29,13 +29,10 @@ public sealed class NightLightToggleModule : IWidgetModule
         Label = NightLightToggleStr.Toggles_NightLight_Label.Local(),
         Description = NightLightToggleStr.Toggles_NightLight_Desc.Local(),
         Glyph = Glyphs.NightLight,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 0),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

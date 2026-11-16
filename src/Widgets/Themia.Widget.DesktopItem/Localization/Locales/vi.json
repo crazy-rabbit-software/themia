@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Mục trên màn hình nền",
-  "desktopItem.desc": "Một tệp, thư mục hoặc lối tắt từ màn hình nền"
+  "widgetsC.shortcuts.column.target": "Đích",
+  "widgetsC.shortcuts.kind.location": "Vị trí Windows",
+  "widgetsC.shortcuts.kind.missing": "Không tìm thấy",
+  "widgetsC.shortcuts.kind.path": "Đường dẫn",
+  "widgetsC.shortcuts.kind.refused": "Không được phép",
+  "widgetsC.shortcuts.menu.addLayout": "Bố cục ứng dụng…",
+  "widgetsC.shortcuts.menu.addLink": "Địa chỉ web hoặc đường dẫn…",
+  "widgetsC.shortcuts.menu.changeTarget": "Đổi đích…",
+  "widgetsC.shortcuts.settings.locations": "Vị trí Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Nhấp đúp",
+  "widgetsC.shortcuts.settings.openWith.label": "Mở bằng",
+  "widgetsC.shortcuts.settings.openWith.single": "Nhấp một lần",
+  "widgetsC.shortcuts.settings.pick.file": "Tệp…",
+  "widgetsC.shortcuts.settings.pick.folder": "Thư mục…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (không tìm thấy đích)\n{target}"
 }

@@ -11,12 +11,12 @@ Owning files: everything in this folder: `CalendarModule.cs` (descriptor, view f
 context), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own settings),
 `CalendarView*.cs` (one partial per style, the links, over `IWidgetHost.Office`), `AgendaSpec.cs`
 (the agenda on the kit's list), `CalendarSizing.cs` (each style's sizes and what it draws, from the
-config), `MonthEvents.cs`,
+config), `MonthEvents.cs`, `MonthPlan.cs` (the month with titles' weeks, lines and "+k more", pure),
 `CalendarMenu.cs` (its properties-menu lines: the SDK's calendar lines and the style's own), `Preview/` (Debug renders:
-`--state sample|selected|linked|days|stale|empty`), `Localization/Locales/` (its own `CalendarStr`, 30
+`--state sample|selected|linked|days|stale|empty|titles`), `Localization/Locales/` (its own `CalendarStr`, 30
 languages). Tests: the rules' are Core's; the config's are the module host's (`CalendarHostTests`,
 `OfficeConfigTests`); the agenda's items (and the narrow week's rows) are `Tests/AgendaSpecTests.cs`; the week's fit is Core's `CalendarFitTests`; the menu's `Tests/CalendarMenuTests.cs`; the sizes'
-`Tests/CalendarSizingTests.cs`.
+`Tests/CalendarSizingTests.cs`; the month with titles' `Tests/MonthPlanTests.cs`.
 
 **Sizes** (owner decision 2026-11-12, [S-2438]): each style's size follows its own settings and never
 the box; no `Disclosure`, no tier, no width decides what a style shows (the weekday names and a
@@ -37,9 +37,24 @@ chip's times still shorten with the column, as text does).
   events) where it is no longer, else that many from just before the next event or now
   (`CalendarFit.HoursOf`).
 - **[S-11544]** **Month**: six weeks always (the month's and the next days', dimmed), so every month is
-  one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots) or Titles (chips, two
-  lines a cell under the number, then "+N"): 36 + the weekday line + six cells + 12, 260..420 wide (a
-  new one 300). The day readout a narrow month fell back to is gone.
+  one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; 36 + the weekday
+  line + six cells + 12, 260..420 wide, a new one 300) or Titles ([S-11547]). The weeks fill the
+  content edge to edge, down to the card's edge ([S-12400], [S-12410], `ItemStretch.Lay`): a box taller than their cells shares the rest evenly.
+  The day readout a narrow month fell back to is gone.
+- **[S-11547]** **Month with titles** (owner request 2026-11-15: "a size where he actually shows the
+  events", Outlook's and Windows' month view): each day cell its number over **Events a day** (1..6, a
+  new one 3; a Style line under Events as) chip lines, 20 each (`MonthPlan`, `CalendarFit.Bars`): a span
+  (all-day, several days, an overnight train, a birthday) one bar on the chip fill across its days,
+  its calendar's colour as the 2 px bar at its start, squared off where it runs on into the next week's
+  row; a meeting a line on no fill, its calendar's dot, its start (from a 100 column) and its title,
+  trimmed. A day with more items than lines says "+k more" on its number's line ("+k" under an 80
+  column), the whole day on hover. The days around the month carry their events too (the month fetches
+  all six weeks, [S-568]), dimmed as their numbers are: a chip wholly on them in tertiary text
+  (`MonthPlan.Dimmed`), a span reaching into the month not. Today keeps its accent pill, the selected day its fill; a hairline
+  parts the weeks. Seven columns of 56..180 (a new one 100) + the inset: 416..1284 wide (a new one 724);
+  the height is 36 + the weekday line + six times (4 + the number's 16 + the lines' 20 each) + 12,
+  dragging the bottom edge sets the lines (`CalendarSizing.MonthLineSteps`). Debug render:
+  `--style month --state titles` (the sample in this look, at its own min, natural and max).
 - **[S-11545]** **Week, the day strip** (a new one's): each column's head (its weekday, its number) over
   the room its marks take at most ([S-2282]: three, then "+n"), then 8, then the chosen day's **Rows**
   (1..12, a new one 3; Style line) as the agenda's one-line rows ([S-2285]): one height for the
@@ -81,7 +96,7 @@ chip's times still shorten with the column, as text does).
   **Date range** (Today, Today and tomorrow, 3, 7 or 30 days, and Custom…, which asks for 1 to 365
   days and holds the dot while the range is none of the others; the line shows the range) and
   **Agenda events** (1 to 100, asked for as text, [S-3726]), Rows and Lines ([S-11540]); the day's Hours
-  shown ([S-11543]); the month's Events as ([S-11544]); the year's Size ([S-11542]); the week's Titles in
+  shown ([S-11543]); the month's Events as ([S-11544]) and, with Titles, Events a day ([S-11547]); the year's Size ([S-11542]); the week's Titles in
   the week, then its Hours shown, or its Rows ([S-11545], [S-11546]). Then Appearance, the calendar widgets'
   **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and, after a divider,
   **Show contact birthdays**, offered only while a chosen account has contacts to read them from

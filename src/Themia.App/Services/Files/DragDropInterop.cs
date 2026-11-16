@@ -6,12 +6,13 @@ namespace Themia.App.Services.Files;
 
 /// <summary>
 /// [S-1329]/[S-1332] OLE file interop with Explorer: the shell's own data object for a set of paths
-/// (what a copy, a cut or a drag carries), reading files back out of any data object (the clipboard
-/// or a drop), saving "virtual" files (Outlook attachments), our <c>IDropSource</c> for dragging files
-/// out, and an <c>IDropTarget</c> for an HWND.
+/// (what a copy or a cut carries, and what a drag of our own hands a folder's shell target), reading
+/// files back out of any data object (the clipboard or a drop), saving "virtual" files (Outlook
+/// attachments), and an <c>IDropTarget</c> for an HWND. There is no drop source here: a drag out is
+/// XAML's own, started by the view (<c>ItemDrag</c>, [S-5549]).
 /// <para>
-/// Native AOT: every COM call goes through a function-pointer vtable slot, and the two COM objects
-/// implemented here are native blocks whose vtables point at <c>[UnmanagedCallersOnly]</c> methods —
+/// Native AOT: every COM call goes through a function-pointer vtable slot, and the COM object
+/// implemented here is a native block whose vtable points at <c>[UnmanagedCallersOnly]</c> methods —
 /// no runtime-generated COM wrappers. Every interface pointer is a <see cref="ComRef"/> released on
 /// every path, every <c>STGMEDIUM</c> goes back through <c>ReleaseStgMedium</c>, and every PIDL through
 /// <c>CoTaskMemFree</c>. No callback lets a managed exception reach OLE.
@@ -24,7 +25,7 @@ namespace Themia.App.Services.Files;
 /// </para>
 /// <para>
 /// Thread: the UI thread (an STA). OLE is initialised there once by <see cref="EnsureOle"/>; the
-/// clipboard and <c>DoDragDrop</c> need it and both pump that thread's messages.
+/// clipboard and the drop target need it.
 /// </para>
 /// </summary>
 internal static unsafe partial class DragDropInterop
@@ -38,19 +39,13 @@ internal static unsafe partial class DragDropInterop
     private const int SOk = 0;
     private const int ENoInterface = unchecked((int)0x80004002);
     private const int EPointer = unchecked((int)0x80004003);
-    private const int DragDropSDrop = 0x00040100;
-    private const int DragDropSCancel = 0x00040101;
-    private const int DragDropSUseDefaultCursors = 0x00040102;
     private const int DragDropENotRegistered = unchecked((int)0x80040100);
     private const int DragDropEAlreadyRegistered = unchecked((int)0x80040101);
     private const int DragDropEInvalidHwnd = unchecked((int)0x80040102);
-    private const uint MkLButton = 0x1;
-    private const uint MkRButton = 0x2;
     private const uint GmemMoveable = 0x2;
 
     private static readonly Guid IidUnknown = new("00000000-0000-0000-C000-000000000046");
     private static readonly Guid IidDataObject = new("0000010e-0000-0000-C000-000000000046");
-    private static readonly Guid IidDropSource = new("00000121-0000-0000-C000-000000000046");
     private static readonly Guid IidDropTarget = new("00000122-0000-0000-C000-000000000046");
     private static readonly Guid IidShellItemArray = new("b63ea76d-1f85-456f-a19c-48159efa858b");
     internal static readonly Guid IidShellItem = new("43826d1e-e718-42ee-bc55-a1e261c37bfe");
@@ -492,84 +487,6 @@ internal static unsafe partial class DragDropInterop
         }
     }
 
-    // ---- dragging out ----------------------------------------------------------------------------
-
-    /// <summary>
-    /// [S-1332] Drag <paramref name="paths"/> out of the widget with the shell's data object and our
-    /// drop source. Blocks in OLE's modal loop until the drop or the cancel; UI thread, left button
-    /// down. Returns what the target did (None when cancelled or refused).
-    /// </summary>
-    public static DropEffect DragOut(IReadOnlyList<string> paths, DropEffect allowed, nint window)
-    {
-        if (!EnsureOle())
-        {
-            return DropEffect.None;
-        }
-
-        using var data = CreateDataObject(paths, DropEffect.None);
-
-        if (data.IsNull)
-        {
-            return DropEffect.None;
-        }
-
-        uint effect = 0;
-        var hr = SHDoDragDrop(window, data.Pointer, DropSource.Instance, (uint)allowed, &effect);
-
-        if (hr < 0)
-        {
-            Log.Warn(Scope, $"the drag could not start (0x{hr:X8})");
-            return DropEffect.None;
-        }
-
-        return hr == DragDropSDrop ? (DropEffect)effect : DropEffect.None;
-    }
-
-    /// <summary>
-    /// The drop source: Escape or the other button cancels, releasing the left button drops, the
-    /// shell's own cursors. Stateless, so one immortal native object serves every drag.
-    /// </summary>
-    private static class DropSource
-    {
-        private static nint _instance;
-
-        public static nint Instance => _instance != 0 ? _instance : _instance = Create();
-
-        private static nint Create()
-        {
-            var table = (nint*)NativeMemory.Alloc((nuint)(5 * sizeof(nint)));
-            table[0] = (nint)(delegate* unmanaged<nint, Guid*, nint*, int>)&Query;
-            table[1] = (nint)(delegate* unmanaged<nint, uint>)&Immortal;
-            table[2] = (nint)(delegate* unmanaged<nint, uint>)&Immortal;
-            table[3] = (nint)(delegate* unmanaged<nint, int, uint, int>)&QueryContinueDrag;
-            table[4] = (nint)(delegate* unmanaged<nint, uint, int>)&GiveFeedback;
-
-            var instance = (nint*)NativeMemory.Alloc((nuint)sizeof(nint));
-            *instance = (nint)table;
-            return (nint)instance;
-        }
-
-        [UnmanagedCallersOnly]
-        private static int Query(nint self, Guid* iid, nint* result) => Answer(self, iid, result, IidDropSource);
-
-        [UnmanagedCallersOnly]
-        private static uint Immortal(nint self) => 1;
-
-        [UnmanagedCallersOnly]
-        private static int QueryContinueDrag(nint self, int escape, uint keys)
-        {
-            if (escape != 0 || (keys & MkRButton) != 0)
-            {
-                return DragDropSCancel;
-            }
-
-            return (keys & MkLButton) == 0 ? DragDropSDrop : SOk;
-        }
-
-        [UnmanagedCallersOnly]
-        private static int GiveFeedback(nint self, uint effect) => DragDropSUseDefaultCursors;
-    }
-
     private static int Answer(nint self, Guid* iid, nint* result, Guid own)
     {
         if (result is null)
@@ -854,9 +771,6 @@ internal static unsafe partial class DragDropInterop
 
     [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
     internal static partial int SHCreateItemFromParsingName(string path, nint bindContext, Guid* iid, nint* item);
-
-    [LibraryImport("shell32.dll")]
-    private static partial int SHDoDragDrop(nint window, nint data, nint source, uint allowed, uint* effect);
 
     [LibraryImport("user32.dll", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     private static partial uint RegisterClipboardFormatW(string name);

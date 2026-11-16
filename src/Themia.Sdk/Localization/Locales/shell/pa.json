@@ -125,8 +125,6 @@
     "one": "{count} ਵਿਜੇਟ ਮਿਟਾਓ",
     "other": "{count} ਵਿਜੇਟ ਮਿਟਾਓ"
   },
-  "shell.card.doneEditing": "ਸੋਧਣਾ ਪੂਰਾ",
-  "shell.card.editLayout": "ਖਾਕਾ ਸੋਧੋ",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "ਸੈੱਟ ਅੱਪ ਕਰੋ",
   "shell.setup.hint": "ਇਸ ਵਿਜੇਟ ਨੂੰ ਜੋ ਚਾਹੀਦਾ ਹੈ ਉਹ ਸੈੱਟ ਕਰੋ",
   "shell.toolbar.addWidget": "ਵਿਜੇਟ ਜੋੜੋ",
-  "shell.toolbar.snapName": "ਗਰਿੱਡ ਨਾਲ ਜੋੜੋ",
-  "shell.toolbar.collisionsName": "ਵਿਜੇਟਾਂ ਨੂੰ ਇੱਕ ਦੂਜੇ ਉੱਤੇ ਆਉਣ ਤੋਂ ਰੋਕੋ",
   "shell.editBar.selected": {
     "one": "{count} ਚੁਣਿਆ",
     "other": "{count} ਚੁਣੇ"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "ਟੈਕਸਟ ਦਾ ਆਕਾਰ",
   "shell.appearance.systemFont": "ਸਿਸਟਮ ਡਿਫ਼ੌਲਟ",
   "shell.appearance.sansFont": "ਸੈਨਸ ਸੈਰਿਫ਼",
-  "shell.layout.gap": "ਵਿਜੇਟਾਂ ਵਿਚਕਾਰ ਫ਼ਾਸਲਾ",
   "shell.motion.slide": "ਸਲਾਈਡ",
   "shell.motion.sides": "ਪਾਸਿਆਂ ਤੋਂ",
   "shell.motion.topBottom": "ਉੱਪਰ ਅਤੇ ਹੇਠਾਂ",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "ਹਰ ਮਿੰਟ",
   "shell.refresh.everyHour": "ਹਰ ਘੰਟੇ",
   "shell.color.custom": "ਕਸਟਮ ਰੰਗ",
-  "shell.color.pickCustom": "ਕਸਟਮ ਰੰਗ ਚੁਣੋ",
   "shell.color.pickFromScreen": "ਸਕ੍ਰੀਨ ਤੋਂ ਰੰਗ ਚੁਣੋ",
   "shell.color.pickFailed": "ਸਕ੍ਰੀਨ ਦੇ ਰੰਗ ਪੜ੍ਹੇ ਨਹੀਂ ਜਾ ਸਕੇ",
   "shell.icon.home": "ਘਰ",

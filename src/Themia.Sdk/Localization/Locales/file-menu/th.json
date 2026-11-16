@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "เลือกแอปอื่น",
+  "folderMenu.compressToZip": "บีบอัดเป็นไฟล์ ZIP",
+  "folderMenu.copyAsPath": "คัดลอกเป็นเส้นทาง",
+  "folderMenu.openInNewWindow": "เปิดในหน้าต่างใหม่",
+  "folderMenu.openWith": "เปิดด้วย",
+  "folderMenu.pinToQuickAccess": "ปักหมุดไปยังการเข้าถึงด่วน",
+  "folderMenu.pinToStart": "ปักหมุดไปยังเริ่ม",
+  "folderMenu.share": "แชร์",
+  "folder.properties": "คุณสมบัติ",
+  "widgetsB.folder.freeUpSpace": "เพิ่มพื้นที่ว่าง",
+  "widgetsB.folder.keepOnDevice": "เก็บไว้บนอุปกรณ์นี้เสมอ",
+  "widgetsB.folder.moreOptions": "แสดงตัวเลือกเพิ่มเติม",
+  "widgetsB.folder.new": "ใหม่",
+  "ctxMenu.folder": "โฟลเดอร์"
+}

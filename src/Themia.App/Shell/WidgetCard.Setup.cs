@@ -21,9 +21,10 @@ namespace Themia.App.Shell;
 /// [S-1881] The view under it is parked: built but not attached, so it ticks, polls and subscribes to
 /// nothing, and logs nothing. The moment the config (or a newly signed-in account) makes the widget
 /// useful the button goes and a fresh view is attached in its place; a widget whose config is emptied
-/// again is detached and parked. The one widget set up by using it, an empty Shortcuts widget, keeps
-/// running under the button so a file can be dropped onto it. The check runs whenever the config
-/// arrives, when the view saves a change itself (a shortcut dropped onto it), and when the accounts
+/// again is detached and parked. A widget set up by using it (<see cref="ISetupRule.SetsUpInPlace"/>:
+/// a shortcut that opens nothing yet) gets no button: it runs, draws its own waiting look and takes the
+/// drop that sets it up; its page's marked line is the other way. The check runs whenever the config
+/// arrives, when the view saves a change itself (a target dropped onto it), and when the accounts
 /// change.
 /// </para>
 /// </summary>
@@ -114,7 +115,9 @@ internal sealed partial class WidgetCard
     private void ApplySetup()
     {
         var signedIn = SignedIn();
-        var needed = !IsFaulted && WidgetSetup.Needed(Model.Config, signedIn);
+        // [S-1881] A widget set up in place draws its own waiting look and takes the drop itself: no row
+        // over it (a Set up row does not fit a desktop cell, and it would cover the drop target's look).
+        var needed = !IsFaulted && WidgetSetup.Needed(Model.Config, signedIn) && !WidgetLiveness.SetUpInPlace(Model.Config);
         ApplyWaiting(IsFaulted || needed ? null : DevicePlaces.Waits(Model.Config, AppServices.DeviceLocationNow));
 
         if (needed && _setup is null)

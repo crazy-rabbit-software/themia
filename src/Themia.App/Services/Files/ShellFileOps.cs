@@ -343,6 +343,57 @@ internal static unsafe partial class ShellFileOps
         }
     }
 
+    /// <summary>[S-5548] Windows Terminal as the shell lists it among the apps: the item whose icon the menu's Open in Terminal shows.</summary>
+    public const string TerminalAppItem = @"shell:AppsFolder\Microsoft.WindowsTerminal_8wekyb3d8bbwe!App";
+
+    /// <summary>
+    /// [S-5548] Windows Terminal's app execution alias (<c>wt.exe</c>, which Windows puts under the
+    /// user's WindowsApps while Terminal is installed and its alias is on), or null without one.
+    /// </summary>
+    public static string? TerminalPath()
+    {
+        try
+        {
+            var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (local.Length == 0)
+            {
+                return null;
+            }
+
+            var alias = Path.Combine(local, "Microsoft", "WindowsApps", "wt.exe");
+            return File.Exists(alias) ? alias : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            Log.Debug(Scope, $"could not look for Windows Terminal: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>[S-5548] "Open in Terminal": Windows Terminal started in <paramref name="folder"/>. Never throws; false (logged) when it did not start.</summary>
+    public static bool OpenTerminal(string folder)
+    {
+        if (TerminalPath() is not { } terminal)
+        {
+            Log.Warn(Scope, "Windows Terminal is not installed; nothing opened");
+            return false;
+        }
+
+        try
+        {
+            var start = new ProcessStartInfo { FileName = terminal, UseShellExecute = false, WorkingDirectory = folder };
+            start.ArgumentList.Add("-d");
+            start.ArgumentList.Add(folder);
+            using var process = Process.Start(start);
+            return true;
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
+        {
+            Log.Warn(Scope, "Windows Terminal did not start", ex);
+            return false;
+        }
+    }
+
     /// <summary>[S-1330] Windows' "Open with" dialog for one file, on the worker (it is modal).</summary>
     public static void OpenWith(string path)
     {
@@ -475,7 +526,7 @@ internal static unsafe partial class ShellFileOps
     /// <para>
     /// [S-1401] With <paramref name="plainOnly"/>, also null when the link passes arguments (a
     /// browser profile, a game launcher) or has an icon of its own (<see cref="ShortcutLinks"/>): its
-    /// target alone would lose them, so a drop onto the Shortcuts widget keeps the link itself.
+    /// target alone would lose them, so a drop onto a shortcut widget keeps the link itself.
     /// </para>
     /// </summary>
     public static string? ResolveShortcut(string path, bool plainOnly = false)

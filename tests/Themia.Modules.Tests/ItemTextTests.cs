@@ -13,7 +13,7 @@ public sealed class ItemTextTests
 {
     private static WidgetInstance Widget(string id, string text = "", FillChoice? items = null)
     {
-        var widget = WidgetInstance.Create(new WidgetId("shortcuts"), new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(new WidgetId("folder"), new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.ItemTextColor = text;
         widget.ItemBackground = items ?? new FillChoice();
@@ -138,7 +138,7 @@ public sealed class ItemTextTests
         }
 
         var design = new DesignState();
-        DesignPresets.Apply(design, DesignPresetId.Glass);
+        DesignPresets.Apply(design, DesignPresetId.LiquidGlass);
         design.ItemTextColor = "#FFFFFF";
         Assert.Null(DesignPresets.Match(design));
 

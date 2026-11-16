@@ -32,7 +32,8 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
-    private readonly StackPanel _facts = new() { VerticalAlignment = VerticalAlignment.Top };
+    /// <summary>[S-12410] The fact rows fill the view down to the card's edge: stretched up to half again, then spaced.</summary>
+    private readonly SpreadStack _facts = new();
     private readonly List<RowBlock> _factRows = [];
     private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
 
@@ -212,9 +213,11 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         var plan = PlanFor(_sheet);
         _plan = plan;
 
-        // The rows from the view's top. They carry their own side inset.
+        // The rows from the view's top, down to the card's edge (the foot's inset is theirs to stretch
+        // into, [S-12410]). They carry their own side inset.
         _facts.Visibility = plan.Facts > 0 ? Visibility.Visible : Visibility.Collapsed;
         SetRow(_facts, 1);
+        SetRowSpan(_facts, plan.List ? 1 : 2);
         LayFacts(plan.Facts);
 
         ShowList(plan);

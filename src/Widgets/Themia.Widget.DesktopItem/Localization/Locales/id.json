@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Item desktop",
-  "desktopItem.desc": "File, folder, atau pintasan dari desktop Anda"
+  "widgetsC.shortcuts.column.target": "Target",
+  "widgetsC.shortcuts.kind.location": "Lokasi Windows",
+  "widgetsC.shortcuts.kind.missing": "Hilang",
+  "widgetsC.shortcuts.kind.path": "Jalur",
+  "widgetsC.shortcuts.kind.refused": "Tidak diizinkan",
+  "widgetsC.shortcuts.menu.addLayout": "Tata letak aplikasi…",
+  "widgetsC.shortcuts.menu.addLink": "Alamat web atau jalur…",
+  "widgetsC.shortcuts.menu.changeTarget": "Ubah target…",
+  "widgetsC.shortcuts.settings.locations": "Lokasi Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Klik ganda",
+  "widgetsC.shortcuts.settings.openWith.label": "Buka dengan",
+  "widgetsC.shortcuts.settings.openWith.single": "Sekali klik",
+  "widgetsC.shortcuts.settings.pick.file": "File…",
+  "widgetsC.shortcuts.settings.pick.folder": "Folder…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (target hilang)\n{target}"
 }

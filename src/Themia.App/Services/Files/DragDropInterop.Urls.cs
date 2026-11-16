@@ -8,7 +8,7 @@ namespace Themia.App.Services.Files;
 
 /// <summary>
 /// [S-1402] Reading what a browser or the Start menu drags: web addresses, and the shell items a
-/// drag carries when it has no file paths. Added for the Shortcuts widget's drops; the rest of the
+/// drag carries when it has no file paths. Added for the shortcut widget's drops; the rest of the
 /// OLE interop is in <c>DragDropInterop.cs</c>.
 /// </summary>
 internal static unsafe partial class DragDropInterop

@@ -70,14 +70,16 @@ public sealed class ToggleStylesTests
     [Fact]
     public void S3916_every_style_is_a_look_of_the_tile_block_planned_in_the_cards_inset()
     {
-        // One inset for every style and size ([S-6703]); the glyph's step is the Size's, so the round
-        // circle and the switch's row grow with the Size, never with the box ([S-11307]).
-        foreach (var size in new[] { ReadoutSize.Small, ReadoutSize.Medium, ReadoutSize.Large })
+        // One inset for every style and box ([S-6703]); the glyph's step is the box's ([S-11882]), so the
+        // round circle grows with it and its glyph stays half the circle.
+        foreach (var side in new[] { 52.0, 116, 200, 480 })
         {
-            var h = Themia.Sdk.Kit.TileRules.SideAt(size) - (2 * Themia.Sdk.Kit.FamilySpace.Inset);
-            var step = Themia.Sdk.Kit.TileRules.GlyphAt(size).FontSize;
-            Assert.True(step + Themia.Sdk.Kit.TileRules.Below(label: true, state: true) <= h, size.ToString());
-            Assert.True(Themia.Sdk.Kit.TileRules.RoundGlyph(step) <= Math.Max(Themia.Sdk.Kit.FamilyShape.Icon, step / 2), size.ToString());
+            var face = Themia.Sdk.Kit.TileRules.Face(side, side);
+            var h = side - (2 * Themia.Sdk.Kit.FamilySpace.Inset);
+            var step = face.Glyph.FontSize;
+            var below = face.Texted ? Themia.Sdk.Kit.FamilySpace.S2 + (2 * face.Name.LineHeight) + face.State.LineHeight : 0;
+            Assert.True(step + below <= h, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Assert.True(Themia.Sdk.Kit.TileRules.RoundGlyph(step) <= Math.Max(Themia.Sdk.Kit.FamilyShape.Icon, step / 2), side.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
     }
 }

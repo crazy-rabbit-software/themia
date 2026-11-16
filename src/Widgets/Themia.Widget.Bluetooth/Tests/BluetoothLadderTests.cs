@@ -26,7 +26,7 @@ public class BluetoothLadderTests
 
         Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
         Assert.Equal(36 + (4 * 40) + 12, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
-        Assert.Equal((220d, 520d), (sizing.Min.Width, sizing.Max.Width));
+        Assert.Equal((220d, 752d), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a list, 300 x 2.5 on 4s
 
         var six = Assert.IsType<BluetoothConfig>(kind.SizeSets!(config, sizing.Natural with { Height = 36 + (6 * 28) + 12 }));
         Assert.Equal(6, six.Rows);

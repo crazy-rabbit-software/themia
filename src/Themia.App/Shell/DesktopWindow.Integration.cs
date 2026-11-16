@@ -35,6 +35,9 @@ internal sealed partial class DesktopWindow
 
         _suspended = true;
 
+        // [S-1017] A show in flight ends with every card at rest before the cards go.
+        _show?.Stop();
+
         // [S-802] A lease on a widget that is about to go away ends with it.
         _host.KeyboardEndOn(this);
 

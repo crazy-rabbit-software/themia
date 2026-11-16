@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Вибрати іншу програму",
+  "folderMenu.compressToZip": "Стиснути в ZIP-файл",
+  "folderMenu.copyAsPath": "Копіювати як шлях",
+  "folderMenu.openInNewWindow": "Відкрити в новому вікні",
+  "folderMenu.openWith": "Відкрити за допомогою",
+  "folderMenu.pinToQuickAccess": "Закріпити в швидкому доступі",
+  "folderMenu.pinToStart": "Закріпити в меню «Пуск»",
+  "folderMenu.share": "Поділитися",
+  "folder.properties": "Властивості",
+  "widgetsB.folder.freeUpSpace": "Звільнити місце",
+  "widgetsB.folder.keepOnDevice": "Завжди зберігати на цьому пристрої",
+  "widgetsB.folder.moreOptions": "Показати додаткові параметри",
+  "widgetsB.folder.new": "Створити",
+  "ctxMenu.folder": "Папка"
+}

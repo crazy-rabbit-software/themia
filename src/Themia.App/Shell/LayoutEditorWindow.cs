@@ -340,7 +340,7 @@ internal sealed class LayoutEditorWindow
         Render();
     }
 
-    private (WidgetInstance Widget, IAppLayoutItem Item)? Target() => _itemId is null ? null : _host.FindShortcut(_itemId);
+    private (WidgetInstance Widget, IAppLayoutItem Item)? Target() => _itemId is null ? null : _host.FindAppLayout(_itemId);
 
     /// <summary>
     /// Draw the page for the item as it is now. Skipped when nothing it shows changed, so an

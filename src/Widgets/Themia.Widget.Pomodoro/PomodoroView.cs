@@ -9,6 +9,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Pomodoro;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -135,6 +136,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         _config = config as PomodoroConfig ?? new PomodoroConfig();
 
         // While the timer is stopped the clock follows the configured length, so changing it in

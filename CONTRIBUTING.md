@@ -46,7 +46,7 @@ The behaviour is pinned in [SPEC.md](SPEC.md), one tagged `[S-NN]` rule at a tim
 layout opens proportionally on any screen. The snap grid is an aid during a drag, never storage.
 
 **One window per display, not per widget.** Every widget on a screen shares one transparent surface,
-clipped with `SetWindowRgn` to the union of the widget rects, so clicks anywhere else reach the desktop.
+clipped with `SetWindowRgn` to the display's work area: Themia draws the whole desktop, its icons included.
 Cost stays flat as you add widgets: one window, one composition target and one render thread per display.
 
 **It is a desktop layer, always.** The surface is never above another application, not even in edit

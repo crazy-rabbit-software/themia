@@ -69,9 +69,6 @@ public enum NudgeStep
 
     /// <summary>Ctrl: <see cref="KeyboardNudgeDefaults.FarCells"/> cells.</summary>
     Far = 1,
-
-    /// <summary>Alt: one DIP, and the grid is not applied (Alt suspends the snap, as when dragging, [S-06]).</summary>
-    Fine = 2,
 }
 
 /// <summary>The constants of the keyboard nudge, shared by the key map and the geometry.</summary>
@@ -135,9 +132,10 @@ public static class EditKeys
             return EditKeyAction.None;
         }
 
-        if (Direction(virtualKey) is { } direction)
+        // [S-1972] [S-06] The grid is always on: Alt moves nothing off it, so Alt+arrow is no nudge.
+        if (Direction(virtualKey) is { } direction && !alt)
         {
-            var step = alt ? NudgeStep.Fine : ctrl ? NudgeStep.Far : NudgeStep.Cell;
+            var step = ctrl ? NudgeStep.Far : NudgeStep.Cell;
             return new EditKeyAction(shift ? EditCommand.Resize : EditCommand.Move, direction, step);
         }
 

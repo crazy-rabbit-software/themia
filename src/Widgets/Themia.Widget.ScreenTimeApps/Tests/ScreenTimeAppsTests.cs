@@ -16,7 +16,7 @@ public sealed class ScreenTimeAppsTests
     {
         var sizing = Kind.Sizing(new ScreenTimeAppsConfig());
         Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + (5 * FamilyShape.Row1) + FamilySpace.Inset), sizing.Natural);
-        Assert.Equal((220, 520), (sizing.Min.Width, sizing.Max.Width));
+        Assert.Equal((220, 752), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a list, 300 x 2.5 on 4s
         Assert.True(sizing.HeightSteps!.FollowsConfig);
         Assert.Empty(sizing.Problems());
 

@@ -38,7 +38,7 @@ internal static partial class RecycleBinStatus
 
     /// <summary>
     /// [S-4863] Windows is emptying the bin (its dialog may be up). Process-wide, so the widget's
-    /// button and every Shortcuts menu agree that a second empty is not offered. UI thread only.
+    /// button and every shortcut's menu agree that a second empty is not offered. UI thread only.
     /// </summary>
     public static bool Emptying { get; private set; }
 
@@ -95,7 +95,7 @@ internal static partial class RecycleBinStatus
     /// <c>SHERB_NOCONFIRMATION</c>), then shows its progress and plays its sound. The call blocks
     /// while the dialog is up, so it runs on its own STA thread and the desktop keeps drawing; the
     /// answer is asked again when it returns, whatever the user chose. Does nothing unless
-    /// <see cref="CanEmpty"/>: one implementation for the widget's button and the Shortcuts menu
+    /// <see cref="CanEmpty"/>: one implementation for the widget's button and a shortcut's menu
     /// ([S-4864]). UI thread; never throws.
     /// </summary>
     public static async Task EmptyAsync()

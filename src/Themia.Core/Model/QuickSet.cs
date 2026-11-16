@@ -27,6 +27,7 @@ namespace Themia.Core.Model;
 /// <param name="HasItemText">[S-6574] Whether any selected widget draws items with text on them (not tracks only); the Item text line is not shown without.</param>
 /// <param name="BackgroundImage">[S-6593] Their background image's path (empty: none), or null when they differ.</param>
 /// <param name="CommonKind">[S-2341] The kind every selected widget is of (the selection's entry says "2 × Clock"); null when they differ.</param>
+/// <param name="CanScale">[S-6532] Whether any selected widget takes a scale of its own: a desktop icon is drawn at 1 always, so the Scale line is not shown for icons alone.</param>
 /// <param name="RemovesFromView">[S-5524] Every selected widget is a desktop item's: Delete reads "Remove from this view".</param>
 public sealed record QuickSetOffer(
     int Count,
@@ -47,7 +48,8 @@ public sealed record QuickSetOffer(
     bool HasItemText = true,
     string? BackgroundImage = "",
     bool RemovesFromView = false,
-    WidgetId? CommonKind = null)
+    WidgetId? CommonKind = null,
+    bool CanScale = true)
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -117,6 +119,7 @@ public static class QuickSet
 
         // [S-6531] Read as stored, so two widgets at the same percentage always share it.
         var scale = Common(widgets.Select(w => WidgetScale.Normalise(w.Scale)));
+        var canScale = widgets.Exists(w => w.Config is not IDesktopItemConfig);
 
         // [S-6574] The item text of the widgets whose items carry text: a track has none.
         var withText = withItems.Where(ItemKinds.DrawsText).ToList();
@@ -131,10 +134,10 @@ public static class QuickSet
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, kind);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, kind, canScale);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, widgets.TrueForAll(w => w.Kind == kind) ? kind : null);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes, widgets.TrueForAll(w => w.Kind == kind) ? kind : null, canScale);
     }
 
     /// <summary>

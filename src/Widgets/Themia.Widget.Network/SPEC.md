@@ -10,8 +10,8 @@ Owning files: everything in this folder: `NetworkModule.cs` (descriptor, sizing,
 context), `NetworkConfig.cs` (what it asks the hub, `IReadsSystem`), `NetworkMeter.cs` (its half of
 the shared `MeterView`), `Localization/Locales/` (its own `NetworkStr`). Tests: `Tests/NetworkTests.cs`.
 
-- **[S-1191]** Download over upload, both at 28, each led by its arrow ([S-6264], [S-11001]): one height
-  (128), 172..320 wide. It has no style: the old Graph style is the Network history atom, and the old
+- **[S-1191]** Download and upload on one line ("↓ 3.4 MB/s   ↑ 286 KB/s"), both at 28, each led by its
+  arrow ([S-6264], [S-11001]): one height (84), 344..480 wide (the line's own width at 100 %). It has no style: the old Graph style is the Network history atom, and the old
   Numbers style is this reading. Nothing appears with size; no tier ladder is left.
 - **[S-6270]** *(Retired: Network has no styles; its reading is both numbers, its history an atom of its own.)*
 - Its options are on the properties menu ([S-3719]): Appearance; nothing of its own.

@@ -142,7 +142,7 @@ export const frames = [
         ],
       },
       across(["more-a", "notifications"], 360, 300, 3),
-      across(["more-c", "shortcuts"], 360, 780, -3),
+      across(["more-c", "recentFiles"], 360, 780, -3),
     ],
   },
   {
@@ -226,7 +226,7 @@ export const frames = [
     shot: "looks",
     cards: [
       // One desktop, cut into the look it comes with and three of its others, each on a wallpaper of its own.
-      { screen: "looks", cuts: ["looks", "look-daylight", "look-glass", "look-terminal"], tilt: 0.07, ...screen },
+      { screen: "looks", cuts: ["looks", "look-daylight", "look-liquid-glass", "look-midnight"], tilt: 0.07, ...screen },
       across(group("more-a", "quickSettings"), 480, 280, 3),
     ],
   },

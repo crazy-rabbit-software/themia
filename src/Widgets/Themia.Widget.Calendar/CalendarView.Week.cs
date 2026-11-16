@@ -108,7 +108,7 @@ internal sealed partial class CalendarView
         // [S-2703] The band: one bar per all-day or multi-day event and birthday, across its days.
         foreach (var bar in bars.Where(b => b.Lane < bandLines))
         {
-            var chip = MonthChip(bar, showColors, times: false);
+            var chip = MonthChip(bar, showColors, times: false, zone);
             chip.VerticalAlignment = VerticalAlignment.Top;
             SetRow(chip, 1 + bar.Lane);
             SetColumn(chip, first + bar.First);

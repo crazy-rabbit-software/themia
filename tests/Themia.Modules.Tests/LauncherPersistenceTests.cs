@@ -2,6 +2,7 @@ using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Widget.DesktopItem;
 using Xunit;
 
 namespace Themia.Modules.Tests;
@@ -9,8 +10,8 @@ namespace Themia.Modules.Tests;
 /// <summary>
 /// The launcher widgets' settings, through the real persistence path.
 /// <para>
-/// Worth pinning separately from the rest of the store's tests because these are the first configs
-/// in the app to carry a <i>list</i> of their own objects. Under Native AOT the serializer is
+/// Worth pinning separately from the rest of the store's tests because a shortcut's config carries
+/// a <i>tree</i> of its own objects (an app layout). Under Native AOT the serializer is
 /// source generated, so a nested type the generator did not pick up fails at runtime in the
 /// published build and nowhere else — a round trip is the cheapest way to say it did.
 /// </para>
@@ -59,68 +60,74 @@ public sealed class LauncherPersistenceTests : IDisposable
     }
 
     [Fact]
-    public async Task A_shortcut_list_survives_a_round_trip_in_order()
+    public async Task A_shortcut_survives_a_round_trip_with_its_id()
     {
-        var config = new ShortcutsConfig
+        var config = new DesktopItemConfig
         {
+            Target = "https://example.com/",
+            Label = "Example",
+            IconEmoji = "★",
+            LabelLines = 1,
             ClickMode = ItemClickMode.Single,
-            Style = ShortcutsStyle.Details,
-            GridIconOnly = true,
-            ShowFileExtension = true,
         };
 
-        config.Items.Add(ShortcutItem.Create("https://example.com/", "Example"));
-        config.Items.Add(ShortcutItem.Create(@"C:\Users\Someone\Documents"));
-        config.Items.Add(ShortcutItem.Create("shell:RecycleBinFolder"));
+        var reloaded = Assert.IsType<DesktopItemConfig>(await RoundTripAsync(config));
 
-        var reloaded = Assert.IsType<ShortcutsConfig>(await RoundTripAsync(config));
+        Assert.Equal(("https://example.com/", "Example", "★", 1, ItemClickMode.Single),
+            (reloaded.Target, reloaded.Label, reloaded.IconEmoji, reloaded.LabelLines, reloaded.ClickMode));
 
-        Assert.Equal(ItemClickMode.Single, reloaded.ClickMode);
-        Assert.Equal(ShortcutsStyle.Details, reloaded.Style);
-        Assert.True(reloaded.GridIconOnly);
-        Assert.True(reloaded.ShowFileExtension);
-        Assert.Equal(3, reloaded.Items.Count);
-        Assert.Equal("https://example.com/", reloaded.Items[0].Target);
-        Assert.Equal("Example", reloaded.Items[0].Label);
-        Assert.Equal(@"C:\Users\Someone\Documents", reloaded.Items[1].Target);
-        Assert.Equal("shell:RecycleBinFolder", reloaded.Items[2].Target);
+        // The id is what the layout editor finds a layout by: it is the stored one, never a new one per load.
+        Assert.Equal(config.ItemId, reloaded.ItemId);
+    }
 
-        // The id is what keeps a rename or a reorder from landing on the wrong row.
-        Assert.Equal(config.Items.Select(i => i.Id), reloaded.Items.Select(i => i.Id));
+    [Fact]
+    public async Task An_app_layout_survives_a_round_trip_as_a_tree()
+    {
+        // The config carries a tree of its own objects: under Native AOT a nested type the generator
+        // did not pick up fails at run time in the published build and nowhere else.
+        var config = new DesktopItemConfig { Label = "Morning" };
+        config.MakeLayout();
+        (config.Layout, _) = LayoutTree.Split(config.Layout!, config.Layout!.Id, SplitDirection.Vertical);
+        LayoutTree.Assign(config.Layout!, config.Layout!.A!.Id, new LayoutAssignment { Source = LayoutSource.App, Target = @"C:\Windows\notepad.exe" });
+
+        var reloaded = Assert.IsType<DesktopItemConfig>(await RoundTripAsync(config));
+
+        Assert.True(reloaded.IsLayout);
+        Assert.Equal(LayoutNodeKind.Split, reloaded.Layout!.Kind);
+        Assert.Equal(@"C:\Windows\notepad.exe", reloaded.Layout.A!.Assignment!.Target);
+        Assert.Equal(config.ItemId, reloaded.ItemId);
     }
 
     [Fact]
     public async Task A_shortcut_whose_target_would_be_refused_is_still_persisted()
     {
-        // The widget refuses to open it and its menu says why. Dropping it on load would
-        // silently lose a row the user typed — and hide that something rewrote their config.
-        var config = new ShortcutsConfig();
-        config.Items.Add(ShortcutItem.Create("javascript:alert(1)", "Bad"));
+        // The widget refuses to open it and its tooltip says why. Dropping it on load would
+        // silently lose what the user typed — and hide that something rewrote their config.
+        var config = new DesktopItemConfig { Target = "javascript:alert(1)", Label = "Bad" };
 
-        var reloaded = Assert.IsType<ShortcutsConfig>(await RoundTripAsync(config));
+        var reloaded = Assert.IsType<DesktopItemConfig>(await RoundTripAsync(config));
 
-        Assert.Single(reloaded.Items);
-        Assert.Equal("javascript:alert(1)", reloaded.Items[0].Target);
-        Assert.False(LaunchTargets.Classify(reloaded.Items[0].Target).IsValid);
+        Assert.Equal("javascript:alert(1)", reloaded.Target);
+        Assert.False(LaunchTargets.Classify(reloaded.Target).IsValid);
     }
 
     [Fact]
-    public void Cloning_a_shortcut_list_copies_the_items_rather_than_sharing_them()
+    public void Cloning_a_shortcut_copies_its_layout_rather_than_sharing_it()
     {
-        // Clone is what copy/paste of a widget uses. Sharing the list would make editing the copy
+        // Clone is what copy/paste of a widget uses. Sharing the tree would make editing the copy
         // edit the original.
-        var config = new ShortcutsConfig();
-        config.Items.Add(ShortcutItem.Create("https://example.com/", "Example"));
+        var config = new DesktopItemConfig { Label = "Example" };
+        config.MakeLayout();
 
-        var copy = Assert.IsType<ShortcutsConfig>(config.Clone());
+        var copy = Assert.IsType<DesktopItemConfig>(config.Clone());
 
-        copy.Items[0].Label = "Changed";
-        copy.Items.Add(ShortcutItem.Create(@"C:\Temp"));
+        copy.Label = "Changed";
+        copy.Layout!.Assignment = new LayoutAssignment { Source = LayoutSource.Url, Target = "https://example.com/" };
 
-        Assert.Single(config.Items);
-        Assert.Equal("Example", config.Items[0].Label);
+        Assert.Equal("Example", config.Label);
+        Assert.Null(config.Layout!.Assignment);
 
-        // A fresh id, so two copies of a shortcut are two rows rather than one row twice.
-        Assert.NotEqual(config.Items[0].Id, copy.Items[0].Id);
+        // A fresh id, so the layout editor never edits two shortcuts at once.
+        Assert.NotEqual(config.ItemId, copy.ItemId);
     }
 }

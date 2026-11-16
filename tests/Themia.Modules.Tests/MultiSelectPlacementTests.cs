@@ -167,7 +167,7 @@ public sealed class MultiSelectPlacementTests
     {
         FracRect[] start = [new(0.1, 0.1, 0.1, 0.1), new(0.3, 0.2, 0.2, 0.1)];
 
-        var delta = BlockGeometry.Move(start, 0.05, 0.1, Screen, snapEnabled: false);
+        var delta = BlockGeometry.Move(start, 0.05, 0.1, Screen);
         var moved = start.Select(r => BlockGeometry.Apply(r, delta, Screen)).ToList();
 
         Assert.Equal(0.15, moved[0].X, 9);
@@ -183,7 +183,7 @@ public sealed class MultiSelectPlacementTests
         FracRect[] start = [new(0.6, 0.1, 0.1, 0.1), new(0.8, 0.1, 0.1, 0.1)];
 
         // Far past the right edge: the block stops when its leading widget keeps the visible minimum.
-        var delta = BlockGeometry.Move(start, 0.5, 0, Screen, snapEnabled: false);
+        var delta = BlockGeometry.Move(start, 0.5, 0, Screen);
         var moved = start.Select(r => BlockGeometry.Apply(r, delta, Screen)).ToList();
 
         Assert.Equal(1 - 0.032, moved[1].X, 9);
@@ -196,7 +196,7 @@ public sealed class MultiSelectPlacementTests
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 0.9) };
         FracRect[] start = [new(0.1, 0.5, 0.1, 0.1), new(0.1, 0.7, 0.1, 0.1)];
 
-        var delta = BlockGeometry.Move(start, 0, 0.5, screen, snapEnabled: false);
+        var delta = BlockGeometry.Move(start, 0, 0.5, screen);
 
         Assert.Equal(0.9 - 0.032, BlockGeometry.Apply(start[1], delta, screen).Y, 9);
         Assert.Equal(0.7 - 0.032, BlockGeometry.Apply(start[0], delta, screen).Y, 9);
@@ -208,7 +208,7 @@ public sealed class MultiSelectPlacementTests
         // 1000 DIPs → 100 snap cells of 0.01.
         FracRect[] start = [new(0.1, 0.1, 0.123, 0.1), new(0.3, 0.1, 0.1, 0.1)];
 
-        var delta = BlockGeometry.Move(start, 0.0042, 0.0061, Screen, snapEnabled: true);
+        var delta = BlockGeometry.Move(start, 0.0042, 0.0061, Screen);
         var moved = start.Select(r => BlockGeometry.Apply(r, delta, Screen)).ToList();
 
         Assert.Equal(0.10, moved[0].X, 9);
@@ -222,8 +222,8 @@ public sealed class MultiSelectPlacementTests
     {
         FracRect[] start = [new(0.0, 0.0, 0.6, 0.2), new(0.7, 0.0, 0.6, 0.2)];
 
-        var right = BlockGeometry.Move(start, 0.3, 0, Screen, snapEnabled: false);
-        var left = BlockGeometry.Move(start, -1, 0, Screen, snapEnabled: false);
+        var right = BlockGeometry.Move(start, 0.3, 0, Screen);
+        var left = BlockGeometry.Move(start, -1, 0, Screen);
 
         // Rightwards the right widget stops first, leftwards the left one; the offset never changes.
         Assert.Equal(1 - 0.032, BlockGeometry.Apply(start[1], right, Screen).X, 9);
@@ -234,7 +234,7 @@ public sealed class MultiSelectPlacementTests
     [Fact]
     public void S1584_non_finite_input_does_not_move_anything()
     {
-        var delta = BlockGeometry.Move([new FracRect(0.1, 0.1, 0.1, 0.1)], double.NaN, 0, Screen, snapEnabled: true);
+        var delta = BlockGeometry.Move([new FracRect(0.1, 0.1, 0.1, 0.1)], double.NaN, 0, Screen);
 
         Assert.Equal(default, delta);
     }
@@ -247,7 +247,7 @@ public sealed class MultiSelectPlacementTests
         var view = View(At(new WidgetId("clock"), "a", 0.1, 0.1, 0.1, 0.1), At(new WidgetId("cpu"), "b", 0.3, 0.1, 0.1, 0.1));
         var payload = PlacementPayload.FromView(view, ["a", "b"], PlacementMode.Copy)!;
 
-        var outlines = payload.Outlines(0.5, 0.5, Screen, snapEnabled: false);
+        var outlines = payload.Outlines(0.5, 0.5, Screen);
 
         // Bounding box 0.1..0.4 x 0.1..0.2, centred on (0.5, 0.5).
         Assert.Equal(0.35, outlines[0].Rect.X, 9);
@@ -261,7 +261,7 @@ public sealed class MultiSelectPlacementTests
         var view = View(At(new WidgetId("clock"), "a", 0.1, 0.1, 0.1, 0.1), At(new WidgetId("cpu"), "b", 0.3, 0.1, 0.1, 0.1));
         var payload = PlacementPayload.FromView(view, ["a", "b"], PlacementMode.Move, anchorId: "b")!;
 
-        var plan = payload.Plan(0.5, 0.5, Screen, snapEnabled: false);
+        var plan = payload.Plan(0.5, 0.5, Screen);
 
         var b = plan.Added.Single(w => w.Id == "b");
         Assert.Equal(0.5, b.X + (b.W / 2), 9);
@@ -276,8 +276,8 @@ public sealed class MultiSelectPlacementTests
             At(new WidgetId("cpu"), "c", 0.5, 0.1, 0.1, 0.1));
         var payload = PlacementPayload.FromView(view, ["a", "c"], PlacementMode.Copy)!;
 
-        var outlines = payload.Outlines(0.6, 0.7, Screen, snapEnabled: true);
-        var plan = payload.Plan(0.6, 0.7, Screen, snapEnabled: true);
+        var outlines = payload.Outlines(0.6, 0.7, Screen);
+        var plan = payload.Plan(0.6, 0.7, Screen);
 
         Assert.Equal([new WidgetId("clock"), new WidgetId("cpu")], outlines.Select(o => o.Kind));
         Assert.Equal(plan.Added.Single(w => w.Kind == new WidgetId("clock")).Rect, outlines[0].Rect);
@@ -289,7 +289,7 @@ public sealed class MultiSelectPlacementTests
     {
         var payload = PlacementPayload.ForNew(new WidgetId("clock"), 200, 100);
 
-        var plan = payload.Plan(0.5, 0.5, Screen, snapEnabled: false);
+        var plan = payload.Plan(0.5, 0.5, Screen);
         var widget = Assert.Single(plan.Added);
 
         Assert.Equal(new WidgetId("clock"), widget.Kind);
@@ -305,7 +305,7 @@ public sealed class MultiSelectPlacementTests
     {
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 0.95) };
 
-        var rect = PlacementPayload.ForNew(new WidgetId("clock"), 200, 100).Plan(0.5, 0.99, screen, snapEnabled: false).Added[0].Rect;
+        var rect = PlacementPayload.ForNew(new WidgetId("clock"), 200, 100).Plan(0.5, 0.99, screen).Added[0].Rect;
 
         Assert.Equal(0.95 - 0.032, rect.Y, 9);
         Assert.Equal(0.1, rect.H, 9);
@@ -344,8 +344,8 @@ public sealed class MultiSelectPlacementTests
         var view = View(At(new WidgetId("clock"), "m", 0.1, 0.1, 0.1, 0.1));
         var payload = PlacementPayload.FromView(view, ["m"], PlacementMode.Copy)!;
 
-        var first = payload.Plan(0.5, 0.5, Screen, snapEnabled: false).Added.Single();
-        var second = payload.Plan(0.5, 0.5, Screen, snapEnabled: false).Added.Single();
+        var first = payload.Plan(0.5, 0.5, Screen).Added.Single();
+        var second = payload.Plan(0.5, 0.5, Screen).Added.Single();
 
         Assert.NotEqual("m", first.Id);
         Assert.NotEqual(first.Id, second.Id);
@@ -357,7 +357,7 @@ public sealed class MultiSelectPlacementTests
         var view = View(
             At(new WidgetId("cpu"), "s", 0.1, 0.1, 0.3, 0.3),
             At(new WidgetId("clock"), "c", 0.5, 0.1, 0.1, 0.1));
-        var plan = PlacementPayload.FromView(view, ["s", "c"], PlacementMode.Move)!.Plan(0.5, 0.5, Screen, snapEnabled: false);
+        var plan = PlacementPayload.FromView(view, ["s", "c"], PlacementMode.Move)!.Plan(0.5, 0.5, Screen);
 
         Assert.Equal(["s", "c"], plan.Added.Select(w => w.Id));
         Assert.Equal(["s", "c"], plan.RemoveIds);
@@ -374,7 +374,7 @@ public sealed class MultiSelectPlacementTests
         state.Views.Add(right);
         left.Widgets.AddRange([At(new WidgetId("clock"), "a", 0.1, 0.1, 0.1, 0.1), At(new WidgetId("cpu"), "b", 0.3, 0.1, 0.1, 0.1), At(new WidgetId("memory"), "stay", 0.6, 0.6, 0.1, 0.1)]);
 
-        var plan = PlacementPayload.FromView(left, ["a", "b"], PlacementMode.Move)!.Plan(0.5, 0.5, Screen, snapEnabled: false);
+        var plan = PlacementPayload.FromView(left, ["a", "b"], PlacementMode.Move)!.Plan(0.5, 0.5, Screen);
         Assert.Equal(0, plan.NetAdded(state));
         state.ApplyPlacement(plan, right.Id);
 

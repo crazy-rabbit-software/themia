@@ -78,7 +78,7 @@ internal sealed partial class AppHost
     /// its ghost showed it with the pointer at (<paramref name="xFrac"/>, <paramref name="yFrac"/>).
     /// Returns whether anything landed.
     /// </summary>
-    public bool CompletePlacement(DesktopWindow surface, double xFrac, double yFrac, bool snap)
+    public bool CompletePlacement(DesktopWindow surface, double xFrac, double yFrac)
     {
         ArgumentNullException.ThrowIfNull(surface);
 
@@ -87,7 +87,7 @@ internal sealed partial class AppHost
             return false;
         }
 
-        var plan = payload.Plan(xFrac, yFrac, surface.Metrics, snap);
+        var plan = payload.Plan(xFrac, yFrac, surface.Metrics, surface.SizesNow);
 
         // Placement ends before the mutation lands, so the relayout it triggers already sees the
         // surface back in its ordinary edit state rather than drawing a ghost over the new cards.

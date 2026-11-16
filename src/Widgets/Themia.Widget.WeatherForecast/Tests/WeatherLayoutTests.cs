@@ -26,7 +26,7 @@ public class WeatherLayoutTests
 
         Assert.Equal(new SizeDip(300, 36 + (5 * 28) + 12), one.Natural);
         Assert.Equal(36 + (5 * 40) + 12, two.Natural.Height);
-        Assert.Equal((220.0, 420.0), (one.Min.Width, one.Max.Width));
+        Assert.Equal((220.0, 600.0), (one.Min.Width, one.Max.Width)); // relaxed, [S-12411]: 300 x 2
         Assert.True(one.HeightSteps!.FollowsConfig);
     }
 
@@ -37,7 +37,8 @@ public class WeatherLayoutTests
         var dry = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5, ShowPrecipitation = false });
 
         Assert.Equal(24 + (5 * 56), sizing.Natural.Width);
-        Assert.True(sizing.FixedHeight && sizing.WidthSteps!.FollowsConfig);
+        Assert.True(sizing.Min.Height == sizing.Natural.Height && sizing.WidthSteps!.FollowsConfig);
+        Assert.Equal(SizeStretch.Axis(sizing.Natural.Height, 0, null, 2), sizing.Max.Height); // relaxed, [S-12411]
         Assert.Equal(36 + WeatherForecastLayout.ColumnHeight(true) + 12, sizing.Natural.Height);
         Assert.Equal(20, sizing.Natural.Height - dry.Natural.Height);
     }
@@ -63,6 +64,21 @@ public class WeatherLayoutTests
         Assert.Equal(Math.Floor((320 - 24) * WeatherForecastLayout.MeterShare), plan.Meter);
         Assert.Equal(WeatherForecastLayout.MeterMax, WeatherForecastLayout.Rows(new WidgetArea(800, 200), new WeatherForecastConfig()).Meter);
     }
+
+    [Fact]
+    public void S12403_the_bar_takes_what_the_widest_name_and_value_leave()
+    {
+        // 396 inside, a 16 lead and its 8, "Today" 38.4, "-12° 16°" 51.2, 12 either side of the bar.
+        Assert.Equal(396 - 24 - 39 - 52 - 24, WeatherForecastLayout.MeterWidth(396, 24, 38.4, 51.2, 126));
+    }
+
+    [Fact]
+    public void S12403_a_long_second_line_keeps_the_bar_at_its_share()
+        => Assert.Equal(88, WeatherForecastLayout.MeterWidth(276, 24, 160, 45, 88));
+
+    [Fact]
+    public void S12403_no_room_at_all_is_no_bar_never_a_negative_one()
+        => Assert.Equal(0, WeatherForecastLayout.MeterWidth(40, 24, 60, 45, 0));
 
     [Fact]
     public void S726_columns_share_the_content_and_draw_every_part()

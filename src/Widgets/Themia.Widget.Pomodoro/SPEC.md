@@ -51,7 +51,7 @@ from the tests that pinned them under those numbers, which are the root's geomet
   (its figures as 8s, `PomodoroFace.Worst`) so neither a tick nor a new phase moves it, centred in
   its box, the phase ("Focus", "Break") always its line under and "Next: Break 5:00" its
   tooltip; Start (Pause while it runs) as the one main action and −, +, Reset and Skip as 28 icon
-  buttons after it in the Controls row at the bottom inset, centred, always all of them (at Small
+  buttons after it in the Controls row at the bottom inset (a larger box keeps the face and its controls one block, centred, [S-12410]), centred, always all of them (at Small
   Start is the accent's Play or Pause icon button too).
 - **[S-11304]** **Its size is a setting** (Size, under its Style): the time on 40, 68 or 96, the Ring
   style's one step under in the least ring that holds it ([S-11300]); the ring is the Ring style at

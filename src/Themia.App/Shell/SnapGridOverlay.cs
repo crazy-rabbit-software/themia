@@ -37,7 +37,8 @@ internal sealed partial class SnapGridOverlay : Grid
     /// <summary>
     /// Draw the grid of <paramref name="metrics"/> (DIPs) at <paramref name="scale"/> physical pixels
     /// per DIP. Lines sit where the snap rounds to (multiples of screen/cols from the monitor's
-    /// top-left), each on whole physical pixels so it stays crisp at any DPI.
+    /// top-left) on the whole DIP a card's edge there is put on ([S-11807], <see cref="GridFit.LineDip"/>),
+    /// each on whole physical pixels so it stays crisp at any DPI.
     /// </summary>
     public void Draw(ScreenMetrics metrics, double scale)
     {
@@ -51,14 +52,14 @@ internal sealed partial class SnapGridOverlay : Grid
         for (var c = 1; c < cols; c++)
         {
             var isMajor = GridGeometry.IsMajorLine(c);
-            var x = GridGeometry.CrispLine(c * metrics.Width / cols, s, isMajor ? majorPx : minorPx);
+            var x = GridGeometry.CrispLine(GridFit.LineDip(c, cols, metrics.Width), s, isMajor ? majorPx : minorPx);
             (isMajor ? major : minor).Children.Add(new LineGeometry { StartPoint = new Point(x, 0), EndPoint = new Point(x, metrics.Height) });
         }
 
         for (var r = 1; r < rows; r++)
         {
             var isMajor = GridGeometry.IsMajorLine(r);
-            var y = GridGeometry.CrispLine(r * metrics.Height / rows, s, isMajor ? majorPx : minorPx);
+            var y = GridGeometry.CrispLine(GridFit.LineDip(r, rows, metrics.Height), s, isMajor ? majorPx : minorPx);
             (isMajor ? major : minor).Children.Add(new LineGeometry { StartPoint = new Point(0, y), EndPoint = new Point(metrics.Width, y) });
         }
 

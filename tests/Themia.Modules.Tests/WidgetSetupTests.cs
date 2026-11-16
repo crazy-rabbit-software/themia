@@ -6,6 +6,7 @@ using Themia.Core.Widgets;
 using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Widget.DesktopItem;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -22,7 +23,7 @@ public class WidgetSetupTests
     private static readonly WidgetId[] NeedSetupByDefault =
     [
         new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
-        new WidgetId("videoStream"), new WidgetId("gallery"),
+        new WidgetId("videoStream"), new WidgetId("gallery"), new WidgetId("desktopItem"),
         new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"), new WidgetId("upNext"),
         new WidgetId("weekPlanner"), new WidgetId("contacts"), new WidgetId("tasks"),
     ];
@@ -40,8 +41,8 @@ public class WidgetSetupTests
     [Fact]
     public void S1860_widgets_that_work_out_of_the_box_never_ask()
     {
-        // Seeded quotes and shortcuts, a default place, a power button, the profile folder.
-        foreach (var kind in new[] { new WidgetId("quote"), new WidgetId("shortcuts"), new WidgetId("sun"), new WidgetId("moon"), new WidgetId("shutdown"), new WidgetId("folder"), new WidgetId("clock") })
+        // Seeded quotes, a default place, a power button, the profile folder.
+        foreach (var kind in new[] { new WidgetId("quote"), new WidgetId("sun"), new WidgetId("moon"), new WidgetId("shutdown"), new WidgetId("folder"), new WidgetId("clock") })
         {
             Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), FeatureSet.None), kind.ToString());
         }
@@ -61,9 +62,13 @@ public class WidgetSetupTests
         Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"C:\Pictures" }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new GalleryConfig { Source = GallerySource.Bing }, FeatureSet.None));
 
-        var shortcuts = new ShortcutsConfig();
-        shortcuts.Items.Add(new ShortcutItem { Id = "a", Target = @"C:\Windows\notepad.exe" });
-        Assert.False(WidgetSetup.Needed(shortcuts, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new DesktopItemConfig { Target = @"C:\Windows\notepad.exe" }, FeatureSet.None));
+        var layout = new DesktopItemConfig();
+        layout.MakeLayout();
+        Assert.False(WidgetSetup.Needed(layout, FeatureSet.None));
+
+        // A desktop item is the desktop's own: it never waits, whatever else its config lacks.
+        Assert.False(WidgetSetup.Needed(new DesktopItemConfig { Item = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" }, FeatureSet.None));
     }
 
     [Fact]
@@ -71,8 +76,11 @@ public class WidgetSetupTests
     {
         Assert.True(WidgetSetup.Needed(new QuoteConfig { Quotes = [] }, FeatureSet.None));
         Assert.True(WidgetSetup.Needed(new QuoteConfig { Quotes = [new QuoteItem { Text = "  " }] }, FeatureSet.None));
-        Assert.True(WidgetSetup.Needed(new ShortcutsConfig(), FeatureSet.None));
     }
+
+    [Fact]
+    public void S1860_a_new_shortcut_asks_for_what_it_opens()
+        => Assert.True(WidgetSetup.Needed(WidgetConfig.CreateDefault(new WidgetId("desktopItem")), FeatureSet.None));
 
     [Fact]
     public void S1860_set_up_but_wrong_keeps_the_widgets_own_sentence()
@@ -140,7 +148,7 @@ public class WidgetSetupTests
     {
         // An account would not be enough: the widget lacks an option too, which its menu holds.
         Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new QuoteConfig { Quotes = [] }, FeatureSet.None, Everything));
-        Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new ShortcutsConfig(), FeatureSet.None, Everything));
+        Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new DesktopItemConfig(), FeatureSet.None, Everything));
         Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new RssConfig(), FeatureSet.None, Everything));
     }
 
@@ -154,7 +162,7 @@ public class WidgetSetupTests
     [Fact]
     public void S1862_an_emptied_list_names_its_line_too()
     {
-        // The quotes' list, Add… in it (Shortcuts' Add: ShortcutsMenuTests).
+        // The quotes' list, Add… in it (an own desktop icon's Target: OwnIconMenuTests).
         Assert.NotNull(Assert.Single(SetupLines(new QuoteConfig { Quotes = [] })).Children);
     }
 

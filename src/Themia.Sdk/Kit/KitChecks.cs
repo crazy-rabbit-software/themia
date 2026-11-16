@@ -39,7 +39,8 @@ public static class KitChecks
 
         var sized = choices.Rows;
         var rowLines = choices.OneLine ? 1 : KitSizing.ClampLines(sized.Lines);
-        return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), RowHeight: FamilyShape.RowHeight(rowLines))
+        var pitch = KitPlanner.Pitch(area, sized.Rows, rowLines, choices.CanAdd ? FamilyShape.Row1 : 0);
+        return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), RowHeight: pitch, HeadingHeight: KitPlanner.HeadingPitch(pitch, rowLines))
         {
             AddRow = choices.CanAdd,
             Headings = true,

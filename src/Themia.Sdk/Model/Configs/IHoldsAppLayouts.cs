@@ -1,8 +1,8 @@
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-1411] A widget config that holds app layouts (the Shortcuts widget's layout items): how the
-/// host's one layout editor finds the item it edits across every view without naming the widget.
+/// [S-1411] A widget config that holds an app layout (a shortcut that is one): how the
+/// host's one layout editor finds the layout it edits across every view without naming the widget.
 /// </summary>
 public interface IHoldsAppLayouts
 {

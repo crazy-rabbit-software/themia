@@ -9,6 +9,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Alarm;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -79,6 +80,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _ticker = ticker;
         _detached = false;
+        NaturalBlock.Hold(this, config);
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
 
@@ -95,6 +97,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         _config = config as AlarmConfig ?? new AlarmConfig();
         Lay();
     }

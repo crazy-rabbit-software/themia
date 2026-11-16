@@ -361,13 +361,15 @@ public class PowerActionTests
     {
         // The name's line is planned at every size and the sentence takes it; the glyph is the
         // ringed one whether the ring shows or not.
-        foreach (var size in new[] { ReadoutSize.Small, ReadoutSize.Medium, ReadoutSize.Large })
+        foreach (var side in new[] { 52.0, 100, 160, 480 })
         {
-            var h = Themia.Sdk.Kit.TileRules.SideAt(size) - (2 * Themia.Sdk.Kit.FamilySpace.Inset);
-            var ring = Themia.Sdk.Kit.TileRules.GlyphAt(size).FontSize;
+            var face = Themia.Sdk.Kit.TileRules.Face(side, side, stateLine: false);
+            var h = side - (2 * Themia.Sdk.Kit.FamilySpace.Inset);
+            var ring = face.Glyph.FontSize;
             var glyph = Themia.Sdk.Kit.TileRules.RingGlyph(ring);
-            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare, size.ToString());
-            Assert.True(ring + Themia.Sdk.Kit.TileRules.Below(label: true, state: false) <= h, size.ToString());
+            var below = face.Texted ? Themia.Sdk.Kit.FamilySpace.S2 + (2 * face.Name.LineHeight) : 0;
+            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Assert.True(ring + below <= h, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
     }
 

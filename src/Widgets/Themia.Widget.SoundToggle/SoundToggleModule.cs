@@ -29,13 +29,10 @@ public sealed class SoundToggleModule : IWidgetModule
         Label = SoundToggleStr.Toggles_Sound_Label.Local(),
         Description = SoundToggleStr.Toggles_Sound_Desc.Local(),
         Glyph = Glyphs.Volume3,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 1, 0),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

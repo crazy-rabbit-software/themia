@@ -19,8 +19,8 @@ public static class GridGeometry
     public const double MinCellPx = 10;
 
     /// <summary>
-    /// [S-06] Snap-grid granularity for a screen. The grid is an <b>aid</b>, never storage: it only
-    /// rounds the values chosen during an interaction.
+    /// [S-06] The widget grid's granularity for a screen. Every gesture lands on it (there is no way to
+    /// switch it off, [S-06]); storage stays the fraction it lands on.
     /// </summary>
     public static (int Cols, int Rows) GridDims(ScreenMetrics screen)
     {
@@ -55,7 +55,8 @@ public static class GridGeometry
     {
         var s = scale > 0 && double.IsFinite(scale) ? scale : 1;
         var half = (widthPx % 2) / 2.0;
-        return (Math.Round((dip * s) - half) + half) / s;
+        // [S-11873] Half up, as a card's edge is put on its pixel (DevicePixel), so a line and the edge on it share theirs.
+        return (Math.Floor((dip * s) - half + 0.5) + half) / s;
     }
 
     /// <summary>
@@ -90,7 +91,7 @@ public static class GridGeometry
 
     /// <summary>
     /// [S-6609] How close, in DIPs, a dragged edge must come to an allowed-area edge to land flush
-    /// on it while the snap aid is on. Under one grid cell ([S-06b]), so a widget can still sit one
+    /// on it. Under one grid cell ([S-06b]), so a widget can still sit one
     /// cell in from the edge; enough to catch an edge the grid does not reach (a taskbar's top is
     /// rarely on a grid line), now that the edge no longer stops a drag by itself.
     /// </summary>
@@ -127,11 +128,12 @@ public static class GridGeometry
     /// <summary>
     /// [S-6608] The overlap, as fractions of the screen, a rect of this size must keep with the
     /// allowed area: <see cref="MinVisiblePx"/>, but never more than the rect or the area itself.
+    /// [S-2330] With Over the edge off (<see cref="ScreenMetrics.HoldsWhole"/>) the whole rect.
     /// </summary>
     public static (double X, double Y) Keep(ScreenMetrics screen, double w, double h)
     {
         var a = screen.Allowed;
-        var (px, py) = screen.IsUsable ? (MinVisiblePx / screen.Width, MinVisiblePx / screen.Height) : (0.01, 0.01);
+        var (px, py) = screen.HoldsWhole ? (w, h) : screen.IsUsable ? (MinVisiblePx / screen.Width, MinVisiblePx / screen.Height) : (0.01, 0.01);
         return (Math.Max(0, Math.Min(px, Math.Min(w, a.W))), Math.Max(0, Math.Min(py, Math.Min(h, a.H))));
     }
 
@@ -140,7 +142,7 @@ public static class GridGeometry
         => Math.Max(lo, Math.Min(value, Math.Max(lo, hi)));
 
     /// <summary>
-    /// [S-6609] A moved edge under the snap aid: flush on an allowed-area edge it is within
+    /// [S-6609] A moved edge on the grid: flush on an allowed-area edge it is within
     /// <see cref="EdgeMagnetPx"/> of (judged on the raw position, before the grid rounds it away),
     /// else on the nearest of <paramref name="lines"/> grid lines.
     /// </summary>
@@ -148,7 +150,7 @@ public static class GridGeometry
         => SnapStart(raw, 0, areaStart, areaEnd, lines, screenPx);
 
     /// <summary>
-    /// [S-6609] A moved rect's start under the snap aid: its start edge flush on the area's start, or
+    /// [S-6609] A moved rect's start on the grid: its start edge flush on the area's start, or
     /// its end edge (start + <paramref name="size"/>) flush on the area's end, when either is within
     /// <see cref="EdgeMagnetPx"/>; else the start snaps to the grid.
     /// </summary>
@@ -168,7 +170,7 @@ public static class GridGeometry
         return Math.Round(rawStart * lines) / lines;
     }
 
-    /// <summary>[S-06] Round a rect onto the snap grid. Storage stays the raw fraction.</summary>
+    /// <summary>[S-06] Round a rect onto the grid.</summary>
     public static FracRect Snap(FracRect r, ScreenMetrics screen)
     {
         if (!r.IsFinite)
@@ -188,9 +190,8 @@ public static class GridGeometry
     }
 
     /// <summary>
-    /// Snap when the aid is enabled (Alt suppresses it mid-drag), then always keep the rect
-    /// reachable ([S-09]/[S-6608]). The aid is the grid ([S-06]) with the allowed area's edges as a
-    /// magnet ([S-6609]).
+    /// [S-06] Every gesture's rect onto the grid, then kept reachable ([S-09]/[S-6608]): the grid with the
+    /// allowed area's edges as a magnet ([S-6609]). There is no free path: the grid is always on.
     /// <para>
     /// [S-31a] A resize passes its handle. Then only the edges that handle moves are snapped and
     /// limited; the anchored edges stay exactly where they were. Snapping the whole rect instead
@@ -203,7 +204,7 @@ public static class GridGeometry
     /// steps, not the grid, are its snap); a fixed axis does not move.
     /// </para>
     /// </summary>
-    public static FracRect Settle(FracRect r, ScreenMetrics screen, bool snapEnabled, ResizeHandle? resizing = null, SizeLimits? limits = null)
+    public static FracRect Settle(FracRect r, ScreenMetrics screen, ResizeHandle? resizing = null, SizeLimits? limits = null)
     {
         if (!r.IsFinite)
         {
@@ -215,11 +216,6 @@ public static class GridGeometry
 
         if (resizing is not { } handle)
         {
-            if (!snapEnabled)
-            {
-                return Clamp(r, screen);
-            }
-
             var snapped = Snap(r, screen);
             return Clamp(snapped with
             {
@@ -229,19 +225,23 @@ public static class GridGeometry
         }
 
         var (minW, minH) = MinFraction(screen);
-        var (keepX, keepY) = Keep(screen, double.PositiveInfinity, double.PositiveInfinity);
+        var (keepX, keepY) = Keep(screen with { HoldsWhole = false }, double.PositiveInfinity, double.PositiveInfinity);
+
+        // [S-2330] Over the edge off: a moved edge stops on the allowed area's edge.
+        var whole = screen.HoldsWhole;
 
         double left = r.X, top = r.Y, right = r.Right, bottom = r.Bottom;
 
         // Each moved edge: snapped, then stopped before the widget outgrows the allowed area or
         // leaves less than the visible minimum on it, and the [S-08] floor last so it always wins.
-        var (snapX, snapY) = (snapEnabled && limits is not { Width.Stepped: true }, snapEnabled && limits is not { Height.Stepped: true });
+        var (snapX, snapY) = (limits is not { Width.Stepped: true }, limits is not { Height.Stepped: true });
 
         if (MovesLeft(handle))
         {
             left = snapX ? SnapEdge(left, a.X, a.Right, cols, screen.Width) : left;
             left = limits is null ? left : right - limits.Width.Range(right - left);
             left = Math.Min(Math.Max(left, right - a.W), a.Right - keepX);
+            left = whole ? Math.Max(left, a.X) : left;
             left = Math.Min(left, right - minW);
         }
 
@@ -250,6 +250,7 @@ public static class GridGeometry
             right = snapX ? SnapEdge(right, a.X, a.Right, cols, screen.Width) : right;
             right = limits is null ? right : left + limits.Width.Range(right - left);
             right = Math.Max(Math.Min(right, left + a.W), a.X + keepX);
+            right = whole ? Math.Min(right, a.Right) : right;
             right = Math.Max(right, left + minW);
         }
 
@@ -258,6 +259,7 @@ public static class GridGeometry
             top = snapY ? SnapEdge(top, a.Y, a.Bottom, rows, screen.Height) : top;
             top = limits is null ? top : bottom - limits.Height.Range(bottom - top);
             top = Math.Min(Math.Max(top, bottom - a.H), a.Bottom - keepY);
+            top = whole ? Math.Max(top, a.Y) : top;
             top = Math.Min(top, bottom - minH);
         }
 
@@ -266,6 +268,7 @@ public static class GridGeometry
             bottom = snapY ? SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height) : bottom;
             bottom = limits is null ? bottom : top + limits.Height.Range(bottom - top);
             bottom = Math.Max(Math.Min(bottom, top + a.H), a.Y + keepY);
+            bottom = whole ? Math.Min(bottom, a.Bottom) : bottom;
             bottom = Math.Max(bottom, top + minH);
         }
 
@@ -292,6 +295,34 @@ public static class GridGeometry
             (inside.Y - monitor.Y) / monitor.Height,
             inside.Width / monitor.Width,
             inside.Height / monitor.Height)) ?? FracRect.Full;
+    }
+
+    /// <summary>
+    /// [S-21] [S-851] The one rectangle a surface's window is cut to: its display's work area, relative
+    /// to the window's own corner and never past the window. Both rects are physical screen pixels.
+    /// What another program reserved at a screen edge (the taskbar, a dock registered as an appbar) is
+    /// outside the work area, so the surface neither paints nor takes input there, whatever its
+    /// z-order. A work area that does not overlap the window (Windows mid-change) gives the whole
+    /// window, as <see cref="AllowedArea"/> gives the whole screen: the next display pass corrects it.
+    /// </summary>
+    /// <summary>
+    /// [S-852] The window of a display's surface: the display itself, **one pixel short at the foot**, so
+    /// it never covers the whole display. A window that does and comes to the front reads as a
+    /// full-screen app: Windows' taskbar steps behind it and a dock hides for it (seen 2026-11-14: Karpo
+    /// hid its bar whenever a click made the surface the front window; its rule, like the shell's, is
+    /// "every edge of the display is inside the window"). The stored fractions still resolve against the
+    /// display; the last pixel row is the taskbar's or the display's edge. A display no taller than a
+    /// pixel is returned as it is.
+    /// </summary>
+    public static PixelRect SurfaceWindow(PixelRect display)
+        => display.Height > 1 ? display with { Height = display.Height - 1 } : display;
+
+    public static PixelRect SurfaceRegion(PixelRect window, PixelRect workArea)
+    {
+        var inside = window.Width > 0 && window.Height > 0 ? Intersect(window, workArea) : null;
+        return inside is { } r
+            ? new PixelRect(r.X - window.X, r.Y - window.Y, r.Width, r.Height)
+            : new PixelRect(0, 0, Math.Max(0, window.Width), Math.Max(0, window.Height));
     }
 
     /// <summary>
@@ -395,12 +426,44 @@ public static class GridGeometry
         double yFrac,
         double defaultWidthPx,
         double defaultHeightPx,
-        ScreenMetrics screen,
-        bool snapEnabled)
+        ScreenMetrics screen)
     {
         var size = FracRect.FromPixels(0, 0, defaultWidthPx, defaultHeightPx, screen);
         var raw = new FracRect(xFrac - (size.W / 2), yFrac - (size.H / 2), size.W, size.H);
-        return Settle(raw, screen, snapEnabled);
+        return Settle(raw, screen);
+    }
+
+    /// <summary>
+    /// [S-11873] The whole DIP a cell's edge is put on: half up (never to even), so moving every edge of a
+    /// block by the same whole DIPs moves every rounded edge by the same whole DIPs.
+    /// </summary>
+    public static double WholeDip(double dip) => Math.Floor(dip + 0.5);
+
+    /// <summary>
+    /// [S-11873] The device pixel a whole DIP <paramref name="wholeDip"/> lands on at <paramref name="scale"/>,
+    /// half up, in DIPs. Rounding to even put 4.5 px on 4 and 7.5 px on 8, so two cards moved by the same
+    /// 3 px came out 2 and 4 px further on: a group moved freely changed its spacing.
+    /// </summary>
+    public static double DevicePixel(double wholeDip, double scale) => Math.Floor((wholeDip * scale) + 0.5) / scale;
+
+    /// <summary>
+    /// [S-11873] The fewest whole DIPs that are whole device pixels at <paramref name="scale"/>: 1 at 100 % and
+    /// 200 %, 2 at 150 %, 4 at 125 % and 175 %. A block moved by a whole number of these keeps every card's
+    /// pixels where they were relative to the others; a scale no small count makes whole takes 1.
+    /// </summary>
+    public static int PixelStep(double scale)
+    {
+        var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
+        for (var n = 1; n <= 8; n++)
+        {
+            var px = n * s;
+            if (Math.Abs(px - Math.Round(px)) < 1e-6)
+            {
+                return n;
+            }
+        }
+
+        return 1;
     }
 
     /// <summary>
@@ -430,7 +493,7 @@ public static class GridGeometry
     public static PixelRect ToPixels(FracRect r, ScreenMetrics screen, double rasterScale = 1)
     {
         var scale = double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1;
-        double Edge(double dip) => Math.Round(Math.Round(dip) * scale) / scale;
+        double Edge(double dip) => DevicePixel(WholeDip(dip), scale);
 
         var left = Edge(r.X * screen.Width);
         var top = Edge(r.Y * screen.Height);
@@ -438,41 +501,5 @@ public static class GridGeometry
         var bottom = Edge(r.Bottom * screen.Height);
 
         return new PixelRect(left, top, Math.Max(1, right - left), Math.Max(1, bottom - top));
-    }
-
-    /// <summary>
-    /// The painted surface inside a cell: inset on every side by half the gap, so two neighbouring
-    /// widgets show a full gap between them while each keeps its own cell.
-    /// <para>
-    /// Never shrinks below a pixel, so an absurd gap on a small widget leaves something to click
-    /// rather than nothing.
-    /// </para>
-    /// </summary>
-    public static PixelRect Inset(PixelRect cell, double gapPx)
-    {
-        if (!double.IsFinite(gapPx) || gapPx <= 0)
-        {
-            return cell;
-        }
-
-        var half = gapPx / 2;
-        var width = cell.Width - gapPx;
-        var height = cell.Height - gapPx;
-
-        // A gap wider than the cell would invert it; pin to the centre instead.
-        if (width < 1)
-        {
-            half = Math.Max(0, (cell.Width - 1) / 2);
-            width = 1;
-        }
-
-        var halfY = gapPx / 2;
-        if (height < 1)
-        {
-            halfY = Math.Max(0, (cell.Height - 1) / 2);
-            height = 1;
-        }
-
-        return new PixelRect(cell.X + half, cell.Y + halfY, width, height);
     }
 }

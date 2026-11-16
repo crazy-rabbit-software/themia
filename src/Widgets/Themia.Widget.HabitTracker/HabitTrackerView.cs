@@ -32,7 +32,7 @@ namespace Themia.App.Widgets;
 /// bigger rows; never a summary or a chart (concise widgets, [S-666]).
 /// </para>
 /// </summary>
-internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetOwnsDrags
 {
     private const string Scope = "habits";
 
@@ -64,11 +64,10 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     public HabitTrackerView(IWidgetHost host)
     {
         _host = host;
-        // [S-3850] The rows take the tile and the add footer is pinned under them, on the card's
-        // bottom inset ([S-6703]).
+        // [S-3850] The rows take the tile and the add footer is pinned under them. [S-12410] They run down
+        // to the card's edge: the foot's inset the sizing counts is the rows' to stretch into.
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / status
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add footer
-        Padding = new Thickness(0, 0, 0, FamilySpace.Inset);
 
         // [S-6706] The "3/5" count is the header's neutral pill.
         _done = _header.Add(HeaderPartKind.Count, HeaderBlock.Count(_doneText));
@@ -313,12 +312,17 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         LayHeatmap(count);
 
         // [S-11530] The config's rows at the top and the add footer under them ([S-3850]); fewer habits
-        // leave their rows empty. Whole rows in the viewport: the rest scroll.
-        _scroll.Height = plan.Rows < count ? plan.Rows * plan.RowHeight : double.NaN;
+        // leave their rows empty. Whole rows in the viewport: the rest scroll. [S-12410] The rows stretch
+        // over the room the add footer leaves (up to half again), down to the card's edge.
+        var pitch = _area.IsMeasured
+            ? ItemStretch.Pitch(_area.Height - FamilyShape.Row1, plan.Rows, plan.RowHeight, scale: XamlRoot?.RasterizationScale ?? 1)
+            : plan.RowHeight;
+        _scroll.Height = plan.Rows < count ? plan.Rows * pitch : double.NaN;
 
         foreach (var row in _rows)
         {
             row.SetLayout(plan);
+            row.Host.Height = pitch;
         }
 
         FitAddRow(plan);

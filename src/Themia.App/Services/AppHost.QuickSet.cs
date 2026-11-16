@@ -8,8 +8,7 @@ namespace Themia.App.Services;
 
 /// <summary>
 /// [S-3703]/[S-3704] The selection page's writes: header, background, item background ([S-6521]), scale
-/// ([S-6531]), alignment ([S-6584]) and title, of the widgets it names (the selection, or one member of a
-/// group on its own page, [S-11755]); a shared setting set on every widget that holds it ([S-11751]); a
+/// ([S-6531]), alignment ([S-6584]) and title, of the widgets it names (the selection); a shared setting set on every widget that holds it ([S-11751]); a
 /// group renamed ([S-11754]). Each through <see cref="Mutate"/>, one change each.
 /// </summary>
 internal sealed partial class AppHost
@@ -19,19 +18,6 @@ internal sealed partial class AppHost
 
     /// <summary>[S-11754] The selection page's model on the display showing <paramref name="shownViewId"/>; null while nothing there is selected.</summary>
     public SelectionModel? SelectionModelFor(string shownViewId) => SelectionPage.Of(State, Selection, shownViewId);
-
-    /// <summary>[S-11755] One widget of the selection's view as a lone selection of it would show it: its page's model.</summary>
-    public SelectionModel? WidgetModel(string widgetId)
-    {
-        if (SelectionView is not { } view)
-        {
-            return null;
-        }
-
-        var alone = new WidgetSelection();
-        alone.Replace(view.Id, [widgetId]);
-        return SelectionPage.Of(State, alone, view.Id);
-    }
 
     /// <summary>[S-3703] The widgets' header, in one step.</summary>
     public void SetHeader(IReadOnlyList<string> ids, HeaderPlacement header) => Change(ids, (view, of) => QuickSet.SetHeader(view, of, header));
@@ -79,22 +65,6 @@ internal sealed partial class AppHost
         {
             Mutate(_ => WidgetGroups.Rename(view, groupId, SelectionPage.GroupName(typed)));
         }
-    }
-
-    /// <summary>
-    /// [S-11755] "Remove from group" on a member's row of its group's page: it alone leaves (a group left
-    /// with one dissolves); what stays of the group stays selected.
-    /// </summary>
-    public void RemoveFromGroup(string widgetId)
-    {
-        if (SelectionView is not { } view || WidgetGroups.GroupOf(view, widgetId) is not { } group)
-        {
-            return;
-        }
-
-        var rest = WidgetGroups.Members(view, group.Id).Select(w => w.Id).Where(id => id != widgetId).ToList();
-        Mutate(_ => WidgetGroups.RemoveFromGroup(view, widgetId), undo: UndoAction.Ungroup);
-        SelectMany(view.Id, rest);
     }
 
     /// <summary>[S-11757] An entered member's link to its group: the whole group selected, its page shown.</summary>

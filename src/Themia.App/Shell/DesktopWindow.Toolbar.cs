@@ -16,7 +16,8 @@ internal sealed partial class DesktopWindow
         Page: TogglePage,
         Selection: ToggleSelectionPage,
         IntoFlyout: FocusFlyout,
-        Done: () => _host.SetEditMode(false));
+        Done: () => _host.SetEditMode(false),
+        Toggled: ShowToolbar);
 
     /// <summary>
     /// [S-2320] What this display's bar shows now: the selection's entry, the problems (Themia keeps no
@@ -33,7 +34,11 @@ internal sealed partial class DesktopWindow
 
         var metrics = Metrics;
         var widest = metrics.IsUsable ? GridGeometry.AllowedPixels(metrics).Width - (2 * Sdk.Kit.ShellMetrics.Bar.Top) : double.PositiveInfinity;
-        return new EditBarState(selection, 0, _openPage, _selectionOpen, widest) { AddOpen = _addPage is not null };
+        return new EditBarState(selection, 0, _openPage, _selectionOpen, widest)
+        {
+            AddOpen = _addPage is not null,
+            Toggles = EditBarToggles.Of(new SurfaceSettingsHost(this)),
+        };
     }
 
     /// <summary>

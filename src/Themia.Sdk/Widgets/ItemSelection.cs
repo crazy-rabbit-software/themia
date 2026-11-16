@@ -16,7 +16,7 @@ public enum SelectionMove
 /// <summary>
 /// [S-6620]..[S-6626] The selection of a widget's items, as the Windows desktop and File Explorer
 /// keep theirs: a set of selected items, an anchor a Shift range runs from, and a focused item the
-/// keys move. One rule set for every widget that selects items (the folder's files, the shortcuts);
+/// keys move. One rule set for every widget that selects items (the folder's files);
 /// a view feeds it presses, keys and rubber-band hits against the order it draws
 /// (<see cref="SetOrder"/>) and paints what <see cref="IsSelected"/>, <see cref="Focus"/> and
 /// <see cref="Cues"/> say through the one look ([S-6627]).
@@ -41,7 +41,7 @@ public sealed class ItemSelection
     /// <summary>A plain press on a selected item narrows the selection on release, not press ([S-6621]).</summary>
     private int? _deferred;
 
-    /// <param name="comparer">How ids compare: paths ignore case, the shortcuts' ids do not.</param>
+    /// <param name="comparer">How ids compare: paths ignore case, plain ids do not.</param>
     public ItemSelection(StringComparer? comparer = null)
     {
         _comparer = comparer ?? StringComparer.Ordinal;

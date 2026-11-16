@@ -17,7 +17,6 @@ public sealed class ListStylesHostTests
 {
     [Theory]
     [InlineData("tasks", "list,compact")]
-    [InlineData("shortcuts", "grid,list,details")]
     [InlineData("gallery", "slideshow,grid,scatter,mosaic")]
     [InlineData("email", "list,compact,table")]
     [InlineData("quote", "plain,marks")]
@@ -28,13 +27,5 @@ public sealed class ListStylesHostTests
         Assert.True(WidgetStyles.Offers(kind));
         Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
         Assert.Equal(WidgetStyles.For(kind)[0].Value, WidgetStyles.Current(WidgetConfig.CreateDefault(kind)));
-    }
-
-    [Fact]
-    public void S6401_only_the_grid_draws_with_the_tile_settings()
-    {
-        Assert.Contains(ShortcutsSetting.IconOnly, new ShortcutsConfig { Style = ShortcutsStyle.Grid }.ShownSettings);
-        Assert.DoesNotContain(ShortcutsSetting.IconOnly, new ShortcutsConfig { Style = ShortcutsStyle.List }.ShownSettings);
-        Assert.DoesNotContain(ShortcutsSetting.IconOnly, new ShortcutsConfig { Style = ShortcutsStyle.Details }.ShownSettings);
     }
 }

@@ -198,13 +198,13 @@ public sealed class SettingsTransferTests : IDisposable
         var incoming = Copy(state);
         incoming.Design.Theme = AppTheme.Dark;
         incoming.Design.PrimaryColor = "#FF8800";
-        incoming.Design.WidgetGapPx = 12;
+        incoming.Design.BorderWidthPx = 3;
 
         var preview = SettingsTransfer.Compare(Locale.En, state, incoming, [], Displays);
 
         Assert.Contains("Theme: System → Dark", preview.Changes);
         Assert.Contains("Accent colour: theme → #FF8800", preview.Changes);
-        Assert.Contains("Gap between widgets: 0px → 12px", preview.Changes);
+        Assert.Contains("Border width: 1px → 3px", preview.Changes);
     }
 
     [Fact]

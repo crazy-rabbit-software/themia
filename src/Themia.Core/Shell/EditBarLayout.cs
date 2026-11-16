@@ -15,6 +15,9 @@ public enum BarPartKind
     /// <summary>The selection's entry.</summary>
     Selection,
 
+    /// <summary>[S-2330] A toggle at the bar's root (<see cref="BarPart.Index"/> its place among them): Over the edge.</summary>
+    Toggle,
+
     /// <summary>The errors' icon button: only while there are problems.</summary>
     Errors,
 
@@ -52,7 +55,7 @@ public sealed record EditBarPlan(IReadOnlyList<BarPart> Parts, double Width, dou
 /// <summary>
 /// [S-2320]..[S-2324] The edit bar's layout, Karpo's command bar (karpo-app, docs/widgets.md §575, §578,
 /// §596, §608; <c>PanelLayout.Lay</c>): the pages' entries 4 apart; 8, the divider, 8; the selection's
-/// room; a 16 gutter; the errors' room; 4; Add; 8; Done, 8 from the bar's end. One width whatever is
+/// room; a 16 gutter; the toggles (40 each, 4 apart, [S-2330]); 4; the errors' room; 4; Add; 8; Done, 8 from the bar's end. One width whatever is
 /// selected and whether there are errors: the divider's, the selection's and the errors' rooms are kept
 /// empty. On a display too narrow for it the pages' entries show their icon alone first, then the
 /// selection's room narrows. Pure: the bar measures its words and asks.
@@ -67,24 +70,25 @@ public static class EditBarLayout
 
     /// <summary>
     /// [S-2320] The bar: <paramref name="pages"/> the widths of the pages' words, <paramref name="selection"/>
-    /// the selection entry's (null: nothing selected), whether there are <paramref name="errors"/>, Add's and
-    /// Done's words, and the widest the bar may be (the work area less its margins; infinity for no limit).
+    /// the selection entry's (null: nothing selected), how many <paramref name="toggles"/> stand at its root
+    /// ([S-2330]), whether there are <paramref name="errors"/>, Add's and Done's words, and the widest the bar
+    /// may be (the work area less its margins; infinity for no limit).
     /// </summary>
-    public static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, bool errors, double add, double done, double widest)
+    public static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, int toggles, bool errors, double add, double done, double widest)
     {
         ArgumentNullException.ThrowIfNull(pages);
 
-        var plan = Lay(pages, selection, errors, add, done, M.Selection, compact: false);
+        var plan = Lay(pages, selection, toggles, errors, add, done, M.Selection, compact: false);
         if (plan.Width <= widest)
         {
             return plan;
         }
 
         // [S-2322] Too wide: the pages' entries their icon alone (the words in the tooltip), then the selection's room narrower.
-        plan = Lay(pages, selection, errors, add, done, M.Selection, compact: true);
+        plan = Lay(pages, selection, toggles, errors, add, done, M.Selection, compact: true);
         var over = plan.Width - widest;
         return over > 0
-            ? Lay(pages, selection, errors, add, done, Math.Max(M.IconOnly, M.Selection - over), compact: true)
+            ? Lay(pages, selection, toggles, errors, add, done, Math.Max(M.IconOnly, M.Selection - over), compact: true)
             : plan;
     }
 
@@ -100,7 +104,7 @@ public static class EditBarLayout
             : (M.IconOnly, true);
     }
 
-    private static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, bool errors, double add, double done, double room, bool compact)
+    private static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, int toggles, bool errors, double add, double done, double room, bool compact)
     {
         var parts = new List<BarPart>();
         var x = M.Pad;
@@ -126,6 +130,13 @@ public static class EditBarLayout
         }
 
         x = selectionX + roomWidth + M.Gutter;
+
+        // [S-2330] The toggles at the bar's root, icon buttons, always there.
+        for (var i = 0; i < toggles; i++)
+        {
+            parts.Add(new BarPart(BarPartKind.Toggle, i, x, M.IconOnly, true));
+            x += M.IconOnly + M.EntryGap;
+        }
 
         // The errors' room, kept whether there are any or not.
         if (errors)

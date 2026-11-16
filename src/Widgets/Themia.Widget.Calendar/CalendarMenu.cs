@@ -64,10 +64,11 @@ internal static class CalendarMenu
         // [S-11543] The day's hours (the height follows).
         CalendarSetting.DayHours => [KitMenuLines.Count(menu, Glyphs.Hours, CalendarStr.Calendar_Hours.Text(), CalendarSizing.ClampHours(config.DayHours), CalendarSizing.MinHours, CalendarSizing.MaxHours, 1, v => config.DayHours = v)],
 
-        // [S-11544] A month day's events: their titles as chips, or dots.
-        CalendarSetting.MonthEvents => [menu.Choice(null, CalendarStr.Calendar_MonthEvents.Text(),
-            [(MonthEvents.Dots, CalendarStr.Calendar_MonthEvents_Dots.Text()), (MonthEvents.Chips, CalendarStr.Calendar_MonthEvents_Chips.Text())],
-            config.MonthEvents, value => config.MonthEvents = value)],
+        // [S-11544] A month day's events: their titles as chips, or dots; [S-11547] with titles, how many a day lists (the height follows).
+        CalendarSetting.MonthEvents => config.MonthEvents == MonthEvents.Chips
+            ? [MonthEventsLine(menu, config),
+                KitMenuLines.Count(menu, Glyphs.Count, CalendarStr.Calendar_MonthLines.Text(), MonthPlan.Lines(config.MonthLines), MonthPlan.MinLines, MonthPlan.MaxLines, 1, v => config.MonthLines = v)]
+            : [MonthEventsLine(menu, config)],
 
         // [S-11546] Titles in the week's columns (each at least 96), and then the hours of its grid.
         CalendarSetting.WeekTitles => config.WeekTitles
@@ -80,6 +81,12 @@ internal static class CalendarMenu
 
         _ => [StyleLine(menu, config, setting)],
     };
+
+    /// <summary>[S-11544] The month's Events as: Dots or Titles.</summary>
+    private static ItemMenuEntry MonthEventsLine(WidgetMenuLines menu, CalendarWidgetConfig config)
+        => menu.Choice(null, CalendarStr.Calendar_MonthEvents.Text(),
+            [(MonthEvents.Dots, CalendarStr.Calendar_MonthEvents_Dots.Text()), (MonthEvents.Chips, CalendarStr.Calendar_MonthEvents_Chips.Text())],
+            config.MonthEvents, value => config.MonthEvents = value);
 
     /// <summary>[S-3601] One of a style's own lines: the week's first column and length, the agenda's range and count.</summary>
     private static ItemMenuEntry StyleLine(WidgetMenuLines menu, CalendarWidgetConfig config, CalendarSetting setting) => setting switch

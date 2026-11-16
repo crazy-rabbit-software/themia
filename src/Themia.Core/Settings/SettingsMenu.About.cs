@@ -46,10 +46,9 @@ public interface IAboutMenuHost
 }
 
 /// <summary>
-/// [S-3580]..[S-3582] About Themia ›: the About page as lines, after Karpo's ⚙ › About Karpo
-/// (karpo-app, docs/widgets.md §339): the name card (the mark, the version, what it runs on), the
-/// studio, the privacy policy and support, the data the widgets credit, and at the very end
-/// Uninstall Themia ›.
+/// [S-3580]..[S-3582] About Themia, after Karpo's About Karpo (karpo-app, docs/widgets.md §579): the
+/// name card (the mark, the version, what it runs on), the studio, the data the widgets credit, the
+/// privacy policy and support; and Uninstall Themia, a card of the Themia section.
 /// </summary>
 public static partial class SettingsMenu
 {
@@ -59,55 +58,66 @@ public static partial class SettingsMenu
     /// <summary>[S-3580] Open-Meteo's site: the weather, rain and air quality the widgets credit come from it.</summary>
     public static readonly Uri OpenMeteoSite = new("https://open-meteo.com/");
 
-    /// <summary>[S-3580] The About Themia line and its submenu.</summary>
+    /// <summary>
+    /// [S-3580] About Themia, a section of its own as Karpo's About Karpo (karpo-app, Karpo.Core/KarpoMenu.About.cs,
+    /// docs/widgets.md §579, §630, §638): Themia's card (its mark, its name over "Version x.y.z · what it runs on",
+    /// one line), Lometics GmbH's (its mark, its name over what it is, its site a button beside it), Open-Meteo's
+    /// as Lometics' (its data's licence asks for the credit), then the privacy policy and support, buttons alone.
+    /// </summary>
     public static SettingsSubmenu About(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
 
         var about = host.About;
+        SettingsCommand Site(string key, string name, Uri site) => new(key, name, Glyphs.Link, () => about.Open(site));
         var lines = new List<SettingsLine>
         {
-            // The name card: the mark beside the name, the version and what it runs on under it.
-            new SettingsReading(Keys.About + "/name", "Themia", null, null) { Picture = MenuPicture.ThemiaLogo },
-            // The runtime line between left-to-right marks (U+200E), so a right-to-left language keeps its dots in place.
-            new SettingsNote(Keys.About + "/version", Str.Shell_About_Version.Format(("version", about.Version)) + "\n\u200E" + about.Runtime + "\u200E"),
-            new SettingsSeparator(Keys.About + "/-made"),
+            // The runtime between left-to-right marks (U+200E), so a right-to-left language keeps its dots in place.
+            new SettingsReading(Keys.About + "/name", "Themia", null, null) // not-ui: the name
+            {
+                Picture = MenuPicture.ThemiaLogo,
+                Caption = Str.Shell_About_Version.Format(("version", about.Version)) + " · \u200E" + about.Runtime + "\u200E",
+            },
+            new SettingsSeparator(Keys.About + "/-maker"),
 
-            // [S-493] Made by, with its mark and its site.
-            new SettingsCommand(Keys.About + "/lometics", "Lometics", null, () => about.Open(LometicsSite))
+            // [S-493] Made by: its name over what it is, its site beside it.
+            new SettingsReading(Keys.About + "/lometics", "Lometics GmbH", null, null) // not-ui: the name
             {
                 Picture = MenuPicture.Lometics,
-                Value = "lometics.com",
+                Caption = Str.Shell_About_Studio.Text(),
+                Beside = Site(Keys.About + "/lometics/site", "lometics.com", LometicsSite), // not-ui: an address
             },
-            new SettingsNote(Keys.About + "/lometics/studio", Str.Shell_About_Studio.Text()),
+            new SettingsSeparator(Keys.About + "/-data"),
 
-            // [S-1072] What the Store listing points to as well.
+            // The data the weather, rain and air-quality widgets show: its licence (CC BY 4.0) asks for the credit.
+            new SettingsReading(Keys.About + "/openMeteo", "Open-Meteo", Glyphs.Weather, null) // not-ui: the name
+            {
+                Caption = Str.SettingsMenu_AboutOpenMeteo.Text(),
+                Beside = Site(Keys.About + "/openMeteo/site", "open-meteo.com", OpenMeteoSite), // not-ui: an address
+            },
+            new SettingsSeparator(Keys.About + "/-links"),
+
+            // [S-1072] What the Store listing points to as well: rows that only act, their buttons alone (Karpo's §578).
             new SettingsCommand(Keys.About + "/privacy", Str.Shell_About_Privacy.Text(), Glyphs.Lock, () => about.Open(AboutLinks.Privacy(Strings.Current))),
             new SettingsCommand(Keys.About + "/support", Str.Shell_About_Support.Text(), Glyphs.Mail, () => about.Open(AboutLinks.Support))
             {
                 Value = AboutLinks.SupportAddress,
             },
-            new SettingsSeparator(Keys.About + "/-data"),
-
-            // The data the weather, rain and air-quality widgets credit in their own menus ("Source: Open-Meteo").
-            new SettingsCommand(Keys.About + "/openMeteo", "Open-Meteo", Glyphs.Weather, () => about.Open(OpenMeteoSite)) { Value = "open-meteo.com" },
-            new SettingsNote(Keys.About + "/openMeteo/what", Str.SettingsMenu_AboutOpenMeteo.Text()),
-            new SettingsSeparator(Keys.About + "/-uninstall"),
-            Uninstall(host, about),
         };
 
         return new SettingsSubmenu(Keys.About, Str.SettingsMenu_About.Text(), Glyphs.Info, lines);
     }
 
     /// <summary>
-    /// [S-3582] Uninstall Themia ›, About's last line: what happens (packaged, the package goes with
-    /// the data; loose, Installed apps opens), a loose build's "Also delete my widgets, settings and
-    /// accounts" (unticked; ticked, the folders that go under it), then Uninstall…, asked first as
-    /// Windows asks before it destroys something. Nothing is removed or deleted before that answer
-    /// ([S-1555]).
+    /// [S-3582] Uninstall Themia, a card of the Themia section after Back up &amp; reset: what happens (packaged,
+    /// the package goes with the data; loose, Installed apps opens), a loose build's "Also delete my widgets,
+    /// settings and accounts" (unticked; ticked, the folders that go under it), then Uninstall…, asked first
+    /// as Windows asks before it destroys something. Nothing is removed or deleted before that answer ([S-1555]).
     /// </summary>
-    private static SettingsSubmenu Uninstall(ISettingsMenuHost host, IAboutMenuHost about)
+    public static SettingsSubmenu Uninstall(ISettingsMenuHost host)
     {
+        ArgumentNullException.ThrowIfNull(host);
+        var about = host.About;
         var plan = about.Uninstall;
         var key = Keys.Uninstall;
         var packaged = plan.Route == UninstallRoute.RemovePackage;

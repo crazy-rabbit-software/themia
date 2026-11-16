@@ -3,9 +3,11 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
 using Themia.App.Services.Files;
 using Themia.App.Widgets;
+using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -14,14 +16,12 @@ namespace Themia.App.Shell;
 /// [S-1020]..[S-1024] The surface as the one OLE drop target for files, folders and links dragged
 /// from Explorer, Outlook, a browser or another widget.
 /// <para>
-/// Where a drop can land follows the hit region ([S-851]): outside edit mode the surface exists only
-/// where widgets (and the view bar, and notices) are, so a drag between widgets is over Explorer's
-/// own desktop and never reaches us — Explorer takes it as it always does. Over a widget the view
-/// under the pointer decides (<see cref="IWidgetDropTarget"/>); a widget without drops refuses. In edit
-/// mode the whole work area is ours, widgets take no drops, and bare surface stands in for the
-/// desktop it covers: the drop goes to the Desktop folder through the shell's own drop target, so it
-/// does just what dropping on the desktop would (same-volume move, cross-volume copy, links, virtual
-/// files, conflict UI).
+/// [S-1021] The surface is its display's whole work area ([S-851]), in edit mode and outside it, so
+/// every drag over the desktop reaches us. Over a widget the view under the pointer decides
+/// (<see cref="IWidgetDropTarget"/>); a widget without drops refuses, and in edit mode widgets take
+/// no drops. Bare surface is the desktop: the drop goes to the Desktop folder through the shell's own
+/// drop target, so it does just what dropping on Explorer's desktop would (same-volume move,
+/// cross-volume copy, links, virtual files, conflict UI).
 /// </para>
 /// </summary>
 internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
@@ -56,12 +56,116 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         }
 
         _dropHelper = DragDropInterop.CreateDropHelper();
+        AttachOwnDrags();
+    }
+
+    // ---- our own drags ([S-5549]) ------------------------------------------------------------------
+
+    private bool _ownDragsAttached;
+
+    /// <summary>
+    /// [S-5549] A drag one of our own views started (<see cref="ItemDrag"/>) is XAML's, and XAML routes
+    /// a drag of its own process to its drop events, never to the OLE target above (seen live: the drag
+    /// ran and ended with nothing, the target unheard). So the surface's root takes those events and
+    /// feeds the same routing; a drag from elsewhere still arrives through OLE and is left alone here.
+    /// </summary>
+    private void AttachOwnDrags()
+    {
+        if (_ownDragsAttached)
+        {
+            return;
+        }
+
+        _ownDragsAttached = true;
+        _root.AllowDrop = true;
+        _root.DragOver += OnOwnDragOver;
+        _root.Drop += OnOwnDrop;
+        _root.DragLeave += OnOwnDragLeave;
+    }
+
+    private void DetachOwnDrags()
+    {
+        if (!_ownDragsAttached)
+        {
+            return;
+        }
+
+        _ownDragsAttached = false;
+        _root.DragOver -= OnOwnDragOver;
+        _root.Drop -= OnOwnDrop;
+        _root.DragLeave -= OnOwnDragLeave;
+    }
+
+    /// <summary>The OLE key flags of XAML's modifiers: the left button, Shift and Ctrl.</summary>
+    private static uint OwnKeys(Windows.ApplicationModel.DataTransfer.DragDrop.DragDropModifiers modifiers)
+        => 0x1u
+            | (modifiers.HasFlag(Windows.ApplicationModel.DataTransfer.DragDrop.DragDropModifiers.Shift) ? 0x4u : 0)
+            | (modifiers.HasFlag(Windows.ApplicationModel.DataTransfer.DragDrop.DragDropModifiers.Control) ? 0x8u : 0);
+
+    private void OnOwnDragOver(object sender, DragEventArgs e)
+    {
+        try
+        {
+            if (ItemDrag.Running is null || !Win32.GetCursorPos(out var at))
+            {
+                return;
+            }
+
+            var allowed = (DropEffect)(uint)e.AllowedOperations;
+            var keys = OwnKeys(e.Modifiers);
+            var effect = _drag is null ? Enter(0, keys, at.X, at.Y, allowed) : Over(keys, at.X, at.Y, allowed);
+            e.AcceptedOperation = (Windows.ApplicationModel.DataTransfer.DataPackageOperation)(uint)effect;
+
+            // [S-5546] Icons that only move on the desktop show their picture and nothing else, as Explorer's.
+            var moves = _drag is { } drag && Resolve(drag).Moves;
+            e.DragUIOverride.IsGlyphVisible = !moves;
+            e.DragUIOverride.IsCaptionVisible = !moves && _drag?.Place is not null;
+            if (!moves && _drag?.Place is { } place)
+            {
+                e.DragUIOverride.Caption = place;
+            }
+
+            e.Handled = true;
+        }
+        catch (Exception ex)
+        {
+            // XAML's event: nothing may escape into its drag.
+            Log.Error(Scope, "routing one of our own drags over the surface failed", ex);
+        }
+    }
+
+    private void OnOwnDrop(object sender, DragEventArgs e)
+    {
+        try
+        {
+            if (ItemDrag.Running is null || !Win32.GetCursorPos(out var at))
+            {
+                return;
+            }
+
+            var effect = Drop(0, OwnKeys(e.Modifiers), at.X, at.Y, (DropEffect)(uint)e.AllowedOperations);
+            e.AcceptedOperation = (Windows.ApplicationModel.DataTransfer.DataPackageOperation)(uint)effect;
+            e.Handled = true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "dropping one of our own drags on the surface failed", ex);
+        }
+    }
+
+    private void OnOwnDragLeave(object sender, DragEventArgs e)
+    {
+        if (ItemDrag.Running is not null && _drag is { Data: 0 })
+        {
+            Leave();
+        }
     }
 
     /// <summary>Revoke the drop target before the window goes; a drag in flight is left first.</summary>
     private void DetachDropTarget()
     {
         EndDrag();
+        DetachOwnDrags();
         _dropRegistration?.Dispose();
         _dropRegistration = null;
         _dropHelper.Dispose();
@@ -74,10 +178,11 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         // A drag that never left (the source died mid-drag) is ended before the new one starts.
         EndDrag();
 
-        _drag = new WidgetDrag(data, keys, screenX, screenY, allowed);
+        // A drag a view of ours started is read from its offer, never from its data object ([S-1022]).
+        _drag = new WidgetDrag(data, keys, screenX, screenY, allowed, ItemDrag.Running);
         var effect = Hover(_drag);
 
-        if (!_dropHelper.IsNull)
+        if (!_dropHelper.IsNull && data != 0)
         {
             DragDropInterop.HelperEnter(_dropHelper.Pointer, _hwnd, data, screenX, screenY, effect);
         }
@@ -95,7 +200,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         drag.Update(keys, screenX, screenY, allowed);
         var effect = Hover(drag);
 
-        if (!_dropHelper.IsNull)
+        if (!_dropHelper.IsNull && drag.Data != 0)
         {
             DragDropInterop.HelperOver(_dropHelper.Pointer, screenX, screenY, effect);
         }
@@ -105,7 +210,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
 
     public void Leave()
     {
-        if (!_dropHelper.IsNull)
+        if (!_dropHelper.IsNull && _drag is { Data: not 0 })
         {
             DragDropInterop.HelperLeave(_dropHelper.Pointer);
         }
@@ -115,7 +220,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
 
     public DropEffect Drop(nint data, uint keys, int screenX, int screenY, DropEffect allowed)
     {
-        var drag = _drag ?? new WidgetDrag(data, keys, screenX, screenY, allowed);
+        var drag = _drag ?? new WidgetDrag(data, keys, screenX, screenY, allowed, ItemDrag.Running);
         _drag = drag;
         drag.Update(keys, screenX, screenY, allowed);
 
@@ -130,7 +235,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         }
         finally
         {
-            if (!_dropHelper.IsNull)
+            if (!_dropHelper.IsNull && data != 0)
             {
                 DragDropInterop.HelperDrop(_dropHelper.Pointer, data, screenX, screenY, effect);
             }
@@ -146,16 +251,21 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     /// <summary>Route the drag where it is now and answer the effect it shows.</summary>
     private DropEffect Hover(WidgetDrag drag)
     {
-        var (route, view, local) = Resolve(drag);
+        var (route, view, local, moves) = Resolve(drag);
         Switch(drag, route, view);
         drag.Place = null;
+
+        // [S-5546] The desktop's own icons where they would move: taken, with no mark and no caption.
+        if (moves)
+        {
+            var move = DesktopCommands.MoveEffect(drag.Allowed);
+            Describe(drag, DropFeedback.Plain(move));
+            return move;
+        }
 
         var effect = route switch
         {
             DropRoute.Widget when view is not null => SurfaceDrops.Single(view.DragOver(drag, local)),
-
-            // [S-5546] The desktop's own items over empty desktop: a move of their widgets, no file operation.
-            DropRoute.Desktop when _host.DeskDragRunning && _host.ShowsDesktopItems => DropEffect.Move,
             DropRoute.Desktop when DesktopFolder() is { } desktop => HoverDesktop(drag, desktop),
             _ => DropEffect.None,
         };
@@ -174,13 +284,12 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     /// <summary>[S-1022] Carry the drop out where the pointer is.</summary>
     private DropEffect Deliver(WidgetDrag drag)
     {
-        var (route, view, local) = Resolve(drag);
+        var (route, view, local, moves) = Resolve(drag);
         Switch(drag, route, view);
 
-        var effect = route switch
+        var effect = moves ? MoveDeskItems(drag, local) : route switch
         {
             DropRoute.Widget when view is not null => view.Drop(drag, local),
-            DropRoute.Desktop when _host.DeskDragRunning && _host.ShowsDesktopItems => MoveDeskItems(local),
             DropRoute.Desktop when DesktopFolder() is { } desktop => DropOnDesktop(drag, desktop, local),
             _ => DropEffect.None,
         };
@@ -189,47 +298,101 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         return effect;
     }
 
-    /// <summary>[S-5546] The desktop's own drag let go over empty desktop here: its item widgets move under the pointer.</summary>
-    private DropEffect MoveDeskItems(Point at)
+    /// <summary>[S-5546] The desktop's own drag let go over empty desktop here: its icons' widgets move under the pointer, and no file does.</summary>
+    private DropEffect MoveDeskItems(WidgetDrag drag, Point at)
     {
         _host.MoveDeskDrag(this, at);
-        return DropEffect.Move;
+        return DesktopCommands.MoveEffect(drag.Allowed);
     }
 
     /// <summary>
-    /// [S-5591] A drop on bare surface goes into the desktop folder through the shell's own target; under
-    /// Themia's items what it brings lands here, in this display's view, at the drop point.
+    /// [S-5591] A drop on bare surface goes into the desktop folder through the shell's own target; while
+    /// what it brings lands here, in this display's view, at the drop point.
     /// </summary>
     private DropEffect DropOnDesktop(WidgetDrag drag, string desktop, Point at)
     {
-        if (_host.ShowsDesktopItems)
-        {
-            var names = drag.Paths.Select(Path.GetFileName)
-                .Concat(drag.VirtualFileNames.Select(n => Path.GetFileName(n.Replace('/', Path.DirectorySeparatorChar))))
-                .OfType<string>()
-                .Where(n => n.Length > 0)
-                .ToList();
-            _host.ExpectDeskDrop(this, at, names);
-        }
+        var names = drag.Paths.Select(Path.GetFileName)
+            .Concat(drag.VirtualFileNames.Select(n => Path.GetFileName(n.Replace('/', Path.DirectorySeparatorChar))))
+            .OfType<string>()
+            .Where(n => n.Length > 0)
+            .ToList();
+        _host.ExpectDeskDrop(this, at, names);
 
         return drag.ForwardDrop(desktop, DropEffect.None);
     }
 
-    /// <summary>Who takes the drag at its current point, and that point in the taker's own DIPs.</summary>
-    private (DropRoute Route, IWidgetDropTarget? View, Point Local) Resolve(WidgetDrag drag)
+    /// <summary>
+    /// Who takes the drag at its current point, and that point in the taker's own DIPs. [S-5546]
+    /// <c>Moves</c>: the drag is the desktop's own and here its icons move (empty desktop, or one of the
+    /// dragged icons themselves), whatever it carries; that goes before every other route.
+    /// </summary>
+    private (DropRoute Route, IWidgetDropTarget? View, Point Local, bool Moves) Resolve(WidgetDrag drag)
     {
         var point = ToContent(drag.ScreenX, drag.ScreenY);
         var (hit, card) = DropHitAt(point);
+        if (DesktopCommands.MovesIcons(_host.DeskDragRunning, EditMode, hit, card is not null && _host.DeskDragHolds(card.Model.Id)))
+        {
+            return (DropRoute.Desktop, null, point, true);
+        }
+
         var view = card?.View as IWidgetDropTarget;
         var route = SurfaceDrops.Route(hit, EditMode, view is not null, drag.Content);
 
         if (route != DropRoute.Widget || card is null || view is null)
         {
-            return (route, null, point);
+            return (route, null, point, false);
         }
 
         // The view's own DIPs: through the card's content scale ([S-850]) and wherever it sits.
-        return (route, view, _root.TransformToVisual(card.View).TransformPoint(point));
+        return (route, view, _root.TransformToVisual(card.View).TransformPoint(point), false);
+    }
+
+    /// <summary>
+    /// [S-5549] [S-5564] The picture a drag of the desktop's icons shows, as Explorer's: the held icon
+    /// (<paramref name="held"/>, its widget) in front, up to two more of the dragged icons of this
+    /// display (<paramref name="widgetIds"/>) stacked behind it, and for several the number of dragged
+    /// icons (<paramref name="count"/>) in a badge; no name, no highlight, nothing in its desktop place.
+    /// The pointer (a physical screen point) holds the front icon where it grabbed it. Composed at once
+    /// from the pictures the icons' views keep (<see cref="IDesktopIconView.DragIcon"/>), at this
+    /// display's scale: nothing is rendered here. Null when the held icon has no picture yet; the drag
+    /// then shows the pressed icon as it is drawn.
+    /// </summary>
+    public DragPicture? DeskDragPicture(IReadOnlySet<string> widgetIds, string held, int count, int screenX, int screenY)
+    {
+        ArgumentNullException.ThrowIfNull(widgetIds);
+        try
+        {
+            var cards = _cards.Where(c => c.View is IDesktopIconView && widgetIds.Contains(c.Model.Id)).ToList();
+            if (cards.FirstOrDefault(c => string.Equals(c.Model.Id, held, StringComparison.Ordinal)) is not { View: IDesktopIconView front } grabbed
+                || front.DragIcon is not { } picture || front.DragIconBox is not { ActualWidth: > 0, ActualHeight: > 0 } box)
+            {
+                return null;
+            }
+
+            var icons = new List<GhostIcon> { picture };
+            foreach (var card in cards)
+            {
+                if (icons.Count >= DragGhost.MaxShown)
+                {
+                    break;
+                }
+
+                if (!ReferenceEquals(card, grabbed) && card.View is IDesktopIconView { DragIcon: { } other })
+                {
+                    icons.Add(other);
+                }
+            }
+
+            // The icon's square on the surface: through the card's content scale ([S-850]) and wherever it sits.
+            var square = box.TransformToVisual(_root).TransformBounds(new Rect(0, 0, box.ActualWidth, box.ActualHeight));
+            var pointer = ToContent(screenX, screenY);
+            return ItemDrag.Ghost(icons, count, square.Width, new Point(pointer.X - square.X, pointer.Y - square.Y), RasterScale);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(Scope, "the picture of the dragged desktop icons could not be drawn; the drag shows the pressed icon alone", ex);
+            return null;
+        }
     }
 
     /// <summary>Leave the previous taker when the drag moved on to another.</summary>

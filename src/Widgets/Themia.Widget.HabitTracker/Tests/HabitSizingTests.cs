@@ -17,7 +17,7 @@ public sealed class HabitSizingTests
     {
         var sizing = Kind.Sizing(new HabitTrackerConfig());
         Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + (4 * FamilyShape.Row1) + FamilyShape.Row1 + FamilySpace.Inset), sizing.Natural);
-        Assert.Equal(520, sizing.Max.Width);
+        Assert.Equal(600, sizing.Max.Width); // relaxed, [S-12411]: 300 x 2
         Assert.True(sizing.HeightSteps!.FollowsConfig);
         Assert.Equal((1, 12), (sizing.HeightSteps.MinCount, sizing.HeightSteps.MaxCount));
 
@@ -46,7 +46,8 @@ public sealed class HabitSizingTests
     public void S11532_one_grid_is_one_height_and_a_grid_per_habit_steps_by_a_habit()
     {
         var shared = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap });
-        Assert.True(shared.FixedHeight);
+        Assert.Equal(shared.Min.Height, shared.Natural.Height);
+        Assert.Equal(SizeStretch.Axis(shared.Natural.Height, 0, null, 2), shared.Max.Height); // relaxed, [S-12411]
         Assert.Equal(FamilySpace.ContentTop + HabitHeatmap.GridOf(HabitHeatmap.SharedCell) + FamilySpace.Inset, shared.Natural.Height);
 
         var each = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap, PerHabit = true, Rows = 3 });

@@ -40,6 +40,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly Window _window;
     private readonly Canvas _widgetLayer;
     private readonly SnapGridOverlay _gridOverlay;
+
+    /// <summary>[S-11874] The local grid of a move on the locked desktop, under the cards.</summary>
+    private readonly LocalGridOverlay _localGrid = new();
     private readonly EditBar _toolbar;
 
 
@@ -70,7 +73,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private readonly EditMarkerLayer _markerLayer;
 
     /// <summary>[S-2453] The groups' frames, over the cards' markers.</summary>
-    private readonly GroupFrameLayer _groupFrames = new();
 
     public DesktopWindow(AppHost host, MonitorTarget monitor)
     {
@@ -98,13 +100,13 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         // thing that catches the click. The rubber band ([S-1581]) is drawn here too, for the same reason.
         _ghostLayer = new Canvas { IsHitTestVisible = false };
 
-        // [S-5571] A screen reader sees the desktop's list while Themia's items show outside edit mode.
-        _root = new DesktopRoot(() => !_closed && !EditMode && _host.ShowsDesktopItems)
+        // [S-5571] A screen reader sees the desktop's list outside edit mode.
+        _root = new DesktopRoot(() => !_closed && !EditMode)
         {
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = Themia.Sdk.WinUI.Kit.Family.Brush(Themia.Sdk.Kit.ColourRole.Clear),
-            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _groupFrames.Halos, _groupFrames.Inks, _barLayer, _ghostLayer, _toolbar, _flyoutLayer, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _localGrid, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _barLayer, _ghostLayer, _toolbar, _flyoutLayer, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.
@@ -131,6 +133,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _root.PointerReleased += OnRootPointerReleased;
         _root.PointerCaptureLost += OnRootPointerCaptureLost;
         _root.RightTapped += OnRootRightTapped;
+
+        // [S-5593] Ctrl + wheel on the desktop steps its icon size.
+        _root.PointerWheelChanged += OnDesktopWheel;
 
         _window = new Window
         {
@@ -202,10 +207,11 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
             if (Win32.GetClientRect(_hwnd, out var client) && client.Width > 0 && client.Height > 0)
             {
-                return new ScreenMetrics(client.Width / scale, client.Height / scale) { Allowed = allowed };
+                return new ScreenMetrics(client.Width / scale, client.Height / scale) { Allowed = allowed, HoldsWhole = !Design.OverEdge };
             }
 
-            return new ScreenMetrics(_monitor.Bounds.Width / scale, _monitor.Bounds.Height / scale) { Allowed = allowed };
+            // [S-2330] Over the edge off: every gesture keeps the whole widget on the work area.
+            return new ScreenMetrics(_monitor.Bounds.Width / scale, _monitor.Bounds.Height / scale) { Allowed = allowed, HoldsWhole = !Design.OverEdge };
         }
     }
 
@@ -226,13 +232,13 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     /// <summary>
     /// [S-850]/[S-6532] How much a widget's content is magnified on this display: the display's own
-    /// scale times the widget's own. Content only — a widget's cell
-    /// stays where it is and the same size.
+    /// scale times the widget's own; a desktop icon none ([S-5593]: <see cref="WidgetScale.For"/>). Content only —
+    /// a widget's cell stays where it is and the same size.
     /// </summary>
     private double ContentScale(WidgetInstance widget, double? previewed = null)
     {
         var display = _host.State.MonitorScales.TryGetValue(_monitor.Id, out var own) ? own : 1.0;
-        return WidgetScale.Effective(display, previewed ?? widget.Scale);
+        return WidgetScale.For(widget, display, previewed);
     }
 
     /// <summary>[S-2444] The content scale a widget of this display is drawn at: what its sizing is multiplied by.</summary>
@@ -257,8 +263,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         // [S-2244] The card being resized is free; its neighbours get their corners back.
         JoinCards();
 
-        // [S-3710] The strip steps aside while the widget is resized.
-        HoldProperties(true);
+        // [S-2343] [S-3710] Nothing hangs over a widget that is being resized.
+        ClearForDrag();
     }
 
     /// <summary>A resize ended: persist it, as one undo step ([S-884]). A resize never leaves its screen ([S-78]).</summary>
@@ -277,8 +283,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         {
             _host.CommitGeometry(UndoAction.Resize);
         }
-
-        HoldProperties(false);
     }
 
     /// <summary>Where a physical screen point falls on this display, as a fraction of the whole monitor.</summary>
@@ -332,7 +336,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>A widget edited its own config. Persist it, but do not re-lay-out: see [S-128].</summary>
     public void RequestSaveConfig() => _host.SaveGeometryOnly();
 
-    public bool IsSelected(WidgetCard card) => _host.Selection.Contains(card.Model.Id);
+    /// <summary>[S-11877] In edit mode its selection's; on the locked desktop the desktop's one selection (icons and cards).</summary>
+    public bool IsSelected(WidgetCard card) => EditMode ? _host.Selection.Contains(card.Model.Id) : _host.DeskSelects(card.Model);
 
     public int SelectionCount => _host.Selection.Count;
 
@@ -353,13 +358,18 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public void RequestToggleSelect(WidgetCard card) => _host.ToggleSelect(card.Model.Id);
 
     /// <inheritdoc />
-    public bool RequestPress(WidgetCard card, bool onHandle) => _host.PressSelect(card.Model.Id, onHandle);
+    public bool RequestPress(WidgetCard card, bool onHandle)
+    {
+        // [S-2343] The pointer holds the widget from here to its release: the selection this press makes opens its page then.
+        HoldProperties(true);
+        return _host.PressSelect(card.Model.Id, onHandle);
+    }
 
     /// <inheritdoc />
     public void RequestClick(WidgetCard card) => _host.ClickSelect(card.Model.Id);
 
     /// <inheritdoc />
-    public bool ShowsOwnMarkers(WidgetCard card) => _host.ShowsOwnMarkers(card.Model);
+    public EditMarks MarksOf(WidgetCard card) => _host.MarksOf(card.Model);
 
     /// <inheritdoc />
     public CardMenuFacts WithGroups(CardMenuFacts facts) => _host.WithGroups(facts);
@@ -392,5 +402,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 #if DEBUG
     /// <summary>Debug only: the surface's content, for the switch check's picture ([S-1883]).</summary>
     internal FrameworkElement DebugRoot => _root;
+
+    /// <summary>Debug renders and checks: the surface's window.</summary>
+    internal Window DebugWindow => _window;
 #endif
 }

@@ -46,9 +46,6 @@ internal sealed partial class AppHost : IDisposable
         _dispatcher = dispatcher;
         _store = store;
         State = state;
-
-        // [S-2447] What each widget's sizing is as loaded: a later config change is compared with it.
-        NoteSizings(refit: false);
         Ticker = new Ticker(dispatcher);
 
         // [S-2500] One hub for every system widget, for the app's lifetime, on the shared ticker.
@@ -69,6 +66,15 @@ internal sealed partial class AppHost : IDisposable
 
         // [S-3770] [S-3780] The shared regional formats and update cadences, before any widget or sync reads them.
         StartRegion();
+
+        // [S-5593] The desktop's icon size, before any sizing is read or any icon drawn.
+        Themia.Sdk.DesktopCell.Apply(State.Preferences.DesktopIconSize);
+
+        // [S-2447] What each widget's sizing is as loaded: a later config change is compared with it.
+        // [S-854] After the language, the regional formats and the icon size, which sizings read (a
+        // clock's AM/PM): noted before them, the first mutation took the formats for a config change
+        // and refitted the widgets it found changed.
+        _sizings.NoteAll(State);
 
         // [S-820] The appearance engine runs before anything is built from a brush, and first on
         // every state change — subscribed before any surface — so the surfaces relayout against the
@@ -256,7 +262,7 @@ internal sealed partial class AppHost : IDisposable
         if (!_command.Create())
         {
             // Without it the hotkey and the second-launch route are both gone, and edit mode is
-            // only reachable from a widget's right-click menu (Edit layout, [S-1758]).
+            // only reachable from a widget's right-click menu (Unlock widgets, [S-65], [S-1758]).
             Log.Error(Scope, "no command window; edit mode can only be reached from a widget's right-click menu");
         }
 

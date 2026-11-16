@@ -39,7 +39,7 @@ internal sealed partial class DesktopWindow
                 return;
             }
 
-            // [S-5548] Outside edit mode under Themia's items, empty desktop's menu is the desktop's own.
+            // [S-5548] Outside edit mode empty desktop's menu is the desktop's own.
             if (OpenDesktopBackgroundMenu(e.GetPosition(_root)) || OpenSurfaceMenu(e.GetPosition(_root)))
             {
                 e.Handled = true;
@@ -62,6 +62,28 @@ internal sealed partial class DesktopWindow
             HasWidgets: SelectionRules.All(view, HiddenIds()).Count > 0);
 
         return ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), SurfaceMenu(facts));
+    }
+
+    /// <summary>
+    /// [S-5548] [S-5582] One of the desktop's own menus (an icon's, empty desktop's) at a point of the
+    /// surface: the same <see cref="ItemMenu"/> every Themia menu is, opened as its own popup window at
+    /// the pointer and kept inside the display's work area by the framework ([S-1500], [S-1748]).
+    /// </summary>
+    internal bool OpenMenuAt(Point at, IEnumerable<ItemMenuEntry> entries)
+        => !_closed && ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), entries);
+
+    /// <summary>[S-5582] <see cref="OpenMenuAt"/> for a screen point (physical pixels) over this surface.</summary>
+    internal bool OpenMenuAtScreen(int screenX, int screenY, IEnumerable<ItemMenuEntry> entries)
+    {
+        var metrics = Metrics;
+        if (!metrics.IsUsable || Monitor.Bounds.Width <= 0)
+        {
+            return false;
+        }
+
+        var scale = Monitor.Bounds.Width / metrics.Width;
+        var (left, top) = Services.Files.ShellContextMenu.ToScreen(_hwnd, 0, 0);
+        return OpenMenuAt(new Point((screenX - left) / scale, (screenY - top) / scale), entries);
     }
 
     /// <summary>[S-1744] The entries for this surface; [S-11707] its Add widget opens the add page under the bar.</summary>
@@ -94,7 +116,7 @@ internal sealed partial class DesktopWindow
                     Shortcut: KeyChord.Ctrl(ChordKey.V)),
                 ShellCommand.SelectAll => new(Glyphs.SelectAll, Str.Shell_Menu_SelectAll.Text(), actions.SelectAll, Disabled: disabled,
                     Shortcut: KeyChord.Ctrl(ChordKey.A)),
-                ShellCommand.ToggleEditMode => new(Glyphs.Done, Str.Shell_Card_DoneEditing.Text(), actions.Done),
+                ShellCommand.ToggleEditMode => new(Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text(), actions.Done),
                 _ => ItemMenuEntry.Separator,
             });
         }

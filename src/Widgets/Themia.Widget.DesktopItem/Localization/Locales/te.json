@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "డెస్క్‌టాప్ అంశం",
-  "desktopItem.desc": "మీ డెస్క్‌టాప్‌లోని ఫైల్, ఫోల్డర్ లేదా షార్ట్‌కట్"
+  "widgetsC.shortcuts.column.target": "లక్ష్యం",
+  "widgetsC.shortcuts.kind.location": "Windows స్థానం",
+  "widgetsC.shortcuts.kind.missing": "లేదు",
+  "widgetsC.shortcuts.kind.path": "మార్గం",
+  "widgetsC.shortcuts.kind.refused": "అనుమతి లేదు",
+  "widgetsC.shortcuts.menu.addLayout": "యాప్ లేఅవుట్…",
+  "widgetsC.shortcuts.menu.addLink": "వెబ్ చిరునామా లేదా పాత్…",
+  "widgetsC.shortcuts.menu.changeTarget": "లక్ష్యాన్ని మార్చు…",
+  "widgetsC.shortcuts.settings.locations": "Windows స్థానాలు",
+  "widgetsC.shortcuts.settings.openWith.double": "డబుల్ క్లిక్",
+  "widgetsC.shortcuts.settings.openWith.label": "దీనితో తెరువు",
+  "widgetsC.shortcuts.settings.openWith.single": "సింగిల్ క్లిక్",
+  "widgetsC.shortcuts.settings.pick.file": "ఫైల్…",
+  "widgetsC.shortcuts.settings.pick.folder": "ఫోల్డర్…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (లక్ష్యం లేదు)\n{target}"
 }

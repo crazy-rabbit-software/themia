@@ -219,7 +219,7 @@ public sealed class QuickSetTests
     {
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
-            // [S-5600] A desktop item's name is under its icon, as a toggle's is.
+            // [S-5600] [S-9500] A desktop icon's name (a desktop item's, an own icon's) is under its icon, as a toggle's is.
             var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null
                 || kind == new WidgetId("audioVisualizer")
                 || typeof(IDesktopItemConfig).IsAssignableFrom(ModuleCatalog.Of(kind).ConfigType);
@@ -232,6 +232,10 @@ public sealed class QuickSetTests
                 Assert.Equal(HeaderPlacement.Hidden, widget.ShownHeader);
             }
         }
+
+        // The one kind drawn as a desktop icon is among them, whichever its source.
+        Assert.False(WidgetInstance.CanHaveHeader(new WidgetId("desktopItem")));
+        Assert.Equal([new WidgetId("desktopItem")], ModuleCatalog.Widgets.Where(w => typeof(IDesktopItemConfig).IsAssignableFrom(w.ConfigType)).Select(w => w.Id));
 
         var cpu = Widget(new WidgetId("cpu"), "a");
         cpu.Header = HeaderPlacement.Bottom;

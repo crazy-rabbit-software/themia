@@ -5,10 +5,10 @@ using Themia.Core.Diagnostics;
 namespace Themia.App.Services.Files;
 
 /// <summary>
-/// [S-5551] [S-5552] What came of the desktop's background menu: a shell command ran (and whether it
-/// was one of New ›'s), or one of Themia's own lines was chosen for the caller to run, or nothing.
+/// [S-5552] What came of the shell's classic background menu: whether a command ran, and whether it
+/// was one of New ›'s.
 /// </summary>
-internal readonly record struct DesktopMenuChoice(bool Ran, DesktopMenuCommand? Themia, bool New)
+internal readonly record struct DesktopMenuChoice(bool Ran, bool New)
 {
     public static DesktopMenuChoice Nothing => default;
 }
@@ -71,22 +71,28 @@ internal static unsafe partial class ShellContextMenu
     }
 
     /// <summary>
-    /// [S-5548] The desktop's own background menu: the desktop root's (<c>SHGetDesktopFolder</c>,
-    /// <c>IShellFolder::CreateViewObject</c>), so New, Paste, Display settings, Personalize and every
-    /// third-party line are there as Explorer's desktop shows them. View, Sort by, Group by and Refresh
-    /// are the shell view's own (they act on Explorer's icon list, which Themia hides) and do not come
-    /// with it. [S-5551] Themia's own lines (<paramref name="themia"/>, each a command and its words) go
-    /// in as one group where <see cref="DesktopBackground.Slot"/> says. Returns what was chosen.
+    /// [S-5548] The desktop's classic background menu (the Windows 11 menu's Show more options): the
+    /// desktop root's own (<c>SHGetDesktopFolder</c>, <c>IShellFolder::CreateViewObject</c>), so New,
+    /// Paste, Display settings, Personalize and every third-party line are there as Explorer's desktop
+    /// shows them. View, Sort by, Group by and Refresh are the shell view's own (they act on Explorer's
+    /// icon list, which Themia hides) and do not come with it; they and Themia's own lines are on the
+    /// Windows 11 menu, and nothing of Themia's is put in here. Returns what was chosen.
     /// </summary>
-    public static DesktopMenuChoice ShowForDesktop(int screenX, int screenY, nint owner, IReadOnlyList<(DesktopMenuCommand Command, string Text)> themia)
+    public static DesktopMenuChoice ShowForDesktop(int screenX, int screenY, nint owner)
     {
-        ArgumentNullException.ThrowIfNull(themia);
+        using var owned = DesktopMenu(owner);
+        return owned.IsNull ? DesktopMenuChoice.Nothing : Track(owned.Pointer, CmfNormal, screenX, screenY, owner);
+    }
+
+    /// <summary>The desktop root's background <c>IContextMenu</c>, or a null ref (logged).</summary>
+    private static DragDropInterop.ComRef DesktopMenu(nint owner)
+    {
         nint root;
 
         if (SHGetDesktopFolder(&root) < 0 || root == 0)
         {
-            Log.Warn(Scope, "no desktop folder; the desktop's background menu is not shown");
-            return DesktopMenuChoice.Nothing;
+            Log.Warn(Scope, "no desktop folder; the desktop's background menu is not there");
+            return default;
         }
 
         using var ownedRoot = new DragDropInterop.ComRef(root);
@@ -100,38 +106,38 @@ internal static unsafe partial class ShellContextMenu
         if (hr < 0 || menu == 0)
         {
             Log.Warn(Scope, $"no background menu for the desktop (0x{hr:X8})");
-            return DesktopMenuChoice.Nothing;
+            return default;
         }
 
-        using var owned = new DragDropInterop.ComRef(menu);
-        return Track(menu, CmfNormal, screenX, screenY, owner, intercept: null, themia);
+        return new DragDropInterop.ComRef(menu);
     }
 
     /// <summary>
-    /// [S-5551] Debug (<c>--desktop-menu-check</c>): the desktop's background menu as it would open, with
-    /// Themia's lines in, filled and read back but never shown or invoked: one line per item, its depth,
-    /// words and verb. New ›'s lines fill themselves only when it opens, so they are not read.
+    /// [S-5548] Run one of the desktop background's own commands by its canonical verb ("pastelink",
+    /// "NewLink"), as its line in the classic menu would. False (logged) when the shell has none.
     /// </summary>
-    public static IReadOnlyList<string> DescribeDesktop(nint owner, IReadOnlyList<(DesktopMenuCommand Command, string Text)> themia)
+    public static bool InvokeDesktopVerb(string verb, nint owner)
+    {
+        using var owned = DesktopMenu(owner);
+        return !owned.IsNull && InvokeVerb(owned.Pointer, verb, owner, shift: false, CmfNormal, "the desktop");
+    }
+
+    /// <summary>
+    /// [S-5548] Debug (<c>--desktop-menu-check</c>): the desktop's classic background menu as Show more
+    /// options would open it, filled and read back but never shown or invoked: one line per item, its
+    /// depth, words, verb and check mark. New ›'s lines fill themselves only when it opens, so they are
+    /// not read.
+    /// </summary>
+    public static IReadOnlyList<string> DescribeDesktop(nint owner)
     {
         var lines = new List<string>();
-        nint root;
-        if (SHGetDesktopFolder(&root) < 0 || root == 0)
+        using var owned = DesktopMenu(owner);
+        if (owned.IsNull)
         {
-            return ["(no desktop folder)"];
+            return ["(no background menu)"];
         }
 
-        using var ownedRoot = new DragDropInterop.ComRef(root);
-        nint menu;
-        var iid = IidContextMenu;
-        var create = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, nint*, int>)(*(nint**)root)[8];
-        var hr = create(root, owner, &iid, &menu);
-        if (hr < 0 || menu == 0)
-        {
-            return [$"(no background menu: 0x{hr:X8})"];
-        }
-
-        using var owned = new DragDropInterop.ComRef(menu);
+        var menu = owned.Pointer;
         var popup = CreatePopupMenu();
         if (popup == 0)
         {
@@ -141,13 +147,12 @@ internal static unsafe partial class ShellContextMenu
         try
         {
             var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)(*(nint**)menu)[3];
-            hr = query(menu, popup, 0, FirstCommand, LastCommand, CmfNormal);
+            var hr = query(menu, popup, 0, FirstCommand, LastCommand, CmfNormal);
             if (hr < 0)
             {
                 return [$"(QueryContextMenu failed: 0x{hr:X8})"];
             }
 
-            AddThemiaLines(menu, popup, themia);
             Describe(menu, popup, 0, lines);
             return lines;
         }
@@ -172,8 +177,8 @@ internal static unsafe partial class ShellContextMenu
 
             var text = ItemText(popup, i);
             var verb = item.Id is >= FirstCommand and <= LastCommand && item.Submenu == 0 ? Verb(menu, (int)item.Id - FirstCommand) : null;
-            var themia = item.Id >= ThemiaFirst ? " [Themia]" : string.Empty;
-            lines.Add($"{indent}{text}{(verb is null ? string.Empty : $"  ({verb})")}{(item.Submenu != 0 ? "  ›" : string.Empty)}{themia}");
+            var check = item.Checked ? "[x] " : string.Empty;
+            lines.Add($"{indent}{check}{text}{(verb is null ? string.Empty : $"  ({verb})")}{(item.Submenu != 0 ? "  ›" : string.Empty)}");
             if (item.Submenu != 0)
             {
                 Describe(menu, item.Submenu, depth + 1, lines);
@@ -196,12 +201,12 @@ internal static unsafe partial class ShellContextMenu
     public static bool InvokeVerb(IReadOnlyList<string> paths, string verb, nint owner, bool shift)
     {
         using var owned = ItemsMenu(paths);
+        return !owned.IsNull && InvokeVerb(owned.Pointer, verb, owner, shift, CmfNormal | CmfExplore, $"{paths.Count} item(s)");
+    }
 
-        if (owned.IsNull)
-        {
-            return false;
-        }
-
+    /// <summary>One command of <paramref name="menu"/> by its canonical verb; <paramref name="what"/> names its subject in the log.</summary>
+    private static bool InvokeVerb(nint menu, string verb, nint owner, bool shift, uint flags, string what)
+    {
         var popup = CreatePopupMenu();
 
         if (popup == 0)
@@ -214,8 +219,8 @@ internal static unsafe partial class ShellContextMenu
         try
         {
             // The handlers fill their commands in on QueryContextMenu; a verb is only known after it.
-            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)(*(nint**)owned.Pointer)[3];
-            var hr = query(owned.Pointer, popup, 0, FirstCommand, LastCommand, CmfNormal | CmfExplore);
+            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)(*(nint**)menu)[3];
+            var hr = query(menu, popup, 0, FirstCommand, LastCommand, flags);
 
             if (hr < 0)
             {
@@ -233,12 +238,12 @@ internal static unsafe partial class ShellContextMenu
             };
 
             // IContextMenu::InvokeCommand is slot 4.
-            var invoke = (delegate* unmanaged[Stdcall]<nint, InvokeInfo*, int>)(*(nint**)owned.Pointer)[4];
-            hr = invoke(owned.Pointer, &info);
+            var invoke = (delegate* unmanaged[Stdcall]<nint, InvokeInfo*, int>)(*(nint**)menu)[4];
+            hr = invoke(menu, &info);
 
             if (hr < 0)
             {
-                Log.Warn(Scope, $"the shell has no '{verb}' for {paths.Count} item(s) (0x{hr:X8})");
+                Log.Warn(Scope, $"the shell has no '{verb}' for {what} (0x{hr:X8})");
                 return false;
             }
 
@@ -319,9 +324,7 @@ internal static unsafe partial class ShellContextMenu
         Track(menu, CmfNormal, screenX, screenY, owner);
     }
 
-    private static DesktopMenuChoice Track(
-        nint menu, uint flags, int x, int y, nint owner, Func<string, bool>? intercept = null,
-        IReadOnlyList<(DesktopMenuCommand Command, string Text)>? themia = null)
+    private static DesktopMenuChoice Track(nint menu, uint flags, int x, int y, nint owner, Func<string, bool>? intercept = null)
     {
         var popup = CreatePopupMenu();
 
@@ -344,11 +347,6 @@ internal static unsafe partial class ShellContextMenu
             {
                 Log.Warn(Scope, $"QueryContextMenu failed (0x{hr:X8})");
                 return DesktopMenuChoice.Nothing;
-            }
-
-            if (themia is { Count: > 0 })
-            {
-                AddThemiaLines(menu, popup, themia);
             }
 
             menu3 = QueryInterface(menu, IidContextMenu3);
@@ -374,28 +372,20 @@ internal static unsafe partial class ShellContextMenu
                 PostMessageW(owner, WmNull, 0, 0);
             }
 
-            if (command < FirstCommand)
+            if (command is < FirstCommand or > LastCommand)
             {
                 return DesktopMenuChoice.Nothing;
             }
 
-            // [S-5551] One of Themia's own: the caller runs it; the shell never sees the id.
-            if (command >= ThemiaFirst)
-            {
-                return themia is not null && command - ThemiaFirst < themia.Count
-                    ? new DesktopMenuChoice(Ran: false, themia[command - ThemiaFirst].Command, New: false)
-                    : DesktopMenuChoice.Nothing;
-            }
-
             if (intercept is not null && Verb(menu, command - FirstCommand) is { } verb && intercept(verb))
             {
-                return new DesktopMenuChoice(Ran: true, null, New: false);
+                return new DesktopMenuChoice(Ran: true, New: false);
             }
 
             // [S-5552] Read before the command runs: New › is the submenu that holds New › Folder.
             var isNew = DesktopBackground.IsNewCommand(SiblingVerbs(menu, popup, (uint)command));
             Invoke(menu, command - FirstCommand, owner);
-            return new DesktopMenuChoice(Ran: true, null, isNew);
+            return new DesktopMenuChoice(Ran: true, isNew);
         }
         finally
         {
@@ -421,51 +411,13 @@ internal static unsafe partial class ShellContextMenu
         }
     }
 
-    /// <summary>[S-5551] The first id of Themia's own lines: past every id the shell's handlers were given.</summary>
-    private const int ThemiaFirst = LastCommand + 1;
-
+    private const uint MiimState = 0x1;
     private const uint MiimId = 0x2;
     private const uint MiimSubmenu = 0x4;
     private const uint MiimFtype = 0x100;
     private const uint MftSeparator = 0x800;
     private const uint MfByPosition = 0x400;
-    private const uint MfString = 0x0;
-    private const uint MfSeparator = 0x800;
-
-    /// <summary>[S-5551] Themia's group, inserted into the filled menu where <see cref="DesktopBackground.Slot"/> says.</summary>
-    private static void AddThemiaLines(nint menu, nint popup, IReadOnlyList<(DesktopMenuCommand Command, string Text)> themia)
-    {
-        var count = GetMenuItemCount(popup);
-        var lines = new List<ShellMenuLine>(Math.Max(0, count));
-        for (var i = 0; i < count; i++)
-        {
-            var item = ItemAt(popup, i);
-            var verb = !item.Separator && item.Submenu == 0 && item.Id is >= FirstCommand and <= LastCommand
-                ? Verb(menu, (int)item.Id - FirstCommand)
-                : null;
-            lines.Add(new ShellMenuLine(item.Separator, verb));
-        }
-
-        var slot = DesktopBackground.Slot(lines);
-        var at = (uint)slot.Index;
-        if (slot.SeparatorBefore)
-        {
-            InsertMenuW(popup, at++, MfByPosition | MfSeparator, 0, null);
-        }
-
-        for (var i = 0; i < themia.Count; i++)
-        {
-            if (!InsertMenuW(popup, at++, MfByPosition | MfString, (nuint)(ThemiaFirst + i), themia[i].Text))
-            {
-                Log.Warn(Scope, $"could not add Themia's line {themia[i].Command} to the desktop's menu (win32 {Marshal.GetLastPInvokeError()})");
-            }
-        }
-
-        if (slot.SeparatorAfter)
-        {
-            InsertMenuW(popup, at, MfByPosition | MfSeparator, 0, null);
-        }
-    }
+    private const uint MfChecked = 0x8;
 
     /// <summary>[S-5552] The verbs of the lines beside <paramref name="command"/> in the submenu that holds it, or null at the top level.</summary>
     private static List<string?>? SiblingVerbs(nint menu, nint popup, uint command)
@@ -503,13 +455,13 @@ internal static unsafe partial class ShellContextMenu
         return null;
     }
 
-    /// <summary>One item of a Win32 menu by position: a separator, its id, its submenu (0 for none).</summary>
-    private static (bool Separator, uint Id, nint Submenu) ItemAt(nint popup, int position)
+    /// <summary>One item of a Win32 menu by position: a separator, its id, its submenu (0 for none), its check mark.</summary>
+    private static (bool Separator, uint Id, nint Submenu, bool Checked) ItemAt(nint popup, int position)
     {
-        var info = new MenuItemInfo { Size = (uint)sizeof(MenuItemInfo), Mask = MiimId | MiimSubmenu | MiimFtype };
+        var info = new MenuItemInfo { Size = (uint)sizeof(MenuItemInfo), Mask = MiimState | MiimId | MiimSubmenu | MiimFtype };
         return GetMenuItemInfoW(popup, (uint)position, true, &info)
-            ? ((info.Type & MftSeparator) != 0, info.Id, info.Submenu)
-            : (true, 0, 0);
+            ? ((info.Type & MftSeparator) != 0, info.Id, info.Submenu, (info.State & MfChecked) != 0)
+            : (true, 0, 0, false);
     }
 
     /// <summary>An item's words by position (its accelerator's ampersand kept), for the debug description.</summary>
@@ -672,10 +624,6 @@ internal static unsafe partial class ShellContextMenu
 
     [LibraryImport("user32.dll", EntryPoint = "GetMenuStringW")]
     private static partial int GetMenuStringW(nint menu, uint item, char* text, int max, uint flags);
-
-    [LibraryImport("user32.dll", EntryPoint = "InsertMenuW", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool InsertMenuW(nint menu, uint position, uint flags, nuint id, string? text);
 
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]

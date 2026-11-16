@@ -109,7 +109,8 @@ public sealed partial class SettingsMenuTests
         var accounts = At<SettingsSubmenu>(host, SettingsMenu.Keys.Accounts);
         var keys = accounts.Lines.Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
 
-        Assert.Equal([SettingsMenu.AccountKey("ms-1"), SettingsMenu.AccountKey(MailServer.Id), "-", SettingsMenu.Keys.AddAccount], keys);
+        Assert.Equal([SettingsMenu.Keys.YourAccounts, SettingsMenu.AccountKey("ms-1"), SettingsMenu.AccountKey(MailServer.Id), SettingsMenu.Keys.AddAccount], keys.Take(4));
+        Assert.All(accounts.Lines.OfType<SettingsSubmenu>(), s => Assert.True(s.Card));
         Assert.Equal("Accounts", accounts.Text);
 
         // [S-3552] One of them needs signing in again: the line that leads to it says so.
@@ -125,8 +126,9 @@ public sealed partial class SettingsMenuTests
 
         Assert.Equal(fake.LoadProblem, Assert.IsType<SettingsNote>(lines[0]).Text);
         Assert.True(((SettingsNote)lines[0]).Critical);
-        Assert.Equal(Str.Shell_Accounts_None.Text(), Assert.IsType<SettingsNote>(lines[1]).Text);
-        Assert.Equal(SettingsMenu.Keys.AddAccount, lines[^1].Key);
+        Assert.Equal(SettingsMenu.Keys.YourAccounts, lines[1].Key);
+        Assert.Equal(Str.Shell_Accounts_None.Text(), Assert.IsType<SettingsNote>(lines[2]).Text);
+        Assert.Equal(SettingsMenu.Keys.AddAccount, lines[3].Key);
     }
 
     [Fact]
@@ -149,8 +151,10 @@ public sealed partial class SettingsMenuTests
         var account = At<SettingsSubmenu>(host, "accounts", key);
 
         Assert.Equal("Alex Wilber", account.Text);
-        Assert.Null(account.Value);
-        Assert.Equal("alex@contoso.com  ·  Microsoft", Assert.IsType<SettingsNote>(account.Lines[0]).Text);
+
+        // [S-2312] Its address and provider under its name; what it holds at its head's end while shut (Karpo's §638).
+        Assert.Equal("alex@contoso.com  ·  Microsoft", account.Caption);
+        Assert.Equal("1,240 messages", account.Value);
 
         var mail = Assert.IsType<SettingsReading>(account.Lines.Single(l => l.Key == key + "/kind/Mail"));
         Assert.Equal("Mail", mail.Text);
@@ -162,7 +166,7 @@ public sealed partial class SettingsMenuTests
             [key + "/kind/Mail", key + "/kind/Calendar", key + "/kind/Contacts", key + "/kind/Tasks"],
             account.Lines.OfType<SettingsReading>().Select(r => r.Key));
         Assert.Contains(account.Lines, l => l.Key == key + "/nickname");
-        Assert.True(Assert.IsType<SettingsCommand>(account.Lines.Single(l => l.Key == key + "/signout")).Danger);
+        Assert.Equal([(key + "/signout", Themia.App.Shell.Glyphs.SignOut)], account.Tools.Select(t => (t.Key, t.Glyph)));
     }
 
     [Fact]
@@ -170,7 +174,7 @@ public sealed partial class SettingsMenuTests
     {
         var (host, fake) = WithAccounts(Microsoft);
         var key = SettingsMenu.AccountKey("ms-1");
-        At<SettingsCommand>(host, "accounts", key, key + "/signout").Run();
+        At<SettingsSubmenu>(host, "accounts", key).Tools.Single(t => t.Key == key + "/signout").Run!();
 
         Assert.Empty(fake.SignedOut);
         var asked = Assert.Single(host.Asked);
@@ -234,8 +238,9 @@ public sealed partial class SettingsMenuTests
 
         // A mail server's: its form.
         var mail = SettingsMenu.AccountKey(MailServer.Id);
-        var again = At<SettingsSubmenu>(host, "accounts", mail, mail + "/again");
-        Assert.Contains(again.Lines, l => l is SettingsField { Masked: true });
+        var again = At<SettingsSubmenu>(host, "accounts", mail);
+        Assert.Contains(again.Lines, l => l is SettingsField { Masked: true } && l.Key.StartsWith(mail + "/again/", StringComparison.Ordinal));
+        Assert.DoesNotContain(again.Lines, l => l is SettingsSubmenu);
     }
 
     // ---- [S-3553] Add account ----------------------------------------------------------------------
@@ -244,7 +249,7 @@ public sealed partial class SettingsMenuTests
     public void S3553_add_account_has_the_providers_in_their_place_then_the_password_servers()
     {
         var (host, _) = WithAccounts();
-        var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
+        var add = AddAnAccount(host);
         var kinds = add.Lines.Where(l => l is SettingsCommand or SettingsSubmenu).Select(l => l.Key).ToArray();
 
         // [S-3562] Google is held back: no line of its own.
@@ -256,18 +261,18 @@ public sealed partial class SettingsMenuTests
     public void S3553_a_sign_in_starts_from_its_line_and_while_it_waits_says_so_with_cancel()
     {
         var (host, fake) = WithAccounts();
-        At<SettingsCommand>(host, "accounts", "accounts/add", "accounts/add/microsoft").Run();
+        At<SettingsCommand>(host, "accounts", "accounts/add/microsoft").Run();
         Assert.Equal("accounts/add/microsoft", Assert.Single(fake.SignIns).Row);
 
         fake.Menu.Say("accounts/add/microsoft", new AccountStatus("Waiting for the browser.", Busy: true));
-        var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
+        var add = AddAnAccount(host);
 
         Assert.True(Assert.IsType<SettingsCommand>(add.Lines.Single(l => l.Key == "accounts/add/microsoft")).Disabled);
         var status = Assert.IsType<SettingsNote>(add.Lines.Single(l => l.Key == "accounts/add/microsoft/status"));
         Assert.True(status.Busy);
         Assert.Equal("Waiting for the browser.", status.Text);
 
-        At<SettingsCommand>(host, "accounts", "accounts/add", "accounts/add/microsoft/cancel").Run();
+        At<SettingsCommand>(host, "accounts", "accounts/add/microsoft/cancel").Run();
         Assert.Equal(["accounts/add/microsoft"], fake.Cancelled);
     }
 
@@ -276,7 +281,7 @@ public sealed partial class SettingsMenuTests
     {
         var (host, fake) = WithAccounts();
         fake.Menu.Say("accounts/add/microsoft", new AccountStatus("Enter this code", Busy: true) { Code = "WDJB-MJHT", Page = new Uri("https://example.com/device") });
-        var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
+        var add = AddAnAccount(host);
 
         Assert.Equal("WDJB-MJHT", Assert.IsType<SettingsReading>(add.Lines.Single(l => l.Key == "accounts/add/microsoft/code")).Value);
         Assert.Contains(add.Lines, l => l.Key == "accounts/add/microsoft/copy");
@@ -288,7 +293,7 @@ public sealed partial class SettingsMenuTests
     {
         var (host, fake) = WithAccounts();
         fake.Refusing[HostProviders.Microsoft] = "Microsoft sign-in is not set up in this build of Themia.";
-        var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
+        var add = AddAnAccount(host);
 
         Assert.True(Assert.IsType<SettingsCommand>(add.Lines.Single(l => l.Key == "accounts/add/microsoft")).Disabled);
         Assert.Equal(fake.Refusing[HostProviders.Microsoft], Assert.IsType<SettingsNote>(add.Lines.Single(l => l.Key == "accounts/add/microsoft/why")).Text);
@@ -315,7 +320,7 @@ public sealed partial class SettingsMenuTests
     public void S3562_add_account_offers_no_google_line_anywhere_below_it()
     {
         var (host, _) = WithAccounts();
-        var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
+        var add = AddAnAccount(host);
 
         Assert.DoesNotContain(Flat(add.Lines), l => l.Key.StartsWith("accounts/add/google", StringComparison.Ordinal));
         Assert.DoesNotContain(Flat(add.Lines), l => Words(l).Any(w => w.Contains("Google", StringComparison.Ordinal)));
@@ -334,7 +339,7 @@ public sealed partial class SettingsMenuTests
         Assert.Equal(
             [key + "/kind/Mail", key + "/kind/Calendar", key + "/kind/Contacts", key + "/kind/Tasks"],
             account.Lines.OfType<SettingsReading>().Select(r => r.Key));
-        Assert.Contains(account.Lines, l => l.Key == key + "/signout");
+        Assert.Contains(account.Tools, t => t.Key == key + "/signout");
 
         // Its way back in is the browser's sign-in that added it, replacing it in place.
         At<SettingsCommand>(host, "accounts", key, key + "/again").Run();
@@ -345,7 +350,11 @@ public sealed partial class SettingsMenuTests
 
     // ---- [S-3554] [S-3555] the forms ---------------------------------------------------------------
 
-    private static SettingsSubmenu ImapForm(FakeHost host) => At<SettingsSubmenu>(host, "accounts", "accounts/add", "accounts/add/imap");
+    private static SettingsSubmenu ImapForm(FakeHost host) => At<SettingsSubmenu>(host, "accounts", "accounts/add/imap");
+
+    /// <summary>[S-2312] "Add an account": the Accounts lines under its heading, as one level.</summary>
+    private static SettingsSubmenu AddAnAccount(FakeHost host)
+        => new(SettingsMenu.Keys.AddAccount, string.Empty, null, [.. At<SettingsSubmenu>(host, SettingsMenu.Keys.Accounts).Lines.SkipWhile(l => l.Key != SettingsMenu.Keys.AddAccount).Skip(1)]);
 
     [Fact]
     public void S3554_the_mail_form_has_its_fields_and_set_the_server_myself_brings_the_servers()
@@ -356,7 +365,7 @@ public sealed partial class SettingsMenuTests
         Assert.Equal(["address", "password", "nickname"], Fields());
         Assert.True(ImapForm(host).Lines.OfType<SettingsField>().Single(f => f.Key.EndsWith("/password", StringComparison.Ordinal)).Masked);
 
-        At<SettingsToggle>(host, "accounts", "accounts/add", "accounts/add/imap", "accounts/add/imap/own").Set(true);
+        At<SettingsToggle>(host, "accounts", "accounts/add/imap", "accounts/add/imap/own").Set(true);
         Assert.True(fake.Menu.Imap.OwnServer);
         Assert.Equal(["address", "password", "server", "port", "user", "nickname"], Fields());
         Assert.True(ImapForm(host).Lines.OfType<SettingsField>().Single(f => f.Key.EndsWith("/port", StringComparison.Ordinal)).Numeric);

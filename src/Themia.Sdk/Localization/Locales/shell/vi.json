@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "Xóa {count} tiện ích"
   },
-  "shell.card.doneEditing": "Chỉnh sửa xong",
-  "shell.card.editLayout": "Sửa bố cục",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "Thiết lập",
   "shell.setup.hint": "Thiết lập những gì tiện ích này cần",
   "shell.toolbar.addWidget": "Thêm tiện ích",
-  "shell.toolbar.snapName": "Bám theo lưới",
-  "shell.toolbar.collisionsName": "Không cho tiện ích chồng lên nhau",
   "shell.editBar.selected": {
     "other": "Đã chọn {count}"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "Cỡ chữ",
   "shell.appearance.systemFont": "Mặc định hệ thống",
   "shell.appearance.sansFont": "Không chân",
-  "shell.layout.gap": "Khoảng cách giữa các tiện ích",
   "shell.motion.slide": "Trượt",
   "shell.motion.sides": "Hai bên",
   "shell.motion.topBottom": "Trên và dưới",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "Mỗi phút",
   "shell.refresh.everyHour": "Mỗi giờ",
   "shell.color.custom": "Màu tùy chỉnh",
-  "shell.color.pickCustom": "Chọn màu tùy chỉnh",
   "shell.color.pickFromScreen": "Chọn màu từ màn hình",
   "shell.color.pickFailed": "Không đọc được màu trên màn hình",
   "shell.icon.home": "Nhà",

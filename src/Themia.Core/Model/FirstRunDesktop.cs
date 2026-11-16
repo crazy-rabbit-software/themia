@@ -22,22 +22,14 @@ internal static class FirstRunDesktop
     /// <summary>One seeded widget. <paramref name="Config"/> is merged over the default config, property by property.</summary>
     internal sealed record Seed(string Id, FracRect Rect, bool Bare = false, string? Config = null);
 
-    /// <summary>[S-893] The Windows places the first-run Shortcuts widget holds, in order.</summary>
-    private static readonly string[] Places =
-        ["RecycleBinFolder", "MyComputerFolder", "Downloads", "Personal", "My Pictures", "UsersFilesFolder"];
-
     /// <summary>
-    /// [S-893] Home: the weather top left, a clock and the everyday Windows places top right, the
-    /// quick settings along the top centre, and the four meters as graphs down the right edge. The
-    /// clock first, so a reset or a recovery shows it on top.
+    /// [S-893] Home: the weather top left, a clock top right, the quick settings along the top centre,
+    /// and the four meters as graphs down the right edge. The clock first, so a reset or a recovery
+    /// shows it on top. No shortcuts: Windows' own desktop icons are the desktop items ([S-5500]).
     /// </summary>
     internal static IReadOnlyList<Seed> Home { get; } =
     [
         new("clock", Grid(2250, 0, 310, 180), Bare: true, Config: """{ "showDate": false }"""),
-
-        // The kind's own default holds two places; the first run holds six, labels empty so the names
-        // come from the target, translated with the app.
-        new("shortcuts", Grid(2250, 180, 310, 160), Bare: true, Config: PlacesFragment()),
 
         // No place: the widget asks for one ([S-2848]) rather than showing someone else's town.
         new("weatherNow", Grid(0, 0, 310, 180), Bare: true, Config: """{ "style": "largeIcon" }"""),
@@ -87,7 +79,7 @@ internal static class FirstRunDesktop
 
     /// <summary>
     /// The widget a seed stands for: its descriptor's default config with the seed's fragment over
-    /// it, read back through the state's JSON and copied, so every id inside it (a shortcut's) is new
+    /// it, read back through the state's JSON and copied, so every id inside it (a shortcut's own) is new
     /// on each call as a pasted copy's are. Null for a widget this build does not have.
     /// </summary>
     internal static WidgetInstance? Build(Seed seed)
@@ -120,7 +112,4 @@ internal static class FirstRunDesktop
 
     private static FracRect Tile(int i) => Grid(1090 + (60 * i), 0, 60, 60);
 
-    /// <summary>The places as the Shortcuts config holds them; each placeholder id is replaced by the copy <see cref="Build"/> makes.</summary>
-    private static string PlacesFragment()
-        => $$"""{ "items": [{{string.Join(", ", Places.Select((place, i) => $$"""{ "id": "seed{{i}}", "label": "", "target": "shell:{{place}}" }"""))}}] }""";
 }

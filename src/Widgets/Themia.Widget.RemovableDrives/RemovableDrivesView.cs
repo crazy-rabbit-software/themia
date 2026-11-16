@@ -145,6 +145,9 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         var locale = Strings.Current;
         var picture = !(_surface?.IsPreview ?? false) && _previewDevices is null;
+        var pitch = _area.IsMeasured
+            ? RemovableDrivesPlan.Pitch(_area.Height, _rowCount, XamlRoot?.RasterizationScale ?? 1)
+            : FamilyShape.RowHeight(RemovableDrivesPlan.Lines);
         for (var i = 0; i < _rows.Count; i++)
         {
             var shown = i < _devices.Count;
@@ -152,10 +155,11 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             if (shown)
             {
                 _rows[i].Show(_devices[i], look, picture, locale);
+                _rows[i].Block.Height = pitch;
             }
         }
 
-        _scroll.Height = RemovableDrivesPlan.ListHeight(_rowCount);
+        _scroll.Height = RemovableDrivesPlan.ListHeight(_rowCount, pitch);
         LinkRows();
 
         if (_focus >= _devices.Count)

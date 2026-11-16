@@ -22,8 +22,11 @@ public sealed class WeatherNowTests
         foreach (var style in Enum.GetValues<WeatherNowStyle>())
         {
             var sizing = Of(style);
-            Assert.True(sizing.FixedHeight && !sizing.FixedWidth, $"{style}");
-            Assert.Equal((140.0, 320.0), (sizing.Min.Width, sizing.Max.Width));
+            Assert.True(sizing.Min.Height == sizing.Natural.Height && !sizing.FixedWidth, $"{style}");
+
+            // Relaxed, [S-12411]: twice its natural on each axis, never under the content's 320.
+            Assert.Equal((140.0, Math.Max(320.0, SizeStretch.Axis(sizing.Natural.Width, 0, null, 2))), (sizing.Min.Width, sizing.Max.Width));
+            Assert.Equal(SizeStretch.Axis(sizing.Natural.Height, 0, null, 2), sizing.Max.Height);
             Assert.Empty(sizing.Problems());
         }
     }

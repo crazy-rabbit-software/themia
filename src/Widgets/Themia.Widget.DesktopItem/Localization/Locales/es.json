@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Elemento del escritorio",
-  "desktopItem.desc": "Un archivo, una carpeta o un acceso directo del escritorio"
+  "widgetsC.shortcuts.column.target": "Destino",
+  "widgetsC.shortcuts.kind.location": "Ubicación Windows",
+  "widgetsC.shortcuts.kind.missing": "No encontrado",
+  "widgetsC.shortcuts.kind.path": "Ruta",
+  "widgetsC.shortcuts.kind.refused": "No permitido",
+  "widgetsC.shortcuts.menu.addLayout": "Diseño de aplicaciones…",
+  "widgetsC.shortcuts.menu.addLink": "Dirección web o ruta…",
+  "widgetsC.shortcuts.menu.changeTarget": "Cambiar destino…",
+  "widgetsC.shortcuts.settings.locations": "Ubicaciones de Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Doble clic",
+  "widgetsC.shortcuts.settings.openWith.label": "Abrir con",
+  "widgetsC.shortcuts.settings.openWith.single": "Un clic",
+  "widgetsC.shortcuts.settings.pick.file": "Archivo…",
+  "widgetsC.shortcuts.settings.pick.folder": "Carpeta…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (destino no encontrado)\n{target}"
 }

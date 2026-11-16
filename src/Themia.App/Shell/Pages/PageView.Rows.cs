@@ -33,7 +33,7 @@ internal sealed partial class PageView
             SettingsRowKind.Toggle => ToggleRow(row),
             SettingsRowKind.Number => Lay(row, NumberBox(row), row.Caption),
             SettingsRowKind.Text => Lay(row, TextBox(row), _refused.GetValueOrDefault(row.Key) ?? row.Caption, critical: _refused.ContainsKey(row.Key)),
-            SettingsRowKind.Action => ClickRow(row, row.Asks ? End(row.Value, Glyphs.ChevronRight) : End(row.Value, null), row.Run),
+            SettingsRowKind.Action => Foot(row) ? FootButton(row, inside) : ActionRow(row),
             SettingsRowKind.Link => LinkRow(row),
             SettingsRowKind.Item => ItemRow(row),
             SettingsRowKind.Note => NoteRow(row, first),
@@ -42,6 +42,7 @@ internal sealed partial class PageView
             SettingsRowKind.SubPage => SubPageRow(row),
             SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon or SettingsRowKind.Expander
                 => inside ? StandingOpen(row) : Expander(row),
+            SettingsRowKind.Preview => PreviewRow(row),
             _ => new Border(),
         };
 
@@ -70,14 +71,16 @@ internal sealed partial class PageView
         return button;
     }
 
-    /// <summary>[S-11755] A sub-page's end: its value, its icon buttons (a member's Remove from group), the chevron.</summary>
+    /// <summary>[S-2317] A sub-page's end: its icon buttons 4 apart, its value in Caption, the chevron (a link's).</summary>
     private StackPanel? SubPageEnd(PageRow row)
     {
         var end = End(row.Value, Glyphs.ChevronRight)!;
         var at = 0;
         foreach (var tool in row.Tools ?? [])
         {
-            end.Children.Insert(at++, ToolButton(row, tool));
+            var button = ToolButton(row, tool);
+            button.Margin = new Thickness(0, 0, Fluent.Space1, 0);
+            end.Children.Insert(at++, button);
         }
 
         return end;
@@ -115,14 +118,16 @@ internal sealed partial class PageView
 
     /// <summary>
     /// [S-2305] A row's three columns: its icon at 16, its name at 48 (a caption under it makes the row
-    /// 60 tall), its control ending 16 from the card's end.
+    /// 60 tall), its control ending 16 from the card's end; [S-2317] a thing put in order its handle
+    /// (<paramref name="lead"/>) 4 in at its start, its icon and name 12 further in (Karpo's Â§551).
     /// </summary>
-    private static Grid Lay(PageRow row, UIElement? end, string? caption, bool critical = false, string? text = null)
+    private static Grid Lay(PageRow row, UIElement? end, string? caption, bool critical = false, string? text = null, FrameworkElement? lead = null)
     {
+        var further = lead is null ? 0 : P.HandleLead;
         var grid = new Grid
         {
             MinHeight = SettingsRows.Height(caption is { Length: > 0 }),
-            Padding = new Thickness(P.IconAt, 0, P.EndInset, 0),
+            Padding = new Thickness(P.IconAt + further, 0, P.EndInset, 0),
             ColumnSpacing = 0,
             ColumnDefinitions =
             {
@@ -131,6 +136,14 @@ internal sealed partial class PageView
                 new ColumnDefinition { Width = GridLength.Auto },
             },
         };
+
+        if (lead is not null)
+        {
+            lead.HorizontalAlignment = HorizontalAlignment.Left;
+            lead.VerticalAlignment = VerticalAlignment.Center;
+            lead.Margin = new Thickness(P.HandleIn - P.IconAt - further, 0, 0, 0);
+            grid.Children.Add(lead);
+        }
 
         if (row.Icon?.Invoke() is { } icon)
         {
@@ -176,7 +189,11 @@ internal sealed partial class PageView
         return grid;
     }
 
-    /// <summary>What stands at a row's end: its value in the secondary colour, then a glyph (a chevron).</summary>
+    /// <summary>
+    /// [S-2317] What stands at a row's end, as Karpo's painter sets it: its value in Caption and the secondary
+    /// colour (a link's, a reading's, a shut expander's), 12 before the chevron's room; the chevron's middle 20
+    /// in from the control's end.
+    /// </summary>
     private static StackPanel? End(string? value, string? glyph)
     {
         if (value is null && glyph is null)
@@ -184,24 +201,53 @@ internal sealed partial class PageView
             return null;
         }
 
-        var end = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
+        var end = new StackPanel { Orientation = Orientation.Horizontal };
         if (value is { Length: > 0 })
         {
-            var words = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
-            words.Text = value;
-            words.MaxWidth = P.ControlWide;
-            words.TextTrimming = TextTrimming.CharacterEllipsis;
-            words.VerticalAlignment = VerticalAlignment.Center;
+            var words = Said(value, FamilyType.Caption);
+            if (glyph is not null)
+            {
+                words.Margin = ToChevron;
+            }
+
             end.Children.Add(words);
         }
 
         if (glyph is not null)
         {
-            end.Children.Add(UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Chevron, VerticalAlignment = VerticalAlignment.Center }));
+            end.Children.Add(ChevronOf(glyph));
         }
 
         return end;
     }
+
+    /// <summary>[S-2317] A value said at a row's end in <paramref name="type"/>, the secondary colour, cut short past the value column.</summary>
+    private static TextBlock Said(string value, Themia.Core.Widgets.TypeStep type)
+    {
+        var words = Fluent.Text(type, "TextFillColorSecondaryBrush");
+        words.Text = value;
+        words.MaxWidth = P.ControlWide;
+        words.TextTrimming = TextTrimming.CharacterEllipsis;
+        words.VerticalAlignment = VerticalAlignment.Center;
+        return words;
+    }
+
+    /// <summary>
+    /// [S-2317] A chevron whose middle stands 20 in from its control's end (Karpo's <c>ChevronIn</c>): a 12 glyph,
+    /// 14 off the end.
+    /// </summary>
+    private static FrameworkElement ChevronOf(string glyph)
+    {
+        var chevron = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Chevron, VerticalAlignment = VerticalAlignment.Center });
+        chevron.Margin = new Thickness(0, 0, P.ChevronOff, 0);
+        return chevron;
+    }
+
+    /// <summary>[S-2317] What stands before a chevron's room (a value, a thing's last button) ends 12 before it: Karpo's <c>Label</c> before <c>ChevronRoom</c>.</summary>
+    private static Thickness ToChevron => new(0, 0, P.ChevronRoom + P.Label - P.ChevronOff - Chevron, 0);
+
+    /// <summary>[S-2317] The last of a thing's buttons ends where the chevron's room starts.</summary>
+    private static Thickness ToChevronRoom => new(0, 0, P.ChevronRoom - P.ChevronOff - Chevron, 0);
 
     /// <summary>
     /// A row that is one button (an action, a link, a sub-page, a picker's head): no fill at rest, the
@@ -255,10 +301,137 @@ internal sealed partial class PageView
         return button;
     }
 
-    /// <summary>[S-3749] A link row: the owner's setting, a chevron at its end; its tooltip names the owner.</summary>
+    /// <summary>
+    /// [S-2318] A row that only acts with nothing to say before its button (Karpo's <c>PanelRow.Foot</c>, Â§578): its
+    /// button alone, no card round it.
+    /// </summary>
+    private static bool Foot(PageRow row) => row.Kind == SettingsRowKind.Action && row.Caption is not { Length: > 0 };
+
+    /// <summary>
+    /// [S-2318] A row that says what it does (Karpo's Â§521): a card, its icon and what it does in Body before a
+    /// standard button at its end whose words are the row's (12 either side, 120 to 240 wide; a chevron after
+    /// them where its click asks first), its value in Caption 12 before the button.
+    /// </summary>
+    private FrameworkElement ActionRow(PageRow row)
+    {
+        var end = new StackPanel { Orientation = Orientation.Horizontal };
+        if (row.Value is { Length: > 0 } value)
+        {
+            var said = Said(value, FamilyType.Caption);
+            said.Margin = new Thickness(0, 0, P.Label, 0);
+            end.Children.Add(said);
+        }
+
+        end.Children.Add(RowButton(row, row.Text, row.Asks ? Glyphs.ChevronRight : null, row.Run, row.Key + "#head"));
+        return Lay(row with { Caption = null }, end, null, text: row.Caption);
+    }
+
+    /// <summary>[S-2318] A standard button of words (and a chevron after them), 120 to 240 wide, its words the critical colour's for a danger.</summary>
+    private static Button RowButton(PageRow row, string words, string? chevron, Action? run, string tag)
+    {
+        var said = BodyText(words, row.Danger);
+        var content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, HorizontalAlignment = HorizontalAlignment.Center };
+        content.Children.Add(said);
+        if (chevron is not null)
+        {
+            content.Children.Add(UiLanguage.Mirrored(new FontIcon { Glyph = chevron, FontSize = Chevron, VerticalAlignment = VerticalAlignment.Center }));
+        }
+
+        var button = new Button
+        {
+            Content = content,
+            MinWidth = P.ActionLeast,
+            MaxWidth = P.ButtonMost,
+            Height = P.Control,
+            Padding = new Thickness(P.Label, 0, P.Label, 0),
+            IsEnabled = !row.Disabled,
+            Tag = tag,
+        };
+        AutomationProperties.SetName(button, words);
+        ToolTipService.SetToolTip(button, words);
+        button.Click += (_, _) => Do(run);
+        return button;
+    }
+
+    /// <summary>
+    /// [S-2318] A row that only acts, its button alone (Karpo's Â§578 foot): no card, a hyperlink button's look â€”
+    /// no fill nor rim until pointed at, its glyph and its words in the accent's text colour (the critical colour
+    /// for a danger), a chevron after its words where its click asks first; on a page from the cards' start, in
+    /// a card's opened level its glyph where its rows' names start. Its value is its tooltip.
+    /// </summary>
+    private Button FootButton(PageRow row, bool inside)
+    {
+        var ink = row.Danger ? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed) : ShellBrush.Of(ShellRole.AccentText);
+        var content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
+        if (row.Icon?.Invoke() is { } icon)
+        {
+            if (icon is IconElement glyph)
+            {
+                glyph.Foreground = ink;
+            }
+
+            content.Children.Add(new Border { Width = Fluent.IconSize, Height = Fluent.IconSize, Child = icon, VerticalAlignment = VerticalAlignment.Center });
+        }
+
+        var words = Fluent.Text(FamilyType.Body);
+        words.Foreground = ink;
+        words.Text = row.Text;
+        words.VerticalAlignment = VerticalAlignment.Center;
+        words.TextTrimming = TextTrimming.CharacterEllipsis;
+        content.Children.Add(words);
+        if (row.Asks)
+        {
+            var chevron = new FontIcon { Glyph = Glyphs.ChevronRight, FontSize = Chevron, VerticalAlignment = VerticalAlignment.Center, Foreground = ink };
+            content.Children.Add(UiLanguage.Mirrored(chevron));
+        }
+
+        var button = Plain(new Button
+        {
+            Content = content,
+            Height = P.Control,
+            Padding = new Thickness(P.Label, 0, P.Label, 0),
+            IsEnabled = !row.Disabled,
+            Tag = row.Key + "#head",
+        });
+        button.HorizontalAlignment = HorizontalAlignment.Left;
+        button.HorizontalContentAlignment = HorizontalAlignment.Left;
+        button.VerticalContentAlignment = VerticalAlignment.Center;
+        button.Margin = inside ? new Thickness(P.NameAt - P.Label, Fluent.Space1, 0, Fluent.Space1) : new Thickness(0);
+        button.Resources["ButtonForegroundDisabled"] = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+        AutomationProperties.SetName(button, Said(row));
+        if (row.Value is { Length: > 0 } value)
+        {
+            ToolTipService.SetToolTip(button, value);
+        }
+
+        if (row.Disabled)
+        {
+            words.Foreground = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+        }
+
+        button.Click += (_, _) => Do(row.Run);
+        return button;
+    }
+
+    /// <summary>
+    /// [S-2318] A reading or a note that has a button standing in its line (Karpo's Â§638 <c>Beside</c>: Lometics'
+    /// site beside its name): the button at the line's end.
+    /// </summary>
+    private FrameworkElement BesideRow(PageRow row, PageRow beside)
+    {
+        var button = RowButton(beside, beside.Text, null, beside.Run, row.Key + "#beside");
+        if (beside.Icon?.Invoke() is { } icon)
+        {
+            ((StackPanel)button.Content).Children.Insert(0, new Border { Width = Fluent.IconSize, Height = Fluent.IconSize, Child = icon, VerticalAlignment = VerticalAlignment.Center });
+        }
+
+        return Lay(row, button, row.Caption);
+    }
+
+    /// <summary>[S-3749] A link row: the owner's setting, what it is set to in Caption and a chevron at its end; its tooltip names the owner.</summary>
     private Button LinkRow(PageRow row)
     {
-        var button = ClickRow(row, End(null, Glyphs.ChevronRight), row.Run);
+        var button = ClickRow(row, End(row.Value, Glyphs.ChevronRight), row.Run);
         if (row.Owner is { } owner)
         {
             ToolTipService.SetToolTip(button, Str.Menu_OpensIn.Format(("name", owner)));
@@ -285,7 +458,7 @@ internal sealed partial class PageView
         return toggle;
     }
 
-    /// <summary>[S-3741] Windows' toggle switch, drawn: a 40 × 20 track with a 12 knob, the accent filled while on.</summary>
+    /// <summary>[S-3741] Windows' toggle switch, drawn: a 40 Ã— 20 track with a 12 knob, the accent filled while on.</summary>
     private static Grid SwitchArt(bool on, bool enabled)
     {
         Brush track, stroke, knob;
@@ -331,14 +504,14 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2302] [S-2309] A number box: 240 × 32, its value as the line writes it, − and + inside; a
+    /// [S-2302] [S-2309] A number box: 240 Ã— 32, its value as the line writes it, âˆ’ and + inside; a
     /// typed value read in the box's units and held to the range and the grain on Enter or leaving it,
     /// Escape restoring it; Up and Down step it.
     /// </summary>
     private FrameworkElement NumberBox(PageRow row)
     {
         var slider = row.Number!;
-        var shown = slider.Value is { } v ? slider.Format(v) : "—";
+        var shown = slider.Value is { } v ? slider.Format(v) : "â€”";
         var box = new TextBox
         {
             Text = shown,
@@ -426,7 +599,7 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2302] [S-3736] A text box: 240 × 32; Enter or leaving it keeps what is typed (unless it cannot
+    /// [S-2302] [S-3736] A text box: 240 Ã— 32; Enter or leaving it keeps what is typed (unless it cannot
     /// be kept: why, under the name, in the critical colour), Escape restores it; a form's field hands on
     /// every letter; a password's box never shows what it holds.
     /// </summary>
@@ -506,17 +679,22 @@ internal sealed partial class PageView
     }
 
     /// <summary>[S-3728] [S-3561] Words only: under the row they follow (in at its name), or a card of their own.</summary>
-    private static FrameworkElement NoteRow(PageRow row, bool first)
+    private FrameworkElement NoteRow(PageRow row, bool first)
     {
         if (row.Text.Length == 0)
         {
             return new Border();
         }
 
+        if (row.Beside is { } beside)
+        {
+            return BesideRow(row, beside);
+        }
+
         if (row.Value is not null || row.Icon is not null)
         {
-            // [S-3561] A reading: words and a value at its end.
-            return Lay(row, End(row.Value, null), null);
+            // [S-3561] A reading: words (over its line, Karpo's note card, Â§579) and a value in Caption at its end.
+            return Lay(row, End(row.Value, null), row.Caption);
         }
 
         var words = first ? Fluent.Text(FamilyType.Body, row.Danger ? "SystemFillColorCriticalBrush" : "TextFillColorSecondaryBrush") : CaptionText(row.Text, row.Danger);
@@ -621,32 +799,39 @@ internal sealed partial class PageView
 
         if (row.Order is { } list)
         {
-            Draggable(item, list);
+            Draggable(item, item, list, 0);
         }
 
         return item;
     }
 
-    /// <summary>[S-3732] An item dragged up or down among its list's: where it is let go, it is moved to, once.</summary>
-    private void Draggable(ContentControl item, MenuOrder order)
+    /// <summary>
+    /// [S-3732] [S-2310] One of a list's own dragged up or down among the list's: <paramref name="moved"/> (an item's row,
+    /// a thing's whole card) follows the pointer pressed on <paramref name="handle"/> (the row itself, a card's grip);
+    /// where it is let go, it is moved to, once, a step being its height and <paramref name="gap"/>.
+    /// </summary>
+    private void Draggable(FrameworkElement moved, UIElement handle, MenuOrder order, double gap)
     {
         double? start = null;
         var moving = false;
         var shift = new TranslateTransform();
-        item.RenderTransform = shift;
+        moved.RenderTransform = shift;
 
-        item.PointerPressed += (_, e) =>
+        handle.PointerPressed += (_, e) =>
         {
-            if (e.OriginalSource is DependencyObject source && Within<Button>(source, item))
+            if (ReferenceEquals(moved, handle) && e.OriginalSource is DependencyObject source && Within<Button>(source, moved))
             {
                 return;
             }
 
             start = e.GetCurrentPoint(this).Position.Y;
             moving = false;
-            item.CapturePointer(e.Pointer);
+            handle.CapturePointer(e.Pointer);
+
+            // A card's grip stands in its head's button: the press is the grip's, never the head's click.
+            e.Handled = true;
         };
-        item.PointerMoved += (_, e) =>
+        handle.PointerMoved += (_, e) =>
         {
             if (start is not { } from)
             {
@@ -658,10 +843,10 @@ internal sealed partial class PageView
             if (moving)
             {
                 shift.Y = dy;
-                Canvas.SetZIndex(item, 1);
+                Canvas.SetZIndex(moved, 1);
             }
         };
-        item.PointerReleased += (_, e) =>
+        handle.PointerReleased += (_, e) =>
         {
             if (start is not { } from)
             {
@@ -669,14 +854,15 @@ internal sealed partial class PageView
             }
 
             start = null;
-            item.ReleasePointerCapture(e.Pointer);
+            handle.ReleasePointerCapture(e.Pointer);
             shift.Y = 0;
+            e.Handled = true;
             if (!moving)
             {
                 return;
             }
 
-            var height = Math.Max(1, item.ActualHeight);
+            var height = Math.Max(1, moved.ActualHeight + gap);
             var steps = (int)Math.Round((e.GetCurrentPoint(this).Position.Y - from) / height);
             var to = Math.Clamp(order.Index + steps, 0, order.Count - 1);
             if (to != order.Index)
@@ -684,7 +870,7 @@ internal sealed partial class PageView
                 Do(() => order.Move(order.Index, to));
             }
         };
-        item.PointerCaptureLost += (_, _) =>
+        handle.PointerCaptureLost += (_, _) =>
         {
             start = null;
             shift.Y = 0;
@@ -862,8 +1048,8 @@ internal sealed partial class PageView
             var button = Plain(new Button
             {
                 Content = new FontIcon { Glyph = tool.Glyph, FontSize = Fluent.IconSize },
-                Width = P.Control + Fluent.Space2,
-                Height = P.Control + Fluent.Space2,
+                Width = P.Control,
+                Height = P.Control,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 IsEnabled = !tool.Disabled,

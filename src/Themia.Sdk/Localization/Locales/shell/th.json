@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "ลบ {count} วิดเจ็ต"
   },
-  "shell.card.doneEditing": "แก้ไขเสร็จสิ้น",
-  "shell.card.editLayout": "แก้ไขเค้าโครง",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "ตั้งค่า",
   "shell.setup.hint": "ตั้งค่าสิ่งที่วิดเจ็ตนี้ต้องใช้",
   "shell.toolbar.addWidget": "เพิ่มวิดเจ็ต",
-  "shell.toolbar.snapName": "จัดชิดเส้นตาราง",
-  "shell.toolbar.collisionsName": "ไม่ให้วิดเจ็ตซ้อนทับกัน",
   "shell.editBar.selected": {
     "other": "เลือก {count} รายการ"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "ขนาดข้อความ",
   "shell.appearance.systemFont": "ค่าเริ่มต้นของระบบ",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "ระยะห่างระหว่างวิดเจ็ต",
   "shell.motion.slide": "เลื่อน",
   "shell.motion.sides": "ด้านข้าง",
   "shell.motion.topBottom": "บนและล่าง",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "ทุกนาที",
   "shell.refresh.everyHour": "ทุกชั่วโมง",
   "shell.color.custom": "สีที่กำหนดเอง",
-  "shell.color.pickCustom": "เลือกสีที่กำหนดเอง",
   "shell.color.pickFromScreen": "เลือกสีจากหน้าจอ",
   "shell.color.pickFailed": "ไม่สามารถอ่านสีบนหน้าจอได้",
   "shell.icon.home": "บ้าน",

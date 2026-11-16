@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "ဒက်စ်တော့ အရာ",
-  "desktopItem.desc": "သင့်ဒက်စ်တော့မှ ဖိုင်၊ ဖိုဒါ သို့မဟုတ် shortcut"
+  "widgetsC.shortcuts.column.target": "ပစ်မှတ်",
+  "widgetsC.shortcuts.kind.location": "Windows တည်နေရာ",
+  "widgetsC.shortcuts.kind.missing": "ပျောက်နေသည်",
+  "widgetsC.shortcuts.kind.path": "လမ်းကြောင်း",
+  "widgetsC.shortcuts.kind.refused": "ခွင့်မပြုပါ",
+  "widgetsC.shortcuts.menu.addLayout": "အက်ပ် အပြင်အဆင်…",
+  "widgetsC.shortcuts.menu.addLink": "ဝက်ဘ်လိပ်စာ သို့မဟုတ် လမ်းကြောင်း…",
+  "widgetsC.shortcuts.menu.changeTarget": "ပစ်မှတ် ပြောင်းရန်…",
+  "widgetsC.shortcuts.settings.locations": "Windows တည်နေရာများ",
+  "widgetsC.shortcuts.settings.openWith.double": "နှစ်ချက်နှိပ်",
+  "widgetsC.shortcuts.settings.openWith.label": "ဖွင့်ပုံ",
+  "widgetsC.shortcuts.settings.openWith.single": "တစ်ချက်နှိပ်",
+  "widgetsC.shortcuts.settings.pick.file": "ဖိုင်…",
+  "widgetsC.shortcuts.settings.pick.folder": "ဖိုဒါ…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ပစ်မှတ် ပျောက်နေ)\n{target}"
 }

@@ -133,21 +133,21 @@ public sealed partial class KitList
         }
     }
 
-    /// <summary>[S-7035] A day's heading: one row of 28, BodyStrong, secondary (primary for the chosen day).</summary>
-    private static Grid Heading(KitGroup? group, DateOnly today, bool dated)
+    /// <summary>[S-7035] A day's heading: one row of 28 (stretched as the rows are, [S-12410]), BodyStrong, secondary (primary for the chosen day).</summary>
+    private Grid Heading(KitGroup? group, DateOnly today, bool dated)
     {
         var text = Family.Text(FamilyType.BodyStrong, group is { Selected: true } ? ColourRole.TextPrimary : ColourRole.TextSecondary);
         text.Text = group?.Heading ?? (group?.Day is { } day ? KitDays.Heading(Strings.Current, day, today, dated) : string.Empty);
         text.VerticalAlignment = VerticalAlignment.Center;
 
-        return new Grid { Children = { text }, Height = FamilyShape.Row1, Padding = Family.SideInset };
+        return new Grid { Children = { text }, Height = _plan.HeadingHeight, Padding = Family.SideInset };
     }
 
     /// <summary>[S-7036] One scheduled item as a Row block.</summary>
     private Border ScheduleRow(KitItem item, int index)
     {
         var schedule = item.Schedule ?? new KitSchedule(null);
-        var block = new RowBlock(RowKind.List) { Lines = _plan.Lines, Strong = item.Emphasis };
+        var block = new RowBlock(RowKind.List) { Lines = _plan.Lines, Strong = item.Emphasis, Height = _plan.RowHeight };
 
         string? second;
         if (schedule.Note is { } note)

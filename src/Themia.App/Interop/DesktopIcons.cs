@@ -6,28 +6,24 @@ using Themia.Core.Shell;
 namespace Themia.App.Interop;
 
 /// <summary>
-/// [S-930] [S-5503] Windows' own desktop icons: whether they are shown, the session-only hide the
-/// desktop choice holds, the shell's own command, and their selection.
+/// [S-5503] [S-5504] Explorer's own desktop icons: the session-only hide Themia holds while it runs,
+/// its restore, and their selection.
 /// <para>
-/// Two ways to hide, kept apart. The desktop choice ([S-5500]) hides the icon list window itself for
-/// this session only (<see cref="Hold"/>): Explorer's own setting and its menu's check mark stay as the
-/// user left them, an Explorer restart shows the icons by itself, and <see cref="Restore"/> shows them
-/// again on quit, at start and from the last-chance handlers. The shell's own command (View › Show
-/// desktop icons), which Explorer persists, is sent only when the user picks Windows' icons while
-/// Windows hides them ([S-5505], <see cref="Request"/>).
+/// Themia draws the desktop, so it hides Explorer's icon list window itself for this session only
+/// (<see cref="Hold"/>): Explorer's own setting and its menu's check mark stay as the user left them, an
+/// Explorer restart shows the icons by itself, and <see cref="Restore"/> shows them again on quit and
+/// from the last-chance handlers. The shell's own command (View › Show desktop icons), which Explorer
+/// persists, is never sent.
 /// </para>
 /// <para>
 /// The shell's windows are looked up on every use rather than cached: Explorer restarts replace
-/// them, and a cached handle would send the command to a dead window. The lookup is a handful of
+/// them, and a cached handle would reach a dead window. The lookup is a handful of
 /// <c>FindWindowEx</c> calls, and it only runs on a user action or a shell event.
 /// </para>
 /// </summary>
 internal static unsafe class DesktopIcons
 {
     private const string Scope = "desktop-icons";
-
-    /// <summary>The desktop context menu's "Show desktop icons" command. Undocumented, unchanged since Vista, the same on 10 and 11.</summary>
-    private const nint ToggleIconsCommand = 0x7402;
 
     private const uint LvmGetSelectedCount = 0x1032;
 
@@ -40,7 +36,7 @@ internal static unsafe class DesktopIcons
     {
         // The shell's own Progman, not the first window of that class: any program may register a
         // "Progman" or a "WorkerW" (a dock's stand-in shell windows, the shell's own worker windows
-        // in every process that uses it). Only views of the shell's process are candidates ([S-930]).
+        // in every process that uses it). Only views of the shell's process are candidates ([S-5503]).
         var progman = Win32.GetShellWindow();
         if (progman == 0)
         {
@@ -90,161 +86,13 @@ internal static unsafe class DesktopIcons
     }
 
     /// <summary>
-    /// [S-5575] What the desktop's windows say of other programs: a desktop view of another process
-    /// under <c>Progman</c> or a <c>WorkerW</c> (a replaced desktop), another process's window among
-    /// their children (a wallpaper engine's), and whether the re-hide cap was reached ([S-5503]).
-    /// Read only (a handful of <c>FindWindowEx</c> calls), never a message to another program's window.
-    /// </summary>
-    public static Themia.Core.Desktop.DesktopShellFacts ReadFacts()
-    {
-        var keptShown = _keptShown;
-        var progman = Win32.GetShellWindow();
-        if (progman == 0)
-        {
-            return new(false, false, keptShown);
-        }
-
-        Win32.GetWindowThreadProcessId(progman, out var shellPid);
-        var own = (uint)Environment.ProcessId;
-        var foreignView = false;
-        var foreignChild = false;
-
-        void Look(nint parent)
-        {
-            for (var child = Win32.FindWindowEx(parent, 0, null, null); child != 0; child = Win32.FindWindowEx(parent, child, null, null))
-            {
-                Win32.GetWindowThreadProcessId(child, out var pid);
-                if (pid == 0 || pid == shellPid || pid == own)
-                {
-                    continue;
-                }
-
-                if (Win32.FindWindowEx(parent, 0, "SHELLDLL_DefView", null) is var view && view == child)
-                {
-                    foreignView = true;
-                }
-                else
-                {
-                    foreignChild = true;
-                }
-            }
-        }
-
-        Look(progman);
-        for (var worker = Win32.FindWindowEx(progman, 0, "WorkerW", null); worker != 0; worker = Win32.FindWindowEx(progman, worker, "WorkerW", null))
-        {
-            Look(worker);
-        }
-
-        for (var worker = Win32.FindWindowEx(0, 0, "WorkerW", null); worker != 0; worker = Win32.FindWindowEx(0, worker, "WorkerW", null))
-        {
-            // Only the shell's own WorkerW windows are the desktop's; any process may register the class.
-            Win32.GetWindowThreadProcessId(worker, out var pid);
-            if (pid == shellPid)
-            {
-                Look(worker);
-            }
-        }
-
-        return new(foreignView, foreignChild, keptShown);
-    }
-
-    /// <summary>
-    /// [S-931] The icon list's own <c>WS_VISIBLE</c> bit, or null when the window has gone (a live
+    /// [S-5503] The icon list's own <c>WS_VISIBLE</c> bit, or null when the window has gone (a live
     /// list always has a style: it is a <c>WS_CHILD</c>).
     /// </summary>
     private static bool? IsShown(nint list)
     {
         var style = (uint)Win32.GetWindowLongPtr(list, Win32.GwlStyle);
         return style == 0 ? null : DesktopIconRules.IsShown(style);
-    }
-
-    /// <summary>Bounds the wait on a hung Explorer; a responsive one answers in milliseconds.</summary>
-    private const uint CommandTimeoutMs = 3000;
-
-    private static readonly DesktopIconRequests Requests = new();
-
-    /// <summary>
-    /// [S-939] [S-5505] Ask Windows' own setting for the icons shown or hidden, through the shell's
-    /// command. Returns at once; one worker applies the requests, latest wins.
-    /// </summary>
-    public static void Request(bool visible)
-    {
-        if (!Requests.Submit(visible))
-        {
-            return;
-        }
-
-        _ = Task.Run(static () =>
-        {
-            while (Requests.Take() is bool target)
-            {
-                try
-                {
-                    Apply(target);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(Scope, "applying the desktop icons switch threw", ex);
-                }
-            }
-        });
-    }
-
-    /// <summary>
-    /// [S-931] [S-939] Bring the icons to <paramref name="visible"/>. The command is a toggle with no
-    /// "set" form, so it is sent only when the live state is known and differs, and at most once.
-    /// Sent, not posted, and bounded: a posted command is still queued in Explorer when the state is
-    /// read back, so the read cannot tell "done" from "not yet", and the next request would toggle on
-    /// a stale state. The send returns once Explorer has handled it; the read after it is the
-    /// confirmation. Blocking — the worker thread only.
-    /// </summary>
-    private static void Apply(bool visible)
-    {
-        var sent = false;
-        while (true)
-        {
-            var shell = Find();
-            var live = shell is { } found ? IsShown(found.List) : null;
-
-            switch (DesktopIconRules.Plan(live, visible, sent))
-            {
-                case DesktopIconStep.Done:
-                    if (sent)
-                    {
-                        Log.Info(Scope, visible ? "desktop icons shown" : "desktop icons hidden");
-                    }
-
-                    return;
-
-                case DesktopIconStep.Unreadable:
-                    Log.Warn(Scope, sent
-                        ? "the desktop's icon view went away after the desktop icons command; the switch shows what Windows reports next"
-                        : "the desktop's icon view was not found; desktop icons left as they are");
-                    return;
-
-                case DesktopIconStep.DidNotTake:
-                    Log.Warn(Scope, $"Explorer handled the desktop icons command but the icons are still {(live == true ? "shown" : "hidden")}; not toggling again");
-                    return;
-
-                case DesktopIconStep.Toggle:
-                    Marshal.SetLastPInvokeError(0);
-                    if (Win32.SendMessageTimeout(shell!.Value.View, Win32.WmCommand, ToggleIconsCommand, 0,
-                            Win32.SmtoAbortIfHung | Win32.SmtoBlock, CommandTimeoutMs, out _) == 0)
-                    {
-                        // A timeout may still be handled later; the list's show/hide event then tells the switch.
-                        Log.Warn(Scope, $"Explorer did not take the desktop icons command (win32 {Marshal.GetLastPInvokeError()}); desktop icons left as they are");
-                        return;
-                    }
-
-                    sent = true;
-                    break;
-
-                default:
-                    Log.Error(Scope, $"unknown desktop icons step for visible={visible}");
-                    return;
-            }
-        }
     }
 
     /// <summary>
@@ -278,17 +126,11 @@ internal static unsafe class DesktopIcons
     private const string AdvancedKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
     private const string PolicyKey = @"Software\Microsoft\Windows\CurrentVersion\Policies\Explorer";
 
-    /// <summary>The choice holds the list hidden. UI thread.</summary>
+    /// <summary>The list is held hidden. UI thread.</summary>
     private static bool _holding;
 
-    /// <summary>[S-5503] Re-hides spent since the choice was applied. UI thread.</summary>
+    /// <summary>[S-5503] Re-hides spent since the hold began (at start, and anew for a new Explorer). UI thread.</summary>
     private static int _rehides;
-
-    /// <summary>[S-5575] The cap was reached since the choice was last applied: something else holds the icons shown.</summary>
-    private static volatile bool _keptShown;
-
-    /// <summary>[S-5575] Raised (UI thread) when the re-hide cap is reached: the host stands its items down.</summary>
-    public static event Action? GaveUp;
 
     /// <summary>The held list's show and hide hook. UI thread.</summary>
     private static IDisposable? _holdWatch;
@@ -301,39 +143,25 @@ internal static unsafe class DesktopIcons
 
     /// <summary>
     /// [S-5503] Hide Explorer's icon list for the session and keep it hidden: its own show event, and
-    /// the host applying the choice again on <c>TaskbarCreated</c> for a new Explorer, hide it again (at most
-    /// <see cref="DesktopIconRules.MaxRehides"/> times). Never Explorer's persisted setting. UI thread.
+    /// the host holding again on <c>TaskbarCreated</c> for a new Explorer, hide it again (at most
+    /// <see cref="DesktopIconRules.MaxRehides"/> times, counted anew each call). Never Explorer's
+    /// persisted setting. UI thread.
     /// </summary>
     public static void Hold()
     {
         _holding = true;
         _rehides = 0;
-        _keptShown = false;
         _hidThisRun = true;
         HookAndHide();
     }
 
-    /// <summary>
-    /// [S-5575] Stop holding without showing anything (another program holds the desktop): the watch
-    /// goes, the list is left as it is, nothing of Explorer's is touched. UI thread.
-    /// </summary>
-    public static void Unhold()
-    {
-        _holding = false;
-        _holdWatch?.Dispose();
-        _holdWatch = null;
-    }
-
-    /// <summary>[S-5575] The user applies the choice anew: the cap starts over, so Themia tries once more.</summary>
-    public static void ForgetKeptShown() => _keptShown = false;
-
-    /// <summary>[S-5504] The hold ends (the choice is Windows' icons now): unhooked, and the list shown as Windows has it. UI thread.</summary>
+    /// <summary>[S-5504] Quit: the hold ends (unhooked first, so the show is not answered with a hide) and the list is shown as Windows has it. UI thread.</summary>
     public static void Release()
     {
         _holding = false;
         _holdWatch?.Dispose();
         _holdWatch = null;
-        Restore();
+        RestoreIfHidden();
     }
 
     private static void HookAndHide()
@@ -354,7 +182,7 @@ internal static unsafe class DesktopIcons
 
         if (!Win32.ShowWindowAsync(shell.List, Win32.SwHide))
         {
-            Log.Warn(Scope, $"could not hide the desktop's icons (win32 {Marshal.GetLastPInvokeError()}); they show under Themia's items");
+            Log.Warn(Scope, $"could not hide the desktop's icons (win32 {Marshal.GetLastPInvokeError()}); they show under Themia's desktop");
             return;
         }
 
@@ -383,15 +211,13 @@ internal static unsafe class DesktopIcons
 
         if (_holding && shown == true && _rehides == DesktopIconRules.MaxRehides)
         {
-            // Said once: the count passes the cap, so this is not reached again until the choice is applied anew.
+            // [S-5575] Said once: the count passes the cap, so this is not reached again until the hold begins anew.
             _rehides++;
-            _keptShown = true;
             Log.Warn(Scope, $"the desktop's icons were shown again {DesktopIconRules.MaxRehides} times; something else keeps them shown, so they are left shown");
-            GaveUp?.Invoke();
         }
     }
 
-    /// <summary>[S-5504] Quit and the last-chance handlers: show the list again if this process hid it. Any thread, never blocks.</summary>
+    /// <summary>[S-5504] The last-chance handlers (and quit, through <see cref="Release"/>): show the list again if this process hid it. Any thread, never blocks.</summary>
     public static void RestoreIfHidden()
     {
         if (_hidThisRun)

@@ -7,20 +7,13 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-5524] [S-5551] [S-5552] [S-5560]..[S-5563] [S-5570] [S-5575] The desktop's edges: Themia's lines in
+/// [S-5524] [S-5551] [S-5552] [S-5560]..[S-5563] [S-5570] The desktop's edges: Themia's lines in
 /// the background menu, New ›'s rename, displays that come and go, work areas that change, the icon
-/// at each scale, the reading order and living beside other desktop programs.
+/// at each scale and the reading order.
 /// </summary>
 public sealed class DesktopEdgeTests
 {
     private const string Desk = @"C:\Users\a\Desktop\";
-
-    private sealed class ItemConfig : WidgetConfig, IDesktopItemConfig
-    {
-        public string Item { get; set; } = string.Empty;
-
-        public override WidgetConfig Clone() => new ItemConfig { Item = Item };
-    }
 
     private sealed class OtherConfig : WidgetConfig
     {
@@ -35,10 +28,10 @@ public sealed class DesktopEdgeTests
     private static DesktopItem File(string name) => new(Desk + name, name, DesktopItemKind.File);
 
     private static WidgetInstance Item(string name, double x, double y)
-        => new() { Id = "w-" + name + "-" + Guid.NewGuid().ToString("n")[..6], Config = new ItemConfig { Item = Desk + name }, Rect = new FracRect(x, y, 0.1, 0.1) };
+        => new() { Id = "w-" + name + "-" + Guid.NewGuid().ToString("n")[..6], Config = new DeskIconFake { Item = Desk + name }, Rect = new FracRect(x, y, 0.1, 0.1) };
 
     private static WidgetInstance Create(DesktopItem item, FracRect rect)
-        => new() { Id = "new-" + DesktopRename.FileName(item.Key), Config = new ItemConfig { Item = item.Key }, Rect = rect };
+        => new() { Id = "new-" + DesktopRename.FileName(item.Key), Config = new DeskIconFake { Item = item.Key }, Rect = rect };
 
     private static IEnumerable<string> Keys(ViewState view) => view.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item);
 
@@ -60,32 +53,72 @@ public sealed class DesktopEdgeTests
         return plan;
     }
 
-    // ---- [S-5551] [S-5552] the background menu --------------------------------------------------
+    // ---- [S-5548] [S-5551] [S-5552] the background menu ------------------------------------------
+
+    /// <summary>The menu as a flat list: a command, a submenu's group, or null for a separator.</summary>
+    private static object?[] Flat(IReadOnlyList<DesktopMenuEntry> menu)
+        => [.. menu.Select(entry => entry.IsSeparator ? null : entry.Group is { } group ? group : (object?)entry.Command)];
 
     [Fact]
-    public void S5551_themias_lines_are_the_way_into_edit_mode_then_add_widget()
-        => Assert.Equal([DesktopMenuCommand.EditWidgets, DesktopMenuCommand.AddWidget], DesktopBackground.ThemiaLines);
-
-    [Fact]
-    public void S5551_themias_group_goes_after_the_paste_group_where_an_apps_lines_go()
+    public void S5548_the_background_menu_is_windows_elevens_with_themias_lines_where_an_apps_go()
     {
-        ShellMenuLine[] lines =
-        [
-            new(false, "paste"), new(false, "pastelink"), new(true, null),
-            new(false, null), // New ›
-            new(true, null),
-            new(false, "display"), new(false, "personalize"),
-        ];
+        var menu = DesktopBackground.Menu(new DesktopBackgroundFacts(ClipboardHasFiles: true, HasTerminal: true));
 
-        Assert.Equal(new DesktopMenuSlot(2, SeparatorBefore: true, SeparatorAfter: false), DesktopBackground.Slot(lines));
+        Assert.Equal(
+            [
+                DesktopMenuGroup.View, DesktopMenuGroup.SortBy, DesktopMenuCommand.Refresh, null,
+                DesktopMenuCommand.Paste, DesktopMenuCommand.PasteShortcut, DesktopMenuGroup.New, null,
+                DesktopMenuCommand.DisplaySettings, DesktopMenuCommand.Personalise, DesktopMenuCommand.OpenInTerminal, null,
+                DesktopMenuCommand.UnlockWidgets, DesktopMenuCommand.AddWidget, null,
+                DesktopMenuCommand.ShowMoreOptions,
+            ],
+            Flat(menu));
+        Assert.Equal(
+            [DesktopMenuCommand.NewFolder, DesktopMenuCommand.NewShortcut],
+            menu.Single(entry => entry.Group == DesktopMenuGroup.New).Children.Select(child => child.Command!.Value));
     }
 
     [Fact]
-    public void S5551_with_the_paste_group_last_the_group_ends_the_menu_and_with_none_it_starts_it()
+    public void S5548_paste_is_there_only_with_files_on_the_clipboard_and_the_terminal_only_where_it_is_installed()
     {
-        Assert.Equal(new DesktopMenuSlot(1, SeparatorBefore: true, SeparatorAfter: false), DesktopBackground.Slot([new(false, "PASTE")]));
-        Assert.Equal(new DesktopMenuSlot(0, SeparatorBefore: false, SeparatorAfter: true), DesktopBackground.Slot([new(false, "display"), new(false, "personalize")]));
-        Assert.Equal(new DesktopMenuSlot(0, false, false), DesktopBackground.Slot([]));
+        var menu = DesktopBackground.Menu(new DesktopBackgroundFacts(ClipboardHasFiles: false, HasTerminal: false));
+
+        Assert.Equal(
+            [
+                DesktopMenuGroup.View, DesktopMenuGroup.SortBy, DesktopMenuCommand.Refresh, null,
+                DesktopMenuGroup.New, null,
+                DesktopMenuCommand.DisplaySettings, DesktopMenuCommand.Personalise, null,
+                DesktopMenuCommand.UnlockWidgets, DesktopMenuCommand.AddWidget, null,
+                DesktopMenuCommand.ShowMoreOptions,
+            ],
+            Flat(menu));
+    }
+
+    [Fact]
+    public void S5548_no_background_menu_has_two_separators_in_a_row_or_one_at_an_end_and_none_offers_undo()
+    {
+        foreach (var clipboard in new[] { true, false })
+        {
+            foreach (var terminal in new[] { true, false })
+            {
+                var menu = DesktopBackground.Menu(new DesktopBackgroundFacts(clipboard, terminal));
+
+                Assert.False(menu[0].IsSeparator);
+                Assert.False(menu[^1].IsSeparator);
+                Assert.DoesNotContain(Enumerable.Range(1, menu.Count - 1), i => menu[i].IsSeparator && menu[i - 1].IsSeparator);
+                Assert.Equal(DesktopMenuCommand.ShowMoreOptions, menu[^1].Command);
+                Assert.DoesNotContain(Enum.GetNames<DesktopMenuCommand>(), name => name.Contains("Undo", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+    }
+
+    [Fact]
+    public void S5551_themias_lines_are_the_way_into_edit_mode_then_add_widget_between_windows_lines_and_show_more_options()
+    {
+        var menu = Flat(DesktopBackground.Menu(new DesktopBackgroundFacts(true, true)));
+        var at = Array.IndexOf(menu, DesktopMenuCommand.UnlockWidgets);
+
+        Assert.Equal([null, DesktopMenuCommand.UnlockWidgets, DesktopMenuCommand.AddWidget, null, DesktopMenuCommand.ShowMoreOptions], menu[(at - 1)..]);
     }
 
     [Fact]
@@ -124,9 +157,23 @@ public sealed class DesktopEdgeTests
     [Fact]
     public void S5524_edit_modes_delete_of_desktop_items_only_says_remove_from_this_view()
     {
-        Assert.True(DesktopBackground.RemovesFromView([new ItemConfig(), new ItemConfig()]));
-        Assert.False(DesktopBackground.RemovesFromView([new ItemConfig(), new OtherConfig()]));
+        DeskIconFake Item(string name) => new() { Item = Desk + name };
+
+        Assert.True(DesktopBackground.RemovesFromView([Item("a.txt"), Item("b.txt")]));
+        Assert.False(DesktopBackground.RemovesFromView([Item("a.txt"), new OtherConfig()]));
         Assert.False(DesktopBackground.RemovesFromView([]));
+    }
+
+    [Fact]
+    public void S5524_an_own_icon_in_the_selection_says_delete_for_it_is_gone_with_its_widget()
+    {
+        var item = new DeskIconFake { Item = Desk + "a.txt" };
+        var own = new DeskIconFake { Target = @"C:\Tools\app.exe" };
+
+        Assert.False(DesktopBackground.RemovesFromView([own]));
+        Assert.False(DesktopBackground.RemovesFromView([item, own]));
+        Assert.False(DesktopBackground.RemovesFromView([own, item]));
+        Assert.False(DesktopBackground.RemovesFromView([new DeskIconFake()]));
     }
 
     // ---- [S-5560] [S-5561] displays unplugged and back ----------------------------------------
@@ -142,10 +189,13 @@ public sealed class DesktopEdgeTests
 
         Settle(state, ["main"], new DesktopShownView(home.Id, Screen));
 
-        // Down the primary's first column after a.txt, in the side view's order (c above b in one column).
+        // [S-11876] The primary's first free spots after a.txt in reading order, in the side view's order (c above b in one column).
         Assert.Equal([Desk + "a.txt", Desk + "c.txt", Desk + "b.txt"], Keys(home));
-        Assert.Equal(0.1, home.Widgets[1].Rect.Y, 6);
-        Assert.Equal(0.2, home.Widgets[2].Rect.Y, 6);
+        // One cell off the top edge ([S-11888]).
+        Assert.Equal(0.1, home.Widgets[1].Rect.X, 6);
+        Assert.Equal(1 / 110.0, home.Widgets[1].Rect.Y, 6);
+        Assert.Equal(0.2, home.Widgets[2].Rect.X, 6);
+        Assert.Equal(1 / 110.0, home.Widgets[2].Rect.Y, 6);
 
         // The side view itself is untouched, and the stand-ins are recorded.
         Assert.Equal(new FracRect(0.5, 0.5, 0.1, 0.1), b.Rect);
@@ -247,8 +297,9 @@ public sealed class DesktopEdgeTests
         var shrunk = new ScreenMetrics(900, 1100) { Allowed = new FracRect(0, 0, 1, 0.9) };
         Settle(state, ["main"], new DesktopShownView(home.Id, shrunk));
 
-        Assert.True(low.Rect.Bottom <= 0.9 + 1e-9, $"{low.Rect}");
-        Assert.Equal(0, low.Rect.X, 6);
+        // [S-11887] Laid by the one rule: inside, one cell off the edges ([S-11888]).
+        Assert.True(low.Rect.Bottom <= 0.9 - (1 / 110.0) + 1e-9, $"{low.Rect}");
+        Assert.Equal(1 / 90.0, low.Rect.X, 6);
 
         // Only item widgets follow the work area ([S-841] for every other widget).
         Assert.Equal(new FracRect(0.5, 0.85, 0.3, 0.15), other.Rect);
@@ -317,39 +368,5 @@ public sealed class DesktopEdgeTests
         Assert.Equal((2, 3), DesktopNav.PositionOf(ordered, Desk + "b"));
         Assert.Equal((3, 3), DesktopNav.PositionOf(ordered, Desk + "z"));
         Assert.Null(DesktopNav.PositionOf(ordered, Desk + "gone"));
-    }
-
-    // ---- [S-5575] beside other desktop programs ------------------------------------------------
-
-    [Theory]
-    [InlineData(false, false, false, DesktopHolder.None)]
-    [InlineData(false, true, false, DesktopHolder.Wallpaper)]
-    [InlineData(true, true, false, DesktopHolder.Replaced)]
-    [InlineData(true, true, true, DesktopHolder.KeptShown)]
-    public void S5575_who_holds_the_desktop_is_read_from_its_windows(bool foreignView, bool foreignChild, bool keptShown, DesktopHolder holder)
-        => Assert.Equal(holder, DesktopCoexistence.Classify(new DesktopShellFacts(foreignView, foreignChild, keptShown)));
-
-    [Fact]
-    public void S5575_themias_items_stand_down_beside_a_program_that_holds_the_icons_never_beside_a_wallpaper()
-    {
-        Assert.True(DesktopCoexistence.ShowsItems(DesktopShows.ThemiaItems, DesktopHolder.None));
-        Assert.True(DesktopCoexistence.ShowsItems(DesktopShows.ThemiaItems, DesktopHolder.Wallpaper));
-        Assert.False(DesktopCoexistence.ShowsItems(DesktopShows.ThemiaItems, DesktopHolder.Replaced));
-        Assert.False(DesktopCoexistence.ShowsItems(DesktopShows.ThemiaItems, DesktopHolder.KeptShown));
-        Assert.False(DesktopCoexistence.ShowsItems(DesktopShows.WindowsIcons, DesktopHolder.None));
-
-        // Never fight: no hide while another program holds the list.
-        Assert.True(DesktopCoexistence.MayHide(DesktopShows.Nothing, DesktopHolder.Wallpaper));
-        Assert.False(DesktopCoexistence.MayHide(DesktopShows.Nothing, DesktopHolder.KeptShown));
-        Assert.False(DesktopCoexistence.MayHide(DesktopShows.ThemiaItems, DesktopHolder.Replaced));
-    }
-
-    [Fact]
-    public void S5575_settings_says_why_the_choice_does_not_show()
-    {
-        Assert.NotNull(DesktopCoexistence.Note(DesktopShows.ThemiaItems, DesktopHolder.Replaced));
-        Assert.NotNull(DesktopCoexistence.Note(DesktopShows.Nothing, DesktopHolder.KeptShown));
-        Assert.Null(DesktopCoexistence.Note(DesktopShows.ThemiaItems, DesktopHolder.Wallpaper));
-        Assert.Null(DesktopCoexistence.Note(DesktopShows.WindowsIcons, DesktopHolder.Replaced));
     }
 }

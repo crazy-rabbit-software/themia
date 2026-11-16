@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
@@ -16,8 +16,13 @@ public sealed class AppPreferences
     /// <summary>Hide the widgets while a full-screen game or presentation has the screen.</summary>
     public bool GameModeSuspend { get; set; }
 
-    /// <summary>[S-5500] What the desktop shows while Themia runs: Themia's items (the default), Windows' icons or nothing.</summary>
-    public DesktopShows Desktop { get; set; } = DesktopShows.ThemiaItems;
+
+    /// <summary>
+    /// [S-5593] The desktop's icon size, Explorer's View › Large, Medium and Small icons: one size for
+    /// every desktop icon on every display, never an icon's own. Medium by default, as Explorer's.
+    /// </summary>
+    public DesktopIconSize DesktopIconSize { get; set; } = DesktopIconSize.Medium;
+
 
     /// <summary>[S-3770] How every widget writes times and dates and measures temperature.</summary>
     public RegionPreferences Region { get; set; } = new();
@@ -31,13 +36,21 @@ public sealed class AppPreferences
     /// </summary>
     public bool McpServer { get; set; }
 
+    /// <summary>
+    /// [S-1575] The colour picker's recent colours: what was last kept from its mixer, its hex box or
+    /// the eyedropper, newest first, at most one line (<see cref="Themia.Core.Settings.ColourPicker.MostRecent"/>),
+    /// <c>#RRGGBB</c>. A memory of this PC's, not a look: one list for every colour row.
+    /// </summary>
+    public List<string> RecentColours { get; set; } = [];
+
     public AppPreferences Clone() => new()
     {
         Language = Language,
         GameModeSuspend = GameModeSuspend,
-        Desktop = Desktop,
+        DesktopIconSize = DesktopIconSize,
         Region = Region.Clone(),
         Refresh = Refresh.Clone(),
         McpServer = McpServer,
+        RecentColours = [.. RecentColours],
     };
 }

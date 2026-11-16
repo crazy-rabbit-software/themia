@@ -5,7 +5,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-1400]/[S-1020] Implemented by a view that takes things dropped onto it from Explorer, a browser or the
-/// Start menu (the folder and Shortcuts widgets).
+/// Start menu (the folder, a shortcut, a desktop item).
 /// <para>
 /// There is <b>one</b> drop path in the app: the desktop surface registers the only OLE drop target
 /// (<c>DragDropInterop.RegisterDropTarget</c> on its windows, [S-1021]), hit-tests the cursor to the

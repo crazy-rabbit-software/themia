@@ -60,7 +60,7 @@ public static class WidgetLiveness
     /// [S-1881] Whether a widget on screen runs its view. One that needs setting up
     /// (<see cref="WidgetSetup.Needed"/>) shows only the Set up button and does not: it has nothing
     /// to poll, nothing to tick and nothing to draw until the user configures it. The one exception
-    /// is a widget the user sets up by using it: an empty Shortcuts widget takes a dropped file
+    /// is a widget the user sets up by using it: a shortcut that opens nothing yet takes a dropped file
     /// under its button ([S-1862]), so it keeps running (it polls nothing).
     /// </summary>
     public static bool Runs(WidgetConfig config, FeatureSet signedIn)

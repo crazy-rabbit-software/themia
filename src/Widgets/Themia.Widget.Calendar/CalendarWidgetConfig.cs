@@ -74,6 +74,9 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     /// <summary>[S-11544] Month: a day's events as chips (titles) or as dots.</summary>
     public MonthEvents MonthEvents { get; set; } = MonthEvents.Dots;
 
+    /// <summary>[S-11547] Month with titles: the events a day cell lists, 1..6 (a new one 3); the height follows them.</summary>
+    public int MonthLines { get; set; } = MonthPlan.DefaultLines;
+
     /// <summary>[S-11545] Week (the day strip): the chosen day's rows, 1..12 (a new one 3); the height follows them.</summary>
     public int WeekRows { get; set; } = CalendarSizing.DefaultWeekRows;
 
@@ -175,6 +178,12 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
             repairs.Add("calendar month events were not chips or dots");
             MonthEvents = MonthEvents.Dots;
         }
+
+        if (MonthLines != MonthPlan.Lines(MonthLines))
+        {
+            repairs.Add($"calendar month lines {MonthLines} were out of range");
+            MonthLines = MonthPlan.Lines(MonthLines);
+        }
     }
 
     public override WidgetConfig Clone()
@@ -190,6 +199,7 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
         copy.YearSize = YearSize;
         copy.DayHours = DayHours;
         copy.MonthEvents = MonthEvents;
+        copy.MonthLines = MonthLines;
         copy.WeekRows = WeekRows;
         copy.WeekTitles = WeekTitles;
         copy.WeekHours = WeekHours;

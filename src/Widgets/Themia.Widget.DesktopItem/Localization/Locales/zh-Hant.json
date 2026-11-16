@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "桌面項目",
-  "desktopItem.desc": "桌面上的檔案、資料夾或捷徑"
+  "widgetsC.shortcuts.column.target": "目標",
+  "widgetsC.shortcuts.kind.location": "Windows 位置",
+  "widgetsC.shortcuts.kind.missing": "找不到",
+  "widgetsC.shortcuts.kind.path": "路徑",
+  "widgetsC.shortcuts.kind.refused": "不允許",
+  "widgetsC.shortcuts.menu.addLayout": "應用程式版面配置…",
+  "widgetsC.shortcuts.menu.addLink": "網址或路徑…",
+  "widgetsC.shortcuts.menu.changeTarget": "變更目標…",
+  "widgetsC.shortcuts.settings.locations": "Windows 位置",
+  "widgetsC.shortcuts.settings.openWith.double": "按兩下",
+  "widgetsC.shortcuts.settings.openWith.label": "開啟方式",
+  "widgetsC.shortcuts.settings.openWith.single": "按一下",
+  "widgetsC.shortcuts.settings.pick.file": "檔案…",
+  "widgetsC.shortcuts.settings.pick.folder": "資料夾…",
+  "widgetsC.shortcuts.tooltip.missing": "{name}（找不到目標）\n{target}"
 }

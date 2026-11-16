@@ -13,12 +13,12 @@ public sealed class FolderMenuTests
 
     private static FolderEntry Dir(string name) => new(name, $@"C:\Root\{name}", true, 0, DateTimeOffset.UnixEpoch, false);
 
-    private static FolderCommand[] Commands(IReadOnlyList<FolderMenuLine> lines) => [.. lines.Select(l => l.Command)];
+    private static FileCommand[] Commands(IReadOnlyList<FileMenuLine> lines) => [.. lines.Select(l => l.Command)];
 
-    private static QuickCommand[] Row(IReadOnlyList<FolderMenuLine> lines)
+    private static QuickCommand[] Row(IReadOnlyList<FileMenuLine> lines)
     {
-        var split = ContextMenuLayout.Split([.. lines.Select(l => l.IsSeparator ? MenuLine.Separator : MenuLine.Entry(FolderMenu.Quick(l.Command)))]);
-        return [.. split.Row.Select(i => FolderMenu.Quick(lines[i].Command)!.Value)];
+        var split = ContextMenuLayout.Split([.. lines.Select(l => l.IsSeparator ? MenuLine.Separator : MenuLine.Entry(FileMenu.Quick(l.Command)))]);
+        return [.. split.Row.Select(i => FileMenu.Quick(lines[i].Command)!.Value)];
     }
 
     [Fact]
@@ -29,9 +29,9 @@ public sealed class FolderMenuTests
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Rename, QuickCommand.Share, QuickCommand.Delete], Row(lines));
         Assert.Equal(
             [
-                FolderCommand.Cut, FolderCommand.Copy, FolderCommand.Rename, FolderCommand.Share, FolderCommand.Delete,
-                FolderCommand.Open, FolderCommand.OpenWith, FolderCommand.OpenFileLocation, FolderCommand.CompressToZip,
-                FolderCommand.CopyAsPath, FolderCommand.Properties, FolderCommand.Separator, FolderCommand.ShowMoreOptions,
+                FileCommand.Cut, FileCommand.Copy, FileCommand.Rename, FileCommand.Share, FileCommand.Delete,
+                FileCommand.Open, FileCommand.OpenWith, FileCommand.OpenFileLocation, FileCommand.CompressToZip,
+                FileCommand.CopyAsPath, FileCommand.Properties, FileCommand.Separator, FileCommand.ShowMoreOptions,
             ],
             Commands(lines));
     }
@@ -42,33 +42,33 @@ public sealed class FolderMenuTests
         var lines = FolderMenu.Item([Dir("Docs")], navigates: true, clipboardHasFiles: false);
 
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Paste, QuickCommand.Rename, QuickCommand.Delete], Row(lines));
-        Assert.False(lines.Single(l => l.Command == FolderCommand.Paste).Enabled);
-        Assert.DoesNotContain(FolderCommand.Share, Commands(lines));
-        Assert.DoesNotContain(FolderCommand.OpenWith, Commands(lines));
-        Assert.Contains(FolderCommand.OpenInNewWindow, Commands(lines));
-        Assert.Contains(FolderCommand.PinToQuickAccess, Commands(lines));
-        Assert.Contains(FolderCommand.PinToStart, Commands(lines));
+        Assert.False(lines.Single(l => l.Command == FileCommand.Paste).Enabled);
+        Assert.DoesNotContain(FileCommand.Share, Commands(lines));
+        Assert.DoesNotContain(FileCommand.OpenWith, Commands(lines));
+        Assert.Contains(FileCommand.OpenInNewWindow, Commands(lines));
+        Assert.Contains(FileCommand.PinToQuickAccess, Commands(lines));
+        Assert.Contains(FileCommand.PinToStart, Commands(lines));
     }
 
     [Fact]
     public void S6416_explorer_mode_has_no_new_window_line_open_already_is_one()
-        => Assert.DoesNotContain(FolderCommand.OpenInNewWindow, Commands(FolderMenu.Item([Dir("Docs")], navigates: false, clipboardHasFiles: false)));
+        => Assert.DoesNotContain(FileCommand.OpenInNewWindow, Commands(FolderMenu.Item([Dir("Docs")], navigates: false, clipboardHasFiles: false)));
 
     [Fact]
     public void S6416_several_items_lose_the_one_item_commands()
     {
         var files = FolderMenu.Item([File("a.txt"), File("b.txt")], true, true);
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Share, QuickCommand.Delete], Row(files));
-        Assert.DoesNotContain(FolderCommand.OpenWith, Commands(files));
-        Assert.DoesNotContain(FolderCommand.PinToStart, Commands(files));
+        Assert.DoesNotContain(FileCommand.OpenWith, Commands(files));
+        Assert.DoesNotContain(FileCommand.PinToStart, Commands(files));
 
         var mixed = FolderMenu.Item([File("a.txt"), Dir("Docs")], true, true);
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Delete], Row(mixed));
-        Assert.DoesNotContain(FolderCommand.PinToQuickAccess, Commands(mixed));
+        Assert.DoesNotContain(FileCommand.PinToQuickAccess, Commands(mixed));
 
         var folders = FolderMenu.Item([Dir("A"), Dir("B")], true, true);
-        Assert.Contains(FolderCommand.PinToQuickAccess, Commands(folders));
-        Assert.DoesNotContain(FolderCommand.Paste, Commands(folders));
+        Assert.Contains(FileCommand.PinToQuickAccess, Commands(folders));
+        Assert.DoesNotContain(FileCommand.Paste, Commands(folders));
     }
 
     [Theory]
@@ -76,7 +76,7 @@ public sealed class FolderMenuTests
     [InlineData("Tool.LNK", true)]
     [InlineData("a.txt", false)]
     public void S6416_pin_to_start_is_for_programs_and_shortcuts(string name, bool pinnable)
-        => Assert.Equal(pinnable, FolderMenu.Item([File(name)], true, false).Any(l => l.Command == FolderCommand.PinToStart));
+        => Assert.Equal(pinnable, FolderMenu.Item([File(name)], true, false).Any(l => l.Command == FileCommand.PinToStart));
 
     [Fact]
     public void S6416_a_cloud_item_adds_its_pins_before_show_more_options()
@@ -84,8 +84,72 @@ public sealed class FolderMenuTests
         var lines = Commands(FolderMenu.Item([File("a.txt", CloudOnly)], true, false));
 
         Assert.Equal(
-            [FolderCommand.Properties, FolderCommand.Separator, FolderCommand.KeepOnDevice, FolderCommand.FreeUpSpace, FolderCommand.Separator, FolderCommand.ShowMoreOptions],
+            [FileCommand.Properties, FileCommand.Separator, FileCommand.KeepOnDevice, FileCommand.FreeUpSpace, FileCommand.Separator, FileCommand.ShowMoreOptions],
             lines[^6..]);
+    }
+
+    [Fact]
+    public void S6416_the_item_menu_is_the_sdks_one_file_menu_rule_the_desktops_too()
+    {
+        FolderEntry[] selected = [File("a.txt"), Dir("Docs"), File("b.lnk", CloudOnly)];
+        FileMenuItem[] same = [new("a.txt", false), new("Docs", true), new("b.lnk", false, Cloud: true)];
+
+        Assert.Equal(
+            FileMenu.Item(same, new FileMenuFacts(FileMenuPlace.Folder, Navigates: true, ClipboardHasFiles: true)),
+            FolderMenu.Item(selected, navigates: true, clipboardHasFiles: true));
+    }
+
+    [Fact]
+    public void S6416_open_file_location_is_every_items_in_the_widget_and_a_links_alone_on_the_desktop()
+    {
+        static bool Has(string name, FileMenuPlace place)
+            => FileMenu.Item([new(name, false)], new FileMenuFacts(place, false, false)).Any(l => l.Command == FileCommand.OpenFileLocation);
+
+        Assert.True(Has("a.txt", FileMenuPlace.Folder));
+        Assert.True(Has("a.lnk", FileMenuPlace.Folder));
+        Assert.False(Has("a.txt", FileMenuPlace.Desktop));
+        Assert.True(Has("A.LNK", FileMenuPlace.Desktop));
+    }
+
+    [Fact]
+    public void S6416_every_line_a_file_menu_holds_has_its_icon_and_words_in_the_one_builder()
+    {
+        var ran = new List<FileCommand>();
+        var target = new Themia.App.Widgets.FileMenuTarget(FileMenuPlace.Folder, ran.Add, _ => [new(null, "child", static () => { })]);
+        var lines = FolderMenu.Item([Dir("Docs")], true, true)
+            .Concat(FolderMenu.Item([File("a.lnk", CloudOnly)], true, true))
+            .Concat(FolderMenu.Background(new FolderBackgroundFacts(true, true, true, true, true)))
+            .Where(l => l.Command is not (FileCommand.SelectAll or FileCommand.Up or FileCommand.OpenInExplorer))
+            .DistinctBy(l => l.Command)
+            .ToList();
+
+        foreach (var line in lines)
+        {
+            var entry = Themia.App.Widgets.FileMenuEntries.Entry(line, target);
+            if (line.IsSeparator)
+            {
+                Assert.True(entry.IsSeparator);
+                continue;
+            }
+
+            Assert.False(string.IsNullOrWhiteSpace(entry.Text));
+            Assert.NotNull(entry.Glyph);
+            Assert.Equal(FileMenu.Quick(line.Command), entry.Quick);
+            Assert.Equal(FileMenu.Accelerator(line.Command), entry.Shortcut);
+            if (line.Command is FileCommand.OpenWith or FileCommand.New)
+            {
+                Assert.NotNull(entry.Children);
+                Assert.Null(entry.Action);
+            }
+            else
+            {
+                entry.Action!();
+                Assert.Equal(line.Command, ran[^1]);
+            }
+        }
+
+        // The widget words its own three background lines; the shared builder refuses them loudly.
+        Assert.Throws<ArgumentOutOfRangeException>(() => Themia.App.Widgets.FileMenuEntries.Entry(new FileMenuLine(FileCommand.Up), target));
     }
 
     [Fact]
@@ -99,9 +163,9 @@ public sealed class FolderMenuTests
 
         Assert.Equal(
             [
-                FolderCommand.Paste, FolderCommand.SelectAll, FolderCommand.Separator, FolderCommand.Refresh, FolderCommand.Separator,
-                FolderCommand.New, FolderCommand.Separator, FolderCommand.OpenInExplorer, FolderCommand.CopyAsPath,
-                FolderCommand.Properties, FolderCommand.Separator, FolderCommand.ShowMoreOptions,
+                FileCommand.Paste, FileCommand.SelectAll, FileCommand.Separator, FileCommand.Refresh, FileCommand.Separator,
+                FileCommand.New, FileCommand.Separator, FileCommand.OpenInExplorer, FileCommand.CopyAsPath,
+                FileCommand.Properties, FileCommand.Separator, FileCommand.ShowMoreOptions,
             ],
             Commands(lines));
         Assert.False(lines[0].Enabled);
@@ -113,7 +177,7 @@ public sealed class FolderMenuTests
 
     [Fact]
     public void S6418_up_appears_where_there_is_somewhere_to_go()
-        => Assert.Contains(FolderCommand.Up, Commands(FolderMenu.Background(new FolderBackgroundFacts(true, true, true, true, CanGoUp: true))));
+        => Assert.Contains(FileCommand.Up, Commands(FolderMenu.Background(new FolderBackgroundFacts(true, true, true, true, CanGoUp: true))));
 
     [Fact]
     public void S6417_every_key_a_menu_shows_is_one_the_widget_answers()
@@ -129,9 +193,9 @@ public sealed class FolderMenuTests
             _ => throw new InvalidOperationException($"no virtual key for {key} in this test"),
         };
 
-        foreach (var command in Enum.GetValues<FolderCommand>())
+        foreach (var command in Enum.GetValues<FileCommand>())
         {
-            if (FolderMenu.Accelerator(command) is not { } chord)
+            if (FileMenu.Accelerator(command) is not { } chord)
             {
                 continue;
             }
@@ -144,12 +208,12 @@ public sealed class FolderMenuTests
     [Fact]
     public void S6417_the_keys_are_explorers()
     {
-        Assert.Equal(KeyChord.Plain(ChordKey.Enter), FolderMenu.Accelerator(FolderCommand.Open));
-        Assert.Equal(KeyChord.CtrlShift(ChordKey.C), FolderMenu.Accelerator(FolderCommand.CopyAsPath));
-        Assert.Equal(KeyChord.Alt(ChordKey.Enter), FolderMenu.Accelerator(FolderCommand.Properties));
-        Assert.Equal(KeyChord.Shift(ChordKey.F10), FolderMenu.Accelerator(FolderCommand.ShowMoreOptions));
-        Assert.Equal(KeyChord.Plain(ChordKey.Delete), FolderMenu.Accelerator(FolderCommand.Delete));
-        Assert.Null(FolderMenu.Accelerator(FolderCommand.Share));
+        Assert.Equal(KeyChord.Plain(ChordKey.Enter), FileMenu.Accelerator(FileCommand.Open));
+        Assert.Equal(KeyChord.CtrlShift(ChordKey.C), FileMenu.Accelerator(FileCommand.CopyAsPath));
+        Assert.Equal(KeyChord.Alt(ChordKey.Enter), FileMenu.Accelerator(FileCommand.Properties));
+        Assert.Equal(KeyChord.Shift(ChordKey.F10), FileMenu.Accelerator(FileCommand.ShowMoreOptions));
+        Assert.Equal(KeyChord.Plain(ChordKey.Delete), FileMenu.Accelerator(FileCommand.Delete));
+        Assert.Null(FileMenu.Accelerator(FileCommand.Share));
         Assert.Equal(WidgetKey.CopyAsPath, WidgetKeys.FromVirtualKey(0x43, shift: true, ctrl: true, alt: false));
         Assert.Equal(WidgetKey.Properties, WidgetKeys.FromVirtualKey(0x0D, shift: false, ctrl: false, alt: true));
         Assert.Null(WidgetKeys.FromVirtualKey(0x0D, shift: true, ctrl: false, alt: true));
@@ -158,10 +222,10 @@ public sealed class FolderMenuTests
     [Fact]
     public void S6419_zip_names_follow_explorer()
     {
-        Assert.Equal("report.zip", FolderMenu.ZipName(File("report.docx"), []));
-        Assert.Equal("my.data.zip", FolderMenu.ZipName(File("my.data.csv"), []));
-        Assert.Equal("Docs.v2.zip", FolderMenu.ZipName(Dir("Docs.v2"), []));
-        Assert.Equal(".gitignore.zip", FolderMenu.ZipName(File(".gitignore"), []));
-        Assert.Equal("report (2).zip", FolderMenu.ZipName(File("report.docx"), ["Report.zip", "report.docx"]));
+        Assert.Equal("report.zip", FileMenu.ZipName("report.docx", false, []));
+        Assert.Equal("my.data.zip", FileMenu.ZipName("my.data.csv", false, []));
+        Assert.Equal("Docs.v2.zip", FileMenu.ZipName("Docs.v2", true, []));
+        Assert.Equal(".gitignore.zip", FileMenu.ZipName(".gitignore", false, []));
+        Assert.Equal("report (2).zip", FileMenu.ZipName("report.docx", false, ["Report.zip", "report.docx"]));
     }
 }

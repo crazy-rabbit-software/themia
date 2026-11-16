@@ -50,10 +50,10 @@ public class WidgetTransferTests
     // ---- moving between views: a Move placement ---------------------------------------------
 
     private static PastePlan MovePlan(ViewState from, string id, double x = 0.5, double y = 0.5)
-        => PlacementPayload.FromView(from, [id], PlacementMode.Move)!.Plan(x, y, Screen, snapEnabled: false);
+        => PlacementPayload.FromView(from, [id], PlacementMode.Move)!.Plan(x, y, Screen);
 
     private static PastePlan CopyPlan(ViewState from, string id, double x = 0.5, double y = 0.5)
-        => PlacementPayload.FromView(from, [id], PlacementMode.Copy)!.Plan(x, y, Screen, snapEnabled: false);
+        => PlacementPayload.FromView(from, [id], PlacementMode.Copy)!.Plan(x, y, Screen);
 
     [Fact]
     public void S1590_moving_a_widget_transfers_it_without_duplicating_it()

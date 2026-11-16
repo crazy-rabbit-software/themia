@@ -106,9 +106,10 @@ public sealed partial class AddPictureSamplesTests
                 offending.Add($"{Relative(file)}: builds the sample PC's hub outside the sample world");
             }
 
-            if (name != "AddPictures.cs" && code.Contains("new SampleWorld(", StringComparison.Ordinal))
+            // [S-2311] The Appearance's preview is a picture of cards on sample data too, its world handed to its host.
+            if (name is not ("AddPictures.cs" or "AppearancePreview.cs") && code.Contains("new SampleWorld(", StringComparison.Ordinal))
             {
-                offending.Add($"{Relative(file)}: a sample world outside the add page's pictures");
+                offending.Add($"{Relative(file)}: a sample world outside the add page's pictures and the Appearance's preview");
             }
         }
 

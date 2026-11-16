@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "ڈیسک ٹاپ آئٹم",
-  "desktopItem.desc": "آپ کے ڈیسک ٹاپ سے کوئی فائل، فولڈر یا شارٹ کٹ"
+  "widgetsC.shortcuts.column.target": "ہدف",
+  "widgetsC.shortcuts.kind.location": "Windows مقام",
+  "widgetsC.shortcuts.kind.missing": "موجود نہیں",
+  "widgetsC.shortcuts.kind.path": "پاتھ",
+  "widgetsC.shortcuts.kind.refused": "اجازت نہیں",
+  "widgetsC.shortcuts.menu.addLayout": "ایپ لے آؤٹ…",
+  "widgetsC.shortcuts.menu.addLink": "ویب ایڈریس یا پاتھ…",
+  "widgetsC.shortcuts.menu.changeTarget": "ہدف تبدیل کریں…",
+  "widgetsC.shortcuts.settings.locations": "Windows مقامات",
+  "widgetsC.shortcuts.settings.openWith.double": "ڈبل کلک",
+  "widgetsC.shortcuts.settings.openWith.label": "کھولیں بذریعہ",
+  "widgetsC.shortcuts.settings.openWith.single": "سنگل کلک",
+  "widgetsC.shortcuts.settings.pick.file": "فائل…",
+  "widgetsC.shortcuts.settings.pick.folder": "فولڈر…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ہدف موجود نہیں)\n{target}"
 }

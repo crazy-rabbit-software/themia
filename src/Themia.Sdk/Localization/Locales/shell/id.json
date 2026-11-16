@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "Hapus {count} widget"
   },
-  "shell.card.doneEditing": "Selesai mengedit",
-  "shell.card.editLayout": "Edit tata letak",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "Siapkan",
   "shell.setup.hint": "Siapkan yang dibutuhkan widget ini",
   "shell.toolbar.addWidget": "Tambah widget",
-  "shell.toolbar.snapName": "Jepret ke kisi",
-  "shell.toolbar.collisionsName": "Cegah widget saling tumpang tindih",
   "shell.editBar.selected": {
     "other": "{count} dipilih"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "Ukuran teks",
   "shell.appearance.systemFont": "Default sistem",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Jarak antarwidget",
   "shell.motion.slide": "Geser",
   "shell.motion.sides": "Samping",
   "shell.motion.topBottom": "Atas dan bawah",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "Setiap menit",
   "shell.refresh.everyHour": "Setiap jam",
   "shell.color.custom": "Warna kustom",
-  "shell.color.pickCustom": "Pilih warna kustom",
   "shell.color.pickFromScreen": "Ambil warna dari layar",
   "shell.color.pickFailed": "Tidak dapat membaca warna di layar",
   "shell.icon.home": "Rumah",

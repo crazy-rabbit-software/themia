@@ -26,8 +26,8 @@ namespace Themia.App.Services;
 /// </item>
 /// <item>
 /// <b>Nothing is opened that was not classified.</b> <see cref="LaunchTargets.Classify"/> is a pure
-/// allow list of three shapes — an http/https URL, a fully qualified local or UNC path, and a
-/// <c>shell:</c> name — and it runs on the literal string that is about to be launched, not on an
+/// allow list of four shapes — an http/https URL, a fully qualified local or UNC path, a
+/// <c>shell:</c> name and a Windows Settings page (<c>ms-settings:</c>, [S-9514]) — and it runs on the literal string that is about to be launched, not on an
 /// earlier version of it.
 /// </item>
 /// </list>

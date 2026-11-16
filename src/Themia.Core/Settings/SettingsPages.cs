@@ -29,9 +29,8 @@ public sealed record SettingsPage(SettingsPageId Id, IReadOnlyList<SettingsSecti
 
 /// <summary>
 /// [S-2300]..[S-2306] The edit bar's five pages over the settings' lines, after Karpo's edit bar
-/// (karpo-app, docs/widgets.md §575): <b>General</b> (General with Snap to grid, Language and formats,
-/// Online updates, Motion, AI assistants, Back up and reset, Themia Pro, About Themia, Quit), <b>Accounts</b>,
-/// <b>Display</b> (this display's), <b>Views</b> (the shown view's and every view's) and <b>Appearance</b>.
+/// (karpo-app, docs/widgets.md §575): <b>General</b> ([S-2315]), <b>Accounts</b> ([S-2312]), <b>Display</b>
+/// (every display a card, [S-2314]), <b>Views</b> (every view a card, [S-2313]) and <b>Appearance</b> ([S-2316]).
 /// The lines stay what they are (<see cref="SettingsMenu"/>, <see cref="DisplayMenu"/>,
 /// <see cref="ViewsMenu"/>): a page only groups them, one rule for all ([S-2301]), so every setting
 /// has exactly one home ([S-2306]).
@@ -64,47 +63,72 @@ public static class SettingsPages
     };
 
     /// <summary>
-    /// [S-2300] General: General's own lines (Snap to grid among them, [S-3516]), then Language and
-    /// formats, Online updates, Motion, AI assistants (where a server runs), Back up and reset, Themia
-    /// Pro and About Themia, each a section, and Quit Themia last.
+    /// [S-2315] General, in Karpo's sections (karpo-app, Karpo.Core/KarpoMenu.cs <c>Rows</c>, docs/widgets.md §517,
+    /// §579): under <b>General</b> Start with Windows, the Language and its Formats card and Pause during
+    /// full-screen apps (no Quit Themia: [S-3532] retired, as Karpo's Quit Karpo); under <b>Desktop icons</b>
+    /// Themia's own desktop's; under <b>Services</b> Online updates and AI assistants (where a server runs), each
+    /// a card that opens; under <b>Themia</b> Themia Pro, Back up &amp; reset and Uninstall Themia, cards too; then
+    /// <b>About Themia</b>, a section of its own ([S-3580]). Motion is the Appearance's ([S-2316], Karpo's §682).
     /// </summary>
     public static SettingsPage General(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
 
-        List<SettingsLine> lines = [.. SettingsMenu.General(host), SettingsMenu.Language(host), SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host)];
+        var general = SettingsMenu.General(host).ToList();
+        var at = general.FindIndex(l => l.Key == SettingsMenu.Keys.GameMode);
+        general.InsertRange(at < 0 ? general.Count : at, SettingsMenu.Language(host).Lines);
+
+        List<SettingsLine> lines =
+        [
+            .. general,
+            new SettingsHeading(SettingsMenu.Keys.DesktopHeading, Str.SettingsPages_General_Desktop.Text()),
+            .. SettingsMenu.Desktop(host),
+            new SettingsHeading(SettingsMenu.Keys.ServicesHeading, Str.SettingsPages_General_Services.Text()),
+            SettingsMenu.OnlineUpdates(host) with { Card = true },
+        ];
         if (SettingsMenu.Assistants(host) is { } assistants)
         {
-            lines.Add(assistants);
+            lines.Add(assistants with { Card = true });
         }
 
-        lines.AddRange([SettingsMenu.Backup(host), SettingsMenu.Pro(host), SettingsMenu.About(host)]);
-        lines.Add(new SettingsCommand(SettingsMenu.Keys.Quit, Str.Settings_Quit_Label.Text(), Glyphs.Power, host.Quit));
+        lines.AddRange(
+        [
+            new SettingsHeading(SettingsMenu.Keys.ThemiaHeading, Str.SettingsPages_General_Themia.Text()),
+            SettingsMenu.Pro(host) with { Card = true },
+            SettingsMenu.Backup(host) with { Card = true },
+            SettingsMenu.Uninstall(host) with { Card = true },
+            SettingsMenu.About(host),
+        ]);
         return new SettingsPage(SettingsPageId.General, Sectioned(lines, Str.Common_General.Text()));
     }
 
-    /// <summary>[S-2300] Accounts: every account (a page of its own), then Add account.</summary>
+    /// <summary>[S-2312] Accounts: under "Your accounts" every account's card, then under "Add an account" its ways.</summary>
     public static SettingsPage Accounts(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
         return new SettingsPage(SettingsPageId.Accounts, Sectioned(SettingsMenu.Accounts(host).Lines, null));
     }
 
-    /// <summary>[S-2300] Appearance: the style, then theme and colours, item background, the cards and text and size.</summary>
+    /// <summary>
+    /// [S-2316] Appearance, after Karpo's (karpo-app, docs/widgets.md §592, §613, §671, §682): the live preview first
+    /// and bare ([S-2311]), the style, then theme and colours, item background, the cards, text and size, and Motion
+    /// (Karpo's Animations, the Appearance's since its §682).
+    /// </summary>
     public static SettingsPage Appearance(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
-        return new SettingsPage(SettingsPageId.Appearance, Sectioned(SettingsMenu.Appearance(host).Lines, null));
+        return new SettingsPage(SettingsPageId.Appearance, Sectioned(
+            [new SettingsPreview(SettingsMenu.Keys.Preview), .. SettingsMenu.Appearance(host).Lines, SettingsMenu.Motion(host)], null));
     }
 
-    /// <summary>[S-2300] Display: the display this bar stands on, then what every display shares.</summary>
+    /// <summary>[S-2314] Display: every display's card, then what every display shares.</summary>
     public static SettingsPage Display(IDisplayMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
         return new SettingsPage(SettingsPageId.Display, Sectioned(DisplayMenu.Root(host), null));
     }
 
-    /// <summary>[S-2300] Views: the view shown here, then every view as the user's own things.</summary>
+    /// <summary>[S-2313] Views: every view's card, then Add a view.</summary>
     public static SettingsPage Views(IViewsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
@@ -144,7 +168,7 @@ public static class SettingsPages
                     Close();
                     (key, heading) = (head.Key, head.Text);
                     break;
-                case SettingsSubmenu { Page: false } submenu:
+                case SettingsSubmenu { Page: false, Card: false } submenu:
                     Close();
                     sections.Add(new SettingsSection(submenu.Key, submenu.Text, submenu.Lines));
                     (key, heading) = ("-" + submenu.Key, null);

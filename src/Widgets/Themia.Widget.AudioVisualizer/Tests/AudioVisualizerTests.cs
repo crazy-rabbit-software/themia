@@ -145,7 +145,7 @@ public class AudioVisualizerTests
             var sizing = kind.Sizing(new AudioVisualizerConfig { Style = style });
             Assert.Equal((160d, 80d), (sizing.Min.Width, sizing.Min.Height));
             Assert.Equal((320d, 160d), (sizing.Natural.Width, sizing.Natural.Height));
-            Assert.Equal((800d, 320d), (sizing.Max.Width, sizing.Max.Height));
+            Assert.Equal((960d, 480d), (sizing.Max.Width, sizing.Max.Height)); // relaxed, [S-12411]: a picture, 3 x the natural
         }
     }
 

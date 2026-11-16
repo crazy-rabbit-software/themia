@@ -2,6 +2,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
 using Themia.Core.Diagnostics;
+using Themia.Core.Files;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -30,7 +31,7 @@ internal interface IDesktopDesk
 
     void Release(string key);
 
-    void Context(string key, int screenX, int screenY, nint owner);
+    void Context(string key, int screenX, int screenY, nint owner, bool classic);
 
     bool Key(WidgetKey key, bool shift, string? widgetId);
 
@@ -38,7 +39,11 @@ internal interface IDesktopDesk
 
     void Open(string key);
 
-    void DragOut(string key, nint window);
+    ItemDragOffer? BeginDrag(string key, nint window);
+
+    DragPicture? DragPicture(ItemDragOffer drag);
+
+    void EndDrag(ItemDragOffer drag);
 
     bool Dragging(string key);
 
@@ -61,7 +66,7 @@ internal interface IDesktopDesk
 /// (never on a clock), the items' overlaid icons, and the desktop's gestures handed to the host's
 /// <see cref="IDesktopDesk"/> (the one selection, [S-5540]).
 /// <para>
-/// Running only while the desktop shows Themia's items (<see cref="Start"/>, <see cref="Stop"/>); a
+/// Running from start to quit (<see cref="Start"/>, <see cref="Stop"/>); a
 /// debug render never starts it, so its previews draw the items they are given and never read the
 /// user's desktop. Reads are coalesced without a timer: one runs at a time, and a change heard while it
 /// runs queues exactly one more. UI thread, except the read itself.
@@ -134,7 +139,7 @@ internal sealed class HostDesktopItems : IDesktopItems
     public void Release(string key) => Desk?.Release(key);
 
     /// <inheritdoc />
-    public void Context(string key, int screenX, int screenY, nint owner) => Desk?.Context(key, screenX, screenY, owner);
+    public void Context(string key, int screenX, int screenY, nint owner, bool classic) => Desk?.Context(key, screenX, screenY, owner, classic);
 
     /// <inheritdoc />
     public bool Key(WidgetKey key, bool shift, string? widgetId) => Desk?.Key(key, shift, widgetId) == true;
@@ -146,7 +151,13 @@ internal sealed class HostDesktopItems : IDesktopItems
     public void Open(string key) => Desk?.Open(key);
 
     /// <inheritdoc />
-    public void DragOut(string key, nint window) => Desk?.DragOut(key, window);
+    public ItemDragOffer? BeginDrag(string key, nint window) => Desk?.BeginDrag(key, window);
+
+    /// <inheritdoc />
+    public DragPicture? DragPicture(ItemDragOffer drag) => Desk?.DragPicture(drag);
+
+    /// <inheritdoc />
+    public void EndDrag(ItemDragOffer drag) => Desk?.EndDrag(drag);
 
     /// <inheritdoc />
     public bool Dragging(string key) => Desk?.Dragging(key) == true;
@@ -179,6 +190,44 @@ internal sealed class HostDesktopItems : IDesktopItems
         {
             Read();
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<DesktopItemFacts?> FactsAsync(DesktopItem item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        // A shell item is no file; a network path is never looked at unasked ([S-9504]'s rule).
+        var target = LaunchTargets.Classify(item.Key);
+        if (item.Kind == DesktopItemKind.ShellItem || target.Kind != LaunchKind.LocalPath || !LaunchTargets.MayProbe(target))
+        {
+            return null;
+        }
+
+        var path = item.Key;
+        var folder = item.Kind == DesktopItemKind.Folder;
+        var read = await Task.Run(() => DesktopItemStat.Read(path, folder)).ConfigureAwait(true);
+        if (read is not { } stat)
+        {
+            return null;
+        }
+
+        // The type's name and a link's target are the shell's, asked on the UI thread as every caller of them does.
+        var type = folder ? null : FileIcons.TypeName(new FolderEntry(Path.GetFileName(path), path, false, stat.Size ?? 0, stat.Modified ?? default, item.Hidden));
+        string? link = null;
+        if (item.Kind == DesktopItemKind.Shortcut && path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                link = ShellFileOps.ResolveShortcut(path);
+            }
+            catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or IOException or UnauthorizedAccessException)
+            {
+                Log.Debug(Scope, $"a desktop shortcut's target could not be read for its tip ({ex.GetType().Name})");
+            }
+        }
+
+        return new DesktopItemFacts(type, stat.Size, stat.Modified?.LocalDateTime, stat.Created?.LocalDateTime, link);
     }
 
     /// <inheritdoc />
@@ -329,6 +378,30 @@ internal sealed class HostDesktopItems : IDesktopItems
         catch (Exception ex)
         {
             Log.Error(Scope, "a desktop items listener threw", ex);
+        }
+    }
+}
+
+/// <summary>[S-5610] A desktop item's size and dates, read from disk on the thread pool for its tip.</summary>
+internal static class DesktopItemStat
+{
+    /// <summary>The size (a file's) and dates of <paramref name="path"/>, or null when it is gone or cannot be read (logged, without its name).</summary>
+    public static (long? Size, DateTimeOffset? Modified, DateTimeOffset? Created)? Read(string path, bool folder)
+    {
+        try
+        {
+            FileSystemInfo info = folder ? new DirectoryInfo(path) : new FileInfo(path);
+            if (!info.Exists)
+            {
+                return null;
+            }
+
+            return (info is FileInfo file ? file.Length : null, info.LastWriteTime, info.CreationTime);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Security.SecurityException)
+        {
+            Log.Debug("desktop-items", $"a desktop item's size and dates could not be read for its tip ({ex.GetType().Name})");
+            return null;
         }
     }
 }

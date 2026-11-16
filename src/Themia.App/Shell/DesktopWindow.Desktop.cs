@@ -7,10 +7,14 @@ using Windows.Foundation;
 
 namespace Themia.App.Shell;
 
-/// <summary>[S-5501] [S-5502] [S-5544] [S-5548] The surface as the desktop itself, while Themia's items show.</summary>
+/// <summary>[S-5501] [S-5502] [S-5544] [S-5548] The surface as the desktop itself, outside edit mode, whether its icons show or not.</summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-5544] The band on empty desktop: where it started, whether it has left the dead zone, its modifiers.</summary>
+    /// <summary>
+    /// [S-5544] The band on empty desktop, on the surface the press landed on: where it started, whether
+    /// it has left the dead zone, its modifiers. The band itself is the host's, one rectangle in screen
+    /// space; <see cref="_deskBand"/> is the shape every surface it reaches draws its part with.
+    /// </summary>
     private Point _deskBandStart;
     private bool _deskBandArmed;
     private bool _deskBanding;
@@ -19,15 +23,14 @@ internal sealed partial class DesktopWindow
     private Border? _deskBand;
 
     /// <summary>
-    /// [S-5502] [S-5544] [S-5550] A press on empty desktop outside edit mode. It reaches the surface only
-    /// under Themia's items, whose region covers the work area ([S-5501]); a press on a card is the
-    /// card's. The item selection goes (Ctrl or Shift keep it for the band), the desktop takes the keys,
+    /// [S-5502] [S-5544] [S-5550] A press on empty desktop outside edit mode: the surface covers the
+    /// work area ([S-5501]), so it is always Themia's; a press on a card is the card's. The item selection goes (Ctrl or Shift keep it for the band), the desktop takes the keys,
     /// and a left press may become the band; the right button's menu opens on its release
     /// (<see cref="OnRootRightTapped"/>).
     /// </summary>
     private void OnDesktopPressed(PointerRoutedEventArgs e)
     {
-        if (_closed || !_host.ShowsDesktopItems || !ReferenceEquals(e.OriginalSource, _root))
+        if (_closed || !ReferenceEquals(e.OriginalSource, _root))
         {
             return;
         }
@@ -50,6 +53,39 @@ internal sealed partial class DesktopWindow
         e.Handled = true;
     }
 
+    /// <summary>
+    /// [S-5593] Ctrl + mouse wheel over empty desktop or a desktop icon, outside edit mode: the desktop's
+    /// icon size one step up or down, as Explorer's. Over any other widget the wheel is that widget's
+    /// (a list scrolls). The surface hears the wheel wherever it hears a press: Windows sends it to the
+    /// window under the pointer, active or not.
+    /// </summary>
+    private void OnDesktopWheel(object sender, PointerRoutedEventArgs e)
+    {
+        if (_closed || EditMode || !e.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control))
+        {
+            return;
+        }
+
+        var onDesktop = ReferenceEquals(e.OriginalSource, _root);
+        for (var at = e.OriginalSource as DependencyObject; !onDesktop && at is not null; at = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(at))
+        {
+            if (at is WidgetCard card)
+            {
+                onDesktop = card.Model.Config is Themia.Core.Model.IDesktopItemConfig;
+                break;
+            }
+        }
+
+        var delta = e.GetCurrentPoint(_root).Properties.MouseWheelDelta;
+        if (!onDesktop || delta == 0)
+        {
+            return;
+        }
+
+        _host.StepDesktopIconSize(delta);
+        e.Handled = true;
+    }
+
     /// <summary>[S-5544] The pointer moved with the left button down on empty desktop: past the dead zone it is a band, live.</summary>
     private void UpdateDesktopBand(Point now)
     {
@@ -69,16 +105,37 @@ internal sealed partial class DesktopWindow
             _host.DesktopBandBegin(_deskBandCtrl, _deskBandShift);
         }
 
-        var metrics = Metrics;
-        var band = SelectionBand.Clamp(new BandRect(_deskBandStart.X, _deskBandStart.Y, now.X, now.Y), metrics.Width, metrics.Height);
+        // The pointer is captured here, so it is reported past this surface's edges too: the host
+        // makes the one band of it and hands every display its part.
+        _host.DesktopBand(this, _deskBandStart, now);
+    }
+
+    /// <summary>
+    /// [S-5544] This display's part of the desktop's band, in its own DIPs (the window cuts it to the
+    /// work area, [S-21]); null when the band does not reach this display, or is over.
+    /// </summary>
+    public void ShowDesktopBand(BandRect? part)
+    {
+        if (part is not { } band || _closed)
+        {
+            if (_deskBand is not null)
+            {
+                _deskBand.Visibility = Visibility.Collapsed;
+            }
+
+            return;
+        }
+
         var shape = EnsureDesktopBand();
         Canvas.SetLeft(shape, band.Left);
         Canvas.SetTop(shape, band.Top);
         shape.Width = band.Width;
         shape.Height = band.Height;
         shape.Visibility = Visibility.Visible;
-        _host.DesktopBand(this, band);
     }
+
+    /// <summary>The DIP-to-pixel factor this surface draws at, for the host's screen-space band.</summary>
+    public double BandScale => RasterScale;
 
     /// <summary>[S-5544] The left button came up, or the capture went: what the band selected stays.</summary>
     private bool EndDesktopBand(PointerRoutedEventArgs? e)
@@ -100,11 +157,6 @@ internal sealed partial class DesktopWindow
             _host.DesktopBandEnd();
         }
 
-        if (_deskBand is not null)
-        {
-            _deskBand.Visibility = Visibility.Collapsed;
-        }
-
         return true;
     }
 
@@ -122,15 +174,16 @@ internal sealed partial class DesktopWindow
         return _deskBand;
     }
 
-    /// <summary>[S-5548] A right-click on empty desktop under Themia's items, outside edit mode: the desktop's own background menu.</summary>
+    /// <summary>[S-5548] A right-click on empty desktop outside edit mode: the desktop's own background menu.</summary>
     private bool OpenDesktopBackgroundMenu(Point at)
     {
-        if (EditMode || !_host.ShowsDesktopItems)
+        if (EditMode)
         {
             return false;
         }
 
-        _host.DesktopBackgroundMenu(this, at);
+        // [S-5545] Shift held: the shell's classic menu at once, as Explorer.
+        _host.DesktopBackgroundMenu(this, at, classic: IsDown(Windows.System.VirtualKey.Shift));
         return true;
     }
 }

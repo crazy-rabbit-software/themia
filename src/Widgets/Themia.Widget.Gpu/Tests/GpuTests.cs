@@ -54,7 +54,7 @@ public sealed class GpuTests
     {
         var kind = ModuleCatalog.Of(new WidgetId("gpu"));
         Assert.Equal(84, kind.Sizing(new GpuConfig()).Natural.Height);
-        Assert.True(kind.Sizing(new GpuConfig()).FixedHeight);
+        Assert.Equal((84, 168), (kind.Sizing(new GpuConfig()).Min.Height, kind.Sizing(new GpuConfig()).Max.Height)); // relaxed, [S-12411]
         Assert.Empty(kind.Sizing(new GpuConfig { Style = GpuStyle.Gauge }).Problems());
     }
 }

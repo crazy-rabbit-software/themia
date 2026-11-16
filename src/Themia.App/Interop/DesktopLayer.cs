@@ -5,8 +5,7 @@ namespace Themia.App.Interop;
 
 /// <summary>
 /// Turns a plain WinUI window into a desktop widget surface: no taskbar entry, never steals focus,
-/// parked in the requested z-band, and — critically — click-through everywhere except the widgets
-/// themselves.
+/// parked in the requested z-band, and cut to its display's work area so it never covers the taskbar.
 /// </summary>
 internal static class DesktopLayer
 {
@@ -59,155 +58,43 @@ internal static class DesktopLayer
     }
 
     /// <summary>
-    /// Restrict the window to the union of the given rects, so clicks anywhere else land on the
-    /// desktop underneath instead of on an invisible full-screen pane.
+    /// [S-21] [S-851] Restrict the window to one rectangle, its display's work area, so it neither
+    /// paints nor takes input over the taskbar.
     /// <para>
-    /// Rects are in <b>physical</b> pixels relative to the window's top-left — the <i>window</i>, not
-    /// the client area. Those differ by the frame, so a caller working in client space has to add the
-    /// client origin first (see <c>DesktopWindow.ClientToWindowOffset</c>) or the whole mask sits
-    /// shifted from the widgets it is supposed to trace. Passing an empty list hides the surface
-    /// entirely (an empty view really should not swallow the desktop).
-    /// </para>
-    /// <para>
-    /// [S-2245] A piece may round its corners (a card's round ones, square where a joined neighbour
-    /// squares them), and the union is cut to <paramref name="clip"/> last, so a card the clip cuts
-    /// keeps the corners of its whole shape.
+    /// <paramref name="area"/> is in <b>physical</b> pixels relative to the window's top-left.
+    /// [S-61] <c>SetWindowRgn</c> takes ownership of the region on success, so the handle is only ours
+    /// to free while we still hold it, and on every failure path.
     /// </para>
     /// </summary>
-    public static void SetHitRegion(nint hwnd, IReadOnlyList<RegionPiece> pieces, Win32.Rect clip)
+    public static void SetHitRegion(nint hwnd, Win32.Rect area)
     {
         if (hwnd == 0 || !Win32.IsWindow(hwnd))
         {
             return;
         }
 
-        // Built as a union, then handed to the window. SetWindowRgn takes ownership on success, so
-        // the handle is only ours to free while we still hold it, and on every failure path.
-        var combined = Win32.CreateRectRgn(0, 0, 0, 0);
-        if (combined == 0)
+        var region = Win32.CreateRectRgn(area.Left, area.Top, area.Right, area.Bottom);
+        if (region == 0)
         {
             Log.Error(Scope, "CreateRectRgn failed; leaving the previous hit region in place");
             return;
         }
 
-        try
+        if (Win32.SetWindowRgn(hwnd, region, redraw: true) == 0)
         {
-            foreach (var p in pieces)
-            {
-                if (p.Rect.Width <= 0 || p.Rect.Height <= 0)
-                {
-                    continue;
-                }
-
-                var piece = Shape(p);
-                if (piece == 0)
-                {
-                    Log.Warn(Scope, "building a widget's region failed; it will not be clickable");
-                    continue;
-                }
-
-                try
-                {
-                    Win32.CombineRgn(combined, combined, piece, Win32.RgnOr);
-                }
-                finally
-                {
-                    Win32.DeleteObject(piece);
-                }
-            }
-
-            Combine(combined, Win32.CreateRectRgn(clip.Left, clip.Top, clip.Right, clip.Bottom), Win32.RgnAnd);
-
-            if (Win32.SetWindowRgn(hwnd, combined, redraw: true) == 0)
-            {
-                Log.Warn(Scope, $"SetWindowRgn failed (win32 {Marshal.GetLastWin32Error()})");
-                Win32.DeleteObject(combined);
-            }
-
-            // Success: the window owns `combined` now. Deleting it here would free a live region.
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "building the hit region threw", ex);
-            Win32.DeleteObject(combined);
-        }
-    }
-
-    /// <summary>
-    /// [S-2245] One piece's region: its rect, each round corner's square taken out and the quarter of
-    /// a circle of that radius put back. Zero when GDI failed (logged by the caller).
-    /// </summary>
-    private static nint Shape(RegionPiece p)
-    {
-        var r = p.Rect;
-        var region = Win32.CreateRectRgn(r.Left, r.Top, r.Right, r.Bottom);
-        if (region == 0)
-        {
-            return 0;
+            Log.Warn(Scope, $"SetWindowRgn failed (win32 {Marshal.GetLastWin32Error()})");
+            Win32.DeleteObject(region);
         }
 
-        // A radius larger than half the side would turn the circle outside the rect.
-        var most = Math.Min(r.Width, r.Height) / 2;
-        int Clamp(double radius) => (int)Math.Clamp(Math.Round(radius), 0, most);
-        var corners = new (int Radius, int X, int Y)[]
-        {
-            (Clamp(p.Corners.TopLeft), r.Left, r.Top),
-            (Clamp(p.Corners.TopRight), r.Right, r.Top),
-            (Clamp(p.Corners.BottomRight), r.Right, r.Bottom),
-            (Clamp(p.Corners.BottomLeft), r.Left, r.Bottom),
-        };
-
-        // Every square out first, then every circle in: a circle never reaches outside its own corner's round shape.
-        foreach (var (radius, x, y) in corners)
-        {
-            if (radius > 0)
-            {
-                var left = x == r.Left ? x : x - radius;
-                var top = y == r.Top ? y : y - radius;
-                Combine(region, Win32.CreateRectRgn(left, top, left + radius, top + radius), Win32.RgnDiff);
-            }
-        }
-
-        foreach (var (radius, x, y) in corners)
-        {
-            if (radius > 0)
-            {
-                var left = x == r.Left ? x : x - (2 * radius);
-                var top = y == r.Top ? y : y - (2 * radius);
-                Combine(region, Win32.CreateEllipticRgn(left, top, left + (2 * radius), top + (2 * radius)), Win32.RgnOr);
-            }
-        }
-
-        return region;
-    }
-
-    /// <summary>Combine <paramref name="other"/> into <paramref name="into"/> and free it; a piece GDI could not make is logged and left out.</summary>
-    private static void Combine(nint into, nint other, int mode)
-    {
-        if (other == 0)
-        {
-            Log.Warn(Scope, "a region piece could not be created; the hit region may be off by its corner");
-            return;
-        }
-
-        try
-        {
-            Win32.CombineRgn(into, into, other, mode);
-        }
-        finally
-        {
-            Win32.DeleteObject(other);
-        }
+        // Success: the window owns `region` now. Deleting it here would free a live region.
     }
 
     /// <summary>
     /// Strip the window frame at the Win32 level.
     /// <para>
     /// <c>OverlappedPresenter.SetBorderAndTitleBar(false, false)</c> does <b>not</b> clear
-    /// <c>WS_CAPTION</c> here: the surface kept a caption and a 3px border the whole time, which the
-    /// click-through region happened to clip away. The moment edit mode dropped the region the title
-    /// bar became visible, and the border meant client coordinates were offset from window
-    /// coordinates, so the mask never quite lined up with the widgets either.
+    /// <c>WS_CAPTION</c> here: the surface kept a caption and a 3px border, a title bar over the
+    /// display, and the border meant client coordinates were offset from window coordinates.
     /// </para>
     /// <para>
     /// Re-applied whenever the styles are touched, because toggling activation makes the presenter
@@ -269,10 +156,4 @@ internal static class DesktopLayer
             Log.Debug(Scope, $"DwmSetWindowAttribute(BORDER_COLOR) returned 0x{hr:X8}");
         }
     }
-}
-
-/// <summary>[S-2245] A piece of the hit region in physical window pixels, with its corners' radii (0: square).</summary>
-internal readonly record struct RegionPiece(Win32.Rect Rect, Themia.Core.Widgets.HitCorners Corners)
-{
-    public static RegionPiece Plain(Win32.Rect rect) => new(rect, Themia.Core.Widgets.HitCorners.Square);
 }

@@ -19,6 +19,31 @@ public class ForecastDaysTests
     public void S11146_the_days_take_one_row_up_to_four_two_up_to_eight_three_past(int days, int columns, int rows)
         => Assert.Equal((columns, rows), ForecastGrid.Arrangement(days));
 
+    [Theory]
+    [InlineData(5, "3,2")]
+    [InlineData(7, "4,3")]
+    [InlineData(8, "4,4")]
+    [InlineData(14, "5,5,4")]
+    [InlineData(1, "1")]
+    public void S12403_each_line_holds_its_columns_and_the_last_the_days_left(int days, string lines)
+        => Assert.Equal(lines, string.Join(',', ForecastGrid.Lines(days, ForecastGrid.Arrangement(days).Columns)));
+
+    [Fact]
+    public void S12403_every_day_is_on_a_line_and_none_twice()
+    {
+        for (var days = 1; days <= 14; days++)
+        {
+            var (columns, rows) = ForecastGrid.Arrangement(days);
+            var lines = ForecastGrid.Lines(days, columns);
+            Assert.Equal(days, lines.Sum());
+            Assert.Equal(rows, lines.Count);
+        }
+    }
+
+    [Fact]
+    public void S12403_no_days_no_lines()
+        => Assert.Empty(ForecastGrid.Lines(0, 3));
+
     [Fact]
     public void S11146_an_arrangement_never_leaves_a_whole_row_empty()
     {

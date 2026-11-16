@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Json;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -440,6 +440,9 @@ public static class SettingsTransfer
         Line(Str.Shell_Transfer_Accent, old.PrimaryColor, @new.PrimaryColor, Colour);
         Line(Str.Settings_Style_WidgetBg_Label, Fill(old.Background), Fill(@new.Background), text => text);
         Line(Str.Shell_Appearance_BlurBehind, old.BlurBehind, @new.BlurBehind, OnOff);
+        Line(Str.SettingsPages_Appearance_Material, old.Material, @new.Material, material => Strings.Get(locale, material == CardMaterial.LiquidGlass
+            ? Str.Settings_Style_Preset_Name_LiquidGlass
+            : Str.SettingsPages_Appearance_Solid));
         Line(Str.Shell_Items_Background, Fill(old.ItemBackground), Fill(@new.ItemBackground), text => text);
         Line(Str.Shell_Items_Text, old.ItemTextColor, @new.ItemTextColor, Colour);
         Line(Str.Settings_Style_CornerRadius_Label, old.CornerRadiusPx, @new.CornerRadiusPx, Px);
@@ -451,9 +454,7 @@ public static class SettingsTransfer
         Line(Str.Shell_Appearance_TextSize, old.FontScale, @new.FontScale, Percent);
         Line(Str.Shell_Motion_Startup, old.IntroAnimation, @new.IntroAnimation, Intro);
         Line(Str.Shell_Transfer_StartupLength, old.IntroAnimationMs, @new.IntroAnimationMs, Ms);
-        Line(Str.Shell_Layout_Gap, old.WidgetGapPx, @new.WidgetGapPx, Px);
-        Line(Str.Settings_Style_GridSnap_Label, old.GridSnap, @new.GridSnap, OnOff);
-        Line(Str.Settings_Style_Collisions_Label, old.WidgetCollisions, @new.WidgetCollisions, OnOff);
+        Line(Str.Shell_Toolbar_OverEdgeName, old.OverEdge, @new.OverEdge, OnOff);
         Line(Str.Settings_Style_HeaderBg_Label, old.HeaderBackgroundColor, @new.HeaderBackgroundColor, Colour);
         Line(Str.Settings_Style_HeaderOpacity_Label, old.HeaderOpacity, @new.HeaderOpacity, Percent);
         Line(Str.Shell_Motion_Transition, old.TransitionAnimation, @new.TransitionAnimation, Intro);
@@ -484,19 +485,6 @@ public static class SettingsTransfer
         }
 
         Toggle(Str.Shell_Settings_General_GameMode, old.GameModeSuspend, @new.GameModeSuspend);
-        // [S-5500] What the desktop shows, in the words of ⚙'s line.
-        string Shows(DesktopShows shows) => Strings.Get(locale, shows switch
-        {
-            DesktopShows.ThemiaItems => Str.Desktop_Choice_Themia,
-            DesktopShows.Nothing => Str.Desktop_Choice_Nothing,
-            _ => Str.Desktop_Choice_Windows,
-        });
-
-        if (old.Desktop != @new.Desktop)
-        {
-            changes.Add(Strings.Format(locale, Str.Shell_Transfer_Change,
-                ("label", Strings.Get(locale, Str.Desktop_Choice_Label)), ("before", Shows(old.Desktop)), ("after", Shows(@new.Desktop))));
-        }
 
         // [S-3770] [S-3780] The formats and cadences every widget shares.
         void Value(string label, string before, string after)

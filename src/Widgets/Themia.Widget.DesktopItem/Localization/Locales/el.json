@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Στοιχείο επιφάνειας εργασίας",
-  "desktopItem.desc": "Ένα αρχείο, φάκελος ή συντόμευση από την επιφάνεια εργασίας σου"
+  "widgetsC.shortcuts.column.target": "Προορισμός",
+  "widgetsC.shortcuts.kind.location": "Θέση των Windows",
+  "widgetsC.shortcuts.kind.missing": "Λείπει",
+  "widgetsC.shortcuts.kind.path": "Διαδρομή",
+  "widgetsC.shortcuts.kind.refused": "Δεν επιτρέπεται",
+  "widgetsC.shortcuts.menu.addLayout": "Διάταξη εφαρμογών…",
+  "widgetsC.shortcuts.menu.addLink": "Διεύθυνση web ή διαδρομή…",
+  "widgetsC.shortcuts.menu.changeTarget": "Αλλαγή προορισμού…",
+  "widgetsC.shortcuts.settings.locations": "Θέσεις των Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Διπλό κλικ",
+  "widgetsC.shortcuts.settings.openWith.label": "Άνοιγμα με",
+  "widgetsC.shortcuts.settings.openWith.single": "Ένα κλικ",
+  "widgetsC.shortcuts.settings.pick.file": "Αρχείο…",
+  "widgetsC.shortcuts.settings.pick.folder": "Φάκελος…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (λείπει ο προορισμός)\n{target}"
 }

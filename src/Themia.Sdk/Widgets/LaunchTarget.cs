@@ -16,6 +16,9 @@ public enum LaunchKind
 
     /// <summary>A Windows shell namespace name, e.g. <c>shell:RecycleBinFolder</c>.</summary>
     ShellNamespace = 3,
+
+    /// <summary>[S-9514] A page of Windows Settings, e.g. <c>ms-settings:display</c>.</summary>
+    Settings = 4,
 }
 
 /// <summary>Why a launch target was refused. Every refusal has a sentence a person can act on.</summary>
@@ -76,8 +79,9 @@ public readonly record struct LaunchTarget(LaunchKind Kind, string Value, Launch
 /// is pure so it can be tested against the values an attacker would actually try.
 /// </para>
 /// <para>
-/// The rule is an <b>allow list, not a deny list</b>. Three shapes are accepted — an absolute
-/// http/https URL, a fully qualified local or UNC path, and a <c>shell:</c> namespace name — and
+/// The rule is an <b>allow list, not a deny list</b>. Four shapes are accepted — an absolute
+/// http/https URL, a fully qualified local or UNC path, a <c>shell:</c> namespace name and a
+/// Windows Settings page (<c>ms-settings:</c>, [S-9514]) — and
 /// everything else is refused by default, including every scheme nobody thought of. A deny list of
 /// "javascript, data, file" would have been wrong the day Windows registered the next protocol
 /// handler.
@@ -124,7 +128,19 @@ public static class LaunchTargets
         ["Profile"] = Str.WidgetsC_Location_UserFolder,
     };
 
-    /// <summary>The shell names offered as one-click additions in the Shortcuts settings.</summary>
+    /// <summary>[S-9514] The scheme of a Windows Settings page, with its colon.</summary>
+    public const string SettingsPrefix = "ms-settings:";
+
+    /// <summary>[S-9514] The longest Settings address accepted: the longest real page is under 60, and a query of a few values fits.</summary>
+    public const int MaxSettingsLength = 256;
+
+    /// <summary>
+    /// [S-9514] The Settings app's own Apps-folder item: where a Settings page's icon comes from (the
+    /// page has none of its own).
+    /// </summary>
+    public const string SettingsAppTarget = @"shell:AppsFolder\windows.immersivecontrolpanel_cw5n1h2txyewy!microsoft.windows.immersivecontrolpanel";
+
+    /// <summary>The Windows locations a shortcut's Target line offers by name.</summary>
     public static IReadOnlyList<string> WellKnownShellNames { get; } =
     [
         "RecycleBinFolder",
@@ -166,6 +182,12 @@ public static class LaunchTargets
         if (value.StartsWith(ShellPrefix, StringComparison.OrdinalIgnoreCase))
         {
             return ClassifyShell(value[ShellPrefix.Length..]);
+        }
+
+        // [S-9514] The one scheme besides http(s): a Windows Settings page, its own closed shape.
+        if (value.StartsWith(SettingsPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return ClassifySettings(value);
         }
 
         var scheme = SchemeOf(value);
@@ -228,6 +250,7 @@ public static class LaunchTargets
             LaunchKind.Web => HostName(classified.Value, value),
             LaunchKind.ShellNamespace => ShellDisplayName(classified.Value),
             LaunchKind.LocalPath => PathDisplayName(classified.Value, showExtension),
+            LaunchKind.Settings => SettingsDisplayName(classified.Value),
 
             // A refused target still has to say something, and the raw string is the only honest
             // thing left: a blank row would hide the item that needs fixing.
@@ -245,6 +268,34 @@ public static class LaunchTargets
             : value;
 
         return ShellLabels.TryGetValue(name, out var label) ? Strings.Get(locale ?? Strings.Current, label) : name;
+    }
+
+    /// <summary>
+    /// [S-5610] The name of a Windows location this app names (<c>shell:Personal</c> is "Documents"), or
+    /// null for one it has no name for: where only a name a person reads may be shown, never the shell's own.
+    /// </summary>
+    public static string? ShellLabel(string target, Locale? locale = null)
+    {
+        var value = Clean(target);
+        var name = value.StartsWith(ShellPrefix, StringComparison.OrdinalIgnoreCase) ? value[ShellPrefix.Length..] : value;
+        return ShellLabels.TryGetValue(name, out var label) ? Strings.Get(locale ?? Strings.Current, label) : null;
+    }
+
+    /// <summary>
+    /// [S-9514] What to call a Settings page: its page name as Windows writes it, dashes as spaces and
+    /// the first letter a capital (<c>ms-settings:network-wifi</c> is "Network wifi"); Settings itself
+    /// (<c>ms-settings:</c>) is "Settings" in the user's language. A query is no part of the name.
+    /// </summary>
+    public static string SettingsDisplayName(string target, Locale? locale = null)
+    {
+        var value = Clean(target);
+        var page = value.StartsWith(SettingsPrefix, StringComparison.OrdinalIgnoreCase) ? value[SettingsPrefix.Length..] : value;
+        var query = page.IndexOf('?', StringComparison.Ordinal);
+        page = (query >= 0 ? page[..query] : page).Replace('-', ' ').Trim();
+
+        return page.Length == 0
+            ? Strings.Get(locale ?? Strings.Current, Str.Common_Settings)
+            : char.ToUpperInvariant(page[0]) + page[1..];
     }
 
     /// <summary>
@@ -407,6 +458,32 @@ public static class LaunchTargets
             FolderPathProblem.NotRooted => LaunchRefusal.NotRooted,
             _ => LaunchRefusal.InvalidPathCharacters,
         });
+    }
+
+    /// <summary>
+    /// [S-9514] A Windows Settings page: <c>ms-settings:</c> and then only what such an address is
+    /// written with (ASCII letters, digits, <c>- . : ? = &amp; %</c>), at most
+    /// <see cref="MaxSettingsLength"/> long. No space, quote, slash or backslash, so it is one address
+    /// and never a path or a command; every other <c>ms-</c> scheme stays refused. Opened through the
+    /// shell like a web address, never probed.
+    /// </summary>
+    private static LaunchTarget ClassifySettings(string value)
+    {
+        if (value.Length > MaxSettingsLength)
+        {
+            return LaunchTarget.Refuse(LaunchRefusal.TooLong);
+        }
+
+        foreach (var c in value.AsSpan(SettingsPrefix.Length))
+        {
+            if (!(char.IsAsciiLetterOrDigit(c) || c is '-' or '.' or ':' or '?' or '=' or '&' or '%'))
+            {
+                return LaunchTarget.Refuse(LaunchRefusal.MalformedUrl);
+            }
+        }
+
+        // The scheme in lower case, so two spellings of one page compare equal; the page as written.
+        return new LaunchTarget(LaunchKind.Settings, SettingsPrefix + value[SettingsPrefix.Length..], LaunchRefusal.None);
     }
 
     private static LaunchTarget ClassifyShell(string name)

@@ -18,8 +18,8 @@ public class WidgetClipboardTests
         return (state, view, view.Widgets[0]);
     }
 
-    private static PastePlan Paste(WidgetClipboard clipboard, double x = 0.5, double y = 0.5, ScreenMetrics? screen = null, bool snap = false)
-        => clipboard.Payload!.Plan(x, y, screen ?? Screen, snap);
+    private static PastePlan Paste(WidgetClipboard clipboard, double x = 0.5, double y = 0.5, ScreenMetrics? screen = null)
+        => clipboard.Payload!.Plan(x, y, screen ?? Screen);
 
     [Fact]
     public void An_empty_clipboard_has_nothing_to_place()
@@ -152,8 +152,9 @@ public class WidgetClipboardTests
 
         var rect = Paste(clipboard).Added[0].Rect;
 
-        Assert.Equal(0.5, rect.X + (rect.W / 2), 6);
-        Assert.Equal(0.5, rect.Y + (rect.H / 2), 6);
+        // [S-06] Centred, then its corner on the grid: within half a cell of the point.
+        Assert.InRange(rect.X + (rect.W / 2) - 0.5, -0.5 / 192, 0.5 / 192);
+        Assert.InRange(rect.Y + (rect.H / 2) - 0.5, -0.5 / 108, 0.5 / 108);
     }
 
     [Fact]
@@ -178,7 +179,7 @@ public class WidgetClipboardTests
         var clipboard = new WidgetClipboard();
         clipboard.Copy(view, [widget.Id]);
 
-        var rect = Paste(clipboard, 1.5, 1.5, snap: true).Added[0].Rect;
+        var rect = Paste(clipboard, 1.5, 1.5).Added[0].Rect;
 
         Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Width), rect.X, 9);
         Assert.Equal(1 - (GridGeometry.MinVisiblePx / Screen.Height), rect.Y, 9);

@@ -264,6 +264,12 @@ public readonly record struct CardOutline(
     }
 }
 
+/// <summary>[S-2123] A hairline between two members of one glass shape, from (X1, Y1) to (X2, Y2) in the card's own DIPs.</summary>
+public readonly record struct DividerLine(double X1, double Y1, double X2, double Y2);
+
+/// <summary>[S-2123] The glass shape a card is part of: its body's box on the display, and the dividers this card draws.</summary>
+public sealed record GlassPart(PixelRect Body, IReadOnlyList<DividerLine> Dividers);
+
 /// <summary>A piece of a border's path: a line to (X, Y), or with an arc radius a clockwise quarter arc to it.</summary>
 public readonly record struct OutlineSegment(double X, double Y, double ArcRadius);
 
@@ -271,15 +277,20 @@ public readonly record struct OutlineSegment(double X, double Y, double ArcRadiu
 public sealed record OutlineFigure(double StartX, double StartY, IReadOnlyList<OutlineSegment> Segments, bool Closed);
 
 /// <summary>
-/// [S-2240] [S-2241] [S-2242] Cards that touch become one surface. Two cards whose painted boxes meet
-/// along a side are joined there: the corners a joined neighbour covers are square, and where two
-/// cards join exactly one of them draws the line between. [S-11870] Between two members of one group
-/// neither draws it. Pure: boxes in, an outline per card out, so the desktop and the scene renderer
-/// agree on every case.
+/// [S-2240] [S-2241] [S-11870] Members of one group that touch become one surface (owner, 2026-11-15:
+/// "the space between widgets will only come from how you place them now"): two members whose boxes
+/// meet along a side are joined there, the corners a joined mate covers are square and neither draws
+/// the line between. Cards of no group (or of two) that touch stay separate cards, every corner round.
+/// Pure: boxes in, an outline per card out, so the desktop and the scene renderer agree on every case.
 /// </summary>
 public static class CardJoins
 {
-    /// <summary>[S-2240] The tolerance two edges meet within: half a device pixel, in DIPs.</summary>
+    /// <summary>
+    /// [S-2240] [S-2248] The tolerance two edges meet within: half a device pixel, in DIPs. Every cell
+    /// edge is put on a whole device pixel from a whole DIP (<see cref="GridGeometry.ToPixels"/>), so two
+    /// edges are either the same pixel (they meet) or at least one whole pixel apart (they do not); the
+    /// half pixel only absorbs float noise, at 100 % as at 150 %.
+    /// </summary>
     public static double Tolerance(double rasterScale)
         => 0.5 / (double.IsFinite(rasterScale) && rasterScale > 0 ? rasterScale : 1);
 
@@ -292,19 +303,18 @@ public static class CardJoins
     }
 
     /// <summary>
-    /// [S-2240]..[S-2242] The outline of every card, in the order given. A null box is a card that
-    /// draws no card surface (a bare widget, a hidden one) or one being dragged: it is
+    /// [S-2240] [S-2241] The outline of every card, in the order given. A null box is a card that
+    /// draws no card surface (a bare widget, a hidden one, a desktop icon) or one being dragged: it is
     /// <see cref="CardOutline.Free"/>, and joins nothing.
     /// <para>
     /// [S-2457] <paramref name="sets"/>, when given, says which set each card is in: two cards join only
-    /// within one set. The cards a drag carries are a set of their own, so a dragged group (or any
-    /// selection dragged together) stays one panel while it moves, free of the cards standing still.
+    /// within one set. The cards a drag carries are a set of their own, so a dragged group stays one
+    /// panel while it moves, free of the cards standing still.
     /// </para>
     /// <para>
-    /// [S-11870] <paramref name="groups"/>, when given, says which group each card is a member of (null:
-    /// none). Where two joined cards are of one group neither draws the line between: a side wholly
-    /// across members of its own group is not drawn, a side partly across them leaves those stretches
-    /// out (<see cref="CardOutline.Seams"/>). Every other join keeps its one line ([S-2242]).
+    /// [S-2240] [S-11870] <paramref name="groups"/> says which group each card is a member of (null:
+    /// none); only two members of one group join (none without it). A side wholly across its mates is
+    /// not drawn, a side partly across them leaves those stretches out (<see cref="CardOutline.Seams"/>).
     /// </para>
     /// </summary>
     public static CardOutline[] Outlines(IReadOnlyList<PixelRect?> boxes, double tolerance, IReadOnlyList<int>? sets = null, IReadOnlyList<string?>? groups = null)
@@ -324,6 +334,9 @@ public static class CardJoins
         var n = boxes.Count;
         var joins = new List<Join>();
 
+        // [S-2240] Only members of one group join: cards of no group (or of two) that touch stay two cards.
+        bool Mates(int a, int b) => groups is not null && groups[a] is { } g && string.Equals(g, groups[b], StringComparison.Ordinal);
+
         for (var i = 0; i < n; i++)
         {
             if (boxes[i] is not { } a)
@@ -333,29 +346,14 @@ public static class CardJoins
 
             for (var j = i + 1; j < n; j++)
             {
-                if (boxes[j] is not { } b || (sets is not null && sets[i] != sets[j]))
+                if (boxes[j] is not { } b || (sets is not null && sets[i] != sets[j]) || !Mates(i, j))
                 {
                     continue;
                 }
 
-                var acrossX = Overlap(a.X, a.X + a.Width, b.X, b.X + b.Width) > tol;
-                var acrossY = Overlap(a.Y, a.Y + a.Height, b.Y, b.Y + b.Height) > tol;
-
-                if (acrossX && Meets(a.Y + a.Height, b.Y, tol))
+                if (Meeting(a, b, tol) is { } meeting)
                 {
-                    joins.Add(new Join(i, j, Stacked: true));
-                }
-                else if (acrossX && Meets(b.Y + b.Height, a.Y, tol))
-                {
-                    joins.Add(new Join(j, i, Stacked: true));
-                }
-                else if (acrossY && Meets(a.X + a.Width, b.X, tol))
-                {
-                    joins.Add(new Join(i, j, Stacked: false));
-                }
-                else if (acrossY && Meets(b.X + b.Width, a.X, tol))
-                {
-                    joins.Add(new Join(j, i, Stacked: false));
+                    joins.Add(meeting.AFirst ? new Join(i, j, meeting.Stacked) : new Join(j, i, meeting.Stacked));
                 }
             }
         }
@@ -367,57 +365,19 @@ public static class CardJoins
             return outlines;
         }
 
-        bool Mates(int a, int b) => groups is not null && groups[a] is { } g && string.Equals(g, groups[b], StringComparison.Ordinal);
-
-        // The spans of joined neighbours along each side of each card, in the side's own axis; and of
-        // those, the spans of the card's own group mates ([S-11870]).
+        // The spans of the group mates joined along each side of each card, in the side's own axis.
         var spans = new List<(double From, double To)>[n, 4];
-        var mateSpans = new List<(double From, double To)>[n, 4];
         void Add(int card, CardSide side, int other)
         {
             var o = boxes[other]!.Value;
             var span = side is CardSide.Top or CardSide.Bottom ? (o.X, o.X + o.Width) : (o.Y, o.Y + o.Height);
             (spans[card, (int)side] ??= []).Add(span);
-            if (Mates(card, other))
-            {
-                (mateSpans[card, (int)side] ??= []).Add(span);
-            }
         }
 
         foreach (var join in joins)
         {
             Add(join.First, join.FirstSide, join.Second);
             Add(join.Second, join.SecondSide, join.First);
-        }
-
-        // [S-2242] One line where two cards join: the lower or right card leaves out a side its
-        // neighbours cover whole; else the upper or left one does, when every neighbour along that
-        // side draws its own; else both draw (staggered). [S-11870] Group mates count as neighbours
-        // here; the stretches across them are then left out of whatever side is drawn.
-        var dropped = new bool[n, 4];
-        foreach (var join in joins)
-        {
-            if (Covered(boxes[join.Second]!.Value, join.SecondSide, spans[join.Second, (int)join.SecondSide], tol))
-            {
-                dropped[join.Second, (int)join.SecondSide] = true;
-            }
-        }
-
-        foreach (var join in joins)
-        {
-            var side = join.FirstSide;
-            if (dropped[join.First, (int)side]
-                || !Covered(boxes[join.First]!.Value, side, spans[join.First, (int)side], tol))
-            {
-                continue;
-            }
-
-            var partnersDraw = joins.TrueForAll(other => other.First != join.First || other.FirstSide != side
-                || !dropped[other.Second, (int)other.SecondSide]);
-            if (partnersDraw)
-            {
-                dropped[join.First, (int)side] = true;
-            }
         }
 
         for (var c = 0; c < n; c++)
@@ -445,12 +405,7 @@ public static class CardJoins
             var seams = new List<OutlineSeam>();
             bool Draws(CardSide side)
             {
-                if (dropped[c, (int)side])
-                {
-                    return false;
-                }
-
-                var mates = mateSpans[c, (int)side];
+                var mates = spans[c, (int)side];
                 if (mates is null)
                 {
                     return true;
@@ -483,6 +438,160 @@ public static class CardJoins
         }
 
         return outlines;
+    }
+
+    /// <summary>
+    /// [S-2248] Whether two boxes are neighbours: a side of one lies on the opposite side of the other
+    /// within <paramref name="tolerance"/>, and they overlap along it by more than the tolerance (a
+    /// corner alone is no meeting). Null when they do not meet; else whether they are stacked (one
+    /// above the other) and whether <paramref name="a"/> is the first (the upper or the left one).
+    /// </summary>
+    public static (bool Stacked, bool AFirst)? Meeting(PixelRect a, PixelRect b, double tolerance)
+    {
+        var tol = double.IsFinite(tolerance) && tolerance > 0 ? tolerance : 0;
+        var acrossX = Overlap(a.X, a.X + a.Width, b.X, b.X + b.Width) > tol;
+        var acrossY = Overlap(a.Y, a.Y + a.Height, b.Y, b.Y + b.Height) > tol;
+        return acrossX && Meets(a.Y + a.Height, b.Y, tol) ? (true, true)
+            : acrossX && Meets(b.Y + b.Height, a.Y, tol) ? (true, false)
+            : acrossY && Meets(a.X + a.Width, b.X, tol) ? (false, true)
+            : acrossY && Meets(b.X + b.Width, a.X, tol) ? (false, false)
+            : null;
+    }
+
+    /// <summary>
+    /// [S-2249] The outline each card of a surface is painted with. A card paints its whole cell (there
+    /// is no gap between widgets: the space between them is where they are placed, owner 2026-11-15), so
+    /// the cells join as they are ([S-2240], [S-11870]): members of one group (in one
+    /// <paramref name="sets"/> set) whose cells meet ([S-2248]) are one sheet, every other card is
+    /// free. A null set is a card that joins nothing (<see cref="Joins"/> false: no card surface, a
+    /// desktop icon; hidden; being resized). <paramref name="cells"/> are the cells as drawn
+    /// (<see cref="GridGeometry.ToPixels"/> at <paramref name="rasterScale"/>), so a shared edge is one
+    /// device pixel in both.
+    /// </summary>
+    public static CardOutline[] Paint(IReadOnlyList<PixelRect> cells, IReadOnlyList<int?> sets, IReadOnlyList<string?> groups, double rasterScale)
+    {
+        ArgumentNullException.ThrowIfNull(cells);
+        ArgumentNullException.ThrowIfNull(sets);
+        ArgumentNullException.ThrowIfNull(groups);
+        if (sets.Count != cells.Count || groups.Count != cells.Count)
+        {
+            throw new ArgumentException("one set and one group per cell");
+        }
+
+        return Outlines([.. cells.Select((p, i) => sets[i] is null ? (PixelRect?)null : p)], Tolerance(rasterScale), [.. sets.Select(s => s ?? -1)], groups);
+    }
+
+    /// <summary>
+    /// [S-2240] [S-11880] Whether a card takes part in joins at all: it draws a card surface
+    /// (<paramref name="drawsSurface"/>: a fill that is not Transparent, or a picture) and its kind is a
+    /// card (<paramref name="traits"/> without <see cref="Themia.Sdk.WidgetTraits.NeverJoins"/>). A
+    /// desktop icon is never a card, whatever its fill: its highlight keeps all four corners
+    /// (<c>SelectionLook.DesktopIcon</c>) where icons touch on the grid, and it is no glass body.
+    /// </summary>
+    public static bool Joins(Themia.Sdk.WidgetTraits traits, bool drawsSurface)
+        => drawsSurface && !traits.HasFlag(Themia.Sdk.WidgetTraits.NeverJoins);
+
+    /// <summary>
+    /// [S-11880] The radius a card's surface is clipped to: the design's <paramref name="radius"/>, but none
+    /// for a kind that is no card (<see cref="Themia.Sdk.WidgetTraits.NeverJoins"/>) drawing no surface. A
+    /// desktop icon's highlight fills its cell's width and its top; clipped to the card's radius its top two
+    /// corners were the card's 8 and its bottom two its own 2 (owner, 2026-11-15: "the desktop icons have two
+    /// rounded and two normal corners"). Unclipped, all four are <c>SelectionLook.DesktopIcon</c>'s.
+    /// </summary>
+    public static double ClipRadius(Themia.Sdk.WidgetTraits traits, bool drawsSurface, double radius)
+        => traits.HasFlag(Themia.Sdk.WidgetTraits.NeverJoins) && !drawsSurface ? 0 : radius;
+
+    /// <summary>
+    /// [S-11810] [S-2453] A group's frame: the box round its members' cells as drawn (each on whole device
+    /// pixels, <see cref="GridGeometry.ToPixels"/>), the edges a lone widget's own markers are centred on
+    /// ([S-31b]), so the group's marks stand as far from its outer cards as a widget's from its card, on the
+    /// same device pixels; at gap 0 the cells are the painted boxes and the grid's lines. Null for no member.
+    /// </summary>
+    public static PixelRect? Frame(IEnumerable<PixelRect> cells)
+    {
+        ArgumentNullException.ThrowIfNull(cells);
+        var boxes = cells.ToList();
+        if (boxes.Count == 0)
+        {
+            return null;
+        }
+
+        var left = boxes.Min(b => b.X);
+        var top = boxes.Min(b => b.Y);
+        return new PixelRect(left, top, boxes.Max(b => b.X + b.Width) - left, boxes.Max(b => b.Y + b.Height) - top);
+    }
+
+    /// <summary>
+    /// [S-2123] Which glass shape each card is part of, for Liquid glass: members of one group whose painted boxes
+    /// meet (within one set, <see cref="Paint"/>'s painted boxes) are one body, the box round them all, and each
+    /// pair that meets gets one hairline divider on the upper or left card's side across their shared stretch,
+    /// <paramref name="dividerInset"/> short of the body's outer edge at either end that reaches it (a T inside the
+    /// body runs on). A card of no group, in no set, or touching no mate is a body of its own with no divider.
+    /// Divider lines are in the card's own DIPs from its painted box's corner.
+    /// </summary>
+    public static GlassPart[] Bodies(IReadOnlyList<PixelRect> painted, IReadOnlyList<int?> sets, IReadOnlyList<string?> groups, double rasterScale, double dividerInset)
+    {
+        ArgumentNullException.ThrowIfNull(painted);
+        ArgumentNullException.ThrowIfNull(sets);
+        ArgumentNullException.ThrowIfNull(groups);
+        if (sets.Count != painted.Count || groups.Count != painted.Count)
+        {
+            throw new ArgumentException("one set and one group per box");
+        }
+
+        var tol = Tolerance(rasterScale);
+        var inset = double.IsFinite(dividerInset) && dividerInset > 0 ? dividerInset : 0;
+        var n = painted.Count;
+        var root = Enumerable.Range(0, n).ToArray();
+        int Find(int i) => root[i] == i ? i : root[i] = Find(root[i]);
+
+        var meetings = new List<(int First, int Second, bool Stacked)>();
+        for (var i = 0; i < n; i++)
+        {
+            for (var j = i + 1; j < n; j++)
+            {
+                if (sets[i] is not { } si || sets[j] != si || groups[i] is not { } g || !string.Equals(g, groups[j], StringComparison.Ordinal)
+                    || Meeting(painted[i], painted[j], tol) is not { } meeting)
+                {
+                    continue;
+                }
+
+                root[Find(i)] = Find(j);
+                meetings.Add(meeting.AFirst ? (i, j, meeting.Stacked) : (j, i, meeting.Stacked));
+            }
+        }
+
+        var bodies = new PixelRect[n];
+        foreach (var members in Enumerable.Range(0, n).GroupBy(Find))
+        {
+            var box = Frame(members.Select(i => painted[i]))!.Value;
+            foreach (var i in members)
+            {
+                bodies[i] = box;
+            }
+        }
+
+        var dividers = Enumerable.Range(0, n).Select(_ => new List<DividerLine>()).ToArray();
+        foreach (var (first, second, stacked) in meetings)
+        {
+            var (a, b, body) = (painted[first], painted[second], bodies[first]);
+            var (from, to) = stacked
+                ? (Math.Max(a.X, b.X), Math.Min(a.X + a.Width, b.X + b.Width))
+                : (Math.Max(a.Y, b.Y), Math.Min(a.Y + a.Height, b.Y + b.Height));
+            var (bodyFrom, bodyTo) = stacked ? (body.X, body.X + body.Width) : (body.Y, body.Y + body.Height);
+            from += Math.Abs(from - bodyFrom) <= tol ? inset : 0;
+            to -= Math.Abs(to - bodyTo) <= tol ? inset : 0;
+            if (to - from <= tol)
+            {
+                continue;
+            }
+
+            dividers[first].Add(stacked
+                ? new DividerLine(from - a.X, a.Height, to - a.X, a.Height)
+                : new DividerLine(a.Width, from - a.Y, a.Width, to - a.Y));
+        }
+
+        return [.. Enumerable.Range(0, n).Select(i => new GlassPart(bodies[i], dividers[i]))];
     }
 
     private static double Overlap(double a0, double a1, double b0, double b1) => Math.Min(a1, b1) - Math.Max(a0, b0);

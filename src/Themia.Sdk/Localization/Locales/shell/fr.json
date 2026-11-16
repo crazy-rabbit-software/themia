@@ -125,8 +125,6 @@
     "one": "Supprimer {count} widget",
     "other": "Supprimer {count} widgets"
   },
-  "shell.card.doneEditing": "Terminer la modification",
-  "shell.card.editLayout": "Modifier la disposition",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Maj",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Configurer",
   "shell.setup.hint": "Configurer ce dont ce widget a besoin",
   "shell.toolbar.addWidget": "Ajouter un widget",
-  "shell.toolbar.snapName": "Aligner sur la grille",
-  "shell.toolbar.collisionsName": "Empêcher les widgets de se chevaucher",
   "shell.editBar.selected": {
     "one": "{count} sélectionné",
     "other": "{count} sélectionnés"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Taille du texte",
   "shell.appearance.systemFont": "Valeur système par défaut",
   "shell.appearance.sansFont": "Sans empattement",
-  "shell.layout.gap": "Espace entre les widgets",
   "shell.motion.slide": "Glissement",
   "shell.motion.sides": "Côtés",
   "shell.motion.topBottom": "Haut et bas",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Toutes les minutes",
   "shell.refresh.everyHour": "Toutes les heures",
   "shell.color.custom": "Couleur personnalisée",
-  "shell.color.pickCustom": "Choisir une couleur personnalisée",
   "shell.color.pickFromScreen": "Prélever une couleur à l’écran",
   "shell.color.pickFailed": "Impossible de lire les couleurs de l’écran",
   "shell.icon.home": "Maison",

@@ -94,21 +94,143 @@ public sealed class ZOrderPolicyTests
     public void S34c_a_topmost_surface_is_not_at_rest()
         => Assert.False(ZOrderPolicy.AnchorHolds(true, []));
 
+    private const StackWindow Own = StackWindow.Own;
+    private const StackWindow Hidden = StackWindow.Hidden;
+    private const StackWindow Desktop = StackWindow.DesktopLayer;
+    private const StackWindow Other = StackWindow.Other;
+
+    /// <summary>
+    /// [S-33f] The bug (2026-11-14, "themia sometimes clips over karpo"): the lift was the top of the
+    /// topmost band, so a dock, which is a topmost window Show Desktop leaves on screen, ended up
+    /// under the widgets. The stack is the one of that moment: the dock on top, the raised desktop
+    /// under it, the surface still at rest below. The surface goes under the dock, never to the top.
+    /// </summary>
+    [Fact]
+    public void S33f_a_lifted_surface_goes_under_a_dock_that_is_above_the_raised_desktop()
+        => Assert.Equal(new LiftPlace(LiftMove.Under, 0), ZOrderPolicy.Lift([Other, Desktop, Hidden, Own], self: 3));
+
+    /// <summary>[S-33f] Whatever is above the desktop (the dock, its flyout, Start, the taskbar), the place is under the lowest of them.</summary>
+    [Fact]
+    public void S33f_the_place_is_directly_above_the_desktop_under_every_other_window()
+        => Assert.Equal(new LiftPlace(LiftMove.Under, 2), ZOrderPolicy.Lift([Other, Other, Other, Desktop, Own], self: 4));
+
+    /// <summary>[S-33f] A surface the old lift (or an activation) left above a dock is out of place and comes down.</summary>
+    [Fact]
+    public void S33f_a_surface_above_another_programs_window_is_out_of_place()
+        => Assert.Equal(new LiftPlace(LiftMove.Under, 1), ZOrderPolicy.Lift([Own, Other, Desktop], self: 0));
+
+    /// <summary>[S-33c] Start, the taskbar and a dock above the lifted surface are where they belong: nothing is written.</summary>
+    [Fact]
+    public void S33f_start_the_taskbar_and_a_dock_above_keep_the_place()
+        => Assert.Equal(LiftMove.Stay, ZOrderPolicy.Lift([Other, Hidden, Other, Own, Desktop], self: 3).Move);
+
+    /// <summary>[S-33f] The other display's surface and hidden windows between a surface and the desktop cover nothing.</summary>
+    [Fact]
+    public void S33f_own_surfaces_and_hidden_windows_under_a_lifted_surface_keep_the_place()
+        => Assert.Equal(LiftMove.Stay, ZOrderPolicy.Lift([Other, Own, Own, Hidden, Desktop, Other], self: 1).Move);
+
+    /// <summary>[S-33f] Two surfaces: the second goes under the first, both above the desktop and under the dock.</summary>
+    [Fact]
+    public void S33f_a_second_surface_goes_under_the_first()
+        => Assert.Equal(new LiftPlace(LiftMove.Under, 1), ZOrderPolicy.Lift([Other, Own, Desktop, Own], self: 3));
+
+    /// <summary>[S-33f] From above, the window to go under is the one over the desktop, never the surface itself.</summary>
+    [Fact]
+    public void S33f_the_neighbour_is_never_the_surface_itself()
+        => Assert.Equal(new LiftPlace(LiftMove.Under, 2), ZOrderPolicy.Lift([Other, Own, Other, Desktop], self: 1));
+
     /// <summary>
     /// [S-34b] The regression the busy cadence existed for: a secondary display's <c>WorkerW</c>
     /// rises into the topmost band after the surfaces were lifted, and the widgets on it vanish.
+    /// The highest desktop window decides: the surface goes above that one.
     /// </summary>
     [Fact]
-    public void S34b_the_desktop_rising_above_a_lifted_surface_breaks_the_pin()
-        => Assert.False(ZOrderPolicy.PinHolds(true, [StackWindow.Other, StackWindow.DesktopLayer]));
+    public void S34b_the_desktop_rising_above_a_lifted_surface_moves_it_above_that_desktop()
+        => Assert.Equal(new LiftPlace(LiftMove.Under, 0), ZOrderPolicy.Lift([Other, Desktop, Own, Desktop], self: 2));
 
-    /// <summary>[S-33c] Start, the taskbar or a hidden desktop helper above the lifted surface is not a reason to re-raise.</summary>
+    /// <summary>[S-33f] With the raised desktop as the very top window there is nothing to go under: the top.</summary>
     [Fact]
-    public void S34b_start_the_taskbar_and_hidden_windows_above_keep_the_pin()
-        => Assert.True(ZOrderPolicy.PinHolds(true, [StackWindow.Other, StackWindow.Hidden, StackWindow.Own, StackWindow.Other]));
+    public void S33f_a_desktop_that_is_the_top_window_puts_the_surface_on_top()
+        => Assert.Equal(new LiftPlace(LiftMove.Top, -1), ZOrderPolicy.Lift([Desktop, Own], self: 1));
 
-    /// <summary>[S-33d] <c>SetWindowPos(HWND_TOPMOST)</c> that did not take leaves the surface under the raised desktop.</summary>
+    /// <summary>[S-33f] A hidden, minimised or cloaked desktop window is not on screen; with none on screen nothing is written.</summary>
     [Fact]
-    public void S34b_a_surface_without_the_topmost_bit_is_not_lifted()
-        => Assert.False(ZOrderPolicy.PinHolds(false, []));
+    public void S33f_no_desktop_on_screen_writes_nothing()
+        => Assert.Equal(LiftMove.Stay, ZOrderPolicy.Lift([Other, Hidden, Own, Other], self: 2).Move);
+
+    /// <summary>
+    /// [S-33f] The invariant, over every stack of up to six windows: carrying out what the rule says
+    /// leaves the surface above the highest desktop window with no other program's window between
+    /// them, and the rule then says Stay. So a lifted surface is never above a dock, whatever the
+    /// stack was.
+    /// </summary>
+    [Fact]
+    public void S33f_carrying_out_the_place_always_ends_under_every_other_window_and_above_the_desktop()
+    {
+        StackWindow[] kinds = [Own, Hidden, Desktop, Other];
+
+        for (var length = 1; length <= 6; length++)
+        {
+            var total = (int)Math.Pow(kinds.Length, length - 1);
+            for (var code = 0; code < total; code++)
+            {
+                for (var self = 0; self < length; self++)
+                {
+                    var stack = new List<(StackWindow Kind, int Id)>();
+                    var rest = code;
+                    for (var i = 0; i < length; i++)
+                    {
+                        if (i == self)
+                        {
+                            stack.Add((Own, -1));
+                            continue;
+                        }
+
+                        stack.Add((kinds[rest % kinds.Length], i));
+                        rest /= kinds.Length;
+                    }
+
+                    var place = ZOrderPolicy.Lift([.. stack.Select(w => w.Kind)], self);
+                    if (place.Move != LiftMove.Stay)
+                    {
+                        var target = place.Move == LiftMove.Top ? -2 : stack[place.After].Id;
+                        Assert.NotEqual(-1, target);
+                        var me = stack[self];
+                        stack.RemoveAt(self);
+                        stack.Insert(place.Move == LiftMove.Top ? 0 : stack.FindIndex(w => w.Id == target) + 1, me);
+                    }
+
+                    var at = stack.FindIndex(w => w.Id == -1);
+                    var desktop = stack.FindIndex(w => w.Kind == Desktop);
+                    Assert.Equal(LiftMove.Stay, ZOrderPolicy.Lift([.. stack.Select(w => w.Kind)], at).Move);
+
+                    if (desktop >= 0)
+                    {
+                        Assert.True(at < desktop, "the surface is above the desktop layer");
+                        Assert.DoesNotContain(stack.GetRange(at + 1, desktop - at - 1), w => w.Kind == Other);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>[S-20a] At rest every z-order move asked of a surface becomes the anchor, the controller's own included.</summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void S20a_at_rest_every_move_becomes_the_anchor(bool ownPlacement)
+        => Assert.Equal(ZMove.ToAnchor, ZOrderPolicy.Move(lifted: false, ownPlacement));
+
+    /// <summary>
+    /// [S-33g] The second way over a dock: while lifted, a click that activates the surface (edit mode,
+    /// or empty desktop taking the keys, [S-5550]) asked Windows to raise it to the top of its band,
+    /// and nothing rewrote that. Only the controller's own placement moves a lifted surface.
+    /// </summary>
+    [Fact]
+    public void S33g_an_activation_does_not_move_a_lifted_surface()
+        => Assert.Equal(ZMove.KeepOrder, ZOrderPolicy.Move(lifted: true, ownPlacement: false));
+
+    [Fact]
+    public void S33g_the_controllers_own_placement_moves_a_lifted_surface()
+        => Assert.Equal(ZMove.Allow, ZOrderPolicy.Move(lifted: true, ownPlacement: true));
 }

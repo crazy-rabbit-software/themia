@@ -11,6 +11,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.FocusSession;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -106,6 +107,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         _config = config as FocusSessionConfig ?? new FocusSessionConfig();
         Lay();
     }

@@ -15,6 +15,13 @@ namespace Themia.App.Widgets;
 /// pointer changes. The surface creates and disposes the drag; a view uses it only inside the
 /// <see cref="IWidgetDropTarget"/> calls.
 /// </para>
+/// <para>
+/// A drag one of our own views started (<see cref="Themia.Sdk.WinUI.ItemDrag"/>) is not read from its
+/// data object: that object hands out its files only when asked, by this very thread, which is the one
+/// waiting here inside OLE's callback. What it carries is its offer, known in the process, and what a
+/// folder's shell target is given is the shell's own data object for those paths, made when first
+/// forwarded, exactly what Explorer would drag. The source's object still takes the caption.
+/// </para>
 /// <para>UI thread only, like every OLE drop callback.</para>
 /// </summary>
 internal sealed class WidgetDrag : IWidgetDrag, IDisposable
@@ -25,11 +32,34 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
     private DragDropInterop.ComRef _forward;
     private string? _forwardFolder;
 
-    public WidgetDrag(nint data, uint keys, int screenX, int screenY, DropEffect allowed)
+    /// <summary>Whether the drag is one of our own views', and then the shell's data object for its paths once a forward asked for it (null ref: none, or it could not be made).</summary>
+    private readonly bool _own;
+    private DragDropInterop.ComRef _ownData;
+    private bool _ownDataAsked;
+
+    /// <param name="own">The offer of the drag when a view of ours started it (<c>ItemDrag.Running</c>), else null: a drag from elsewhere, read from <paramref name="data"/>.</param>
+    public WidgetDrag(nint data, uint keys, int screenX, int screenY, DropEffect allowed, ItemDragOffer? own = null)
     {
-        DragDropInterop.AddRef(data);
+        // 0: a drag of our own that reached the surface through XAML's drop events, which hand no OLE object.
+        if (data != 0)
+        {
+            DragDropInterop.AddRef(data);
+        }
+
         _data = new DragDropInterop.ComRef(data);
         Update(keys, screenX, screenY, allowed);
+
+        if (own is not null)
+        {
+            _own = true;
+            Paths = own.Paths;
+            VirtualFileNames = [];
+            Urls = [];
+
+            // The shell's data object for files always carries their shell items.
+            HasShellItems = Paths.Count > 0;
+            return;
+        }
 
         var paths = DragDropInterop.ReadPaths(data);
 
@@ -45,10 +75,33 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
     }
 
     /// <summary>
-    /// The source's <c>IDataObject</c>, for what the summary does not carry (saving virtual files,
-    /// reading the shell items a Start-menu drag offers). Valid inside the view calls; 0 once the drag ended.
+    /// The source's <c>IDataObject</c>: what the caption is set on, and whether the drag still runs.
+    /// Valid inside the view calls; 0 once the drag ended.
     /// </summary>
     public nint Data => _data.Pointer;
+
+    /// <summary>
+    /// The data object the drag's content is read from and a shell target is handed: the source's, or
+    /// for a drag of our own the shell's for its paths, made on first use. 0 when there is none.
+    /// </summary>
+    private nint Carried
+    {
+        get
+        {
+            if (!_own)
+            {
+                return _data.Pointer;
+            }
+
+            if (!_ownDataAsked && !_data.IsNull && Paths.Count > 0)
+            {
+                _ownDataAsked = true;
+                _ownData = DragDropInterop.CreateDataObject(Paths, DropEffect.None);
+            }
+
+            return _ownData.Pointer;
+        }
+    }
 
     /// <summary>File-system paths (<c>CF_HDROP</c>, or a Chromium app's <c>file:///</c> lines), in the source's order.</summary>
     public IReadOnlyList<string> Paths { get; }
@@ -65,7 +118,7 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
     /// <summary>The drag carries shell items (<c>Shell IDList Array</c>): every Explorer drag, and a Start-menu app, which has nothing else.</summary>
     public bool HasShellItems { get; }
 
-    public IReadOnlyList<ShellItemInfo> ReadShellItems() => DragDropInterop.ReadShellItems(Data);
+    public IReadOnlyList<ShellItemInfo> ReadShellItems() => DragDropInterop.ReadShellItems(Carried);
 
     /// <summary>
     /// How many things the drag carries, for logs: its paths, else its virtual files (Explorer offers
@@ -124,7 +177,7 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
         var keys = SurfaceDrops.KeysFor(forced, Keys);
         var allowed = forced == DropEffect.None ? Allowed : Allowed & forced;
 
-        if (allowed == DropEffect.None || _data.IsNull)
+        if (allowed == DropEffect.None || _data.IsNull || Carried == 0)
         {
             EndForward();
             return DropEffect.None;
@@ -144,7 +197,7 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
                 return DropEffect.None;
             }
 
-            return DragDropInterop.TargetEnter(_forward.Pointer, _data.Pointer, keys, ScreenX, ScreenY, allowed);
+            return DragDropInterop.TargetEnter(_forward.Pointer, Carried, keys, ScreenX, ScreenY, allowed);
         }
 
         return _forward.IsNull ? DropEffect.None : DragDropInterop.TargetOver(_forward.Pointer, keys, ScreenX, ScreenY, allowed);
@@ -172,7 +225,7 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
 
         try
         {
-            var done = DragDropInterop.TargetDrop(target, _data.Pointer, keys, ScreenX, ScreenY, allowed);
+            var done = DragDropInterop.TargetDrop(target, Carried, keys, ScreenX, ScreenY, allowed);
             Log.Debug(Scope, $"dropped {ItemCount} item(s) into the shell's target: {done}");
             return done;
         }
@@ -199,11 +252,12 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
     /// itself rather than through a folder's shell target. Returns the paths written.
     /// </summary>
     public IReadOnlyList<string> SaveVirtualFiles(string destination)
-        => _data.IsNull ? [] : DragDropInterop.SaveVirtualFiles(_data.Pointer, destination);
+        => _data.IsNull || _own ? [] : DragDropInterop.SaveVirtualFiles(_data.Pointer, destination);
 
     public void Dispose()
     {
         EndForward();
+        _ownData.Dispose();
         _data.Dispose();
     }
 }

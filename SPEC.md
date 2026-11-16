@@ -20,7 +20,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
+- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, the Desktop icon and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Own desktop icons: drops and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -41,10 +41,9 @@ Sections, grouped by area (file order below; search for the heading).
 
 ## Rendering
 
-- **[S-04]** Each widget renders at `left = x·W`, `top = y·H`, inset on every side by
-  `widgetGap / 2`, so neighbours show a gap without changing their logical rect. Logical edges are
-  rounded to a shared whole-pixel boundary *before* the gap inset, so adjacent widgets still meet
-  exactly.
+- **[S-04]** Each widget renders at `left = x·W`, `top = y·H` and paints its **whole cell**: there is no gap
+  between widgets ([S-11884]); logical edges are rounded to a shared whole-pixel boundary, so adjacent widgets
+  meet exactly. *(Until 2026-11-15 each card was inset by `widgetGap / 2`.)*
 - **[S-05]** The DIP space a fraction resolves into is the window's **real client rect divided by
   the window's real rasterization scale** — not `ActualWidth`. Changing display scale resizes the
   content without changing the client's pixel size, so no `SizeChanged` fires and `ActualWidth` can
@@ -56,14 +55,19 @@ Sections, grouped by area (file order below; search for the heading).
 
 ## Grid snap aid
 
-- **[S-06]** The grid is an **aid**, never storage. `design.gridSnap` (default on) rounds the rect
-  chosen during drag, resize and placement to the nearest grid line. Holding **Alt** suspends it for
-  the duration of the gesture. Storage is always the raw fraction.
+- **[S-06]** **The grid is always on** (owner, 2026-11-15: "it should also not be possible to disable the
+  grid anymore. grid is always fixed"): every gesture's rect (drag, a block's move, resize, placement, paste,
+  the arrow keys) lands on the nearest grid line, and every widget's size is whole grid cells ([S-11807]), a
+  desktop icon's too ([S-11875]). There is no setting, no toggle, no Alt to suspend it and no free path
+  (`GridGeometry.Settle`, `BlockGeometry.Move`, `KeyboardNudge`, `PlacementPayload` take no snap flag);
+  storage is the fraction the gesture landed on. *(Until 2026-11-15 `design.gridSnap` and Alt switched it
+  off; gone, and a state file no longer carries it.)*
 - **[S-06b]** The cell target is **10 DIP**, and the minimum widget **32 DIP**, matching the
   original app. This only sets how many snap lines exist; the drawn pitch is screen/cols, so it
   follows the display. At that density the overlay stroke has to be very faint, or the mesh reads as
   a grey wash over the desktop rather than as a grid.
-- **[S-06a]** The cell overlay is drawn only in edit mode, and only when `gridSnap` is on.
+- **[S-06a]** The whole cell overlay is drawn in edit mode, always (`SnapGridOverlay`); a scene's edit
+  block draws it too. On the locked desktop a move shows only the local grid ([S-11874]).
 - **[S-06c]** Every **5th** line (`GridGeometry.MajorEvery`), counted from the monitor's top-left
   edge (the origin the snap rounds from), is a **major** line: wider (`LineWidthsPx`: minor about
   1 DIP, major half as wide again, at least one physical pixel more) and a little stronger (0.26
@@ -84,7 +88,8 @@ Sections, grouped by area (file order below; search for the heading).
   propagating NaN into storage. A widget is also held to its sizing: painted fitted into it
   ([S-2446]), resized within it ([S-2445]); its Max may be larger than the work area allows, and the
   work area wins.
-- **[S-6608]** A widget may hang over **any edge** of its display, but always keeps at least
+- **[S-6608]** While the bar's **Widgets can go over the screen edge** is on (the default; off, the whole widget stays
+  on the work area, [S-2330]) a widget may hang over **any edge** of its display, but always keeps at least
   `MinVisiblePx` (**32 DIP**, the [S-08] floor) of itself on the allowed area on each axis: a
   floor-sized widget is never cut at all, a bigger one always leaves a whole minimum widget's worth
   to see, grab and drag back. Pushed further, it slides back just that far, keeping its size; a
@@ -97,8 +102,7 @@ Sections, grouped by area (file order below; search for the heading).
   the gesture and at load (against a 1920 × 1080 reference): stored fractions scale with the display
   ([S-02]) and nothing re-settles on a display change ([S-841]), so on a much smaller display the
   overhang scales with it. (Tests `S6608_`.)
-- **[S-6609]** While the snap aid is on ([S-06], Alt suspends it), the work area's edges are a
-  **magnet**: a moved rect, block or resized edge within `EdgeMagnetPx` (**8 DIP**, under one grid
+- **[S-6609]** On the grid ([S-06]) the work area's edges are a **magnet**: a moved rect, block or resized edge within `EdgeMagnetPx` (**8 DIP**, under one grid
   cell) of one lands flush on it, judged on the raw position before the grid rounds it; past that the
   drag goes on over the edge. It catches an edge the grid misses (a taskbar's top is rarely on a grid
   line), now that the edge no longer stops a drag by itself. (Tests `S6609_`.)
@@ -170,8 +174,8 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-20]** The widget surface is **never above another application**, in any mode. It is a desktop
   layer: widgets belong under the user's windows, and editing them does not change that. Outside
   edit mode it also carries `WS_EX_NOACTIVATE`, so clicking a widget neither focuses it nor raises it
-  over the user's work. `WS_EX_TOOLWINDOW` keeps it out of the taskbar and Alt-Tab. The one exception
-  is [S-33], where there is no other application on screen to be above.
+  over the user's work. `WS_EX_TOOLWINDOW` keeps it out of the taskbar and Alt-Tab. [S-33] lifts it
+  past the desktop window only, and under everything else ([S-33f]): there is no exception.
 - **[S-20a]** Edit mode drops `WS_EX_NOACTIVATE` so the surface can take keyboard focus for the
   shortcuts ([S-70]) — and an activatable window is raised when clicked, so the window procedure is
   subclassed and every `WM_WINDOWPOSCHANGING` is rewritten back to the anchor. Event-driven, so there
@@ -181,13 +185,16 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-20b]** The frame is stripped at the **Win32** level (`WS_POPUP`, clearing `WS_CAPTION` /
   `WS_THICKFRAME` / `WS_SYSMENU`), and re-applied whenever the styles are touched.
   `OverlappedPresenter.SetBorderAndTitleBar(false, false)` does **not** clear `WS_CAPTION`: the
-  surface kept a caption and a 3px border the whole time, which the click-through region happened to
-  clip away, so the title bar appeared the moment edit mode dropped the region.
-- **[S-21]** The surface is clipped with `SetWindowRgn` to the union of the widget rects, so every
-  click that is not on a widget lands on the desktop underneath. The region is rebuilt on every
-  layout pass, in **physical** pixels, relative to the **window** — client and window coordinates
-  differ by the frame, so the client origin is added or the whole mask sits shifted from the widgets
-  it traces. It is always cut to the work area ([S-851]).
+  surface kept a caption and a 3px border the whole time, which the widget-tracing region of the time
+  happened to clip away, so the title bar appeared the moment edit mode dropped that region.
+- **[S-21]** The surface is clipped with `SetWindowRgn` to **one rectangle, its display's work area**
+  ([S-851]), always: Themia draws the whole desktop ([S-5501]), so no click on it falls through to
+  Explorer's. The region is in **physical** pixels relative to the **window**, set when the window is
+  made and again when the display's bounds or work area change (`DesktopWindow.ApplyHitRegion`, from
+  `ConfigureWindow`, `UpdateMonitor` and `EnsurePlacement`); nothing on the surface (a layout pass, a
+  card, the view bar, a notice, an intro) changes it. *(Retired 2026-11-14, the owner's decision that
+  Themia always owns the desktop: the region as the union of the widget rects, rebuilt on every layout
+  pass, so that clicks beside a widget reached Explorer's desktop.)*
 - **[S-22]** Only a genuine style change passes `SWP_FRAMECHANGED`. Sending it on an ordinary
   z-order reassert forces a non-client recalculation, which hands the borderless window its frame
   back.
@@ -196,11 +203,11 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-23a]** The resting anchor is the **desktop window** (`Progman`), not `HWND_BOTTOM`: the
   surface is inserted against it so it travels with it, and falls back to the bottom only when
   Explorer is not up yet.
-- **[S-33]** While Windows is genuinely showing the desktop, the surface is lifted to the top of the
-  topmost band and dropped back the moment it is not. Show Desktop raises the desktop window *past*
-  normal z-order, above anything anchored below it, so the widgets would otherwise vanish at the one
-  moment the user asked to see their desktop. There is nothing else on screen for them to cover
-  then, so this does not contradict [S-20]; it is the only way to honour it and still be visible.
+- **[S-33]** While Windows is genuinely showing the desktop, the surface is lifted to **just above the
+  desktop layer** ([S-33f]) and dropped back the moment it is not. Show Desktop raises the desktop
+  window *past* normal z-order, above anything anchored below it, so the widgets would otherwise
+  vanish at the one moment the user asked to see their desktop. *(Until 2026-11-14 the lift was "the
+  top of the topmost band", on the reasoning that nothing else is on screen then. A dock is: [S-33f].)*
 - **[S-33a]** "Genuinely" is two signals: the desktop layer owns the foreground, **and** no ordinary
   application window is still on screen. Foreground alone is also true of a plain click on the
   wallpaper, and acting on it would throw the widgets in front of the user's work every time they
@@ -233,6 +240,31 @@ Sections, grouped by area (file order below; search for the heading).
   taskbar's Show Desktop button, a second Win+D, a three-finger swipe up): the windows came back,
   nothing handed them the foreground, and the held pin drew the widgets over them until a click
   (original issues #132, #167). `ZOrderPolicy.Decide(..., applicationOnScreen)`.
+- **[S-33f]** **A lifted surface is directly above the desktop layer and under every other window on
+  screen**, never at the top (`ZOrderPolicy.Lift`, pure, over the whole z-order top first: the highest
+  `Progman`/`WorkerW` on screen decides; the surface goes under the window just above it, to the top
+  only when the desktop is the top window; nothing is written while it is there, or with no desktop on
+  screen). The bug (the owner, 2026-11-14: "themia sometimes clips over karpo"): Show Desktop is "the
+  desktop has the foreground and no ordinary application window is on screen" ([S-33a]), and a
+  topmost window does not count as one ([S-33b]), so with a dock, an appbar or any always-on-top
+  window on screen (after Win+D, or simply with every window closed or minimised and the desktop
+  clicked) the surfaces went to the top of the topmost band, above it: the widgets were drawn over a
+  dock that floats over the work area, over a dock's flyouts, previews and tooltips wherever those
+  reach into the work area, and took their clicks, until the dock next re-stacked its own windows or
+  Show Desktop ended. Now the dock, Start, the taskbar and every other program's topmost window stay
+  above the widgets by where the surface is put, not by anyone re-raising ([S-33c]). The write is two
+  rungs (`DesktopZOrder.PlaceLifted`): under the window above the desktop layer directly, which never
+  passes above anything; and only where that did not take ([S-33d]), the topmost band forced first and
+  the surface brought down at once (logged; a warning when even that fails). The region ([S-21]) is
+  the second guard: whatever the z-order, a strip a dock reserved is outside the work area.
+  Tests `ZOrderPolicyTests.S33f_` (the regression, and the invariant over every stack of up to six
+  windows), `DockGuardTests`.
+- **[S-33g]** **While lifted, only the controller moves a surface in the z-order**
+  (`ZOrderPolicy.Move`: at rest every `WM_WINDOWPOSCHANGING` becomes the anchor, [S-20a]; while lifted
+  the controller's own placement passes and every other one keeps the order it had). It used to pass
+  everything through while lifted, so an activation (a click in edit mode, the surface taking the keys
+  on a click on empty desktop, [S-5550], a card taking the keyboard lease) raised the surface to the top
+  of its band, over a dock, for the rest of the lift. Tests `ZOrderPolicyTests.S33g_`, `S20a_`.
 - **[S-34]** The surface is kept **uncloaked**. A fullscreen exclusive application hides windows by
   asking DWM to cloak them — a path that goes through neither `SC_MINIMIZE` nor `WM_SHOWWINDOW`, so
   no window procedure sees it. A cloaked window is still `IsWindowVisible`, still not iconic, still
@@ -269,9 +301,10 @@ Sections, grouped by area (file order below; search for the heading).
     event of any kind repeats the whole check, uncloak included.
 - **[S-34b]** A secondary monitor's `WorkerW` can rise into the topmost band *after* the surfaces are
   lifted. That raise is a top-level z-order change, heard as a reorder ([S-34a]); while lifted, a
-  check re-raises a surface only when a desktop-layer window (`Progman`, a `WorkerW`) on screen is
-  above it or its topmost bit is gone (`ZOrderPolicy.PinHolds`). Start, the taskbar or another
-  program's topmost window above it is not a reason ([S-33c]).
+  check places a surface again only when it is out of its place ([S-33f]): a desktop-layer window
+  (`Progman`, a `WorkerW`) on screen is above it, or another program's window on screen is between it
+  and the desktop layer (`ZOrderPolicy.Lift` says anything but Stay). Start, the taskbar, a dock or
+  another program's topmost window above it is not a reason ([S-33c]).
 - **[S-34c]** At rest a surface is re-anchored only when its place is broken: it is topmost, or a
   window on screen that is not one of ours or the desktop layer sits between it and the desktop window
   (`ZOrderPolicy.AnchorHolds`). A write that always happened would be heard back as a reorder and
@@ -289,7 +322,11 @@ Sections, grouped by area (file order below; search for the heading).
   mode or monitor change is ([S-848]). Verified only by reasoning and the pure tests: Win+D and back,
   Win+M, the taskbar's Show Desktop button, a fullscreen exclusive game, an Explorer restart,
   sleep/resume, lock/unlock, a display unplugged and replugged, two displays, clicking widgets in edit
-  mode during Show Desktop.
+  mode during Show Desktop. Since [S-33f] also: that the widgets are still seen during Show Desktop
+  with the surface just above the raised desktop window instead of at the top of the topmost band
+  (the first rung taking, on one and on two displays), and with Karpo running: its bar, a flyout and a
+  tooltip opened from it stay in front of the widgets during Win+D, with Karpo's edge holding its
+  strip, floating over the windows and on hover.
 - **[S-28]** While the surface is pinned for Show Desktop, a **widget surface taking the foreground
   holds the pin**, exactly as Start or the taskbar does. Clicking a widget makes the surface the
   foreground, so the desktop no longer owns it and Show Desktop stops reading as active — but
@@ -349,8 +386,9 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   **parked** under the Set up button, never attached, so it polls nothing, ticks nothing and logs
   nothing. When the config or a newly signed-in account makes it useful a fresh view is attached in
   its place; a widget emptied again is detached and parked. A parked view hears no config, no size,
-  no keys and offers no context actions. The one widget set up by using it, an empty Shortcuts widget,
-  keeps running under the button so a file can be dropped onto it. A view acquires nothing in its
+  no keys and offers no context actions. A widget set up by using it (`ISetupRule.SetsUpInPlace`:
+  an own desktop icon that opens nothing yet, [S-9511]) gets **no Set up row**: it runs, draws its own waiting
+  look and takes the drop that sets it up (a row does not fit a desktop cell). A view acquires nothing in its
   constructor that only Detach releases (a timer's Tick roots the view from the native side): such
   subscriptions are made in Attach. A card detaches its view exactly once, whichever path asks first,
   and a view whose Attach throws half-way is still detached.
@@ -517,7 +555,13 @@ busy desktop ([S-6601]), Debug, private bytes.
   edit mode on a global hotkey, and everything that menu offered on the edit toolbar.
 - **[S-65]** **Ctrl+Alt+W** toggles edit mode, registered `MOD_NOREPEAT` so a held key does not
   toggle it dozens of times a second. Edit mode is reached by this hotkey and by launching Themia
-  again ([S-66]); a widget's right-click menu's Edit layout ([S-1758]) leads there too. A
+  again ([S-66]); **Unlock widgets** leads there too, and **Lock widgets** back out: one line with one
+  wording on every right-click menu (a card's in and outside edit mode, [S-1743], [S-1758]; empty surface's in
+  edit mode, [S-1744]; a desktop icon's of either source, [S-5582]; empty desktop's, [S-5551]), the open padlock
+  while locked and the closed one while unlocked, both running the one toggle (`ShellCommand.ToggleEditMode`,
+  `SetEditMode`). *(Until 2026-11-14 the line read Edit layout / Done editing on a card and Edit widgets on
+  empty desktop, and a desktop icon's menu had none; user report: "the right click context menu does not allow
+  to lock / unlock".)* Both strings are English only so far. A
   double-click on a widget does **not** enter edit mode (user decision 2026-11-07, issue 75): a click
   on a widget opens what it is about ([S-2000]), and waiting out the double-click time before every
   such click was the reason the first attempt was retired. Another program may already own the
@@ -540,9 +584,9 @@ busy desktop ([S-6601]), Debug, private bytes.
   in the activation message (`SecondStart.Encode`); any other value is logged and ignored
   (`SecondStart.Decide`, a trust boundary); a start by hand hands the foreground on
   (`AllowSetForegroundWindow`) so the menu gets the keys. Tests `SecondStartTests`.
-- **[S-67]** Quitting is offered in one place, the last line of the edit bar's settings menu (**Quit
-  Themia**, [S-3532]), and never as a button beside **Done**: it is the only action there that cannot
-  be undone and **Done** is the one the user presses constantly.
+- **[S-67]** Quitting is offered nowhere in Themia's own chrome: no settings line since [S-3532] retired, and
+  never a button beside **Done** (it is the only action there that cannot be undone and **Done** is the one
+  the user presses constantly); Themia ends with Windows' session, or as Uninstall closes it ([S-3582]).
 - **[S-68]** **A flag Themia does not know starts nothing.** The start's first argument is classified
   before anything else (`StartArguments.Classify`): no argument or a value is the app, as is the Run
   entry's `--autostart` ([S-934]); a render or check flag this build has (Debug only,
@@ -1006,7 +1050,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
 - **[S-6712]** A row's **lines are its widget's config** (Lines per row, [S-2440]), its pitch from its
   lines: a row of one line is 28, of two 40, of three 56 ([S-2220]); only whole rows are shown
   (`RowRules.Fit`). No size gives a row more lines or fewer ([S-11800]).
-- **[S-6713]** **Row.Cell** (`RowCell`): a grid's item (Shortcuts', a folder's icons), its lead (32 or
+- **[S-6713]** **Row.Cell** (`RowCell`): a grid's item (a folder's icons), its lead (32 or
   48, as its widget's config states) over its name in Caption, primary, centred and cut with its ellipsis at
   the cell's edge, 4 apart; cells 12 apart, their marks 4 around them, so a grid's marks start at the
   inset less 4 (`RowRules.CellMarkEdge`, [S-2220]) and the first cell's lead and name at the inset.
@@ -1016,8 +1060,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the caution warning; Try again or Open Accounts as a standard button. Set up: the widget's glyph and
   the accent Set up button ([S-1862]). A row with an action and less than 96 left for the sentence
   drops it and keeps the glyph and the action (`StatusRules`); without an action the sentence stays. Tile widgets show their state in the tile.
-- **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the step the
-  widget's Size names (`TileRules.GlyphAt`, [S-11307]) above its label (Body, 8 under it) and its state line (Caption), in
+- **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the step its
+  box holds (`TileRules.Face`, [S-11882]) above its label (Body, 8 under it) and its state line (Caption), in
   the card's inset of 12. On,
   the **whole tile** is the accent with the text and glyph on it; Round puts the glyph in a circle
   (the accent when on, the item layer's tile otherwise) at the largest family glyph size within half
@@ -1215,7 +1259,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
 - **[S-6732]** *(Retired by [S-11800]: `--family-blocks-png` drew each block at the seven tiers, which are
   gone; a block is looked at in its widgets' renders. `--widget-png … --tree` still writes a card's visual
   tree beside it, `TreeDump`.)*
-- **[S-6733]** **A name over the wallpaper** (a widget with no card, the desktop item's, [S-5606]) is
+- **[S-6733]** **A name over the wallpaper** (a widget with no card, the desktop icon's, [S-5606]) is
   drawn in the family's two wallpaper roles, not the card's text roles: `OnWallpaper`, light in either
   theme as Windows' desktop draws its icons' names, over `OnWallpaperShadow`, the same text cast
   `FamilyShape.TextShadowOffset` (1 DIP) down and to the right, so it reads on a light or a busy
@@ -1282,8 +1326,10 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   dispatch over config types.)*
 - **[S-6905]** What a widget's card offers is stated by its descriptor's `Traits`, in full (the
   member is required, so no widget takes another's by omission): `HasItems` ([S-6570], checked
-  against what its view paints), `CanHaveHeader` ([S-3711]) and `StartsHeaderless` ([S-700]; only
-  for a widget that may have a header at all).
+  against what its view paints), `CanHaveHeader` ([S-3711]), `StartsHeaderless` ([S-700]; only
+  for a widget that may have a header at all), `OneReadout` ([S-6737]) and `StartsTransparent` (a new
+  one is on no card, its background Transparent, `WidgetInstance.DefaultBackground`: what is drawn as a
+  desktop icon, the one kind `desktopItem` for both of its sources, [S-5600]; the user can still give it a card).
 - **[S-6906]** What the host asks a widget's state is asked of its config, never by a switch over
   config types: whether it waits for setup and whether it runs while it waits (`ISetupRule`,
   [S-1860], [S-1881]), whether and where its content aligns (`IContentAligned`, [S-6581]), what the
@@ -1755,8 +1801,7 @@ service layer knows strategies, never services: a service is a descriptor that p
   with one or many existing widgets.
 - **[S-422]** A left click lands the payload on the display it is on, in that display's view, at the
   rects computed from the click itself — not from the last pointer move — centred as a block,
-  snapped and clamped ([S-11], [S-1586]). Alt bypasses the snap, as when dragging. What landed is
-  selected.
+  snapped and clamped ([S-11], [S-1586]), on the grid ([S-06]). What landed is selected.
 - **[S-423]** A ghost traces the **painted** cards, inside the gap, with the card's own corner
   radius — one outline per widget at its offset in the block ([S-1585]): it shows what the user will
   see once the widgets are there, not the cells they own.
@@ -1777,14 +1822,12 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 `SettingsMenuTests` (`S23*`), `EditBarLayoutTests`, `NumberEntryTests`, `ShellTokensTests`.
 
 - **[S-2300]** The bar's **pages**, in its order, each an entry (its glyph and its name) and the flyout
-  it opens: **General** (the gear: General's own lines with Snap to grid, then Language & region,
-  Online updates, Motion, AI assistants where a server runs, Back up & reset, Themia Pro, About Themia,
-  and Quit Themia last), **Accounts** (every account, a page of its own, then Add account), **Display**
-  (the display this bar stands on: the view it shows, its scale, its view bar, then what every display
-  shares), **Views** (the view shown here: its name, icon and colour, Duplicate, Delete; then every
-  view as the user's own things) and **Appearance** (the style, theme and colours, item background, the
-  cards, text and size). The lines are the settings' own (`SettingsMenu.*`, `DisplayMenu.Root`,
-  `ViewsMenu.Root`); a page only groups them (`SettingsPages.General` … `.Appearance`).
+  it opens: **General** (the gear, Karpo's sections, [S-2315]), **Accounts** (your accounts, each a card,
+  then the ways to add one, [S-2312]), **Display** (every display a card, then what every display shares,
+  [S-2314]), **Views** (every view a card, then Add a view, [S-2313]) and **Appearance** (the live preview,
+  the style, theme and colours, item background, the cards, text and size, Motion, [S-2316]). The lines are
+  the settings' own (`SettingsMenu.*`, `DisplayMenu.Root`, `ViewsMenu.Root`); a page only groups them
+  (`SettingsPages.General` … `.Appearance`).
 - **[S-2301]** One rule makes a page of lines (`SettingsPages.Sectioned`): a heading line starts a
   section under its words; a submenu that is not a page of its own is a section of its own (its words
   the heading, its lines the section's); every other line joins the section it follows. No section is
@@ -1796,8 +1839,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   value read in the box's units and held to the range and grain, [S-2309]); a **text** box (240 × 32;
   Enter or leaving keeps it, Escape restores it; why a text cannot be kept under the name in the
   critical colour; a form's field hands on every letter; a password's never shows what it holds); an
-  **action** (the whole row a button, a danger's in the critical colour, a chevron where it asks first);
-  a **link** (a chevron, its tooltip "Opens …"); an **item** (the user's own thing: its icon buttons at
+  **action** (Karpo's, [S-2318]: one that says what it does a card with a button of its words at its end, one
+  that only acts its button alone; a danger's in the critical colour, a chevron where it asks first);
+  a **link** (what it is set to in Caption and a chevron, its tooltip "Opens …"); an **item** (the user's own thing: its icon buttons at
   its end, their keys F2 and Delete while it has the keyboard, dragged or Ctrl+Up / Down to reorder); a
   **note** (words; a reading with its value at the end); the **pickers** (choice, lookup, colour, font,
   icon, [S-2308]); an **expander**; a **sub-page**.
@@ -1831,25 +1875,126 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   36 tall, more than six in up to three columns of at least 180. A **lookup** (the language, a place, a
   time zone): a search box over at most eight results and a status line ("3 found", "No results",
   "Searching…"), the card the same height whatever is typed; its own options filtered as typed
-  (`SettingsMenu.Matches`), a search that asks as typing settles; Enter picks the first. A **colour**: 36
-  swatches 4 apart (Default first, a fill's Transparent next), the one that holds ringed in the accent;
-  a fill's opacity as a number; then the custom picker inline (Windows' spectrum, its hue, a fill's
-  opacity, the hex box: letting go of a drag keeps the colour, as leaving the hex box does) and the
-  eyedropper. A **font**: the font picker and Add fonts. An **icon**: the icon picker.
+  (`SettingsMenu.Matches`), a search that asks as typing settles; Enter picks the first. A **colour**:
+  Karpo's picker ([S-1574]: the swatches' column beside the mixer, the hex row under them). A **font**: the font picker and Add fonts. An **icon**: the icon picker.
 - **[S-2309]** A number typed into a number box is read in the units the box shows (`NumberEntry`: the
   digits, one decimal mark of either kind, a minus; "42 %" is 0.42 of a fraction, "1.5 s" 1500 ms), then
   held to the range and the grain (`MenuSlider.Snap`); nothing that reads as a number restores the box.
+- **[S-2310]** **Things** (Karpo's `OptionThing`, `karpo-app` `Karpo.Core/BarLooks.cs`, docs/widgets.md §585, §638):
+  one of the user's own (a view, a display, an account, and General's Formats, Online updates, AI assistants,
+  Themia Pro, Back up & reset) is a card that opens in place on its section (`SettingsSubmenu.Card`), never a
+  section of its own: its head the icon, the name, a caption under it (`Caption`: where a view is shown, a
+  display's resolution), what it holds at its end in Caption (hidden while open: its rows say it, [S-2317]),
+  its icon buttons (`Tools`: a view's Duplicate and Delete, an account's Sign out; their keys work while the head
+  has the keyboard) and, where it is put in order (`Order`), Windows' gripper at its head's start (Karpo's §551
+  handle, its icon and name 12 further in): the whole card dragged by it, or
+  Ctrl+Up / Down on its head. Opened, its rows one level in ([S-2303]); a picker inside stands open under its name.
+  Nothing on a page acts on "the selected" view, display or account.
+- **[S-2311]** The Appearance's **preview** (Karpo's §592, §613, §671; `AppearancePreview`): first on the page and
+  bare (no card), the page's width, 220 tall, radius 4 with the card's hairline: a stretch of the display's own
+  desktop (its blurred wallpaper, [S-2112], at the display's size, scaled down) with three real cards (Clock, Weather
+  now, Calendar) on their samples ([S-11850]), placed as the desktop places them so their frost is the desktop's, the
+  gap between them the design's (at least 12). The card draws them in the design as it stands: each change of the
+  state paints them again; only a design replaced whole builds them again. It sets nothing. Built once while the
+  page stands, its ticker and sample world gone with the page.
+- **[S-2312]** **Accounts** (Karpo's Accounts page, `Karpo.Core/OptionAccountRows.cs` `Page`): under **Your accounts**
+  every account a card (its provider's icon, or the warning while it needs signing in again; its name; its address
+  and provider under it, its provider alone where its name is its address; at its end while shut what it holds
+  ("1,240 messages · 386 events") or Sign in again; **Sign out** its icon button, asked first). Opened: what holds
+  against it and the way back in (the sign-in or the form, in the card), a reading per kind, the grant page, its
+  Nickname, how a sign-out went. "No account yet" where there is none. Under **Add an account** each way: "Add a
+  Microsoft account" a row that starts the browser's sign-in, its kinds under it ("Mail, Calendar, Contacts,
+  Tasks"), what it is doing under it; a password server's or a token's form a card of its fields, its kinds under
+  its name. Nothing is a page of its own.
+- **[S-2313]** **Views** (Karpo's Layouts, `LayoutsRows`): under **Your views** every view in the user's order a card:
+  its mark in its colour, its name, under it where it is shown ("Shown on this display, LG HDR WQHD"; "Not shown on a
+  display") and its widgets; at its head's end **Duplicate view** ([S-900]) and **Delete view** (Delete; asked first
+  with what goes with it, [S-3737]; greyed on the last view, [S-12]) and the grip ([S-901]: dragged or Ctrl+Up / Down,
+  `AppHost.ReorderView`). Opened: **Name** (a text box, `ViewOps.Rename`, [S-1707]), **Icon** (the icon picker, its
+  default the initials, [S-903]), **Colour** ([S-3810]) and **Show on this display** (a command as the view bar's
+  chip, greyed where it is shown; which view a display shows is the Display page's setting, [S-2314]). Then **Add a
+  view** ([S-1065]). A view chip's View settings opens the page at that view's card ([S-3546]). Keys hold the ids
+  (`view:<id>/name`).
+- **[S-2314]** **Display** (Karpo's Displays, `DisplayThing`): under **Displays** every connected display in Windows'
+  order, never moved, a card: its name, under it its resolution, its widget scale and the view it shows (or "Themia
+  is off here"), **This display** at its end on the page's own. Opened, everything of that display: **View** (each
+  view with its mark, [S-19]), **Show Themia here** ([S-845], [S-3545]), **Widget scale** ([S-850]) and its **View
+  bar** ([S-3544]). Then under **All displays** what they share ([S-3545]). Every line names its display
+  (`display:<id>/scale`); the host's writes take the display (`SetScale(displayId, …)`, `Show(displayId, …)`).
+- **[S-2315]** **General** in Karpo's sections (`KarpoMenu.Rows`): under **General** Start with Windows, the
+  Language (a lookup), **Formats** (Karpo's Formats card, [S-2319]) and Pause during full-screen apps (no Quit
+  Themia, [S-3532]; there is no Snap to grid, [S-06]); under **Desktop icons** Themia's own desktop's
+  ([S-3525]); under **Services** Online updates and AI assistants; under **Themia** Themia Pro, Back up & reset
+  and **Uninstall Themia** (cards, Karpo's levels, [S-3582]); then **About Themia** ([S-3580]). Motion is the
+  Appearance's ([S-2316]).
+- **[S-2317]** **Karpo's components, one to one** (`karpo-app` `Karpo.Dock/SettingsPanel.Layout.cs` `PanelMetrics`,
+  `SettingsPanel.Paint.cs`, `SettingsPanel.Picker.cs`; docs/widgets.md §548, §551, §578, §592, §670), drawn with
+  Themia's tokens (`ShellMetrics.Page`, `Fluent`, `ShellRole`), checked against Karpo's code 2026-11-15:
+
+  | Karpo | Themia (`PageView`) | measure |
+  |---|---|---|
+  | section heading (`Heading`, Body Strong) | `SettingsHeading` / a section | 24 after the last group, 8 over its cards |
+  | card (`CardBackground`, stroke) | `Card` | radius 4, 4 apart, a gutter (16) round the page |
+  | one line / two lines | `Lay` | 48 / 60 (Body over Caption), icon at 16, name at 48, control 16 from the end |
+  | toggle row | `ToggleRow` | 40 × 20 switch, "On"/"Off" 12 before it in a room of 40 |
+  | number, text, choice box (`ControlWide`) | `NumberBox`, `TextBox` | 240 × 32 |
+  | picker head (`PickerHead`) | `HeadEnd` | value in Body, secondary, 12 before the chevron's room (36); picture 8 before |
+  | expander (`Expander`) | `HeadEnd` | shut: value in **Caption** 12 before its buttons or the chevron's room; open: none |
+  | thing's buttons (`Tools`) | `ToolButton` | 32 squares, 4 apart, ending at the chevron's room |
+  | handle (§551 `Handle`) | `Grip` in `Lay`'s lead | 16 × 32, 4 in; icon and name 12 further in |
+  | chevron (`ChevronIn`) | `ChevronOf` | 12 glyph, its middle 20 in from the control's end |
+  | link (`Link`) | `LinkRow` | value in Caption before the chevron |
+  | note / reading with a picture (§579) | `NoteRow` | name in Body over its Caption line, value in Caption at the end |
+  | row that acts (§521) | `ActionRow` | what it does in Body, a standard button of its words (120..240, 12 in) at the end |
+  | row that only acts (§578 `Foot`) | `FootButton` | no card, hyperlink look (accent text), from the cards' start, 8 apart |
+  | button beside a row (§638 `Beside`) | `BesideRow` | a standard button at the line's end |
+  | header card (§529 `LayHeader`) | `HeaderCard` | 80 tall: 48 tile 16 in, glyph 24, name 20/28 semibold over Caption 16 after it, 32 icon buttons 4 apart |
+  | tab strip (§592, SelectorBar) | `PageTabButton.Strip` | 40 tall, words 12 in, 4 apart, 3 × 16 accent pill, 8 under the card before and over the cards after |
+  | inline picker (§670) | `Body` | under a hairline on the secondary card fill, 12 in; options 36 tall |
+
+  Not Karpo's: a number's slider row ([S-3731]) is a 240 number box, as Karpo's steppers; Karpo's popups (§633), its
+  value resets (§613) and a mixed row's own values (§529) have no Themia counterpart (every picker is inline, no
+  value has a reset of its own, Mixed reads a dash); a page's head is its first section's heading, as Karpo's.
+- **[S-2318]** **Rows that act, as Karpo's** (`PageView.ActionRow`, `FootButton`, `BesideRow`; Karpo's §521, §578,
+  §638): a row that says what it does (`Caption`) is a card, its icon and those words before a standard button
+  whose words are the row's (its value in Caption 12 before the button); one with nothing to say is its button
+  alone, no card: a hyperlink button's look (its glyph and words in the accent's text colour, the critical colour
+  for a danger, a chevron after its words where it asks first), on a page from the cards' start 8 under the card
+  before it and the next such 8 beside it, in an opened card its glyph where the rows' names start; how it went
+  under it in Caption. A reading may carry a button in its line (`SettingsReading.Beside`: a site).
+- **[S-2319]** **Formats** (Karpo's Formats card, `Karpo.Core/KarpoMenu.Formats.cs`): a card under the language,
+  Windows' date-and-time glyph, saying at its end "Default (Windows)" while every format follows Windows, else
+  "Custom"; opened, Time format, First day of week and Temperature (each Windows' first, [S-3771]), **Windows region
+  settings** (opens `ms-settings:regionformatting`), then under a rule **Reset all** (every format back to Windows'
+  in one change; greyed while they all follow), the last two buttons alone ([S-2318]).
+- **[S-2316]** **Appearance**: the preview ([S-2311]), the **Style** ([S-2122]), Theme and colours, Item background,
+  Cards (its **Material** first: Solid or Liquid glass, [S-2123]), Text and size, and **Motion** (Karpo's
+  Animations, the Appearance's since its §682).
 - **[S-2320]** The **bar** (`EditBar`, laid out by `EditBarLayout.Lay`): one row 48 DIPs tall (8, a 32
-  control, 8) at the top centre of each display's work area, 8 under its top, Windows' ground with the
+  control, 8) centred on each display's work area, 8 under its top (it never moves, [S-2329]), Windows' ground with the
   flyout's rim, radius 8 and a flyout's shadow. Left to right: the pages' entries 4 apart (each 12, its
   16 icon, 8, its words in Body, 12; no fill or rim until pointed at); 8, a 1-DIP hairline 20 tall, 8
   (drawn only while something is selected, its room always kept); the **selection's room**, 256 DIPs
-  always kept ([S-2324]); a 16 gutter; the **problems' room** (a 40 icon button while there are
+  always kept ([S-2324]); a 16 gutter; the **toggles** ([S-2330], 40 each, 4 apart); 4; the **problems' room** (a 40 icon button while there are
   problems; Themia keeps no standing list of them yet, so the room stays empty); 4; **Add widget**
   (Windows' standard button, its "+" in the accent, [S-3501]); 8; **Done** (the one accent button, at
   least 80, ending 8 from the bar's end). One width whatever is selected and however many problems there
-  are. There is no grip (the bar does not move), no Undo or Redo (Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z still
+  are. There is no grip (the bar is never dragged), no Undo or Redo (Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z still
   step the history, [S-885]), no search, no fold and no close button.
+- **[S-2329]** **The bar never moves** (owner, 2026-11-15: "the topbar should never move"): it stands 8 under
+  the work area's top on every display, whatever is selected or dragged, and its flyouts hang under it. A
+  selected widget its page covers is seen through the page instead ([S-2344]). *(2026-11-14 to -15 it went
+  to the foot while it or its flyout covered a selected widget; removed whole.)*
+- **[S-2330]** **One toggle at the bar's root** (owner, 2026-11-15: "widgets can go over the edge toggle
+  should be integrated on the root level of the topbar"; `EditBarToggles`, Core lines the bar draws):
+  **Widgets can go over the screen edge** (`design.overEdge`, default on, [S-6608]), an icon toggle button 40
+  wide after the gutter, its words the tooltip and name; off a subtle button like the entries, on WinUI's
+  checked toggle (the accent's fill, the glyph on it). It is its setting's one place ([S-3590]): no page sets
+  it. *(Retired 2026-11-15: the Snap to grid toggle; the grid is always on, [S-06].)* Over the edge off: every
+  gesture (placing, moving, a block's move, resizing, pasting) keeps the whole widget on the work area
+  (`ScreenMetrics.HoldsWhole`, `GridGeometry.Keep`, a resized edge stopping on the work area's edge); a widget
+  already hanging over stays until it is next moved. Tests `EditBarLayoutTests.S2320_`,
+  `SettingsMenuTests.S2330_`, `EdgeOverhangTests.S2330_`.
 - **[S-2321]** The entry whose flyout is open is lit: the subtle fill and the accent's 16 × 3 pill at
   its foot. Each entry's words are its tooltip and its name.
 - **[S-2322]** On a display too narrow for the bar the pages' entries show their **icon alone** (40
@@ -1888,9 +2033,10 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   `-background`, `-border`, `-font`, `-replace`; `-accounts`, `-accounts-account`, `-accounts-add`,
   `-accounts-imap*`, `-accounts-caldav`; `-views`, `-views-icon`, `-colour`, `-rename`, `-delete`,
   `-many`, `-many-end`; `-display`, `-display-type`, `-position`, `-bar-views`, `-new`, `-end`), and the
-  selection's page beside real cards in edit mode (`select-<theme>-one`, `-style`, `-header`,
+  selection's page beside real cards in edit mode (`select-<theme>-covered` and `-covered-two`, selected
+  cards under their page seen through it, [S-2344]; `select-<theme>-one`, `-style`, `-header`,
   `-background`, `-appearance-end`, `-two`, `-many`, `-toggle`, `-weather`, `-weather-location`,
-  `-setup-weather`, `-shortcuts`, `-vocabulary`, `-vocabulary-colour`, `-vocabulary-feeds`,
+  `-setup-weather`, `-desktop-icon`, `-vocabulary`, `-vocabulary-colour`, `-vocabulary-feeds`,
   `-vocabulary-confirm`), over stand-in hosts that reach neither Windows nor the user's state; then the
   edit markers ([S-31b]). `--editbar-png` writes no `settings-*`, `views-*`, `display-*` or `props-*`
   pictures any more.
@@ -1898,7 +2044,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,
   Copy and Remove as icon buttons at its end, their words and keys the tooltip; Remove reads "Remove
-  from this view" for desktop items, [S-5524]), then its sections ([S-2342]). It is where a widget's
+  from this view" while every selected widget is a desktop item's, never for an own icon, [S-5524]), then its sections ([S-2342]). It is where a widget's
   options are: there is no widget settings page ([S-6536]).
 - **[S-2341]** The **selection's entry** on the bar of the display the selection is on
   (`SelectionPage.Words`, `.Glyph`): the kind's glyph and name for one widget (an entered member too); "2 ×
@@ -1913,13 +2059,59 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   the count in the header card and the shared sections only ([S-3702]), For all of them among them
   ([S-11756]); a mixed value of the card's own rows reads as a dash. A whole group: its own page
   ([S-11754]); an entered member: its own page under the link to its group ([S-11757]).
+- **[S-2345]** **Two tabs** (owner, 2026-11-15: "the appearance in the widget settings should get an own tab";
+  Karpo's tab strip, §592, WinUI's SelectorBar; `SelectionPage.Tabs`, `PageTabButton`, the add page's tab too):
+  under the header card a strip of **Settings** (the link to an entered member's group, What it shows, For all of
+  them, Header) and **Appearance** (the Appearance section, its heading the tab's words so not said twice), the
+  chosen tab's sections under it; the strip 8 under the header card and 8 over the cards. Only where both have
+  something: a group sharing nothing has its look alone, no strip. The tab chosen is kept while the page lives;
+  a way in (`RequestSettings`, Set up) lands on the tab its section stands on. Renders `select-<theme>-one-appearance`,
+  `-many-appearance`, `-group`, `-group-appearance`. Tests `EditBarLayoutTests.S2345_`.
+- **[S-2346]** **Every press on a flyout is the flyout's, and lands** (owner, 2026-11-15: "sometimes i cannot open a
+  section in the configuration when a widget is behind it ... the mouse click does not reach the component"). The
+  page was drawn again whenever the state changed (a widget's view writing its config, a line that finished reading,
+  [S-3746]), replacing every row; a row pressed before and released after lost its click. While a press is held on
+  the open flyout (`PageFlyout.Pressed`, every press, handled ones too) the page is not drawn again; what asked is
+  drawn once after it lets go (released, lost, cancelled, or seen with no button down; a release anywhere on the surface
+  too): `FlyoutPress`. **Never inside the event that asked** (owner's log, 2026-11-15 18:01: drawing the page from the
+  release took the pressed row out of its panel while XAML still handed it that pointer event, and the panel's `Clear`
+  threw a NullReferenceException out of the event): every drawing the surface asks of the open flyout (a change, an
+  undo, the press letting go) is posted once to the dispatcher (normal priority: never starved) and drawn after the event, asks while one
+  is posted being that one, a press landing before its turn holding it again (`FlyoutRedraws` over `FlyoutPress`:
+  `Redraw`/`Release` post, `Run` draws); what the drawing throws is logged, never let out of the callback. The page
+  itself never empties the panel it drew: each drawing (its own too, from a tab, a back head, an answer) is a new panel
+  put in the old one's place (`PageView`, a content control). Nothing over the flyouts takes a press: Debug's
+  `--editbar-png` hit-tests a grid every 5 DIPs over each page's flyout and prints how many points the page took
+  (`FlyoutHitProbe`: every point of every select-* and page-* picture, the shine-through windows over real cards
+  included, is the page's), and plays a press, a change under it and its release through `FlyoutRedraws` on each
+  (`press check`: not drawn under the press nor inside the release, drawn once after it, no error logged). Tests
+  `FlyoutPressTests.S2346_`.
+- **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
+  through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
+  widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the
+  page's ground is left at 55 % (`ShellMetrics.Flyout.ShineThrough`) inside the card's box, a window cut on
+  the outline's own lines and round where it takes a panel's corner (`FlyoutPlacement.ShineThrough`: one
+  window per covered part, cut to the panel, never two over one spot, joined widgets one window); the cards
+  and words stay on top, readable. The page still takes every press there: the widget never does. Other
+  pages cover what is under them. Tests `EditBarLayoutTests.S2344_`.
 - **[S-2343]** Selecting a widget adds its entry and **opens its flyout, once per selection**: closed by
-  the user it stays closed for that selection; a click on a selected widget opens it again; nothing
-  selected removes the entry and closes it. Nothing opens while a drag or a resize runs ([S-3710]) or
-  while placing. The card's Set up button selects the widget alone and opens its page at the row its
+  the user it stays closed for that selection; nothing selected removes the entry and closes it. **While
+  the pointer holds a widget** (a press on it, its move, its resize) nothing opens and an open page goes as soon as the widget starts to move or to change its size
+  (`ClearForDrag`), never thrown over a widget still moving (seen live 2026-11-14); **when the pointer
+  lets go the page opens** (`SelectionPage.OpensWhenReleased`, `DesktopWindow.PressEnded`): a click on a
+  widget selects it and opens its page, a closed one again too; a drag or a resize opens it at its end, for
+  the selection it made. A move on the locked desktop ([S-2008]) opens nothing: there is no edit mode. A selection met while held stays new
+  (`SelectionPage.Flyout`), so the release opens it. A press on a widget leaves the open page standing
+  (closing it only to open it again would flash). Never while placing. *(Until 2026-11-14 a selection met
+  during a drag counted as shown and the drag's end opened nothing; changed at the owner's word: "when
+  dragging a widget or clicking on a widget the flyout with its settings should open automatically".)*
+  Tests `DesktopViewTests.S2343_`. The card's Set up button selects the widget alone and opens its page at the row its
   module names ([S-1862]). Enter from the selection opens its flyout with the keyboard in it ([S-1974]).
 
-Needs a live pass: the bar and its flyouts on every display at mixed DPI and with a top taskbar (the bar
+Needs a live pass (2026-11-15, [S-2343], [S-2344], [S-2330]): the page opening on a click and at a drag's
+and a resize's end, and going as a move starts; a selected widget seen through its page as its settings
+change it (scale, size, style) and as the selection changes, a press there going to the page; the bar's
+toggle flipped (a drag held inside the work area). Needs a live pass: the bar and its flyouts on every display at mixed DPI and with a top taskbar (the bar
 8 under the work area, a flyout pushed in at a screen edge with its beak over its entry, 70 % of a short
 display); the pointer (hover fills, a press outside closing a flyout and selecting a widget, an item
 dragged to a new place, a colour's spectrum dragged); the keyboard (Tab and the arrows along the bar,
@@ -1943,15 +2135,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
 - **[S-3507]** *(Retired by [S-2320], [S-2341]: there is no trail; the selection has an entry of its own, Display and View are pages.)*
 - **[S-3508]** *(Retired by [S-2343]: the selection's entry opens its page; there is no properties menu to put away.)*
 - **[S-3509]** *(Retired by [S-2320]: the bar has no Undo or Redo; Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z step the history ([S-885]).)*
-- **[S-3516]** **Snap to grid** (grid snap while moving and resizing, [S-06]) is a switch in the General
-  page's first section ([S-2300], key `snap`), set there and nowhere else ([S-3590]): not on the bar,
-  not on the Appearance page, not in the surface menu.
-- **[S-11959]** **Keep widgets from overlapping** (`Design.WidgetCollisions`, off by default) is a switch under Snap to
-  grid (key `collisions`). On, a widget moved by drag or by the arrow keys never lands over another: the block goes all
-  the way where it lands clear, else slides along the clear axis, else stays where it stood (`BlockGeometry.Apart`).
-  Touching edges are no overlap. Only the moved widgets are held: widgets already lying over each other are left as they
-  are, and a moved one may stay over or leave the one it started over, but never comes over another. Resizing, placing
-  and a hand-off to another display are not held. `WidgetCollisionsTests.S11959_`.
+- **[S-3516]** *(Retired 2026-11-15: there is no Snap to grid; the grid is always on, [S-06].)*
 - **[S-3501]** **Add widget** opens the **add page** ([S-11700]): every widget kind in the catalogue (the
   module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change) and
   every ready-made group ([S-2470]) as tiles with pictures. Every way in opens the same page under that
@@ -1970,14 +2154,15 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   page); inside a subject a **family** (one widget in several parts) is a folder of its own (a heading
   on the page). Never deeper than that. The catalogue has no sections of its own.
 - **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,
-  Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcuts. **Browse**, in
+  Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcut (the desktop icon kind's tile, which
+  makes an own icon, [S-5523]). **Browse**, in
   order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session);
   **Calendar & mail** (calendar, next meeting, week planner | mail, tasks,
   contacts | notifications); **Weather & sky** (weather, forecast, rain next hour, air quality | sun,
   moon); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
   audio visualizer, volume, mixer | gallery, video stream); **Notes & tools** (notes,
   scratchpad, clipboard | habits, quote); **Files & apps** (folder,
-  shortcuts, recent files, recycle bin); **System** (CPU › meter, details, top processes; Memory ›,
+  shortcut, recent files, recycle bin); **System** (CPU › meter, details, top processes; Memory ›,
   GPU ›, Network ›, Ping ›, each a meter and its details; the disk meter | Screen
   time › chart, donut, apps); **Devices & power** (Battery › meter and details, Power buttons › the
   seven | brightness, Bluetooth | drive, removable drives); **Quick settings** (the thirteen
@@ -2018,7 +2203,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
 - **[S-11704]** A **subject's tab**: **Ready-made**, the groups whose `Home` is the subject or a family
   of it, in `ReadyMadeGroups.All`' order; **Widgets**, the subject's own widgets in the tree's order (a
   family of one among them); [S-5523] **On the desktop**, the view's unplaced desktop items, in the
-  subject the item kind is at home in (the kind itself is never a tile); then each family of two or more
+  subject the desktop icon kind is at home in (the kind's own tile, "Shortcut", is among the widgets); then each family of two or more
   under its name (Processor's under "CPU", …), its widgets in order.
 - **[S-11705]** Every kind and every ready-made group the build offers has **exactly one home** on the
   page (a subject's tab, or More); Start shows some again. `AddTree.SubjectOf` gives a family's subject.
@@ -2041,8 +2226,15 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   right to left); Home and End go to the first and last tile; Enter or Space on a tile picks it, Enter in
   the box picks the first tile shown; typing on a tile goes to the box; Ctrl+Tab and Ctrl+Shift+Tab step
   the tabs round; Escape empties the box first, then closes the page, the keyboard back on Add.
-- **[S-11709]** [S-5523] The desktop item kind is never a tile and has no home; its view's unplaced items are
-  tiles of **On the desktop** in its subject (Files & apps), none when nothing is unplaced.
+- **[S-11709]** [S-5523] The desktop icon kind (`desktopItem`) has its tile like any kind, **Shortcut**, at
+  home in Files & apps and among Popular: it places an own icon that waits for its target ([S-9511]). The
+  tile's name is the tile's alone (`WidgetDescriptor.AddLabel`, `TileName`: a kind of two sources whose
+  tile makes one of them; null for every other kind, whose tile is called what the kind is); the kind is a
+  **Desktop icon** everywhere else ([S-5611], its module's `SPEC.md`), and the search finds the tile under
+  both names (`AddSearch.Doc`). Its
+  view's unplaced desktop items are tiles of **On the desktop** in the same subject, none when nothing is
+  unplaced. *(Retired 2026-11-14: "the desktop item kind is never a tile and
+  has no home"; the kinds `shortcut` and `desktopItem` are one.)*
 - **[S-11710]** A tile's **picture** is the thing itself (`AddPictures`): its widget at its natural size, or
   its group's widgets at their boxes joined as one panel ([S-2240]), built as real cards on a preview host
   with the design applied, so the user sees their look, and with **sample data only**, in every build
@@ -2140,11 +2332,14 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   each line as the row of its kind ([S-2302]). A section with no lines is not there. There is no first
   level any more: `SettingsMenu.Root` is gone.
 - **[S-3525]** **General**: **Start with Windows** ([S-933]; its glyph a speedometer, as Task Manager
-  marks its Startup apps, never the power button Quit Themia wears; ticked while Windows will start Themia,
+  marks its Startup apps, never a power button; ticked while Windows will start Themia,
   read from Windows each time the menu opens and the stored value until then; a click asks Windows and
   the tick shows what it reached), with under it, as notes, what holds against it ([S-935]: switched
   off in Windows, a policy, a change that did not take, the raw error under that advice only);
-  **On the desktop** (Themia's items, Windows' icons or Nothing, [S-5500]); **Pause during full-screen apps** (game mode, [S-920]; "Paused now" at its end
+  **Pause during full-screen apps** ([S-2315]); under its own heading **Desktop icons**: the desktop's one view setting, the one its
+  background menu's View › sets too ([S-5593]): **Desktop icon size** (a choice: Large icons,
+  Medium icons, Small icons); no Show desktop icons, Auto arrange or Align toggle (the icons always show and
+  stand on the widget grid, [S-5500], [S-11875]; Auto arrange is the menu's one-shot, [S-5594]). Pause during full-screen apps is game mode ([S-920]; "Paused now" at its end
   while it holds the widgets).
 - **[S-3526]** **Appearance ›**, the look every widget shares ([S-3830]), behind dividers: **Style ›**
   ([S-3527]); **Theme and colours ›** (Theme › Use system setting, Light, Dark; Accent, a colour whose
@@ -2183,7 +2378,9 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   where they are; what Windows reports (start with Windows, the desktop icons, game mode holding the
   widgets) updates it the same way. A language switch writes its words in the new language and keeps
   what is open open: the lines' keys do not change.
-- **[S-3532]** **Quit Themia** is the General page's last row ([S-67]): it quits on every display.
+- **[S-3532]** *(Retired 2026-11-15, the owner: "dont show quit themia"; Karpo's Quit Karpo goes too.)* No page
+  has a line that quits and the pages' host has no Quit (`SettingsMenuTests.S3532_`): Themia ends with Windows'
+  sign-out or shutdown, or as Uninstall closes it ([S-3582]).
 - **[S-3533]** *(Retired by [S-3584]: the settings window has no page left, so there is no All
   settings… and nothing opens it.)*
 - **[S-3534]** The ways in, each landing on its row (page and row, the row scrolled into view and lit for
@@ -2220,15 +2417,14 @@ button, its one rectangle inside the work area, the view bar at the top); Window
 arrows, Escape back one level then to ⚙, the mouse's back button, F6, Undo inside it); the slide
 going in and back and with Windows' animations off; a press on a widget closing it and selecting
 the widget; Start with Windows against Task Manager's switch and in the packaged build (the startup
-task); Show desktop icons followed while the desktop's own menu flips them; game mode's "Paused now"
+task); the icon size followed while the desktop's own menu sets it; game mode's "Paused now"
 on a second display; the font picker's search and the installed fonts; the colour dialog and the
 eyedropper from a colour level; every Appearance line applying live; a language switch with a
-level open; Quit Themia.
+level open; Windows region settings opened from Formats.
 
 ### The edit bar's View and Display menus (BAR-MENUS)
 
-Since 2026-11-12 View ▾ and Display ▾ are the Views and Display pages (EDITBAR-PAGES, [S-2300]): their
-first levels are the pages' sections, their submenus the sections or expanders of [S-2301].
+Since 2026-11-12 View ▾ and Display ▾ are the Views and Display pages (EDITBAR-PAGES, [S-2300]); since\n2026-11-15 every view and every display is a card of its page ([S-2313], [S-2314]), Karpo's Layouts page's things.
 
 The Views and Displays pages of the settings window moved onto the edit bar (user request
 2026-10-25, step 2 of the move of [S-3520]), after Karpo's Display ▾ and Layouts menu (`karpo-app`,
@@ -2239,57 +2435,23 @@ placed by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu
 `Shell/Pages/`, `Shell/IconPicker.cs`. Tests `ViewsMenuTests`, `DisplayMenuTests`.
 
 - **[S-3540]** *(Retired by [S-2300], [S-2327] (2026-11-12): Display ▾ and View ▾ are the Display and Views pages; their content is [S-3541]..[S-3545], [S-3549].)*
-- **[S-3541]** **View ▾** is the view this display shows (its assignment, else the active view,
-  [S-1706]) and, behind Manage views ›, every view (Karpo's Layout ▾). Which view a display shows is
-  set in Display ▾ alone ([S-3543], [S-3590]): no line here shows a view. The lines are Core's
-  (`ViewsMenu.Root`), keyed by what they are (`name`, `icon`, `manage/view:<id>`), so a rename, a move
-  or a language switch keeps what is open open.
-- **[S-3542]** Its first level: how many widgets the view holds (a note); **Name** (its value the
-  name; its level the field holding it, [S-3736]; `ViewOps.Rename`, [S-1707]); **Icon ›**, whose level is
-  the icon picker ([S-1803]) at the menu's width, its default cell the view's initials ([S-903]), a
-  pick stored at once and drawn ticked; **Colour ›**, the one colour level ([S-3724]: Default, the
-  theme's text colour, then Windows' colours, custom and the eyedropper; `ViewOps.SetColor`, no
-  relayout); under a divider **Duplicate view** ([S-900], the copy shown here) and **Delete view** (in
-  the critical colour; asked first on a level of its own, "Delete "Work"?" with what goes with it,
-  Delete and Cancel, [S-3737]; the undo notice still offers it back, [S-881]; greyed on the last view,
-  [S-12]); under another **Manage views ›** ([S-3549]), its value how many there are.
-- **[S-3549]** **Manage views ›**, Karpo's level of things: **New view** on top (an empty view at the
-  end, shown here; past the free limit refused with a notice saying why, [S-1065]), a rule, then
-  every view in the user's order, its icon in its colour and its name, with at its end **Rename**
-  (the pencil, F2: its field on the row's level, [S-3736]) and **Delete** (Del: its "are you sure?" on the row's
-  level, [S-3737]; greyed on the last view), 24-DIP subtle squares whose names (and keys) are their
-  tooltips, and the row's grip: dragged ([S-3747]) or Ctrl+Up / Down ([S-3748]) a view takes another's
-  place (`AppHost.ReorderView`, one undo step), and the view bar, Ctrl+n and the menu follow. A click
-  on a view's row does nothing of its own. The vocabulary grows `SettingsItem` (a thing with tools
-  and an order) and `SettingsTool` (a glyph, a name, a key, and a line of text it asks or a command);
-  the engine draws them (`MenuNode.Tools`, run with the row in hand). A view's name is reached here
-  and on the first level's Name: one field of one level, View ▾'s ([S-3592]).
-- **[S-3543]** **Display ▾**: this display under its name (a note: "DELL U2723QE — 3840 × 2160
-  (primary)", `MonitorTarget.Describe`, so two identical screens are told apart): under the heading
-  **View on this display** ([S-3740]) every view as a row of its own (Karpo's inline choice: its icon in
-  its colour, its name, the tick on the one this display shows), a click showing it here ([S-19],
-  `AppHost.ShowView`; switching views is here alone, [S-3590]); under a divider **Widget scale**, a
-  slider 50–200 % in fives ([S-850], `AppHost.SetDisplayScale`, stored on the release; the only scale
-  besides a widget's own, [S-6532]), and **View bar ›** ([S-3544]); then under a divider and the
-  heading **All displays**: **New displays show ›** and **Show Themia on ›** ([S-3545]). The lines are
-  Core's (`DisplayMenu.Root`, the views keyed `show:<id>`); they follow the state and, while the menu
-  is open, every display pass (a display plugged in or switched off).
-- **[S-3544]** **View bar ›**, this display's bar ([S-906]), its value where it sits or **Hidden**:
-  **Show the view bar**, **Type ›** (Inline, Select, [S-5400]), **Labels ›** (Icon and text, Icon
-  only, Text only, [S-5405]), **Position ›** (the eight anchors), **Size ›** (Medium, Large, Extra
-  large), each choice with what holds at its end; under a divider **Views ›** (the
-  views on the bar), its value "All views", the one view's name or "2 of 4 views" (`ViewBarRules.Offer`): **All views**
-  (on while the bar offers every view; switched off it keeps only the view this display shows,
-  `ViewBarRules.SetAllVisible`), a divider, then a switch per view with its icon in its colour
-  ([S-908]: the last one stays on; every switch is read back from what was stored). Each writes this
-  display's `ViewBarSettings` in one change; the option that holds changes nothing ([S-3718]).
-- **[S-3545]** What every display shares: **New displays show ›** ([S-847]): The last view shown, or
-  a view (each with its mark), stored with no relayout. **Show Themia on ›** ([S-845]): a switch per
-  connected display, switched off or not, by its name, this one saying **This display**, so a display
-  switched off (which has no surface, so no bar) is switched back on from another's menu; the last
-  display on is greyed, with "Themia has to stay on at least one display" under the list. Switching
-  this display off puts its menu away first and runs once the click has finished: the surface the
-  click came from closes.
+- **[S-3541]** *(Retired by [S-2313] (2026-11-15): the Views page is every view's card; nothing acts on "the view shown here".)*
+- **[S-3542]** *(Retired by [S-2313]: a view's Name, Icon and Colour are in its own card; Duplicate and Delete are its head's icon buttons.)*
+- **[S-3549]** *(Retired by [S-2313]: Manage views is gone; every view is a card of the page, dragged by its grip or Ctrl+Up / Down, Add a view under them.)*
+- **[S-3543]** *(Retired by [S-2314] (2026-11-15): the Display page is every display's card; the view a display shows, its scale and its view bar are in its card.)*
+- **[S-3544]** A display's **view bar** ([S-906]), in that display's card under the heading **View bar**: **Show the
+  view bar**, **Type** (Inline, Select, [S-5400]), **Labels** (Icon and text, Icon only, Text only, [S-5405]),
+  **Position** (the eight anchors), **Size** (Medium, Large, Extra large), each standing open in the card; then under
+  the heading **Views** the views on the bar (`ViewBarRules.Offer`): **All views** (on while the bar offers every
+  view; switched off it keeps only the view that display shows, `ViewBarRules.SetAllVisible`), then a switch per view
+  with its icon in its colour ([S-908]: the last one stays on; every switch is read back from what was stored). Each
+  writes that display's `ViewBarSettings` in one change; the option that holds changes nothing ([S-3718]).
+- **[S-3545]** What every display shares, under **All displays**: **New displays show** ([S-847]): The last view
+  shown, or a view (each with its mark), stored with no relayout. Whether Themia is on a display is that display's
+  card's **Show Themia here** ([S-845]), every connected display listed, switched off or not, so a display switched
+  off (no surface, no bar) is switched back on from another's page; the last display on is greyed with "Themia has to
+  stay on at least one display" under it. Switching the page's own display off puts its flyout away first and runs
+  once the click has finished: the surface the click came from closes.
 - **[S-3546]** The ways in: the Display and Views entries, the surface menu ([S-1744]), and a view
   chip's **View settings** ([S-1708]: that view shown here, then the Views page open on this display).
 - **[S-3547]** *(Retired by [S-2302]: the row vocabulary is the pages' one, for every page.)*
@@ -2373,22 +2535,21 @@ the account service), `Shell/Pages/PageView.Rows.cs` (the fields, the masked one
 place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
 `SettingsMenuTests` (`S355x_`, `S3561_`), `AccountFormTests`.
 
-- **[S-3550]** **Accounts ›** on ⚙'s first level, after Appearance: what the Accounts page said
-  first (why the accounts file could not be used, in the critical colour; "No accounts yet" while
-  there are none), then every account as a row of its own (its name, its provider's glyph, or the
-  warning glyph and **Sign in again** at its end while it needs a sign-in, [S-3552]), then under a
-  divider **Add account ›** ([S-3553]). The line itself says Sign in again while any account needs
+- **[S-3550]** **Accounts** (the page, laid out as Karpo's since 2026-11-15, [S-2312]): what the Accounts page said
+  first (why the accounts file could not be used, in the critical colour), then under **Your accounts** every
+  account's card ("No accounts yet" while there are none; its name, its provider's glyph, or the warning glyph and
+  **Sign in again** at its end while it needs a sign-in, [S-3552]), then under **Add an account** its ways ([S-3553]). The line itself says Sign in again while any account needs
   it. Without an account service (a failed start) it says accounts are not available. The lines
   are Core's (`SettingsMenu.Accounts` over an `IAccountsMenuHost`), keyed by the accounts' ids
   (`accounts/account:<id>`), so a rename or a language switch keeps what is open open.
-- **[S-3551]** An account's level ([S-3821]'s group, moved): its address and provider; a
+- **[S-3551]** An account's card ([S-3821]'s group, moved; [S-2312]): its address and provider under its name; a
   **reading** per kind its provider feeds, in the order mail, calendar, contacts, tasks
   (`SyncStats.Summarize`): its name and count ("Mail · 1,240 messages") and under it "in 3 folders ·
   synced 5 min. ago · 2 changes waiting to sync", or "Nothing stored on this PC yet"; where a service
   grants access per resource, **Choose what it may read** ([S-9919]); **Nickname**, its value the
   nickname, a line of text on a level of its own ([S-3736]) with the one there and the account's own
-  name as the hint, an empty field clearing it (`AccountService.RenameAsync`); and under a divider **Sign out** in the
-  critical colour, asked first as a destructive question on a level of its own ([S-3737]: "Sign out of Alex Wilber?", what
+  name as the hint, an empty field clearing it (`AccountService.RenameAsync`); and **Sign out**, its head's icon button,
+  asked first as a destructive question on a level of its own ([S-3737]: "Sign out of Alex Wilber?", what
   goes and that nothing changes at the provider, Sign out and Cancel). What a rename or a sign-out
   could not do stands under its line in the critical colour. There are no switches for an account's
   parts and no colours: the page had none, and nothing behind it turns a part off.
@@ -2396,16 +2557,15 @@ place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
   (in the critical colour), then **Sign in again**: for a provider with a sign-in of its own the
   sign-in that added it (the browser, a code), which replaces its sign-in in place, how it goes under
   the line; for a mail, calendar or contacts server **Sign in again ›**, that server's form ([S-3554]).
-- **[S-3553]** **Add account ›**: every offered provider ([S-3562]) with a sign-in of its own in its
-  place ([S-9910]: Microsoft), then under a divider the password servers' forms: **Mail server
-  (IMAP) ›**, **Calendar server (CalDAV) ›**, **Contacts server (CardDAV) ›**. A provider's line is its sign-in
+- **[S-3553]** **Add an account** ([S-2312]): every offered provider ([S-3562]) with a sign-in of its own in its
+  place ([S-9910]: "Add a Microsoft account", what it brings under it), then the password servers' forms, each a
+  card: **Mail server (IMAP)**, **Calendar server (CalDAV)**, **Contacts server (CardDAV)**. A provider's line is its sign-in
   ([S-1783]'s card, moved): a click starts it, the line greyed while it waits; under it what it is
   doing with a ring ("Opening the browser…", "Waiting for the browser. Finish signing in there."; a
   device code's code with **Copy code** and **Open the page**, [S-9919]) and **Cancel**; once back,
   who it signed in ("Signed in to Microsoft as …") or why it did not, in the critical colour. A
   provider this build cannot sign in to ([S-536]) is greyed, why under it. A provider that signs in
-  with a pasted token has a form of one masked field ([S-9915]); one with several ways has a submenu of
-  them, a level of their own. The browser opens only from a click; nothing is signed in from a widget.
+  with a pasted token has a card of one masked field ([S-9915]); one with several ways a card of them. The browser opens only from a click; nothing is signed in from a widget.
 - **[S-3562]** A provider may be **held back** (`IProviderModule.Offered` false; `ProviderCatalog.Offered`
   is the rest): Add account has no line of it and a widget's Set up does not count what it feeds as
   something an account could bring ([S-1862]); nothing else knows. Its accounts already in
@@ -2546,17 +2706,19 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   has been written), through the one launcher ([S-7062]). **Reset all settings…** asks first as a
   destructive question ([S-3727]: "Reset all settings?", the page's words of what goes and where it
   is kept, Reset in the critical colour, the keyboard on Cancel); only Reset resets ([S-892]).
-- **[S-3580]** **About Themia ›**: the name card (**Themia** with its mark; under it "Version x.y.z"
-  and what it runs on, ".NET x · Windows App SDK y"); **Lometics** with its mark, "lometics.com" at
-  its end, opening the site, the studio's line under it ([S-493]); **Privacy policy** and
-  **Support** ("support@themia.app" at its end, a mail) ([S-1072]); **Open-Meteo**
-  ("open-meteo.com"), the source the weather, rain and air-quality widgets credit, with what comes
-  from it (CAMS for the air quality); then, last, **Uninstall Themia ›** ([S-3582]). Every link
-  opens through the one launcher. There is no Quit Themia here: it is ⚙'s last line ([S-3532]).
+- **[S-3580]** **About Themia**, a section of the General page of its own, as Karpo's About Karpo
+  (`Karpo.Core/KarpoMenu.About.cs`, docs/widgets.md §579, §630, §638; owner, 2026-11-15: "the about themia
+  section does not look like the karpo one"): **Themia**'s card, its mark, its name over one Caption line
+  "Version x.y.z · .NET x · Windows App SDK y"; **Lometics GmbH**'s card, its mark, its name over the studio's
+  line ([S-493]), its site a button "lometics.com" in its line ([S-2318]); **Open-Meteo**'s card as Lometics'
+  (what comes from it, "open-meteo.com" its button: Themia's own, as the data's CC BY licence asks for the
+  credit and no weather widget's place line says it, where Karpo's does, §630); then **Privacy policy** and
+  **Support** (a mail; its address the tooltip), buttons alone ([S-1072]). Every link opens through the one
+  launcher. Uninstall is the Themia section's card ([S-3582]); there is no Quit ([S-3532]).
 - **[S-3581]** A line may show a picture instead of a glyph in its icon column (`SettingsLine.Picture`,
   `MenuPicture`: Themia's mark `Assets/themia-logo.png`, decoded at the column's size; Lometics' mark
   `Assets/lometics.svg`, rasterised), named for a screen reader; a command may say a value at its end.
-- **[S-3582]** **Uninstall Themia ›**: what happens (packaged: Themia closes and is removed with
+- **[S-3582]** **Uninstall Themia**, a card of the General page's Themia section after Back up & reset: what happens (packaged: Themia closes and is removed with
   the user's widgets, settings and accounts, [S-1070]; loose: Themia closes and Windows' Installed
   apps opens, [S-1552]); a loose build's **Also delete my data**, unticked; ticked, "Your widgets,
   settings and accounts are deleted too" and the folders that go named under it ([S-1553]), unticked again when the last
@@ -2651,8 +2813,8 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
 - **[S-3707]** *(Retired by [S-2340], [S-2343] (2026-11-12): the selection's options are its page, a flyout hung from its entry on the bar; the panel beside the selection is gone.)*
 - **[S-3708]** *(Retired by [S-2325]: the page hangs from the bar; `StripPlacement` is gone.)*
 - **[S-3709]** *(Retired by [S-2325]: nothing is placed by the selection's box.)*
-- **[S-3710]** While the selection is dragged or a widget resized, the selection's page does not open
-  on its own ([S-2343]); one open stays where it hangs.
+- **[S-3710]** While the selection is dragged or a widget resized, the selection's page does not stand:
+  an open one closes as the move starts, and the page opens where the widgets land ([S-2343]).
 - **[S-3711]** Some kinds can never have a header (`WidgetInstance.CanHaveHeader`): the thirteen
   quick-setting toggles ([S-3901]) and all six audio visualizer designs ([S-3200], [S-3212]). For a selection holding one, the strip has no Header line at all
   (no positions, and such a widget's title is shown nowhere, so it has no title box either) and
@@ -2708,17 +2870,11 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
 - **[S-3724]** A **colour** setting (`WidgetMenuLines.Colour`: `#RRGGBB`, or empty to follow the
   default) and a **fill** setting (`WidgetMenuLines.Fill`: a `FillChoice`) are rows whose level is the
   one colour level (`MenuColour` holds the value and what a pick does; Karpo's colour level):
-  Default (the options' label; none when a colour is required, which then shows its first swatch)
-  and a fill's Transparent, ticked while they hold; under a rule the swatches (the options' presets,
-  `ColorPresets.Surfaces` unless given), 24 DIPs in 32-DIP cells, eight to a line, the first under
-  the rows' icons, the chosen one ticked and ringed in the accent, each one's name as its tooltip; a
-  fill's Opacity, a one-row slider from 10 % to 100 % in fives (`MenuColour.OpacitySlider`, [S-3731];
-  greyed at 100 % while the fill holds no colour; a drag of the card's own shows on the widgets as it
-  goes); under a rule Custom colour (the picker's dialog) and Pick a colour from the screen (the
-  eyedropper, [S-1556]), both only where custom colours are allowed. A swatch keeps a fill's
-  opacity. The row shows the colour's swatch in its icon column and its words at the end. A pick
-  sets and saves; the value that holds changes nothing. There is no row of recent colours: Themia
-  keeps none.
+  the colour picker ([S-1574]..[S-1577]: Default and a fill's Transparent with the recent colours, two
+  lines of presets from the options' table, `ColorPresets.Surfaces` unless given, each one's name as its
+  tooltip; the mixer with a fill's opacity; the hex row with the eyedropper; the mixer, the hex box and
+  the eyedropper only where custom colours are allowed). A swatch keeps a fill's opacity. The row shows
+  the colour's swatch and its words at the end. A pick sets and saves; the value that holds changes nothing.
 - **[S-3726]** A **number** (`WidgetMenuLines.Number`: a value, its range, its step and how it is
   written) shows its value at the end of its row. Up to twenty steps it is a choice of one, one tick
   per step; more is a row that asks for it as text ([S-3721], [S-3736]): the field's placeholder says the range
@@ -2740,7 +2896,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   size, where a row's words start, wrapped in full within the menu's width (a data source's credit);
   never lit, never picked, skipped by the keys.
 - **[S-3729]** An **editable list** (`WidgetMenuLines.List` over a `MenuList<T>`: feeds, symbols,
-  hosts, shortcuts) is a level of its items, each a level of its own: Rename… (a text level, starting
+  hosts) is a level of its items, each a level of its own: Rename… (a text level, starting
   from the name; saved only when it changed), the list's own rows for it and Remove; the items' rows
   are dragged up and down to reorder ([S-3732]; not for a list whose order means nothing), so there
   is no Move up or Move down (user request 2026-10-19); while there are none, its
@@ -2873,6 +3029,11 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   at once under the same name, and is gone). It is the one input to the card's content transform:
   the content is laid out at cell ÷ effective scale, so the size ladder ([S-660]) classifies and
   discloses on the scaled box — a widget at 150 % shows what a smaller card would ([S-663]).
+  **A desktop icon is drawn at 1** whatever the display's scale or its own (`WidgetScale.For`, every
+  surface and render): its size is the desktop's one icon size ([S-5593]) in whole grid cells ([S-11875]) and Auto
+  arrange packs it at that box (2026-11-15, the owner: "the desktop icons clip on the side of the screen when auto
+  arranged": a scaled icon was painted wider than its cell and the last column ran past the work area).
+  Test `DesktopGridTests.S11875_`.
 - **[S-6533]** Load validation repairs a stored scale outside 50–200 % or off the 5 % grain to the
   nearest one it may hold, and says so; a file without one reads as 100 %.
 - **[S-6534]** *(Retired by [S-6536]: the settings page has no Scale row; the panel is the scale's one place.)*
@@ -2993,8 +3154,8 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   folder source, the slide time for its Slideshow, Picture size for Slideshow and Grid (Scatter and
   Mosaic always crop), for a picture file without an outline and for the photo of the day; a
   picture file's rows (image, rotation, outline) for that source, the outline's colour and width
-  with the outline on. Shortcuts: tile size, icons only and stretch in Grid, row size in List and
-  Details, file extensions except on a grid of icons alone. Meters (CPU, memory, GPU, disk, network,
+  with the outline on. *(Retired with the Shortcuts list, 2026-11-13: its tile size, icons only, stretch,
+  row size and file extensions.)* Meters (CPU, memory, GPU, disk, network,
   battery, ping): Chart span (and its History heading) in the graph style only, each meter's first
   ([S-6300]). Current weather: Show detail in Standard. Stocks: Closed indicator for a listed symbol
   (not crypto), Extended hours for a listed symbol over one or five days (`WantsPrePost`), high and
@@ -3020,7 +3181,7 @@ itself is ⚙ › About Themia ([S-3580]). Owning files: `Themia.Core/Storage/Se
 `Services/SettingsBackup.cs`.
 
 - **[S-493]** *(Retired by [S-3580]: About is ⚙ › About Themia, its name card, the studio and its
-  links as lines; Quit Themia is ⚙'s last line, [S-3532].)*
+  links as lines; no Quit Themia, [S-3532].)*
 - **[S-494]** Export writes the state document — the same JSON as `state.json` — to a file picked
   with `Microsoft.Windows.Storage.Pickers` (window id, works unpackaged; the window of the display
   whose ⚙ it is, [S-3576]), atomically (temp + move).
@@ -3528,7 +3689,7 @@ Owner's decision 2026-11-12 (Widget sizing (SIZE), [S-2438]): the last of the li
 kinds state their sizes and show what their config says at every size. Screen time is four atoms
 (`screenTime`, `screenTimeChart`, `screenTimeApps`, `screenTimeDonut`; [S-11500], [S-11505], [S-11510],
 [S-11515] in their modules' `SPEC.md`), the habit tracker one ([S-11530]..[S-11532]), the calendar one
-with five styles, each its own sizes ([S-11540], [S-11542]..[S-11546]; the kit's schedule states its
+with five styles, each its own sizes ([S-11540], [S-11542]..[S-11547]; the kit's schedule states its
 rows for it, [S-11541]). Tests: each module's, `OfficeRecipesTests` (the groups).
 
 - **[S-11520]** **Screen time**, a ready-made group (`ReadyMadeGroups.ScreenTime`, home Screen time):
@@ -3874,7 +4035,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   deselecting the last one goes back to it. Google signs in with `calendar.calendarlist.readonly`
   beside `calendar.events.readonly`, which reads events but cannot list calendars (original PR
   #172); a sign-in not granted the list scope (403) is offered its primary calendar.
-- **[S-568]** Ranges: month = whole weeks around the month; week = its days ([S-2719], a whole week
+- **[S-568]** Ranges: month = the six weeks it draws ([S-11544], the next month's days included, which show their events); week = its days ([S-2719], a whole week
   by default); day; year = 1 Jan – 31 Dec; agenda = its date range from today ([S-3636], 30 days
   with today by default). Requested from local midnight to local midnight (the classic app used UTC
   midnight); what decides them beside the kind and the anchor is one `CalendarPeriod` (week start,
@@ -3978,7 +4139,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   the config's step, whatever is asked of it.
 - **[S-2440]** **A kit list that states its rows** (`IKitRows` on its config: `Rows`, 1..20, default 6;
   `Lines` per row, 1 or 2): its height is the family's content top (36), its rows (28 or 40 each,
-  [S-6704]), the add footer (28) where it adds in place and the bottom inset (12), stepped by a row
+  [S-6704]), the add footer (28) where it adds in place and the bottom inset (12, the rows' to stretch
+  into, [S-12410]), stepped by a row
   and following the config's rows; its width 220..520, a new one 300 (`KitSizing`). Dragging its
   bottom edge sets Rows ([S-2442], `KitSizing.SizeSets`); more items than rows scroll inside them (the
   wheel as before). Its plan is the same at every size in its range (`KitChoices.Rows`: one column,
@@ -4021,7 +4183,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   its axes follows its config.
 - **[S-2443]** *(Retired by [S-11800] on 2026-11-12, once every kind was converted: `WidgetSizing.Legacy`,
   `IsLegacy`, `LegacyFloor`, `SizeDip.Unbounded` and the shrink-only list in `WidgetSizingTests` are gone.)*
-- **[S-11800]** **One path.** Every kind states a bounded range ([S-2438]), never under the [S-08] floor,
+- **[S-11800]** **One path.** Every kind states a bounded range ([S-2438], relaxed by [S-12411]), never under the [S-08] floor,
   and inside it shows the same parts: what a widget shows is its config (its rows, lines, facts, columns,
   Size, style), never its box. A view may measure its box to lay out those fixed parts (a graph's length,
   where a text wraps, a grid's cells, a scroll ending on a whole line: `IWidgetSizeAware`, `WidgetArea`,
@@ -4051,21 +4213,80 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   Where the stored rect comes out outside the sizing in DIPs on this display (another monitor, DPI or
   scale, a changed config), the card is painted in the stored rect fitted into the sizing, anchored at
   its top-left (an axis that follows the config at the config's step), then kept in reach as any rect
-  ([S-09]) (`SizeFit.Shown`, in `PositionCard`; the card's `LiveRect` is that box, so the hit region,
+  ([S-09]) (`SizeFit.Shown`, in `PositionCard`; the card's `LiveRect` is that box, so
   the markers, a move and a resize start from what is seen). Being shown never rewrites the stored
   rect; a gesture (a move, a resize) or a config change does.
 - **[S-2447]** **A config change that changes the sizing refits** the widget's stored rect in the same
   mutation, one undo step: fitted into the new sizing at its top-left and shifted back into reach
-  where it would leave the work area, on the display that shows its view (`AppHost.NoteSizings`, over
-  every `Mutate`; a widget first seen, loaded or brought back by an undo, is noted as it is). A
+  where it would leave the work area, on the display that shows its view (`SizingNotes.Refit`, over
+  every `Mutate`; a widget first seen, loaded or brought back by an undo, is noted as it is, and at
+  start only after the language, the regional formats and the icon size are in force, which sizings
+  read; on a display whose metrics have not settled the refit waits for them, [S-854]). A
   resize of a kind whose size follows a count stores the config that size means with the rect, in
   one mutation and one undo step; while it is dragged the view already shows that config
   (`WidgetCard.LandResize`, `SizeFit.ConfigFor`; the keyboard's run of resizes lands the same way).
-- **[S-2449]** **A big number's size is a setting.** A one-readout widget (the clock, the timers, the
-  toggles) states its readout's size in its config (`IReadoutSized.Size`,
+- **[S-11807]** **On the grid, whole cells** (owner's report 2026-11-15: "the widgets should always
+  perfectly align to the grid in width and height"). The grid is always on ([S-06]): every widget's cell
+  is whole grid cells on both axes, a desktop icon's too ([S-11875]). A kind's sizing stays its content's
+  ([S-2438]); the host fits it to the grid (`GridFit.Axis`, through `SizeFit.Limits`): Min rounds up (never under one cell), a free Max down but never under the
+  rounded Min (a range inside one cell becomes one fixed size), a stepped axis keeps its steps each rounded
+  up, a resize landing on the step whose rounded size is nearest and storing the largest step its cells
+  hold (`AxisLimits.Holds`); the config's step stands rounded up. The gap and the content scale are inside
+  the cells. The content gets the spare room under a cell and lays it out as it lays out any size in its
+  range. So the painted box ([S-2446]), a resize, a Shift+arrow, a refit ([S-2447]), a new widget (its Natural rounded up) and a display, DPI or scale change
+  all give whole cells; a widget standing on a grid line ends on one. Positions stay the gesture's (the grid,
+  the work-area magnet [S-6609]), so the size is what being shown changes. A scene and the add page's
+  pictures paint whole cells too (one path, no off-grid layout). The overlay draws each
+  line on the whole DIP a card edge there is put on (`GridFit.LineDip`, [S-11872]), so edge and line share
+  their pixels at any scale. With the grid off the sizing is content's alone, as before. Tests
+  `GridFitTests.S11807_`, `GridPlacementTests.S11807_`.
+- **[S-11808]** **A ready-made group on the grid** (`GridFit.Layout`, in `PlacementPayload`): its boxes
+  are laid out as one block of whole cells: each edge they share stays shared, so touching cards still
+  touch ([S-2240]) and none overlaps; each box gets at least the whole cells its sizing gives it (a longest
+  path over the edges in order); space between boxes keeps its nearest whole cells; a box held to its
+  sizing where the block would stretch it further. The ghost shows exactly that; off the grid the recipe
+  is fitted as one block all the same, without whole cells ([S-11809]). Scenes paint whole cells only where their edit block draws the grid; the add
+  page's pictures are the content's own size. Tests `GridFitTests.S11808_`, `GridPlacementTests.S11808_`.
+- **[S-11809]** **A ready-made group always lands connected** (owner, 2026-11-15: "the groups that get
+  placed as combinations they dont actually touch / connect to each other anymore"). The cause: off the grid
+  a recipe landed at its own DIP boxes and each member was then painted fitted to its sizing on its own
+  ([S-2446]: the display's content scale and the gap added per card), so members grew or shrank apart; on
+  the grid the block was fitted to each box's range but painted at its pinned size; and at any gap above
+  none the touching cells were painted the gap apart. Now the placement fits the recipe to the display's
+  sizes (`PlacementSizes`: content scale, gap, grid on or off) as **one block**
+  (`ReadyMadeGroups.Laid`, `GridFit.Layout`): each box asks for its card's DIPs × the content scale + the
+  gap, held to its sizing as the desktop paints it (`AxisLimits.Hold`, a pinned axis included), every
+  shared edge one edge (a longest path over the edges), so the members land where the desktop then paints
+  them and meet as the recipe says; the gap between them is closed ([S-2249]). The scenes paint a group's
+  members as one block too (`SizeFit.ShownAll`), the add page's pictures as the placement lays them out.
+  Tests `ReadyMadePlacementTests.S11809_` (every offered recipe on three displays, five scale/gap pairs,
+  snap on and off, four raster scales: every neighbour pair of the recipe meets and is joined, none
+  overlaps, each painted where it landed; a recipe taller or wider than the work area at that content scale, as
+  This PC's one column at 2x on a 960-DIP display, cannot stand whole and lands each card in reach, [S-09]),
+  `GridFitTests.S11809_`.
+- **[S-11873]** **A block's move is whole device pixels** (owner, 2026-11-15: "when moving a group around freely the
+  spacing of the widgets inside the group changes slightly when moving"). Each card's cell was rounded on its own from
+  the drag's fractional offset, and rounding to even put 4.5 px on 4 and 7.5 px on 8, so cards moved by the same
+  amount came out a pixel apart. A block (a group, a selection, a mixed selection of icons and cards on the locked
+  desktop, [S-11879]) is snapped as a block ([S-06]), then that offset is put on whole `GridGeometry.PixelStep`s
+  (the fewest whole DIPs that are whole device pixels: 1 at 100 %, 2 at 150 %, 4 at 125 %), one offset for every card
+  (`BlockGeometry.Move(..., rasterScale)`), and every edge rounds half up (`GridGeometry.WholeDip`, `DevicePixel`, the
+  grid's `LineDip` and `CrispLine` alike), so the cards' pixels keep their places relative to one another while it
+  moves and where it lands. Tests `GroupMoveTests.S11873_`.
+- **[S-11810]** **Insets on the cards' pixels** (owner, 2026-11-15: "the group borders dont align with the
+  widget borders inside … everything should align on the given grid"). Every inset is whole device pixels
+  (the gap rounded to whole pixels once, the start side the lower half, the end side the rest, so neighbours
+  still show exactly the gap), so a card's edge and the grid's line share their pixels at gap 0
+  (`GridFit.LineDip`). The box round a group's members (`CardJoins.Frame`) is what Liquid glass draws a
+  group's one shape from ([S-2123]); no frame is drawn round a group any more ([S-2453]). Tests `GroupJoinTests.S11810_`,
+  `S11810_S2453_a_groups_frame_is_round_its_members_cells_on_the_grids_lines`.
+- **[S-2449]** **A big number's size is a setting.** A one-readout widget (the clock, the timers; not the
+  toggles and power buttons, whose box is free, [S-11882]) states its readout's size in its config (`IReadoutSized.Size`,
   `ReadoutSize` Small, Medium, Large: the family's 40, 68 and 96, `ReadoutSizes.Step`; a new one
   Medium), set by one menu line, Size (`KitMenuLines.ReadoutSize`), and its sizing follows from the
-  widest text at that step (`HeroFit` widths, [S-6702]); the number never grows with the card. A data
+  widest text at that step (`HeroFit` widths, [S-6702]); the number never grows with the card, but for
+  a face that fits its box (the clock), which climbs one family step past its Size at most in a relaxed
+  box ([S-12410], `ReadoutSizes.Climb`). A data
   widget's number is the family's 28 ([S-2220]; the 40 step stays for a kind that states it).
 - **[S-2448]** **A kind is checked at its range**: its Min, its Natural and its Max (`SizeFit.CheckedAt`,
   `CheckedSize` named `min`, `natural`, `max`). `--widget-png <Kind>` draws a kind at its range by
@@ -4080,8 +4301,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   family walk alike. Tests `WidgetSizingTests.S11601_`, `ShowcaseViewsTests.S11601_`.
 - **[S-11602]** A preview state fills in sample data over the card's own config (its counts, its style),
   never a fresh default one, so it draws what the box was sized for.
-- **[S-11603]** A preview state that swaps in items of its own whose size differs (shortcuts' `grid7`,
-  `list7`, `icons`) says so (`IWidgetPreviewState.DrawnConfig`), and the render draws that card at
+- **[S-11603]** A preview state that swaps in items of its own whose size differs (as the retired Shortcuts
+  list's states of seven items did) says so (`IWidgetPreviewState.DrawnConfig`), and the render draws that card at
   that config's min, natural or max, the page laid out again.
 
 ## Responsive layout (shared foundation)
@@ -4100,6 +4321,48 @@ its content. What is left of this section is how a view measures the fixed parts
   less its header), once per layout pass that changed it, never unmeasured; the view measures its fixed
   parts on it (a graph's length, where a text wraps, a grid's cells), never chooses them by it. A view
   that lays out by its own measure does not implement it.
+- **[S-12400]** **Items fill the content** (owner's rule, 2026-11-15: "the items stretch from side to side
+  … and also from top to bottom"). A widget's items (rows, columns, cells, a bar's track) together fill
+  its content area edge to edge at every box in its range, a box rounded up to whole grid cells
+  ([S-11807]) included: no empty band at the end or the foot, nothing huddled in a corner. The room the
+  items do not need is shared evenly among them (`ItemSpread.Slots`: whole device pixels at the
+  display's scale, the rest to the first items; `SpreadStack` in WinUI: a fixed-size item centred in
+  its slot, so the spacing grows; a stretching one takes the slot); text stays the family's tokens and
+  the items stay the config's ([S-11800]), their order and alignment kept, the header at the top.
+  Rolled out kind by kind, the weather widgets first ([S-12401]..[S-12403] in their modules). Since
+  [S-12410] the spread is the stretch rule's rest (`ItemStretch.Lay`, `StretchRest.Around`). Tests
+  `ItemStretchTests.S12400_`.
+- **[S-12410]** **Items stretch to a natural cap, the rest is spacing** (owner, 2026-11-15: "they should try
+  to fill up the space better … not by adding content but just by stretching their contents to some extent.
+  but not overstretch the items, they should still only have a natural size"; "the items should try to take
+  up all the space inside the widget, without having any padding to the widget border"). One pure rule
+  (`ItemStretch`, `Themia.Sdk/Widgets/ItemStretch.cs`): along an axis the spare room first stretches the
+  items toward their most, evenly, in whole device pixels (an item at its most stops, the others go on);
+  what they cannot take is spacing as the kind says (`StretchRest`: around, between, centred, start, end);
+  short of room the items keep their natural lengths; no item is ever added, dropped or past its most
+  ([S-11800]). Like rows share one pitch (`ItemStretch.Pitch`). The caps per block: a row up to 1.5 x its
+  height (`RowCap`; `RowBlock` holds `MinHeight`/`MaxHeight`, its texts centred), a list's rows one pitch
+  filling the list (`KitPlanner.Pitch`, its headings with them; the custom lists likewise), a calendar
+  month's cell and a chart, dial, tile or picture the box; a text, a readout, a status line, a button never
+  (the family's type steps), a block of them centred in the room under the header with the foot's inset
+  under it (`NaturalBlock.Hold`, `MeterView`), and a clock face that picks its step by its box one family
+  step past its Size at most (`ReadoutSizes.Climb`). **No inset to the card's border**: rows, list rows and
+  their fills run edge to edge (the 12 side inset is the row's own padding, so text stays off the border)
+  and down to the card's bottom edge (the foot inset a list's sizing counts is its rows' to stretch into);
+  charts and tiles run edge to edge; the header keeps its inset; a readout block keeps its side inset. A
+  fill at a card corner takes the card's corners (the card's clip; a tile's own round fill through
+  `IWidgetCorners`, [S-11883]). docs/WIDGET-KIT.md 17.4. Tests `ItemStretchTests.S12410_`,
+  `KitTests.S12410_`, `KitRowsTests.S11541_`.
+- **[S-12411]** **A relaxed range** (owner, 2026-11-15: "relax the size limitations on all the widgets"). A
+  kind states the range its content needs ([S-2438]); the descriptor hands out that range relaxed
+  (`SizeStretch.Relax`, through `WidgetDescriptor.Sizing`, the one sizing every caller sees): on every axis
+  its config does not step (a fixed one included) Max grows to at least Natural x its room's factor, on
+  4-DIP steps, never past 1200 (`SizeStretch.Ceiling`) unless the kind stated more; Min and Natural stay,
+  a stepped axis keeps its steps. The room is the sizing's (`WidgetSizing.Room`, set where it is made):
+  Standard 2 x, List 2.5 x in width (`KitSizing`), Picture 3 x (`MeterSizing`'s history and items,
+  `TileRules`, the cover, the gallery, the charts), None for the desktop icon's cell. Size still never
+  decides what is shown; the larger box is filled by [S-12410]. Tests `WidgetSizingTests.S12411_` (Core:
+  the rule; module host: every kind and style may grow by its room).
 - **[S-664]** *(Retired by [S-11000] and [S-11800]: a meter is its reading and its history, two atoms,
   each one size of parts; a wider history spans more time, one sample per ~6 DIPs.)*
 - [S-665]: moved with the Clock widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Clock/`).
@@ -4485,22 +4748,60 @@ is gone ([S-3585]). Owning files: `Shell/ColorChoice.cs`, `Interop/ScreenColorPi
 - **[S-1546]** *(Retired by [S-3585]: there is no settings window, so no landing on a search result.)*
 - **[S-1547]** *(Retired by [S-3585]: there is no settings window, so no back and forward through pages (`NavHistory`).)*
 - **[S-1548]** *(Retired by [S-3585]: there is no settings window, so no the `--settings-png` render.)*
-- **[S-1549]** Colours are never typed. Every colour is the menus' one colour level ([S-3724]):
-  "use the default" (where empty means follow the theme), the preset swatches in rows of 8 (Windows'
-  48 accent colours by default; a neutral row first for surfaces; a setting may give its own set),
-  and "Custom colour" opening WinUI's `ColorPicker` in a dialog with no text entry (`ColorChoice`).
-  The chosen preset carries a check. (The settings window's swatch button, `ColorPickerRow`, went
-  with its last colour row, a view's, [S-3542].)
+- **[S-1549]** Every colour is the one colour picker ([S-1574]..[S-1577], [S-3724]): "use the
+  default" (where empty means follow the theme), the recent colours, two lines of presets, the mixer,
+  the hex box and the eyedropper (`ColorChoice`, `ColourPicker`). *(Until 2026-11-14 "colours are never
+  typed": no hex box, "Custom colour" WinUI's `ColorPicker` in a dialog with no text entry. Changed at the
+  owner's word, "the color picker should be designed in the same way that karpo has it": Karpo's picker
+  types a colour in its hex box, §523.)* Colour tables: Windows' 48 accent colours and the neutrals
+  (`ColorPresets.Windows`, `.Neutrals`, `.Surfaces`) name a colour that is one of them.
+- **[S-1574]** **The picker as Karpo's** (karpo-app docs/widgets.md §523, §627, §670, §682, §690;
+  `SettingsPanel.Picker.cs`), inline in its card ([S-2308]), from the head's words' column (48 in) to the
+  controls' end, the rule `ColourPicker.Lay`: **the swatches' column** at the left — 36 DIP swatches 4
+  apart, six to a line (fewer where fewer fit): the first line Default (the options' label; none where a
+  colour is required) and a fill's Transparent (slashed), then the recent colours ([S-1575]), one line
+  however many, standing even when empty so the presets never move; two lines of presets under it
+  ([S-1576]); the one that holds ringed 2 DIP in the primary text colour, 2 off it — **the mixer beside
+  it** where the body is at least 420 wide (else under it, a pad below): a spectrum as wide as the
+  mixer and 96 tall (`SpectrumBox`: the hue that holds with white across from its left and black up
+  from its foot, saturation across and value up, `ColourPicker.SpectrumAt`; a white ring with a dark
+  hairline where the colour stands; arrows a step, Page Up / Down the value ten), 8 under it the hue's
+  slider over the rainbow, a fill's opacity slider (10 % to 100 %, the colour fading to nothing along
+  its track), each a 12 track with a 20 thumb in a 28 row. A drag moves the mixer and the hex box with
+  it; **letting go keeps the colour** (the pointer released, the keys leaving the control, Enter or Space
+  on the spectrum) as one change. A grey keeps the hue the slider stood at (`ColourPicker.ToHsv`).
+  Under the body **the hex row**: "Hex", then the eyedropper ([S-1556]), a 32 swatch of the colour in
+  force, and the hex box ([S-1577]). Tests `ColourPickerTests.S1574_`.
+- **[S-1575]** **Recent colours** (`AppPreferences.RecentColours`, `#RRGGBB`, newest first, at most six):
+  a colour kept from the mixer, the hex box or the eyedropper goes first, a repeat moves up, the oldest
+  drops off (`ColourPicker.Remember`); a swatch picked is not remembered. One list for every colour row
+  of this PC; not a setting (no page sets it, the `S3592_` guard knows it). Load repair drops what is no
+  colour, repeats and the excess, logged. Tests `ColourPickerTests.S1575_`.
+- **[S-1576]** **Presets: two lines of six** (`ColourPicker.Presets` of the table a row names its colours
+  from): an accent's `ColorPresets.Accents`, twelve of Windows' 48 round the wheel (red, orange, gold,
+  green, mint, teal; Windows' blue, indigo, purple, orchid, pink, grey); a surface's (a fill, a border,
+  a text) `ColorPresets.SurfaceSwatches`, six neutrals (#202020 and #F3F3F3 among them) over red, orange,
+  gold, green, blue and purple; a module's own table its first twelve. Every other colour is the
+  mixer's, the hex box's or the screen's. Tests `ColourPickerTests.S1576_`.
+- **[S-1577]** **The hex box** (Karpo's `FlyoutField.Hex`): 240 wide, "#RRGGBB" of the colour in force,
+  following the mixer as it moves; typed with or without "#", either case, three digits as CSS
+  (`ColourPicker.Typed`); kept on Enter or leaving the box (the mixer goes to it), Escape puts back what
+  holds, words that are no colour are put back on leaving. Tests `ColourPickerTests.S1577_`.
+  Differences from Karpo's picker left: no opacity on a plain colour (Themia stores `#RRGGBB`) and so no
+  "#RRGGBBAA"; the opacity track draws no checker; the bars do not wear a colour while it is dragged
+  (Themia keeps on release; a fill's opacity slider still previews); the eyedropper is Themia's own (Karpo
+  has none); the first line holds Default rather than Karpo's "None" for a colour that follows the theme.
+  (The settings window's swatch button, `ColorPickerRow`, went with its last colour row, [S-3542].)
 - **[S-1550]** Stored format stays `#RRGGBB` (empty = default). Replaced: Appearance's accent,
   widget background and border colour; the calendar colours (Automatic + the six + custom); the
   palette editor's entries (rgb()/hsl() entries open on their colour, are stored as hex once
   changed); the scratchpad ink (its six inks, swatches of the palette above, [S-1497], + custom).
 - **[S-1556]** The eyedropper (`Interop/ScreenColorPicker.cs`, pure rules `Core/Settings/ScreenPick.cs`):
-  wherever "Custom colour" is offered, an eyedropper button beside "View colours" closes the
-  flyout, waits until the screen no longer shows it (the flyout's Closed, the next XAML frame, then
+  wherever custom colours are allowed, the eyedropper button in the picker's hex row ([S-1574]) starts it:
+  it closes the flyout, waits until the screen no longer shows it (the flyout's Closed, the next XAML frame, then
   `DwmFlush`; no timer), captures every display into one 32-bit DIB and covers them with a
   topmost popup showing that frozen picture. The picked pixel goes through the same path as a
-  swatch, normalised to `#RRGGBB`. A failure to capture or show it is logged and raises an Error
+  swatch, normalised to `#RRGGBB`, and is remembered among the recent colours ([S-1575]). A failure to capture or show it is logged and raises an Error
   notice; nothing changes.
 - **[S-1557]** The loupe: 11×11 pixels around the pointer, each drawn `Fluent.Space3` DIPs square,
   the centre pixel framed, its hex in Body Strong on a label filled with that colour (dark or
@@ -4750,7 +5051,7 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   press is left to the card, which selects and moves the widget, so a click there never runs anything
   (`IWidgetSurface.EditMode`).
 - **[S-1912]** The face is the family's Tile block, ringed ([S-6715], [S-6736]): the icon centred in
-  its ring's room (the ring on the step the Size names, [S-11307], the icon the largest family glyph
+  its ring's room (the ring on the step its box holds, [S-11882], the icon the largest family glyph
   size within three quarters of it), the name under it (cut with an ellipsis where it does not fit,
   whole in the tooltip), no state line, in the card's inset of 12. The armed sentence and a failure
   take the name's line, so arming moves nothing.
@@ -5242,7 +5543,7 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   does not fit shrinks to it, one pushed out of reach slides back to the visible minimum keeping its
   size, and one dragged just past the taskbar's edge lands flush with it ([S-6609]). A widget the
   taskbar later grows over **stays where it is**: load validation keeps it in reach of the whole
-  screen only, and nothing re-settles on a display change (a desktop item's widget is the one
+  screen only, and nothing re-settles on a display change (a desktop icon's widget, of either source, is the one
   exception: it follows the work area as Explorer's icons do, [S-5562]). An unusable work area
   (non-finite, empty, off the monitor) allows the whole screen. An auto-hidden taskbar reserves
   nothing, so the whole screen is allowed.
@@ -5294,16 +5595,34 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   laid out at cell ÷ scale and render-scaled back up, so a view discloses less at a bigger scale
   ([S-663]). Each widget's own ([S-6532]) multiplies in through the same path; there is no
   app-wide one ([S-3590]).
-- **[S-851]** The hit region never covers the taskbar: it is cut to the work area in normal mode,
-  and is the work area itself (not the whole window) in edit mode. A widget the taskbar has grown
-  over is clipped there (`SetWindowRgn` clips painting as well as input) rather than moved. This
-  matters while Show Desktop lifts the surface above the topmost band ([S-33]), when the region is
-  all that keeps the taskbar clickable.
+- **[S-851]** The hit region never covers the taskbar: it is the work area itself (not the whole
+  window), in edit mode and outside it ([S-21]). A widget the taskbar has grown
+  over is clipped there (`SetWindowRgn` clips painting as well as input) rather than moved. The
+  rectangle is one pure rule (`GridGeometry.SurfaceRegion`: the work area relative to the window,
+  never past it), so a strip another program reserved as an appbar (the taskbar, a dock such as Karpo
+  holding its space) is never painted on or clicked through to, whatever the z-order is; it is set by
+  one call from one place and re-applied on every path a new work area arrives by ([S-848]; the
+  guards in `DockGuardTests`). A dock that only **floats** over the work area without reserving a
+  strip is not in the work area, so the region cannot leave it out: there the z-order alone keeps
+  the widgets under it ([S-20], [S-33f]).
 - **[S-852]** The edit bar ([S-3500]) and the placement hint sit inside the work area (margins from
   `GridGeometry.AllowedPixels`), so a taskbar on the top edge does not cover them.
 - **[S-853]** Display ▾ ([S-3543]) names its display by the monitor's name ("(primary)" on the
   primary) and its resolution, the id never shown, and holds its widget scale and its view bar
   ([S-3544]); its Show Themia on lists **every connected display**, switched off or not ([S-3545]).
+- **[S-854]** **Nothing writes geometry before a surface's metrics settle** (owner's report 2026-11-15:
+  at start each surface laid out at 3840 × 2160 at scale 1 before its real 2560 × 1440 at 150 %, and the
+  icons aligned and a clock refitted on that first pass were stored on a grid 1.5 times too fine). A
+  surface is settled once its root has loaded with a positive rasterization scale (`SurfaceMetrics.SettledScale`,
+  `DesktopWindow.TrySettleMetrics`), and unsettled again by a scale change until the display pass that
+  puts its window back ([S-849]). A layout may be drawn at provisional metrics; nothing that stores a rect
+  runs by them: the icons' alignment ([S-5589]), the displays' stand-ins and work-area moves ([S-5560]..[S-5562]),
+  the reconcile's arrivals ([S-5520]: a read of the desktop before then waits, its renames kept) and an
+  icon-size rescale run only when every live surface has settled (`SurfaceMetrics.AllSettled`); a refit
+  ([S-2447]) waits for the surface showing its view. The settle is one event per surface
+  (`AppHost.SettleSurfaces`, also at the end of each display pass) that runs what waited. A pass at
+  provisional metrics then real ones stores what the real ones alone do. Tests `SurfaceMetricsTests`,
+  `SettledMetricsTests` (Modules).
 
 Not ported, deliberately: the original's legacy ordinal-key migration ([MI-03]/[MI-04]; no
 compatibility, by decision); its ~1 s work-area self-heal sweep ([DW-04]), which polls, replaced by
@@ -5465,7 +5784,7 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
 - **[S-814]** A press inside the active widget on its **background** (not an item, not a control,
   not a press a handler took) clears its selection; with Ctrl or Shift held (extending), or while the
   user is typing in it, nothing changes. Items are marked once (`WidgetItems.Mark`; `RowFocus.Prepare`
-  marks every ring-carrying row; Shortcuts cells, Tasks, Habits, Contacts and Clipboard rows, Calendar
+  marks every ring-carrying row; Tasks, Habits, Contacts and Clipboard rows, Calendar
   days and events mark theirs). A press on another widget, or on the chrome (view bar), leaves the
   active widget: its selection clears, on any display.
 - **[S-815]** The session ends — selection cleared, lease ended without giving the keyboard back — on
@@ -5519,7 +5838,7 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 | Tasks | Up/Down, PgUp/PgDn, Home/End; Enter/Space tick; Delete; F2; Esc ([S-787], [S-1981]) |
 | Habits | as Tasks, plus Tab/Shift+Tab wrap ([S-1428], [S-1982]) |
 | Folder | the selection keys ([S-6623]: arrows grid aware, Shift extends, Ctrl+arrows focus, Space/Ctrl+Space toggle, Home/End, PgUp/PgDn, Ctrl+A); Enter; Delete; F2; Menu; Ctrl+C/X/V; Backspace; type-ahead ([S-1327], [S-1993]) |
-| Shortcuts | the selection keys ([S-6623]); Enter opens; Delete; F2; Menu; type-ahead ([S-1390], [S-1995]) |
+| Desktop icon (both sources) | the desktop's keys over its one selection ([S-5541]..[S-5545], [S-5580]..[S-5585]): arrows by place, Shift extends, Ctrl+arrows focus, Space/Ctrl+Space toggle, Home/End, Ctrl+A; Enter opens; Delete, Shift+Delete; F2; Menu; Ctrl+C/X/V; Alt+Enter; F5; type-ahead; Esc ends the lease and keeps the selection |
 | RSS | the kit's list map: Up/Down/Left/Right, PgUp/PgDn, Home/End; Enter opens; Menu; Esc ([S-1306], [S-7020]) |
 | Clipboard | Up/Down, PgUp/PgDn, Home/End; Enter copies; Delete; Menu ([S-1444]) |
 | Pictures (slideshow) | Left/Right; Home/End; Space pauses; Enter opens ([S-811], [S-1992]) |
@@ -5535,7 +5854,10 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 
 Selecting items in a widget looks and behaves as selecting icons on the Windows 11 desktop (user
 request 2026-10-19). One rule set and one look for every widget whose items are selected: the
-Folder ([S-1327]), Shortcuts ([S-1390]); Recent files' single cursor takes the look ([S-4845]).
+Folder ([S-1327]); Recent files' single cursor takes the look ([S-4845]); the desktop's icons, of both
+sources, are one selection of the host's over these rules ([S-5540]), drawn in a palette of their own
+(`SelectionLook.DesktopIcon`, [S-5602]). *(Retired 2026-11-14: a shortcut's own selection of one,
+[S-9505].)*
 Owning files: SDK `Themia.Sdk/Widgets/ItemSelection.cs` (the rules), `SelectionBand.cs` (the
 rubber band), `SelectionLook.cs` (the look's rule); SDK WinUI `Widgets/SelectionChrome.cs`
 (`SelectionChrome`, `SelectionLabel`, `SelectionInput`). Tests `ItemSelectionTests` (`S662x_`).
@@ -5548,8 +5870,7 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   still shown and drops the rest, focus and anchor included. Whether a click also opens is the
   widget's `ClickMode` (single: a plain click; double: a double-click), unchanged.
 - **[S-6621]** A plain press on an item already selected changes nothing until the release
-  (`Press`/`Release`), so dragging it drags the whole selection (the folder's files out, the
-  shortcuts' reorder); a click without a drag then selects it alone. A press elsewhere or with a
+  (`Press`/`Release`), so dragging it drags the whole selection (the folder's files out); a click without a drag then selects it alone. A press elsewhere or with a
   modifier acts at once.
 - **[S-6622]** A right press (`Context`) on an item outside the selection selects it alone; on one
   inside, the selection stays and the item menu acts on all of it.
@@ -5562,11 +5883,11 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   Ctrl chords besides the clipboard's, [S-803]); Home/End, Page Up/Down; Ctrl+A selects all. The
   first key with nothing focused lands on the first item (End on the last). Enter opens, Delete,
   F2, the Menu key and Escape stay the widget's own. Type-ahead ([S-1980]) selects the match alone.
-- **[S-6624]** The rubber band (`SelectionBand`): a press on the empty space (the folder: also beside
-  a name, [S-6412]) that moves past the 5 DIP dead zone draws a band; every item whose box it
-  overlaps at all is selected, live as it grows and shrinks (`Hits` over the drawn boxes;
-  `GridHits` over a layout's cells, so a folder's rows not built yet are covered, [S-1887]). The
-  band stays inside the items' area. Look: the highlight colour at 28 % under a solid 1-DIP border
+- **[S-6624]** The rubber band (`SelectionBand`) is **the desktop's alone** ([S-5544]; user decision
+  2026-11-13: the surface is the whole desktop, so no widget draws a band inside its own box, and the
+  folder's went, [S-6412]): a press on empty desktop that moves past the 5 DIP dead zone draws a band;
+  every item whose box it overlaps at all is selected, live as it grows and shrinks (`Hits` over the
+  drawn boxes). The band is one rectangle across the displays, inside their work areas ([S-5544]). Look: the highlight colour at 28 % under a solid 1-DIP border
   of it (`SelectionLook.Band`, `SelectionChrome.PaintBand`), above the items.
 - **[S-6625]** How the band combines (`SelectionBand.Mode`, `BeginBand`/`Band`/`EndBand`): no
   modifier replaces the selection; Shift adds to the selection the band started with; Ctrl toggles
@@ -5574,7 +5895,7 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   band leaves again goes back to how it was. The focus goes to the last item covered.
 - **[S-6626]** Going elsewhere keeps the selection, as the desktop keeps its icons selected while
   another window is active: a view that keeps it (`IWidgetKeys.KeepsSelectionWhenLeft`: the Folder,
-  Shortcuts) hears `WidgetKey.Deactivate` instead of Escape when the session leaves it ([S-813]: a
+  a desktop icon) hears `WidgetKey.Deactivate` instead of Escape when the session leaves it ([S-813]: a
   press on another widget, on the chrome, outside every surface, another app taking the
   foreground) and draws the selection inactive; the focus cue, a pending press, a half-typed name
   and an open rename (committed) go. Escape, a press on its own empty space ([S-814]) and edit mode
@@ -5590,7 +5911,9 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   in light and dark, recoloured when Windows' colours change. Opacities, fill / border: hover
   12 % / 35 %; selected 32 % / 65 %; selected under the pointer 40 % / 75 %; selected without the
   keyboard a neutral grey (#808080) 28 % / 42 % (34 % / 50 % under the pointer); the focus alone a
-  65 % border; a drop target as selected under the pointer. Nothing at rest.
+  65 % border; a drop target as selected under the pointer. Nothing at rest. The numbers are a
+  `SelectionPalette`: `SelectionLook.Rows` is the file widgets' (these), `SelectionLook.DesktopIcon` the
+  desktop icon's own, behind the whole cell ([S-5602]); it starts equal to Rows and is tuned apart from them.
 - **[S-6628]** The focus shows (a border only, [S-6627]) only after keyboard use and while the
   widget has the keyboard (`ItemSelection.Cues`): a key that moves or toggles shows it; a press, a
   right press, a band, Escape and leaving hide it.
@@ -5598,11 +5921,11 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   name is cut short and the widget has the keyboard (`SelectionLook.ShowsFullName`), the whole name
   is shown in an overlay over the tiles below (the band's layer, so no tile moves), on the default
   card's colour with the selection's mark, wrapped to the tile's width; it takes no presses. Not
-  while renaming. Tiles only (the folder's Grid and Icons, the shortcuts' labelled grid); rows keep
+  while renaming. Tiles only (the folder's Grid and Icons); rows keep
   trimming.
-- **[S-6630]** Debug: `--widget-png Folder|Shortcuts … --state selected|inactive|lasso|fullname`
+- **[S-6630]** Debug: `--widget-png Folder … --state selected|inactive|fullname`
   draws two items selected, one under the pointer and the focus moved by Ctrl+arrows (`selected`), the
-  same after the widget lost the keyboard (`inactive`), a band (`lasso`) and a long name shown in full
+  same after the widget lost the keyboard (`inactive`) and a long name shown in full
   (`fullname`); the folder's `fullname` picks its longest name.
 
 ## View links (VIEW-LINKS)
@@ -5770,9 +6093,9 @@ The event under the pointer (`HoveredEvent`, [S-3623]) beyond the calendars and 
 
 The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyond the screen-time widgets:
 
-- **[S-11930]** `topProcesses`, `mixer`, `notifications` and `shortcuts` take part: the pointer (or the keyboard
+- **[S-11930]** `topProcesses`, `mixer`, `notifications` and `desktopItem` (an own icon on an app, [S-11934]) take part: the pointer (or the keyboard
   cursor, [S-3307]) on a row or an item that is an app publishes it, and a row lights in the one look for the
-  app pointed at anywhere on the view (the item layer's hover fill; a shortcut as the pointer would draw it,
+  app pointed at anywhere on the view (the item layer's hover fill; a desktop icon as the pointer would draw it,
   the desktop's hover) and for the app picked (the selected fill and the accent pill), in place, never
   rebuilt. A click keeps its own meaning (focus, open, launch): only the screen-time widgets pick an app
   ([S-3310]), so these publish the hover and follow both. A row that is no app takes no part.
@@ -5788,7 +6111,7 @@ The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyo
   package name (`NotificationRules.KnownSenders`: File Explorer's `Microsoft.Windows.Explorer` → `explorer`,
   `Microsoft.WindowsTerminal_8wekyb3d8bbwe!App` → `windowsterminal`, the new Outlook → `olk`, Teams, Edge,
   Spotify, …). Windows' own toasts (`Windows.SystemToast.*`) and any other id are none: a sender is never
-  guessed. A shortcut is its app when its target is an executable ([S-11934]).
+  guessed. An own desktop icon is its app when its target is an executable ([S-11934]).
 
 The person under the pointer (`HoveredPerson`, `PersonLink`, a hover; keyed by `LinkKeys.Person`, [S-11941]):
 
@@ -5812,7 +6135,7 @@ The person under the pointer (`HoveredPerson`, `PersonLink`, a hover; keyed by `
 The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKeys.File`, [S-11946]):
 
 - **[S-11945]** A file or a folder is one thing across the view: a `folder`'s row or cell (each entry), a
-  `recentFiles` row, a `shortcuts` item whose target is a file or a folder ([S-11949]) and a `desktopItem` publish
+  `recentFiles` row and a `desktopItem` (a desktop item, or an own icon whose target is a file or a folder, [S-11949]) publish
   it while the pointer (or the keyboard cursor, [S-3307]) is on it, and while a file is pointed at anywhere on the
   view every item that is it is drawn as under the pointer: the desktop's hover (`SelectionChrome`, [S-6627]),
   over whatever its own item selection draws ([S-6620]), so a lit item that is let go is drawn by its selection
@@ -5826,8 +6149,8 @@ The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKe
 - **[S-11948]** `folder` keys each entry by its full path, in every style (list, details, grid, icons), and its
   keyboard cursor publishes the focused entry; `recentFiles` keys a row by its file's path, and its cursor publishes
   it too. The focused or selected entry keeps its own mark while it is lit. `desktopItem`: the item's path is its
-  file, folder or link (This PC, the Recycle Bin and every shell item none); the whole item lights. `shortcuts`: an
-  item whose target is a file or a folder, by its stored target ([S-11949]).
+  file, folder or link (This PC, the Recycle Bin and every shell item none); the whole item lights. An own icon
+  of the kind: one whose target is a file or a folder, by its stored target ([S-11949]).
 
 The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `LinkKeys.Drive`, [S-11951]):
 
@@ -5870,15 +6193,15 @@ Topics:
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
 | Topic | Lifetime | Published by | Followed by |
 |---|---|---|---|
-| `HoveredApp` | Hover | `mixer`, `notifications`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `shortcuts`, `topProcesses` | `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `shortcuts`, `topProcesses` |
-| `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `shortcuts`, `topProcesses` |
+| `HoveredApp` | Hover | `desktopItem`, `mixer`, `notifications`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` | `desktopItem`, `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
+| `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `desktopItem`, `mixer`, `notifications`, `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut`, `topProcesses` |
 | `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |
 | `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `upNext`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` |
-| `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles`, `shortcuts` | `desktopItem`, `folder`, `recentFiles`, `shortcuts` |
+| `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |
 | `HoveredDrive` | Hover | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` |
 | `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
 <!-- /view-links:table -->
@@ -5905,7 +6228,6 @@ there: Themia never takes a key from the app the user is typing in.
 | Edit mode | Ctrl+N | Open the add menu ([S-1998]) |
 | Edit mode | Arrows | Move the selection one grid cell ([S-1970]) |
 | Edit mode | Ctrl+Arrows | Move ten cells ([S-1972]) |
-| Edit mode | Alt+Arrows | Move one DIP, off the grid ([S-1972]) |
 | Edit mode | Shift+Arrows (+Ctrl / +Alt) | Resize by the right / bottom edge, same steps ([S-1971]) |
 | Edit mode | Tab / Shift+Tab | Select the next / previous widget ([S-1973]) |
 | Edit mode | Enter | Into the selection's properties menu ([S-1974]) |
@@ -5946,8 +6268,8 @@ there: Themia never takes a key from the app the user is typing in.
   Only the moved edge snaps ([S-31a]); the [S-08] floor and the visible minimum ([S-6608]) stop it,
   and it may grow past the work-area edge. Shift was
   chosen over a bigger step because one modifier per meaning (Ctrl = far, Alt = fine) combines.
-- **[S-1972]** **Ctrl** makes the step ten cells, **Alt** one DIP with the grid suspended (as Alt
-  suspends it for a drag, [S-06]). Ctrl+Alt is never a shortcut (AltGr). One press-and-hold is
+- **[S-1972]** **Ctrl** makes the step ten cells. **Alt+arrow is no nudge**: nothing moves off the grid
+  ([S-06]; until 2026-11-15 it moved one DIP). Ctrl+Alt is never a shortcut (AltGr). One press-and-hold is
   **one undo step**: the geometry is committed when the arrow comes up, before any other edit key,
   and when the surface loses activation.
 - **[S-1973]** **Tab / Shift+Tab** selects the next / previous widget of the display in reading
@@ -6033,9 +6355,12 @@ and their history are the same in every style. Tests `MeterPlanTests`, `IoStyles
   round when a bar is narrower than 8), as many in the reading's role (the accent, Caution, Critical) as
   the last answer earns: up to 50 ms 4 bars, up to 100 ms 3, up to 200 ms 2, slower 1, an unanswered
   probe or none yet 0 (`PingSignal.Thresholds`); the rest the Track role. The latency is the reading.
-- **[S-6264]** **Numbers** (network): download and upload, two Readouts each behind its arrow (the lead
-  glyph, secondary), on the one step the widest takes in its half: side by side in two columns 12 apart
-  on an expanded width, else one over the other 8 apart (`MeterPlan.Numbers`). No history.
+- **[S-6264]** **Numbers** (network): download and upload, two Readouts at 28 each behind its arrow (the
+  lead glyph, secondary), always on one line as Task Manager writes send and receive (user request
+  2026-11-15): download's column as wide as its widest case, so upload never moves, then 24
+  (`MeterSizing.NumbersGap`), then upload; one reading's height (84), from the line's own width
+  (`MeterSizing.NumbersWidth` and the inset) to 480. No history. The disk's two directions are its Bars
+  style's rows ([S-6265]): each carries a bar, so each keeps its row; its Number style is one figure.
 - **[S-6265]** **Bars** (disk): the total rate as the reading, and under it a labelled row for reads
   and one for writes ("Read  42 MB/s"), each with a bar (the shared bar rows, [S-6304]).
 - **[S-6266]** **Ring** (battery): the Chart block's ring of the charge in its role, as large as the
@@ -6181,8 +6506,9 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   Inside its range an atom shows the same parts, nothing appearing with size ([S-11800]).
 - **[S-11001]** **A reading** keeps its header (the subject's name; the device as its label) and draws
   the number at the family's 28 with its unit (`FamilyType.Big28`): one height (36 + 36 + 12 = 84),
-  120..320 wide, a new one 160 (`MeterSizing.Reading`); two readings (network's both directions) stand
-  one over the other, 8 apart (128). Its other drawings are styles of the same atom, each its own
+  120..480 wide (as wide as two readings run, so a column of readings and the network's two line up at one
+  width; 320 until 2026-11-15), a new one 160 (`MeterSizing.Reading`); two readings (network's both directions) stand
+  on its one line, 24 apart ([S-6264]). Its other drawings are styles of the same atom, each its own
   sizing.
 - **[S-11002]** **A history** starts headerless and draws the band alone, edge to edge, no number:
   160..640 wide, 48..200 tall, a new one 160 × 64 (`MeterSizing.History`); a wider card is a longer
@@ -6220,8 +6546,8 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   (`cpu` over `cpuCores`), **CPU details** (`cpu` 240 × 84 over `cpuFacts` 240 × 136), **Memory**
   (`memory` over `memoryHistory`, 160 wide), **Memory details** (`memory` over `memoryFacts`, 260 wide),
   **GPU** (`gpu` over `gpuHistory`, 200 wide), **GPU details** (`gpu` over `gpuFacts`, 260 wide),
-  **Disk** (`disk` over `diskHistory`, 160 wide), **Network** (`network` over `networkHistory`, 180 wide),
-  **Network details** (`network` over `networkFacts` over `networkAdapters` of two rows, 300 wide),
+  **Disk** (`disk` over `diskHistory`, 160 wide), **Network** (`network` over `networkHistory`, 344 wide: its one line, [S-6264]),
+  **Network details** (`network` over `networkFacts` over `networkAdapters` of two rows, 344 wide),
   **Ping** (`ping` over `pingHistory`), **Ping details** (`ping` over `pingFacts`), **Battery**
   (`battery` over `batteryHistory`), **Battery details** (`battery` over `batteryFacts`), **Drive**
   (`drive` over `driveFacts`, 260 wide).
@@ -6540,20 +6866,156 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   strip clear over the desktop. The body's base reaches 1 DIP under the strip, so no anti-aliased seam
   opens between the two where their edge falls between pixels (widget scale, an intro, fractional DPI).
 - **[S-829]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-830]** Design presets (the original's six): Default, Midnight, Daylight, Glass, Terminal, Paper.
-  Each owns 15 fields (theme, accent, font, widget background (one fill choice, [S-6565]), header
-  fill + opacity, border style/width/colour/opacity, corner radius, widget gap, blur behind widgets
-  ([S-2120]), item background (a fill choice) + item text colour, [S-6515], [S-6545]) and
-  never widget scale, text size or motion.
+- **[S-830]** Design presets, the Style picker's ([S-2122]: Karpo's palettes and Liquid glass). Each owns 16 fields
+  (theme, accent, font, widget background (one fill choice, [S-6565]), header fill + opacity, border
+  style/width/colour/opacity, corner radius, widget gap, blur behind widgets ([S-2120]), item background (a fill
+  choice) + item text colour, [S-6515], [S-6545], and the material, [S-2123]) and never widget scale, text size or
+  motion.
+- **[S-2122]** The styles are **Karpo's palettes** (`karpo-app` `Karpo.Core/Looks.cs` `LookPalettes.All`) in Karpo's
+  order and under its names, Themia's own named "Themia" as Karpo's is "Karpo": **Themia** (the fresh design),
+  **Graphite** (dark `#27292D`, accent `#8FA6FF`, no outline), **Daylight** (light white, `#0067C0`, a black hairline at
+  10 %), **Midnight** (dark `#121214`, `#A99BFF`, a white hairline at 12 %), **Contrast** (black, `#FFE500`, outlined
+  white), **Acrylic** (dark `#2C2C2C` at 75 % frosted, `#60CDFF`, a white hairline at 12 %), **Glacier** (light `#F2F8FC`
+  at 80 % frosted, `#0A6B9C`, a white rim at 60 %), **Liquid glass** ([S-2123]), **Paper** (light `#FAF6EE`, the serif,
+  `#A84B24`), **Harbor** (dark `#13283F`, Bahnschrift, `#4CC8DF`), **Bloom** (light pink `#F7CFDE`, `#B0204F`), **Ember**
+  (dark: burnt orange `#B23F14` cards with white text, `#FFE0B8`), **Blueprint** (dark `#13315C`, Bahnschrift,
+  `#7CC4FF`) and **Moss** (dark `#1E2E25`, `#8FD18A`); radius 8, gap 8 (12 for the frosted). A Karpo palette is a light
+  and a dark design under one name; a preset owns its theme, so each is its palette's cards in the mode it was made
+  for. Not carried over: Karpo's patterns (Midnight's dots, Glacier's grain, Blueprint's grid, Moss's contours: a card
+  has no pattern layer), its semibold weight (a font is its family), its near-opaque alphas (98 % and up are opaque,
+  [S-2121]) and Custom (Themia's Custom is any design no preset matches, [S-833]). Every opaque style's text reads at
+  4.5:1 on its card and its accent at 3:1 (`DesignEngineTests.S2122_`).
+- **[S-2124]** **No card, no glass** (found live 2026-11-15): a card whose own fill is Transparent (a desktop icon,
+  a widget set to no background) wears none of the glass's layers (`LiquidGlass.Wears`): no glow, lens, rim or
+  lift; it stays bare as in every other style. Test `LiquidGlassTests.S2124_`.
+- **[S-2123]** **Liquid glass**, Apple's as iOS 26 and macOS 26 ship it (the regular variant, for widgets; HIG
+  "Materials > Liquid Glass", WWDC25 "Meet Liquid Glass"), a material (`DesignState.Material`, `CardMaterial`;
+  Appearance > Cards > Material, and the style of that name: the system's theme, frosted, no border, radius 24, gap
+  12). Redrawn 2026-11-15 (owner: "the liquid glass style here seems to look very old and outdated ... for liquid glass
+  style it should treat the widgets inside a group as one"): clear, a crisp edge, no sheen over the surface. Its values
+  are Core's (`LiquidGlass.Light`, `.Dark`), drawn by the card (`WidgetCard.Glass`) in layers bottom up: the **lift**
+  (black rings round the glass, `LiquidGlass.LiftRings`: 10 rings out to 36 DIPs, 10 down, darkening the edge by 10 %
+  light / 24 % dark and falling off as (1 - d/36)^2, the look tokens' defaults [S-2132]; plain shapes, drawn alike live and in pictures, where a
+  composition shadow came out as a hard box; only while the frost covers the glass), the **frost** ([S-2110]), the
+  **tint** (over a Default background white in light, `#1C1C1E` in dark, from 16 % / 24 % up to 66 % / 74 % (the look tokens', [S-2132]): the least
+  at which the theme's ink at the primary text level reads at 4.5:1 and at the secondary at 3:1 ([S-2134]) over the blurred wallpaper under the whole glass shape,
+  `LiquidGlass.TintOpacity` over the backdrop's light grid, `Backdrop.LightUnder`, again as it moves; a colour of the
+  user's stays theirs), the **glow** (white falling in at the top edge, 22 DIPs deep: 16 % > 5 % at 35 % > 0 light,
+  9 / 3 / 0 dark), the **lens** (the refraction band inside the rim: three 2-DIP bands from the rim in at 34 / 18 / 8 %
+  of a profile down the glass, 80 % at the top, 40 % at 12 %, 16 % at the middle, 34 % at 88 %, 66 % at the foot
+  light; 60 / 26 / 10 / 22 / 46 dark), the content, the **dividers** and the **rim** (the 1-DIP border, white down the
+  glass: 92 % at the top, 58 % at 6 %, 16 % at 30 %, 8 % at 55 %, 24 % at 90 %, 62 % at the foot light;
+  56 / 34 / 10 / 5 / 13 / 36 dark). **A group is one glass shape** (`CardJoins.Bodies`): members of one group whose
+  painted boxes meet are one body; the rim, glow and lens run down the body's height (absolute gradients from each
+  card's offset in it), the tint is measured over the body's area, the lens and the lift stop at a side a mate covers,
+  and each pair of mates that meet gets one hairline divider on the upper or left card (black / white at the divider token's 10 %, 14 DIPs short of the body's outer edge, running on to a T inside). Approximated: the lensing is stepped bands
+  of light, not a sampled bend of what lies behind; the light is fixed above, not the device's tilt; the blur is the
+  display's one frost; continuous corners are circular arcs; the light/dark adaptation is the tint's amount over the
+  theme's own glass. Tests `LiquidGlassTests.S2123_`.
+- **[S-2130]** **The look tokens** (owner 2026-11-15: "the glassy macos look ... only shows it basically for the border
+  but the rest looks the same ... extend the design tokens that can be changed so that the widget look can be made more
+  similar to macos"): `DesignState.Tokens`, a `LookTokens`, every axis of a card's look past its fill, border and font,
+  after macOS 26's widgets (HIG Materials, vibrancy, widget anatomy). One table (`LookTokens.Numbers`: key, range, step,
+  default) drives the settings, `--design`, load validation and the tests; a number out of range is held to it, one
+  not finite is its default, an enum that is not one its default, loudly (`LookTokens.Repair`). The file names only the
+  tokens a look changed (`LookTokensJson`; a fresh set is left out, as Material is while Solid); a token of the wrong
+  kind reads as its default, logged, and an unknown key is skipped. **A fresh set draws every style but Liquid glass
+  exactly as before** (Windows' frost, text, type and fills, no dividers; the glass's tokens matter only on glass and
+  their defaults are its own). The pure half is `LookRules` and `LiquidGlass.For(dark, tokens, accent)`; the widgets
+  get them through the family (`FamilyLook`, the widgets' own brushes [S-2134]) and the item layer, never per widget.
+  Tests `LookTokensTests`.
+
+  | token | range | default | drives |
+  |---|---|---|---|
+  | rendering | FullColour, Tinted, Monochrome | FullColour | [S-2133] the accent and data colours |
+  | frostBlur | 0..80 px | 40 | [S-2131] the backdrop's blur (sigma, display px) |
+  | frostSaturation | 0..2 | 1 | [S-2131] the backdrop's saturation |
+  | frostBrightness | -0.3..0.3 | 0 | [S-2131] the backdrop toward white or black |
+  | accentTint | 0..0.6 | 0 | [S-2133] the accent's share of a default card or the glass's tint |
+  | grain | 0..0.12 | 0 | [S-2140] a fine grain over the material |
+  | glassTintLightMin/Max | 0..1 | 0.16 / 0.66 | [S-2132] light glass's clearest and most clouded tint |
+  | glassTintDarkMin/Max | 0..1 | 0.24 / 0.74 | [S-2132] dark glass's |
+  | glowStrength, lensStrength | 0..2 | 1 | [S-2132] the top glow, the lens band (times the theme's) |
+  | rimWidth | 0..3 px | 1 | [S-2132] the rim |
+  | rimStrength | 0..2 | 1 | [S-2132] the rim's light (times the theme's) |
+  | shadowRadius, shadowOffset | 0..80, 0..40 px | 36, 10 | [S-2132] the lift's reach and drop |
+  | shadowStrength | 0..2 | 1 | [S-2132] the lift's darkness (times the theme's) |
+  | vibrancy | 0..1 | 0 | [S-2134] Windows' text levels toward the label tokens |
+  | labelPrimary, -Secondary, -Tertiary, -Quaternary | 0.5, 0.2, 0.1, 0.05 to 1 | 0.88, 0.6, 0.4, 0.24 | [S-2134] each level's ink opacity |
+  | headerWeight, readoutWeight, bodyWeight | Light..Bold | Semibold, Semibold, Regular | [S-2135] |
+  | trackingLarge, trackingSmall | -60..40, -30..30 (thousandths of an em) | 0, 0 | [S-2136] |
+  | tabularNumerals | on, off | off | [S-2136] |
+  | headerTone, headerCase | Secondary, Primary; AsWritten, Upper | Secondary, AsWritten | [S-2137] |
+  | innerSurface | Theme, Vibrant | Theme | [S-2138] |
+  | innerFill, innerHover, innerSelected | 0..0.4 | 0.08, 0.06, 0.12 | [S-2138] a vibrant item's ink |
+  | trackOpacity | 0..0.5 | 0.12 | [S-2138] a vibrant track's ink |
+  | rowDividers | None, Hairline, Inset | None | [S-2139] |
+  | dividerOpacity | 0..0.4 | 0.1 | [S-2139] a glass group's dividers |
+- **[S-2131]** **The frost** is made with the design's tokens (`LookRules.Frost`, `DesignApplier.Frost`): the box radius
+  whose three passes at the picture's 1/12 scale come nearest a Gaussian of `frostBlur` display pixels (40 is radius 3,
+  the frost Themia always had), then each pixel moved from its Rec. 709 grey by `frostSaturation` and toward white or
+  black by `frostBrightness` (`LookRules.Treat`); the backdrops are made again only when the frost changes
+  (`DesignApplier.FrostChanged`). It is every frosted card's, any style's.
+- **[S-2132]** **The glass's tokens** (`LiquidGlass.For(dark, tokens, accent)`): the tint per theme between its clearest
+  and most clouded (the clearer of the two is the least), the glow, lens and rim at their strengths (an alpha never past
+  1), the rim's width, the lift's reach, drop and darkness, and a group divider's opacity; the stops' places and the
+  corners are the theme's. A fresh set is the theme's base glass.
+- **[S-2133]** **The accent in the card and the rendering mode**, after macOS's widget rendering modes: `accentTint`
+  mixes the accent into a Default solid card's colour and the glass's tint (`LookRules.AccentShare`; at least 30 % in the
+  tinted mode). `rendering`: full colour; **tinted**, every data colour (`Family.Data`) in the accent's hue and
+  saturation at its own lightness; **monochrome**, the widgets' accent and every data colour their own grey (the same
+  relative luminance), as macOS draws a widget the desktop is not focused on (`LookRules.Tone`). The widgets' accent
+  brush and the data brushes are recoloured in place (`Family.Retone`); Windows' own accent (the shell's, a control
+  template's) is untouched.
+- **[S-2134]** **Vibrant text levels.** The roles the tokens recolour (the four text levels, a track, the accent and the
+  text on it) are the widgets' own brushes (`ColourRoles.WidgetKey`, the `Themia.Family/` prefix before the theme
+  resource; `Family.Brush` hands them out), so the tokens reach the widgets and never the shell's pages, which draw
+  Windows' brushes by their plain keys. A level is the theme's ink (white in dark, black in light) at Windows' own alpha
+  moved toward its label token by `vibrancy` (`LookRules.Label`); at no vibrancy exactly Windows'. Text on an item takes
+  the same levels (`ItemPalette`), a colour of the user's own stays theirs ([S-6540]). **Contrast guard:** the glass's
+  tint rises until the ink at the primary level reads at 4.5:1 and at the secondary at 3:1 over the backdrop
+  (`LiquidGlass.TintOpacity(look, dark, behind, primary, secondary)`, rounded up to the hundredth); Liquid glass's own
+  tokens reach both over every backdrop in both themes (`S2134_`).
+- **[S-2135]** **Weight per role** (`TypeLook.WeightOf`, `FamilyLook.Type`): a regular step (a row, a caption, a unit, a
+  line under a value) the body weight, a strong one under 28 (the header's name, Title, the emphasised row) the
+  header weight, a strong one from 28 (a readout, a hero) the readout weight. `Family.Step` and `Family.Run` draw it
+  and remember the text, so a change restyles what stands (`Family.Restyle`).
+- **[S-2136]** **Tracking and figures**: the letter spacing (thousandths of an em, XAML's `CharacterSpacing`) is the
+  small token up to 14 and the large one from 28, in a straight line between (SF's own table tightens as the size
+  grows); `tabularNumerals` sets tabular figures on every family text.
+- **[S-2137]** **The header's name**: in the secondary level (the family's own) or the primary, as a macOS widget's
+  title; as written or in capitals (`WidgetCard.ApplyHeaderLook`).
+- **[S-2138]** **Inner surfaces**: `innerSurface` Theme keeps Windows' item fills ([S-6514]); Vibrant fills a Default
+  layer's items with the theme's ink at a whisper, macOS's quaternary fill, a nested glass that takes its colour from
+  what lies behind (`LookRules.Inner`, `ItemLook.Ink(..., tokens)`): a row clear at rest, lit by `innerHover` and
+  `innerSelected`; a tile or chip on `innerFill` with those added; a track on `trackOpacity`, the widgets' track role
+  too (a meter's rail, a ring's track); a disabled item at half its rest. A transparent layer's lit rows are vibrant
+  too; a colour of the user's own stays theirs.
+- **[S-2139]** **Row dividers** (`FamilyLook.Rows`, `RowBlock`): none (the family's own), a hairline across the row from
+  inset to inset, or one from the text edge (iOS's and macOS's inset separator), in the track's role, at the row's top
+  edge over every row but the first of its list: inside the row's height, so no size changes. `dividerOpacity` is a
+  glass group's dividers' ([S-2123]).
+- **[S-2140]** **Grain**: a fine, fixed grain (`LookRules.Grain`, a hash of each pixel's place: the same every run) over
+  a painted card's material and under its content, at `grain`.
+- **[S-2141]** **On the Appearance page** ([S-2316]), Karpo-style rows, one level each: **Material** (rendering, frost
+  blur, saturation, brightness, accent in the card, grain; the glass's tint per theme, glow and lens in an expander),
+  **Edge and lift** (rim width and light, lift reach, drop and darkness), **Text and size** (beside the font and size:
+  vibrant text, the three weights, letter spacing large and small, figures of one width, header text and case; each
+  level's opacity in an expander), **Surfaces** (item surfaces, item fill, fill under the pointer, selected fill,
+  meter track), **Layout** (row dividers, divider strength). A slider's range and step are the token's; each row
+  writes its token alone (`SettingsMenuTests.S2141_`).
+- **[S-2142]** `--design` takes every token by its key (`frostBlur=48,vibrancy=1,innerSurface=vibrant,rowDividers=inset`,
+  a fraction may be a percentage), the enums by their names, `tabularNumerals` on|off, and `material` (solid|liquidGlass).
+- **[S-2143]** **Liquid glass's tokens** (`DesignPresets.LiquidGlassTokens`; every other style a fresh set, so it looks
+  as before): frostBlur 48, frostSaturation 1.6, frostBrightness 0.04, grain 0.02, vibrancy 1 (labels 0.88 / 0.6 / 0.4 /
+  0.24), headerTone Primary, readoutWeight Regular, trackingLarge -24, trackingSmall -4, tabular figures, innerSurface
+  Vibrant (0.08 / 0.06 / 0.12, track 0.12), rowDividers Inset; the glass's own at the tokens' defaults; full colour, no
+  accent in the glass. Picking it writes a copy; a changed token is a custom look ([S-6483]).
+
 - **[S-2120]** Blur behind widgets ([S-2110]) is a preset's: a frosted look and an opaque one differ.
 - **[S-2121]** Each preset is one coherent look on the new base, and none draws a header band or an
-  item pane of its own (`DesignPresets`): **Default** the fresh design ([S-2100]); **Midnight** dark,
-  opaque near-black `#0B0B0F`, a `#7C8CFF` hairline at 18 %, radius 8, gap 10, blur off; **Daylight**
-  light, white at 70 % frosted, a black hairline at 8 %, radius 8, gap 12; **Glass** dark, `#1B2030`
-  at 50 % frosted (thinner than Default), no border, radius 16, gap 16, the items on their Fluent
-  fills (its old header strip and item panes made every card look striped); **Terminal** mono, square,
-  opaque `#050D07`, a green line, blur off; **Paper** serif, opaque `#FAF7F0`, a warm hairline,
-  radius 4, blur off.
+  item pane of its own (`DesignPresets`, the set [S-2122]): a frosted preset is translucent and an opaque one
+  blurs nothing; every item stays on its Fluent fills (a pane of its own made every card look striped).
 - **[S-831]** Default is read from a fresh `DesignState`, so a fresh install reads as Default.
 - **[S-832]** Applying a preset writes its fields in one mutation and leaves every other field alone.
 - **[S-833]** The picker shows the matching preset, or Custom; only owned fields are compared, colours
@@ -6716,8 +7178,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   ([widget-dark.json](https://github.com/microsoft/AdaptiveCards/blob/main/samples/HostConfig/widget-dark.json)),
   whose card (#2C2C2C / #F6F6F6, 1px #19000000 / #0F000000, radius 8) is a CSS approximation of
   the same tokens; the theme resources win where the two differ. Deliberate differences: no card
-  shadow (the surface is clipped to the cards by `SetWindowRgn`, so a shadow outside them cannot
-  show), and the header is Body Strong in the secondary colour ending 44px down rather than the
+  shadow (decided while the surface was clipped to the cards, where a shadow outside them could not
+  show; the surface is its work area now, [S-21], and the cards still draw none), and the header is Body Strong in the secondary colour ending 44px down rather than the
   board's own 48px attribution strip (the board draws that strip itself; it is not a widget's).
 - **[S-836]** *(Retired by [S-2100]: there is no Fluent tint to inset; `--reference` still draws the
   stock card to compare.)* The card composited as a WinUI card does: the Fluent tint stops at a solid stroke's
@@ -6808,41 +7270,39 @@ is one switch, [S-2110]); the eyedropper (optional in the audit). Motion setting
 
 ### Cards that touch (JOIN)
 
-At a small gap neighbouring cards meet. Each used to round all four corners and draw its whole
-border, so a stack showed a notch of wallpaper at every meeting point and a double hairline between
-two cards. Cards that touch now read as one panel: round on the outside, one line between; the
-members of one group draw none between them ([S-11870]).
+Every card paints its whole cell ([S-11884]), so cards placed edge to edge touch. Only the members of one
+group join into one panel: round on the outside, square inside, no line between ([S-11870]). Cards of no
+group that touch stay separate cards, every corner round and every side drawn (owner, 2026-11-15: "the
+space between widgets will only come from how you place them now").
 
-- **[S-2240]** **When the painted boxes of two cards touch along a side, they join** (`CardJoins.Outlines`,
-  Core, pure: the painted box of each card in, an outline per card out). Two cards are joined on a side
-  when that side of one lies on the opposite side of the other within the tolerance (half a device
-  pixel, `CardJoins.Tolerance`: 0.5 DIP at 100 %, 0.25 at 200 %) and they overlap along it by more than
-  the tolerance; cards that meet only at a corner do not. Only a card that draws a card surface joins:
-  one whose background is not Transparent, or that has a picture of its own ([S-6590]); a bare widget
-  (a desktop item, a sticker), a hidden one ([S-873]) and one being dragged ([S-2244]) join nothing and
-  nothing joins them. The rule takes no radius and no border: two cards of different looks join by the
-  same geometry, each drawing its own radius and line. With a gap above the tolerance nothing touches
-  and nothing changes. Tests `CardJoinsTests.S2240_`.
+- **[S-2240]** **When the cells of two members of one group touch along a side, they join**
+  (`CardJoins.Outlines`, Core, pure: each card's box and group in, an outline per card out). Two cards are
+  joined on a side when they are members of the same group ([S-2450]), that side of one lies on the opposite
+  side of the other within the tolerance (half a device pixel, `CardJoins.Tolerance`: 0.5 DIP at 100 %, 0.25
+  at 200 %) and they overlap along it by more than the tolerance; cards that meet only at a corner do not.
+  **Cards of no group, or of two groups, never join**: touching, each keeps its four round corners and its
+  whole border (since 2026-11-15; before, any two touching cards joined with one line between). Only a card
+  that takes part in joins does (`CardJoins.Joins`): one whose background is not Transparent, or that has a
+  picture of its own ([S-6590]), and whose kind is a card (not `WidgetTraits.NeverJoins`, [S-11880]: a desktop
+  icon never joins); a bare widget, a hidden one ([S-873]) and one being dragged ([S-2244]) join nothing. The
+  rule takes no radius and no border: two members of different looks join by the same geometry, each drawing
+  its own radius. Tests `CardJoinsTests.S2240_`, `GroupJoinTests.S2240_`.
 - **[S-2241]** **Corners.** A card's corner is square when a joined neighbour covers it: on one of the
   two sides meeting there, a joined neighbour's span reaches that corner (within the tolerance).
-  Otherwise it keeps the card's radius. A column of equal cards rounds only the top card's top corners
-  and the bottom card's bottom ones; a narrow card on a wide one squares its lower corners while the
-  wide card keeps the top corners the narrow one does not reach. The card's outline (`CardOutline`,
+  Otherwise it keeps the card's radius. A grouped column of equal cards rounds only the top card's top
+  corners and the bottom card's bottom ones; a narrow member on a wide one squares its lower corners while
+  the wide one keeps the top corners the narrow one does not reach. The card's outline (`CardOutline`,
   physical sides; mirrored for a card laid out right to left) gives one corner radius per corner to
   everything that follows the card's shape (`WidgetCard.Join.cs`): the surface's clip (the frost, the
   fill, the view, a fault or setup overlay, hover and focus fills inside it), a background image, the
   header's own fill ([S-828]: its strip's outer corners, each only where the card's is round; a side
-  strip maps its turned top corners onto the card's two on that edge). A surface with no round corner
+  strip maps its turned top corners onto the card's two on that edge), and a view whose own fill reaches the
+  card's edge (`IWidgetCorners`, [S-11883]: a quick toggle's or a power button's tile). A surface with no round corner
   at all clips nothing in WinUI, so such a card clips its frost to its box itself (`ClipFrost`; only
   then, as a rectangle clip under a rounded one changes how the round corners are smoothed). Tests
   `CardJoinsTests.S2241_`.
-- **[S-2242]** **One line between.** Where two cards join exactly one hairline is drawn. For a joined
-  pair (first: the upper or left card; second: the lower or right one): the second leaves out its
-  joined side when its neighbours cover that side whole; else the first leaves out its own when its
-  neighbours cover it whole and every neighbour along it draws its side; else both draw (staggered,
-  rare: where a first card keeps its line because one neighbour left its own out, another neighbour's
-  stretch along it may show two). A side not drawn never moves the card's content: the border is
-  drawn over the content and insets nothing. Tests `CardJoinsTests.S2242_`.
+- **[S-2242]** *(Retired 2026-11-15 by [S-2240]: only group members join, and between them no line is drawn
+  ([S-11870]); the rule of one line between two joined cards of no group, `CardJoinsTests.S2242_`, is gone.)*
 - **[S-2243]** **The border's path** (`CardOutline.Stroke`, drawn by a `Path`, which replaced the
   `Rectangle`): half the stroke inside the card, a round corner an arc at the radius less that half, a
   square corner a point; all four sides drawn are one closed figure (a free card draws as before), a
@@ -6851,32 +7311,64 @@ members of one group draw none between them ([S-11870]).
   or dotted pattern starts again at each run's start, so two neighbours' dashes need not line up
   across a join. Tests `CardJoinsTests.S2243_`.
 - **[S-2244]** **One path, live.** The desktop (`DesktopWindow.JoinCards`) and the scene renderer
-  ([S-1076]) both call `WidgetCard.Join` over a surface's cards (each card's painted box: its live rect's
-  cell inside the gap). The desktop joins again whenever the layout is applied: a relayout (a view
-  switch, a design change such as the gap slider or a preset), a card hidden or shown, a move, a resize,
+  ([S-1076]) both call `WidgetCard.Join` over a surface's cards (each card's cell, its set and its group;
+  the rule gives each its outline, [S-2249]). The desktop joins again whenever the layout is applied: a relayout (a view
+  switch, a design change such as a preset), a card hidden or shown, a move, a resize,
   a keyboard nudge. A card being resized is free, every corner round and its whole border, until it is
   dropped; the cards a drag carries (with the selection, once the drag has moved) are free of the cards
   standing still but stay joined among themselves, so a dragged group stays one panel ([S-2457]); their
   former neighbours get their corners back at once. Edit mode's selection outlines, handles, markers, ghosts and the snap
   guides keep their own shapes; so does an intro's cover while it plays ([S-1007]).
-- **[S-2245]** **The window's region follows the shape** ([S-872]): each card's piece is its painted
-  box with its round corners cut round at its radius in device pixels and its square ones square
-  (`CardFrame.Corners`; `DesktopLayer.SetHitRegion` takes each round corner's square out and puts a
-  circle's quarter back), so no click falls through a notch where cards join and none is taken outside
-  a round corner. A bare card stays a rectangle: its content may reach its corners. The union is cut
-  to the work area last ([S-851]). Tests `CardJoinsTests.S2245_`.
-- **[S-2246]** A preset's gap stays as it is ([S-2121]); at a gap above nothing nothing touches and
-  the cards draw as before.
-- **[S-2247]** The default gap is none, so widgets put side by side join without a setting: a column
-  or a grid of them is one panel. The gap is still the design's to widen (⚙ › Appearance). A gap that
-  is not a number is repaired to none. Test `CardJoinsTests.S2247_`.
+- **[S-2245]** *(Retired 2026-11-14 by [S-21]: the window's region is the work area, so it no longer
+  follows the cards' shape; `CardFrame.Corners`, `HitCorners` and the region's pieces are gone. A
+  press in the notch outside a round corner is a press on empty desktop, [S-5502].)*
+- **[S-2246]** *(Retired 2026-11-15 by [S-11884]: there is no gap, a preset's or anyone's.)*
+- **[S-2247]** *(Retired 2026-11-15 by [S-11884]: there is no gap setting to default.)*
+- **[S-2248]** **Neighbours are cells that meet** (`CardJoins.Meeting`, Core, pure). Two widgets are
+  neighbours when their **cells** (the stored rect, painted whole, [S-04]) meet along a side: a side
+  of one on the opposite side of the other within half a device pixel (`CardJoins.Tolerance`), overlapping
+  along it by more than that; a corner alone is no meeting. Every cell edge is put on a whole device pixel
+  from a whole DIP (`GridGeometry.ToPixels`, [S-11872]), so two edges are the same pixel or at least one
+  whole pixel apart: one pixel apart or over is no meeting, at 100 % as at 125, 150 or 200 % and on a
+  screen whose DIPs are fractional; the half pixel only absorbs float noise. On the grid they meet on its
+  line. Tests `GroupJoinTests.S2248_`.
+- **[S-2249]** **A group is one connected panel** (owner, 2026-11-15: "when i now place widgets border to
+  border … and then i group them it does not connect them"; `CardJoins.Paint`, the one path the desktop,
+  the scenes and the add page's pictures take through `WidgetCard.Join`). Every card paints its whole cell
+  ([S-11884]); members of one group whose cells meet ([S-2248]) join ([S-2240], [S-2241]) with no line
+  between ([S-11870]): square inner corners, one outer outline, round outside. So **Group** (Ctrl+G, the card
+  menu, the selection page) on widgets placed border to border connects them every time; **Ungroup** leaves
+  every card where it is and makes them separate cards again, each round all round. Widgets of no group (or
+  of two) that touch stay separate cards. **Members that are not neighbours** stay where they are, drawn as
+  separate cards (the group is still the lock of [S-2450]: selected, moved and framed as one); Group never
+  moves a widget. A member and a lone widget meeting the same side: only the member's corners over its mate
+  are square, the lone card keeps all four. A member being dragged away (another set, [S-2457]) or resized
+  ([S-2244]) is free until it lands; a dragged group stays one panel. Moving a member keeps the panel
+  connected wherever its cell still meets a mate; dropped apart, it is a separate card of the group. A
+  resize or a refit ([S-2447]) of one member changes that member's cell alone. Tests `GroupJoinTests.S2249_`
+  (the regression: `S2249_regression_grouping_cards_placed_border_to_border_joins_them_into_one_panel`).
+- **[S-11884]** **No gap between widgets** (owner, 2026-11-15: "the padding of the widgets should also be
+  removed, the space between widgets will only come from how you place them now"): a card paints its whole
+  cell, on the grid's lines. There is no gap setting (Appearance › Cards has no Gap row), no
+  `DesignState.WidgetGapPx`, no gap in a preset, in `--design` or a scene's design text (`gap=` is refused
+  as an unknown key) and no `widgetGapPx` in a state file; sizing (`SizeFit`, `GridFit`, `PlacementSizes`,
+  `ReadyMadeGroups.Laid`, a desktop icon's box) adds nothing round a card. Space between widgets is where
+  they are placed. Ready-made groups stay connected ([S-2249]). Tests `GroupJoinTests.S2240_S11884_`,
+  `CardJoinsTests.S2240_S11884_`, `GridFitTests.S11807_the_content_scale_is_inside_the_whole_cells`.
+- **[S-11880]** **A desktop icon is no card** (owner, 2026-11-15: "the desktop icons have two rounded and two
+  normal corners, this should not be"): its kind states `WidgetTraits.NeverJoins`, so it never joins the
+  icons it touches on the widget grid ([S-11875]) nor is it a glass body (`CardJoins.Joins`), and on no card
+  its card's surface is not clipped to a card's corners (`CardJoins.ClipRadius`): the highlight, which fills
+  the cell's width from its top, kept the card's 8-DIP corners at the top and its own 2 at the bottom; now
+  all four are `SelectionLook.DesktopIcon`'s. Given a card of its own it is clipped as any card, and still
+  never joins. Tests `GroupJoinTests.S11880_`, the module's `S9515_`.
 - **[S-11870]** **No line inside a group** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards that are members of the same group
   ([S-2450]) no line is drawn at all: neither card draws a side, or the stretch of a side, where a
   member of its own group lies across it. A group reads as one sheet: its outer border stays whole,
   round outside ([S-2241]). Two cards that touch but are not of one group (two lone widgets, a lone
-  widget and a member, members of two groups) keep the one line of [S-2242], so the user still sees
-  where one thing ends and the next begins. `CardJoins.Outlines` takes each card's group (null: none);
+  widget and a member, members of two groups) are not joined at all ([S-2240]): each draws its whole
+  border and round corners, so the user still sees where one thing ends and the next begins. `CardJoins.Outlines` takes each card's group (null: none);
   group mates count as neighbours for [S-2242]'s rule, and then the stretches across them are left out
   of whatever side is drawn: a side wholly across mates is not drawn, a side partly across them keeps
   its other stretches (`CardOutline.Seams`, fractions of the side from its physical start, mirrored
@@ -6899,7 +7391,7 @@ members of one group draw none between them ([S-11870]).
   half by each neighbour, their translucent fills each half covering one row, so the wallpaper showed
   through there as a light line. A card's cell now puts each edge on a whole device pixel
   (`GridGeometry.ToPixels(rect, screen, rasterScale)`, rounded from the same whole DIP, so a side two
-  cards share is one device pixel in both): the desktop's layout, its hit region and the join, and a
+  cards share is one device pixel in both): the desktop's layout and the join, and a
   scene's cards. Test `GridGeometryTests.S11872_`.
 
 ## Logging (WP7)
@@ -7076,7 +7568,7 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
 - [S-1569], [S-1988]: moved with the Bluetooth widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Bluetooth/`).
 - **[S-1571]** *(Retired: no summary line or strip at any size, [S-1427]; the header's "3/5" keeps
   the count.)*
-- [S-1380], [S-6401], [S-1381], [S-1382], [S-1383], [S-1384], [S-1385], [S-1386], [S-1387], [S-1388], [S-1389], [S-1390], [S-1995], [S-1391], [S-1392], [S-1393]: moved with the Shortcuts widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Shortcuts/`).
+- [S-1380], [S-6401], [S-1381], [S-1382], [S-1383], [S-1384], [S-1385], [S-1386], [S-1387], [S-1388], [S-1389], [S-1390], [S-1995], [S-1391], [S-1392], [S-1393]: the Shortcuts widget's (a list of many), retired with it on 2026-11-13; what is still true of one shortcut is an own desktop icon's, in the Desktop icon module's `SPEC.md` (`src/Widgets/Themia.Widget.DesktopItem/`, [S-9500]..[S-9514]; the kind `shortcut` was merged into `desktopItem` on 2026-11-14).
 
 ## Network safety (WP6)
 
@@ -7225,34 +7717,16 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
 - **[S-929]** Resuming re-tracks and shows each surface, rebuilds its widgets from the state (each
   fires at once, so nothing shows pre-game data), unpauses the ticker and requests a display pass for
   any mode or monitor change the game made.
-- **[S-930]** The shell's "Show desktop icons" command (original DI-01..05), sent only by the pick of
-  [S-5505] (⚙'s line is the desktop choice now, [S-5500]): posted as the shell's own command
-  (`WM_COMMAND 0x7402` to `SHELLDLL_DefView`), so Explorer persists it and the desktop menu's check
-  mark agrees; Themia never re-asserts or restores it (it survives quitting Themia, Explorer
-  restarts and reboots: Explorer persists it, so nothing is re-applied on `TaskbarCreated`). The
-  shell windows are looked up on every use, never cached: the shell's own `Progman`
-  (`GetShellWindow`), else a `WorkerW` in between (a child of Progman on 24H2+, top-level before),
-  and only a `SHELLDLL_DefView` of the shell's process that has its icon list
-  (`DesktopIconRules.ChooseView`) — another program's `Progman`/`WorkerW` never gets the command.
-- **[S-931]** The command is a toggle: sent only when the live state is known and differs; an
-  unreadable shell gets nothing. The live state is the icon list's own `WS_VISIBLE` bit, not
-  `IsWindowVisible` (which is also false while an ancestor is hidden, and then turned a "show" into
-  a hide).
-- **[S-932]** *(Retired by [S-5500]: ⚙'s line is Themia's own choice, so nothing adopts Windows' state
-  into it; the icon list's show and hide hook now keeps the session hide, [S-5503].)* Windows owns the state; `Preferences.DesktopIconsVisible` is a first-paint cache. The
-  switch adopts the live state on every visit and, while on screen, on the icon list's own
-  `EVENT_OBJECT_SHOW/HIDE` (a WinEvent hook scoped to that one Explorer thread) — event-driven,
-  replacing the original's 1 s poll. Adopting writes only on a known disagreement. The switch shows
-  the live state, else the cache — never a position nothing was done about.
-- **[S-939]** Applying the switch is single-flight and latest-wins (`DesktopIconRequests`): one
-  worker thread, a request made while it works replaces any still waiting, so quick off-on-off
-  flicks end as the switch was left. Each request sends the command at most once, with
-  `SendMessageTimeout` (abort-if-hung, 3 s bound) rather than `PostMessage`: a posted command is
-  still queued when the state is read back, so a quick second request toggled on a stale state
-  (lost or doubled toggles, the switch and the desktop out of step). The read after the handled
-  send confirms (`DesktopIconRules.Plan`); not found, not answered, or handled-but-unchanged is
-  logged as a warning and not retried. When the worker is done it raises `Settled` and the switch
-  adopts what Windows reached; while it works the hook's events are not adopted.
+- **[S-930]** *(Retired 2026-11-14 by [S-5505]: Themia never sends the shell's "Show desktop icons"
+  command, `WM_COMMAND 0x7402`, and never writes Windows' setting.)* What stays of it is how Explorer's
+  desktop view is found for the session hide ([S-5503]): looked up on every use, never cached.
+- **[S-931]** *(Retired 2026-11-14 by [S-5505]: no toggle is sent.)* What stays: the live state is the
+  icon list's own `WS_VISIBLE` bit, not `IsWindowVisible` ([S-5503]).
+- **[S-932]** *(Retired by [S-5500]: nothing adopts Windows' state; there is no
+  `Preferences.DesktopIconsVisible`. The icon list's show and hide hook keeps the session hide,
+  [S-5503].)*
+- **[S-939]** *(Retired 2026-11-14 by [S-5505]: with no command there are no requests to apply;
+  `DesktopIconRequests` and `DesktopIconRules.Plan` are gone.)*
 - **[S-933]** Start with Windows, picked by package identity: unpackaged → `HKCU\…\Run\Themia`;
   packaged (MSIX) → the manifest's startup task, id `ThemiaStartup` (`Package.appxmanifest` declares
   `desktop:StartupTask TaskId="ThemiaStartup" Enabled="false"`). One switch, same states and advice.
@@ -7308,10 +7782,10 @@ The card hooks widgets use. Rules in Core `LeaseKeyRouting`, `WidgetZOrder`, `Ca
   view does not use carries on to the focused control. While a text editor has focus every key but
   Escape is still the box's ([S-804]); Escape ends the lease in the bubble, after a box that clears
   on Escape had it.
-- **[S-872]** The hit region follows **paint** (`CardFrame.Hit`): a hidden widget ([S-873]) takes
-  nothing; every other card takes its painted rect, inside the gap, its corners as drawn ([S-2245]).
-- **[S-873]** `IWidgetSurface.SetHidden(bool)`: the card stops drawing its fill, border and content
-  and leaves the hit region; the view stays attached so it can show itself again. Edit mode always
+- **[S-872]** *(Retired 2026-11-14 by [S-21]: the hit region is the work area and follows no card;
+  `CardFrame.Hit` is gone.)*
+- **[S-873]** `IWidgetSurface.SetHidden(bool)`: the card stops drawing its fill, border and content,
+  so the wallpaper shows there; the view stays attached so it can show itself again. Edit mode always
   draws it, at half opacity. Not persisted. (For Music's hide-when-idle.)
 - **[S-874]** Bring to front / Send to back on every widget's card menu (disabled when it already
   is). The order is the view's widget list, persisted with it, and it is the paint order, applied
@@ -7509,10 +7983,35 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
 - **[S-1584]** Dragging a selected card moves **every selected widget on that display** (a selected
   group whole, [S-2452]; an entered member alone) by one
   translation: the block's bounding box is moved, its top-left snapped to the grid or an edge flush
-  on the work area's ([S-06], [S-6609], Alt suspends both), and the move stops where the first of its
+  on the work area's ([S-06], [S-6609]), and the move stops where the first of its
   widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
   each rect is then kept in reach ([S-09]). Offsets between the widgets never change. Resizing is per
   card and narrows the selection to it; a group's members are resized only once it is entered ([S-2453]).
+- **[S-11879]** **A mixed block on the locked desktop** (owner, 2026-11-15: "the widgets in the desktop should also
+  be selected with the lasso, and also moved with everything as well then"): outside edit mode a press on any selected
+  widget, icon or card, moves **every selected widget of that display's view** as one block
+  (`DesktopPicks.Moving` over the desktop's one selection, [S-11877]); an unselected one moves alone and the selection
+  stays (its group comes with it, [S-11885]). The block moves as [S-1584] says: one translation, its corner snapped
+  to the grid, kept in reach, in whole device pixels ([S-11873]), handed to another display's view where it is let go
+  there ([S-1591]), one undo step. Tests `DesktopGridTests.S11879_`.
+- **[S-11885]** **The locked desktop takes whole groups** (owner, 2026-11-15: "when not in edit mode and moving
+  widgets on the desktop directly it does not respect the grouping of widgets"): as in edit mode the unit is a lone
+  widget or a whole group ([S-2451], `WidgetGroups.Units`, the one rule both share). A press and move on any member
+  moves every member together, their offsets kept, as one block snapped and in whole device pixels ([S-11873]); a
+  band that touches one member selects the whole group, and a member is drawn selected with its group
+  (`DesktopPicks.Selected` and `Moving` grow the desktop selection's widgets to whole units, `DesktopPicks.Selects`
+  the look; `AppHost.DeskSelects`). The selection's keys themselves stay those of what was pressed or touched.
+  Tests `DesktopGridTests.S11885_` (the regression, which failed first: a member moved alone).
+- **[S-11877]** **One selection, one lasso** on the locked desktop: the desktop's band ([S-5544]) on empty desktop
+  selects widgets and desktop icons together, by the one overlap rule (`DesktopBand.Hits`, the band touching the box);
+  Ctrl toggles, Shift adds ([S-6625]); Escape or a press on empty desktop clears both (`ClearDeskSelection`). The
+  host's desktop selection is the one model (`DesktopSelection`; a card under its card key, [S-5540]); a card asks
+  it (`DesktopWindow.IsSelected` outside edit mode, `AppHost.DeskSelects`) and draws its **four corners in the accent,
+  no handles, no grips, no edge bars** (`WidgetCard.ApplySelection`: `EditMarks.Corners` on the locked desktop); an
+  icon draws its own selection look ([S-6627]) and its four corners over it ([S-11889]). Delete, Cut, Copy, Enter and F2 keep their meaning per kind: on the
+  icons the file commands ([S-5545]), on cards nothing outside edit mode. Edit mode keeps its own units and groups
+  (`WidgetSelection`, [S-2450]), started empty. Tests `DesktopGridTests.S11877_`; `--drag-png` draws it
+  (`drag-lasso-*`).
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
 - **[S-1586]** A payload lands with its bounding box centred on the pointer (a paste),
@@ -7567,12 +8066,13 @@ Owning files: `Themia.Core/Model/WidgetGroups.cs` (the rules), `AppState.cs` (`W
 `ViewState.Groups`, `WidgetInstance.Group`), `WidgetSelection.cs` (the group rules of a press, a click,
 Ctrl+click, Escape and Tab), `PlacementPayload.cs`, `WidgetTransfer.cs`, `LayoutHistory.cs`,
 `Widgets/CardJoins.cs` (sets), `Model/ReadyMadeGroups.cs` (the recipes), `Scenes/ReadyMadeScene.cs`;
-`AppHost.Groups.cs`, `GroupFrameLayer.cs`, `WidgetCard.cs` (the press), `DesktopWindow.Keys.cs`,
+`AppHost.Groups.cs`, `WidgetCard.cs` (the press, the members' corners), `DesktopWindow.Keys.cs`,
 `Shell/Pages/AddPageView.cs`. Tests: `WidgetGroupsTests`, `GroupShellTests`, `SceneGroupsTests`, `ReadyMadeGroupsTests`.
 
 Small widgets put side by side already draw as one panel ([S-2240]); a group is what makes such a
 composition one thing to arrange: an optional lock over ordinary cards, never a card of its own. Its
-members draw no line between them, so the group reads as one sheet ([S-11870]).
+members that meet close the gap between them and draw no line there, so the group reads as one
+connected sheet at any gap ([S-2249], [S-11870]).
 
 - **[S-2450]** **State.** A view holds its groups (`Groups`: an id and an optional name); a widget holds
   the id of its group (`group`, not written when it has none). No nesting: a widget is in one group at
@@ -7596,18 +8096,30 @@ members draw no line between them, so the group reads as one sheet ([S-11870]).
   (Bring to front / Send to back, the members keeping their order among themselves) as the selection
   of its members does ([S-1584], [S-1592]); the arrow keys nudge it whole ([S-1970]). An entered member
   is moved on its own and stays a member wherever it is dropped.
-- **[S-2453]** **Resizing is a member's alone.** In edit mode a group draws one frame of the edit
-  markers' brackets and edge bars round its members' painted boxes (`GroupFrameLayer`: neutral, accent
-  while selected, faint accent while entered), with no grips, and its members draw no markers of their
-  own; an entered member shows its own markers and handles. Shift+arrows do nothing to a selection that
+- **[S-2453]** **Resizing is a member's alone.** A group draws **no marks of its own** (owner, 2026-11-15: "a
+  group should not have the corners and edges marked anymore"): no brackets, edge bars or grips round its outline,
+  in any state (selected, entered, on the locked desktop's lasso, in edit mode). Its members draw their corners alone
+  ([S-2459]), in the accent while they are selected (the group selected whole shows it through them), neutral
+  otherwise; an entered member shows its own markers and handles. *(Until 2026-11-15 `GroupFrameLayer` drew a frame
+  of the markers round the members' cells; removed whole.)*
+- **[S-2459]** **A member's corners** (owner, 2026-11-15: "when a widget in the group is selected it should show the
+  corners of the other widgets inside the group too ... also when the group is selected"): in edit mode every member
+  of a group that is not the entered, selected one draws its four corner brackets, with no grips and no edge bars (in
+  the accent while it is selected, neutral otherwise, [S-2453]), as the widgets around show theirs: the group selected whole, entered with another member, or neither
+  (`SelectionRules.MarksOf`, `EditMarks`; the rule had hidden them all). Tests `GroupMoveTests.S2459_`,
+  `WidgetGroupsTests.S2459_`. Shift+arrows do nothing to a selection that
   holds a whole group.
 - **[S-2454]** **Group and ungroup.** **Ctrl+G** makes one group of the selection (two widgets or more,
   a member bringing its whole group; groups in it merge into the new one, which takes the name of the
   first of them, in view order, that had one; the new group is selected whole). **Ctrl+Shift+G**
   dissolves every group the selection touches (inside an entered group, that group); the widgets stay
   where they are and stay selected. A widget's card menu offers **Group**, **Ungroup** and, on an
-  entered member, **Remove from group**, only where each applies; a group left with one member
-  dissolves.
+  entered member, **Remove from group**, only where each applies; so does the header card of the
+  selection's page (`SelectionModel.CanGroup`, `.CanUngroup`): **Group** (Ctrl+G) for several units,
+  **Ungroup** (Ctrl+Shift+G) for a group whole or several holding one (owner, 2026-11-15: "when i select
+  multiple widgets i am not able to group them": the page of several offered Cut, Copy and Remove only).
+  A right-click ends its own press, so it never holds the page shut ([S-2343]). A group left with one
+  member dissolves. Tests `SharedSettingsTests.S2454_`.
 - **[S-2455]** **Copies and moves.** A payload carries the groups it holds two or more members of; a
   member taken alone travels as a lone widget. A copy of a group lands as a new group (fresh id, the
   same name) every time it is pasted; a move keeps its group, across views and displays too, and the
@@ -7703,27 +8215,25 @@ model), `Model/QuickSet.cs` (`SetShared`), `Model/WidgetGroups.cs` (`Rename`); A
   its glyph (the ready-made group's it was placed as, found by its name; the group glyph otherwise). Its
   page (`SelectionPage.Of`, `SelectionKind.Group`): the header card with the group's glyph, its name as a
   box that renames it (Enter or leaving keeps it, Escape restores it; empty, or "Group", is no name; one
-  step), "n widgets" under it, and Ungroup (Ctrl+Shift+G), Cut, Copy and Remove at its end; then For all of
-  them ([S-11751]), Widgets ([S-11755]) and Appearance (the shared appearance rows of [S-2342], set on every
-  member). No title or header placement: a title names one widget, and where a member's header stands is
-  that member's ([S-11755]).
-- **[S-11755]** **Widgets**: a row per member, in view order (its kind's glyph, its name as its header says
-  it, under it its kind, or what the kind is where the name is the kind's), the whole row opening that
-  member's own page as a sub-page behind a back head: the page a lone selection of it shows (its header
-  card, What it shows, Header, Appearance), every write acting on that member alone; so every setting of
-  every member is reached without entering the group on the desktop. At the row's end **Remove from group**
-  (Delete while the row has the keyboard): the member leaves (a group left with one dissolves), one step
-  ("ungroup"); what stays of the group stays selected.
+  step), "n widgets" under it, and Ungroup (Ctrl+Shift+G), Cut, Copy and Remove at its end; then on the
+  Settings tab For all of them ([S-11751]) and on the Appearance tab ([S-2345]) the shared appearance rows of
+  [S-2342], set on every member. No title or header placement: a title names one widget, and where a member's
+  header stands is that member's.
+- **[S-11755]** **No member alone** (owner, 2026-11-15: "the group should not show the individual widget in the
+  settings, just the appearance settings and the combination of the settings that are shared"): a group's page
+  lists no member and opens no member's page; a member's own settings are its page once the group is entered
+  ([S-11757], [S-2451]), and a member leaves its group from its card's menu (Remove from group). *(2026-11-14 to -15
+  a Widgets section held a row per member opening its own page as a sub-page, Remove from group at its end;
+  removed whole with its commands, `SelectionModel.Members`, `PageRow.Page` and the scene's `member/` keys.)*
 - **[S-11756]** Several lone widgets (or widgets of several groups) selected share For all of them too, after
-  the style and before the header's place.
+  the style and before the header's place, on the Settings tab; their look on the Appearance tab ([S-2345]).
 - **[S-11757]** **An entered member** ([S-2451]) is its own page as one widget's, with a link row first
   under its header card, "Group: <name>", whose click selects the group whole and shows its page.
 
 Needs a live pass: renaming a group in its header card (focus, Enter, leaving, Escape, an undo); a shared
 line's write reaching every member at once (a place found, a toggle, a typed host, a drive, a span) and
-the cards following; Mixed turning into one value on a pick; a member's sub-page and the back head; Remove
-from group by the pointer and Delete; the link from an entered member; a lookup (a place, a symbol) asked
-once on the group's page.
+the cards following; Mixed turning into one value on a pick; the Settings and Appearance tabs by the pointer
+and the keys; the link from an entered member; a lookup (a place, a symbol) asked once on the group's page.
 
 **Ready-made groups.** A ready-made group is a recipe that places several widgets, touching, already
 grouped, so a first desktop is a few clicks.
@@ -7738,6 +8248,9 @@ grouped, so a first desktop is a few clicks.
   offset, one click lands them all, touching, as one new group named after the recipe (fresh ids every
   time), selected whole; one undo step ("add"). The licence counts it as adding its widgets one by one
   ([S-1065]): the gate before the ghost and on landing see all of them, and it lands whole or not at all.
+  Every offered group is held to it (`ReadyMadePlacementTests`): placed through the tile's own plan on a
+  1080p, a 150 % 1440p and a 1280 × 720 display, the grid on and off, it lands every widget as one group,
+  clean to load validation, its page the group's.
 - **[S-2472]** **Rules** every recipe keeps (`ReadyMadeGroupsTests`): every kind installed and every
   config property one its kind has; two widgets or more; no two boxes overlapping; every widget touching
   another, so the recipe draws as one panel ([S-2240]); the whole within a 1280 × 720 work area. A build
@@ -7747,14 +8260,14 @@ grouped, so a first desktop is a few clicks.
   how many widgets it places ("4 widgets"); picked as a widget's tile is. The search finds recipes with
   the widgets, by name, description and the names of the widgets they hold, under their own heading
   ([S-11706]).
-- **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid, each reading over its history, [S-11090]), **My day**
+- **[S-2474]** **The seeds**: **This PC** (one column of one width, network's 344: CPU, memory, disk and network, each reading over its history, [S-11090]; owner, 2026-11-15: "the this pc group should be one column not multiple"), **My day**
   (the clock on top, the next meeting, After this and the tasks under it as one panel, [S-11409]) and **Weather station** ([S-11172]: the
   reading, its facts, the forecast and the rain in the next hour, stacked), each with its kinds'
   default configs. The weather, sky and money family adds its own ([S-11172]).
-- **[S-11209]** **My files** (files family): the Documents folder as a list (300 × 308) on the left;
-  beside it the shortcuts as a grid of four columns (the Recycle Bin, This PC, Downloads, Documents;
-  316 × 100) over the files opened last, four rows (316 × 208): each box the size its kind's sizing
-  makes of that config, the folder as tall as the column beside it, so the three join into one panel.
+- **[S-11209]** **My files** (files family): the Documents folder as a list (300 × 288) on the left;
+  beside it the files opened last, six rows (316 × 288): each box the size its kind's sizing
+  makes of that config, the two as tall as one another, so they join into one panel (the Shortcuts
+  grid between them went with that widget, 2026-11-13).
   Its home is Files.
 - **[S-11409]** **The lists' and the office's groups** (the atoms split from old kinds come back as
   these, joined into one panel at their natural sizes): **Next meeting** (`nextMeetings`: the meeting
@@ -8081,8 +8594,8 @@ the quote and the scratchpad are modules of their own, each with its SPEC.md and
 - [S-1497], [S-1498], [S-1499]: moved with the Scratchpad widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Scratchpad/`).
 - **[S-1500]** Clear asks first (user bug: the question was clipped to the tile), through the
   widgets' one confirmation `ConfirmFlyout` (also the folder's delete, [S-1330]): the question, the
-  action (accent) and Cancel, beside the button. It is never constrained to the root: inside the
-  surface's window the region ([S-851]) clips it to the card, so it opens as its own popup window,
+  action (accent) and Cancel, beside the button. It is never constrained to the root (inside the
+  surface's window the region of the time clipped it to the card): it opens as its own popup window,
   which the framework keeps in the display's work area, flipping to the side with room — at any tile
   size, either theme, either direction. Escape, a click elsewhere or Cancel are "no". It is every
   widget's one way to ask (`ConfirmFlyout.AskAsync`, optionally with a detail line under the
@@ -8174,25 +8687,43 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   source's reading stands. Space or Enter switch it while the widget holds the keyboard lease
   ([S-800]); a toggle that cannot be switched does not take the keyboard (`WantsKeys`).
 - **[S-3906]** The face is the Tile block ([S-6715]) in the card's inset of 12: the icon centred on the
-  step its Size names ([S-11307]) above the name (Body) and the state line ("On", "Off",
+  step its box holds ([S-11882]) above the name (Body) and the state line ("On", "Off",
   "Unavailable", Caption), both always (cut with an ellipsis where they do not fit, whole in the
   tooltip). Both lines are planned whether or not they say anything (a reading not answered yet has
   no state text), so switching moves nothing.
-- **[S-11307]** **A quick toggle's and a power button's size is a setting** (the twenty kinds, two
-  shared views; owner decision 2026-11-12, content decides the size): **Size** under the Style (Small,
-  Medium, Large; `IReadoutSized` on `QuickToggleConfig` and `PowerButtonConfig`, a new one Medium)
-  names the glyph's step (28, 40, 68; a round tile's circle, a power button's ring), and the card is
-  fixed both ways by the Size and the look (`TileRules.Sizing`): the Tile and Round looks a square
-  ([S-11804]: a toggle's 116, 128 or 160, a power button's 100, 120 or 160), the Switch look a row 200,
-  240 or 280 wide and 60 tall (its glyph, a sentence's room for the name over the state, the switch).
-  Nothing in it changes with the card. Tests `FamilyBlockRulesTests.S11307_`.
+- **[S-11307]** *(Retired 2026-11-15 by [S-11882]: a quick toggle's and a power button's Size (Small, Medium,
+  Large) and the fixed card it named are gone; the card is resized freely.)*
+- **[S-11312]** *(Retired 2026-11-15 by [S-11882]: the glyph alone is now what a box too small for the words
+  shows, not a Size.)*
+- **[S-11882]** **A quick toggle and a power button have no size limits** (owner, 2026-11-15: "widgets like
+  the toggle buttons should not have size limitations"): the twenty kinds' card is resized freely on both
+  axes (`TileRules.Sizing`, a range, on whole grid cells as every widget's, [S-11807]): the Tile and Round
+  looks from the 28 glyph alone in the inset (**52**, `TileRules.MinSide`) to 480 on either axis
+  (`MaxSide`), landing at the old Medium square (a toggle 116, a power button 100, `NaturalSide`); the Switch
+  look a row from its glyph and switch alone (88) to 640 wide and 60 to 180 tall, landing at 240 × 60, the
+  row centred in a taller box. There is no Size setting (`QuickToggleConfig`, `PowerButtonConfig` carry none;
+  their page has the Style alone). What the tile draws is its box's (`TileRules.Face`, the views as
+  `IWidgetSizeAware`): the largest glyph step (28, 40, 68, 96, 136; a round tile's circle, a power button's
+  ring) whose glyph, its name on two lines (Body; Title past 68) and a toggle's state line (Caption; Body past
+  68) fit the inset box with room for a short name (76 at Body, `NameRoom`); where no step fits with its
+  words, the glyph alone (name in the tooltip, state in the fill, as Windows' own quick-settings buttons) on
+  the largest step at most a third of the box's short side, never under 28, so a growing box never sees its
+  glyph shrink. Centred both ways. The words take the box only as a one-readout widget's glyph takes its
+  Hero steps ([S-6737]). Tests `FamilyBlockRulesTests.S11882_`, `ToggleStylesTests.S3916_`,
+  `PowerActionTests.S1912_`.
+- **[S-11883]** **A tile's fill takes the card's corners** (owner, 2026-11-15: "the button widgets when in a
+  group have rounded corners which looks off"): the tile's own fill, hover, pressed and on (accent)
+  backgrounds reach the card's edge, and kept the family's round corners inside a joined panel, a notch at
+  every seam. The card hands a view whose fill reaches its edge its corners (`IWidgetCorners.ApplyCorners`,
+  in the view's DIPs: the card's per-corner radius over its content scale) when the view attaches and on
+  every join, design and content-scale change; `TileBlock.Corners` puts them on its fill and its overlay.
+  Round where the card is, square where a group mate joins it ([S-2241]), in solid and Liquid glass alike.
 - **[S-11804]** **A tile's name wraps before it is cut** (2026-11-12): under the glyph the name takes a
   second line where it runs past one ("Do not disturb", "Bitte nicht stören"), word by word, and only past
   the second is it cut with its ellipsis (`TileRules.NameLines`, `TileBlock`); the Switch look's row keeps
-  it to one line. The square holds both lines at every Size: at least 100, 120, 160 and as tall as the
-  glyph, the gap, two name lines and (a toggle's) the state line need in the inset (`TileRules.SideAt`:
-  a toggle 116, 128, 160, a power button 100, 120, 160). The ready-made Quick settings group's toggles are
-  128 squares. Tests `FamilyBlockRulesTests.S11804_`.
+  it to one line. A box shows the words only where both lines fit ([S-11882]); the natural square holds
+  them (a toggle 116, a power button 100). The ready-made Quick settings group's toggles are natural squares.
+  Tests `FamilyBlockRulesTests.S11882_`.
 - **[S-3907]** One source per toggle for the whole app (`ToggleHub`, host code; a widget reaches it
   through `IWidgetHost.Toggles`, [S-6913]), started by its first widget and stopped by its last; a change reaches each widget on its own thread. No source polls: each follows
   the notification its setting has and reads again when it fires. The pointer coming onto a tile
@@ -8414,7 +8945,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 - **[S-904]** In edit mode only, Ctrl+1..Ctrl+9 (and the keypad digits) show the n-th view on the
   display under the pointer (the one a paste lands on, [S-74]), or this one. Outside edit mode
   Themia takes no digits: there is no global hotkey (audit B6).
-- **[S-905]** The edit bar's Snap toggle sets `Design.GridSnap`, and nothing else does ([S-3516]).
+- **[S-905]** *(Retired 2026-11-15: there is no Snap toggle and no `Design.GridSnap`; the grid is always on, [S-06].)*
 - **[S-906]** Each display has its own view bar settings (`AppState.ViewBars`, keyed like
   `MonitorViews`): anchor (default bottom left), size M/L/XL, type ([S-5400]), labels ([S-5405]),
   hidden, and a whitelist of views. A display without an entry uses the defaults and nothing is stored until it
@@ -8427,8 +8958,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   offers all (`ViewListRules`). On the display page the last view cannot be switched off, and
   switching every view on goes back to "all", so later views appear by themselves.
 - **[S-909]** The bar sits at its anchor inside the display's work area, 16 DIP from its edges,
-  never over the taskbar. In edit mode a bar that would overlap the edit toolbar (top centre) moves
-  below it; one beside it stays. A bar larger than the area is pinned to its top-left.
+  never over the taskbar. In edit mode a bar that would overlap the edit toolbar moves below it; one beside it stays. A bar larger than the area is pinned to its top-left.
 - **[S-910]** The left and right middle anchors stack the chips vertically; the other six lay them
   in a row.
 - **[S-911]** Sizes M, L and XL are on the family's tokens (shell sweep, 2026-10-30; they were the
@@ -8441,9 +8971,8 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   for a blank name) and its name (bold for the
   view new displays start on), or one of them ([S-5405]); the shown view is a raised control, the rest subtle until hovered.
   The bar's fill and stroke are the widget card's (colour, opacity, border colour).
-- **[S-912]** Outside edit mode the bar's box is added to the surface's hit region, cut to the work
-  area; everything around it stays the desktop. It is an element on the surface, not a window, so it
-  is never above other apps.
+- **[S-912]** The bar is an element on the surface, inside its work area ([S-851]), not a window, so
+  it is never above other apps; everything around it is the desktop ([S-5501]).
 - **[S-913]** In edit mode the bar is dragged by its handle; while dragging it snaps live to the
   anchor under the pointer (thirds of the work area; the middle band of the side thirds are the
   vertical anchors; the dead centre goes to top or bottom middle by half), and the drop saves that
@@ -8473,7 +9002,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   The menu opens into the display (below a top bar, above a bottom one, beside a column,
   `ViewBarRules.MenuSide`) and is no taller than the work area on that side (`MenuHeight`), so a
   long list scrolls inside it; the edit bar's View menu scrolls inside the work area below the bar too ([S-3540]).
-  The overflow chip is part of the bar's box, so it is in the hit region ([S-912]); it is never
+  The overflow chip is part of the bar's box ([S-912]); it is never
   dragged, and chips are reordered among the chips drawn ([S-914]). Chosen over a scrolling strip
   with chevrons: a strip hides the shown view as easily as any other and needs a scroll position
   per display; the overflow keeps every drawn chip one click away and is how Windows overflows a
@@ -8493,7 +9022,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   offer reads "Views". Its tooltip says to click to choose a view. It is a row at every anchor, so
   its room is the work area's width (`ViewBarRules.IsVertical` / `Room` with the type). Anchors,
   sizes, the edit-mode grip and drag ([S-913]), placement inside the work area ([S-909]), the hidden
-  preview ([S-907]) and the hit region ([S-912]) are the inline bar's. In edit mode the button takes
+  preview ([S-907]) are the inline bar's. In edit mode the button takes
   the keyboard like a chip (F6, Enter / Space opens it).
 - **[S-5402]** A click opens the bar's one menu (`ViewBar.ViewMenu`, the overflow chip's menu of
   [S-918]): `ViewBarRules.MenuViews` lists every view on the bar for a select bar (the views the
@@ -8575,9 +9104,8 @@ every display's and every view's settings are the edit bar's Display and View me
   list is drawn again. The same drag and shortcut order every list of the menus (the engine's ordered
   lists, [S-3732]: an item takes another's place, `DeskListOrder.MoveTo`; the line's tooltip says
   how). No list or widget menu has arrow buttons or Move up / Move
-  down / Move to start: in the Tasks, Habits and Shortcuts widgets the keyboard lease carries the
-  shortcut as `WidgetKey.MoveUp` / `MoveDown` (`WidgetKeys`), moving the focused task, habit or the
-  cursor's shortcut.
+  down / Move to start: in the Tasks and Habits widgets the keyboard lease carries the
+  shortcut as `WidgetKey.MoveUp` / `MoveDown` (`WidgetKeys`), moving the focused task or habit.
 - **[S-3810]** A view may have a colour (`ViewState.Color`, `#RRGGBB`, null = the theme's text colour),
   set in View ▾ › the view › Colour › (the one colour submenu, [S-3542]; `ViewOps.SetColor`:
   normalised, anything else refused, empty clears). Its icon or initials are drawn in it on the view
@@ -8606,10 +9134,10 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   changed" ([S-1616]) are notices now (the flyout and the jump to Settings are gone).
 - **[S-880a]** Host (`DesktopWindow.Notices`): a layer on the surface, mounted only while a notice
   shows and removed when the last goes; bottom-right of the work area, 16 DIP in from its edges,
-  fades in where it lands (`EntranceThemeTransition` without offset, as the region clips painting;
+  fades in where it lands (`EntranceThemeTransition` without offset;
   the others reposition). The surface stays
-  non-activating; the notices' box joins the hit region ([S-872]) so they paint and take clicks
-  outside edit mode too.
+  non-activating; the notices paint and take clicks outside edit mode too, as everything inside the
+  work area does ([S-851]).
 - **[S-881]** A notice (`Core/Shell/Notice`) has a kind (Info, Success, Warning, Error), a title, an
   optional message, an optional single action, a key and a sticky flag. Drawn by `Shell/NoticeCard`
   as Windows 11 draws a notification, on the family's tokens: the severity glyph (16, centred on the
@@ -8668,8 +9196,8 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   it Details, a standard button opening a flyout with the exception type and
   message (scrolling past 240 DIPs) and **Copy**, which puts the widget's kind and the whole
   exception with its stack on the clipboard, through the log's redactor ([S-983]). The flyout is a
-  windowed popup, never cut off at the card's edge by the surface's region ([S-851]; user
-  report). Logged with the widget id and kind. Retry builds the view again in place. Below 150×110
+  windowed popup, never cut off at the card's edge (user
+  report, from when the surface's region traced the cards). Logged with the widget id and kind. Retry builds the view again in place. Below 150×110
   DIP the Details go and the sentence shortens to "Stopped working."; on a row too narrow for the
   sentence beside Retry the sentence goes ([S-6714]); Retry always stays. Safe mode's paused card
   ([S-890]) is the same row with the pause glyph, "Paused: …" and Start.
@@ -8682,9 +9210,8 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   recovery show), the maker's own two views (user requirement), so switching views is discoverable:
   named Home and Work (translated, `shell.view.homeName`/`workName`); Home is active. Laid out on a
   2560×1440 grid and stored as fractions, so it holds on any display. Home, clock first: Clock (digital,
-  no seconds, no date) top right (2250, 0, 310×180); Shortcuts grid under it (2250, 180, 310×160) with
-  Recycle Bin, This PC, Downloads, Documents, Pictures and Home (shell targets, labels empty so the
-  names are the translated target names); Weather now (large icon) top left (0, 0, 310×180); CPU,
+  no seconds, no date) top right (2250, 0, 310×180); no shortcuts (Windows' own desktop icons are the
+  desktop items, [S-5500]; the Shortcuts grid of six Windows places went with that widget, 2026-11-13); Weather now (large icon) top left (0, 0, 310×180); CPU,
   Memory, GPU and Network as graphs down the right edge (x 2250, y 920/1040/1160/1280, 310 wide,
   89/1080 of the screen tall); these seven are transparent and headerless. Along the top centre, six
   60×60 quick-setting tiles from x 1090: Do not disturb, Color filters, Night light, Airplane mode,
@@ -8697,7 +9224,7 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   nothing. The two views and 17 widgets fit the free tier ([S-1065]), with room to add a widget.
   The seed is data (`FirstRunDesktop`): widget ids, grid rects, bare or not, and each widget's
   differences from its default config as a JSON fragment in the state's own shape, built through the
-  descriptors and the state's JSON and then copied (so a shortcut's ids are new, as a paste's are).
+  descriptors and the state's JSON and then copied (so an own desktop icon's id is new, as a paste's is).
   It names no config type; a seeded id this build does not have is left out and logged.
 - Not ported: the original's pending-operation framework (an operation that resolves later; nothing
   here records one yet, and file operations will add their own step when they need it), and
@@ -8734,7 +9261,7 @@ The widget is a module of its own (`src/Widgets/Themia.Widget.Folder`, its SPEC.
 services it reads through `IWidgetHost` (`FileIcons`, `FileClipboard`, `Folders`, `FileOps`, `ExplorerMenus`;
 `Services/Files/{DragDropInterop,FileClipboard,ShellFileOps,ShellContextMenu,ShellNewTemplates,FolderWatch,
 FileIcons,GitStatus,ZipFiles,OpenWithApps,HostFileServices}.cs`, `Services/FolderListing.cs`), reusable by
-Shortcuts, Recent files and the shell, and the shared rules (the SDK's `FolderBadges`, `FolderFormatting`,
+the desktop icon, Recent files and the shell, and the shared rules (the SDK's `FolderBadges`, `FolderFormatting`,
 `FolderPath`, `Files/{FileDrops,FileNames}`; Core's `Files/{DropFiles,FileDescriptors}`). Tests:
 `FolderBrowserTests` (+ `FolderFormattingTests`, `FolderPathTests`); the module host's `FolderHostTests`.
 
@@ -8781,8 +9308,13 @@ Shortcuts, Recent files and the shell, and the shared rules (the SDK's `FolderBa
   Command entries skipped). New items get the next free
   "New folder (2)" name and start an in-place rename; rename edits the stem when extensions are hidden, validates Windows
   name rules and keeps the item selected.
-- **[S-1332]** Drag out: an OLE drag of the shell data object with our `IDropSource` (`SHDoDragDrop`), posted after the
-  pointer handler. Drop in: through the surface's OLE target ([S-1020]..[S-1024], `IWidgetDropTarget`): plain drop moves,
+- **[S-1332]** Drag out: XAML's own drag (`UIElement.StartDragAsync`), started inside the pointer handler with that
+  event's pointer through the SDK's one helper (`ItemDrag.StartAsync`, [S-5549]) from the pressed row or tile; what
+  follows the pointer is Explorer's ghost of the dragged items ([S-5564]: the pressed item's icon, up to two more stacked
+  behind it, the count in a badge; the row or tile itself only while its icon is still a glyph); the paths are offered as storage items, handed out when a target asks, with copy, move
+  and link allowed. A release before the start cancels it (`FolderGesture`'s generation). *(Until 2026-11-14 an OLE drag,
+  `SHDoDragDrop`, posted after the pointer handler: a WinUI island keeps the pressed pointer, so that loop saw no mouse
+  until the button was let go and the drag began at the release.)* Drop in: through the surface's OLE target ([S-1020]..[S-1024], `IWidgetDropTarget`): plain drop moves,
   Ctrl copies, into the folder row under the pointer (marked as a drop target, [S-6627]) or the folder on screen, carried out by that folder's
   shell drop target; a drag whose every item is already there or is the destination's ancestor is refused
   (`FileDrops.Pastable`, orig. `dropTarget.ts`). Virtual files (`FileGroupDescriptorW`, SDK layout 592 bytes / name at 72)
@@ -8844,8 +9376,8 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   the natural times, scaled to the length ([S-1760]). Stars are compositor sprites bound by expressions to two animated
   numbers, the warp level and its travel (closed form `Hyperspace.Distance`/`Angle`: speed grows with
   depth; past the edge a star is reborn at the core on its next ray, turned by the golden angle);
-  streaks are cut at the core. While it plays the surface's hit region is the work area, so the veil is
-  seen edge to edge; it shrinks back when the show ends. The overlay never takes a click itself.
+  streaks are cut at the core. The surface's hit region is the work area ([S-851]), so the veil is
+  seen edge to edge. The overlay never takes a click itself.
 - **[S-1006]** Under the overlay each widget waits for the jump, then flies in from the core at 0.02
   scale on a steep ease-in (`cubic-bezier(0.55, 0, 1, 0.45)`), hits its slot over-scaled (1.05 at 38%)
   and judders to rest. The widget layer takes the original's screen shake (`Hyperspace.Shake`, 3300 ms
@@ -8877,6 +9409,18 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   screen, posed from the same Core data (keyframe styles at 250 ms of 500, Sides at 60 ms, Hyperspace
   at 600/2300/2900/3450/3800 ms of its natural 4.5 s, Hacker tiles through the real hook). It proves the choreography, not the
   compositor's playback.
+- **[S-1017]** A show never leaves a card mid-flight. Every layout pass of a surface first ends a show still
+  running there (`IntroArming.BeginPass`: the pass that started it starts it last, after placing the cards, so
+  only a later pass ends it), and a show that ends in any way (its animations completed, a later pass, a
+  view change replacing it, the surface closing) stops every track and sets each card's visual to the rest
+  pose outright (`IntroPose.Rest`: opacity 1, scale 1, no translation, no rotation; every style's tracks end
+  there). A show whose compositor never reported its end no longer keeps the cards at their start pose,
+  unseen, and no longer refuses every replay ([S-1012]) for good.
+- **[S-1018]** Debug: `Themia.exe --startup-check <out.txt> [--state <state.json>] [--show <view>] [--hold ms]
+  [--hide] [--twice] [--wallpaper <picture>] [--interrupt ms]` starts a real surface on a stand-in display
+  off-screen on that view as the app starts (a copy of the state, read only; a detached store) and reports
+  every card as the compositor holds it (NOT AT REST marks one that is not), the desktop's list and its
+  children as UI Automation sees them ([S-5576]), and draws the surface to `out.png`.
 
 ## Desktop surface drops (WP10-SURFACE)
 
@@ -8885,17 +9429,20 @@ zone copied or moved to the Desktop folder), `src/nativeDragDrop.ts` (zone route
 shortcut S-28..S-34.
 
 - **[S-1020]** Who takes a drop (`SurfaceDrops.Route`): over a widget whose view implements
-  `IWidgetDropTarget` (Folder, Shortcuts), that view, **outside edit mode only**; over any other widget or
+  `IWidgetDropTarget` (Folder, a desktop icon), that view, **outside edit mode only**; over any other widget or
   the surface's own controls (toolbar, view bar, notices), nobody: the no-drop cursor, never a hand-on
   to the desktop behind the widget. Bare surface is the desktop. A drag carrying nothing droppable (no
   paths, virtual files, links or shell items) is refused everywhere. The view hit is the card under
-  the pointer.
-- **[S-1021]** Where a drop can land follows the hit region ([S-851]). Outside edit mode the surface
-  exists only on widgets, the view bar and notices, so a drag between widgets is over Explorer's own
-  desktop and Explorer takes it; in edit mode the whole work area is the surface. One OLE drop target
+  the pointer. One case goes before every route: the desktop's own drag of its icons over empty desktop,
+  or over one of the dragged icons themselves, moves the icons, whatever it carries ([S-5546],
+  `DesktopCommands.MovesIcons`).
+- **[S-1021]** Where a drop can land follows the hit region ([S-851]): the surface is its display's
+  whole work area, in edit mode and outside it, so a drag anywhere over the desktop is the surface's.
+  Between widgets it is over bare desktop and goes to the user's Desktop folder through the shell's
+  own drop target ([S-1020], [S-1022]), with the desktop's icons shown or not ([S-5506]). One OLE drop target
   per surface, registered on the window **and every child window** (WinUI's content bridge and input
   site), replacing any target already there, so XAML's drag events never compete: it is the one drop
-  path. Revoked before the window closes; a drag in flight is left first.
+  path. Revoked before the window closes; a drag in flight is left first. Tests `SurfaceDropTests.S1021_`.
 - **[S-1022]** Drops into a folder go through **that folder's own shell drop target**
   (`IShellItem::BindToHandler(BHID_SFUIObject)`), entered afresh whenever the folder under the pointer
   changes: the shell copies, moves or links with Explorer's conflict and progress UI, the source's
@@ -8905,7 +9452,11 @@ shortcut S-28..S-34.
   it does exactly what dropping on the desktop would (move on one volume, copy across) — deliberately
   not the original's always-move, so edit mode and normal mode agree. The drag (`WidgetDrag`) holds
   the data object for its life and reads it once on entry: paths, virtual-file names, links (only
-  when no file came with it), shell items.
+  when no file came with it), shell items. **A drag one of our own views started** ([S-5549], [S-1332];
+  `ItemDrag.Running`) is never read from its data object: that object hands out its files only when
+  asked, by the UI thread, which is the thread waiting inside the drop target. What it carries is its
+  offer (`ItemDragOffer.Paths`), and what a folder's shell target is handed is the shell's own data
+  object for those paths, made when first forwarded; the source's object only takes the caption.
 - **[S-1023]** A view can force an effect: `SurfaceDrops.KeysFor` turns Move/Copy/Link into Explorer's
   Shift / Ctrl / Ctrl+Shift for the shell target, keeping the mouse buttons and dropping Alt. Folder
   forces its own rule ([S-1332]: plain drop moves, Ctrl copies, virtual files copy) and answers None
@@ -8916,84 +9467,117 @@ shortcut S-28..S-34.
   to %1", "Copy to %1", "Create link in %1" with the place inserted (`WidgetDrag.Place`, set by the
   view; the Desktop's name on bare surface). Cleared when the drag leaves, is refused or drops, so it
   never lingers over another app. Folder rows also mark the folder a drop enters as a drop target ([S-6627]).
+  A taker can answer with no mark at all (`DropFeedback.Plain`: `Bare`, the image `DROPIMAGE_NOIMAGE`, no
+  caption): the desktop's own icons where they would only move ([S-5546]).
 - **[S-1025]** Untrusted text payloads: a Chromium app's `file:///` lines (VS Code offers CF_HDROP
   and fails to render it) become paths with percent escapes decoded as UTF-8 bytes; only absolute
   local or UNC paths, each once. Wide text stops at its NUL.
 - **[S-1026]** Debug: `Themia.exe --drop-check <outDir>` exercises the plumbing off-screen with no
   input: the target on every window of a WinUI window, a shell data object read back as a drag, a
   forwarded hover, a folder switch and a drop into a scratch folder under `outDir` (the copy must
-  arrive), the drag-image helper and the caption.
+  arrive), the drag-image helper and the caption, and a drag of our own short of starting it: what its
+  package offers (the marker; a file and a folder as storage items when asked; with no file the marker
+  alone) and the surface's reading of it from its offer, forwarded as the shell's own data object.
 
 Not ported: the original's own copy/rename to the Desktop folder (replaced by the shell's target,
 above); the original's "copy/move" effect over widgets without drops (it showed a move cursor and did
 nothing; now refused). Needs live verification: real drags from Explorer, Outlook, a browser, VS Code
-and the Start menu onto Folder, Shortcuts and bare edit-mode surface; the drag image and caption;
+and the Start menu onto Folder, a desktop icon of either source and bare edit-mode surface; the drag image and caption;
 a right-button drag's menu; Escape mid-drag; multi-monitor and mixed DPI hit-testing.
 
 ## The desktop layer (DESKTOP)
 
-Themia can take over what the desktop shows: Explorer's icons hidden for the session, and each of
+Themia draws the whole desktop while it runs: Explorer's icons hidden for the session, and each of
 the desktop's files, folders, shortcuts and shell items a widget on the grid, placed, moved and
-removed like any widget and different in every view (the user's decisions of 2026-10-29). Phase
-D1 built the choice, the full-display surface, the session-only hide with its restore, the items
+removed like any widget and different in every view (the user's decisions of 2026-10-29, and of
+2026-11-14: Themia always owns the desktop, so the Windows' icons and Nothing modes and the
+widget-tracing window mask went). Phase
+D1 built the setting, the full-display surface, the session-only hide with its restore, the items
 as widgets and their placement, and click, double-click and Enter; D2 the rest of Explorer's
 desktop outside edit mode ([S-5540]..[S-5550], [S-5591]); D3 Themia's own lines in the background
 menu, New ›'s rename, the keyboard after Win+D, displays that come and go, mixed DPI, UI Automation
-and living beside other desktop programs ([S-5551]..[S-5575]). The item widget's own look is
-its module's `SPEC.md` (`src/Widgets/Themia.Widget.DesktopItem`, [S-5600]..[S-5699]).
+and living beside other desktop programs ([S-5551]..[S-5575]). The icon widget's own look is
+its module's `SPEC.md` (`src/Widgets/Themia.Widget.DesktopItem`, [S-5600]..[S-5699], [S-9500]..[S-9514]).
 
-Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
+**One kind, two sources** (2026-11-14): the kind `shortcut` was merged into `desktopItem`, so every
+desktop icon is one widget kind. A widget of it is a **desktop item** (a file, folder, link or shell
+item of the desktop, by its key, made and removed by the reconcile) or an **own icon** (no key: what
+the user points it at, [S-5600]). Outside edit mode both are used alike: one selection ([S-5540]), one
+set of keys, one menu rule, one drag; what a command does to a selection that may mix both is
+[S-5580]..[S-5587]. Where a line below says "item" of the selection, the keys or a gesture it means a
+desktop icon of either source; the namespace, the reconcile, the known set, the landings and the
+stand-ins are the desktop items' alone. A stored widget of the kind `shortcut` is an unknown kind and
+is dropped at load, logged: no migration ([S-1050]).
+
+Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core/Shell/DesktopIconRules.cs`,
 `Themia.App/Interop/DesktopIcons.cs`, `Themia.App/Interop/DesktopNamespace.cs`,
 `Themia.App/Services/AppHost.Desktop.cs`, `Themia.App/Services/AppHost.DesktopDesk.cs`,
-`Themia.App/Shell/DesktopWindow.Desktop.cs`, `Themia.App/Shell/DesktopRoot.cs`,
-`Themia.Sdk/Files/DesktopItem.cs`, `Themia.Sdk/Files/DesktopRename.cs`,
-`Themia.Sdk/Files/DesktopIconPixels.cs`, `Themia.Sdk.WinUI/Modules/IDesktopItems.cs`. Tests:
-`DesktopLayerTests`, `DesktopParityTests`, `DesktopEdgeTests` (Core), the module's own.
+`Themia.App/Services/Files/DragDropInterop.Icons.cs`,
+`Themia.App/Shell/DesktopWindow.Desktop.cs`, `Themia.App/Shell/DesktopWindow.Drop.cs`, `Themia.App/Shell/DesktopRoot.cs`,
+`Themia.Sdk/Files/DesktopItem.cs` (`DesktopItemKeys`), `Themia.Sdk/Files/DesktopCommands.cs`, `Themia.Sdk/Files/DesktopRename.cs`,
+`Themia.Sdk/Files/DesktopIconPixels.cs`, `Themia.Sdk/Widgets/DesktopCell.cs`, `Themia.Sdk/Widgets/SelectionLook.cs`,
+`Themia.Sdk.WinUI/Modules/IDesktopItems.cs`. Tests:
+`DesktopLayerTests`, `DesktopParityTests`, `DesktopEdgeTests`, `DesktopCommandsTests`, `DeskDragImageTests`,
+`DesktopGridTests`, `DesktopSortTests`, `DesktopViewTests` (Core), the module's own.
 
-- **[S-5500]** **The choice.** ⚙'s one line **On the desktop** chooses what the desktop shows while
-  Themia runs: **Themia's items**, **Windows' icons** or **Nothing** (`Preferences.Desktop`, a
-  `DesktopShows`). It replaces "Show desktop icons": one setting, one level ([S-3592]); no view,
-  display or widget holds a copy, and it applies to every display. The default is **Themia's
-  items**, since Explorer parity holds outside edit mode ([S-5540]..[S-5550]): a new state hides
-  Explorer's icons for the session and lays every desktop item into the primary display's view
-  ([S-5522]). A stored choice that is no `DesktopShows` is repaired to Windows' icons, the desktop as
-  Windows has it. A pick is stored and applied at once.
-- **[S-5501]** **The surface covers the display** while the choice is Themia's items: outside edit
-  mode too, every display's hit region is its whole work area (as in edit mode, [S-851]), so no
+- **[S-5500]** **The desktop icons always show** (2026-11-15, the owner: "showing desktop icons should not
+  be a toggle anymore, remove"): Themia's desktop icons, of both sources ([S-5506]), have their cards on
+  every display; there is no Show desktop icons setting, toggle or menu line (`Preferences.ShowDesktopIcons`,
+  its converter and View ›'s line are gone, no migration: [S-1050]). A new state hides Explorer's icons for
+  the session and lays every desktop item into the primary display's view ([S-5522]).
+  *(Retired 2026-11-15: the toggle **Show desktop icons**,
+  `Preferences.ShowDesktopIcons`, on by default, flipped by the General page and View ›.)* *(Retired 2026-11-14 with the merge of the kinds: "Shortcut widgets are ordinary
+  widgets and show either way". What a Shortcut was is an own desktop icon and is hidden with the
+  rest, [S-5506].)* *(Retired 2026-11-14,
+  the owner's "Yes, drop them": the choice **On the desktop** of Themia's items, Windows' icons or
+  Nothing, `Preferences.Desktop`, `DesktopShows`.)* Tests `DesktopDefaultTests.S5500_S5594_S5595_`,
+  `SettingsMenuTests.S5500_S5594_S5595_`.
+- **[S-5501]** **The surface covers the display**, always: every display's hit region is its whole
+  work area, in edit mode and outside it ([S-21], [S-851]), so no
   click on empty desktop falls through to Explorer; empty desktop is Themia's (the press of
-  [S-5502], and in D2 the lasso, the background menu and drops). The taskbar stays Windows' (the
+  [S-5502], the band, the background menu, drops, paste and F5). The taskbar stays Windows' (the
   region stops at the work area), and so does the wallpaper, drawn under the transparent surface.
-  With Windows' icons or Nothing the region traces the widgets as before ([S-851]).
-- **[S-5502]** A press on empty desktop under Themia's items, outside edit mode, clears the item
+- **[S-5502]** A press on empty desktop, outside edit mode, clears the item
   selection (Ctrl or Shift keep it, for the band, [S-5544]), ends a card's keyboard lease and gives
   the keys to the desktop's items ([S-5550]); a left press may become the band, the right button's
   release opens the desktop's background menu ([S-5548]).
-- **[S-5503]** **Explorer's icons are hidden for the session only** while the choice is Themia's
-  items or Nothing: Themia hides the desktop's icon list window (the `SysListView32` of the shell's
-  `SHELLDLL_DefView`, found as in [S-930]) with `ShowWindowAsync(SW_HIDE)`, never with the shell's
+- **[S-5503]** **Explorer's icons are hidden for the session only**, always while Themia runs,
+  Themia hides the desktop's icon list window (the `SysListView32` of the shell's
+  `SHELLDLL_DefView`: the shell's own `Progman`, `GetShellWindow`, else a `WorkerW` in between, a
+  child of Progman on 24H2+ and top-level before, and only a view of the shell's process that has its
+  icon list, `DesktopIconRules.ChooseView`; looked up on every use, never cached) with
+  `ShowWindowAsync(SW_HIDE)`, never with the shell's
   toggle command, so Explorer's own setting (its desktop menu's View › Show desktop icons,
   `Explorer\Advanced\HideIcons`) and its check mark stay as the user left them, and an Explorer
-  restart builds a list that shows the icons by itself. While the choice holds, the hide is kept,
-  event-driven: the list's own show event (the WinEvent hook of [S-932]) hides it again, and on
+  restart builds a list that shows the icons by itself. The hide is kept,
+  event-driven: the list's own show event (`EVENT_OBJECT_SHOW/HIDE`, a WinEvent hook scoped to that
+  one Explorer thread; the live state is the list's own `WS_VISIBLE` bit, not `IsWindowVisible`) hides
+  it again, and on
   `TaskbarCreated` (Explorer restarted) the new list is found, hooked and hidden. A list shown again
-  more than `DesktopIconRules.MaxRehides` (8) times since the choice was last applied is left
-  shown, logged once: Themia never fights Explorer in a loop.
-- **[S-5504]** **Restore.** Themia shows the list again (`ShowWindowAsync(SW_SHOWNA)`) when the
-  choice becomes Windows' icons, on quit, at every start before the choice is applied (so a crash
-  or a kill of an earlier run is undone by the next start), and from the last-chance handlers (an
+  more than `DesktopIconRules.MaxRehides` (8) times since the hold began (at start, and anew for each
+  new Explorer) is left
+  shown, logged once: Themia never fights Explorer in a loop ([S-5575]).
+- **[S-5576]** To UI Automation the surface's root outside edit mode is the desktop's list: its children are
+  the items in the desktop's order (each by its place in the set), then the rest as the tree has them
+  (`DesktopAutomation.Order`), reordered in the list XAML hands over. A managed list handed back instead
+  cannot cross to XAML (CsWinRT has no WinRT vector for it): every UI Automation client saw the list with
+  no children at all, the cards, icons and their text gone from the tree (seen live 2026-11-15).
+- **[S-5504]** **Restore.** Themia shows the list again (`ShowWindowAsync(SW_SHOWNA)`) on quit
+  (the hook removed first, so the show is not answered with a hide) and from the last-chance
+  handlers (an
   exception nothing caught off the UI thread, and process exit): one non-blocking call with no COM
   and no reply awaited, safe while the process goes down. It shows the list only when the list is
   hidden and Windows' own setting says shown (`HideIcons` not 1, no `NoDesktop` policy): it never
   shows icons the user hid in Windows (`DesktopIconRules.Restore`). A process killed outright
-  cannot restore: the icons stay hidden until Themia starts again, Explorer restarts or the user
+  cannot restore: the icons stay hidden until Themia quits after its next start, Explorer restarts or the user
   signs out, and nothing persisted has changed.
-- **[S-5505]** Picking Windows' icons while Windows' own setting hides them sends the shell's own
-  command once ([S-930], [S-931], [S-939]): the user asked to see Windows' icons. That pick is the
-  only time Themia writes Windows' setting; it is never re-asserted at start or on an Explorer
-  restart, and Themia's items and Nothing never write it.
-- **[S-5506]** Item widgets show only while the choice is Themia's items. Under Windows' icons and
-  Nothing they stay in their views untouched but have no card (not drawn, no clicks, not selected
-  by Select all), Add widget offers none ([S-5523]), and the namespace is neither read nor watched.
+- **[S-5505]** **Themia never writes Windows' setting**: it never sends the shell's "Show desktop
+  icons" command and never touches `HideIcons`. *(Retired 2026-11-14: the one send, on the pick of
+  Windows' icons while Windows hid them, went with that mode; with it [S-930], [S-931], [S-939].)*
+- **[S-5506]** Desktop icons always show: **every one, of both sources** (they are one kind), has its card,
+  the namespace is read and watched from the start ([S-5510], [S-5511]), and what arrives on the desktop
+  (a drop, a paste, New ›) is laid out where it was expected ([S-5591]). *(Retired 2026-11-15 with
+  [S-5500]'s toggle: icons off kept in their views without a card, `DesktopReconcile.Shown`.)*
 - **[S-5510]** **The items are the shell's desktop namespace**: the desktop root's own
   `IShellFolder` enumeration (`SHGetDesktopFolder`, `EnumObjects` with folders and non-folders),
   which merges the user's and the Public desktop and lists the shell items Windows' desktop-icon
@@ -9010,7 +9594,7 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   build 26300), for items created, deleted, renamed, updated, their attributes and the shell's
   icons, posted to the command window. A burst is coalesced without a timer (one re-read queued
   while one is pending, as [S-1333]); a rename's old and new keys are kept for [S-5520]. Registered
-  while the choice is Themia's items, dropped otherwise.
+  at start, dropped on quit.
 - **[S-5512]** An item's icon is the shell's as Explorer's list draws it: the system image list's
   image (the extra-large list at up to 48 pixels, the jumbo list above) with the item's overlay
   (the shortcut arrow, a share, a sync engine's state) composed by the image list itself,
@@ -9018,7 +9602,8 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   and size. A key the shell cannot parse any more (a moment before its removal, a preview) gets
   its type's icon from its name, with the shortcut arrow when it is a shortcut.
 - **[S-5520]** **Reconcile** (`DesktopReconcile.Plan`, pure): after each read, the listing, the
-  known set ([S-5522]) and every view's item widgets give the changes, applied as one mutation that
+  known set ([S-5522]) and every view's widgets of desktop items (a config with a key; **an own icon,
+  which has none, is never created, rewritten or removed by it**) give the changes, applied as one mutation that
   is not an undo step (the history is rebased: the disk changed, not the arrangement). In order:
   (1) a rename heard from the notifications rewrites the key of every widget of the old item in
   every view, keeping its place; (2) an item no longer listed (deleted, moved or renamed away) has
@@ -9029,43 +9614,50 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   each read and after an undo or redo (which may bring back a widget whose item has gone), only
   while a listing is held. A rename made while Themia was not running reads as a removal and an
   arrival. Nothing in the reconcile touches a file.
-- **[S-5521]** **The next free cell** (`DesktopGrid.NextFree`): cells of the item's size (90 × 100 with two name lines
-  DIPs, [S-5601]) from the work area's top-left corner, down a column and then the next column to
-  the right (Explorer's order), as fractions of the display ([S-01]); the first that overlaps no
-  widget of the view. A view with no free cell leaves the item unplaced, logged, and Add widget
-  reaches it. New items of one read take cells in `DesktopItemOrder` (shell items first, then
-  folders, then files, each by name ignoring case: Explorer's Sort by name).
+- **[S-5521]** **The first free spot** (`DesktopGrid.FirstFree`, through `DesktopGrid.Arrive`, [S-11876]): an icon's
+  box ([S-11875]) on the widget grid from the work area's top-left corner one grid cell in ([S-11888]), **in reading order** (each grid row from
+  the top, along it from the left), the box whole inside the work area, overlapping no widget and no icon of the view.
+  A view with no free spot leaves the item unplaced, logged, and Add widget reaches it. New items of one read take
+  spots in `DesktopItemOrder` (shell items first, then folders, then files, each by name ignoring case), never two in
+  one. *(Until 2026-11-15 Explorer's column order on an icon grid of its own, `DesktopSlots`.)*
 - **[S-5522]** The known set is `desktop.known` in the state document: the keys of every item the
   reconcile has seen. Load keeps it a list of distinct (case-insensitive), non-empty keys of at
-  most `DesktopItemKeys.MaxLength` characters, dropping the rest loudly. The first time Themia's
-  items is chosen it is empty, so every item arrives in the primary display's view.
-- **[S-5523]** **Unplaced items stay reachable**: while the choice is Themia's items, Add widget's
+  most `DesktopItemKeys.MaxLength` characters, dropping the rest loudly. In a new state
+  it is empty, so every item arrives in the primary display's view.
+- **[S-5523]** **Unplaced items stay reachable**: Add widget's
   Files subject has an **On the desktop** folder listing the items with no widget in the view being
   added to, in `DesktopItemOrder`; picking one places its widget like any widget ([S-1587]). With
-  none unplaced the row is not there. The item kind is never offered on its own: an item widget
-  always stands for one item.
+  none unplaced the row is not there (`DesktopReconcile.Unplaced` reads the keys only: an own icon
+  places no item). The kind has its own tile too, **Shortcut**, among the subject's widgets and in
+  Popular ([S-11709]): it makes an own icon that waits for its target ([S-9511]), with the desktop's
+  icons shown or not. *(Retired 2026-11-14: "the item kind is never offered on its own".)*
 - **[S-5524]** **Two deletes, apart.** In edit mode Delete (the properties menu's, the card menu's,
   the key) removes the item's widget from this view only: the file stays on the desktop, its
   widgets in other views stay, and it is listed under [S-5523]. Its button on the properties menu's
   top row and its line on the card menu say so: **Remove from this view** while every widget it acts
-  on is a desktop item's (`DesktopBackground.RemovesFromView`, `QuickSetOffer.RemovesFromView`); a
-  selection with any other widget says Delete. Outside edit mode Delete is the shell's own delete of
-  the file, with the shell's prompt ([S-5545]).
+  on is a desktop item's, one with a key (`DesktopBackground.RemovesFromView`, `QuickSetOffer.RemovesFromView`); a
+  selection with any other widget, an own icon among them, says Delete: an own icon stands for no file
+  and is listed nowhere once removed. Outside edit mode Delete is the shell's own delete of
+  a desktop item's file, with the shell's prompt ([S-5545]), and removes an own icon's widget ([S-5583]).
 - **[S-5530]** **Opening** outside edit mode: a double-click on an item, or Enter with the keys
   ([S-5550]), opens the selection (the double-clicked item alone when it is not selected), at most 15
   items at once (the rest logged), through the launcher (a path as it is, a shell item as
   `shell:::{CLSID}`, `DesktopItemKeys.LaunchTarget`); a double-click on an item never toggles edit
-  mode, and a right-click on one never opens the card's menu.
-- **[S-5540]** **One selection** of the desktop's items, across every item widget on every display,
-  as Explorer's desktop keeps its icons' (`DesktopSelection`, Core, over the SDK's `ItemSelection`,
-  [S-6620]..[S-6626]; the host's `AppHost.DesktopDesk`, read by the widgets through
-  `IDesktopItems.IsSelected`, `ShowsFocus`, `Active`): a press selects the item alone, Ctrl toggles
-  it, Shift selects the range from the anchor, a press on a selected item narrows only on release
-  (so the selection drags whole), a right press keeps a selection it lands in. The order a range and
-  Home/End run in is the desktop's (`DesktopNav.Order`): display by display from the left, down each
-  column, then the next; an item shown on two displays (two views) holds one place. An item no
-  longer shown leaves the selection; the look is the SDK's one ([S-6627]), inactive while another
-  window has the keyboard ([S-6626]).
+  mode, and a right-click on one never opens the card's menu. An own icon in the selection opens by
+  [S-5581], and one set to Single click opens on a plain click ([S-9505]).
+- **[S-5540]** **One selection** of the desktop, **icons of both sources and every other widget alike**, across every
+  display ([S-11877]), as Explorer's desktop keeps its icons' (`DesktopSelection`, Core, over the SDK's
+  `ItemSelection`, [S-6620]..[S-6626]; the host's `AppHost.DesktopDesk`, read by the widgets through
+  `IDesktopItems.IsSelected`, `ShowsFocus`, `Active`, and by the cards through `DeskSelects`). Each is in it under its
+  **selection key** (`DesktopPicks.KeyOf`): a desktop item under its own key while the listing holds it, an own icon
+  under `*icon:<ItemId>` (`DesktopItemKeys.Own`), any other widget under `*widget:<id>` (`DesktopItemKeys.Widget`); an
+  asterisk is in no path and no shell name, so they never collide. No widget keeps a selection of its own. A press on
+  an icon selects it alone, Ctrl toggles it, Shift selects the range from the anchor, a press on a selected item
+  narrows only on release (a move cancels that, so the selection moves whole), a right press keeps a selection it
+  lands in. The order a range, the arrows and Home/End run in is the desktop's (`DesktopNav.Order`): display by display
+  from the left, down each column, then the next; an item shown on two displays (two views) holds one place. An item
+  no longer shown (a card that draws nothing, [S-873]) leaves the selection; an icon's look is the SDK's one
+  ([S-6627]), inactive while another window has the keyboard ([S-6626]); a card's is its corners ([S-11877]).
 - **[S-5541]** **Arrows by place** (`DesktopNav.Step`): the nearest item that way in the same column
   (Up, Down; Page Up and Down the same) or row (Left, Right), the boxes overlapping across the
   arrow; with none there the nearest within 45 degrees (the next display, a column that does not
@@ -9073,7 +9665,8 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   anchor, Ctrl moves the focus only (its cue drawn, [S-6628]), Ctrl+Space and Space toggle, Home and
   End go to the first and last in the order, Ctrl+A selects every item shown on every display.
 - **[S-5542]** **Type to find**: letters typed with the keys select the next item whose name starts
-  with them ([S-1980]'s `TypeAhead`, the desktop's order, a pause starting over).
+  with them ([S-1980]'s `TypeAhead`, the desktop's order, a pause starting over); an own icon's name
+  is the one drawn under it (`IDesktopItemConfig.OwnName`).
 - **[S-5543]** **F2 renames in place** (`DesktopRename`, SDK): the focused item's name becomes a box on
   its widget (the one the keys came from, else the one on the display with the keyboard), holding
   the name as shown with the part before a shown extension selected (a folder's and an
@@ -9083,71 +9676,297 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   unchanged one closes it. The rename is the shell's own (`IShellFileOps.RenameAsync`: its prompts,
   Explorer's undo); the notification then rewrites the key ([S-5520]) and the item stays selected
   under it. The shell menu's Rename opens the same box. Shell items (This PC, the Recycle Bin) are not
-  renamed in place.
+  renamed in place. All of this is a desktop item's; F2 on an own icon opens the same box and sets its
+  label, never a file ([S-5584]).
 - **[S-5544]** **The band** on empty desktop: a left press there past the 5-DIP dead zone
-  ([S-6624]) draws the SDK's band (`SelectionChrome.PaintBand`) on the surface's ghost layer and
-  selects, live, the item widgets of that display it touches: alone, added to the earlier selection
-  with Shift, toggled with Ctrl ([S-6625]). What it selected stays when the button comes up.
+  ([S-6624]) starts the SDK's band (`SelectionChrome.PaintBand`), **one rectangle in screen space
+  across every display** (the owner, 2026-11-14: "lasso select over multiple screens should also be
+  possible"; `DesktopBand`, Core, pure): the surface the press landed on holds the pointer and reports
+  it in its own DIPs, past its edges too (`ToScreen`: the display's corner plus DIPs times its scale,
+  so it lands on the neighbour whatever that display's scale is); the host makes the band of the
+  press and the pointer, each kept inside the work areas, taken together, of the displays Themia is
+  on (`Of`, `Into`: the nearest point of any of them, so it stops at what the taskbar or a dock
+  reserved, at the outer edges, and in a gap between displays that do not touch at the nearer one),
+  and hands it to **every surface it reaches**, each drawing it on its ghost layer in its own DIPs and
+  scale (`On`; the window's region cuts it to that display's part, [S-21], so there is no edge where
+  it runs on). It selects, live, the widgets it touches **on any display**, desktop icons of both sources
+  and cards alike ([S-11877]), by their boxes in screen pixels (`Hits` over the one selection's, [S-5540], [S-5563]): alone, added to
+  the earlier selection with Shift, toggled with Ctrl ([S-6625]). What it selected stays when the
+  button comes up; the band ends on every display with the button, the capture or the surface that
+  held it. A display Themia is switched off on ([S-845]) has no surface: the band does not go there.
+  *(Until 2026-11-14 the band was clamped to the surface it started on and selected that display's
+  icons only.)* Tests `DesktopBandTests.S5544_`. Live pass still needed: two displays, mixed scale,
+  a display left of and above the primary.
 - **[S-5545]** **Commands** with the keys: Delete is the shell's own "delete" verb on the selected
   files (`IContextMenu`, as Explorer invokes it), with the shell's own prompt as the user set it up
   (to the Recycle Bin); Shift+Delete the same verb with Shift down, so the shell deletes for good
   after its own prompt (shell items are never deleted). Ctrl+C and Ctrl+X put the selected files on
   the clipboard as Explorer does ([S-1329]; a cut item is faded while the cut is pending); Ctrl+V
   pastes the clipboard's files (or virtual files) into the user's desktop folder through the shell's
-  copy or move, landing per [S-5591]. Alt+Enter opens the shell's Properties, F5 reads the desktop
-  again, the Menu key and Shift+F10 open the shell's menu for the selection at the focused item
-  (else the background menu). **Ctrl+Z is not offered**: Explorer's undo lives in Explorer's own
+  copy or move, landing per [S-5591]. Alt+Enter opens the shell's Properties of the selected desktop
+  items (with an own icon focused, that icon's page instead, [S-5582]), F5 reads the desktop
+  again. **The Menu key opens the Windows 11 menu** for the selection ([S-5548], [S-5582]) at the focused item
+  (else the background menu); **Shift+F10 opens the shell's classic menu directly**, as Explorer, and so does a
+  right-click with Shift held (where the selection has no classic menu, an own icon on no path or a selection
+  of both sources, they open the Windows 11 one). *(Until 2026-11-14 both keys opened the classic menu.)* What Delete and the clipboard do with an own icon in the selection is
+  [S-5583] and [S-5585]. **Ctrl+Z is not offered**: Explorer's undo lives in Explorer's own
   process and no API reaches it from outside, so Themia's desktop has no undo of file operations
   (its own arrangement keeps the edit bar's undo, [S-5546]).
-- **[S-5546]** **Moving items on the desktop**: the desktop's own drag ([S-5549]) let go over empty
-  desktop of any display moves the dragged item widgets of the display it started on, never a file:
-  the held one to the cell under the pointer, the others keeping their offsets in whole cells
-  (`DesktopCells.Move`), one that would leave the work area or cover a staying widget at the next
-  free cell from there; onto another display's view the widgets go there (one widget per item in a
-  view: one already there gives way). One undo step of the arrangement.
+- **[S-5588]** *(Retired 2026-11-15 by [S-11875], [S-11876]: Explorer's icon grid, `DesktopSlots`, one icon in one
+  cell of a grid of its own, is gone; icons stand on the widget grid and are placed by its rules.)*
+- **[S-11875]** **An icon is whole grid cells** (owner, 2026-11-15: "the desktop icons should follow the same
+  behaviour, they dont have to follow how windows does it anymore"): an icon's box is Explorer's cell at the icon size
+  in force (`DesktopCell.Grid`, [S-5593]) plus the gap round every card, rounded **up** to whole cells of the one widget
+  grid on each axis (`DesktopGrid.IconSize`, the same `SizeFit.Limits` every widget's size goes through; an icon is
+  drawn at scale 1, [S-6532]): 80 × 100 at medium on a 10-DIP grid. Its card paints there as any widget's ([S-2446]).
+  Tests `DesktopGridTests.S11875_` (every icon size at 100, 125, 150 and 200 %).
+- **[S-11876]** **Icons are placed by the widget grid's rules** (`DesktopGrid`, Core): an icon that arrives with no
+  point (a new file, a stand-in, a paste with no press) takes **the first free spot in reading order** ([S-5521]);
+  with a point (a drop from Explorer, a paste at a press, New › at the click) its box is **centred on the point on the
+  grid**, or the free spot nearest to it when that one is taken (fewest cells away; among equals further up, then
+  further left); one pass's arrivals share one picture of the room, so no two take one spot. Auto arrange ([S-5594])
+  and Sort by ([S-5556]) pack in the same reading order round the other widgets. A drag on the desktop is the move
+  ([S-5546]): no room is looked for. Tests `DesktopGridTests.S11876_`, `DesktopLayerTests.S5520_`, `S5591_`.
+- **[S-11887]** **Icons keep their arrangement and never overlap** (owner's desktop, 2026-11-15: a clean column of
+  seven icons at 48 × 64 came out of the first start on the widget grid at 80 × 100 boxes 70 apart, overlapping, at
+  the work area's edge, one thrown to the clock's side: each icon had been fitted at its own corner, none looking
+  at the others). One collision rule (`DesktopGrid.Lay`) lays icons that must move: in reading order, each on its
+  anchor's grid spot inside the inset area ([S-11888]), **pushed down its column (or along its row) past the icons
+  in the way**, the way the first one in the way says, as long as no widget is in the way; else **the nearest free
+  spot** ([S-11876]). Never on a widget, never across the screen while a near spot is free. **The settle pass**
+  (`DesktopGrid.Settle` through `DesktopDisplays.Plan`, at start on settled metrics [S-854], on a display or
+  work-area change, after an icon-size change): an icon is valid when its rect is the icon's box ([S-11875]),
+  whole inside the work area, and overlaps no icon before it in reading order; **valid icons are never written**
+  (an icon the user dropped on a widget or against the edge stays); the rest (another box, a stored size of an
+  older build, under the taskbar, the later of two that overlap) are laid round them by the rule. **An icon-size
+  change** (`DesktopGrid.Rescale`, [S-5593]): icons within half a box of each other are one arrangement, whose
+  distances from its own top-left corner scale with the box, then all are laid by the rule, so a column stays a
+  column in its order and a size and back puts them where they were. The kind's sizing never refits an icon one by
+  one (`SizingNotes` leaves desktop icons to these rules). No migration: an overlap in a stored state is invalid
+  geometry the settle resolves. Tests `DesktopSettleTests.S11887_` (the owner's Home column and widgets at 2560 ×
+  1440 with a 42-DIP appbar, rows, mixed obstacles, his current overlapping state), `S5593_S11887_` (Small, Medium,
+  Large and back).
+- **[S-11888]** **A rule's placement keeps one grid cell off the work area's edges** (`DesktopGrid.EdgeInset`):
+  the first free spot, the nearest free spot, Auto arrange, Sort by, the settle and an icon-size change start one
+  cell in from the work area's corner and end one cell before its far edges, as Explorer keeps its icons off the
+  screen's edge (a work area too small for that uses its edges). A user's own move may still go to the edge, as a
+  widget's does. Widgets are only placed by the user, so this is the one placement margin. Tests
+  `DesktopSettleTests.S11888_`, `DesktopGridTests.S11876_`.
+- **[S-5589]** *(Retired 2026-11-15 with [S-5588]: no pass pulls icons back onto an icon grid; an icon stays where it was
+  put, on the widget grid, as a widget does. `DesktopSlots.Align`/`Moves` are gone.)*
+- **[S-5592]** *(Retired 2026-11-15 by [S-11876]: arrivals take the widget grid's spots.)*
+- **[S-5593]** **The desktop's icon size** (2026-11-14; View › complete as Explorer's): **Large icons,
+  Medium icons, Small icons**, Explorer's 96, 48 and 32 DIPs, **one setting for the whole desktop**
+  (`Preferences.DesktopIconSize`, a `DesktopIconSize`, Medium by default; stored by name, a number that
+  names none repaired to Medium, logged), never an icon's own and the same on every display. One setting,
+  one level ([S-3592]): the General page's **Desktop icon size** sets it ([S-3525]) and the background
+  menu's View › sets the same value ([S-5557]). **The cell follows the size**
+  (`DesktopCell`, [S-5601]): 76 × 100 at medium is Explorer's, measured; **124 × 148 at large and 60 × 84
+  at small are derived** from how Explorer spaces its icon view (the cell grows by what the icon grows,
+  the name stays 9-point text on two 16-DIP lines, every inset the same: icon + 28 across, icon + 52
+  down), **not measured**; a capture of Explorer at those sizes should confirm them. The host puts the size
+  in force (`DesktopCell.Apply`, as it does the regional formats) before anything is drawn and **inside the
+  very change that set it**, whoever made it (`AppHost.ApplyDesktopIconSize` in `Mutate`): the kind's
+  sizing follows (`DesktopCell.Current`, [S-11204]), every icon of a shown view keeps its place in the
+  arrangement, which grows or shrinks with the icon's box (`DesktopGrid.Rescale`, [S-11887]: each arrangement's
+  distances from its own corner scale with the box, then the one collision rule lays them, no two overlapping, none
+  on a widget, inside the work area) at its new size in whole cells ([S-11875]). A view no display shows keeps its rects; its icons paint at the new size. Not an undo step (no undo takes a setting back). Each
+  view draws its icon's square and highlight at the size and asks the shell for the icon at the display's
+  own pixels for it (`DesktopIconPixels.For`, [S-5563]: a large icon 96 at 100 %, 144 at 150 %, 192 at
+  200 %; a small one 32, 48, 64). An imported file's views were laid out at its own size, which is put in
+  force as it is. **Ctrl + mouse wheel** over empty desktop or a desktop icon, outside edit mode, steps the
+  size one up or down and stops at the ends (`DesktopCell.Step`, `DesktopWindow.OnDesktopWheel`; Explorer
+  steps through more sizes, these are the menu's three); over any other widget the wheel is that widget's.
+  The surface hears the wheel where it hears a press (Windows sends it to the window under the pointer,
+  active or not): **not confirmed on a live desktop**. Tests `DesktopViewTests.S5593_`,
+  `DesktopGridTests.S5593_`, `DesktopSortTests.S5593_`, `SettingsMenuTests.S5593_`.
+- **[S-5594]** **Auto arrange icons is a one-shot** (2026-11-15, the owner: "auto arrange icons should not be
+  a toggle but is a context menu action"): the background menu's View › line **Auto arrange icons** (no check
+  mark) packs the desktop icons of every shown view once, now, on the widget grid **from the work area's top-left
+  corner (one cell in, [S-11888]) in reading order** round the other widgets (`DesktopGrid.Pack`, [S-11876]; `AppHost.AutoArrangeDesktopIcons`),
+  each view for the first settled display showing it ([S-854]); their order is the reading order of where they stood.
+  One undo step (`UndoAction.Move`). Nothing stays packed. No setting, no General row. Tests
+  `DesktopGridTests.S11876_`, `SettledMetricsTests.S854_`. *(Retired 2026-11-15: the setting
+  `Preferences.DesktopAutoArrange`; Explorer's column order.)*
+- **[S-5595]** *(Retired 2026-11-15: there is no icon grid to align to; icons are always on the widget grid, [S-06],
+  [S-11875].)*
+- **[S-5596]** **The sort is remembered** (`Desktop.Sort` in the state document, a `DesktopSortBy`, Name in
+  a new state: the order new items are laid out in; a number that names none repaired to Name, logged):
+  a Sort by line stores it in the change that arranges the icons, and **Sort by › marks it with
+  Explorer's dot** (one of a set, `DesktopMenuEntry.Chosen`), as View › marks the icon size. It is the
+  last sort, not a standing order: a drop afterwards moves an icon and the dot stays, as on Explorer's
+  desktop. It is the desktop's state, not a
+  preference: an import does not replace it. Tests `DesktopSortTests.S5596_`. **The dot is drawn** in the
+  live menu (fixed 2026-11-14: Medium icons showed none): `ItemMenu` set a `RadioMenuFlyoutItem`'s
+  `IsChecked` before its `GroupName`, so the checked line joined the nameless group for a moment and the
+  next one checked there (Sort by's, built after View's) cleared it; the group is set first now.
+  Render: `--menu-png`, `desk-live-view-1.png` and `desk-live-sortby.png` (each submenu opened in place).
+- **[S-5546]** **Moving icons on the desktop** is the widgets' move ([S-2008], [S-11879]): an icon pressed and moved
+  moves with the selection it is in, cards included, snapped to the widget grid, the local grid round where it lands
+  ([S-11874]); nothing is pushed aside and icons may overlap widgets, as widgets may. Only when the move becomes the
+  shell's drag ([S-11878]) and is let go back over empty desktop of any display, or over one of the dragged icons
+  themselves, does the surface move them (`DesktopCommands.MovesIcons`, asked before every other route, [S-1020];
+  `AppHost.MoveDeskDrag`): the dragged widgets of the display it started on as one block, the held icon where its
+  picture is, snapped as a move is (`DesktopGrid.Drop`); onto another display's view the widgets go there (one widget
+  per desktop item in a view: one already there gives way; an own icon stands for no item and displaces none). Never a
+  file. While the drag hovers where its icons would move, the desktop answers with **no copy, move or link mark and no
+  caption** beside the picture (`DropFeedback.Plain`, [S-1024]). The effect the desktop answers is a move where the drag
+  allows one, else a link, else a copy (`DesktopCommands.MoveEffect`); it is no file operation whichever it is. One undo
+  step of the arrangement. Tests `DesktopGridTests.S11879_`.
 - **[S-5547]** **Explorer's view settings followed**: "Hidden items" and "Hide protected operating
   system files" (`SHGetSetSettings`) choose the namespace's enumeration flags
   (`DesktopViewSettings.EnumFlags`), a hidden item drawn faded; "File name extensions" through the
   shell's display names. A settings change (`WM_SETTINGCHANGE`, Explorer's folder options among them)
   reads the desktop again.
-- **[S-5548]** **Menus**: a right-click on an item opens the shell's own full menu for the selection
-  (`IContextMenu` of the items, `ShellContextMenu.ShowForItems`, every extension's lines, Send to and
-  Open with filling themselves through `IContextMenu2/3`'s messages); its Rename is the desktop's box
-  ([S-5543]). A right-click on empty desktop opens the desktop's own background menu: the desktop
-  root's `IShellFolder::CreateViewObject` menu (`ShowForDesktop`), so New ›, Paste, Paste shortcut,
-  Display settings, Personalize and third-party lines appear as Explorer's desktop shows them, with
-  New ›'s owner-drawn lines forwarded. **View, Sort by, Group by and Refresh are left out**: they are
-  Explorer's own view's (they would arrange Explorer's hidden icon list); Themia's arrangement is the
-  grid and edit mode, one meaning only. What a background command brings (a new folder, a paste)
-  lands where the click was ([S-5591]). Themia's own lines are in it too ([S-5551]).
-- **[S-5549]** **Drags**: an item pressed and moved past the dead zone drags the selection (the item
-  alone when it is not selected) out as the shell's own data object with the shell's drag image
-  (`SHDoDragDrop`, the Folder widget's `DragDropInterop.DragOut`): onto Explorer, an app or the
-  Recycle Bin the target does what it does. Dragged over an item widget, a folder, an app, a shortcut
-  or the Recycle Bin takes it through its own shell drop target (`IShellItem` bound to
-  `IDropTarget`, the drag's `ForwardOver`/`ForwardDrop`), the item drawn as the drop target while it
-  answers; an item without a drop target refuses (asked once per hover), and an item in the drag
-  refuses itself. Dropped on empty desktop, from outside, the drop goes to the user's desktop folder
+- **[S-5564]** **The drag's ghost, as Explorer's** (owner's report 2026-11-14; `DragGhost.Plan`, the SDK's
+  Files/, tested): **one item** is its icon alone, its full-size picture at 0.65 (`SelectionLook.DragOpacity`),
+  no name, held under the pointer where it was grabbed (a press beside the icon, on its name, holds the
+  nearest point of it); **several** are one stack: the grabbed item's icon in front, at most two more
+  (`DragGhost.MaxShown` 3) behind it, each 6 up and to the left of the one before, and the number of
+  dragged items in a badge at the stack's lower right (20 tall, at least 20 wide, 5 either side of its
+  number, radius 4, hanging 4 out of the front icon's corner), "99+" past 99. Never every icon in its
+  place. Over the desktop where the icons only move no tip shows (the glyph and caption hidden,
+  [S-5546]); over a target that would copy, move or link its caption shows ("Move to Desktop", "Copy to
+  …"; [S-1024]). The folder widget's drag out ([S-1332]) shows the same ghost of its pressed item's icon
+  (its thumbnail where it shows one) and up to two more of the dragged items shown in its list.
+  *Sure*: one item without its name and translucent; several stacked with a count badge; the tip only
+  over a target that changes something. *Best knowledge of Explorer's look* (not measured against a
+  capture): the stack's step and how many it shows, the badge's size, radius and place, its accent fill
+  with white numerals, the cap "99+". Tests `DragGhostTests.S5564_`.
+- **[S-5565]** **The ghost's pixels** (`DragGhost.Compose`, tested): at the display's scale, each icon fitted
+  into its square (its shape kept, centred; drawn smaller by averaging, larger by blending, premultiplied
+  so no colour bleeds from transparent pixels), the ones behind first, then the stack faded as one to the
+  drag's opacity (the icons behind never show through the front one); the badge
+  opaque in Windows' accent with its number in white, the number drawn as real text at once by the host
+  (`Interop/TextInk`: GDI, Segoe UI semibold 12 DIP, grey smoothing, every handle released on every path);
+  a badge whose text cannot be drawn is still a badge. An icon's picture is what its view keeps
+  (`ItemDrag.IconOf`: the pixels of the shell's writeable bitmap the icon shows; for a glyph, an emoji, a
+  picture file, a site's or a layout's icon a render made when the icon changes, never at the drag's
+  start). Debug: `--desktop-png` writes `desktop-ghost-<theme>-<wall>.png`, the ghost of 1, 2, 3 and 12
+  icons with a red dot where the pointer holds it. Tests `DragGhostTests.S5565_`.
+- **[S-5559]** **New ›'s lines have their own icons**, as Explorer's (owner's report 2026-11-14): Folder the
+  folder's icon, Shortcut a shortcut's (the blank page under the shell's arrow), each template its
+  registered type's icon by its extension alone (the Word document's, the text document's, the ZIP
+  folder's), at menu size (16 DIP, read at 24 pixels). A line carries the kind as its icon file
+  (`TypeIconName`: "type:folder", "type:.docx", never a path), the host reads it through the shell's
+  `SHGetFileInfo` with `SHGFI_USEFILEATTRIBUTES` (no file touched; `AppIcons.LoadTypeAsync`, cached per
+  type and size in `FileIcons`). The menu never waits: an icon already read is drawn at once, one still
+  being read shows the line's glyph until it arrives (`ItemMenu.IconFor`). The folder widget's New › is
+  the same submenu. **Open in Terminal** shows Windows Terminal's own app icon (its Apps-folder item);
+  View › and Sort by › have Explorer's two-tone pictures ([S-1754]). Left as they are: Refresh, Display
+  settings, Personalise, Paste and Paste shortcut keep the glyph pictures Themia has ([S-1754]); Explorer
+  draws them from its own resources. Tests `TypeIconNameTests.S5559_`; the render `--menu-png`
+  (`desk-live-new*.png`).
+- **[S-5548]** **Menus** (user standard 2026-11-14: no difference to Windows' desktop, "context menus too"): a
+  right-click on an icon (a right press keeps a selection it lands in, [S-5540]) or on empty desktop opens
+  **Windows 11's menu**, the rounded flyout with the icon row and the short list ending in **Show more
+  options**. Explorer draws its own inside its process and no other program can open that one, so Themia
+  draws it: the one `ItemMenu` every Themia menu is ([S-1740]: `CommandBarFlyout`, Explorer's two-tone
+  pictures, [S-1754], keys right-aligned, [S-1753]), opened as its own popup window at the pointer and kept
+  inside the display's work area by the framework ([S-1748], [S-1500]). What an icon's menu holds is
+  [S-5582]. **Empty desktop's menu** (`DesktopBackground.Menu`, tested): **View ›** ([S-5557]), **Sort by ›**
+  and **Refresh** ([S-5554]); then **Paste** and **Paste shortcut** while the clipboard holds files (Paste is
+  Ctrl+V's own paste, [S-5545]; Paste shortcut the shell's own `pastelink` on the desktop root's menu) and
+  **New ›**: Folder, Shortcut (Windows' Create Shortcut wizard, the shell's `NewLink`), then the shell's New
+  file types (`ShellNewTemplates`, the folder widget's, [S-1331]; made through `IShellFileOps`); then
+  **Display settings** and **Personalise** (Windows Settings' pages) and, where Windows Terminal's `wt.exe`
+  alias is there, **Open in Terminal** (in the desktop folder); then Themia's own lines ([S-5551]); then
+  **Show more options**. One separator between the groups, never two in a row and none at an end. **Undo is
+  not offered** ([S-5545] says why), nor **Group by**. View › is complete as Explorer's ([S-5557]). What a command brings (a paste, a new folder or file) lands where the click was ([S-5591]).
+  **Show more options** (and Shift+F10, and Shift held at the right-click, [S-5545]) opens **the shell's
+  classic menu**: for icons the `IContextMenu` of the selected desktop items (`ShellContextMenu.ShowForItems`,
+  every extension's lines, Send to and Open with filling themselves through `IContextMenu2/3`'s messages; its
+  Rename is the desktop's box, [S-5543]); for empty desktop the desktop root's
+  `IShellFolder::CreateViewObject` menu (`ShowForDesktop`), New ›'s owner-drawn lines forwarded, **with
+  nothing of Themia's in it** (its View, Sort by, Refresh and Themia's lines are on the Windows 11 menu;
+  until 2026-11-14 they were put into the classic popup, which was the only menu). Debug: `--menu-png`
+  draws the Windows 11 menus ([S-1747]); `--desktop-menu-check <out.txt>` writes the background menu's lines,
+  the Windows 11 menu's and then the classic one's, never showing a menu or running a command. Not
+  exercised on a live desktop in this change: the keyboard reaching the flyout over the surface (which
+  does not activate outside edit mode), the flyout turning round at a screen's edge (the icon row below the
+  list when it opens upward, the framework's), each shell command (Share, the pins, `pastelink`, `NewLink`,
+  Open in Terminal), and the classic menu opening after the Windows 11 one has closed.
+- **[S-5549]** **Drags out**: a desktop icon's move that leaves the desktop or reaches a drop target on it
+  ([S-11878]) drags the selection's icons (the icon alone when it is not selected). **How it starts**: as XAML's own
+  drag, `UIElement.StartDragAsync` with the pointer of the very `PointerMoved` the card decided it in, called inside
+  that handler after the card let the pointer go (`WidgetCard.DragOut` to `IDesktopIconView.DragOut`, through the
+  SDK's one helper `ItemDrag.StartAsync`, which the folder's drag-out uses too, [S-1332]); the element's `DragStarting` fills the drag. *(Until
+  2026-11-14 an OLE loop of our own, `DoDragDrop`/`SHDoDragDrop`, posted to the dispatcher: a WinUI
+  island gets the mouse as pointer input and keeps the pressed pointer, so that loop saw no mouse while
+  the press lasted; nothing followed the pointer, the drag began at the release and ended at the next
+  click.)* **Where it lands on Themia's own surface**: XAML routes a drag of its own process to its drop
+  events, never to the surface's OLE target ([S-1020]; seen live 2026-11-14: the drag ran and ended with
+  nothing, the target unheard), so the surface's root allows drops and its `DragOver`, `Drop` and
+  `DragLeave` feed the same routing (`DesktopWindow.AttachOwnDrags`), only while one of our drags runs
+  (`ItemDrag.Running`); a drag from another program still arrives through OLE. Over the place its icons
+  would only move, the drag shows its picture with no glyph and no caption (`DragUIOverride`). The host
+  owns the drag's state from `IDesktopItems.BeginDrag` (the selection rule, the keys
+  and widgets in it, the surface it leaves, the pointer's place, what it offers) to `EndDrag`, which the
+  view calls on every way out (dropped, cancelled with Escape, a start XAML refused, anything thrown);
+  a drag that never ended is replaced by the next one, never a reason to refuse it, and an old drag's
+  end clears nothing of a newer one (the offer is the drag's identity). **A drag ends on three signals,
+  whichever comes first** (`ItemDrag.StartAsync`; 2026-11-14: the log showed "a drag of desktop icons
+  begins while an earlier one never ended" in normal use): XAML's own completion of `StartDragAsync`; the
+  source element's `DropCompleted`, a second signal of the same end; and the source element leaving the
+  tree while the drag runs (`Unloaded`: a drop that moved the icon to another display's view takes away the
+  very view that started the drag, and an operation whose source is gone has nothing to complete on). The
+  later ones are ignored. Which path left drags open could not be told from reading the code (a drag
+  cancelled by a second press, a release before `DragStarting`, a picture that never arrives and the view
+  detached mid-drag are the candidates; an exception and a refused start already ended it), so each step
+  is traced at debug level under `item-drag` ("drag: asked of XAML", "starting", "ended by …", "never
+  started"), and the host's warning stays for a real leak and now says what is known of the drag that did
+  not end: how long ago it began, how many icons, whether its drop on the desktop was seen, whether its
+  surface is alive. Not confirmed on a live desktop. The originals stay drawn,
+  selected, while it runs. **The picture** under the pointer is Explorer's ghost ([S-5564], [S-5565]):
+  the held icon, the others stacked behind it, their number in a badge. It is **there with the drag**:
+  composed before `StartDragAsync` is asked (`ItemDrag.StartAsync` draws the bitmap first; the host's
+  `DesktopWindow.DeskDragPicture` composes the pixels the icons' views keep, `IDesktopIconView.DragIcon`,
+  rendering nothing) and handed over synchronously in `DragStarting` (`DragUI.SetContentFromSoftwareBitmap`,
+  no deferral), held at the pointer's place in it (`DragPicture.Anchor`, in DIPs at the display's scale,
+  the bitmap at that scale's resolution). *(Until 2026-11-14 the dragged icons were rendered with
+  `RenderTargetBitmap` under the drag's deferral after it had begun, each in its desktop place with its
+  name, so the drag showed nothing for a moment, then every icon spread out: "the ghost preview … only
+  appears after some time … if you drag and drop multiple items it looks off".)* Measured: composing a
+  ghost of 12 at 150 % takes about 8 ms on this PC (`--desktop-png` prints it; 200 runs); "drag: starting"
+  in the log at debug level gives the time from the drag being asked for to `DragStarting` and the
+  composing time, on the live desktop. Without a picture (the held icon has none yet) the drag shows
+  the pressed icon as XAML draws it.
+  **What it carries** is [S-5586], put on the drag's `DataPackage` (`ItemDrag`): the files and folders
+  as storage items (every OLE target reads them as `CF_HDROP` and shell items) through a deferred
+  provider, each path looked up as its `StorageFile` or `StorageFolder` on the thread pool only when a
+  target asks, so starting a drag reads no file (one that is gone by then is left out, logged); and
+  always a marker format of ours (`Themia.ItemDrag`), the only thing a drag with no file carries, which
+  every other target refuses. The allowed operations are `DesktopCommands.DragEffects`. On the desktop
+  itself the drag is the surface's ([S-1022]: read from its offer, never from its data object).
+  Onto Explorer, an app or the Recycle Bin the target does what it does. Over another desktop
+  icon the drop is forwarded to what that icon stands for ([S-5587]: a folder, an app, a link to one,
+  the Recycle Bin, a drive, of either source) through its own shell drop target (`IShellItem` bound to
+  `IDropTarget`, the drag's `ForwardOver`/`ForwardDrop`), that icon drawn as the drop target while it
+  answers, one at most (`IDesktopItems.SetDropTarget`); an icon without a drop target refuses (asked
+  once per hover), and an icon in the drag takes no drop of itself: there the icons move ([S-5546]),
+  as on empty desktop. Dropped on empty desktop, from outside, the drop goes to the user's desktop folder
   through the shell's own drop target (copy, move, link, the right-drag menu, virtual files from
-  Outlook or a browser), landing per [S-5591]; the desktop's own drag there moves widgets ([S-5546]).
+  Outlook or a browser), landing per [S-5591]; dropped from outside onto an own icon that waits for its
+  target, the dropped thing becomes its target ([S-9508]). *(Retired 2026-11-14: the shell's default
+  drag image for every drag, and the move cursor over empty desktop; a Shortcut could not be dragged
+  outside edit mode at all.)*
 - **[S-5550]** **Who has the keys**: a press on an item gives its card the keyboard lease ([S-800]),
   a press on empty desktop gives it to the desktop's items on that surface (the surface takes the
   foreground and drops `WS_EX_NOACTIVATE` while it holds them, [S-800]'s rule); either way the keys
   above go to the one selection. Escape ends the hold and hands the keyboard back; a click on
   another app or a card ends it. The selection stays (drawn inactive) when the keys go elsewhere.
-- **[S-5551]** **Themia's lines in the background menu**: with Themia's items, empty desktop's
-  right-click menu ([S-5548]) holds **Edit widgets** (edit mode on, as the card menu's Edit layout and
-  Ctrl+Alt+W) and **Add widget** (edit mode on, then the add page under that display's bar, [S-11707], as the
-  surface menu's Add widget, [S-1744]), so edit mode is reachable with no widget on screen and no
-  shortcut known. One group where Windows puts an app's lines: right after Paste and Paste shortcut,
-  else first, before the third-party lines, New › and Display settings, a separator on either side and
-  never two in a row (`DesktopBackground.Slot`, over the lines the shell filled in). Their ids lie past
-  every id the shell's handlers were given, so the shell never sees them; their words are Themia's
-  ("Add widget" is the bar's own). Debug: `--desktop-menu-check <out.txt>` builds the menu as a
-  right-click would and writes its lines, never showing it or running a command.
-- **[S-5552]** **New › renames what it made**, as Explorer does: a command chosen in New › (the
-  submenu that holds New › Folder, `DesktopBackground.IsNewCommand`) expects its arrival at the click
-  ([S-5591]) with `Renames`; the first item that lands for it is selected and its rename box opens
+- **[S-5551]** **Themia's lines in the background menu**: empty desktop's Windows 11 menu ([S-5548])
+  holds **Unlock widgets** (edit mode on, [S-65]: the line every right-click menu has, as Ctrl+Alt+W) and
+  **Add widget** (edit mode on, then the add page under that display's bar, [S-11707], as the surface
+  menu's Add widget, [S-1744]), so edit mode is reachable with no widget on screen and no shortcut known.
+  One group where Windows puts an app's lines: after Display settings, Personalise and Open in Terminal,
+  before Show more options, a separator on either side (`DesktopBackground.Menu`). Their words are Themia's
+  ("Add widget" is the bar's own). They are not in the shell's classic menu. *(Until 2026-11-14: "Edit
+  widgets", and both lines inserted into the classic popup after its paste group, `DesktopBackground.Slot`.)*
+- **[S-5552]** **New › renames what it made**, as Explorer does: a line of the Windows 11 menu's New ›
+  (Folder, a file type; what it made is known by name), Compress to ZIP file ([S-5582]), and a command
+  chosen in the classic menu's New › (the submenu that holds New › Folder, `DesktopBackground.IsNewCommand`)
+  expect their arrival at the click ([S-5591]; the ZIP at the next free cell) with `Renames`; the first item that lands for it is selected and its rename box opens
   ([S-5543]) once the reconcile that placed it is applied. A paste, a drop or any other command renames
   nothing.
 - **[S-5553]** **The keyboard after Win+D** stays where Windows puts it. Show desktop makes
@@ -9160,80 +9979,141 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   desktop (an item or empty desktop) gives it the keys ([S-5550]), and from then on arrows, Enter, F2
   and the rest work as on Windows' desktop. Until that click, keys typed go to Explorer's hidden list:
   a manual pass checks what Explorer does with them.
-- **[S-5560]** **A display unplugged**: the listed items placed only in the view of a display that is
-  no longer connected (its stored assignment, [S-18]) and in no view a live surface shows get a
-  stand-in widget each in the primary display's view, at its next free cells ([S-5521]) in the
-  stranded view's own order, recorded with their cells (`desktop.fallbacks`, written only while there
-  are some, repaired at load). The unplugged display's view is never touched: its item widgets keep
-  their cells. A view no display shows is the user's own (per view, the user's decision 1) and lends
-  nothing; a display Themia is switched off on is still connected and lends nothing either (its items
-  are listed by Add widget, [S-5523]). Not an undo step (`DesktopDisplays`, after every display pass and
-  every read of the desktop).
-- **[S-5561]** **A display plugged in** shows its view as the user set it ([S-18]: its stored
-  assignment; a new display the active view), and new files still land on the primary display's view
-  ([S-5520]). A stand-in whose item a shown view holds again (its display is back) goes; one the user
-  moved off its cell, or removed, is the user's own from then on and stays.
-- **[S-5562]** **The work area changing** (the taskbar moved, resized, or no longer hiding): in every
-  shown view, an item widget no longer whole inside its display's work area moves to the free cell
-  nearest after where it was (`DesktopCells.FreeFrom`), as Explorer keeps its icons off the taskbar;
-  one with no free cell stays. A work area that grows moves nothing back, and no other widget follows
-  the work area ([S-841]). Not an undo step.
-- **[S-5563]** **Mixed DPI**: an item's icon is drawn at its display's own scale
-  (`DesktopIconPixels.For`: a 48 icon is 48 pixels at 100 %, 60 at 125 %, 72 at 150 %, 96 at 200 %),
-  from the extra-large list up to 48 pixels and the jumbo list above (drawn down, as Explorer does);
-  an item with no large image, which the jumbo list returns as a small image in a corner of an empty
-  square, is the extra-large image drawn up (`HoldsOnlySmallImage`). A display's scale changing, or
-  the widget moving to a display of another scale, asks for the icon again at the new pixels. The cell
-  stays its size (90 × 100 with two name lines, [S-11204]) on every display; the selection's boxes are in physical pixels across displays
-  ([S-5540]).
-- **[S-5570]** **Each item to a screen reader** (UI Automation, the item view's peer): a list item
-  named as Explorer shows it, its place in the desktop's order and the count ("3 of 12",
-  `DesktopNav.PositionOf`), the selection item pattern over the one selection (select alone, add,
-  remove, its container the desktop's list), invoke opening it ([S-5530]), and a value that is its
-  name, set by F2's rules (`IDesktopItems.RenameTo`; read-only for shell items). The focused item has
-  the keyboard focus while the desktop holds the keys; a focus that arrives on it (an arrow, a click)
-  and a selection that changes are announced. A refusal is logged, never thrown back into UI Automation.
-- **[S-5571]** **The surface is the desktop's list** while Themia's items show outside edit mode
-  (`DesktopRoot`): a list named **Desktop**, as Explorer's is, holding the items in the desktop's order
-  before anything else, with the selection pattern (several at once, none required) and the focused
-  item as its focused element. In edit mode, and under Windows' icons or Nothing, it is a plain pane.
-- **[S-5575]** **Living beside other desktop programs** (`DesktopCoexistence`), read from the
-  desktop's windows when the choice is applied, at start and when Explorer restarts (`TaskbarCreated`),
-  never by a message to another program's window: a window of another process among `Progman`'s or a
-  `WorkerW`'s children is a wallpaper engine's (Wallpaper Engine, Lively): it changes nothing, as it
-  draws under the surface (an interactive wallpaper no longer gets the clicks on empty desktop, which
-  are Themia's, [S-5501]); a desktop view (`SHELLDLL_DefView`) of another process means something has
-  replaced the desktop's icons; the re-hide cap reached ([S-5503]) means something keeps Explorer's
-  icons shown. In those two cases Themia never fights: its items stand down (no item widget has a card,
-  the surface traces the widgets as under Windows' icons) and Explorer's list is neither hidden nor shown
-  by Themia, and ⚙ › On the desktop says why under the choice. Picking a choice again (the same one
-  too) tries once more. A program that hides Explorer's list itself (Fences can) is not told apart from
-  an earlier run of Themia that was killed with the list hidden, so it is not detected: both its icons
-  and Themia's items show (a manual pass with Fences).
+- **[S-5554]** **Sort by and Refresh** (user request 2026-11-13: the same menu as Windows' icons):
+  empty desktop's menu opens with **View ›** ([S-5557]), **Sort by ›** (Name, Size, Item type, Date modified) and **Refresh**,
+  then a separator, before Paste and New › (`DesktopBackground.Menu`, [S-5548]). Refresh reads the desktop
+  again, as F5 ([S-5545]). A Sort by line arranges the desktop icons, of both sources, of the view that display shows
+  ([S-5555], [S-5556]): one undo step of the arrangement, never a file operation; the line last chosen
+  carries Explorer's dot ([S-5596]). Their words are Themia's (English only so far).
+- **[S-5557]** **View ›, complete as Explorer's** (2026-11-14): the menu's first line is **View ›**, where
+  Explorer's own desktop menu has it, holding **Large icons**, **Medium icons** and **Small icons** (one of
+  a set: the size in force carries Explorer's dot; choosing one sets the desktop's icon size, [S-5593], the
+  one setting its row on the General page sets, [S-3525]), a separator and **Auto arrange icons**, a
+  one-shot with no check mark that packs the icons now ([S-5594]). No Show desktop icons and no Align icons
+  to grid line (2026-11-15: the icons always show and align, [S-5500], [S-5595]); Sort by › is always
+  there. A line is a command with its check mark or its dot, a submenu with its
+  own title of such lines, or a separator (`DesktopMenuEntry`: `Checked`, `Chosen`; `DesktopMenuGroup`;
+  `DesktopBackgroundFacts.Of` reads the icon size and the sort from the state). Their
+  words are Themia's (English only so far). `--desktop-menu-check` writes a checked line as `[x]` and the
+  chosen one of a set as `(o)`. Tests `DesktopSortTests.S5593_`, `S5594_`, `S5596_`.
+  ([S-1407]). An icon that opens nothing (one that waits, a refused target, a layout with no app) is
+  left out. At most 15 at once, the rest logged.
+- **[S-5582]** **The menu for a selection** (`DesktopCommands.Menu`, tested): Windows 11's menu ([S-5548])
+  for every source, its lines a pure rule, worded and drawn by the builder the folder widget's file menu uses
+  (`FileMenuEntries` in the SDK, [S-6416]: one model, one drawing). **Desktop items that are files, folders
+  or links**: Explorer's file menu, the SDK's one rule (`FileMenu.Item` on the desktop). Icon row: Cut, Copy,
+  Paste (one folder: into it; greyed with nothing to paste), Rename (one item), Share (files only, the shell's
+  `Windows.ModernShare`), Delete. List: Open, Open with › (one file: the recommended apps, then Choose another
+  app), Open file location (one link: its target in Explorer), Pin to Quick access (folders), Pin to Start (one
+  folder, program or link), Compress to ZIP file (one ZIP in the user's desktop folder, named after the icon the
+  menu was opened on, [S-6419], landing with its rename box open), Copy as path (quoted), Properties.
+  **With a shell item among them** (This PC, the Recycle Bin): Open, **Empty Recycle Bin…** (the bin alone; off
+  while there is nothing to empty), Properties; never Cut, Rename or Delete, which Explorer refuses them.
+  **One own icon**: Rename (its label, [S-5584]) and Delete (its widget, [S-5583]) in the icon row; Open (Open
+  layout for a layout; off while it opens nothing); what its kind offers: a layout **Edit layout…**
+  (off while the editor cannot open), a web address or a Settings page **Copy URL**, a path **Open file
+  location** and **Copy path**, the Recycle Bin **Empty Recycle Bin…** (Windows asks first, [S-4863]) and Copy
+  path, a Windows location Copy path, one that waits or is refused nothing; then **Properties…**, which enters
+  edit mode with that icon's widget selected, so its page opens ([S-2340], [S-9509]), as Alt+Enter with an own
+  icon focused does. **Several own icons**: Open (off when none opens), Copy path where every one has a path to
+  say, then Delete (one row command is no row, [S-1741]: a labelled line). **A selection of both sources**: Open
+  and, where every one has a path to say, Copy path; no Rename and no Delete. **Every menu** then holds
+  **Unlock widgets** ([S-65]) after a separator, and last, after another, **Show more options** where the shell
+  has a classic menu for the selection: for desktop items theirs, for one own icon whose path is there that
+  path's (the shell's own lines for the target, its Rename and Delete the target's), for any other own icon
+  and a selection of both sources none (`DeskMenu.Classic`). Never two separators in a row and none at an end.
+  **Every command runs what its key runs** on the selection the menu was opened for ([S-5545],
+  [S-5583]..[S-5585]): Cut and Copy the selection's clipboard rule, Delete the selection's delete, Rename F2's
+  box, Open the selection's open, Properties Alt+Enter's; Paste into a folder icon is Ctrl+V's paste with that
+  folder as its destination. The keys beside the lines are the ones the desktop answers (Enter, Ctrl+X, Ctrl+C,
+  F2, Delete, Alt+Enter, Shift+F10; `FileMenu.Accelerator`). Copy path and Copy URL copy each icon's path or
+  address on a line of its own. The Menu key opens the same menu at the focused icon, Shift+F10 the classic one
+  ([S-5545]). Not there, though Explorer's has them: the cloud pins on a OneDrive desktop (the folder widget has
+  them, [S-6416]) and app-added lines (under Show more options). "Properties…" is English only so far.
+  *(Until 2026-11-14: the shell's classic menu at once for desktop items, and Themia's lines in a classic
+  popup of its own, `ShellContextMenu.ShowLines`, with Remove for Delete.)*
+- **[S-5583]** **Delete** (`DesktopCommands.Delete`): the selected desktop items' files go to the
+  shell's own delete as [S-5545] says (its prompt; Shift for good; a shell item is no file and is
+  never deleted). The selected own icons' widgets are removed in one undoable step, with the undo
+  notice offered as edit mode's delete offers it ([S-881]): no prompt, and nothing of their targets is
+  touched. A selection of both does both. The menu's Delete ([S-5582]) is this same delete.
+- **[S-5584]** **F2** (`DesktopCommands.Rename`): on a desktop item the shell's rename of the file
+  ([S-5543]); on an own icon its **label**: the same box on its widget, the name typed set as the label,
+  an empty name or the one its target gives clearing it so the icon follows its target again, one undo
+  step and none when nothing changed, and never a refusal. On a shell item, or with nothing focused,
+  nothing. The menu's Rename and a screen reader's value ([S-5570]) follow the same rule.
+- **[S-5585]** **The clipboard** (`DesktopCommands.Clipboard`): Ctrl+C puts the selected desktop
+  items' files on the clipboard, and with them each own icon's path target that is there, each path
+  once. Ctrl+X cuts the desktop items' files only: **an own icon adds nothing to a cut**, since a cut
+  would move its target away and the clipboard holds one effect for all it carries. With no path to
+  put there the clipboard is left as it was.
+- **[S-5586]** **What a drag carries and allows** (`DesktopCommands.Drag`, [S-5549]): to another target
+  (a folder, an app, the Recycle Bin, Explorer) the dragged desktop items that are files, folders or
+  links (a `.lnk` as the link file itself) and each own icon's path target that is there, as full paths
+  (`ItemDragOffer.StoragePaths`: a drive's or a share's, each once). **A shell item** (This PC, the
+  Recycle Bin, any `::{CLSID}` key) is no file: it moves on the desktop with the rest and is offered to
+  no other target (a storage item cannot stand for it, and a second, hand-built `Shell IDList Array`
+  beside the one Windows makes for the storage items was not risked). It allows copy, move and link while
+  only desktop items give it files; **never a move when an own icon's path is among them** (copy or
+  link: its target is never moved away); and with no file at all it carries nothing and allows nothing,
+  so everything but the desktop refuses it (it is then started with a move alone, which only the
+  desktop's own move answers, `DesktopCommands.DragEffects`, [S-5546]).
+- **[S-5587]** **What a drop onto an icon is forwarded to** (`DesktopCommands.DropTarget`), that
+  target's own shell drop target ([S-5549]): a desktop item itself (a folder takes the files, a program
+  opens them, the Recycle Bin deletes them); an own icon's path target when it is a local path that may
+  be looked at; an own icon on the Recycle Bin, the bin's item under the desktop
+  (`::{645FF040-5081-101B-9F08-00AA002F954E}`). Every other own icon (a web address, a Settings page, a
+  Windows location, an app layout, a refused target) forwards nothing and refuses the drop, but one
+  that waits for its target takes the drop as its target ([S-9508]). Nothing is probed to decide it.
 - **[S-5590]** *Retired*: D3's plan, now [S-5551]..[S-5575].
-- **[S-5591]** **Where an arrival lands** (`DesktopLandings`, `DesktopCells`): a drop on empty
+- **[S-5591]** **Where an arrival lands** (`DesktopLandings`, `DesktopGrid.Arrive`): a drop on empty
   desktop names the files it brings (the drag's file names and virtual file names) and the point;
-  when they arrive, their widgets go to the view of the display it was dropped on, at the cell under
-  the point or the next free one after it down its column (then the next columns), other views
+  when they arrive, their widgets go to the view of the display it was dropped on, centred on the
+  point on the grid or at the free spot nearest to it ([S-11876]), other views
   getting none ([S-5520]'s step 3 with its own view and point). A paste names its files and lands at
-  the last press on that display's empty desktop, else at its next free cell; a background-menu
+  the last press on that display's empty desktop, else at its first free spot; a background-menu
   command (New ›, Paste) expects whatever arrives next at the click. A hint that names nothing is
   dropped by the next press on the desktop, a newer hint replaces an older one, and an arrival no
   hint names lands as [S-5520] says.
 
-## Shortcuts B: drop, reorder and app layouts (PD)
+Needs a manual pass: the view settings of 2026-11-14 ([S-5592]..[S-5596]) were checked by tests, renders
+and the Native AOT publish only: the three icon sizes beside Explorer's own desktop (Large and Small are
+derived cells), every icon refitting and keeping its place as the size changes on one and on two displays
+of different sizes, Ctrl + wheel reaching the surface, Auto arrange icons packing a live desktop (2026-11-15:
+not run live), the dots and check marks in the live menu, and an arrival of each kind (a new file, a
+paste, New ›, a drop from outside) landing beside a widget. The merge of the two kinds (2026-11-14) was checked by tests and renders only.
+The drag's start as XAML's drag (2026-11-14, [S-5549], [S-1332]) was built from the diagnosis of the
+old loop and checked by build, tests, `--drop-check` and the Native AOT publish only: that
+`StartDragAsync` takes over the held press, that the surface's OLE target sees the drag, the picture's
+place under the pointer at 100 % and at a scaled display, the missing mark and caption while icons
+would move, Escape, and a drop of the storage items on Explorer, an app and the Recycle Bin all need
+the live desktop.
+None of the drag gestures ([S-5546], [S-5549], [S-5586], [S-5587]: the picture of the dragged icons,
+the missing mark and caption while they would move, a move across displays, a drop onto a
+folder, an app and a Recycle Bin icon of either source, a drag out to Explorer, a drag of own icons
+with no file refused everywhere else) and nothing of the desktop icons' menu ([S-5582]: a file, a folder,
+a shell item, one own icon, several, a selection of both, each line, Properties… entering edit mode, Show more
+options) was exercised on a live
+desktop in that change; nor Delete with its undo notice, F2 and Ctrl+C on own icons, and Narrator over both. The module's `SPEC.md` lists them.
 
-Original `widgets/others/shortcut` S-28..S-38, S-50..S-60, S-65, S-68..S-74. The widget is a module of
-its own (`src/Widgets/Themia.Widget.Shortcuts`, its SPEC.md: its drops, reorder and drag out). Here: the
+## Own desktop icons: drops and app layouts (PD)
+
+Original `widgets/others/shortcut` S-28..S-38, S-50..S-60, S-65, S-68..S-74. What was the Shortcut widget
+is an own icon of the Desktop icon module (`src/Widgets/Themia.Widget.DesktopItem`, its SPEC.md: one
+target per widget, its drops, [S-9508]; the list of many, its reorder and its drag out went on
+2026-11-13, and the kind `shortcut` itself on 2026-11-14, merged into `desktopItem`). Here: the
 app layouts and the host's side of a drop: the SDK's `LayoutTree`, `LayoutPlan` and
 `Model/Configs/AppLayoutModel.cs` (with `IHoldsAppLayouts`), Core's `LayoutWindows` and `Files/DropUrls`;
 App: `Services/AppLayoutLauncher.cs`, `Shell/LayoutEditorWindow.cs` (behind `IWidgetHost.AppLayouts`).
-Tests: `ShortcutsDropLayoutTests`; the layout item's config, the module host's `ShortcutsHostTests`.
+Tests: `ShortcutsDropLayoutTests`; a drop onto an own icon, the module's `OwnIconDropTests`; a layout's config, the module host's `OwnIconHostTests`.
 
-- [S-1400], [S-1401], [S-1410], [S-1415]: moved with the Shortcuts widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Shortcuts/`).
+- [S-1400], [S-1401]: a drop onto an own icon that waits for setup, now the Desktop icon module's [S-9508].
+  [S-1410], [S-1415] (reorder by drag, dragging items out and between Shortcuts widgets): retired with
+  the list of many, 2026-11-13; since 2026-11-14 an own icon is moved and dragged out as every desktop
+  icon is ([S-5546], [S-5549]).
 - [S-1402] Browser links: `UniformResourceLocatorW`, else the http(s) lines of the text. A Start menu app
-  (shell items, no paths) is found by name among the Start menu's shortcuts and added as that `.lnk`; a
-  packaged (Store / MSIX) app with no shortcut is added as its Apps-folder item
+  (shell items, no paths) is found by name among the Start menu's shortcuts and becomes that `.lnk`; a
+  packaged (Store / MSIX) app with no shortcut becomes its Apps-folder item
   `shell:AppsFolder\<AUMID>` from the item's parsing name, named as Start names it (issue 189: Claude).
   `LaunchTargets` accepts that one shell name with a separator, and only for a packaged app's id
   (`<name>_<13-char publisher id>!<app id>`, `IsPackagedAppId`); anything else is skipped (logged).
@@ -9243,9 +10123,9 @@ Tests: `ShortcutsDropLayoutTests`; the layout item's config, the module host's `
 - [S-1404] A pane opens an App (Start menu `.lnk`/`.exe`), a Web address, a File or a Folder; a blank
   target clears it; switching the source in the editor clears it. "Move it if it is already open"
   (orig. reuseIfRunning, default on) applies to App and File only.
-- [S-1405] A layout item has a `Layout` and an empty target; named by its label, else "App layout"; its
-  detail is "No apps yet / 1 app / N apps"; its icon stacks up to 4 pane icons (layout glyph when none).
-  Item menu: Open layout (off with no apps), Edit layout…, moves, Rename, Remove.
+- [S-1405] An app layout is an own desktop icon with a `Layout` and an empty target; named by its label, else "App layout"; its
+  tooltip says "No apps yet / 1 app / N apps"; its icon stacks up to 4 pane icons (layout glyph when none).
+  Its menu is the desktop's ([S-5582]): Rename and Delete in the icon row, Open layout (off with no apps), Edit layout…, Properties….
 - [S-1406] Repair: a missing/odd tree, a split missing a side, NaN or out-of-range ratios, broken
   assignments, repeated ids and over-deep nesting are mended loudly; a layout's target is blanked.
 - [S-1407] Opening walks the tree against the work area of the display the widget is on (orig. S-52:
@@ -9260,20 +10140,21 @@ Tests: `ShortcutsDropLayoutTests`; the layout item's config, the module host's `
   pane's exe (link target, file association, default https browser). Never an `explorer.exe` window that
   is not a folder window, never Themia's own. An app already running is moved instead of started when
   reuse is on (never for URLs or folders).
-- [S-1411] "Edit layout…" (item menu) and "App layout…" (the properties menu's Add, [S-1388], then
+- [S-1411] "Edit layout…" (the desktop's menu for the icon, [S-5582], and its page's Target on a layout) and "App layout…" (its page's Target, [S-9509], then
   straight into the editor) open one editor window for the app, retargeted when asked again; Escape and Done close it. It
-  holds only the item id and writes through `AppHost.Mutate`; if the item disappears it says so.
+  holds only the icon's id (`DesktopItemConfig.ItemId`, found through `IHoldsAppLayouts`, `AppHost.FindAppLayout`) and writes through `AppHost.Mutate`; if the icon disappears, or is no layout any more, it says so.
 - [S-1412] The editor draws the panes in the primary display's shape (≤ 440 DIP tall); dividers drag
   live and save once on release.
 - [S-1413] Each pane: split side by side / top and bottom / remove (not on the only pane), and centred
   the icon and name when assigned, the source, then a searchable Start menu app box, a URL box, or a
   path box with Browse (checked by `LaunchTargets`, the reason shown), reuse, Clear. Shrinks with the pane.
 - [S-1414] Debug: `--layout-editor-png <out.png> [waitMs] [--empty]` renders the editor off-screen over
-  a demo state; nothing is launched.
+  a demo state (one `desktopItem` widget, an own icon that is the layout); nothing is launched.
 
 Not ported: per-pane command-line arguments (allow-list rule: nothing is ever a command line); drag-out
-of web, Windows-location and layout items (no file to hand over); Ctrl+Z op log (as PC). Needs live
-verification: drops from Explorer / Edge / Chrome / the Start menu, pointer reorder and drag-out on the
+of web, Windows-location and layout items (no file to hand over: such a drag carries nothing and only the
+desktop takes it, [S-5586]); Ctrl+Z op log (as PC). Needs live
+verification: drops from Explorer / Edge / Chrome / the Start menu onto an own icon on the
 real surface, layout launch with Word/Outlook/Code/browser/Explorer windows on multiple monitors and
 mixed DPI, the editor's divider drag, pickers and app search.
 
@@ -9305,11 +10186,11 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
 - **[S-1743]** A widget card's menu in edit mode: the row is Cut, Copy, Paste (disabled with nothing to paste)
   and Delete, acting on the selection ([S-1592]); no Settings, since a widget's options are its
   properties menu's beside it ([S-6536]); the list is the view's own
-  commands, Bring to front / Send to back, and Edit layout / Done editing. There is no Move:
+  commands, Bring to front / Send to back, and Lock widgets ([S-65]). There is no Move:
   dragging and the arrow keys move a widget. There is no
   Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough.
 - **[S-1758]** Outside edit mode the card menu is for using the widget, not arranging it: the view's own
-  commands (Refresh, Pause, which folder, [S-1746]) and Edit layout, the way to the widget's options
+  commands (Refresh, Pause, which folder, [S-1746]) and Unlock widgets ([S-65]), the way to the widget's options
   ([S-6536]); no Settings. No Cut, Copy, Paste, Delete, layering or icon row: with no
   selection shown and nowhere to paste outside edit mode they did nothing the user could see (user report
   2026-10-17: "I right click and cut a widget, nothing happens"). Item menus inside a widget (a file's
@@ -9321,7 +10202,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   follows the pointer to be placed, [S-1587]), **Paste** and **Select
   all** ([S-1582], off with no widget); then the ways into the bar's menus in the bar's order,
   **Display**, **View** and **Settings** (each opened under its button on that display, [S-3540],
-  [S-3534]); and Done editing. Snap is not here: it is the bar's alone ([S-3516]). Outside edit
+  [S-3534]); and Lock widgets ([S-65]). Snap is not here: it is the bar's alone ([S-3516]). Outside edit
   mode empty surface is click-through; while placing, the right-click cancels the placement and opens
   nothing.
 - **[S-1745]** In edit mode a press on a card that travels 3 DIPs or more (`CardGestures.Travelled`)
@@ -9334,9 +10215,12 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   ([S-3707]). The menus keep commands the user
   runs while looking at the widget: refresh, pause, open, which folder, the click mode, search.
 - **[S-1747]** Debug: `--menu-png <outDir> [--theme light|dark]` opens the card menu (edit mode, one
-  widget; desktop, three widgets; desktop, a widget with view commands, [S-1758]), the surface menu, two sample item menus and the folder widget's file, Open with,
-  folder and background menus (a real view over read-only Windows folders) for real, off-screen,
-  and writes each open popup to a PNG.
+  widget; desktop, three widgets; desktop, a widget with view commands, [S-1758]), the surface menu, two sample item menus, the folder widget's file, Open with,
+  folder and background menus (a real view over read-only Windows folders) and the desktop's own menus ([S-5548], [S-5582], `desk-*`:
+  a file, a link, a folder, several files, This PC, the Recycle Bin, an own icon on a path, on a web address and on an app layout,
+  several own icons, a selection of both sources, the background menu and its View, Sort by and New submenus, built by the rules
+  and builders a right-click runs over stand-in icons) for real, off-screen, and writes each open popup to a PNG (the icon row
+  and its list are two popups: `<name>-1.png` and `<name>.png`; transparent, since acrylic does not render to a bitmap).
 - **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the
   pointer), as Explorer's does, and flips only to stay on screen. A menu opened from the keyboard sits
   under its anchor's left edge.
@@ -9349,7 +10233,8 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
 - **[S-1754]** Menu icons are File Explorer's two-tone pictures (grey body, blue part; user report 2026-10-16: our
   one-colour glyphs did not look like Explorer's): a line whose Segoe glyph shows a picture Explorer has (Cut, Copy,
   Paste, Rename, Share, Delete, Settings, open, open with, new window, file location, pin, ZIP, copy as path, link,
-  properties, show more options, new, new folder, select all, align to grid, refresh, undo, redo, sort, view;
+  properties, show more options, new, new folder, select all, align to grid, refresh, undo, redo, sort, view,
+  paste shortcut, pin to Start, empty Recycle Bin, display settings, personalize;
   `MenuArtRules.ForGlyph`) draws Explorer's picture in the icon row and the list, in the theme the menu draws in.
   Every other line keeps its glyph, as Explorer's own lines without art do. A disabled line keeps the glyph (greyed
   by the menu), and so do high contrast (the glyph follows the user's contrast colours) and a glyph that turns
@@ -9454,11 +10339,11 @@ gallery ([S-1863]).
   widget's own config (`ISetupRule`, [S-6906]): Countdown with no
   target ([S-6036]); Quote with no quote left; Feed with no feed
   address; Stocks with no symbol; Weather (now and forecast), Air quality and Rain with no place; Video stream with no
-  address; Shortcuts with no item; Pictures with no folder (folder source) or no
+  address; an own desktop icon that opens nothing yet (no target and no layout, [S-9511]; a desktop item never waits); Pictures with no folder (folder source) or no
   file (file source). "Nothing right now" (no unread
   mail, no events today, an empty folder) is not setup, and neither is set-up-but-wrong (a symbol
   that is not one, a folder that is gone): those keep the widget's own sentence. Widgets that start
-  with seeded content (quotes, shortcuts, the Sun's and the Moon's place, the folder
+  with seeded content (quotes, the Sun's and the Moon's place, the folder
   widget's profile folder) never ask until it is emptied. Habits and a local task list are started
   from the widget itself and do not ask.
 - **[S-1861]** An account widget needs setting up while no signed-in account offers its feature: Mail,
@@ -9471,7 +10356,7 @@ gallery ([S-1863]).
   module's words: "Choose a place" for every widget about a place; "Add a feed", "Add an account to
   show your mail", "… your tasks", "… your calendar", "… your contacts", "Add an account to plan
   your week", "… your next meeting" for the lists, G2; "Choose a symbol" for Stocks and "Add a quote"
-  for a Quote with no quote to show, G3; "Add a shortcut" for Shortcuts, "Choose a folder of pictures" or "Choose a picture" for Pictures and "Add a stream" for a Video stream, G6), else "Add an account to show this" where an
+  for a Quote with no quote to show, G3; "Choose what it opens" for an own desktop icon, "Choose a folder of pictures" or "Choose a picture" for Pictures and "Add a stream" for a Video stream, G6), else "Add an account to show this" where an
   account is all it lacks, else "Set up what this widget needs". On a row too narrow for both (XS, S) the sentence
   goes and the glyph and the button stay, at every size. The button takes
   no focus, so it works outside edit mode on the `WS_EX_NOACTIVATE` surface. A click goes where what
@@ -9484,11 +10369,11 @@ gallery ([S-1863]).
   (`PageView.OpenSetup`): its card opened where it opens (a choice, a lookup), the row scrolled into
   view and lit. The lines named: the location's search for Weather now, the forecast, Air
   quality and Rain; the feeds for Feed; the symbol's search for Stocks; the day, asked for, for
-  Countdown; the address, asked for, for Video stream; the quotes for Quote; Add for Shortcuts; the
+  Countdown; the address, asked for, for Video stream; the quotes for Quote; Target for an own desktop icon; the
   folder or the picture for Pictures. A module that names none leaves the menu as it stands. The card
   owns the button, not the view: the view underneath is parked, not running ([S-1881]), invisible and
   not hit-testable, and the button goes the moment the config (from the menu, or a change the view
-  saves itself such as a shortcut dropped onto it) or a newly signed-in account makes the widget
+  saves itself such as a drop onto an own desktop icon that waits, [S-9508]) or a newly signed-in account makes the widget
   useful. The views carry no "add one in settings" sentences of their own.
 
 - **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
@@ -9574,6 +10459,71 @@ widgets, Clock and Alarm, Music, the file widgets, weather, Stocks and the accou
 has no table of kinds. Widgets with nothing sensible to open (notes, habits, countdowns, toggles and
 power buttons, whose whole body is their button) open nothing.
 
+- **[S-2007]** *(Retired 2026-11-15 by [S-2008]: dragging a locked widget no longer turns edit mode on;
+  `WidgetCard.UnlockByDrag`, `RequestUnlockByDrag` and the page opened at the unlocking drag's end are gone.)*
+- **[S-2008]** **A locked widget moves without edit mode** (owner, 2026-11-15: "when dragging widgets it goes into
+  full edit mode, i dont want that, it should not actually go into edit mode but show the grid slightly around
+  where i drag the widget to"): outside edit mode a left press on a widget that reaches the card (any kind, a
+  desktop icon included, [S-11878]; Ctrl or Shift may be held, they shaped the selection) and moves past the
+  drag threshold ([S-1745]) **moves the card** (`CardGestures.MovesLocked`, `WidgetCard.LockedMove`): from where
+  it was pressed, with the whole selection when the card is in it ([S-11879]), snapped to the grid and kept in
+  reach as an edit-mode move is ([S-1584], [S-06], [S-6608]), handed to another display's view where the pointer
+  lets go there ([S-1591]), one undo step. **Edit mode stays off**: no bar, no page, no handles, no full grid; the
+  local grid shows round where the block lands ([S-11874]). The click that would have opened the widget ([S-2000])
+  is dropped once the press moves; a press that does not move stays the widget's own click. A view that drags its
+  own content says so (`IWidgetOwnsDrags`: the folder, the scratchpad, the habit tracker) and its card never moves
+  by a drag; a control inside a widget that takes the press (a slider, a list row) keeps it. **A widget that is one
+  button from edge to edge** (`IWidgetButton`: a quick setting's tile, a power button) takes every press itself, so
+  its card arms the move where handled presses are heard too; when the move starts, the card first releases the
+  pointer from the button (and every element between it and the card: a held capture makes the card's own capture
+  fail, and the release would end as the button's click, a toggle flipped by a drag; found live 2026-11-14), then
+  takes it. Edit mode itself stays (Unlock widgets, the hotkey) for resizing, settings and adding. Not in a debug
+  render's preview. Tests `DesktopGridTests.S2008_` (the regression: the locked press starts no edit-mode press,
+  only the move).
+- **[S-11874]** **The local grid** (`LocalGrid`, Core; `LocalGridOverlay`): while a block moves on the locked
+  desktop the grid's lines are drawn **only round the box it lands in**, their strength falling with their place
+  round it ([S-11886]: a rectangle grown evenly out of the box) to nothing at `LocalGrid.RadiusCells` (6 cells) past it, on
+  the lines the edit-mode overlay draws (`GridFit.LineDip`, `CrispLine`), the target's own cells lit in the accent's
+  wash; in ten strengths of one path each, under the cards, redrawn only when the target moves to another cell,
+  fading in as the move starts (`LocalGrid.FadeInMs`, 120 ms) and out, slower, as it lands (`FadeOutMs`, 360 ms),
+  an opacity transition. Not while the block is going to another display ([S-78]). Tests `DesktopGridTests.S11874_`;
+  `--drag-png` draws it (`drag-move-*`).
+- **[S-11886]** **Fainter, wider, rectangular, slower out** (owner, 2026-11-15: "the light grid … should be less
+  visible"; "should fade out a little slower"; later the same day: "the fade out of the grid should be bigger, and it
+  should also not be round anymore"): the strongest line is `LocalGrid.PeakOpacity`, **0.2** (half the first 0.4).
+  A line's strength is `LocalGrid.Strength`: 1 on the target box, then smoothstep of the point's distance from the
+  box's edges taken per axis as the larger of the two, to 0 at `RadiusCells` (**6**, twice the first 3) cells, so
+  the fade keeps the box's rectangle and grows evenly outward (no ellipse); the neighbours' borders ([S-11881]) fade
+  by the same strength. Each line
+  is cut into `SegmentsPerCell` (4) stretches a cell, each at its middle's true strength, so the edge is smooth.
+  The fade-out takes `FadeOutMs` (360) against the fade-in's 120. Tests `DesktopGridTests.S11886_`.
+- **[S-11881]** **A locked move shows the borders** (owner, 2026-11-15: "when moving the widgets around in non edit
+  mode it should show the borders too"): while a block moves on the locked desktop the moving cards show their
+  corner marks (edit mode's look, [S-31b], on the surface's marker plates), and every other card near where it lands
+  shows its own at the local grid's strength where it comes nearest the target (`LocalGrid.Borders`: `Strength` at
+  the point of its box nearest the target's centre, 1 where it touches it; past the fade none), so the neighbours'
+  marks fade as the grid does (`WidgetCard.ShowMoveMarks`, `DesktopWindow.ShowMoveBorders`). Gone as the block
+  lands or the move becomes the shell's drag. A desktop icon draws them too ([S-11889]). Tests
+  `DesktopGridTests.S11881_`; `--drag-png` draws it (`drag-move-*`: the clock moving, a card touching it at full
+  strength, one below it fainter, one past the fade without marks).
+- **[S-11889]** **Desktop icons show the corners** (owner, 2026-11-15: "the desktop icons should also show the
+  corners"): an icon draws the same corner marks as a widget in every case a widget does, round its grid box (its
+  cell, [S-11875]) and over its highlight: selected on the locked desktop ([S-11877], in the accent), in edit mode
+  (selected and as a neighbour, [S-31b]), and in a locked move, moving and near where the block lands, fading with
+  the local grid ([S-11881]). One rule for every kind (`SelectionRules.MarksShown`: edit mode, selected, or a move's
+  strength; it takes no kind, so none is left out). Tests `DesktopGridTests.S11889_`; `--drag-png` draws it
+  (`drag-lasso-*`: the two selected icons with their corners; `drag-move-*`: an icon below the landing, fainter).
+- **[S-11878]** **When an icon's move leaves the desktop** (`DesktopDragOut.Starts`, Core): a move held by a desktop
+  icon becomes the shell's drag of the selection ([S-5549]: XAML's item drag, from the icon, with the press still
+  down) only when what it carries gives another target something (`DesktopCommands.Drag`'s files) and the pointer is
+  **off Themia's desktop** (past every surface's work area: the taskbar, a gap; or over an app's window on the
+  desktop: `WindowFromPoint`'s top-level window neither a surface nor the shell's `Progman`/`WorkerW`) or **over a
+  drop target on it** that is not the desktop itself (an icon that takes files, `IDesktopIconView.TakesDrops`: a
+  folder, a program, the Recycle Bin, an own icon waiting for its target; a widget that takes drops,
+  `IWidgetDropTarget`); the moving cards are looked through. Then the cards go back where they started, nothing is
+  stored (`DesktopWindow.CancelMove`), and the drag runs as [S-5549] says; let go back on empty desktop it moves the
+  block there ([S-5546]). Everywhere else on the desktop, other displays included, it stays the move. A card held
+  is never dragged out. Tests `DesktopGridTests.S11878_`.
 - **[S-2000]** Outside edit mode a **plain left click** on a widget (no Ctrl, Shift or Alt), one that
   none of the view's own buttons, rows, links, sliders or boxes took, **opens what the widget is
   about at once** (`CardGestures.Opens`): the press must reach the card unhandled and so must its
@@ -10046,7 +10996,7 @@ host's one list it reads through `IWidgetHost.RecentFiles` (`Themia.App/Services
 
 The widget is a module of its own (`src/Widgets/Themia.Widget.RecycleBin`, its SPEC.md). Here: the
 host's one answer and Empty it reads through `IWidgetHost.RecycleBin` (`Themia.App/Services/RecycleBinStatus.cs`,
-`HostRecycleBin.cs`; `RecycleBinState` in the SDK), which the Shortcuts badge shares.
+`HostRecycleBin.cs`; `RecycleBinState` in the SDK), which an own desktop icon on the bin shares ([S-9510]).
 
 - [S-4860], [S-4861], [S-4862]: moved with the Recycle Bin widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.RecycleBin/`).
 - **[S-4863]** Empty calls `SHEmptyRecycleBinW` without `SHERB_NOCONFIRMATION`, on its own STA
@@ -10054,7 +11004,7 @@ host's one answer and Empty it reads through `IWidgetHost.RecycleBin` (`Themia.A
   say. It is offered only when the bin has items and not twice at once; the answer is asked again
   when Windows returns, whatever the user chose. A click elsewhere on the tile opens the bin
   (`shell:RecycleBinFolder`). Debug: `--state sample`, `empty`.
-- [S-4864]: moved with the Shortcuts widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Shortcuts/`).
+- [S-4864]: the Recycle Bin item's Empty is now a line of the desktop's menu for an own icon on the bin ([S-5582]; the icon itself [S-9510], in the Desktop icon module's `SPEC.md`, `src/Widgets/Themia.Widget.DesktopItem/`).
 
 Needs a live pass: Empty with Windows' dialog (Yes and No), deleting a file from Explorer (the count
 following within 15 s).

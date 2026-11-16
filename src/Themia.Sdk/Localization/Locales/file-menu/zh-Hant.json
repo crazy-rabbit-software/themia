@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "選擇其他應用程式",
+  "folderMenu.compressToZip": "壓縮成 ZIP 檔案",
+  "folderMenu.copyAsPath": "複製路徑",
+  "folderMenu.openInNewWindow": "在新視窗中開啟",
+  "folderMenu.openWith": "開啟檔案",
+  "folderMenu.pinToQuickAccess": "釘選到快速存取",
+  "folderMenu.pinToStart": "釘選到 [開始]",
+  "folderMenu.share": "分享",
+  "folder.properties": "內容",
+  "widgetsB.folder.freeUpSpace": "釋放空間",
+  "widgetsB.folder.keepOnDevice": "一律保留在此裝置上",
+  "widgetsB.folder.moreOptions": "顯示其他選項",
+  "widgetsB.folder.new": "新增",
+  "ctxMenu.folder": "資料夾"
+}

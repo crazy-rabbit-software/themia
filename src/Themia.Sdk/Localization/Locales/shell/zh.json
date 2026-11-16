@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "删除 {count} 个小组件"
   },
-  "shell.card.doneEditing": "完成编辑",
-  "shell.card.editLayout": "编辑布局",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "设置",
   "shell.setup.hint": "设置此小组件所需的内容",
   "shell.toolbar.addWidget": "添加小组件",
-  "shell.toolbar.snapName": "对齐网格",
-  "shell.toolbar.collisionsName": "防止小组件重叠",
   "shell.editBar.selected": {
     "other": "已选择 {count} 个"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "文本大小",
   "shell.appearance.systemFont": "系统默认",
   "shell.appearance.sansFont": "无衬线",
-  "shell.layout.gap": "小组件间距",
   "shell.motion.slide": "滑动",
   "shell.motion.sides": "两侧",
   "shell.motion.topBottom": "上下",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "每分钟",
   "shell.refresh.everyHour": "每小时",
   "shell.color.custom": "自定义颜色",
-  "shell.color.pickCustom": "选择自定义颜色",
   "shell.color.pickFromScreen": "从屏幕取色",
   "shell.color.pickFailed": "无法读取屏幕上的颜色",
   "shell.icon.home": "家",

@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "የዴስክቶፕ ንጥል",
-  "desktopItem.desc": "ከዴስክቶፕዎ ፋይል፣ አቃፊ ወይም አቋራጭ"
+  "widgetsC.shortcuts.column.target": "ዒላማ",
+  "widgetsC.shortcuts.kind.location": "የWindows አካባቢ",
+  "widgetsC.shortcuts.kind.missing": "የጠፋ",
+  "widgetsC.shortcuts.kind.path": "ዱካ",
+  "widgetsC.shortcuts.kind.refused": "አልተፈቀደም",
+  "widgetsC.shortcuts.menu.addLayout": "የመተግበሪያ አቀማመጥ…",
+  "widgetsC.shortcuts.menu.addLink": "የድር አድራሻ ወይም ዱካ…",
+  "widgetsC.shortcuts.menu.changeTarget": "ዒላማውን ቀይር…",
+  "widgetsC.shortcuts.settings.locations": "የWindows አካባቢዎች",
+  "widgetsC.shortcuts.settings.openWith.double": "ሁለቴ ጠቅታ",
+  "widgetsC.shortcuts.settings.openWith.label": "በዚህ ክፈት",
+  "widgetsC.shortcuts.settings.openWith.single": "አንድ ጠቅታ",
+  "widgetsC.shortcuts.settings.pick.file": "ፋይል…",
+  "widgetsC.shortcuts.settings.pick.folder": "አቃፊ…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ዒላማው የለም)\n{target}"
 }

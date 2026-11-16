@@ -182,15 +182,16 @@ public sealed class CalendarRulesTests
     // ---- [S-568] ranges --------------------------------------------------------------------------
 
     [Fact]
-    public void S568_MonthCoversWholeWeeksAroundTheMonth()
+    public void S568_MonthCoversTheSixWeeksItDraws()
     {
+        // [S-11544] Six weeks always: the next month's days in them show their events too.
         var (first, last) = CalendarRules.ViewRange(CalendarStyle.Month, Today, Today, WeekStartDay.Monday);
         Assert.Equal(new DateOnly(2026, 9, 28), first);
-        Assert.Equal(new DateOnly(2026, 11, 1), last);
+        Assert.Equal(new DateOnly(2026, 11, 8), last);
 
         var (sFirst, sLast) = CalendarRules.ViewRange(CalendarStyle.Month, Today, Today, WeekStartDay.Sunday);
         Assert.Equal(new DateOnly(2026, 9, 27), sFirst);
-        Assert.Equal(new DateOnly(2026, 10, 31), sLast);
+        Assert.Equal(new DateOnly(2026, 11, 7), sLast);
 
         Assert.Equal(42, CalendarRules.MonthCells(Today, WeekStartDay.Monday).Count);
     }

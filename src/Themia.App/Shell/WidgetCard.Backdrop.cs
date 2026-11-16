@@ -120,5 +120,8 @@ internal sealed partial class WidgetCard
         _frostPicture.Height = metrics.Height;
         Canvas.SetLeft(_frostPicture, -((double.IsFinite(left) ? left : 0) + _surface.Margin.Left));
         Canvas.SetTop(_frostPicture, -((double.IsFinite(top) ? top : 0) + _surface.Margin.Top));
+
+        // [S-2123] Glass clears or clouds as what lies behind it changes.
+        TintGlass(PaintedFillNow());
     }
 }

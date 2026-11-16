@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-6713] The cells' grid (Shortcuts', a folder's grid and icons): columns, rows, the marks around them.</summary>
+/// <summary>[S-6713] The cells' grid (a folder's grid and icons): columns, rows, the marks around them.</summary>
 public sealed class FamilyCellGridTests
 {
     [Fact]

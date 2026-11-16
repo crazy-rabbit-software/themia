@@ -30,6 +30,7 @@ public sealed partial class DesktopLayerTests
         Assert.Empty(unplaced);
         Assert.Equal([Desk + "other.txt"], Keys(home));
         Assert.Equal([Desk + "photo.jpg"], Keys(work));
-        NearRect(new FracRect(0.5, 0.25, 0.1, 0.25), Assert.Single(work.Widgets).Rect);
+        // [S-11876] Centred on the point (its corner at 0.5, 0.175), on the widget grid's lines.
+        NearRect(new FracRect(0.5, 0.18, 0.1, 0.25), Assert.Single(work.Widgets).Rect);
     }
 }

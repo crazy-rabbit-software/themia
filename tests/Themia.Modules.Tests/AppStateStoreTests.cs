@@ -97,8 +97,7 @@ public sealed class AppStateStoreTests : IDisposable
         ((ClockConfig)widget.Config).ShowDate = false;
         state.Preferences.Region.Clock = ClockHours.Twelve;
         state.Preferences.Refresh["weather"] = 60;
-        state.Design.WidgetGapPx = 12;
-        state.Design.GridSnap = false;
+        state.Design.CornerRadiusPx = 12;
 
         var store = NewStore();
         store.SaveSoon(state);
@@ -116,8 +115,7 @@ public sealed class AppStateStoreTests : IDisposable
         Assert.False(config.ShowDate);
         Assert.Equal(ClockHours.Twelve, loaded.State.Preferences.Region.Clock);
         Assert.Equal(60, loaded.State.Preferences.Refresh["weather"]);
-        Assert.Equal(12, loaded.State.Design.WidgetGapPx);
-        Assert.False(loaded.State.Design.GridSnap);
+        Assert.Equal(12, loaded.State.Design.CornerRadiusPx);
     }
 
     [Fact]
@@ -138,13 +136,13 @@ public sealed class AppStateStoreTests : IDisposable
         for (var i = 1; i <= 20; i++)
         {
             var state = AppState.CreateDefault();
-            state.Design.WidgetGapPx = i;
+            state.Design.CornerRadiusPx = i;
             store.SaveSoon(state);
         }
 
         await store.FlushAsync();
 
-        Assert.Equal(20, NewStore().Load().State.Design.WidgetGapPx);
+        Assert.Equal(20, NewStore().Load().State.Design.CornerRadiusPx);
     }
 
     [Fact]
@@ -229,14 +227,12 @@ public sealed class AppStateStoreTests : IDisposable
     public void Validate_clamps_nonsense_design_values()
     {
         var state = AppState.CreateDefault();
-        state.Design.WidgetGapPx = double.NaN;
         state.Design.Background = FillChoice.Of("#202020", -4);
         state.Design.Background.Opacity = -4;
         state.Design.CornerRadiusPx = 9999;
 
         AppStateStore.Validate(state);
 
-        Assert.True(double.IsFinite(state.Design.WidgetGapPx));
         Assert.InRange(state.Design.Background.Opacity, 0, 1.0);
         Assert.InRange(state.Design.CornerRadiusPx, 0, 32);
     }

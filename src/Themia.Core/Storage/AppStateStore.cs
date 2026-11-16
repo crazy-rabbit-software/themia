@@ -318,7 +318,6 @@ public sealed class AppStateStore : IAsyncDisposable
         state.MonitorViews ??= [];
 
         var design = state.Design;
-        design.WidgetGapPx = Math.Clamp(Sanitise(design.WidgetGapPx, 0), 0, 64);
         design.CornerRadiusPx = Math.Clamp(Sanitise(design.CornerRadiusPx, DesignState.DefaultCornerRadiusPx), 0, 32);
         design.FontScale = Math.Clamp(Sanitise(design.FontScale, 1), 0.5, 2.0);
         design.BorderWidthPx = Math.Clamp(Sanitise(design.BorderWidthPx, 1), 0, 8);
@@ -354,6 +353,15 @@ public sealed class AppStateStore : IAsyncDisposable
         {
             design.BorderStyle = Model.WidgetBorderStyle.Solid;
         }
+
+        if (!Enum.IsDefined(design.Material))
+        {
+            design.Material = Model.CardMaterial.Solid;
+        }
+
+        // [S-2130] The look tokens: a missing set is a fresh one, silently; a value out of its range, loudly.
+        design.Tokens ??= new LookTokens();
+        repairs.AddRange(design.Tokens.Repair());
 
         if (!Enum.IsDefined(design.IntroAnimation))
         {
@@ -470,11 +478,19 @@ public sealed class AppStateStore : IAsyncDisposable
             repairs.Add("unknown language; following Windows");
         }
 
-        // [S-5500] An unknown choice leaves the desktop as Windows has it.
-        if (!Enum.IsDefined(state.Preferences.Desktop))
+        // [S-5593] A number that names no icon size (the names are read strictly) is Explorer's default.
+        if (!Enum.IsDefined(state.Preferences.DesktopIconSize))
         {
-            state.Preferences.Desktop = DesktopShows.WindowsIcons;
-            repairs.Add("unknown desktop choice; Windows' icons");
+            state.Preferences.DesktopIconSize = Themia.Sdk.DesktopIconSize.Medium;
+            repairs.Add("unknown desktop icon size; medium icons");
+        }
+
+        // [S-1575] The recent colours: what is no colour dropped, each once, one line at most.
+        var recent = Themia.Core.Settings.ColourPicker.Recent(state.Preferences.RecentColours);
+        if (state.Preferences.RecentColours is null || !recent.SequenceEqual(state.Preferences.RecentColours))
+        {
+            state.Preferences.RecentColours = [.. recent];
+            repairs.Add("recent colours that are no colours, repeated or too many; kept the newest valid ones");
         }
 
         // [S-3772] [S-3781] The shared formats and cadences: a hand-edited null is the defaults.
@@ -542,6 +558,14 @@ public sealed class AppStateStore : IAsyncDisposable
 
         repairs.AddRange(ValidateViewBars(state));
         repairs.AddRange(Desktop.DesktopReconcile.RepairKnown(state));
+
+        // [S-5596] A number that names no sort is the order new items are laid out in.
+        if (!Enum.IsDefined(state.Desktop.Sort))
+        {
+            state.Desktop.Sort = Desktop.DesktopSortBy.Name;
+            repairs.Add("unknown desktop sort; by name");
+        }
+
         repairs.AddRange(Desktop.DesktopDisplays.RepairFallbacks(state));
         return repairs;
     }

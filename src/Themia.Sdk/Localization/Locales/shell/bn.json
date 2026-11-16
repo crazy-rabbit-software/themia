@@ -125,8 +125,6 @@
     "one": "{count}টি উইজেট মুছুন",
     "other": "{count}টি উইজেট মুছুন"
   },
-  "shell.card.doneEditing": "সম্পাদনা শেষ",
-  "shell.card.editLayout": "লেআউট সম্পাদনা",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "সেট আপ",
   "shell.setup.hint": "এই উইজেটের যা প্রয়োজন তা সেট আপ করুন",
   "shell.toolbar.addWidget": "উইজেট যোগ করুন",
-  "shell.toolbar.snapName": "গ্রিডে স্ন্যাপ",
-  "shell.toolbar.collisionsName": "উইজেটগুলোকে একে অপরের উপর পড়তে দেবেন না",
   "shell.editBar.selected": {
     "one": "{count}টি নির্বাচিত",
     "other": "{count}টি নির্বাচিত"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "লেখার আকার",
   "shell.appearance.systemFont": "সিস্টেম ডিফল্ট",
   "shell.appearance.sansFont": "স্যান্স সেরিফ",
-  "shell.layout.gap": "উইজেটের মধ্যে ফাঁক",
   "shell.motion.slide": "স্লাইড",
   "shell.motion.sides": "দুই পাশ",
   "shell.motion.topBottom": "উপর ও নিচ",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "প্রতি মিনিটে",
   "shell.refresh.everyHour": "প্রতি ঘণ্টায়",
   "shell.color.custom": "কাস্টম রং",
-  "shell.color.pickCustom": "একটি কাস্টম রং বেছে নিন",
   "shell.color.pickFromScreen": "স্ক্রিন থেকে রং বেছে নিন",
   "shell.color.pickFailed": "স্ক্রিনের রং পড়া যায়নি",
   "shell.icon.home": "হোম",

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -21,7 +22,7 @@ internal sealed partial class WidgetCard
     /// <summary>The border's thickness and the card's radius the stroke was last drawn for.</summary>
     private (double Thickness, double Radius) _strokeLook;
 
-    /// <summary>[S-2241] The card's outline, physical: what the window's hit region traces ([S-2245]).</summary>
+    /// <summary>[S-2241] The card's outline: which of its corners are round and which a joined neighbour squares.</summary>
     public CardOutline Outline => _outline;
 
     /// <summary>[S-2244] A resize of this card is under way: it is free until dropped.</summary>
@@ -37,13 +38,15 @@ internal sealed partial class WidgetCard
     private CardOutline FlowOutline => FlowDirection == FlowDirection.RightToLeft ? _outline.Mirrored() : _outline;
 
     /// <summary>
-    /// [S-2240] [S-2244] The one path that joins the cards of a surface, the desktop's and a scene's:
-    /// each card's painted box (its live rect's cell inside the gap), none for a card that draws no
-    /// surface, is hidden, or is free (<paramref name="set"/> null: resized), then the rule. [S-2457]
-    /// Cards join only within their set: the dragged ones are a set of their own, so they stay joined
-    /// among themselves while they move.
+    /// [S-2240] [S-2244] [S-2249] The one path that joins the cards of a surface, the desktop's and a
+    /// scene's: each card's cell (its live rect on whole device pixels, which it paints whole), its set
+    /// (none for a card that takes no part in joins, <see cref="CardJoins.Joins"/>: no surface, a desktop
+    /// icon; hidden; or free: <paramref name="set"/> null, resized) and its group go to the rule
+    /// (<see cref="CardJoins.Paint"/>), which joins the members of one group that meet; each card takes its
+    /// outline. [S-2457] Cards join only within their set: the dragged ones are a set of their own, so they
+    /// stay joined among themselves while they move.
     /// </summary>
-    public static void Join(IReadOnlyList<WidgetCard> cards, ScreenMetrics metrics, double gapPx, double rasterScale, bool editMode, Func<WidgetCard, int?> set)
+    public static void Join(IReadOnlyList<WidgetCard> cards, ScreenMetrics metrics, double rasterScale, bool editMode, Func<WidgetCard, int?> set)
     {
         ArgumentNullException.ThrowIfNull(cards);
         ArgumentNullException.ThrowIfNull(set);
@@ -52,29 +55,42 @@ internal sealed partial class WidgetCard
             return;
         }
 
-        var boxes = new PixelRect?[cards.Count];
-        var sets = new int[cards.Count];
+        var cells = new PixelRect[cards.Count];
+        var sets = new int?[cards.Count];
         var groups = new string?[cards.Count];
         for (var i = 0; i < cards.Count; i++)
         {
             var card = cards[i];
             var inSet = set(card);
-            var joins = card.Visibility == Visibility.Visible && card.IsShown(editMode) && card.DrawsSurface && inSet is not null;
-            boxes[i] = joins ? GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics, rasterScale), gapPx) : null;
-            sets[i] = inSet ?? -1;
+            var joins = card.Visibility == Visibility.Visible && card.IsShown(editMode) && inSet is not null
+                && CardJoins.Joins(ModuleCatalog.Of(card.Model.Kind).Traits, card.DrawsSurface);
+            cells[i] = GridGeometry.ToPixels(card.LiveRect, metrics, rasterScale);
+            sets[i] = joins ? inSet : null;
             groups[i] = card.Model.Group;
         }
 
-        // [S-11870] Members of one group draw no line between them: the group reads as one sheet.
-        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(rasterScale), sets, groups);
+        var outlines = CardJoins.Paint(cells, sets, groups, rasterScale);
+
+        // [S-2123] Liquid glass: a group's members that meet are one glass shape.
+        var parts = CardJoins.Bodies(cells, sets, groups, rasterScale, LiquidGlass.Light.DividerInset);
         for (var i = 0; i < cards.Count; i++)
         {
-            cards[i].ApplyOutline(outlines[i]);
+            cards[i].Cell = cells[i];
+            cards[i].ApplyJoin(outlines[i]);
+            cards[i].ApplyGlassPart(parts[i]);
         }
     }
 
-    /// <summary>[S-2241] Take a new outline: the corners and the border follow at once; nothing else is redone.</summary>
-    private void ApplyOutline(CardOutline outline)
+    /// <summary>
+    /// [S-2453] The card's cell on its display as the last join drew it (its live rect on whole device pixels):
+    /// where its surface is painted and its own edit markers stand, and so what its group's frame is drawn round.
+    /// </summary>
+    public PixelRect Cell { get; private set; }
+
+    /// <summary>
+    /// [S-2241] Take a new outline: the corners and the border follow at once; nothing else is redone.
+    /// </summary>
+    private void ApplyJoin(CardOutline outline)
     {
         if (outline == _outline)
         {

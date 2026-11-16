@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "कोई अन्य ऐप चुनें",
+  "folderMenu.compressToZip": "ZIP फ़ाइल में संपीड़ित करें",
+  "folderMenu.copyAsPath": "पथ के रूप में कॉपी करें",
+  "folderMenu.openInNewWindow": "नई विंडो में खोलें",
+  "folderMenu.openWith": "इसके साथ खोलें",
+  "folderMenu.pinToQuickAccess": "त्वरित पहुँच पर पिन करें",
+  "folderMenu.pinToStart": "प्रारंभ पर पिन करें",
+  "folderMenu.share": "साझा करें",
+  "folder.properties": "गुण",
+  "widgetsB.folder.freeUpSpace": "स्थान खाली करें",
+  "widgetsB.folder.keepOnDevice": "हमेशा इस डिवाइस पर रखें",
+  "widgetsB.folder.moreOptions": "और विकल्प दिखाएँ",
+  "widgetsB.folder.new": "नया",
+  "ctxMenu.folder": "फ़ोल्डर"
+}

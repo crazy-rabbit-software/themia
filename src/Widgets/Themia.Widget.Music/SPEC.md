@@ -25,7 +25,7 @@ under the root's rules is the module host's `MusicHostTests`.
 - **[S-11311]** **The track atom** (`MusicFace`, `MusicView`): the track's title (BodyStrong,
   primary) over the artist and album in one Body line (secondary), each cut with its ellipsis, at the
   content's top; the transport (Previous, Play/Pause as the one main action in the accent, Next: 28
-  icon buttons, left to right in every language) 4 under them at the bottom inset. A disabled
+  icon buttons, left to right in every language) 4 under them at the bottom inset (a larger box keeps the face and its controls one block, centred, [S-12410]). A disabled
   transport button keeps its place, its glyph disabled. Nothing playing is the Status row at the top
   (the music glyph and why, [S-6714]). What it shows is fixed: no art, no progress, no styles. Its
   card (`MusicFace.Sizing`): the inset, the two lines, 4, the transport, the inset (96, a Small cover's

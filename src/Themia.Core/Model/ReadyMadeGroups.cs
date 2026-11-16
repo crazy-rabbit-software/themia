@@ -59,19 +59,23 @@ public static class ReadyMadeGroups
 {
     private const string Scope = "ready-made";
 
-    /// <summary>[S-2474] [S-11090] This PC: the four readings as a 2 × 2 grid, each over its history.</summary>
+    /// <summary>
+    /// [S-2474] [S-11090] This PC: the four readings in one column of one width, each over its history (owner,
+    /// 2026-11-15: "the this pc group should be one column not multiple"); the width is network's, whose two
+    /// readings stand on one line ([S-6264]).
+    /// </summary>
     public static ReadyMadeGroup ThisPc { get; } = new("thisPc", Str.Groups_Recipe_ThisPc, Str.Groups_Recipe_ThisPcAbout, Glyphs.Display, AddFolderId.System,
     [
-        new("cpu", new(0, 0, 180, 84)),
-        new("cpuHistory", new(0, 84, 180, 64)),
-        new("memory", new(180, 0, 180, 84)),
-        new("memoryHistory", new(180, 84, 180, 64)),
-        new("network", new(0, 148, 180, 128)),
-        new("networkHistory", new(0, 276, 180, 64)),
-        new("disk", new(180, 148, 180, 84)),
+        new("cpu", new(0, 0, 344, 84)),
+        new("cpuHistory", new(0, 84, 344, 64)),
+        new("memory", new(0, 148, 344, 84)),
+        new("memoryHistory", new(0, 232, 344, 64)),
         // The disk's own span is five minutes; in this group the four charts span one minute alike, so the
         // group's page reads one Chart span, not "Mixed" ([S-11751]).
-        new("diskHistory", new(180, 232, 180, 108), Config: """{ "graphSpanSeconds": 60 }"""),
+        new("disk", new(0, 296, 344, 84)),
+        new("diskHistory", new(0, 380, 344, 64), Config: """{ "graphSpanSeconds": 60 }"""),
+        new("network", new(0, 444, 344, 84)),
+        new("networkHistory", new(0, 528, 344, 64)),
     ]) { Starter = 2 };
 
     /// <summary>[S-2474] My day: the clock on top, the next meeting and the tasks under it.</summary>
@@ -93,21 +97,13 @@ public static class ReadyMadeGroups
     ]) { Starter = 3 };
 
     /// <summary>
-    /// [S-11209] My files: the Documents folder as a list on the left; beside it the shortcuts as a
-    /// grid of four (the Recycle Bin, This PC, Downloads, Documents) over the files opened last, four
-    /// rows. The three are as tall as one another's column, so they join into one panel.
+    /// [S-11209] My files: the Documents folder as a list on the left; beside it the files opened last,
+    /// six rows. The two are as tall as one another, so they join into one panel.
     /// </summary>
     public static ReadyMadeGroup MyFiles { get; } = new("myFiles", Str.Groups_Recipe_MyFiles, Str.Groups_Recipe_MyFilesAbout, Glyphs.Folder, AddFolderId.Files,
     [
-        new("folder", new(0, 0, 300, 308), Config: """{ "style": "list", "path": "%USERPROFILE%\\Documents" }"""),
-        new("shortcuts", new(300, 0, 316, 100), Config: """
-            { "style": "grid", "columns": 4, "items": [
-                { "id": "bin", "target": "shell:RecycleBinFolder" },
-                { "id": "pc", "target": "shell:MyComputerFolder" },
-                { "id": "downloads", "target": "shell:Downloads" },
-                { "id": "documents", "target": "shell:Personal" } ] }
-            """),
-        new("recentFiles", new(300, 100, 316, 208), Config: """{ "rows": 4 }"""),
+        new("folder", new(0, 0, 300, 288), Config: """{ "style": "list", "path": "%USERPROFILE%\\Documents" }"""),
+        new("recentFiles", new(300, 0, 316, 288), Config: """{ "rows": 6 }"""),
     ]) { Starter = 5 };
 
     // ---- [S-11090] The system readings' groups: each old card's look, made of its atoms ----------------
@@ -168,19 +164,19 @@ public static class ReadyMadeGroups
         new("diskHistory", new(0, 84, 160, 64)),
     ]);
 
-    /// <summary>[S-11090] Network: download over upload, over their history.</summary>
+    /// <summary>[S-11090] Network: download and upload on one line, over their history.</summary>
     public static ReadyMadeGroup Network { get; } = new("network", Str.Groups_Recipe_Network, Str.Groups_Recipe_NetworkAbout, Glyphs.Network, AddFolderId.NetworkReading,
     [
-        new("network", new(0, 0, 180, 128)),
-        new("networkHistory", new(0, 128, 180, 64)),
+        new("network", new(0, 0, 344, 84)),
+        new("networkHistory", new(0, 84, 344, 64)),
     ]);
 
     /// <summary>[S-11090] Network details: the reading over the connection's facts and its adapters.</summary>
     public static ReadyMadeGroup NetworkDetails { get; } = new("networkDetails", Str.Groups_Recipe_NetworkDetails, Str.Groups_Recipe_NetworkDetailsAbout, Glyphs.Network, AddFolderId.NetworkReading,
     [
-        new("network", new(0, 0, 300, 128)),
-        new("networkFacts", new(0, 128, 300, 136), Header: HeaderPlacement.Hidden),
-        new("networkAdapters", new(0, 264, 300, 104), Header: HeaderPlacement.Hidden, Config: """{ "rows": 2 }"""),
+        new("network", new(0, 0, 344, 84)),
+        new("networkFacts", new(0, 84, 344, 136), Header: HeaderPlacement.Hidden),
+        new("networkAdapters", new(0, 220, 344, 104), Header: HeaderPlacement.Hidden, Config: """{ "rows": 2 }"""),
     ]);
 
     /// <summary>[S-11090] Ping: the latency over its history.</summary>
@@ -286,19 +282,19 @@ public static class ReadyMadeGroups
     /// <summary>[S-11342] Quick settings: Wi-Fi, Bluetooth, Do not disturb and Night light in a row.</summary>
     public static ReadyMadeGroup QuickSettings { get; } = new("quickSettings", Str.Groups_Recipe_QuickSettings, Str.Groups_Recipe_QuickSettingsAbout, Glyphs.Settings, AddFolderId.QuickSettings,
     [
-        new("wifiToggle", new(0, 0, 128, 128)),
-        new("bluetoothToggle", new(128, 0, 128, 128)),
-        new("doNotDisturbToggle", new(256, 0, 128, 128)),
-        new("nightLightToggle", new(384, 0, 128, 128)),
+        new("wifiToggle", new(0, 0, 116, 116)),
+        new("bluetoothToggle", new(116, 0, 116, 116)),
+        new("doNotDisturbToggle", new(232, 0, 116, 116)),
+        new("nightLightToggle", new(348, 0, 116, 116)),
     ]);
 
     /// <summary>[S-11343] Power: Lock, Sleep, Restart and Shut down in a row.</summary>
     public static ReadyMadeGroup Power { get; } = new("power", Str.Groups_Recipe_Power, Str.Groups_Recipe_PowerAbout, Glyphs.Power, AddFolderId.PowerButtons,
     [
-        new("lock", new(0, 0, 120, 120)),
-        new("sleep", new(120, 0, 120, 120)),
-        new("restart", new(240, 0, 120, 120)),
-        new("shutdown", new(360, 0, 120, 120)),
+        new("lock", new(0, 0, 100, 100)),
+        new("sleep", new(100, 0, 100, 100)),
+        new("restart", new(200, 0, 100, 100)),
+        new("shutdown", new(300, 0, 100, 100)),
     ]);
 
     /// <summary>[S-11409] The meeting block over the meetings after it: what the Next meeting card was.</summary>
@@ -339,6 +335,29 @@ public static class ReadyMadeGroups
     /// <summary>[S-2471] A recipe box on <paramref name="screen"/>, its group's corner at (<paramref name="xPx"/>, <paramref name="yPx"/>) DIPs.</summary>
     public static FracRect Rect(ReadyMadeBox box, ScreenMetrics screen, double xPx = 0, double yPx = 0)
         => FracRect.FromPixels((xPx + box.X) / screen.Width, (yPx + box.Y) / screen.Height, box.Width, box.Height, screen);
+
+    /// <summary>
+    /// [S-11809] The recipe's boxes on <paramref name="screen"/> (its corner at the origin) as the
+    /// desktop places and paints them with <paramref name="sizes"/>: one block (<see cref="GridFit.Layout"/>)
+    /// in which each box asks for its card's DIPs at the content scale, held to its kind's
+    /// sizing there (on the grid in whole cells), every edge the recipe shares still shared.
+    /// </summary>
+    public static IReadOnlyList<FracRect> Laid(ReadyMadeGroup recipe, ScreenMetrics screen, PlacementSizes sizes)
+    {
+        ArgumentNullException.ThrowIfNull(recipe);
+        var boxes = recipe.Widgets.Select(w => Rect(w.Box, screen)).ToList();
+        if (!screen.IsUsable)
+        {
+            return boxes;
+        }
+
+        var scale = double.IsFinite(sizes.Scale) && sizes.Scale > 0 ? sizes.Scale : 1;
+        IReadOnlyList<SizeLimits?> limits = Build(recipe, screen) is var (widgets, _)
+            ? [.. widgets.Select(w => SizeFit.Limits(w, screen, scale))]
+            : [.. boxes.Select(_ => (SizeLimits?)null)];
+        var asked = recipe.Widgets.Select(w => (w.Box.Width * scale / screen.Width, w.Box.Height * scale / screen.Height)).ToList();
+        return GridFit.Layout(boxes, limits, screen, asked);
+    }
 
     /// <summary>
     /// [S-2471] The widgets of <paramref name="recipe"/> on <paramref name="screen"/>, its corner at

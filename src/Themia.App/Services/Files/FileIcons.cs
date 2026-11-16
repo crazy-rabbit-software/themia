@@ -50,6 +50,22 @@ internal static partial class FileIcons
     }
 
     /// <summary>
+    /// [S-5559] The icon of a kind of file named without a file (<see cref="TypeIconName"/>: a folder, an
+    /// extension) at <paramref name="pixels"/>, shared by every line that shows the type; null for a name
+    /// that is none of these or a type the shell has no icon for.
+    /// </summary>
+    public static Task<ImageSource?> TypeIconAsync(string name, int pixels)
+    {
+        if (TypeIconName.Parse(name) is not { } type)
+        {
+            return Task.FromResult<ImageSource?>(null);
+        }
+
+        var key = string.Concat(pixels.ToString(System.Globalization.CultureInfo.InvariantCulture), "|", name);
+        return Shared.GetAsync(key, () => AppIcons.LoadTypeAsync(type.Folder ? "folder" : type.Extension, type.Folder, pixels));
+    }
+
+    /// <summary>
     /// A thumbnail for an image file, or null for one that has none, is not an image, or is a cloud
     /// placeholder (reading its pixels would download it).
     /// </summary>

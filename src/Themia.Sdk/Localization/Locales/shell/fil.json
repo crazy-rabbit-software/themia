@@ -125,8 +125,6 @@
     "one": "Burahin ang {count} widget",
     "other": "Burahin ang {count} widget"
   },
-  "shell.card.doneEditing": "Tapos nang mag-edit",
-  "shell.card.editLayout": "I-edit ang layout",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "I-set up",
   "shell.setup.hint": "I-set up ang kailangan ng widget na ito",
   "shell.toolbar.addWidget": "Magdagdag ng widget",
-  "shell.toolbar.snapName": "I-snap sa grid",
-  "shell.toolbar.collisionsName": "Pigilan ang pagpapatong ng mga widget",
   "shell.editBar.selected": {
     "one": "{count} napili",
     "other": "{count} napili"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Laki ng text",
   "shell.appearance.systemFont": "Default ng system",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Puwang sa pagitan ng mga widget",
   "shell.motion.slide": "Pagdausdos",
   "shell.motion.sides": "Mga gilid",
   "shell.motion.topBottom": "Itaas at ibaba",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Kada minuto",
   "shell.refresh.everyHour": "Kada oras",
   "shell.color.custom": "Custom na kulay",
-  "shell.color.pickCustom": "Pumili ng custom na kulay",
   "shell.color.pickFromScreen": "Pumili ng kulay mula sa screen",
   "shell.color.pickFailed": "Hindi mabasa ang mga kulay sa screen",
   "shell.icon.home": "Bahay",

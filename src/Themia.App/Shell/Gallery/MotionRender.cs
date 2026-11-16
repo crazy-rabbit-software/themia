@@ -36,7 +36,6 @@ internal static class MotionRender
     private const double ScreenWidth = 960;
     private const double ScreenHeight = 540;
     private const double IntroMs = 500;
-    private const double Gap = 8;
 
     private static readonly (WidgetId Kind, FracRect Rect)[] Scene =
     [
@@ -122,7 +121,6 @@ internal static class MotionRender
                         Height = rect.H * ScreenHeight,
                     };
 
-                    card.ApplyGap(Gap);
                     Canvas.SetLeft(card, rect.X * ScreenWidth);
                     Canvas.SetTop(card, rect.Y * ScreenHeight);
                     layer.Children.Add(card);
@@ -164,7 +162,7 @@ internal static class MotionRender
                 // Hacker: the real tiles, through the real hook, before any has started to fade.
                 for (var i = 0; i < cards.Count; i++)
                 {
-                    var tile = HackerTile.Build(i, cards[i].Width - Gap, cards[i].Height - Gap, 8);
+                    var tile = HackerTile.Build(i, cards[i].Width, cards[i].Height, 8);
                     cards[i].SetMotionCover(tile.Tile);
                 }
 

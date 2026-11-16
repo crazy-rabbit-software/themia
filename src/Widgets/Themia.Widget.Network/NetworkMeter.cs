@@ -9,7 +9,7 @@ using Themia.Widget.Network;
 
 namespace Themia.App.Widgets.Meters;
 
-/// <summary>[S-1190] [S-1191] Throughput across the active adapters, the reading alone: download over upload, both at 28.</summary>
+/// <summary>[S-1190] [S-1191] Throughput across the active adapters, the reading alone: download and upload on one line, both at 28.</summary>
 internal sealed class NetworkMeter : MeterPart
 {
     /// <summary>[S-11912] At a moment pointed at on a history of its subject, the reading shows its value then.</summary>
@@ -29,6 +29,6 @@ internal sealed class NetworkMeter : MeterPart
     /// <summary>"1023 KB/s", the sizing's widest rate too.</summary>
     internal static ReadoutText Worst => ReadoutRules.Split(Formatting.Rate(1023 * 1024));
 
-    /// <summary>[S-6264] Download over upload, each led by its arrow.</summary>
+    /// <summary>[S-6264] Download and upload on one line, each led by its arrow.</summary>
     public override MeterLook Look(WidgetConfig config) => MeterLook.Numbers;
 }

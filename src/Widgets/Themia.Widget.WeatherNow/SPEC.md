@@ -33,8 +33,8 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
   **Standard** (the sky's glyph leading the temperature at its step, start-aligned), **Large icon**
   ([S-6161]) and **Minimal** ([S-6162]), in that order. Nothing is offered under Style.
 - **[S-6161]** **Large icon**: the sky's glyph at 48 beside the temperature, the condition under the
-  temperature, the pair at the content's top, centred unless the widget is aligned elsewhere ([S-6582]).
-- **[S-6162]** **Minimal**: the temperature and its unit alone on 28, at the content's top, centred
+  temperature, the pair in the content's middle ([S-12401]), centred unless the widget is aligned elsewhere ([S-6582]).
+- **[S-6162]** **Minimal**: the temperature and its unit alone on 28, in the content's middle ([S-12401]), centred
   unless aligned elsewhere; no glyph, no condition.
 - **[S-6174]** Its options are all on the properties menu ([S-3719]); it has no settings page. Style
   and Appearance ([S-3723]), then behind a divider **Location**, the weather family's search ([S-3722],
@@ -44,6 +44,9 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
 - **[S-2035]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
   in the UI language's market and the unit shown ([S-2006], `WeatherNowModule.Opens`); nothing while
   it has no place (it shows Set up then).
+- **[S-12401]** **The reading fills the content** ([S-12400]): it is the content's one item, so a box
+  taller than its style's height (whole grid cells) puts the room above and under it alike, never a band
+  under it; across, it stands where its alignment says ([S-6583]).
 
 Needs a live pass: the widget against the real service, offline with a restored shelf, the first-run
 desktop's bare large-icon reading.

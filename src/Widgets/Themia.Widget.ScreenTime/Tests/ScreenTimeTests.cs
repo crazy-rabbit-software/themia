@@ -20,8 +20,9 @@ public sealed class ScreenTimeTests
         var sizing = Kind.Sizing(new ScreenTimeConfig());
         var height = FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;
         Assert.Equal(new SizeDip(200, height), sizing.Natural);
-        Assert.Equal((160, 320), (sizing.Min.Width, sizing.Max.Width));
-        Assert.True(sizing.FixedHeight);
+        Assert.Equal((160, 400), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: 200 x 2
+        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        Assert.Equal(SizeStretch.Axis(height, 0, null, 2), sizing.Max.Height);
         Assert.Empty(sizing.Problems());
         Assert.Null(Kind.SizeSets);
         Assert.False(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));

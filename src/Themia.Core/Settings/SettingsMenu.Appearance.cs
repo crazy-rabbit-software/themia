@@ -28,9 +28,101 @@ public static partial class SettingsMenu
             ThemeAndColours(host, at + "/theme"),
             Items(host, at + "/items"),
             Cards(host, at + "/cards"),
+            Material(host, at + "/material"),
+            EdgeAndLift(host, at + "/edge"),
             TextAndSize(host, at + "/text"),
+            Surfaces(host, at + "/surfaces"),
+            Layout(host, at + "/layout"),
         ]);
     }
+
+    // ---- [S-2141] the look tokens ----
+
+    /// <summary>[S-2141] A number token's slider: its range and step are the token's (<see cref="LookTokens.Numbers"/>), one write each.</summary>
+    private static SettingsSlider TokenSlider(ISettingsMenuHost host, string key, string token, Str text, string glyph, Func<double, string> format)
+    {
+        var number = LookTokens.Number(token) ?? throw new ArgumentOutOfRangeException(nameof(token), token, "not a look token");
+        var tokens = host.State.Design.Tokens ?? new LookTokens();
+        return new SettingsSlider(key + "/" + token, text.Text(), glyph, number.Clamp(number.Get(tokens)), number.Min, number.Max, number.Step, format,
+            v => host.Mutate(s => number.Set(s.Design.Tokens ??= new LookTokens(), number.Clamp(v))));
+    }
+
+    /// <summary>[S-2141] An enum token's choice, one write each.</summary>
+    private static SettingsChoice TokenChoice<T>(ISettingsMenuHost host, string key, Str text, string glyph, IReadOnlyList<(T Value, Str Text)> options, Func<LookTokens, T> get, Action<LookTokens, T> set)
+        where T : struct, Enum
+        => Choice(host, key, text.Text(), glyph, [.. options.Select(o => (o.Value, o.Text.Text()))], get(host.State.Design.Tokens ?? new LookTokens()),
+            (s, v) => set(s.Design.Tokens ??= new LookTokens(), v));
+
+    /// <summary>The weights a type token may take, lightest first.</summary>
+    private static IReadOnlyList<(TypeWeight, Str)> Weights { get; } =
+    [
+        (TypeWeight.Light, Str.SettingsPages_Look_WeightLight), (TypeWeight.Semilight, Str.SettingsPages_Look_WeightSemilight),
+        (TypeWeight.Regular, Str.SettingsPages_Look_WeightRegular), (TypeWeight.Medium, Str.SettingsPages_Look_WeightMedium),
+        (TypeWeight.Semibold, Str.SettingsPages_Look_WeightSemibold), (TypeWeight.Bold, Str.SettingsPages_Look_WeightBold),
+    ];
+
+    /// <summary>
+    /// [S-2141] Material: the rendering mode, the frost under every translucent card (blur, saturation, brightness), the
+    /// accent in the card and the grain; the glass's own (its tint per theme, its glow and lens) in an expander.
+    /// </summary>
+    private static SettingsSubmenu Material(ISettingsMenuHost host, string key)
+    {
+        var glass = key + "/glass";
+        return new SettingsSubmenu(key, Str.SettingsPages_Look_Material.Text(), Glyphs.Surface,
+        [
+            TokenChoice(host, key + "/rendering", Str.SettingsPages_Look_Rendering, Glyphs.Palette,
+                [(RenderingMode.FullColour, Str.SettingsPages_Look_FullColour), (RenderingMode.Tinted, Str.SettingsPages_Look_Tinted), (RenderingMode.Monochrome, Str.SettingsPages_Look_Monochrome)],
+                t => t.Rendering, (t, v) => t.Rendering = v),
+            TokenSlider(host, key, "frostBlur", Str.SettingsPages_Look_FrostBlur, Glyphs.Photo, v => Unit(v, "px")),
+            TokenSlider(host, key, "frostSaturation", Str.SettingsPages_Look_FrostSaturation, Glyphs.Palette, Percent),
+            TokenSlider(host, key, "frostBrightness", Str.SettingsPages_Look_FrostBrightness, Glyphs.Brightness, Percent),
+            TokenSlider(host, key, "accentTint", Str.SettingsPages_Look_AccentTint, Glyphs.Theme, Percent),
+            TokenSlider(host, key, "grain", Str.SettingsPages_Look_Grain, Glyphs.Opacity, Percent),
+            new SettingsSubmenu(glass, Str.SettingsPages_Look_Glass.Text(), Glyphs.Surface,
+            [
+                TokenSlider(host, glass, "glassTintLightMin", Str.SettingsPages_Look_GlassTintLightMin, Glyphs.Sun, Percent),
+                TokenSlider(host, glass, "glassTintLightMax", Str.SettingsPages_Look_GlassTintLightMax, Glyphs.Sun, Percent),
+                TokenSlider(host, glass, "glassTintDarkMin", Str.SettingsPages_Look_GlassTintDarkMin, Glyphs.Moon, Percent),
+                TokenSlider(host, glass, "glassTintDarkMax", Str.SettingsPages_Look_GlassTintDarkMax, Glyphs.Moon, Percent),
+                TokenSlider(host, glass, "glowStrength", Str.SettingsPages_Look_Glow, Glyphs.Brightness, Percent),
+                TokenSlider(host, glass, "lensStrength", Str.SettingsPages_Look_Lens, Glyphs.Opacity, Percent),
+            ]),
+        ]);
+    }
+
+    /// <summary>[S-2141] Edge and lift: the glass's rim (its width and light) and its lift (how far, how low, how dark).</summary>
+    private static SettingsSubmenu EdgeAndLift(ISettingsMenuHost host, string key)
+        => new(key, Str.SettingsPages_Look_EdgeAndLift.Text(), Glyphs.Fit,
+        [
+            TokenSlider(host, key, "rimWidth", Str.SettingsPages_Look_RimWidth, Glyphs.Fit, v => Unit(v, "px")),
+            TokenSlider(host, key, "rimStrength", Str.SettingsPages_Look_RimStrength, Glyphs.Brightness, Percent),
+            TokenSlider(host, key, "shadowRadius", Str.SettingsPages_Look_ShadowRadius, Glyphs.Opacity, v => Unit(v, "px")),
+            TokenSlider(host, key, "shadowOffset", Str.SettingsPages_Look_ShadowOffset, Glyphs.MoveDown, v => Unit(v, "px")),
+            TokenSlider(host, key, "shadowStrength", Str.SettingsPages_Look_ShadowStrength, Glyphs.Opacity, Percent),
+        ]);
+
+    /// <summary>[S-2141] Surfaces: the items' fills (Windows' or vibrant) and a vibrant fill's opacity at rest, lit, selected and as a track.</summary>
+    private static SettingsSubmenu Surfaces(ISettingsMenuHost host, string key)
+        => new(key, Str.SettingsPages_Look_Surfaces.Text(), Glyphs.Surface,
+        [
+            TokenChoice(host, key + "/innerSurface", Str.SettingsPages_Look_InnerSurface, Glyphs.Surface,
+                [(InnerSurface.Theme, Str.SettingsPages_Look_SurfaceWindows), (InnerSurface.Vibrant, Str.SettingsPages_Look_SurfaceVibrant)],
+                t => t.InnerSurface, (t, v) => t.InnerSurface = v),
+            TokenSlider(host, key, "innerFill", Str.SettingsPages_Look_InnerFill, Glyphs.Opacity, Percent),
+            TokenSlider(host, key, "innerHover", Str.SettingsPages_Look_InnerHover, Glyphs.Opacity, Percent),
+            TokenSlider(host, key, "innerSelected", Str.SettingsPages_Look_InnerSelected, Glyphs.Opacity, Percent),
+            TokenSlider(host, key, "trackOpacity", Str.SettingsPages_Look_Track, Glyphs.Gauge, Percent),
+        ]);
+
+    /// <summary>[S-2141] Layout: the list rows' dividers and a divider's strength (a glass group's too).</summary>
+    private static SettingsSubmenu Layout(ISettingsMenuHost host, string key)
+        => new(key, Str.SettingsPages_Look_Layout.Text(), Glyphs.ListLayout,
+        [
+            TokenChoice(host, key + "/rowDividers", Str.SettingsPages_Look_RowDividers, Glyphs.ListLayout,
+                [(RowDivider.None, Str.Settings_Style_None), (RowDivider.Hairline, Str.SettingsPages_Look_DividerHairline), (RowDivider.Inset, Str.SettingsPages_Look_DividerInset)],
+                t => t.RowDividers, (t, v) => t.RowDividers = v),
+            TokenSlider(host, key, "dividerOpacity", Str.SettingsPages_Look_DividerOpacity, Glyphs.Opacity, Percent),
+        ]);
 
     /// <summary>
     /// [S-834] [S-3527] Style: the presets, and Custom (greyed, the dot on it) while the design matches
@@ -144,10 +236,12 @@ public static partial class SettingsMenu
 
         return new SettingsSubmenu(key, Str.Shell_Appearance_Cards.Text(), Glyphs.Grid,
         [
+            // [S-2123] What the cards are made of: solid, or Liquid glass (a style sets it too).
+            Choice(host, key + "/material", Str.SettingsPages_Appearance_Material.Text(), Glyphs.Surface,
+                [(CardMaterial.Solid, Str.SettingsPages_Appearance_Solid.Text()), (CardMaterial.LiquidGlass, Str.Settings_Style_Preset_Name_LiquidGlass.Text())],
+                design.Material, (s, v) => s.Design.Material = v),
             new SettingsSlider(key + "/radius", Str.Settings_Style_CornerRadius_Label.Text(), Glyphs.Surface, design.CornerRadiusPx, 0, 32, 1, v => Unit(v, "px"),
                 v => host.Mutate(s => s.Design.CornerRadiusPx = v)),
-            new SettingsSlider(key + "/gap", Str.Shell_Layout_Gap.Text(), Glyphs.ColumnsLayout, design.WidgetGapPx, 0, 48, 2, v => Unit(v, "px"),
-                v => host.Mutate(s => s.Design.WidgetGapPx = v)),
             new SettingsSeparator(key + "/-border"),
             border,
             new SettingsSlider(key + "/borderWidth", Str.Settings_Style_BorderWidth_Label.Text(), Glyphs.Fit, design.BorderWidthPx, 0, 8, 1, v => Unit(v, "px"),
@@ -159,16 +253,42 @@ public static partial class SettingsMenu
         ]) { Value = border.Value };
     }
 
-    /// <summary>[S-3830] Text and size: the font ([S-3528]) and the text size, the user's accessibility choice.</summary>
+    /// <summary>
+    /// [S-3830] Text and size: the font ([S-3528]) and the text size, the user's accessibility choice; [S-2141] the type
+    /// tokens (the vibrancy of the text levels, the weight per role, the tracking, tabular figures, the header's tone and
+    /// case) and each level's own opacity in an expander.
+    /// </summary>
     private static SettingsSubmenu TextAndSize(ISettingsMenuHost host, string key)
     {
         var design = host.State.Design;
+        var levels = key + "/levels";
         return new SettingsSubmenu(key, Str.Shell_Appearance_TextAndSize.Text(), Glyphs.Font,
         [
             new SettingsFont(key + "/font", Str.Settings_Font_FamilyLabel.Text(), Glyphs.Font, design.FontFamily,
                 v => host.Mutate(s => s.Design.FontFamily = v)),
             new SettingsSlider(key + "/size", Str.Shell_Appearance_TextSize.Text(), Glyphs.TextSize, design.FontScale, FamilyType.MinTextScale, FamilyType.MaxTextScale, 0.05, Percent,
                 v => host.Mutate(s => s.Design.FontScale = v)),
+            TokenSlider(host, key, "vibrancy", Str.SettingsPages_Look_Vibrancy, Glyphs.Opacity, Percent),
+            TokenChoice(host, key + "/headerWeight", Str.SettingsPages_Look_HeaderWeight, Glyphs.Bold, Weights, t => t.HeaderWeight, (t, v) => t.HeaderWeight = v),
+            TokenChoice(host, key + "/readoutWeight", Str.SettingsPages_Look_ReadoutWeight, Glyphs.Bold, Weights, t => t.ReadoutWeight, (t, v) => t.ReadoutWeight = v),
+            TokenChoice(host, key + "/bodyWeight", Str.SettingsPages_Look_BodyWeight, Glyphs.Bold, Weights, t => t.BodyWeight, (t, v) => t.BodyWeight = v),
+            TokenSlider(host, key, "trackingLarge", Str.SettingsPages_Look_TrackingLarge, Glyphs.Fit, v => Unit(v, "‰")),
+            TokenSlider(host, key, "trackingSmall", Str.SettingsPages_Look_TrackingSmall, Glyphs.Fit, v => Unit(v, "‰")),
+            new SettingsToggle(key + "/tabularNumerals", Str.SettingsPages_Look_Tabular.Text(), Glyphs.Count, (design.Tokens ?? new LookTokens()).TabularNumerals,
+                v => host.Mutate(s => (s.Design.Tokens ??= new LookTokens()).TabularNumerals = v)),
+            TokenChoice(host, key + "/headerTone", Str.SettingsPages_Look_HeaderTone, Glyphs.Font,
+                [(HeaderTone.Secondary, Str.SettingsPages_Look_ToneQuiet), (HeaderTone.Primary, Str.SettingsPages_Look_ToneStrong)],
+                t => t.HeaderTone, (t, v) => t.HeaderTone = v),
+            TokenChoice(host, key + "/headerCase", Str.SettingsPages_Look_HeaderCase, Glyphs.Font,
+                [(HeaderCase.AsWritten, Str.SettingsPages_Look_CaseAsWritten), (HeaderCase.Upper, Str.SettingsPages_Look_CaseUpper)],
+                t => t.HeaderCase, (t, v) => t.HeaderCase = v),
+            new SettingsSubmenu(levels, Str.SettingsPages_Look_TextLevels.Text(), Glyphs.FontColour,
+            [
+                TokenSlider(host, levels, "labelPrimary", Str.SettingsPages_Look_LabelPrimary, Glyphs.FontColour, Percent),
+                TokenSlider(host, levels, "labelSecondary", Str.SettingsPages_Look_LabelSecondary, Glyphs.FontColour, Percent),
+                TokenSlider(host, levels, "labelTertiary", Str.SettingsPages_Look_LabelTertiary, Glyphs.FontColour, Percent),
+                TokenSlider(host, levels, "labelQuaternary", Str.SettingsPages_Look_LabelQuaternary, Glyphs.FontColour, Percent),
+            ]),
         ]);
     }
 

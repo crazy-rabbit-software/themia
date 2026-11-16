@@ -47,7 +47,7 @@ internal sealed partial class AddPageView : Grid
     private readonly AddPictures? _pictures;
 
     private readonly TextBox _search;
-    private readonly StackPanel _tabs = new() { Orientation = Orientation.Horizontal, Spacing = ShellMetrics.Bar.EntryGap };
+    private readonly StackPanel _tabs = new() { Orientation = Orientation.Horizontal, Spacing = P.TabGap };
     private readonly ScrollViewer _tabScroll;
     private readonly StackPanel _sections = new();
     private readonly ScrollViewer _body;
@@ -96,7 +96,7 @@ internal sealed partial class AddPageView : Grid
 
         var top = new Grid
         {
-            Height = A.TabHeight,
+            Height = P.Tabs,
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = GridLength.Auto },
@@ -121,7 +121,7 @@ internal sealed partial class AddPageView : Grid
 
         foreach (var tab in page.Tabs)
         {
-            _tabs.Children.Add(new TabButton(tab, () => ShowTab(tab.Id)));
+            _tabs.Children.Add(new PageTabButton(tab.Id.ToString(), tab.Title.Text(), () => ShowTab(tab.Id)));
         }
 
         PreviewKeyDown += OnKey;
@@ -161,7 +161,7 @@ internal sealed partial class AddPageView : Grid
             Draw();
         }
 
-        if (_tabs.Children.OfType<TabButton>().FirstOrDefault(t => t.Id == tab) is { } chosen)
+        if (_tabs.Children.OfType<PageTabButton>().FirstOrDefault(t => t.Key == tab.ToString()) is { } chosen)
         {
             chosen.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
         }
@@ -171,7 +171,7 @@ internal sealed partial class AddPageView : Grid
     public double ContentHeight(double width)
     {
         _sections.Measure(new Size(Math.Max(0, width - Padding.Left - Padding.Right), double.PositiveInfinity));
-        return Padding.Top + A.TabHeight + _body.Margin.Top + _sections.DesiredSize.Height;
+        return Padding.Top + P.Tabs + _body.Margin.Top + _sections.DesiredSize.Height;
     }
 
     /// <summary>[S-11701] [S-11706] Draw the tab's sections, or the search's, or the status row saying nothing matched.</summary>
@@ -181,9 +181,9 @@ internal sealed partial class AddPageView : Grid
         var searching = AddPage.Searching(query);
         IReadOnlyList<AddSection> sections = searching ? _page.Find(query) : _page.Sections(_tab);
 
-        foreach (var tab in _tabs.Children.OfType<TabButton>())
+        foreach (var tab in _tabs.Children.OfType<PageTabButton>())
         {
-            tab.Chosen = !searching && tab.Id == _tab;
+            tab.Chosen = !searching && tab.Key == _tab.ToString();
         }
 
         _sections.Children.Clear();
@@ -482,7 +482,7 @@ internal sealed partial class AddPageView : Grid
                 CornerRadius = new CornerRadius(P.CardRadius),
                 Tag = tile.Key,
             };
-            Subtle(_button);
+            PageTabButton.Subtle(_button);
             _button.Click += (_, _) => pick();
 
             var said = overLimit ? $"{name}, {caption}. {Str.AddMenu_OverLimit.Format(("count", LocaleFormat.Integer(LicenseRules.FreeWidgetLimit)))}" : $"{name}, {caption}";
@@ -527,7 +527,7 @@ internal sealed partial class AddPageView : Grid
         /// <summary>A tile's glyph, its name and its caption line.</summary>
         private static (string Glyph, string Name, string Caption) Words(AddTile tile) => tile switch
         {
-            AddWidgetTile one => (ModuleCatalog.Of(one.Kind).Glyph, ModuleCatalog.Of(one.Kind).Name, ModuleCatalog.Of(one.Kind).Describe()),
+            AddWidgetTile one => (ModuleCatalog.Of(one.Kind).Glyph, ModuleCatalog.Of(one.Kind).TileName, ModuleCatalog.Of(one.Kind).Describe()),
             AddGroupTile group => (group.Group.Glyph, group.Group.Name.Text(), Str.Groups_Add_Count.Plural(group.Group.Widgets.Count)),
             AddItemTile item => (ItemGlyph(item.Item.Kind), item.Item.Name, Str.Desktop_Add_Folder.Text()),
             _ => (Glyphs.Apps, string.Empty, string.Empty),
@@ -541,79 +541,5 @@ internal sealed partial class AddPageView : Grid
             DesktopItemKind.ShellItem => Glyphs.Display,
             _ => Glyphs.File,
         };
-    }
-
-    /// <summary>
-    /// [S-11700] A tab of the strip, as WinUI's SelectorBar draws its items (Karpo's §592): 40 tall, no
-    /// fill until pointed at, its words in Body and secondary; the chosen one's in BodyStrong and primary
-    /// over the accent's 16 × 3 pill.
-    /// </summary>
-    private sealed partial class TabButton : Button
-    {
-        private readonly TextBlock _words;
-        private readonly Rectangle _pill = new()
-        {
-            Width = ShellMetrics.Bar.PillWidth,
-            Height = ShellMetrics.Bar.PillHeight,
-            RadiusX = ShellMetrics.Bar.PillRadius,
-            RadiusY = ShellMetrics.Bar.PillRadius,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Fill = Family.Brush(ColourRole.Accent),
-            IsHitTestVisible = false,
-        };
-
-        public TabButton(AddTab tab, Action choose)
-        {
-            Id = tab.Id;
-            _words = Fluent.Text(FamilyType.Body);
-            _words.Text = tab.Title.Text();
-            _words.VerticalAlignment = VerticalAlignment.Center;
-            _words.HorizontalAlignment = HorizontalAlignment.Center;
-            Content = new Grid { Children = { _words, _pill } };
-            Height = A.TabHeight;
-            Padding = new Thickness(A.TabPad, 0, A.TabPad, 0);
-            VerticalContentAlignment = VerticalAlignment.Stretch;
-            Tag = "tab:" + tab.Id;
-            Subtle(this);
-            AutomationProperties.SetName(this, _words.Text);
-            Click += (_, _) => choose();
-            Chosen = false;
-        }
-
-        public AddFolderId Id { get; }
-
-        public bool Chosen
-        {
-            get => _pill.Visibility == Visibility.Visible;
-            set
-            {
-                _pill.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
-                _words.FontWeight = value ? Microsoft.UI.Text.FontWeights.SemiBold : Microsoft.UI.Text.FontWeights.Normal;
-                _words.Foreground = ThemeBrush.Of(value ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
-                AutomationProperties.SetItemStatus(this, value ? "selected" : string.Empty);
-            }
-        }
-    }
-
-    /// <summary>No fill and no rim at rest, the subtle fills under the pointer and pressed.</summary>
-    private static void Subtle(Button button)
-    {
-        button.MinWidth = 0;
-        button.MinHeight = 0;
-        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-        button.Resources["ButtonBackground"] = clear;
-        button.Resources["ButtonBackgroundPointerOver"] = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
-        button.Resources["ButtonBackgroundPressed"] = ThemeBrush.Of("SubtleFillColorTertiaryBrush", Colors.DimGray);
-        button.Resources["ButtonBackgroundDisabled"] = clear;
-        var rim = "Button" + nameof(Control.BorderBrush);
-        button.Resources[rim] = clear;
-        button.Resources[rim + "PointerOver"] = clear;
-        button.Resources[rim + "Pressed"] = clear;
-        button.Resources[rim + "Disabled"] = clear;
-        var text = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-        button.Resources["ButtonForeground"] = text;
-        button.Resources["ButtonForegroundPointerOver"] = text;
-        button.Resources["ButtonForegroundPressed"] = text;
     }
 }

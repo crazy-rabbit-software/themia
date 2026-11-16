@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Elemento del desktop",
-  "desktopItem.desc": "Un file, una cartella o un collegamento dal desktop"
+  "widgetsC.shortcuts.column.target": "Destinazione",
+  "widgetsC.shortcuts.kind.location": "Posizione Windows",
+  "widgetsC.shortcuts.kind.missing": "Mancante",
+  "widgetsC.shortcuts.kind.path": "Percorso",
+  "widgetsC.shortcuts.kind.refused": "Non consentito",
+  "widgetsC.shortcuts.menu.addLayout": "Layout di app…",
+  "widgetsC.shortcuts.menu.addLink": "Indirizzo web o percorso…",
+  "widgetsC.shortcuts.menu.changeTarget": "Cambia destinazione…",
+  "widgetsC.shortcuts.settings.locations": "Percorsi di Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Doppio clic",
+  "widgetsC.shortcuts.settings.openWith.label": "Apri con",
+  "widgetsC.shortcuts.settings.openWith.single": "Clic singolo",
+  "widgetsC.shortcuts.settings.pick.file": "File…",
+  "widgetsC.shortcuts.settings.pick.folder": "Cartella…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (destinazione mancante)\n{target}"
 }

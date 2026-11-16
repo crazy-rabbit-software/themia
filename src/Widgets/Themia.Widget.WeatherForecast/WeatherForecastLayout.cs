@@ -60,6 +60,20 @@ public static class WeatherForecastLayout
         return new ForecastRowsPlan(config.EffectiveDays, config.EffectiveLines, Math.Min(MeterMax, Math.Floor(width * MeterShare)), false);
     }
 
+    /// <summary>
+    /// [S-12403] The range bar's length in a row: what the row leaves once its lead, its widest day name
+    /// (with two lines, the widest second line too) and its widest value are in, 12 either side, so the
+    /// bars fill the rows to the values and every day's bar starts and ends in the same place; never
+    /// shorter than the plan's share (<paramref name="floor"/>), where a long second line takes the room.
+    /// </summary>
+    /// <param name="inner">The row's width inside its side insets (<see cref="ContentWidth"/>).</param>
+    /// <param name="lead">The lead and its gap (0 without a lead).</param>
+    public static double MeterWidth(double inner, double lead, double widestName, double widestValue, double floor)
+    {
+        var left = inner - lead - Math.Ceiling(widestName) - Math.Ceiling(widestValue) - (2 * FamilySpace.ColumnGap);
+        return Math.Max(Math.Max(0, floor), Math.Floor(left));
+    }
+
     /// <summary>[S-726] The columns for the box's width: the config's days sharing it, every part drawn.</summary>
     public static ForecastColumnsPlan Columns(WidgetArea area, WeatherForecastConfig config)
     {

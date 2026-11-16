@@ -203,6 +203,9 @@ internal static unsafe class ShellSignals
         return false;
     }
 
+    /// <summary>[S-11878] Whether <paramref name="hwnd"/> is one of the shell's desktop windows (<c>Progman</c>, a <c>WorkerW</c>): the desktop, not an app on it.</summary>
+    internal static bool IsDesktopLayer(nint hwnd) => IsClass(hwnd, DesktopLayerClasses);
+
     private static bool IsClass(nint hwnd, string[] classes)
     {
         if (hwnd == 0)

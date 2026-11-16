@@ -12,6 +12,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Brightness;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -84,6 +85,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        NaturalBlock.Hold(this, config);
 
         // [S-1251] A debug render reads and sets nothing.
         if (_surface is not { IsPreview: true })
@@ -108,6 +110,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         _config = config as BrightnessConfig ?? new BrightnessConfig();
         Lay();
     }

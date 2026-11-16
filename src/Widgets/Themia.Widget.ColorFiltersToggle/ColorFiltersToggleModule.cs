@@ -29,13 +29,10 @@ public sealed class ColorFiltersToggleModule : IWidgetModule
         Label = ColorFiltersToggleStr.Toggles_ColorFilters_Label.Local(),
         Description = ColorFiltersToggleStr.Toggles_ColorFilters_Desc.Local(),
         Glyph = Glyphs.ColorFilters,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 1),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

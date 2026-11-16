@@ -16,7 +16,9 @@ namespace Themia.App.Shell.Gallery;
 /// off-screen ([S-1026]) and writes <c>drop-check.txt</c>: the drop target on every window of a WinUI
 /// window (the content bridge and input site included), a shell data object read back as a drag, a
 /// forwarded hover and drop into a scratch folder under <c>outDir</c> (the copy must arrive), the
-/// drag-image helper and the caption. No input is sent and nothing outside <c>outDir</c> is touched.
+/// drag-image helper and the caption, and what a drag of our own offers ([S-5549]: its marker, its
+/// files as storage items handed out when asked, read by the surface from its offer). No input is sent,
+/// so no drag is started, and nothing outside <c>outDir</c> is touched.
 /// </summary>
 internal static partial class DropCheck
 {
@@ -127,6 +129,12 @@ internal static partial class DropCheck
         DragDropInterop.SetDescription(data.Pointer, DropFeedback.Refused);
         lines.Add("caption set and cleared");
 
+        DragDropInterop.SetDescription(data.Pointer, DropFeedback.Plain(DropEffect.Move));
+        DragDropInterop.SetDescription(data.Pointer, DropFeedback.Refused);
+        lines.Add("plain caption set and cleared");
+
+        await OwnDrag(file, source, destination, data.Pointer, lines).ConfigureAwait(true);
+
         lines.Add($"forwarded hover into dst (forced copy): {drag.ForwardOver(destination, DropEffect.Copy)}");
         lines.Add($"forwarded hover into src (forced copy, folder switched): {drag.ForwardOver(source, DropEffect.Copy)}");
 
@@ -146,6 +154,36 @@ internal static partial class DropCheck
         }
 
         lines.Add($"copy arrived: {File.Exists(arrived)}; source kept: {File.Exists(file)}");
+    }
+
+    /// <summary>
+    /// [S-5549] [S-5586] A drag of our own, short of starting it: what its package offers (the marker
+    /// always, the files as storage items only when asked: the provider must hand them out), a drag with
+    /// no file (a shell item alone), and the surface's reading of it from the offer, with the shell's own
+    /// data object forwarded to a folder's target.
+    /// </summary>
+    private static async Task OwnDrag(string file, string source, string destination, nint oleData, List<string> lines)
+    {
+        var offer = new ItemDragOffer([file, source, "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"], DropEffect.Copy | DropEffect.Move | DropEffect.Link);
+        var package = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        Themia.Sdk.WinUI.ItemDrag.Offer(package, offer);
+        var view = package.GetView();
+        lines.Add($"own drag: marker {view.Contains(Themia.Sdk.WinUI.ItemDrag.Marker)}; storage items offered {view.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.StorageItems)}; operation {view.RequestedOperation}");
+        var items = await view.GetStorageItemsAsync();
+        lines.Add($"own drag: storage items when asked: {string.Join(" | ", items.Select(item => $"{(item.IsOfType(Windows.Storage.StorageItemTypes.Folder) ? "folder" : "file")} {item.Path}"))}");
+
+        var bare = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        Themia.Sdk.WinUI.ItemDrag.Offer(bare, new ItemDragOffer(["::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"], DropEffect.Move));
+        var bareView = bare.GetView();
+        lines.Add($"own drag with no file: marker {bareView.Contains(Themia.Sdk.WinUI.ItemDrag.Marker)}; storage items offered {bareView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.StorageItems)}; formats {string.Join(", ", bareView.AvailableFormats)}");
+
+        // The surface's side: read from the offer (the OLE object stands in for the source's), forwarded as the shell's own.
+        using var own = new Themia.App.Widgets.WidgetDrag(oleData, SurfaceDrops.KeyLeftButton, -31900, -31900, offer.Effects, new ItemDragOffer([source], offer.Effects));
+        lines.Add($"own drag on the surface: content {own.Content}; paths: {string.Join(" | ", own.Paths)}; shell items read: {own.ReadShellItems().Count}");
+        lines.Add($"own drag forwarded hover into dst (forced copy): {own.ForwardOver(destination, DropEffect.Copy)}");
+
+        using var nothing = new Themia.App.Widgets.WidgetDrag(oleData, SurfaceDrops.KeyLeftButton, -31900, -31900, DropEffect.Move, new ItemDragOffer([], DropEffect.Move));
+        lines.Add($"own drag with no file on the surface: content {nothing.Content}; forwarded hover: {nothing.ForwardOver(destination, DropEffect.None)}");
     }
 
     private static unsafe void Walk(nint hwnd, int depth, List<string> lines)

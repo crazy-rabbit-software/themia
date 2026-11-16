@@ -9,6 +9,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Stopwatch;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -94,6 +95,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         var next = config as StopwatchConfig ?? new StopwatchConfig();
 
         // Only another config is read again: the one held is this view's own writing.

@@ -11,14 +11,6 @@ public sealed partial class DesktopLayerTests
 {
     private const string Desk = @"C:\Users\a\Desktop\";
 
-    /// <summary>An item widget's config as Core sees it: no module needed.</summary>
-    private sealed class ItemConfig : WidgetConfig, IDesktopItemConfig
-    {
-        public string Item { get; set; } = string.Empty;
-
-        public override WidgetConfig Clone() => new ItemConfig { Item = Item };
-    }
-
     private sealed class OtherConfig : WidgetConfig
     {
         public override WidgetConfig Clone() => new OtherConfig();
@@ -28,7 +20,10 @@ public sealed partial class DesktopLayerTests
 
     private static DesktopItem File(string name) => new(Desk + name, name, DesktopItemKind.File);
 
-    private static WidgetInstance Widget(string key, FracRect rect) => new() { Id = Guid.NewGuid().ToString("n"), Config = new ItemConfig { Item = key }, Rect = rect };
+    private static WidgetInstance Widget(string key, FracRect rect) => new() { Id = Guid.NewGuid().ToString("n"), Config = new DeskIconFake { Item = key }, Rect = rect };
+
+    /// <summary>An own icon's widget: no key, what it opens held by itself.</summary>
+    private static WidgetInstance OwnIcon(string target, FracRect rect) => new() { Id = Guid.NewGuid().ToString("n"), Config = new DeskIconFake { Target = target }, Rect = rect };
 
     private static WidgetInstance Create(DesktopItem item, FracRect rect) => Widget(item.Key, rect);
 
@@ -54,10 +49,12 @@ public sealed partial class DesktopLayerTests
         Assert.Equal([Desk + "a.txt", Desk + "b.txt"], Keys(home));
         Assert.Empty(work.Widgets);
 
-        // Down the first column from the top-left: a.txt in the first cell, b.txt under it.
-        Assert.Equal(new FracRect(0, 0, 0.09, 0.125), home.Widgets[0].Rect);
-        Assert.Equal(0.125, home.Widgets[1].Y, 6);
-        Assert.Equal(0, home.Widgets[1].X, 6);
+        // [S-11876] In reading order from the top-left on the widget grid, one cell in ([S-11888]): a.txt first, b.txt beside it.
+        Assert.Equal(0.01, home.Widgets[0].Rect.X, 9);
+        Assert.Equal(0.0125, home.Widgets[0].Rect.Y, 9);
+        Assert.Equal((0.09, 0.125), (home.Widgets[0].Rect.W, home.Widgets[0].Rect.H));
+        Assert.Equal(0.0125, home.Widgets[1].Y, 6);
+        Assert.Equal(0.10, home.Widgets[1].X, 6);
         Assert.Equal([Desk + "a.txt", Desk + "b.txt"], state.Desktop.Known.Order());
 
         // Read again: nothing new, nothing to do.
@@ -139,23 +136,9 @@ public sealed partial class DesktopLayerTests
         Assert.Single(DesktopReconcile.Plan(state, [File("a.txt")], []).Arrivals);
     }
 
-    [Fact]
-    public void S5521_the_next_free_cell_skips_any_widget_and_a_full_area_has_none()
-    {
-        var cell = new FracRect(0, 0, 0.25, 0.5);
-        var area = new FracRect(0, 0, 1, 1);
 
-        Assert.Equal(new FracRect(0, 0, 0.25, 0.5), DesktopGrid.NextFree([], cell, area));
 
-        // A clock over the top-left cell: the cell under it, then the next column.
-        Assert.Equal(new FracRect(0, 0.5, 0.25, 0.5), DesktopGrid.NextFree([new FracRect(0.1, 0.1, 0.3, 0.2)], cell, area));
-        Assert.Equal(new FracRect(0.25, 0, 0.25, 0.5), DesktopGrid.NextFree([new FracRect(0, 0, 0.2, 1)], cell, area));
 
-        // Touching edges do not overlap.
-        Assert.Equal(new FracRect(0, 0.5, 0.25, 0.5), DesktopGrid.NextFree([new FracRect(0, 0, 0.25, 0.5)], cell, area));
-
-        Assert.Null(DesktopGrid.NextFree([new FracRect(0, 0, 1, 1)], cell, area));
-    }
 
     [Fact]
     public void S5521_a_full_view_leaves_the_new_item_unplaced_but_known()
@@ -172,14 +155,84 @@ public sealed partial class DesktopLayerTests
     }
 
     [Fact]
-    public void S5506_item_widgets_have_cards_only_while_themias_items_show()
+    public void S5520_an_own_icon_is_never_gone_renamed_or_rewritten_by_the_reconcile()
     {
-        var item = Widget(Desk + "a.txt", new FracRect(0, 0, 0.1, 0.1));
-        var other = new WidgetInstance { Id = "clock", Config = new OtherConfig() };
-        WidgetInstance[] widgets = [item, other];
+        var state = TwoViews(out var home, out var work);
+        var own = OwnIcon(Desk + "gone.txt", new FracRect(0.5, 0.5, 0.1, 0.1));
+        var waiting = OwnIcon(string.Empty, new FracRect(0.7, 0.5, 0.1, 0.1));
+        var layout = OwnIcon(string.Empty, new FracRect(0.3, 0.5, 0.1, 0.1));
+        ((DeskIconFake)layout.Config).Layout = LayoutNode.NewPane();
+        home.Widgets.AddRange([own, waiting, Widget(Desk + "gone.txt", new FracRect(0, 0, 0.1, 0.1))]);
+        work.Widgets.AddRange([layout, Widget(Desk + "old.txt", new FracRect(0, 0, 0.1, 0.1))]);
+        state.Desktop.Known = [Desk + "gone.txt", Desk + "old.txt"];
 
-        Assert.Equal([item, other], DesktopReconcile.Shown(widgets, showsItems: true));
-        Assert.Equal([other], DesktopReconcile.Shown(widgets, showsItems: false));
+        // The listing lost gone.txt (an own icon points at that very path) and old.txt was renamed.
+        var plan = DesktopReconcile.Plan(state, [File("new.txt")], [(Desk + "old.txt", Desk + "new.txt")]);
+
+        Assert.Single(plan.Gone);
+        Assert.DoesNotContain(own.Id, plan.Gone);
+        Assert.DoesNotContain(waiting.Id, plan.Gone);
+        Assert.DoesNotContain(layout.Id, plan.Gone);
+
+        DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+
+        Assert.Equal([own, waiting], home.Widgets);
+        Assert.Equal(2, work.Widgets.Count);
+        Assert.Same(layout, work.Widgets[0]);
+        Assert.Equal([Desk + "new.txt"], Keys(work).Where(key => key.Length > 0));
+        foreach (var icon in new[] { own, waiting, layout })
+        {
+            Assert.Equal(string.Empty, ((DeskIconFake)icon.Config).Item);
+        }
+
+        Assert.Equal(Desk + "gone.txt", ((DeskIconFake)own.Config).Target);
+        Assert.Equal(new FracRect(0.5, 0.5, 0.1, 0.1), own.Rect);
+        Assert.Equal([Desk + "new.txt"], state.Desktop.Known);
+    }
+
+    [Fact]
+    public void S5520_a_rename_from_an_own_icons_target_path_touches_no_own_icon()
+    {
+        var state = TwoViews(out var home, out _);
+        var own = OwnIcon(Desk + "old.txt", new FracRect(0.5, 0.5, 0.1, 0.1));
+        home.Widgets.Add(own);
+
+        // Nothing known and no item widget holds old.txt: the rename touches nothing, and the listed file arrives.
+        var plan = DesktopReconcile.Plan(state, [File("new.txt")], [(Desk + "old.txt", Desk + "new.txt")]);
+
+        Assert.Empty(plan.Renames);
+        Assert.Empty(plan.Gone);
+        Assert.Equal([Desk + "new.txt"], plan.Arrivals.Select(i => i.Key));
+
+        DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+
+        Assert.Equal(Desk + "old.txt", ((DeskIconFake)own.Config).Target);
+        Assert.Equal(string.Empty, ((DeskIconFake)own.Config).Item);
+        Assert.Equal(2, home.Widgets.Count);
+    }
+
+    [Fact]
+    public void S5520_only_own_icons_and_an_empty_listing_is_nothing_to_do()
+    {
+        var state = TwoViews(out var home, out _);
+        home.Widgets.Add(OwnIcon(@"C:\Tools\app.exe", new FracRect(0, 0, 0.1, 0.1)));
+        home.Widgets.Add(OwnIcon(string.Empty, new FracRect(0.2, 0, 0.1, 0.1)));
+
+        var plan = DesktopReconcile.Plan(state, [], []);
+
+        Assert.False(plan.Changes(state));
+        Assert.Empty(plan.Gone);
+    }
+
+    [Fact]
+    public void S5523_unplaced_ignores_own_icons_even_one_whose_target_is_a_listed_item()
+    {
+        var view = ViewState.Create("v");
+        view.Widgets.Add(OwnIcon(Desk + "a.txt", new FracRect(0, 0, 0.1, 0.1)));
+        view.Widgets.Add(OwnIcon(string.Empty, new FracRect(0.2, 0, 0.1, 0.1)));
+        view.Widgets.Add(Widget(Desk + "placed.txt", new FracRect(0.4, 0, 0.1, 0.1)));
+
+        Assert.Equal(["a.txt"], DesktopReconcile.Unplaced(view, [File("a.txt"), File("placed.txt")]).Select(i => i.Name));
     }
 
     [Fact]

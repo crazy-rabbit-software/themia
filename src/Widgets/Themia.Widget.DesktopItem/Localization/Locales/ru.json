@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Элемент рабочего стола",
-  "desktopItem.desc": "Файл, папка или ярлык с рабочего стола"
+  "widgetsC.shortcuts.column.target": "Объект",
+  "widgetsC.shortcuts.kind.location": "Расположение Windows",
+  "widgetsC.shortcuts.kind.missing": "Не найден",
+  "widgetsC.shortcuts.kind.path": "Путь",
+  "widgetsC.shortcuts.kind.refused": "Не разрешено",
+  "widgetsC.shortcuts.menu.addLayout": "Макет приложений…",
+  "widgetsC.shortcuts.menu.addLink": "Веб-адрес или путь…",
+  "widgetsC.shortcuts.menu.changeTarget": "Изменить объект…",
+  "widgetsC.shortcuts.settings.locations": "Расположения Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Двойным щелчком",
+  "widgetsC.shortcuts.settings.openWith.label": "Открывать",
+  "widgetsC.shortcuts.settings.openWith.single": "Одним щелчком",
+  "widgetsC.shortcuts.settings.pick.file": "Файл…",
+  "widgetsC.shortcuts.settings.pick.folder": "Папка…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (объект не найден)\n{target}"
 }

@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "桌面项目",
-  "desktopItem.desc": "桌面上的文件、文件夹或快捷方式"
+  "widgetsC.shortcuts.column.target": "目标",
+  "widgetsC.shortcuts.kind.location": "Windows 位置",
+  "widgetsC.shortcuts.kind.missing": "缺失",
+  "widgetsC.shortcuts.kind.path": "路径",
+  "widgetsC.shortcuts.kind.refused": "不允许",
+  "widgetsC.shortcuts.menu.addLayout": "应用布局…",
+  "widgetsC.shortcuts.menu.addLink": "网址或路径…",
+  "widgetsC.shortcuts.menu.changeTarget": "更改目标…",
+  "widgetsC.shortcuts.settings.locations": "Windows 位置",
+  "widgetsC.shortcuts.settings.openWith.double": "双击",
+  "widgetsC.shortcuts.settings.openWith.label": "打开方式",
+  "widgetsC.shortcuts.settings.openWith.single": "单击",
+  "widgetsC.shortcuts.settings.pick.file": "文件…",
+  "widgetsC.shortcuts.settings.pick.folder": "文件夹…",
+  "widgetsC.shortcuts.tooltip.missing": "{name}（目标缺失）\n{target}"
 }

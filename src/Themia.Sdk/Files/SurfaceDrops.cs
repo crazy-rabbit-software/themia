@@ -7,7 +7,7 @@ namespace Themia.Core.Files;
 /// <summary>What a drag over the desktop surface is over.</summary>
 public enum SurfaceHit
 {
-    /// <summary>Bare surface: only hit-testable while editing ([S-851]); otherwise that spot is Explorer's desktop.</summary>
+    /// <summary>Bare surface: the desktop itself, in edit mode and outside it ([S-851], [S-1021]).</summary>
     Empty,
 
     /// <summary>The surface's own controls: the edit toolbar, the view bar, a notice, the placement hint.</summary>
@@ -49,13 +49,19 @@ public enum DropImage
 /// the drag image — <paramref name="Message"/> with <c>%1</c> standing for <paramref name="Insert"/>,
 /// drawn in the accent, as Explorer's "Move to <b>Documents</b>".
 /// </summary>
-public readonly record struct DropFeedback(DropEffect Effect, string Message, string Insert)
+public readonly record struct DropFeedback(DropEffect Effect, string Message, string Insert, bool Bare = false)
 {
     /// <summary>Refused: no effect, no caption.</summary>
     public static DropFeedback Refused => new(DropEffect.None, string.Empty, string.Empty);
 
+    /// <summary>
+    /// [S-5546] Taken, with nothing said: no caption and no copy, move or link mark beside the drag
+    /// image. The desktop's own icons moving on the desktop, which is no file operation.
+    /// </summary>
+    public static DropFeedback Plain(DropEffect effect) => new(effect, string.Empty, string.Empty, Bare: true);
+
     /// <summary>The caption the shell draws for this feedback.</summary>
-    public DropImage Image => Effect switch
+    public DropImage Image => Bare ? DropImage.NoImage : Effect switch
     {
         DropEffect.Move => DropImage.Move,
         DropEffect.Copy => DropImage.Copy,
@@ -98,11 +104,11 @@ public static class SurfaceDrops
 
     /// <summary>
     /// [S-1020] Who takes a drop. A widget takes it only outside edit mode and only when its view
-    /// accepts drops at all (Folder, Shortcuts); over any other widget, or over the surface's own
+    /// accepts drops at all (Folder, Shortcut); over any other widget, or over the surface's own
     /// controls, a drag is refused rather than passed to whatever lies behind — the user is pointing
     /// at the widget, and a file landing on the Desktop behind a clock would be a surprise. Bare
-    /// surface (reachable only while editing) is the desktop, so it goes where the desktop would put it:
-    /// the Desktop folder. A drag that carries nothing droppable is refused everywhere.
+    /// surface is the desktop, in edit mode and outside it ([S-1021]), so it goes where the desktop
+    /// would put it: the Desktop folder. A drag that carries nothing droppable is refused everywhere.
     /// </summary>
     public static DropRoute Route(SurfaceHit hit, bool editMode, bool widgetTakesDrops, DropContent content)
     {

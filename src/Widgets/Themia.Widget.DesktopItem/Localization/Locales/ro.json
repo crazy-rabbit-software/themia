@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Element de pe desktop",
-  "desktopItem.desc": "Un fișier, un folder sau o comandă rapidă de pe desktop"
+  "widgetsC.shortcuts.column.target": "Țintă",
+  "widgetsC.shortcuts.kind.location": "Locație Windows",
+  "widgetsC.shortcuts.kind.missing": "Lipsă",
+  "widgetsC.shortcuts.kind.path": "Cale",
+  "widgetsC.shortcuts.kind.refused": "Nepermis",
+  "widgetsC.shortcuts.menu.addLayout": "Aspect aplicații…",
+  "widgetsC.shortcuts.menu.addLink": "Adresă web sau cale…",
+  "widgetsC.shortcuts.menu.changeTarget": "Schimbă ținta…",
+  "widgetsC.shortcuts.settings.locations": "Locații Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Dublu clic",
+  "widgetsC.shortcuts.settings.openWith.label": "Deschide cu",
+  "widgetsC.shortcuts.settings.openWith.single": "Un singur clic",
+  "widgetsC.shortcuts.settings.pick.file": "Fișier…",
+  "widgetsC.shortcuts.settings.pick.folder": "Folder…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ținta lipsește)\n{target}"
 }

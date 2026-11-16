@@ -125,8 +125,6 @@
     "one": "Goge widget {count}",
     "other": "Goge widget {count}"
   },
-  "shell.card.doneEditing": "An gama gyara",
-  "shell.card.editLayout": "Gyara tsari",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Saita",
   "shell.setup.hint": "Saita abin da wannan widget ke bukata",
   "shell.toolbar.addWidget": "Ƙara widget",
-  "shell.toolbar.snapName": "Manne wa grid",
-  "shell.toolbar.collisionsName": "Hana widget su hau kan juna",
   "shell.editBar.selected": {
     "one": "An zaɓi {count}",
     "other": "An zaɓi {count}"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Girman rubutu",
   "shell.appearance.systemFont": "Asalin tsarin aiki",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Tazara tsakanin widget",
   "shell.motion.slide": "Zamewa",
   "shell.motion.sides": "Gefe",
   "shell.motion.topBottom": "Sama da ƙasa",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Kowane minti",
   "shell.refresh.everyHour": "Kowace awa",
   "shell.color.custom": "Launi na musamman",
-  "shell.color.pickCustom": "Zaɓi launi na musamman",
   "shell.color.pickFromScreen": "Zaɓi launi daga allo",
   "shell.color.pickFailed": "Ba a iya karanta launukan allo ba",
   "shell.icon.home": "Gida",

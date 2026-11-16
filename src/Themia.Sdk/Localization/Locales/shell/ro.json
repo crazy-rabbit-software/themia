@@ -128,8 +128,6 @@
     "few": "Șterge {count} widgeturi",
     "other": "Șterge {count} de widgeturi"
   },
-  "shell.card.doneEditing": "Gata cu editarea",
-  "shell.card.editLayout": "Editează aspectul",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -143,8 +141,6 @@
   "shell.setup.button": "Configurează",
   "shell.setup.hint": "Configurează ce are nevoie acest widget",
   "shell.toolbar.addWidget": "Adaugă widget",
-  "shell.toolbar.snapName": "Aliniază la grilă",
-  "shell.toolbar.collisionsName": "Împiedică suprapunerea widgeturilor",
   "shell.editBar.selected": {
     "one": "{count} selectat",
     "few": "{count} selectate",
@@ -199,7 +195,6 @@
   "shell.appearance.textSize": "Mărimea textului",
   "shell.appearance.systemFont": "Implicit sistem",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Spațiu între widgeturi",
   "shell.motion.slide": "Glisare",
   "shell.motion.sides": "Laterale",
   "shell.motion.topBottom": "Sus și jos",
@@ -302,7 +297,6 @@
   "shell.refresh.everyMinute": "La fiecare minut",
   "shell.refresh.everyHour": "La fiecare oră",
   "shell.color.custom": "Culoare personalizată",
-  "shell.color.pickCustom": "Alege o culoare personalizată",
   "shell.color.pickFromScreen": "Alege o culoare de pe ecran",
   "shell.color.pickFailed": "Culorile de pe ecran nu au putut fi citite",
   "shell.icon.home": "Acasă",

@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "عنصر سطح المكتب",
-  "desktopItem.desc": "ملف أو مجلد أو اختصار من سطح المكتب"
+  "widgetsC.shortcuts.column.target": "الهدف",
+  "widgetsC.shortcuts.kind.location": "موقع Windows",
+  "widgetsC.shortcuts.kind.missing": "مفقود",
+  "widgetsC.shortcuts.kind.path": "مسار",
+  "widgetsC.shortcuts.kind.refused": "غير مسموح",
+  "widgetsC.shortcuts.menu.addLayout": "تخطيط التطبيقات…",
+  "widgetsC.shortcuts.menu.addLink": "عنوان ويب أو مسار…",
+  "widgetsC.shortcuts.menu.changeTarget": "تغيير الهدف…",
+  "widgetsC.shortcuts.settings.locations": "مواقع Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "نقرة مزدوجة",
+  "widgetsC.shortcuts.settings.openWith.label": "الفتح بـ",
+  "widgetsC.shortcuts.settings.openWith.single": "نقرة واحدة",
+  "widgetsC.shortcuts.settings.pick.file": "ملف…",
+  "widgetsC.shortcuts.settings.pick.folder": "مجلد…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (الهدف مفقود)\n{target}"
 }

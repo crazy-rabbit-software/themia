@@ -15,7 +15,7 @@ namespace Themia.Core.Desktop;
 public sealed record DesktopLandingHint(string ViewId, double? X, double? Y, IReadOnlyList<string> Names, bool Renames = false);
 
 /// <summary>
-/// [S-5591] Where one arrival lands: the view, and the point its cell is looked for from (null: the next
+/// [S-5591] Where one arrival lands: the view, and the point its cell is looked for from (null: the first
 /// free cell). [S-5552] <paramref name="Renames"/>: it is what New › made, to be renamed in place.
 /// </summary>
 public readonly record struct DesktopLandingSpot(string ViewId, double? X, double? Y, bool Renames = false);
@@ -55,7 +55,7 @@ public sealed class DesktopLandings
         }
     }
 
-    /// <summary>Forget the hint (the choice changed, the view went).</summary>
+    /// <summary>Forget the hint (the view went).</summary>
     public void Clear()
     {
         _hint = null;
@@ -96,105 +96,6 @@ public sealed class DesktopLandings
 
         return spots;
     }
-}
-
-/// <summary>[S-5591] [S-5546] The desktop's cells under a point, for a drop and for a move of item widgets.</summary>
-public static class DesktopCells
-{
-    private const double Epsilon = 1e-9;
-
-    /// <summary>
-    /// The cell of <paramref name="cell"/>'s size under the point (<paramref name="x"/>, <paramref name="y"/>),
-    /// on the grid that starts at <paramref name="area"/>'s top-left corner, kept whole inside the area;
-    /// null when no whole cell fits there.
-    /// </summary>
-    public static FracRect? At(double x, double y, FracRect cell, FracRect area)
-    {
-        if (cell.W <= 0 || cell.H <= 0 || area.W + Epsilon < cell.W || area.H + Epsilon < cell.H)
-        {
-            return null;
-        }
-
-        var columns = Math.Max(1, (int)Math.Floor((area.W + Epsilon) / cell.W));
-        var rows = Math.Max(1, (int)Math.Floor((area.H + Epsilon) / cell.H));
-        var column = Math.Clamp((int)Math.Floor((x - area.X) / cell.W), 0, columns - 1);
-        var row = Math.Clamp((int)Math.Floor((y - area.Y) / cell.H), 0, rows - 1);
-        return new FracRect(area.X + (column * cell.W), area.Y + (row * cell.H), cell.W, cell.H);
-    }
-
-    /// <summary>
-    /// [S-5591] Where an arrival dropped at a point lands: the cell under the point when it is free,
-    /// else the next free cell after it down its column and then the next columns, else the first free
-    /// cell anywhere (<see cref="DesktopGrid.NextFree"/>); null when the view has none.
-    /// </summary>
-    public static FracRect? FreeFrom(IReadOnlyList<FracRect> occupied, double x, double y, FracRect cell, FracRect area)
-    {
-        ArgumentNullException.ThrowIfNull(occupied);
-        if (At(x, y, cell, area) is not { } start)
-        {
-            return DesktopGrid.NextFree(occupied, cell, area);
-        }
-
-        for (var cx = start.X; cx + cell.W <= area.Right + Epsilon; cx += cell.W)
-        {
-            for (var cy = cx == start.X ? start.Y : area.Y; cy + cell.H <= area.Bottom + Epsilon; cy += cell.H)
-            {
-                var candidate = new FracRect(cx, cy, cell.W, cell.H);
-                if (!occupied.Any(taken => Overlaps(taken, candidate)))
-                {
-                    return candidate;
-                }
-            }
-        }
-
-        return DesktopGrid.NextFree(occupied, cell, area);
-    }
-
-    /// <summary>
-    /// [S-5546] Item widgets dragged inside the desktop: the held one's cell goes under the drop point
-    /// and every other keeps its offset from it in whole cells, as a dragged group of icons keeps its
-    /// shape on the grid; one that would leave the area or cover a widget that stays takes the next
-    /// free cell from where it would have gone. Returns the new rect per moved widget's index (null:
-    /// no room, it stays where it was). <paramref name="others"/> are the rects of the widgets that do
-    /// not move.
-    /// </summary>
-    public static IReadOnlyList<FracRect?> Move(IReadOnlyList<FracRect> moving, int held, double x, double y, IReadOnlyList<FracRect> others, FracRect cell, FracRect area)
-    {
-        ArgumentNullException.ThrowIfNull(moving);
-        ArgumentNullException.ThrowIfNull(others);
-        var result = new FracRect?[moving.Count];
-        if (held < 0 || held >= moving.Count || At(x, y, cell, area) is not { } target)
-        {
-            return result;
-        }
-
-        var occupied = new List<FracRect>(others);
-        var origin = moving[held];
-
-        // The held one first, so it gets the cell under the pointer.
-        foreach (var i in Enumerable.Range(0, moving.Count).OrderBy(i => i == held ? 0 : 1))
-        {
-            var dx = Math.Round((moving[i].X - origin.X) / cell.W) * cell.W;
-            var dy = Math.Round((moving[i].Y - origin.Y) / cell.H) * cell.H;
-            var wanted = new FracRect(target.X + dx, target.Y + dy, moving[i].W, moving[i].H);
-            var inside = wanted.X >= area.X - Epsilon && wanted.Y >= area.Y - Epsilon
-                && wanted.Right <= area.Right + Epsilon && wanted.Bottom <= area.Bottom + Epsilon;
-            var spot = inside && !occupied.Any(taken => Overlaps(taken, wanted))
-                ? wanted
-                : FreeFrom(occupied, wanted.X + (cell.W / 2), wanted.Y + (cell.H / 2), new FracRect(0, 0, moving[i].W, moving[i].H), area);
-
-            if (spot is { } placed)
-            {
-                result[i] = placed;
-                occupied.Add(placed);
-            }
-        }
-
-        return result;
-    }
-
-    private static bool Overlaps(FracRect a, FracRect b)
-        => a.X < b.Right - Epsilon && b.X < a.Right - Epsilon && a.Y < b.Bottom - Epsilon && b.Y < a.Bottom - Epsilon;
 }
 
 /// <summary>

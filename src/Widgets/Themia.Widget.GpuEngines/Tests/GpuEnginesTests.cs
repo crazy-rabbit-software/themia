@@ -17,7 +17,8 @@ public sealed class GpuEnginesTests
     {
         var sizing = Kind.SizingOf();
         Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
-        Assert.True(sizing.FixedHeight);
+        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        Assert.Equal(2 * (36 + (4 * 28) + 12), sizing.Max.Height); // relaxed, [S-12411]
         Assert.False(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
     }
 

@@ -24,7 +24,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 {
     /// <summary>[S-7064] The header's problem glyph ([S-7042]) and the place as its label.</summary>
     private readonly KitHeader _header;
-    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
 
     /// <summary>[S-6170] The gauge: the half ring, the index in its bowl, the band under it.</summary>
     private readonly ChartRing _dial = new(half: true);
@@ -48,7 +48,9 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
             () => _config.Interest(),
             Render);
 
-        _hero.Margin = Family.SideInset;
+        // [S-12410] The readout (or the gauge) is one block, centred in the room under the header with the
+        // foot's inset counted with it: at its natural box nothing moves, a larger box spaces it, never huddled.
+        _hero.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
         _hero.Use(FamilyType.Big28);
         _hero.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
         _gaugeReading.Use(FamilyType.Big28);
@@ -57,7 +59,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         _gaugeBand.TextTrimming = TextTrimming.CharacterEllipsis;
         _gaugeBand.MaxWidth = AirLayout.Diameter;
         var box = new Grid { Width = AirLayout.Diameter, Height = ChartRules.GaugeHeight(AirLayout.Diameter), Children = { _dial, _gaugeReading } };
-        _gauge = new StackPanel { VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset, Children = { box, _gaugeBand } };
+        _gauge = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = Family.SideInset with { Bottom = FamilySpace.Inset }, Children = { box, _gaugeBand } };
 
         _hero.Visibility = Visibility.Collapsed;
         _gauge.Visibility = Visibility.Collapsed;

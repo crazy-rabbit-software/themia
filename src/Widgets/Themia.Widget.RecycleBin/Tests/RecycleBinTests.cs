@@ -46,8 +46,9 @@ public sealed class RecycleBinTests
     {
         var sizing = ModuleCatalog.Of(new WidgetId("recycleBin")).SizingOf();
 
-        Assert.True(sizing.FixedWidth && sizing.FixedHeight);
+        Assert.Equal(sizing.Min, sizing.Natural);
         Assert.Equal(new SizeDip(180, 36 + 36 + 16 + 8 + 28 + 12), sizing.Natural);
+        Assert.Equal(new SizeDip(360, 2 * (36 + 36 + 16 + 8 + 28 + 12)), sizing.Max); // relaxed, [S-12411]
         Assert.Empty(sizing.Problems());
     }
 }

@@ -93,8 +93,8 @@ internal static class AppServices
     public static Mail.IMailSource? Mail { get; internal set; }
 
     /// <summary>
-    /// [S-1411] Open the app-layout editor on the Shortcuts item with this id (item ids are unique
-    /// across widgets). Null where there is no host (a debug render).
+    /// [S-1411] Open the app-layout editor on the shortcut with this id (a shortcut's id is its own,
+    /// unique across widgets). Null where there is no host (a debug render).
     /// </summary>
     public static Action<string>? EditAppLayout { get; internal set; }
 

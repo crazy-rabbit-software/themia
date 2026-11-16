@@ -340,9 +340,9 @@ internal static class SceneRender
             screen.Children.Add(await WallpaperAsync(wallpaper, width, height).ConfigureAwait(true));
         }
 
-        // [S-06a] The snap grid in edit mode, its lines on whole pixels of the output.
+        // [S-06a] The grid in edit mode, always, its lines on whole pixels of the output.
         var metrics = new ScreenMetrics(width, height);
-        if (edit is { Grid: true })
+        if (edit is not null)
         {
             var grid = new SnapGridOverlay();
             grid.Draw(metrics, job.Scale);
@@ -365,6 +365,13 @@ internal static class SceneRender
         // [S-1076] Each card where the desktop puts it: its whole cell, the design's gap inside it,
         // its own content scale; each on a host of its own so it replays its own preview state.
         var placed = new List<(SceneWidget Spec, PixelRect Cell)>(job.Widgets.Count);
+
+        // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop; [S-11809] a
+        // group's members fitted as one block, so the edges they share stay shared; [S-11807] on whole
+        // grid cells, as the desktop paints every widget ([S-06]: the grid is always on).
+        var models = job.Widgets.Select(w => w.Model).ToList();
+        var fitted = SizeFit.ShownAll(models, m => SizeFit.Limits(m, metrics, WidgetScale.For(m, job.Scene.Scale)), metrics);
+        var index = 0;
         foreach (var (spec, model) in job.Widgets)
         {
             var host = new NoticeRender.RenderCardHost(ticker)
@@ -377,9 +384,8 @@ internal static class SceneRender
                 Links = links,
                 FixtureState = spec.State,
             };
-            // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop.
-            var contentScale = WidgetScale.Effective(job.Scene.Scale, model.Scale);
-            var shown = SizeFit.Shown(model.Rect, SizeFit.Limits(model, metrics, contentScale, design.WidgetGapPx), metrics);
+            var contentScale = WidgetScale.For(model, job.Scene.Scale);
+            var shown = fitted[index++];
             var cell = GridGeometry.ToPixels(shown, metrics, job.Scale);
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
             placed.Add((spec, cell));
@@ -388,7 +394,6 @@ internal static class SceneRender
             card.ApplySelection();
             // [S-1080] The scene's display scale times the widget's own, as the desktop applies them.
             card.ApplyContentScale(contentScale);
-            card.ApplyGap(design.WidgetGapPx);
             Canvas.SetLeft(card, cell.X);
             Canvas.SetTop(card, cell.Y);
             canvas.Children.Add(card);
@@ -403,18 +408,12 @@ internal static class SceneRender
         WriteLayout(job, placed);
 
         // [S-2240] Cards that touch join, by the desktop's own path; nothing is dragged in a scene.
-        WidgetCard.Join(cards, metrics, design.WidgetGapPx, job.Scale, edit is not null, _ => 0);
+        WidgetCard.Join(cards, metrics, job.Scale, edit is not null, _ => 0);
 
         if (edit is not null)
         {
             canvas.Children.Add(markers.Halos);
             canvas.Children.Add(markers.Inks);
-
-            // [S-2453] The groups' frames, as the desktop draws them over the markers.
-            var frames = new GroupFrameLayer();
-            frames.Draw(GroupFrameLayer.Frames(view, cards, metrics, design.WidgetGapPx, editMode: true, selection), job.Scale);
-            canvas.Children.Add(frames.Halos);
-            canvas.Children.Add(frames.Inks);
         }
 
         // [S-1500] A confirmation a state opens is drawn inside the window, as on --widget-png.
@@ -628,7 +627,7 @@ internal static class SceneRender
         var page = EditBarRender.SelectionPageOf(view, selection);
         var flyout = EditBarRender.HangFlyout(canvas, page, bar, barRect, null, new PixelRect(0, 0, metrics.Width, bottom));
         page.Show();
-        if (edit.Open is { } named && MemberKey(named, job) is var open && !page.DebugClick(open))
+        if (edit.Open is { } open && !page.DebugClick(open))
         {
             Console.WriteLine($"scene: {job.Scene.Name}: the selection's page has no row \"{open}\"");
             return false;
@@ -639,26 +638,6 @@ internal static class SceneRender
         await Task.Delay(400).ConfigureAwait(true);
 
         return true;
-    }
-
-    /// <summary>
-    /// [S-11755] A row key that opens a group member's own page names the member by its scene id
-    /// (<c>member/facts</c>): the page names it by the widget's, which a scene does not know.
-    /// </summary>
-    private static string MemberKey(string open, Job job)
-    {
-        const string Member = "member/";
-        if (!open.StartsWith(Member, StringComparison.Ordinal))
-        {
-            return open;
-        }
-
-        var rest = open[Member.Length..];
-        var cut = rest.IndexOf('/', StringComparison.Ordinal);
-        var name = cut < 0 ? rest : rest[..cut];
-        return job.Widgets.FirstOrDefault(w => string.Equals(w.Spec.Id, name, StringComparison.Ordinal)) is { } widget
-            ? Member + widget.Model.Id + (cut < 0 ? string.Empty : rest[cut..])
-            : open;
     }
 
     /// <summary>

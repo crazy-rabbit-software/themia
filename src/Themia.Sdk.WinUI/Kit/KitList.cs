@@ -19,7 +19,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// [S-7060] The list part of every kit widget: the family's rows ([S-6711], <see cref="RowBlock"/>) for
 /// the plan the ladder chose (<see cref="KitPlanner.Plan"/>), full-bleed with their own inset ([S-190]),
 /// no separators, in columns read left to right, as many whole rows as fit under a scroll with the
-/// shared fade ([S-639], [S-1281]), the card's bottom inset kept under them.
+/// shared fade ([S-639], [S-1281]), stretched down to the card's edge ([S-12410]).
 /// <para>
 /// One focus model, <see cref="RowFocus"/>: a click focuses a row, a double-click or Enter runs its
 /// primary action ([S-1288], [S-1306]); the card makes the list inert in edit mode ([S-1751]), so it
@@ -84,9 +84,8 @@ public sealed partial class KitList : Grid
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        // [S-6712] The rows stand in the view's top, the card's bottom inset under them.
-        Padding = new Thickness(0, 0, 0, FamilySpace.Inset);
-
+        // [S-6712] [S-12410] The rows stand in the view's top and run down to the card's edge: they stretch
+        // into the foot's inset the sizing counts (KitPlanner.Pitch), no band left under them.
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _columnHeader.Visibility = Visibility.Collapsed;

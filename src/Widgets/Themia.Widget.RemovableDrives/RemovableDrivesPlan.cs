@@ -35,6 +35,13 @@ public static class RemovableDrivesPlan
         return new RemovableDrivesLook(Lines, FamilyShape.IconLarge, Math.Min(MeterMost, Math.Floor(content * MeterShare)));
     }
 
-    /// <summary>[S-11027] The list's height: the config's rows, two lines each.</summary>
-    public static double ListHeight(int rows) => KitSizing.ClampRows(rows) * FamilyShape.RowHeight(Lines);
+    /// <summary>
+    /// [S-12410] A row's height in a view <paramref name="height"/> tall: two lines' 40, stretched over the
+    /// config's rows down to the card's edge (the foot's inset the sizing counts), at most half again.
+    /// </summary>
+    public static double Pitch(double height, int rows, double scale = 1)
+        => Themia.Core.Widgets.ItemStretch.Pitch(height, KitSizing.ClampRows(rows), FamilyShape.RowHeight(Lines), scale: scale);
+
+    /// <summary>[S-11027] The list's height: the config's rows, two lines each, at <paramref name="pitch"/> a row ([S-12410]).</summary>
+    public static double ListHeight(int rows, double pitch) => KitSizing.ClampRows(rows) * pitch;
 }

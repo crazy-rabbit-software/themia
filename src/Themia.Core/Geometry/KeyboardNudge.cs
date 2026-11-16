@@ -1,4 +1,4 @@
-﻿using Themia.Core.Shell;
+using Themia.Core.Shell;
 
 namespace Themia.Core.Geometry;
 
@@ -21,7 +21,6 @@ public static class KeyboardNudge
         var (cols, rows) = GridGeometry.GridDims(screen);
         var (dx, dy) = step switch
         {
-            NudgeStep.Fine => (1 / screen.Width, 1 / screen.Height),
             NudgeStep.Far => ((double)KeyboardNudgeDefaults.FarCells / cols, (double)KeyboardNudgeDefaults.FarCells / rows),
             _ => (1.0 / cols, 1.0 / rows),
         };
@@ -36,11 +35,9 @@ public static class KeyboardNudge
     }
 
     /// <summary>
-    /// [S-1970] Move a block of rects one press. The block keeps its shape; the grid applies unless
-    /// it is off or the step is <see cref="NudgeStep.Fine"/>.
+    /// [S-1970] Move a block of rects one press. The block keeps its shape, on the grid ([S-06]).
     /// </summary>
-    /// <param name="apart">[S-11959] With widgets kept apart: the widgets that stay, which the block may not come over.</param>
-    public static List<FracRect> Move(IReadOnlyList<FracRect> rects, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, bool snapEnabled, IReadOnlyList<FracRect>? apart = null)
+    public static List<FracRect> Move(IReadOnlyList<FracRect> rects, NudgeDirection direction, NudgeStep step, ScreenMetrics screen)
     {
         ArgumentNullException.ThrowIfNull(rects);
 
@@ -50,12 +47,7 @@ public static class KeyboardNudge
         }
 
         var (dx, dy) = Delta(direction, step, screen);
-        var delta = BlockGeometry.Move(rects, dx, dy, screen, snapEnabled && step != NudgeStep.Fine);
-        if (apart is not null)
-        {
-            delta = BlockGeometry.Apart(rects, delta, default, apart, screen);
-        }
-
+        var delta = BlockGeometry.Move(rects, dx, dy, screen);
         return [.. rects.Select(r => BlockGeometry.Apply(r, delta, screen))];
     }
 
@@ -65,7 +57,7 @@ public static class KeyboardNudge
     /// minimum ([S-6608]) stop the edge. [S-2445] The widget's sizing's <paramref name="limits"/> stop it
     /// at its Min and Max too; on a stepped axis a press is one step (a row), whatever the step size.
     /// </summary>
-    public static FracRect Resize(FracRect rect, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, bool snapEnabled, SizeLimits? limits = null)
+    public static FracRect Resize(FracRect rect, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, SizeLimits? limits = null)
     {
         if (!screen.IsUsable || !rect.IsFinite)
         {
@@ -74,17 +66,27 @@ public static class KeyboardNudge
 
         var (dx, dy) = Delta(direction, step, screen);
         var handle = direction is NudgeDirection.Left or NudgeDirection.Right ? ResizeHandle.Right : ResizeHandle.Bottom;
-        if (limits is { Width.Stepped: true } && dx != 0)
+        if (limits is not null && dx != 0)
         {
-            dx = Math.Sign(dx) * limits.Width.Step;
+            dx = Math.Sign(dx) * Press(limits.Width, dx);
         }
 
-        if (limits is { Height.Stepped: true } && dy != 0)
+        if (limits is not null && dy != 0)
         {
-            dy = Math.Sign(dy) * limits.Height.Step;
+            dy = Math.Sign(dy) * Press(limits.Height, dy);
         }
 
         var resized = GridGeometry.Resize(rect, handle, dx, dy, screen);
-        return GridGeometry.Settle(resized, screen, snapEnabled && step != NudgeStep.Fine, handle, limits);
+        return GridGeometry.Settle(resized, screen, handle, limits);
+    }
+
+    /// <summary>
+    /// How far one press moves the edge on an axis: a step on a stepped axis; [S-11807] on the grid at
+    /// least one whole cell (a finer press would round back up to the cells it started from).
+    /// </summary>
+    private static double Press(AxisLimits axis, double asked)
+    {
+        var press = axis.Stepped ? axis.Step : Math.Abs(asked);
+        return axis.OnGrid ? Math.Max(press, 1.0 / axis.Lines) : press;
     }
 }

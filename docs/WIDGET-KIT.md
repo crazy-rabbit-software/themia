@@ -49,7 +49,7 @@ The kit is distilled from the widgets that already show a service's data. What e
 | Weather now | `WebSync` | hero, styles (`WeatherNowStyles`) | none | none | none | `Fluent.EmptyState` | age via `OnlineParts` | `WeatherNowView.Preview.cs` |
 | Clock | none | hero (`HeroFit`, `ClockText`), six styles | none | none | none | none | none | `ClockView.Preview.cs` |
 | Meters (`MeterView`) | `SystemHub` | the meter framework (`MeterFace`, `IMeterHost`), already a kit of its own | lane rule [S-1564] | card actions only | none | own | none | `MeterView.Preview.cs` |
-| Folder | `FolderListing`, watcher | Explorer semantics (multi-select, lasso, drag, rename) | rich, grid aware | `ItemMenu` + Explorer commands | Enter/double-click | own | busy ring (14) | `FolderView.Preview.cs` |
+| Folder | `FolderListing`, watcher | Explorer semantics (multi-select, drag, rename) | rich, grid aware | `ItemMenu` + Explorer commands | Enter/double-click | own | busy ring (14) | `FolderView.Preview.cs` |
 
 Shared pieces that already exist and that the kit builds on (*exists*):
 
@@ -1939,7 +1939,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   `FileIcons` (`IFileIcons`), `FileClipboard` (`IFileClipboard`), `Folders` (`IFolders`: the listing, the
   watch, the repository's status, Explorer's New file types, a ZIP; `FolderWatch` is the `IFolderWatch`),
   `FileOps` (`IShellFileOps`: copy, move, recycle and rename with the shell's dialogs and undo, open, Open
-  with, Properties, Show in Explorer, new folder and file, cloud pins, a shortcut's target, a drag out),
+  with, Properties, Show in Explorer, new folder and file, cloud pins, a shortcut's target; a drag out is the SDK's `ItemDrag`),
   `ExplorerMenus` (`IExplorerMenus`: the full shell menu, a verb, a file's Open with apps), `RecentFiles`
   (`IRecentItems`), `AppLayouts` (`IAppLayouts`, and `SettingsHost.AppLayouts`; the host's editor finds
   a layout item through `IHoldsAppLayouts` on the config, so it names no widget), `Streams`
@@ -2782,8 +2782,8 @@ the service's SPEC section.
 
 User decision 2026-10-19: a widget's options live on the selection in edit mode, never on a settings
 page: every widget has moved, and `IWidgetModule.SettingsRows`, `WidgetSettingsRows`, the widget
-pages, More settings and the card menu's Settings are gone ([S-6536]). Shortcuts
-(`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`) and Clock
+pages, More settings and the card menu's Settings are gone ([S-6536]). The desktop icon (an own
+icon's lines, `src/Widgets/Themia.Widget.DesktopItem/OwnIconMenu.cs`) and Clock
 (`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references.
 
 Since 2026-11-12 (SPEC "EDITBAR-PAGES", [S-2300]..[S-2343]) the selection is an entry on the edit bar,
@@ -2837,7 +2837,7 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
 
 - **StyleLines for what the look draws.** An option only some styles draw goes under Style, guarded
   by the config's `Offers(setting)` ([S-6070], `IShownSettings<T>`), so a style that does not draw it
-  never shows it (Clock: seconds and the date; Shortcuts: tile size, icons only, stretch).
+  never shows it (Clock: seconds and the date; Folder: its columns in Details).
 - **Every option is one row.** There is nowhere else for one to go, and no row is ever more than one
   row high: a value typed is a text level, a choice a level of ticks, a long explanation a `Note`
   or nothing. A line whose action asks is marked `Asks: true`.
@@ -2857,8 +2857,8 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
   option (not only an account) marks that option's line with `WidgetMenuLines.SetsUp` ([S-1862]).
 - **Dead strings go.** A locale key nothing reads any more is removed from all 30 locale files of
   its area. New words go into `en.json` and its `$englishOnly` list.
-- **Tests in the module's `Tests/`**, named after its own SPEC tags (`S1388_…`, see
-  `ShortcutsMenuTests`, `ClockMenuTests`): what each style offers under Style, the first level's
+- **Tests in the module's `Tests/`**, named after its own SPEC tags (`S9509_…`, see
+  `OwnIconMenuTests`, `ClockMenuTests`): what each style offers under Style, the first level's
   order, what a click sets and that it saves once, that picking the current value saves nothing, and
   the `refuse` checks of every typed value.
 - **The module's `SPEC.md`** says its options are on the properties menu ([S-3719], with the date of
@@ -2905,7 +2905,7 @@ is `TextDisabled` (`UnavailableLook`).
 | Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Use(step)` (28, 40 where the kind states it, or a one-readout widget's Size) | `ReadoutRules.Width`, `Height`, `Fold`, `Split` |
 | Chart | `ChartSeries`, `ChartBar` (`vertical`: a column), `ChartRing` (`half`: a gauge) | `Show(values, second)` or `Show(points, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Y`, `Bar`, `Sweep`, `GaugeSweep`, `GaugeHeight` |
 | Status | `StatusBlock` | `Show(kind, glyph, sentence, action, run)`, `Hide` | `StatusRules.Look(kind)`, `ShowsSentence(width, actionWidth)` |
-| Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Use(step, width, label, state)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.GlyphAt(size)`, `SideAt(size)`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
+| Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Use(step, width, label, state, name, stateStep)`, `Corners(corners)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.Face(width, height, stateLine)`, `Sizing(look, stateLine)`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
 | Controls | `ControlsBlock` | `Main(label, run)` or `MainIcon(glyph, tooltip, run)` (a transport's Play), `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`, `Switch(on, name, changed)` (and `Set` to show a state read back); `Relabel`/`Reglyph` (Start → Pause); `ControlsBlock.TextButton`/`IconButton`/`RailSlider` alone (a control in a row's meter place) | `ControlsRules.Check` (one main action), `Shown` (the main action and the switch stay) |
 
 Layout around them is the family's too: the header in the card's header inset; content from 36 (12
@@ -2942,8 +2942,9 @@ failure stays on screen and the header's problem glyph (`OnlineParts.Problems`) 
 
 A widget that is one glyph and its name (the quick toggles, the power buttons) is a `TileBlock` filling
 the view in the card's inset (`Padding = Family.Inset`): the view keeps the whole slot as its hit target
-(its background `Family.Brush(ColourRole.Clear)`), lays the block out on its Size's step
-(`Use(TileRules.GlyphAt(size), width, label, state)`, both lines planned so a change of state moves nothing), and on
+(its background `Family.Brush(ColourRole.Clear)`), lays the block out on the step its box holds
+(`IWidgetSizeAware`: `Use(face.Glyph, width, label, state, face.Name, face.State)` from `TileRules.Face`, both lines
+planned so a change of state moves nothing), takes the card's corners for its fill (`IWidgetCorners`), and on
 every change calls `Show(glyph, name, state, tone)` and `Face(pointer)`. The tone says it all: on is the
 accent tile (or circle), off the item layer's, not known secondary, unavailable disabled, critical (a
 power button armed or failed) the glyph, the text and the ring in Critical; no Status row, the tile shows
@@ -2955,13 +2956,12 @@ trait.
 
 ### 16.2d Files, stores and special widgets (G6, 2026-10-29)
 
-A grid of items (Shortcuts, a folder's Grid and Icons) is `RowCell`s placed by `RowRules.Cells`: the
+A grid of items (a folder's Grid and Icons; the Shortcuts list that also was one went on 2026-11-13, and
+what one shortcut was is an own icon of the one desktop icon kind, `desktopItem`, drawn in `DesktopCell`) is `RowCell`s placed by `RowRules.Cells`: the
 family's icon (32 or 48, as its config states) over its name in one Caption line, the columns sharing the
 width 12 apart, each cell's selection mark (`SelectionChrome`, its look `SelectionLook`'s) 4 around its
 lead and name. A list or a table of files is the Row block (a table's columns on `RowBlock.Cells`, the
-titles a Caption line at the text edge), the mark behind the row over its full width. A count over a
-picture (the Recycle Bin's on Shortcuts) is the neutral pill (`HeaderBlock.Count`), moved out to the
-icon's corner by a transform. A widget about one size or share (the Recycle Bin, a drive) is a Readout
+titles a Caption line at the text edge), the mark behind the row over its full width. A widget about one size or share (the Recycle Bin, a drive) is a Readout
 sized on its widest case with its line under; a drive's bar is a `ChartBar`, its ring a `ChartRing`;
 the one thing a person does to it (Empty) is the Controls row's main action at the bottom inset. A
 colour that is the data's (an app's in the screen-time widgets, a pen, the selection's marks from
@@ -3085,7 +3085,7 @@ text size) but nothing of the instance (not its rect, scale or header).
    lays out its fixed parts in the box it is given (`IWidgetSizeAware.ApplySize` only where it measures
    the box: a graph's length, a grid's cells, a text's wrap; `LayoutMath` for whole lines). Text wraps or is cut with its ellipsis; a graph gets longer; nothing appears or
    disappears. A data widget's number is the family's 28 (`FamilyType.Big28`; 40 only where the kind
-   states it); a one-readout widget implements `IReadoutSized` (`Size`, `ReadoutSizes.Step`: 40, 68, 96)
+   states it); a one-readout widget implements `IReadoutSized` (`Size`, `ReadoutSizes.Step`: 40, 68, 96; not the quick toggles and power buttons, whose box is free, SPEC [S-11882])
    and adds `KitMenuLines.ReadoutSize(menu, config)` under its Style.
 4. **A list**: on the kit, implement `IKitRows` on the config (`Rows` 1..20, default
    `KitSizing.DefaultRows`; `Lines` 1 or 2; copied in `Clone`, held to range in `Repair`), state
@@ -3108,6 +3108,43 @@ Pitfalls: the sizing must not depend on the instance (header, scale, rect): the 
 planner that picks "the largest that fits" on an exact box picks a smaller step after pixel rounding:
 give 2 DIPs of slack (`ClockFace.Slack`) or plan from the config, not the box. A value that changes
 the sizing must live in the config (or be ambient), or the refit never runs.
+
+### 17.4 The relaxed range and the stretch (SPEC [S-12410], [S-12411])
+
+Owner, 2026-11-15: relax the size limits, fill the space by stretching what is there (never by adding
+content), never overstretch, and run the items to the card's edge. One rule, no per-widget code where a
+block does it:
+
+- **The range is relaxed for you.** A kind states the range its *content* needs (17.3). The descriptor
+  hands out `SizeStretch.Relax` of it (`WidgetDescriptor.Sizing`): Max on every axis its config does not
+  step (a fixed one included) grows to at least Natural x the room's factor, on 4-DIP steps, never past
+  `SizeStretch.Ceiling` (1200) unless the kind stated more. Min and Natural stay. The room is
+  `WidgetSizing.Room`, set where the sizing is made: `Standard` (2 x; text, readouts, facts), `List`
+  (2.5 x in width; `KitSizing`), `Picture` (3 x; a chart, a history, a tile, a cover, a gallery:
+  `MeterSizing.History/Columns/Tiles/Graphs`, `TileRules.Sizing`), `None` (the desktop icon's cell).
+  A row-stepped height keeps its steps (Rows is still the config).
+- **Items stretch to their caps, the rest is spacing** (`ItemStretch` in `Themia.Sdk/Widgets`, whole
+  device pixels): `Lay(available, items (natural, max), gap, rest)` for a stack, `Pitch(available, count,
+  natural)` for like rows. The caps per block:
+
+  | Block | Stretches to | Beyond it |
+  |---|---|---|
+  | Row (`RowBlock`) | 1.5 x its height (`ItemStretch.RowCap`: `MinHeight`/`MaxHeight`), texts centred | spacing round the rows (`SpreadStack`), or empty under the last |
+  | Kit list, custom row lists | one pitch filling the list (`KitPlanner.Pitch`, `ItemStretch.Pitch`), headings with them | at 1.5 x: empty under the rows |
+  | Grid cell (calendar month) | any (a cell is a box) | none |
+  | Readout, Status, Controls, Header | never (text stays on the family's steps) | the block centred in the room under the header, the foot inset under it (`NaturalBlock.Hold`; a size-aware view centres an inner part, as `MeterView.CentringTop`, since the card measures the view's own box) |
+  | Clock face (picks its step by its box) | one family step past its Size (`ReadoutSizes.Climb`) | spacing round it |
+  | Chart, dial, tile, picture | the box | none |
+
+- **No inset to the card's border.** The card has no padding ([S-6711]); each block decides: rows, list
+  rows and their hover/selected fills run edge to edge and carry the 12 side inset as their own padding,
+  so the text never touches the border; a list's rows run down to the card's bottom edge (the foot inset
+  its sizing counts is theirs to stretch into); a chart, a history, a tile, a cover run edge to edge as
+  before; the header keeps its own inset; a readout block keeps the 12 on its sides (its text would touch
+  the border otherwise). A fill at a card corner takes the card's corners: rows' square fills through the
+  card's rounded clip, a tile's own round fill through `IWidgetCorners` ([S-11883]).
+- Check a kind at min, natural, max and two odd sizes (`--sizes range,WxH,WxH`): nothing huddled in a
+  corner, nothing clipped, nothing past its cap, the natural box as before.
 
 ## 18. Ready-made groups (recipes)
 

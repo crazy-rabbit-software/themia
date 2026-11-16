@@ -56,13 +56,11 @@ public sealed class FillChoiceOptions
 }
 
 /// <summary>
-/// [S-3724] What the menus' one colour submenu needs that is not a line: a colour and a fill in words
-/// and on a swatch, "Custom colour…" (WinUI's full <see cref="ColorPicker"/> in a dialog) and the
-/// eyedropper. [S-1549], [S-1550]
+/// [S-3724] What the menus' one colour picker needs that is not a line: a colour and a fill in words
+/// and on a swatch, the recent colours ([S-1575]) and the eyedropper. [S-1549], [S-1550]
 /// <para>
-/// Colours are never typed. A hex box is a field most people cannot fill in and the rest mistype;
-/// a picker can only ever produce a colour. What is stored stays <c>#RRGGBB</c> (or empty for the
-/// default), so nothing that reads a colour setting changes.
+/// [S-1577] A colour is picked from the swatches, mixed, taken from the screen or typed in the hex box
+/// as Karpo's picker has it; what is stored stays <c>#RRGGBB</c> (or empty for the default).
 /// </para>
 /// </summary>
 public static class ColorChoice
@@ -83,6 +81,34 @@ public static class ColorChoice
         }
     }
     private const string Scope = "color-choice";
+
+    /// <summary>[S-1575] The host's recent colours: read, and a kept colour remembered.</summary>
+    private static (Func<IReadOnlyList<string>> Read, Action<string> Remember)? _recent;
+
+    /// <summary>[S-1575] The host's store of the recent colours. Once per process.</summary>
+    internal static void InstallRecent(Func<IReadOnlyList<string>> read, Action<string> remember)
+    {
+        ArgumentNullException.ThrowIfNull(read);
+        ArgumentNullException.ThrowIfNull(remember);
+        if (_recent is not null)
+        {
+            throw new InvalidOperationException("the recent colours are installed once per process");
+        }
+
+        _recent = (read, remember);
+    }
+
+    /// <summary>[S-1575] The recent colours, newest first; none where the host keeps none (a render).</summary>
+    internal static IReadOnlyList<string> Recent => _recent is { } recent ? ColourPicker.Recent(recent.Read()) : [];
+
+    /// <summary>[S-1575] A colour kept from the mixer, the hex box or the eyedropper: first of the recent colours.</summary>
+    internal static void Remember(string hex)
+    {
+        if (_recent is { } recent && ColourPicker.Typed(hex) is { } colour)
+        {
+            recent.Remember(colour);
+        }
+    }
 
 
     /// <summary>[S-6567] A fill in words: Default's label, "Transparent", or the colour's name with its opacity under 100 %.</summary>
@@ -216,77 +242,6 @@ public static class ColorChoice
             Log.Error(Scope, "the eyedropper failed", ex);
             Notices.Show(Notice.Error(Str.Shell_Color_PickFailed.Text()));
         }
-    }
-
-    /// <summary>
-    /// "Custom colour": WinUI's colour picker in a dialog, as Settings opens one for a custom accent.
-    /// Text entry is off — the spectrum and the slider only — because a typed value is exactly what
-    /// this control exists to avoid. [S-6567] With an <paramref name="opacity"/> (a fill) it has the
-    /// alpha slider too, starting there; <paramref name="choose"/> gets the colour and the alpha (1
-    /// for a plain colour).
-    /// </summary>
-    internal static async Task CustomAsync(FrameworkElement source, string current, ColorChoiceOptions options, double? opacity, Action<string, double> choose)
-    {
-        if (source.XamlRoot is not { } root)
-        {
-            Log.Warn(Scope, "no XamlRoot for the custom colour dialog");
-            return;
-        }
-
-        Windows.UI.Color start;
-        if (HexColor.TryParse(current, out var r, out var g, out var b))
-        {
-            start = HexBrush.Colour(new RgbColor(r, g, b));
-        }
-        else
-        {
-            start = options.DefaultColor?.Invoke() ?? ShellColours.WindowsAccent;
-        }
-
-        if (opacity is { } alpha)
-        {
-            start.A = FillChoice.Alpha(alpha);
-        }
-
-        var picker = new ColorPicker
-        {
-            Color = start,
-            IsAlphaEnabled = opacity is not null,
-            IsAlphaTextInputVisible = false,
-            IsHexInputVisible = false,
-            IsColorChannelTextInputVisible = false,
-            IsMoreButtonVisible = false,
-            IsColorSliderVisible = true,
-            IsColorPreviewVisible = true,
-        };
-
-        var dialog = new ContentDialog
-        {
-            XamlRoot = root,
-            RequestedTheme = source.ActualTheme,
-            Title = Str.Shell_Color_PickCustom.Text(),
-            Content = picker,
-            PrimaryButtonText = Str.Common_Done.Text(),
-            CloseButtonText = Str.Common_Cancel.Text(),
-            DefaultButton = ContentDialogButton.Primary,
-        };
-
-        try
-        {
-            if (await dialog.ShowAsync() != ContentDialogResult.Primary)
-            {
-                return;
-            }
-        }
-        catch (Exception ex)
-        {
-            // ShowAsync throws when another dialog already owns the window. Nothing changes.
-            Log.Error(Scope, "could not show the colour picker", ex);
-            return;
-        }
-
-        var color = picker.Color;
-        choose(HexColor.From(color.R, color.G, color.B), opacity is null ? 1 : color.A / 255.0);
     }
 
     /// <summary>The Windows accent colour, for an accent setting's "default" swatch.</summary>

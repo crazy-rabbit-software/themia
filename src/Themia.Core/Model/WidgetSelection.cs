@@ -303,12 +303,45 @@ public sealed class WidgetSelection
     }
 }
 
+/// <summary>[S-2453] What a card draws of its edit markers in edit mode.</summary>
+public enum EditMarks
+{
+    /// <summary>All eight marks with their grips: the card is resized on its own (a lone widget, the entered member).</summary>
+    Handles = 0,
+
+    /// <summary>
+    /// The four corner brackets alone, neutral and without grips: a member of a group the group's frame stands
+    /// for, so the user still sees where each member is, as the widgets around show theirs.
+    /// </summary>
+    Corners = 1,
+}
+
 /// <summary>
 /// [S-1581]/[S-1582] Which widgets a gesture picks, and which of the picked ones a command acts on.
 /// Pure functions over a view.
 /// </summary>
 public static class SelectionRules
 {
+    /// <summary>
+    /// [S-2453] What a widget of <paramref name="group"/> (null: none) draws in edit mode while
+    /// <paramref name="entered"/> is the entered group: a lone widget and the entered, selected member their
+    /// handles; every other member its corners, whether its group is selected, entered with another member,
+    /// or neither (owner, 2026-11-15: "when a widget in the group is selected it should show the corners of
+    /// the other widgets inside the group too … also when the group is selected").
+    /// </summary>
+    public static EditMarks MarksOf(string? group, string? entered, bool selected)
+        => group is null || (selected && string.Equals(group, entered, StringComparison.Ordinal)) ? EditMarks.Handles : EditMarks.Corners;
+
+    /// <summary>
+    /// [S-31b] [S-11877] [S-11881] [S-11889] Whether a widget draws its marks: always in edit mode; on the locked
+    /// desktop while it is selected (its four corners) or while a block moves (<paramref name="moveAlpha"/>: its
+    /// strength, 1 moving, the local grid's near where the block lands). Whatever the kind: a desktop icon
+    /// draws them as every widget does (owner, 2026-11-15: "the desktop icons should also show the corners"),
+    /// round its grid box, its highlight under them; the rule takes no kind, so none can be left out.
+    /// </summary>
+    public static bool MarksShown(bool editing, bool selected, double? moveAlpha)
+        => editing || selected || moveAlpha is not null;
+
     /// <summary>
     /// [S-1581] The widgets a rubber band touches: every widget whose cell overlaps it by any area,
     /// in view order. <paramref name="hidden"/> are left out (cards that draw nothing). A band of no

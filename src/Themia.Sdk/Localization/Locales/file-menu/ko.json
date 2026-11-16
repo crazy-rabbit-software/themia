@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "다른 앱 선택",
+  "folderMenu.compressToZip": "ZIP 파일로 압축",
+  "folderMenu.copyAsPath": "경로로 복사",
+  "folderMenu.openInNewWindow": "새 창에서 열기",
+  "folderMenu.openWith": "연결 프로그램",
+  "folderMenu.pinToQuickAccess": "즐겨찾기에 고정",
+  "folderMenu.pinToStart": "시작 화면에 고정",
+  "folderMenu.share": "공유",
+  "folder.properties": "속성",
+  "widgetsB.folder.freeUpSpace": "공간 확보",
+  "widgetsB.folder.keepOnDevice": "이 장치에 항상 유지",
+  "widgetsB.folder.moreOptions": "추가 옵션 표시",
+  "widgetsB.folder.new": "새로 만들기",
+  "ctxMenu.folder": "폴더"
+}

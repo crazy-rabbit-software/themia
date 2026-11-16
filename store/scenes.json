@@ -741,14 +741,17 @@
           ]
         },
         {
-          "id": "shortcuts",
-          "kind": "shortcuts",
+          "id": "recentFiles",
+          "kind": "recentFiles",
           "at": [
             656,
             268,
             320,
-            120
-          ]
+            208
+          ],
+          "config": {
+            "rows": 4
+          }
         },
         {
           "id": "focusSession",
@@ -884,19 +887,19 @@
       "like": "looks",
       "theme": "light",
       "wallpaper": "wallpapers/tropical-bay.png",
-      "design": "preset=Daylight,gap=0"
+      "design": "preset=Daylight"
     },
     {
-      "name": "look-glass",
+      "name": "look-liquid-glass",
       "like": "looks",
       "wallpaper": "wallpapers/beach-sunset.png",
-      "design": "preset=Glass,gap=0"
+      "design": "preset=LiquidGlass"
     },
     {
-      "name": "look-terminal",
+      "name": "look-midnight",
       "like": "looks",
       "wallpaper": "wallpapers/desert-cave.png",
-      "design": "preset=Terminal,gap=0"
+      "design": "preset=Midnight"
     },
     {
       "name": "evening",
@@ -963,7 +966,7 @@
       "name": "focus",
       "wallpaper": "wallpapers/pale-dunes.png",
       "theme": "light",
-      "design": "preset=Daylight,gap=0",
+      "design": "preset=Daylight",
       "taskbar": true,
       "widgets": [
         {

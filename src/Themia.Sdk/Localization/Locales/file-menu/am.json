@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "ሌላ መተግበሪያ ይምረጡ",
+  "folderMenu.compressToZip": "ወደ ZIP ፋይል ጨምቅ",
+  "folderMenu.copyAsPath": "እንደ ዱካ ቅዳ",
+  "folderMenu.openInNewWindow": "በአዲስ መስኮት ክፈት",
+  "folderMenu.openWith": "በዚህ ክፈት",
+  "folderMenu.pinToQuickAccess": "ወደ ፈጣን መዳረሻ ሰካ",
+  "folderMenu.pinToStart": "ወደ ጀምር ሰካ",
+  "folderMenu.share": "አጋራ",
+  "folder.properties": "ባሕሪያት",
+  "widgetsB.folder.freeUpSpace": "ቦታ አስለቅቅ",
+  "widgetsB.folder.keepOnDevice": "ሁልጊዜ በዚህ መሣሪያ ላይ አቆይ",
+  "widgetsB.folder.moreOptions": "ተጨማሪ አማራጮችን አሳይ",
+  "widgetsB.folder.new": "አዲስ",
+  "ctxMenu.folder": "አቃፊ"
+}

@@ -47,7 +47,7 @@ public sealed class ExchangeHistoryModule : IWidgetModule
 
     /// <summary>[S-11156] The band under the card's top inset (headerless), to the sides and the foot: 200..480 wide, 48..200 tall.</summary>
     internal static WidgetSizing Sizing()
-        => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax));
+        => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
 
     /// <summary>[S-11157] Every option is on the properties menu: the pair, as the rate's.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)

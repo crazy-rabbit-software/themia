@@ -15,7 +15,7 @@ public sealed class SceneParserTests
             {
               "name": "day",
               "theme": "light",
-              "design": "preset=Glass,radius=8",
+              "design": "preset=LiquidGlass,radius=8",
               "wallpaper": "wallpapers/dusk.jpg",
               "widgets": [
                 { "kind": "clock", "at": [40, 40, 480, 240], "state": "sample", "style": "flip",
@@ -24,7 +24,7 @@ public sealed class SceneParserTests
                   "config": { "showDate": false }, "selected": true },
                 { "kind": "weatherNow", "at": [520, 40, 300, 200] }
               ],
-              "edit": { "open": "appearance", "grid": true }
+              "edit": { "open": "appearance" }
             },
             { "name": "day-paper", "like": "day", "design": "preset=Paper" }
           ]
@@ -58,9 +58,9 @@ public sealed class SceneParserTests
         Assert.Equal(new SceneScreen(1920, 1080), file.Screen);
         var day = file.Find("day")!;
         Assert.Equal(AppTheme.Light, day.Theme);
-        Assert.Equal("preset=Glass,radius=8", day.Design);
+        Assert.Equal("preset=LiquidGlass,radius=8", day.Design);
         Assert.Equal("wallpapers/dusk.jpg", day.Wallpaper);
-        Assert.Equal(new SceneEdit(Bar: true, Open: "appearance", Add: false, Grid: true), day.Edit);
+        Assert.Equal(new SceneEdit(Bar: true, Open: "appearance", Add: false), day.Edit);
 
         var clock = day.Widgets[0];
         Assert.Equal(new WidgetId("clock"), clock.Kind);
@@ -460,7 +460,7 @@ public sealed class SceneParserTests
     {
         var scene = Parsed(One("""{ "kind": "clock", "at": [0, 0, 10, 10] }""", edit: true)).Scenes[0];
 
-        Assert.Equal(new SceneEdit(Bar: true, Open: null, Add: false, Grid: false), scene.Edit);
+        Assert.Equal(new SceneEdit(Bar: true, Open: null, Add: false), scene.Edit);
     }
 
     [Fact]
@@ -471,10 +471,9 @@ public sealed class SceneParserTests
         var refused = DesignText.Apply(design, "preset=Paper,radius=3,gap=12,accent=#00aaff,itemText=,border=wavy,shade=1,accent=blue");
 
         Assert.Equal(3, design.CornerRadiusPx);
-        Assert.Equal(12, design.WidgetGapPx);
         Assert.Equal("#00AAFF", design.PrimaryColor);
         Assert.Equal(string.Empty, design.ItemTextColor);
-        Assert.Equal(["border=wavy", "shade=1", "accent=blue"], refused);
+        Assert.Equal(["gap=12", "border=wavy", "shade=1", "accent=blue"], refused);
     }
 
     [Fact]

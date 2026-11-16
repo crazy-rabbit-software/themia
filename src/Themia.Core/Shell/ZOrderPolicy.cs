@@ -4,8 +4,9 @@ namespace Themia.Core.Shell;
 public enum ZAction
 {
     /// <summary>
-    /// Show Desktop is genuinely in effect: hold the surface at the top of the topmost band, because
-    /// the shell has elevated the desktop window past normal z-order and anything below it is buried.
+    /// Show Desktop is genuinely in effect: hold the surface in the topmost band just above the
+    /// desktop layer (<see cref="ZOrderPolicy.Lift"/>), because the shell has elevated the desktop
+    /// window past normal z-order and anything below it is buried.
     /// </summary>
     PinTopmost = 0,
 
@@ -129,30 +130,86 @@ public static class ZOrderPolicy
     }
 
     /// <summary>
-    /// [S-34b] Whether a lifted surface is still above the desktop layer: topmost, and no desktop
-    /// window on screen above it. Start, the taskbar or another program's topmost window above it is
-    /// fine ([S-33c]): only the desktop rising past it hides the widgets.
+    /// [S-33] [S-33f] [S-34b] Where a lifted surface belongs in the z-order, and whether it is there:
+    /// <b>directly above the desktop layer, below every other window on screen</b>.
+    /// <para>
+    /// The lift exists to get past the desktop window Show Desktop raises, and past nothing else. It
+    /// was "the top of the topmost band", which is above every dock, appbar and always-on-top window
+    /// too: with nothing but such a window on screen (a dock over the work area, its flyout, its
+    /// tooltip) the widgets were drawn over it and took its clicks. A lifted surface goes where the
+    /// desktop's own icons are: just above the highest desktop-layer window on screen, whichever band
+    /// that is in. Start, the taskbar and every other program's topmost window stay above it without
+    /// anything being asked of them ([S-33c]).
+    /// </para>
     /// </summary>
-    /// <param name="topmost">Whether the surface carries <c>WS_EX_TOPMOST</c>.</param>
-    /// <param name="above">Every window above the surface, nearest first.</param>
-    public static bool PinHolds(bool topmost, ReadOnlySpan<StackWindow> above)
+    /// <param name="stack">The whole top-level z-order, top first.</param>
+    /// <param name="self">The surface's own position in <paramref name="stack"/>.</param>
+    public static LiftPlace Lift(ReadOnlySpan<StackWindow> stack, int self)
     {
-        if (!topmost)
-        {
-            return false;
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(self);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(self, stack.Length);
 
-        foreach (var window in above)
+        var desktop = -1;
+        for (var i = 0; i < stack.Length && desktop < 0; i++)
         {
-            if (window == StackWindow.DesktopLayer)
+            if (i != self && stack[i] == StackWindow.DesktopLayer)
             {
-                return false;
+                desktop = i;
             }
         }
 
-        return true;
+        // No desktop on screen (Explorer is down): nothing to be above, and nothing to measure by.
+        if (desktop < 0 || (self < desktop && !stack[(self + 1)..desktop].Contains(StackWindow.Other)))
+        {
+            return new LiftPlace(LiftMove.Stay, -1);
+        }
+
+        var after = desktop - 1 == self ? desktop - 2 : desktop - 1;
+        return after < 0 ? new LiftPlace(LiftMove.Top, -1) : new LiftPlace(LiftMove.Under, after);
     }
+
+    /// <summary>
+    /// [S-33g] What a z-order move asked of a surface (its <c>WM_WINDOWPOSCHANGING</c>) becomes. At
+    /// rest every one becomes the anchor ([S-20a]). While lifted only the controller's own placement
+    /// goes through: an activation (a click in edit mode, the surface taking the keys on a click on
+    /// empty desktop, [S-5550]) would otherwise raise it to the top of the topmost band, over every
+    /// dock, and it used to.
+    /// </summary>
+    /// <param name="lifted">Whether the surfaces are lifted for Show Desktop.</param>
+    /// <param name="ownPlacement">Whether the controller itself is placing the surface right now.</param>
+    public static ZMove Move(bool lifted, bool ownPlacement)
+        => !lifted ? ZMove.ToAnchor : ownPlacement ? ZMove.Allow : ZMove.KeepOrder;
 }
+
+/// <summary>[S-33g] What becomes of a z-order move asked of a surface.</summary>
+public enum ZMove
+{
+    /// <summary>Rewritten to the resting anchor.</summary>
+    ToAnchor = 0,
+
+    /// <summary>The surface keeps the place it has: the move's z-order part is dropped.</summary>
+    KeepOrder = 1,
+
+    /// <summary>Goes through as asked.</summary>
+    Allow = 2,
+}
+
+/// <summary>[S-33f] What <see cref="ZOrderPolicy.Lift"/> asks for.</summary>
+public enum LiftMove
+{
+    /// <summary>The surface is where a lifted surface belongs.</summary>
+    Stay = 0,
+
+    /// <summary>The desktop layer is the top window: above it, the top of the z-order.</summary>
+    Top = 1,
+
+    /// <summary>Directly under the window at <see cref="LiftPlace.After"/>.</summary>
+    Under = 2,
+}
+
+/// <param name="Move">What to do.</param>
+/// <param name="After">For <see cref="LiftMove.Under"/>, the position in the stack of the window to go under; -1 otherwise.</param>
+public readonly record struct LiftPlace(LiftMove Move, int After);
 
 /// <summary>What one window in the z-order is, as far as a surface's place is concerned.</summary>
 public enum StackWindow

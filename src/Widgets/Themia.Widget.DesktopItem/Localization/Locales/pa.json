@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "ਡੈਸਕਟਾਪ ਆਈਟਮ",
-  "desktopItem.desc": "ਤੁਹਾਡੇ ਡੈਸਕਟਾਪ ਤੋਂ ਕੋਈ ਫ਼ਾਈਲ, ਫੋਲਡਰ ਜਾਂ ਸ਼ਾਰਟਕੱਟ"
+  "widgetsC.shortcuts.column.target": "ਟੀਚਾ",
+  "widgetsC.shortcuts.kind.location": "Windows ਟਿਕਾਣਾ",
+  "widgetsC.shortcuts.kind.missing": "ਗੁੰਮ",
+  "widgetsC.shortcuts.kind.path": "ਪਾਥ",
+  "widgetsC.shortcuts.kind.refused": "ਇਜਾਜ਼ਤ ਨਹੀਂ",
+  "widgetsC.shortcuts.menu.addLayout": "ਐਪ ਲੇਆਉਟ…",
+  "widgetsC.shortcuts.menu.addLink": "ਵੈੱਬ ਪਤਾ ਜਾਂ ਪਾਥ…",
+  "widgetsC.shortcuts.menu.changeTarget": "ਟੀਚਾ ਬਦਲੋ…",
+  "widgetsC.shortcuts.settings.locations": "Windows ਟਿਕਾਣੇ",
+  "widgetsC.shortcuts.settings.openWith.double": "ਡਬਲ ਕਲਿੱਕ",
+  "widgetsC.shortcuts.settings.openWith.label": "ਇਸ ਨਾਲ ਖੋਲ੍ਹੋ",
+  "widgetsC.shortcuts.settings.openWith.single": "ਸਿੰਗਲ ਕਲਿੱਕ",
+  "widgetsC.shortcuts.settings.pick.file": "ਫ਼ਾਈਲ…",
+  "widgetsC.shortcuts.settings.pick.folder": "ਫੋਲਡਰ…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ਟੀਚਾ ਗੁੰਮ)\n{target}"
 }

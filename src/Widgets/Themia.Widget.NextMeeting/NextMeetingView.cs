@@ -46,12 +46,13 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     /// <summary>
     /// [S-5710] [S-11407] The meeting: its lines a column at the start, the end column (the countdown over
     /// Join) beside them at every width. The bottom inset is the content's (the top one the card's, [S-5700]).
+    /// [S-12410] One block, centred in the room under the header with the foot's inset counted with it.
     /// </summary>
     private readonly Grid _content = new()
     {
         Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
         ColumnSpacing = NextMeetingJoin.Gap,
-        VerticalAlignment = VerticalAlignment.Top,
+        VerticalAlignment = VerticalAlignment.Center,
         Visibility = Visibility.Collapsed,
         ColumnDefinitions =
         {

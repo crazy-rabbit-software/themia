@@ -37,7 +37,7 @@ namespace Themia.App.Widgets;
 /// differs; the whole slot stays the hit target, so arming, edit mode and the click are one path.
 /// </para>
 /// </summary>
-public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetTopEdge
+public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetTopEdge, IWidgetButton, IWidgetSizeAware, IWidgetCorners
 {
     /// <summary>[S-5700] It owns its top edge: the button is centred in its own inset.</summary>
     public bool OwnsTopEdge => true;
@@ -55,7 +55,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
 
     private IWidgetSurface? _surface;
     private PowerButton? _button;
-    private ReadoutSize _size = ReadoutSizes.Default;
+    private WidgetArea _area;
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -141,22 +141,21 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
     {
         var style = config is PowerButtonConfig { Style: var chosen } && Enum.IsDefined(chosen) ? chosen : PowerButtonStyle.Tile;
         _tile.Look = style == PowerButtonStyle.Round ? TileLook.Round : TileLook.Tile;
-        _size = config is PowerButtonConfig sized ? ReadoutSizes.Normalise(sized.Size) : ReadoutSizes.Default;
 
         _expiry?.Stop();
         _button?.Disarm();
         Lay();
     }
 
-    /// <summary>[S-11307] Its one option past its look, under the Style: its Size.</summary>
-    public static void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    /// <summary>[S-11882] The tile's box: the glyph, its ring and its name grow with it.</summary>
+    public void ApplySize(WidgetArea area)
     {
-        ArgumentNullException.ThrowIfNull(menu);
-        if (config is PowerButtonConfig button)
-        {
-            menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, button));
-        }
+        _area = area;
+        Lay();
     }
+
+    /// <inheritdoc />
+    public void ApplyCorners(CornerRadius corners) => _tile.Corners(corners);
 
     public void Detach()
     {
@@ -187,9 +186,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
     // ---- layout ------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-1912] [S-11307] The Tile block in the card's inset, ringed: the glyph on the step its Size names
-    /// inside its ring's room, the name under it; no state line. The armed sentence and a failure take the name's line, so arming
-    /// moves nothing.
+    /// [S-1912] [S-11882] The Tile block in the card's inset, ringed, centred in its box: the glyph on the step
+    /// the box holds inside its ring's room, the name under it (<see cref="TileRules.Face"/>); no state line.
+    /// The armed sentence and a failure take the name's line, so arming moves nothing. A box with no room for
+    /// the name is the glyph alone: what the next click does is its tooltip, arming its ring.
     /// </summary>
     private void Lay()
     {
@@ -198,7 +198,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        _tile.Use(TileRules.GlyphAt(_size), TileRules.SideAt(_size, stateLine: false) - (2 * FamilySpace.Inset), state: false);
+        var natural = TileRules.Sizing(_tile.Look, stateLine: false).Natural;
+        var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
+        var face = TileRules.Face(width, height, stateLine: false);
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: false, face.Name, face.State);
         Paint();
     }
 

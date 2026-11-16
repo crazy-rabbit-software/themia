@@ -554,7 +554,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         _state.Hide();
 
-        var plan = ContactsPlan.Of(_area, _config);
+        var plan = ContactsPlan.Of(_area, _config, XamlRoot?.RasterizationScale ?? 1);
         switch (plan.Layout)
         {
             case ContactsLayout.Details:
@@ -621,7 +621,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
 
-            var block = new RowBlock(RowKind.List, plan.Avatar ? FamilyShape.IconLarge : 0) { Lines = plan.Lines };
+            var block = new RowBlock(RowKind.List, plan.Avatar ? FamilyShape.IconLarge : 0) { Lines = plan.Lines, Height = plan.Pitch };
             if (compact)
             {
                 block.Show(contact.Name, plan.Aside ? ContactRules.CompactDetail(contact) : null);
@@ -681,7 +681,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 cells.Children.Add(cell);
             }
 
-            var block = new RowBlock(RowKind.List, lead: 0);
+            var block = new RowBlock(RowKind.List, lead: 0) { Height = plan.Pitch };
             block.Cells(cells);
             list.Children.Add(Item(block, contact));
         }

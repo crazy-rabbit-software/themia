@@ -14,7 +14,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-906]..[S-915] This display's view bar: what it offers, where it sits, the clicks and drags
-/// on it, and its share of the hit region. The rules are in Core <see cref="ViewBarRules"/>; every
+/// on it. The rules are in Core <see cref="ViewBarRules"/>; every
 /// switch goes through <see cref="AppState.ShowViewOn"/> ([S-19]).
 /// </summary>
 internal sealed partial class DesktopWindow : IViewBarOwner
@@ -88,9 +88,9 @@ internal sealed partial class DesktopWindow : IViewBarOwner
 
     /// <summary>
     /// The edit toolbar's rect in the surface's DIPs. Computed from its measured size and its
-    /// alignment (centred along the top of the work area, [S-852]) rather than read back from
-    /// layout, because it has just been made visible when edit mode starts and has not been laid
-    /// out yet.
+    /// alignment (centred along the top of the work area, [S-852]: it never moves) rather than read
+    /// back from layout, because it has just been made visible when edit mode starts and has not been
+    /// laid out yet.
     /// </summary>
     private PixelRect ToolbarRect(PixelRect area)
     {
@@ -101,7 +101,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         return new PixelRect(area.X + ((area.Width - width) / 2), area.Y + ChromeTopMargin, width, height);
     }
 
-    /// <summary>[S-912] The bar's box in the surface's DIPs, for the hit region; null when it is not drawn.</summary>
+    /// <summary>[S-912] The bar's box in the surface's DIPs; null when it is not drawn.</summary>
     private PixelRect? ViewBarBox()
     {
         if (_viewBar.Visibility != Visibility.Visible)
@@ -114,12 +114,9 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         return width > 0 && height > 0 ? new PixelRect(Canvas.GetLeft(_viewBar), Canvas.GetTop(_viewBar), width, height) : null;
     }
 
-    /// <summary>The bar's real size arrived (or changed with a rename): move it and its hit region with it.</summary>
+    /// <summary>The bar's real size arrived (or changed with a rename): move it.</summary>
     private void OnViewBarSizeChanged(object sender, SizeChangedEventArgs args)
-    {
-        PositionViewBar(_barDragAnchor ?? ViewBarRules.For(_host.State, _monitor.Id).Anchor);
-        ApplyHitRegion();
-    }
+        => PositionViewBar(_barDragAnchor ?? ViewBarRules.For(_host.State, _monitor.Id).Anchor);
 
     // ---- IViewBarOwner -----------------------------------------------------------------------
 

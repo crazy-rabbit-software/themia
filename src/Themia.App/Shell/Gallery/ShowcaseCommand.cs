@@ -105,7 +105,7 @@ internal static class ShowcaseCommand
         var displayScale = state.MonitorScales.TryGetValue(monitorId, out var own) && double.IsFinite(own) && own > 0 ? own : 1.0;
 
         var kinds = ShowcaseKind.Catalog();
-        var views = ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx, displayScale);
+        var views = ShowcaseViews.Build(kinds, screen, displayScale);
         var removed = ShowcaseViews.Replace(state, views);
 
         Write(path, state);

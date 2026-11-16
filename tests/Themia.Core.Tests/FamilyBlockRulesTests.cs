@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Xunit;
 
@@ -311,42 +312,75 @@ public sealed class FamilyBlockRulesTests
         => Assert.True(ReadoutRules.Fold(FamilyType.Big40, new ReadoutText("1.0675", " EUR"), "", 200).DeltaBeside);
 
     [Fact]
-    public void S11307_a_toggles_or_power_buttons_card_is_fixed_by_its_size_and_look_and_holds_its_glyph_and_lines()
+    public void S11882_a_toggles_or_power_buttons_card_is_resized_freely_from_its_glyph_alone()
     {
-        foreach (var size in new[] { Themia.Core.Widgets.ReadoutSize.Small, Themia.Core.Widgets.ReadoutSize.Medium, Themia.Core.Widgets.ReadoutSize.Large })
+        // Owner, 2026-11-15: "widgets like the toggle buttons should not have size limitations".
+        foreach (var stateLine in new[] { true, false })
         {
-            var tile = TileRules.Sizing(TileLook.Tile, size);
-            Assert.True(tile.FixedWidth && tile.FixedHeight);
-            Assert.Equal(tile.Natural.Width, tile.Natural.Height);
-            Assert.Equal(tile, TileRules.Sizing(TileLook.Round, size));
+            var tile = TileRules.Sizing(TileLook.Tile, stateLine);
+            Assert.False(tile.FixedWidth || tile.FixedHeight);
+            Assert.Empty(tile.Problems());
+            Assert.Equal(tile, TileRules.Sizing(TileLook.Round, stateLine));
 
-            // The glyph, its gap, the label and the state line fit inside the inset.
-            Assert.True(TileRules.GlyphAt(size).FontSize + TileRules.Below(true, true) + 24 <= tile.Natural.Height);
-
-            var row = TileRules.Sizing(TileLook.Switch, size);
-            Assert.True(row.FixedWidth && row.FixedHeight);
-            Assert.Equal(60, row.Natural.Height);
-            Assert.Equal(new SwitchParts(Glyph: true, Lines: true), TileRules.Switch(row.Natural.Width - 24));
+            // The least is the 28 glyph alone in the inset; the most is large on both axes, each free.
+            Assert.Equal(new SizeDip(52, 52), tile.Min);
+            Assert.Equal(new SizeDip(TileRules.MaxSide, TileRules.MaxSide), tile.Max);
+            Assert.True(TileRules.MaxSide >= 400);
         }
 
-        Assert.Equal(128, TileRules.SideAt(Themia.Core.Widgets.ReadoutSize.Medium));
-        Assert.Equal(FamilyType.Big40, TileRules.GlyphAt(Themia.Core.Widgets.ReadoutSize.Medium));
+        // Where a new one lands, as the Medium tiles were: a toggle 116, a power button 100.
+        Assert.Equal(new SizeDip(116, 116), TileRules.Sizing(TileLook.Tile).Natural);
+        Assert.Equal(new SizeDip(100, 100), TileRules.Sizing(TileLook.Tile, stateLine: false).Natural);
+
+        var row = TileRules.Sizing(TileLook.Switch);
+        Assert.Empty(row.Problems());
+        Assert.False(row.FixedWidth || row.FixedHeight);
+        Assert.Equal(60, row.Min.Height);
+        Assert.Equal(new SwitchParts(Glyph: true, Lines: false), TileRules.Switch(row.Min.Width - 24));
+        Assert.Equal(new SwitchParts(Glyph: true, Lines: true), TileRules.Switch(row.Natural.Width - 24));
     }
 
     [Fact]
-    public void S11804_a_tiles_square_holds_its_name_on_two_lines_under_the_glyph()
+    public void S11882_the_glyph_and_its_words_grow_with_the_box_and_always_fit_it()
     {
-        var sizes = new[] { Themia.Core.Widgets.ReadoutSize.Small, Themia.Core.Widgets.ReadoutSize.Medium, Themia.Core.Widgets.ReadoutSize.Large };
-        Assert.Equal([116.0, 128, 160], sizes.Select(s => TileRules.SideAt(s)));
-        Assert.Equal([100.0, 120, 160], sizes.Select(s => TileRules.SideAt(s, stateLine: false)));
-        foreach (var size in sizes)
+        // The smallest box is the glyph alone; the natural ones hold the glyph, two name lines and the state line.
+        Assert.Equal(new TileFace(FamilyType.Big28, false, FamilyType.Body, FamilyType.Caption), TileRules.Face(52, 52));
+        Assert.Equal(new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption), TileRules.Face(116, 116));
+        Assert.Equal(new TileFace(FamilyType.Big28, true, FamilyType.Body, FamilyType.Caption), TileRules.Face(100, 100, stateLine: false));
+
+        // A bigger box takes a bigger step, and past 68 the words grow too.
+        Assert.Equal(FamilyType.Big40, TileRules.Face(128, 128).Glyph);
+        Assert.True(TileRules.Face(480, 480).Glyph.FontSize >= 96);
+        Assert.Equal(FamilyType.Regular(FamilyType.Title), TileRules.Face(480, 480).Name);
+
+        // Wide and short, or tall and narrow: the glyph alone, as large as the short side holds.
+        Assert.False(TileRules.Face(400, 60).Texted);
+        Assert.False(TileRules.Face(52, 400).Texted);
+        Assert.Equal(FamilyType.Big28, TileRules.Face(52, 400).Glyph);
+
+        // Never larger than the box: every box from the least to the most, on both axes.
+        for (var w = 52.0; w <= TileRules.MaxSide; w += 12)
         {
-            foreach (var state in new[] { true, false })
+            for (var h = 52.0; h <= TileRules.MaxSide; h += 20)
             {
-                var room = TileRules.SideAt(size, state) - (2 * FamilySpace.Inset);
-                var parts = TileRules.GlyphAt(size).FontSize + FamilySpace.S2 + (TileRules.NameLines * FamilyType.Body.LineHeight) + (state ? FamilyType.Caption.LineHeight : 0);
-                Assert.True(parts <= room, $"{size} {state}: {parts} > {room}");
+                foreach (var stateLine in new[] { true, false })
+                {
+                    var face = TileRules.Face(w, h, stateLine);
+                    var (iw, ih) = (w - 24, h - 24);
+                    var below = face.Texted ? FamilySpace.S2 + (TileRules.NameLines * face.Name.LineHeight) + (stateLine ? face.State.LineHeight : 0) : 0;
+                    Assert.True(face.Glyph.FontSize <= iw && face.Glyph.FontSize + below <= ih, $"{w} x {h}: {face}");
+                    Assert.True(!face.Texted || TileRules.NameRoom(face.Name) <= iw, $"{w} x {h}: {face}");
+                }
             }
+        }
+
+        // Growing never shrinks the glyph.
+        var last = 0.0;
+        for (var side = 52.0; side <= TileRules.MaxSide; side += 4)
+        {
+            var glyph = TileRules.Face(side, side).Glyph.FontSize;
+            Assert.True(glyph >= last, $"{side}");
+            last = glyph;
         }
     }
 }

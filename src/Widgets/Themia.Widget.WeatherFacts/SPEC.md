@@ -19,7 +19,7 @@ their translations). Tests: `Tests/WeatherFactsTests.cs` (run by `tests/Themia.M
   service did not send is the em dash, never a row left out (the card's height is the pick's).
 - **[S-11105]** **What it shows** is its pick (`WeatherFactsConfig.Facts`): which facts and in what
   order, one fact row each ([S-6711]: its 16 glyph, the name, the value at the end), from the content's
-  top; a new card picks Today, Feels like, Humidity, Wind. Nothing sheds or appears with the box; a
+  top to its foot ([S-12402]); a new card picks Today, Feels like, Humidity, Wind. Nothing sheds or appears with the box; a
   name or value too long ends in its ellipsis. A stored pick that is empty, holds a fact twice or one
   it does not have is repaired (load validation, logged). A reading kept through a failed refresh stays
   and the header's problem glyph says so ([S-7042]); with none the Status row says why ([S-6734]). It
@@ -34,6 +34,11 @@ their translations). Tests: `Tests/WeatherFactsTests.cs` (run by `tests/Themia.M
   (the weather family's search, [S-3722]); behind a divider the links **Temperature unit** and **Update
   interval** ([S-3749]). A click on the card opens the forecast for its place, as the reading's
   ([S-2035]). Tests `WeatherFactsTests`.
+- **[S-12402]** **The rows fill the content** ([S-12400]): the fact rows reach from the content's top to
+  the card's edge ([S-12410]: the foot's inset is theirs), a box taller than the pick stretching them up to
+  half again, then spacing them evenly
+  (`SkyFactList`, a `SpreadStack`; the air facts' rows share it); each row spans the width, its value at
+  the end.
 
 Needs a live pass: the pick's reorder and remove on the live menu, a drag of the bottom edge, the
 card against the real service.

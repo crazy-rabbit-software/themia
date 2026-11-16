@@ -125,8 +125,6 @@
     "one": "Διαγραφή {count} γραφικού στοιχείου",
     "other": "Διαγραφή {count} γραφικών στοιχείων"
   },
-  "shell.card.doneEditing": "Τέλος επεξεργασίας",
-  "shell.card.editLayout": "Επεξεργασία διάταξης",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Ρύθμιση",
   "shell.setup.hint": "Ρύθμισε ό,τι χρειάζεται αυτό το γραφικό στοιχείο",
   "shell.toolbar.addWidget": "Προσθήκη γραφικού στοιχείου",
-  "shell.toolbar.snapName": "Κούμπωμα στο πλέγμα",
-  "shell.toolbar.collisionsName": "Αποτροπή επικάλυψης γραφικών στοιχείων",
   "shell.editBar.selected": {
     "one": "{count} επιλεγμένο",
     "other": "{count} επιλεγμένα"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Μέγεθος κειμένου",
   "shell.appearance.systemFont": "Προεπιλογή συστήματος",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Απόσταση μεταξύ γραφικών στοιχείων",
   "shell.motion.slide": "Ολίσθηση",
   "shell.motion.sides": "Πλάγια",
   "shell.motion.topBottom": "Πάνω και κάτω",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Κάθε λεπτό",
   "shell.refresh.everyHour": "Κάθε ώρα",
   "shell.color.custom": "Προσαρμοσμένο χρώμα",
-  "shell.color.pickCustom": "Επιλογή προσαρμοσμένου χρώματος",
   "shell.color.pickFromScreen": "Επιλογή χρώματος από την οθόνη",
   "shell.color.pickFailed": "Δεν ήταν δυνατή η ανάγνωση των χρωμάτων στην οθόνη",
   "shell.icon.home": "Σπίτι",

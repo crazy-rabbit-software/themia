@@ -50,6 +50,22 @@ public static class ForecastGrid
         return ((days + rows - 1) / rows, rows);
     }
 
+    /// <summary>
+    /// [S-12403] How many cells each line holds, top to bottom: <paramref name="columns"/> a line, the
+    /// last one the days left (it spreads them across the whole width). No days, no lines.
+    /// </summary>
+    public static IReadOnlyList<int> Lines(int days, int columns)
+    {
+        columns = Math.Max(1, columns);
+        var lines = new List<int>();
+        for (var left = Math.Max(0, days); left > 0; left -= columns)
+        {
+            lines.Add(Math.Min(columns, left));
+        }
+
+        return lines;
+    }
+
     /// <summary>The length of <paramref name="count"/> cells of <paramref name="cell"/>, 12 apart.</summary>
     public static double Length(int count, double cell) => (count * cell) + ((count - 1) * Gap);
 

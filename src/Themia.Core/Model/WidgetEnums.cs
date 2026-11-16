@@ -39,6 +39,19 @@ public enum WidgetBorderStyle
 }
 
 /// <summary>
+/// [S-2123] What a widget card's surface is made of: a solid fill over the frost (every style but one), or
+/// Liquid glass, Apple's (iOS 26, macOS 26): a clear tint that rises as far as the text needs over what lies
+/// behind, a bright rim lit from the top left, a specular sheen, an inner lens edge and a soft lift
+/// (<see cref="Widgets.LiquidGlass"/>).
+/// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<CardMaterial>))]
+public enum CardMaterial
+{
+    Solid = 0,
+    LiquidGlass = 1,
+}
+
+/// <summary>
 /// The one-shot animation widgets play when a view appears. A closed set, because each value picks
 /// a different piece of code rather than a parameter.
 /// </summary>

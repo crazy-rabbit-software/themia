@@ -15,7 +15,8 @@ public interface ISetupRule
 
     /// <summary>
     /// [S-1881] Whether it runs while it waits, because its setup happens in the widget itself
-    /// (the shortcuts' drop target) rather than on its properties menu.
+    /// (a shortcut's drop target) as well as on its page: the card then shows no Set up row over it
+    /// and the view draws its own waiting look.
     /// </summary>
     bool SetsUpInPlace => false;
 

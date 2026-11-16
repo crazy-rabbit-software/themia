@@ -146,7 +146,7 @@ internal static class SwitchCheck
             else
             {
                 var kinds = ModuleCatalog.Widgets.Select(k => new ShowcaseKind(k.Id, k.Name, k.Glyph)).ToList();
-                ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx));
+                ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, screen));
             }
 
             ViewState? galleries = null;
@@ -573,7 +573,7 @@ internal static class SwitchCheck
             (new WidgetId("cpu"), new FracRect(0.22, 0.04, 0.14, 0.16)),
             (new WidgetId("memory"), new FracRect(0.38, 0.04, 0.14, 0.16)),
             (new WidgetId("folder"), new FracRect(0.02, 0.22, 0.24, 0.40)),
-            (new WidgetId("shortcuts"), new FracRect(0.28, 0.22, 0.18, 0.16)),
+            (new WidgetId("desktopItem"), new FracRect(0.28, 0.22, 0.18, 0.16)),
             (new WidgetId("notes"), new FracRect(0.48, 0.22, 0.22, 0.30)),
             (new WidgetId("music"), new FracRect(0.72, 0.04, 0.24, 0.18)),
             (new WidgetId("volume"), new FracRect(0.72, 0.24, 0.24, 0.16)),

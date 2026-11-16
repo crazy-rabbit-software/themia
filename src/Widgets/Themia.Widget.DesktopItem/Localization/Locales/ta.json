@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "டெஸ்க்டாப் உருப்படி",
-  "desktopItem.desc": "உங்கள் டெஸ்க்டாப்பில் உள்ள கோப்பு, கோப்புறை அல்லது குறுக்குவழி"
+  "widgetsC.shortcuts.column.target": "இலக்கு",
+  "widgetsC.shortcuts.kind.location": "Windows இருப்பிடம்",
+  "widgetsC.shortcuts.kind.missing": "காணவில்லை",
+  "widgetsC.shortcuts.kind.path": "பாதை",
+  "widgetsC.shortcuts.kind.refused": "அனுமதிக்கப்படவில்லை",
+  "widgetsC.shortcuts.menu.addLayout": "ஆப்ஸ் தளவமைப்பு…",
+  "widgetsC.shortcuts.menu.addLink": "இணைய முகவரி அல்லது பாதை…",
+  "widgetsC.shortcuts.menu.changeTarget": "இலக்கை மாற்று…",
+  "widgetsC.shortcuts.settings.locations": "Windows இருப்பிடங்கள்",
+  "widgetsC.shortcuts.settings.openWith.double": "இருமுறை கிளிக்",
+  "widgetsC.shortcuts.settings.openWith.label": "திறக்கும் முறை",
+  "widgetsC.shortcuts.settings.openWith.single": "ஒருமுறை கிளிக்",
+  "widgetsC.shortcuts.settings.pick.file": "கோப்பு…",
+  "widgetsC.shortcuts.settings.pick.folder": "கோப்புறை…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (இலக்கு இல்லை)\n{target}"
 }

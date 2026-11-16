@@ -59,7 +59,6 @@ public class EdgeOverhangTests
         var halfway = expected with { X = (expected.X + flushX) / 2, Y = (expected.Y + flushY) / 2 };
 
         Assert.Equal(halfway, GridGeometry.Clamp(halfway, Screen));
-        Assert.Equal(halfway, GridGeometry.Settle(halfway, Screen, snapEnabled: false));
         Assert.NotEqual(pushed, expected);
         Assert.False(string.IsNullOrEmpty(edge));
     }
@@ -71,7 +70,7 @@ public class EdgeOverhangTests
     [InlineData(5.0, 5.0)]
     public void S6608_a_widget_pushed_past_a_corner_keeps_a_visible_minimum_square_in_it(double x, double y)
     {
-        var settled = GridGeometry.Settle(new FracRect(x, y, 0.3, 0.3), Screen, snapEnabled: false);
+        var settled = GridGeometry.Settle(new FracRect(x, y, 0.3, 0.3), Screen);
 
         var (vx, vy) = Visible(settled, Screen);
         Assert.Equal(GridGeometry.MinVisiblePx, vx, 6);
@@ -154,9 +153,9 @@ public class EdgeOverhangTests
             _ => new FracRect(0.4, -0.3, 0.2, 0.6),
         };
 
-        foreach (var snap in new[] { true, false })
+        // [S-06] On the grid, the one path.
         {
-            var settled = GridGeometry.Settle(GridGeometry.Resize(start, handle, dx, dy, Screen), Screen, snap, handle);
+            var settled = GridGeometry.Settle(GridGeometry.Resize(start, handle, dx, dy, Screen), Screen, handle);
 
             var (vx, vy) = Visible(settled, Screen);
             Assert.True(vx >= GridGeometry.MinVisiblePx - 1e-6);
@@ -171,10 +170,12 @@ public class EdgeOverhangTests
     {
         var start = new FracRect(0.1, 0.1, 0.2, 0.2);
 
-        var settled = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.TopLeft, -0.2, -0.2, Screen), Screen, false, ResizeHandle.TopLeft);
+        var settled = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.TopLeft, -0.2, -0.2, Screen), Screen, ResizeHandle.TopLeft);
 
-        Assert.Equal(-0.1, settled.X, 9);
-        Assert.Equal(-0.1, settled.Y, 9);
+        // [S-06] The moved corner on the grid line nearest -0.1, past the screen's edge.
+        Assert.InRange(settled.X, -0.1 - (1.0 / 192), -0.1 + (1.0 / 192));
+        Assert.InRange(settled.Y, -0.1 - (1.0 / 108), -0.1 + (1.0 / 108));
+        Assert.True(settled.X < 0 && settled.Y < 0);
         Assert.Equal(start.Right, settled.Right, 12);
         Assert.Equal(start.Bottom, settled.Bottom, 12);
     }
@@ -190,8 +191,8 @@ public class EdgeOverhangTests
     {
         var w = 200.0 / 1920;
 
-        var left = GridGeometry.Settle(new FracRect(offsetPx / 1920, 0.4, w, 0.1), Screen, snapEnabled: true);
-        var right = GridGeometry.Settle(new FracRect(1 - w - (offsetPx / 1920), 0.4, w, 0.1), Screen, snapEnabled: true);
+        var left = GridGeometry.Settle(new FracRect(offsetPx / 1920, 0.4, w, 0.1), Screen);
+        var right = GridGeometry.Settle(new FracRect(1 - w - (offsetPx / 1920), 0.4, w, 0.1), Screen);
 
         Assert.Equal(0, left.X, 12);
         Assert.Equal(1, right.Right, 9);
@@ -200,18 +201,11 @@ public class EdgeOverhangTests
     [Fact]
     public void S6609_past_the_magnet_the_drag_goes_over_the_edge()
     {
-        var settled = GridGeometry.Settle(new FracRect(-30.0 / 1920, 0.4, 200.0 / 1920, 0.1), Screen, snapEnabled: true);
+        var settled = GridGeometry.Settle(new FracRect(-30.0 / 1920, 0.4, 200.0 / 1920, 0.1), Screen);
 
         Assert.Equal(-30.0 / 1920, settled.X, 9);
     }
 
-    [Fact]
-    public void S6609_without_the_snap_aid_there_is_no_magnet()
-    {
-        var settled = GridGeometry.Settle(new FracRect(-4.0 / 1920, 0.4, 0.1, 0.1), Screen, snapEnabled: false);
-
-        Assert.Equal(-4.0 / 1920, settled.X, 12);
-    }
 
     [Fact]
     public void S6609_a_resized_edge_within_the_magnet_lands_flush_on_a_taskbar_off_the_grid()
@@ -221,7 +215,7 @@ public class EdgeOverhangTests
         var start = new FracRect(0.2, 0.7, 0.2, 0.15);
         var dy = (1035.0 / 1080) - start.Bottom;
 
-        var settled = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, dy, screen), screen, true, ResizeHandle.Bottom);
+        var settled = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, dy, screen), screen, ResizeHandle.Bottom);
 
         Assert.Equal(1032.0 / 1080, settled.Bottom, 12);
         Assert.Equal(start.Y, settled.Y, 12);
@@ -234,9 +228,56 @@ public class EdgeOverhangTests
         FracRect[] start = [new(0.5, 0.5, 0.1, 0.1), new(0.65, 0.5, 0.1, 0.1)];
 
         // The block's right edge (0.75) dragged to 1.005: 5 DIPs over, inside the magnet.
-        var delta = BlockGeometry.Move(start, 0.255, 0, screen, snapEnabled: true);
+        var delta = BlockGeometry.Move(start, 0.255, 0, screen);
 
         Assert.Equal(1, BlockGeometry.Apply(start[1], delta, screen).Right, 9);
         Assert.Equal(0.15, BlockGeometry.Apply(start[1], delta, screen).X - BlockGeometry.Apply(start[0], delta, screen).X, 9);
+    }
+
+    // ---- [S-2330] Over the edge off: the whole widget stays on the work area ------------------------
+
+    private static readonly ScreenMetrics Whole = new(1920, 1080) { HoldsWhole = true, Allowed = new FracRect(0, 0, 1, 1000.0 / 1080) };
+
+    [Theory]
+    [MemberData(nameof(Edges))]
+    public void S2330_with_over_the_edge_off_a_rect_pushed_past_an_edge_stops_inside_it(string edge, FracRect pushed, FracRect _)
+    {
+        var settled = GridGeometry.Clamp(pushed, Whole);
+        var a = Whole.Allowed;
+
+        Assert.True(settled.X >= a.X - Eps && settled.Right <= a.Right + Eps, edge);
+        Assert.True(settled.Y >= a.Y - Eps && settled.Bottom <= a.Bottom + Eps, edge);
+        Assert.Equal((0.2, 0.2), (settled.W, settled.H));
+    }
+
+    [Fact]
+    public void S2330_with_over_the_edge_off_a_resized_edge_stops_on_the_work_areas_edge()
+    {
+        var start = new FracRect(0.7, 0.7, 0.2, 0.2);
+
+        var right = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.5, 0.5, Whole), Whole, ResizeHandle.BottomRight);
+        Assert.Equal(1, right.Right, 9);
+        Assert.Equal(Whole.Allowed.Bottom, right.Bottom, 9);
+        Assert.Equal((0.7, 0.7), (right.X, right.Y));
+
+        var left = GridGeometry.Settle(GridGeometry.Resize(new FracRect(0.1, 0.1, 0.2, 0.2), ResizeHandle.TopLeft, -0.5, -0.5, Whole), Whole, ResizeHandle.TopLeft);
+        Assert.Equal((0, 0), (left.X, left.Y));
+        Assert.Equal(0.3, left.Right, 9);
+        Assert.Equal(0.3, left.Bottom, 9);
+
+        // On (the default): the same drag hangs over, as [S-6608] lets it.
+        var over = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.5, 0.5, Screen), Screen, ResizeHandle.BottomRight);
+        Assert.True(over.Right > 1);
+    }
+
+    [Fact]
+    public void S2330_with_over_the_edge_off_a_block_stops_where_its_first_widget_meets_the_edge()
+    {
+        FracRect[] start = [new FracRect(0.5, 0.4, 0.2, 0.2), new FracRect(0.72, 0.4, 0.2, 0.2)];
+
+        var delta = BlockGeometry.Move(start, 0.5, 0, Whole);
+
+        Assert.Equal(1, BlockGeometry.Apply(start[1], delta, Whole).Right, 9);
+        Assert.Equal(0.22, BlockGeometry.Apply(start[1], delta, Whole).X - BlockGeometry.Apply(start[0], delta, Whole).X, 9);
     }
 }

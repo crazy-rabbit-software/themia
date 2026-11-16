@@ -6,7 +6,7 @@ namespace Themia.Core.Model;
 [JsonConverter(typeof(JsonStringEnumConverter<MonthEvents>))]
 public enum MonthEvents
 {
-    /// <summary>Their titles as chips.</summary>
+    /// <summary>[S-11547] Their titles: the config's lines of chips a day, a month view's.</summary>
     Chips = 0,
 
     /// <summary>A dot each, in the calendar's colour.</summary>

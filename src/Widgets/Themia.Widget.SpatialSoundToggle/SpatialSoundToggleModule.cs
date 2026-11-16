@@ -29,13 +29,10 @@ public sealed class SpatialSoundToggleModule : IWidgetModule
         Label = SpatialSoundToggleStr.Toggles_SpatialSound_Label.Local(),
         Description = SpatialSoundToggleStr.Toggles_SpatialSound_Desc.Local(),
         Glyph = Glyphs.SpatialSound,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 1, 2),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

@@ -21,7 +21,6 @@ internal sealed record MotionStage(
     double Width,
     double Height,
     IReadOnlyList<MotionActor> Actors,
-    double GapPx,
     double CornerRadius);
 
 /// <summary>
@@ -40,6 +39,9 @@ internal sealed class MotionShow
 
     private readonly List<WidgetCard> _covered = [];
     private readonly List<Visual> _tilted = [];
+
+    /// <summary>[S-1017] Every visual a keyframe track moves (the cards', the shaken layer): put at rest when the show ends.</summary>
+    private readonly List<Visual> _moved = [];
     private readonly Action<MotionShow> _ended;
     private CompositionScopedBatch? _batch;
     private bool _over;
@@ -55,7 +57,10 @@ internal sealed class MotionShow
 
     public IntroAnimation Style { get; }
 
-    /// <summary>The full-screen overlay while it plays; the surface widens its hit region for it.</summary>
+    /// <summary>The show has ended: its animations completed, or it was stopped.</summary>
+    public bool Over => _over;
+
+    /// <summary>The full-screen overlay while it plays.</summary>
     public HyperspaceOverlay? Overlay { get; private set; }
 
     /// <summary>
@@ -93,7 +98,7 @@ internal sealed class MotionShow
 
             if (show.Overlay is not null)
             {
-                Shake(kit, stage, schedule);
+                show.Shake(kit, stage, schedule);
             }
 
             if (IntroMotion.UsesTiles(style))
@@ -124,9 +129,9 @@ internal sealed class MotionShow
     }
 
     /// <summary>
-    /// End the show now: a view change replaces it, or the surface closes. The cards keep whatever
-    /// their animations reached and the next show (or none) takes them from there; tiles and the
-    /// overlay go at once.
+    /// End the show now: a view change replaces it, a later layout pass ends it ([S-1017]), or the surface
+    /// closes. Every card is put at rest at once (<see cref="IntroPose.Rest"/>), wherever its animations
+    /// had got to or whether they ever ran; tiles and the overlay go at once.
     /// </summary>
     public void Stop() => Finish();
 
@@ -146,22 +151,22 @@ internal sealed class MotionShow
                 _ => (0.0, 0.0),
             };
 
-            Animate(kit, card, tracks, start, schedule.WidgetMs, schedule.DelayMs(i), stage.GapPx);
+            Animate(kit, card, tracks, start, schedule.WidgetMs, schedule.DelayMs(i));
         }
     }
 
-    private void Animate(MotionKit kit, WidgetCard card, IntroTracks tracks, (double X, double Y) start, double ms, double delayMs, double gapPx)
+    private void Animate(MotionKit kit, WidgetCard card, IntroTracks tracks, (double X, double Y) start, double ms, double delayMs)
     {
         var visual = ElementCompositionPreview.GetElementVisual(card);
+        _moved.Add(visual);
         var (w, h) = SizeOf(card);
         var width = (float)w;
         var height = (float)h;
-        var inset = (float)(Math.Max(0, gapPx) / 2);
 
         if (tracks.Axis == IntroAxis.Tilt)
         {
             // Flip turns about the painted surface's top edge, toward the viewer.
-            visual.CenterPoint = new Vector3(width / 2, inset, 0);
+            visual.CenterPoint = new Vector3(width / 2, 0, 0);
             visual.RotationAxis = Vector3.UnitX;
         }
         else
@@ -174,7 +179,7 @@ internal sealed class MotionShow
         {
             // Perspective about the same pivot. Flat at rest — a z = 0 point is untouched by it — and
             // reset at the end anyway, so a card never keeps a transform it did not ask for.
-            var pivot = new Vector3(width / 2, inset, 0);
+            var pivot = new Vector3(width / 2, 0, 0);
             var perspective = Matrix4x4.Identity;
             perspective.M34 = -1f / (float)IntroTracks.PerspectiveDips;
             visual.TransformMatrix = Matrix4x4.CreateTranslation(-pivot) * perspective * Matrix4x4.CreateTranslation(pivot);
@@ -207,13 +212,12 @@ internal sealed class MotionShow
     private List<HackerTile.Built> CoverAll(MotionKit kit, MotionStage stage, IntroSchedule schedule)
     {
         var built = new List<HackerTile.Built>(stage.Actors.Count);
-        var inset = Math.Max(0, stage.GapPx);
 
         for (var i = 0; i < stage.Actors.Count; i++)
         {
             var card = stage.Actors[i].Card;
             var (width, height) = SizeOf(card);
-            var tile = HackerTile.Build(i, width - inset, height - inset, stage.CornerRadius);
+            var tile = HackerTile.Build(i, width, height, stage.CornerRadius);
             card.SetMotionCover(tile.Tile);
             _covered.Add(card);
 
@@ -236,9 +240,10 @@ internal sealed class MotionShow
     }
 
     /// <summary>[S-1006] The widget layer takes the warp's hits, on the overlay's scaled clock; the stars stay steady.</summary>
-    private static void Shake(MotionKit kit, MotionStage stage, IntroSchedule schedule)
+    private void Shake(MotionKit kit, MotionStage stage, IntroSchedule schedule)
     {
         var visual = ElementCompositionPreview.GetElementVisual(stage.Layer);
+        _moved.Add(visual);
         visual.CenterPoint = new Vector3((float)(stage.Width / 2), (float)(stage.Height / 2), 0);
         visual.RotationAxis = Vector3.UnitZ;
         ElementCompositionPreview.SetIsTranslationEnabled(stage.Layer, true);
@@ -249,6 +254,24 @@ internal sealed class MotionShow
         var delay = schedule.Scaled(Hyperspace.StaticMs);
         visual.StartAnimation("Translation", kit.Move(move, (0, 0), duration, delay));
         visual.StartAnimation("RotationAngleInDegrees", kit.Scalar(roll, duration, delay));
+    }
+
+    /// <summary>
+    /// [S-1017] A visual at rest: its tracks stopped and every animated property at the identity, set
+    /// outright. A finished show's tracks already ended there; a stopped one, or one whose compositor
+    /// never ran it (its batch never completed), would otherwise keep a card at its start pose, unseen.
+    /// </summary>
+    private static void AtRest(Visual visual)
+    {
+        var rest = IntroPose.Rest;
+        visual.StopAnimation("Opacity");
+        visual.StopAnimation("Scale");
+        visual.StopAnimation("Translation");
+        visual.StopAnimation("RotationAngleInDegrees");
+        visual.Opacity = (float)rest.Opacity;
+        visual.Scale = new Vector3((float)rest.Scale, (float)rest.Scale, 1);
+        visual.RotationAngleInDegrees = (float)rest.Rotation;
+        visual.Properties.InsertVector3("Translation", new Vector3((float)rest.X, (float)rest.Y, 0));
     }
 
     private void Finish()
@@ -272,6 +295,19 @@ internal sealed class MotionShow
                 visual.TransformMatrix = Matrix4x4.Identity;
             }
 
+            foreach (var visual in _moved)
+            {
+                // One card that refuses must not leave the others mid-flight.
+                try
+                {
+                    AtRest(visual);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(Scope, "a card could not be put at rest after its intro", ex);
+                }
+            }
+
             Overlay?.Dispose();
         }
         catch (Exception ex)
@@ -281,6 +317,7 @@ internal sealed class MotionShow
 
         _covered.Clear();
         _tilted.Clear();
+        _moved.Clear();
         _batch = null;
 
         try

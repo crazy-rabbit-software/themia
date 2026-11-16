@@ -116,12 +116,11 @@ internal sealed partial class AppHost
         SelectMany(view.Id, [id]);
     }
 
-    /// <summary>[S-2453] Whether a card draws its own edit markers: a lone widget, or the member of the entered group that is selected.</summary>
-    public bool ShowsOwnMarkers(WidgetInstance widget)
+    /// <summary>[S-2453] What a card draws of its edit markers (<see cref="SelectionRules.MarksOf"/>).</summary>
+    public EditMarks MarksOf(WidgetInstance widget)
     {
         ArgumentNullException.ThrowIfNull(widget);
-        return widget.Group is null
-            || (string.Equals(Selection.Entered, widget.Group, StringComparison.Ordinal) && Selection.Contains(widget.Id));
+        return SelectionRules.MarksOf(widget.Group, Selection.Entered, Selection.Contains(widget.Id));
     }
 
     /// <summary>[S-2454] The card menu's facts about groups, folded into the menu's.</summary>

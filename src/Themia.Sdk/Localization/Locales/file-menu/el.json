@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Επιλογή άλλης εφαρμογής",
+  "folderMenu.compressToZip": "Συμπίεση σε αρχείο ZIP",
+  "folderMenu.copyAsPath": "Αντιγραφή ως διαδρομής",
+  "folderMenu.openInNewWindow": "Άνοιγμα σε νέο παράθυρο",
+  "folderMenu.openWith": "Άνοιγμα με",
+  "folderMenu.pinToQuickAccess": "Καρφίτσωμα στη Γρήγορη πρόσβαση",
+  "folderMenu.pinToStart": "Καρφίτσωμα στην Έναρξη",
+  "folderMenu.share": "Κοινή χρήση",
+  "folder.properties": "Ιδιότητες",
+  "widgetsB.folder.freeUpSpace": "Αποδέσμευση χώρου",
+  "widgetsB.folder.keepOnDevice": "Να διατηρείται πάντα σε αυτή τη συσκευή",
+  "widgetsB.folder.moreOptions": "Εμφάνιση περισσότερων επιλογών",
+  "widgetsB.folder.new": "Νέο",
+  "ctxMenu.folder": "Φάκελος"
+}

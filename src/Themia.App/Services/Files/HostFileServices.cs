@@ -116,8 +116,6 @@ internal sealed class HostFileOps : IShellFileOps
     public int SetCloudPin(IReadOnlyList<string> paths, CloudPin pin) => ShellFileOps.SetCloudPin(paths, pin);
 
     public string? ResolveShortcut(string path, bool plainOnly = false) => ShellFileOps.ResolveShortcut(path, plainOnly);
-
-    public DropEffect DragOut(IReadOnlyList<string> paths, DropEffect allowed, nint window) => DragDropInterop.DragOut(paths, allowed, window);
 }
 
 /// <summary>[S-6416] <see cref="IWidgetHost.ExplorerMenus"/>: the shell's <c>IContextMenu</c> and the Open with handlers.</summary>

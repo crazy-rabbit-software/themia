@@ -17,7 +17,7 @@ public sealed class EmailSizingTests
         var sizing = Sizing(new EmailConfig());
         Assert.Equal(new SizeDip(300, 36 + (5 * 40) + 12), sizing.Natural);
         Assert.Equal(220, sizing.Min.Width);
-        Assert.Equal(520, sizing.Max.Width);
+        Assert.Equal(752, sizing.Max.Width); // relaxed, [S-12411]: a list, 300 x 2.5 on 4s
         Assert.Empty(sizing.Problems());
     }
 
@@ -38,7 +38,7 @@ public sealed class EmailSizingTests
         var with = Sizing(new EmailConfig { Style = EmailStyle.Table });
         var without = Sizing(new EmailConfig { Style = EmailStyle.Table, ColumnTitles = false });
 
-        Assert.Equal((320, 420, 720), (with.Min.Width, with.Natural.Width, with.Max.Width));
+        Assert.Equal((320, 420, 1052), (with.Min.Width, with.Natural.Width, with.Max.Width)); // relaxed, [S-12411]: 420 x 2.5 on 4s
         Assert.Equal(KitPlanner.ColumnHeaderHeight, with.Natural.Height - without.Natural.Height);
         Assert.Equal(36 + (5 * 28) + 12, without.Natural.Height);
     }

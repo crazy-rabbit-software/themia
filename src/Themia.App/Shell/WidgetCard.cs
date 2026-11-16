@@ -1,4 +1,4 @@
-﻿using Microsoft.UI;
+using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -106,12 +106,12 @@ internal interface IWidgetCardHost
     Themia.Core.Links.LinkBoard? Links => ViewForCards is { } view ? AppServices.Links?.For(view.Id) : null;
 
     /// <summary>
-    /// [S-873] The card's drawn frame changed — hidden or shown — so it is positioned again and the
-    /// hit region redone. Nothing is persisted.
+    /// [S-873] The card's drawn frame changed — hidden or shown — so it is positioned and joined
+    /// again. Nothing is persisted.
     /// </summary>
     void OnCardFrameChanged(WidgetCard card)
     {
-        // ignore: a host with no hit region (a debug render) has nothing to redo
+        // ignore: a host with no layout of its own (a debug render) has nothing to redo
     }
 
     /// <summary>[S-874] Bring the widget to the front of the view, or send it to the back.</summary>
@@ -129,16 +129,38 @@ internal interface IWidgetCardHost
     /// <summary>[S-5524] Whether this card's Delete takes desktop items' widgets off the view only ("Remove from this view").</summary>
     bool DeleteRemovesFromView(WidgetCard card) => Themia.Core.Desktop.DesktopBackground.RemovesFromView([card.Model.Config]);
 
+    /// <summary>
+    /// [S-2343] The pointer that pressed this card let go (a click, the end of a move or of a resize), or
+    /// its press could not be held after all: nothing moves under the pointer any more, and in edit mode the
+    /// host opens the selection's page.
+    /// </summary>
+    void PressEnded(WidgetCard card)
+    {
+        // ignore: a host with no page (a debug render) has nothing to open
+    }
+
     /// <summary>[S-1584] A move of this card starts: it and every other selected card move together.</summary>
     void BeginMove(WidgetCard card)
     {
         // ignore: a debug render's cards do not move
     }
 
-    /// <summary>[S-1584] The pointer moved by a fraction of the screen since the move began.</summary>
-    void PreviewMove(WidgetCard card, double dxFrac, double dyFrac, bool snap)
+    /// <summary>[S-1584] The pointer moved by a fraction of the screen since the move began; the block lands on the grid ([S-06]).</summary>
+    void PreviewMove(WidgetCard card, double dxFrac, double dyFrac)
     {
         // ignore: as above
+    }
+
+    /// <summary>
+    /// [S-11878] Whether the move this card holds (a desktop icon's, outside edit mode) is to become the
+    /// shell's drag now: the pointer left the desktop or is over a drop target on it.
+    /// </summary>
+    bool DragsOut(WidgetCard card) => false;
+
+    /// <summary>[S-11878] The move ends without landing (it became the shell's drag): every moving card back where it started, nothing stored.</summary>
+    void CancelMove(WidgetCard card)
+    {
+        // ignore: a debug render's cards do not move
     }
 
     /// <summary>[S-1584]/[S-1591] The move ended: persist it, or hand the widgets to another display.</summary>
@@ -161,8 +183,8 @@ internal interface IWidgetCardHost
     /// <summary>[S-2451] Released without moving after a press that kept the selection: enter the group, or narrow to the card's unit.</summary>
     void RequestClick(WidgetCard card) => RequestSelect(card);
 
-    /// <summary>[S-2453] Whether the card draws its own edit markers: not a member of a group, unless it is the entered one.</summary>
-    bool ShowsOwnMarkers(WidgetCard card) => true;
+    /// <summary>[S-2453] What the card draws of its edit markers (<see cref="SelectionRules.MarksOf"/>): its handles, or a member's corners.</summary>
+    EditMarks MarksOf(WidgetCard card) => EditMarks.Handles;
 
     /// <summary>[S-2454] The card menu's facts with what it may offer about groups.</summary>
     CardMenuFacts WithGroups(CardMenuFacts facts) => facts;
@@ -189,6 +211,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     /// <summary>[S-2000] The last press reached the card unhandled, outside edit mode: its tap may open.</summary>
     private bool _openArmed;
+
+    /// <summary>[S-2008] A left press on the locked desktop that may become the card's move, and where it was (the surface's DIPs).</summary>
+    private bool _moveArmed;
+    private Point _moveStart;
 
     /// <summary>[S-6512] The item fills of this widget's view, from its own item layer or the app-wide one.</summary>
     private readonly ItemPalette _items = new();
@@ -262,7 +288,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // [S-6512] The item fills are right before the view paints its first item, and what the view
         // paints while the card is built (it attaches in here too) is drawn from them.
-        _items.Apply(ItemLook.Effective(host.Design, model), ItemLook.TextColour(host.Design, model), DesignApplier.IsDark);
+        _items.Apply(ItemLook.Effective(host.Design, model), ItemLook.TextColour(host.Design, model), DesignApplier.IsDark, host.Design.Tokens ?? new LookTokens());
         using var building = ItemPalette.Building(_items);
 
         // [S-891] Guarded: a view that throws while being built becomes an error card, not a hole.
@@ -338,7 +364,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // fills that met at the header's edge, or overlapped there, drew both). A header colour of
         // the user's own is the header's own layer, over it.
         // [S-6590] The background image under everything, across the whole card, header included.
-        foreach (var layer in new FrameworkElement[] { _image, _fill })
+        // [S-2140] The grain over the material, under the content.
+        foreach (var layer in new FrameworkElement[] { _image, _fill, _glass, _lens, _grain })
         {
             Grid.SetRowSpan(layer, 3);
             Grid.SetColumnSpan(layer, 3);
@@ -386,7 +413,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         UiLanguage.ApplyFlow(this);
         _markers = UiLanguage.KeepLeftToRight(BuildMarkers());
 
+        Children.Add(_glassLift);
         Children.Add(_surface);
+        Children.Add(_dividers);
         Children.Add(_stroke);
         Children.Add(_markers);
 
@@ -446,10 +475,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     public void ApplyHeader()
     {
-        // The user's own label, then whatever the view knows about itself, then the catalogue.
-        _headerTitle.Text = !string.IsNullOrWhiteSpace(Model.Label) ? Model.Label
-            : !string.IsNullOrWhiteSpace(_viewTitle) ? _viewTitle
-            : ModuleCatalog.Of(Model.Kind).Name;
+        // The user's own label, then whatever the view knows about itself, then the catalogue ([S-2137] in the design's case).
+        _headerTitle.Text = HeaderName();
 
         var placement = Model.ShownHeader;
 
@@ -502,7 +529,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// <summary>[S-1862] [S-5700] Where a row the card lays over the view starts: right under a header above it, else at the inset.</summary>
     private Thickness OverlayTop => new(0, HeaderStrip.ViewTop(ViewEdge, ownsTopEdge: false), 0, 0);
 
-    /// <summary>[S-872] Whether the card draws anything the window's hit region must take clicks for.</summary>
+    /// <summary>[S-873] Whether the card draws anything: a hidden one draws only in edit mode.</summary>
     public bool IsShown(bool editMode) => !_hidden || editMode;
 
     /// <summary>
@@ -514,19 +541,21 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     public void ApplyDesign()
     {
         var design = _host.Design;
-        var radiusPx = DesignLook.CornerRadius(design.CornerRadiusPx);
+        // [S-11880] A desktop icon on no card is not clipped to a card's corners: its highlight keeps its own four.
+        var radiusPx = CardJoins.ClipRadius(ModuleCatalog.Of(Model.Kind).Traits, DrawsSurface, DesignLook.CornerRadius(design.CornerRadiusPx));
 
         // [S-2241] Round only where no joined neighbour covers the corner.
         var radius = Corners(radiusPx);
 
         // [S-6510] The second layer: the view's items, on their own colour whatever the card's fill.
         var items = _preview?.Items is { } previewed ? FillChoice.Effective(design.ItemBackground ?? new FillChoice(), previewed) : ItemLook.Effective(design, Model);
-        _items.Apply(items, ItemLook.TextColour(design, Model), DesignApplier.IsDark);
+        _items.Apply(items, ItemLook.TextColour(design, Model), DesignApplier.IsDark, design.Tokens ?? new LookTokens());
 
         // The content border is rounded too, so anything drawn edge to edge inside it - a meter's
         // graph reaches the bottom and both sides - is clipped to the card's corners instead of
         // squaring them off.
         _surface.CornerRadius = radius;
+        ApplyViewCorners();
 
         // [S-823] [S-2100] The card paints its own fill, one colour at one opacity: Themia's neutral
         // card for the theme by default, the user's colour exactly otherwise. The surface is genuinely
@@ -572,6 +601,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         {
             _stroke.Visibility = Visibility.Collapsed;
         }
+
+        // [S-2123] Liquid glass: its tint, sheen, lens, rim and lift over what the design painted.
+        ApplyGlass(radius, radiusPx, fill);
+
+        // [S-2133] [S-2137] [S-2140] The accent in a default card, the grain, the header's level and case.
+        ApplyLook(radius, fill);
+
 
         ApplyHeaderFill();
 
@@ -697,23 +733,27 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     public void ApplySelection()
     {
-        // [S-2453] A group's member draws no markers (no handles) of its own: its group's frame stands for
-        // it, until the group is entered with it.
-        var own = _host.EditMode && _host.ShowsOwnMarkers(this);
-        if (own != _markersShown)
-        {
-            _markersShown = own;
-            _markers.Visibility = own ? Visibility.Visible : Visibility.Collapsed;
-            FollowPlates();
-        }
+        // [S-2453] A group's member draws its corners alone (no handles): its group's frame stands for it,
+        // until the group is entered with it.
+        var editing = _host.EditMode;
+        var selected = _host.IsSelected(this);
 
-        PaintMarkers(_host.IsSelected(this));
+        // [S-11877] On the locked desktop a selected card shows its four corners alone, in the accent: light,
+        // no handles, no grips. [S-11881] A locked move shows the corners of the moving cards and of the ones
+        // near where they land. [S-11889] A desktop icon too, round its grid box, over its highlight.
+        var marks = editing ? _host.MarksOf(this) : EditMarks.Corners;
+        _markersShown = SelectionRules.MarksShown(editing, selected, editing ? null : _moveMarks);
+        _marks = marks;
+        _markers.Visibility = editing && marks == EditMarks.Handles ? Visibility.Visible : Visibility.Collapsed;
+        ApplyResizable();
+        FollowPlates();
+
+        // [S-2453] A selected group shows it through its members' corners alone: no frame round the group.
+        PaintMarkers(selected);
     }
 
     public void ApplyEditMode(bool editing)
     {
-        _markersShown = editing;
-        _markers.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
         ApplySelection();
         ApplyHidden();
 
@@ -772,18 +812,19 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     /// <summary>
     /// [S-2444] This card's sizing on its display, as fractions of the screen; null before the display
-    /// is measured. Follows a resize's previewed config.
+    /// is measured. Follows a resize's previewed config. [S-11807] Whole grid cells, every widget (a
+    /// desktop icon too, [S-11875]).
     /// </summary>
     public SizeLimits? Limits
         => _host.Metrics is { IsUsable: true } metrics
-            ? SizeFit.Limits(SizeFit.Of(_resizeConfig ?? Model.Config, Model.ShownHeader), metrics, _contentScale, _host.Design.WidgetGapPx)
+            ? SizeFit.Limits(SizeFit.Of(_resizeConfig ?? Model.Config, Model.ShownHeader), metrics, _contentScale)
             : null;
 
     /// <summary>[S-2442] While a resize is dragged, the view shows the config its size means (a list's rows).</summary>
     private void PreviewResizedConfig(ScreenMetrics metrics)
     {
         var current = _resizeConfig ?? Model.Config;
-        var next = SizeFit.ConfigFor(current, LiveRect, metrics, _contentScale, _host.Design.WidgetGapPx, Model.ShownHeader);
+        var next = SizeFit.ConfigFor(current, LiveRect, metrics, _contentScale, Model.ShownHeader, Limits);
         if (ReferenceEquals(next, current))
         {
             return;
@@ -804,7 +845,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var config = _resizeConfig ?? Model.Config;
         if (metrics.IsUsable)
         {
-            config = SizeFit.ConfigFor(config, rect, metrics, _contentScale, _host.Design.WidgetGapPx, Model.ShownHeader);
+            config = SizeFit.ConfigFor(config, rect, metrics, _contentScale, Model.ShownHeader, Limits);
         }
 
         _resizeConfig = null;
@@ -835,6 +876,24 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         _contentScale = next;
         FitContent();
+        ApplyViewCorners();
+    }
+
+    /// <summary>
+    /// [S-11883] A view whose fill reaches the card's edge takes the card's corners (round where the card
+    /// is, square where a group mate joins it), in its own DIPs: the content is scaled by the content scale.
+    /// </summary>
+    private void ApplyViewCorners()
+    {
+        // The view is built (and attached) before the card's surface exists; the first design brings the corners then.
+        if (_view is not IWidgetCorners corners || _surface is null)
+        {
+            return;
+        }
+
+        var r = _surface.CornerRadius;
+        var s = _contentScale > 0 ? _contentScale : 1;
+        corners.ApplyCorners(new CornerRadius(r.TopLeft / s, r.TopRight / s, r.BottomRight / s, r.BottomLeft / s));
     }
 
     /// <summary>
@@ -865,30 +924,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _content.Width = width / _contentScale;
         _content.Height = height / _contentScale;
         _content.RenderTransform = new ScaleTransform { ScaleX = _contentScale, ScaleY = _contentScale };
-    }
 
-    /// <summary>
-    /// Inset the painted surface inside the cell by half the gap.
-    /// <para>
-    /// Applied to the fill and the content only. The edit markers ([S-31b]) stay on the cell
-    /// bounds, which is why they sit slightly outside the widget's visible border — they mark the
-    /// space the widget actually owns, and that is the thing being dragged.
-    /// </para>
-    /// </summary>
-    public void ApplyGap(double gapPx)
-    {
-        var half = double.IsFinite(gapPx) && gapPx > 0 ? gapPx / 2 : 0;
-        var inset = new Thickness(half);
-
-        // The fill and the frost live inside the surface, so they take its inset with it; the frost's
-        // picture moves by the inset too ([S-2114]).
-        _surface.Margin = inset;
-        _stroke.Margin = inset;
-        PlaceBackdrop();
-
-        if (_motionCover is not null)
+        // [S-2123] The glass's gradients run in the content's DIPs: drawn again at the new scale.
+        if (Glass)
         {
-            _motionCover.Margin = inset;
+            ApplyDesign();
         }
     }
 
@@ -913,7 +953,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             return;
         }
 
-        cover.Margin = _surface.Margin;
         cover.IsHitTestVisible = false;
         Children.Insert(Children.IndexOf(_markers), cover);
     }
@@ -933,10 +972,20 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                 leftButton: e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
                 modifier: e.KeyModifiers != Windows.System.VirtualKeyModifiers.None,
                 showsSetup: ShowsSetup);
+
+            // [S-2008] The same press, moved past the dead zone, moves the card (and what is selected with it)
+            // on the locked desktop, unless the view drags its own content.
+            _moveArmed = CardGestures.MovesLocked(
+                editMode: false,
+                preview: _host.IsPreview,
+                leftButton: e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
+                ownsDrags: _view is IWidgetOwnsDrags);
+            _moveStart = e.GetCurrentPoint(ParentSurface()).Position;
             return;
         }
 
         _openArmed = false;
+        _moveArmed = false;
 
         // [S-1745] What the press starts.
         var handle = HitHandle(e.OriginalSource);
@@ -977,13 +1026,18 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         {
             _host.BeginMove(this);
         }
+        else if (!_dragging)
+        {
+            // The press could not be held: no release will end it.
+            _host.PressEnded(this);
+        }
 
         e.Handled = _dragging;
     }
 
     private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        if (!_dragging)
+        if (!_dragging && !LockedMove(e))
         {
             return;
         }
@@ -1000,23 +1054,109 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var dxFrac = (now.X - _dragStartPoint.X) / metrics.Width;
         var dyFrac = (now.Y - _dragStartPoint.Y) / metrics.Height;
 
-        // [S-06] Alt temporarily suspends the snap aid for fine positioning.
-        var snap = _host.Design.GridSnap && !IsKeyDown(Windows.System.VirtualKey.Menu);
-
         if (_activeHandle is { } handle)
         {
-            // [S-2445] The moved edge stops at the sizing's Min and Max and lands on its steps.
-            LiveRect = GridGeometry.Settle(GridGeometry.Resize(_dragStartRect, handle, dxFrac, dyFrac, metrics), metrics, snap, handle, Limits);
+            // [S-2445] The moved edge stops at the sizing's Min and Max and lands on its steps; [S-06] on the grid.
+            LiveRect = GridGeometry.Settle(GridGeometry.Resize(_dragStartRect, handle, dxFrac, dyFrac, metrics), metrics, handle, Limits);
             PreviewResizedConfig(metrics);
             _host.OnGeometryPreview(this);
         }
         else if (_moved)
         {
-            // [S-1584] The host moves the whole selection as one block, this card included.
-            _host.PreviewMove(this, dxFrac, dyFrac, snap);
+            // [S-1584] The host moves the whole selection as one block, this card included, on the grid.
+            _host.PreviewMove(this, dxFrac, dyFrac);
+
+            // [S-11878] A desktop icon's move that leaves the desktop (or reaches a drop target) is the shell's drag from here on.
+            if (!_host.EditMode && _view is IDesktopIconView icon && _host.DragsOut(this))
+            {
+                DragOut(e, icon);
+            }
         }
 
         e.Handled = true;
+    }
+
+    /// <summary>
+    /// [S-11878] The move becomes the shell's drag of the icons: the cards go back where they were, the card
+    /// lets the pointer go, and the icon starts the drag with this event's pointer, still pressed.
+    /// </summary>
+    private void DragOut(PointerRoutedEventArgs e, IDesktopIconView icon)
+    {
+        _host.CancelMove(this);
+        _dragging = false;
+        _activeHandle = null;
+        _narrowOnRelease = false;
+        _press = CardPress.None;
+        ReleasePointerCapture(e.Pointer);
+        _host.PressEnded(this);
+        icon.DragOut(e.GetCurrentPoint(_view));
+    }
+
+    /// <summary>
+    /// [S-2008] A widget pressed and dragged on the locked desktop: past the dead zone the press becomes the
+    /// card's move, from where it was pressed, so the widget (and the selection it is in, [S-11879]) follows
+    /// the pointer at once, on the grid. Edit mode stays off: no bar, no page, no handles, no full grid; the
+    /// local grid shows round where it lands ([S-11874]). False while the press is still a click, or is not
+    /// one that may move.
+    /// </summary>
+    private bool LockedMove(PointerRoutedEventArgs e)
+    {
+        if (!_moveArmed || _host.EditMode)
+        {
+            return false;
+        }
+
+        var point = e.GetCurrentPoint(ParentSurface());
+        if (!point.Properties.IsLeftButtonPressed)
+        {
+            _moveArmed = false;
+            return false;
+        }
+
+        if (!CardGestures.Travelled(point.Position.X - _moveStart.X, point.Position.Y - _moveStart.Y))
+        {
+            return false;
+        }
+
+        _moveArmed = false;
+        _openArmed = false;
+
+        _press = CardPress.Move;
+        _activeHandle = null;
+        _narrowOnRelease = false;
+        _dragStartRect = LiveRect;
+        _dragStartPoint = _moveStart;
+        _moved = false;
+
+        // A button inside holds the pointer from its press: take it from the button, or the card's capture
+        // fails and the press ends as the button's click (a toggle flipped by a drag).
+        TakePointerFromInside(e);
+        _dragging = CapturePointer(e.Pointer);
+        if (_dragging)
+        {
+            _host.BeginMove(this);
+        }
+        else
+        {
+            _host.PressEnded(this);
+        }
+
+        return _dragging;
+    }
+
+    /// <summary>
+    /// [S-2008] Release the pointer from every element between the one pressed and this card, so the card
+    /// can capture it and the element (a button) forgets its press and does not click on the release.
+    /// </summary>
+    private void TakePointerFromInside(PointerRoutedEventArgs e)
+    {
+        for (var element = e.OriginalSource as DependencyObject; element is not null && !ReferenceEquals(element, this); element = VisualTreeHelper.GetParent(element))
+        {
+            if (element is UIElement inner && inner.PointerCaptures is { Count: > 0 })
+            {
+                inner.ReleasePointerCapture(e.Pointer);
+            }
+        }
     }
 
     private static bool IsKeyDown(Windows.System.VirtualKey key)
@@ -1059,6 +1199,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         {
             LandResize(LiveRect);
             _host.OnGeometryCommitted(this);
+            _host.PressEnded(this);
             return;
         }
 
@@ -1069,6 +1210,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         {
             _host.RequestClick(this);
         }
+
+        // [S-2343] Last: the selection is what it will be, and nothing moves under the pointer any more.
+        _host.PressEnded(this);
     }
 
     /// <summary>
@@ -1133,6 +1277,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             {
                 // ignore: whether it changed; the menu acts on what is selected now
                 _ = _host.RequestPress(this, onHandle: false);
+
+                // [S-2343] A right-click holds nothing: the press ends here, or the selection's page
+                // would stay held shut until some later press let go.
+                _host.PressEnded(this);
             }
 
             ItemMenu.Show(this, e, CardMenu());
@@ -1198,8 +1346,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             ShellCommand.Ungroup => new(Glyphs.Clear, Str.Groups_Card_Ungroup.Text(), () => _host.RequestGroupCommand(ShellCommand.Ungroup), Shortcut: KeyChord.CtrlShift(ChordKey.G)),
             ShellCommand.LeaveGroup => new(Glyphs.Back, Str.Groups_Card_Leave.Text(), () => _host.RequestGroupCommand(ShellCommand.LeaveGroup)),
             ShellCommand.ToggleEditMode => _host.EditMode
-                ? new(Glyphs.Done, Str.Shell_Card_DoneEditing.Text(), () => _host.RequestEditMode(false))
-                : new(Glyphs.Edit, Str.Shell_Card_EditLayout.Text(), () => _host.RequestEditMode(true)),
+                ? new(Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text(), () => _host.RequestEditMode(false))
+                : new(Glyphs.Unlock, Str.Shell_Menu_UnlockWidgets.Text(), () => _host.RequestEditMode(true)),
             _ => ItemMenuEntry.Separator,
         };
     }
@@ -1276,6 +1424,15 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
 
         _host.KeyboardPress(this);
+
+        // [S-2008] A button takes its press itself, so the card's own press handler never arms the move:
+        // it is armed here, where handled presses are heard too.
+        if (e.Handled && _view is IWidgetButton && !_host.IsPreview
+            && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            _moveArmed = true;
+            _moveStart = e.GetCurrentPoint(ParentSurface()).Position;
+        }
     }
 
     // ---- IWidgetSurface ------------------------------------------------------------------------

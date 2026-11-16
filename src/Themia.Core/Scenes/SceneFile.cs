@@ -98,10 +98,10 @@ public sealed record SceneWidget(
 /// <summary>
 /// [S-1077] Edit mode as a scene draws it: the edit bar (<see cref="Bar"/>), a submenu path opened
 /// in the selection's properties menu (<see cref="Open"/>), the add menu open under the bar
-/// (<see cref="Add"/>) and the snap grid (<see cref="Grid"/>). [S-2458] <see cref="Group"/> selects a
+/// (<see cref="Add"/>), and always the grid, as the desktop's edit mode draws it ([S-06]). [S-2458] <see cref="Group"/> selects a
 /// group of the scene whole; <see cref="Enter"/> enters its group with one member (a widget's id).
 /// </summary>
-public sealed record SceneEdit(bool Bar = true, string? Open = null, bool Add = false, bool Grid = false, string? Group = null, string? Enter = null);
+public sealed record SceneEdit(bool Bar = true, string? Open = null, bool Add = false, string? Group = null, string? Enter = null);
 
 /// <summary>[S-1075] Why a scenes file was refused: where (a JSON path such as <c>$.scenes[1].widgets[0].at</c>) and what.</summary>
 public sealed record SceneRefusal(string Path, string Problem)

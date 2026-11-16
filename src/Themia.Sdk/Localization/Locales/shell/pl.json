@@ -131,8 +131,6 @@
     "many": "Usuń {count} widżetów",
     "other": "Usuń {count} widżetu"
   },
-  "shell.card.doneEditing": "Zakończ edycję",
-  "shell.card.editLayout": "Edytuj układ",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -146,8 +144,6 @@
   "shell.setup.button": "Skonfiguruj",
   "shell.setup.hint": "Skonfiguruj to, czego potrzebuje ten widżet",
   "shell.toolbar.addWidget": "Dodaj widżet",
-  "shell.toolbar.snapName": "Przyciągaj do siatki",
-  "shell.toolbar.collisionsName": "Nie pozwalaj widżetom nachodzić na siebie",
   "shell.editBar.selected": {
     "one": "Zaznaczono {count}",
     "few": "Zaznaczono {count}",
@@ -206,7 +202,6 @@
   "shell.appearance.textSize": "Rozmiar tekstu",
   "shell.appearance.systemFont": "Domyślna systemowa",
   "shell.appearance.sansFont": "Bezszeryfowa",
-  "shell.layout.gap": "Odstęp między widżetami",
   "shell.motion.slide": "Przesunięcie",
   "shell.motion.sides": "Boki",
   "shell.motion.topBottom": "Góra i dół",
@@ -311,7 +306,6 @@
   "shell.refresh.everyMinute": "Co minutę",
   "shell.refresh.everyHour": "Co godzinę",
   "shell.color.custom": "Kolor niestandardowy",
-  "shell.color.pickCustom": "Wybierz kolor niestandardowy",
   "shell.color.pickFromScreen": "Pobierz kolor z ekranu",
   "shell.color.pickFailed": "Nie udało się odczytać kolorów ekranu",
   "shell.icon.home": "Dom",

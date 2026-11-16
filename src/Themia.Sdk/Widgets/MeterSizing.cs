@@ -58,6 +58,15 @@ public static class MeterSizing
     /// <summary>The widest reading at 28 (its lead glyph, value and unit).</summary>
     public static double ReadingWidth(ReadoutText worst) => Math.Ceiling(ReadoutRules.Width(FamilyType.Big28, worst));
 
+    /// <summary>[S-6264] The room between two readings on one line (download's unit, upload's arrow): the family's 24.</summary>
+    public const double NumbersGap = FamilySpace.S6;
+
+    /// <summary>[S-6264] The widest the two readings' card goes: the bar rows' widest.</summary>
+    public const double NumbersMaxWidth = 480;
+
+    /// <summary>[S-6264] Two readings on one line, each led by its arrow, <see cref="NumbersGap"/> apart: their widest together.</summary>
+    public static double NumbersWidth(ReadoutText worst) => (2 * ReadingWidth(worst with { Lead = true })) + NumbersGap;
+
     /// <summary>[S-11001] The width range of a reading whose content is <paramref name="content"/> wide at least.</summary>
     private static (double Min, double Natural, double Max) Widths(double content, double natural = 0)
     {
@@ -80,9 +89,11 @@ public static class MeterSizing
         {
             case MeterLook.Numbers:
             {
-                var w = Widths(ReadingWidth(worst with { Lead = true }));
-                var h = top + Line + FamilySpace.S2 + Line + foot;
-                return WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(w.Max, h));
+                // [S-6264] Both directions on the reading's one line: as tall as one reading, from the
+                // line's own width to the bar rows' 480, so it lines up beside wider cards.
+                var w = Widths(NumbersWidth(worst));
+                var h = top + Line + foot;
+                return WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(Math.Max(w.Max, NumbersMaxWidth), h));
             }
 
             case MeterLook.Gauge:
@@ -123,9 +134,11 @@ public static class MeterSizing
 
             default:
             {
+                // [S-11001] One reading on its line runs as wide as two do ([S-6264]), so a column of readings
+                // and the network's two lines up at one width (This PC, [S-2474]).
                 var w = Widths(reading);
                 var h = top + Line + foot;
-                return WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(w.Max, h));
+                return WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(Math.Max(w.Max, NumbersMaxWidth), h));
             }
         }
     }
@@ -175,16 +188,16 @@ public static class MeterSizing
         => Math.Clamp(Math.Floor(Math.Min(height - PartTop, width / MeterPlan.SignalAspect)), 0, SignalMax);
 
     /// <summary>[S-11002] A history atom: the band edge to edge, no header by default.</summary>
-    public static WidgetSizing History { get; } = WidgetSizing.Range(new(160, 48), new(160, 64), new(640, 200));
+    public static WidgetSizing History { get; } = WidgetSizing.Range(new(160, 48), new(160, 64), new(640, 200)) with { Room = StretchRoom.Picture };
 
     /// <summary>[S-11005] Items as columns (the cores' bars), headerless, in the card's inset.</summary>
-    public static WidgetSizing Columns { get; } = WidgetSizing.Range(new(120, 48), new(160, 64), new(640, 200));
+    public static WidgetSizing Columns { get; } = WidgetSizing.Range(new(120, 48), new(160, 64), new(640, 200)) with { Room = StretchRoom.Picture };
 
     /// <summary>[S-11005] Items as rings (the cores' grid), headerless, in the card's inset.</summary>
-    public static WidgetSizing Tiles { get; } = WidgetSizing.Range(new(112, 112), new(144, 144), new(360, 360));
+    public static WidgetSizing Tiles { get; } = WidgetSizing.Range(new(112, 112), new(144, 144), new(360, 360)) with { Room = StretchRoom.Picture };
 
     /// <summary>[S-11005] Items as graphs (the cores' own histories), headerless, in the card's inset.</summary>
-    public static WidgetSizing Graphs { get; } = WidgetSizing.Range(new(200, 128), new(280, 200), new(640, 400));
+    public static WidgetSizing Graphs { get; } = WidgetSizing.Range(new(200, 128), new(280, 200), new(640, 400)) with { Room = StretchRoom.Picture };
 
     /// <summary>[S-11006] <paramref name="rows"/> rows of items (the engines) under a header: one 28 row each, one height.</summary>
     public static WidgetSizing ItemRows(int rows)

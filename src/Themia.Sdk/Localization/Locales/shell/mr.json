@@ -125,8 +125,6 @@
     "one": "{count} विजेट हटवा",
     "other": "{count} विजेट हटवा"
   },
-  "shell.card.doneEditing": "संपादन पूर्ण",
-  "shell.card.editLayout": "लेआउट संपादित करा",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "सेट अप करा",
   "shell.setup.hint": "या विजेटला जे हवे ते सेट करा",
   "shell.toolbar.addWidget": "विजेट जोडा",
-  "shell.toolbar.snapName": "ग्रिडला स्नॅप करा",
-  "shell.toolbar.collisionsName": "विजेट एकमेकांवर येऊ देऊ नका",
   "shell.editBar.selected": {
     "one": "{count} निवडले",
     "other": "{count} निवडले"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "मजकुराचा आकार",
   "shell.appearance.systemFont": "सिस्टम डीफॉल्ट",
   "shell.appearance.sansFont": "सॅन्स सेरिफ",
-  "shell.layout.gap": "विजेटमधील अंतर",
   "shell.motion.slide": "स्लाइड",
   "shell.motion.sides": "बाजू",
   "shell.motion.topBottom": "वर आणि खाली",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "दर मिनिटाला",
   "shell.refresh.everyHour": "दर तासाला",
   "shell.color.custom": "सानुकूल रंग",
-  "shell.color.pickCustom": "सानुकूल रंग निवडा",
   "shell.color.pickFromScreen": "स्क्रीनवरून रंग निवडा",
   "shell.color.pickFailed": "स्क्रीनवरील रंग वाचता आले नाहीत",
   "shell.icon.home": "घर",

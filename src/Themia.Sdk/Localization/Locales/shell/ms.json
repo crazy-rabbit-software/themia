@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "Padam {count} widget"
   },
-  "shell.card.doneEditing": "Selesai mengedit",
-  "shell.card.editLayout": "Edit susun atur",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "Sediakan",
   "shell.setup.hint": "Sediakan apa yang diperlukan widget ini",
   "shell.toolbar.addWidget": "Tambah widget",
-  "shell.toolbar.snapName": "Jajarkan pada grid",
-  "shell.toolbar.collisionsName": "Halang widget daripada bertindih",
   "shell.editBar.selected": {
     "other": "{count} dipilih"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "Saiz teks",
   "shell.appearance.systemFont": "Lalai sistem",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Jarak antara widget",
   "shell.motion.slide": "Gelongsor",
   "shell.motion.sides": "Sisi",
   "shell.motion.topBottom": "Atas dan bawah",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "Setiap minit",
   "shell.refresh.everyHour": "Setiap jam",
   "shell.color.custom": "Warna tersuai",
-  "shell.color.pickCustom": "Pilih warna tersuai",
   "shell.color.pickFromScreen": "Pilih warna daripada skrin",
   "shell.color.pickFailed": "Tidak dapat membaca warna pada skrin",
   "shell.icon.home": "Rumah",

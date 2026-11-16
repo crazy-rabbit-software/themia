@@ -9,9 +9,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// Shortcuts B, the host's part: the addresses in dropped text (S-1402), the app layout tree, its walk,
-/// placement and window matching (S-1403..S-1409). The widget's drops and reorder are its module's
-/// (ShortcutDropTests), its layout items' config the module host's (ShortcutsHostTests).
+/// The host's part of a shortcut's drops and app layouts: the addresses in dropped text (S-1402), the app
+/// layout tree, its walk, placement and window matching (S-1403..S-1409). An own desktop icon's drops are its
+/// module's (OwnIconDropTests), a layout's config the module host's (OwnIconHostTests).
 /// </summary>
 public sealed class ShortcutsDropLayoutTests
 {

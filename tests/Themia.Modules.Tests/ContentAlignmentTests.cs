@@ -175,6 +175,17 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Right, QuickSet.For(state, selection, view.Id).Align);
     }
 
+    /// <summary>[S-6532] A desktop icon is drawn at 1 always: the Scale line is offered only where a widget selected takes a scale.</summary>
+    [Fact]
+    public void S6532_desktop_icons_alone_are_offered_no_scale()
+    {
+        var (state, view, selection) = Selected(Widget(new WidgetId("desktopItem")), Widget(new WidgetId("desktopItem")));
+        Assert.False(QuickSet.For(state, selection, view.Id).CanScale);
+
+        (state, view, selection) = Selected(Widget(new WidgetId("desktopItem")), Widget(new WidgetId("clock")));
+        Assert.True(QuickSet.For(state, selection, view.Id).CanScale);
+    }
+
     [Fact]
     public void S6584_the_line_is_not_offered_for_a_widget_with_nothing_to_align_in_its_style()
     {

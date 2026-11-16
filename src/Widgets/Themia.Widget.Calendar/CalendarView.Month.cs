@@ -20,9 +20,11 @@ namespace Themia.App.Widgets;
 /// [S-2702] [S-572] The month: a grid of the family's tokens inside the card's inset ([S-6703]). The
 /// weekday header in Caption tertiary, the days' numbers in Caption (primary, tertiary outside the
 /// month, BodyStrong's weight where something is on), today's on the accent's round pill, six week
-/// rows of the config's cells ([S-11544], <see cref="CalendarSizing.Month"/>). A cell shows its items
-/// as chips (Caption on the item layer's chip fill, the calendar's colour as a 2 px bar at its start,
-/// the one radius, lanes 4 apart) or as dots (4, 4 apart), as the config says.
+/// rows of the config's cells ([S-11544], <see cref="CalendarSizing.Month"/>), filling the content
+/// ([S-12400]). A cell shows its items as dots (4, 4 apart) or, with titles ([S-11547],
+/// <see cref="MonthPlan"/>), as the config's lines of chips: a span a bar on the item layer's chip fill
+/// with its calendar's colour as a 2 px bar at its start, a meeting a line of its dot, start and title;
+/// "+k more" on the number's line.
 /// </summary>
 internal sealed partial class CalendarView
 {
@@ -34,16 +36,22 @@ internal sealed partial class CalendarView
         var showColors = ShowColors;
 
         // [S-11544] Six weeks of the config's cells at every size: the height was made for them.
-        var cells = CalendarRules.MonthCells(_anchor, start);
+        var weeks = MonthPlan.Weeks(_anchor, start);
         var innerWidth = Math.Max(0, width - (2 * FamilySpace.Inset));
-        var fit = CalendarSizing.Month(_config.MonthEvents, innerWidth);
+        var fit = CalendarSizing.Month(_config.MonthEvents, innerWidth, _config.MonthLines);
         var columnWidth = innerWidth / 7;
 
-        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset) };
+        // [S-12400] [S-12410] The weeks fill the content down to the card's edge: a box taller than their
+        // cells shares the rest evenly among them (a calendar's cell is a box, it takes any room), the foot's
+        // inset included, never a band left under the last. The sides keep the inset as the day numbers' own.
+        var room = height - fit.HeaderHeight;
+        var slots = ItemStretch.Lay(room, [.. Enumerable.Repeat(StretchItem.Free(fit.CellHeight), fit.Rows)], 0, StretchRest.Around, XamlRoot?.RasterizationScale ?? 1);
+
+        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0) };
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.HeaderHeight) });
         for (var r = 0; r < fit.Rows; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.CellHeight) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(slots[r].Length) });
         }
 
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
@@ -68,35 +76,44 @@ internal sealed partial class CalendarView
         // Three dots and the muted one are 28: a narrower cell takes two and the muted one.
         var dotLimit = columnWidth >= 32 ? 3 : 2;
 
+        var chipped = fit.Density == MonthDensity.Chips;
+        var moreWords = MonthPlan.MoreWords(columnWidth);
         for (var r = 0; r < fit.Rows; r++)
         {
-            var weekStart = cells[(fit.FirstRow + r) * 7];
+            var weekStart = weeks[fit.FirstRow + r];
             var week = Columns7();
-            var bars = fit.Density == MonthDensity.Chips
-                ? CalendarFit.Bars(_events, _birthdays, weekStart, 7, zone, singleTimed: true)
-                : [];
 
-            if (fit.Density == MonthDensity.Chips)
+            // [S-11547] The week's chips on the config's lines, each day's items and its "+k more".
+            var plan = chipped ? MonthPlan.Week(_events, _birthdays, weekStart, zone, fit.ChipLines) : null;
+
+            if (chipped)
             {
                 // The number's line under the cell's padding, then one row per chip line, the rest empty.
-                week.RowDefinitions.Add(new RowDefinition { Height = new GridLength(CalendarFit.MonthCellChrome + FamilyType.Caption.LineHeight) });
+                week.RowDefinitions.Add(new RowDefinition { Height = new GridLength(CalendarSizing.MonthNumberLine) });
                 for (var lane = 0; lane < fit.ChipLines; lane++)
                 {
                     week.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.ChipLine) });
                 }
 
                 week.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+                // [S-11547] A hairline over each week, as a month view parts its weeks.
+                if (r > 0)
+                {
+                    week.BorderThickness = new Thickness(0, FamilyShape.Hairline, 0, 0);
+                    week.BorderBrush = Family.Brush(ColourRole.Track);
+                }
             }
 
             for (var c = 0; c < 7; c++)
             {
                 var day = weekStart.AddDays(c);
-                var items = fit.Density == MonthDensity.Chips ? [] : CalendarRules.DayItems(_events, _birthdays, day, zone);
-                var count = fit.Density == MonthDensity.Chips ? bars.Count(b => b.First <= c && c <= b.Last) : items.Count;
-                var hidden = fit.Density == MonthDensity.Chips ? CalendarFit.Hidden(bars, c, fit.ChipLines) : 0;
+                var items = chipped ? [] : CalendarRules.DayItems(_events, _birthdays, day, zone);
+                var count = plan is not null ? plan.Items[c] : items.Count;
+                var hidden = plan is not null ? plan.Hidden[c] : 0;
 
                 // [S-3620] The selected day (also the keys' cursor day, [S-3624]) is marked in its cell.
-                var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, _selected == day, fit, showColors, dotLimit);
+                var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, _selected == day, fit, showColors, dotLimit, moreWords);
 
                 // [S-11923] The day under the pointer is the view's; the day pointed at elsewhere takes the hover fill.
                 LinkDay(cell, day, rest: fit.Density == MonthDensity.Chips && _selected == day ? () => ItemFill.Paint(cell, ItemRole.Chip, ItemState.Selected) : null);
@@ -120,9 +137,9 @@ internal sealed partial class CalendarView
             }
 
             // [S-2703] The row's chips over its cells: one bar per item, across the days it covers.
-            foreach (var bar in bars.Where(b => b.Lane < fit.ChipLines))
+            foreach (var bar in plan?.Shown ?? [])
             {
-                var chip = MonthChip(bar, showColors, fit.Times);
+                var chip = MonthChip(bar, showColors, fit.Times, zone, MonthPlan.Dimmed(bar, weekStart, _anchor));
                 SetRow(chip, 1 + bar.Lane);
                 SetColumn(chip, bar.First);
                 SetColumnSpan(chip, bar.Last - bar.First + 1);
@@ -157,7 +174,8 @@ internal sealed partial class CalendarView
         bool isSelected,
         MonthFit fit,
         bool showColors,
-        int dotLimit)
+        int dotLimit,
+        bool moreWords)
     {
         var density = fit.Density;
         var chipped = density == MonthDensity.Chips;
@@ -195,9 +213,11 @@ internal sealed partial class CalendarView
         FrameworkElement face = numberHost;
         if (chipped)
         {
-            // The number row carries the overflow count at its end, so "+N" never costs a chip line.
+            // [S-11547] The number row carries the overflow at its end ("+k more", "+k" in a narrow
+            // column), so it never costs a chip line.
             var numberRow = new Grid
             {
+                ColumnSpacing = FamilySpace.S1,
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = GridLength.Auto },
@@ -208,9 +228,11 @@ internal sealed partial class CalendarView
 
             if (hidden > 0)
             {
-                var more = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, LocaleFormat.Digits(Strings.Current, $"+{hidden.ToString(CultureInfo.InvariantCulture)}"));
+                var more = Family.Text(FamilyType.Caption, inMonth ? ColourRole.TextSecondary : ColourRole.TextTertiary, moreWords
+                    ? CalendarStr.Calendar_MoreCount.Plural(hidden)
+                    : LocaleFormat.Digits(Strings.Current, $"+{hidden.ToString(CultureInfo.InvariantCulture)}"));
                 more.HorizontalAlignment = HorizontalAlignment.Right;
-                more.TextTrimming = TextTrimming.None;
+                more.TextTrimming = TextTrimming.CharacterEllipsis;
                 SetColumn(more, 1);
                 numberRow.Children.Add(more);
             }
@@ -281,15 +303,59 @@ internal sealed partial class CalendarView
     };
 
     /// <summary>
-    /// [S-2703] A chip: Caption on the item layer's chip fill, one line tall, the item's mark as a 2 px
-    /// bar at its start (none where it continues from the week before), the one radius at the ends it
-    /// has, 4 in from the day's edge at both.
+    /// [S-2703] [S-11547] A chip, one Caption line tall, 4 in from the day's edge at both ends. A span
+    /// (all-day, several days, a birthday) is a bar: on the item layer's chip fill, the item's mark as a
+    /// 2 px bar at its start (none where it continues from the week before), the one radius at the ends
+    /// it has. A timed event is a line on no fill: its calendar's dot, its start where the column holds
+    /// it, its title, as a month view lists a day's meetings.
     /// </summary>
-    private Border MonthChip(LaneItem bar, bool showColors, bool times)
+    private Border MonthChip(LaneItem bar, bool showColors, bool times, TimeZoneInfo zone, bool dimmed = false)
     {
         var item = bar.Item;
-        var text = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
+        // [S-11547] A chip wholly on the days around the month is dimmed as their numbers are.
+        var text = Family.Text(FamilyType.Caption, dimmed ? ColourRole.TextTertiary : ColourRole.TextPrimary);
+        var lead = dimmed ? ColourRole.TextTertiary : ColourRole.TextSecondary;
         text.VerticalAlignment = VerticalAlignment.Center;
+
+        if (MonthPlan.Look(bar, zone) == MonthChipLook.Timed)
+        {
+            var e = item.Event!;
+            if (times)
+            {
+                text.Inlines.Add(Family.Run(FamilyType.Caption, lead, Clock(e.Start) + " "));
+                text.Inlines.Add(new Run { Text = Title(e) });
+            }
+            else
+            {
+                text.Text = Title(e);
+            }
+
+            var dot = Dot(MarkOf(item, showColors));
+            dot.VerticalAlignment = VerticalAlignment.Center;
+            SetColumn(text, 1);
+            var line = new Border
+            {
+                Child = new Grid
+                {
+                    ColumnSpacing = FamilySpace.S1,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = GridLength.Auto },
+                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                    },
+                    Children = { dot, text },
+                },
+                Height = FamilyType.Caption.LineHeight,
+                VerticalAlignment = VerticalAlignment.Top,
+                Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+                Margin = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+                CornerRadius = Family.Radius,
+                Background = Family.Brush(ColourRole.Clear),
+            };
+            MakeOpenable(line, e);
+            return line;
+        }
+
         var r = FamilyShape.Radius;
         var chip = new Border
         {
@@ -310,18 +376,19 @@ internal sealed partial class CalendarView
             return chip;
         }
 
-        var e = item.Event!;
-        if (times && !e.AllDay && !bar.ContinuesBefore)
+        // A timed span (an overnight train) leads with its start where it starts.
+        var span = item.Event!;
+        if (times && !span.AllDay && !bar.ContinuesBefore)
         {
-            text.Inlines.Add(Family.Run(FamilyType.Caption, ColourRole.TextSecondary, Clock(e.Start) + " "));
-            text.Inlines.Add(new Run { Text = Title(e) });
+            text.Inlines.Add(Family.Run(FamilyType.Caption, lead, Clock(span.Start) + " "));
+            text.Inlines.Add(new Run { Text = Title(span) });
         }
         else
         {
-            text.Text = Title(e);
+            text.Text = Title(span);
         }
 
-        MakeOpenable(chip, e);
+        MakeOpenable(chip, span);
         return chip;
     }
 

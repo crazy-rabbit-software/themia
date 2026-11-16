@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Masaüstü öğesi",
-  "desktopItem.desc": "Masaüstünüzden bir dosya, klasör veya kısayol"
+  "widgetsC.shortcuts.column.target": "Hedef",
+  "widgetsC.shortcuts.kind.location": "Windows konumu",
+  "widgetsC.shortcuts.kind.missing": "Eksik",
+  "widgetsC.shortcuts.kind.path": "Yol",
+  "widgetsC.shortcuts.kind.refused": "İzin verilmiyor",
+  "widgetsC.shortcuts.menu.addLayout": "Uygulama düzeni…",
+  "widgetsC.shortcuts.menu.addLink": "Web adresi veya yol…",
+  "widgetsC.shortcuts.menu.changeTarget": "Hedefi değiştir…",
+  "widgetsC.shortcuts.settings.locations": "Windows konumları",
+  "widgetsC.shortcuts.settings.openWith.double": "Çift tıklama",
+  "widgetsC.shortcuts.settings.openWith.label": "Açma şekli",
+  "widgetsC.shortcuts.settings.openWith.single": "Tek tıklama",
+  "widgetsC.shortcuts.settings.pick.file": "Dosya…",
+  "widgetsC.shortcuts.settings.pick.folder": "Klasör…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (hedef eksik)\n{target}"
 }

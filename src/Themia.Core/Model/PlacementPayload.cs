@@ -200,22 +200,26 @@ public sealed class PlacementPayload
         };
     }
 
-    /// <summary>[S-423]/[S-1585] What the ghost draws with the pointer at a point of a display.</summary>
-    public IReadOnlyList<GhostOutline> Outlines(double xFrac, double yFrac, ScreenMetrics screen, bool snapEnabled)
+    /// <summary>
+    /// [S-423]/[S-1585] What the ghost draws with the pointer at a point of a display. [S-11807] With
+    /// <paramref name="sizes"/> a new widget comes in whole grid cells, as the desktop then shows it;
+    /// [S-11809] a ready-made group is fitted to the display's sizes as one block on the grid.
+    /// </summary>
+    public IReadOnlyList<GhostOutline> Outlines(double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes = null)
     {
         if (NewKind is { } kind)
         {
-            var (rect, delta) = NewLayout(xFrac, yFrac, screen, snapEnabled);
+            var (rect, delta) = NewLayout(kind, xFrac, yFrac, screen, sizes);
             return [new GhostOutline(BlockGeometry.Apply(rect, delta, screen), kind)];
         }
 
         if (_readyMade is { } recipe)
         {
-            var (boxes, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, snapEnabled);
+            var (boxes, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, sizes);
             return [.. recipe.Widgets.Select((w, i) => new GhostOutline(BlockGeometry.Apply(boxes[i], delta, screen), new WidgetId(w.Kind)))];
         }
 
-        var (drawn, at) = Layout(xFrac, yFrac, screen, snapEnabled);
+        var (drawn, at) = Layout(xFrac, yFrac, screen);
         return [.. drawn.Select(w => new GhostOutline(BlockGeometry.Apply(w.Rect, at, screen), w.Kind))];
     }
 
@@ -224,11 +228,11 @@ public sealed class PlacementPayload
     /// the same layout as <see cref="Outlines"/>, so the widgets land exactly where the ghost was.
     /// A copy gets fresh ids every time, so one copy can be placed again and again.
     /// </summary>
-    public PastePlan Plan(double xFrac, double yFrac, ScreenMetrics screen, bool snapEnabled)
+    public PastePlan Plan(double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes = null)
     {
         if (NewKind is { } kind)
         {
-            var (rect, delta) = NewLayout(xFrac, yFrac, screen, snapEnabled);
+            var (rect, delta) = NewLayout(kind, xFrac, yFrac, screen, sizes);
             var widget = WidgetInstance.Create(kind, BlockGeometry.Apply(rect, delta, screen));
             return new PastePlan([widget], [widget.Id], []);
         }
@@ -236,21 +240,21 @@ public sealed class PlacementPayload
         if (_readyMade is { } recipe)
         {
             // [S-2471] Built where the ghost was: each widget's rect is its box moved by the block's translation.
-            var (_, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, snapEnabled);
+            var (boxes, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, sizes);
             if (ReadyMadeGroups.Build(recipe, screen) is not var (widgets, group))
             {
                 return new PastePlan([], [], []);
             }
 
-            foreach (var widget in widgets)
+            for (var i = 0; i < widgets.Count; i++)
             {
-                widget.Rect = BlockGeometry.Apply(widget.Rect, delta, screen);
+                widgets[i].Rect = BlockGeometry.Apply(boxes[i], delta, screen);
             }
 
             return new PastePlan(widgets, [.. widgets.Select(w => w.Id)], []) { Groups = [group] };
         }
 
-        var (_, at) = Layout(xFrac, yFrac, screen, snapEnabled);
+        var (_, at) = Layout(xFrac, yFrac, screen);
         var move = Mode == PlacementMode.Move;
 
         var ids = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -277,31 +281,71 @@ public sealed class PlacementPayload
     }
 
     /// <summary>The widgets the ghost draws and the block's translation: the whole payload moves by that one translation.</summary>
-    private (List<WidgetInstance> Drawn, BlockGeometry.Delta At) Layout(double xFrac, double yFrac, ScreenMetrics screen, bool snapEnabled)
+    private (List<WidgetInstance> Drawn, BlockGeometry.Delta At) Layout(double xFrac, double yFrac, ScreenMetrics screen)
     {
         var rects = _widgets.Select(w => w.Rect).ToList();
         var anchor = AnchorId is not null && Find(AnchorId) is { } held ? held.Rect : BlockGeometry.Bounds(rects);
-        return (_widgets, BlockGeometry.PlaceAt(rects, anchor, xFrac, yFrac, screen, snapEnabled));
+        return (_widgets, BlockGeometry.PlaceAt(rects, anchor, xFrac, yFrac, screen));
     }
 
     /// <summary>[S-2471] A ready-made group: its boxes on this display, the block's translation for the point.</summary>
-    private static (List<FracRect> Boxes, BlockGeometry.Delta At) ReadyMadeLayout(ReadyMadeGroup recipe, double xFrac, double yFrac, ScreenMetrics screen, bool snapEnabled)
+    private (IReadOnlyList<FracRect> Boxes, BlockGeometry.Delta At) ReadyMadeLayout(ReadyMadeGroup recipe, double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes)
     {
-        var boxes = recipe.Widgets.Select(w => ReadyMadeGroups.Rect(w.Box, screen)).ToList();
-        return (boxes, BlockGeometry.PlaceAt(boxes, BlockGeometry.Bounds(boxes), xFrac, yFrac, screen, snapEnabled));
+        var boxes = ReadyMadeBoxes(recipe, screen, sizes);
+        return (boxes, BlockGeometry.PlaceAt(boxes, BlockGeometry.Bounds(boxes), xFrac, yFrac, screen));
     }
 
-    /// <summary>[S-11] A new widget: its default size on this display (snapped when the aid is on), centred on the point.</summary>
-    private (FracRect Rect, BlockGeometry.Delta At) NewLayout(double xFrac, double yFrac, ScreenMetrics screen, bool snapEnabled)
+    /// <summary>The last layout of the ready-made group's boxes, for the display and sizes it was made for: the ghost asks on every pointer move.</summary>
+    private (ScreenMetrics Screen, PlacementSizes Sizes, IReadOnlyList<FracRect> Boxes)? _laidBoxes;
+
+    /// <summary>
+    /// [S-2471] The recipe's boxes on <paramref name="screen"/>, from the group's corner. [S-11809] Fitted
+    /// to the display's <paramref name="sizes"/> as one block (<see cref="GridFit.Layout"/>), never widget
+    /// by widget: each box asks for its card's DIPs at the content scale plus the gap and is held to its
+    /// sizing there (on the grid, [S-11808], in whole cells), every shared edge still shared, so the
+    /// members meet as the recipe says at any scale, gap and display, and the desktop paints each where
+    /// it landed. No sizes (a caller that knows none): the recipe's own boxes.
+    /// </summary>
+    private IReadOnlyList<FracRect> ReadyMadeBoxes(ReadyMadeGroup recipe, ScreenMetrics screen, PlacementSizes? sizes)
     {
-        var rect = FracRect.FromPixels(0, 0, _newWidthPx, _newHeightPx, screen);
-        if (snapEnabled)
+        var boxes = recipe.Widgets.Select(w => ReadyMadeGroups.Rect(w.Box, screen)).ToList();
+        if (sizes is not { } fit || !screen.IsUsable)
         {
-            var snapped = GridGeometry.Snap(rect, screen);
-            rect = rect with { W = snapped.W, H = snapped.H };
+            return boxes;
         }
 
-        return (rect, BlockGeometry.PlaceAt([rect], rect, xFrac, yFrac, screen, snapEnabled));
+        if (_laidBoxes is { } cached && cached.Screen == screen && cached.Sizes == fit)
+        {
+            return cached.Boxes;
+        }
+
+        var laid = ReadyMadeGroups.Laid(recipe, screen, fit);
+        _laidBoxes = (screen, fit, laid);
+        return laid;
+    }
+
+    /// <summary>
+    /// [S-11] A new widget: its default size on this display, centred on the point. [S-11807] With
+    /// <paramref name="sizes"/> its Natural rounded up to whole cells and held to its sizing there.
+    /// </summary>
+    private (FracRect Rect, BlockGeometry.Delta At) NewLayout(WidgetId kind, double xFrac, double yFrac, ScreenMetrics screen, PlacementSizes? sizes)
+    {
+        var rect = FracRect.FromPixels(0, 0, _newWidthPx, _newHeightPx, screen);
+        var known = ModuleCatalog.TryGet(kind, out _);
+        if (sizes is { } grid && screen.IsUsable)
+        {
+            var cell = FracRect.FromPixels(0, 0, _newWidthPx * grid.Scale, _newHeightPx * grid.Scale, screen);
+            var (cols, rows) = GridGeometry.GridDims(screen);
+            var (w, h) = (GridFit.Up(cell.W, cols), GridFit.Up(cell.H, rows));
+            if (known && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
+            {
+                (w, h) = (limits.Width.Range(w), limits.Height.Range(h));
+            }
+
+            rect = rect with { W = w, H = h };
+        }
+
+        return (rect, BlockGeometry.PlaceAt([rect], rect, xFrac, yFrac, screen));
     }
 
     private WidgetInstance? Find(string? id)

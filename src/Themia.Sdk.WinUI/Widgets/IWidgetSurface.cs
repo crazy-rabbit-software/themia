@@ -77,8 +77,8 @@ public interface IWidgetSurface
     Themia.Core.Links.LinkBoard? Links => null;
 
     /// <summary>
-    /// [S-873] Paint nothing, or paint again: the card drops its fill, border and content and leaves
-    /// the window's hit region, so the desktop under it is clickable. For a widget that has nothing
+    /// [S-873] Paint nothing, or paint again: the card drops its fill, border and content, so the
+    /// wallpaper shows where it stood. For a widget that has nothing
     /// to show right now (music with nothing playing). Edit mode always shows it, so a hidden widget
     /// can still be found, moved and configured. Not persisted: the view decides it from its state.
     /// </summary>

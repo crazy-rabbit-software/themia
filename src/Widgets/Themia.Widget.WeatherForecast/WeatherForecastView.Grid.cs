@@ -13,6 +13,8 @@ internal sealed partial class WeatherForecastView
     /// The days that have a cell's floor, as cells in the plan's columns × rows (filled left to
     /// right, then down; time runs left to right in every language, [S-1113]), 12 apart. Each cell is
     /// the day, the sky's glyph (32, 48 on an expanded width) and the high beside the low, centred in it.
+    /// [S-12403] Each line of cells fills the content's width: a last line short of days shares the
+    /// width among the days it has (<see cref="ForecastGrid.Lines"/>), so no empty cell is left at its end.
     /// </summary>
     private Grid BuildGrid(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastGridPlan plan)
     {
@@ -21,26 +23,25 @@ internal sealed partial class WeatherForecastView
         {
             Margin = ContentInset,
             RowSpacing = ForecastGrid.Gap,
-            ColumnSpacing = ForecastGrid.Gap,
             FlowDirection = FlowDirection.LeftToRight,
         };
 
-        for (var c = 0; c < plan.Columns; c++)
-        {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
-
-        for (var r = 0; r < plan.Rows; r++)
+        var first = 0;
+        foreach (var cells in ForecastGrid.Lines(count, plan.Columns))
         {
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        }
+            var line = new Grid { ColumnSpacing = ForecastGrid.Gap };
+            for (var c = 0; c < cells; c++)
+            {
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                var cell = BuildCell(days[first + c], today, plan);
+                Grid.SetColumn(cell, c);
+                line.Children.Add(cell);
+            }
 
-        for (var i = 0; i < count; i++)
-        {
-            var cell = BuildCell(days[i], today, plan);
-            Grid.SetColumn(cell, i % plan.Columns);
-            Grid.SetRow(cell, i / plan.Columns);
-            grid.Children.Add(cell);
+            Grid.SetRow(line, grid.RowDefinitions.Count - 1);
+            grid.Children.Add(line);
+            first += cells;
         }
 
         return grid;

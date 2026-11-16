@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Pilih aplikasi lain",
+  "folderMenu.compressToZip": "Kompres ke file ZIP",
+  "folderMenu.copyAsPath": "Salin sebagai jalur",
+  "folderMenu.openInNewWindow": "Buka di jendela baru",
+  "folderMenu.openWith": "Buka dengan",
+  "folderMenu.pinToQuickAccess": "Sematkan ke Akses cepat",
+  "folderMenu.pinToStart": "Sematkan ke Mulai",
+  "folderMenu.share": "Bagikan",
+  "folder.properties": "Properti",
+  "widgetsB.folder.freeUpSpace": "Kosongkan ruang",
+  "widgetsB.folder.keepOnDevice": "Selalu simpan di perangkat ini",
+  "widgetsB.folder.moreOptions": "Tampilkan opsi lainnya",
+  "widgetsB.folder.new": "Baru",
+  "ctxMenu.folder": "Folder"
+}

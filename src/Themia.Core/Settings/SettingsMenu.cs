@@ -1,4 +1,4 @@
-﻿using Themia.App.Shell;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Motion;
@@ -45,7 +45,14 @@ public sealed record SettingsNote(string Key, string Text) : SettingsLine(Key)
 /// [S-3561] A reading: words and a value at the line's end in the text colour, never clickable (what
 /// an account holds on this PC: "Mail · 1,240 messages").
 /// </summary>
-public sealed record SettingsReading(string Key, string Text, string? Glyph, string? Value) : SettingsLine(Key);
+public sealed record SettingsReading(string Key, string Text, string? Glyph, string? Value) : SettingsLine(Key)
+{
+    /// <summary>[S-3580] A line under its words (Karpo's note card, §579: Themia's version, what Lometics is).</summary>
+    public string? Caption { get; init; }
+
+    /// <summary>[S-2318] A button standing in its line at its end (Karpo's <c>Beside</c>, §638: Lometics' site); null for none.</summary>
+    public SettingsCommand? Beside { get; init; }
+}
 
 /// <summary>
 /// [S-3561] [S-3736] A line of text typed in the menu itself (a form's field): a row of its words and
@@ -145,9 +152,27 @@ public sealed record SettingsSubmenu(string Key, string Text, string? Glyph, IRe
     /// <summary>[S-3732] An item of an ordered list: its line is dragged up and down among the list's.</summary>
     public SettingsOrder? Order { get; init; }
 
-    /// <summary>[S-2303] It opens as a page of its own behind a back head (an account), not inside its card.</summary>
+    /// <summary>[S-2303] It opens as a page of its own behind a back head, not inside its card.</summary>
     public bool Page { get; init; }
+
+    /// <summary>
+    /// [S-2301] [S-2310] It is one of the user's own things on its section, a card that opens in place (a view, a
+    /// display, an account: Karpo's thing, §585), never a section of its own.
+    /// </summary>
+    public bool Card { get; init; }
+
+    /// <summary>[S-2310] A line under its name (a thing's: where a view is shown, a display's resolution).</summary>
+    public string? Caption { get; init; }
+
+    /// <summary>[S-2310] Icon buttons at its head's end, before the chevron (a view's Duplicate and Delete, an account's Sign out).</summary>
+    public IReadOnlyList<SettingsTool> Tools { get; init; } = [];
 }
+
+/// <summary>
+/// [S-2311] The Appearance page's live preview (Karpo's §592, §671): real widget cards drawn in the design as it
+/// stands, at the page's top, bare (no card round it). It sets nothing.
+/// </summary>
+public sealed record SettingsPreview(string Key) : SettingsLine(Key);
 
 /// <summary>
 /// [S-3732] A line's place in an ordered list (the views): where it is, how many there are, and what
@@ -184,6 +209,9 @@ public sealed record SettingsCommand(string Key, string Text, string? Glyph, Act
 
     /// <summary>[S-3580] What it says at its end (the site a link opens: "lometics.com").</summary>
     public string? Value { get; init; }
+
+    /// <summary>[S-2312] A line under its name (what a way to add an account brings).</summary>
+    public string? Caption { get; init; }
 }
 
 /// <summary>
@@ -256,12 +284,6 @@ public interface ISettingsMenuHost
     /// <summary>[S-933] Ask Windows to start Themia at sign-in, or not; what it reached comes back as <see cref="Startup"/>.</summary>
     void SetStartup(bool on);
 
-    /// <summary>[S-5500] Store and apply what the desktop shows (Themia's items, Windows' icons or nothing).</summary>
-    void SetDesktop(DesktopShows shows);
-
-    /// <summary>[S-5575] Who else holds the desktop's windows, as last read: ⚙ › On the desktop says why its choice does not show.</summary>
-    Themia.Core.Desktop.DesktopHolder DesktopHolder => Themia.Core.Desktop.DesktopHolder.None;
-
     /// <summary>[S-920] Game mode is holding the widgets now.</summary>
     bool Suspended { get; }
 
@@ -300,9 +322,6 @@ public interface ISettingsMenuHost
 
     /// <summary>[S-3727] Ask beside the menu; only the answer runs it.</summary>
     void Confirm(SettingsConfirm confirm);
-
-    /// <summary>[S-3532] Quit Themia on every display.</summary>
-    void Quit();
 }
 
 /// <summary>
@@ -347,15 +366,35 @@ public static partial class SettingsMenu
     public static class Keys
     {
         public const string Startup = "startup";
-        public const string Desktop = "desktop";
+
+        /// <summary>[S-5593] The desktop's icon size.</summary>
+        public const string DesktopIconSize = "desktopIconSize";
         public const string GameMode = "gameMode";
         public const string Appearance = "appearance";
         public const string Motion = "motion";
-        public const string Snap = "snap";
-        public const string Collisions = "collisions";
         public const string Language = "language";
         public const string Accounts = "accounts";
+
+        /// <summary>[S-2312] "Your accounts", the section every account's card stands in.</summary>
+        public const string YourAccounts = "accounts/yours";
+
+        /// <summary>[S-2312] "Add an account", the section of the ways to add one.</summary>
         public const string AddAccount = "accounts/add";
+
+        /// <summary>[S-2315] The General page's headings after its first: the desktop icons, Services, Themia, About.</summary>
+        public const string DesktopHeading = "desktop";
+        public const string ServicesHeading = "services";
+        public const string ThemiaHeading = "themia";
+
+        /// <summary>[S-2315] The regional formats' card under the language.</summary>
+        public const string Formats = "language/formats";
+
+        /// <summary>[S-2319] The Formats card's Windows region settings, and its Reset all.</summary>
+        public const string FormatsRegion = "language/formats/region";
+        public const string FormatsReset = "language/formats/reset";
+
+        /// <summary>[S-2311] The Appearance page's live preview.</summary>
+        public const string Preview = "appearance/preview";
         public const string Online = "online";
         public const string Mcp = "assistants";
         public const string McpServer = "assistants/server";
@@ -371,8 +410,7 @@ public static partial class SettingsMenu
         public const string BackupOpen = "backup/open";
         public const string BackupReset = "backup/reset";
         public const string About = "about";
-        public const string Uninstall = "about/uninstall";
-        public const string Quit = "quit";
+        public const string Uninstall = "uninstall";
 
         /// <summary>[S-3749] The line of Language &amp; region that sets a regional format a widget links to.</summary>
         public static string Format(Sdk.OwnedSetting setting) => Language + "/" + setting switch

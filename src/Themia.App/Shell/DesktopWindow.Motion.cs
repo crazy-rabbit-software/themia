@@ -19,9 +19,6 @@ internal sealed partial class DesktopWindow
     /// <summary>The intro playing on this surface, or null.</summary>
     private MotionShow? _show;
 
-    /// <summary>[S-1005] While the hyperspace overlay plays, the hit region spans the work area so the veil is seen edge to edge.</summary>
-    private bool MotionCoversScreen => _show?.Overlay is not null;
-
     /// <summary>
     /// [S-1001] Called at the end of every layout pass. Spends the arm only on a pass the user can see
     /// — the surface is loaded and has a size — so the startup intro is not played to nobody.
@@ -60,6 +57,20 @@ internal sealed partial class DesktopWindow
         return Play(mode, ViewForThisMonitor(_host.State));
     }
 
+    /// <summary>
+    /// [S-1017] First in every layout pass: a show still running ends now with every card at rest. The
+    /// pass may rebuild, move or resize the cards it animates, and a show whose compositor never reported
+    /// its end must not hold them hidden; the pass that starts a show starts it last, so this never ends it.
+    /// </summary>
+    private void EndRunningIntro()
+    {
+        if (_arming.BeginPass() && _show is { } show)
+        {
+            Log.Debug(Scope, $"{show.Mode} intro on {_monitor.GdiName} ended by a layout pass; every card at rest");
+            show.Stop();
+        }
+    }
+
     private bool Play(IntroMode mode, ViewState view)
     {
         var style = IntroMotion.StyleFor(Design, mode);
@@ -74,13 +85,22 @@ internal sealed partial class DesktopWindow
         try
         {
             _show = MotionShow.Start(
-                new MotionStage(_widgetLayer, Metrics.Width, Metrics.Height, Actors(view), Design.WidgetGapPx,
+                new MotionStage(_widgetLayer, Metrics.Width, Metrics.Height, Actors(view),
                     DesignLook.CornerRadius(Design.CornerRadiusPx)),
                 mode,
                 style,
                 IntroMotion.MsFor(Design, mode),
                 MountOverlay,
                 OnShowEnded);
+            if (_show is { Over: true })
+            {
+                // Ended before it was handed over (nothing to play): nothing runs.
+                _show = null;
+            }
+            else if (_show is not null)
+            {
+                _arming.ShowStarted();
+            }
         }
         catch (Exception ex)
         {
@@ -89,11 +109,6 @@ internal sealed partial class DesktopWindow
             _show?.Stop();
             _show = null;
             return false;
-        }
-
-        if (MotionCoversScreen)
-        {
-            ApplyHitRegion();
         }
 
         return true;
@@ -132,11 +147,6 @@ internal sealed partial class DesktopWindow
         }
 
         _show = null;
-
-        // The region shrinks back to the widgets once the overlay is gone.
-        if (show.Overlay is not null && !_closed)
-        {
-            ApplyHitRegion();
-        }
+        _arming.ShowEnded();
     }
 }

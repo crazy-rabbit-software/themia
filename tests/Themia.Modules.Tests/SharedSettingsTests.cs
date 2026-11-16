@@ -140,7 +140,7 @@ public sealed class SharedSettingsTests
     public void S11753_every_kind_that_holds_a_shared_setting_marks_the_line_that_sets_it()
     {
         // The kinds whose lines read a list only the running host installs: their helpers are checked below.
-        string[] hosted = ["brightness", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory", "shortcuts"];
+        string[] hosted = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory"];
 
         // A line offered only when it changes something (one output device), or only in a look (the calendar's
         // rows in its agenda, the cores' span in their graphs): the default look of these offers none.
@@ -207,7 +207,7 @@ public sealed class SharedSettingsTests
     }
 
     [Fact]
-    public void S11754_a_whole_group_selected_is_its_page_its_shared_settings_and_its_widgets()
+    public void S11754_S11755_a_whole_group_selected_is_its_page_its_shared_settings_and_no_member_alone()
     {
         var (state, view) = Station();
         var model = SelectionPage.Of(state, Selecting(view, "now", "facts", "days", "rain"), view.Id)!;
@@ -215,14 +215,44 @@ public sealed class SharedSettingsTests
         Assert.Equal(SelectionKind.Group, model.Kind);
         Assert.Equal("g", model.GroupId);
         Assert.Equal("Weather station", model.GroupTitle);
-        Assert.Equal(["now", "facts", "days", "rain"], model.Members.Select(m => m.Id));
-        Assert.Equal(ModuleCatalog.Of(new WidgetId("weatherNow")).Name, model.Members[0].Name);
+        Assert.Equal([SelectionSection.Shared, SelectionSection.Appearance], SelectionPage.Sections(model, ownLines: true, styleLines: true));
 
         var place = Assert.Single(model.Shared, r => r.Setting == SharedSettings.Place);
         Assert.Equal(["now", "facts", "days", "rain"], place.Holders);
         Assert.False(place.Mixed);
         Assert.Equal("Weather station", SelectionPage.Words(model, k => ModuleCatalog.Of(k).Name));
         Assert.Equal(ReadyMadeGroups.WeatherStation.Glyph, SelectionPage.Glyph(model));
+    }
+
+    /// <summary>
+    /// [S-2454] Regression (owner, 2026-11-15: "when i select multiple widgets i am not able to group them"):
+    /// the page of several widgets, the one place a selection's commands are, offered Cut, Copy and Remove
+    /// only; Group was a key and a right-click away. Its header card now offers Group, and Ungroup where a
+    /// group is among them; a lone widget and an entered member offer neither, a whole group Ungroup only.
+    /// </summary>
+    [Fact]
+    public void S2454_the_page_of_several_widgets_offers_group_and_a_group_ungroup()
+    {
+        var (state, view) = Station();
+        view.Widgets.Add(Widget("clock", "clock2"));
+
+        var lone = SelectionPage.Of(state, Selecting(view, "clock", "clock2"), view.Id)!;
+        Assert.Equal(SelectionKind.Several, lone.Kind);
+        Assert.Equal((true, false), (lone.CanGroup, lone.CanUngroup));
+
+        // A group and a lone widget: Group merges them, Ungroup dissolves the group.
+        var mixed = SelectionPage.Of(state, Selecting(view, "now", "facts", "days", "rain", "clock"), view.Id)!;
+        Assert.Equal((true, true), (mixed.CanGroup, mixed.CanUngroup));
+
+        var whole = SelectionPage.Of(state, Selecting(view, "now", "facts", "days", "rain"), view.Id)!;
+        Assert.Equal((false, true), (whole.CanGroup, whole.CanUngroup));
+
+        var one = SelectionPage.Of(state, Selecting(view, "clock"), view.Id)!;
+        Assert.Equal((false, false), (one.CanGroup, one.CanUngroup));
+
+        // What the page offers is what Ctrl+G does: one group of the two, selected whole after.
+        Assert.NotNull(WidgetGroups.Group(view, ["clock", "clock2"]));
+        Assert.Equal(SelectionKind.Group, SelectionPage.Of(state, Selecting(view, "clock", "clock2"), view.Id)!.Kind);
     }
 
     [Fact]

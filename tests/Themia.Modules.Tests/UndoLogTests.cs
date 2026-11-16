@@ -134,7 +134,7 @@ public sealed class UndoLogTests
         var (state, view, _) = Desk();
         var history = new LayoutHistory(state);
 
-        state.Design.WidgetGapPx = 12;
+        state.Design.CornerRadiusPx = 12;
         ((NotesConfig)view.Widgets[1].Config).NoteId = "typed";
 
         Assert.False(history.Commit(state, UndoAction.Change));

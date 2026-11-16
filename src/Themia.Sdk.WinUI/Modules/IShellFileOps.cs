@@ -8,9 +8,9 @@ namespace Themia.Sdk.WinUI;
 /// [S-1330] [S-1331] File operations done by the shell exactly as Explorer does them
 /// (<see cref="IWidgetHost.FileOps"/>): copy, move, rename and delete through <c>IFileOperation</c>,
 /// with the shell's own progress, conflict and Recycle Bin dialogs and Explorer's undo, plus open,
-/// Open with, Properties, Show in Explorer, a new folder or file, cloud pinning, a shortcut's target
-/// and a drag out to another app. <b>Delete always recycles.</b> The COM, its worker thread and OLE
-/// stay host code.
+/// Open with, Properties, Show in Explorer, a new folder or file, cloud pinning, a shortcut's target.
+/// <b>Delete always recycles.</b> The COM and its worker thread stay host code; a drag out is the
+/// SDK's own (<see cref="ItemDrag"/>).
 /// </summary>
 public interface IShellFileOps
 {
@@ -52,7 +52,4 @@ public interface IShellFileOps
 
     /// <summary>A <c>.lnk</c>'s target, or null; with <paramref name="plainOnly"/> also null for a link that passes arguments or has its own icon ([S-1401]).</summary>
     string? ResolveShortcut(string path, bool plainOnly = false);
-
-    /// <summary>Drag <paramref name="paths"/> out of <paramref name="window"/> to any app, in OLE's own loop: what the target did.</summary>
-    DropEffect DragOut(IReadOnlyList<string> paths, DropEffect allowed, nint window);
 }

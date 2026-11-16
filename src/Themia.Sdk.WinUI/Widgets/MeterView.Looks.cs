@@ -126,7 +126,7 @@ public sealed partial class MeterView
 
             case MeterLook.Numbers:
                 _second = new ReadoutBlock { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-                _box = new Grid { Margin = Family.SideInset, ColumnSpacing = FamilySpace.ColumnGap, RowSpacing = FamilySpace.S2 };
+                _box = new Grid { Margin = Family.SideInset, ColumnSpacing = MeterSizing.NumbersGap, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
                 SetRowSpan(_box, 2);
                 Move(_reading, _box);
                 _reading.Margin = default;
@@ -140,7 +140,8 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Rows:
-                Body(new StackPanel { Margin = new Thickness(0, FamilySpace.S2, 0, FamilySpace.Inset) });
+                // [S-12410] Rows of items fill the card down to its edge (stretched up to half again, then spaced).
+                Body(new SpreadStack { Margin = new Thickness(0, FamilySpace.S2, 0, FamilySpace.Inset) });
                 break;
 
             case MeterLook.Tiles:
@@ -371,7 +372,7 @@ public sealed partial class MeterView
 
                 break;
 
-            case MeterLook.Rows when _body is StackPanel stack:
+            case MeterLook.Rows when _body is SpreadStack stack:
                 Resize(_rows, count, stack, () =>
                 {
                     var row = new RowBlock(RowKind.Fact, lead: 0);
@@ -508,6 +509,8 @@ public sealed partial class MeterView
         _reading.Visibility = atom == MeterAtom.Reading ? Visibility.Visible : Visibility.Collapsed;
         _reading.Use(FamilyType.Big28);
 
+        Padding = default;
+
         // The reading's content box: the side insets and the foot's (the header stands above the view).
         var width = Math.Max(0, _area.Width - (2 * FamilySpace.Inset));
         var height = Math.Max(0, _area.Height - FamilySpace.Inset);
@@ -529,7 +532,7 @@ public sealed partial class MeterView
             // in the card's inset on the sides and the foot.
             SetRow(_body, 0);
             SetRowSpan(_body, 2);
-            _body.Margin = _look == MeterLook.Rows ? new Thickness(0, 0, 0, FamilySpace.Inset) : Family.Inset with { Top = 0 };
+            _body.Margin = _look == MeterLook.Rows ? default : Family.Inset with { Top = 0 };
         }
 
         switch (_look)
@@ -540,13 +543,15 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Numbers when _box is not null && _second is not null:
-                // [S-11001] Download over upload, 8 apart, both at 28.
+                // [S-6264] Download then upload on the one line, NumbersGap apart, both at 28.
                 _box.RowDefinitions.Clear();
                 _box.ColumnDefinitions.Clear();
-                _box.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-                _box.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-                SetColumn(_second, 0);
-                SetRow(_second, 1);
+                // The download's column holds its widest, so the upload never moves as the figures change.
+                _box.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(MeterSizing.ReadingWidth(Worst)) });
+                _box.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                SetColumn(_reading, 0);
+                SetColumn(_second, 1);
+                SetRow(_second, 0);
                 _second.Use(FamilyType.Big28);
                 break;
 
@@ -588,6 +593,28 @@ public sealed partial class MeterView
                 _band.Visibility = Visibility.Collapsed;
                 break;
         }
+
+        Padding = new Thickness(0, atom == MeterAtom.Reading ? CentringTop(width, height) : 0, 0, 0);
+    }
+
+    /// <summary>
+    /// [S-12410] A reading's block is drawn at its natural size (its battery or bars up to their most): what a
+    /// larger box has beyond it is spacing, the block standing in the middle of the room under the header
+    /// with its foot's inset kept under it, never huddled at the top. At its natural box this is none. A
+    /// dial grows to its box and a reading's rows of bars stretch, so they take none. Padding on the view
+    /// itself, never its alignment: the card measures the view's own box as its area ([S-663]).
+    /// </summary>
+    private double CentringTop(double width, double height)
+    {
+        var block = _look switch
+        {
+            MeterLook.Battery => MeterSizing.PartTop + MeterSizing.BatteryIn(width, height).Height,
+            MeterLook.Signal => MeterSizing.PartTop + MeterSizing.SignalIn(width, height),
+            MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Graph or MeterLook.History => height,
+            _ => MeterSizing.Line,
+        };
+
+        return Math.Max(0, Math.Floor((height - block) / 2));
     }
 
     /// <summary>[S-11003] The gauge or the ring as large as the content box takes, the reading at 28 in it.</summary>

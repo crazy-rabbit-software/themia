@@ -15,7 +15,7 @@ public interface IWidgetPreviewState
 
     /// <summary>
     /// [S-11603] The config the shown state draws when it swapped in one of its own whose size differs
-    /// (a shortcuts state holding seven items), so a render sizes the card by what it draws; null when the
+    /// (a list state holding more items), so a render sizes the card by what it draws; null when the
     /// state keeps the card's config (its counts, its style) and only fills in sample data.
     /// </summary>
     Themia.Core.Model.WidgetConfig? DrawnConfig => null;

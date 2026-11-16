@@ -39,12 +39,13 @@ public sealed partial class SettingsMenuTests
     private static McpServerStatus Listening => new(McpServerState.Listening, new McpAddress(48213, McpToken));
 
     [Fact]
-    public void S9979_ai_assistants_follows_motion_on_general_and_is_absent_without_a_server()
+    public void S9979_ai_assistants_is_a_card_under_services_and_absent_without_a_server()
     {
-        var keys = SettingsPages.General(WithServer(on: false).Host).Sections.Select(s => s.Key).ToArray();
-        Assert.Equal(["page", "language", "online", "motion", "assistants", "backup", "pro", "about", "-about"], keys);
+        var page = SettingsPages.General(WithServer(on: false).Host);
+        Assert.Equal(["page", "desktop", "services", "themia", "about"], page.Sections.Select(s => s.Key));
+        Assert.Equal([SettingsMenu.Keys.Online, SettingsMenu.Keys.Mcp], page.Sections[2].Lines.Select(l => l.Key));
 
-        Assert.DoesNotContain(SettingsPages.General(new FakeHost()).Sections, s => s.Key == SettingsMenu.Keys.Mcp);
+        Assert.DoesNotContain(SettingsPages.Lines(SettingsPages.General(new FakeHost())), l => l.Key == SettingsMenu.Keys.Mcp);
     }
 
     [Fact]

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-4863] The bin's Empty rule (the SDK's RecycleBinState), which the widget's button and the Shortcuts menu both read. Moved from ShortcutsTests, which went with the Shortcuts widget, unchanged.</summary>
+/// <summary>[S-4863] The bin's Empty rule (the SDK's RecycleBinState), which the widget's button and a shortcut's menu both read. Moved from ShortcutsTests, which went with the Shortcuts widget, unchanged.</summary>
 public sealed class RecycleBinStateTests
 {
     [Fact]

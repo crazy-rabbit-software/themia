@@ -5,6 +5,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
+using Themia.Core.Widgets;
 
 namespace Themia.App.Shell;
 
@@ -31,6 +32,13 @@ internal sealed class Backdrop
 
     /// <summary>The blurred picture, or null for none ([S-2111]: the cards fall back to a firmer fill).</summary>
     public ImageSource? Picture { get; private set; }
+
+    /// <summary>[S-2123] The picture's light as <see cref="Core.Widgets.LiquidGlass.Grid"/> keeps it; null with no picture.</summary>
+    private float[]? _light;
+
+    /// <summary>[S-2123] The mean light of the blurred picture under a box given as fractions of the display; null with no picture.</summary>
+    public double? LightUnder(double left, double top, double right, double bottom)
+        => _light is { } light ? Core.Widgets.LiquidGlass.Mean(light, Core.Widgets.LiquidGlass.GridColumns, Core.Widgets.LiquidGlass.GridRows, left, top, right, bottom) : null;
 
     /// <summary>The load in flight, or done: a render waits on it before its shot.</summary>
     public Task Loaded { get; private set; } = Task.CompletedTask;
@@ -75,16 +83,22 @@ internal sealed class Backdrop
     {
         try
         {
+            // [S-2131] The frost the design asks for now: its blur, then its saturation and brightness.
+            var frost = DesignApplier.Frost;
             var picture = await Task.Run(
                 async () =>
                 {
                     var placed = await _owner.Source.PictureAsync(Display, cancel).ConfigureAwait(false);
                     if (placed is not null)
                     {
-                        BoxBlur.Apply(placed.Pixels, placed.Width, placed.Height, BoxBlur.BackdropRadius, BoxBlur.BackdropPasses);
+                        BoxBlur.Apply(placed.Pixels, placed.Width, placed.Height, frost.BoxRadius, BoxBlur.BackdropPasses);
+                        LookRules.Treat(placed.Pixels, frost);
+
+                        // [S-2123] Its light, cell by cell: how clear glass may stay over it.
+                        return (Placed: placed, Light: Core.Widgets.LiquidGlass.Grid(placed.Pixels, placed.Width, placed.Height, Core.Widgets.LiquidGlass.GridColumns, Core.Widgets.LiquidGlass.GridRows));
                     }
 
-                    return placed;
+                    return (Placed: placed, Light: (float[]?)null);
                 },
                 cancel).ConfigureAwait(true);
 
@@ -93,7 +107,8 @@ internal sealed class Backdrop
                 return; // ignore: a newer load replaced this one.
             }
 
-            Picture = picture is null ? null : ToBitmap(picture);
+            Picture = picture.Placed is null ? null : ToBitmap(picture.Placed);
+            _light = picture.Light;
             ChangedCore?.Invoke();
         }
         catch (OperationCanceledException)
@@ -104,6 +119,7 @@ internal sealed class Backdrop
         {
             Log.Error(Backdrops.Scope, "the blurred wallpaper could not be built; the cards draw without it", ex);
             Picture = null;
+            _light = null;
             ChangedCore?.Invoke();
         }
     }
@@ -134,6 +150,7 @@ internal sealed class Backdrops : IDisposable
         Source = source;
         _dispatcher = dispatcher;
         Source.Changed += OnSourceChanged;
+        DesignApplier.FrostChanged += Reload;
     }
 
     internal IWallpaperSource Source { get; }
@@ -157,6 +174,8 @@ internal sealed class Backdrops : IDisposable
     public void Dispose()
     {
         Source.Changed -= OnSourceChanged;
+        DesignApplier.FrostChanged -= Reload;
+
         foreach (var backdrop in _byDisplay.Values)
         {
             backdrop.Stop();

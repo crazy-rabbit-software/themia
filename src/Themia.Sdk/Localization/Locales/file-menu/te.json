@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "మరొక యాప్‌ను ఎంచుకోండి",
+  "folderMenu.compressToZip": "ZIP ఫైల్‌గా కుదించు",
+  "folderMenu.copyAsPath": "మార్గంగా కాపీ చేయి",
+  "folderMenu.openInNewWindow": "కొత్త విండోలో తెరువు",
+  "folderMenu.openWith": "దీనితో తెరువు",
+  "folderMenu.pinToQuickAccess": "త్వరిత ప్రాప్యతకు పిన్ చేయి",
+  "folderMenu.pinToStart": "ప్రారంభానికి పిన్ చేయి",
+  "folderMenu.share": "భాగస్వామ్యం చేయి",
+  "folder.properties": "లక్షణాలు",
+  "widgetsB.folder.freeUpSpace": "స్థలాన్ని ఖాళీ చేయి",
+  "widgetsB.folder.keepOnDevice": "ఎల్లప్పుడూ ఈ పరికరంలో ఉంచు",
+  "widgetsB.folder.moreOptions": "మరిన్ని ఎంపికలను చూపించు",
+  "widgetsB.folder.new": "కొత్తది",
+  "ctxMenu.folder": "ఫోల్డర్"
+}

@@ -16,11 +16,11 @@ namespace Themia.App.Widgets;
 /// [S-1500] The one "are you sure?" a widget asks at itself: a question, the action and Cancel, in a
 /// flyout beside what was clicked. Escape, a click elsewhere or Cancel are all "no".
 /// <para>
-/// <b>Never constrained to the root.</b> A flyout's default is to open as a popup inside the window,
-/// and the desktop surface's window is cut to its widgets by <c>SetWindowRgn</c> ([S-851]): a
-/// question that opens past the card's edge is clipped to the card (the scratchpad's clear) or
-/// vanishes entirely (the folder's delete, which opens under the tile). Unconstrained, the popup is
-/// its own window, outside the region, and the framework keeps it inside the display's work area,
+/// <b>Never constrained to the root.</b> A flyout's default is to open as a popup inside the window.
+/// When the desktop surface's window was cut to its widgets, a question that opened past the card's
+/// edge was clipped to the card (the scratchpad's clear) or vanished entirely (the folder's delete,
+/// which opens under the tile); the surface is its whole work area now ([S-851]), and the question
+/// stays a window of its own. Unconstrained, the framework keeps it inside the display's work area,
 /// flipping it to the side that has room — the path the card's context menu (<c>MenuFlyout</c>'s
 /// default) and the fault details already take. Not a <c>ContentDialog</c>: that is centred on the
 /// whole monitor-sized surface, far from the widget, and drawn inside the same region (the

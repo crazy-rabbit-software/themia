@@ -108,7 +108,7 @@ public class WorkAreaGeometryTests
                      new FracRect(-1.5, 0.4, w, h), new FracRect(1.5, 0.4, w, h),
                  })
         {
-            var settled = GridGeometry.Settle(pushed, screen, snapEnabled: true);
+            var settled = GridGeometry.Settle(pushed, screen);
 
             var overlapX = (Math.Min(settled.Right, a.Right) - Math.Max(settled.X, a.X)) * 1920;
             var overlapY = (Math.Min(settled.Bottom, a.Bottom) - Math.Max(settled.Y, a.Y)) * 1080;
@@ -126,7 +126,7 @@ public class WorkAreaGeometryTests
         const double h = 100.0 / 1080;
 
         // 5 DIPs over the taskbar: inside the magnet.
-        var settled = GridGeometry.Settle(new FracRect(0.4, (1037.0 / 1080) - h, 0.1, h), screen, snapEnabled: true);
+        var settled = GridGeometry.Settle(new FracRect(0.4, (1037.0 / 1080) - h, 0.1, h), screen);
 
         Assert.Equal(1032.0 / 1080, settled.Bottom, 9);
     }
@@ -136,7 +136,7 @@ public class WorkAreaGeometryTests
     {
         var screen = WithTaskbar(BottomTaskbar);
 
-        var placed = GridGeometry.PlaceAt(0.5, 1.0, 200, 150, screen, snapEnabled: true);
+        var placed = GridGeometry.PlaceAt(0.5, 1.0, 200, 150, screen);
 
         Assert.Equal(screen.Allowed.Bottom - (GridGeometry.MinVisiblePx / 1080), placed.Y, 9);
         Assert.Equal(150.0 / 1080, placed.H, 9);
@@ -184,16 +184,14 @@ public class WorkAreaGeometryTests
         Assert.Equal(underTaskbar, GridGeometry.Clamp(underTaskbar, new ScreenMetrics(1920, 1080)));
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void S31a_S6608_dragging_the_bottom_edge_past_the_taskbar_moves_only_that_edge(bool snap)
+    [Fact]
+    public void S31a_S6608_dragging_the_bottom_edge_past_the_taskbar_moves_only_that_edge()
     {
         var screen = WithTaskbar(BottomTaskbar);
         var start = new FracRect(0.2, 0.7, 0.2, 0.15);
 
         var dragged = GridGeometry.Resize(start, ResizeHandle.Bottom, 0, 0.2, screen);
-        var settled = GridGeometry.Settle(dragged, screen, snap, ResizeHandle.Bottom);
+        var settled = GridGeometry.Settle(dragged, screen, ResizeHandle.Bottom);
 
         Assert.Equal(start.Y, settled.Y, 12);
         Assert.Equal(1.05, settled.Bottom, 2);
@@ -215,7 +213,7 @@ public class WorkAreaGeometryTests
                      (ResizeHandle.TopLeft, -1.0, -1.0), (ResizeHandle.BottomRight, 1.0, 1.0),
                  })
         {
-            var settled = GridGeometry.Settle(GridGeometry.Resize(start, handle, dx, dy, screen), screen, true, handle);
+            var settled = GridGeometry.Settle(GridGeometry.Resize(start, handle, dx, dy, screen), screen, handle);
 
             Assert.True(settled.W <= a.W + Eps && settled.H <= a.H + Eps, edge);
             if (handle == ResizeHandle.TopLeft)
@@ -240,7 +238,7 @@ public class WorkAreaGeometryTests
         var start = new FracRect(0.1234, 0.5678, 0.2, 0.2);
 
         var settled = GridGeometry.Settle(
-            GridGeometry.Resize(start, ResizeHandle.Right, 0.0131, 0, screen), screen, snapEnabled: true, ResizeHandle.Right);
+            GridGeometry.Resize(start, ResizeHandle.Right, 0.0131, 0, screen), screen, ResizeHandle.Right);
 
         Assert.Equal(start.X, settled.X, 12);
         Assert.Equal(start.Y, settled.Y, 12);
@@ -257,7 +255,7 @@ public class WorkAreaGeometryTests
         var start = new FracRect(0.5, 0.5, 0.2, 0.2);
 
         var settled = GridGeometry.Settle(
-            GridGeometry.Resize(start, ResizeHandle.Left, 0.5, 0, screen), screen, snapEnabled: true, ResizeHandle.Left);
+            GridGeometry.Resize(start, ResizeHandle.Left, 0.5, 0, screen), screen, ResizeHandle.Left);
 
         Assert.True(settled.W * 1920 >= GridGeometry.MinWidgetPx - 0.001);
         Assert.Equal(start.Right, settled.Right, 12);

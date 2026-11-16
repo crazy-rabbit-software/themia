@@ -29,13 +29,10 @@ public sealed class LockModule : IWidgetModule
         Label = LockStr.Power_Action_Lock.Local(),
         Description = LockStr.WidgetsC_Power_Desc_Lock.Local(),
         Glyph = Glyphs.Lock,
-        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size, stateLine: false),
+        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 4),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => PowerButtonView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new PowerButtonView(Descriptor.Id, host);
 }

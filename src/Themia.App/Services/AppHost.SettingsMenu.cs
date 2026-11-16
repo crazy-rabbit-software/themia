@@ -114,33 +114,4 @@ internal sealed partial class AppHost
 
         SettingsOutdated?.Invoke();
     }
-
-    /// <summary>
-    /// [S-5500] Store and apply what the desktop shows: the surfaces relayout (their region and the
-    /// item cards follow it), Explorer's icons are hidden or shown again, and [S-5505] picking
-    /// Windows' icons while Windows hides them asks Windows once.
-    /// </summary>
-    public void SetDesktop(DesktopShows shows)
-    {
-        if (!Enum.IsDefined(shows))
-        {
-            return;
-        }
-
-        // [S-5575] The same choice again, while another program holds the desktop: Themia tries once more.
-        if (State.Preferences.Desktop == shows)
-        {
-            if (_desktopHolder is not (Core.Desktop.DesktopHolder.None or Core.Desktop.DesktopHolder.Wallpaper))
-            {
-                ApplyDesktop(picked: true);
-                StateChanged?.Invoke();
-                SettingsOutdated?.Invoke();
-            }
-
-            return;
-        }
-
-        Mutate(s => s.Preferences.Desktop = shows);
-        ApplyDesktop(picked: true);
-    }
 }

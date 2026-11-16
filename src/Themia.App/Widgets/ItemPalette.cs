@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
@@ -35,6 +36,7 @@ internal sealed class ItemPalette
     private readonly Dictionary<(ItemRole Role, ItemState State), SolidColorBrush> _brushes = [];
     private readonly Dictionary<ItemTextTier, SolidColorBrush> _text = [];
     private FillChoice _layer = new();
+    private LookTokens _tokens = new();
     private string _textColour = string.Empty;
     private bool _dark = true;
     private bool _applied;
@@ -111,17 +113,20 @@ internal sealed class ItemPalette
     /// none moved: it runs on every state change. The theme fills depend on the theme alone, so a
     /// layer, a text colour and a theme that did not change leave the brushes as they are.
     /// </summary>
-    public void Apply(FillChoice layer, string textColour, bool dark)
+    /// <remarks>[S-2134] [S-2138] <paramref name="tokens"/>: the design's look tokens, which draw the items' fills (Windows' or vibrant) and the theme's text on them (its levels).</remarks>
+    public void Apply(FillChoice layer, string textColour, bool dark, LookTokens tokens)
     {
         ArgumentNullException.ThrowIfNull(layer);
+        ArgumentNullException.ThrowIfNull(tokens);
         textColour = HexColor.Normalise(textColour);
 
-        if (_applied && _dark == dark && _layer.SameAs(layer) && string.Equals(_textColour, textColour, StringComparison.Ordinal))
+        if (_applied && _dark == dark && _layer.SameAs(layer) && string.Equals(_textColour, textColour, StringComparison.Ordinal) && _tokens.SameAs(tokens))
         {
             return;
         }
 
         _layer = layer.Clone();
+        _tokens = tokens.Clone();
         _textColour = textColour;
         _dark = dark;
         _applied = true;
@@ -148,8 +153,8 @@ internal sealed class ItemPalette
             return;
         }
 
-        // The theme's text colour, value for value, so text on an item reads as it did before.
-        if (DesignApplier.Brush(ink.ThemeKey ?? ItemLook.TextThemeKey(tier), Colors.Gray) is SolidColorBrush theme)
+        // The widgets' text colour of the tier, value for value, so text on an item reads as it did before ([S-2134]: at the design's text levels).
+        if (DesignApplier.Brush(ColourRoles.FamilyPrefix + (ink.ThemeKey ?? ItemLook.TextThemeKey(tier)), Colors.Gray) is SolidColorBrush theme)
         {
             brush.Color = theme.Color;
             brush.Opacity = theme.Opacity;
@@ -164,7 +169,7 @@ internal sealed class ItemPalette
 
     private void Paint(SolidColorBrush brush, ItemRole role, ItemState state)
     {
-        var ink = ItemLook.Ink(role, state, _layer, _dark);
+        var ink = ItemLook.Ink(role, state, _layer, _dark, _tokens);
 
         if (ink.Colour is { } c)
         {
@@ -461,7 +466,7 @@ internal static class ItemInks
             return;
         }
 
-        var target = palette?.Text(tier) ?? DesignApplier.Brush(ItemLook.TextThemeKey(tier), Colors.Gray);
+        var target = palette?.Text(tier) ?? DesignApplier.Brush(ColourRoles.FamilyPrefix + ItemLook.TextThemeKey(tier), Colors.Gray);
         if (!ReferenceEquals(current, target))
         {
             node.SetValue(property, target);
@@ -475,13 +480,16 @@ internal static class ItemInks
             return own;
         }
 
+        // [S-2134] A widget's own text brush of a tier (what the family hands out) or the theme's plain one.
         foreach (var tier in Tiers)
         {
-            if (ReferenceEquals(brush, DesignApplier.Brush(ItemLook.TextThemeKey(tier), Colors.Gray)))
+            if (ReferenceEquals(brush, DesignApplier.Brush(ColourRoles.FamilyPrefix + ItemLook.TextThemeKey(tier), Colors.Gray))
+                || ReferenceEquals(brush, DesignApplier.Brush(ItemLook.TextThemeKey(tier), Colors.Gray)))
             {
                 return tier;
             }
         }
+
 
         return null;
     }

@@ -51,17 +51,14 @@ internal sealed record SelectionCommands(
     /// <summary>[S-11754] Rename the group, by its id, as typed; null: the name is words only.</summary>
     public Action<string, string>? RenameGroup { get; init; }
 
+    /// <summary>[S-2454] Group the selection, as Ctrl+G does.</summary>
+    public Action? Group { get; init; }
+
     /// <summary>[S-2454] Ungroup the group, as Ctrl+Shift+G does.</summary>
     public Action? Ungroup { get; init; }
 
-    /// <summary>[S-11755] One member leaves its group, by id.</summary>
-    public Action<string>? RemoveFromGroup { get; init; }
-
     /// <summary>[S-11757] An entered member's link: its whole group selected and its page shown.</summary>
     public Action? OpenGroup { get; init; }
-
-    /// <summary>[S-11755] A member's own page: its model as a lone selection of it, and what acts on it alone.</summary>
-    public Func<string, (SelectionModel Model, SelectionCommands Commands)?>? Member { get; init; }
 }
 
 /// <summary>[S-3731] What the selected cards show while a value is tried: a scale or a fill not yet kept.</summary>
@@ -74,16 +71,17 @@ internal sealed record CardPreview(double? Scale = null, FillChoice? Background 
 /// draws under it, the widget's own lines), Header (the title of one widget, where the header stands) and
 /// Appearance (alignment, background, item background, item text, background image, scale). Several
 /// selected: their count, For all of them (each setting two or more share, once) and what else they share
-/// ([S-3702]). A group: its name to rename, For all of them, its Widgets (each opening its own page), the
-/// Appearance of all of them. It is where a widget's options are: there is no widget settings page ([S-6536]).
+/// ([S-3702]). A group: its name to rename, For all of them and the Appearance of all of them, never a member
+/// one by one ([S-11755]). [S-2345] The Appearance a tab of its own beside the rest's Settings. It is where a
+/// widget's options are: there is no widget settings page ([S-6536]).
 /// </summary>
 internal static class SelectionRows
 {
     /// <summary>What a mixed selection's value reads: a dash, as Explorer's properties show differing values.</summary>
     private const string Mixed = "—";
 
-    /// <summary>[S-2340] The page for <paramref name="model"/>; <paramref name="kinds"/> the kinds selected; every key under <paramref name="prefix"/> (a member's page under its group's).</summary>
-    public static PageModel Of(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetId> kinds, string prefix = "")
+    /// <summary>[S-2340] [S-2345] The page for <paramref name="model"/>, <paramref name="kinds"/> the kinds selected: its sections on their tabs.</summary>
+    public static PageModel Of(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetId> kinds)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(commands);
@@ -91,7 +89,8 @@ internal static class SelectionRows
         var offer = model.Offer;
         var widget = offer.TitleWidgetId is { } one ? commands.WidgetLines?.Invoke(one) : null;
         var sections = new List<PageSection>();
-        foreach (var section in SelectionPage.Sections(model, widget is { Lines.Count: > 0 }, widget is { StyleLines.Count: > 0 }))
+        var shown = SelectionPage.Sections(model, widget is { Lines.Count: > 0 }, widget is { StyleLines.Count: > 0 });
+        foreach (var section in shown)
         {
             var rows = section switch
             {
@@ -99,25 +98,22 @@ internal static class SelectionRows
                 SelectionSection.Shows => Shows(offer, commands, widget),
                 SelectionSection.Shared => Shared(model, commands),
                 SelectionSection.Header => Header(offer, commands),
-                SelectionSection.Members => Members(model, commands, prefix),
                 _ => Appearance(offer, commands),
             };
 
-            sections.Add(new PageSection(prefix + section.ToString().ToLowerInvariant(), SelectionPage.Heading(section), Keyed(rows, prefix)));
+            sections.Add(new PageSection(KeyOf(section), SelectionPage.Heading(section), rows));
         }
 
-        return new PageModel(prefix + "selection", sections) { Header = HeaderCard(model, commands, kinds) };
+        // [S-2345] Two tabs or none: one tab alone is no strip.
+        var tabs = SelectionPage.Tabs(shown);
+        return new PageModel("selection", sections)
+        {
+            Header = HeaderCard(model, commands, kinds),
+            Tabs = tabs.Count < 2 ? [] : [.. tabs.Select(t => new PageTab(t.Tab.ToString().ToLowerInvariant(), SelectionPage.TabTitle(t.Tab), [.. t.Sections.Select(KeyOf)]))],
+        };
     }
 
-    /// <summary>Every row's key under <paramref name="prefix"/>, at every depth, so a member's page beside its group's keeps its own.</summary>
-    private static List<PageRow> Keyed(List<PageRow> rows, string prefix)
-        => prefix.Length == 0 ? rows : [.. rows.Select(r => Keyed(r, prefix))];
-
-    private static PageRow Keyed(PageRow row, string prefix) => row with
-    {
-        Key = row.Key.StartsWith(prefix, StringComparison.Ordinal) ? row.Key : prefix + row.Key,
-        Rows = row.Rows is { } inner ? [.. inner.Select(r => Keyed(r, prefix))] : null,
-    };
+    private static string KeyOf(SelectionSection section) => section.ToString().ToLowerInvariant();
 
     /// <summary>[S-2340] [S-11754] The header card: the kind (or the group), the name, its tools (their words with their keys).</summary>
     private static PageHeader HeaderCard(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetId> kinds)
@@ -133,10 +129,16 @@ internal static class SelectionRows
             run is null);
 
         List<PageTool> tools = [];
-        if (model.Kind == SelectionKind.Group)
+
+        // [S-2454] Grouping first, as the card menu offers it: Group for several units, Ungroup for a group they hold.
+        if (model.CanGroup)
         {
-            // [S-11754] A group: Ungroup first, as the card menu offers it.
-            tools.Add(Tool("ungroup", Glyphs.Group, Str.Groups_Card_Ungroup.Text(), KeyChord.CtrlShift(ChordKey.G), commands.Ungroup));
+            tools.Add(Tool("group", Glyphs.Group, Str.Groups_Card_Group.Text(), KeyChord.Ctrl(ChordKey.G), commands.Group));
+        }
+
+        if (model.CanUngroup)
+        {
+            tools.Add(Tool("ungroup", Glyphs.Clear, Str.Groups_Card_Ungroup.Text(), KeyChord.CtrlShift(ChordKey.G), commands.Ungroup));
         }
 
         if (commands.Cut is not null || commands.Copy is not null || commands.Delete is not null)
@@ -215,38 +217,6 @@ internal static class SelectionRows
             }
 
             rows.AddRange(PageRows.Of(built, "shared/" + shared.Setting.Key));
-        }
-
-        return rows;
-    }
-
-    /// <summary>
-    /// [S-11755] A group's widgets: a row each (its glyph, its name as its header shows it, its kind under
-    /// it) opening its own page as a lone selection of it shows it, Remove from group at its end.
-    /// </summary>
-    private static List<PageRow> Members(SelectionModel model, SelectionCommands commands, string prefix)
-    {
-        var rows = new List<PageRow>(model.Members.Count);
-        foreach (var member in model.Members)
-        {
-            var descriptor = ModuleCatalog.Of(member.Kind);
-            var key = "member/" + member.Id;
-            var page = commands.Member?.Invoke(member.Id) is var (own, acting)
-                ? Of(own, acting, [member.Kind], prefix + key + "/")
-                : null;
-            var id = member.Id;
-            rows.Add(new PageRow(key, SettingsRowKind.SubPage)
-            {
-                Text = member.Name,
-                // As the header card says it: under a title of its own the kind, under the kind's name what the kind is.
-                Caption = member.Name == descriptor.Name ? descriptor.Describe() : descriptor.Name,
-                Icon = PageRows.IconOf(descriptor.Glyph, null),
-                Page = page,
-                Tools =
-                [
-                    new PageTool("leave", Glyphs.Dismiss, Str.Groups_Card_Leave.Text(), Windows.System.VirtualKey.Delete, () => commands.RemoveFromGroup?.Invoke(id), commands.RemoveFromGroup is null),
-                ],
-            });
         }
 
         return rows;
@@ -423,7 +393,12 @@ internal static class SelectionRows
             ],
         });
 
-        // [S-6531] The widgets' own content scale, a number on the stored grain.
+        // [S-6531] The widgets' own content scale, a number on the stored grain; [S-6532] none for desktop icons alone, drawn at 1.
+        if (!offer.CanScale)
+        {
+            return rows;
+        }
+
         var scale = offer.Scale;
         rows.Add(new PageRow("scale", SettingsRowKind.Number)
         {

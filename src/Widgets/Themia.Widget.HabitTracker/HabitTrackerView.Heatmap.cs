@@ -72,9 +72,13 @@ internal sealed partial class HabitTrackerView
             _heatShape = shape;
         }
 
-        // The grids sit at the top left, as the rows do; a grid narrower than the tile leaves the rest empty.
+        // The grids start at the left, as the rows do; a grid narrower than the tile leaves the rest empty.
+        // [S-12410] A grid's cells keep their size (more weeks fill the width): a taller box than the grids
+        // need centres them in the room under the header, the foot's inset counted with them.
         var gridWidth = (plan.Weeks * plan.Pitch) - HabitHeatmap.Gap;
-        var y = 0d;
+        var block = (grids * (plan.GridHeight + (plan.PerHabit ? nameStep.LineHeight + HabitHeatmap.NameGap : 0)))
+            + (Math.Max(0, grids - 1) * HabitHeatmap.BlockGap) + inset;
+        var y = Math.Max(0, Math.Floor((_area.Height - block) / 2));
 
         for (var g = 0; g < grids; g++)
         {

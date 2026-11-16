@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Выбрать другое приложение",
+  "folderMenu.compressToZip": "Сжать в ZIP-файл",
+  "folderMenu.copyAsPath": "Копировать как путь",
+  "folderMenu.openInNewWindow": "Открыть в новом окне",
+  "folderMenu.openWith": "Открыть с помощью",
+  "folderMenu.pinToQuickAccess": "Закрепить на панели быстрого доступа",
+  "folderMenu.pinToStart": "Закрепить на начальном экране",
+  "folderMenu.share": "Поделиться",
+  "folder.properties": "Свойства",
+  "widgetsB.folder.freeUpSpace": "Освободить место",
+  "widgetsB.folder.keepOnDevice": "Всегда сохранять на этом устройстве",
+  "widgetsB.folder.moreOptions": "Показать дополнительные параметры",
+  "widgetsB.folder.new": "Создать",
+  "ctxMenu.folder": "Папка"
+}

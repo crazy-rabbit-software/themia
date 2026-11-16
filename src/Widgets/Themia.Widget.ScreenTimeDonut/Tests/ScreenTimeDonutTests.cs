@@ -19,7 +19,8 @@ public sealed class ScreenTimeDonutTests
     {
         var sizing = Kind.Sizing(new ScreenTimeDonutConfig { Size = size });
         Assert.Equal(new SizeDip(ring + (2 * FamilySpace.Inset), FamilySpace.ContentTop + ring + FamilySpace.Inset), sizing.Natural);
-        Assert.True(sizing.FixedWidth && sizing.FixedHeight);
+        Assert.Equal(sizing.Min, sizing.Natural);
+        Assert.Equal(new SizeDip(SizeStretch.Axis(sizing.Natural.Width, 0, null, 2), SizeStretch.Axis(sizing.Natural.Height, 0, null, 2)), sizing.Max); // relaxed, [S-12411]
 
         var plan = ScreenTimeDonutLayout.Donut(size);
         Assert.Equal((ring, FamilyShape.Track, ring - (2 * FamilyShape.Track)), (plan.Ring, plan.Thickness, plan.Hole));

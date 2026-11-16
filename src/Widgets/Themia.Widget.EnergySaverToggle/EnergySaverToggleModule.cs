@@ -29,13 +29,10 @@ public sealed class EnergySaverToggleModule : IWidgetModule
         Label = EnergySaverToggleStr.Toggles_EnergySaver_Label.Local(),
         Description = EnergySaverToggleStr.Toggles_EnergySaver_Desc.Local(),
         Glyph = Glyphs.EnergySaver,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 3, 0),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

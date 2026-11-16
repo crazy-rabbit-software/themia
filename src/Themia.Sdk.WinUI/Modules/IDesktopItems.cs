@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Media;
+using Themia.Core.Files;
 using Themia.Core.Widgets;
 
 namespace Themia.Sdk.WinUI;
@@ -10,7 +11,7 @@ namespace Themia.Sdk.WinUI;
 /// and the one selection every item widget on every display shares, with the desktop's gestures
 /// (press, keys, typing, the shell's menu, rename, drags). An item widget forwards its gestures here
 /// and paints what it reads; the selection's rules, the namespace, the notifications, the image lists,
-/// the shell's menus, file operations and OLE stay host code. UI thread throughout.
+/// the shell's menus, file operations and the OLE drop target stay host code. UI thread throughout.
 /// </summary>
 public interface IDesktopItems
 {
@@ -55,9 +56,10 @@ public interface IDesktopItems
 
     /// <summary>
     /// [S-5548] A right click on <paramref name="key"/>: it joins the selection as Explorer's does, and the
-    /// shell's own menu for the selection opens at the screen point (physical pixels) over <paramref name="owner"/>.
+    /// menu for the selection opens at the screen point (physical pixels) over <paramref name="owner"/>: the
+    /// Windows 11 menu, or with <paramref name="classic"/> (Shift held) the shell's classic one at once.
     /// </summary>
-    void Context(string key, int screenX, int screenY, nint owner);
+    void Context(string key, int screenX, int screenY, nint owner, bool classic);
 
     /// <summary>[S-5541] [S-5545] A key with the keyboard lease, from the widget <paramref name="widgetId"/>: true when the desktop used it.</summary>
     bool Key(WidgetKey key, bool shift, string? widgetId);
@@ -70,10 +72,24 @@ public interface IDesktopItems
 
     /// <summary>
     /// [S-5549] The pointer left the dead zone with the left button held on <paramref name="key"/>: the
-    /// selection is dragged out as the shell's data object from <paramref name="window"/> (posted by the
-    /// caller, never run inside its pointer handler); within the desktop the drop moves the widgets.
+    /// drag of the selection (the icon alone when it is not selected) begins from <paramref name="window"/>.
+    /// Returns what it offers other targets ([S-5586]), which the view starts with
+    /// <see cref="ItemDrag.StartAsync"/> in the same pointer handler and ends with <see cref="EndDrag"/>
+    /// on every exit; null when there is nothing to drag. A drag that never ended is replaced, never a
+    /// reason to refuse this one.
     /// </summary>
-    void DragOut(string key, nint window);
+    ItemDragOffer? BeginDrag(string key, nint window);
+
+    /// <summary>
+    /// [S-5549] [S-5564] The picture <paramref name="drag"/> shows, at once: Explorer's ghost (the held
+    /// icon, the others stacked behind it, their number in a badge) composed from the pictures the
+    /// icons' views hold, the pointer where it grabbed the held icon. Null when it is not the running
+    /// drag or the held icon has no picture yet.
+    /// </summary>
+    DragPicture? DragPicture(ItemDragOffer drag);
+
+    /// <summary>[S-5549] <paramref name="drag"/> is over (dropped, cancelled, or never started): the desktop's drag state is cleared. Another drag's state is left alone.</summary>
+    void EndDrag(ItemDragOffer drag);
 
     /// <summary>[S-5549] Whether <paramref name="key"/> is in the drag that is running from the desktop now (it takes no drop of itself).</summary>
     bool Dragging(string key);
@@ -96,6 +112,13 @@ public interface IDesktopItems
     /// unchanged), else the sentence saying why not.
     /// </summary>
     string? RenameTo(string key, string name);
+
+    /// <summary>
+    /// [S-5610] What the shell says of <paramref name="item"/> beyond its name, for its tip: its type's
+    /// name, a file's size and dates, where a shortcut file points. Read off the UI thread when a tip
+    /// asks (never per frame, never for a shell item or a network path); null when there is nothing to read.
+    /// </summary>
+    Task<DesktopItemFacts?> FactsAsync(DesktopItem item);
 
     /// <summary>[S-5512] The cached icon for <paramref name="item"/> at <paramref name="pixels"/> (physical), if there is one (no extraction).</summary>
     bool TryIcon(DesktopItem item, int pixels, out ImageSource? image);

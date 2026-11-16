@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Andere App auswählen",
+  "folderMenu.compressToZip": "In ZIP-Datei komprimieren",
+  "folderMenu.copyAsPath": "Als Pfad kopieren",
+  "folderMenu.openInNewWindow": "In neuem Fenster öffnen",
+  "folderMenu.openWith": "Öffnen mit",
+  "folderMenu.pinToQuickAccess": "An Schnellzugriff anheften",
+  "folderMenu.pinToStart": "An Start anheften",
+  "folderMenu.share": "Teilen",
+  "folder.properties": "Eigenschaften",
+  "widgetsB.folder.freeUpSpace": "Speicherplatz freigeben",
+  "widgetsB.folder.keepOnDevice": "Immer auf diesem Gerät beibehalten",
+  "widgetsB.folder.moreOptions": "Weitere Optionen anzeigen",
+  "widgetsB.folder.new": "Neu",
+  "ctxMenu.folder": "Ordner"
+}

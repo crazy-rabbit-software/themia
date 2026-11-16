@@ -125,8 +125,6 @@
     "one": "Elimina {count} widget",
     "other": "Elimina {count} widget"
   },
-  "shell.card.doneEditing": "Fine modifica",
-  "shell.card.editLayout": "Modifica layout",
   "shell.key.ctrl": "CTRL",
   "shell.key.alt": "Alt",
   "shell.key.shift": "MAIUSC",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Configura",
   "shell.setup.hint": "Configura ciò che serve a questo widget",
   "shell.toolbar.addWidget": "Aggiungi widget",
-  "shell.toolbar.snapName": "Allinea alla griglia",
-  "shell.toolbar.collisionsName": "Impedisci la sovrapposizione dei widget",
   "shell.editBar.selected": {
     "one": "{count} selezionato",
     "other": "{count} selezionati"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Dimensione del testo",
   "shell.appearance.systemFont": "Predefinito di sistema",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Spazio tra i widget",
   "shell.motion.slide": "Scorrimento",
   "shell.motion.sides": "Lati",
   "shell.motion.topBottom": "Alto e basso",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Ogni minuto",
   "shell.refresh.everyHour": "Ogni ora",
   "shell.color.custom": "Colore personalizzato",
-  "shell.color.pickCustom": "Scegli un colore personalizzato",
   "shell.color.pickFromScreen": "Preleva un colore dallo schermo",
   "shell.color.pickFailed": "Impossibile leggere i colori dello schermo",
   "shell.icon.home": "Casa",

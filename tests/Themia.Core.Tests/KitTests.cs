@@ -274,7 +274,26 @@ public sealed class KitTests
         var plan = KitPlanner.Plan(area, Rich, KitShow.All);
 
         Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(area)) >= 1, tier);
-        Assert.Equal(FamilyShape.RowHeight(plan.Lines), plan.RowHeight);
+
+        // [S-12410] The rows stretch to fill the box, never past half again their natural height.
+        Assert.InRange(plan.RowHeight, FamilyShape.RowHeight(plan.Lines), FamilyShape.RowHeight(plan.Lines) * ItemStretch.RowCap);
+    }
+
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(6, 1)]
+    [InlineData(6, 2)]
+    [InlineData(20, 3)]
+    public void S12410_a_list_at_its_natural_box_runs_its_rows_down_to_the_card_s_edge(int rows, int lines)
+    {
+        // The sizing counts the foot's inset under the rows; the rows take it (whole pixels each), less than a pixel a row left.
+        var choices = new KitChoices(KitShow.All) { Rows = new KitRowsChoice(rows, lines) };
+        var height = KitSizing.Steps(choices.Rows, addFooter: false).At(rows) - FamilySpace.ContentTop;
+        var plan = KitPlanner.Plan(new WidgetArea(300, height), Rich, choices);
+
+        Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
+        Assert.True(height - (rows * plan.RowHeight) < rows, $"{height - (rows * plan.RowHeight)} left under {rows} rows");
+        Assert.Equal(rows, KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))));
     }
 
     [Fact]

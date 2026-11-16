@@ -1,4 +1,4 @@
-﻿using Microsoft.UI;
+using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -231,7 +231,7 @@ internal sealed partial class DesktopWindow
                 continue;
             }
 
-            var box = GridGeometry.Inset(GridGeometry.ToPixels(outlines[i].Rect, metrics), Design.WidgetGapPx);
+            var box = GridGeometry.ToPixels(outlines[i].Rect, metrics);
             var definition = ModuleCatalog.Of(outlines[i].Kind);
 
             ghost.Icon.Glyph = definition.Glyph;
@@ -258,8 +258,12 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-06] Snap now: the design's grid aid, unless Alt is held, as when dragging.</summary>
-    private bool SnapNow => Design.GridSnap && !AltHeld();
+    /// <summary>
+    /// [S-11807] [S-11809] What a placement's new widgets are sized with on this display: its content
+    /// scale for a widget of its own scale 1, in whole grid cells ([S-06]: always).
+    /// </summary>
+    internal PlacementSizes SizesNow
+        => new(WidgetScale.Effective(_host.State.MonitorScales.TryGetValue(_monitor.Id, out var own) ? own : 1.0, 1.0));
 
     /// <summary>What a payload's ghost draws with the pointer at a physical screen point of this display.</summary>
     public IReadOnlyList<GhostOutline> OutlinesAt(Win32.Point cursor, PlacementPayload payload)
@@ -267,7 +271,7 @@ internal sealed partial class DesktopWindow
         ArgumentNullException.ThrowIfNull(payload);
 
         var (x, y) = FractionOf(cursor);
-        return payload.Outlines(x, y, Metrics, SnapNow);
+        return payload.Outlines(x, y, Metrics, SizesNow);
     }
 
     /// <summary>What landing a payload with the pointer at a physical screen point of this display does.</summary>
@@ -276,7 +280,7 @@ internal sealed partial class DesktopWindow
         ArgumentNullException.ThrowIfNull(payload);
 
         var (x, y) = FractionOf(cursor);
-        return payload.Plan(x, y, Metrics, SnapNow);
+        return payload.Plan(x, y, Metrics, SizesNow);
     }
 
     /// <summary>
@@ -391,10 +395,6 @@ internal sealed partial class DesktopWindow
             : (0.5, 0.5);
     }
 
-    private static bool AltHeld() => InputKeyboardSource
-        .GetKeyStateForCurrentThread(Windows.System.VirtualKey.Menu)
-        .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
-
     private void OnRootPointerMoved(object sender, PointerRoutedEventArgs e)
     {
         var position = e.GetCurrentPoint(_root).Position;
@@ -402,7 +402,7 @@ internal sealed partial class DesktopWindow
         if (_host.Placing is { } payload)
         {
             var (x, y) = FractionOfDip(position);
-            ShowGhosts(payload.Outlines(x, y, Metrics, SnapNow));
+            ShowGhosts(payload.Outlines(x, y, Metrics, SizesNow));
             return;
         }
 
@@ -437,7 +437,7 @@ internal sealed partial class DesktopWindow
                 // Dropped where the click is, not where the last move put the ghost: the two differ
                 // whenever the pointer moved and clicked inside one frame.
                 var (x, y) = FractionOfDip(point.Position);
-                _host.CompletePlacement(this, x, y, SnapNow);
+                _host.CompletePlacement(this, x, y);
             }
             else
             {

@@ -42,6 +42,7 @@ public sealed partial class SettingsMenuTests
 
             // This display's view bar as stored once it has been touched: a line writes its field, not the whole entry.
             ViewBarRules.Update(Settings.State, "a", _ => { });
+            ViewBarRules.Update(Settings.State, "b", _ => { });
 
             Display = new OwnDisplayHost(Settings.State);
             Views = new OwnViewsHost(Settings.State);
@@ -64,6 +65,9 @@ public sealed partial class SettingsMenuTests
             {
                 yield return (page.Id.ToString().ToLowerInvariant(), Levels(page));
             }
+
+            // [S-2330] The toggles at the edit bar's root: a level of their own.
+            yield return ("bar", [.. EditBarToggles.Of(Settings)]);
         }
 
         /// <summary>A page's sections as the levels the walk goes down: a section's key, then its lines' keys.</summary>
@@ -141,9 +145,9 @@ public sealed partial class SettingsMenuTests
             return true;
         }
 
-        public void SetScale(double scale) => State.MonitorScales[DisplayId] = scale;
+        public void SetScale(string displayId, double scale) => State.MonitorScales[displayId] = scale;
 
-        public void Show(string viewId) => State.ShowViewOn(DisplayId, viewId);
+        public void Show(string displayId, string viewId) => State.ShowViewOn(displayId, viewId);
     }
 
     /// <summary>View ▾'s host as the app's for what sets something; its commands (new, copy, delete, move) are not settings.</summary>
@@ -153,7 +157,14 @@ public sealed partial class SettingsMenuTests
 
         public string DisplayId => "a";
 
+        public IReadOnlyList<MenuDisplay> Displays => [];
+
         public void Mutate(Action<AppState> change, bool relayout = true) => change(State);
+
+        public void Show(string viewId)
+        {
+            // ignore: a command, as the view bar's chip; the Display page's View choice is the setting.
+        }
 
         public void Add()
         {
@@ -207,14 +218,15 @@ public sealed partial class SettingsMenuTests
             switch (line)
             {
                 case SettingsSubmenu submenu:
-                    foreach (var below in Setters(menu, submenu.Lines, menu + ":" + submenu.Key, at))
+                    // [S-2310] Every thing's card is one level: a view's, a display's own (their ids in their keys).
+                    foreach (var below in Setters(menu, submenu.Lines, menu + ":" + ThingLevel(submenu.Key), at))
                     {
                         yield return below;
                     }
 
                     break;
                 case SettingsChoice choice:
-                    foreach (var option in Setters(menu, choice.Options, menu + ":" + choice.Key, at))
+                    foreach (var option in Setters(menu, choice.Options, menu + ":" + ThingLevel(choice.Key), at))
                     {
                         yield return option;
                     }
@@ -306,17 +318,14 @@ public sealed partial class SettingsMenuTests
         return writers;
     }
 
-    /// <summary>
-    /// [S-3592] One field of one level reached from two rows of it, by design: a view's name is View ▾'s,
-    /// on the shown view's Name row and on its row of Manage views (Karpo's level of things, [S-3549]).
-    /// </summary>
-    private static readonly (string Path, string[] Levels)[] SameLevelTwice = [("views[].name", ["views:page", "views:manage"])];
+    /// <summary>[S-2310] A thing's card as a level (and a choice in it): every view's card is the views' one level, every display's the displays'.</summary>
+    private static string ThingLevel(string key) => System.Text.RegularExpressions.Regex.Replace(key, @"^(view|display):[^/]+", "$1:*");
 
     [Fact]
     public void S3592_no_setting_is_set_at_two_levels()
     {
         var twice = WritersByPath()
-            .Where(w => w.Value.Count > 1 && !SameLevelTwice.Any(s => s.Path == w.Key && w.Value.SetEquals(s.Levels)))
+            .Where(w => w.Value.Count > 1)
             .Select(w => $"{w.Key} ← {string.Join(", ", w.Value.Order(StringComparer.Ordinal))}").ToList();
 
         Assert.True(twice.Count == 0, "set at more than one level:\n" + string.Join("\n", twice));
@@ -328,10 +337,11 @@ public sealed partial class SettingsMenuTests
         var written = WritersByPath().Keys.ToList();
 
         // RunAtStartup is what Windows was last asked, kept for when it cannot be read ([S-935]): ⚙ asks Windows.
+        // RecentColours is the colour picker's memory of what was mixed ([S-1575]), not a setting: no page sets it.
         string[] fields =
         [
             .. typeof(DesignState).GetProperties().Where(p => p.CanWrite && p.Name != nameof(DesignState.RunAtStartup)).Select(p => "design." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
-            .. typeof(AppPreferences).GetProperties().Where(p => p.CanWrite).Select(p => "preferences." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
+            .. typeof(AppPreferences).GetProperties().Where(p => p.CanWrite && p.Name != nameof(AppPreferences.RecentColours)).Select(p => "preferences." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
             "windows.startup", "monitorScales", "monitorViews", "disabledMonitors", "defaultViewForNewDisplays",
 
             // [S-3544] This display's view bar: every field of it from Display ▾ alone (its type and labels too, [S-5400], [S-5405]).
@@ -390,10 +400,12 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S3516_snap_is_generals_alone()
+    public void S2330_over_the_edge_is_the_bars_alone_and_nothing_sets_a_grid()
     {
-        var snap = WritersByPath()["design.gridSnap"];
+        var writers = WritersByPath();
 
-        Assert.Equal(["general:page"], snap);
+        // [S-06] The grid is always on: no setting, so nothing anywhere writes one.
+        Assert.DoesNotContain(writers.Keys, key => key.Contains("snap", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(["bar"], writers["design.overEdge"]);
     }
 }

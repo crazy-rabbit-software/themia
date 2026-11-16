@@ -14,6 +14,11 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-3545] A display pass ran: an open Display menu lists the displays as they are now (one plugged in, one switched off).</summary>
     internal void DisplaysPassed()
     {
+        // [S-854] The window is over its monitor again: a scale change's metrics are real now. The pass
+        // itself settles the host's writers once every surface is through it.
+        TrySettleMetrics(tellHost: false);
+
+
         if (_openPage == SettingsPageId.Display)
         {
             SyncBarMenu();
@@ -33,9 +38,9 @@ internal sealed partial class DesktopWindow
 
         public void Mutate(Action<AppState> change, bool relayout = true) => Host.Mutate(change, relayout);
 
-        public void SetScale(double scale) => Host.SetDisplayScale(DisplayId, scale);
+        public void SetScale(string displayId, double scale) => Host.SetDisplayScale(displayId, scale);
 
-        public void Show(string viewId) => Host.ShowView(DisplayId, viewId);
+        public void Show(string displayId, string viewId) => Host.ShowView(displayId, viewId);
 
         /// <summary>
         /// [S-3545] Another display's switch is thrown at once (the display pass builds or closes its

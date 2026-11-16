@@ -146,7 +146,7 @@ public sealed class RssTests
 
         Assert.True(plan.Preview);
         Assert.Equal(2, plan.Columns);
-        Assert.Equal((440, 600, 1040), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal((440, 600, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // relaxed, [S-12411]: 600 x 2.5, held to the ceiling
     }
 
     [Fact]

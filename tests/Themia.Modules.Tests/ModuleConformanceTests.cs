@@ -208,7 +208,7 @@ public sealed partial class ModuleConformanceTests
         var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
         Assert.IsType(widget.ConfigType, back);
         Assert.Equal(json, JsonSerializer.Serialize(back, StateJson.WidgetConfig));
-        // A clone is a copy with fresh ids inside (Shortcuts' items, [S-893]): the same but for those.
+        // A clone is a copy with fresh ids inside (a shortcut's own, [S-1411]): the same but for those.
         Assert.Equal(WithoutNestedIds(json), WithoutNestedIds(JsonSerializer.Serialize(config.Clone(), StateJson.WidgetConfig)));
 
         // [S-6903] Written as a built-in config is: the host's options.
@@ -290,7 +290,8 @@ public sealed partial class ModuleConformanceTests
                 case System.Text.Json.Nodes.JsonObject obj:
                     foreach (var (name, value) in obj.ToList())
                     {
-                        if (!top && name == "id")
+                        // A nested object's id, and a shortcut's own (the layout editor's key, [S-1411]).
+                        if ((!top && name == "id") || (top && name == "itemId"))
                         {
                             obj[name] = string.Empty;
                         }

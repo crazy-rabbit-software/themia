@@ -125,8 +125,6 @@
     "one": "{count} విడ్జెట్‌ను తొలగించు",
     "other": "{count} విడ్జెట్‌లను తొలగించు"
   },
-  "shell.card.doneEditing": "సవరణ పూర్తయింది",
-  "shell.card.editLayout": "లేఅవుట్‌ను సవరించు",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "సెటప్ చేయి",
   "shell.setup.hint": "ఈ విడ్జెట్‌కు కావలసినది సెటప్ చేయి",
   "shell.toolbar.addWidget": "విడ్జెట్ జోడించు",
-  "shell.toolbar.snapName": "గ్రిడ్‌కు అతికించు",
-  "shell.toolbar.collisionsName": "విడ్జెట్‌లు ఒకదానిపై ఒకటి రాకుండా ఆపండి",
   "shell.editBar.selected": {
     "one": "{count} ఎంచుకోబడింది",
     "other": "{count} ఎంచుకోబడ్డాయి"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "వచన పరిమాణం",
   "shell.appearance.systemFont": "సిస్టమ్ డిఫాల్ట్",
   "shell.appearance.sansFont": "సాన్స్ సెరిఫ్",
-  "shell.layout.gap": "విడ్జెట్‌ల మధ్య ఖాళీ",
   "shell.motion.slide": "జారు",
   "shell.motion.sides": "పక్కలు",
   "shell.motion.topBottom": "పైన మరియు కింద",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "ప్రతి నిమిషం",
   "shell.refresh.everyHour": "ప్రతి గంట",
   "shell.color.custom": "అనుకూల రంగు",
-  "shell.color.pickCustom": "అనుకూల రంగును ఎంచుకోండి",
   "shell.color.pickFromScreen": "స్క్రీన్ నుండి రంగును ఎంచుకోండి",
   "shell.color.pickFailed": "స్క్రీన్‌పై రంగులను చదవడం సాధ్యం కాలేదు",
   "shell.icon.home": "ఇల్లు",

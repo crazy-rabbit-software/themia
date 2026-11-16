@@ -112,7 +112,7 @@ public static class KitSizing
     {
         var w = widths ?? new KitWidths(MinWidth, NaturalWidth, MaxWidth);
         var columns = ClampColumns(shown.Columns);
-        return WidgetSizing.Range(new(w.Min * columns, 1), new(w.Natural * columns, 1), new(w.Max * columns, 1))
+        return (WidgetSizing.Range(new(w.Min * columns, 1), new(w.Natural * columns, 1), new(w.Max * columns, 1)) with { Room = StretchRoom.List })
             .WithHeightSteps(Steps(shown, addFooter));
     }
 

@@ -117,20 +117,13 @@ public sealed class DesktopIntegrationTests
 
     // ---- Desktop icons ---------------------------------------------------------------------
 
-    [Theory]
-    [InlineData(DesktopShows.ThemiaItems, true)]
-    [InlineData(DesktopShows.Nothing, true)]
-    [InlineData(DesktopShows.WindowsIcons, false)]
-    public void S5503_themias_items_and_nothing_hide_explorers_icons_for_the_session(DesktopShows shows, bool hides)
-        => Assert.Equal(hides, DesktopIconRules.Hides(shows));
-
     [Fact]
     public void S5503_a_held_list_shown_again_is_hidden_again_until_the_cap()
     {
         Assert.True(DesktopIconRules.Rehide(holding: true, shown: true, rehidesSoFar: 0));
         Assert.True(DesktopIconRules.Rehide(holding: true, shown: true, rehidesSoFar: DesktopIconRules.MaxRehides - 1));
 
-        // Explorer (or a third party) keeps showing it: Themia stops rather than fight in a loop.
+        // [S-5575] Explorer (or a third party) keeps showing it: Themia stops rather than fight in a loop.
         Assert.False(DesktopIconRules.Rehide(holding: true, shown: true, rehidesSoFar: DesktopIconRules.MaxRehides));
 
         // A hide event, an unreadable list or a released hold is never answered with a hide.
@@ -161,27 +154,18 @@ public sealed class DesktopIntegrationTests
         Assert.False(DesktopIconRules.Restore(shown: null, windowsHides: false));
     }
 
-    [Fact]
-    public void S5505_only_the_windows_icons_pick_while_windows_hides_them_asks_windows()
-    {
-        Assert.True(DesktopIconRules.AsksWindows(DesktopShows.WindowsIcons, windowsHides: true));
-        Assert.False(DesktopIconRules.AsksWindows(DesktopShows.WindowsIcons, windowsHides: false));
-        Assert.False(DesktopIconRules.AsksWindows(DesktopShows.ThemiaItems, windowsHides: true));
-        Assert.False(DesktopIconRules.AsksWindows(DesktopShows.Nothing, windowsHides: true));
-    }
-
     // Regression: the state was read with IsWindowVisible, which is false whenever an ancestor of
-    // the list is hidden; a "show" request then toggled shown icons off. Only the list's own bit counts.
+    // the list is hidden. Only the list's own bit counts.
     [Theory]
     [InlineData(0x56003A40u, true)]   // the list as read on a live desktop with icons shown
     [InlineData(0x46003A40u, false)]  // the same list, hidden by "Show desktop icons" off
     [InlineData(0x10000000u, true)]
     [InlineData(0u, false)]
-    public void S931_the_state_is_the_icon_lists_own_visible_bit(uint style, bool shown)
+    public void S5503_the_state_is_the_icon_lists_own_visible_bit(uint style, bool shown)
         => Assert.Equal(shown, DesktopIconRules.IsShown(style));
 
     [Fact]
-    public void S930_the_view_under_progman_wins_over_one_under_a_workerw()
+    public void S5503_the_view_under_progman_wins_over_one_under_a_workerw()
     {
         var found = new[]
         {
@@ -193,7 +177,7 @@ public sealed class DesktopIntegrationTests
     }
 
     [Fact]
-    public void S930_a_workerw_view_is_used_when_progman_has_none()
+    public void S5503_a_workerw_view_is_used_when_progman_has_none()
     {
         var found = new[]
         {
@@ -205,7 +189,7 @@ public sealed class DesktopIntegrationTests
     }
 
     [Fact]
-    public void S930_a_view_of_another_process_or_without_its_list_is_never_the_target()
+    public void S5503_a_view_of_another_process_or_without_its_list_is_never_explorers_desktop()
     {
         Assert.Equal(-1, DesktopIconRules.ChooseView([]));
         Assert.Equal(-1, DesktopIconRules.ChooseView([new DesktopViewCandidate(UnderProgman: true, OwnedByShell: false, HasList: true)]));
@@ -215,46 +199,6 @@ public sealed class DesktopIntegrationTests
             new DesktopViewCandidate(UnderProgman: true, OwnedByShell: false, HasList: true),
             new DesktopViewCandidate(UnderProgman: false, OwnedByShell: true, HasList: true),
         ]));
-    }
-
-    [Theory]
-    [InlineData(true, true, false, DesktopIconStep.Done)]
-    [InlineData(false, false, false, DesktopIconStep.Done)]
-    [InlineData(true, false, false, DesktopIconStep.Toggle)]
-    [InlineData(false, true, false, DesktopIconStep.Toggle)]
-    [InlineData(true, true, true, DesktopIconStep.Done)]
-    [InlineData(true, false, true, DesktopIconStep.DidNotTake)]
-    [InlineData(false, true, true, DesktopIconStep.DidNotTake)]
-    public void S939_one_toggle_per_request_and_the_read_after_it_confirms(bool live, bool wanted, bool sent, DesktopIconStep expected)
-        => Assert.Equal(expected, DesktopIconRules.Plan(live, wanted, sent));
-
-    [Theory]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    public void S939_an_unreadable_shell_is_never_toggled(bool wanted, bool sent)
-        => Assert.Equal(DesktopIconStep.Unreadable, DesktopIconRules.Plan(null, wanted, sent));
-
-    [Fact]
-    public void S939_requests_start_one_worker_and_the_latest_wins()
-    {
-        var requests = new DesktopIconRequests();
-        Assert.False(requests.Busy);
-
-        Assert.True(requests.Submit(false));   // starts the worker
-        Assert.True(requests.Busy);
-        Assert.False(requests.Take());         // the worker takes "hide"
-
-        // Off-on-off while it works: no second worker, and only the last position is applied next.
-        Assert.False(requests.Submit(true));
-        Assert.False(requests.Submit(false));
-        Assert.False(requests.Submit(true));
-        Assert.True(requests.Take());
-        Assert.True(requests.Busy);
-
-        Assert.Null(requests.Take());          // nothing left: the worker stops
-        Assert.False(requests.Busy);
-
-        Assert.True(requests.Submit(false));   // the next request starts a worker again
     }
 
     // ---- Autostart -------------------------------------------------------------------------

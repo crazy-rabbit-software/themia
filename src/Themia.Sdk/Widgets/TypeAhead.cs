@@ -1,7 +1,7 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-1980] Type-ahead in a long widget list (files, people, notes, shortcuts): typing a name's first
+/// [S-1980] Type-ahead in a long widget list (files, people, notes): typing a name's first
 /// letters while the widget holds the keyboard lease moves the cursor to the first item whose name
 /// starts with them, as in Explorer.
 /// <para>

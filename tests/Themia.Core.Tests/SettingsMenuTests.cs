@@ -47,8 +47,6 @@ public sealed partial class SettingsMenuTests
 
         public List<SettingsConfirm> Asked { get; } = [];
 
-        public int Quits { get; private set; }
-
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
             change(State);
@@ -57,8 +55,6 @@ public sealed partial class SettingsMenuTests
         }
 
         public void SetStartup(bool on) => StartupAsked.Add(on);
-
-        public void SetDesktop(DesktopShows shows) => Mutate(s => s.Preferences.Desktop = shows);
 
         public void SetGameModeSuspend(bool on) => Mutate(s => s.Preferences.GameModeSuspend = on);
 
@@ -94,17 +90,14 @@ public sealed partial class SettingsMenuTests
 
         /// <summary>[S-9979] No server unless a test gives one.</summary>
         public IMcpMenuHost? Mcp { get; set; }
-
-        public void Quit() => Quits++;
     }
 
-    /// <summary>Every section builder's lines, as the pages group them ([S-2300]), Quit Themia last: the lines found by their keys' paths.</summary>
+    /// <summary>Every section builder's lines, as the pages group them ([S-2300]): the lines found by their keys' paths.</summary>
     private static IReadOnlyList<SettingsLine> Root(FakeHost host) =>
     [
-        .. SettingsMenu.General(host), SettingsMenu.Appearance(host), SettingsMenu.Accounts(host), SettingsMenu.Language(host),
+        .. SettingsMenu.General(host), .. SettingsMenu.Desktop(host), SettingsMenu.Appearance(host), SettingsMenu.Accounts(host), SettingsMenu.Language(host),
         SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host), .. (SettingsMenu.Assistants(host) is { } assistants ? [assistants] : Array.Empty<SettingsLine>()),
-        SettingsMenu.Pro(host), SettingsMenu.Backup(host), SettingsMenu.About(host),
-        .. SettingsPages.General(host).Sections[^1].Lines,
+        SettingsMenu.Pro(host), SettingsMenu.Backup(host), SettingsMenu.Uninstall(host), SettingsMenu.About(host),
     ];
 
     private static T At<T>(FakeHost host, params string[] path)
@@ -125,17 +118,18 @@ public sealed partial class SettingsMenuTests
 
     // ---- [S-3524] the first level ----------------------------------------------------------------
 
+    /// <summary>
+    /// [S-3532] Retired (owner, 2026-11-15: "dont show quit themia"; Karpo loses its Quit Karpo too): no page has a
+    /// line that quits, and the pages' host has no way to quit for one to call.
+    /// </summary>
     [Fact]
-    public void S3532_quit_themia_is_the_last_line_and_quits()
+    public void S3532_no_page_shows_quit_themia()
     {
         var host = new FakeHost();
-        var quit = Assert.IsType<SettingsCommand>(Root(host)[^1]);
+        var lines = SettingsPages.Lines(SettingsPages.General(host)).ToList();
 
-        Assert.Equal("Quit Themia", quit.Text);
-        quit.Run();
-
-        Assert.Equal(1, host.Quits);
-        Assert.Equal(0, host.Mutations);
+        Assert.DoesNotContain(lines, l => l.Key == "quit" || l is SettingsCommand { Text: "Quit Themia" });
+        Assert.Null(typeof(ISettingsMenuHost).GetMethod("Quit"));
     }
 
     [Fact]
@@ -168,7 +162,7 @@ public sealed partial class SettingsMenuTests
             Strings.SetLocale(Locale.De);
             var german = Keys(Root(new FakeHost()));
             Assert.Equal(english, german);
-            Assert.Equal("Themia beenden", Assert.IsType<SettingsCommand>(Root(new FakeHost())[^1]).Text);
+            Assert.Equal("Über Themia", Assert.IsType<SettingsSubmenu>(Root(new FakeHost())[^1]).Text);
         }
         finally
         {
@@ -224,23 +218,34 @@ public sealed partial class SettingsMenuTests
 
         var host = new FakeHost { Startup = new AutostartStatus(AutostartState.Off, AutostartProblem.Failed, "0x80070005") };
         var keys = SettingsMenu.General(host).Select(l => l.Key).ToArray();
-        Assert.Equal(["startup", "startup/advice", "startup/detail", "desktop", "gameMode", "snap", "collisions"], keys);
+        Assert.Equal(["startup", "startup/advice", "startup/detail", "gameMode"], keys);
+        Assert.Equal(["desktopIconSize"], SettingsMenu.Desktop(host).Select(l => l.Key));
     }
 
     [Fact]
-    public void S5500_the_desktop_line_is_one_choice_of_three_that_shows_what_was_chosen()
+    public void S5593_the_desktops_icon_size_is_one_choice_on_general_for_every_display()
     {
         var host = new FakeHost();
-        var line = At<SettingsChoice>(host, "desktop");
-        Assert.Equal(["desktop/themia", "desktop/windows", "desktop/nothing"], line.Options.Select(o => o.Key).ToArray());
-        Assert.Equal("desktop/themia", line.Options.Single(o => o.Holds).Key);
+        var line = At<SettingsChoice>(host, SettingsMenu.Keys.DesktopIconSize);
 
-        line.Options[1].Pick();
-        Assert.Equal(DesktopShows.WindowsIcons, host.State.Preferences.Desktop);
-        Assert.Equal(1, host.Mutations);
-        Assert.Equal("desktop/windows", At<SettingsChoice>(host, "desktop").Options.Single(o => o.Holds).Key);
+        Assert.Equal(["desktopIconSize/large", "desktopIconSize/medium", "desktopIconSize/small"], line.Options.Select(o => o.Key));
+        Assert.Equal([false, true, false], line.Options.Select(o => o.Holds));
+        Assert.Equal(Str.Desktop_Icons_Medium.Text(), line.Value);
+
+        line.Options[0].Pick();
+
+        Assert.Equal(Themia.Sdk.DesktopIconSize.Large, host.State.Preferences.DesktopIconSize);
+        Assert.Equal(Str.Desktop_Icons_Large.Text(), At<SettingsChoice>(host, SettingsMenu.Keys.DesktopIconSize).Value);
     }
 
+    [Fact]
+    public void S5500_S5594_S5595_desktop_icons_holds_the_icon_size_alone_no_show_arrange_or_align_toggle()
+    {
+        var lines = SettingsMenu.Desktop(new FakeHost());
+
+        Assert.DoesNotContain(lines, l => l is SettingsToggle);
+        Assert.Equal([SettingsMenu.Keys.DesktopIconSize], lines.Select(l => l.Key));
+    }
     [Fact]
     public void S3525_game_mode_says_paused_now_while_it_holds_the_widgets()
     {
@@ -262,7 +267,7 @@ public sealed partial class SettingsMenuTests
         var appearance = At<SettingsSubmenu>(new FakeHost(), "appearance");
 
         Assert.Equal(
-            ["appearance/style", "-", "appearance/theme", "appearance/items", "appearance/cards", "appearance/text"],
+            ["appearance/style", "-", "appearance/theme", "appearance/items", "appearance/cards", "appearance/material", "appearance/edge", "appearance/text", "appearance/surfaces", "appearance/layout"],
             appearance.Lines.Select(l => l is SettingsSeparator ? "-" : l.Key));
     }
 
@@ -283,7 +288,6 @@ public sealed partial class SettingsMenuTests
     [InlineData("appearance/cards/borderOpacity", "BorderOpacity")]
     [InlineData("appearance/text/font", "FontFamily")]
     [InlineData("appearance/text/size", "FontScale")]
-    [InlineData("appearance/cards/gap", "WidgetGapPx")]
     public void S3526_each_line_writes_its_pages_field_and_nothing_else(string path, string field)
     {
         var host = new FakeHost();
@@ -371,7 +375,6 @@ public sealed partial class SettingsMenuTests
         Assert.Equal((0, 32, 1), (Slider("cards", "radius").Min, Slider("cards", "radius").Max, Slider("cards", "radius").Step));
         Assert.Equal((0, 8, 1), (Slider("cards", "borderWidth").Min, Slider("cards", "borderWidth").Max, Slider("cards", "borderWidth").Step));
         Assert.Equal((FamilyType.MinTextScale, FamilyType.MaxTextScale), (Slider("text", "size").Min, Slider("text", "size").Max));
-        Assert.Equal((0, 48, 2), (Slider("cards", "gap").Min, Slider("cards", "gap").Max, Slider("cards", "gap").Step));
 
         Assert.Equal("12px", Slider("cards", "radius").Format(12));
         Assert.Equal(LocaleFormat.Percent(Strings.Current, 50), Slider("theme", "headerOpacity").Format(0.5));
@@ -458,14 +461,12 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S3525_start_with_windows_does_not_wear_quit_themias_power_button()
+    public void S3525_start_with_windows_does_not_wear_a_power_button()
     {
-        var host = new FakeHost();
-        var startup = At<SettingsToggle>(host, SettingsMenu.Keys.Startup);
-        var quit = At<SettingsCommand>(host, SettingsMenu.Keys.Quit);
+        var startup = At<SettingsToggle>(new FakeHost(), SettingsMenu.Keys.Startup);
 
         Assert.Equal(Glyphs.StartWithWindows, startup.Glyph);
-        Assert.NotEqual(quit.Glyph, startup.Glyph);
+        Assert.NotEqual(Glyphs.Power, startup.Glyph);
     }
 
     [Fact]

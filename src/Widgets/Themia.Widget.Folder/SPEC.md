@@ -15,15 +15,15 @@ tests' rule ([S-1336]).
 Owning files: everything in this folder: `FolderModule.cs` (descriptor, view factory, menu lines,
 JSON context), `FolderConfig.cs` (with its styles, sizes, sort and navigation), `FolderView.cs` (the
 listing and the watch through `IWidgetHost.Folders`, navigation) with `.Render.cs` (the ladder, rows,
-tiles, icons through `IWidgetHost.FileIcons`), `.Input.cs` (pointer, keys, selection, the lasso, drag
+tiles, icons through `IWidgetHost.FileIcons`), `.Input.cs` (pointer, keys, selection, drag
 out through `IWidgetHost.FileOps`, drops) and `.Commands.cs` (Explorer's menus through
 `IWidgetHost.ExplorerMenus`, the file operations and clipboard through `IWidgetHost.FileOps` and
 `IWidgetHost.FileClipboard`), its rules (`FolderColumns`, `FolderFilter`, `FolderGesture`, `FolderHistory`,
-`FolderLasso`, `FolderLayout`, `FolderMenu`, `FolderRules`, `FolderSelection`), `FolderPropertiesMenu.cs` (its
+`FolderLayout`, `FolderMenu`, `FolderRules`, `FolderSelection`), `FolderPropertiesMenu.cs` (its
 properties-menu lines: the folder through the SDK's `PickFolder`), `Preview/` (Debug renders: `--state
-web|wallpapers|lasso`, Windows' own folders; `--menu-png`'s folder menus through `IWidgetPreviewMenus`),
+web|wallpapers`, Windows' own folders; `--menu-png`'s folder menus through `IWidgetPreviewMenus`),
 `Localization/Locales/` (its own `FolderStr`, 30 languages, its style names included). Tests:
-`Tests/FolderBrowserTests.cs`, `FolderLassoTests.cs`, `FolderMenuTests.cs`, `FolderPropertiesMenuTests.cs`, `FolderRulesTests.cs` (run
+`Tests/FolderBrowserTests.cs`, `FolderPressTests.cs`, `FolderMenuTests.cs`, `FolderPropertiesMenuTests.cs`, `FolderRulesTests.cs` (run
 by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are the module host's
 `FolderKindsTests` and `FolderHostTests`.
 
@@ -73,38 +73,37 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   a `.lnk` to a folder opens inside the widget. Explorer mode opens folders in Explorer.
 - **[S-1993]** Type-ahead ([S-1980]) over the shown names: the match is selected alone and focused,
   realised if it is past the built rows, and scrolled into view. Not while renaming.
-- **[S-1328]** Press -> click | rubber band | drag is the pure `FolderGesture` (orig. `gesture.ts`, S-65/#58): 5 DIP dead
-  zone, every exit resets, each press wipes prior state, a generation token cancels a deferred drag. Background drags draw
-  a band selecting every overlapped item, live ([S-6412]..[S-6415]).
-- **[S-6412]** Where a band starts (`FolderPress`, `FolderLasso.Classify`), as Explorer's full-row Details view (user
-  report 2026-10-16: rows fill the width, so a full folder had nowhere to start one): only an item's icon and name carry
-  the item (click selects, drag carries it out, [S-1332]); a press on the rest of a row or tile, or between or below the
-  items, draws the band once it passes the dead zone. A click there selects that item (never opens); on the background
-  it clears. The content is at least the viewport tall, so the band can be drawn down to the bottom. Works outside edit
-  mode (the press takes the keyboard lease as every widget press does, [S-800]); the band captures the pointer.
-- **[S-6413]** How the band combines (now every item-selecting widget's, [S-6625]: `SelectionBand.Mode`, `ItemSelection.Band`): no modifier replaces the selection
-  with what the band covers; Shift adds it to the selection the band started with; Ctrl toggles each covered item against
-  it (Ctrl wins with both). Live: shrinking the band gives items back. The focus goes to the last covered item.
-- **[S-6414]** What it covers ([S-6624], `SelectionBand.GridHits`): every item cell the band overlaps at all, from the layout's geometry
-  (rows the list's width × row height; tiles the plan's cells), so items not built yet ([S-1887]) are selected too. The
-  band is kept inside the content. Look: the desktop's band ([S-6624]), above the items; the items' marks are [S-6627].
-- **[S-6415]** Edge scroll (`FolderLasso.ScrollVelocity`/`Step`): with the band's pointer within 24 DIPs of the list's top
-  or bottom (a quarter of a short list), or past it, the list scrolls that way at 20 DIP/s per DIP of depth, at most
-  2400 DIP/s, and the band follows. A frame tick (`CompositionTarget.Rendering`) runs only while the pointer is in a
-  zone with the band down; a frame step is at most 0.1 s, so a stall never throws the list.
+- **[S-1328]** Press -> click | drag is the pure `FolderGesture` (orig. `gesture.ts`, S-65/#58): 5 DIP dead
+  zone, every exit resets, each press wipes prior state, a generation token cancels a drag whose press is gone. The
+  drag out is XAML's own, started inside the pointer handler from the pressed row or tile (`ItemDrag.StartAsync`,
+  [S-1332]: a drag loop posted after the handler never saw the mouse until the button was let go), its paths offered as
+  storage items when a target asks. The folder draws no rubber band ([S-6412]).
+- **[S-6412]** Where a press lands (`FolderPress`, `FolderGesture.Classify`), as Explorer's full-row Details view: only an
+  item's icon and name carry the item (click selects, drag carries it out, [S-1332]); a click on the rest of a row or
+  tile selects that item (never opens), on the background it clears. **The folder draws no rubber band of its own**
+  (user decision 2026-11-13): since the surface is the whole desktop, the one band is the desktop's ([S-5544]), which
+  selects desktop items; a drag from the folder's empty space does nothing. Several files are selected with Ctrl, Shift
+  and the keys ([S-6620], [S-6623]). The content is at least the viewport tall, so the empty space under a short
+  listing takes the click and the background menu.
+- [S-6413], [S-6414], [S-6415] *(Retired with the folder's band, 2026-11-13: how it combined, what it covered, its edge scroll.)*
 - **[S-6416]** The item menu is Windows 11 File Explorer's (user report 2026-10-16: it did not look like it), its
-  commands per selection from `FolderMenu.Item` (Core, tested), drawn by `ItemMenu` ([S-1740]). Icon row: Cut, Copy,
+  commands per selection from `FolderMenu.Item`, which is the SDK's one file menu rule (`FileMenu.Item`, tested; the desktop icons'
+  menu is the same rule on the desktop, [S-5582]), each line's icon, words and key from the SDK's one builder (`FileMenuEntries`,
+  the desktop's too: the widget only says what each command does here), drawn by `ItemMenu` ([S-1740]). Icon row: Cut, Copy,
   Paste (a single folder, the paste target; greyed with nothing to paste), Rename (one item), Share (files only, the
   shell's `Windows.ModernShare`), Delete. List: Open (a file's glyph, an open folder's), Open with > (one file: the apps
   `SHAssocEnumHandlers` recommends, at most 8, with their icons when the icon is an exe on disk, then Choose another app),
-  Open in new window (one folder, navigate mode: Explorer), Open file location, Pin to Quick access (folders, shell
-  verb `pintohome`), Pin to Start (one folder, exe or shortcut, `pintostartscreen`), Compress to ZIP file, Copy as path
+  Open in new window (one folder, navigate mode: Explorer), Open file location (the item in Explorer; one shortcut's target, as
+  Explorer's line on a shortcut), Pin to Quick access (folders, shell
+  verb `pintohome`), Pin to Start (one folder, exe or shortcut, `pintostartscreen`, Explorer's own picture), Compress to ZIP file, Copy as path
   (quoted), Properties (Explorer's wrench); the cloud pins (a cloud item selected); Show more options. A shell verb the
-  shell does not offer here (an already pinned folder) says so at the widget. Not ported, as not Explorer's built-ins:
+  shell does not offer here (an already pinned folder) says so at the widget. The row's tooltips are the plain command
+  ("Cut (Ctrl+X)"), as Explorer's, whatever the count selected. Not ported, as not Explorer's built-ins:
   Open in Terminal, Open in new tab; app-added lines live under Show more options.
 - **[S-6417]** Keys beside the lines are Explorer's, and only keys the widget answers through the lease ([S-1327]):
   Enter, Ctrl+X/C/V/A, F2, Delete, Ctrl+Shift+C on Copy as path (the selection's quoted paths), Alt+Enter on Properties
-  (the selection's, or the shown folder's with nothing selected), and Shift+F10 on Show more options, which opens the
+  (the selection's, or the shown folder's with nothing selected, so the background menu's Properties shows it too; its Copy as
+  path shows no key, Ctrl+Shift+C copying nothing with nothing selected), and Shift+F10 on Show more options, which opens the
   shell's full menu as in Explorer (the Menu key opens ours). Written by [S-1753] (user report 2026-10-16: the
   shortcut naming did not match Explorer's).
 - **[S-6418]** Background menu (`FolderMenu.Background`): Paste, Select all; Up (navigate mode), Refresh; New >; Open in
@@ -173,7 +172,11 @@ Not ported: header double-click opens Explorer (orig. S-07; a single click on th
 - View links: pointing at the header or the path crumb publishes the drive the folder is on, and the whole card
   takes the hover fill while that drive is pointed at elsewhere on the view ([S-11950], [S-11954]).
 
-Needs a live pass: a real folder (navigation, the lasso, double-click and Enter opening, rename,
+Needs a live pass: a real folder (navigation, double-click and Enter opening, rename,
 New, Delete to the Recycle Bin), drag in and out with Explorer and Outlook, the Explorer menu's
 two-tone icons and Show more options, the clipboard both ways with Explorer, a ZIP, OneDrive pin
 states, edit mode leaving it inert, multi-monitor and mixed DPI.
+- **[S-12451]** **The list runs down to the card's edge** ([S-12410]): the List and Details rows are the
+  whole rows of 28 that fit the items' room and the card's bottom inset (`FolderLayout.ListHeight`),
+  stretched to fill it up to half again (`FolderLayout.Pitch`); the Grid's and the Icons' cells keep
+  their size and the inset their marks stand in. Tests `FolderPitchTests.S12451_`.

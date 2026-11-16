@@ -229,17 +229,7 @@ public sealed class DesktopParityTests
     private static readonly FracRect Area = new(0, 0, 1, 1);
     private static readonly FracRect Cell = new(0, 0, 0.1, 0.25);
 
-    [Fact]
-    public void S5591_a_drop_lands_in_the_cell_under_the_point_or_the_next_free_after_it()
-    {
-        Near(new FracRect(0.3, 0.5, 0.1, 0.25), DesktopCells.FreeFrom([], 0.35, 0.6, Cell, Area));
 
-        // Taken: the next one down the same column.
-        Near(new FracRect(0.3, 0.75, 0.1, 0.25), DesktopCells.FreeFrom([new FracRect(0.3, 0.5, 0.1, 0.25)], 0.35, 0.6, Cell, Area));
-
-        // A point past the last whole cell is kept inside the area.
-        Near(new FracRect(0.9, 0.75, 0.1, 0.25), DesktopCells.FreeFrom([], 0.999, 0.999, Cell, Area));
-    }
 
     [Fact]
     public void S5591_a_hint_lands_the_names_it_expects_and_is_used_up()
@@ -283,24 +273,7 @@ public sealed class DesktopParityTests
         Assert.NotNull(landings.Pending);
     }
 
-    [Fact]
-    public void S5546_a_dragged_group_keeps_its_shape_and_the_held_item_lands_under_the_pointer()
-    {
-        FracRect[] moving = [new(0, 0, 0.1, 0.25), new(0, 0.25, 0.1, 0.25)];
 
-        var moved = DesktopCells.Move(moving, held: 1, 0.55, 0.6, [], Cell, Area);
-
-        Near(new FracRect(0.5, 0.25, 0.1, 0.25), moved[0]);
-        Near(new FracRect(0.5, 0.5, 0.1, 0.25), moved[1]);
-    }
-
-    [Fact]
-    public void S5546_a_moved_item_that_would_cover_a_staying_widget_takes_the_next_free_cell()
-    {
-        var moved = DesktopCells.Move([new FracRect(0, 0, 0.1, 0.25)], held: 0, 0.55, 0.6, [new FracRect(0.5, 0.5, 0.1, 0.25)], Cell, Area);
-
-        Near(new FracRect(0.5, 0.75, 0.1, 0.25), moved[0]);
-    }
 
     [Fact]
     public void S5547_hidden_items_follow_explorers_two_settings()

@@ -10,7 +10,6 @@ namespace Themia.Core.Tests;
 /// <summary>[S-1810]..[S-1815] One view per widget kind, holding the widget at its min, natural and max.</summary>
 public sealed class ShowcaseViewsTests
 {
-    private const double Gap = 8;
 
     /// <summary>1920 × 1080 at 100 %, a 48-DIP taskbar at the bottom.</summary>
     private static readonly ScreenMetrics FullHd = Screen(1920, 1080, new PixelRect(0, 0, 1920, 1032));
@@ -52,7 +51,7 @@ public sealed class ShowcaseViewsTests
         var screen = Named(name);
         var work = GridGeometry.AllowedPixels(screen);
 
-        foreach (var view in ShowcaseViews.Build(AllKinds(), screen, Gap))
+        foreach (var view in ShowcaseViews.Build(AllKinds(), screen))
         {
             var cells = view.Widgets.Select(w => Dips(w, screen)).ToList();
             for (var i = 0; i < cells.Count; i++)
@@ -77,7 +76,7 @@ public sealed class ShowcaseViewsTests
     {
         var screen = Named(name);
         var kinds = AllKinds();
-        var views = ShowcaseViews.Build(kinds, screen, Gap);
+        var views = ShowcaseViews.Build(kinds, screen);
 
         Assert.Equal(kinds.Count, views.Count);
         for (var k = 0; k < kinds.Count; k++)
@@ -95,8 +94,8 @@ public sealed class ShowcaseViewsTests
             {
                 var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(kinds[k].Kind, tier));
 
-                // The painted card is the cell less the gap ([S-04]): exactly the size.
-                var painted = GridGeometry.Inset(GridGeometry.ToPixels(widget.Rect, screen), Gap);
+                // The painted card is the whole cell ([S-11884]): exactly the size.
+                var painted = GridGeometry.ToPixels(widget.Rect, screen);
                 Assert.Equal(tier.Width, painted.Width, 3);
                 Assert.Equal(tier.Height, painted.Height, 3);
             }
@@ -106,18 +105,18 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S1810_a_content_scale_grows_the_cell_so_the_content_keeps_its_size()
     {
-        var view = ShowcaseViews.Build([new(Notes, "Notes", "x")], FullHd, Gap, contentScale: 1.25).First();
+        var view = ShowcaseViews.Build([new(Notes, "Notes", "x")], FullHd, contentScale: 1.25).First();
         var min = SizeFit.CheckedAt(SizeFit.Of(Notes))[0];
         var cell = Dips(view.Widgets.Single(w => w.Id == ShowcaseViews.WidgetId(Notes, min)), FullHd);
 
         Assert.Equal(CheckedSize.Min, min.Name);
-        Assert.Equal((min.Width * 1.25) + Gap, cell.Width, 3);
+        Assert.Equal(min.Width * 1.25, cell.Width, 3);
     }
 
     [Fact]
     public void S1810_widgets_are_default_instances_and_each_view_holds_only_its_kind()
     {
-        var views = ShowcaseViews.Build(AllKinds(), FullHd, Gap);
+        var views = ShowcaseViews.Build(AllKinds(), FullHd);
 
         foreach (var widget in views.SelectMany(v => v.Widgets))
         {
@@ -135,8 +134,8 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S1811_ids_are_deterministic_and_unique()
     {
-        var first = ShowcaseViews.Build(AllKinds(), FullHd, Gap);
-        var second = ShowcaseViews.Build(AllKinds(), FullHd, Gap);
+        var first = ShowcaseViews.Build(AllKinds(), FullHd);
+        var second = ShowcaseViews.Build(AllKinds(), FullHd);
 
         Assert.Equal(first.Select(v => v.Id), second.Select(v => v.Id));
         Assert.Equal(first.SelectMany(v => v.Widgets).Select(w => w.Id), second.SelectMany(v => v.Widgets).Select(w => w.Id));
@@ -151,7 +150,7 @@ public sealed class ShowcaseViewsTests
     public void S2448_a_converted_kind_is_shown_at_its_min_natural_and_max()
     {
         var clock = new WidgetId("clock");
-        var view = Assert.Single(ShowcaseViews.Build([new(clock, "Clock", "x")], FullHd, Gap));
+        var view = Assert.Single(ShowcaseViews.Build([new(clock, "Clock", "x")], FullHd));
         var range = SizeFit.CheckedAt(SizeFit.Of(clock));
 
         Assert.Equal(["min", "natural", "max"], range.Select(t => t.Name));
@@ -159,7 +158,7 @@ public sealed class ShowcaseViewsTests
         foreach (var tier in range)
         {
             var widget = Assert.Single(view.Widgets, w => w.Id == ShowcaseViews.WidgetId(clock, tier));
-            var painted = GridGeometry.Inset(GridGeometry.ToPixels(widget.Rect, FullHd), Gap);
+            var painted = GridGeometry.ToPixels(widget.Rect, FullHd);
             Assert.Equal(tier.Width, painted.Width, 3);
             Assert.Equal(tier.Height, painted.Height, 3);
         }
@@ -169,7 +168,7 @@ public sealed class ShowcaseViewsTests
     public void S11601_a_count_stepped_kind_is_held_at_its_min_and_max_with_the_config_each_size_means()
     {
         var facts = new WidgetId("cpuFacts");
-        var view = Assert.Single(ShowcaseViews.Build([new(facts, "CPU facts", "x")], FullHd, Gap));
+        var view = Assert.Single(ShowcaseViews.Build([new(facts, "CPU facts", "x")], FullHd));
 
         foreach (var tier in SizeFit.CheckedAt(SizeFit.Of(facts)))
         {
@@ -182,7 +181,7 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S1812_sizes_that_do_not_fit_one_work_area_continue_on_a_second_view()
     {
-        var views = ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny, Gap);
+        var views = ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny);
 
         Assert.Equal(2, views.Count);
         Assert.Equal([ShowcaseViews.ViewId(Notes), ShowcaseViews.ViewId(Notes, 1)], views.Select(v => v.Id));
@@ -194,7 +193,7 @@ public sealed class ShowcaseViewsTests
     [Fact]
     public void S1812_a_size_larger_than_the_work_area_is_shrunk_to_it()
     {
-        var views = ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny, Gap);
+        var views = ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny);
         var work = GridGeometry.AllowedPixels(Tiny);
 
         Assert.Equal(3, views.Sum(v => v.Widgets.Count));
@@ -212,11 +211,11 @@ public sealed class ShowcaseViewsTests
         var own = state.Views.Select(v => v.Id).ToList();
         var kinds = AllKinds();
 
-        Assert.Equal(0, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd, Gap)));
+        Assert.Equal(0, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd)));
         var shown = ShowcaseViews.ViewId(Notes);
         state.MonitorViews["display-a"] = shown;
 
-        Assert.Equal(kinds.Count, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd, Gap)));
+        Assert.Equal(kinds.Count, ShowcaseViews.Replace(state, ShowcaseViews.Build(kinds, FullHd)));
 
         Assert.Equal(own.Count + kinds.Count, state.Views.Count);
         Assert.Equal(own, state.Views.Take(own.Count).Select(v => v.Id));
@@ -231,13 +230,13 @@ public sealed class ShowcaseViewsTests
     public void S1813_a_showcase_view_that_does_not_come_back_is_deleted_with_its_references()
     {
         var state = AppState.CreateDefault();
-        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny, Gap));
+        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(Notes, "Notes", "x")], Tiny));
         var second = ShowcaseViews.ViewId(Notes, 1);
         state.MonitorViews["display-a"] = second;
         state.ActiveViewId = second;
 
         // On a larger screen the kind fits one view, so its second page goes.
-        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(Notes, "Notes", "x")], FullHd, Gap));
+        ShowcaseViews.Replace(state, ShowcaseViews.Build([new(Notes, "Notes", "x")], FullHd));
 
         Assert.Null(state.FindView(second));
         Assert.False(state.MonitorViews.ContainsKey("display-a"));
@@ -249,7 +248,7 @@ public sealed class ShowcaseViewsTests
     public void S1813_a_saved_and_reloaded_showcase_needs_no_repair()
     {
         var state = AppState.CreateDefault();
-        ShowcaseViews.Replace(state, ShowcaseViews.Build(AllKinds(), QhdAt150, Gap));
+        ShowcaseViews.Replace(state, ShowcaseViews.Build(AllKinds(), QhdAt150));
 
         var json = System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState);
         var parsed = AppStateStore.Parse(json);
@@ -265,7 +264,7 @@ public sealed class ShowcaseViewsTests
         var clock = ModuleCatalog.Widgets.Select(w => w.Id).First(id => WidgetStyles.For(id).Count >= 2);
         var styles = WidgetStyles.For(clock);
         var catalog = ShowcaseKind.Catalog();
-        var views = ShowcaseViews.Build(catalog, FullHd, Gap);
+        var views = ShowcaseViews.Build(catalog, FullHd);
 
         Assert.True(styles.Count >= 2);
         foreach (var style in styles)

@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.Core.Geometry;
 using Themia.Core.Settings;
+using Themia.Core.Shell;
 using Windows.System;
 
 namespace Themia.App.Shell;
@@ -28,6 +29,12 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-2343] The selection's flyout is open.</summary>
     private bool _selectionOpen;
 
+    /// <summary>
+    /// [S-2346] The open flyout drawn again: never under a press held on it, never inside the event that asked;
+    /// made with the first flyout, when the surface's dispatcher is there.
+    /// </summary>
+    private FlyoutRedraws? _redraws;
+
     /// <summary>[S-2327] Whether one of the edit bar's flyouts is open on this display.</summary>
     internal bool BarMenuOpen => _flyout is not null || _addPage is not null;
 
@@ -43,7 +50,8 @@ internal sealed partial class DesktopWindow
             SettingsPageId.Accounts => () => PageRows.Of(SettingsPages.Accounts(settings), AskOnFlyout),
             SettingsPageId.Display => () => PageRows.Of(SettingsPages.Display(display), AskOnFlyout),
             SettingsPageId.Views => () => PageRows.Of(SettingsPages.Views(views), AskOnFlyout),
-            _ => () => PageRows.Of(SettingsPages.Appearance(settings), AskOnFlyout),
+            // [S-2311] Its preview: this display's wallpaper and real cards in the design as it stands.
+            _ => () => PageRows.Of(SettingsPages.Appearance(settings), AskOnFlyout, () => new AppearancePreview(Backdrop, Metrics, () => _host.State.Design)),
         };
     }
 
@@ -132,6 +140,19 @@ internal sealed partial class DesktopWindow
         UiLanguage.ApplyFlow(page);
         _flyout = new PageFlyout(page);
         _flyout.KeyDown += OnFlyoutKey;
+        if (_redraws is null)
+        {
+            _redraws = new FlyoutRedraws(_root.DispatcherQueue, DrawBarMenu);
+
+            // A release anywhere on the surface lets go too: a press dragged off the page before it let go.
+            var redraws = _redraws;
+            _root.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler((_, _) => redraws.LetGo()), handledEventsToo: true);
+        }
+
+        _redraws.Reset();
+        _flyout.Pressed += _redraws.Pressed;
+        _flyout.LetGo += _redraws.LetGo;
+
         page.SizeChanged += (_, _) => PlaceFlyout();
         _flyoutLayer.Children.Add(_flyout);
     }
@@ -149,6 +170,13 @@ internal sealed partial class DesktopWindow
         var page = _openPage;
         var selection = _selectionOpen;
         flyout.Page.Close();
+        if (_redraws is { } redraws)
+        {
+            flyout.Pressed -= redraws.Pressed;
+            flyout.LetGo -= redraws.LetGo;
+            redraws.Reset();
+        }
+
         _flyoutLayer.Children.Remove(flyout);
         _flyout = null;
         _openPage = null;
@@ -176,8 +204,21 @@ internal sealed partial class DesktopWindow
         _toolbar.Release();
     }
 
-    /// <summary>[S-3531] The open flyout shows the state as it is now (an undo, an import, another display's change).</summary>
+    /// <summary>
+    /// [S-3531] The open flyout shows the state as it is now (an undo, an import, another display's change).
+    /// [S-2346] Drawn after the event that asked, never under a press held on it: the row pressed would be gone by
+    /// the release, and taking it away inside the pointer's own event throws out of it.
+    /// </summary>
     private void SyncBarMenu()
+    {
+        if (!_closed && _flyout is not null)
+        {
+            _redraws?.Ask();
+        }
+    }
+
+    /// <summary>[S-2346] The posted drawing's turn: the open flyout drawn again and hung again.</summary>
+    private void DrawBarMenu()
     {
         if (!_closed && _flyout is { } flyout)
         {
@@ -191,7 +232,9 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-2327] A press anywhere on the surface that is not the bar or the open flyout closes it, and the
-    /// press goes on to do what it does: a click on a widget selects it.
+    /// press goes on to do what it does. [S-2343] A press on a widget leaves the selection's page open:
+    /// a click on a widget ends with its page open, so closing it only to open it again would flash;
+    /// it goes when the widget starts to move (<see cref="ClearForDrag"/>).
     /// </summary>
     private void OnPressForBarMenu(object sender, PointerRoutedEventArgs e)
     {
@@ -203,7 +246,7 @@ internal sealed partial class DesktopWindow
 
         for (var node = source; node is not null; node = VisualTreeHelper.GetParent(node))
         {
-            if (ReferenceEquals(node, open) || ReferenceEquals(node, _toolbar))
+            if (ReferenceEquals(node, open) || ReferenceEquals(node, _toolbar) || (_selectionOpen && node is WidgetCard))
             {
                 return;
             }
@@ -263,5 +306,32 @@ internal sealed partial class DesktopWindow
         var bar = ToolbarRect(area);
         var entry = _toolbar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new PixelRect(bar.X, bar.Y, bar.Width, bar.Height);
         flyout.Place(FlyoutPlacement.Place(entry, bar, area, flyout.ContentHeight));
+        ShineSelection();
+    }
+
+    /// <summary>
+    /// [S-2344] The selection's page lets the selected widgets it covers be seen through it, as their
+    /// cards are drawn now; every other page covers what is under it.
+    /// </summary>
+    private void ShineSelection()
+    {
+        if (_flyout is not { } flyout)
+        {
+            return;
+        }
+
+        var under = new List<PixelRect>();
+        if (_selectionOpen)
+        {
+            foreach (var card in _cards)
+            {
+                if (_host.Selection.Contains(card.Model.Id) && card.Visibility == Visibility.Visible && card.Width > 0 && card.Height > 0)
+                {
+                    under.Add(new PixelRect(Canvas.GetLeft(card), Canvas.GetTop(card), card.Width, card.Height));
+                }
+            }
+        }
+
+        flyout.ShineThrough(under);
     }
 }

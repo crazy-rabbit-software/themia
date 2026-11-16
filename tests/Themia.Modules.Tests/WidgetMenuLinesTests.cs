@@ -7,6 +7,7 @@ using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Widget.DesktopItem;
 using Xunit;
 
 namespace Themia.Modules.Tests;
@@ -68,7 +69,7 @@ public sealed class WidgetMenuLinesTests
     public void S3719_a_module_without_lines_adds_none()
     {
         var lines = Lines();
-        ((IWidgetModule)new NoLines()).MenuLines(lines, new ShortcutsConfig());
+        ((IWidgetModule)new NoLines()).MenuLines(lines, new DesktopItemConfig());
 
         Assert.Empty(lines.Lines);
         Assert.Empty(lines.StyleLines);

@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Élément du Bureau",
-  "desktopItem.desc": "Un fichier, un dossier ou un raccourci du Bureau"
+  "widgetsC.shortcuts.column.target": "Cible",
+  "widgetsC.shortcuts.kind.location": "Lieu Windows",
+  "widgetsC.shortcuts.kind.missing": "Introuvable",
+  "widgetsC.shortcuts.kind.path": "Chemin",
+  "widgetsC.shortcuts.kind.refused": "Non autorisé",
+  "widgetsC.shortcuts.menu.addLayout": "Disposition d’applications…",
+  "widgetsC.shortcuts.menu.addLink": "Adresse web ou chemin…",
+  "widgetsC.shortcuts.menu.changeTarget": "Modifier la cible…",
+  "widgetsC.shortcuts.settings.locations": "Emplacements Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Double-clic",
+  "widgetsC.shortcuts.settings.openWith.label": "Ouvrir avec",
+  "widgetsC.shortcuts.settings.openWith.single": "Simple clic",
+  "widgetsC.shortcuts.settings.pick.file": "Fichier…",
+  "widgetsC.shortcuts.settings.pick.folder": "Dossier…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (cible introuvable)\n{target}"
 }

@@ -43,10 +43,15 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            # a kind at its range (min, natural, max), side by side (or w×h);
            # a wrong --state prints the kind's states (Stocks: quote|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
+           # and every look token by its key: vibrancy=1,frostSaturation=1.6,innerSurface=vibrant,rowDividers=inset,... [S-2142]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
 Themia.exe --picker-png <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
 Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
+Themia.exe --desktop-png <outDir> [--icon-size small|medium|large]   # a stand-in desktop of icons of both sources, their
+           # states, the band and the tips [S-5605]; the desktop's icon size [S-5593]
+Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local grid, icons on the widget grid at each icon
+           # size, a mixed lasso selection (icons and cards), both themes [S-11874]..[S-11879]
 Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|select]   # the edit bar (editbar-*: nothing,
            # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*); the selection's page
@@ -87,11 +92,12 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   with IReadsSystem, ISystemFeeds, WatchSlot) and the system rules in Widgets/ (meters, details, drives, audio, music)
   and the local stores' shared data and rules (clipboard history, alarms, focus, notifications, Notes/NoteMeta,
   Habits/HabitLists with the periods and streaks, screen time, the gallery's sources, scans and Bing photo)
-  and the file widgets' shared data (FolderBadges, RecentFileRules, the app layouts: AppLayoutModel, LayoutTree,
+  and the file widgets' shared data (FolderBadges, RecentFileRules, DesktopCell (the cell at each icon size), DesktopTip, the app layouts: AppLayoutModel, LayoutTree,
   LayoutPlan, IHoldsAppLayouts; VideoStreamRules, HlsVariants, the stream's facts; Files/: FileNames, FileDrops,
-  SurfaceDrops and the records the file contracts carry)
+  SurfaceDrops, DesktopItem with DesktopItemKeys, DesktopCommands (what a command does to a selection of
+  desktop icons), DragGhost (Explorer's drag picture), TypeIconName and the records the file contracts carry)
   Widgets/ (WidgetArea, LayoutMath, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
-  HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
+  HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ColourPicker, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
   WidgetDescriptor, ModuleCatalog, IProviderModule, ProviderCatalog, FeatureSet, CadenceRow, WidgetTraits, AddPlacement)
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's rules, and the widgets not yet moved.
@@ -100,6 +106,9 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Settings/ (the settings as lines: SettingsMenu*.cs, one builder per section, ViewsMenu, DisplayMenu, AccountsMenu,
   AccountForm, UninstallPlan; SettingsPages: the edit bar's five pages over them; SettingsRows: the row vocabulary)
   Shell/ (EditBarLayout, SelectionPage) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
+  Desktop/ (the desktop layer's rules: DesktopReconcile, DesktopGrid (icons on the widget grid: their box, arrivals,
+  auto arrange, a drop back), DesktopSelection with DesktopPicks (the locked desktop's one selection of icons and
+  cards), DesktopDragOut, DesktopSort, DesktopBackground)
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
   Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
@@ -114,7 +123,7 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
                    SettingsHost for a module's menu lines); Shell/: FluentLayout (the layout editor's rows), ColorChoice, PlaceSearch,
                    MenuArtIcons, FolderBrowse, ScreenTimeMenuLines, SkyPlaceRows. References Themia.Sdk only, never Core. What
-                   needs Win32 (eyedropper, file icons, geocoder, OLE drag, the shell's file operations and menus)
+                   needs Win32 (eyedropper, file icons, geocoder, the OLE drop target, the shell's file operations and menus)
                    is the host's, behind those contracts or installed at start (App()).
                    Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.
 src/Themia.App/    WinUI 3 shell, native code, widget views
@@ -128,7 +137,7 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    Pages/ (PageFlyout, PageView: every page drawn as Windows' settings cards; PageRows, SelectionRows)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
-src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 109): module, config, view, Samples/
+src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 108): module, config, view, Samples/
                    (its sample, ships), Preview/ (render-only states, Debug), Localization/Locales/ (its own
                    <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
@@ -140,8 +149,8 @@ docs/STORE.md      Microsoft Store release       scripts/   publish.ps1, package
 SPEC.md            the behaviour spec (tags [S-NN])
 ```
 
-One window per display, not per widget: every widget on a screen shares one transparent,
-click-through surface clipped with `SetWindowRgn`. Geometry is stored as fractions of the whole monitor.
+One window per display, not per widget: every widget on a screen shares one transparent
+surface that is the desktop itself ([S-5501]), clipped with `SetWindowRgn` to the work area. Geometry is stored as fractions of the whole monitor.
 
 Adding a widget or a provider is creating its folder: run `scripts/new-module.ps1` (it writes the
 project, the module class with its descriptor, the config, a view stub, the 40 locale files, the
@@ -220,21 +229,32 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   docs/WIDGET-KIT.md 17): **content decides a widget's size; size never decides its content.** A kind
   states `WidgetDescriptor.Sizing` (a `WidgetSizing`: Min, Natural, Max, optional steps, always bounded)
   from its config; the host adds it at Natural, stops resizes at Min/Max and on the steps, paints the
-  stored rect fitted into the sizing and refits on a config change. Inside its range a kind shows the
+  stored rect fitted into the sizing and refits on a config change; the grid is always on ([S-06]: no
+  setting, no Alt, no free path) and it fits every sizing, a desktop icon's too, to whole grid cells first
+  (`GridFit`, [S-11807], [S-11875]; a ready-made group as one block, [S-11808], [S-11809]:
+  `ReadyMadeGroups.Laid`, never member by member),
+  so a kind states content's DIPs, never grid sizes. Inside its range a kind shows the
   same parts: what it shows is config (rows, lines, facts, columns, Size S/M/L). A kit list states its
   rows (`IKitRows`, `KitSizing`). A view may measure its box to lay out those fixed parts
   (`IWidgetSizeAware.ApplySize(WidgetArea)`: a graph's length, where a text wraps, a grid's cells;
   `LayoutMath` for whole lines), never to choose them; costs are line heights, worst-case text lengths.
   There is no legacy sizing, no tier, no ladder, no size class: `OnePathSizingTests` fail on their
   names. Clock, Memory and Tasks are the references. Check a kind at its min, natural and max (renders,
-  the showcase views).
+  the showcase views). **Relaxed and stretched** ([S-12410], [S-12411], docs/WIDGET-KIT.md 17.4): the
+  descriptor relaxes the stated range (`SizeStretch.Relax`, the sizing's `Room`); in a larger box items
+  stretch to their caps (`ItemStretch`: a row 1.5x, a chart the box, text never) and the rest is spacing;
+  rows and fills run to the card's edge (no content inset; text keeps the item's own), a fixed block is
+  centred under the header (`NaturalBlock`). Never a per-widget stretch of its own.
 - **Concise first** ([S-666], user rule): a setting may only add more of the widget's own items (rows,
   columns, a larger number, a meter's history) or one closely related detail of them — never a control,
   panel or fact that is another widget's or Windows' job (a device picker, a detail/reading pane, a note
   list, a counts footer, the next days on "weather now").
 - **One family** (SPEC "FAMILY", [S-6700]..[S-6732]; docs/WIDGET-KIT.md 16): a widget is drawn from the
   family's tokens (`FamilyType`, `FamilySpace`, `FamilyShape`, `ColourRole`; `Family.*` in WinUI) and its
-  seven blocks (Header, Row, Readout, Chart, Status, Tile, Controls in `Themia.Sdk.WinUI.Kit`); the
+  seven blocks (Header, Row, Readout, Chart, Status, Tile, Controls in `Themia.Sdk.WinUI.Kit`); the design's look tokens
+  (`DesignState.Tokens`, `LookTokens`, [S-2130]..[S-2143]: frost, glass, text levels, weights, tracking, surfaces, row
+  dividers, rendering mode) reach a widget only through them (`FamilyLook`, `Family.Brush`'s widget keys, the item
+  layer), never per widget; the
   guards (`FamilyGuardTests`, `scripts/family-check.ps1`) hold shrink-only lists of today's offenders.
 - **List widgets are built on the kit** (`Themia.Sdk.Kit` pure, `Themia.Sdk.WinUI.Kit` UI; SPEC
   "The widget kit (KIT)", [S-7000]..[S-7071]; design and as-built in docs/WIDGET-KIT.md 5, 6 and 11.2;
@@ -278,15 +298,17 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   `Style`, default first, copied in `Clone`); its labels go in a `Locales/styles-<kind>/` area. The
   registry, the strip's Style choice, load repair and `--style` find it on their own:
   no shared line to edit. An existing look option becomes the style, never a second setting.
-- **Colours are never typed.** A colour is a menu's one colour submenu (`menu.Colour`, a Core
-  `SettingsColour`; `ColorChoice` behind it: accent presets, custom `ColorPicker`, the eyedropper).
-  Stored as `#RRGGBB`.
-- **The edit bar** ([S-2320]..[S-2328], Karpo's command bar, `karpo-app` docs/widgets.md §575): one 48-DIP row
-  per display, never moving and one width: the pages' entries (General, Accounts, Display, Views, Appearance),
-  the divider and the selection's entry in its kept room, the problems' room, Add widget, Done. Each entry opens
+- **One colour picker, Karpo's** ([S-1549], [S-1574]..[S-1577]). A colour is a menu's one colour row
+  (`menu.Colour`, a Core `SettingsColour`; `ColorChoice` behind it): Default and the recent colours, two
+  lines of presets, the mixer (spectrum, hue, a fill's opacity), the hex box (a colour may be typed there,
+  as in Karpo's) and the eyedropper; layout and rules in `ColourPicker`. Stored as `#RRGGBB`.
+- **The edit bar** ([S-2320]..[S-2329], Karpo's command bar, `karpo-app` docs/widgets.md §575): one 48-DIP row
+  per display, one width, at the top, never moved or dragged ([S-2329]; a selected widget under its page is
+  seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Appearance),
+  the divider and the selection's entry in its kept room, the toggle (Over the edge:
+  `EditBarToggles`, its setting's one place, [S-2330]; the grid is always on, no Snap to grid, [S-06]), the problems' room, Add widget, Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
-  never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay), no Snap button (Snap
-  to grid is General's, [S-3516]). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
+  never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
   is a widget's (its page), a view's (Views), a display's (Display) or Themia's (General, Accounts,
   Appearance), and that page alone sets it; a lower level that follows it gets a link row
@@ -297,10 +319,16 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   lines (`SettingsMenu.<Section>.cs`: `SettingsToggle`, `SettingsChoice`, `SettingsSlider`, `SettingsColour`,
   `SettingsSubmenu`, `SettingsCommand`, `SettingsNote`, `SettingsField`, ...) keyed by paths that are the same
   in every language, grouped by one rule (`SettingsPages.Sectioned`) and tested in Core (`SettingsMenuTests`);
-  the app draws them as Karpo's/Windows' settings cards (`Shell/Pages/PageView`): a row 48 tall (60 with a
-  caption), at most two levels (a card and one level opened inside it; deeper is a sub-page behind a back
+  the app draws them as Karpo's/Windows' settings cards (`Shell/Pages/PageView`, Karpo's components one to one:
+  the table in [S-2317]; a row that acts a card with a button of its words, one with nothing to say its button
+  alone, [S-2318]): a row 48 tall (60 with a caption), at most two levels (a card and one level opened inside it; deeper is a sub-page behind a back
   head), every choice, colour, font, icon and lookup an inline picker in its card, never a popup. Every way
-  into settings lands on its row (`RequestSettings(key)`, [S-3534]). `FluentLayout` (`SettingsCard` rows) is
+  into settings lands on its row (`RequestSettings(key)`, [S-3534]). The pages follow Karpo's (`karpo-app`
+  origin/master): every view, display and account is a **thing**, a card that opens in place
+  (`SettingsSubmenu.Card`, its `Caption`, its head's `Tools`, dragged by its grip, [S-2310]), and no line acts
+  on "the selected" view, display or account; the Appearance page opens on a live preview of real cards
+  ([S-2311]); the styles are Karpo's palettes plus Liquid glass, a card material drawn from Core's values
+  (`DesignPresets`, `LiquidGlass`, [S-2122], [S-2123]). `FluentLayout` (`SettingsCard` rows) is
   only the app-layout editor's, Themia's one window.
 - **View links** (SPEC "VIEW-LINKS", [S-3300]..[S-3311], [S-11900]..[S-11958]; docs/WIDGET-KIT.md 19):
   what is pointed at in one widget lights the same thing in the others of the view. A kind declares what it
@@ -312,9 +340,16 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 - **Widget selection and groups** ([S-1580]..[S-1594], [S-2450]..[S-2458]): edit mode selects units, a
   lone widget or a whole group (a view's `Groups`, a widget's `Group`: a lock over ordinary cards, never
   a card of its own); a second click enters a group (one member, its own handles), Escape steps out.
-  The rules are Core's (`WidgetSelection`, `WidgetGroups`, tested); the surface only asks them. A group
-  of fewer than two dissolves (load validation and every `Mutate`). Ctrl+G / Ctrl+Shift+G and the card
-  menu group and ungroup. Everything that produces or moves widgets is the one placement session
+  The rules are Core's (`WidgetSelection`, `WidgetGroups`, tested); the surface only asks them. Members
+  whose cells meet are one connected panel (`CardJoins.Paint`: neighbours by cells, [S-2248], [S-2249], [S-11810]);
+  there is no gap between widgets, every card paints its whole cell ([S-11884]), and cards of no group that touch
+  stay separate cards, never joined ([S-2240]); a desktop icon never joins (`WidgetTraits.NeverJoins`, [S-11880]).
+  A group draws no frame or marks of its own ([S-2453]): its members draw their corners (`SelectionRules.MarksOf`,
+  [S-2459]), in the accent while selected; a block's move is snapped and whole device pixels ([S-11873]);
+  in Liquid glass a group is one glass shape (`CardJoins.Bodies`, [S-2123]); a view whose fill reaches the card's
+  edge takes the card's corners (`IWidgetCorners`, [S-11883]: square where a mate joins). A group
+  of fewer than two dissolves (load validation and every `Mutate`). Ctrl+G / Ctrl+Shift+G, the card
+  menu and the selection page's header card group and ungroup. Everything that produces or moves widgets is the one placement session
   (`PlacementPayload`: a new widget, a ready-made group, a copy, a move).
 - **The add page** ([S-11700]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593): Add opens a flyout as
   wide as the bar, flush under it: a search box and tabs (Start: the starter groups, `ReadyMadeGroup.Starter`,
@@ -333,26 +368,42 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   writes a store, the clipboard or anything the assistants' server reads; a view whose host already hands it
   sample data (the meters over the sample PC) has none. The sample PC and a gallery service reach a
   picture's cards only through their host (`SampleWorld`, `PreviewCardHost.Samples`), never a static.
-- **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
+- **The locked desktop** ([S-2008], [S-11874]..[S-11879]): outside edit mode a widget pressed and dragged moves
+  (with the selection it is in, whole groups as in edit mode: `WidgetGroups.Units`, [S-11885]), snapped, the local
+  grid round where it lands (`LocalGrid`: a faint rectangle fading out of the box, [S-11886]) with the moving and nearby cards' corner
+  marks ([S-11881]); edit mode never turns
+  on by a drag. Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
+  an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`). One
+  selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them.
+- **Item selection** (files: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
+  A desktop icon is one kind, `desktopItem`, with two sources ([S-5600]): a desktop item (a key, the
+  reconcile's) or an own icon (what the Shortcut widget was). Both are in the host's one desktop selection
+  ([S-5540], keys by `DesktopItemKeys.Of`), drawn in the SDK's one cell (`DesktopCell`, at the desktop's one
+  icon size, [S-5593]: a preference the host puts in force, never an icon's own) with the highlight
+  behind the whole cell in its own palette (`SelectionLook.DesktopIcon`); what a command does to a selection
+  of both is the SDK's `DesktopCommands` ([S-5580]..[S-5587]). The kind states
+  `WidgetTraits.StartsTransparent` to start on no card.
 - **The selection's page** ([S-2340]..[S-2343]): selecting widgets adds their entry to the bar ("Clock",
-  "2 × Clock", "3 widgets") and opens its flyout once per selection: a header card (the kind's tile, the
-  name, Cut / Copy / Remove), then What it shows, Header and Appearance. Every option a widget has lives
+  "2 × Clock", "3 widgets") and opens its flyout once per selection, when the pointer lets go of the widget
+  (a click, the end of a drag or resize; never over a widget still moving): a header card (the kind's tile, the
+  name, Cut / Copy / Remove), then two tabs ([S-2345], `SelectionPage.Tabs`, the one tab component
+  `PageTabButton`): Settings (What it shows, Header) and Appearance. Every option a widget has lives
   there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines, config)` adds
   `Lines` and `StyleLines` (under the Style picker, what `config.Offers` says the look draws) as
   `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`,
   `Ask` (its line `Asks: true`), `Confirm`, `Note`, `List` (its items dragged or Ctrl+Up/Down to reorder),
   `PickFolder`, a link row `LinkTo`), separators between its groups, and marks the line the Set up button
   opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` turns each into the page's row of its kind. An
-  Ask or a Confirm is a page of its own. Shortcuts and Clock are the references; docs/WIDGET-KIT.md 15 is
+  Ask or a Confirm is a page of its own. The desktop icon (an own icon's lines, `OwnIconMenu`) and Clock are the references; docs/WIDGET-KIT.md 15 is
   the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Size, Rows) is an
   entry of the SDK's `SharedSettings` over a config contract, and its standard line is marked with
   `WidgetMenuLines.Shared` ([S-11750]..[S-11753]); a new kind that holds one implements the contract and
   uses (or marks) that line. **A group's page** ([S-11754]..[S-11757], `SelectionPage.Of` in Core,
   `SelectionRows` + `SharedRowLines` in the app): the group's name to rename, For all of them (each shared
   setting once: the first holder's own line over a scratch copy, every write set on every holder, Mixed
-  while they disagree), Widgets (each member's own page as a sub-page, Remove from group), Appearance;
-  several lone widgets get For all of them too; an entered member links back to its group.
+  while they disagree) and Appearance, never a member one by one ([S-11755]); several lone widgets get For
+  all of them too; an entered member links back to its group.
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
   `$englishOnly` list. Dates and numbers through `LocaleFormat`.
 - **Out of scope by decision:** tray icon, always-on-top pin, pop-out windows, Lemon Squeezy, updater,

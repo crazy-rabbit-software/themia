@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "အခြား အက်ပ်တစ်ခု ရွေးရန်",
+  "folderMenu.compressToZip": "ZIP ဖိုင်အဖြစ် ချုံ့ရန်",
+  "folderMenu.copyAsPath": "လမ်းကြောင်းအဖြစ် ကူးရန်",
+  "folderMenu.openInNewWindow": "ဝင်းဒိုးအသစ်တွင် ဖွင့်ရန်",
+  "folderMenu.openWith": "ဖြင့် ဖွင့်ရန်",
+  "folderMenu.pinToQuickAccess": "Quick access တွင် ပင်ထိုးရန်",
+  "folderMenu.pinToStart": "Start တွင် ပင်ထိုးရန်",
+  "folderMenu.share": "မျှဝေရန်",
+  "folder.properties": "ဂုဏ်သတ္တိများ",
+  "widgetsB.folder.freeUpSpace": "နေရာ လွတ်စေရန်",
+  "widgetsB.folder.keepOnDevice": "ဤစက်ပစ္စည်းပေါ်တွင် အမြဲ ထားရန်",
+  "widgetsB.folder.moreOptions": "နောက်ထပ် ရွေးချယ်စရာများ ပြရန်",
+  "widgetsB.folder.new": "အသစ်",
+  "ctxMenu.folder": "ဖိုဒါ"
+}

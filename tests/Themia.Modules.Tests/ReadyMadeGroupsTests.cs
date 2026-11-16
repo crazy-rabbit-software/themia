@@ -90,7 +90,7 @@ public sealed class ReadyMadeGroupsTests
     {
         PixelRect?[] boxes = [.. Of(id).Widgets.Select(w => (PixelRect?)new PixelRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height))];
 
-        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(1));
+        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(1), groups: [.. boxes.Select(_ => (string?)"group")]);
 
         for (var i = 0; i < outlines.Length; i++)
         {
@@ -231,10 +231,24 @@ public sealed class ReadyMadeGroupsTests
     }
 
     [Fact]
-    public void S11209_my_files_is_offered_and_its_three_widgets_sit_at_their_kinds_sizes_and_join()
+    public void S2474_this_pc_is_one_column_of_one_width_each_reading_over_its_history()
+    {
+        var recipe = ReadyMadeGroups.ThisPc;
+        Assert.Equal(["cpu", "cpuHistory", "memory", "memoryHistory", "disk", "diskHistory", "network", "networkHistory"], recipe.Widgets.Select(w => w.Kind));
+
+        // One left edge, one width, each box right under the one before it.
+        Assert.All(recipe.Widgets, w => Assert.Equal((0d, recipe.Bounds.Width), (w.Box.X, w.Box.Width)));
+        for (var i = 1; i < recipe.Widgets.Count; i++)
+        {
+            Assert.Equal(recipe.Widgets[i - 1].Box.Bottom, recipe.Widgets[i].Box.Y);
+        }
+    }
+
+    [Fact]
+    public void S11209_my_files_is_offered_and_its_two_widgets_sit_at_their_kinds_sizes_and_join()
     {
         var recipe = Assert.Single(ReadyMadeGroups.Offered(), r => r.Id == "myFiles");
-        Assert.Equal(["folder", "shortcuts", "recentFiles"], recipe.Widgets.Select(w => w.Kind));
+        Assert.Equal(["folder", "recentFiles"], recipe.Widgets.Select(w => w.Kind));
 
         // Each box is what its kind's sizing makes of it, so placing it moves nothing.
         foreach (var part in recipe.Widgets)
@@ -244,8 +258,8 @@ public sealed class ReadyMadeGroupsTests
             Assert.Equal(new SizeDip(part.Box.Width, part.Box.Height), sizing.Fit(new SizeDip(part.Box.Width, part.Box.Height)));
         }
 
-        // One panel: the folder as tall as the column beside it.
-        Assert.Equal(recipe.Widgets[0].Box.Height, recipe.Widgets[1].Box.Height + recipe.Widgets[2].Box.Height);
+        // One panel: the folder as tall as the recent files beside it.
+        Assert.Equal(recipe.Widgets[0].Box.Height, recipe.Widgets[1].Box.Height);
     }
 
     // ---- [S-2471] placing one ---------------------------------------------------------------------
@@ -258,7 +272,7 @@ public sealed class ReadyMadeGroupsTests
         var history = new LayoutHistory(state);
         var payload = PlacementPayload.ForReadyMade(ReadyMadeGroups.ThisPc);
 
-        var plan = payload.Plan(0.5, 0.5, Screen, snapEnabled: true);
+        var plan = payload.Plan(0.5, 0.5, Screen);
         state.ApplyPlacement(plan, state.Views[0].Id);
         history.Commit(state, UndoActions.ForPlacement(payload.Mode));
 
@@ -279,8 +293,8 @@ public sealed class ReadyMadeGroupsTests
     {
         var payload = PlacementPayload.ForReadyMade(ReadyMadeGroups.MyDay);
 
-        var ghost = payload.Outlines(0.4, 0.4, Screen, snapEnabled: true);
-        var plan = payload.Plan(0.4, 0.4, Screen, snapEnabled: true);
+        var ghost = payload.Outlines(0.4, 0.4, Screen);
+        var plan = payload.Plan(0.4, 0.4, Screen);
 
         Assert.Equal(ghost.Select(g => g.Rect), plan.Added.Select(w => w.Rect));
         Assert.Equal(ReadyMadeGroups.MyDay.Widgets.Select(w => new WidgetId(w.Kind)), ghost.Select(g => g.Kind));
@@ -298,7 +312,7 @@ public sealed class ReadyMadeGroupsTests
 
         Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, payload.Creates);
         Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, payload.Count);
-        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, payload.Plan(0.5, 0.5, Screen, snapEnabled: false).NetAdded(state));
+        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, payload.Plan(0.5, 0.5, Screen).NetAdded(state));
         Assert.Equal(UndoAction.Add, UndoActions.ForPlacement(payload.Mode));
     }
 
@@ -307,8 +321,8 @@ public sealed class ReadyMadeGroupsTests
     {
         var payload = PlacementPayload.ForReadyMade(ReadyMadeGroups.Weather);
 
-        var first = payload.Plan(0.3, 0.3, Screen, snapEnabled: false);
-        var second = payload.Plan(0.6, 0.3, Screen, snapEnabled: false);
+        var first = payload.Plan(0.3, 0.3, Screen);
+        var second = payload.Plan(0.6, 0.3, Screen);
 
         Assert.NotEqual(first.Groups[0].Id, second.Groups[0].Id);
         Assert.Empty(first.Roots.Intersect(second.Roots));

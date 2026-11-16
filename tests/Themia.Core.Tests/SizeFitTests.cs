@@ -20,21 +20,11 @@ public sealed class SizeFitTests
 
     private static void Near(double expected, double actual) => Assert.Equal(expected, actual, 6);
 
-    [Fact]
-    public void S2444_limits_are_the_sizing_times_the_content_scale_plus_the_gap_as_fractions_of_the_cell()
-    {
-        var limits = SizeFit.Limits(Meter, Screen, scale: 1.5, gapPx: 8)!;
-
-        Near(((160 * 1.5) + 8) / 1000, limits.Width.Min);
-        Near(((480 * 1.5) + 8) / 1000, limits.Width.Max);
-        Near(((112 * 1.5) + 8) / 1000, limits.Height.Min);
-        Assert.False(limits.Height.Stepped);
-    }
 
     [Fact]
     public void S2444_a_screen_not_measured_yet_has_no_limits_and_shows_the_rect_as_stored()
     {
-        Assert.Null(SizeFit.Limits(WidgetSizing.Range(new(32, 32), new(280, 140), new(560, 420)), new ScreenMetrics(0, 0), 1, 0));
+        Assert.Null(SizeFit.Limits(WidgetSizing.Range(new(32, 32), new(280, 140), new(560, 420)), new ScreenMetrics(0, 0), 1));
         var stored = new FracRect(0.9, 0.9, 0.9, 0.01);
         Assert.Equal(stored, SizeFit.Shown(stored, null, Screen));
     }
@@ -42,7 +32,7 @@ public sealed class SizeFitTests
     [Fact]
     public void S2446_the_painted_box_is_the_stored_rect_fitted_into_the_sizing_at_its_top_left()
     {
-        var limits = SizeFit.Limits(Meter, Screen, 1, 0);
+        var limits = SizeFit.Limits(Meter, Screen, 1);
 
         // Too big for this display's DIPs (stored on a larger one): held to Max, the top-left kept.
         var shown = SizeFit.Shown(new FracRect(0.1, 0.2, 0.7, 0.5), limits, Screen);
@@ -59,78 +49,43 @@ public sealed class SizeFitTests
     [Fact]
     public void S2446_a_grown_box_that_would_leave_the_work_area_is_kept_in_reach()
     {
-        var limits = SizeFit.Limits(Meter, Screen, 1, 0);
+        var limits = SizeFit.Limits(Meter, Screen, 1);
         var shown = SizeFit.Shown(new FracRect(0.99, 0.5, 0.01, 0.15), limits, Screen);
 
         Near(0.16, shown.W);
         Assert.True(shown.X <= 1 - (GridGeometry.MinVisiblePx / 1000) + 1e-9);
     }
 
-    [Fact]
-    public void S2446_an_axis_that_follows_the_config_is_laid_out_at_the_configs_count()
-    {
-        var limits = SizeFit.Limits(List(rows: 6), Screen, 1, 0);
-        var shown = SizeFit.Shown(new FracRect(0.1, 0.1, 0.3, 0.6), limits, Screen);
-
-        Near((76 + (6 * 28)) / 1000.0, shown.H);
-        Near(0.3, shown.W);
-    }
 
     [Fact]
     public void S2445_a_resized_edge_stops_at_min_and_max_and_the_anchored_edge_stays()
     {
-        var limits = SizeFit.Limits(Meter, Screen, 1, 0);
+        var limits = SizeFit.Limits(Meter, Screen, 1);
         var start = new FracRect(0.2, 0.2, 0.2, 0.14);
 
-        var grown = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Right, 0.5, 0, Screen), Screen, snapEnabled: true, ResizeHandle.Right, limits);
+        var grown = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Right, 0.5, 0, Screen), Screen, ResizeHandle.Right, limits);
         Near(0.2, grown.X);
         Near(0.48, grown.W);
 
-        var shrunk = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Left, 0.15, 0, Screen), Screen, snapEnabled: true, ResizeHandle.Left, limits);
+        var shrunk = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Left, 0.15, 0, Screen), Screen, ResizeHandle.Left, limits);
         Near(0.4, shrunk.Right);
         Near(0.16, shrunk.W);
     }
 
-    [Fact]
-    public void S2445_a_stepped_axis_snaps_to_its_steps_not_the_grid()
-    {
-        var limits = SizeFit.Limits(List(rows: 6), Screen, 1, 0);
-        var start = new FracRect(0.2, 0.1, 0.3, (76 + (6 * 28)) / 1000.0);
-
-        // Dragged down 40 DIPs: one row (28) is nearer than two (56).
-        var moved = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, 0.040, Screen), Screen, snapEnabled: true, ResizeHandle.Bottom, limits);
-        Near((76 + (7 * 28)) / 1000.0, moved.H);
-        Near(0.1, moved.Y);
-
-        // Dragged far up: one row is the least.
-        var least = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, -0.5, Screen), Screen, snapEnabled: true, ResizeHandle.Bottom, limits);
-        Near((76 + 28) / 1000.0, least.H);
-    }
 
     [Fact]
     public void S2445_a_fixed_axis_does_not_move_under_a_corner()
     {
         var face = WidgetSizing.Range(new(200, 100), new(200, 100), new(400, 100));
-        var limits = SizeFit.Limits(face, Screen, 1, 0)!;
+        var limits = SizeFit.Limits(face, Screen, 1)!;
         Assert.True(limits.Height.Fixed);
 
         var start = new FracRect(0.2, 0.2, 0.25, 0.1);
-        var dragged = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.05, 0.2, Screen), Screen, snapEnabled: false, ResizeHandle.BottomRight, limits);
+        var dragged = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.05, 0.2, Screen), Screen, ResizeHandle.BottomRight, limits);
         Near(0.1, dragged.H);
         Near(0.3, dragged.W);
     }
 
-    [Fact]
-    public void S2445_a_key_press_on_a_stepped_axis_is_one_step()
-    {
-        var limits = SizeFit.Limits(List(rows: 6), Screen, 1, 0);
-        var start = new FracRect(0.2, 0.1, 0.3, (76 + (6 * 28)) / 1000.0);
-
-        var grown = KeyboardNudge.Resize(start, NudgeDirection.Down, NudgeStep.Cell, Screen, snapEnabled: true, limits);
-        Near((76 + (7 * 28)) / 1000.0, grown.H);
-        var shrunk = KeyboardNudge.Resize(start, NudgeDirection.Up, NudgeStep.Cell, Screen, snapEnabled: true, limits);
-        Near((76 + (5 * 28)) / 1000.0, shrunk.H);
-    }
 
     [Fact]
     public void S2444_a_fixed_axis_has_no_handle_and_a_corner_moves_the_free_axis_alone()
@@ -173,9 +128,9 @@ public sealed class SizeFitTests
     }
 
     [Fact]
-    public void S2442_the_wanted_size_is_the_cell_less_the_gap_at_widget_scale_one()
+    public void S2442_the_wanted_size_is_the_whole_cell_at_widget_scale_one()
     {
-        var wanted = SizeFit.Wanted(new FracRect(0, 0, 0.308, 0.158), Screen, scale: 2, gapPx: 8);
+        var wanted = SizeFit.Wanted(new FracRect(0, 0, 0.3, 0.15), Screen, scale: 2);
         Assert.Equal(150, wanted.Width, 6);
         Assert.Equal(75, wanted.Height, 6);
     }

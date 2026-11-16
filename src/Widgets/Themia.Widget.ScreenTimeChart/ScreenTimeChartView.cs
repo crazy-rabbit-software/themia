@@ -239,9 +239,16 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
         _tones = ScreenTimeRules.Tones(_segments);
 
+        // [S-12410] The bars are a chart: their plot takes the whole height the card gives, down to the
+        // card's inset (the end labels' text stays off the edge). The calendar's rings keep their size: a
+        // taller card centres them in the room under the header, the foot's inset counted with them.
         var width = Math.Max(1, _area.Width - (2 * FamilySpace.Inset));
-        var height = ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
+        var drawing = ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
+        var calendar = ChartStyle == ScreenTimeChartStyle.Calendar;
+        var height = calendar ? drawing : Math.Max(drawing, Math.Floor(_area.Height - FamilySpace.Inset));
         _drawing.Height = height;
+        _drawing.VerticalAlignment = calendar ? VerticalAlignment.Center : VerticalAlignment.Top;
+        _drawing.Margin = calendar ? Family.SideInset with { Bottom = FamilySpace.Inset } : Family.SideInset;
 
         // [S-3325] Built once for what it is made of; every other read moves what is there.
         var frame = new Frame(ChartStyle, data.Range.Count, width, height, Today.Key, data.Range.Count > 0 ? data.Range[0].Date : string.Empty, Strings.Current);

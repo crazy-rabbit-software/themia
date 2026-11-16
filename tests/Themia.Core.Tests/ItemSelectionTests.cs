@@ -6,7 +6,7 @@ namespace Themia.Core.Tests;
 /// <summary>
 /// [S-6620]..[S-6629] Item selection, the desktop's: the one rule set (<see cref="ItemSelection"/>),
 /// the rubber band (<see cref="SelectionBand"/>) and the look (<see cref="SelectionLook"/>) every
-/// item-selecting widget (the folder, the shortcuts) draws through.
+/// item-selecting widget (the folder) draws through.
 /// </summary>
 public sealed class ItemSelectionTests
 {
@@ -298,32 +298,6 @@ public sealed class ItemSelectionTests
     // ---- the band: what it covers ([S-6624]) ----------------------------------------------------
 
     [Fact]
-    public void S6624_a_band_over_rows_covers_every_row_it_touches()
-    {
-        // Rows 32 tall: 10..70 touches rows 0, 1 and 2.
-        Assert.Equal([0, 1, 2], SelectionBand.GridHits(new BandRect(400, 70, 420, 10), 10, 1, 600, 32));
-    }
-
-    [Fact]
-    public void S6624_rows_not_built_yet_are_covered_too()
-        => Assert.Equal([.. Enumerable.Range(30, 11)], SelectionBand.GridHits(new BandRect(5, 30 * 32 + 1, 50, 40 * 32 + 2), 1000, 1, 600, 32));
-
-    [Fact]
-    public void S6624_a_band_over_tiles_covers_only_the_cells_it_overlaps()
-    {
-        // 4 columns of 100 × 120: a band from (150, 50) to (250, 130) touches cells 1, 2 (row 0) and 5, 6 (row 1).
-        Assert.Equal([1, 2, 5, 6], SelectionBand.GridHits(new BandRect(150, 50, 250, 130), 10, 4, 100, 120));
-    }
-
-    [Fact]
-    public void S6624_the_last_partial_row_and_an_empty_list_are_safe()
-    {
-        Assert.Equal([8, 9], SelectionBand.GridHits(new BandRect(0, 250, 400, 500), 10, 4, 100, 120));
-        Assert.Empty(SelectionBand.GridHits(new BandRect(0, 0, 100, 100), 0, 1, 100, 32));
-        Assert.Empty(SelectionBand.GridHits(new BandRect(0, 0, 100, 100), 5, 1, 100, 0));
-    }
-
-    [Fact]
     public void S6624_boxes_count_when_overlapped_at_all_and_an_empty_box_never()
     {
         ItemBox[] boxes = [new(0, 0, 80, 60), new(90, 0, 80, 60), new(0, 70, 80, 60), new(200, 200, 0, 0)];
@@ -332,10 +306,6 @@ public sealed class ItemSelectionTests
         Assert.Empty(SelectionBand.Hits(new BandRect(81, 61, 89, 69), boxes)); // the gaps between them
         Assert.Empty(SelectionBand.Hits(new BandRect(150, 150, 260, 260), boxes[3..]));
     }
-
-    [Fact]
-    public void S6624_the_band_is_kept_inside_the_items_area()
-        => Assert.Equal(new BandRect(10, 20, 0, 500), SelectionBand.Clamp(new BandRect(10, 20, -40, 900), 300, 500));
 
     [Fact]
     public void S6624_a_press_is_a_click_inside_the_dead_zone()
@@ -478,6 +448,85 @@ public sealed class ItemSelectionTests
         Assert.Equal(SelectionTone.Highlight, SelectionLook.Band.Tone);
         Assert.InRange(SelectionLook.Band.Fill, 0.25, 0.3);
         Assert.Equal(1.0, SelectionLook.Band.Stroke);
+    }
+
+    /// <summary>Every cue there is: the six flags in every combination.</summary>
+    public static TheoryData<bool, bool, bool, bool, bool, bool> EveryCue()
+    {
+        var data = new TheoryData<bool, bool, bool, bool, bool, bool>();
+        for (var bits = 0; bits < 64; bits++)
+        {
+            data.Add((bits & 1) != 0, (bits & 2) != 0, (bits & 4) != 0, (bits & 8) != 0, (bits & 16) != 0, (bits & 32) != 0);
+        }
+
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(EveryCue))]
+    public void S6627_the_file_widgets_look_is_the_rows_palette_whatever_the_cue(bool selected, bool hovered, bool focused, bool cues, bool active, bool dropTarget)
+    {
+        var cue = new SelectionCue(selected, hovered, focused, cues, active, dropTarget);
+
+        Assert.Equal(SelectionLook.Ink(cue, SelectionLook.Rows), SelectionLook.Ink(cue));
+    }
+
+    [Fact]
+    public void S6627_the_rows_palette_is_the_looks_own_numbers()
+        => Assert.Equal(
+            new SelectionPalette(
+                SelectionLook.HoverFill, SelectionLook.HoverStroke, SelectionLook.SelectedFill, SelectionLook.SelectedStroke,
+                SelectionLook.SelectedHoverFill, SelectionLook.SelectedHoverStroke, SelectionLook.InactiveFill, SelectionLook.InactiveStroke,
+                SelectionLook.InactiveHoverFill, SelectionLook.InactiveHoverStroke, SelectionLook.FocusStroke,
+                Themia.Sdk.Kit.FamilyShape.Radius, Themia.Sdk.Kit.FamilyShape.Hairline),
+            SelectionLook.Rows);
+
+    [Fact]
+    public void S5602_the_desktop_icon_has_a_mark_in_each_of_its_states_from_its_own_palette()
+    {
+        var look = SelectionLook.DesktopIcon;
+        SelectionInk Ink(SelectionCue cue) => SelectionLook.Ink(cue, look);
+
+        // Explorer's desktop washes its icons in white, focused or not; never the highlight colour.
+        Assert.Equal(SelectionTone.Light, look.Tone);
+        Assert.Equal(SelectionTone.Light, look.InactiveTone);
+        Assert.Equal(SelectionLook.White, SelectionLook.Colour(SelectionTone.Light, new RgbColor(1, 2, 3)));
+        Assert.Equal((0.13, 0.27, 0.13), (look.HoverFill, look.SelectedFill, look.InactiveFill));
+        Assert.Equal((look.HoverFill, look.SelectedFill), (look.HoverStroke, look.SelectedStroke));
+
+        Assert.Equal(new SelectionInk(SelectionTone.None, 0, 0), Ink(new SelectionCue(false, false)));
+        Assert.Equal(new SelectionInk(look.Tone, look.HoverFill, look.HoverStroke), Ink(new SelectionCue(false, true)));
+        Assert.Equal(new SelectionInk(look.Tone, look.SelectedFill, look.SelectedStroke), Ink(new SelectionCue(true, false)));
+        Assert.Equal(new SelectionInk(look.Tone, look.SelectedHoverFill, look.SelectedHoverStroke), Ink(new SelectionCue(true, true)));
+        Assert.Equal(new SelectionInk(look.InactiveTone, look.InactiveFill, look.InactiveStroke), Ink(new SelectionCue(true, false, Active: false)));
+        Assert.Equal(new SelectionInk(look.InactiveTone, look.InactiveHoverFill, look.InactiveHoverStroke), Ink(new SelectionCue(true, true, Active: false)));
+        Assert.Equal(new SelectionInk(look.Tone, 0, look.FocusStroke), Ink(new SelectionCue(false, false, Focused: true, Cues: true)));
+        Assert.Equal(new SelectionInk(look.Tone, look.HoverFill, look.FocusStroke), Ink(new SelectionCue(false, true, Focused: true, Cues: true)));
+        Assert.Equal(new SelectionInk(look.Tone, look.SelectedHoverFill, look.SelectedHoverStroke), Ink(new SelectionCue(false, false, DropTarget: true)));
+
+        // Each drawn state is a mark one can see: a fill or a border of it.
+        foreach (var cue in new SelectionCue[] { new(false, true), new(true, false), new(true, true), new(true, false, Active: false), new(false, false, Focused: true, Cues: true), new(false, false, DropTarget: true) })
+        {
+            var ink = Ink(cue);
+            Assert.NotEqual(SelectionTone.None, ink.Tone);
+            Assert.True(ink.Fill > 0 || ink.Stroke > 0);
+            Assert.InRange(ink.Fill, 0, 1);
+            Assert.InRange(ink.Stroke, 0, 1);
+        }
+
+        Assert.True(look.Radius >= 0);
+        Assert.True(look.Border > 0);
+    }
+
+    [Fact]
+    public void S5602_a_palette_of_its_own_numbers_is_what_the_mark_is_drawn_from()
+    {
+        // Tuning the desktop icon's palette never moves the rows': the mark reads the palette it is given.
+        var tuned = SelectionLook.Rows with { SelectedFill = 0.9, SelectedStroke = 0.8, HoverFill = 0.7 };
+
+        Assert.Equal(new SelectionInk(SelectionTone.Highlight, 0.9, 0.8), SelectionLook.Ink(new SelectionCue(true, false), tuned));
+        Assert.Equal(0.7, SelectionLook.Ink(new SelectionCue(false, true), tuned).Fill);
+        Assert.Equal(SelectionLook.SelectedFill, SelectionLook.Ink(new SelectionCue(true, false)).Fill);
     }
 
     // ---- the focus cue ([S-6628]) ---------------------------------------------------------------

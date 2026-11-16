@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "مورد دسکتاپ",
-  "desktopItem.desc": "یک فایل، پوشه یا میان‌بر از دسکتاپ"
+  "widgetsC.shortcuts.column.target": "مقصد",
+  "widgetsC.shortcuts.kind.location": "مکان Windows",
+  "widgetsC.shortcuts.kind.missing": "پیدا نشد",
+  "widgetsC.shortcuts.kind.path": "مسیر",
+  "widgetsC.shortcuts.kind.refused": "مجاز نیست",
+  "widgetsC.shortcuts.menu.addLayout": "چیدمان برنامه‌ها…",
+  "widgetsC.shortcuts.menu.addLink": "نشانی وب یا مسیر…",
+  "widgetsC.shortcuts.menu.changeTarget": "تغییر مقصد…",
+  "widgetsC.shortcuts.settings.locations": "مکان‌های Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "دوبار کلیک",
+  "widgetsC.shortcuts.settings.openWith.label": "باز کردن با",
+  "widgetsC.shortcuts.settings.openWith.single": "یک کلیک",
+  "widgetsC.shortcuts.settings.pick.file": "فایل…",
+  "widgetsC.shortcuts.settings.pick.folder": "پوشه…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (مقصد پیدا نشد)\n{target}"
 }

@@ -125,8 +125,6 @@
     "one": "{count} pencere öğesini sil",
     "other": "{count} pencere öğesini sil"
   },
-  "shell.card.doneEditing": "Düzenlemeyi bitir",
-  "shell.card.editLayout": "Düzeni düzenle",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Ayarla",
   "shell.setup.hint": "Bu pencere öğesinin ihtiyacını ayarla",
   "shell.toolbar.addWidget": "Pencere öğesi ekle",
-  "shell.toolbar.snapName": "Izgaraya yasla",
-  "shell.toolbar.collisionsName": "Pencere öğelerinin üst üste binmesini önle",
   "shell.editBar.selected": {
     "one": "{count} seçili",
     "other": "{count} seçili"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Metin boyutu",
   "shell.appearance.systemFont": "Sistem varsayılanı",
   "shell.appearance.sansFont": "Tırnaksız",
-  "shell.layout.gap": "Pencere öğeleri arasındaki boşluk",
   "shell.motion.slide": "Kaydırma",
   "shell.motion.sides": "Yanlar",
   "shell.motion.topBottom": "Üst ve alt",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Her dakika",
   "shell.refresh.everyHour": "Her saat",
   "shell.color.custom": "Özel renk",
-  "shell.color.pickCustom": "Özel bir renk seçin",
   "shell.color.pickFromScreen": "Ekrandan bir renk seçin",
   "shell.color.pickFailed": "Ekrandaki renkler okunamadı",
   "shell.icon.home": "Ev",

@@ -170,9 +170,21 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         Lay();
     }
 
-    /// <summary>The content box: the view less its inset of 12 on the sides and the foot (the card's is over it).</summary>
+    /// <summary>
+    /// The content box: the view less its inset of 12 on the sides and the foot (the card's is over it).
+    /// [S-12410] In a box larger than its Size's the face climbs one family step at most
+    /// (<see cref="ReadoutSizes.Climb"/>): the box it lays out in is held to its natural box times that,
+    /// the rest is spacing round it (the alignment places it).
+    /// </summary>
     private (double Width, double Height) ContentBox()
-        => (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - FamilySpace.Inset));
+    {
+        var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
+        var natural = ClockFace.Sizing(_config, meridiem).Natural;
+        var climb = ReadoutSizes.Climb(_config.Size);
+        var width = Math.Min(_area.Width, natural.Width * climb) - (2 * FamilySpace.Inset);
+        var height = Math.Min(_area.Height, natural.Height * climb) - FamilySpace.Inset;
+        return (Math.Max(0, width), Math.Max(0, height));
+    }
 
     /// <summary>Plan the face for the area and the style, then draw the instant into it.</summary>
     private void Lay()

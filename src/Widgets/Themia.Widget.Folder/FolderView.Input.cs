@@ -24,20 +24,11 @@ internal sealed partial class FolderView : IWidgetDropTarget
     /// <summary>The item a left press landed on, for its release ([S-6621]).</summary>
     private int? _pressed;
 
-    /// <summary>How the band of the press in flight combines with the selection ([S-6625]).</summary>
-    private BandMode _bandMode;
-
     /// <summary>[S-6626] Whether the widget has the keyboard: a selection without it is drawn inactive.</summary>
     private bool _active;
 
     /// <summary>[S-6412] The item whose empty part was pressed: a click there selects it on release.</summary>
     private int? _blankPress;
-
-    /// <summary>[S-6415] The band's pointer in the scroller's own coordinates, for the edge scroll.</summary>
-    private Point _bandPointer;
-
-    private bool _bandTicking;
-    private TimeSpan? _bandFrame;
 
     private ItemVisual? _dropVisual;
 
@@ -93,7 +84,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
     // ---- pointer --------------------------------------------------------------------------------
 
-    /// <summary>[S-2031] A click in the file area is the widget's (a selection, a band): it never opens the folder over it.</summary>
+    /// <summary>[S-2031] A click in the file area is the widget's (a selection): it never opens the folder over it.</summary>
     private static void OnAreaTapped(object sender, TappedRoutedEventArgs e) => e.Handled = true;
 
     private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
@@ -137,9 +128,9 @@ internal sealed partial class FolderView : IWidgetDropTarget
         _blankPress = null;
         _pressed = null;
 
-        // [S-6412] Only the icon and the name carry the item; the rest of a row or tile starts a band.
+        // [S-6412] Only the icon and the name carry the item; the rest of a row or tile is a click.
         var source = e.OriginalSource as DependencyObject;
-        var press = FolderLasso.Classify(
+        var press = FolderGesture.Classify(
             visual is not null,
             visual is not null && (IsWithin(source, visual.IconBox) || IsWithin(source, visual.Name)));
 
@@ -155,7 +146,6 @@ internal sealed partial class FolderView : IWidgetDropTarget
         else
         {
             _blankPress = visual?.Index;
-            _bandMode = SelectionBand.Mode(ctrl, shift);
             _selection.CancelPress();
             _gesture.BeginPress(point.Position.X, point.Position.Y, press);
         }
@@ -179,38 +169,23 @@ internal sealed partial class FolderView : IWidgetDropTarget
             return;
         }
 
-        switch (_gesture.Move(point.Position.X, point.Position.Y))
+        if (_gesture.Move(point.Position.X, point.Position.Y) == GestureStep.StartDrag)
         {
-            case GestureStep.StartDrag:
-                StartDragOut(_gesture.DragPaths, _gesture.Generation);
-                break;
-
-            case GestureStep.Band:
-                if (_scrollContent.PointerCaptures is not { Count: > 0 })
-                {
-                    _scrollContent.CapturePointer(e.Pointer);
-                    _selection.BeginBand(_bandMode);
-                }
-
-                _blankPress = null;
-                _bandPointer = e.GetCurrentPoint(_scroll).Position;
-                DrawBand(_gesture.BandRect);
-                UpdateBandScroll();
-                break;
+            // The pressed row or tile is the drag's element: its picture is what follows the pointer.
+            UIElement from = _pressed is { } index && index < _visuals.Count ? _visuals[index].Root : _scrollContent;
+            StartDragOut(_gesture.DragPaths, _gesture.Generation, from, e.GetCurrentPoint(from));
         }
     }
 
     private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        var (wasDrag, wasBand) = _gesture.Release();
-        HideBand();
-        _scrollContent.ReleasePointerCaptures();
+        var wasDrag = _gesture.Release();
         var blank = _blankPress;
         var pressed = _pressed;
         _blankPress = null;
         _pressed = null;
 
-        if (wasDrag || wasBand)
+        if (wasDrag)
         {
             _selection.CancelPress();
             return;
@@ -263,7 +238,6 @@ internal sealed partial class FolderView : IWidgetDropTarget
         _selection.CancelPress();
         _pressed = null;
         _blankPress = null;
-        HideBand();
     }
 
     private void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -272,109 +246,6 @@ internal sealed partial class FolderView : IWidgetDropTarget
         {
             e.Handled = true;
             OpenEntry(visual.Entry);
-        }
-    }
-
-    /// <summary>
-    /// [S-1328] Draw the band and select what it covers. The cover is worked out from the layout's
-    /// cells ([S-6414]), so rows the list has not built yet ([S-1887]) are selected too.
-    /// </summary>
-    private void DrawBand(BandRect raw)
-    {
-        var rect = SelectionBand.Clamp(raw, _scrollContent.ActualWidth, _scrollContent.ActualHeight);
-        Canvas.SetLeft(_band, rect.Left);
-        Canvas.SetTop(_band, rect.Top);
-        _band.Width = Math.Max(1, rect.Width);
-        _band.Height = Math.Max(1, rect.Height);
-        _band.Visibility = Visibility.Visible;
-
-        // A cell's slot is its pitch: the 4 between two marks counts to the cell before it.
-        var (columns, cellWidth, cellHeight) = _plan?.Grid is { } grid
-            ? (Math.Max(1, grid.Columns), grid.PitchX, grid.PitchY)
-            : (1, _items.ActualWidth, FolderLayout.RowHeight);
-
-        _selection.Band(SelectionBand.GridHits(rect, _shown.Count, columns, cellWidth, cellHeight));
-        RefreshSelectionVisuals();
-    }
-
-    private void HideBand()
-    {
-        _band.Visibility = Visibility.Collapsed;
-        _selection.EndBand();
-        StopBandScroll();
-    }
-
-    // ---- the band's edge scroll ([S-6415]) ------------------------------------------------------
-
-    /// <summary>Run the frame tick only while the band's pointer is in an edge zone; stop it otherwise.</summary>
-    private void UpdateBandScroll()
-    {
-        var scrolls = _gesture.BandWasActive && _gesture.Pressed
-            && FolderLasso.ScrollVelocity(_bandPointer.Y, _scroll.ActualHeight) != 0;
-
-        if (scrolls && !_bandTicking)
-        {
-            _bandTicking = true;
-            _bandFrame = null;
-            CompositionTarget.Rendering += OnBandFrame;
-        }
-        else if (!scrolls)
-        {
-            StopBandScroll();
-        }
-    }
-
-    private void StopBandScroll()
-    {
-        if (_bandTicking)
-        {
-            _bandTicking = false;
-            CompositionTarget.Rendering -= OnBandFrame;
-        }
-    }
-
-    /// <summary>One frame of edge scroll: move the list, then stretch the band to where the pointer now is over the content.</summary>
-    private void OnBandFrame(object? sender, object args)
-    {
-        try
-        {
-            if (_detached || !_gesture.Pressed)
-            {
-                StopBandScroll();
-                return;
-            }
-
-            var now = (args as RenderingEventArgs)?.RenderingTime ?? TimeSpan.Zero;
-            var seconds = _bandFrame is { } last ? (now - last).TotalSeconds : 0;
-            _bandFrame = now;
-
-            var velocity = FolderLasso.ScrollVelocity(_bandPointer.Y, _scroll.ActualHeight);
-            if (velocity == 0)
-            {
-                StopBandScroll();
-                return;
-            }
-
-            var from = _scroll.VerticalOffset;
-            var to = FolderLasso.Step(from, velocity, seconds, _scroll.ScrollableHeight);
-
-            if (to != from)
-            {
-                _scroll.ChangeView(null, to, null, disableAnimation: true);
-            }
-
-            // The transform still has this frame's offset; the content point is where the new one puts it.
-            var at = _scroll.TransformToVisual(_scrollContent).TransformPoint(_bandPointer);
-            if (_gesture.Move(at.X, at.Y + (to - from)) == GestureStep.Band)
-            {
-                DrawBand(_gesture.BandRect);
-            }
-        }
-        catch (Exception ex)
-        {
-            // A frame callback: nothing may escape to the compositor.
-            StopBandScroll();
-            Themia.Core.Diagnostics.Log.Error(Scope, "the band's edge scroll failed", ex);
         }
     }
 
@@ -517,7 +388,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
             case WidgetKey.CopyAsPath:
                 // [S-6417] Explorer's Ctrl+Shift+C: the selection's paths, quoted, or nothing with none.
-                CopyPaths(_selection.Selected);
+                FileMenuEntries.CopyAsPath(_selection.Selected);
                 return true;
 
             case WidgetKey.Properties:
@@ -590,7 +461,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     private bool MoveCursor(WidgetKey key)
     {
         var columns = _plan?.Grid?.Columns ?? 1;
-        var row = _plan?.Grid?.PitchY ?? FolderLayout.RowHeight;
+        var row = _plan?.Grid?.PitchY ?? _rowPitch;
         var pageRows = Math.Max(1, (int)(_scroll.ViewportHeight / Math.Max(1, row)));
 
         if (!_selection.Key(key, ShiftDown(), columns, pageRows))
@@ -624,39 +495,82 @@ internal sealed partial class FolderView : IWidgetDropTarget
     // ---- drag out -------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-1332] Hand the dragged items to an OLE drag. Posted, not run inside the pointer handler: OLE's
-    /// modal loop must not nest in XAML's input dispatch. The gesture's generation is checked when it
-    /// runs, so a release in between cancels it rather than starting a drag with the button up.
+    /// [S-1332] Drag the items out as XAML's own drag (<see cref="ItemDrag"/>), started here, inside
+    /// the pointer handler, with that event's pointer: a drag loop started after it never saw the mouse
+    /// until the button was let go. The gesture's generation is checked first, so a release before the
+    /// start cancels it rather than starting a drag with the button up.
     /// </summary>
-    private void StartDragOut(IReadOnlyList<string> paths, int generation)
+    private void StartDragOut(IReadOnlyList<string> paths, int generation, UIElement from, Microsoft.UI.Input.PointerPoint point)
     {
-        if (paths.Count == 0 || DispatcherQueue is not { } queue)
+        if (paths.Count == 0 || _detached || generation != _gesture.Generation)
         {
             return;
         }
 
         _selection.CancelPress();
+        _ = DragOutAsync(new ItemDragOffer(paths, DropEffect.Copy | DropEffect.Move | DropEffect.Link), generation, from, point);
+    }
 
-        queue.TryEnqueue(() =>
+    /// <summary>The drag itself, to its drop or its cancel. The gesture is reset when it ends, unless a press since then owns it.</summary>
+    private async Task DragOutAsync(ItemDragOffer offer, int generation, UIElement from, Microsoft.UI.Input.PointerPoint point)
+    {
+        try
         {
-            if (_detached || generation != _gesture.Generation)
-            {
-                return;
-            }
-
-            try
-            {
-                _widgetHost.FileOps.DragOut(paths, DropEffect.Copy | DropEffect.Move | DropEffect.Link, Window());
-            }
-            catch (Exception ex)
-            {
-                Themia.Core.Diagnostics.Log.Error(DropScope, "the drag failed", ex);
-            }
-            finally
+            var effect = await ItemDrag.StartAsync(from, point, offer, () => DragOutGhost(offer.Paths, from, point));
+            Themia.Core.Diagnostics.Log.Debug(DropScope, $"a drag of {offer.Paths.Count} item(s) out of the folder ended: {effect}");
+        }
+        catch (Exception ex)
+        {
+            Themia.Core.Diagnostics.Log.Error(DropScope, "the drag failed", ex);
+        }
+        finally
+        {
+            if (generation == _gesture.Generation)
             {
                 _gesture.Release();
             }
-        });
+        }
+    }
+
+    /// <summary>
+    /// [S-1332] [S-5564] What the drag out shows under the pointer, as Explorer's: the pressed item's icon
+    /// (the bitmap its row or tile already shows, a photo's thumbnail included) in front, up to two more
+    /// of the dragged items' icons stacked behind it, and for several the number of dragged items in a
+    /// badge; never a name. Composed at once from pixels the view holds (<see cref="ItemDrag.Ghost"/>).
+    /// Null while the pressed item still shows its glyph: the drag then shows the row or tile itself.
+    /// </summary>
+    private DragPicture? DragOutGhost(IReadOnlyList<string> paths, UIElement from, Microsoft.UI.Input.PointerPoint point)
+    {
+        if (_pressed is not { } index || index >= _visuals.Count)
+        {
+            return null;
+        }
+
+        var pressed = _visuals[index];
+        if (pressed.IconBox is not { ActualWidth: > 0, ActualHeight: > 0 } box || ItemDrag.IconOf(pressed.Image.Source) is not { } front)
+        {
+            return null;
+        }
+
+        var icons = new List<GhostIcon> { front };
+        var dragged = new HashSet<string>(paths, StringComparer.OrdinalIgnoreCase);
+        foreach (var visual in _visuals)
+        {
+            if (icons.Count >= DragGhost.MaxShown)
+            {
+                break;
+            }
+
+            if (!ReferenceEquals(visual, pressed) && dragged.Contains(visual.Entry.FullPath) && ItemDrag.IconOf(visual.Image.Source) is { } other)
+            {
+                icons.Add(other);
+            }
+        }
+
+        // As drawn on the surface: through the card's content scale ([S-850]).
+        var square = box.TransformToVisual(null).TransformBounds(new Rect(0, 0, box.ActualWidth, box.ActualHeight));
+        var pointer = from.TransformToVisual(null).TransformPoint(point.Position);
+        return ItemDrag.Ghost(icons, paths.Count, square.Width, new Point(pointer.X - square.X, pointer.Y - square.Y), XamlRoot?.RasterizationScale ?? 1.0);
     }
 
     // ---- drop in --------------------------------------------------------------------------------

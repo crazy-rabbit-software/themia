@@ -71,4 +71,52 @@ public sealed class WidgetSizingTests
 
         Assert.NotEmpty(unbounded.Problems());
     }
+
+    [Fact]
+    public void S12411_a_relaxed_range_grows_its_max_to_the_natural_times_its_room_and_keeps_min_and_natural()
+    {
+        var relaxed = SizeStretch.Relax(Meter);
+
+        Assert.Equal((Meter.Min, Meter.Natural), (relaxed.Min, relaxed.Natural));
+        Assert.Equal(new SizeDip(480, 288), relaxed.Max);   // 220 x 2 = 440 under the stated 480; 144 x 2 = 288
+        Assert.Empty(relaxed.Problems());
+
+        var picture = SizeStretch.Relax(Meter with { Room = StretchRoom.Picture });
+        Assert.Equal(new SizeDip(660, 432), picture.Max);
+    }
+
+    [Fact]
+    public void S12411_a_fixed_axis_is_relaxed_too_and_the_list_room_widens_most_in_width()
+    {
+        var reading = SizeStretch.Relax(WidgetSizing.Range(new(120, 84), new(160, 84), new(480, 84)));
+        Assert.Equal(new SizeDip(480, 168), reading.Max);
+        Assert.False(reading.FixedHeight);
+
+        var list = SizeStretch.Relax(WidgetSizing.Range(new(220, 1), new(300, 1), new(520, 1)) with { Room = StretchRoom.List });
+        Assert.Equal(752, list.Max.Width);
+    }
+
+    [Fact]
+    public void S12411_a_stepped_axis_keeps_its_steps_and_no_room_keeps_its_size()
+    {
+        var rows = new SizeSteps(48, 28, 1, 20, 6);
+        var stepped = WidgetSizing.Range(new(220, 1), new(300, 1), new(520, 1)).WithHeightSteps(rows);
+        Assert.Equal(stepped.Max.Height, SizeStretch.Relax(stepped).Max.Height);
+        Assert.Empty(SizeStretch.Relax(stepped).Problems());
+
+        var icon = WidgetSizing.Fixed(new(76, 100)) with { Room = StretchRoom.None };
+        Assert.Same(icon, SizeStretch.Relax(icon));
+    }
+
+    [Fact]
+    public void S12411_the_relaxed_max_is_bounded_never_lowers_a_stated_one_and_relaxing_twice_is_once()
+    {
+        var big = WidgetSizing.Range(new(400, 400), new(900, 800), new(1000, 900)) with { Room = StretchRoom.Picture };
+        Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), SizeStretch.Relax(big).Max);
+
+        var stated = WidgetSizing.Range(new(100, 100), new(100, 100), new(1600, 1600));
+        Assert.Equal(stated.Max, SizeStretch.Relax(stated).Max);
+
+        Assert.Equal(SizeStretch.Relax(Meter), SizeStretch.Relax(SizeStretch.Relax(Meter)));
+    }
 }

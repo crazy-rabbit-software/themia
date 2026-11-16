@@ -125,8 +125,6 @@
     "one": "{count} ዊጀት ሰርዝ",
     "other": "{count} ዊጀቶችን ሰርዝ"
   },
-  "shell.card.doneEditing": "ማርትዕ ተጠናቋል",
-  "shell.card.editLayout": "አቀማመጥ አርትዕ",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "አዘጋጅ",
   "shell.setup.hint": "ይህ ዊጀት የሚያስፈልገውን ያዘጋጁ",
   "shell.toolbar.addWidget": "ዊጀት አክል",
-  "shell.toolbar.snapName": "ከፍርግርግ ጋር አጣብቅ",
-  "shell.toolbar.collisionsName": "ምግብሮች እንዳይደራረቡ ከልክል",
   "shell.editBar.selected": {
     "one": "{count} ተመርጧል",
     "other": "{count} ተመርጠዋል"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "የጽሑፍ መጠን",
   "shell.appearance.systemFont": "የሥርዓት ነባሪ",
   "shell.appearance.sansFont": "ሳንስ ሰሪፍ",
-  "shell.layout.gap": "በዊጀቶች መካከል ያለ ክፍተት",
   "shell.motion.slide": "ተንሸራተት",
   "shell.motion.sides": "ጎኖች",
   "shell.motion.topBottom": "ላይና ታች",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "በየደቂቃው",
   "shell.refresh.everyHour": "በየሰዓቱ",
   "shell.color.custom": "ብጁ ቀለም",
-  "shell.color.pickCustom": "ብጁ ቀለም ይምረጡ",
   "shell.color.pickFromScreen": "ከማያ ገጹ ቀለም ይምረጡ",
   "shell.color.pickFailed": "በማያ ገጹ ላይ ያሉትን ቀለሞች ማንበብ አልተቻለም",
   "shell.icon.home": "ቤት",

@@ -14,8 +14,8 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-3560] ⚙ › Accounts open on the stand-in display over three stand-in accounts (a Microsoft one
 /// with numbers, a mail server that needs signing in again, a calendar server): <c>-accounts</c>,
-/// <c>-account</c> (one account's submenu), <c>-account-again</c> (the one needing a sign-in),
-/// <c>-signout</c> (its "are you sure?" level), <c>-add</c> (Add account ›),
+/// <c>-account</c> (one account's card opened), <c>-account-again</c> (the one needing a sign-in),
+/// <c>-signout</c> (its Sign out's "are you sure?" page), <c>-add</c> (Add an account),
 /// <c>-signin</c> (Microsoft's browser sign-in waiting, Cancel under it), <c>-imap</c> (the mail
 /// server's form, empty: Test and Add greyed with what is missing), <c>-imap-filled</c> (the address,
 /// the password as bullets, the server set by hand), <c>-imap-address</c> (the address's field level),
@@ -37,7 +37,7 @@ internal static partial class EditBarRender
             ("-accounts", null, null, null),
             ("-account", ms, null, null),
             ("-account-again", imap, null, null),
-            ("-signout", ms, ms + "/signout", null),
+            ("-signout", ms, "<tool>" + ms + "|0", null),
             ("-add", add, null, null),
             ("-signin", add, add + "/microsoft", null),
             ("-imap", add + "/imap", null, null),
@@ -70,7 +70,16 @@ internal static partial class EditBarRender
             var host = new RenderSettingsHost { Accounts = accounts };
             await SettingsShot(screen, outDir, theme, "accounts" + (name == "-accounts" ? string.Empty : name), host, open, view =>
             {
-                if (click is not null && !view.DebugClick(click))
+                // [S-2312] An account's Sign out is an icon button at its card's head's end.
+                if (click is not null && click.StartsWith("<tool>", StringComparison.Ordinal))
+                {
+                    var (row, tool) = (click[6..].Split('|')[0], int.Parse(click.Split('|')[1], System.Globalization.CultureInfo.InvariantCulture));
+                    if (!view.DebugTool(row, tool))
+                    {
+                        Console.WriteLine($"editbar: no tool {tool} on {row}");
+                    }
+                }
+                else if (click is not null && !view.DebugClick(click))
                 {
                     Console.WriteLine($"editbar: no line {click} to click");
                 }

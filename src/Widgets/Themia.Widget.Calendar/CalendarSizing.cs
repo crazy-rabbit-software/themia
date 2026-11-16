@@ -86,28 +86,54 @@ public static class CalendarSizing
     /// <summary>[S-11544] The weeks a month shows: six, so every month is one height (its own weeks and the next days, dimmed).</summary>
     public const int MonthWeeks = 6;
 
-    /// <summary>[S-11544] The chip lines a chips cell holds under its number.</summary>
-    public const int MonthChipLines = 2;
+    /// <summary>[S-11547] A day cell with titles: its padding and its number's line, over which the chip lines go.</summary>
+    public static double MonthNumberLine => CalendarFit.MonthCellChrome + FamilyType.Caption.LineHeight;
 
-    /// <summary>[S-11544] A month cell's height: its number over two chip lines, or over a dot (a row of the family's).</summary>
-    public static double MonthCell(MonthEvents events)
+    /// <summary>[S-11547] A column of the month with titles: at least this wide (a title's first letters).</summary>
+    public const double MonthTitleColumn = 56;
+
+    /// <summary>[S-11547] A new month with titles' column: wide enough for a chip's start time (<see cref="CalendarFit.ChipTimeFrom"/>).</summary>
+    public const double MonthNaturalColumn = CalendarFit.ChipTimeFrom;
+
+    /// <summary>[S-11547] The widest a month with titles' column grows.</summary>
+    public const double MonthWidestColumn = 180;
+
+    /// <summary>[S-11544] [S-11547] A month cell's height: its number over the config's chip lines, or over a dot (a row of the family's).</summary>
+    public static double MonthCell(MonthEvents events, int lines = MonthPlan.DefaultLines)
         => events == MonthEvents.Chips
-            ? CalendarFit.MonthCellChrome + FamilyType.Caption.LineHeight + (MonthChipLines * CalendarFit.ChipLine)
+            ? MonthNumberLine + (MonthPlan.Lines(lines) * CalendarFit.ChipLine)
             : FamilyShape.Row1;
 
-    /// <summary>[S-11544] What a month grid <paramref name="innerWidth"/> wide (the card less its inset) draws: six weeks, the config's look.</summary>
-    public static MonthFit Month(MonthEvents events, double innerWidth)
+    /// <summary>[S-11544] [S-11547] What a month grid <paramref name="innerWidth"/> wide (the card less its inset) draws: six weeks, the config's look and lines.</summary>
+    public static MonthFit Month(MonthEvents events, double innerWidth, int lines = MonthPlan.DefaultLines)
     {
         var column = Math.Max(0, innerWidth) / 7;
         var chips = events == MonthEvents.Chips;
-        return new MonthFit(MonthWeeks, CalendarFit.Weekdays(column), FamilyType.Caption.LineHeight, MonthCell(events),
-            chips ? MonthDensity.Chips : MonthDensity.Dots, chips ? MonthChipLines : 0, CalendarFit.ChipLine, chips && column >= CalendarFit.ChipTimeFrom, false);
+        return new MonthFit(MonthWeeks, CalendarFit.Weekdays(column), FamilyType.Caption.LineHeight, MonthCell(events, lines),
+            chips ? MonthDensity.Chips : MonthDensity.Dots, chips ? MonthPlan.Lines(lines) : 0, CalendarFit.ChipLine, chips && column >= CalendarFit.ChipTimeFrom, false);
     }
 
-    /// <summary>[S-11544] The month: 260..420 wide (a new one 300), its weekday letters and six weeks of the config's cells.</summary>
-    public static WidgetSizing MonthSizing(MonthEvents events)
+    /// <summary>[S-11547] The month with titles' height steps: the header, the weekday line, six number lines, a chip line a week a step, the inset.</summary>
+    public static SizeSteps MonthLineSteps(int lines)
+        => new(FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthNumberLine) + FamilySpace.Inset,
+            MonthWeeks * CalendarFit.ChipLine, MonthPlan.MinLines, MonthPlan.MaxLines, MonthPlan.Lines(lines));
+
+    /// <summary>
+    /// [S-11544] The month with dots: 260..420 wide (a new one 300), its weekday letters and six weeks of 28.
+    /// [S-11547] With titles: seven columns of 56..180 (a new one 100, where a chip leads with its time), the
+    /// height its lines', dragging the bottom edge sets them.
+    /// </summary>
+    public static WidgetSizing MonthSizing(CalendarWidgetConfig config)
     {
-        var height = FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthCell(events)) + FamilySpace.Inset;
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.MonthEvents == MonthEvents.Chips)
+        {
+            static double Wide(double column) => (2 * FamilySpace.Inset) + (7 * column);
+            return WidgetSizing.Range(new(Wide(MonthTitleColumn), 1), new(Wide(MonthNaturalColumn), 1), new(Wide(MonthWidestColumn), 1))
+                .WithHeightSteps(MonthLineSteps(config.MonthLines));
+        }
+
+        var height = FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthCell(MonthEvents.Dots)) + FamilySpace.Inset;
         return WidgetSizing.Range(new(260, height), new(300, height), new(420, height));
     }
 
@@ -166,7 +192,7 @@ public static class CalendarSizing
             CalendarStyle.Year => YearSizing(config.YearSize),
             CalendarStyle.Day => DaySizing(config.DayHours),
             CalendarStyle.Week => WeekSizing(config),
-            _ => MonthSizing(config.MonthEvents),
+            _ => MonthSizing(config),
         };
     }
 
@@ -185,6 +211,7 @@ public static class CalendarSizing
             CalendarStyle.Day => Counted(calendar, DaySteps(calendar.DayHours).Nearest(size.Height), calendar.DayHours, (c, n) => c.DayHours = n),
             CalendarStyle.Week when calendar.WeekTitles => Counted(calendar, WeekHourSteps(calendar.WeekHours).Nearest(size.Height), calendar.WeekHours, (c, n) => c.WeekHours = n),
             CalendarStyle.Week => Counted(calendar, WeekRowSteps(calendar.WeekRows).Nearest(size.Height), calendar.WeekRows, (c, n) => c.WeekRows = n),
+            CalendarStyle.Month when calendar.MonthEvents == MonthEvents.Chips => Counted(calendar, MonthLineSteps(calendar.MonthLines).Nearest(size.Height), calendar.MonthLines, (c, n) => c.MonthLines = n),
             _ => config,
         };
     }

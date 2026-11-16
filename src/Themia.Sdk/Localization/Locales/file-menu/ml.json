@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "മറ്റൊരു ആപ്പ് തിരഞ്ഞെടുക്കുക",
+  "folderMenu.compressToZip": "ZIP ഫയലിലേക്ക് കംപ്രസ് ചെയ്യുക",
+  "folderMenu.copyAsPath": "പാതയായി പകർത്തുക",
+  "folderMenu.openInNewWindow": "പുതിയ വിൻഡോയിൽ തുറക്കുക",
+  "folderMenu.openWith": "ഇത് ഉപയോഗിച്ച് തുറക്കുക",
+  "folderMenu.pinToQuickAccess": "ദ്രുത ആക്സസിൽ പിൻ ചെയ്യുക",
+  "folderMenu.pinToStart": "ആരംഭ മെനുവിൽ പിൻ ചെയ്യുക",
+  "folderMenu.share": "പങ്കിടുക",
+  "folder.properties": "പ്രോപ്പർട്ടികൾ",
+  "widgetsB.folder.freeUpSpace": "ഇടം ഒഴിവാക്കുക",
+  "widgetsB.folder.keepOnDevice": "എപ്പോഴും ഈ ഉപകരണത്തിൽ സൂക്ഷിക്കുക",
+  "widgetsB.folder.moreOptions": "കൂടുതൽ ഓപ്ഷനുകൾ കാണിക്കുക",
+  "widgetsB.folder.new": "പുതിയത്",
+  "ctxMenu.folder": "ഫോൾഡർ"
+}

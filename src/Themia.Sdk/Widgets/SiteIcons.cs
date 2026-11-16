@@ -1,6 +1,6 @@
 namespace Themia.Core.Widgets;
 
-/// <summary>[S-1304] A site's own icon, as the feed rows and the shortcuts' web tiles both ask for it.</summary>
+/// <summary>[S-1304] A site's own icon, as the feed rows and a shortcut to a web address both ask for it.</summary>
 public static class SiteIcons
 {
     /// <summary>

@@ -15,7 +15,7 @@ public enum ShellCommand
     Copy,
     Paste,
 
-    /// <summary>Enter edit mode, or leave it ("Done editing").</summary>
+    /// <summary>[S-65] Enter edit mode ("Unlock widgets"), or leave it ("Lock widgets").</summary>
     ToggleEditMode,
 
     Delete,
@@ -85,7 +85,7 @@ public readonly record struct CardMenuFacts(
     bool CanLeaveGroup = false);
 
 /// <summary>What the empty-surface menu depends on.</summary>
-/// <param name="EditMode">Whether the desktop is in edit mode; outside it empty surface is click-through.</param>
+/// <param name="EditMode">Whether the desktop is in edit mode; outside it empty surface is the desktop, whose own background menu opens ([S-5548]).</param>
 /// <param name="Placing">A placement is under way: then a right-click cancels it ([S-1587]) and opens nothing.</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
 /// <param name="HasWidgets">The display shows at least one widget.</param>
@@ -159,7 +159,7 @@ public static class ShellMenus
     /// <summary>
     /// [S-1744] The menu of empty surface, in edit mode and not while placing: what is done there —
     /// Add widget (the picker at the click), Paste and Select all — then the ways into the bar's menus
-    /// in the bar's order (Display, View, Settings: each under its button), then Done editing. An
+    /// in the bar's order (Display, View, Settings: each under its button), then Lock widgets. An
     /// action menu: it holds no setting ([S-3590]; Snap is the bar's alone, [S-3516]). A list alone,
     /// as Windows' own desktop menu is: Paste is the only icon-row command, and one icon is no row
     /// ([S-1741]). Outside edit mode, or while placing, there is none.
@@ -234,6 +234,16 @@ public static class CardGestures
     /// a row's, a button's or an item menu's.
     /// </summary>
     public static bool ContentTakesInput(bool editMode) => !editMode;
+
+    /// <summary>
+    /// [S-2008] Whether a left press on a card of the locked desktop that travels past
+    /// <see cref="DragThreshold"/> moves the card (and the selection it is in, [S-11879]): on a real desktop
+    /// card whose view does not drag its own content (<paramref name="ownsDrags"/>). The move never turns
+    /// edit mode on: there is no other outcome (owner, 2026-11-15: "when dragging widgets it goes into full
+    /// edit mode, i dont want that").
+    /// </summary>
+    public static bool MovesLocked(bool editMode, bool preview, bool leftButton, bool ownsDrags)
+        => !editMode && !preview && leftButton && !ownsDrags;
 
     /// <summary>
     /// [S-2000] Whether a click on the card (one no child of the view took) opens what the widget is

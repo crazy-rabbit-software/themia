@@ -17,7 +17,7 @@ public sealed class FillChoiceTests
 {
     private static WidgetInstance Widget(string id, FillChoice? items = null, WidgetId? kind = null)
     {
-        var widget = WidgetInstance.Create(kind ?? new WidgetId("shortcuts"), new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(kind ?? new WidgetId("folder"), new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.ItemBackground = items ?? new FillChoice();
         return widget;
@@ -288,26 +288,29 @@ public sealed class FillChoiceTests
     {
         Assert.Equal(FillKind.Default, DesignPresets.Get(DesignPresetId.Default).Values.Background.Kind);
 
-        // [S-2121] Glass is a colour with an opacity over the frost; its items keep the Fluent fills.
-        var glass = DesignPresets.Get(DesignPresetId.Glass).Values;
-        Assert.True(FillChoice.Of("#1B2030", 0.50).SameAs(glass.Background));
-        Assert.Equal(FillKind.Default, (glass.Items ?? new FillChoice()).Kind);
+        // [S-2122] Acrylic is a colour with an opacity over the frost; its items keep the Fluent fills.
+        var acrylic = DesignPresets.Get(DesignPresetId.Acrylic).Values;
+        Assert.True(FillChoice.Of("#2C2C2C", 0.75).SameAs(acrylic.Background));
+        Assert.Equal(FillKind.Default, (acrylic.Items ?? new FillChoice()).Kind);
 
-        Assert.True(FillChoice.Of("#0B0B0F", 1).SameAs(DesignPresets.Get(DesignPresetId.Midnight).Values.Background));
-        Assert.True(FillChoice.Of("#FAF7F0", 1).SameAs(DesignPresets.Get(DesignPresetId.Paper).Values.Background));
+        Assert.True(FillChoice.Of("#121214", 1).SameAs(DesignPresets.Get(DesignPresetId.Midnight).Values.Background));
+        Assert.True(FillChoice.Of("#FAF6EE", 1).SameAs(DesignPresets.Get(DesignPresetId.Paper).Values.Background));
+
+        // [S-2123] Liquid glass's Default is the glass's own tint.
+        Assert.Equal(FillKind.Default, DesignPresets.Get(DesignPresetId.LiquidGlass).Values.Background.Kind);
     }
 
     [Fact]
     public void S6565_applying_a_preset_writes_copies_never_the_template()
     {
         var design = new DesignState();
-        DesignPresets.Apply(design, DesignPresetId.Glass);
+        DesignPresets.Apply(design, DesignPresetId.Acrylic);
 
         design.Background.Opacity = 0.1;
         design.ItemBackground.Kind = FillKind.Transparent;
 
-        Assert.Equal(0.50, DesignPresets.Get(DesignPresetId.Glass).Values.Background.Opacity, 3);
-        Assert.Equal(FillKind.Default, (DesignPresets.Get(DesignPresetId.Glass).Values.Items ?? new FillChoice()).Kind);
+        Assert.Equal(0.75, DesignPresets.Get(DesignPresetId.Acrylic).Values.Background.Opacity, 3);
+        Assert.Equal(FillKind.Default, (DesignPresets.Get(DesignPresetId.Acrylic).Values.Items ?? new FillChoice()).Kind);
         Assert.Null(DesignPresets.Match(design));
     }
 
@@ -316,8 +319,8 @@ public sealed class FillChoiceTests
     {
         var design = new DesignState();
 
-        DesignPresets.Apply(design, DesignPresetId.Glass);
-        Assert.Equal(DesignPresetId.Glass, DesignPresets.Match(design));
+        DesignPresets.Apply(design, DesignPresetId.Acrylic);
+        Assert.Equal(DesignPresetId.Acrylic, DesignPresets.Match(design));
 
         design.ItemBackground = FillChoice.Of("#2A3248", 0.2);
         Assert.Null(DesignPresets.Match(design));

@@ -139,15 +139,15 @@ public sealed class LicensingTests
         view.Widgets.Add(second);
 
         var screen = new ScreenMetrics(1920, 1080);
-        var copyPaste = PlacementPayload.FromView(view, [first.Id, second.Id], PlacementMode.Copy)!.Plan(0.5, 0.5, screen, snapEnabled: false);
+        var copyPaste = PlacementPayload.FromView(view, [first.Id, second.Id], PlacementMode.Copy)!.Plan(0.5, 0.5, screen);
         Assert.Equal(2, LicenseUsage.AddedByPaste(state, copyPaste));
 
         var move = PlacementPayload.FromView(view, [first.Id, second.Id], PlacementMode.Move)!;
-        Assert.Equal(0, LicenseUsage.AddedByPaste(state, move.Plan(0.5, 0.5, screen, snapEnabled: false)));
+        Assert.Equal(0, LicenseUsage.AddedByPaste(state, move.Plan(0.5, 0.5, screen)));
 
         // The cut original was deleted meanwhile: the paste adds it back, and counts.
         view.Widgets.Clear();
-        var orphanCut = move.Plan(0.5, 0.5, screen, snapEnabled: false);
+        var orphanCut = move.Plan(0.5, 0.5, screen);
         Assert.Equal(2, LicenseUsage.AddedByPaste(state, orphanCut));
     }
 

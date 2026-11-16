@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Ohun ojú-iṣẹ́",
-  "desktopItem.desc": "Fáìlì, fódà tàbí ọ̀nà àbùjá láti ojú-iṣẹ́ rẹ"
+  "widgetsC.shortcuts.column.target": "Ibi àfojúsùn",
+  "widgetsC.shortcuts.kind.location": "Ibi Windows",
+  "widgetsC.shortcuts.kind.missing": "Kò sí mọ́",
+  "widgetsC.shortcuts.kind.path": "Ipa ọ̀nà",
+  "widgetsC.shortcuts.kind.refused": "Kò gbà láàyè",
+  "widgetsC.shortcuts.menu.addLayout": "Ìtò áàpù…",
+  "widgetsC.shortcuts.menu.addLink": "Àdírẹ́sì wẹ́ẹ̀bù tàbí ipa ọ̀nà…",
+  "widgetsC.shortcuts.menu.changeTarget": "Yí ibi àfojúsùn padà…",
+  "widgetsC.shortcuts.settings.locations": "Àwọn ibi Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Títẹ̀ lẹ́ẹ̀mejì",
+  "widgetsC.shortcuts.settings.openWith.label": "Ṣí pẹ̀lú",
+  "widgetsC.shortcuts.settings.openWith.single": "Títẹ̀ lẹ́ẹ̀kan",
+  "widgetsC.shortcuts.settings.pick.file": "Fáìlì…",
+  "widgetsC.shortcuts.settings.pick.folder": "Fódà…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ibi àfojúsùn kò sí)\n{target}"
 }

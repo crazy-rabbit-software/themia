@@ -96,11 +96,11 @@ public sealed class WidgetSizingTests
         var config = new TasksConfig { Rows = 6 };
         var five = new FracRect(0.1, 0.1, 0.3, (36 + (5 * 28) + 28 + 12) / 1000.0);
 
-        var next = SizeFit.ConfigFor(config, five, Screen, scale: 1, gapPx: 0, HeaderPlacement.Top);
+        var next = SizeFit.ConfigFor(config, five, Screen, scale: 1, HeaderPlacement.Top, limits: null);
 
         Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
         Assert.Equal(6, config.Rows);
-        Assert.Same(config, SizeFit.ConfigFor(config, five with { H = (36 + (6 * 28) + 28 + 12) / 1000.0 }, Screen, 1, 0, HeaderPlacement.Top));
+        Assert.Same(config, SizeFit.ConfigFor(config, five with { H = (36 + (6 * 28) + 28 + 12) / 1000.0 }, Screen, 1, HeaderPlacement.Top, limits: null));
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public sealed class WidgetSizingTests
         var config = new TasksConfig { Rows = 6 };
         var fiveHeaderless = new FracRect(0.1, 0.1, 0.3, (12 + (5 * 28) + 28 + 12) / 1000.0);
 
-        var next = SizeFit.ConfigFor(config, fiveHeaderless, Screen, 1, 0, HeaderPlacement.Hidden);
+        var next = SizeFit.ConfigFor(config, fiveHeaderless, Screen, 1, HeaderPlacement.Hidden, limits: null);
         Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
     }
 
@@ -154,11 +154,11 @@ public sealed class WidgetSizingTests
         var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, (36 + (6 * 28) + 28 + 12) / 1000.0));
         ((TasksConfig)widget.Config).Rows = 3;
 
-        Assert.True(SizeFit.Refit(widget, Screen, 1, 0));
+        Assert.True(SizeFit.Refit(widget, Screen, 1));
         Assert.Equal(0.2, widget.Rect.X, 9);
         Assert.Equal(0.2, widget.Rect.Y, 9);
         Assert.Equal((36 + (3 * 28) + 28 + 12) / 1000.0, widget.Rect.H, 9);
-        Assert.False(SizeFit.Refit(widget, Screen, 1, 0));
+        Assert.False(SizeFit.Refit(widget, Screen, 1));
     }
 
     [Fact]
@@ -194,11 +194,46 @@ public sealed class WidgetSizingTests
         var (small, medium, large) = (At(ReadoutSize.Small, ClockStyle.Digital), At(ReadoutSize.Medium, ClockStyle.Digital), At(ReadoutSize.Large, ClockStyle.Digital));
         Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
         Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
-        Assert.True(medium.FixedHeight && !medium.FixedWidth);
+        Assert.True(medium.Min.Height == medium.Natural.Height && !medium.FixedWidth);
 
+        // [S-12411] Relaxed: the box grows to twice the number's, the number stays its Size.
+        Assert.Equal(SizeStretch.Axis(medium.Natural.Height, 0, null, 2), medium.Max.Height);
         var dial = At(ReadoutSize.Medium, ClockStyle.Analog);
-        Assert.True(dial.FixedHeight && dial.FixedWidth);
+        Assert.Equal(dial.Min, dial.Natural);
+        Assert.Equal(new SizeDip(SizeStretch.Axis(dial.Natural.Width, 0, null, 2), SizeStretch.Axis(dial.Natural.Height, 0, null, 2)), dial.Max);
         Assert.Equal(ReadoutSize.Medium, new ClockConfig().Size);
         Assert.Equal(ReadoutSize.Large, ((ClockConfig)new ClockConfig { Size = ReadoutSize.Large }.Clone()).Size);
     }
+
+    [Theory]
+    [MemberData(nameof(Kinds))]
+    public void S12411_every_kind_may_grow_past_its_natural_by_its_room_on_every_axis_its_config_does_not_step(string id)
+    {
+        var kind = ModuleCatalog.Of(new WidgetId(id));
+        foreach (var config in Configs(kind))
+        {
+            var sizing = kind.Sizing(config);
+            if (sizing.Room == StretchRoom.None)
+            {
+                // Only a size that is not the content's to give (the desktop icon's cell).
+                Assert.Equal("desktopItem", id);
+                continue;
+            }
+
+            void Axis(string name, double natural, double max, SizeSteps? steps, bool width)
+            {
+                if (steps is not null)
+                {
+                    return;
+                }
+
+                var least = Math.Min(SizeStretch.Ceiling, natural * SizeStretch.Factor(sizing.Room, width));
+                Assert.True(max >= least - 0.01, $"{id}: {name} max {max} under its natural {natural} x its room {sizing.Room}");
+            }
+
+            Axis("width", sizing.Natural.Width, sizing.Max.Width, sizing.WidthSteps, width: true);
+            Axis("height", sizing.Natural.Height, sizing.Max.Height, sizing.HeightSteps, width: false);
+        }
+    }
 }
+

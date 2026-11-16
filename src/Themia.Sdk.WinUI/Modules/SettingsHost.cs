@@ -42,7 +42,7 @@ public static class SettingsHost
     public static IShellLauncher Launcher
         => Volatile.Read(ref _launcher) ?? throw new InvalidOperationException(NotInstalled);
 
-    /// <summary>[S-1411] The app-layout editor Shortcuts' menu opens on a new layout item.</summary>
+    /// <summary>[S-1411] The app-layout editor a shortcut's page opens on a new layout.</summary>
     public static IAppLayouts AppLayouts
         => Volatile.Read(ref _appLayouts) ?? throw new InvalidOperationException(NotInstalled);
 

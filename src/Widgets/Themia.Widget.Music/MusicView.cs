@@ -85,6 +85,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         _config = config as MusicConfig ?? new MusicConfig();
         _feed.Reload();
         Present();

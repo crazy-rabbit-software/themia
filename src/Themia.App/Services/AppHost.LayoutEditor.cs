@@ -15,7 +15,7 @@ internal sealed partial class AppHost
     /// <summary>Open the editor on the layout item <paramref name="itemId"/>, or bring it forward on that item.</summary>
     public void ShowLayoutEditor(string itemId)
     {
-        if (FindShortcut(itemId) is null)
+        if (FindAppLayout(itemId) is null)
         {
             Log.Warn(Scope, "asked to edit an app layout that no longer exists");
             return;
@@ -36,7 +36,7 @@ internal sealed partial class AppHost
     /// The layout item with this id and the widget that holds it (<see cref="IHoldsAppLayouts"/>), across
     /// every view; null when it is gone (removed, undone, imported over) or no longer a layout.
     /// </summary>
-    public (WidgetInstance Widget, IAppLayoutItem Item)? FindShortcut(string itemId)
+    public (WidgetInstance Widget, IAppLayoutItem Item)? FindAppLayout(string itemId)
     {
         foreach (var view in State.Views)
         {

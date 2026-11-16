@@ -33,7 +33,7 @@ namespace Themia.App.Widgets;
 /// Every empty list says which empty list it is, in the Status row at the top ([S-244], [S-6714]).
 /// </para>
 /// </summary>
-internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetContextActions
+internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetContextActions, IWidgetSizeAware
 {
     /// <inheritdoc />
     public CardOpen? Opens => BluetoothModule.Opens;
@@ -256,6 +256,20 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         _trailing.Want(_busy, busy);
     }
 
+    /// <summary>[S-663] [S-12410] The card's word on its room: the rows' pitch follows it.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        if (area == _area)
+        {
+            return;
+        }
+
+        _area = area;
+        Render();
+    }
+
+    private WidgetArea _area;
+
     /// <summary>
     /// Draw the snapshot in hand at the size in hand. Every state with no rows says which state it
     /// is: a blank tile is indistinguishable from a broken one.
@@ -307,12 +321,18 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         _columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var column = new StackPanel();
         _columns.Children.Add(column);
+
+        // [S-12410] The config's rows run down to the card's edge, the foot's inset theirs to stretch into.
+        var natural = FamilyShape.RowHeight(plan.Lines);
+        var pitch = _area.IsMeasured ? ItemStretch.Pitch(_area.Height, plan.Rows, natural, scale: XamlRoot?.RasterizationScale ?? 1) : natural;
         foreach (var device in devices)
         {
-            column.Children.Add(BuildRow(device, plan));
+            var row = BuildRow(device, plan);
+            row.Height = pitch;
+            column.Children.Add(row);
         }
 
-        _scroll.Height = plan.Rows * FamilyShape.RowHeight(plan.Lines);
+        _scroll.Height = plan.Rows * pitch;
     }
 
     /// <summary>

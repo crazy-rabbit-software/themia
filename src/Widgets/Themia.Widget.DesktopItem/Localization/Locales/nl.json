@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Bureaubladitem",
-  "desktopItem.desc": "Een bestand, map of snelkoppeling van het bureaublad"
+  "widgetsC.shortcuts.column.target": "Doel",
+  "widgetsC.shortcuts.kind.location": "Windows-locatie",
+  "widgetsC.shortcuts.kind.missing": "Ontbreekt",
+  "widgetsC.shortcuts.kind.path": "Pad",
+  "widgetsC.shortcuts.kind.refused": "Niet toegestaan",
+  "widgetsC.shortcuts.menu.addLayout": "App-indeling…",
+  "widgetsC.shortcuts.menu.addLink": "Webadres of pad…",
+  "widgetsC.shortcuts.menu.changeTarget": "Doel wijzigen…",
+  "widgetsC.shortcuts.settings.locations": "Windows-locaties",
+  "widgetsC.shortcuts.settings.openWith.double": "Dubbelklikken",
+  "widgetsC.shortcuts.settings.openWith.label": "Openen met",
+  "widgetsC.shortcuts.settings.openWith.single": "Enkele klik",
+  "widgetsC.shortcuts.settings.pick.file": "Bestand…",
+  "widgetsC.shortcuts.settings.pick.folder": "Map…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (doel ontbreekt)\n{target}"
 }

@@ -59,7 +59,9 @@ public sealed record CardOpen
     {
         var classified = LaunchTargets.Classify(target);
 
+        // A Settings page is its own kind here (the Settings factory, a plain page name): never a Target.
         if (!classified.IsValid
+            || classified.Kind == LaunchKind.Settings
             || (classified.Kind == LaunchKind.Web && !classified.Value.StartsWith("https://", StringComparison.Ordinal)))
         {
             return null;

@@ -107,7 +107,7 @@ public sealed class WeatherFactsTests
         var sizing = Kind.Sizing(new WeatherFactsConfig());
 
         Assert.Equal(new SizeDip(240, 36 + (4 * 28) + 12), sizing.Natural);
-        Assert.Equal((200.0, 420.0), (sizing.Min.Width, sizing.Max.Width));
+        Assert.Equal((200.0, 480.0), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: 240 x 2
         Assert.Equal((36 + 28 + 12.0, 36 + (11 * 28) + 12.0), (sizing.Min.Height, sizing.Max.Height));
         Assert.Equal(36 + (2 * 28) + 12, Kind.Sizing(new WeatherFactsConfig { Facts = [WeatherFactKind.Uv, WeatherFactKind.Wind] }).Natural.Height);
     }

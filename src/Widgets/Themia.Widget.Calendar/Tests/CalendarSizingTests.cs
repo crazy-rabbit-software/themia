@@ -41,7 +41,10 @@ public sealed class CalendarSizingTests
     public void S11542_a_year_is_twelve_months_one_size_by_its_size(ReadoutSize size, bool numbers)
     {
         var sizing = Of(new CalendarWidgetConfig { Style = CalendarStyle.Year, YearSize = size });
-        Assert.True(sizing.FixedWidth && sizing.FixedHeight);
+        Assert.Equal(sizing.Min, sizing.Natural);
+
+        // Relaxed, [S-12411]: twice its one size, the months stay their size.
+        Assert.Equal(new SizeDip(SizeStretch.Axis(sizing.Natural.Width, sizing.Natural.Width, null, 2), SizeStretch.Axis(sizing.Natural.Height, sizing.Natural.Height, null, 2)), sizing.Max);
 
         var fit = CalendarSizing.Year(size);
         Assert.Equal((12, 4, 3, numbers, numbers), (fit.Months, fit.Columns, fit.Rows, fit.Numbers, fit.Weekdays));
@@ -70,19 +73,55 @@ public sealed class CalendarSizingTests
         Assert.True(whole.End <= 24);
     }
 
-    [Theory]
-    [InlineData(MonthEvents.Dots)]
-    [InlineData(MonthEvents.Chips)]
-    public void S11544_a_month_is_six_weeks_of_its_cells_one_height_260_to_420_wide(MonthEvents events)
+    [Fact]
+    public void S11544_a_month_of_dots_is_six_weeks_of_28_one_height_260_to_420_wide()
     {
-        var sizing = Of(new CalendarWidgetConfig { MonthEvents = events });
-        Assert.True(sizing.FixedHeight);
-        Assert.Equal((260, 300, 420), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (6 * CalendarSizing.MonthCell(events)) + FamilySpace.Inset, sizing.Natural.Height);
+        var sizing = Of(new CalendarWidgetConfig());
+        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        Assert.Equal(SizeStretch.Axis(sizing.Natural.Height, sizing.Natural.Height, null, 2), sizing.Max.Height); // relaxed, [S-12411]
+        Assert.Equal((260, 300, 600), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // relaxed: 300 x 2
+        Assert.Equal(FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (6 * FamilyShape.Row1) + FamilySpace.Inset, sizing.Natural.Height);
 
-        var fit = CalendarSizing.Month(events, 236);
-        Assert.Equal((6, events == MonthEvents.Chips ? MonthDensity.Chips : MonthDensity.Dots), (fit.Rows, fit.Density));
+        var fit = CalendarSizing.Month(MonthEvents.Dots, 236);
+        Assert.Equal((6, MonthDensity.Dots, 0), (fit.Rows, fit.Density, fit.ChipLines));
         Assert.Equal(MonthEvents.Dots, new CalendarWidgetConfig().MonthEvents);
+    }
+
+    [Fact]
+    public void S11547_a_month_with_titles_is_seven_columns_of_56_to_180_its_height_its_lines()
+    {
+        var config = new CalendarWidgetConfig { MonthEvents = MonthEvents.Chips };
+        var sizing = Of(config);
+        Assert.Equal((24 + (7 * 56), 24 + (7 * 100), 24 + (7 * 180)), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+
+        // The header, the weekday line, six weeks of a number line over three chip lines, the inset.
+        var cell = FamilySpace.S1 + FamilyType.Caption.LineHeight + (3 * CalendarFit.ChipLine);
+        Assert.Equal(FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (6 * cell) + FamilySpace.Inset, sizing.Natural.Height);
+        Assert.Equal(cell, CalendarSizing.MonthCell(MonthEvents.Chips, config.MonthLines));
+        Assert.True(sizing.Max.Height > sizing.Natural.Height && sizing.Natural.Height > sizing.Min.Height);
+
+        // A new one's column leads its chips with their start time.
+        var fit = CalendarSizing.Month(MonthEvents.Chips, 7 * 100, config.MonthLines);
+        Assert.Equal((MonthDensity.Chips, 3, true), (fit.Density, fit.ChipLines, fit.Times));
+        Assert.False(CalendarSizing.Month(MonthEvents.Chips, 7 * 56, 3).Times);
+    }
+
+    [Fact]
+    public void S11547_dragging_a_month_with_titles_sets_its_lines()
+    {
+        var config = new CalendarWidgetConfig { MonthEvents = MonthEvents.Chips };
+        var steps = CalendarSizing.MonthLineSteps(config.MonthLines);
+        Assert.Equal(6 * CalendarFit.ChipLine, steps.Step);
+
+        var taller = Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(724, steps.At(5))));
+        Assert.Equal(5, taller.MonthLines);
+        Assert.Equal(3, config.MonthLines);
+        Assert.Equal(6, Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(724, 5000))).MonthLines);
+        Assert.Equal(1, Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(724, 10))).MonthLines);
+
+        // Dots have one height: a drag changes nothing.
+        var dots = new CalendarWidgetConfig();
+        Assert.Same(dots, Kind.SizeSets!(dots, new SizeDip(300, 5000)));
     }
 
     [Fact]
@@ -90,7 +129,7 @@ public sealed class CalendarSizingTests
     {
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Week };
         Assert.Equal(FamilySpace.ContentTop + CalendarSizing.Strip + FamilySpace.S2 + (3 * FamilyShape.Row1) + FamilySpace.Inset, Of(config).Natural.Height);
-        Assert.Equal((240, 520), (Of(config).Min.Width, Of(config).Max.Width));
+        Assert.Equal((240, 600), (Of(config).Min.Width, Of(config).Max.Width)); // relaxed, [S-12411]: 300 x 2
         Assert.Equal(5, Assert.IsType<CalendarWidgetConfig>(Kind.SizeSets!(config, new SizeDip(300, FamilySpace.ContentTop + CalendarSizing.Strip + FamilySpace.S2 + (5 * FamilyShape.Row1) + FamilySpace.Inset))).WeekRows);
     }
 
@@ -107,11 +146,11 @@ public sealed class CalendarSizingTests
     [Fact]
     public void S11540_settings_out_of_range_are_repaired_and_a_copy_keeps_them()
     {
-        var config = new CalendarWidgetConfig { Rows = 40, Lines = 3, DayHours = 30, WeekHours = 1, WeekRows = 99, YearSize = ReadoutSize.Large };
+        var config = new CalendarWidgetConfig { Rows = 40, Lines = 3, DayHours = 30, WeekHours = 1, WeekRows = 99, YearSize = ReadoutSize.Large, MonthLines = 0 };
         Assert.NotEmpty(config.Repair());
-        Assert.Equal((20, 2, 16, 4, 12, ReadoutSize.Small), (config.Rows, config.Lines, config.DayHours, config.WeekHours, config.WeekRows, config.YearSize));
+        Assert.Equal((20, 2, 16, 4, 12, ReadoutSize.Small, 1), (config.Rows, config.Lines, config.DayHours, config.WeekHours, config.WeekRows, config.YearSize, config.MonthLines));
 
-        var copy = (CalendarWidgetConfig)new CalendarWidgetConfig { WeekTitles = true, MonthEvents = MonthEvents.Chips, DayHours = 12 }.Clone();
-        Assert.Equal((true, MonthEvents.Chips, 12), (copy.WeekTitles, copy.MonthEvents, copy.DayHours));
+        var copy = (CalendarWidgetConfig)new CalendarWidgetConfig { WeekTitles = true, MonthEvents = MonthEvents.Chips, DayHours = 12, MonthLines = 5 }.Clone();
+        Assert.Equal((true, MonthEvents.Chips, 12, 5), (copy.WeekTitles, copy.MonthEvents, copy.DayHours, copy.MonthLines));
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.Core.Geometry;
+using Themia.Core.Model;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
@@ -131,13 +132,38 @@ internal sealed partial class WidgetCard
         {
             Canvas.SetLeft(plate, Canvas.GetLeft(this));
             Canvas.SetTop(plate, Canvas.GetTop(this));
-            plate.Opacity = Opacity;
+            plate.Opacity = Opacity * MoveMarksAlpha;
             plate.Visibility = shown;
         }
     }
 
-    /// <summary>Whether the grips show (edit mode); the field is read before the grip canvas exists.</summary>
+    /// <summary>Whether the marks show (edit mode); the field is read before the grip canvas exists.</summary>
     private bool _markersShown;
+
+    /// <summary>[S-11881] The strength of this card's marks while a block moves on the locked desktop; null when none moves.</summary>
+    private double? _moveMarks;
+
+    /// <summary>[S-11881] The plates' strength: a locked move's for this card, else full.</summary>
+    private double MoveMarksAlpha => !_host.EditMode && _moveMarks is { } alpha ? Math.Clamp(alpha, 0, 1) : 1;
+
+    /// <summary>
+    /// [S-11881] While a block moves on the locked desktop, show this card's corner marks (edit mode's look)
+    /// at <paramref name="alpha"/>: 1 for a moving card, the local grid's strength for a neighbour near where
+    /// it lands (<see cref="LocalGrid.Borders"/>); null takes them away again, as the block lands.
+    /// </summary>
+    public void ShowMoveMarks(double? alpha)
+    {
+        if (_moveMarks == alpha)
+        {
+            return;
+        }
+
+        _moveMarks = alpha;
+        ApplySelection();
+    }
+
+    /// <summary>[S-2453] What the card draws of its marks: its handles, or a member's corners alone.</summary>
+    private EditMarks _marks;
 
     /// <summary>Take the plates off the surface's marker layer, as the card leaves it.</summary>
     private void DropPlates()
@@ -241,7 +267,9 @@ internal sealed partial class WidgetCard
             var resizes = w || h;
             part.Grip.IsHitTestVisible = resizes;
             part.Grip.SetCursorShape(CursorFor(part.Handle, w, h));
-            var inked = resizes || IsCorner(part.Handle) ? Visibility.Visible : Visibility.Collapsed;
+
+            // [S-2453] A member its group's frame stands for keeps its corners alone.
+            var inked = IsCorner(part.Handle) || (resizes && _marks == EditMarks.Handles) ? Visibility.Visible : Visibility.Collapsed;
             foreach (var bar in part.Inks.Concat(part.Halos))
             {
                 bar.Visibility = inked;

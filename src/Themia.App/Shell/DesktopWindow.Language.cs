@@ -53,7 +53,7 @@ internal sealed partial class DesktopWindow
             _cards.Clear();
         }
 
-        // Rebuilds the cards (none survive the clear above), the view bar and the hit region.
+        // Rebuilds the cards (none survive the clear above) and the view bar.
         Relayout();
         OnPlacementChanged();
         Log.Info(Scope, $"redrew {_monitor.GdiName} in {LanguageResolver.Code(Strings.Current)}");

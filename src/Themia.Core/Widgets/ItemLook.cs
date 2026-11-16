@@ -81,20 +81,33 @@ public static class ItemLook
     /// the item colour, never from the card's. A track stands <see cref="TrackShift"/> off it.
     /// Disabled is the rest fill at <see cref="DisabledFade"/> of the opacity.
     /// </summary>
-    public static ItemInk Ink(ItemRole role, ItemState state, FillChoice fill, bool dark)
+    /// <remarks>
+    /// [S-2138] With the design's items on vibrant surfaces (<see cref="InnerSurface.Vibrant"/>), what was Windows'
+    /// fill is the theme's ink at <see cref="LookRules.Inner"/>'s opacity instead: a Default layer's every item, and a
+    /// transparent layer's lit rows. A colour of the user's own stays theirs.
+    /// </remarks>
+    public static ItemInk Ink(ItemRole role, ItemState state, FillChoice fill, bool dark, LookTokens? tokens = null)
     {
         ArgumentNullException.ThrowIfNull(fill);
+        var vibrant = tokens is { InnerSurface: InnerSurface.Vibrant };
 
         if (fill.Kind == FillKind.Transparent)
         {
             var lit = role != ItemRole.Track
                 && state is ItemState.Hover or ItemState.Pressed or ItemState.Selected or ItemState.SelectedHover;
+            if (lit && vibrant)
+            {
+                return new ItemInk(LookRules.Ink(dark), null, LookRules.Inner(ItemRole.Row, state, tokens!));
+            }
+
             return lit ? new ItemInk(null, ThemeKey(ItemRole.Row, state), 1) : new ItemInk(null, ThemeKey(role, state), 0);
         }
 
         if (fill.Kind != FillKind.Colour || !HexColor.TryParse(fill.Colour, out var r, out var g, out var b))
         {
-            return new ItemInk(null, ThemeKey(role, state), 1);
+            return vibrant
+                ? new ItemInk(LookRules.Ink(dark), null, LookRules.Inner(role, state, tokens!))
+                : new ItemInk(null, ThemeKey(role, state), 1);
         }
 
         var opacity = FillChoice.ClampOpacity(fill.Opacity) * (state == ItemState.Disabled ? DisabledFade : 1);

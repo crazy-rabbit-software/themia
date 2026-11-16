@@ -21,9 +21,9 @@ namespace Themia.App.Interop;
 /// <para>
 /// <b>Show Desktop.</b> Win+D raises the desktop window <i>past</i> normal z-order, above everything
 /// pinned below it, so the widgets vanish at the one moment the user asked to see their desktop.
-/// While the desktop is genuinely fronted there is nothing on screen for the widgets to cover, so
-/// lifting them for the duration does not break the "never above other windows" rule — it is the only
-/// way to honour it and still be visible. <see cref="ZOrderPolicy"/> owns that decision.
+/// While the desktop is genuinely fronted the surfaces are lifted to just above that desktop window
+/// and under everything else ([S-33f]): a dock, an appbar and every always-on-top window are still on
+/// screen then, and stay above the widgets. <see cref="ZOrderPolicy"/> owns that decision.
 /// </para>
 /// <para>
 /// <b>Cloaking.</b> Show Desktop on some builds and a fullscreen exclusive application hide windows by
@@ -75,6 +75,16 @@ internal static unsafe class DesktopZOrder
     /// <summary>Reused by the z-order walks, which only ever run on the UI thread.</summary>
     private static readonly List<StackWindow> Walk = [];
 
+    /// <summary>The windows of the last <see cref="ReadLift"/>, top first, beside <see cref="Walk"/>.</summary>
+    private static readonly List<nint> WalkHandles = [];
+
+    /// <summary>
+    /// [S-33g] The controller is placing a lifted surface right now: the one z-order move its window
+    /// procedure lets through while lifted. UI thread only; <c>WM_WINDOWPOSCHANGING</c> arrives inside
+    /// the <c>SetWindowPos</c> that causes it.
+    /// </summary>
+    private static bool _placing;
+
     private static DispatcherQueue? _dispatcher;
     private static nint _foregroundHook;
     private static nint _minimizeHook;
@@ -92,7 +102,7 @@ internal static unsafe class DesktopZOrder
     /// <summary>Between <see cref="Start"/> and <see cref="Stop"/>: game mode stops the controller with the surfaces it hides ([S-928]).</summary>
     private static bool _started;
 
-    /// <summary>Whether the surfaces are held above the elevated desktop layer. UI thread only, like every caller.</summary>
+    /// <summary>Whether the surfaces are held just above the elevated desktop layer ([S-33f]). UI thread only, like every caller.</summary>
     private static bool _pinnedTopmost;
 
     /// <summary>A check is already queued, so the next event need not queue another.</summary>
@@ -272,12 +282,12 @@ internal static unsafe class DesktopZOrder
             case ZAction.PinTopmost:
                 if (SetPinned(true))
                 {
-                    // The lift itself: every surface to the top of the topmost band.
-                    ForEachSurface(PinToTopOfTopmost);
+                    // The lift itself: every surface just above the desktop layer ([S-33f]).
+                    ForEachSurface(PlaceLifted);
                 }
                 else
                 {
-                    // [S-34b] Already lifted: only a surface the desktop layer has risen past again.
+                    // [S-34b] Already lifted: only a surface that is out of its place again.
                     ForEachSurface(KeepPinned);
                 }
 
@@ -293,9 +303,8 @@ internal static unsafe class DesktopZOrder
                 break;
 
             case ZAction.HoldTopmost:
-                // Deliberately nothing, not even a re-raise: re-raising would fight the Start menu
-                // for the top of the topmost band, and the pin alone is what keeps the widgets above
-                // the still-elevated desktop layer.
+                // Deliberately nothing: the place the lift gave the surfaces is what keeps the
+                // widgets above the still-elevated desktop layer, and Start is above them in it.
                 break;
 
             default:
@@ -345,19 +354,118 @@ internal static unsafe class DesktopZOrder
         }
     }
 
-    /// <summary>[S-34b] Re-raise a lifted surface only when the desktop layer is above it again.</summary>
+    /// <summary>[S-34b] Re-place a lifted surface only when it is out of its place: the desktop layer above it, or another program's window under it.</summary>
     private static void KeepPinned(nint hwnd)
     {
-        if (!Win32.IsWindow(hwnd) || ZOrderPolicy.PinHolds(IsTopmost(hwnd), Stack(hwnd, Win32.GwHwndPrev, StackWindow.DesktopLayer)))
+        if (!Win32.IsWindow(hwnd) || ReadLift(hwnd).Move == LiftMove.Stay)
         {
             return;
         }
 
         if (MayRepair())
         {
-            Log.Debug(Scope, "the desktop rose above a lifted widget surface; lifting it again");
-            PinToTopOfTopmost(hwnd);
+            Log.Debug(Scope, "a lifted widget surface is out of its place above the desktop layer; placing it again");
+            PlaceLifted(hwnd);
         }
+    }
+
+    /// <summary>
+    /// [S-33f] Put a lifted surface where it belongs: directly above the desktop layer, under every
+    /// other window (<see cref="ZOrderPolicy.Lift"/>). Never "the top": a dock, an appbar or another
+    /// program's always-on-top window is above the desktop too, and stays above the widgets.
+    /// <para>
+    /// Two rungs. Going straight under the window above the desktop layer puts the surface in that
+    /// window's band without it ever being above anything else. Where that did not take ([S-33d]: the
+    /// topmost bit is not always granted), the surface is forced into the topmost band the old way
+    /// and then brought down to its place.
+    /// </para>
+    /// </summary>
+    private static void PlaceLifted(nint hwnd)
+    {
+        if (!Win32.IsWindow(hwnd) || !Put(hwnd, ReadLift(hwnd)))
+        {
+            return;
+        }
+
+        if (ReadLift(hwnd).Move == LiftMove.Stay)
+        {
+            return;
+        }
+
+        Log.Debug(Scope, "placing a lifted surface above the desktop layer did not take; forcing it into the topmost band first");
+        Placing(hwnd, PinToTopOfTopmost);
+        Put(hwnd, ReadLift(hwnd));
+
+        if (ReadLift(hwnd).Move != LiftMove.Stay)
+        {
+            Log.Warn(Scope, "a lifted widget surface could not be put just above the desktop layer; it may cover a dock until Show Desktop ends");
+        }
+    }
+
+    /// <summary>Carry out one <see cref="LiftPlace"/> read by <see cref="ReadLift"/> just before; false when there was nothing to do.</summary>
+    private static bool Put(nint hwnd, LiftPlace place)
+    {
+        switch (place.Move)
+        {
+            case LiftMove.Top:
+                Placing(hwnd, PinToTopOfTopmost);
+                return true;
+
+            case LiftMove.Under when place.After < WalkHandles.Count:
+                var after = WalkHandles[place.After];
+                Placing(hwnd, surface =>
+                {
+                    if (!Win32.SetWindowPos(surface, after, 0, 0, 0, 0, Win32.SwpNoMove | Win32.SwpNoSize | Win32.SwpNoActivate | Win32.SwpNoOwnerZOrder))
+                    {
+                        Log.Debug(Scope, $"SetWindowPos under the window above the desktop layer failed (win32 {Marshal.GetLastWin32Error()})");
+                    }
+                });
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>[S-33g] Run one of the controller's own placements: the only z-order move a lifted surface accepts.</summary>
+    private static void Placing(nint hwnd, Action<nint> placement)
+    {
+        _placing = true;
+        try
+        {
+            placement(hwnd);
+        }
+        finally
+        {
+            _placing = false;
+        }
+    }
+
+    /// <summary>
+    /// The whole top-level z-order, top first, as <see cref="ZOrderPolicy.Lift"/> sees it, and what it
+    /// says of <paramref name="hwnd"/>. Leaves the windows in <see cref="WalkHandles"/>.
+    /// </summary>
+    private static LiftPlace ReadLift(nint hwnd)
+    {
+        Walk.Clear();
+        WalkHandles.Clear();
+        var self = -1;
+        var next = Win32.GetWindow(hwnd, Win32.GwHwndFirst);
+
+        for (var hops = 0; next != 0 && hops < WalkLimit; hops++)
+        {
+            if (next == hwnd)
+            {
+                self = Walk.Count;
+            }
+
+            Walk.Add(Describe(next));
+            WalkHandles.Add(next);
+            next = Win32.GetWindow(next, Win32.GwHwndNext);
+        }
+
+        // The z-order moved under the walk and the surface was missed: the event of that move asks again.
+        return self < 0 ? new LiftPlace(LiftMove.Stay, -1) : ZOrderPolicy.Lift(CollectionsMarshal.AsSpan(Walk), self);
     }
 
     /// <summary>[S-34d] One repair from the allowance; the first refusal is logged.</summary>
@@ -467,7 +575,8 @@ internal static unsafe class DesktopZOrder
     }
 
     /// <summary>
-    /// Force a surface to the top of the topmost band.
+    /// Force a surface to the top of the topmost band: the lift's second rung ([S-33f]), and its place
+    /// when the desktop layer is the top window. Only ever through <see cref="Placing"/>.
     /// <para>
     /// Two passes, because one is not enough: <c>SetWindowPos(HWND_TOPMOST)</c> frequently returns
     /// success without the <c>WS_EX_TOPMOST</c> bit actually taking, and a window that merely thinks
@@ -653,17 +762,29 @@ internal static unsafe class DesktopZOrder
                 }
             }
 
-            // While pinned the surface is deliberately above everything, so rewriting the z-order
-            // here would undo the pin on the next message. The rest of the time every requested
-            // z-order becomes the anchor, which is what stops a click on an activatable surface from
-            // raising it over the user's windows.
-            if (!_pinnedTopmost && msg == WmWindowPosChanging && lParam != 0)
+            // At rest every requested z-order becomes the anchor, which is what stops a click on an
+            // activatable surface from raising it over the user's windows. While lifted the surface
+            // keeps the place the controller gave it ([S-33g]): an activation would raise it to the
+            // top of its band, over every dock.
+            if (msg == WmWindowPosChanging && lParam != 0)
             {
                 var position = (WindowPos*)lParam;
-                var desktop = ShellSignals.DesktopWindow();
 
-                position->HwndInsertAfter = desktop != 0 ? desktop : Win32.HwndBottom;
-                position->Flags &= ~Win32.SwpNoZOrder;
+                switch (ZOrderPolicy.Move(_pinnedTopmost, _placing))
+                {
+                    case ZMove.ToAnchor:
+                        var desktop = ShellSignals.DesktopWindow();
+                        position->HwndInsertAfter = desktop != 0 ? desktop : Win32.HwndBottom;
+                        position->Flags &= ~Win32.SwpNoZOrder;
+                        break;
+
+                    case ZMove.KeepOrder:
+                        position->Flags |= Win32.SwpNoZOrder;
+                        break;
+
+                    default:
+                        break;
+                }
             }
         }
         catch (Exception ex)

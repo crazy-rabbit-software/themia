@@ -9,15 +9,17 @@ using Themia.Sdk.Services;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3550]..[S-3555] Accounts ›: who Themia is signed in to, what each account holds on this PC, and
-/// the way to add, rename and sign out of one, as the settings window's Accounts page had them, after
-/// Karpo's ⚙ › Accounts (karpo-app, docs/widgets.md §338). Every account is a line whose submenu is
-/// that account; then Add account ›, its kinds, the sign-ins started from their lines and the password
-/// servers' forms in their own submenus. What a line starts says how it goes under it.
+/// [S-3550]..[S-3555] [S-2312] The Accounts page: who Themia is signed in to, what each account holds on this PC,
+/// and the ways to add, rename and sign out of one, after Karpo's Accounts page (karpo-app,
+/// Karpo.Core/OptionAccountRows.cs <c>Page</c>, docs/widgets.md §535, §638, §685): under "Your accounts" every account
+/// a card that opens (its provider's icon, its name, its address and provider under it, what it holds at its head's
+/// end while shut, Sign out at its end); under "Add an account" a way to add each kind, its line under it: a sign-in
+/// in the browser a row that starts it, a password server's or a token's form a card of its fields. What a line
+/// starts says how it goes under it. Nothing is a page of its own.
 /// </summary>
 public static partial class SettingsMenu
 {
-    /// <summary>[S-3550] The Accounts line and its submenu: every account, then Add account ›.</summary>
+    /// <summary>[S-2312] The Accounts lines: under "Your accounts" every account, then under "Add an account" its ways.</summary>
     public static SettingsSubmenu Accounts(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
@@ -34,6 +36,7 @@ public static partial class SettingsMenu
             lines.Add(new SettingsNote(Keys.Accounts + "/file", problem) { Critical = true });
         }
 
+        lines.Add(new SettingsHeading(Keys.YourAccounts, Str.SettingsPages_Accounts_Yours.Text()));
         var listed = accounts.Accounts;
         if (listed.Count == 0)
         {
@@ -45,8 +48,8 @@ public static partial class SettingsMenu
             lines.Add(Account(host, accounts, account));
         }
 
-        lines.Add(new SettingsSeparator(Keys.Accounts + "/-add"));
-        lines.Add(AddAccount(accounts));
+        lines.Add(new SettingsHeading(Keys.AddAccount, Str.SettingsPages_Accounts_Add.Text()));
+        lines.AddRange(AddAccount(accounts));
 
         // [S-3552] An account that needs signing in again shows on the line that leads to it.
         var needing = listed.Count(a => a.NeedsSignIn);
@@ -56,35 +59,32 @@ public static partial class SettingsMenu
         };
     }
 
-    /// <summary>The key of an account's line: its id, which no rename or language changes.</summary>
+    /// <summary>The key of an account's card: its id, which no rename or language changes.</summary>
     public static string AccountKey(string accountId) => Keys.Accounts + "/account:" + accountId;
 
     /// <summary>
-    /// [S-3551] One account's submenu: its address and provider; what holds against it and Sign in
-    /// again ([S-3552]); a reading per kind its provider feeds, with what is stored on this PC and when
-    /// it last synced ([S-3821]); where a service grants access per resource, the page that widens it
-    /// ([S-9919]); its Nickname, asked for beside the menu; and Sign out, asked first.
+    /// [S-3551] [S-2312] One account's card, Karpo's thing: its provider's icon (a warning while it needs signing in
+    /// again), its name, its address and provider under it (its provider alone where it is named by its address), at
+    /// its head's end while shut what it holds on this PC ("1,240 messages · 386 events", Karpo's §638) or Sign in
+    /// again, and Sign out, asked first. Opened: what holds against it and the way back in ([S-3552]); a reading per
+    /// kind its provider feeds, with what is stored and when it last synced ([S-3821]); where a service grants access
+    /// per resource, the page that widens it ([S-9919]); its Nickname; how a sign-out went.
     /// </summary>
     private static SettingsSubmenu Account(ISettingsMenuHost settings, IAccountsMenuHost host, AccountInfo account)
     {
         var key = AccountKey(account.Id);
         var provider = account.Provider.Label();
-        var lines = new List<SettingsLine>
-        {
-            new SettingsNote(key + "/detail", string.Equals(account.Label, account.Address, StringComparison.Ordinal)
-                ? provider
-                : Str.Shell_Accounts_Detail.Format(("address", account.Address), ("provider", provider))),
-        };
+        var lines = new List<SettingsLine>();
 
         if (account.Problem is { } problem)
         {
-            lines.Add(new SettingsSeparator(key + "/-again"));
             lines.Add(new SettingsNote(key + "/problem", problem) { Critical = true });
             lines.AddRange(SignInAgain(host, account, key + "/again"));
+            lines.Add(new SettingsSeparator(key + "/-kinds"));
         }
 
-        lines.Add(new SettingsSeparator(key + "/-kinds"));
-        foreach (var kind in SyncStats.Summarize(account.Features, host.Stats(account.Id)))
+        var kinds = SyncStats.Summarize(account.Features, host.Stats(account.Id));
+        foreach (var kind in kinds)
         {
             var count = SyncStats.Count(kind);
             lines.Add(new SettingsReading(key + "/kind/" + kind.Kind, SyncStats.Label(kind.Kind), KindGlyph(kind.Kind), count.Length > 0 ? count : null));
@@ -114,53 +114,59 @@ public static partial class SettingsMenu
             Value = account.Nickname,
         });
         lines.Add(StatusNote(host, key + "/nickname"));
-
-        lines.Add(new SettingsSeparator(key + "/-signout"));
-        lines.Add(new SettingsCommand(key + "/signout", Str.Account_SignOut.Text(), Glyphs.SignOut, () => settings.Confirm(new SettingsConfirm(
-            Str.Shell_Accounts_SignOutConfirm.Format(("name", account.Label)),
-            Str.Account_SignOut.Text(),
-            () => host.SignOut(id, key + "/signout"),
-            Str.Shell_Accounts_SignOutBody.Format(("provider", provider)),
-            Danger: true)))
-        {
-            Danger = true,
-        });
         lines.Add(StatusNote(host, key + "/signout"));
 
-        // The provider is the line's glyph and its submenu's first words: the line's end is kept for what needs doing.
+        // What it holds, its first two kinds (the head's end has room for two; opened, every kind is a row).
+        var holds = string.Join(" · ", kinds.Select(SyncStats.Count).Where(c => c.Length > 0).Take(2));
         return new SettingsSubmenu(key, account.Label, account.NeedsSignIn ? Glyphs.Warning : ProviderGlyph(account.Provider), lines)
         {
-            Value = account.NeedsSignIn ? Str.Shell_Accounts_Reconnect.Text() : null,
-            Page = true,
+            Card = true,
+            Caption = string.Equals(account.Label, account.Address, StringComparison.Ordinal)
+                ? provider
+                : Str.Shell_Accounts_Detail.Format(("address", account.Address), ("provider", provider)),
+            Value = account.NeedsSignIn ? Str.Shell_Accounts_Reconnect.Text() : holds.Length > 0 ? holds : null,
+            Tools =
+            [
+                new SettingsTool(key + "/signout", Glyphs.SignOut, Str.Account_SignOut.Text(), SettingsToolKey.Delete)
+                {
+                    Run = () => settings.Confirm(new SettingsConfirm(
+                        Str.Shell_Accounts_SignOutConfirm.Format(("name", account.Label)),
+                        Str.Account_SignOut.Text(),
+                        () => host.SignOut(id, key + "/signout"),
+                        Str.Shell_Accounts_SignOutBody.Format(("provider", provider)),
+                        Danger: true)),
+                },
+            ],
         };
     }
 
     /// <summary>
-    /// [S-3552] The way back in for an account that needs it: the sign-in that added it (the
-    /// browser, a code), which replaces its sign-in in place; for a password server, its form.
+    /// [S-3552] The way back in for an account that needs it, in its card: the sign-in that added it (the
+    /// browser, a code), which replaces its sign-in in place; for a password server or a token, its form's lines.
     /// </summary>
     private static IEnumerable<SettingsLine> SignInAgain(IAccountsMenuHost host, AccountInfo account, string row)
     {
         if (host.Menu.FormFor(account.Provider) is { } form)
         {
-            return [new SettingsSubmenu(row, Str.Shell_Accounts_Reconnect.Text(), Glyphs.Refresh, FormLines(host, form, row))];
+            return FormLines(host, form, row);
         }
 
         var module = ProviderCatalog.Of(account.Provider);
         var member = module.SignIn.Members.FirstOrDefault(m => m is not AnonymousAuth);
         if (member is PastedToken)
         {
-            return [new SettingsSubmenu(row, Str.Shell_Accounts_Reconnect.Text(), Glyphs.Refresh, FormLines(host, host.Menu.Token(account.Provider), row))];
+            return FormLines(host, host.Menu.Token(account.Provider), row);
         }
 
         return member is null ? [] : SignInLines(host, account.Provider, member, row, Str.Shell_Accounts_Reconnect.Text(), Glyphs.Refresh);
     }
 
     /// <summary>
-    /// [S-3553] Add account ›: every offered provider ([S-3562]) with a sign-in of its own, in its place
-    /// ([S-9910]); then the host's password servers, each a form in its own submenu ([S-3554]).
+    /// [S-3553] [S-2312] "Add an account": every offered provider ([S-3562]) with a sign-in of its own, in its place
+    /// ([S-9910]), then the host's password servers, each a card of its form ([S-3554]); each under its name says
+    /// what it brings (its provider's kinds: "Mail, Calendar, Contacts, Tasks").
     /// </summary>
-    private static SettingsSubmenu AddAccount(IAccountsMenuHost host)
+    private static List<SettingsLine> AddAccount(IAccountsMenuHost host)
     {
         var lines = new List<SettingsLine>();
         foreach (var provider in ProviderCatalog.Offered.Where(p => p.SignIn.Members.Any(m => m is not AnonymousAuth)))
@@ -168,7 +174,6 @@ public static partial class SettingsMenu
             lines.AddRange(ProviderLines(host, provider));
         }
 
-        lines.Add(new SettingsSeparator(Keys.AddAccount + "/-servers"));
         foreach (var (form, text, glyph) in new[]
         {
             (host.Menu.Imap, Str.Shell_Accounts_MenuImap, Glyphs.Mail),
@@ -182,31 +187,41 @@ public static partial class SettingsMenu
             }
 
             var row = Keys.AddAccount + "/" + form.Provider.Value;
-            lines.Add(new SettingsSubmenu(row, text.Text(), glyph, FormLines(host, form, row)));
+            lines.Add(new SettingsSubmenu(row, text.Text(), glyph, FormLines(host, form, row))
+            {
+                Card = true,
+                Caption = Brings(form.Provider),
+            });
         }
 
-        return new SettingsSubmenu(Keys.AddAccount, Str.Account_AddAccount.Text(), Glyphs.Add, lines) { Page = true };
+        return lines;
     }
 
+    /// <summary>[S-2312] What a way to add an account brings, under its name: its provider's kinds in the pages' order.</summary>
+    public static string Brings(ProviderId provider)
+        => string.Join(", ", SyncStats.Summarize(ProviderCatalog.FeaturesOf(provider), []).Select(k => SyncStats.Label(k.Kind)));
+
     /// <summary>
-    /// [S-3553] A provider's lines in Add account: one sign-in, its line (a click starts it); a
-    /// pasted token, its form; several, a submenu with a line for each.
+    /// [S-3553] A provider's lines in "Add an account": one sign-in, its row (a click starts it) with what stands
+    /// under it; a pasted token, a card of its form; several, a card with each way in it (a token's form under its
+    /// heading).
     /// </summary>
     private static IEnumerable<SettingsLine> ProviderLines(IAccountsMenuHost host, IProviderModule provider)
     {
         var row = Keys.AddAccount + "/" + provider.Id.Value;
         var members = provider.SignIn.Members.Where(m => m is not AnonymousAuth).ToList();
-        var label = provider.Label.Text();
+        var label = Str.SettingsPages_Accounts_AddProvider.Format(("provider", provider.Label.Text()));
         var glyph = ProviderGlyph(provider.Id);
+        var brings = Brings(provider.Id);
 
         if (members is [PastedToken])
         {
-            return [new SettingsSubmenu(row, label, glyph, FormLines(host, host.Menu.Token(provider.Id), row))];
+            return [new SettingsSubmenu(row, label, glyph, FormLines(host, host.Menu.Token(provider.Id), row)) { Card = true, Caption = brings }];
         }
 
         if (members is [var only])
         {
-            return SignInLines(host, provider.Id, only, row, label, glyph);
+            return SignInLines(host, provider.Id, only, row, label, glyph).Select(l => l is SettingsCommand c && c.Key == row ? c with { Caption = brings } : l);
         }
 
         var ways = new List<SettingsLine>();
@@ -220,11 +235,11 @@ public static partial class SettingsMenu
             };
 
             ways.AddRange(member is PastedToken
-                ? [new SettingsSubmenu(row + "/" + way, words.Text(), Glyphs.Rename, FormLines(host, host.Menu.Token(provider.Id), row + "/" + way))]
+                ? [new SettingsHeading(row + "/" + way, words.Text()), .. FormLines(host, host.Menu.Token(provider.Id), row + "/" + way)]
                 : SignInLines(host, provider.Id, member, row + "/" + way, words.Text(), null));
         }
 
-        return [new SettingsSubmenu(row, label, glyph, ways)];
+        return [new SettingsSubmenu(row, label, glyph, ways) { Card = true, Caption = brings }];
     }
 
     /// <summary>

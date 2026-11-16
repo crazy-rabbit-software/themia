@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.App.Widgets;
+using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
@@ -102,7 +103,7 @@ internal static class MenuRender
                 host.Set(editMode: false, selection: 3, canPaste: false);
                 await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
 
-                // [S-1758] Outside edit mode: the view's own commands and Edit layout, nothing that arranges.
+                // [S-1758] Outside edit mode: the view's own commands and Unlock widgets, nothing that arranges.
                 host.Set(editMode: false, selection: 1, canPaste: true);
 
                 var drive = WidgetInstance.Create(new WidgetId("drive"), new FracRect(0.3, 0.6, 0.2, 0.2));
@@ -170,6 +171,8 @@ internal static class MenuRender
                     folderView.Detach();
                 }
 
+                await RenderDesktopMenusAsync(root, outDir).ConfigureAwait(true);
+
                 // [S-1757] The menus' pictures must cost kilobytes, not a screen-sized raster each.
                 using var process = System.Diagnostics.Process.GetCurrentProcess();
                 Console.WriteLine($"menu: private {process.PrivateMemorySize64 / (1024.0 * 1024.0):0.0} MB after every menu");
@@ -189,6 +192,93 @@ internal static class MenuRender
         return true;
     }
 
+    /// <summary>
+    /// [S-5548] [S-5582] The desktop's own menus, built by the rules and the builders a right-click runs
+    /// (<see cref="DesktopCommands.Menu"/>, <see cref="DesktopBackground.Menu"/>,
+    /// <see cref="AppHost.DeskMenuEntries"/>, <see cref="AppHost.DesktopBackgroundEntries"/>) over
+    /// stand-in icons: a file, a link, a folder, several files, This PC, the Recycle Bin, an own icon on
+    /// a path, on a web address and on an app layout, several own icons, a selection of both sources;
+    /// the background menu and its View, Sort by and New submenus. A menu opening upward at a screen's
+    /// lower edge (the icon row then below the list) is the framework's, over the display's work area:
+    /// a popup kept inside this off-screen window does not show it, so it needs the live desktop.
+    /// </summary>
+    private static async Task RenderDesktopMenusAsync(Grid root, string outDir)
+    {
+        const string Desk = @"C:\Users\Sample\Desktop\";
+        const string ThisPc = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}";
+        var noop = static (FileCommand _) => { };
+        var facts = new DeskMenuFacts(CanEmptyBin: true, CanEditLayout: true, ClipboardHasFiles: true);
+        var folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { Desk + "Projects" };
+
+        static DeskIcon Item(string key) => new(key, DesktopItemKeys.IsShellItem(key) ? DeskIconKind.ShellItem : DeskIconKind.Item, key, string.Empty, Opens: true, PathExists: true, ItemClickMode.Double);
+        static DeskIcon Own(string id, DeskIconKind kind, string value, bool there = false)
+            => new(DesktopItemKeys.Own(id), kind, value, value, Opens: true, PathExists: there, ItemClickMode.Double);
+
+        List<ItemMenuEntry> openWith =
+        [
+            new(Glyphs.Open, "Notepad", static () => { }),
+            ItemMenuEntry.Separator,
+            new(Glyphs.OpenWith, Str.FolderMenu_ChooseAnotherApp.Text(), static () => { }),
+        ];
+
+        List<ItemMenuEntry> Entries(params DeskIcon[] icons)
+        {
+            var menu = DesktopCommands.Menu(icons, facts, folders.Contains);
+            return AppHost.DeskMenuEntries(menu, icons.Length == 1 && folders.Contains(icons[0].Value), noop, () => openWith);
+        }
+
+        (string Name, List<ItemMenuEntry> Entries)[] menus =
+        [
+            ("file", Entries(Item(Desk + "Report.txt"))),
+            ("link", Entries(Item(Desk + "Themia.lnk"))),
+            ("folder", Entries(Item(Desk + "Projects"))),
+            ("files", Entries(Item(Desk + "Report.txt"), Item(Desk + "Notes.txt"))),
+            ("thispc", Entries(Item(ThisPc))),
+            ("recyclebin", Entries(Item(DesktopCommands.RecycleBinItem))),
+            ("own-path", Entries(Own("a", DeskIconKind.OwnPath, @"C:\Tools\app.exe", there: true))),
+            ("own-web", Entries(Own("b", DeskIconKind.OwnWeb, "https://example.com/"))),
+            ("own-layout", Entries(Own("c", DeskIconKind.OwnLayout, string.Empty))),
+            ("own-several", Entries(Own("a", DeskIconKind.OwnPath, @"C:\Tools\app.exe", there: true), Own("b", DeskIconKind.OwnWeb, "https://example.com/"))),
+            ("mixed", Entries(Item(Desk + "Report.txt"), Own("a", DeskIconKind.OwnPath, @"C:\Tools\app.exe", there: true))),
+        ];
+
+        foreach (var (name, entries) in menus)
+        {
+            await RenderAsync(root, entries, System.IO.Path.Combine(outDir, $"desk-{name}.png")).ConfigureAwait(true);
+        }
+
+        var templates = await Themia.App.Services.Files.ShellNewTemplates.GetAsync().ConfigureAwait(true);
+        var background = AppHost.DesktopBackgroundEntries(
+            DesktopBackground.Menu(new DesktopBackgroundFacts(ClipboardHasFiles: true, HasTerminal: true)),
+            templates,
+            static _ => { },
+            static _ => { });
+        await RenderAsync(root, background, System.IO.Path.Combine(outDir, "desk-background.png")).ConfigureAwait(true);
+        foreach (var (name, glyph) in new[] { ("view", Glyphs.View), ("sortby", Glyphs.Sort), ("new", Glyphs.Add) })
+        {
+            if (background.FirstOrDefault(e => e.Glyph == glyph && e.Children is not null).Children is { } children)
+            {
+                await RenderAsync(root, children, System.IO.Path.Combine(outDir, $"desk-background-{name}.png")).ConfigureAwait(true);
+            }
+        }
+
+        // [S-5593] [S-5596] The menu as a right-click on the live desktop opens it (no files on the
+        // clipboard: no icon row, so one MenuFlyout whose View, Sort by and New are sub items), each sub
+        // item opened in its place: the dot of the icon size and of the sort, and New's own icons.
+        var live = AppHost.DesktopBackgroundEntries(
+            DesktopBackground.Menu(new DesktopBackgroundFacts(ClipboardHasFiles: false, HasTerminal: true, DesktopIconSize.Medium, DesktopSortBy.ItemType)),
+            templates,
+            static _ => { },
+            static _ => { });
+        foreach (var (name, text) in new[] { ("view", Str.Desktop_Menu_View.Text()), ("sortby", Str.Desktop_Menu_SortBy.Text()), ("new", Str.WidgetsB_Folder_New.Text()) })
+        {
+            if (ItemMenu.Build(live) is MenuFlyout menu)
+            {
+                await ShowAndSaveAsync(root, menu, System.IO.Path.Combine(outDir, $"desk-live-{name}.png"), text).ConfigureAwait(true);
+            }
+        }
+    }
+
     /// <summary>Open the menu inside the window, draw the popup's content, close it.</summary>
     private static async Task RenderAsync(Grid root, IEnumerable<ItemMenuEntry> entries, string path)
     {
@@ -202,11 +292,20 @@ internal static class MenuRender
     }
 
     /// <summary>Open the menu inside the window, draw the popup's content, close it.</summary>
-    private static async Task ShowAndSaveAsync(Grid root, FlyoutBase menu, string path)
+    private static async Task ShowAndSaveAsync(Grid root, FlyoutBase menu, string path, string? expand = null)
     {
         menu.ShouldConstrainToRootBounds = true;
         menu.ShowAt(root, new FlyoutShowOptions { Position = new Point(16, 16), ShowMode = FlyoutShowMode.Standard });
         await Task.Delay(700).ConfigureAwait(true);
+
+        // A sub item opened where it stands, as the pointer opens it: through its automation peer.
+        if (expand is not null && menu is MenuFlyout list
+            && list.Items.OfType<MenuFlyoutSubItem>().FirstOrDefault(s => s.Text == expand) is { } sub
+            && Microsoft.UI.Xaml.Automation.Peers.FrameworkElementAutomationPeer.CreatePeerForElement(sub) is Microsoft.UI.Xaml.Automation.Provider.IExpandCollapseProvider opener)
+        {
+            opener.Expand();
+            await Task.Delay(900).ConfigureAwait(true);
+        }
 
         // The first menu of a fresh window can take a moment longer to open.
         if (VisualTreeHelper.GetOpenPopupsForXamlRoot(root.XamlRoot).Count == 0)

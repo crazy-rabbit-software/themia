@@ -22,11 +22,20 @@ public sealed class RemovableDrivesTests
     [Fact]
     public void S11027_its_height_follows_its_rows_and_a_dragged_edge_sets_them()
     {
-        Assert.Equal(4 * 40, RemovableDrivesPlan.ListHeight(4));
+        Assert.Equal(4 * 40, RemovableDrivesPlan.ListHeight(4, 40));
         var sizing = Kind.SizingOf();
         Assert.Equal(36 + (4 * 40) + 12, sizing.Natural.Height);
         var two = Assert.IsType<RemovableDrivesConfig>(Kind.SizeSets!(new RemovableDrivesConfig(), new SizeDip(300, 36 + 80 + 12)));
         Assert.Equal(2, two.Rows);
         Assert.Equal(6, ((RemovableDrivesConfig)new RemovableDrivesConfig { Rows = 6 }.Clone()).Rows);
+    }
+
+    [Fact]
+    public void S12452_its_rows_run_down_to_the_cards_edge_and_never_past_half_again()
+    {
+        // The view at the natural box: four rows of 40 and the foot's 12, which the rows take.
+        Assert.Equal(43, RemovableDrivesPlan.Pitch((4 * 40) + 12, 4));
+        Assert.Equal(60, RemovableDrivesPlan.Pitch(900, 4));
+        Assert.Equal(40, RemovableDrivesPlan.Pitch(100, 4));
     }
 }

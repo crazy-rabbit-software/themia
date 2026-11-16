@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Xunit;
 
@@ -77,12 +78,15 @@ public class LaunchTargetTests
     [InlineData("file:///C:/Windows/System32/cmd.exe")]
     [InlineData("file://server/share")]
     [InlineData("vbscript:msgbox(1)")]
-    [InlineData("ms-settings:windowsupdate")]
+    [InlineData("ms-windows-store://home")]
+    [InlineData("ms-availablenetworks:")]
+    [InlineData("ms-settingsx:display")]
+    [InlineData("ms-screenclip:")]
     [InlineData("steam://run/440")]
     [InlineData("mailto:someone@example.com")]
     [InlineData("ftp://example.com/file")]
     [InlineData("search-ms:query=x")]
-    public void Every_scheme_but_http_and_https_is_refused(string raw)
+    public void Every_scheme_but_http_https_and_the_settings_one_is_refused(string raw)
     {
         var target = LaunchTargets.Classify(raw);
 
@@ -90,6 +94,72 @@ public class LaunchTargetTests
         Assert.Equal(LaunchRefusal.UnsupportedScheme, target.Refusal);
         Assert.Equal(string.Empty, target.Value);
     }
+
+    // ---- Windows Settings pages ([S-9514]) ------------------------------------------------------
+
+    [Theory]
+    [InlineData("ms-settings:display", "ms-settings:display")]
+    [InlineData("ms-settings:network-wifi", "ms-settings:network-wifi")]
+    [InlineData("ms-settings:", "ms-settings:")]
+    [InlineData("MS-Settings:Display", "ms-settings:Display")]
+    [InlineData("  \"ms-settings:windowsupdate\"  ", "ms-settings:windowsupdate")]
+    [InlineData("ms-settings:appsfeatures-app?PFN=Example.App-8wekyb3d8bbwe&x=1%20y", "ms-settings:appsfeatures-app?PFN=Example.App-8wekyb3d8bbwe&x=1%20y")]
+    public void S9514_a_settings_page_is_its_own_kind_opened_as_written(string raw, string value)
+    {
+        var target = LaunchTargets.Classify(raw);
+
+        Assert.True(target.IsValid);
+        Assert.Equal(LaunchKind.Settings, target.Kind);
+        Assert.Equal(value, target.Value);
+    }
+
+    [Theory]
+    [InlineData("ms-settings:display page")]
+    [InlineData("ms-settings:dis\"play")]
+    [InlineData("ms-settings:display'")]
+    [InlineData("ms-settings:..\\..\\cmd.exe")]
+    [InlineData("ms-settings:display/extra")]
+    [InlineData("ms-settings:display;calc")]
+    [InlineData("ms-settings:display|calc")]
+    [InlineData("ms-settings:displ\u00E4y")]
+    public void S9514_a_settings_address_holds_only_what_one_is_written_with(string raw)
+    {
+        var target = LaunchTargets.Classify(raw);
+
+        Assert.False(target.IsValid);
+        Assert.Equal(LaunchRefusal.MalformedUrl, target.Refusal);
+        Assert.Equal(string.Empty, target.Value);
+    }
+
+    [Fact]
+    public void S9514_a_settings_address_with_a_control_character_or_past_its_length_is_refused()
+    {
+        Assert.Equal(LaunchRefusal.ControlCharacters, LaunchTargets.Classify("ms-settings:display\nx").Refusal);
+        Assert.Equal(LaunchRefusal.ControlCharacters, LaunchTargets.Classify("ms-settings:display\tx").Refusal);
+
+        var longest = LaunchTargets.SettingsPrefix + new string('a', LaunchTargets.MaxSettingsLength - LaunchTargets.SettingsPrefix.Length);
+        Assert.Equal(LaunchKind.Settings, LaunchTargets.Classify(longest).Kind);
+        Assert.Equal(LaunchRefusal.TooLong, LaunchTargets.Classify(longest + "a").Refusal);
+    }
+
+    [Fact]
+    public void S9514_a_settings_page_is_never_probed_and_is_named_after_its_page()
+    {
+        var page = LaunchTargets.Classify("ms-settings:network-wifi");
+
+        Assert.False(LaunchTargets.MayProbe(page));
+        Assert.False(LaunchTargets.IsNetworkPath(page));
+        Assert.Equal("Network wifi", LaunchTargets.DisplayName(null, "ms-settings:network-wifi"));
+        Assert.Equal("Display", LaunchTargets.DisplayName(null, "ms-settings:display?x=1"));
+        Assert.Equal("Settings", LaunchTargets.SettingsDisplayName("ms-settings:", Locale.En));
+        Assert.Equal("Mine", LaunchTargets.DisplayName("Mine", "ms-settings:display"));
+        Assert.True(LaunchTargets.SameTarget("MS-SETTINGS:display", "ms-settings:DISPLAY"));
+        Assert.False(LaunchTargets.SameTarget("ms-settings:display", "ms-settings:sound"));
+    }
+
+    [Fact]
+    public void S9514_the_settings_apps_own_item_is_a_target_the_rule_accepts()
+        => Assert.Equal(LaunchKind.ShellNamespace, LaunchTargets.Classify(LaunchTargets.SettingsAppTarget).Kind);
 
     [Fact]
     public void A_url_carrying_credentials_is_refused_rather_than_stripped()

@@ -81,8 +81,11 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
     /// <summary>[S-1862] The row the card's Set up button opens the page at.</summary>
     public bool SetsUp { get; init; }
 
-    /// <summary>[S-11755] A sub-page that is a whole page of its own (a group's member: its header card and sections) rather than rows.</summary>
-    public PageModel? Page { get; init; }
+    /// <summary>
+    /// [S-2318] A button standing in the row's line at its end (Karpo's <c>OptionRow.Beside</c>, §638: Lometics' site
+    /// beside its name): its words, its glyph, what it does. Null for none.
+    /// </summary>
+    public PageRow? Beside { get; init; }
 }
 
 /// <summary>
@@ -132,8 +135,17 @@ internal sealed record PageHeader(string Glyph, string Name, string Caption, IRe
     public PageEdit? Rename { get; init; }
 }
 
-/// <summary>[S-2300] A page as drawn: its sections, under a header card where it has one.</summary>
+/// <summary>[S-2345] A tab of a page's strip: its words and the keys of the sections it shows.</summary>
+internal sealed record PageTab(string Key, string Title, IReadOnlyList<string> Sections);
+
+/// <summary>
+/// [S-2300] A page as drawn: its sections, under a header card where it has one; [S-2345] where it has
+/// tabs, a strip under the header card and the chosen tab's sections under it.
+/// </summary>
 internal sealed record PageModel(string Key, IReadOnlyList<PageSection> Sections)
 {
     public PageHeader? Header { get; init; }
+
+    /// <summary>[S-2345] Its tabs, two or more; empty: every section shows.</summary>
+    public IReadOnlyList<PageTab> Tabs { get; init; } = [];
 }

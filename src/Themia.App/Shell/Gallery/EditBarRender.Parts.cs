@@ -157,30 +157,22 @@ internal static partial class EditBarRender
         WidgetMenuLines? Over(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
             => Services.ModuleHost.MenuLines(kind, config, save, ask, confirm, openSetting: _ => { });
 
-        SelectionCommands Commands(bool whole) => new(_ => { }, _ => { }, (_, _) => { }, _ => { }, _ => { }, _ => { }, _ => { },
-            Cut: whole ? () => { } : null,
-            Copy: whole ? () => { } : null,
-            Delete: whole ? () => { } : null,
+        var commands = new SelectionCommands(_ => { }, _ => { }, (_, _) => { }, _ => { }, _ => { }, _ => { }, _ => { },
+            Cut: () => { },
+            Copy: () => { },
+            Delete: () => { },
             WidgetLines: id => lines is not null ? Stand(lines, Ask, Confirm) : view.Find(id) is { } found ? Over(found.Kind, found.Config, () => { }, Ask, Confirm) : null)
         {
             SharedLines = row => SharedRowLines.Of(row, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id))], Over, Ask, Confirm, _ => { }),
-            RenameGroup = whole ? (_, _) => { } : null,
-            Ungroup = whole ? () => { } : null,
-            RemoveFromGroup = whole ? _ => { } : null,
-            OpenGroup = whole ? () => { } : null,
-            Member = whole ? Member : null,
+            RenameGroup = (_, _) => { },
+            Group = () => { },
+            Ungroup = () => { },
+            OpenGroup = () => { },
         };
-
-        (SelectionModel, SelectionCommands)? Member(string id)
-        {
-            var alone = new WidgetSelection();
-            alone.Replace(view.Id, [id]);
-            return SelectionPage.Of(state, alone, view.Id) is { } model ? (model, Commands(whole: false)) : null;
-        }
 
         var kinds = view.Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();
         page = new PageView(() => SelectionPage.Of(state, selection, view.Id) is { } model
-            ? SelectionRows.Of(model, Commands(whole: true), kinds)
+            ? SelectionRows.Of(model, commands, kinds)
             : new PageModel("selection", []));
         UiLanguage.ApplyFlow(page);
         return page;

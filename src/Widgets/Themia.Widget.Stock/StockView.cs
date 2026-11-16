@@ -58,14 +58,17 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         // [S-11161] The line under always holds its place, said or not: the rows never move up into it.
         _price.MinHeight = FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight;
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _facts.Children.Add(_holdingRow);
         _facts.Children.Add(_extendedRow);
-        SetRow(_facts, 1);
-        SetRowSpan(_state, 2);
-        Children.Add(_price);
-        Children.Add(_facts);
+
+        // [S-12410] The price and its rows are one block, centred in the room under the header with the
+        // foot's inset counted with it: at its natural box nothing moves, a larger box spaces it.
+        Children.Add(new StackPanel
+        {
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, 0, 0, FamilySpace.Inset),
+            Children = { _price, _facts },
+        });
         Children.Add(_state);
     }
 

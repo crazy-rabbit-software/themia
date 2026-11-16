@@ -72,14 +72,14 @@ public static class ShowcaseViews
     /// [S-1810] The showcase views for <paramref name="kinds"/>, in that order, laid out for
     /// <paramref name="screen"/> (the whole monitor in DIPs, with its work area as
     /// <see cref="ScreenMetrics.Allowed"/>). Each widget's cell is its size times
-    /// <paramref name="contentScale"/> plus <paramref name="gap"/>, so after the gap inset ([S-04])
-    /// and the content scale ([S-850]) the widget lays out in exactly its size in DIPs.
+    /// <paramref name="contentScale"/>, so after the content scale ([S-850]) the widget lays out in
+    /// exactly its size in DIPs (a card paints its whole cell, [S-11884]).
     /// <para>
     /// [S-1812] When the sizes do not all fit in one work area, the rest go on a second view of the
     /// same kind ("Clock (2)"); a size larger than the whole work area is shrunk to it.
     /// </para>
     /// </summary>
-    public static List<ViewState> Build(IReadOnlyList<ShowcaseKind> kinds, ScreenMetrics screen, double gap, double contentScale = 1)
+    public static List<ViewState> Build(IReadOnlyList<ShowcaseKind> kinds, ScreenMetrics screen, double contentScale = 1)
     {
         ArgumentNullException.ThrowIfNull(kinds);
         if (!screen.IsUsable)
@@ -92,7 +92,7 @@ public static class ShowcaseViews
         foreach (var kind in kinds)
         {
             // [S-2448] Every kind is shown at its min, natural and max.
-            var pages = Layout(screen, gap, contentScale, SizeFit.CheckedAt(SizeFit.Of(kind.Kind, kind.Style?.Value)));
+            var pages = Layout(screen, contentScale, SizeFit.CheckedAt(SizeFit.Of(kind.Kind, kind.Style?.Value)));
             for (var p = 0; p < pages.Count; p++)
             {
                 var view = new ViewState
@@ -163,12 +163,11 @@ public static class ShowcaseViews
     /// <summary>
     /// The cells, in DIPs of the whole monitor, page by page. Skyline bottom-left packing of the sizes
     /// tallest first, each placed at the lowest, then leftmost, spot inside the work area less
-    /// <see cref="Margin"/>. Whole DIPs, so the painted edges ([S-04]) land on the size exactly.
+    /// <see cref="Margin"/>. Whole DIPs, so the painted edges land on the size exactly.
     /// </summary>
-    internal static List<List<(CheckedSize Size, PixelRect Cell)>> Layout(ScreenMetrics screen, double gap, double contentScale, IReadOnlyList<CheckedSize> sizes)
+    internal static List<List<(CheckedSize Size, PixelRect Cell)>> Layout(ScreenMetrics screen, double contentScale, IReadOnlyList<CheckedSize> sizes)
     {
         var scale = double.IsFinite(contentScale) && contentScale > 0 ? contentScale : 1;
-        var spacing = double.IsFinite(gap) && gap > 0 ? gap : 0;
 
         var work = GridGeometry.AllowedPixels(screen);
         var left = Math.Ceiling(work.X + Margin);
@@ -178,8 +177,8 @@ public static class ShowcaseViews
 
         var pending = sizes
             .Select(size => (Size: size,
-                W: Math.Min(width, Math.Ceiling((size.Width * scale) + spacing)),
-                H: Math.Min(height, Math.Ceiling((size.Height * scale) + spacing))))
+                W: Math.Min(width, Math.Ceiling(size.Width * scale)),
+                H: Math.Min(height, Math.Ceiling(size.Height * scale))))
             .OrderByDescending(t => t.H)
             .ThenByDescending(t => t.W)
             .ToList();

@@ -56,7 +56,7 @@ public sealed class FolderBrowserTests
         g.BeginPress(10, 10, FolderPress.Item, [@"C:\a"]);
 
         Assert.Equal(GestureStep.Idle, g.Move(13, 13));
-        Assert.Equal((false, false), g.Release());
+        Assert.False(g.Release());
     }
 
     [Fact]
@@ -68,19 +68,7 @@ public sealed class FolderBrowserTests
         Assert.Equal(GestureStep.StartDrag, g.Move(20, 10));
         Assert.Equal([@"C:\a"], g.DragPaths);
         Assert.Equal(GestureStep.Idle, g.Move(40, 10));
-        Assert.Equal((true, false), g.Release());
-    }
-
-    [Fact]
-    public void S1328_a_band_once_started_stays_a_band()
-    {
-        var g = new FolderGesture();
-        g.BeginPress(0, 0, FolderPress.Background);
-
-        Assert.Equal(GestureStep.Band, g.Move(10, 10));
-        Assert.Equal(GestureStep.Band, g.Move(1, 1));
-        Assert.Equal(new BandRect(0, 0, 1, 1), g.BandRect);
-        Assert.Equal((false, true), g.Release());
+        Assert.True(g.Release());
     }
 
     [Fact]
@@ -102,7 +90,7 @@ public sealed class FolderBrowserTests
     public void S1328_release_resets_and_moves_after_it_do_nothing()
     {
         var g = new FolderGesture();
-        g.BeginPress(0, 0, FolderPress.Background);
+        g.BeginPress(0, 0, FolderPress.Item, [@"C:\a"]);
         var generation = g.Generation;
 
         g.Release();
@@ -110,16 +98,6 @@ public sealed class FolderBrowserTests
         Assert.False(g.Pressed);
         Assert.NotEqual(generation, g.Generation);
         Assert.Equal(GestureStep.Idle, g.Move(100, 100));
-    }
-
-    [Fact]
-    public void S1328_band_hits_overlapping_boxes_only()
-    {
-        var band = new BandRect(50, 50, 10, 10);
-
-        Assert.True(band.Hits(0, 0, 20, 20));
-        Assert.True(band.Hits(45, 45, 100, 100));
-        Assert.False(band.Hits(60, 0, 20, 20));
     }
 
     // ---- history --------------------------------------------------------------------------------

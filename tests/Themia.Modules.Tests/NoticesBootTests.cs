@@ -167,13 +167,13 @@ public sealed class NoticesBootTests : IDisposable
     {
         var state = AppState.CreateDefault();
         state.Design.RunAtStartup = true;
-        state.Design.WidgetGapPx = 20;
+        state.Design.CornerRadiusPx = 20;
         state.Views.Add(ViewState.Create("Extra"));
 
         SettingsTransfer.Apply(state, AppState.CreateDefault());
 
         Assert.True(state.Design.RunAtStartup);
-        Assert.Equal(new DesignState().WidgetGapPx, state.Design.WidgetGapPx);
+        Assert.Equal(new DesignState().CornerRadiusPx, state.Design.CornerRadiusPx);
         Assert.Equal(2, state.Views.Count);
         Assert.Equal(AppState.CreateDefault().Views[0].Widgets.Count, state.Views[0].Widgets.Count);
     }
@@ -196,14 +196,14 @@ public sealed class NoticesBootTests : IDisposable
     }
 
     [Fact]
-    public void S893_home_is_weather_clock_places_meters_and_quick_settings()
+    public void S893_home_is_weather_clock_meters_and_quick_settings()
     {
         var widgets = AppState.CreateDefault().Views[0].Widgets;
 
         // The clock first, so it is the one drawn on top.
         Assert.Equal(
             [
-                new WidgetId("clock"), new WidgetId("shortcuts"), new WidgetId("weatherNow"),
+                new WidgetId("clock"), new WidgetId("weatherNow"),
                 new WidgetId("cpu"), new WidgetId("memory"), new WidgetId("gpu"), new WidgetId("network"),
                 new WidgetId("doNotDisturbToggle"), new WidgetId("colorFiltersToggle"), new WidgetId("nightLightToggle"),
                 new WidgetId("airplaneModeToggle"), new WidgetId("bluetoothToggle"), new WidgetId("wifiToggle"),
@@ -215,21 +215,18 @@ public sealed class NoticesBootTests : IDisposable
         Assert.False(clock.ShowSeconds);
         Assert.False(clock.ShowDate);
 
-        var places = Assert.IsType<ShortcutsConfig>(widgets[1].Config);
-        Assert.Equal(ShortcutsStyle.Grid, places.Style);
-        Assert.Equal(
-            ["shell:RecycleBinFolder", "shell:MyComputerFolder", "shell:Downloads", "shell:Personal", "shell:My Pictures", "shell:UsersFilesFolder"],
-            places.Items.Select(i => i.Target));
-        Assert.All(places.Items, i => Assert.Equal(string.Empty, i.Label));
+        // No desktop icon is seeded, of either source: Windows' own desktop icons arrive as desktop items
+        // through the reconcile ([S-5500], [S-5520]), and an own icon is the user's to add.
+        Assert.DoesNotContain(widgets, w => w.Kind == new WidgetId("desktopItem"));
 
-        Assert.Equal(WeatherNowStyle.LargeIcon, Assert.IsType<WeatherNowConfig>(widgets[2].Config).Style);
-        Assert.Equal(CpuStyle.Number, Assert.IsType<CpuConfig>(widgets[3].Config).Style);
-        Assert.Equal(MemoryStyle.Number, Assert.IsType<MemoryConfig>(widgets[4].Config).Style);
-        Assert.Equal(GpuStyle.Number, Assert.IsType<GpuConfig>(widgets[5].Config).Style);
-        Assert.IsType<NetworkConfig>(widgets[6].Config);
+        Assert.Equal(WeatherNowStyle.LargeIcon, Assert.IsType<WeatherNowConfig>(widgets[1].Config).Style);
+        Assert.Equal(CpuStyle.Number, Assert.IsType<CpuConfig>(widgets[2].Config).Style);
+        Assert.Equal(MemoryStyle.Number, Assert.IsType<MemoryConfig>(widgets[3].Config).Style);
+        Assert.Equal(GpuStyle.Number, Assert.IsType<GpuConfig>(widgets[4].Config).Style);
+        Assert.IsType<NetworkConfig>(widgets[5].Config);
 
         // Everything but the quick settings sits on the wallpaper: no card, no header.
-        Assert.All(widgets.Take(7), w =>
+        Assert.All(widgets.Take(6), w =>
         {
             Assert.Equal(FillKind.Transparent, w.Background.Kind);
             Assert.Equal(HeaderPlacement.Hidden, w.Header);
@@ -309,8 +306,7 @@ public sealed class NoticesBootTests : IDisposable
     public void S893_every_seeded_id_is_new_on_each_call()
     {
         static IEnumerable<string> Ids(AppState state) => state.Views.Select(v => v.Id)
-            .Concat(state.Views.SelectMany(v => v.Widgets).Select(w => w.Id))
-            .Concat(state.Views.SelectMany(v => v.Widgets).Select(w => w.Config).OfType<ShortcutsConfig>().SelectMany(c => c.Items).Select(i => i.Id));
+            .Concat(state.Views.SelectMany(v => v.Widgets).Select(w => w.Id));
 
         var ids = Ids(AppState.CreateDefault()).Concat(Ids(AppState.CreateDefault())).ToList();
 
@@ -385,6 +381,5 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(
             [new WidgetId("clock"), new WidgetId("calendar"), new WidgetId("tasks"), new WidgetId("notes")],
             loaded.State.Views[1].Widgets.Select(w => w.Kind));
-        Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[1].Config).Items.Count);
     }
 }

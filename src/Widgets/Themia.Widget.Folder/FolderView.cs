@@ -29,7 +29,7 @@ namespace Themia.App.Widgets;
 /// shell ([S-1330]).
 /// </para>
 /// </summary>
-internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWidgetOwnsDrags, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
 {
     /// <inheritdoc />
@@ -503,7 +503,6 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
         _scrollContent.RightTapped -= OnBackgroundRightTapped;
         _scrollContent.DoubleTapped -= OnDoubleTapped;
         _scrollContent.PointerEntered -= OnPointerEntered;
-        StopBandScroll();
     }
 
     private void OnPointerEntered(object sender, PointerRoutedEventArgs e)

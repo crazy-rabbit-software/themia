@@ -26,22 +26,29 @@ internal static partial class EditBarRender
 {
     private static async Task SettingsShots(Grid screen, string outDir, string theme)
     {
+        // [S-2311] The Appearance's preview over a picture of Windows' own, frosted as the desktop frosts it, where this PC has it.
+        using var wallpaper = File.Exists(PreviewWallpaper) ? RenderWallpaper.Use(PreviewWallpaper, new Core.Geometry.ScreenMetrics(1920, 1200)) : null;
+        await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
+
         const string a = SettingsMenu.Keys.Appearance;
         (string Name, string? Key)[] cases =
         [
             ("general", null),
             ("general-end", null),
             ("appearance", null),
+            ("appearance-end", null),
             ("appearance-style", a + "/style"),
+            ("appearance-material", a + "/cards/material"),
             ("appearance-theme", a + "/theme/theme"),
             ("appearance-accent", a + "/theme/accent"),
             ("appearance-background", a + "/theme/background"),
             ("appearance-border", a + "/cards/border"),
             ("appearance-font", a + "/text/font"),
-            ("general-motion", SettingsMenu.Keys.Motion + "/startup"),
+            ("appearance-motion", SettingsMenu.Keys.Motion + "/startup"),
             ("general-online-weather", SettingsMenu.Keys.Online + "/weather"),
             ("general-language", SettingsMenu.Keys.Language + "/display"),
             ("general-clock", SettingsMenu.Keys.Language + "/clock"),
+            ("general-formats", SettingsMenu.Keys.Formats),
 
             // [S-3749] Where a widget's link lands: the temperature unit's row, lit, as RequestSetting opens it.
             ("general-link-temperature", SettingsMenu.Keys.Format(Themia.Sdk.OwnedSetting.TemperatureUnit)),
@@ -90,6 +97,9 @@ internal static partial class EditBarRender
         await AboutShots(screen, outDir, theme).ConfigureAwait(true);
     }
 
+    /// <summary>[S-2311] Windows' own wallpaper, the preview's ground in a render.</summary>
+    private const string PreviewWallpaper = @"C:\Windows\Web\4K\Wallpaper\Windows\img0_1920x1200.jpg";
+
     /// <summary>
     /// [S-2328] The page that holds <paramref name="key"/> (General without one) open at it over <paramref name="host"/>:
     /// <c>page-&lt;theme&gt;-&lt;name&gt;.png</c>.
@@ -101,7 +111,8 @@ internal static partial class EditBarRender
             ? (name.StartsWith("appearance", StringComparison.Ordinal) ? pages[2] : name.StartsWith("account", StringComparison.Ordinal) ? pages[1] : pages[0])
             : pages.FirstOrDefault(p => SettingsPages.PathTo(p(), key) is not null) ?? pages[0];
         var page = core().Id;
-        var view = new PageView(() => PageRows.Of(core(), edit => host.Page?.Ask(edit)));
+        // [S-2311] The Appearance's preview: real cards on the render's stand-in wallpaper, in the host's design.
+        var view = new PageView(() => PageRows.Of(core(), edit => host.Page?.Ask(edit), () => new AppearancePreview(RenderWallpaper.Backdrop, RenderWallpaper.Screen ?? new Core.Geometry.ScreenMetrics(1920, 1080), () => host.State.Design)));
         host.Page = view;
         return PageShot(screen, System.IO.Path.Combine(outDir, $"page-{theme}-{name}.png"), page, view, core, key, then, after);
     }
@@ -156,9 +167,6 @@ internal static partial class EditBarRender
             // ignore: a render never reaches Windows' startup apps.
         }
 
-        // [S-5500] Stored in the render's own state only: a render never hides or shows the user's desktop icons.
-        public void SetDesktop(DesktopShows shows) => Mutate(s => s.Preferences.Desktop = shows);
-
         public void SetGameModeSuspend(bool on) => Mutate(s => s.Preferences.GameModeSuspend = on);
 
         public void ReplayIntro(IntroMode mode)
@@ -171,11 +179,6 @@ internal static partial class EditBarRender
         public void SetLanguage(AppLanguage language) => Mutate(s => s.Preferences.Language = language);
 
         public void Confirm(SettingsConfirm confirm) => Page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
-
-        public void Quit()
-        {
-            // ignore: a render quits when it has drawn.
-        }
 
         public ILicenceMenuHost Licence => this;
 

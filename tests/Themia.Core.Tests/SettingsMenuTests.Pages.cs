@@ -18,47 +18,84 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S2300_general_is_general_then_language_online_motion_backup_pro_about_and_quit_last()
+    public void S2315_general_is_karpos_sections_general_desktop_services_themia_and_about()
     {
-        var page = SettingsPages.General(new FakeHost());
+        var page = SettingsPages.General(new FakeHost { Mcp = new FakeMcp() });
 
-        Assert.Equal(["page", "language", "online", "motion", "backup", "pro", "about", "-about"], page.Sections.Select(s => s.Key));
+        Assert.Equal(["page", SettingsMenu.Keys.DesktopHeading, SettingsMenu.Keys.ServicesHeading, SettingsMenu.Keys.ThemiaHeading, SettingsMenu.Keys.About], page.Sections.Select(s => s.Key));
         Assert.Equal(Str.Common_General.Text(), page.Sections[0].Heading);
-        Assert.Equal(["startup", "desktop", "gameMode", "snap", "collisions"], page.Sections[0].Lines.Select(l => l.Key));
-        Assert.Equal(SettingsMenu.Keys.Quit, Assert.Single(page.Sections[^1].Lines).Key);
+
+        // Karpo's General: Start with Windows, the language and its formats, then Themia's own switches; no Quit.
+        Assert.Equal(["startup", SettingsMenu.Keys.Language + "/display", SettingsMenu.Keys.Formats, "gameMode"], page.Sections[0].Lines.Select(l => l.Key));
+        Assert.Equal(["desktopIconSize"], page.Sections[1].Lines.Select(l => l.Key));
+        Assert.Equal([SettingsMenu.Keys.Online, SettingsMenu.Keys.Mcp], page.Sections[2].Lines.Select(l => l.Key));
+        Assert.Equal([SettingsMenu.Keys.Pro, SettingsMenu.Keys.Backup, SettingsMenu.Keys.Uninstall], page.Sections[3].Lines.Select(l => l.Key));
+
+        // Karpo's levels are cards that open in place, one level, never a page of their own.
+        foreach (var card in page.Sections.Take(4).SelectMany(s => s.Lines).OfType<SettingsSubmenu>())
+        {
+            Assert.True(card.Card, card.Key);
+            Assert.Equal(SettingsRowKind.Expander, SettingsRows.KindOf(card));
+        }
+
+        Assert.DoesNotContain(SettingsPages.Lines(page), l => l.Key.StartsWith(SettingsMenu.Keys.Motion, StringComparison.Ordinal));
     }
 
     [Fact]
-    public void S2300_appearance_is_the_style_then_its_groups_each_a_section_and_motion_is_not_there()
+    public void S2316_appearance_is_the_preview_bare_then_the_style_its_groups_and_motion()
     {
         var page = SettingsPages.Appearance(new FakeHost());
 
-        Assert.Equal(["page", "appearance/theme", "appearance/items", "appearance/cards", "appearance/text"], page.Sections.Select(s => s.Key));
+        Assert.Equal(["page", "appearance/theme", "appearance/items", "appearance/cards", "appearance/material", "appearance/edge", "appearance/text", "appearance/surfaces", "appearance/layout", SettingsMenu.Keys.Motion], page.Sections.Select(s => s.Key));
         Assert.Null(page.Sections[0].Heading);
-        Assert.DoesNotContain(SettingsPages.Lines(page), l => l.Key.StartsWith("motion", StringComparison.Ordinal));
+        Assert.IsType<SettingsPreview>(page.Sections[0].Lines[0]);
+        Assert.Equal(SettingsRowKind.Preview, SettingsRows.KindOf(page.Sections[0].Lines[0]));
+        Assert.Equal(SettingsMenu.Keys.Appearance + "/style", page.Sections[0].Lines[1].Key);
+
+        // [S-2311] The preview is a card of its own and sets nothing.
+        Assert.Equal([[SettingsMenu.Keys.Preview]], SettingsRows.Cards(page.Sections[0].Lines).Take(1).Select(c => c.Select(l => l.Key).ToArray()));
     }
 
     [Fact]
-    public void S2300_accounts_lists_every_account_as_a_page_of_its_own_then_add_account()
+    public void S2312_accounts_is_your_accounts_each_a_card_then_add_an_account_nothing_a_page_of_its_own()
     {
         var page = SettingsPages.Accounts(new FakeHost());
         var lines = page.Sections.SelectMany(s => s.Lines).ToList();
 
-        var add = Assert.IsType<SettingsSubmenu>(lines.Single(l => l.Key == SettingsMenu.Keys.AddAccount));
-        Assert.Equal(SettingsRowKind.SubPage, SettingsRows.KindOf(add));
-        Assert.All(lines.OfType<SettingsSubmenu>(), s => Assert.Equal(SettingsRowKind.SubPage, SettingsRows.KindOf(s)));
+        Assert.Equal([SettingsMenu.Keys.YourAccounts, SettingsMenu.Keys.AddAccount], page.Sections.Select(s => s.Key));
+        Assert.Equal([Str.SettingsPages_Accounts_Yours.Text(), Str.SettingsPages_Accounts_Add.Text()], page.Sections.Select(s => s.Heading));
+        Assert.All(lines.OfType<SettingsSubmenu>(), s => Assert.Equal(SettingsRowKind.Expander, SettingsRows.KindOf(s)));
+        Assert.All(lines.OfType<SettingsSubmenu>(), s => Assert.True(s.Card, s.Key));
     }
 
     [Fact]
-    public void S2300_display_and_views_are_their_menus_lines_with_their_groups_as_sections()
+    public void S2300_display_and_views_are_their_cards_under_their_headings()
     {
         var world = new World();
         var display = SettingsPages.Display(world.Display);
         var views = SettingsPages.Views(world.Views);
 
-        Assert.Equal(["page", DisplayMenu.Keys.Views, DisplayMenu.Keys.ViewBar, DisplayMenu.Keys.All, DisplayMenu.Keys.ShowOn], display.Sections.Select(s => s.Key));
-        Assert.Equal(["page", ViewsMenu.Keys.Manage], views.Sections.Select(s => s.Key));
-        Assert.All(views.Sections[1].Lines.OfType<SettingsItem>(), i => Assert.NotNull(i.Order));
+        Assert.Equal([DisplayMenu.Keys.Heading, DisplayMenu.Keys.All], display.Sections.Select(s => s.Key));
+        Assert.Equal([ViewsMenu.Keys.Heading], views.Sections.Select(s => s.Key));
+        Assert.All(views.Sections[0].Lines.OfType<SettingsSubmenu>(), i => Assert.NotNull(i.Order));
+    }
+
+    [Fact]
+    public void S2310_a_thing_is_a_card_that_opens_on_its_section_never_a_section_of_its_own()
+    {
+        SettingsLine[] lines =
+        [
+            new SettingsHeading("h", "H"),
+            new SettingsSubmenu("t1", "T1", null, [new SettingsNote("t1/x", "x")]) { Card = true, Caption = "under" },
+            new SettingsSubmenu("t2", "T2", null, [new SettingsNote("t2/x", "x")]) { Card = true },
+            new SettingsSubmenu("s", "S", null, [new SettingsNote("s/x", "x")]),
+        ];
+
+        var sections = SettingsPages.Sectioned(lines, null);
+
+        Assert.Equal(["h", "s"], sections.Select(s => s.Key));
+        Assert.Equal(["t1", "t2"], sections[0].Lines.Select(l => l.Key));
+        Assert.Equal([["t1"], ["t2"]], SettingsRows.Cards(sections[0].Lines).Select(c => c.Select(l => l.Key).ToArray()));
     }
 
     [Fact]
@@ -162,14 +199,15 @@ public sealed partial class SettingsMenuTests
             var host = world.Settings;
             SettingsLine[] roots =
             [
-                .. SettingsMenu.General(host), SettingsMenu.Appearance(host), SettingsMenu.Accounts(host), SettingsMenu.Language(host),
+                .. SettingsMenu.General(host), .. SettingsMenu.Desktop(host), SettingsMenu.Appearance(host), SettingsMenu.Accounts(host), SettingsMenu.Language(host),
                 SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host), SettingsMenu.Assistants(host)!, SettingsMenu.Backup(host), SettingsMenu.Pro(host), SettingsMenu.About(host),
             ];
-            return roots.SelectMany(r => r is SettingsSubmenu s && !s.Page ? s.Lines : [r]);
+            return roots.SelectMany(r => r is SettingsSubmenu s && !s.Page ? s.Lines : [r]).SelectMany(l => l is SettingsSubmenu { Card: true } c ? c.Lines : [l]);
         }
 
         var settingKinds = new[] { typeof(SettingsToggle), typeof(SettingsChoice), typeof(SettingsSlider), typeof(SettingsColour), typeof(SettingsFill), typeof(SettingsFont), typeof(SettingsAsk), typeof(SettingsIcon), typeof(SettingsItem) };
-        var everyKey = Builders().Concat(DisplayMenu.Root(world.Display)).Concat(ViewsMenu.Root(world.Views))
+        static IEnumerable<SettingsLine> Opened(IEnumerable<SettingsLine> lines) => lines.SelectMany(l => l is SettingsSubmenu { Card: true } c ? c.Lines : [l]);
+        var everyKey = Builders().Concat(Opened(DisplayMenu.Root(world.Display))).Concat(Opened(ViewsMenu.Root(world.Views)))
             .Where(l => settingKinds.Contains(l.GetType())).Select(l => l.Key).ToList();
 
         Assert.NotEmpty(everyKey);
@@ -189,9 +227,8 @@ public sealed partial class SettingsMenuTests
 
         var path = SettingsPages.PathTo(page, clock);
 
-        Assert.Equal([SettingsMenu.Keys.Language, clock], path);
+        Assert.Equal(["page", SettingsMenu.Keys.Formats, clock], path);
         Assert.Equal(clock, SettingsPages.Find(page, path!)!.Key);
         Assert.Null(SettingsPages.PathTo(page, "nowhere"));
-        Assert.Equal(["page", SettingsMenu.Keys.Snap], SettingsPages.PathTo(page, SettingsMenu.Keys.Snap));
     }
 }

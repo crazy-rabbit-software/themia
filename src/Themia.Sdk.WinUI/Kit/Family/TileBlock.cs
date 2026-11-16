@@ -7,9 +7,9 @@ using Themia.Sdk.Kit;
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-6715] The Tile block, a one-readout widget's whole body: the glyph centred on the step its
-/// widget's Size names (<see cref="TileRules.GlyphAt"/>), its label (Body) 8 under it and its state line
-/// (Caption) under that. On, <see cref="TileLook.Tile"/> fills the whole tile with the accent and
+/// [S-6715] [S-11882] The Tile block, a one-readout widget's whole body: the glyph centred on the step
+/// its box holds (<see cref="TileRules.Face"/>), its label 8 under it and its state line under that, the
+/// words growing with the glyph (Body and Caption, Title and Body past 68). On, <see cref="TileLook.Tile"/> fills the whole tile with the accent and
 /// draws on it in the on-accent roles; <see cref="TileLook.Round"/> puts the glyph in a circle (the
 /// accent when on); <see cref="TileLook.Switch"/> is a Row with a switch as its value. Not on, the
 /// tile (or the circle) is the item layer's ([S-6513]). Missing on this PC, every part is the disabled
@@ -41,6 +41,8 @@ public sealed partial class TileBlock : Grid
     private TileState _tone;
     private ItemState _face = ItemState.Rest;
     private TypeStep _step = FamilyType.Big28;
+    private TypeStep _nameStep = FamilyType.Body;
+    private TypeStep _stateStep = FamilyType.Caption;
     private double _width;
     private bool _planLabel = true;
     private bool _planState = true;
@@ -144,17 +146,30 @@ public sealed partial class TileBlock : Grid
     }
 
     /// <summary>
-    /// [S-11307] Lay the glyph out on <paramref name="step"/>, chosen by the widget's Size, in a box
-    /// <paramref name="width"/> wide (the switch look's row), planned for a <paramref name="label"/> and a
-    /// <paramref name="state"/> line whether or not they say anything now.
+    /// [S-11882] Lay the glyph out on <paramref name="step"/>, chosen by the box (<see cref="TileRules.Face"/>),
+    /// in a box <paramref name="width"/> wide (the switch look's row), planned for a <paramref name="label"/>
+    /// on <paramref name="name"/>'s step and a <paramref name="state"/> line on <paramref name="stateStep"/>'s
+    /// (Body and Caption when not given) whether or not they say anything now.
     /// </summary>
-    public void Use(TypeStep step, double width, bool label = true, bool state = true)
+    public void Use(TypeStep step, double width, bool label = true, bool state = true, TypeStep? name = null, TypeStep? stateStep = null)
     {
         _width = width;
         _planLabel = label;
         _planState = state;
         _step = step;
+        _nameStep = name ?? FamilyType.Body;
+        _stateStep = stateStep ?? FamilyType.Caption;
         Apply();
+    }
+
+    /// <summary>
+    /// [S-11883] The tile's fill takes the card's corners (round where the card is, square where a group
+    /// mate joins it), so a joined panel of tiles shows no notch at its seams.
+    /// </summary>
+    public void Corners(CornerRadius corners)
+    {
+        CornerRadius = corners;
+        _overlay.CornerRadius = corners;
     }
 
     private void Apply()
@@ -217,8 +232,12 @@ public sealed partial class TileBlock : Grid
         _label.Visibility = _planLabel ? Visibility.Visible : Visibility.Collapsed;
         _state.Visibility = _planState ? Visibility.Visible : Visibility.Collapsed;
 
+        // [S-11882] The words on the steps the box gives them; the switch's row keeps Body and Caption.
+        Family.Step(_label, switchLook ? FamilyType.Body : _nameStep);
+        Family.Step(_state, switchLook ? FamilyType.Caption : _stateStep);
+
         // A planned line keeps its height while it says nothing (a reading not answered yet).
-        _state.Height = FamilyType.Caption.LineHeight;
+        _state.Height = (switchLook ? FamilyType.Caption : _stateStep).LineHeight;
         _label.Foreground = Family.Brush(roles.Label);
         _state.Foreground = Family.Brush(roles.State);
         _switchGlyph.Foreground = Family.Brush(roles.Glyph);

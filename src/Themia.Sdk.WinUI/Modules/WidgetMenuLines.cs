@@ -399,7 +399,7 @@ public sealed class WidgetMenuLines
     public static ItemMenuEntry Note(string text) => new(null, text, null, Disabled: true, Note: true);
 
     /// <summary>
-    /// [S-3729] An editable list setting (feeds, symbols, hosts, shortcuts) as a submenu: each item a
+    /// [S-3729] An editable list setting (feeds, symbols, hosts) as a submenu: each item a
     /// submenu of its own (Rename… where <see cref="MenuList{T}.Rename"/> is given, the
     /// <see cref="MenuList{T}.Extra"/> lines, Remove), its line dragged up and down to reorder
     /// ([S-3732], <see cref="ItemMenuEntry.Order"/>; Alt+Shift+Up / Down on it), the

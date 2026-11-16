@@ -128,8 +128,6 @@
     "few": "Odstranit {count} widgety",
     "other": "Odstranit {count} widgetů"
   },
-  "shell.card.doneEditing": "Dokončit úpravy",
-  "shell.card.editLayout": "Upravit rozložení",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -143,8 +141,6 @@
   "shell.setup.button": "Nastavit",
   "shell.setup.hint": "Nastav, co tento widget potřebuje",
   "shell.toolbar.addWidget": "Přidat widget",
-  "shell.toolbar.snapName": "Přichytit k mřížce",
-  "shell.toolbar.collisionsName": "Nedovolit překrývání widgetů",
   "shell.editBar.selected": {
     "one": "{count} vybraný",
     "few": "{count} vybrané",
@@ -199,7 +195,6 @@
   "shell.appearance.textSize": "Velikost textu",
   "shell.appearance.systemFont": "Výchozí systémové",
   "shell.appearance.sansFont": "Bezpatkové",
-  "shell.layout.gap": "Mezera mezi widgety",
   "shell.motion.slide": "Posun",
   "shell.motion.sides": "Strany",
   "shell.motion.topBottom": "Nahoře a dole",
@@ -302,7 +297,6 @@
   "shell.refresh.everyMinute": "Každou minutu",
   "shell.refresh.everyHour": "Každou hodinu",
   "shell.color.custom": "Vlastní barva",
-  "shell.color.pickCustom": "Vybrat vlastní barvu",
   "shell.color.pickFromScreen": "Vybrat barvu z obrazovky",
   "shell.color.pickFailed": "Barvy na obrazovce se nepodařilo načíst",
   "shell.icon.home": "Domov",

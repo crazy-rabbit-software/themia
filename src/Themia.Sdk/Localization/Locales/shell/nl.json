@@ -125,8 +125,6 @@
     "one": "{count} widget verwijderen",
     "other": "{count} widgets verwijderen"
   },
-  "shell.card.doneEditing": "Klaar met bewerken",
-  "shell.card.editLayout": "Indeling bewerken",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Instellen",
   "shell.setup.hint": "Instellen wat deze widget nodig heeft",
   "shell.toolbar.addWidget": "Widget toevoegen",
-  "shell.toolbar.snapName": "Uitlijnen op raster",
-  "shell.toolbar.collisionsName": "Voorkomen dat widgets overlappen",
   "shell.editBar.selected": {
     "one": "{count} geselecteerd",
     "other": "{count} geselecteerd"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Tekstgrootte",
   "shell.appearance.systemFont": "Systeemstandaard",
   "shell.appearance.sansFont": "Schreefloos",
-  "shell.layout.gap": "Ruimte tussen widgets",
   "shell.motion.slide": "Schuiven",
   "shell.motion.sides": "Zijkanten",
   "shell.motion.topBottom": "Boven en onder",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Elke minuut",
   "shell.refresh.everyHour": "Elk uur",
   "shell.color.custom": "Aangepaste kleur",
-  "shell.color.pickCustom": "Een aangepaste kleur kiezen",
   "shell.color.pickFromScreen": "Een kleur van het scherm kiezen",
   "shell.color.pickFailed": "Kan de kleuren op het scherm niet lezen",
   "shell.icon.home": "Thuis",

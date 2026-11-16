@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Alege altă aplicație",
+  "folderMenu.compressToZip": "Comprimă în fișier ZIP",
+  "folderMenu.copyAsPath": "Copiază ca cale",
+  "folderMenu.openInNewWindow": "Deschide într-o fereastră nouă",
+  "folderMenu.openWith": "Deschide cu",
+  "folderMenu.pinToQuickAccess": "Fixează în Acces rapid",
+  "folderMenu.pinToStart": "Fixează la Start",
+  "folderMenu.share": "Partajează",
+  "folder.properties": "Proprietăți",
+  "widgetsB.folder.freeUpSpace": "Eliberează spațiu",
+  "widgetsB.folder.keepOnDevice": "Păstrează mereu pe acest dispozitiv",
+  "widgetsB.folder.moreOptions": "Afișează mai multe opțiuni",
+  "widgetsB.folder.new": "Nou",
+  "ctxMenu.folder": "Folder"
+}

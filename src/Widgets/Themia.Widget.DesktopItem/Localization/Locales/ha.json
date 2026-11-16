@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Abu na tebur",
-  "desktopItem.desc": "Fayil, babban fayil ko gajeriyar hanya daga tebur ɗinka"
+  "widgetsC.shortcuts.column.target": "Manufa",
+  "widgetsC.shortcuts.kind.location": "Wurin Windows",
+  "widgetsC.shortcuts.kind.missing": "Ya ɓace",
+  "widgetsC.shortcuts.kind.path": "Hanya",
+  "widgetsC.shortcuts.kind.refused": "Ba a yarda ba",
+  "widgetsC.shortcuts.menu.addLayout": "Tsarin manhajoji…",
+  "widgetsC.shortcuts.menu.addLink": "Adireshin yanar gizo ko hanya…",
+  "widgetsC.shortcuts.menu.changeTarget": "Canza manufa…",
+  "widgetsC.shortcuts.settings.locations": "Wuraren Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Danna sau biyu",
+  "widgetsC.shortcuts.settings.openWith.label": "Buɗe da",
+  "widgetsC.shortcuts.settings.openWith.single": "Danna sau ɗaya",
+  "widgetsC.shortcuts.settings.pick.file": "Fayil…",
+  "widgetsC.shortcuts.settings.pick.folder": "Babban fayil…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (babu manufa)\n{target}"
 }

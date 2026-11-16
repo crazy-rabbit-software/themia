@@ -129,9 +129,9 @@ public sealed partial class HeaderBlock : Grid
 
     /// <summary>
     /// [S-6706] The count pill: Caption in the primary role on the subtle fill, round, 16 tall — neutral,
-    /// never the accent. Over an image (a cell's badge) it takes the solid fill instead.
+    /// never the accent.
     /// </summary>
-    public static Border Count(TextBlock text, bool overImage = false)
+    public static Border Count(TextBlock text)
     {
         ArgumentNullException.ThrowIfNull(text);
 
@@ -140,22 +140,19 @@ public sealed partial class HeaderBlock : Grid
         text.HorizontalAlignment = HorizontalAlignment.Center;
         text.VerticalAlignment = VerticalAlignment.Center;
 
-        var stroke = overImage ? FamilyShape.Hairline : 0;
         var pill = new Border
         {
             Child = text,
             Height = FamilyShape.PillHeight,
             MinWidth = FamilyShape.PillHeight,
             CornerRadius = Family.Round(FamilyShape.PillHeight, FamilyShape.PillHeight),
-            Background = Family.Brush(overImage ? ColourRole.Solid : ColourRole.Subtle),
-            BorderBrush = overImage ? Family.Brush(ColourRole.ControlStroke) : null,
-            BorderThickness = new Thickness(stroke),
+            Background = Family.Brush(ColourRole.Subtle),
             VerticalAlignment = VerticalAlignment.Center,
         };
 
         // The pill is its text and 6 either side ([S-6706]), as a size the text sets rather than a
         // padding: a padding of 6 is off the space scale the render walk holds every padding to.
-        text.SizeChanged += (_, args) => pill.Width = Math.Max(FamilyShape.PillHeight, args.NewSize.Width + (2 * FamilyShape.PillPadding) + (2 * stroke));
+        text.SizeChanged += (_, args) => pill.Width = Math.Max(FamilyShape.PillHeight, args.NewSize.Width + (2 * FamilyShape.PillPadding));
         return pill;
     }
 

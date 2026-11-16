@@ -20,6 +20,6 @@ public static class MusicCoverFace
     {
         ArgumentNullException.ThrowIfNull(config);
         var side = SideAt(config.Size);
-        return WidgetSizing.Fixed(new SizeDip(side, side));
+        return WidgetSizing.Fixed(new SizeDip(side, side)) with { Room = StretchRoom.Picture };
     }
 }

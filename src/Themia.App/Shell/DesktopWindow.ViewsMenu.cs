@@ -10,21 +10,11 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>
-    /// [S-3546] A view chip's View settings: that view shown here (the Views page is the shown view's), then
-    /// the Views page open on this display.
-    /// </summary>
+    /// <summary>[S-3546] [S-2313] A view chip's View settings: the Views page open on this display at that view's card, opened.</summary>
     private void OpenViewSettings(string viewId)
-    {
-        if (!string.Equals(ViewsMenu.ShownOn(_host.State, _monitor.Id), viewId, StringComparison.Ordinal))
-        {
-            _host.ShowView(_monitor.Id, viewId);
-        }
+        => OpenPage(SettingsPageId.Views, [ViewsMenu.Keys.Heading, ViewsMenu.Keys.View(viewId)]);
 
-        OpenPage(SettingsPageId.Views, []);
-    }
-
-    /// <summary>[S-3541] What this display's View menu reads and writes: the views, shown, made and moved through the host, for this display.</summary>
+    /// <summary>[S-3541] What this display's Views page reads and writes: the views, shown, made and moved through the host, for this display.</summary>
     private sealed class SurfaceViewsHost(DesktopWindow surface) : IViewsMenuHost
     {
         private AppHost Host => surface._host;
@@ -32,6 +22,10 @@ internal sealed partial class DesktopWindow
         public AppState State => Host.State;
 
         public string DisplayId => surface._monitor.Id;
+
+        public IReadOnlyList<MenuDisplay> Displays => [.. Host.Displays.Select(d => new MenuDisplay(d.Id, d.ShortName, d.Describe(), d.Info))];
+
+        public void Show(string viewId) => Host.ShowView(DisplayId, viewId);
 
         public void Mutate(Action<AppState> change, bool relayout = true) => Host.Mutate(change, relayout);
 

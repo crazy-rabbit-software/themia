@@ -64,6 +64,18 @@ public sealed partial class WallpaperLabel : Grid
         }
     }
 
+    /// <summary>[S-9504] Struck through: the name of something that is not there any more (a shortcut's missing target).</summary>
+    public bool Strikethrough
+    {
+        get => _text.TextDecorations == Windows.UI.Text.TextDecorations.Strikethrough;
+        set
+        {
+            var decorations = value ? Windows.UI.Text.TextDecorations.Strikethrough : Windows.UI.Text.TextDecorations.None;
+            _text.TextDecorations = decorations;
+            _shadow.TextDecorations = decorations;
+        }
+    }
+
     /// <summary>Whether the text is cut (for the full name on hover or selection, [S-6627]).</summary>
     public bool IsTrimmed => _text.IsTextTrimmed;
 

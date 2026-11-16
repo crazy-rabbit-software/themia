@@ -44,7 +44,7 @@ public sealed class StockHistoryModule : IWidgetModule
 
     /// <summary>[S-11166] The chart edge to edge under the inset (headerless): 200..480 wide, its band 64..240 tall.</summary>
     internal static WidgetSizing Sizing()
-        => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax));
+        => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
 
     /// <summary>[S-11167] Every option is on the properties menu: the instrument and its period as the price's, and the markers.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => Lines(menu, (StockHistoryConfig)config, SymbolLookup.FindAsync);

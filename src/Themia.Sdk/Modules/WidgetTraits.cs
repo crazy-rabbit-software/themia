@@ -36,4 +36,17 @@ public enum WidgetTraits
     /// buttons. The render walk and <c>ReadoutRules.OneReadout</c> read it; no list of kinds is kept.
     /// </summary>
     OneReadout = 8,
+
+    /// <summary>
+    /// [S-5600] A new one starts on no card (its background Transparent, [S-6562]; the user can still give
+    /// it one): what is drawn as a desktop icon, straight over the wallpaper as Windows draws its own (a
+    /// desktop item, a shortcut).
+    /// </summary>
+    StartsTransparent = 16,
+
+    /// <summary>
+    /// [S-11880] It is never a card that joins its neighbours, whatever its fill (a desktop icon: icons
+    /// touch on the widget grid, and each keeps its highlight's four corners). No group panel, no glass body.
+    /// </summary>
+    NeverJoins = 32,
 }

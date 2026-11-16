@@ -90,8 +90,8 @@ public sealed class AddPage
     /// <summary>
     /// [S-11700] The page for <paramref name="offered"/> kinds (the catalogue's, in its order) and the
     /// ready-made <paramref name="groups"/> this build can place. [S-5523] <paramref name="itemKind"/>, the
-    /// desktop item kind, is never a tile of its own: the view's <paramref name="unplaced"/> items are, in
-    /// a section of the subject it is at home in.
+    /// desktop icon kind, has its tile like any kind (it makes an own icon), and the view's
+    /// <paramref name="unplaced"/> desktop items are tiles too, in a section of the subject it is at home in.
     /// </summary>
     public static AddPage Of(IReadOnlyList<WidgetId> offered, IReadOnlyList<ReadyMadeGroup> groups, WidgetId? itemKind = null, IReadOnlyList<DesktopItem>? unplaced = null)
         => Of(AddTree.Popular, AddTree.Browse, offered, groups, itemKind, unplaced);
@@ -103,10 +103,6 @@ public sealed class AddPage
         ArgumentNullException.ThrowIfNull(groups);
 
         var have = new HashSet<WidgetId>(offered);
-        if (itemKind is { } skip)
-        {
-            have.Remove(skip);
-        }
 
         var tabs = new List<AddTab> { new(AddFolderId.Start, Str.AddMenu_Start.Local()) };
         var sections = new Dictionary<AddFolderId, IReadOnlyList<AddSection>>();
@@ -265,7 +261,8 @@ public static class AddSearch
         var locale = Strings.Current;
         return new WidgetSearchDoc(
             definition.Id.Value,
-            Both(locale, definition.Label),
+            // [S-11709] The tile's own name first (the one shown), then the kind's: both find it.
+            definition.AddLabel is { } tile ? [.. Both(locale, tile), .. Both(locale, definition.Label)] : Both(locale, definition.Label),
             definition.Keywords,
             Both(definition.Describe(locale), definition.Describe(Locale.En)),
             [.. path.SelectMany(shelf => Both(locale, shelf.Title))],

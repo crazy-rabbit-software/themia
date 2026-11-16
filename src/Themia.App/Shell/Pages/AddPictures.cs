@@ -240,14 +240,19 @@ internal sealed class AddPictures : IDisposable
         var cards = new List<WidgetCard>();
         try
         {
-            foreach (var model in models)
+            // [S-11807] A picture is the thing as the desktop paints it: whole cells of its picture's grid.
+            // [S-11809] A group's boxes as its placement lays them out, as one block.
+            IReadOnlyList<Core.Geometry.FracRect> boxes = tile is AddGroupTile recipe
+                ? ReadyMadeGroups.Laid(recipe.Group, metrics, new Core.Geometry.PlacementSizes(1))
+                : [.. models.Select(m => Core.Geometry.SizeFit.Shown(m.Rect, Core.Geometry.SizeFit.Limits(m, metrics, 1), metrics))];
+            for (var i = 0; i < models.Count; i++)
             {
-                var shown = Core.Geometry.SizeFit.Shown(model.Rect, Core.Geometry.SizeFit.Limits(model, metrics, 1, design.WidgetGapPx), metrics);
+                var model = models[i];
+                var shown = boxes[i];
                 var cell = Core.Geometry.GridGeometry.ToPixels(shown, metrics);
                 var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
                 card.SetLiveRect(shown);
                 card.ApplyEditMode(false);
-                card.ApplyGap(design.WidgetGapPx);
                 Canvas.SetLeft(card, cell.X);
                 Canvas.SetTop(card, cell.Y);
                 panel.Children.Add(card);
@@ -261,7 +266,8 @@ internal sealed class AddPictures : IDisposable
             _stage.Children.Add(panel);
 
             // [S-2240] A group's cards join as on the desktop.
-            WidgetCard.Join(cards, metrics, design.WidgetGapPx, panel.XamlRoot?.RasterizationScale ?? 1, editMode: false, _ => 0);
+            // The cells were put on whole DIPs (scale 1), so the join measures them the same way.
+            WidgetCard.Join(cards, metrics, 1, editMode: false, _ => 0);
             await SettleAsync(panel).ConfigureAwait(true);
 
             // [S-11850] Each view with a sample shows it; one without draws what its host hands it (the sample PC's readings).

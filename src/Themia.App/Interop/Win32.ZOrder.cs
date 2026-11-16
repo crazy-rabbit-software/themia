@@ -50,6 +50,9 @@ internal static unsafe partial class Win32
 
     // ---- window enumeration and inspection -----------------------------------------------------
 
+    /// <summary>The window at the top of the z-order among a given one's siblings.</summary>
+    internal const uint GwHwndFirst = 0;
+
     /// <summary>The window immediately below a given one in the z-order.</summary>
     internal const uint GwHwndNext = 2;
 
@@ -65,6 +68,13 @@ internal static unsafe partial class Win32
 
     [LibraryImport("user32.dll")]
     internal static partial nint GetAncestor(nint hWnd, uint gaFlags);
+
+    /// <summary><c>GA_ROOT</c>: the top-level window a child window belongs to.</summary>
+    internal const uint GaRoot = 2;
+
+    /// <summary>[S-11878] The window under a physical screen point, whoever holds the mouse.</summary>
+    [LibraryImport("user32.dll")]
+    internal static partial nint WindowFromPoint(Point point);
 
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

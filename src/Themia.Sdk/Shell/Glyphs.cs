@@ -121,6 +121,24 @@ public static class Glyphs
 
     // [S-1910] Power widget glyphs beyond the shared ones (Power, Reset, Moon, Display).
     public static readonly string Lock = From(0xE72E);
+
+    /// <summary>[S-65] "Unlock widgets": the open padlock (Segoe "Unlock").</summary>
+    public static readonly string Unlock = From(0xE785);
+
+    /// <summary>[S-5548] The desktop menu's "Paste shortcut" (Explorer's picture, [S-1754]; Segoe "ClipboardList" without it).</summary>
+    public static readonly string PasteShortcut = From(0xF0E3);
+
+    /// <summary>[S-5582] "Empty Recycle Bin" (Explorer's picture, [S-1754]; Segoe "Broom" without it).</summary>
+    public static readonly string EmptyBin = From(0xEA99);
+
+    /// <summary>[S-6416] "Pin to Start" (Segoe "Pinned").</summary>
+    public static readonly string PinToStart = From(0xE840);
+
+    /// <summary>[S-5548] The desktop menu's "Personalise" (Segoe "Personalize").</summary>
+    public static readonly string Personalize = From(0xE771);
+
+    /// <summary>[S-5548] The desktop menu's "Open in Terminal" (Segoe "CommandPrompt").</summary>
+    public static readonly string Terminal = From(0xE756);
     public static readonly string SignOut = From(0xF3B1);
     /// <summary>[S-1910] "Save to this PC": hibernation writes the session to disk. Fluent has no hibernate glyph.</summary>
     public static readonly string Hibernate = From(0xE78C);
@@ -212,6 +230,9 @@ public static class Glyphs
     // The system widgets: mixer and screen time (the GPU glyph sits with the other meters).
     public static readonly string Mixer = From(0xE9E9);
     public static readonly string ScreenTime = From(0xEC92);
+
+    /// <summary>[S-2315] The regional formats' card (Segoe "DateTime", Karpo's <c>OptionGlyphs.DateAndTime</c>).</summary>
+    public static readonly string DateAndTime = From(0xEC92);
 
     /// <summary>[S-3320] The screen-time chart (AreaChart) and donut (PieSingle); the app list keeps <see cref="ScreenTime"/>.</summary>
     public static readonly string ScreenTimeChart = From(0xE9D2);

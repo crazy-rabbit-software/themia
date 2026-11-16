@@ -13,12 +13,12 @@ public readonly record struct ColorPreset(string Hex, Sdk.LocalText Label)
 }
 
 /// <summary>
-/// The swatches the shared colour picker offers before "Custom colour". [S-1549]
+/// The colour tables the shared colour picker names its colours from. [S-1549] [S-1576]
 /// <para>
-/// Colours are picked, never typed: a hex box is a field most people cannot fill in and the rest
-/// get wrong. The default set is Windows' own accent palette — the 48 colours, in the order and
-/// with the names Settings › Personalization › Colours shows them — so the picker reads as the
-/// one users already know.
+/// Windows' own accent palette — the 48 colours, in the order and with the names Settings ›
+/// Personalization › Colours shows them — and the neutrals: a colour that is one of them is said by
+/// its name. The picker shows two lines of them (<see cref="Accents"/>, <see cref="SurfaceSwatches"/>,
+/// <see cref="ColourPicker.Presets"/>); every other colour is its mixer's or its hex box's.
 /// </para>
 /// </summary>
 public static class ColorPresets
@@ -60,6 +60,26 @@ public static class ColorPresets
 
     /// <summary>The surface picker's swatches: the neutrals, then the accent palette.</summary>
     public static IReadOnlyList<ColorPreset> Surfaces { get; } = [.. Neutrals, .. Windows];
+
+    /// <summary>
+    /// [S-1576] An accent's presets in the picker: twelve of Windows' 48 round the wheel, as Karpo's
+    /// (§627) — red, orange, gold, green, mint, teal; Windows' own blue, indigo, purple, orchid, pink, grey.
+    /// </summary>
+    public static IReadOnlyList<ColorPreset> Accents { get; } = Pick(Windows,
+        "#E81123", "#F7630C", "#FFB900", "#107C10", "#00B294", "#038387",
+        "#0078D4", "#6B69D6", "#744DA9", "#9A0089", "#EA005E", "#7A7574");
+
+    /// <summary>
+    /// [S-1576] A surface's (a fill, a border, a text) presets in the picker, as Karpo's (§627): six
+    /// neutrals (Windows' own #202020 and #F3F3F3 among them) over six of Windows' colours (red, orange,
+    /// gold, green, blue, purple).
+    /// </summary>
+    public static IReadOnlyList<ColorPreset> SurfaceSwatches { get; } = Pick(Surfaces,
+        "#000000", "#202020", "#454545", "#E5E5E5", "#F3F3F3", "#FFFFFF",
+        "#E81123", "#F7630C", "#FFB900", "#107C10", "#0078D4", "#744DA9");
+
+    private static ColorPreset[] Pick(IReadOnlyList<ColorPreset> table, params string[] hexes)
+        => [.. hexes.Select(hex => table.First(preset => string.Equals(preset.Hex, hex, StringComparison.Ordinal)))];
 
     /// <summary>
     /// The preset a stored value is, or null when it is a custom colour (or empty). Compared on the

@@ -62,9 +62,11 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
 
         // A condition longer than the card ends in its ellipsis: the reading's column takes what the glyph leaves.
         _reading.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
+        // [S-12401] The reading is the content's one item: a box taller than it (whole grid cells) puts
+        // the room above and under it alike, never a band under it.
         _face = new Grid
         {
-            VerticalAlignment = VerticalAlignment.Top,
+            VerticalAlignment = VerticalAlignment.Center,
             Margin = Family.SideInset,
             Visibility = Visibility.Collapsed,
             ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } },

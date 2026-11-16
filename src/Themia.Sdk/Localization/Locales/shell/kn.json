@@ -125,8 +125,6 @@
     "one": "{count} ವಿಜೆಟ್ ಅಳಿಸು",
     "other": "{count} ವಿಜೆಟ್‌ಗಳನ್ನು ಅಳಿಸು"
   },
-  "shell.card.doneEditing": "ಎಡಿಟ್ ಮುಗಿದಿದೆ",
-  "shell.card.editLayout": "ಲೇಔಟ್ ಎಡಿಟ್ ಮಾಡು",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "ಹೊಂದಿಸು",
   "shell.setup.hint": "ಈ ವಿಜೆಟ್‌ಗೆ ಬೇಕಾದುದನ್ನು ಹೊಂದಿಸು",
   "shell.toolbar.addWidget": "ವಿಜೆಟ್ ಸೇರಿಸು",
-  "shell.toolbar.snapName": "ಗ್ರಿಡ್‌ಗೆ ಹೊಂದಿಸು",
-  "shell.toolbar.collisionsName": "ವಿಜೆಟ್‌ಗಳು ಒಂದರ ಮೇಲೊಂದು ಬರದಂತೆ ತಡೆಯಿರಿ",
   "shell.editBar.selected": {
     "one": "{count} ಆಯ್ಕೆಯಾಗಿದೆ",
     "other": "{count} ಆಯ್ಕೆಯಾಗಿವೆ"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "ಪಠ್ಯದ ಗಾತ್ರ",
   "shell.appearance.systemFont": "ಸಿಸ್ಟಮ್ ಡಿಫಾಲ್ಟ್",
   "shell.appearance.sansFont": "ಸಾನ್ಸ್ ಸೆರಿಫ್",
-  "shell.layout.gap": "ವಿಜೆಟ್‌ಗಳ ನಡುವಿನ ಅಂತರ",
   "shell.motion.slide": "ಜಾರು",
   "shell.motion.sides": "ಬದಿಗಳು",
   "shell.motion.topBottom": "ಮೇಲೆ ಮತ್ತು ಕೆಳಗೆ",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "ಪ್ರತಿ ನಿಮಿಷ",
   "shell.refresh.everyHour": "ಪ್ರತಿ ಗಂಟೆ",
   "shell.color.custom": "ಕಸ್ಟಮ್ ಬಣ್ಣ",
-  "shell.color.pickCustom": "ಕಸ್ಟಮ್ ಬಣ್ಣ ಆರಿಸು",
   "shell.color.pickFromScreen": "ಪರದೆಯಿಂದ ಬಣ್ಣ ಆರಿಸು",
   "shell.color.pickFailed": "ಪರದೆಯ ಬಣ್ಣಗಳನ್ನು ಓದಲು ಆಗಲಿಲ್ಲ",
   "shell.icon.home": "ಮನೆ",

@@ -63,6 +63,11 @@ internal static partial class Win32
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool SetWindowPos(nint hWnd, nint hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
+    /// <summary>A named property on a window (<c>SetPropW</c>): the shell reads "NonRudeHWND" to tell a window that is no full-screen app ([S-852]).</summary>
+    [LibraryImport("user32.dll", EntryPoint = "SetPropW", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool SetProp(nint hWnd, string name, nint data);
+
     [LibraryImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
     internal static partial nint GetWindowLongPtr(nint hWnd, int nIndex);
 
@@ -140,20 +145,10 @@ internal static partial class Win32
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool AllowSetForegroundWindow(uint processId);
 
-    // ---- regions (desktop click-through mask) ---------------------------------------------
-
-    internal const int RgnAnd = 1;
-    internal const int RgnOr = 2;
-    internal const int RgnDiff = 4;
+    // ---- regions (the surface cut to its work area) ---------------------------------------------
 
     [LibraryImport("gdi32.dll", SetLastError = true)]
     internal static partial nint CreateRectRgn(int left, int top, int right, int bottom);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    internal static partial nint CreateEllipticRgn(int left, int top, int right, int bottom);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    internal static partial int CombineRgn(nint dest, nint src1, nint src2, int mode);
 
     [LibraryImport("gdi32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

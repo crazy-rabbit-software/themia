@@ -16,12 +16,13 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2328] The Views and Display pages open from their entries on the stand-in display, over the busy
-/// wallpaper, hung as the surface hangs them: <c>page-&lt;theme&gt;-views.png</c> (five views, the shown one's
-/// rows, every view as an item), <c>-views-icon</c> (its icon picker), <c>-views-colour</c>, <c>-views-rename</c> (a
-/// view's Rename tool: its page of its own), <c>-views-delete</c> (its "are you sure?" page), <c>-views-many</c>
-/// (40 views: the page scrolls), <c>-views-many-end</c>; <c>page-&lt;theme&gt;-display.png</c>, <c>-display-type</c>,
-/// <c>-display-position</c>, <c>-display-bar-views</c>, <c>-display-new</c> and <c>-display-end</c> (three displays,
-/// one switched off). Stand-in hosts: nothing reaches Windows, the displays or the user's state.
+/// wallpaper, hung as the surface hangs them: <c>page-&lt;theme&gt;-views.png</c> (five views, every one a card),
+/// <c>-views-open</c> (Work's card opened), <c>-views-icon</c> (scrolled to its icon picker), <c>-views-colour</c>,
+/// <c>-views-delete</c> (its Delete's "are you sure?" page), <c>-views-many</c> (40 views: the page scrolls),
+/// <c>-views-many-end</c>; <c>page-&lt;theme&gt;-display.png</c> (three displays, one switched off, every one a card),
+/// <c>-display-open</c> (this display's card opened), <c>-display-bar</c> (scrolled to its view bar),
+/// <c>-display-second</c>, <c>-display-off</c>, <c>-display-new</c> and <c>-display-end</c>. Stand-in hosts:
+/// nothing reaches Windows, the displays or the user's state.
 /// </summary>
 internal static partial class EditBarRender
 {
@@ -31,11 +32,11 @@ internal static partial class EditBarRender
         (string Name, int Views, string? Key, string? Click)[] views =
         [
             (string.Empty, 5, null, null),
-            ("-icon", 5, ViewsMenu.Keys.Icon, null),
-            ("-colour", 5, ViewsMenu.Keys.Colour, null),
-            ("-rename", 5, null, "<tool>" + work + "|0"),
-            ("-delete", 5, null, ViewsMenu.Keys.Delete),
-            ("-many", 40, ViewsMenu.Keys.Manage, null),
+            ("-open", 5, work, null),
+            ("-icon", 5, ViewsMenu.Keys.Icon("work"), null),
+            ("-colour", 5, ViewsMenu.Keys.Colour("work"), null),
+            ("-delete", 5, null, "<tool>" + work + "|1"),
+            ("-many", 40, null, null),
             ("-many-end", 40, null, "<end>"),
         ];
 
@@ -62,13 +63,13 @@ internal static partial class EditBarRender
             }, click == "<end>" ? f => f.Scroll(Windows.System.VirtualKey.End) : null).ConfigureAwait(true);
         }
 
-        const string bar = DisplayMenu.Keys.ViewBar;
         (string Name, string? Key)[] display =
         [
             (string.Empty, null),
-            ("-type", bar + "/type"),
-            ("-position", bar + "/position"),
-            ("-bar-views", bar + "/views"),
+            ("-open", DisplayMenu.Keys.Display("render-1")),
+            ("-bar", DisplayMenu.Keys.ViewBar("render-1") + "/position"),
+            ("-second", DisplayMenu.Keys.Display("render-2")),
+            ("-off", DisplayMenu.Keys.Display("render-3")),
             ("-new", DisplayMenu.Keys.NewDisplays),
             ("-end", null),
         ];
@@ -117,6 +118,7 @@ internal static partial class EditBarRender
 
             State.ActiveViewId = "work";
             State.MonitorViews[DisplayId] = "work";
+            State.MonitorViews["render-2"] = "desktop";
         }
 
         public PageView? Page { get; set; }
@@ -124,6 +126,14 @@ internal static partial class EditBarRender
         public AppState State { get; }
 
         public string DisplayId => "render-display";
+
+        public IReadOnlyList<MenuDisplay> Displays { get; } =
+        [
+            new("render-display", "DELL U2723QE (primary)", "DELL U2723QE — 3840 × 2160 (primary)", new DisplayInfo("render-display", true, new PixelRect(0, 0, 3840, 2160), new PixelRect(0, 0, 3840, 2112), true)),
+            new("render-2", "LG HDR WQHD", "LG HDR WQHD — 2560 × 1440", new DisplayInfo("render-2", true, new PixelRect(3840, 0, 2560, 1440), new PixelRect(3840, 0, 2560, 1392), false)),
+        ];
+
+        public void Show(string viewId) => Mutate(s => s.ShowViewOn(DisplayId, viewId));
 
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
@@ -208,9 +218,9 @@ internal static partial class EditBarRender
             return false;
         }
 
-        public void SetScale(double scale) => Mutate(s => s.MonitorScales[DisplayId] = scale);
+        public void SetScale(string displayId, double scale) => Mutate(s => s.MonitorScales[displayId] = scale);
 
-        public void Show(string viewId) => Mutate(s => s.ShowViewOn(DisplayId, viewId));
+        public void Show(string displayId, string viewId) => Mutate(s => s.ShowViewOn(displayId, viewId));
 
         private static MenuDisplay Display(string id, string name, string description, int x, int width, int height, bool primary)
             => new(id, name, description, new DisplayInfo(id, true, new PixelRect(x, 0, width, height), new PixelRect(x, 0, width, height - 48), primary));

@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Item sa desktop",
-  "desktopItem.desc": "Isang file, folder o shortcut mula sa iyong desktop"
+  "widgetsC.shortcuts.column.target": "Patutunguhan",
+  "widgetsC.shortcuts.kind.location": "Lokasyon sa Windows",
+  "widgetsC.shortcuts.kind.missing": "Nawawala",
+  "widgetsC.shortcuts.kind.path": "Path",
+  "widgetsC.shortcuts.kind.refused": "Hindi pinapayagan",
+  "widgetsC.shortcuts.menu.addLayout": "App layout…",
+  "widgetsC.shortcuts.menu.addLink": "Web address o path…",
+  "widgetsC.shortcuts.menu.changeTarget": "Palitan ang target…",
+  "widgetsC.shortcuts.settings.locations": "Mga lokasyon ng Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Dobleng click",
+  "widgetsC.shortcuts.settings.openWith.label": "Buksan sa",
+  "widgetsC.shortcuts.settings.openWith.single": "Isang click",
+  "widgetsC.shortcuts.settings.pick.file": "File…",
+  "widgetsC.shortcuts.settings.pick.folder": "Folder…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (nawawala ang target)\n{target}"
 }

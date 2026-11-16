@@ -1,3 +1,4 @@
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
@@ -14,9 +15,41 @@ public sealed partial class SettingsMenuTests
         var language = At<SettingsSubmenu>(new FakeHost(), SettingsMenu.Keys.Language);
         var keys = language.Lines.Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
 
-        Assert.Equal(["language/display", "-", "language/clock", "language/weekStart", "language/temperature"], keys);
+        Assert.Equal(["language/display", "language/formats"], keys);
+        Assert.Equal(
+            ["language/clock", "language/weekStart", "language/temperature", SettingsMenu.Keys.FormatsRegion, "-", SettingsMenu.Keys.FormatsReset],
+            At<SettingsSubmenu>(new FakeHost(), "language", "language/formats").Lines.Select(l => l is SettingsSeparator ? "-" : l.Key));
         Assert.Equal("Language & region", language.Text);
         Assert.All(language.Lines.OfType<SettingsChoice>(), c => Assert.Contains(c.Options, o => o.Holds));
+    }
+
+    /// <summary>
+    /// [S-2319] Karpo's Formats card (KarpoMenu.Formats): its head says whether the formats follow Windows or are
+    /// the user's; Windows' region settings open from it; Reset all, greyed while everything follows, puts every
+    /// format back to Windows' in one change.
+    /// </summary>
+    [Fact]
+    public void S2319_formats_say_whether_they_follow_windows_open_its_region_settings_and_reset_all()
+    {
+        var host = new FakeHost();
+        var formats = At<SettingsSubmenu>(host, "language", SettingsMenu.Keys.Formats);
+        Assert.Equal("Default (Windows)", formats.Value);
+        Assert.Equal(Glyphs.DateAndTime, formats.Glyph);
+        Assert.True(At<SettingsCommand>(host, "language", SettingsMenu.Keys.Formats, SettingsMenu.Keys.FormatsReset).Disabled);
+
+        At<SettingsCommand>(host, "language", SettingsMenu.Keys.Formats, SettingsMenu.Keys.FormatsRegion).Run();
+        Assert.Equal([SettingsMenu.RegionSettings], host.FakeAbout.Opened);
+
+        At<SettingsChoice>(host, "language", SettingsMenu.Keys.Formats, "language/clock").Options.Single(o => o.Key == "language/clock/TwentyFour").Pick();
+        Assert.Equal("Custom", At<SettingsSubmenu>(host, "language", SettingsMenu.Keys.Formats).Value);
+        var reset = At<SettingsCommand>(host, "language", SettingsMenu.Keys.Formats, SettingsMenu.Keys.FormatsReset);
+        Assert.False(reset.Disabled);
+
+        var before = host.Mutations;
+        reset.Run();
+        Assert.Equal(before + 1, host.Mutations);
+        Assert.Equal(ClockHours.System, host.State.Preferences.Region.Clock);
+        Assert.Equal("Default (Windows)", At<SettingsSubmenu>(host, "language", SettingsMenu.Keys.Formats).Value);
     }
 
     [Fact]
@@ -69,7 +102,7 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost();
         var before = Snapshot(host.State.Preferences.Region);
 
-        At<SettingsChoice>(host, "language", line).Options.Single(o => o.Key == option).Pick();
+        At<SettingsChoice>(host, "language", "language/formats", line).Options.Single(o => o.Key == option).Pick();
 
         Assert.Equal([field], Changed(before, host.State.Preferences.Region));
         Assert.Equal([false], host.RelayoutFlags);
@@ -79,7 +112,7 @@ public sealed partial class SettingsMenuTests
     public void S3536_each_format_offers_what_windows_says_first()
     {
         var host = new FakeHost();
-        foreach (var format in At<SettingsSubmenu>(host, "language").Lines.OfType<SettingsChoice>().Skip(1))
+        foreach (var format in At<SettingsSubmenu>(host, "language", "language/formats").Lines.OfType<SettingsChoice>())
         {
             Assert.StartsWith("Windows setting (", format.Options[0].Text, StringComparison.Ordinal);
             Assert.True(format.Options[0].Holds);
@@ -88,8 +121,8 @@ public sealed partial class SettingsMenuTests
             Assert.Equal("Windows setting (" + format.Value + ")", format.Options[0].Text);
         }
 
-        At<SettingsChoice>(host, "language", "language/clock").Options.Single(o => o.Key == "language/clock/TwentyFour").Pick();
-        Assert.Equal("24-hour", At<SettingsChoice>(host, "language", "language/clock").Value);
+        At<SettingsChoice>(host, "language", "language/formats", "language/clock").Options.Single(o => o.Key == "language/clock/TwentyFour").Pick();
+        Assert.Equal("24-hour", At<SettingsChoice>(host, "language", "language/formats", "language/clock").Value);
     }
 
     [Theory]

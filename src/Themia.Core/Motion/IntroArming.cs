@@ -33,4 +33,26 @@ public sealed class IntroArming
         _shownViewId = viewId;
         return changed ? IntroMode.Transition : null;
     }
+
+    /// <summary>A show is running on this surface: started, its end not heard yet.</summary>
+    private bool _running;
+
+    /// <summary>[S-1017] The surface started a show (after the pass that armed it placed every card).</summary>
+    public void ShowStarted() => _running = true;
+
+    /// <summary>[S-1017] The show ended: its animations completed, or it was stopped.</summary>
+    public void ShowEnded() => _running = false;
+
+    /// <summary>
+    /// [S-1017] Called first in every layout pass: whether a show is still running and must end now, with
+    /// every card at rest. A pass may rebuild, move or resize the cards that show animates, and a show
+    /// whose compositor never reported its end (its scoped batch never completed) would otherwise hold
+    /// them hidden for good; the pass that started it starts it last, so only a later pass ends it.
+    /// </summary>
+    public bool BeginPass()
+    {
+        var running = _running;
+        _running = false;
+        return running;
+    }
 }

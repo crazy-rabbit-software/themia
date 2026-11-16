@@ -399,7 +399,7 @@ public static class SceneParser
 
     private static SceneEdit Edit(JsonElement element, string path)
     {
-        var props = Properties(element, path, "bar", "open", "add", "grid", "group", "enter");
+        var props = Properties(element, path, "bar", "open", "add", "group", "enter");
         string? open = null;
         if (props.TryGetValue("open", out var o))
         {
@@ -414,7 +414,6 @@ public static class SceneParser
             props.TryGetValue("bar", out var bar) ? Bool(bar, path + ".bar") : true,
             open,
             props.TryGetValue("add", out var add) && Bool(add, path + ".add"),
-            props.TryGetValue("grid", out var grid) && Bool(grid, path + ".grid"),
             props.TryGetValue("group", out var group) ? Text(group, path + ".group") : null,
             props.TryGetValue("enter", out var enter) ? Text(enter, path + ".enter") : null);
     }

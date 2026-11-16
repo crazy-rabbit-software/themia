@@ -35,25 +35,35 @@ public static class SelectionChrome
     private static RgbColor? _highlight;
     private static volatile bool _stale = true;
 
-    /// <summary>The chrome an item's <paramref name="content"/> is drawn in: rounded as Windows 11's, a 1-DIP border, clear at rest.</summary>
-    public static Border Wrap(UIElement content)
+    /// <summary>The chrome an item's <paramref name="content"/> is drawn in, in the file widgets' look: rounded as Windows 11's, a 1-DIP border, clear at rest.</summary>
+    public static Border Wrap(UIElement content) => Wrap(content, SelectionLook.Rows);
+
+    /// <summary>
+    /// The chrome of <paramref name="look"/>: round <paramref name="content"/>, or with none a mark laid
+    /// behind an item's parts (a desktop icon's, whose border then takes nothing of the cell's room).
+    /// </summary>
+    public static Border Wrap(UIElement? content, SelectionPalette look)
     {
+        ArgumentNullException.ThrowIfNull(look);
         var chrome = new Border
         {
             Child = content,
-            BorderThickness = new Thickness(FamilyShape.Hairline),
-            CornerRadius = Family.Radius,
+            BorderThickness = new Thickness(look.Border),
+            CornerRadius = new CornerRadius(look.Radius),
         };
 
-        Paint(chrome, new SelectionCue(Selected: false, Hovered: false));
+        Paint(chrome, new SelectionCue(Selected: false, Hovered: false), look);
         return chrome;
     }
 
-    /// <summary>Draw <paramref name="chrome"/> (a border from <see cref="Wrap"/>, or any border) for <paramref name="cue"/>.</summary>
-    public static void Paint(Border chrome, SelectionCue cue)
+    /// <summary>Draw <paramref name="chrome"/> (a border from <see cref="Wrap(UIElement)"/>, or any border) for <paramref name="cue"/>, in the file widgets' look.</summary>
+    public static void Paint(Border chrome, SelectionCue cue) => Paint(chrome, cue, SelectionLook.Rows);
+
+    /// <summary>Draw <paramref name="chrome"/> for <paramref name="cue"/> in <paramref name="look"/>.</summary>
+    public static void Paint(Border chrome, SelectionCue cue, SelectionPalette look)
     {
         ArgumentNullException.ThrowIfNull(chrome);
-        var ink = SelectionLook.Ink(cue);
+        var ink = SelectionLook.Ink(cue, look);
 
         // Clear, not null: the empty part of an item still takes its presses.
         chrome.Background = ink.Fill > 0 ? Brush(ink.Tone, ink.Fill) : Family.Brush(ColourRole.Clear);

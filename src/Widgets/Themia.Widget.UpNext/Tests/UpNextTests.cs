@@ -77,7 +77,7 @@ public sealed class UpNextTests
     {
         var sizing = new UpNextModule().Descriptor.Sizing(new UpNextConfig());
         Assert.Equal(new SizeDip(320, 36 + (3 * 28) + 12), sizing.Natural);
-        Assert.Equal((260, 520), (sizing.Min.Width, sizing.Max.Width));
+        Assert.Equal((260, 800), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a list, 320 x 2.5
 
         var next = (UpNextConfig)new UpNextModule().Descriptor.SizeSets!(new UpNextConfig(), new SizeDip(320, 36 + (5 * 28) + 12));
         Assert.Equal(5, next.Rows);

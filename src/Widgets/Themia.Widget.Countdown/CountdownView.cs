@@ -9,6 +9,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Countdown;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -84,6 +85,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned,
 
     public void ApplyConfig(WidgetConfig config)
     {
+        NaturalBlock.Hold(this, config);
         _config = config as CountdownConfig ?? new CountdownConfig();
         ShowName();
         Rebuild();

@@ -65,7 +65,7 @@ public static class VideoStreamSizing
         ArgumentNullException.ThrowIfNull(config);
         if (Ratio(config.EffectiveAspect, config.EffectiveRotation) is not { } ratio)
         {
-            return WidgetSizing.Range(Least, Natural, Largest);
+            return WidgetSizing.Range(Least, Natural, Largest) with { Room = StretchRoom.Picture };
         }
 
         var steps = Steps(ratio, config.Span);

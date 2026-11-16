@@ -125,8 +125,6 @@
     "one": "{count} விட்ஜெட்டை நீக்கு",
     "other": "{count} விட்ஜெட்களை நீக்கு"
   },
-  "shell.card.doneEditing": "திருத்தம் முடிந்தது",
-  "shell.card.editLayout": "தளவமைப்பைத் திருத்து",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "அமை",
   "shell.setup.hint": "இந்த விட்ஜெட்டுக்குத் தேவையானதை அமை",
   "shell.toolbar.addWidget": "விட்ஜெட்டைச் சேர்",
-  "shell.toolbar.snapName": "கட்டத்துடன் ஒட்டு",
-  "shell.toolbar.collisionsName": "விட்ஜெட்கள் ஒன்றின் மேல் ஒன்று வருவதைத் தடு",
   "shell.editBar.selected": {
     "one": "{count} தேர்ந்தெடுக்கப்பட்டது",
     "other": "{count} தேர்ந்தெடுக்கப்பட்டன"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "உரை அளவு",
   "shell.appearance.systemFont": "சிஸ்டம் இயல்புநிலை",
   "shell.appearance.sansFont": "சான்ஸ் செரிஃப்",
-  "shell.layout.gap": "விட்ஜெட்களுக்கு இடையிலான இடைவெளி",
   "shell.motion.slide": "நழுவல்",
   "shell.motion.sides": "பக்கங்கள்",
   "shell.motion.topBottom": "மேலும் கீழும்",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "ஒவ்வொரு நிமிடமும்",
   "shell.refresh.everyHour": "ஒவ்வொரு மணிநேரமும்",
   "shell.color.custom": "தனிப்பயன் நிறம்",
-  "shell.color.pickCustom": "தனிப்பயன் நிறத்தைத் தேர்ந்தெடு",
   "shell.color.pickFromScreen": "திரையிலிருந்து நிறத்தைத் தேர்ந்தெடு",
   "shell.color.pickFailed": "திரையின் நிறங்களைப் படிக்க முடியவில்லை",
   "shell.icon.home": "வீடு",

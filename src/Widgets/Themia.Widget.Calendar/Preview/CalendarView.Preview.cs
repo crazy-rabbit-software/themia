@@ -17,15 +17,28 @@ internal sealed partial class CalendarView : IWidgetPreviewState
     /// ([S-3620]); <c>linked</c>: another widget's pointer on the design review (the next meeting) ([S-3623]);
     /// <c>days</c>: the style's own range ([S-2719], [S-3636]): the week the next four days from today,
     /// the agenda today and tomorrow; <c>stale</c>: the sample with the Work calendar's last sync failed
-    /// (no network), its events held from 20 minutes ago; <c>empty</c>: no event at all.
+    /// (no network), its events held from 20 minutes ago; <c>empty</c>: no event at all; <c>titles</c>:
+    /// the sample in the month with titles ([S-11547]), drawn at that config's sizes.
     /// </summary>
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked", "days", "stale", "empty"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked", "days", "stale", "empty", "titles"];
+
+    /// <inheritdoc />
+    public WidgetConfig? DrawnConfig { get; private set; }
 
     public async Task ShowPreviewStateAsync(string state)
     {
         if (!PreviewStates.Contains(state, StringComparer.OrdinalIgnoreCase))
         {
             return;
+        }
+
+        if (string.Equals(state, "titles", StringComparison.OrdinalIgnoreCase))
+        {
+            var titles = (CalendarWidgetConfig)_config.Clone();
+            titles.Style = CalendarStyle.Month;
+            titles.MonthEvents = MonthEvents.Chips;
+            _config = titles;
+            DrawnConfig = titles;
         }
 
         if (string.Equals(state, "days", StringComparison.OrdinalIgnoreCase))

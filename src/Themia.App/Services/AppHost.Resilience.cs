@@ -172,7 +172,7 @@ internal sealed partial class AppHost
 
         // [S-5520] A widget the step brought back whose item has gone from the desktop goes again.
         ReconcileDesktopAfterStep();
-        NoteSizings(refit: false);
+        _sizings.NoteAll(State);
         _history.Rebase(State);
         HistoryChanged?.Invoke();
 

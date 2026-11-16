@@ -4,6 +4,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.DesktopItem;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -105,18 +106,27 @@ public class WidgetLivenessTests
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
-            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == new WidgetId("shortcuts");
+            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == new WidgetId("desktopItem");
             Assert.True(WidgetLiveness.Runs(config, FeatureSet.None) == expected, kind.ToString());
         }
     }
 
     [Fact]
-    public void S1881_an_empty_shortcuts_widget_keeps_running_to_take_a_drop()
+    public void S1881_an_own_desktop_icon_that_opens_nothing_yet_keeps_running_to_take_a_drop()
     {
-        var empty = new ShortcutsConfig { Items = [] };
+        var empty = new DesktopItemConfig();
 
         Assert.True(WidgetSetup.Needed(empty, FeatureSet.None));
         Assert.True(WidgetLiveness.Runs(empty, FeatureSet.None));
+    }
+
+    [Fact]
+    public void S1881_a_desktop_item_waits_for_nothing_and_runs()
+    {
+        var item = new DesktopItemConfig { Item = @"C:\Users\me\Desktop\Report.docx" };
+
+        Assert.False(WidgetSetup.Needed(item, FeatureSet.None));
+        Assert.True(WidgetLiveness.Runs(item, FeatureSet.None));
     }
 
     [Fact]

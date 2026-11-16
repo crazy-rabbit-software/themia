@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "刪除 {count} 個小工具"
   },
-  "shell.card.doneEditing": "完成編輯",
-  "shell.card.editLayout": "編輯版面配置",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "設定",
   "shell.setup.hint": "設定此小工具所需的項目",
   "shell.toolbar.addWidget": "新增小工具",
-  "shell.toolbar.snapName": "對齊格線",
-  "shell.toolbar.collisionsName": "防止小工具重疊",
   "shell.editBar.selected": {
     "other": "已選取 {count} 個"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "文字大小",
   "shell.appearance.systemFont": "系統預設",
   "shell.appearance.sansFont": "無襯線",
-  "shell.layout.gap": "小工具間距",
   "shell.motion.slide": "滑動",
   "shell.motion.sides": "兩側",
   "shell.motion.topBottom": "上下",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "每分鐘",
   "shell.refresh.everyHour": "每小時",
   "shell.color.custom": "自訂色彩",
-  "shell.color.pickCustom": "選擇自訂色彩",
   "shell.color.pickFromScreen": "從螢幕擷取色彩",
   "shell.color.pickFailed": "無法讀取螢幕上的色彩",
   "shell.icon.home": "家",

@@ -40,10 +40,10 @@ public sealed class GroupShellTests
     [Fact]
     public void S2457_cards_join_only_within_their_set_so_a_dragged_pair_stays_one_panel()
     {
-        // Two dragged cards side by side (set 1) over a still card they touch (set 0).
+        // Two dragged members side by side (set 1) over a still member they touch (set 0), one group.
         PixelRect?[] boxes = [new PixelRect(0, 0, 100, 50), new PixelRect(100, 0, 100, 50), new PixelRect(0, 50, 100, 50)];
 
-        var outlines = CardJoins.Outlines(boxes, 0.25, [1, 1, 0]);
+        var outlines = CardJoins.Outlines(boxes, 0.25, [1, 1, 0], ["g", "g", "g"]);
 
         Assert.False(outlines[0].RoundTopRight);
         Assert.False(outlines[1].RoundTopLeft);

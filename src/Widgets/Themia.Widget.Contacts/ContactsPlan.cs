@@ -46,20 +46,30 @@ public static class ContactsPlan
     /// <summary>[S-582] The narrowest a details column says anything in.</summary>
     public const double DetailColumn = 88;
 
-    public static ContactsLayoutPlan Of(WidgetArea area, ContactsConfig config)
+    /// <param name="scale">The display's rasterization scale: a stretched row stays whole device pixels.</param>
+    public static ContactsLayoutPlan Of(WidgetArea area, ContactsConfig config, double scale = 1)
     {
         ArgumentNullException.ThrowIfNull(config);
         var width = Math.Max(0, area.Width);
         var rows = KitSizing.ClampRows(config.Rows);
+        var lines = KitSizing.ClampLines(config.Lines, KitSizing.MaxLines);
+        var search = config.SearchBox ? SearchHeight : 0;
 
         return config.EffectiveLayout switch
         {
             ContactsLayout.Grid => new ContactsLayoutPlan(ContactsLayout.Grid, Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid), CellWidth, 1, false, false, CellIcon, CellHeight + FamilySpace.ColumnGap, Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid)),
-            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, FamilyShape.Row1, rows),
-            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, FamilyShape.Row1, rows),
-            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, KitSizing.ClampLines(config.Lines, KitSizing.MaxLines), true, false, 0, FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)), rows),
+            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, Pitch(area, search + HeaderHeight, rows, FamilyShape.Row1, scale), rows),
+            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, Pitch(area, search, rows, FamilyShape.Row1, scale), rows),
+            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, lines, true, false, 0, Pitch(area, search, rows, FamilyShape.RowHeight(lines), scale), rows),
         };
     }
+
+    /// <summary>
+    /// [S-12410] A row's height: its natural one stretched over the config's rows down to the card's edge
+    /// (the foot's inset the sizing counts), at most half again; the natural before the box is measured.
+    /// </summary>
+    private static double Pitch(WidgetArea area, double over, int rows, double natural, double scale)
+        => area.IsMeasured ? ItemStretch.Pitch(area.Height - over, rows, natural, scale: scale) : natural;
 
     /// <summary>
     /// [S-11406] Each layout's own sizes, with the search box where it is on: List and Compact the

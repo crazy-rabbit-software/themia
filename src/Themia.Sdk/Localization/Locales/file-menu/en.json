@@ -1,0 +1,32 @@
+{
+  "$englishOnly": [
+    "shell.menu.unlockWidgets",
+    "shell.menu.lockWidgets",
+    "desktop.menu.pasteShortcut",
+    "desktop.menu.newShortcut",
+    "desktop.menu.displaySettings",
+    "desktop.menu.personalise",
+    "desktop.menu.openInTerminal"
+  ],
+  "folderMenu.chooseAnotherApp": "Choose another app",
+  "folderMenu.compressToZip": "Compress to ZIP file",
+  "folderMenu.copyAsPath": "Copy as path",
+  "folderMenu.openInNewWindow": "Open in new window",
+  "folderMenu.openWith": "Open with",
+  "folderMenu.pinToQuickAccess": "Pin to Quick access",
+  "folderMenu.pinToStart": "Pin to Start",
+  "folderMenu.share": "Share",
+  "folder.properties": "Properties",
+  "widgetsB.folder.freeUpSpace": "Free up space",
+  "widgetsB.folder.keepOnDevice": "Always keep on this device",
+  "widgetsB.folder.moreOptions": "Show more options",
+  "widgetsB.folder.new": "New",
+  "ctxMenu.folder": "Folder",
+  "shell.menu.unlockWidgets": "Unlock widgets",
+  "shell.menu.lockWidgets": "Lock widgets",
+  "desktop.menu.pasteShortcut": "Paste shortcut",
+  "desktop.menu.newShortcut": "Shortcut",
+  "desktop.menu.displaySettings": "Display settings",
+  "desktop.menu.personalise": "Personalise",
+  "desktop.menu.openInTerminal": "Open in Terminal"
+}

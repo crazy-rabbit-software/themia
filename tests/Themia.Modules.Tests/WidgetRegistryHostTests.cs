@@ -65,7 +65,8 @@ public sealed class WidgetRegistryHostTests
         Assert.False(string.IsNullOrWhiteSpace(widget.Describe(Locale.En)));
         Assert.DoesNotContain("{", widget.Describe(Locale.En), StringComparison.Ordinal);
         Assert.Single(widget.Glyph.EnumerateRunes());
-        Assert.InRange(widget.Natural.Width, 80, 800);
+        // [S-5601] The narrowest is the desktop item: Explorer's own desktop cell, 76 wide.
+        Assert.InRange(widget.Natural.Width, 76, 800);
         // [S-11002] [S-2438] An atom may be a strip (a history under its reading: 64) or one row tall (a track's
         // progress: 40); never under the floor ([S-08]).
         Assert.InRange(widget.Natural.Height, Themia.Core.Geometry.GridGeometry.MinWidgetPx, 800);

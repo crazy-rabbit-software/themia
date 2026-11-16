@@ -195,8 +195,8 @@ public static class CalendarRules
     // ---- ranges and navigation -----------------------------------------------------------------
 
     /// <summary>
-    /// [S-568] The days a layout covers, both inclusive, which is what is fetched. Month: whole weeks
-    /// from the week holding the 1st to the week holding the last day. Week ([S-2719]): the span's
+    /// [S-568] The days a layout covers, both inclusive, which is what is fetched. Month: the six weeks
+    /// it draws from the week holding the 1st ([S-11544], 42 days, the next month's included). Week ([S-2719]): the span's
     /// days from the period holding the anchor (<see cref="WeekFirst"/>). Day: the anchor. Year
     /// ([S-2707]): 1 January to 31 December of the anchor's year. Agenda ([S-3636]): the span's days
     /// from today, wherever the anchor is.
@@ -206,9 +206,9 @@ public static class CalendarRules
         switch (view)
         {
             case CalendarStyle.Month:
-                var firstOfMonth = new DateOnly(anchor.Year, anchor.Month, 1);
-                var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
-                return (CalendarDays.StartOfWeek(firstOfMonth, span.WeekStart), CalendarDays.StartOfWeek(lastOfMonth, span.WeekStart).AddDays(6));
+                // [S-11544] Every one of the six weeks the month draws, the next month's days too: they show their events.
+                var cells = MonthCells(anchor, span.WeekStart);
+                return (cells[0], cells[^1]);
 
             case CalendarStyle.Week:
                 var weekFirst = WeekFirst(anchor, today, span);

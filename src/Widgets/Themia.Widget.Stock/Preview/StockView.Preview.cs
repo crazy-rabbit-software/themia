@@ -7,16 +7,27 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917]): <c>quote</c> is the sample (<see cref="ShowSampleAsync"/>); <c>falling</c>
-/// the falling session with no holding; <c>stale</c> the sample through a failed refresh.
+/// the falling session; <c>stale</c> the sample through a failed refresh; <c>held</c> the sample with ten
+/// shares held, its holding's row counted in the box it is drawn at ([S-11603]).
 /// </summary>
 internal sealed partial class StockView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["quote", "falling", "stale"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["quote", "falling", "stale", "held"];
+
+    /// <inheritdoc />
+    public Themia.Core.Model.WidgetConfig? DrawnConfig { get; private set; }
 
     public Task ShowPreviewStateAsync(string state)
     {
         switch (state)
         {
+            case "held":
+                var quote = SampleConfig(rising: true);
+                _config.SharesOwned = 10;
+                DrawnConfig = _config;
+                _feed.Preview(quote, FetchStatus.Ok);
+                break;
+
             case "quote":
                 return ShowSampleAsync();
 

@@ -24,22 +24,25 @@ internal static class PageRows
 
     private static readonly Uri FontsPage = new("ms-settings:fonts");
 
-    /// <summary>[S-2301] A settings page's sections as drawn.</summary>
-    public static PageModel Of(SettingsPage page, Action<PageEdit> ask)
+    /// <summary>
+    /// [S-2301] A settings page's sections as drawn; [S-2311] its preview (the Appearance's) built by
+    /// <paramref name="preview"/>, the page's host's: real cards on its display's wallpaper.
+    /// </summary>
+    public static PageModel Of(SettingsPage page, Action<PageEdit> ask, Func<FrameworkElement>? preview = null)
     {
         ArgumentNullException.ThrowIfNull(page);
-        return new PageModel(page.Id.ToString(), [.. page.Sections.Select(s => new PageSection(s.Key, s.Heading, [.. s.Lines.Select(l => Of(l, ask))]))]);
+        return new PageModel(page.Id.ToString(), [.. page.Sections.Select(s => new PageSection(s.Key, s.Heading, [.. s.Lines.Select(l => Of(l, ask, preview))]))]);
     }
 
     /// <summary>[S-2302] One settings line as a row; a line with a picture shows it as its icon ([S-3581]).</summary>
-    public static PageRow Of(SettingsLine line, Action<PageEdit> ask)
+    public static PageRow Of(SettingsLine line, Action<PageEdit> ask, Func<FrameworkElement>? preview = null)
     {
         ArgumentNullException.ThrowIfNull(line);
-        var row = RowOf(line, ask) with { Disabled = line.Disabled };
+        var row = RowOf(line, ask, preview) with { Disabled = line.Disabled };
         return line.Picture is { } picture ? row with { Icon = () => MenuPictures.Create(picture) } : row;
     }
 
-    private static PageRow RowOf(SettingsLine line, Action<PageEdit> ask)
+    private static PageRow RowOf(SettingsLine line, Action<PageEdit> ask, Func<FrameworkElement>? preview)
     {
         var kind = SettingsRows.KindOf(line);
         var row = new PageRow(line.Key, kind);
@@ -47,7 +50,14 @@ internal static class PageRows
         {
             SettingsSeparator or SettingsHeading => row with { Text = (line as SettingsHeading)?.Text ?? string.Empty },
             SettingsNote note => row with { Text = note.Text, Danger = note.Critical, Busy = note.Busy },
-            SettingsReading reading => row with { Text = reading.Text, Value = reading.Value, Icon = IconOf(reading.Glyph, null) },
+            SettingsReading reading => row with
+            {
+                Text = reading.Text,
+                Value = reading.Value,
+                Caption = reading.Caption,
+                Icon = IconOf(reading.Glyph, null),
+                Beside = reading.Beside is { } beside ? Of(beside, ask) : null,
+            },
 
             // [S-3556] A form's field, every letter handed to the form as it is typed; a password's masked.
             SettingsField field => row with
@@ -136,14 +146,19 @@ internal static class PageRows
                 Text = submenu.Text,
                 Value = submenu.Value,
                 Icon = IconOf(submenu.Glyph, submenu.GlyphColour),
-                Rows = [.. submenu.Lines.Select(l => Of(l, ask))],
+                Rows = [.. submenu.Lines.Select(l => Of(l, ask, preview))],
                 Run = submenu.Run,
                 Order = submenu.Order is { } order ? new MenuOrder(order.Index, order.Count, order.Move) : null,
+
+                // [S-2310] A thing's card: its line under its name, its icon buttons at its head's end.
+                Caption = submenu.Caption,
+                Tools = submenu.Tools.Count > 0 ? [.. submenu.Tools.Select(t => ToolOf(t, ask))] : null,
             },
             SettingsCommand command => row with
             {
                 Text = command.Text,
                 Value = command.Value,
+                Caption = command.Caption,
                 Icon = IconOf(command.Glyph, command.GlyphColour),
                 Danger = command.Danger,
                 Run = command.Run,
@@ -157,6 +172,9 @@ internal static class PageRows
                 Edit = EditOf(text),
             },
             SettingsLink link => row with { Text = link.Text, Icon = IconOf(link.Glyph, null), Owner = link.Owner, Run = link.Open },
+
+            // [S-2311] The Appearance's preview, the page host's; none where the page was built without one (a test's).
+            SettingsPreview => row with { Text = Str.SettingsPages_Appearance_Preview.Text(), Picker = preview },
             SettingsItem item => row with
             {
                 Text = item.Text,

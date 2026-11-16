@@ -62,10 +62,26 @@ public sealed class SystemAtomsTests
     {
         var one = MeterSizing.Reading(MeterLook.Number, Percent);
         Assert.Equal((84, 84), (one.Min.Height, one.Max.Height));
-        Assert.Equal((120, 160, 320), (one.Min.Width, one.Natural.Width, one.Max.Width));
+        Assert.Equal((120, 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
 
-        Assert.Equal(36 + 36 + 8 + 36 + 12, MeterSizing.Reading(MeterLook.Numbers, Rate).Natural.Height);
         Assert.Equal(36 + 44 + 56 + 12, MeterSizing.Reading(MeterLook.Rows, Percent, rows: 2).Natural.Height);
+    }
+
+    [Fact]
+    public void S6264_both_directions_stand_on_one_line_as_tall_as_one_reading_and_never_cut()
+    {
+        var both = MeterSizing.Reading(MeterLook.Numbers, Rate);
+        var one = MeterSizing.Reading(MeterLook.Number, Rate);
+        Assert.True(both.FixedHeight);
+        Assert.Equal(one.Natural.Height, both.Natural.Height);
+
+        // Two arrow-led readings and the gap between them fit inside the card's inset at its least.
+        var line = (2 * MeterSizing.ReadingWidth(Rate with { Lead = true })) + MeterSizing.NumbersGap;
+        Assert.Equal(line, MeterSizing.NumbersWidth(Rate));
+        Assert.True(both.Min.Width >= line + 24);
+        Assert.True(both.Min.Width < line + 24 + 4, "the least is the line itself, up to the next 4");
+        Assert.Equal(both.Min.Width, both.Natural.Width);
+        Assert.Equal(MeterSizing.NumbersMaxWidth, both.Max.Width);
     }
 
     [Fact]

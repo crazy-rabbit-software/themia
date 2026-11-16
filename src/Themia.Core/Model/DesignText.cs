@@ -13,7 +13,8 @@ namespace Themia.Core.Model;
 /// <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
 /// <c>itemOpacity</c> (the item background, on the same terms, [S-6510]), <c>itemText</c> (its text
 /// colour, [S-6547]), <c>gap</c> (between neighbouring cards, DIPs, [S-04]), <c>blur</c> (on|off: blur
-/// behind widgets, [S-2110]). A colour is #RRGGBB, or
+/// behind widgets, [S-2110]), <c>material</c> (solid|liquidGlass, [S-2123]) and every look token by its own key
+/// ([S-2142], <see cref="LookTokens"/>: <c>frostBlur=48,vibrancy=1,innerSurface=vibrant,rowDividers=inset,...</c>). A colour is #RRGGBB, or
 /// empty for the design's own; anything else is refused, not passed on ([S-1075]). Pure.
 /// </summary>
 public static class DesignText
@@ -115,14 +116,64 @@ public static class DesignText
             case "itemtext" or "itemtextcolor" or "itemtextcolour" when Colour(value) is { } text:
                 d.ItemTextColor = text;
                 return true;
-            case "gap" when Number(value) is { } g && g >= 0:
-                d.WidgetGapPx = g;
-                return true;
             case "blur" when OnOff(value) is { } on:
                 d.BlurBehind = on;
                 return true;
+            case "material" when Enum.TryParse<CardMaterial>(value, true, out var material) && Enum.IsDefined(material):
+                d.Material = material;
+                return true;
             default:
+                return Token(d.Tokens ??= new LookTokens(), key, value);
+        }
+    }
+
+    /// <summary>
+    /// [S-2142] A look token by its own key (<see cref="LookTokens.Numbers"/>' keys, held to the token's range; a fraction
+    /// may be a percentage), an enum token by a value's name, <c>tabularNumerals</c> on|off.
+    /// </summary>
+    private static bool Token(LookTokens t, string key, string value)
+    {
+        if (LookTokens.Number(key) is { } number)
+        {
+            if ((number.Max <= 2 ? Fraction(value) : Number(value)) is not { } n)
+            {
                 return false;
+            }
+
+            number.Set(t, number.Clamp(n));
+            return true;
+        }
+
+        static bool Pick<T>(string value, Action<T> set)
+            where T : struct, Enum
+        {
+            if (!Enum.TryParse<T>(value, true, out var parsed) || !Enum.IsDefined(parsed) || int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+            {
+                return false;
+            }
+
+            set(parsed);
+            return true;
+        }
+
+        return key.ToLowerInvariant() switch
+        {
+            "rendering" => Pick<RenderingMode>(value, v => t.Rendering = v),
+            "headerweight" => Pick<Sdk.Kit.TypeWeight>(value, v => t.HeaderWeight = v),
+            "readoutweight" => Pick<Sdk.Kit.TypeWeight>(value, v => t.ReadoutWeight = v),
+            "bodyweight" => Pick<Sdk.Kit.TypeWeight>(value, v => t.BodyWeight = v),
+            "headertone" => Pick<HeaderTone>(value, v => t.HeaderTone = v),
+            "headercase" => Pick<HeaderCase>(value, v => t.HeaderCase = v),
+            "innersurface" => Pick<InnerSurface>(value, v => t.InnerSurface = v),
+            "rowdividers" => Pick<Sdk.Kit.RowDivider>(value, v => t.RowDividers = v),
+            "tabularnumerals" when OnOff(value) is { } on => Set(() => t.TabularNumerals = on),
+            _ => false,
+        };
+
+        static bool Set(Action set)
+        {
+            set();
+            return true;
         }
     }
 

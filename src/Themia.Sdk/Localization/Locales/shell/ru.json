@@ -131,8 +131,6 @@
     "many": "Удалить {count} виджетов",
     "other": "Удалить {count} виджета"
   },
-  "shell.card.doneEditing": "Завершить правку",
-  "shell.card.editLayout": "Изменить макет",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -146,8 +144,6 @@
   "shell.setup.button": "Настроить",
   "shell.setup.hint": "Настроить то, что нужно этому виджету",
   "shell.toolbar.addWidget": "Добавить виджет",
-  "shell.toolbar.snapName": "Привязка к сетке",
-  "shell.toolbar.collisionsName": "Не допускать наложения виджетов",
   "shell.editBar.selected": {
     "one": "Выбрано: {count}",
     "few": "Выбрано: {count}",
@@ -206,7 +202,6 @@
   "shell.appearance.textSize": "Размер текста",
   "shell.appearance.systemFont": "Системный по умолчанию",
   "shell.appearance.sansFont": "Без засечек",
-  "shell.layout.gap": "Промежуток между виджетами",
   "shell.motion.slide": "Сдвиг",
   "shell.motion.sides": "По бокам",
   "shell.motion.topBottom": "Сверху и снизу",
@@ -311,7 +306,6 @@
   "shell.refresh.everyMinute": "Каждую минуту",
   "shell.refresh.everyHour": "Каждый час",
   "shell.color.custom": "Свой цвет",
-  "shell.color.pickCustom": "Выбрать свой цвет",
   "shell.color.pickFromScreen": "Взять цвет с экрана",
   "shell.color.pickFailed": "Не удалось считать цвета с экрана",
   "shell.icon.home": "Дом",

@@ -43,7 +43,11 @@ public readonly record struct MotionKey(double At, double Value, MotionEase Ease
 public readonly record struct MoveKey(double At, double From, double X, double Y, MotionEase Ease = MotionEase.Settle);
 
 /// <summary>One widget's look at a moment of its intro: what a debug render paints and what tests pin.</summary>
-public readonly record struct IntroPose(double Opacity, double Scale, double X, double Y, double Rotation);
+public readonly record struct IntroPose(double Opacity, double Scale, double X, double Y, double Rotation)
+{
+    /// <summary>[S-1017] At rest: where every track ends, and what a stopped show leaves every card at.</summary>
+    public static IntroPose Rest { get; } = new(1, 1, 0, 0, 0);
+}
 
 /// <summary>
 /// [S-1003] A style's keyframes, as data: the original's CSS keyframes, one track per animated

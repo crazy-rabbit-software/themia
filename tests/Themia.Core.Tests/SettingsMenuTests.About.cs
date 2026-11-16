@@ -340,33 +340,37 @@ public sealed partial class SettingsMenuTests
     // ---- [S-3580] About Themia ---------------------------------------------------------------------
 
     [Fact]
-    public void S3580_about_holds_the_name_card_the_studio_its_links_the_data_then_uninstall()
+    public void S3580_about_is_karpos_the_name_card_the_studio_with_its_site_the_data_then_the_links()
     {
         var host = new FakeHost();
         var about = At<SettingsSubmenu>(host, SettingsMenu.Keys.About);
 
         Assert.Equal("About Themia", about.Text);
-        Assert.Equal(
-            ["about/name", "about/version", "-", "about/lometics", "about/lometics/studio", "about/privacy", "about/support", "-", "about/openMeteo", "about/openMeteo/what", "-", "about/uninstall"],
-            KeysOf(about));
+        Assert.Equal(["about/name", "-", "about/lometics", "-", "about/openMeteo", "-", "about/privacy", "about/support"], KeysOf(about));
 
+        // Karpo's two cards: the mark, the name over one line; Lometics GmbH's site a button beside it.
         var name = At<SettingsReading>(host, "about", "about/name");
         Assert.Equal("Themia", name.Text);
         Assert.Equal(MenuPicture.ThemiaLogo, name.Picture);
-        Assert.Equal("Version 1.2.3\n\u200E.NET 10.0.0 · Windows App SDK 1.8\u200E", At<SettingsNote>(host, "about", "about/version").Text);
-        Assert.Equal(MenuPicture.Lometics, At<SettingsCommand>(host, "about", "about/lometics").Picture);
+        Assert.Equal("Version 1.2.3 · \u200E.NET 10.0.0 · Windows App SDK 1.8\u200E", name.Caption);
+        Assert.DoesNotContain('\n', name.Caption!);
+        var maker = At<SettingsReading>(host, "about", "about/lometics");
+        Assert.Equal(("Lometics GmbH", MenuPicture.Lometics, Str.Shell_About_Studio.Text()), (maker.Text, maker.Picture, maker.Caption));
+        Assert.Equal("lometics.com", maker.Beside?.Text);
         Assert.Equal(AboutLinks.SupportAddress, At<SettingsCommand>(host, "about", "about/support").Value);
-        Assert.Equal(SettingsMenu.Keys.Uninstall, about.Lines[^1].Key);
+
+        // Uninstall is the Themia section's card, never About's.
+        Assert.DoesNotContain(about.Lines, l => l.Key == SettingsMenu.Keys.Uninstall);
     }
 
     [Fact]
     public void S3580_the_links_open_the_studio_the_policy_in_its_language_support_and_open_meteo()
     {
         var host = new FakeHost();
-        foreach (var key in new[] { "about/lometics", "about/privacy", "about/support", "about/openMeteo" })
-        {
-            At<SettingsCommand>(host, "about", key).Run();
-        }
+        At<SettingsReading>(host, "about", "about/lometics").Beside!.Run();
+        At<SettingsCommand>(host, "about", "about/privacy").Run();
+        At<SettingsCommand>(host, "about", "about/support").Run();
+        At<SettingsReading>(host, "about", "about/openMeteo").Beside!.Run();
 
         Assert.Equal(
             [SettingsMenu.LometicsSite, AboutLinks.Privacy(Locale.En), AboutLinks.Support, SettingsMenu.OpenMeteoSite],
@@ -391,12 +395,12 @@ public sealed partial class SettingsMenuTests
     {
         var host = new FakeHost();
         host.FakeAbout.Packaged = true;
-        var uninstall = At<SettingsSubmenu>(host, "about", SettingsMenu.Keys.Uninstall);
+        var uninstall = At<SettingsSubmenu>(host, SettingsMenu.Keys.Uninstall);
 
-        Assert.Equal(["about/uninstall/what", "-", "about/uninstall/now"], KeysOf(uninstall));
+        Assert.Equal(["uninstall/what", "-", "uninstall/now"], KeysOf(uninstall));
         Assert.Equal(Str.Shell_Uninstall_Package.Text(), Assert.IsType<SettingsNote>(uninstall.Lines[0]).Text);
 
-        At<SettingsCommand>(host, "about", "about/uninstall", "about/uninstall/now").Run();
+        At<SettingsCommand>(host, "uninstall", "uninstall/now").Run();
         Assert.Empty(host.FakeAbout.Uninstalled);
         var asked = Assert.Single(host.Asked);
         Assert.True(asked.Danger);
@@ -411,22 +415,22 @@ public sealed partial class SettingsMenuTests
     public void S3582_a_loose_uninstall_offers_also_delete_unticked_and_ticked_names_the_folders()
     {
         var host = new FakeHost();
-        var keys = KeysOf(At<SettingsSubmenu>(host, "about", "about/uninstall"));
-        Assert.Equal(["about/uninstall/what", "-", "about/uninstall/data", "about/uninstall/data/what", "about/uninstall/data/folders", "-", "about/uninstall/now"], keys);
+        var keys = KeysOf(At<SettingsSubmenu>(host, "uninstall"));
+        Assert.Equal(["uninstall/what", "-", "uninstall/data", "uninstall/data/what", "uninstall/data/folders", "-", "uninstall/now"], keys);
 
-        var data = At<SettingsToggle>(host, "about", "about/uninstall", "about/uninstall/data");
+        var data = At<SettingsToggle>(host, "uninstall", "uninstall/data");
         Assert.False(data.On);
         Assert.Equal("Also delete my data", data.Text);
-        Assert.Empty(At<SettingsNote>(host, "about", "about/uninstall", "about/uninstall/data/what").Text);
-        Assert.Empty(At<SettingsNote>(host, "about", "about/uninstall", "about/uninstall/data/folders").Text);
+        Assert.Empty(At<SettingsNote>(host, "uninstall", "uninstall/data/what").Text);
+        Assert.Empty(At<SettingsNote>(host, "uninstall", "uninstall/data/folders").Text);
 
         data.Set(true);
-        Assert.Equal(Str.SettingsMenu_UninstallDataGoes.Text(), At<SettingsNote>(host, "about", "about/uninstall", "about/uninstall/data/what").Text);
+        Assert.Equal(Str.SettingsMenu_UninstallDataGoes.Text(), At<SettingsNote>(host, "uninstall", "uninstall/data/what").Text);
         Assert.Equal(
             @"C:\Users\Alex\AppData\Roaming\Themia" + "\n" + @"C:\Users\Alex\AppData\Local\Themia",
-            At<SettingsNote>(host, "about", "about/uninstall", "about/uninstall/data/folders").Text);
+            At<SettingsNote>(host, "uninstall", "uninstall/data/folders").Text);
 
-        At<SettingsCommand>(host, "about", "about/uninstall", "about/uninstall/now").Run();
+        At<SettingsCommand>(host, "uninstall", "uninstall/now").Run();
         var asked = Assert.Single(host.Asked);
         Assert.Contains(Str.SettingsMenu_UninstallDataGoes.Text(), asked.Detail, StringComparison.Ordinal);
         Assert.Empty(host.FakeAbout.Uninstalled);

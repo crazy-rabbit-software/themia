@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "வேறு பயன்பாட்டைத் தேர்ந்தெடு",
+  "folderMenu.compressToZip": "ZIP கோப்பாகச் சுருக்கு",
+  "folderMenu.copyAsPath": "பாதையாக நகலெடு",
+  "folderMenu.openInNewWindow": "புதிய சாளரத்தில் திற",
+  "folderMenu.openWith": "இதைக் கொண்டு திற",
+  "folderMenu.pinToQuickAccess": "விரைவு அணுகலில் பின் செய்",
+  "folderMenu.pinToStart": "தொடக்கத்தில் பின் செய்",
+  "folderMenu.share": "பகிர்",
+  "folder.properties": "பண்புகள்",
+  "widgetsB.folder.freeUpSpace": "இடத்தைக் காலியாக்கு",
+  "widgetsB.folder.keepOnDevice": "இந்தச் சாதனத்தில் எப்போதும் வைத்திரு",
+  "widgetsB.folder.moreOptions": "மேலும் விருப்பங்களைக் காட்டு",
+  "widgetsB.folder.new": "புதியது",
+  "ctxMenu.folder": "கோப்புறை"
+}

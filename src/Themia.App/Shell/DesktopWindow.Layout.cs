@@ -22,7 +22,7 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// Layout: which view this display shows, positioning the cards in it, the hit region and the snap
+/// Layout: which view this display shows, positioning the cards in it, the hit region (the work area) and the snap
 /// grid overlay.
 /// </summary>
 internal sealed partial class DesktopWindow
@@ -34,6 +34,38 @@ internal sealed partial class DesktopWindow
     private double _laidOutScale;
 
     private ViewState ViewForThisMonitor(AppState state) => state.ViewForMonitor(_monitor.Id);
+
+    /// <summary>
+    /// [S-854] This surface's metrics are the real ones: its root loaded with the scale it renders at
+    /// known, and no scale change waiting for the display pass that puts the window back over its
+    /// monitor. Until then a layout is drawn at provisional metrics and nothing writes geometry by them.
+    /// </summary>
+    private bool _metricsSettled;
+
+    /// <summary>[S-854] This surface as what writes geometry sees it (<see cref="SurfaceMetrics"/>).</summary>
+    internal SurfaceMetrics Surface
+        => new(CurrentViewId, Metrics, _host.State.MonitorScales.TryGetValue(_monitor.Id, out var own) ? own : 1.0, _metricsSettled && !_closed);
+
+    /// <summary>
+    /// [S-854] Settle when the real scale is known (the root loaded, its scale positive) and tell the host,
+    /// which runs what waited for real metrics (unless <paramref name="tellHost"/> is false: the display
+    /// pass, which settles them itself once every surface is through it). Idempotent: a surface already
+    /// settled tells nobody.
+    /// </summary>
+    private void TrySettleMetrics(bool tellHost = true)
+    {
+        if (_metricsSettled || _closed || SurfaceMetrics.SettledScale(_root.IsLoaded, _root.XamlRoot?.RasterizationScale) is null)
+        {
+            return;
+        }
+
+        _metricsSettled = true;
+        Log.Debug(Scope, $"metrics settled {_monitor.GdiName}: {Metrics.Width:0}x{Metrics.Height:0} scale={RasterScale:0.00}");
+        if (tellHost)
+        {
+            _host.SettleSurfaces();
+        }
+    }
 
     /// <summary>
     /// Once the content is live the XamlRoot exists, so the real scale is finally knowable. Lay out
@@ -52,6 +84,9 @@ internal sealed partial class DesktopWindow
                 if (scale != _laidOutScale)
                 {
                     _laidOutScale = scale;
+
+                    // [S-854] Provisional again until that pass has put the window back (DisplaysPassed).
+                    _metricsSettled = false;
                     _host.RequestDisplayPass();
                 }
 
@@ -60,6 +95,9 @@ internal sealed partial class DesktopWindow
         }
 
         Relayout();
+
+        // [S-854] After the first layout at the real metrics: the host's waiting writers run on them.
+        TrySettleMetrics();
     }
 
     private void OnSelectionChanged()
@@ -69,7 +107,6 @@ internal sealed partial class DesktopWindow
             card.ApplySelection();
         }
 
-        DrawGroupFrames();
 
         // [S-2343] A new selection: its entry on the bar, its flyout opened once.
         SyncProperties();
@@ -108,14 +145,13 @@ internal sealed partial class DesktopWindow
 
         _toolbar.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
 
-        _gridOverlay.Visibility = editing && Design.GridSnap ? Visibility.Visible : Visibility.Collapsed;
+        _gridOverlay.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
 
         foreach (var card in _cards)
         {
             card.ApplyEditMode(editing);
         }
 
-        DrawGroupFrames();
         FadeLeaving();
 
         // [S-802] Edit mode ends a keyboard lease: the keys are the edit shortcuts now.
@@ -131,7 +167,6 @@ internal sealed partial class DesktopWindow
         // [S-907] The bar gains its grip in edit mode, or appears faded where the user hid it.
         RefreshViewBar();
         PlaceProperties();
-        ApplyHitRegion();
 
         if (editing)
         {
@@ -175,7 +210,6 @@ internal sealed partial class DesktopWindow
         PositionCard(card, card.Model.Rect);
         JoinCards();
         PlaceProperties();
-        ApplyHitRegion();
     }
 
     /// <inheritdoc />
@@ -190,10 +224,11 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var view = ViewForThisMonitor(_host.State);
+        // [S-1017] A show from an earlier pass ends at rest before this one touches its cards.
+        EndRunningIntro();
 
-        // [S-5506] The item widgets have cards only while Themia's items show.
-        var wanted = Themia.Core.Desktop.DesktopReconcile.Shown(view.Widgets, _host.ShowsDesktopItems);
+        var view = ViewForThisMonitor(_host.State);
+        var wanted = view.Widgets;
 
         // Reuse the cards that survived the change: rebuilding every card on every state change
         // would restart each widget's tick subscription and flash the whole surface. [S-1882] The
@@ -255,7 +290,6 @@ internal sealed partial class DesktopWindow
         ApplyChromeInsets();
         RefreshViewBar();
         PlaceProperties();
-        ApplyHitRegion();
 
         if (EditMode)
         {
@@ -304,16 +338,15 @@ internal sealed partial class DesktopWindow
         card.SetLiveRect(rect);
         card.ApplyResizable();
 
-        // The card occupies the whole CELL. The gap is applied inside it, so the edit outline and
-        // handles trace the cell rather than the painted surface, and changing the gap does not
-        // move or resize anything.
+        // The card occupies the whole CELL. The gap is applied inside it (by the join that always
+        // follows, [S-2249]), so the edit outline and handles trace the cell rather than the painted
+        // surface, and changing the gap does not move or resize anything.
         // [S-11872] Every edge on a whole device pixel, so two cards that meet share one.
         var cell = GridGeometry.ToPixels(rect, metrics, RasterScale);
         Canvas.SetLeft(card, cell.X);
         Canvas.SetTop(card, cell.Y);
         card.Width = cell.Width;
         card.Height = cell.Height;
-        card.ApplyGap(Design.WidgetGapPx);
     }
 
     /// <summary>
@@ -324,21 +357,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void JoinCards()
     {
-        WidgetCard.Join(_cards, Metrics, Design.WidgetGapPx, RasterScale, EditMode, JoinSet);
-
-        // [S-2453] The groups' frames follow the cards wherever they are joined again: a drag, a nudge, a relayout.
-        DrawGroupFrames();
-    }
-
-    /// <summary>[S-2453] Draw this surface's group frames for the cards as they stand and the selection now.</summary>
-    private void DrawGroupFrames()
-    {
-        if (_closed)
-        {
-            return;
-        }
-
-        _groupFrames.Draw(GroupFrameLayer.Frames(ViewForThisMonitor(_host.State), _cards, Metrics, Design.WidgetGapPx, EditMode, _host.Selection), RasterScale);
+        WidgetCard.Join(_cards, Metrics, RasterScale, EditMode, JoinSet);
     }
 
     /// <summary>
@@ -351,98 +370,26 @@ internal sealed partial class DesktopWindow
             : 0;
 
     /// <summary>
-    /// Restrict the window to the widgets themselves, so every click that is not on a widget lands
-    /// on the desktop underneath. Without this the surface would be an invisible full-screen pane
-    /// that swallows every desktop icon double-click.
-    /// <para>
-    /// [S-851] Never over the taskbar. The surface spans the whole monitor ([S-840]), so the region is
-    /// always cut to the work area: in edit mode it is the work area itself rather than the whole
-    /// window, and a widget the taskbar has since grown over is clipped there rather than moved. The
-    /// taskbar is topmost and normally wins anyway — but while Show Desktop lifts the surface to the
-    /// top of the topmost band ([S-33]) the region is all that keeps the taskbar clickable. The region
-    /// clips painting as well as input, so a covered part is not drawn over the taskbar either.
-    /// </para>
+    /// [S-21] [S-851] The surface is cut to its display's work area, one rectangle, always: Themia
+    /// owns the whole desktop ([S-5501]), and never the taskbar. The surface spans the whole monitor
+    /// ([S-840]); the taskbar and a dock are above it in every state ([S-20], [S-33f]), and the region
+    /// keeps it out of what they reserved whatever the z-order is. The region clips painting as well as
+    /// input, so a widget the taskbar has grown over is not drawn over it either. Applied when the window is made and whenever its display's bounds or
+    /// work area change (<see cref="UpdateMonitor"/>, <see cref="EnsurePlacement"/>); nothing on the
+    /// surface changes it.
     /// </summary>
     private void ApplyHitRegion()
     {
-        var metrics = Metrics;
-        if (!metrics.IsUsable || !Win32.GetWindowRect(_hwnd, out var window))
+        if (!Win32.GetWindowRect(_hwnd, out var window))
         {
             return;
         }
 
-        // The region is in physical pixels relative to the WINDOW; XAML laid the cards out in DIPs
-        // relative to the CLIENT area. Convert both.
-        var scale = RasterScale;
-        var (offsetX, offsetY) = ClientToWindowOffset();
-
+        // The region is in physical pixels relative to the WINDOW.
         var work = _monitor.WorkArea;
-        var allowed = new PixelRect(work.Left - window.Left, work.Top - window.Top, work.Width, work.Height);
-
-        // [S-1005] The hyperspace veil spans the work area while it plays, so the region does too.
-        // [S-5501] Under Themia's items empty desktop is Themia's: the whole work area takes clicks.
-        if (EditMode || MotionCoversScreen || _host.ShowsDesktopItems)
-        {
-            DesktopLayer.SetHitRegion(_hwnd, [RegionPiece.Plain(ToRegionRect(allowed))], ToRegionRect(allowed));
-            return;
-        }
-
-        var pieces = new List<RegionPiece>(_cards.Count + 2);
-        var radius = DesignLook.CornerRadius(Design.CornerRadiusPx);
-
-        foreach (var card in _cards)
-        {
-            if (card.Visibility == Visibility.Collapsed)
-            {
-                continue;
-            }
-
-            // The mask traces the PAINTED surface, not the cell: the gap is empty desktop, so a
-            // click there should reach the desktop rather than an invisible widget edge. And it
-            // follows paint ([S-872]): a hidden widget takes nothing.
-            var painted = GridGeometry.Inset(GridGeometry.ToPixels(card.LiveRect, metrics, RasterScale), Design.WidgetGapPx);
-            if (CardFrame.Hit(painted, card.IsShown(EditMode)) is not { } box)
-            {
-                continue;
-            }
-
-            var physical = PixelRect.FromEdges(
-                offsetX + Math.Floor(box.X * scale),
-                offsetY + Math.Floor(box.Y * scale),
-                offsetX + Math.Ceiling((box.X + box.Width) * scale),
-                offsetY + Math.Ceiling((box.Y + box.Height) * scale));
-
-            // [S-2245] Its own shape: round corners round, the ones a neighbour joins square. The
-            // whole shape, cut to the work area with everything else below.
-            pieces.Add(new RegionPiece(ToRegionRect(physical), CardFrame.Corners(card.Outline, card.DrawsSurface, radius, scale)));
-        }
-
-        // [S-912] The view bar takes clicks too; everything else around it stays the desktop.
-        if (ViewBarBox() is { } bar)
-        {
-            var physical = PixelRect.FromEdges(
-                offsetX + Math.Floor(bar.X * scale),
-                offsetY + Math.Floor(bar.Y * scale),
-                offsetX + Math.Ceiling((bar.X + bar.Width) * scale),
-                offsetY + Math.Ceiling((bar.Y + bar.Height) * scale));
-
-            pieces.Add(RegionPiece.Plain(ToRegionRect(physical)));
-        }
-
-        // [S-880] Notices paint and take clicks only inside the region, like everything else here.
-        if (NoticeBox() is { } notices)
-        {
-            var physical = PixelRect.FromEdges(
-                offsetX + Math.Floor(notices.X * scale),
-                offsetY + Math.Floor(notices.Y * scale),
-                offsetX + Math.Ceiling((notices.X + notices.Width) * scale),
-                offsetY + Math.Ceiling((notices.Y + notices.Height) * scale));
-
-            pieces.Add(RegionPiece.Plain(ToRegionRect(physical)));
-        }
-
-        // Everything is cut to the work area at once ([S-851]).
-        DesktopLayer.SetHitRegion(_hwnd, pieces, ToRegionRect(allowed));
+        DesktopLayer.SetHitRegion(_hwnd, ToRegionRect(GridGeometry.SurfaceRegion(
+            new PixelRect(window.Left, window.Top, window.Width, window.Height),
+            new PixelRect(work.Left, work.Top, work.Width, work.Height))));
     }
 
     private static Win32.Rect ToRegionRect(PixelRect r) => new()
@@ -453,11 +400,11 @@ internal sealed partial class DesktopWindow
         Bottom = (int)Math.Round(r.Y + r.Height),
     };
 
-    /// <summary>[S-06a]/[S-06c] The snap grid, drawn only while editing, on the surface's own pixels.</summary>
+    /// <summary>[S-06a]/[S-06c] The grid, drawn whole only while editing, on the surface's own pixels.</summary>
     private void DrawGridOverlay()
     {
         var metrics = Metrics;
-        if (!metrics.IsUsable || !Design.GridSnap)
+        if (!metrics.IsUsable || !EditMode)
         {
             _gridOverlay.Visibility = Visibility.Collapsed;
             return;
@@ -466,4 +413,7 @@ internal sealed partial class DesktopWindow
         _gridOverlay.Draw(metrics, RasterScale);
         _gridOverlay.Visibility = Visibility.Visible;
     }
+
+    /// <summary>[S-11874] The local grid round <paramref name="target"/> while a block moves on the locked desktop, or faded out with null.</summary>
+    private void ShowLocalGrid(FracRect? target) => _localGrid.Show(target, Metrics, RasterScale);
 }

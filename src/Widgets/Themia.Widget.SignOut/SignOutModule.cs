@@ -29,13 +29,10 @@ public sealed class SignOutModule : IWidgetModule
         Label = SignOutStr.Power_Action_SignOut.Local(),
         Description = SignOutStr.WidgetsC_Power_Desc_SignOut.Local(),
         Glyph = Glyphs.SignOut,
-        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size, stateLine: false),
+        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 5),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => PowerButtonView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new PowerButtonView(Descriptor.Id, host);
 }

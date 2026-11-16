@@ -21,7 +21,7 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
 - **[S-725]** Rows (`WeatherForecastLayout.Rows`): one Row block per day ([S-6711]): the day's sky
   glyph as its 16 lead, the day as its name ("Today" in BodyStrong, never the accent), a range bar
   (the Chart block's track, the day's low to its high on the scale of the days shown, 32 % of the
-  row, at most 140: it grows with the card) and "low high" as its value. Lines per row is a setting
+  row, at most 140, at the least: it takes what the names and values leave, [S-12403]) and "low high" as its value. Lines per row is a setting
   ([S-11147]): one, or two (the second the sky in words and, with the precipitation on, its chance and
   amount where there is any, "Light rain · 80% · 4.2 mm"). The days are the config's, one row each.
 - **[S-726]** Columns (`WeatherForecastLayout.Columns`): the days side by side in equal columns across
@@ -74,6 +74,16 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   Dragging the rows' bottom edge or the columns' side edge sets the days ([S-2442]).
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
   other styles offer nothing there.
+- **[S-12403]** **The days fill the content** ([S-12400]), in every style. Rows: down to the card's
+  edge ([S-12410]: the foot's inset is theirs), a box taller than the days stretching the rows up to half
+  again, then spacing them evenly; each
+  range bar takes what the widest day name (with two lines, the widest second line too) and the widest
+  value leave, the same length on every row, never under [S-725]'s share (`WeatherForecastLayout.MeterWidth`).
+  Columns: equal columns across the whole width, the standing bar taking the height the other parts
+  leave. Curve: the columns across the width, the chart the height left. Grid: each line of cells
+  across the whole width, a last line short of days sharing it among the days it has
+  (`ForecastGrid.Lines`), the lines sharing the height. Tests `WeatherLayoutTests.S12403_`,
+  `ForecastDaysTests.S12403_`.
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
 - View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).

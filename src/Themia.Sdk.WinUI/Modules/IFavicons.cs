@@ -2,7 +2,7 @@ namespace Themia.Sdk.WinUI;
 
 /// <summary>
 /// [S-1304] A site's own icon (<see cref="IWidgetHost.Favicons"/>): the host's one cache, shared by the
-/// feeds and the shortcuts' web tiles, fetched once per site and never from a third-party service.
+/// feeds and a shortcut to a web address, fetched once per site and never from a third-party service.
 /// </summary>
 public interface IFavicons
 {

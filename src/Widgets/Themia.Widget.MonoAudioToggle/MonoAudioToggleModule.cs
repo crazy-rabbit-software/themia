@@ -29,13 +29,10 @@ public sealed class MonoAudioToggleModule : IWidgetModule
         Label = MonoAudioToggleStr.Toggles_MonoAudio_Label.Local(),
         Description = MonoAudioToggleStr.Toggles_MonoAudio_Desc.Local(),
         Glyph = Glyphs.MonoAudio,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 1, 3),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

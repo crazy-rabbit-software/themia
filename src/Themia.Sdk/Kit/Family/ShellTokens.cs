@@ -117,6 +117,12 @@ public static class ShellMetrics
 
         /// <summary>Kept from the work area's sides.</summary>
         public const double EdgeMargin = 12;
+
+        /// <summary>
+        /// [S-2344] How much of the ground is left over a selected widget the selection's page covers:
+        /// enough for the page's words to read, little enough for the widget to be seen through it.
+        /// </summary>
+        public const double ShineThrough = 0.55;
     }
 
     /// <summary>
@@ -217,6 +223,47 @@ public static class ShellMetrics
 
         /// <summary>[S-2305] How far a row is lit when a deep link lands on it.</summary>
         public const int LitMs = 1500;
+
+        /// <summary>
+        /// [S-2317] Words to their control (Karpo's <c>PanelMetrics.Label</c>, WinUI's 12 between a control and its
+        /// label): a value said before its chevron's room or its button, a button's words in from its sides.
+        /// </summary>
+        public const double Label = 12;
+
+        /// <summary>[S-2317] Every chevron's middle this far in from its control's end (Karpo's <c>ChevronIn</c>, §548).</summary>
+        public const double ChevronIn = 20;
+
+        /// <summary>[S-2317] The room an expander's, a picker's or a link's chevron takes at a card's end: a 32 button, 4 in (Karpo's <c>ChevronRoom</c>).</summary>
+        public const double ChevronRoom = 4 + Control;
+
+        /// <summary>[S-2317] A chevron's end this far in from its control's end: its middle 20 in, half of its 12 after it.</summary>
+        public const double ChevronOff = ChevronIn - (Chevron / 2);
+
+        /// <summary>[S-2318] A row's button and a value's reset at most this wide, the value column's (Karpo's <c>ActionWide</c>: 120..240).</summary>
+        public const double ButtonMost = ControlWide;
+
+        /// <summary>[S-2318] Between two buttons that only act standing side by side (Karpo's §578 foot buttons, 8 apart) and under the card before them.</summary>
+        public const double FootGap = 8;
+
+        /// <summary>[S-2345] A tab strip (Karpo's §592, WinUI's SelectorBar): a control's 32 and its pill's room, 8 under the card before it and over the chosen tab's cards.</summary>
+        public const double Tabs = Control + 8;
+
+        public const double TabsGap = 8;
+
+        /// <summary>[S-2345] Inside a tab, before and after its words; tabs 4 apart.</summary>
+        public const double TabPad = 12;
+
+        public const double TabGap = 4;
+
+        /// <summary>
+        /// [S-2317] A thing put in order's handle at its row's start (Karpo's §551 <c>Handle</c>, <c>HandleIn</c>,
+        /// <c>HandleLead</c>): 16 wide, 4 in, its icon and name 12 further in.
+        /// </summary>
+        public const double Handle = 16;
+
+        public const double HandleIn = 4;
+
+        public const double HandleLead = 12;
     }
 
     /// <summary>

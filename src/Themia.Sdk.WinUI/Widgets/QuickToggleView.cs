@@ -34,7 +34,7 @@ namespace Themia.App.Widgets;
 /// click gate, the keys and edit mode are one path.
 /// </para>
 /// </summary>
-public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetTopEdge
+public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetTopEdge, IWidgetButton, IWidgetSizeAware, IWidgetCorners
 {
     /// <summary>[S-5700] It owns its top edge: the whole tile is the switch, padded by itself.</summary>
     public bool OwnsTopEdge => true;
@@ -49,7 +49,7 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
     private IWidgetSurface? _surface;
     private IToggleSource? _lease;
     private ToggleReading _preview = ToggleReading.Of(false);
-    private ReadoutSize _size = ReadoutSizes.Default;
+    private WidgetArea _area;
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -124,20 +124,18 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
             QuickToggleStyle.Switch => TileLook.Switch,
             _ => TileLook.Tile,
         };
-        _size = config is QuickToggleConfig sized ? ReadoutSizes.Normalise(sized.Size) : ReadoutSizes.Default;
-
         Lay();
     }
 
-    /// <summary>[S-11307] Its one option past its look, under the Style: its Size.</summary>
-    public static void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    /// <summary>[S-11882] The tile's box: the glyph and its words grow with it.</summary>
+    public void ApplySize(WidgetArea area)
     {
-        ArgumentNullException.ThrowIfNull(menu);
-        if (config is QuickToggleConfig toggle)
-        {
-            menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, toggle));
-        }
+        _area = area;
+        Lay();
     }
+
+    /// <inheritdoc />
+    public void ApplyCorners(CornerRadius corners) => _tile.Corners(corners);
 
     public void Detach()
     {
@@ -164,8 +162,10 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
     // ---- layout ------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-3906] [S-11307] The Tile block in the card's inset: the glyph on the step its Size names above
-    /// the name and the state line, both planned at every size so switching moves nothing.
+    /// [S-3906] [S-11882] The Tile block in the card's inset, centred in its box: the glyph on the step the
+    /// box holds above the name and the state line (<see cref="TileRules.Face"/>), both planned whatever
+    /// they say so switching moves nothing. A box with no room for the words is the glyph alone (the name
+    /// is the tooltip, the state the fill); the switch's row keeps its lines.
     /// </summary>
     private void Lay()
     {
@@ -174,8 +174,12 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        var width = _tile.Look == TileLook.Switch ? TileRules.SwitchWidthAt(_size) : TileRules.SideAt(_size);
-        _tile.Use(TileRules.GlyphAt(_size), width - (2 * FamilySpace.Inset));
+        var row = _tile.Look == TileLook.Switch;
+        var natural = TileRules.Sizing(_tile.Look).Natural;
+        var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
+        var face = TileRules.Face(width, height);
+        var texted = row || face.Texted;
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: texted, state: texted, face.Name, face.State);
         Paint();
     }
 

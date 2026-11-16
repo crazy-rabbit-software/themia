@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Zvolit jinou aplikaci",
+  "folderMenu.compressToZip": "Komprimovat do souboru ZIP",
+  "folderMenu.copyAsPath": "Kopírovat jako cestu",
+  "folderMenu.openInNewWindow": "Otevřít v novém okně",
+  "folderMenu.openWith": "Otevřít v aplikaci",
+  "folderMenu.pinToQuickAccess": "Připnout k Rychlému přístupu",
+  "folderMenu.pinToStart": "Připnout na Start",
+  "folderMenu.share": "Sdílet",
+  "folder.properties": "Vlastnosti",
+  "widgetsB.folder.freeUpSpace": "Uvolnit místo",
+  "widgetsB.folder.keepOnDevice": "Vždy ponechat v tomto zařízení",
+  "widgetsB.folder.moreOptions": "Zobrazit další možnosti",
+  "widgetsB.folder.new": "Nový",
+  "ctxMenu.folder": "Složka"
+}

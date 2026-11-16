@@ -1,15 +1,15 @@
-﻿using Themia.App.Shell;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
+using Themia.Sdk;
 
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3525] General, the General page's first section: start with Windows, what the desktop shows,
-/// game mode and snap to grid ([S-3516]). Start with Windows and game mode show something Windows owns or decides, so the host reads
-/// Windows for them rather than trusting what Themia last wrote; the desktop is Themia's own choice
-/// ([S-5500]).
+/// [S-3525] General, the General page's first section: start with Windows and game mode (snap to grid is
+/// the edit bar's, [S-2330]); [S-2315] the desktop icons are a section of their own (<see cref="Desktop"/>). Start with Windows and game mode show something Windows owns or decides, so the host reads
+/// Windows for them rather than trusting what Themia last wrote.
 /// </summary>
 public static partial class SettingsMenu
 {
@@ -40,48 +40,39 @@ public static partial class SettingsMenu
             lines.Add(new SettingsNote(Keys.Startup + "/detail", detail));
         }
 
-        // [S-5500] What the desktop shows: Themia's own choice, so it shows what was chosen.
-        lines.Add(Desktop(host));
-
-        // [S-5575] Under it, why it does not show while another program holds the desktop.
-        if (Themia.Core.Desktop.DesktopCoexistence.Note(state.Preferences.Desktop, host.DesktopHolder) is { } held)
-        {
-            lines.Add(new SettingsNote(Keys.Desktop + "/held", held));
-        }
-
         // [S-920] Game mode, "Paused now" at its end while it is holding the widgets.
         lines.Add(new SettingsToggle(Keys.GameMode, Str.SettingsMenu_GameMode.Text(), Glyphs.Game, state.Preferences.GameModeSuspend, host.SetGameModeSuspend)
         {
             Value = host.Suspended ? Str.Shell_Settings_General_PausedNow.Text() : null,
         });
 
-        // [S-3516] Snap to grid while widgets are moved and resized: set here and nowhere else.
-        lines.Add(new SettingsToggle(Keys.Snap, Str.Shell_Toolbar_SnapName.Text(), Glyphs.Grid, state.Design.GridSnap,
-            on => host.Mutate(s => s.Design.GridSnap = on, relayout: false)));
-
-        // [S-11959] Widgets kept apart while they are moved: beside Snap to grid, set here and nowhere else.
-        lines.Add(new SettingsToggle(Keys.Collisions, Str.Shell_Toolbar_CollisionsName.Text(), Glyphs.Apps, state.Design.WidgetCollisions,
-            on => host.Mutate(s => s.Design.WidgetCollisions = on, relayout: false)));
-
         return lines;
     }
 
     /// <summary>
-    /// [S-5500] On the desktop: Themia's items, Windows' icons or nothing, the one line that sets it
-    /// ([S-3592]). A pick goes to the host, which stores it and hides or shows Explorer's icons.
+    /// [S-2315] Desktop icons, the General page's section of its own: the desktop's icon size ([S-5593]).
     /// </summary>
-    private static SettingsChoice Desktop(ISettingsMenuHost host)
+    public static IReadOnlyList<SettingsLine> Desktop(ISettingsMenuHost host)
     {
-        var shows = host.State.Preferences.Desktop;
-        SettingsRadio Option(DesktopShows option, string key, Str text)
-            => new(Keys.Desktop + "/" + key, text.Text(), shows == option, () => host.SetDesktop(option));
+        ArgumentNullException.ThrowIfNull(host);
 
-        return new SettingsChoice(Keys.Desktop, Str.Desktop_Choice_Label.Text(), Glyphs.Apps,
+        var state = host.State;
+        var lines = new List<SettingsLine>();
+
+        // [S-5593] The desktop's one view setting, the one its background menu's View › sets too, for every
+        // display. The icons always show and always stand on the icon grid; Auto arrange icons is the
+        // menu's one-shot command, no setting ([S-5594], [S-5595]).
+        var size = state.Preferences.DesktopIconSize;
+        SettingsRadio Size(DesktopIconSize value, Str text) => new(
+            Keys.DesktopIconSize + "/" + value.ToString().ToLowerInvariant(), text.Text(), size == value,
+            () => host.Mutate(s => s.Preferences.DesktopIconSize = value, relayout: true));
+        lines.Add(new SettingsChoice(Keys.DesktopIconSize, Str.Desktop_Icons_Size.Text(), Glyphs.View,
         [
-            Option(DesktopShows.ThemiaItems, "themia", Str.Desktop_Choice_Themia),
-            Option(DesktopShows.WindowsIcons, "windows", Str.Desktop_Choice_Windows),
-            Option(DesktopShows.Nothing, "nothing", Str.Desktop_Choice_Nothing),
-        ]);
+            Size(DesktopIconSize.Large, Str.Desktop_Icons_Large),
+            Size(DesktopIconSize.Medium, Str.Desktop_Icons_Medium),
+            Size(DesktopIconSize.Small, Str.Desktop_Icons_Small),
+        ]));
+        return lines;
     }
 
     /// <summary>

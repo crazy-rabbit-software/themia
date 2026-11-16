@@ -17,10 +17,17 @@ internal sealed partial class WeatherForecastView
     /// <summary>
     /// One Row block per day the plan shows: the day's sky glyph, the day (today strong), its range bar,
     /// "low high"; the sky in words and the precipitation as the second line where the tier gives one.
+    /// <para>
+    /// [S-12403] [S-12410] The rows fill the content down to the card's edge, a box taller than the days
+    /// (whole grid cells, the foot's inset) stretching them up to half again, then spacing them
+    /// (<see cref="SpreadStack"/>); across, each bar takes what
+    /// the widest day and the widest value leave, the same length on every row.
+    /// </para>
     /// </summary>
-    private StackPanel BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
+    private SpreadStack BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
     {
-        var list = new StackPanel { VerticalAlignment = VerticalAlignment.Top };
+        var list = new SpreadStack();
+        var bars = new List<(RowBlock Row, ChartBar Bar)>();
 
         for (var i = 0; i < Math.Min(plan.Days, days.Count); i++)
         {
@@ -38,7 +45,7 @@ internal sealed partial class WeatherForecastView
                 var (start, end) = WeatherReport.RangeBar(low, high, range.Coldest, range.Warmest);
                 var bar = new ChartBar();
                 bar.Show(end, start);
-                row.Meter(bar, plan.Meter);
+                bars.Add((row, bar));
             }
 
             ToolTipService.SetToolTip(row, Describe(day));
@@ -46,7 +53,29 @@ internal sealed partial class WeatherForecastView
             list.Children.Add(row);
         }
 
+        if (bars.Count > 0)
+        {
+            var rows = list.Children.OfType<RowBlock>().ToList();
+            var meter = WeatherForecastLayout.MeterWidth(
+                WeatherForecastLayout.ContentWidth(_area),
+                plan.Compact ? 0 : FamilyShape.Icon + FamilySpace.GlyphGap,
+                rows.Max(r => Math.Max(Natural(r.NameText), r.Second.Visibility == Visibility.Visible ? Natural(r.Second) : 0)),
+                rows.Max(r => r.ValueText.Visibility == Visibility.Visible ? Natural(r.ValueText) : 0),
+                plan.Meter);
+            foreach (var (row, bar) in bars)
+            {
+                row.Meter(bar, meter);
+            }
+        }
+
         return list;
+    }
+
+    /// <summary>A text's own width on one line, as it is styled now.</summary>
+    private static double Natural(TextBlock text)
+    {
+        text.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+        return text.DesiredSize.Width;
     }
 
     /// <summary>A row's value: the low, then the high, as the range bar runs cold to warm.</summary>

@@ -115,7 +115,11 @@ public sealed class KitRowsTests
             foreach (var area in new[] { new WidgetArea(260, 100), new WidgetArea(900, 700) })
             {
                 var plan = KitPlanner.Plan(area, schedule, choices);
-                Assert.Equal((1, lines, lines >= 2, FamilyShape.RowHeight(lines)), (plan.Columns, plan.Lines, plan.Subtitle, plan.RowHeight));
+                Assert.Equal((1, lines, lines >= 2), (plan.Columns, plan.Lines, plan.Subtitle));
+
+                // [S-12410] Its rows stretch with the box up to half again, a heading with them.
+                Assert.Equal(area.Height < 6 * FamilyShape.RowHeight(lines) ? FamilyShape.RowHeight(lines) : FamilyShape.RowHeight(lines) * ItemStretch.RowCap, plan.RowHeight);
+                Assert.Equal(FamilyShape.Row1 * plan.RowHeight / FamilyShape.RowHeight(lines), plan.HeadingHeight, 6);
             }
         }
 

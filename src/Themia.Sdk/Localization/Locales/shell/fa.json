@@ -125,8 +125,6 @@
     "one": "حذف {count} ویجت",
     "other": "حذف {count} ویجت"
   },
-  "shell.card.doneEditing": "پایان ویرایش",
-  "shell.card.editLayout": "ویرایش چیدمان",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "راه‌اندازی",
   "shell.setup.hint": "تنظیم آنچه این ویجت نیاز دارد",
   "shell.toolbar.addWidget": "افزودن ویجت",
-  "shell.toolbar.snapName": "چسبیدن به شبکه",
-  "shell.toolbar.collisionsName": "جلوگیری از هم‌پوشانی ابزارک‌ها",
   "shell.editBar.selected": {
     "one": "{count} انتخاب‌شده",
     "other": "{count} انتخاب‌شده"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "اندازه متن",
   "shell.appearance.systemFont": "پیش‌فرض سیستم",
   "shell.appearance.sansFont": "بدون سریف",
-  "shell.layout.gap": "فاصله بین ویجت‌ها",
   "shell.motion.slide": "لغزش",
   "shell.motion.sides": "کناره‌ها",
   "shell.motion.topBottom": "بالا و پایین",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "هر دقیقه",
   "shell.refresh.everyHour": "هر ساعت",
   "shell.color.custom": "رنگ سفارشی",
-  "shell.color.pickCustom": "انتخاب رنگ سفارشی",
   "shell.color.pickFromScreen": "انتخاب رنگ از صفحه",
   "shell.color.pickFailed": "رنگ‌های صفحه خوانده نشدند",
   "shell.icon.home": "خانه",

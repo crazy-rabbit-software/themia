@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "ഡെസ്‌ക്‌ടോപ്പ് ഇനം",
-  "desktopItem.desc": "നിങ്ങളുടെ ഡെസ്‌ക്‌ടോപ്പിൽ നിന്നുള്ള ഒരു ഫയൽ, ഫോൾഡർ അല്ലെങ്കിൽ കുറുക്കുവഴി"
+  "widgetsC.shortcuts.column.target": "ലക്ഷ്യം",
+  "widgetsC.shortcuts.kind.location": "Windows ലൊക്കേഷൻ",
+  "widgetsC.shortcuts.kind.missing": "കാണാനില്ല",
+  "widgetsC.shortcuts.kind.path": "പാത",
+  "widgetsC.shortcuts.kind.refused": "അനുവദനീയമല്ല",
+  "widgetsC.shortcuts.menu.addLayout": "ആപ്പ് ലേഔട്ട്…",
+  "widgetsC.shortcuts.menu.addLink": "വെബ് വിലാസം അല്ലെങ്കിൽ പാത…",
+  "widgetsC.shortcuts.menu.changeTarget": "ലക്ഷ്യം മാറ്റുക…",
+  "widgetsC.shortcuts.settings.locations": "Windows ലൊക്കേഷനുകൾ",
+  "widgetsC.shortcuts.settings.openWith.double": "ഡബിൾ ക്ലിക്ക്",
+  "widgetsC.shortcuts.settings.openWith.label": "ഇത് ഉപയോഗിച്ച് തുറക്കുക",
+  "widgetsC.shortcuts.settings.openWith.single": "സിംഗിൾ ക്ലിക്ക്",
+  "widgetsC.shortcuts.settings.pick.file": "ഫയൽ…",
+  "widgetsC.shortcuts.settings.pick.folder": "ഫോൾഡർ…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ലക്ഷ്യം കാണാനില്ല)\n{target}"
 }

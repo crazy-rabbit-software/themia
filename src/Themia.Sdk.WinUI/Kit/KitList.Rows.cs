@@ -65,7 +65,7 @@ public sealed partial class KitList
         }
         else
         {
-            var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = item.Emphasis, Quiet = _spec.Unread && !item.Emphasis };
+            var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = item.Emphasis, Quiet = _spec.Unread && !item.Emphasis, Height = _plan.RowHeight };
             var second = _plan.Subtitle ? SubtitleLine(item) : _plan.Preview ? item.Preview : null;
             var third = _plan.Subtitle && _plan.Preview ? item.Preview : null;
             // [S-7072] A reading stands in the time's place, and is not rewritten on the ticker.
@@ -142,7 +142,7 @@ public sealed partial class KitList
     private RowBlock TableRow(KitItem item, DateTimeOffset now)
     {
         var columns = _plan.Table ?? [];
-        var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = 1 };
+        var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = 1, Height = _plan.RowHeight };
         block.Show(string.Empty);
 
         var grid = ColumnGrid(columns);

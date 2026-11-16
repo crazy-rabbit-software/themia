@@ -210,10 +210,15 @@ internal static partial class EditBarRender
             Page: _ => { },
             Selection: () => { },
             IntoFlyout: () => { },
-            Done: () => { });
+            Done: () => { },
+            Toggled: () => { });
         var bar = new EditBar(commands);
         bar.Fill(commands);
-        bar.Show(state);
+
+        // [S-2330] The toggles at its root over a stand-in state: Snap to grid on, Over the edge off, both looks seen.
+        var host = new RenderSettingsHost();
+        host.State.Design.OverEdge = false;
+        bar.Show(state.Toggles.Count > 0 ? state : state with { Toggles = Core.Shell.EditBarToggles.Of(host) });
         UiLanguage.ApplyFlow(bar);
         return bar;
     }
@@ -275,19 +280,125 @@ internal static partial class EditBarRender
         after?.Invoke(flyout);
 
         await Task.Delay(500).ConfigureAwait(true);
+        Probe(screen, flyout, path);
+        await PressCheck(view, path).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
         view.Close();
         screen.Background = flat;
     }
 
+    /// <summary>[S-2346] Every press over the flyout is the flyout's: said with the picture, loudly when one is not.</summary>
+    private static void Probe(Grid screen, PageFlyout flyout, string path)
+    {
+        if (screen.XamlRoot?.Content is not UIElement root)
+        {
+            return;
+        }
+
+        try
+        {
+            var (points, missed, first) = FlyoutHitProbe.Run(root, flyout, Themia.Sdk.Kit.ShellMetrics.Flyout.BeakHeight, Themia.Sdk.Kit.ShellMetrics.OverlayRadius);
+            Console.WriteLine(missed == 0
+                ? $"editbar: hit probe {System.IO.Path.GetFileName(path)}: the page takes all {points} points"
+                : $"editbar: hit probe {System.IO.Path.GetFileName(path)}: {missed} of {points} points not the page's, first {first}");
+        }
+        catch (Exception ex)
+        {
+            // The probe only reports; the picture is drawn all the same.
+            Log.Warn(Scope, $"the hit probe of {System.IO.Path.GetFileName(path)} failed", ex);
+        }
+    }
+
+    /// <summary>
+    /// [S-2346] A press on the page, a change while it is held, and its release, through the surface's own
+    /// <see cref="FlyoutRedraws"/>: the page is not drawn under the press nor inside the release, but once after
+    /// it, and nothing throws. Said with the picture, loudly when it does not hold.
+    /// </summary>
+    private static async Task PressCheck(PageView view, string path)
+    {
+        var name = System.IO.Path.GetFileName(path);
+        var failed = false;
+        void Fail(string why)
+        {
+            failed = true;
+            Console.WriteLine($"editbar: press check {name}: FAILED, {why}");
+        }
+
+        if (!_countingErrors)
+        {
+            Log.AddSink(static record =>
+            {
+                if (record.Level >= LogLevel.Error)
+                {
+                    Interlocked.Increment(ref _errors);
+                }
+            });
+            _countingErrors = true;
+        }
+
+        var errorsBefore = Volatile.Read(ref _errors);
+        var redraws = new FlyoutRedraws(view.DispatcherQueue, view.Show);
+        var before = view.Drawings;
+        redraws.Pressed();
+        redraws.Ask();
+        if (view.Drawings != before)
+        {
+            Fail("drawn under the press");
+        }
+
+        redraws.LetGo();
+        redraws.LetGo();
+        redraws.Ask();
+        if (view.Drawings != before)
+        {
+            Fail("drawn inside the release");
+        }
+
+        // Same priority, in order: this runs after the drawing the release posted.
+        var turn = new TaskCompletionSource();
+        if (!view.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () => turn.SetResult()))
+        {
+            Fail("the dispatcher took nothing");
+            return;
+        }
+
+        await turn.Task.ConfigureAwait(true);
+        if (view.Drawings != before + 1)
+        {
+            Fail($"drawn {view.Drawings - before} times after the release, not once");
+        }
+
+        if (Volatile.Read(ref _errors) - errorsBefore is > 0 and var logged)
+        {
+            Fail($"{logged} errors logged while drawing");
+        }
+
+        if (!failed)
+        {
+            Console.WriteLine($"editbar: press check {name}: drawn once, after the release");
+        }
+    }
+
+    /// <summary>[S-2346] The errors logged in this render, for <see cref="PressCheck"/>; counted from its first check.</summary>
+    private static int _errors;
+
+    private static bool _countingErrors;
+
     /// <summary>One widget of a selection shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
+    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null, string? Group = null);
 
     /// <summary>[S-2340]..[S-2343] The selection's page beside real cards, each case on the stand-in display.</summary>
     private static async Task SelectionShots(Grid screen, Ticker ticker, string outDir, string theme)
     {
         PropsCard[] clock = [new(new WidgetId("clock"), 140, 160, 300, 200, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")];
+        PropsCard[] covered = [new(new WidgetId("clock"), 700, 140, 300, 200, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.0, "#FFFFFF")];
+        PropsCard[] coveredGroup =
+        [
+            new(new WidgetId("clock"), 620, 200, 220, 160, HeaderPlacement.Top, true),
+            new(new WidgetId("countdown"), 840, 200, 240, 160, HeaderPlacement.Top, true),
+            new(new WidgetId("clock"), 760, 420, 220, 160, HeaderPlacement.Top, false),
+        ];
         PropsCard[] many =
         [
             new(new WidgetId("clock"), 120, 160, 220, 160, HeaderPlacement.Top, true),
@@ -297,8 +408,22 @@ internal static partial class EditBarRender
         PropsCard[] two = [new(new WidgetId("clock"), 120, 160, 220, 160, HeaderPlacement.Top, true), new(new WidgetId("clock"), 120, 360, 220, 160, HeaderPlacement.Bottom, true)];
         PropsCard[] toggle = [new(new WidgetId("wifiToggle"), 200, 260, 120, 120, HeaderPlacement.Hidden, true)];
         PropsCard[] weather = [new(new WidgetId("weatherNow"), 140, 160, 300, 200, HeaderPlacement.Top, true)];
-        PropsCard[] shortcuts = [new(new WidgetId("shortcuts"), 40, 200, 300, 400, HeaderPlacement.Top, true)];
+        PropsCard[] icon = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true)];
+
+        // [S-5611] A desktop file, an own icon on a Windows location, and two files: each is a "Desktop icon".
+        PropsCard[] iconFile = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Report.docx"}""")];
+        PropsCard[] iconOwn = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true, Config: """{"target":"shell:Personal"}""")];
+        PropsCard[] iconTwo =
+        [
+            new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Report.docx"}"""),
+            new(new WidgetId("desktopItem"), 200, 360, 76, 100, HeaderPlacement.Hidden, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Budget.xlsx"}"""),
+        ];
         PropsCard[] countdown = [new(new WidgetId("countdown"), 140, 160, 280, 180, HeaderPlacement.Top, true)];
+        PropsCard[] station =
+        [
+            new(new WidgetId("weatherNow"), 140, 160, 300, 200, HeaderPlacement.Top, true, Group: "Weather station"),
+            new(new WidgetId("weatherForecast"), 140, 360, 300, 200, HeaderPlacement.Top, true, Group: "Weather station"),
+        ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
         PlaceRender.UseFixture();
@@ -308,17 +433,30 @@ internal static partial class EditBarRender
         (PropsCard[] Layout, string Name, string? Click, string? Type, Action<WidgetMenuLines>? Lines)[] cases =
         [
             (clock, "one", null, null, null),
+
+            // [S-2344] A selected widget under its own page: seen through it, live as its settings change.
+            (covered, "covered", null, null, null),
+            (coveredGroup, "covered-two", null, null, null),
             (clock, "style", "style", null, null),
             (clock, "header", "header", null, null),
             (clock, "background", "background", null, null),
             (clock, "appearance-end", null, null, null),
             (two, "two", null, null, null),
             (many, "many", null, null, null),
+
+            // [S-2345] The Appearance tab; [S-11754] a group: For all of them and the look, no member alone.
+            (clock, "one-appearance", "tab:appearance", null, null),
+            (many, "many-appearance", "tab:appearance", null, null),
+            (station, "group", null, null, null),
+            (station, "group-appearance", "tab:appearance", null, null),
             (toggle, "toggle", null, null, null),
             (weather, "weather", null, null, null),
             (weather, "weather-location", "w/" + Str.Shell_Place_Location.Text(), "zur", null),
             (weather, "setup-weather", SetupOpen, null, null),
-            (shortcuts, "shortcuts", null, null, null),
+            (icon, "desktop-icon", null, null, null),
+            (iconFile, "desktop-icon-file", null, null, null),
+            (iconOwn, "desktop-icon-own", null, null, null),
+            (iconTwo, "desktop-icon-two", null, null, null),
             (countdown, "vocabulary", null, null, Vocabulary),
             (countdown, "vocabulary-colour", "w/Accent", null, Vocabulary),
             (countdown, "vocabulary-feeds", "w/Feeds", null, Vocabulary),
@@ -477,6 +615,12 @@ internal static partial class EditBarRender
             widgets.Add((model, spec));
         }
 
+        // [S-11754] The cards a case names one group are one, under that name.
+        if (widgets.Where(w => w.Spec.Group is not null).ToList() is { Count: > 1 } grouped && WidgetGroups.Group(view, grouped.Select(w => w.Model.Id)) is { } made)
+        {
+            WidgetGroups.Rename(view, made.Id, grouped[0].Spec.Group);
+        }
+
         var chosen = widgets.Where(w => w.Spec.Selected).Select(w => w.Model).ToList();
         var bar = SelectionBar(SelectionEntry(chosen), open: true);
         var barRect = PlaceBar(canvas, bar, ScreenWidth);
@@ -489,10 +633,9 @@ internal static partial class EditBarRender
         foreach (var (model, spec) in widgets)
         {
             var card = new WidgetCard(host, model) { Width = spec.W, Height = spec.H };
-            card.ApplyGap(0);
             card.ApplyEditMode(true);
             card.ApplySelection();
-            card.ApplyContentScale(WidgetScale.Effective(1, model.Scale));
+            card.ApplyContentScale(WidgetScale.For(model, 1));
             Canvas.SetLeft(card, spec.X);
             Canvas.SetTop(card, spec.Y);
             canvas.Children.Add(card);
@@ -509,7 +652,12 @@ internal static partial class EditBarRender
         page.Show();
         if (click is not null)
         {
-            if (click == SetupOpen ? !page.OpenSetup() : !page.DebugClick(click))
+            // [S-2345] "tab:<key>" chooses a tab of the page.
+            if (click.StartsWith("tab:", StringComparison.Ordinal))
+            {
+                page.DebugTab(click["tab:".Length..]);
+            }
+            else if (click == SetupOpen ? !page.OpenSetup() : !page.DebugClick(click))
             {
                 Console.WriteLine($"editbar: no row {click} for {path}");
             }
@@ -523,7 +671,11 @@ internal static partial class EditBarRender
 
         await Task.Delay(300).ConfigureAwait(true);
         canvas.UpdateLayout();
+
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, area, flyout.ContentHeight));
+
+        // [S-2344] The selected cards it covers seen through it, as the surface shows them.
+        flyout.ShineThrough([.. widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H))]);
         canvas.UpdateLayout();
         if (scrollToEnd)
         {
@@ -531,6 +683,7 @@ internal static partial class EditBarRender
         }
 
         await Task.Delay(700).ConfigureAwait(true);
+        Probe(screen, flyout, path);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
         page.Close();
@@ -545,8 +698,8 @@ internal static partial class EditBarRender
     /// <summary>
     /// [S-31b]/[S-31c] The edit markers on real cards: <c>marks-&lt;theme&gt;-r4.png</c> and <c>-r16.png</c>
     /// (a selected card, an unselected one and an XS tile at that corner radius), <c>-multi.png</c>
-    /// (three selected beside one that is not) and <c>-neighbours.png</c> (cells meeting on their edges,
-    /// at the usual 8 DIP gap: their marks are one line where they meet).
+    /// (three selected beside one that is not) and <c>-neighbours.png</c> (cells meeting on their edges:
+    /// their marks are one line where they meet).
     /// </summary>
     private static async Task MarkerShots(Grid screen, Ticker ticker, string outDir, string theme)
     {
@@ -577,10 +730,10 @@ internal static partial class EditBarRender
             new(new WidgetId("clock"), 360, 250, 240, 150, HeaderPlacement.Hidden, true),
             new(new WidgetId("wifiToggle"), 600, 100, 120, 120, HeaderPlacement.Hidden, false),
         ];
-        await MarkerShot(screen, ticker, neighbours, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-neighbours.png"), gap: 8).ConfigureAwait(true);
+        await MarkerShot(screen, ticker, neighbours, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-neighbours.png")).ConfigureAwait(true);
     }
 
-    private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path, double gap = 0)
+    private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path)
     {
         screen.Children.Clear();
         screen.Height = 420;
@@ -606,7 +759,6 @@ internal static partial class EditBarRender
         foreach (var (model, spec) in models)
         {
             var card = new WidgetCard(host, model) { Width = spec.W, Height = spec.H };
-            card.ApplyGap(gap);
             card.ApplyEditMode(true);
             Canvas.SetLeft(card, spec.X);
             Canvas.SetTop(card, spec.Y);

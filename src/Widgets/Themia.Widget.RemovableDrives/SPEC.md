@@ -34,3 +34,6 @@ languages). Tests: `Tests/RemovableDrivesTests.cs` (run by `tests/Themia.Modules
 
 Needs a manual pass: the widget on a live desktop (a stick plugged in and ejected, a card reader with
 and without a card, a disc, the keys).
+- **[S-12452]** **The rows run down to the card's edge** ([S-12410]): the config's rows of 40 stretch over
+  the foot's inset the sizing counts, up to half again (`RemovableDrivesPlan.Pitch`, `ListHeight`).
+  Tests `RemovableDrivesTests.S12452_`.

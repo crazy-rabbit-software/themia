@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Element pulpitu",
-  "desktopItem.desc": "Plik, folder lub skrót z pulpitu"
+  "widgetsC.shortcuts.column.target": "Cel",
+  "widgetsC.shortcuts.kind.location": "Miejsce Windows",
+  "widgetsC.shortcuts.kind.missing": "Brak",
+  "widgetsC.shortcuts.kind.path": "Ścieżka",
+  "widgetsC.shortcuts.kind.refused": "Niedozwolone",
+  "widgetsC.shortcuts.menu.addLayout": "Układ aplikacji…",
+  "widgetsC.shortcuts.menu.addLink": "Adres internetowy lub ścieżka…",
+  "widgetsC.shortcuts.menu.changeTarget": "Zmień element docelowy…",
+  "widgetsC.shortcuts.settings.locations": "Lokalizacje systemu Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Dwukrotne kliknięcie",
+  "widgetsC.shortcuts.settings.openWith.label": "Otwieranie",
+  "widgetsC.shortcuts.settings.openWith.single": "Pojedyncze kliknięcie",
+  "widgetsC.shortcuts.settings.pick.file": "Plik…",
+  "widgetsC.shortcuts.settings.pick.folder": "Folder…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (brak celu)\n{target}"
 }

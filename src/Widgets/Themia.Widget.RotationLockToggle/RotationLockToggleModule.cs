@@ -29,13 +29,10 @@ public sealed class RotationLockToggleModule : IWidgetModule
         Label = RotationLockToggleStr.Toggles_RotationLock_Label.Local(),
         Description = RotationLockToggleStr.Toggles_RotationLock_Desc.Local(),
         Glyph = Glyphs.RotationLock,
-        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look, ((QuickToggleConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((QuickToggleConfig)c).Look),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 2),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => QuickToggleView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(Descriptor.Id, host);
 }

@@ -29,13 +29,10 @@ public sealed class RestartModule : IWidgetModule
         Label = RestartStr.Power_Action_Restart.Local(),
         Description = RestartStr.WidgetsC_Power_Desc_Restart.Local(),
         Glyph = Glyphs.Reset,
-        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size, stateLine: false),
+        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 1),
     };
-
-    /// <summary>[S-11307] Its one option past its look: its Size.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => PowerButtonView.MenuLines(menu, config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new PowerButtonView(Descriptor.Id, host);
 }

@@ -63,14 +63,6 @@ public class SettingRulesTests
         => Assert.Equal(rows, new GalleryConfig { Source = source, Style = style, Outline = outline }.ShownSettings);
 
     [Fact]
-    public void S6074_a_grid_of_icons_alone_draws_no_names_so_no_extensions()
-    {
-        Assert.Contains(ShortcutsSetting.Extensions, new ShortcutsConfig { Style = ShortcutsStyle.Grid }.ShownSettings);
-        Assert.DoesNotContain(ShortcutsSetting.Extensions, new ShortcutsConfig { Style = ShortcutsStyle.Grid, GridIconOnly = true }.ShownSettings);
-        Assert.Equal([ShortcutsSetting.Lines, ShortcutsSetting.Extensions], new ShortcutsConfig { Style = ShortcutsStyle.List, GridIconOnly = true }.ShownSettings);
-    }
-
-    [Fact]
     public void S6074_extended_hours_are_offered_exactly_where_they_are_asked_for()
     {
         foreach (var market in Enum.GetValues<QuoteMarket>())

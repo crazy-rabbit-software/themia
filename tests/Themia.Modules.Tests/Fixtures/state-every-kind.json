@@ -623,17 +623,17 @@
         },
         {
           "id": "w21",
-          "kind": "Shortcuts",
+          "kind": "Shortcut",
           "x": 0.01,
           "y": 0.02,
           "w": 0.2,
           "h": 0.2,
           "background": {
-            "kind": "Default",
+            "kind": "Transparent",
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
+          "header": "Hidden",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -642,27 +642,12 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "shortcuts",
-            "items": [
-              {
-                "id": "158abedbbbe4452995f83c00cdde0835",
-                "label": "",
-                "target": "shell:RecycleBinFolder"
-              },
-              {
-                "id": "a8ab165bb97344a88478fd6279a8b027",
-                "label": "",
-                "target": "shell:MyComputerFolder"
-              }
-            ],
-            "style": "grid",
-            "columns": 4,
-            "iconSize": "Small",
-            "lines": 2,
-            "showTarget": true,
-            "showKind": false,
-            "gridIconOnly": false,
-            "showFileExtension": false,
+            "kind": "desktopItem",
+            "item": "",
+            "itemId": "158abedbbbe4452995f83c00cdde0835",
+            "label": "",
+            "target": "shell:RecycleBinFolder",
+            "labelLines": 2,
             "clickMode": "Double"
           }
         },
@@ -1005,7 +990,6 @@
           "scale": 1,
           "config": {
             "kind": "shutdown",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1031,7 +1015,6 @@
           "scale": 1,
           "config": {
             "kind": "restart",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1057,7 +1040,6 @@
           "scale": 1,
           "config": {
             "kind": "sleep",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1083,7 +1065,6 @@
           "scale": 1,
           "config": {
             "kind": "hibernate",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1109,7 +1090,6 @@
           "scale": 1,
           "config": {
             "kind": "lock",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1135,7 +1115,6 @@
           "scale": 1,
           "config": {
             "kind": "signOut",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1161,7 +1140,6 @@
           "scale": 1,
           "config": {
             "kind": "screenOff",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1490,6 +1468,7 @@
             "yearSize": "Small",
             "dayHours": 8,
             "monthEvents": "Dots",
+            "monthLines": 3,
             "weekRows": 3,
             "weekTitles": false,
             "weekHours": 8,
@@ -1602,7 +1581,6 @@
           "scale": 1,
           "config": {
             "kind": "wifiToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1628,7 +1606,6 @@
           "scale": 1,
           "config": {
             "kind": "bluetoothToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1654,7 +1631,6 @@
           "scale": 1,
           "config": {
             "kind": "airplaneModeToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1680,7 +1656,6 @@
           "scale": 1,
           "config": {
             "kind": "energySaverToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1706,7 +1681,6 @@
           "scale": 1,
           "config": {
             "kind": "nightLightToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1732,7 +1706,6 @@
           "scale": 1,
           "config": {
             "kind": "rotationLockToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1758,7 +1731,6 @@
           "scale": 1,
           "config": {
             "kind": "doNotDisturbToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1784,7 +1756,6 @@
           "scale": 1,
           "config": {
             "kind": "soundToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1810,7 +1781,6 @@
           "scale": 1,
           "config": {
             "kind": "microphoneToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1836,7 +1806,6 @@
           "scale": 1,
           "config": {
             "kind": "spatialSoundToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1862,7 +1831,6 @@
           "scale": 1,
           "config": {
             "kind": "monoAudioToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1888,7 +1856,6 @@
           "scale": 1,
           "config": {
             "kind": "colorFiltersToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -1914,7 +1881,6 @@
           "scale": 1,
           "config": {
             "kind": "gameModeToggle",
-            "size": "Medium",
             "style": "tile"
           }
         },
@@ -2310,8 +2276,7 @@
     "theme": "System",
     "fontFamily": "system",
     "fontScale": 1,
-    "widgetGapPx": 8,
-    "gridSnap": true,
+    "overEdge": true,
     "cornerRadiusPx": 4,
     "background": {
       "kind": "Default",
@@ -2343,7 +2308,7 @@
   "preferences": {
     "language": "System",
     "gameModeSuspend": false,
-    "desktop": 0,
+    "desktopIconSize": "Medium",
     "region": {
       "clock": "System",
       "weekStart": "System",
@@ -2355,12 +2320,14 @@
       "feeds": 30,
       "accounts": 2
     },
-    "mcpServer": false
+    "mcpServer": false,
+    "recentColours": []
   },
   "disabledMonitors": [],
   "monitorScales": {},
   "viewBars": {},
   "desktop": {
-    "known": []
+    "known": [],
+    "sort": "Name"
   }
 }

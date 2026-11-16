@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "위젯 {count}개 삭제"
   },
-  "shell.card.doneEditing": "편집 완료",
-  "shell.card.editLayout": "레이아웃 편집",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "설정",
   "shell.setup.hint": "이 위젯에 필요한 항목 설정",
   "shell.toolbar.addWidget": "위젯 추가",
-  "shell.toolbar.snapName": "그리드에 맞추기",
-  "shell.toolbar.collisionsName": "위젯이 겹치지 않게 하기",
   "shell.editBar.selected": {
     "other": "{count}개 선택됨"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "텍스트 크기",
   "shell.appearance.systemFont": "시스템 기본값",
   "shell.appearance.sansFont": "산세리프",
-  "shell.layout.gap": "위젯 간격",
   "shell.motion.slide": "슬라이드",
   "shell.motion.sides": "양옆",
   "shell.motion.topBottom": "위아래",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "1분마다",
   "shell.refresh.everyHour": "매시간",
   "shell.color.custom": "사용자 지정 색",
-  "shell.color.pickCustom": "사용자 지정 색 선택",
   "shell.color.pickFromScreen": "화면에서 색 선택",
   "shell.color.pickFailed": "화면의 색을 읽을 수 없습니다",
   "shell.icon.home": "홈",

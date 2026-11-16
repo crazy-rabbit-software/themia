@@ -10,6 +10,11 @@
     <UseWinUI>true</UseWinUI>
     <IsAotCompatible>true</IsAotCompatible>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!--
+      No unsafe code is written here. CsWinRT's generator needs it for the code it writes so a managed
+      list can cross to WinRT under Native AOT (CsWinRT1030): a drag's storage items, ItemDrag.cs.
+    -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

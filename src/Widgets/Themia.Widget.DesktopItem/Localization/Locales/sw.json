@@ -1,4 +1,18 @@
 {
   "desktopItem.label": "Kipengee cha eneo-kazi",
-  "desktopItem.desc": "Faili, folda au njia ya mkato kutoka kwenye eneo-kazi lako"
+  "widgetsC.shortcuts.column.target": "Lengo",
+  "widgetsC.shortcuts.kind.location": "Eneo la Windows",
+  "widgetsC.shortcuts.kind.missing": "Haipo",
+  "widgetsC.shortcuts.kind.path": "Njia",
+  "widgetsC.shortcuts.kind.refused": "Hairuhusiwi",
+  "widgetsC.shortcuts.menu.addLayout": "Mpangilio wa programu…",
+  "widgetsC.shortcuts.menu.addLink": "Anwani ya wavuti au njia…",
+  "widgetsC.shortcuts.menu.changeTarget": "Badilisha lengo…",
+  "widgetsC.shortcuts.settings.locations": "Maeneo ya Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Kubofya mara mbili",
+  "widgetsC.shortcuts.settings.openWith.label": "Fungua kwa",
+  "widgetsC.shortcuts.settings.openWith.single": "Kubofya mara moja",
+  "widgetsC.shortcuts.settings.pick.file": "Faili…",
+  "widgetsC.shortcuts.settings.pick.folder": "Folda…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (lengo halipo)\n{target}"
 }

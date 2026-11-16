@@ -165,6 +165,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
         _canvas.Width = _box.Width;
         _canvas.Height = _box.Height;
 
+        // [S-12410] The day bar is one line of its dot's height: a taller box centres it in the room, the
+        // foot's inset counted with it (so at its natural box nothing moves); the arc fills the box.
+        _canvas.VerticalAlignment = bar ? VerticalAlignment.Center : VerticalAlignment.Top;
+
         // [S-6005] One style's shapes, never the other's.
         foreach (var shape in (UIElement[])[_elapsedFill, _dayTrack, _nightTrack, _doneTrack, _horizon])
         {

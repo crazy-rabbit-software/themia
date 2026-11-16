@@ -125,8 +125,6 @@
     "one": "Futa wijeti {count}",
     "other": "Futa wijeti {count}"
   },
-  "shell.card.doneEditing": "Maliza kuhariri",
-  "shell.card.editLayout": "Hariri mpangilio",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Weka",
   "shell.setup.hint": "Weka kile ambacho wijeti hii inahitaji",
   "shell.toolbar.addWidget": "Ongeza wijeti",
-  "shell.toolbar.snapName": "Shikamana na gridi",
-  "shell.toolbar.collisionsName": "Zuia wijeti kupishana",
   "shell.editBar.selected": {
     "one": "{count} imechaguliwa",
     "other": "{count} zimechaguliwa"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Ukubwa wa maandishi",
   "shell.appearance.systemFont": "Chaguomsingi la mfumo",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "Nafasi kati ya wijeti",
   "shell.motion.slide": "Teleza",
   "shell.motion.sides": "Pembeni",
   "shell.motion.topBottom": "Juu na chini",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Kila dakika",
   "shell.refresh.everyHour": "Kila saa",
   "shell.color.custom": "Rangi maalum",
-  "shell.color.pickCustom": "Chagua rangi maalum",
   "shell.color.pickFromScreen": "Chagua rangi kutoka kwenye skrini",
   "shell.color.pickFailed": "Haikuweza kusoma rangi kwenye skrini",
   "shell.icon.home": "Nyumbani",

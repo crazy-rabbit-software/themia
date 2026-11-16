@@ -58,13 +58,13 @@ internal static class LayoutEditorRender
 
         try
         {
-            // A Shortcuts widget, named by id, holding one layout item: empty, or the demo layout.
+            // A desktop icon, named by id, that is an own icon with an app layout: empty, or the demo layout.
             var view = ViewState.Create("Desktop");
-            var widget = WidgetInstance.Create(new WidgetId("shortcuts"), new FracRect(0.1, 0.1, 0.2, 0.2));
+            var widget = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.1, 0.1, 0.2, 0.2));
             widget.Config = StateJson.Merged(widget.Config, empty ? EmptyLayout : DemoAppLayout);
             view.Widgets.Add(widget);
-            var itemId = JsonNode.Parse(JsonSerializer.Serialize(widget.Config, StateJson.WidgetConfig))?["items"]?[0]?["id"]?.GetValue<string>()
-                ?? throw new InvalidOperationException("the demo layout item has no id");
+            var itemId = JsonNode.Parse(JsonSerializer.Serialize(widget.Config, StateJson.WidgetConfig))?["itemId"]?.GetValue<string>()
+                ?? throw new InvalidOperationException("the demo layout has no id");
 
             var statePath = Path.Combine(Path.GetTempPath(), "themia-layout-editor-render", "state.json");
             var state = new AppState { Views = [view], ActiveViewId = view.Id };
@@ -115,18 +115,18 @@ internal static class LayoutEditorRender
     }
 
     /// <summary>A new layout: one empty pane.</summary>
-    private const string EmptyLayout = """{"items":[{"id":"l","layout":{"id":"p","kind":"Pane"}}]}""";
+    private const string EmptyLayout = """{"itemId":"l","layout":{"id":"p","kind":"Pane"}}""";
 
     /// <summary>
     /// [S-1405] A demo app layout, "Morning": three panes (Notepad on the left 60 %, GitHub over the
     /// Windows folder on the right). Never launched: the render only draws the editor.
     /// </summary>
     private const string DemoAppLayout = """
-        {"items":[{"id":"l","label":"Morning","layout":{"id":"r","kind":"Split","direction":"Vertical","ratio":0.6,
+        {"itemId":"l","label":"Morning","layout":{"id":"r","kind":"Split","direction":"Vertical","ratio":0.6,
           "a":{"id":"p1","kind":"Pane","assignment":{"source":"App","target":"C:\\Windows\\notepad.exe","label":"Notepad"}},
           "b":{"id":"s","kind":"Split","direction":"Horizontal","ratio":0.5,
             "a":{"id":"p2","kind":"Pane","assignment":{"source":"Url","target":"https://github.com"}},
-            "b":{"id":"p3","kind":"Pane","assignment":{"source":"Folder","target":"C:\\Windows"}}}}}]}
+            "b":{"id":"p3","kind":"Pane","assignment":{"source":"Folder","target":"C:\\Windows"}}}}}
         """;
 }
 #endif

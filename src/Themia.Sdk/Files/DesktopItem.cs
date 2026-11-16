@@ -60,6 +60,52 @@ public static class DesktopItemKeys
     }
 
     /// <summary>
+    /// [S-5540] The prefix of an own icon's selection key. An asterisk is in no path and no shell name
+    /// (a shell item's key starts <c>::</c>, a path with a drive or <c>\</c>), so the key of an own icon
+    /// can never be a desktop item's.
+    /// </summary>
+    public const string OwnPrefix = "*icon:";
+
+    /// <summary>[S-5540] The selection key of the own icon with <paramref name="itemId"/>: stable for as long as the icon lives.</summary>
+    public static string Own(string itemId)
+    {
+        ArgumentNullException.ThrowIfNull(itemId);
+        return OwnPrefix + itemId;
+    }
+
+    /// <summary>[S-5540] Whether <paramref name="key"/> is an own icon's selection key, never a desktop item's.</summary>
+    public static bool IsOwn(string? key) => key is not null && key.StartsWith(OwnPrefix, StringComparison.Ordinal);
+
+    /// <summary>[S-1411] An id an own icon may have: 1 to 64 letters, digits, <c>-</c> or <c>_</c>, so its key holds nothing else.</summary>
+    public static bool IsOwnId(string? itemId)
+        => itemId is { Length: > 0 and <= 64 } && itemId.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_');
+
+    /// <summary>
+    /// [S-11877] The prefix of the selection key of a widget that is no desktop icon: the desktop's one
+    /// selection holds every widget on the locked desktop, a card under this key. An asterisk is in no
+    /// path and no shell name, and the word differs from <see cref="OwnPrefix"/>'s.
+    /// </summary>
+    public const string WidgetPrefix = "*widget:";
+
+    /// <summary>[S-11877] The selection key of the widget (not a desktop icon) with <paramref name="widgetId"/>.</summary>
+    public static string Widget(string widgetId)
+    {
+        ArgumentNullException.ThrowIfNull(widgetId);
+        return WidgetPrefix + widgetId;
+    }
+
+    /// <summary>[S-11877] The widget id a card's selection key names, or null for an icon's key.</summary>
+    public static string? WidgetOf(string? key)
+        => key is not null && key.StartsWith(WidgetPrefix, StringComparison.Ordinal) ? key[WidgetPrefix.Length..] : null;
+
+    /// <summary>The key a config is selected under: a desktop item's own key, else its own icon's.</summary>
+    public static string Of(Themia.Core.Model.IDesktopItemConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Item.Length > 0 ? config.Item : Own(config.ItemId);
+    }
+
+    /// <summary>
     /// [S-5530] What the launcher opens for <paramref name="key"/>: a path as it is, a shell item through
     /// its shell name (<c>shell:::{CLSID}</c>), which the launcher accepts as a namespace name.
     /// </summary>

@@ -29,7 +29,8 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age; the day gives way to the title on a small tile.</summary>
     private readonly KitHeader _header;
 
-    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset };
+    /// <summary>[S-12410] The rate is one block, centred in the room under the header with the foot's inset counted with it.</summary>
+    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center, Margin = Family.SideInset with { Bottom = FamilySpace.Inset } };
 
     /// <summary>[S-6734] No rate to draw: the Status row at the top.</summary>
     private readonly StatusBlock _state = new();

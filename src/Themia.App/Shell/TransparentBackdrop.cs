@@ -9,8 +9,7 @@ namespace Themia.App.Shell;
 /// <para>
 /// A widget surface covers a whole monitor, so any backdrop that paints is a sheet over the user's
 /// desktop. The SDK ships only Mica and Desktop Acrylic, and a window with <c>SystemBackdrop = null</c>
-/// composes opaque black — which is what made edit mode (where the click-through region is dropped)
-/// black out the screen.
+/// composes opaque black — which blacked out the whole work area the surface covers.
 /// </para>
 /// <para>
 /// <see cref="SystemBackdrop"/> is the supported extension point, so this installs a transparent

@@ -10,6 +10,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.RecycleBin;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -19,7 +20,7 @@ namespace Themia.App.Widgets;
 /// hands the emptying to Windows, confirmation and all: all three always there, at one fixed size
 /// ([S-11201]); an empty bin reads "0 bytes", "No items", with Empty disabled. A click
 /// elsewhere on the tile opens the bin. The answer is the host's one answer
-/// (<see cref="IWidgetHost.RecycleBin"/>) the Shortcuts badge reads, on its cadence: one query for
+/// (<see cref="IWidgetHost.RecycleBin"/>) a shortcut pointing at the bin reads too, on its cadence: one query for
 /// every widget showing the bin.
 /// </summary>
 internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions
@@ -63,13 +64,18 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        NaturalBlock.Hold(this, config);
         Strings.Changed += OnLanguage;
         _widgetHost.RecycleBin.Changed += Render;
         _binWatch ??= _widgetHost.RecycleBin.Watch();
         Render();
     }
 
-    public void ApplyConfig(WidgetConfig config) => Render();
+    public void ApplyConfig(WidgetConfig config)
+    {
+        NaturalBlock.Hold(this, config);
+        Render();
+    }
 
     /// <summary>[S-4863] Open the bin, and Empty: the same command as the button, from the card's menu too.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>

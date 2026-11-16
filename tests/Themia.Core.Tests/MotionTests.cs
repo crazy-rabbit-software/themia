@@ -85,6 +85,48 @@ public sealed class MotionTests
     }
 
     // -----------------------------------------------------------------------------------------
+    // S-1017 a show never leaves a card mid-flight
+    // -----------------------------------------------------------------------------------------
+
+    [Fact]
+    public void S1017_a_layout_pass_after_the_one_that_started_a_show_ends_it()
+    {
+        // Seen live 2026-11-15: a start whose intro never reported its end kept every card hidden
+        // through the later passes (a metrics change 12 s on); the next pass must end it at rest.
+        var arming = new IntroArming();
+        Assert.False(arming.BeginPass());
+
+        arming.OnLayout("a");
+        arming.ShowStarted();
+        Assert.True(arming.BeginPass());
+        Assert.False(arming.BeginPass());
+    }
+
+    [Fact]
+    public void S1017_a_show_that_ended_on_its_own_leaves_nothing_for_the_next_pass()
+    {
+        var arming = new IntroArming();
+        arming.OnLayout("a");
+        arming.ShowStarted();
+        arming.ShowEnded();
+
+        Assert.False(arming.BeginPass());
+    }
+
+    [Fact]
+    public void S1017_every_style_ends_on_the_rest_pose_a_stopped_show_snaps_to()
+    {
+        Assert.Equal(new IntroPose(1, 1, 0, 0, 0), IntroPose.Rest);
+        foreach (var style in Styles)
+        {
+            if (IntroTracks.For(style) is { } tracks)
+            {
+                Assert.Equal(IntroPose.Rest, tracks.At(1, (120, -80)));
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------
     // S-1002 cascade, S-1010 reduced motion
     // -----------------------------------------------------------------------------------------
 

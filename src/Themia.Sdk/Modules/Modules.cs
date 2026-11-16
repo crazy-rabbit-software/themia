@@ -48,6 +48,16 @@ public sealed record WidgetDescriptor
     /// <summary>[S-6909] Its name, from its own string table: read in the current language each time.</summary>
     public required LocalText Label { get; init; }
 
+    /// <summary>
+    /// [S-11709] Its tile's name on the add page where that is not the kind's own: a kind of two sources
+    /// whose tile makes one of them (the desktop icon's tile makes an own icon, "Shortcut"). Null, the
+    /// rule: the tile is called what the kind is.
+    /// </summary>
+    public LocalText? AddLabel { get; init; }
+
+    /// <summary>[S-11709] What its tile on the add page is called, in the current language.</summary>
+    public string TileName => (AddLabel ?? Label).Text();
+
     /// <summary>The picker's one line under the name.</summary>
     public required LocalText Description { get; init; }
 
@@ -57,11 +67,23 @@ public sealed record WidgetDescriptor
     /// <summary>Segoe Fluent Icons code point: the picker, the Set up prompt, the settings search.</summary>
     public required string Glyph { get; init; }
 
+    private readonly Func<WidgetConfig, WidgetSizing> _sizing = static _ => throw new InvalidOperationException("no sizing");
+
     /// <summary>
     /// [S-2438] The sizes the widget may take, from its config alone: a pure function, so the host, the
     /// renders and the tests ask it as often as they like. [S-10] A new widget lands at its Natural.
+    /// [S-12411] A kind sets the range its content needs; what this hands out is that range relaxed
+    /// (<see cref="SizeStretch.Relax"/>): the one sizing every caller sees.
     /// </summary>
-    public required Func<WidgetConfig, WidgetSizing> Sizing { get; init; }
+    public required Func<WidgetConfig, WidgetSizing> Sizing
+    {
+        get => _sizing;
+        init
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            _sizing = config => SizeStretch.Relax(value(config));
+        }
+    }
 
     /// <summary>
     /// [S-2442] For a kind whose size follows a count (a list's rows): the config a box of

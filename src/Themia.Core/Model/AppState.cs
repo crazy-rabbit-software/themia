@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Sdk;
@@ -100,12 +100,20 @@ public sealed class WidgetInstance
     {
         Id = Guid.NewGuid().ToString("n"),
         Header = DefaultHeader(kind),
+        Background = DefaultBackground(kind),
         Config = WidgetConfig.CreateDefault(kind),
         X = rect.X,
         Y = rect.Y,
         W = rect.W,
         H = rect.H,
     };
+
+    /// <summary>
+    /// [S-5600] A new widget's background: the app-wide one, or none at all for a kind drawn as a desktop
+    /// icon (<see cref="WidgetTraits.StartsTransparent"/>). Only the default: the user can still give it a card.
+    /// </summary>
+    public static FillChoice DefaultBackground(WidgetId kind)
+        => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.StartsTransparent) ? FillChoice.Transparent() : new();
 
     /// <summary>
     /// [S-700] Where a new widget's header goes: Top, unless its descriptor says it starts headerless
@@ -224,14 +232,11 @@ public sealed class DesignState
     /// <summary>Multiplies the computed font sizes.</summary>
     public double FontScale { get; set; } = 1.0;
 
-    /// <summary>[S-04] Gap between widgets, in device-independent pixels. None by default: cards that touch join ([S-2247]).</summary>
-    public double WidgetGapPx { get; set; } = 0;
-
-    /// <summary>[S-06] Snap-to-grid aid for drag, resize and placement.</summary>
-    public bool GridSnap { get; set; } = true;
-
-    /// <summary>[S-11959] Widgets kept apart: a moved widget never lands over another. Off by default.</summary>
-    public bool WidgetCollisions { get; set; }
+    /// <summary>
+    /// [S-6608] [S-2330] Widgets may hang over the work area's edges (keeping the visible minimum on it). Off:
+    /// a gesture keeps the whole widget on the work area. Set by the edit bar's toggle alone.
+    /// </summary>
+    public bool OverEdge { get; set; } = true;
 
     /// <summary>
     /// Corner radius of a widget card, in device-independent pixels. [S-6482] 8: Windows' own radius
@@ -253,6 +258,27 @@ public sealed class DesignState
     /// translucent. On by default; a preset owns it.
     /// </summary>
     public bool BlurBehind { get; set; } = true;
+
+    /// <summary>[S-2123] What the cards are made of: a solid fill, or Liquid glass. A style owns it; left out of the file while Solid.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public CardMaterial Material { get; set; } = CardMaterial.Solid;
+
+    /// <summary>
+    /// [S-2130] The look tokens past the fill, border and font: the frost, the glass, the text levels and type, the
+    /// items' surfaces, the rows' dividers and the rendering mode (<see cref="LookTokens"/>). A style owns them.
+    /// Stored as <see cref="StoredTokens"/>: left out of the file while they are a fresh set's.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public LookTokens Tokens { get; set; } = new();
+
+    /// <summary>[S-2130] <see cref="Tokens"/> as the file holds them: null (left out) while they are a fresh set's, as <see cref="Material"/> is while Solid.</summary>
+    [System.Text.Json.Serialization.JsonInclude]
+    [System.Text.Json.Serialization.JsonPropertyName("tokens")]
+    internal LookTokens? StoredTokens
+    {
+        get => Tokens is null || Tokens.SameAs(new LookTokens()) ? null : Tokens;
+        set => Tokens = value ?? new LookTokens();
+    }
 
     /// <summary>
     /// [S-6510] The app-wide item background ([S-6560]): what the items inside every card are filled
@@ -309,12 +335,12 @@ public sealed class DesignState
         Theme = Theme,
         FontFamily = FontFamily,
         FontScale = FontScale,
-        WidgetGapPx = WidgetGapPx,
-        GridSnap = GridSnap,
-        WidgetCollisions = WidgetCollisions,
+        OverEdge = OverEdge,
         CornerRadiusPx = CornerRadiusPx,
         Background = Background.Clone(),
         BlurBehind = BlurBehind,
+        Material = Material,
+        Tokens = Tokens.Clone(),
         ItemBackground = ItemBackground.Clone(),
         ItemTextColor = ItemTextColor,
         PrimaryColor = PrimaryColor,

@@ -278,6 +278,8 @@ internal sealed partial class DesktopWindow
         switch (LeaseKeyRouting.Decide(phase, key, TextHasFocus()))
         {
             case LeaseKeyRoute.EndLease:
+                // [S-11877] Escape clears the desktop's one selection, icons and cards, and ends the hold.
+                _host.ClearDeskSelection();
                 _host.DesktopKeysEnd(giveBack: true);
                 args.Handled = true;
                 break;

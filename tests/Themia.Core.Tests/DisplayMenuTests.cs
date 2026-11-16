@@ -7,9 +7,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-3543]..[S-3545] The edit bar's Display menu as data: this display's name, scale and view bar,
-/// then what every display shares (the view new displays show, which displays Themia is on). Each
-/// line writes the field the Displays page wrote, through the host.
+/// [S-2314] [S-3543]..[S-3545] The edit bar's Display page as data: every display its own card (its name, resolution,
+/// scale and view under it), opened the view it shows, Show Themia here, its scale and its view bar; then what every
+/// display shares. Each line names its display and writes through the host.
 /// </summary>
 [Collection(GlobalLocaleCollection.Name)]
 public sealed class DisplayMenuTests
@@ -42,7 +42,7 @@ public sealed class DisplayMenuTests
 
         public List<string> Switched { get; } = [];
 
-        public List<double> Scales { get; } = [];
+        public List<string> Scales { get; } = [];
 
         public void Mutate(Action<AppState> change, bool relayout = true)
         {
@@ -57,51 +57,84 @@ public sealed class DisplayMenuTests
             return true;
         }
 
-        public void SetScale(double scale) => Scales.Add(scale);
+        public void SetScale(string displayId, double scale) => Scales.Add(displayId + "=" + scale.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         public List<string> Shown { get; } = [];
 
-        public void Show(string viewId) => Shown.Add(viewId);
+        public void Show(string displayId, string viewId) => Shown.Add(displayId + ":" + viewId);
 
         public static MenuDisplay Display(string id, int x, bool primary)
             => new(id, "Screen " + id, "Screen " + id + " — 1920 × 1080", new DisplayInfo(id, true, new PixelRect(x, 0, 1920, 1080), new PixelRect(x, 0, 1920, 1040), primary));
     }
 
-    private static T At<T>(FakeHost host, params string[] path)
-        where T : SettingsLine
-        => Assert.IsType<T>(SettingsMenu.Find(DisplayMenu.Root(host), path));
+    private static SettingsSubmenu Card(FakeHost host, string id)
+        => Assert.IsType<SettingsSubmenu>(DisplayMenu.Root(host).Single(l => l.Key == DisplayMenu.Keys.Display(id)));
 
-    private const string Bar = DisplayMenu.Keys.ViewBar;
+    private static T In<T>(FakeHost host, string id, string key)
+        where T : SettingsLine
+        => Assert.IsType<T>(Card(host, id).Lines.Single(l => l.Key == key));
+
+    private static string Bar(string id) => DisplayMenu.Keys.ViewBar(id);
 
     [Fact]
-    public void S3543_this_displays_name_the_views_it_may_show_its_scale_and_view_bar_then_every_displays_lines()
+    public void S2314_the_page_is_every_display_a_card_in_windows_order_then_every_displays_lines()
     {
         var host = new FakeHost();
-        var keys = DisplayMenu.Root(host).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
+        var keys = DisplayMenu.Root(host).Select(l => l.Key).ToArray();
 
         Assert.Equal(
-            [
-                DisplayMenu.Keys.Heading, DisplayMenu.Keys.Views, DisplayMenu.Keys.Show("home"), DisplayMenu.Keys.Show("work"), "-",
-                DisplayMenu.Keys.Scale, Bar, "-", DisplayMenu.Keys.All, DisplayMenu.Keys.NewDisplays, DisplayMenu.Keys.ShowOn,
-            ],
+            [DisplayMenu.Keys.Heading, DisplayMenu.Keys.Display("a"), DisplayMenu.Keys.Display("b"), DisplayMenu.Keys.Display("c"), DisplayMenu.Keys.All, DisplayMenu.Keys.NewDisplays],
             keys);
-        Assert.Equal("Screen a — 1920 × 1080", At<SettingsNote>(host, DisplayMenu.Keys.Heading).Text);
-        Assert.Equal(Str.BarMenus_Display_All.Text(), At<SettingsHeading>(host, DisplayMenu.Keys.All).Text);
+        Assert.All(DisplayMenu.Root(host).OfType<SettingsSubmenu>(), c => Assert.Equal(SettingsRowKind.Expander, SettingsRows.KindOf(c)));
+        Assert.Equal([DisplayMenu.Keys.Heading, DisplayMenu.Keys.All], SettingsPages.Display(host).Sections.Select(s => s.Key));
+
+        // The page open on another display lists them in the same order: none is moved first.
+        host.DisplayId = "c";
+        Assert.Equal(keys, DisplayMenu.Root(host).Select(l => l.Key));
     }
 
     [Fact]
-    public void S3543_the_view_this_display_shows_is_ticked_and_a_pick_of_another_shows_it_here()
+    public void S2314_a_displays_head_is_its_name_resolution_scale_and_view_and_this_display_at_its_end()
     {
         var host = new FakeHost();
-        var home = At<SettingsRadio>(host, DisplayMenu.Keys.Show("home"));
-        var work = At<SettingsRadio>(host, DisplayMenu.Keys.Show("work"));
+        host.State.MonitorScales["b"] = 1.25;
+        host.State.DisabledMonitors.Add("c");
 
-        Assert.Equal((true, false), (home.Holds, work.Holds));
-        Assert.Equal("Work", work.Text);
-        home.Pick();
+        var a = Card(host, "a");
+        Assert.Equal(("Screen a", Str.BarMenus_Display_This.Text()), (a.Text, a.Value));
+        Assert.Equal(Str.SettingsPages_Display_Caption.Format(("width", "1,920"), ("height", "1,080"), ("scale", SettingsMenu.Percent(1))) + " · Home", a.Caption);
+        Assert.Null(Card(host, "b").Value);
+        Assert.Contains(SettingsMenu.Percent(1.25), Card(host, "b").Caption, StringComparison.Ordinal);
+        Assert.EndsWith(Str.SettingsPages_Display_Off.Text(), Card(host, "c").Caption, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void S2314_no_line_acts_on_the_selected_display_every_line_names_its_display()
+    {
+        var host = new FakeHost();
+        foreach (var card in DisplayMenu.Root(host).OfType<SettingsSubmenu>())
+        {
+            Assert.All(card.Lines.Where(l => l is not SettingsSeparator), l => Assert.StartsWith(card.Key + "/", l.Key, StringComparison.Ordinal));
+            Assert.DoesNotContain(card.Lines, l => l is SettingsSubmenu);
+        }
+    }
+
+    [Fact]
+    public void S19_each_display_ticks_the_view_it_shows_and_a_pick_shows_another_there()
+    {
+        var host = new FakeHost();
+        host.State.MonitorViews["b"] = "work";
+        var a = In<SettingsChoice>(host, "a", DisplayMenu.Keys.View("a"));
+        var b = In<SettingsChoice>(host, "b", DisplayMenu.Keys.View("b"));
+
+        Assert.Equal([true, false], a.Options.Select(o => o.Holds));
+        Assert.Equal([false, true], b.Options.Select(o => o.Holds));
+
+        a.Options[0].Pick();
         Assert.Empty(host.Shown);
-        work.Pick();
-        Assert.Equal(["work"], host.Shown);
+        b.Options[0].Pick();
+        a.Options[1].Pick();
+        Assert.Equal(["b:home", "a:work"], host.Shown);
         Assert.Equal(0, host.Mutations);
     }
 
@@ -113,56 +146,55 @@ public sealed class DisplayMenuTests
         host.State.Views[0].Icon = Themia.App.Shell.Glyphs.Mail;
         host.State.Views[0].Color = "#0099BC";
 
-        var home = At<SettingsRadio>(host, DisplayMenu.Keys.Show("home"));
-        Assert.True(home.Holds);
-        Assert.Equal((Themia.App.Shell.Glyphs.Mail, "#0099BC"), (home.Glyph, home.GlyphColour));
-        Assert.Equal(Themia.App.Shell.Glyphs.View, At<SettingsRadio>(host, DisplayMenu.Keys.Show("work")).Glyph);
+        var options = In<SettingsChoice>(host, "a", DisplayMenu.Keys.View("a")).Options;
+        Assert.True(options[0].Holds);
+        Assert.Equal((Themia.App.Shell.Glyphs.Mail, "#0099BC"), (options[0].Glyph, options[0].GlyphColour));
+        Assert.Equal(Themia.App.Shell.Glyphs.View, options[1].Glyph);
     }
 
     [Fact]
-    public void S850_the_scale_is_this_displays_50_to_200_in_fives_and_asks_the_host()
+    public void S850_each_displays_scale_is_its_own_50_to_200_in_fives_and_asks_the_host()
     {
         var host = new FakeHost();
         host.State.MonitorScales["a"] = 1.25;
         host.State.MonitorScales["b"] = 2;
-        var scale = At<SettingsSlider>(host, DisplayMenu.Keys.Scale);
+        var a = In<SettingsSlider>(host, "a", DisplayMenu.Keys.Scale("a"));
 
-        Assert.Equal((125d, 50d, 200d, 5d), (scale.Value, scale.Min, scale.Max, scale.Step));
-        Assert.Equal(LocaleFormat.Percent(Strings.Current, 125), scale.Format(125));
+        Assert.Equal((125d, 50d, 200d, 5d), (a.Value, a.Min, a.Max, a.Step));
+        Assert.Equal(200d, In<SettingsSlider>(host, "b", DisplayMenu.Keys.Scale("b")).Value);
+        Assert.Equal(LocaleFormat.Percent(Strings.Current, 125), a.Format(125));
 
-        scale.Set(150);
-        Assert.Equal([1.5], host.Scales);
+        In<SettingsSlider>(host, "b", DisplayMenu.Keys.Scale("b")).Set(150);
+        Assert.Equal(["b=1.5"], host.Scales);
         Assert.Equal(0, host.Mutations);
     }
 
     [Fact]
-    public void S3544_the_view_bar_says_where_it_sits_or_hidden_and_writes_this_displays_bar()
+    public void S3544_each_displays_view_bar_is_in_its_card_and_writes_that_displays_bar()
     {
         var host = new FakeHost();
-        var bar = At<SettingsSubmenu>(host, Bar);
+        var b = Bar("b");
 
-        Assert.Equal(Str.Shell_ViewBar_BottomLeft.Text(), bar.Value);
         Assert.Equal(
-            [Bar + "/show", Bar + "/type", Bar + "/labels", Bar + "/position", Bar + "/size", "-", Bar + "/views"],
-            bar.Lines.Select(l => l is SettingsSeparator ? "-" : l.Key));
+            [b + "/-", b, b + "/show", b + "/type", b + "/labels", b + "/position", b + "/size", b + "/views/-", b + "/views", b + "/views/all", b + "/views/home", b + "/views/work"],
+            Card(host, "b").Lines.SkipWhile(l => l.Key != b + "/-").Select(l => l.Key));
 
-        At<SettingsChoice>(host, Bar, Bar + "/position").Options.Single(o => o.Key.EndsWith("/" + ViewBarAnchor.TopRight, StringComparison.Ordinal)).Pick();
-        At<SettingsChoice>(host, Bar, Bar + "/type").Options.Single(o => o.Key.EndsWith("/" + ViewBarType.Select, StringComparison.Ordinal)).Pick();
-        At<SettingsChoice>(host, Bar, Bar + "/size").Options.Single(o => o.Key.EndsWith("/" + ViewBarSize.Large, StringComparison.Ordinal)).Pick();
-        At<SettingsChoice>(host, Bar, Bar + "/labels").Options.Single(o => o.Key.EndsWith("/" + ViewBarLabels.TextOnly, StringComparison.Ordinal)).Pick();
-        At<SettingsToggle>(host, Bar, Bar + "/show").Set(false);
+        In<SettingsChoice>(host, "b", b + "/position").Options.Single(o => o.Key.EndsWith("/" + ViewBarAnchor.TopRight, StringComparison.Ordinal)).Pick();
+        In<SettingsChoice>(host, "b", b + "/type").Options.Single(o => o.Key.EndsWith("/" + ViewBarType.Select, StringComparison.Ordinal)).Pick();
+        In<SettingsChoice>(host, "b", b + "/size").Options.Single(o => o.Key.EndsWith("/" + ViewBarSize.Large, StringComparison.Ordinal)).Pick();
+        In<SettingsChoice>(host, "b", b + "/labels").Options.Single(o => o.Key.EndsWith("/" + ViewBarLabels.TextOnly, StringComparison.Ordinal)).Pick();
+        In<SettingsToggle>(host, "b", b + "/show").Set(false);
 
-        var stored = ViewBarRules.For(host.State, "a");
+        var stored = ViewBarRules.For(host.State, "b");
         Assert.Equal((ViewBarAnchor.TopRight, ViewBarType.Select, ViewBarSize.Large, ViewBarLabels.TextOnly, true), (stored.Anchor, stored.Type, stored.Size, stored.Labels, stored.Hidden));
-        Assert.False(host.State.ViewBars.ContainsKey("b"));
-        Assert.Equal(Str.BarMenus_ViewBar_Hidden.Text(), At<SettingsSubmenu>(host, Bar).Value);
+        Assert.False(host.State.ViewBars.ContainsKey("a"));
     }
 
     [Fact]
     public void S3718_picking_the_option_that_holds_changes_nothing()
     {
         var host = new FakeHost();
-        At<SettingsChoice>(host, Bar, Bar + "/position").Options.Single(o => o.Holds).Pick();
+        In<SettingsChoice>(host, "a", Bar("a") + "/position").Options.Single(o => o.Holds).Pick();
 
         Assert.Equal(0, host.Mutations);
     }
@@ -171,26 +203,25 @@ public sealed class DisplayMenuTests
     public void S3544_views_on_the_bar_switch_views_off_but_never_the_last_and_all_brings_every_view_back()
     {
         var host = new FakeHost();
-        string views = Bar + "/views";
+        var views = Bar("a") + "/views";
 
-        Assert.Equal(Str.Shell_ViewBar_AllViews.Text(), At<SettingsSubmenu>(host, Bar, views).Value);
-        At<SettingsToggle>(host, Bar, views, views + "/work").Set(false);
+        In<SettingsToggle>(host, "a", views + "/work").Set(false);
         Assert.Equal(["home"], ViewBarRules.VisibleViews(host.State.Views, ViewBarRules.For(host.State, "a")).Select(v => v.Id));
-        Assert.Equal("Home", At<SettingsSubmenu>(host, Bar, views).Value);
+        Assert.False(In<SettingsToggle>(host, "a", views + "/all").On);
 
         // [S-908] The last view on the bar stays on.
-        At<SettingsToggle>(host, Bar, views, views + "/home").Set(false);
+        In<SettingsToggle>(host, "a", views + "/home").Set(false);
         Assert.Equal(["home"], ViewBarRules.VisibleViews(host.State.Views, ViewBarRules.For(host.State, "a")).Select(v => v.Id));
 
-        At<SettingsToggle>(host, Bar, views, views + "/all").Set(true);
-        Assert.True(At<SettingsToggle>(host, Bar, views, views + "/all").On);
+        In<SettingsToggle>(host, "a", views + "/all").Set(true);
+        Assert.True(In<SettingsToggle>(host, "a", views + "/all").On);
     }
 
     [Fact]
     public void S3545_new_displays_show_the_last_view_shown_or_a_view_stored_without_a_relayout()
     {
         var host = new FakeHost();
-        var choice = At<SettingsChoice>(host, DisplayMenu.Keys.NewDisplays);
+        var choice = Assert.IsType<SettingsChoice>(DisplayMenu.Root(host).Single(l => l.Key == DisplayMenu.Keys.NewDisplays));
 
         Assert.Equal(["newDisplays/last", "newDisplays/home", "newDisplays/work"], choice.Options.Select(o => o.Key));
         Assert.Equal(Str.Shell_Settings_General_NewDisplayLastView.Text(), choice.Value);
@@ -198,36 +229,30 @@ public sealed class DisplayMenuTests
         choice.Options[2].Pick();
         Assert.Equal("work", host.State.DefaultViewForNewDisplays);
         Assert.Equal([false], host.Relayouts);
-        Assert.Equal("Work", At<SettingsChoice>(host, DisplayMenu.Keys.NewDisplays).Value);
-
-        At<SettingsChoice>(host, DisplayMenu.Keys.NewDisplays).Options[0].Pick();
-        Assert.Null(host.State.DefaultViewForNewDisplays);
     }
 
     [Fact]
-    public void S3545_show_themia_on_lists_every_display_this_one_said_and_a_switched_off_one_can_come_back()
+    public void S845_show_themia_here_is_each_displays_and_a_switched_off_one_can_come_back()
     {
         var host = new FakeHost();
         host.State.DisabledMonitors.Add("c");
-        var lines = At<SettingsSubmenu>(host, DisplayMenu.Keys.ShowOn).Lines.OfType<SettingsToggle>().ToList();
 
-        Assert.Equal([true, true, false], lines.Select(l => l.On));
-        Assert.Equal([Str.BarMenus_Display_This.Text(), null, null], lines.Select(l => l.Value));
-        Assert.All(lines, l => Assert.False(l.Disabled));
+        Assert.Equal([true, true, false], new[] { "a", "b", "c" }.Select(id => In<SettingsToggle>(host, id, DisplayMenu.Keys.On(id)).On));
+        Assert.All(new[] { "a", "b", "c" }, id => Assert.False(In<SettingsToggle>(host, id, DisplayMenu.Keys.On(id)).Disabled));
 
-        lines[2].Set(true);
-        lines[1].Set(false);
+        In<SettingsToggle>(host, "c", DisplayMenu.Keys.On("c")).Set(true);
+        In<SettingsToggle>(host, "b", DisplayMenu.Keys.On("b")).Set(false);
         Assert.Equal(["c=True", "b=False"], host.Switched);
     }
 
     [Fact]
-    public void S845_the_last_display_on_is_greyed_with_why_under_the_list()
+    public void S845_the_last_display_on_is_greyed_with_why_under_it()
     {
         var host = new FakeHost();
         host.State.DisabledMonitors.AddRange(["b", "c"]);
-        var level = At<SettingsSubmenu>(host, DisplayMenu.Keys.ShowOn).Lines;
 
-        Assert.True(level.OfType<SettingsToggle>().First().Disabled);
-        Assert.Equal(Str.Shell_Display_ShowLast.Text(), Assert.IsType<SettingsNote>(level[^1]).Text);
+        Assert.True(In<SettingsToggle>(host, "a", DisplayMenu.Keys.On("a")).Disabled);
+        Assert.Equal(Str.Shell_Display_ShowLast.Text(), In<SettingsNote>(host, "a", DisplayMenu.Keys.On("a") + "/last").Text);
+        Assert.Equal(string.Empty, In<SettingsNote>(host, "b", DisplayMenu.Keys.On("b") + "/last").Text);
     }
 }

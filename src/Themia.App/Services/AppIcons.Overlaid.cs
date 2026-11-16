@@ -155,6 +155,86 @@ internal static partial class AppIcons
         }
     }
 
+    private const int ShilLarge = 0;
+    private const int ShilSmall = 1;
+
+    /// <summary>
+    /// [S-5559] The icon of a kind of file that need not exist: the registered type's, asked of the shell
+    /// by <paramref name="name"/> alone (an extension, ".docx"; any name for a folder), touching no file
+    /// (<c>SHGFI_USEFILEATTRIBUTES</c>). At <paramref name="size"/> (physical) pixels from the system
+    /// image list that holds them: the small list up to 20, the large up to 40, then the extra-large.
+    /// Null when the shell has none (logged). UI thread: the bitmap is made there.
+    /// </summary>
+    public static async Task<ImageSource?> LoadTypeAsync(string name, bool folder, int size)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return null;
+        }
+
+        try
+        {
+            await OneAtATime.WaitAsync().ConfigureAwait(true);
+            Pixels? pixels;
+            try
+            {
+                pixels = await Task.Run(() => ExtractType(name, folder, size)).ConfigureAwait(true);
+            }
+            finally
+            {
+                OneAtATime.Release();
+            }
+
+            return pixels is null ? null : ToBitmap(pixels);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(Scope, $"could not extract the icon of the type {name}", ex);
+            return null;
+        }
+    }
+
+    private static unsafe Pixels? ExtractType(string name, bool folder, int size)
+    {
+        var initialised = CoInitializeEx(0, CoInitMultithreaded);
+        nint list = 0;
+        nint icon = 0;
+
+        try
+        {
+            var info = default(OverlaidFileInfo);
+            fixed (char* path = name)
+            {
+                if (SHGetFileInfoW(path, folder ? FileAttributeDirectory : FileAttributeNormal, &info, (uint)sizeof(OverlaidFileInfo), ShgfiUseFileAttributes | ShgfiSysIconIndex) == 0)
+                {
+                    return null;
+                }
+            }
+
+            var which = size <= 20 ? ShilSmall : size <= 40 ? ShilLarge : ShilExtraLarge;
+            // A shortcut that points at nothing yet is its type's page under the shell's arrow, as Explorer's New › draws it.
+            var overlay = !folder && string.Equals(name, ".lnk", StringComparison.OrdinalIgnoreCase) ? ShortcutOverlay : 0;
+            return FromList(which, info.IconIndex & 0x00FFFFFF, overlay, ref list, ref icon);
+        }
+        finally
+        {
+            if (icon != 0)
+            {
+                DestroyIcon(icon);
+            }
+
+            if (list != 0)
+            {
+                ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)list)[2])(list);
+            }
+
+            if (initialised >= 0)
+            {
+                CoUninitialize();
+            }
+        }
+    }
+
     /// <summary>
     /// [S-5512] One image of a system image list with the overlay composed by the list. The list and
     /// icon handles of an earlier call are released first; the caller releases the last ones.

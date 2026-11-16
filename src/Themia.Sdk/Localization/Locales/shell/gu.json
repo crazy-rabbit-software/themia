@@ -125,8 +125,6 @@
     "one": "{count} વિજેટ કાઢી નાખો",
     "other": "{count} વિજેટ કાઢી નાખો"
   },
-  "shell.card.doneEditing": "સંપાદન પૂર્ણ",
-  "shell.card.editLayout": "લેઆઉટ સંપાદિત કરો",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "સેટ અપ કરો",
   "shell.setup.hint": "આ વિજેટને જે જોઈએ તે સેટ કરો",
   "shell.toolbar.addWidget": "વિજેટ ઉમેરો",
-  "shell.toolbar.snapName": "ગ્રિડ પર સ્નેપ કરો",
-  "shell.toolbar.collisionsName": "વિજેટ્સને એકબીજા પર આવવા ન દો",
   "shell.editBar.selected": {
     "one": "{count} પસંદ કરેલ",
     "other": "{count} પસંદ કરેલ"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "ટેક્સ્ટનું કદ",
   "shell.appearance.systemFont": "સિસ્ટમ ડિફૉલ્ટ",
   "shell.appearance.sansFont": "સાન્સ સેરિફ",
-  "shell.layout.gap": "વિજેટ વચ્ચેનું અંતર",
   "shell.motion.slide": "સ્લાઇડ",
   "shell.motion.sides": "બાજુઓ",
   "shell.motion.topBottom": "ઉપર અને નીચે",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "દર મિનિટે",
   "shell.refresh.everyHour": "દર કલાકે",
   "shell.color.custom": "કસ્ટમ રંગ",
-  "shell.color.pickCustom": "કસ્ટમ રંગ પસંદ કરો",
   "shell.color.pickFromScreen": "સ્ક્રીન પરથી રંગ પસંદ કરો",
   "shell.color.pickFailed": "સ્ક્રીન પરના રંગો વાંચી શકાયા નહીં",
   "shell.icon.home": "ઘર",

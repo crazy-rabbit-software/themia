@@ -33,6 +33,23 @@ public sealed class SurfaceDropTests
     public void S1020_bare_surface_is_the_desktop(bool editMode)
         => Assert.Equal(DropRoute.Desktop, SurfaceDrops.Route(SurfaceHit.Empty, editMode, widgetTakesDrops: false, DropContent.Files | DropContent.Urls));
 
+    [Theory]
+    [InlineData(false, DropContent.Files)]
+    [InlineData(true, DropContent.Files)]
+    [InlineData(false, DropContent.VirtualFiles)]
+    [InlineData(true, DropContent.VirtualFiles)]
+    [InlineData(false, DropContent.Urls)]
+    [InlineData(true, DropContent.Urls)]
+    [InlineData(false, DropContent.ShellItems)]
+    [InlineData(true, DropContent.ShellItems)]
+    public void S1021_a_drop_on_bare_desktop_goes_to_the_desktop_folder_in_edit_mode_and_outside_it(bool editMode, DropContent content)
+    {
+        Assert.Equal(DropRoute.Desktop, SurfaceDrops.Route(SurfaceHit.Empty, editMode, widgetTakesDrops: false, content));
+
+        // Whether a widget elsewhere takes drops changes nothing about bare desktop.
+        Assert.Equal(DropRoute.Desktop, SurfaceDrops.Route(SurfaceHit.Empty, editMode, widgetTakesDrops: true, content));
+    }
+
     [Fact]
     public void S1020_the_surface_controls_refuse()
         => Assert.Equal(DropRoute.Refuse, SurfaceDrops.Route(SurfaceHit.Chrome, editMode: true, widgetTakesDrops: false, DropContent.Files));
@@ -87,6 +104,26 @@ public sealed class SurfaceDropTests
     {
         Assert.Equal(DropImage.Invalid, DropFeedback.Refused.Image);
         Assert.Equal(DropImage.Move, SurfaceDrops.Feedback(Locale.En, DropEffect.Move, "x").Image);
+    }
+
+    [Theory]
+    [InlineData(DropEffect.Move)]
+    [InlineData(DropEffect.Copy)]
+    [InlineData(DropEffect.Link)]
+    [InlineData(DropEffect.None)]
+    public void S5546_plain_feedback_takes_the_drop_with_no_caption_and_no_mark(DropEffect effect)
+    {
+        var plain = DropFeedback.Plain(effect);
+
+        Assert.Equal(DropImage.NoImage, plain.Image);
+        Assert.Equal(effect, plain.Effect);
+        Assert.True(plain.Bare);
+        Assert.Equal((string.Empty, string.Empty), (plain.Message, plain.Insert));
+
+        // Refused stays the cleared description, and a captioned effect its own mark.
+        Assert.False(DropFeedback.Refused.Bare);
+        Assert.Equal(DropImage.Invalid, DropFeedback.Refused.Image);
+        Assert.NotEqual(DropFeedback.Refused, DropFeedback.Plain(DropEffect.None));
     }
 
     [Theory]

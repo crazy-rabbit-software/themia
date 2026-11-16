@@ -125,8 +125,6 @@
     "one": "{count} Widget löschen",
     "other": "{count} Widgets löschen"
   },
-  "shell.card.doneEditing": "Bearbeitung beenden",
-  "shell.card.editLayout": "Layout bearbeiten",
   "shell.key.ctrl": "Strg",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Umschalt",
@@ -140,8 +138,6 @@
   "shell.setup.button": "Einrichten",
   "shell.setup.hint": "Einrichten, was dieses Widget braucht",
   "shell.toolbar.addWidget": "Widget hinzufügen",
-  "shell.toolbar.snapName": "Am Raster ausrichten",
-  "shell.toolbar.collisionsName": "Widgets nicht überlappen lassen",
   "shell.editBar.selected": {
     "one": "{count} ausgewählt",
     "other": "{count} ausgewählt"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "Textgröße",
   "shell.appearance.systemFont": "Systemstandard",
   "shell.appearance.sansFont": "Serifenlos",
-  "shell.layout.gap": "Abstand zwischen Widgets",
   "shell.motion.slide": "Gleiten",
   "shell.motion.sides": "Seiten",
   "shell.motion.topBottom": "Oben und unten",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "Jede Minute",
   "shell.refresh.everyHour": "Jede Stunde",
   "shell.color.custom": "Benutzerdefinierte Farbe",
-  "shell.color.pickCustom": "Benutzerdefinierte Farbe auswählen",
   "shell.color.pickFromScreen": "Farbe vom Bildschirm aufnehmen",
   "shell.color.pickFailed": "Die Farben auf dem Bildschirm konnten nicht gelesen werden",
   "shell.icon.home": "Zuhause",

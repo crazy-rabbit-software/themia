@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Widgets;
@@ -9,7 +10,8 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-6711] The Row block: [lead] 8 [name, Body] 12 [inline meter] 12 [value, Body, end-aligned], a
 /// second line in Caption secondary and a third in Caption tertiary under the name; 28, 40 or 56
-/// tall by its lines ([S-6712]), never by the tier. What is read is primary (<see cref="RowRules.Roles"/>):
+/// tall by its lines ([S-6712]), never by the tier; in a box with room to spare up to half again that
+/// ([S-12410], <see cref="ItemStretch.RowCap"/>), its texts centred. What is read is primary (<see cref="RowRules.Roles"/>):
 /// a fact's value, a list item's name. The row carries the card's side inset as its own padding, so
 /// it and its hover reach both edges and its name stands at the widget's one text edge (40 with a
 /// 16 lead, 16 without). No divider. Hover and selection are the item layer's (<see cref="ItemFill"/>)
@@ -68,6 +70,14 @@ public sealed partial class RowBlock : Grid
         Padding = Family.SideInset;
         Background = Family.Brush(ColourRole.Clear);
         Apply();
+
+        // [S-2139] Whether it follows another row is known once it stands in its list (a change of the design's
+        // dividers reaches the rows already standing through RestyleRows).
+        Live.Add(this, this);
+        if (FamilyLook.Rows != RowDivider.None)
+        {
+            Loaded += (_, _) => ApplyDivider();
+        }
     }
 
     /// <summary>The name (the first line).</summary>
@@ -286,6 +296,79 @@ public sealed partial class RowBlock : Grid
     /// <summary>Unhook the hover, if any.</summary>
     public void Detach() => Interactive = false;
 
+    /// <summary>[S-2139] Every live row, so a change of the design's dividers reaches the rows already drawn (<see cref="RestyleRows"/>).</summary>
+    private static readonly ConditionalWeakTable<RowBlock, object> Live = [];
+
+    /// <summary>[S-2139] The hairline over a row that follows another in its list; null while the design draws none.</summary>
+    private Microsoft.UI.Xaml.Shapes.Rectangle? _divider;
+
+    /// <summary>
+    /// [S-2139] The design's dividers between a list's rows (<see cref="FamilyLook.Rows"/>): none (the family's own), a
+    /// hairline over the row from inset to inset, or one from the text edge (iOS's and macOS's inset separator), in the
+    /// track's role, over every row but the first of its list. A hairline at the row's top edge, inside its height: the
+    /// row's size never changes.
+    /// </summary>
+    private void ApplyDivider()
+    {
+        var mode = FamilyLook.Rows;
+        var show = mode != RowDivider.None && !FirstInList();
+        if (!show)
+        {
+            if (_divider is not null)
+            {
+                _divider.Visibility = Visibility.Collapsed;
+            }
+
+            return;
+        }
+
+        if (_divider is null)
+        {
+            _divider = new Microsoft.UI.Xaml.Shapes.Rectangle
+            {
+                Height = FamilyShape.Hairline,
+                VerticalAlignment = VerticalAlignment.Top,
+                IsHitTestVisible = false,
+                Fill = Family.Brush(ColourRole.Track),
+            };
+            Children.Add(_divider);
+        }
+
+        SetColumn(_divider, mode == RowDivider.Inset ? 1 : 0);
+        SetColumnSpan(_divider, mode == RowDivider.Inset ? 3 : 4);
+        _divider.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>Whether this row (or the one element holding it, a row's border) is the first of the panel listing it; a row in no panel counts as first.</summary>
+    private bool FirstInList()
+    {
+        FrameworkElement at = this;
+        for (var depth = 0; depth < 3; depth++)
+        {
+            switch (at.Parent)
+            {
+                case Panel panel:
+                    return panel.Children.IndexOf(at) <= 0;
+                case FrameworkElement up:
+                    at = up;
+                    break;
+                default:
+                    return true;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>[S-2139] Bring every live row to the dividers now in force: the host calls it once when they change. UI thread only.</summary>
+    internal static void RestyleRows()
+    {
+        foreach (var (row, _) in Live)
+        {
+            row.ApplyDivider();
+        }
+    }
+
     private void Apply()
     {
         var roles = RowRules.Roles(_kind, _available, _quiet);
@@ -301,12 +384,17 @@ public sealed partial class RowBlock : Grid
         Third.Foreground = Family.Brush(roles.Third);
         Second.Visibility = _lines >= 2 && Second.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         Third.Visibility = _lines >= 3 && Third.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-        Height = FamilyShape.RowHeight(_lines);
+
+        // [S-12410] Its natural height by its lines, stretching up to half again that where its list has
+        // the room (its texts stay centred in it); never taller, the rest is its list's spacing.
+        var natural = FamilyShape.RowHeight(_lines);
+        MinHeight = natural;
+        MaxHeight = natural * ItemStretch.RowCap;
     }
 }
 
 /// <summary>
-/// [S-6713] <c>Row.Cell</c>: one item of a grid (Shortcuts', a folder's icons) — its lead (32 or 48, as
+/// [S-6713] <c>Row.Cell</c>: one item of a grid (a folder's icons) — its lead (32 or 48, as
 /// its widget's config states) over its name in Caption, primary, centred,
 /// 4 apart. Cells stand 12 apart; the grid that lays them out is the widget's.
 /// </summary>

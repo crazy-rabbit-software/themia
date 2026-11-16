@@ -1,0 +1,16 @@
+{
+  "folderMenu.chooseAnotherApp": "Chagua programu nyingine",
+  "folderMenu.compressToZip": "Finyaza kuwa faili ya ZIP",
+  "folderMenu.copyAsPath": "Nakili kama njia",
+  "folderMenu.openInNewWindow": "Fungua katika dirisha jipya",
+  "folderMenu.openWith": "Fungua kwa",
+  "folderMenu.pinToQuickAccess": "Bandika kwenye Ufikiaji wa haraka",
+  "folderMenu.pinToStart": "Bandika kwenye Anza",
+  "folderMenu.share": "Shiriki",
+  "folder.properties": "Sifa",
+  "widgetsB.folder.freeUpSpace": "Ongeza nafasi",
+  "widgetsB.folder.keepOnDevice": "Hifadhi kwenye kifaa hiki kila wakati",
+  "widgetsB.folder.moreOptions": "Onyesha chaguo zaidi",
+  "widgetsB.folder.new": "Mpya",
+  "ctxMenu.folder": "Folda"
+}

@@ -20,8 +20,8 @@ namespace Themia.App.Widgets;
 /// it), as large as the display holds, under a toolbar of the bar's inks, nibs and eraser and the
 /// header's undo, clear and the way back.
 /// <para>
-/// A windowed popup rather than one inside the surface: outside edit mode the surface's region is
-/// the cards' own rects ([S-851]) and would cut the pad off at the card's edge.
+/// A windowed popup rather than one inside the surface: a window of its own over the display,
+/// whatever the surface under it shows ([S-851]: the surface itself stops at the work area).
 /// </para>
 /// </summary>
 internal sealed partial class ScratchpadView

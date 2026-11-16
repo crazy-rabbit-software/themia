@@ -6,22 +6,22 @@ using Themia.Core.Storage;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3543] A connected display as the Display menu names it: its stable id ([S-842]), its short
+/// [S-3543] A connected display as the Display page names it: its stable id ([S-842]), its short
 /// name ("DELL U2720Q (primary)"), its long form with its resolution, and what the display pass knows
-/// of it ([S-845]: whether it is the primary).
+/// of it ([S-845]: whether it is the primary, its bounds).
 /// </summary>
 public sealed record MenuDisplay(string Id, string Name, string Description, DisplayInfo Info);
 
 /// <summary>
-/// [S-3543] What the edit bar's Display menu reads and writes on one display: the state, the
-/// connected displays, and the host's switch and scale, which re-run the display pass.
+/// [S-3543] What the edit bar's Display page reads and writes: the state, the connected displays, and the
+/// host's switch, scale and view, which re-run the display pass. Every write names its display.
 /// </summary>
 public interface IDisplayMenuHost
 {
     /// <summary>The live state, read as it is now.</summary>
     AppState State { get; }
 
-    /// <summary>[S-842] The display the menu is open on: "this display".</summary>
+    /// <summary>[S-842] The display the page is open on: "this display".</summary>
     string DisplayId { get; }
 
     /// <summary>[S-853] Every connected display, switched off or not, in Windows' order.</summary>
@@ -33,73 +33,110 @@ public interface IDisplayMenuHost
     /// <summary>[S-845] Show Themia on a display or not; false (and nothing changed) for the last display on.</summary>
     bool SetEnabled(string displayId, bool on);
 
-    /// <summary>[S-850] This display's widget scale (1 = 100 %).</summary>
-    void SetScale(double scale);
+    /// <summary>[S-850] A display's widget scale (1 = 100 %).</summary>
+    void SetScale(string displayId, double scale);
 
-    /// <summary>[S-19] Show a view on this display.</summary>
-    void Show(string viewId);
+    /// <summary>[S-19] Show a view on a display.</summary>
+    void Show(string displayId, string viewId);
 }
 
 /// <summary>
-/// [S-3543]..[S-3545] The edit bar's Display menu (Display ▾) as data, after Karpo's (karpo-app,
-/// docs/widgets.md §348, §352): this display under its name — the view it shows, as ticked rows
-/// (switching views is here alone), its widget scale and its view bar — then, under "All displays",
-/// what every display shares: the view a display Themia has not seen before shows, and which
-/// displays Themia is on. What a view is (its name, icon, colour, order) is View ▾'s ([S-3541]).
+/// [S-2314] The edit bar's Display page as data, after Karpo's Displays (karpo-app, Karpo.Core/BarLooks.cs
+/// <c>DisplayThing</c>, docs/widgets.md §585): under "Displays" every connected display in Windows' order, never
+/// moved, each a card that opens: its name, its resolution, its widget scale and the view it shows under it, "This
+/// display" at its head's end on the one the page is open on; opened, everything that is that display's — the view
+/// it shows, whether Themia is on it, its widget scale and its view bar. Then under "All displays" what they share:
+/// what a display Themia has not seen before shows. Nothing acts on "the selected display": every line names its
+/// display. What a view is (its name, icon, colour, order) is the Views page's ([S-2313]).
 /// </summary>
 public static class DisplayMenu
 {
-    /// <summary>[S-3543] The first level: this display's name, the views it may show, its lines, a divider, then every display's.</summary>
+    /// <summary>[S-2314] The page's lines: every display's card, then what every display shares.</summary>
     public static IReadOnlyList<SettingsLine> Root(IDisplayMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
 
-        var state = host.State;
-        var id = host.DisplayId;
-        var lines = new List<SettingsLine>();
-
-        // The name says which display "this" is: two identical screens are told apart by their size.
-        if (host.Displays.FirstOrDefault(d => d.Id == id) is { } here)
+        var lines = new List<SettingsLine> { new SettingsHeading(Keys.Heading, Str.SettingsPages_Display_Displays.Text()) };
+        var connected = host.Displays.Select(d => d.Info).ToList();
+        foreach (var display in host.Displays)
         {
-            lines.Add(new SettingsNote(Keys.Heading, here.Description));
+            lines.Add(Display(host, display, connected));
         }
 
-        // [S-3543] [S-19] The view this display shows, Karpo's inline choice: one ticked row per view, a click shows it here.
-        lines.Add(new SettingsHeading(Keys.Views, Str.EditBar_Display_View.Text()));
-        var shown = ViewsMenu.ShownOn(state, id);
-        foreach (var view in state.Views)
-        {
-            var viewId = view.Id;
-            lines.Add(Radio(Keys.Show(viewId), view.Name, viewId == shown, () => host.Show(viewId)) with
-            {
-                Glyph = ViewsMenu.Mark(view),
-                GlyphColour = view.Color,
-            });
-        }
-
-        lines.Add(new SettingsSeparator("-" + Keys.Scale));
-
-        // [S-850] This display's magnification of the widgets' content, 50–200 % in fives.
-        var scale = state.MonitorScales.TryGetValue(id, out var stored) ? stored : 1.0;
-        lines.Add(new SettingsSlider(Keys.Scale, Str.Display_WidgetScale_Label.Text(), Glyphs.Scale, scale * 100,
-            AppStateStore.MinMonitorScale * 100, AppStateStore.MaxMonitorScale * 100, 5, v => SettingsMenu.Percent(v / 100), v => host.SetScale(v / 100)));
-        lines.Add(ViewBar(host));
-
-        lines.Add(new SettingsSeparator("-" + Keys.All));
         lines.Add(new SettingsHeading(Keys.All, Str.BarMenus_Display_All.Text()));
         lines.Add(NewDisplays(host));
-        lines.Add(ShowOn(host));
         return lines;
     }
 
     /// <summary>
-    /// [S-3544] This display's view bar ([S-906], [S-916]): shown or not, its type ([S-5400]) and
-    /// labels ([S-5405]), where it sits (the eight anchors), its size, and the views it offers; its
-    /// value where it sits, or Hidden.
+    /// [S-2314] One display's card: its head (name; resolution, scale and view under it; "This display" at its end)
+    /// and, opened, the view it shows ([S-19]), Show Themia here ([S-845]), its widget scale ([S-850]) and its view
+    /// bar ([S-3544]).
     /// </summary>
-    private static SettingsSubmenu ViewBar(IDisplayMenuHost host)
+    private static SettingsSubmenu Display(IDisplayMenuHost host, MenuDisplay display, IReadOnlyList<DisplayInfo> connected)
     {
-        var id = host.DisplayId;
+        var state = host.State;
+        var id = display.Id;
+        var key = Keys.Display(id);
+        var on = !state.DisabledMonitors.Contains(id);
+        var shown = ViewsMenu.ShownOn(state, id);
+        var scale = state.MonitorScales.TryGetValue(id, out var stored) ? stored : 1.0;
+
+        // [S-19] The view it shows: one option per view, its mark in its colour.
+        var view = new SettingsChoice(Keys.View(id), Str.SettingsPages_Display_View.Text(), Glyphs.View,
+        [
+            .. state.Views.Select(v =>
+            {
+                var viewId = v.Id;
+                return Radio(Keys.View(id) + "/" + viewId, v.Name, viewId == shown, () => host.Show(id, viewId)) with
+                {
+                    Glyph = ViewsMenu.Mark(v),
+                    GlyphColour = v.Color,
+                };
+            }),
+        ]);
+
+        // [S-845] Switched off from any display's page, so it is switched back on from another's; the last one on is greyed.
+        var canSwitch = !on || DisplayPlan.CanDisable(connected, state.DisabledMonitors, id);
+        List<SettingsLine> lines =
+        [
+            view,
+            new SettingsSeparator(key + "/-on"),
+            new SettingsToggle(Keys.On(id), Str.SettingsPages_Display_ShowThemia.Text(), Glyphs.Display, on, value => host.SetEnabled(id, value))
+            {
+                Disabled = !canSwitch,
+            },
+            new SettingsNote(Keys.On(id) + "/last", canSwitch ? string.Empty : Str.Shell_Display_ShowLast.Text()),
+
+            // [S-850] Its magnification of the widgets' content, 50–200 % in fives.
+            new SettingsSlider(Keys.Scale(id), Str.Display_WidgetScale_Label.Text(), Glyphs.Scale, scale * 100,
+                AppStateStore.MinMonitorScale * 100, AppStateStore.MaxMonitorScale * 100, 5, v => SettingsMenu.Percent(v / 100), v => host.SetScale(id, v / 100)),
+            .. ViewBar(host, id),
+        ];
+
+        var head = Str.SettingsPages_Display_Caption.Format(
+            ("width", LocaleFormat.Integer((long)Math.Round(display.Info.Bounds.Width))),
+            ("height", LocaleFormat.Integer((long)Math.Round(display.Info.Bounds.Height))),
+            ("scale", SettingsMenu.Percent(scale)));
+        return new SettingsSubmenu(key, display.Name, Glyphs.Display, lines)
+        {
+            Card = true,
+            Caption = on
+                ? head + " · " + (state.FindView(shown)?.Name ?? string.Empty)
+                : head + " · " + Str.SettingsPages_Display_Off.Text(),
+            Value = id == host.DisplayId ? Str.BarMenus_Display_This.Text() : null,
+        };
+    }
+
+    /// <summary>
+    /// [S-3544] A display's view bar ([S-906], [S-916]) in its card under its heading: shown or not, its type
+    /// ([S-5400]) and labels ([S-5405]), where it sits (the eight anchors), its size; then the views it offers
+    /// under theirs ([S-908]): All views (on while the bar offers every view; a click on it then keeps only the view
+    /// the display shows, else offers all, [S-1708]'s rule) and one switch per view, each with its mark ([S-3810]).
+    /// Every switch is read back from what was stored: the last view on the bar cannot be switched off.
+    /// </summary>
+    private static IEnumerable<SettingsLine> ViewBar(IDisplayMenuHost host, string id)
+    {
         var state = host.State;
         var bar = ViewBarRules.For(state, id);
         void Change(Action<ViewBarSettings> change) => host.Mutate(s => ViewBarRules.Update(s, id, change));
@@ -133,62 +170,31 @@ public static class DisplayMenu
             (ViewBarSize.ExtraLarge, Str.Shell_Size_ExtraLarge.Text()),
         ];
 
-        var key = Keys.ViewBar;
-        List<SettingsLine> lines =
-        [
-            new SettingsToggle(key + "/show", Str.Shell_ViewBar_Show.Text(), Glyphs.View, !bar.Hidden, on => Change(b => b.Hidden = !on)),
-            Choice(key + "/type", Str.BarMenus_ViewBar_Type.Text(), Glyphs.ListLayout, types, bar.Type, v => Change(b => b.Type = v)),
-            Choice(key + "/labels", Str.BarMenus_ViewBar_Labels.Text(), Glyphs.Tag, labels, bar.Labels, v => Change(b => b.Labels = v)),
-            Choice(key + "/position", Str.BarMenus_ViewBar_Position.Text(), Glyphs.Display, anchors, bar.Anchor, v => Change(b => b.Anchor = v)),
-            Choice(key + "/size", Str.BarMenus_ViewBar_Size.Text(), Glyphs.Scale, sizes, bar.Size, v => Change(b => b.Size = v)),
-            new SettingsSeparator(key + "/-views"),
-            ViewsOnTheBar(host, bar),
-        ];
+        var key = Keys.ViewBar(id);
+        yield return new SettingsSeparator(key + "/-");
+        yield return new SettingsHeading(key, Str.BarMenus_ViewBar.Text());
+        yield return new SettingsToggle(key + "/show", Str.Shell_ViewBar_Show.Text(), Glyphs.View, !bar.Hidden, on => Change(b => b.Hidden = !on));
+        yield return Choice(key + "/type", Str.BarMenus_ViewBar_Type.Text(), Glyphs.ListLayout, types, bar.Type, v => Change(b => b.Type = v));
+        yield return Choice(key + "/labels", Str.BarMenus_ViewBar_Labels.Text(), Glyphs.Tag, labels, bar.Labels, v => Change(b => b.Labels = v));
+        yield return Choice(key + "/position", Str.BarMenus_ViewBar_Position.Text(), Glyphs.Display, anchors, bar.Anchor, v => Change(b => b.Anchor = v));
+        yield return Choice(key + "/size", Str.BarMenus_ViewBar_Size.Text(), Glyphs.Scale, sizes, bar.Size, v => Change(b => b.Size = v));
 
-        return new SettingsSubmenu(key, Str.BarMenus_ViewBar.Text(), Glyphs.View, lines)
-        {
-            Value = bar.Hidden ? Str.BarMenus_ViewBar_Hidden.Text() : anchors.First(a => a.Value == bar.Anchor).Text,
-        };
-    }
-
-    /// <summary>
-    /// [S-3544] Views on the bar ([S-908]): All views (on while the bar offers every view; a click on
-    /// it then keeps only the view this display shows, else offers all, [S-1708]'s rule), a divider,
-    /// then one switch per view in the user's order, each with its mark ([S-3810]). Every switch is
-    /// read back from what was stored: the last view on the bar cannot be switched off.
-    /// </summary>
-    private static SettingsSubmenu ViewsOnTheBar(IDisplayMenuHost host, ViewBarSettings bar)
-    {
-        var id = host.DisplayId;
-        var state = host.State;
         var offer = ViewBarRules.Offer(state.Views, bar);
         var picked = ViewBarRules.VisibleViews(state.Views, bar).Select(v => v.Id).ToHashSet(StringComparer.Ordinal);
-        var key = Keys.ViewBar + "/views";
-
-        var lines = new List<SettingsLine>
-        {
-            new SettingsToggle(key + "/all", Str.Shell_ViewBar_AllViews.Text(), null, offer.All,
-                on => host.Mutate(s => ViewBarRules.Update(s, id, b => b.VisibleViews = ViewBarRules.SetAllVisible(s.Views, on, ViewsMenu.ShownOn(s, id))))),
-            new SettingsSeparator(key + "/-each"),
-        };
-
+        var views = key + "/views";
+        yield return new SettingsSeparator(views + "/-");
+        yield return new SettingsHeading(views, Str.BarMenus_ViewBar_Views.Text());
+        yield return new SettingsToggle(views + "/all", Str.Shell_ViewBar_AllViews.Text(), null, offer.All,
+            on => host.Mutate(s => ViewBarRules.Update(s, id, b => b.VisibleViews = ViewBarRules.SetAllVisible(s.Views, on, ViewsMenu.ShownOn(s, id)))));
         foreach (var view in state.Views)
         {
             var viewId = view.Id;
-            lines.Add(new SettingsToggle(key + "/" + viewId, view.Name, string.IsNullOrEmpty(view.Icon) ? Glyphs.View : view.Icon, picked.Contains(viewId),
+            yield return new SettingsToggle(views + "/" + viewId, view.Name, ViewsMenu.Mark(view), picked.Contains(viewId),
                 on => host.Mutate(s => ViewBarRules.Update(s, id, b => b.VisibleViews = ViewBarRules.ToggleVisible(s.Views, b, viewId, on))))
             {
                 GlyphColour = view.Color,
-            });
+            };
         }
-
-        // In the view bar's own submenu: "Views", not "Views on the bar", so its value has room.
-        return new SettingsSubmenu(key, Str.BarMenus_ViewBar_Views.Text(), Glyphs.View, lines)
-        {
-            Value = offer.All
-                ? Str.Shell_ViewBar_AllViews.Text()
-                : offer.Single ?? Str.Shell_ViewBar_SomeViews.Format(("count", LocaleFormat.Integer(offer.Count)), ("total", LocaleFormat.Integer(offer.Total))),
-        };
     }
 
     /// <summary>
@@ -211,46 +217,12 @@ public static class DisplayMenu
             var viewId = view.Id;
             options.Add(Radio(Keys.NewDisplays + "/" + viewId, view.Name, chosen == viewId, () => Set(viewId)) with
             {
-                Glyph = string.IsNullOrEmpty(view.Icon) ? Glyphs.View : view.Icon,
+                Glyph = ViewsMenu.Mark(view),
                 GlyphColour = view.Color,
             });
         }
 
         return new SettingsChoice(Keys.NewDisplays, Str.Shell_Settings_General_NewDisplays.Text(), Glyphs.NewWindow, options);
-    }
-
-    /// <summary>
-    /// [S-3545] [S-845] Show Themia on: one switch per connected display, switched off or not (this
-    /// one says so), so a display switched off is switched back on from another's menu. The last
-    /// display on is greyed, with why under the list.
-    /// </summary>
-    private static SettingsSubmenu ShowOn(IDisplayMenuHost host)
-    {
-        var state = host.State;
-        var connected = host.Displays.Select(d => d.Info).ToList();
-        var lines = new List<SettingsLine>();
-        var locked = false;
-
-        foreach (var display in host.Displays)
-        {
-            var displayId = display.Id;
-            var on = !state.DisabledMonitors.Contains(displayId);
-            var canSwitch = !on || DisplayPlan.CanDisable(connected, state.DisabledMonitors, displayId);
-            locked |= !canSwitch;
-
-            lines.Add(new SettingsToggle(Keys.ShowOn + "/" + displayId, display.Name, Glyphs.Display, on, value => host.SetEnabled(displayId, value))
-            {
-                Value = displayId == host.DisplayId ? Str.BarMenus_Display_This.Text() : null,
-                Disabled = !canSwitch,
-            });
-        }
-
-        if (locked)
-        {
-            lines.Add(new SettingsNote(Keys.ShowOn + "/last", Str.Shell_Display_ShowLast.Text()));
-        }
-
-        return new SettingsSubmenu(Keys.ShowOn, Str.BarMenus_Display_ShowOn.Text(), Glyphs.Display, lines);
     }
 
     private static SettingsChoice Choice<T>(string key, string text, string glyph, (T Value, string Text)[] options, T holds, Action<T> pick)
@@ -267,18 +239,23 @@ public static class DisplayMenu
             }
         });
 
-    /// <summary>The menu's keys that something outside it opens (a render, a test).</summary>
+    /// <summary>The page's keys that something outside it opens (a deep link, a render, a test).</summary>
     public static class Keys
     {
-        public const string Heading = "display";
-        public const string Views = "views";
-        public const string Scale = "scale";
-        public const string ViewBar = "viewBar";
+        /// <summary>"Displays": the section every display's card stands in.</summary>
+        public const string Heading = "displays";
         public const string All = "all";
         public const string NewDisplays = "newDisplays";
-        public const string ShowOn = "showOn";
 
-        /// <summary>[S-3543] A view's row, by its id: the same in every language and through a rename.</summary>
-        public static string Show(string viewId) => "show:" + viewId;
+        /// <summary>[S-2314] A display's card, by its stable id ([S-842]).</summary>
+        public static string Display(string displayId) => "display:" + displayId;
+
+        public static string View(string displayId) => Display(displayId) + "/view";
+
+        public static string On(string displayId) => Display(displayId) + "/on";
+
+        public static string Scale(string displayId) => Display(displayId) + "/scale";
+
+        public static string ViewBar(string displayId) => Display(displayId) + "/viewBar";
     }
 }

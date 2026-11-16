@@ -59,6 +59,9 @@ public enum SettingsRowKind
 
     /// <summary>Where one card ends and the next begins.</summary>
     Break,
+
+    /// <summary>[S-2311] The Appearance's live preview: real cards, bare on the page.</summary>
+    Preview,
 }
 
 /// <summary>[S-2302] The rules that sort a page's lines into rows and cards. Pure.</summary>
@@ -90,6 +93,7 @@ public static class SettingsRows
             SettingsIcon => SettingsRowKind.Icon,
             SettingsSubmenu submenu => IsPage(submenu) ? SettingsRowKind.SubPage : SettingsRowKind.Expander,
             SettingsSeparator => SettingsRowKind.Break,
+            SettingsPreview => SettingsRowKind.Preview,
             _ => throw new ArgumentOutOfRangeException(nameof(line), line.GetType().Name, "a settings line no page draws"),
         };
     }

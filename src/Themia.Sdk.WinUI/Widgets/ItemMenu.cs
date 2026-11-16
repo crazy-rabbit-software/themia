@@ -157,8 +157,8 @@ public static class ItemMenu
 
         if (split.Row.Count == 0)
         {
-            // [S-1500] Said rather than left to the default: inside the surface's window the region
-            // clips a menu to its card, so a widget's menu is always a popup of its own.
+            // [S-1500] Said rather than left to the default: a widget's menu is always a popup of its
+            // own, which the framework keeps in the display's work area.
             var plain = new MenuFlyout { ShouldConstrainToRootBounds = false };
             FillList(plain.Items, list, split);
             return plain;
@@ -226,9 +226,11 @@ public static class ItemMenu
             var entry = list[index];
             if (entry.Children is { } children)
             {
-                var sub = new MenuFlyoutSubItem { Text = entry.Text, IsEnabled = !entry.Disabled, Icon = IconFor(entry) };
+                var sub = new MenuFlyoutSubItem { Text = entry.Text, IsEnabled = !entry.Disabled };
+                sub.Icon = IconFor(entry, icon => sub.Icon = icon);
 
                 var inner = children.ToList();
+
                 FillList(sub.Items, inner, ContextMenuLayout.Split([.. inner.Select(e => e.IsSeparator ? MenuLine.Separator : MenuLine.Entry())]));
                 items.Add(sub);
                 continue;
@@ -236,13 +238,16 @@ public static class ItemMenu
 
             MenuFlyoutItem item = entry.Checked switch
             {
-                { } isChecked when entry.Group is { } group => new RadioMenuFlyoutItem { IsChecked = isChecked, GroupName = group },
+                // The group before the mark: the framework keeps one checked item per group name, and a
+                // mark set while the name is still empty joins the nameless group, where the next menu's
+                // (or the next submenu's) checked line unchecks it ([S-5593]: Medium icons lost its dot to Sort by's).
+                { } isChecked when entry.Group is { } group => new RadioMenuFlyoutItem { GroupName = group, IsChecked = isChecked },
                 { } isChecked => new ToggleMenuFlyoutItem { IsChecked = isChecked },
                 _ => new MenuFlyoutItem(),
             };
             item.Text = entry.Text;
             item.IsEnabled = !entry.Disabled;
-            item.Icon = IconFor(entry);
+            item.Icon = IconFor(entry, icon => item.Icon = icon);
 
             if (entry.Shortcut is { } chord)
             {
@@ -395,16 +400,21 @@ public static class ItemMenu
 
         var element = (Control?)button ?? toggle!;
 
-        if (IconFor(entry) is { } icon)
+        void SetIcon(IconElement shown)
         {
             if (button is not null)
             {
-                button.Icon = icon;
+                button.Icon = shown;
             }
             else
             {
-                toggle!.Icon = icon;
+                toggle!.Icon = shown;
             }
+        }
+
+        if (IconFor(entry, SetIcon) is { } icon)
+        {
+            SetIcon(icon);
         }
 
         if (entry.Shortcut is { } chord)
@@ -482,32 +492,66 @@ public static class ItemMenu
     /// A line's icon: the shell icon of its <see cref="ItemMenuEntry.IconFile"/>; else, for a line that
     /// can be clicked, File Explorer's two-tone picture of its glyph ([S-1754]); else the glyph
     /// itself (greyed by the menu when disabled); else none.
+    /// <para>
+    /// [S-5559] A file's icon never delays the menu: one the host already holds is the icon at once; one
+    /// still being read shows the line's glyph (or an empty slot) until it arrives and is then put in its
+    /// place through <paramref name="replace"/>; one the shell has none for keeps the glyph.
+    /// </para>
     /// </summary>
-    internal static IconElement? IconFor(ItemMenuEntry entry)
+    internal static IconElement? IconFor(ItemMenuEntry entry, Action<IconElement>? replace = null)
     {
-        if (entry.IconFile is { } file)
+        var glyph = entry.Glyph is null ? null
+            : entry.Disabled ? UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph }) : MenuArtIcons.IconOrGlyph(entry.Glyph);
+        if (entry.IconFile is not { } file)
         {
-            var image = new ImageIcon { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
-            _ = LoadIconAsync(image, file);
+            return glyph;
+        }
+
+        Task<ImageSource?> load;
+        try
+        {
+            var icons = Volatile.Read(ref _fileIcons) ?? throw new InvalidOperationException("no file icons installed: the host installs them before any menu is shown");
+            load = icons(file, IconPixels);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(Scope, "a menu line's icon could not be asked for", ex);
+            return glyph;
+        }
+
+        if (load.IsCompletedSuccessfully)
+        {
+            return load.Result is { } held ? FileIcon(held) : glyph;
+        }
+
+        if (glyph is null || replace is null)
+        {
+            var image = FileIcon(null);
+            _ = LoadIconAsync(load, source => image.Source = source);
             return image;
         }
 
-        if (entry.Glyph is null)
-        {
-            return null;
-        }
-
-        return entry.Disabled ? UiLanguage.Mirrored(new FontIcon { Glyph = entry.Glyph }) : MenuArtIcons.IconOrGlyph(entry.Glyph);
+        _ = LoadIconAsync(load, source => replace(FileIcon(source)));
+        return glyph;
     }
 
-    /// <summary>The file's icon into <paramref name="image"/> when it arrives; a file with none keeps the line bare.</summary>
-    private static async Task LoadIconAsync(ImageIcon image, string file)
+    /// <summary>
+    /// The pixels a file's icon is asked at: the 16-DIP slot at 150 %, the scale most displays run, so one
+    /// bitmap serves a line wherever its menu opens (its popup, and so its display, is not known while it is built).
+    /// </summary>
+    private const int IconPixels = 24;
+
+    private static ImageIcon FileIcon(ImageSource? source) => new() { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Source = source };
+
+    /// <summary>The file's icon handed to <paramref name="show"/> when it arrives; a file with none keeps what the line shows.</summary>
+    private static async Task LoadIconAsync(Task<ImageSource?> load, Action<ImageSource> show)
     {
         try
         {
-            var pixels = (int)Math.Round(16 * (image.XamlRoot?.RasterizationScale ?? 1.5));
-            var icons = Volatile.Read(ref _fileIcons) ?? throw new InvalidOperationException("no file icons installed: the host installs them before any menu is shown");
-            image.Source = await icons(file, Math.Max(16, pixels)).ConfigureAwait(true);
+            if (await load.ConfigureAwait(true) is { } source)
+            {
+                show(source);
+            }
         }
         catch (Exception ex)
         {

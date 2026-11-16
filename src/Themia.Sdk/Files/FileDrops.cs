@@ -3,7 +3,7 @@ namespace Themia.Core.Files;
 /// <summary>
 /// [S-1332] Where dropped or pasted files may go and what a drop does, ported from the original's
 /// <c>dropTarget.ts</c> and its drop target's effect choice. Pure: shared by the folder widget and
-/// (later) the Shortcuts widget and the desktop surface.
+/// (later) the shortcut widget and the desktop surface.
 /// </summary>
 public static class FileDrops
 {

@@ -125,8 +125,6 @@
     "one": "{count} ویجیٹ حذف کریں",
     "other": "{count} ویجیٹس حذف کریں"
   },
-  "shell.card.doneEditing": "ترمیم مکمل",
-  "shell.card.editLayout": "لے آؤٹ میں ترمیم کریں",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -140,8 +138,6 @@
   "shell.setup.button": "سیٹ اپ کریں",
   "shell.setup.hint": "اس ویجیٹ کو جو چاہیے وہ سیٹ اپ کریں",
   "shell.toolbar.addWidget": "ویجیٹ شامل کریں",
-  "shell.toolbar.snapName": "گرڈ پر سنیپ کریں",
-  "shell.toolbar.collisionsName": "ویجٹس کو ایک دوسرے پر آنے سے روکیں",
   "shell.editBar.selected": {
     "one": "{count} منتخب",
     "other": "{count} منتخب"
@@ -192,7 +188,6 @@
   "shell.appearance.textSize": "متن کا سائز",
   "shell.appearance.systemFont": "سسٹم ڈیفالٹ",
   "shell.appearance.sansFont": "سانز سیرف",
-  "shell.layout.gap": "ویجیٹس کے درمیان فاصلہ",
   "shell.motion.slide": "سلائیڈ",
   "shell.motion.sides": "اطراف",
   "shell.motion.topBottom": "اوپر اور نیچے",
@@ -293,7 +288,6 @@
   "shell.refresh.everyMinute": "ہر منٹ",
   "shell.refresh.everyHour": "ہر گھنٹے",
   "shell.color.custom": "حسب ضرورت رنگ",
-  "shell.color.pickCustom": "حسب ضرورت رنگ چنیں",
   "shell.color.pickFromScreen": "اسکرین سے رنگ چنیں",
   "shell.color.pickFailed": "اسکرین کے رنگ پڑھے نہیں جا سکے",
   "shell.icon.home": "گھر",

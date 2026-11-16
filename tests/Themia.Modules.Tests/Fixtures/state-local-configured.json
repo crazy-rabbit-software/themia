@@ -378,8 +378,7 @@
     "theme": "System",
     "fontFamily": "system",
     "fontScale": 1,
-    "widgetGapPx": 8,
-    "gridSnap": true,
+    "overEdge": true,
     "cornerRadiusPx": 4,
     "background": {
       "kind": "Default",
@@ -411,7 +410,7 @@
   "preferences": {
     "language": "System",
     "gameModeSuspend": false,
-    "desktop": 0,
+    "desktopIconSize": "Medium",
     "region": {
       "clock": "System",
       "weekStart": "System",
@@ -423,12 +422,14 @@
       "feeds": 30,
       "accounts": 2
     },
-    "mcpServer": false
+    "mcpServer": false,
+    "recentColours": []
   },
   "disabledMonitors": [],
   "monitorScales": {},
   "viewBars": {},
   "desktop": {
-    "known": []
+    "known": [],
+    "sort": "Name"
   }
 }

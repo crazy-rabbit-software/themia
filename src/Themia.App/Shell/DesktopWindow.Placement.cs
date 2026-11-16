@@ -44,6 +44,9 @@ internal sealed partial class DesktopWindow
 
         ApplyPlacement(appWindow);
 
+        // [S-851] Cut to the work area from the start, before the surface is ever shown.
+        ApplyHitRegion();
+
         // A fully transparent backdrop is what lets the wallpaper show between the cards. Without
         // it the window paints its own opaque surface over the whole monitor.
         TryApplyTransparentBackdrop();
@@ -73,8 +76,21 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void ApplyPlacement(AppWindow appWindow)
     {
-        var area = _monitor.Bounds;
-        appWindow.MoveAndResize(new RectInt32(area.Left, area.Top, area.Width, area.Height));
+        var area = SurfaceWindow();
+        appWindow.MoveAndResize(new RectInt32((int)area.X, (int)area.Y, (int)area.Width, (int)area.Height));
+
+        // [S-852] And said to the shell in its own words: this window is never a full-screen ("rude") app.
+        if (!Win32.SetProp(_hwnd, "NonRudeHWND", 1))
+        {
+            Log.Warn(Scope, $"{_monitor.GdiName}: could not mark the surface as no full-screen app (win32 {System.Runtime.InteropServices.Marshal.GetLastPInvokeError()})");
+        }
+    }
+
+    /// <summary>[S-852] Where this surface's window stands: its display, a pixel short of covering it (<see cref="GridGeometry.SurfaceWindow"/>).</summary>
+    private PixelRect SurfaceWindow()
+    {
+        var bounds = _monitor.Bounds;
+        return GridGeometry.SurfaceWindow(new PixelRect(bounds.Left, bounds.Top, bounds.Width, bounds.Height));
     }
 
     /// <summary>
@@ -102,6 +118,8 @@ internal sealed partial class DesktopWindow
             ApplyPlacement(_appWindow);
         }
 
+        // [S-851] The region is the work area relative to the window: either may have changed.
+        ApplyHitRegion();
         Relayout();
     }
 
@@ -117,15 +135,16 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var wanted = _monitor.Bounds;
-        if (actual.Left == wanted.Left && actual.Top == wanted.Top && actual.Right == wanted.Right && actual.Bottom == wanted.Bottom)
+        var wanted = SurfaceWindow();
+        if (actual.Left == (int)wanted.X && actual.Top == (int)wanted.Y && actual.Width == (int)wanted.Width && actual.Height == (int)wanted.Height)
         {
             return;
         }
 
         Log.Info(Scope, $"surface for {_monitor.GdiName} was at {actual.Left},{actual.Top} {actual.Width}x{actual.Height}; " +
-            $"re-placing over the monitor at {wanted.Left},{wanted.Top} {wanted.Width}x{wanted.Height}");
+            $"re-placing over the monitor at {wanted.X},{wanted.Y} {wanted.Width}x{wanted.Height}");
         ApplyPlacement(_appWindow);
+        ApplyHitRegion();
         Relayout();
     }
 
@@ -150,30 +169,6 @@ internal sealed partial class DesktopWindow
 
         // The presenter alone leaves WS_CAPTION in place, so finish the job at the Win32 level.
         DesktopLayer.MakeChromeless(_hwnd);
-    }
-
-    /// <summary>
-    /// Offset from the window's top-left to the client area's top-left, in physical pixels.
-    /// <para>
-    /// <c>SetWindowRgn</c> works in window coordinates while the widgets are laid out in client
-    /// coordinates; without this the mask is shifted by the frame thickness and stops lining up with
-    /// the cards it is meant to trace.
-    /// </para>
-    /// </summary>
-    private (int X, int Y) ClientToWindowOffset()
-    {
-        if (!Win32.GetWindowRect(_hwnd, out var window))
-        {
-            return (0, 0);
-        }
-
-        var origin = default(Win32.Point);
-        if (!Win32.ClientToScreen(_hwnd, ref origin))
-        {
-            return (0, 0);
-        }
-
-        return (origin.X - window.Left, origin.Y - window.Top);
     }
 
     private void TryApplyTransparentBackdrop()
@@ -217,12 +212,18 @@ internal sealed partial class DesktopWindow
 
         _closed = true;
 
+        // [S-5544] A band this surface holds the pointer for ends with it, on every display.
+        EndDesktopBand(null);
+
         // [S-802] A surface going away takes a lease one of its widgets held with it.
         _host.KeyboardEndOn(this);
         _window.Activated -= OnWindowActivated;
 
         // [S-1021] Before the cards go: a drag in flight may be talking to one of their views.
         DetachDropTarget();
+
+        // [S-1017] A show in flight ends (its overlay and tiles go) before the cards do.
+        _show?.Stop();
 
         DesktopZOrder.Forget(_hwnd);
         _host.StateChanged -= OnStateChanged;

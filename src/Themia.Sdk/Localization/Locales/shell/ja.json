@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "{count} 個のウィジェットを削除"
   },
-  "shell.card.doneEditing": "編集を終了",
-  "shell.card.editLayout": "レイアウトを編集",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "セットアップ",
   "shell.setup.hint": "このウィジェットに必要なものを設定",
   "shell.toolbar.addWidget": "ウィジェットを追加",
-  "shell.toolbar.snapName": "グリッドにスナップ",
-  "shell.toolbar.collisionsName": "ウィジェットを重ねない",
   "shell.editBar.selected": {
     "other": "{count} 個を選択中"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "文字のサイズ",
   "shell.appearance.systemFont": "システムの既定",
   "shell.appearance.sansFont": "サンセリフ",
-  "shell.layout.gap": "ウィジェットの間隔",
   "shell.motion.slide": "スライド",
   "shell.motion.sides": "左右から",
   "shell.motion.topBottom": "上下から",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "1 分ごと",
   "shell.refresh.everyHour": "1 時間ごと",
   "shell.color.custom": "カスタム色",
-  "shell.color.pickCustom": "カスタム色を選択",
   "shell.color.pickFromScreen": "画面から色を選択",
   "shell.color.pickFailed": "画面の色を読み取れませんでした",
   "shell.icon.home": "ホーム",

@@ -131,8 +131,6 @@
     "many": "Видалити {count} віджетів",
     "other": "Видалити {count} віджета"
   },
-  "shell.card.doneEditing": "Завершити редагування",
-  "shell.card.editLayout": "Редагувати макет",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -146,8 +144,6 @@
   "shell.setup.button": "Налаштувати",
   "shell.setup.hint": "Налаштуй те, що потрібно цьому віджету",
   "shell.toolbar.addWidget": "Додати віджет",
-  "shell.toolbar.snapName": "Прив’язка до сітки",
-  "shell.toolbar.collisionsName": "Не допускати накладання віджетів",
   "shell.editBar.selected": {
     "one": "Вибрано {count}",
     "few": "Вибрано {count}",
@@ -206,7 +202,6 @@
   "shell.appearance.textSize": "Розмір тексту",
   "shell.appearance.systemFont": "Системний за замовчуванням",
   "shell.appearance.sansFont": "Без засічок",
-  "shell.layout.gap": "Відступ між віджетами",
   "shell.motion.slide": "Ковзання",
   "shell.motion.sides": "Збоку",
   "shell.motion.topBottom": "Згори й знизу",
@@ -311,7 +306,6 @@
   "shell.refresh.everyMinute": "Щохвилини",
   "shell.refresh.everyHour": "Щогодини",
   "shell.color.custom": "Власний колір",
-  "shell.color.pickCustom": "Вибрати власний колір",
   "shell.color.pickFromScreen": "Вибрати колір з екрана",
   "shell.color.pickFailed": "Не вдалося прочитати кольори на екрані",
   "shell.icon.home": "Дім",

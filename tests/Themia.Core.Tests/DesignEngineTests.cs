@@ -244,9 +244,8 @@ public sealed class DesignEngineTests
 
         // [S-6482] 8px corners (Windows' overlay radius, the menus' own), a 1px hairline at full
         // strength, the default (neutral, translucent) fill, blur behind widgets on, no header band,
-        // the Windows accent and an 8px gap.
+        // the Windows accent.
         Assert.Equal(8, design.CornerRadiusPx);
-        Assert.Equal(0, design.WidgetGapPx);   // [S-2247]
         Assert.True(design.BlurBehind);
         Assert.Equal(WidgetBorderStyle.Solid, design.BorderStyle);
         Assert.Equal(1, design.BorderWidthPx);
@@ -434,19 +433,19 @@ public sealed class DesignEngineTests
     [Fact]
     public void S832_applying_a_preset_sets_its_fields_and_nothing_else()
     {
-        var design = new DesignState { FontScale = 1.25, IntroAnimation = IntroAnimation.Fade, GridSnap = false };
+        var design = new DesignState { FontScale = 1.25, IntroAnimation = IntroAnimation.Fade, OverEdge = false };
 
-        DesignPresets.Apply(design, DesignPresetId.Terminal);
+        DesignPresets.Apply(design, DesignPresetId.Harbor);
 
-        Assert.Equal(DesignPresetId.Terminal, DesignPresets.Match(design));
+        Assert.Equal(DesignPresetId.Harbor, DesignPresets.Match(design));
         Assert.Equal(AppTheme.Dark, design.Theme);
-        Assert.Equal("mono", design.FontFamily);
-        Assert.Equal(0, design.CornerRadiusPx);
+        Assert.Equal("Bahnschrift", design.FontFamily);
+        Assert.Equal("#4CC8DF", design.PrimaryColor);
 
         // The user's own accessibility and motion choices survive.
         Assert.Equal(1.25, design.FontScale);
         Assert.Equal(IntroAnimation.Fade, design.IntroAnimation);
-        Assert.False(design.GridSnap);
+        Assert.False(design.OverEdge);
     }
 
     [Fact]
@@ -464,23 +463,27 @@ public sealed class DesignEngineTests
     }
 
     [Fact]
-    public void S6482_S2121_the_default_preset_has_8px_corners_and_the_others_keep_their_own()
+    public void S6482_S2123_the_presets_have_8px_corners_and_liquid_glass_its_own_24()
     {
-        Assert.Equal(8, DesignPresets.Get(DesignPresetId.Default).Values.CornerRadiusPx);
-        Assert.Equal(8, DesignPresets.Get(DesignPresetId.Midnight).Values.CornerRadiusPx);
-        Assert.Equal(8, DesignPresets.Get(DesignPresetId.Daylight).Values.CornerRadiusPx);
-        Assert.Equal(16, DesignPresets.Get(DesignPresetId.Glass).Values.CornerRadiusPx);
-        Assert.Equal(0, DesignPresets.Get(DesignPresetId.Terminal).Values.CornerRadiusPx);
-        Assert.Equal(4, DesignPresets.Get(DesignPresetId.Paper).Values.CornerRadiusPx);
+        Assert.All(DesignPresets.All.Where(p => p.Id != DesignPresetId.LiquidGlass), p => Assert.Equal(8, p.Values.CornerRadiusPx));
+        Assert.Equal(24, DesignPresets.Get(DesignPresetId.LiquidGlass).Values.CornerRadiusPx);
     }
 
     [Theory]
     [InlineData(DesignPresetId.Default, true)]
+    [InlineData(DesignPresetId.Graphite, false)]
+    [InlineData(DesignPresetId.Daylight, false)]
     [InlineData(DesignPresetId.Midnight, false)]
-    [InlineData(DesignPresetId.Daylight, true)]
-    [InlineData(DesignPresetId.Glass, true)]
-    [InlineData(DesignPresetId.Terminal, false)]
+    [InlineData(DesignPresetId.Contrast, false)]
+    [InlineData(DesignPresetId.Acrylic, true)]
+    [InlineData(DesignPresetId.Glacier, true)]
+    [InlineData(DesignPresetId.LiquidGlass, true)]
     [InlineData(DesignPresetId.Paper, false)]
+    [InlineData(DesignPresetId.Harbor, false)]
+    [InlineData(DesignPresetId.Bloom, false)]
+    [InlineData(DesignPresetId.Ember, false)]
+    [InlineData(DesignPresetId.Blueprint, false)]
+    [InlineData(DesignPresetId.Moss, false)]
     public void S2121_a_frosted_preset_is_translucent_and_an_opaque_one_does_not_blur(DesignPresetId id, bool blur)
     {
         var values = DesignPresets.Get(id).Values;
@@ -491,13 +494,69 @@ public sealed class DesignEngineTests
     }
 
     [Fact]
-    public void S2121_glass_is_one_surface_thinner_than_default()
+    public void S2122_the_styles_are_karpos_palettes_in_karpos_order_liquid_glass_among_the_see_through_ones()
     {
-        var glass = DesignPresets.Get(DesignPresetId.Glass).Values;
+        Assert.Equal(
+            [
+                DesignPresetId.Default, DesignPresetId.Graphite, DesignPresetId.Daylight, DesignPresetId.Midnight, DesignPresetId.Contrast,
+                DesignPresetId.Acrylic, DesignPresetId.Glacier, DesignPresetId.LiquidGlass,
+                DesignPresetId.Paper, DesignPresetId.Harbor, DesignPresetId.Bloom, DesignPresetId.Ember, DesignPresetId.Blueprint, DesignPresetId.Moss,
+            ],
+            DesignPresets.All.Select(p => p.Id));
+        Assert.Equal(
+            ["Themia", "Graphite", "Daylight", "Midnight", "Contrast", "Acrylic", "Glacier", "Liquid glass", "Paper", "Harbor", "Bloom", "Ember", "Blueprint", "Moss"],
+            DesignPresets.All.Select(p => p.Label));
+    }
 
-        Assert.Equal(FillKind.Default, (glass.Items ?? new FillChoice()).Kind);
-        Assert.Equal(WidgetBorderStyle.None, glass.BorderStyle);
-        Assert.True(DesignLook.Card(glass.Background, true, true).Opacity < DesignLook.DefaultCardOpacity(dark: true, frosted: true));
+    /// <summary>
+    /// [S-2122] Karpo's palettes' cards, each in the mode it was made for (karpo-app, Karpo.Core/Looks.cs): its card's colour,
+    /// accent and outline; Liquid glass alone the system's theme and its own material.
+    /// </summary>
+    [Theory]
+    [InlineData(DesignPresetId.Graphite, AppTheme.Dark, "#27292D", "#8FA6FF", WidgetBorderStyle.None)]
+    [InlineData(DesignPresetId.Daylight, AppTheme.Light, "#FFFFFF", "#0067C0", WidgetBorderStyle.Solid)]
+    [InlineData(DesignPresetId.Midnight, AppTheme.Dark, "#121214", "#A99BFF", WidgetBorderStyle.Solid)]
+    [InlineData(DesignPresetId.Contrast, AppTheme.Dark, "#000000", "#FFE500", WidgetBorderStyle.Solid)]
+    [InlineData(DesignPresetId.Acrylic, AppTheme.Dark, "#2C2C2C", "#60CDFF", WidgetBorderStyle.Solid)]
+    [InlineData(DesignPresetId.Glacier, AppTheme.Light, "#F2F8FC", "#0A6B9C", WidgetBorderStyle.Solid)]
+    [InlineData(DesignPresetId.Paper, AppTheme.Light, "#FAF6EE", "#A84B24", WidgetBorderStyle.None)]
+    [InlineData(DesignPresetId.Harbor, AppTheme.Dark, "#13283F", "#4CC8DF", WidgetBorderStyle.None)]
+    [InlineData(DesignPresetId.Bloom, AppTheme.Light, "#F7CFDE", "#B0204F", WidgetBorderStyle.None)]
+    [InlineData(DesignPresetId.Ember, AppTheme.Dark, "#B23F14", "#FFE0B8", WidgetBorderStyle.None)]
+    [InlineData(DesignPresetId.Blueprint, AppTheme.Dark, "#13315C", "#7CC4FF", WidgetBorderStyle.None)]
+    [InlineData(DesignPresetId.Moss, AppTheme.Dark, "#1E2E25", "#8FD18A", WidgetBorderStyle.None)]
+    public void S2122_each_style_is_its_karpo_palettes_cards(DesignPresetId id, AppTheme theme, string card, string accent, WidgetBorderStyle border)
+    {
+        var values = DesignPresets.Get(id).Values;
+
+        Assert.Equal((theme, card, accent, border, CardMaterial.Solid), (values.Theme, values.Background.Colour, values.PrimaryColor, values.BorderStyle, values.Material));
+        Assert.Equal(FillKind.Default, (values.Items ?? new FillChoice()).Kind);
+    }
+
+    /// <summary>[S-2122] Each opaque style's text reads on its card (WCAG 4.5:1 for the theme's text) and its accent shows (3:1).</summary>
+    [Fact]
+    public void S2122_every_opaque_styles_text_reads_and_its_accent_shows_on_its_card()
+    {
+        foreach (var preset in DesignPresets.All.Where(p => p.Values.Background.Kind == FillKind.Colour))
+        {
+            var v = preset.Values;
+            Assert.True(HexColor.TryParse(v.Background.Colour, out var r, out var g, out var b));
+            Assert.True(HexColor.TryParse(v.PrimaryColor, out var ar, out var ag, out var ab));
+            var card = LiquidGlass.Luminance(new RgbColor(r, g, b));
+            var text = LiquidGlass.Luminance(LiquidGlass.Text(v.Theme == AppTheme.Dark));
+            Assert.True(LiquidGlass.Contrast(card, text) >= 4.5 || v.Background.Opacity < 1, $"{preset.Id}: text {LiquidGlass.Contrast(card, text):0.0}");
+            Assert.True(LiquidGlass.Contrast(card, LiquidGlass.Luminance(new RgbColor(ar, ag, ab))) >= 3, $"{preset.Id}: accent");
+        }
+    }
+
+    [Fact]
+    public void S2123_liquid_glass_is_the_systems_theme_frosted_borderless_round_24_of_its_own_material()
+    {
+        var glass = DesignPresets.Get(DesignPresetId.LiquidGlass).Values;
+
+        Assert.Equal((AppTheme.System, CardMaterial.LiquidGlass, true, WidgetBorderStyle.None, 24d), (glass.Theme, glass.Material, glass.BlurBehind, glass.BorderStyle, glass.CornerRadiusPx));
+        Assert.Equal(FillKind.Default, glass.Background.Kind);
+        Assert.All(DesignPresets.All.Where(p => p.Id != DesignPresetId.LiquidGlass), p => Assert.Equal(CardMaterial.Solid, p.Values.Material));
     }
 
     // ---- [S-6483] confirm before a preset replaces a custom look ------------------------------------
@@ -508,7 +567,7 @@ public sealed class DesignEngineTests
         var design = new DesignState();
         Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Midnight));
 
-        DesignPresets.Apply(design, DesignPresetId.Glass);
+        DesignPresets.Apply(design, DesignPresetId.LiquidGlass);
         Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Paper));
         Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Default));
     }
@@ -520,8 +579,9 @@ public sealed class DesignEngineTests
     [InlineData(nameof(DesignState.Background))]
     [InlineData(nameof(DesignState.ItemBackground))]
     [InlineData(nameof(DesignState.Theme))]
-    [InlineData(nameof(DesignState.WidgetGapPx))]
     [InlineData(nameof(DesignState.BlurBehind))]
+    [InlineData(nameof(DesignState.Material))]
+    [InlineData(nameof(DesignState.Tokens))]
     public void S6483_a_customised_design_is_replaced_by_any_preset(string field)
     {
         var design = new DesignState();
@@ -534,8 +594,9 @@ public sealed class DesignEngineTests
             case nameof(DesignState.Background): design.Background = FillChoice.Of("#0B0B0F", 0.5); break;
             case nameof(DesignState.ItemBackground): design.ItemBackground = FillChoice.Transparent(); break;
             case nameof(DesignState.Theme): design.Theme = AppTheme.Light; break;
-            case nameof(DesignState.WidgetGapPx): design.WidgetGapPx = 30; break;
             case nameof(DesignState.BlurBehind): design.BlurBehind = !design.BlurBehind; break;
+            case nameof(DesignState.Material): design.Material = CardMaterial.LiquidGlass; break;
+            case nameof(DesignState.Tokens): design.Tokens.FrostSaturation = 1.3; break;
         }
 
         foreach (var preset in DesignPresets.All)
@@ -548,8 +609,8 @@ public sealed class DesignEngineTests
     public void S6483_unowned_fields_are_not_a_custom_look()
     {
         // Text size and motion are the user's own and no preset touches them.
-        var design = new DesignState { FontScale = 1.5, IntroAnimation = IntroAnimation.Fade, GridSnap = false };
-        Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Terminal));
+        var design = new DesignState { FontScale = 1.5, IntroAnimation = IntroAnimation.Fade, OverEdge = false };
+        Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Moss));
     }
 
     [Fact]

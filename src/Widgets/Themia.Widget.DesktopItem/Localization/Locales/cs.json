@@ -1,5 +1,19 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "desktopItem.label": "Položka plochy",
-  "desktopItem.desc": "Soubor, složka nebo zástupce z tvé plochy"
+  "widgetsC.shortcuts.column.target": "Cíl",
+  "widgetsC.shortcuts.kind.location": "Umístění ve Windows",
+  "widgetsC.shortcuts.kind.missing": "Chybí",
+  "widgetsC.shortcuts.kind.path": "Cesta",
+  "widgetsC.shortcuts.kind.refused": "Nepovoleno",
+  "widgetsC.shortcuts.menu.addLayout": "Rozložení aplikací…",
+  "widgetsC.shortcuts.menu.addLink": "Webová adresa nebo cesta…",
+  "widgetsC.shortcuts.menu.changeTarget": "Změnit cíl…",
+  "widgetsC.shortcuts.settings.locations": "Umístění ve Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Dvojklik",
+  "widgetsC.shortcuts.settings.openWith.label": "Otevírat",
+  "widgetsC.shortcuts.settings.openWith.single": "Jedno kliknutí",
+  "widgetsC.shortcuts.settings.pick.file": "Soubor…",
+  "widgetsC.shortcuts.settings.pick.folder": "Složka…",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (cíl chybí)\n{target}"
 }

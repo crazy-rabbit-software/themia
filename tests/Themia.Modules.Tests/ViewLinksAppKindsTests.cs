@@ -11,7 +11,7 @@ public sealed class ViewLinksAppKindsTests
     [InlineData("topProcesses")]
     [InlineData("mixer")]
     [InlineData("notifications")]
-    [InlineData("shortcuts")]
+    [InlineData("desktopItem")]
     public void S11930_a_list_of_apps_publishes_the_hover_and_shows_the_pick_without_setting_it(string id)
     {
         var links = ModuleRegistry.Widgets.Single(m => m.Descriptor.Id.Value == id).Descriptor.Links;

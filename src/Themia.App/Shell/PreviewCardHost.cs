@@ -44,9 +44,9 @@ internal class PreviewCardHost(Ticker ticker) : IWidgetCardHost
     /// <summary>[S-2458] The group a scene draws entered (its selected member shows its own markers), or null.</summary>
     public string? Entered { get; init; }
 
-    /// <summary>[S-2453] A group's member draws no markers of its own unless it is the entered, selected one.</summary>
-    public bool ShowsOwnMarkers(WidgetCard card)
-        => card.Model.Group is null || (string.Equals(card.Model.Group, Entered, StringComparison.Ordinal) && Selected.Contains(card.Model.Id));
+    /// <summary>[S-2453] A group's member draws its corners alone unless it is the entered, selected one.</summary>
+    public EditMarks MarksOf(WidgetCard card)
+        => SelectionRules.MarksOf(card.Model.Group, Entered, Selected.Contains(card.Model.Id));
 
     public ViewState? ViewForCards => null;
 

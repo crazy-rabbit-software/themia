@@ -128,10 +128,11 @@ public sealed class ShellKeyboardTests
     {
         Assert.Equal(new EditKeyAction(EditCommand.Move, NudgeDirection.Left, NudgeStep.Cell), EditKeys.Decide(VkLeft, false, false, false));
         Assert.Equal(new EditKeyAction(EditCommand.Move, NudgeDirection.Up, NudgeStep.Far), EditKeys.Decide(VkUp, false, true, false));
-        Assert.Equal(new EditKeyAction(EditCommand.Move, NudgeDirection.Right, NudgeStep.Fine), EditKeys.Decide(VkRight, false, false, true));
+        // [S-06] Alt+arrow is no nudge: nothing moves off the grid.
+        Assert.Equal(EditKeyAction.None, EditKeys.Decide(VkRight, false, false, true));
         Assert.Equal(new EditKeyAction(EditCommand.Resize, NudgeDirection.Down, NudgeStep.Cell), EditKeys.Decide(VkDown, true, false, false));
         Assert.Equal(new EditKeyAction(EditCommand.Resize, NudgeDirection.Down, NudgeStep.Far), EditKeys.Decide(VkDown, true, true, false));
-        Assert.Equal(new EditKeyAction(EditCommand.Resize, NudgeDirection.Right, NudgeStep.Fine), EditKeys.Decide(VkRight, true, false, true));
+        Assert.Equal(EditKeyAction.None, EditKeys.Decide(VkRight, true, false, true));
     }
 
     [Fact]
@@ -147,36 +148,33 @@ public sealed class ShellKeyboardTests
     [Fact]
     public void S1970_an_arrow_moves_one_cell_on_its_axis_only()
     {
-        var moved = KeyboardNudge.Move([new FracRect(0.2, 0.2, 0.1, 0.1)], NudgeDirection.Right, NudgeStep.Cell, Screen, snapEnabled: true);
+        var moved = KeyboardNudge.Move([new FracRect(0.2, 0.2, 0.1, 0.1)], NudgeDirection.Right, NudgeStep.Cell, Screen);
 
         Near(0.21, moved[0].X);
         Near(0.2, moved[0].Y);
         Near(0.1, moved[0].W);
         Near(0.1, moved[0].H);
 
-        var down = KeyboardNudge.Move([new FracRect(0.2, 0.2, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Cell, Screen, snapEnabled: true);
+        var down = KeyboardNudge.Move([new FracRect(0.2, 0.2, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Cell, Screen);
         Near(0.2, down[0].X);
         Near(0.22, down[0].Y); // 10 DIPs of 500
     }
 
     [Fact]
-    public void S1972_ctrl_moves_ten_cells_and_alt_one_dip_off_the_grid()
+    public void S1972_ctrl_moves_ten_cells()
     {
-        var far = KeyboardNudge.Move([new FracRect(0.2, 0.2, 0.1, 0.1)], NudgeDirection.Left, NudgeStep.Far, Screen, snapEnabled: true);
+        var far = KeyboardNudge.Move([new FracRect(0.2, 0.2, 0.1, 0.1)], NudgeDirection.Left, NudgeStep.Far, Screen);
         Near(0.1, far[0].X);
-
-        var fine = KeyboardNudge.Move([new FracRect(0.2, 0.2, 0.1, 0.1)], NudgeDirection.Right, NudgeStep.Fine, Screen, snapEnabled: true);
-        Near(0.201, fine[0].X); // not rounded back onto the grid
     }
 
     [Fact]
     public void S1970_an_off_grid_widget_lands_on_the_grid_and_still_moves()
     {
         // 4 DIPs off the grid: one press right lands on the next line, never back where it was.
-        var moved = KeyboardNudge.Move([new FracRect(0.204, 0.2, 0.1, 0.1)], NudgeDirection.Right, NudgeStep.Cell, Screen, snapEnabled: true);
+        var moved = KeyboardNudge.Move([new FracRect(0.204, 0.2, 0.1, 0.1)], NudgeDirection.Right, NudgeStep.Cell, Screen);
         Near(0.21, moved[0].X);
 
-        var left = KeyboardNudge.Move([new FracRect(0.204, 0.2, 0.1, 0.1)], NudgeDirection.Left, NudgeStep.Cell, Screen, snapEnabled: true);
+        var left = KeyboardNudge.Move([new FracRect(0.204, 0.2, 0.1, 0.1)], NudgeDirection.Left, NudgeStep.Cell, Screen);
         Near(0.19, left[0].X);
     }
 
@@ -185,17 +183,17 @@ public sealed class ShellKeyboardTests
     {
         FracRect[] block = [new(0.0, 0.1, 0.1, 0.1), new(0.3, 0.1, 0.1, 0.1)];
 
-        var moved = KeyboardNudge.Move(block, NudgeDirection.Left, NudgeStep.Cell, Screen, snapEnabled: true);
+        var moved = KeyboardNudge.Move(block, NudgeDirection.Left, NudgeStep.Cell, Screen);
 
         // Over the edge by one cell, both of them: the block never pulls apart.
         Near(-0.01, moved[0].X);
         Near(0.29, moved[1].X);
 
-        var far = KeyboardNudge.Move(block, NudgeDirection.Left, NudgeStep.Far, Screen, snapEnabled: true);
+        var far = KeyboardNudge.Move(block, NudgeDirection.Left, NudgeStep.Far, Screen);
         Near(0.032, far[0].Right);
         Near(0.3, far[1].X - far[0].X);
 
-        var right = KeyboardNudge.Move(block, NudgeDirection.Right, NudgeStep.Cell, Screen, snapEnabled: true);
+        var right = KeyboardNudge.Move(block, NudgeDirection.Right, NudgeStep.Cell, Screen);
         Near(0.01, right[0].X);
         Near(0.31, right[1].X);
     }
@@ -204,7 +202,7 @@ public sealed class ShellKeyboardTests
     public void S1970_S6608_a_move_past_the_work_area_keeps_the_visible_minimum_on_it()
     {
         var screen = Screen with { Allowed = new FracRect(0, 0, 1, 0.9) };
-        var moved = KeyboardNudge.Move([new FracRect(0.2, 0.8, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, screen, snapEnabled: true);
+        var moved = KeyboardNudge.Move([new FracRect(0.2, 0.8, 0.1, 0.1)], NudgeDirection.Down, NudgeStep.Far, screen);
 
         Near(0.9 - (32.0 / 500), moved[0].Y);
     }
@@ -214,12 +212,12 @@ public sealed class ShellKeyboardTests
     {
         var rect = new FracRect(0.2, 0.2, 0.1, 0.1);
 
-        var wider = KeyboardNudge.Resize(rect, NudgeDirection.Right, NudgeStep.Cell, Screen, snapEnabled: true);
+        var wider = KeyboardNudge.Resize(rect, NudgeDirection.Right, NudgeStep.Cell, Screen);
         Near(0.2, wider.X);
         Near(0.11, wider.W);
         Near(0.1, wider.H);
 
-        var shorter = KeyboardNudge.Resize(rect, NudgeDirection.Up, NudgeStep.Cell, Screen, snapEnabled: true);
+        var shorter = KeyboardNudge.Resize(rect, NudgeDirection.Up, NudgeStep.Cell, Screen);
         Near(0.2, shorter.Y);
         Near(0.08, shorter.H);
         Near(0.1, shorter.W);
@@ -230,7 +228,7 @@ public sealed class ShellKeyboardTests
     {
         var small = new FracRect(0.2, 0.2, 0.04, 0.1); // 40 DIPs wide; the floor is 32
 
-        var once = KeyboardNudge.Resize(small, NudgeDirection.Left, NudgeStep.Far, Screen, snapEnabled: false);
+        var once = KeyboardNudge.Resize(small, NudgeDirection.Left, NudgeStep.Far, Screen);
 
         Near(GridGeometry.MinWidgetPx / Screen.Width, once.W);
         Near(0.2, once.X);
@@ -241,7 +239,7 @@ public sealed class ShellKeyboardTests
     {
         var rect = new FracRect(0.85, 0.2, 0.1, 0.1);
 
-        var grown = KeyboardNudge.Resize(rect, NudgeDirection.Right, NudgeStep.Far, Screen, snapEnabled: true);
+        var grown = KeyboardNudge.Resize(rect, NudgeDirection.Right, NudgeStep.Far, Screen);
 
         Near(0.85, grown.X);
         Near(1.05, grown.Right);
@@ -251,8 +249,8 @@ public sealed class ShellKeyboardTests
     public void S1970_an_unusable_screen_moves_nothing()
     {
         var rect = new FracRect(0.2, 0.2, 0.1, 0.1);
-        Assert.Equal(rect, KeyboardNudge.Move([rect], NudgeDirection.Right, NudgeStep.Cell, new ScreenMetrics(0, 0), true)[0]);
-        Assert.Equal(rect, KeyboardNudge.Resize(rect, NudgeDirection.Right, NudgeStep.Cell, new ScreenMetrics(0, 0), true));
+        Assert.Equal(rect, KeyboardNudge.Move([rect], NudgeDirection.Right, NudgeStep.Cell, new ScreenMetrics(0, 0))[0]);
+        Assert.Equal(rect, KeyboardNudge.Resize(rect, NudgeDirection.Right, NudgeStep.Cell, new ScreenMetrics(0, 0)));
     }
 
     // ---- [S-1973] Tab through the widgets --------------------------------------------------------

@@ -208,7 +208,6 @@ internal static class NoticeRender
             };
             WidgetCard.StartPaused = false;
 
-            card.ApplyGap(0);
             if (!paused)
             {
                 card.FailForPreview(new InvalidOperationException("The clock could not read the time zone 'Mars/Olympus_Mons'."));

@@ -28,7 +28,7 @@ public sealed class ShellSettingsTests : IDisposable
           ],
           "activeViewId": "v1",
           "monitorViews": {},
-          "design": { "widgetGapPx": 8, "introAnimation": "Fade", "introAnimationMs": 400 }
+          "design": { "introAnimation": "Fade", "introAnimationMs": 400 }
         }
         """;
 
@@ -80,7 +80,7 @@ public sealed class ShellSettingsTests : IDisposable
         var state = Parse(json);
 
         Assert.NotNull(state.Preferences);
-        Assert.Equal(DesktopShows.ThemiaItems, state.Preferences.Desktop);
+        Assert.Equal(DesktopIconSize.Medium, state.Preferences.DesktopIconSize);
         Assert.Empty(state.DisabledMonitors);
         Assert.Empty(state.MonitorScales);
     }
@@ -100,7 +100,7 @@ public sealed class ShellSettingsTests : IDisposable
         state.Design.UnlockAnimationMs = 900;
         state.Preferences.Language = AppLanguage.Japanese;
         state.Preferences.GameModeSuspend = true;
-        state.Preferences.Desktop = DesktopShows.ThemiaItems;
+        state.Preferences.DesktopIconSize = DesktopIconSize.Small;
         state.Desktop.Known.Add(@"C:\Users\Public\Desktop\Report.docx");
         view.Color = "#3366CC";
         state.DefaultViewForNewDisplays = view.Id;
@@ -127,7 +127,7 @@ public sealed class ShellSettingsTests : IDisposable
         Assert.Equal(900, back.Design.UnlockAnimationMs);
         Assert.Equal(AppLanguage.Japanese, back.Preferences.Language);
         Assert.True(back.Preferences.GameModeSuspend);
-        Assert.Equal(DesktopShows.ThemiaItems, back.Preferences.Desktop);
+        Assert.Equal(DesktopIconSize.Small, back.Preferences.DesktopIconSize);
         Assert.Equal([@"C:\Users\Public\Desktop\Report.docx"], back.Desktop.Known);
         Assert.Equal("#3366CC", back.Views[0].Color);
         Assert.Equal(view.Id, back.DefaultViewForNewDisplays);

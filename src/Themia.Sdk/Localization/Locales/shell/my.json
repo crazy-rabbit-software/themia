@@ -122,8 +122,6 @@
   "shell.card.deleteMany": {
     "other": "ဝစ်ဂျက် {count} ခု ဖျက်ရန်"
   },
-  "shell.card.doneEditing": "တည်းဖြတ်ခြင်း ပြီးပါပြီ",
-  "shell.card.editLayout": "အပြင်အဆင် တည်းဖြတ်ရန်",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -137,8 +135,6 @@
   "shell.setup.button": "ပြင်ဆင်ရန်",
   "shell.setup.hint": "ဤဝစ်ဂျက် လိုအပ်သည်ကို ပြင်ဆင်ပါ",
   "shell.toolbar.addWidget": "ဝစ်ဂျက် ထည့်ရန်",
-  "shell.toolbar.snapName": "Grid တွင် ကပ်ရန်",
-  "shell.toolbar.collisionsName": "ဝစ်ဂျက်များ ထပ်မနေစေရန်",
   "shell.editBar.selected": {
     "other": "{count} ခု ရွေးထားသည်"
   },
@@ -185,7 +181,6 @@
   "shell.appearance.textSize": "စာလုံး အရွယ်",
   "shell.appearance.systemFont": "စနစ် မူလ",
   "shell.appearance.sansFont": "Sans serif ဖောင့်",
-  "shell.layout.gap": "ဝစ်ဂျက်များကြား အကွာအဝေး",
   "shell.motion.slide": "ချော်ဝင်",
   "shell.motion.sides": "ဘေးများ",
   "shell.motion.topBottom": "အပေါ်နှင့် အောက်",
@@ -284,7 +279,6 @@
   "shell.refresh.everyMinute": "မိနစ်တိုင်း",
   "shell.refresh.everyHour": "နာရီတိုင်း",
   "shell.color.custom": "စိတ်ကြိုက် အရောင်",
-  "shell.color.pickCustom": "စိတ်ကြိုက် အရောင်တစ်ခု ရွေးရန်",
   "shell.color.pickFromScreen": "မျက်နှာပြင်မှ အရောင်တစ်ခု ရွေးရန်",
   "shell.color.pickFailed": "မျက်နှာပြင်ပေါ်ရှိ အရောင်များကို မဖတ်နိုင်ခဲ့ပါ",
   "shell.icon.home": "အိမ်",

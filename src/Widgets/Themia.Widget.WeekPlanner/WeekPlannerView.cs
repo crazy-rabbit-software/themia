@@ -38,7 +38,7 @@ namespace Themia.App.Widgets;
 /// is <see cref="WeekPlannerRules"/>.
 /// </para>
 /// </summary>
-internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware
 {
     /// <inheritdoc />
     public CardOpen? Opens => WeekPlannerModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
@@ -344,6 +344,28 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     // Drawing
     // -----------------------------------------------------------------------------------------
 
+    /// <summary>[S-663] [S-12410] The card's word on its room: the rows' pitch follows it.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        if (area == _area)
+        {
+            return;
+        }
+
+        _area = area;
+        Render();
+    }
+
+    private WidgetArea _area;
+
+    /// <summary>
+    /// [S-12410] A row's height (a day's heading's too): 28 stretched over the heading and the config's rows
+    /// down to the card's edge (the foot's inset the sizing counts), at most half again.
+    /// </summary>
+    private double Pitch => _area.IsMeasured
+        ? ItemStretch.Pitch(_area.Height, Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows) + 1, FamilyShape.Row1, scale: XamlRoot?.RasterizationScale ?? 1)
+        : FamilyShape.Row1;
+
     private void Render()
     {
         if (_detached)
@@ -399,6 +421,10 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
             SetColumn(stack, s);
             _content.Children.Add(stack);
             DrawDay(stack, days[slots[s].Day], slots[s], today, zone, showColors, times: true);
+            foreach (var line in stack.Children.OfType<FrameworkElement>())
+            {
+                line.Height = Pitch;
+            }
         }
 
         _content.Visibility = Visibility.Visible;

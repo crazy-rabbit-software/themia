@@ -19,7 +19,7 @@ public sealed class RecentFilesSizingTests
 
         var sizing = Kind.Sizing(config);
         Assert.Equal(new SizeDip(300, 36 + (6 * 40) + 12), sizing.Natural);
-        Assert.Equal((220.0, 520.0), (sizing.Min.Width, sizing.Max.Width));
+        Assert.Equal((220.0, 752.0), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a list, 300 x 2.5 on 4s
 
         Assert.Equal(36 + (3 * 28) + 12, Kind.Sizing(new RecentFilesConfig { Rows = 3, Lines = 1 }).Natural.Height);
     }

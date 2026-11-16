@@ -137,8 +137,6 @@
     "many": "حذف {count} أداةً",
     "other": "حذف {count} أداة"
   },
-  "shell.card.doneEditing": "إنهاء التحرير",
-  "shell.card.editLayout": "تحرير التخطيط",
   "shell.key.ctrl": "Ctrl",
   "shell.key.alt": "Alt",
   "shell.key.shift": "Shift",
@@ -152,8 +150,6 @@
   "shell.setup.button": "إعداد",
   "shell.setup.hint": "إعداد ما تحتاجه هذه الأداة",
   "shell.toolbar.addWidget": "إضافة أداة",
-  "shell.toolbar.snapName": "المحاذاة إلى الشبكة",
-  "shell.toolbar.collisionsName": "منع تداخل الأدوات",
   "shell.editBar.selected": {
     "zero": "{count} محدد",
     "one": "{count} محدد",
@@ -220,7 +216,6 @@
   "shell.appearance.textSize": "حجم النص",
   "shell.appearance.systemFont": "افتراضي النظام",
   "shell.appearance.sansFont": "Sans serif",
-  "shell.layout.gap": "المسافة بين الأدوات",
   "shell.motion.slide": "انزلاق",
   "shell.motion.sides": "الجانبان",
   "shell.motion.topBottom": "الأعلى والأسفل",
@@ -329,7 +324,6 @@
   "shell.refresh.everyMinute": "كل دقيقة",
   "shell.refresh.everyHour": "كل ساعة",
   "shell.color.custom": "لون مخصص",
-  "shell.color.pickCustom": "اختيار لون مخصص",
   "shell.color.pickFromScreen": "اختيار لون من الشاشة",
   "shell.color.pickFailed": "تعذرت قراءة الألوان على الشاشة",
   "shell.icon.home": "المنزل",

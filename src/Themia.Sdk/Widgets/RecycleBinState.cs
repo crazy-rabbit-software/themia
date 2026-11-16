@@ -9,12 +9,12 @@ public readonly record struct RecycleBinState(long Items, long Bytes)
 
     /// <summary>
     /// [S-4863] Whether Empty is offered: only with something in the bin (an unknown answer is not
-    /// "something"), and not while an empty is already out. The widget's button and the Shortcuts
-    /// item menu both ask this.
+    /// "something"), and not while an empty is already out. The widget's button and a shortcut's
+    /// menu both ask this.
     /// </summary>
     public static bool CanEmpty(RecycleBinState? state, bool emptying) => state is { IsEmpty: false } && !emptying;
 
-    /// <summary>The Recycle Bin's shell target: what the widget opens, and the one Shortcuts item that carries a live badge.</summary>
+    /// <summary>The Recycle Bin's shell target: what the widget opens, and the one shortcut target that shows the bin's state.</summary>
     public static readonly string Target = LaunchTargets.ShellTarget("RecycleBinFolder");
 
     /// <summary>[S-1389] The Recycle Bin's tooltip: "name — N items (size)", "name — empty", or the name when unknown.</summary>
