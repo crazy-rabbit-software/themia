@@ -213,7 +213,6 @@ public sealed class NoticesBootTests : IDisposable
         var clock = Assert.IsType<ClockConfig>(widgets[0].Config);
         Assert.Equal(ClockStyle.Digital, clock.Style);
         Assert.False(clock.ShowSeconds);
-        Assert.False(clock.ShowDate);
 
         // No desktop icon is seeded, of either source: Windows' own desktop icons arrive as desktop items
         // through the reconcile ([S-5500], [S-5520]), and an own icon is the user's to add.
@@ -225,12 +224,8 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(GpuStyle.Number, Assert.IsType<GpuConfig>(widgets[4].Config).Style);
         Assert.IsType<NetworkConfig>(widgets[5].Config);
 
-        // Everything but the quick settings sits on the wallpaper: no card, no header.
-        Assert.All(widgets.Take(6), w =>
-        {
-            Assert.Equal(FillKind.Transparent, w.Background.Kind);
-            Assert.Equal(HeaderPlacement.Hidden, w.Header);
-        });
+        // Everything but the quick settings sits on the wallpaper: no card.
+        Assert.All(widgets.Take(6), w => Assert.Equal(FillKind.Transparent, w.Background.Kind));
         Assert.All(widgets.Skip(7), w => Assert.Equal(FillKind.Default, w.Background.Kind));
         Assert.All(widgets, w => Assert.Equal(FillKind.Default, w.ItemBackground.Kind));
         AssertInsideAndApart(widgets);
@@ -264,17 +259,11 @@ public sealed class NoticesBootTests : IDisposable
         var clock = Assert.IsType<ClockConfig>(widgets[0].Config);
         Assert.Equal(ClockStyle.Digital, clock.Style);
         Assert.False(clock.ShowSeconds);
-        Assert.True(clock.ShowDate);
         Assert.Equal(FillKind.Transparent, widgets[0].Background.Kind);
-        Assert.Equal(HeaderPlacement.Hidden, widgets[0].Header);
 
         Assert.Equal(CalendarStyle.Month, Assert.IsType<CalendarWidgetConfig>(widgets[1].Config).Style);
         Assert.Equal(TasksStyle.List, Assert.IsType<TasksConfig>(widgets[2].Config).Style);
-        Assert.All(widgets.Skip(1), w =>
-        {
-            Assert.Equal(HeaderPlacement.Top, w.Header);
-            Assert.Equal(FillKind.Default, w.Background.Kind);
-        });
+        Assert.All(widgets.Skip(1), w => Assert.Equal(FillKind.Default, w.Background.Kind));
         AssertInsideAndApart(widgets);
     }
 

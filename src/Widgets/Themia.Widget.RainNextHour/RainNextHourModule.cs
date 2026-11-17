@@ -33,7 +33,7 @@ public sealed class RainNextHourModule : IWidgetModule
         Glyph = Glyphs.Rain,
         Sizing = _ => RainLayout.Sizing(),
         DescriptionFacts = [("minutes", (long)RainRules.Step.TotalMinutes)],
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Weather, 0, 3),
     };
 

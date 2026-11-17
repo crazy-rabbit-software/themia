@@ -29,7 +29,7 @@ internal static class FirstRunDesktop
     /// </summary>
     internal static IReadOnlyList<Seed> Home { get; } =
     [
-        new("clock", Grid(2250, 0, 310, 180), Bare: true, Config: """{ "showDate": false }"""),
+        new("clock", Grid(2250, 0, 310, 180), Bare: true),
 
         // No place: the widget asks for one ([S-2848]) rather than showing someone else's town.
         new("weatherNow", Grid(0, 0, 310, 180), Bare: true, Config: """{ "style": "largeIcon" }"""),
@@ -99,7 +99,6 @@ internal static class FirstRunDesktop
         if (seed.Bare)
         {
             widget.Background = FillChoice.Transparent();
-            widget.Header = HeaderPlacement.Hidden;
         }
 
         return widget;

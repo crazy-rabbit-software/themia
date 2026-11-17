@@ -1,0 +1,24 @@
+{
+  "$englishOnly": [
+    "weatherGraph.now",
+    "weatherGraph.window",
+    "weatherGraph.windowHours",
+    "weatherGraph.windowDays",
+    "weatherGraph.empty",
+    "weatherGraph.style.line",
+    "weatherGraph.style.area",
+    "weatherGraph.style.bars",
+    "groups.recipe.weatherGraphs",
+    "groups.recipe.weatherGraphsAbout"
+  ],
+  "weatherGraph.now": "Now",
+  "weatherGraph.window": "Time span",
+  "weatherGraph.windowHours": "{count} hours",
+  "weatherGraph.windowDays": "{count} days",
+  "weatherGraph.empty": "No forecast for the next hours",
+  "weatherGraph.style.line": "Line",
+  "weatherGraph.style.area": "Area",
+  "weatherGraph.style.bars": "Bars",
+  "groups.recipe.weatherGraphs": "Weather graphs",
+  "groups.recipe.weatherGraphsAbout": "Temperature, rain and UV hour by hour"
+}

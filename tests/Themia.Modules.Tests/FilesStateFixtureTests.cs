@@ -44,6 +44,9 @@ public sealed class FilesStateFixtureTests
         var configs = Assert.Single(state.Views).Widgets.Select(w => w.Config).ToList();
         Assert.Equal(9, configs.Count);
 
+        // [S-5525] The view shows the desktop items chosen for it (added 2026-11-16 in place, [S-1050]).
+        Assert.Equal(ViewDesktopIcons.Chosen, state.Views[0].DesktopIcons);
+
         var details = Assert.IsType<FolderConfig>(configs[0]);
         Assert.Equal((@"D:\Projects\Themia", FolderStyle.Details, FolderNavigation.Navigate, ItemClickMode.Single, FolderSort.Modified, true, true, true),
             (details.Path, details.Style, details.Navigation, details.ClickMode, details.Sort, details.Descending, details.ShowHidden, details.ShowExtensions));

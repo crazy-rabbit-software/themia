@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Показувати дату",
   "clock.offsetLabel": "Зсув",
   "clock.secondsLabel": "Показувати секунди",
   "clock.styleAnalog": "Стрілковий",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Часовий пояс",
   "clock.tzCurrent": "Поточний: {city}",
   "locationSearch.placeholder": "Шукати місто…",
-  "styles.clock.date": "Дата",
   "styles.clock.flip": "Перекидний",
   "styles.clock.minimal": "Мінімальний",
   "styles.clock.words": "Словами",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Зараз за двадцять хвилин [n]",
   "wordClock.m45": "Зараз за чверть [n]",
   "wordClock.m50": "Зараз за десять хвилин [n]",
-  "wordClock.m55": "Зараз за п’ять хвилин [n]",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Зараз за п’ять хвилин [n]"
 }

@@ -33,7 +33,7 @@ public sealed class StockModule : IWidgetModule
         Description = StockStr.WidgetsA_Catalog_Stocks_Description.Local(),
         Glyph = Glyphs.Stocks,
         Sizing = c => StockLayout.Sizing((StockConfig)c),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 0),
     };

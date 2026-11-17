@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "ቀን አሳይ",
   "clock.offsetLabel": "ልዩነት",
   "clock.secondsLabel": "ሰከንዶችን አሳይ",
   "clock.styleAnalog": "አናሎግ",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "የሰዓት ሰቅ",
   "clock.tzCurrent": "የአሁኑ፦ {city}",
   "locationSearch.placeholder": "ከተማ ይፈልጉ…",
-  "styles.clock.date": "ቀን",
   "styles.clock.flip": "ገልባጭ",
   "styles.clock.minimal": "ቀላል",
   "styles.clock.words": "ቃላት",
@@ -30,6 +28,5 @@
   "wordClock.m40": "ለ[n] ሰዓት ሃያ ጉዳይ ነው",
   "wordClock.m45": "ለ[n] ሰዓት ሩብ ጉዳይ ነው",
   "wordClock.m50": "ለ[n] ሰዓት አሥር ጉዳይ ነው",
-  "wordClock.m55": "ለ[n] ሰዓት አምስት ጉዳይ ነው",
-  "widgetsA.clock.date": "{weekday}፣ {date}"
+  "wordClock.m55": "ለ[n] ሰዓት አምስት ጉዳይ ነው"
 }

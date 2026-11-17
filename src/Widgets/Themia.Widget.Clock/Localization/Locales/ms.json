@@ -1,6 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "clock.dateLabel": "Tunjukkan tarikh",
   "clock.offsetLabel": "Ofset",
   "clock.secondsLabel": "Tunjukkan saat",
   "clock.styleAnalog": "Analog",
@@ -9,7 +8,6 @@
   "clock.timezoneLabel": "Zon waktu",
   "clock.tzCurrent": "Semasa: {city}",
   "locationSearch.placeholder": "Cari bandar…",
-  "styles.clock.date": "Tarikh",
   "styles.clock.flip": "Selak",
   "styles.clock.minimal": "Minimum",
   "styles.clock.words": "Perkataan",
@@ -31,6 +29,5 @@
   "wordClock.m40": "Pukul [n] kurang dua puluh minit",
   "wordClock.m45": "Pukul [n] kurang suku",
   "wordClock.m50": "Pukul [n] kurang sepuluh minit",
-  "wordClock.m55": "Pukul [n] kurang lima minit",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Pukul [n] kurang lima minit"
 }

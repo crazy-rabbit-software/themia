@@ -35,7 +35,7 @@ public sealed class DriveFactsModule : IWidgetModule
         Glyph = Glyphs.Disk,
         Sizing = c => FactsRules.Sizing((FactsConfig)c),
         SizeSets = FactsRules.SizeSets,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Devices, 2, 1),
     };
@@ -95,11 +95,11 @@ public sealed class DriveFactsConfig : FactsConfig, IDriveChoice
 }
 
 /// <summary>
-/// [S-11026] The drive's picked facts as fact rows ([S-6711]) under the header that names the drive; a
+/// [S-11026] The drive's picked facts as fact rows ([S-6711]) (a Header widget over them names the drive, [S-12481]); a
 /// drive without figures keeps its rows, each it cannot read "--" dimmed ([S-11007]). The drives come
 /// from the host's one walk (<see cref="IDrives"/>), as the Drive reading's.
 /// </summary>
-internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetSurfaceAware
+internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetSurfaceAware, IWidgetJoins
 {
     private readonly IWidgetHost _host;
     private readonly List<RowBlock> _rows = [];
@@ -114,6 +114,9 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
     private IWidgetSurface? _surface;
     private IDisposable? _watch;
     private DriveFactsConfig _config = new();
+
+    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
+    public void ApplyJoins(JoinedSides sides) => VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public DriveFactsView(IWidgetHost host)
     {
@@ -155,7 +158,6 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
         var locale = Strings.Current;
         var drive = _previewDrive ?? DriveRules.Pick(_host.Drives.Drives, _config.Drive, SystemDrive.Root);
         Card.Key = LinkKeys.DriveLink(drive.Root);
-        _surface?.SetHeaderTitle(DriveRules.Title(locale, drive));
         var facts = FactsRules.Pick(locale, DriveRules.Sheet(locale, drive), _config.Facts, DriveRules.Facts);
 
         while (_rows.Count < facts.Count)

@@ -103,6 +103,11 @@ internal static class MenuRender
                 host.Set(editMode: false, selection: 3, canPaste: false);
                 await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
 
+                // [S-12951] Lock widgets on: its line under Edit mode, checked.
+                host.WidgetsLocked = true;
+                await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-locked.png")).ConfigureAwait(true);
+                host.WidgetsLocked = false;
+
                 // [S-1758] Outside edit mode: the view's own commands and Edit mode, nothing that arranges.
                 host.Set(editMode: false, selection: 1, canPaste: true);
 
@@ -249,7 +254,7 @@ internal static class MenuRender
 
         var templates = await Themia.App.Services.Files.ShellNewTemplates.GetAsync().ConfigureAwait(true);
         var background = AppHost.DesktopBackgroundEntries(
-            DesktopBackground.Menu(new DesktopBackgroundFacts(ClipboardHasFiles: true, HasTerminal: true)),
+            DesktopBackground.Menu(new DesktopBackgroundFacts(ClipboardHasFiles: true, HasTerminal: true, WidgetsLocked: true)),
             templates,
             static _ => { },
             static _ => { });
@@ -360,6 +365,9 @@ internal static class MenuRender
         public Ticker Ticker => ticker;
 
         public bool EditMode => _editMode;
+
+        /// <summary>[S-12951] Lock widgets as the render shows it: its line checked or not.</summary>
+        public bool WidgetsLocked { get; set; }
 
         public ViewState? ViewForCards => view;
 

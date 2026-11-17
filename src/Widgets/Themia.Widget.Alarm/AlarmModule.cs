@@ -35,7 +35,7 @@ public sealed class AlarmModule : IWidgetModule
         Description = AlarmStr.Alarm_Desc.Local(),
         Glyph = Glyph,
         Sizing = c => AlarmFace.Sizing((AlarmConfig)c, Strings.Current),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 1),
     };
 

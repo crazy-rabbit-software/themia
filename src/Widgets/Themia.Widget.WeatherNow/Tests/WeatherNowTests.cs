@@ -14,19 +14,19 @@ public sealed class WeatherNowTests
     private static WidgetSizing Of(WeatherNowStyle style) => Kind.Sizing(new WeatherNowConfig { Style = style });
 
     [Fact]
-    public void S11101_each_style_is_one_height_header_content_and_inset_and_140_to_320_wide()
+    public void S11101_each_style_is_one_height_its_content_in_the_inset_and_140_to_320_wide()
     {
-        Assert.Equal(36 + 36 + 16 + 12, Of(WeatherNowStyle.Standard).Natural.Height);
-        Assert.Equal(36 + 52 + 12, Of(WeatherNowStyle.LargeIcon).Natural.Height);
-        Assert.Equal(36 + 36 + 12, Of(WeatherNowStyle.Minimal).Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, Of(WeatherNowStyle.Standard).Natural.Height);
+        Assert.Equal(12 + 52 + 12, Of(WeatherNowStyle.LargeIcon).Natural.Height);
+        Assert.Equal(12 + 36 + 12, Of(WeatherNowStyle.Minimal).Natural.Height);
         foreach (var style in Enum.GetValues<WeatherNowStyle>())
         {
             var sizing = Of(style);
             Assert.True(sizing.Min.Height == sizing.Natural.Height && !sizing.FixedWidth, $"{style}");
 
             // Relaxed, [S-12411]: twice its natural on each axis, never under the content's 320.
-            Assert.Equal((140.0, Math.Max(320.0, SizeStretch.Axis(sizing.Natural.Width, 0, null, 2))), (sizing.Min.Width, sizing.Max.Width));
-            Assert.Equal(SizeStretch.Axis(sizing.Natural.Height, 0, null, 2), sizing.Max.Height);
+            Assert.Equal((140.0, Math.Max(320.0, SizeStretch.Ceiling)), (sizing.Min.Width, sizing.Max.Width));
+            Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
             Assert.Empty(sizing.Problems());
         }
     }

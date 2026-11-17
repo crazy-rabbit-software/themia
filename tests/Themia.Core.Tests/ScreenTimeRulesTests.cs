@@ -538,4 +538,12 @@ public sealed class ScreenTimeRulesTests
         Assert.Equal("Last 7 days", ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week));
         Assert.Equal("Last 30 days", ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month));
     }
+
+    [Fact]
+    public void S12803_a_day_has_its_line_and_arrows_a_window_no_line_naming_it()
+    {
+        Assert.Equal(FamilySpace.HeaderLine + FamilySpace.HeaderGap, ScreenTimeRules.DayLine(ScreenTimePeriod.Day));
+        Assert.Equal(0, ScreenTimeRules.DayLine(ScreenTimePeriod.Week));
+        Assert.Equal(0, ScreenTimeRules.DayLine(ScreenTimePeriod.Month));
+    }
 }

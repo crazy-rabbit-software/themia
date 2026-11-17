@@ -32,7 +32,7 @@ public sealed class PomodoroModule : IWidgetModule
         Description = PomodoroStr.WidgetsA_Catalog_Pomodoro_Description.Local(),
         Glyph = Glyph,
         Sizing = c => PomodoroFace.Sizing((PomodoroConfig)c, Strings.Current),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 0),
     };
 

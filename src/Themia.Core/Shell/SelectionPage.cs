@@ -17,9 +17,6 @@ public enum SelectionSection
     /// <summary>[S-11751] For all of them: every setting two or more of the widgets share, once.</summary>
     Shared,
 
-    /// <summary>Header: the title (one widget) and where the header stands.</summary>
-    Header,
-
     /// <summary>Appearance: alignment, background, item background, item text, background image, scale.</summary>
     Appearance,
 }
@@ -30,7 +27,7 @@ public enum SelectionSection
 /// </summary>
 public enum SelectionTab
 {
-    /// <summary>Settings: the link to an entered member's group, What it shows, For all of them, Header.</summary>
+    /// <summary>Settings: the link to an entered member's group, What it shows, For all of them.</summary>
     Settings,
 
     /// <summary>Appearance: the Appearance section alone.</summary>
@@ -239,9 +236,9 @@ public static class SelectionPage
     /// <summary>
     /// [S-2342] [S-11754] The sections under the header card. One widget (and an entered member, after the
     /// link to its group): What it shows where the look has a style or the widget has lines of its own
-    /// (<paramref name="ownLines"/>) or what its look draws with (<paramref name="styleLines"/>); Header
-    /// where it can have one ([S-3711]); Appearance. Several: the style for one kind, For all of them
-    /// where they share a setting, Header, Appearance ([S-3702]). A group: For all of them and Appearance,
+    /// (<paramref name="ownLines"/>) or what its look draws with (<paramref name="styleLines"/>); Appearance.
+    /// Several: the style for one kind, For all of them where they share a setting, Appearance ([S-3702]).
+    /// [S-12480] No Header section: no card has a header; a title is a Header widget of its own. A group: For all of them and Appearance,
     /// never a member one by one ([S-11755]).
     /// </summary>
     public static IReadOnlyList<SelectionSection> Sections(SelectionModel model, bool ownLines, bool styleLines)
@@ -249,7 +246,7 @@ public static class SelectionPage
         ArgumentNullException.ThrowIfNull(model);
 
         var offer = model.Offer;
-        var sections = new List<SelectionSection>(5);
+        var sections = new List<SelectionSection>(4);
         if (model.Kind == SelectionKind.Member)
         {
             sections.Add(SelectionSection.InGroup);
@@ -263,11 +260,6 @@ public static class SelectionPage
         if (model.Shared.Count > 0)
         {
             sections.Add(SelectionSection.Shared);
-        }
-
-        if (model.Kind != SelectionKind.Group && offer.HasHeader)
-        {
-            sections.Add(SelectionSection.Header);
         }
 
         sections.Add(SelectionSection.Appearance);
@@ -307,7 +299,6 @@ public static class SelectionPage
         SelectionSection.InGroup => null,
         SelectionSection.Shows => Str.EditBar_Page_Shows.Text(),
         SelectionSection.Shared => Str.Groups_Page_Shared.Text(),
-        SelectionSection.Header => Str.App_ConfigHeaderLabel.Text(),
         SelectionSection.Appearance => Str.Settings_Section_Appearance.Text(),
         _ => throw new ArgumentOutOfRangeException(nameof(section), section, "not a section"),
     };

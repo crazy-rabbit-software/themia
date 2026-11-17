@@ -39,7 +39,7 @@ public sealed class FolderModule : IWidgetModule
         Description = FolderStr.Styles_Folder_Desc.Local(),
         Glyph = Glyphs.Folder,
         Sizing = c => FolderLayout.Sizing((FolderConfig)c),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredFile, LinkTopicId.HoveredDrive], [LinkTopicId.HoveredFile, LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Files, 0, 0, Popular: 9),
     };

@@ -22,7 +22,7 @@ public enum StreamAspect
 }
 
 /// <summary>
-/// [S-11208] The camera's sizes (headerless, its default): with an aspect, the width in steps of 32
+/// [S-11208] The camera's sizes: with an aspect, the width in steps of 32
 /// from 160 (the config's <see cref="VideoStreamConfig.Span"/>) and the height following it, so the
 /// picture keeps the stream's shape (a quarter turn turns the shape too); with none, a free range
 /// 160..800 × 120..600. Never taller than 600 nor wider than 800.

@@ -99,7 +99,8 @@ public static class DesktopDisplays
 
         // (2) Stranded views: their items, shown nowhere, get stand-ins on the primary display.
         var adds = new List<DesktopFallbackAdd>();
-        if (primary is { Screen.IsUsable: true } main && state.FindView(main.ViewId) is { } target)
+        // [S-5526] Never on a primary view that shows no desktop icons.
+        if (primary is { Screen.IsUsable: true } main && state.FindView(main.ViewId) is { } target && DesktopViews.Holds(target))
         {
             var listed = new Dictionary<string, DesktopItem>(DesktopItemKeys.Comparer);
             foreach (var item in listing)

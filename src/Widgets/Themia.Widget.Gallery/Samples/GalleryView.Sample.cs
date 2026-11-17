@@ -36,7 +36,6 @@ internal sealed partial class GalleryView : IWidgetSample
         _watch?.Dispose();
         _watch = null;
         _config = new GalleryConfig { Source = source, Style = layout, Path = folder, FilePath = paths.FirstOrDefault() ?? string.Empty, Shuffle = false };
-        PublishTitle();
         _scan = new GalleryScan(paths.Count == 0 ? GalleryStatus.NoImages : GalleryStatus.Ok, paths);
         Select(keepPath: null, index: 0);
         _slideTimer?.Stop();

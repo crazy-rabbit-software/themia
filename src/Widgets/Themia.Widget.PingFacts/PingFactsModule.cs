@@ -34,7 +34,7 @@ public sealed class PingFactsModule : IWidgetModule
         Glyph = Glyphs.Ping,
         Sizing = c => FactsRules.Sizing((FactsConfig)c),
         SizeSets = FactsRules.SizeSets,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.PingReading, 0, 2),
     };
 

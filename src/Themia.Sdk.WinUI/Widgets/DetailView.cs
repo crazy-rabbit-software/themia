@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// Detach, and the view only lays out the sheets it is handed.
 /// </para>
 /// </summary>
-public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetHeaderContent, IWidgetContextActions, IDetailHost
+public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetContextActions, IDetailHost
 {
     private const string LogScope = "details";
 
@@ -134,14 +134,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
             Fill();
         }
     }
-
-    /// <summary>[S-2260] Which one the kind reads (a processor, an adapter, a host) as the header's label; the name stays the widget's.</summary>
-    public void SetAbout(string? about) => _about.SetAbout(about);
-
-    /// <summary>[S-2260] The header's trailing parts: the label of <see cref="SetAbout"/>.</summary>
-    public FrameworkElement? HeaderTrailing => _about;
-
-    private readonly HeaderParts _about = new();
 
     public void SampleNow()
     {

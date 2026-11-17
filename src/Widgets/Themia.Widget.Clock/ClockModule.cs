@@ -36,7 +36,7 @@ public sealed class ClockModule : IWidgetModule
         Description = ClockStr.WidgetsA_Catalog_Clock_Description.Local(),
         Glyph = Glyphs.Clock,
         Sizing = c => ClockFace.Sizing((ClockConfig)c, RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current)),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 0, Popular: 0),
     };
 

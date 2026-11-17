@@ -32,7 +32,7 @@ public sealed class ClockFaceTests
         {
             foreach (var seconds in new[] { false, true })
             {
-                var config = new ClockConfig { Size = size, Style = style, ShowSeconds = seconds };
+                var config = new ClockConfig { Size = size, Style = style, ShowSeconds = seconds, OffsetMode = ClockOffsetMode.Utc };
                 var under = style != ClockStyle.Minimal;
                 foreach (var (width, height) in Range(config, "AM"))
                 {
@@ -52,7 +52,7 @@ public sealed class ClockFaceTests
     [MemberData(nameof(Sizes))]
     public void S6742_the_flip_cards_hold_their_sizes_step_in_a_row_at_every_size_of_their_range(ReadoutSize size)
     {
-        var config = new ClockConfig { Size = size, Style = ClockStyle.Flip };
+        var config = new ClockConfig { Size = size, Style = ClockStyle.Flip, OffsetMode = ClockOffsetMode.Utc };
         foreach (var (width, height) in Range(config, "AM"))
         {
             var (plan, vertical, meridiem) = ClockFace.Flip(width, height, 2, "AM", under: true);
@@ -68,7 +68,7 @@ public sealed class ClockFaceTests
     [MemberData(nameof(Sizes))]
     public void S6743_the_dial_is_its_sizes_and_keeps_its_line(ReadoutSize size)
     {
-        var config = new ClockConfig { Size = size, Style = ClockStyle.Analog };
+        var config = new ClockConfig { Size = size, Style = ClockStyle.Analog, OffsetMode = ClockOffsetMode.Utc };
         foreach (var (width, height) in Range(config, string.Empty))
         {
             var plan = ClockFace.Dial(width, height, line: true);
@@ -80,30 +80,26 @@ public sealed class ClockFaceTests
         Assert.Equal(ClockFace.DialFloor, ClockFace.Dial(8, 8, line: false).Dial);
     }
 
-    [Theory]
-    [MemberData(nameof(Sizes))]
-    public void S6744_the_date_shows_its_day_on_its_sizes_step_with_both_words(ReadoutSize size)
+    [Fact]
+    public void S6741_the_line_under_holds_the_city_and_the_offset_as_its_room_does_never_a_date()
     {
-        var config = new ClockConfig { Size = size, Style = ClockStyle.Date };
-        foreach (var (width, height) in Range(config, string.Empty))
-        {
-            var plan = ClockFace.Date(width, height);
-
-            Assert.Equal(ReadoutSizes.Step(size), plan.Step);
-            Assert.True(plan.Weekday && plan.Month);
-            Assert.True(plan.Step.LineHeight + (2 * FamilyType.Under(plan.Step).LineHeight) <= height);
-        }
+        // [S-12805] The date is the Date widget's: the clock's line says where (a world clock) and the offset.
+        var caption = FamilyType.Caption;
+        Assert.Equal("Tokyo · UTC+9", ClockFace.Under(1000, caption, "Tokyo", "UTC+9"));
+        Assert.Equal("Tokyo", ClockFace.Under(30, caption, "Tokyo", "UTC+9"));
+        Assert.Equal("UTC+9", ClockFace.Under(1000, caption, null, "UTC+9"));
+        Assert.Null(ClockFace.Under(100, caption, null, null));
     }
 
     [Fact]
-    public void S6741_the_line_under_holds_the_city_the_date_and_the_offset_as_its_room_does()
+    public void S6011_the_clock_has_no_date_style_and_no_date_line()
     {
-        var caption = FamilyType.Caption;
-        Assert.Equal("Tokyo · Thursday, October 29 · UTC+9", ClockFace.Under(1000, caption, "Tokyo", "Thursday, October 29", "Thu, Oct 29", "UTC+9"));
-        Assert.Equal("Tokyo · Thu, Oct 29 · UTC+9", ClockFace.Under(180, caption, "Tokyo", "Thursday, October 29", "Thu, Oct 29", "UTC+9"));
-        Assert.Equal("Tokyo · Thu, Oct 29", ClockFace.Under(130, caption, "Tokyo", "Thursday, October 29", "Thu, Oct 29", "UTC+9"));
-        Assert.Equal("Tokyo", ClockFace.Under(60, caption, "Tokyo", "Thursday, October 29", "Thu, Oct 29", "UTC+9"));
-        Assert.Equal("Thu, Oct 29", ClockFace.Under(10, caption, null, "Thursday, October 29", "Thu, Oct 29", null));
-        Assert.Null(ClockFace.Under(100, caption, null, null, null, null));
+        Assert.DoesNotContain("Date", Enum.GetNames<ClockStyle>());
+        Assert.DoesNotContain("Date", Enum.GetNames<ClockSetting>());
+        Assert.Null(typeof(ClockConfig).GetProperty("ShowDate"));
+
+        // A plain clock has no line under its face: its natural box is the face's step alone in the inset.
+        var plain = ClockFace.Sizing(new ClockConfig(), string.Empty).Natural;
+        Assert.Equal(ReadoutSizes.Step(ReadoutSizes.Default).LineHeight + 24 + ClockFace.Slack, plain.Height);
     }
 }

@@ -16,7 +16,7 @@ internal sealed partial class CountdownView : IWidgetSample
         _config = new CountdownConfig { Style = _config.Style, Label = "Launch", Size = _config.Size, ShowProgress = _config.ShowProgress, Format = _config.Format };
         _config.Retarget(SampleDay.At(SampleDay.Today.AddDays(3), new TimeOnly(16, 0), TimeZoneInfo.Local), now.AddDays(-2));
 
-        // [S-6037] The name is the card's header.
+        // [S-6037] [S-12481] The name over the face.
         ShowName();
 
         Rebuild();

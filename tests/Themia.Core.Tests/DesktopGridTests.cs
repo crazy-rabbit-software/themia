@@ -43,15 +43,87 @@ public sealed class DesktopGridTests
         // Regression (owner, 2026-11-15): a locked widget dragged went into full edit mode. The press on the
         // locked desktop starts no edit-mode press at all; it is the card's move.
         Assert.Equal(CardPress.None, CardGestures.Press(editMode: false, leftButton: true, ctrl: false, onHandle: false));
-        Assert.True(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: true, ownsDrags: false));
+        Assert.True(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: true, ownsDrags: false, pinned: false));
 
         // A view that drags its own content keeps its press; a preview and the right button never move.
-        Assert.False(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: true, ownsDrags: true));
-        Assert.False(CardGestures.MovesLocked(editMode: false, preview: true, leftButton: true, ownsDrags: false));
-        Assert.False(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: false, ownsDrags: false));
+        Assert.False(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: true, ownsDrags: true, pinned: false));
+        Assert.False(CardGestures.MovesLocked(editMode: false, preview: true, leftButton: true, ownsDrags: false, pinned: false));
+        Assert.False(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: false, ownsDrags: false, pinned: false));
 
         // In edit mode the edit press moves, as before.
-        Assert.False(CardGestures.MovesLocked(editMode: true, preview: false, leftButton: true, ownsDrags: false));
+        Assert.False(CardGestures.MovesLocked(editMode: true, preview: false, leftButton: true, ownsDrags: false, pinned: false));
+    }
+
+    // ---- [S-12950] Lock widgets ------------------------------------------------------------------------
+
+    [Fact]
+    public void S12950_a_locked_widget_dragged_does_not_move_and_an_icon_still_does()
+    {
+        // Regression (owner, 2026-11-17): "you should be able to lock the desktop in which case you should only be able
+        // to move the desktop icons but not any other widgets". Before the lock a widget's drag always moved it.
+        var view = ViewState.Create("Home");
+        view.Widgets.Add(Icon("i", @"C:\d\a.txt", new FracRect(0, 0, 0.1, 0.1)));
+        view.Widgets.Add(Card("clock", new FracRect(0.2, 0, 0.3, 0.2)));
+
+        Assert.True(WidgetLock.Pins(view, "clock", lockWidgets: true, editMode: false));
+        Assert.False(WidgetLock.Pins(view, "i", lockWidgets: true, editMode: false));
+        Assert.False(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: true, ownsDrags: false,
+            pinned: WidgetLock.Pins(view, "clock", lockWidgets: true, editMode: false)));
+        Assert.True(CardGestures.MovesLocked(editMode: false, preview: false, leftButton: true, ownsDrags: false,
+            pinned: WidgetLock.Pins(view, "i", lockWidgets: true, editMode: false)));
+
+        // Off (the default), everything moves as before.
+        Assert.False(new AppPreferences().LockWidgets);
+        Assert.False(WidgetLock.Pins(view, "clock", lockWidgets: false, editMode: false));
+    }
+
+    [Fact]
+    public void S12950_edit_mode_moves_everything_whatever_the_lock()
+    {
+        var view = ViewState.Create("Home");
+        view.Widgets.Add(Card("clock", new FracRect(0.2, 0, 0.3, 0.2)));
+
+        Assert.False(WidgetLock.Pins(view, "clock", lockWidgets: true, editMode: true));
+        Assert.False(WidgetLock.Holds(lockWidgets: true, editMode: true, isIcon: false));
+        Assert.Equal(["clock"], WidgetLock.Movable(view, ["clock"], lockWidgets: true, editMode: true));
+    }
+
+    [Fact]
+    public void S12950_a_mixed_selection_moves_only_its_icons_while_widgets_are_locked()
+    {
+        var view = ViewState.Create("Home");
+        view.Widgets.Add(Icon("i", @"C:\d\a.txt", new FracRect(0, 0, 0.1, 0.1)));
+        view.Widgets.Add(Icon("j", @"C:\d\b.txt", new FracRect(0, 0.1, 0.1, 0.1)));
+        view.Widgets.Add(Card("clock", new FracRect(0.2, 0, 0.3, 0.2)));
+        string? KeyOf(WidgetInstance w) => DesktopPicks.KeyOf(w, _ => true);
+        var selection = new DesktopSelection();
+        selection.SetLayout(view.Widgets.Select((w, k) => new DesktopBox(KeyOf(w)!, 0, k * 10, 0, 5, 5)), _ => null);
+        selection.SelectAll();
+
+        Assert.Equal(["i", "j"], DesktopPicks.Moving(view, selection, "i", KeyOf, lockWidgets: true));
+        Assert.Equal(["i", "j", "clock"], DesktopPicks.Moving(view, selection, "i", KeyOf, lockWidgets: false));
+    }
+
+    [Fact]
+    public void S12950_a_group_holding_a_widget_stays_whole_and_a_group_of_icons_moves()
+    {
+        var view = ViewState.Create("Home");
+        view.Widgets.Add(Icon("i", @"C:\d\a.txt", new FracRect(0, 0, 0.1, 0.1)));
+        view.Widgets.Add(Card("clock", new FracRect(0.1, 0, 0.3, 0.2)));
+        view.Widgets.Add(Icon("j", @"C:\d\b.txt", new FracRect(0.6, 0.6, 0.1, 0.1)));
+        view.Widgets.Add(Icon("k", @"C:\d\c.txt", new FracRect(0.7, 0.6, 0.1, 0.1)));
+        Assert.NotNull(WidgetGroups.Group(view, ["i", "clock"]));
+        Assert.NotNull(WidgetGroups.Group(view, ["j", "k"]));
+        string? KeyOf(WidgetInstance w) => DesktopPicks.KeyOf(w, _ => true);
+        var selection = new DesktopSelection();
+
+        // The icon in a group with a widget is held with it: its press does not move the group apart.
+        Assert.True(WidgetLock.Pins(view, "i", lockWidgets: true, editMode: false));
+        Assert.Empty(DesktopPicks.Moving(view, selection, "i", KeyOf, lockWidgets: true));
+
+        // A group of icons alone moves whole.
+        Assert.False(WidgetLock.Pins(view, "j", lockWidgets: true, editMode: false));
+        Assert.Equal(["j", "k"], DesktopPicks.Moving(view, selection, "j", KeyOf, lockWidgets: true));
     }
 
     // ---- [S-11874] the local grid ---------------------------------------------------------------------
@@ -161,18 +233,30 @@ public sealed class DesktopGridTests
         Assert.Empty(LocalGrid.Borders(target, ["held"], [], new ScreenMetrics(0, 0)));
     }
 
-    [Fact]
-    public void S11889_a_desktop_icon_shows_its_corners_wherever_a_widget_does()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void S11889_icons_and_cards_show_their_corners_in_edit_mode_and_in_a_move(bool icon)
     {
         // Owner, 2026-11-15: "the desktop icons should also show the corners".
-        Assert.True(SelectionRules.MarksShown(editing: true, selected: false, moveAlpha: null));
-        Assert.True(SelectionRules.MarksShown(editing: true, selected: true, moveAlpha: null));
-        Assert.True(SelectionRules.MarksShown(editing: false, selected: true, moveAlpha: null));
-        Assert.True(SelectionRules.MarksShown(editing: false, selected: false, moveAlpha: 1));
-        Assert.True(SelectionRules.MarksShown(editing: false, selected: false, moveAlpha: 0.4));
+        Assert.True(SelectionRules.MarksShown(editing: true, selected: false, moveAlpha: null, icon));
+        Assert.True(SelectionRules.MarksShown(editing: true, selected: true, moveAlpha: null, icon));
+        Assert.True(SelectionRules.MarksShown(editing: false, selected: false, moveAlpha: 1, icon));
+        Assert.True(SelectionRules.MarksShown(editing: false, selected: true, moveAlpha: 1, icon));
+        Assert.True(SelectionRules.MarksShown(editing: false, selected: false, moveAlpha: 0.4, icon));
 
         // At rest on the locked desktop, unselected, neither draws any.
-        Assert.False(SelectionRules.MarksShown(editing: false, selected: false, moveAlpha: null));
+        Assert.False(SelectionRules.MarksShown(editing: false, selected: false, moveAlpha: null, icon));
+    }
+
+    [Fact]
+    public void S11889_a_selected_icon_on_the_locked_desktop_shows_its_highlight_alone()
+    {
+        // Owner, 2026-11-16: "when highlighting a folder it should not show the corners."
+        Assert.False(SelectionRules.MarksShown(editing: false, selected: true, moveAlpha: null, icon: true));
+
+        // A selected card keeps its corners ([S-11877]).
+        Assert.True(SelectionRules.MarksShown(editing: false, selected: true, moveAlpha: null, icon: false));
     }
 
     [Fact]
@@ -300,7 +384,7 @@ public sealed class DesktopGridTests
         var listing = new[] { new DesktopItem(@"C:\d\a.txt", "a", DesktopItemKind.File), new DesktopItem(@"C:\d\b.txt", "b", DesktopItemKind.File) };
 
         var plan = DesktopReconcile.Plan(state, listing, []);
-        DesktopReconcile.Apply(state, plan, home.Id, Ten, (20, 30), (item, rect) => Icon(item.Key, item.Key, rect));
+        DesktopReconcile.Apply(state, plan, Ten, (20, 30), (item, rect) => Icon(item.Key, item.Key, rect));
 
         Near(new FracRect(0.3, 0.1, 0.2, 0.3), home.Widgets[1].Rect);
         Near(new FracRect(0.5, 0.1, 0.2, 0.3), home.Widgets[2].Rect);

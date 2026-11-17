@@ -10,7 +10,6 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
-using DayText = Themia.Core.Widgets.DateText;
 using Themia.Widget.Clock;
 
 namespace Themia.App.Widgets;
@@ -19,24 +18,31 @@ namespace Themia.App.Widgets;
 /// The clock, a one-readout widget on the family's steps ([S-6737]). Subscribes to the shared
 /// <see cref="Ticker"/> at the cadence it actually draws, and unsubscribes when it leaves the tree.
 /// <para>
-/// [S-6011] Seven styles, each one block in the card's inset of 12, centred top to bottom and placed by the
-/// widget's alignment ([S-6581]), on the largest fixed step that fits, never filling the box
-/// (<see cref="ClockFace"/>): the Readout block for the digital, stacked and minimal faces ([S-6741]) and the
-/// date style's day ([S-6744]); the sentence on the Body to 68 steps for the words ([S-6024]); split-flap cards
-/// for flip (<see cref="FlipCard"/>, [S-6742]); a dial from the family's strokes and roles for analog ([S-6743]).
-/// Under the face (beside a dial on a strip) one line: the city of a world clock, the date and the offset as
-/// they fit (<see cref="ClockFace.Under"/>), on the step's line under.
+/// [S-6011] Six styles, each one block in the card's inset of 12, placed by the widget's alignment ([S-6581]):
+/// the Readout block for the digital, stacked and minimal faces ([S-6741]); the sentence on the Body to 68 steps
+/// for the words ([S-6024]); split-flap cards for flip (<see cref="FlipCard"/>, [S-6742]); a dial from the
+/// family's strokes and roles for analog ([S-6743]). Under the face (beside a dial on a strip) one line: the city
+/// of a world clock and the offset as they fit (<see cref="ClockFace.Under"/>), on the step's line under. The date
+/// is the Date widget's ([S-12805]).
+/// </para>
+/// <para>
+/// [S-12804] The face fills its box: it is planned at its Size's step in the natural box (<see cref="ClockFace"/>)
+/// and scaled up as one to the card (a <see cref="Viewbox"/>, uniformly, never down), as a display clock is, so a
+/// larger card is a larger clock and never a band round a small one. The dial is planned in the whole box.
 /// </para>
 /// </summary>
-public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned
+public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned, IWidgetJoins
 {
     /// <inheritdoc />
     public CardOpen? Opens => ClockModule.Opens;
 
-    /// <summary>The face's one block, centred top to bottom in the inset; the alignment places it across.</summary>
-    private readonly StackPanel _stack = new() { VerticalAlignment = VerticalAlignment.Center };
+    /// <summary>The face's one block, at its planned step; the fit scales it to the box.</summary>
+    private readonly StackPanel _stack = new();
 
-    /// <summary>[S-6741] The digital, stacked and minimal readout, and the date style's day ([S-6744]).</summary>
+    /// <summary>[S-12804] The face scaled up as one to fill the content box; the alignment and the joins place it.</summary>
+    private readonly Viewbox _fit = new() { Stretch = Stretch.Uniform, StretchDirection = StretchDirection.UpOnly, VerticalAlignment = VerticalAlignment.Center };
+
+    /// <summary>[S-6741] The digital, stacked and minimal readout.</summary>
     private readonly ReadoutBlock _readout = new();
 
     /// <summary>[S-6013] The words.</summary>
@@ -55,10 +61,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     private readonly StackPanel _dialLine = new();
     private readonly Canvas _dial = new() { FlowDirection = FlowDirection.LeftToRight, VerticalAlignment = VerticalAlignment.Center };
 
-    /// <summary>[S-6744] The date style's words: the weekday over the day, the month under it (beside it on a strip).</summary>
-    private readonly TextBlock _weekday = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly TextBlock _month = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-
     private Ticker? _ticker;
     private ClockConfig _config = new();
     private IDisposable? _subscription;
@@ -75,7 +77,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     // The last area the card gave the view, and what was planned for it.
     private WidgetArea _area;
     private ClockReadoutPlan _digits;
-    private ClockDatePlan _date;
     private bool _secondsDrawn;
     private TypeStep _underStep = FamilyType.Caption;
     private double _underWidth;
@@ -96,10 +97,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         // when no header stands above, the header's gap under one), so a header added moves the face down
         // by its own cost and leaves it its size.
         Root.Padding = Family.Inset with { Top = 0 };
-        Root.Children.Add(_stack);
+        _fit.Child = _stack;
+        Root.Children.Add(_fit);
         _under.TextTrimming = TextTrimming.CharacterEllipsis;
-        _weekday.TextTrimming = TextTrimming.CharacterEllipsis;
-        _month.TextTrimming = TextTrimming.CharacterEllipsis;
         _flipMeridiem.VerticalAlignment = VerticalAlignment.Bottom;
         _flipMeridiem.Margin = new Thickness(FamilySpace.S2, 0, 0, 0);
         _flipLine.Children.Add(_flipRow);
@@ -171,19 +171,41 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     }
 
     /// <summary>
-    /// The content box: the view less its inset of 12 on the sides and the foot (the card's is over it).
-    /// [S-12410] In a box larger than its Size's the face climbs one family step at most
-    /// (<see cref="ReadoutSizes.Climb"/>): the box it lays out in is held to its natural box times that,
-    /// the rest is spacing round it (the alignment places it).
+    /// The box the face is planned in: the view less its inset of 12 on the sides and the foot (the card's is over
+    /// it), held to the natural box ([S-12804]: the fit scales the face from there to the card, so its step is its
+    /// Size's and a larger card is a larger face, never a band). The dial is planned in the whole box: drawn at its
+    /// size, its hairlines stay hairlines.
     /// </summary>
     private (double Width, double Height) ContentBox()
     {
-        var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
-        var natural = ClockFace.Sizing(_config, meridiem).Natural;
-        var climb = ReadoutSizes.Climb(_config.Size);
-        var width = Math.Min(_area.Width, natural.Width * climb) - (2 * FamilySpace.Inset);
-        var height = Math.Min(_area.Height, natural.Height * climb) - FamilySpace.Inset;
+        var width = _area.Width - (2 * FamilySpace.Inset);
+        var height = _area.Height - _joins.Foot;
+        if (_config.Style != ClockStyle.Analog)
+        {
+            var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
+            var natural = ClockFace.Sizing(_config, meridiem).Natural;
+            width = Math.Min(width, natural.Width - (2 * FamilySpace.Inset));
+            height = Math.Min(height, natural.Height - FamilySpace.Inset - _joins.Foot);
+        }
+
         return (Math.Max(0, width), Math.Max(0, height));
+    }
+
+    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
+    private Themia.Sdk.Kit.JoinedSides _joins;
+
+    /// <summary>[S-12483] The face meets a joined side: no foot inset under it there, the block at that side.</summary>
+    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
+    {
+        _joins = sides;
+        Root.Padding = Family.Inset with { Top = 0, Bottom = sides.Foot };
+        _fit.VerticalAlignment = sides.Block switch
+        {
+            Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
+            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        Lay();
     }
 
     /// <summary>Plan the face for the area and the style, then draw the instant into it.</summary>
@@ -192,7 +214,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         var (width, height) = ContentBox();
         var style = _config.Style;
         var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
-        var wantsLine = style != ClockStyle.Minimal && (_label is not null || _config.ShowDate || _config.OffsetMode != ClockOffsetMode.None);
+        var wantsLine = style != ClockStyle.Minimal && (_label is not null || _config.OffsetMode != ClockOffsetMode.None);
         _secondsDrawn = _config.DrawsSeconds;
         _underShown = false;
         _underWidth = width;
@@ -202,10 +224,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
 
         switch (style)
         {
-            case ClockStyle.Date:
-                LayDate(width, height);
-                break;
-
             case ClockStyle.Word:
                 var step = WordClock.Fit(width, height, WordClock.Longest(Strings.Current), wantsLine);
                 Family.Step(_words, step);
@@ -302,39 +320,20 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         _stack.Children.Add(_dialLine);
     }
 
-    /// <summary>[S-6744] The day a Readout, the weekday over it and the month under it.</summary>
-    private void LayDate(double width, double height)
-    {
-        _date = ClockFace.Date(width, height);
-        _secondsDrawn = false;
-        _readout.Use(_date.Step, Aligned.Horizontal(_align));
-        var line = FamilyType.Under(_date.Step);
-        Family.Step(_weekday, line);
-        Family.Step(_month, line);
-        _weekday.Visibility = _date.Weekday ? Visibility.Visible : Visibility.Collapsed;
-        _month.Visibility = _date.Month ? Visibility.Visible : Visibility.Collapsed;
-
-        _stack.Children.Add(_weekday);
-        _stack.Children.Add(_readout);
-        _stack.Children.Add(_month);
-    }
-
     /// <summary>[S-1484] Left, centre or right ([S-6583]) for the face and every line of it.</summary>
     private void ApplyAlignment()
     {
         var horizontal = Aligned.Horizontal(_align);
         var text = Aligned.Text(_align);
         _stack.HorizontalAlignment = horizontal;
+        _fit.HorizontalAlignment = horizontal;
         _words.TextAlignment = text;
         _words.HorizontalAlignment = horizontal;
         _flipLine.HorizontalAlignment = horizontal;
         _dial.HorizontalAlignment = horizontal;
 
-        foreach (var line in new[] { _under, _weekday, _month })
-        {
-            line.HorizontalAlignment = horizontal;
-            line.TextAlignment = text;
-        }
+        _under.HorizontalAlignment = horizontal;
+        _under.TextAlignment = text;
     }
 
     // -----------------------------------------------------------------------------------------
@@ -482,17 +481,6 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         var locale = Strings.Current;
         var reading = ClockFormatter.Read(now, _config, locale, RegionFormat.Current.Use24Hour);
 
-        if (_config.Style == ClockStyle.Date)
-        {
-            // [S-5300] The day in the clock's own zone: a world clock's date is that place's.
-            var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, _config.ResolveTimeZone()).DateTime);
-            _readout.Show(DayText.Number(locale, day));
-            _weekday.Text = DayText.Weekday(locale, day, _date.ShortWeekday);
-            _month.Text = DayText.Month(locale, day, _date.ShortMonth);
-            ToolTipService.SetToolTip(this, DayText.Full(locale, day));
-            return;
-        }
-
         var under = _underShown ? Line(now, reading, locale) : null;
         if (_under.Text != (under ?? string.Empty))
         {
@@ -534,8 +522,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     private string? Line(DateTimeOffset now, ClockReading reading, Locale locale)
     {
         var offset = _config.OffsetMode != ClockOffsetMode.None ? ClockFormatter.OffsetLine(now, _config, locale) : null;
-        var shortDate = _config.ShowDate ? ClockFormatter.ShortDate(now, _config, locale) : null;
-        return ClockFace.Under(_underWidth, _underStep, _label, reading.Date, shortDate, offset);
+        return ClockFace.Under(_underWidth, _underStep, _label, offset);
     }
 
     public void Detach()

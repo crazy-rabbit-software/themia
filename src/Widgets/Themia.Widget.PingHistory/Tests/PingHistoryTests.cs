@@ -17,8 +17,7 @@ public sealed class PingHistoryTests
     [Fact]
     public void S11022_it_starts_headerless_and_charts_the_probes_the_reading_reads()
     {
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
-        Assert.Equal(MeterSizing.History, Kind.SizingOf());
+        Assert.Equal(Themia.Sdk.SizeStretch.Relax(MeterSizing.History), Kind.SizingOf()); // [S-12411] relaxed
         Assert.Equal(900, new PingHistoryConfig().GraphSpanSeconds);
         Assert.Equal(
             SystemInterests.For(new PingConfig { Host = " 9.9.9.9 " }, @"C:\").Series,

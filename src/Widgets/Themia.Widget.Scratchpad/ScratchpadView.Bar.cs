@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-1497] The ink bar along the foot of the pad: the original's toolbar of preset inks and three
 /// nibs ([S-02] of the original), shown once the pad has room for it, and [S-1498] the eraser as a
-/// tool beside them. The header keeps undo and full screen ([S-651]); the bar is the rung a larger
+/// tool beside them, then undo and full screen ([S-651], [S-12481]: no card header keeps them); the bar is the rung a larger
 /// tile adds, so choosing an ink no longer means opening settings. Picking an ink or a nib also
 /// leaves the eraser, as the original did. Its ladder is <see cref="ScratchpadLayout.Bar"/>.
 /// <para>
@@ -29,6 +29,9 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class ScratchpadView
 {
+    /// <summary>[S-12483] [S-12800] The ink bar keeps the foot's inset; none where a group mate joins the foot.</summary>
+    public void ApplyJoins(JoinedSides sides) => _barRow.Margin = Family.SideInset with { Bottom = sides.Foot };
+
     /// <summary>The ring round the chosen ink or nib.</summary>
     private const double ChoiceRing = FamilySpace.S6;
 
@@ -63,9 +66,10 @@ internal sealed partial class ScratchpadView
         _bar.Children.Add(_inks);
         _bar.Children.Add(_nibs);
         _bar.Children.Add(_barEraser);
+        _bar.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Children = { _undoButton, _fullButton } });
 
         // [S-6716] On the card's bottom inset, from its start.
-        _barRow.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        ApplyJoins(JoinedSides.Free);
         _barRow.Visibility = Visibility.Collapsed;
         _barRow.Children.Add(_bar);
 

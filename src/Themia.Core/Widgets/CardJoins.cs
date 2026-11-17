@@ -45,6 +45,14 @@ public readonly record struct CardOutline(
     /// <summary>The seams, none when the outline has none.</summary>
     private IReadOnlyList<OutlineSeam> SeamList => Seams ?? [];
 
+    /// <summary>
+    /// [S-12482] The top and the foot a group mate joins, as the card tells its view: a side left wholly to
+    /// mates (not drawn) or crossed by one along a stretch (a seam). Physical, so the same in either flow.
+    /// </summary>
+    public Themia.Sdk.Kit.JoinedSides Joined => new(
+        !DrawsTop || SeamList.Any(s => s.Side == CardSide.Top),
+        !DrawsBottom || SeamList.Any(s => s.Side == CardSide.Bottom));
+
     /// <summary>The same outline seen from a right-to-left flow, where the start is the physical right.</summary>
     public CardOutline Mirrored() => new(
         RoundTopRight, RoundTopLeft, RoundBottomLeft, RoundBottomRight,

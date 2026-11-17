@@ -11,7 +11,7 @@ namespace Themia.Widget.WeatherFacts;
 /// <summary>
 /// [S-11107] The weather facts' options, all on its properties menu ([S-3719]): the facts it shows
 /// (<see cref="SkyFactLines.Pick"/>: which and in what order), Appearance, the place's search
-/// ([S-3722]) and the links to the temperature unit and the weather's cadence ([S-3749]).
+/// ([S-3722]); the temperature unit and the weather's cadence are ⚙'s, followed ([S-3590]).
 /// </summary>
 internal static class WeatherFactsMenu
 {
@@ -23,8 +23,5 @@ internal static class WeatherFactsMenu
         menu.Lines.Add(SkyFactLines.Pick(menu, Glyphs.BulletList, WeatherFactsStr.WeatherFacts_Menu_Facts.Text(), config.Facts, WeatherFactRules.All, WeatherFactRules.Name, kind => WeatherFactsView.FactGlyph(kind)));
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
-        menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.TemperatureUnit)));
-        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Weather)));
     }
 }

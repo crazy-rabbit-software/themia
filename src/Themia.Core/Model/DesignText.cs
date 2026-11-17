@@ -10,7 +10,7 @@ namespace Themia.Core.Model;
 /// (none|solid|dashed|dotted), <c>borderWidth</c>, <c>borderOpacity</c> (0..1 or a percentage such as
 /// 25%), <c>borderColor</c> (#RRGGBB), <c>radius</c>, <c>background</c>
 /// (default|transparent|#RRGGBB[@percent], [S-6569]), <c>opacity</c> (the background colour's),
-/// <c>header</c>, <c>headerOpacity</c>, <c>accent</c>, <c>font</c>, <c>items</c> and
+/// <c>accent</c>, <c>font</c>, <c>items</c> and
 /// <c>itemOpacity</c> (the item background, on the same terms, [S-6510]), <c>itemText</c> (its text
 /// colour, [S-6547]), <c>gap</c> (between neighbouring cards, DIPs, [S-04]), <c>blur</c> (on|off: blur
 /// behind widgets, [S-2110]), <c>material</c> (solid|liquidGlass, [S-2123]) and every look token by its own key
@@ -95,12 +95,6 @@ public static class DesignText
             case "opacity" when Fraction(value) is { } o:
                 d.Background.Opacity = o;
                 return true;
-            case "header" when Colour(value) is { } header:
-                d.HeaderBackgroundColor = header;
-                return true;
-            case "headeropacity" when Fraction(value) is { } o:
-                d.HeaderOpacity = o;
-                return true;
             case "accent" when Colour(value) is { } accent:
                 d.PrimaryColor = accent;
                 return true;
@@ -162,8 +156,6 @@ public static class DesignText
             "headerweight" => Pick<Sdk.Kit.TypeWeight>(value, v => t.HeaderWeight = v),
             "readoutweight" => Pick<Sdk.Kit.TypeWeight>(value, v => t.ReadoutWeight = v),
             "bodyweight" => Pick<Sdk.Kit.TypeWeight>(value, v => t.BodyWeight = v),
-            "headertone" => Pick<HeaderTone>(value, v => t.HeaderTone = v),
-            "headercase" => Pick<HeaderCase>(value, v => t.HeaderCase = v),
             "innersurface" => Pick<InnerSurface>(value, v => t.InnerSurface = v),
             "rowdividers" => Pick<Sdk.Kit.RowDivider>(value, v => t.RowDividers = v),
             "tabularnumerals" when OnOff(value) is { } on => Set(() => t.TabularNumerals = on),

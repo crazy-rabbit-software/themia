@@ -17,7 +17,7 @@ public static class SceneWidgets
 {
     /// <summary>
     /// The widget a card of the scene shows: the kind's default, the config fragment over it, the
-    /// style, then <c>bare</c> (a transparent background and no header, as the first-run desktop's
+    /// style, then <c>bare</c> (a transparent background, as the first-run desktop's
     /// <see cref="FirstRunDesktop.Seed.Bare"/>) and over that what the scene names itself. Null and
     /// <paramref name="refusal"/> when the installed widgets cannot give it.
     /// </summary>
@@ -63,12 +63,6 @@ public static class SceneWidgets
         if (widget.Bare)
         {
             model.Background = FillChoice.Transparent();
-            model.Header = HeaderPlacement.Hidden;
-        }
-
-        if (widget.Header is { } header)
-        {
-            model.Header = header;
         }
 
         if (widget.Background is { } background)

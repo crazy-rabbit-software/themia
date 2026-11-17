@@ -150,15 +150,22 @@ public static class CountdownLayout
 
     /// <summary>
     /// [S-11303] The countdown's sizing ([S-2438]): its face at its Size with the bar under it where it is
-    /// on, no Controls row (a countdown has nothing to start or stop), under its header (the event's name,
-    /// on by default); one height, up to half again wider.
+    /// on, no Controls row (a countdown has nothing to start or stop), [S-12481] the event's name over it
+    /// where it has one (<see cref="NameCost"/>); one height, up to half again wider.
     /// </summary>
     public static WidgetSizing Sizing(CountdownConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
         var plan = Plan(config, locale);
-        return TimerFace.Sizing(new TimerSized(plan.Step, plan.Ring, plan.Width, plan.Height), controls: 0, header: true, extra: config.DrawsProgress ? BarCost : 0);
+        var extra = (config.DrawsProgress ? BarCost : 0) + (Named(config) ? NameCost : 0);
+        return TimerFace.Sizing(new TimerSized(plan.Step, plan.Ring, plan.Width, plan.Height), controls: 0, header: false, extra: extra);
     }
+
+    /// <summary>[S-12481] The event's name over the face: its one line and the 4 under it (what the card's header cost before).</summary>
+    public const double NameCost = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+
+    /// <summary>[S-12481] Whether the countdown has a name to show over its face.</summary>
+    public static bool Named(CountdownConfig config) => !string.IsNullOrWhiteSpace(config?.Label);
 
     /// <summary>
     /// [S-1448] How far along the countdown is, 0 to 1, from when its target was set to the target;

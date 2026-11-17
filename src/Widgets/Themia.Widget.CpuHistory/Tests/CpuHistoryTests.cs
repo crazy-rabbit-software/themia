@@ -16,11 +16,9 @@ public sealed class CpuHistoryTests
     [Fact]
     public void S11010_it_starts_headerless_and_is_160_to_640_wide_and_48_to_200_tall()
     {
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.CanHaveHeader));
         var sizing = Kind.SizingOf();
         Assert.Empty(sizing.Problems());
-        Assert.Equal((new SizeDip(160, 48), new SizeDip(640, 200)), (sizing.Min, sizing.Max));
+        Assert.Equal((new SizeDip(160, 48), new SizeDip(Themia.Sdk.SizeStretch.Ceiling, Themia.Sdk.SizeStretch.Ceiling)), (sizing.Min, sizing.Max)); // relaxed, [S-12411]: no practical Max
     }
 
     [Fact]

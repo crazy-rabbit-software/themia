@@ -9,6 +9,9 @@ public enum DesktopMenuCommand
     /// <summary>[S-65] "Edit mode" (unchecked here): enter edit mode, as the card menu's line and Ctrl+Alt+W do.</summary>
     EditMode,
 
+    /// <summary>[S-12951] "Lock widgets", checked while on: flips the one setting ([S-12950]).</summary>
+    LockWidgets,
+
     /// <summary>Enter edit mode and open Add widget ([S-11707]).</summary>
     AddWidget,
 
@@ -110,17 +113,19 @@ public sealed record DesktopMenuEntry(DesktopMenuCommand? Command, DesktopMenuGr
 /// <param name="HasTerminal">Windows Terminal is installed.</param>
 /// <param name="IconSize">[S-5593] The desktop's icon size.</param>
 /// <param name="Sort">[S-5596] What the icons were last sorted by.</param>
+/// <param name="WidgetsLocked">[S-12951] Lock widgets is on.</param>
 public readonly record struct DesktopBackgroundFacts(
     bool ClipboardHasFiles,
     bool HasTerminal,
     DesktopIconSize IconSize = DesktopIconSize.Medium,
-    DesktopSortBy Sort = DesktopSortBy.Name)
+    DesktopSortBy Sort = DesktopSortBy.Name,
+    bool WidgetsLocked = false)
 {
     /// <summary>The facts of <paramref name="state"/>: its view settings and its last sort.</summary>
     public static DesktopBackgroundFacts Of(AppState state, bool clipboardHasFiles, bool hasTerminal)
     {
         ArgumentNullException.ThrowIfNull(state);
-        return new(clipboardHasFiles, hasTerminal, state.Preferences.DesktopIconSize, state.Desktop.Sort);
+        return new(clipboardHasFiles, hasTerminal, state.Preferences.DesktopIconSize, state.Desktop.Sort, state.Preferences.LockWidgets);
     }
 }
 
@@ -142,7 +147,7 @@ public static class DesktopBackground
     /// **Refresh**; **Paste** and **Paste shortcut** while the clipboard holds files, and **New ›**
     /// (Folder, Shortcut; the host appends the shell's file types); **Display settings**,
     /// **Personalise** and, where Windows Terminal is installed, **Open in Terminal**; Themia's own
-    /// **Edit mode** and **Add widget**, where an app's lines go; **Show more options** last. One
+    /// **Edit mode**, **Lock widgets** (checked while on, [S-12951]) and **Add widget**, where an app's lines go; **Show more options** last. One
     /// separator between the groups, never two in a row and none at an end. Undo is not offered
     /// ([S-5545]).
     /// </summary>
@@ -187,6 +192,7 @@ public static class DesktopBackground
 
         lines.Add(DesktopMenuEntry.Separator);
         lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.EditMode));
+        lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.LockWidgets, facts.WidgetsLocked));
         lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.AddWidget));
         lines.Add(DesktopMenuEntry.Separator);
         lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.ShowMoreOptions));

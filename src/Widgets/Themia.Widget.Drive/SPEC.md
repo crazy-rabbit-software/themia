@@ -17,8 +17,8 @@ drive), `Preview/` (Debug renders: `--state local|full|usb|network|disconnected|
 `Tests/DriveTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's drive rule is
 the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostTests`.
 
-- **[S-4671]** The reading on the family's blocks: the header names the drive as This PC does ([S-4651])
-  with the widget's glyph ([S-6710]); the body is the used share at 28 ("55%", [S-11001]) with the space
+- **[S-4671]** The reading on the family's blocks: a Header widget over it names the drive
+  ([S-12481]: no card has a header), the drive's name on the reading's hover; the body is the used share at 28 ("55%", [S-11001]) with the space
   line ("419 GB free of 931 GB", [S-4653]) as its line under and the Chart block's bar 8 under it in the
   load's role; the kind and file system ([S-4652]) are in the tooltip. The figure keeps the primary role
   whatever the load: only the bar and the ring take Caution and Critical. A drive without figures is
@@ -29,7 +29,7 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   system) are the Drive facts atom's.
 - **[S-4675]** *(Retired in G6: a new Drive card starts with its header like every data widget,
   DECISIONS 7; the body no longer names the drive.)*
-- **[S-4672]** The Bar style's sizing (`DriveFace.Sizing`): one height (112: the header, the share and
+- **[S-4672]** The Bar style's sizing (`DriveFace.Sizing`): one height (88: the inset, the share and
   its line, 8, the bar's track, the inset), 160..320 wide, a new one 200; a wider card is a longer bar.
   No tier ladder is left.
 - **[S-4673]** *(Retired in G6: the share is the figure at every width, so the narrow "57% used" line went.)*

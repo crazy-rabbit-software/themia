@@ -35,7 +35,7 @@ public sealed class DiskModule : IWidgetModule
         Description = DiskStr.WidgetsA_Catalog_Disk_Description.Local(),
         Glyph = Glyphs.Disk,
         Sizing = c => MeterSizing.Reading(DiskMeter.Look(((DiskConfig)c).Style), ReadoutRules.Split(Formatting.Rate(1023 * 1024)), rows: 2),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.System, 0, 3),
     };

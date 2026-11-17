@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Widgets;
 using Themia.Core.Geometry;
+using Themia.Core.Shell;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
@@ -91,14 +92,154 @@ internal sealed partial class PageFlyout : Grid
                 LetGo?.Invoke();
             }
         }), handledEventsToo: true);
-        page.BringIntoView += element => element.StartBringIntoView(new BringIntoViewOptions
-        {
-            AnimationDesired = false,
-            VerticalAlignmentRatio = 0,
+        page.BringIntoView += Reveal;
 
-            // The gutter over it kept in view, as the page's top keeps it.
-            TargetRect = new Rect(0, -F.Gutter, element.ActualWidth, element.ActualHeight + F.Gutter),
-        });
+        // [S-2347] The user's own scrolling takes over from a glide.
+        _scroll.AddHandler(PointerWheelChangedEvent, new PointerEventHandler((_, _) => UserScrolls()), handledEventsToo: true);
+        _scroll.AddHandler(PointerPressedEvent, new PointerEventHandler((_, _) => UserScrolls()), handledEventsToo: true);
+        Unloaded += (_, _) =>
+        {
+            StopGlide();
+            _pending = null;
+            _scroll.LayoutUpdated -= OnSettled;
+        };
+    }
+
+    /// <summary>[S-2347] The opened item waiting for the page and the flyout to settle at their new sizes.</summary>
+    private FrameworkElement? _pending;
+
+    private Microsoft.UI.Dispatching.DispatcherQueueTimer? _glide;
+
+    private (double From, double To, System.Diagnostics.Stopwatch Since)? _gliding;
+
+    /// <summary>[S-2347] The item last revealed and where the page stood before: worked out again where the flyout is hung at another height.</summary>
+    private (FrameworkElement Element, double From)? _revealed;
+
+    /// <summary>[S-2347] Where the waiting reveal scrolls from: the page's offset before the first reveal of the item.</summary>
+    private double? _revealFrom;
+
+    /// <summary>[S-2347] The user scrolls: a glide stops, and nothing is revealed again for them.</summary>
+    private void UserScrolls()
+    {
+        StopGlide();
+        _revealed = null;
+    }
+
+    /// <summary>
+    /// [S-2347] Scroll <paramref name="element"/> (an opened card, a picker, a deep link's row) into sight as Karpo does:
+    /// once the page has grown and the flyout has been hung again at its new height (an opened card makes the flyout
+    /// taller before it makes it scroll), only as far as it takes, gliding.
+    /// </summary>
+    private void Reveal(FrameworkElement element)
+    {
+        StopGlide();
+        _pending = element;
+        _revealFrom = null;
+        _scroll.LayoutUpdated -= OnSettled;
+        _scroll.LayoutUpdated += OnSettled;
+    }
+
+    /// <summary>
+    /// [S-2347] A layout pass done: once the viewport is the flyout's room and the page's extent its height (both after a
+    /// change of size, the flyout's own following the page's), the scroll that shows the waiting item, from where it is.
+    /// </summary>
+    private void OnSettled(object? sender, object e)
+    {
+        if (_pending is not { } element)
+        {
+            _scroll.LayoutUpdated -= OnSettled;
+            return;
+        }
+
+        try
+        {
+            if (element.XamlRoot is null || !IsUnder(element))
+            {
+                _pending = null;
+                _scroll.LayoutUpdated -= OnSettled;
+                return;
+            }
+
+            var room = Height - F.BeakHeight;
+            if (_scroll.ViewportHeight <= 0 || (!double.IsNaN(room) && Math.Abs(_scroll.ViewportHeight - room) > 0.5) || Math.Abs(_scroll.ExtentHeight - Page.ActualHeight) > 0.5)
+            {
+                return;
+            }
+
+            _pending = null;
+            _scroll.LayoutUpdated -= OnSettled;
+            var top = element.TransformToVisual(Page).TransformPoint(new Point(0, 0)).Y;
+            var from = _revealFrom ?? _scroll.VerticalOffset;
+            _revealFrom = null;
+            _revealed = (element, from);
+            var to = PageReveal.ScrollIntoView(from, _scroll.ViewportHeight, top, element.ActualHeight, _scroll.ExtentHeight, F.Gutter);
+            from = _scroll.VerticalOffset;
+            if (!PageReveal.Moves(from, to))
+            {
+                return;
+            }
+
+            if (!Glides)
+            {
+                _ = _scroll.ChangeView(null, to, null, disableAnimation: true);
+                return;
+            }
+
+            _gliding = (from, to, System.Diagnostics.Stopwatch.StartNew());
+            _glide ??= NewGlide();
+            _glide.Start();
+        }
+        catch (Exception ex)
+        {
+            _pending = null;
+            _scroll.LayoutUpdated -= OnSettled;
+            Core.Diagnostics.Log.Error("pages", "an opened item could not be scrolled into sight", ex);
+        }
+    }
+
+    /// <summary>[S-2347] Whether the page glides (Windows' animation effects on); a render's flyout jumps.</summary>
+    public bool Glides { get; init; } = Motion.SystemMotion.AnimationsEnabled;
+
+    private Microsoft.UI.Dispatching.DispatcherQueueTimer NewGlide()
+    {
+        var timer = DispatcherQueue.CreateTimer();
+        timer.Interval = TimeSpan.FromMilliseconds(PageReveal.FrameMs);
+        timer.IsRepeating = true;
+        timer.Tick += (_, _) =>
+        {
+            if (_gliding is not { } glide)
+            {
+                StopGlide();
+                return;
+            }
+
+            var elapsed = glide.Since.Elapsed.TotalMilliseconds;
+            _ = _scroll.ChangeView(null, PageReveal.Glide(glide.From, glide.To, elapsed), null, disableAnimation: true);
+            if (PageReveal.Done(elapsed))
+            {
+                StopGlide();
+            }
+        };
+        return timer;
+    }
+
+    private void StopGlide()
+    {
+        _gliding = null;
+        _glide?.Stop();
+    }
+
+    private bool IsUnder(DependencyObject element)
+    {
+        for (var node = element; node is not null; node = VisualTreeHelper.GetParent(node))
+        {
+            if (ReferenceEquals(node, Page))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public PageView Page { get; }
@@ -122,6 +263,16 @@ internal sealed partial class PageFlyout : Grid
     /// <summary>[S-2325] Stand at <paramref name="spot"/> (its top the panel's; the beak above it).</summary>
     public void Place(FlyoutSpot spot)
     {
+        // [S-2347] Hung at another height after an item was revealed: the reveal worked out again from where the page stood.
+        if (_revealed is { } shown && Math.Abs(Height - (spot.Height + F.BeakHeight)) > 0.5 && _pending is null)
+        {
+            StopGlide();
+            _pending = shown.Element;
+            _revealFrom = shown.From;
+            _scroll.LayoutUpdated -= OnSettled;
+            _scroll.LayoutUpdated += OnSettled;
+        }
+
         Width = spot.Width;
         Height = spot.Height + F.BeakHeight;
         Canvas.SetLeft(this, spot.X);
@@ -162,6 +313,7 @@ internal sealed partial class PageFlyout : Grid
     /// <summary>[S-2327] Scroll by a page or to an end (Page Up / Down, Home, End).</summary>
     public bool Scroll(Windows.System.VirtualKey key)
     {
+        UserScrolls();
         var to = key switch
         {
             Windows.System.VirtualKey.PageDown => _scroll.VerticalOffset + _scroll.ViewportHeight,

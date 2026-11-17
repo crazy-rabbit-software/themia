@@ -89,7 +89,7 @@ public static class WeatherForecastLayout
         return parts + (4 * ColumnGap) + (precipitation ? ColumnGap + FamilyType.Caption.LineHeight : 0);
     }
 
-    /// <summary>[S-11146] Each style's sizing from the config, with its header.</summary>
+    /// <summary>[S-11146] Each style's sizing from the config.</summary>
     public static WidgetSizing Sizing(WeatherForecastConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);

@@ -20,7 +20,7 @@ namespace Themia.Modules.Tests;
 /// <c>ConfigCoverageTests.NoSettingIsSetAtTwoLevels</c>, the widgets' half; the bar menus' half is
 /// Core's <c>SettingsMenuTests.S3592_</c>): no widget's lines offer a setting under the words of one
 /// the bar's menus (⚙, Display ▾, View ▾, Snap) or the card's own rows (Style, Header, the Appearance
-/// foot) set, unless the line is a link to it; and no widget's config carries a field of a type only
+/// foot) set, nor links to one (a widget just follows it; its only link rows lead to an account); and no widget's config carries a field of a type only
 /// a higher level owns (a temperature scale, a clock, a week start, a cadence, a theme, a language).
 /// </summary>
 
@@ -193,6 +193,18 @@ public sealed class SettingOwnershipTests
         {
             // ignore: a command's question.
         }
+
+        public IReadOnlyList<Themia.Sdk.DesktopItem> DesktopItems => [];
+
+        public void SetDesktopIcons(string viewId, ViewDesktopIcons value)
+        {
+            // ignore: the ownership guard only reads the lines.
+        }
+
+        public void ShowDesktopItem(string viewId, string key, bool shown)
+        {
+            // ignore: the ownership guard only reads the lines.
+        }
     }
 
     /// <summary>The words of every setting the bar's menus and the card's own rows set: what a widget's line may not be called.</summary>
@@ -284,9 +296,10 @@ public sealed class SettingOwnershipTests
     /// [S-3592] A widget's own setting under words a higher level uses too, each for its reason: it is
     /// the widget's own and only shares a word (a focus session's Length is the session's, never an
     /// animation's, ⚙ › Appearance › Motion's; [S-2449] a one-readout widget's Size is its face's,
-    /// Small, Medium or Large, never the text size or the scale a higher level sets).
+    /// Small, Medium or Large, never the text size or the scale a higher level sets; [S-9602] a Header widget's
+    /// Title is the words it shows, never a page's title).
     /// </summary>
-    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("clock", "Size"), ("screenTimeDonut", "Size")];
+    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("clock", "Size"), ("screenTimeDonut", "Size"), ("header", "Title")];
 
     /// <summary>[S-2449] [S-11300] Every one-readout widget's Size (<c>IReadoutSized</c>) is its face's, as the clock's.</summary>
     private static bool OwnSize(WidgetConfig config, string words) => config is IReadoutSized && words == "Size";
@@ -299,10 +312,11 @@ public sealed class SettingOwnershipTests
     private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory"];
 
     [Fact]
-    public void S3592_no_widget_sets_what_a_higher_level_owns_except_through_a_link()
+    public void S3592_no_widget_sets_what_a_higher_level_owns_nor_links_to_it()
     {
         var owned = OwnedWords();
         var found = new List<string>();
+        var links = new List<string>();
         var unbuilt = new List<string>();
         var seen = 0;
         foreach (var module in ModuleRegistry.Widgets)
@@ -319,6 +333,9 @@ public sealed class SettingOwnershipTests
                 continue;
             }
 
+            // [S-3749] A widget just follows what a higher level sets: its only link rows lead where the user must go to do something (an account).
+            links.AddRange(Links(menu.StyleLines.Concat(menu.Lines)).Where(l => l.LinkTo != Str.Shell_Settings_Nav_Accounts.Text()).Select(l => kind + " › " + l.Text));
+
             foreach (var (words, where) in SettingLines(menu.StyleLines.Concat(menu.Lines), kind))
             {
                 seen++;
@@ -333,8 +350,12 @@ public sealed class SettingOwnershipTests
 
         // The walk reads the widgets' settings at all: a vocabulary change that hid them would pass empty.
         Assert.True(seen > 150, $"only {seen} settings read off the widgets' menus");
-        Assert.True(found.Count == 0, "a widget sets what a higher level owns (link to it instead, [S-3749]): " + string.Join("; ", found));
+        Assert.True(found.Count == 0, "a widget sets what a higher level owns (follow it instead, [S-3590]): " + string.Join("; ", found));
+        Assert.True(links.Count == 0, "a widget links to a setting it follows (no link row, [S-3749]): " + string.Join("; ", links));
     }
+
+    private static IEnumerable<ItemMenuEntry> Links(IEnumerable<ItemMenuEntry> lines)
+        => lines.SelectMany(l => (l.LinkTo is not null ? [l] : Array.Empty<ItemMenuEntry>()).Concat(l.Children is { } children ? Links(children) : []));
 
     /// <summary>[S-3590] The types only a higher level holds: a widget follows them, never keeps its own.</summary>
     private static readonly Type[] OwnedTypes =

@@ -330,6 +330,19 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     public void RequestEditMode(bool enabled) => _host.SetEditMode(enabled);
 
+    /// <summary>[S-12950] Lock widgets, as the state holds it.</summary>
+    public bool WidgetsLocked => _host.State.Preferences.LockWidgets;
+
+    /// <summary>[S-12951] The menus' Lock widgets line.</summary>
+    public void RequestLockWidgets(bool on) => _host.SetLockWidgets(on);
+
+    /// <summary>[S-12950] Whether Lock widgets keeps <paramref name="card"/> (or its group) where it is.</summary>
+    public bool Pins(WidgetCard card)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+        return Core.Desktop.WidgetLock.Pins(ViewForThisMonitor(_host.State), card.Model.Id, WidgetsLocked, EditMode);
+    }
+
     /// <inheritdoc />
     public ViewState? ViewForCards => _closed ? null : ViewForThisMonitor(_host.State);
 

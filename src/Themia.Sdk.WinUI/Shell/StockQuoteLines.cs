@@ -53,13 +53,6 @@ public static class StockQuoteLines
         }
     }
 
-    /// <summary>[S-3749] How often the markets are asked: ⚙'s, for every market widget at once.</summary>
-    public static ItemMenuEntry Updates(WidgetMenuLines menu)
-    {
-        ArgumentNullException.ThrowIfNull(menu);
-        return menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Markets));
-    }
-
     /// <summary>
     /// [S-6734] No quote, said in the Status row: the symbol refused ("“X” is not a symbol"), nothing quoted
     /// for it, or how the sync went (not set up is the card's Set up row, [S-1862]).

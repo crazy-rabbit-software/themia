@@ -129,19 +129,13 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-3749] A widget's link row: ⚙ open on this display at the level that owns the setting (the
-    /// accounts, a regional format's level, a cadence's), the properties menu away while it is open.
-    /// Whether it opened.
+    /// [S-3749] A widget's link row: ⚙ open on this display where it leads (the accounts), the
+    /// properties menu away while it is open. Whether it opened.
     /// </summary>
     public bool RequestSetting(SettingLink link)
     {
         ArgumentNullException.ThrowIfNull(link);
-        return link.Setting switch
-        {
-            OwnedSetting.Accounts => RequestAccounts(),
-            OwnedSetting.OnlineUpdates => RequestSettings(link.Cadence is { } row ? SettingsMenu.Keys.Online + "/" + row.Id.Value : SettingsMenu.Keys.Online),
-            _ => RequestSettings(SettingsMenu.Keys.Format(link.Setting)),
-        };
+        return link.Setting == OwnedSetting.Accounts && RequestAccounts();
     }
 
     private void OnSuspendedForSettings(bool suspended) => SyncBarMenu();

@@ -5,6 +5,7 @@ using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Header;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -16,6 +17,7 @@ public class PlaceClearTests
     [
         new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
         new WidgetId("sun"), new WidgetId("sunTimes"), new WidgetId("moon"), new WidgetId("moonTimes"),
+        new WidgetId("temperatureGraph"), new WidgetId("rainGraph"), new WidgetId("uvGraph"), new WidgetId("airQualityGraph"), new WidgetId("windGraph"), new WidgetId("humidityGraph"), new WidgetId("pressureGraph"),
     ];
 
     public static TheoryData<WidgetId> PlacedKinds()
@@ -64,7 +66,31 @@ public class PlaceClearTests
             .Order()
             .ToArray();
 
-        Assert.Equal(Placed.Order().ToArray(), placed);
+        // [S-9604] The Header widget holds the place of the widgets it heads, and never waits for one.
+        Assert.Equal(Placed.Append(new WidgetId("header")).Order().ToArray(), placed);
+    }
+
+    [Fact]
+    public void S9604_a_header_holds_a_place_and_shows_its_city_but_never_waits_for_one()
+    {
+        var header = Assert.IsType<HeaderConfig>(WidgetConfig.CreateDefault(new WidgetId("header")));
+        Assert.False(WidgetSetup.Needed(header, FeatureSet.None));
+        Assert.Null(header.PlaceLabel);
+
+        header.Latitude = 47.37;
+        header.Longitude = 8.54;
+        header.PlaceName = "Zürich, Switzerland";
+        Assert.Null(header.PlaceLabel); // not shown until asked for
+        header.ShowsPlace = true;
+        Assert.Equal("Zürich", header.PlaceLabel);
+
+        var back = Assert.IsType<HeaderConfig>(RoundTrip(header));
+        Assert.Equal(("Zürich", true), (back.PlaceLabel, back.ShowsPlace));
+
+        header.ClearLocation();
+        Assert.Null(header.PlaceLabel);
+        Assert.True(header.ShowsPlace);
+        Assert.False(WidgetSetup.Needed(header, FeatureSet.None));
     }
 
     [Theory]

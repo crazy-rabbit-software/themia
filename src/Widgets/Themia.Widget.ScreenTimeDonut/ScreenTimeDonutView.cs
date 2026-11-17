@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// kept per app across reads: a read moves its arc and its tip, and only a new app gets a new one.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetKeys, IWidgetContextActions
+internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetJoins
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
@@ -100,12 +100,23 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _ring.VerticalAlignment = VerticalAlignment.Top;
         _ring.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
 
+        // [S-454] [S-12481] The day and its arrows, the content's first line.
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
+        SetRow(_ring, 1);
+        SetRow(_empty, 1);
+        Children.Add(_nav.Line);
         Children.Add(_ring);
         Children.Add(_empty);
     }
 
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _nav.Host;
+    /// <summary>[S-12483] The ring meets a foot a group mate joins: at its foot, the inset there none.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        _ring.VerticalAlignment = sides.Block == BlockEdge.Bottom ? VerticalAlignment.Bottom : VerticalAlignment.Top;
+        _ring.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, sides.Foot);
+    }
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => _nav.ContextActions;

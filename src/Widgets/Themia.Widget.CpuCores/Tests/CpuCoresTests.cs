@@ -17,7 +17,6 @@ public sealed class CpuCoresTests
     public void S11011_it_offers_bars_a_grid_and_graphs_and_starts_headerless()
     {
         Assert.Equal(["bars", "grid", "graphs"], WidgetStyles.For(new WidgetId("cpuCores")).Select(s => s.Name));
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
         foreach (var style in Enum.GetValues<CpuCoresStyle>())
         {
             Assert.Empty(Kind.Sizing(new CpuCoresConfig { Style = style }).Problems());

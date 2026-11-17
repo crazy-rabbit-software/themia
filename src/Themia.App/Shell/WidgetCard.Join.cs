@@ -12,7 +12,7 @@ namespace Themia.App.Shell;
 /// [S-2240]..[S-2244] Cards that touch become one surface: the card takes its outline from
 /// <see cref="CardJoins"/> (which corners stay round, which border sides draw) and gives it to
 /// everything that follows its shape: the surface's clip (the frost, the fill, a background image, the
-/// header, the view and any overlay inside it), the header's own fill and the border.
+/// view and any overlay inside it) and the border; [S-12482] and its view, which runs to a side a mate joins.
 /// </summary>
 internal sealed partial class WidgetCard
 {
@@ -98,6 +98,7 @@ internal sealed partial class WidgetCard
         }
 
         _outline = outline;
+        ApplyEdges();
         ApplyDesign();
     }
 
@@ -110,33 +111,6 @@ internal sealed partial class WidgetCard
             o.RoundTopRight ? radius : 0,
             o.RoundBottomRight ? radius : 0,
             o.RoundBottomLeft ? radius : 0);
-    }
-
-    /// <summary>
-    /// [S-407] [S-2241] The header's own fill's corners: the strip's outer corners, each only where the
-    /// card's is round. A side strip is turned with its top facing out, so its top corners are the
-    /// card's two on that edge: counter-clockwise (the left edge) its top left is the card's bottom
-    /// left, clockwise (the right edge) its top left is the card's top right.
-    /// </summary>
-    private CornerRadius HeaderCorners(double radius)
-    {
-        var o = FlowOutline;
-        var corners = HeaderStrip.StripCorners(ShownEdge);
-        if (HeaderStrip.IsSide(Model.ShownHeader))
-        {
-            var left = HeaderStrip.Turn(Model.ShownHeader) == HeaderTurn.CounterClockwise;
-            var physical = _outline;
-            var (topLeft, topRight) = left
-                ? (physical.RoundBottomLeft, physical.RoundTopLeft)
-                : (physical.RoundTopRight, physical.RoundBottomRight);
-            return new CornerRadius(topLeft ? radius : 0, topRight ? radius : 0, 0, 0);
-        }
-
-        return new CornerRadius(
-            corners.TopStart && o.RoundTopLeft ? radius : 0,
-            corners.TopEnd && o.RoundTopRight ? radius : 0,
-            corners.BottomEnd && o.RoundBottomRight ? radius : 0,
-            corners.BottomStart && o.RoundBottomLeft ? radius : 0);
     }
 
     /// <summary>

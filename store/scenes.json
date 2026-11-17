@@ -199,7 +199,6 @@
             280,
             136
           ],
-          "header": "hidden",
           "group": "Ping"
         },
         {
@@ -233,7 +232,6 @@
             262,
             136
           ],
-          "header": "hidden",
           "group": "Graphics"
         },
         {
@@ -267,7 +265,6 @@
             262,
             136
           ],
-          "header": "hidden",
           "group": "Network"
         },
         {
@@ -311,7 +308,6 @@
             262,
             136
           ],
-          "header": "hidden",
           "group": "Processor"
         },
         {
@@ -345,7 +341,6 @@
             262,
             136
           ],
-          "header": "hidden",
           "group": "Memory"
         },
         {

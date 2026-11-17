@@ -50,13 +50,13 @@ public sealed class SunTimesTests
     }
 
     [Fact]
-    public void S11116_its_height_is_a_28_row_a_time_under_the_header_and_dragging_sets_the_rows()
+    public void S11116_its_height_is_a_28_row_a_time_under_the_inset_and_dragging_sets_the_rows()
     {
         var config = new SunTimesConfig();
-        Assert.Equal(new SizeDip(240, 36 + (3 * 28) + 12), Kind.Sizing(config).Natural);
-        Assert.Equal(36 + (6 * 28) + 12, Kind.Sizing(config).Max.Height);
+        Assert.Equal(new SizeDip(240, 12 + (3 * 28) + 12), Kind.Sizing(config).Natural);
+        Assert.Equal(12 + (6 * 28) + 12, Kind.Sizing(config).Max.Height);
 
-        var taller = (SunTimesConfig)Kind.SizeSets!(config, new SizeDip(240, 36 + (5 * 28) + 12));
+        var taller = (SunTimesConfig)Kind.SizeSets!(config, new SizeDip(240, 12 + (5 * 28) + 12));
         Assert.Equal([SunTimeKind.Sunrise, SunTimeKind.Sunset, SunTimeKind.Daylight, SunTimeKind.Noon, SunTimeKind.Dawn], taller.Times);
     }
 

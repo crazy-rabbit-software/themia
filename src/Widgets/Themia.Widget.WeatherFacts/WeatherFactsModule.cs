@@ -32,11 +32,11 @@ public sealed class WeatherFactsModule : IWidgetModule
         Glyph = Glyphs.Thermometer,
         Sizing = c => Sizing((WeatherFactsConfig)c),
         SizeSets = (c, size) => SkyFacts.SizeSets(c, size, ((WeatherFactsConfig)c).Facts, WeatherFactRules.All, (copy, facts) => ((WeatherFactsConfig)copy).Facts = facts),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Weather, 0, 1),
     };
 
-    /// <summary>[S-11106] One 28 row a picked fact under the header, 200..420 wide (a new one 240).</summary>
+    /// <summary>[S-11106] One 28 row a picked fact under the inset, 200..420 wide (a new one 240).</summary>
     internal static WidgetSizing Sizing(WeatherFactsConfig config) => SkyFacts.Sizing(config.Facts.Count, WeatherFactRules.All.Count);
 
     /// <summary>[S-11107] Every option is on the properties menu: the widget has no settings page.</summary>

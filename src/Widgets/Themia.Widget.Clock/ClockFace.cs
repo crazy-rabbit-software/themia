@@ -15,9 +15,6 @@ public readonly record struct ClockReadoutPlan(TypeStep Step, bool Stacked, bool
 /// <summary>[S-6743] The analog dial as planned: its diameter and whether its line stands under it.</summary>
 public readonly record struct ClockDialPlan(double Dial, bool Line);
 
-/// <summary>[S-6744] The Date style as planned: the day's step, which words show and whether in their short names.</summary>
-public readonly record struct ClockDatePlan(TypeStep Step, bool Weekday, bool ShortWeekday, bool Month, bool ShortMonth);
-
 /// <summary>
 /// The clock's faces on the family's steps (one-readout, [S-6737]): the step its Size names, which its
 /// sizing made the card for ([S-2449]), measured in the content box (the card less its inset of 12, the
@@ -36,9 +33,6 @@ public static class ClockFace
 
     /// <summary>A part of the time at its widest: two figures.</summary>
     public const string Figures = "88";
-
-    /// <summary>[S-6744] The longest wide weekday name ("segunda-feira") and month ("październik"), and their short forms, in characters.</summary>
-    public const int WeekdayCharacters = 13, MonthCharacters = 11, ShortCharacters = 5;
 
     /// <summary>
     /// [S-6741] The digital, stacked and minimal readout: the value "88:88" (":88" more with seconds) and the
@@ -180,39 +174,6 @@ public static class ClockFace
     }
 
     /// <summary>
-    /// [S-6744] The Date style: the day of the month a Readout ("88") on the largest step that fits, the weekday
-    /// over it and the month under it, both on the step's line under, secondary. A word too wide for its line in
-    /// its wide name takes the short one; where the lines do not fit even the floor step, the month gives way,
-    /// then the weekday.
-    /// </summary>
-    public static ClockDatePlan Date(double width, double height)
-    {
-        var number = new ReadoutText(Figures, OneReadout: true);
-
-        var chosen = FamilyType.Big28;
-        foreach (var step in ReadoutRules.Steps(oneReadout: true))
-        {
-            var under = FamilyType.Under(step);
-            if (ReadoutRules.Width(step, number) <= width && step.LineHeight + (2 * under.LineHeight) <= height)
-            {
-                chosen = step;
-            }
-        }
-
-        var line = FamilyType.Under(chosen);
-        var weekday = chosen.LineHeight + line.LineHeight <= height;
-        var month = chosen.LineHeight + (2 * line.LineHeight) <= height;
-        return new ClockDatePlan(
-            chosen,
-            weekday,
-            Words(line, WeekdayCharacters) > width,
-            month && weekday,
-            Words(line, MonthCharacters) > width);
-    }
-
-    private static double Words(TypeStep step, int characters) => FamilyType.EstimateWidth(step, characters);
-
-    /// <summary>
     /// The room a face is given past its own size, so a box rounded to the device's pixels still holds
     /// the chosen step; far under the next step's growth, so the planners never pick a larger one.
     /// </summary>
@@ -240,9 +201,9 @@ public static class ClockFace
     /// <summary>
     /// [S-2449] The clock's sizing ([S-2438]): its face at the step its Size names (40, 68, 96; the words
     /// 28, 40, 68; the dial 96, 144, 192), with the line under it where the face has one, in the card's
-    /// inset of 12; never larger. The time faces (Digital, Minimal, Stacked, Flip) may be widened to twice
-    /// their face, the line under cut to what fits, at the one height; the dial, the words and the date
-    /// are one size. <paramref name="meridiem"/> is the widest AM/PM of the language when the region writes
+    /// inset of 12. The time faces (Digital, Minimal, Stacked, Flip) may be widened to twice their face, the
+    /// line under cut to what fits, at the one height; the dial and the words are one size. A larger box (the
+    /// relaxed range, [S-12411]) scales the face up as one to fill it ([S-12804]). <paramref name="meridiem"/> is the widest AM/PM of the language when the region writes
     /// 12-hour time, else empty: the face is as wide as its widest time.
     /// </summary>
     public static WidgetSizing Sizing(ClockConfig config, string meridiem)
@@ -252,7 +213,7 @@ public static class ClockFace
         var size = ReadoutSizes.Normalise(config.Size);
         var step = ReadoutSizes.Step(size);
         var unit = string.IsNullOrEmpty(meridiem) ? string.Empty : " " + meridiem;
-        var under = config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.ShowDate || config.OffsetMode != ClockOffsetMode.None);
+        var under = config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.OffsetMode != ClockOffsetMode.None);
         var underLine = under ? FamilyType.Under(step).LineHeight : 0;
         var seconds = config.DrawsSeconds;
 
@@ -268,10 +229,6 @@ public static class ClockFace
                 true),
             ClockStyle.Analog => (DialAt(size), DialAt(size) + (under ? DialGap + FamilyType.Body.LineHeight : 0), false),
             ClockStyle.Word => Sentence(size, under),
-            ClockStyle.Date => (
-                Math.Max(ReadoutRules.Width(step, new ReadoutText(Figures, OneReadout: true)), Words(FamilyType.Under(step), WeekdayCharacters)),
-                step.LineHeight + (2 * FamilyType.Under(step).LineHeight),
-                false),
             _ => (
                 ReadoutRules.Width(step, new ReadoutText(seconds ? "88:88:88" : "88:88", unit, OneReadout: true)),
                 step.LineHeight + underLine,
@@ -297,12 +254,12 @@ public static class ClockFace
     }
 
     /// <summary>
-    /// [S-6741] The one line under a clock's face: the city of a world clock, the date and the offset, " · "
-    /// between them, as the line's room (<paramref name="width"/> on <paramref name="step"/>) holds them: the long
-    /// date, else the short one, else without the offset, else the city alone (or the short date); the line
-    /// is cut with an ellipsis past that. Null when there is nothing to say.
+    /// [S-6741] The one line under a clock's face: the city of a world clock and the offset, " · " between them,
+    /// as the line's room (<paramref name="width"/> on <paramref name="step"/>) holds them, else the city alone; the
+    /// line is cut with an ellipsis past that. Null when there is nothing to say. The date is the Date widget's
+    /// ([S-12805]).
     /// </summary>
-    public static string? Under(double width, TypeStep step, string? label, string? longDate, string? shortDate, string? offset)
+    public static string? Under(double width, TypeStep step, string? label, string? offset)
     {
         string? Join(params string?[] parts)
         {
@@ -312,10 +269,8 @@ public static class ClockFace
 
         string?[] candidates =
         [
-            Join(label, longDate, offset),
-            Join(label, shortDate, offset),
-            Join(label, shortDate),
-            Join(label) ?? Join(shortDate),
+            Join(label, offset),
+            Join(label) ?? Join(offset),
         ];
 
         foreach (var candidate in candidates)

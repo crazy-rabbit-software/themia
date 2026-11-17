@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Nuna kwanan wata",
   "clock.offsetLabel": "Bambanci",
   "clock.secondsLabel": "Nuna daƙiƙa",
   "clock.styleAnalog": "Mai allura",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Yankin lokaci",
   "clock.tzCurrent": "Na yanzu: {city}",
   "locationSearch.placeholder": "Nemi birni…",
-  "styles.clock.date": "Kwanan wata",
   "styles.clock.flip": "Juyawa",
   "styles.clock.minimal": "Mai sauƙi",
   "styles.clock.words": "Kalmomi",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Ƙarfe [n] saura minti ashirin",
   "wordClock.m45": "Ƙarfe [n] saura kwata",
   "wordClock.m50": "Ƙarfe [n] saura minti goma",
-  "wordClock.m55": "Ƙarfe [n] saura minti biyar",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Ƙarfe [n] saura minti biyar"
 }

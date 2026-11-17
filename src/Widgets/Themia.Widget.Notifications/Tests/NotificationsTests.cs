@@ -18,7 +18,7 @@ public sealed class NotificationsTests
         var plan = NotificationsLayout.Plan(config);
 
         Assert.Equal(new NotificationPlan(2, true, true, false, NotificationRules.FoldAt), plan);
-        Assert.Equal(new SizeDip(300, 36 + (4 * 40) + 12), new NotificationsModule().Descriptor.Sizing(config).Natural);
+        Assert.Equal(new SizeDip(300, 12 + (4 * 40) + 12), new NotificationsModule().Descriptor.Sizing(config).Natural);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public sealed class NotificationsTests
     [Fact]
     public void S11404_dragging_sets_rows_and_out_of_range_is_repaired()
     {
-        var next = (NotificationsConfig)new NotificationsModule().Descriptor.SizeSets!(new NotificationsConfig(), new SizeDip(300, 36 + (6 * 40) + 12));
+        var next = (NotificationsConfig)new NotificationsModule().Descriptor.SizeSets!(new NotificationsConfig(), new SizeDip(300, 12 + (6 * 40) + 12));
         Assert.Equal(6, next.Rows);
 
         var wild = new NotificationsConfig { Rows = 0, Lines = 5 };

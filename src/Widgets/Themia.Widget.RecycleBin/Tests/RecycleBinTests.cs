@@ -42,13 +42,13 @@ public sealed class RecycleBinTests
     }
 
     [Fact]
-    public void S11201_one_fixed_size_holds_the_header_the_reading_its_count_and_empty()
+    public void S11201_one_fixed_size_holds_the_reading_its_count_and_empty()
     {
         var sizing = ModuleCatalog.Of(new WidgetId("recycleBin")).SizingOf();
 
         Assert.Equal(sizing.Min, sizing.Natural);
-        Assert.Equal(new SizeDip(180, 36 + 36 + 16 + 8 + 28 + 12), sizing.Natural);
-        Assert.Equal(new SizeDip(360, 2 * (36 + 36 + 16 + 8 + 28 + 12)), sizing.Max); // relaxed, [S-12411]
+        Assert.Equal(new SizeDip(180, 12 + 36 + 16 + 8 + 28 + 12), sizing.Natural);
+        Assert.Equal(new SizeDip(Themia.Sdk.SizeStretch.Ceiling, Themia.Sdk.SizeStretch.Ceiling), sizing.Max); // relaxed, [S-12411]: no practical Max
         Assert.Empty(sizing.Problems());
     }
 }

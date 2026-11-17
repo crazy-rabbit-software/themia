@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Tarihi göster",
   "clock.offsetLabel": "Fark",
   "clock.secondsLabel": "Saniyeleri göster",
   "clock.styleAnalog": "Analog",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Saat dilimi",
   "clock.tzCurrent": "Geçerli: {city}",
   "locationSearch.placeholder": "Şehir ara…",
-  "styles.clock.date": "Tarih",
   "styles.clock.flip": "Çevirmeli",
   "styles.clock.minimal": "Minimal",
   "styles.clock.words": "Kelimeler",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Saat [n3] yirmi var",
   "wordClock.m45": "Saat [n3] çeyrek var",
   "wordClock.m50": "Saat [n3] on var",
-  "wordClock.m55": "Saat [n3] beş var",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Saat [n3] beş var"
 }

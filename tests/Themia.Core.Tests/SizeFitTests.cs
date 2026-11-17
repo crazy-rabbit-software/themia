@@ -98,36 +98,6 @@ public sealed class SizeFitTests
     }
 
     [Fact]
-    public void S2444_a_header_the_kind_did_not_count_adds_its_line_and_one_it_counted_and_hides_takes_it_away()
-    {
-        var withHeader = SizeFit.ForHeader(Meter, HeaderPlacement.Hidden, HeaderPlacement.Top);
-        Assert.Equal(Meter.Min with { Height = 112 + SizeFit.HeaderCost }, withHeader.Min);
-
-        var hidden = SizeFit.ForHeader(List(6), HeaderPlacement.Top, HeaderPlacement.Hidden);
-        Assert.Equal(76 - SizeFit.HeaderCost, hidden.HeightSteps!.Base);
-        Assert.Equal(76 - SizeFit.HeaderCost + (6 * 28), hidden.Natural.Height);
-        Assert.Empty(hidden.Problems());
-
-        var side = SizeFit.ForHeader(Meter, HeaderPlacement.Top, HeaderPlacement.Left);
-        Assert.Equal(new SizeDip(160 + SizeFit.EdgeHeaderCost, 112 - SizeFit.HeaderCost), side.Min);
-    }
-
-    [Fact]
-    public void S5700_a_header_at_the_foot_or_a_side_costs_its_own_inset_too_as_the_view_keeps_its_own()
-    {
-        // Under a header the content starts at 36; without one above, at the inset the card adds (12).
-        Assert.Equal(36, FamilySpace.Inset + SizeFit.HeaderCost);
-
-        // At the foot: the view's own bottom inset, then the strip's gap, line and inset on the edge.
-        var foot = SizeFit.ForHeader(Meter, HeaderPlacement.Top, HeaderPlacement.Bottom);
-        Assert.Equal(Meter.Min with { Height = 112 - SizeFit.HeaderCost + 4 + 20 + 12 }, foot.Min);
-        Assert.Equal(36, SizeFit.EdgeHeaderCost);
-
-        var hidden = SizeFit.ForHeader(Meter, HeaderPlacement.Hidden, HeaderPlacement.Right);
-        Assert.Equal(new SizeDip(160 + 36, 112), hidden.Min);
-    }
-
-    [Fact]
     public void S2442_the_wanted_size_is_the_whole_cell_at_widget_scale_one()
     {
         var wanted = SizeFit.Wanted(new FracRect(0, 0, 0.3, 0.15), Screen, scale: 2);

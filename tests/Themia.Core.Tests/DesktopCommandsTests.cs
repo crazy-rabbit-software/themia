@@ -295,7 +295,7 @@ public sealed class DesktopCommandsTests
 
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Rename, QuickCommand.Share, QuickCommand.Delete], Row(menu));
         Assert.Equal(
-            [FileCommand.Open, FileCommand.OpenWith, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.EditMode, Sep, FileCommand.ShowMoreOptions],
+            [FileCommand.Open, FileCommand.OpenWith, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions],
             List(menu));
         Assert.All(menu.Lines, line => Assert.True(line.Enabled));
         Assert.Equal([Desk + "a.txt"], menu.Classic);
@@ -310,7 +310,7 @@ public sealed class DesktopCommandsTests
         Assert.Equal(
             [
                 FileCommand.Open, FileCommand.OpenWith, FileCommand.OpenFileLocation, FileCommand.PinToStart, FileCommand.CompressToZip,
-                FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.EditMode, Sep, FileCommand.ShowMoreOptions,
+                FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions,
             ],
             List(menu));
     }
@@ -327,7 +327,7 @@ public sealed class DesktopCommandsTests
         Assert.Equal(
             [
                 FileCommand.Open, FileCommand.PinToQuickAccess, FileCommand.PinToStart, FileCommand.CompressToZip, FileCommand.CopyAsPath,
-                FileCommand.Properties, Sep, FileCommand.EditMode, Sep, FileCommand.ShowMoreOptions,
+                FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions,
             ],
             List(menu));
 
@@ -342,7 +342,7 @@ public sealed class DesktopCommandsTests
         var withFolder = Menu([Item("a.txt"), Item("Docs")], null, "Docs");
 
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Share, QuickCommand.Delete], Row(files));
-        Assert.Equal([FileCommand.Open, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.EditMode, Sep, FileCommand.ShowMoreOptions], List(files));
+        Assert.Equal([FileCommand.Open, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(files));
         Assert.Equal([Desk + "a.txt", Desk + "b.txt"], files.Classic);
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Delete], Row(withFolder));
     }
@@ -357,16 +357,16 @@ public sealed class DesktopCommandsTests
         var withFile = Menu([Item("a.txt"), Shell(DesktopCommands.RecycleBinItem)]);
 
         Assert.Empty(Row(pc));
-        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.EditMode, Sep, FileCommand.ShowMoreOptions], List(pc));
+        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(pc));
         Assert.Equal([ThisPcItem], pc.Classic);
 
         Assert.Empty(Row(bin));
-        Assert.Equal([FileCommand.Open, FileCommand.EmptyRecycleBin, FileCommand.Properties, Sep, FileCommand.EditMode, Sep, FileCommand.ShowMoreOptions], List(bin));
+        Assert.Equal([FileCommand.Open, FileCommand.EmptyRecycleBin, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(bin));
         Assert.Equal(canEmpty, Enabled(bin, FileCommand.EmptyRecycleBin));
 
         // With a file beside it the bin's own line goes, and still nothing cuts, renames or deletes.
         Assert.Empty(Row(withFile));
-        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.EditMode, Sep, FileCommand.ShowMoreOptions], List(withFile));
+        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(withFile));
         Assert.Equal([Desk + "a.txt", DesktopCommands.RecycleBinItem], withFile.Classic);
     }
 
@@ -378,7 +378,7 @@ public sealed class DesktopCommandsTests
         var menu = Menu([Own(App, there: there)], new DeskMenuFacts(false, false, false));
 
         Assert.Equal([QuickCommand.Rename, QuickCommand.Delete], Row(menu));
-        FileCommand[] expected = [FileCommand.Open, FileCommand.OpenFileLocation, FileCommand.CopyPath, FileCommand.IconProperties, Sep, FileCommand.EditMode];
+        FileCommand[] expected = [FileCommand.Open, FileCommand.OpenFileLocation, FileCommand.CopyPath, FileCommand.IconProperties, Sep, FileCommand.EditMode, FileCommand.LockWidgets];
         Assert.Equal(there ? [.. expected, Sep, FileCommand.ShowMoreOptions] : expected, List(menu));
         Assert.Equal(there ? new[] { App } : [], menu.Classic);
     }
@@ -391,14 +391,14 @@ public sealed class DesktopCommandsTests
         var menu = Menu([Own(target)]);
 
         Assert.Equal([QuickCommand.Rename, QuickCommand.Delete], Row(menu));
-        Assert.Equal([FileCommand.Open, FileCommand.CopyUrl, FileCommand.IconProperties, Sep, FileCommand.EditMode], List(menu));
+        Assert.Equal([FileCommand.Open, FileCommand.CopyUrl, FileCommand.IconProperties, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(menu));
         Assert.Empty(menu.Classic);
     }
 
     [Fact]
     public void S5582_one_own_location_offers_its_path()
         => Assert.Equal(
-            [FileCommand.Open, FileCommand.CopyPath, FileCommand.IconProperties, Sep, FileCommand.EditMode],
+            [FileCommand.Open, FileCommand.CopyPath, FileCommand.IconProperties, Sep, FileCommand.EditMode, FileCommand.LockWidgets],
             List(Menu([Own("shell:Downloads")])));
 
     [Theory]
@@ -408,7 +408,7 @@ public sealed class DesktopCommandsTests
     {
         var menu = Menu([Own("shell:RecycleBinFolder")], new DeskMenuFacts(canEmpty, !canEmpty, false));
 
-        Assert.Equal([FileCommand.Open, FileCommand.EmptyRecycleBin, FileCommand.CopyPath, FileCommand.IconProperties, Sep, FileCommand.EditMode], List(menu));
+        Assert.Equal([FileCommand.Open, FileCommand.EmptyRecycleBin, FileCommand.CopyPath, FileCommand.IconProperties, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(menu));
         Assert.Equal(canEmpty, Enabled(menu, FileCommand.EmptyRecycleBin));
         Assert.Empty(menu.Classic);
     }
@@ -423,7 +423,7 @@ public sealed class DesktopCommandsTests
         var menu = Menu([Layout(assigned ? App : null)], new DeskMenuFacts(true, canEdit, false));
 
         Assert.Equal([QuickCommand.Rename, QuickCommand.Delete], Row(menu));
-        Assert.Equal([FileCommand.OpenLayout, FileCommand.EditLayout, FileCommand.IconProperties, Sep, FileCommand.EditMode], List(menu));
+        Assert.Equal([FileCommand.OpenLayout, FileCommand.EditLayout, FileCommand.IconProperties, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(menu));
         Assert.Equal(assigned, Enabled(menu, FileCommand.OpenLayout));
         Assert.Equal(canEdit, Enabled(menu, FileCommand.EditLayout));
     }
@@ -436,7 +436,7 @@ public sealed class DesktopCommandsTests
         var menu = Menu([Own(target)]);
 
         Assert.Equal([QuickCommand.Rename, QuickCommand.Delete], Row(menu));
-        Assert.Equal([FileCommand.Open, FileCommand.IconProperties, Sep, FileCommand.EditMode], List(menu));
+        Assert.Equal([FileCommand.Open, FileCommand.IconProperties, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(menu));
         Assert.False(Enabled(menu, FileCommand.Open));
     }
 
@@ -449,9 +449,9 @@ public sealed class DesktopCommandsTests
 
         // One row command is no row ([S-1741]): Delete stays a labelled line.
         Assert.Empty(Row(paths));
-        Assert.Equal([FileCommand.Open, FileCommand.CopyPath, Sep, FileCommand.Delete, Sep, FileCommand.EditMode], List(paths));
-        Assert.Equal([FileCommand.Open, Sep, FileCommand.Delete, Sep, FileCommand.EditMode], List(withWeb));
-        Assert.Equal([FileCommand.Open, Sep, FileCommand.Delete, Sep, FileCommand.EditMode], List(nothingOpens));
+        Assert.Equal([FileCommand.Open, FileCommand.CopyPath, Sep, FileCommand.Delete, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(paths));
+        Assert.Equal([FileCommand.Open, Sep, FileCommand.Delete, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(withWeb));
+        Assert.Equal([FileCommand.Open, Sep, FileCommand.Delete, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(nothingOpens));
         Assert.False(Enabled(nothingOpens, FileCommand.Open));
         Assert.Empty(paths.Classic);
     }
@@ -464,10 +464,10 @@ public sealed class DesktopCommandsTests
         var withWeb = Menu([Item("a.txt"), Own("https://example.com/page")]);
         var withWaiting = Menu([Item("a.txt"), Waiting()]);
 
-        Assert.Equal([FileCommand.Open, FileCommand.CopyPath, Sep, FileCommand.EditMode], List(paths));
-        Assert.Equal([FileCommand.Open, Sep, FileCommand.EditMode], List(withShellItem));
-        Assert.Equal([FileCommand.Open, Sep, FileCommand.EditMode], List(withWeb));
-        Assert.Equal([FileCommand.Open, Sep, FileCommand.EditMode], List(withWaiting));
+        Assert.Equal([FileCommand.Open, FileCommand.CopyPath, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(paths));
+        Assert.Equal([FileCommand.Open, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(withShellItem));
+        Assert.Equal([FileCommand.Open, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(withWeb));
+        Assert.Equal([FileCommand.Open, Sep, FileCommand.EditMode, FileCommand.LockWidgets], List(withWaiting));
         foreach (var menu in new[] { paths, withShellItem, withWeb, withWaiting })
         {
             Assert.Empty(Row(menu));
@@ -494,10 +494,14 @@ public sealed class DesktopCommandsTests
             Assert.NotEqual(Sep, list[^1]);
             Assert.DoesNotContain(Enumerable.Range(1, list.Length - 1), i => list[i] == Sep && list[i - 1] == Sep);
             Assert.Equal(menu.Classic.Count > 0, menu.Lines.Any(l => l.Command == FileCommand.ShowMoreOptions));
-            Assert.Equal(menu.Classic.Count > 0 ? FileCommand.ShowMoreOptions : FileCommand.EditMode, list[^1]);
+            Assert.Equal(menu.Classic.Count > 0 ? FileCommand.ShowMoreOptions : FileCommand.LockWidgets, list[^1]);
 
             // [S-65] The way into edit mode is on every desktop icon menu, once.
             Assert.Single(menu.Lines, l => l.Command == FileCommand.EditMode);
+
+            // [S-12951] Lock widgets right under it, once.
+            Assert.Single(menu.Lines, l => l.Command == FileCommand.LockWidgets);
+            Assert.Equal(FileCommand.LockWidgets, list[Array.IndexOf(list, FileCommand.EditMode) + 1]);
         }
     }
 

@@ -91,8 +91,6 @@ public sealed class ShellSettingsTests : IDisposable
         var state = AppState.CreateDefault();
         var view = state.Views[0];
         view.Icon = "\uE80F";
-        state.Design.HeaderBackgroundColor = "#112233";
-        state.Design.HeaderOpacity = 0.4;
         state.Design.IntroAnimation = IntroAnimation.Hyperspace;
         state.Design.TransitionAnimation = IntroAnimation.Hacker;
         state.Design.TransitionAnimationMs = 700;
@@ -101,6 +99,7 @@ public sealed class ShellSettingsTests : IDisposable
         state.Preferences.Language = AppLanguage.Japanese;
         state.Preferences.GameModeSuspend = true;
         state.Preferences.DesktopIconSize = DesktopIconSize.Small;
+        state.Preferences.LockWidgets = true;
         state.Desktop.Known.Add(@"C:\Users\Public\Desktop\Report.docx");
         view.Color = "#3366CC";
         state.DefaultViewForNewDisplays = view.Id;
@@ -118,8 +117,6 @@ public sealed class ShellSettingsTests : IDisposable
         var back = loaded.State;
 
         Assert.Equal("\uE80F", back.Views[0].Icon);
-        Assert.Equal("#112233", back.Design.HeaderBackgroundColor);
-        Assert.Equal(0.4, back.Design.HeaderOpacity);
         Assert.Equal(IntroAnimation.Hyperspace, back.Design.IntroAnimation);
         Assert.Equal(IntroAnimation.Hacker, back.Design.TransitionAnimation);
         Assert.Equal(700, back.Design.TransitionAnimationMs);
@@ -128,6 +125,7 @@ public sealed class ShellSettingsTests : IDisposable
         Assert.Equal(AppLanguage.Japanese, back.Preferences.Language);
         Assert.True(back.Preferences.GameModeSuspend);
         Assert.Equal(DesktopIconSize.Small, back.Preferences.DesktopIconSize);
+        Assert.True(back.Preferences.LockWidgets);
         Assert.Equal([@"C:\Users\Public\Desktop\Report.docx"], back.Desktop.Known);
         Assert.Equal("#3366CC", back.Views[0].Color);
         Assert.Equal(view.Id, back.DefaultViewForNewDisplays);
@@ -140,8 +138,6 @@ public sealed class ShellSettingsTests : IDisposable
     {
         var design = new DesignState
         {
-            HeaderBackgroundColor = "#ABCDEF",
-            HeaderOpacity = 0.3,
             TransitionAnimation = IntroAnimation.Flip,
             TransitionAnimationMs = 120,
             UnlockAnimation = IntroAnimation.Blur,
@@ -150,8 +146,6 @@ public sealed class ShellSettingsTests : IDisposable
 
         var copy = design.Clone();
 
-        Assert.Equal("#ABCDEF", copy.HeaderBackgroundColor);
-        Assert.Equal(0.3, copy.HeaderOpacity);
         Assert.Equal(IntroAnimation.Flip, copy.TransitionAnimation);
         Assert.Equal(120, copy.TransitionAnimationMs);
         Assert.Equal(IntroAnimation.Blur, copy.UnlockAnimation);
@@ -167,14 +161,12 @@ public sealed class ShellSettingsTests : IDisposable
     {
         var json = StateFile.Replace(
             "\"introAnimationMs\": 400",
-            "\"introAnimationMs\": 400, \"headerBackgroundColor\": \"not a colour\", \"headerOpacity\": 5, "
+            "\"introAnimationMs\": 400, "
             + "\"transitionAnimationMs\": -10, \"unlockAnimationMs\": 99999, \"transitionAnimation\": 42",
             StringComparison.Ordinal);
 
         var design = Parse(json).Design;
 
-        Assert.Equal(string.Empty, design.HeaderBackgroundColor);
-        Assert.Equal(1, design.HeaderOpacity);
         // [S-1000] The offered range is 100..5000 ms, the original's stepper.
         Assert.Equal(100, design.TransitionAnimationMs);
         Assert.Equal(5000, design.UnlockAnimationMs);
@@ -194,6 +186,18 @@ public sealed class ShellSettingsTests : IDisposable
         Assert.Equal(AppLanguage.System, result.State!.Preferences.Language);
         Assert.True(result.State.Preferences.GameModeSuspend);
         Assert.Contains(result.Repairs, r => r.Contains("language", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void S12950_lock_widgets_is_stored_as_lockWidgets_and_a_file_without_it_loads_off()
+    {
+        var without = AppStateStore.Parse(StateFile.Replace(
+            "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"gameModeSuspend\": true },", StringComparison.Ordinal));
+        Assert.False(without.State!.Preferences.LockWidgets);
+
+        var with = AppStateStore.Parse(StateFile.Replace(
+            "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"lockWidgets\": true },", StringComparison.Ordinal));
+        Assert.True(with.State!.Preferences.LockWidgets);
     }
 
     [Theory]
@@ -246,6 +250,7 @@ public sealed class ShellSettingsTests : IDisposable
         var current = AppState.CreateDefault();
         var incoming = AppState.CreateDefault();
         incoming.Preferences.GameModeSuspend = true;
+        incoming.Preferences.LockWidgets = true;
         incoming.Design.UnlockAnimationMs = 900;
         incoming.DisabledMonitors.Add("X");
         incoming.MonitorScales["X"] = 0.75;
@@ -253,11 +258,13 @@ public sealed class ShellSettingsTests : IDisposable
         var preview = SettingsTransfer.Compare(current, incoming, [], []);
 
         Assert.Contains(preview.Changes, c => c.StartsWith("Pause widgets during full-screen apps", StringComparison.Ordinal));
+        Assert.Contains(preview.Changes, c => c.StartsWith("Lock widgets", StringComparison.Ordinal));
         Assert.Contains(preview.Changes, c => c.StartsWith("Unlock animation length", StringComparison.Ordinal));
 
         SettingsTransfer.Apply(current, incoming);
 
         Assert.True(current.Preferences.GameModeSuspend);
+        Assert.True(current.Preferences.LockWidgets);
         Assert.Equal(900, current.Design.UnlockAnimationMs);
         Assert.Equal(["X"], current.DisabledMonitors);
         Assert.Equal(0.75, current.MonitorScales["X"]);
@@ -270,7 +277,7 @@ public sealed class ShellSettingsTests : IDisposable
         var json = SettingsTransfer.Serialize(AppState.CreateDefault());
 
         Assert.Matches(new Regex("\"preferences\"\\s*:"), json);
-        Assert.Matches(new Regex("\"headerOpacity\"\\s*:"), json);
+        Assert.Matches(new Regex("\"transitionAnimationMs\"\\s*:"), json);
         Assert.Matches(new Regex("\"monitorScales\"\\s*:"), json);
     }
 }

@@ -83,7 +83,6 @@ public sealed record SceneWidget(
     SceneRect At,
     string? State = null,
     string? Style = null,
-    HeaderPlacement? Header = null,
     FillChoice? Background = null,
     FillChoice? Items = null,
     string? ItemText = null,

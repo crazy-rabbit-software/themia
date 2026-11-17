@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Arată data",
   "clock.offsetLabel": "Decalaj",
   "clock.secondsLabel": "Arată secundele",
   "clock.styleAnalog": "Analogic",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Fus orar",
   "clock.tzCurrent": "Actual: {city}",
   "locationSearch.placeholder": "Caută un oraș…",
-  "styles.clock.date": "Dată",
   "styles.clock.flip": "Răsturnare",
   "styles.clock.minimal": "Minimal",
   "styles.clock.words": "Cuvinte",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Este ora [n] fără douăzeci",
   "wordClock.m45": "Este ora [n] fără un sfert",
   "wordClock.m50": "Este ora [n] fără zece",
-  "wordClock.m55": "Este ora [n] fără cinci",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Este ora [n] fără cinci"
 }

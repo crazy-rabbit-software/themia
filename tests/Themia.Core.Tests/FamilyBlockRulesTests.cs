@@ -49,49 +49,49 @@ public sealed class FamilyBlockRulesTests
     [Fact]
     public void S6710_the_label_gives_way_first_then_buttons_from_the_last_then_the_count()
     {
-        HeaderPart[] parts =
+        LinePart[] parts =
         [
-            new(HeaderPartKind.Problem, 16), new(HeaderPartKind.Label, 50), new(HeaderPartKind.Button, 24),
-            new(HeaderPartKind.Button, 24), new(HeaderPartKind.Count, 20),
+            new(LinePartKind.Problem, 16), new(LinePartKind.Label, 50), new(LinePartKind.Button, 24),
+            new(LinePartKind.Button, 24), new(LinePartKind.Count, 20),
         ];
 
         // Everything fits a wide header.
-        Assert.Equal([true, true, true, true, true], HeaderRules.Shown(400, 80, parts));
+        Assert.Equal([true, true, true, true, true], LineRules.Shown(400, 80, parts));
 
         // Narrower: the label goes, then the second button, then the first, then the count.
-        var needs = HeaderRules.Needs(80, parts, [true, false, true, true, true]);
-        Assert.Equal([true, false, true, true, true], HeaderRules.Shown(needs, 80, parts));
-        Assert.Equal([true, false, true, false, true], HeaderRules.Shown(needs - 1, 80, parts));
-        Assert.Equal([true, false, false, false, true], HeaderRules.Shown(HeaderRules.Needs(80, parts, [true, false, false, false, true]), 80, parts));
-        Assert.Equal([true, false, false, false, false], HeaderRules.Shown(60, 80, parts));
+        var needs = LineRules.Needs(80, parts, [true, false, true, true, true]);
+        Assert.Equal([true, false, true, true, true], LineRules.Shown(needs, 80, parts));
+        Assert.Equal([true, false, true, false, true], LineRules.Shown(needs - 1, 80, parts));
+        Assert.Equal([true, false, false, false, true], LineRules.Shown(LineRules.Needs(80, parts, [true, false, false, false, true]), 80, parts));
+        Assert.Equal([true, false, false, false, false], LineRules.Shown(60, 80, parts));
 
         // An unmeasured header shows all.
-        Assert.All(HeaderRules.Shown(0, 80, parts), Assert.True);
+        Assert.All(LineRules.Shown(0, 80, parts), Assert.True);
     }
 
     [Fact]
     public void S6710_two_buttons_stand_side_by_side_and_the_last_ones_glyph_sits_on_the_inset()
     {
-        HeaderPart[] two = [new(HeaderPartKind.Button, 24), new(HeaderPartKind.Button, 24)];
+        LinePart[] two = [new(LinePartKind.Button, 24), new(LinePartKind.Button, 24)];
 
-        // Leading 24, the name, 8 before the trail, two buttons with no gap, less the last one's overhang.
-        Assert.Equal(24 + 100 + 8 + 24 + 24 - 4, HeaderRules.Needs(100, two, [true, true]));
-        Assert.Equal(0, HeaderRules.Gap(HeaderPartKind.Button, HeaderPartKind.Button));
-        Assert.Equal(4, HeaderRules.Gap(HeaderPartKind.Count, HeaderPartKind.Button));
-        Assert.Throws<ArgumentException>(() => HeaderRules.Shown(300, 50, [.. two, new(HeaderPartKind.Button, 24)]));
+        // The label, 8 before the trail, two buttons with no gap, less the last one's overhang.
+        Assert.Equal(100 + 8 + 24 + 24 - 4, LineRules.Needs(100, two, [true, true]));
+        Assert.Equal(0, LineRules.Gap(LinePartKind.Button, LinePartKind.Button));
+        Assert.Equal(4, LineRules.Gap(LinePartKind.Count, LinePartKind.Button));
+        Assert.Throws<ArgumentException>(() => LineRules.Shown(300, 50, [.. two, new(LinePartKind.Button, 24)]));
     }
 
     [Fact]
     public void S6710_a_part_with_nothing_to_say_takes_no_room_and_folds_nothing_away()
     {
-        // Regression: the kit's header folded its Clear all button on a 200 tile because its hidden
+        // Regression: the kit's line folded its Clear all button on a 200 tile because its hidden
         // problem glyph and ring still counted a gap each (Notifications at S).
-        HeaderPart[] parts = [new(HeaderPartKind.Problem, 0), new(HeaderPartKind.Busy, 0), new(HeaderPartKind.Button, 24), new(HeaderPartKind.Count, 19)];
+        LinePart[] parts = [new(LinePartKind.Problem, 0), new(LinePartKind.Busy, 0), new(LinePartKind.Button, 24), new(LinePartKind.Count, 19)];
         bool[] wanted = [false, false, true, true];
 
-        // 24 leading + 81.5 name + 8 + 24 + 4 + 19 = 160.5 fits 164; with the hidden two it would need 168.5.
-        Assert.Equal([false, false, true, true], HeaderRules.Shown(164, 81.5, parts, wanted));
-        Assert.Equal([false, false, false, true], HeaderRules.Shown(150, 81.5, parts, wanted));
+        // 81.5 label + 8 + 24 + 4 + 19 = 136.5 fits 140; with the hidden two it would need 144.5.
+        Assert.Equal([false, false, true, true], LineRules.Shown(140, 81.5, parts, wanted));
+        Assert.Equal([false, false, false, true], LineRules.Shown(130, 81.5, parts, wanted));
     }
 
     [Fact]
@@ -322,8 +322,8 @@ public sealed class FamilyBlockRulesTests
             Assert.Empty(tile.Problems());
             Assert.Equal(tile, TileRules.Sizing(TileLook.Round, stateLine));
 
-            // The least is the 28 glyph alone in the inset; the most is large on both axes, each free.
-            Assert.Equal(new SizeDip(52, 52), tile.Min);
+            // The least is the family's smallest glyph in the inset ([S-12806]); the most is large on both axes, each free.
+            Assert.Equal(new SizeDip(40, 40), tile.Min);
             Assert.Equal(new SizeDip(TileRules.MaxSide, TileRules.MaxSide), tile.Max);
             Assert.True(TileRules.MaxSide >= 400);
         }
@@ -338,6 +338,30 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(60, row.Min.Height);
         Assert.Equal(new SwitchParts(Glyph: true, Lines: false), TileRules.Switch(row.Min.Width - 24));
         Assert.Equal(new SwitchParts(Glyph: true, Lines: true), TileRules.Switch(row.Natural.Width - 24));
+    }
+
+    [Fact]
+    public void S12806_under_the_glyphs_inset_the_inset_gives_way_and_the_glyph_shrinks_to_the_smallest()
+    {
+        // Owner, 2026-11-17: "they should not really have a smallest size at all".
+        Assert.Equal(40, TileRules.MinSide);
+        Assert.Equal((28.0, 6.0), (TileRules.Face(40, 40).MarkSize, TileRules.Face(40, 40).Inset));
+        Assert.Equal((16.0, 4.0), (TileRules.Face(24, 24).MarkSize, TileRules.Face(24, 24).Inset));
+        Assert.Equal((16.0, 6.0), (TileRules.Face(28, 60).MarkSize, TileRules.Face(28, 60).Inset));
+        Assert.Equal((28.0, 4.0), (TileRules.Face(36, 36).MarkSize, TileRules.Face(36, 36).Inset));
+        Assert.Equal((28.0, 10.0), (TileRules.Face(48, 48).MarkSize, TileRules.Face(48, 48).Inset));
+        Assert.Equal((28.0, 12.0), (TileRules.Face(52, 52).MarkSize, TileRules.Face(52, 52).Inset));
+
+        // Every box from the least: the glyph alone fits its inset, never under 4, and grows with the box.
+        var last = 0.0;
+        for (var side = 24.0; side < 60; side++)
+        {
+            var face = TileRules.Face(side, side);
+            Assert.False(face.Texted);
+            Assert.True(face.Inset >= TileRules.TightInset && face.MarkSize + (2 * face.Inset) <= side, $"{side}: {face}");
+            Assert.True(face.MarkSize >= last, $"{side}: shrank");
+            last = face.MarkSize;
+        }
     }
 
     [Fact]

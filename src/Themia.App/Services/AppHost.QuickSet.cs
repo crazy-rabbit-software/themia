@@ -19,9 +19,6 @@ internal sealed partial class AppHost
     /// <summary>[S-11754] The selection page's model on the display showing <paramref name="shownViewId"/>; null while nothing there is selected.</summary>
     public SelectionModel? SelectionModelFor(string shownViewId) => SelectionPage.Of(State, Selection, shownViewId);
 
-    /// <summary>[S-3703] The widgets' header, in one step.</summary>
-    public void SetHeader(IReadOnlyList<string> ids, HeaderPlacement header) => Change(ids, (view, of) => QuickSet.SetHeader(view, of, header));
-
     /// <summary>[S-3703] [S-6566] The widgets' background, in one step.</summary>
     public void SetBackground(IReadOnlyList<string> ids, FillChoice fill) => Change(ids, (view, of) => QuickSet.SetBackground(view, of, fill));
 
@@ -73,24 +70,6 @@ internal sealed partial class AppHost
         if (Selection.Entered is not null)
         {
             ChangeSelection(Selection.StepOut(SelectionView));
-        }
-    }
-
-    /// <summary>
-    /// [S-3704] One widget's title, as typed. By id rather than the selection: the box commits as it
-    /// loses focus, which can be after a click has already selected another widget.
-    /// </summary>
-    public void SetTitle(string widgetId, string? typed)
-    {
-        if (Find(widgetId) is not var (view, widget) || widget is null)
-        {
-            return;
-        }
-
-        var defaultTitle = ModuleCatalog.Of(widget.Kind).Name;
-        if (!string.Equals(widget.Label, QuickSet.Title(typed, defaultTitle), StringComparison.Ordinal))
-        {
-            Mutate(_ => QuickSet.SetTitle(view, widgetId, typed, defaultTitle));
         }
     }
 

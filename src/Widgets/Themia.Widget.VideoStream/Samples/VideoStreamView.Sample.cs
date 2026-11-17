@@ -50,7 +50,6 @@ internal sealed partial class VideoStreamView : IWidgetSample
             Paused = paused,
             ShowStatus = true,
         };
-        PublishTitle();
 
         _phase = phase;
         _reconnects = reconnects;

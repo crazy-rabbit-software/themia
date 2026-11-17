@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Hiện ngày",
   "clock.offsetLabel": "Chênh lệch",
   "clock.secondsLabel": "Hiện giây",
   "clock.styleAnalog": "Kim",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Múi giờ",
   "clock.tzCurrent": "Hiện tại: {city}",
   "locationSearch.placeholder": "Tìm thành phố…",
-  "styles.clock.date": "Ngày",
   "styles.clock.flip": "Lật",
   "styles.clock.minimal": "Tối giản",
   "styles.clock.words": "Chữ",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Bây giờ là [n] giờ kém hai mươi",
   "wordClock.m45": "Bây giờ là [n] giờ kém mười lăm",
   "wordClock.m50": "Bây giờ là [n] giờ kém mười",
-  "wordClock.m55": "Bây giờ là [n] giờ kém năm",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Bây giờ là [n] giờ kém năm"
 }

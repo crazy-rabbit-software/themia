@@ -36,8 +36,9 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
 - **[S-785]** Retired (G2, 2026-10-29): the "!" before an important task's title. Its BodyStrong
   title and the tooltip say it everywhere; the critical colour is a state's (an overdue due), never
   a mark of importance.
-- **[S-615]** Tasks' one stale rule ([S-7042]): the header is the kit's (`KitHeader`: the problem
-  glyph, the ring, the list picker as its button, the neutral open count); a list on this PC that
+- **[S-615]** Tasks' one stale rule ([S-7042]): the status is the kit's (`KitStatus` over the
+  content's top end, [S-12481]: the problem glyph and the ring; the list picker is the card menu's lines);
+  a list on this PC that
   could not be saved and a change the provider refused are its notes; an account list whose last
   refresh failed with tasks on screen is one line in the kit's words, stamped with when they are
   from ("Work: No network · updated 10:42", `TaskFreshness`); the card menu's Refresh line says the

@@ -16,7 +16,7 @@ public sealed class ClockDigitsHostTests
 
     private static ClockConfig Utc(Action<ClockConfig>? tweak = null)
     {
-        var config = new ClockConfig { TimeZoneId = "Etc/UTC", ShowDate = false };
+        var config = new ClockConfig { TimeZoneId = "Etc/UTC" };
         tweak?.Invoke(config);
         return config;
     }

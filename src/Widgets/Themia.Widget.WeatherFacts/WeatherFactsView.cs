@@ -17,12 +17,12 @@ namespace Themia.Widget.WeatherFacts;
 /// [S-11105] The weather's readings at the card's place as fact rows: exactly the picked facts, in their
 /// order, from the view's top (<see cref="SkyFactList"/>). The reading comes from the background sync
 /// through <see cref="SkyFeed{TWant, T}"/>, the same answer the reading card (<c>weatherNow</c>) draws.
-/// A reading kept through a failed refresh stays and the header's problem glyph says so ([S-7042]);
+/// A reading kept through a failed refresh stays and the status's problem glyph says so ([S-7042]);
 /// with none, the Status row at the top says why ([S-6734]).
 /// </summary>
-internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetContextActions
+internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions
 {
-    private readonly KitHeader _header;
+    private readonly KitStatus _status;
     private readonly SkyFactList _rows = new();
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<WeatherInterest, CurrentWeather> _feed;
@@ -30,7 +30,7 @@ internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens
 
     public WeatherFactsView(IWidgetHost host)
     {
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
         _feed = new(
             () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Reading, host.Weather.Show),
             () => WeatherInterests.For(_config),
@@ -38,13 +38,11 @@ internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens
         _rows.Visibility = Visibility.Collapsed;
         Children.Add(_rows);
         Children.Add(_empty);
+        _status.Place(this);
     }
 
     /// <inheritdoc />
     public CardOpen? Opens => WeatherFactsModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
-
-    /// <summary>The header's problem glyph ([S-7042]) and the place as its label ([S-2260]).</summary>
-    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>[S-730] "Refresh": the network now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -60,7 +58,6 @@ internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as WeatherFactsConfig ?? new WeatherFactsConfig();
-        _header.SetAbout(_config.PlaceLabel);
         _feed.Cadence(_config.TickInterval);
         _feed.Reload();
     }
@@ -74,12 +71,12 @@ internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens
         {
             OnlineParts.ShowState(_empty, _feed.Status, Glyphs.Weather, _feed.Refresh);
             _rows.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            _status.Clear();
             return;
         }
 
         _empty.Hide();
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        _status.Show(OnlineParts.Problems(held), busy: false);
         var unit = _feed.Want?.Unit ?? RegionFormat.Current.Temperature;
         _rows.Visibility = Visibility.Visible;
         _rows.Show([.. WeatherFactRules.For(_config.Facts, reading, unit).Select(f => new SkyFact(FactGlyph(f.Kind), f.Label, f.Value))]);

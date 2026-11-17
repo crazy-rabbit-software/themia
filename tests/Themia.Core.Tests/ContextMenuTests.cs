@@ -1,4 +1,5 @@
 using Themia.Core.Shell;
+using Themia.Tests;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -144,7 +145,7 @@ public sealed class ContextMenuTests
         var list = split.List.Where(i => i >= 0).Select(i => items[i].Command).ToList();
 
         Assert.Equal(
-            [ShellCommand.WidgetActions, ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.ToggleEditMode],
+            [ShellCommand.WidgetActions, ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.ToggleEditMode, ShellCommand.ToggleLockWidgets],
             list);
     }
 
@@ -174,7 +175,7 @@ public sealed class ContextMenuTests
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
         // [S-6536] No Settings: a widget's options are on its properties menu, in edit mode.
-        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.ToggleEditMode], Commands(items));
+        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.ToggleEditMode, ShellCommand.ToggleLockWidgets], Commands(items));
         Assert.Empty(split.Row);
     }
 
@@ -248,4 +249,65 @@ public sealed class ContextMenuTests
     [InlineData(double.NaN, 0, true)]
     public void S1745_travel_past_three_dips_on_either_axis_is_a_drag(double dx, double dy, bool travelled)
         => Assert.Equal(travelled, CardGestures.Travelled(dx, dy));
+
+    // ---- [S-12951] Lock widgets ----------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void S12951_lock_widgets_stands_under_edit_mode_on_the_card_menus_checked_while_on(bool locked)
+    {
+        IReadOnlyList<ShellMenuItem>[] menus =
+        [
+            ShellMenus.ForCard(Card(edit: false) with { WidgetsLocked = locked }),
+            ShellMenus.ForCard(Card(edit: true) with { WidgetsLocked = locked }),
+        ];
+
+        foreach (var items in menus)
+        {
+            var commands = Commands(items);
+            var at = commands.IndexOf(ShellCommand.ToggleLockWidgets);
+            Assert.Equal(ShellCommand.ToggleEditMode, commands[at - 1]);
+            Assert.Equal(locked, items[at].Checked);
+            Assert.Null(items[at].Quick);
+        }
+
+        // The desktop's background menu ([S-5548]) and a desktop icon's ([S-5582]): the same line under Edit mode.
+        var background = Desktop.DesktopBackground.Menu(new(ClipboardHasFiles: false, HasTerminal: false, WidgetsLocked: locked));
+        var line = background.Single(l => l.Command == Desktop.DesktopMenuCommand.LockWidgets);
+        Assert.Equal(locked, line.Checked);
+        Assert.Equal(Desktop.DesktopMenuCommand.EditMode, background[background.ToList().IndexOf(line) - 1].Command);
+        Assert.False(Desktop.DesktopBackgroundFacts.Of(Model.AppState.CreateDefault(), false, false).WidgetsLocked);
+    }
+
+    // ---- [S-12952] one leading column ------------------------------------------------------------------
+
+    [Fact]
+    public void S12952_a_toggle_shows_its_mark_in_the_icon_slot_and_nothing_while_off()
+    {
+        Assert.Equal(Themia.App.Shell.Glyphs.Done, MenuMarks.Slot(true, choice: false, Themia.App.Shell.Glyphs.Edit));
+        Assert.Null(MenuMarks.Slot(false, choice: false, Themia.App.Shell.Glyphs.Edit));
+        Assert.Equal(Themia.App.Shell.Glyphs.RadioBullet, MenuMarks.Slot(true, choice: true, null));
+        Assert.Null(MenuMarks.Slot(false, choice: true, null));
+        Assert.Equal(Themia.App.Shell.Glyphs.Edit, MenuMarks.Slot(null, choice: false, Themia.App.Shell.Glyphs.Edit));
+    }
+
+    /// <summary>
+    /// [S-12952] Regression (owner, 2026-11-17: "there is one column too much on the left side in the context menu"):
+    /// a toggle or radio flyout item makes WinUI reserve a check column beside the icons. No shipped menu builds one; the
+    /// view bar's select menu (its ticks beside the views' marks) is the one file left, shrink-only.
+    /// </summary>
+    [Fact]
+    public void S12952_no_menu_builds_a_toggle_or_radio_item_that_adds_a_second_leading_column()
+    {
+        string[] allowed = ["src/Themia.App/Shell/ViewBar.cs"];
+        var offenders = RepoFiles.CSharp(RepoFiles.Src)
+            .Where(f => File.ReadLines(f).Any(line => !line.TrimStart().StartsWith("//", StringComparison.Ordinal)
+                && System.Text.RegularExpressions.Regex.IsMatch(line, @"\b(ToggleMenuFlyoutItem|RadioMenuFlyoutItem|AppBarToggleButton)\b")))
+            .Select(f => Path.GetRelativePath(RepoFiles.Root, f).Replace('\\', '/'))
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Equal(allowed, offenders);
+    }
 }

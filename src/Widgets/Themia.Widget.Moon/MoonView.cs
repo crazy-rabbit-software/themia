@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 /// grid, today ringed in the accent, the month's name over it. The rise, set and next full and new moon
 /// are the moon times' atom.
 /// </summary>
-internal sealed partial class MoonView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetAligned
+internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWidgetJoins
 {
     private readonly SkyMoonDisc _disc = new();
     private readonly ReadoutBlock _value = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -31,10 +31,6 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetHeaderContent
 
     private MoonConfig _config = new();
 
-    /// <summary>[S-2260] The header's trailing parts: the place as its label beside the widget's name.</summary>
-    private readonly HeaderParts _about = new();
-
-    public FrameworkElement? HeaderTrailing => _about;
     private Ticker? _ticker;
     private IDisposable? _subscription;
     private DateTimeOffset _now = DateTimeOffset.Now;
@@ -63,8 +59,8 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetHeaderContent
         _valueLine.Children.Add(_value);
         _readout.Children.Add(_valueLine);
         _readout.Children.Add(_name);
-        // [S-12410] The readout (or the month) is one block, centred in the room under the header with the
-        // foot's inset counted with it: at its natural box nothing moves.
+        // [S-12410] The readout (or the month) is one block, centred in the room with the foot's inset
+        // counted with it: at its natural box nothing moves ([S-12483]: against a side a group mate joins).
         _readout.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         _todayRing.Stroke = Family.Brush(ColourRole.Accent);
@@ -100,7 +96,6 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetHeaderContent
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as MoonConfig ?? new MoonConfig();
-        PublishPlace();
 
         // One cadence for good: the config cannot change it, so subscribe once.
         _subscription ??= _ticker?.Subscribe(_config.TickInterval, Tick);
@@ -196,8 +191,20 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetHeaderContent
         _name.Text = MoonPhase.Label(moon.Name);
     }
 
-    /// <summary>[S-2260] The header names the widget ("Moon"); the place stands in its label, none once it is cleared ([S-2848]).</summary>
-    private void PublishPlace() => _about.SetAbout(_config.PlaceLabel);
-
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>[S-12483] The block stands against a side a group mate joins, with no foot inset where one joins it.</summary>
+    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
+    {
+        var edge = sides.Block switch
+        {
+            Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
+            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        _readout.VerticalAlignment = edge;
+        _month.VerticalAlignment = edge;
+        _readout.Margin = Family.SideInset with { Bottom = sides.Foot };
+        _month.Margin = Family.SideInset with { Bottom = sides.Foot };
+    }
 }

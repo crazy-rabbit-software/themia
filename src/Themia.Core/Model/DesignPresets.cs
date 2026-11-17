@@ -42,8 +42,6 @@ public sealed record DesignPresetValues(
     string PrimaryColor,
     string FontFamily,
     FillChoice Background,
-    string HeaderBackgroundColor,
-    double HeaderOpacity,
     WidgetBorderStyle BorderStyle,
     double BorderWidthPx,
     string BorderColor,
@@ -93,69 +91,69 @@ public static class DesignPresets
 
         // [S-2122] Graphite, Karpo's calm neutral grey, its dark design: #27292D cards, a periwinkle accent, no outline.
         new(DesignPresetId.Graphite, Str.Settings_Style_Preset_Name_Graphite, new(
-            AppTheme.Dark, "#8FA6FF", DesignLook.SystemFont, FillChoice.Of("#27292D", 1), "", 1,
+            AppTheme.Dark, "#8FA6FF", DesignLook.SystemFont, FillChoice.Of("#27292D", 1),
             WidgetBorderStyle.None, 1, "", 1, 8, BlurBehind: false)),
 
         // [S-2122] Daylight, light first: white cards, Windows' blue, a black hairline at 10 %.
         new(DesignPresetId.Daylight, Str.Settings_Style_Preset_Name_Daylight, new(
-            AppTheme.Light, "#0067C0", DesignLook.SystemFont, FillChoice.Of("#FFFFFF", 1), "", 1,
+            AppTheme.Light, "#0067C0", DesignLook.SystemFont, FillChoice.Of("#FFFFFF", 1),
             WidgetBorderStyle.Solid, 1, "#000000", 0.10, 8, BlurBehind: false)),
 
         // [S-2122] Midnight, dark first: near-black cards, a lavender accent, a white hairline at 12 %.
         new(DesignPresetId.Midnight, Str.Settings_Style_Preset_Name_Midnight, new(
-            AppTheme.Dark, "#A99BFF", DesignLook.SystemFont, FillChoice.Of("#121214", 1), "", 1,
+            AppTheme.Dark, "#A99BFF", DesignLook.SystemFont, FillChoice.Of("#121214", 1),
             WidgetBorderStyle.Solid, 1, "#FFFFFF", 0.12, 8, BlurBehind: false)),
 
         // [S-2122] Contrast: black cards outlined white, a yellow accent.
         new(DesignPresetId.Contrast, Str.Settings_Style_Preset_Name_Contrast, new(
-            AppTheme.Dark, "#FFE500", DesignLook.SystemFont, FillChoice.Of("#000000", 1), "", 1,
+            AppTheme.Dark, "#FFE500", DesignLook.SystemFont, FillChoice.Of("#000000", 1),
             WidgetBorderStyle.Solid, 1, "#FFFFFF", 1, 8, BlurBehind: false)),
 
         // [S-2122] Acrylic: Windows' own grey three quarters over the blurred wallpaper, a white hairline at 12 %.
         new(DesignPresetId.Acrylic, Str.Settings_Style_Preset_Name_Acrylic, new(
-            AppTheme.Dark, "#60CDFF", DesignLook.SystemFont, FillChoice.Of("#2C2C2C", 0.75), "", 1,
+            AppTheme.Dark, "#60CDFF", DesignLook.SystemFont, FillChoice.Of("#2C2C2C", 0.75),
             WidgetBorderStyle.Solid, 1, "#FFFFFF", 0.12, 8, BlurBehind: true)),
 
         // [S-2122] Glacier: icy white at 80 % over the blur, a white rim at 60 %, a deep teal accent.
         new(DesignPresetId.Glacier, Str.Settings_Style_Preset_Name_Glacier, new(
-            AppTheme.Light, "#0A6B9C", DesignLook.SystemFont, FillChoice.Of("#F2F8FC", 0.80), "", 1,
+            AppTheme.Light, "#0A6B9C", DesignLook.SystemFont, FillChoice.Of("#F2F8FC", 0.80),
             WidgetBorderStyle.Solid, 1, "#FFFFFF", 0.60, 8, BlurBehind: true)),
 
         // [S-2123] Liquid glass: the system's theme, the glass's own clear tint over the blur, its lit rim (no border of
         // the design's), round 18 like Apple's controls.
         new(DesignPresetId.LiquidGlass, Str.Settings_Style_Preset_Name_LiquidGlass, new(
-            AppTheme.System, "", DesignLook.SystemFont, new FillChoice(), "", 1,
+            AppTheme.System, "", DesignLook.SystemFont, new FillChoice(),
             WidgetBorderStyle.None, 1, "", 1, LiquidGlass.Light.RadiusPx, BlurBehind: true, Material: CardMaterial.LiquidGlass,
             Tokens: LiquidGlassTokens)),
 
         // [S-2122] Paper, warm paper and a serif (Karpo's Sitka): opaque cream cards, a burnt sienna accent.
         new(DesignPresetId.Paper, Str.Settings_Style_Preset_Name_Paper, new(
-            AppTheme.Light, "#A84B24", DesignLook.SerifFont, FillChoice.Of("#FAF6EE", 1), "", 1,
+            AppTheme.Light, "#A84B24", DesignLook.SerifFont, FillChoice.Of("#FAF6EE", 1),
             WidgetBorderStyle.None, 1, "", 1, 8, BlurBehind: false)),
 
         // [S-2122] Harbor, navy and teal in Bahnschrift.
         new(DesignPresetId.Harbor, Str.Settings_Style_Preset_Name_Harbor, new(
-            AppTheme.Dark, "#4CC8DF", HarborFont, FillChoice.Of("#13283F", 1), "", 1,
+            AppTheme.Dark, "#4CC8DF", HarborFont, FillChoice.Of("#13283F", 1),
             WidgetBorderStyle.None, 1, "", 1, 8, BlurBehind: false)),
 
         // [S-2122] Bloom, plum and raspberry: pink cards, plum text.
         new(DesignPresetId.Bloom, Str.Settings_Style_Preset_Name_Bloom, new(
-            AppTheme.Light, "#B0204F", DesignLook.SystemFont, FillChoice.Of("#F7CFDE", 1), "", 1,
+            AppTheme.Light, "#B0204F", DesignLook.SystemFont, FillChoice.Of("#F7CFDE", 1),
             WidgetBorderStyle.None, 1, "", 1, 8, BlurBehind: false)),
 
         // [S-2122] Ember: burnt orange cards with white text, the accent forward.
         new(DesignPresetId.Ember, Str.Settings_Style_Preset_Name_Ember, new(
-            AppTheme.Dark, "#FFE0B8", DesignLook.SystemFont, FillChoice.Of("#B23F14", 1), "", 1,
+            AppTheme.Dark, "#FFE0B8", DesignLook.SystemFont, FillChoice.Of("#B23F14", 1),
             WidgetBorderStyle.None, 1, "", 1, 8, BlurBehind: false)),
 
         // [S-2122] Blueprint, navy and blue in Bahnschrift (Karpo's grid not drawn).
         new(DesignPresetId.Blueprint, Str.Settings_Style_Preset_Name_Blueprint, new(
-            AppTheme.Dark, "#7CC4FF", HarborFont, FillChoice.Of("#13315C", 1), "", 1,
+            AppTheme.Dark, "#7CC4FF", HarborFont, FillChoice.Of("#13315C", 1),
             WidgetBorderStyle.None, 1, "", 1, 8, BlurBehind: false)),
 
         // [S-2122] Moss, forest greens (Karpo's contours not drawn).
         new(DesignPresetId.Moss, Str.Settings_Style_Preset_Name_Moss, new(
-            AppTheme.Dark, "#8FD18A", DesignLook.SystemFont, FillChoice.Of("#1E2E25", 1), "", 1,
+            AppTheme.Dark, "#8FD18A", DesignLook.SystemFont, FillChoice.Of("#1E2E25", 1),
             WidgetBorderStyle.None, 1, "", 1, 8, BlurBehind: false)),
     ];
 
@@ -173,7 +171,6 @@ public static class DesignPresets
         FrostBrightness = 0.04,
         Grain = 0.02,
         Vibrancy = 1,
-        HeaderTone = HeaderTone.Primary,
         ReadoutWeight = Sdk.Kit.TypeWeight.Regular,
         TrackingLarge = -24,
         TrackingSmall = -4,
@@ -209,8 +206,6 @@ public static class DesignPresets
             design.PrimaryColor,
             design.FontFamily,
             design.Background ?? new FillChoice(),
-            design.HeaderBackgroundColor,
-            design.HeaderOpacity,
             design.BorderStyle,
             design.BorderWidthPx,
             design.BorderColor,
@@ -236,8 +231,6 @@ public static class DesignPresets
         design.PrimaryColor = v.PrimaryColor;
         design.FontFamily = v.FontFamily;
         design.Background = v.Background.Clone();
-        design.HeaderBackgroundColor = v.HeaderBackgroundColor;
-        design.HeaderOpacity = v.HeaderOpacity;
         design.BorderStyle = v.BorderStyle;
         design.BorderWidthPx = v.BorderWidthPx;
         design.BorderColor = v.BorderColor;
@@ -289,8 +282,6 @@ public static class DesignPresets
             && SameText(a.PrimaryColor, b.PrimaryColor)
             && SameText(a.FontFamily, b.FontFamily)
             && a.Background.SameAs(b.Background)
-            && SameText(a.HeaderBackgroundColor, b.HeaderBackgroundColor)
-            && Near(a.HeaderOpacity, b.HeaderOpacity)
             && a.BorderStyle == b.BorderStyle
             && Near(a.BorderWidthPx, b.BorderWidthPx)
             && SameText(a.BorderColor, b.BorderColor)

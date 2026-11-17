@@ -11,7 +11,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-571] / [S-2709] [S-11540] The agenda: what is coming up, grouped by day, in pages of the config's
-/// rows (one column, its lines), paged with the header's arrows and the keys rather than scrolled. The rows are the kit's (<see cref="KitList"/>,
+/// rows (one column, its lines), paged with the card menu's back and forward and the keys rather than scrolled. The rows are the kit's (<see cref="KitList"/>,
 /// the schedule look on pages with day groups, [S-7035], [S-7036]); what an item says is
 /// <see cref="AgendaSpec"/>'s.
 /// </summary>

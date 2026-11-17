@@ -21,13 +21,16 @@ public static class ScreenTimeReading
 
     public const double Widest = 320;
 
+    /// <summary>[S-454] [S-12481] [S-12803] The day line over the content for a day (its line and the gap under it), none for a window.</summary>
+    public static double DayLine(ScreenTimePeriod period) => ScreenTimeRules.DayLine(period);
+
     /// <summary>The widest figure a reading holds, so its least width never cuts it: 888h 59m.</summary>
     public const double WorstSeconds = (888 * 3600) + (59 * 60);
 
-    /// <summary>[S-11500] The reading's sizing, with its header: the 28's line and its line under, one height.</summary>
-    public static WidgetSizing Sizing()
+    /// <summary>[S-11500] The reading's sizing: its day line for a day ([S-454], [S-12803]), the 28's line and its line under, one height.</summary>
+    public static WidgetSizing Sizing(ScreenTimePeriod period)
     {
-        var height = FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;
+        var height = FamilySpace.ContentTop + DayLine(period) + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;
         var figure = Math.Ceiling(ReadoutRules.Width(FamilyType.Big28, new ReadoutText(ScreenTimeRules.FormatDuration(WorstSeconds)))) + (2 * FamilySpace.Inset);
         var least = Math.Max(Narrowest, Math.Ceiling(figure / FamilySpace.S1) * FamilySpace.S1);
         return WidgetSizing.Range(new(least, height), new(Math.Max(least, NaturalWidth), height), new(Math.Max(least, Widest), height));

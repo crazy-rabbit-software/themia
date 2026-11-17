@@ -29,7 +29,7 @@ public sealed class SunModule : IWidgetModule
         Description = SunStr.WidgetsC_Sun_Desc.Local(),
         Glyph = Glyphs.Sun,
         Sizing = c => SunLayout.Sizing((SunConfig)c),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Weather, 1, 0),
     };
 

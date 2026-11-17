@@ -23,6 +23,7 @@ public class WidgetSetupTests
     private static readonly WidgetId[] NeedSetupByDefault =
     [
         new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
+        new WidgetId("temperatureGraph"), new WidgetId("rainGraph"), new WidgetId("uvGraph"), new WidgetId("airQualityGraph"), new WidgetId("windGraph"), new WidgetId("humidityGraph"), new WidgetId("pressureGraph"),
         new WidgetId("videoStream"), new WidgetId("gallery"), new WidgetId("desktopItem"),
         new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"), new WidgetId("upNext"),
         new WidgetId("weekPlanner"), new WidgetId("contacts"), new WidgetId("tasks"),

@@ -32,9 +32,6 @@ internal sealed partial class GalleryView
     /// <summary>The gap between tiles.</summary>
     private const double Gap = GalleryPlan.Gap;
 
-    /// <summary>[S-767] The slideshow's "1/20": the header's informing label, the first part to give way ([S-6710]).</summary>
-    private readonly TextBlock _counter = HeaderBlock.Label(string.Empty);
-    private readonly HeaderParts _header = new();
     private readonly Canvas _canvas = new();
     private readonly RectangleGeometry _clip = new();
     private readonly List<GalleryFrame> _frames = [];
@@ -47,9 +44,6 @@ internal sealed partial class GalleryView
 
     private void BuildParts()
     {
-        _header.Add(HeaderPartKind.Label, _counter);
-        _header.Want(_counter, false);
-
         // Scatter prints are dealt near the edges and tilted; the clip keeps their corners on the card.
         _canvas.Clip = _clip;
 
@@ -120,10 +114,6 @@ internal sealed partial class GalleryView
         }
 
         PlaceControls(plan);
-
-        ShowCounter(plan.Counter && plan.Mode == GalleryMode.Slideshow
-            ? GalleryStr.WidgetsB_Gallery_Counter.Format(("index", _index + 1), ("count", _pictures.Count))
-            : string.Empty);
     }
 
     private Stretch PictureStretch => _config.Fit == GalleryFit.Fill ? Stretch.UniformToFill : Stretch.Uniform;
@@ -274,13 +264,6 @@ internal sealed partial class GalleryView
         }
     }
 
-    /// <summary>The header's label: wanted only while it says something.</summary>
-    private void ShowCounter(string text)
-    {
-        _counter.Text = text;
-        _header.Want(_counter, text.Length > 0);
-    }
-
     private void ShowMessage(GalleryStatus status, string text)
     {
         _plan = null;
@@ -293,7 +276,6 @@ internal sealed partial class GalleryView
 
         _frames.Clear();
 
-        ShowCounter(string.Empty);
         _canvas.Visibility = Visibility.Collapsed;
         HideControls();
 

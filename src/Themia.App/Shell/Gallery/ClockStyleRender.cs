@@ -15,8 +15,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-6016] Debug only: <c>Themia.exe --clock-style-check &lt;outDir&gt;</c>. One live clock card,
 /// off-screen, handed a run of configs in turn through the card's own settings path (what a pick on
-/// the properties menu does): every style after every other, both ways, with seconds and the date
-/// on and off, the seconds toggled on the flip face, and the card resized between some of them. A
+/// the properties menu does): every style after every other, both ways, with seconds on and off, the seconds toggled on the flip face, and the card resized between some of them. A
 /// card that turns into its error card stops the run; the steps go to <c>steps.txt</c>, the last
 /// face to <c>last.png</c>, and the process exits with 1 on a fault, 0 when every step held.
 /// </summary>
@@ -25,7 +24,7 @@ internal static class ClockStyleRender
     private const string Scope = "clock-style-check";
     private const string Flag = "--clock-style-check";
 
-    private static readonly string[] Styles = ["digital", "analog", "stacked", "flip", "word", "minimal", "date"];
+    private static readonly string[] Styles = ["digital", "analog", "stacked", "flip", "word", "minimal"];
 
     public static bool TryRunFromCommandLine(Application app, string[] args)
     {
@@ -139,21 +138,18 @@ internal static class ClockStyleRender
 
         foreach (var seconds in new[] { false, true })
         {
-            foreach (var date in new[] { true, false })
+            var flags = $"\"showSeconds\":{(seconds ? "true" : "false")}";
+
+            // Forward, backward, and every style to and from flip.
+            foreach (var style in Styles.Concat(Styles.Reverse()))
             {
-                var flags = $"\"showSeconds\":{(seconds ? "true" : "false")},\"showDate\":{(date ? "true" : "false")}";
+                yield return ($$"""{"style":"{{style}}",{{flags}}}""", null);
+            }
 
-                // Forward, backward, and every style to and from flip.
-                foreach (var style in Styles.Concat(Styles.Reverse()))
-                {
-                    yield return ($$"""{"style":"{{style}}",{{flags}}}""", null);
-                }
-
-                foreach (var other in Styles)
-                {
-                    yield return ($$"""{"style":"flip",{{flags}}}""", null);
-                    yield return ($$"""{"style":"{{other}}",{{flags}}}""", null);
-                }
+            foreach (var other in Styles)
+            {
+                yield return ($$"""{"style":"flip",{{flags}}}""", null);
+                yield return ($$"""{"style":"{{other}}",{{flags}}}""", null);
             }
         }
 

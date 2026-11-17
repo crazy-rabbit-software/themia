@@ -35,18 +35,6 @@ public static class ReadoutSizes
         _ => FamilyType.Hero68,
     };
 
-    /// <summary>
-    /// [S-12410] The most a face that picks its step by its box (the clock) may grow to in a box larger
-    /// than its Size's (a relaxed range, [S-12411]): one family step past the Size's (40 to 68, 68 to 96,
-    /// 96 to 136), as a factor on its natural box. Beyond it the rest is spacing round the face.
-    /// </summary>
-    public static double Climb(ReadoutSize size) => size switch
-    {
-        ReadoutSize.Small => FamilyType.Hero68.FontSize / FamilyType.Big40.FontSize,
-        ReadoutSize.Large => FamilyType.Hero136.FontSize / FamilyType.Hero96.FontSize,
-        _ => FamilyType.Hero96.FontSize / FamilyType.Hero68.FontSize,
-    };
-
     /// <summary>A stored size that is none of the three reads as the default.</summary>
     public static ReadoutSize Normalise(ReadoutSize size) => Enum.IsDefined(size) ? size : Default;
 }

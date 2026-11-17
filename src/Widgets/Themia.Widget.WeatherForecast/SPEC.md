@@ -2,8 +2,7 @@
 
 The module `weatherForecast` ([S-6911]): the next few days at a place, from open-meteo. Its tags are
 this file's alone; the root `SPEC.md` holds the host's sections and what both weather widgets share
-(Weather: current conditions and forecast: the request [S-720], the day labels [S-721], the header's
-place label [S-728], [S-2260], the stored answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2848],
+(Weather: current conditions and forecast: the request [S-720], the day labels [S-721], the stored answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2848],
 the glyphs [S-733]; the background web sync [S-2663]; the family's blocks [S-6700]..[S-6734]).
 
 Owning files: everything in this folder: `WeatherForecastModule.cs` (descriptor, view factory,
@@ -57,8 +56,7 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
 - **[S-6173]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page: Appearance ([S-3723]), then behind a divider each Location (the weather family's search, [S-3722], as the
   current conditions', [S-6174]), Days (1 to 14, the current one with the dot: the size follows) and the precipitation
-  switch, and the links to Temperature unit and Update interval ([S-3749], as the current
-  conditions'). (Tests `WeatherForecastMenuTests`.)
+  switch; the temperature unit and the update interval are ⚙'s, followed, no link row ([S-3590], [S-3749]). (Tests `WeatherForecastMenuTests`.)
 - **[S-2036]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
   in the UI language's market and the unit shown ([S-2006], `WeatherForecastModule.Opens`); nothing
   while it has no place (it shows Set up then).
@@ -66,10 +64,10 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
 - **[S-11145]** **An atom** ([S-11170]): its **Days** (1..14, a new one 5; `WeatherForecastConfig.Days`,
   also what it asks for) decide what it shows in every style; nothing sheds or appears with the box (a
   bar or the chart longer, a column or cell wider). Days and lines out of range are repaired.
-- **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`, with its header): **Rows** a 28 or 40 row a
-  day, the height stepped by the days and following them, 220..420 wide (a new one 300 × 188);
-  **Columns** a 56 column a day, the width stepped by the days and following them, one height (208 with
-  the rain, 188 without); **Curve** 48..72 a day wide (a new one 56), the chart's band 72..144 (a new one
+- **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`, the inset over and under): **Rows** a 28 or
+  40 row a day, the height stepped by the days and following them, 220..420 wide (a new one 300 × 164);
+  **Columns** a 56 column a day, the width stepped by the days and following them, one height (184 with
+  the rain, 164 without); **Curve** 48..72 a day wide (a new one 56), the chart's band 72..144 (a new one
   96) under the days' parts; **Grid** cells 56..80 wide (a new one 64) in its arrangement, one height.
   Dragging the rows' bottom edge or the columns' side edge sets the days ([S-2442]).
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the

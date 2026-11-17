@@ -38,7 +38,7 @@ public sealed class NetworkAdaptersModule : IWidgetModule
         Glyph = Glyphs.Network,
         Sizing = c => KitSizing.Sizing(Shown((NetworkAdaptersConfig)c), addFooter: false),
         SizeSets = (c, s) => KitSizing.SizeSets(c, s, Shown((NetworkAdaptersConfig)c), addFooter: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.NetworkReading, 0, 3),
     };
 

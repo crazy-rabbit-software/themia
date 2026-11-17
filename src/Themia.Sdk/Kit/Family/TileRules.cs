@@ -47,9 +47,15 @@ public readonly record struct SwitchParts(bool Glyph, bool Lines);
 
 /// <summary>
 /// [S-11882] What a Tile or Round tile draws in its box: its glyph's step, whether its name (and a
-/// toggle's state line) stand under it, and their steps.
+/// toggle's state line) stand under it, and their steps. [S-12806] Under the inset's room for the 28 glyph the
+/// glyph's box is <see cref="Mark"/> (28 or 16, the family's smallest glyph) in an inset of <see cref="Inset"/>
+/// (down to 4): 0 for <see cref="Mark"/> is the step's own size.
 /// </summary>
-public readonly record struct TileFace(TypeStep Glyph, bool Texted, TypeStep Name, TypeStep State);
+public readonly record struct TileFace(TypeStep Glyph, bool Texted, TypeStep Name, TypeStep State, double Mark = 0, double Inset = FamilySpace.Inset)
+{
+    /// <summary>The glyph's box: <see cref="Mark"/>, or the step's size.</summary>
+    public double MarkSize => Mark > 0 ? Mark : Glyph.FontSize;
+}
 
 /// <summary>
 /// [S-6715] The Tile block, for the one-readout widgets (the thirteen quick toggles, the seven power
@@ -148,6 +154,17 @@ public static class TileRules
     /// </summary>
     public static TileFace Face(double width, double height, bool stateLine = true)
     {
+        // [S-12806] A box too small for the 28 glyph in the inset: the glyph alone, as large as it can be (28, else the
+        // family's smallest, 16) with the inset given up down to 4 round it.
+        var side = Math.Min(double.IsFinite(width) ? width : 0, double.IsFinite(height) ? height : 0);
+        if (side < GlyphAloneSide)
+        {
+            var mark = side - (2 * TightInset) >= FamilyType.Big28.FontSize ? FamilyType.Big28.FontSize : FamilyShape.Icon;
+            var inset = Math.Clamp(Math.Floor((side - mark) / 2), TightInset, FamilySpace.Inset);
+            var (name, state) = TextAt(FamilyType.Big28);
+            return new TileFace(FamilyType.Big28, false, name, state, mark, inset);
+        }
+
         var w = (double.IsFinite(width) ? width : 0) - (2 * FamilySpace.Inset);
         var h = (double.IsFinite(height) ? height : 0) - (2 * FamilySpace.Inset);
         TileFace? texted = null;
@@ -173,8 +190,19 @@ public static class TileRules
     /// <summary>[S-11882] A glyph alone is at most this share of its inset box's short side: one third.</summary>
     public const double AloneShare = 3;
 
-    /// <summary>[S-11882] The smallest a Tile or Round tile may be: its 28 glyph alone in the inset, 52.</summary>
-    public static double MinSide => (2 * FamilySpace.Inset) + FamilyType.Big28.FontSize;
+    /// <summary>[S-11882] The box that holds the 28 glyph alone in the family's inset, 52: under it the inset gives way ([S-12806]).</summary>
+    public static double GlyphAloneSide => (2 * FamilySpace.Inset) + FamilyType.Big28.FontSize;
+
+    /// <summary>[S-12806] The least inset round a glyph in a box too small for the family's: 4.</summary>
+    public const double TightInset = FamilySpace.S1;
+
+    /// <summary>
+    /// [S-12806] The smallest a Tile or Round tile may be (owner, 2026-11-17: "the buttons like the night mode toggle
+    /// should be able to be smaller than they are now, they should not really have a smallest size at all"): the
+    /// family's smallest glyph (16) in the family's inset, 40 (the app's floor is 32, [S-08]). <see cref="Face"/> holds
+    /// down to the glyph with 4 round it, so a box the grid or the floor rounds smaller still draws.
+    /// </summary>
+    public const double MinSide = FamilyShape.Icon + (2 * FamilySpace.Inset);
 
     /// <summary>
     /// [S-11882] [S-11804] Where a new Tile or Round tile lands: the 28 glyph, its name on two lines and (a

@@ -55,8 +55,6 @@ public sealed class LookTokensJson : JsonConverter<LookTokens>
                 case "headerWeight": tokens.HeaderWeight = Named(ref reader, key, tokens.HeaderWeight); break;
                 case "readoutWeight": tokens.ReadoutWeight = Named(ref reader, key, tokens.ReadoutWeight); break;
                 case "bodyWeight": tokens.BodyWeight = Named(ref reader, key, tokens.BodyWeight); break;
-                case "headerTone": tokens.HeaderTone = Named(ref reader, key, tokens.HeaderTone); break;
-                case "headerCase": tokens.HeaderCase = Named(ref reader, key, tokens.HeaderCase); break;
                 case "innerSurface": tokens.InnerSurface = Named(ref reader, key, tokens.InnerSurface); break;
                 case "rowDividers": tokens.RowDividers = Named(ref reader, key, tokens.RowDividers); break;
                 case "tabularNumerals":
@@ -106,8 +104,6 @@ public sealed class LookTokensJson : JsonConverter<LookTokens>
         Enum("headerWeight", value.HeaderWeight, Fresh.HeaderWeight);
         Enum("readoutWeight", value.ReadoutWeight, Fresh.ReadoutWeight);
         Enum("bodyWeight", value.BodyWeight, Fresh.BodyWeight);
-        Enum("headerTone", value.HeaderTone, Fresh.HeaderTone);
-        Enum("headerCase", value.HeaderCase, Fresh.HeaderCase);
         Enum("innerSurface", value.InnerSurface, Fresh.InnerSurface);
         Enum("rowDividers", value.RowDividers, Fresh.RowDividers);
         if (value.TabularNumerals != Fresh.TabularNumerals)

@@ -32,7 +32,7 @@ public sealed class MusicCoverModule : IWidgetModule
         Description = MusicCoverStr.MusicCover_Desc.Local(),
         Glyph = Glyph,
         Sizing = c => MusicCoverFace.Sizing((MusicCoverConfig)c),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 4),
     };
 

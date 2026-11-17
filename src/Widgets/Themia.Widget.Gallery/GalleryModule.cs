@@ -33,7 +33,7 @@ public sealed class GalleryModule : IWidgetModule
         Glyph = Glyph,
         Sizing = c => GalleryPlan.Sizing((GalleryConfig)c),
         SizeSets = (c, size) => GalleryPlan.SizeSets((GalleryConfig)c, size),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 1, 0),
     };
 

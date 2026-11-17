@@ -32,7 +32,7 @@ public sealed class RecycleBinModule : IWidgetModule
         Description = RecycleBinStr.RecycleBin_Desc.Local(),
         Glyph = Glyphs.RecycleBin,
         Sizing = _ => WidgetSizing.Fixed(RecycleBinLayout.Size),
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Files, 0, 3),
     };
 

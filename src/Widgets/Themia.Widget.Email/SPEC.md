@@ -27,11 +27,12 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   Sent, Drafts, Deleted, Junk [S-12].
 - **[S-542]** List (sender + time, subject, preview), Compact (sender + time, subject) and Row (one
   line of user-ordered columns under a header row) views [S-14, S-37]; newest or oldest first over
-  the same newest N [S-17]. The card title is the folder; the header carries the unread badge
-  [S-02], the kit's problem glyph ([S-7064]: one line per account that failed or needs signing in, a
+  the same newest N [S-17]. No card header ([S-12480]): the kit's status over the content's top end
+  ([S-12481]) carries the kit's problem glyph ([S-7064]: one line per account that failed or needs signing in, a
   tap → Accounts where only the user can mend it) and a busy ring only for a refresh the user asked for. The card menu offers Refresh, Write email
   ([S-558]) and the five folders [S-20]; the style ([S-6403]) and the order are settings only ([S-1746]).
-- **[S-543]** List fields Subject / Account, default both on (the preview is the List style's own
+- **[S-543]** List fields Subject / Account, default the subject alone ([S-12801]: on every row of one account the
+  account's name only repeats the context; it is a choice for an inbox of several) (the preview is the List style's own
   line, [S-6403]); the account tag shows whenever chosen [S-43]. Table columns From, Subject, Date,
   Preview, Account, reorderable, at least one on [S-16].
 - **[S-6403]** Mail's styles ([S-6000]), `EmailConfig.Style` (`EmailStyle`, `"style": "list"`):
@@ -48,7 +49,7 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   Copy [S-22]. Delete moves to Deleted (Graph move, IMAP UID MOVE); only a message already in Deleted
   is removed for good (Graph DELETE; IMAP `\Deleted` + `UID EXPUNGE`, UIDPLUS-scoped). A change shows
   at once and waits in the account's queue until the provider has it ([S-2610], [S-2624]); a refusal
-  is the header warning's tooltip and the next probe fetches the truth.
+  is the status's warning tooltip and the next probe fetches the truth.
 - **[S-11402]** **Mail states its rows** ([S-2440]): `Rows` (1..20, default 5) and `Lines` per
   message (the sender with its time; the subject with the account; the preview, List only), offered
   up to the lines its style and fields have (List 3, Compact 2, none in the Table; a Compact list with
@@ -68,7 +69,7 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
 - **[S-1282]** *(Retired by [S-2270]: no envelope leads a row.)* Unread is the strong name alone: no
   accent envelope, no accent bar, no accent time.
 - **[S-2270]** No row leads: an envelope on every row tells nothing ([S-6711]: a lead only where it
-  tells rows apart), so the sender's name starts at the inset, in line with the header's name. Unread
+  tells rows apart), so the sender's name starts at the inset, in line with the content's text edge. Unread
   is told by the name alone: BodyStrong in the primary role unread, Body in the secondary role read
   (`KitSpec.Unread`, the kit's quiet row, `RowRules.Roles(quiet)`), in the stacked looks and the
   table's From column alike; the second line, the badge and the time are as before.
@@ -89,9 +90,8 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   items, each account read as an outcome (signed out: sign in again; not answered: loading; failed:
   its status, stamped with when its list is from), the accounts' states, the unread count for the
   badge, and a change waiting, refused or a command that failed as the header's notes until the next
-  update. The binding draws the kit's screens, state panel and header: one stale rule ([S-7042]: the
-  problem glyph, one line per account, the age on the Refresh line), the compose (from 240px) and sort
-  (from 200px, on the list) buttons, the badge. The ring shows only for a refresh the user asked for.
+  update. The binding draws the kit's screens, state panel and status: one stale rule ([S-7042]: the
+  problem glyph, one line per account, the age on the Refresh line). The ring shows only for a refresh the user asked for.
 - **[S-1286]** How many messages is not a setting (user decision): every Mail widget asks for the
   whole shelf the sync keeps per folder (`EmailConfig.FetchCount` = `MailShelves.MaxPerFolder`, 50),
   newest first, and the list scrolls past the rows that fit, so a big tile is never half empty and
@@ -99,10 +99,8 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
 - **[S-1287]** Row view from 700px: when the user's columns leave Subject as the only flexible column
   and it would take more than 40% of the line, Preview joins after Subject. A chosen Preview keeps
   the user's order; without Subject nothing is added.
-- **[S-1289]** Mail's header carries a sort button that turns the list round and saves `SortOrder`,
-  like the menu's toggle; its tooltip says the current order. The compose button stands before it
-  ([S-558]). Both are the kit header's buttons (24, 16 glyphs) and give way to the name by the
-  header's fold, the last first ([S-6710]).
+- **[S-1289]** *(Retired by [S-12481]: no card header, so no header buttons. The order is the page's
+  setting; writing a new email is the card menu's line, one per account, [S-558].)*
 
 - **[S-7512]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone). Under Style: Show subject and Show account (List and Compact), and for

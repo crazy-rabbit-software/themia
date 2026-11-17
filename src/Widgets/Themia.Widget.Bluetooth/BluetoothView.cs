@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Shell;
@@ -27,13 +27,13 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>
 /// <b>Rows</b> ([S-11310], <see cref="BluetoothLayout"/>): the config's rows, one line or two each, the
-/// battery % as the value, more devices a scroll away. The header's informing label says "2 connected" where it has room and its
-/// ring turns while a pass is out ([S-6710]). A connected device's glyph is in the primary text colour,
+/// battery % as the value, more devices a scroll away. A ring over the content's top end turns while a pass is out
+/// ([S-12481]). A connected device's glyph is in the primary text colour,
 /// a merely paired one's in the secondary ([S-3961]). A short list on a large tile stays a short list.
 /// Every empty list says which empty list it is, in the Status row at the top ([S-244], [S-6714]).
 /// </para>
 /// </summary>
-internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetContextActions, IWidgetSizeAware
+internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions, IWidgetSizeAware
 {
     /// <inheritdoc />
     public CardOpen? Opens => BluetoothModule.Opens;
@@ -53,9 +53,8 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         From(0xE916), // watch    - Stopwatch
     ];
 
-    private readonly HeaderParts _trailing = new();
-    private readonly TextBlock _summary = HeaderBlock.Label(string.Empty);
-    private readonly ProgressRing _busy = HeaderBlock.Busy();
+    /// <summary>[S-12481] The ring while a pass is out, over the content's top end.</summary>
+    private readonly ProgressRing _busy = ToolLine.Busy();
     private readonly Grid _columns = new();
     private readonly ScrollViewer _scroll;
     private readonly StatusBlock _status = new() { VerticalAlignment = VerticalAlignment.Top };
@@ -91,11 +90,12 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
 
     public BluetoothView()
     {
-        // [S-6710] The header's ring while a pass is out, then "2 connected" as its informing label.
-        _trailing.Add(HeaderPartKind.Busy, _busy);
-        _trailing.Add(HeaderPartKind.Label, _summary);
-        _trailing.Want(_busy, false);
-        _trailing.Want(_summary, false);
+        _busy.IsActive = false;
+        _busy.Visibility = Visibility.Collapsed;
+        _busy.HorizontalAlignment = HorizontalAlignment.Right;
+        _busy.VerticalAlignment = VerticalAlignment.Top;
+        _busy.Margin = new Thickness(0, FamilySpace.S1, FamilySpace.Inset, 0);
+        Canvas.SetZIndex(_busy, 1);
 
         _scroll = new ScrollViewer
         {
@@ -109,10 +109,8 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         _status.Visibility = Visibility.Collapsed;
         Children.Add(_scroll);
         Children.Add(_status);
+        Children.Add(_busy);
     }
-
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _trailing;
 
     /// <inheritdoc />
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -253,7 +251,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         }
 
         _busy.IsActive = busy;
-        _trailing.Want(_busy, busy);
+        _busy.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>[S-663] [S-12410] The card's word on its room: the rows' pitch follows it.</summary>
@@ -287,13 +285,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
             ? BluetoothRules.Arrange(_snapshot.Devices, _config.ConnectedOnly, Strings.Current)
             : [];
 
-        var connected = devices.Count(device => device.Connected);
         var plan = BluetoothLayout.Plan(_config);
-
-        // [S-1254] "2 connected" as the header's informing label: the first part to give way ([S-6710]).
-        var summary = BluetoothRules.ConnectedSummary(connected, Strings.Current);
-        _summary.Text = summary ?? string.Empty;
-        _trailing.Want(_summary, summary is not null);
 
         if (devices.Count == 0)
         {

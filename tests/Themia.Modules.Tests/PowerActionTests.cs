@@ -115,15 +115,6 @@ public class PowerActionTests
     }
 
     [Fact]
-    public void S1911_power_widgets_start_without_a_header()
-    {
-        foreach (var kind in PowerKinds)
-        {
-            Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(kind));
-        }
-    }
-
-    [Fact]
     public void S1910_power_widgets_need_no_setting_up()
     {
         foreach (var kind in PowerKinds)

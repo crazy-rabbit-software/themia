@@ -201,7 +201,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         var natural = TileRules.Sizing(_tile.Look, stateLine: false).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
         var face = TileRules.Face(width, height, stateLine: false);
-        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: false, face.Name, face.State);
+        // [S-12806] A box too small for the family's inset gives it up round the glyph.
+        var row = _tile.Look == TileLook.Switch;
+        _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: false, face.Name, face.State, row ? 0 : face.Mark);
         Paint();
     }
 

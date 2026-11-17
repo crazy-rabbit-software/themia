@@ -61,8 +61,6 @@ public sealed class LookTokensTests
             HeaderWeight = (TypeWeight)123,
             InnerSurface = (InnerSurface)9,
             RowDividers = (RowDivider)7,
-            HeaderTone = (HeaderTone)5,
-            HeaderCase = (HeaderCase)5,
         };
 
         var repairs = tokens.Repair();
@@ -74,9 +72,7 @@ public sealed class LookTokensTests
         Assert.Equal(TypeWeight.Semibold, tokens.HeaderWeight);
         Assert.Equal(InnerSurface.Theme, tokens.InnerSurface);
         Assert.Equal(RowDivider.None, tokens.RowDividers);
-        Assert.Equal(HeaderTone.Secondary, tokens.HeaderTone);
-        Assert.Equal(HeaderCase.AsWritten, tokens.HeaderCase);
-        Assert.Equal(9, repairs.Count);
+        Assert.Equal(7, repairs.Count);
         Assert.Empty(tokens.Repair());
     }
 
@@ -467,14 +463,14 @@ public sealed class LookTokensTests
     {
         var design = new DesignState();
         var refused = DesignText.Apply(design,
-            "rendering=monochrome,headerWeight=bold,readoutWeight=light,bodyWeight=medium,headerTone=primary,headerCase=upper,"
+            "rendering=monochrome,headerWeight=bold,readoutWeight=light,bodyWeight=medium,"
             + "innerSurface=vibrant,rowDividers=inset,tabularNumerals=on,vibrancy=50%,frostBlur=999,material=liquidGlass,"
             + "rendering=7,headerWeight=heavy,vibrancy=lots,tabularNumerals=maybe");
 
         Assert.Equal(["rendering=7", "headerWeight=heavy", "vibrancy=lots", "tabularNumerals=maybe"], refused);
         var t = design.Tokens;
         Assert.Equal((RenderingMode.Monochrome, TypeWeight.Bold, TypeWeight.Light, TypeWeight.Medium), (t.Rendering, t.HeaderWeight, t.ReadoutWeight, t.BodyWeight));
-        Assert.Equal((HeaderTone.Primary, HeaderCase.Upper, InnerSurface.Vibrant, RowDivider.Inset, true), (t.HeaderTone, t.HeaderCase, t.InnerSurface, t.RowDividers, t.TabularNumerals));
+        Assert.Equal((InnerSurface.Vibrant, RowDivider.Inset, true), (t.InnerSurface, t.RowDividers, t.TabularNumerals));
         Assert.Equal((0.5, 80d), (t.Vibrancy, t.FrostBlur));
         Assert.Equal(CardMaterial.LiquidGlass, design.Material);
     }
@@ -490,7 +486,6 @@ public sealed class LookTokensTests
         Assert.True(t.FrostSaturation > 1.3 && t.FrostBlur >= 40);
         Assert.Equal(InnerSurface.Vibrant, t.InnerSurface);
         Assert.Equal(RowDivider.Inset, t.RowDividers);
-        Assert.Equal(HeaderTone.Primary, t.HeaderTone);
         Assert.True(t.TrackingLarge < 0 && t.TrackingSmall <= 0 && t.TabularNumerals);
         Assert.Equal(RenderingMode.FullColour, t.Rendering);
         Assert.Equal(0, t.AccentTint);

@@ -42,7 +42,7 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
     /// been picked, and once it is cleared ([S-2848]): then there is no label.
     /// </summary>
     [JsonIgnore]
-    public string? PlaceLabel => Themia.Sdk.Kit.HeaderRules.About(LocationName.Split(',', 2)[0]);
+    public string? PlaceLabel => Themia.Sdk.Kit.LineRules.About(LocationName.Split(',', 2)[0]);
 
     /// <summary>
     /// Whether a location has actually been chosen.

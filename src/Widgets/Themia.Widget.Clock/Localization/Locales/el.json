@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Εμφάνιση ημερομηνίας",
   "clock.offsetLabel": "Διαφορά",
   "clock.secondsLabel": "Εμφάνιση δευτερολέπτων",
   "clock.styleAnalog": "Αναλογικό",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Ζώνη ώρας",
   "clock.tzCurrent": "Τρέχουσα: {city}",
   "locationSearch.placeholder": "Αναζήτηση πόλης…",
-  "styles.clock.date": "Ημερομηνία",
   "styles.clock.flip": "Αναδιπλούμενο",
   "styles.clock.minimal": "Μινιμαλιστικό",
   "styles.clock.words": "Με λέξεις",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Είναι [n] παρά είκοσι",
   "wordClock.m45": "Είναι [n] παρά τέταρτο",
   "wordClock.m50": "Είναι [n] παρά δέκα",
-  "wordClock.m55": "Είναι [n] παρά πέντε",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Είναι [n] παρά πέντε"
 }

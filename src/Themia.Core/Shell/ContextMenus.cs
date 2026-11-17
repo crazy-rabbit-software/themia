@@ -18,6 +18,9 @@ public enum ShellCommand
     /// <summary>[S-65] Enter or leave edit mode: one line, "Edit mode", checked while on.</summary>
     ToggleEditMode,
 
+    /// <summary>[S-12951] Lock widgets on or off: one line under Edit mode, checked while on ([S-12950]).</summary>
+    ToggleLockWidgets,
+
     Delete,
 
     /// <summary>[S-1744] The picker, opened where the right-click was.</summary>
@@ -74,6 +77,7 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
 /// <param name="CanGroup">[S-2454] The selection holds two or more widgets that are not already one group.</param>
 /// <param name="CanUngroup">[S-2454] The selection holds a whole group (not one entered member).</param>
 /// <param name="CanLeaveGroup">[S-2454] The selection is one member inside its entered group.</param>
+/// <param name="WidgetsLocked">[S-12951] Lock widgets is on: its line is checked.</param>
 public readonly record struct CardMenuFacts(
     bool EditMode,
     bool CanBringToFront,
@@ -82,7 +86,8 @@ public readonly record struct CardMenuFacts(
     bool CanPaste,
     bool CanGroup = false,
     bool CanUngroup = false,
-    bool CanLeaveGroup = false);
+    bool CanLeaveGroup = false,
+    bool WidgetsLocked = false);
 
 /// <summary>What the empty-surface menu depends on.</summary>
 /// <param name="EditMode">Whether the desktop is in edit mode; outside it empty surface is the desktop, whose own background menu opens ([S-5548]).</param>
@@ -104,7 +109,7 @@ public static class ShellMenus
     {
         if (!facts.EditMode)
         {
-            return ForCardInUse();
+            return ForCardInUse(facts.WidgetsLocked);
         }
 
         var many = facts.SelectionCount > 1;
@@ -144,6 +149,7 @@ public static class ShellMenus
 
         items.Add(ShellMenuItem.Divider);
         items.Add(new(ShellCommand.ToggleEditMode));
+        items.Add(LockLine(facts.WidgetsLocked));
         return items;
     }
 
@@ -153,8 +159,15 @@ public static class ShellMenus
     /// Copy, Paste, Delete or layering: those arrange the desktop, and outside edit mode there is
     /// nowhere to paste and no selection shown, so they did nothing the user could see.
     /// </summary>
-    private static List<ShellMenuItem> ForCardInUse()
-        => [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.ToggleEditMode)];
+    private static List<ShellMenuItem> ForCardInUse(bool widgetsLocked)
+        => [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.ToggleEditMode), LockLine(widgetsLocked)];
+
+    /// <summary>
+    /// [S-12951] Lock widgets, right under Edit mode on the card menus (and the desktop's own, [S-5548], [S-5582]): a
+    /// command that flips the one setting (its home is General › Desktop icons, [S-3590]), checked while it is on, as
+    /// Windows' View toggles. Not on edit mode's empty-surface menu, an action menu that holds no setting ([S-1744]).
+    /// </summary>
+    public static ShellMenuItem LockLine(bool widgetsLocked) => new(ShellCommand.ToggleLockWidgets, Checked: widgetsLocked);
 
     /// <summary>
     /// [S-1744] The menu of empty surface, in edit mode and not while placing: what is done there —
@@ -240,10 +253,11 @@ public static class CardGestures
     /// <see cref="DragThreshold"/> moves the card (and the selection it is in, [S-11879]): on a real desktop
     /// card whose view does not drag its own content (<paramref name="ownsDrags"/>). The move never turns
     /// edit mode on: there is no other outcome (owner, 2026-11-15: "when dragging widgets it goes into full
-    /// edit mode, i dont want that").
+    /// edit mode, i dont want that"). [S-12950] Never on a card Lock widgets holds (<paramref name="pinned"/>:
+    /// <see cref="Desktop.WidgetLock.Pins"/>, a widget or a group holding one): its press stays its own.
     /// </summary>
-    public static bool MovesLocked(bool editMode, bool preview, bool leftButton, bool ownsDrags)
-        => !editMode && !preview && leftButton && !ownsDrags;
+    public static bool MovesLocked(bool editMode, bool preview, bool leftButton, bool ownsDrags, bool pinned)
+        => !editMode && !preview && leftButton && !ownsDrags && !pinned;
 
     /// <summary>
     /// [S-2000] Whether a click on the card (one no child of the view took) opens what the widget is

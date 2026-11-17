@@ -34,7 +34,7 @@ public sealed class MixerModule : IWidgetModule
         Glyph = Glyphs.Mixer,
         Sizing = c => MixerLayout.Sizing((MixerConfig)c),
         SizeSets = (c, s) => MixerLayout.SizeSets((MixerConfig)c, s),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.Media, 0, 3),
     };

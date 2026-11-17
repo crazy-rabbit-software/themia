@@ -27,6 +27,7 @@ public static class ViewOps
         var copy = ViewState.Create($"{source.Name} (Copy)");
         copy.Icon = source.Icon;
         copy.Color = source.Color;
+        copy.DesktopIcons = source.DesktopIcons;
 
         // [S-2455] The copy's groups are new groups of the copied widgets, named as the originals.
         var groups = WidgetGroups.FreshCopies(source.Groups);

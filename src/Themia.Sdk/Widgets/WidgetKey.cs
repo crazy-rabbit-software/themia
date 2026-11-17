@@ -105,6 +105,12 @@ public enum WidgetKey
     /// <summary>[S-5545] F5: read again what is shown.</summary>
     Refresh,
 
+    /// <summary>[S-5597] Ctrl+Z: undo, as on Explorer's desktop (a delete's items back from the Recycle Bin).</summary>
+    Undo,
+
+    /// <summary>[S-5597] Ctrl+Y or Ctrl+Shift+Z: redo.</summary>
+    Redo,
+
     /// <summary>
     /// [S-6626] Not a key: the session left the widget (a press on another widget, another app taking
     /// the foreground) while Escape was not pressed. Sent instead of <see cref="Escape"/> only to a

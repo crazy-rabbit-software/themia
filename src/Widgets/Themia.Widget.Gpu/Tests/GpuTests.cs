@@ -53,8 +53,8 @@ public sealed class GpuTests
     public void S6320_the_reading_is_one_height_and_the_gauge_its_dial()
     {
         var kind = ModuleCatalog.Of(new WidgetId("gpu"));
-        Assert.Equal(84, kind.Sizing(new GpuConfig()).Natural.Height);
-        Assert.Equal((84, 168), (kind.Sizing(new GpuConfig()).Min.Height, kind.Sizing(new GpuConfig()).Max.Height)); // relaxed, [S-12411]
+        Assert.Equal(60, kind.Sizing(new GpuConfig()).Natural.Height);
+        Assert.Equal((60d, Themia.Sdk.SizeStretch.Ceiling), (kind.Sizing(new GpuConfig()).Min.Height, kind.Sizing(new GpuConfig()).Max.Height)); // relaxed, [S-12411]: no practical Max
         Assert.Empty(kind.Sizing(new GpuConfig { Style = GpuStyle.Gauge }).Problems());
     }
 }

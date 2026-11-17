@@ -18,18 +18,15 @@ namespace Themia.App.Widgets;
 /// [S-5140] [S-11150] The ECB's reference rate of one pair as a reading, on the family's blocks: the
 /// rate a Readout on 28 at the top with the quote's code and the day change ([S-6707]: beside it, or on
 /// the line under it) and "per CHF" under it (<see cref="RatesLayout"/>). The change is secondary while
-/// the rate rises or holds, Critical while it falls (no green, [S-6706]). The header names the pair and
-/// says which day's rate this is. Its 90 days are the history atom's.
+/// the rate rises or holds, Critical while it falls (no green, [S-6706]). The rate and "per CHF" name the
+/// pair; which day's rate it is stands on its hover ([S-12481]). Its 90 days are the history atom's.
 /// </summary>
-internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
+internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetAligned, IWidgetJoins
 {
-    /// <summary>[S-5146] The rate's day ("ECB, 9 Oct"), the header's informing label beside the problem glyph.</summary>
-    private readonly TextBlock _fix = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end: the one stale rule, no age.</summary>
+    private readonly KitStatus _mark;
 
-    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age; the day gives way to the title on a small tile.</summary>
-    private readonly KitHeader _header;
-
-    /// <summary>[S-12410] The rate is one block, centred in the room under the header with the foot's inset counted with it.</summary>
+    /// <summary>[S-12410] The rate is one block, centred in the room with the foot's inset counted with it ([S-12483]: against a side a group mate joins).</summary>
     private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center, Margin = Family.SideInset with { Bottom = FamilySpace.Inset } };
 
     /// <summary>[S-6734] No rate to draw: the Status row at the top.</summary>
@@ -50,7 +47,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
     {
         FollowInstants();
         _host = host;
-        _header = new KitHeader(host, _fix);
+        _mark = new KitStatus(host);
         _rate.Use(FamilyType.Big28);
 
         // Collapsed until a state is said: a view waiting for setup is never attached.
@@ -58,9 +55,20 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
 
         Children.Add(_rate);
         Children.Add(_state);
+        _mark.Place(this);
     }
 
-    public FrameworkElement? HeaderTrailing => _header;
+    /// <summary>[S-12483] The rate stands against a side a group mate joins, with no foot inset where one joins it.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        _rate.VerticalAlignment = sides.Block switch
+        {
+            BlockEdge.Top => VerticalAlignment.Top,
+            BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        _rate.Margin = Family.SideInset with { Bottom = sides.Foot };
+    }
 
     public IReadOnlyList<WidgetAction> ContextActions =>
         [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_table), () => Reload(force: true))];
@@ -76,7 +84,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
         _web = _host.Rates;
         _web.Updated += OnWebUpdated;
 
-        // Only the header's day and problem move between fetches; a minute is fine enough for them.
+        // Only the rate's day and the problem glyph move between fetches; a minute is fine enough for them.
         _subscription?.Dispose();
         _subscription = _ticker.Subscribe(TimeSpan.FromMinutes(1), () =>
         {
@@ -93,17 +101,12 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
     public void Bind(IWidgetSurface surface)
     {
         _surface = surface;
-        PublishTitle();
     }
-
-    /// <summary>[S-5146] The header names the pair: "Exchange rates · CHF/EUR" (a typed title wins, as everywhere).</summary>
-    private void PublishTitle() => _surface?.SetHeaderTitle($"{ExchangeRateStr.Online_Rates_Label.Text()} · {_config.EffectiveBase}/{_config.EffectiveQuote}");
 
     /// <summary>The base, the quote or the style: all drawn from the one table in hand.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ExchangeRateConfig ?? new ExchangeRateConfig();
-        PublishTitle();
         Reload(force: false);
     }
 
@@ -117,11 +120,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
     }
 
     /// <summary>[S-3770] A language change, or a Windows region change that moves the default base.</summary>
-    private void OnLanguage(Locale locale)
-    {
-        PublishTitle();
-        Reload(force: false);
-    }
+    private void OnLanguage(Locale locale) => Reload(force: false);
 
     private void Reload(bool force)
     {
@@ -154,16 +153,14 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
     {
         if (_table is not { Value: { } table } held)
         {
-            _fix.Text = string.Empty;
-            ToolTipService.SetToolTip(_fix, null);
-            _header.Clear();
+            ToolTipService.SetToolTip(_rate, null);
+            _mark.Clear();
             return;
         }
 
-        var date = LocaleFormat.Date(table.Latest.Date, DateStyle.MonthDayShort);
-        _fix.Text = ExchangeRateStr.Online_Rates_Fix.Format(("date", date));
-        ToolTipService.SetToolTip(_fix, ExchangeRateStr.Online_Rates_FixTooltip.Format(("date", LocaleFormat.Date(table.Latest.Date, DateStyle.Long))));
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        // [S-5146] [S-12481] Which day's rate this is, on the rate's hover: the card's header said it before.
+        ToolTipService.SetToolTip(_rate, ExchangeRateStr.Online_Rates_FixTooltip.Format(("date", LocaleFormat.Date(table.Latest.Date, DateStyle.Long))));
+        _mark.Show(OnlineParts.Problems(held), busy: false);
     }
 
     private void Render()

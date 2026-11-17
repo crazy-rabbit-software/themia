@@ -14,7 +14,6 @@ internal sealed partial class WeatherForecastView : IWidgetSample
     public Task ShowSampleAsync()
     {
         HoldSampleWeek();
-        PublishPlace();
         Render();
         return Task.CompletedTask;
     }

@@ -65,8 +65,10 @@ public static class DesktopPicks
     /// selected widget of <paramref name="view"/>, icons and cards alike, when the held one is selected; the
     /// held one alone otherwise. [S-11885] Always in whole units: the held one's group comes with it, as every
     /// selected member's does (<see cref="WidgetGroups.Units"/>, [S-2451]). The held one is always in it.
+    /// [S-12950] With Lock widgets on (<paramref name="lockWidgets"/>) only the units of desktop icons alone move
+    /// (<see cref="WidgetLock.Movable"/>): a mixed selection's widgets stay put; a held widget never starts a move.
     /// </summary>
-    public static List<string> Moving(ViewState view, DesktopSelection selection, string heldId, Func<WidgetInstance, string?> keyOf)
+    public static List<string> Moving(ViewState view, DesktopSelection selection, string heldId, Func<WidgetInstance, string?> keyOf, bool lockWidgets = false)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(heldId);
@@ -79,7 +81,7 @@ public static class DesktopPicks
             ids.Add(heldId);
         }
 
-        return ids;
+        return WidgetLock.Movable(view, ids, lockWidgets, editMode: false);
     }
 }
 

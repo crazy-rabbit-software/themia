@@ -82,20 +82,17 @@ internal sealed partial class FolderView
 
     private LinkCard<DriveLink>? _driveCard;
 
-    /// <summary>[S-11954] The card as the drive its folder is on: its header and its path publish it, the whole card lights for it.</summary>
+    /// <summary>[S-11954] The card as the drive its folder is on: its tool line and its path publish it, the whole card lights for it.</summary>
     private LinkCard<DriveLink> DriveCard => _driveCard ??= new LinkCard<DriveLink>(_links, LinkTopics.HoveredDrive, this);
 
     /// <summary>
-    /// [S-11954] The pointer on the header (the card's row the view's own parts stand in) or on the path crumb
+    /// [S-11954] The pointer on the tool line or on the path crumb
     /// publishes the folder's drive; on its entries it is the entry's file that is pointed at, not the drive.
     /// </summary>
     private void JoinDriveLinks()
     {
         DriveCard.Publishes(_crumbHost);
-        if (_header.Parent is HeaderBlock header)
-        {
-            DriveCard.Publishes(header);
-        }
+        DriveCard.Publishes(_line);
     }
 
     /// <summary>[S-11954] The drive of the folder on screen now (a share's none).</summary>

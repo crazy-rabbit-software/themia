@@ -125,13 +125,13 @@ public static class PingDetailRules
 
     /// <summary>
     /// [S-2429] The sheet: the latest latency as the hero (dimmed "--" while checking or after a lost
-    /// probe) with the status (Online, Offline, Checking…) under it — the header already names the host; then average, minimum, maximum, jitter, packet loss and how many
-    /// probes were answered. Before any probe is back only the host is said.
+    /// probe) with the status (Online, Offline, Checking…) under it; then average, minimum, maximum, jitter, packet loss
+    /// and how many probes were answered. Before any probe is back only the status is said: [S-12801] never the host,
+    /// which a group's Header widget names once.
     /// </summary>
     /// <param name="status">What the last probe said ([S-1170]), for the hero's tooltip.</param>
-    public static DetailSheet Sheet(Locale locale, PingWindowStats stats, string host, PingStatus status)
+    public static DetailSheet Sheet(Locale locale, PingWindowStats stats, PingStatus status)
     {
-        ArgumentNullException.ThrowIfNull(host);
         var facts = new List<DetailFact>(6);
 
         if (stats.Sent > 0)
@@ -149,6 +149,6 @@ public static class PingDetailRules
 
         return stats.Last is { } last
             ? new DetailSheet(Formatting.Latency(locale, last), PingStats.StatusText(locale, status), facts, [])
-            : new DetailSheet("--", PingStats.StatusText(locale, status), facts, [], Note: $"{host} · {PingStats.StatusText(locale, status)}", HeroAvailable: false);
+            : new DetailSheet("--", PingStats.StatusText(locale, status), facts, [], Note: PingStats.StatusText(locale, status), HeroAvailable: false);
     }
 }

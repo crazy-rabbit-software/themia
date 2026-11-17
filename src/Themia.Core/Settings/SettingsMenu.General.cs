@@ -50,7 +50,8 @@ public static partial class SettingsMenu
     }
 
     /// <summary>
-    /// [S-2315] Desktop icons, the General page's section of its own: the desktop's icon size ([S-5593]).
+    /// [S-2315] Desktop icons, the General page's section of its own: the desktop's icon size ([S-5593]) and
+    /// Lock widgets ([S-12950]).
     /// </summary>
     public static IReadOnlyList<SettingsLine> Desktop(ISettingsMenuHost host)
     {
@@ -72,6 +73,11 @@ public static partial class SettingsMenu
             Size(DesktopIconSize.Medium, Str.Desktop_Icons_Medium),
             Size(DesktopIconSize.Small, Str.Desktop_Icons_Small),
         ]));
+
+        // [S-12950] [S-12951] Lock widgets: this is its one place ([S-3590]); the desktop's menus' Lock widgets line
+        // is a command that flips it, as View › flips the icon size above.
+        lines.Add(new SettingsToggle(Keys.LockWidgets, Str.Shell_Menu_LockWidgets.Text(), Glyphs.Lock, state.Preferences.LockWidgets,
+            on => host.Mutate(s => s.Preferences.LockWidgets = on, relayout: false)));
         return lines;
     }
 

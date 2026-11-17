@@ -129,6 +129,19 @@ internal sealed partial class AppHost
         }
     }
 
+    /// <summary>
+    /// [S-12950] [S-12951] Lock widgets on or off: the desktop's menus' line flips the one setting (General › Desktop
+    /// icons is its home, [S-3590]). Read at each press, so nothing is repainted.
+    /// </summary>
+    public void SetLockWidgets(bool on)
+    {
+        if (State.Preferences.LockWidgets != on)
+        {
+            Mutate(s => s.Preferences.LockWidgets = on, relayout: false, undo: null);
+            SettingsOutdated?.Invoke();
+        }
+    }
+
     /// <summary>[S-5593] Ctrl + mouse wheel on the desktop: one size up or down, as Explorer's.</summary>
     public void StepDesktopIconSize(int notches) => SetDesktopIconSize(DesktopCell.Step(State.Preferences.DesktopIconSize, notches));
 
@@ -157,10 +170,12 @@ internal sealed partial class AppHost
             return;
         }
 
-        var plan = DesktopReconcile.Plan(State, listing, renames);
+        // [S-5597] Items an undo is putting back stay where they stood till they are listed; a delete's items seen gone are its undo step.
+        var plan = DesktopReconcile.Plan(State, listing, renames, Restoring(listing));
         if (plan.Changes(State))
         {
-            Mutate(state => ReconcileDesktop(state, plan), undo: null);
+            var deleted = DeletedBy(plan);
+            Mutate(state => ReconcileDesktop(state, plan), undo: deleted is null ? null : UndoAction.DeleteDesktopItems, effect: deleted);
         }
 
         // [S-5552] What New › made is on the desktop now: its rename box opens, the item selected.
@@ -200,14 +215,14 @@ internal sealed partial class AppHost
             return;
         }
 
-        var plan = DesktopReconcile.Plan(State, HostDesktopItems.Instance.Items, []);
+        var plan = DesktopReconcile.Plan(State, HostDesktopItems.Instance.Items, [], _restoring);
         if (plan.Changes(State))
         {
             ReconcileDesktop(State, plan);
         }
     }
 
-    /// <summary>[S-5520] [S-5521] Apply a plan: new items land in the view of the primary display, at its next free cells.</summary>
+    /// <summary>[S-5520] [S-5521] [S-5526] Apply a plan: new items land in every view that shows all desktop icons, at its next free cells.</summary>
     private void ReconcileDesktop(AppState state, DesktopPlan plan)
     {
         if (ItemKind is not { } kind)
@@ -215,15 +230,13 @@ internal sealed partial class AppHost
             return;
         }
 
-        var primary = _windows.FirstOrDefault(w => w.IsAlive && w.Monitor.IsPrimary) ?? _windows.FirstOrDefault(w => w.IsAlive);
-        var target = primary is null ? null : state.ViewForMonitor(primary.Monitor.Id).Id;
-        var screen = primary?.Metrics ?? default;
+        var screen = DeskPrimaryScreen;
 
         // [S-5591] A drop's, a paste's or New ›'s arrivals land where they were expected.
         var spots = LandingSpots(plan.Arrivals);
         var made = new Dictionary<string, string>(DesktopItemKeys.Comparer);
         var unplaced = DesktopReconcile.Apply(
-            state, plan, target, screen, (DeskCellDip.Width, DeskCellDip.Height),
+            state, plan, screen, (DeskCellDip.Width, DeskCellDip.Height),
             (item, rect) =>
             {
                 var widget = NewItemWidget(kind.Id, item, rect);

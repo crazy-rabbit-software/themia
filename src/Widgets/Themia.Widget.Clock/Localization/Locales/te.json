@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "తేదీని చూపించు",
   "clock.offsetLabel": "ఆఫ్‌సెట్",
   "clock.secondsLabel": "సెకన్లను చూపించు",
   "clock.styleAnalog": "అనలాగ్",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "సమయ మండలం",
   "clock.tzCurrent": "ప్రస్తుతం: {city}",
   "locationSearch.placeholder": "నగరాన్ని శోధించండి…",
-  "styles.clock.date": "తేదీ",
   "styles.clock.flip": "ఫ్లిప్",
   "styles.clock.minimal": "సరళం",
   "styles.clock.words": "పదాలు",
@@ -30,6 +28,5 @@
   "wordClock.m40": "సమయం [n4] ఇరవై నిమిషాలు తక్కువ",
   "wordClock.m45": "సమయం [n4] పావు తక్కువ",
   "wordClock.m50": "సమయం [n4] పది నిమిషాలు తక్కువ",
-  "wordClock.m55": "సమయం [n4] ఐదు నిమిషాలు తక్కువ",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "సమయం [n4] ఐదు నిమిషాలు తక్కువ"
 }

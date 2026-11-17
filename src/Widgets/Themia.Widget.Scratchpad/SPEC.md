@@ -11,11 +11,10 @@ the eraser), `InkPalette.cs` (the inks and nibs), `ScratchpadLayout.cs` (the ink
 properties-menu lines), `Preview/` (Debug renders), `Localization/Locales/` (its own `ScratchpadStr`, 30 languages).
 Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-651]** The scratchpad's header tools are two header buttons ([S-6710], G6 2026-10-29): Undo
-  (greyed with nothing to undo) and Full screen; the header's fold drops Full screen first, then
-  Undo, before the name is cut (on XS neither fits). Clear the drawing is the card menu's command
+- **[S-651]** The scratchpad's Undo (greyed with nothing to undo) and Full screen are the ink bar's last
+  group, after the eraser ([S-12481]: no card header to stand in; they come and go with Show tools). Clear the drawing is the card menu's command
   while there is a drawing, behind the widgets' one confirmation asked beside the widget ([S-1500]);
-  the header has no eraser (the ink bar's is the one, [S-1498]). A hidden eraser is switched off.
+  the ink bar's eraser is the one ([S-1498]). A hidden eraser is switched off.
 - **[S-1497]** Scratchpad ink bar (original S-02 toolbar): six preset inks (`InkPalette`, shared
   with the pen colour's swatches on the properties menu, [S-1501]) and the original's three nibs
   2/4/8 px at the foot of the pad, whole, while Ink bar is on ([S-11205]); nothing more on a larger
@@ -34,7 +33,7 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   it is on screen while the bar shows (and on full screen's toolbar). A hidden eraser never leaves
   the pad erasing. It removes the whole strokes it touches, as before. A pen's eraser end erases whatever
   tool is chosen, as in Windows Ink.
-- **[S-1499]** **Full screen** (user requirement; a header tool): the same pad moves into a windowed
+- **[S-1499]** **Full screen** (user requirement; an ink bar tool): the same pad moves into a windowed
   popup over the whole display and back, so the drawing, the undo history and the gesture are the
   pad's own, nothing copied. On the solid role's fill, a toolbar on the flyouts' chrome at the top
   (the inks, the nibs and the eraser, then undo, clear and Exit full screen, always shown whatever
@@ -48,15 +47,15 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   has no settings page. Appearance ([S-3723]), then **Pen color** (the one colour submenu, [S-3724]:
   the six inks first, no Default since a pen always has a colour, Custom colour and the eyedropper),
   **Pen size** (typed, 1–24 px, [S-3726]) and, under a divider (the pad's tools apart from the pen,
-  user request 2026-10-19), **Show tools** (a switch: the header's Undo and Full screen and the ink
-  bar, [S-651], [S-1497]). Clearing the drawing stays on the pad (its card menu), behind its
+  user request 2026-10-19), **Show tools** (a switch: the ink bar with Undo and Full screen, [S-651],
+  [S-1497]). Clearing the drawing stays on the pad (its card menu), behind its
   confirmation ([S-1500]). It paints no item fill, so it has no Item background or Item text
   ([S-6570], [S-6571]).
   (Tests `ScratchpadMenuTests`.)
 - **[S-11205]** Converted to the sizing ([S-2438]): a free range, 200..800 wide and 160..600 high (a new
-  one 320 × 260, `ScratchpadLayout.Sizing`); the pad takes what the card has. The ink bar is Show tools'
-  (on by default): one row of 28 at every size, whole (inks, nibs, eraser) or not there, so with it on the
-  card is never narrower than the bar in its inset (320). No tier shows or sheds a part of it any more.
+  one 384 × 260 with the ink bar, 320 × 260 without, `ScratchpadLayout.Sizing`); the pad takes what the card has. The ink bar is Show tools'
+  (on by default): one row of 28 at every size, whole (inks, nibs, eraser, undo, full screen) or not there, so with it on the
+  card is never narrower than the bar in its inset (384). No tier shows or sheds a part of it any more.
 
 Needs a manual pass: pen, touch and mouse drawing on the live desktop at every tier, and full
 screen on a top or side taskbar and mixed DPI ([S-1499]).

@@ -33,7 +33,7 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   streaks, the best run ("Best run: 16 days") its second line where its Lines are two ([S-11531]; the
   size ladder that gave them by tier, and the third line, are retired). The rate
   and the best run are lines, never columns. No summary strip or line ("3 of 5 done today · 71%",
-  bar) and no completion chart (user decision, concise widgets [S-666]; both retired). The header's count ("3/5") is the neutral pill ([S-6706]); with no
+  bar) and no completion chart (user decision, concise widgets [S-666]; both retired; the "3/5" count went with the card header, [S-12481]); with no
   habit to draw the Status row at the top says why ([S-6714]): "Habits are not available." (no
   pool) and "No habits yet." (over the add footer) plainly, a deleted list or lists that could not
   be read as a problem. A focused row wears the Row block's ring ([S-1288]).

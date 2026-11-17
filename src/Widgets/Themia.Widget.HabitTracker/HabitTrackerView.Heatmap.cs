@@ -38,6 +38,19 @@ internal sealed partial class HabitTrackerView
         Children.Add(_heat);
     }
 
+    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
+    private JoinedSides _joins;
+
+    /// <summary>[S-12483] The heatmap's grids meet a side a group mate joins.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        if (sides != _joins)
+        {
+            _joins = sides;
+            Lay();
+        }
+    }
+
     /// <summary>Show the heatmap (or not) and draw it at the tile's size.</summary>
     private void LayHeatmap(int count)
     {
@@ -74,11 +87,12 @@ internal sealed partial class HabitTrackerView
 
         // The grids start at the left, as the rows do; a grid narrower than the tile leaves the rest empty.
         // [S-12410] A grid's cells keep their size (more weeks fill the width): a taller box than the grids
-        // need centres them in the room under the header, the foot's inset counted with them.
+        // need centres them in their room, the foot's inset counted with them; [S-12483] against a side a
+        // group mate joins, the foot's inset none where a mate joins it.
         var gridWidth = (plan.Weeks * plan.Pitch) - HabitHeatmap.Gap;
         var block = (grids * (plan.GridHeight + (plan.PerHabit ? nameStep.LineHeight + HabitHeatmap.NameGap : 0)))
-            + (Math.Max(0, grids - 1) * HabitHeatmap.BlockGap) + inset;
-        var y = Math.Max(0, Math.Floor((_area.Height - block) / 2));
+            + (Math.Max(0, grids - 1) * HabitHeatmap.BlockGap) + _joins.Foot;
+        var y = _joins.Above(_area.Height - block);
 
         for (var g = 0; g < grids; g++)
         {

@@ -39,10 +39,5 @@ internal static class WeatherForecastMenu
         (int, string)[] days = [.. Enumerable.Range(1, 14).Select(n => (n, LocaleFormat.Integer(Strings.Current, n)))];
         menu.Lines.Add(menu.Choice(Glyphs.Calendar, WeatherForecastStr.Forecast_DaysLabel.Text(), days, config.EffectiveDays, value => config.Days = value));
         menu.Lines.Add(menu.Toggle(Glyphs.Droplet, WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text(), config.ShowPrecipitation, on => config.ShowPrecipitation = on));
-
-        // [S-3749] What it follows and does not set: the temperature unit, how often the weather is asked.
-        menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.TemperatureUnit)));
-        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Weather)));
     }
 }

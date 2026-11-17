@@ -17,10 +17,10 @@ public static class WeatherPlaceRows
     /// location ([S-2850], with what Windows says while it gives no position), then, while it is off,
     /// the location as a search, the chosen place at the end of its line, in its submenu the search box,
     /// the places it finds (a click picks one: replaced at once, resolved once) and Clear location
-    /// ([S-2848]: the widget waits for setup again). The place's name is the header's title unless one
-    /// is typed: the Header row's Title is the one way to change it ([S-728], [S-3590]).
+    /// ([S-2848]: the widget waits for setup again). Any widget about a place takes them, the Header widget too
+    /// ([S-9604]), over the shared <see cref="IPlaced"/>.
     /// </summary>
-    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, WeatherConfig config)
+    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, IPlaced config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -38,7 +38,7 @@ public static class WeatherPlaceRows
     }
 
     /// <summary>[S-2840] The location's search: what is found, and Clear location under it.</summary>
-    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, WeatherConfig config)
+    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, IPlaced config)
     {
         List<ItemMenuEntry> under = [menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation)];
 
@@ -48,7 +48,7 @@ public static class WeatherPlaceRows
             {
                 config.Latitude = place.Latitude;
                 config.Longitude = place.Longitude;
-                config.LocationName = place.Label;
+                config.PlaceName = place.Label;
                 menu.Save();
             }, cancel),
             under,
@@ -56,6 +56,6 @@ public static class WeatherPlaceRows
 
         // [S-1862] A widget of the family waits for its place: Set up opens this search.
         return WidgetMenuLines.SetsUp(WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
-            config.HasLocation ? config.LocationName.Split(',', 2)[0].Trim() : null, search));
+            config.HasLocation ? config.PlaceName.Split(',', 2)[0].Trim() : null, search));
     }
 }

@@ -20,9 +20,9 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
+/// [--state name] [--span s] [--style name] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
 /// (<see cref="SizeFit.CheckedAt"/>, [S-2448]), labelled, side by side on one page; with one, once at that size. The widget has its
-/// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
+/// kind's default config; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
 /// the framework's own CardBackgroundFillColorDefault / CardStrokeColorDefault over
 /// SolidBackgroundFillColorBase, OverlayCornerRadius) to compare pixels against ([S-836]).
@@ -43,9 +43,6 @@ internal static class WidgetRender
 
     /// <summary>[S-6535] The cards' own content scale (<c>--scale 1.5</c>), as stored.</summary>
     private static double _scale = 1.0;
-
-    /// <summary>[S-404] The cards' header placement (<c>--header left</c>), or the kind's own default.</summary>
-    private static HeaderPlacement? _header;
 
     /// <summary>[S-6586] The cards' own alignment, or null for the kind's default.</summary>
     private static ContentAlign? _align;
@@ -90,8 +87,8 @@ internal static class WidgetRender
             || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
             app.Exit();
             return true;
         }
@@ -108,12 +105,6 @@ internal static class WidgetRender
             && double.TryParse(scaleText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scaleValue)
                 ? WidgetScale.Normalise(scaleValue)
                 : 1.0;
-
-        // [S-404] --header top|bottom|left|right|hidden: where the cards draw their header.
-        _header = Option(args, "--header") is { } headerText && Enum.TryParse<HeaderPlacement>(headerText, ignoreCase: true, out var headerValue)
-            && Enum.IsDefined(headerValue)
-                ? headerValue
-                : null;
 
         // [S-6586] --align left|center|right: where the cards draw their content (a kind or style
         // that does not align draws its default, as on the desktop).
@@ -149,7 +140,7 @@ internal static class WidgetRender
 
         // [S-2448] A kind is drawn at its range (min, natural, max) unless sizes are asked for:
         // --sizes range|WxH,.. picks.
-        var sizing = SizeFit.Of(kind, style, _header);
+        var sizing = SizeFit.Of(kind, style);
         List<CheckedSize> tiers = Size(args, at + 3) is { } size
             ? [new CheckedSize($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
             : Sizes(Option(args, "--sizes"), sizing) is { Count: > 0 } sizes ? sizes : [.. SizeFit.CheckedAt(sizing)];
@@ -408,10 +399,6 @@ internal static class WidgetRender
             model.Background = _background.Clone();
             model.BackgroundImage = _backgroundImage;
             model.Scale = _scale;
-            if (_header is { } header)
-            {
-                model.Header = header;
-            }
             model.ItemBackground = _ownItems.Clone();
             model.ItemTextColor = _ownItemText;
             model.Align = _align;
@@ -432,7 +419,7 @@ internal static class WidgetRender
             // means, as a resize on the desktop leaves it ([S-2442]): a list's rows, a pick's facts, the
             // forecast's days; and it is painted where that config is laid out (a camera's height follows
             // its width). Nothing changes for a kind without the hook.
-            var (config, box) = SizeFit.Resized(model.Config, new SizeDip(tier.Width, tier.Height), model.ShownHeader);
+            var (config, box) = SizeFit.Resized(model.Config, new SizeDip(tier.Width, tier.Height));
             model.Config = config;
             tiers[index] = new CheckedSize(tier.Name, box.Width, box.Height);
 
@@ -495,17 +482,17 @@ internal static class WidgetRender
                 continue;
             }
 
-            var sizing = SizeFit.Of(config, cards[i].Model.ShownHeader);
+            var sizing = SizeFit.Of(config);
             var tier = tiers[i];
             var asked = tier.Name switch
             {
                 CheckedSize.Min => sizing.Min,
                 CheckedSize.Natural => sizing.Natural,
-                CheckedSize.Max => sizing.Max,
+                CheckedSize.Max => SizeStretch.Large(sizing),
                 _ => new SizeDip(tier.Width, tier.Height),
             };
 
-            var (sized, box) = SizeFit.Resized(config, asked, cards[i].Model.ShownHeader);
+            var (sized, box) = SizeFit.Resized(config, asked);
             if (!ReferenceEquals(sized, config))
             {
                 view.ApplyConfig(sized);

@@ -17,11 +17,11 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
+- **Look and layout.** Rows and the card edge; Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, the Desktop icon and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Own desktop icons: drops and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
-- **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
+- **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2); Weather graphs (WEATHER-GRAPHS).
 
 ---
 
@@ -870,81 +870,60 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   Free space sampled once a minute is a bare sliver for most of an hour and a flat line for the rest;
   the bar says the same thing immediately. The setting stays, for a drive that really is filling up.
 
-## The widget header
+## No card header (HEADERLESS)
 
-- **[S-400]** The header belongs to the **card**, not to the widget. One builder means one look; the
-  alternative was thirty-odd widgets each with their own chance to disagree about its margin, its
-  shedding threshold and its title — and nowhere to put a setting like "draw it at the bottom" that
-  every one of them would have had to honour.
-- **[S-400a]** The card knows the icon (the catalogue has it) and the title (the instance has it).
-  The only thing it cannot know is what goes on the right — a badge, a count, a busy ring — so that
-  is the whole of what a view contributes, through `IWidgetHeaderContent`. It is read **once**, when
-  the header is built, so the element has to exist by then.
-- **[S-401]** Header placement is per widget: top, bottom, left, right ([S-404]) or hidden, set on the properties strip
-  ([S-3707]). Switching it moves a grid cell, not a rebuild, so it costs nothing and cannot restart
-  what the widget is doing. Hidden takes the whole header away, its icon, title and trailing part
-  with it, at every size: the header's row is sized to its content and collapses to nothing, so the
-  widget's content gets the whole card, and no other part keeps room for a title ([S-3712]). A kind
-  that can never have a header ([S-3711]) is drawn hidden whatever the file says.
-- **[S-5700]** **A card with no header above its view gives the view's top the inset** (owner decision
-  2026-11-12, so more kinds can start without one, [S-2590]). Every view keeps its own side and foot
-  insets (a Row carries the side inset to reach both edges with its hover, [S-6711]; a list, a face, a
-  block pads its foot), and under a header the header's 12, 20 and 4 are its top. With the header
-  hidden, shed ([S-402]), at the foot or down a side, the card starts the view's cell 12 down
-  (`HeaderStrip.ViewTop`, the cell's margin, `WidgetCard.ApplyHeader`), so the content stands at the
-  inset on all four sides. A view that owns its top edge says so (`IWidgetTopEdge`, re-read whenever the
-  card places its header) and gets its whole box as before: one drawn to the edge on purpose (Gallery's
-  pictures, Video stream, the audio visualizer's spectrum, the album art atom, [S-11320]) or padded on all
-  four sides by itself (the quick toggles, the power buttons) *(the clock no longer: its top is the card's,
-  [S-11600]; the alarm's time no longer: sized at its Size, it stands under the inset, [S-11301])*. The Set up row, the waiting
-  row and the error card follow the same rule as a view that does not own the edge (they each carried
-  a copy of it before). The sizing counts it ([S-2444]). Tests `HeaderStripTests.S5700_`,
-  `SizeFitTests.S5700_`.
-- **[S-11600]** **The top is the card's, the sides and the foot the view's** (one rule, 2026-11-12):
-  a view never pads its own top, whether it starts with a header or without one; the card gives it
-  the inset or the header's gap ([S-5700]), so its content starts exactly one inset under the card's
-  top edge with no header above, and right under a header (36) with one, at every size of its range,
-  and adding or hiding a header moves the content by the header's cost (24) and leaves it its size. A
-  chart drawn edge to edge (a history, a stock's chart) reaches the sides and the foot; its top is the
-  card's as well. `IWidgetTopEdge` is only for a view whose drawing reaches the card's very top edge
-  (a picture, a video, a spectrum). The sizing counts the inset over a headerless view once (the
-  card's) and the view's own foot. Brought in line with it: CPU cores' items, the clock (it no longer
-  owns its top edge, so with a header its face keeps its size), the sun, the stock's and the rate's
-  charts (each padded its own top, 24 headerless and 12 too many under an added header). The edges
-  are measured on the renders' visual trees (`--widget-png … --tree`): every kind, with the
-  header on top and hidden, at its min, natural and max.
-- **[S-402]** *(Retired by [S-11009] and [S-11800]: every kind's sizing counts its header, so no card sheds
-  it; only the person hides it. `HeaderStrip.Sheds` is gone.)*
-- **[S-403]** The title is the user's own when they set one (on the properties strip, [S-3704]), otherwise the catalogue's. A widget has
-  no say in it: a view that wants to label itself differently is a view that has drifted.
-- **[S-404]** **Left** and **Right** stand the header as a strip down that edge of the card, as thick
-  as a top header is high (it is the same header, measured against the card's height). The card's
-  content is a 3 × 3 grid (auto, star, auto both ways, `HeaderStrip`): the view always sits in the
-  middle cell, a top or bottom strip takes the whole outer row, a side strip the whole outer column,
-  so the content area is the card less the strip's width, which the kind's sizing counts ([S-2444]).
-  Debug: `--widget-png <Kind> <out.png>
-  --header top|bottom|left|right|hidden` draws the cards with that header; `--menu-png` writes
-  `props-header.png`, the properties panel's Header menu opened from its drop-down, Left ticked.
-- **[S-405]** On the left the header is turned a quarter **counter-clockwise** (it reads bottom to
-  top, its icon at the bottom, as a book's spine and a vertical tab on the left read); on the right a
-  quarter **clockwise** (top to bottom, icon at the top). Either way the tops of the letters face out
-  of the card (`HeaderStrip.Turn`, `Rotation`). WinUI has no layout transform, so `TurnedHeader`
-  measures the header against the strip's length, takes its height as the strip's width, and turns
-  it into place with a render transform, which turns its hit-testing with it.
-- **[S-406]** Left and Right are **physical** edges in every language: in a right-to-left language a
-  left header is still on the left (the card's flow mirrors, so it is the flow's end there,
-  `HeaderStrip.Edge`), and the turn is the same. Turned, the header is laid out left to right in
-  every language (icon first, so at the bottom on the left edge and the top on the right); the
-  title's own text still runs in its script's direction. A flat header flows with the card as before.
-- **[S-407]** A side strip has the card's two corners on its edge (`StripCorners`); a header colour
-  of its own follows the rule of a top one ([S-828], [S-2103]), rounded on those corners. Without
-  one the strip draws nothing: the card's one fill lies under it.
-- **[S-408]** A side strip is the **icon and the title** only (concise first): the header's trailing
-  part (a badge, a caption, a picker, Notes' formatting bar) is sized by its view for a header as
-  wide as the content, and along a strip it would be measured against the card's height and read
-  sideways. It stays with the view and comes back with a top or bottom header.
-- **[S-409]** *(Retired by [S-11009] and [S-11800]: a side strip is counted in the sizing's width, so
-  no card is too narrow for it; the 160 and 96 floors went with the legacy kinds.)*
+Owner decision 2026-11-16: "headers for the widgets should actually be removed. i dont like the
+ambiguity. you should be able to add your own header widget without it being tied to a widget. the
+groups should already include preplaced matching headers." And: "the widgets that are grouped … dont
+actually touch each other, there is still a little space vertically which i dont want there to be."
+
+- **[S-12480]** **No card has a header.** A widget is its content: the card draws no header row, no
+  title, no glyph, at any size and in any language; there is no header placement, no header fill,
+  colour or opacity, no header tone or case token and no Header section on the selection's page. A
+  title is a widget of its own: the **Header** widget ([S-9600], `src/Widgets/Themia.Widget.Header`),
+  placed, sized and grouped like any other. The sizing counts no header: the content starts at the
+  card's inset (`FamilySpace.ContentTop` is the inset), so every kind that showed a header by default is
+  24 shorter than it was. The schema changed in place: a widget has no `header`, the design no
+  `headerBackgroundColor`/`headerOpacity`, the look tokens no `headerTone`/`headerCase`; `--design` and
+  `--widget-png` lost their header keys. Tests `JoinedSidesTests.S12480_`, `SizeFitTests`,
+  `HeaderTests` (the module's).
+- **[S-12481]** **What a header carried besides a name moved into the widget's own content**, decided per
+  kind and kept concise ([S-666]):
+  - the sources' state, the problem glyph and the busy ring ([S-7042], [S-2661]): `KitStatus`, over the
+    content's top end at the inset, taking no room (`KitBinding.Status` for the kit's lists; the weather,
+    air, sky-less online and market widgets their own); a meter kind's mark the same way
+    (`MeterPart.Mark`: Ping's problem glyph);
+  - tools that act on what the widget shows: a **tool line** (`ToolLine`, the family's line of 20 at the
+    side inset, the header's gap under it, a label for what the tools act on and its `LineParts` folded by
+    `LineRules`) as the content's first row, counted in the kind's sizing where it shows: the calendar's
+    period and its back and forward (every style but the agenda), the folder's name with back, up,
+    search, sort, its git badge and ring, the screen time widgets' day and its arrows
+    (`ScreenTimeDayNav.Line`), the note's formatting bar;
+  - commands that act on the whole widget go to its card menu: Mail's compose (one per account), the
+    contacts' search, Clear all notifications, the clipboard's Clear history, the quote's Show another,
+    the task list picker (one line per other list, and Rename…), the agenda's Previous and Next; the
+    scratchpad's Undo and Full screen join its ink bar;
+  - where or which a widget is about: no place (the group's Header widget names it once, [S-12801],
+    [S-9604]); a stock's symbol leads the line under its price; a countdown's name stands
+    over its time (the sizing 24 taller with one); the exchange rate's day is its reading's tooltip;
+  - what only labelled the widget (a meter's device or host, a fact sheet's processor, a list's account,
+    title or count pill, the gallery's counter, the habit list's count) is gone: a Header widget names a
+    group, and the reading's tooltip still says which drive.
+- **[S-5700]** **The card gives its view's top the inset** (none where the view owns its top edge,
+  `IWidgetTopEdge`: a picture, a stream, a spectrum, the album art, the quick toggles, the power buttons),
+  and **none where a group mate joins it** ([S-12482]). Every view keeps its own side and foot insets
+  (a Row carries the side inset to reach both edges with its hover, [S-6711]; a list, a face, a block
+  pads its foot). The Set up row, the waiting row and the error card follow the same rule as a view
+  that does not own the edge. The rule is `JoinedSides.TopInset`, laid by `WidgetCard.ApplyEdges`.
+- **[S-11600]** **The top is the card's, the sides and the foot the view's**: a view never pads its own
+  top; its content starts exactly one inset under the card's top edge at every size of its range (none
+  where a mate joins). A chart drawn edge to edge (a history, a stock's chart) reaches the sides and the
+  foot; its top is the card's as well. The edges are measured on the renders' visual trees
+  (`--widget-png … --tree`).
+- *Retired by [S-12480]:* **[S-400]**, **[S-400a]** (the header was the card's, its trailing part the
+  view's: `IWidgetHeaderContent` is gone), **[S-401]** (placement per widget), **[S-402]**, **[S-403]**
+  (the title: the user's own or the view's, `SetHeaderTitle` is gone), **[S-404]**..**[S-409]** (side
+  strips, their turn, edges, corners and trailing part: `HeaderStrip`, `TurnedHeader` are gone).
 
 ## The widget family: tokens and blocks (FAMILY)
 
@@ -1016,15 +995,18 @@ module author's guide is docs/WIDGET-KIT.md 16.
   beside the value; else the delta is the line under the value, in its own role (the unit back where
   the value and it fit), and the widget's own line under gives way. Measured on the delta's widest case,
   so the fold does not change as the reading moves (`ReadoutRules.Fold`).
-- **[S-6710]** **Header**: [glyph 16] 8 [name, BodyStrong, secondary, ellipsis] … [trailing], one 20
-  line at the inset (`HeaderBlock`, the card's header). Its trailing parts, from the start: the
-  problem glyph (caution), the busy ring, an informing label (Caption, secondary), at most two header
-  buttons, the count pill (`HeaderParts`). On a narrow card they give way before the name is cut:
-  the label, then the buttons from the last, then the count; the problem glyph and the ring stay
-  (`HeaderRules`). Parts stand 4 apart, buttons side by side, a last button's glyph on the inset. A
-  part with nothing to say now (a problem glyph while there is none) is not wanted and takes no room
-  (`HeaderParts.Want`); the fold decides among the wanted ones.
-- **[S-2260]** **A header names the widget; the place or the device trails.** The name is what the
+- **[S-6710]** **Header**: [glyph 16] 8 [name, BodyStrong, secondary, ellipsis], one 20 line, a Caption
+  line under it if any (`HeaderBlock`): the Header widget's look ([S-9601]) and nobody else's, no card
+  has a header ([S-12480]). **Tool line** ([S-12481], `ToolLine`): [label, Body, secondary, ellipsis] …
+  [parts], one 20 line at the side inset with the header's gap under it, a widget's own first row where
+  it has tools there. Its parts, from the start: the problem glyph (caution), the busy ring, an
+  informing label (Caption, secondary), at most two line buttons (24, `FamilyShape.LineButton`), the
+  count pill (`LineParts`). On a narrow card they give way before the label is cut: the informing
+  label, then the buttons from the last, then the count; the problem glyph and the ring stay
+  (`LineRules`). Parts stand 4 apart, buttons side by side, a last button's glyph on the inset. A part
+  with nothing to say now is not wanted and takes no room (`LineParts.Want`); a line with no label and
+  no part wanted is collapsed.
+- **[S-2260]** *(Retired by [S-12480]: no header names the widget; the place is the group's Header widget's, [S-12801], [S-9604].)* **A header names the widget; the place or the device trails.** The name is what the
   widget is (its module's name: "Sun", "Moon", "Weather", "Forecast", "Rain next hour", "Air quality",
   "GPU", "GPU details", "CPU details", "Ping", "Ping statistics"); where or which it is about (the place,
   the adapter, the processor, the host) is the header's informing label (`HeaderParts.SetAbout`,
@@ -1561,7 +1543,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7042]** `KitFreshness`, the one stale rule's words: one line per source and problem, folded,
   stamped with the oldest copy among them ("Work: No network · updated Mon 10:42", [S-2664]); the
   Refresh line with the age of the oldest copy on screen ("Refresh · updated 4 min ago").
-- **[S-7064]** `KitHeader`: the header extras of every widget that shows a source's data, the
+- **[S-7064]** *(Retired by [S-12480]: the kit's state is `KitStatus` over the content, [S-12481]; its widget buttons are card-menu lines.)* `KitHeader`: the header extras of every widget that shows a source's data, the
   Header block's trailing parts ([S-6710], `HeaderParts`, so the header folds them), leading to
   trailing: the problem glyph (only while a copy is on screen that the last attempt of some source
   could not improve on, its tooltip `KitFreshness`' lines, a click opening ⚙ › Accounts where only
@@ -1912,7 +1894,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   display") and its widgets; at its head's end **Duplicate view** ([S-900]) and **Delete view** (Delete; asked first
   with what goes with it, [S-3737]; greyed on the last view, [S-12]) and the grip ([S-901]: dragged or Ctrl+Up / Down,
   `AppHost.ReorderView`). Opened: **Name** (a text box, `ViewOps.Rename`, [S-1707]), **Icon** (the icon picker, its
-  default the initials, [S-903]), **Colour** ([S-3810]) and **Show on this display** (a command as the view bar's
+  default the initials, [S-903]), **Colour** ([S-3810]), **Desktop icons** (All, Chosen, None; while Chosen the list of
+  the desktop's items to tick, [S-5529]) and **Show on this display** (a command as the view bar's
   chip, greyed where it is shown; which view a display shows is the Display page's setting, [S-2314]). Then **Add a
   view** ([S-1065]). A view chip's View settings opens the page at that view's card ([S-3546]). Keys hold the ids
   (`view:<id>/name`).
@@ -2044,7 +2027,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   displays; `-add*`, the add page, [S-11712]; `-placing`), every page's flyout hung from its entry over a busy
   stand-in wallpaper, opened at a row as a deep link opens it, its picker open (`page-<theme>-general`,
   `-general-end`, `-general-motion`, `-general-language`, `-general-language-find`, `-general-advice`,
-  `-general-link-temperature`, `-general-assistants*`, `-general-pro-*`, `-general-backup*`,
+  `-general-temperature`, `-general-assistants*`, `-general-pro-*`, `-general-backup*`,
   `-general-about`, `-general-uninstall-*`; `-appearance`, `-appearance-style`, `-theme`, `-accent`,
   `-background`, `-border`, `-font`, `-replace`; `-accounts`, `-accounts-account`, `-accounts-add`,
   `-accounts-imap*`, `-accounts-caldav`; `-views`, `-views-icon`, `-colour`, `-rename`, `-delete`,
@@ -2102,6 +2085,20 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   included, is the page's), and plays a press, a change under it and its release through `FlyoutRedraws` on each
   (`press check`: not drawn under the press nor inside the release, drawn once after it, no error logged). Tests
   `FlyoutPressTests.S2346_`.
+- **[S-2347]** **What opens is scrolled into sight as little as it takes, as Karpo does** (owner, 2026-11-16:
+  "when opening items in the settings menu it should be properly scrolled to the accurate location the same way that
+  karpo does it. at the moment sometimes everything is shifted although the content of the expansion section would
+  still fit on the screen without scrolling"; Karpo's §671, `EditDeck.Reveal`/`Revealing`). A card, a picker or a
+  thing opened by a click and a deep link's row ([S-3534]) are revealed whole, the opened rows with their head, a gap
+  (the flyout's gutter, 16) off the viewport's ends: **nothing moves where it is in sight already**; else the page
+  scrolls only as far as it takes (its foot up to the viewport's foot, or its head down to the top), and where it is
+  taller than the viewport its head stands at the top (`PageReveal.ScrollIntoView`, Core, pure). The scroll is worked
+  out once the page has grown and the flyout been hung again at its new height (an opened card makes the flyout
+  taller before it makes it scroll: the old head-to-the-top `BringIntoView` shifted the page before the flyout had
+  grown), and glides there over 250 ms on 16-ms frames, a cubic ease-out (`PageReveal.Glide`, `PageFlyout`); at once
+  while Windows' animation effects are off; the user's own wheel, press or Page keys take over from a glide. A tab
+  switch moves nothing. Tests `PageRevealTests.S2347_`; `--editbar-png --only pages` draws pages opened at their
+  rows (`page-*-general-temperature`, `-appearance-*`).
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the
@@ -2403,8 +2400,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   a moment): the General entry; the surface menu's Settings, View settings and Display settings
   ([S-1744]: the General, Views and Display pages on that display); starting Themia again by hand
   ([S-66]: the General page at its top on the main display); a widget's way to its accounts ([S-3558]:
-  the Accounts page, or Add account while there is none), a widget's link row ([S-3749]: the row that
-  owns the setting) and a refusal's See plans ([S-3573]: Themia Pro). Nothing opens a settings window:
+  the Accounts page, or Add account while there is none), a widget's Manage accounts link ([S-3749]) and a
+  refusal's See plans ([S-3573]: Themia Pro). Nothing opens a settings window:
   there is none ([S-3585]). `DesktopWindow.RequestSettings(key)` opens the page that holds the row
   `key` at it (`SettingsPages.PathTo`), as clicks would; `OpenPage(page, path)` opens any page.
 - **[S-3536]** **Language & region ›**, every localisation choice in one place, as the settings
@@ -2491,9 +2488,10 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
 
 - **[S-3590]** Every setting is at **one level** — a widget's (the selection's page, [S-2340]), a
   view's (View ▾), a display's (Display ▾) or Themia's as a whole (⚙) — and that level's menu alone
-  sets it. A lower level that follows something a higher one owns gets a **link row** to it
-  ([S-3749]), never a copy: no widget carries its own clock format, start of week, temperature unit,
-  update interval or accounts. Nor is one thing set twice at one level: the header's title is the
+  sets it. A lower level that follows something a higher one owns **just follows it**: no copy and no
+  link row to it (owner, 2026-11-16: "links to temperature unit and update interval should not be shown in the
+  settings menu … actually all links"; the link rows of [S-3749] that named a followed setting are gone): no widget
+  carries its own clock format, start of week, temperature unit, update interval or accounts. Nor is one thing set twice at one level: the header's title is the
   Header row's Title alone ([S-3704]; the weather's Location name switch, [S-2849], and the sky's
   Place name line, [S-3101], set it a second time and are gone). A card's own look (the Appearance
   foot, [S-3739]) is a level of its own over the look every widget shares (⚙ › Appearance): its
@@ -2511,9 +2509,9 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   ([S-3516]); the app-wide widget scale (`Design.UiScale`, the display's scale for every display
   under the same words, [S-6532]); switching views in View ▾ (Display ▾'s, [S-3543]); "Duplicate
   this view" beside a view's own Duplicate view; the weather's Location name switch and the sky's
-  Place name, second ways to the header's title ([S-2849], [S-3101]). Links added ([S-3749]): Time
-  format (Clock), Start of week (Calendar's month, week and year; Week planner), Temperature unit
-  (Weather now, Forecast), Update interval (Weather now, Forecast, Rain, Stocks, Feed). Followed now
+  Place name, second ways to the header's title ([S-2849], [S-3101]). The links that were added for them
+  (Time format, Start of week, Temperature unit, Update interval) went again on 2026-11-16 ([S-3749]): a widget
+  just follows them. Followed now
   that was not: the alarm's days start on the start of the week ([S-4631]), a note's own font size
   composes with the text size ([S-1349]). Left as they are, each the one place it is set: the
   screen-time limits and hidden apps (one store, set from any screen-time widget's menu, each saying
@@ -2525,7 +2523,8 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   row and its row of Manage views, is View ▾'s twice by design), every field of the look and the
   behaviour has its level, no two menus call a setting by the same words, and snap is the bar's
   alone. Modules builds every widget's menu: no line sets something under the words of a setting the
-  bar's menus or the card's own rows set unless it is a link (a focus session's Length is its own),
+  bar's menus or the card's own rows set, and no widget's line links to one either: its only link rows lead to
+  an account ([S-3749]) (a focus session's Length is its own),
   and no widget's config has a field of a type only a higher level holds (a temperature scale, a
   clock, a week start, a cadence, a theme, a language). No shared setting's contract ([S-11750]) reads
   such a type, each is held by a widget's config, and a group has no field but its id and name
@@ -2814,7 +2813,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached. A setting of
   the widgets' own configs that two or more share is set the same way, once for all of them
   (`QuickSet.SetShared`, [S-11751]); being content, not the arrangement, it takes no undo step ([S-886]).
-- **[S-3704]** The title is a row of the Header level ([S-3735]), its value the title as it reads;
+- **[S-3704]** *(Retired by [S-12480]: no widget title; a title is a Header widget, [S-9600].)* The title is a row of the Header level ([S-3735]), its value the title as it reads;
   its level is the field alone ([S-3736]), the kind's name as its hint. It commits on Enter or when
   its level is left any other way (going back, a click on another widget, the menu put away), and
   Escape puts back what it held; Enter and Escape go back to the Header level. While the field has
@@ -2831,7 +2830,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
 - **[S-3709]** *(Retired by [S-2325]: nothing is placed by the selection's box.)*
 - **[S-3710]** While the selection is dragged or a widget resized, the selection's page does not stand:
   an open one closes as the move starts, and the page opens where the widgets land ([S-2343]).
-- **[S-3711]** Some kinds can never have a header (`WidgetInstance.CanHaveHeader`): the thirteen
+- **[S-3711]** *(Retired by [S-12480]: no kind has a header.)* Some kinds can never have a header (`WidgetInstance.CanHaveHeader`): the thirteen
   quick-setting toggles ([S-3901]) and all six audio visualizer designs ([S-3200], [S-3212]). For a selection holding one, the strip has no Header line at all
   (no positions, and such a widget's title is shown nowhere, so it has no title box either) and
   shows only what every selected widget can take; `SetHeader`
@@ -2961,20 +2960,22 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
 - **[S-3741]** *(Retired by [S-2302]: a toggle row with On / Off before the switch.)*
 - **[S-3742]** *(Retired by [S-2308]: a long choice is a lookup.)*
 - **[S-3743]** *(Retired by [S-2327]: the keys of the bar and its flyouts.)*
-- **[S-3749]** A **link row** (Karpo's, §351): a setting another menu owns, never a copy of it
-  (`ItemMenuEntry.LinkTo`, `SettingsLink`): the owner's icon and words, Windows' "open in new window"
-  mark (E8A7) at its end and no chevron, its tooltip "Opens Accounts"; a pick closes the menu and
-  opens the owner's menu at the level that sets it. A widget's Manage accounts and Add an account are
-  links to ⚙ › Accounts ([S-3745]). A module links to a setting it follows with
-  `WidgetMenuLines.Link(SettingLink)` (the SDK's closed set `OwnedSetting`: Accounts, Time format,
-  Start of week, Temperature unit, Online updates with its cadence row): the setting's own icon and
-  words as its level names them, and at its end, before the mark, what is in force ("24-hour",
-  "Monday", "°C", "Every 30 minutes": `SettingLink.Value`, so the widget's menu says what applies
-  without setting it). The host opens it through `WidgetMenuLines.OpenSetting` (`DesktopWindow.RequestSetting`):
-  ⚙ › Accounts ([S-3558]), ⚙ › Language & region at the format's own level (`SettingsMenu.Keys.Format`),
-  ⚙ › Online updates at the cadence's level; greyed where there is no edit bar (a render, a test).
+- **[S-3749]** A **link row** (Karpo's, §351) leads only where the user must go to do something the widget
+  cannot (owner, 2026-11-16: "remove … actually all links from the settings menus. (only show links like setup
+  account etc)"): a widget's **Manage accounts** and **Add an account** (`WidgetMenuLines.AccountsLine`, to
+  ⚙ › Accounts, [S-3745]; `ItemMenuEntry.LinkTo`, the SDK's `SettingLink` over its closed set `OwnedSetting`:
+  Accounts alone), drawn with the owner's icon and words, Windows' "open in new window" mark (E8A7) at its end
+  and no chevron, its tooltip "Opens Accounts"; a pick closes the menu and opens ⚙ › Accounts on the widget's
+  display (`WidgetMenuLines.OpenSetting`, `DesktopWindow.RequestSetting`); greyed where there is no edit bar (a
+  render, a test). The other ways somewhere stay what they are: a widget's Set up ([S-1862]), Windows' own
+  settings pages (location, [S-2851]), an entered member's way back to its group ([S-11757]). **No link row to
+  a setting a widget follows** (the time format, the start of the week, the temperature unit, an update
+  interval: Clock, Calendar, Week planner, the weather widgets, Rain, Stocks, the stock chart and Feed had one
+  each): the widget follows ⚙'s and says nothing of it; `WidgetMenuLines.Link` and the settings pages'
+  `SettingsLink` are gone. Guard: Modules `SettingOwnershipTests.S3592_no_widget_sets_what_a_higher_level_owns_nor_links_to_it`
+  (every widget's lines: a link row leads to the accounts or fails).
 - **[S-3745]** An account widget's lines open **⚙ › Accounts** on the widget's display ([S-3558];
-  `WidgetMenuLines.AccountsLine`: Manage accounts, Add an account, link rows, [S-3749]) through the host's `OpenSetting`;
+  `WidgetMenuLines.AccountsLine`: Manage accounts, Add an account, the only link rows, [S-3749]) through the host's `OpenSetting`;
   the line changes and saves nothing, and is greyed where the host has no edit bar (a test). No account is ever signed
   in from a widget's menu.
 - **[S-3746]** A line may show what is **read asynchronously** (an account's calendars, its task
@@ -2988,7 +2989,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   the hour then 1–12), a date with the year first ("2026-12-24", "2026/12/24") or the day first with
   dots ("24.12.2026", "24.12.26"). A slash with the day or the month first means two days in two
   countries and is refused, as is a day the month lacks; a refused text changes nothing.
-- **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
+- **[S-3712]** *(Retired by [S-12480]: no card has a header.)* Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card less the inset over it ([S-5700]) at every size.
 - **[S-3714]** *(Retired by [S-2325].)*
 - **[S-3715]** *(Retired by [S-2325]: the flyout is Windows' ground and cards.)*
@@ -3545,7 +3546,7 @@ are cited from there, the ones it replaced are marked.
   `ShowAverage` (on): in a window, the per-day average (divided by the window length, so
   idle days count) beside the total and on each row. `ShowSwitches` (off): how often the foreground
   app changed. `ShowPercent` (off): each app's share of the shown total.
-- **[S-454]** Day navigation in the header, on the Header block's parts ([S-6710], `ScreenTimeDayNav`,
+- **[S-454]** Day navigation on the widget's tool line ([S-12481], `ToolLine`, `ScreenTimeDayNav.Line`,
   G6 2026-10-29): the day as its informing label ("Today", "Yesterday", "Mon 26 Oct"), then two 24
   header buttons, back and forward, each wanted only while it can go somewhere (forward away from today,
   back until the oldest day), so the header folds them as any; back to today is the card menu's
@@ -3719,7 +3720,7 @@ Found by drawing every ported widget at every size tier (with the debug widget g
 removed, [S-1863]). Sizing rules live in Core with tests in
 `WidgetFitTests` (`S64x_`/`S65x_`).
 
-- **[S-640]** A card header's title ends in an ellipsis. A Grid does not clip a child to its cell,
+- **[S-640]** *(Retired by [S-12480]: no card header has a title.)* A card header's title ends in an ellipsis. A Grid does not clip a child to its cell,
   so an untrimmed title was cut mid-word ("Countdow") or drawn under the trailing element.
 - **[S-641]** *(Retired, group G5, 2026-10-29: no readout is scaled to fill its box any more. A
   data widget's number is on the Big steps ([S-6702]) and a one-readout widget's on the Hero steps
@@ -3746,7 +3747,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   and thunder into its own thermometer icon because of it. Weather now and the forecast share one
   condition→glyph map.
 - [S-653]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
-- **[S-655]** An informational header label ("Just now", "by CPU") gives the title at least 64px and
+- **[S-655]** *(Retired by [S-12480]: no card header has a label.)* An informational header label ("Just now", "by CPU") gives the title at least 64px and
   is not drawn when less than 40px would be left for it. Through `MaxWidth`, never `Visibility`.
   The rule reaches a label that is the trailing element; a label among the kit's header extras (the
   exchange rates' day) is one of their parts and folds first ([S-7064]); other panels are left alone. Commands in the
@@ -3954,7 +3955,7 @@ important mark). Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`
   and Google Tasks has no such list. So Today ([S-596]) stays what can be read honestly: every task
   due today or overdue, across the account's lists, with today's finished ones ([S-612]). It is
   called "Today", never "My Day".
-- **[S-614]** The header's list picker (a chevron after the badge, from Regular width; like Notes'
+- **[S-614]** *(Retired by [S-12480]: the list picker is the card menu's, [S-12481].)* The header's list picker (a chevron after the badge, from Regular width; like Notes'
   [S-1364]): Today and the account's lists, or the lists on this PC, to switch to (an account list
   picked here starts its own order, as in settings), then Rename list… for the list shown, in a box
   under the picker (Enter or leaving it renames, Escape does not; a blank or unchanged name writes
@@ -4213,11 +4214,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   `OnePathSizingTests.S11800_`.
 - **[S-2444]** **On a display** a sizing is DIPs times the card's content scale ([S-6532]: the display's
   and the widget's own) plus the gap, as fractions of that screen's cell (`SizeFit.Limits`,
-  `SizeLimits`, `AxisLimits`). It is stated with the kind's default header ([S-700]); a card that
-  shows a header the kind did not count adds what it costs, one that hides a header the kind counted
-  takes it away (`SizeFit.ForHeader`): a header above costs its line and gap (24) in height, the inset
-  over it being there either way ([S-5700]); one at the foot its gap, line and own inset (36) in height
-  and a side strip the same in width, since the view keeps its inset on that side as well. A fixed axis
+  `SizeLimits`, `AxisLimits`). It is the kind's own: no card has a header to add or take away
+  ([S-12480]); the inset over the view is counted once ([S-5700]). A fixed axis
   has no handle: its two side handles lose their grip and bar, a corner resizes the free axis alone
   with that axis's cursor, and on a widget fixed both ways the corners keep their brackets as marks
   but take no press (`EditMarkers.Moves`, `WidgetCard.ApplyResizable`).
@@ -4304,8 +4302,9 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   a face that fits its box (the clock), which climbs one family step past its Size at most in a relaxed
   box ([S-12410], `ReadoutSizes.Climb`). A data
   widget's number is the family's 28 ([S-2220]; the 40 step stays for a kind that states it).
-- **[S-2448]** **A kind is checked at its range**: its Min, its Natural and its Max (`SizeFit.CheckedAt`,
-  `CheckedSize` named `min`, `natural`, `max`). `--widget-png <Kind>` draws a kind at its range by
+- **[S-2448]** **A kind is checked at its range**: its Min, its Natural and, with no practical Max ([S-12411]), a
+  large size, twice its Natural fitted into its sizing (`SizeStretch.Large`; `SizeFit.CheckedAt`, `CheckedSize`
+  named `min`, `natural`, `max`). `--widget-png <Kind>` draws a kind at its range by
   default, side by side; `--sizes range|WxH,..` picks. The showcase views ([S-1810]) hold a kind at min,
   natural and max; the family render walk (`--family-check`) walks the range, its page sized for the
   largest. A store scene ([S-1074]) paints a kind fitted into its sizing as the desktop does ([S-2446]).
@@ -4369,16 +4368,19 @@ its content. What is left of this section is how a view measures the fixed parts
   fill at a card corner takes the card's corners (the card's clip; a tile's own round fill through
   `IWidgetCorners`, [S-11883]). docs/WIDGET-KIT.md 17.4. Tests `ItemStretchTests.S12410_`,
   `KitTests.S12410_`, `KitRowsTests.S11541_`.
-- **[S-12411]** **A relaxed range** (owner, 2026-11-15: "relax the size limitations on all the widgets"). A
-  kind states the range its content needs ([S-2438]); the descriptor hands out that range relaxed
-  (`SizeStretch.Relax`, through `WidgetDescriptor.Sizing`, the one sizing every caller sees): on every axis
-  its config does not step (a fixed one included) Max grows to at least Natural x its room's factor, on
-  4-DIP steps, never past 1200 (`SizeStretch.Ceiling`) unless the kind stated more; Min and Natural stay,
-  a stepped axis keeps its steps. The room is the sizing's (`WidgetSizing.Room`, set where it is made):
-  Standard 2 x, List 2.5 x in width (`KitSizing`), Picture 3 x (`MeterSizing`'s history and items,
-  `TileRules`, the cover, the gallery, the charts), None for the desktop icon's cell. Size still never
-  decides what is shown; the larger box is filled by [S-12410]. Tests `WidgetSizingTests.S12411_` (Core:
-  the rule; module host: every kind and style may grow by its room).
+- **[S-12411]** **A relaxed range, no practical maximum** (owner, 2026-11-15: "relax the size limitations on all
+  the widgets"; 2026-11-16: "relax sizing constraints in general even more. especially maximum sizes should not
+  really be a thing as this is for the user to decide"). A kind states the range its content needs ([S-2438]); the
+  descriptor hands out that range relaxed (`SizeStretch.Relax`, through `WidgetDescriptor.Sizing`, the one sizing
+  every caller sees): on every axis its config does not step (a fixed one included) Max is raised to
+  `SizeStretch.Ceiling` (3840 DIPs, a 4K display's width: finite, so a sizing stays one, [S-2441], and larger than
+  any work area at scale 1), never lowered where the kind stated more; the work area is the bound (`SizeFit.Limits`
+  holds a free axis to the screen, the resize stops at it). Min and Natural stay the content's; a stepped axis (a
+  list's rows, a count the config holds) keeps its steps; the room None (the desktop icon's cell) keeps its size.
+  The room's other values (Standard, List, Picture: `WidgetSizing.Room`, set where the sizing is made) say what the
+  parts are; how far each part stretches is [S-12410]'s caps (a row 1.5 x, text never), the rest spacing. Size still
+  never decides what is shown. Tests `WidgetSizingTests.S12411_` (Core: the rule; module host: every kind and style
+  has no practical Max on every free axis).
 - **[S-664]** *(Retired by [S-11000] and [S-11800]: a meter is its reading and its history, two atoms,
   each one size of parts; a wider history spans more time, one sample per ~6 DIPs.)*
 - [S-665]: moved with the Clock widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Clock/`).
@@ -4429,7 +4431,7 @@ its content. What is left of this section is how a view measures the fixed parts
 Prep for the parallel shell and widget packages (S-700..S-719). Mostly file layout; the behaviour
 rules are these.
 
-- **[S-700]** The clock starts with its header **hidden**, as in the original
+- **[S-700]** *(Retired by [S-12480]: no kind starts with a header: none has one.)* The clock starts with its header **hidden**, as in the original
   (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
   ([S-3200]), Alarm, Gallery, Video stream, Now playing, Quote, Stopwatch, Pomodoro, Focus session and
   Next meeting ([S-2590]). The sun and the moon start with theirs since G3 and the drive card since G6 (user
@@ -4437,7 +4439,7 @@ rules are these.
   The disk meter starts with its header like the other meters (user requirement), so its reading
   sits where theirs does ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.
-- **[S-2590]** Not every widget starts with a header (owner decision 2026-11-12: "for some it looks
+- **[S-2590]** *(Retired by [S-12480]: no kind starts with a header: none has one.)* Not every widget starts with a header (owner decision 2026-11-12: "for some it looks
   better without"): Alarm, Gallery, Video stream, Now playing, Quote, Stopwatch, Pomodoro, Focus session
   and Next meeting start headerless (`WidgetTraits.StartsHeaderless`), as the clock and the audio
   visualizer already did ([S-700]); their content (a time, the pictures, the stream, the track, the
@@ -4461,7 +4463,7 @@ rules are these.
   Nothing reads them yet; each is wired by its package. Import brings them over and lists changes.
 - **[S-703]** A view may carry an icon (`ViewState.Icon`, one glyph, null = initials). Anything but
   a single glyph is repaired to null at load.
-- **[S-704]** Design gains the header fill (`HeaderBackgroundColor`, empty = the widget's fill;
+- **[S-704]** *(Retired by [S-12480]: no header fill.)* Design gains the header fill (`HeaderBackgroundColor`, empty = the widget's fill;
   `HeaderOpacity` 0..1), the view-change and unlock animations with their own durations (0..3000 ms). `IntroAnimation` gains Sides, TopBottom, Flip, Blur, Hyperspace and
   Hacker. Out-of-range values are clamped, unknown animations reset to Scale, at load.
 - **[S-705]** Per-display settings on `AppState`, keyed like `MonitorViews`: `DisabledMonitors`
@@ -4572,7 +4574,7 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   runs globalization-invariant).
 - [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`); [S-722] with the readings into the Weather facts widget's (`src/Widgets/Themia.Widget.WeatherFacts/`).
 - [S-724], [S-725], [S-726], [S-727], [S-6163], [S-6164], [S-6171], [S-6172]: moved with the Weather forecast widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherForecast/`).
-- **[S-728]** The header's label is the chosen place's city (first part of `LocationName`,
+- **[S-728]** *(Retired by [S-12480]: the place follows Weather now's condition, [S-12481].)* The header's label is the chosen place's city (first part of `LocationName`,
   `WeatherConfig.PlaceLabel`) beside the widget's name ([S-2260]); before a pick there is none (the
   typed query is not kept, [S-2846]). A title the user typed replaces the name; it is the one way to
   change what the header says ([S-3590]: the Location name switch, `HideLocation`, that hid the city is gone).
@@ -5680,7 +5682,7 @@ Ports the original `widgets/others/notes` (SPEC S-01..S-38, `src/lib.rs`, `markd
   off the UI thread, one operation at a time, in order; a queued body write is coalesced, never
   stacked. An unflushed local edit outranks an incoming body (original S-09/S-34). The pool is flushed
   on exit after the surfaces close.
-- **[S-3964]** A hidden header (the card's Hidden placement, or a tile too short for one, [S-402])
+- **[S-3964]** *(Retired by [S-12480]: no card has a header to hide.)* A hidden header (the card's Hidden placement, or a tile too short for one, [S-402])
   takes the bar with it: there is no other place for it. Ctrl+B / Ctrl+I, Tab and the list
   continuations still work, and the right-click menu still edits. A header at the bottom carries the
   bar there.
@@ -5728,7 +5730,7 @@ they show the label, the reading and the history only ([S-1762]).
   drive) or all drives. Changing it clears the chart. Load repairs an unknown scope to one drive,
   loudly. The separate chart scope (`IoScope` / `IoDrive`) is gone.
 - [S-1166], [S-1168]: moved with the Disk widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Disk/`).
-- **[S-1167]** Framework hooks for a kind (`MeterView.Part.cs`): a header title
+- **[S-1167]** *(Retired by [S-12480]: a meter kind adds card-menu lines and a mark, [S-12481]; no header title.)* Framework hooks for a kind (`MeterView.Part.cs`): a header title
   (`IMeterHost.SetTitle`), right-click commands (`MeterPart.ContextActions`), a header trailing
   element, and `IMeterHost.SampleNow`. A reading that carries a fraction is plotted even when it is
   not available (a missed ping); every other unavailable reading carries none.
@@ -6252,7 +6254,7 @@ there: Themia never takes a key from the app the user is typing in.
 | Edit mode | Delete | Delete the selection, undoable ([S-1592], [S-885]) |
 | Edit mode | Ctrl+C / X / V / D | Copy, cut, paste, duplicate ([S-70]) |
 | Edit mode | Ctrl+A | Select all on the display under the pointer ([S-1582]) |
-| Edit mode | Ctrl+Z / Ctrl+Y, Ctrl+Shift+Z | Undo / redo ([S-885]) |
+| Edit mode, the desktop's keys | Ctrl+Z / Ctrl+Y, Ctrl+Shift+Z | Undo / redo ([S-885]; a desktop delete's items back from the Recycle Bin, [S-5597]) |
 | Edit mode | Ctrl+1..9 | Show the n-th view ([S-904]) |
 | Edit mode | Escape | Placing, then the selection, then edit mode ([S-1583]) |
 | View bar (edit mode) | Arrows, Home / End; Enter / Space | Move between chips; show the view ([S-1979]) |
@@ -6335,10 +6337,11 @@ Package SYS-P3. Both meters are modules (`src/Widgets/Themia.Widget.Battery`, `.
   not the plug. The no-battery decision is `BatteryRules.Read`'s (bit 7 of a known flag with no
   usable percentage; 255 is "unknown", not "none"); a machine with no battery shows an empty state.
 - **[S-1186]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-1187]** The battery reading leads with the Segoe Fluent battery glyph filled to the nearest
-  tenth, with a bolt while charging (`MeterPart.Badge`), at the reading's step in the secondary role,
-  Caution or Critical while the charge is ([S-1123]); the Battery and Ring styles draw the charge
-  themselves and have no badge.
+- **[S-1187]** A meter's reading leads with its kind's glyph ([S-12801], `MeterPart.Badge`: the processor's,
+  the memory's, the disk's, the GPU's, the ping's) and the battery's with the Segoe Fluent battery glyph filled
+  to the nearest tenth, with a bolt while charging, at the reading's step in the secondary role, Caution or
+  Critical while the reading is ([S-1123]); the Battery and Ring looks draw the charge themselves and have no
+  glyph before it, the Numbers look its arrows (`MeterSizing.Leads`, counted in every sizing, `Identified`).
 - **[S-1190]** Network throughput is per adapter (`ThroughputTracker`): a counter that falls is that
   adapter's reset (reads 0 once, re-baselines) and no longer zeroes every other adapter's traffic;
   a new adapter starts from a baseline. Read by the hub once per tick for every tile ([S-2501]).
@@ -6553,7 +6556,7 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   the defaults.
 - **[S-11008]** **A list** (top processes, network adapters, removable drives, device batteries) keeps
   the header and shows the config's rows (`IKitRows`), the rest scrolling inside them ([S-2440]).
-- **[S-11009]** **A header counted in the sizing never sheds**: a kind's header stays on every edge at
+- **[S-11009]** *(Retired by [S-12480]: no sizing counts a header.)* **A header counted in the sizing never sheds**: a kind's header stays on every edge at
   every size of its range, since its sizing counts it there ([S-2444]); only the person hides it. The
   floors that shed it (96 high, 160 wide, `HeaderStrip.Sheds`) went with the legacy kinds ([S-11800]).
 - **[S-11090]** **The groups of the old cards** (`ReadyMadeGroups`, home: the subject's family): each
@@ -6834,7 +6837,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   (black at 10 % / 6 %, darker than a dark card and so no edge on one): white at 10 % in dark, black
   at 8 % in light, a 1px solid line (`DesignLook.DarkHairline`, `LightHairline`), drawn over the card
   at the border opacity.
-- **[S-2103]** **No header band.** By default the header has no fill and no line of its own: it is
+- **[S-2103]** *(Retired by [S-12480]: no header band: no card has a header.)* **No header band.** By default the header has no fill and no line of its own: it is
   the card. A translucent card used to show a darker strip with a seam where the header was, because
   the header painted a second copy of the card's fill (faded by the header opacity) and the body's
   fill reached 1 DIP under it; both are gone (`WidgetCard`: one `_fill` across the 3 × 3 content grid).
@@ -6871,7 +6874,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-827]** The font picker lists every installed family (GDI `EnumFontFamiliesExW`, off the UI
   thread, cached until the installed fonts change, [S-6443]): vertical `@` faces dropped, duplicates
   folded, sorted. Each entry is drawn in its own font ([S-1723]).
-- **[S-828]** Header background (empty = none: the header is the card, [S-2103]) and header opacity
+- **[S-828]** *(Retired by [S-12480]: no header background or opacity.)* Header background (empty = none: the header is the card, [S-2103]) and header opacity
   (0..1, the header colour's); the strip reaches the card's edges and follows its corners.
 - **[S-1761]** *(Retired by [S-2103]: the header no longer paints a copy of the card's fill.)* The header opacity always fades the header strip (it did nothing while the header had
   no colour of its own, which is the default — the widget's fill was painted under the header too, so
@@ -6999,7 +7002,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-2136]** **Tracking and figures**: the letter spacing (thousandths of an em, XAML's `CharacterSpacing`) is the
   small token up to 14 and the large one from 28, in a straight line between (SF's own table tightens as the size
   grows); `tabularNumerals` sets tabular figures on every family text.
-- **[S-2137]** **The header's name**: in the secondary level (the family's own) or the primary, as a macOS widget's
+- **[S-2137]** *(Retired by [S-12480]: no header tone or case token.)* **The header's name**: in the secondary level (the family's own) or the primary, as a macOS widget's
   title; as written or in capitals (`WidgetCard.ApplyHeaderLook`).
 - **[S-2138]** **Inner surfaces**: `innerSurface` Theme keeps Windows' item fills ([S-6514]); Vibrant fills a Default
   layer's items with the theme's ink at a whisper, macOS's quaternary fill, a nested glass that takes its colour from
@@ -7378,6 +7381,87 @@ space between widgets will only come from how you place them now").
   the cell's width from its top, kept the card's 8-DIP corners at the top and its own 2 at the bottom; now
   all four are `SelectionLook.DesktopIcon`'s. Given a card of its own it is clipped as any card, and still
   never joins. Tests `GroupJoinTests.S11880_`, the module's `S9515_`.
+- **[S-12482]** **On a side a group mate joins, the content runs to the edge** (owner, 2026-11-16: "there is
+  still a little space vertically which i dont want there to be. fix that for all the widgets"). The
+  card knows its outline ([S-2241]); `CardOutline.Joined` is the top and the foot a mate joins (a side not
+  drawn, or crossed by a seam), and the card tells its view (`WidgetCard.ApplyEdges`, on every join, config
+  and view swap): there is no inset over a joined top ([S-5700]: `JoinedSides.TopInset`), and the view's
+  foot keeps none on a joined foot. One rule for every kind, in the card and family layer, never per
+  widget. The outer sides keep the family's look. Tests `JoinedSidesTests.S12482_`.
+- **[S-12483]** **How a view runs to a joined side.** A block held at its natural height (`NaturalBlock`)
+  stands against the one joined side (`JoinedSides.Block`: the top, the foot, or the middle when free or
+  joined on both) and on a joined foot its own foot inset stands past the card's edge, clipped (the card's
+  content never draws over its neighbour); a meter's reading (`MeterView`) and every view that centres a
+  block or keeps a foot inset of its own takes the sides through `IWidgetJoins` (`JoinedSides.Above`,
+  `.Foot`): Weather now, the forecast, the rain, Air quality, the moon, the sun, a stock, an exchange
+  rate, a drive, the screen time widgets, the quote, the habit grid, the clock, the next meeting, the
+  Header widget. A list's rows already run into its foot ([S-12410]) and a chart to its edges.
+- **[S-12484]** **The left and the right keep the inset.** Across a seam on a side a member's text would
+  run into its mate's (the inbox's subject into the task's name), so only the top and the foot run to a
+  joined edge; a row's hover already reaches both edges ([S-6711]).
+- **[S-12800]** **One inset, no extra band** (owner, 2026-11-17: "the widgets should be designed in a way from the
+  top to bottom and left and right that there is no additional spacing so that they nicely fill the whole contents.
+  for example the graph widgets right now have a little bit too much spacing on the top and bottom so that they do not
+  nicely tie together when stacked"). A widget's content stands one family inset (12) from the card's edge on every
+  free side and reaches it: the card gives the top ([S-5700]), the view keeps the sides and the foot, never a second
+  inset over the top or a margin round the whole (the weather graphs' frame carried `Family.Inset` on all four sides,
+  24 over its top line in a card and 12 over and under it in a group; now `HourGraph.Join`: the sides and a foot that a
+  mate joining under it takes, and `HourGraphPanel` is every graph's view, so the card's word reaches it). On a
+  joined side the content runs to the edge ([S-12482]) through the one family path: a block held at its natural
+  height (`NaturalBlock`: Music progress too), a view that keeps a foot (`IWidgetJoins` with `JoinedSides.Foot`:
+  Weather now, the calendar's day, week and year, the note's text, the scratchpad's ink bar), and rows that start
+  at the top (`JoinedSides.Rows`: at the foot where only the foot is joined, so the last meets the mate under it:
+  recent files, removable drives, screen time's apps, drive facts, sun times, the week planner). A reading block is
+  centred in what its sizing counted (Weather now's sat 6 off its middle), and a sizing counts every line its view
+  holds (a stock's line under its price, [S-11161]). Kept on purpose: a grid of cells keeps its foot inside the inset
+  for the cells' marks (the folder's grid and icons, the contacts' grid); a list keeps the rows its config states,
+  so fewer items than rows leave the rest empty ([S-11800]: content decides the size, never the items now). Tests
+  `JoinedSidesTests.S12800_`, the stock's `S11161_`; renders `--recipe-png` of every group.
+- **[S-12801]** **A widget names no context** (owner, 2026-11-17: "the small widgets like the weather graph ones all
+  show the location, but with that in a group the location would be shown x times for all the widgets. this should
+  not be. stuff like that should be removed as a user would just put the location in the header"). Nothing in a
+  widget's content names what a Header widget over its group says once: the place or city, the account, the device,
+  host or adapter, a list's, calendar's, feed's or folder's name as a title, the kind's own name ("Temperature",
+  "UV index", "Air quality"), a window's name ("Last 7 days"). Gone: the weather graphs' top line name and city
+  (`HourGraphRules.Framed` takes the kind's glyph and a chosen measure), Weather now's and Air quality's place after
+  their condition, the screen time widgets' window line ([S-12803]), the ping facts' host in its note, the email's
+  account badge by default (a choice for an inbox of several), an untitled alarm's "Alarm". **What a reading is**
+  stays readable in a group without words: **the kind's glyph leads the reading**, one rule for the meters
+  ([S-1187]) and the graphs (the top line: [glyph 16] 8 [the reading, BodyStrong] 8 [a measure the kind offers a
+  choice of, Body secondary: the air graph's "PM2.5 µg/m³"]). Data a single widget needs stays: a world clock's
+  city, a stock's symbol, a countdown's or an alarm's own name, the names in a list of several (adapters, drives,
+  apps), the calendar's period with its arrows, the folder's tool line (where its tools act), the volume's output
+  (it follows the default device), the moon's month over its grid. Tests `WeatherGraphsTests.S12708_S12801_`,
+  `SystemAtomsTests.S12801_`, the air graph's `S10402_`, `MailFeedTests.S6403_S12801_`, `PingFactsTests`.
+- **[S-12802]** **The Header widget names the place** ([S-9604]): it holds the shared place and shows its city after
+  its title while Show the place is on; every ready-made group about a place (Weather, Weather station, Sun, Moon,
+  Air quality, Weather graphs) places its header with it on (`ReadyMadeWidget.HeadsPlace`, `"showsPlace": true` in
+  its fragment), so setting the group's place once ([S-11753]) names it there and nowhere else. Test
+  `ReadyMadeGroupsTests.S12802_`.
+- **[S-12803]** **The screen time widgets' day line is a day's alone**: for a day it says which with its arrows
+  ([S-454]); for a window (the last 7 or 30 days) there is no line and its sizing counts none
+  (`ScreenTimeRules.DayLine`: 24 or 0), so the reading is 76, the chart and the apps 24 shorter; the window is the
+  page's choice and the Header's to name. The ready-made Screen time group's boxes follow (76, 116, 164). Test
+  `ScreenTimeRulesTests.S12803_`.
+- **[S-12804]** **A one-readout face fills its card** (owner, 2026-11-17: "the clock widget does not stretch out to
+  fill the space properly, there is way too much spacing in it"). The clock and the Date widget plan their face
+  on the step their Size names in their natural box and scale it up as one to the card (a `Viewbox`: uniform, up
+  only), as a display clock is: a larger card is a larger face, never a band round a small one; what is left is
+  only what the card's other axis leaves, placed by the alignment and the joins. The clock's dial is planned in
+  the whole box instead (its hairlines stay hairlines). The one-step climb (`ReadoutSizes.Climb`, [S-12410]) is
+  gone. Renders: `--widget-png clock --style <each> --sizes range`, odd boxes.
+- **[S-12805]** **The date is a widget of its own** (owner, 2026-11-17: "the clock widget should not have a date
+  style as this should be moved into its own widget"): the clock has no Date style, no date line and no Show date
+  (`ClockStyle.Date`, `ClockSetting.Date`, `showDate` gone; its line under says a world clock's city and the
+  offset); the **Date** widget (`src/Widgets/Themia.Widget.Date`, [S-10800]..[S-10804]) shows today, Long, Short,
+  Numbers or a calendar Page. The ready-made group My day places a Date (Small, Long) joined under its clock.
+  Tests the clock's `S6011_the_clock_has_no_date_style_and_no_date_line`, the Date module's.
+- **[S-12806]** **A quick toggle or power button has no real minimum** (owner, 2026-11-17: "the buttons like the
+  night mode toggle should be able to be smaller than they are now, they should not really have a smallest size
+  at all"): its least box is the family's smallest glyph (16) in the inset, 40 (`TileRules.MinSide`; was the 28
+  glyph's 52), and under the 28 glyph's room in the inset (52) the inset gives way down to 4 round the glyph,
+  which is the 28 while it fits and else the 16 (`TileFace.Mark`, `.Inset`), so a box the grid rounds smaller
+  still draws; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`.
 - **[S-11870]** **No line inside a group** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards that are members of the same group
   ([S-2450]) no line is drawn at all: neither card draws a side, or the stretch of a side, where a
@@ -8024,7 +8108,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   host's desktop selection is the one model (`DesktopSelection`; a card under its card key, [S-5540]); a card asks
   it (`DesktopWindow.IsSelected` outside edit mode, `AppHost.DeskSelects`) and draws its **four corners in the accent,
   no handles, no grips, no edge bars** (`WidgetCard.ApplySelection`: `EditMarks.Corners` on the locked desktop); an
-  icon draws its own selection look ([S-6627]) and its four corners over it ([S-11889]). Delete, Cut, Copy, Enter and F2 keep their meaning per kind: on the
+  icon draws its own selection look ([S-6627]) alone, no corners ([S-11889]). Delete, Cut, Copy, Enter and F2 keep their meaning per kind: on the
   icons the file commands ([S-5545]), on cards nothing outside edit mode. Edit mode keeps its own units and groups
   (`WidgetSelection`, [S-2450]), started empty. Tests `DesktopGridTests.S11877_`; `--drag-png` draws it
   (`drag-lasso-*`).
@@ -8207,7 +8291,7 @@ model), `Model/QuickSet.cs` (`SetShared`), `Model/WidgetGroups.cs` (`Rename`); A
 - **[S-11752]** **What is shared, and who holds it** (pinned by `SharedSettingsTests`): the place
   (`IPlaced`, which names its coordinates and its place name, the weather's `LocationName` and the sky's
   `Place` under one shape: Weather now, Weather facts, Forecast, Rain next hour, Air quality, Air facts,
-  Sun, Sun times, Moon, Moon times; the same place is the same coordinates or both on the device's);
+  Sun, Sun times, Moon, Moon times and the seven weather graphs ([S-12707]); the same place is the same coordinates or both on the device's);
   the calendars' accounts with their calendars and colours (`CalendarConfig`: Calendar, Next meeting, Up
   next, Week planner); the mail and the contacts accounts (`IChoosesAccounts`, by the feature they offer:
   Email; Contacts); the disk activity's drive (`IDiskScope`: Disk, Disk history); the drive's
@@ -8219,7 +8303,7 @@ model), `Model/QuickSet.cs` (`SetShared`), `Model/WidgetGroups.cs` (`Rename`); A
   eight history atoms and the cores); a one-readout widget's Size (`IReadoutSized`); a list's Rows, its
   Lines where they are the user's (`IKitRows.OffersLines`) and its Columns (`IKitColumns`), shared only
   among lists; when the music atoms hide (`IHidesWhenIdle`: the track, the cover, the progress). Not
-  shared: the units and formats, which stay links ([S-3590]); the network adapter (no network atom
+  shared: the units and formats, which the widgets follow ([S-3590]); the network adapter (no network atom
   chooses one); a list's own source (a feed, a folder, a task list).
 - **[S-11753]** Each shared setting's standard line marks the setting it sets (`ItemMenuEntry.Shares`,
   `WidgetMenuLines.Shared`): the place rows, the calendar and mail and contacts accounts, the disk and
@@ -8306,11 +8390,20 @@ grouped, so a first desktop is a few clicks.
   mode, the new group selected under the bar with its page hung from the bar's entry. A widget given no
   state shows its "sample" preview where it has one.
 - **[S-11606]** **A recipe is one panel** (`ReadyMadeGroupsTests`, every recipe): each widget's box is a
-  size its kind takes for the recipe's config and header (placing it moves nothing, [S-2446]), and the
+  size its kind takes for the recipe's config (placing it moves nothing, [S-2446]), and the
   boxes fill the group's bounds with no notch. Every recipe is looked at in `--recipe-png` (a contact
   sheet of all of them): no double line, no spare air, and text edges in line from one atom to the next.
-- **[S-11607]** **An old card's group carries one header**, on its first atom ([S-11090], [S-11172]); the
-  other recipes (This PC, My day, My files, Next meeting, Inbox and tasks) say their own.
+- **[S-12485]** **Every ready-made group comes with its Header widget** (owner, 2026-11-16: "the groups should
+  already include preplaced matching headers"): `ReadyMadeGroups.Headed` puts a Header widget ([S-9600])
+  across the group's top (`HeaderHeight`, 36: the inset, the line, the header's gap), joined to the members
+  under it as one panel, its title the recipe's name in the language it is placed in (shorter where the
+  name says more than the subject: "Weather" over the weather station, "CPU" over CPU details and cores,
+  "Now playing" over its large one) and the recipe's glyph (`ReadyMadeWidget.Heading`, written into its
+  config fragment, `Fragment`). The members' boxes are their kinds' headerless sizes; the inbox beside
+  the tasks is seven messages of two lines beside nine tasks, so the two stand as tall (304). Tests
+  `ReadyMadeGroupsTests.S12485_`, `OfficeRecipesTests.S12485_`.
+- **[S-11607]** *(Retired by [S-12485]: every group's header is its own Header widget.)* An old card's group
+  carried one header, on its first atom.
 
 Not live-verified: entering a group by clicks, dragging a group and an entered member, the keys,
 the card menu's lines, a group handed to another display, placing a recipe on a display with a
@@ -8714,7 +8807,7 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 - **[S-11882]** **A quick toggle and a power button have no size limits** (owner, 2026-11-15: "widgets like
   the toggle buttons should not have size limitations"): the twenty kinds' card is resized freely on both
   axes (`TileRules.Sizing`, a range, on whole grid cells as every widget's, [S-11807]): the Tile and Round
-  looks from the 28 glyph alone in the inset (**52**, `TileRules.MinSide`) to 480 on either axis
+  looks from the 16 glyph alone in the inset (**40**, `TileRules.MinSide`, [S-12806]; was the 28 glyph's 52) to 480 on either axis
   (`MaxSide`), landing at the old Medium square (a toggle 116, a power button 100, `NaturalSide`); the Switch
   look a row from its glyph and switch alone (88) to 640 wide and 60 to 180 tall, landing at 240 × 60, the
   row centred in a taller box. There is no Size setting (`QuickToggleConfig`, `PowerButtonConfig` carry none;
@@ -9177,7 +9270,8 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   switches record nothing. Steps: Change (settings-page header/surface/title, view name/icon), Add,
   Delete, Move (drag, cut-paste, Move, hand-off to another display), Resize, Paste (copies,
   Duplicate), Arrange (front/back), AddView, DeleteView, DuplicateView, ReorderView.
-- **[S-885]** Ctrl+Z undoes, Ctrl+Y and Ctrl+Shift+Z redo, in edit mode only. Ctrl+Z during a
+- **[S-885]** Ctrl+Z undoes, Ctrl+Y and Ctrl+Shift+Z redo, in edit mode and on the locked desktop while the
+  desktop has the keys (its icons', [S-5545]; one history, [S-5597]). Ctrl+Z during a
   placement cancels the placement. Each step shows a keyed "Undid …"/"Redid …" notice offering the
   opposite; with nothing to do, "Nothing to undo"/"Nothing to redo". Deleting widgets or a view
   shows "Deleted …" with Undo (Delete still asks nothing first). A notice's Undo/Redo acts only while
@@ -9527,7 +9621,7 @@ is dropped at load, logged: no migration ([S-1050]).
 
 Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core/Shell/DesktopIconRules.cs`,
 `Themia.App/Interop/DesktopIcons.cs`, `Themia.App/Interop/DesktopNamespace.cs`,
-`Themia.App/Services/AppHost.Desktop.cs`, `Themia.App/Services/AppHost.DesktopDesk.cs`,
+`Themia.App/Services/AppHost.Desktop.cs`, `Themia.App/Services/AppHost.DesktopDesk.cs`, `Themia.App/Services/AppHost.DesktopViews.cs`,
 `Themia.App/Services/Files/DragDropInterop.Icons.cs`,
 `Themia.App/Shell/DesktopWindow.Desktop.cs`, `Themia.App/Shell/DesktopWindow.Drop.cs`, `Themia.App/Shell/DesktopRoot.cs`,
 `Themia.Sdk/Files/DesktopItem.cs` (`DesktopItemKeys`), `Themia.Sdk/Files/DesktopCommands.cs`, `Themia.Sdk/Files/DesktopRename.cs`,
@@ -9624,8 +9718,8 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   (1) a rename heard from the notifications rewrites the key of every widget of the old item in
   every view, keeping its place; (2) an item no longer listed (deleted, moved or renamed away) has
   its widgets removed from every view; (3) an item not in the known set is new and gets one widget
-  in the view showing on the primary display (a drop's own display in D2, [S-5591]), at the next
-  free cell ([S-5521]), and no other view gets it; (4) the known set becomes the listing. An item
+  on every view set to show all desktop icons, at its next free cell ([S-5521]), and a drop's own view at the drop
+  point ([S-5591]); never on a Chosen or None view ([S-5526]); (4) the known set becomes the listing. An item
   known but in no view stays unplaced, by the user's own removal ([S-5523], [S-5524]). It runs after
   each read and after an undo or redo (which may bring back a widget whose item has gone), only
   while a listing is held. A rename made while Themia was not running reads as a removal and an
@@ -9639,7 +9733,7 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
 - **[S-5522]** The known set is `desktop.known` in the state document: the keys of every item the
   reconcile has seen. Load keeps it a list of distinct (case-insensitive), non-empty keys of at
   most `DesktopItemKeys.MaxLength` characters, dropping the rest loudly. In a new state
-  it is empty, so every item arrives in the primary display's view.
+  it is empty, so every item arrives on every view that shows all desktop icons (every view of a new state, [S-5525]).
 - **[S-5523]** **Unplaced items stay reachable**: Add widget's
   Files subject has an **On the desktop** folder listing the items with no widget in the view being
   added to, in `DesktopItemOrder`; picking one places its widget like any widget ([S-1587]). With
@@ -9655,6 +9749,39 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   selection with any other widget, an own icon among them, says Delete: an own icon stands for no file
   and is listed nowhere once removed. Outside edit mode Delete is the shell's own delete of
   a desktop item's file, with the shell's prompt ([S-5545]), and removes an own icon's widget ([S-5583]).
+- **[S-5525]** **Each view chooses its desktop icons** (the owner, 2026-11-16): a view's setting **Desktop icons**
+  (`ViewState.DesktopIcons`, `ViewDesktopIcons`): **All** (the default for every view, new or loaded: left out of
+  the file), **Chosen** or **None**. It governs the desktop's items alone: an own icon ([S-5600]) is a widget placed on
+  the view under every value. The items a view shows are the item widgets it holds, each at a place of that view's own
+  (a view keeps its own arrangement); a Chosen view's chosen set is exactly those, never a second list
+  (`DesktopViews.Shown`). Load makes an unknown value All and drops the item widgets a None view holds, loudly
+  (`DesktopViews.Repair`); a duplicated view keeps it; it is in the undo snapshot (`ViewShape.DesktopIcons`). Tests
+  `DesktopLayerTests.S5525_`.
+- **[S-5526]** **Where a new item arrives** (`DesktopReconcile.Apply`, `DesktopViews.Receives`/`Holds`): dropped,
+  pasted or made with New › on a view, it lands there at that point ([S-5591]) unless that view is None (shown nowhere
+  there, as Windows' desktop with its icons hidden: the file is still on the desktop); on **every other view set to
+  All** at its first free spot ([S-5521], each view on its own display's grid, a view no display shows on the primary
+  display's), never on a Chosen or None view; a view that already shows it gets no second. A deleted item leaves every
+  view, a rename keeps every view's place ([S-5520]). A None view is offered nothing under Add widget's On the desktop
+  ([S-5523]) and takes no stand-in ([S-5560]). Tests `DesktopLayerTests.S5526_`, `S5591_S5526_`.
+- **[S-5527]** **Picking for a view**: an item is shown on a view by placing its icon there (Add widget's On the
+  desktop, a drop on it) or by ticking it in the view's card ([S-5529]: at the first free spot, `DesktopViews.Fill`),
+  and hidden by unticking it or by **Hide from this view** in its icon's menu (`FileCommand.HideFromView`, while every
+  selected icon is a desktop item's: each off the view it stands on, `DesktopViews.Hide`) or edit mode's Remove from
+  this view ([S-5524]); the files stay, other views keep theirs, and the view's value stays (an item hidden from an All
+  view stays off it until the view is set to All again or it is placed there). There is no "Show on this view" line in
+  the icon menu: an icon not on a view cannot be right-clicked there. Each is one undo step. Tests
+  `DesktopLayerTests.S5527_`, `DesktopCommandsTests`.
+- **[S-5528]** **Switching** (`DesktopViews.Set`, `AppHost.SetViewDesktopIcons`, one undo step): All → Chosen keeps the
+  icons it shows as its chosen set, nothing moves; Chosen (or None) → All lays every listed item it lacks in at the first
+  free spots, in `DesktopItemOrder`, round its widgets; → None takes every item icon off it and **keeps no places**
+  (decided 2026-11-16: no second, parked list; the switch's undo brings them back, and All lays them out anew); None →
+  Chosen starts with none chosen. Tests `DesktopLayerTests.S5528_`.
+- **[S-5529]** **In the view's card** on the Views page ([S-2313], `ViewsMenu.DesktopIcons`): the choice **Desktop
+  icons** (All, Chosen, None; `view:<id>/desktop-icons`), and while Chosen under it **Icons on this view** ("3 of 7"),
+  a page of its own behind a back head ([S-2303]) listing the desktop's items in `DesktopItemOrder`, each a switch with
+  its kind's glyph that shows it on this view or hides it (`view:<id>/chosen-icons/<key>`; "There's nothing on the
+  desktop." with none). Rendered as `page-*-views-icons` and `-views-chosen` (`--editbar-png --only pages`).
 - **[S-5530]** **Opening** outside edit mode: a double-click on an item, or Enter with the keys
   ([S-5550]), opens the selection (the double-clicked item alone when it is not selected), at most 15
   items at once (the rest logged), through the launcher (a path as it is, a shell item as
@@ -10053,6 +10180,26 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   never deleted). The selected own icons' widgets are removed in one undoable step, with the undo
   notice offered as edit mode's delete offers it ([S-881]): no prompt, and nothing of their targets is
   touched. A selection of both does both. The menu's Delete ([S-5582]) is this same delete.
+- **[S-5597]** **Ctrl+Z puts a deleted item back** (owner, 2026-11-16: "when i deleted a folder from the desktop
+  for example it should be possible to bring it back with ctrl z"), as Explorer's own Undo Delete: a delete of
+  desktop items that sends them to the Recycle Bin (Delete, the menu's Delete; not Shift+Delete, which deletes for
+  good) is one step of the undo log ([S-885], `UndoAction.DeleteDesktopItems`, "Undid delete"), recorded when a read
+  of the desktop sees them gone (`AppHost.DeletedBy`: a cancelled prompt records nothing); the step's layout holds
+  their icons where they stood in every view, and the step carries the record (`DesktopDeleteStep`, an
+  `IUndoEffect` the log carries both ways: their keys, paths and when the delete was asked). **Undo** (Ctrl+Z in
+  edit mode or on the locked desktop): each item put back from the bin to its path through the bin's own Restore
+  (`RecycleBinItems.Restore`: the bin's item, its shell menu's `undelete`), the bin's item being the one this delete
+  made (`DesktopDeleteUndo.Match`: deleted from that path, case aside, no earlier than the delete less 5 s, the
+  earliest such; the bin's own record of it, the `$I` file beside its copy, read by `RecycleBinInfo.Parse`, both of
+  its versions); an item whose copy the bin no longer holds, or whose path is taken now, is left (never put over
+  something: `DesktopDeleteUndo.Plan`) and a notice says how many could not be put back. The icons come back at the
+  spots they stood (the step's layout) and stay there till the items are listed again (`DesktopReconcile.Plan`'s
+  `expected`), so they are no arrival. **Redo** (Ctrl+Y, Ctrl+Shift+Z): the items back at their paths recycled again
+  through the shell's delete (its prompt as the user set it up); a cancelled prompt takes no step; an item it left
+  gets its icon back. The step is taken even where nothing could be put back (its icons go again with the next read).
+  Tests `DesktopDeleteUndoTests.S5597_` (the record, both versions and refusals; which copy; what is left; the log
+  carrying the record both ways; a refused file side keeps the step; the icons waiting). Live pass: the bin's Restore
+  and the shell's prompt run only on a real desktop.
 - **[S-5584]** **F2** (`DesktopCommands.Rename`): on a desktop item the shell's rename of the file
   ([S-5543]); on an own icon its **label**: the same box on its widget, the name typed set as the label,
   an empty name or the one its target gives clearing it so the icon follows its target again, one undo
@@ -10255,6 +10402,13 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   Every other line keeps its glyph, as Explorer's own lines without art do. A disabled line keeps the glyph (greyed
   by the menu), and so do high contrast (the glyph follows the user's contrast colours) and a glyph that turns
   round right to left. The view drop-down's New view / Duplicate use the same pictures.
+- **[S-12952]** **One leading column** (owner, 2026-11-17: "there is one column too much on the left side in the
+  context menu"): every Themia menu has one leading slot, as Windows 11's desktop menu. A line shows its icon there; a
+  toggle (Edit mode, Lock widgets) shows the check in that same slot while on and nothing while off (its own glyph is
+  not drawn, as Explorer's View › Auto arrange icons); the chosen line of a set (View › sizes, Sort by) shows the dot
+  (`MenuMarks.Slot`). `ItemMenu` builds plain items only: never a `ToggleMenuFlyoutItem`, `RadioMenuFlyoutItem` or
+  `AppBarToggleButton`, each of which makes WinUI reserve a check column beside the icons. The view bar's select menu
+  is the one exception left (a shrink-only list). Tests `ContextMenuTests.S12952_`; `--menu-png` draws them.
 - **[S-1755]** The pictures are Windows', never shipped with Themia: the standard-contrast `theme-light` /
   `theme-dark` SVGs under `%WINDIR%\SystemApps\MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\FileExplorerExtensions\Assets\images`,
   one file per picture (`MenuArtRules.FileName`), each read once per theme and kept. A Windows without
@@ -10496,6 +10650,22 @@ power buttons, whose whole body is their button) open nothing.
   takes it. Edit mode itself stays (the Edit mode line, the hotkey) for resizing, settings and adding. Not in a debug
   render's preview. Tests `DesktopGridTests.S2008_` (the regression: the locked press starts no edit-mode press,
   only the move).
+- **[S-12950]** **Lock widgets** (owner, 2026-11-17: "you should be able to lock the desktop in which case you should
+  only be able to move the desktop icons but not any other widgets"): a Themia-level setting, off by default
+  (`AppPreferences.LockWidgets`, stored as `preferences.lockWidgets`; a file without it loads off; an import brings it
+  and says so). While on, outside edit mode a widget pressed and dragged **does not move** (`CardGestures.MovesLocked`
+  with `pinned`, `WidgetLock.Pins`): the press stays the widget's own click or gesture. Desktop icons move, drag out,
+  lasso and select as before. **A mixed selection's move carries its icons only**; its widgets stay put
+  (`DesktopPicks.Moving` over `WidgetLock.Movable`). **Groups are units** ([S-11885]): a group holding any widget stays
+  whole, its icons with it; a group of icons alone moves. Edit mode moves everything: editing is explicit. There are
+  no keyboard nudges outside edit mode, so none to hold. Its one place is General › Desktop icons (a toggle under the
+  icon size, [S-3590]); the menus' line ([S-12951]) is a command that flips it. Tests `DesktopGridTests.S12950_` (the
+  regression: a locked widget's drag moved it), `SettingsMenuTests.S12950_`, `ShellSettingsTests.S12950_`.
+- **[S-12951]** **The Lock widgets line** stands right under **Edit mode** on the desktop's background menu
+  ([S-5548]), a desktop icon's menu ([S-5582]) and a widget card's menu (both modes, [S-1743], [S-1758]), checked while
+  on; a click flips the setting (`ShellMenus.LockLine`, `DesktopMenuCommand.LockWidgets`, `FileCommand.LockWidgets`).
+  Not on edit mode's empty-surface menu, an action menu that holds no setting ([S-1744], [S-3590]). Tests
+  `ContextMenuTests.S12951_`, `DesktopCommandsTests`.
 - **[S-11874]** **The local grid** (`LocalGrid`, Core; `LocalGridOverlay`): while a block moves on the locked
   desktop the grid's lines are drawn **only round the box it lands in**, their strength falling with their place
   round it ([S-11886]: a rectangle grown evenly out of the box) to nothing at `LocalGrid.RadiusCells` (6 cells) past it, on
@@ -10522,13 +10692,15 @@ power buttons, whose whole body is their button) open nothing.
   lands or the move becomes the shell's drag. A desktop icon draws them too ([S-11889]). Tests
   `DesktopGridTests.S11881_`; `--drag-png` draws it (`drag-move-*`: the clock moving, a card touching it at full
   strength, one below it fainter, one past the fade without marks).
-- **[S-11889]** **Desktop icons show the corners** (owner, 2026-11-15: "the desktop icons should also show the
-  corners"): an icon draws the same corner marks as a widget in every case a widget does, round its grid box (its
-  cell, [S-11875]) and over its highlight: selected on the locked desktop ([S-11877], in the accent), in edit mode
-  (selected and as a neighbour, [S-31b]), and in a locked move, moving and near where the block lands, fading with
-  the local grid ([S-11881]). One rule for every kind (`SelectionRules.MarksShown`: edit mode, selected, or a move's
-  strength; it takes no kind, so none is left out). Tests `DesktopGridTests.S11889_`; `--drag-png` draws it
-  (`drag-lasso-*`: the two selected icons with their corners; `drag-move-*`: an icon below the landing, fainter).
+- **[S-11889]** **Desktop icons show the corners where placing is going on** (owner, 2026-11-15: "the desktop
+  icons should also show the corners"; 2026-11-16: "when highlighting a folder it should not show the corners"): an
+  icon draws the same corner marks as a widget round its grid box (its cell, [S-11875]) and over its highlight in
+  edit mode (selected and as a neighbour, [S-31b]) and in a locked move, moving and near where the block lands,
+  fading with the local grid ([S-11881]); **hovered, selected or highlighted on the locked desktop it shows its
+  highlight alone** ([S-6627]), never the corners a selected card shows there ([S-11877]). One rule
+  (`SelectionRules.MarksShown(editing, selected, moveAlpha, icon)`: edit mode, a move's strength, or selected and
+  not an icon). Tests `DesktopGridTests.S11889_`; `--drag-png` draws it (`drag-lasso-*`: the two selected icons in
+  their highlight alone, the selected cards with their corners; `drag-move-*`: an icon below the landing, fainter).
 - **[S-11878]** **When an icon's move leaves the desktop** (`DesktopDragOut.Starts`, Core): a move held by a desktop
   icon becomes the shell's drag of the selection ([S-5549]: XAML's item drag, from the icon, with the press still
   down) only when what it carries gives another target something (`DesktopCommands.Drag`'s files) and the pointer is
@@ -11199,6 +11371,75 @@ Shared:
 Needs a live pass: the three widgets against the real services (a place in and outside Europe for
 the index and pollen, a rainy hour, an ECB publication day and a weekend), offline with a restored
 shelf, and the Windows region read (`GetUserDefaultGeoName`) in the packaged build.
+
+## Weather graphs (WEATHER-GRAPHS)
+
+Seven weather graphs, each a module (`src/Widgets/Themia.Widget.TemperatureGraph/`, `.RainGraph/`, `.UvGraph/`,
+`.AirQualityGraph/`, `.WindGraph/`, `.HumidityGraph/`, `.PressureGraph/`: [S-10100]..[S-10799], their own `SPEC.md`),
+drawn by one frame so they read as one family (owner, 2026-11-16: "the graphs can have their own special styles that
+match the contents but should generally look similar"). This section keeps what they share. SDK: `Widgets/WeatherHours.cs`
+(the hourly answers and their parsers), `Widgets/HourGraph.cs` (the frame's model and geometry, `HourGraphRules`),
+`Model/Configs/HourGraphConfig.cs`, `Samples/SampleHours.cs`, `Sync/WebInterests.cs` (`HoursInterest`, `AirHoursInterest`);
+Sdk.WinUI: `Widgets/HourGraph.cs` (the part that draws it), `Widgets/HourGraphPanel.cs` (the graph or the Status row),
+`Shell/HourGraphLines.cs` (the shared page lines), `IWeatherAnswers.Hours`/`.AirHours`. Core: `Storage/OnlineCacheStore.cs`,
+`Sync/SyncInterests.cs`. App: `Services/Web/OnlineService.cs`, `WebSync`. Strings: `Locales/weather-graphs`. Tests
+`WeatherGraphsTests` (`S127xx_`), each module's own.
+
+- **[S-12700]** The weather graphs' one hourly answer: open-meteo's forecast API with
+  `hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,uv_index,wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,pressure_msl`,
+  `past_hours=1&forecast_hours=49`, `daily=sunrise,sunset&forecast_days=3`, always °C, km/h and mm, unix time.
+  `WeatherHoursWire.Parse`: not JSON, an error document or no `hourly` block with a `time` array is rejected; an hour
+  with a bad stamp is dropped, a figure null, a string or out of its physical range is null alone (a gap, never 0); time
+  order, a repeated stamp once; no hour is Empty; the daylight is an extra (a sunrise before its sunset, under a day apart).
+  A precipitation sum is the hour **ending** at its stamp, the rest are instants; the graphs draw every value at its stamp.
+- **[S-12701]** The air graph's answer: the air-quality API with `hourly=european_aqi,us_aqi,pm2_5,pm10,ozone,nitrogen_dioxide`,
+  `past_hours=1&forecast_hours=97` (four days; CAMS forecasts five). `WeatherHoursWire.ParseAir`: the same rules; an hour
+  with no figure at all is dropped.
+- **[S-12702]** One want per place (`HoursInterest`, `AirHoursInterest`: the place and the cadence, never the window, the
+  unit or the look), so every graph at a place shares one request and a change of window or unit refetches nothing; the
+  weather's cadence ([S-3780]), the air's never faster than hourly ([S-5101]). Synced by `WebSync` like the other answers
+  ([S-2663]), kept on the online shelf ([S-5161]: `OnlineSource.Hours`/`AirHours`, a day at most).
+- **[S-12703]** **One frame** (`HourGraph`, on the Chart block, [S-6717]): the top line (the kind's glyph, 16
+  secondary, leading the reading now, BodyStrong, primary or its band's Caution/Critical; a measure the kind lets the
+  person choose after it, Body secondary, ellipsis, [S-12801]; the stale rule's Caution glyph at the line's end with
+  its lines as the tooltip, [S-7042]); 8 down the plot; the wind's arrow line
+  (16, 4 under the plot); 4 down the time line (Caption tertiary: "Now" on the left, the window's last hour on the right,
+  with its weekday when it is not today); the family's inset at the sides and the foot (the card gives the top; a
+  mate joined under it takes the foot, [S-12800]), no header of its own (a group's Header widget names it). In the plot: shaded spans (the Subtle role, the UV graph's daylight), the days' borders (local midnights, Track
+  hairlines), the series, the second series (tertiary, at the stroke), now (a secondary hairline, and on a line a dot where
+  the line is) and the figures at the marked slots (Caption: over a point primary, under it secondary, kept inside the
+  plot; a Caption line is kept free over the highest point and under the lowest). The slots are equal cells, each value on
+  its cell's middle; time runs left to right in every language ([S-1113]). The looks (`HourGraphLook`): **Line** (the
+  stroke alone), **Area** (the stroke over the 16 % wash) and **Bars** (a round column per slot from the foot, its cell's
+  60 %, between the stroke and 16 wide; a figure over its column). Each piece of a line, its wash and each column is drawn in
+  its slot's role, the worse of a piece's two ends (the accent, then Caution, then Critical): the graphs' category bands
+  are the Chart block's three roles, never a colour of their own. A gap breaks the line (a lone slot is a dot).
+- **[S-12704]** **Sizing**, one for every graph (`HourGraphRules.Sizing`): 220..660 wide (a new card 320); the plot 56..224
+  (a new card 96) under its frame; relaxed as a chart ([S-12411], `StretchRoom.Picture`): the plot takes the box. The same
+  parts at every size ([S-11800]); the arrows' line where the wind has one.
+- **[S-12705]** **The window** (`HourGraphRules.Window`): the hour under way (the last stamp at or before now) and the
+  window's hours after it; an answer whose last hour is over an hour old draws nothing (the Status row's "No forecast for
+  the next hours"). Scales: a level (temperature, humidity, pressure) against the window's range widened to a least span about
+  its middle; an amount or an index from 0 to the window's highest, at least a floor top (a dry, clean or calm window stays
+  low). Fewer than two values in the window draw nothing. A temperature is drawn in the shared unit ([S-3770], °F = °C × 9/5 + 32).
+- **[S-12706]** Each graph's content is `HourGraphPanel`: the graph, or the Status block's one row ([S-6734]: loading,
+  a failure with Retry, the window's empty sentence); not set up is the card's Set up row ([S-1862]). It follows its answer
+  through `SkyFeed` ([S-11171]) and redraws every half hour (the nowcast every quarter) so the window and now move on.
+  Its menu's Refresh line is the answer's ([S-730]); a click opens MSN Weather's forecast for its place ([S-2037]).
+- **[S-12707]** `HourGraphConfig` (a `WeatherConfig`): the place and the window, 12, 24 or 48 hours (the air's 1, 2 or 4
+  days); a window that is no choice is repaired to the nearest. The page (`HourGraphLines`): Style (Appearance), then the
+  place ([S-2840]), a divider, Time span, the kind's own lines, a divider and the source's credit (a note).
+- **[S-12708]** The top line names neither the graph nor the place ([S-12801]): the kind's glyph leads the reading
+  (`HourGraphModel.Glyph`), and only the air graph's chosen pollutant follows it (`Label`). The place is the group's
+  Header widget's ([S-9604]).
+- **[S-12709]** Samples ([S-11850]): `SampleHours` agrees with the sample day ([S-2052]): each day's low and high, the
+  2.6 mm shower from eleven, 9 °C and 14 km/h from the south-west now, the place's sunrise and sunset; four days of air
+  agreeing with the index of 25. Its summer day (Debug states) shows the heat, the UV bands and a thunderstorm. The add
+  page's weather subject has them as its third run, and the ready-made group **Weather graphs** stacks the temperature,
+  rain and UV graphs (320 × 168 each) under its Header.
+
+Needs a live pass: the graphs against the real services (a place in and outside Europe for the air's scales, a rainy and a
+windy day), offline with a restored shelf, a midnight and a daylight-saving change inside the window.
 
 ## Date (DATE)
 

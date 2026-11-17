@@ -15,8 +15,8 @@ using Themia.Widget.Notes;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1364] Choosing, creating, renaming and deleting notes from the widget itself: the picker in
-/// the header. The widget never lists the notes beside the text; it shows the one note. The picker
+/// [S-1364] Choosing, creating, renaming and deleting notes from the widget itself: the picker on
+/// its first line. The widget never lists the notes beside the text; it shows the one note. The picker
 /// acts on the device-wide pool, so a note renamed or deleted here is renamed or deleted for every
 /// widget showing it; only which note this widget shows is its own.
 /// </summary>
@@ -24,16 +24,16 @@ internal sealed partial class NotesView
 {
     private Button _picker = null!;
 
-    /// <summary>The open rename box (the header's flyout), or null.</summary>
+    /// <summary>The open rename box (the picker's flyout), or null.</summary>
     private TextBox? _renaming;
 
     // -----------------------------------------------------------------------------------------
-    // Header picker
+    // The picker
     // -----------------------------------------------------------------------------------------
 
     private void BuildPicker()
     {
-        // [S-6710] A header button: 24, a 16 glyph in the secondary role, the one radius.
+        // [S-6710] A line button: 24, a 16 glyph in the secondary role, the one radius.
         _picker = new Button
         {
             Content = Family.Glyph(Glyphs.ChevronDown),
@@ -60,8 +60,8 @@ internal sealed partial class NotesView
     }
 
     /// <summary>
-    /// [S-11206] The picker shows wherever there is a pool to pick from, at every size (the header's
-    /// title gives way to it by the header's own rule).
+    /// [S-11206] The picker shows wherever there is a pool to pick from, at every size (on the note's
+    /// first line, [S-12481]).
     /// </summary>
     private void UpdatePicker()
         => _picker.Visibility = _pool is not null ? Visibility.Visible : Visibility.Collapsed;
@@ -205,7 +205,7 @@ internal sealed partial class NotesView
 
     /// <summary>
     /// [S-1500] The question beside the picker, which is where the delete was chosen; under the
-    /// widget when the header has no picker.
+    /// widget when it has no picker.
     /// </summary>
     private Task<bool> AskToDeleteAsync(string title) => ConfirmFlyout.AskAsync(
         _picker.XamlRoot is not null && _picker.Visibility == Visibility.Visible && _picker.ActualWidth > 0 ? _picker : this,

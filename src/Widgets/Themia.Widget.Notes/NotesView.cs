@@ -27,12 +27,12 @@ namespace Themia.App.Widgets;
 /// <para>
 /// The editing itself is <see cref="MarkdownEditor"/>; this view binds it to the pool, saves on a
 /// debounce and on blur and detach, and draws the text alone in the card's inset (<see cref="NotesLayout"/>);
-/// a failed write is the header's problem glyph, a note it cannot show the Status row. The formatting bar stands in the card's header while the note is being
-/// edited ([S-3963]), beside the note picker. It shows the one note at every size; another note is
-/// picked from the header (<see cref="HeaderTrailing"/>), never from a list beside the text.
+/// a failed write is the problem glyph on its first line, a note it cannot show the Status row. The formatting bar
+/// stands on that line while the note is being edited ([S-3963], [S-12481]), beside the note picker. It shows the
+/// one note at every size; another note is picked from the line's picker, never from a list beside the text.
 /// </para>
 /// </summary>
-internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetHeaderContent
+internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetJoins
 {
     private const string Scope = "notes";
 
@@ -68,11 +68,11 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     /// <summary>[S-1347] [S-6714] What the widget says instead of the note it cannot show: the Status row at the top.</summary>
     private readonly StatusBlock _message = new();
 
-    /// <summary>[S-1362] The header's problem glyph while the note's last write failed.</summary>
+    /// <summary>[S-1362] The line's problem glyph while the note's last write failed.</summary>
     private readonly FontIcon _notSavedGlyph;
 
-    /// <summary>[S-3963] The header's trailing part: the problem glyph, the formatting bar, its "More" button, the picker.</summary>
-    private readonly StackPanel _headerBar;
+    /// <summary>[S-3963] [S-12481] The note's first line: the problem glyph, the formatting bar, its "More" button, the picker, at its end.</summary>
+    private readonly StackPanel _bar;
     private readonly Button _more;
     private readonly DispatcherQueueTimer? _saveTimer;
 
@@ -87,7 +87,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private bool _resolving;
     private bool _editorFocused;
 
-    // [S-1362] The note's last write failed: the header's problem glyph says so.
+    // [S-1362] The note's last write failed: the line's problem glyph says so.
     private bool _notSaved;
 
     /// <summary>[S-3963] The "More" menu is open: the bar stays while the note's focus is in it.</summary>
@@ -102,17 +102,24 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 #endif
     private bool _detached;
 
+    /// <summary>[S-12483] [S-12800] The text's foot inset; none where a group mate joins the foot, so the text meets it.</summary>
+    public void ApplyJoins(JoinedSides sides) => _body.Margin = Family.SideInset with { Bottom = sides.Foot };
+
     public NotesView(IWidgetHost host)
     {
         _host = host;
-        // [S-6703] The text from the view's top (the content top under the header), in the card's
-        // inset either side and under it; the Status row carries its own side inset.
-        _body.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        // [S-6703] The text under the note's line, in the card's inset either side and under it; the Status
+        // row carries its own side inset.
+        ApplyJoins(JoinedSides.Free);
 
         BuildEditor();
 
         _message.Visibility = Visibility.Collapsed;
         _body.Children.Add(_editor.Box);
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(NotesLayout.LineHeight) });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        SetRow(_body, 1);
+        SetRow(_message, 1);
         Children.Add(_body);
         Children.Add(_message);
 
@@ -120,20 +127,24 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         _more = BuildMore();
 
-        _notSavedGlyph = HeaderBlock.Problem(NotesStr.WidgetsC_Notes_NotSaved.Text());
+        _notSavedGlyph = ToolLine.Problem(NotesStr.WidgetsC_Notes_NotSaved.Text());
         _notSavedGlyph.Margin = new Thickness(0, 0, FamilySpace.S1, 0);
         _notSavedGlyph.Visibility = Visibility.Collapsed;
 
-        // [S-3963] The bar on the header's title line, its buttons side by side as the header's are: they
-        // stand 2 over the line either way, so the header keeps its height and focusing the note never
-        // moves the text, and the last one's glyph sits on the inset ([S-6710]).
-        _headerBar = new StackPanel
+        // [S-3963] [S-12481] The bar on the note's own first line, at its end, its buttons side by side as a tool
+        // line's are: the line keeps its 20 (and 4 under it) whether or not the bar stands, so focusing the
+        // note never moves the text, and the last one's glyph sits on the inset ([S-6710]).
+        _bar = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = NotesLayout.ButtonGap,
-            Margin = new Thickness(NotesLayout.TitleGap, -FamilySpace.ButtonOverflow, -HeaderRules.ButtonOverhang, -FamilySpace.ButtonOverflow),
+            Height = FamilySpace.HeaderLine,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset - LineRules.ButtonOverhang, 0),
             Children = { _notSavedGlyph, _editor.Toolbar, _more, _picker },
         };
+        Children.Add(_bar);
 
         _editor.TextEdited += OnTextEdited;
         _editor.Box.GotFocus += OnEditorGotFocus;
@@ -156,9 +167,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         Lay();
     }
-
-    /// <summary>[S-1364] The note picker and [S-3963] the formatting bar, in the card's header.</summary>
-    public FrameworkElement? HeaderTrailing => _headerBar;
 
     /// <summary>
     /// [S-129] A Windows 11 text field with no chrome at rest, so the note reads as writing on the
@@ -303,7 +311,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         if (string.IsNullOrEmpty(_config.NoteId) && _surface is { IsPreview: false } surface)
         {
-            _config.NoteId = _pool.Create(string.IsNullOrWhiteSpace(surface.Label) ? NotesStr.Notes_NewName.Text() : surface.Label);
+            _config.NoteId = _pool.Create(NotesStr.Notes_NewName.Text());
             surface.RequestSave();
         }
 
@@ -358,8 +366,6 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         UpdateMessage();
 
-        // [S-1364] The note's title names the card; the user's own label still wins (the card's rule).
-        _surface?.SetHeaderTitle(meta?.Title);
         UpdatePicker();
         UpdateStatus();
     }
@@ -479,7 +485,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     }
 
     /// <summary>
-    /// [S-1362] "Not saved" while the note's last write failed, as the header's problem glyph (its
+    /// [S-1362] "Not saved" while the note's last write failed, as the line's problem glyph (its
     /// tooltip says it), and nothing at all otherwise: no word or character count, no "Saved" (user
     /// requirement). The text keeps all its room.
     /// </summary>
@@ -494,7 +500,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     // Layout
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>[S-1363] [S-3963] The picker and the header bar for the card's width. Cheap: nothing is rebuilt here.</summary>
+    /// <summary>[S-1363] [S-3963] The picker and the formatting bar for the card's width. Cheap: nothing is rebuilt here.</summary>
     private void Lay()
     {
         if (_detached)
@@ -507,11 +513,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     }
 
     /// <summary>
-    /// [S-3963] The formatting bar in the header, while the note is being edited: the caret is in it,
-    /// or its "More" menu is open. At rest the header is the note's title and picker, as every card's
-    /// is; the bar comes with the caret, where formatting is wanted. As many buttons as the header
-    /// holds (<see cref="NotesLayout.HeaderBar"/>), the rest behind "More". A hidden header
-    /// ([S-3964]) takes the bar with it; the keyboard shortcuts still work.
+    /// [S-3963] The formatting bar on the note's line, while the note is being edited: the caret is in it,
+    /// or its "More" menu is open. At rest the line holds the picker; the bar comes with the caret, where
+    /// formatting is wanted. As many buttons as the line holds (<see cref="NotesLayout.Bar"/>), the rest
+    /// behind "More"; the keyboard shortcuts still work.
     /// </summary>
     private void UpdateBar()
     {
@@ -520,7 +525,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
             return;
         }
 
-        var bar = NotesLayout.HeaderBar(_area.IsMeasured ? _area.Width : 0, _picker.Visibility == Visibility.Visible);
+        var bar = NotesLayout.Bar(_area.IsMeasured ? _area.Width : 0, _picker.Visibility == Visibility.Visible);
         var editing = Editable && !_editor.IsReadOnly && (_editorFocused || _moreOpen || _previewEditing);
 
         _editor.VisibleButtons = bar.Inline;
@@ -534,10 +539,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         }
     }
 
-    /// <summary>[S-3963] The "More" button: the commands the header had no room for, as a menu.</summary>
+    /// <summary>[S-3963] The "More" button: the commands the line had no room for, as a menu.</summary>
     private Button BuildMore()
     {
-        // [S-6710] A header button: 24, a 16 glyph in the secondary role, the one radius.
+        // [S-6710] A line button: 24, a 16 glyph in the secondary role, the one radius.
         var more = new Button
         {
             Content = Family.Glyph(Glyphs.More),

@@ -16,10 +16,9 @@ public sealed class ExchangeHistoryTests
     {
         var sizing = Kind.Sizing(new ExchangeHistoryConfig());
 
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
         Assert.Equal(new SizeDip(280, 12 + 72), sizing.Natural);
-        Assert.Equal((200.0, 840.0), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a picture, 280 x 3
-        Assert.Equal((12 + 48.0, 252.0), (sizing.Min.Height, sizing.Max.Height)); // relaxed: 84 x 3
+        Assert.Equal((200.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+        Assert.Equal((12 + 48.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Height, sizing.Max.Height)); // relaxed, [S-12411]: no practical Max
     }
 
     [Fact]

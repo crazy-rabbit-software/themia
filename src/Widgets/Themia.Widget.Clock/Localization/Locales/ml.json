@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "തീയതി കാണിക്കുക",
   "clock.offsetLabel": "ഓഫ്‌സെറ്റ്",
   "clock.secondsLabel": "സെക്കൻഡുകൾ കാണിക്കുക",
   "clock.styleAnalog": "അനലോഗ്",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "സമയ മേഖല",
   "clock.tzCurrent": "നിലവിൽ: {city}",
   "locationSearch.placeholder": "നഗരം തിരയുക…",
-  "styles.clock.date": "തീയതി",
   "styles.clock.flip": "ഫ്ലിപ്പ്",
   "styles.clock.minimal": "ലളിതം",
   "styles.clock.words": "വാക്കുകൾ",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[n] മണിക്ക് ഇരുപത് മിനിറ്റ് മുമ്പ്",
   "wordClock.m45": "[n] മണിക്ക് കാൽ മണിക്കൂർ മുമ്പ്",
   "wordClock.m50": "[n] മണിക്ക് പത്ത് മിനിറ്റ് മുമ്പ്",
-  "wordClock.m55": "[n] മണിക്ക് അഞ്ച് മിനിറ്റ് മുമ്പ്",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "[n] മണിക്ക് അഞ്ച് മിനിറ്റ് മുമ്പ്"
 }

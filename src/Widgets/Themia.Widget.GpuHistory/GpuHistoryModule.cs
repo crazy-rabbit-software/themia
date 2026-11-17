@@ -33,7 +33,7 @@ public sealed class GpuHistoryModule : IWidgetModule
         Description = GpuHistoryStr.GpuHistory_Desc.Local(),
         Glyph = Glyphs.Gpu,
         Sizing = _ => MeterSizing.History,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Graphics, 0, 1),
     };

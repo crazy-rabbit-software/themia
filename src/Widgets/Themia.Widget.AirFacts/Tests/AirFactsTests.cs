@@ -44,12 +44,12 @@ public sealed class AirFactsTests
     }
 
     [Fact]
-    public void S11136_its_height_is_a_28_row_a_reading_under_the_header_and_dragging_sets_the_rows()
+    public void S11136_its_height_is_a_28_row_a_reading_under_the_inset_and_dragging_sets_the_rows()
     {
         var config = new AirFactsConfig();
-        Assert.Equal(new SizeDip(240, 36 + (4 * 28) + 12), Kind.Sizing(config).Natural);
+        Assert.Equal(new SizeDip(240, 12 + (4 * 28) + 12), Kind.Sizing(config).Natural);
 
-        var shorter = (AirFactsConfig)Kind.SizeSets!(config, new SizeDip(240, 36 + (2 * 28) + 12));
+        var shorter = (AirFactsConfig)Kind.SizeSets!(config, new SizeDip(240, 12 + (2 * 28) + 12));
         Assert.Equal([AirFactKind.Uv, AirFactKind.Pm25], shorter.Facts);
         Assert.Equal(4, config.Facts.Count);
     }

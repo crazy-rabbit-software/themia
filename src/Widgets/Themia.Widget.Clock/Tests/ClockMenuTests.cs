@@ -20,27 +20,21 @@ public sealed class ClockMenuTests
     }
 
     [Fact]
-    public void S1478_the_digital_clock_offers_seconds_and_the_date_under_style()
+    public void S1478_the_digital_clock_offers_seconds_under_style_and_no_date()
         => Assert.Equal(
-            [Str.Kit_Size.Text(), ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
+            [Str.Kit_Size.Text(), ClockStr.Clock_SecondsLabel.Text()],
             Build(new ClockConfig { Style = ClockStyle.Digital }).StyleLines.Select(l => l.Text));
 
     [Fact]
-    public void S1478_appearance_then_the_zone_and_the_offset_after_it_then_the_link_to_the_time_format()
+    public void S1478_appearance_then_the_zone_and_the_offset_after_it_and_no_link_to_the_time_format()
     {
         var lines = Build(new ClockConfig { Style = ClockStyle.Digital });
 
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
             zone => Assert.Empty(zone.Search!.Fixed),
-            offset => Assert.Equal(ClockStr.Clock_OffsetLabel.Text(), offset.Text),
-            divider => Assert.True(divider.IsSeparator),
-            format =>
-            {
-                // [S-3749] The 12- or 24-hour clock is ⚙'s: the clock links to it and never sets its own.
-                Assert.Equal((Str.LanguageRegion_Clock.Text(), Str.LanguageRegion_Nav.Text()), (format.Text, format.LinkTo));
-                Assert.Null(format.Children);
-            });
+            // [S-3590] The 12- or 24-hour clock is ⚙'s: the clock just follows it, no link row ([S-3749]).
+            offset => Assert.Equal(ClockStr.Clock_OffsetLabel.Text(), offset.Text));
     }
 
     [Fact]
@@ -64,8 +58,8 @@ public sealed class ClockMenuTests
     {
         // [S-1476] retired: the line under the time follows the readout's step ([S-6701]); the text size is ⚙'s.
         Assert.Equal(
-            [Str.Kit_Size.Text(), ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
-            Build(new ClockConfig { Style = ClockStyle.Digital, ShowDate = false, TimeZoneId = "Asia/Tokyo" }).StyleLines.Select(l => l.Text));
+            [Str.Kit_Size.Text(), ClockStr.Clock_SecondsLabel.Text()],
+            Build(new ClockConfig { Style = ClockStyle.Digital, TimeZoneId = "Asia/Tokyo" }).StyleLines.Select(l => l.Text));
     }
 
     [Fact]

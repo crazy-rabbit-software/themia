@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "তারিখ দেখান",
   "clock.offsetLabel": "সময়ের পার্থক্য",
   "clock.secondsLabel": "সেকেন্ড দেখান",
   "clock.styleAnalog": "অ্যানালগ",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "সময় অঞ্চল",
   "clock.tzCurrent": "বর্তমান: {city}",
   "locationSearch.placeholder": "শহর খুঁজুন…",
-  "styles.clock.date": "তারিখ",
   "styles.clock.flip": "ফ্লিপ",
   "styles.clock.minimal": "মিনিমাল",
   "styles.clock.words": "শব্দ",
@@ -30,6 +28,5 @@
   "wordClock.m40": "এখন [n] বাজতে কুড়ি মিনিট বাকি",
   "wordClock.m45": "এখন পৌনে [n]",
   "wordClock.m50": "এখন [n] বাজতে দশ মিনিট বাকি",
-  "wordClock.m55": "এখন [n] বাজতে পাঁচ মিনিট বাকি",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "এখন [n] বাজতে পাঁচ মিনিট বাকি"
 }

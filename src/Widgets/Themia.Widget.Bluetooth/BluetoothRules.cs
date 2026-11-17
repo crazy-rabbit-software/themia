@@ -286,10 +286,6 @@ public static class BluetoothRules
         return string.Join(" · ", parts);
     }
 
-    /// <summary>[S-1255] The header's summary at large sizes: "2 connected", or null when none is.</summary>
-    public static string? ConnectedSummary(int connected, Locale locale)
-        => connected > 0 ? BluetoothStr.WidgetsA_Bluetooth_ConnectedCount.Plural(locale, connected) : null;
-
     /// <summary>The connection state, in words. Carried by text as well as by the dot beside it.</summary>
     public static string ConnectionLabel(bool connected, Locale locale)
         => (connected ? BluetoothStr.WidgetsA_Bluetooth_Connected : BluetoothStr.WidgetsA_Bluetooth_Paired).Text(locale);

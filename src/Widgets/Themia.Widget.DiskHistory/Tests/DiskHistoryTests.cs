@@ -17,8 +17,7 @@ public sealed class DiskHistoryTests
     [Fact]
     public void S11018_it_starts_headerless_and_charts_the_drive_the_reading_reads()
     {
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
-        Assert.Equal(MeterSizing.History, Kind.SizingOf());
+        Assert.Equal(Themia.Sdk.SizeStretch.Relax(MeterSizing.History), Kind.SizingOf()); // [S-12411] relaxed
         Assert.Equal(300, new DiskHistoryConfig().GraphSpanSeconds);
         Assert.Equal(
             SystemInterests.For(new DiskConfig { Drive = "D:\\" }, @"C:\").Series,

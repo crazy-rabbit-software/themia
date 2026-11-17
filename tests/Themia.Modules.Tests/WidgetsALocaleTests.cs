@@ -15,7 +15,7 @@ public sealed class WidgetsALocaleTests
 {
     private static ClockConfig Utc(Action<ClockConfig>? change = null)
     {
-        var config = new ClockConfig { TimeZoneId = "Etc/UTC", ShowDate = true };
+        var config = new ClockConfig { TimeZoneId = "Etc/UTC" };
         change?.Invoke(config);
         return config;
     }
@@ -24,10 +24,12 @@ public sealed class WidgetsALocaleTests
     private static readonly DateTimeOffset Monday = new(2026, 3, 9, 14, 7, 0, TimeSpan.Zero);
 
     [Fact]
-    public void S1106_the_clock_date_is_written_in_the_language_order()
+    public void S1106_the_date_widgets_date_is_written_in_the_language_order()
     {
-        Assert.Equal("Monday, March 9", ClockFormatter.Read(Monday, Utc(), Locale.En, use24Hour: true).Date);
-        Assert.Equal("Montag, 9. März", ClockFormatter.Read(Monday, Utc(), Locale.De, use24Hour: true).Date);
+        // [S-12805] The date moved from the clock to the Date widget, its words with it.
+        var monday = DateOnly.FromDateTime(Monday.UtcDateTime);
+        Assert.Equal("Monday, March 9", DateLayout.Line(DateWidgetStyle.Long, Locale.En, monday));
+        Assert.Equal("Montag, 9. März", DateLayout.Line(DateWidgetStyle.Long, Locale.De, monday));
     }
 
     [Fact]
@@ -39,8 +41,8 @@ public sealed class WidgetsALocaleTests
     }
 
     [Fact]
-    public void S1106_the_clock_s_short_date_is_translated()
-        => Assert.Equal("So., 4. Okt.", ClockFormatter.ShortDate(new DateTimeOffset(2026, 10, 4, 13, 52, 0, TimeSpan.Zero), Utc(), Locale.De));
+    public void S1106_the_date_widgets_short_date_is_translated()
+        => Assert.Equal("So., 4. Okt.", DateLayout.Line(DateWidgetStyle.Short, Locale.De, new DateOnly(2026, 10, 4)));
 
     [Fact]
     public void S1106_the_local_offset_is_translated_and_utc_stays_utc()

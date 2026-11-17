@@ -34,7 +34,7 @@ public sealed class NetworkFactsModule : IWidgetModule
         Glyph = Glyphs.Network,
         Sizing = c => FactsRules.Sizing((FactsConfig)c),
         SizeSets = FactsRules.SizeSets,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.NetworkReading, 0, 2),
     };
 

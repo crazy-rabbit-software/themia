@@ -150,7 +150,7 @@ Themia.Sdk  (pure, tested; what modules may use)     Themia.Sdk.WinUI  (WinUI pa
 -----------------------------------------------      -------------------------------------------
 KitItem, KitLead, KitBadge, KitTone, KitTime         KitList          rows, columns, groups, overflow
 KitAction, KitActionKind  ---- KitMenu.Entries -->   KitMenu          -> ItemMenuEntry, KeyChord
-KitKeys (one key map)                                KitHeader        busy ring, problem glyph, badge
+KitKeys (one key map)                                KitStatus        busy ring, problem glyph
 KitPlan = KitPlanner.Plan(area, spec, choices)       KitStatePanel    loading / empty / problem + link
 KitScreen = KitScreens.Decide(...)                   KitBinding       source <-> KitList, Detach-safe
 KitFreshness (the one stale rule)                    KitMenuLines     standard properties-menu lines
@@ -226,7 +226,7 @@ outside the folder.
   **Modules never reference Core**, so a module cannot reach a host internal; a conformance test
   reads every module csproj.
 - **`Themia.Sdk.WinUI`** holds the view contracts (`IWidgetView`, `IWidgetSurface`,
-  `IWidgetSizeAware`, `IWidgetKeys`, `IWidgetHeaderContent`, `IWidgetContextActions`,
+  `IWidgetSizeAware`, `IWidgetKeys`, `IWidgetJoins`, `IWidgetContextActions`,
   `IWidgetAligned`, `IWidgetPreviewState`), `IWidgetModule`, `IWidgetHost`, `Ticker`, and the UI
   parts every widget uses (`Fluent`, `FluentLayout`, `Glyphs`, `ItemFill`, `ItemMenu`, `RowFocus`,
   `ScrollFade`, `EmptyStatePanel`, the `Kit*` parts of section 6). Today 151 widget files use
@@ -263,7 +263,7 @@ public sealed record WidgetDescriptor(
     AddPlacement Add,                          // the add menu shelf (closed SDK enum) and an order key
     IReadOnlyList<LocalText> Keywords,         // search ([S-943])
     IReadOnlyList<ProviderId> Providers,       // search by service name, the provider-gone screen
-    WidgetTraits Traits,                       // HasItems, Aligns, CanHaveHeader, SetUpInPlace (flags)
+    WidgetTraits Traits,                       // HasItems, OneReadout, StartsTransparent, NeverJoins (flags)
     StringTable Strings);                      // its own table: completeness tests, settings search
 
 public interface IProviderModule
@@ -1048,17 +1048,15 @@ A `sealed partial class KitList : Grid` that a kit view puts in its slot and fee
   has no controls of its own (the hover actions are retired, [S-7033]: the menu and keys carry them).
 - Detach: every hook disposed, every handler unsubscribed, safe twice.
 
-### 6.2 `KitHeader`
+### 6.2 `KitStatus`
 
-The `IWidgetHeaderContent.HeaderTrailing` of a kit view, built in the view's constructor
-([S-400a]), and the Header block's trailing parts (it is a `HeaderParts`, 16.2): from leading to
-trailing, the problem glyph (`HeaderBlock.Problem`, tooltip from `KitFreshness`, a click opens
-Accounts when the screen offers it), the busy ring (only while a fetch for one of the widget's own
-keys is out, [S-2661]), an informing label the widget keeps (`new KitHeader(host, label)`), at most
-two of the widget's own buttons (`KitHeaderButton`: an action, choices, or a `Menu` of its own lines;
-`ButtonAt` for a popup to stand under) and the neutral count pill. Which have something to say is
-`HeaderRules.Wants`; the header folds the rest (the label, then the buttons from the last, then the
-count), so no view measures a width for them. A side header drops it ([S-408]).
+No card has a header ([S-12480]). A kit view's state is `KitBinding.Status`, laid over the content's
+top end at the inset as the view's last child (`Status.Place(this)`, [S-12481]), taking no room: the
+problem glyph (`ToolLine.Problem`, tooltip from `KitFreshness`, a click opens Accounts when the screen
+offers it) and the busy ring (only while a fetch for one of the widget's own keys is out, [S-2661]);
+with neither it is collapsed. A widget's own commands (Mail's compose, the task list picker) are card
+menu lines (`ContextActions`), never buttons on the widget; tools that act on what it shows stand in a
+`ToolLine`, the content's first row (16.2).
 
 ### 6.3 `KitStatePanel`
 
@@ -1087,20 +1085,17 @@ public sealed class GitHubReviewsModule : IWidgetModule
         => GitHubReviewsMenu.Lines(menu, (GitHubReviewsConfig)config);
 }
 
-internal sealed partial class GitHubReviewsView : Grid, IWidgetView, IWidgetHeaderContent,
-    IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
+internal sealed partial class GitHubReviewsView : Grid, IWidgetView,
+    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
 {
     private readonly IWidgetHost _host;
     private readonly KitList _list = new();
-    private readonly KitHeader _header = new();
     private KitBinding? _binding;
 
     public GitHubReviewsView(IWidgetHost host) { _host = host; Children.Add(_list); }
-    public FrameworkElement? HeaderTrailing => _header;
-    public void Attach(Ticker ticker, WidgetConfig config) => _binding = KitBinding.Open(this, _host, _list, _header, config, GitHubReviews.Spec);
+    public void Attach(Ticker ticker, WidgetConfig config) => _binding = KitBinding.Open(this, _host, _list, config, GitHubReviews.Spec); // Status.Place(this) last
     public void ApplyConfig(WidgetConfig config) => _binding?.Apply(config);
     public void ApplySize(WidgetArea area) => _binding?.Size(area);
-    public void Bind(IWidgetSurface surface) => _binding?.Surface(surface);
     public IReadOnlyList<WidgetAction> ContextActions => _binding?.CardActions ?? [];
     public bool HandleKey(WidgetKey key) => _list.HandleKey(key);
     public bool HandleText(char c) => _list.HandleText(c);
@@ -1110,9 +1105,8 @@ internal sealed partial class GitHubReviewsView : Grid, IWidgetView, IWidgetHead
 
 `KitBinding` subscribes to the source in `Attach`, unsubscribes in `Detach`, re-renders on
 `Strings.Changed` and on its source's `Updated` for its own keys only, asks the shared ticker for
-a one-minute tick only while the list shows ages, publishes the header title through
-`IWidgetSurface.SetHeaderTitle` (the user's own label still wins, [S-403]), and builds the card
-actions (Refresh with its age, plus any spec card actions such as Mail's folder, [S-1758]).
+a one-minute tick only while the list shows ages, shows the sources' state on `KitStatus`
+([S-12481]), and builds the card actions (Refresh with its age, plus any spec card actions such as Mail's folder, [S-1758]).
 
 ### 6.5 `ServiceSync` and `ServiceClient` (the service source)
 
@@ -2823,7 +2817,7 @@ change, so a closure may keep the value it was built with.
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
 | where setup happens | `WidgetMenuLines.SetsUp(line)` around the line that sets what the widget waits for (`ISetupRule`) | the card's Set up button opens the menu at it, as a click would ([S-1862]); one per widget |
 | a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | an expander card (its lines inside it); a separator ends a card |
-| a setting a higher level owns (the time format, the start of the week, the temperature unit, how often its source is asked, the accounts) | `menu.Link(new SettingLink(OwnedSetting.TimeFormat))`, `OwnedSetting.WeekStart`, `.TemperatureUnit`, `new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Weather)` (its cadence row), `menu.AccountsLine(glyph, text)` | a link row: the setting's icon and words, what is in force at its end, "open in new window" after it, no chevron; a pick closes the menu and opens ⚙ at the level that sets it ([S-3749]); it changes and saves nothing |
+| the accounts it reads (add or manage one) | `menu.AccountsLine(glyph, text)` | a link row: its icon and words, "open in new window" after it, no chevron; a pick closes the menu and opens ⚙ › Accounts ([S-3749]); it changes and saves nothing. A setting the widget merely follows (the time format, the start of the week, the temperature unit, an update interval) gets no line and no link: the widget just follows it ([S-3590]) |
 
 Where lines go: `menu.StyleLines` (on the first level right under the Style row, in its section;
 the Style picker holds the styles only) for what only the current look draws, `menu.Lines` for the
@@ -2844,7 +2838,7 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
 - **One setting, one level** ([S-3590]). A setting is a widget's, a view's (View ▾), a display's
   (Display ▾) or Themia's as a whole (⚙), and that level's menu alone sets it, so the user always
   knows whether they are changing this widget or every widget. A widget that follows a higher
-  level's setting links to it with `menu.Link(SettingLink)` and never carries its own copy: no
+  level's setting just follows it, with no line and no link row ([S-3749]), and never carries its own copy: no
   config property of `TemperatureUnit`, `ClockHours`, `FirstWeekday`, `WeekStartDay`,
   `RefreshPreferences`, `AppTheme` or `AppLanguage`, no line under the words of a ⚙, Display ▾ or
   View ▾ setting, and no second way to what the card's own rows set (the header's title is the
@@ -2879,7 +2873,7 @@ colours and parts. This section is what a module author uses; the reasons are in
 | type | `FamilyType.Caption`, `Body`, `BodyStrong`, `Title`; `Big28`/`Big40` (`Big`: a data widget's number, 40 only once expanded both ways); `Hero68`/`Hero96`/`Hero136`/`Hero192` (`Hero`, one-readout widgets only) | 12/16, 14/20, 14/20 600, 20/28 600; 28/36, 40/52 600; 68/92, 96/128, 136/180, 192/252 600 |
 | the user's text size | `FamilyType.TextScale` (every step is its base times this), `StepsAt(scale)`, `EstimateWidth(step, chars)` | 0.5 to 2 |
 | a value's unit, its line under | `FamilyType.Unit(step)`, `FamilyType.Under(step)` | 28→14 / Caption, 40→20 / Body, 68→28 / Body, 96 and 136→40 / Title, 192→68 / Title |
-| space | `FamilySpace.S1`, `S2`, `S3`, `S4`, `S6`; `Inset`, `HeaderLine`, `HeaderGap`, `ContentTop`, `GlyphGap`, `ColumnGap`, `TextEdge` | 4, 8, 12, 16, 24; 12, 20, 4, 36, 8, 12, 36 |
+| space | `FamilySpace.S1`, `S2`, `S3`, `S4`, `S6`; `Inset`, `HeaderLine`, `HeaderGap`, `ContentTop`, `GlyphGap`, `ColumnGap`, `TextEdge` | 4, 8, 12, 16, 24; 12, 20, 4, 12 (the inset), 8, 12, 36 |
 | shapes | `FamilyShape.Row1`/`Row2`/`Row3` (`RowHeight(lines)`), `Icon`/`IconLarge`/`IconHuge`, `Radius`, `Round(w, h)`, `Stroke`, `Track`, `Hairline`, `Wash`, `Button`, `ButtonPadding`, `IconButton`, `HeaderButton` | 28/40/56, 16/32/48, 4, half the short side, 2, 4, 1, 0.16, 28, 12, 28, 24 |
 | colour | `ColourRole` (`ColourRoles.Key`): `TextPrimary`, `TextSecondary`, `TextTertiary`, `TextDisabled`, `Accent`, `TextOnAccent`, `TextOnAccentSecondary`, `Caution`, `Critical`, `Track`, `Solid`, `Subtle`, `SubtlePressed`, `Clear`, `Control`, `ControlStroke` | the theme's brushes |
 
@@ -2900,7 +2894,8 @@ is `TextDisabled` (`UnavailableLook`).
 
 | block | part | what a view calls | its rules |
 |---|---|---|---|
-| Header | `HeaderBlock` (the card's), `HeaderParts` | its `HeaderTrailing` returns a `HeaderParts` with `Add(kind, HeaderBlock.Problem(lines) / Busy() / Label(text) / Button(glyph, tooltip, run) / Count(text))`, `Want(part, bool)` for a part with nothing to say now | `HeaderRules.Shown`: label, then buttons from the last, then the count give way; two buttons at most |
+| Header | `HeaderBlock` (the Header widget's only, [S-9601]: no card has a header, [S-12480]) | `Show(title, glyph, caption, align)` | the family's header line (20), a Caption line under it |
+| Tool line | `ToolLine`, `LineParts` ([S-12481]) | the content's first row at the side inset, the header's gap under it: `Label`, `Parts.Add(kind, ToolLine.Problem(lines) / Busy() / Note(text) / Button(glyph, tooltip, run) / Count(text))`, `Parts.Want(part, bool)`; collapsed with no label and no part | `LineRules.Shown`: the informing label, then buttons from the last, then the count give way; two buttons at most |
 | Row | `RowBlock(kind, lead)`, `RowCell(icon)` | `Show(name, value, second, third)`, `Lines`, `Strong`, `LeadGlyph`/`Lead`, `Meter(bar, width)` (`double.NaN`: the meter takes the room between name and value), `Available`, `Focused`, `Interactive`, `Detach` | `RowRules.Roles(kind)`, `Fit(height, lines)`, `Cells`, `CellHeight` |
 | Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Use(step)` (28, 40 where the kind states it, or a one-readout widget's Size) | `ReadoutRules.Width`, `Height`, `Fold`, `Split` |
 | Chart | `ChartSeries`, `ChartBar` (`vertical`: a column), `ChartRing` (`half`: a gauge) | `Show(values, second)` or `Show(points, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Y`, `Bar`, `Sweep`, `GaugeSweep`, `GaugeHeight` |
@@ -2908,8 +2903,8 @@ is `TextDisabled` (`UnavailableLook`).
 | Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Use(step, width, label, state, name, stateStep)`, `Corners(corners)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.Face(width, height, stateLine)`, `Sizing(look, stateLine)`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
 | Controls | `ControlsBlock` | `Main(label, run)` or `MainIcon(glyph, tooltip, run)` (a transport's Play), `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`, `Switch(on, name, changed)` (and `Set` to show a state read back); `Relabel`/`Reglyph` (Start → Pause); `ControlsBlock.TextButton`/`IconButton`/`RailSlider` alone (a control in a row's meter place) | `ControlsRules.Check` (one main action), `Shown` (the main action and the switch stay) |
 
-Layout around them is the family's too: the header in the card's header inset; content from 36 (12
-without a header); rows, the status and a band full width (they carry their own inset); everything
+Layout around them is the family's too: content from the card's inset (12; none on a top a group mate
+joins, [S-12482]); rows, the status and a band full width (they carry their own inset); everything
 else inside the 12 inset; Controls at the bottom inset. The meters (`MeterView`, `MeterPlan`) and the
 detail widgets (`DetailView`, `DetailFace`) are the reference for a widget of a Readout and a part under
 it, or a Readout and rows under it. A block is looked at in its widgets' renders (`--widget-png`,
@@ -2917,7 +2912,7 @@ it, or a Readout and rows under it. A block is looked at in its widgets' renders
 
 ### 16.2a The kit on the blocks (G2, 2026-10-29)
 
-A list widget gets the family for free through the kit: `KitHeader` is the Header block's parts,
+A list widget gets the family for free through the kit: `KitStatus` is its state over the content,
 `KitStatePanel` the Status row, `KitList` the Row block for every look, `AddFooterRow` a Row block
 of 28. What a list widget still decides is its data (the `KitItem`s: title, subtitle, preview, time,
 lead, tone, emphasis) and its Set up sentence. A widget with a list of its own (notifications, recent
@@ -3051,10 +3046,12 @@ Func<WidgetConfig, SizeDip, WidgetConfig>? SizeSets { get; init; }            //
 WidgetSizing SizingOf(WidgetConfig? config = null);  SizeDip Natural { get; } // [S-10] where it lands
 ```
 
-The sizing is stated **with the kind's default header** (`WidgetTraits.StartsHeaderless`: none, else
-a top header, 24 of the card's height); the host adds or takes away a header the card shows
-differently. It may read ambient facts the host owns (the language, the region's 12/24-hour time, the
-text size) but nothing of the instance (not its rect, scale or header).
+The sizing is the card's box with no header ([S-12480]): the content starts at the card's inset
+(`FamilySpace.ContentTop` is the inset). It may read ambient facts the host owns (the language, the
+region's 12/24-hour time, the text size) but nothing of the instance (not its rect, scale or joins).
+In a group the card tells the view the top and foot a mate joins (`JoinedSides`, [S-12482]): a block held
+by `NaturalBlock` stands against it, a view that centres a block or pads its foot itself implements
+`IWidgetJoins` ([S-12483]); the sizing never changes for it.
 
 ### 17.2 What the host does with it (nothing for a kind to write)
 
@@ -3116,13 +3113,14 @@ content), never overstretch, and run the items to the card's edge. One rule, no 
 block does it:
 
 - **The range is relaxed for you.** A kind states the range its *content* needs (17.3). The descriptor
-  hands out `SizeStretch.Relax` of it (`WidgetDescriptor.Sizing`): Max on every axis its config does not
-  step (a fixed one included) grows to at least Natural x the room's factor, on 4-DIP steps, never past
-  `SizeStretch.Ceiling` (1200) unless the kind stated more. Min and Natural stay. The room is
-  `WidgetSizing.Room`, set where the sizing is made: `Standard` (2 x; text, readouts, facts), `List`
-  (2.5 x in width; `KitSizing`), `Picture` (3 x; a chart, a history, a tile, a cover, a gallery:
-  `MeterSizing.History/Columns/Tiles/Graphs`, `TileRules.Sizing`), `None` (the desktop icon's cell).
-  A row-stepped height keeps its steps (Rows is still the config).
+  hands out `SizeStretch.Relax` of it (`WidgetDescriptor.Sizing`): no practical maximum, Max on every axis
+  its config does not step (a fixed one included) raised to `SizeStretch.Ceiling` (3840 DIPs), the work
+  area the bound: how large is the user's to decide ([S-12411]). Min and Natural stay. The room is
+  `WidgetSizing.Room`, set where the sizing is made: `Standard` (text, readouts, facts), `List`
+  (`KitSizing`), `Picture` (a chart, a history, a tile, a cover, a gallery:
+  `MeterSizing.History/Columns/Tiles/Graphs`, `TileRules.Sizing`), `None` (the desktop icon's cell: not
+  relaxed). A row-stepped height keeps its steps (Rows is still the config). Renders check a kind at its
+  min, natural and a large size, twice the natural (`SizeStretch.Large`).
 - **Items stretch to their caps, the rest is spacing** (`ItemStretch` in `Themia.Sdk/Widgets`, whole
   device pixels): `Lay(available, items (natural, max), gap, rest)` for a stack, `Pitch(available, count,
   natural)` for like rows. The caps per block:

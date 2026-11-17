@@ -23,14 +23,14 @@ namespace Themia.App.Widgets;
 /// while it falls (no green, [S-6706]). The chart is the history atom's; both read one quote through
 /// <see cref="SkyFeed{TWant, T}"/>.
 /// </summary>
-internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
+internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware,
+    IWidgetSizeAware, IWidgetContextActions, IWidgetAligned, IWidgetJoins
 {
     /// <inheritdoc />
     public CardOpen? Opens => _config.Page();
 
-    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
-    private readonly KitHeader _header;
+    /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end: the one stale rule, no age.</summary>
+    private readonly KitStatus _mark;
     private readonly ReadoutBlock _price = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset };
 
     /// <summary>[S-2777] [S-1308] The holding and the extended print: fact rows under the price.</summary>
@@ -48,7 +48,7 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
     public StockView(IWidgetHost host)
     {
         FollowInstants();
-        _header = new KitHeader(host);
+        _mark = new KitStatus(host);
         _feed = new(
             () => new(h => host.Quotes.Updated += h, h => host.Quotes.Updated -= h, host.Quotes.Key, host.Quotes.Quote, host.Quotes.Show),
             () => _config.Interest(),
@@ -61,19 +61,33 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _facts.Children.Add(_holdingRow);
         _facts.Children.Add(_extendedRow);
 
-        // [S-12410] The price and its rows are one block, centred in the room under the header with the
-        // foot's inset counted with it: at its natural box nothing moves, a larger box spaces it.
-        Children.Add(new StackPanel
+        // [S-12410] The price and its rows are one block, centred in the room with the foot's inset counted
+        // with it: at its natural box nothing moves, a larger box spaces it ([S-12483]: against a side a
+        // group mate joins, no foot inset there).
+        _block = new StackPanel
         {
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(0, 0, 0, FamilySpace.Inset),
             Children = { _price, _facts },
-        });
+        };
+        Children.Add(_block);
         Children.Add(_state);
+        _mark.Place(this);
     }
 
-    /// <summary>The header's problem glyph. Built in the constructor because the card reads this once, when it builds that header.</summary>
-    public FrameworkElement? HeaderTrailing => _header;
+    private readonly StackPanel _block;
+
+    /// <summary>[S-12483] The block stands against a side a group mate joins, with no foot inset where one joins it.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        _block.VerticalAlignment = sides.Block switch
+        {
+            BlockEdge.Top => VerticalAlignment.Top,
+            BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        _block.Margin = new Thickness(0, 0, 0, sides.Foot);
+    }
 
     /// <summary>[S-1311] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -91,11 +105,7 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     /// <inheritdoc />
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
+    public void Bind(IWidgetSurface surface) => _surface = surface;
 
     /// <summary>[S-6583] The price across the card: the widget's alignment, from the start by default ([S-6582]).</summary>
     public void ApplyAlign(ContentAlign align) => _price.HorizontalAlignment = Aligned.Horizontal(align);
@@ -110,7 +120,6 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as StockConfig ?? new StockConfig();
-        PublishTitle();
         _feed.Reload();
     }
 
@@ -123,18 +132,17 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     private void Render()
     {
-        PublishTitle();
         if (_feed.Held is not { Value: { } quote } held)
         {
             _price.Visibility = Visibility.Collapsed;
             _facts.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            _mark.Clear();
             StockQuoteLines.ShowState(_state, _feed.Want is null ? StockQuoteLines.Unasked(_config) : _feed.Status, _config.Symbol, _feed.Refresh);
             return;
         }
 
         _state.Hide();
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        _mark.Show(OnlineParts.Problems(held), busy: false);
         var now = DateTimeOffset.Now;
         var price = MarketQuote.Price(quote.Price, quote.PriceHint);
         var currency = quote.Currency.Length > 0 ? " " + quote.Currency : string.Empty;
@@ -155,7 +163,7 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _price.Show(
             price,
             fold.Unit ? currency : string.Empty,
-            fold.DeltaBeside ? session : change,
+            Named(fold.DeltaBeside ? session : change),
             fold.DeltaBeside ? change : null,
             changeRole,
             underRole: fold.DeltaBeside ? ColourRole.TextSecondary : changeRole);
@@ -218,14 +226,13 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         return true;
     }
 
-    /// <summary>The header title: the user's name, else the service's own name for the instrument, else the symbol.</summary>
-    private void PublishTitle()
+    /// <summary>
+    /// [S-12481] The line under the price with what it is the price of before it ("AAPL · +1.2%"), where the
+    /// card's header named it before: the user's name, else the symbol.
+    /// </summary>
+    private string Named(string under)
     {
-        var title = !string.IsNullOrWhiteSpace(_config.DisplayName)
-            ? _config.DisplayName
-            : _feed.Held?.Value is { Name.Length: > 0 } quote && _config.Market == QuoteMarket.Listed
-                ? quote.Name
-                : _config.EffectiveSymbol;
-        _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
+        var name = !string.IsNullOrWhiteSpace(_config.DisplayName) ? _config.DisplayName.Trim() : _config.EffectiveSymbol;
+        return name.Length == 0 ? under : under.Length == 0 ? name : $"{name} · {under}";
     }
 }

@@ -211,13 +211,14 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         var status = Status();
         var ringing = status.Phase == AlarmPhase.Ringing;
         var snoozed = status.Phase == AlarmPhase.Snoozed;
-        var name = AlarmWords.Name(locale, _config);
         var time = AlarmWords.Time(locale, _config.Plan);
         var (value, unit) = AlarmFace.Split(time);
 
         // [S-4628] Off, the time and its words are secondary: the alarm is there, not set.
         var role = status.Phase == AlarmPhase.Off ? ColourRole.TextSecondary : ColourRole.TextPrimary;
-        _time.Show(value, unit, $"{name} · {AlarmWords.Hint(locale, status, _config.Plan, now, zone)}", valueRole: role);
+        // [S-12801] The alarm's own name leads the hint; an untitled one says no "Alarm": that names the kind, not the alarm.
+        var hint = AlarmWords.Hint(locale, status, _config.Plan, now, zone);
+        _time.Show(value, unit, string.IsNullOrWhiteSpace(_config.Label) ? hint : $"{_config.Label.Trim()} · {hint}", valueRole: role);
 
         // [S-4628] While it rings (or waits out a snooze), the buttons that answer it stand where the switch
         // was; [S-11301] at Small as icon buttons.
@@ -229,6 +230,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         Show(_snoozedIcons, snoozed && icons);
 
         _switchRow.Set(_switch, _config.On);
+        var name = AlarmWords.Name(locale, _config);
         var label = (_config.On ? AlarmStr.Alarm_SwitchOff : AlarmStr.Alarm_SwitchOn).Format(("name", name));
         ToolTipService.SetToolTip(_switch, label);
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_switch, $"{name} {time}");

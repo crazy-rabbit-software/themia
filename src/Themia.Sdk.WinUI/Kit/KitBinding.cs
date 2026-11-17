@@ -14,8 +14,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// other. It reads the source on attach and whenever the source says it changed (never on a timer
 /// of its own), decides the screen (<see cref="KitScreens.Decide"/>), plans the rows
 /// (<see cref="KitPlanner.Plan"/>) and draws them; redraws on a language change and on its tick (the
-/// ages); publishes the header title the data suggests ([S-403]: the user's own still wins); and
-/// carries out the actions the user picks: an open through the host's one launcher, a copy through
+/// ages); shows the sources' state over the content (<see cref="KitStatus"/>, [S-12481]); and carries out the actions the user picks: an open through the host's one launcher, a copy through
 /// the host's clipboard, Refresh through the source, the rest through the view's handler.
 /// Composition, not inheritance: the view owns one and forwards to it; Detach-safe twice.
 /// </summary>
@@ -33,7 +32,6 @@ public sealed class KitBinding : IDisposable
     private TimeSpan _tickInterval;
     private IKitSource? _source;
     private IKitConfig? _config;
-    private IWidgetSurface? _surface;
     private WidgetArea _area;
     private bool _attached;
 
@@ -51,7 +49,7 @@ public sealed class KitBinding : IDisposable
         _spec = spec;
         _actions = actions;
         _handle = handle;
-        Header = new KitHeader(host);
+        Status = new KitStatus(host);
         State = new KitStatePanel(glyph, host) { Visibility = Visibility.Collapsed };
     }
 
@@ -71,8 +69,8 @@ public sealed class KitBinding : IDisposable
 
     private KitList NewList(KitSpec spec) => new(_host, spec, _actions, Run) { Clock = _clock, Decorate = Decorate, Redrawing = Redrawing };
 
-    /// <summary>[S-7064] The header extras: the view hands it to the card as its <c>HeaderTrailing</c>.</summary>
-    public KitHeader Header { get; }
+    /// <summary>[S-12481] [S-7064] The sources' state: the view lays it over its content (<see cref="KitStatus.Place"/>).</summary>
+    public KitStatus Status { get; }
 
     /// <summary>The empty and problem state: the view puts it over the list.</summary>
     public KitStatePanel State { get; }
@@ -105,11 +103,6 @@ public sealed class KitBinding : IDisposable
     }
 
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
-
-    /// <summary>[S-7064] The widget's own header buttons for a screen (Mail's compose and sort), asked on every draw.</summary>
-    public Func<KitScreen, IReadOnlyList<KitHeaderButton>>? HeaderButtons { get; init; }
-
-    private IReadOnlyList<KitHeaderButton> Buttons(KitScreen screen) => HeaderButtons?.Invoke(screen) ?? [];
 
     /// <summary>
     /// [S-1303] [S-7042] The card menu's Refresh, while the widget has something to read, with the age
@@ -180,7 +173,7 @@ public sealed class KitBinding : IDisposable
 
     /// <summary>
     /// A widget whose style changes its look (Mail's table): the list is made again for the new spec
-    /// and drawn; the view puts the returned list where the old one was. The header, the state panel,
+    /// and drawn; the view puts the returned list where the old one was. The status, the state panel,
     /// the source and the cursor's item stay.
     /// </summary>
     public KitList UseSpec(KitSpec spec)
@@ -210,13 +203,6 @@ public sealed class KitBinding : IDisposable
     {
         _area = area;
         Render();
-    }
-
-    /// <summary>The card's surface: where the header title goes.</summary>
-    public void Surface(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
     }
 
     /// <summary>Drop the keyboard cursor (the widget now reads something else).</summary>
@@ -258,10 +244,9 @@ public sealed class KitBinding : IDisposable
                 List.Show(items, KitPlanner.Plan(_area, _spec, _config.Choices), _area, now);
 
                 // [S-7042] The one stale rule: a copy on screen the last attempt of some source could
-                // not improve on is the header's problem glyph, one line per source and problem, after
+                // not improve on is the status's problem glyph, one line per source and problem, after
                 // the widget's own notes (a change waiting or refused).
-                Header.Show([.. read.Notes, .. KitFreshness.Lines(Strings.Current, read.Outcomes, now)], _source.Busy, Screen.OffersAccounts, read.Count, Buttons(Screen));
-                PublishTitle();
+                Status.Show([.. read.Notes, .. KitFreshness.Lines(Strings.Current, read.Outcomes, now)], _source.Busy, Screen.OffersAccounts);
                 return;
             }
         }
@@ -269,14 +254,7 @@ public sealed class KitBinding : IDisposable
         List.Clear();
         List.Visibility = Visibility.Collapsed;
         State.Show(Screen);
-        Header.Show(read.Notes, _source.Busy, buttons: Buttons(Screen));
-        PublishTitle();
-    }
-
-    private void PublishTitle()
-    {
-        var title = Last.Title;
-        _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
+        Status.Show(read.Notes, _source.Busy);
     }
 
     /// <summary>Carry out an action the user picked (a menu line, a double-click, a key).</summary>
@@ -339,6 +317,6 @@ public sealed class KitBinding : IDisposable
         _ticker = null;
         List.Detach();
         State.Detach();
-        Header.Detach();
+        Status.Detach();
     }
 }

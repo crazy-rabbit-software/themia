@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Mostra data",
   "clock.offsetLabel": "Scarto orario",
   "clock.secondsLabel": "Mostra secondi",
   "clock.styleAnalog": "Analogico",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Fuso orario",
   "clock.tzCurrent": "Attuale: {city}",
   "locationSearch.placeholder": "Cerca città…",
-  "styles.clock.date": "Data",
   "styles.clock.flip": "Palette",
   "styles.clock.minimal": "Minimale",
   "styles.clock.words": "In lettere",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[n] meno venti",
   "wordClock.m45": "[n] meno un quarto",
   "wordClock.m50": "[n] meno dieci",
-  "wordClock.m55": "[n] meno cinque",
-  "widgetsA.clock.date": "{weekday} {date}"
+  "wordClock.m55": "[n] meno cinque"
 }

@@ -51,7 +51,7 @@ releases everything.
   state and transport. Two switches ([S-473]) and nothing else decide them: `HoverControls` (default
   **on**: invisible until hovered) gates every hover part; `ShowStatus` (default **off**, because the
   original had no chrome) gates the chip. Only the decode size follows the card's area.
-- **[S-11208]** Converted to the sizing ([S-2438]), headerless by default: the picture keeps its
+- **[S-11208]** Converted to the sizing ([S-2438]): the picture keeps its
   **Shape** (a menu line: 16:9, the default, 4:3, 1:1 or Free; a quarter turn of Rotation stands it
   up): with a shape the width is 160 + n × 32 (the config's `Span`, a new one 320) up to 800 and never
   past 600 high, the height following the width (`VideoStreamSizing`), so dragging the side sets the

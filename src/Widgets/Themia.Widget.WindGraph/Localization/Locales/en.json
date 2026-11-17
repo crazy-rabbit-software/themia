@@ -1,0 +1,6 @@
+{
+  "$englishOnly": ["windGraph.label", "windGraph.desc", "windGraph.gusts"],
+  "windGraph.label": "Wind graph",
+  "windGraph.desc": "Wind and gusts hour by hour, with where it blows from",
+  "windGraph.gusts": "Show gusts"
+}

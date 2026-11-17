@@ -46,7 +46,7 @@ internal interface IWidgetCardHost
     void RequestSetup(WidgetCard card);
 
     /// <summary>
-    /// [S-3558] A widget's way to its accounts (its "Open Accounts settings", a header's sign-in
+    /// [S-3558] A widget's way to its accounts (its "Open Accounts settings", a status's sign-in
     /// problem): ⚙ › Accounts on this display, edit mode entered. False where there is none (a render).
     /// </summary>
     bool RequestAccounts();
@@ -54,6 +54,18 @@ internal interface IWidgetCardHost
     void RequestDelete(WidgetCard card);
 
     void RequestEditMode(bool enabled);
+
+    /// <summary>[S-12950] Whether Lock widgets is on (the card menu's line is checked while it is).</summary>
+    bool WidgetsLocked => false;
+
+    /// <summary>[S-12951] The card menu's Lock widgets line: the one setting on or off.</summary>
+    void RequestLockWidgets(bool on)
+    {
+        // ignore: a debug render's cards have no setting to flip
+    }
+
+    /// <summary>[S-12950] Whether Lock widgets keeps this card where it is on the locked desktop (<see cref="Core.Desktop.WidgetLock.Pins"/>).</summary>
+    bool Pins(WidgetCard card) => false;
 
     bool IsSelected(WidgetCard card);
 
@@ -219,7 +231,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// <summary>[S-6512] The item fills of this widget's view, from its own item layer or the app-wide one.</summary>
     private readonly ItemPalette _items = new();
 
-    /// <summary>[S-2100] The card's one fill, across the whole card, header included ([S-2103]).</summary>
+    /// <summary>[S-2100] The card's one fill, across the whole card.</summary>
     private readonly Border _fill;
     private readonly Border _surface;
 
@@ -237,27 +249,14 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     /// <summary>[S-821] The text size the text already on this card was laid out at.</summary>
     private double _textScale = FamilyType.TextScale;
-    private readonly Grid _headerHost;
-
-    /// <summary>The header strip: the header row, on the card's own fill ([S-2103]).</summary>
-    private readonly Grid _headerBand;
-
-    /// <summary>[S-405] Stands the header on end for a strip down a side edge.</summary>
-    private readonly TurnedHeader _headerTurn;
 
     /// <summary>[S-873] The view asked to paint nothing (outside edit mode).</summary>
     private bool _hidden;
 
-    private readonly Grid _header;
-    private readonly TextBlock _headerTitle;
-
-    /// <summary>A title the view worked out for itself, beaten only by one the user typed.</summary>
-    private string? _viewTitle;
-
     /// <summary>The widget's view, or its error card ([S-891]) when the view failed. Swapped by a retry.</summary>
     private FrameworkElement _view;
 
-    /// <summary>The header and the view together: what [S-850]'s content scale magnifies.</summary>
+    /// <summary>The view and what the card lays over it: what [S-850]'s content scale magnifies.</summary>
     private readonly Grid _content;
 
     private double _contentScale = 1.0;
@@ -294,30 +293,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-891] Guarded: a view that throws while being built becomes an error card, not a hole.
         _view = CreateView(model.Kind);
 
-        // The header belongs to the card, not to the view. One builder means one look, and it is
-        // the only way a "put it at the bottom" setting can exist without asking every widget to
-        // honour it. The view contributes its trailing element and nothing else.
-        _headerTitle = new TextBlock();
-        _header = new Themia.Sdk.WinUI.Kit.HeaderBlock(
-            ModuleCatalog.Of(model.Kind).Glyph,
-            _headerTitle,
-            (_view as IWidgetHeaderContent)?.HeaderTrailing);
-
-        // Padding rather than margin, so a header fill ([S-828]) reaches the card's edges.
-        _headerHost = new Grid
-        {
-            Children = { _header },
-            Padding = Themia.Sdk.WinUI.Kit.Family.HeaderInset,
-        };
-
-        _headerTurn = new TurnedHeader(_headerHost);
-        _headerBand = new Grid { Children = { _headerTurn } };
-
-        // The view is bound and attached only once the header exists. A view that names itself
-        // during Attach - a weather tile knows its place, a folder listing knows its folder -
-        // calls straight back into SetHeaderTitle, and doing that before these fields were built
-        // threw a NullReferenceException on the UI thread that took the whole surface down.
-        // [S-891] A view that throws here, or on the first tick it asks for, is swapped for its
+        // [S-12480] No card has a header: a widget is its content, and a title is a Header widget of its
+        // own ([S-9600]). [S-891] A view that throws here, or on the first tick it asks for, is swapped for its
         // error card before the card is assembled, so the card is built around whichever it is.
         // [S-6583] Aligned first, so the first layout it does sits where the widget asks.
         ApplyAlign(building: true);
@@ -337,43 +314,23 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // No padding: the content area goes edge to edge and each view insets its own parts. A card
         // that padded everything pushed every list row away from the edge and stopped its hover
         // highlight short of it, so a row read as a box inside a box rather than as a row ([S-6711]:
-        // a row carries the side inset itself).
-        // Auto, star, auto both ways, the outer ones empty but for the header: it takes the whole
-        // outer row or column its placement asks for ([S-404], HeaderStrip), and the view stays in
-        // the middle cell, so switching it costs a cell rather than a rebuild.
-        var content = new Grid
-        {
-            RowDefinitions =
-            {
-                new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-                new RowDefinition { Height = GridLength.Auto },
-            },
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
+        // a row carries the side inset itself). The card gives the view's top its inset ([S-5700]),
+        // none where a group mate joins it ([S-12482]).
+        var content = new Grid();
 
-        Place(_view, HeaderStrip.ViewCell);
-
-        // [S-2103] The widget's fill is one surface across the whole card, header included: the header
-        // is the card, so a translucent card shows no band and no seam where the header is (two
-        // fills that met at the header's edge, or overlapped there, drew both). A header colour of
-        // the user's own is the header's own layer, over it.
-        // [S-6590] The background image under everything, across the whole card, header included.
+        // [S-2103] The widget's fill is one surface across the whole card.
+        // [S-6590] The background image under everything, across the whole card.
         // [S-2140] The grain over the material, under the content.
         foreach (var layer in new FrameworkElement[] { _image, _fill, _glass, _lens, _grain })
         {
-            Grid.SetRowSpan(layer, 3);
-            Grid.SetColumnSpan(layer, 3);
             content.Children.Add(layer);
         }
 
-        content.Children.Add(_headerBand);
         content.Children.Add(_view);
+
+        // [S-12483] A view's foot may stand past the card's edge where a mate joins it: the card's content
+        // never draws over its neighbour.
+        content.SizeChanged += (_, args) => content.Clip = new RectangleGeometry { Rect = new Rect(0, 0, args.NewSize.Width, args.NewSize.Height) };
 
         _content = content;
 
@@ -407,7 +364,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             DrawStroke();
         };
 
-        // [S-1113] The card's content (header, view, its menus) flows with the language; the resize
+        // [S-1113] The card's content (the view, its menus) flows with the language; the resize
         // grips are physical corners and keep their places, so a drag on the left grip still moves
         // the left edge.
         UiLanguage.ApplyFlow(this);
@@ -425,18 +382,14 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // focusable in the tree no KeyDown is raised at all, and the edit-mode shortcuts never fire.
         IsTabStop = true;
         UseSystemFocusVisuals = false;
-        ApplyHeader();
+        ApplyEdges();
         ApplyDesign();
         ApplyEditMode(host.EditMode);
 
-        // The header sheds by height, so it has to be reconsidered when the height changes.
-        SizeChanged += (_, _) => ApplyHeader();
-
-        // [S-663] A view that discloses by size is told its slot - the card less the header - once
+        // [S-663] A view that discloses by size is told its slot - the card less its insets - once
         // per layout pass that changed it. The view's own SizeChanged is that signal exactly: it is
-        // raised after arrange, only when the slot really changed (a resize, the header shedding or
-        // moving), and the slot is a star row of a fixed-size card, so nothing the view shows in
-        // response can feed back into it.
+        // raised after arrange, only when the slot really changed (a resize, a join), and the slot is
+        // the cell of a fixed-size card, so nothing the view shows in response can feed back into it.
         HookViewSize();
 
         PointerPressed += OnPointerPressed;
@@ -467,28 +420,21 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// Put the header where the widget asks for it, and name it.
-    /// <para>
-    /// The title is the user's own when they set one, otherwise the catalogue's. A header on the far
-    /// edge (the bottom) flips the padding as well, or the gap would end up on the wrong side of it.
-    /// </para>
+    /// [S-5700] [S-12482] [S-12483] Lay the view against the card's top and foot: its top at the family's
+    /// inset (none where a group mate joins it or the view owns the edge), and the view told which sides a
+    /// mate joins, so its content meets the mate's across the seam (<see cref="NaturalBlock.Join"/> for a
+    /// block held at its natural height, <see cref="IWidgetJoins"/> for a view that lays its foot itself).
+    /// Re-run on every join, config and view swap.
     /// </summary>
-    public void ApplyHeader()
+    public void ApplyEdges()
     {
-        // The user's own label, then whatever the view knows about itself, then the catalogue ([S-2137] in the design's case).
-        _headerTitle.Text = HeaderName();
+        var joins = _outline.Joined;
+        var top = joins.TopInset((_view as IWidgetTopEdge)?.OwnsTopEdge == true);
+        _view.Margin = _view.Margin with { Top = top };
+        NaturalBlock.Join(_view, joins);
+        (_view as IWidgetJoins)?.ApplyJoins(joins);
 
-        var placement = Model.ShownHeader;
-
-        // [S-11009] A kind's sizing counts its header on every edge, so the header is there at every size
-        // of its range and never sheds: only the person hides it.
-        var hidden = placement == HeaderPlacement.Hidden;
-
-        _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
-
-        // [S-5700] With no header above it, the view's cell starts at the family's inset (each view keeps
-        // its sides and foot), unless the view owns its top edge; the Set up and waiting rows never do.
-        _view.Margin = new Thickness(0, HeaderStrip.ViewTop(ViewEdge, (_view as IWidgetTopEdge)?.OwnsTopEdge == true), 0, 0);
+        // [S-1862] The Set up and waiting rows never own the edge.
         if (_setup is not null)
         {
             _setup.Margin = OverlayTop;
@@ -498,42 +444,16 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         {
             _waiting.Margin = OverlayTop;
         }
-
-        if (hidden)
-        {
-            return;
-        }
-
-        var far = placement == HeaderPlacement.Bottom;
-        Place(_headerBand, HeaderStrip.StripCell(ShownEdge));
-
-        // [S-406] Turned on a side, the header is laid out left to right (the turn is physical, and a
-        // mirrored element's render transform turns about the mirrored origin); flat, it flows with the card.
-        _headerTurn.FlowDirection = HeaderStrip.IsSide(placement) ? FlowDirection.LeftToRight : FlowDirection;
-        _headerTurn.Turn = HeaderStrip.Turn(placement);
-
-        // [S-408] A side strip is the icon and the title: the trailing column is closed, not the
-        // view's element hidden, which views show and hide for their own reasons.
-        _header.ColumnDefinitions[2].MaxWidth = HeaderStrip.ShowsTrailing(placement) ? double.PositiveInfinity : 0;
-
-        // [S-6703] The inset on three sides and the header's gap toward the content, which is under it or, at the foot, over it.
-        _headerHost.Padding = far ? new Thickness(FamilySpace.Inset, FamilySpace.HeaderGap, FamilySpace.Inset, FamilySpace.Inset)
-            : Themia.Sdk.WinUI.Kit.Family.HeaderInset;
-
-        ApplyHeaderFill();
     }
 
-    /// <summary>[S-5700] The edge the header stands on now: none while it is hidden.</summary>
-    private HeaderEdge ViewEdge => _headerBand.Visibility == Visibility.Visible ? ShownEdge : HeaderEdge.None;
-
-    /// <summary>[S-1862] [S-5700] Where a row the card lays over the view starts: right under a header above it, else at the inset.</summary>
-    private Thickness OverlayTop => new(0, HeaderStrip.ViewTop(ViewEdge, ownsTopEdge: false), 0, 0);
+    /// <summary>[S-1862] [S-5700] Where a row the card lays over the view starts: at the inset, none where a mate joins the top.</summary>
+    private Thickness OverlayTop => new(0, _outline.Joined.TopInset(ownsTopEdge: false), 0, 0);
 
     /// <summary>[S-873] Whether the card draws anything: a hidden one draws only in edit mode.</summary>
     public bool IsShown(bool editMode) => !_hidden || editMode;
 
     /// <summary>
-    /// Paint the card from the design: corner radius, fill colour and opacity, border, header fill and
+    /// Paint the card from the design: corner radius, fill colour and opacity, border and
     /// font. The one per-card apply path ([S-820]..[S-829]); the app-wide half (theme, accent, text
     /// size) is <see cref="DesignApplier"/>. Runs on every state change, and only sets properties, so
     /// a slider dragged across the Appearance page re-paints cards without rebuilding any.
@@ -605,11 +525,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-2123] Liquid glass: its tint, sheen, lens, rim and lift over what the design painted.
         ApplyGlass(radius, radiusPx, fill);
 
-        // [S-2133] [S-2137] [S-2140] The accent in a default card, the grain, the header's level and case.
+        // [S-2133] [S-2140] The accent in a default card, the grain.
         ApplyLook(radius, fill);
-
-
-        ApplyHeaderFill();
 
         // [S-826] The design's font for everything in the card that does not pick its own; icons
         // name Segoe Fluent Icons themselves, so their glyphs are untouched.
@@ -621,27 +538,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         {
             _fontScope.ClearValue(ContentPresenter.FontFamilyProperty);
         }
-    }
-
-    /// <summary>
-    /// [S-828] [S-2103] The header's own fill: a header colour of the user's at the header opacity,
-    /// over the card; without one it draws nothing and the header is the card. The corners on the
-    /// card's edge follow the card's so the strip does not square them.
-    /// </summary>
-    private void ApplyHeaderFill()
-    {
-        var design = _host.Design;
-        var r = DesignLook.CornerRadius(design.CornerRadiusPx);
-
-        // [S-407] The strip's outer corners. The header inside a side strip is turned, its top
-        // facing out, so its own fill rounds its top corners as a top header's does. [S-2241] A
-        // corner a joined neighbour squares is square on the strip too.
-        var radius = HeaderCorners(r);
-        var own = DesignLook.HeaderFill(design.HeaderBackgroundColor, design.HeaderOpacity);
-
-        _headerHost.Background = own is { Colour: { } c } ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B), own.Value.Opacity) : null;
-        // Rounded only when it paints: a header with no fill of its own has no shape of its own either.
-        _headerHost.CornerRadius = own is null ? default : radius;
     }
 
     /// <summary>[S-6563] What this card's background paints: its own choice (or one previewed, [S-3731]), or the app-wide one for Default.</summary>
@@ -681,7 +577,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// <summary>
     /// [S-821] Bring text already on the card to the current text size, before the view lays itself
     /// out again from the (already scaled) type ramp. Text a view builds from the ramp is right by
-    /// construction; this catches what it built once — labels, the header — so the card follows
+    /// construction; this catches what it built once — labels — so the card follows
     /// the setting without being rebuilt. Only sizes set on the element itself are scaled; text
     /// that inherits its size follows its parent.
     /// </summary>
@@ -740,9 +636,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // [S-11877] On the locked desktop a selected card shows its four corners alone, in the accent: light,
         // no handles, no grips. [S-11881] A locked move shows the corners of the moving cards and of the ones
-        // near where they land. [S-11889] A desktop icon too, round its grid box, over its highlight.
+        // near where they land. [S-11889] A desktop icon too, round its grid box, over its highlight, but only in edit mode and in a move:
+        // selected on the locked desktop it shows its highlight alone.
         var marks = editing ? _host.MarksOf(this) : EditMarks.Corners;
-        _markersShown = SelectionRules.MarksShown(editing, selected, editing ? null : _moveMarks);
+        _markersShown = SelectionRules.MarksShown(editing, selected, editing ? null : _moveMarks, icon: _view is IDesktopIconView);
         _marks = marks;
         _markers.Visibility = editing && marks == EditMarks.Handles ? Visibility.Visible : Visibility.Collapsed;
         ApplyResizable();
@@ -784,9 +681,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-1862] The config may have supplied what was missing, or taken it away.
         ApplySetup();
 
-        // The title and the placement live on the instance, not the config, so a rename or a
-        // move to the bottom arrives here too.
-        ApplyHeader();
+        // [S-5700] A style may own the top edge, or stop owning it.
+        ApplyEdges();
         ApplyDesign();
     }
 
@@ -817,14 +713,14 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     public SizeLimits? Limits
         => _host.Metrics is { IsUsable: true } metrics
-            ? SizeFit.Limits(SizeFit.Of(_resizeConfig ?? Model.Config, Model.ShownHeader), metrics, _contentScale)
+            ? SizeFit.Limits(SizeFit.Of(_resizeConfig ?? Model.Config), metrics, _contentScale)
             : null;
 
     /// <summary>[S-2442] While a resize is dragged, the view shows the config its size means (a list's rows).</summary>
     private void PreviewResizedConfig(ScreenMetrics metrics)
     {
         var current = _resizeConfig ?? Model.Config;
-        var next = SizeFit.ConfigFor(current, LiveRect, metrics, _contentScale, Model.ShownHeader, Limits);
+        var next = SizeFit.ConfigFor(current, LiveRect, metrics, _contentScale, Limits);
         if (ReferenceEquals(next, current))
         {
             return;
@@ -845,7 +741,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var config = _resizeConfig ?? Model.Config;
         if (metrics.IsUsable)
         {
-            config = SizeFit.ConfigFor(config, rect, metrics, _contentScale, Model.ShownHeader, Limits);
+            config = SizeFit.ConfigFor(config, rect, metrics, _contentScale, Limits);
         }
 
         _resizeConfig = null;
@@ -862,7 +758,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     }
 
     /// <summary>
-    /// [S-850] Magnify the card's content — header, text, icons, padding — without touching its cell:
+    /// [S-850] Magnify the card's content — text, icons, padding — without touching its cell:
     /// the card stays exactly where it is and the same size, and the view lays out in the smaller
     /// (or larger) logical space the scale leaves it, so it discloses less (or more) per [S-663].
     /// </summary>
@@ -979,7 +875,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                 editMode: false,
                 preview: _host.IsPreview,
                 leftButton: e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
-                ownsDrags: _view is IWidgetOwnsDrags);
+                ownsDrags: _view is IWidgetOwnsDrags,
+                pinned: _host.Pins(this));
             _moveStart = e.GetCurrentPoint(ParentSurface()).Position;
             return;
         }
@@ -1301,7 +1198,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             CanBringToFront: cards?.CanBringToFront(Model.Id) == true,
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
             SelectionCount: _host.SelectionCount,
-            CanPaste: _host.CanPaste));
+            CanPaste: _host.CanPaste,
+            WidgetsLocked: _host.WidgetsLocked));
 
         var entries = new List<ItemMenuEntry>();
         foreach (var item in ShellMenus.ForCard(facts))
@@ -1347,6 +1245,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             ShellCommand.LeaveGroup => new(Glyphs.Back, Str.Groups_Card_Leave.Text(), () => _host.RequestGroupCommand(ShellCommand.LeaveGroup)),
             // [S-65] One line, Edit mode, checked while on (Windows' View toggles); a click flips it.
             ShellCommand.ToggleEditMode => new(Glyphs.Edit, Str.Shell_Menu_EditMode.Text(), () => _host.RequestEditMode(!_host.EditMode), Checked: _host.EditMode),
+            // [S-12951] Lock widgets under it, checked while on; a click flips the one setting.
+            ShellCommand.ToggleLockWidgets => new(Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text(), () => _host.RequestLockWidgets(item.Checked != true), Checked: item.Checked),
             _ => ItemMenuEntry.Separator,
         };
     }
@@ -1437,9 +1337,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     // ---- IWidgetSurface ------------------------------------------------------------------------
 
     /// <inheritdoc />
-    string? IWidgetSurface.Label => Model.Label;
-
-    /// <inheritdoc />
     void IWidgetSurface.RequestSave()
     {
         // [S-1862] A view that changed its own config (a shortcut dropped on it) may now be set up.
@@ -1457,18 +1354,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     string? IWidgetSurface.WidgetId => _host.IsPreview ? null : Model.Id;
 
     Themia.Core.Links.LinkBoard? IWidgetSurface.Links => _host.Links;
-
-    /// <inheritdoc />
-    void IWidgetSurface.SetHeaderTitle(string? title)
-    {
-        if (string.Equals(_viewTitle, title, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _viewTitle = title;
-        ApplyHeader();
-    }
 
     /// <inheritdoc />
     void IWidgetSurface.SetHidden(bool hidden)

@@ -11,10 +11,10 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-1480] The Clock's options, all on its properties menu ([S-3719]): under Style what the look
-/// draws (seconds, the date line: [S-6074] only the ones the style draws); then
+/// draws (seconds: [S-6074] only where the style draws them); then
 /// Appearance ([S-3723]) and the time zone, a search ([S-3722]), with the offset line after it on the
-/// same level (what is shown is chosen on the first level, not inside a search); then a link to the
-/// 12- or 24-hour clock every widget tells time on ([S-3749], [S-3590]: ⚙'s, never the clock's own).
+/// same level (what is shown is chosen on the first level, not inside a search). The 12- or 24-hour clock is
+/// ⚙'s and the clock just follows it ([S-3590]).
 /// It has no settings page.
 /// </summary>
 internal static class ClockMenu
@@ -36,11 +36,6 @@ internal static class ClockMenu
             look.Add(menu.Toggle(null, ClockStr.Clock_SecondsLabel.Text(), clock.ShowSeconds, on => clock.ShowSeconds = on));
         }
 
-        if (clock.Offers(ClockSetting.Date))
-        {
-            look.Add(menu.Toggle(null, ClockStr.Clock_DateLabel.Text(), clock.ShowDate, on => clock.ShowDate = on));
-        }
-
         // [S-1478] The look (Style, Appearance), a divider, then what time it tells.
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(Zone(menu, clock));
@@ -54,9 +49,6 @@ internal static class ClockMenu
                 ],
                 clock.OffsetMode, value => clock.OffsetMode = value));
         }
-
-        menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.TimeFormat)));
     }
 
     /// <summary>

@@ -37,11 +37,11 @@ public sealed class TopProcessesTests
     {
         var sizing = Kind.Sizing(new TopProcessesConfig());
         Assert.Empty(sizing.Problems());
-        Assert.Equal(36 + (5 * 40) + 12, sizing.Natural.Height);
-        Assert.Equal(36 + (20 * 40) + 12, sizing.Max.Height);
+        Assert.Equal(12 + (5 * 40) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + (20 * 40) + 12, sizing.Max.Height);
 
         var given = new TopProcessesConfig();
-        var dragged = Assert.IsType<TopProcessesConfig>(Kind.SizeSets!(given, new SizeDip(300, 36 + (3 * 40) + 12)));
+        var dragged = Assert.IsType<TopProcessesConfig>(Kind.SizeSets!(given, new SizeDip(300, 12 + (3 * 40) + 12)));
         Assert.Equal(3, dragged.Rows);
         Assert.Equal(5, given.Rows);
         Assert.Same(given, Kind.SizeSets!(given, sizing.Natural));

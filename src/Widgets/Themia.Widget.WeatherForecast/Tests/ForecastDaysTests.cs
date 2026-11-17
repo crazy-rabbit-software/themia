@@ -61,7 +61,7 @@ public class ForecastDaysTests
         var sizing = WeatherForecastLayout.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Grid, Days = 7 });
 
         Assert.True(sizing.FixedHeight);
-        Assert.Equal(36 + (2 * ForecastGrid.CellMinHeight) + 12 + 12, sizing.Natural.Height);
+        Assert.Equal(12 + (2 * ForecastGrid.CellMinHeight) + 12 + 12, sizing.Natural.Height);
         Assert.Equal(24 + (4 * 64) + (3 * 12), sizing.Natural.Width);
         Assert.Equal(24 + (4 * 80) + (3 * 12), sizing.Max.Width);
         Assert.Equal(24 + (4 * 56) + (3 * 12), sizing.Min.Width);

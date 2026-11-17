@@ -5,8 +5,8 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-11505] The chart's sizes on the family's tokens, pure: headerless by default, the drawing in the
-/// card's 12 inset on every side, 200..520 wide, one height per style (and, for the calendar, per
+/// [S-11505] The chart's sizes on the family's tokens, pure: its day line ([S-454]) and the drawing in
+/// the card's 12 inset on every side, 200..520 wide, one height per style (and, for the calendar, per
 /// period: its weeks). The total over it is the reading atom's ([S-11500]).
 /// </summary>
 public static class ScreenTimeChartLayout
@@ -48,10 +48,13 @@ public static class ScreenTimeChartLayout
         return BarHeight + LabelRow;
     }
 
-    /// <summary>[S-11505] The chart's sizing, headerless: the drawing in the inset, one height, 200..520 wide.</summary>
+    /// <summary>[S-454] [S-12481] [S-12803] The day line over the drawing for a day (its line and the gap under it), none for a window.</summary>
+    public static double DayLine(ScreenTimePeriod period) => ScreenTimeRules.DayLine(period);
+
+    /// <summary>[S-11505] The chart's sizing: its day line and the drawing in the inset, one height, 200..520 wide.</summary>
     public static WidgetSizing Sizing(ScreenTimeChartStyle style, ScreenTimePeriod period)
     {
-        var height = FamilySpace.Inset + Drawing(style, period) + FamilySpace.Inset;
+        var height = FamilySpace.Inset + DayLine(period) + Drawing(style, period) + FamilySpace.Inset;
         return WidgetSizing.Range(new(Narrowest, height), new(NaturalWidth, height), new(Widest, height));
     }
 }

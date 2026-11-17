@@ -105,8 +105,6 @@ internal sealed partial class WidgetCard
             // [S-6714] The Status block's row at the top, as the Set up row: Windows' location glyph and the state's sentence.
             _waiting = new StatusBlock { Margin = OverlayTop };
             _waiting.Show(StatusKind.Empty, Glyphs.Location, Config.DevicePlaceRows.Sentence(state));
-            Grid.SetRow(_waiting, 1);
-            Grid.SetColumn(_waiting, 1);
             _content.Children.Add(_waiting);
         }
     }
@@ -124,8 +122,6 @@ internal sealed partial class WidgetCard
         {
             _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, SetupSentence(signedIn), () => _host.RequestSetup(this));
             _setup.Margin = OverlayTop;
-            Grid.SetRow(_setup, 1);
-            Grid.SetColumn(_setup, 1);
             _content.Children.Add(_setup);
         }
         else if (!needed && _setup is not null)
@@ -192,14 +188,9 @@ internal sealed partial class WidgetCard
     }
 
 #if DEBUG
-    /// <summary>[S-6731] Debug renders only: what the card draws for the widget, for the family's render walk: its header, its Set up row, its view.</summary>
+    /// <summary>[S-6731] Debug renders only: what the card draws for the widget, for the family's render walk: its Set up row or its view.</summary>
     internal IEnumerable<FrameworkElement> FamilyRoots()
     {
-        if (_headerBand.Visibility == Visibility.Visible)
-        {
-            yield return _headerHost;
-        }
-
         if (_setup is not null)
         {
             yield return _setup;

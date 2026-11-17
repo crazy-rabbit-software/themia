@@ -72,6 +72,7 @@ namespace Themia.App.Widgets;
 /// page finds it among a member's lines and shows it once for every member that holds the setting. Null for a
 /// line of the widget's own; item menus ignore it.
 /// </param>
+/// <param name="Icon">[S-9602] The properties menu's icon line: the one icon picker inline in its card; item menus have none.</param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -93,12 +94,13 @@ public readonly record struct ItemMenuEntry(
     Themia.Sdk.WinUI.MenuOrder? Order = null,
     bool Asks = false,
     string? LinkTo = null,
-    string? Shares = null)
+    string? Shares = null,
+    Themia.Sdk.WinUI.MenuIcon? Icon = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
 
-    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && !Note;
+    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && Icon is null && !Note;
 
     /// <summary>[S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow.</summary>
     internal MenuLine Line => IsSeparator ? MenuLine.Separator : MenuLine.Entry(Checked is null && Children is null ? Quick : null);
@@ -236,18 +238,14 @@ public static class ItemMenu
                 continue;
             }
 
-            MenuFlyoutItem item = entry.Checked switch
+            // [S-12952] One leading column: a toggle or one of a set is a plain line whose mark is its icon, never a
+            // ToggleMenuFlyoutItem or RadioMenuFlyoutItem (each adds a check column beside the icons).
+            var item = new MenuFlyoutItem
             {
-                // The group before the mark: the framework keeps one checked item per group name, and a
-                // mark set while the name is still empty joins the nameless group, where the next menu's
-                // (or the next submenu's) checked line unchecks it ([S-5593]: Medium icons lost its dot to Sort by's).
-                { } isChecked when entry.Group is { } group => new RadioMenuFlyoutItem { GroupName = group, IsChecked = isChecked },
-                { } isChecked => new ToggleMenuFlyoutItem { IsChecked = isChecked },
-                _ => new MenuFlyoutItem(),
+                Text = entry.Text,
+                IsEnabled = !entry.Disabled,
             };
-            item.Text = entry.Text;
-            item.IsEnabled = !entry.Disabled;
-            item.Icon = IconFor(entry, icon => item.Icon = icon);
+            item.Icon = entry.Checked is not null ? MarkIcon(entry) : IconFor(entry, icon => item.Icon = icon);
 
             if (entry.Shortcut is { } chord)
             {
@@ -386,58 +384,34 @@ public static class ItemMenu
     /// <summary>A command in the labelled list: a plain one, a toggle, or a submenu.</summary>
     private static ICommandBarElement CreateItem(CommandBarFlyout menu, ItemMenuEntry entry)
     {
-        AppBarButton? button = null;
-        AppBarToggleButton? toggle = null;
-
-        if (entry.Checked is { } isChecked)
+        // [S-12952] One leading column: a toggle is a plain button whose mark is its icon, never an
+        // AppBarToggleButton (the overflow then adds a check column beside the icons).
+        var button = new AppBarButton { Label = entry.Text, IsEnabled = !entry.Disabled };
+        if (entry.Checked is not null)
         {
-            toggle = new AppBarToggleButton { Label = entry.Text, IsChecked = isChecked, IsEnabled = !entry.Disabled };
-        }
-        else
-        {
-            button = new AppBarButton { Label = entry.Text, IsEnabled = !entry.Disabled };
-        }
-
-        var element = (Control?)button ?? toggle!;
-
-        void SetIcon(IconElement shown)
-        {
-            if (button is not null)
+            if (MarkIcon(entry) is { } mark)
             {
-                button.Icon = shown;
-            }
-            else
-            {
-                toggle!.Icon = shown;
+                button.Icon = mark;
             }
         }
-
-        if (IconFor(entry, SetIcon) is { } icon)
+        else if (IconFor(entry, shown => button.Icon = shown) is { } icon)
         {
-            SetIcon(icon);
+            button.Icon = icon;
         }
 
         if (entry.Shortcut is { } chord)
         {
             // Text only: the accelerators are handled where the menu's owner listens for keys, so
             // registering real KeyboardAccelerators here would double-fire them.
-            var keys = KeyChordText.Format(chord);
-            if (button is not null)
-            {
-                button.KeyboardAcceleratorTextOverride = keys;
-            }
-            else
-            {
-                toggle!.KeyboardAcceleratorTextOverride = keys;
-            }
+            button.KeyboardAcceleratorTextOverride = KeyChordText.Format(chord);
         }
 
         if (entry.Danger)
         {
-            element.Foreground = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
+            button.Foreground = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
         }
 
-        if (entry.Children is { } children && button is not null)
+        if (entry.Children is { } children)
         {
             // [S-1456] One level down, opened beside the line like a Windows submenu.
             if (Build(children) is { } sub)
@@ -453,15 +427,16 @@ public static class ItemMenu
             return button;
         }
 
-        if (button is not null)
-        {
-            Wire(menu, button, entry.Action);
-            return button;
-        }
-
-        Wire(menu, toggle!, entry.Action);
-        return toggle!;
+        Wire(menu, button, entry.Action);
+        return button;
     }
+
+    /// <summary>
+    /// [S-12952] A toggle line's icon: its mark in the one leading slot (<see cref="MenuMarks.Slot"/>: the check while on,
+    /// the dot for one of a set), nothing while off.
+    /// </summary>
+    private static FontIcon? MarkIcon(ItemMenuEntry entry)
+        => MenuMarks.Slot(entry.Checked, entry.Group is not null, entry.Glyph) is { } mark ? new FontIcon { Glyph = mark } : null;
 
     private static void Wire(CommandBarFlyout menu, ButtonBase button, Action? action)
     {

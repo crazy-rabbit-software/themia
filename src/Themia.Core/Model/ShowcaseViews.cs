@@ -116,7 +116,7 @@ public static class ShowcaseViews
                     }
 
                     // [S-11601] A widget held at its min or max has the config that size means, as a resize leaves it.
-                    widget.Config = SizeFit.ConfigAt(widget.Config, new SizeDip(size.Width, size.Height), widget.ShownHeader);
+                    widget.Config = SizeFit.ConfigAt(widget.Config, new SizeDip(size.Width, size.Height));
                     view.Widgets.Add(widget);
                 }
 

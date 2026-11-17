@@ -30,7 +30,7 @@ public sealed class RssModule : IWidgetModule
         Glyph = Glyphs.Rss,
         Sizing = c => KitSizing.Sizing(((RssConfig)c).RowsShown, addFooter: false),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((RssConfig)c).RowsShown, addFooter: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Markets, 1, 0),
     };
 

@@ -150,7 +150,7 @@ public sealed class {{Name}}Module : IWidgetModule
         Description = {{Name}}Str.{{Name}}_Desc.Local(),
         Glyph = Glyph,
         Sizing = _ => WidgetSizing.Range(new(160, 96), new(280, 180), new(480, 320)),
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.None,
         // [S-6907] Its own run at the end of its folder; move it to where it belongs among its neighbours.
         Add = new(AddFolderId.{{Shelf}}, 99, 0),
     };

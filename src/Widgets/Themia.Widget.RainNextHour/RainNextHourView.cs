@@ -23,14 +23,14 @@ namespace Themia.App.Widgets;
 /// ([S-6714]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
 /// between fetches.
 /// </summary>
-internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent,
-    IWidgetContextActions
+internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens,
+    IWidgetContextActions, IWidgetJoins
 {
     /// <inheritdoc />
     public CardOpen? Opens => RainNextHourModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
 
-    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
-    private readonly KitHeader _header;
+    /// <summary>[S-7064] The status's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitStatus _status;
     private readonly TextBlock _headline = Family.Text(FamilyType.Title);
     private readonly TextBlock _caption = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly StackPanel _top = new();
@@ -52,7 +52,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
 
     public RainNextHourView(IWidgetHost host)
     {
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
         _feed = new(
             () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Rain, host.Weather.Show),
             () => _config.Interest(),
@@ -94,9 +94,12 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         Children.Add(_top);
         Children.Add(_chart);
         Children.Add(_state);
+        _status.Place(this);
     }
 
-    public FrameworkElement? HeaderTrailing => _header;
+    /// <summary>[S-12483] The chart runs to a foot a group mate joins: its foot inset goes there.</summary>
+    public void ApplyJoins(JoinedSides sides)
+        => _chart.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, sides.Foot);
 
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)] : [];
@@ -113,7 +116,6 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as RainNextHourConfig ?? new RainNextHourConfig();
-        PublishPlace();
         _feed.Reload();
     }
 
@@ -124,13 +126,13 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
             // [S-6734] Not set up is the card's Set up row ([S-1862]); every other state is one row here.
             OnlineParts.ShowState(_state, _feed.Status, Glyphs.Rain, _feed.Refresh);
             _top.Visibility = _chart.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            _status.Clear();
             return;
         }
 
         var now = _pinnedNow ?? DateTimeOffset.Now;
         var outlook = RainRules.Outlook(cast, now);
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        _status.Show(OnlineParts.Problems(held), busy: false);
 
         // [S-5126] Nothing to warn of (a dry window) or nothing to go on (too few steps): one plain sentence.
         if (!RainLayout.Warns(outlook.Headline))
@@ -163,6 +165,4 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
 
     public void Detach() => _feed.Detach();
 
-    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
-    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

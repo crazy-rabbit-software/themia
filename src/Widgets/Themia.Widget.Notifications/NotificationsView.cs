@@ -22,7 +22,7 @@ namespace Themia.App.Widgets;
 /// center groups it (Karpo §19, §100): a notification's title primary, when it came as the value, its
 /// body on the second line; grouped by app under a heading (its icon, its name) from an expanded height,
 /// each app's newest three and a "See more (n)" row. A click focuses a row, a double-click opens the
-/// app; Clear all is the header's button beside the neutral count.
+/// app; Clear all is the card menu's line ([S-12481]).
 /// <para>
 /// [S-4404] The ladder (<see cref="NotificationsLayout"/>): the list at every size, the body from a
 /// regular tile, the headings from an expanded height. The list is the host's one feed's
@@ -30,18 +30,16 @@ namespace Themia.App.Widgets;
 /// given is the state row's sentence and the one button that fixes it ([S-4403]).
 /// </para>
 /// </summary>
-internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
     private const string Scope = "notifications";
 
     /// <summary>Where Windows keeps notification access: Settings › Privacy › Notifications.</summary>
     private static readonly Uri AccessPage = new("ms-settings:privacy-notifications");
 
-    /// <summary>[S-6710] The header's extras: the neutral count and Clear all.</summary>
     /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
-    private readonly KitHeader _header;
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroll;
     private ScrollFade? _fade;
@@ -75,7 +73,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     public NotificationsView(IWidgetHost host)
     {
         _widgetHost = host;
-        _header = new KitHeader(host);
         _scroll = new ScrollViewer
         {
             Content = _list,
@@ -90,8 +87,11 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         Children.Add(_state);
     }
 
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _header;
+    /// <summary>[S-4402] [S-12481] Clear all, on the card menu while Windows allows reading and there is something to clear.</summary>
+    public IReadOnlyList<WidgetAction> ContextActions
+        => Snapshot is { Access: NotificationAccess.Allowed, Items.Count: > 0 }
+            ? [new WidgetAction(Glyphs.Clear, NotificationsStr.Panels_Notifications_ClearAll.Text(), ClearAll)]
+            : [];
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -159,7 +159,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _fade = null;
         ClearRows();
         _links.Leave();
-        _header.Detach();
         _state.Detach();
         _open.Clear();
         _ticker = null;
@@ -180,13 +179,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         var snapshot = Snapshot;
         var items = snapshot.Items;
         var allowed = snapshot.Access == NotificationAccess.Allowed;
-
-        // [S-4402] Clear all is the header's button, beside how many there are.
-        _header.Show(
-            [],
-            busy: false,
-            count: allowed ? items.Count : null,
-            buttons: allowed && items.Count > 0 ? [new KitHeaderButton(Glyphs.Clear, NotificationsStr.Panels_Notifications_ClearAll.Text(), ClearAll)] : []);
 
         _scroll.Visibility = Visibility.Collapsed;
         _state.Hide();

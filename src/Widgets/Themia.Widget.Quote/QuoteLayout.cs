@@ -46,7 +46,7 @@ public static class QuoteLayout
     /// <summary>
     /// [S-11306] The quote's sizing ([S-2438]): the inset, the mark and its 8 on the Marks style, the
     /// lines on the Size's step, the attribution's line where it is shown, the inset; stepped by a line
-    /// and following <see cref="Model.QuoteConfig.Lines"/>, 200..520 wide. No header by default.
+    /// and following <see cref="Model.QuoteConfig.Lines"/>, 200..520 wide.
     /// </summary>
     public static Sdk.WidgetSizing Sizing(Model.QuoteConfig config)
     {

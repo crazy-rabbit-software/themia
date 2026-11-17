@@ -91,10 +91,10 @@ public static partial class SettingsMenu
         // its submenu says where it comes from ("Windows setting (12-hour)").
         SettingsChoice Format<T>(string key, Str text, string glyph, T current, string inForce, IReadOnlyList<(T Value, string Text)> options, Action<RegionPreferences, T> set)
             where T : struct, Enum
-            => new(Keys.Language + "/" + key, text.Text(), glyph, [.. options.Select(o =>
+            => new(key, text.Text(), glyph, [.. options.Select(o =>
             {
                 var holds = EqualityComparer<T>.Default.Equals(o.Value, current);
-                return new SettingsRadio(Keys.Language + "/" + key + "/" + o.Value, o.Text, holds, () =>
+                return new SettingsRadio(key + "/" + o.Value, o.Text, holds, () =>
                 {
                     if (!holds)
                     {
@@ -125,7 +125,7 @@ public static partial class SettingsMenu
         var formats = new List<SettingsLine>
         {
             Format(
-                "clock",
+                Keys.TimeFormat,
                 Str.LanguageRegion_Clock,
                 Glyphs.Clock,
                 region.Clock,
@@ -133,7 +133,7 @@ public static partial class SettingsMenu
                 [(ClockHours.System, FollowWindows(Hours(windows.Use24Hour))), (ClockHours.Twelve, Hours(false)), (ClockHours.TwentyFour, Hours(true))],
                 (r, v) => r.Clock = v),
             Format(
-                "weekStart",
+                Keys.WeekStart,
                 Str.Calendar_WeekStart_Label,
                 Glyphs.Calendar,
                 region.WeekStart,
@@ -141,7 +141,7 @@ public static partial class SettingsMenu
                 [(FirstWeekday.System, FollowWindows(Day(windows.WeekStart))), (FirstWeekday.Monday, Day(WeekStartDay.Monday)), (FirstWeekday.Sunday, Day(WeekStartDay.Sunday)), (FirstWeekday.Saturday, Day(WeekStartDay.Saturday))],
                 (r, v) => r.WeekStart = v),
             Format(
-                "temperature",
+                Keys.Temperature,
                 Str.Weather_UnitLabel,
                 Glyphs.Weather,
                 region.Temperature,

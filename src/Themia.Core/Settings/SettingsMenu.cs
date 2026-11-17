@@ -252,14 +252,6 @@ public sealed record SettingsTool(string Key, string Glyph, string Name, Setting
 }
 
 /// <summary>
-/// [S-3749] A link row (Karpo's): a setting another menu owns, never a copy of it. The owner's glyph
-/// and words, the owner's name (<paramref name="Owner"/>: the tooltip's "Opens Accounts"), and what a
-/// pick does: close this menu and open the owner's at the level that sets it. Drawn with Windows'
-/// "open in new window" mark at its end, no chevron.
-/// </summary>
-public sealed record SettingsLink(string Key, string Text, string? Glyph, string Owner, Action Open) : SettingsLine(Key);
-
-/// <summary>
 /// [S-3727] [S-3737] An "are you sure?" asked on a level of the menu's own: the question, the words of
 /// the row that does it (in the critical colour where <paramref name="Danger"/>), what it does, and
 /// what goes with it.
@@ -369,6 +361,9 @@ public static partial class SettingsMenu
 
         /// <summary>[S-5593] The desktop's icon size.</summary>
         public const string DesktopIconSize = "desktopIconSize";
+
+        /// <summary>[S-12950] Lock widgets: outside edit mode only desktop icons move.</summary>
+        public const string LockWidgets = "lockWidgets";
         public const string GameMode = "gameMode";
         public const string Appearance = "appearance";
         public const string Motion = "motion";
@@ -412,14 +407,10 @@ public static partial class SettingsMenu
         public const string About = "about";
         public const string Uninstall = "uninstall";
 
-        /// <summary>[S-3749] The line of Language &amp; region that sets a regional format a widget links to.</summary>
-        public static string Format(Sdk.OwnedSetting setting) => Language + "/" + setting switch
-        {
-            Sdk.OwnedSetting.TimeFormat => "clock",
-            Sdk.OwnedSetting.WeekStart => "weekStart",
-            Sdk.OwnedSetting.TemperatureUnit => "temperature",
-            _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "not a regional format"),
-        };
+        /// <summary>[S-3536] Language &amp; region's regional formats, each a line of the Formats card.</summary>
+        public const string TimeFormat = Language + "/clock";
+        public const string WeekStart = Language + "/weekStart";
+        public const string Temperature = Language + "/temperature";
     }
 
     /// <summary>A whole number and its unit as the settings sliders wrote it ("12px", "500 ms"), or a percentage of a fraction.</summary>

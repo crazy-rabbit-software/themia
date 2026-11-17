@@ -23,6 +23,12 @@ public sealed class AppPreferences
     /// </summary>
     public DesktopIconSize DesktopIconSize { get; set; } = DesktopIconSize.Medium;
 
+    /// <summary>
+    /// [S-12950] Lock widgets: outside edit mode a widget is not moved by a drag, only desktop icons are
+    /// (<see cref="Themia.Core.Desktop.WidgetLock"/>). Off by default; edit mode moves everything either way.
+    /// </summary>
+    public bool LockWidgets { get; set; }
+
 
     /// <summary>[S-3770] How every widget writes times and dates and measures temperature.</summary>
     public RegionPreferences Region { get; set; } = new();
@@ -48,6 +54,7 @@ public sealed class AppPreferences
         Language = Language,
         GameModeSuspend = GameModeSuspend,
         DesktopIconSize = DesktopIconSize,
+        LockWidgets = LockWidgets,
         Region = Region.Clone(),
         Refresh = Refresh.Clone(),
         McpServer = McpServer,

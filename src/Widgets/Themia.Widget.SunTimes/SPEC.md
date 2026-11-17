@@ -18,9 +18,8 @@ the row names moved here from the sun with their translations). Tests: `Tests/Su
   new card picks sunrise, sunset and daylight. A rise or set that does not happen (inside the polar
   circles) is the em dash ([S-161]). A name takes its short form where the long one and the value do
   not fit side by side ([S-6735]). Nothing sheds or appears with the box. A stored pick that is empty,
-  holds a row twice or one it does not have is repaired. It keeps the header by default (the place its
-  label, [S-2260]).
-- **[S-11116]** **Sizes** (`SkyFacts.Sizing`, [S-11170]): its header, a 28 row a time (1..6), the
+  holds a row twice or one it does not have is repaired. A Header widget over it names it ([S-12481]).
+- **[S-11116]** **Sizes** (`SkyFacts.Sizing`, [S-11170]): the inset, a 28 row a time (1..6), the
   inset; 200..420 wide, a new one 240. Dragging the bottom edge sets the pick ([S-2442]).
 - **[S-11117]** Its options are all on the properties menu ([S-3719]): **Times**, the pick
   (`SkyFactLines.Pick`); Appearance; behind a divider the sky's shared **Location** ([S-3101], as the

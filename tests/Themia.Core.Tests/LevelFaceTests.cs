@@ -20,8 +20,8 @@ public sealed class LevelFaceTests
         var volume = LevelFace.Sizing(under: true);
         var brightness = LevelFace.Sizing(under: false);
 
-        // The header's content top, the 28 line (36) and its Caption line under (16), 8, the row (28), the inset.
-        Assert.Equal(36 + 36 + 16 + 8 + 28 + 12, volume.Natural.Height);
+        // The inset over the content (no header, [S-12480]), the 28 line (36) and its Caption line under (16), 8, the row (28), the inset.
+        Assert.Equal(12 + 36 + 16 + 8 + 28 + 12, volume.Natural.Height);
         Assert.Equal(volume.Natural.Height - 16, brightness.Natural.Height);
         Assert.True(volume.FixedHeight && !volume.FixedWidth);
         Assert.Equal((160d, 200d, 360d), (volume.Min.Width, volume.Natural.Width, volume.Max.Width));

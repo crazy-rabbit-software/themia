@@ -30,10 +30,10 @@ public sealed class StockTests
     {
         WidgetSizing Of(StockConfig c) => StockLayout.Sizing(c);
 
-        Assert.Equal(36 + 36 + 12, Of(new StockConfig()).Natural.Height);
-        Assert.Equal(36 + 36 + 8 + 28 + 12, Of(new StockConfig { SharesOwned = 10 }).Natural.Height);
-        Assert.Equal(36 + 36 + 8 + 56 + 12, Of(new StockConfig { SharesOwned = 10, ShowExtendedHours = true, Range = QuoteRange.Day }).Natural.Height);
-        Assert.Equal(36 + 36 + 12, Of(new StockConfig { ShowExtendedHours = true, Range = QuoteRange.Year }).Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, Of(new StockConfig()).Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 8 + 28 + 12, Of(new StockConfig { SharesOwned = 10 }).Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 8 + 56 + 12, Of(new StockConfig { SharesOwned = 10, ShowExtendedHours = true, Range = QuoteRange.Day }).Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, Of(new StockConfig { ShowExtendedHours = true, Range = QuoteRange.Year }).Natural.Height);
         Assert.True(Of(new StockConfig()).FixedHeight);
         Assert.Equal((240.0, 240.0, 360.0), (Of(new StockConfig()).Min.Width, Of(new StockConfig()).Natural.Width, Of(new StockConfig()).Max.Width));
     }
@@ -44,8 +44,8 @@ public sealed class StockTests
         WidgetSizing Of(StockConfig c) => StockLayout.Sizing(c);
 
         Assert.False(new StockConfig().ShowMarketState);
-        Assert.Equal(36 + 36 + 16 + 12, Of(new StockConfig { ShowMarketState = true }).Natural.Height);
-        Assert.Equal(36 + 36 + 12, Of(new StockConfig { ShowMarketState = true, Market = QuoteMarket.Crypto }).Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, Of(new StockConfig { ShowMarketState = true }).Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, Of(new StockConfig { ShowMarketState = true, Market = QuoteMarket.Crypto }).Natural.Height);
         Assert.True(((StockConfig)new StockConfig { ShowMarketState = true }.Clone()).ShowMarketState);
         Assert.Equal("Market open", MarketQuote.SessionLine(Themia.Core.Localization.Locale.En, MarketPhase.Open));
         Assert.Equal("Market closed", MarketQuote.SessionLine(Themia.Core.Localization.Locale.En, MarketPhase.Closed));

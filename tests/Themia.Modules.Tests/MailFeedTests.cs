@@ -344,15 +344,16 @@ public class MailFeedTests
         => Assert.Equal(expected, MailLinks.IsLaunchable(link));
 
     [Fact]
-    public void S6403_the_preview_is_the_list_styles_own_line_and_the_fields_are_subject_and_account()
+    public void S6403_S12801_the_preview_is_the_list_styles_own_line_and_the_field_is_the_subject_the_account_a_choice()
     {
         var config = new EmailConfig();
         Assert.True(config.Shows(MailListField.Subject));
         Assert.True(config.ShowsPreview);
-        Assert.True(config.Shows(MailListField.Account));
+        Assert.False(config.Shows(MailListField.Account));
 
         config.Style = EmailStyle.Compact;
         Assert.False(config.ShowsPreview);
+        config.ListFields = [MailListField.Subject, MailListField.Account];
         Assert.True(config.Shows(MailListField.Account));
 
         config.Style = EmailStyle.Table;
@@ -466,7 +467,7 @@ public class MailLayoutTests
     [Fact]
     public void S11402_a_row_shows_its_lines_at_every_size_the_subject_then_the_preview()
     {
-        var config = new EmailConfig { Lines = 3 };
+        var config = new EmailConfig { Lines = 3, ListFields = [MailListField.Subject, MailListField.Account] };
         Assert.Equal(Plan(config, 220, 300) with { ColumnWidth = 0 }, Plan(config, 520, 300) with { ColumnWidth = 0 });
 
         var plan = Plan(config, 300, 300);

@@ -18,7 +18,7 @@ namespace Themia.Widget.DeviceBatteries;
 /// [S-10000] The peripherals' batteries as a kit list ([S-7060]) over the host's one battery source
 /// (<see cref="IWidgetHost.DeviceBatteries"/>, [S-4470]), shaped by <see cref="DeviceBatteriesSpec"/>.
 /// </summary>
-internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
 {
     private const string Scope = "device-batteries";
@@ -48,10 +48,10 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
 
         Children.Add(_binding.List);
         Children.Add(_binding.State);
-    }
 
-    /// <summary>[S-7064] The kit's header: the ring while a read is out.</summary>
-    public FrameworkElement? HeaderTrailing => _binding.Header;
+        // [S-12481] The ring while a read is out, over the content's top end.
+        _binding.Status.Place(this);
+    }
 
     /// <summary>[S-10005] Refresh: read Windows again now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => _binding.CardActions;
@@ -68,7 +68,6 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
     public void Bind(IWidgetSurface surface)
     {
         _surface = surface;
-        _binding.Surface(surface);
     }
 
     public void ApplySize(WidgetArea area) => _binding.Size(area);

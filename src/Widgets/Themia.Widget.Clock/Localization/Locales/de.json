@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Datum anzeigen",
   "clock.offsetLabel": "Zeitverschiebung",
   "clock.secondsLabel": "Sekunden anzeigen",
   "clock.styleAnalog": "Analog",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Zeitzone",
   "clock.tzCurrent": "Aktuell: {city}",
   "locationSearch.placeholder": "Stadt suchen…",
-  "styles.clock.date": "Datum",
   "styles.clock.flip": "Klappzahlen",
   "styles.clock.minimal": "Minimal",
   "styles.clock.words": "In Worten",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Es ist zwanzig vor [n]",
   "wordClock.m45": "Es ist Viertel vor [n]",
   "wordClock.m50": "Es ist zehn vor [n]",
-  "wordClock.m55": "Es ist fünf vor [n]",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Es ist fünf vor [n]"
 }

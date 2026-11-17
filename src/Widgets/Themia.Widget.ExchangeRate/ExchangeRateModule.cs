@@ -33,7 +33,7 @@ public sealed class ExchangeRateModule : IWidgetModule
         Description = ExchangeRateStr.Online_Rates_Desc.Local(),
         Glyph = Glyph,
         Sizing = _ => RatesLayout.Sizing(),
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.None,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 2),
     };

@@ -106,7 +106,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Settings/ (the settings as lines: SettingsMenu*.cs, one builder per section, ViewsMenu, DisplayMenu, AccountsMenu,
   AccountForm, UninstallPlan; SettingsPages: the edit bar's five pages over them; SettingsRows: the row vocabulary)
   Shell/ (EditBarLayout, SelectionPage) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
-  Desktop/ (the desktop layer's rules: DesktopReconcile, DesktopGrid (icons on the widget grid: their box, arrivals,
+  Desktop/ (the desktop layer's rules: DesktopReconcile, DesktopViews (which items each view shows: All, Chosen, None), DesktopGrid (icons on the widget grid: their box, arrivals,
   auto arrange, a drop back), DesktopSelection with DesktopPicks (the locked desktop's one selection of icons and
   cards), DesktopDragOut, DesktopSort, DesktopBackground)
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
@@ -114,7 +114,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
   Model/WidgetGroups.cs (groups: a view's Groups, a widget's Group; the rules), WidgetSelection (units, entered group)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
-                   Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
+                   Kit/ (KitList, KitStatus, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
                    ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
                    UiLanguage, ScrollFade, Notices, the meters' and details' shared views (MeterView,
@@ -240,18 +240,34 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   `LayoutMath` for whole lines), never to choose them; costs are line heights, worst-case text lengths.
   There is no legacy sizing, no tier, no ladder, no size class: `OnePathSizingTests` fail on their
   names. Clock, Memory and Tasks are the references. Check a kind at its min, natural and max (renders,
-  the showcase views). **Relaxed and stretched** ([S-12410], [S-12411], docs/WIDGET-KIT.md 17.4): the
-  descriptor relaxes the stated range (`SizeStretch.Relax`, the sizing's `Room`); in a larger box items
+  the showcase views; "max" is the large check, twice the natural, `SizeStretch.Large`). **Relaxed and stretched**
+  ([S-12410], [S-12411], docs/WIDGET-KIT.md 17.4): the descriptor relaxes the stated range to no practical
+  maximum (`SizeStretch.Relax`: Max = `SizeStretch.Ceiling` on every axis the config does not step; the work
+  area is the bound; the user decides how large); in a larger box items
   stretch to their caps (`ItemStretch`: a row 1.5x, a chart the box, text never) and the rest is spacing;
   rows and fills run to the card's edge (no content inset; text keeps the item's own), a fixed block is
-  centred under the header (`NaturalBlock`). Never a per-widget stretch of its own.
+  centred in its room (`NaturalBlock`). Never a per-widget stretch of its own.
+- **No card header** ([S-12480], [S-12481]; owner 2026-11-16): a card draws its view and nothing over it,
+  no title row, at any size. A title is the **Header** widget (`src/Widgets/Themia.Widget.Header`, [S-9600]),
+  placed and grouped like any widget; every ready-made group starts with one ([S-12485]). What a header
+  carried besides a name lives in the widget's own content: the sources' state as `KitStatus` over the
+  content's top end, tools as a `ToolLine` (the content's first row, counted in the sizing), whole-widget
+  commands on the card menu. Never add a header-like row, title or `SetHeaderTitle`-style hook back.
+  **No context in a widget, no extra band** ([S-12800]..[S-12803]; owner 2026-11-17): a widget never names
+  what a Header over its group says once (place, account, device or host, a list's or feed's name, its own kind's
+  name, "Last 7 days"; the Header holds the shared place, `showsPlace`); what a reading is, its kind's glyph
+  leading it says (meters, graphs). Content stands one inset from every free edge and reaches it: the card gives
+  the top, the view the sides and foot, a joined side through `NaturalBlock`, `IWidgetJoins` or `JoinedSides.Rows`.
+  A one-readout face (clock, date) is planned at its Size's step and scaled up as one to fill its card ([S-12804]);
+  the date is the Date widget's, never the clock's ([S-12805]); a quick toggle has no real minimum ([S-12806]).
 - **Concise first** ([S-666], user rule): a setting may only add more of the widget's own items (rows,
   columns, a larger number, a meter's history) or one closely related detail of them — never a control,
   panel or fact that is another widget's or Windows' job (a device picker, a detail/reading pane, a note
   list, a counts footer, the next days on "weather now").
 - **One family** (SPEC "FAMILY", [S-6700]..[S-6732]; docs/WIDGET-KIT.md 16): a widget is drawn from the
   family's tokens (`FamilyType`, `FamilySpace`, `FamilyShape`, `ColourRole`; `Family.*` in WinUI) and its
-  seven blocks (Header, Row, Readout, Chart, Status, Tile, Controls in `Themia.Sdk.WinUI.Kit`); the design's look tokens
+  seven blocks (Header (the Header widget's only), Row, Readout, Chart, Status, Tile, Controls in `Themia.Sdk.WinUI.Kit`; a
+  tool line `ToolLine`); the design's look tokens
   (`DesignState.Tokens`, `LookTokens`, [S-2130]..[S-2143]: frost, glass, text levels, weights, tracking, surfaces, row
   dividers, rendering mode) reach a widget only through them (`FamilyLook`, `Family.Brush`'s widget keys, the item
   layer), never per widget; the
@@ -266,12 +282,12 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   Refresh; no view or sort switch exists); an `IKitSource` over its host contract (`Read` gives items,
   one `KitOutcome` per source, the title; `Changed`; `Busy`; `Show(refresh)`); a view of a few lines
   that owns a `KitBinding` and forwards to it (`Attach`, `ApplyConfig` to `Apply`, `ApplySize` to
-  `Size`, `Bind` to `Surface`, `HandleKey`, `ContextActions` to `CardActions`, `HeaderTrailing` to
-  `Header`, `Detach` to `Dispose`; children `List` and `State`); its page lines from `KitMenuLines`
+  `Size`, `HandleKey`, `ContextActions` to `CardActions`, `Detach` to `Dispose`; children `List`, `State`
+  and last `Status`, `Status.Place(this)`); its page lines from `KitMenuLines`
   (`Accounts`, `Count`, `Shows`; a free input is the menu's ask or list, [S-3719]). The kit decides the screen (`KitScreens`), the plan
   (`KitPlanner`: the rows, lines and fields the config states), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
   (`KitMenu`, through `ItemMenu`), the stale rule (`KitFreshness`: a problem glyph, the age on the
-  Refresh line, never in the header) and opening (through `IWidgetHost.Launcher` only). A kit view
+  Refresh line, never on the widget) and opening (through `IWidgetHost.Launcher` only). A kit view
   builds no scroll viewer, row focus, menu entry, ring or empty state of its own, and the kit's
   shared code names no service, header or error code (`KitConformanceTests`). Something the kit lacks
   (a row look, page overflow, a lead) is a kit change first, in its own commit with tests.
@@ -311,10 +327,11 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
   is a widget's (its page), a view's (Views), a display's (Display) or Themia's (General, Accounts,
-  Appearance), and that page alone sets it; a lower level that follows it gets a link row
-  (`WidgetMenuLines.Link(SettingLink)`, `SettingsLink`), never a copy, and no widget config holds a format,
-  cadence, theme or language of its own. The guard tests (`S3592_`, `S2306_`) fail on a setting set twice
-  or without a page.
+  Appearance), and that page alone sets it; a lower level that follows it just follows it: no copy and no
+  link row ([S-3749]: the only link rows lead where the user must go to do something, an account to add or
+  manage, `WidgetMenuLines.AccountsLine`), and no widget config holds a format, cadence, theme or language of
+  its own. The guard tests (`S3592_`, `S2306_`) fail on a setting set twice, a widget's link to a setting it
+  follows, or a setting without a page.
 - **The app's settings are the edit bar's pages** ([S-2300]..[S-2309]), never a window. A page is Core
   lines (`SettingsMenu.<Section>.cs`: `SettingsToggle`, `SettingsChoice`, `SettingsSlider`, `SettingsColour`,
   `SettingsSubmenu`, `SettingsCommand`, `SettingsNote`, `SettingsField`, ...) keyed by paths that are the same
@@ -325,7 +342,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   head), every choice, colour, font, icon and lookup an inline picker in its card, never a popup. Every way
   into settings lands on its row (`RequestSettings(key)`, [S-3534]). The pages follow Karpo's (`karpo-app`
   origin/master): every view, display and account is a **thing**, a card that opens in place
-  (`SettingsSubmenu.Card`, its `Caption`, its head's `Tools`, dragged by its grip, [S-2310]), and no line acts
+  (`SettingsSubmenu.Card`, its `Caption`, its head's `Tools`, dragged by its grip, [S-2310]); what opens is scrolled
+  into sight as little as it takes, gliding, as Karpo's (`PageReveal`, [S-2347]); and no line acts
   on "the selected" view, display or account; the Appearance page opens on a live preview of real cards
   ([S-2311]); the styles are Karpo's palettes plus Liquid glass, a card material drawn from Core's values
   (`DesignPresets`, `LiquidGlass`, [S-2122], [S-2123]). `FluentLayout` (`SettingsCard` rows) is
@@ -336,7 +354,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   those `LinkTopics`, `S11906_`), keys through `LinkKeys` only, joins through `WidgetLinks` and draws the one
   look through `LinkLights`/`LinkLook`/`LinkCard` (hover fill; selected fill and accent pill; others at
   0.6 or 0.3). SPEC's topic table is made from the descriptors (`S11907_`).
-- **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
+- **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`. One leading column
+  ([S-12952]): a toggle or choice line shows its check or dot in the icon slot (`MenuMarks.Slot`), never a
+  Toggle/RadioMenuFlyoutItem or AppBarToggleButton (`S12952_` guard).
 - **Widget selection and groups** ([S-1580]..[S-1594], [S-2450]..[S-2458]): edit mode selects units, a
   lone widget or a whole group (a view's `Groups`, a widget's `Group`: a lock over ordinary cards, never
   a card of its own); a second click enters a group (one member, its own handles), Escape steps out.
@@ -347,7 +367,12 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   A group draws no frame or marks of its own ([S-2453]): its members draw their corners (`SelectionRules.MarksOf`,
   [S-2459]), in the accent while selected; a block's move is snapped and whole device pixels ([S-11873]);
   in Liquid glass a group is one glass shape (`CardJoins.Bodies`, [S-2123]); a view whose fill reaches the card's
-  edge takes the card's corners (`IWidgetCorners`, [S-11883]: square where a mate joins). A group
+  edge takes the card's corners (`IWidgetCorners`, [S-11883]: square where a mate joins). **Seams** ([S-12482]..[S-12484]):
+  on a top or foot a mate joins (`CardOutline.Joined`, `JoinedSides`) the content runs to the edge, so the members'
+  items meet: the card drops its top inset there (`WidgetCard.ApplyEdges`), `NaturalBlock` stands a held block
+  against the joined side and drops its foot past the edge, and a view that centres a block or pads its foot itself
+  implements `IWidgetJoins`; the left and the right keep the inset. One rule in the card and family layer, never
+  per widget. A group
   of fewer than two dissolves (load validation and every `Mutate`). Ctrl+G / Ctrl+Shift+G, the card
   menu and the selection page's header card group and ungroup. Everything that produces or moves widgets is the one placement session
   (`PlacementPayload`: a new widget, a ready-made group, a copy, a move).
@@ -372,10 +397,15 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   (with the selection it is in, whole groups as in edit mode: `WidgetGroups.Units`, [S-11885]), snapped, the local
   grid round where it lands (`LocalGrid`: a faint rectangle fading out of the box, [S-11886]) with the moving and nearby cards' corner
   marks ([S-11881]); edit mode never turns
-  on by a drag; with Keep widgets from overlapping on, every move (both modes, keys too) goes through
+  on by a drag; **Lock widgets** ([S-12950], [S-12951]; its home General › Desktop icons, the menus' line under Edit
+  mode flips it) keeps every widget where it is outside edit mode, icons alone move (`WidgetLock`: a mixed selection
+  moves its icons, a group holding a widget stays whole; edit mode moves everything); with Keep widgets from overlapping on, every move (both modes, keys too) goes through
   `BlockGeometry.Apart` ([S-11959]). Edit mode is entered and left by one checked menu line, **Edit mode** ([S-65]). Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
   an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`). One
-  selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them.
+  selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them. A
+  selected icon shows its highlight alone; its corners only in edit mode and a move ([S-11889]). Ctrl+Z / Ctrl+Y
+  on the desktop step the one history; a desktop delete's step puts its items back from the Recycle Bin
+  (`DesktopDeleteStep`, an `IUndoEffect` the undo log carries both ways, [S-5597]).
 - **Item selection** (files: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
   A desktop icon is one kind, `desktopItem`, with two sources ([S-5600]): a desktop item (a key, the
@@ -383,18 +413,20 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   ([S-5540], keys by `DesktopItemKeys.Of`), drawn in the SDK's one cell (`DesktopCell`, at the desktop's one
   icon size, [S-5593]: a preference the host puts in force, never an icon's own) with the highlight
   behind the whole cell in its own palette (`SelectionLook.DesktopIcon`); what a command does to a selection
-  of both is the SDK's `DesktopCommands` ([S-5580]..[S-5587]). The kind states
+  of both is the SDK's `DesktopCommands` ([S-5580]..[S-5587]). Which desktop items a view shows is that view's setting,
+  **Desktop icons** (All, Chosen, None; in its card on the Views page), and its rules are Core's `DesktopViews`
+  ([S-5525]..[S-5529]): a new item arrives on every All view, never on a Chosen or None one. The kind states
   `WidgetTraits.StartsTransparent` to start on no card.
 - **The selection's page** ([S-2340]..[S-2343]): selecting widgets adds their entry to the bar ("Clock",
   "2 × Clock", "3 widgets") and opens its flyout once per selection, when the pointer lets go of the widget
   (a click, the end of a drag or resize; never over a widget still moving): a header card (the kind's tile, the
   name, Cut / Copy / Remove), then two tabs ([S-2345], `SelectionPage.Tabs`, the one tab component
-  `PageTabButton`): Settings (What it shows, Header) and Appearance. Every option a widget has lives
+  `PageTabButton`): Settings (What it shows) and Appearance. Every option a widget has lives
   there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines, config)` adds
   `Lines` and `StyleLines` (under the Style picker, what `config.Offers` says the look draws) as
   `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`,
   `Ask` (its line `Asks: true`), `Confirm`, `Note`, `List` (its items dragged or Ctrl+Up/Down to reorder),
-  `PickFolder`, a link row `LinkTo`), separators between its groups, and marks the line the Set up button
+  `PickFolder`, a link row `LinkTo` (to the accounts only, [S-3749])), separators between its groups, and marks the line the Set up button
   opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` turns each into the page's row of its kind. An
   Ask or a Confirm is a page of its own. The desktop icon (an own icon's lines, `OwnIconMenu`) and Clock are the references; docs/WIDGET-KIT.md 15 is
   the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Size, Rows) is an

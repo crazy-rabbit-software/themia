@@ -15,7 +15,7 @@ using Themia.Widget.StockHistory;
 
 namespace Themia.Widget.StockHistory;
 
-/// <summary>[S-11165] One instrument's price over its period as a chart, headerless by default. SPEC.md beside this file.</summary>
+/// <summary>[S-11165] One instrument's price over its period as a chart. SPEC.md beside this file.</summary>
 public sealed class StockHistoryModule : IWidgetModule
 {
     /// <summary>[S-11166] The chart's band under the inset: its least, a new card's and its most.</summary>
@@ -37,12 +37,12 @@ public sealed class StockHistoryModule : IWidgetModule
         Description = StockHistoryStr.StockHistory_Desc.Local(),
         Glyph = Glyphs.ScreenTimeChart,
         Sizing = _ => Sizing(),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 1),
     };
 
-    /// <summary>[S-11166] The chart edge to edge under the inset (headerless): 200..480 wide, its band 64..240 tall.</summary>
+    /// <summary>[S-11166] The chart edge to edge under the inset: 200..480 wide, its band 64..240 tall.</summary>
     internal static WidgetSizing Sizing()
         => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
 
@@ -58,8 +58,6 @@ public sealed class StockHistoryModule : IWidgetModule
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(StockQuoteLines.Period(menu, config));
         menu.Lines.Add(menu.Toggle(null, StockHistoryStr.Stocks_ShowMinMax.Text(), config.ShowMinMax, on => config.ShowMinMax = on));
-        menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(StockQuoteLines.Updates(menu));
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new StockHistoryView(host);

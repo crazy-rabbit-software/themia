@@ -33,7 +33,7 @@ public sealed class VideoStreamModule : IWidgetModule
         Glyph = Glyph,
         Sizing = c => VideoStreamSizing.Sizing((VideoStreamConfig)c),
         SizeSets = (c, size) => VideoStreamSizing.SizeSets((VideoStreamConfig)c, size),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 1, 1),
     };
 

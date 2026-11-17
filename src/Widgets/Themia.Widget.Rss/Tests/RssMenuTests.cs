@@ -39,12 +39,11 @@ public sealed class RssMenuTests
                 Str.Kit_Rows.Text(),
                 Str.Kit_Lines.Text(),
                 Str.Kit_Columns.Text(),
-                Str.EditBar_Link_UpdateInterval.Text(),
             ],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
 
-        // [S-3749] How often the feeds are asked is ⚙'s: a link, never a setting of the widget's.
-        Assert.Equal(Str.SettingsMenu_OnlineUpdates.Text(), lines.Lines[^1].LinkTo);
+        // [S-3590] How often the feeds are asked is ⚙'s: followed, no link row ([S-3749]).
+        Assert.DoesNotContain(lines.Lines, l => l.LinkTo is not null);
         Assert.Empty(lines.StyleLines);
     }
 

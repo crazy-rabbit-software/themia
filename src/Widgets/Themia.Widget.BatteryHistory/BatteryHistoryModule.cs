@@ -37,7 +37,7 @@ public sealed class BatteryHistoryModule : IWidgetModule
         Description = BatteryHistoryStr.BatteryHistory_Desc.Local(),
         Glyph = Glyphs.Battery,
         Sizing = _ => MeterSizing.History,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.BatteryReading, 0, 1),
     };

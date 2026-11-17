@@ -21,7 +21,7 @@ public static class DriveFace
     /// <summary>The used share's widest case.</summary>
     public static readonly ReadoutText Worst = new("100", "%");
 
-    /// <summary>The Bar style's one height: the header, the share and its line, 8, the bar, the inset.</summary>
+    /// <summary>The Bar style's one height: the inset, the share and its line, 8, the bar, the inset.</summary>
     public static double BarHeight => FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilyType.Caption.LineHeight + FamilySpace.S2 + FamilyShape.Track + FamilySpace.Inset;
 
     /// <summary>Under the ring: 8, then the space line (Body).</summary>

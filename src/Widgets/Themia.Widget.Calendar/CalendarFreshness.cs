@@ -6,7 +6,7 @@ namespace Themia.Widget.Calendar;
 /// <summary>
 /// [S-3651] The calendar's one stale rule ([S-7042]): each account whose last sync could not
 /// improve on the events held is a kit outcome — named by its label, in the kit's failure
-/// vocabulary, stamped with when its events are from — so the header's problem glyph says it as
+/// vocabulary, stamped with when its events are from — so the problem glyph says it as
 /// every kit widget does and the Refresh line carries the age.
 /// </summary>
 public static class CalendarFreshness

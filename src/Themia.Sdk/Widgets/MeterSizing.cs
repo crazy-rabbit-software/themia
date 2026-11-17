@@ -81,6 +81,7 @@ public static class MeterSizing
     /// </summary>
     public static WidgetSizing Reading(MeterLook look, ReadoutText worst, int rows = 1)
     {
+        worst = Identified(look, worst);
         var reading = ReadingWidth(worst);
         var top = FamilySpace.ContentTop;
         var foot = FamilySpace.Inset;
@@ -142,6 +143,16 @@ public static class MeterSizing
             }
         }
     }
+
+    /// <summary>
+    /// [S-12801] Whether a reading in <paramref name="look"/> leads with a glyph: its kind's (what it measures, so a bare
+    /// "31 %" in a group says it is the processor's, the Header widget naming the group), the battery's level, the
+    /// Numbers look's arrows; not where the look draws the charge itself (the battery's body, the ring).
+    /// </summary>
+    public static bool Leads(MeterLook look) => look is not (MeterLook.Battery or MeterLook.Ring);
+
+    /// <summary>[S-12801] The widest reading as <paramref name="look"/> draws it: with its lead glyph where it <see cref="Leads"/>.</summary>
+    public static ReadoutText Identified(MeterLook look, ReadoutText worst) => worst with { Lead = Leads(look) };
 
     private static WidgetSizing Dial(double least, double start, Func<double, double> height)
     {

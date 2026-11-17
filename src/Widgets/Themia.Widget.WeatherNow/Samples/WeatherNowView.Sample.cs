@@ -21,7 +21,6 @@ internal sealed partial class WeatherNowView : IWidgetSample
     private Fetched<CurrentWeather> SamplePlaceReading()
     {
         _config = new WeatherNowConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName, Style = _config.Style };
-        PublishPlace();
         return new Fetched<CurrentWeather>(FetchStatus.Ok, SampleWeather.Reading(), null, SampleDay.MinutesAgo(4));
     }
 }

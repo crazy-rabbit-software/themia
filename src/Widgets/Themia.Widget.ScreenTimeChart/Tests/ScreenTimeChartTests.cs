@@ -15,13 +15,12 @@ public sealed class ScreenTimeChartTests
     public void S11505_the_bars_are_one_height_in_the_inset_their_end_labels_under_them()
     {
         var sizing = Kind.Sizing(new ScreenTimeChartConfig());
-        var height = FamilySpace.Inset + ScreenTimeChartLayout.BarHeight + FamilySpace.S1 + FamilyType.Caption.LineHeight + FamilySpace.Inset;
+        var height = FamilySpace.Inset + ScreenTimeChartLayout.DayLine(ScreenTimePeriod.Week) + ScreenTimeChartLayout.BarHeight + FamilySpace.S1 + FamilyType.Caption.LineHeight + FamilySpace.Inset;
         Assert.Equal(new SizeDip(300, height), sizing.Natural);
-        Assert.Equal((200, 600), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: 300 x 2
+        Assert.Equal((200d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(SizeStretch.Axis(height, 0, null, 2), sizing.Max.Height);
+        Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
         Assert.Null(Kind.SizeSets);
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
 
         // A month's bars are as tall as a week's.
         Assert.Equal(sizing, Kind.Sizing(new ScreenTimeChartConfig { Period = ScreenTimePeriod.Month }));
@@ -36,7 +35,7 @@ public sealed class ScreenTimeChartTests
         Assert.True(ScreenTimeChartLayout.Cell >= FamilyShape.Icon);
 
         double Height(ScreenTimePeriod period) => Kind.Sizing(new ScreenTimeChartConfig { Style = ScreenTimeChartStyle.Calendar, Period = period }).Natural.Height;
-        var top = FamilySpace.Inset + FamilyType.Caption.LineHeight + FamilySpace.S1;
+        var top = FamilySpace.Inset + ScreenTimeChartLayout.DayLine(ScreenTimePeriod.Week) + FamilyType.Caption.LineHeight + FamilySpace.S1;
         Assert.Equal(top + ScreenTimeChartLayout.Cell + FamilySpace.Inset, Height(ScreenTimePeriod.Week));
         Assert.Equal(top + (5 * ScreenTimeChartLayout.Cell) + (4 * FamilySpace.S1) + FamilySpace.Inset, Height(ScreenTimePeriod.Month));
 

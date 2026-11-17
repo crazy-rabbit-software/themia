@@ -15,7 +15,7 @@ public sealed partial class DesktopLayerTests
     }
 
     [Fact]
-    public void S5591_the_reconcile_lands_a_spotted_arrival_in_its_view_at_its_point()
+    public void S5591_S5526_the_reconcile_lands_a_spotted_arrival_in_its_view_at_its_point_and_on_every_other_all_view()
     {
         var state = TwoViews(out var home, out var work);
         var screen = new ScreenMetrics(1000, 1000) { Allowed = new FracRect(0, 0, 1, 1) };
@@ -23,14 +23,17 @@ public sealed partial class DesktopLayerTests
 
         // The arrivals come in DesktopItemOrder (other.txt, photo.jpg): photo.jpg was dropped on the display showing Work.
         var unplaced = DesktopReconcile.Apply(
-            state, plan, home.Id, screen, (100, 250), Create,
+            state, plan, screen, (100, 250), Create,
             [null, new DesktopLandingSpot(work.Id, 0.55, 0.3)],
             _ => screen);
 
         Assert.Empty(unplaced);
-        Assert.Equal([Desk + "other.txt"], Keys(home));
-        Assert.Equal([Desk + "photo.jpg"], Keys(work));
+
+        // [S-5526] Both views show all desktop icons: each gets both, photo.jpg at its point on Work only.
+        Assert.Equal([Desk + "other.txt", Desk + "photo.jpg"], Keys(home));
+        Assert.Equal([Desk + "other.txt", Desk + "photo.jpg"], Keys(work));
         // [S-11876] Centred on the point (its corner at 0.5, 0.175), on the widget grid's lines.
-        NearRect(new FracRect(0.5, 0.18, 0.1, 0.25), Assert.Single(work.Widgets).Rect);
+        NearRect(new FracRect(0.5, 0.18, 0.1, 0.25), work.Widgets[1].Rect);
+        Assert.Equal(home.Widgets[0].Rect.Y, home.Widgets[1].Rect.Y, 9); // beside other.txt on Home, at its first free spot
     }
 }

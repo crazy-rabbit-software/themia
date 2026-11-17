@@ -18,9 +18,9 @@ public sealed class ScreenTimeDonutTests
     public void S11515_each_size_is_one_card_round_its_ring(ReadoutSize size, double ring)
     {
         var sizing = Kind.Sizing(new ScreenTimeDonutConfig { Size = size });
-        Assert.Equal(new SizeDip(ring + (2 * FamilySpace.Inset), FamilySpace.ContentTop + ring + FamilySpace.Inset), sizing.Natural);
+        Assert.Equal(new SizeDip(ring + (2 * FamilySpace.Inset), FamilySpace.ContentTop + ScreenTimeDonutLayout.DayLine(ScreenTimePeriod.Day) + ring + FamilySpace.Inset), sizing.Natural);
         Assert.Equal(sizing.Min, sizing.Natural);
-        Assert.Equal(new SizeDip(SizeStretch.Axis(sizing.Natural.Width, 0, null, 2), SizeStretch.Axis(sizing.Natural.Height, 0, null, 2)), sizing.Max); // relaxed, [S-12411]
+        Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), sizing.Max); // relaxed, [S-12411]
 
         var plan = ScreenTimeDonutLayout.Donut(size);
         Assert.Equal((ring, FamilyShape.Track, ring - (2 * FamilyShape.Track)), (plan.Ring, plan.Thickness, plan.Hole));

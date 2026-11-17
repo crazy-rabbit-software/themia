@@ -34,7 +34,7 @@ public sealed class BatteryFactsModule : IWidgetModule
         Glyph = Glyphs.Battery,
         Sizing = c => FactsRules.Sizing((FactsConfig)c),
         SizeSets = FactsRules.SizeSets,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.BatteryReading, 0, 2),
     };
 

@@ -79,7 +79,7 @@ public sealed class EmailMenuTests
     [Fact]
     public void S7512_a_line_turned_off_keeps_the_others_in_their_order()
     {
-        var config = new EmailConfig();
+        var config = new EmailConfig { ListFields = [MailListField.Subject, MailListField.Account] };
         Line(Build(config).StyleLines, EmailStr.WidgetsB_Settings_Email_ShowSubject.Text()).Action!();
 
         Assert.Equal([MailListField.Account], config.ListFields);

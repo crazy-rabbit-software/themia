@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Tampilkan tanggal",
   "clock.offsetLabel": "Selisih",
   "clock.secondsLabel": "Tampilkan detik",
   "clock.styleAnalog": "Analog",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Zona waktu",
   "clock.tzCurrent": "Saat ini: {city}",
   "locationSearch.placeholder": "Cari kota…",
-  "styles.clock.date": "Tanggal",
   "styles.clock.flip": "Flip",
   "styles.clock.minimal": "Minimalis",
   "styles.clock.words": "Kata-kata",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Jam [n] kurang dua puluh",
   "wordClock.m45": "Jam [n] kurang seperempat",
   "wordClock.m50": "Jam [n] kurang sepuluh",
-  "wordClock.m55": "Jam [n] kurang lima",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Jam [n] kurang lima"
 }

@@ -3,6 +3,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
+using Themia.Sdk;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -76,6 +77,12 @@ public sealed class ViewsMenuTests
         public void Show(string viewId) => Log.Add("show " + viewId);
 
         public void Confirm(SettingsConfirm confirm) => Asked.Add(confirm);
+
+        public IReadOnlyList<DesktopItem> DesktopItems { get; set; } = [];
+
+        public void SetDesktopIcons(string viewId, ViewDesktopIcons value) => Log.Add($"icons {viewId} {value}");
+
+        public void ShowDesktopItem(string viewId, string key, bool shown) => Log.Add($"{(shown ? "show" : "hide")} {key} on {viewId}");
     }
 
     private static readonly string Work = ViewsMenu.Keys.View("work");
@@ -140,7 +147,7 @@ public sealed class ViewsMenuTests
     {
         var keys = Card(new FakeHost(), "work").Lines.Select(l => l is SettingsSeparator ? "-" : l.Key);
 
-        Assert.Equal([ViewsMenu.Keys.Name("work"), ViewsMenu.Keys.Icon("work"), ViewsMenu.Keys.Colour("work"), "-", ViewsMenu.Keys.Show("work")], keys);
+        Assert.Equal([ViewsMenu.Keys.Name("work"), ViewsMenu.Keys.Icon("work"), ViewsMenu.Keys.Colour("work"), "-", ViewsMenu.Keys.DesktopIcons("work"), "-", ViewsMenu.Keys.Show("work")], keys);
         Assert.DoesNotContain(Card(new FakeHost(), "work").Lines, l => l is SettingsSubmenu);
     }
 
@@ -303,5 +310,57 @@ public sealed class ViewsMenuTests
 
         host.State.MonitorViews.Remove(Here);
         Assert.Equal("home", ViewsMenu.ShownOn(host.State, Here));
+    }
+
+    [Fact]
+    public void S5529_a_views_card_chooses_its_desktop_icons_all_chosen_or_none()
+    {
+        var host = new FakeHost();
+        var choice = In<SettingsChoice>(host, "work", ViewsMenu.Keys.DesktopIcons("work"));
+
+        Assert.Equal(Str.Desktop_ViewIcons_Label.Text(), choice.Text);
+        Assert.Equal([Str.Desktop_ViewIcons_All.Text(), Str.Desktop_ViewIcons_Chosen.Text(), Str.Desktop_ViewIcons_None.Text()], choice.Options.Select(o => o.Text));
+        Assert.Equal(Str.Desktop_ViewIcons_All.Text(), choice.Value);
+
+        choice.Options[2].Pick();
+        Assert.Equal(["icons work None"], host.Log);
+
+        // While All (or None) there is no list.
+        Assert.DoesNotContain(Card(host, "work").Lines, l => l.Key == ViewsMenu.Keys.ChosenIcons("work"));
+    }
+
+    [Fact]
+    public void S5529_a_chosen_view_lists_the_desktops_items_to_tick_on_a_page_of_its_own()
+    {
+        const string Desk = @"C:\Users\a\Desktop\";
+        var host = new FakeHost
+        {
+            DesktopItems =
+            [
+                new(Desk + "z.txt", "z.txt", DesktopItemKind.File),
+                new(Desk + "Projects", "Projects", DesktopItemKind.Folder),
+                new("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "This PC", DesktopItemKind.ShellItem),
+            ],
+        };
+        var work = host.State.FindView("work")!;
+        work.DesktopIcons = ViewDesktopIcons.Chosen;
+        work.Widgets.Add(new WidgetInstance { Id = "z", Config = new DeskIconFake { Item = Desk + "z.txt" }, Rect = new FracRect(0, 0, 0.1, 0.1) });
+
+        var list = In<SettingsSubmenu>(host, "work", ViewsMenu.Keys.ChosenIcons("work"));
+
+        Assert.True(list.Page);
+        Assert.Equal(Str.Desktop_ViewIcons_Count.Format(("shown", "1"), ("all", "3")), list.Value);
+        var ticks = list.Lines.Cast<SettingsToggle>().ToList();
+        Assert.Equal(["This PC", "Projects", "z.txt"], ticks.Select(t => t.Text));
+        Assert.Equal([false, false, true], ticks.Select(t => t.On));
+        Assert.Equal(ViewsMenu.Keys.ChosenIcon("work", Desk + "Projects"), ticks[1].Key);
+
+        ticks[1].Set(true);
+        ticks[2].Set(false);
+        Assert.Equal([$"show {Desk}Projects on work", $"hide {Desk}z.txt on work"], host.Log);
+
+        // Nothing on the desktop: one note says so.
+        host.DesktopItems = [];
+        Assert.IsType<SettingsNote>(Assert.Single(In<SettingsSubmenu>(host, "work", ViewsMenu.Keys.ChosenIcons("work")).Lines));
     }
 }

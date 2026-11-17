@@ -13,7 +13,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-2133] [S-2137] [S-2140] The card's share of the look tokens (<see cref="LookTokens"/>) past its fill, border and
-/// glass: the accent mixed into its default card, the grain over its material, and its header name's level and case.
+/// glass: the accent mixed into its default card and the grain over its material.
 /// The rest of the tokens reach the card through the family (its text levels, type, tracks and rows) and the item layer
 /// (its surfaces); the glass's through <see cref="LiquidGlass.For(bool, LookTokens, RgbColor?)"/>.
 /// </summary>
@@ -72,24 +72,5 @@ internal sealed partial class WidgetCard
         {
             _grain.Background = null;
         }
-
-        ApplyHeaderLook();
-    }
-
-    /// <summary>[S-2137] The header's name in the design's level (secondary, the family's own, or primary) and case.</summary>
-    private void ApplyHeaderLook()
-    {
-        var tokens = _host.Design.Tokens ?? new LookTokens();
-        _headerTitle.Foreground = Family.Brush(tokens.HeaderTone == HeaderTone.Primary ? ColourRole.TextPrimary : ColourRole.TextSecondary);
-        _headerTitle.Text = HeaderName();
-    }
-
-    /// <summary>[S-2137] The header's name: the user's own label, else what the view knows of itself, else the catalogue's; in capitals when the design says so.</summary>
-    private string HeaderName()
-    {
-        var name = !string.IsNullOrWhiteSpace(Model.Label) ? Model.Label
-            : !string.IsNullOrWhiteSpace(_viewTitle) ? _viewTitle
-            : ModuleCatalog.Of(Model.Kind).Name;
-        return _host.Design.Tokens?.HeaderCase == HeaderCase.Upper ? name.ToUpperInvariant() : name;
     }
 }

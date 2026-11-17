@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Datum weergeven",
   "clock.offsetLabel": "Verschil",
   "clock.secondsLabel": "Seconden weergeven",
   "clock.styleAnalog": "Analoog",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Tijdzone",
   "clock.tzCurrent": "Huidig: {city}",
   "locationSearch.placeholder": "Plaats zoeken…",
-  "styles.clock.date": "Datum",
   "styles.clock.flip": "Flipklok",
   "styles.clock.minimal": "Minimaal",
   "styles.clock.words": "In woorden",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Het is tien over half [n]",
   "wordClock.m45": "Het is kwart voor [n]",
   "wordClock.m50": "Het is tien voor [n]",
-  "wordClock.m55": "Het is vijf voor [n]",
-  "widgetsA.clock.date": "{weekday} {date}"
+  "wordClock.m55": "Het is vijf voor [n]"
 }

@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// <c>GalleryView.Commands.cs</c>.
 /// </para>
 /// </summary>
-internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions, IWidgetKeys, IWidgetTopEdge
 {
     /// <summary>[S-5700] It owns its top edge: the pictures run edge to edge.</summary>
@@ -46,7 +46,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     /// </summary>
     private GalleryConfig _applied = new();
 
-    /// <summary>The card this view draws on, which owns the header it names.</summary>
+    /// <summary>The card this view draws on: its id for the slide kept across a rebuild, its links.</summary>
     private IWidgetSurface? _surface;
 
     /// <summary>The validated path of whichever local source is configured (the folder or the file).</summary>
@@ -104,12 +104,6 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
         }
     }
 
-    /// <summary>
-    /// The "3/12" counter, in the card's header. Built in the constructor because the card reads
-    /// this once, when it builds that header.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => _header;
-
     private IGalleries? Service => _widgetHost.Gallery;
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -130,7 +124,6 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     public void Bind(IWidgetSurface surface)
     {
         _surface = surface;
-        PublishTitle();
     }
 
     public void ApplyConfig(WidgetConfig config)
@@ -139,7 +132,6 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
         var previous = _applied;
         _config = next;
         _applied = (GalleryConfig)next.Clone();
-        PublishTitle();
 
         if (!_attached || _detached)
         {
@@ -350,23 +342,5 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
         _watch = null;
 
         DetachParts();
-    }
-
-    /// <summary>
-    /// Tell the card what this widget is about. The catalogue can only say "Gallery"; the widget
-    /// knows which folder — and on a desktop holding three of them, that is the only thing telling
-    /// them apart. [S-2760] A single file keeps the catalogue label: the picture's own name is
-    /// never shown.
-    /// </summary>
-    private void PublishTitle()
-    {
-        var title = _config.Source switch
-        {
-            GallerySource.Bing => GalleryStr.WidgetsB_Gallery_PhotoOfTheDay.Text(),
-            GallerySource.File => null,
-            _ => FolderPath.DisplayName(_config.Path),
-        };
-
-        _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
     }
 }

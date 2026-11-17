@@ -1,3 +1,4 @@
+using Themia.Core.Model;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 
@@ -29,10 +30,13 @@ public static class ScreenTimeDonutLayout
         return new ScreenTimeDonutPlan(ring, thickness, ring - (2 * thickness), ReadoutSizes.Normalise(size) == ReadoutSize.Large ? FamilyType.Big40 : FamilyType.Big28);
     }
 
-    /// <summary>[S-11515] One size by the Size, with its header: the ring in the card's 12 inset at the sides and the foot.</summary>
-    public static WidgetSizing Sizing(ReadoutSize size)
+    /// <summary>[S-454] [S-12481] [S-12803] The day line over the ring for a day (its line and the gap under it), none for a window.</summary>
+    public static double DayLine(ScreenTimePeriod period) => ScreenTimeRules.DayLine(period);
+
+    /// <summary>[S-11515] One size by the Size: its day line, the ring in the card's 12 inset at the sides and the foot.</summary>
+    public static WidgetSizing Sizing(ReadoutSize size, ScreenTimePeriod period)
     {
         var ring = Ring(size);
-        return WidgetSizing.Fixed(new(ring + (2 * FamilySpace.Inset), FamilySpace.ContentTop + ring + FamilySpace.Inset));
+        return WidgetSizing.Fixed(new(ring + (2 * FamilySpace.Inset), FamilySpace.ContentTop + DayLine(period) + ring + FamilySpace.Inset));
     }
 }

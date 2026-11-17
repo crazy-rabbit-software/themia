@@ -438,7 +438,7 @@ public sealed partial class ModuleConformanceTests
     {
         string[] expected =
         [
-            "clock", "alarm", "countdown", "stopwatch", "pomodoro", "focusSession",
+            "clock", "date", "alarm", "countdown", "stopwatch", "pomodoro", "focusSession",
             "airplaneModeToggle", "bluetoothToggle", "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "gameModeToggle",
             "microphoneToggle", "monoAudioToggle", "nightLightToggle", "rotationLockToggle", "soundToggle", "spatialSoundToggle", "wifiToggle",
             "hibernate", "lock", "restart", "screenOff", "shutdown", "signOut", "sleep",

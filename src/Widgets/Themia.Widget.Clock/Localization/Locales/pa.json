@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "ਮਿਤੀ ਦਿਖਾਓ",
   "clock.offsetLabel": "ਅੰਤਰ",
   "clock.secondsLabel": "ਸਕਿੰਟ ਦਿਖਾਓ",
   "clock.styleAnalog": "ਐਨਾਲਾਗ",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "ਸਮਾਂ ਖੇਤਰ",
   "clock.tzCurrent": "ਮੌਜੂਦਾ: {city}",
   "locationSearch.placeholder": "ਸ਼ਹਿਰ ਖੋਜੋ…",
-  "styles.clock.date": "ਤਾਰੀਖ",
   "styles.clock.flip": "ਫਲਿੱਪ",
   "styles.clock.minimal": "ਸਾਦਾ",
   "styles.clock.words": "ਸ਼ਬਦ",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[n] ਵੱਜਣ ਵਿੱਚ ਵੀਹ ਮਿੰਟ ਹਨ",
   "wordClock.m45": "ਪੌਣੇ [n] ਵੱਜੇ ਹਨ",
   "wordClock.m50": "[n] ਵੱਜਣ ਵਿੱਚ ਦਸ ਮਿੰਟ ਹਨ",
-  "wordClock.m55": "[n] ਵੱਜਣ ਵਿੱਚ ਪੰਜ ਮਿੰਟ ਹਨ",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "[n] ਵੱਜਣ ਵਿੱਚ ਪੰਜ ਮਿੰਟ ਹਨ"
 }

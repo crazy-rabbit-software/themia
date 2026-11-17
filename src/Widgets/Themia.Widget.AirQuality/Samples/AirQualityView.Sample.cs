@@ -36,7 +36,6 @@ internal sealed partial class AirQualityView : IWidgetSample
     internal void HoldSample(Fetched<AirReading>? reading, FetchStatus status)
     {
         _config = new AirQualityConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName, Style = _config.Style, Scale = _config.Scale };
-        PublishPlace();
         _feed.Preview(reading, status);
     }
 }

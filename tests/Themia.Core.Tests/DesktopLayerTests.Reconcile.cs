@@ -37,13 +37,14 @@ public sealed partial class DesktopLayerTests
     private static IEnumerable<string> Keys(ViewState view) => view.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item);
 
     [Fact]
-    public void S5520_a_new_file_lands_in_the_target_view_only_at_the_first_free_cell()
+    public void S5520_S5526_a_new_file_lands_on_the_all_view_at_the_first_free_cell_never_on_a_chosen_one()
     {
         var state = TwoViews(out var home, out var work);
+        work.DesktopIcons = ViewDesktopIcons.Chosen;
         var listing = new[] { File("b.txt"), File("a.txt") };
 
         var plan = DesktopReconcile.Plan(state, listing, []);
-        var unplaced = DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+        var unplaced = DesktopReconcile.Apply(state, plan, Screen, (90, 100), Create);
 
         Assert.Empty(unplaced);
         Assert.Equal([Desk + "a.txt", Desk + "b.txt"], Keys(home));
@@ -72,7 +73,7 @@ public sealed partial class DesktopLayerTests
         state.Desktop.Known = [Desk + "gone.txt", Desk + "kept.txt"];
 
         var plan = DesktopReconcile.Plan(state, [File("kept.txt")], []);
-        DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+        DesktopReconcile.Apply(state, plan, Screen, (90, 100), Create);
 
         Assert.Empty(home.Widgets);
         Assert.Equal(["kept.txt", null], work.Widgets.Select(w => (w.Config as IDesktopItemConfig)?.Item.Replace(Desk, string.Empty, StringComparison.Ordinal)));
@@ -89,7 +90,7 @@ public sealed partial class DesktopLayerTests
         state.Desktop.Known = [Desk + "old.txt"];
 
         var plan = DesktopReconcile.Plan(state, [File("new.txt")], [(Desk + "old.txt", Desk + "new.txt")]);
-        DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+        DesktopReconcile.Apply(state, plan, Screen, (90, 100), Create);
 
         Assert.Equal([Desk + "new.txt"], Keys(home));
         Assert.Equal(where, home.Widgets[0].Rect);
@@ -105,7 +106,7 @@ public sealed partial class DesktopLayerTests
         state.Desktop.Known = [Desk + "old.txt"];
 
         var plan = DesktopReconcile.Plan(state, [], [(Desk + "old.txt", @"C:\Users\a\Documents\old.txt")]);
-        DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+        DesktopReconcile.Apply(state, plan, Screen, (90, 100), Create);
 
         Assert.Empty(home.Widgets);
         Assert.Empty(state.Desktop.Known);
@@ -130,7 +131,7 @@ public sealed partial class DesktopLayerTests
         var state = TwoViews(out _, out _);
 
         var plan = DesktopReconcile.Plan(state, [File("a.txt")], []);
-        DesktopReconcile.Apply(state, plan, targetViewId: null, Screen, (90, 100), Create);
+        DesktopReconcile.Apply(state, plan, default, (90, 100), Create);
 
         Assert.Empty(state.Desktop.Known);
         Assert.Single(DesktopReconcile.Plan(state, [File("a.txt")], []).Arrivals);
@@ -147,7 +148,7 @@ public sealed partial class DesktopLayerTests
         home.Widgets.Add(new WidgetInstance { Id = "wall", Config = new OtherConfig(), Rect = new FracRect(0, 0, 1, 1) });
 
         var plan = DesktopReconcile.Plan(state, [File("a.txt")], []);
-        var unplaced = DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+        var unplaced = DesktopReconcile.Apply(state, plan, Screen, (90, 100), Create);
 
         Assert.Equal([Desk + "a.txt"], unplaced.Select(i => i.Key));
         Assert.Single(home.Widgets);
@@ -174,7 +175,7 @@ public sealed partial class DesktopLayerTests
         Assert.DoesNotContain(waiting.Id, plan.Gone);
         Assert.DoesNotContain(layout.Id, plan.Gone);
 
-        DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+        DesktopReconcile.Apply(state, plan, Screen, (90, 100), Create);
 
         Assert.Equal([own, waiting], home.Widgets);
         Assert.Equal(2, work.Widgets.Count);
@@ -204,7 +205,7 @@ public sealed partial class DesktopLayerTests
         Assert.Empty(plan.Gone);
         Assert.Equal([Desk + "new.txt"], plan.Arrivals.Select(i => i.Key));
 
-        DesktopReconcile.Apply(state, plan, home.Id, Screen, (90, 100), Create);
+        DesktopReconcile.Apply(state, plan, Screen, (90, 100), Create);
 
         Assert.Equal(Desk + "old.txt", ((DeskIconFake)own.Config).Target);
         Assert.Equal(string.Empty, ((DeskIconFake)own.Config).Item);

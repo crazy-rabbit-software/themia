@@ -511,9 +511,9 @@ public sealed partial class MeterView
 
         Padding = default;
 
-        // The reading's content box: the side insets and the foot's (the header stands above the view).
+        // The reading's content box: the side insets and the foot's, none where a group mate joins ([S-12483]).
         var width = Math.Max(0, _area.Width - (2 * FamilySpace.Inset));
-        var height = Math.Max(0, _area.Height - FamilySpace.Inset);
+        var height = Math.Max(0, _area.Height - _joins.Foot);
 
         if (atom == MeterAtom.History)
         {
@@ -599,8 +599,9 @@ public sealed partial class MeterView
 
     /// <summary>
     /// [S-12410] A reading's block is drawn at its natural size (its battery or bars up to their most): what a
-    /// larger box has beyond it is spacing, the block standing in the middle of the room under the header
-    /// with its foot's inset kept under it, never huddled at the top. At its natural box this is none. A
+    /// larger box has beyond it is spacing, the block standing in the middle of the room with its foot's inset
+    /// kept under it, never huddled at the top; [S-12483] against a side a group mate joins, so it meets its
+    /// mate. At its natural box this is none. A
     /// dial grows to its box and a reading's rows of bars stretch, so they take none. Padding on the view
     /// itself, never its alignment: the card measures the view's own box as its area ([S-663]).
     /// </summary>
@@ -614,7 +615,7 @@ public sealed partial class MeterView
             _ => MeterSizing.Line,
         };
 
-        return Math.Max(0, Math.Floor((height - block) / 2));
+        return _joins.Above(height - block);
     }
 
     /// <summary>[S-11003] The gauge or the ring as large as the content box takes, the reading at 28 in it.</summary>

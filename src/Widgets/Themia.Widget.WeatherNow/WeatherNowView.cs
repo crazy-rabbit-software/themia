@@ -21,18 +21,20 @@ namespace Themia.App.Widgets;
 /// sizes are <see cref="WeatherNowStyles"/>'. The readings are the weather facts card's, the days the
 /// forecast's: never drawn here, at any size.
 /// <para>
-/// [S-7042] A reading kept through a failed refresh stays on screen and the header's problem glyph says
-/// so; with no reading at all the Status block's one row at the top says why ([S-6734]).
+/// [S-7042] A reading kept through a failed refresh stays on screen and the status's problem glyph says
+/// so ([S-12481]); with no reading at all the Status block's one row at the top says why ([S-6734]). The
+/// place stands on the condition's line ("Overcast · Zürich", [S-12481]); [S-12483] the reading meets a
+/// side a group mate joins.
 /// </para>
 /// </summary>
-internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent,
-    IWidgetContextActions, IWidgetAligned
+internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
+    IWidgetContextActions, IWidgetAligned, IWidgetJoins
 {
     /// <inheritdoc />
     public CardOpen? Opens => WeatherNowModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
 
-    /// <summary>[S-7064] The header's problem glyph ([S-7042]) and the place as its label ([S-2260]).</summary>
-    private readonly KitHeader _header;
+    /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end.</summary>
+    private readonly KitStatus _status;
 
     private readonly FontIcon _bigGlyph = Family.Glyph(Glyphs.Weather, WeatherNowStyles.LargeGlyph, ColourRole.TextSecondary);
     private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -49,7 +51,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
 
     public WeatherNowView(IWidgetHost host)
     {
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
         _feed = new(
             () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Reading, host.Weather.Show),
             () => WeatherInterests.For(_config),
@@ -67,7 +69,10 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
         _face = new Grid
         {
             VerticalAlignment = VerticalAlignment.Center,
-            Margin = Family.SideInset,
+
+            // [S-12800] The sides and the foot keep the inset (the card gives the top), so the reading is centred in
+            // what the sizing counted, never 6 off; a mate joined under it takes the foot (ApplyJoins).
+            Margin = Family.SideInset with { Bottom = FamilySpace.Inset },
             Visibility = Visibility.Collapsed,
             ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } },
             Children = { _bigGlyph, _reading },
@@ -75,10 +80,20 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
         SetColumn(_reading, 1);
         Children.Add(_face);
         Children.Add(_empty);
+        _status.Place(this);
     }
 
-    /// <summary>The header's problem glyph. Built in the constructor because the card reads this once, when it builds that header.</summary>
-    public FrameworkElement? HeaderTrailing => _header;
+    /// <summary>[S-12483] The reading stands against a side a group mate joins, its foot's inset gone there; centred when free.</summary>
+    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
+    {
+        _face.Margin = Family.SideInset with { Bottom = sides.Foot };
+        _face.VerticalAlignment = sides.Block switch
+        {
+            Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
+            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+    }
 
     /// <summary>[S-730] "Refresh": the network now, past both the back-off and the cache.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -94,7 +109,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as WeatherNowConfig ?? new WeatherNowConfig();
-        PublishPlace();
         _feed.Cadence(_config.TickInterval);
         _feed.Reload();
     }
@@ -115,14 +129,15 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
         {
             OnlineParts.ShowState(_empty, _feed.Status, Glyphs.Weather, _feed.Refresh);
             _face.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            _status.Clear();
             return;
         }
 
         _empty.Hide();
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        _status.Show(OnlineParts.Problems(held), busy: false);
         var unit = _feed.Want?.Unit ?? RegionFormat.Current.Temperature;
         var (number, degrees) = WeatherReport.TemperatureParts(reading.Temperature, unit);
+        // [S-12801] The condition alone: the place is the group's Header widget's to say, once.
         var condition = WeatherReport.Describe(reading.Code);
         var sky = WeatherGlyph.Of(WeatherReport.Look(reading.Code));
 
@@ -143,7 +158,4 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, 
                 break;
         }
     }
-
-    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
-    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

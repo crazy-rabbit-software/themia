@@ -173,8 +173,8 @@ public static partial class SettingsMenu
     }
 
     /// <summary>
-    /// [S-3830] Theme and colours: the theme, the accent, the widget background, blur behind widgets
-    /// ([S-2110]) and the header's fill and opacity ([S-828]).
+    /// [S-3830] Theme and colours: the theme, the accent, the widget background and blur behind widgets
+    /// ([S-2110]).
     /// </summary>
     private static SettingsSubmenu ThemeAndColours(ISettingsMenuHost host, string key)
     {
@@ -198,13 +198,6 @@ public static partial class SettingsMenu
             // [S-2110] The wallpaper, blurred, under every translucent card: the background's own glass.
             new SettingsToggle(key + "/blur", Str.Shell_Appearance_BlurBehind.Text(), Glyphs.Photo, design.BlurBehind,
                 v => host.Mutate(s => s.Design.BlurBehind = v)),
-            new SettingsSeparator(key + "/-header"),
-
-            // [S-828] The header strip, on its own terms: its fill (the line "Header", its value the colour) and its opacity.
-            new SettingsColour(key + "/headerBackground", Str.App_ConfigHeaderLabel.Text(), design.HeaderBackgroundColor,
-                v => host.Mutate(s => s.Design.HeaderBackgroundColor = v), Str.Shell_Appearance_SameAsWidget.Text(), ColorPresets.Surfaces),
-            new SettingsSlider(key + "/headerOpacity", Str.Settings_Style_HeaderOpacity_Label.Text(), Glyphs.Opacity, design.HeaderOpacity, 0, 1, 0.05, Percent,
-                v => host.Mutate(s => s.Design.HeaderOpacity = v)),
         ]);
     }
 
@@ -255,8 +248,8 @@ public static partial class SettingsMenu
 
     /// <summary>
     /// [S-3830] Text and size: the font ([S-3528]) and the text size, the user's accessibility choice; [S-2141] the type
-    /// tokens (the vibrancy of the text levels, the weight per role, the tracking, tabular figures, the header's tone and
-    /// case) and each level's own opacity in an expander.
+    /// tokens (the vibrancy of the text levels, the weight per role, the tracking, tabular figures)
+    /// and each level's own opacity in an expander.
     /// </summary>
     private static SettingsSubmenu TextAndSize(ISettingsMenuHost host, string key)
     {
@@ -276,12 +269,6 @@ public static partial class SettingsMenu
             TokenSlider(host, key, "trackingSmall", Str.SettingsPages_Look_TrackingSmall, Glyphs.Fit, v => Unit(v, "‰")),
             new SettingsToggle(key + "/tabularNumerals", Str.SettingsPages_Look_Tabular.Text(), Glyphs.Count, (design.Tokens ?? new LookTokens()).TabularNumerals,
                 v => host.Mutate(s => (s.Design.Tokens ??= new LookTokens()).TabularNumerals = v)),
-            TokenChoice(host, key + "/headerTone", Str.SettingsPages_Look_HeaderTone, Glyphs.Font,
-                [(HeaderTone.Secondary, Str.SettingsPages_Look_ToneQuiet), (HeaderTone.Primary, Str.SettingsPages_Look_ToneStrong)],
-                t => t.HeaderTone, (t, v) => t.HeaderTone = v),
-            TokenChoice(host, key + "/headerCase", Str.SettingsPages_Look_HeaderCase, Glyphs.Font,
-                [(HeaderCase.AsWritten, Str.SettingsPages_Look_CaseAsWritten), (HeaderCase.Upper, Str.SettingsPages_Look_CaseUpper)],
-                t => t.HeaderCase, (t, v) => t.HeaderCase = v),
             new SettingsSubmenu(levels, Str.SettingsPages_Look_TextLevels.Text(), Glyphs.FontColour,
             [
                 TokenSlider(host, levels, "labelPrimary", Str.SettingsPages_Look_LabelPrimary, Glyphs.FontColour, Percent),

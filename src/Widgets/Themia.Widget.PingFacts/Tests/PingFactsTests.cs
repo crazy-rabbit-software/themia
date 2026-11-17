@@ -59,11 +59,11 @@ public sealed class PingFactsTests
         var window = new PingWindow(10);
         window.Add(null);
 
-        var sheet = PingDetailRules.Sheet(Locale.En, window.Stats(), "1.1.1.1", PingStatus.Offline);
+        var sheet = PingDetailRules.Sheet(Locale.En, window.Stats(), PingStatus.Offline);
 
         Assert.False(sheet.HeroAvailable);
         Assert.Equal("Offline", sheet.Caption);
-        Assert.Equal("1.1.1.1 · Offline", sheet.Note);
+        Assert.Equal("Offline", sheet.Note); // [S-12801] the host is the Header widget's to name
         Assert.Contains(sheet.Facts, f => f.Label == "Packet loss" && f.Value == "100%");
     }
 

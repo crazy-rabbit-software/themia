@@ -34,7 +34,7 @@ public sealed class DriveModule : IWidgetModule
         Description = DriveStr.Drives_Drive_Desc.Local(),
         Glyph = Glyphs.Disk,
         Sizing = c => DriveFace.Sizing(((DriveConfig)c).Style),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Devices, 2, 0),
     };

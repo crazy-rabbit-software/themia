@@ -88,10 +88,6 @@ public class AudioVisualizerTests
         Assert.Equal(AudioVisualizerStyle.Bars, config.Style);
     }
 
-    [Fact]
-    public void S3216_the_visualizer_starts_without_a_header()
-        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(new WidgetId("audioVisualizer"), new FracRect(0, 0, 0.1, 0.1)).Header);
-
     [Theory]
     [InlineData("XS", 12)]
     [InlineData("S", 24)]
@@ -145,7 +141,7 @@ public class AudioVisualizerTests
             var sizing = kind.Sizing(new AudioVisualizerConfig { Style = style });
             Assert.Equal((160d, 80d), (sizing.Min.Width, sizing.Min.Height));
             Assert.Equal((320d, 160d), (sizing.Natural.Width, sizing.Natural.Height));
-            Assert.Equal((960d, 480d), (sizing.Max.Width, sizing.Max.Height)); // relaxed, [S-12411]: a picture, 3 x the natural
+            Assert.Equal((Themia.Sdk.SizeStretch.Ceiling, Themia.Sdk.SizeStretch.Ceiling), (sizing.Max.Width, sizing.Max.Height)); // relaxed, [S-12411]: no practical Max
         }
     }
 
@@ -315,11 +311,9 @@ public class AudioVisualizerTests
     }
 
     [Fact]
-    public void S3212_the_waveform_is_a_visualizer_style_that_never_has_a_header()
+    public void S3212_the_waveform_is_a_visualizer_style()
     {
         Assert.Contains(WidgetStyles.For(new WidgetId("audioVisualizer")), s => s.Value == (int)AudioVisualizerStyle.Waveform && s.Name == "waveform");
-        Assert.False(WidgetInstance.CanHaveHeader(new WidgetId("audioVisualizer")));
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(new WidgetId("audioVisualizer")));
     }
 
     [Theory]

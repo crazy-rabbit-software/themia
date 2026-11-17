@@ -35,7 +35,7 @@ public sealed class GpuEnginesModule : IWidgetModule
         Description = GpuEnginesStr.GpuEngines_Desc.Local(),
         Glyph = Glyphs.Gpu,
         Sizing = _ => MeterSizing.ItemRows(Rows),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Graphics, 0, 2),
     };
 

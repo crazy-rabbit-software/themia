@@ -54,10 +54,10 @@ public sealed class ScratchpadTests
     [Fact]
     public void S11205_a_free_range_never_narrower_than_the_whole_ink_bar_while_it_is_on()
     {
-        // The inks (6 x 28), 8, the eraser, then 8 and the nibs (3 x 28): 296 in the 12 insets.
-        Assert.Equal(296, ScratchpadLayout.BarWidth(6, 3));
+        // The inks (6 x 28), 8, the eraser, then 8 and the nibs (3 x 28), then 8, undo and full screen: 360 in the 12 insets.
+        Assert.Equal(360, ScratchpadLayout.BarWidth(6, 3));
         var on = ScratchpadLayout.Sizing(new ScratchpadConfig(), 6, 3);
-        Assert.Equal((new SizeDip(320, 160), new SizeDip(320, 260), new SizeDip(800, 600)), (on.Min, on.Natural, on.Max));
+        Assert.Equal((new SizeDip(384, 160), new SizeDip(384, 260), new SizeDip(800, 600)), (on.Min, on.Natural, on.Max));
 
         var off = ScratchpadLayout.Sizing(new ScratchpadConfig { ShowTools = false }, 6, 3);
         Assert.Equal(new SizeDip(200, 160), off.Min);

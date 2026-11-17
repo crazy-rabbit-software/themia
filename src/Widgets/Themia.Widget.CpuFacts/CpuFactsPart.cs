@@ -60,7 +60,6 @@ internal sealed class CpuFactsPart : DetailPart
             Handles = counts?.Handles,
         };
 
-        host.SetAbout(figures.Name);
         host.Present(CpuDetailRules.Sheet(Strings.Current, figures));
     }
 

@@ -16,9 +16,7 @@ public sealed class BatteryHistoryTests
     [Fact]
     public void S11024_it_starts_headerless_and_is_a_history_strip()
     {
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.CanHaveHeader));
-        Assert.Equal(MeterSizing.History, Kind.SizingOf());
+        Assert.Equal(Themia.Sdk.SizeStretch.Relax(MeterSizing.History), Kind.SizingOf()); // [S-12411] relaxed
         Assert.Empty(Kind.SizingOf().Problems());
     }
 

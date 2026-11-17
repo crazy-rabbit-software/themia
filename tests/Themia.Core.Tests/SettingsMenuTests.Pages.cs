@@ -27,7 +27,7 @@ public sealed partial class SettingsMenuTests
 
         // Karpo's General: Start with Windows, the language and its formats, then Themia's own switches; no Quit.
         Assert.Equal(["startup", SettingsMenu.Keys.Language + "/display", SettingsMenu.Keys.Formats, "gameMode"], page.Sections[0].Lines.Select(l => l.Key));
-        Assert.Equal(["desktopIconSize"], page.Sections[1].Lines.Select(l => l.Key));
+        Assert.Equal(["desktopIconSize", "lockWidgets"], page.Sections[1].Lines.Select(l => l.Key));
         Assert.Equal([SettingsMenu.Keys.Online, SettingsMenu.Keys.Mcp], page.Sections[2].Lines.Select(l => l.Key));
         Assert.Equal([SettingsMenu.Keys.Pro, SettingsMenu.Keys.Backup, SettingsMenu.Keys.Uninstall], page.Sections[3].Lines.Select(l => l.Key));
 
@@ -131,7 +131,6 @@ public sealed partial class SettingsMenuTests
         Assert.Equal(SettingsRowKind.Text, SettingsRows.KindOf(new SettingsField("f", "F", null, string.Empty, _ => { })));
         Assert.Equal(SettingsRowKind.Text, SettingsRows.KindOf(new SettingsAsk("a", "A", null, "T", string.Empty, "OK", string.Empty, _ => null, _ => { })));
         Assert.Equal(SettingsRowKind.Action, SettingsRows.KindOf(new SettingsCommand("c", "C", null, Nothing)));
-        Assert.Equal(SettingsRowKind.Link, SettingsRows.KindOf(new SettingsLink("l", "L", null, "Owner", Nothing)));
         Assert.Equal(SettingsRowKind.Item, SettingsRows.KindOf(new SettingsItem("i", "I", null, [])));
         Assert.Equal(SettingsRowKind.Note, SettingsRows.KindOf(new SettingsNote("n", "N")));
         Assert.Equal(SettingsRowKind.Note, SettingsRows.KindOf(new SettingsReading("r", "R", null, "1")));
@@ -223,7 +222,7 @@ public sealed partial class SettingsMenuTests
     public void S2306_a_deep_link_finds_its_row_by_its_key_through_its_section()
     {
         var page = SettingsPages.General(new FakeHost());
-        var clock = SettingsMenu.Keys.Format(Sdk.OwnedSetting.TimeFormat);
+        var clock = SettingsMenu.Keys.TimeFormat;
 
         var path = SettingsPages.PathTo(page, clock);
 

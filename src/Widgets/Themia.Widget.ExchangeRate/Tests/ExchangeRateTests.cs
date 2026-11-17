@@ -74,7 +74,7 @@ public sealed class ExchangeRateTests
     {
         var sizing = RatesLayout.Sizing();
 
-        Assert.Equal(36 + 36 + 16 + 12, sizing.Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, sizing.Natural.Height);
         Assert.True(sizing.FixedHeight);
         Assert.Equal((160.0, 200.0, 320.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }

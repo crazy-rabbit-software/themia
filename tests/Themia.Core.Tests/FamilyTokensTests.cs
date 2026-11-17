@@ -82,7 +82,7 @@ public sealed class FamilyTokensTests
         Assert.Equal([0, 4, 8, 12, 16, 24], FamilySpace.Scale);
         Assert.Equal(12, FamilySpace.Inset);
         Assert.Equal(4, FamilySpace.HeaderGap);
-        Assert.Equal(36, FamilySpace.ContentTop);
+        Assert.Equal(12, FamilySpace.ContentTop);
         Assert.Equal(36, FamilySpace.TextEdge);
         Assert.Equal(8, FamilySpace.GlyphGap);
         Assert.Equal(12, FamilySpace.ColumnGap);
@@ -99,7 +99,7 @@ public sealed class FamilyTokensTests
         Assert.Equal([28d, 40d, 56d], Enumerable.Range(1, 3).Select(FamilyShape.RowHeight));
         Assert.Equal(56, FamilyShape.RowHeight(7));
         Assert.Equal([16d, 32d, 48d], FamilyShape.Icons);
-        Assert.Equal((28, 28, 24, 12), (FamilyShape.Button, FamilyShape.IconButton, FamilyShape.HeaderButton, FamilyShape.ButtonPadding));
+        Assert.Equal((28, 28, 24, 12), (FamilyShape.Button, FamilyShape.IconButton, FamilyShape.LineButton, FamilyShape.ButtonPadding));
 
         Assert.True(FamilyShape.IsRadius(4, 100, 32));
         Assert.True(FamilyShape.IsRadius(8, 40, 16));      // a pill: half its short side
@@ -167,7 +167,7 @@ public sealed class FamilyTokensTests
     public void S6737_only_a_widget_its_module_declares_one_readout_climbs_the_hero_steps()
     {
         Assert.True(ReadoutRules.OneReadout(Themia.Sdk.WidgetTraits.HasItems | Themia.Sdk.WidgetTraits.OneReadout));
-        Assert.False(ReadoutRules.OneReadout(Themia.Sdk.WidgetTraits.HasItems | Themia.Sdk.WidgetTraits.CanHaveHeader));
+        Assert.False(ReadoutRules.OneReadout(Themia.Sdk.WidgetTraits.HasItems));
         Assert.Equal(FamilyType.Big, ReadoutRules.Steps(oneReadout: false));
         Assert.Equal([.. FamilyType.Big, .. FamilyType.Hero], ReadoutRules.Steps(oneReadout: true));
     }

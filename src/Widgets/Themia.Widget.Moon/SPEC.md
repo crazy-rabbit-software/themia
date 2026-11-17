@@ -15,11 +15,11 @@ renders), `Localization/Locales/` (its own `MoonStr`). Tests: `Tests/MoonTests.c
 - **[S-11120]** **What it shows**, the same at every size in its range: in the **Disc** style a Readout
   of how much of the moon is lit on the family's 28 ("23%", [S-2449]), the moon drawn at its phase as
   its lead at the step's size (`SkyMoonDisc`, [S-169]), the phase's name the Caption under it, at the
-  start by default ([S-6582]); in **Phase month** the month's discs ([S-6050]). It keeps the header by
-  default (the place its label, [S-2260]).
-- **[S-11121]** **Sizes** (`MoonLayout.Sizing`, with its header): the disc one height (100: the 28's
+  start by default ([S-6582]); in **Phase month** the month's discs ([S-6050]). A Header widget over it
+  names it ([S-12481]); in a group it stands against a side a mate joins ([S-12483]).
+- **[S-11121]** **Sizes** (`MoonLayout.Sizing`): the disc one height (76: the 28's
   line, the Caption, the insets), 140..320 wide, a new one 160; the month one size: seven columns and
-  five rows of 28 cells (a 20 disc in each), the month's name 8 over them (220 × 212).
+  five rows of 28 cells (a 20 disc in each), the month's name 8 over them (220 × 188).
 - **[S-6050]** The moon's styles ([S-6000]), `MoonConfig.Style` (`MoonStyle`): **Disc** (the default)
   and **Phase month**: one small disc a day of the month holding now, each that day's phase at its
   local noon (`MoonMonth`, [S-6051]; the [S-169] drawing, mirrored for a southern observer), in reading

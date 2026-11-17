@@ -25,16 +25,11 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 public abstract class PingPart : MeterPart
 {
-    // [S-1170] [S-6710] The header's problem glyph: the caution warning while the host does not answer,
-    // nothing while it does or while the first probe is out (no success green, [S-6706]).
-    private readonly FontIcon _problem = HeaderBlock.Problem(string.Empty);
-    private readonly HeaderParts _trailing = new();
+    // [S-1170] [S-12481] The problem glyph over the content's top end: the caution warning while the host
+    // does not answer, nothing while it does or while the first probe is out (no success green, [S-6706]).
+    private readonly FontIcon _problem = ToolLine.Problem(string.Empty);
 
-    protected PingPart()
-    {
-        _trailing.Add(HeaderPartKind.Problem, _problem);
-        _trailing.Want(_problem, false);
-    }
+    protected PingPart() => _problem.Visibility = Visibility.Collapsed;
 
     /// <summary>[S-2021] A click on the card opens Windows' network status page.</summary>
     public override CardOpen? Opens(WidgetConfig config) => CardOpen.Settings("network-status");
@@ -56,21 +51,13 @@ public abstract class PingPart : MeterPart
 
     public override MeterPressure PressureOf(MeterReading reading) => PingStats.Pressure(StatusOf(reading));
 
-    public override FrameworkElement? HeaderTrailing => _trailing;
-
-    public override void ApplyConfig(WidgetConfig config, IMeterHost host)
-    {
-        ArgumentNullException.ThrowIfNull(host);
-
-        // [S-1173] The header's label names the host as the user does ([S-2260]).
-        host.SetAbout(config is IPingHost ping ? PingHosts.Effective(ping) : HostAddress.DefaultPingHost);
-    }
+    public override FrameworkElement? Mark => _problem;
 
     /// <summary>[S-1170] The problem glyph while the host does not answer, its status on hover; nothing otherwise.</summary>
     public override void Observe(MeterReading reading, IMeterHost host)
     {
         var status = StatusOf(reading);
-        _trailing.Want(_problem, status == PingStatus.Offline);
+        _problem.Visibility = status == PingStatus.Offline ? Visibility.Visible : Visibility.Collapsed;
         ToolTipService.SetToolTip(_problem, status == PingStatus.Offline ? PingStats.StatusText(status) : null);
     }
 

@@ -1,0 +1,28 @@
+{
+  "$englishOnly": [
+    "airQualityGraph.label", "airQualityGraph.desc", 
+    "airQualityGraph.measure", "airQualityGraph.measure.index", "airQualityGraph.scale", "airQualityGraph.scale.auto", "airQualityGraph.scale.eu", "airQualityGraph.scale.us",
+    "airQualityGraph.eu.good", "airQualityGraph.eu.fair", "airQualityGraph.eu.moderate", "airQualityGraph.eu.poor", "airQualityGraph.eu.veryPoor", "airQualityGraph.eu.extremelyPoor",
+    "airQualityGraph.us.good", "airQualityGraph.us.moderate", "airQualityGraph.us.sensitive", "airQualityGraph.us.unhealthy", "airQualityGraph.us.veryUnhealthy", "airQualityGraph.us.hazardous"
+  ],
+  "airQualityGraph.label": "Air quality graph",
+  "airQualityGraph.desc": "The air hour by hour for the next days",
+  "airQualityGraph.measure": "Shows",
+  "airQualityGraph.measure.index": "Air quality index",
+  "airQualityGraph.scale": "Index",
+  "airQualityGraph.scale.auto": "Automatic",
+  "airQualityGraph.scale.eu": "European (EAQI)",
+  "airQualityGraph.scale.us": "US (AQI)",
+  "airQualityGraph.eu.good": "Good",
+  "airQualityGraph.eu.fair": "Fair",
+  "airQualityGraph.eu.moderate": "Moderate",
+  "airQualityGraph.eu.poor": "Poor",
+  "airQualityGraph.eu.veryPoor": "Very poor",
+  "airQualityGraph.eu.extremelyPoor": "Extremely poor",
+  "airQualityGraph.us.good": "Good",
+  "airQualityGraph.us.moderate": "Moderate",
+  "airQualityGraph.us.sensitive": "Unhealthy for some",
+  "airQualityGraph.us.unhealthy": "Unhealthy",
+  "airQualityGraph.us.veryUnhealthy": "Very unhealthy",
+  "airQualityGraph.us.hazardous": "Hazardous"
+}

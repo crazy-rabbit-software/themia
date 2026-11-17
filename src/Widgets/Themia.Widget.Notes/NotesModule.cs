@@ -15,7 +15,7 @@ using Themia.Widget.Notes;
 
 namespace Themia.Widget.Notes;
 
-/// <summary>[S-1346] One markdown note from the notes kept on this PC, edited in place with its formatting bar in the header. SPEC.md beside this file.</summary>
+/// <summary>[S-1346] One markdown note from the notes kept on this PC, edited in place with its formatting bar on its first line. SPEC.md beside this file.</summary>
 public sealed class NotesModule : IWidgetModule
 {
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
@@ -30,7 +30,7 @@ public sealed class NotesModule : IWidgetModule
         Description = NotesStr.WidgetsA_Catalog_Notes_Description.Local(),
         Glyph = Glyphs.Note,
         Sizing = _ => NotesLayout.Sizing,
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Notes, 0, 0, Popular: 6),
     };
 

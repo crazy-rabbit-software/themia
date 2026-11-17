@@ -103,8 +103,14 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
 
     KitChoices IKitConfig.Choices => MailSpec.Choices(this);
 
-    /// <summary>The fields the list and compact styles show when the user has not chosen.</summary>
-    public static IReadOnlyList<MailListField> DefaultListFields { get; } = [MailListField.Subject, MailListField.Account];
+    /// <summary>The list and compact styles' optional fields in the order they stand.</summary>
+    public static IReadOnlyList<MailListField> ListFieldOrder { get; } = [MailListField.Subject, MailListField.Account];
+
+    /// <summary>
+    /// The fields the list and compact styles show when the user has not chosen: the subject. [S-12801] The account
+    /// badge is a choice, for an inbox of several accounts: on every row of one account it only repeats the context.
+    /// </summary>
+    public static IReadOnlyList<MailListField> DefaultListFields { get; } = [MailListField.Subject];
 
     /// <summary>The row view's columns when the user has not chosen.</summary>
     public static IReadOnlyList<MailColumn> DefaultColumns { get; } = [MailColumn.From, MailColumn.Subject, MailColumn.Date];

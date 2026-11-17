@@ -4,6 +4,7 @@
     {
       "id": "v00",
       "name": "Files",
+      "desktopIcons": "Chosen",
       "groups": [],
       "widgets": [
         {
@@ -17,7 +18,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -58,7 +58,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -98,7 +97,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -134,7 +132,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -159,7 +156,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Hidden",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -218,7 +214,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Hidden",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -248,7 +243,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -280,7 +274,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Top",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -312,7 +305,6 @@
             "colour": "",
             "opacity": 1
           },
-          "header": "Hidden",
           "itemBackground": {
             "kind": "Default",
             "colour": "",
@@ -361,8 +353,6 @@
     "borderOpacity": 1,
     "introAnimation": "Scale",
     "introAnimationMs": 500,
-    "headerBackgroundColor": "",
-    "headerOpacity": 1,
     "transitionAnimation": "Scale",
     "transitionAnimationMs": 500,
     "unlockAnimation": "Scale",
@@ -373,6 +363,7 @@
     "language": "System",
     "gameModeSuspend": false,
     "desktopIconSize": "Medium",
+    "lockWidgets": false,
     "region": {
       "clock": "System",
       "weekStart": "System",

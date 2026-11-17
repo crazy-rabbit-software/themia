@@ -277,7 +277,7 @@ internal sealed partial class WidgetCard
         Swap(old, next);
     }
 
-    /// <summary>Put <paramref name="next"/> where <paramref name="old"/> sat, with the header's trailing part to match.</summary>
+    /// <summary>Put <paramref name="next"/> where <paramref name="old"/> sat, laid against the card's edges as it was.</summary>
     private void Swap(FrameworkElement old, FrameworkElement next)
     {
         var at = _content.Children.IndexOf(old);
@@ -286,26 +286,11 @@ internal sealed partial class WidgetCard
             _content.Children.RemoveAt(at);
         }
 
-        Grid.SetRow(next, Grid.GetRow(old));
-        Grid.SetColumn(next, Grid.GetColumn(old));
         _content.Children.Insert(at >= 0 ? at : _content.Children.Count, next);
-
-        // The trailing slot of the header belongs to the view: a failed view's control goes with it.
-        foreach (var trailing in _header.Children.OfType<FrameworkElement>().Where(c => Grid.GetColumn(c) == 2).ToList())
-        {
-            _header.Children.Remove(trailing);
-        }
-
-        if ((next as IWidgetHeaderContent)?.HeaderTrailing is { } added)
-        {
-            added.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetColumn(added, 2);
-            _header.Children.Add(added);
-        }
 
         HookViewSize();
         ApplySetup();
-        ApplyHeader();
+        ApplyEdges();
         ApplyDesign();
         ApplyEditMode(_host.EditMode);
         _host.OnCardFrameChanged(this);

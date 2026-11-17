@@ -32,7 +32,7 @@ public sealed class VolumeModule : IWidgetModule
         Description = VolumeStr.WidgetsA_Catalog_Volume_Description.Local(),
         Glyph = Glyphs.Volume,
         Sizing = _ => LevelFace.Sizing(under: true),
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 2),
     };
 

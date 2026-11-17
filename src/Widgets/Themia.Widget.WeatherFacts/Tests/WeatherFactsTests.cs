@@ -102,14 +102,14 @@ public sealed class WeatherFactsTests
     }
 
     [Fact]
-    public void S11106_its_height_is_a_28_row_a_fact_under_the_header_and_its_width_200_to_420()
+    public void S11106_its_height_is_a_28_row_a_fact_under_the_inset_and_its_width_200_to_420()
     {
         var sizing = Kind.Sizing(new WeatherFactsConfig());
 
-        Assert.Equal(new SizeDip(240, 36 + (4 * 28) + 12), sizing.Natural);
-        Assert.Equal((200.0, 480.0), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: 240 x 2
-        Assert.Equal((36 + 28 + 12.0, 36 + (11 * 28) + 12.0), (sizing.Min.Height, sizing.Max.Height));
-        Assert.Equal(36 + (2 * 28) + 12, Kind.Sizing(new WeatherFactsConfig { Facts = [WeatherFactKind.Uv, WeatherFactKind.Wind] }).Natural.Height);
+        Assert.Equal(new SizeDip(240, 12 + (4 * 28) + 12), sizing.Natural);
+        Assert.Equal((200.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+        Assert.Equal((12 + 28 + 12.0, 12 + (11 * 28) + 12.0), (sizing.Min.Height, sizing.Max.Height));
+        Assert.Equal(12 + (2 * 28) + 12, Kind.Sizing(new WeatherFactsConfig { Facts = [WeatherFactKind.Uv, WeatherFactKind.Wind] }).Natural.Height);
     }
 
     [Fact]
@@ -117,19 +117,19 @@ public sealed class WeatherFactsTests
     {
         var config = new WeatherFactsConfig { Facts = [WeatherFactKind.Uv, WeatherFactKind.Today] };
 
-        var taller = (WeatherFactsConfig)Kind.SizeSets!(config, new SizeDip(240, 36 + (4 * 28) + 12));
-        var shorter = (WeatherFactsConfig)Kind.SizeSets(config, new SizeDip(240, 36 + 28 + 12));
+        var taller = (WeatherFactsConfig)Kind.SizeSets!(config, new SizeDip(240, 12 + (4 * 28) + 12));
+        var shorter = (WeatherFactsConfig)Kind.SizeSets(config, new SizeDip(240, 12 + 28 + 12));
 
         Assert.Equal([WeatherFactKind.Uv, WeatherFactKind.Today, WeatherFactKind.FeelsLike, WeatherFactKind.Humidity], taller.Facts);
         Assert.Equal([WeatherFactKind.Uv], shorter.Facts);
         Assert.Equal([WeatherFactKind.Uv, WeatherFactKind.Today], config.Facts);
-        Assert.Same(config, Kind.SizeSets(config, new SizeDip(300, 36 + (2 * 28) + 12)));
+        Assert.Same(config, Kind.SizeSets(config, new SizeDip(300, 12 + (2 * 28) + 12)));
     }
 
     // ---- [S-11107] the menu ---------------------------------------------------------------------
 
     [Fact]
-    public void S11107_the_menu_is_the_facts_then_the_place_then_the_links()
+    public void S11107_the_menu_is_the_facts_then_the_place()
     {
         var config = new WeatherFactsConfig();
         var menu = new WidgetMenuLines(() => { }, _ => { });
@@ -138,7 +138,8 @@ public sealed class WeatherFactsTests
         Assert.Equal(WeatherFactsStr.WeatherFacts_Menu_Facts.Text(), menu.Lines[0].Text);
         Assert.True(menu.Lines[1].IsSeparator);
         Assert.Contains(menu.Lines, l => l.Search is not null);
-        Assert.Equal(Str.EditBar_Link_UpdateInterval.Text(), menu.Lines[^1].Text);
+        Assert.Equal(Str.Shell_Place_Location.Text(), menu.Lines[^1].Text);
+        Assert.DoesNotContain(menu.Lines, l => l.LinkTo is not null);
         Assert.Empty(menu.StyleLines);
     }
 

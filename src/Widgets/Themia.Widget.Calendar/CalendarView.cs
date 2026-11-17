@@ -39,7 +39,7 @@ namespace Themia.App.Widgets;
 /// Polls every five minutes; a context-menu Refresh asks past every cache.
 /// </para>
 /// </summary>
-internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys, IWidgetJoins
 {
     /// <inheritdoc />
     public CardOpen? Opens => CalendarModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
@@ -53,7 +53,15 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     private readonly Grid _content = new();
     private readonly KitStatePanel _state;
-    private readonly KitHeader _header;
+    /// <summary>[S-12481] The agenda's state over its rows' top end; the other styles' is on their line.</summary>
+    private readonly KitStatus _status;
+
+    /// <summary>[S-569] [S-12481] The period and back and forward, the content's first line (every style but the agenda).</summary>
+    private readonly ToolLine _line = new();
+    private readonly Border _back;
+    private readonly Border _forward;
+    private readonly FontIcon _lineProblem = ToolLine.Problem(string.Empty);
+    private readonly ProgressRing _lineBusy = ToolLine.Busy();
     private readonly List<IDisposable> _hovers = [];
     private bool _navigable;
 
@@ -74,7 +82,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     /// <summary>The problem in words, worded when shown so a language switch reaches it ([S-1109]).</summary>
     private Func<string> _problemText = () => string.Empty;
     private bool _problemOffersAccounts;
-    /// <summary>[S-3651] Each account whose last sync could not improve on what is held: the header's one stale rule.</summary>
+    /// <summary>[S-3651] Each account whose last sync could not improve on what is held: the one stale rule ([S-12481]).</summary>
     private IReadOnlyList<Themia.Sdk.Kit.KitOutcome> _outcomes = [];
     private bool _outcomesNeedUser;
     private IReadOnlyList<CalendarEvent> _events = [];
@@ -94,15 +102,45 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     {
         _widgetHost = host;
         _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed };
-        // [S-7064] [S-569] The problem glyph, the ring and back and forward are the kit's header extras.
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
+
+        // [S-569] [S-12481] The period's line: its title, then the problem glyph, the ring, back and forward.
+        _line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
+        _line.Parts.Add(LinePartKind.Problem, _lineProblem);
+        _line.Parts.Add(LinePartKind.Busy, _lineBusy);
+        _back = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
+        _forward = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1)));
+        _lineProblem.Tapped += (_, args) =>
+        {
+            if (_outcomesNeedUser)
+            {
+                args.Handled = true;
+                _widgetHost.ShowAccounts();
+            }
+        };
+
+        foreach (var part in new FrameworkElement[] { _lineProblem, _lineBusy, _back, _forward })
+        {
+            _line.Parts.Want(part, false);
+        }
 
         _days = FollowLinks();
         _agenda = NewAgenda(host);
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        var rows = RowsHost();
+        SetRow(_content, 1);
+        SetRow(rows, 1);
+        SetRow(_state, 1);
+        Children.Add(_line);
         Children.Add(_content);
-        Children.Add(RowsHost());
+        Children.Add(rows);
         Children.Add(_state);
+        _status.Place(this);
     }
+
+    /// <summary>[S-569] [S-12481] Whether the style shows the period's line: every style but the agenda.</summary>
+    private bool ShowsLine => Layout != CalendarStyle.Agenda;
 
     /// <summary>Which of the widget's states is on screen. Each one needs something different of the user.</summary>
     private enum Screen
@@ -120,9 +158,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     private DateOnly Today => DateOnly.FromDateTime(_clock().LocalDateTime);
 
     private CalendarStyle Layout => _config.Style;
-
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _header;
 
     public void Bind(IWidgetSurface surface)
     {
@@ -213,13 +248,37 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
     /// <summary>[S-561] Refresh. [S-3640] The layout is the widget's style, chosen on the strip or the properties menu.</summary>
     /// <summary>
-    /// [S-569] The card menu: Today while the view is away from it (the header has room for back and
-    /// forward only; the key is T), and Refresh with the age of what is on screen.
+    /// [S-569] The card menu: Today while the view is away from it (the line has room for back and
+    /// forward only; the key is T), the agenda's pages back and forward ([S-12481]: it has no line), and
+    /// Refresh with the age of what is on screen.
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions
-        => _screen == Screen.Ready && AwayFromToday
-            ? [new(Glyphs.Calendar, CalendarStr.Calendar_Today.Text(), GoToday), Refresh()]
-            : [Refresh()];
+    {
+        get
+        {
+            var actions = new List<WidgetAction>(4);
+            if (_screen == Screen.Ready && AwayFromToday)
+            {
+                actions.Add(new(Glyphs.Calendar, CalendarStr.Calendar_Today.Text(), GoToday));
+            }
+
+            if (_navigable && !ShowsLine)
+            {
+                if (_agendaPage > 0)
+                {
+                    actions.Add(new(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
+                }
+
+                if (_agendaPage < _agendaPages - 1)
+                {
+                    actions.Add(new(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1)));
+                }
+            }
+
+            actions.Add(Refresh());
+            return actions;
+        }
+    }
 
     private WidgetAction Refresh() => new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, _clock()), () => _ = RefreshAsync(force: true));
 
@@ -237,7 +296,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         UseData(null);
         LeaveLinks();
 
-        _header.Detach();
+        _status.Detach();
         _state.Detach();
         ClearDrawing();
         _agenda.Detach();
@@ -293,7 +352,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         var range = Range();
         _refreshing = true;
-        UpdateHeader();
+        UpdateState();
 
         try
         {
@@ -317,7 +376,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         finally
         {
             _refreshing = false;
-            UpdateHeader();
+            UpdateState();
         }
 
         Render();
@@ -372,37 +431,31 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     }
 
     /// <summary>
-    /// [S-3651] [S-7042] The header: the problem glyph while events are on screen that some account's
+    /// [S-3651] [S-7042] [S-12481] The state, on the period's line (or over the agenda's top end): the problem glyph while events are on screen that some account's
     /// last sync could not improve on, one line per account and problem (a click on it opens Accounts
     /// where only the user can mend it); the ring while a load is out.
     /// </summary>
-    private void UpdateHeader()
+    private void UpdateState()
     {
         var lines = _screen == Screen.Ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _outcomes, _clock()) : [];
-        _header.Show(lines, _refreshing, _outcomesNeedUser, buttons: NavigationButtons());
-    }
-
-    /// <summary>[S-569] Back and forward in every style (the header folds them where it is short of room); in the agenda only where there is a page that way.</summary>
-    private IReadOnlyList<Themia.Sdk.WinUI.Kit.KitHeaderButton> NavigationButtons()
-    {
-        if (!_navigable)
+        if (ShowsLine && _navigable)
         {
-            return [];
+            _status.Clear();
+            _line.Parts.Want(_lineProblem, lines.Count > 0);
+            ToolTipService.SetToolTip(_lineProblem, lines.Count > 0 ? string.Join("\n", lines) : null);
+            _lineBusy.IsActive = _refreshing;
+            _line.Parts.Want(_lineBusy, _refreshing);
+            _line.Parts.Want(_back, true);
+            _line.Parts.Want(_forward, true);
+            return;
         }
 
-        var agenda = Layout == CalendarStyle.Agenda;
-        var buttons = new List<Themia.Sdk.WinUI.Kit.KitHeaderButton>(2);
-        if (!agenda || _agendaPage > 0)
+        foreach (var part in new FrameworkElement[] { _lineProblem, _lineBusy, _back, _forward })
         {
-            buttons.Add(new(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
+            _line.Parts.Want(part, false);
         }
 
-        if (!agenda || _agendaPage < _agendaPages - 1)
-        {
-            buttons.Add(new(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1)));
-        }
-
-        return buttons;
+        _status.Show(lines, _refreshing, _outcomesNeedUser);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -534,9 +587,25 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         Render();
     }
 
+    /// <summary>
+    /// [S-12483] [S-12800] The day, week and year faces keep the foot's inset, none where a group mate joins the foot;
+    /// the month already runs into it.
+    /// </summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        if (sides != _joins)
+        {
+            _joins = sides;
+            Render();
+        }
+    }
+
     // -----------------------------------------------------------------------------------------
     // Drawing
     // -----------------------------------------------------------------------------------------
+
+    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
+    private JoinedSides _joins;
 
     private void Render()
     {
@@ -553,11 +622,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         {
             HideAgenda();
         }
-        UpdateHeader();
-
-        // [S-568] The period is the header's title; the agenda's is its widget name.
-        var title = ready ? CalendarRules.Title(Layout, _anchor, Today, _config.Period, Strings.Current) : string.Empty;
-        _surface?.SetHeaderTitle(title.Length > 0 ? title : null);
+        // [S-568] [S-12481] The period is its line's label; the agenda has no line.
+        _line.Label = ready && ShowsLine ? CalendarRules.Title(Layout, _anchor, Today, _config.Period, Strings.Current) : string.Empty;
+        UpdateState();
 
         switch (_screen)
         {
@@ -586,7 +653,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         _state.Hide();
 
         var width = _area.Width;
-        var height = _area.Height;
+
+        // [S-569] [S-12481] The line takes its 24 off the top of the box the style is drawn in.
+        var height = _area.Height - (ShowsLine ? CalendarSizing.NavLine : 0);
 
         switch (Layout)
         {
@@ -616,14 +685,13 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     }
 
     /// <summary>
-    /// [S-569] The header's back, forward and today buttons. A tile narrower than the Compact width
-    /// keeps its header for the title alone (the keys still page); the agenda shows back and
-    /// forward only where there is a page to go to.
+    /// [S-569] [S-12481] Back and forward: on the period's line in every style but the agenda, whose pages
+    /// are the card menu's (and the keys') where there is a page to go to.
     /// </summary>
     private void ShowNavigation(bool ready)
     {
         _navigable = ready;
-        UpdateHeader();
+        UpdateState();
     }
 
     private void ClearDrawing()

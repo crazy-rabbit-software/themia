@@ -171,7 +171,6 @@ internal static class PageRows
                 Icon = IconOf(text.Glyph, null),
                 Edit = EditOf(text),
             },
-            SettingsLink link => row with { Text = link.Text, Icon = IconOf(link.Glyph, null), Owner = link.Owner, Run = link.Open },
 
             // [S-2311] The Appearance's preview, the page host's; none where the page was built without one (a test's).
             SettingsPreview => row with { Text = Str.SettingsPages_Appearance_Preview.Text(), Picker = preview },
@@ -245,6 +244,18 @@ internal static class PageRows
         if (entry.Note)
         {
             return new PageRow(key, SettingsRowKind.Note) { Text = entry.Text };
+        }
+
+        // [S-9602] A widget's icon: the one icon picker inline in its card, as a view's.
+        if (entry.Icon is { } pick)
+        {
+            return new PageRow(key, SettingsRowKind.Icon)
+            {
+                Text = entry.Text,
+                Icon = icon,
+                Picker = () => new IconPicker(pick.Current, new IconLook(Glyphs.Emoji, null), pick.NoneName, pick.Set),
+                Disabled = entry.Disabled,
+            };
         }
 
         if (entry.Slider is { } slider)

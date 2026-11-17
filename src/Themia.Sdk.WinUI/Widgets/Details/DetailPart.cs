@@ -13,9 +13,6 @@ public interface IDetailHost
     /// <summary>Put one sheet on screen. Called from the part's hub callbacks, on the UI thread.</summary>
     void Present(DetailSheet sheet);
 
-    /// <summary>[S-2260] Which one the kind reads (a processor, an adapter, a host) as the header's label beside the widget's name; null for none.</summary>
-    void SetAbout(string? about);
-
     /// <summary>[S-2510] Read now rather than at the next tick (Refresh).</summary>
     void SampleNow();
 }

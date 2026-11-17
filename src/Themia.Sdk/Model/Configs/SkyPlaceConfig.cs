@@ -46,7 +46,7 @@ public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
     /// the place is cleared ([S-2848]): then there is no label.
     /// </summary>
     [JsonIgnore]
-    public string? PlaceLabel => HasLocation ? Themia.Sdk.Kit.HeaderRules.About(Place) : null;
+    public string? PlaceLabel => HasLocation ? Themia.Sdk.Kit.LineRules.About(Place) : null;
 
     /// <summary>[S-2850] The observer is where Windows says the device is; the place chosen by hand is kept for when this goes off.</summary>
     public bool UseDeviceLocation { get; set; }

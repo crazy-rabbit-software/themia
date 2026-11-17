@@ -157,7 +157,7 @@ internal static partial class EditBarRender
         WidgetMenuLines? Over(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
             => Services.ModuleHost.MenuLines(kind, config, save, ask, confirm, openSetting: _ => { });
 
-        var commands = new SelectionCommands(_ => { }, _ => { }, (_, _) => { }, _ => { }, _ => { }, _ => { }, _ => { },
+        var commands = new SelectionCommands(_ => { }, _ => { }, _ => { }, _ => { }, _ => { },
             Cut: () => { },
             Copy: () => { },
             Delete: () => { },

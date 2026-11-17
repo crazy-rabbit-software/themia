@@ -14,7 +14,7 @@ public sealed class ContactsPitchTests
         var sizing = ContactsPlan.Sizing(config);
 
         // The view at the natural box: the card less its header.
-        var natural = ContactsPlan.Of(new WidgetArea(300, sizing.Natural.Height - 36), config);
+        var natural = ContactsPlan.Of(new WidgetArea(300, sizing.Natural.Height - 12), config);
         Assert.Equal(42, natural.Pitch);
         Assert.Equal(60, ContactsPlan.Of(new WidgetArea(300, 2000), config).Pitch);
         Assert.Equal(40, ContactsPlan.Of(default, config).Pitch);

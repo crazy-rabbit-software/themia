@@ -119,16 +119,11 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         ApplyConfig(config);
     }
 
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
+    public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as VideoStreamConfig ?? new VideoStreamConfig();
-        PublishTitle();
 
         _frame.Turn = _config.EffectiveRotation;
         var stretch = StretchFor(_config.EffectiveFit);
@@ -634,11 +629,4 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         WebUrlProblem.Credentials => VideoStreamStr.WidgetsC_VideoStream_RemoveCredentials.Text(),
         _ => WebInput.Explain(problem),
     };
-
-    /// <summary>[S-460] The camera's host and port, unless the user named the widget.</summary>
-    private void PublishTitle()
-    {
-        var title = VideoStreamRules.Title(_config.Url);
-        _surface?.SetHeaderTitle(title.Length == 0 ? null : title);
-    }
 }

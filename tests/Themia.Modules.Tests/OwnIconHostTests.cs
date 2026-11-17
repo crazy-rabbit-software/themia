@@ -39,7 +39,8 @@ public sealed class OwnIconHostTests
                 new FileMenuLine(FileCommand.EditLayout),
                 new FileMenuLine(FileCommand.IconProperties),
                 FileMenuLine.Separator,
-                new FileMenuLine(FileCommand.EditMode),
+                new FileMenuLine(FileCommand.EditMode, Checked: false),
+                new FileMenuLine(FileCommand.LockWidgets, Checked: false),
             ],
             menu.Lines);
         Assert.Empty(menu.Classic);

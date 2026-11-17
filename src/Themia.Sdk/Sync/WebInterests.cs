@@ -21,6 +21,15 @@ public sealed record AirInterest(double Latitude, double Longitude, TimeSpan Int
 public sealed record RainInterest(double Latitude, double Longitude, TimeSpan Interval);
 
 /// <summary>
+/// [S-12702] A weather graph's place: the next two days hour by hour, asked in °C whatever the shared unit (a graph
+/// converts when it draws), so every graph at one place shares one answer.
+/// </summary>
+public sealed record HoursInterest(double Latitude, double Longitude, TimeSpan Interval);
+
+/// <summary>[S-12702] The air graph's place: the next four days of air hour by hour, both indices and four pollutants.</summary>
+public sealed record AirHoursInterest(double Latitude, double Longitude, TimeSpan Interval);
+
+/// <summary>
 /// [S-5147] The exchange-rate widgets' one need: the ECB's 90-day table, whatever the base and the
 /// currencies (every pair is computed from it), so every such widget on every view shares one answer.
 /// </summary>

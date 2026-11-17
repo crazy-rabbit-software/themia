@@ -178,7 +178,7 @@ public class GalleryLayoutTests
         Assert.Equal(6, GalleryPlan.For(area, Of(GalleryStyle.Mosaic), 24).Pictures);
 
         var slide = GalleryPlan.For(area, Of(GalleryStyle.Slideshow), 24);
-        Assert.True(slide.Counter && slide.Controls, tier);
+        Assert.True(slide.Controls, tier);
 
         foreach (var layout in Enum.GetValues<GalleryStyle>())
         {

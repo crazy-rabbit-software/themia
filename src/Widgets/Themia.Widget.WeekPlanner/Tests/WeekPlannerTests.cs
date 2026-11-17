@@ -32,7 +32,6 @@ public sealed class WeekPlannerTests
         Assert.False(clone.ShowTasks);
 
         Assert.True(new WeekPlannerConfig().ShowTasks);
-        Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(new WidgetId("weekPlanner")));
         Assert.IsType<WeekPlannerConfig>(Themia.Core.Tests.ConfigJson.Read("WeekPlanner", """{"kind":"weekPlanner","taskAccountId":null}"""));
     }
 

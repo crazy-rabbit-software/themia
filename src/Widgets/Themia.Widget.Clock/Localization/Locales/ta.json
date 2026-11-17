@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "தேதியைக் காட்டு",
   "clock.offsetLabel": "வேறுபாடு",
   "clock.secondsLabel": "விநாடிகளைக் காட்டு",
   "clock.styleAnalog": "அனலாக்",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "நேர மண்டலம்",
   "clock.tzCurrent": "தற்போது: {city}",
   "locationSearch.placeholder": "நகரத்தைத் தேடு…",
-  "styles.clock.date": "தேதி",
   "styles.clock.flip": "ஃபிளிப்",
   "styles.clock.minimal": "எளிமை",
   "styles.clock.words": "சொற்கள்",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[n] மணி ஆக இன்னும் இருபது நிமிடம்",
   "wordClock.m45": "இப்போது [h2] முக்கால் மணி",
   "wordClock.m50": "[n] மணி ஆக இன்னும் பத்து நிமிடம்",
-  "wordClock.m55": "[n] மணி ஆக இன்னும் ஐந்து நிமிடம்",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "[n] மணி ஆக இன்னும் ஐந்து நிமிடம்"
 }

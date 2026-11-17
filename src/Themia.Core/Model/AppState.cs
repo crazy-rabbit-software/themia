@@ -42,9 +42,6 @@ public sealed class WidgetInstance
     /// </summary>
     public string? BackgroundImage { get; set; }
 
-    /// <summary>Where the widget's header sits. A per-widget choice, like the background.</summary>
-    public HeaderPlacement Header { get; set; } = HeaderPlacement.Top;
-
     /// <summary>
     /// [S-6512] This widget's own item background ([S-6560]): Default (the default) follows the
     /// app-wide one (<see cref="DesignState.ItemBackground"/>). Set on the properties panel ([S-6520]).
@@ -99,7 +96,6 @@ public sealed class WidgetInstance
     public static WidgetInstance Create(WidgetId kind, FracRect rect) => new()
     {
         Id = Guid.NewGuid().ToString("n"),
-        Header = DefaultHeader(kind),
         Background = DefaultBackground(kind),
         Config = WidgetConfig.CreateDefault(kind),
         X = rect.X,
@@ -115,33 +111,12 @@ public sealed class WidgetInstance
     public static FillChoice DefaultBackground(WidgetId kind)
         => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.StartsTransparent) ? FillChoice.Transparent() : new();
 
-    /// <summary>
-    /// [S-700] Where a new widget's header goes: Top, unless its descriptor says it starts headerless
-    /// or can never have one ([S-6905]). Only the default: the user can still give it a header, and a
-    /// saved widget keeps the placement it was saved with.
-    /// </summary>
-    public static HeaderPlacement DefaultHeader(WidgetId kind)
-        => CanHaveHeader(kind) && !ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.StartsHeaderless)
-            ? HeaderPlacement.Top
-            : HeaderPlacement.Hidden;
-
-    /// <summary>[S-3711] Whether a widget of <paramref name="kind"/> may have a header at all: its descriptor's <see cref="WidgetTraits.CanHaveHeader"/>.</summary>
-    public static bool CanHaveHeader(WidgetId kind) => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.CanHaveHeader);
-
-    /// <summary>
-    /// [S-3711]/[S-3712] Where the header is drawn: the stored placement, or hidden for a kind that
-    /// can never have one, whatever the file says.
-    /// </summary>
-    [JsonIgnore]
-    public HeaderPlacement ShownHeader => CanHaveHeader(Kind) ? Header : HeaderPlacement.Hidden;
-
     public WidgetInstance Clone() => new()
     {
         Id = Guid.NewGuid().ToString("n"),
         Label = Label,
         Background = Background.Clone(),
         BackgroundImage = BackgroundImage,
-        Header = Header,
         ItemBackground = ItemBackground.Clone(),
         ItemTextColor = ItemTextColor,
         Scale = Scale,
@@ -195,6 +170,13 @@ public sealed class ViewState
     public string? Color { get; set; }
 
     public List<WidgetInstance> Widgets { get; set; } = [];
+
+    /// <summary>
+    /// [S-5525] Which desktop items this view shows: All (the default, left out of the file), Chosen or None.
+    /// Set in the view's card on the Views page (<see cref="Desktop.DesktopViews"/> holds the rules).
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public ViewDesktopIcons DesktopIcons { get; set; }
 
     /// <summary>
     /// [S-2450] The view's groups: locks over two or more of its widgets, which then select, move,
@@ -317,12 +299,6 @@ public sealed class DesignState
     /// <summary>Duration of that animation, in milliseconds.</summary>
     public double IntroAnimationMs { get; set; } = 500;
 
-    /// <summary>[S-704] [S-2103] The header's own fill, as <c>#RRGGBB</c>. Empty: none, the header is the card.</summary>
-    public string HeaderBackgroundColor { get; set; } = string.Empty;
-
-    /// <summary>[S-2103] Opacity of the header's own fill, 0 to 1. Without a header colour it draws nothing.</summary>
-    public double HeaderOpacity { get; set; } = 1.0;
-
     /// <summary>[S-704] The animation widgets play when the user switches views.</summary>
     public IntroAnimation TransitionAnimation { get; set; } = IntroAnimation.Scale;
 
@@ -357,8 +333,6 @@ public sealed class DesignState
         BorderOpacity = BorderOpacity,
         IntroAnimation = IntroAnimation,
         IntroAnimationMs = IntroAnimationMs,
-        HeaderBackgroundColor = HeaderBackgroundColor,
-        HeaderOpacity = HeaderOpacity,
         TransitionAnimation = TransitionAnimation,
         TransitionAnimationMs = TransitionAnimationMs,
         UnlockAnimation = UnlockAnimation,

@@ -1,7 +1,6 @@
 {
   "$englishOnly": [],
   "$comment": "[S-6020] The Clock's word style. wordClock.hours: one or more hour forms separated by ';', each 12 entries (index 0 = twelve, then one..eleven) or 24 entries (index 0 = midnight .. 23) separated by '|'. wordClock.mNN: the sentence for NN minutes past the hour (rounded to the nearest five). In a sentence [h] is the hour in form 1, [n] the next hour in form 1, [h2]/[n2] form 2, and so on. The first letter of the result is capitalised.",
-  "clock.dateLabel": "Show date",
   "clock.offsetLabel": "Offset",
   "clock.secondsLabel": "Show seconds",
   "clock.styleAnalog": "Analog",
@@ -10,7 +9,6 @@
   "clock.timezoneLabel": "Timezone",
   "clock.tzCurrent": "Current: {city}",
   "locationSearch.placeholder": "Search city…",
-  "styles.clock.date": "Date",
   "styles.clock.flip": "Flip",
   "styles.clock.minimal": "Minimal",
   "styles.clock.words": "Words",
@@ -32,6 +30,5 @@
   "wordClock.m40": "It's twenty to [n]",
   "wordClock.m45": "It's quarter to [n]",
   "wordClock.m50": "It's ten to [n]",
-  "wordClock.m55": "It's five to [n]",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "It's five to [n]"
 }

@@ -11,7 +11,7 @@ public sealed class NotesSizingTests
     {
         var sizing = ModuleCatalog.Of(new WidgetId("notes")).SizingOf();
 
-        Assert.Equal((new SizeDip(160, 100), new SizeDip(300, 220), new SizeDip(600, 600)), (sizing.Min, sizing.Natural, sizing.Max));
+        Assert.Equal((new SizeDip(160, 100), new SizeDip(300, 220), new SizeDip(Themia.Sdk.SizeStretch.Ceiling, Themia.Sdk.SizeStretch.Ceiling)), (sizing.Min, sizing.Natural, sizing.Max)); // relaxed, [S-12411]: no practical Max
         Assert.Null(sizing.HeightSteps);
         Assert.Empty(sizing.Problems());
     }

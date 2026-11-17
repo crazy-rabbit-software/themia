@@ -11,7 +11,7 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
 `CountdownMenu.cs` (its properties-menu lines), `Preview/` (Debug renders), `Localization/Locales/` (its own
 `CountdownStr`, 30 languages). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-140]** A countdown reads its name (the card's header, [S-6037]), the duration and the absolute
+- **[S-140]** A countdown reads its name (over its face, [S-6037], [S-12481]), the duration and the absolute
   local target. A target in the past is not hidden: it reads "… ago" in the critical role, because how
   long ago a deadline went is the thing you want to know.
 - **[S-141]** `auto` picks the coarsest unit that still says something: "in a moment", "N mins",
@@ -42,8 +42,8 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
   (`CountdownLayout.Cards`); a target gone by counts up in the critical role. A card whose figures
   change on a tick turns over; the days card going at the last day re-lays the row.
 - **[S-6036]** A countdown widget counts to **one** target (user decision): `CountdownConfig` is its
-  name (one line, at most 60 characters; the card's header shows it, the widget's own name while it
-  is empty), its target (an instant kept in UTC), its format and when
+  name (one line, at most 60 characters; shown over the face in the header's look, [S-12481]; no
+  line while it is empty), its target (an instant kept in UTC), its format and when
   the target was set (`Created`, [S-1448]). Several countdowns are several widgets; there is no
   timer list, no row and no menu or key of the widget's own. A new widget has no target and shows
   the Set up button ([S-1860]); setting one (`Retarget`) starts its progress from then. A
@@ -73,8 +73,8 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
   (`CountdownLayout.Widest`: Auto's widest of its wordings, "88 days ago" in English for a target under
   100 days away), the Flip cards on as many figures each and as many
   cards as the format can show (days, hours, minutes, and seconds with them), so nothing moves as it
-  counts. The card follows (`CountdownLayout.Sizing`): under its header (the event's name, on by
-  default) the face, the bar where it is on, the inset; one height, up to half again wider; it sits
+  counts. The card follows (`CountdownLayout.Sizing`): the event's name where it has one (its 20
+  line and 4, `NameCost`, [S-12481]), the face, the bar where it is on, the inset; one height, up to half again wider; it sits
   where the widget's alignment puts it ([S-6580]), centred by default. A reading wider than that
   (a thousand days and more) is cut. No tier ladder is left. Tests `CountdownLayoutTests.S11303_`.
 - **[S-1448]** `CountdownConfig.Created` (set with the target on the properties menu): the bar, where

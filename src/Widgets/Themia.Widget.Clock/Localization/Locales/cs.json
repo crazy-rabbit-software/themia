@@ -1,6 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "clock.dateLabel": "Zobrazit datum",
   "clock.offsetLabel": "Posun",
   "clock.secondsLabel": "Zobrazit sekundy",
   "clock.styleAnalog": "Analogové",
@@ -9,7 +8,6 @@
   "clock.timezoneLabel": "Časové pásmo",
   "clock.tzCurrent": "Aktuální: {city}",
   "locationSearch.placeholder": "Hledat město…",
-  "styles.clock.date": "Datum",
   "styles.clock.flip": "Překlápěcí",
   "styles.clock.minimal": "Minimalistické",
   "styles.clock.words": "Slovy",
@@ -31,6 +29,5 @@
   "wordClock.m40": "Je za dvacet minut [n4]",
   "wordClock.m45": "Je tři čtvrtě na [n3]",
   "wordClock.m50": "Je za deset minut [n4]",
-  "wordClock.m55": "Je za pět minut [n4]",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Je za pět minut [n4]"
 }

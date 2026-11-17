@@ -2,23 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace Themia.Core.Model;
 
-/// <summary>Where a widget draws its header.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<HeaderPlacement>))]
-public enum HeaderPlacement
-{
-    Top = 0,
-    Bottom = 1,
-
-    /// <summary>No header. The widget is the content and nothing else.</summary>
-    Hidden = 2,
-
-    /// <summary>[S-404] A strip down the card's left edge, the title turned to read bottom to top.</summary>
-    Left = 3,
-
-    /// <summary>[S-404] A strip down the card's right edge, the title turned to read top to bottom.</summary>
-    Right = 4,
-}
-
 /// <summary>Light/dark selection. <c>System</c> follows the Windows app theme.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<AppTheme>))]
 public enum AppTheme

@@ -138,15 +138,20 @@ public sealed class CountdownLayoutTests
     }
 
     [Fact]
-    public void S11303_the_card_is_its_face_under_its_header_with_the_bar_where_it_is_on_but_never_on_a_ring()
+    public void S11303_the_card_is_its_face_under_its_name_with_the_bar_where_it_is_on_but_never_on_a_ring()
     {
         var plain = CountdownLayout.Sizing(new CountdownConfig(), Locale.En);
         var barred = CountdownLayout.Sizing(new CountdownConfig { ShowProgress = true }, Locale.En);
+        var named = CountdownLayout.Sizing(new CountdownConfig { Label = "Trip" }, Locale.En);
         var ring = new CountdownConfig { Style = CountdownStyle.Ring, ShowProgress = true };
 
         Assert.True(plain.FixedHeight && !plain.FixedWidth);
-        Assert.Equal(36 + 92 + 20 + 12 + 2, plain.Natural.Height);
+        Assert.Equal(12 + 92 + 20 + 12 + 2, plain.Natural.Height);
         Assert.Equal(plain.Natural.Height + 12, barred.Natural.Height);
+
+        // [S-12481] The event's name over the face costs what the card's header did: its line and 4.
+        Assert.Equal(plain.Natural.Height + 24, named.Natural.Height);
+        Assert.Equal(plain, CountdownLayout.Sizing(new CountdownConfig { Label = "   " }, Locale.En));
         Assert.False(ring.DrawsProgress);
         Assert.Equal(CountdownLayout.Sizing(ring, Locale.En), CountdownLayout.Sizing(new CountdownConfig { Style = CountdownStyle.Ring }, Locale.En));
         Assert.False(new CountdownConfig().ShowProgress);

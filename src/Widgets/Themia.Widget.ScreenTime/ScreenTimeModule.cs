@@ -28,8 +28,8 @@ public sealed class ScreenTimeModule : IWidgetModule
         Label = ScreenTimeStr.ScreenTime_Label.Local(),
         Description = ScreenTimeStr.ScreenTime_Desc.Local(),
         Glyph = Glyphs.Hours,
-        Sizing = _ => ScreenTimeReading.Sizing(),
-        Traits = WidgetTraits.CanHaveHeader,
+        Sizing = c => ScreenTimeReading.Sizing(((ScreenTimeConfig)c).Period),
+        Traits = WidgetTraits.None,
         Links = LinkUse.Of([], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 0),
     };

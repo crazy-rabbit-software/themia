@@ -14,18 +14,15 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-653]** *(Retired: the quote on the step its area allows; its size is a setting, [S-11306].)*
 - **[S-1495]** Quote: the bundled list is the original's sixteen in its order, so a daily unshuffled
   rotation shows the original's quote for the day (`QUOTES[localDay % 16]`, regression-tested). The
-  header button shows a random *other* quote (`QuoteRotation.RandomStep`); a tap steps to the next.
+  card menu's Show another quote shows a random *other* quote (`QuoteRotation.RandomStep`); a tap steps to the next.
   Both stay ephemeral (original S-02).
-- **[S-5711]** It starts headerless ([S-2590]), so the header's Show another quote is on its card's
-  right-click menu as well (`QuoteView.ContextActions`, the Reset glyph), only with two quotes or more,
-  doing what the button does; the button comes back with the header.
+- **[S-5711]** Show another quote is on its card's right-click menu (`QuoteView.ContextActions`, the
+  Reset glyph), only with two quotes or more ([S-12481]: no card header, so no header button).
 - **[S-1990]** Quote keys (`QuoteKeys.Of`), only with two or more quotes: Right, Space or Enter
   the next quote (what a tap does), Left the one before. Ephemeral, like the tap.
 - **[S-1496]** *(Retired: the ladder by the tile's size, the attribution given way and the lines that
-  fit; [S-11306].)* The quote is primary, start-aligned, the block centred in the room under the header ([S-12410]; at its natural box from the view's top) (the widget's alignment
-  moves it, [S-6583]); nothing else is drawn (the rotation caption is retired). With its header on, the
-  header is the Header block with one button, Show another quote ([S-1495]), wanted only with two quotes
-  or more. While the list is empty the
+  fit; [S-11306].)* The quote is primary, start-aligned, the block centred in its room ([S-12410]; at its natural box from the view's top; [S-12483] against a side a group mate joins) (the widget's alignment
+  moves it, [S-6583]); nothing else is drawn (the rotation caption is retired). While the list is empty the
   card's Set up row says "Add a quote" ([S-1862]). Debug renders: `--state sample|long` pin the bundled
   Newton and the plant-a-tree proverb.
 - **[S-6404]** Quote's styles ([S-6000]), `QuoteConfig.Style` (`QuoteStyle`, `"style": "plain"`):
@@ -42,8 +39,7 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   for a quote without an author, so nothing moves as the quotes turn. The card follows
   (`QuoteLayout.Sizing`): the inset, the mark and its 8 on the Marks style, the lines, the attribution's
   line, the inset; stepped by a line and following Lines (dragging its bottom edge sets them,
-  `QuoteLayout.SizeSets`), 200 to 520 wide (a new one 320), where the quote only rewraps. It starts
-  without a header. No tier ladder is left. Tests `QuoteLayoutTests.S11306_`.
+  `QuoteLayout.SizeSets`), 200 to 520 wide (a new one 320), where the quote only rewraps. No tier ladder is left. Tests `QuoteLayoutTests.S11306_`.
 - **[S-1502]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. **Size** and **Lines** under its Style ([S-11306]), Appearance ([S-3723]), then **Quotes**, the editable list ([S-3729]) in the
   rotation's order: each quote by its text, a submenu of Rename… (its text; never empty), Author…

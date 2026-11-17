@@ -22,8 +22,8 @@ public sealed class SkyFactsTests
     {
         var sizing = SkyFacts.Sizing(3, 4);
 
-        Assert.Equal(36 + (3 * 28) + 12, sizing.Natural.Height);
-        Assert.Equal((36 + 28 + 12.0, 36 + (4 * 28) + 12.0), (sizing.Min.Height, sizing.Max.Height));
+        Assert.Equal(12 + (3 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal((12 + 28 + 12.0, 12 + (4 * 28) + 12.0), (sizing.Min.Height, sizing.Max.Height));
         Assert.Equal((200.0, 240.0, 420.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
         Assert.True(sizing.HeightSteps!.FollowsConfig);
         Assert.Empty(sizing.Problems());

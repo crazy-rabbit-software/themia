@@ -18,8 +18,7 @@ public sealed class GpuHistoryTests
     [Fact]
     public void S11014_it_starts_headerless_and_charts_its_adapters_series_as_the_reading_does()
     {
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
-        Assert.Equal(MeterSizing.History, Kind.SizingOf());
+        Assert.Equal(Themia.Sdk.SizeStretch.Relax(MeterSizing.History), Kind.SizingOf()); // [S-12411] relaxed
         Assert.Equal(SystemInterests.For(new GpuConfig { Adapter = 2 }, @"C:\").Series, SystemInterests.For(new GpuHistoryConfig { Adapter = 2 }, @"C:\").Series);
     }
 

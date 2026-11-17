@@ -7,6 +7,7 @@ using Themia.Core.Astronomy;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 
@@ -17,24 +18,23 @@ namespace Themia.Widget.SunTimes;
 /// in their order, one line each, from the content's top; the next of sunrise and sunset emphasised. A
 /// name takes its short form where the long one and the value do not fit side by side.
 /// </summary>
-internal sealed partial class SunTimesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware
+internal sealed partial class SunTimesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetJoins
 {
     private readonly StackPanel _stack = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly List<SkyEventRow> _rows = [];
-    private readonly HeaderParts _about = new();
     private SunTimesConfig _config = new();
     private IDisposable? _subscription;
     private Ticker? _ticker;
     private DateTimeOffset _now = DateTimeOffset.Now;
     private double _room = double.PositiveInfinity;
 
+    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
+    public void ApplyJoins(JoinedSides sides) => _stack.VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
+
     public SunTimesView()
     {
         Children.Add(_stack);
     }
-
-    /// <summary>[S-2260] The place as the header's label beside the widget's name; none once it is cleared ([S-2848]).</summary>
-    public FrameworkElement? HeaderTrailing => _about;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -47,7 +47,6 @@ internal sealed partial class SunTimesView : Grid, IWidgetView, IWidgetHeaderCon
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as SunTimesConfig ?? new SunTimesConfig();
-        _about.SetAbout(_config.PlaceLabel);
         _subscription ??= _ticker?.Subscribe(_config.TickInterval, () =>
         {
             _now = DateTimeOffset.Now;

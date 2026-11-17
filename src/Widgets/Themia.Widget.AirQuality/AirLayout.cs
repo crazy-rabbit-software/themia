@@ -22,7 +22,7 @@ public static class AirLayout
 
     public const double Widest = 320;
 
-    /// <summary>[S-11131] The index's sizing, with its header.</summary>
+    /// <summary>[S-11131] The index's sizing.</summary>
     public static WidgetSizing Sizing(AirQualityConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);

@@ -97,7 +97,7 @@ public sealed class ForecastCurveTests
         var sizing = WeatherForecastLayout.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Curve, Days = 5 });
 
         Assert.Equal((24 + (5 * 48.0), 24 + (5 * 56.0), 24 + (5 * 72.0)), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(36 + ForecastCurve.Parts(true) + 96 + 12, sizing.Natural.Height);
+        Assert.Equal(12 + ForecastCurve.Parts(true) + 96 + 12, sizing.Natural.Height);
         Assert.Equal(sizing.Natural.Height - 96 + 72, sizing.Min.Height);
     }
 

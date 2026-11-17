@@ -51,10 +51,11 @@ stay Core's (`StockWidgetTests`, `S1307_`, `S1308_`, `S1309_`, `S1310_`, `S2775_
   and empty while the market was open, a spare 16 (28 with its gap) at the card's foot. The session is
   told every minute on the shared ticker (render only).
   **Refresh** in the card menu, with the quote's age; a failed refresh under the price on screen is the
-  header's problem glyph ([S-7042]). No quote: the Status row at the top ([S-6734]): "“X” is not a
+  status's problem glyph over its top end ([S-7042], [S-12481]). No quote: the Status row at the top ([S-6734]): "“X” is not a
   symbol" for a refused symbol, "No quote for that symbol" for an empty answer, else the fetch's own
-  sentence (the SDK's `StockQuoteLines.ShowState`). Header title: name, else the service's own name
-  (listed), else the symbol.
+  sentence (the SDK's `StockQuoteLines.ShowState`). [S-12481] What it is the price of leads the line
+  under the price ("AAPL · +1.2%"): the user's name, else the symbol (no card has a header to name it).
+  In a group the block stands against a side a mate joins ([S-12483]).
 - **[S-2770]** Stocks is concise ([S-666], user decision): the name, the price, its change, the session,
   the holding ([S-2777], only when set) and the extended-hours print ([S-1308], off by default); the
   period's shape is the chart atom's. No facts (previous close, ranges, volume, exchange) and no range
@@ -62,16 +63,17 @@ stay Core's (`StockWidgetTests`, `S1307_`, `S1308_`, `S1309_`, `S1310_`, `S2775_
 - **[S-11160]** **An atom**: the reading and its rows, the same at every size in its range; no styles
   (the old Number style is this atom, the Chart style the ready-made group "Stocks", [S-11172]). The
   price and the chart, set to one instrument, period and extended hours, ask one quote and agree.
-- **[S-11161]** **Sizes** (`StockLayout.Sizing`, with its header): the 28's line, the line under it where
-  Market hours is on, then 8 down a 28 row for the holding where one is set and one for the extended print
-  where it is asked for (a listed symbol over one or five days), one height by those rows (84, 120, 148;
-  16 more with Market hours); 240..360 wide, a new one 240. A row with nothing to show yet keeps its place with the dash.
+- **[S-11161]** **Sizes** (`StockLayout.Sizing`): the 28's line, the line under it (always: it names the
+  quote, [S-12481], the session after the name where Market hours is on; the sizing counted it only with Market
+  hours while the view always held its place, so a stock without it ran 16 past its card, [S-12800]), then 8 down
+  a 28 row for the holding where one is set and one for the extended print where it is asked for (a listed symbol
+  over one or five days), one height by those rows (76, 112, 140); 240..360 wide, a new one 240. A row with nothing to show yet keeps its place with the dash.
 - **[S-2778]** Its options are all on the properties menu ([S-3719]); it has no settings page: Appearance
   ([S-3723]), what it quotes: **Symbol** (the search of [S-1307]; the line Set up opens: until a symbol
   is chosen the card's Set up row says "Choose a symbol", [S-1862]) and **Shares owned** ([S-2776]);
   after a divider the time it covers: **Timeframe** (1 day … 10 years), **Extended hours** (only a
-  listed symbol over one or five days, [S-1308]) and **Market hours** (the session's line, [S-1311]; not for a coin); after another
-  a link to **Update interval** (⚙ › Online updates › Markets, [S-3749]). Nothing under Style. (Tests
+  listed symbol over one or five days, [S-1308]) and **Market hours** (the session's line, [S-1311]; not for a coin). How often
+  the markets are asked is ⚙ › Online updates › Markets', followed, no link row ([S-3590], [S-3749]). Nothing under Style. (Tests
   `StockMenuTests`.)
 - **[S-6165]**, **[S-6166]** *(Retired by [S-11160]: no styles; the chart is the `stockHistory` atom, [S-11165].)*
 - **[S-2776]** **Shares owned** (`StockConfig.SharesOwned`, per widget, a line on its properties menu

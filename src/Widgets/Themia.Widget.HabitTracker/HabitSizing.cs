@@ -61,7 +61,7 @@ public static class HabitSizing
     /// <summary>[S-11532] One habit's block in a grid per habit: its name, 4, its grid of seven rows.</summary>
     public static double HabitBlock => FamilyType.Body.LineHeight + HabitHeatmap.NameGap + HabitHeatmap.GridOf(HabitHeatmap.PerHabitCell);
 
-    /// <summary>[S-11530]..[S-11532] The sizing of <paramref name="config"/>, with its header.</summary>
+    /// <summary>[S-11530]..[S-11532] The sizing of <paramref name="config"/>.</summary>
     public static WidgetSizing Sizing(HabitTrackerConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);

@@ -179,7 +179,9 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
         var face = TileRules.Face(width, height);
         var texted = row || face.Texted;
-        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: texted, state: texted, face.Name, face.State);
+        // [S-12806] A box too small for the family's inset gives it up round the glyph (its switch row keeps it).
+        _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: texted, state: texted, face.Name, face.State, row ? 0 : face.Mark);
         Paint();
     }
 

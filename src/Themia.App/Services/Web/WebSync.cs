@@ -23,6 +23,8 @@ internal sealed class WebSync : IDisposable
     private readonly AnswerSync<AirReading> _air;
     private readonly AnswerSync<RainNowcast> _rain;
     private readonly AnswerSync<RateTable> _rates;
+    private readonly AnswerSync<WeatherHours> _hours;
+    private readonly AnswerSync<AirHours> _airHours;
     private bool _disposed;
 
     public WebSync(SyncHost sync, Ticker ticker)
@@ -34,6 +36,8 @@ internal sealed class WebSync : IDisposable
         _air = new AnswerSync<AirReading>("air", ticker);
         _rain = new AnswerSync<RainNowcast>("rain", ticker);
         _rates = new AnswerSync<RateTable>("rates", ticker);
+        _hours = new AnswerSync<WeatherHours>("hours", ticker);
+        _airHours = new AnswerSync<AirHours>("airhours", ticker);
         _sync.InterestsChanged += Reconcile;
         _sync.NetworkAvailable += Wake;
         Reconcile();
@@ -53,6 +57,8 @@ internal sealed class WebSync : IDisposable
             _air.Updated += value;
             _rain.Updated += value;
             _rates.Updated += value;
+            _hours.Updated += value;
+            _airHours.Updated += value;
         }
 
         remove
@@ -63,6 +69,8 @@ internal sealed class WebSync : IDisposable
             _air.Updated -= value;
             _rain.Updated -= value;
             _rates.Updated -= value;
+            _hours.Updated -= value;
+            _airHours.Updated -= value;
         }
     }
 
@@ -94,6 +102,52 @@ internal sealed class WebSync : IDisposable
         ArgumentNullException.ThrowIfNull(want);
         return OnlineService.RainKey(want.Latitude, want.Longitude);
     }
+
+    /// <summary>[S-12702] The key a weather graph's hourly answer is synced under.</summary>
+    public static string Key(HoursInterest want)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        return OnlineService.HoursKey(want.Latitude, want.Longitude);
+    }
+
+    /// <summary>[S-12702] The key the air graph's hourly answer is synced under.</summary>
+    public static string Key(AirHoursInterest want)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        return OnlineService.AirHoursKey(want.Latitude, want.Longitude);
+    }
+
+    public Fetched<WeatherHours>? Hours(HoursInterest want)
+        => _hours.Answer(Key(want)) ?? OnlineService.PeekHours(want.Latitude, want.Longitude);
+
+    public Fetched<AirHours>? AirHours(AirHoursInterest want)
+        => _airHours.Answer(Key(want)) ?? OnlineService.PeekAirHours(want.Latitude, want.Longitude);
+
+    public void Show(HoursInterest want, bool refresh)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        Go(_hours, HoursWant(want), refresh);
+    }
+
+    public void Show(AirHoursInterest want, bool refresh)
+    {
+        ArgumentNullException.ThrowIfNull(want);
+        Go(_airHours, AirHoursWant(want), refresh);
+    }
+
+    private static AnswerWant<WeatherHours> HoursWant(HoursInterest h)
+        => new(
+            Key(h),
+            h.Interval,
+            (freshFor, force) => OnlineService.HoursAsync(h.Latitude, h.Longitude, freshFor, force),
+            () => OnlineService.PeekHours(h.Latitude, h.Longitude));
+
+    private static AnswerWant<AirHours> AirHoursWant(AirHoursInterest a)
+        => new(
+            Key(a),
+            a.Interval,
+            (freshFor, force) => OnlineService.AirHoursAsync(a.Latitude, a.Longitude, freshFor, force),
+            () => OnlineService.PeekAirHours(a.Latitude, a.Longitude));
 
     /// <summary>[S-5147] The one key every exchange-rates widget shares.</summary>
     public static string RatesKey => OnlineService.RatesKey;
@@ -232,6 +286,8 @@ internal sealed class WebSync : IDisposable
         _air.Reconcile(interests.Air.Select(AirWant));
         _rain.Reconcile(interests.Rain.Select(RainWant));
         _rates.Reconcile(interests.Rates is { } rates ? [RatesWant(rates)] : []);
+        _hours.Reconcile(interests.Hours.Select(HoursWant));
+        _airHours.Reconcile(interests.AirHours.Select(AirHoursWant));
     }
 
     private void Wake()
@@ -242,6 +298,8 @@ internal sealed class WebSync : IDisposable
         _air.Wake();
         _rain.Wake();
         _rates.Wake();
+        _hours.Wake();
+        _airHours.Wake();
     }
 
     public void Dispose()
@@ -260,5 +318,7 @@ internal sealed class WebSync : IDisposable
         _air.Dispose();
         _rain.Dispose();
         _rates.Dispose();
+        _hours.Dispose();
+        _airHours.Dispose();
     }
 }

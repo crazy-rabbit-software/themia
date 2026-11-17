@@ -35,10 +35,21 @@ internal static class OnlineService
     private static readonly WebCache<AirReading> AirCache = new(Scope);
     private static readonly WebCache<RainNowcast> RainCache = new(Scope);
     private static readonly WebCache<RateTable> RatesCache = new(Scope);
+    private static readonly WebCache<WeatherHours> HoursCache = new(Scope);
+    private static readonly WebCache<AirHours> AirHoursCache = new(Scope);
 
     public static string AirKey(double latitude, double longitude) => $"air|{Coordinate(latitude)},{Coordinate(longitude)}";
 
     public static string RainKey(double latitude, double longitude) => $"rain|{Coordinate(latitude)},{Coordinate(longitude)}";
+
+    /// <summary>[S-12702] One hourly answer per place: asked in °C, whatever the unit shown.</summary>
+    public static string HoursKey(double latitude, double longitude) => $"hours|{Coordinate(latitude)},{Coordinate(longitude)}";
+
+    public static string AirHoursKey(double latitude, double longitude) => $"airhours|{Coordinate(latitude)},{Coordinate(longitude)}";
+
+    public static Fetched<WeatherHours>? PeekHours(double latitude, double longitude) => HoursCache.Peek(HoursKey(latitude, longitude));
+
+    public static Fetched<AirHours>? PeekAirHours(double latitude, double longitude) => AirHoursCache.Peek(AirHoursKey(latitude, longitude));
 
     public static Fetched<AirReading>? PeekAir(double latitude, double longitude) => AirCache.Peek(AirKey(latitude, longitude));
 
@@ -68,6 +79,35 @@ internal static class OnlineService
             + "&timeformat=unixtime&timezone=auto");
 
         return GetAsync(RainCache, RainKey(latitude, longitude), uri, "application/json", RainWire.Parse, freshFor, force);
+    }
+
+    /// <summary>
+    /// [S-12702] The hour under way and the next two days hour by hour (every graph's figures in one request), and
+    /// three days' sunrise and sunset for the daylight the UV graph shades. Base units: °C, km/h, mm.
+    /// </summary>
+    public static Task<Fetched<WeatherHours>> HoursAsync(double latitude, double longitude, TimeSpan freshFor, bool force)
+    {
+        var uri = new Uri(
+            $"{ForecastEndpoint}?latitude={Coordinate(latitude)}&longitude={Coordinate(longitude)}"
+            + "&hourly=" + WeatherHoursWire.HourlyFields
+            + $"&past_hours=1&forecast_hours={WeatherHoursWire.Hours.ToString(CultureInfo.InvariantCulture)}"
+            + "&daily=sunrise,sunset&forecast_days=3"
+            + "&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm"
+            + "&timeformat=unixtime&timezone=auto");
+
+        return GetAsync(HoursCache, HoursKey(latitude, longitude), uri, "application/json", WeatherHoursWire.Parse, freshFor, force);
+    }
+
+    /// <summary>[S-12702] The hour under way and the next four days of air, hour by hour.</summary>
+    public static Task<Fetched<AirHours>> AirHoursAsync(double latitude, double longitude, TimeSpan freshFor, bool force)
+    {
+        var uri = new Uri(
+            $"{AirEndpoint}?latitude={Coordinate(latitude)}&longitude={Coordinate(longitude)}"
+            + "&hourly=" + WeatherHoursWire.AirFields
+            + $"&past_hours=1&forecast_hours={WeatherHoursWire.AirHourCount.ToString(CultureInfo.InvariantCulture)}"
+            + "&timeformat=unixtime&timezone=auto");
+
+        return GetAsync(AirHoursCache, AirHoursKey(latitude, longitude), uri, "application/json", WeatherHoursWire.ParseAir, freshFor, force);
     }
 
     public static Task<Fetched<RateTable>> RatesAsync(TimeSpan freshFor, bool force)
@@ -147,7 +187,17 @@ internal static class OnlineService
                     RatesCache.Restore(key, value, at);
                 }
 
-                Log.Info(Scope, $"restored {snapshot.Air.Count} air readings, {snapshot.Rain.Count} rain nowcasts and {snapshot.Rates.Count} rate tables");
+                foreach (var (key, at, value) in snapshot.Hours)
+                {
+                    HoursCache.Restore(key, value, at);
+                }
+
+                foreach (var (key, at, value) in snapshot.AirHours)
+                {
+                    AirHoursCache.Restore(key, value, at);
+                }
+
+                Log.Info(Scope, $"restored {snapshot.Air.Count} air readings, {snapshot.Rain.Count} rain nowcasts and {snapshot.Rates.Count} rate tables, {snapshot.Hours.Count + snapshot.AirHours.Count} hourly forecasts");
             }
             else
             {
@@ -177,6 +227,8 @@ internal static class OnlineService
         var replies = new List<CachedReply>();
         replies.AddRange(AirCache.Snapshot().Select(p => new CachedReply(OnlineSource.Air, p.Key, p.Entry.At, p.Entry.Value!.Source)));
         replies.AddRange(RainCache.Snapshot().Select(p => new CachedReply(OnlineSource.Rain, p.Key, p.Entry.At, p.Entry.Value!.Source)));
+        replies.AddRange(HoursCache.Snapshot().Select(p => new CachedReply(OnlineSource.Hours, p.Key, p.Entry.At, p.Entry.Value!.Source)));
+        replies.AddRange(AirHoursCache.Snapshot().Select(p => new CachedReply(OnlineSource.AirHours, p.Key, p.Entry.At, p.Entry.Value!.Source)));
         replies.AddRange(RatesCache.Snapshot().Select(p => new CachedReply(OnlineSource.Rates, p.Key, p.Entry.At, p.Entry.Value!.Source)));
 
         vault.SaveSoon(SyncKind.Web, WebShelf.OnlineOwner, () => new WebShelf

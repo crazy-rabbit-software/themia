@@ -32,7 +32,7 @@ public sealed class PingHistoryModule : IWidgetModule
         Description = PingHistoryStr.PingHistory_Desc.Local(),
         Glyph = Glyphs.Network,
         Sizing = _ => MeterSizing.History,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.PingReading, 0, 1),
     };

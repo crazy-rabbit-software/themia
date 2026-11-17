@@ -33,7 +33,7 @@ public static class MoonLayout
     /// <summary>[S-11121] The month's grid, its name over it: its width and height.</summary>
     public static SizeDip Month => new(Columns * Pitch, FamilyType.Caption.LineHeight + FamilySpace.S2 + (Rows * Pitch));
 
-    /// <summary>[S-11121] The moon's sizing, with its header.</summary>
+    /// <summary>[S-11121] The moon's sizing.</summary>
     public static WidgetSizing Sizing(MoonConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);

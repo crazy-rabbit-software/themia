@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.WeatherForecast;
@@ -29,16 +30,19 @@ namespace Themia.App.Widgets;
 /// week that runs 12° to 14° every day should draw seven short marks in the same place.
 /// </para>
 /// </summary>
-internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent,
-    IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens,
+    IWidgetSizeAware, IWidgetContextActions, IWidgetJoins
 {
+    /// <summary>[S-12483] The sides a group mate joins: no foot inset where one joins it.</summary>
+    private JoinedSides _joins;
+
     /// <inheritdoc />
     public CardOpen? Opens => WeatherForecastModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
 
     private const string Scope = "forecast";
 
-    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
-    private readonly KitHeader _header;
+    /// <summary>[S-7064] The status's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitStatus _mark;
     private readonly Grid _body = new();
 
     /// <summary>[S-6734] Why there is no forecast to draw: the Status block's row at the top.</summary>
@@ -54,7 +58,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// </summary>
     private WeatherForecastConfig _applied = new();
 
-    /// <summary>The card this view draws on, which owns the header it names.</summary>
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
     private readonly IWidgetHost _host;
@@ -76,19 +79,27 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     public WeatherForecastView(IWidgetHost host)
     {
         _host = host;
-        _header = new KitHeader(host);
+        _mark = new KitStatus(host);
         _state.Visibility = Visibility.Collapsed;
         _days = new LinkLights<DateLink>(_links, LinkTopics.HoveredDate, LinkTopics.SelectedDate);
 
         Children.Add(_body);
         Children.Add(_state);
+        _mark.Place(this);
     }
 
-    /// <summary>
-    /// The age of the forecast, in the card's header. Built in the constructor because the card
-    /// reads this once, when it builds that header.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => _header;
+    /// <summary>[S-12483] The days run to a foot a group mate joins.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        if (sides == _joins)
+        {
+            return;
+        }
+
+        _joins = sides;
+        _built = null;
+        Lay();
+    }
 
     /// <summary>
     /// [S-730] Refresh. The style is chosen on the properties strip and its menu ([S-6007]).
@@ -131,7 +142,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         var previous = _applied;
         _config = next;
         _applied = (WeatherForecastConfig)next.Clone();
-        PublishPlace();
 
         // Only the fields that change what comes back make another forecast. Toggling the
         // precipitation column or the style redraws the days already in hand.
@@ -245,14 +255,14 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             // [S-6734] Not set up is the card's Set up row ([S-1862]); every other state is one row here.
             OnlineParts.ShowState(_state, _status, WeatherForecastModule.Glyph, () => Reload(force: true));
             _body.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            _mark.Clear();
             ClearBody();
             return;
         }
 
         _state.Hide();
         _body.Visibility = Visibility.Visible;
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        _mark.Show(OnlineParts.Problems(held), busy: false);
 
         // New data always rebuilds; a tick with the same data rebuilds only when the day changed.
         _built = null;
@@ -366,7 +376,4 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         _ticker = null;
     }
 
-    /// <summary>[S-728] The city as the header title, or the widget's label when the user hid it.</summary>
-    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
-    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

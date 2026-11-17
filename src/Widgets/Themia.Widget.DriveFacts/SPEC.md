@@ -11,8 +11,8 @@ JSON context), `Preview/` (Debug renders: `--state local|network|missing`), `Loc
 translations). Tests: `Tests/DriveFactsTests.cs`.
 
 - **[S-11026]** Drive facts (the Drive card's facts as their own atom): Used, Free, Capacity, File
-  system and Type (`DriveRules.Facts`, `DriveRules.Sheet`), a new one the first four, under the header
-  that names the drive as the reading's does. A drive without figures (gone, disconnected, an empty
+  system and Type (`DriveRules.Facts`, `DriveRules.Sheet`), a new one the first four (a Header widget
+  over them names the drive, [S-12481]). A drive without figures (gone, disconnected, an empty
   reader) keeps its rows, each it cannot read "--" dimmed. Its options: which drive (the reading's line,
   [S-4674], `DriveMenuLines`), then Facts ([S-11007]).
 - View links: the card is its drive; the pointer on it publishes the drive pointed at, and the whole card takes the

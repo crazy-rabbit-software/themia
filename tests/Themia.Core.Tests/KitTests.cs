@@ -440,26 +440,6 @@ public sealed class KitTests
             KitFreshness.RefreshLabel(Locale.En, [new("A", FetchStatus.Ok, HeldAt: Now.AddMinutes(-5)), new("B", FetchStatus.Offline, HeldAt: Now.AddMinutes(-20))], Now));
     }
 
-    // ---- [S-7064] the header ------------------------------------------------------------------
-
-    [Fact]
-    public void S7064_a_header_with_nothing_to_show_takes_no_room()
-    {
-        // Regression: an empty header stayed visible at zero width, so the panel it shares with the
-        // exchange rates' day still spent its spacing on it (the day stood one gap in from the edge).
-        Assert.False(HeaderRules.Wants(problems: 0, busy: false, count: null).Any);
-        Assert.False(HeaderRules.Wants(problems: 0, busy: false, count: 0).Any);
-    }
-
-    [Fact]
-    public void S7064_each_part_shows_on_its_own_and_shows_the_header()
-    {
-        Assert.Equal(new HeaderWants(Problem: true, Busy: false, Count: false), HeaderRules.Wants(2, busy: false, count: null));
-        Assert.Equal(new HeaderWants(Problem: false, Busy: true, Count: false), HeaderRules.Wants(0, busy: true, count: -1));
-        Assert.Equal(new HeaderWants(Problem: false, Busy: false, Count: true), HeaderRules.Wants(0, busy: false, count: 3));
-        Assert.True(HeaderRules.Wants(0, busy: false, count: 3).Any);
-    }
-
     // ---- [S-7050] setup -----------------------------------------------------------------------
 
     private sealed class Sample(bool configured, FeatureId? needs) : IKitConfig

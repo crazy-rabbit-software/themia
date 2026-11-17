@@ -240,8 +240,7 @@ internal sealed partial class GalleryView
 
     /// <summary>
     /// [S-771] The menu of the picture under the pointer — open it, show it in Explorer — followed by
-    /// pause and refresh, which on a card covered edge to edge in pictures would otherwise only be
-    /// reachable from the header. [S-1746] The layout is chosen in the settings only.
+    /// pause and refresh, which on a card covered edge to edge in pictures have no other place. [S-1746] The layout is chosen in the settings only.
     /// </summary>
     private void OnRightTapped(object sender, RightTappedRoutedEventArgs args)
     {

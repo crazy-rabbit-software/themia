@@ -191,22 +191,6 @@ public static class DesignLook
         => blurOn && picture && !ownImage && painted.Painted && painted.Opacity < 1;
 
     /// <summary>
-    /// [S-828] [S-2103] The header's own fill: a header colour of its own at the header opacity, laid
-    /// over the card; or null, and the header draws nothing at all: it is the card, with no band and
-    /// no line under it.
-    /// </summary>
-    public static CardFill? HeaderFill(string? headerColour, double headerOpacity)
-    {
-        if (!HexColor.TryParse(headerColour, out var r, out var g, out var b))
-        {
-            return null;
-        }
-
-        var opacity = Math.Clamp(double.IsFinite(headerOpacity) ? headerOpacity : 1, 0, 1);
-        return new CardFill(FillKind.Colour, new RgbColor(r, g, b), opacity);
-    }
-
-    /// <summary>
     /// [S-824] The border for a design. None, a zero width or a transparent widget draws nothing (a
     /// colour at 0 % is not transparent: its border stays, [S-6563]); dashed is 3-on-2 and dotted is
     /// round dots two widths apart, both in stroke widths so the pattern keeps its proportions at any

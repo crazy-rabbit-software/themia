@@ -37,8 +37,8 @@ public sealed class PingMenuTests
     {
         var kind = ModuleCatalog.Of(new WidgetId("ping"));
         Assert.Equal(["number", "signal"], WidgetStyles.For(new WidgetId("ping")).Select(s => s.Name));
-        Assert.Equal(84, kind.Sizing(new PingConfig()).Natural.Height);
-        Assert.Equal(36 + 44 + 32 + 12, kind.Sizing(new PingConfig { Style = PingStyle.Signal }).Natural.Height);
+        Assert.Equal(60, kind.Sizing(new PingConfig()).Natural.Height);
+        Assert.Equal(12 + 44 + 32 + 12, kind.Sizing(new PingConfig { Style = PingStyle.Signal }).Natural.Height);
     }
 
     [Fact]

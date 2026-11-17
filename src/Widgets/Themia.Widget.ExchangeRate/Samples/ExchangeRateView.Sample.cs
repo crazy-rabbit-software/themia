@@ -8,7 +8,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-11850] [S-2056] The exchange rate's sample: the sample table (the SDK's <see cref="SampleRates"/>),
 /// built through the SDK's parser, at the pair CHF/EUR. Nothing is fetched or saved. Its latest day is
-/// the working day before the sample day ([S-2050]), so the header's date agrees with the calendar beside it.
+/// the working day before the sample day ([S-2050]), so the rate's day agrees with the calendar beside it.
 /// </summary>
 internal sealed partial class ExchangeRateView : IWidgetSample
 {
@@ -27,7 +27,6 @@ internal sealed partial class ExchangeRateView : IWidgetSample
         _config = sample;
         _table = table;
         _web = null;
-        PublishTitle();
         Render();
     }
 }

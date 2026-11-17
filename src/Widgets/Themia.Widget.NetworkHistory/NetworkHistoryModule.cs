@@ -37,7 +37,7 @@ public sealed class NetworkHistoryModule : IWidgetModule
         Description = NetworkHistoryStr.NetworkHistory_Desc.Local(),
         Glyph = Glyphs.Network,
         Sizing = _ => MeterSizing.History,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.NetworkReading, 0, 1),
     };

@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "نمایش تاریخ",
   "clock.offsetLabel": "اختلاف",
   "clock.secondsLabel": "نمایش ثانیه",
   "clock.styleAnalog": "عقربه‌ای",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "منطقه زمانی",
   "clock.tzCurrent": "فعلی: {city}",
   "locationSearch.placeholder": "جستجوی شهر…",
-  "styles.clock.date": "تاریخ",
   "styles.clock.flip": "ورقی",
   "styles.clock.minimal": "ساده",
   "styles.clock.words": "کلمات",
@@ -30,6 +28,5 @@
   "wordClock.m40": "ساعت بیست دقیقه به [n] است",
   "wordClock.m45": "ساعت یک ربع به [n] است",
   "wordClock.m50": "ساعت ده دقیقه به [n] است",
-  "wordClock.m55": "ساعت پنج دقیقه به [n] است",
-  "widgetsA.clock.date": "{weekday}، {date}"
+  "wordClock.m55": "ساعت پنج دقیقه به [n] است"
 }

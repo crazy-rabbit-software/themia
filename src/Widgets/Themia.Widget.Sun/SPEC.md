@@ -14,9 +14,9 @@ JSON context), `SunConfig.cs`, `SunLayout.cs` (its sizes), `SunDayBar.cs` (the d
 - **[S-170]**, **[S-3102]** *(Retired by [S-11110]: no rows and no ladder in the sun; its times are the
   sun times' atom, [S-11115].)*
 - **[S-11110]** **What it shows** is the graphic alone, in the style's look, filling its box in the
-  inset at every size in its range: nothing appears or disappears. It starts headerless (a picture
-  says what it is, `StartsHeaderless`); a header it is given names it, the place its label ([S-2260]).
-- **[S-11111]** **Sizes** (`SunLayout.Sizing`, headerless): 200..480 wide, a new one 280. The arc's
+  inset at every size in its range: nothing appears or disappears. A picture says what it is; a Header
+  widget over it names it ([S-12481]). In a group it runs to a foot a mate joins ([S-12483]).
+- **[S-11111]** **Sizes** (`SunLayout.Sizing`): 200..480 wide, a new one 280. The arc's
   height a free range round half its content's width (112..252, a new one 152); the day bar one dot
   tall in the inset, one height (36). The arc fits its box in every season ([S-11806], root): the
   horizon near the foot (the night's dip under it), the day's curve up to the top inset.

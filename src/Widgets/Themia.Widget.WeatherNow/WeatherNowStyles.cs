@@ -38,7 +38,7 @@ public static class WeatherNowStyles
         _ => ReadoutRules.Height(FamilyType.Big28, Worst),
     };
 
-    /// <summary>[S-11101] The reading's sizing: one height (header, content, inset), 140..320 wide.</summary>
+    /// <summary>[S-11101] The reading's sizing: one height (the inset, the content, the inset), 140..320 wide.</summary>
     public static WidgetSizing Sizing(WeatherNowConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);

@@ -36,7 +36,7 @@ public sealed partial class SettingsMenuTests
     [Fact]
     public void S2141_every_enum_token_is_one_choice_and_figures_a_toggle()
     {
-        string[] choices = ["rendering", "headerWeight", "readoutWeight", "bodyWeight", "headerTone", "headerCase", "innerSurface", "rowDividers"];
+        string[] choices = ["rendering", "headerWeight", "readoutWeight", "bodyWeight", "innerSurface", "rowDividers"];
         var lines = AppearanceLines(new FakeHost());
         foreach (var key in choices)
         {

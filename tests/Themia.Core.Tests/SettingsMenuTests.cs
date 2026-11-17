@@ -219,7 +219,7 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost { Startup = new AutostartStatus(AutostartState.Off, AutostartProblem.Failed, "0x80070005") };
         var keys = SettingsMenu.General(host).Select(l => l.Key).ToArray();
         Assert.Equal(["startup", "startup/advice", "startup/detail", "gameMode"], keys);
-        Assert.Equal(["desktopIconSize"], SettingsMenu.Desktop(host).Select(l => l.Key));
+        Assert.Equal(["desktopIconSize", "lockWidgets"], SettingsMenu.Desktop(host).Select(l => l.Key));
     }
 
     [Fact]
@@ -239,12 +239,28 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S5500_S5594_S5595_desktop_icons_holds_the_icon_size_alone_no_show_arrange_or_align_toggle()
+    public void S5500_S5594_S5595_desktop_icons_holds_the_icon_size_and_lock_widgets_no_show_arrange_or_align_toggle()
     {
         var lines = SettingsMenu.Desktop(new FakeHost());
 
-        Assert.DoesNotContain(lines, l => l is SettingsToggle);
-        Assert.Equal([SettingsMenu.Keys.DesktopIconSize], lines.Select(l => l.Key));
+        // [S-12950] Lock widgets is the one toggle here.
+        Assert.Equal([SettingsMenu.Keys.LockWidgets], lines.OfType<SettingsToggle>().Select(l => l.Key));
+        Assert.Equal([SettingsMenu.Keys.DesktopIconSize, SettingsMenu.Keys.LockWidgets], lines.Select(l => l.Key));
+    }
+
+    [Fact]
+    public void S12950_lock_widgets_is_one_toggle_on_general_off_by_default()
+    {
+        var host = new FakeHost();
+        var line = At<SettingsToggle>(host, SettingsMenu.Keys.LockWidgets);
+
+        Assert.False(line.On);
+        Assert.Equal(Str.Shell_Menu_LockWidgets.Text(), line.Text);
+
+        line.Set(true);
+
+        Assert.True(host.State.Preferences.LockWidgets);
+        Assert.True(At<SettingsToggle>(host, SettingsMenu.Keys.LockWidgets).On);
     }
     [Fact]
     public void S3525_game_mode_says_paused_now_while_it_holds_the_widgets()
@@ -277,8 +293,6 @@ public sealed partial class SettingsMenuTests
     [InlineData("appearance/theme/accent", "PrimaryColor")]
     [InlineData("appearance/theme/background", "Background")]
     [InlineData("appearance/theme/blur", "BlurBehind")]
-    [InlineData("appearance/theme/headerBackground", "HeaderBackgroundColor")]
-    [InlineData("appearance/theme/headerOpacity", "HeaderOpacity")]
     [InlineData("appearance/items/background", "ItemBackground")]
     [InlineData("appearance/items/text", "ItemTextColor")]
     [InlineData("appearance/cards/radius", "CornerRadiusPx")]
@@ -371,13 +385,12 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost();
         SettingsSlider Slider(string group, string name) => At<SettingsSlider>(host, "appearance", "appearance/" + group, "appearance/" + group + "/" + name);
 
-        Assert.Equal((0, 1, 0.05), (Slider("theme", "headerOpacity").Min, Slider("theme", "headerOpacity").Max, Slider("theme", "headerOpacity").Step));
         Assert.Equal((0, 32, 1), (Slider("cards", "radius").Min, Slider("cards", "radius").Max, Slider("cards", "radius").Step));
         Assert.Equal((0, 8, 1), (Slider("cards", "borderWidth").Min, Slider("cards", "borderWidth").Max, Slider("cards", "borderWidth").Step));
         Assert.Equal((FamilyType.MinTextScale, FamilyType.MaxTextScale), (Slider("text", "size").Min, Slider("text", "size").Max));
 
         Assert.Equal("12px", Slider("cards", "radius").Format(12));
-        Assert.Equal(LocaleFormat.Percent(Strings.Current, 50), Slider("theme", "headerOpacity").Format(0.5));
+        Assert.Equal(LocaleFormat.Percent(Strings.Current, 50), Slider("cards", "borderOpacity").Format(0.5));
     }
 
     // ---- [S-3527] Style ----------------------------------------------------------------------------

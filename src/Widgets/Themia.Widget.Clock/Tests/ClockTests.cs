@@ -14,7 +14,7 @@ public class ClockFormatterTests
 
     private static ClockConfig Utc(Action<ClockConfig>? tweak = null)
     {
-        var config = new ClockConfig { TimeZoneId = "Etc/UTC", ShowDate = false };
+        var config = new ClockConfig { TimeZoneId = "Etc/UTC" };
         tweak?.Invoke(config);
         return config;
     }
@@ -57,13 +57,6 @@ public class ClockFormatterTests
     {
         Assert.Equal("14:07", ClockFormatter.Read(At(14, 7, 42), Utc(c => c.ShowSeconds = false), Locale.En, use24Hour: true).Time);
         Assert.Equal("14:07:42", ClockFormatter.Read(At(14, 7, 42), Utc(c => c.ShowSeconds = true), Locale.En, use24Hour: true).Time);
-    }
-
-    [Fact]
-    public void The_date_is_omitted_unless_enabled()
-    {
-        Assert.Null(ClockFormatter.Read(At(14, 7), Utc(c => c.ShowDate = false), Locale.En, use24Hour: true).Date);
-        Assert.Equal("Monday, March 9", ClockFormatter.Read(At(14, 7), Utc(c => c.ShowDate = true), Locale.En, use24Hour: true).Date);
     }
 
     [Fact]
@@ -120,7 +113,6 @@ public class ClockFormatterTests
     [InlineData(ClockStyle.Flip)]
     [InlineData(ClockStyle.Word)]
     [InlineData(ClockStyle.Minimal)]
-    [InlineData(ClockStyle.Date)]
     public void S52_every_style_without_seconds_wakes_once_a_minute(ClockStyle style)
     {
         // Was every second for the analog face whatever the seconds switch said: no second hand

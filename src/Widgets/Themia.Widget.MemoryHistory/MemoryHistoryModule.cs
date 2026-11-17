@@ -37,7 +37,7 @@ public sealed class MemoryHistoryModule : IWidgetModule
         Description = MemoryHistoryStr.MemoryHistory_Desc.Local(),
         Glyph = Glyphs.Memory,
         Sizing = _ => MeterSizing.History,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.MemoryReading, 0, 1),
     };

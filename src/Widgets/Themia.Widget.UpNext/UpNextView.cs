@@ -25,7 +25,7 @@ namespace Themia.Widget.UpNext;
 /// which meeting is next; it never fetches on its own (a 5-minute poll and the accounts' change event).
 /// A click on a row opens that meeting in its calendar ([S-1268]).
 /// </summary>
-internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetJoins
 {
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);
 
@@ -70,6 +70,15 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
+
+    /// <summary>[S-12483] The rows meet a joined side: at the top under a joined top, at the foot over a joined foot, between two in the middle.</summary>
+    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
+        => _scroll.VerticalAlignment = sides.Block switch
+        {
+            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
+            Themia.Sdk.Kit.BlockEdge.Centre when sides.Any => VerticalAlignment.Center,
+            _ => VerticalAlignment.Top,
+        };
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {

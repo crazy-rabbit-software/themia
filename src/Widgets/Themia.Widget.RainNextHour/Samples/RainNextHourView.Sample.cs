@@ -32,10 +32,9 @@ internal sealed partial class RainNextHourView : IWidgetSample
 
         _config = new RainNextHourConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName };
         _pinnedNow = now;
-        PublishPlace();
         var nowcast = new Fetched<RainNowcast>(FetchStatus.Ok, RainWire.Parse(json).Value, null, SampleDay.MinutesAgo(6));
 
-        // [S-7042] stale: the answer on screen, and the last refresh failed: the header's problem glyph.
+        // [S-7042] stale: the answer on screen, and the last refresh failed: the status's problem glyph.
         _feed.Preview(stale ? nowcast.Stale(FetchStatus.Offline, null) : nowcast, FetchStatus.Ok);
     }
 }

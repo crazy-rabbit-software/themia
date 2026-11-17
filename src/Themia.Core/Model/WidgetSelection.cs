@@ -334,13 +334,13 @@ public static class SelectionRules
 
     /// <summary>
     /// [S-31b] [S-11877] [S-11881] [S-11889] Whether a widget draws its marks: always in edit mode; on the locked
-    /// desktop while it is selected (its four corners) or while a block moves (<paramref name="moveAlpha"/>: its
-    /// strength, 1 moving, the local grid's near where the block lands). Whatever the kind: a desktop icon
-    /// draws them as every widget does (owner, 2026-11-15: "the desktop icons should also show the corners"),
-    /// round its grid box, its highlight under them; the rule takes no kind, so none can be left out.
+    /// desktop while a block moves (<paramref name="moveAlpha"/>: its strength, 1 moving, the local grid's near where
+    /// the block lands), and while it is selected (its four corners) unless it is a desktop <paramref name="icon"/>: a
+    /// selected, hovered or highlighted icon shows its highlight alone (owner, 2026-11-16: "when highlighting a folder it
+    /// should not show the corners"), its corners only where a widget's are about placing (edit mode, a move).
     /// </summary>
-    public static bool MarksShown(bool editing, bool selected, double? moveAlpha)
-        => editing || selected || moveAlpha is not null;
+    public static bool MarksShown(bool editing, bool selected, double? moveAlpha, bool icon)
+        => editing || moveAlpha is not null || (selected && !icon);
 
     /// <summary>
     /// [S-1581] The widgets a rubber band touches: every widget whose cell overlaps it by any area,

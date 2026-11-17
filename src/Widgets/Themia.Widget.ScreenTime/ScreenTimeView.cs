@@ -16,18 +16,18 @@ namespace Themia.Widget.ScreenTime;
 
 /// <summary>
 /// [S-11500] [S-11501] The period's screen time as a reading: the family's 28 at the content's top, one
-/// line under it (a day's limit, a window's average and limit), the period in the header as its label
-/// (a day with its arrows, [S-454]). [S-11503] It joins the view's links: a focused app's time over the
+/// line under it (a day's limit, a window's average and limit), the period on its own first line, a tool
+/// line (a day with its arrows, [S-454], [S-12481]). [S-11503] It joins the view's links: a focused app's time over the
 /// period, and its share, stand in place of the total.
 /// </summary>
-internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetContextActions
+internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetJoins
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
 
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
     private readonly WidgetLinks _dates = new();
-    /// <summary>[S-12410] One block, centred in the room under the header with the foot's inset counted with it.</summary>
+    /// <summary>[S-12410] One block, centred in the room under its day line with the foot's inset counted with it ([S-12483]: against a side a group mate joins).</summary>
     private readonly ReadoutBlock _readout = new() { Margin = Family.SideInset with { Bottom = FamilySpace.Inset }, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left };
 
     /// <summary>[S-6714] Nothing to read: the Status block's one row at the top.</summary>
@@ -56,12 +56,29 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
             }
         });
         _readout.Use(FamilyType.Big28);
+
+        // [S-454] [S-12481] The day and its arrows, the content's first line.
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
+        SetRow(_readout, 1);
+        SetRow(_empty, 1);
+        Children.Add(_nav.Line);
         Children.Add(_readout);
         Children.Add(_empty);
     }
 
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _nav.Host;
+    /// <summary>[S-12483] The reading meets a side a group mate joins; the foot's inset goes where a mate joins it.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        _readout.VerticalAlignment = sides.Block switch
+        {
+            BlockEdge.Top => VerticalAlignment.Top,
+            BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        _readout.Margin = Family.SideInset with { Bottom = sides.Foot };
+    }
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => _nav.ContextActions;

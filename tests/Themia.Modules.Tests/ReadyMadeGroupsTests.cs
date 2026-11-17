@@ -46,7 +46,7 @@ public sealed class ReadyMadeGroupsTests
             Assert.True(WidgetId.TryParse(part.Kind, out var kind), $"{id}: '{part.Kind}' is not a widget id");
             Assert.True(ModuleCatalog.TryGet(kind, out var descriptor), $"{id}: '{part.Kind}' is not installed");
 
-            if (part.Config is { } fragment)
+            if (part.Fragment is { } fragment)
             {
                 var known = StateJson.Options.GetTypeInfo(descriptor.ConfigType).Properties.Select(p => p.Name).ToHashSet(StringComparer.Ordinal);
                 using var document = JsonDocument.Parse(fragment);
@@ -56,11 +56,6 @@ public sealed class ReadyMadeGroupsTests
                 }
 
                 Assert.NotNull(StateJson.Merged(WidgetConfig.CreateDefault(kind), fragment));
-            }
-
-            if (part.Header is { } header)
-            {
-                Assert.True(header == HeaderPlacement.Hidden || WidgetInstance.CanHaveHeader(kind), $"{id}: {part.Kind} can have no header");
             }
         }
     }
@@ -154,21 +149,20 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
-    public void S11606_every_widget_s_box_is_a_size_its_kind_takes_for_its_config_and_header(string id)
+    public void S11606_every_widget_s_box_is_a_size_its_kind_takes_for_its_config(string id)
     {
         foreach (var part in Of(id).Widgets)
         {
             var kind = new WidgetId(part.Kind);
             var config = WidgetConfig.CreateDefault(kind);
-            if (part.Config is { } fragment)
+            if (part.Fragment is { } fragment)
             {
                 config = StateJson.Merged(config, fragment)!;
             }
 
             // Placed, the box is painted fitted into the sizing ([S-2446]): a box it is not moves the panel apart.
-            var shown = WidgetInstance.CanHaveHeader(kind) ? part.Header ?? WidgetInstance.DefaultHeader(kind) : HeaderPlacement.Hidden;
             var box = new SizeDip(part.Box.Width, part.Box.Height);
-            var fitted = SizeFit.Of(config, shown).Fit(box);
+            var fitted = SizeFit.Of(config).Fit(box);
             Assert.True(fitted == box, $"{id}: {part.Kind} at {box.Width} x {box.Height} is painted {fitted.Width} x {fitted.Height}");
         }
     }
@@ -184,23 +178,65 @@ public sealed class ReadyMadeGroupsTests
         Assert.Equal(bounds.Width * bounds.Height, recipe.Widgets.Sum(w => w.Box.Width * w.Box.Height), 3);
     }
 
-    /// <summary>[S-11607] The groups that are an old card's atoms ([S-11090], [S-11172]): its first atom names it.</summary>
-    public static TheoryData<string> OldCards() =>
-    [
-        "cpu", "cpuCores", "cpuDetails", "memory", "memoryDetails", "gpu", "gpuDetails", "disk", "network", "networkDetails",
-        "ping", "pingDetails", "battery", "batteryDetails", "drive",
-        "weatherStation", "weather", "sun", "moon", "airQuality", "exchangeRates", "stocks",
-    ];
+    /// <summary>[S-12485] The groups whose Header says less than their name: the subject alone.</summary>
+    private static readonly Dictionary<string, Str> ShorterTitles = new(StringComparer.Ordinal)
+    {
+        ["weatherStation"] = Str.Groups_Recipe_Weather,
+        ["cpuCores"] = Str.Groups_Recipe_Cpu,
+        ["cpuDetails"] = Str.Groups_Recipe_Cpu,
+        ["memoryDetails"] = Str.Groups_Recipe_Memory,
+        ["gpuDetails"] = Str.Groups_Recipe_Gpu,
+        ["networkDetails"] = Str.Groups_Recipe_Network,
+        ["pingDetails"] = Str.Groups_Recipe_Ping,
+        ["batteryDetails"] = Str.Groups_Recipe_Battery,
+        ["nowPlayingLarge"] = Str.Groups_Recipe_NowPlaying,
+    };
 
     [Theory]
-    [MemberData(nameof(OldCards))]
-    public void S11607_an_old_card_s_group_carries_one_header_on_its_first_atom(string id)
+    [MemberData(nameof(Recipes))]
+    public void S12485_every_ready_made_group_starts_with_its_header_widget(string id)
     {
         var recipe = Of(id);
-        HeaderPlacement Shown(ReadyMadeWidget w) => w.Header ?? WidgetInstance.DefaultHeader(new WidgetId(w.Kind));
+        var header = recipe.Widgets[0];
+        var bounds = recipe.Bounds;
 
-        Assert.Equal(HeaderPlacement.Top, Shown(recipe.Widgets[0]));
-        Assert.All(recipe.Widgets.Skip(1), w => Assert.True(Shown(w) == HeaderPlacement.Hidden, $"{id}: {w.Kind} shows a header"));
+        // Across the group's top, HeaderHeight tall; no other Header in it.
+        Assert.Equal("header", header.Kind);
+        Assert.Equal(new ReadyMadeBox(bounds.X, bounds.Y, bounds.Width, ReadyMadeGroups.HeaderHeight), header.Box);
+        Assert.Equal(36, ReadyMadeGroups.HeaderHeight);
+        Assert.DoesNotContain(recipe.Widgets.Skip(1), w => w.Kind == "header");
+
+        // Its fragment: the recipe's title (or the shorter one) in the language now, and the recipe's glyph.
+        var title = ShorterTitles.TryGetValue(id, out var shorter) ? shorter : recipe.Name;
+        using var fragment = JsonDocument.Parse(header.Fragment!);
+        Assert.Equal(title.Text(), fragment.RootElement.GetProperty("text").GetString());
+        Assert.Equal(recipe.Glyph, fragment.RootElement.GetProperty("glyph").GetString());
+
+        // Every member stands under it, and something meets its foot all along: the group is one panel under its header.
+        Assert.All(recipe.Widgets.Skip(1), w => Assert.True(w.Box.Y >= header.Box.Bottom, $"{id}: {w.Kind} stands over the header"));
+        var under = recipe.Widgets.Skip(1).Where(w => w.Box.Y == header.Box.Bottom).ToList();
+        Assert.Equal(header.Box.Width, under.Sum(w => w.Box.Width), 3);
+    }
+
+    [Theory]
+    [MemberData(nameof(Recipes))]
+    public void S12485_a_placed_group_s_header_carries_the_title_in_its_config(string id)
+    {
+        var (widgets, _) = ReadyMadeGroups.Build(Of(id), Screen)!.Value;
+        var header = Assert.IsType<Themia.Widget.Header.HeaderConfig>(widgets[0].Config);
+        Assert.False(string.IsNullOrWhiteSpace(header.Text));
+        Assert.Equal(Of(id).Glyph, header.Glyph);
+    }
+
+    [Theory]
+    [MemberData(nameof(Recipes))]
+    public void S12802_a_group_about_a_place_has_a_header_that_names_it_and_no_other_does(string id)
+    {
+        // [S-12801] The members name no place; the header over a group of widgets about one names it once.
+        var (widgets, _) = ReadyMadeGroups.Build(Of(id), Screen)!.Value;
+        var header = Assert.IsType<Themia.Widget.Header.HeaderConfig>(widgets[0].Config);
+        var aboutAPlace = widgets.Skip(1).Any(w => w.Config is IPlaced);
+        Assert.Equal(aboutAPlace, header.ShowsPlace);
     }
 
     [Theory]
@@ -234,7 +270,7 @@ public sealed class ReadyMadeGroupsTests
     public void S2474_this_pc_is_one_column_of_one_width_each_reading_over_its_history()
     {
         var recipe = ReadyMadeGroups.ThisPc;
-        Assert.Equal(["cpu", "cpuHistory", "memory", "memoryHistory", "disk", "diskHistory", "network", "networkHistory"], recipe.Widgets.Select(w => w.Kind));
+        Assert.Equal(["header", "cpu", "cpuHistory", "memory", "memoryHistory", "disk", "diskHistory", "network", "networkHistory"], recipe.Widgets.Select(w => w.Kind));
 
         // One left edge, one width, each box right under the one before it.
         Assert.All(recipe.Widgets, w => Assert.Equal((0d, recipe.Bounds.Width), (w.Box.X, w.Box.Width)));
@@ -248,18 +284,18 @@ public sealed class ReadyMadeGroupsTests
     public void S11209_my_files_is_offered_and_its_two_widgets_sit_at_their_kinds_sizes_and_join()
     {
         var recipe = Assert.Single(ReadyMadeGroups.Offered(), r => r.Id == "myFiles");
-        Assert.Equal(["folder", "recentFiles"], recipe.Widgets.Select(w => w.Kind));
+        Assert.Equal(["header", "folder", "recentFiles"], recipe.Widgets.Select(w => w.Kind));
 
         // Each box is what its kind's sizing makes of it, so placing it moves nothing.
         foreach (var part in recipe.Widgets)
         {
-            var widget = FirstRunDesktop.Build(new FirstRunDesktop.Seed(part.Kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1), Config: part.Config))!;
+            var widget = FirstRunDesktop.Build(new FirstRunDesktop.Seed(part.Kind, new Themia.Core.Geometry.FracRect(0, 0, 0.1, 0.1), Config: part.Fragment))!;
             var sizing = ModuleCatalog.Of(new WidgetId(part.Kind)).Sizing(widget.Config);
             Assert.Equal(new SizeDip(part.Box.Width, part.Box.Height), sizing.Fit(new SizeDip(part.Box.Width, part.Box.Height)));
         }
 
         // One panel: the folder as tall as the recent files beside it.
-        Assert.Equal(recipe.Widgets[0].Box.Height, recipe.Widgets[1].Box.Height);
+        Assert.Equal(recipe.Widgets[1].Box.Height, recipe.Widgets[2].Box.Height);
     }
 
     // ---- [S-2471] placing one ---------------------------------------------------------------------
@@ -298,8 +334,8 @@ public sealed class ReadyMadeGroupsTests
 
         Assert.Equal(ghost.Select(g => g.Rect), plan.Added.Select(w => w.Rect));
         Assert.Equal(ReadyMadeGroups.MyDay.Widgets.Select(w => new WidgetId(w.Kind)), ghost.Select(g => g.Kind));
-        var clock = GridGeometry.ToPixels(plan.Added[0].Rect, Screen);
-        var meeting = GridGeometry.ToPixels(plan.Added[1].Rect, Screen);
+        var clock = GridGeometry.ToPixels(plan.Added[1].Rect, Screen);
+        var meeting = GridGeometry.ToPixels(plan.Added[2].Rect, Screen);
         Assert.Equal(clock.Y + clock.Height, meeting.Y, 6);
         Assert.Equal(320, clock.Width, 6);
     }

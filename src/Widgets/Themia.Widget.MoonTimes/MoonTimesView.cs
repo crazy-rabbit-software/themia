@@ -17,11 +17,10 @@ namespace Themia.Widget.MoonTimes;
 /// and set, full or new for those dates; a role lower while the moon is down); the next of rise and set
 /// emphasised. A name takes its short form, a date drops its weekday, where the row cannot hold both.
 /// </summary>
-internal sealed partial class MoonTimesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware
+internal sealed partial class MoonTimesView : Grid, IWidgetView, IWidgetSizeAware
 {
     private readonly StackPanel _stack = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly List<(SkyEventRow Row, SkyMoonDisc Lead)> _rows = [];
-    private readonly HeaderParts _about = new();
     private MoonTimesConfig _config = new();
     private IDisposable? _subscription;
     private Ticker? _ticker;
@@ -32,9 +31,6 @@ internal sealed partial class MoonTimesView : Grid, IWidgetView, IWidgetHeaderCo
     {
         Children.Add(_stack);
     }
-
-    /// <summary>[S-2260] The place as the header's label; none once it is cleared ([S-2848]).</summary>
-    public FrameworkElement? HeaderTrailing => _about;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -47,7 +43,6 @@ internal sealed partial class MoonTimesView : Grid, IWidgetView, IWidgetHeaderCo
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as MoonTimesConfig ?? new MoonTimesConfig();
-        _about.SetAbout(_config.PlaceLabel);
         _subscription ??= _ticker?.Subscribe(_config.TickInterval, () =>
         {
             _now = DateTimeOffset.Now;

@@ -37,9 +37,6 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
         // [S-1113] The timeline keeps its direction in every language.
         FlowDirection = FlowDirection.LeftToRight;
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        // [S-12410] One row at its natural height, centred in a larger box (the foot's inset counted with it).
-        VerticalAlignment = VerticalAlignment.Center;
-        Height = MusicProgressFace.Row + FamilySpace.Inset;
         ColumnSpacing = FamilySpace.S2;
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -74,6 +71,10 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as MusicProgressConfig ?? new MusicProgressConfig();
+
+        // [S-12410] [S-12483] One row at its natural height (the foot's inset with it), centred in a larger box and
+        // against a group mate joined to it, its foot's inset past the edge there (the family's one rule, [S-12800]).
+        NaturalBlock.Hold(this, _config);
         _feed.Reload();
         Present();
     }

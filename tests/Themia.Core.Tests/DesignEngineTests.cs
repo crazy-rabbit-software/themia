@@ -164,38 +164,6 @@ public sealed class DesignEngineTests
     public void S6563_a_colour_choice_without_a_colour_paints_the_default()
         => Assert.Equal(Fluent, Card(new FillChoice { Kind = FillKind.Colour, Colour = "teal", Opacity = 0.3 }));
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("  ")]
-    [InlineData("red")]
-    [InlineData(null)]
-    public void S2103_without_a_header_colour_the_header_draws_nothing(string? colour)
-        => Assert.Null(DesignLook.HeaderFill(colour, 0.5));
-
-    [Theory]
-    [InlineData(0.3, 0.3)]
-    [InlineData(1.0, 1.0)]
-    [InlineData(double.NaN, 1.0)]
-    [InlineData(-2.0, 0.0)]
-    [InlineData(7.0, 1.0)]
-    public void S2103_a_header_colour_of_its_own_is_drawn_at_the_header_opacity(double header, double expected)
-    {
-        var fill = DesignLook.HeaderFill("#336699", header);
-
-        Assert.NotNull(fill);
-        Assert.Equal(new RgbColor(0x33, 0x66, 0x99), fill.Value.Colour);
-        Assert.Equal(expected, fill.Value.Opacity, 3);
-    }
-
-    [Fact]
-    public void S2103_no_preset_draws_a_header_band()
-    {
-        foreach (var preset in DesignPresets.All)
-        {
-            Assert.Null(DesignLook.HeaderFill(preset.Values.HeaderBackgroundColor, preset.Values.HeaderOpacity));
-        }
-    }
-
     [Fact]
     public void S824_border_styles()
     {
@@ -253,8 +221,6 @@ public sealed class DesignEngineTests
         Assert.Equal(string.Empty, design.BorderColor);
         Assert.Equal(FillKind.Default, design.Background.Kind);
         Assert.Equal(FillKind.Default, design.ItemBackground.Kind);
-        Assert.Equal(string.Empty, design.HeaderBackgroundColor);
-        Assert.Equal(1, design.HeaderOpacity);
         Assert.Equal(string.Empty, design.PrimaryColor);
         Assert.Equal(DesignLook.SystemFont, design.FontFamily);
         Assert.Equal(AppTheme.System, design.Theme);

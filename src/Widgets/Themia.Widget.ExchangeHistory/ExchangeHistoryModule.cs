@@ -15,7 +15,7 @@ using Themia.Widget.ExchangeHistory;
 
 namespace Themia.Widget.ExchangeHistory;
 
-/// <summary>[S-11155] One exchange rate's last 90 days as a chart, headerless by default. SPEC.md beside this file.</summary>
+/// <summary>[S-11155] One exchange rate's last 90 days as a chart. SPEC.md beside this file.</summary>
 public sealed class ExchangeHistoryModule : IWidgetModule
 {
     /// <summary>Its glyph: a chart (U+E9D2), the rate's old chart style's.</summary>
@@ -40,12 +40,12 @@ public sealed class ExchangeHistoryModule : IWidgetModule
         Description = ExchangeHistoryStr.ExchangeHistory_Desc.Local(),
         Glyph = Glyph,
         Sizing = _ => Sizing(),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 3),
     };
 
-    /// <summary>[S-11156] The band under the card's top inset (headerless), to the sides and the foot: 200..480 wide, 48..200 tall.</summary>
+    /// <summary>[S-11156] The band under the card's top inset, to the sides and the foot: 200..480 wide, 48..200 tall.</summary>
     internal static WidgetSizing Sizing()
         => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
 

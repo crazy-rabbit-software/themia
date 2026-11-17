@@ -32,7 +32,7 @@ public sealed class FocusSessionModule : IWidgetModule
         Description = FocusSessionStr.Panels_Focus_Desc.Local(),
         Glyph = Glyph,
         Sizing = c => FocusSessionLayout.Sizing((FocusSessionConfig)c, Strings.Current),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 1),
     };
 

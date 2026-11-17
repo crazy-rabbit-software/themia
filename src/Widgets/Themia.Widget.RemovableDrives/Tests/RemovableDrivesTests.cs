@@ -24,8 +24,8 @@ public sealed class RemovableDrivesTests
     {
         Assert.Equal(4 * 40, RemovableDrivesPlan.ListHeight(4, 40));
         var sizing = Kind.SizingOf();
-        Assert.Equal(36 + (4 * 40) + 12, sizing.Natural.Height);
-        var two = Assert.IsType<RemovableDrivesConfig>(Kind.SizeSets!(new RemovableDrivesConfig(), new SizeDip(300, 36 + 80 + 12)));
+        Assert.Equal(12 + (4 * 40) + 12, sizing.Natural.Height);
+        var two = Assert.IsType<RemovableDrivesConfig>(Kind.SizeSets!(new RemovableDrivesConfig(), new SizeDip(300, 12 + 80 + 12)));
         Assert.Equal(2, two.Rows);
         Assert.Equal(6, ((RemovableDrivesConfig)new RemovableDrivesConfig { Rows = 6 }.Clone()).Rows);
     }

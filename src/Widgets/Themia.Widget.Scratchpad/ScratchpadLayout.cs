@@ -24,8 +24,11 @@ public static class ScratchpadLayout
     /// <summary>The nibs and the gap before them.</summary>
     public static double NibsWidth(int nibs) => (nibs * Tool) + GroupGap;
 
-    /// <summary>[S-11205] The whole bar's width: the inks, the nibs and the eraser with their gaps.</summary>
-    public static double BarWidth(int inks, int nibs) => InksWidth(inks) + NibsWidth(nibs);
+    /// <summary>[S-651] [S-12481] Undo and full screen, and the gap before them.</summary>
+    public const double CommandsWidth = GroupGap + (2 * Tool);
+
+    /// <summary>[S-11205] The whole bar's width: the inks, the nibs, the eraser, undo and full screen with their gaps.</summary>
+    public static double BarWidth(int inks, int nibs) => InksWidth(inks) + NibsWidth(nibs) + CommandsWidth;
 
     /// <summary>[S-11205] The least pad without the bar, the widest and tallest a pad grows.</summary>
     public static readonly SizeDip Least = new(200, 160);
@@ -33,8 +36,8 @@ public static class ScratchpadLayout
     public static readonly SizeDip Largest = new(800, 600);
 
     /// <summary>
-    /// [S-11205] A free range, 200..800 × 160..600 (a new one 320 × 260); with the ink bar on, never
-    /// narrower than the whole bar in the card's inset (6 inks, 3 nibs: 320).
+    /// [S-11205] A free range, 200..800 × 160..600 (a new one 320 × 260, or as wide as the bar); with the ink bar on, never
+    /// narrower than the whole bar in the card's inset (6 inks, 3 nibs: 384).
     /// </summary>
     public static WidgetSizing Sizing(ScratchpadConfig config, int inks, int nibs)
     {

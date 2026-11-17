@@ -11,6 +11,12 @@ public enum OnlineSource
     Air = 0,
     Rain = 1,
     Rates = 2,
+
+    /// <summary>[S-12702] The weather graphs' hourly forecast.</summary>
+    Hours = 3,
+
+    /// <summary>[S-12702] The air graph's hourly forecast.</summary>
+    AirHours = 4,
 }
 
 /// <summary>One remembered reply: the request it answers, when it was fetched, and the reply itself.</summary>
@@ -20,7 +26,14 @@ public readonly record struct CachedReply(OnlineSource Source, string Key, DateT
 public sealed record OnlineCacheSnapshot(
     IReadOnlyList<(string Key, DateTimeOffset At, AirReading Value)> Air,
     IReadOnlyList<(string Key, DateTimeOffset At, RainNowcast Value)> Rain,
-    IReadOnlyList<(string Key, DateTimeOffset At, RateTable Value)> Rates);
+    IReadOnlyList<(string Key, DateTimeOffset At, RateTable Value)> Rates)
+{
+    /// <summary>[S-12702] The weather graphs' hourly forecasts.</summary>
+    public IReadOnlyList<(string Key, DateTimeOffset At, WeatherHours Value)> Hours { get; init; } = [];
+
+    /// <summary>[S-12702] The air graph's hourly forecasts.</summary>
+    public IReadOnlyList<(string Key, DateTimeOffset At, AirHours Value)> AirHours { get; init; } = [];
+}
 
 /// <summary>
 /// [S-5161] The air, rain and exchange-rate answers kept across restarts, in their own sealed web
@@ -28,7 +41,7 @@ public sealed record OnlineCacheSnapshot(
 /// it</b>, and a restore parses it again through the same parser as a fetch: one validation path,
 /// so a stored copy can never be trusted more than a fresh one. Schema-versioned; a document that is
 /// not this schema is refused whole, an entry that no longer parses (or is too old to be worth
-/// drawing: air 2 days, rain 6 hours, rates 10 days) is dropped.
+/// drawing: air 2 days, rain 6 hours, rates 10 days, the hourly forecasts a day: [S-12702]) is dropped.
 /// </summary>
 public static class OnlineCacheStore
 {
@@ -43,6 +56,7 @@ public static class OnlineCacheStore
     {
         OnlineSource.Air => TimeSpan.FromDays(2),
         OnlineSource.Rain => TimeSpan.FromHours(6),
+        OnlineSource.Hours or OnlineSource.AirHours => TimeSpan.FromDays(1),
         _ => TimeSpan.FromDays(10),
     };
 
@@ -87,6 +101,8 @@ public static class OnlineCacheStore
         var air = new List<(string, DateTimeOffset, AirReading)>();
         var rain = new List<(string, DateTimeOffset, RainNowcast)>();
         var rates = new List<(string, DateTimeOffset, RateTable)>();
+        var hours = new List<(string, DateTimeOffset, WeatherHours)>();
+        var airHours = new List<(string, DateTimeOffset, AirHours)>();
 
         foreach (var entry in file.Entries)
         {
@@ -113,10 +129,16 @@ public static class OnlineCacheStore
                 case OnlineSource.Rates when EcbWire.Parse(entry.Body).Value is { } table:
                     rates.Add((entry.Key, at, table));
                     break;
+                case OnlineSource.Hours when WeatherHoursWire.Parse(entry.Body).Value is { } forecast:
+                    hours.Add((entry.Key, at, forecast));
+                    break;
+                case OnlineSource.AirHours when WeatherHoursWire.ParseAir(entry.Body).Value is { } airForecast:
+                    airHours.Add((entry.Key, at, airForecast));
+                    break;
             }
         }
 
-        return new OnlineCacheSnapshot(air, rain, rates);
+        return new OnlineCacheSnapshot(air, rain, rates) { Hours = hours, AirHours = airHours };
     }
 }
 

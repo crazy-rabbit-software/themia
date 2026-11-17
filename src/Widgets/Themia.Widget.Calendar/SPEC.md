@@ -71,13 +71,13 @@ chip's times still shorten with the column, as text does).
   event's part on the day ("All day" between a long event's first and last day, "Now" in the strong
   step while it is under way, start over end, the span for a narrow row), where and who, the
   calendar's colour (a 2 px bar) when colours show; a birthday its gift (neutral: not a state), its
-  name and "Birthday". The view pages it with its header arrows and keys and hooks each event's row for its
+  name and "Birthday". The view pages it with the card menu's back and forward ([S-12481]: the agenda has no period line) and the keys and hooks each event's row for its
   tooltip, its links across widgets and the click that opens it.
 - **[S-3651]** The calendar's one stale rule ([S-7042]): each account whose last sync could not improve
   on the events held is a kit outcome (`CalendarFreshness`: its label, its problem in the kit's
-  failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the header's problem
-  glyph and ring are `KitHeader`'s, its two header buttons back and forward ([S-569]), in every
-  style; the card menu's Refresh line says the age of the oldest copy.
+  failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the problem
+  glyph and the ring stand on the period's line beside back and forward ([S-569]) in every style but
+  the agenda, whose state is the kit's status over its rows' top end (`KitStatus`, [S-12481]); the card menu's Refresh line says the age of the oldest copy.
 - **[S-3652]** The agenda's one open gesture ([S-7065]): a click focuses a row (the ring), a
   double-click or Enter opens its event where it lives ([S-1268]); a row's menu offers Open; a birthday
   or an event with nowhere to open offers nothing. Its cursor keys are its kit list's (Up, Down, End,
@@ -101,9 +101,8 @@ chip's times still shorten with the column, as text does).
   **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and, after a divider,
   **Show contact birthdays**, offered only while a chosen account has contacts to read them from
   (`OfficeMenuLines.OffersBirthdays`, [S-575], [S-6070]: a CalDAV calendar has no address book, and
-  with no account there is nothing to read). A style laid out in weeks (month, week, year) ends its
-  Style lines with a link to **Start of week**, which ⚙ › Language & region alone sets ([S-3749],
-  [S-3590]); the day and the agenda have none.
+  with no account there is nothing to read). A style laid out in weeks (month, week, year) follows
+  ⚙ › Language & region's **Start of week**, no link row ([S-3590], [S-3749]).
 
 - **[S-1265]** Week columns ≥64 px spell the weekday. *(Its chips' start–end retired with the per-column lists, [S-11546].)*
 - **[S-2281]** The week has two looks, chosen by its config ([S-11545], [S-11546]; the column width
@@ -121,7 +120,7 @@ chip's times still shorten with the column, as text does).
   the week, else today while the week holds it, else the week's first day; its column head stands on
   the selection fill (the item layer's selected chip). A click on a day's head or marks selects it (a
   click on the selection lets it go, back to today), Up and Down move it a week ([S-1269]), Escape lets
-  it go, Enter opens its first event. The header's name and its two buttons page the week as before.
+  it go, Enter opens its first event. The period's line (its title and its two buttons) pages the week as before.
 - **[S-2285]** The chosen day's rows are the agenda's ([S-3650]: one row path, the view's one kit
   list, `AgendaSpec.DayRow`): the calendar's colour bar as the lead (a birthday's gift), the title,
   the start ("All day") as the value; one line a row; in no group, so no day heading ([S-2280]); the
@@ -159,3 +158,9 @@ view), and the showcase views on the live desktop.
 - View links: publishes and follows the day under the pointer in every style without moving ([S-11923]), besides the selected day, the range and the event ([S-3620]..[S-3625]).
 - View links: an agenda row publishes its organiser and lights while they are pointed at on the view
   ([S-11940], [S-11943]).
+- No card header ([S-12481]): the period's title and back and forward are the calendar's own first line, a
+  tool line (`ToolLine`: the title as its label, the problem glyph, the ring, the two buttons) at the side
+  inset with 4 under it, in every style but the agenda; each of those styles' sizing counts it
+  (`CalendarSizing.NavLine`, 20 + 4, `CalendarSizing.ContentTop`). The agenda has no line: its pages are the
+  card menu's back and forward where there is a page that way, and its state the kit's status over its
+  rows' top end. Tests `CalendarSizingTests`.

@@ -40,12 +40,12 @@ public sealed class MixerLayoutTests
         var sizing = MixerLayout.Sizing(config);
 
         Assert.Equal((4, 1), (config.Rows, config.Lines));
-        Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + (4 * 28) + 12, sizing.Natural.Height);
         Assert.Equal((240d, 300d, 520d), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(36 + (12 * 28) + 12, sizing.Max.Height);
-        Assert.Equal(36 + (4 * 40) + 12, MixerLayout.Sizing(new MixerConfig { Lines = 2 }).Natural.Height);
+        Assert.Equal(12 + (12 * 28) + 12, sizing.Max.Height);
+        Assert.Equal(12 + (4 * 40) + 12, MixerLayout.Sizing(new MixerConfig { Lines = 2 }).Natural.Height);
 
-        var six = Assert.IsType<MixerConfig>(MixerLayout.SizeSets(config, sizing.Natural with { Height = 36 + (6 * 28) + 12 }));
+        var six = Assert.IsType<MixerConfig>(MixerLayout.SizeSets(config, sizing.Natural with { Height = 12 + (6 * 28) + 12 }));
         Assert.Equal(6, six.Rows);
         Assert.Equal(4, config.Rows);
     }

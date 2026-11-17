@@ -18,10 +18,10 @@ public sealed class MemoryTests
     public void S1130_the_number_and_the_bar_are_one_height_and_the_bar_needs_240()
     {
         var number = Kind.Sizing(new MemoryConfig());
-        Assert.Equal((84, 84, 168), (number.Min.Height, number.Natural.Height, number.Max.Height)); // relaxed, [S-12411]
+        Assert.Equal((60d, 60d, Themia.Sdk.SizeStretch.Ceiling), (number.Min.Height, number.Natural.Height, number.Max.Height)); // relaxed, [S-12411]: no practical Max
 
         var bar = Kind.Sizing(new MemoryConfig { Style = MemoryStyle.Bar });
-        Assert.Equal((240, 36 + 36 + 8 + 28 + 12), (bar.Min.Width, bar.Natural.Height));
+        Assert.Equal((240, 12 + 36 + 8 + 28 + 12), (bar.Min.Width, bar.Natural.Height));
         Assert.Equal(bar.Min.Height, bar.Natural.Height);
         Assert.Empty(Kind.Sizing(new MemoryConfig { Style = MemoryStyle.Gauge }).Problems());
     }

@@ -34,11 +34,6 @@ internal static class CalendarMenu
             menu.StyleLines.AddRange(StyleLines(menu, calendar, setting));
         }
 
-        if (calendar.Style is CalendarStyle.Month or CalendarStyle.Week or CalendarStyle.Year)
-        {
-            menu.StyleLines.Add(menu.Link(new SettingLink(OwnedSetting.WeekStart)));
-        }
-
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, calendar, office));
 
         // [S-575] What the view shows besides the events, apart from where they come from; only

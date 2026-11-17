@@ -17,7 +17,7 @@ public sealed class HabitSizingTests
     {
         var sizing = Kind.Sizing(new HabitTrackerConfig());
         Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + (4 * FamilyShape.Row1) + FamilyShape.Row1 + FamilySpace.Inset), sizing.Natural);
-        Assert.Equal(600, sizing.Max.Width); // relaxed, [S-12411]: 300 x 2
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Width); // relaxed, [S-12411]: no practical Max
         Assert.True(sizing.HeightSteps!.FollowsConfig);
         Assert.Equal((1, 12), (sizing.HeightSteps.MinCount, sizing.HeightSteps.MaxCount));
 
@@ -47,7 +47,7 @@ public sealed class HabitSizingTests
     {
         var shared = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap });
         Assert.Equal(shared.Min.Height, shared.Natural.Height);
-        Assert.Equal(SizeStretch.Axis(shared.Natural.Height, 0, null, 2), shared.Max.Height); // relaxed, [S-12411]
+        Assert.Equal(SizeStretch.Ceiling, shared.Max.Height); // relaxed, [S-12411]
         Assert.Equal(FamilySpace.ContentTop + HabitHeatmap.GridOf(HabitHeatmap.SharedCell) + FamilySpace.Inset, shared.Natural.Height);
 
         var each = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap, PerHabit = true, Rows = 3 });

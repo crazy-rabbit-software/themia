@@ -29,7 +29,7 @@ public sealed class StockMenuTests
         => Assert.Empty(Build(new StockConfig()).StyleLines);
 
     [Fact]
-    public void S2778_a_listed_symbol_over_a_day_has_every_line_after_appearance_in_three_groups()
+    public void S2778_a_listed_symbol_over_a_day_has_every_line_after_appearance_in_two_groups()
     {
         var lines = Build(new StockConfig { Symbol = "MSFT", Market = QuoteMarket.Listed, Range = QuoteRange.Day });
 
@@ -41,11 +41,8 @@ public sealed class StockMenuTests
                 Str.Stocks_Timeframe.Text(),
                 Str.Stocks_ExtendedHours.Text(),
                 StockStr.Stocks_MarketHours.Text(),
-                string.Empty,
-                Str.EditBar_Link_UpdateInterval.Text(),
             ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
-        Assert.Equal(Str.SettingsMenu_OnlineUpdates.Text(), lines.Lines[^1].LinkTo);
         Assert.Equal("MSFT", lines.Lines[0].Search!.Value);
     }
 

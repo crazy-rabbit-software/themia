@@ -71,7 +71,7 @@ internal static class EmailMenu
             }
 
             // Kept in the canonical order, so the file reads the same however it was toggled.
-            email.ListFields = [.. EmailConfig.DefaultListFields.Where(fields.Contains)];
+            email.ListFields = [.. EmailConfig.ListFieldOrder.Where(fields.Contains)];
         });
 
     /// <summary>

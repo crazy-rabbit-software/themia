@@ -1,0 +1,17 @@
+{
+  "$englishOnly": [
+    "date.label",
+    "date.desc",
+    "styles.date.long",
+    "styles.date.short",
+    "styles.date.numeric",
+    "styles.date.page"
+  ],
+  "date.label": "Date",
+  "date.desc": "Today's date, in words or as a calendar page",
+  "date.long": "{weekday}, {date}",
+  "styles.date.long": "Long",
+  "styles.date.short": "Short",
+  "styles.date.numeric": "Numbers",
+  "styles.date.page": "Page"
+}

@@ -1,6 +1,7 @@
 {
   "$englishOnly": [
     "shell.menu.editMode",
+    "shell.menu.lockWidgets",
     "desktop.menu.pasteShortcut",
     "desktop.menu.newShortcut",
     "desktop.menu.displaySettings",
@@ -22,6 +23,7 @@
   "widgetsB.folder.new": "New",
   "ctxMenu.folder": "Folder",
   "shell.menu.editMode": "Edit mode",
+  "shell.menu.lockWidgets": "Lock widgets",
   "desktop.menu.pasteShortcut": "Paste shortcut",
   "desktop.menu.newShortcut": "Shortcut",
   "desktop.menu.displaySettings": "Display settings",

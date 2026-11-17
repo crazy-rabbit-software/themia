@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// sets one bar part's height and a tooltip, and builds nothing.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetKeys, IWidgetJoins
 {
     private readonly ScreenTimeLinks _links;
 
@@ -37,7 +37,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     /// <summary>[S-11924] The day another widget points at (a calendar's cell, a forecast's row); null: none.</summary>
     private DateLink? _linkedDay;
 
-    /// <summary>[S-454] The header names the window ("Last 7 days"): the day navigation's label alone.</summary>
+    /// <summary>[S-454] [S-12481] The day line names the window ("Last 7 days"): the day navigation's label alone.</summary>
     private readonly ScreenTimeDayNav _nav;
 
     private readonly Grid _drawing = new() { FlowDirection = FlowDirection.LeftToRight, Margin = Family.SideInset };
@@ -97,12 +97,30 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         };
 
         _drawing.VerticalAlignment = VerticalAlignment.Top;
+
+        // [S-454] [S-12481] The day and its arrows, the content's first line.
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
+        SetRow(_drawing, 1);
+        SetRow(_empty, 1);
+        Children.Add(_nav.Line);
         Children.Add(_drawing);
         Children.Add(_empty);
     }
 
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _nav.Host;
+    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
+    private JoinedSides _joins;
+
+    /// <summary>[S-12483] The bars run to a joined foot; the calendar's rings meet a joined side.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        if (sides != _joins)
+        {
+            _joins = sides;
+            Render();
+        }
+    }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -177,7 +195,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             return;
         }
 
-        // [S-454] The header names the window, "Last 7 days".
+        // [S-454] The day line names the window, "Last 7 days".
         _nav.Update(Period);
 
         if (_source is null)
@@ -241,14 +259,21 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
         // [S-12410] The bars are a chart: their plot takes the whole height the card gives, down to the
         // card's inset (the end labels' text stays off the edge). The calendar's rings keep their size: a
-        // taller card centres them in the room under the header, the foot's inset counted with them.
+        // taller card centres them in the room under the day line, the foot's inset counted with them.
+        // [S-12483] Against a side a group mate joins, the foot's inset none where a mate joins it.
         var width = Math.Max(1, _area.Width - (2 * FamilySpace.Inset));
         var drawing = ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
         var calendar = ChartStyle == ScreenTimeChartStyle.Calendar;
-        var height = calendar ? drawing : Math.Max(drawing, Math.Floor(_area.Height - FamilySpace.Inset));
+        var room = _area.Height - ScreenTimeChartLayout.DayLine(Period);
+        var height = calendar ? drawing : Math.Max(drawing, Math.Floor(room - _joins.Foot));
         _drawing.Height = height;
-        _drawing.VerticalAlignment = calendar ? VerticalAlignment.Center : VerticalAlignment.Top;
-        _drawing.Margin = calendar ? Family.SideInset with { Bottom = FamilySpace.Inset } : Family.SideInset;
+        _drawing.VerticalAlignment = !calendar ? VerticalAlignment.Top : _joins.Block switch
+        {
+            BlockEdge.Top => VerticalAlignment.Top,
+            BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        _drawing.Margin = calendar ? Family.SideInset with { Bottom = _joins.Foot } : Family.SideInset;
 
         // [S-3325] Built once for what it is made of; every other read moves what is there.
         var frame = new Frame(ChartStyle, data.Range.Count, width, height, Today.Key, data.Range.Count > 0 ? data.Range[0].Date : string.Empty, Strings.Current);

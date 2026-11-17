@@ -33,7 +33,7 @@ namespace Themia.App.Widgets;
 /// A list on this PC needs no account at all.
 /// </para>
 /// </summary>
-internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => TasksModule.Opens(_config, _widgetHost.AccountsWith(HostFeatures.Tasks));
@@ -41,11 +41,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     private const string Scope = "tasks-widget";
 
 
-    /// <summary>[S-615] The kit's header: the problem glyph, the ring and the open count, before the list picker.</summary>
-    private readonly KitHeader _header;
+    /// <summary>[S-615] [S-12481] The kit's status: the problem glyph and the ring over the content's top end.</summary>
+    private readonly KitStatus _status;
 
-    /// <summary>The open tasks the badge counts, or null for none shown.</summary>
-    private long? _openCount;
     /// <summary>[S-616] The rows: the kit's check look, with its add row.</summary>
     private readonly KitList _list;
 
@@ -73,9 +71,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <summary>The account the widget resolved to, for the empty states that name it.</summary>
     private TaskAccount? _account;
 
-    /// <summary>The default list's name, once the lists are known: the header title for an unnamed choice.</summary>
-    private string? _resolvedListName;
-
     /// <summary>Why the lists could not be read, when resolving the default list failed.</summary>
     private AccountException? _listsFailure;
 
@@ -98,7 +93,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _widgetHost = host;
         // [S-615] A change the provider refused, or a refresh that failed with tasks still on screen:
         // the list stays, and the kit's problem glyph says it may be out of date and why.
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
 
 
         // [S-617] Every state that is not a list is the kit's state panel, over the list's own slot
@@ -108,6 +103,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _list = NewList();
         Children.Add(_list);
         _list.Overlay(_state);
+
+        // [S-12481] The problem glyph and the ring over the content's top end.
+        _status.Place(this);
     }
 
     /// <summary>What the widget is showing instead of, or as well as, a list.</summary>
@@ -125,15 +123,11 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         Ready,
     }
 
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _header;
-
     private bool IsLocal => _config.Source == TaskSource.Local;
 
     public void Bind(IWidgetSurface surface)
     {
         _surface = surface;
-        PublishTitle();
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -161,8 +155,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     private void OnLanguage(Locale locale)
     {
         _list.Relabel();
-        UpdateHeader();
-        PublishTitle();
+        UpdateStatus();
         Render();
     }
 
@@ -196,7 +189,10 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// widget looks: they are in its settings only.
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        !IsLocal && _feed is not null ? [new WidgetAction(Glyphs.Refresh, KitFreshness.RefreshLabel(Strings.Current, Outcomes(), DateTimeOffset.Now), Refresh)] : [];
+        [
+            .. !IsLocal && _feed is not null ? [new WidgetAction(Glyphs.Refresh, KitFreshness.RefreshLabel(Strings.Current, Outcomes(), DateTimeOffset.Now), Refresh)] : (WidgetAction[])[],
+            .. PickerActions(),
+        ];
 
     // ---- which list --------------------------------------------------------------------------------
 
@@ -216,7 +212,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         ReleaseFeed();
         _localListId = null;
         _account = null;
-        _resolvedListName = null;
         _listNames = new Dictionary<string, string>();
         _listsFailure = null;
 
@@ -230,7 +225,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         if (IsLocal)
         {
             _localListId = _service.Local.Find(_config.LocalListId)?.Id;
-            PublishTitle();
             Render();
             return;
         }
@@ -243,14 +237,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         {
             // A named account that has gone is not quietly swapped for another one: the widget
             // would start showing somebody else's tasks without being asked.
-            PublishTitle();
             Show(named && accounts.Count > 0 ? Screen.AccountGone : Screen.NoAccount);
             return;
         }
 
         if (_account.Problem is not null)
         {
-            PublishTitle();
             Show(Screen.NeedsSignIn);
             return;
         }
@@ -286,7 +278,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
                 return;
             }
 
-            _resolvedListName = list.Name;
             Hold(account.Id, list.Id);
         }
         catch (AccountException ex)
@@ -318,17 +309,12 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
                 _listNames = Names(lists);
                 Render();
             }
-            else if (lists.FirstOrDefault(l => l.Id == listId) is { } list)
-            {
-                _resolvedListName = list.Name;
-                PublishTitle();
-            }
 
-            UpdateHeader();
+            UpdateStatus();
         }
         catch (AccountException ex)
         {
-            // The title keeps the name the list had when it was picked; the feed reports the failure.
+            // The feed reports the failure.
             Log.Debug(Scope, $"could not refresh the list name: {ex.Message}");
         }
     }
@@ -337,7 +323,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _feed = _service!.Acquire(accountId, listId, _config.ShowCompleted);
         _feed.Changed += OnFeedChanged;
-        PublishTitle();
 
         // A feed another widget already filled is drawn as it is; its own tick keeps it fresh.
         if (!_feed.Loaded)
@@ -423,7 +408,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
             _listNames = Names(lists);
         }
 
-        PublishTitle();
         Render();
     }
 
@@ -446,37 +430,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         {
             // A list deleted, created or renamed from settings or another widget.
             _localListId = _local?.Find(_config.LocalListId)?.Id;
-            PublishTitle();
             Render();
         }
-    }
-
-    /// <summary>[S-403] The list's name as the title; the user's own label still wins in the card.</summary>
-    private void PublishTitle()
-    {
-        string? title = null;
-
-        if (IsLocal)
-        {
-            if (_local?.Find(_localListId) is { } list)
-            {
-                title = string.IsNullOrWhiteSpace(list.Name) ? TasksStr.WidgetsC_Tasks_UntitledList.Text() : list.Name;
-            }
-        }
-        else if (TaskRules.IsToday(_config.ListId))
-        {
-            title = TasksStr.Todo_TodayList.Text();
-        }
-        else
-        {
-            // [S-614] The account's lists as the service holds them, a rename on its way included.
-            title = ShownList()?.Name is { Length: > 0 } live ? live
-                : _resolvedListName is { Length: > 0 } resolved ? resolved
-                : _config.ListName is { Length: > 0 } picked ? picked
-                : null;
-        }
-
-        _surface?.SetHeaderTitle(title);
     }
 
     // ---- what to draw --------------------------------------------------------------------------------
@@ -520,7 +475,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
             return;
         }
 
-        UpdateHeader();
+        UpdateStatus();
 
         // One "today" per render, so a list drawn across midnight cannot disagree with itself.
         var today = DateOnly.FromDateTime(DateTime.Now);
@@ -542,9 +497,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _drawnPlan = plan;
         _list.Show(Items(rows, today), plan, _area, DateTimeOffset.Now);
 
-        var open = TaskRules.OpenCount(rows);
-        _openCount = open > 0 ? open : null;
-        UpdateHeader();
+        UpdateStatus();
 
         if (rows.Count == 0)
         {
@@ -586,8 +539,8 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
     }
 
-    /// <summary>The busy ring and the warning, which ride on the card's header.</summary>
-    private void UpdateHeader()
+    /// <summary>[S-12481] The busy ring and the warning, the status over the content's top end.</summary>
+    private void UpdateStatus()
     {
         var busy = _feed?.Busy == true || _screen == Screen.Loading;
 
@@ -597,7 +550,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         string[] notes = note is null ? [] : [note];
         var lines = _screen == Screen.Ready ? [.. notes, .. KitFreshness.Lines(Strings.Current, Outcomes(), DateTimeOffset.Now)] : notes;
 
-        _header.Show(lines, busy, offersAccounts: false, count: _screen == Screen.Ready ? _openCount : null, buttons: PickerButtons());
+        _status.Show(lines, busy);
     }
 
     /// <summary>[S-7516] Whether the account shown has importance, so "Important only" applies ([S-611]).</summary>
@@ -632,8 +585,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         _list.Clear(Plan(0));
         _displayed = [];
         _drawnPlan = null;
-        _openCount = null;
-        UpdateHeader();
+        UpdateStatus();
 
         var who = _account?.Label;
 
@@ -737,6 +689,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
         Strings.Changed -= OnLanguage;
 
         _state.Detach();
+        _status.Detach();
 
         _subscription?.Dispose();
         _subscription = null;

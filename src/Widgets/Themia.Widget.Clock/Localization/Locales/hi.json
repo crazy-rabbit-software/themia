@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "दिनांक दिखाएँ",
   "clock.offsetLabel": "ऑफ़सेट",
   "clock.secondsLabel": "सेकंड दिखाएँ",
   "clock.styleAnalog": "एनालॉग",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "समय क्षेत्र",
   "clock.tzCurrent": "वर्तमान: {city}",
   "locationSearch.placeholder": "शहर खोजें…",
-  "styles.clock.date": "तारीख",
   "styles.clock.flip": "फ़्लिप",
   "styles.clock.minimal": "सादा",
   "styles.clock.words": "शब्द",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[n] बजने में बीस मिनट हैं",
   "wordClock.m45": "पौने [n] बजे हैं",
   "wordClock.m50": "[n] बजने में दस मिनट हैं",
-  "wordClock.m55": "[n] बजने में पाँच मिनट हैं",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "[n] बजने में पाँच मिनट हैं"
 }

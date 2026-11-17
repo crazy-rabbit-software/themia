@@ -34,7 +34,7 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   `Filter` and `FoldersFirst`, are gone (no compatibility); so are `ItemSize` (rows of 24/28/32/40) and `TileSize`
   (tiles of 80/110/150) since the family's rows and cells decide their size ([S-6704], [S-6713]; group G6 2026-10-29).
 - **[S-1323]** Layout (`FolderLayout.Plan`, on the family's blocks): over the items, as the config says
-  ([S-11203]), the search box (a 32 text box at the side inset, 8 over the items; also while the header's Search
+  ([S-11203]), the search box (a 32 text box at the side inset, 8 over the items; also while the tool line's Search
   has it open), the path as a row of 28 (tail first, clickable: the folders above in Body secondary, the shown one
   primary, 16 chevrons tertiary, 4 apart) and the details column titles (a Caption line and 8, as the kit's table,
   [S-7034]); no status footer ("24 items · 2 selected", retired [S-666]). Rows are the Row block's one line of 28
@@ -50,8 +50,8 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
 - **[S-11203]** Converted to the sizing ([S-2438]), not split: a file browser keeps a **free size**, 220..800
   wide and 160..640 high (`FolderLayout.Sizing`), and is the one kind where more room shows more of the user's
   own entries, as a window does (more rows, more columns of cells; the rest scrolls). What stood or fell with
-  the box is a setting under Style, each on or off: **Search box** (off: the header's Search opens it, as
-  before; on: it always stands and the header has no Search), **Path** (off), and in Details **Column
+  the box is a setting under Style, each on or off: **Search box** (off: the tool line's Search opens it, as
+  before; on: it always stands and the line has no Search), **Path** (off), and in Details **Column
   titles** (on) and in List **Date modified** (on). Each style states its own natural size and least: the
   list, the grid and the icons 300 wide, Details its least width and 60 more, its least the insets, the 16
   lead, a name of 120 and every chosen column with its 12 (492 for Size, Modified, Type); a new one's height
@@ -59,15 +59,16 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   the icons 300, Details 268); its least height holds what stands over the items and one row. No tier
   decides anything: the path at Expanded × Expanded, the columns that fit, the 48 cells and the list's date
   from 180 are gone (`FolderColumns.Fit` with them).
-- **[S-6411]** The rightmost column ends at the row's right inset, the same as the header's buttons, at
+- **[S-6411]** The rightmost column ends at the row's right inset, the same as the tool line's buttons, at
   every width and in every style (user report 2026-10-16: from 400 DIPs the list put Size last, blank for
   every folder, so the dates stopped a column short of the edge). The list has one value, the date modified,
   end-aligned as every Row block's value; in Details the last column, whatever it is, is drawn from the right
   of its slot, its title included (`FolderColumns.AlignsRight(column, last)`). Grid and Icons share the row's
   width out between their cells ([S-1323]).
-- **[S-1326]** Header ([S-6710], `FolderLayout.Header`): at most two 24 buttons — Back and Up in navigate mode (the
+- **[S-1326]** The tool line ([S-6710], [S-12481], `FolderLayout.Header`): the content's first line (20 and 4 under
+  it, `FolderLayout.ToolLineHeight`, counted in the sizing), the folder on screen as its label, at most two 24 buttons — Back and Up in navigate mode (the
   disabled role when they cannot go), else Search and Sort (Search alone in Details, whose column titles sort) — the
-  git badge as its informing label (List and Details) and the busy ring; the header folds them by its own rule.
+  git badge as its informing label (List and Details) and the busy ring; the line folds them by its own rule.
   Forward, Home (navigate mode, where they can act) and, in navigate mode, Search are on the card menu ([S-1335]).
   Navigate mode keeps a 50-deep history restoring each place's scroll offset; Backspace and mouse X1/X2 go back/forward;
   a `.lnk` to a folder opens inside the widget. Explorer mode opens folders in Explorer.
@@ -117,7 +118,7 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   folder's glyph for loading, an empty folder and "Nothing here matches." under a filter; the warning for a folder
   that cannot be read (missing, denied, not a path).
 - **[S-1335]** Card menu: in navigate mode Search, Forward (when there is one) and Home (away from the widget's
-  folder), the header having room for two buttons only ([S-1326]); then Open in Explorer, Refresh. The views, the
+  folder), the tool line having room for two buttons only ([S-1326]); then Open in Explorer, Refresh. The views, the
   columns, hidden items and file extensions are settings only ([S-1746]).
 - **[S-1338]** Sort by name is Explorer's order (`FolderRules.CompareNatural`, issue 194): a run of digits
   compares by its value, so "Week 2" comes before "Week 10", and the rest ignores case; names that still tie
@@ -133,7 +134,7 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   row (its column titles sort, saved). Grid: file extensions, Sort by + Reverse. Icons: Sort by + Reverse; no
   extensions (it draws no names; a rename there edits the stem). Picking
   another style builds the menu again ([S-6071]); these lines stand under Style ([S-1337]). Retired for every style: the stored keyword filter (the
-  header search covers it), Folders first (always on), Stretch tiles (tiles keep their height), and with group G6 the
+  tool line's search covers it), Folders first (always on), Stretch tiles (tiles keep their height), and with group G6 the
   Row size and the Tile size (the family's rows and cells, [S-1320]).
 - **[S-1337]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style what the style draws ([S-4121]): Details columns (a submenu of switches), Show
@@ -157,19 +158,19 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
 - **[S-2031]** A click on the card ([S-2000]) opens the folder it shows now (where it navigated to,
   else its own) in File Explorer (`FolderModule.Opens`). The file area is the widget's own: a click
   there selects, starts a band or clears the selection and never reaches the card ([S-2004]), so the
-  click that opens is on the header (its icon and title).
+  click that opens is on the tool line (the folder's name).
 - **[S-11608]** A folder's path may name the environment's variables (`%USERPROFILE%\Documents`, as the
   My files group names the user's own Documents, [S-11209]): they are read as they stand when the path is
   resolved, and the result is checked as any path (`FolderPath.Resolve(…, expand)`); a variable the
   environment lacks stays as written and is refused as not rooted, never guessed. The stored value
   keeps the variable. Tests `FolderPathTests.S11608_`.
 
-Not ported: header double-click opens Explorer (orig. S-07; a single click on the header does,
+Not ported: a double-click that opens Explorer (orig. S-07; a single click on the tool line does,
 [S-2031], and "Open in Explorer" is in the card menu); image-item inline toggles (orig. S-29).
 - View links: each entry (a row or a cell, every style) is its file; the pointer or the keyboard cursor on it
   publishes the file pointed at, and an entry pointed at elsewhere on the view is drawn as under the pointer, over
   its own selection ([S-11945], [S-11948]).
-- View links: pointing at the header or the path crumb publishes the drive the folder is on, and the whole card
+- View links: pointing at the tool line or the path crumb publishes the drive the folder is on, and the whole card
   takes the hover fill while that drive is pointed at elsewhere on the view ([S-11950], [S-11954]).
 
 Needs a live pass: a real folder (navigation, double-click and Enter opening, rename,

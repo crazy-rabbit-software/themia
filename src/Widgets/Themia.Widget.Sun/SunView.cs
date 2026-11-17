@@ -29,8 +29,11 @@ namespace Themia.App.Widgets;
 /// the horizon a Track hairline. [S-168] All the astronomy lives in <see cref="Themia.Core.Astronomy"/>.
 /// </para>
 /// </summary>
-internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware
+internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware, IWidgetJoins
 {
+    /// <summary>[S-12483] The sides a group mate joins: no foot inset where one joins it, the day bar against it.</summary>
+    private JoinedSides _joins;
+
     private readonly Canvas _canvas = new()
     {
         HorizontalAlignment = HorizontalAlignment.Left,
@@ -53,11 +56,6 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
 
     private SunConfig _config = new();
 
-    /// <summary>The card this view draws on, which owns the header it names.</summary>
-    /// <summary>[S-2260] The header's trailing parts: the place as its label beside the widget's name.</summary>
-    private readonly HeaderParts _about = new();
-
-    public FrameworkElement? HeaderTrailing => _about;
     private Ticker? _ticker;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
@@ -103,13 +101,12 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
         ApplyConfig(config);
     }
 
-    /// <summary>The language changed: the drawing has no words, but the header's label may.</summary>
+    /// <summary>The language changed: the drawing has no words; laid again all the same.</summary>
     private void OnLanguage(Locale locale) => Lay();
 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as SunConfig ?? new SunConfig();
-        PublishPlace();
         Resubscribe();
 
         Lay();
@@ -152,6 +149,16 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
     }
 
     /// <summary>[S-11110] The graphic fills its box: the content in the inset, whatever the style.</summary>
+    /// <summary>[S-12483] The graphic runs to a foot a group mate joins.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        if (sides != _joins)
+        {
+            _joins = sides;
+            Lay();
+        }
+    }
+
     private void Lay()
     {
         if (!_area.IsMeasured)
@@ -160,14 +167,21 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
         }
 
         var bar = _config.Style == SunStyle.DayBar;
-        _box = (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), bar ? SunLayout.Dot : Math.Max(0, _area.Height - FamilySpace.Inset));
+        _box = (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), bar ? SunLayout.Dot : Math.Max(0, _area.Height - _joins.Foot));
+        _canvas.Margin = Family.Inset with { Top = 0, Bottom = _joins.Foot };
         _canvas.Visibility = Visibility.Visible;
         _canvas.Width = _box.Width;
         _canvas.Height = _box.Height;
 
         // [S-12410] The day bar is one line of its dot's height: a taller box centres it in the room, the
-        // foot's inset counted with it (so at its natural box nothing moves); the arc fills the box.
-        _canvas.VerticalAlignment = bar ? VerticalAlignment.Center : VerticalAlignment.Top;
+        // foot's inset counted with it (so at its natural box nothing moves), against a side a group mate
+        // joins ([S-12483]); the arc fills the box.
+        _canvas.VerticalAlignment = !bar ? VerticalAlignment.Top : _joins.Block switch
+        {
+            BlockEdge.Top => VerticalAlignment.Top,
+            BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
 
         // [S-6005] One style's shapes, never the other's.
         foreach (var shape in (UIElement[])[_elapsedFill, _dayTrack, _nightTrack, _doneTrack, _horizon])
@@ -274,6 +288,4 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetHeaderContent,
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
 
-    /// <summary>[S-2260] The header names the widget ("Sun"); the place stands in its label, none once it is cleared ([S-2848]).</summary>
-    private void PublishPlace() => _about.SetAbout(_config.PlaceLabel);
 }

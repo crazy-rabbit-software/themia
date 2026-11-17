@@ -29,8 +29,10 @@ public static partial class DesktopReconcile
     /// [S-5520] The reconcile of the state against a listing: (1) renames rewrite keys, (2) an item no
     /// longer listed loses its widgets in every view, (3) a listed item not known is an arrival, (4) the
     /// known set becomes the listing. Pure: nothing in <paramref name="state"/> changes.
+    /// [S-5597] <paramref name="expected"/>: items an undo is putting back from the Recycle Bin, not listed yet: their
+    /// widgets (brought back by the undo where they stood) stay and they stay known, so they are no arrival when they come.
     /// </summary>
-    public static DesktopPlan Plan(AppState state, IReadOnlyList<DesktopItem> listing, IReadOnlyList<(string Old, string New)> renames)
+    public static DesktopPlan Plan(AppState state, IReadOnlyList<DesktopItem> listing, IReadOnlyList<(string Old, string New)> renames, IReadOnlySet<string>? expected = null)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(listing);
@@ -73,7 +75,7 @@ public static partial class DesktopReconcile
         foreach (var (widget, config) in ItemWidgets(state).Select(w => (w.Widget, w.Config)))
         {
             var key = renamedTo.TryGetValue(config.Item, out var renamed) ? renamed : config.Item;
-            if (!listed.ContainsKey(key))
+            if (!listed.ContainsKey(key) && expected?.Contains(key) != true)
             {
                 gone.Add(widget.Id);
             }
@@ -81,29 +83,31 @@ public static partial class DesktopReconcile
 
         // (3) and (4).
         var arrivals = DesktopItemOrder.Sort(listed.Values.Where(item => !known.Contains(item.Key)));
-        return new DesktopPlan(applied, gone, arrivals, [.. listed.Keys]);
+        var waiting = expected?.Where(key => !listed.ContainsKey(key)) ?? [];
+        return new DesktopPlan(applied, gone, arrivals, [.. listed.Keys, .. waiting]);
     }
 
     /// <summary>
-    /// [S-5520] [S-5521] Carry out <paramref name="plan"/> on <paramref name="state"/>: keys rewritten
-    /// and gone widgets removed in every view; each arrival given a widget (<paramref name="create"/>) in
-    /// the view <paramref name="targetViewId"/> at the first free spot of the widget grid
-    /// (<see cref="DesktopGrid.Arrive"/>, [S-11876]: the icon's box, <paramref name="cellDip"/> in DIPs with
-    /// the gap, in whole grid cells of <paramref name="screen"/>, overlapping no widget); the known set set.
-    /// Returns the arrivals left unplaced because the view had no free spot (known now, reachable from Add
-    /// widget). With no target view (no display yet) the arrivals are left unknown, so the next reconcile
-    /// places them.
+    /// [S-5520] [S-5521] [S-5526] Carry out <paramref name="plan"/> on <paramref name="state"/>: keys rewritten
+    /// and gone widgets removed in every view; each arrival given a widget (<paramref name="create"/>) in every view
+    /// set to show all desktop icons (<see cref="DesktopViews.Receives"/>), at the first free spot of the widget grid
+    /// (<see cref="DesktopGrid.Arrive"/>, [S-11876]: the icon's box, <paramref name="cellDip"/> in DIPs with the gap,
+    /// in whole grid cells of the view's display, <paramref name="screenOf"/>, or of <paramref name="screen"/> (the
+    /// primary display's) for a view no display shows, overlapping no widget); never on a Chosen or None view; the
+    /// known set set. Returns the arrivals left unplaced on some view because it had no free spot (known now,
+    /// reachable from Add widget). With no usable <paramref name="screen"/> (no display yet) the arrivals are left
+    /// unknown, so the next reconcile places them.
     /// <para>
-    /// [S-5591] An arrival with a landing spot (<paramref name="spots"/>, by the arrival's position:
-    /// a drop, a paste, New ›) goes to that spot's view instead, centred on its point on the grid or at the
-    /// free spot nearest to it, on that view's display (<paramref name="screenOf"/>); a spot whose view or
-    /// display is gone falls back to the rule above.
+    /// [S-5591] [S-5526] An arrival with a landing spot (<paramref name="spots"/>, by the arrival's position:
+    /// a drop, a paste, New ›) lands on that spot's view, centred on its point on the grid or at the free spot
+    /// nearest to it, on that view's display (<paramref name="screenOf"/>), whatever the view's value but None (a
+    /// None view shows none, as Windows' desktop with its icons hidden); every other All view gets it at its first
+    /// free spot. A spot whose view or display is gone falls back to the rule above.
     /// </para>
     /// </summary>
     public static IReadOnlyList<DesktopItem> Apply(
         AppState state,
         DesktopPlan plan,
-        string? targetViewId,
         ScreenMetrics screen,
         (double Width, double Height) cellDip,
         Func<DesktopItem, FracRect, WidgetInstance> create,
@@ -135,19 +139,37 @@ public static partial class DesktopReconcile
 
         var unplaced = new List<DesktopItem>();
         var unknown = new HashSet<string>(DesktopItemKeys.Comparer);
-        var target = state.FindView(targetViewId);
 
         // [S-11876] One room per view for the whole pass: every arrival takes its spot in it, so two never share one.
-        var rooms = new Dictionary<string, ((double W, double H) Size, List<FracRect> Occupied)>(StringComparer.Ordinal);
-        ((double W, double H) Size, List<FracRect> Occupied) RoomOf(ViewState view, ScreenMetrics on)
+        var rooms = new Dictionary<string, ((double W, double H) Size, List<FracRect> Occupied, HashSet<string> Shown)>(StringComparer.Ordinal);
+        ((double W, double H) Size, List<FracRect> Occupied, HashSet<string> Shown) RoomOf(ViewState view, ScreenMetrics on)
         {
             if (!rooms.TryGetValue(view.Id, out var room))
             {
-                room = (DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), on), DesktopGrid.Occupied(view));
+                room = (DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), on), DesktopGrid.Occupied(view), new HashSet<string>(DesktopViews.Shown(view), DesktopItemKeys.Comparer));
                 rooms[view.Id] = room;
             }
 
             return room;
+        }
+
+        void Land(ViewState view, ScreenMetrics on, DesktopItem item, double? x, double? y)
+        {
+            var room = RoomOf(view, on);
+            if (room.Shown.Contains(item.Key))
+            {
+                return;
+            }
+
+            if (DesktopGrid.Arrive(room.Occupied, room.Size, x, y, on) is { } landed)
+            {
+                view.Widgets.Add(create(item, landed));
+                room.Shown.Add(item.Key);
+            }
+            else if (!unplaced.Contains(item))
+            {
+                unplaced.Add(item);
+            }
         }
 
         for (var i = 0; i < plan.Arrivals.Count; i++)
@@ -155,37 +177,35 @@ public static partial class DesktopReconcile
             var item = plan.Arrivals[i];
 
             // [S-5591] Its own spot first: the view of the display it was dropped on, at the drop point.
+            string? landedOn = null;
             if (spots is not null && i < spots.Count && spots[i] is { } spot
                 && state.FindView(spot.ViewId) is { } spotView
                 && screenOf?.Invoke(spot.ViewId) is { IsUsable: true } spotScreen)
             {
-                var at = RoomOf(spotView, spotScreen);
-                if (DesktopGrid.Arrive(at.Occupied, at.Size, spot.X, spot.Y, spotScreen) is { } landed)
+                landedOn = spotView.Id;
+                if (DesktopViews.Holds(spotView))
                 {
-                    spotView.Widgets.Add(create(item, landed));
+                    Land(spotView, spotScreen, item, spot.X, spot.Y);
                 }
-                else
+            }
+
+            if (!screen.IsUsable)
+            {
+                if (landedOn is null)
                 {
-                    unplaced.Add(item);
+                    unknown.Add(item.Key);
                 }
 
                 continue;
             }
 
-            if (target is null || !screen.IsUsable)
+            // [S-5526] Every other view that shows all desktop icons, at its first free spot.
+            foreach (var view in state.Views)
             {
-                unknown.Add(item.Key);
-                continue;
-            }
-
-            var room = RoomOf(target, screen);
-            if (DesktopGrid.Arrive(room.Occupied, room.Size, null, null, screen) is { } free)
-            {
-                target.Widgets.Add(create(item, free));
-            }
-            else
-            {
-                unplaced.Add(item);
+                if (DesktopViews.Receives(view) && !string.Equals(view.Id, landedOn, StringComparison.Ordinal))
+                {
+                    Land(view, screenOf?.Invoke(view.Id) is { IsUsable: true } shownOn ? shownOn : screen, item, null, null);
+                }
             }
         }
 
@@ -195,16 +215,21 @@ public static partial class DesktopReconcile
 
     /// <summary>
     /// [S-5523] The listed items with no widget in <paramref name="view"/>, in <see cref="DesktopItemOrder"/>:
-    /// what Add widget's "On the desktop" offers there.
+    /// what Add widget's "On the desktop" offers there (placing one on a Chosen view picks it, [S-5527]); none on a
+    /// None view.
     /// </summary>
     public static IReadOnlyList<DesktopItem> Unplaced(ViewState view, IReadOnlyList<DesktopItem> listing)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(listing);
 
-        var placed = new HashSet<string>(
-            view.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item).Where(key => key.Length > 0),
-            DesktopItemKeys.Comparer);
+        // [S-5526] A view that shows no desktop icons is offered none.
+        if (!DesktopViews.Holds(view))
+        {
+            return [];
+        }
+
+        var placed = DesktopViews.Shown(view);
         return DesktopItemOrder.Sort(listing.Where(item => !placed.Contains(item.Key)));
     }
 

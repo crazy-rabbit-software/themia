@@ -67,19 +67,19 @@ public sealed class HeaderAboutTests
     [Fact]
     public void S2260_the_label_is_trimmed_and_blank_is_none()
     {
-        Assert.Equal("1.1.1.1", HeaderRules.About("  1.1.1.1 "));
-        Assert.Null(HeaderRules.About(" "));
-        Assert.Null(HeaderRules.About(null));
+        Assert.Equal("1.1.1.1", LineRules.About("  1.1.1.1 "));
+        Assert.Null(LineRules.About(" "));
+        Assert.Null(LineRules.About(null));
     }
 
     [Fact]
     public void S2260_a_part_added_later_stands_in_the_headers_order()
     {
-        HeaderPartKind[] kinds = [HeaderPartKind.Problem, HeaderPartKind.Busy, HeaderPartKind.Button, HeaderPartKind.Count];
+        LinePartKind[] kinds = [LinePartKind.Problem, LinePartKind.Busy, LinePartKind.Button, LinePartKind.Count];
 
-        Assert.Equal(2, HeaderRules.InsertAt(kinds, HeaderPartKind.Label));
-        Assert.Equal(1, HeaderRules.InsertAt([HeaderPartKind.Problem], HeaderPartKind.Label));
-        Assert.Equal(3, HeaderRules.InsertAt(kinds, HeaderPartKind.Button));
-        Assert.Equal(0, HeaderRules.InsertAt([], HeaderPartKind.Label));
+        Assert.Equal(2, LineRules.InsertAt(kinds, LinePartKind.Label));
+        Assert.Equal(1, LineRules.InsertAt([LinePartKind.Problem], LinePartKind.Label));
+        Assert.Equal(3, LineRules.InsertAt(kinds, LinePartKind.Button));
+        Assert.Equal(0, LineRules.InsertAt([], LinePartKind.Label));
     }
 }

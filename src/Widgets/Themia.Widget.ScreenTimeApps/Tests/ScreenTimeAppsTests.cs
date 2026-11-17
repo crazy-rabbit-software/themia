@@ -15,13 +15,13 @@ public sealed class ScreenTimeAppsTests
     public void S11510_five_one_line_rows_300_wide_the_height_following_the_rows()
     {
         var sizing = Kind.Sizing(new ScreenTimeAppsConfig());
-        Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + (5 * FamilyShape.Row1) + FamilySpace.Inset), sizing.Natural);
-        Assert.Equal((220, 752), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a list, 300 x 2.5 on 4s
+        Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + ScreenTimeAppsModule.DayLine(ScreenTimePeriod.Day) + (5 * FamilyShape.Row1) + FamilySpace.Inset), sizing.Natural);
+        Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
         Assert.True(sizing.HeightSteps!.FollowsConfig);
         Assert.Empty(sizing.Problems());
 
         var twelve = Kind.Sizing(new ScreenTimeAppsConfig { Rows = 12 });
-        Assert.Equal(FamilySpace.ContentTop + (12 * FamilyShape.Row1) + FamilySpace.Inset, twelve.Natural.Height);
+        Assert.Equal(FamilySpace.ContentTop + ScreenTimeAppsModule.DayLine(ScreenTimePeriod.Day) + (12 * FamilyShape.Row1) + FamilySpace.Inset, twelve.Natural.Height);
     }
 
     [Fact]
@@ -37,14 +37,14 @@ public sealed class ScreenTimeAppsTests
         Assert.Equal(FamilyShape.Icon, ScreenTimeAppsLayout.Apps(new ScreenTimeAppsConfig()).Lead);
 
         var sizing = Kind.Sizing(new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week, Lines = 2 });
-        Assert.Equal(FamilySpace.ContentTop + (5 * FamilyShape.Row2) + FamilySpace.Inset, sizing.Natural.Height);
+        Assert.Equal(FamilySpace.ContentTop + ScreenTimeAppsModule.DayLine(ScreenTimePeriod.Week) + (5 * FamilyShape.Row2) + FamilySpace.Inset, sizing.Natural.Height);
     }
 
     [Fact]
     public void S11510_dragging_the_bottom_edge_sets_rows_on_a_copy()
     {
         var config = new ScreenTimeAppsConfig();
-        var set = Assert.IsType<ScreenTimeAppsConfig>(Kind.SizeSets!(config, new SizeDip(300, FamilySpace.ContentTop + (8 * FamilyShape.Row1) + FamilySpace.Inset)));
+        var set = Assert.IsType<ScreenTimeAppsConfig>(Kind.SizeSets!(config, new SizeDip(300, FamilySpace.ContentTop + ScreenTimeAppsModule.DayLine(ScreenTimePeriod.Day) + (8 * FamilyShape.Row1) + FamilySpace.Inset)));
         Assert.Equal(8, set.Rows);
         Assert.Equal(5, config.Rows);
         Assert.Same(config, Kind.SizeSets!(config, Kind.Sizing(config).Natural));

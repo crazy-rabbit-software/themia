@@ -1,8 +1,10 @@
 using Themia.App.Shell;
+using Themia.Core.Desktop;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.Core.Settings;
 
@@ -42,6 +44,15 @@ public interface IViewsMenuHost
 
     /// <summary>[S-3727] Ask on a page of its own; only the answer runs it.</summary>
     void Confirm(SettingsConfirm confirm);
+
+    /// <summary>[S-5529] The desktop's items as last read ([S-5510]): the lines of a Chosen view's list.</summary>
+    IReadOnlyList<DesktopItem> DesktopItems { get; }
+
+    /// <summary>[S-5528] Set which desktop icons a view shows, one undo step; set to All, what it lacks is laid in at the first free spots.</summary>
+    void SetDesktopIcons(string viewId, ViewDesktopIcons value);
+
+    /// <summary>[S-5527] Show a desktop item on a view (at its first free spot) or hide it from that view, one undo step.</summary>
+    void ShowDesktopItem(string viewId, string key, bool shown);
 }
 
 /// <summary>
@@ -117,6 +128,13 @@ public static class ViewsMenu
             // [S-3810] The colour its mark is drawn in.
             new SettingsColour(Keys.Colour(id), Str.Shell_View_Colour.Text(), view.Color ?? string.Empty,
                 value => host.Mutate(s => ViewOps.SetColor(s, id, value), relayout: false), Str.Shell_View_ColourDefault.Text(), ColorPresets.Windows),
+            new SettingsSeparator(key + "/-icons"),
+        ];
+
+        // [S-5529] Which desktop icons it shows, and while Chosen the list to tick them on.
+        lines.AddRange(DesktopIcons(host, view));
+        lines.AddRange(
+        [
             new SettingsSeparator(key + "/-show"),
 
             // [S-19] A command, as the view bar's chip: the Display page holds which view each display shows.
@@ -124,7 +142,7 @@ public static class ViewsMenu
             {
                 Disabled = here,
             },
-        ];
+        ]);
 
         return new SettingsSubmenu(key, view.Name, Mark(view), lines)
         {
@@ -151,6 +169,51 @@ public static class ViewsMenu
             ],
         };
     }
+
+    /// <summary>
+    /// [S-5529] A view's Desktop icons: a choice of All, Chosen and None; while Chosen, under it the list of the desktop's
+    /// items (a page of its own behind a back head: the card's one level is the choice's), each a switch that shows it on
+    /// this view or hides it, in <see cref="DesktopItemOrder"/>, with how many are on at its end.
+    /// </summary>
+    private static IEnumerable<SettingsLine> DesktopIcons(IViewsMenuHost host, ViewState view)
+    {
+        var id = view.Id;
+        SettingsRadio Option(ViewDesktopIcons value, Str text)
+            => new(Keys.DesktopIcons(id) + "/" + value.ToString().ToLowerInvariant(), text.Text(), view.DesktopIcons == value, () => host.SetDesktopIcons(id, value));
+
+        yield return new SettingsChoice(Keys.DesktopIcons(id), Str.Desktop_ViewIcons_Label.Text(), Glyphs.Apps,
+        [
+            Option(ViewDesktopIcons.All, Str.Desktop_ViewIcons_All),
+            Option(ViewDesktopIcons.Chosen, Str.Desktop_ViewIcons_Chosen),
+            Option(ViewDesktopIcons.None, Str.Desktop_ViewIcons_None),
+        ]);
+
+        if (view.DesktopIcons != ViewDesktopIcons.Chosen)
+        {
+            yield break;
+        }
+
+        var items = DesktopItemOrder.Sort(host.DesktopItems.DistinctBy(item => item.Key, DesktopItemKeys.Comparer));
+        var shown = DesktopViews.Shown(view);
+        List<SettingsLine> ticks = items.Count == 0
+            ? [new SettingsNote(Keys.ChosenIcons(id) + "/none", Str.Desktop_ViewIcons_Empty.Text())]
+            : [.. items.Select(item => new SettingsToggle(Keys.ChosenIcon(id, item.Key), item.Name, ItemGlyph(item.Kind), shown.Contains(item.Key),
+                on => host.ShowDesktopItem(id, item.Key, on)))];
+        yield return new SettingsSubmenu(Keys.ChosenIcons(id), Str.Desktop_ViewIcons_List.Text(), Glyphs.Checklist, ticks)
+        {
+            Page = true,
+            Value = Str.Desktop_ViewIcons_Count.Format(("shown", LocaleFormat.Integer(items.Count(item => shown.Contains(item.Key)))), ("all", LocaleFormat.Integer(items.Count))),
+        };
+    }
+
+    /// <summary>[S-5529] A desktop item's line glyph by its kind.</summary>
+    private static string ItemGlyph(DesktopItemKind kind) => kind switch
+    {
+        DesktopItemKind.Folder => Glyphs.Folder,
+        DesktopItemKind.Shortcut => Glyphs.Link,
+        DesktopItemKind.ShellItem => Glyphs.Apps,
+        _ => Glyphs.File,
+    };
 
     /// <summary>
     /// [S-2313] Where a view is shown, under its name: "Shown on this display, DELL U2720Q" (the page's own display
@@ -215,5 +278,14 @@ public static class ViewsMenu
         public static string Colour(string viewId) => View(viewId) + "/colour";
 
         public static string Show(string viewId) => View(viewId) + "/show";
+
+        /// <summary>[S-5529] A view's Desktop icons choice.</summary>
+        public static string DesktopIcons(string viewId) => View(viewId) + "/desktop-icons";
+
+        /// <summary>[S-5529] A Chosen view's list of the desktop's items.</summary>
+        public static string ChosenIcons(string viewId) => View(viewId) + "/chosen-icons";
+
+        /// <summary>[S-5529] One item's switch in that list, by its key.</summary>
+        public static string ChosenIcon(string viewId, string itemKey) => ChosenIcons(viewId) + "/" + itemKey;
     }
 }

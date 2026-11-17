@@ -34,8 +34,8 @@ public sealed class BatteryModule : IWidgetModule
         Label = BatteryStr.Widget_Battery_Label.Local(),
         Description = BatteryStr.Shell_Meters_BatteryDescription.Local(),
         Glyph = Glyphs.Battery,
-        Sizing = c => MeterSizing.Reading(BatteryMeter.Look(((BatteryConfig)c).Style), ReadoutRules.Split(Formatting.Percent(1)) with { Lead = ((BatteryConfig)c).Style == BatteryStyle.Number }),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Sizing = c => MeterSizing.Reading(BatteryMeter.Look(((BatteryConfig)c).Style), ReadoutRules.Split(Formatting.Percent(1))),
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.BatteryReading, 0, 0),
     };

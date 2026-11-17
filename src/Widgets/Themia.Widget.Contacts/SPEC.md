@@ -28,7 +28,7 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
   where on, the rows and the inset, dragging the bottom edge sets Rows, more scroll inside them.
   **Grid**: `GridColumns` cells a line (2..6, default 3) and `GridRows` lines (1..6, default 2) of
   48 monograms over their names, one size (no handle), more scroll inside it. **Search box**
-  (`SearchBox`, on by default): over the people; off, the header's search button opens it. One
+  (`SearchBox`, on by default): over the people; off, the card menu's Search opens it ([S-12481]). One
   column at every width; no layout falls back to another. The ladder ([S-1270], [S-1271], [S-1273],
   [S-1275], `ContactRules.Effective`) is gone. Tests `ContactsPlanTests`, `ContactsMenuTests.S11406_`,
   `ContactsFitTests.S11406_`.

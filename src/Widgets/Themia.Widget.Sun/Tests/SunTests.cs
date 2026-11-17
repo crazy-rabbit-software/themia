@@ -78,9 +78,8 @@ public sealed class SunTests
     }
 
     [Fact]
-    public void S11110_the_sun_starts_headerless_and_its_styles_are_the_arc_and_the_day_bar()
+    public void S11110_the_sun_s_styles_are_the_arc_and_the_day_bar()
     {
-        Assert.True(new SunModule().Descriptor.Traits.HasFlag(Themia.Sdk.WidgetTraits.StartsHeaderless));
         Assert.Equal([SunStyle.Arc, SunStyle.DayBar], Enum.GetValues<SunStyle>());
     }
 }

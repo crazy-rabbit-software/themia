@@ -92,7 +92,7 @@ public class WeekPlannerTests
     public void S11410_the_width_follows_the_days_and_the_height_the_rows()
     {
         var three = WeekPlannerRules.Sizing(3, 5);
-        Assert.Equal(new SizeDip(600, 36 + 28 + (5 * 28) + 12), three.Natural);
+        Assert.Equal(new SizeDip(600, 12 + 28 + (5 * 28) + 12), three.Natural);
         Assert.True(three.FixedWidth);
         Assert.Equal(1400, WeekPlannerRules.Sizing(7, 5).Natural.Width);
         Assert.Equal(200, WeekPlannerRules.Sizing(0, 5).Natural.Width);

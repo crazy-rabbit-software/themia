@@ -60,6 +60,12 @@ public enum FileCommand
     /// <summary>[S-65] "Edit mode" (unchecked here): edit mode on, from a desktop icon's menu.</summary>
     EditMode,
 
+    /// <summary>[S-12951] "Lock widgets" from a desktop icon's menu, checked while on ([S-12950]).</summary>
+    LockWidgets,
+
+    /// <summary>[S-5527] "Hide from this view": desktop items' icons off the view they stand on; the files stay.</summary>
+    HideFromView,
+
     /// <summary>The shell's full classic menu (<c>IContextMenu</c>).</summary>
     ShowMoreOptions,
 
@@ -70,8 +76,8 @@ public enum FileCommand
     OpenInExplorer,
 }
 
-/// <summary>One line of a file menu: the command and whether it can be clicked now.</summary>
-public readonly record struct FileMenuLine(FileCommand Command, bool Enabled = true)
+/// <summary>One line of a file menu: the command, whether it can be clicked now, and a toggle line's state (null: no toggle).</summary>
+public readonly record struct FileMenuLine(FileCommand Command, bool Enabled = true, bool? Checked = null)
 {
     public static FileMenuLine Separator => new(FileCommand.Separator);
 

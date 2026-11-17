@@ -280,9 +280,9 @@ public static class ScreenTimeLook
 }
 
 /// <summary>
-/// [S-454] The day navigation in a screen-time card's header, on the Header block's parts ([S-6710]):
-/// the day ("Today", "Yesterday", "Mon 26 Oct") as the informing label and two header buttons, back and
-/// forward, for a day period; the window's name alone for a week or a month. A button with nowhere to
+/// [S-454] [S-12481] The day navigation of a screen-time widget, its tool line ([S-6710]) at the top of its
+/// own content: the day ("Today", "Yesterday", "Mon 26 Oct") as the line's label and two line buttons, back
+/// and forward, for a day period; the window's name alone for a week or a month. A button with nowhere to
 /// go (forward on today, back on the oldest day) is not wanted and takes no room; back to today is the
 /// card menu's (<see cref="ContextActions"/>). The donut and the app list each have one; the pinned day
 /// is the widget's own.
@@ -292,8 +292,7 @@ public sealed class ScreenTimeDayNav
     private static readonly string ChevronLeft = char.ConvertFromUtf32(0xE76B);
     private static readonly string ChevronRight = Glyphs.ChevronRight;
 
-    private readonly HeaderParts _parts = new();
-    private readonly TextBlock _label = HeaderBlock.Label(string.Empty);
+    private readonly ToolLine _line = new();
     private readonly Border _back;
     private readonly Border _forward;
     private readonly Action _moved;
@@ -303,11 +302,8 @@ public sealed class ScreenTimeDayNav
     {
         _moved = moved;
 
-        // Centred on the header's line beside the 24 buttons, as a label alone is.
-        _label.VerticalAlignment = VerticalAlignment.Center;
-        _parts.Add(HeaderPartKind.Label, _label);
-        _back = _parts.Add(HeaderPartKind.Button, HeaderBlock.Button(ChevronLeft, Str.Screentime_PrevDay.Text(), () => Step(-1)));
-        _forward = _parts.Add(HeaderPartKind.Button, HeaderBlock.Button(ChevronRight, Str.Screentime_NextDay.Text(), () => Step(1)));
+        _back = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronLeft, Str.Screentime_PrevDay.Text(), () => Step(-1)));
+        _forward = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronRight, Str.Screentime_NextDay.Text(), () => Step(1)));
 
         // The arrows point the way time runs in the language's reading order.
         foreach (var button in new[] { _back, _forward })
@@ -319,8 +315,8 @@ public sealed class ScreenTimeDayNav
         }
     }
 
-    /// <summary>The header's trailing parts.</summary>
-    public HeaderParts Host => _parts;
+    /// <summary>[S-12481] The line: the view lays it in its own first row.</summary>
+    public ToolLine Line => _line;
 
     /// <summary>[S-454] The day shown, or null for today (which follows the clock across midnight).</summary>
     public string? Pinned { get; set; }
@@ -345,21 +341,26 @@ public sealed class ScreenTimeDayNav
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, text);
     }
 
-    /// <summary>Show the day's label and arrows, or the window's name, for this period.</summary>
+    /// <summary>
+    /// Show the day's label and arrows for a day; [S-12803] for a window no line at all (its sizing counts none):
+    /// a line naming the last 7 days would only repeat over every widget of a group what its Header says once.
+    /// </summary>
     public void Update(ScreenTimePeriod period)
     {
         if (ScreenTimeRules.ClampPeriod(period) != ScreenTimePeriod.Day)
         {
-            _label.Text = ScreenTimeRules.PeriodLabel(period);
-            _parts.Want(_back, false);
-            _parts.Want(_forward, false);
+            _line.Label = string.Empty;
+            _line.Parts.Want(_back, false);
+            _line.Parts.Want(_forward, false);
+            _line.Visibility = Visibility.Collapsed;
             return;
         }
 
+        _line.Visibility = Visibility.Visible;
         var today = CurrentDay();
-        _label.Text = ScreenTimeRules.DayLabel(Pinned, today);
-        _parts.Want(_back, ScreenTimeRules.CanGoBack(Pinned, today));
-        _parts.Want(_forward, Pinned is not null);
+        _line.Label = ScreenTimeRules.DayLabel(Pinned, today);
+        _line.Parts.Want(_back, ScreenTimeRules.CanGoBack(Pinned, today));
+        _line.Parts.Want(_forward, Pinned is not null);
     }
 
     /// <summary>

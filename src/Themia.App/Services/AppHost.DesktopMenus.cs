@@ -37,10 +37,10 @@ internal sealed partial class AppHost
     }
 
     /// <summary>[S-5582] What the selection's menu depends on now.</summary>
-    private static DeskMenuFacts DeskFacts()
+    private DeskMenuFacts DeskFacts()
     {
         var bin = HostRecycleBin.Instance;
-        return new DeskMenuFacts(RecycleBinState.CanEmpty(bin.Current, bin.Emptying), HostAppLayouts.Instance.CanEdit, HostFileClipboard.Instance.HasFiles);
+        return new DeskMenuFacts(RecycleBinState.CanEmpty(bin.Current, bin.Emptying), HostAppLayouts.Instance.CanEdit, HostFileClipboard.Instance.HasFiles, State.Preferences.LockWidgets);
     }
 
     /// <summary>Whether the desktop item <paramref name="key"/> is a folder, as the listing has it.</summary>
@@ -188,6 +188,12 @@ internal sealed partial class AppHost
                 break;
             case FileCommand.EditMode:
                 SetEditMode(true);
+                break;
+            case FileCommand.LockWidgets:
+                SetLockWidgets(!State.Preferences.LockWidgets);
+                break;
+            case FileCommand.HideFromView:
+                HideDesktopIcons(icons);
                 break;
             case FileCommand.ShowMoreOptions:
                 // After the click's own menu has closed: the classic menu is tracked in a loop of its own.
@@ -400,6 +406,8 @@ internal sealed partial class AppHost
                 DesktopMenuCommand.OpenInTerminal => new(Glyphs.Terminal, Str.Desktop_Menu_OpenInTerminal.Text(), Run, IconFile: ShellFileOps.TerminalAppItem),
                 // [S-65] Edit mode, a toggle line as Windows' View toggles: unchecked, the desktop being locked.
                 DesktopMenuCommand.EditMode => new(Glyphs.Edit, Str.Shell_Menu_EditMode.Text(), Run, Checked: false),
+                // [S-12951] Lock widgets, checked while on.
+                DesktopMenuCommand.LockWidgets => new(Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text(), Run, Checked: line.Checked),
                 DesktopMenuCommand.AddWidget => new(Glyphs.Apps, Str.Shell_Toolbar_AddWidget.Text(), Run),
                 DesktopMenuCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), Run, Shortcut: KeyChord.Shift(ChordKey.F10)),
                 _ => throw new ArgumentOutOfRangeException(nameof(lines), command, "a background menu command with no line"),
@@ -477,6 +485,9 @@ internal sealed partial class AppHost
                 break;
             case DesktopMenuCommand.EditMode:
                 SetEditMode(true);
+                break;
+            case DesktopMenuCommand.LockWidgets:
+                SetLockWidgets(!State.Preferences.LockWidgets);
                 break;
             case DesktopMenuCommand.AddWidget:
                 // [S-5551] Edit mode on, then the add page under that display's bar ([S-11707]).

@@ -27,7 +27,6 @@ internal sealed partial class TasksView : IWidgetSample
         _config.LocalListId = PreviewListId;
         _local = new MemoryTaskLists([new LocalTaskList(PreviewListId, SampleTasks.ListName, tasks)]);
         _localListId = PreviewListId;
-        PublishTitle();
         Render();
     }
 }

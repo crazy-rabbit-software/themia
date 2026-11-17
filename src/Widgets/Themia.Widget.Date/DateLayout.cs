@@ -1,0 +1,109 @@
+using System.Collections.Concurrent;
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Widget.Date;
+
+namespace Themia.Core.Widgets;
+
+/// <summary>
+/// [S-10801]..[S-10804] The date widget's words and sizes, pure: what each style says of a day (through
+/// <see cref="LocaleFormat"/> only, never culture data), the step its Size draws it at, and the box that holds the
+/// language's widest day in that style. The view lays the face at that step and scales it to fill its box
+/// ([S-10803], as the clock, [S-12804]).
+/// </summary>
+public static class DateLayout
+{
+    /// <summary>The days measured for the widest text: two whole years, so every weekday meets every month and day.</summary>
+    private static readonly DateOnly First = new(2024, 1, 1);
+
+    private const int Days = 731;
+
+    private static readonly ConcurrentDictionary<(Locale, DateWidgetStyle, int), double> Widest = new();
+
+    /// <summary>
+    /// [S-10802] A one-line style's step at each size: Title (regular), 28, 40: a line of words, the Small one the size
+    /// of the line a 68 clock had under it, so the date stands under a clock as that line did.
+    /// </summary>
+    public static TypeStep LineStep(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
+    {
+        ReadoutSize.Small => FamilyType.Regular(FamilyType.Title),
+        ReadoutSize.Large => FamilyType.Big40,
+        _ => FamilyType.Big28,
+    };
+
+    /// <summary>[S-10802] The page's day number at each size: the readout's own step (40, 68, 96).</summary>
+    public static TypeStep NumberStep(ReadoutSize size) => ReadoutSizes.Step(ReadoutSizes.Normalise(size));
+
+    /// <summary>[S-10801] What a one-line style says of <paramref name="day"/>; the page's parts are <see cref="Page"/>.</summary>
+    public static string Line(DateWidgetStyle style, Locale locale, DateOnly day) => style switch
+    {
+        DateWidgetStyle.Short => LocaleFormat.Date(locale, day, DateStyle.WeekdayMonthDayShort),
+        DateWidgetStyle.Numeric => LocaleFormat.Date(locale, day, DateStyle.Short),
+        _ => DateStr.Date_Long.Format(locale,
+            ("weekday", LocaleFormat.WeekdayName(locale, day.DayOfWeek, NameWidth.Wide)),
+            ("date", LocaleFormat.Date(locale, day, DateStyle.MonthDay))),
+    };
+
+    /// <summary>[S-10801] The page's three parts: the weekday, the day of the month in the language's digits, the month.</summary>
+    public static (string Weekday, string Number, string Month) Page(Locale locale, DateOnly day)
+        => (LocaleFormat.WeekdayName(locale, day.DayOfWeek, NameWidth.Wide),
+            LocaleFormat.Integer(locale, day.Day),
+            LocaleFormat.MonthName(locale, day.Month, NameWidth.Wide));
+
+    /// <summary>[S-10801] The whole date, the tooltip in every style: "Monday, November 17, 2026".</summary>
+    public static string Full(Locale locale, DateOnly day) => LocaleFormat.Date(locale, day, DateStyle.Full);
+
+    /// <summary>
+    /// [S-10802] The face's box at its natural size: the widest day of the language in the style on its step (the
+    /// page: the number's step and the weekday's and month's line under it, the widest of the three), no inset.
+    /// </summary>
+    public static SizeDip Face(DateConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Style == DateWidgetStyle.Page)
+        {
+            var number = NumberStep(config.Size);
+            var line = FamilyType.Under(number);
+            var words = Math.Max(WidestOf(locale, DateWidgetStyle.Page, 0, line), WidestOf(locale, DateWidgetStyle.Page, 1, line));
+            var digits = HeroFit.Ems("88") * number.FontSize;
+            return new SizeDip(Math.Ceiling(Math.Max(words, digits)), number.LineHeight + (2 * line.LineHeight));
+        }
+
+        var step = LineStep(config.Size);
+        return new SizeDip(Math.Ceiling(WidestOf(locale, config.Style, 0, step)), step.LineHeight);
+    }
+
+    /// <summary>
+    /// [S-10802] The sizing: the face in the card's inset of 12 on every side, one height by the style and Size, widened
+    /// up to twice (beside a wider mate, under a clock); the host relaxes it ([S-12411]) and a larger box scales the face
+    /// up to fill it ([S-10803]).
+    /// </summary>
+    public static WidgetSizing Sizing(DateConfig config, Locale locale)
+    {
+        var face = Face(config, locale);
+        var box = new SizeDip(face.Width + (2 * FamilySpace.Inset), face.Height + (2 * FamilySpace.Inset));
+        return WidgetSizing.Range(box, box, box with { Width = 2 * box.Width });
+    }
+
+    /// <summary>The widest text of <paramref name="style"/> (the page: its weekday, part 0, or its month, part 1) on <paramref name="step"/> over two years.</summary>
+    private static double WidestOf(Locale locale, DateWidgetStyle style, int part, TypeStep step)
+    {
+        var ems = Widest.GetOrAdd((locale, style, part), key =>
+        {
+            var most = 0.0;
+            for (var i = 0; i < Days; i++)
+            {
+                var day = First.AddDays(i);
+                var text = key.Item2 == DateWidgetStyle.Page
+                    ? (key.Item3 == 0 ? Page(key.Item1, day).Weekday : Page(key.Item1, day).Month)
+                    : Line(key.Item2, key.Item1, day);
+                most = Math.Max(most, HeroFit.Ems(text));
+            }
+
+            return most;
+        });
+        return ems * step.FontSize;
+    }
+}

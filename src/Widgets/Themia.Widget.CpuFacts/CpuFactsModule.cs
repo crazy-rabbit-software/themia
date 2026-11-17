@@ -34,7 +34,7 @@ public sealed class CpuFactsModule : IWidgetModule
         Glyph = Glyphs.Cpu,
         Sizing = c => FactsRules.Sizing((FactsConfig)c),
         SizeSets = FactsRules.SizeSets,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Processor, 0, 3),
     };
 

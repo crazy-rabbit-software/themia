@@ -1,7 +1,8 @@
 # Clock
 
-The module `clock` ([S-6911]): the time in seven styles (Digital, Analog, Stacked, Flip, Words,
-Minimal, Date), in a zone of its own, with the zone's city, the date and the offset where they fit. Its tags
+The module `clock` ([S-6911]): the time in six styles (Digital, Analog, Stacked, Flip, Words,
+Minimal), in a zone of its own, with the zone's city and the offset where they fit; the date is the Date
+widget's (`src/Widgets/Themia.Widget.Date`, root [S-12805]). Its tags
 are this file's alone; the root `SPEC.md` holds the host's sections (styles [S-6000], the flip card
 the countdown shares [S-6032], `FlipCard` in the SDK; header defaults [S-700]; alignment [S-6580];
 the family's steps and blocks [S-6700]..[S-6740]; the regional clock [S-3770]; the ladder rules [S-660]..[S-666]).
@@ -9,7 +10,7 @@ The view is XAML (`ClockView.xaml`, compiled in this library).
 
 Owning files: everything in this folder: `ClockModule.cs` (descriptor, view factory, menu lines,
 JSON context), `ClockConfig.cs`, `ClockFormatter.cs` (the reading, the offset, the words),
-`ClockFace.cs` (the faces' steps and the line under), `WordClock.cs`, `DateText.cs` (the Date style's words), `ZoneCatalog*.cs`
+`ClockFace.cs` (the faces' steps and the line under), `WordClock.cs`, `ZoneCatalog*.cs`
 (the zone table and picker), `ClockView.xaml(.cs)`, `ClockMenu.cs` (its properties-menu lines), `Preview/` (Debug
 renders), `Localization/Locales/` (its own `ClockStr`, 30 languages, the word clock's rules among
 them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
@@ -30,18 +31,21 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   `InvariantGlobalization`, so culture format strings would not honour the config.
 - **[S-6011]** The clock's styles ([S-6000]), `ClockConfig.Style` (`ClockStyle`, stored as
   `"style": "digital"`; what was its face): **Digital**, **Analog**, **Stacked** ([S-1483]),
-  **Flip**, **Words**, **Minimal** and **Date** ([S-5300]), in that order. Every style is one block in
-  the card's inset of 12 (the clock has no header), centred top to bottom and placed by the
-  alignment, on the step its **Size** names (Small, Medium, Large: 40, 68, 96; the words 28, 40, 68;
-  the dial 96, 144, 192; the first line under Style, [S-2449]), never filling the box. The clock is
-  converted to the sizing ([S-2438], `ClockFace.Sizing`): its card is its face at that size plus the
-  inset (and 2 of slack for pixel rounding), the height one size; Digital, Minimal, Stacked and Flip
-  may be widened to twice their face (the line under then takes its longer form), Analog, Words and
-  Date are one size. A bigger card never draws a bigger face; the planners ([S-6741]..[S-6744]) pick
-  the step the box was made for;
-  every style but Minimal and Date draws one line under its face
-  ([S-6741]). The settings (seconds, date, zone, offset, alignment) are the same for the six time
-  styles; Date has only the alignment and the zone ([S-5303]).
+  **Flip**, **Words** and **Minimal**, in that order (owner, 2026-11-17: "the clock widget should not have a
+  date style as this should be moved into its own widget": the Date style, the date line and Show date are
+  gone, root [S-12805]). Every style is one block in the card's inset of 12 (the clock has no header), placed
+  by the alignment, planned on the step its **Size** names (Small, Medium, Large: 40, 68, 96; the words 28,
+  40, 68; the dial 96, 144, 192; the first line under Style, [S-2449]). The clock is converted to the sizing
+  ([S-2438], `ClockFace.Sizing`): its card is its face at that size plus the inset (and 2 of slack for pixel
+  rounding), the height one size; Digital, Minimal, Stacked and Flip may be widened to twice their face (the
+  line under then takes its longer form), Analog and Words are one size. **The face fills its card** (owner,
+  2026-11-17: "the clock widget does not stretch out to fill the space properly, there is way too much spacing
+  in it"; root [S-12804]): planned in its natural box, it is scaled up as one to the card (`Viewbox`, uniform,
+  never down), as a display clock is, so a larger card is a larger clock and the spare is only what the
+  card's other axis leaves; the dial is planned in the whole box (its strokes stay the family's). The
+  one-step climb (`ReadoutSizes.Climb`) is gone. Every style but Minimal draws one line under its face where
+  it has one: a world clock's city and the offset ([S-6741]). The settings (seconds, zone, offset, alignment)
+  are the same for every style.
 - **[S-6012]** **Flip**: a split-flap card per part of the time (hours, minutes, and seconds when
   shown), sized and placed by [S-6742] (`FlipCard`, `FlipRules`, root [S-6740]). A card whose digits
   change on a tick turns over (folds away, 110 ms, and the new digits fold in, 170 ms); a config,
@@ -52,12 +56,11 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   (`ClockFormatter.Words`), with the line under it ([S-6741]). Composed by `WordClock`
   ([S-6020]..[S-6024]).
 - **[S-6014]** **Minimal**: the digital readout at the regular weight (400) of its step (the light
-  weight is gone: the family has 400 and 600 only, [S-6700]) and nothing else at any size: no label,
-  date or offset, and no seconds ([S-6015]). It stacks where the digital readout would ([S-6741]).
+  weight is gone: the family has 400 and 600 only, [S-6700]) and nothing else at any size: no label
+  or offset, and no seconds ([S-6015]). It stacks where the digital readout would ([S-6741]).
 - **[S-6015]** `ClockConfig.DrawsSeconds`: seconds are drawn (and asked for, [S-52]) only when they
-  are on and the style is not Words, Minimal or Date.
-- **[S-6016]** Any style may follow any other, in any order, with seconds and the date on or
-  off: the view lets go of what the last style built (the flip cards and the AM/PM caption they
+  are on and the style is not Words or Minimal.
+- **[S-6016]** Any style may follow any other, in any order, with seconds on or off: the view lets go of what the last style built (the flip cards and the AM/PM caption they
   carry included) before the next one is laid, and never shows its error card for a style
   change. Covered by the Debug run `Themia.exe --clock-style-check <outDir>`, which hands one live
   card every style after every other, both ways and to and from Flip, the seconds toggled on Flip
@@ -88,8 +91,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   average advances; a sentence without spaces wraps anywhere, as the text block does.
 - **[S-645]** *(Retired by [S-6703], group G5: the clock's inset is the card's 12 on every side; its
   half inset above and below went with the filled readout, [S-659].)*
-- **[S-665]** Clock: the face, then its one line ([S-6741]): the city of a world clock, the date (short
-  "Thu, Oct 29" when the long one does not fit) and the offset ([S-1485]). No week, day of the year or
+- **[S-665]** Clock: the face, then its one line ([S-6741]): the city of a world clock and the offset
+  ([S-1485]); the date is the Date widget's ([S-12805]). No week, day of the year or
   time zone line at any size (retired, [S-666]).
 - **[S-1480]** Time zones are IANA ids (`Asia/Tokyo`) resolved through `ZoneCatalog`: an explicit
   IANA → Windows table frozen from Windows' own `timezoneMapping.xml` (CLDR), because under
@@ -133,14 +136,13 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   not read, [S-1050].)*
 - **[S-1477]** *(Retired with [S-1476]: `ClockText` is gone.)*
 - **[S-1478]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Under Style, what the style draws ([S-6074]): Seconds and Date (switches); then
+  has no settings page. Under Style, what the style draws ([S-6074]): Size and Seconds; then
   Appearance ([S-3723]), a divider, and **Timezone**, a search
   ([S-3722]): the machine's own zone first as "Current: …", the cities that match after it (40 at
   most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; after it
   on the same level Offset (None / From UTC / From local; user request 2026-10-19: what is shown is
-  chosen on the first level, never inside a search); after a divider a link to **Time format**, the
-  12- or 24-hour clock every widget tells time on, which ⚙ › Language & region alone sets ([S-3749],
-  [S-3590]; its value what is in force). (Tests `ClockMenuTests`.)
+  chosen on the first level, never inside a search). The 12- or 24-hour clock every widget tells time
+  on is ⚙ › Language & region's alone: the clock follows it, no link row ([S-3590], [S-3749]). (Tests `ClockMenuTests`.)
 
 - **[S-6741]** **The digital, stacked and minimal readout** (`ClockFace.Readout`, group G5): the
   Readout block on the largest Hero or Readout step ([S-6737]) on which the value ("88:88", ":88" more
@@ -150,9 +152,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   larger step, or where the row is too wide even on 28 and the stack is not. Where neither fits 28,
   the meridiem gives way first, then the seconds (and the clock then wakes once a minute, [S-52]). The
   one line under it is the step's line under (Caption under 28, Body under 40 and 68, Title at 400
-  under 96, 136 and 192), secondary, cut with an ellipsis: the city, the date and the offset, " · "
-  between them, as its room holds them: the long date, else the short one, else without the offset,
-  else the city alone (`ClockFace.Under`); a box too short for it sheds it.
+  under 96, 136 and 192), secondary, cut with an ellipsis: the city and the offset, " · " between them,
+  as its room holds them, else the city alone (`ClockFace.Under`); a box too short for it sheds it.
 - **[S-6742]** **Flip on the cards' steps** (`ClockFace.Flip` over `FlipRules`): the cards ("88"
   each) on the largest step on which they, 8 apart, and the meridiem 8 after the last card on the
   step's unit fit the width and the line under the cards fits the height; one above the other where
@@ -166,30 +167,11 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   hub an 8 dot, primary. Its line (Body, secondary) stands 8 under the dial while the dial keeps 96,
   else the dial is alone; the line never stands beside it ([S-11800]: no strip layout). A dial is never
   under 40.
-- **[S-6744]** **The Date style on the steps** (`ClockFace.Date`): the day of the month a Readout
-  ("88") on the largest step on which it fits the width and its weekday over it and its month under
-  it, both on the step's line under, secondary, fit the height (always a column: the strip layout
-  went with [S-11800]); the weekday is no longer the accent (no text in the
-  accent, [S-6706]). A word too wide for its line in its wide name takes the short one; where the
-  lines do not fit even 28 the month gives way, then the weekday.
+- **[S-6744]** *(Retired by [S-12805]: the Date style is the Date widget, `src/Widgets/Themia.Widget.Date`.)*
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-5300]** *(Retired: the Date widget, kind 131, is gone; the weekday and the date, no time,
-  made for the wallpaper, is now the clock's **Date** style (`ClockStyle.Date`, glyph E8D1
-  GotoToday, [S-6011]). A state file holding a `Date` widget drops it at load like any unknown kind,
-  [S-1900], [S-1050].)* The style keeps the rules below, in the clock's own zone: a world clock's
-  date is that place's.
-- **[S-5301]** [S-6744]: a column (weekday, day, month), placed by the alignment, on the step its Size
-  names ([S-2449]); the card is one size and nothing is added to it ([S-666], [S-11800]).
-- **[S-5302]** Words through `LocaleFormat` only (`DateText`): the weekday wide or short, the day in
-  the language's digits, the month by name. Widths are judged on worst-case names (13 characters
-  for a weekday, 11 for a month): a line too narrow for its wide form takes the short name. The
-  tooltip is the full date.
-- **[S-5303]** *(Retired: the Date widget's own settings. Show year is gone: the year is rarely the
-  news, and the other clock styles' dates leave it out too.)* The clock's menu offers the Date style
-  only the alignment ([S-1484]) and the zone ([S-1481]); seconds, the date line and the offset do not
-  apply to it and are not shown.
-- **[S-5304]** One tick a minute on the shared ticker (`ClockConfig.TickInterval`): the date turns
-  over within a minute of midnight.
+- **[S-5300]**..**[S-5304]** *(Retired by [S-12805]: the clock's Date style went to its own widget again,
+  `date`, [S-10800]; a stored `"style": "date"` is repaired to Digital like any unknown style, [S-6004], and a
+  stored `showDate` is an unknown property, not read, [S-1050].)*
 - **[S-2028]** A click on the card ([S-2000]) opens Windows' Clock app (`CardOpen.ClockApp`, its
   Apps-folder item); the module decides it (`ClockModule.Opens`).
 

@@ -94,23 +94,13 @@ public sealed class WidgetSizingTests
     public void S2442_a_task_list_dragged_to_five_rows_tall_has_five_rows_and_the_given_config_stays()
     {
         var config = new TasksConfig { Rows = 6 };
-        var five = new FracRect(0.1, 0.1, 0.3, (36 + (5 * 28) + 28 + 12) / 1000.0);
+        var five = new FracRect(0.1, 0.1, 0.3, (12 + (5 * 28) + 28 + 12) / 1000.0);
 
-        var next = SizeFit.ConfigFor(config, five, Screen, scale: 1, HeaderPlacement.Top, limits: null);
+        var next = SizeFit.ConfigFor(config, five, Screen, scale: 1, limits: null);
 
         Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
         Assert.Equal(6, config.Rows);
-        Assert.Same(config, SizeFit.ConfigFor(config, five with { H = (36 + (6 * 28) + 28 + 12) / 1000.0 }, Screen, 1, HeaderPlacement.Top, limits: null));
-    }
-
-    [Fact]
-    public void S2442_a_hidden_header_is_taken_off_before_the_kind_is_asked()
-    {
-        var config = new TasksConfig { Rows = 6 };
-        var fiveHeaderless = new FracRect(0.1, 0.1, 0.3, (12 + (5 * 28) + 28 + 12) / 1000.0);
-
-        var next = SizeFit.ConfigFor(config, fiveHeaderless, Screen, 1, HeaderPlacement.Hidden, limits: null);
-        Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
+        Assert.Same(config, SizeFit.ConfigFor(config, five with { H = (12 + (6 * 28) + 28 + 12) / 1000.0 }, Screen, 1, limits: null));
     }
 
     [Theory]
@@ -123,26 +113,25 @@ public sealed class WidgetSizingTests
             return;
         }
 
-        foreach (var shown in new[] { HeaderPlacement.Top, HeaderPlacement.Hidden, HeaderPlacement.Bottom })
         {
             var config = WidgetConfig.CreateDefault(kind);
-            var sizing = SizeFit.Of(config, shown);
+            var sizing = SizeFit.Of(config);
             foreach (var box in new[] { sizing.Min, sizing.Natural, sizing.Max })
             {
-                var (drawn, painted) = SizeFit.Resized(config, box, shown);
-                var laidOut = SizeFit.Of(drawn, shown);
+                var (drawn, painted) = SizeFit.Resized(config, box);
+                var laidOut = SizeFit.Of(drawn);
 
                 // Painted where its config is laid out (no row cut off, no row's room left empty), and on an
                 // axis that follows a count, at the size asked: the min is the fewest, the max the most.
                 Assert.Equal(painted, laidOut.Fit(painted));
                 if (laidOut.HeightSteps is { FollowsConfig: true })
                 {
-                    Assert.True(painted.Height == box.Height, $"{id} ({shown}) asked {box}, painted {painted}");
+                    Assert.True(painted.Height == box.Height, $"{id} asked {box}, painted {painted}");
                 }
 
                 if (laidOut.WidthSteps is { FollowsConfig: true })
                 {
-                    Assert.True(painted.Width == box.Width, $"{id} ({shown}) asked {box}, painted {painted}");
+                    Assert.True(painted.Width == box.Width, $"{id} asked {box}, painted {painted}");
                 }
             }
         }
@@ -151,13 +140,13 @@ public sealed class WidgetSizingTests
     [Fact]
     public void S2447_a_config_change_of_rows_refits_the_stored_rect_at_its_top_left()
     {
-        var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, (36 + (6 * 28) + 28 + 12) / 1000.0));
+        var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, (12 + (6 * 28) + 28 + 12) / 1000.0));
         ((TasksConfig)widget.Config).Rows = 3;
 
         Assert.True(SizeFit.Refit(widget, Screen, 1));
         Assert.Equal(0.2, widget.Rect.X, 9);
         Assert.Equal(0.2, widget.Rect.Y, 9);
-        Assert.Equal((36 + (3 * 28) + 28 + 12) / 1000.0, widget.Rect.H, 9);
+        Assert.Equal(0.14, widget.Rect.H, 9); // 12 + (3 * 28) + 28 + 12, on whole grid cells
         Assert.False(SizeFit.Refit(widget, Screen, 1));
     }
 
@@ -171,7 +160,7 @@ public sealed class WidgetSizingTests
         Assert.Equal(1, local.RowsShown.Lines);
         Assert.Equal(2, today.RowsShown.Lines);
         Assert.Equal(1, compact.RowsShown.Lines);
-        Assert.Equal(36 + (6 * 40) + 28 + 12, ModuleCatalog.Of(new WidgetId("tasks")).Sizing(today).Natural.Height);
+        Assert.Equal(12 + (6 * 40) + 28 + 12, ModuleCatalog.Of(new WidgetId("tasks")).Sizing(today).Natural.Height);
     }
 
     [Fact]
@@ -196,18 +185,18 @@ public sealed class WidgetSizingTests
         Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
         Assert.True(medium.Min.Height == medium.Natural.Height && !medium.FixedWidth);
 
-        // [S-12411] Relaxed: the box grows to twice the number's, the number stays its Size.
-        Assert.Equal(SizeStretch.Axis(medium.Natural.Height, 0, null, 2), medium.Max.Height);
+        // [S-12411] Relaxed: no practical Max, the number stays its Size.
+        Assert.Equal(SizeStretch.Ceiling, medium.Max.Height);
         var dial = At(ReadoutSize.Medium, ClockStyle.Analog);
         Assert.Equal(dial.Min, dial.Natural);
-        Assert.Equal(new SizeDip(SizeStretch.Axis(dial.Natural.Width, 0, null, 2), SizeStretch.Axis(dial.Natural.Height, 0, null, 2)), dial.Max);
+        Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), dial.Max);
         Assert.Equal(ReadoutSize.Medium, new ClockConfig().Size);
         Assert.Equal(ReadoutSize.Large, ((ClockConfig)new ClockConfig { Size = ReadoutSize.Large }.Clone()).Size);
     }
 
     [Theory]
     [MemberData(nameof(Kinds))]
-    public void S12411_every_kind_may_grow_past_its_natural_by_its_room_on_every_axis_its_config_does_not_step(string id)
+    public void S12411_every_kind_has_no_practical_max_on_every_axis_its_config_does_not_step(string id)
     {
         var kind = ModuleCatalog.Of(new WidgetId(id));
         foreach (var config in Configs(kind))
@@ -220,19 +209,18 @@ public sealed class WidgetSizingTests
                 continue;
             }
 
-            void Axis(string name, double natural, double max, SizeSteps? steps, bool width)
+            void Axis(string name, double max, SizeSteps? steps)
             {
                 if (steps is not null)
                 {
                     return;
                 }
 
-                var least = Math.Min(SizeStretch.Ceiling, natural * SizeStretch.Factor(sizing.Room, width));
-                Assert.True(max >= least - 0.01, $"{id}: {name} max {max} under its natural {natural} x its room {sizing.Room}");
+                Assert.True(max >= SizeStretch.Ceiling - 0.01, $"{id}: {name} max {max} under the ceiling {SizeStretch.Ceiling}");
             }
 
-            Axis("width", sizing.Natural.Width, sizing.Max.Width, sizing.WidthSteps, width: true);
-            Axis("height", sizing.Natural.Height, sizing.Max.Height, sizing.HeightSteps, width: false);
+            Axis("width", sizing.Max.Width, sizing.WidthSteps);
+            Axis("height", sizing.Max.Height, sizing.HeightSteps);
         }
     }
 }

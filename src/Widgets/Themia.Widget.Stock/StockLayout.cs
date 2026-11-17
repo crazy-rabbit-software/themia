@@ -24,13 +24,16 @@ public static class StockLayout
     /// <summary>[S-6707] Whether the currency is drawn and where the change stands, for a content <paramref name="width"/> wide.</summary>
     public static ReadoutFold Fold(ReadoutText price, double width) => ReadoutRules.Fold(FamilyType.Big28, price, WorstChange, width);
 
-    /// <summary>[S-11161] The price's sizing, with its header: the reading, its session's line where asked for, and its rows.</summary>
+    /// <summary>
+    /// [S-11161] [S-12481] The price's sizing: the reading, the line under it (always: it names the quote, its session
+    /// after the name where asked for; the view holds its place, so the sizing counts it, [S-12800]) and its rows.
+    /// </summary>
     public static WidgetSizing Sizing(StockConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         var rows = config.Rows;
         var height = FamilySpace.ContentTop + FamilyType.Big28.LineHeight
-            + (config.ShowsSession ? FamilyType.Under(FamilyType.Big28).LineHeight : 0)
+            + FamilyType.Under(FamilyType.Big28).LineHeight
             + (rows > 0 ? FamilySpace.S2 + (rows * FamilyShape.Row1) : 0) + FamilySpace.Inset;
         return WidgetSizing.Range(new(Narrowest, height), new(Narrowest, height), new(Widest, height));
     }

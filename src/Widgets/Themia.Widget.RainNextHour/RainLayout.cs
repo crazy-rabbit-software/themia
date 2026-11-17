@@ -31,7 +31,7 @@ public static class RainLayout
     /// </summary>
     public static bool Warns(RainHeadline headline) => headline is RainHeadline.StartsIn or RainHeadline.StopsIn or RainHeadline.Continues;
 
-    /// <summary>[S-11140] The rain's sizing, with its header.</summary>
+    /// <summary>[S-11140] The rain's sizing.</summary>
     public static WidgetSizing Sizing()
     {
         var height = FamilySpace.ContentTop + FamilyType.Title.LineHeight + FamilyType.Body.LineHeight + FamilySpace.S2 + Chart + FamilySpace.Inset;

@@ -15,10 +15,10 @@ sample|hovered|selected|over|packaged`), `Localization/Locales/` (its own `Scree
 the add menu's "Screen time" with its translations, "of {value}/day" moved from the chart with its
 translations, "of {value}" the donut's). Tests: `Tests/ScreenTimeTests.cs`.
 
-- **[S-11500]** **The reading** keeps its header (its name; the period as the header's label: "Last 7
-  days", or a day with its arrows, [S-454]) and draws the period's total on the family's 28
-  (`FamilyType.Big28`, start-aligned, [S-2449]) with one line under it: one height (36 + 36 + 16 + 12 =
-  100 at the family's tokens, `ScreenTimeReading.Sizing`), 160..320 wide (the least holds "888h 59m"),
+- **[S-11500]** **The reading** shows a day on its first line, a tool line with its arrows ([S-12481], [S-454];
+  a window, the last 7 or 30 days, has no such line: [S-12803]) and draws the period's total on the family's 28
+  (`FamilyType.Big28`, start-aligned, [S-2449]) with one line under it: one height (12 + 24 + 36 + 16 + 12 =
+  100 for a day, 76 for a window, `ScreenTimeReading.Sizing`), 160..320 wide (the least holds "888h 59m"),
   a new one 200 × that. It is what the chart's figure was ([S-3332], retired): the chart draws the bars
   alone. Nothing to read (not recording, no use in the period) is the Status block's one row ([S-6714]).
 - **[S-11501]** **Its words** (`ScreenTimeReading.Headline`): a day's total with "of 4h" under it where

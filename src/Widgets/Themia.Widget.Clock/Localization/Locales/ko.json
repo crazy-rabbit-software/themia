@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "날짜 표시",
   "clock.offsetLabel": "시차",
   "clock.secondsLabel": "초 표시",
   "clock.styleAnalog": "아날로그",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "표준 시간대",
   "clock.tzCurrent": "현재: {city}",
   "locationSearch.placeholder": "도시 검색…",
-  "styles.clock.date": "날짜",
   "styles.clock.flip": "플립",
   "styles.clock.minimal": "미니멀",
   "styles.clock.words": "글자",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[h] 시 사십 분입니다",
   "wordClock.m45": "[h] 시 사십오 분입니다",
   "wordClock.m50": "[n] 시 십 분 전입니다",
-  "wordClock.m55": "[n] 시 오 분 전입니다",
-  "widgetsA.clock.date": "{date} {weekday}"
+  "wordClock.m55": "[n] 시 오 분 전입니다"
 }

@@ -148,7 +148,7 @@ internal sealed partial class AppHost : IDesktopDesk
     {
         LayoutDesk();
         _desk.CancelPress();
-        return DesktopPicks.Moving(view, _desk, heldId, DeskKey);
+        return DesktopPicks.Moving(view, _desk, heldId, DeskKey, State.Preferences.LockWidgets);
     }
 
     /// <summary>[S-11878] Whether a move of <paramref name="widgets"/> gives another target anything: a desktop item's file, an own icon's path target.</summary>
@@ -400,6 +400,13 @@ internal sealed partial class AppHost : IDesktopDesk
             case WidgetKey.Paste:
                 _ = PasteAsync();
                 return true;
+            case WidgetKey.Undo:
+                // [S-5597] The desktop's Ctrl+Z and Ctrl+Y step the one history, a delete's items back from the bin among its steps.
+                Undo();
+                return true;
+            case WidgetKey.Redo:
+                Redo();
+                return true;
             case WidgetKey.Properties:
                 ShowSelectionProperties();
                 return true;
@@ -487,9 +494,12 @@ internal sealed partial class AppHost : IDesktopDesk
     /// </summary>
     private void DeleteSelection(bool permanent)
     {
-        var plan = DesktopCommands.Delete(DeskIcons(_desk.Selected));
+        var icons = DeskIcons(_desk.Selected);
+        var plan = DesktopCommands.Delete(icons);
         if (plan.Files.Count > 0)
         {
+            // [S-5597] What goes to the Recycle Bin is undoable once it is seen gone; a delete for good is not.
+            ExpectDesktopDelete(icons, permanent);
             try
             {
                 if (!ShellContextMenu.InvokeVerb(plan.Files, "delete", DeskOwner, shift: permanent))

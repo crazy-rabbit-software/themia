@@ -30,14 +30,14 @@ public sealed class CpuTests
     }
 
     [Fact]
-    public void S1140_the_number_is_one_height_the_header_the_reading_at_28_and_the_inset()
+    public void S1140_the_number_is_one_height_the_inset_the_reading_at_28_and_the_inset()
     {
         var sizing = Kind.Sizing(new CpuConfig());
         Assert.Empty(sizing.Problems());
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(36 + 36 + 12, sizing.Natural.Height);
-        Assert.Equal(2 * (36 + 36 + 12), sizing.Max.Height); // relaxed, [S-12411]
-        Assert.Equal((120, 160, 480), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(12 + 36 + 12, sizing.Natural.Height);
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]: no practical Max
+        Assert.Equal((124d, 160d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // [S-12411] no practical Max; 124: the CPU glyph leads "100%" ([S-12801])
         Assert.Null(Kind.SizeSets);
     }
 
@@ -48,7 +48,7 @@ public sealed class CpuTests
         Assert.Empty(sizing.Problems());
         var dial = sizing.Min.Width - 24;
         Assert.True(dial - 48 >= MeterSizing.ReadingWidth(Themia.Sdk.Kit.ReadoutRules.Split(Formatting.Percent(1))));
-        Assert.Equal(dial, MeterSizing.GaugeIn(dial, sizing.Min.Height - 36 - 12));
-        Assert.True(sizing.Max.Width <= 320);
+        Assert.Equal(dial, MeterSizing.GaugeIn(dial, sizing.Min.Height - 12 - 12));
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Width); // relaxed, [S-12411]: no practical Max
     }
 }

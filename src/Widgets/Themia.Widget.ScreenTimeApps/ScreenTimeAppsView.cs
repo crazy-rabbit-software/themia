@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -22,7 +23,7 @@ namespace Themia.App.Widgets;
 /// The history is the app's one tracker ([S-458]); the widget has no timer of its own.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetKeys, IWidgetContextActions
+internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetJoins
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
@@ -43,6 +44,9 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private bool _detached;
 
     private readonly IWidgetHost _host;
+
+    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
+    public void ApplyJoins(JoinedSides sides) => _list.VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public ScreenTimeAppsView(IWidgetHost host)
     {
@@ -69,12 +73,16 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
             }
         };
 
+        // [S-454] [S-12481] The day and its arrows, the content's first line.
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
+        SetRow(_list, 1);
+        SetRow(_empty, 1);
+        Children.Add(_nav.Line);
         Children.Add(_list);
         Children.Add(_empty);
     }
-
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _nav.Host;
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => _nav.ContextActions;

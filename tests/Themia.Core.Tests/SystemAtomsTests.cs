@@ -52,7 +52,7 @@ public sealed class SystemAtomsTests
             var sizing = MeterSizing.Reading(look, worst, rows: 2);
             Assert.Empty(sizing.Problems());
             Assert.True(sizing.Min.Width >= MeterSizing.ReadingMinWidth);
-            Assert.True(sizing.Min.Width >= MeterSizing.ReadingWidth(worst) + 24, $"{look}: the reading is cut at its least");
+            Assert.True(sizing.Min.Width >= MeterSizing.ReadingWidth(MeterSizing.Identified(look, worst)) + 24, $"{look}: the reading is cut at its least");
             Assert.True(sizing.Max.Width <= 480);
         }
     }
@@ -61,10 +61,32 @@ public sealed class SystemAtomsTests
     public void S11001_the_number_is_the_header_the_reading_at_28_and_the_inset_and_two_stand_8_apart()
     {
         var one = MeterSizing.Reading(MeterLook.Number, Percent);
-        Assert.Equal((84, 84), (one.Min.Height, one.Max.Height));
-        Assert.Equal((120, 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
+        Assert.Equal((60, 60), (one.Min.Height, one.Max.Height));
+        var least = Math.Max(120, Math.Ceiling((MeterSizing.ReadingWidth(Percent with { Lead = true }) + 24) / 4) * 4);
+        Assert.Equal((least, 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
 
-        Assert.Equal(36 + 44 + 56 + 12, MeterSizing.Reading(MeterLook.Rows, Percent, rows: 2).Natural.Height);
+        Assert.Equal(12 + 44 + 56 + 12, MeterSizing.Reading(MeterLook.Rows, Percent, rows: 2).Natural.Height);
+    }
+
+    [Theory]
+    [InlineData(MeterLook.Number, true)]
+    [InlineData(MeterLook.Graph, true)]
+    [InlineData(MeterLook.Gauge, true)]
+    [InlineData(MeterLook.Rows, true)]
+    [InlineData(MeterLook.Signal, true)]
+    [InlineData(MeterLook.Numbers, true)]
+    [InlineData(MeterLook.Battery, false)]
+    [InlineData(MeterLook.Ring, false)]
+    public void S12801_a_reading_leads_with_its_kinds_glyph_unless_its_look_draws_the_charge(MeterLook look, bool leads)
+    {
+        // A bare "31 %" in a group under one Header says which meter it is by its glyph, never by a word.
+        Assert.Equal(leads, MeterSizing.Leads(look));
+        Assert.Equal(leads, MeterSizing.Identified(look, Percent).Lead);
+        Assert.Equal(leads, MeterSizing.Identified(look, Percent with { Lead = true }).Lead);
+
+        // The sizing counts the glyph where it is drawn: never narrower than the reading with it.
+        var sizing = MeterSizing.Reading(look, Percent, rows: 2);
+        Assert.True(sizing.Min.Width >= MeterSizing.ReadingWidth(MeterSizing.Identified(look, Percent)) + 24, $"{look}: the glyph and the reading fit");
     }
 
     [Fact]
@@ -121,7 +143,7 @@ public sealed class SystemAtomsTests
             Assert.Empty(sizing.Problems());
         }
 
-        Assert.Equal(36 + (4 * 28) + 12, MeterSizing.ItemRows(4).Natural.Height);
+        Assert.Equal(12 + (4 * 28) + 12, MeterSizing.ItemRows(4).Natural.Height);
         Assert.True(MeterSizing.ItemRows(4).FixedHeight);
     }
 
@@ -133,7 +155,7 @@ public sealed class SystemAtomsTests
 
         var sizing = FactsRules.Sizing(facts);
         Assert.Empty(sizing.Problems());
-        Assert.Equal((36 + 28 + 12, 36 + (4 * 28) + 12, 36 + (6 * 28) + 12), (sizing.Min.Height, sizing.Natural.Height, sizing.Max.Height));
+        Assert.Equal((12 + 28 + 12, 12 + (4 * 28) + 12, 12 + (6 * 28) + 12), (sizing.Min.Height, sizing.Natural.Height, sizing.Max.Height));
         Assert.Equal((200, 260, 420), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
 
@@ -142,14 +164,14 @@ public sealed class SystemAtomsTests
     {
         var facts = new Facts { Facts = ["e", "a"] };
 
-        var grown = Assert.IsType<Facts>(FactsRules.SizeSets(facts, new SizeDip(240, 36 + (4 * 28) + 12)));
+        var grown = Assert.IsType<Facts>(FactsRules.SizeSets(facts, new SizeDip(240, 12 + (4 * 28) + 12)));
         Assert.Equal(["e", "a", "b", "c"], grown.Facts);
         Assert.Equal(["e", "a"], facts.Facts);
 
         var cut = Assert.IsType<Facts>(FactsRules.SizeSets(grown, new SizeDip(240, 10)));
         Assert.Equal(["e"], cut.Facts);
 
-        Assert.Same(facts, FactsRules.SizeSets(facts, new SizeDip(400, 36 + (2 * 28) + 12)));
+        Assert.Same(facts, FactsRules.SizeSets(facts, new SizeDip(400, 12 + (2 * 28) + 12)));
         Assert.Equal(["a", "b", "c", "d", "e", "f"], FactsRules.Resize(["a"], Facts.All, 99));
     }
 

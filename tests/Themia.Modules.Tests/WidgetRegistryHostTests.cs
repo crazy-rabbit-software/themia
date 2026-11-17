@@ -117,42 +117,6 @@ public sealed class WidgetRegistryHostTests
 
     [Theory]
     [MemberData(nameof(Ids))]
-    public void S6905_only_a_widget_that_may_have_a_header_starts_without_one(string id)
-    {
-        var traits = Of(id).Traits;
-        Assert.False(traits.HasFlag(WidgetTraits.StartsHeaderless) && !traits.HasFlag(WidgetTraits.CanHaveHeader), $"{id}: {traits}");
-    }
-
-    /// <summary>
-    /// [S-2590] The kinds whose content says what they are start headerless, the option kept where they may
-    /// have one: those drawn to their edges or in their own inset, and since the card insets a view with no
-    /// header above it ([S-5700]) those laid from the view's top, and the next meeting ([S-5710]).
-    /// </summary>
-    public static TheoryData<string> Headerless() =>
-        ["clock", "alarm", "audioVisualizer", "gallery", "videoStream", "music", "musicCover", "musicProgress", "quote", "stopwatch", "pomodoro", "focusSession", "nextMeeting"];
-
-    /// <summary>[S-2590] Kinds that keep their header: a sample of the rest (a meter, a list, the weather, a calendar).</summary>
-    public static TheoryData<string> KeepHeader() => ["memory", "rss", "weatherNow", "calendar", "tasks"];
-
-    [Theory]
-    [MemberData(nameof(KeepHeader))]
-    public void S2590_a_widget_not_listed_keeps_its_header(string id)
-        => Assert.Equal(HeaderPlacement.Top, WidgetInstance.DefaultHeader(new WidgetId(id)));
-
-    [Theory]
-    [MemberData(nameof(Headerless))]
-    public void S2590_a_widget_whose_content_says_what_it_is_starts_headerless(string id)
-    {
-        var kind = new WidgetId(id);
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(kind));
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(kind, default).Header);
-
-        // The audio visualizer never has one ([S-3711]); every other kind keeps the choice.
-        Assert.Equal(id != "audioVisualizer", WidgetInstance.CanHaveHeader(kind));
-    }
-
-    [Theory]
-    [MemberData(nameof(Ids))]
     public void S6906_a_widget_that_reads_an_account_has_a_setup_rule_and_interests(string id)
     {
         var widget = Of(id);

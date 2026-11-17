@@ -57,11 +57,10 @@ public sealed class WeekPlannerMenuTests
             [
                 WeekPlannerStr.WeekPlanner_Days.Text(), WeekPlannerStr.WeekPlanner_RowsPerDay.Text(), string.Empty,
                 Str.WidgetUi_AccountsLabel.Text(), Str.WidgetsA_Calendar_Settings_Calendars.Text(), Str.Calendar_ShowBirthdays_Label.Text(), string.Empty,
-                WeekPlannerStr.Planner_ShowTasks.Text(), WeekPlannerStr.Planner_TaskAccount.Text(), string.Empty,
-                Str.Calendar_WeekStart_Label.Text(),
+                WeekPlannerStr.Planner_ShowTasks.Text(), WeekPlannerStr.Planner_TaskAccount.Text(),
             ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
-        Assert.Equal(Str.LanguageRegion_Nav.Text(), lines.Lines[^1].LinkTo);
+        Assert.DoesNotContain(lines.Lines, l => l.LinkTo is not null);
     }
 
     [Fact]

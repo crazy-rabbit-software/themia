@@ -20,10 +20,10 @@ namespace Themia.App.Widgets;
 /// its band under it. The pollutants and pollen are the air facts' atom. The answer comes through the
 /// SDK's <see cref="SkyFeed{TWant, T}"/>, the same the air facts read.
 /// </summary>
-internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetContextActions, IWidgetAligned
+internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContextActions, IWidgetAligned, IWidgetJoins
 {
-    /// <summary>[S-7064] The header's problem glyph ([S-7042]) and the place as its label.</summary>
-    private readonly KitHeader _header;
+    /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end.</summary>
+    private readonly KitStatus _status;
     private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
 
     /// <summary>[S-6170] The gauge: the half ring, the index in its bowl, the band under it.</summary>
@@ -42,14 +42,14 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
     public AirQualityView(IWidgetHost host)
     {
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
         _feed = new(
             () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Air, host.Weather.Show),
             () => _config.Interest(),
             Render);
 
-        // [S-12410] The readout (or the gauge) is one block, centred in the room under the header with the
-        // foot's inset counted with it: at its natural box nothing moves, a larger box spaces it, never huddled.
+        // [S-12410] The readout (or the gauge) is one block, centred in the room with the foot's inset
+        // counted with it ([S-12483]: against a side a group mate joins, the foot's inset gone there): at its natural box nothing moves, a larger box spaces it, never huddled.
         _hero.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
         _hero.Use(FamilyType.Big28);
         _hero.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -66,9 +66,23 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         Children.Add(_hero);
         Children.Add(_gauge);
         Children.Add(_empty);
+        _status.Place(this);
     }
 
-    public FrameworkElement? HeaderTrailing => _header;
+    /// <summary>[S-12483] The block stands against a side a group mate joins, with no foot inset where one joins it.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        var edge = sides.Block switch
+        {
+            BlockEdge.Top => VerticalAlignment.Top,
+            BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        _hero.VerticalAlignment = edge;
+        _gauge.VerticalAlignment = edge;
+        _hero.Margin = Family.SideInset with { Bottom = sides.Foot };
+        _gauge.Margin = Family.SideInset with { Bottom = sides.Foot };
+    }
 
     /// <summary>[S-730] Refresh: the network now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -84,7 +98,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as AirQualityConfig ?? new AirQualityConfig();
-        PublishPlace();
         _feed.Reload();
     }
 
@@ -107,16 +120,17 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
             // [S-6734] Not set up is the card's Set up row; an answer without this index is one with nothing in it.
             OnlineParts.ShowState(_empty, _feed.Held is not null ? FetchStatus.Empty : _feed.Status, AirQualityModule.Glyph, _feed.Refresh);
             _hero.Visibility = _gauge.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            _status.Clear();
             return;
         }
 
         _empty.Hide();
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        _status.Show(OnlineParts.Problems(held), busy: false);
         var band = AirQualityRules.Band(scale, index);
         var tone = AirQualityRules.Tone(band);
         var value = AirText.Index(index);
         var unit = " " + AirText.ScaleUnit(scale);
+        // [S-12801] The band alone: the place is the group's Header widget's to say, once.
         var words = AirText.Band(scale, band);
         var role = AirQualityRules.ValueRole(tone);
 
@@ -136,7 +150,4 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         _hero.HorizontalAlignment = Aligned.Horizontal(_align);
         _hero.Show(value, unit, words, valueRole: role);
     }
-
-    /// <summary>[S-2260] The place is the header's label beside the widget's name; no place, no label ([S-2848]).</summary>
-    private void PublishPlace() => _header.SetAbout(_config.PlaceLabel);
 }

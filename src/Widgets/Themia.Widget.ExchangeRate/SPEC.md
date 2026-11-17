@@ -6,7 +6,7 @@ The module `exchangeRate` ([S-6911]): the ECB's reference rate of one pair as a 
 style the group. Its tags are this file's
 alone; the root `SPEC.md` holds the host's sections and what the online widgets share (Air quality,
 rain and exchange rates: the ECB document's wire [S-5141], the published codes [S-5142] and the cross
-rates [S-5145] in the SDK's `ExchangeRates.cs`, the header's stale rule [S-5160], the offline shelf
+rates [S-5145] in the SDK's `ExchangeRates.cs`, the stale rule [S-5160], the offline shelf
 [S-5161]; the Readout's fold of a change [S-6707] and the state row [S-6734]; the background web sync
 [S-2663]).
 
@@ -34,13 +34,13 @@ and the cross rates' own tests stay Core's (`OnlineWidgetsTests`, `S5141_`, `S51
   the line under the rate (`ReadoutRules.Fold`, [S-6707]); otherwise "per CHF" is that line. A rise and
   an unchanged rate are secondary, a fall Critical (no green, [S-6706]). No table yet: the Status row at
   the top with the fetch's sentence ([S-6734]); the latest day lacking either code: the same row, "Not
-  published". The header is titled with the pair ("Exchange rates · CHF/EUR") and reads "ECB, 9 Oct"
-  (the rate's day, the header's informing label, the first part to give way), with the kit header's
-  problem glyph beside it while the table on screen is one the last refresh could not improve on
-  ([S-7042]). It needs no setup ([S-5140]).
+  published". The rate and "per CHF" under it name the pair; the rate's day is on its hover ("Rate
+  published by the ECB on …", [S-12481]: no card has a header to say it), and the status's problem
+  glyph stands over the top end while the table on screen is one the last refresh could not improve on
+  ([S-7042]). In a group the rate stands against a side a mate joins ([S-12483]). It needs no setup ([S-5140]).
 - **[S-11150]** **An atom**: the reading alone, the same at every size in its range; no styles (the old
   Number style is this atom, the Chart style the ready-made group "Exchange rates", [S-11172]).
-- **[S-11151]** **Sizes** (`RatesLayout.Sizing`, with its header): one height (100), 160..320 wide, a
+- **[S-11151]** **Sizes** (`RatesLayout.Sizing`): one height (76), 160..320 wide, a
   new one 200.
 - **[S-5147]** One `RatesInterest` for all exchange-rate widgets; asked every three hours, no setting
   (`OnlineCadence.Rates`): the ECB publishes once per working day around 16:00 CET.

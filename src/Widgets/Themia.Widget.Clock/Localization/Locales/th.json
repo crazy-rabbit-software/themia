@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "แสดงวันที่",
   "clock.offsetLabel": "ส่วนต่างเวลา",
   "clock.secondsLabel": "แสดงวินาที",
   "clock.styleAnalog": "อนาล็อก",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "โซนเวลา",
   "clock.tzCurrent": "ปัจจุบัน: {city}",
   "locationSearch.placeholder": "ค้นหาเมือง…",
-  "styles.clock.date": "วันที่",
   "styles.clock.flip": "พลิก",
   "styles.clock.minimal": "มินิมอล",
   "styles.clock.words": "ตัวหนังสือ",
@@ -30,6 +28,5 @@
   "wordClock.m40": "อีกยี่สิบนาที[n]",
   "wordClock.m45": "อีกสิบห้านาที[n]",
   "wordClock.m50": "อีกสิบนาที[n]",
-  "wordClock.m55": "อีกห้านาที[n]",
-  "widgetsA.clock.date": "{weekday} {date}"
+  "wordClock.m55": "อีกห้านาที[n]"
 }

@@ -65,7 +65,7 @@ public sealed class ScratchpadConfig : WidgetConfig
     /// <summary>The pen width in device-independent pixels.</summary>
     public double PenWidth { get; set; } = InkGeometry.DefaultWidth;
 
-    /// <summary>Whether the pen, eraser, undo and clear commands sit in the widget's header.</summary>
+    /// <summary>[S-1501] Whether the ink bar shows: the inks, the nibs, the eraser, undo and full screen.</summary>
     public bool ShowTools { get; set; } = true;
 
     /// <summary>

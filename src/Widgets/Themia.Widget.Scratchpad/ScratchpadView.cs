@@ -46,7 +46,7 @@ namespace Themia.App.Widgets;
 /// actually saw: a press it never sees the end of was a widget being dragged, and is discarded.
 /// </para>
 /// </summary>
-internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetContextActions, IWidgetOwnsDrags
+internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetOwnsDrags, IWidgetJoins
 {
     private const string Scope = "scratchpad";
 
@@ -54,7 +54,6 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     private const int UndoDepth = 32;
 
     /// <summary>[S-651] The header's two tools, Undo and Full screen (the fold drops Full screen first).</summary>
-    private readonly HeaderParts _header = new();
     private readonly Border _undoButton;
     private readonly Border _fullButton;
 
@@ -91,8 +90,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     {
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _undoButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Reset, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text(), Undo));
-        _fullButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.FullScreen, ScratchpadStr.WidgetsC_Scratchpad_FullScreen.Text(), ToggleFullScreen));
+        // [S-651] [S-12481] Undo and full screen are the ink bar's last group (no card header to stand in).
+        _undoButton = GlyphTool(Glyphs.Reset, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text(), Undo);
+        _fullButton = GlyphTool(Glyphs.FullScreen, ScratchpadStr.WidgetsC_Scratchpad_FullScreen.Text(), ToggleFullScreen);
 
         // The clear role rather than no brush: a panel with a null background is not hit-testable at
         // all, and the pad would never see a pointer. The card does the same thing for its own drag area.
@@ -156,12 +156,6 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     // Lifecycle
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// [S-651] The pad's two header tools, Undo and Full screen. Built in the constructor because the
-    /// card reads this once, when it builds that header.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => _header;
-
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -196,9 +190,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
             _config = incoming;
         }
 
-        // [S-1501] Show tools: the header's two and the ink bar. Full screen keeps its own toolbar.
-        _header.Want(_undoButton, _config.ShowTools);
-        _header.Want(_fullButton, _config.ShowTools);
+        // [S-1501] Show tools: the ink bar, undo and full screen its last group. Full screen keeps its own toolbar.
 
         RenderAll();
         UpdateCommands();

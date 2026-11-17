@@ -12,7 +12,6 @@ public sealed record WidgetShape(
     double H,
     string? Label,
     FillChoice Background,
-    HeaderPlacement Header,
     WidgetConfig Config)
 {
     /// <summary>[S-6590] The widget's background image, undone with its background.</summary>
@@ -25,7 +24,7 @@ public sealed record WidgetShape(
     {
         ArgumentNullException.ThrowIfNull(widget);
         return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Background.Clone(), widget.Header, widget.Config) { BackgroundImage = widget.BackgroundImage, Group = widget.Group };
+            widget.Background.Clone(), widget.Config) { BackgroundImage = widget.BackgroundImage, Group = widget.Group };
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -34,7 +33,7 @@ public sealed record WidgetShape(
         ArgumentNullException.ThrowIfNull(other);
         return Id == other.Id && Kind == other.Kind
             && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
-            && Label == other.Label && Background.SameAs(other.Background) && Header == other.Header
+            && Label == other.Label && Background.SameAs(other.Background)
             && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
             && string.Equals(Group, other.Group, StringComparison.Ordinal);
     }
@@ -45,6 +44,9 @@ public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyLi
 {
     /// <summary>[S-3810] The icon's colour, or null for the theme's.</summary>
     public string? Color { get; init; }
+
+    /// <summary>[S-5528] Which desktop icons it shows: an undo of a switch to None brings the icons and the value back.</summary>
+    public ViewDesktopIcons DesktopIcons { get; init; }
 
     /// <summary>[S-2456] The view's groups, as (id, name) pairs in order.</summary>
     public IReadOnlyList<(string Id, string? Name)> Groups { get; init; } = [];
@@ -105,6 +107,7 @@ public sealed class LayoutShape
             views.Add(new ViewShape(view.Id, view.Name, view.Icon, widgets)
             {
                 Color = view.Color,
+                DesktopIcons = view.DesktopIcons,
                 Groups = [.. view.Groups.Select(g => (g.Id, g.Name))],
             });
         }
@@ -126,7 +129,7 @@ public sealed class LayoutShape
         {
             var mine = Views[v];
             var theirs = other.Views[v];
-            if (mine.Id != theirs.Id || mine.Name != theirs.Name || mine.Icon != theirs.Icon || mine.Color != theirs.Color
+            if (mine.Id != theirs.Id || mine.Name != theirs.Name || mine.Icon != theirs.Icon || mine.Color != theirs.Color || mine.DesktopIcons != theirs.DesktopIcons
                 || mine.Widgets.Count != theirs.Widgets.Count || !mine.SameGroups(theirs))
             {
                 return false;
@@ -179,6 +182,7 @@ public sealed class LayoutShape
             view.Name = shape.Name;
             view.Icon = shape.Icon;
             view.Color = shape.Color;
+            view.DesktopIcons = shape.DesktopIcons;
 
             var widgets = new List<WidgetInstance>(shape.Widgets.Count);
             foreach (var w in shape.Widgets)
@@ -192,7 +196,6 @@ public sealed class LayoutShape
                     widget.Label = w.Label;
                     widget.Background = w.Background.Clone();
                     widget.BackgroundImage = w.BackgroundImage;
-                    widget.Header = w.Header;
                     widget.Group = w.Group;
                 }
                 else
@@ -207,7 +210,6 @@ public sealed class LayoutShape
                         Label = w.Label,
                         Background = w.Background.Clone(),
                         BackgroundImage = w.BackgroundImage,
-                        Header = w.Header,
                         Group = w.Group,
                         Config = w.Config,
                     };
@@ -302,7 +304,7 @@ public sealed class LayoutHistory
     /// The state just changed: record a step when the arrangement differs from the baseline.
     /// Returns whether a step was recorded.
     /// </summary>
-    public bool Commit(AppState state, UndoAction action)
+    public bool Commit(AppState state, UndoAction action, IUndoEffect? effect = null)
     {
         ArgumentNullException.ThrowIfNull(state);
 
@@ -310,7 +312,7 @@ public sealed class LayoutHistory
         var changed = !now.SameLayout(_baseline);
         if (changed)
         {
-            _log.Record(action, _baseline);
+            _log.Record(action, _baseline, effect);
             Version++;
         }
 
@@ -334,19 +336,29 @@ public sealed class LayoutHistory
         Rebase(state);
     }
 
-    /// <summary>[S-885] Take back the newest step. Returns what it was, or null when there is nothing to undo.</summary>
-    public UndoAction? Undo(AppState state) => Step(state, undo: true);
+    /// <summary>
+    /// [S-885] Take back the newest step. Returns what it was, or null when there is nothing to undo. [S-5597]
+    /// <paramref name="effect"/> carries out what the step did outside the state first (puts a desktop delete's files
+    /// back); where it answers false the step is not taken and stays where it was.
+    /// </summary>
+    public UndoAction? Undo(AppState state, Func<IUndoEffect, bool>? effect = null) => Step(state, undo: true, effect);
 
-    /// <summary>[S-885] Put back the newest undone step. Returns what it was, or null when there is nothing to redo.</summary>
-    public UndoAction? Redo(AppState state) => Step(state, undo: false);
+    /// <summary>[S-885] Put back the newest undone step, as <see cref="Undo"/>. Returns what it was, or null when there is nothing to redo.</summary>
+    public UndoAction? Redo(AppState state, Func<IUndoEffect, bool>? effect = null) => Step(state, undo: false, effect);
 
-    private UndoAction? Step(AppState state, bool undo)
+    private UndoAction? Step(AppState state, bool undo, Func<IUndoEffect, bool>? effect)
     {
         ArgumentNullException.ThrowIfNull(state);
 
         // Drift first, so the step taken is the newest change the user can see. Recording it also
         // forgets the redo side, which is right: redo after a further change would restore over it.
         Commit(state, UndoAction.Change);
+
+        // [S-5597] What the step did outside the state, before its state comes back.
+        if (_log.NextEffect(undo) is { } outside && effect is not null && !effect(outside))
+        {
+            return null;
+        }
 
         var ok = undo
             ? _log.TryUndo(_baseline, out var step)

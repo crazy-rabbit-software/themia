@@ -30,7 +30,7 @@ public sealed class LockModule : IWidgetModule
         Description = LockStr.WidgetsC_Power_Desc_Lock.Local(),
         Glyph = Glyphs.Lock,
         Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 4),
     };
 

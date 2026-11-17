@@ -21,10 +21,9 @@ public sealed class SceneWidgetsTests
     [Fact]
     public void S1076_a_widget_is_its_kind_where_the_scene_puts_it_with_what_the_scene_names()
     {
-        var widget = Clock("""{ "showDate": false }""", "flip") with
+        var widget = Clock("""{ "showSeconds": false }""", "flip") with
         {
             Bare = true,
-            Header = HeaderPlacement.Bottom,
             Items = FillChoice.Of("#2A3248", 0.6),
             ItemText = "#FFFFFF",
             Scale = 1.5,
@@ -44,23 +43,21 @@ public sealed class SceneWidgetsTests
 
         // Bare is the shorthand, and what the widget names itself is over it.
         Assert.Equal(FillKind.Transparent, model.Background.Kind);
-        Assert.Equal(HeaderPlacement.Bottom, model.Header);
         Assert.Equal("#2A3248", model.ItemBackground.Colour);
         Assert.Equal("#FFFFFF", model.ItemTextColor);
         Assert.Equal(1.5, model.Scale);
         Assert.Equal(ContentAlign.Right, model.Align);
         Assert.Equal("Zürich", model.Label);
         Assert.Equal(WidgetStyles.Find(new WidgetId("clock"), "flip")?.Value, WidgetStyles.Current(model.Config));
-        Assert.Contains("\"showDate\": false", System.Text.Json.JsonSerializer.Serialize(model.Config, StateJson.WidgetConfig), StringComparison.Ordinal);
+        Assert.Contains("\"showSeconds\": false", System.Text.Json.JsonSerializer.Serialize(model.Config, StateJson.WidgetConfig), StringComparison.Ordinal);
     }
 
     [Fact]
-    public void S1076_bare_alone_is_a_transparent_card_without_a_header()
+    public void S1076_bare_alone_is_a_transparent_card()
     {
         var model = SceneWidgets.Build(Clock() with { Bare = true }, Screen, out _)!;
 
         Assert.Equal(FillKind.Transparent, model.Background.Kind);
-        Assert.Equal(HeaderPlacement.Hidden, model.Header);
     }
 
     [Fact]
@@ -90,7 +87,7 @@ public sealed class SceneWidgetsTests
     [Fact]
     public void S1076_a_config_value_of_the_wrong_type_is_refused()
     {
-        Assert.Null(SceneWidgets.Build(Clock("""{ "showDate": "no" }"""), Screen, out var refusal));
+        Assert.Null(SceneWidgets.Build(Clock("""{ "showSeconds": "no" }"""), Screen, out var refusal));
         Assert.Equal("$.w.config", refusal!.Path);
     }
 

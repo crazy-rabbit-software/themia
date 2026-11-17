@@ -19,7 +19,7 @@ public sealed class SceneParserTests
               "wallpaper": "wallpapers/dusk.jpg",
               "widgets": [
                 { "kind": "clock", "at": [40, 40, 480, 240], "state": "sample", "style": "flip",
-                  "header": "hidden", "background": "transparent", "items": "#2A3248@60%", "itemText": "#ffffff",
+                  "background": "transparent", "items": "#2A3248@60%", "itemText": "#ffffff",
                   "scale": 1.5, "align": "center", "label": "Zürich", "bare": true,
                   "config": { "showDate": false }, "selected": true },
                 { "kind": "weatherNow", "at": [520, 40, 300, 200] }
@@ -67,7 +67,6 @@ public sealed class SceneParserTests
         Assert.Equal(new SceneRect(40, 40, 480, 240), clock.At);
         Assert.Equal("sample", clock.State);
         Assert.Equal("flip", clock.Style);
-        Assert.Equal(HeaderPlacement.Hidden, clock.Header);
         Assert.Equal(FillKind.Transparent, clock.Background!.Kind);
         Assert.Equal("#2A3248", clock.Items!.Colour);
         Assert.Equal(0.6, clock.Items.Opacity, 3);
@@ -82,7 +81,6 @@ public sealed class SceneParserTests
 
         var weather = day.Widgets[1];
         Assert.Null(weather.State);
-        Assert.Null(weather.Header);
         Assert.False(weather.Bare);
         Assert.False(weather.Selected);
     }
@@ -370,8 +368,6 @@ public sealed class SceneParserTests
     }
 
     [Theory]
-    [InlineData("\"header\": \"middle\"", "$.scenes[0].widgets[0].header")]
-    [InlineData("\"header\": \"2\"", "$.scenes[0].widgets[0].header")]
     [InlineData("\"align\": \"justify\"", "$.scenes[0].widgets[0].align")]
     [InlineData("\"background\": \"blue\"", "$.scenes[0].widgets[0].background")]
     [InlineData("\"items\": \"#12345\"", "$.scenes[0].widgets[0].items")]
@@ -513,8 +509,7 @@ public sealed class SceneParserTests
             var widget = scene.Widgets[i];
             Assert.Equal(part.Kind, widget.Kind.Value);
             Assert.Equal(new SceneRect(100 + part.Box.X, 200 + part.Box.Y, part.Box.Width, part.Box.Height), widget.At);
-            Assert.Equal(part.Config, widget.Config);
-            Assert.Equal(part.Header, widget.Header);
+            Assert.Equal(part.Fragment, widget.Config);
             Assert.StartsWith(recipe.Id + "-" + part.Kind, widget.Id, StringComparison.Ordinal);
         }
 

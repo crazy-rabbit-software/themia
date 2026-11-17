@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Onyesha tarehe",
   "clock.offsetLabel": "Tofauti ya saa",
   "clock.secondsLabel": "Onyesha sekunde",
   "clock.styleAnalog": "Analogi",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Saa za eneo",
   "clock.tzCurrent": "Sasa: {city}",
   "locationSearch.placeholder": "Tafuta jiji…",
-  "styles.clock.date": "Tarehe",
   "styles.clock.flip": "Kugeuza",
   "styles.clock.minimal": "Rahisi",
   "styles.clock.words": "Maneno",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Ni saa [n] kasoro dakika ishirini [n2]",
   "wordClock.m45": "Ni saa [n] kasoro robo [n2]",
   "wordClock.m50": "Ni saa [n] kasoro dakika kumi [n2]",
-  "wordClock.m55": "Ni saa [n] kasoro dakika tano [n2]",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Ni saa [n] kasoro dakika tano [n2]"
 }

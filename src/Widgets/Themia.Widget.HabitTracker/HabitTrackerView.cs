@@ -32,13 +32,10 @@ namespace Themia.App.Widgets;
 /// bigger rows; never a summary or a chart (concise widgets, [S-666]).
 /// </para>
 /// </summary>
-internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetOwnsDrags
+internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetKeys, IWidgetOwnsDrags, IWidgetJoins
 {
     private const string Scope = "habits";
 
-    private readonly TextBlock _doneText = new();
-    private readonly HeaderParts _header = new();
-    private readonly Border _done;
     private readonly StackPanel _list = new() { Spacing = 0 };
     private readonly ScrollViewer _scroll;
     private readonly StatusBlock _status = new();
@@ -69,10 +66,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / status
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add footer
 
-        // [S-6706] The "3/5" count is the header's neutral pill.
-        _done = _header.Add(HeaderPartKind.Count, HeaderBlock.Count(_doneText));
-        _header.Want(_done, false);
-
         _scroll = new ScrollViewer
         {
             Content = _list,
@@ -96,9 +89,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         Children.Add(_addRow.Element);
         BuildHeatmap();
     }
-
-    /// <summary>The "3/5" count, in the card's header.</summary>
-    public FrameworkElement? HeaderTrailing => _header;
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -168,7 +158,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         }
 
         _habitList = _pool.Find(_config.ListId);
-        _surface?.SetHeaderTitle(_habitList is { Name.Length: > 0 } list ? list.Name : null);
     }
 
     /// <summary>Only when the cadence changed; a new subscription ticks at once, so the caller is done.</summary>
@@ -214,7 +203,6 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         }
 
         _habitList = _pool?.Find(_config.ListId);
-        _surface?.SetHeaderTitle(_habitList is { Name.Length: > 0 } list ? list.Name : null);
         Render();
     }
 
@@ -240,27 +228,15 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         SyncRows(habits);
 
         var cadence = _config.Cadence;
-        var doneNow = 0;
         var checklist = _config.Style == HabitTrackerStyle.Checklist;
 
         for (var i = 0; i < _rows.Count; i++)
         {
             var log = HabitRules.Log(habits[i].Log);
 
-            if (HabitRules.IsDone(log, _current))
-            {
-                doneNow++;
-            }
-
             // [S-6410] A checklist is the current period alone: no run and no history to work out.
             _rows[i].Update(habits[i], log, _current, cadence, checklist ? 0 : _config.EffectiveHistoryDots, !checklist && _config.ShowStreak);
         }
-
-        _doneText.Text = habits.Count == 0 ? string.Empty : string.Create(CultureInfo.InvariantCulture, $"{doneNow}/{habits.Count}");
-        _header.Want(_done, habits.Count > 0);
-        AutomationProperties.SetName(_done, habits.Count == 0
-            ? string.Empty
-            : HabitTrackerStr.WidgetsB_Habits_DoneOf.Format(("done", doneNow), ("total", habits.Count), ("when", HabitPeriods.CurrentNoun(cadence.Period))));
 
         var (kind, sentence) = EmptyState();
         _status.Show(kind, HabitTrackerModule.Glyph, sentence);

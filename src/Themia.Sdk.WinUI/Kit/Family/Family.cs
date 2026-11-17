@@ -30,9 +30,6 @@ public static class Family
     /// <summary>The inset either side only (a row reaching both edges carries it as its padding).</summary>
     public static Thickness SideInset { get; } = new(FamilySpace.Inset, 0, FamilySpace.Inset, 0);
 
-    /// <summary>The header's own box: the inset on three sides and the gap under its line.</summary>
-    public static Thickness HeaderInset { get; } = new(FamilySpace.Inset, FamilySpace.Inset, FamilySpace.Inset, FamilySpace.HeaderGap);
-
     /// <summary>
     /// The theme brush of <paramref name="role"/>: the shared object, recoloured with the theme. [S-2134] A role the look
     /// tokens recolour (a text level, a track, the accent) is the widgets' own brush of it (<see cref="ColourRoles.WidgetKey"/>).

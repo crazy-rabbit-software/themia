@@ -19,7 +19,7 @@ public sealed class MoonTests
     {
         var sizing = MoonLayout.Sizing(new MoonConfig());
 
-        Assert.Equal(36 + 36 + 16 + 12, sizing.Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, sizing.Natural.Height);
         Assert.True(sizing.FixedHeight);
         Assert.Equal((140.0, 160.0, 320.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
@@ -30,7 +30,7 @@ public sealed class MoonTests
         var sizing = MoonLayout.Sizing(new MoonConfig { Style = MoonStyle.PhaseMonth });
 
         Assert.True(sizing.FixedHeight && sizing.FixedWidth);
-        Assert.Equal(new SizeDip(24 + (7 * 28), 36 + 16 + 8 + (5 * 28) + 12), sizing.Natural);
+        Assert.Equal(new SizeDip(24 + (7 * 28), 12 + 16 + 8 + (5 * 28) + 12), sizing.Natural);
         Assert.True(MoonLayout.Columns * MoonLayout.Rows >= 31);
     }
 

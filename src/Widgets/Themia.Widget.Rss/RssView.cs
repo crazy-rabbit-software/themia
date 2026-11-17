@@ -31,7 +31,7 @@ namespace Themia.App.Widgets;
 /// hazard.
 /// </para>
 /// </summary>
-internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class RssView : Grid, IWidgetView,
     IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
 {
     private readonly KitBinding _binding;
@@ -54,14 +54,11 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
         Children.Add(_binding.List);
         Children.Add(_binding.State);
-    }
 
-    /// <summary>
-    /// [S-7064] The kit's header: the problem glyph while a feed failed under the articles on screen
-    /// ([S-7042]) and the ring while a refresh is out ([S-1303]). Built in the constructor because the
-    /// card reads this once, when it builds that header.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => _binding.Header;
+        // [S-12481] The problem glyph while a feed failed under the articles on screen ([S-7042]) and the
+        // ring while a refresh is out ([S-1303]), over the content's top end.
+        _binding.Status.Place(this);
+    }
 
     /// <summary>[S-1303] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => _binding.CardActions;
@@ -75,9 +72,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         // another widget already reads, is not "Loading" until its next fetch.
         _binding.Attach(ticker, _source, _config, _config.TickInterval);
     }
-
-    /// <inheritdoc />
-    public void Bind(IWidgetSurface surface) => _binding.Surface(surface);
 
     public void ApplySize(WidgetArea area) => _binding.Size(area);
 

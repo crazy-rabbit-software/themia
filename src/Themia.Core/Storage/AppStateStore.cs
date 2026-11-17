@@ -373,9 +373,7 @@ public sealed class AppStateStore : IAsyncDisposable
             design.Theme = Model.AppTheme.System;
         }
 
-        // [S-704] Header fill and the transition/unlock animations, on the same terms as the rest.
-        design.HeaderBackgroundColor = Widgets.HexColor.Normalise(design.HeaderBackgroundColor);
-        design.HeaderOpacity = Math.Clamp(Sanitise(design.HeaderOpacity, 1), 0, 1);
+        // [S-704] The transition/unlock animations, on the same terms as the rest.
         design.TransitionAnimationMs = Motion.IntroMotion.ClampMs(Sanitise(design.TransitionAnimationMs, Motion.IntroMotion.DefaultMs));
         design.UnlockAnimationMs = Motion.IntroMotion.ClampMs(Sanitise(design.UnlockAnimationMs, Motion.IntroMotion.DefaultMs));
 
@@ -433,6 +431,9 @@ public sealed class AppStateStore : IAsyncDisposable
 
             view.Widgets ??= [];
             repairs.AddRange(ValidateWidgets(view));
+
+            // [S-5525] Which desktop icons it shows: an unknown value is All; a None view holds no item widget.
+            repairs.AddRange(Desktop.DesktopViews.Repair(view));
 
             // [S-2450] Groups after the widgets, whose ids are settled by then: a group of fewer than two dissolves, loudly.
             repairs.AddRange(WidgetGroups.Repair(view));
@@ -718,19 +719,6 @@ public sealed class AppStateStore : IAsyncDisposable
             if (ContentAlignment.Repair(widget) is { } align)
             {
                 repairs.Add($"widget '{widget.Id}': {align}");
-            }
-
-            if (!Enum.IsDefined(widget.Header))
-            {
-                widget.Header = HeaderPlacement.Top;
-                repairs.Add($"widget '{widget.Id}' had an unknown header placement");
-            }
-
-            // [S-3711] A kind that can never have a header is stored without one.
-            if (!WidgetInstance.CanHaveHeader(widget.Kind) && widget.Header != HeaderPlacement.Hidden)
-            {
-                widget.Header = HeaderPlacement.Hidden;
-                repairs.Add($"widget '{widget.Id}' ({widget.Kind}) cannot have a header");
             }
 
             var settled = GridGeometry.Clamp(widget.Rect, unit);

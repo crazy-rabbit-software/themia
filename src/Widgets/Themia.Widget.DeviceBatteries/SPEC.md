@@ -39,7 +39,7 @@ own `DeviceBatteriesStr`, English only for now). Tests: `Tests/DeviceBatteriesTe
   charging is left out.
 - **[S-10005]** A click focuses a row; double-click or Enter opens Windows' Bluetooth & devices page
   (`ms-settings:bluetooth`, through the host's launcher; a preview opens nothing). A row's menu: Open
-  Bluetooth & devices, Refresh. The card's Refresh reads Windows again now; the kit header's ring
+  Bluetooth & devices, Refresh. The card's Refresh reads Windows again now; the kit status's ring ([S-12481])
   turns while a read is out.
 - **[S-10006]** Its options are on the properties menu ([S-3719]) after Appearance: **Low battery
   at** (a choice of the five thresholds) and **Show charging devices** (a switch). Nothing else: how

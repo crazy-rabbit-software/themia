@@ -26,7 +26,6 @@ public enum GalleryMode
 /// </summary>
 /// <param name="Mode">What the main area draws.</param>
 /// <param name="Pictures">How many pictures the main area holds (1 for Single and Slideshow).</param>
-/// <param name="Counter">Show "3/12" in the header (the slideshow's).</param>
 /// <param name="Controls">Offer the previous / pause / next bar on hover (the slideshow's).</param>
 /// <param name="MainWidth">The main picture area's width.</param>
 /// <param name="MainHeight">The main picture area's height.</param>
@@ -35,7 +34,6 @@ public enum GalleryMode
 public sealed record GalleryPlan(
     GalleryMode Mode,
     int Pictures,
-    bool Counter,
     bool Controls,
     double MainWidth,
     double MainHeight,
@@ -66,19 +64,19 @@ public sealed record GalleryPlan(
             },
             GalleryStyle.Scatter => Many(GalleryMode.Scatter, config.EffectiveShown, area, available),
             GalleryStyle.Mosaic => Many(GalleryMode.Mosaic, config.EffectiveShown, area, available),
-            _ => new GalleryPlan(GalleryMode.Slideshow, 1, true, true, area.Width, area.Height),
+            _ => new GalleryPlan(GalleryMode.Slideshow, 1, true, area.Width, area.Height),
         };
     }
 
     private static GalleryPlan Many(GalleryMode mode, int wanted, WidgetArea area, int available)
     {
         var pictures = Math.Min(Math.Min(wanted, available), GalleryArrangement.MaxTiles);
-        return pictures <= 1 ? Single(area) : new GalleryPlan(mode, pictures, false, false, area.Width, area.Height);
+        return pictures <= 1 ? Single(area) : new GalleryPlan(mode, pictures, false, area.Width, area.Height);
     }
 
     /// <summary>[S-2760] One picture, the whole slot: no title, credit or file name under it at any size.</summary>
     private static GalleryPlan Single(WidgetArea area)
-        => new(GalleryMode.Single, 1, false, false, area.Width, area.Height);
+        => new(GalleryMode.Single, 1, false, area.Width, area.Height);
 
     /// <summary>[S-11207] A grid cell's side for its Cell size: Small 64, Medium 96, Large 128.</summary>
     public static double CellSide(GalleryCellSize size) => size switch

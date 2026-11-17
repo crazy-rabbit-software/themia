@@ -109,8 +109,8 @@ internal sealed partial class NoticeCard : Grid
         var close = new Button
         {
             Content = Family.Glyph(Glyphs.Dismiss, FamilyShape.Icon, ColourRole.TextSecondary),
-            Width = FamilyShape.HeaderButton,
-            Height = FamilyShape.HeaderButton,
+            Width = FamilyShape.LineButton,
+            Height = FamilyShape.LineButton,
             Padding = new Thickness(0),
             Margin = new Thickness(FamilySpace.S2, -FamilySpace.ButtonOverflow, -FamilySpace.S1, 0),
             VerticalAlignment = VerticalAlignment.Top,

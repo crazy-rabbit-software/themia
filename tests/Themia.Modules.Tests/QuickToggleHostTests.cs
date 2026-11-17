@@ -46,11 +46,10 @@ public sealed class QuickToggleHostTests
     }
 
     [Fact]
-    public void S3901_a_new_toggle_has_no_header_and_needs_no_setup()
+    public void S3901_a_new_toggle_needs_no_setup()
     {
         foreach (var kind in ToggleKinds)
         {
-            Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(kind));
             Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Sdk.FeatureSet.None));
         }
     }

@@ -109,7 +109,7 @@ public sealed class AirQualityTests
     {
         var sizing = AirLayout.Sizing(new AirQualityConfig());
 
-        Assert.Equal(36 + 36 + 16 + 12, sizing.Natural.Height);
+        Assert.Equal(12 + 36 + 16 + 12, sizing.Natural.Height);
         Assert.True(sizing.FixedHeight);
         Assert.Equal((160.0, 200.0, 320.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
         Assert.True(ReadoutRules.Width(FamilyType.Big28, AirLayout.Worst) <= 160 - 24);
@@ -132,7 +132,7 @@ public sealed class AirQualityTests
 
         Assert.True(sizing.FixedHeight && sizing.FixedWidth);
         Assert.Equal(24 + 160, sizing.Natural.Width);
-        Assert.Equal(36 + Math.Ceiling(ChartRules.GaugeHeight(160) + 16) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + Math.Ceiling(ChartRules.GaugeHeight(160) + 16) + 12, sizing.Natural.Height);
         Assert.True(ReadoutRules.Width(FamilyType.Big28, AirLayout.Worst with { LineUnder = false }) <= 160 - 48, "the widest index fits the bowl");
     }
 }

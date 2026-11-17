@@ -4,7 +4,7 @@ The module `airQuality` ([S-6911]): the air quality **index** at a place and its
 ([S-11170]..[S-11172]): its UV, pollutant and pollen rows are the `airFacts` atom, the old card the
 ready-made group "Air quality"; its id stays `airQuality`. Its tags are this file's alone; the root
 `SPEC.md` holds the host's sections and what the online widgets share (the air reply's wire [S-5102]
-in the SDK's `AirQuality.cs`, the header's stale rule [S-5160], the offline shelf [S-5161]; the
+in the SDK's `AirQuality.cs`, the stale rule [S-5160], the offline shelf [S-5161]; the
 background web sync [S-2663]; the meters' gauge [S-6302]; the family's blocks [S-6702], [S-6717] and
 the online widgets' state row [S-6734]).
 
@@ -18,8 +18,8 @@ roles, UV, pollen, `AirInterests`) and `AirQualityScale.cs`. Tests: `Tests/AirQu
 `Tests/AirQualityMenuTests.cs`; the wire's own tests stay Core's (`OnlineWidgetsTests`, `S5102_`).
 
 - **[S-5100]** Air quality at a place. A weather-family config (`AirQualityConfig : WeatherConfig`):
-  the shared place picker ([S-2840]), the place as the header's label ([S-728], [S-2260]); no place is
-  the Set up state ([S-1860]).
+  the shared place picker ([S-2840]); the band alone on its line ("Good"): the place is the group's Header
+  widget's to name ([S-12801], [S-9604]); no place is the Set up state ([S-1860]).
 - **[S-5101]** The sync asks for it under its own interest (`AirInterest`, `AirInterests.For`, which the
   air facts share: one request a place; the weather case never claims it). Cadence: the shared weather
   cadence ([S-3780]) but never faster than hourly (`OnlineCadence.Air`): CAMS values are hourly in
@@ -42,11 +42,12 @@ roles, UV, pollen, `AirInterests`) and `AirQualityScale.cs`. Tests: `Tests/AirQu
 - **[S-11130]** **What it shows**, the same at every size in its range: in the **Number** style the
   index as the Readout on the family's 28 ("25" and " EAQI", [S-2449]), its band the Caption under it
   (ending in its ellipsis where the card is narrow); in the **Gauge** style [S-6170]. A reading kept
-  through a failed refresh stays and the header's problem glyph says so ([S-7042]); with none, or an
+  through a failed refresh stays and the status's problem glyph says so ([S-7042], [S-12481]); with none, or an
   answer without this index, the Status row at the top says why ([S-6734]).
-- **[S-11131]** **Sizes** (`AirLayout.Sizing`, with its header): the number one height (100),
+- **[S-11131]** **Sizes** (`AirLayout.Sizing`): the number one height (76),
   160..320 wide, a new one 200 (the widest index "500 US AQI" fits 160); the gauge one size, its 160
-  ring and the band's line in the inset (184 × 145).
+  ring and the band's line in the inset (184 × 121). In a group the block stands against a side a mate
+  joins ([S-12483]).
 - **[S-5108]** Its options are all on the properties menu ([S-3719]); it has no settings page:
   Appearance ([S-3723]), then behind a divider each Location (the weather family's search, [S-3722])
   and Index (Auto / European / US, the current one with the dot), whose submenu ends with the source

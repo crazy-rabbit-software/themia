@@ -34,7 +34,7 @@ public sealed class NetworkModule : IWidgetModule
         Description = NetworkStr.WidgetsA_Catalog_Network_Description.Local(),
         Glyph = Glyphs.Network,
         Sizing = _ => MeterSizing.Reading(MeterLook.Numbers, NetworkMeter.Worst),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.NetworkReading, 0, 0),
     };

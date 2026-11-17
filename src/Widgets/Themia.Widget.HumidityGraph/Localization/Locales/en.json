@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["humidityGraph.label", "humidityGraph.desc"],
+  "humidityGraph.label": "Humidity graph",
+  "humidityGraph.desc": "Relative humidity hour by hour"
+}

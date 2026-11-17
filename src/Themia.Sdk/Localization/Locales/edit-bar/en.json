@@ -7,7 +7,6 @@
     "editBar.page.errors",
     "editBar.page.found"
   ],
-  "editBar.link.updateInterval": "Update interval",
   "editBar.display.view": "View on this display",
   "editBar.view.manage": "Manage views",
   "editBar.selection.same": "{count} × {kind}",

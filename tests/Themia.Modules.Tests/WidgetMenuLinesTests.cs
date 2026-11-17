@@ -115,28 +115,6 @@ public sealed class WidgetMenuLinesTests
         Assert.True(Lines().AccountsLine(null, "Manage accounts").Disabled);
     }
 
-    [Theory]
-    [InlineData(OwnedSetting.TimeFormat)]
-    [InlineData(OwnedSetting.WeekStart)]
-    [InlineData(OwnedSetting.TemperatureUnit)]
-    [InlineData(OwnedSetting.OnlineUpdates)]
-    public void S3749_a_link_names_its_owner_says_what_is_in_force_and_changes_nothing_here(OwnedSetting setting)
-    {
-        SettingLink? opened = null;
-        var link = new SettingLink(setting, setting == OwnedSetting.OnlineUpdates ? HostCadences.Weather : null);
-        var line = new WidgetMenuLines(() => _saves++, _ => { }) { OpenSetting = l => opened = l }.Link(link);
-
-        Assert.Equal(link.Owner, line.LinkTo);
-        Assert.False(string.IsNullOrEmpty(line.Value), "a link says what is in force");
-        Assert.Null(line.Children);
-        Assert.False(line.Asks);
-        line.Action!();
-        Assert.Equal(link, opened);
-        Assert.Equal(0, _saves);
-
-        Assert.True(Lines().Link(link).Disabled);
-    }
-
     // ---- colours ------------------------------------------------------------------------------
 
     [Fact]

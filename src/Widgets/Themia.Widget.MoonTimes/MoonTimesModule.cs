@@ -29,7 +29,7 @@ public sealed class MoonTimesModule : IWidgetModule
         Glyph = Glyphs.Moon,
         Sizing = c => SkyFacts.Sizing(((MoonTimesConfig)c).Times.Count, MoonTimeRules.All.Count),
         SizeSets = (c, size) => SkyFacts.SizeSets(c, size, ((MoonTimesConfig)c).Times, MoonTimeRules.All, (copy, times) => ((MoonTimesConfig)copy).Times = times),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Weather, 1, 3),
     };
 

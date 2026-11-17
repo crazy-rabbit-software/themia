@@ -33,7 +33,7 @@ public sealed class DiskHistoryModule : IWidgetModule
         Description = DiskHistoryStr.DiskHistory_Desc.Local(),
         Glyph = Glyphs.Disk,
         Sizing = _ => MeterSizing.History,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive], [LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.System, 0, 4),
     };

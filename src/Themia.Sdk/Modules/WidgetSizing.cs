@@ -1,6 +1,6 @@
 namespace Themia.Sdk;
 
-/// <summary>[S-2438] A size in DIPs of the card's box (its header included) at widget scale 1.</summary>
+/// <summary>[S-2438] A size in DIPs of the card's box at widget scale 1.</summary>
 public readonly record struct SizeDip(double Width, double Height);
 
 /// <summary>
@@ -30,8 +30,8 @@ public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCo
 /// <summary>
 /// [S-2438] What sizes a widget kind may take, a pure function of its config
 /// (<see cref="WidgetDescriptor.Sizing"/>): <see cref="Min"/> ≤ <see cref="Natural"/> ≤ <see cref="Max"/>
-/// on both axes, in DIPs of the card's box at widget scale 1 with the kind's default header
-/// (<c>WidgetInstance.DefaultHeader</c>). An axis whose Min equals its Max is fixed: it has no resize
+/// on both axes, in DIPs of the card's box at widget scale 1, a free card's (the inset on every side,
+/// [S-12480]). An axis whose Min equals its Max is fixed: it has no resize
 /// handle. Content decides the size; the size never decides the content ([S-2445]): inside its range a
 /// kind shows the same parts, and what it shows is its config ([S-11800]).
 /// </summary>
@@ -183,16 +183,16 @@ public sealed record WidgetSizing
     private static bool Same(double a, double b) => Math.Abs(a - b) < 0.01;
 }
 
-/// <summary>[S-12411] What a kind's parts are, for how far it may grow past its content's range.</summary>
+/// <summary>[S-12411] What a kind's parts are, for how its parts stretch in a larger box.</summary>
 public enum StretchRoom
 {
-    /// <summary>Text, readouts, rows of facts: twice the natural on each free axis.</summary>
+    /// <summary>Text, readouts, rows of facts.</summary>
     Standard,
 
-    /// <summary>A list: its width two and a half times its natural (its height is its rows).</summary>
+    /// <summary>A list.</summary>
     List,
 
-    /// <summary>A chart, a picture, a tile, a grid of items: three times the natural.</summary>
+    /// <summary>A chart, a picture, a tile, a grid of items.</summary>
     Picture,
 
     /// <summary>A size that is not the content's to give (a desktop icon: the desktop's cell): no stretch.</summary>
@@ -200,30 +200,24 @@ public enum StretchRoom
 }
 
 /// <summary>
-/// [S-12411] The relaxed range (owner, 2026-11-15: "relax the size limitations on all the widgets"): a
-/// kind states the range its content needs (<see cref="WidgetDescriptor.Sizing"/>'s maker), and the
-/// descriptor hands out that range with its Max raised to its Natural times the room's factor
-/// (<see cref="Factor"/>, up to 4-DIP steps) where that is larger, on every axis the config does not step,
-/// a fixed one included, never past <see cref="Ceiling"/> unless the kind stated more. Min and Natural
-/// stay the content's, a stepped axis (a list's rows) stays its steps. In the larger box the parts
-/// stretch to their caps and the rest is spacing ([S-12410], <c>ItemStretch</c>); what the widget
-/// shows is still its config ([S-11800]).
+/// [S-12411] The relaxed range (owner, 2026-11-15: "relax the size limitations on all the widgets"; 2026-11-16: "maximum
+/// sizes should not really be a thing as this is for the user to decide"): a kind states the range its content needs
+/// (<see cref="WidgetDescriptor.Sizing"/>'s maker), and the descriptor hands out that range with no practical maximum:
+/// its Max raised to <see cref="Ceiling"/> on every axis the config does not step, a fixed one included, so the user
+/// makes a widget as large as the work area holds (the host stops a resize there, <c>SizeFit.Limits</c>). Min and
+/// Natural stay the content's, a stepped axis (a list's rows) stays its steps, a kind of <see cref="StretchRoom.None"/>
+/// (a desktop icon) its own. In the larger box the parts stretch to their caps and the rest is spacing ([S-12410],
+/// <c>ItemStretch</c>); what the widget shows is still its config ([S-11800]).
 /// </summary>
 public static class SizeStretch
 {
-    /// <summary>The largest a relaxed axis grows to, in DIPs at widget scale 1.</summary>
-    public const double Ceiling = 1200;
+    /// <summary>
+    /// [S-12411] The Max of a relaxed axis, in DIPs at widget scale 1: a 4K display's width, larger than any work area a
+    /// widget stands in at scale 1, so it bounds nothing the work area does not; finite, so a sizing stays one.
+    /// </summary>
+    public const double Ceiling = 3840;
 
-    /// <summary>How many times its natural an axis of <paramref name="room"/> may grow to (1: not at all).</summary>
-    public static double Factor(StretchRoom room, bool width) => room switch
-    {
-        StretchRoom.Standard => 2,
-        StretchRoom.List => width ? 2.5 : 2,
-        StretchRoom.Picture => 3,
-        _ => 1,
-    };
-
-    /// <summary>[S-12411] <paramref name="stated"/> with its Max relaxed by its room.</summary>
+    /// <summary>[S-12411] <paramref name="stated"/> with its Max relaxed to the ceiling.</summary>
     public static WidgetSizing Relax(WidgetSizing stated)
     {
         ArgumentNullException.ThrowIfNull(stated);
@@ -232,20 +226,20 @@ public static class SizeStretch
             return stated;
         }
 
-        var width = Axis(stated.Natural.Width, stated.Max.Width, stated.WidthSteps, Factor(stated.Room, width: true));
-        var height = Axis(stated.Natural.Height, stated.Max.Height, stated.HeightSteps, Factor(stated.Room, width: false));
-        return stated with { Max = new SizeDip(width, height) };
+        return stated with { Max = new SizeDip(Axis(stated.Max.Width, stated.WidthSteps), Axis(stated.Max.Height, stated.HeightSteps)) };
     }
 
-    /// <summary>The relaxed Max of one axis: a stepped axis keeps its own.</summary>
-    public static double Axis(double natural, double max, SizeSteps? steps, double factor)
-    {
-        if (steps is not null || !double.IsFinite(natural) || !double.IsFinite(max))
-        {
-            return max;
-        }
+    /// <summary>[S-12411] The relaxed Max of one axis: a stepped axis keeps its own.</summary>
+    public static double Axis(double max, SizeSteps? steps)
+        => steps is not null || !double.IsFinite(max) ? max : Math.Max(max, Ceiling);
 
-        var grown = Math.Min(Ceiling, Math.Ceiling(natural * factor / 4) * 4);
-        return Math.Max(max, grown);
+    /// <summary>
+    /// [S-2448] The large size a kind is checked at (renders, the showcase): with no practical Max, twice its Natural on
+    /// each free axis (4-DIP steps), fitted into its sizing.
+    /// </summary>
+    public static SizeDip Large(WidgetSizing sizing)
+    {
+        ArgumentNullException.ThrowIfNull(sizing);
+        return sizing.Fit(new SizeDip(Math.Ceiling(sizing.Natural.Width * 2 / 4) * 4, Math.Ceiling(sizing.Natural.Height * 2 / 4) * 4));
     }
 }

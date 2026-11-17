@@ -74,6 +74,6 @@ public sealed class TimerFaceTests
         Assert.Equal(12 + Math.Ceiling(face.Height) + 28 + 8 + 28 + 12 + 2, sizing.Natural.Height);
         Assert.Equal(Math.Ceiling(face.Width) + 24 + 2, sizing.Natural.Width);
         Assert.Equal(Math.Ceiling(sizing.Natural.Width * 1.5), sizing.Max.Width);
-        Assert.Equal(sizing.Natural.Height + 24, TimerFace.Sizing(face, 100, header: true, below: 28).Natural.Height);
+        Assert.Equal(sizing.Natural.Height, TimerFace.Sizing(face, 100, header: true, below: 28).Natural.Height);
     }
 }

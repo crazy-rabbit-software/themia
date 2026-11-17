@@ -175,9 +175,9 @@ public sealed class FolderBrowserTests
     }
 
     [Theory]
-    [InlineData(84, 2)]
-    [InlineData(204, 6)]
-    [InlineData(524, 18)]
+    [InlineData(108, 2)]
+    [InlineData(228, 6)]
+    [InlineData(548, 18)]
     public void S1323_rows_are_the_row_block_s_one_line_of_28_and_only_whole_ones_show(double height, int rows)
     {
         var area = new WidgetArea(320, height);

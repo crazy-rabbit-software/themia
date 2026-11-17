@@ -34,7 +34,7 @@ public sealed class CpuModule : IWidgetModule
         Description = CpuStr.WidgetsA_Catalog_Cpu_Description.Local(),
         Glyph = Glyphs.Cpu,
         Sizing = c => Sizing((CpuConfig)c),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Processor, 0, 0, Popular: 8),
     };

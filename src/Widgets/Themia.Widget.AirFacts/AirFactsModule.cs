@@ -32,7 +32,7 @@ public sealed class AirFactsModule : IWidgetModule
         Glyph = Glyph,
         Sizing = c => SkyFacts.Sizing(((AirFactsConfig)c).Facts.Count, AirFactRules.All.Count),
         SizeSets = (c, size) => SkyFacts.SizeSets(c, size, ((AirFactsConfig)c).Facts, AirFactRules.All, (copy, facts) => ((AirFactsConfig)copy).Facts = facts),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Weather, 0, 5),
     };
 

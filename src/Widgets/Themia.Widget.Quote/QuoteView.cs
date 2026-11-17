@@ -28,12 +28,8 @@ namespace Themia.App.Widgets;
 /// per click for something that is supposed to come back to today's quote in the morning.
 /// </para>
 /// </summary>
-internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetKeys, IWidgetAligned, IWidgetContextActions
+internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidgetAligned, IWidgetContextActions, IWidgetJoins
 {
-    /// <summary>[S-1495] The header's one button, "Show another quote", wanted only with somewhere to go.</summary>
-    private readonly HeaderParts _header = new();
-    private readonly Border _next;
-
     /// <summary>[S-1496] The quote: the information, primary, wrapping, on its step.</summary>
     private readonly TextBlock _text = Family.Text(FamilyType.Body);
 
@@ -64,15 +60,13 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
     public QuoteView()
     {
-        _next = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Reset, QuoteStr.WidgetsC_Quote_ShowAnother.Text(), OnNext));
-
         _text.TextWrapping = TextWrapping.Wrap;
         _mark.HorizontalAlignment = HorizontalAlignment.Left;
         _mark.Margin = new Thickness(0, 0, 0, FamilySpace.S2);
         _mark.Visibility = Visibility.Collapsed;
 
-        // [S-6703] Under the header, in the card's side inset. [S-12410] One block, centred in the room under
-        // the header with the foot's inset counted with it: a wider box wraps the quote on fewer lines than its
+        // [S-6703] In the card's side inset. [S-12410] One block, centred in the room with the foot's inset
+        // counted with it ([S-12483]: against a side a group mate joins): a wider box wraps the quote on fewer lines than its
         // height was made for, and the spare stands round it, never under it alone.
         _body = new StackPanel
         {
@@ -93,18 +87,24 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     }
 
     /// <summary>
-    /// The "show another quote" button, in the card's header (the Header block's one button). Built in
-    /// the constructor because the card reads this once, when it builds that header.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => _header;
-
-    /// <summary>
-    /// [S-5711] Show another quote on the card's right-click menu too, with two quotes or more: the widget
-    /// starts headerless ([S-2590]), and the header's button is then not there to press.
+    /// [S-5711] [S-12481] Show another quote on the card's right-click menu, with two quotes or more (a click
+    /// on the quote does the same).
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions => !_detached && _config.EffectiveQuotes.Count > 1
         ? [new(Glyphs.Reset, QuoteStr.WidgetsC_Quote_ShowAnother.Text(), OnNext)]
         : [];
+
+    /// <summary>[S-12483] The block meets a side a group mate joins; the foot's inset goes where a mate joins it.</summary>
+    public void ApplyJoins(JoinedSides sides)
+    {
+        _body.VerticalAlignment = sides.Block switch
+        {
+            BlockEdge.Top => VerticalAlignment.Top,
+            BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+        _body.Margin = Family.SideInset with { Bottom = sides.Foot };
+    }
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -116,8 +116,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-1110] Re-read the fixed texts and set the quote again, in the new language's marks.</summary>
     private void OnLanguage(Locale locale)
     {
-        ToolTipService.SetToolTip(_next, QuoteStr.WidgetsC_Quote_ShowAnother.Text());
-        AutomationProperties.SetName(_next, QuoteStr.WidgetsC_Quote_ShowAnother.Text());
         Render();
     }
 
@@ -153,7 +151,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     }
 
     /// <summary>
-    /// [S-1495] The header button shows a <i>random</i> other quote, as the original's shuffle did;
+    /// [S-1495] The card menu's Show another quote shows a <i>random</i> other quote, as the original's shuffle did;
     /// a tap on the quote itself steps to the next one. Both are ephemeral (S-02).
     /// </summary>
     private void OnNext()
@@ -229,16 +227,12 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
             // An empty list is a real state — the user cleared it — not a failure to load. The card
             // shows its Set up button over this ([S-1862]).
             _body.Visibility = Visibility.Collapsed;
-            _header.Want(_next, false);
             return;
         }
 
         var quote = quotes[index];
 
         _body.Visibility = Visibility.Visible;
-
-        // One quote has nowhere to go, and a button that does nothing is worse than none.
-        _header.Want(_next, quotes.Count > 1);
 
         _text.Text = QuoteLayout.Set(Strings.Current, quote.Text, _config.Style);
         _author.Text = QuoteLayout.Attribution(quote.Author);

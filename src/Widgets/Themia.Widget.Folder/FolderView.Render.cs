@@ -24,7 +24,8 @@ internal sealed partial class FolderView
     private readonly List<ItemVisual> _visuals = [];
     private readonly List<IDisposable> _hovers = [];
 
-    private HeaderParts _header = null!;
+    /// <summary>[S-1326] [S-12481] The tool line: the folder's name, the ring, the git badge, at most two buttons.</summary>
+    private ToolLine _line = null!;
     private ProgressRing _busy = null!;
     private TextBlock _gitText = null!;
     private Border _backButton = null!;
@@ -98,21 +99,26 @@ internal sealed partial class FolderView
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        // [S-1326] [S-6710] The header's parts: the busy ring, the git badge as its informing label and
-        // at most two buttons, wanted by FolderLayout.Header; the header folds them by its own rule.
-        _header = new HeaderParts();
-        _busy = _header.Add(HeaderPartKind.Busy, HeaderBlock.Busy());
-        _gitText = _header.Add(HeaderPartKind.Label, HeaderBlock.Label(string.Empty));
-        _backButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Back, Str.Common_Back.Text(), GoBack));
-        _upButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.MoveUp, FolderStr.WidgetsB_Folder_UpTip.Text(), GoUp));
-        _searchButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Search, FolderStr.WidgetsB_Folder_SearchTip.Text(), ToggleSearch));
-        _sortButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Sort, FolderStr.WidgetsB_Folder_ReverseTip.Text(), () => Edit(c => c.Descending = !c.Descending)));
+        // [S-1326] [S-6710] [S-12481] The tool line, the content's first line: the folder's name as its label,
+        // the busy ring, the git badge as its informing label and at most two buttons, wanted by
+        // FolderLayout.Header; the line folds them by its own rule.
+        _line = new ToolLine { Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap } };
+        var parts = _line.Parts;
+        _busy = parts.Add(LinePartKind.Busy, ToolLine.Busy());
+        _gitText = parts.Add(LinePartKind.Label, ToolLine.Note(string.Empty));
+        _backButton = parts.Add(LinePartKind.Button, ToolLine.Button(Glyphs.Back, Str.Common_Back.Text(), GoBack));
+        _upButton = parts.Add(LinePartKind.Button, ToolLine.Button(Glyphs.MoveUp, FolderStr.WidgetsB_Folder_UpTip.Text(), GoUp));
+        _searchButton = parts.Add(LinePartKind.Button, ToolLine.Button(Glyphs.Search, FolderStr.WidgetsB_Folder_SearchTip.Text(), ToggleSearch));
+        _sortButton = parts.Add(LinePartKind.Button, ToolLine.Button(Glyphs.Sort, FolderStr.WidgetsB_Folder_ReverseTip.Text(), () => Edit(c => c.Descending = !c.Descending)));
         foreach (var part in new FrameworkElement[] { _busy, _gitText, _backButton, _upButton, _searchButton, _sortButton })
         {
-            _header.Want(part, false);
+            parts.Want(part, false);
         }
+
+        SetRow(_line, 0);
 
         // [S-1323] The path: a row of 28 at the side inset.
         _crumbs = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S1, VerticalAlignment = VerticalAlignment.Center };
@@ -123,7 +129,7 @@ internal sealed partial class FolderView
             Padding = Family.SideInset,
             Visibility = Visibility.Collapsed,
         };
-        SetRow(_crumbHost, 0);
+        SetRow(_crumbHost, 1);
 
         _searchBox = new TextBox
         {
@@ -146,7 +152,7 @@ internal sealed partial class FolderView
         _searchBox.KeyDown += OnSearchKeyDown;
         _searchBox.GotFocus += (_, _) => _surface?.RequestTextInput(true);
         _searchBox.LostFocus += (_, _) => _surface?.RequestTextInput(false);
-        SetRow(_searchBox, 1);
+        SetRow(_searchBox, 2);
 
         // [S-7034] The details table's titles: a Caption line over the columns, as the kit's table.
         _columnHeader = new Grid
@@ -157,7 +163,7 @@ internal sealed partial class FolderView
             Visibility = Visibility.Collapsed,
             Background = Family.Brush(ColourRole.Clear),
         };
-        SetRow(_columnHeader, 2);
+        SetRow(_columnHeader, 3);
 
         _items = new StackPanel();
         // [S-6629] The layer a selected tile's full name is laid on, over the items.
@@ -176,7 +182,7 @@ internal sealed partial class FolderView
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
         };
-        SetRow(_scroll, 3);
+        SetRow(_scroll, 4);
 
         // [S-1887] Rows are built as the list scrolls toward them, and when the tile grows.
         _scroll.ViewChanged += (_, _) => RealizeMore();
@@ -189,8 +195,9 @@ internal sealed partial class FolderView
         // [S-1334] [S-6714] A folder with nothing to show says which state it is in the Status row, at the top.
         _status = new StatusBlock { VerticalAlignment = VerticalAlignment.Top };
         _status.Hide();
-        SetRow(_status, 3);
+        SetRow(_status, 4);
 
+        Children.Add(_line);
         Children.Add(_crumbHost);
         Children.Add(_searchBox);
         Children.Add(_columnHeader);
@@ -283,19 +290,19 @@ internal sealed partial class FolderView
     private void FillViewport()
         => _scrollContent.MinHeight = Math.Max(0, _scroll.ActualHeight - _scroll.Padding.Top - _scroll.Padding.Bottom);
 
-    /// <summary>[S-1326] The header's buttons and git label, by the plan and by what history allows.</summary>
+    /// <summary>[S-1326] The tool line's buttons and git label, by the plan and by what history allows.</summary>
     private void ApplyHeader()
     {
         // Re-planned here rather than read from the last pass: the git badge's rung depends on a status
         // that arrives after the listing, and must not wait for the next resize to appear.
         var header = _area.IsMeasured ? FolderLayout.Header(_config, Navigates, _git is not null) : FolderHeaderPlan.None;
 
-        _header.Want(_backButton, header.Back);
+        _line.Parts.Want(_backButton, header.Back);
         Enable(_backButton, _history.CanGoBack);
-        _header.Want(_upButton, header.Up);
+        _line.Parts.Want(_upButton, header.Up);
         Enable(_upButton, _history.CanGoUp);
-        _header.Want(_searchButton, header.Search);
-        _header.Want(_sortButton, header.Sort);
+        _line.Parts.Want(_searchButton, header.Search);
+        _line.Parts.Want(_sortButton, header.Sort);
         ToolTipService.SetToolTip(_sortButton, _config.Descending ? FolderStr.WidgetsB_Folder_OrderDescTip.Text() : FolderStr.WidgetsB_Folder_OrderAscTip.Text());
 
         if (header.Git && _git is { } git)
@@ -303,15 +310,15 @@ internal sealed partial class FolderView
             var counts = git.Summary.Counts();
             _gitText.Text = counts.Length == 0 ? git.Summary.Branch : $"{git.Summary.Branch} {counts}";
             ToolTipService.SetToolTip(_gitText, GitTip(git.Summary));
-            _header.Want(_gitText, true);
+            _line.Parts.Want(_gitText, true);
         }
         else
         {
-            _header.Want(_gitText, false);
+            _line.Parts.Want(_gitText, false);
         }
     }
 
-    /// <summary>A header button that cannot act now (no way back, at the root): its glyph in the disabled role ([S-1940]).</summary>
+    /// <summary>A line button that cannot act now (no way back, at the root): its glyph in the disabled role ([S-1940]).</summary>
     private static void Enable(Border button, bool can)
     {
         if (button.Child is FontIcon glyph)

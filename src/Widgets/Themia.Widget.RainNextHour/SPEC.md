@@ -3,7 +3,7 @@
 The module `rainNextHour` ([S-6911]): rain in the next two hours at a place. Its tags are this file's
 alone; the root `SPEC.md` holds the host's sections and what the online widgets share (Air quality, rain
 and exchange rates: the nowcast's wire and rules [S-5122]..[S-5124] in the SDK's `RainNowcast.cs`, the
-header's stale rule [S-5160], the offline shelf [S-5161]; the background web sync [S-2663]).
+stale rule [S-5160], the offline shelf [S-5161]; the background web sync [S-2663]).
 
 Owning files: everything in this folder: `RainNextHourModule.cs` (descriptor, view factory, menu
 lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads the nowcast through
@@ -28,13 +28,13 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   ([S-6714]: the widget's glyph, "No rain in the next 2 hours"), nothing else; no answer at all is
   [S-6734]'s row.
 - **[S-11140]** **An atom** ([S-11170]): the sentence, its caption and the bars, the same at every size
-  in its range (no ladder, no part that comes or goes with the box). **Sizes** (`RainLayout.Sizing`,
-  with its header): one height (172), 220..420 wide, a new one 300: the bars get wider. It follows the
+  in its range (no ladder, no part that comes or goes with the box). **Sizes** (`RainLayout.Sizing`):
+  one height (148), 220..420 wide, a new one 300: the bars get wider. It follows the
   sync through the SDK's `SkyFeed` ([S-11171]).
 - **[S-5127]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), then behind a divider each **Location** (the weather family's search, [S-2840],
-  [S-3722]; the place's city is the header's label, [S-728], [S-2260]), a link to **Update interval** (⚙ ›
-  Online updates › Weather, [S-3749]) and the source's credit, a note ("Source: Open-Meteo").
+  [S-3722]) and the source's credit, a note ("Source: Open-Meteo"). How often the weather is asked is
+  ⚙ › Online updates', followed, no link row ([S-3590], [S-3749]).
 - **[S-2037]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
   in the UI language's market and the unit shown ([S-2006], `RainNextHourModule.Opens`); nothing
   while it has no place (it shows Set up then).

@@ -123,7 +123,7 @@ public readonly record struct DeskOpen(string Key, string? Launch, bool Layout);
 /// <param name="CanEmptyBin">The Recycle Bin holds something and is not being emptied.</param>
 /// <param name="CanEditLayout">The app layout editor can open.</param>
 /// <param name="ClipboardHasFiles">Files are on the clipboard (Paste into a folder icon).</param>
-public readonly record struct DeskMenuFacts(bool CanEmptyBin, bool CanEditLayout, bool ClipboardHasFiles);
+public readonly record struct DeskMenuFacts(bool CanEmptyBin, bool CanEditLayout, bool ClipboardHasFiles, bool WidgetsLocked = false);
 
 /// <summary>
 /// [S-5582] The menu for a selection of desktop icons: its lines (the icon row's commands among them,
@@ -198,7 +198,7 @@ public static class DesktopCommands
     /// <item>Several own icons: Open, Copy path where every one has a path, Delete.</item>
     /// <item>Both sources: Open and, where every one has a path, Copy path.</item>
     /// </list>
-    /// Every menu then holds Edit mode ([S-65]) and, where the shell has a classic menu for it
+    /// Every menu then holds Hide from this view while every icon is a desktop item's ([S-5527]), Edit mode ([S-65]), Lock widgets ([S-12951]) and, where the shell has a classic menu for it
     /// (desktop items; one own icon whose path is there), Show more options last.
     /// </summary>
     public static DeskMenu Menu(IReadOnlyList<DeskIcon> selection, DeskMenuFacts facts, Func<string, bool> isFolder)
@@ -279,7 +279,15 @@ public static class DesktopCommands
         }
 
         lines.Add(FileMenuLine.Separator);
-        lines.Add(new(FileCommand.EditMode));
+
+        // [S-5527] Desktop items alone (never an own icon, which is the view's placed widget): off this view.
+        if (selection.All(icon => !icon.Own))
+        {
+            lines.Add(new(FileCommand.HideFromView));
+        }
+
+        lines.Add(new(FileCommand.EditMode, Checked: false));
+        lines.Add(new(FileCommand.LockWidgets, Checked: facts.WidgetsLocked));
         if (classic.Count > 0)
         {
             lines.Add(FileMenuLine.Separator);

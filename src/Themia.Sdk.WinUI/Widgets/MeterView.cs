@@ -85,6 +85,9 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         _band.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         Children.Add(_band);
 
+        // [S-12481] The kind's mark over the content's top end (Ping's problem glyph).
+        PlaceMark();
+
         // [S-11910] The moment pointed at on the view's history charts.
         JoinInstants();
 
@@ -99,18 +102,15 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         Lay();
     }
 
-    /// <summary>The widest reading the step is chosen for, with the lead glyph where the look draws one.</summary>
-    private ReadoutText Worst => _part.Reading with { Lead = _look == MeterLook.Numbers || (_part.HasBadge && !DrawsCharge) };
-
-    /// <summary>[S-6262] [S-6266] A look that draws the charge itself (the battery, the ring) needs no badge before the figure.</summary>
-    private bool DrawsCharge => _look is MeterLook.Battery or MeterLook.Ring;
+    /// <summary>The widest reading the step is chosen for, with the lead glyph where the look draws one ([S-12801]).</summary>
+    private ReadoutText Worst => MeterSizing.Identified(_look, _part.Reading);
 
     /// <summary>
-    /// [S-1187] The glyph before the reading: the Numbers look's download arrow (as its upload), else
-    /// the kind's badge (the battery's level) where the look does not draw the charge already.
+    /// [S-1187] [S-12801] The glyph before the reading: the Numbers look's download arrow (as its upload), else the
+    /// kind's badge (its glyph, the battery's level) where the look does not draw the charge already.
     /// </summary>
     private string? Lead(MeterReading reading)
-        => _look == MeterLook.Numbers ? Glyphs.Download : DrawsCharge ? null : _part.Badge(reading);
+        => _look == MeterLook.Numbers ? Glyphs.Download : MeterSizing.Leads(_look) ? _part.Badge(reading) : null;
 
     /// <inheritdoc />
     public CardOpen? Opens => _part.Opens(_config);
@@ -312,7 +312,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     }
 
     /// <summary>[S-1167] Keep the surface for a kind's header title (MeterView.Part.cs).</summary>
-    public void Bind(IWidgetSurface surface) => BindTitle(surface);
+    public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Detach()
     {

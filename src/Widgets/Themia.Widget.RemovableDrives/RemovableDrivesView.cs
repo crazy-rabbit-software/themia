@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -21,7 +22,7 @@ namespace Themia.App.Widgets;
 /// Windows' own notice. Live: a device plugged in or out shows at once (the host's walk,
 /// <see cref="IDrives"/>, runs again on <c>WM_DEVICECHANGE</c>). Nothing plugged in is the Status row.
 /// </summary>
-internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetJoins
 {
     private readonly ScrollViewer _scroll = new()
     {
@@ -47,6 +48,9 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
     /// <summary>[S-6913] What the view asks of the host: the launcher, the drives.</summary>
     private readonly IWidgetHost _widgetHost;
+
+    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
+    public void ApplyJoins(JoinedSides sides) => _scroll.VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public RemovableDrivesView(IWidgetHost host)
     {

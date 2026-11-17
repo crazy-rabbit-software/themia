@@ -10,10 +10,10 @@ files stay Core's.
 
 Owning files: everything in this folder: `NotesModule.cs` (descriptor, view factory, menu lines,
 JSON context), `NotesConfig.cs` (the note shown), `NotesView.cs` (the note through
-its host, the debounce, the header's title and bar) with `NotesView.Picker.cs` (the header's note
+its host, the debounce, its first line's bar) with `NotesView.Picker.cs` (the line's note
 picker), `MarkdownEditor.cs` (the editor), `Markdown/` (`NoteMarkdown`, `NoteEditing`, `NoteHistory`,
 `NoteText`: the grammar, the keys and commands, undo, the lines to redraw), `NotesLayout.cs` (the
-ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
+body and the bar), `NotesMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
 `--state sample|editing|confirm`), `Localization/Locales/` (its own `NotesStr`, 30 languages). Tests:
 `Tests/NoteMarkdownTests.cs`, `Tests/NoteEditingTests.cs`, `Tests/NotesLayoutTests.cs`, `Tests/NotesMenuTests.cs` (run by
 `tests/Themia.Modules.Tests`); the store's are Core's `NoteStoreTests` and `LocalStoreFixtureTests`.
@@ -37,7 +37,7 @@ ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview
   the widget's label, else "Note") and saves the id. A preview card (a debug render) creates nothing: it
   shows an empty draft that is never saved (original S-32).
 - **[S-1347]** A widget whose note was deleted (anywhere) says "This note was deleted" and where to
-  pick another (the properties menu, or the header's picker); it is never handed another note, and a pending edit to
+  pick another (the properties menu, or the line's picker); it is never handed another note, and a pending edit to
   it is dropped (original S-36).
 - **[S-1349]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Note** (the note shown at the end of its line;
@@ -82,27 +82,27 @@ ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview
 - **[S-1361]** Only the lines an edit touched, plus lines whose parse changed (a fence opened or
   closed), are redrawn (`NoteText.LinesToRedraw`); replacements never split a surrogate pair.
 - **[S-1362]** No word or character count, and no "Saved" (user requirement). The note's last write
-  failing (the pool's save events) is the header's problem glyph, its tooltip "Not saved", the family's
+  failing (the pool's save events) is the problem glyph on its first line, its tooltip "Not saved", the family's
   rule for content kept through a failure ([S-6710]); the text keeps all its room.
-- **[S-1363]** The body (`NotesLayout.Plan`) is the text alone, from the view's top in the card's inset
+- **[S-1363]** The body (`NotesLayout.Plan`) is the text alone, under its first line ([S-3963]), in the card's inset
   (16 either side and above the foot, [S-6703]), at least two lines; the formatting bar is not a row of
   the body ([S-3963]). The widget is the one note at every size: there is no note list beside the text,
-  at any size (user decision; the header's picker switches notes). The note is drawn in the family's
+  at any size (user decision; the line's picker switches notes). The note is drawn in the family's
   steps ([S-6700]): a first-level heading (the note's title) Title, 20 on its 28 line, at every width
   ([S-11206]); every other line Body,
   14 on 20, lower headings BodyStrong; two weights (a bold span 600); the markdown marks tertiary, a done
   task, code and a quote secondary, everything else primary, given to the RichEdit as the roles' opaque
   colours on the card ([S-6738]). A note it cannot show (deleted, unreadable, no notes on this PC) is the
   Status row at the top ([S-6714]; the warning for an unreadable one).
-- **[S-1364]** The header title is the note's title (the user's own widget label still wins). A
-  chevron in the header opens the note picker (every note, New note, Rename…, Delete note…), at every
+- **[S-1364]** A chevron at the end of the note's first line ([S-12481]: no card header, so no title
+  beside it) opens the note picker (every note, New note, Rename…, Delete note…), at every
   size ([S-11206]).
 - **[S-11206]** Converted to the sizing ([S-2438]): the text alone in a free range, 160..600 wide and
   100..600 high (a new one 300 × 220, `NotesLayout.Sizing`); the text wraps and scrolls. Nothing appears
   or disappears with the size: the title is Title at every width (its BodyStrong step on a compact
   width is gone) and the picker is there at every width. The formatting bar while editing ([S-3963])
-  stands in the header and folds its buttons behind More by the header's width, as a header folds its
-  buttons; it is not a part of the body.
+  stands on the note's first line and folds its buttons behind More by the card's width; it is not a
+  part of the body.
 - **[S-1365]** The bar's buttons never take focus, so a command runs on the note's selection. Bold,
   italic, strikethrough, bulleted list and checklist are Segoe Fluent glyphs checked against the font;
   heading and numbered list are lettered ("H", "1.") because the font has neither.
@@ -110,25 +110,24 @@ ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview
   every Ctrl chord other than clipboard, selection and caret keys swallowed (Ctrl+Alt passes: AltGr),
   no selection flyout, its own context menu (undo, redo, cut, copy, paste, select all), copy as plain
   text. Keys are not intercepted while an IME composition is open.
-- **[S-1367]** *(Retired: the widget never shows a note list beside the note, [S-1363]; the header
+- **[S-1367]** *(Retired: the widget never shows a note list beside the note, [S-1363]; the line's
   picker of [S-1364] picks, creates, renames and deletes.)*
 - **[S-1368]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-3963]** The formatting bar stands in the card's header, on the title line between the title
-  and the note picker, while the note is being edited: the caret is in the note, or the bar's "More"
-  menu is open. At rest the header is the title and the picker, as every card's is; the bar comes
-  with the caret, where formatting is wanted, and goes with it. Its buttons are the header's (24 × 24,
-  a 16 glyph or "H" and "1." in BodyStrong, secondary, side by side, standing 2 over the title line so
-  focusing never moves the text, the last one's glyph on the inset, [S-6710]); the marks in force at the
-  caret are the subtle fill and the primary role, never the accent. `NotesLayout.HeaderBar`: every
-  button where the header has room after its insets, icon, the title's 64 DIP minimum ([S-655]) and
-  the picker; else as many as fit, by rank (bold, italic, task, bullet, heading, strike, code, numbered,
+- **[S-3963]** The formatting bar stands on the note's own first line ([S-12481]: a line of 20 and 4
+  under it over the text, `NotesLayout.LineHeight`, there whether or not the bar is, so focusing never
+  moves the text), before the note picker at the line's end, while the note is being edited: the caret
+  is in the note, or the bar's "More" menu is open. At rest the line holds the picker; the bar comes
+  with the caret, where formatting is wanted, and goes with it. Its buttons are line buttons (24 × 24,
+  a 16 glyph or "H" and "1." in BodyStrong, secondary, side by side, the last one's glyph on the inset,
+  [S-6710]); the marks in force at the caret are the subtle fill and the primary role, never the accent.
+  `NotesLayout.Bar`: every button where the line has room after its insets and the picker; else as many as fit, by rank (bold, italic, task, bullet, heading, strike, code, numbered,
   quote), and a "More" button whose menu holds the rest (checked for the marks at the caret); nothing
   where not even "More" fits. Like the bar's buttons, "More" never takes focus. Debug renders:
   `--widget-png Notes <out> --state sample|editing` draw a fixed note at rest and while edited.
 
 Needs a manual pass: the widget on a live desktop ([S-128]..[S-130], [S-1346], [S-1347], [S-1349],
 [S-1364]..[S-1366]: typing saved and shown in a second widget of the same note, no fill or accent line on
-the focused text box, the header's picker and bar, Clear and Delete with their questions, an IME
+the focused text box, the line's picker and bar, Clear and Delete with their questions, an IME
 composition, the properties menu's notes; G3: no border or accent line on hover and focus now that only the
 border's thickness is cleared, [S-3962]; the marks tertiary and a done task secondary on a light card, which the
 light renders draw in the primary role although the roles' opaque colours are right, [S-1363]), never in a

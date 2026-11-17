@@ -1,42 +1,22 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Themia.App.Widgets.Meters;
-using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1167] What a meter kind may add to its card besides the reading: a header title (a drive's
-/// name), the header's label ([S-2260]: the adapter, the host), commands on the right-click menu (Refresh, Open in Explorer) and an
-/// element at the right of the header (a status dot). The view only passes them through; each kind
-/// decides in its own <see cref="MeterPart"/>.
+/// [S-1167] What a meter kind may add to its card besides the reading: commands on the right-click menu
+/// (Refresh, Open in Explorer) and a mark over the content's top end (Ping's problem glyph, [S-12481]). The
+/// view only passes them through; each kind decides in its own <see cref="MeterPart"/>. [S-12482] [S-12483]
+/// It stands its reading against a side a group mate joins.
 /// </summary>
-public sealed partial class MeterView : IWidgetContextActions, IWidgetHeaderContent
+public sealed partial class MeterView : IWidgetContextActions, IWidgetJoins
 {
     private IWidgetSurface? _surface;
-    private string? _title;
 
-    /// <summary>Called from <c>Bind</c>: the card's surface, and the title a kind offered before it was there.</summary>
-    private void BindTitle(IWidgetSurface surface)
-    {
-        _surface = surface;
-
-        if (_title is not null)
-        {
-            surface.SetHeaderTitle(_title);
-        }
-    }
-
-    /// <summary>Only on a change: the card relayouts its header for a new title.</summary>
-    public void SetTitle(string? title)
-    {
-        if (title == _title)
-        {
-            return;
-        }
-
-        _title = title;
-        _surface?.SetHeaderTitle(title);
-    }
+    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
+    private JoinedSides _joins;
 
     /// <summary>[S-2510] A read outside the cadence (Refresh). Not while detached.</summary>
     public void SampleNow()
@@ -49,22 +29,33 @@ public sealed partial class MeterView : IWidgetContextActions, IWidgetHeaderCont
 
     public IReadOnlyList<WidgetAction> ContextActions => _part.ContextActions(this);
 
-    /// <summary>
-    /// The header's trailing parts: the kind's own (Ping's problem glyph) when it has them, else the
-    /// view's, so the label of <see cref="SetAbout"/> always has a header to stand in.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => Trailing;
-
-    private HeaderParts? _own;
-
-    private FrameworkElement Trailing => _part.HeaderTrailing ?? (_own ??= new HeaderParts());
-
-    /// <summary>[S-2260] Which one the meter reads (an adapter's name, a host) as the header's label beside its name; null for none.</summary>
-    public void SetAbout(string? about)
+    /// <summary>[S-12483] The reading's block meets a joined side; the foot's inset goes where a mate joins.</summary>
+    public void ApplyJoins(JoinedSides sides)
     {
-        if (Trailing is HeaderParts parts)
+        if (sides == _joins)
         {
-            parts.SetAbout(about);
+            return;
+        }
+
+        _joins = sides;
+        if (_area.IsMeasured)
+        {
+            LaySized();
+        }
+    }
+
+    /// <summary>[S-12481] The kind's mark over the content's top end, over every row and column, once.</summary>
+    private void PlaceMark()
+    {
+        if (_part.Mark is { Parent: null } mark)
+        {
+            mark.HorizontalAlignment = HorizontalAlignment.Right;
+            mark.VerticalAlignment = VerticalAlignment.Top;
+            mark.Margin = new Thickness(0, FamilySpace.S1, FamilySpace.Inset, 0);
+            Canvas.SetZIndex(mark, 1);
+            SetRowSpan(mark, 8);
+            SetColumnSpan(mark, 8);
+            Children.Add(mark);
         }
     }
 }

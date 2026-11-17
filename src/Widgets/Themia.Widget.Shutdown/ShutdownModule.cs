@@ -30,7 +30,7 @@ public sealed class ShutdownModule : IWidgetModule
         Description = ShutdownStr.WidgetsC_Power_Desc_Shutdown.Local(),
         Glyph = Glyphs.Power,
         Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 0),
     };
 

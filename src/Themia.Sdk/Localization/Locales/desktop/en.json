@@ -1,5 +1,5 @@
 {
-  "$englishOnly": ["desktop.menu.sortBy", "desktop.menu.sort.name", "desktop.menu.sort.size", "desktop.menu.sort.type", "desktop.menu.sort.date", "desktop.menu.refresh", "desktop.menu.view", "desktop.icons.size", "desktop.icons.large", "desktop.icons.medium", "desktop.icons.small", "desktop.icons.autoArrange", "desktop.tip.location", "desktop.tip.type", "desktop.tip.size", "desktop.tip.modified", "desktop.tip.created"],
+  "$englishOnly": ["desktop.menu.sortBy", "desktop.menu.sort.name", "desktop.menu.sort.size", "desktop.menu.sort.type", "desktop.menu.sort.date", "desktop.menu.refresh", "desktop.menu.view", "desktop.icons.size", "desktop.icons.large", "desktop.icons.medium", "desktop.icons.small", "desktop.icons.autoArrange", "desktop.tip.location", "desktop.tip.type", "desktop.tip.size", "desktop.tip.modified", "desktop.tip.created", "desktop.viewIcons.label", "desktop.viewIcons.all", "desktop.viewIcons.chosen", "desktop.viewIcons.none", "desktop.viewIcons.list", "desktop.viewIcons.count", "desktop.viewIcons.empty", "desktop.hideFromView", "desktop.restore.skipped", "desktop.restore.skippedBody"],
   "desktop.icons.size": "Desktop icon size",
   "desktop.icons.large": "Large icons",
   "desktop.icons.medium": "Medium icons",
@@ -20,5 +20,18 @@
   "desktop.menu.sort.date": "Date modified",
   "desktop.menu.refresh": "Refresh",
   "desktop.delete.fromView": "Remove from this view",
-  "desktop.automation.list": "Desktop"
+  "desktop.automation.list": "Desktop",
+  "desktop.viewIcons.label": "Desktop icons",
+  "desktop.viewIcons.all": "All",
+  "desktop.viewIcons.chosen": "Chosen",
+  "desktop.viewIcons.none": "None",
+  "desktop.viewIcons.list": "Icons on this view",
+  "desktop.viewIcons.count": "{shown} of {all}",
+  "desktop.viewIcons.empty": "There's nothing on the desktop.",
+  "desktop.hideFromView": "Hide from this view",
+  "desktop.restore.skipped": {
+    "one": "{count} item couldn't be put back",
+    "other": "{count} items couldn't be put back"
+  },
+  "desktop.restore.skippedBody": "It's no longer in the Recycle Bin, or something else has its name now."
 }

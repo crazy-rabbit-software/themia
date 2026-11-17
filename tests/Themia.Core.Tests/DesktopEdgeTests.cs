@@ -69,7 +69,7 @@ public sealed class DesktopEdgeTests
                 DesktopMenuGroup.View, DesktopMenuGroup.SortBy, DesktopMenuCommand.Refresh, null,
                 DesktopMenuCommand.Paste, DesktopMenuCommand.PasteShortcut, DesktopMenuGroup.New, null,
                 DesktopMenuCommand.DisplaySettings, DesktopMenuCommand.Personalise, DesktopMenuCommand.OpenInTerminal, null,
-                DesktopMenuCommand.EditMode, DesktopMenuCommand.AddWidget, null,
+                DesktopMenuCommand.EditMode, DesktopMenuCommand.LockWidgets, DesktopMenuCommand.AddWidget, null,
                 DesktopMenuCommand.ShowMoreOptions,
             ],
             Flat(menu));
@@ -88,7 +88,7 @@ public sealed class DesktopEdgeTests
                 DesktopMenuGroup.View, DesktopMenuGroup.SortBy, DesktopMenuCommand.Refresh, null,
                 DesktopMenuGroup.New, null,
                 DesktopMenuCommand.DisplaySettings, DesktopMenuCommand.Personalise, null,
-                DesktopMenuCommand.EditMode, DesktopMenuCommand.AddWidget, null,
+                DesktopMenuCommand.EditMode, DesktopMenuCommand.LockWidgets, DesktopMenuCommand.AddWidget, null,
                 DesktopMenuCommand.ShowMoreOptions,
             ],
             Flat(menu));
@@ -118,7 +118,7 @@ public sealed class DesktopEdgeTests
         var menu = Flat(DesktopBackground.Menu(new DesktopBackgroundFacts(true, true)));
         var at = Array.IndexOf(menu, DesktopMenuCommand.EditMode);
 
-        Assert.Equal([null, DesktopMenuCommand.EditMode, DesktopMenuCommand.AddWidget, null, DesktopMenuCommand.ShowMoreOptions], menu[(at - 1)..]);
+        Assert.Equal([null, DesktopMenuCommand.EditMode, DesktopMenuCommand.LockWidgets, DesktopMenuCommand.AddWidget, null, DesktopMenuCommand.ShowMoreOptions], menu[(at - 1)..]);
     }
 
     [Fact]

@@ -29,9 +29,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>What the selection's page does for <paramref name="ids"/>, the selection: everything goes through the host, as one change each.</summary>
     private SelectionCommands SelectionCommands(IReadOnlyList<string> ids) => new(
-        SetHeader: header => _host.SetHeader(ids, header),
         SetBackground: fill => _host.SetBackground(ids, fill),
-        SetTitle: _host.SetTitle,
         SetStyle: style => _host.SetStyle(ids, style),
         SetItemBackground: fill => _host.SetItemBackground(ids, fill),
         SetItemTextColor: hex => _host.SetItemTextColor(ids, hex),

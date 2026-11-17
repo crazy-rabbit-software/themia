@@ -14,8 +14,8 @@ using Themia.Widget.Tasks;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-614] The list picker in the header, as Notes has one ([S-1364]): the lists to switch to, and
-/// Rename list… for the one shown. An account list is renamed at the provider through the account's
+/// [S-614] The list picker on the card menu ([S-12481]): the lists to switch to, and Rename list… for the
+/// one shown. An account list is renamed at the provider through the account's
 /// queue ([S-2610]); a list on this PC in the pool every widget shares ([S-603]).
 /// </summary>
 internal sealed partial class TasksView
@@ -23,16 +23,13 @@ internal sealed partial class TasksView
     private TextBox? _renamingList;
 
     /// <summary>
-    /// [S-612] The list picker: one of the kit header's buttons (the 16 chevron), shown while there are
-    /// lists to pick from; the header's fold gives it way on a narrow tile, the menu still has the lists.
+    /// [S-612] [S-12481] The list picker on the card menu: a line per other list to switch to, and Rename
+    /// list… for the one shown, while there are lists to pick from.
     /// </summary>
-    private IReadOnlyList<KitHeaderButton> PickerButtons()
-    {
-        var lists = IsLocal ? _local?.Lists.Count > 0 : _feed?.Lists is { Count: > 0 };
-        return lists
-            ? [new KitHeaderButton(Glyphs.ChevronDown, TasksStr.WidgetsC_Tasks_ChooseList.Text()) { Menu = PickerEntries }]
-            : [];
-    }
+    private IEnumerable<WidgetAction> PickerActions()
+        => PickerEntries()
+            .Where(e => !e.IsSeparator && e.Checked != true && e.Action is not null)
+            .Select(e => new WidgetAction(e.Glyph ?? Glyphs.Task, e.Text, e.Action!));
 
     private TaskListInfo? ShownList()
         => _feed is { IsToday: false } feed ? feed.Lists?.FirstOrDefault(l => l.Id == feed.ListId) : null;
@@ -149,7 +146,7 @@ internal sealed partial class TasksView
             }
         };
 
-        flyout.ShowAt(_header.ButtonAt(0) ?? (FrameworkElement)this);
+        flyout.ShowAt(this);
     }
 
     /// <summary>[S-614] A blank or unchanged name writes nothing; To Do's own lists and Today are never offered.</summary>

@@ -36,7 +36,6 @@ internal sealed partial class AirFactsView : IWidgetSample
     internal void HoldSample(Fetched<AirReading>? reading, FetchStatus status)
     {
         _config = new AirFactsConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName, Facts = [.. _config.Facts] };
-        _header.SetAbout(_config.PlaceLabel);
         _feed.Preview(reading, status);
     }
 }

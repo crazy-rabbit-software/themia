@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "તારીખ બતાવો",
   "clock.offsetLabel": "ઑફસેટ",
   "clock.secondsLabel": "સેકન્ડ બતાવો",
   "clock.styleAnalog": "ઍનાલૉગ",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "સમય ઝોન",
   "clock.tzCurrent": "વર્તમાન: {city}",
   "locationSearch.placeholder": "શહેર શોધો…",
-  "styles.clock.date": "તારીખ",
   "styles.clock.flip": "ફ્લિપ",
   "styles.clock.minimal": "સાદું",
   "styles.clock.words": "શબ્દો",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[n] વાગવામાં વીસ મિનિટ બાકી છે",
   "wordClock.m45": "પોણા [n] વાગ્યા છે",
   "wordClock.m50": "[n] વાગવામાં દસ મિનિટ બાકી છે",
-  "wordClock.m55": "[n] વાગવામાં પાંચ મિનિટ બાકી છે",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "[n] વાગવામાં પાંચ મિનિટ બાકી છે"
 }

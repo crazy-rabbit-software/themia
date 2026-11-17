@@ -28,7 +28,6 @@ internal sealed partial class TasksView : IWidgetPreviewState
             _feed = null;
             _local = new MemoryTaskLists([]);
             _localListId = null;
-            PublishTitle();
             Render();
             return Task.CompletedTask;
         }
@@ -55,7 +54,6 @@ internal sealed partial class TasksView : IWidgetPreviewState
             ],
             SampleDay.Now,
             readOnly: true);
-            PublishTitle();
             Render();
             return Task.CompletedTask;
         }
@@ -76,7 +74,6 @@ internal sealed partial class TasksView : IWidgetPreviewState
                 new("a3", "preview-account-list", "Send the invoice", false),
             ],
             SampleDay.MinutesAgo(20));
-            PublishTitle();
             Render();
             return Task.CompletedTask;
         }

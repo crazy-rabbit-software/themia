@@ -34,7 +34,7 @@ public static class MixerLayout
     /// button) inset 2 in a one-line row of 28, so stacked rows' buttons stand 4 apart; the 28 icon button in
     /// a two-line row of 40.
     /// </summary>
-    public static double Mute(int lines) => lines >= 2 ? FamilyShape.IconButton : FamilyShape.HeaderButton;
+    public static double Mute(int lines) => lines >= 2 ? FamilyShape.IconButton : FamilyShape.LineButton;
 
     /// <summary>[S-11309] The fewest, the most and a new mixer's rows.</summary>
     public const int MinRows = 1, MaxRows = 12, DefaultRows = 4;

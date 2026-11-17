@@ -456,8 +456,6 @@ public static class SettingsTransfer
         Line(Str.Shell_Transfer_StartupLength, old.IntroAnimationMs, @new.IntroAnimationMs, Ms);
         Line(Str.Shell_Toolbar_OverEdgeName, old.OverEdge, @new.OverEdge, OnOff);
         Line(Str.Shell_Toolbar_CollisionsName, old.WidgetCollisions, @new.WidgetCollisions, OnOff);
-        Line(Str.Settings_Style_HeaderBg_Label, old.HeaderBackgroundColor, @new.HeaderBackgroundColor, Colour);
-        Line(Str.Settings_Style_HeaderOpacity_Label, old.HeaderOpacity, @new.HeaderOpacity, Percent);
         Line(Str.Shell_Motion_Transition, old.TransitionAnimation, @new.TransitionAnimation, Intro);
         Line(Str.Shell_Transfer_TransitionLength, old.TransitionAnimationMs, @new.TransitionAnimationMs, Ms);
         Line(Str.Shell_Motion_Unlock, old.UnlockAnimation, @new.UnlockAnimation, Intro);
@@ -486,6 +484,7 @@ public static class SettingsTransfer
         }
 
         Toggle(Str.Shell_Settings_General_GameMode, old.GameModeSuspend, @new.GameModeSuspend);
+        Toggle(Str.Shell_Menu_LockWidgets, old.LockWidgets, @new.LockWidgets);
 
         // [S-3770] [S-3780] The formats and cadences every widget shares.
         void Value(string label, string before, string after)

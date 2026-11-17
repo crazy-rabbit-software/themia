@@ -29,7 +29,7 @@ namespace Themia.App.Widgets;
 /// shell ([S-1330]).
 /// </para>
 /// </summary>
-internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWidgetOwnsDrags, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWidgetOwnsDrags, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
 {
     /// <inheritdoc />
@@ -440,7 +440,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
         }
 
         _busy.IsActive = busy;
-        _header.Want(_busy, busy);
+        _line.Parts.Want(_busy, busy);
     }
 
     private void OnClipboardChanged()
@@ -452,8 +452,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
     }
 
     /// <summary>
-    /// The card's title names the folder on screen (in navigate mode, where the widget has gone);
-    /// the user's own label still wins (the card decides).
+    /// [S-12481] The tool line's label names the folder on screen (in navigate mode, where the widget has gone).
     /// </summary>
     private void PublishTitle()
     {
@@ -461,10 +460,10 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
             ? FolderPath.DisplayName(_history.Current)
             : FolderPath.DisplayName(_config.Path);
 
-        _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(title) ? null : title);
+        _line.Label = string.IsNullOrWhiteSpace(title) ? string.Empty : title;
     }
 
-    /// <summary>Change the config from the widget itself (a menu, a header button) and save it.</summary>
+    /// <summary>Change the config from the widget itself (a menu, a line button) and save it.</summary>
     private void Edit(Action<FolderConfig> change)
     {
         change(_config);
@@ -487,9 +486,6 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
 
     /// <summary>Whether Shift is held now (for Shift+arrows, which the lease delivers as plain arrows).</summary>
     private static bool ShiftDown() => SelectionInput.ShiftHeld();
-
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>A view of nothing but chrome taps (no keys of its own) still clears its own handlers on Detach.</summary>
     private void DetachInput()

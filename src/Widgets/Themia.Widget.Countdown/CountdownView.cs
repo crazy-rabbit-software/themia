@@ -18,8 +18,9 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-11303] The face is the timers' at its Size: the duration as the Readout on the Size's step with
 /// the target's date under it, sized on the widest reading of its format (<see cref="CountdownLayout.Plan"/>),
-/// and where it is on the progress bar 8 under it; the name is the card's header ([S-6037]). It sits where the
-/// widget's alignment puts it ([S-6580], centred by default).
+/// and where it is on the progress bar 8 under it; the event's name over it, in the widget's own content
+/// ([S-6037], [S-12481]: no card has a header). It sits where the widget's alignment puts it ([S-6580],
+/// centred by default).
 /// </para>
 /// <para>
 /// [S-6030] The style is how the duration draws: the text, the Chart ring of the time left with the
@@ -27,8 +28,11 @@ namespace Themia.App.Widgets;
 /// with their units under them.
 /// </para>
 /// </summary>
-internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned, IWidgetSurfaceAware
+internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
 {
+    /// <summary>[S-12481] The event's name over the face: the header's look, one line, ending in its ellipsis.</summary>
+    private readonly TextBlock _name = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary);
+
     private readonly ReadoutBlock _readout = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly ChartRing _ring = new();
     private readonly Grid _face = new();
@@ -41,7 +45,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned,
 
     private CountdownPlan _plan;
 
-    private IWidgetSurface? _surface;
     private Ticker? _ticker;
     private CountdownConfig _config = new();
 
@@ -55,23 +58,27 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned,
     {
         _face.Children.Add(_ring);
         _face.Children.Add(_readout);
+        _name.TextTrimming = TextTrimming.CharacterEllipsis;
+        _name.TextWrapping = TextWrapping.NoWrap;
+        _name.Height = FamilySpace.HeaderLine;
+        _name.Margin = new Thickness(0, 0, 0, FamilySpace.HeaderGap);
+        _column.Children.Add(_name);
         _column.Children.Add(_face);
         _column.Children.Add(_flipRow);
         _column.Children.Add(_bar);
 
-        // The content in the card's inset, under the header.
+        // The content in the card's inset; the top is the card's.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         Children.Add(_column);
     }
 
-    /// <summary>[S-6037] The name is the card's header; an untitled countdown keeps the widget's own.</summary>
-    public void Bind(IWidgetSurface surface)
+    /// <summary>[S-6037] [S-12481] The event's name over the face; an untitled countdown has no line for it.</summary>
+    private void ShowName()
     {
-        _surface = surface;
-        ShowName();
+        _name.Text = CountdownLayout.Named(_config) ? _config.Label.Trim() : string.Empty;
+        _name.Visibility = _name.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _name.HorizontalAlignment = Aligned.Horizontal(_align);
     }
-
-    private void ShowName() => _surface?.SetHeaderTitle(string.IsNullOrWhiteSpace(_config.Label) ? null : _config.Label);
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -103,6 +110,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned,
         }
 
         _align = align;
+        ShowName();
         Rebuild();
     }
 

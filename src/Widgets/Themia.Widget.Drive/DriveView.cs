@@ -14,15 +14,18 @@ using Themia.Widget.Drive;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4670]..[S-4672] One drive's share on the family's blocks: the header names it as This PC does;
+/// [S-4670]..[S-4672] One drive's share on the family's blocks: a Header widget over it names it ([S-12481]); the drive is on the reading's hover;
 /// the used share is a Readout at 28 with "419 GB free of 931 GB" under it and the Chart block's bar 8
 /// under that (<see cref="DriveFace"/>). A drive without figures (a mapped share Windows cannot reach,
 /// one still answering, an empty reader, a drive that is gone) is one Status row at the top. The drives
 /// come from the host's one walk (<see cref="IDrives"/>), never read here. Its facts are the Drive facts
 /// atom's.
 /// </summary>
-internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IWidgetJoins
 {
+    /// <summary>[S-12483] The sides a group mate joins: the block against them, no foot inset where one joins it.</summary>
+    private Themia.Sdk.Kit.JoinedSides _joins;
+
     /// <inheritdoc />
     public CardOpen? Opens => DriveModule.Opens(_config.Drive, Path.GetPathRoot(Environment.SystemDirectory));
 
@@ -47,8 +50,9 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _readout.Use(FamilyType.Big28);
         _figure.Children.Add(_readout);
         _figure.Children.Add(_bar);
-        // [S-12410] The share, its line and the bar are one block, centred in the room under the header with
-        // the foot's inset counted with it: at its natural box nothing moves, a larger box spaces it.
+        // [S-12410] The share, its line and the bar are one block, centred in the room with the foot's inset
+        // counted with it: at its natural box nothing moves, a larger box spaces it ([S-12483]: against a
+        // side a group mate joins).
         _figure.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         _status.Hide();
@@ -57,6 +61,23 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
+
+    /// <summary>[S-12483] The block (or the ring) stands against a side a group mate joins.</summary>
+    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
+    {
+        _joins = sides;
+        _figure.VerticalAlignment = Edge;
+        _figure.Margin = Family.SideInset with { Bottom = sides.Foot };
+        Lay();
+    }
+
+    /// <summary>[S-12483] Where the block stands in a taller box.</summary>
+    private VerticalAlignment Edge => _joins.Block switch
+    {
+        Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
+        Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
+        _ => VerticalAlignment.Center,
+    };
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -99,7 +120,6 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         _drive = _previewDrive ?? DriveRules.Pick(service.Drives, _config.Drive, SystemDrive.Root);
         LinkDrive();
-        _surface?.SetHeaderTitle(DriveRules.Title(Strings.Current, _drive));
         Lay();
     }
 

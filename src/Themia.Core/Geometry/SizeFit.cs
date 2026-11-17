@@ -88,46 +88,6 @@ public sealed record SizeLimits(AxisLimits Width, AxisLimits Height);
 public static class SizeFit
 {
     /// <summary>
-    /// [S-2444] What a header above adds to a card's height: its 20 line and the 4 under it. The inset
-    /// over it is there either way, as a card without a header above insets its view's top ([S-5700]).
-    /// </summary>
-    public const double HeaderCost = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
-
-    /// <summary>
-    /// [S-5700] What a header at the foot adds to the height, or a side strip to the width: its line, its
-    /// gap and its own inset on the card's edge, since the view keeps its inset on that side as well.
-    /// </summary>
-    public const double EdgeHeaderCost = HeaderCost + FamilySpace.Inset;
-
-    /// <summary>
-    /// [S-2444] <paramref name="sizing"/>, stated with <paramref name="stated"/> (the kind's default
-    /// header), for a card that shows <paramref name="shown"/>: a header the kind did not count adds its
-    /// line, one it counted and the card hides takes it away.
-    /// </summary>
-    public static WidgetSizing ForHeader(WidgetSizing sizing, HeaderPlacement stated, HeaderPlacement shown)
-    {
-        ArgumentNullException.ThrowIfNull(sizing);
-        var (sw, sh) = Cost(stated);
-        var (cw, ch) = Cost(shown);
-        var (dw, dh) = (cw - sw, ch - sh);
-        if (dw == 0 && dh == 0)
-        {
-            return sizing;
-        }
-
-        SizeDip Add(SizeDip s) => new(s.Width + dw, s.Height + dh);
-        SizeSteps? Shift(SizeSteps? s, double d) => s is null ? null : s with { Base = s.Base + d };
-        return sizing with
-        {
-            Min = Add(sizing.Min),
-            Natural = Add(sizing.Natural),
-            Max = Add(sizing.Max),
-            WidthSteps = Shift(sizing.WidthSteps, dw),
-            HeightSteps = Shift(sizing.HeightSteps, dh),
-        };
-    }
-
-    /// <summary>
     /// [S-2444] A widget's sizing on <paramref name="screen"/>: each DIP size times the content
     /// <paramref name="scale"/> ([S-6532]: the display's and the widget's own), as a fraction of the
     /// screen; the card paints its whole cell ([S-11884]: no gap). Null for an unusable
@@ -150,8 +110,9 @@ public static class SizeFit
         AxisLimits Axis(double min, double max, SizeSteps? steps, double screenPx)
         {
             double Cell(double dip) => dip * s / screenPx;
+            // [S-12411] A free axis no larger than the screen: its Max is the ceiling, the work area the bound.
             return steps is null
-                ? new AxisLimits(Cell(min), Cell(max))
+                ? new AxisLimits(Cell(min), Math.Max(Cell(min), Math.Min(1, Cell(max))))
                 : new AxisLimits(Cell(min), Cell(max), Cell(steps.Base), steps.Step * s / screenPx, steps.Count is { } n ? Cell(steps.At(n)) : null);
         }
 
@@ -220,7 +181,7 @@ public static class SizeFit
     /// largest step its whole cells hold (<see cref="AxisLimits.Holds"/>), never the step its rounding
     /// comes nearest.
     /// </summary>
-    public static WidgetConfig ConfigFor(WidgetConfig config, FracRect cell, ScreenMetrics screen, double scale, HeaderPlacement shown, SizeLimits? limits)
+    public static WidgetConfig ConfigFor(WidgetConfig config, FracRect cell, ScreenMetrics screen, double scale, SizeLimits? limits)
     {
         ArgumentNullException.ThrowIfNull(config);
         if (!screen.IsUsable)
@@ -229,27 +190,18 @@ public static class SizeFit
         }
 
         var held = limits is null ? cell : cell with { W = limits.Width.Holds(cell.W), H = limits.Height.Holds(cell.H) };
-        return ConfigAt(config, Wanted(held, screen, scale), shown);
+        return ConfigAt(config, Wanted(held, screen, scale));
     }
 
     /// <summary>
-    /// [S-2442] The config a card box of <paramref name="box"/> DIPs (at widget scale 1, its header
-    /// <paramref name="shown"/> included) means, for a kind that has the hook: what a resize to that box
+    /// [S-2442] The config a card box of <paramref name="box"/> DIPs (at widget scale 1) means, for a kind that has the hook: what a resize to that box
     /// gives, and what the renders draw a kind's min, natural and max with ([S-2448]). The
     /// config itself (the same instance) for every other kind or when the kind answers with it.
     /// </summary>
-    public static WidgetConfig ConfigAt(WidgetConfig config, SizeDip box, HeaderPlacement shown)
+    public static WidgetConfig ConfigAt(WidgetConfig config, SizeDip box)
     {
         ArgumentNullException.ThrowIfNull(config);
-        if (ModuleCatalog.Of(config.Kind).SizeSets is not { } sets)
-        {
-            return config;
-        }
-
-        // The kind counts its default header; the card's own header is taken off before it is asked.
-        var (cw, ch) = Cost(shown);
-        var (sw, sh) = Cost(WidgetInstance.DefaultHeader(config.Kind));
-        return sets(config, new SizeDip(box.Width - (cw - sw), box.Height - (ch - sh)));
+        return ModuleCatalog.Of(config.Kind).SizeSets is { } sets ? sets(config, box) : config;
     }
 
     /// <summary>
@@ -258,41 +210,31 @@ public static class SizeFit
     /// into its sizing ([S-2446]: an axis that follows the other, as a camera's height its width, or a
     /// grid's rows its columns, takes the size its config gives).
     /// </summary>
-    public static (WidgetConfig Config, SizeDip Box) Resized(WidgetConfig config, SizeDip box, HeaderPlacement shown)
+    public static (WidgetConfig Config, SizeDip Box) Resized(WidgetConfig config, SizeDip box)
     {
-        var drawn = ConfigAt(config, box, shown);
-        return (drawn, Of(drawn, shown).Fit(box));
+        var drawn = ConfigAt(config, box);
+        return (drawn, Of(drawn).Fit(box));
     }
 
-    /// <summary>What a header at <paramref name="h"/> costs the card: its line and gap, across the edge it stands on.</summary>
-    private static (double W, double H) Cost(HeaderPlacement h) => h switch
-    {
-        HeaderPlacement.Top => (0, HeaderCost),
-        HeaderPlacement.Bottom => (0, EdgeHeaderCost),
-        HeaderPlacement.Left or HeaderPlacement.Right => (EdgeHeaderCost, 0),
-        _ => (0, 0),
-    };
-
-    /// <summary>[S-2444] A widget's sizing as its card shows it: its kind's for its config, for the header it shows.</summary>
+    /// <summary>[S-2444] A widget's sizing as its card shows it: its kind's for its config ([S-12480]: no card has a header).</summary>
     public static WidgetSizing Of(WidgetInstance widget)
     {
         ArgumentNullException.ThrowIfNull(widget);
-        return Of(widget.Config, widget.ShownHeader);
+        return Of(widget.Config);
     }
 
-    /// <summary>[S-2444] The sizing of <paramref name="config"/> on a card that shows <paramref name="shown"/>.</summary>
-    public static WidgetSizing Of(WidgetConfig config, HeaderPlacement shown)
+    /// <summary>[S-2444] The sizing of <paramref name="config"/>: its kind's.</summary>
+    public static WidgetSizing Of(WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return ForHeader(ModuleCatalog.Of(config.Kind).Sizing(config), WidgetInstance.DefaultHeader(config.Kind), shown);
+        return ModuleCatalog.Of(config.Kind).Sizing(config);
     }
 
     /// <summary>
     /// [S-2448] The sizing a new widget of <paramref name="kind"/> has in <paramref name="style"/> (its
-    /// default config, that style), on a card showing <paramref name="header"/> (its default when null):
-    /// what the renders and the showcase draw a kind at.
+    /// default config, that style): what the renders and the showcase draw a kind at.
     /// </summary>
-    public static WidgetSizing Of(WidgetId kind, int? style = null, HeaderPlacement? header = null)
+    public static WidgetSizing Of(WidgetId kind, int? style = null)
     {
         var config = WidgetConfig.CreateDefault(kind);
         if (style is { } chosen && config is IStyled styled)
@@ -300,9 +242,7 @@ public static class SizeFit
             styled.StyleValue = chosen;
         }
 
-        // [S-3711] A kind that can never have a header is drawn without one, whatever is asked.
-        var shown = WidgetInstance.CanHaveHeader(kind) ? header ?? WidgetInstance.DefaultHeader(kind) : HeaderPlacement.Hidden;
-        return Of(config, shown);
+        return Of(config);
     }
 
     /// <summary>[S-2448] The sizes a kind is checked at: its range, its Min, its Natural and its Max, named so.</summary>
@@ -313,7 +253,8 @@ public static class SizeFit
         [
             new(CheckedSize.Min, sizing.Min.Width, sizing.Min.Height),
             new(CheckedSize.Natural, sizing.Natural.Width, sizing.Natural.Height),
-            new(CheckedSize.Max, sizing.Max.Width, sizing.Max.Height),
+            // [S-12411] No practical Max: the large size checked is twice the natural ([S-2448]).
+            new(CheckedSize.Max, SizeStretch.Large(sizing).Width, SizeStretch.Large(sizing).Height),
         ];
     }
 

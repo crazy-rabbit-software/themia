@@ -121,7 +121,6 @@ public sealed class ShowcaseViewsTests
         foreach (var widget in views.SelectMany(v => v.Widgets))
         {
             Assert.Equal(WidgetConfig.CreateDefault(widget.Kind).GetType(), widget.Config.GetType());
-            Assert.Equal(WidgetInstance.DefaultHeader(widget.Kind), widget.Header);
         }
 
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())

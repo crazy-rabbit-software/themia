@@ -24,7 +24,7 @@ internal sealed partial class AirQualityView : IWidgetPreviewState
                 HoldSample(SampleReading(poor: true), FetchStatus.Ok);
                 break;
             case "stale":
-                // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+                // [S-7042] The answer on screen, and the last refresh failed: the status's problem glyph.
                 HoldSample(SampleReading(poor: false).Stale(FetchStatus.Offline, null), FetchStatus.Ok);
                 break;
             case "failed":

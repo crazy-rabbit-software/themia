@@ -45,10 +45,6 @@ internal static class RssMenu
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(KitMenuLines.Rows(menu, config, mostLines: config.MostLines));
         menu.Lines.Add(KitMenuLines.Columns(menu, config));
-
-        // [S-3749] How often the feeds are asked: ⚙'s, for every feed widget at once.
-        menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Feeds)));
     }
 
     /// <summary>

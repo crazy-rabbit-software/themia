@@ -58,8 +58,8 @@ public static class FileMenuEntries
             text,
             submenu ? null : () => target.Run(command),
             Danger: command == FileCommand.Delete,
-            // [S-65] Edit mode is a toggle line, as Windows' View toggles: off on the locked desktop this menu opens on.
-            Checked: command == FileCommand.EditMode ? false : null,
+            // [S-65] [S-12951] Edit mode and Lock widgets are toggle lines, as Windows' View toggles: the line says its state.
+            Checked: line.Checked,
             Disabled: !line.Enabled,
             Children: submenu ? target.Children(command) : null,
             Quick: FileMenu.Quick(command),
@@ -92,6 +92,8 @@ public static class FileMenuEntries
         FileCommand.Properties => (Glyphs.Properties, Str.Folder_Properties.Text()),
         FileCommand.IconProperties => (Glyphs.Properties, Str.Desktop_Menu_Properties.Text()),
         FileCommand.EditMode => (Glyphs.Edit, Str.Shell_Menu_EditMode.Text()),
+        FileCommand.LockWidgets => (Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text()),
+        FileCommand.HideFromView => (Glyphs.Hide, Str.Desktop_HideFromView.Text()),
         FileCommand.ShowMoreOptions => (Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text()),
         FileCommand.New => (Glyphs.Add, Str.WidgetsB_Folder_New.Text()),
         FileCommand.Refresh => (Glyphs.Refresh, Str.Common_Refresh.Text()),

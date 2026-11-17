@@ -24,11 +24,11 @@ public class BluetoothLadderTests
         var config = new BluetoothConfig();
         var sizing = kind.Sizing(config);
 
-        Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
-        Assert.Equal(36 + (4 * 40) + 12, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
-        Assert.Equal((220d, 752d), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a list, 300 x 2.5 on 4s
+        Assert.Equal(12 + (4 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + (4 * 40) + 12, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
+        Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
-        var six = Assert.IsType<BluetoothConfig>(kind.SizeSets!(config, sizing.Natural with { Height = 36 + (6 * 28) + 12 }));
+        var six = Assert.IsType<BluetoothConfig>(kind.SizeSets!(config, sizing.Natural with { Height = 12 + (6 * 28) + 12 }));
         Assert.Equal(6, six.Rows);
         Assert.Equal(4, config.Rows);
     }
@@ -89,7 +89,5 @@ public class BluetoothLadderTests
 
         Assert.Equal("Mouse · Connected · 45%", BluetoothRules.DetailLine(device, true, true, true, Locale.En));
         Assert.Equal("Mouse", BluetoothRules.DetailLine(device, false, false, true, Locale.En));
-        Assert.Equal("2 connected", BluetoothRules.ConnectedSummary(2, Locale.En));
-        Assert.Null(BluetoothRules.ConnectedSummary(0, Locale.En));
     }
 }

@@ -33,9 +33,6 @@ internal sealed class BatteryMeter : MeterPart
 
     public override WidgetId Kind => new WidgetId("battery");
 
-    /// <summary>[S-1187] The charge glyph leads the reading; the ladder measures it as the readout's glyph ([S-3860]).</summary>
-    public override bool HasBadge => true;
-
     /// <summary>[S-6272] The battery and ring styles draw the charge themselves.</summary>
     public override MeterLook Look(WidgetConfig config) => Look((config as BatteryConfig)?.Style ?? BatteryStyle.Number);
 

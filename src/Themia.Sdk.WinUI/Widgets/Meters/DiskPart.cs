@@ -78,13 +78,12 @@ public abstract class DiskPart(IWidgetHost widgetHost) : MeterPart
     private void Volumes(DiskSnapshot snapshot, IMeterHost host)
     {
         _volumes = snapshot.Volumes;
-        host.SetTitle(Title());
     }
 
     /// <summary>"1023 KB/s", as the network meter's.</summary>
     public override ReadoutText Reading => ReadoutRules.Split(Formatting.Rate(1023 * 1024));
 
-    /// <summary>[S-1161] The header's title on the reading too: the drive with the header switched off.</summary>
+    /// <summary>[S-1161] The drive the reading is about, on the reading's hover.</summary>
     public override string? ReadingTip => Title();
 
     /// <summary>[S-1821] Against the window's peak, rounded up to a doubling of 1 MB/s.</summary>
@@ -107,14 +106,12 @@ public abstract class DiskPart(IWidgetHost widgetHost) : MeterPart
             _recent.Clear();
         }
 
-        host.SetTitle(Title());
     }
 
     /// <summary>[S-1161] The title follows the hub's walk of the volumes (a label renamed, a drive plugged in).</summary>
     public override void Observe(MeterReading reading, IMeterHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
-        host.SetTitle(Title());
 
         if (reading is { Available: true, Value: { } total })
         {

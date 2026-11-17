@@ -36,19 +36,16 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-1443] Each entry is one of the family's rows ([S-6711], <see cref="ClipboardLayout.Plan"/>): its
 /// preview on one line, how much it is under it on a regular tile, its marker and when it was
-/// copied from 180 wide; the clear is the header's button; nothing but the entries.
+/// copied from 180 wide; Clear history is the card menu's line ([S-12481]); nothing but the entries.
 /// </para>
 /// </summary>
-internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetKeys, IWidgetSizeAware
+internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetSizeAware, IWidgetContextActions
 {
     private const string Scope = "clipboard-widget";
 
-    /// <summary>[S-1444] The header's clear: a header button ([S-6710]), there only while there is something to clear.</summary>
     /// <summary>[S-2050] The clock the ages read: the real one, or a preview's sample moment.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
-    private readonly HeaderParts _trailing = new();
-    private readonly Border _clear;
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroll;
     private readonly ScrollFade _fade;
@@ -76,8 +73,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     public ClipboardView(IWidgetHost host)
     {
         _host = host;
-        _clear = _trailing.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Delete, ClipboardStr.Clipboard_ClearHistory.Text(), () => _ = ConfirmClearAsync()));
-
         _scroll = new ScrollViewer
         {
             Content = _list,
@@ -93,7 +88,9 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         Children.Add(_state);
     }
 
-    public FrameworkElement? HeaderTrailing => _trailing;
+    /// <summary>[S-1500] [S-12481] Clear history, on the card menu while there is something to clear.</summary>
+    public IReadOnlyList<WidgetAction> ContextActions
+        => !_detached && Entries.Count > 0 ? [new WidgetAction(Glyphs.Delete, ClipboardStr.Clipboard_ClearHistory.Text(), () => _ = ConfirmClearAsync())] : [];
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -183,7 +180,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         ClearRows();
 
         var entries = Entries;
-        _trailing.Want(_clear, entries.Count > 0);
 
         if (entries.Count == 0)
         {
@@ -441,16 +437,15 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         _source?.Clear();
     }
 
-    /// <summary>[S-1500] The widgets' one confirmation, beside the header's clear (or the widget when it is folded away).</summary>
+    /// <summary>[S-1500] The widgets' one confirmation, beside the widget.</summary>
     private Task<bool> AskToClearAsync() => ConfirmFlyout.AskAsync(
-        _clear.XamlRoot is not null && _clear.Visibility == Visibility.Visible && _clear.ActualWidth > 0 ? _clear : this,
+        this,
         ClipboardStr.WidgetsA_Clipboard_ClearConfirm_Title.Text(),
         Str.Common_Clear.Text(),
         ClipboardStr.WidgetsA_Clipboard_ClearConfirm_Body.Text());
 
     private void OnLanguage(Locale locale)
     {
-        ToolTipService.SetToolTip(_clear, ClipboardStr.Clipboard_ClearHistory.Text());
         Render();
     }
 

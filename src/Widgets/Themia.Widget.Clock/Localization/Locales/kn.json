@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "ದಿನಾಂಕ ತೋರಿಸು",
   "clock.offsetLabel": "ಅಂತರ",
   "clock.secondsLabel": "ಸೆಕೆಂಡುಗಳನ್ನು ತೋರಿಸು",
   "clock.styleAnalog": "ಅನಲಾಗ್",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "ಸಮಯ ವಲಯ",
   "clock.tzCurrent": "ಪ್ರಸ್ತುತ: {city}",
   "locationSearch.placeholder": "ನಗರ ಹುಡುಕು…",
-  "styles.clock.date": "ದಿನಾಂಕ",
   "styles.clock.flip": "ಫ್ಲಿಪ್",
   "styles.clock.minimal": "ಕನಿಷ್ಠ",
   "styles.clock.words": "ಪದಗಳು",
@@ -30,6 +28,5 @@
   "wordClock.m40": "ಈಗ [n3] ಇಪ್ಪತ್ತು ನಿಮಿಷ ಕಡಿಮೆ",
   "wordClock.m45": "ಈಗ [n3] ಕಾಲು ಕಡಿಮೆ",
   "wordClock.m50": "ಈಗ [n3] ಹತ್ತು ನಿಮಿಷ ಕಡಿಮೆ",
-  "wordClock.m55": "ಈಗ [n3] ಐದು ನಿಮಿಷ ಕಡಿಮೆ",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "ಈಗ [n3] ಐದು ನಿಮಿಷ ಕಡಿಮೆ"
 }

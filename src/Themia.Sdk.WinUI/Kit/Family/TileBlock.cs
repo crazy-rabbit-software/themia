@@ -30,6 +30,9 @@ public sealed partial class TileBlock : Grid
     private readonly Border _circle;
     private readonly Border _circleOverlay = new() { IsHitTestVisible = false };
     private readonly FontIcon _glyph;
+
+    /// <summary>[S-12806] The glyph's box when the face gives one smaller than its step's, else 0.</summary>
+    private double _mark0;
     private readonly TextBlock _label;
     private readonly TextBlock _state;
     private readonly Grid _switchRow;
@@ -151,8 +154,9 @@ public sealed partial class TileBlock : Grid
     /// on <paramref name="name"/>'s step and a <paramref name="state"/> line on <paramref name="stateStep"/>'s
     /// (Body and Caption when not given) whether or not they say anything now.
     /// </summary>
-    public void Use(TypeStep step, double width, bool label = true, bool state = true, TypeStep? name = null, TypeStep? stateStep = null)
+    public void Use(TypeStep step, double width, bool label = true, bool state = true, TypeStep? name = null, TypeStep? stateStep = null, double mark = 0)
     {
+        _mark0 = mark;
         _width = width;
         _planLabel = label;
         _planState = state;
@@ -249,7 +253,8 @@ public sealed partial class TileBlock : Grid
         _switchGlyph.Visibility = parts.Glyph ? Visibility.Visible : Visibility.Collapsed;
         _switchLines.Visibility = parts.Lines ? Visibility.Visible : Visibility.Collapsed;
 
-        var size = _step.FontSize;
+        // [S-12806] A box too small for the step's glyph draws it in a smaller mark (the face's).
+        var size = _mark0 > 0 ? _mark0 : _step.FontSize;
         if (_look == TileLook.Round)
         {
             _circle.Width = size;

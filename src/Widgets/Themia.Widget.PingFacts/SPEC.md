@@ -25,8 +25,9 @@ window), `PingWindow.cs` (the window's statistics and the sheet, `PingWindow`, `
 - **[S-2428]** Over the window: min, average and max of the answers; jitter the mean absolute difference
   of consecutive answers (a loss between two does not break the pair; under two answers, none); loss the
   unanswered share of every probe.
-- **[S-2429]** The sheet keeps the latest latency as its hero and the status as its caption (the facts atom shows neither, [S-11023]); the
-  header's label names the host ([S-2260]). A lost probe dims the hero, its tooltip naming the host and the status.
+- **[S-2429]** The sheet keeps the latest latency as its hero and the status as its caption (the facts atom shows neither, [S-11023]);
+  no line names the host ([S-12801]: a group's Header widget does), and before any probe is back its note is the status
+  alone ("Checking…"). A lost probe dims the hero, its tooltip naming the host and the status.
 - **[S-2021]** A click on the card ([S-2000]) opens Windows' network status page
   (`ms-settings:network-status`) (a row's click stays the row's, [S-2004]); the module decides it
   (`PingFactsModule.Opens`, through its part's `Opens`).

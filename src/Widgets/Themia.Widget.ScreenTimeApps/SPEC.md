@@ -33,7 +33,7 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
 - **[S-3352]** *(Retired by [S-11510]: no ladder; what it shows is its config's.)*
 - **[S-11510]** **The list states its rows** (owner decision 2026-11-12, [S-2438]; `MaxApps` became
   Rows): `Rows` 1..20 (a new one 5) and `Lines` 1 or 2 (a new one 1) on the kit's rows contract
-  (`IKitRows`, [S-2440]): its height is 36 + its rows (28, or 40 where its Lines are two and a row has
+  (`IKitRows`, [S-2440]): its height is 12 + its day line (24, [S-12481]) + its rows (28, or 40 where its Lines are two and a row has
   figures for the second: `ScreenTimeAppsConfig.RowsShown`) + 12, 220..520 wide (a new one 300 × 188),
   dragging the bottom edge sets Rows (`KitSizing.SizeSets`). Every row has its icon, its name and its
   time at every width; the busiest apps fill the rows, the last one Other when apps are left over
@@ -44,7 +44,7 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
   layer's hover fill, the row of the app picked the selected fill and the accent pill at its start;
   nothing else in the list changes (no row dims, [S-6705]); the keyboard cursor has the Row block's ring
   ([S-1288]). Hover a row hovers the app; click selects (again: lets go); the space under
-  the rows clears. A past day pinned in the header ([S-454]) goes back to today from the card menu.
+  the rows clears. A past day pinned on its day line, its first line ([S-454], [S-12481]), goes back to today from the card menu.
 - **[S-3354]** Keys: Up/Down, PgUp/PgDn, Home/End move the cursor down the list; Enter/Space select;
   Left / Right step the day (a day period); Menu hides; Escape lets the cursor go and keeps the
   selection (Escape also arrives when the lease ends).

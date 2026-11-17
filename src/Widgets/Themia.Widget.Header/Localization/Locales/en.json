@@ -1,0 +1,12 @@
+{
+  "$englishOnly": ["header.label", "header.desc", "header.title", "header.titleDefault", "header.caption", "header.icon", "header.noIcon", "header.sampleTitle", "header.showsPlace"],
+  "header.label": "Header",
+  "header.desc": "A title over your widgets",
+  "header.title": "Title",
+  "header.titleDefault": "Title",
+  "header.caption": "Caption",
+  "header.icon": "Icon",
+  "header.noIcon": "None",
+  "header.sampleTitle": "My day",
+  "header.showsPlace": "Show the place"
+}

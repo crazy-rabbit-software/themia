@@ -18,7 +18,7 @@ internal sealed partial class ExchangeRateView : IWidgetPreviewState
             case "sample":
                 return ShowSampleAsync();
             case "stale":
-                // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+                // [S-7042] The answer on screen, and the last refresh failed: the status's problem glyph.
                 HoldSample(SampleRates.Table().Stale(FetchStatus.Offline, null));
                 break;
         }

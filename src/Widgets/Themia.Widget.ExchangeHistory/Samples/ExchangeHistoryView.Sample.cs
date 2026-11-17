@@ -23,7 +23,6 @@ internal sealed partial class ExchangeHistoryView : IWidgetSample
         _config = sample;
         _table = table;
         _web = null;
-        PublishTitle();
         Render();
     }
 }

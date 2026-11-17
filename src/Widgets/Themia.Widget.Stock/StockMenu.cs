@@ -11,8 +11,8 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-2778] The price's options, all on its properties menu ([S-3719]): Appearance, the symbol as a
 /// search ([S-1307], [S-3722]) and the holding (its row, [S-2777]); after a divider the period, the
-/// extended hours where they apply ([S-1308]: their row) and the closed market's line; after another
-/// the update interval's link (the SDK's <see cref="StockQuoteLines"/>, the chart's too). It has no settings page.
+/// extended hours where they apply ([S-1308]: their row) and the closed market's line. How often the markets are
+/// asked is ⚙'s and the price just follows it ([S-3590]). It has no settings page.
 /// </summary>
 internal static class StockMenu
 {
@@ -37,8 +37,6 @@ internal static class StockMenu
             lines.Add(menu.Toggle(Glyphs.Moon, StockStr.Stocks_MarketHours.Text(), config.ShowMarketState, on => config.ShowMarketState = on));
         }
 
-        lines.Add(ItemMenuEntry.Separator);
-        lines.Add(StockQuoteLines.Updates(menu));
     }
 
     /// <summary>

@@ -1,355 +1,75 @@
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using Themia.App.Widgets;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-6710] The Header block: [glyph 16] 8 [name, BodyStrong, secondary, ellipsis] … [trailing], one
-/// line of 20, the card's header (it sits in the card's <see cref="Family.HeaderInset"/>). The
-/// trailing slot is the view's own element: <see cref="HeaderParts"/> of family parts
-/// (<see cref="Button"/>, <see cref="Count"/>, a problem glyph, a ring, a label; the kit's
-/// <c>KitHeader</c>) fold by <see cref="HeaderRules"/>; a lone label ("by CPU") gives way to the
-/// name by [S-655]'s rule.
+/// [S-6710] [S-9601] The Header block, the family's header look: [glyph 16] 8 [name, BodyStrong, secondary,
+/// ellipsis], one line of 20, and an optional caption under it (Caption, tertiary). It is the Header widget's
+/// ([S-9600]) and nobody else's: no card has a header ([S-12480]). It lies at the start, the middle or the
+/// end of its box; a glyph left empty takes no room.
 /// </summary>
-public sealed partial class HeaderBlock : Grid
+public sealed partial class HeaderBlock : StackPanel
 {
-    private readonly TextBlock _title;
-    private readonly FrameworkElement? _trailing;
+    private readonly FontIcon _glyph = Family.Glyph(string.Empty);
+    private readonly TextBlock _title = new();
+    private readonly TextBlock _caption = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, string.Empty);
+    private readonly Grid _line;
 
-    public HeaderBlock(string glyph, TextBlock title, FrameworkElement? trailing = null)
+    public HeaderBlock()
     {
-        ArgumentNullException.ThrowIfNull(title);
+        _glyph.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
+        _glyph.VerticalAlignment = VerticalAlignment.Center;
 
-        _title = title;
-        _trailing = trailing;
-
-        var icon = Family.Glyph(glyph);
-        icon.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
-
-        Family.Step(title, FamilyType.BodyStrong);
-        title.Foreground = Family.Brush(ColourRole.TextSecondary);
-        title.VerticalAlignment = VerticalAlignment.Center;
+        Family.Step(_title, FamilyType.BodyStrong);
+        _title.Foreground = Family.Brush(ColourRole.TextSecondary);
+        _title.VerticalAlignment = VerticalAlignment.Center;
 
         // [S-640] A name that does not fit ends in an ellipsis: a Grid does not clip a child to its cell.
-        title.TextTrimming = TextTrimming.CharacterEllipsis;
-        title.TextWrapping = TextWrapping.NoWrap;
+        _title.TextTrimming = TextTrimming.CharacterEllipsis;
+        _title.TextWrapping = TextWrapping.NoWrap;
+        _caption.TextTrimming = TextTrimming.CharacterEllipsis;
+        _caption.TextWrapping = TextWrapping.NoWrap;
 
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        SetColumn(icon, 0);
-        SetColumn(title, 1);
-        Children.Add(icon);
-        Children.Add(title);
-
-        if (trailing is null)
+        _line = new Grid
         {
-            return;
-        }
-
-        trailing.VerticalAlignment = VerticalAlignment.Center;
-        SetColumn(trailing, 2);
-        Children.Add(trailing);
-
-        // [S-655] A label that only informs gives way to the title on a narrow tile (HeaderFit),
-        // through MaxWidth, never Visibility, which views already set on their own labels. A label
-        // beside the kit's header extras is one of their parts and folds with them.
-        if (trailing is TextBlock label)
-        {
-            label.TextTrimming = TextTrimming.CharacterEllipsis;
-            SizeChanged += (_, args) => label.MaxWidth = HeaderFit.TrailingLabelWidth(args.NewSize.Width, HeaderRules.Leading);
-        }
-        else if (trailing is HeaderParts parts)
-        {
-            parts.Margin = new Thickness(FamilySpace.S2, 0, 0, 0);
-            _parts = parts;
-        }
-    }
-
-    private readonly HeaderParts? _parts;
-
-    /// <summary>[S-6710] Fold the trailing parts to the width the layout offers, in the measure pass.</summary>
-    protected override Windows.Foundation.Size MeasureOverride(Windows.Foundation.Size availableSize)
-    {
-        if (_parts is not null && double.IsFinite(availableSize.Width))
-        {
-            _parts.Fold(availableSize.Width, NameWidth());
-        }
-
-        return base.MeasureOverride(availableSize);
-    }
-
-    /// <summary>The name's whole width, as it would stand with room to spare.</summary>
-    private double NameWidth()
-    {
-        var copy = new TextBlock { Text = _title.Text, FontSize = _title.FontSize, FontWeight = _title.FontWeight, FontFamily = _title.FontFamily };
-        copy.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-        return copy.DesiredSize.Width;
-    }
-
-    /// <summary>
-    /// [S-6710] A header button: 24 × 24, a 16 glyph in the secondary role, the one radius, the subtle
-    /// fills on hover and press (a control, never the item layer's). It stands 2 over the header's line
-    /// either way, so a header with buttons is still one line of 20 and its name does not move.
-    /// </summary>
-    public static Border Button(string glyph, string tooltip, Action run)
-    {
-        ArgumentNullException.ThrowIfNull(run);
-
-        var element = new Border
-        {
-            Child = Family.Glyph(glyph),
-            Width = FamilyShape.HeaderButton,
-            Height = FamilyShape.HeaderButton,
-            CornerRadius = Family.Radius,
-            Background = Family.Brush(ColourRole.Clear),
-            Margin = new Thickness(0, -FamilySpace.ButtonOverflow, 0, -FamilySpace.ButtonOverflow),
+            Height = FamilySpace.HeaderLine,
+            ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+            },
+            Children = { _glyph, _title },
         };
+        Grid.SetColumn(_title, 1);
+        Children.Add(_line);
+        Children.Add(_caption);
+        Show(string.Empty, null, null, HorizontalAlignment.Left);
+    }
 
-        ToolTipService.SetToolTip(element, tooltip);
-        AutomationProperties.SetName(element, tooltip);
-        element.PointerEntered += (_, _) => element.Background = Family.Brush(ColourRole.Subtle);
-        element.PointerExited += (_, _) => element.Background = Family.Brush(ColourRole.Clear);
-        element.PointerCanceled += (_, _) => element.Background = Family.Brush(ColourRole.Clear);
-        element.PointerPressed += (_, _) => element.Background = Family.Brush(ColourRole.SubtlePressed);
-        element.Tapped += (_, args) =>
+    /// <summary>
+    /// Show <paramref name="title"/> with <paramref name="glyph"/> before it (none: no room for one) and
+    /// <paramref name="caption"/> under it (none: no line), the lot at <paramref name="align"/>.
+    /// </summary>
+    public void Show(string title, string? glyph, string? caption, HorizontalAlignment align)
+    {
+        _title.Text = title ?? string.Empty;
+        _glyph.Glyph = glyph ?? string.Empty;
+        _glyph.Visibility = string.IsNullOrEmpty(glyph) ? Visibility.Collapsed : Visibility.Visible;
+        _caption.Text = caption ?? string.Empty;
+        _caption.Visibility = string.IsNullOrWhiteSpace(caption) ? Visibility.Collapsed : Visibility.Visible;
+
+        // Centred or at the end the line is as wide as its words; at the start the name takes the rest, so it can end in its ellipsis.
+        _line.ColumnDefinitions[1].Width = align == HorizontalAlignment.Left ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        _line.HorizontalAlignment = align;
+        _caption.HorizontalAlignment = align;
+        _caption.TextAlignment = align switch
         {
-            args.Handled = true;
-            run();
+            HorizontalAlignment.Center => TextAlignment.Center,
+            HorizontalAlignment.Right => TextAlignment.Right,
+            _ => TextAlignment.Left,
         };
-
-        return element;
     }
-
-    /// <summary>
-    /// [S-6706] The count pill: Caption in the primary role on the subtle fill, round, 16 tall — neutral,
-    /// never the accent.
-    /// </summary>
-    public static Border Count(TextBlock text)
-    {
-        ArgumentNullException.ThrowIfNull(text);
-
-        Family.Step(text, FamilyType.Caption);
-        text.Foreground = Family.Brush(ColourRole.TextPrimary);
-        text.HorizontalAlignment = HorizontalAlignment.Center;
-        text.VerticalAlignment = VerticalAlignment.Center;
-
-        var pill = new Border
-        {
-            Child = text,
-            Height = FamilyShape.PillHeight,
-            MinWidth = FamilyShape.PillHeight,
-            CornerRadius = Family.Round(FamilyShape.PillHeight, FamilyShape.PillHeight),
-            Background = Family.Brush(ColourRole.Subtle),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        // The pill is its text and 6 either side ([S-6706]), as a size the text sets rather than a
-        // padding: a padding of 6 is off the space scale the render walk holds every padding to.
-        text.SizeChanged += (_, args) => pill.Width = Math.Max(FamilyShape.PillHeight, args.NewSize.Width + (2 * FamilyShape.PillPadding));
-        return pill;
-    }
-
-    /// <summary>[S-6710] The problem glyph: the caution warning, its lines in the tooltip.</summary>
-    public static FontIcon Problem(string lines)
-    {
-        var icon = Family.Glyph(Themia.App.Shell.Glyphs.Warning, FamilyShape.Icon, ColourRole.Caution);
-        ToolTipService.SetToolTip(icon, lines);
-        return icon;
-    }
-
-    /// <summary>[S-6710] The busy ring: 16, while a fetch is out.</summary>
-    public static ProgressRing Busy() => new()
-    {
-        Width = FamilyShape.Icon,
-        Height = FamilyShape.Icon,
-        IsActive = true,
-        VerticalAlignment = VerticalAlignment.Center,
-    };
-
-    /// <summary>[S-6710] An informing label (an age, "by CPU"): Caption, secondary, the first part to give way.</summary>
-    public static TextBlock Label(string text) => Family.Text(FamilyType.Caption, ColourRole.TextSecondary, text);
-}
-
-/// <summary>
-/// [S-6710] A header's trailing parts, in their order (problem, ring, label, buttons, count), folded
-/// to the header's width by <see cref="HeaderRules"/>: the label first, then the buttons from the
-/// last, then the count; the name is cut only when nothing is left to give way.
-/// </summary>
-public partial class HeaderParts : StackPanel
-{
-    private readonly List<(HeaderPartKind Kind, FrameworkElement Element)> _parts = [];
-
-    public HeaderParts()
-    {
-        Orientation = Orientation.Horizontal;
-        VerticalAlignment = VerticalAlignment.Center;
-    }
-
-    /// <summary>Add a part of <paramref name="kind"/> in its place in the header's order; returns it.</summary>
-    public T Add<T>(HeaderPartKind kind, T element)
-        where T : FrameworkElement
-    {
-        ArgumentNullException.ThrowIfNull(element);
-        var at = HeaderRules.InsertAt([.. _parts.Select(p => p.Kind)], kind);
-        var child = at < _parts.Count ? Children.IndexOf(_parts[at].Element) : -1;
-        _parts.Insert(at, (kind, element));
-        if (child >= 0)
-        {
-            Children.Insert(child, element);
-        }
-        else
-        {
-            Children.Add(element);
-        }
-
-        Space();
-        return element;
-    }
-
-    private TextBlock? _about;
-
-    /// <summary>
-    /// [S-2260] The informing label that says where or which the widget is about (a place, an adapter, a
-    /// host), beside the name that says what it is: added the first time there is something to say,
-    /// not wanted while there is none (<see cref="HeaderRules.About"/>). The first part to give way.
-    /// </summary>
-    public void SetAbout(string? text)
-    {
-        var shown = HeaderRules.About(text);
-        if (_about is null)
-        {
-            if (shown is null)
-            {
-                return;
-            }
-
-            _about = Add(HeaderPartKind.Label, HeaderBlock.Label(shown));
-        }
-        else if (_about.Text != (shown ?? string.Empty))
-        {
-            _about.Text = shown ?? string.Empty;
-            InvalidateMeasure();
-            (Parent as UIElement)?.InvalidateMeasure();
-        }
-
-        Want(_about, shown is not null);
-        OnAboutChanged();
-    }
-
-    /// <summary>[S-2260] Whether the label of <see cref="SetAbout"/> has something to say now.</summary>
-    public bool Informs => _about is not null && !_unwanted.Contains(_about);
-
-    /// <summary>The label of <see cref="SetAbout"/> came or went: a header that hides itself with nothing to say decides again.</summary>
-    protected virtual void OnAboutChanged()
-    {
-    }
-
-    /// <summary>
-    /// Whether <paramref name="element"/> (one of the parts) has anything to say now: a problem glyph only
-    /// while there is a problem. A part that is not wanted is collapsed and takes no room; the fold
-    /// decides among the wanted ones.
-    /// </summary>
-    public void Want(FrameworkElement element, bool wanted)
-    {
-        if (wanted ? _unwanted.Remove(element) : _unwanted.Add(element))
-        {
-            // Shown at once (the header's fold, when this is its trailing slot, decides again in its
-            // measure pass): parts in a panel of a view's own are never folded.
-            element.Visibility = wanted ? Visibility.Visible : Visibility.Collapsed;
-            Space();
-            InvalidateMeasure();
-            (Parent as UIElement)?.InvalidateMeasure();
-        }
-    }
-
-    private readonly HashSet<FrameworkElement> _unwanted = [];
-
-    /// <summary>Show the parts that fit a header <paramref name="width"/> wide whose name needs <paramref name="nameWidth"/>.</summary>
-    public void Fold(double width, double nameWidth)
-    {
-        // Only the wanted parts are folded: one with nothing to say takes no room and no gap.
-        var wanted = _parts.Select(p => !_unwanted.Contains(p.Element)).ToList();
-        var shown = HeaderRules.Shown(width, nameWidth, [.. _parts.Select((p, i) => new HeaderPart(p.Kind, wanted[i] ? Measured(p.Element) : 0))], wanted);
-        var any = false;
-        for (var i = 0; i < _parts.Count; i++)
-        {
-            var element = _parts[i].Element;
-            var visible = shown[i];
-            any |= visible;
-            var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
-            if (element.Visibility != visibility)
-            {
-                element.Visibility = visibility;
-            }
-        }
-
-        // With every part folded away the gap before them goes too, as HeaderRules.Needs counts it.
-        var margin = new Thickness(any ? FamilySpace.S2 : 0, 0, 0, 0);
-        if (Margin != margin)
-        {
-            Margin = margin;
-        }
-
-        Space();
-    }
-
-    /// <summary>The gaps between the shown parts, and the last button's glyph on the inset.</summary>
-    private void Space()
-    {
-        HeaderPartKind? previous = null;
-        FrameworkElement? last = null;
-        var margins = new Dictionary<FrameworkElement, Thickness>();
-        foreach (var (kind, element) in _parts)
-        {
-            if (element.Visibility != Visibility.Visible)
-            {
-                continue;
-            }
-
-            margins[element] = new Thickness(previous is { } before ? HeaderRules.Gap(before, kind) : 0, kind == HeaderPartKind.Button ? -FamilySpace.ButtonOverflow : 0, 0, kind == HeaderPartKind.Button ? -FamilySpace.ButtonOverflow : 0);
-            previous = kind;
-            last = element;
-        }
-
-        if (last is not null && previous == HeaderPartKind.Button)
-        {
-            var m = margins[last];
-            margins[last] = new Thickness(m.Left, m.Top, -HeaderRules.ButtonOverhang, m.Bottom);
-        }
-
-        // Set only what changed: this runs in the header's measure pass.
-        foreach (var (element, margin) in margins)
-        {
-            if (element.Margin != margin)
-            {
-                element.Margin = margin;
-            }
-        }
-    }
-
-    /// <summary>A part's width, measured while it shows and remembered while it is folded away.</summary>
-    private double Measured(FrameworkElement element)
-    {
-        if (!double.IsNaN(element.Width))
-        {
-            return element.Width;
-        }
-
-        if (element.Visibility == Visibility.Visible)
-        {
-            element.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            _widths[element] = Math.Max(0, element.DesiredSize.Width - element.Margin.Left - element.Margin.Right);
-        }
-
-        return _widths.TryGetValue(element, out var width) ? width : 0;
-    }
-
-    private readonly Dictionary<FrameworkElement, double> _widths = [];
 }

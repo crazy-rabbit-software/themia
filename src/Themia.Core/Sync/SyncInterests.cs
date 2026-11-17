@@ -36,6 +36,12 @@ public sealed record SyncInterests(
     /// <summary>[S-5121] Every rain widget's place.</summary>
     public IReadOnlyList<RainInterest> Rain { get; init; } = [];
 
+    /// <summary>[S-12702] Every weather graph's place (one hourly answer per place, whatever the graph).</summary>
+    public IReadOnlyList<HoursInterest> Hours { get; init; } = [];
+
+    /// <summary>[S-12702] Every air graph's place.</summary>
+    public IReadOnlyList<AirHoursInterest> AirHours { get; init; } = [];
+
     /// <summary>[S-5147] The ECB table, when any exchange-rates widget is in a view.</summary>
     public RatesInterest? Rates { get; init; }
 
@@ -106,6 +112,18 @@ public sealed record SyncInterests(
                 .Append(',').Append(r.Longitude.ToString("R", CultureInfo.InvariantCulture)).Append('|').Append(r.Interval.Ticks).Append('#');
         }
 
+        foreach (var h in Hours)
+        {
+            text.Append("hr|").Append(h.Latitude.ToString("R", CultureInfo.InvariantCulture))
+                .Append(',').Append(h.Longitude.ToString("R", CultureInfo.InvariantCulture)).Append('|').Append(h.Interval.Ticks).Append('#');
+        }
+
+        foreach (var a in AirHours)
+        {
+            text.Append("ah|").Append(a.Latitude.ToString("R", CultureInfo.InvariantCulture))
+                .Append(',').Append(a.Longitude.ToString("R", CultureInfo.InvariantCulture)).Append('|').Append(a.Interval.Ticks).Append('#');
+        }
+
         if (Rates is { } rates)
         {
             text.Append("fx|").Append(rates.Interval.Ticks).Append('#');
@@ -148,6 +166,8 @@ public sealed record SyncInterests(
             AccountInterval = interests.AccountInterval,
             Air = interests.Of<AirInterest>(),
             Rain = interests.Of<RainInterest>(),
+            Hours = [.. interests.Of<HoursInterest>().Distinct()],
+            AirHours = [.. interests.Of<AirHoursInterest>().Distinct()],
 
             // [S-5140] Every exchange-rates widget wants the same one table.
             Rates = interests.Of<RatesInterest>().FirstOrDefault(),

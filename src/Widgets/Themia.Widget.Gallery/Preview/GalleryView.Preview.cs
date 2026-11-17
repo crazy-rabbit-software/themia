@@ -24,7 +24,6 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             _watch?.Dispose();
             _watch = null;
             _config = new GalleryConfig { Source = GallerySource.Folder, Path = PreviewFolder };
-            PublishTitle();
             _scan = GalleryScan.Of(state switch { "empty" => GalleryStatus.NoImages, "missing" => GalleryStatus.NotFound, _ => GalleryStatus.Failed });
             _pictures = [];
             Lay();
@@ -41,7 +40,6 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             _watch?.Dispose();
             _watch = null;
             _config = new GalleryConfig { Source = GallerySource.File, FilePath = logo, Rotation = -15, Outline = true, OutlineColor = StickerRules.DefaultOutlineColor, OutlineWidth = 6 };
-            PublishTitle();
             _scan = new GalleryScan(GalleryStatus.Ok, [logo]);
             Select(keepPath: null, index: 0);
             _slideTimer?.Stop();

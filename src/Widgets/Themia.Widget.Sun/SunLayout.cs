@@ -5,7 +5,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-11111] The sun's graphic and its sizes. It starts headerless (a picture says what it is), so a
+/// [S-11111] The sun's graphic and its sizes. A picture says what it is, so a
 /// card is the graphic in the inset: the arc as wide and as tall as its box (200..480 wide; its height
 /// half its content's width at the natural size, a free range round it: a flatter or taller sky), the
 /// day bar one dot tall at one height. Nothing else is drawn: the times are the sun times' atom.
@@ -22,7 +22,7 @@ public static class SunLayout
     /// <summary>A new card's width.</summary>
     public const double Start = 280;
 
-    /// <summary>[S-11111] The graphic's sizing (headerless: the inset round the graphic).</summary>
+    /// <summary>[S-11111] The graphic's sizing (the inset round the graphic).</summary>
     public static WidgetSizing Sizing(SunConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);

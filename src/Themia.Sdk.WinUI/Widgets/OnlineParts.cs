@@ -8,9 +8,9 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-5160] [S-7042] What the online widgets share: their one answer as the kit's one stale rule
-/// reads it. While the answer on screen is one the last attempt could not improve on, the header's
-/// problem glyph (<c>KitHeader</c>) says so ("No network · updated 10:42"); the card menu's Refresh
-/// line says how old it is. The age itself is never drawn in the header. With no answer at all, the
+/// reads it. While the answer on screen is one the last attempt could not improve on, the status's
+/// problem glyph (<c>KitStatus</c>, [S-12481]) says so ("No network · updated 10:42"); the card menu's
+/// Refresh line says how old it is. The age itself is never drawn on the widget. With no answer at all, the
 /// state is the Status block's row at the top of the content ([S-6734]).
 /// </summary>
 public static class OnlineParts
@@ -23,7 +23,7 @@ public static class OnlineParts
         return new KitOutcome(null, held.Status, null, held.Value is null ? null : held.At);
     }
 
-    /// <summary>The header's problem lines: none while the answer on screen is the last attempt's, or nothing is on screen.</summary>
+    /// <summary>The status's problem lines: none while the answer on screen is the last attempt's, or nothing is on screen.</summary>
     public static IReadOnlyList<string> Problems<T>(Fetched<T>? held)
         where T : class
         => held is { Value: not null } ? KitFreshness.Lines(Strings.Current, [Outcome(held)], DateTimeOffset.Now) : [];

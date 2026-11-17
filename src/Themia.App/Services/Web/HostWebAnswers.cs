@@ -42,6 +42,10 @@ internal sealed class HostWeatherAnswers : IWeatherAnswers
 
     public string Key(RainInterest want) => WebSync.Key(want);
 
+    public string Key(HoursInterest want) => WebSync.Key(want);
+
+    public string Key(AirHoursInterest want) => WebSync.Key(want);
+
     public Fetched<CurrentWeather>? Reading(WeatherInterest want)
         => AppServices.WebSync is { } web ? web.Reading(want) : WeatherService.PeekCurrent(want.Latitude, want.Longitude, want.Unit);
 
@@ -55,7 +59,17 @@ internal sealed class HostWeatherAnswers : IWeatherAnswers
     public Fetched<RainNowcast>? Rain(RainInterest want)
         => AppServices.WebSync is { } web ? web.Rain(want) : OnlineService.PeekRain(want.Latitude, want.Longitude);
 
+    public Fetched<WeatherHours>? Hours(HoursInterest want)
+        => AppServices.WebSync is { } web ? web.Hours(want) : OnlineService.PeekHours(want.Latitude, want.Longitude);
+
+    public Fetched<AirHours>? AirHours(AirHoursInterest want)
+        => AppServices.WebSync is { } web ? web.AirHours(want) : OnlineService.PeekAirHours(want.Latitude, want.Longitude);
+
     public void Show(WeatherInterest want, bool refresh) => AppServices.WebSync?.Show(want, refresh);
+
+    public void Show(HoursInterest want, bool refresh) => AppServices.WebSync?.Show(want, refresh);
+
+    public void Show(AirHoursInterest want, bool refresh) => AppServices.WebSync?.Show(want, refresh);
 
     public void Show(AirInterest want, bool refresh) => AppServices.WebSync?.Show(want, refresh);
 

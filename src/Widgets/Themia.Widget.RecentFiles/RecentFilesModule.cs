@@ -39,7 +39,7 @@ public sealed class RecentFilesModule : IWidgetModule
         Glyph = Glyph,
         Sizing = c => KitSizing.Sizing(((RecentFilesConfig)c).RowsShown, addFooter: false),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((RecentFilesConfig)c).RowsShown, addFooter: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredFile], [LinkTopicId.HoveredFile]),
         Add = new(AddFolderId.Files, 0, 2),
     };

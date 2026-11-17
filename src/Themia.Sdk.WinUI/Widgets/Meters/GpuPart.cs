@@ -65,13 +65,11 @@ public abstract class GpuPart : MeterPart
         // in the disabled look, the reason on hover — never an empty state in its place.
         if (snapshot.Adapters.Count == 0 || _index >= snapshot.Readings.Count)
         {
-            host.SetAbout(null);
             host.SetAbsent(snapshot.Adapters.Count == 0 ? Str.Details_Gpu_NoAdapter.Text() : Str.Details_Gpu_AdapterMissing.Text());
             return;
         }
 
         host.SetAbsent(null);
-        host.SetAbout(GpuRules.ShortName(snapshot.Readings[_index].Name));
     }
 
     /// <summary>[S-6322] [S-11006] The four engine types, in their order, as the newest snapshot has them ("--" for one it lacks).</summary>

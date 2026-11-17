@@ -35,7 +35,7 @@ public sealed class StopwatchModule : IWidgetModule
         Glyph = Glyph,
         Sizing = c => StopwatchFace.Sizing((StopwatchConfig)c, Strings.Current),
         SizeSets = (c, s) => StopwatchFace.SizeSets((StopwatchConfig)c, s),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 3),
     };
 

@@ -34,17 +34,17 @@ public sealed class CpuFactsTests
         var config = new CpuFactsConfig();
         var sizing = Kind.Sizing(config);
         Assert.Empty(sizing.Problems());
-        Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
-        Assert.Equal(36 + (CpuDetailRules.Facts.Count * 28) + 12, sizing.Max.Height);
+        Assert.Equal(12 + (4 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + (CpuDetailRules.Facts.Count * 28) + 12, sizing.Max.Height);
 
         config.Facts = ["uptime", "speed"];
-        var grown = Assert.IsType<CpuFactsConfig>(Kind.SizeSets!(config, new SizeDip(240, 36 + (4 * 28) + 12)));
+        var grown = Assert.IsType<CpuFactsConfig>(Kind.SizeSets!(config, new SizeDip(240, 12 + (4 * 28) + 12)));
         Assert.Equal(["uptime", "speed", "baseSpeed", "cores"], grown.Facts);
         Assert.Equal(["uptime", "speed"], config.Facts);
 
-        var cut = Assert.IsType<CpuFactsConfig>(Kind.SizeSets!(grown, new SizeDip(240, 36 + 28 + 12)));
+        var cut = Assert.IsType<CpuFactsConfig>(Kind.SizeSets!(grown, new SizeDip(240, 12 + 28 + 12)));
         Assert.Equal(["uptime"], cut.Facts);
-        Assert.Same(grown, Kind.SizeSets!(grown, new SizeDip(400, 36 + (4 * 28) + 12)));
+        Assert.Same(grown, Kind.SizeSets!(grown, new SizeDip(400, 12 + (4 * 28) + 12)));
     }
 
     [Fact]

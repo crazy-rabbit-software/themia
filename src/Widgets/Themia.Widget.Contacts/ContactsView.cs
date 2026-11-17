@@ -28,14 +28,14 @@ namespace Themia.App.Widgets;
 /// given; searching, capping and switching layouts redraw from that list without asking again.
 /// </para>
 /// <para>
-/// It is drawn from the family's parts ([S-6711]..[S-6714]): the kit's header extras (the problem
-/// glyph, the ring, the search button, the neutral count), Row blocks of one, two or three lines by
+/// It is drawn from the family's parts ([S-6711]..[S-6714]): the kit's status (the problem glyph and
+/// the ring over the content's top end, [S-12481]), Row blocks of one, two or three lines by
 /// the tier leading with a 32 monogram (<see cref="ContactsPlan"/>, [S-1270]), the table's cells in
 /// a Row block, <c>Row.Cell</c>s for the grid, and the kit's state row. No detail pane beside the
 /// list at any size ([S-1274] retired).
 /// </para>
 /// </summary>
-internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => ContactsModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Contacts));
@@ -52,7 +52,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
     private readonly KitStatePanel _state;
-    private readonly KitHeader _header;
+    private readonly KitStatus _status;
     private ScrollFade? _fade;
     private readonly List<IDisposable> _hovers = [];
     private readonly Dictionary<string, FrameworkElement> _rows = new(StringComparer.Ordinal);
@@ -92,7 +92,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     {
         _widgetHost = host;
         _state = new(Glyphs.Contact, host) { Visibility = Visibility.Collapsed };
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -132,6 +132,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         Children.Add(_scroll);
         Children.Add(_state);
 
+        // [S-12481] The problem glyph and the ring over the content's top end.
+        _status.Place(this);
+
         // [S-580] Clicking the background clears the selection, as the classic widget did. A click
         // anywhere else — another widget, the desktop, another app — ends the shell's keyboard lease,
         // which this widget holds from the click that selected, and that arrives as Escape ([S-807]).
@@ -147,9 +150,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         Problem,
         Ready,
     }
-
-    /// <summary>[S-7064] The kit's header extras: the problem glyph, the ring, the search button, the count.</summary>
-    public FrameworkElement? HeaderTrailing => _header;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -195,7 +195,14 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         Render();
     }
 
-    public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
+    /// <summary>[S-12481] Refresh, and Search while the box is on request and not shown (what the header's button was).</summary>
+    public IReadOnlyList<WidgetAction> ContextActions
+        => OffersSearch
+            ? [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true)), new(Glyphs.Search, ContactsStr.Contacts_SearchPlaceholder.Text(), OpenSearch)]
+            : [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
+
+    /// <summary>[S-1275] The list is up and its search box is on request and closed.</summary>
+    private bool OffersSearch => _screen == Screen.Ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && !SearchShown(true);
 
     public void Detach()
     {
@@ -222,7 +229,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _search.KeyDown -= OnSearchKeyDown;
         Tapped -= OnBackgroundTapped;
         _state.Detach();
-        _header.Detach();
+        _status.Detach();
         ClearRows();
         _links.Leave();
     }
@@ -338,7 +345,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private void SetBusy(bool busy)
     {
         _busy = busy;
-        ShowHeader();
+        ShowStatus();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -364,7 +371,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     {
         _surface?.RequestTextInput(false);
 
-        // [S-1275] A box opened from the header folds away again once it is left empty.
+        // [S-1275] A box opened from the card menu folds away again once it is left empty.
         if (_searchOpen && _query.Length == 0)
         {
             _searchOpen = false;
@@ -381,7 +388,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
     }
 
-    /// <summary>[S-1275] The header's search button opens the box and puts the caret in it.</summary>
+    /// <summary>[S-1275] The card menu's Search opens the box and puts the caret in it.</summary>
     private void OpenSearch()
     {
         _searchOpen = true;
@@ -482,17 +489,15 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _fade.Refresh();
     }
 
-    /// <summary>[S-7064] The header extras: the problem glyph while a list is up with an account that failed, the ring, the search button, the count.</summary>
-    private void ShowHeader()
+    /// <summary>[S-12481] The status: the problem glyph while a list is up with an account that failed, and the ring.</summary>
+    private void ShowStatus()
     {
         var ready = _screen == Screen.Ready;
         var problems = ready && _warningText is not null ? _warningText().Split(Environment.NewLine) : [];
-        var search = ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && !SearchShown(ready);
-        IReadOnlyList<KitHeaderButton> buttons = search ? [new KitHeaderButton(Glyphs.Search, ContactsStr.Contacts_SearchPlaceholder.Text(), OpenSearch)] : [];
-        _header.Show(problems, _busy, _warningOpensAccounts, ready && _visible.Count > 0 ? _visible.Count : null, buttons);
+        _status.Show(problems, _busy, _warningOpensAccounts);
     }
 
-    /// <summary>[S-11406] The box is there when the config has it, else on request through the header's button.</summary>
+    /// <summary>[S-11406] The box is there when the config has it, else on request through the card menu's Search.</summary>
     private bool SearchShown(bool ready)
     {
         var search = ContactRules.Search(_config.SearchBox);
@@ -517,7 +522,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         // A search typed into a box that has since been hidden still filters; the box shows the
         // query again as soon as there is room for it.
         _visible = ready ? ContactRules.Visible(_contacts, _query, _config.EffectiveCount) : [];
-        ShowHeader();
+        ShowStatus();
 
         switch (_screen)
         {

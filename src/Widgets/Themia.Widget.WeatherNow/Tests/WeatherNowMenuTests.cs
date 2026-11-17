@@ -29,7 +29,7 @@ public sealed class WeatherNowMenuTests
     }
 
     [Fact]
-    public void S6174_the_first_level_is_appearance_then_use_my_location_the_location_search_and_the_links()
+    public void S6174_the_first_level_is_appearance_then_use_my_location_the_location_search_and_no_link()
     {
         var lines = Build(new WeatherNowConfig());
 
@@ -40,10 +40,7 @@ public sealed class WeatherNowMenuTests
             {
                 Assert.NotNull(location.Search);
                 Assert.Equal(Str.Shell_Place_Location.Text(), location.Text);
-            },
-            divider => Assert.True(divider.IsSeparator),
-            unit => Assert.Equal((Str.Weather_UnitLabel.Text(), Str.LanguageRegion_Nav.Text()), (unit.Text, unit.LinkTo)),
-            updates => Assert.Equal((Str.EditBar_Link_UpdateInterval.Text(), Str.SettingsMenu_OnlineUpdates.Text()), (updates.Text, updates.LinkTo)));
+            });
     }
 
     [Fact]

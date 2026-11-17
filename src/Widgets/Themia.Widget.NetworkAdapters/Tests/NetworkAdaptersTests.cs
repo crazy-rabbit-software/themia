@@ -16,8 +16,8 @@ public sealed class NetworkAdaptersTests
     public void S11021_four_rows_of_two_lines_and_a_dragged_edge_sets_them()
     {
         var sizing = Kind.SizingOf();
-        Assert.Equal(36 + (4 * 40) + 12, sizing.Natural.Height);
-        var three = Assert.IsType<NetworkAdaptersConfig>(Kind.SizeSets!(new NetworkAdaptersConfig(), new SizeDip(300, 36 + (3 * 40) + 12)));
+        Assert.Equal(12 + (4 * 40) + 12, sizing.Natural.Height);
+        var three = Assert.IsType<NetworkAdaptersConfig>(Kind.SizeSets!(new NetworkAdaptersConfig(), new SizeDip(300, 12 + (3 * 40) + 12)));
         Assert.Equal(3, three.Rows);
         Assert.Equal(7, ((NetworkAdaptersConfig)new NetworkAdaptersConfig { Rows = 7 }.Clone()).Rows);
     }

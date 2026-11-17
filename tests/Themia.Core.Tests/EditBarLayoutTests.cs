@@ -219,19 +219,20 @@ public sealed class EditBarLayoutTests
         static string Name(WidgetId kind) => kind == Clock ? "Clock" : "Other";
 
         Assert.Null(SelectionPage.Words(QuickSetOffer.None, Name));
-        Assert.Equal("Clock", SelectionPage.Words(new QuickSetOffer(1, null, null, "w", Clock, "Kitchen") { CommonKind = Clock }, Name));
-        Assert.Equal("2 × Clock", SelectionPage.Words(new QuickSetOffer(2, null, null, null, null, null) { CommonKind = Clock }, Name));
-        Assert.Equal("3 widgets", SelectionPage.Words(new QuickSetOffer(3, null, null, null, null, null), Name));
+        Assert.Equal("Clock", SelectionPage.Words(new QuickSetOffer(1, null, "w", Clock, "Kitchen") { CommonKind = Clock }, Name));
+        Assert.Equal("2 × Clock", SelectionPage.Words(new QuickSetOffer(2, null, null, null, null) { CommonKind = Clock }, Name));
+        Assert.Equal("3 widgets", SelectionPage.Words(new QuickSetOffer(3, null, null, null, null), Name));
     }
 
     [Fact]
     public void S2342_the_selection_page_shows_what_the_selection_shares()
     {
-        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, HeaderPlacement.Top, null, "w", Clock, null, HasHeader: true), []);
-        var many = new SelectionModel(SelectionKind.Several, new QuickSetOffer(3, null, null, null, null, null, HasHeader: false), []);
+        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, null, "w", Clock, null), []);
+        var many = new SelectionModel(SelectionKind.Several, new QuickSetOffer(3, null, null, null, null), []);
 
-        Assert.Equal([SelectionSection.Shows, SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: true, styleLines: false));
-        Assert.Equal([SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: false, styleLines: false));
+        Assert.Equal([SelectionSection.Shows, SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: true, styleLines: false));
+        Assert.Equal([SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: false, styleLines: false));
+        Assert.DoesNotContain("Header", Enum.GetNames<SelectionSection>());
         Assert.Equal([SelectionSection.Appearance], SelectionPage.Sections(many, ownLines: true, styleLines: true));
     }
 
@@ -239,22 +240,22 @@ public sealed class EditBarLayoutTests
     public void S11754_S11755_a_groups_page_is_what_its_widgets_share_and_their_look_never_a_member_alone()
     {
         SharedRow[] place = [new(SharedSettings.Place, ["a", "b"], Mixed: false)];
-        var offer = new QuickSetOffer(2, HeaderPlacement.Top, null, null, null, null, HasHeader: true);
+        var offer = new QuickSetOffer(2, null, null, null, null);
         var group = new SelectionModel(SelectionKind.Group, offer, place) { GroupId = "g" };
         var several = new SelectionModel(SelectionKind.Several, offer, place);
         var bare = new SelectionModel(SelectionKind.Group, offer, []) { GroupId = "g" };
-        var member = new SelectionModel(SelectionKind.Member, new QuickSetOffer(1, HeaderPlacement.Top, null, "a", Clock, null), []) { GroupId = "g", GroupName = "Station" };
+        var member = new SelectionModel(SelectionKind.Member, new QuickSetOffer(1, null, "a", Clock, null), []) { GroupId = "g", GroupName = "Station" };
 
-        // A group: what they share and their look; no member's own page, never a title or the header's place.
+        // A group: what they share and their look; no member's own page.
         Assert.Equal([SelectionSection.Shared, SelectionSection.Appearance], SelectionPage.Sections(group, ownLines: true, styleLines: true));
         Assert.Equal([SelectionSection.Appearance], SelectionPage.Sections(bare, ownLines: true, styleLines: true));
         Assert.DoesNotContain("Members", Enum.GetNames<SelectionSection>());
 
-        // Several widgets that are not one group share the same section, and keep the header's place.
-        Assert.Equal([SelectionSection.Shared, SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(several, ownLines: true, styleLines: true));
+        // Several widgets that are not one group share the same section.
+        Assert.Equal([SelectionSection.Shared, SelectionSection.Appearance], SelectionPage.Sections(several, ownLines: true, styleLines: true));
 
         // An entered member is its own page, under the link back to its group.
-        Assert.Equal([SelectionSection.InGroup, SelectionSection.Shows, SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(member, ownLines: true, styleLines: false));
+        Assert.Equal([SelectionSection.InGroup, SelectionSection.Shows, SelectionSection.Appearance], SelectionPage.Sections(member, ownLines: true, styleLines: false));
         Assert.Equal("Station", member.GroupTitle);
     }
 
@@ -262,14 +263,14 @@ public sealed class EditBarLayoutTests
     public void S2345_the_selection_page_has_a_settings_tab_and_an_appearance_tab()
     {
         SharedRow[] place = [new(SharedSettings.Place, ["a", "b"], Mixed: false)];
-        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, HeaderPlacement.Top, null, "w", Clock, null, HasHeader: true), []);
-        var group = new SelectionModel(SelectionKind.Group, new QuickSetOffer(2, null, null, null, null, null), place) { GroupId = "g" };
-        var bare = new SelectionModel(SelectionKind.Group, new QuickSetOffer(2, null, null, null, null, null), []) { GroupId = "g" };
+        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, null, "w", Clock, null), []);
+        var group = new SelectionModel(SelectionKind.Group, new QuickSetOffer(2, null, null, null, null), place) { GroupId = "g" };
+        var bare = new SelectionModel(SelectionKind.Group, new QuickSetOffer(2, null, null, null, null), []) { GroupId = "g" };
 
-        // One widget: what it shows and its header on Settings, its look on Appearance.
+        // One widget: what it shows on Settings, its look on Appearance.
         var tabs = SelectionPage.Tabs(SelectionPage.Sections(one, ownLines: true, styleLines: false));
         Assert.Equal([SelectionTab.Settings, SelectionTab.Appearance], tabs.Select(t => t.Tab));
-        Assert.Equal([SelectionSection.Shows, SelectionSection.Header], tabs[0].Sections);
+        Assert.Equal([SelectionSection.Shows], tabs[0].Sections);
         Assert.Equal([SelectionSection.Appearance], tabs[1].Sections);
 
         // A group: For all of them on Settings, the look on Appearance.
@@ -294,7 +295,7 @@ public sealed class EditBarLayoutTests
         Assert.Null(SelectionPage.GroupName(" Group "));
         Assert.Equal("Roof", SelectionPage.GroupName("  Roof "));
 
-        var group = new SelectionModel(SelectionKind.Group, new QuickSetOffer(4, null, null, null, null, null), []) { GroupId = "g", GroupName = "Weather station" };
+        var group = new SelectionModel(SelectionKind.Group, new QuickSetOffer(4, null, null, null, null), []) { GroupId = "g", GroupName = "Weather station" };
         Assert.Equal("Weather station", SelectionPage.Words(group, _ => "?"));
         Assert.Equal(ReadyMadeGroups.WeatherStation.Glyph, SelectionPage.Glyph(group));
         Assert.Equal(Glyphs.Group, SelectionPage.Glyph(group with { GroupName = "Roof" }));

@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Ipakita ang petsa",
   "clock.offsetLabel": "Agwat sa oras",
   "clock.secondsLabel": "Ipakita ang mga segundo",
   "clock.styleAnalog": "Analog",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Time zone",
   "clock.tzCurrent": "Kasalukuyan: {city}",
   "locationSearch.placeholder": "Maghanap ng lungsod…",
-  "styles.clock.date": "Petsa",
   "styles.clock.flip": "Flip",
   "styles.clock.minimal": "Minimal",
   "styles.clock.words": "Salita",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Beynte para [n]",
   "wordClock.m45": "Kinse para [n]",
   "wordClock.m50": "Diyes para [n]",
-  "wordClock.m55": "Singko para [n]",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Singko para [n]"
 }

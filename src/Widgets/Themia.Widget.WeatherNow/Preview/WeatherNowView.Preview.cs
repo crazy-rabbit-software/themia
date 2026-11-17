@@ -22,7 +22,7 @@ internal sealed partial class WeatherNowView : IWidgetPreviewState
                 return ShowSampleAsync();
 
             case "stale":
-                // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+                // [S-7042] The answer on screen, and the last refresh failed: the status's problem glyph.
                 _feed.Preview(SamplePlaceReading().Stale(FetchStatus.Offline, null), FetchStatus.Ok);
                 break;
 

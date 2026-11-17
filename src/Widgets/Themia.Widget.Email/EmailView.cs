@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// right-click offers what its account allows ([S-544]).
 /// </para>
 /// </summary>
-internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => EmailModule.Opens(_config.EffectiveAccountIds, _widgetHost.AccountsWith(HostFeatures.Mail));
@@ -52,22 +52,20 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
         _style = _config.Style;
         _binding = new KitBinding(host, MailSpec.Spec(_style, () => _config.Folder), Glyphs.Mail, ActionsOf, Handle)
         {
-            HeaderButtons = Buttons,
             Decorate = LinkRow,
             Redrawing = ForgetRows,
         };
 
         Children.Add(_binding.List);
         Children.Add(_binding.State);
-    }
 
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _binding.Header;
+        // [S-12481] The sources' state over the content's top end; compose is the card menu's ([S-558]).
+        _binding.Status.Place(this);
+    }
 
     public void Bind(IWidgetSurface surface)
     {
         _surface = surface;
-        _binding.Surface(surface);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -182,34 +180,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
         {
             source.Problem(EmailStr.WidgetsB_Email_CouldNotCompose.Text());
         }
-    }
-
-    /// <summary>
-    /// [S-558] [S-1289] Mail's header buttons: write a new email (any screen with an account to write
-    /// from; several accounts ask which), and on the list the sort toggle saying the current order.
-    /// </summary>
-    private IReadOnlyList<KitHeaderButton> Buttons(KitScreen screen)
-    {
-        var buttons = new List<KitHeaderButton>();
-        var writers = _source?.Targets ?? [];
-
-        if (writers.Count > 0)
-        {
-            buttons.Add(new KitHeaderButton(
-                Glyphs.MailCompose,
-                EmailStr.WidgetsB_Email_Compose.Text(),
-                Choices: [.. writers.Select(a => new KitHeaderChoice(Glyphs.Mail, a.Label, () => Compose(a)))]));
-        }
-
-        if (screen.Kind == KitScreenKind.Items)
-        {
-            buttons.Add(new KitHeaderButton(
-                Glyphs.Sort,
-                (_config.SortOrder == MailSortOrder.NewestFirst ? EmailStr.WidgetsB_Email_SortNewestTip : EmailStr.WidgetsB_Email_SortOldestTip).Text(),
-                () => Edit(c => c.SortOrder = c.SortOrder == MailSortOrder.NewestFirst ? MailSortOrder.OldestFirst : MailSortOrder.NewestFirst)));
-        }
-
-        return buttons;
     }
 
     /// <inheritdoc />

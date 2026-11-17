@@ -28,6 +28,8 @@ public static class WidgetKeys
     private const int VkC = 0x43;
     private const int VkV = 0x56;
     private const int VkX = 0x58;
+    private const int VkY = 0x59;
+    private const int VkZ = 0x5A;
     private const int VkF5 = 0x74;
     private const int VkBack = 0x08;
     private const int VkAdd = 0x6B;
@@ -57,6 +59,8 @@ public static class WidgetKeys
                 VkX => WidgetKey.Cut,
                 VkV => WidgetKey.Paste,
                 VkA => WidgetKey.SelectAll,
+                VkZ => WidgetKey.Undo,
+                VkY => WidgetKey.Redo,
                 VkUp => WidgetKey.FocusUp,
                 VkDown => WidgetKey.FocusDown,
                 VkLeft => WidgetKey.FocusLeft,
@@ -71,6 +75,12 @@ public static class WidgetKeys
         if (ctrl && shift && !alt && virtualKey == VkC)
         {
             return WidgetKey.CopyAsPath;
+        }
+
+        // [S-5597] Ctrl+Shift+Z redoes, as Ctrl+Y.
+        if (ctrl && shift && !alt && virtualKey == VkZ)
+        {
+            return WidgetKey.Redo;
         }
 
         if (alt && !ctrl && !shift && virtualKey == VkReturn)

@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "日付を表示",
   "clock.offsetLabel": "時差",
   "clock.secondsLabel": "秒を表示",
   "clock.styleAnalog": "アナログ",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "タイムゾーン",
   "clock.tzCurrent": "現在地: {city}",
   "locationSearch.placeholder": "都市を検索…",
-  "styles.clock.date": "日付",
   "styles.clock.flip": "フリップ",
   "styles.clock.minimal": "ミニマル",
   "styles.clock.words": "言葉",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[h]四十分です",
   "wordClock.m45": "[h]四十五分です",
   "wordClock.m50": "[n]十分前です",
-  "wordClock.m55": "[n]五分前です",
-  "widgetsA.clock.date": "{date} {weekday}"
+  "wordClock.m55": "[n]五分前です"
 }

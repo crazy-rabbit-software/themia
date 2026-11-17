@@ -36,7 +36,7 @@ public sealed class TopProcessesModule : IWidgetModule
         Glyph = Glyphs.ListLayout,
         Sizing = c => KitSizing.Sizing(Shown((TopProcessesConfig)c), addFooter: false),
         SizeSets = (c, s) => KitSizing.SizeSets(c, s, Shown((TopProcessesConfig)c), addFooter: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.Processor, 0, 4),
     };

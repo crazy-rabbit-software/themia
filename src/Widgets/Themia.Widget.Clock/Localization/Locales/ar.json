@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "إظهار التاريخ",
   "clock.offsetLabel": "الإزاحة",
   "clock.secondsLabel": "إظهار الثواني",
   "clock.styleAnalog": "عقارب",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "المنطقة الزمنية",
   "clock.tzCurrent": "الحالية: {city}",
   "locationSearch.placeholder": "ابحث عن مدينة…",
-  "styles.clock.date": "التاريخ",
   "styles.clock.flip": "قلّابة",
   "styles.clock.minimal": "بسيط",
   "styles.clock.words": "كلمات",
@@ -30,6 +28,5 @@
   "wordClock.m40": "الساعة [n] إلا ثلثاً",
   "wordClock.m45": "الساعة [n] إلا ربعاً",
   "wordClock.m50": "الساعة [n] إلا عشر دقائق",
-  "wordClock.m55": "الساعة [n] إلا خمس دقائق",
-  "widgetsA.clock.date": "{weekday}، {date}"
+  "wordClock.m55": "الساعة [n] إلا خمس دقائق"
 }

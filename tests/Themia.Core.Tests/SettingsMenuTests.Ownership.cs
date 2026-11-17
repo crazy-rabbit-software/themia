@@ -190,6 +190,18 @@ public sealed partial class SettingsMenuTests
         {
             // ignore: only commands ask, and commands are not run here.
         }
+
+        public IReadOnlyList<Themia.Sdk.DesktopItem> DesktopItems => [];
+
+        public void SetDesktopIcons(string viewId, ViewDesktopIcons value)
+        {
+            // ignore: the ownership guard only reads the lines.
+        }
+
+        public void ShowDesktopItem(string viewId, string key, bool shown)
+        {
+            // ignore: the ownership guard only reads the lines.
+        }
     }
 
     /// <summary>

@@ -36,12 +36,11 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   over them (Caption, tertiary, today's column primary), every week of the window.
 - **[S-3332]** *(Retired by [S-11505]: no ladder; the figure and its line are the reading atom's,
   [S-11500].)*
-- **[S-11505]** **The chart is the drawing alone** (owner decision 2026-11-12, [S-2438]): headerless by
-  default (`StartsHeaderless`; a header, where the card shows one, names the window, [S-454]), the
-  drawing in the card's 12 inset on every side, 200..520 wide (a new one 300), one height per style
-  (`ScreenTimeChartLayout.Sizing`): Bars 12 + 72 of bars + their labels' row (4 + 16) + 12 = 116;
-  Calendar 12 + the letters (16 + 4) + its weeks of 20 rings 4 apart + 12 (a week 64, a month's five
-  weeks 160). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
+- **[S-11505]** **The chart is the drawing alone** (owner decision 2026-11-12, [S-2438]): its first line
+  the day line naming the window (a tool line, [S-454], [S-12481]: 20 + 4), the drawing in the card's 12
+  inset on every side, 200..520 wide (a new one 300), one height per style (`ScreenTimeChartLayout.Sizing`):
+  Bars 12 + 24 + 72 of bars + their labels' row (4 + 16) + 12 = 140; Calendar 12 + 24 + the letters
+  (16 + 4) + its weeks of 20 rings 4 apart + 12 (a week 88, a month's five weeks 184). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
   The total over it is the reading atom's ([S-11500]); the ready-made group "Screen time" stands that
   reading over it ([S-11520]). Nothing to draw is the Status block's one row ([S-6714]).
 - **[S-3333]** Linked focus ([S-3310]) in the links' one look ([S-11902]): the app pointed at or picked

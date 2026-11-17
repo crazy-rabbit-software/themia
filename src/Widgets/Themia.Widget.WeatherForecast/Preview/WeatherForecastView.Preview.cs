@@ -27,9 +27,8 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
 
         HoldSampleWeek();
 
-        // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+        // [S-7042] The answer on screen, and the last refresh failed: the status's problem glyph.
         _forecast = _forecast!.Stale(FetchStatus.Offline, null);
-        PublishPlace();
         Render();
         return Task.CompletedTask;
     }

@@ -42,10 +42,10 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3749] Opens the level of the edit bar's menus that owns <see cref="SettingLink"/>'s setting
-    /// (⚙ › Accounts, ⚙ › Language &amp; region at its line, ⚙ › Online updates at its row), closing the
-    /// properties menu: what a link row does. Null where the host has no edit bar (a render, a test):
-    /// the link is greyed.
+    /// [S-3749] Opens where <see cref="SettingLink"/> leads (⚙ › Accounts, to add or manage an account),
+    /// closing the properties menu: what a link row does. A setting the widget merely follows (a format,
+    /// an update interval) gets no link row: the widget just follows it ([S-3590]). Null where the host
+    /// has no edit bar (a render, a test): the link is greyed.
     /// </summary>
     public Action<SettingLink>? OpenSetting { get; init; }
 
@@ -168,19 +168,6 @@ public sealed class WidgetMenuLines
         => new(glyph, text, () => OpenSetting?.Invoke(new SettingLink(OwnedSetting.Accounts)), Disabled: OpenSetting is null,
             LinkTo: new SettingLink(OwnedSetting.Accounts).Owner);
 
-    /// <summary>
-    /// [S-3749] [S-3590] A link row to a setting the widget follows and a higher level owns (the time
-    /// format, the start of the week, the temperature unit, how often its source is asked): the
-    /// setting's icon and words, what is in force at its end, and Windows' "open in new window" mark;
-    /// a pick closes the menu and opens the owner's level there. It changes nothing here and saves
-    /// nothing: a widget never carries a copy of such a setting. Greyed where the host has no edit bar.
-    /// </summary>
-    public ItemMenuEntry Link(SettingLink link)
-    {
-        ArgumentNullException.ThrowIfNull(link);
-        return new(link.Glyph, link.Text, () => OpenSetting?.Invoke(link), Disabled: OpenSetting is null, Value: link.Value, LinkTo: link.Owner);
-    }
-
     /// <summary>A command that changes the config and saves: one step.</summary>
     public ItemMenuEntry Command(string? glyph, string text, Action change, bool disabled = false)
     {
@@ -208,6 +195,24 @@ public sealed class WidgetMenuLines
     {
         ArgumentNullException.ThrowIfNull(lines);
         return new(glyph, text, null, Children: lines);
+    }
+
+    /// <summary>
+    /// [S-9602] An icon setting: a glyph from the one icon picker ([S-1803]), inline in the line's card, or
+    /// none (the picker's first cell, worded <paramref name="noneName"/>). Its line shows the glyph chosen.
+    /// A pick sets and saves; the glyph that holds changes nothing.
+    /// </summary>
+    public ItemMenuEntry Icon(string text, string? current, string noneName, Action<string?> set)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        return new(string.IsNullOrEmpty(current) ? null : current, text, null, Icon: new MenuIcon(string.IsNullOrEmpty(current) ? null : current, noneName, value =>
+        {
+            if (!string.Equals(value, current, StringComparison.Ordinal))
+            {
+                set(value);
+                _save();
+            }
+        }));
     }
 
     /// <summary>

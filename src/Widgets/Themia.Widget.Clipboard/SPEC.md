@@ -33,11 +33,11 @@ the host's history under its config is the module host's `ClipboardHostTests`.
   row per entry, the preview the name, when it was copied the value (when shown), how much it is on the
   second line from a regular tile (M, Tall, L, XL); the marker and the time from a column of 180; as
   many whole rows as fit, the rest a scroll away under the fade; no count footer (concise: the entries
-  only). The header's clear is a header button ([S-6710]), there only while there is something to clear.
+  only). Clear history is the card menu's line ([S-12481]), there only while there is something to clear.
   An empty or unwatched history is the state row's sentence at the top. A preview card never subscribes
   to the real clipboard; its `sample` state is a fixed history.
 - **[S-1444]** Clipboard row menu (shared `ItemMenu`): Copy, Remove from history, Clear history…
-  (confirmed through `FluentLayout.ConfirmAsync`, like the header bin). `HandleKey`: Up/Down/Home/End
+  (confirmed through `FluentLayout.ConfirmAsync`, like the card menu's Clear history). `HandleKey`: Up/Down/Home/End
   cursor, Enter copies, Escape drops it — through the shell's keyboard lease ([S-800]..[S-812]),
   `ClipboardView : IWidgetKeys`; needs a live pass.
 - **[S-1561]** Clipboard takes the lease: Up/Down/PgUp/PgDn/Home/End move a cursor, Enter copies the
@@ -47,7 +47,7 @@ the host's history under its config is the module host's `ClipboardHostTests`.
   has no settings page. Appearance ([S-3723]), then **Show when it was copied** (a switch),
   under a divider (what is kept, apart from how it reads, user request 2026-10-19) **Entries**
   (typed, 1–200, [S-3726]; the number at the end of its line) and the privacy sentence as a note ([S-3728]: copied text stays in memory only, files and images are never
-  read). No switch writes the history to disk, and clearing is the widget's own (its header bin and
+  read). No switch writes the history to disk, and clearing is the widget's own (its card menu's Clear history and
   row menu, [S-1444]), so the menu has no Clear line. (Tests `ClipboardMenuTests`.)
 
 Needs a manual pass: the widget on a live desktop (text copied in another app arriving, a row

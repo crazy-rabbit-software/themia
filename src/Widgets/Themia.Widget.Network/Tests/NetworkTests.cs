@@ -15,11 +15,11 @@ public sealed class NetworkTests
     {
         var kind = ModuleCatalog.Of(new WidgetId("network"));
         var sizing = kind.SizingOf();
-        Assert.Equal(36 + 36 + 12, sizing.Natural.Height);
+        Assert.Equal(12 + 36 + 12, sizing.Natural.Height);
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(2 * (36 + 36 + 12), sizing.Max.Height); // relaxed, [S-12411]
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]: no practical Max
         Assert.True(sizing.Min.Width >= MeterSizing.NumbersWidth(ReadoutRules.Split(Formatting.Rate(1023 * 1024))) + 24);
-        Assert.Equal(SizeStretch.Axis(sizing.Natural.Width, 480, null, 2), sizing.Max.Width); // relaxed, [S-12411]
+        Assert.Equal(SizeStretch.Ceiling, sizing.Max.Width); // relaxed, [S-12411]
         Assert.False(WidgetStyles.Offers(new WidgetId("network")));
         Assert.Equal(SystemInterests.Chart(SystemSource.Network).Series, SystemInterests.For(new NetworkConfig(), @"C:\").Series);
     }

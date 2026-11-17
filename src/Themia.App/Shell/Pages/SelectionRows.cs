@@ -15,9 +15,7 @@ using Windows.Foundation;
 namespace Themia.App.Shell;
 
 /// <summary>What the selection's page does, given by the surface (or a render's stand-in), for the widgets it is about.</summary>
-/// <param name="SetHeader">[S-3703] The widgets' header placement.</param>
 /// <param name="SetBackground">[S-3703] [S-6566] The widgets' background.</param>
-/// <param name="SetTitle">[S-3704] One widget's title, by id, as typed.</param>
 /// <param name="SetStyle">[S-6008] The widgets' style, by the style enum's value.</param>
 /// <param name="SetItemBackground">[S-6521] The widgets' own item background.</param>
 /// <param name="SetItemTextColor">[S-6544] The widgets' own item text colour, or empty for the app-wide one.</param>
@@ -30,9 +28,7 @@ namespace Themia.App.Shell;
 /// <param name="Preview">[S-3731] Shows the widgets at a value not yet kept (a fill's opacity); null ends it.</param>
 /// <param name="SetBackgroundImage">[S-6593] The widgets' background image, a picture's full path or empty to remove it.</param>
 internal sealed record SelectionCommands(
-    Action<HeaderPlacement> SetHeader,
     Action<FillChoice> SetBackground,
-    Action<string, string?> SetTitle,
     Action<int> SetStyle,
     Action<FillChoice> SetItemBackground,
     Action<string> SetItemTextColor,
@@ -68,8 +64,7 @@ internal sealed record CardPreview(double? Scale = null, FillChoice? Background 
 /// [S-2340]..[S-2343] [S-11754]..[S-11757] The selection's page as rows, after Karpo's widget page
 /// (karpo-app, docs/widgets.md §529): the header card (the kind's glyph on a tile, the widget's name over
 /// its kind, Cut / Copy / Remove); then What it shows (the style first as an inline picker, what that look
-/// draws under it, the widget's own lines), Header (the title of one widget, where the header stands) and
-/// Appearance (alignment, background, item background, item text, background image, scale). Several
+/// draws under it, the widget's own lines) and Appearance (alignment, background, item background, item text, background image, scale). Several
 /// selected: their count, For all of them (each setting two or more share, once) and what else they share
 /// ([S-3702]). A group: its name to rename, For all of them and the Appearance of all of them, never a member
 /// one by one ([S-11755]). [S-2345] The Appearance a tab of its own beside the rest's Settings. It is where a
@@ -97,7 +92,6 @@ internal static class SelectionRows
                 SelectionSection.InGroup => InGroup(model, commands),
                 SelectionSection.Shows => Shows(offer, commands, widget),
                 SelectionSection.Shared => Shared(model, commands),
-                SelectionSection.Header => Header(offer, commands),
                 _ => Appearance(offer, commands),
             };
 
@@ -266,45 +260,6 @@ internal static class SelectionRows
     }
 
     /// <summary>
-    /// [S-3704] [S-3735] Header: the one widget's title (a text box, the kind's name its hint; a title names
-    /// one widget) and where the header stands, an inline picker.
-    /// </summary>
-    private static List<PageRow> Header(QuickSetOffer offer, SelectionCommands commands)
-    {
-        var rows = new List<PageRow>();
-        if (offer is { TitleWidgetId: { } id, TitleKind: { } kind })
-        {
-            var name = ModuleCatalog.Of(kind).Name;
-            rows.Add(new PageRow("header/title", SettingsRowKind.Text)
-            {
-                Text = Str.Group_Title_Label.Text(),
-                Icon = PageRows.IconOf(Glyphs.Rename, null),
-                Edit = new PageEdit(name, offer.Label ?? string.Empty, typed => commands.SetTitle(id, typed)),
-            });
-        }
-
-        var options = HeaderOptions();
-        var holds = Array.Find(options, o => o.Value == offer.Header);
-        rows.Add(new PageRow("header", SettingsRowKind.Choice)
-        {
-            Text = Str.App_ConfigHeaderLabel.Text(),
-            Value = offer.Header is null ? Mixed : holds.Text,
-            Icon = () => Turned(holds.Text is null ? Glyphs.HeaderBottom : holds.Glyph, holds.Text is null || holds.Turned),
-            Rows =
-            [
-                .. options.Select(o => new PageRow("header/" + o.Value, SettingsRowKind.Radio)
-                {
-                    Text = o.Text,
-                    Icon = () => Turned(o.Glyph, o.Turned),
-                    Holds = offer.Header == o.Value,
-                    Run = () => commands.SetHeader(o.Value),
-                }),
-            ],
-        });
-        return rows;
-    }
-
-    /// <summary>
     /// [S-3723] Appearance: Alignment where something selected aligns ([S-6584]); Background, Item
     /// background and Item text (the item rows where something selected has items, [S-6571]); the
     /// background image ([S-6593]); Scale ([S-6531]).
@@ -409,28 +364,6 @@ internal static class SelectionRows
         });
 
         return rows;
-    }
-
-    private static (HeaderPlacement Value, string Glyph, bool Turned, string Text)[] HeaderOptions() =>
-    [
-        (HeaderPlacement.Top, Glyphs.HeaderBottom, true, Str.Group_HeaderSide_Top.Text()),
-        (HeaderPlacement.Bottom, Glyphs.HeaderBottom, false, Str.Group_HeaderSide_Bottom.Text()),
-        (HeaderPlacement.Left, Glyphs.HeaderLeft, false, Str.Group_HeaderSide_Left.Text()),
-        (HeaderPlacement.Right, Glyphs.HeaderRight, false, Str.Group_HeaderSide_Right.Text()),
-        (HeaderPlacement.Hidden, Glyphs.Hide, false, Str.Toggle_Hidden.Text()),
-    ];
-
-    /// <summary>A glyph, or the same glyph turned over (Segoe has "DockBottom" but no "DockTop").</summary>
-    internal static FontIcon Turned(string glyph, bool turned)
-    {
-        var icon = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center });
-        if (turned)
-        {
-            icon.RenderTransformOrigin = new Point(0.5, 0.5);
-            icon.RenderTransform = new RotateTransform { Angle = 180 };
-        }
-
-        return icon;
     }
 
     /// <summary>What the item text's "Default" paints its swatch with: the app-wide colour, or the theme's.</summary>

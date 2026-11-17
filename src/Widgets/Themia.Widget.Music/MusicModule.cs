@@ -33,7 +33,7 @@ public sealed class MusicModule : IWidgetModule
         Description = MusicStr.WidgetsA_Catalog_Music_Description.Local(),
         Glyph = Glyphs.Music,
         Sizing = _ => MusicFace.Sizing(),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 0, Popular: 7),
     };
 

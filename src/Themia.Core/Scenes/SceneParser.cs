@@ -13,7 +13,7 @@ namespace Themia.Core.Scenes;
 /// document is checked and either every scene comes back, its <c>like</c> followed, or the first
 /// problem does, naming its JSON path. Strict on purpose, so a typo never vanishes: a property this
 /// reader does not know, or one written twice, is refused, not ignored; numbers are finite; names are
-/// unique and of <c>[a-z0-9-]</c>; a rectangle lies inside the display; a closed set (theme, header,
+/// unique and of <c>[a-z0-9-]</c>; a rectangle lies inside the display; a closed set (theme,
 /// alignment) is one of its names. What only the installed widgets know (a kind, a style, a config
 /// fragment) is <see cref="SceneWidgets"/>' to check. Pure.
 /// </summary>
@@ -430,7 +430,7 @@ public static class SceneParser
 
     /// <summary>
     /// [S-11860] A ready-made group in a scene: every widget of the recipe at its box from the entry's
-    /// point, with the recipe's config, header and label, named <c>id-kind</c> (a second of a kind
+    /// point, with the recipe's config and label, named <c>id-kind</c> (a second of a kind
     /// <c>id-kind-n</c>; the id is the entry's, else the recipe's), in one group named as the entry says,
     /// else as the recipe is called. <c>states</c> gives a kind its preview state. So a picture of a group
     /// is the group the add page places, never a copy of its boxes.
@@ -494,9 +494,8 @@ public static class SceneParser
                 new WidgetId(part.Kind),
                 rect,
                 State: states.TryGetValue(part.Kind, out var chosen) ? chosen : null,
-                Header: part.Header,
                 Label: part.Label,
-                Config: part.Config,
+                Config: part.Fragment,
                 Group: group));
         }
 
@@ -506,7 +505,7 @@ public static class SceneParser
     private static SceneWidget Widget(JsonElement element, string path, SceneScreen screen)
     {
         var props = Properties(element, path,
-            "id", "kind", "at", "state", "style", "header", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected", "group");
+            "id", "kind", "at", "state", "style", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected", "group");
 
         if (!props.TryGetValue("kind", out var kindElement))
         {
@@ -533,7 +532,6 @@ public static class SceneParser
             at,
             State: props.TryGetValue("state", out var state) ? Word(state, path + ".state") : null,
             Style: props.TryGetValue("style", out var style) ? Word(style, path + ".style") : null,
-            Header: props.TryGetValue("header", out var header) ? Named<HeaderPlacement>(header, path + ".header") : null,
             Background: props.TryGetValue("background", out var background) ? Fill(background, path + ".background") : null,
             Items: props.TryGetValue("items", out var items) ? Fill(items, path + ".items") : null,
             ItemText: props.TryGetValue("itemText", out var itemText) ? Colour(itemText, path + ".itemText") : null,

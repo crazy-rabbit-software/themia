@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "تاریخ دکھائیں",
   "clock.offsetLabel": "آفسیٹ",
   "clock.secondsLabel": "سیکنڈ دکھائیں",
   "clock.styleAnalog": "اینالاگ",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "ٹائم زون",
   "clock.tzCurrent": "موجودہ: {city}",
   "locationSearch.placeholder": "شہر تلاش کریں…",
-  "styles.clock.date": "تاریخ",
   "styles.clock.flip": "فلپ",
   "styles.clock.minimal": "سادہ",
   "styles.clock.words": "الفاظ",
@@ -30,6 +28,5 @@
   "wordClock.m40": "[n] بجنے میں بیس منٹ ہیں",
   "wordClock.m45": "پونے [n] بجے ہیں",
   "wordClock.m50": "[n] بجنے میں دس منٹ ہیں",
-  "wordClock.m55": "[n] بجنے میں پانچ منٹ ہیں",
-  "widgetsA.clock.date": "{weekday}، {date}"
+  "wordClock.m55": "[n] بجنے میں پانچ منٹ ہیں"
 }

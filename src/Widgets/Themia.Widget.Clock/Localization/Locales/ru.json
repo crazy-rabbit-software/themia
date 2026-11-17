@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "Показывать дату",
   "clock.offsetLabel": "Смещение",
   "clock.secondsLabel": "Показывать секунды",
   "clock.styleAnalog": "Стрелочные",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "Часовой пояс",
   "clock.tzCurrent": "Текущий: {city}",
   "locationSearch.placeholder": "Поиск города…",
-  "styles.clock.date": "Дата",
   "styles.clock.flip": "Перекидной",
   "styles.clock.minimal": "Минимальный",
   "styles.clock.words": "Словами",
@@ -30,6 +28,5 @@
   "wordClock.m40": "Сейчас без двадцати [n3]",
   "wordClock.m45": "Сейчас без четверти [n3]",
   "wordClock.m50": "Сейчас без десяти [n3]",
-  "wordClock.m55": "Сейчас без пяти [n3]",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "wordClock.m55": "Сейчас без пяти [n3]"
 }

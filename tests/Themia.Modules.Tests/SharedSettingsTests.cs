@@ -23,7 +23,7 @@ public sealed class SharedSettingsTests
     /// <summary>[S-11752] Which kinds carry each shared setting: the table the SPEC states, pinned.</summary>
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
-        ["place"] = ["airFacts", "airQuality", "moon", "moonTimes", "rainNextHour", "sun", "sunTimes", "weatherFacts", "weatherForecast", "weatherNow"],
+        ["place"] = ["airFacts", "airQuality", "airQualityGraph", "header", "humidityGraph", "moon", "moonTimes", "pressureGraph", "rainGraph", "rainNextHour", "sun", "sunTimes", "temperatureGraph", "uvGraph", "weatherFacts", "weatherForecast", "weatherNow", "windGraph"],
         ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],

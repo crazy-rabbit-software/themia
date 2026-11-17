@@ -2,9 +2,9 @@ namespace Themia.Sdk.Kit;
 
 /// <summary>
 /// [S-6703] [S-2220] The family's space: one 4-based scale, 4 · 8 · 12 · 16 · 24, and the insets every
-/// widget shares, which are sums of it. A card is inset 12 on every side at every tier; the header is
-/// one 20 line at 12, then 4 down to the content, so the content starts at 36; a glyph is 8 from its
-/// text, a name 12 from its value (and a column from the next).
+/// widget shares, which are sums of it. A card is inset 12 on every side at every tier ([S-12480]: no card
+/// has a header, so the content starts at the inset; [S-12482] none on a side a group mate joins); a
+/// glyph is 8 from its text, a name 12 from its value (and a column from the next).
 /// <para>
 /// Today's views drew with 37 paddings and 416 margins; most were a token plus or minus a few pixels
 /// to nudge a part into line. These are all there is: a part that does not line up on them is laid
@@ -29,14 +29,18 @@ public static class FamilySpace
     /// <summary>The card's edge to its content, every side, every tier.</summary>
     public const double Inset = S3;
 
-    /// <summary>The header's one line (BodyStrong).</summary>
+    /// <summary>[S-9601] The Header widget's line, and a tool line's ([S-12481]): one BodyStrong (or Body) line.</summary>
     public const double HeaderLine = 20;
 
-    /// <summary>From the header's line down to the content.</summary>
+    /// <summary>[S-9601] From the Header widget's line to the content of the group mate under it, and from a tool line to its view's content.</summary>
     public const double HeaderGap = S1;
 
-    /// <summary>The content's top under a header: inset, the header's line, the gap.</summary>
-    public const double ContentTop = Inset + HeaderLine + HeaderGap;
+    /// <summary>
+    /// [S-12480] Where a widget's content starts under its card's top edge: the inset, as on every other
+    /// side (no card has a header above its view). A side a group mate joins has none ([S-12482]); the
+    /// sizing states the free card.
+    /// </summary>
+    public const double ContentTop = Inset;
 
     /// <summary>A glyph to its text.</summary>
     public const double GlyphGap = S2;
@@ -46,22 +50,22 @@ public static class FamilySpace
 
     /// <summary>
     /// The widget's one text edge, from the card's edge, when its rows lead with a 16 glyph: the inset,
-    /// the glyph, its gap (where the header's name starts too). Without a lead it is <see cref="Inset"/>.
+    /// the glyph, its gap (where the Header widget's name starts too). Without a lead it is <see cref="Inset"/>.
     /// </summary>
     public const double TextEdge = Inset + FamilyShape.Icon + GlyphGap;
 
     /// <summary>
-    /// How far a 24 header button stands over the header's 20 line either way: its margin, so the
-    /// header stays one line and its name does not move ([S-6710]).
+    /// How far a 24 line button stands over a tool line's 20 either way: its margin, so the line stays one
+    /// line and its label does not move ([S-6710]).
     /// </summary>
-    public const double ButtonOverflow = (FamilyShape.HeaderButton - HeaderLine) / 2;
+    public const double ButtonOverflow = (FamilyShape.LineButton - HeaderLine) / 2;
 
     /// <summary>
     /// The lengths derived from the scale that a layout may use as a padding, margin or spacing: the
-    /// scale itself, the content top, the text edge, the header line and a header button's overflow. A render walk holds every
+    /// scale itself, the text edge, the header line and a line button's overflow. A render walk holds every
     /// padding to these ([S-6731]).
     /// </summary>
-    public static IReadOnlyList<double> Derived { get; } = [ContentTop, TextEdge, HeaderLine, ButtonOverflow];
+    public static IReadOnlyList<double> Derived { get; } = [TextEdge, HeaderLine, ButtonOverflow];
 
     /// <summary>Whether <paramref name="length"/> (either sign) is on the scale or one of its derived insets.</summary>
     public static bool IsSpace(double length)
@@ -94,7 +98,7 @@ public static class FamilySpace
 /// (half its short side); one stroke, 2 (chart lines, rings), a 16 % wash under a chart line; one
 /// track, 4 (a meter's bar, a range, a slider's rail); a hairline 1. Buttons: <see cref="Button"/>
 /// 28 tall (a one-line row's height) with 12 either side, <see cref="IconButton"/> 28 × 28 in the content,
-/// <see cref="HeaderButton"/> 24 × 24 in the header, each with a 16 glyph. The card's own radius is
+/// <see cref="LineButton"/> 24 × 24 in a tool line, each with a 16 glyph. The card's own radius is
 /// the design's setting, not a token.
 /// </summary>
 public static class FamilyShape
@@ -164,8 +168,8 @@ public static class FamilyShape
     /// <summary>An icon button in the content (transport, steppers): square, a one-line row's height.</summary>
     public const double IconButton = Row1;
 
-    /// <summary>An icon button in the header's trailing slot: square, as tall as fits the header's line.</summary>
-    public const double HeaderButton = 24;
+    /// <summary>[S-12481] An icon button in a tool line's trailing slot: square, as tall as fits the line.</summary>
+    public const double LineButton = 24;
 
     /// <summary>A count pill's height (a Caption line) and its side padding.</summary>
     public const double PillHeight = 16;

@@ -94,7 +94,7 @@ public sealed partial class KitConformanceTests
     /// <summary>
     /// [S-7069] Kit views stay thin: a widget whose config is an <c>IKitConfig</c> builds no list
     /// plumbing of its own (no scroll viewer, row focus, menu entries, ring, empty state, cursor or
-    /// key map, no process): <c>KitList</c>, <c>KitHeader</c>, <c>KitStatePanel</c> and <c>KitBinding</c> do.
+    /// key map, no process): <c>KitList</c>, <c>KitStatus</c>, <c>KitStatePanel</c> and <c>KitBinding</c> do.
     /// </summary>
     [Fact]
     public void S7069_a_kit_widgets_view_builds_no_list_of_its_own()
@@ -135,13 +135,13 @@ public sealed partial class KitConformanceTests
 
     /// <summary>
     /// [S-7069] A kit view builds no menu entry: its item menus are its actions, through <c>KitMenu</c>
-    /// in <c>KitList</c>; the header's view buttons ask between their choices in <c>KitHeader</c>.
+    /// in <c>KitList</c>.
     /// </summary>
     [Fact]
     public void S7069_only_the_kits_list_turns_actions_into_menu_entries()
     {
         var offending = KitSources()
-            .Where(f => Path.GetFileName(f) is not ("KitList.cs" or "KitHeader.cs") && Regex.IsMatch(Code(f), @"\bnew\s+ItemMenuEntry\b|\bItemMenuEntry\("))
+            .Where(f => Path.GetFileName(f) is not "KitList.cs" && Regex.IsMatch(Code(f), @"\bnew\s+ItemMenuEntry\b|\bItemMenuEntry\("))
             .Select(Path.GetFileName)
             .ToList();
 

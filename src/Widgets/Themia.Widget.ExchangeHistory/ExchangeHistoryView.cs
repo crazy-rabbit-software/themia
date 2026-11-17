@@ -17,12 +17,12 @@ namespace Themia.Widget.ExchangeHistory;
 /// [S-11155] One pair's 90 days on the Chart block's series ([S-6717]), a history band edge to edge:
 /// the line and its wash in the accent while the latest day rose or held, Critical while it fell (the
 /// rate atom's colour, [S-6706]). Time runs left to right in every language. The table is the one the
-/// rate reads (<see cref="IRateAnswers"/>), so the two agree; a header it is given names the pair.
+/// rate reads (<see cref="IRateAnswers"/>), so the two agree; a Header widget over it names the pair ([S-12481]).
 /// </summary>
-internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions
 {
-    private readonly KitHeader _header;
-    /// <summary>[S-6717] [S-11002] A history band: edge to edge at the sides and the foot, as the stock's; the top is the card's (the inset, or the header's gap).</summary>
+    private readonly KitStatus _mark;
+    /// <summary>[S-6717] [S-11002] A history band: edge to edge at the sides and the foot, as the stock's; the top is the card's (the inset, none where a group mate joins it).</summary>
     private readonly ChartSeries _chart = new() { FlowDirection = FlowDirection.LeftToRight, Visibility = Visibility.Collapsed };
     private readonly StatusBlock _state = new() { Visibility = Visibility.Collapsed };
     private readonly IWidgetHost _host;
@@ -36,13 +36,12 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
     public ExchangeHistoryView(IWidgetHost host)
     {
         _host = host;
-        _header = new KitHeader(host);
+        _mark = new KitStatus(host);
         Children.Add(_chart);
         Children.Add(_state);
+        _mark.Place(this);
         JoinInstants();
     }
-
-    public FrameworkElement? HeaderTrailing => _header;
 
     public IReadOnlyList<WidgetAction> ContextActions =>
         [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_table), () => Reload(force: true))];
@@ -59,16 +58,11 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
         _links.Join(_surface?.Links);
     }
 
-    public void Bind(IWidgetSurface surface)
-    {
-        _surface = surface;
-        PublishTitle();
-    }
+    public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ExchangeHistoryConfig ?? new ExchangeHistoryConfig();
-        PublishTitle();
         Reload(force: false);
     }
 
@@ -84,13 +78,8 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
         }
     }
 
-    /// <summary>[S-11155] A header given to it names the pair: "Rate history · CHF/EUR".</summary>
-    private void PublishTitle()
-        => _surface?.SetHeaderTitle(ExchangeHistoryStr.ExchangeHistory_Title.Format(("pair", $"{_config.EffectiveBase}/{_config.EffectiveQuote}")));
-
     private void OnLanguage(Locale locale)
     {
-        PublishTitle();
         Reload(force: false);
     }
 
@@ -127,11 +116,11 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
         _shownRate = rate;
         if (_table is { } held)
         {
-            _header.Show(OnlineParts.Problems(held), busy: false);
+            _mark.Show(OnlineParts.Problems(held), busy: false);
         }
         else
         {
-            _header.Clear();
+            _mark.Clear();
         }
 
         if (rate is null || rate.History.Count < 2)

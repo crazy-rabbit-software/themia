@@ -42,7 +42,7 @@ public sealed class CpuCoresModule : IWidgetModule
             CpuCoresStyle.Graphs => MeterSizing.Graphs,
             _ => MeterSizing.Columns,
         },
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Processor, 0, 2),
     };

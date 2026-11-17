@@ -20,7 +20,7 @@ public sealed class ContactsPlanTests
         var sizing = ContactsPlan.Sizing(config);
 
         Assert.Equal((ContactsLayout.List, 1, 2, true, 5), (plan.Layout, plan.Columns, plan.Lines, plan.Avatar, plan.Rows));
-        Assert.Equal(new Themia.Sdk.SizeDip(300, 36 + ContactsPlan.SearchHeight + (5 * 40) + 12), sizing.Natural);
+        Assert.Equal(new Themia.Sdk.SizeDip(300, 12 + ContactsPlan.SearchHeight + (5 * 40) + 12), sizing.Natural);
         Assert.Equal((220, 520), (sizing.Min.Width, sizing.Max.Width));
         Assert.Empty(sizing.Problems());
     }
@@ -45,7 +45,7 @@ public sealed class ContactsPlanTests
 
         var details = new ContactsConfig { Layout = ContactsLayout.Details, SearchBox = false };
         var sizing = ContactsPlan.Sizing(details);
-        Assert.Equal(36 + ContactsPlan.HeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + ContactsPlan.HeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
         Assert.Equal(24 + (details.EffectiveColumns.Count * 88), sizing.Min.Width);
         Assert.Equal(ContactsLayout.Details, Plan(details, 200).Layout);
     }
@@ -58,7 +58,7 @@ public sealed class ContactsPlanTests
         var plan = Plan(config);
 
         Assert.True(sizing.FixedWidth && sizing.FixedHeight);
-        Assert.Equal(new Themia.Sdk.SizeDip(24 + (3 * 96) + (2 * 12), 36 + (2 * ContactsPlan.CellHeight) + 12 + 12), sizing.Natural);
+        Assert.Equal(new Themia.Sdk.SizeDip(24 + (3 * 96) + (2 * 12), 12 + (2 * ContactsPlan.CellHeight) + 12 + 12), sizing.Natural);
         Assert.Equal((48.0, 3, 2), (plan.Icon, plan.Columns, plan.Rows));
         Assert.Same(config, ContactsPlan.SizeSets(config, new Themia.Sdk.SizeDip(400, 400)));
     }
@@ -66,7 +66,7 @@ public sealed class ContactsPlanTests
     [Fact]
     public void S11406_dragging_sets_rows_and_out_of_range_is_repaired()
     {
-        var next = (ContactsConfig)ContactsPlan.SizeSets(new ContactsConfig { SearchBox = false }, new Themia.Sdk.SizeDip(300, 36 + (8 * 40) + 12));
+        var next = (ContactsConfig)ContactsPlan.SizeSets(new ContactsConfig { SearchBox = false }, new Themia.Sdk.SizeDip(300, 12 + (8 * 40) + 12));
         Assert.Equal(8, next.Rows);
 
         var wild = new ContactsConfig { Rows = 0, Lines = 9, GridColumns = 1, GridRows = 30 };

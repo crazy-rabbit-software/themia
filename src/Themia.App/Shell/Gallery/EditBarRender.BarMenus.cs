@@ -18,7 +18,8 @@ namespace Themia.App.Shell.Gallery;
 /// [S-2328] The Views and Display pages open from their entries on the stand-in display, over the busy
 /// wallpaper, hung as the surface hangs them: <c>page-&lt;theme&gt;-views.png</c> (five views, every one a card),
 /// <c>-views-open</c> (Work's card opened), <c>-views-icon</c> (scrolled to its icon picker), <c>-views-colour</c>,
-/// <c>-views-delete</c> (its Delete's "are you sure?" page), <c>-views-many</c> (40 views: the page scrolls),
+/// <c>-views-icons</c> (its Desktop icons choice open: Work shows Chosen ones), <c>-views-chosen</c> (Work's list of the
+/// desktop's items, three of seven on, [S-5529]), <c>-views-delete</c> (its Delete's "are you sure?" page), <c>-views-many</c> (40 views: the page scrolls),
 /// <c>-views-many-end</c>; <c>page-&lt;theme&gt;-display.png</c> (three displays, one switched off, every one a card),
 /// <c>-display-open</c> (this display's card opened), <c>-display-bar</c> (scrolled to its view bar),
 /// <c>-display-second</c>, <c>-display-off</c>, <c>-display-new</c> and <c>-display-end</c>. Stand-in hosts:
@@ -35,6 +36,8 @@ internal static partial class EditBarRender
             ("-open", 5, work, null),
             ("-icon", 5, ViewsMenu.Keys.Icon("work"), null),
             ("-colour", 5, ViewsMenu.Keys.Colour("work"), null),
+            ("-icons", 5, ViewsMenu.Keys.DesktopIcons("work"), null),
+            ("-chosen", 5, ViewsMenu.Keys.ChosenIcons("work"), null),
             ("-delete", 5, null, "<tool>" + work + "|1"),
             ("-many", 40, null, null),
             ("-many-end", 40, null, "<end>"),
@@ -116,6 +119,27 @@ internal static partial class EditBarRender
                 State.Views.Add(view);
             }
 
+            // [S-5529] Work shows Chosen desktop icons (three of the seven), Travel none.
+            if (State.FindView("work") is { } chosen)
+            {
+                chosen.DesktopIcons = ViewDesktopIcons.Chosen;
+                foreach (var item in DesktopItems.Where(item => item.Name is "Projects" or "Budget 2026.xlsx" or "This PC"))
+                {
+                    var icon = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.01, 0.01, 0.05, 0.08));
+                    if (icon.Config is IDesktopItemConfig config)
+                    {
+                        config.Item = item.Key;
+                    }
+
+                    chosen.Widgets.Add(icon);
+                }
+            }
+
+            if (State.FindView("travel") is { } bare)
+            {
+                bare.DesktopIcons = ViewDesktopIcons.None;
+            }
+
             State.ActiveViewId = "work";
             State.MonitorViews[DisplayId] = "work";
             State.MonitorViews["render-2"] = "desktop";
@@ -159,6 +183,26 @@ internal static partial class EditBarRender
         public void Reorder(string viewId, string targetId) => Mutate(s => ViewOps.Reorder(s.Views, viewId, targetId));
 
         public void Confirm(SettingsConfirm confirm) => Page?.Confirm(new PageQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
+
+        /// <summary>[S-5529] A stand-in desktop: two shell items, a folder, a shortcut and three files.</summary>
+        public IReadOnlyList<DesktopItem> DesktopItems { get; } =
+        [
+            new("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "This PC", DesktopItemKind.ShellItem),
+            new("::{645FF040-5081-101B-9F08-00AA002F954E}", "Recycle Bin", DesktopItemKind.ShellItem),
+            new(@"C:\Users\a\Desktop\Projects", "Projects", DesktopItemKind.Folder),
+            new(@"C:\Users\a\Desktop\Spotify.lnk", "Spotify", DesktopItemKind.Shortcut),
+            new(@"C:\Users\a\Desktop\Budget 2026.xlsx", "Budget 2026.xlsx", DesktopItemKind.File),
+            new(@"C:\Users\a\Desktop\Notes.txt", "Notes.txt", DesktopItemKind.File),
+            new(@"C:\Users\a\Desktop\Holiday.jpg", "Holiday.jpg", DesktopItemKind.File),
+        ];
+
+        public void SetDesktopIcons(string viewId, ViewDesktopIcons value)
+            => Mutate(s => _ = s.FindView(viewId) is { } view && Themia.Core.Desktop.DesktopViews.Set(view, value));
+
+        public void ShowDesktopItem(string viewId, string key, bool shown)
+        {
+            // ignore: a render ticks no item.
+        }
     }
 
     /// <summary>A stand-in for the Display menu's host: three displays (the third switched off), this one the first.</summary>

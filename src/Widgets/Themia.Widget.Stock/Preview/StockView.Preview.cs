@@ -36,7 +36,7 @@ internal sealed partial class StockView : IWidgetPreviewState
                 break;
 
             case "stale":
-                // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+                // [S-7042] The answer on screen, and the last refresh failed: the status's problem glyph.
                 _feed.Preview(SampleConfig(rising: true).Stale(FetchStatus.Offline, null), FetchStatus.Ok);
                 break;
         }

@@ -13,7 +13,7 @@ public sealed class RainNextHourTests
     {
         var sizing = RainLayout.Sizing();
 
-        Assert.Equal(36 + 28 + 20 + 8 + (48 + 4 + 16) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + 28 + 20 + 8 + (48 + 4 + 16) + 12, sizing.Natural.Height);
         Assert.True(sizing.FixedHeight);
         Assert.Equal((220.0, 300.0, 420.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }

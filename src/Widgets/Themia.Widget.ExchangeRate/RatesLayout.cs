@@ -21,7 +21,7 @@ public static class RatesLayout
     /// <summary>[S-6707] Whether the code is drawn and where the change stands, for a content <paramref name="width"/> wide.</summary>
     public static ReadoutFold Fold(ReadoutText rate, double width) => ReadoutRules.Fold(FamilyType.Big28, rate, WorstChange, width);
 
-    /// <summary>[S-11151] The rate's sizing, with its header.</summary>
+    /// <summary>[S-11151] The rate's sizing.</summary>
     public static WidgetSizing Sizing()
     {
         var height = FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;

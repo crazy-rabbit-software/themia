@@ -385,44 +385,44 @@ internal static partial class EditBarRender
 
     private static bool _countingErrors;
 
-    /// <summary>One widget of a selection shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null, string? Group = null);
+    /// <summary>One widget of a selection shot: its kind, where its card is, its name, and whether it is selected.</summary>
+    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null, string? Group = null);
 
     /// <summary>[S-2340]..[S-2343] The selection's page beside real cards, each case on the stand-in display.</summary>
     private static async Task SelectionShots(Grid screen, Ticker ticker, string outDir, string theme)
     {
-        PropsCard[] clock = [new(new WidgetId("clock"), 140, 160, 300, 200, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")];
-        PropsCard[] covered = [new(new WidgetId("clock"), 700, 140, 300, 200, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.0, "#FFFFFF")];
+        PropsCard[] clock = [new(new WidgetId("clock"), 140, 160, 300, 200, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")];
+        PropsCard[] covered = [new(new WidgetId("clock"), 700, 140, 300, 200, true, "Zürich", "flip", "#2A3248", 1.0, "#FFFFFF")];
         PropsCard[] coveredGroup =
         [
-            new(new WidgetId("clock"), 620, 200, 220, 160, HeaderPlacement.Top, true),
-            new(new WidgetId("countdown"), 840, 200, 240, 160, HeaderPlacement.Top, true),
-            new(new WidgetId("clock"), 760, 420, 220, 160, HeaderPlacement.Top, false),
+            new(new WidgetId("clock"), 620, 200, 220, 160, true),
+            new(new WidgetId("countdown"), 840, 200, 240, 160, true),
+            new(new WidgetId("clock"), 760, 420, 220, 160, false),
         ];
         PropsCard[] many =
         [
-            new(new WidgetId("clock"), 120, 160, 220, 160, HeaderPlacement.Top, true),
-            new(new WidgetId("countdown"), 120, 360, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
-            new(new WidgetId("clock"), 120, 580, 200, 140, HeaderPlacement.Hidden, true),
+            new(new WidgetId("clock"), 120, 160, 220, 160, true),
+            new(new WidgetId("countdown"), 120, 360, 260, 180, true, Scale: 0.9),
+            new(new WidgetId("clock"), 120, 580, 200, 140, true),
         ];
-        PropsCard[] two = [new(new WidgetId("clock"), 120, 160, 220, 160, HeaderPlacement.Top, true), new(new WidgetId("clock"), 120, 360, 220, 160, HeaderPlacement.Bottom, true)];
-        PropsCard[] toggle = [new(new WidgetId("wifiToggle"), 200, 260, 120, 120, HeaderPlacement.Hidden, true)];
-        PropsCard[] weather = [new(new WidgetId("weatherNow"), 140, 160, 300, 200, HeaderPlacement.Top, true)];
-        PropsCard[] icon = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true)];
+        PropsCard[] two = [new(new WidgetId("clock"), 120, 160, 220, 160, true), new(new WidgetId("clock"), 120, 360, 220, 160, true)];
+        PropsCard[] toggle = [new(new WidgetId("wifiToggle"), 200, 260, 120, 120, true)];
+        PropsCard[] weather = [new(new WidgetId("weatherNow"), 140, 160, 300, 200, true)];
+        PropsCard[] icon = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, true)];
 
         // [S-5611] A desktop file, an own icon on a Windows location, and two files: each is a "Desktop icon".
-        PropsCard[] iconFile = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Report.docx"}""")];
-        PropsCard[] iconOwn = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true, Config: """{"target":"shell:Personal"}""")];
+        PropsCard[] iconFile = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Report.docx"}""")];
+        PropsCard[] iconOwn = [new(new WidgetId("desktopItem"), 200, 260, 76, 100, true, Config: """{"target":"shell:Personal"}""")];
         PropsCard[] iconTwo =
         [
-            new(new WidgetId("desktopItem"), 200, 260, 76, 100, HeaderPlacement.Hidden, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Report.docx"}"""),
-            new(new WidgetId("desktopItem"), 200, 360, 76, 100, HeaderPlacement.Hidden, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Budget.xlsx"}"""),
+            new(new WidgetId("desktopItem"), 200, 260, 76, 100, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Report.docx"}"""),
+            new(new WidgetId("desktopItem"), 200, 360, 76, 100, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Budget.xlsx"}"""),
         ];
-        PropsCard[] countdown = [new(new WidgetId("countdown"), 140, 160, 280, 180, HeaderPlacement.Top, true)];
+        PropsCard[] countdown = [new(new WidgetId("countdown"), 140, 160, 280, 180, true)];
         PropsCard[] station =
         [
-            new(new WidgetId("weatherNow"), 140, 160, 300, 200, HeaderPlacement.Top, true, Group: "Weather station"),
-            new(new WidgetId("weatherForecast"), 140, 360, 300, 200, HeaderPlacement.Top, true, Group: "Weather station"),
+            new(new WidgetId("weatherNow"), 140, 160, 300, 200, true, Group: "Weather station"),
+            new(new WidgetId("weatherForecast"), 140, 360, 300, 200, true, Group: "Weather station"),
         ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
@@ -438,7 +438,6 @@ internal static partial class EditBarRender
             (covered, "covered", null, null, null),
             (coveredGroup, "covered-two", null, null, null),
             (clock, "style", "style", null, null),
-            (clock, "header", "header", null, null),
             (clock, "background", "background", null, null),
             (clock, "appearance-end", null, null, null),
             (two, "two", null, null, null),
@@ -594,7 +593,6 @@ internal static partial class EditBarRender
         foreach (var spec in layout)
         {
             var model = WidgetInstance.Create(spec.Kind, new FracRect(0, 0, 0.1, 0.1));
-            model.Header = spec.Header;
             model.Label = spec.Label;
             model.ItemBackground = spec.Items?.Clone() ?? (spec.ItemColor is { } items ? FillChoice.Of(items, 0.8) : new FillChoice());
             model.Background = spec.Background?.Clone() ?? new FillChoice();
@@ -705,17 +703,17 @@ internal static partial class EditBarRender
     {
         PropsCard[] mixed =
         [
-            new(new WidgetId("clock"), 120, 120, 280, 180, HeaderPlacement.Top, true),
-            new(new WidgetId("countdown"), 460, 140, 240, 160, HeaderPlacement.Top, false),
-            new(new WidgetId("wifiToggle"), 760, 160, 64, 64, HeaderPlacement.Hidden, true),
-            new(new WidgetId("wifiToggle"), 860, 160, 64, 64, HeaderPlacement.Hidden, false),
+            new(new WidgetId("clock"), 120, 120, 280, 180, true),
+            new(new WidgetId("countdown"), 460, 140, 240, 160, false),
+            new(new WidgetId("wifiToggle"), 760, 160, 64, 64, true),
+            new(new WidgetId("wifiToggle"), 860, 160, 64, 64, false),
         ];
         PropsCard[] multi =
         [
-            new(new WidgetId("clock"), 120, 120, 240, 160, HeaderPlacement.Top, true),
-            new(new WidgetId("countdown"), 380, 120, 240, 160, HeaderPlacement.Top, true),
-            new(new WidgetId("clock"), 640, 120, 200, 160, HeaderPlacement.Hidden, true),
-            new(new WidgetId("countdown"), 880, 120, 240, 160, HeaderPlacement.Top, false),
+            new(new WidgetId("clock"), 120, 120, 240, 160, true),
+            new(new WidgetId("countdown"), 380, 120, 240, 160, true),
+            new(new WidgetId("clock"), 640, 120, 200, 160, true),
+            new(new WidgetId("countdown"), 880, 120, 240, 160, false),
         ];
 
         await MarkerShot(screen, ticker, mixed, 4, System.IO.Path.Combine(outDir, $"marks-{theme}-r4.png")).ConfigureAwait(true);
@@ -724,11 +722,11 @@ internal static partial class EditBarRender
 
         PropsCard[] neighbours =
         [
-            new(new WidgetId("clock"), 120, 100, 240, 150, HeaderPlacement.Top, true),
-            new(new WidgetId("countdown"), 360, 100, 240, 150, HeaderPlacement.Top, false),
-            new(new WidgetId("countdown"), 120, 250, 240, 150, HeaderPlacement.Top, false),
-            new(new WidgetId("clock"), 360, 250, 240, 150, HeaderPlacement.Hidden, true),
-            new(new WidgetId("wifiToggle"), 600, 100, 120, 120, HeaderPlacement.Hidden, false),
+            new(new WidgetId("clock"), 120, 100, 240, 150, true),
+            new(new WidgetId("countdown"), 360, 100, 240, 150, false),
+            new(new WidgetId("countdown"), 120, 250, 240, 150, false),
+            new(new WidgetId("clock"), 360, 250, 240, 150, true),
+            new(new WidgetId("wifiToggle"), 600, 100, 120, 120, false),
         ];
         await MarkerShot(screen, ticker, neighbours, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-neighbours.png")).ConfigureAwait(true);
     }
@@ -744,7 +742,6 @@ internal static partial class EditBarRender
         var models = layout.Select(spec => (Model: WidgetInstance.Create(spec.Kind, new FracRect(0, 0, 0.1, 0.1)), Spec: spec)).ToList();
         foreach (var (model, spec) in models)
         {
-            model.Header = spec.Header;
         }
 
         var host = new NoticeRender.RenderCardHost(ticker)

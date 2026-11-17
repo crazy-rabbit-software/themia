@@ -6,7 +6,7 @@ using Themia.Widget.Clock;
 namespace Themia.Core.Widgets;
 
 /// <summary>What a clock widget shows at one instant. Plain data, so the view is a pure projection.</summary>
-public readonly record struct ClockReading(string Time, string? Meridiem, string? Date, double HourAngle, double MinuteAngle, double SecondAngle);
+public readonly record struct ClockReading(string Time, string? Meridiem, double HourAngle, double MinuteAngle, double SecondAngle);
 
 /// <summary>
 /// Turns an instant plus a <see cref="ClockConfig"/> into display strings and hand angles.
@@ -40,7 +40,6 @@ public static class ClockFormatter
             : $"{Pad(hour, use24Hour)}:{local.Minute:D2}");
 
         var meridiem = use24Hour ? null : (hour24 < 12 ? LocaleFormat.Am(locale) : LocaleFormat.Pm(locale));
-        var date = config.ShowDate ? FormatDate(local, locale) : null;
 
         // [S-51] Hands sweep rather than step, so an analog face reads correctly between ticks. A
         // face without its second hand is drawn once a minute ([S-52]): its minute hand stands on the
@@ -49,7 +48,7 @@ public static class ClockFormatter
         var minuteAngle = (local.Minute * 6.0) + (config.DrawsSeconds ? local.Second * 0.1 : 0);
         var hourAngle = ((hour24 % 12) * 30.0) + (local.Minute * 0.5);
 
-        return new ClockReading(time, meridiem, date, hourAngle, minuteAngle, secondAngle);
+        return new ClockReading(time, meridiem, hourAngle, minuteAngle, secondAngle);
     }
 
     /// <summary>
@@ -61,18 +60,6 @@ public static class ClockFormatter
     {
         var (am, pm) = (LocaleFormat.Am(locale), LocaleFormat.Pm(locale));
         return HeroFit.Ems(pm) > HeroFit.Ems(am) ? pm : am;
-    }
-
-    /// <summary>
-    /// [S-665] "Sun, Oct 4" / "So., 4. Okt.": the date for a tile too narrow for the long one. No
-    /// week, day of the year or time zone line (retired, concise widgets).
-    /// </summary>
-    public static string ShortDate(DateTimeOffset utcNow, ClockConfig config, Locale locale)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-
-        var local = TimeZoneInfo.ConvertTime(utcNow, config.ResolveTimeZone());
-        return LocaleFormat.Date(locale, DateOnly.FromDateTime(local.DateTime), DateStyle.WeekdayMonthDayShort);
     }
 
     /// <summary>[S-6013] The word clock's sentence for this instant, in the clock's zone and <paramref name="locale"/>.</summary>
@@ -152,10 +139,4 @@ public static class ClockFormatter
     /// <summary>24-hour time is zero-padded; 12-hour time is not, which is what both conventions expect.</summary>
     private static string Pad(int hour, bool use24Hour)
         => use24Hour ? hour.ToString("D2", CultureInfo.InvariantCulture) : hour.ToString(CultureInfo.InvariantCulture);
-
-    /// <summary>"Monday, March 9" / "Montag, 9. März": the weekday and the day, in the language's order.</summary>
-    private static string FormatDate(DateTimeOffset local, Locale locale)
-        => ClockStr.WidgetsA_Clock_Date.Format(locale,
-            ("weekday", LocaleFormat.WeekdayName(locale, local.DayOfWeek)),
-            ("date", LocaleFormat.Date(locale, DateOnly.FromDateTime(local.DateTime), DateStyle.MonthDay)));
 }

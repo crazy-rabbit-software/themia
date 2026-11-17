@@ -141,7 +141,7 @@ internal sealed class MarkdownEditor
     /// <summary>The text control. The view places it and gives it its chrome.</summary>
     public RichEditBox Box { get; }
 
-    /// <summary>[S-1365] The formatting bar. The view places it (the card's header, [S-3963]); <see cref="VisibleButtons"/> sheds it.</summary>
+    /// <summary>[S-1365] The formatting bar. The view places it (the note's first line, [S-3963], [S-12481]); <see cref="VisibleButtons"/> sheds it.</summary>
     public StackPanel Toolbar { get; }
 
     /// <summary>The note as it stands, with <c>\n</c> line endings.</summary>
@@ -765,12 +765,12 @@ internal sealed class MarkdownEditor
                 ? Family.Glyph(glyph)
                 : LabelFor(label ?? string.Empty);
 
-            // [S-6710] A header button: 24, a 16 glyph (or its letters in BodyStrong), the one radius.
+            // [S-6710] A line button: 24, a 16 glyph (or its letters in BodyStrong), the one radius.
             var button = new Button
             {
                 Content = content,
-                Width = FamilyShape.HeaderButton,
-                Height = FamilyShape.HeaderButton,
+                Width = FamilyShape.LineButton,
+                Height = FamilyShape.LineButton,
                 Padding = new Thickness(0),
                 BorderThickness = new Thickness(0),
                 CornerRadius = Family.Radius,

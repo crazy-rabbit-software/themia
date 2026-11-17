@@ -34,7 +34,7 @@ public sealed class MemoryFactsModule : IWidgetModule
         Glyph = Glyphs.Memory,
         Sizing = c => FactsRules.Sizing((FactsConfig)c),
         SizeSets = FactsRules.SizeSets,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.MemoryReading, 0, 2),
     };
 

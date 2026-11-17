@@ -159,7 +159,14 @@ internal sealed partial class AppHost
             return;
         }
 
-        var action = undo ? _history.Undo(State) : _history.Redo(State);
+        // [S-5597] A step that did something outside the state (a desktop delete's files) does that first.
+        _effectRefused = false;
+        var action = undo ? _history.Undo(State, effect => RunUndoEffect(effect, undo: true)) : _history.Redo(State, effect => RunUndoEffect(effect, undo: false));
+        if (_effectRefused)
+        {
+            return;
+        }
+
         if (action is not { } done)
         {
             Notices.Show(new Notice(NoticeKind.Info, undo ? Str.Shell_Undo_NothingToUndo.Text() : Str.Shell_Undo_NothingToRedo.Text()) { Key = UndoNoticeKey });
@@ -170,7 +177,8 @@ internal sealed partial class AppHost
         // at startup ([S-1705]), without making that an undo step of its own.
         DisplayPlan.AssignViews(State, DisplayViewKeys());
 
-        // [S-5520] A widget the step brought back whose item has gone from the desktop goes again.
+        // [S-5520] A widget the step brought back whose item has gone from the desktop goes again ([S-5597]: one being put back stays).
+        ForgetSurvivors();
         ReconcileDesktopAfterStep();
         _sizings.NoteAll(State);
         _history.Rebase(State);

@@ -24,6 +24,9 @@ public static class Glyphs
     public static readonly string Delete = From(0xE74D);
     public static readonly string Edit = From(0xE70F);
     public static readonly string Done = From(0xE73E);
+
+    /// <summary>[S-12952] The dot a menu's chosen line of a set shows in its icon slot (Segoe's RadioBullet), as Explorer's View › sizes.</summary>
+    public static readonly string RadioBullet = From(0xE915);
     public static readonly string Copy = From(0xE8C8);
     public static readonly string Cut = From(0xE8C6);
     public static readonly string Paste = From(0xE77F);

@@ -20,10 +20,9 @@ public sealed class StockHistoryTests
     {
         var sizing = Kind.Sizing(new StockHistoryConfig());
 
-        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
         Assert.Equal(new SizeDip(280, 12 + 96), sizing.Natural);
-        Assert.Equal((200.0, 840.0), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: a picture, 280 x 3
-        Assert.Equal((12 + 64.0, 12 + 312.0), (sizing.Min.Height, sizing.Max.Height)); // relaxed: 108 x 3
+        Assert.Equal((200.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+        Assert.Equal((12 + 64.0, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Height, sizing.Max.Height)); // relaxed, [S-12411]: no practical Max
     }
 
     [Fact]

@@ -12,12 +12,6 @@ namespace Themia.App.Widgets.Meters;
 /// <summary>What a meter part may ask of the shared <see cref="MeterView"/>.</summary>
 public interface IMeterHost
 {
-    /// <summary>[S-1167] Offer the card a title the kind knows (a drive's name: the user's own source); null for the catalogue's.</summary>
-    void SetTitle(string? title);
-
-    /// <summary>[S-2260] Which one the meter reads (an adapter, a host) as the header's label beside the widget's name; null for none.</summary>
-    void SetAbout(string? about);
-
     /// <summary>[S-1167] [S-2510] Read now rather than at the next tick (a Refresh command).</summary>
     void SampleNow();
 
@@ -117,13 +111,11 @@ public abstract class MeterPart
     public virtual MeterPressure PressureOf(MeterReading reading) => MeterPressure.Normal;
 
     /// <summary>
-    /// [S-1187] A glyph drawn before the reading, in the pressure colour (the battery's fill level),
-    /// or null for none. A kind with one says so in <see cref="HasBadge"/>.
+    /// [S-1187] [S-12801] The glyph drawn before the reading, in the pressure colour where it is under pressure: the
+    /// kind's own (what the reading measures: no word names it, a group's Header widget names the group), or a kind's
+    /// badge in its place (the battery's fill level).
     /// </summary>
-    public virtual string? Badge(MeterReading reading) => null;
-
-    /// <summary>[S-3860] Whether the reading may lead with a <see cref="Badge"/>, which the ladder measures as the readout's glyph.</summary>
-    public virtual bool HasBadge => false;
+    public virtual string? Badge(MeterReading reading) => ModuleCatalog.Of(Kind).Glyph;
 
     /// <summary>
     /// [S-1161] The reading's tooltip while it is available: what the reading is about (the disk
@@ -167,8 +159,8 @@ public abstract class MeterPart
     /// <summary>[S-1167] Commands for the card's right-click menu (Refresh, Open in Explorer); read each time it opens.</summary>
     public virtual IReadOnlyList<WidgetAction> ContextActions(IMeterHost host) => [];
 
-    /// <summary>[S-1167] An element for the right of the card's header (a status dot), or null. Read once.</summary>
-    public virtual Microsoft.UI.Xaml.FrameworkElement? HeaderTrailing => null;
+    /// <summary>[S-12481] A mark over the content's top end (Ping's problem glyph), or null. Read once.</summary>
+    public virtual Microsoft.UI.Xaml.FrameworkElement? Mark => null;
 
     /// <summary>[S-6300] What this config's style draws besides the reading; the history for a kind without styles.</summary>
     public virtual MeterLook Look(WidgetConfig config) => MeterLook.Graph;

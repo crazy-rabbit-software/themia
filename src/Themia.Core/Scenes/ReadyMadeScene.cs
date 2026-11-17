@@ -36,9 +36,8 @@ public static class ReadyMadeScene
             new WidgetId(w.Kind),
             new SceneRect(Origin + w.Box.X, Origin + w.Box.Y, w.Box.Width, w.Box.Height),
             State: states.TryGetValue(w.Kind, out var state) ? state : null,
-            Header: w.Header,
             Label: w.Label,
-            Config: w.Config,
+            Config: w.Fragment,
             Group: name)).ToList();
 
         // A selection's page hangs from the bar's entry ([S-2343]): edit mode is the bar, the group selected.

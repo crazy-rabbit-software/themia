@@ -16,10 +16,9 @@ public sealed class GpuEnginesTests
     public void S11015_four_rows_under_the_header_one_height()
     {
         var sizing = Kind.SizingOf();
-        Assert.Equal(36 + (4 * 28) + 12, sizing.Natural.Height);
+        Assert.Equal(12 + (4 * 28) + 12, sizing.Natural.Height);
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(2 * (36 + (4 * 28) + 12), sizing.Max.Height); // relaxed, [S-12411]
-        Assert.False(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]: no practical Max
     }
 
     [Fact]

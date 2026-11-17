@@ -40,9 +40,6 @@ internal sealed class PingFactsPart : DetailPart
         _host = host;
         _config = config as PingFactsConfig ?? new PingFactsConfig();
 
-        // [S-1173] The header's label names the host as the user does ([S-2260]).
-        host.SetAbout(_config.EffectiveHost);
-
         // A different host is a different prober, with its own window; a different window size is
         // the same probes counted again. The series is the one the state asks the hub for ([S-2513]).
         var series = SystemInterests.For(_config, SystemDrive.Root).Series[0];
@@ -79,7 +76,7 @@ internal sealed class PingFactsPart : DetailPart
 
         var stats = window.Stats();
         var status = PingStats.Status(watch.Count > 0, stats.Last is not null);
-        host.Present(PingDetailRules.Sheet(Strings.Current, stats, _config.EffectiveHost, status));
+        host.Present(PingDetailRules.Sheet(Strings.Current, stats, status));
     }
 
     public override void Detach()

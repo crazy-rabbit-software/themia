@@ -46,6 +46,9 @@ public enum UndoAction
 
     /// <summary>[S-2454] A group dissolved, or a member taken out of it.</summary>
     Ungroup = 14,
+
+    /// <summary>[S-5597] Desktop items sent to the Recycle Bin: an undo puts them back from it, a redo recycles them again.</summary>
+    DeleteDesktopItems = 15,
 }
 
 /// <summary>[S-885] The words a notice uses for an <see cref="UndoAction"/>.</summary>
@@ -58,7 +61,7 @@ public static class UndoText
     public static string Name(Locale locale, UndoAction action) => Strings.Get(locale, action switch
     {
         UndoAction.Add => Str.Shell_Undo_Add,
-        UndoAction.Delete => Str.Shell_Undo_Delete,
+        UndoAction.Delete or UndoAction.DeleteDesktopItems => Str.Shell_Undo_Delete,
         UndoAction.Move => Str.Shell_Undo_Move,
         UndoAction.Resize => Str.Shell_Undo_Resize,
         UndoAction.Paste => Str.Shell_Undo_Paste,
@@ -95,8 +98,14 @@ public static class UndoActions
     };
 }
 
-/// <summary>One step in an <see cref="UndoLog{T}"/>: what it was, and the state to go back to.</summary>
-public readonly record struct UndoEntry<T>(UndoAction Action, T State);
+/// <summary>
+/// [S-5597] What a step did outside the state, carried with the step both ways (a desktop delete's files: an undo puts
+/// them back from the Recycle Bin, a redo recycles them again). The step's own; the history only carries it.
+/// </summary>
+public interface IUndoEffect;
+
+/// <summary>One step in an <see cref="UndoLog{T}"/>: what it was, the state to go back to, and what it did outside the state ([S-5597]).</summary>
+public readonly record struct UndoEntry<T>(UndoAction Action, T State, IUndoEffect? Effect = null);
 
 /// <summary>
 /// [S-884] A bounded undo / redo history of whole snapshots, newest last.
@@ -143,14 +152,17 @@ public sealed class UndoLog<T>
     /// <summary>The step Ctrl+Y would put back, or null.</summary>
     public UndoAction? NextRedo => _redo.Count > 0 ? _redo[^1].Action : null;
 
-    /// <summary>Record a change: <paramref name="before"/> is what undoing it returns to.</summary>
-    public void Record(UndoAction action, T before)
+    /// <summary>Record a change: <paramref name="before"/> is what undoing it returns to; <paramref name="effect"/> what it did outside the state ([S-5597]).</summary>
+    public void Record(UndoAction action, T before, IUndoEffect? effect = null)
     {
         ArgumentNullException.ThrowIfNull(before);
 
         _redo.Clear();
-        Push(_undo, new UndoEntry<T>(action, before));
+        Push(_undo, new UndoEntry<T>(action, before, effect));
     }
+
+    /// <summary>[S-5597] What the step Ctrl+Z (<paramref name="undo"/>) or Ctrl+Y would take did outside the state, or null.</summary>
+    public IUndoEffect? NextEffect(bool undo) => undo ? (_undo.Count > 0 ? _undo[^1].Effect : null) : (_redo.Count > 0 ? _redo[^1].Effect : null);
 
     /// <summary>
     /// Take back the newest change. <paramref name="current"/> goes onto the redo side; the result's
@@ -180,7 +192,8 @@ public sealed class UndoLog<T>
 
         step = from[^1];
         from.RemoveAt(from.Count - 1);
-        Push(to, new UndoEntry<T>(step.Action, current));
+        // [S-5597] The step's effect goes with it: the same files are put back by an undo and recycled again by a redo.
+        Push(to, new UndoEntry<T>(step.Action, current, step.Effect));
         return true;
     }
 

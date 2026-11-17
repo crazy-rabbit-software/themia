@@ -33,7 +33,7 @@ public sealed class RemovableDrivesModule : IWidgetModule
         Glyph = Glyphs.Usb,
         Sizing = c => KitSizing.Sizing(Shown((RemovableDrivesConfig)c), addFooter: false),
         SizeSets = (c, s) => KitSizing.SizeSets(c, s, Shown((RemovableDrivesConfig)c), addFooter: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Devices, 2, 2),
     };

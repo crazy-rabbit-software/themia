@@ -32,7 +32,7 @@ namespace Themia.App.Widgets;
 /// lights the event in the calendar widgets there (<see cref="LinkTopics.HoveredEvent"/>).
 /// </para>
 /// </summary>
-internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetJoins
 {
     /// <inheritdoc />
     public CardOpen? Opens => NextMeetingModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
@@ -48,6 +48,18 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     /// Join) beside them at every width. The bottom inset is the content's (the top one the card's, [S-5700]).
     /// [S-12410] One block, centred in the room under the header with the foot's inset counted with it.
     /// </summary>
+    /// <summary>[S-12483] The block meets a joined side: at that side, no foot inset under it there.</summary>
+    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
+    {
+        _content.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, sides.Foot);
+        _content.VerticalAlignment = sides.Block switch
+        {
+            Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
+            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
+            _ => VerticalAlignment.Center,
+        };
+    }
+
     private readonly Grid _content = new()
     {
         Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),

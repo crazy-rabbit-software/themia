@@ -18,14 +18,13 @@ public sealed class ScreenTimeTests
     public void S11500_one_height_the_28_and_its_line_under_160_to_320_wide()
     {
         var sizing = Kind.Sizing(new ScreenTimeConfig());
-        var height = FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;
+        var height = FamilySpace.ContentTop + ScreenTimeReading.DayLine(ScreenTimePeriod.Week) + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;
         Assert.Equal(new SizeDip(200, height), sizing.Natural);
-        Assert.Equal((160, 400), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: 200 x 2
+        Assert.Equal((160d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(SizeStretch.Axis(height, 0, null, 2), sizing.Max.Height);
+        Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
         Assert.Empty(sizing.Problems());
         Assert.Null(Kind.SizeSets);
-        Assert.False(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
 
         // The widest figure fits its least width inside the inset.
         Assert.True(ReadoutRules.Width(FamilyType.Big28, new ReadoutText(ScreenTimeRules.FormatDuration(ScreenTimeReading.WorstSeconds))) <= sizing.Min.Width - (2 * FamilySpace.Inset));

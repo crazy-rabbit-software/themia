@@ -5,7 +5,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-1326] The header's parts ([S-6710]): at most two buttons — Back and Up in navigate mode, else
+/// [S-1326] The tool line's parts ([S-6710], [S-12481]): at most two buttons — Back and Up in navigate mode, else
 /// Search and Sort (Search alone in Details, whose column headers sort) — and the git badge as its
 /// informing label (list and details, inside a repository).
 /// </summary>
@@ -13,18 +13,18 @@ public readonly record struct FolderHeaderPlan(bool Back, bool Up, bool Search, 
 {
     public static FolderHeaderPlan None => default;
 
-    /// <summary>The buttons the header holds (never more than two, [S-6710]).</summary>
+    /// <summary>The buttons the line holds (never more than two, [S-6710]).</summary>
     public int Buttons => (Back ? 1 : 0) + (Up ? 1 : 0) + (Search ? 1 : 0) + (Sort ? 1 : 0);
 }
 
-/// <summary>[S-1323] One layout pass of the folder widget: what the body and the header show, from the config.</summary>
+/// <summary>[S-1323] One layout pass of the folder widget: what the body and the tool line show, from the config.</summary>
 /// <param name="Breadcrumb">The path as a row of 28 above the items (the Path setting).</param>
-/// <param name="SearchBox">The search box above the items (the Search box setting, or opened from the header).</param>
+/// <param name="SearchBox">The search box above the items (the Search box setting, or opened from the tool line).</param>
 /// <param name="ColumnHeader">The details table's column titles (the Column titles setting).</param>
 /// <param name="Columns">The details table's columns after Name: every one chosen.</param>
 /// <param name="Modified">The list's one value, the date modified (the Date modified setting).</param>
 /// <param name="Grid">The cells of the grid and icons styles; null for the rows.</param>
-/// <param name="Header">The header's parts.</param>
+/// <param name="Header">The tool line's parts.</param>
 public sealed record FolderPlan(
     bool Breadcrumb,
     bool SearchBox,
@@ -63,7 +63,7 @@ public static class FolderLayout
     public static double NameStart => RowRules.NameStart(Lead);
 
     /// <summary>
-    /// One layout pass. <paramref name="area"/> is the view's slot (the card below its header);
+    /// One layout pass. <paramref name="area"/> is the view's slot (the card less its top inset);
     /// <paramref name="anyFile"/> whether anything shown is a file ([S-6411]).
     /// </summary>
     public static FolderPlan Plan(WidgetArea area, FolderConfig config, int count, bool anyFile, bool searchOpen, bool navigate, bool hasGit)
@@ -109,7 +109,7 @@ public static class FolderLayout
     }
 
     /// <summary>
-    /// [S-11203] The least height: the header, what the config stands over the items, one row of them
+    /// [S-11203] The least height: the inset, the tool line, what the config stands over the items, one row of them
     /// (or one row of cells) and the bottom inset; never under <see cref="Least"/>.
     /// </summary>
     public static double LeastHeight(FolderConfig config)
@@ -118,7 +118,7 @@ public static class FolderLayout
         var one = config.Style is FolderStyle.Grid or FolderStyle.Icons
             ? RowRules.CellHeight(CellIcon, config.Style == FolderStyle.Grid) + FamilySpace.S3
             : RowHeight;
-        var over = (config.SearchBox ? SearchHeight : 0) + (config.ShowPath ? BreadcrumbHeight : 0)
+        var over = ToolLineHeight + (config.SearchBox ? SearchHeight : 0) + (config.ShowPath ? BreadcrumbHeight : 0)
             + (config.Style == FolderStyle.Details && config.ColumnTitles ? ColumnHeaderHeight : 0);
         return Math.Max(Least.Height, FamilySpace.ContentTop + over + one + FamilySpace.Inset);
     }
@@ -150,19 +150,22 @@ public static class FolderLayout
         ArgumentNullException.ThrowIfNull(config);
         var tiles = config.Style is FolderStyle.Grid or FolderStyle.Icons;
         var (row, gap) = tiles ? (RowRules.CellHeight(CellIcon, config.Style == FolderStyle.Grid), FamilySpace.S3) : (RowHeight, 0.0);
-        var over = (config.SearchBox ? SearchHeight : 0) + (config.ShowPath ? BreadcrumbHeight : 0)
+        var over = ToolLineHeight + (config.SearchBox ? SearchHeight : 0) + (config.ShowPath ? BreadcrumbHeight : 0)
             + (config.Style == FolderStyle.Details && config.ColumnTitles ? ColumnHeaderHeight : 0);
         var room = 280 - FamilySpace.ContentTop - FamilySpace.Inset - over;
         var rows = Math.Max(1, (int)Math.Round((room + gap) / (row + gap)));
         return FamilySpace.ContentTop + over + (rows * (row + gap)) - gap + FamilySpace.Inset;
     }
 
+    /// <summary>[S-1326] [S-12481] The folder's tool line over everything (its name, the ring, the git badge, two buttons) and the gap under it.</summary>
+    public const double ToolLineHeight = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+
     /// <summary>
-    /// The height the items have: the view's area less what stands above them and the card's bottom
+    /// The height the items have: the view's area less what stands above them (the tool line first) and the card's bottom
     /// inset. <see cref="Rows"/> of it are whole rows.
     /// </summary>
     public static double ItemsHeight(WidgetArea area, bool search, bool header, bool breadcrumb)
-        => Math.Max(0, area.Height - FamilySpace.Inset
+        => Math.Max(0, area.Height - FamilySpace.Inset - ToolLineHeight
             - (search ? SearchHeight : 0) - (header ? ColumnHeaderHeight : 0) - (breadcrumb ? BreadcrumbHeight : 0));
 
     /// <summary>[S-6712] The whole rows of 28 in <paramref name="height"/>, at least one.</summary>
@@ -180,9 +183,9 @@ public static class FolderLayout
         => ItemStretch.Pitch(height, Rows(height), RowHeight, scale: scale);
 
     /// <summary>
-    /// [S-1326] The header's parts ([S-6710]: at most two buttons): Back and Up in navigate mode, else
+    /// [S-1326] The tool line's parts ([S-6710]: at most two buttons): Back and Up in navigate mode, else
     /// Search, and Sort but in Details (its column titles sort); the git badge as the informing label in
-    /// list and details. The header folds them by its own rule; Forward, Home and, in navigate mode,
+    /// list and details. The line folds them by its own rule; Forward, Home and, in navigate mode,
     /// Search are on the card menu.
     /// </summary>
     public static FolderHeaderPlan Header(FolderConfig config, bool navigate, bool hasGit)

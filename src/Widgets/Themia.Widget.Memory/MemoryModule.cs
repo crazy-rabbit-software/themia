@@ -35,7 +35,7 @@ public sealed class MemoryModule : IWidgetModule
         Description = MemoryStr.WidgetsA_Catalog_Memory_Description.Local(),
         Glyph = Glyphs.Memory,
         Sizing = c => Sizing((MemoryConfig)c),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.MemoryReading, 0, 0),
     };

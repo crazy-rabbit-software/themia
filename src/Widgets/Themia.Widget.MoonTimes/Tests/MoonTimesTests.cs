@@ -41,12 +41,12 @@ public sealed class MoonTimesTests
     }
 
     [Fact]
-    public void S11126_its_height_is_a_28_row_a_time_under_the_header_and_dragging_sets_the_rows()
+    public void S11126_its_height_is_a_28_row_a_time_under_the_inset_and_dragging_sets_the_rows()
     {
         var config = new MoonTimesConfig();
-        Assert.Equal(36 + (3 * 28) + 12, Kind.Sizing(config).Natural.Height);
+        Assert.Equal(12 + (3 * 28) + 12, Kind.Sizing(config).Natural.Height);
 
-        var all = (MoonTimesConfig)Kind.SizeSets!(config, new SizeDip(240, 36 + (4 * 28) + 12));
+        var all = (MoonTimesConfig)Kind.SizeSets!(config, new SizeDip(240, 12 + (4 * 28) + 12));
         Assert.Equal([MoonTimeKind.Rise, MoonTimeKind.Set, MoonTimeKind.NextFull, MoonTimeKind.NextNew], all.Times);
     }
 

@@ -58,10 +58,10 @@ internal sealed partial class CalendarView
         var bars = CalendarFit.Bars(_events, _birthdays, start, days, zone, singleTimed: false);
         var barLine = CalendarFit.ChipLine;
         var bandLines = Math.Min(CalendarFit.LaneCount(bars), 1);
-        var bodyHeight = Math.Max(0, inner.Height - FamilySpace.Inset - CalendarSizing.WeekHead - (bandLines * barLine));
+        var bodyHeight = Math.Max(0, inner.Height - _joins.Foot - CalendarSizing.WeekHead - (bandLines * barLine));
 
         // The heads, one row per band line (a bar sits in its lane's row: no margin of its own), the body.
-        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset) };
+        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, _joins.Foot) };
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         for (var lane = 0; lane < bandLines; lane++)
         {
@@ -215,7 +215,7 @@ internal sealed partial class CalendarView
         _rowsTop.Height = top;
         _agenda.Visibility = Visibility.Visible;
         _agenda.Page = 0;
-        _agenda.Show(rows, plan, new WidgetArea(width, (rowsShown * FamilyShape.Row1) + FamilySpace.Inset), now);
+        _agenda.Show(rows, plan, new WidgetArea(width, (rowsShown * FamilyShape.Row1) + _joins.Foot), now);
     }
 
     /// <summary>[S-2284] A click on a day's head or marks chooses it (the selected day, [S-3620]); its hover lists the day.</summary>

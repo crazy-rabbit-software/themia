@@ -1,5 +1,4 @@
 {
-  "clock.dateLabel": "顯示日期",
   "clock.offsetLabel": "時差",
   "clock.secondsLabel": "顯示秒數",
   "clock.styleAnalog": "指針",
@@ -8,7 +7,6 @@
   "clock.timezoneLabel": "時區",
   "clock.tzCurrent": "目前：{city}",
   "locationSearch.placeholder": "搜尋城市…",
-  "styles.clock.date": "日期",
   "styles.clock.flip": "翻頁",
   "styles.clock.minimal": "極簡",
   "styles.clock.words": "文字",
@@ -30,6 +28,5 @@
   "wordClock.m40": "現在是[h]四十分",
   "wordClock.m45": "現在是[h]四十五分",
   "wordClock.m50": "現在是[h]五十分",
-  "wordClock.m55": "現在是[h]五十五分",
-  "widgetsA.clock.date": "{date} {weekday}"
+  "wordClock.m55": "現在是[h]五十五分"
 }

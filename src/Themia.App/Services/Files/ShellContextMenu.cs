@@ -256,6 +256,13 @@ internal static unsafe partial class ShellContextMenu
         }
     }
 
+    /// <summary>
+    /// [S-5597] One command of an <c>IContextMenu</c> the caller holds (a Recycle Bin item's, whose Restore is
+    /// <c>undelete</c>) by its canonical verb; <paramref name="what"/> names its subject in the log.
+    /// </summary>
+    internal static bool InvokeMenuVerb(nint menu, string verb, nint owner, string what)
+        => menu != 0 && InvokeVerb(menu, verb, owner, shift: false, CmfNormal, what);
+
     /// <summary>The shell's <c>IContextMenu</c> for <paramref name="paths"/>, or a null ref (logged).</summary>
     private static DragDropInterop.ComRef ItemsMenu(IReadOnlyList<string> paths)
     {

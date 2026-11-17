@@ -26,8 +26,8 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
 - **[S-3342]** *(Retired by [S-11515]: the ring's size is its Size, never the card's.)*
 - **[S-11515]** **A square by its Size** (owner decision 2026-11-12, [S-2438]): `Size` Small, Medium (a
   new one's) or Large (`ReadoutSize`, set by the Size line) is a ring of 128, 168 or 216
-  (`ScreenTimeDonutLayout.Ring`), the card round it one size with its header: 12 at the sides and the
-  foot, 36 over it (152 × 176, 192 × 216, 240 × 264). Its wedges stand in the family's track (4,
+  (`ScreenTimeDonutLayout.Ring`), the card round it one size: 12 at the sides and the
+  foot, 12 and its day line (24, a tool line, [S-454], [S-12481]) over it (152 × 176, 192 × 216, 240 × 264). Its wedges stand in the family's track (4,
   [S-6704]); the hole's figure is [S-1210]'s on 28 (40 may stand in a large ring's hole), centred, its
   line under (the day's "of 4h", a window's "2h 10m/day", or the focused app's share) where it fits,
   cut to the hole's width. Nothing to draw is the Status block's one row at the top ([S-6714]).
@@ -35,7 +35,7 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
   every other at its tone times 0.6 (pointed) or 0.3 (picked) (the lit wedge's 1.3 times thicker stroke
   went: one track), and the hole names it ("Code · 41%"). An app
   folded into Other lights Other (`ScreenTimeRules.FocusPart`); a hidden one lights nothing. Click
-  selects, empty space clears. A past day pinned in the header ([S-454]) goes back to today from the
+  selects, empty space clears. A past day pinned on its day line ([S-454]) goes back to today from the
   card menu.
 - **[S-3344]** Keys: Up/Down, PgUp/PgDn, Home/End step through the wedges clockwise from twelve;
   Enter/Space select; Left / Right step the day (a day period); Menu hides; Escape lets the cursor go.

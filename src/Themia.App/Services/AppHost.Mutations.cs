@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Dispatching;
+using Microsoft.UI.Dispatching;
 using Themia.App.Interop;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
@@ -22,10 +22,11 @@ internal sealed partial class AppHost
     /// [S-884] And so does the undo history: the change is committed to it, which records a step
     /// named <paramref name="undo"/> when the arrangement of the desktop changed and nothing otherwise.
     /// [S-5520] A null <paramref name="undo"/> is a change the system made, not the user (the desktop's
-    /// files changed): adopted without a step.
+    /// files changed): adopted without a step. [S-5597] <paramref name="effect"/>: what the step did outside the
+    /// state (a desktop delete's files), carried by it.
     /// </para>
     /// </summary>
-    public void Mutate(Action<AppState> change, bool relayout = true, UndoAction? undo = UndoAction.Change)
+    public void Mutate(Action<AppState> change, bool relayout = true, UndoAction? undo = UndoAction.Change, IUndoEffect? effect = null)
     {
         ArgumentNullException.ThrowIfNull(change);
 
@@ -54,7 +55,7 @@ internal sealed partial class AppHost
 
         if (undo is { } step)
         {
-            _history?.Commit(State, step);
+            _history?.Commit(State, step, effect);
         }
         else
         {

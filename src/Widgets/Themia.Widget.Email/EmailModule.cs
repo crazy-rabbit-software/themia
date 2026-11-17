@@ -39,7 +39,7 @@ public sealed class EmailModule : IWidgetModule
         Glyph = Glyphs.Mail,
         Sizing = c => KitSizing.Sizing(((EmailConfig)c).RowsShown, addFooter: false, ((EmailConfig)c).Widths),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((EmailConfig)c).RowsShown, addFooter: false),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredPerson], [LinkTopicId.HoveredPerson]),
         Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),
     };

@@ -30,7 +30,7 @@ public sealed class ScreenTimeChartModule : IWidgetModule
         Description = ScreenTimeChartStr.WidgetsC_ScreenTime_Chart_Desc.Local(),
         Glyph = Glyphs.ScreenTimeChart,
         Sizing = c => ScreenTimeChartLayout.Sizing(((ScreenTimeChartConfig)c).Style, ((ScreenTimeChartConfig)c).Period),
-        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.None,
         Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.HoveredDate], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.ScreenTime, 0, 1),
     };

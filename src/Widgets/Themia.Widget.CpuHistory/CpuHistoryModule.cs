@@ -36,7 +36,7 @@ public sealed class CpuHistoryModule : IWidgetModule
         Description = CpuHistoryStr.CpuHistory_Desc.Local(),
         Glyph = Glyphs.Cpu,
         Sizing = _ => MeterSizing.History,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Processor, 0, 1),
     };

@@ -25,6 +25,12 @@ public interface IWeatherAnswers
     /// <summary>[S-5121] The key a rain answer is synced under.</summary>
     string Key(RainInterest want);
 
+    /// <summary>[S-12702] The key a weather graph's hourly answer is synced under.</summary>
+    string Key(HoursInterest want);
+
+    /// <summary>[S-12702] The key the air graph's hourly answer is synced under.</summary>
+    string Key(AirHoursInterest want);
+
     /// <summary>
     /// What a widget draws: the newest good answer (a stored one before the first sync of this run),
     /// annotated with the last failure when that could not improve on it. Never asks.
@@ -38,6 +44,12 @@ public interface IWeatherAnswers
 
     Fetched<RainNowcast>? Rain(RainInterest want);
 
+    /// <summary>[S-12702] The next two days hour by hour, for the weather graphs.</summary>
+    Fetched<WeatherHours>? Hours(HoursInterest want);
+
+    /// <summary>[S-12702] The next four days of air hour by hour, for the air graph.</summary>
+    Fetched<AirHours>? AirHours(AirHoursInterest want);
+
     /// <summary>
     /// A shown widget's answer. Nothing is asked when one is held and fresh (only a place never
     /// fetched is asked now); <paramref name="refresh"/> is the user's Refresh ([S-730]).
@@ -47,6 +59,10 @@ public interface IWeatherAnswers
     void Show(AirInterest want, bool refresh);
 
     void Show(RainInterest want, bool refresh);
+
+    void Show(HoursInterest want, bool refresh);
+
+    void Show(AirHoursInterest want, bool refresh);
 }
 
 /// <summary>

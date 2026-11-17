@@ -15,12 +15,12 @@ namespace Themia.Widget.AirFacts;
 /// <summary>
 /// [S-11135] The air's readings at the card's place as fact rows: exactly the picked rows, in their order,
 /// from the content's top (<see cref="SkyFactList"/>), from the same air answer the index draws
-/// (<see cref="SkyFeed{TWant, T}"/>). A reading kept through a failed refresh stays and the header's
+/// (<see cref="SkyFeed{TWant, T}"/>). A reading kept through a failed refresh stays and the status's
 /// problem glyph says so ([S-7042]); with none, the Status row says why ([S-6734]).
 /// </summary>
-internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetContextActions
+internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetContextActions
 {
-    private readonly KitHeader _header;
+    private readonly KitStatus _status;
     private readonly SkyFactList _rows = new() { Visibility = Visibility.Collapsed };
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<AirInterest, AirReading> _feed;
@@ -28,16 +28,15 @@ internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetHeaderCon
 
     public AirFactsView(IWidgetHost host)
     {
-        _header = new KitHeader(host);
+        _status = new KitStatus(host);
         _feed = new(
             () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Air, host.Weather.Show),
             () => AirInterests.For(_config),
             Render);
         Children.Add(_rows);
         Children.Add(_empty);
+        _status.Place(this);
     }
-
-    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>[S-730] Refresh: the network now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -53,7 +52,6 @@ internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetHeaderCon
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as AirFactsConfig ?? new AirFactsConfig();
-        _header.SetAbout(_config.PlaceLabel);
         _feed.Reload();
     }
 
@@ -65,12 +63,12 @@ internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetHeaderCon
         {
             OnlineParts.ShowState(_empty, _feed.Status, AirFactsModule.Glyph, _feed.Refresh);
             _rows.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            _status.Clear();
             return;
         }
 
         _empty.Hide();
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        _status.Show(OnlineParts.Problems(held), busy: false);
         _rows.Visibility = Visibility.Visible;
         _rows.Show([.. AirFactRules.For(_config.Facts, air).Select(f => new SkyFact(FactGlyph(f.Kind), f.Label, f.Value))]);
     }

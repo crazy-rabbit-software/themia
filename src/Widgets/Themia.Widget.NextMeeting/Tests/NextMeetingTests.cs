@@ -32,8 +32,8 @@ public sealed class NextMeetingTests
         // The title (28) and three lines of 20, 4 apart, in the inset: 12 + 100 + 12.
         Assert.Equal(new Themia.Sdk.SizeDip(320, 124), all.Natural);
         Assert.Equal(all.Min.Height, all.Natural.Height);
-        Assert.Equal(248, all.Max.Height); // relaxed, [S-12411]: 124 x 2
-        Assert.Equal((260, 640), (all.Min.Width, all.Max.Width)); // relaxed: 320 x 2
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, all.Max.Height); // relaxed, [S-12411]: no practical Max
+        Assert.Equal((260d, Themia.Sdk.SizeStretch.Ceiling), (all.Min.Width, all.Max.Width)); // relaxed, [S-12411]: no practical Max
 
         // The title and the time alone: the end column (the countdown over Join, 52) is the taller.
         Assert.Equal(12 + NextMeetingJoin.EndHeight(hasJoin: true) + 12, title.Natural.Height);

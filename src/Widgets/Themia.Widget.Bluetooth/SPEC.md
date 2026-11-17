@@ -34,15 +34,15 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
 - **[S-1254]** Bluetooth's rows (`BluetoothLayout`) on the family's rows ([S-6711], [S-6712]): a device
   is a Row block, [kind glyph 16] 8 [name, primary] 12 [battery %, the value], 28 tall, 40 with its
   second line; one column of the config's rows ([S-11310]), the rest scrolls. Battery % the value
-  ([S-3253]); "2 connected" is the header's informing label wherever the header has room for it (the
-  first part to give way, [S-6710]), and its busy ring turns while a pass is out. Retired with the move (G5, 2026-10-29): the 40 and 56 rows and the compact rows under a 200
+  ([S-3253]); a busy ring over the content's top end turns while a pass is out ([S-12481]; the "2 connected"
+  words went with the header). Retired with the move (G5, 2026-10-29): the 40 and 56 rows and the compact rows under a 200
   list, the status word's column (260) and the signal's (400) with the wide two-line row's fact
   columns: a row has one value, the battery; the connection and the signal are its second line.
 - **[S-1255]** Where Lines is two ([S-11310]): name, then kind · connection · signal (each only when
   enabled and reported).
 - **[S-11310]** **A list atom.** **Rows** (1 to 20, a new one 4) and **Lines** (one or two a row, a
   new one one) are settings on its menu (`IKitRows`, `KitMenuLines.Rows`, after what a row shows); the
-  card follows (`KitSizing`): under its header the rows and the inset, stepped by a row and following
+  card follows (`KitSizing`): the inset, the rows and the inset, stepped by a row and following
   Rows (dragging its bottom edge sets them), 220 to 520 wide. The device cap (`MaxDevices`) is gone:
   every device is listed and more than the rows scroll. No tier ladder is left (the lines by the
   tier, the two columns at the Huge width). Tests `BluetoothLadderTests.S11310_`, `BluetoothMenuTests`.
@@ -82,8 +82,8 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
   Debug renders: `--widget-png Bluetooth <out> --state devices` draws a fixed set of devices.
 - **[S-3961]** No battery bar and no connection dot: the battery is its percentage as text, and the
   state is the device icon's colour (primary connected, secondary paired), the second line and the
-  tooltip. `ShowConnection` governs the second line's state. No count badge in the header either:
-  the connected count is the "2 connected" words, the header's informing label ([S-1254]).
+  tooltip. `ShowConnection` governs the second line's state. No count badge: the icons' colours say
+  which are connected ([S-12481]).
 - **[S-1569]** *(Retired: no Bluetooth detail panel. A short list on a large tile stays the list;
   the rows' second line and tooltip carry each device's facts.)*
 - **[S-1988]** *(Retired with the detail panel: the Bluetooth list takes no lease keys.)*

@@ -35,7 +35,7 @@ public sealed class GpuModule : IWidgetModule
         Description = GpuStr.Shell_Meters_GpuDescription.Local(),
         Glyph = Glyphs.Gpu,
         Sizing = c => MeterSizing.Reading(GpuMeter.Look(((GpuConfig)c).Style), ReadoutRules.Split(Formatting.Percent(1))),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Graphics, 0, 0),
     };

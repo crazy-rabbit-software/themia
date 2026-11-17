@@ -42,7 +42,7 @@ public sealed class TasksModule : IWidgetModule
         Glyph = Glyphs.Task,
         Sizing = c => KitSizing.Sizing(((TasksConfig)c).RowsShown, addFooter: true),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((TasksConfig)c).RowsShown, addFooter: true),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
     };

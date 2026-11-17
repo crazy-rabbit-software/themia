@@ -44,9 +44,7 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   full-bleed, filled row by row; fewer pictures leave the last cells empty.
 - **[S-767]** The plan (`GalleryPlan.For`, from the config and the pictures, never the size): a
   layout with one picture to show is that picture full-bleed with nothing on it. Slideshow: the
-  counter ("1/20") as the header's informing label (Caption, secondary, the first part to give way,
-  [S-6710]; a Gallery starts headerless, [S-2590], so the counter is there once the header is) and
-  the hover bar, at every size; the picture is the whole slot (no "up next" thumbnails, retired
+  hover bar, at every size (the "1/20" counter went with the card header, [S-12481]); the picture is the whole slot (no "up next" thumbnails, retired
   [S-666]; no file-name or "N of M" line, [S-2760]). Scatter and mosaic are dealt from the widget's
   own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
 - **[S-11207]** Converted to the sizing ([S-2438]), headerless by default: **Grid** (a folder's) is its
@@ -74,9 +72,8 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   scatter / mosaic); the layout is the style only ([S-1746]).
 - **[S-2760]** No words on a picture (user rule, [S-666]): no title, credit or file name under or
   over any picture, at any size, in any layout or source (slideshow included), and no hover tooltip
-  naming it (the photo of the day's credit tooltip, [S-3112], is the one exception); the freed height is the picture's. A single file's header keeps the catalogue label
-  rather than the file's name; a folder's header still names the folder, the photo of the day's says
-  "Photo of the day". The picture's name stays only as its screen-reader name. (`GalleryPlan`; tests
+  naming it (the photo of the day's credit tooltip, [S-3112], is the one exception); the freed height is the picture's. No card header names it ([S-12480]; a Header
+  widget of the person's own does, [S-9600]). The picture's name stays only as its screen-reader name. (`GalleryPlan`; tests
   `S2760_`.) Debug renders show real pictures with
   `--widget-png Gallery … --state slideshow|grid|scatter|mosaic|file` (Windows' own wallpapers).
 - **[S-776]** The one main picture (slideshow, file, photo of the day) has **no backing fill**, so a

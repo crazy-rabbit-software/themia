@@ -18,7 +18,7 @@ namespace Themia.App.Shell.Gallery;
 /// the busy wallpaper: each page at its top (<c>page-&lt;theme&gt;-general.png</c>, <c>-appearance</c>), then opened at a
 /// row as a deep link opens it, its picker open (<c>-appearance-style</c>, <c>-theme</c>, <c>-accent</c> (a colour),
 /// <c>-background</c> (a fill), <c>-border</c>, <c>-font</c>, <c>-general-motion</c> (an expander), <c>-online-weather</c>,
-/// <c>-language</c> (a lookup), <c>-language-find</c> ("deu" typed), <c>-link-temperature</c> (where a widget's link
+/// <c>-language</c> (a lookup), <c>-language-find</c> ("deu" typed), <c>-temperature</c> (a deep link
 /// lands), <c>-advice</c>, <c>-replace</c> (an "are you sure?" page), the assistants', Pro's, Back up's and About's,
 /// and Accounts'. A stand-in host: nothing reaches Windows or the user's state.
 /// </summary>
@@ -50,8 +50,8 @@ internal static partial class EditBarRender
             ("general-clock", SettingsMenu.Keys.Language + "/clock"),
             ("general-formats", SettingsMenu.Keys.Formats),
 
-            // [S-3749] Where a widget's link lands: the temperature unit's row, lit, as RequestSetting opens it.
-            ("general-link-temperature", SettingsMenu.Keys.Format(Themia.Sdk.OwnedSetting.TemperatureUnit)),
+            // [S-3534] A deep link to the temperature unit's row: lit, its picker open, scrolled only as far as it takes ([S-2347]).
+            ("general-temperature", SettingsMenu.Keys.Temperature),
         ];
 
         foreach (var (name, key) in cases)

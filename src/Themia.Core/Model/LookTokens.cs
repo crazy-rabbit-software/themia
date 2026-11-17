@@ -28,25 +28,6 @@ public enum InnerSurface
     Vibrant = 1,
 }
 
-/// <summary>[S-2137] Which text level a widget's header name is drawn in.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<HeaderTone>))]
-public enum HeaderTone
-{
-    /// <summary>The secondary level: the header labels the widget (the family's own).</summary>
-    Secondary = 0,
-
-    /// <summary>The primary level, as a macOS widget's title.</summary>
-    Primary = 1,
-}
-
-/// <summary>[S-2137] How a widget's header name is cased.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<HeaderCase>))]
-public enum HeaderCase
-{
-    AsWritten = 0,
-    Upper = 1,
-}
-
 /// <summary>
 /// [S-2130] One number token: its key (the settings line's, the <c>--design</c> key and the file's name), its range,
 /// the step a slider takes and its default; how it reads and writes a <see cref="LookTokens"/>.
@@ -63,7 +44,7 @@ public sealed record LookNumber(string Key, double Min, double Max, double Step,
 /// <list type="bullet">
 /// <item><b>Material</b> ([S-2131]..[S-2133], [S-2140]): the frost under every translucent card (blur, saturation, brightness), how far the card takes the accent, the rendering mode, the grain; and the glass's tint per theme, glow and lens;</item>
 /// <item><b>Shape</b> ([S-2132]): the glass's rim (width, strength) and lift (radius, drop, strength);</item>
-/// <item><b>Text</b> ([S-2134]..[S-2137]): the text levels' vibrancy and each level's opacity, the weight per role, the tracking at large and small sizes, tabular figures, the header's tone and case;</item>
+/// <item><b>Text</b> ([S-2134]..[S-2137]): the text levels' vibrancy and each level's opacity, the weight per role, the tracking at large and small sizes, tabular figures;</item>
 /// <item><b>Surfaces</b> ([S-2138]): the items' fills inside a card (theme or vibrant) at rest, lit and selected, and a meter's track;</item>
 /// <item><b>Layout</b> ([S-2139]): the list rows' dividers and a divider's opacity.</item>
 /// </list>
@@ -144,7 +125,7 @@ public sealed class LookTokens
     /// <summary>[S-2134] The quaternary level's: what is greyed (0.05 to 1).</summary>
     public double LabelQuaternary { get; set; } = 0.24;
 
-    /// <summary>[S-2135] The header's name, Title and the one emphasised row.</summary>
+    /// <summary>[S-2135] The Header widget's name ([S-9601]), Title and the one emphasised row.</summary>
     public TypeWeight HeaderWeight { get; set; } = TypeWeight.Semibold;
 
     /// <summary>[S-2135] A readout's number (28 and up).</summary>
@@ -161,12 +142,6 @@ public sealed class LookTokens
 
     /// <summary>[S-2136] Figures of one width, so a changing number does not shift.</summary>
     public bool TabularNumerals { get; set; }
-
-    /// <summary>[S-2137] The header name's level.</summary>
-    public HeaderTone HeaderTone { get; set; } = HeaderTone.Secondary;
-
-    /// <summary>[S-2137] The header name's case.</summary>
-    public HeaderCase HeaderCase { get; set; } = HeaderCase.AsWritten;
 
     // ---- Surfaces ----
 
@@ -266,8 +241,6 @@ public sealed class LookTokens
         HeaderWeight = Defined(HeaderWeight, TypeWeight.Semibold, "headerWeight");
         ReadoutWeight = Defined(ReadoutWeight, TypeWeight.Semibold, "readoutWeight");
         BodyWeight = Defined(BodyWeight, TypeWeight.Regular, "bodyWeight");
-        HeaderTone = Defined(HeaderTone, HeaderTone.Secondary, "headerTone");
-        HeaderCase = Defined(HeaderCase, HeaderCase.AsWritten, "headerCase");
         InnerSurface = Defined(InnerSurface, InnerSurface.Theme, "innerSurface");
         RowDividers = Defined(RowDividers, RowDivider.None, "rowDividers");
         return repairs;
@@ -290,8 +263,8 @@ public sealed class LookTokens
         }
 
         return Rendering == other.Rendering && HeaderWeight == other.HeaderWeight && ReadoutWeight == other.ReadoutWeight
-            && BodyWeight == other.BodyWeight && TabularNumerals == other.TabularNumerals && HeaderTone == other.HeaderTone
-            && HeaderCase == other.HeaderCase && InnerSurface == other.InnerSurface && RowDividers == other.RowDividers;
+            && BodyWeight == other.BodyWeight && TabularNumerals == other.TabularNumerals
+            && InnerSurface == other.InnerSurface && RowDividers == other.RowDividers;
     }
 
     /// <summary>[S-2135] [S-2136] The type tokens as the family draws them.</summary>

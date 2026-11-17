@@ -25,11 +25,8 @@ public enum ClockStyle
     /// <summary>[S-6013] The time in words, in five-minute steps ("It's quarter past ten").</summary>
     Word = 4,
 
-    /// <summary>[S-6014] The time alone, in the regular weight: no date, label, seconds or offset.</summary>
+    /// <summary>[S-6014] The time alone, in the regular weight: no label, seconds or offset.</summary>
     Minimal = 5,
-
-    /// <summary>[S-5300] The day without the time: the weekday, the day of the month large, the month.</summary>
-    Date = 6,
 }
 
 /// <summary>[S-1485] The offset line under the date: none, from UTC, or from the machine's own zone.</summary>
@@ -46,9 +43,6 @@ public enum ClockSetting
 {
     /// <summary>Seconds: the faces that tick them ([S-6015]).</summary>
     Seconds,
-
-    /// <summary>The date line: not the minimal clock, nor the date style, which is the date.</summary>
-    Date,
 
     /// <summary>The offset line, under the zone.</summary>
     Offset,
@@ -76,7 +70,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         StyleOption.Of(ClockStyle.Flip, ClockStr.Styles_Clock_Flip.Local(), 0xE8A9),
         StyleOption.Of(ClockStyle.Word, ClockStr.Styles_Clock_Words.Local(), 0xE8D2),
         StyleOption.Of(ClockStyle.Minimal, ClockStr.Styles_Clock_Minimal.Local(), 0xE738),
-        StyleOption.Of(ClockStyle.Date, ClockStr.Styles_Clock_Date.Local(), 0xE8D1),
     ];
 
     IReadOnlyList<StyleOption> IStyled.Styles => ClockStyles;
@@ -88,8 +81,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     }
 
     public bool ShowSeconds { get; set; }
-
-    public bool ShowDate { get; set; } = true;
 
     /// <summary>
     /// [S-1480] IANA id of the zone to show ("Asia/Tokyo"), or null for the machine's own zone. Resolved
@@ -103,7 +94,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     {
         Style = Style,
         ShowSeconds = ShowSeconds,
-        ShowDate = ShowDate,
         TimeZoneId = TimeZoneId,
         OffsetMode = OffsetMode,
         Size = Size,
@@ -120,28 +110,27 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public bool IsWorldClock => ZoneCatalog.Resolve(TimeZoneId) is not null;
 
     /// <summary>
-    /// [S-6074] The rows the menu offers: seconds where the face ticks them; the date and offset
-    /// lines wherever there is a line under the time, so neither on the minimal clock ([S-6014]) nor
-    /// on the date style ([S-5303]). The line's size is its step's ([S-6741]): the clock has no text
-    /// size of its own. The zone applies to every style; the alignment is the properties panel's ([S-6580]).
+    /// [S-6074] The rows the menu offers: seconds where the face ticks them; the offset line wherever there
+    /// is a line under the time, so not on the minimal clock ([S-6014]). The date is the Date widget's
+    /// ([S-12805]). The line's size is its step's ([S-6741]): the clock has no text size of its own. The zone
+    /// applies to every style; the alignment is the properties panel's ([S-6580]).
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<ClockSetting> ShownSettings
     {
         get
         {
-            if (Style is ClockStyle.Date or ClockStyle.Minimal)
+            if (Style == ClockStyle.Minimal)
             {
                 return [];
             }
 
-            var shown = new List<ClockSetting>(3);
+            var shown = new List<ClockSetting>(2);
             if (Style != ClockStyle.Word)
             {
                 shown.Add(ClockSetting.Seconds);
             }
 
-            shown.Add(ClockSetting.Date);
             shown.Add(ClockSetting.Offset);
             return shown;
         }
@@ -149,16 +138,16 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
 
     /// <summary>
     /// [S-6015] Whether this style draws seconds at all: words come in five-minute steps, the
-    /// minimal clock is the time alone and the date style has no time ([S-6013], [S-6014], [S-5300]).
+    /// minimal clock is the time alone ([S-6013], [S-6014]).
     /// </summary>
     [JsonIgnore]
-    public bool DrawsSeconds => ShowSeconds && Style is not (ClockStyle.Word or ClockStyle.Minimal or ClockStyle.Date);
+    public bool DrawsSeconds => ShowSeconds && Style is not (ClockStyle.Word or ClockStyle.Minimal);
 
     /// <summary>
     /// [S-52] The tick cadence this config actually needs: every second only while seconds are drawn
     /// (the digits' or the analog face's second hand). Every other clock wakes once a minute, on the
     /// minute — an analog face without its second hand too, whose minute hand then stands on the
-    /// whole minute ([S-51]), and the date style, which turns over within a minute of midnight ([S-5304]).
+    /// whole minute ([S-51]).
     /// </summary>
     [JsonIgnore]
     public TimeSpan TickInterval => DrawsSeconds ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1);

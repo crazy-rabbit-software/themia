@@ -84,7 +84,7 @@ internal sealed partial class PageView : ContentControl
     /// <summary>The page's key (its id, or the selection's).</summary>
     public string Key => _model?.Key ?? string.Empty;
 
-    /// <summary>Asked to scroll an element into view (the opened card, a lit row).</summary>
+    /// <summary>[S-2347] Asked to scroll an element whole into sight, as little as it takes (the opened card with its rows, a deep link's row).</summary>
     public event Action<FrameworkElement>? BringIntoView;
 
     /// <summary>Whether a sub-page, a line of text asked or a question stands in the page's place.</summary>
@@ -231,7 +231,9 @@ internal sealed partial class PageView : ContentControl
         }
 
         Light(found);
-        BringIntoView?.Invoke(Tagged(found, target + "#head") ?? found);
+
+        // [S-2347] The row with what it opened, as a click opens it: scrolled only as far as it takes.
+        BringIntoView?.Invoke(found);
         return true;
     }
 
@@ -567,6 +569,11 @@ internal sealed partial class PageView : ContentControl
             case SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon:
                 _open = row.Key;
                 Show();
+                if (Tagged(this, row.Key + "#row") is { } shown)
+                {
+                    BringIntoView?.Invoke(shown);
+                }
+
                 break;
             case SettingsRowKind.Toggle:
                 Do(() => row.Toggle?.Invoke(!row.On));

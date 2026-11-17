@@ -8,12 +8,18 @@ namespace Themia.Widget.Calendar;
 
 /// <summary>
 /// [S-11540]..[S-11546] The calendar's sizes, each style its own and from the config alone, on the
-/// family's tokens (inset 12, the header's 36, rows 28/40): what a style shows is its settings', never
+/// family's tokens (inset 12, the period's line 24 over every style but the agenda, [S-12481], rows 28/40): what a style shows is its settings', never
 /// the card's size. Pure.
 /// </summary>
 public static class CalendarSizing
 {
     public const int DefaultAgendaRows = 6;
+
+    /// <summary>[S-569] [S-12481] The period's line (a tool line) and the gap under it, over every style but the agenda.</summary>
+    public const double NavLine = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+
+    /// <summary>[S-12481] Where a style with the period's line starts its drawing: the card's inset and the line.</summary>
+    public const double ContentTop = FamilySpace.ContentTop + NavLine;
 
     public const int DefaultWeekRows = 3;
 
@@ -53,14 +59,14 @@ public static class CalendarSizing
             ? new YearFit(12, 4, 3, FamilyType.Caption.LineHeight, true, true)
             : new YearFit(12, 4, 3, YearSquare, false, false);
 
-    /// <summary>[S-11542] One size by the Size, with its header: the months' title line and their weeks, in the inset.</summary>
+    /// <summary>[S-11542] One size by the Size, its period's line over it: the months' title line and their weeks, in the inset.</summary>
     public static WidgetSizing YearSizing(ReadoutSize size)
     {
         var fit = Year(size);
         var mini = 7 * fit.DayCell;
         var miniHeight = FamilyType.Caption.LineHeight + ((fit.Weekdays ? 7 : 6) * fit.DayCell);
         var width = (2 * FamilySpace.Inset) + (fit.Columns * mini) + ((fit.Columns - 1) * YearGap);
-        var height = FamilySpace.ContentTop + (fit.Rows * miniHeight) + ((fit.Rows - 1) * YearGap) + FamilySpace.Inset;
+        var height = ContentTop + (fit.Rows * miniHeight) + ((fit.Rows - 1) * YearGap) + FamilySpace.Inset;
         return WidgetSizing.Fixed(new(width, height));
     }
 
@@ -73,9 +79,9 @@ public static class CalendarSizing
     public static DayBandFit DayBand(int items)
         => items <= 0 ? new DayBandFit(0, 0, false) : new DayBandFit(1, CalendarFit.DayBar, items > 1);
 
-    /// <summary>[S-11543] The day's height steps: the header, the band's line and 4, an hour a step, the inset.</summary>
+    /// <summary>[S-11543] The day's height steps: the inset and the period's line, the band's line and 4, an hour a step, the inset.</summary>
     public static SizeSteps DaySteps(int hours)
-        => new(FamilySpace.ContentTop + CalendarFit.DayBar + FamilySpace.S1 + FamilySpace.Inset, Hour, MinHours, MaxHours, ClampHours(hours));
+        => new(ContentTop + CalendarFit.DayBar + FamilySpace.S1 + FamilySpace.Inset, Hour, MinHours, MaxHours, ClampHours(hours));
 
     /// <summary>[S-11543] The day: 240..480 wide (a new one 300), its height its hours'.</summary>
     public static WidgetSizing DaySizing(int hours)
@@ -113,9 +119,9 @@ public static class CalendarSizing
             chips ? MonthDensity.Chips : MonthDensity.Dots, chips ? MonthPlan.Lines(lines) : 0, CalendarFit.ChipLine, chips && column >= CalendarFit.ChipTimeFrom, false);
     }
 
-    /// <summary>[S-11547] The month with titles' height steps: the header, the weekday line, six number lines, a chip line a week a step, the inset.</summary>
+    /// <summary>[S-11547] The month with titles' height steps: the inset and the period's line, the weekday line, six number lines, a chip line a week a step, the inset.</summary>
     public static SizeSteps MonthLineSteps(int lines)
-        => new(FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthNumberLine) + FamilySpace.Inset,
+        => new(ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthNumberLine) + FamilySpace.Inset,
             MonthWeeks * CalendarFit.ChipLine, MonthPlan.MinLines, MonthPlan.MaxLines, MonthPlan.Lines(lines));
 
     /// <summary>
@@ -133,7 +139,7 @@ public static class CalendarSizing
                 .WithHeightSteps(MonthLineSteps(config.MonthLines));
         }
 
-        var height = FamilySpace.ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthCell(MonthEvents.Dots)) + FamilySpace.Inset;
+        var height = ContentTop + FamilyType.Caption.LineHeight + (MonthWeeks * MonthCell(MonthEvents.Dots)) + FamilySpace.Inset;
         return WidgetSizing.Range(new(260, height), new(300, height), new(420, height));
     }
 
@@ -159,11 +165,11 @@ public static class CalendarSizing
 
     /// <summary>[S-11545] The day strip's height steps: the strip and 8 over the chosen day's rows (28 each).</summary>
     public static SizeSteps WeekRowSteps(int rows)
-        => new(FamilySpace.ContentTop + Strip + FamilySpace.S2 + FamilySpace.Inset, FamilyShape.Row1, 1, MaxWeekRows, ClampWeekRows(rows));
+        => new(ContentTop + Strip + FamilySpace.S2 + FamilySpace.Inset, FamilyShape.Row1, 1, MaxWeekRows, ClampWeekRows(rows));
 
     /// <summary>[S-11546] The week with titles' height steps: the heads, the band's one line, an hour a step.</summary>
     public static SizeSteps WeekHourSteps(int hours)
-        => new(FamilySpace.ContentTop + WeekHead + CalendarFit.ChipLine + FamilySpace.Inset, Hour, MinHours, MaxHours, ClampHours(hours));
+        => new(ContentTop + WeekHead + CalendarFit.ChipLine + FamilySpace.Inset, Hour, MinHours, MaxHours, ClampHours(hours));
 
     /// <summary>[S-11545] [S-11546] The week: the day strip 240..520 wide, or the titles' columns of at least 96 beside the hours.</summary>
     public static WidgetSizing WeekSizing(CalendarWidgetConfig config)
@@ -182,7 +188,7 @@ public static class CalendarSizing
 
     // ---- the kind ---------------------------------------------------------------------------------
 
-    /// <summary>[S-11540]..[S-11546] The sizing of <paramref name="config"/>'s style, with its header.</summary>
+    /// <summary>[S-11540]..[S-11546] The sizing of <paramref name="config"/>'s style.</summary>
     public static WidgetSizing Sizing(CalendarWidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
