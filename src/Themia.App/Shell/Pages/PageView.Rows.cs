@@ -154,18 +154,14 @@ internal sealed partial class PageView
 
         if (row.Icon?.Invoke() is { } icon)
         {
-            if (icon is FrameworkElement shaped)
-            {
-                shaped.VerticalAlignment = VerticalAlignment.Center;
-                shaped.HorizontalAlignment = HorizontalAlignment.Left;
-            }
-
             if (icon is IconElement glyph && row.Danger)
             {
                 glyph.Foreground = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
             }
 
-            grid.Children.Add(new Border { Width = Fluent.IconSize, Height = Fluent.IconSize, Child = icon, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left });
+            var slot = IconSlot(icon);
+            slot.HorizontalAlignment = HorizontalAlignment.Left;
+            grid.Children.Add(slot);
         }
 
         var words = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, Fluent.Space3, 0) };
@@ -194,6 +190,37 @@ internal sealed partial class PageView
 
 
         return grid;
+    }
+
+    /// <summary>
+    /// [S-2377] An icon in its slot, the one way a page puts one (a row's icon column, a foot button's, a button beside a
+    /// row's, an option's): <see cref="P.IconSlot"/> square, a glyph drawn at <see cref="P.IconGlyph"/> whatever size it
+    /// was built at, anything larger still scaled down into the slot, never cut by it. A widget's entries build their glyph
+    /// for a menu (<c>ItemMenu.IconFor</c>: WinUI's FontIcon at its 20, which a menu's own icon slot scales); a fixed 16 box
+    /// cut it 4 off its end and 2 off its top and foot (owner, 2026-11-19: "in the settings pages the icons show clipped").
+    /// </summary>
+    private static Viewbox IconSlot(UIElement icon)
+    {
+        if (icon is FontIcon glyph)
+        {
+            glyph.FontSize = P.IconGlyph;
+        }
+
+        if (icon is FrameworkElement shaped)
+        {
+            shaped.HorizontalAlignment = HorizontalAlignment.Center;
+            shaped.VerticalAlignment = VerticalAlignment.Center;
+        }
+
+        return new Viewbox
+        {
+            Width = P.IconSlot,
+            Height = P.IconSlot,
+            Stretch = Stretch.Uniform,
+            StretchDirection = StretchDirection.DownOnly,
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = icon,
+        };
     }
 
     /// <summary>
@@ -377,7 +404,7 @@ internal sealed partial class PageView
                 glyph.Foreground = ink;
             }
 
-            content.Children.Add(new Border { Width = Fluent.IconSize, Height = Fluent.IconSize, Child = icon, VerticalAlignment = VerticalAlignment.Center });
+            content.Children.Add(IconSlot(icon));
         }
 
         var words = Fluent.Text(FamilyType.Body);
@@ -429,7 +456,7 @@ internal sealed partial class PageView
         var button = RowButton(beside, beside.Text, null, beside.Run, row.Key + "#beside");
         if (beside.Icon?.Invoke() is { } icon)
         {
-            ((StackPanel)button.Content).Children.Insert(0, new Border { Width = Fluent.IconSize, Height = Fluent.IconSize, Child = icon, VerticalAlignment = VerticalAlignment.Center });
+            ((StackPanel)button.Content).Children.Insert(0, IconSlot(icon));
         }
 
         return Lay(row, button, row.Caption);
@@ -767,7 +794,7 @@ internal sealed partial class PageView
         var content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
         if (row.Icon?.Invoke() is { } icon)
         {
-            content.Children.Add(icon);
+            content.Children.Add(IconSlot(icon));
         }
 
         content.Children.Add(BodyText(row.Text));

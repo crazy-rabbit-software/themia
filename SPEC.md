@@ -2187,6 +2187,17 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   `CommonSettingsTests.AValueTheyDoNotAgreeOnIsMixed`): the page of several's own rows (Alignment, Background image,
   Scale), a colour and a number box say "Mixed", as the shared lines did; until now a dash, the number box's a mis-encoded
   one.
+- **[S-2377]** **A row's icon is never cut by its box** (owner, 2026-11-19: "in the settings pages the icons show
+  clipped"): every icon a page draws (a row's icon column, a foot button's, a button beside a row's, an option's) stands
+  in the one slot (`PageView.IconSlot`; `ShellMetrics.Page.IconSlot`, `IconGlyph`): a glyph drawn at 16 (Karpo's
+  `PanelMetrics.Icon`) whatever size it was built at, a picture larger than the 16 slot scaled down into it, never cut.
+  A widget's entries build their glyph for a menu (`ItemMenu.IconFor`: WinUI's FontIcon at its 20, which a menu's own
+  icon slot scales), and the page stood it in a fixed 16 box: every widget's Settings tab and the page of several showed
+  their icons cut 4 off the end and 2 off the top and the foot (Place, Timezone, Rows, Volume, Sound, Date, ...); an
+  option's glyph stood at 20 beside 16 ones. Checked on the pictures: any render with `--icon-census` writes beside each
+  PNG the icons it drew with their boxes, and `scripts/icon-clip-check.py` measures their ink on the picture and names
+  every icon whose box is smaller than its glyph with its ink at the box's edge; `--raster 100` draws the edit bar's and
+  the icon picker's renders at 100 % on a display at another scale. Tests `PageIconSlotTests.S2377_`.
 - **[S-2375]** **A greyed row says why** (owner, 2026-11-19, as [S-2370]; Karpo's §309 `OptionRow.Why`, "greyed, with
   why under it"): a settings line (`SettingsLine.Why`) and a widget's entry (`ItemMenuEntry.Why`) that stand greyed say
   why on the row's caption line under its name (`PageRows.Greyed`): Formats' Reset all "Every format follows Windows", a

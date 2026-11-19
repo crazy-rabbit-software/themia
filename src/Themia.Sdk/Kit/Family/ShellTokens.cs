@@ -233,6 +233,15 @@ public static class ShellMetrics
 
         public const double IconAt = 16;
 
+        /// <summary>
+        /// [S-2377] A row's icon (its icon column's, a foot button's, a button beside a row's, an option's): its glyph 16 (Karpo's
+        /// <c>PanelMetrics.Icon</c>) whatever size it was built at, in a slot as large that scales down what is larger and never
+        /// cuts it.
+        /// </summary>
+        public const double IconGlyph = FamilyShape.Icon;
+
+        public const double IconSlot = IconGlyph;
+
         public const double NameAt = 48;
 
         public const double EndInset = 16;
