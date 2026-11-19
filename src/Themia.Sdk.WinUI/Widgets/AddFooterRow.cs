@@ -31,15 +31,15 @@ public sealed class AddFooterRow
         _onAdd = onAdd;
         _row.LeadGlyph(Glyphs.Add);
 
-        // [S-12807] Its text on the foot's inset line: its band under the text reaches into the inset, so the
-        // list's last line stands where every list's does (ItemStretch.RowsAbove lays the rows over it).
+        // [S-12807] Its ink on the foot's inset line: its band and its leading under the ink reach into the inset,
+        // so the list's last ink stands where every list's does (ItemStretch.RowsAbove lays the rows over it).
         Element = new Border
         {
             Child = _row,
             VerticalAlignment = VerticalAlignment.Bottom,
-            Margin = new Thickness(0, 0, 0, FamilySpace.Inset - FamilyShape.RowBand(1)),
             Visibility = Visibility.Collapsed,
         };
+        ListReach.Foot(Element, FamilySpace.Inset - FamilyShape.RowBand(1) - LineInk.Row(1, FamilyShape.Icon).Under);
         ItemFill.Paint(Element, ItemRole.Row);
         Element.Tapped += OnTapped;
         _hover = Fluent.Hover(Element);

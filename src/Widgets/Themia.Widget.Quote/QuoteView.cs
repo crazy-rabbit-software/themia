@@ -38,7 +38,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     /// <summary>[S-1496] The attribution, on the quote's line under, secondary.</summary>
     private readonly TextBlock _author = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly StackPanel _body;
+    private readonly SpreadStack _body;
 
 
     private QuoteConfig _config = new();
@@ -65,12 +65,10 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
         _mark.Margin = new Thickness(0, 0, 0, FamilySpace.S2);
         _mark.Visibility = Visibility.Collapsed;
 
-        // [S-6703] In the card's side inset. [S-12410] One block, centred in the room with the foot's inset
-        // counted with it ([S-12483]: the same joined or alone): a wider box wraps the quote on fewer lines than its
-        // height was made for, and the spare stands round it, never under it alone.
-        _body = new StackPanel
+        // [S-6703] In the card's side inset. [S-12808] One block, the quote's first ink on the content's top and the
+        // author's on the foot's inset, the room of a taller box between them ([S-12483]: the same joined or alone).
+        _body = new SpreadStack
         {
-            VerticalAlignment = VerticalAlignment.Center,
             Margin = Family.SideInset with { Bottom = FamilySpace.Inset },
             Children = { _mark, _text, _author },
         };

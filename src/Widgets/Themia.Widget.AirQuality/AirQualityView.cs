@@ -24,7 +24,8 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
 {
     /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end.</summary>
     private readonly KitStatus _status;
-    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+    /// <summary>[S-12808] The index's ink on the content's top, its band's on the foot's inset, the room between them.</summary>
+    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, Reaches = true };
 
     /// <summary>[S-6170] The gauge: the half ring, the index in its bowl, the band under it.</summary>
     private readonly ChartRing _dial = new(half: true);

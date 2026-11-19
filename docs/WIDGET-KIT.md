@@ -3129,7 +3129,7 @@ block does it:
   | Row (`RowBlock`) | 1.5 x its height (`ItemStretch.RowCap`: `MinHeight`/`MaxHeight`), texts centred; the first and the last text on the insets ([S-12807]) | spacing between the rows (`SpreadStack`, `ItemStretch.Reach`) |
   | Kit list, custom row lists | one pitch whose text reaches the view's top and the foot's inset (`KitPlanner.Reach`, `ItemStretch.Rows`, `RowsAbove`), headings with them | at 1.5 x: spacing between the rows (`RowReach.Gap`) |
   | Grid cell (calendar month) | never: the weeks reach the header and the foot's inset ([S-12807]) | spacing between the weeks |
-  | Readout, Status, Controls, Header | never (text stays on the family's steps) | the block centred in the room under the header, the foot inset under it (`NaturalBlock.Hold`; a size-aware view centres an inner part, as `MeterView.CentringTop`, since the card measures the view's own box) |
+  | Readout, Status, Controls, Header | never (text stays on the family's steps) | [S-12808] the block's parts in a `SpreadStack`: the first part's ink on the content's top, the last's on the foot's inset, the room between them; one line alone centred by its ink (`MeterView.CentringTop`) |
   | Clock face (picks its step by its box) | one family step past its Size (`ReadoutSizes.Climb`) | spacing round it |
   | Chart, dial, tile, picture | the box | none |
 

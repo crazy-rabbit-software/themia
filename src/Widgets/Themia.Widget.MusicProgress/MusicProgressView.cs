@@ -21,6 +21,9 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     private readonly TextBlock _elapsed = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
     private readonly TextBlock _total = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
     private readonly MusicSeekBar _seek = new();
+
+    /// <summary>The one line: the elapsed time, the bar, the total.</summary>
+    private readonly Grid _row = new() { ColumnSpacing = FamilySpace.S2 };
     private readonly NowPlayingFeed _feed;
 
     private Ticker? _ticker;
@@ -37,17 +40,19 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
         // [S-1113] The timeline keeps its direction in every language.
         FlowDirection = FlowDirection.LeftToRight;
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        ColumnSpacing = FamilySpace.S2;
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         _total.HorizontalAlignment = HorizontalAlignment.Right;
         _seek.VerticalAlignment = VerticalAlignment.Center;
         SetColumn(_seek, 1);
         SetColumn(_total, 2);
-        Children.Add(_elapsed);
-        Children.Add(_seek);
-        Children.Add(_total);
+        _row.Children.Add(_elapsed);
+        _row.Children.Add(_seek);
+        _row.Children.Add(_total);
+
+        // [S-12808] One line: its ink centred in the content, a taller box's room over and under it alike.
+        Children.Add(new SpreadStack { Children = { _row } });
 
         _seek.Scrubbing += OnScrubbing;
         _seek.Committed += fraction => _feed.Seek(MusicRules.SeekTarget(fraction, _feed.Now.Timeline.Duration));
@@ -72,9 +77,6 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
     {
         _config = config as MusicProgressConfig ?? new MusicProgressConfig();
 
-        // [S-12410] [S-12483] One row at its natural height (the foot's inset with it), centred in a larger box,
-        // joined or alone (the family's one rule, [S-12800]).
-        NaturalBlock.Hold(this, _config);
         _feed.Reload();
         Present();
     }
@@ -129,8 +131,8 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
         // A stream with no end has no total to show, and "0:00" in that slot reads as a track that will not start.
         _total.Text = now.Timeline.Duration > TimeSpan.Zero ? MusicRules.Clock(now.Timeline.Duration) : string.Empty;
         var time = MusicProgressFace.TimeWidth(_total.Text);
-        ColumnDefinitions[0].Width = new GridLength(time);
-        ColumnDefinitions[2].Width = new GridLength(time);
+        _row.ColumnDefinitions[0].Width = new GridLength(time);
+        _row.ColumnDefinitions[2].Width = new GridLength(time);
     }
 
     /// <summary>[S-1465] The elapsed time follows the pointer while scrubbing; -1 means the scrub was abandoned.</summary>

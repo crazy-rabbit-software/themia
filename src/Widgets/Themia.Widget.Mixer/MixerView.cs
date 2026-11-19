@@ -202,8 +202,8 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         // [S-12807] The config's rows reach the view's top and the foot's inset (up to half again their
         // height), each row exactly that pitch, the first one's band over the top.
         var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, MixerLayout.ClampRows(_config.Rows), plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
-            : new RowReach(FamilyShape.RowHeight(plan.Lines), FamilyShape.RowBand(plan.Lines), 0);
+            ? ItemStretch.Rows(_area.Height, MixerLayout.ClampRows(_config.Rows), plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: MixerLayout.Mute(plan.Lines))
+            : ItemStretch.Natural(plan.Lines, MixerLayout.Mute(plan.Lines));
         _pitch = reach.Pitch;
         ShowRows(plan, main.Count);
         _scroller.Height = reach.Length(plan.Rows);

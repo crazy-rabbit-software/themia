@@ -41,7 +41,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     /// <summary>[S-6032] The Flip style: one card per unit, its unit under it.</summary>
     private readonly StackPanel _flipRow = new() { Orientation = Orientation.Horizontal, FlowDirection = FlowDirection.LeftToRight, Spacing = FlipRules.Gap };
     private readonly List<(FlipCard Card, TextBlock Unit)> _flips = [];
-    private readonly StackPanel _column = new() { VerticalAlignment = VerticalAlignment.Center };
+    /// <summary>[S-12808] The name's ink on the content's top, the last part's on the foot's inset, the room between them.</summary>
+    private readonly SpreadStack _column = new();
 
     private CountdownPlan _plan;
 
@@ -92,7 +93,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         _config = config as CountdownConfig ?? new CountdownConfig();
         ShowName();
         Rebuild();

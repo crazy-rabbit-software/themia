@@ -160,8 +160,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
 
     /// <summary>[S-12807] The config's rows reaching the view's top and the foot's inset.</summary>
     private RowReach Reach => _area.IsMeasured
-        ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
-        : new RowReach(_plan.RowHeight, FamilyShape.RowBand(_plan.Lines), 0);
+        ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: _plan.Lead ? FamilyShape.Icon : 0)
+        : ItemStretch.Natural(_plan.Lines, _plan.Lead ? FamilyShape.Icon : 0);
 
     private void Redraw()
     {

@@ -85,8 +85,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         _feed = new AudioFeed(host.Audio, OnSnapshot);
 
         // [S-2730] [S-6716] The speaker and the slider are the Controls block's row at the bottom inset.
-        _controls.VerticalAlignment = VerticalAlignment.Bottom;
-        _controls.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _controls.Margin = Family.SideInset;
         _controls.FlowDirection = FlowDirection.LeftToRight;
         _mute = _controls.Icon(Glyphs.Volume3, Str.Mixer_Mute.Text(), () => ToggleMute());
         _mute.IsTabStop = false;
@@ -112,11 +111,11 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         Background = Family.Brush(ColourRole.Clear);
 
         _controls.Visibility = Visibility.Collapsed;
-        Children.Add(_controls);
-
         _reading.Margin = Family.SideInset;
         _reading.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
-        Children.Add(_reading);
+
+        // [S-12808] The level's ink on the content's top, the mute and slider on the foot's inset, the room between.
+        Children.Add(new SpreadStack { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Children = { _reading, _controls } });
     }
 
     public void Bind(IWidgetSurface surface)
@@ -139,7 +138,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         _config = config as VolumeConfig ?? new VolumeConfig();
         Lay();
     }

@@ -4371,8 +4371,8 @@ its content. What is left of this section is how a view measures the fixed parts
   height (`RowCap`; `RowBlock` holds `MinHeight`/`MaxHeight`, its texts centred), a list's rows one pitch
   reaching the list's ends (`KitPlanner.Reach`, its headings with them; the custom lists likewise), a calendar
   month's cell its own height (its weeks reach the ends, [S-12807]), a chart, dial, tile or picture the box; a text, a readout, a status line, a button never
-  (the family's type steps), a block of them centred in the room under the header with the foot's inset
-  under it (`NaturalBlock.Hold`, `MeterView`), and a clock face that picks its step by its box one family
+  (the family's type steps), a block of them reaching from the content's top to the foot's inset with the room
+  between its parts ([S-12808], `SpreadStack`; one line alone centred by its ink, `MeterView`), and a clock face that picks its step by its box one family
   step past its Size at most (`ReadoutSizes.Climb`). **No inset to the card's border**: rows, list rows and
   their fills run edge to edge (the 12 side inset is the row's own padding, so text stays off the border)
   and their text from the content's top to the foot's inset line, the first and the last row's bands reaching
@@ -7398,7 +7398,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   ([S-12800]). Joining changes only the card: square inner corners ([S-2241]), one outline with no line at the
   seam ([S-11870]), one glass body in Liquid glass ([S-2123]). There is no word from the card to its view about
   its joins (no `JoinedSides`, `IWidgetJoins`, `ApplyJoins`, `NaturalBlock.Join` or `HourGraph.Join`), and a
-  block held at its natural height stands in the middle of its room ([S-12410]). Stacked widgets still sit flush
+  one-readout block reaches the content's top and the foot's inset the same either way ([S-12808]). Stacked widgets still sit flush
   card to card: the one-inset rule leaves no extra band ([S-12800]). Test
   `CardContentTests.S12483_a_cards_content_box_is_the_same_joined_and_alone` (also a guard: no source names
   those types).
@@ -7464,30 +7464,60 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   box and the inset the rest (`TileFace.Mark`, `.Inset`), so every box from the floor draws its glyph whole, growing
   with the box; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`; render
   `--widget-png nightLightToggle --sizes 10x10,16x16,24x24,40x40`.
-- **[S-12807]** **A list's first and last text reach the insets** (owner, 2026-11-19: "the forecast widget still
+- **[S-12807]** **A list's first and last ink reach the insets** (owner, 2026-11-19: "the forecast widget still
   has space on the top and bottom of its items this should not be, the items should reach the top and bottom"; "same
-  for the weather facts widget, this should be fixed for all the widgets"). Every list of rows (a facts atom's, the
-  forecast's days, a meter's items, the sun's and moon's times, the kit's lists and the schedule, the details' lists,
-  the clipboard, contacts, habits, mixer, Bluetooth, removable drives, notifications, up next, recent files, screen
-  time's apps, the week planner's lines, the month's weeks) lays its text from the content's top (the card's inset, [S-5700]) to the
-  foot's inset line ([S-12800]): the first row's text stands on the one and the last row's on the other, never a
-  row's own band between them (`FamilyShape.RowBand`: 4 over and under one line, 2 for two or three). One rule,
-  `ItemStretch.Reach` (rows of one pitch: `ItemStretch.Rows` in a view, `RowsAbove` over an add row): the room the
-  texts leave goes between them, each row's band taking up to half of it on either side (a row up to 1.5 x,
-  [S-12410]) and never more than the inset, so the first and the last row's bands (a hover fill with them) reach
-  into the insets and stay inside the card; past the cap the rest is spacing between the rows. One row is centred
-  in its room; short of room the rows keep their natural height from the top. A `SpreadStack` lays its rows so
-  (the foot's inset its margin; `Rows`: the config's rows, fewer shown leave the last of them empty, [S-12800]); a
-  scrolling list takes the pitch, starts its first row's band over the view's top (`RowReach.Over`, a negative
-  margin) and spaces its rows by the gap (`KitPlan.RowOver`, `RowGap`, `KitPlanner.ListHeight(area, plan)`), both set
-  in one place (`ListReach`, whose lengths the family's render walk leaves to the rule's tests, [S-6731]); the
-  add row ([S-3850], `AddFooterRow`) stands its text on the foot's inset, its band in it. Under a search box or a
-  table's column titles the rows' room starts under them. The month's weeks keep their cells' height, the room
-  between them; the folder's and the contacts' grids keep their foot inside the inset for their cells' marks
-  ([S-12800]). Replaces [S-12410]'s
-  "rows run down to the card's edge" and the `ItemStretch.Pitch` that did it. Tests `ItemStretchTests.S12807_`,
-  `FamilyBlockRulesTests.S12807_`, `KitTests.S12807_`, the modules' `S12450_`, `S12451_`, `S12452_`; renders
-  `--widget-png weatherFacts|weatherForecast|rss|topProcesses|habitTracker --state sample --sizes range`.
+  for the weather facts widget, this should be fixed for all the widgets"; then "the weather forecast widget and
+  others too the items still dont reach to the top and bottom. they still have a little / small gap. they should
+  stretch if they dont reach all the way"). Every list of rows (a facts atom's, the forecast's days, a meter's
+  items, the sun's and moon's times, the kit's lists and the schedule, the details' lists, the clipboard, contacts,
+  habits, mixer, Bluetooth, removable drives, notifications, up next, recent files, screen time's apps, the week
+  planner's lines, the month's weeks) stands its **ink** from the content's top (the card's inset,
+  [S-5700]) to the foot's inset line ([S-12800]): the first row's first ink (its lead glyph or its capitals,
+  whichever stands higher) on the one and the last row's last ink (its baseline, or its glyph where that stands
+  lower) on the other, never a row's own band or its line's leading between them. Where a text's ink stands in its
+  line is the family's face's, one place (`LineInk`: Segoe UI Variable's capitals 0.7 of the size, a line's
+  baseline 0.8 down it, `LineStackingStrategy.BlockLineHeight`; a Body line inks from 6.2 under its top to 4 over
+  its foot; a 16 glyph centred in it from 2 to 2; `LineInk.Row` for a row of its lines and lead), a measured part's
+  through `PartInk` (a row's and a readout's `IInked`, a text's step, a panel's furthest-reaching part). One rule,
+  `ItemStretch.Reach` (rows of one pitch: `ItemStretch.Rows` in a view, `RowsAbove` over an add row, `Natural`
+  before the box is measured): the room the contents leave goes between them, each row's band taking up to half of
+  it on either side (a row up to 1.5 x, [S-12410]) and never further over the end than the inset (a band with its
+  leading: a first row's box starts at most at the card's edge), so the first and the last row's bands (a hover
+  fill with them) reach into the insets and stay inside the card; past the cap the rest is spacing between the rows.
+  Less room than the rows' bands narrows the bands, the ink still on both ends; only rows whose contents do not fit
+  keep their natural height from the top. One row is centred in its room. A `SpreadStack` lays its parts so (the
+  foot's inset its margin; `Rows`: the config's rows, fewer shown leave the last of them empty, [S-12800]); a
+  scrolling list takes the pitch, starts its first row's box over the view's top (`RowReach.Over`, a negative
+  margin), spaces its rows by the gap and ends its last box `RowReach.Under` past the foot's inset line
+  (`KitPlan.RowOver`, `RowUnder`, `RowGap`, `KitPlanner.ListHeight(area, plan)`), set in one place (`ListReach`,
+  whose lengths the family's render walk leaves to the rule's tests, [S-6731]); the add row ([S-3850],
+  `AddFooterRow`) stands its ink on the foot's inset, its band and leading in it (`ListReach.Foot`). Under a search
+  box or a table's column titles the rows' room starts under them. The month's weeks keep their cells' height, the
+  room between them, under the calendar's period line (a tool line, [S-12481], whose own text stands where it
+  does); the folder's and the contacts' grids keep their foot inside the inset for their cells' marks
+  ([S-12800]). A glyph's ink is its box (a Fluent glyph drawn short of its box, a cloud, stands up to 2 inside).
+  Replaces [S-12410]'s "rows run down to the card's edge" and the `ItemStretch.Pitch` that did it. Tests
+  `ItemStretchTests.S12807_`, `KitTests.S12807_`, `KitRowsTests.S11541_`, the modules' `S12450_`, `S12451_`,
+  `S12452_`; renders `--widget-png weatherFacts|weatherForecast|rss|topProcesses|habitTracker --state sample --sizes
+  range`.
+- **[S-12808]** **A one-readout block reaches the insets too** (owner, 2026-11-19, asked whether the one-reading
+  widgets should also fill to the edges: "Yes, those too"; after [S-12807]'s "this should be fixed for all the
+  widgets"). A widget whose content is one block of a reading and its parts (Weather now, Air quality, Exchange
+  rate, Moon, Screen time, Drive, Recycle Bin, Brightness, Volume, Music, Quote, Alarm, Stopwatch, Pomodoro, Focus
+  session, Countdown) lays them top to bottom in one `SpreadStack` ([S-12807]'s rule, the one path; `NaturalBlock`
+  is gone): in any box the block's first ink stands on the content's top and its last on the foot's inset, and the
+  room a larger box has goes between its parts (Weather now: the reading and its condition; Volume: the level and
+  its device, and the mute and slider; Alarm: the time and its line, and the switch), never above or below the
+  block. A readout's value and its line under are two parts once its view lets it reach (`ReadoutBlock.Reaches`:
+  Weather now, Air quality, Exchange rate, Screen time), else they stay one. Texts and controls keep their natural
+  height ([S-12410]: the type never grows); the parts' horizontal places are as before. A block that is one line
+  (a meter's reading alone, the network's two readings, Music progress's timeline, a value alone) cannot reach
+  both: its ink is centred in the content, the room over and under it alike (`MeterView.CentringTop`). The clock
+  and the Date scale their face as one ([S-12804]) until the card's height or width stops it: where the width
+  stops it first, centring the face on the height left over is unavoidable. Kept: toggles and power buttons
+  ([S-5700], [S-12806]), pictures, graphs and charts (their frame on the insets, [S-12800]), the Header, Next
+  meeting's and Rain next hour's top-aligned lines over their join or chart, Sun's picture. Renders
+  `--widget-png weatherNow|volume|alarm|recycleBin --state sample --sizes range` and `--sizes 300x400,520x600`.
 - **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card
   draws a side, or the stretch of a side, where a card it joins lies across it. Touching cards read as one sheet:

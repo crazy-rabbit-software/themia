@@ -63,9 +63,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
     {
         _host = host;
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        RowSpacing = FamilySpace.S2;
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
         _dial.Children.Add(_ring);
         _dial.Children.Add(_clock);
@@ -80,13 +77,14 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
         _longerIcon = _idleIcons.Icon(Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text(), () => StepLength(+1));
         _runningIcons.Icon(Glyphs.Stop, FocusSessionStr.Panels_Focus_End.Text(), Toggle);
 
-        Children.Add(_dial);
+        // [S-12808] The dial's ink on the content's top, its row of controls on the foot's inset, the room between.
+        var block = new SpreadStack { Spacing = FamilySpace.S2, Children = { _dial } };
         foreach (var row in new[] { _idleRow, _runningRow, _idleIcons, _runningIcons })
         {
-            SetRow(row, 1);
-            Children.Add(row);
+            block.Children.Add(row);
         }
 
+        Children.Add(block);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -107,7 +105,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         _config = config as FocusSessionConfig ?? new FocusSessionConfig();
         Lay();
     }

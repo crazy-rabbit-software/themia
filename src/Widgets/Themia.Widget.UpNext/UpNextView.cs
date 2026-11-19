@@ -205,7 +205,7 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
         var fit = Math.Max(1, _config.RowsShown.Rows);
         var reach = _area.IsMeasured
             ? ItemStretch.Rows(_area.Height, fit, 1, scale: XamlRoot?.RasterizationScale ?? 1)
-            : new RowReach(FamilyShape.Row1, FamilyShape.RowBand(1), 0);
+            : ItemStretch.Natural(1);
         foreach (var row in _rows)
         {
             row.Height = reach.Pitch;

@@ -250,8 +250,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   maximum (`SizeStretch.Relax`: Max = `SizeStretch.Ceiling` on every axis the config does not step; the work
   area is the bound; the user decides how large); in a larger box items
   stretch to their caps (`ItemStretch`: a row 1.5x, a chart the box, text never) and the rest is spacing;
-  rows and fills run to the card's edge (no content inset; text keeps the item's own), a fixed block is
-  centred in its room (`NaturalBlock`). Never a per-widget stretch of its own.
+  rows and fills run to the card's edge (no content inset; text keeps the item's own); a list's and a
+  one-readout block's first ink stands on the content's top and its last on the foot's inset, the room between
+  its parts (`ItemStretch.Reach`, `SpreadStack`, `LineInk`/`PartInk`, [S-12807], [S-12808]). Never a per-widget stretch of its own.
 - **No card header** ([S-12480], [S-12481]; owner 2026-11-16): a card draws its view and nothing over it,
   no title row, at any size. A title is the **Header** widget (`src/Widgets/Themia.Widget.Header`, [S-9600]),
   placed like any widget; every ready-made group starts with one ([S-12485]). What a header

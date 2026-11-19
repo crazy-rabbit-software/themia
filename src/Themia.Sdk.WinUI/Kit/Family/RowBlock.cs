@@ -17,7 +17,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// 16 lead, 16 without). No divider. Hover and selection are the item layer's (<see cref="ItemFill"/>)
 /// when the row is <see cref="Interactive"/>.
 /// </summary>
-public sealed partial class RowBlock : Grid
+public sealed partial class RowBlock : Grid, IInked
 {
     private readonly Border _lead;
     private readonly ContentPresenter _meter;
@@ -394,6 +394,9 @@ public sealed partial class RowBlock : Grid
 
     /// <summary>[S-12807] The band over and under its text at its natural height (<see cref="FamilyShape.RowBand"/>): what a list cancels at its ends.</summary>
     public double Band => FamilyShape.RowBand(_lines);
+
+    /// <summary>[S-12807] The room inside its text over its first ink and under its last: its lines' leading, or its lead's room where that reaches further.</summary>
+    public LineInk Ink => LineInk.Row(_lines, _lead.Visibility == Visibility.Visible && _lead.Child is not null ? _lead.Width : 0);
 }
 
 /// <summary>

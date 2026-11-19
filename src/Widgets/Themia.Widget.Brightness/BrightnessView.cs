@@ -60,8 +60,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         _brightness = host.Brightness;
 
         // [S-4440] [S-6716] The slider is the Controls block's row at the bottom inset.
-        _controls.VerticalAlignment = VerticalAlignment.Bottom;
-        _controls.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _controls.Margin = Family.SideInset;
         _slider = _controls.Slider(0, 100, 0, OnSliderChanged);
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
@@ -71,10 +70,10 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         _wheel = OnWheel;
 
         _controls.Visibility = Visibility.Collapsed;
-        Children.Add(_controls);
-
         _reading.Margin = Family.SideInset;
-        Children.Add(_reading);
+
+        // [S-12808] The level's ink on the content's top, the slider on the foot's inset, the room between them.
+        Children.Add(new SpreadStack { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Children = { _reading, _controls } });
 
         // The wheel anywhere on the tile, as on the volume tile.
         Background = Family.Brush(ColourRole.Clear);
@@ -85,7 +84,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-        NaturalBlock.Hold(this, config);
 
         // [S-1251] A debug render reads and sets nothing.
         if (_surface is not { IsPreview: true })
@@ -110,7 +108,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         _config = config as BrightnessConfig ?? new BrightnessConfig();
         Lay();
     }

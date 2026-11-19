@@ -93,13 +93,8 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
 
         // The content in the card's inset: the readout's box over the Controls row.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        SetRow(_controls, 1);
-        SetRow(_iconControls, 1);
-        Children.Add(_column);
-        Children.Add(_controls);
-        Children.Add(_iconControls);
+        // [S-12808] The face's ink on the content's top, the controls on the foot's inset, the room between them.
+        Children.Add(new SpreadStack { Children = { _column, _controls, _iconControls } });
 
         Render();
     }
@@ -136,7 +131,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         _config = config as PomodoroConfig ?? new PomodoroConfig();
 
         // While the timer is stopped the clock follows the configured length, so changing it in

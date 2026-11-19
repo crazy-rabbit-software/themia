@@ -365,7 +365,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     /// </summary>
     private RowReach Reach => _area.IsMeasured
         ? ItemStretch.Rows(_area.Height, Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows) + 1, 1, scale: XamlRoot?.RasterizationScale ?? 1)
-        : new RowReach(FamilyShape.Row1, FamilyShape.RowBand(1), 0);
+        : ItemStretch.Natural(1);
 
     private void Render()
     {

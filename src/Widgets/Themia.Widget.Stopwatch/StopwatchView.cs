@@ -40,7 +40,6 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     private readonly Button _lapIcon;
     private readonly Button _resetIcon;
     private readonly StackPanel _laps = new() { VerticalAlignment = VerticalAlignment.Top };
-    private readonly RowDefinition _lapsRow = new() { Height = new GridLength(0) };
 
     private Ticker? _ticker;
     private StopwatchConfig _config = new();
@@ -53,21 +52,14 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     {
         // [S-11302] The face, its controls 8 under it, the laps under them; the inset at the sides and the foot.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(_lapsRow);
-        Children.Add(_clock);
-        SetRow(_controls, 1);
-        SetRow(_iconControls, 1);
-        Children.Add(_controls);
-        Children.Add(_iconControls);
+        // [S-12808] The face's ink on the content's top, the controls and the laps down to the foot's inset, the room
+        // of a taller box between them.
         _controls.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         _iconControls.Margin = _controls.Margin;
 
         // A Row carries the side inset itself, so the laps reach the card's edges with their hover.
         _laps.Margin = new Thickness(-FamilySpace.Inset, 0, -FamilySpace.Inset, 0);
-        SetRow(_laps, 2);
-        Children.Add(_laps);
+        Children.Add(new SpreadStack { Children = { _clock, _controls, _iconControls, _laps } });
 
         // [S-4601] Start first, then Lap and Reset.
         _startButton = _controls.Main(StopwatchStr.Stopwatch_Start.Text(), () => Act(state => state.Act(Now())));
@@ -95,7 +87,6 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         var next = config as StopwatchConfig ?? new StopwatchConfig();
 
         // Only another config is read again: the one held is this view's own writing.
@@ -292,7 +283,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         var icons = TimerFace.IconControls(_config.Size);
         _controls.Visibility = icons ? Visibility.Collapsed : Visibility.Visible;
         _iconControls.Visibility = icons ? Visibility.Visible : Visibility.Collapsed;
-        _lapsRow.Height = new GridLength(StopwatchFace.LapRows(_config) * FamilyShape.Row1);
+        var laps = StopwatchFace.LapRows(_config);
+        _laps.Height = laps * FamilyShape.Row1;
+        _laps.Visibility = laps > 0 ? Visibility.Visible : Visibility.Collapsed;
         _clock.Use(StopwatchFace.Sized(_config).Step, centred: true);
         Render();
     }

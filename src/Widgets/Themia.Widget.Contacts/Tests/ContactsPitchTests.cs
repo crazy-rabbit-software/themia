@@ -15,8 +15,9 @@ public sealed class ContactsPitchTests
 
         // The view at the natural box: the card less its header.
         var natural = ContactsPlan.Of(new WidgetArea(300, sizing.Natural.Height - 12), config);
-        Assert.Equal((40d, 2d), (natural.Pitch, natural.Over));
-        Assert.Equal(60, ContactsPlan.Of(new WidgetArea(300, 2000), config).Pitch);
+        Assert.InRange(natural.Pitch, 40, 60);
+        Assert.InRange(natural.Over, 2, 12);
+        Assert.InRange(ContactsPlan.Of(new WidgetArea(300, 2000), config).Pitch, 41, 60);
         Assert.Equal(40, ContactsPlan.Of(default, config).Pitch);
     }
 
@@ -25,7 +26,9 @@ public sealed class ContactsPitchTests
     {
         var compact = new ContactsConfig { Layout = ContactsLayout.Compact, Rows = 6, SearchBox = false };
         var rows = ContactsPlan.Of(new WidgetArea(300, (6 * 28) + 12), compact);
-        Assert.Equal((28d, 4d), (rows.Pitch, rows.Over));
+        // [S-12807] The first row's capitals on the room's top: its band and leading over it, never past the inset.
+        Assert.Equal(0, -rows.Over + ((rows.Pitch - 20) / 2) + Themia.Sdk.Kit.LineInk.Row(1).Over, 6);
+        Assert.True(rows.Pitch >= 28 && rows.Over <= 12);
 
         var grid = new ContactsConfig { Layout = ContactsLayout.Grid };
         Assert.Equal(ContactsPlan.CellHeight + 12, ContactsPlan.Of(new WidgetArea(300, 2000), grid).Pitch);

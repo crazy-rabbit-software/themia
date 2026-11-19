@@ -84,8 +84,8 @@ public sealed partial class KitList : Grid
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        // [S-6712] [S-12807] The rows reach the view's top and the foot's inset: the first row's text on the
-        // card's inset (its band over it, KitPlan.RowOver), the last row's on the foot's (KitPlanner.Reach).
+        // [S-6712] [S-12807] The rows reach the view's top and the foot's inset: the first row's ink on the
+        // card's inset (its band and leading over it, KitPlan.RowOver), the last row's on the foot's (KitPlanner.Reach).
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _columnHeader.Visibility = Visibility.Collapsed;
@@ -282,7 +282,7 @@ public sealed partial class KitList : Grid
     private void Reach()
     {
         FrameworkElement part = Checked ? _checkHost! : Paged ? _page : _scroll;
-        ListReach.Apply(part, new RowReach(_plan.RowHeight, _plan.RowOver, _plan.RowGap), _rows);
+        ListReach.Apply(part, _plan.Reach, _rows);
     }
 
     /// <summary>[S-1304] The site's own icon (the host's one cache), with a globe in its place until it arrives or when the site has none.</summary>

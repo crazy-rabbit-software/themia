@@ -6,8 +6,8 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-12807] A list laid by the reach rule (<see cref="ItemStretch.Rows"/>): its part (a scroll, a page, a grid)
-/// starts its first row's band over its room (a margin of <c>-</c><see cref="RowReach.Over"/>), so that row's text
-/// stands on the inset, and its rows stand <see cref="RowReach.Gap"/> apart once they are at their cap. The one
+/// starts its first row's band and leading over its room (a margin of <c>-</c><see cref="RowReach.Over"/>), so that
+/// row's ink stands on the inset, and its rows stand <see cref="RowReach.Gap"/> apart once they are at their cap. The one
 /// place a list sets those lengths. They are the rule's, not literals: the family's render walk ([S-6731])
 /// judges the rule (its tests) and leaves an element laid here (<see cref="IsLaid"/>) out of its space check.
 /// <para>
@@ -43,6 +43,14 @@ public static class ListReach
     {
         ArgumentNullException.ThrowIfNull(element);
         element.Margin = new Thickness(0, top, 0, 0);
+        element.Name = Mark;
+    }
+
+    /// <summary>Stand <paramref name="element"/> <paramref name="bottom"/> over its room's end (a row under a list, its ink on the foot's inset).</summary>
+    public static void Foot(FrameworkElement element, double bottom)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        element.Margin = new Thickness(0, 0, 0, bottom);
         element.Name = Mark;
     }
 

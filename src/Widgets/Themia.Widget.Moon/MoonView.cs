@@ -27,7 +27,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private readonly ReadoutBlock _value = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock _name = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly StackPanel _valueLine = new() { Orientation = Orientation.Horizontal };
-    private readonly StackPanel _readout = new() { VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
+    private readonly SpreadStack _readout = new() { Visibility = Visibility.Collapsed };
 
     private MoonConfig _config = new();
 
@@ -39,7 +39,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private ContentAlign _align = ContentAlign.Left;
 
     /// <summary>[S-6050] The Phase month style: the month's name over a disc a day.</summary>
-    private readonly StackPanel _month = new() { VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
+    private readonly SpreadStack _month = new() { Visibility = Visibility.Collapsed };
     private readonly TextBlock _monthName = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly Canvas _monthGrid = new() { HorizontalAlignment = HorizontalAlignment.Left, FlowDirection = FlowDirection.LeftToRight };
     private readonly List<SkyMoonDisc> _monthDiscs = [];
@@ -59,8 +59,8 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         _valueLine.Children.Add(_value);
         _readout.Children.Add(_valueLine);
         _readout.Children.Add(_name);
-        // [S-12410] The readout (or the month) is one block, centred in the room with the foot's inset
-        // counted with it: at its natural box nothing moves ([S-12483]: the same joined or alone).
+        // [S-12808] The readout (or the month) is one block, its first ink on the content's top and its last on the
+        // foot's inset, the room of a taller box between its parts ([S-12483]: the same joined or alone).
         _readout.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         _todayRing.Stroke = Family.Brush(ColourRole.Accent);

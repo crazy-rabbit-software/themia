@@ -612,10 +612,19 @@ public sealed partial class MeterView
             MeterLook.Battery => MeterSizing.PartTop + MeterSizing.BatteryIn(width, height).Height,
             MeterLook.Signal => MeterSizing.PartTop + MeterSizing.SignalIn(width, height),
             MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Graph or MeterLook.History => height,
-            _ => MeterSizing.Line,
+            _ => 0,
         };
 
-        return Math.Floor(Math.Max(0, height - block) / 2);
+        if (block > 0)
+        {
+            return Math.Floor(Math.Max(0, height - block) / 2);
+        }
+
+        // [S-12808] The reading alone is one line: its ink (the glyph's, the figures') centred in the content, the
+        // room of a taller box over and under it alike.
+        var ink = _reading.Ink;
+        var span = MeterSizing.Line - ink.Over - ink.Under;
+        return Math.Max(0, Math.Floor(Math.Max(0, height - span) / 2) - ink.Over);
     }
 
     /// <summary>[S-11003] The gauge or the ring as large as the content box takes, the reading at 28 in it.</summary>

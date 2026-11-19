@@ -608,7 +608,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _scroll.Height = lines > shown ? (shown * plan.Pitch) + ((shown - 1) * plan.Gap) : double.NaN;
 
         // [S-12807] The first row's band over the rows' room, so its text stands where the room starts.
-        ListReach.Apply(_scroll, new RowReach(plan.Pitch, plan.Over, plan.Gap));
+        ListReach.Apply(_scroll, plan.Reach);
     }
 
     /// <summary>[S-1270] [S-1271] The list and the compact rows: Row blocks in columns, read left to right.</summary>
@@ -616,7 +616,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     {
         var compact = plan.Layout == ContactsLayout.Compact;
         var grid = new Grid();
-        ListReach.Apply(_scroll, new RowReach(plan.Pitch, plan.Over, plan.Gap), grid);
+        ListReach.Apply(_scroll, plan.Reach, grid);
         for (var c = 0; c < plan.Columns; c++)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -677,7 +677,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         var list = new StackPanel();
-        ListReach.Apply(_scroll, new RowReach(plan.Pitch, plan.Over, plan.Gap), list);
+        ListReach.Apply(_scroll, plan.Reach, list);
         foreach (var contact in contacts)
         {
             var cells = new Grid();

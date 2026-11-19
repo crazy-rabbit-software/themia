@@ -27,7 +27,8 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     private readonly KitStatus _mark;
 
     /// <summary>[S-12410] The rate is one block, centred in the room with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
-    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center, Margin = Family.SideInset with { Bottom = FamilySpace.Inset } };
+    /// <summary>[S-12808] The rate's ink on the content's top, its line under's on the foot's inset, the room between them.</summary>
+    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, Reaches = true, Margin = Family.SideInset with { Bottom = FamilySpace.Inset } };
 
     /// <summary>[S-6734] No rate to draw: the Status row at the top.</summary>
     private readonly StatusBlock _state = new();

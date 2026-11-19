@@ -41,7 +41,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
     private readonly StackPanel _list = new();
-    private RowReach _reach = new(FamilyShape.Row1, FamilyShape.RowBand(1), 0);
+    private RowReach _reach = ItemStretch.Natural(1);
     private readonly ScrollViewer _scroll;
     private ScrollFade? _fade;
     private readonly KitStatePanel _state;
@@ -209,8 +209,8 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         // [S-12807] The rows the config states reach the view's top and the foot's inset: their pitch, the first
         // one's band over the top, the gap past their cap; a heading or a fold line is one row of 28 stretched alike.
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
-            : new RowReach(_plan.RowHeight, FamilyShape.RowBand(_plan.Lines), 0);
+            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: _plan.Lead ? FamilyShape.Icon : 0)
+            : ItemStretch.Natural(_plan.Lines, _plan.Lead ? FamilyShape.Icon : 0);
         ListReach.Apply(_scroll, _reach, _list);
 
         if (_plan.Grouped)
@@ -239,7 +239,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         }
 
         // [S-6712] As tall as the whole lines that fit, never ending on a heading.
-        var room = _area.Height - FamilySpace.Inset + (2 * _reach.Over);
+        var room = _area.Height - FamilySpace.Inset + _reach.Over + _reach.Under;
         var bottoms = _lines.Select(l => l.Bottom).ToList();
         var content = bottoms.Count > 0 ? bottoms[^1] : 0;
         _scroll.Height = !_area.IsMeasured ? double.NaN

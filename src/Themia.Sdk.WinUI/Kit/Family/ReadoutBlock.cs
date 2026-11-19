@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
+using Themia.App.Widgets;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 
@@ -12,8 +13,13 @@ namespace Themia.Sdk.WinUI.Kit;
 /// line (<see cref="FamilyType.Under"/>). The step is <see cref="ReadoutRules.Step"/>'s for the
 /// widest case the widget names, so it does not jump with the reading. A one-readout widget's
 /// readout is centred; every other is start-aligned.
+/// <para>
+/// [S-12808] Its lines stand together (<see cref="SpreadStack.Reaches"/> off) until a one-readout view lets it reach
+/// its box: then the value's ink stands on the content's top and the line under's ink on the foot's inset, the room
+/// between them.
+/// </para>
 /// </summary>
-public sealed partial class ReadoutBlock : StackPanel
+public sealed partial class ReadoutBlock : SpreadStack, IInked
 {
     private readonly FontIcon _lead;
     private readonly TextBlock _line;
@@ -33,6 +39,7 @@ public sealed partial class ReadoutBlock : StackPanel
 
     public ReadoutBlock()
     {
+        Reaches = false;
         _lead = Family.Glyph(string.Empty, _step.FontSize, ColourRole.TextSecondary);
         _lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
         _lead.Visibility = Visibility.Collapsed;
@@ -53,6 +60,23 @@ public sealed partial class ReadoutBlock : StackPanel
 
     /// <summary>The step the readout is drawn on.</summary>
     public TypeStep Step => _step;
+
+    /// <summary>
+    /// [S-12808] The room in its box over its first ink and under its last: the value's capitals (or its lead
+    /// glyph, centred on the value's line, where that stands higher) and the line under's baseline, or the value's.
+    /// </summary>
+    public LineInk Ink
+    {
+        get
+        {
+            var value = LineInk.Of(_step).With(_lead.Visibility == Visibility.Visible ? _lead.Height : 0, _step.LineHeight);
+            var under = _under.Visibility == Visibility.Visible ? LineInk.Of(FamilyType.Under(_step)).Under : value.Under;
+            return new LineInk(value.Over, under);
+        }
+    }
+
+    /// <inheritdoc />
+    public double Band => 0;
 
     /// <summary>The line under the value.</summary>
     public TextBlock UnderText => _under;

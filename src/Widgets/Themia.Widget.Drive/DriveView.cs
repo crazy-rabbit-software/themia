@@ -26,7 +26,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <inheritdoc />
     public CardOpen? Opens => DriveModule.Opens(_config.Drive, Path.GetPathRoot(Environment.SystemDirectory));
 
-    private readonly StackPanel _figure = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly SpreadStack _figure = new();
     private readonly ReadoutBlock _readout = new();
     private readonly ChartBar _bar = DriveBar.Create();
     private readonly StatusBlock _status = new();
@@ -47,9 +47,8 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _readout.Use(FamilyType.Big28);
         _figure.Children.Add(_readout);
         _figure.Children.Add(_bar);
-        // [S-12410] The share, its line and the bar are one block, centred in the room with the foot's inset
-        // counted with it: at its natural box nothing moves, a larger box spaces it, joined
-        // or alone ([S-12483]).
+        // [S-12808] The share and its line, and the bar, are one block: the share's ink on the content's top, the bar
+        // on the foot's inset, the room of a larger box between them, joined or alone ([S-12483]).
         _figure.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         _status.Hide();

@@ -33,11 +33,17 @@ public sealed class RemovableDrivesTests
     [Fact]
     public void S12452_its_rows_reach_the_top_and_the_foots_inset_and_never_pass_half_again()
     {
-        // The view at the natural box: four rows of 40 and the foot's 12. The texts span 172 - 12 = 160, of
-        // which four texts take 144: their bands share what is left, the first one's over the top.
+        // The view at the natural box: four rows of 40 and the foot's 12. The ink spans 172 - 12 = 160: the first
+        // row's capitals on the top, the last row's baseline on the foot's inset.
         var natural = RemovableDrivesPlan.Reach((4 * 40) + 12, 4);
-        Assert.Equal((40d, 2d, 1d), (natural.Pitch, natural.Over, natural.Gap));
-        Assert.Equal(60, RemovableDrivesPlan.Reach(900, 4).Pitch);
-        Assert.Equal((40d, 2d), (RemovableDrivesPlan.Reach(100, 4).Pitch, RemovableDrivesPlan.Reach(100, 4).Over));
+        var ink = Themia.Sdk.Kit.LineInk.Row(RemovableDrivesPlan.Lines);
+        var halo = (natural.Pitch - 36) / 2;
+        Assert.Equal(0, -natural.Over + halo + ink.Over, 6);
+        Assert.Equal(160, natural.Length(4) - natural.Over - natural.Under, 6);
+
+        // Never past half again, nor its box past the card's edge; short of room its bands narrow.
+        Assert.InRange(RemovableDrivesPlan.Reach(900, 4).Pitch, 41, 60);
+        Assert.True(RemovableDrivesPlan.Reach(900, 4).Over <= 12 + 1e-9);
+        Assert.InRange(RemovableDrivesPlan.Reach(100, 4).Pitch, 36, 40);
     }
 }

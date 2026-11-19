@@ -28,7 +28,8 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
     private readonly WidgetLinks _dates = new();
     /// <summary>[S-12410] One block, centred in the room under its day line with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
-    private readonly ReadoutBlock _readout = new() { Margin = Family.SideInset with { Bottom = FamilySpace.Inset }, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left };
+    /// <summary>[S-12808] The total's ink on the content's top, its line under's on the foot's inset, the room between them.</summary>
+    private readonly ReadoutBlock _readout = new() { Margin = Family.SideInset with { Bottom = FamilySpace.Inset }, Reaches = true, HorizontalAlignment = HorizontalAlignment.Left };
 
     /// <summary>[S-6714] Nothing to read: the Status block's one row at the top.</summary>
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };

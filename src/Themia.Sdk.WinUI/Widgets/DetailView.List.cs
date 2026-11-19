@@ -85,7 +85,7 @@ public sealed partial class DetailView : IWidgetKeys
         // [S-6712] As tall as its whole rows: never a part of one at its foot. [S-12807] The rows reach the
         // view's top and the foot's inset, up to half again their height, the first one's band over the top.
         _lines = p.ListLines;
-        var reach = ItemStretch.Rows(_area.Height, p.ListRows, _lines, scale: XamlRoot?.RasterizationScale ?? 1);
+        var reach = ItemStretch.Rows(_area.Height, p.ListRows, _lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: FamilyShape.Icon);
         _pitch = reach.Pitch;
         _scroll.Height = reach.Length(p.ListRows);
         ListReach.Apply(_scroll, reach, _list);

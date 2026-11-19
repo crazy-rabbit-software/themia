@@ -53,8 +53,6 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _host = host;
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
         _switch = _switchRow.Switch(false, string.Empty, Switch);
         _ringRow.Main(Str.Alarm_Dismiss.Text(), Dismiss);
@@ -63,15 +61,15 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         _ringIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
         _ringIcons.Icon(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze);
         _snoozedIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
-        RowSpacing = FamilySpace.S2;
-
-        Children.Add(_time);
+        // [S-12808] The time's ink on the content's top, its row of controls on the foot's inset, the room between.
+        var block = new SpreadStack { Spacing = FamilySpace.S2, Children = { _time } };
         foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow, _ringIcons, _snoozedIcons })
         {
             row.HorizontalAlignment = HorizontalAlignment.Center;
-            SetRow(row, 1);
-            Children.Add(row);
+            block.Children.Add(row);
         }
+
+        Children.Add(block);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -80,7 +78,6 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _ticker = ticker;
         _detached = false;
-        NaturalBlock.Hold(this, config);
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
 
@@ -97,7 +94,6 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         _config = config as AlarmConfig ?? new AlarmConfig();
         Lay();
     }

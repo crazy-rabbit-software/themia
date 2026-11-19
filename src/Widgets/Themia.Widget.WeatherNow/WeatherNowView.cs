@@ -36,7 +36,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     private readonly KitStatus _status;
 
     private readonly FontIcon _bigGlyph = Family.Glyph(Glyphs.Weather, WeatherNowStyles.LargeGlyph, ColourRole.TextSecondary);
-    private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly ReadoutBlock _reading = new() { Reaches = true };
     private readonly Grid _face;
 
     /// <summary>[S-6734] Without a reading: why, in one row at the top.</summary>
@@ -63,11 +63,10 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
         // A condition longer than the card ends in its ellipsis: the reading's column takes what the glyph leaves.
         _reading.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
-        // [S-12401] The reading is the content's one item: a box taller than it (whole grid cells) puts
-        // the room above and under it alike, never a band under it.
+        // [S-12401] [S-12808] The reading is the content's one block: its value's ink on the content's top, the
+        // condition's on the foot's inset, the room of a taller box between them (a value alone is centred).
         _face = new Grid
         {
-            VerticalAlignment = VerticalAlignment.Center,
 
             // [S-12800] The sides and the foot keep the inset (the card gives the top), so the reading is centred in
             // what the sizing counted, never 6 off, joined or alone ([S-12483]).

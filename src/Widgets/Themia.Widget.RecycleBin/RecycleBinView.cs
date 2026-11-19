@@ -48,12 +48,11 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
         _state = () => host.RecycleBin.Current;
         _size.Margin = Family.SideInset;
         _empty = _controls.Main(RecycleBinStr.RecycleBin_Empty.Text(), () => _ = EmptyAsync());
-        _controls.VerticalAlignment = VerticalAlignment.Bottom;
-        _controls.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _controls.Margin = Family.SideInset;
         _size.Use(FamilyType.Big28);
 
-        Children.Add(_size);
-        Children.Add(_controls);
+        // [S-12808] The size's ink on the content's top, Empty on the foot's inset, the room between them.
+        Children.Add(new SpreadStack { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Children = { _size, _controls } });
 
         // The whole tile is the way into the bin, as its icon on the desktop is.
         Background = Family.Brush(ColourRole.Clear);
@@ -64,7 +63,6 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-        NaturalBlock.Hold(this, config);
         Strings.Changed += OnLanguage;
         _widgetHost.RecycleBin.Changed += Render;
         _binWatch ??= _widgetHost.RecycleBin.Watch();
@@ -73,7 +71,6 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         Render();
     }
 

@@ -55,14 +55,13 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         // [S-1113] Media transport keeps its order and direction in every language.
         _controls.FlowDirection = FlowDirection.LeftToRight;
-        _controls.VerticalAlignment = VerticalAlignment.Bottom;
         _controls.HorizontalAlignment = HorizontalAlignment.Left;
         _previous = _controls.Icon(Glyphs.Previous, MusicStr.WidgetsB_Music_Previous.Text(), () => _feed.Press(MediaTransport.Previous));
         _playPause = _controls.MainIcon(Glyphs.Play, MusicStr.WidgetsB_Music_Play.Text(), () => _feed.Press(MediaTransport.PlayPause));
         _next = _controls.Icon(Glyphs.Next, MusicStr.WidgetsB_Music_Next.Text(), () => _feed.Press(MediaTransport.Next));
 
-        Children.Add(_lines);
-        Children.Add(_controls);
+        // [S-12808] The track's ink on the content's top, the transport on the foot's inset, the room between them.
+        Children.Add(new SpreadStack { Children = { _lines, _controls } });
         _status.Hide();
         Children.Add(_status);
         _lines.Visibility = Visibility.Collapsed;
@@ -85,7 +84,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
-        NaturalBlock.Hold(this, config);
         _config = config as MusicConfig ?? new MusicConfig();
         _feed.Reload();
         Present();
