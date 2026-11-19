@@ -1098,8 +1098,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   is a 4 round track with its fill (`ChartBar`; a column is the same track standing up, filled from
   its foot or between two ends; a fill moves along its track by a transform, never a margin), a ring a stroke-2 arc over its track from twelve, clockwise (`ChartRing`), a gauge the
   ring's upper half from nine o'clock (`ChartRing` half, `ChartRules.GaugeSweep`, `GaugeHeight`); a band
-  (`ChartSeries`) runs edge to edge at the card's bottom ([S-215]), its points spread evenly or laid out
-  by its owner on fixed slots (a meter's history, `ChartRules.Y`). A part's role, fraction and points
+  (the one `Chart`, [S-6750]) runs edge to edge at the card's bottom ([S-215]), its samples laid out by its owner (a
+  meter's history on fixed slots, a weather graph's cells, a price's bars evenly). A part's role, fraction and points
   are set again only when they change ([S-6330]).
 - **[S-6739]** **A timer's face** (Alarm, Countdown, Stopwatch, Pomodoro, Focus session; `TimerFace`):
   a one-readout widget ([S-6737]) whose Readout is on the step its Size names, with its line under,
@@ -1125,6 +1125,54 @@ module author's guide is docs/WIDGET-KIT.md 16.
   hairline split in the Track role across its middle. The step is chosen as a Readout's: the largest
   the widget may take on which the cards, their gaps and what stands beside the row fit the width and
   the line and its line under fit the height, never below 28.
+- **[S-6750]** **One chart** (owner, 2026-11-19: "generally i feel like the widgets have to much variance in themselves.
+  they should reuse more of the same components"): every graph widget draws through the SDK's one `Chart`
+  (`Themia.Sdk.WinUI/Kit/Family/Chart.cs`) over a `ChartModel` (pure, `Themia.Sdk/Kit/Family`): the histories
+  (`SparkBand`: CPU, GPU, memory, disk, network, ping, battery, the cores' cells), the weather graphs (`HourGraph`),
+  the stock's and the rate's history and the forecast's curve (laid out by its owner). The model holds the samples (x in
+  DIPs, a value on its `Low`..`High` scale, a role or the chart's own), a second series (tertiary), real periods for
+  candles (`Ohlc`), the room its owner keeps over and under the line, shaded spans, the days' hairlines, now, the
+  figures (`ChartMark`), a value's words and the times. Its geometry is `ChartPlot`'s, tested: the outline (a
+  line, or the line closed down to the foot for its wash), the runs (a gap breaks the line, a lone sample a dot when
+  asked), the worse role of a piece's two ends, a column's width (60 % of its cell, the stroke to half a large icon)
+  and the candles. **The types** (`ChartType`, owner: "more configuration options like area like now or just line
+  graph", "a candle stick chart type for stock widgets"): **Area** (the stroke over the 16 % wash), **Line** (the
+  stroke alone), **Bars** (a round column per sample from the foot; with none over 0 the foot's Track hairline) and
+  **Candles**: the samples bucketed into one period per 8 DIPs (`ChartPlot.Bucket`: each period opens on its first
+  sample's open, closes on its last's close and spans its lowest low to its highest high, so a series of points makes
+  the candles of its sampled values and Yahoo's real open, high and low (`QuoteBar.Ohlc`, kept on the online shelf)
+  make real ones); the body from the open to the close (at least the stroke tall) in the accent rising and Critical
+  falling (no green, [S-6706]), the wick a hairline from the low to the high (`ChartPlot.Shape`).
+- **[S-6751]** **Detailed** (`ChartDetail`; owner: "a new style for the graph based widgets like network history that
+  shows more details like lines"): over Simple's chart, Track hairlines across at the value axis' nice round steps
+  (`ChartPlot.Ticks`: every multiple of the smallest 1, 2 or 5 × 10ⁿ step that leaves at most one tick per one and a
+  half Caption lines of the plot, two to five) with their values (Caption tertiary at the left, over the line), a few
+  times along the foot (`ChartPlot.Times`: whole steps of the local clock, 10 s to a year, one per 64 DIPs, two to
+  six; a price's at bars evenly apart; a label that would touch the last is left out), the high over its point and the
+  low under it with their dots (a kind with figures of its own, a weather graph's, keeps them instead), and the latest
+  value's hairline across with its value in a pill at the right edge. It keeps a Caption line free over the line and
+  one under it and the times' line at the foot (`ChartPlot.Room`); a kind that keeps less of its own is that much
+  taller when Detailed (`ChartPlot.Sized`: a history 52, the rate 52, the stock 32 without its markers), so its
+  line keeps its height. Simple writes nothing more than it did.
+- **[S-6752]** **The chart look is two settings** on every graph kind (`IChartLooks` in the SDK; `ChartMenuLines`
+  puts them under the Style picker as the shared settings `chartType` and `chartDetail`, [S-11750]): **Chart type**,
+  one of the types the kind's data has (the histories Area or Line; the weather graphs Area, Line or Bars; the stock's
+  and the rate's history Area, Line or Candlestick; the cores' graphs Area or Line, their bars and rings none), and
+  **Detail**, Simple or Detailed (not the cores': no room in a cell). The defaults are each kind's look until now
+  (owner: "like now"): Area and Simple, but the pressure and wind graphs' Line and the UV and rain graphs' Bars, so no
+  widget changes unasked. A type the kind does not offer (a hand-edited file) is repaired to its own and a detail it
+  does not offer to Simple, both loudly. The weather graphs' former Area/Line/Bars styles are this one setting now (one
+  look, one home); the rain graph keeps its style, Hours or Next 2 hours. `--widget-png … --chart
+  area|line|bars|candles --detail simple|detailed` draws a kind in a look.
+- **[S-6753]** **A chart is always drawn** (owner, 2026-11-19: "even if there is no rain in the next two hours or even if
+  there is no cpu data available it should show the default values in the graph and not just not show the graph. for
+  both cases. also for other widgets."): a series with no line to draw (no samples yet, a sensor that is not there,
+  an answer still loading, failed or with nothing in its window) is the chart all the same: its frame, its grid and
+  times when Detailed, and a flat series at its baseline (`ChartModel.Baseline`, 0 or the scale's foot;
+  `ChartPlot.Drawn`); an all-zero series is drawn as it is and keeps its axis. Why there is nothing is a Caption
+  (secondary, at the plot's top left: "No data yet", the answer's sentence, "No forecast for the next hours"),
+  never a Status row in the chart's place; the card menu's Refresh is the retry. The same for the rain atom's columns
+  (their empty tracks under its sentence) and the screen-time chart's empty window (its days on a foot hairline).
 - **[S-6745]** **The shell's measurements** (`ShellMetrics`, `Themia.Sdk/Kit/Family/ShellTokens.cs`): the
   app's own chrome is drawn from the family's tokens like a widget, its own spacings on the scale; what
   Windows or Karpo measure for a piece of chrome and the family has no token for is named there, each
@@ -1156,7 +1204,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   off-family ramp steps and `RingPart` stayed until the group that migrated their callers rebuilt them
   on the blocks; each then went. The meters and the details are on the blocks (G1, 2026-10-29):
   `MeterView` and `DetailView` are built from the Readout, Row and Chart blocks, `SparkBand` draws on
-  `ChartSeries`, the GPU meter is a `MeterView` like the others, and `MeterFace`, `MeterStyleFace`,
+  the one `Chart` ([S-6750]), the GPU meter is a `MeterView` like the others, and `MeterFace`, `MeterStyleFace`,
   `MeterLookParts` (`BarList`, `TileGrid`), `MeterBrushes`, `CoreGraphGrid`, `PictureFace`,
   `BatteryShape`, `MeterNumbers`, `LoadTint`, `BarLayout`, `CoreGraphLayout`, `HeroLayout.Split` and
   the GPU's own view are gone. The lists and the calendar are on the blocks (G2, 2026-10-29): the
@@ -6748,8 +6796,10 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   sizing.
 - **[S-11002]** **A history** starts headerless and draws the band alone, edge to edge, no number:
   160..640 wide, 48..200 tall, a new one 160 × 64 (`MeterSizing.History`); a wider card is a longer
-  chart of its span, which is its one setting (`HistoryConfig.GraphSpanSeconds`, [S-1121], on its
-  menu's first level, `AtomMenuLines.Span`).
+  chart of its span (`HistoryConfig.GraphSpanSeconds`, [S-1121], on its menu's first level,
+  `AtomMenuLines.Span`), and its chart look under Style ([S-6752]: Area or Line, Simple or Detailed; Detailed
+  52 taller, `MeterSizing.HistoryOf`, its values as the reading writes them and its times on the clock, [S-6751]).
+  No samples yet is the band at its baseline with "No data yet" ([S-6753]).
 - **[S-11003]** **A dial** (Gauge, Ring): as large as the content box takes (`MeterSizing.GaugeIn`,
   `RingIn`), the reading at 28 in its bowl or hole; its least diameter holds the widest reading there
   (24 either side of a gauge's bowl, 8 over its foot; three quarters of a ring's hole), up to 296.
@@ -12046,7 +12096,7 @@ Sdk.WinUI: `Widgets/HourGraph.cs` (the part that draws it), `Widgets/HourGraphPa
   unit or the look), so every graph at a place shares one request and a change of window or unit refetches nothing; the
   weather's cadence ([S-3780]), the air's never faster than hourly ([S-5101]). Synced by `WebSync` like the other answers
   ([S-2663]), kept on the online shelf ([S-5161]: `OnlineSource.Hours`/`AirHours`, a day at most).
-- **[S-12703]** **One frame** (`HourGraph`, on the Chart block, [S-6717]): the top line (the kind's glyph, 16
+- **[S-12703]** **One frame** (`HourGraph`, on the one `Chart`, [S-6750]): the top line (the kind's glyph, 16
   secondary, leading the reading now, BodyStrong, primary or its band's Caution/Critical; a measure the kind lets the
   person choose after it, Body secondary, ellipsis, [S-12801]; the stale rule's Caution glyph at the line's end with
   its lines as the tooltip, [S-7042]); 8 down the plot; the wind's arrow line
@@ -12056,7 +12106,8 @@ Sdk.WinUI: `Widgets/HourGraph.cs` (the part that draws it), `Widgets/HourGraphPa
   hairlines), the series, the second series (tertiary, at the stroke), now (a secondary hairline, and on a line a dot where
   the line is) and the figures at the marked slots (Caption: over a point primary, under it secondary, kept inside the
   plot; a Caption line is kept free over the highest point and under the lowest). The slots are equal cells, each value on
-  its cell's middle; time runs left to right in every language ([S-1113]). The looks (`HourGraphLook`): **Line** (the
+  its cell's middle; time runs left to right in every language ([S-1113]). The looks (`HourGraphLook`, the chart type of
+  [S-6752]; Detailed, [S-6751], writes its times in the plot in place of the time line): **Line** (the
   stroke alone), **Area** (the stroke over the 16 % wash) and **Bars** (a round column per slot from the foot, its cell's
   60 %, between the stroke and 16 wide; a figure over its column). Each piece of a line, its wash and each column is drawn in
   its slot's role, the worse of a piece's two ends (the accent, then Caution, then Critical): the graphs' category bands
@@ -12065,16 +12116,17 @@ Sdk.WinUI: `Widgets/HourGraph.cs` (the part that draws it), `Widgets/HourGraphPa
   (a new card 96) under its frame; relaxed as a chart ([S-12411], `StretchRoom.Picture`): the plot takes the box. The same
   parts at every size ([S-11800]); the arrows' line where the wind has one.
 - **[S-12705]** **The window** (`HourGraphRules.Window`): the hour under way (the last stamp at or before now) and the
-  window's hours after it; an answer whose last hour is over an hour old draws nothing (the Status row's "No forecast for
-  the next hours"). Scales: a level (temperature, humidity, pressure) against the window's range widened to a least span about
+  window's hours after it; an answer whose last hour is over an hour old draws its baseline under the caption "No
+  forecast for the next hours" ([S-6753]). Scales: a level (temperature, humidity, pressure) against the window's range widened to a least span about
   its middle; an amount or an index from 0 to the window's highest, at least a floor top (a dry, clean or calm window stays
-  low). Fewer than two values in the window draw nothing. A temperature is drawn in the shared unit ([S-3770], °F = °C × 9/5 + 32).
-- **[S-12706]** Each graph's content is `HourGraphPanel`: the graph, or the Status block's one row ([S-6734]: loading,
-  a failure with Retry, the window's empty sentence); not set up is the card's Set up row ([S-1862]). It follows its answer
+  low). Fewer than two values in the window draw the baseline ([S-6753]). A temperature is drawn in the shared unit ([S-3770], °F = °C × 9/5 + 32).
+- **[S-12706]** Each graph's content is `HourGraphPanel`: the graph, at its baseline with a caption while there is nothing
+  to draw ([S-6753]: loading, a failure, the window's empty sentence); not set up is the card's Set up row ([S-1862]). It follows its answer
   through `SkyFeed` ([S-11171]) and redraws every half hour (the nowcast every quarter) so the window and now move on.
   Its menu's Refresh line is the answer's ([S-730]); a click opens MSN Weather's forecast for its place ([S-2037]).
 - **[S-12707]** `HourGraphConfig` (a `WeatherConfig`): the place and the window, 12, 24 or 48 hours (the air's 1, 2 or 4
-  days); a window that is no choice is repaired to the nearest. The page (`HourGraphLines`): Style (Appearance), then the
+  days); a window that is no choice is repaired to the nearest; its chart look ([S-6752]). The page (`HourGraphLines`):
+  Style (Appearance) with Chart type and Detail under it, then the
   place ([S-2840]), a divider, Time span, the kind's own lines, a divider and the source's credit (a note).
 - **[S-12708]** The top line names neither the graph nor the place ([S-12801]): the kind's glyph leads the reading
   (`HourGraphModel.Glyph`), and only the air graph's chosen pollutant follows it (`Label`). The place is the group's

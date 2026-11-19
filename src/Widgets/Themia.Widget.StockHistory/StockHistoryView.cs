@@ -27,7 +27,6 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
     public CardOpen? Opens => _config.Page();
 
     private readonly KitStatus _mark;
-    private readonly StatusBlock _state = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<QuoteInterest, TickerQuote> _feed;
     private StockHistoryConfig _config = new();
     private IWidgetSurface? _surface;
@@ -46,9 +45,7 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
         BuildChart();
 
         // [S-11600] The sides and the foot are edge to edge; the top is the card's (the inset).
-        _chart.Visibility = Visibility.Collapsed;
         Children.Add(_chart);
-        Children.Add(_state);
         _mark.Place(this);
     }
 
@@ -81,21 +78,19 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
         DetachChart();
     }
 
+    /// <summary>[S-6753] The quote's period, or the chart at its baseline with why as its caption: never no chart.</summary>
     private void Render()
     {
         if (_feed.Held is not { Value: { } quote } held || quote.Bars.Count < 2)
         {
-            _chart.Visibility = Visibility.Collapsed;
             _mark.Clear();
-            StockQuoteLines.ShowState(_state, _feed.Held is not null ? FetchStatus.Empty : _feed.Want is null ? StockQuoteLines.Unasked(_config) : _feed.Status, _config.Symbol, _feed.Refresh);
+            var status = _feed.Held is not null ? FetchStatus.Empty : _feed.Want is null ? StockQuoteLines.Unasked(_config) : _feed.Status;
+            RedrawChart(StockQuoteLines.Caption(status, _config.Symbol));
             return;
         }
 
-        _state.Hide();
         _mark.Show(OnlineParts.Problems(held), busy: false);
         _falling = quote.ChangePercent < 0;
-        _chart.Visibility = Visibility.Visible;
-        _labels.Visibility = Visibility.Visible;
         UpdateLabels(quote);
         RedrawChart();
     }

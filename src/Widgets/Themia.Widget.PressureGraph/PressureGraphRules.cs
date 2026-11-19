@@ -40,8 +40,10 @@ public static class PressureGraphRules
             }
         }
 
-        var model = new HourGraphModel(slots, config.Style == PressureGraphStyle.Area ? HourGraphLook.Area : HourGraphLook.Line)
+        var model = HourGraphRules.Of(slots, config) with
         {
+            Range = scale,
+            Format = v => LocaleFormat.Integer(locale, (long)Math.Round(v)),
             Reading = WeatherReport.Pressure(values.FirstOrDefault(v => v is not null)),
             Marks = marks,
         };

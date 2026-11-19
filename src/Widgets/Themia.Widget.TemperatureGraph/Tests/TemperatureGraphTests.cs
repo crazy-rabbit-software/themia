@@ -65,13 +65,13 @@ public sealed class TemperatureGraphTests
     }
 
     [Fact]
-    public void S10101_the_style_is_the_look_and_a_clone_keeps_every_setting()
+    public void S10101_the_chart_type_is_the_look_and_a_clone_keeps_every_setting()
     {
-        var config = new TemperatureGraphConfig { Style = TemperatureGraphStyle.Line, ShowFeelsLike = false, Hours = 48, Latitude = 1, Longitude = 2 };
+        var config = new TemperatureGraphConfig { Chart = ChartType.Line, ShowFeelsLike = false, Hours = 48, Latitude = 1, Longitude = 2 };
         var copy = (TemperatureGraphConfig)config.Clone();
 
         Assert.Equal(HourGraphLook.Line, Model(Hours(1, 2, 3), config)!.Look);
         Assert.Equal(HourGraphLook.Area, Model(Hours(1, 2, 3))!.Look);
-        Assert.Equal((TemperatureGraphStyle.Line, false, 48, 1.0), (copy.Style, copy.ShowFeelsLike, copy.Hours, copy.Latitude!.Value));
+        Assert.Equal((ChartType.Line, false, 48, 1.0), (copy.Chart, copy.ShowFeelsLike, copy.Hours, copy.Latitude!.Value));
     }
 }

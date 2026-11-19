@@ -1,41 +1,19 @@
-using System.Text.Json.Serialization;
-using Themia.Core.Localization;
 using Themia.Core.Model;
-using Themia.Core.Widgets;
-using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Widget.PressureGraph;
 
-/// <summary>[S-10701] The graph's looks: the same hours, drawn as the weather graphs draw ([S-12703]).</summary>
-[JsonConverter(typeof(StyleJsonConverter<PressureGraphStyle>))]
-public enum PressureGraphStyle
+/// <summary>[S-10700] The graph's config: the place and window every weather graph holds ([S-12707]) and its chart look ([S-6752]: the line by default).</summary>
+public sealed class PressureGraphConfig : HourGraphConfig
 {
-    Line = 0,
-    Area = 1,
-}
-
-/// <summary>[S-10700] The graph's config: the place and window every weather graph holds ([S-12707]) and its look.</summary>
-public sealed class PressureGraphConfig : HourGraphConfig, IStyled
-{
-    private static readonly StyleOption[] Looks =
-    [
-        StyleOption.Of(PressureGraphStyle.Line, Str.WeatherGraph_Style_Line.Local(), 0xE9D9),
-        StyleOption.Of(PressureGraphStyle.Area, Str.WeatherGraph_Style_Area.Local(), 0xE9D2),
-    ];
-
-    public PressureGraphStyle Style { get; set; } = PressureGraphStyle.Line;
-
-    IReadOnlyList<StyleOption> IStyled.Styles => Looks;
-
-    int IStyled.StyleValue
+    public PressureGraphConfig()
+        : base(ChartType.Line)
     {
-        get => (int)Style;
-        set => Style = (PressureGraphStyle)value;
     }
 
     public override WidgetConfig Clone()
     {
-        var copy = new PressureGraphConfig { Style = Style };
+        var copy = new PressureGraphConfig();
         CopyTo(copy);
         return copy;
     }

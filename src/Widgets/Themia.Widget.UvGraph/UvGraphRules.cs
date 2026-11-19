@@ -56,8 +56,10 @@ public static class UvGraphRules
         }
 
         var now0 = indices.FirstOrDefault(v => v is not null);
-        var model = new HourGraphModel(slots, config.Style == UvGraphStyle.Area ? HourGraphLook.Area : HourGraphLook.Bars)
+        var model = HourGraphRules.Of(slots, config) with
         {
+            Range = scale,
+            Format = v => LocaleFormat.Number(locale, v, 0),
             Reading = now0 is { } v ? $"{WeatherReport.Uv(v)} · {Level(AirQualityRules.Uv(v), locale)}" : "--",
             ReadingRole = ReadingRole(now0),
             Marks = marks,

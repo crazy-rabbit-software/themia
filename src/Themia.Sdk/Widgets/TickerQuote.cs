@@ -2,8 +2,11 @@ using Themia.Core.Localization;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>One sample of the chart: when (epoch seconds) and the price then.</summary>
-public readonly record struct QuoteBar(long Time, double Close);
+/// <summary>
+/// One sample of the chart: when (epoch seconds) and the price then; [S-6750] and its period's open, high and low
+/// where the service sends them (Yahoo's chart does, CoinGecko's prices do not), for real candles.
+/// </summary>
+public readonly record struct QuoteBar(long Time, double Close, Themia.Sdk.Kit.Candle? Ohlc = null);
 
 /// <summary>[S-2775] The chart series and the change, on one baseline (<see cref="MarketQuote.Trace"/>).</summary>
 /// <param name="Bars">The series, starting at the baseline.</param>

@@ -42,10 +42,17 @@ public static class OnlineParts
     public static void ShowDefault(ReadoutBlock readout, FetchStatus status, string unit = "", string? sentence = null)
     {
         ArgumentNullException.ThrowIfNull(readout);
-        var caption = sentence ?? (FetchState.Look(status).Kind == StatusKind.Setup ? string.Empty : FetchState.Message(status));
+        var caption = sentence ?? Caption(status);
         readout.Show("--", unit, caption, valueRole: ColourRole.TextDisabled);
         readout.Visibility = Visibility.Visible;
     }
+
+    /// <summary>
+    /// [S-6753] A graph's caption with no answer to draw: the sentence for <paramref name="status"/> written small with
+    /// the chart at its baseline, never in its place; not set up says nothing (the card's Set up row says it).
+    /// </summary>
+    public static string Caption(FetchStatus status)
+        => FetchState.Look(status).Kind == StatusKind.Setup ? string.Empty : FetchState.Message(status);
 
     /// <summary>
     /// [S-6734] Say why there is no answer in <paramref name="row"/>: the sentence for <paramref name="status"/>

@@ -42,7 +42,7 @@ public sealed class HumidityGraphTests
     [Fact]
     public void S10601_the_line_look_and_a_clone()
     {
-        var config = new HumidityGraphConfig { Style = HumidityGraphStyle.Line, Hours = 48 };
+        var config = new HumidityGraphConfig { Chart = ChartType.Line, Hours = 48 };
 
         Assert.Equal(HourGraphLook.Line, Model(Hours(1, 2, 3), config)!.Look);
         Assert.Equal(HourGraphLook.Area, Model(Hours(1, 2, 3))!.Look);

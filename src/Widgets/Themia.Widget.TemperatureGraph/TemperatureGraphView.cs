@@ -53,9 +53,9 @@ internal sealed partial class TemperatureGraphView : HourGraphPanel, IWidgetView
 
     private void Redraw()
         => Render(
+            _config,
             _feed.Held,
             _feed.Status,
             (answer, now) => TemperatureGraphRules.Model(answer, _config, now, RegionFormat.Current.Temperature, Strings.Current, TimeZoneInfo.Local),
-            Str.WeatherGraph_Empty.Text(),
-            _feed.Refresh);
+            Str.WeatherGraph_Empty.Text());
 }

@@ -89,6 +89,8 @@ public abstract class DiskPart(IWidgetHost widgetHost) : MeterPart
     /// <summary>[S-1821] Against the window's peak, rounded up to a doubling of 1 MB/s.</summary>
     public override ChartScale Scale => DiskRules.Scale;
 
+    public override bool CountsBytes => true;
+
     /// <summary>[S-6271] Reads and writes of the drive the reading is about, from the snapshot the reading itself comes from.</summary>
     public override MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems)
         => MeterItemsWatch.Of(hub, Sources.DiskActivity, snapshot => Items(snapshot.Activity?.Rates), onItems);

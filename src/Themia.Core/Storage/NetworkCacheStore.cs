@@ -158,9 +158,10 @@ public static class NetworkCacheStore
 
         foreach (var bar in (dto.Bars ?? []).Take(MaxBars))
         {
-            if (bar is { Count: 2 } && double.IsFinite(bar[0]) && double.IsFinite(bar[1]) && bar[0] is > 0 and < 4_102_444_800)
+            // [S-6750] A bar is its time and close, and its candle's open, high and low where it had one.
+            if (bar is { Count: 2 or 5 } && double.IsFinite(bar[0]) && double.IsFinite(bar[1]) && bar[0] is > 0 and < 4_102_444_800)
             {
-                bars.Add(new QuoteBar((long)bar[0], bar[1]));
+                bars.Add(new QuoteBar((long)bar[0], bar[1], bar.Count == 5 ? MarketQuote.Candle(bar[1], bar[2], bar[3], bar[4]) : null));
             }
         }
 
@@ -202,7 +203,7 @@ public static class NetworkCacheStore
             ChangePercent = quote.ChangePercent,
             Currency = quote.Currency,
             PriceHint = quote.PriceHint,
-            Bars = [.. quote.Bars.Take(MaxBars).Select(bar => new List<double> { bar.Time, bar.Close })],
+            Bars = [.. quote.Bars.Take(MaxBars).Select(bar => bar.Ohlc is { } c ? new List<double> { bar.Time, bar.Close, c.Open, c.High, c.Low } : new List<double> { bar.Time, bar.Close })],
             PreStart = quote.Sessions.Pre?.Start,
             PreEnd = quote.Sessions.Pre?.End,
             RegularStart = quote.Sessions.Regular?.Start,

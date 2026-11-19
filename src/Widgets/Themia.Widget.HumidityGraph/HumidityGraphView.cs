@@ -52,9 +52,9 @@ internal sealed partial class HumidityGraphView : HourGraphPanel, IWidgetView, I
 
     private void Redraw()
         => Render(
+            _config,
             _feed.Held,
             _feed.Status,
             (answer, now) => HumidityGraphRules.Model(answer, _config, now, Strings.Current, TimeZoneInfo.Local),
-            Str.WeatherGraph_Empty.Text(),
-            _feed.Refresh);
+            Str.WeatherGraph_Empty.Text());
 }

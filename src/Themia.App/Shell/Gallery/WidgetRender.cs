@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--span s] [--style name] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
+/// [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path] [--machine sample]</c> ([S-1931]: the system widgets on the sample machine, not this PC) ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at its kind's min, natural and max
 /// (<see cref="SizeFit.CheckedAt"/>, [S-2448]), labelled, side by side on one page; with one, once at that size. The widget has its
 /// kind's default config; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -47,6 +47,10 @@ internal static class WidgetRender
     /// <summary>[S-6586] The cards' own alignment, or null for the kind's default.</summary>
     private static ContentAlign? _align;
     private static int? _span;
+
+    // [S-6752] --chart area|line|bars|candles and --detail simple|detailed: a graph kind in that chart look.
+    private static ChartType? _chart;
+    private static ChartDetail? _detail;
 
     /// <summary>[S-6547] The cards' own item colour and item text colour (<c>--own-items</c>, <c>--own-item-text</c>), empty to follow the design.</summary>
     private static FillChoice _ownItems = new();
@@ -87,8 +91,8 @@ internal static class WidgetRender
             || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
-            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
+            Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
             app.Exit();
             return true;
         }
@@ -140,7 +144,16 @@ internal static class WidgetRender
 
         // [S-2448] A kind is drawn at its range (min, natural, max) unless sizes are asked for:
         // --sizes range|WxH,.. picks.
-        var sizing = SizeFit.Of(kind, style);
+        _chart = Option(args, "--chart") is { } chartText && Enum.TryParse<ChartType>(chartText, ignoreCase: true, out var chartValue) && Enum.IsDefined(chartValue) ? chartValue : null;
+        _detail = Option(args, "--detail") is { } detailText && Enum.TryParse<ChartDetail>(detailText, ignoreCase: true, out var detailValue) && Enum.IsDefined(detailValue) ? detailValue : null;
+        var sized = WidgetConfig.CreateDefault(kind);
+        if (style is { } styled)
+        {
+            WidgetStyles.Set(sized, styled);
+        }
+
+        ChartLook(sized);
+        var sizing = SizeFit.Of(sized);
         List<CheckedSize> tiers = Size(args, at + 3) is { } size
             ? [new CheckedSize($"{size.Width:0}x{size.Height:0}", size.Width, size.Height)]
             : Sizes(Option(args, "--sizes"), sizing) is { Count: > 0 } sizes ? sizes : [.. SizeFit.CheckedAt(sizing)];
@@ -409,6 +422,7 @@ internal static class WidgetRender
 
             // [S-2848] --place-cleared: a widget about a place, with its place cleared.
             PlaceRender.Apply(model.Config);
+            ChartLook(model.Config);
 
             if (_span is { } seconds && model.Config is HistoryConfig gauge)
             {
@@ -432,6 +446,19 @@ internal static class WidgetRender
 
         Arrange(page, cards, labels, tiers);
         return labels;
+    }
+
+    /// <summary>[S-6752] The chart look --chart and --detail ask for, on a graph kind (a type it does not offer is its own, as on load).</summary>
+    private static void ChartLook(WidgetConfig config)
+    {
+        if (config is not IChartLooks looks)
+        {
+            return;
+        }
+
+        looks.Chart = _chart ?? looks.Chart;
+        looks.Detail = _detail ?? looks.Detail;
+        _ = ChartLooks.Repair(looks, config.Kind.ToString());
     }
 
     /// <summary>Each card at its size under its label, side by side, and the page round them.</summary>

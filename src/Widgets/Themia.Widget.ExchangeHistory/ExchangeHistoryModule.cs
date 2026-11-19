@@ -39,7 +39,7 @@ public sealed class ExchangeHistoryModule : IWidgetModule
         Label = ExchangeHistoryStr.ExchangeHistory_Label.Local(),
         Description = ExchangeHistoryStr.ExchangeHistory_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => Sizing(),
+        Sizing = c => ChartPlot.Sized(Sizing(), ChartLooks.EffectiveDetail((ExchangeHistoryConfig)c), 0, 0),
         Traits = WidgetTraits.None,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 3),
@@ -53,7 +53,9 @@ public sealed class ExchangeHistoryModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
-        menu.Lines.AddRange(ExchangePairLines.Lines(menu, (ExchangeHistoryConfig)config, Glyph));
+        var history = (ExchangeHistoryConfig)config;
+        menu.Lines.AddRange(ExchangePairLines.Lines(menu, history, Glyph));
+        ChartMenuLines.Add(menu, history);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new ExchangeHistoryView(host);

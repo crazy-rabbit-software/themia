@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Widget.RainGraph;
 
@@ -18,14 +19,19 @@ public enum RainGraphStyle
     Nowcast = 1,
 }
 
-/// <summary>[S-10200] A rain graph: a place, its window, its look and whether the chance line is drawn.</summary>
+/// <summary>[S-10200] A rain graph: a place, its window, its look (the hours or the nowcast), its chart look ([S-6752]: the bars by default) and whether the chance line is drawn.</summary>
 public sealed class RainGraphConfig : HourGraphConfig, IStyled
 {
     private static readonly StyleOption[] Looks =
     [
-        StyleOption.Of(RainGraphStyle.Hours, Str.WeatherGraph_Style_Bars.Local(), 0xE9D2),
+        StyleOption.Of(RainGraphStyle.Hours, RainGraphStr.RainGraph_Style_Hours.Local(), 0xE9D2),
         StyleOption.Of(RainGraphStyle.Nowcast, RainGraphStr.RainGraph_Style_Nowcast.Local(), 0xEA91),
     ];
+
+    public RainGraphConfig()
+        : base(ChartType.Bars)
+    {
+    }
 
     public RainGraphStyle Style { get; set; } = RainGraphStyle.Hours;
 

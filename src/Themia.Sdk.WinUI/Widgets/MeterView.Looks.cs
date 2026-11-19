@@ -4,6 +4,7 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Widgets.Meters;
 using Themia.Core.Diagnostics;
+using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -397,6 +398,11 @@ public sealed partial class MeterView
                 while (_cells.Count < count)
                 {
                     var cell = new GraphCell(_band.Capacity);
+                    if (_config is IChartLooks looks)
+                    {
+                        cell.Band.Looks(ChartLooks.Effective(looks), ChartDetail.Simple, TimeSpan.FromSeconds(1), null);
+                    }
+
                     _cells.Add(cell);
                     grid.Children.Add(cell.Root);
                 }
@@ -737,7 +743,7 @@ public sealed partial class MeterView
 
         public GraphCell(int capacity)
         {
-            Band = new SparkBand(capacity, ChartScale.Share);
+            Band = new SparkBand(capacity, ChartScale.Share) { Captions = false };
             SetRow(Band, 1);
             Root = new Grid
             {

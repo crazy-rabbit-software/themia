@@ -45,6 +45,9 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     /// <summary>[S-6714] Nothing to draw: the Status block's one row at the top.</summary>
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
 
+    /// <summary>[S-6753] The caption written with an empty window's chart.</summary>
+    private readonly TextBlock _note = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+
     /// <summary>Every app part of every bar, by app key, so a focus can light them all at once.</summary>
     private readonly List<(string Key, Border Part)> _parts = [];
 
@@ -104,9 +107,14 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
         SetRow(_drawing, 1);
         SetRow(_empty, 1);
+        SetRow(_note, 1);
+        _note.Margin = Family.SideInset;
+        _note.VerticalAlignment = VerticalAlignment.Top;
+        _note.Visibility = Visibility.Collapsed;
         Children.Add(_nav.Line);
         Children.Add(_drawing);
         Children.Add(_empty);
+        Children.Add(_note);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -193,12 +201,9 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
         _data = ScreenTimeData.Build(_source, Period, null);
 
-        if (_data.Total <= 0)
-        {
-            ShowEmpty(Str.WidgetsC_ScreenTime_NoActivityPeriod.Text());
-            return;
-        }
-
+        // [S-6753] A window with nothing in it is still the chart: its empty days on their foot, the sentence a caption.
+        _note.Text = _data.Total <= 0 ? Str.WidgetsC_ScreenTime_NoActivityPeriod.Text() : string.Empty;
+        _note.Visibility = _data.Total <= 0 ? Visibility.Visible : Visibility.Collapsed;
         _empty.Visibility = Visibility.Collapsed;
         _drawing.Visibility = Visibility.Visible;
 
@@ -218,6 +223,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _empty.Show(StatusKind.Empty, Glyphs.ScreenTimeChart, message);
         _empty.Visibility = Visibility.Visible;
         _drawing.Visibility = Visibility.Collapsed;
+        _note.Visibility = Visibility.Collapsed;
     }
 
     private void Clear()
@@ -258,7 +264,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _drawing.Margin = calendar ? Family.SideInset with { Bottom = FamilySpace.Inset } : Family.SideInset;
 
         // [S-3325] Built once for what it is made of; every other read moves what is there.
-        var frame = new Frame(ChartStyle, data.Range.Count, width, height, Today.Key, data.Range.Count > 0 ? data.Range[0].Date : string.Empty, Strings.Current);
+        var frame = new Frame(ChartStyle, data.Range.Count, width, height, Today.Key, data.Range.Count > 0 ? data.Range[0].Date : string.Empty, Strings.Current, data.Total <= 0);
         if (frame != _frame)
         {
             Clear();
@@ -286,7 +292,8 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         double Height,
         string Today,
         string First,
-        Locale Language);
+        Locale Language,
+        bool Empty);
 
     /// <summary>[S-3325] One day's bar: its column, the stack its parts stand in, its parts by app and its tooltip as last written.</summary>
     private sealed class Bar(Grid column, StackPanel stack)
@@ -333,6 +340,14 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             SetColumn(column, i);
             _columns.Add(column);
             chart.Children.Add(column);
+        }
+
+        // [S-6753] With nothing in the window, the bars' foot as a hairline: the chart still stands.
+        if (data.Total <= 0 && count > 0)
+        {
+            var foot = new Microsoft.UI.Xaml.Shapes.Rectangle { Height = FamilyShape.Hairline, Fill = Family.Brush(ColourRole.Track), VerticalAlignment = VerticalAlignment.Bottom };
+            SetColumnSpan(foot, count);
+            chart.Children.Add(foot);
         }
 
         if (count > 0)

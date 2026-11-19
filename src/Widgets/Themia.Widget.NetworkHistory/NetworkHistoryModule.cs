@@ -36,7 +36,7 @@ public sealed class NetworkHistoryModule : IWidgetModule
         Label = NetworkHistoryStr.NetworkHistory_Label.Local(),
         Description = NetworkHistoryStr.NetworkHistory_Desc.Local(),
         Glyph = Glyphs.Network,
-        Sizing = _ => MeterSizing.History,
+        Sizing = MeterSizing.HistoryOf,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.NetworkReading, 0, 1),
@@ -44,7 +44,12 @@ public sealed class NetworkHistoryModule : IWidgetModule
 
     /// <summary>[S-11019] Its one setting: how much history the chart spans ([S-1121]).</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-        => menu.Lines.Add(AtomMenuLines.Span(menu, (NetworkHistoryConfig)config));
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        var history = (NetworkHistoryConfig)config;
+        menu.Lines.Add(AtomMenuLines.Span(menu, history));
+        ChartMenuLines.Add(menu, history);
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new NetworkHistoryMeter());
 }
@@ -86,6 +91,9 @@ internal sealed class NetworkHistoryMeter : MeterPart
     public override CardOpen? Opens(WidgetConfig config) => NetworkHistoryModule.Opens;
 
     public override ChartScale Scale => ChartScale.Peak(Sources.NetworkChartFloor);
+
+    /// <summary>[S-6751] Its grid steps in binary units: 2 MB/s, never 1.9.</summary>
+    public override bool CountsBytes => true;
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

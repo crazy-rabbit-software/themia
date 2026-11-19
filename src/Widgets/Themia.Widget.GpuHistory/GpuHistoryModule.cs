@@ -32,7 +32,7 @@ public sealed class GpuHistoryModule : IWidgetModule
         Label = GpuHistoryStr.GpuHistory_Label.Local(),
         Description = GpuHistoryStr.GpuHistory_Desc.Local(),
         Glyph = Glyphs.Gpu,
-        Sizing = _ => MeterSizing.History,
+        Sizing = MeterSizing.HistoryOf,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Graphics, 0, 1),
@@ -51,6 +51,7 @@ public sealed class GpuHistoryModule : IWidgetModule
         }
 
         menu.Lines.Add(AtomMenuLines.Span(menu, config));
+        ChartMenuLines.Add(menu, config);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new GpuHistoryMeter());

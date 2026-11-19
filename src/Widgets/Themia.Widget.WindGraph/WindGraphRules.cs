@@ -56,8 +56,10 @@ public static class WindGraphRules
         }
 
         var first = window.FirstOrDefault(h => h.Wind is not null);
-        var model = new HourGraphModel(slots, config.Style == WindGraphStyle.Bars ? HourGraphLook.Bars : HourGraphLook.Line)
+        var model = HourGraphRules.Of(slots, config) with
         {
+            Range = scale,
+            Format = v => LocaleFormat.Number(locale, v, 0),
             Reading = WeatherReport.WindFrom(locale, first?.Wind, first?.WindDirection),
             Marks = marks,
         };

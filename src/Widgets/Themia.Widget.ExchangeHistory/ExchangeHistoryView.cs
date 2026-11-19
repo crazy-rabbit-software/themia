@@ -23,8 +23,7 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
 {
     private readonly KitStatus _mark;
     /// <summary>[S-6717] [S-11002] A history band: edge to edge at the sides and the foot, as the stock's; the top is the card's (the inset).</summary>
-    private readonly ChartSeries _chart = new() { FlowDirection = FlowDirection.LeftToRight, Visibility = Visibility.Collapsed };
-    private readonly StatusBlock _state = new() { Visibility = Visibility.Collapsed };
+    private readonly Chart _chart = new() { FlowDirection = FlowDirection.LeftToRight };
     private readonly IWidgetHost _host;
     private IRateAnswers? _web;
     private IWidgetSurface? _surface;
@@ -38,7 +37,6 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
         _host = host;
         _mark = new KitStatus(host);
         Children.Add(_chart);
-        Children.Add(_state);
         _mark.Place(this);
         JoinInstants();
     }
@@ -123,25 +121,43 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSu
             _mark.Clear();
         }
 
-        if (rate is null || rate.History.Count < 2)
-        {
-            _chart.Visibility = Visibility.Collapsed;
-            if (_table is null)
-            {
-                OnlineParts.ShowState(_state, _status, ExchangeHistoryModule.Glyph, () => Reload(force: true));
-            }
-            else
-            {
-                _state.Show(StatusKind.Empty, ExchangeHistoryModule.Glyph, Str.Online_Rates_Missing.Text());
-            }
+        // [S-6753] With no table yet, or no rate for the pair, the chart is drawn at its baseline with why as its caption.
+        var caption = rate is { History.Count: >= 2 } ? string.Empty
+            : _table is null ? OnlineParts.Caption(_status) : Str.Online_Rates_Missing.Text();
+        _chart.Role(rate?.ChangePercent < 0 ? ColourRole.Critical : ColourRole.Accent);
+        var history = rate is { History.Count: >= 2 } ? rate.History : [];
+        var days = rate?.Days is { } known && known.Count == history.Count ? known : null;
+        var looks = (ChartLooks.Effective(_config), ChartLooks.EffectiveDetail(_config));
+        _chart.Show(size => Layout(history, days, looks.Item1, looks.Item2, caption, size.Width));
+        MarkInstant();
+    }
 
-            return;
+    /// <summary>[S-6750] [S-6751] The days evenly across the band, the oldest on the left; Detailed, their dates along the foot.</summary>
+    private static ChartModel Layout(IReadOnlyList<double> history, IReadOnlyList<DateOnly>? days, ChartType type, ChartDetail detail, string caption, double w)
+    {
+        var n = history.Count;
+        double X(int i) => n < 2 ? 0 : i * w / (n - 1);
+        var times = new List<ChartTick>();
+        if (detail == ChartDetail.Detailed && days is { Count: >= 2 })
+        {
+            var offset = DateTimeOffset.Now.Offset;
+            var (start, end) = (PairRate.Noon(days[0], offset), PairRate.Noon(days[^1], offset));
+            foreach (var at in ChartPlot.Times(start, end, ChartPlot.TimeRoom(w), TimeZoneInfo.Local).At)
+            {
+                times.Add(new ChartTick(ChartPlot.Share(at, start, end) * w, LocaleFormat.Date(Strings.Current, at.DateTime, DateStyle.MonthDayShort)));
+            }
         }
 
-        _state.Hide();
-        _chart.Visibility = Visibility.Visible;
-        _chart.Role(rate.ChangePercent < 0 ? ColourRole.Critical : ColourRole.Accent);
-        _chart.Show(MarketQuote.Normalise(rate.History));
-        MarkInstant();
+        return new ChartModel
+        {
+            Type = type,
+            Detail = detail,
+            Series = [.. history.Select((v, i) => new ChartSample(X(i), v))],
+            Low = n > 0 ? history.Min() : 0,
+            High = n > 0 ? history.Max() : 1,
+            Format = v => LocaleFormat.Number(Strings.Current, v, 4),
+            Times = times,
+            Caption = caption,
+        };
     }
 }

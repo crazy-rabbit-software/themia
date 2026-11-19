@@ -19,8 +19,8 @@ namespace Themia.App.Widgets;
 /// in 15 min") on a Title line at the content's top, the intensity, total and chance the Body line under
 /// it, then a column per quarter hour on a fixed scale (the Chart block's columns) with the window's two
 /// ends under them ([S-5126]); the same at every size in its range (<see cref="RainLayout"/>).
-/// A dry window, or one too short to speak for the hour, is the Status row's one plain sentence
-/// ([S-6714]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
+/// A dry window, one too short to speak for the hour, or no nowcast yet keeps the columns (their empty tracks)
+/// with its one plain sentence as the caption over them ([S-6753]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
 /// between fetches.
 /// </summary>
 internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens,
@@ -39,9 +39,6 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     private readonly List<ChartBar> _columns = [];
     private readonly TextBlock _timeStart = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
     private readonly TextBlock _timeEnd = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
-
-    /// <summary>[S-6734] No nowcast, a dry window or one too short: the Status block's row at the top.</summary>
-    private readonly StatusBlock _state = new();
 
     private RainNextHourConfig _config = new();
     private readonly SkyFeed<RainInterest, RainNowcast> _feed;
@@ -88,12 +85,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         _chart.Children.Add(_timeStart);
         _chart.Children.Add(_timeEnd);
 
-        _state.Visibility = Visibility.Collapsed;
-        _top.Visibility = Visibility.Collapsed;
-        _chart.Visibility = Visibility.Collapsed;
         Children.Add(_top);
         Children.Add(_chart);
-        Children.Add(_state);
         _status.Place(this);
     }
 
@@ -115,48 +108,38 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         _feed.Reload();
     }
 
+    /// <summary>
+    /// [S-6753] The window's columns are always drawn (owner, 2026-11-19: "even if there is no rain in the next two hours
+    /// ... it should show the default values in the graph"): no nowcast, a dry window or one too short is the empty
+    /// tracks with its sentence as the caption over them, never a Status row in their place.
+    /// </summary>
     private void Render()
     {
-        if (_feed.Held is not { Value: { } cast } held)
-        {
-            // [S-6734] Not set up is the card's Set up row ([S-1862]); every other state is one row here.
-            OnlineParts.ShowState(_state, _feed.Status, Glyphs.Rain, _feed.Refresh);
-            _top.Visibility = _chart.Visibility = Visibility.Collapsed;
-            _status.Clear();
-            return;
-        }
-
         var now = _pinnedNow ?? DateTimeOffset.Now;
-        var outlook = RainRules.Outlook(cast, now);
-        _status.Show(OnlineParts.Problems(held), busy: false);
-
-        // [S-5126] Nothing to warn of (a dry window) or nothing to go on (too few steps): one plain sentence.
-        if (!RainLayout.Warns(outlook.Headline))
+        var outlook = _feed.Held is { Value: { } cast } ? RainRules.Outlook(cast, now) : null;
+        if (_feed.Held is { Value: not null } held)
         {
-            _state.Show(StatusKind.Empty, Glyphs.Rain, RainText.Headline(outlook));
-            _top.Visibility = _chart.Visibility = Visibility.Collapsed;
-            return;
+            _status.Show(OnlineParts.Problems(held), busy: false);
+        }
+        else
+        {
+            _status.Clear();
         }
 
-        _state.Hide();
-        _top.Visibility = Visibility.Visible;
-        _chart.Visibility = Visibility.Visible;
-        _headline.Text = RainText.Headline(outlook);
-        _caption.Text = RainText.Caption(outlook);
+        var warns = outlook is not null && RainLayout.Warns(outlook.Headline);
+        _headline.Visibility = warns ? Visibility.Visible : Visibility.Collapsed;
+        _headline.Text = warns ? RainText.Headline(outlook!) : string.Empty;
+        _caption.Text = warns ? RainText.Caption(outlook!) : outlook is not null ? RainText.Headline(outlook) : OnlineParts.Caption(_feed.Status);
 
-        if (outlook.Steps.Count > 0)
-        {
-            var start = outlook.Steps[0].Start.ToLocalTime();
-            _timeStart.Text = RainNextHourStr.Online_Rain_Now.Text();
-            _timeEnd.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime));
-        }
+        var start = (outlook is { Steps.Count: > 0 } ? outlook.Steps[0].Start : now).ToLocalTime();
+        _timeStart.Text = RainNextHourStr.Online_Rain_Now.Text();
+        _timeEnd.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime));
 
         // [S-5125] A column per quarter hour on a fixed scale; a dry one is its empty track.
         for (var i = 0; i < _columns.Count; i++)
         {
-            _columns[i].Show(i < outlook.Steps.Count ? RainRules.BarShare(outlook.Steps[i].Millimetres) : 0);
+            _columns[i].Show(warns && i < outlook!.Steps.Count ? RainRules.BarShare(outlook.Steps[i].Millimetres) : 0);
         }
-
     }
 
     public void Detach() => _feed.Detach();

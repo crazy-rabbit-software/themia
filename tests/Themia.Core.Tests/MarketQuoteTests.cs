@@ -240,6 +240,19 @@ public class MarketQuoteTests
     }
 
     [Fact]
+    public void S6750_a_bar_keeps_its_period_where_open_high_and_low_are_all_there()
+    {
+        var bars = MarketQuote.Bars([100, 160, 220], [10, 11, 12], [9.5, null, 12.5], [10.5, 11.5, 12.2], [9, 10.8, 11.9]);
+
+        Assert.Equal(new Themia.Sdk.Kit.Candle(9.5, 10.5, 9, 10), bars[0].Ohlc);
+        Assert.Null(bars[1].Ohlc);
+
+        // A high under the open (a padded or rounded print) is widened to take it: a candle never inverts.
+        Assert.Equal(new Themia.Sdk.Kit.Candle(12.5, 12.5, 11.9, 12), bars[2].Ohlc);
+        Assert.All(MarketQuote.Bars([100], [10]), b => Assert.Null(b.Ohlc));
+    }
+
+    [Fact]
     public void An_absent_series_is_empty_rather_than_null()
         => Assert.Empty(MarketQuote.Bars(null, null));
 

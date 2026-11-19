@@ -32,7 +32,7 @@ public sealed class DiskHistoryModule : IWidgetModule
         Label = DiskHistoryStr.DiskHistory_Label.Local(),
         Description = DiskHistoryStr.DiskHistory_Desc.Local(),
         Glyph = Glyphs.Disk,
-        Sizing = _ => MeterSizing.History,
+        Sizing = MeterSizing.HistoryOf,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive], [LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.System, 0, 4),
@@ -46,6 +46,7 @@ public sealed class DiskHistoryModule : IWidgetModule
         ArgumentNullException.ThrowIfNull(menu);
         menu.Lines.Add(DiskMenuLines.Drive(menu, config, drives));
         menu.Lines.Add(AtomMenuLines.Span(menu, config));
+        ChartMenuLines.Add(menu, config);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new DiskHistoryMeter(host));

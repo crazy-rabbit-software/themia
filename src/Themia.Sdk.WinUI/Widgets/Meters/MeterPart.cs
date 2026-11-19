@@ -96,6 +96,9 @@ public abstract class MeterPart
     /// <summary>[S-1124] What the top of the chart stands for.</summary>
     public virtual ChartScale Scale => ChartScale.Share;
 
+    /// <summary>[S-6751] Whether the series counts bytes (a rate of them): a Detailed chart's grid steps are then counted in binary units.</summary>
+    public virtual bool CountsBytes => false;
+
 #if DEBUG
     /// <summary>
     /// [S-1940] Debug renders: the reading <c>--state unavailable</c> shows where the measured thing can be

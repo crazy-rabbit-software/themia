@@ -56,10 +56,10 @@ public sealed class WindGraphTests
     [Fact]
     public void S10501_the_bars_look_and_a_clone()
     {
-        var config = new WindGraphConfig { Style = WindGraphStyle.Bars, ShowGusts = false };
+        var config = new WindGraphConfig { Chart = ChartType.Bars, ShowGusts = false };
         var copy = (WindGraphConfig)config.Clone();
 
         Assert.Equal(HourGraphLook.Bars, Model(Hours(1, 2, 3), config)!.Look);
-        Assert.Equal((WindGraphStyle.Bars, false), (copy.Style, copy.ShowGusts));
+        Assert.Equal((ChartType.Bars, false), (copy.Chart, copy.ShowGusts));
     }
 }

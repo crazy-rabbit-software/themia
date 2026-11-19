@@ -85,8 +85,10 @@ public static class AirQualityGraphRules
 
         var first = values.FirstOrDefault(v => v is not null);
         var band = first is { } f ? Band(measure, scale, f) : (AirBand?)null;
-        var model = new HourGraphModel(slots, config.Style == AirQualityGraphStyle.Bars ? HourGraphLook.Bars : HourGraphLook.Area)
+        var model = HourGraphRules.Of(slots, config) with
         {
+            Range = range,
+            Format = v => LocaleFormat.Integer(locale, (long)Math.Round(v)),
             Reading = first is { } v && band is { } b ? $"{LocaleFormat.Integer(locale, (long)Math.Round(v))} · {BandName(b, measure, scale, locale)}" : "--",
             ReadingRole = band is { } r ? AirQualityRules.ValueRole(AirQualityRules.Tone(r)) : ColourRole.TextPrimary,
             Marks = marks,

@@ -12,6 +12,7 @@ using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.CpuCores;
 
@@ -53,6 +54,7 @@ public sealed class CpuCoresModule : IWidgetModule
         if (config is CpuCoresConfig { Style: CpuCoresStyle.Graphs } cores)
         {
             menu.StyleLines.Add(AtomMenuLines.Span(menu, cores));
+            ChartMenuLines.Add(menu, cores);
         }
     }
 
@@ -83,6 +85,10 @@ public sealed class CpuCoresConfig : HistoryConfig, IStyled, IReadsSystem
 
     /// <summary>[S-11011] The cores' drawing.</summary>
     public CpuCoresStyle Style { get; set; } = CpuCoresStyle.Bars;
+
+    /// <summary>[S-6752] Only the graphs draw a history: the line with its wash or alone; the bars and the rings offer no chart type.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public override IReadOnlyList<ChartType> ChartTypes => Style == CpuCoresStyle.Graphs ? ChartLooks.Lines : [ChartType.Area];
 
     private static readonly StyleOption[] CoreStyles =
     [

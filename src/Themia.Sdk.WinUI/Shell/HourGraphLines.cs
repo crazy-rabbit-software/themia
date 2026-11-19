@@ -14,21 +14,21 @@ namespace Themia.Sdk.WinUI;
 /// </summary>
 public static class HourGraphLines
 {
-    /// <summary>The place, a divider and the time span.</summary>
-    public static IEnumerable<ItemMenuEntry> Lines(WidgetMenuLines menu, HourGraphConfig config)
+    /// <summary>The place, a divider and the time span; [S-6752] the chart look's two lines go under the Style picker.</summary>
+    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, HourGraphConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
+        ChartMenuLines.Add(menu, config);
 
-        yield return ItemMenuEntry.Separator;
-        foreach (var line in WeatherPlaceRows.Lines(menu, config))
-        {
-            yield return line;
-        }
-
-        yield return ItemMenuEntry.Separator;
         (int, string)[] spans = [.. config.HourChoices.Select(h => (h, Span(h)))];
-        yield return menu.Choice(Glyphs.Calendar, Str.WeatherGraph_Window.Text(), spans, config.EffectiveHours, value => config.Hours = value);
+        return
+        [
+            ItemMenuEntry.Separator,
+            .. WeatherPlaceRows.Lines(menu, config),
+            ItemMenuEntry.Separator,
+            menu.Choice(Glyphs.Calendar, Str.WeatherGraph_Window.Text(), spans, config.EffectiveHours, value => config.Hours = value),
+        ];
     }
 
     /// <summary>The source's credit, the page's last line.</summary>

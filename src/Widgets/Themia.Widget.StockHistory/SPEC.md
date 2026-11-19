@@ -24,7 +24,11 @@ quote|falling|stale`: the SDK's `SampleQuote`, the price's), `Localization/Local
   the solid pill). Nothing else at any size; no price axis. A chart that sits under its reading (a
   Header widget over the group names the instrument, [S-12481]); the status's problem glyph stands over
   its top end ([S-7042]). No
-  quote, or fewer than two bars: the Status row ([S-6734]).
+  quote, or fewer than two bars: the chart at its baseline with the state's sentence as its caption ([S-6753]).
+  Its chart look ([S-6752]): Chart type Area (the default), Line or Candlestick (real candles from Yahoo's open, high
+  and low; a coin's bucketed from its prices) and Detail Simple or Detailed ([S-6751]: the grid and its prices, a few
+  times in place of the start and end, the high and the low marked whatever High and low says, the latest price's
+  hairline and pill).
 - **[S-11166]** **Sizes**: 200..480 wide (a new one 280), the chart's band 64..240 tall (a
   new one 96) under the 12 inset: the chart only gets longer or taller.
 - **[S-11167]** Its options are all on the properties menu ([S-3719]): **Symbol** (the line Set up

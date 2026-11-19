@@ -178,6 +178,16 @@ internal sealed class YahooQuoteSeries
     /// <summary>Nulls are real: illiquid minutes are padded so the array stays aligned with the timestamps.</summary>
     [JsonPropertyName("close")]
     public List<double?>? Close { get; init; }
+
+    /// <summary>[S-6750] Each bar's open, high and low, aligned as the closes are: the candles' real periods.</summary>
+    [JsonPropertyName("open")]
+    public List<double?>? Open { get; init; }
+
+    [JsonPropertyName("high")]
+    public List<double?>? High { get; init; }
+
+    [JsonPropertyName("low")]
+    public List<double?>? Low { get; init; }
 }
 
 internal sealed class YahooMeta

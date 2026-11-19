@@ -131,7 +131,7 @@ public sealed class WeatherGraphsTests
         Assert.Null(HourGraphRules.Share(null, (0, 10)));
         Assert.Equal((1, 3), HourGraphRules.Extremes([null, 1, 4, 9, 9, null]));
         Assert.Null(HourGraphRules.Extremes([null, null]));
-        Assert.Equal([(0, 1), (3, 3), (5, 6)], HourGraphRules.Runs([1, 2, null, 4, null, 6, 7]));
+        Assert.Equal([(0, 1), (3, 3), (5, 6)], ChartPlot.Runs([.. new double?[] { 1, 2, null, 4, null, 6, 7 }.Select((v, i) => new ChartSample(i, v ?? double.NaN))]));
     }
 
     [Fact]
@@ -156,17 +156,17 @@ public sealed class WeatherGraphsTests
     [Fact]
     public void S12703_the_worse_role_of_two_hours_draws_their_piece()
     {
-        Assert.Equal(ColourRole.Caution, HourGraphRules.Worse(ColourRole.Accent, ColourRole.Caution));
-        Assert.Equal(ColourRole.Critical, HourGraphRules.Worse(ColourRole.Critical, ColourRole.Caution));
-        Assert.Equal(ColourRole.Accent, HourGraphRules.Worse(ColourRole.Accent, ColourRole.Accent));
+        Assert.Equal(ColourRole.Caution, ChartPlot.Worse(ColourRole.Accent, ColourRole.Caution));
+        Assert.Equal(ColourRole.Critical, ChartPlot.Worse(ColourRole.Critical, ColourRole.Caution));
+        Assert.Equal(ColourRole.Accent, ChartPlot.Worse(ColourRole.Accent, ColourRole.Accent));
     }
 
     [Fact]
     public void S12703_a_column_keeps_between_the_stroke_and_half_a_large_icon()
     {
-        Assert.Equal(FamilyShape.Stroke, HourGraphRules.BarWidth(1));
-        Assert.Equal(6, HourGraphRules.BarWidth(10));
-        Assert.Equal(FamilyShape.IconLarge / 2, HourGraphRules.BarWidth(100));
+        Assert.Equal(FamilyShape.Stroke, ChartPlot.BarWidth(1));
+        Assert.Equal(6, ChartPlot.BarWidth(10));
+        Assert.Equal(FamilyShape.IconLarge / 2, ChartPlot.BarWidth(100));
     }
 
     [Fact]
@@ -211,6 +211,11 @@ public sealed class WeatherGraphsTests
 
     private sealed class Graph : HourGraphConfig
     {
+        public Graph()
+            : base(ChartType.Area)
+        {
+        }
+
         public override WidgetConfig Clone()
         {
             var copy = new Graph();

@@ -1,5 +1,6 @@
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.PressureGraph.Tests;
@@ -37,10 +38,10 @@ public sealed class PressureGraphTests
     [Fact]
     public void S10701_the_area_look_and_a_clone()
     {
-        var config = new PressureGraphConfig { Style = PressureGraphStyle.Area };
+        var config = new PressureGraphConfig { Chart = ChartType.Area };
 
         Assert.Equal(HourGraphLook.Area, Model(Hours(1000, 1001, 1002), config)!.Look);
         Assert.Equal(HourGraphLook.Line, Model(Hours(1000, 1001, 1002))!.Look);
-        Assert.Equal(PressureGraphStyle.Area, ((PressureGraphConfig)config.Clone()).Style);
+        Assert.Equal(ChartType.Area, ((PressureGraphConfig)config.Clone()).Chart);
     }
 }

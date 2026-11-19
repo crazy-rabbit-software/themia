@@ -163,7 +163,8 @@ internal static class MarketService
 
         var price = Sane(meta.RegularMarketPrice);
         var baseline = MarketQuote.ListedBaseline(range, Sane(meta.ChartPreviousClose), Sane(meta.PreviousClose));
-        var bars = MarketQuote.Bars(result.Timestamp, result.Indicators?.Quote is { Count: > 0 } series ? series[0].Close : null);
+        var series = result.Indicators?.Quote is { Count: > 0 } quotes ? quotes[0] : null;
+        var bars = MarketQuote.Bars(result.Timestamp, series?.Close, series?.Open, series?.High, series?.Low);
 
         // A quote with no price at all is not a quote. Falling back to the last bar is the
         // documented behaviour and covers an instrument between sessions.

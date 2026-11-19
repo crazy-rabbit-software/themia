@@ -41,8 +41,10 @@ public static class HumidityGraphRules
             }
         }
 
-        var model = new HourGraphModel(slots, config.Style == HumidityGraphStyle.Line ? HourGraphLook.Line : HourGraphLook.Area)
+        var model = HourGraphRules.Of(slots, config) with
         {
+            Range = (low, high),
+            Format = v => WeatherReport.Humidity(locale, v),
             Reading = WeatherReport.Humidity(locale, values.FirstOrDefault(v => v is not null)),
             Marks = marks,
         };

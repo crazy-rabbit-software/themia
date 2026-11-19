@@ -52,9 +52,11 @@ public static class RainGraphRules
         }
 
         var total = amounts.Sum(a => a ?? 0);
-        var model = new HourGraphModel(slots, HourGraphLook.Bars)
+        var model = HourGraphRules.Of(slots, config) with
         {
             Reading = Total(total, locale),
+            Range = scale,
+            Format = v => LocaleFormat.Number(locale, v, 1),
             Marks = marks,
         };
 
@@ -80,7 +82,7 @@ public static class RainGraphRules
             s.Start,
             RainRules.BarShare(s.Millimetres),
             RainRules.Intensity(s.Millimetres) == RainIntensity.Heavy ? ColourRole.Caution : ColourRole.Accent)).ToList();
-        var model = new HourGraphModel(slots, HourGraphLook.Bars)
+        var model = HourGraphRules.Of(slots, config) with
         {
             Reading = Total(outlook.Total, locale),
             Step = RainRules.Step,

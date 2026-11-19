@@ -45,6 +45,7 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # and every look token by its key: vibrancy=1,frostSaturation=1.6,innerSurface=vibrant,rowDividers=inset,... [S-2142]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
+           [--chart area|line|bars|candles] [--detail simple|detailed]   # a graph kind in a chart look [S-6752]
 Themia.exe --picker-png <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
 Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>

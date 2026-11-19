@@ -74,6 +74,14 @@ public static class StockQuoteLines
         }
     }
 
+    /// <summary>[S-6753] The same sentence as a chart's caption, written with the chart at its baseline; not set up says nothing.</summary>
+    public static string Caption(FetchStatus status, string symbol) => status switch
+    {
+        FetchStatus.Refused => Str.WidgetsC_Stocks_NotSymbol.Format(("symbol", symbol)),
+        FetchStatus.Empty => Str.WidgetsC_Stocks_NoQuote.Text(),
+        _ => OnlineParts.Caption(status),
+    };
+
     /// <summary>[S-6734] The state to say without a quote: nothing typed is not set up, something typed that is not a symbol refused.</summary>
     public static FetchStatus Unasked(StockQuoteConfig config)
     {

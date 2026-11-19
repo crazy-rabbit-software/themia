@@ -50,9 +50,9 @@ public sealed class UvGraphTests
     [Fact]
     public void S10301_the_area_look_and_a_clone()
     {
-        var config = new UvGraphConfig { Style = UvGraphStyle.Area, Hours = 48 };
+        var config = new UvGraphConfig { Chart = ChartType.Area, Hours = 48 };
 
         Assert.Equal(HourGraphLook.Area, Model(Hours(0, 1, 2), config)!.Look);
-        Assert.Equal((UvGraphStyle.Area, 48), (((UvGraphConfig)config.Clone()).Style, ((UvGraphConfig)config.Clone()).Hours));
+        Assert.Equal((ChartType.Area, 48), (((UvGraphConfig)config.Clone()).Chart, ((UvGraphConfig)config.Clone()).Hours));
     }
 }

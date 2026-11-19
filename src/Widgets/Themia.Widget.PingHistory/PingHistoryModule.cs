@@ -31,7 +31,7 @@ public sealed class PingHistoryModule : IWidgetModule
         Label = PingHistoryStr.PingHistory_Label.Local(),
         Description = PingHistoryStr.PingHistory_Desc.Local(),
         Glyph = Glyphs.Network,
-        Sizing = _ => MeterSizing.History,
+        Sizing = MeterSizing.HistoryOf,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.PingReading, 0, 1),
@@ -44,6 +44,7 @@ public sealed class PingHistoryModule : IWidgetModule
         var ping = (PingHistoryConfig)config;
         menu.Lines.Add(PingHostLine.Line(menu, ping.Host, value => ping.Host = value));
         menu.Lines.Add(AtomMenuLines.Span(menu, ping));
+        ChartMenuLines.Add(menu, ping);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new PingHistoryMeter());

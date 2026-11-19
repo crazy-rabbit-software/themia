@@ -36,7 +36,7 @@ public sealed class BatteryHistoryModule : IWidgetModule
         Label = BatteryHistoryStr.BatteryHistory_Label.Local(),
         Description = BatteryHistoryStr.BatteryHistory_Desc.Local(),
         Glyph = Glyphs.Battery,
-        Sizing = _ => MeterSizing.History,
+        Sizing = MeterSizing.HistoryOf,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.BatteryReading, 0, 1),
@@ -44,7 +44,12 @@ public sealed class BatteryHistoryModule : IWidgetModule
 
     /// <summary>[S-11024] Its one setting: how much history the chart spans ([S-1121]).</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-        => menu.Lines.Add(AtomMenuLines.Span(menu, (BatteryHistoryConfig)config));
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        var history = (BatteryHistoryConfig)config;
+        menu.Lines.Add(AtomMenuLines.Span(menu, history));
+        ChartMenuLines.Add(menu, history);
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new BatteryHistoryMeter());
 }

@@ -10,20 +10,16 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1311] The chart and what is written on it, on the Chart block ([S-6717]): the period's line at 2
-/// with its wash (the accent, Critical while the price falls), the bars outside the regular session as
+/// [S-1311] The chart and what is written on it, on the one chart ([S-6717], [S-6750]) in its look ([S-6752]): the
+/// period's line at 2 with its wash, alone, or its candles (the accent, Critical while the price falls), the bars outside the regular session as
 /// the second series in the tertiary role ([S-1308]), the optional high and low markers [S-1310], the
 /// start and end times in Caption tertiary inside its bottom band [S-1309], and the pointer readout.
 /// Edge to edge and down to the card's foot, whose rounded corners clip it, the inset over it.
 /// </summary>
 internal sealed partial class StockHistoryView
 {
-    /// <summary>[S-1310] A marker's dot: the line's stroke either side of the track, so it reads on the 2 px line.</summary>
-    private const double MarkerDot = FamilyShape.Track + FamilyShape.Stroke;
-
     private readonly Grid _chart = new();
-    private readonly ChartSeries _series = new();
-    private readonly Canvas _canvas = new() { IsHitTestVisible = false };
+    private readonly Chart _series = new();
     private readonly Canvas _overlay = new() { IsHitTestVisible = false };
     private readonly Line _rule = new() { StrokeThickness = FamilyShape.Hairline, Visibility = Visibility.Collapsed };
     private readonly Border _probe = new() { Visibility = Visibility.Collapsed, Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0) };
@@ -46,7 +42,6 @@ internal sealed partial class StockHistoryView
         _overlay.Children.Add(_probe);
 
         _chart.Children.Add(_series);
-        _chart.Children.Add(_canvas);
         _chart.Children.Add(_labels);
         _chart.Children.Add(_overlay);
 
@@ -55,7 +50,6 @@ internal sealed partial class StockHistoryView
         // [S-1113] A price over time: the time axis runs left to right in every language.
         _chart.FlowDirection = FlowDirection.LeftToRight;
         _chart.Background = Family.Brush(ColourRole.Clear);
-        _chart.SizeChanged += OnChartSizeChanged;
         _chart.PointerMoved += OnChartPointerMoved;
         _chart.PointerExited += OnChartPointerGone;
         _chart.PointerCanceled += OnChartPointerGone;
@@ -81,64 +75,90 @@ internal sealed partial class StockHistoryView
         ToolTipService.SetToolTip(_chart, ExchangeTime.ZoneNote(quote.ZoneName));
     }
 
-    private void OnChartSizeChanged(object sender, SizeChangedEventArgs args) => RedrawChart();
-
     /// <summary>
-    /// Redraw the line on its band. Cheap by construction: a handful of shapes, rebuilt only on a new
-    /// quote or a resize, over a series the service already downsampled to a few hundred points.
+    /// [S-6750] Draw the period on the one chart in the config's look. Cheap by construction: a handful of shapes,
+    /// rebuilt only on a new quote or a resize, over a series the service already downsampled to a few hundred points.
+    /// [S-6753] With no quote, the chart at its baseline with why as its caption.
     /// </summary>
-    private void RedrawChart()
+    private void RedrawChart(string caption = "")
     {
-        _canvas.Children.Clear();
+        var quote = _quote?.Value is { Bars.Count: >= 2 } held ? held : null;
+        _series.Role(_falling ? ColourRole.Critical : ColourRole.Accent);
+        _labels.Visibility = quote is not null && ChartLooks.EffectiveDetail(_config) == ChartDetail.Simple ? Visibility.Visible : Visibility.Collapsed;
+        _series.Show(size => Layout(quote, size.Width, caption));
+        MarkInstant();
+    }
+
+    /// <summary>[S-1308] [S-1310] [S-1311] [S-6751] What the chart draws across a band <paramref name="width"/> wide.</summary>
+    private ChartModel Layout(TickerQuote? quote, double width, string caption)
+    {
         _drawn.Clear();
+        var type = ChartLooks.Effective(_config);
+        var detail = ChartLooks.EffectiveDetail(_config);
 
-        if (_chart.Visibility != Visibility.Visible || _quote?.Value is not { } quote)
+        // [S-1310] [S-1311] The trace keeps clear of what is written on the chart: the high/low prices above and
+        // below it, the times under that. The wash still reaches the bottom edge.
+        var markers = _config.ShowMinMax && detail == ChartDetail.Simple;
+        var line = FamilyType.CaptionLine;
+        var model = new ChartModel
         {
-            return;
+            Type = type,
+            Detail = detail,
+            PadTop = markers ? line : 0,
+            PadBottom = (markers ? line : 0) + line + StockChartLabels.TimesBottom,
+            Caption = caption,
+        };
+
+        if (quote is null)
+        {
+            return model;
         }
 
-        var width = _chart.ActualWidth;
-        var height = _chart.ActualHeight;
         var bars = quote.Bars;
-        if (width <= 0 || height <= 0 || bars.Count < 2)
+        for (var i = 0; i < bars.Count; i++)
         {
-            _series.Show(Array.Empty<ChartPoint>(), null);
-            return;
+            _drawn.Add(new ChartPoint(i * width / (bars.Count - 1), 0));
         }
 
-        var role = _falling ? ColourRole.Critical : ColourRole.Accent;
-        _series.Role(role);
-
-        // [S-1310] [S-1311] The trace keeps clear of what is written on the chart: the high/low
-        // prices above and below it, the times under that. The wash still reaches the bottom edge.
-        var band = StockChartLabels.Band(height, _config.ShowMinMax, true);
-        var scaled = MarketQuote.Normalise(MarketQuote.Closes(bars));
-        for (var i = 0; i < scaled.Count; i++)
-        {
-            _drawn.Add(new ChartPoint(i * width / (scaled.Count - 1), band.Top + ChartRules.Y(scaled[i], band.Usable)));
-        }
+        var all = bars.Select((bar, i) => new ChartSample(_drawn[i].X, bar.Close)).ToList();
 
         // [S-1308] The regular session is the line and its wash; the bars outside it the second series.
         var (from, to) = Regular(bars, quote.HasPrePost ? quote.Sessions : null);
-        var regular = from == 0 && to == _drawn.Count ? _drawn : _drawn.GetRange(from, to - from);
-        _series.Show(regular, regular.Count == _drawn.Count ? null : _drawn);
-
-        if (_config.ShowMinMax && MarketQuote.Extremes(bars) is { } extremes)
+        var regular = from == 0 && to == all.Count ? all : all.GetRange(from, to - from);
+        var closes = MarketQuote.Closes(bars);
+        var marks = new List<ChartMark>(2);
+        if (markers && MarketQuote.Extremes(bars) is { } extremes)
         {
-            var marked = new List<ChartMarker>(2)
-            {
-                new(_drawn[extremes.High].X, _drawn[extremes.High].Y, MarketQuote.Price(bars[extremes.High].Close, quote.PriceHint), Above: true),
-                new(_drawn[extremes.Low].X, _drawn[extremes.Low].Y, MarketQuote.Price(bars[extremes.Low].Close, quote.PriceHint), Above: false),
-            };
-
-            var boxes = StockChartLabels.Place(width, marked);
-            for (var i = 0; i < marked.Count; i++)
-            {
-                Marker(marked[i], boxes[i], role);
-            }
+            marks.Add(new(_drawn[extremes.High].X, bars[extremes.High].Close, MarketQuote.Price(bars[extremes.High].Close, quote.PriceHint), Under: false, ColourRole.TextTertiary, Dot: type != ChartType.Candles));
+            marks.Add(new(_drawn[extremes.Low].X, bars[extremes.Low].Close, MarketQuote.Price(bars[extremes.Low].Close, quote.PriceHint), Under: true, ColourRole.TextTertiary, Dot: type != ChartType.Candles));
         }
 
-        MarkInstant();
+        return model with
+        {
+            Series = type == ChartType.Candles ? all : regular,
+            Second = type == ChartType.Candles || regular.Count == all.Count ? [] : all,
+            Ohlc = bars.All(b => b.Ohlc is not null) ? [.. bars.Select(b => b.Ohlc!.Value)] : null,
+            Low = closes.Min(),
+            High = closes.Max(),
+            Marks = marks,
+            Format = v => MarketQuote.Price(v, quote.PriceHint),
+            Times = detail == ChartDetail.Detailed ? Times(quote, width) : [],
+        };
+    }
+
+    /// <summary>[S-6751] A Detailed chart's times: bars evenly apart across the band (the chart is by bar, not by clock), each in the exchange's zone.</summary>
+    private IReadOnlyList<ChartTick> Times(TickerQuote quote, double width)
+    {
+        var bars = quote.Bars;
+        var count = Math.Min(bars.Count, ChartPlot.TimeRoom(width));
+        var ticks = new List<ChartTick>(count);
+        for (var k = 0; k < count; k++)
+        {
+            var i = (int)Math.Round(k * (bars.Count - 1) / (double)Math.Max(1, count - 1));
+            ticks.Add(new ChartTick(_drawn[i].X, ExchangeTime.Label(bars[i].Time, quote.ExchangeOffset, _config.Range, DateTimeOffset.Now.Offset)));
+        }
+
+        return ticks;
     }
 
     /// <summary>[S-1308] The run of bars in the regular session (all of them without sessions to tell).</summary>
@@ -156,20 +176,6 @@ internal sealed partial class StockHistoryView
         }
 
         return from < 0 ? (0, bars.Count) : (from, Math.Max(from + 1, to));
-    }
-
-    /// <summary>[S-1310] A dot on the extreme in the line's role, with its price beside it (an axis label: Caption tertiary), kept inside the chart.</summary>
-    private void Marker(ChartMarker marker, LabelBox box, ColourRole role)
-    {
-        var dot = new Ellipse { Width = MarkerDot, Height = MarkerDot, Fill = Family.Brush(role) };
-        Canvas.SetLeft(dot, marker.X - (MarkerDot / 2));
-        Canvas.SetTop(dot, marker.Y - (MarkerDot / 2));
-        _canvas.Children.Add(dot);
-
-        var label = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, marker.Text);
-        Canvas.SetLeft(label, box.Left);
-        Canvas.SetTop(label, box.Top);
-        _canvas.Children.Add(label);
     }
 
     /// <summary>[S-1311] On an expanded width, the pointer over the chart reads the bar under it: time and price.</summary>
@@ -216,7 +222,6 @@ internal sealed partial class StockHistoryView
 
     private void DetachChart()
     {
-        _canvas.Children.Clear();
         _drawn.Clear();
         HideProbe();
     }

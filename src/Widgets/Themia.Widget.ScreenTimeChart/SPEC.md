@@ -42,7 +42,8 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   Bars 12 + 24 + 72 of bars + their labels' row (4 + 16) + 12 = 140; Calendar 12 + 24 + the letters
   (16 + 4) + its weeks of 20 rings 4 apart + 12 (a week 88, a month's five weeks 184). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
   The total over it is the reading atom's ([S-11500]); the ready-made group "Screen time" stands that
-  reading over it ([S-11520]). Nothing to draw is the Status block's one row ([S-6714]).
+  reading over it ([S-11520]). A window with no use is the chart all the same: its days on a foot hairline, the sentence as a caption
+  ([S-6753]); only no recording at all is the Status block's one row ([S-6714]).
 - **[S-3333]** Linked focus ([S-3310]) in the links' one look ([S-11902]): the app pointed at or picked
   has its part of every bar whole and every other part at its tone times 0.6 (pointed) or 0.3 (picked,
   `ScreenTimeRules.Opacity`); the calendar's rings show the focused app's seconds per day against its

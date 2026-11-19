@@ -38,6 +38,8 @@ public sealed class SharedSettingsTests
         ["screenTimePeriod"] = ["screenTime", "screenTimeApps", "screenTimeChart", "screenTimeDonut"],
         ["historySpan"] = ["batteryHistory", "cpuCores", "cpuHistory", "diskHistory", "gpuHistory", "memoryHistory", "networkHistory", "pingHistory"],
         ["hideWhenIdle"] = ["music", "musicCover", "musicProgress"],
+        ["chartType"] = ["airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "humidityGraph", "memoryHistory", "networkHistory", "pingHistory", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "windGraph"],
+        ["chartDetail"] = ["airQualityGraph", "batteryHistory", "cpuHistory", "diskHistory", "exchangeHistory", "gpuHistory", "humidityGraph", "memoryHistory", "networkHistory", "pingHistory", "pressureGraph", "rainGraph", "stockHistory", "temperatureGraph", "uvGraph", "windGraph"],
     };
 
     /// <summary>A value of each setting no kind starts with: written on one config, it differs from every default.</summary>
@@ -66,7 +68,18 @@ public sealed class SharedSettingsTests
         ["listLines"] = c => ((IKitRows)c).Lines = 3,
         ["listColumns"] = c => ((IKitColumns)c).Columns = 2,
         ["hideWhenIdle"] = c => ((IHidesWhenIdle)c).HideWhenIdle = MusicHideWhenIdle.NotPlaying,
+        ["chartDetail"] = c => ((IChartLooks)c).Detail = ChartDetail.Detailed,
     };
+
+    /// <summary>
+    /// [S-6752] A chart type set apart from <paramref name="to"/>'s: one both kinds offer (a history draws no candles),
+    /// which the kinds' own types (Area, Line, Bars) do not let one value be for every pair.
+    /// </summary>
+    private static void OtherChart(WidgetConfig from, WidgetConfig to)
+    {
+        var (a, b) = ((IChartLooks)from, (IChartLooks)to);
+        a.Chart = a.ChartTypes.Intersect(b.ChartTypes).First(t => t != ChartLooks.Effective(b));
+    }
 
     private static IEnumerable<(string Kind, WidgetConfig Config)> Defaults()
         => ModuleRegistry.Widgets.Select(m => (m.Descriptor.Id.Value, m.Descriptor.CreateDefault()));
@@ -106,7 +119,14 @@ public sealed class SharedSettingsTests
                 {
                     var from = ModuleCatalog.Of(new WidgetId(kind)).CreateDefault();
                     var to = ModuleCatalog.Of(new WidgetId(otherKind)).CreateDefault();
-                    Other[setting.Key](from);
+                    if (setting == SharedSettings.ChartType)
+                    {
+                        OtherChart(from, to);
+                    }
+                    else
+                    {
+                        Other[setting.Key](from);
+                    }
 
                     Assert.True(SharedSettings.Read(setting, [from, to]) is { Holders: 2, Mixed: true }, $"{setting}: {kind} set apart still reads as {otherKind}'s");
                     Assert.True(setting.Copy(from, to), $"{setting}: {kind} onto {otherKind} changed nothing");

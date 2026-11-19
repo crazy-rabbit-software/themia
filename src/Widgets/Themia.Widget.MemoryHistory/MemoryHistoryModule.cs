@@ -36,7 +36,7 @@ public sealed class MemoryHistoryModule : IWidgetModule
         Label = MemoryHistoryStr.MemoryHistory_Label.Local(),
         Description = MemoryHistoryStr.MemoryHistory_Desc.Local(),
         Glyph = Glyphs.Memory,
-        Sizing = _ => MeterSizing.History,
+        Sizing = MeterSizing.HistoryOf,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.MemoryReading, 0, 1),
@@ -44,7 +44,12 @@ public sealed class MemoryHistoryModule : IWidgetModule
 
     /// <summary>[S-11013] Its one setting: how much history the chart spans ([S-1121]).</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-        => menu.Lines.Add(AtomMenuLines.Span(menu, (MemoryHistoryConfig)config));
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        var history = (MemoryHistoryConfig)config;
+        menu.Lines.Add(AtomMenuLines.Span(menu, history));
+        ChartMenuLines.Add(menu, history);
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new MemoryHistoryMeter());
 }

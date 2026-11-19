@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Themia.Core.Links;
+using Themia.Core.Localization;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -8,8 +9,8 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The one history every meter draws, on the Chart block ([S-6717]): a <see cref="ChartSeries"/>,
-/// the reading's line at 2 in its role over a 16 % wash, a second series in the tertiary role, the
+/// The one history every meter draws, on the one <see cref="Chart"/> ([S-6717], [S-6750]): the reading's line at
+/// 2 in its role over a 16 % wash (or alone, or Detailed: its chart look, [S-6752]), a second series in the tertiary role, the
 /// newest sample at the right edge, on a fixed-slot x-axis so the trace grows in from the right
 /// instead of rescaling while the buffer fills (Task Manager's convention, [S-1825]).
 /// <para>
@@ -28,7 +29,12 @@ namespace Themia.App.Widgets;
 /// </summary>
 public sealed partial class SparkBand : Grid
 {
-    private readonly ChartSeries _series = new();
+    private readonly Chart _series = new();
+    private ChartType _type = ChartType.Area;
+    private ChartDetail _detail = ChartDetail.Simple;
+    private TimeSpan _period = TimeSpan.FromSeconds(1);
+    private Func<double, string>? _format;
+    private bool _bytes;
 
     // [S-11911] The hairline at a moment pointed at on a history chart of the view.
     private readonly Microsoft.UI.Xaml.Shapes.Rectangle _marker = new()
@@ -117,6 +123,24 @@ public sealed partial class SparkBand : Grid
             }
 
             _scale = value;
+            Redraw();
+        }
+    }
+
+    /// <summary>[S-6753] Whether a band with nothing yet writes its caption with its baseline (a core's small cell does not: no room).</summary>
+    public bool Captions { get; init; } = true;
+
+    /// <summary>
+    /// [S-6752] The chart look: its type and detail, the series' spacing (a Detailed chart's times) and how a value
+    /// is written (a Detailed chart's grid and marks; in binary units for <paramref name="bytes"/>); drawn again only when one of them changes.
+    /// </summary>
+    public void Looks(ChartType type, ChartDetail detail, TimeSpan period, Func<double, string>? format, bool bytes = false)
+    {
+        _bytes = bytes;
+        var changed = type != _type || detail != _detail || period != _period;
+        (_type, _detail, _period, _format) = (type, detail, period, format);
+        if (changed)
+        {
             Redraw();
         }
     }
@@ -226,17 +250,30 @@ public sealed partial class SparkBand : Grid
         }
     }
 
-    /// <summary>[S-6331] Draw the chart settled: the newest finished slot on the right edge.</summary>
+    /// <summary>[S-6331] Draw the chart settled: the newest finished slot on the right edge; [S-6753] with nothing yet, its baseline.</summary>
     private void Redraw()
     {
         _stale = false;
 
         var width = ActualWidth;
         var height = ActualHeight;
-
-        if (width <= 0 || height <= 0 || _first.Count < 2)
+        if (width <= 0 || height <= 0)
         {
-            _series.Show(Array.Empty<ChartPoint>(), null);
+            return;
+        }
+
+        var model = new ChartModel
+        {
+            Type = _type,
+            Detail = _detail,
+            High = _scale.Floor,
+            Format = _format,
+            Times = _detail == ChartDetail.Detailed ? Times(width) : [],
+        };
+
+        if (_first.Count < 2)
+        {
+            _series.Show(model with { Caption = Captions ? Str.Chart_NoData.Text() : string.Empty });
             return;
         }
 
@@ -254,7 +291,7 @@ public sealed partial class SparkBand : Grid
         // [S-1829] A slot still filling is not among them.
         if (skip + xs.Length > first.Length || skip + xs.Length > second.Length || xs.Length < 2)
         {
-            _series.Show(Array.Empty<ChartPoint>(), null);
+            _series.Show(model with { Caption = Captions ? Str.Chart_NoData.Text() : string.Empty });
             return;
         }
 
@@ -263,20 +300,38 @@ public sealed partial class SparkBand : Grid
 
         // [S-1124] The scale is the drawn slots'.
         var ceiling = _scale.Ceiling(first, second);
-        _series.Show(Trace(first, xs, ceiling, height), Trace(second, xs, ceiling, height));
+        _series.Show(model with { High = ceiling, TickUnit = _bytes ? ChartPlot.BinaryUnit(ceiling) : 1, Series = Trace(first, xs), Second = Trace(second, xs) });
     }
 
-    /// <summary>A series as the Chart block's points, at the slots' x; gaps are skipped.</summary>
-    private static ChartPoint[] Trace(ReadOnlySpan<double> samples, double[] xs, double ceiling, double height)
+    /// <summary>[S-6751] A Detailed history's times: whole steps of the clock across the span, the newest slot at now.</summary>
+    private IReadOnlyList<ChartTick> Times(double width)
     {
-        var points = new List<ChartPoint>(samples.Length);
+        var now = DateTimeOffset.Now;
+        var span = Span(_period);
+        var (at, step) = ChartPlot.Times(now - span, now, ChartPlot.TimeRoom(width), TimeZoneInfo.Local);
+        var ticks = new List<ChartTick>(at.Count);
+        foreach (var moment in at)
+        {
+            if (LinkInstants.X(moment, FamilyShape.Stroke, width - FamilyShape.Stroke, span, now) is { } x)
+            {
+                var local = TimeZoneInfo.ConvertTime(moment, TimeZoneInfo.Local);
+                ticks.Add(new ChartTick(x, LocaleFormat.Time(Strings.Current, TimeOnly.FromDateTime(local.DateTime), seconds: step < TimeSpan.FromMinutes(1))));
+            }
+        }
+
+        return ticks;
+    }
+
+    /// <summary>A series as the chart's samples, at the slots' x; gaps are skipped.</summary>
+    private static ChartSample[] Trace(ReadOnlySpan<double> samples, double[] xs)
+    {
+        var points = new List<ChartSample>(samples.Length);
 
         for (var i = 0; i < samples.Length && i < xs.Length; i++)
         {
-            var fraction = ChartScale.Fraction(samples[i], ceiling);
-            if (!double.IsNaN(fraction))
+            if (double.IsFinite(samples[i]))
             {
-                points.Add(new ChartPoint(xs[i], ChartRules.Y(fraction, height)));
+                points.Add(new ChartSample(xs[i], samples[i]));
             }
         }
 

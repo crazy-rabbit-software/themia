@@ -42,7 +42,7 @@ public sealed class CpuCoresTests
 
         menu = new WidgetMenuLines(() => { }, _ => { });
         ((IWidgetModule)new CpuCoresModule()).MenuLines(menu, new CpuCoresConfig { Style = CpuCoresStyle.Graphs });
-        Assert.Single(menu.StyleLines);
+        Assert.Equal(2, menu.StyleLines.Count); // [S-6752] the span and the chart type (no Detail: the cells are too small to write on)
 
         var json = JsonSerializer.Serialize<WidgetConfig>(new CpuCoresConfig { Style = CpuCoresStyle.Graphs, GraphSpanSeconds = 300 }, StateJson.WidgetConfig);
         var back = Assert.IsType<CpuCoresConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));

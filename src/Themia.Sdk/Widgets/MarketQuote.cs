@@ -350,7 +350,16 @@ public static class MarketQuote
     /// in order rather than drawn backwards.
     /// </para>
     /// </summary>
-    public static IReadOnlyList<QuoteBar> Bars(IReadOnlyList<long?>? timestamps, IReadOnlyList<double?>? closes)
+    /// <para>
+    /// [S-6750] With the opens, highs and lows beside them (Yahoo's chart sends them), each bar keeps its period's
+    /// candle where all three are there and finite, its high and low widened to take its open and close.
+    /// </para>
+    public static IReadOnlyList<QuoteBar> Bars(
+        IReadOnlyList<long?>? timestamps,
+        IReadOnlyList<double?>? closes,
+        IReadOnlyList<double?>? opens = null,
+        IReadOnlyList<double?>? highs = null,
+        IReadOnlyList<double?>? lows = null)
     {
         if (timestamps is null || closes is null)
         {
@@ -365,7 +374,7 @@ public static class MarketQuote
             if (timestamps[i] is { } time && time is > 0 and < 4_102_444_800
                 && closes[i] is { } close && double.IsFinite(close))
             {
-                kept.Add(new QuoteBar(time, close));
+                kept.Add(new QuoteBar(time, close, Candle(close, At(opens, i), At(highs, i), At(lows, i))));
             }
         }
 
@@ -376,6 +385,14 @@ public static class MarketQuote
 
         return kept;
     }
+
+    /// <summary>[S-6750] A bar's candle from its parts, or null without all of them finite.</summary>
+    public static Themia.Sdk.Kit.Candle? Candle(double close, double? open, double? high, double? low)
+        => open is { } o && high is { } h && low is { } l && double.IsFinite(o) && double.IsFinite(h) && double.IsFinite(l) && double.IsFinite(close)
+            ? new Themia.Sdk.Kit.Candle(o, Math.Max(h, Math.Max(o, close)), Math.Min(l, Math.Min(o, close)), close)
+            : null;
+
+    private static double? At(IReadOnlyList<double?>? values, int i) => values is not null && i < values.Count ? values[i] : null;
 
     /// <summary>The closes of a series, for scaling.</summary>
     public static IReadOnlyList<double> Closes(IReadOnlyList<QuoteBar> bars)

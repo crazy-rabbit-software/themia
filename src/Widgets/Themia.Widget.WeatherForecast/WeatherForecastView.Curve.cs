@@ -106,7 +106,7 @@ internal sealed partial class WeatherForecastView
     }
 
     /// <summary>
-    /// One line per unbroken run of days ([S-6164]): the highs as the Chart block's series (the accent,
+    /// One line per unbroken run of days ([S-6164]): the highs as the one chart's series (the accent,
     /// its wash under it), the lows as its second series (tertiary).
     /// </summary>
     private static void Lines(Grid chart, IReadOnlyList<CurvePoint?> points, bool high)
@@ -118,9 +118,10 @@ internal sealed partial class WeatherForecastView
                 continue;
             }
 
-            var line = ForecastCurve.Sample(run).Select(p => new ChartPoint(p.X, p.Y)).ToList();
-            var series = new ChartSeries();
-            series.Show(high ? line : [], high ? null : line);
+            // A curve laid out here, its heights as given ([S-6750]: the one chart, laid).
+            var line = ForecastCurve.Sample(run).Select(p => new ChartSample(p.X, p.Y)).ToList();
+            var series = new Chart();
+            series.Show(new ChartModel { Low = double.NaN, Series = high ? line : [], Second = high ? [] : line });
             chart.Children.Add(series);
         }
     }

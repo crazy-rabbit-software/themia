@@ -1,0 +1,22 @@
+{
+  "$englishOnly": [
+    "chart.type",
+    "chart.type.area",
+    "chart.type.line",
+    "chart.type.bars",
+    "chart.type.candles",
+    "chart.detail",
+    "chart.detail.simple",
+    "chart.detail.detailed",
+    "chart.noData"
+  ],
+  "chart.type": "Chart type",
+  "chart.type.area": "Area",
+  "chart.type.line": "Line",
+  "chart.type.bars": "Bars",
+  "chart.type.candles": "Candlestick",
+  "chart.detail": "Detail",
+  "chart.detail.simple": "Simple",
+  "chart.detail.detailed": "Detailed",
+  "chart.noData": "No data yet"
+}

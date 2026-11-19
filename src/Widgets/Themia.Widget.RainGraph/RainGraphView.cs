@@ -71,11 +71,11 @@ internal sealed partial class RainGraphView : HourGraphPanel, IWidgetView, IWidg
         var locale = Strings.Current;
         if (_config.Style == RainGraphStyle.Nowcast)
         {
-            Render(_nowcast.Held, _nowcast.Status, (answer, now) => RainGraphRules.Nowcast(answer, _config, now, locale, TimeZoneInfo.Local), Str.WeatherGraph_Empty.Text(), _nowcast.Refresh);
+            Render(_config, _nowcast.Held, _nowcast.Status, (answer, now) => RainGraphRules.Nowcast(answer, _config, now, locale, TimeZoneInfo.Local), Str.WeatherGraph_Empty.Text());
         }
         else
         {
-            Render(_hours.Held, _hours.Status, (answer, now) => RainGraphRules.Hours(answer, _config, now, locale, TimeZoneInfo.Local), Str.WeatherGraph_Empty.Text(), _hours.Refresh);
+            Render(_config, _hours.Held, _hours.Status, (answer, now) => RainGraphRules.Hours(answer, _config, now, locale, TimeZoneInfo.Local), Str.WeatherGraph_Empty.Text());
         }
     }
 }

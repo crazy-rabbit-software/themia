@@ -157,6 +157,17 @@ public sealed class FeedWidgetTests : IDisposable
     }
 
     [Fact]
+    public void S6750_ABarsPeriodSurvivesTheCache()
+    {
+        var quote = Quote() with { Bars = [new QuoteBar(1_759_500_000, 410, new Themia.Sdk.Kit.Candle(409, 411, 408, 410)), new QuoteBar(1_759_500_300, 412.3)] };
+        var json = NetworkCacheStore.Serialize(new NetworkCacheSnapshot([], [new CachedAnswer<TickerQuote>("Listed|MSFT|Day", Now.AddMinutes(-5), quote)]));
+
+        var bars = Assert.Single(NetworkCacheStore.Parse(json, Now)!.Quotes).Value.Bars;
+        Assert.Equal(new Themia.Sdk.Kit.Candle(409, 411, 408, 410), bars[0].Ohlc);
+        Assert.Null(bars[1].Ohlc);
+    }
+
+    [Fact]
     public void S1300_OldEntriesAndHostileLinksAreNotRestored()
     {
         var feed = new FeedDocument("X", [new FeedEntry("Bad", "javascript:alert(1)", null, string.Empty)]);

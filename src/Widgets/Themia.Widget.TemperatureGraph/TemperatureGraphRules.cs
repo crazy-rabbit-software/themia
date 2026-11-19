@@ -54,8 +54,10 @@ public static class TemperatureGraphRules
             }
         }
 
-        var model = new HourGraphModel(slots, config.Style == TemperatureGraphStyle.Line ? HourGraphLook.Line : HourGraphLook.Area)
+        var model = HourGraphRules.Of(slots, config) with
         {
+            Range = scale,
+            Format = v => WeatherReport.Degrees(v),
             Reading = WeatherReport.Temperature(temps.FirstOrDefault(t => t is not null), unit),
             Marks = marks,
         };

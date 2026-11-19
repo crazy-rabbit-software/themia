@@ -39,6 +39,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     // [S-6702] The reading: the number with its smaller unit, the battery's glyph as its lead.
     private readonly ReadoutBlock _reading = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
     private readonly SparkBand _band;
+    private readonly Func<double, string> _formatValue;
 
     private WidgetConfig _config;
     private ISeriesWatch? _watch;
@@ -72,6 +73,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         _part = part;
         _config = WidgetConfig.CreateDefault(_kind);
         _band = new SparkBand(60, _part.Scale);
+        _formatValue = value => _part.ValueAt(new SeriesPoint(value)) ?? LocaleFormat.Number(Strings.Current, value, 1);
 
         _reading.Show("--", valueRole: ColourRole.TextDisabled);
         _reading.Margin = Family.SideInset;
@@ -138,6 +140,16 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         var capacity = MeterTiming.Points((_config as ISpansHistory)?.GraphSpanSeconds ?? 60, series.Key.PeriodSeconds);
         var grew = capacity > _band.Capacity;
         _band.Capacity = capacity;
+
+        // [S-6752] The history's chart look; a value on its grid and marks as the reading writes it.
+        if (_config is IChartLooks looks)
+        {
+            _band.Looks(ChartLooks.Effective(looks), ChartLooks.EffectiveDetail(looks), TimeSpan.FromSeconds(Math.Max(1, series.Key.PeriodSeconds)), _formatValue, _part.CountsBytes);
+            foreach (var cell in _cells)
+            {
+                cell.Band.Looks(ChartLooks.Effective(looks), ChartDetail.Simple, TimeSpan.FromSeconds(Math.Max(1, series.Key.PeriodSeconds)), null);
+            }
+        }
 
         // [S-6317] The core graphs span what the graph spans.
         if (_cells.Count > 0 && _cells[0].Band.Capacity != capacity)

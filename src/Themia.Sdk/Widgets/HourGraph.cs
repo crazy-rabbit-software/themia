@@ -63,6 +63,25 @@ public sealed record HourGraphModel(IReadOnlyList<HourSlot> Slots, HourGraphLook
 
     public string EndLabel { get; init; } = string.Empty;
 
+    /// <summary>[S-6751] Simple, or Detailed: the value grid, more times along the foot.</summary>
+    public ChartDetail Detail { get; init; }
+
+    /// <summary>[S-6751] The values the plot's foot and top stand for (the shares' scale), for the Detailed grid; null writes no values.</summary>
+    public (double Low, double High)? Range { get; init; }
+
+    /// <summary>[S-6751] A value as the kind writes it on the Detailed grid.</summary>
+    public Func<double, string>? Format { get; init; }
+
+    /// <summary>[S-6753] A caption with the chart (the answer's state, nothing in the window); empty for none.</summary>
+    public string Caption { get; init; } = string.Empty;
+
+    /// <summary>[S-6753] A graph with nothing to draw: the frame at its baseline, its <paramref name="caption"/> with it, in the config's look.</summary>
+    public static HourGraphModel Nothing(HourGraphConfig config, string caption)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return HourGraphRules.Of([], config) with { Reading = "--", ReadingRole = ColourRole.TextDisabled, Caption = caption ?? string.Empty };
+    }
+
     /// <summary>Whether the slots carry directions (the wind graph's arrow line under the plot).</summary>
     public bool Arrows => Slots.Any(s => s.Direction is not null);
 }
@@ -91,8 +110,12 @@ public static class HourGraphRules
 
     public const double WidthStart = 320;
 
-    /// <summary>A column at most this share of its cell, never under the stroke nor over a large icon's half.</summary>
-    public const double BarShare = 0.6;
+    /// <summary>[S-6752] A model of <paramref name="slots"/> in the config's chart look: its type and its detail.</summary>
+    public static HourGraphModel Of(IReadOnlyList<HourSlot> slots, HourGraphConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return new HourGraphModel(slots, config.Look) { Detail = ChartLooks.EffectiveDetail(config) };
+    }
 
     /// <summary>What a graph needs besides its plot, top to bottom, its insets included.</summary>
     public static double Frame(bool arrows)
@@ -201,55 +224,6 @@ public static class HourGraphRules
     /// <summary>[S-12703] A moment's place across the plot: the cells' middles are their slots' stamps, <paramref name="step"/> apart.</summary>
     public static double X(DateTimeOffset at, DateTimeOffset first, TimeSpan step, int count, double width)
         => count <= 0 || step <= TimeSpan.Zero ? 0 : (((at - first) / step) + 0.5) * width / count;
-
-    /// <summary>[S-12703] A share's height in the plot, a Caption line kept free over it and under it for the figures.</summary>
-    public static double Y(double share, double height)
-    {
-        var room = FamilyType.Caption.LineHeight;
-        return room + ChartRules.Y(share, Math.Max(0, height - (2 * room)));
-    }
-
-    /// <summary>[S-12703] A column's width in a cell: its share of the cell, at least the stroke, at most a large icon's half.</summary>
-    public static double BarWidth(double cell) => Math.Clamp(cell * BarShare, FamilyShape.Stroke, FamilyShape.IconLarge / 2);
-
-    /// <summary>
-    /// [S-12703] The unbroken runs of a series: index ranges with a value in every slot. A gap breaks the line
-    /// rather than being drawn through; a run of one slot is a dot.
-    /// </summary>
-    public static IReadOnlyList<(int First, int Last)> Runs(IReadOnlyList<double?> values)
-    {
-        ArgumentNullException.ThrowIfNull(values);
-        var runs = new List<(int, int)>();
-        int? start = null;
-        for (var i = 0; i <= values.Count; i++)
-        {
-            var has = i < values.Count && values[i] is { } v && double.IsFinite(v);
-            if (has && start is null)
-            {
-                start = i;
-            }
-            else if (!has && start is { } s)
-            {
-                runs.Add((s, i - 1));
-                start = null;
-            }
-        }
-
-        return runs;
-    }
-
-    /// <summary>
-    /// [S-12703] The role a line's piece from one slot to the next is drawn in: the worse of its two ends' (the
-    /// accent, then Caution, then Critical), so a band's colour starts at the hour that reaches it.
-    /// </summary>
-    public static ColourRole Worse(ColourRole a, ColourRole b) => Rank(a) >= Rank(b) ? a : b;
-
-    private static int Rank(ColourRole role) => role switch
-    {
-        ColourRole.Critical => 2,
-        ColourRole.Caution => 1,
-        _ => 0,
-    };
 
     /// <summary>[S-12703] The local midnights inside the window: the days' borders, drawn as hairlines.</summary>
     public static IReadOnlyList<DateTimeOffset> Midnights(DateTimeOffset first, DateTimeOffset last, TimeZoneInfo zone)

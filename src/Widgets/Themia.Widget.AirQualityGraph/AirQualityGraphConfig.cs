@@ -4,16 +4,9 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Widget.AirQualityGraph;
-
-/// <summary>[S-10401] The air graph's looks: the same hours, the curve with its wash or a column per hour.</summary>
-[JsonConverter(typeof(StyleJsonConverter<AirQualityGraphStyle>))]
-public enum AirQualityGraphStyle
-{
-    Area = 0,
-    Bars = 1,
-}
 
 /// <summary>[S-10402] What the air graph draws: the index the air widget reads ([S-5103]) or one pollutant.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<AirMeasure>))]
@@ -26,18 +19,11 @@ public enum AirMeasure
     NitrogenDioxide = 4,
 }
 
-/// <summary>[S-10400] An air graph: a place, its window (one to four days), its look, what it draws and the index's scale.</summary>
-public sealed class AirQualityGraphConfig : HourGraphConfig, IStyled
+/// <summary>[S-10400] An air graph: a place, its window (one to four days), its chart look ([S-6752]: the area by default), what it draws and the index's scale.</summary>
+public sealed class AirQualityGraphConfig : HourGraphConfig
 {
-    private static readonly StyleOption[] Looks =
-    [
-        StyleOption.Of(AirQualityGraphStyle.Area, Str.WeatherGraph_Style_Area.Local(), 0xE9D2),
-        StyleOption.Of(AirQualityGraphStyle.Bars, Str.WeatherGraph_Style_Bars.Local(), 0xE9D9),
-    ];
-
-    public AirQualityGraphConfig() => Hours = 48;
-
-    public AirQualityGraphStyle Style { get; set; } = AirQualityGraphStyle.Area;
+    public AirQualityGraphConfig()
+        : base(ChartType.Area) => Hours = 48;
 
     public AirMeasure Measure { get; set; } = AirMeasure.Index;
 
@@ -47,14 +33,6 @@ public sealed class AirQualityGraphConfig : HourGraphConfig, IStyled
     /// <summary>[S-10400] One to four days: CAMS forecasts the air that far.</summary>
     [JsonIgnore]
     public override IReadOnlyList<int> HourChoices => HourGraphRules.AirHourChoices;
-
-    IReadOnlyList<StyleOption> IStyled.Styles => Looks;
-
-    int IStyled.StyleValue
-    {
-        get => (int)Style;
-        set => Style = (AirQualityGraphStyle)value;
-    }
 
     /// <summary>[S-10400] It asks for the air's hourly answer, not the weather's.</summary>
     public override void AddInterests(InterestsBuilder interests)
@@ -93,7 +71,7 @@ public sealed class AirQualityGraphConfig : HourGraphConfig, IStyled
 
     public override WidgetConfig Clone()
     {
-        var copy = new AirQualityGraphConfig { Style = Style, Measure = Measure, Scale = Scale };
+        var copy = new AirQualityGraphConfig { Measure = Measure, Scale = Scale };
         CopyTo(copy);
         return copy;
     }

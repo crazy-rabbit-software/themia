@@ -36,7 +36,7 @@ public sealed class StockHistoryModule : IWidgetModule
         Label = StockHistoryStr.StockHistory_Label.Local(),
         Description = StockHistoryStr.StockHistory_Desc.Local(),
         Glyph = Glyphs.ScreenTimeChart,
-        Sizing = _ => Sizing(),
+        Sizing = c => Sized((StockHistoryConfig)c),
         Traits = WidgetTraits.None,
         Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 1),
@@ -45,6 +45,16 @@ public sealed class StockHistoryModule : IWidgetModule
     /// <summary>[S-11166] The chart edge to edge under the inset: 200..480 wide, its band 64..240 tall.</summary>
     internal static WidgetSizing Sizing()
         => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
+
+    /// <summary>
+    /// [S-6751] Its sizing at its detail: Detailed keeps a line over the trace and one under it as the markers do, and
+    /// the times it always has, so it grows only by what the markers do not keep already.
+    /// </summary>
+    internal static WidgetSizing Sized(StockHistoryConfig config)
+    {
+        var markers = config.ShowMinMax ? FamilyType.CaptionLine : 0;
+        return ChartPlot.Sized(Sizing(), ChartLooks.EffectiveDetail(config), markers, markers + FamilyType.CaptionLine + StockChartLabels.TimesBottom);
+    }
 
     /// <summary>[S-11167] Every option is on the properties menu: the instrument and its period as the price's, and the markers.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config) => Lines(menu, (StockHistoryConfig)config, SymbolLookup.FindAsync);
@@ -58,6 +68,7 @@ public sealed class StockHistoryModule : IWidgetModule
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(StockQuoteLines.Period(menu, config));
         menu.Lines.Add(menu.Toggle(null, StockHistoryStr.Stocks_ShowMinMax.Text(), config.ShowMinMax, on => config.ShowMinMax = on));
+        ChartMenuLines.Add(menu, config);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new StockHistoryView(host);

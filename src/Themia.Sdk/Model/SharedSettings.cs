@@ -145,6 +145,20 @@ public static class SharedSettings
         (a, b) => a.GraphSpanSeconds == b.GraphSpanSeconds,
         (from, to) => to.GraphSpanSeconds = from.GraphSpanSeconds);
 
+    /// <summary>[S-6752] A graph's chart type; written only onto a kind that offers it (a history draws no candles).</summary>
+    public static SharedSetting<IChartLooks> ChartType { get; } = new(
+        "chartType",
+        (a, b) => ChartLooks.Effective(a) == ChartLooks.Effective(b),
+        (from, to) => to.Chart = to.ChartTypes.Contains(ChartLooks.Effective(from)) ? ChartLooks.Effective(from) : to.Chart,
+        looks => looks.ChartTypes.Count > 1);
+
+    /// <summary>[S-6752] A graph's detail: Simple or Detailed.</summary>
+    public static SharedSetting<IChartLooks> ChartDetail { get; } = new(
+        "chartDetail",
+        (a, b) => a.Detail == b.Detail,
+        (from, to) => to.Detail = from.Detail,
+        looks => looks.OffersDetail);
+
     /// <summary>[S-5143] The exchange-rate atoms' pair.</summary>
     public static SharedSetting<ExchangePairConfig> ExchangePair { get; } = new(
         "exchangePair",
@@ -208,7 +222,7 @@ public static class SharedSettings
     public static IReadOnlyList<SharedSetting> All { get; } =
     [
         Place, CalendarAccounts, MailAccounts, ContactAccounts, DiskScope, Drive, PingHost, GpuAdapter, AudioOutput,
-        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ReadoutSize, ListRows, ListLines, ListColumns, HideWhenIdle,
+        ExchangePair, StockSymbol, StockTimeframe, ScreenTimePeriod, HistorySpan, ChartType, ChartDetail, ReadoutSize, ListRows, ListLines, ListColumns, HideWhenIdle,
     ];
 
     /// <summary>The shared setting named <paramref name="key"/>, or null.</summary>

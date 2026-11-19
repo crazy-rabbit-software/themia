@@ -24,9 +24,9 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
 - **[S-5126]** The layout (`RainLayout`), at the top of the content: the sentence on one Title line
   (its ellipsis where the card is narrow); then the caption (Body, secondary: the heaviest rain, the
   total, the chance; its ellipsis too); then 8 down the bars, 48 tall, and their time line 4 under them.
-  A dry window, or one too short to speak for the hour, is the Status row's one plain sentence
-  ([S-6714]: the widget's glyph, "No rain in the next 2 hours"), nothing else; no answer at all is
-  [S-6734]'s row.
+  A dry window, one too short to speak for the hour, or no answer at all keeps the bars, their empty
+  tracks and their time line, with its one plain sentence ("No rain in the next 2 hours", the answer's
+  state) as the caption over them in place of the sentence and its caption ([S-6753]: never no chart).
 - **[S-11140]** **An atom** ([S-11170]): the sentence, its caption and the bars, the same at every size
   in its range (no ladder, no part that comes or goes with the box). **Sizes** (`RainLayout.Sizing`):
   one height (148), 220..420 wide, a new one 300: the bars get wider. It follows the
