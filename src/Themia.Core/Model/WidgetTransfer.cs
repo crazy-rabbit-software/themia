@@ -62,18 +62,46 @@ public static class WidgetTransfer
         foreach (var planned in plan.Added)
         {
             var original = removed.Find(w => string.Equals(w.Id, planned.Id, StringComparison.Ordinal));
-            if (original is null)
+            if (original is not null)
             {
-                target.Widgets.Add(planned);
-                continue;
+                removed.Remove(original);
+                original.Rect = planned.Rect;
             }
 
-            removed.Remove(original);
-            original.Rect = planned.Rect;
-            target.Widgets.Add(original);
+            var landing = original ?? planned;
+            if (!OneIconPerItem(target, landing))
+            {
+                target.Widgets.Add(landing);
+            }
         }
 
-        target.Widgets.AddRange(removed);
+        foreach (var widget in removed)
+        {
+            if (!OneIconPerItem(target, widget))
+            {
+                target.Widgets.Add(widget);
+            }
+        }
+    }
+
+    /// <summary>
+    /// [S-13015] A desktop item's icon landing on a view that shows the item already (a copy pasted beside it, a move from
+    /// another view): the view keeps one icon of it. Its free icon moves to where this one was put; one in a fence stays in
+    /// its fence. Returns whether the landing widget is absorbed so (and is not to be added).
+    /// </summary>
+    private static bool OneIconPerItem(ViewState target, WidgetInstance landing)
+    {
+        if (landing.Config is not IDesktopItemConfig { Item.Length: > 0 } config || !Desktop.DesktopViews.ShowsItem(target, config.Item))
+        {
+            return false;
+        }
+
+        if (target.Widgets.Find(w => w.Config is IDesktopItemConfig { Item.Length: > 0 } c && Sdk.DesktopItemKeys.Comparer.Equals(c.Item, config.Item)) is { } free)
+        {
+            free.Rect = landing.Rect;
+        }
+
+        return true;
     }
 
     /// <summary>

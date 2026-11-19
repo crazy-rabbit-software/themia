@@ -136,8 +136,27 @@ public static class DesktopViews
     }
 
     /// <summary>
-    /// [S-5525] Load: an undefined value is All, and a None view holding item widgets (a hand-edited file) loses them;
-    /// each repair is said.
+    /// [S-13015] One icon per item on a view: every item widget after the first of its key (the view's order, so the one
+    /// that stood there first) leaves it. Two widgets of one key are one item to the selection, the drag and every
+    /// command (they share the key), so the second would be a copy that moves with the first. Returns how many left.
+    /// </summary>
+    public static int Dedupe(ViewState view)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        var seen = new HashSet<string>(DesktopItemKeys.Comparer);
+        return view.Widgets.RemoveAll(w => w.Config is IDesktopItemConfig { Item.Length: > 0 } config && !seen.Add(config.Item));
+    }
+
+    /// <summary>[S-13015] Whether <paramref name="view"/> shows <paramref name="key"/> already: a free icon of it, or in a fence.</summary>
+    public static bool ShowsItem(ViewState view, string key)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        return key.Length > 0 && Shown(view).Contains(key);
+    }
+
+    /// <summary>
+    /// [S-5525] [S-13015] Load: an undefined value is All, a None view holding item widgets (a hand-edited file) loses
+    /// them, and an item shown twice keeps its first icon (<see cref="Dedupe"/>); each repair is said.
     /// </summary>
     public static IReadOnlyList<string> Repair(ViewState view)
     {
@@ -152,6 +171,11 @@ public static class DesktopViews
         if (view.DesktopIcons == ViewDesktopIcons.None && Hide(view, Free(view)) is > 0 and var dropped)
         {
             repairs.Add($"view '{view.Id}' shows no desktop icons but held {dropped}; dropped");
+        }
+
+        if (Dedupe(view) is > 0 and var twice)
+        {
+            repairs.Add($"view '{view.Id}' showed {twice} desktop item(s) a second time; each keeps its first icon");
         }
 
         return repairs;

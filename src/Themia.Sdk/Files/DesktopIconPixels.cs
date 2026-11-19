@@ -11,15 +11,17 @@ public enum DesktopIconList
 }
 
 /// <summary>
-/// [S-5563] A desktop item's icon at each display's scale, as pure rules: the pixels an icon of some
+/// [S-5563] [S-13016] A desktop item's icon at each display's scale, as pure rules: the pixels an icon of some
 /// DIPs needs on a display (so a 48 icon is 48 pixels at 100 %, 72 at 150 %, 96 at 200 %), and the
-/// image list that gives them crisp: the extra-large list up to its 48 pixels, the jumbo list (drawn
+/// image list that gives them crisp: the extra-large list up to its side, the jumbo list (drawn
 /// down) above, except for an icon that has no large image, which the jumbo list returns as its
-/// 48-pixel image in a corner of an empty 256 square: that one is the extra-large image drawn up.
+/// extra-large image in a corner of an empty 256 square: that one is the extra-large image drawn up.
+/// The extra-large list's side is the process's: 48 at 100 %, but in a per-monitor aware process on a
+/// display at 150 % the shell makes it 72 (and the corner image 72 too), so the side is always measured.
 /// </summary>
 public static class DesktopIconPixels
 {
-    /// <summary>The extra-large list's side.</summary>
+    /// <summary>The extra-large list's side at 100 % (the shell scales it with the system's DPI).</summary>
     public const int ExtraLarge = 48;
 
     /// <summary>The jumbo list's side.</summary>
@@ -40,17 +42,25 @@ public static class DesktopIconPixels
         return Math.Clamp((int)Math.Round(dip * s, MidpointRounding.AwayFromZero), Smallest, Jumbo);
     }
 
-    /// <summary>[S-5563] The list for <paramref name="pixels"/>: extra-large up to 48, jumbo above.</summary>
-    public static DesktopIconList ListFor(int pixels) => pixels <= ExtraLarge ? DesktopIconList.ExtraLarge : DesktopIconList.Jumbo;
+    /// <summary>
+    /// [S-5563] [S-13016] The list for <paramref name="pixels"/>: extra-large up to its side
+    /// (<paramref name="extraLargeSide"/>, as the shell gave it; an unusable one counts as 48), jumbo above.
+    /// </summary>
+    public static DesktopIconList ListFor(int pixels, int extraLargeSide)
+        => pixels <= Side(extraLargeSide) ? DesktopIconList.ExtraLarge : DesktopIconList.Jumbo;
+
+    private static int Side(int extraLargeSide) => extraLargeSide is > 0 and < Jumbo ? extraLargeSide : ExtraLarge;
 
     /// <summary>
-    /// [S-5563] Whether a jumbo image (premultiplied BGRA, <paramref name="width"/> × <paramref name="height"/>)
-    /// is only a small image in an empty square: every pixel it draws lies within 48 × 48 (the
-    /// item has no image larger than the extra-large list's). An empty image counts as small too.
+    /// [S-5563] [S-13016] Whether a jumbo image (premultiplied BGRA, <paramref name="width"/> × <paramref name="height"/>)
+    /// is only a small image in an empty square: every pixel it draws lies within the extra-large list's
+    /// side (<paramref name="extraLargeSide"/>: 48, or 72 at 150 %; the item has no image larger than that
+    /// list's). An empty image counts as small too.
     /// </summary>
-    public static bool HoldsOnlySmallImage(ReadOnlySpan<byte> bgra, int width, int height)
+    public static bool HoldsOnlySmallImage(ReadOnlySpan<byte> bgra, int width, int height, int extraLargeSide)
     {
-        if (width <= ExtraLarge && height <= ExtraLarge)
+        var side = Side(extraLargeSide);
+        if (width <= side && height <= side)
         {
             return false;
         }
@@ -78,6 +88,6 @@ public static class DesktopIconPixels
             }
         }
 
-        return right < 0 || (right - left + 1 <= ExtraLarge && bottom - top + 1 <= ExtraLarge);
+        return right < 0 || (right - left + 1 <= side && bottom - top + 1 <= side);
     }
 }

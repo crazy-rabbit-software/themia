@@ -149,6 +149,15 @@ public static partial class DesktopReconcile
             DesktopFences.Rename(state, before, after);
         }
 
+        // [S-13015] A rename onto a key a view shows already leaves that view one icon of it.
+        if (plan.Renames.Count > 0)
+        {
+            foreach (var view in state.Views)
+            {
+                DesktopViews.Dedupe(view);
+            }
+        }
+
         // [S-13003] An item gone from the desktop leaves its fence.
         DesktopFences.Forget(state, plan.FenceGoneKeys);
 

@@ -9745,6 +9745,22 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   a page of its own behind a back head ([S-2303]) listing the desktop's items in `DesktopItemOrder`, each a switch with
   its kind's glyph that shows it on this view or hides it (`view:<id>/chosen-icons/<key>`; "There's nothing on the
   desktop." with none). Rendered as `page-*-views-icons` and `-views-chosen` (`--editbar-png --only pages`).
+- **[S-13015]** **One icon per item on a view** (the owner's report, 2026-11-19: "in one of my views some items are
+  duplicated and move together"): a view never holds two icons of one desktop item, free or in a fence. Two item widgets of
+  one key are one item to the one selection, the drag and every command (they share the key, [S-5540]), so a second icon
+  is a copy that moves with the first. A copy pasted or Duplicated onto a view that shows the item moves its icon to where
+  the copy was put and adds none; a move from another view does the same; one in a fence stays in its fence
+  (`WidgetTransfer.ApplyPlacement`). Items laid free (`DesktopFences.LayFree`), stand-ins ([S-5560]) and arrivals
+  ([S-5526]) skip an item the view shows; a rename onto a key a view shows leaves it one. Load keeps the first icon of an
+  item shown twice (the view's order: the one that stood there first) and says so (`DesktopViews.Dedupe`, in
+  `DesktopViews.Repair`). Tests `DesktopLayerTests.S13015_`.
+- **[S-13016]** **Every icon at the desktop's icon size** (the same report: "some other items show only a very small
+  icon"): the extra-large system image list is the process's, 48 pixels at 100 % but 72 in Themia's per-monitor aware
+  process on a display at 150 %, and an item with no image above that (the jumbo list holds it in its corner) was measured
+  against 48, so its jumbo image, a 72-pixel picture in an empty 256 square, was drawn into the icon's box: a tiny icon
+  over a gap. The side is measured from the extra-large image the shell gives (`DesktopIconPixels.ListFor`,
+  `HoldsOnlySmallImage`, [S-5563]): up to it the extra-large image is the icon, above it the jumbo one unless that holds
+  only the extra-large in its corner. Tests `DesktopEdgeTests.S13016_`.
 - **[S-5530]** **Opening** outside edit mode: a double-click on an item, or Enter with the keys
   ([S-5550]), opens the selection (the double-clicked item alone when it is not selected), at most 15
   items at once (the rest logged), through the launcher (a path as it is, a shell item as

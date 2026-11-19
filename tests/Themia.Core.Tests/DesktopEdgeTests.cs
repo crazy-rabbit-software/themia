@@ -335,7 +335,7 @@ public sealed class DesktopEdgeTests
     public void S5563_an_icon_takes_the_pixels_of_its_displays_scale_from_the_list_that_has_them(double dip, double scale, int pixels, DesktopIconList list)
     {
         Assert.Equal(pixels, DesktopIconPixels.For(dip, scale));
-        Assert.Equal(list, DesktopIconPixels.ListFor(pixels));
+        Assert.Equal(list, DesktopIconPixels.ListFor(pixels, DesktopIconPixels.ExtraLarge));
     }
 
     [Fact]
@@ -351,14 +351,46 @@ public sealed class DesktopEdgeTests
             }
         }
 
-        Assert.True(DesktopIconPixels.HoldsOnlySmallImage(small, Side, Side));
+        Assert.True(DesktopIconPixels.HoldsOnlySmallImage(small, Side, Side, 48));
 
         var large = (byte[])small.Clone();
         large[((200 * Side) + 200) * 4 + 3] = 255;
-        Assert.False(DesktopIconPixels.HoldsOnlySmallImage(large, Side, Side));
+        Assert.False(DesktopIconPixels.HoldsOnlySmallImage(large, Side, Side, 48));
 
         // An extra-large image is never "too small" for itself.
-        Assert.False(DesktopIconPixels.HoldsOnlySmallImage(new byte[48 * 48 * 4], 48, 48));
+        Assert.False(DesktopIconPixels.HoldsOnlySmallImage(new byte[48 * 48 * 4], 48, 48, 48));
+    }
+
+    private static byte[] Square(int side, int drawn)
+    {
+        var bgra = new byte[side * side * 4];
+        for (var y = 0; y < drawn; y++)
+        {
+            for (var x = 0; x < drawn; x++)
+            {
+                bgra[((y * side) + x) * 4 + 3] = 255;
+            }
+        }
+
+        return bgra;
+    }
+
+    [Fact]
+    public void S13016_at_150_percent_the_extra_large_list_is_72_and_a_jumbo_holding_only_it_is_drawn_from_it()
+    {
+        // The owner's proCertum, Questa FSE and SimplySign shortcuts (2026-11-19): no image above 48 of their own, so the
+        // jumbo list holds the 72-pixel extra-large image in its corner; measured against 48 it looked large and the icon
+        // was drawn at 72/256 of its box, a tiny picture over an empty square.
+        var jumbo = Square(256, 72);
+        Assert.True(DesktopIconPixels.HoldsOnlySmallImage(jumbo, 256, 256, 72));
+        Assert.False(DesktopIconPixels.HoldsOnlySmallImage(Square(256, 200), 256, 256, 72));
+
+        // A 72-pixel icon on that display comes from the extra-large list itself; 96 is the jumbo list's.
+        Assert.Equal(DesktopIconList.ExtraLarge, DesktopIconPixels.ListFor(72, 72));
+        Assert.Equal(DesktopIconList.Jumbo, DesktopIconPixels.ListFor(96, 72));
+
+        // A side the shell did not give counts as 48.
+        Assert.Equal(DesktopIconList.Jumbo, DesktopIconPixels.ListFor(72, 0));
     }
 
     // ---- [S-5570] the reading order -------------------------------------------------------------

@@ -118,18 +118,22 @@ internal static partial class AppIcons
                 overlay = 0;
             }
 
-            // [S-5563] The list that has the pixels: extra-large up to 48, jumbo above.
-            var jumbo = DesktopIconPixels.ListFor(size) == DesktopIconList.Jumbo;
-            var drawn = FromList(jumbo ? ShilJumbo : ShilExtraLarge, index, overlay, ref list, ref icon);
-
-            // An item with no large image comes back from the jumbo list as its 48-pixel image in a
-            // corner of an empty square: the extra-large image, drawn up, is the icon then.
-            if (jumbo && drawn is not null && DesktopIconPixels.HoldsOnlySmallImage(drawn.Bgra, drawn.Width, drawn.Height))
+            // [S-5563] [S-13016] The list that has the pixels: extra-large up to its side, jumbo above. The side is the
+            // one the shell gave this process (48 at 100 %, 72 in a per-monitor aware process at 150 %), so it is measured.
+            var extraLarge = FromList(ShilExtraLarge, index, overlay, ref list, ref icon);
+            var side = extraLarge?.Width ?? DesktopIconPixels.ExtraLarge;
+            if (extraLarge is not null && DesktopIconPixels.ListFor(size, side) == DesktopIconList.ExtraLarge)
             {
-                drawn = FromList(ShilExtraLarge, index, overlay, ref list, ref icon) ?? drawn;
+                return extraLarge;
             }
 
-            return drawn;
+            var jumbo = FromList(ShilJumbo, index, overlay, ref list, ref icon);
+
+            // An item with no large image comes back from the jumbo list as its extra-large image in a
+            // corner of an empty square: the extra-large image, drawn up, is the icon then.
+            return jumbo is null || DesktopIconPixels.HoldsOnlySmallImage(jumbo.Bgra, jumbo.Width, jumbo.Height, side)
+                ? extraLarge ?? jumbo
+                : jumbo;
         }
         finally
         {

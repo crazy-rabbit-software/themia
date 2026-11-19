@@ -209,7 +209,8 @@ public static class DesktopDisplays
         var records = new List<DesktopFallback>(plan.Kept);
         foreach (var add in plan.Adds)
         {
-            if (state.FindView(add.ViewId) is not { } view)
+            // [S-13015] One icon per item on a view: never a stand-in for one the view shows already.
+            if (state.FindView(add.ViewId) is not { } view || DesktopViews.ShowsItem(view, add.Item.Key))
             {
                 continue;
             }

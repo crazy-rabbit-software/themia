@@ -177,8 +177,15 @@ public static class DesktopFences
         var size = DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), screen);
         var occupied = DesktopGrid.Occupied(view);
         var unplaced = new List<DesktopItem>();
+        var shown = new HashSet<string>(DesktopViews.Shown(view), DesktopItemKeys.Comparer);
         foreach (var item in items)
         {
+            // [S-13015] One icon per item on a view: one shown already keeps its place.
+            if (!shown.Add(item.Key))
+            {
+                continue;
+            }
+
             if (DesktopGrid.Arrive(occupied, size, x, y, screen) is { } spot)
             {
                 view.Widgets.Add(create(item, spot));
