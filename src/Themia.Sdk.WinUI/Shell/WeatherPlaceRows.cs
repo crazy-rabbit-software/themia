@@ -56,7 +56,7 @@ public static class WeatherPlaceRows
 
         var search = new MenuSearch(
             Str.Shell_Place_SearchPlaceholder.Text(),
-            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place =>
+            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => config.HasLocation && config.PlaceName == place.Label, place =>
             {
                 config.Latitude = place.Latitude;
                 config.Longitude = place.Longitude;

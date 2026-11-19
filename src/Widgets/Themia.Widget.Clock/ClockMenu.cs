@@ -70,14 +70,14 @@ internal static class ClockMenu
             return Task.FromResult(new MenuSearchAnswer(lines));
         }
 
-        ItemMenuEntry Pick(string? ianaId, string text) => new(null, text, () =>
+        ItemMenuEntry Pick(string? ianaId, string text) => WidgetMenuLines.Found(text, clock.TimeZoneId == ianaId, () =>
         {
             if (clock.TimeZoneId != ianaId)
             {
                 clock.TimeZoneId = ianaId;
                 menu.Save();
             }
-        }, Checked: clock.TimeZoneId == ianaId, Group: group);
+        });
 
         return WidgetMenuLines.Search(Glyphs.Place, group, ZoneText(clock.TimeZoneId) ?? current,
             new MenuSearch(ClockStr.LocationSearch_Placeholder.Text(), Find, []));

@@ -36,14 +36,14 @@ public static class ExchangePairLines
     /// </summary>
     private static ItemMenuEntry Currency(WidgetMenuLines menu, string glyph, string text, string unset, string current, Action<string> set)
     {
-        ItemMenuEntry Pick(string code, string words) => new(null, words, () =>
+        ItemMenuEntry Pick(string code, string words) => WidgetMenuLines.Found(words, string.Equals(code, current, StringComparison.Ordinal), () =>
         {
             if (!string.Equals(code, current, StringComparison.Ordinal))
             {
                 set(code);
                 menu.Save();
             }
-        }, Checked: string.Equals(code, current, StringComparison.Ordinal), Group: text);
+        });
 
         Task<MenuSearchAnswer> Find(string typed, CancellationToken cancel)
         {

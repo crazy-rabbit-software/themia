@@ -239,27 +239,28 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2308] A lookup (a language, a place): a search box over at most eight results and a status line,
-    /// the card the same height whatever is typed, so typing moves nothing. Its own options are filtered
-    /// as typed; a lookup that asks (a place) asks as typing settles, its fixed lines after the answers.
+    /// [S-2308] [S-13606]..[S-13609] A lookup (a language, a place, a symbol, a currency, a zone, a device): the one
+    /// search box over at most eight results and the one status line, the card the same height whatever is typed,
+    /// so typing moves nothing. Its own options are filtered as typed; a lookup that asks (a place, a symbol) asks
+    /// as typing settles, its fixed lines after the answers. Every result is the same option row, whatever the
+    /// search: a radio row 36 tall, its words alone, the one in force dotted; the keys are <see cref="SearchKeys"/>'.
     /// </summary>
     private FrameworkElement Lookup(PageRow row)
     {
         var typed = _typed.GetValueOrDefault(row.Key) ?? string.Empty;
-        var box = new TextBox
+        var box = new SearchBox(row.Search?.Placeholder ?? row.Filter ?? Str.Menu_Filter.Text())
         {
             Text = typed,
-            PlaceholderText = row.Search?.Placeholder ?? row.Filter ?? Str.Menu_Filter.Text(),
-            MinHeight = P.Control,
-            Tag = row.Key + "#find",
+            Key = row.Key + "#find",
+            Said = row.Text,
         };
-        AutomationProperties.SetName(box, row.Text);
 
         List<PageRow> results;
         string? note = null;
+        var asking = false;
         if (row.Search is { } search)
         {
-            if (_found.TryGetValue(row.Key, out var found) && found.Typed == typed && found.Answer is { } answer)
+            if (_found.For(row.Key, typed) is { } answer)
             {
                 results = PageRows.Of(answer.Lines, row.Key + "/found");
                 note = answer.Note;
@@ -267,8 +268,8 @@ internal sealed partial class PageView
             else
             {
                 results = [];
-                note = Str.Shell_Place_Searching.Text();
-                if (!_found.TryGetValue(row.Key, out var asked) || asked.Typed != typed)
+                asking = true;
+                if (_found.Wants(row.Key, typed))
                 {
                     Find(row.Key, search, typed);
                 }
@@ -283,30 +284,29 @@ internal sealed partial class PageView
         var list = new StackPanel { Height = I.Found * I.Option };
         foreach (var result in shown)
         {
-            var radio = result.Kind == SettingsRowKind.Radio ? RadioRow(result) : (FrameworkElement)RowOf(result, inside: true, first: false);
-            if (radio is RadioButton r)
+            var found = Found(result);
+            if (found is RadioButton r)
             {
                 r.Margin = new Thickness(0);
                 r.GroupName = row.Key + "#found";
             }
 
-            list.Children.Add(radio);
+            list.Children.Add(found);
         }
 
-        var status = CaptionText(note ?? FoundWords(results.Count));
-        box.TextChanged += (_, _) =>
+        var status = SearchBox.Status(LookupStatus.Line(typed, asking, results.Count, note));
+        box.Changed += text =>
         {
-            _typed[row.Key] = box.Text;
-            Show();
-        };
-        box.KeyDown += (_, e) =>
-        {
-            if (e.Key == VirtualKey.Enter && shown.FirstOrDefault() is { } best)
+            if (text != (_typed.GetValueOrDefault(row.Key) ?? string.Empty))
             {
-                Do(best.Run);
-                e.Handled = true;
+                _typed[row.Key] = text;
+                Show();
             }
         };
+        box.Count = () => shown.Count;
+        box.PickBest = () => Do(shown[0].Run);
+        box.ToFirst = () => list.Children.OfType<Control>().FirstOrDefault()?.Focus(FocusState.Keyboard);
+        box.Results(list, source => source is DependencyObject node && Ancestor(node, list) is { } child ? list.Children.IndexOf(child) : null);
 
         var stack = new StackPanel { Spacing = Fluent.Space2, Children = { box, list, status } };
         if (row.Search is not null)
@@ -320,13 +320,41 @@ internal sealed partial class PageView
         return stack;
     }
 
-    /// <summary>[S-3722] Ask a lookup's search for what is typed; the page is drawn again with its answer.</summary>
+    /// <summary>
+    /// [S-13606] One result of a lookup, whatever its search made it: the option row (radio, 36, its words alone, the
+    /// one in force dotted); a line that is not a pick (a note) stands as its own row.
+    /// </summary>
+    private FrameworkElement Found(PageRow result) => result.Kind switch
+    {
+        SettingsRowKind.Radio => RadioRow(result with { Icon = null }),
+        SettingsRowKind.Action or SettingsRowKind.Item => RadioRow(result with { Kind = SettingsRowKind.Radio, Icon = null, Holds = false }),
+        _ => RowOf(result, inside: true, first: false),
+    };
+
+    /// <summary>The child of <paramref name="parent"/> that <paramref name="node"/> stands in, or null.</summary>
+    private static UIElement? Ancestor(DependencyObject node, Panel parent)
+    {
+        for (var at = node; at is not null; at = VisualTreeHelper.GetParent(at))
+        {
+            if (at is UIElement element && ReferenceEquals(VisualTreeHelper.GetParent(at), parent))
+            {
+                return element;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// [S-3722] [S-13609] Ask a lookup's search for what is typed once it settles; the page is drawn again with its
+    /// answer, unless something newer was typed since (<see cref="LookupAnswers{T}"/>: the latest wins).
+    /// </summary>
     private async void Find(string key, MenuSearch search, string typed)
     {
         Cancel();
         _finding = new CancellationTokenSource();
         var token = _finding.Token;
-        _found[key] = (typed, null);
+        _found.Asking(key, typed);
         try
         {
             if (search.Settle > TimeSpan.Zero)
@@ -335,13 +363,10 @@ internal sealed partial class PageView
             }
 
             var answer = await search.Find(typed, token).ConfigureAwait(true);
-            if (token.IsCancellationRequested)
+            if (!token.IsCancellationRequested && _found.Answered(key, typed, answer))
             {
-                return;
+                Show();
             }
-
-            _found[key] = (typed, answer);
-            Show();
         }
         catch (OperationCanceledException)
         {
@@ -350,8 +375,10 @@ internal sealed partial class PageView
         catch (Exception ex)
         {
             Log.Error(Scope, "a page's lookup failed", ex);
-            _found[key] = (typed, new MenuSearchAnswer([], Str.Common_NoResults.Text()));
-            Show();
+            if (_found.Answered(key, typed, new MenuSearchAnswer([], Str.Common_NoResults.Text())))
+            {
+                Show();
+            }
         }
     }
 

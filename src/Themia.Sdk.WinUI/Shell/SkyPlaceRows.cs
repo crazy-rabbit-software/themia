@@ -60,7 +60,7 @@ public static class SkyPlaceRows
 
         var search = new MenuSearch(
             Str.Shell_Place_SearchPlaceholder.Text(),
-            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place =>
+            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place => config.HasLocation && config.Place == Cut(place.Label), place =>
             {
                 config.Latitude = place.Latitude;
                 config.Longitude = place.Longitude;

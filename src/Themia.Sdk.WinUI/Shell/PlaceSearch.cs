@@ -47,10 +47,12 @@ public static class PlaceSearch
     /// <summary>
     /// [S-3722] The geocoder as a search on the properties menu: what the box says calls for nothing
     /// (empty, one letter), a word (no letter in it), or the lookup ([S-2841]); its places as lines,
-    /// a click on one <paramref name="picked"/>; no match, offline and failed said in their place ([S-2843]).
+    /// a click on one <paramref name="picked"/>, the one <paramref name="holds"/> says is in force dotted ([S-13606]:
+    /// every search's rows); no match, offline and failed said in their place ([S-2843]).
     /// </summary>
-    public static async Task<MenuSearchAnswer> MenuAnswerAsync(string typed, Action<PlaceMatch> picked, CancellationToken cancel)
+    public static async Task<MenuSearchAnswer> MenuAnswerAsync(string typed, Func<PlaceMatch, bool> holds, Action<PlaceMatch> picked, CancellationToken cancel)
     {
+        ArgumentNullException.ThrowIfNull(holds);
         ArgumentNullException.ThrowIfNull(picked);
         var query = PlaceQuery.Normalise(typed);
         switch (PlaceQuery.Classify(query, submitted: false))
@@ -71,8 +73,8 @@ public static class PlaceSearch
         switch (outcome)
         {
             case PlaceOutcome.Matches:
-                return new MenuSearchAnswer([.. places.Select(place => new ItemMenuEntry(Glyphs.Place,
-                    place.Detail.Length > 0 ? place.Name + " · " + place.Detail : place.Name, () => picked(place)))]);
+                return new MenuSearchAnswer([.. places.Select(place => WidgetMenuLines.Found(
+                    place.Detail.Length > 0 ? place.Name + " · " + place.Detail : place.Name, holds(place), () => picked(place)))]);
             case PlaceOutcome.NoMatch:
                 return new MenuSearchAnswer([], Str.Shell_Place_NoMatch.Format(("query", query)));
             case PlaceOutcome.Offline:

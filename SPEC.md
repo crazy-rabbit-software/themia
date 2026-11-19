@@ -1877,6 +1877,25 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   "Searching…"), the card the same height whatever is typed; its own options filtered as typed
   (`SettingsMenu.Matches`), a search that asks as typing settles; Enter picks the first. A **colour**:
   Karpo's picker ([S-1574]: the swatches' column beside the mixer, the hex row under them). A **font**: the font picker and Add fonts. An **icon**: the icon picker.
+- **[S-13606]** **One search, everywhere** (owner, 2026-11-19: "the stock symbol search looks different to how the other
+  search sections look. make sure that everywhere these are the same."; "the widgets have to much variance in themselves.
+  they should reuse more of the same components."): every box Themia searches as it is typed into is the one
+  `SearchBox` (Themia.Sdk.WinUI): a lookup's (the language, a place, a symbol, a currency, a zone, a device, an app to
+  limit), the add page's, the icon and font pickers', the Contacts and Folder widgets' and the layout editor's apps.
+  It is Windows 11's search box (WinUI's `AutoSuggestBox`, as Karpo's search field, `karpo-app` `MenuTextField`,
+  docs/widgets.md §641): 32 tall, the clear button and the magnifier at its end, the placeholder greyed, no spelling
+  marks. Every lookup's answers are the same rows (`WidgetMenuLines.Found`): a radio row 36 tall, its words alone (no
+  glyph, no link colour), the one in force dotted (one at most); the lookup's line leads with what it finds' glyph
+  (the stock symbol's with the Stocks glyph, never a magnifier).
+- **[S-13607]** **One key rule** (`SearchKeys`, Karpo's §641): in the box Enter takes the best result, Down goes to
+  the first; Escape empties the box (from a result too) and an empty box's Escape lets go (a page's picker closes, a
+  widget's box folds away); Up on the first result, Backspace and a letter typed on a result go back to the box.
+- **[S-13608]** **One status line** under a lookup's results (`LookupStatus`, Caption, secondary): "Searching…" while
+  what is typed is asked, else the answer's own word (no match, offline, a symbol no service could look up: never a row
+  among the answers, never counted), else nothing while nothing is typed and nothing is listed, else "No results" or
+  "N found". The icon and font pickers say their "No … matches" in the same line's look.
+- **[S-13609]** A lookup asks once typing settles (`MenuSearch.Settle`) and the latest question wins
+  (`LookupAnswers`): an answer to anything typed before is dropped, so a slow answer never replaces a newer one.
 - **[S-2309]** A number typed into a number box is read in the units the box shows (`NumberEntry`: the
   digits, one decimal mark of either kind, a minus; "42 %" is 0.42 of a fraction, "1.5 s" 1500 ms), then
   held to the range and the grain (`MenuSlider.Snap`); nothing that reads as a number restores the box.

@@ -1,3 +1,4 @@
+using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -87,13 +88,34 @@ public sealed class StockMenuTests
         StockMenu.Lines(lines, config, (_, _) => throw new SymbolSearchFailedException(FetchStatus.TimedOut));
         var search = lines.Lines[0].Search!;
 
+        // Why is the status line's (the answer's note), never a row among the answers.
         var typed = await search.Find("600519.SS", CancellationToken.None);
-        Assert.Null(typed.Note);
-        Assert.Equal([Str.Stocks_Menu_UseTyped.Format(("symbol", "600519.SS")), FetchState.Message(FetchStatus.TimedOut)], typed.Lines.Select(l => l.Text));
-        Assert.True(typed.Lines[1].Note);
+        Assert.Equal(FetchState.Message(FetchStatus.TimedOut), typed.Note);
+        Assert.Equal([Str.Stocks_Menu_UseTyped.Format(("symbol", "600519.SS"))], typed.Lines.Select(l => l.Text));
+        Assert.DoesNotContain(typed.Lines, l => l.Note);
 
         var named = await search.Find("Kweichow Moutai", CancellationToken.None);
-        Assert.Equal([FetchState.Message(FetchStatus.TimedOut)], named.Lines.Select(l => l.Text));
+        Assert.Empty(named.Lines);
+        Assert.Equal(FetchState.Message(FetchStatus.TimedOut), named.Note);
+    }
+
+    [Fact]
+    public async Task S1307_the_symbol_search_answers_with_every_search_rows_the_one_in_force_dotted()
+    {
+        var config = new StockConfig { Symbol = "MSFT", Market = QuoteMarket.Listed };
+        var lines = Build(config, Microsoft, new SymbolHit("MSF.DE", "Microsoft Corporation", QuoteMarket.Listed, AssetClass.Equity, "XETRA"));
+
+        // Its line leads with the kind's glyph, as the place's, the currency's and the zone's lead with theirs.
+        Assert.Equal(Glyphs.Stocks, lines.Lines[0].Glyph);
+
+        var answer = await lines.Lines[0].Search!.Find("MSFT", CancellationToken.None);
+        Assert.All(answer.Lines, l =>
+        {
+            Assert.Null(l.Glyph);
+            Assert.Equal(WidgetMenuLines.FoundGroup, l.Group);
+            Assert.NotNull(l.Checked);
+        });
+        Assert.Equal([false, true, false], answer.Lines.Select(l => l.Checked == true));
     }
 
     [Fact]

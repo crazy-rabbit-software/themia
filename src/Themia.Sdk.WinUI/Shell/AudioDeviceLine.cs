@@ -93,19 +93,18 @@ public static class AudioDeviceLine
         ArgumentNullException.ThrowIfNull(devices);
         ArgumentNullException.ThrowIfNull(pick);
 
-        var group = Str.WidgetsC_Volume_Settings_Device_Label.Text();
         var query = (typed ?? string.Empty).Trim();
 
         ItemMenuEntry Line(string? id, string? name, string text)
         {
             var holds = string.Equals(id, chosenId, StringComparison.OrdinalIgnoreCase);
-            return new(null, text, () =>
+            return WidgetMenuLines.Found(text, holds, () =>
             {
                 if (!holds)
                 {
                     pick(id, name);
                 }
-            }, Checked: holds, Group: group);
+            });
         }
 
         var lines = new List<ItemMenuEntry> { Line(null, null, Str.WidgetsC_Volume_Settings_DefaultOutput.Text()) };

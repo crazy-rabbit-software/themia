@@ -59,7 +59,7 @@ internal sealed partial class PageView : ContentControl
     private readonly Dictionary<string, string> _typed = new(StringComparer.Ordinal);
 
     /// <summary>[S-2308] A lookup's last answer, by its row's key, with what it was asked for.</summary>
-    private readonly Dictionary<string, (string Typed, MenuSearchAnswer? Answer)> _found = new(StringComparer.Ordinal);
+    private readonly LookupAnswers<MenuSearchAnswer> _found = new();
 
     private CancellationTokenSource? _finding;
 
@@ -560,7 +560,12 @@ internal sealed partial class PageView : ContentControl
     private void Refocus(FocusTag focus)
     {
         UpdateLayout();
-        if (Tagged(this, focus.Tag) is Control control)
+        if (Tagged(this, focus.Tag) is SearchBox search)
+        {
+            // [S-13606] The search box gives its keyboard to the text box inside it: the caret goes there.
+            search.FocusAt(focus.Caret);
+        }
+        else if (Tagged(this, focus.Tag) is Control control)
         {
             control.Focus(FocusState.Programmatic);
             if (control is TextBox box)
@@ -688,9 +693,4 @@ internal sealed partial class PageView : ContentControl
         words.VerticalAlignment = VerticalAlignment.Center;
         return words;
     }
-
-    /// <summary>The words of what was found for a lookup, or that nothing was.</summary>
-    private static string FoundWords(int count) => count == 0
-        ? Str.Common_NoResults.Text()
-        : Str.EditBar_Page_Found.Format(("count", LocaleFormat.Integer(count)));
 }

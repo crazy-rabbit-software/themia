@@ -128,7 +128,11 @@ public static class ScreenTimeMenuLines
             var limited = source.Preferences.AppLimits;
             return Task.FromResult(new MenuSearchAnswer([.. known
                 .Where(a => !limited.ContainsKey(a.App) && (query.Length == 0 || a.Name.Contains(query, StringComparison.OrdinalIgnoreCase)))
-                .Select(a => menu.Command(null, a.Name, () => Change(source, next => next.AppLimits[a.App] = NewAppLimitSeconds)))]));
+                .Select(a => WidgetMenuLines.Found(a.Name, false, () =>
+                {
+                    Change(source, next => next.AppLimits[a.App] = NewAppLimitSeconds);
+                    menu.Save();
+                }))]));
         }
 
         lines.Add(WidgetMenuLines.Search(Glyphs.Add, Str.WidgetsC_ScreenTime_Settings_LimitApp.Text(), null,

@@ -82,10 +82,12 @@ public static class StockQuoteLines
     }
 
     /// <summary>
-    /// [S-1307] The symbol: a search asking Yahoo and CoinGecko together once typing pauses; a pick sets the
+    /// [S-1307] [S-13606] The symbol: a search asking Yahoo and CoinGecko together once typing pauses; a pick sets the
     /// symbol, its market and its name in one go. What is typed, if it is a plausible symbol, is offered
-    /// first as itself ([S-3790]); when no service answered, a note says why under it. A symbol with
-    /// characters no symbol has is said to be one, never stripped.
+    /// first as itself ([S-3790]); when no service answered, the status line says why (the answer's note, never a
+    /// row among the answers). A symbol with characters no symbol has is said to be one, never stripped. Its line
+    /// leads with the kind's glyph and its answers are every search's rows (<see cref="WidgetMenuLines.Found"/>: the
+    /// symbol in force dotted), as the place's, the currency's and the zone's.
     /// </summary>
     private static ItemMenuEntry SymbolLine(WidgetMenuLines menu, StockQuoteConfig config, Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> lookup)
     {
@@ -125,9 +127,11 @@ public static class StockQuoteLines
             var lines = new List<ItemMenuEntry>();
             if (WebInput.IsPlausibleSymbol(query))
             {
-                lines.Add(new ItemMenuEntry(Glyphs.Edit, Str.Stocks_Menu_UseTyped.Format(("symbol", query)), () =>
+                // One row dotted: the typed symbol only where no hit is the instrument in force.
+                var holds = string.Equals(query, config.Symbol, StringComparison.Ordinal) && !hits.Any(hit => Holds(config, hit));
+                lines.Add(WidgetMenuLines.Found(Str.Stocks_Menu_UseTyped.Format(("symbol", query)), holds, () =>
                 {
-                    if (!string.Equals(query, config.Symbol, StringComparison.Ordinal))
+                    if (!holds)
                     {
                         config.ChooseTyped(query);
                         menu.Save();
@@ -135,15 +139,16 @@ public static class StockQuoteLines
                 }));
             }
 
-            lines.AddRange(hits.Select(hit => new ItemMenuEntry(null, Describe(hit), () =>
+            lines.AddRange(hits.Select(hit => WidgetMenuLines.Found(Describe(hit), Holds(config, hit), () =>
             {
                 config.Choose(hit);
                 menu.Save();
             })));
+
+            // [S-13608] Why no service answered is the status line's, under the typed symbol that still works.
             if (unanswered is not null)
             {
-                lines.Add(WidgetMenuLines.Note(unanswered));
-                return new MenuSearchAnswer(lines);
+                return new MenuSearchAnswer(lines, unanswered);
             }
 
             return lines.Count > 0
@@ -152,8 +157,16 @@ public static class StockQuoteLines
         }
 
         var shown = config.EffectiveSymbol is { Length: > 0 } symbol ? symbol.ToUpperInvariant() : null;
-        return WidgetMenuLines.Search(Glyphs.Search, Str.Stocks_Tab_Symbols.Text(), shown,
+        return WidgetMenuLines.Search(Glyphs.Stocks, Str.Stocks_Tab_Symbols.Text(), shown,
             new MenuSearch("AAPL, ^GSPC, EURUSD=X, BTC-USD", Find, [], SearchPause));
+    }
+
+    /// <summary>[S-13606] Whether <paramref name="hit"/> is the instrument in force: its symbol on its market.</summary>
+    public static bool Holds(StockQuoteConfig config, SymbolHit hit)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(hit);
+        return config.Market == hit.Market && string.Equals(config.Symbol, hit.Symbol, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>One answer: "Microsoft Corporation — MSFT · NASDAQ · Shares".</summary>
