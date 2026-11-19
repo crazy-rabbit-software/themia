@@ -2,6 +2,8 @@
   "weather.feelsLike": "體感",
   "weather.humidity": "濕度",
   "weather.wind": "風",
+  "weatherFacts.sunrise.label": "日出",
+  "weatherFacts.sunset.label": "日落",
   "widgetsC.weather.fact.cloudCover": "雲量",
   "widgetsC.weather.fact.gusts": "陣風",
   "widgetsC.weather.fact.precipitation": "降水",

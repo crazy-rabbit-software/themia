@@ -292,7 +292,9 @@ public sealed class AppStateStore : IAsyncDisposable
     /// [S-1900] [S-6908] Take out, before the typed read, every widget whose kind this build does not have —
     /// a widget that was removed from the app, or a hand edit — and say which. The typed read would
     /// otherwise refuse the whole document over one widget it cannot name, and the user would lose
-    /// every other widget with it. What such a widget held goes with it; nothing else is touched.
+    /// every other widget with it. What such a widget held goes with it; nothing else is touched. Each kind gone is one
+    /// line with its count and the widgets it took (a kind removed from the app, such as the weather facts split into a
+    /// widget a fact, [S-13900], goes from every view at once).
     /// </summary>
     private static List<string> DropUnknownKinds(JsonNode? document)
     {
@@ -301,6 +303,8 @@ public sealed class AppStateStore : IAsyncDisposable
         {
             return dropped;
         }
+
+        var gone = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
         foreach (var view in views)
         {
@@ -336,7 +340,12 @@ public sealed class AppStateStore : IAsyncDisposable
                 {
                     unknown.Add(widget);
                     var named = config["kind"] is JsonValue raw && raw.TryGetValue<string>(out var given) ? given : "(none)";
-                    dropped.Add($"dropped widget '{id}' of unknown kind '{named}' from view '{viewName}'");
+                    if (!gone.TryGetValue(named, out var which))
+                    {
+                        gone[named] = which = [];
+                    }
+
+                    which.Add($"'{id}' from view '{viewName}'");
                 }
             }
 
@@ -344,6 +353,11 @@ public sealed class AppStateStore : IAsyncDisposable
             {
                 widgets.Remove(widget);
             }
+        }
+
+        foreach (var (kind, which) in gone)
+        {
+            dropped.Add($"dropped {which.Count} {(which.Count == 1 ? "widget" : "widgets")} of unknown kind '{kind}': {string.Join(", ", which)}");
         }
 
         return dropped;

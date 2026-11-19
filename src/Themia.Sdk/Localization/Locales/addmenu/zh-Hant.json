@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "裝置和電源",
   "addMenu.subject.more": "更多",
   "addMenu.family.screenTime": "螢幕使用時間",
-  "addMenu.family.powerButtons": "電源按鈕"
+  "addMenu.family.powerButtons": "電源按鈕",
+  "addMenu.family.weatherFacts": "天氣資訊"
 }

@@ -2,6 +2,8 @@
   "weather.feelsLike": "Yana ji kamar",
   "weather.humidity": "Danshi",
   "weather.wind": "Iska",
+  "weatherFacts.sunrise.label": "Fitowar rana",
+  "weatherFacts.sunset.label": "Faɗuwar rana",
   "widgetsC.weather.fact.cloudCover": "Rufin gajimare",
   "widgetsC.weather.fact.gusts": "Guguwa",
   "widgetsC.weather.fact.precipitation": "Ruwan sama",

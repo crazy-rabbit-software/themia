@@ -2,6 +2,8 @@
   "weather.feelsLike": "Sensação",
   "weather.humidity": "Umidade",
   "weather.wind": "Vento",
+  "weatherFacts.sunrise.label": "Nascer do sol",
+  "weatherFacts.sunset.label": "Pôr do sol",
   "widgetsC.weather.fact.cloudCover": "Nebulosidade",
   "widgetsC.weather.fact.gusts": "Rajadas",
   "widgetsC.weather.fact.precipitation": "Precipitação",

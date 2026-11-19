@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "डिवाइस और पावर",
   "addMenu.subject.more": "और",
   "addMenu.family.screenTime": "स्क्रीन टाइम",
-  "addMenu.family.powerButtons": "पावर बटन"
+  "addMenu.family.powerButtons": "पावर बटन",
+  "addMenu.family.weatherFacts": "मौसम की जानकारी"
 }

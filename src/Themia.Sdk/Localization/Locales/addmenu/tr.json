@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Cihazlar ve güç",
   "addMenu.subject.more": "Daha fazla",
   "addMenu.family.screenTime": "Ekran süresi",
-  "addMenu.family.powerButtons": "Güç düğmeleri"
+  "addMenu.family.powerButtons": "Güç düğmeleri",
+  "addMenu.family.weatherFacts": "Hava durumu bilgileri"
 }

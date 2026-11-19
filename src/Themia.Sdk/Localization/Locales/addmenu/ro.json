@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Dispozitive și alimentare",
   "addMenu.subject.more": "Mai multe",
   "addMenu.family.screenTime": "Timp petrecut pe ecran",
-  "addMenu.family.powerButtons": "Butoane de alimentare"
+  "addMenu.family.powerButtons": "Butoane de alimentare",
+  "addMenu.family.weatherFacts": "Date meteo"
 }

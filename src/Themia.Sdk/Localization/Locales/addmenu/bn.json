@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "ডিভাইস ও পাওয়ার",
   "addMenu.subject.more": "আরও",
   "addMenu.family.screenTime": "স্ক্রিন টাইম",
-  "addMenu.family.powerButtons": "পাওয়ার বোতাম"
+  "addMenu.family.powerButtons": "পাওয়ার বোতাম",
+  "addMenu.family.weatherFacts": "আবহাওয়ার তথ্য"
 }

@@ -2,6 +2,8 @@
   "weather.feelsLike": "અનુભવાય છે",
   "weather.humidity": "ભેજ",
   "weather.wind": "પવન",
+  "weatherFacts.sunrise.label": "સૂર્યોદય",
+  "weatherFacts.sunset.label": "સૂર્યાસ્ત",
   "widgetsC.weather.fact.cloudCover": "વાદળ આવરણ",
   "widgetsC.weather.fact.gusts": "પવનના ઝપાટા",
   "widgetsC.weather.fact.precipitation": "વરસાદ",

@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Thiết bị và nguồn",
   "addMenu.subject.more": "Thêm",
   "addMenu.family.screenTime": "Thời gian sử dụng",
-  "addMenu.family.powerButtons": "Nút nguồn"
+  "addMenu.family.powerButtons": "Nút nguồn",
+  "addMenu.family.weatherFacts": "Thông tin thời tiết"
 }

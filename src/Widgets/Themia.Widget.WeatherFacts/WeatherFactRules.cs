@@ -5,7 +5,7 @@ using Themia.Core.Widgets;
 
 namespace Themia.Widget.WeatherFacts;
 
-/// <summary>[S-722] One reading the weather facts can show; the order is the kind's own (what a new pick and a taller card add next).</summary>
+/// <summary>[S-722] [S-13900] One weather reading, and so one widget of the weather facts family: a kind per fact, in this order.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<WeatherFactKind>))]
 public enum WeatherFactKind
 {
@@ -27,17 +27,13 @@ public enum WeatherFactKind
 public readonly record struct WeatherFact(WeatherFactKind Kind, string Label, string Value);
 
 /// <summary>
-/// [S-722] [S-11105] The weather facts' readings: each picked kind, its name and its value, in the pick's
-/// order. A reading the service did not send is the em dash, never a row left out: the card's height
-/// is the pick's ([S-11106]), so a row that came and went would leave a hole or need room it does not have.
+/// [S-722] [S-13900] The weather facts' readings: a fact's name and its value. A reading the service did not send is
+/// the em dash, never a row left out: the card is its one row ([S-13901]), so a row that came and went would leave it empty.
 /// </summary>
 public static class WeatherFactRules
 {
     /// <summary>Every fact, in the kind's order.</summary>
     public static IReadOnlyList<WeatherFactKind> All { get; } = Enum.GetValues<WeatherFactKind>();
-
-    /// <summary>[S-11105] A new card's pick: today's range, then feels like, humidity and wind (the old card's first rows).</summary>
-    public static IReadOnlyList<WeatherFactKind> Defaults { get; } = [WeatherFactKind.Today, WeatherFactKind.FeelsLike, WeatherFactKind.Humidity, WeatherFactKind.Wind];
 
     /// <summary>What stands in a row whose reading the service did not send.</summary>
     public const string Missing = "—";
@@ -61,26 +57,19 @@ public static class WeatherFactRules
     /// <summary>A fact's name in the app's language.</summary>
     public static string Name(WeatherFactKind kind) => Name(kind, Strings.Current);
 
-    public static IReadOnlyList<WeatherFact> For(IReadOnlyList<WeatherFactKind> picked, CurrentWeather reading, TemperatureUnit unit)
-        => For(Strings.Current, picked, reading, unit);
-
-    /// <summary>[S-722] The <paramref name="picked"/> readings, labelled and written in <paramref name="locale"/>, one per pick.</summary>
-    public static IReadOnlyList<WeatherFact> For(Locale locale, IReadOnlyList<WeatherFactKind> picked, CurrentWeather reading, TemperatureUnit unit)
+    /// <summary>[S-722] The <paramref name="kind"/>'s reading, labelled and written in <paramref name="locale"/>.</summary>
+    public static WeatherFact For(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)
     {
-        ArgumentNullException.ThrowIfNull(picked);
         ArgumentNullException.ThrowIfNull(reading);
-        return [.. picked.Select(kind => new WeatherFact(kind, Name(kind, locale), Value(locale, kind, reading, unit)))];
+        return new WeatherFact(kind, Name(kind, locale), Value(locale, kind, reading, unit));
     }
 
     /// <summary>
-    /// [S-12813] Without a reading: every picked row, its label and "--" (the facts' default, drawn unavailable), so
-    /// the card keeps its rows and the state is only its status glyph's tooltip.
+    /// [S-12813] [S-13902] Without a reading: the fact's row all the same, its label and "--" (the facts' default, drawn
+    /// unavailable), so the card keeps its row and the state is only its tooltip.
     /// </summary>
-    public static IReadOnlyList<WeatherFact> Unread(Locale locale, IReadOnlyList<WeatherFactKind> picked)
-    {
-        ArgumentNullException.ThrowIfNull(picked);
-        return [.. picked.Select(kind => new WeatherFact(kind, Name(kind, locale), DetailFact.Unavailable(string.Empty).Value))];
-    }
+    public static WeatherFact Unread(Locale locale, WeatherFactKind kind)
+        => new(kind, Name(kind, locale), DetailFact.Unavailable(string.Empty).Value);
 
     /// <summary>[S-722] One reading's value, or <see cref="Missing"/> where the service sent none.</summary>
     public static string Value(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)

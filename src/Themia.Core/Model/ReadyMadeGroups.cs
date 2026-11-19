@@ -105,13 +105,17 @@ public static class ReadyMadeGroups
         new("tasks", new(0, 402, 320, 220)),
     ]) { Starter = 1 });
 
-    /// <summary>[S-2474] [S-11172] Weather station: the reading, its facts, the days ahead and the rain in the next hour, stacked as one panel.</summary>
+    /// <summary>
+    /// [S-2474] [S-11172] [S-13900] Weather station: the reading, today's high and low, the wind, the days ahead and the rain
+    /// in the next hour, stacked as one panel.
+    /// </summary>
     public static ReadyMadeGroup WeatherStation { get; } = Headed(new("weatherStation", Str.Groups_Recipe_WeatherStation, Str.Groups_Recipe_WeatherStationAbout, Glyphs.Weather, AddFolderId.Weather,
     [
         new("weatherNow", new(0, 0, 300, 76)),
-        new("weatherFacts", new(0, 76, 300, 136)),
-        new("weatherForecast", new(0, 212, 300, 164)),
-        new("rainNextHour", new(0, 376, 300, 148)),
+        new("weatherHighLow", new(0, 76, 300, 52)),
+        new("weatherWind", new(0, 128, 300, 52)),
+        new("weatherForecast", new(0, 180, 300, 164)),
+        new("rainNextHour", new(0, 344, 300, 148)),
     ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
 
     /// <summary>
@@ -232,11 +236,14 @@ public static class ReadyMadeGroups
         new("driveFacts", new(0, 88, 260, 136)),
     ]));
 
-    /// <summary>[S-11172] Weather: the reading over its facts, the old weather card as two atoms.</summary>
+    /// <summary>[S-11172] [S-13900] Weather: the reading over its facts, the old weather card as atoms (a widget a fact).</summary>
     public static ReadyMadeGroup Weather { get; } = Headed(new("weather", Str.Groups_Recipe_Weather, Str.Groups_Recipe_WeatherAbout, Glyphs.Weather, AddFolderId.Weather,
     [
         new("weatherNow", new(0, 0, 240, 76)),
-        new("weatherFacts", new(0, 76, 240, 136)),
+        new("weatherHighLow", new(0, 76, 240, 52)),
+        new("weatherFeelsLike", new(0, 128, 240, 52)),
+        new("weatherHumidity", new(0, 180, 240, 52)),
+        new("weatherWind", new(0, 232, 240, 52)),
     ]));
 
     /// <summary>[S-11172] Sun: the sun's path across the sky and its times.</summary>

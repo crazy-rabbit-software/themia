@@ -42,7 +42,7 @@ public sealed class DesktopSettleTests(ITestOutputHelper output)
         Dip(310, 500, 260, 110),   // music
         Dip(200, 610, 370, 60),    // musicProgress
         Dip(2150, 80, 330, 120),   // weatherNow
-        Dip(2150, 200, 330, 150),  // weatherFacts
+        Dip(2150, 200, 330, 150),  // weather facts
         Dip(2150, 350, 330, 180),  // weatherForecast
         Dip(2150, 530, 330, 160),  // rainNextHour
         Dip(2200, 710, 70, 70),    // wifiToggle

@@ -15,8 +15,9 @@ public class PlaceClearTests
 {
     private static readonly WidgetId[] Placed =
     [
-        new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
+        new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
         new WidgetId("sun"), new WidgetId("sunTimes"), new WidgetId("moon"), new WidgetId("moonTimes"),
+        new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"),
         new WidgetId("temperatureGraph"), new WidgetId("rainGraph"), new WidgetId("uvGraph"), new WidgetId("airQualityGraph"), new WidgetId("windGraph"), new WidgetId("humidityGraph"), new WidgetId("pressureGraph"),
     ];
 

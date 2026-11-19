@@ -37,4 +37,7 @@ public enum AddFolderId
     ScreenTime,
     BatteryReading,
     PowerButtons,
+
+    /// <summary>[S-13900] The weather's readings, one widget a fact, under Weather.</summary>
+    WeatherFacts,
 }

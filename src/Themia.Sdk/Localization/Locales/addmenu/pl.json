@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Urządzenia i zasilanie",
   "addMenu.subject.more": "Więcej",
   "addMenu.family.screenTime": "Czas ekranu",
-  "addMenu.family.powerButtons": "Przyciski zasilania"
+  "addMenu.family.powerButtons": "Przyciski zasilania",
+  "addMenu.family.weatherFacts": "Dane pogodowe"
 }

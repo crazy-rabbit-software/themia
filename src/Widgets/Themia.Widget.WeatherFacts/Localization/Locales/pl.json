@@ -2,6 +2,8 @@
   "weather.feelsLike": "Odczuwalna",
   "weather.humidity": "Wilgotność",
   "weather.wind": "Wiatr",
+  "weatherFacts.sunrise.label": "Wschód słońca",
+  "weatherFacts.sunset.label": "Zachód słońca",
   "widgetsC.weather.fact.cloudCover": "Zachmurzenie",
   "widgetsC.weather.fact.gusts": "Porywy",
   "widgetsC.weather.fact.precipitation": "Opady",

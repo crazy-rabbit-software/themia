@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "อุปกรณ์และพลังงาน",
   "addMenu.subject.more": "เพิ่มเติม",
   "addMenu.family.screenTime": "เวลาหน้าจอ",
-  "addMenu.family.powerButtons": "ปุ่มเปิด/ปิด"
+  "addMenu.family.powerButtons": "ปุ่มเปิด/ปิด",
+  "addMenu.family.weatherFacts": "ข้อมูลสภาพอากาศ"
 }

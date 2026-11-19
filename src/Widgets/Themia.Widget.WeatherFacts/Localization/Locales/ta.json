@@ -2,6 +2,8 @@
   "weather.feelsLike": "உணர்வது",
   "weather.humidity": "ஈரப்பதம்",
   "weather.wind": "காற்று",
+  "weatherFacts.sunrise.label": "சூரிய உதயம்",
+  "weatherFacts.sunset.label": "சூரிய அஸ்தமனம்",
   "widgetsC.weather.fact.cloudCover": "மேக மூட்டம்",
   "widgetsC.weather.fact.gusts": "காற்று வீச்சு",
   "widgetsC.weather.fact.precipitation": "மழைப்பொழிவு",

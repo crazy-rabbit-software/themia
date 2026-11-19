@@ -542,7 +542,9 @@ busy desktop ([S-6601]), Debug, private bytes.
   hand edit), or whose id is not an id at all, is dropped on load like an unknown kind ([S-1900]):
   taken out element by element before the typed read (System.Text.Json would refuse the whole
   document over one unknown discriminator), named in the load's log line with its id and its view
-  ("dropped widget 'w3' of unknown kind 'hello' from view 'Desk'"), and gone from the next save. No
+  (one line a kind, with its count and every widget it took: "dropped 2 widgets of unknown kind 'hello': 'w3' from
+  view 'Desk', 'w9' from view 'Desk'"; a kind the app removed goes from every view at once, as the weather facts
+  widget did when it became a widget a fact, [S-13900]), and gone from the next save. No
   placeholder card, no raw JSON kept. A deliberate exception to "never delete user data on a
   recoverable error": nothing this build can do brings a widget without its code back (Q15). So is a
   widget without a config (it has no kind). A widget's own `kind` beside its config's, which files
@@ -1969,7 +1971,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   bento cells, each 14 grid cells square ([S-06]: 140 DIPs on a 10-DIP grid), the tiles 2 grid cells apart, twelve
   cards of 1 × 1, 2 × 1 and 2 × 2 cells packed with no hole and no overlap: Clock and Calendar (the month) on top, a
   CPU meter and the Wi-Fi toggle tile under the clock, Tasks, the network history graph and Music (now playing) under
-  them, down the right the weather station joined (Weather now, its facts, the forecast: one join's tiles split the gap
+  them, down the right the weather station joined (Weather summary, its humidity ([S-13900]), the forecast: one join's tiles split the gap
   between them and meet, so they draw as one panel, [S-2240]), and under it the battery meter and the Lock tile. Each
   box holds its kind's least size; a kind whose size follows a count shows what its box holds ([S-2442]). The bento
   stands in the display's middle on its grid lines, placed as the desktop places cards so their frost is the
@@ -2348,8 +2350,8 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   makes an own icon, [S-5523]). **Browse**, in
   order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session);
   **Calendar & mail** (calendar, next meeting, week planner | mail, tasks,
-  contacts | notifications); **Weather & sky** (weather, forecast, rain next hour, air quality | sun,
-  moon); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
+  contacts | notifications); **Weather & sky** (weather summary, Weather facts › a widget a fact ([S-13900]), forecast, rain next
+  hour, air quality | sun, moon); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
   audio visualizer, volume, mixer | gallery, video stream); **Notes & tools** (notes,
   scratchpad, clipboard | habits, quote); **Files & apps** (folder,
   shortcut, recent files, recycle bin); **System** (CPU › meter, details, top processes; Memory ›,
@@ -4825,7 +4827,7 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   1..14 days. Every value is range-checked; a missing daily block still yields a reading.
 - **[S-721]** Day labels: "Today", then the culture's own abbreviated weekday (English while the app
   runs globalization-invariant).
-- [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`); [S-722] with the readings into the Weather facts widget's (`src/Widgets/Themia.Widget.WeatherFacts/`).
+- [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`); [S-722] with the readings into the weather facts family's (`src/Widgets/Themia.Widget.WeatherFacts/`, a widget a fact, [S-13900]).
 - [S-724], [S-725], [S-726], [S-727], [S-6163], [S-6164], [S-6171], [S-6172]: moved with the Weather forecast widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherForecast/`).
 - **[S-728]** *(Retired by [S-12480]: the place follows Weather now's condition, [S-12481].)* The header's label is the chosen place's city (first part of `LocationName`,
   `WeatherConfig.PlaceLabel`) beside the widget's name ([S-2260]); before a pick there is none (the
@@ -7743,7 +7745,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   and the contacts' grids keep their foot inside the inset for their cells' marks ([S-12800]). Replaces the rows'
   1.5 x cap, their spacing and the reach by ink (`ListReach`, `RowReach.Over`/`Gap`/`Under` are gone). Tests
   `ItemStretchTests.S12807_`, `KitTests.S12807_`, `KitRowsTests.S11541_`, the modules' `S12450_`, `S12451_`,
-  `S12452_`; renders `--widget-png weatherFacts|weatherForecast|rss|topProcesses|habitTracker --state sample --sizes
+  `S12452_`; renders `--widget-png weatherHumidity|weatherForecast|rss|topProcesses|habitTracker --state sample --sizes
   range`.
 - **[S-12808]** **A one-readout block fills its card as one** (owner, 2026-11-19, asked whether the one-reading
   widgets should also fill to the edges: "Yes, those too"; asked whether a reading and its caption should split to
@@ -7786,7 +7788,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   A glyph is the line's own and optional: a list whose lines carry one leads every row with it (the slot kept for a
   line without, so the columns line up), a list without has no lead (the system facts have none). The inventory of
   the other families and their outliers is the plan for the next ones (docs: none; renders `--widget-png
-  cpuFacts|driveFacts|weatherFacts|stopwatch --state sample --sizes range`).
+  cpuFacts|driveFacts|weatherHumidity|stopwatch --state sample --sizes range`).
 - **[S-12812]** **One section heading** (owner, 2026-11-19: "generally i feel like the widgets have to much variance in
   themselves. they should reuse more of the same components"). A heading inside a card over a section of rows (a day
   of the agenda and the schedule, a day of the week planner, a list's done group) is one kit part,
@@ -8715,7 +8717,7 @@ model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
   them agree. A shared write is content, not the arrangement: one mutation, no undo step ([S-886]).
 - **[S-11752]** **What is shared, and who holds it** (pinned by `SharedSettingsTests`): the place
   (`IPlaced`, which names its coordinates and its place name, the weather's `LocationName` and the sky's
-  `Place` under one shape: Weather now, Weather facts, Forecast, Rain next hour, Air quality, Air facts,
+  `Place` under one shape: Weather summary, the weather facts (each of the eleven, [S-13900]), Forecast, Rain next hour, Air quality, Air facts,
   Sun, Sun times, Moon, Moon times and the seven weather graphs ([S-12707]); the same place is the same coordinates or both on the device's);
   the calendars' accounts with their calendars and colours (`CalendarConfig`: Calendar, Next meeting, Up
   next, Week planner); the mail and the contacts accounts (`IChoosesAccounts`, by the feature they offer:

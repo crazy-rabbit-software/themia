@@ -23,7 +23,7 @@ public sealed class SharedSettingsTests
     /// <summary>[S-11752] Which kinds carry each shared setting: the table the SPEC states, pinned.</summary>
     private static readonly Dictionary<string, string[]> Carriers = new(StringComparer.Ordinal)
     {
-        ["place"] = ["airFacts", "airQuality", "airQualityGraph", "header", "humidityGraph", "moon", "moonTimes", "pressureGraph", "rainGraph", "rainNextHour", "sun", "sunTimes", "temperatureGraph", "uvGraph", "weatherFacts", "weatherForecast", "weatherNow", "windGraph"],
+        ["place"] = ["airFacts", "airQuality", "airQualityGraph", "header", "humidityGraph", "moon", "moonTimes", "pressureGraph", "rainGraph", "rainNextHour", "sun", "sunTimes", "temperatureGraph", "uvGraph", "weatherCloudCover", "weatherFeelsLike", "weatherForecast", "weatherGusts", "weatherHighLow", "weatherHumidity", "weatherNow", "weatherPrecipitation", "weatherPressure", "weatherSunrise", "weatherSunset", "weatherUv", "weatherWind", "windGraph"],
         ["calendarAccounts"] = ["calendar", "nextMeeting", "upNext", "weekPlanner"],
         ["mailAccounts"] = ["email"],
         ["contactAccounts"] = ["contacts"],
@@ -213,7 +213,7 @@ public sealed class SharedSettingsTests
     private static (AppState State, ViewState View) Station()
     {
         var view = ViewState.Create("v");
-        view.Widgets.AddRange([Widget("weatherNow", "now"), Widget("weatherFacts", "facts"), Widget("weatherForecast", "days"), Widget("rainNextHour", "rain"), Widget("clock", "clock")]);
+        view.Widgets.AddRange([Widget("weatherNow", "now"), Widget("weatherHumidity", "facts"), Widget("weatherForecast", "days"), Widget("rainNextHour", "rain"), Widget("clock", "clock")]);
         return (new AppState { Views = [view] }, view);
     }
 

@@ -2,6 +2,8 @@
   "weather.feelsLike": "ਮਹਿਸੂਸ ਹੁੰਦਾ ਹੈ",
   "weather.humidity": "ਨਮੀ",
   "weather.wind": "ਹਵਾ",
+  "weatherFacts.sunrise.label": "ਸੂਰਜ ਚੜ੍ਹਨਾ",
+  "weatherFacts.sunset.label": "ਸੂਰਜ ਡੁੱਬਣਾ",
   "widgetsC.weather.fact.cloudCover": "ਬੱਦਲ ਕਵਰ",
   "widgetsC.weather.fact.gusts": "ਝੱਖੜ",
   "widgetsC.weather.fact.precipitation": "ਵਰਖਾ",

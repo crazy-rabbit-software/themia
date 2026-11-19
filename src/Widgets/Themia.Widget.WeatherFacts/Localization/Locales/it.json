@@ -2,6 +2,8 @@
   "weather.feelsLike": "Percepita",
   "weather.humidity": "Umidità",
   "weather.wind": "Vento",
+  "weatherFacts.sunrise.label": "Alba",
+  "weatherFacts.sunset.label": "Tramonto",
   "widgetsC.weather.fact.cloudCover": "Copertura nuvolosa",
   "widgetsC.weather.fact.gusts": "Raffiche",
   "widgetsC.weather.fact.precipitation": "Precipitazioni",

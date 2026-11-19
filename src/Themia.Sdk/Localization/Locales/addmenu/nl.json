@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Apparaten en energie",
   "addMenu.subject.more": "Meer",
   "addMenu.family.screenTime": "Schermtijd",
-  "addMenu.family.powerButtons": "Aan/uit-knoppen"
+  "addMenu.family.powerButtons": "Aan/uit-knoppen",
+  "addMenu.family.weatherFacts": "Weergegevens"
 }

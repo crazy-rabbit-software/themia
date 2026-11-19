@@ -2,6 +2,8 @@
   "weather.feelsLike": "Pakiramdam",
   "weather.humidity": "Halumigmig",
   "weather.wind": "Hangin",
+  "weatherFacts.sunrise.label": "Pagsikat ng araw",
+  "weatherFacts.sunset.label": "Paglubog ng araw",
   "widgetsC.weather.fact.cloudCover": "Kapal ng ulap",
   "widgetsC.weather.fact.gusts": "Bugso ng hangin",
   "widgetsC.weather.fact.precipitation": "Presipitasyon",

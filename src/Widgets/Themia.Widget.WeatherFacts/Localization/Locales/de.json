@@ -2,6 +2,8 @@
   "weather.feelsLike": "Gefühlt",
   "weather.humidity": "Luftfeuchte",
   "weather.wind": "Wind",
+  "weatherFacts.sunrise.label": "Sonnenaufgang",
+  "weatherFacts.sunset.label": "Sonnenuntergang",
   "widgetsC.weather.fact.cloudCover": "Bewölkung",
   "widgetsC.weather.fact.gusts": "Böen",
   "widgetsC.weather.fact.precipitation": "Niederschlag",

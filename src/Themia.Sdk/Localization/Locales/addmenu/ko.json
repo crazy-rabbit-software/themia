@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "장치 및 전원",
   "addMenu.subject.more": "더 보기",
   "addMenu.family.screenTime": "스크린 타임",
-  "addMenu.family.powerButtons": "전원 버튼"
+  "addMenu.family.powerButtons": "전원 버튼",
+  "addMenu.family.weatherFacts": "날씨 정보"
 }

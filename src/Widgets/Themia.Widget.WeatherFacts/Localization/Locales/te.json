@@ -2,6 +2,8 @@
   "weather.feelsLike": "అనిపించేది",
   "weather.humidity": "తేమ",
   "weather.wind": "గాలి",
+  "weatherFacts.sunrise.label": "సూర్యోదయం",
+  "weatherFacts.sunset.label": "సూర్యాస్తమయం",
   "widgetsC.weather.fact.cloudCover": "మేఘావరణం",
   "widgetsC.weather.fact.gusts": "గాలి తాకిడి",
   "widgetsC.weather.fact.precipitation": "అవపాతం",

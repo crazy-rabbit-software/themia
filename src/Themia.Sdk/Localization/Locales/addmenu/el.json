@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Συσκευές και τροφοδοσία",
   "addMenu.subject.more": "Περισσότερα",
   "addMenu.family.screenTime": "Χρόνος οθόνης",
-  "addMenu.family.powerButtons": "Κουμπιά τροφοδοσίας"
+  "addMenu.family.powerButtons": "Κουμπιά τροφοδοσίας",
+  "addMenu.family.weatherFacts": "Στοιχεία καιρού"
 }

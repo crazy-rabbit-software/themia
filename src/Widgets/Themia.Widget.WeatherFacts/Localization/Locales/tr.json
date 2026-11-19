@@ -2,6 +2,8 @@
   "weather.feelsLike": "Hissedilen",
   "weather.humidity": "Nem",
   "weather.wind": "Rüzgâr",
+  "weatherFacts.sunrise.label": "Gün doğumu",
+  "weatherFacts.sunset.label": "Gün batımı",
   "widgetsC.weather.fact.cloudCover": "Bulut örtüsü",
   "widgetsC.weather.fact.gusts": "Rüzgâr hamlesi",
   "widgetsC.weather.fact.precipitation": "Yağış",

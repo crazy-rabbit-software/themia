@@ -2,6 +2,8 @@
   "weather.feelsLike": "Ощущается как",
   "weather.humidity": "Влажность",
   "weather.wind": "Ветер",
+  "weatherFacts.sunrise.label": "Восход",
+  "weatherFacts.sunset.label": "Закат",
   "widgetsC.weather.fact.cloudCover": "Облачность",
   "widgetsC.weather.fact.gusts": "Порывы",
   "widgetsC.weather.fact.precipitation": "Осадки",

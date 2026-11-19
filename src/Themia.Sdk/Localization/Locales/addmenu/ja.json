@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "デバイスと電源",
   "addMenu.subject.more": "その他",
   "addMenu.family.screenTime": "スクリーンタイム",
-  "addMenu.family.powerButtons": "電源ボタン"
+  "addMenu.family.powerButtons": "電源ボタン",
+  "addMenu.family.weatherFacts": "天気の詳細"
 }

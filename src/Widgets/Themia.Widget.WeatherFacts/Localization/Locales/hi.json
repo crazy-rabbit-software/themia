@@ -2,6 +2,8 @@
   "weather.feelsLike": "महसूस होता है",
   "weather.humidity": "नमी",
   "weather.wind": "हवा",
+  "weatherFacts.sunrise.label": "सूर्योदय",
+  "weatherFacts.sunset.label": "सूर्यास्त",
   "widgetsC.weather.fact.cloudCover": "बादल",
   "widgetsC.weather.fact.gusts": "झोंके",
   "widgetsC.weather.fact.precipitation": "वर्षा",

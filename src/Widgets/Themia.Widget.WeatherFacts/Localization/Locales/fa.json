@@ -2,6 +2,8 @@
   "weather.feelsLike": "دمای محسوس",
   "weather.humidity": "رطوبت",
   "weather.wind": "باد",
+  "weatherFacts.sunrise.label": "طلوع",
+  "weatherFacts.sunset.label": "غروب",
   "widgetsC.weather.fact.cloudCover": "پوشش ابر",
   "widgetsC.weather.fact.gusts": "تندباد",
   "widgetsC.weather.fact.precipitation": "بارش",

@@ -2,6 +2,8 @@
   "weather.feelsLike": "Pocitově",
   "weather.humidity": "Vlhkost",
   "weather.wind": "Vítr",
+  "weatherFacts.sunrise.label": "Východ slunce",
+  "weatherFacts.sunset.label": "Západ slunce",
   "widgetsC.weather.fact.cloudCover": "Oblačnost",
   "widgetsC.weather.fact.gusts": "Nárazy větru",
   "widgetsC.weather.fact.precipitation": "Srážky",

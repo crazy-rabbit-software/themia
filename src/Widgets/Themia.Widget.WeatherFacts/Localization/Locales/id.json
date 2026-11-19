@@ -2,6 +2,8 @@
   "weather.feelsLike": "Terasa seperti",
   "weather.humidity": "Kelembapan",
   "weather.wind": "Angin",
+  "weatherFacts.sunrise.label": "Matahari terbit",
+  "weatherFacts.sunset.label": "Matahari terbenam",
   "widgetsC.weather.fact.cloudCover": "Tutupan awan",
   "widgetsC.weather.fact.gusts": "Embusan",
   "widgetsC.weather.fact.precipitation": "Curah hujan",

@@ -2,6 +2,8 @@
   "weather.feelsLike": "Ressenti",
   "weather.humidity": "Humidité",
   "weather.wind": "Vent",
+  "weatherFacts.sunrise.label": "Lever du soleil",
+  "weatherFacts.sunset.label": "Coucher du soleil",
   "widgetsC.weather.fact.cloudCover": "Couverture nuageuse",
   "widgetsC.weather.fact.gusts": "Rafales",
   "widgetsC.weather.fact.precipitation": "Précipitations",

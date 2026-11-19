@@ -2,6 +2,8 @@
   "weather.feelsLike": "ခံစားရပုံ",
   "weather.humidity": "စိုထိုင်းဆ",
   "weather.wind": "လေ",
+  "weatherFacts.sunrise.label": "နေထွက်",
+  "weatherFacts.sunset.label": "နေဝင်",
   "widgetsC.weather.fact.cloudCover": "တိမ်ဖုံးမှု",
   "widgetsC.weather.fact.gusts": "လေပြင်း",
   "widgetsC.weather.fact.precipitation": "မိုးရေချိန်",

@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Dispositivos y energía",
   "addMenu.subject.more": "Más",
   "addMenu.family.screenTime": "Tiempo de pantalla",
-  "addMenu.family.powerButtons": "Botones de energía"
+  "addMenu.family.powerButtons": "Botones de energía",
+  "addMenu.family.weatherFacts": "Datos del tiempo"
 }

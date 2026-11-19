@@ -2,6 +2,8 @@
   "weather.feelsLike": "Відчувається як",
   "weather.humidity": "Вологість",
   "weather.wind": "Вітер",
+  "weatherFacts.sunrise.label": "Схід сонця",
+  "weatherFacts.sunset.label": "Захід сонця",
   "widgetsC.weather.fact.cloudCover": "Хмарність",
   "widgetsC.weather.fact.gusts": "Пориви",
   "widgetsC.weather.fact.precipitation": "Опади",

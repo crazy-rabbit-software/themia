@@ -9,7 +9,7 @@ namespace Themia.Widget.WeatherFacts;
 /// Debug renders only ([S-1917], [S-2052]): <c>sample</c> is the sample (<see cref="ShowSampleAsync"/>);
 /// <c>stale</c> is that reading through a failed refresh; <c>failed</c> no reading and the service out of reach ([S-6734]).
 /// </summary>
-internal sealed partial class WeatherFactsView : IWidgetPreviewState
+internal sealed partial class WeatherFactView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "stale", "failed"];
 

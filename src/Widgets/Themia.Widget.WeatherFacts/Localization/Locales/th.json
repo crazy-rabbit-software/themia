@@ -2,6 +2,8 @@
   "weather.feelsLike": "รู้สึกเหมือน",
   "weather.humidity": "ความชื้น",
   "weather.wind": "ลม",
+  "weatherFacts.sunrise.label": "พระอาทิตย์ขึ้น",
+  "weatherFacts.sunset.label": "พระอาทิตย์ตก",
   "widgetsC.weather.fact.cloudCover": "ปริมาณเมฆ",
   "widgetsC.weather.fact.gusts": "ลมกระโชก",
   "widgetsC.weather.fact.precipitation": "ปริมาณน้ำฝน",

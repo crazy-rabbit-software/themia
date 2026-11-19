@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Dispositivi e alimentazione",
   "addMenu.subject.more": "Altro",
   "addMenu.family.screenTime": "Tempo di utilizzo",
-  "addMenu.family.powerButtons": "Pulsanti di alimentazione"
+  "addMenu.family.powerButtons": "Pulsanti di alimentazione",
+  "addMenu.family.weatherFacts": "Dati meteo"
 }

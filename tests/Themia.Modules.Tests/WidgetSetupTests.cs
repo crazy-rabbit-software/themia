@@ -22,7 +22,8 @@ public class WidgetSetupTests
     /// <summary>Every kind whose default config needs setting up, with nothing signed in.</summary>
     private static readonly WidgetId[] NeedSetupByDefault =
     [
-        new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
+        new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
+        new WidgetId("weatherHighLow"), new WidgetId("weatherFeelsLike"), new WidgetId("weatherHumidity"), new WidgetId("weatherWind"), new WidgetId("weatherPrecipitation"), new WidgetId("weatherPressure"), new WidgetId("weatherUv"), new WidgetId("weatherCloudCover"), new WidgetId("weatherGusts"), new WidgetId("weatherSunrise"), new WidgetId("weatherSunset"),
         new WidgetId("temperatureGraph"), new WidgetId("rainGraph"), new WidgetId("uvGraph"), new WidgetId("airQualityGraph"), new WidgetId("windGraph"), new WidgetId("humidityGraph"), new WidgetId("pressureGraph"),
         new WidgetId("videoStream"), new WidgetId("gallery"), new WidgetId("desktopItem"),
         new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"), new WidgetId("upNext"),

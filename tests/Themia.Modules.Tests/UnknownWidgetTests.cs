@@ -87,4 +87,22 @@ public sealed class UnknownWidgetTests
         Assert.DoesNotContain(result.State!.Views[0].Widgets, w => w.Id == "w05");
         Assert.Single(result.Repairs);
     }
+
+    [Fact]
+    public void S13900_placed_weather_facts_widgets_are_dropped_on_load_with_their_count_and_nothing_else_is()
+    {
+        // The weather facts kind was split into a widget a fact (owner, 2026-11-19): a placed one is removed, not converted.
+        var (json, count) = WithIds(("w03", "weatherFacts"), ("w07", "weatherFacts"));
+
+        var result = AppStateStore.Parse(json);
+
+        Assert.Equal(ParseRefusal.None, result.Refusal);
+        var widgets = Assert.Single(result.State!.Views).Widgets;
+        Assert.Equal(count - 2, widgets.Count);
+        Assert.DoesNotContain(widgets, w => w.Id is "w03" or "w07");
+        var repair = Assert.Single(result.Repairs);
+        Assert.StartsWith("dropped 2 widgets of unknown kind 'weatherFacts'", repair, StringComparison.Ordinal);
+        Assert.Contains("'w03'", repair, StringComparison.Ordinal);
+        Assert.Contains("'w07'", repair, StringComparison.Ordinal);
+    }
 }

@@ -2,6 +2,8 @@
   "weather.feelsLike": "Se simte ca",
   "weather.humidity": "Umiditate",
   "weather.wind": "Vânt",
+  "weatherFacts.sunrise.label": "Răsărit",
+  "weatherFacts.sunset.label": "Apus",
   "widgetsC.weather.fact.cloudCover": "Nebulozitate",
   "widgetsC.weather.fact.gusts": "Rafale",
   "widgetsC.weather.fact.precipitation": "Precipitații",

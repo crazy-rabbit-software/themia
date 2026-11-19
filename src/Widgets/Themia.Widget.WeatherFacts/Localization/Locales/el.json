@@ -2,6 +2,8 @@
   "weather.feelsLike": "Αίσθηση",
   "weather.humidity": "Υγρασία",
   "weather.wind": "Άνεμος",
+  "weatherFacts.sunrise.label": "Ανατολή",
+  "weatherFacts.sunset.label": "Δύση",
   "widgetsC.weather.fact.cloudCover": "Νεφοκάλυψη",
   "widgetsC.weather.fact.gusts": "Ριπές",
   "widgetsC.weather.fact.precipitation": "Υετός",

@@ -2,6 +2,8 @@
   "weather.feelsLike": "Cảm giác như",
   "weather.humidity": "Độ ẩm",
   "weather.wind": "Gió",
+  "weatherFacts.sunrise.label": "Mặt trời mọc",
+  "weatherFacts.sunset.label": "Mặt trời lặn",
   "widgetsC.weather.fact.cloudCover": "Mây che phủ",
   "widgetsC.weather.fact.gusts": "Gió giật",
   "widgetsC.weather.fact.precipitation": "Lượng mưa",

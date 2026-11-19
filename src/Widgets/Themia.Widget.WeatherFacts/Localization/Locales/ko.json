@@ -2,6 +2,8 @@
   "weather.feelsLike": "체감 온도",
   "weather.humidity": "습도",
   "weather.wind": "바람",
+  "weatherFacts.sunrise.label": "일출",
+  "weatherFacts.sunset.label": "일몰",
   "widgetsC.weather.fact.cloudCover": "운량",
   "widgetsC.weather.fact.gusts": "돌풍",
   "widgetsC.weather.fact.precipitation": "강수량",

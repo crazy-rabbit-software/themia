@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Пристрої й живлення",
   "addMenu.subject.more": "Більше",
   "addMenu.family.screenTime": "Час використання",
-  "addMenu.family.powerButtons": "Кнопки живлення"
+  "addMenu.family.powerButtons": "Кнопки живлення",
+  "addMenu.family.weatherFacts": "Дані про погоду"
 }

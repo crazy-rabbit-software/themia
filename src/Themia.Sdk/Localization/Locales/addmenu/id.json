@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Perangkat & daya",
   "addMenu.subject.more": "Lainnya",
   "addMenu.family.screenTime": "Waktu layar",
-  "addMenu.family.powerButtons": "Tombol daya"
+  "addMenu.family.powerButtons": "Tombol daya",
+  "addMenu.family.weatherFacts": "Detail cuaca"
 }

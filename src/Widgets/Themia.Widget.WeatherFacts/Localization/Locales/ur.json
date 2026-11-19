@@ -2,6 +2,8 @@
   "weather.feelsLike": "محسوس ہوتا ہے",
   "weather.humidity": "نمی",
   "weather.wind": "ہوا",
+  "weatherFacts.sunrise.label": "طلوع آفتاب",
+  "weatherFacts.sunset.label": "غروب آفتاب",
   "widgetsC.weather.fact.cloudCover": "بادلوں کی مقدار",
   "widgetsC.weather.fact.gusts": "جھونکے",
   "widgetsC.weather.fact.precipitation": "بارش",

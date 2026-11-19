@@ -2,6 +2,8 @@
   "weather.feelsLike": "ಅನಿಸುವುದು",
   "weather.humidity": "ಆರ್ದ್ರತೆ",
   "weather.wind": "ಗಾಳಿ",
+  "weatherFacts.sunrise.label": "ಸೂರ್ಯೋದಯ",
+  "weatherFacts.sunset.label": "ಸೂರ್ಯಾಸ್ತ",
   "widgetsC.weather.fact.cloudCover": "ಮೋಡದ ಹೊದಿಕೆ",
   "widgetsC.weather.fact.gusts": "ಗಾಳಿಯ ರಭಸ",
   "widgetsC.weather.fact.precipitation": "ಮಳೆಯ ಪ್ರಮಾಣ",

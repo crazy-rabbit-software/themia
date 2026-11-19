@@ -2,6 +2,8 @@
   "weather.feelsLike": "Inahisi kama",
   "weather.humidity": "Unyevu",
   "weather.wind": "Upepo",
+  "weatherFacts.sunrise.label": "Macheo",
+  "weatherFacts.sunset.label": "Machweo",
   "widgetsC.weather.fact.cloudCover": "Mawingu",
   "widgetsC.weather.fact.gusts": "Upepo mkali",
   "widgetsC.weather.fact.precipitation": "Mvua",

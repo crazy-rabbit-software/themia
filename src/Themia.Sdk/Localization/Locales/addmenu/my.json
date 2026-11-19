@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "စက်ပစ္စည်းနှင့် ပါဝါ",
   "addMenu.subject.more": "နောက်ထပ်",
   "addMenu.family.screenTime": "မျက်နှာပြင် ကြည့်ချိန်",
-  "addMenu.family.powerButtons": "ပါဝါ ခလုတ်များ"
+  "addMenu.family.powerButtons": "ပါဝါ ခလုတ်များ",
+  "addMenu.family.weatherFacts": "ရာသီဥတု အချက်အလက်များ"
 }

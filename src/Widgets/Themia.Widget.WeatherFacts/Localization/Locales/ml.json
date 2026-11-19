@@ -2,6 +2,8 @@
   "weather.feelsLike": "അനുഭവപ്പെടുന്നത്",
   "weather.humidity": "ആർദ്രത",
   "weather.wind": "കാറ്റ്",
+  "weatherFacts.sunrise.label": "സൂര്യോദയം",
+  "weatherFacts.sunset.label": "സൂര്യാസ്തമയം",
   "widgetsC.weather.fact.cloudCover": "മേഘാവരണം",
   "widgetsC.weather.fact.gusts": "കാറ്റിന്റെ വേഗക്കുതിപ്പ്",
   "widgetsC.weather.fact.precipitation": "മഴ",

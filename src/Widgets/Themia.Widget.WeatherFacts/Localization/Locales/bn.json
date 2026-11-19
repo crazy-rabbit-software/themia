@@ -2,6 +2,8 @@
   "weather.feelsLike": "অনুভূত",
   "weather.humidity": "আর্দ্রতা",
   "weather.wind": "বাতাস",
+  "weatherFacts.sunrise.label": "সূর্যোদয়",
+  "weatherFacts.sunset.label": "সূর্যাস্ত",
   "widgetsC.weather.fact.cloudCover": "মেঘের আচ্ছাদন",
   "widgetsC.weather.fact.gusts": "দমকা হাওয়া",
   "widgetsC.weather.fact.precipitation": "বৃষ্টিপাত",

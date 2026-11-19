@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Mga device at power",
   "addMenu.subject.more": "Higit pa",
   "addMenu.family.screenTime": "Oras sa screen",
-  "addMenu.family.powerButtons": "Mga power button"
+  "addMenu.family.powerButtons": "Mga power button",
+  "addMenu.family.weatherFacts": "Mga detalye ng panahon"
 }

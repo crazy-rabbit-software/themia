@@ -13,5 +13,6 @@
   "addMenu.subject.devices": "Zařízení a napájení",
   "addMenu.subject.more": "Další",
   "addMenu.family.screenTime": "Čas u obrazovky",
-  "addMenu.family.powerButtons": "Tlačítka napájení"
+  "addMenu.family.powerButtons": "Tlačítka napájení",
+  "addMenu.family.weatherFacts": "Údaje o počasí"
 }
