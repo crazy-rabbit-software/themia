@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -15,8 +16,11 @@ namespace Themia.Widget.WindGraph;
 /// <summary>[S-10500] Wind and its gusts hour by hour at a place, with where it blows from, on the weather graphs' one frame. SPEC.md beside this file.</summary>
 public sealed class WindGraphModule : IWidgetModule
 {
-    /// <summary>Its glyph (Segoe Fluent Icons U+E9F2, the wind), the module's own.</summary>
-    internal static readonly string Glyph = char.ConvertFromUtf32(0xE9F2);
+    /// <summary>
+    /// Its glyph: the SDK's wind lines (<see cref="Glyphs.Wind"/>, checked against the icon font). U+E9F2, its own until
+    /// 2026-11-19, is in neither Segoe Fluent Icons nor Segoe MDL2 Assets: it drew the font's empty box.
+    /// </summary>
+    internal static readonly string Glyph = Glyphs.Wind;
 
     /// <summary>[S-2037] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
     internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);

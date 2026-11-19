@@ -17,6 +17,14 @@ public sealed class WindGraphTests
         => WindGraphRules.Model(hours, config ?? new WindGraphConfig { Hours = 12 }, T0.AddMinutes(20), Locale.En, TimeZoneInfo.Utc);
 
     [Fact]
+    public void S10500_its_glyph_is_the_wind_lines_the_icon_font_has()
+    {
+        // U+E9F2 is in neither Segoe Fluent Icons nor Segoe MDL2 Assets: the graph's top line and its tile drew a box.
+        Assert.Equal(Themia.App.Shell.Glyphs.Wind, WindGraphModule.Glyph);
+        Assert.NotEqual(char.ConvertFromUtf32(0xE9F2), new WindGraphModule().Descriptor.Glyph);
+    }
+
+    [Fact]
     public void S10502_speeds_and_gusts_on_one_scale_from_zero_with_the_directions_and_the_reading()
     {
         var model = Model(Hours(0, 10, 20, 15))!;
