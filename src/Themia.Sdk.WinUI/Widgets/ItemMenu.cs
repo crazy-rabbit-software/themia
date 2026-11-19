@@ -73,6 +73,7 @@ namespace Themia.App.Widgets;
 /// line of the widget's own; item menus ignore it.
 /// </param>
 /// <param name="Icon">[S-9602] The properties menu's icon line: the one icon picker inline in its card; item menus have none.</param>
+/// <param name="Field">[S-2332] The properties menu's line of text typed in place, its box at the line's end; item menus have none.</param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -95,12 +96,13 @@ public readonly record struct ItemMenuEntry(
     bool Asks = false,
     string? LinkTo = null,
     string? Shares = null,
-    Themia.Sdk.WinUI.MenuIcon? Icon = null)
+    Themia.Sdk.WinUI.MenuIcon? Icon = null,
+    Themia.Sdk.WinUI.MenuField? Field = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
 
-    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && Icon is null && !Note;
+    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && Icon is null && Field is null && !Note;
 
     /// <summary>[S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow.</summary>
     internal MenuLine Line => IsSeparator ? MenuLine.Separator : MenuLine.Entry(Checked is null && Children is null ? Quick : null);

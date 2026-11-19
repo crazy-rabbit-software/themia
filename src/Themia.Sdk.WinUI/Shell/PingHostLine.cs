@@ -11,7 +11,7 @@ public static class PingHostLine
 {
     /// <summary>
     /// [S-109] The host: the line shows the host measured (the default resolver while none is typed)
-    /// and asks for another beside the menu.
+    /// and takes another typed in its box.
     /// <para>
     /// This is the trust boundary: whatever is typed is persisted and later handed to a name
     /// resolver, so it is checked as it is typed (<see cref="Refuse"/>) and a value that is not a
@@ -26,11 +26,11 @@ public static class PingHostLine
         ArgumentNullException.ThrowIfNull(set);
         host ??= string.Empty;
 
+        // [S-2332] Typed in place in its box, the default resolver its hint.
         var title = Str.WidgetsB_Settings_Ping_Host_Label.Text();
-        return new(Glyphs.Link, title, () => menu.Ask(new WidgetTextAsk(
-            title,
+        return new(Glyphs.Link, title, null, Value: host.Length == 0 ? HostAddress.DefaultPingHost : host, Shares: SharedSettings.PingHost.Key, Field: new MenuField(
+            host,
             HostAddress.DefaultPingHost,
-            Str.Common_Save.Text(),
             Refuse,
             typed =>
             {
@@ -40,9 +40,7 @@ public static class PingHostLine
                     set(value);
                     menu.Save();
                 }
-            },
-            Initial: host,
-            AllowEmpty: true)), Value: host.Length == 0 ? HostAddress.DefaultPingHost : host, Asks: true, Shares: SharedSettings.PingHost.Key);
+            }));
     }
 
     /// <summary>[S-109] Why a typed host cannot be measured, or null: empty (the default) or a plausible name or address.</summary>

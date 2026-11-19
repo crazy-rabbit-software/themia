@@ -45,7 +45,7 @@ public sealed class ClipboardMenuTests
     public void S1450_entries_are_typed_inside_1_to_200()
     {
         var config = new ClipboardConfig();
-        Build(config).Lines.Single(l => l.Text == ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text()).Action!();
+        _asked = Typed.Ask(Build(config).Lines.Single(l => l.Text == ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
         Assert.NotNull(ask.Refuse("0"));

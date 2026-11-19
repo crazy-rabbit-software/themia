@@ -89,21 +89,22 @@ internal static class HabitTrackerMenu
         // menu again with them. [S-1422] Read by the cadence's own rule, its reason under the box.
         if (config.Offers(HabitsSetting.Interval))
         {
-            menu.Lines.Add(new ItemMenuEntry(Glyphs.Countdown, HabitTrackerStr.HabitTracker_IntervalLabel.Text(), () => menu.Ask(new WidgetTextAsk(
-                HabitTrackerStr.HabitTracker_IntervalLabel.Text(),
-                HabitTrackerStr.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)),
-                Str.Common_Save.Text(),
-                typed => HabitCadence.TryParseMinutes(typed, out _, out var refusal) ? null : refusal ?? string.Empty,
-                typed =>
-                {
-                    if (HabitCadence.TryParseMinutes(typed, out var minutes, out _) && minutes != config.CustomMinutes)
+            // [S-2332] Typed in place in its box.
+            menu.Lines.Add(new ItemMenuEntry(Glyphs.Countdown, HabitTrackerStr.HabitTracker_IntervalLabel.Text(), null,
+                Value: $"{config.Cadence.Minutes}{Str.WidgetsC_Pomodoro_MinutesUnit.Text()}",
+                Field: new MenuField(
+                    config.Cadence.Minutes.ToString(CultureInfo.InvariantCulture),
+                    HabitTrackerStr.WidgetsB_Settings_Habits_Interval_Desc.Format(("min", HabitCadence.MinCustomMinutes), ("max", HabitCadence.MaxCustomMinutes)),
+                    typed => HabitCadence.TryParseMinutes(typed, out _, out var refusal) ? null : refusal ?? string.Empty,
+                    typed =>
                     {
-                        config.CustomMinutes = minutes;
-                        menu.Save();
-                    }
-                },
-                Initial: config.Cadence.Minutes.ToString(CultureInfo.InvariantCulture))),
-                Value: $"{config.Cadence.Minutes}{Str.WidgetsC_Pomodoro_MinutesUnit.Text()}", Asks: true));
+                        if (HabitCadence.TryParseMinutes(typed, out var minutes, out _) && minutes != config.CustomMinutes)
+                        {
+                            config.CustomMinutes = minutes;
+                            menu.Save();
+                        }
+                    },
+                    AllowEmpty: false)));
         }
 
         // [S-1430] The way to the file itself, for a backup or another program: the habits are kept

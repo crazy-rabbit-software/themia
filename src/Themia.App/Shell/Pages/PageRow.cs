@@ -22,6 +22,12 @@ internal sealed record PageRow(string Key, SettingsRowKind Kind)
     /// <summary>Its icon, built as the row is; null for none.</summary>
     public Func<UIElement?>? Icon { get; init; }
 
+    /// <summary>
+    /// [S-2317] Its icon is its own colour or picture (a view's mark, an app's icon), not a glyph naming the setting: it
+    /// stays on a row inside a card, where a setting's glyph does not (Karpo's §644: a card's lines no glyph).
+    /// </summary>
+    public bool Marked { get; init; }
+
     /// <summary>A toggle's state.</summary>
     public bool On { get; init; }
 

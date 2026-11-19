@@ -57,7 +57,7 @@ public sealed class ScratchpadMenuTests
         var size = Build(config).Lines[1];
         Assert.Equal("3 px", size.Value);
 
-        size.Action!();
+        _asked = Typed.Ask(size);
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.NotNull(ask.Refuse("0"));
         Assert.NotNull(ask.Refuse("25"));

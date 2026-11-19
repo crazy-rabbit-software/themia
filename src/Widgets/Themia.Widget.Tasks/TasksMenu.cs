@@ -347,23 +347,9 @@ internal static class TasksMenu
             lines.Add(menu.Toggle(null, TasksStr.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), config.ImportantOnly, on => config.ImportantOnly = on));
         }
 
-        var label = TasksStr.WidgetsC_Tasks_Settings_TextFilter_Label.Text();
-        lines.Add(new(null, label + "…", () => menu.Ask(new WidgetTextAsk(
-            label,
-            TasksStr.WidgetsC_Tasks_Settings_TextFilter_Placeholder.Text(),
-            Str.Common_Save.Text(),
-            TextRefusal,
-            typed =>
-            {
-                var words = typed.Trim();
-                if (words != config.TextFilter)
-                {
-                    config.TextFilter = words;
-                    menu.Save();
-                }
-            },
-            Initial: config.TextFilter,
-            AllowEmpty: true)), Value: config.TextFilter.Length > 0 ? config.TextFilter : null, Asks: true));
+        // [S-2332] Typed in place in its box.
+        lines.Add(menu.Text(null, TasksStr.WidgetsC_Tasks_Settings_TextFilter_Label.Text(), config.TextFilter,
+            typed => config.TextFilter = typed.Trim(), TasksStr.WidgetsC_Tasks_Settings_TextFilter_Placeholder.Text(), TextRefusal));
         return lines;
     }
 

@@ -48,7 +48,7 @@ public sealed class AlarmMenuTests
     public void S4631_a_typed_time_is_stored_as_the_file_writes_it_and_saves_once()
     {
         var config = new AlarmConfig();
-        Line(Build(config), AlarmStr.Alarm_Settings_Time_Label.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(config), AlarmStr.Alarm_Settings_Time_Label.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
         Assert.Equal("07:00", ask.Initial);
@@ -63,7 +63,7 @@ public sealed class AlarmMenuTests
     [Fact]
     public void S4631_the_time_it_holds_typed_again_saves_nothing()
     {
-        Line(Build(new AlarmConfig { Time = "07:00" }), AlarmStr.Alarm_Settings_Time_Label.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(new AlarmConfig { Time = "07:00" }), AlarmStr.Alarm_Settings_Time_Label.Text()));
         _asked!.Done("7:00");
 
         Assert.Equal(0, _saves);
@@ -73,7 +73,7 @@ public sealed class AlarmMenuTests
     public void S4631_a_name_longer_than_forty_is_refused_and_an_empty_one_clears_it()
     {
         var config = new AlarmConfig { Label = "Gym" };
-        Line(Build(config), AlarmStr.Alarm_Settings_Name_Label.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(config), AlarmStr.Alarm_Settings_Name_Label.Text()));
         var ask = _asked!;
 
         Assert.True(ask.AllowEmpty);
@@ -148,7 +148,7 @@ public sealed class AlarmMenuTests
         var volume = Line(lines, AlarmStr.Alarm_Settings_Volume_Label.Text());
         Assert.Equal(11, volume.Children!.Count);
 
-        Line(lines, AlarmStr.Alarm_Settings_Snooze_Label.Text()).Action!();
+        _asked = Typed.Ask(Line(lines, AlarmStr.Alarm_Settings_Snooze_Label.Text()));
         Assert.NotNull(_asked!.Refuse("0"));
         Assert.NotNull(_asked.Refuse("31"));
         _asked.Done("5");

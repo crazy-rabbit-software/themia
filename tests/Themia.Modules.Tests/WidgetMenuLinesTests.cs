@@ -86,9 +86,12 @@ public sealed class WidgetMenuLinesTests
             Add = new MenuListAdd<string>("Add a feed", "https://", _ => null, f => f),
         });
 
-        // A number asked for as text, an item's Rename… and the list's Add… open a field's level;
-        // a confirmed line its question's.
-        Assert.True(menu.Number<int>(null, "Every", 30, 5, 600, 5, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { }).Asks);
+        // An item's Rename… and the list's Add… open a field's level; a confirmed line its question's.
+        // [S-2332] A number typed as text and a line of text the widget holds are typed in place: they ask nothing.
+        var typed = menu.Number<int>(null, "Every", 30, 5, 600, 5, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { });
+        Assert.False(typed.Asks);
+        Assert.NotNull(typed.Field);
+        Assert.False(menu.Text(null, "Title", "Weather", _ => { }).Asks);
         Assert.True(list.Children![0].Children![0].Asks);
         Assert.True(list.Children!.Last().Asks);
         Assert.True(menu.Confirm(null, "Clear", "Clear it?", "Clear", () => { }).Asks);
@@ -97,6 +100,29 @@ public sealed class WidgetMenuLinesTests
         Assert.False(menu.Toggle(null, "On", true, _ => { }).Asks);
         Assert.False(menu.Command(null, "Do", () => { }).Asks);
         Assert.False(menu.Number<int>(null, "Rows", 4, 1, 10, 1, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { }).Asks);
+    }
+
+    [Fact]
+    public void S2332_a_text_line_holds_its_text_in_its_box_and_keeps_a_new_one_once()
+    {
+        var saves = 0;
+        var kept = new List<string>();
+        var menu = new WidgetMenuLines(() => saves++, _ => throw new InvalidOperationException("a text line asks nothing"));
+        var line = menu.Text(null, "Title", "Weather", kept.Add, "A title", t => t.Length > 5 ? "too long" : null, allowEmpty: false);
+
+        var field = Assert.IsType<MenuField>(line.Field);
+        Assert.Equal(("Weather", "A title", false), (field.Current, field.Placeholder, field.AllowEmpty));
+        Assert.Equal("Weather", line.Value);
+        Assert.Equal("too long", field.Refuse("Weather now"));
+
+        field.Keep("Weather");
+        Assert.Equal(0, saves);
+        field.Keep("Rain");
+        Assert.Equal(["Rain"], kept);
+        Assert.Equal(1, saves);
+
+        // Nothing typed yet: no value said, the box empty.
+        Assert.Null(menu.Text(null, "Caption", string.Empty, _ => { }).Value);
     }
 
     [Fact]
@@ -236,8 +262,9 @@ public sealed class WidgetMenuLinesTests
 
         Assert.Null(line.Children);
         Assert.Equal("30 min", line.Value);
-        line.Action!();
-        var ask = Assert.IsType<WidgetTextAsk>(_asked);
+        // [S-2332] Typed in place in its box.
+        Assert.Null(line.Action);
+        var ask = Typed.Ask(line);
         Assert.Equal("30", ask.Initial);
 
         // The box says the range in the number's own unit before anything is typed.

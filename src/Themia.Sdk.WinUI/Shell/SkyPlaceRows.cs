@@ -110,14 +110,13 @@ public static class SkyPlaceRows
                 : null;
 
     /// <summary>
-    /// [S-171] [S-3721] A coordinate asked for as text, refused (with the range as the reason) unless it
-    /// is a number in range; [S-2848] the field of a cleared place starts empty.
+    /// [S-171] [S-2332] A coordinate typed in place in its box, refused (with the range as the reason) unless it
+    /// is a number in range; [S-2848] the box of a cleared place starts empty.
     /// </summary>
     private static ItemMenuEntry Coordinate(WidgetMenuLines menu, string title, double? current, double minimum, double maximum, Action<double> set)
-        => new(Glyphs.Grid, title, () => menu.Ask(new WidgetTextAsk(
-            title,
+        => new(Glyphs.Grid, title, null, Value: current is { } shown ? FormatCoordinate(shown) : null, Field: new MenuField(
+            current is { } known ? FormatCoordinate(known) : string.Empty,
             FormatCoordinate(0),
-            Str.Common_Save.Text(),
             typed => RefuseCoordinate(typed, minimum, maximum),
             typed =>
             {
@@ -127,7 +126,7 @@ public static class SkyPlaceRows
                     menu.Save();
                 }
             },
-            Initial: current is { } known ? FormatCoordinate(known) : null)), Value: current is { } shown ? FormatCoordinate(shown) : null, Asks: true);
+            AllowEmpty: false));
 
     /// <summary>A place name is a header title, not a document: cut as load repair cuts it ([S-3101]).</summary>
     private static string Cut(string name) => name.Length > SkyPlaceConfig.MaxPlaceLength ? name[..SkyPlaceConfig.MaxPlaceLength] : name;

@@ -66,14 +66,14 @@ public sealed class VideoStreamMenuTests
         var line = Build(config).Lines[0];
         Assert.Null(line.Value);
 
-        line.Action!();
+        _asked = Typed.Ask(line);
         Assert.Null(_asked!.Refuse(string.Empty));
         _asked.Done("  http://octopi.local/webcam/?action=stream ");
         Assert.Equal("http://octopi.local/webcam/?action=stream", config.Url);
         Assert.Equal(1, _saves);
-        Assert.Equal("octopi.local", Build(config).Lines[0].Value);
+        Assert.Equal("http://octopi.local/webcam/?action=stream", Build(config).Lines[0].Field!.Current);
 
-        Build(config).Lines[0].Action!();
+        _asked = Typed.Ask(Build(config).Lines[0]);
         _asked!.Done(string.Empty);
         Assert.Equal(string.Empty, config.Url);
         Assert.Equal(2, _saves);

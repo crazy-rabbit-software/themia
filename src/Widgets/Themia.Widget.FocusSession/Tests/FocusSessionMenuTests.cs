@@ -35,7 +35,7 @@ public sealed class FocusSessionMenuTests
     public void S4428_the_length_is_typed_in_five_minute_steps_inside_its_range()
     {
         var config = new FocusSessionConfig();
-        Build(config).Lines[0].Action!();
+        _asked = Typed.Ask(Build(config).Lines[0]);
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
         Assert.NotNull(ask.Refuse("3"));
@@ -51,7 +51,7 @@ public sealed class FocusSessionMenuTests
     [Fact]
     public void S4428_the_current_length_typed_again_saves_nothing()
     {
-        Build(new FocusSessionConfig { Minutes = 30 }).Lines[0].Action!();
+        _asked = Typed.Ask(Build(new FocusSessionConfig { Minutes = 30 }).Lines[0]);
         _asked!.Done("30");
 
         Assert.Equal(0, _saves);

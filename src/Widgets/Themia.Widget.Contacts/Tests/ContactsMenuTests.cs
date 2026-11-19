@@ -95,7 +95,7 @@ public sealed class ContactsMenuTests
     [InlineData("many")]
     public void S7511_the_count_refuses_less_than_five_and_more_than_the_box_takes(string typed)
     {
-        Line(Build(new ContactsConfig()).Lines, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(new ContactsConfig()).Lines, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()));
 
         Assert.NotNull(_asked!.Refuse(typed));
     }
@@ -104,7 +104,7 @@ public sealed class ContactsMenuTests
     public void S7511_a_typed_count_is_rounded_to_a_step_of_five()
     {
         var config = new ContactsConfig();
-        Line(Build(config).Lines, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(config).Lines, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()));
 
         _asked!.Done("42");
         Assert.Equal(40, config.Count);

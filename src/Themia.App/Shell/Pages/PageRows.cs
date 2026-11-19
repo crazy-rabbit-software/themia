@@ -38,7 +38,7 @@ internal static class PageRows
     public static PageRow Of(SettingsLine line, Action<PageEdit> ask, Func<FrameworkElement>? preview = null)
     {
         ArgumentNullException.ThrowIfNull(line);
-        var row = RowOf(line, ask, preview) with { Disabled = line.Disabled };
+        var row = RowOf(line, ask, preview) with { Disabled = line.Disabled, Marked = line.Marked || line.GlyphColour is not null || line.Picture is not null };
         return line.Picture is { } picture ? row with { Icon = () => MenuPictures.Create(picture) } : row;
     }
 
@@ -48,7 +48,8 @@ internal static class PageRows
         var row = new PageRow(line.Key, kind);
         return line switch
         {
-            SettingsSeparator or SettingsHeading => row with { Text = (line as SettingsHeading)?.Text ?? string.Empty },
+            SettingsSeparator => row,
+            SettingsHeading heading => row with { Text = heading.Text, Icon = IconOf(heading.Glyph, null) },
             SettingsNote note => row with { Text = note.Text, Danger = note.Critical, Busy = note.Busy },
             SettingsReading reading => row with
             {
@@ -227,7 +228,11 @@ internal static class PageRows
         return rows;
     }
 
+    /// <summary>One entry as a row; [S-2317] its icon its own where it is a file's or the icon it chose.</summary>
     private static PageRow Of(ItemMenuEntry entry, string key)
+        => RowOf(entry, key) with { Marked = entry.IconFile is not null || entry.Icon is not null };
+
+    private static PageRow RowOf(ItemMenuEntry entry, string key)
     {
         Func<UIElement?>? icon = entry.Glyph is null && entry.IconFile is null ? null : () => ItemMenu.IconFor(entry);
         var value = entry.Value ?? (entry.Shortcut is { } chord ? KeyChordText.Format(chord) : entry.Search?.Value);
@@ -255,6 +260,19 @@ internal static class PageRows
                 Icon = icon,
                 Picker = () => new IconPicker(pick.Current, pick.NoneName, null, pick.Set),
                 Disabled = entry.Disabled,
+            };
+        }
+
+        // [S-2332] A line of text the widget holds: its box at the line's end, typed in place.
+        if (entry.Field is { } field)
+        {
+            return new PageRow(key, SettingsRowKind.Text)
+            {
+                Text = entry.Text,
+                Icon = icon,
+                Edit = new PageEdit(field.Placeholder, field.Current, field.Keep) { Refuse = field.Refuse, AllowEmpty = field.AllowEmpty },
+                Disabled = entry.Disabled,
+                SetsUp = entry.SetsUp,
             };
         }
 

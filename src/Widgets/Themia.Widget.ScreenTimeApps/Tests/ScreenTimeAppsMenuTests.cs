@@ -149,7 +149,7 @@ public sealed class ScreenTimeAppsMenuTests
         var config = new ScreenTimeAppsConfig();
         var edge = Line(Line(Build(config, tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!, "Microsoft Edge").Children!;
 
-        Line(edge, Str.WidgetsC_ScreenTime_DailyLimit.Text()).Action!();
+        _asked = Typed.Ask(Line(edge, Str.WidgetsC_ScreenTime_DailyLimit.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.NotNull(ask.Refuse("10"));
         Assert.NotNull(ask.Refuse("721"));

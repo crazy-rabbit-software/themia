@@ -46,22 +46,9 @@ internal static class CountdownMenu
         // day and time); how the time left reads.
         menu.Lines.Add(ItemMenuEntry.Separator);
 
-        menu.Lines.Add(new ItemMenuEntry(Glyphs.Rename, CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), () => menu.Ask(new WidgetTextAsk(
-            CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(),
-            CountdownFormatter.Untitled(locale),
-            Str.Common_Save.Text(),
-            NameRefusal,
-            typed =>
-            {
-                var name = typed.Trim();
-                if (name != config.Label)
-                {
-                    config.Label = name;
-                    menu.Save();
-                }
-            },
-            Initial: config.Label,
-            AllowEmpty: true)), Value: config.Label.Length > 0 ? config.Label : null, Asks: true));
+        // [S-2332] Each typed in place in its box.
+        menu.Lines.Add(menu.Text(Glyphs.Rename, CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), config.Label,
+            typed => config.Label = typed.Trim(), CountdownFormatter.Untitled(locale), NameRefusal));
 
         // Not set yet ([S-1860]): no day, and midnight, so a typed day counts to its start.
         DateOnly? day = config.Target is { } target ? DateOnly.FromDateTime(CountdownFormatter.LocalDate(target, zone).DateTime) : null;
@@ -82,37 +69,37 @@ internal static class CountdownMenu
         }
 
         // [S-1862] A countdown waits for its day: Set up asks for it.
-        menu.Lines.Add(WidgetMenuLines.SetsUp(new ItemMenuEntry(Glyphs.Calendar, CountdownStr.WidgetsA_Countdown_Menu_Date.Text(), () => menu.Ask(new WidgetTextAsk(
-            CountdownStr.WidgetsA_Countdown_Menu_Date.Text(),
-            "2026-12-24",
-            Str.Common_Save.Text(),
-            typed => TypedTime.Date(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_DateRefused.Text() : null,
-            typed =>
-            {
-                if (TypedTime.Date(typed) is { } picked)
+        menu.Lines.Add(WidgetMenuLines.SetsUp(new ItemMenuEntry(Glyphs.Calendar, CountdownStr.WidgetsA_Countdown_Menu_Date.Text(), null,
+            Value: day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null,
+            Field: new MenuField(
+                day is { } shown ? TypedTime.DateText(shown) : string.Empty,
+                "2026-12-24",
+                typed => TypedTime.Date(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_DateRefused.Text() : null,
+                typed =>
                 {
-                    Retarget(picked, time);
-                }
-            },
-            Initial: day is { } shown ? TypedTime.DateText(shown) : null)),
-            Value: day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null, Asks: true)));
+                    if (TypedTime.Date(typed) is { } picked)
+                    {
+                        Retarget(picked, time);
+                    }
+                },
+                AllowEmpty: false))));
 
         // The time needs a day to fall on: greyed until there is one.
-        menu.Lines.Add(new ItemMenuEntry(Glyphs.Clock, CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), () => menu.Ask(new WidgetTextAsk(
-            CountdownStr.WidgetsA_Countdown_Menu_Time.Text(),
-            "18:00",
-            Str.Common_Save.Text(),
-            typed => TypedTime.TimeOfDay(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_TimeRefused.Text() : null,
-            typed =>
-            {
-                if (day is { } onDay && TypedTime.TimeOfDay(typed) is { } minutes)
-                {
-                    Retarget(onDay, TimeSpan.FromMinutes(minutes));
-                }
-            },
-            Initial: AlarmTimes.Text((int)time.TotalMinutes))),
+        menu.Lines.Add(new ItemMenuEntry(Glyphs.Clock, CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), null,
             Disabled: day is null,
-            Value: day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time)), Asks: true));
+            Value: day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time)),
+            Field: new MenuField(
+                AlarmTimes.Text((int)time.TotalMinutes),
+                "18:00",
+                typed => TypedTime.TimeOfDay(typed) is null ? CountdownStr.WidgetsA_Countdown_Menu_TimeRefused.Text() : null,
+                typed =>
+                {
+                    if (day is { } onDay && TypedTime.TimeOfDay(typed) is { } minutes)
+                    {
+                        Retarget(onDay, TimeSpan.FromMinutes(minutes));
+                    }
+                },
+                AllowEmpty: false)));
 
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Countdown, CountdownStr.WidgetsA_Countdown_Settings_Format_Label.Text(), Formats(), config.Format, value => config.Format = value));

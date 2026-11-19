@@ -136,7 +136,7 @@ public sealed class TasksMenuTests
 
         Assert.DoesNotContain(lines.Lines, l => l.Text == TasksStr.WidgetsC_Tasks_Settings_ShowDue_Label.Text());
         Assert.Equal(
-            [TasksStr.WidgetsC_Tasks_Settings_TextFilter_Label.Text() + "…"],
+            [TasksStr.WidgetsC_Tasks_Settings_TextFilter_Label.Text()],
             Line(lines.Lines, TasksStr.WidgetsC_Tasks_Settings_Filter.Text()).Children!.Select(c => c.Text));
     }
 
@@ -262,7 +262,7 @@ public sealed class TasksMenuTests
     {
         var config = new TasksConfig { TextFilter = "milk" };
         var filters = Line(Build(config, Accounts()).Lines, TasksStr.WidgetsC_Tasks_Settings_Filter.Text()).Children!;
-        Line(filters, TasksStr.WidgetsC_Tasks_Settings_TextFilter_Label.Text() + "…").Action!();
+        _asked = Typed.Ask(Line(filters, TasksStr.WidgetsC_Tasks_Settings_TextFilter_Label.Text()));
 
         Assert.NotNull(_asked!.Refuse(new string('x', TasksConfig.TextFilterMax + 1)));
         Assert.Null(_asked.Refuse("bread"));

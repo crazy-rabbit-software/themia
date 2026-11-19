@@ -38,10 +38,10 @@ internal static class AlarmMenu
 
         // When it rings: the time, the days and whether it is set at all.
         // [S-4621] Typed ([S-3738]), in either clock; the line shows it in the language's.
-        menu.Lines.Add(new ItemMenuEntry(AlarmModule.Glyph, AlarmStr.Alarm_Settings_Time_Label.Text(), () => menu.Ask(new WidgetTextAsk(
-            AlarmStr.Alarm_Settings_Time_Label.Text(),
+        // [S-2332] Typed in place in its box.
+        menu.Lines.Add(new ItemMenuEntry(AlarmModule.Glyph, AlarmStr.Alarm_Settings_Time_Label.Text(), null, Value: AlarmWords.Time(locale, alarm.Plan), Field: new MenuField(
+            AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)),
             "07:30",
-            Str.Common_Save.Text(),
             typed => TypedTime.TimeOfDay(typed) is null ? AlarmStr.Alarm_Menu_TimeRefused.Text() : null,
             typed =>
             {
@@ -51,29 +51,15 @@ internal static class AlarmMenu
                     menu.Save();
                 }
             },
-            Initial: AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)))), Value: AlarmWords.Time(locale, alarm.Plan), Asks: true));
+            AllowEmpty: false)));
 
         menu.Lines.Add(Days(menu, alarm, locale, weekStart));
         menu.Lines.Add(menu.Toggle(Glyphs.Bell, AlarmStr.Alarm_Settings_On_Label.Text(), alarm.On, on => alarm.On = on));
 
         // What it says.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(new ItemMenuEntry(Glyphs.Rename, AlarmStr.Alarm_Settings_Name_Label.Text(), () => menu.Ask(new WidgetTextAsk(
-            AlarmStr.Alarm_Settings_Name_Label.Text(),
-            AlarmStr.Alarm_Settings_NamePlaceholder.Text(),
-            Str.Common_Save.Text(),
-            NameRefusal,
-            typed =>
-            {
-                var name = typed.Trim();
-                if (name != alarm.Label)
-                {
-                    alarm.Label = name;
-                    menu.Save();
-                }
-            },
-            Initial: alarm.Label,
-            AllowEmpty: true)), Value: alarm.Label.Length > 0 ? alarm.Label : null, Asks: true));
+        menu.Lines.Add(menu.Text(Glyphs.Rename, AlarmStr.Alarm_Settings_Name_Label.Text(), alarm.Label,
+            typed => alarm.Label = typed.Trim(), AlarmStr.Alarm_Settings_NamePlaceholder.Text(), NameRefusal));
 
         // How it sounds.
         menu.Lines.Add(ItemMenuEntry.Separator);

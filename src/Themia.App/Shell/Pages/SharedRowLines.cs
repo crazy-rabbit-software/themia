@@ -109,6 +109,9 @@ internal static class SharedRowLines
             Action = line.Action is { } run ? () => After(run, spread) : null,
             Children = line.Children is { } children ? [.. children.Select(c => Wired(c, spread, mixed, top: false))] : null,
             Search = line.Search is { } search ? Wired(search, spread, mixed) : null,
+
+            // [S-2332] A text typed in place is set on every holder; while they disagree its box is empty, its hint Mixed.
+            Field = line.Field is { } field ? Wired(field, spread, mixed && top) : null,
         };
 
         if (!mixed)
@@ -135,6 +138,13 @@ internal static class SharedRowLines
         },
         Fixed = [.. search.Fixed.Select(l => Wired(l, spread, mixed, top: false))],
     };
+
+    /// <summary>[S-2332] A text typed in place set on every holder; while they disagree its box empty, its hint Mixed.</summary>
+    private static MenuField Wired(MenuField field, Action spread, bool mixed)
+    {
+        var kept = field with { Keep = typed => After(() => field.Keep(typed), spread) };
+        return mixed ? kept with { Current = string.Empty, Placeholder = Str.Groups_Page_Mixed.Text() } : kept;
+    }
 
     private static void After(Action first, Action then)
     {

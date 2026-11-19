@@ -118,7 +118,7 @@ public sealed class GalleryMenuTests
     public void S778_the_slide_time_is_asked_for_and_kept_in_its_range()
     {
         var config = new GalleryConfig { Style = GalleryStyle.Slideshow, SlideshowSeconds = 10 };
-        Build(config).StyleLines[0].Action!();
+        _asked = Typed.Ask(Build(config).StyleLines[0]);
 
         var ask = _asked!;
         Assert.NotNull(ask.Refuse("0"));

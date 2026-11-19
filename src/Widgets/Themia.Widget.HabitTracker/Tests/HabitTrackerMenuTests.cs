@@ -141,7 +141,7 @@ public sealed class HabitTrackerMenuTests
     public void S1429_the_interval_is_read_by_the_cadence_rule()
     {
         var config = new HabitTrackerConfig { Period = HabitPeriod.Custom };
-        Line(Build(config, Two()), HabitTrackerStr.HabitTracker_IntervalLabel.Text()).Action!();
+        _asked = Typed.Ask(Line(Build(config, Two()), HabitTrackerStr.HabitTracker_IntervalLabel.Text()));
         var ask = _asked!;
 
         Assert.NotNull(ask.Refuse("0"));

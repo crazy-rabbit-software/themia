@@ -120,12 +120,12 @@ public sealed class StockMenuTests
         Assert.Null(StockMenu.HoldingRefusal(string.Empty));
 
         var config = new StockConfig { Symbol = "MSFT" };
-        Build(config).Lines.Single(l => l.Text == StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text()).Action!();
+        _asked = Typed.Ask(Build(config).Lines.Single(l => l.Text == StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text()));
         _asked!.Done("12");
         Assert.Equal(12, config.SharesOwned);
         Assert.Equal(1, _saves);
 
-        Build(config).Lines.Single(l => l.Text == StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text()).Action!();
+        _asked = Typed.Ask(Build(config).Lines.Single(l => l.Text == StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text()));
         _asked!.Done(string.Empty);
         Assert.Null(config.SharesOwned);
         Assert.Equal(2, _saves);

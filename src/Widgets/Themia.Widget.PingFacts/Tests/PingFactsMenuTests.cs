@@ -36,7 +36,7 @@ public sealed class PingFactsMenuTests
     public void S2426_the_host_is_checked_as_the_meters_is_and_stored_once()
     {
         var config = new PingFactsConfig();
-        Build(config).Lines[0].Action!();
+        _asked = Typed.Ask(Build(config).Lines[0]);
 
         Assert.NotNull(_asked!.Refuse("-x"));
         _asked.Done("router.local");

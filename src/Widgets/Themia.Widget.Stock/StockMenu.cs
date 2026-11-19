@@ -40,7 +40,7 @@ internal static class StockMenu
     }
 
     /// <summary>
-    /// [S-2776] "Shares owned", asked beside the menu ([S-3721]): an amount in the language's own
+    /// [S-2776] "Shares owned", typed in place in its box ([S-2332]): an amount in the language's own
     /// decimals, refused rather than coerced (<see cref="StockHolding.TryParse"/>), the setting keeps
     /// its last good value. Empty or 0 is no holding.
     /// </summary>
@@ -49,10 +49,9 @@ internal static class StockMenu
         var locale = Strings.Current;
         var owned = config.SharesOwned is { } amount ? StockHolding.Amount(locale, amount) : null;
 
-        return new ItemMenuEntry(Glyphs.Calculator, StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text(), () => menu.Ask(new WidgetTextAsk(
-            StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text(),
+        return new ItemMenuEntry(Glyphs.Calculator, StockStr.WidgetsC_Stocks_Settings_Holding_Label.Text(), null, Value: owned, Field: new MenuField(
+            owned ?? string.Empty,
             StockHolding.Amount(locale, 0),
-            Str.Common_Save.Text(),
             HoldingRefusal,
             typed =>
             {
@@ -61,9 +60,7 @@ internal static class StockMenu
                     config.SharesOwned = parsed;
                     menu.Save();
                 }
-            },
-            Initial: owned ?? string.Empty,
-            AllowEmpty: true)), Value: owned, Asks: true);
+            }));
     }
 
     /// <summary>[S-2776] Why a typed holding cannot be used, or null when it can.</summary>

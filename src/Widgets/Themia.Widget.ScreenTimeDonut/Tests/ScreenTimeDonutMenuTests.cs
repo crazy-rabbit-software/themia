@@ -74,7 +74,7 @@ public sealed class ScreenTimeDonutMenuTests
         var tracker = new Tracker(ScreenTimePreferences.From(null, 4 * 3600, null));
         var limits = Line(Build(new ScreenTimeDonutConfig(), tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!;
 
-        Line(limits, Str.WidgetsC_ScreenTime_DailyLimit.Text()).Action!();
+        _asked = Typed.Ask(Line(limits, Str.WidgetsC_ScreenTime_DailyLimit.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.Equal("240", ask.Initial);
         Assert.NotNull(ask.Refuse("1441"));

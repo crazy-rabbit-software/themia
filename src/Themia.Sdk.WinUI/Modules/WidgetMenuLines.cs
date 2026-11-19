@@ -119,6 +119,26 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
+    /// [S-2332] A line of text the widget holds (a title, a caption, an address), typed in place in its box at the
+    /// line's end: what it holds in the box, <paramref name="placeholder"/> while empty; a text <paramref name="refuse"/>
+    /// takes (null: any) is stored through <paramref name="set"/> and saved, the text that holds changes nothing. A
+    /// line of text asked for once, to make something (Add…, Rename… of a list's item), is <see cref="Ask"/>.
+    /// </summary>
+    public ItemMenuEntry Text(string? glyph, string text, string current, Action<string> set, string? placeholder = null, Func<string, string?>? refuse = null, bool allowEmpty = true)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        var holds = current ?? string.Empty;
+        return new(glyph, text, null, Value: holds.Length > 0 ? holds : null, Field: new MenuField(holds, placeholder ?? text, refuse ?? (_ => null), typed =>
+        {
+            if (!string.Equals(typed, holds, StringComparison.Ordinal))
+            {
+                set(typed);
+                _save();
+            }
+        }, allowEmpty));
+    }
+
+    /// <summary>
     /// A switch: ticked while on; a click turns it the other way and saves. Under a submenu it is
     /// best without a <paramref name="glyph"/>: Explorer's switches are a tick and words.
     /// </summary>
@@ -256,10 +276,10 @@ public sealed class WidgetMenuLines
     /// [S-3726] A number from <paramref name="min"/> to <paramref name="max"/> in steps of
     /// <paramref name="step"/>, shown at the end of its line as <paramref name="format"/> writes it.
     /// Up to <see cref="MaxNumberSteps"/> steps it is a choice of one (a submenu of dots, one per
-    /// step); more is a line that asks for the number as text, its box saying the range in the
-    /// number's own words (<paramref name="format"/>'s, so typed minutes say minutes: "from 15 min to
-    /// 720 min"), refused outside it (the same words are the reason) and rounded to the nearest step. A pick or a typed number sets and saves; the value
-    /// that holds changes nothing.
+    /// step); [S-2332] more is typed in place in its box (<see cref="MenuField"/>), its hint the range in the
+    /// number's own words (<paramref name="format"/>'s, so typed minutes say minutes: "from 15 min to 720 min"),
+    /// refused outside it (the same words are the reason) and rounded to the nearest step. A pick or a typed
+    /// number sets and saves; the value that holds changes nothing.
     /// </summary>
     public ItemMenuEntry Number<T>(string? glyph, string text, T value, T min, T max, T step, Func<T, string> format, Action<T> set)
         where T : INumber<T>
@@ -277,11 +297,11 @@ public sealed class WidgetMenuLines
             return Choice(glyph, text, [.. steps.Select(s => (s, format(s)))], value, set) with { Value = format(value) };
         }
 
+        // [S-2332] More steps than dots: typed in place in its box, never a page of its own; the range its hint and its refusal.
         var reason = Str.Menu_NumberRange.Format(("min", format(min)), ("max", format(max)));
-        return new(glyph, text, () => _ask(new WidgetTextAsk(
-            text,
+        return new(glyph, text, null, Value: format(value), Field: new MenuField(
+            value.ToString(null, CultureInfo.InvariantCulture),
             reason,
-            Str.Common_Save.Text(),
             typed => ParseNumber(typed, min, max, step, out T _) ? null : reason,
             typed =>
             {
@@ -291,7 +311,7 @@ public sealed class WidgetMenuLines
                     _save();
                 }
             },
-            Initial: value.ToString(null, CultureInfo.InvariantCulture))), Value: format(value), Asks: true);
+            AllowEmpty: false));
     }
 
     /// <summary>

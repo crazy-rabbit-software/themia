@@ -81,7 +81,7 @@ public sealed class SunMenuTests
     public void S3107_a_latitude_that_is_not_a_number_in_range_is_refused(string typed)
     {
         var config = new SunConfig();
-        Fixed(Location(config), Str.SunMoon_Latitude_Label.Text()).Action!();
+        _asked = Typed.Ask(Fixed(Location(config), Str.SunMoon_Latitude_Label.Text()));
 
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.Equal(Str.WidgetsC_SunMoon_Settings_CoordinateRange.Format(("min", "-90"), ("max", "90")), ask.Refuse(typed));
@@ -94,7 +94,7 @@ public sealed class SunMenuTests
     public void S3107_a_typed_longitude_moves_the_observer_and_the_same_one_saves_nothing()
     {
         var config = new SunConfig();
-        Fixed(Location(config), Str.SunMoon_Longitude_Label.Text()).Action!();
+        _asked = Typed.Ask(Fixed(Location(config), Str.SunMoon_Longitude_Label.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
         Assert.Equal("8.54", ask.Initial);

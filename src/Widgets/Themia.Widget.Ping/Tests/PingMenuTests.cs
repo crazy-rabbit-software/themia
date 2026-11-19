@@ -69,7 +69,7 @@ public sealed class PingMenuTests
     public void S1175_a_host_given_is_stored_trimmed_once_and_the_same_host_stores_nothing()
     {
         var config = new PingConfig { Host = "example.com" };
-        Assert.Single(Build(config).Lines).Action!();
+        _asked = Typed.Ask(Assert.Single(Build(config).Lines));
 
         Assert.NotNull(_asked);
         Assert.Equal("example.com", _asked.Initial);
@@ -87,7 +87,7 @@ public sealed class PingMenuTests
     public void S1175_an_emptied_box_measures_the_default_and_a_refused_one_is_never_stored()
     {
         var config = new PingConfig { Host = "example.com" };
-        Assert.Single(Build(config).Lines).Action!();
+        _asked = Typed.Ask(Assert.Single(Build(config).Lines));
 
         _asked!.Done("-bad");
         Assert.Equal("example.com", config.Host);

@@ -46,7 +46,7 @@ public sealed class PomodoroMenuTests
     public void S8110_the_break_is_typed_from_1_to_180_and_saves_once()
     {
         var config = new PomodoroConfig();
-        Build(config).Lines[1].Action!();
+        _asked = Typed.Ask(Build(config).Lines[1]);
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
         Assert.NotNull(ask.Refuse("0"));

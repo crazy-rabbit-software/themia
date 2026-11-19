@@ -56,32 +56,15 @@ internal static class VideoStreamMenu
     }
 
     /// <summary>
-    /// [S-473] [S-467] The address, asked for beside the menu ([S-3721]); its host at the line's end.
+    /// [S-473] [S-467] The address, typed in place in its box ([S-2332]).
     /// It is the trust boundary (what is typed is what the widget connects to), so it is checked by
     /// <see cref="WebInput"/> as it is typed and a refusal says why, never repaired into one that
     /// works. Empty clears it: the widget waits for setup again.
     /// </summary>
     private static ItemMenuEntry AddressLine(WidgetMenuLines menu, VideoStreamConfig config)
     {
-        var current = config.Url;
-        var host = Uri.TryCreate(current, UriKind.Absolute, out var uri) && uri.Host.Length > 0 ? uri.Host : null;
-
-        return new ItemMenuEntry(Glyphs.Link, VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Label.Text(), () => menu.Ask(new WidgetTextAsk(
-            VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Label.Text(),
-            Example,
-            Str.Common_Save.Text(),
-            AddressRefusal,
-            typed =>
-            {
-                var address = typed.Trim();
-                if (!string.Equals(address, current, StringComparison.Ordinal))
-                {
-                    config.Url = address;
-                    menu.Save();
-                }
-            },
-            Initial: current,
-            AllowEmpty: true)), Value: host, Asks: true);
+        return menu.Text(Glyphs.Link, VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Label.Text(), config.Url,
+            typed => config.Url = typed.Trim(), Example, AddressRefusal);
     }
 
     /// <summary>[S-467] Why a typed address cannot be used, or null when it can (empty: none).</summary>

@@ -37,8 +37,20 @@ public static class WeatherPlaceRows
         return WidgetMenuLines.Shared(SharedSettings.Place, lines);
     }
 
+    /// <summary>
+    /// [S-9604] The place's one line where it is only named, never measured (the Header widget's): the location's
+    /// search alone, no Use my location (owner, 2026-11-19: "show the place should not be a caption setting, use my
+    /// location neither"); a place found there replaces the device's. Marked as the shared place's line.
+    /// </summary>
+    public static ItemMenuEntry Named(WidgetMenuLines menu, IPlaced config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+        return WidgetMenuLines.Shared(SharedSettings.Place, LocationLine(menu, config, named: true));
+    }
+
     /// <summary>[S-2840] The location's search: what is found, and Clear location under it.</summary>
-    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, IPlaced config)
+    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, IPlaced config, bool named = false)
     {
         List<ItemMenuEntry> under = [menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation)];
 
@@ -49,13 +61,16 @@ public static class WeatherPlaceRows
                 config.Latitude = place.Latitude;
                 config.Longitude = place.Longitude;
                 config.PlaceName = place.Label;
+                config.UseDeviceLocation = false;
                 menu.Save();
             }, cancel),
             under,
             PlaceQuery.Debounce);
 
-        // [S-1862] A widget of the family waits for its place: Set up opens this search.
-        return WidgetMenuLines.SetsUp(WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
-            config.HasLocation ? config.PlaceName.Split(',', 2)[0].Trim() : null, search));
+        var line = WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
+            config.HasLocation ? config.PlaceName.Split(',', 2)[0].Trim() : null, search);
+
+        // [S-1862] A widget of the family waits for its place: Set up opens this search. One that only names it waits for none.
+        return named ? line : WidgetMenuLines.SetsUp(line);
     }
 }

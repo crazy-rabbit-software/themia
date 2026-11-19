@@ -44,7 +44,7 @@ public sealed class CountdownMenuTests
         var config = new CountdownConfig();
         Assert.True(Line(config, Time).Disabled);
 
-        Line(config, Date).Action!();
+        _asked = Typed.Ask(Line(config, Date));
         Assert.Null(_asked!.Initial);
         _asked.Done("24.12.2026");
 
@@ -58,12 +58,12 @@ public sealed class CountdownMenuTests
     {
         var config = new CountdownConfig { Target = new DateTimeOffset(2026, 12, 24, 18, 30, 0, TimeSpan.Zero) };
 
-        Line(config, Date).Action!();
+        _asked = Typed.Ask(Line(config, Date));
         Assert.Equal("2026-12-24", _asked!.Initial);
         _asked.Done("2026-12-31");
         Assert.Equal(new DateTimeOffset(2026, 12, 31, 18, 30, 0, TimeSpan.Zero), config.Target);
 
-        Line(config, Time).Action!();
+        _asked = Typed.Ask(Line(config, Time));
         Assert.Equal("18:30", _asked!.Initial);
         _asked.Done("11:59 pm");
         Assert.Equal(new DateTimeOffset(2026, 12, 31, 23, 59, 0, TimeSpan.Zero), config.Target);
@@ -74,7 +74,7 @@ public sealed class CountdownMenuTests
     public void S6037_the_target_it_holds_typed_again_saves_nothing()
     {
         var config = new CountdownConfig { Target = new DateTimeOffset(2026, 12, 24, 18, 30, 0, TimeSpan.Zero), Created = Now.AddDays(-1) };
-        Line(config, Date).Action!();
+        _asked = Typed.Ask(Line(config, Date));
         _asked!.Done("2026-12-24");
 
         Assert.Equal(0, _saves);
@@ -86,11 +86,11 @@ public sealed class CountdownMenuTests
     {
         var config = new CountdownConfig { Target = Now.AddDays(3) };
 
-        Line(config, Date).Action!();
+        _asked = Typed.Ask(Line(config, Date));
         Assert.NotNull(_asked!.Refuse("12/11/2026"));
         Assert.Null(_asked.Refuse("2026-11-12"));
 
-        Line(config, Time).Action!();
+        _asked = Typed.Ask(Line(config, Time));
         Assert.NotNull(_asked!.Refuse("25:00"));
     }
 
@@ -98,7 +98,7 @@ public sealed class CountdownMenuTests
     public void S6037_a_name_over_sixty_is_refused_and_an_empty_one_clears_it()
     {
         var config = new CountdownConfig { Label = "Launch" };
-        Line(config, CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text()).Action!();
+        _asked = Typed.Ask(Line(config, CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text()));
 
         Assert.NotNull(_asked!.Refuse(new string('x', CountdownConfig.MostLabel + 1)));
         _asked.Done(string.Empty);

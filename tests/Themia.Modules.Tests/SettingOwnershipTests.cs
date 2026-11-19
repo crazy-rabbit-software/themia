@@ -277,7 +277,7 @@ public sealed class SettingOwnershipTests
             }
 
             var choice = line.Children is { Count: > 0 } options && options.All(o => o.Group == line.Text);
-            if (choice || (line.Checked is not null && line.Group is null) || line.Colour is not null || line.Slider is not null || (line.Asks && line.Children is null))
+            if (choice || (line.Checked is not null && line.Group is null) || line.Colour is not null || line.Slider is not null || line.Field is not null || (line.Asks && line.Children is null))
             {
                 yield return (line.Text, where + " › " + line.Text);
             }
