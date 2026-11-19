@@ -548,7 +548,7 @@ internal static partial class EditBarRender
         List<string> feeds = ["Blog feed", "News feed"];
         menu.Lines.Add(menu.Colour("Accent", "#3A6EA5", _ => { }));
         menu.Lines.Add(menu.Fill("Accent fill", FillChoice.Of("#3A6EA5", 0.6), _ => { }));
-        menu.Lines.Add(menu.Number(Glyphs.Count, "Rows", 4, 1, 10, 1, n => LocaleFormat.Integer(n), _ => { }));
+        menu.Lines.Add(menu.Number(Glyphs.Count, "Rows", 4, 1, 10, 1, Themia.Sdk.WinUI.Kit.KitMenuLines.Rows, _ => { }));
         menu.Lines.Add(menu.Number(Glyphs.Timer, "Refresh every", 30, 5, 600, 5, n => LocaleFormat.Integer(n) + " min", _ => { }));
         menu.Lines.Add(menu.Slider(Glyphs.Volume, "Volume", 40, 0, 100, 5, n => LocaleFormat.Percent(Strings.Current, n), _ => { }));
         menu.Lines.Add(menu.Slider(Glyphs.Scale, "Gap between widgets", 12, 0, 48, 2, n => LocaleFormat.Integer(n) + " px", _ => { }));
