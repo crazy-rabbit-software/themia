@@ -111,6 +111,9 @@ public enum WidgetKey
     /// <summary>[S-5597] Ctrl+Y or Ctrl+Shift+Z: redo.</summary>
     Redo,
 
+    /// <summary>[S-13101] Ctrl+Shift+N: a new folder where the keys are, as Explorer's.</summary>
+    NewFolder,
+
     /// <summary>
     /// [S-6626] Not a key: the session left the widget (a press on another widget, another app taking
     /// the foreground) while Escape was not pressed. Sent instead of <see cref="Escape"/> only to a

@@ -604,6 +604,9 @@ public sealed class AppStateStore : IAsyncDisposable
         repairs.AddRange(ValidateViewBars(state));
         repairs.AddRange(Desktop.DesktopReconcile.RepairKnown(state));
 
+        // [S-13002] Every fence's items whole, and no item in two places of one view.
+        repairs.AddRange(Desktop.DesktopFences.Repair(state));
+
         // [S-5596] A number that names no sort is the order new items are laid out in.
         if (!Enum.IsDefined(state.Desktop.Sort))
         {

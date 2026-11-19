@@ -295,7 +295,7 @@ public sealed class DesktopCommandsTests
 
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Rename, QuickCommand.Share, QuickCommand.Delete], Row(menu));
         Assert.Equal(
-            [FileCommand.Open, FileCommand.OpenWith, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions],
+            [FileCommand.Open, FileCommand.OpenWith, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.CreateFence, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions],
             List(menu));
         Assert.All(menu.Lines, line => Assert.True(line.Enabled));
         Assert.Equal([Desk + "a.txt"], menu.Classic);
@@ -310,7 +310,7 @@ public sealed class DesktopCommandsTests
         Assert.Equal(
             [
                 FileCommand.Open, FileCommand.OpenWith, FileCommand.OpenFileLocation, FileCommand.PinToStart, FileCommand.CompressToZip,
-                FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions,
+                FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.CreateFence, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions,
             ],
             List(menu));
     }
@@ -327,7 +327,7 @@ public sealed class DesktopCommandsTests
         Assert.Equal(
             [
                 FileCommand.Open, FileCommand.PinToQuickAccess, FileCommand.PinToStart, FileCommand.CompressToZip, FileCommand.CopyAsPath,
-                FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions,
+                FileCommand.Properties, Sep, FileCommand.CreateFence, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions,
             ],
             List(menu));
 
@@ -342,7 +342,7 @@ public sealed class DesktopCommandsTests
         var withFolder = Menu([Item("a.txt"), Item("Docs")], null, "Docs");
 
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Share, QuickCommand.Delete], Row(files));
-        Assert.Equal([FileCommand.Open, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(files));
+        Assert.Equal([FileCommand.Open, FileCommand.CompressToZip, FileCommand.CopyAsPath, FileCommand.Properties, Sep, FileCommand.CreateFence, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(files));
         Assert.Equal([Desk + "a.txt", Desk + "b.txt"], files.Classic);
         Assert.Equal([QuickCommand.Cut, QuickCommand.Copy, QuickCommand.Delete], Row(withFolder));
     }
@@ -357,16 +357,16 @@ public sealed class DesktopCommandsTests
         var withFile = Menu([Item("a.txt"), Shell(DesktopCommands.RecycleBinItem)]);
 
         Assert.Empty(Row(pc));
-        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(pc));
+        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.CreateFence, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(pc));
         Assert.Equal([ThisPcItem], pc.Classic);
 
         Assert.Empty(Row(bin));
-        Assert.Equal([FileCommand.Open, FileCommand.EmptyRecycleBin, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(bin));
+        Assert.Equal([FileCommand.Open, FileCommand.EmptyRecycleBin, FileCommand.Properties, Sep, FileCommand.CreateFence, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(bin));
         Assert.Equal(canEmpty, Enabled(bin, FileCommand.EmptyRecycleBin));
 
         // With a file beside it the bin's own line goes, and still nothing cuts, renames or deletes.
         Assert.Empty(Row(withFile));
-        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(withFile));
+        Assert.Equal([FileCommand.Open, FileCommand.Properties, Sep, FileCommand.CreateFence, FileCommand.HideFromView, FileCommand.EditMode, FileCommand.LockWidgets, Sep, FileCommand.ShowMoreOptions], List(withFile));
         Assert.Equal([Desk + "a.txt", DesktopCommands.RecycleBinItem], withFile.Classic);
     }
 

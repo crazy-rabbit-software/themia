@@ -94,6 +94,7 @@ public static class FileMenuEntries
         FileCommand.EditMode => (Glyphs.Edit, Str.Shell_Menu_EditMode.Text()),
         FileCommand.LockWidgets => (Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text()),
         FileCommand.HideFromView => (Glyphs.Hide, Str.Desktop_HideFromView.Text()),
+        FileCommand.CreateFence => (Glyphs.Group, Str.Desktop_Fence_FromSelection.Text()),
         FileCommand.ShowMoreOptions => (Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text()),
         FileCommand.New => (Glyphs.Add, Str.WidgetsB_Folder_New.Text()),
         FileCommand.Refresh => (Glyphs.Refresh, Str.Common_Refresh.Text()),

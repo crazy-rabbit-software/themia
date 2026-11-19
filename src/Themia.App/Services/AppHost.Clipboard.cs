@@ -50,7 +50,13 @@ internal sealed partial class AppHost
         var ids = Selection.Ids.ToList();
         Mutate(_ =>
         {
+            // [S-13009] A fence deleted never takes its items with it: they go back on the free desktop where it stood (the undo brings it back with them).
+            var fences = view.Widgets.Where(w => ids.Contains(w.Id) && w.Config is IHoldsDesktopItems).ToList();
             view.Widgets.RemoveAll(w => ids.Contains(w.Id));
+            foreach (var fence in fences)
+            {
+                PutBackFenceItems(view, fence);
+            }
         }, undo: UndoAction.Delete);
         Select(null);
 

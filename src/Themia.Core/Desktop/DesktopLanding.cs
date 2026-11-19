@@ -10,15 +10,28 @@ namespace Themia.Core.Desktop;
 /// <paramref name="Names"/> are the file names the arrival is expected under (a drop's files); empty
 /// means "whatever arrives next" (a paste or New › from the background menu, whose names the shell
 /// chooses). [S-5552] <paramref name="Renames"/>: the command was one of New ›'s, so what it made
-/// opens its rename box once it lands, as Explorer's New › does.
+/// opens its rename box once it lands, as Explorer's New › does. [S-13005] <paramref name="Fence"/>: the fence (its
+/// widget id) the arrivals go into instead of the free desktop: a drop on a fence, a paste or a new folder in it.
 /// </summary>
-public sealed record DesktopLandingHint(string ViewId, double? X, double? Y, IReadOnlyList<string> Names, bool Renames = false);
+public sealed record DesktopLandingHint(string ViewId, double? X, double? Y, IReadOnlyList<string> Names, bool Renames = false, string? Fence = null)
+{
+    /// <summary>[S-13102] The file operation that brings the arrivals, when its undo is the desktop's (a paste, a drop, New › Folder); null for none.</summary>
+    public DesktopFileUndoKind? Undo { get; init; }
+
+    /// <summary>[S-13102] Where a copy's or a move's files came from (full paths), matched to the arrivals by name.</summary>
+    public IReadOnlyList<string> Sources { get; init; } = [];
+}
 
 /// <summary>
 /// [S-5591] Where one arrival lands: the view, and the point its cell is looked for from (null: the first
-/// free cell). [S-5552] <paramref name="Renames"/>: it is what New › made, to be renamed in place.
+/// free cell). [S-5552] <paramref name="Renames"/>: it is what New › made, to be renamed in place. [S-13005]
+/// <paramref name="Fence"/>: the fence it goes into, on that view.
 /// </summary>
-public readonly record struct DesktopLandingSpot(string ViewId, double? X, double? Y, bool Renames = false);
+public readonly record struct DesktopLandingSpot(string ViewId, double? X, double? Y, bool Renames = false, string? Fence = null)
+{
+    /// <summary>[S-13102] The hint it came from: the arrivals of one hint with an undo are one step of the log.</summary>
+    public DesktopLandingHint? Hint { get; init; }
+}
 
 /// <summary>
 /// [S-5591] The landings expected, as pure rules: a drop on the desktop says which names it brings and
@@ -84,7 +97,7 @@ public sealed class DesktopLandings
             var name = DesktopRename.FileName(arrivals[i].Key);
             if (any || _waiting.Remove(name))
             {
-                spots[i] = new DesktopLandingSpot(hint.ViewId, hint.X, hint.Y, renames);
+                spots[i] = new DesktopLandingSpot(hint.ViewId, hint.X, hint.Y, renames, hint.Fence) { Hint = hint };
                 renames = false;
             }
         }

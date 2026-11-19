@@ -9,17 +9,22 @@ namespace Themia.Core.Desktop;
 /// <param name="Gone">The ids of the item widgets whose item is no longer listed, in every view.</param>
 /// <param name="Arrivals">The listed items not known before, in <see cref="DesktopItemOrder"/>: each is to get a widget.</param>
 /// <param name="Known">The known set once applied: the listing's keys.</param>
+/// <param name="FenceGone">[S-13003] The keys fences hold (after the renames) that the desktop no longer lists: they leave every fence.</param>
 public sealed record DesktopPlan(
     IReadOnlyList<(string Old, string New)> Renames,
     IReadOnlySet<string> Gone,
     IReadOnlyList<DesktopItem> Arrivals,
-    IReadOnlyList<string> Known)
+    IReadOnlyList<string> Known,
+    IReadOnlySet<string>? FenceGone = null)
 {
+    /// <summary>[S-13003] The fence entries to drop: none when the plan names none.</summary>
+    public IReadOnlySet<string> FenceGoneKeys => FenceGone ?? new HashSet<string>(DesktopItemKeys.Comparer);
+
     /// <summary>Nothing to do: no rename, no removal, no arrival, and the known set already is the listing.</summary>
     public bool Changes(AppState state)
     {
         ArgumentNullException.ThrowIfNull(state);
-        return Renames.Count > 0 || Gone.Count > 0 || Arrivals.Count > 0 || !Known.SequenceEqual(state.Desktop.Known, DesktopItemKeys.Comparer);
+        return Renames.Count > 0 || Gone.Count > 0 || FenceGoneKeys.Count > 0 || Arrivals.Count > 0 || !Known.SequenceEqual(state.Desktop.Known, DesktopItemKeys.Comparer);
     }
 }
 
@@ -56,7 +61,8 @@ public static partial class DesktopReconcile
                 continue;
             }
 
-            var touches = known.Contains(before) || ItemWidgets(state).Any(w => DesktopItemKeys.Comparer.Equals(w.Config.Item, before));
+            var touches = known.Contains(before) || ItemWidgets(state).Any(w => DesktopItemKeys.Comparer.Equals(w.Config.Item, before))
+                || DesktopFences.AllHeld(state).Contains(before, DesktopItemKeys.Comparer);
             if (!touches)
             {
                 continue;
@@ -81,10 +87,21 @@ public static partial class DesktopReconcile
             }
         }
 
+        // [S-13003] Every fence's items, by the key they will have after the renames: the same rule as a widget's.
+        var fenceGone = new HashSet<string>(DesktopItemKeys.Comparer);
+        foreach (var held in DesktopFences.AllHeld(state))
+        {
+            var key = renamedTo.TryGetValue(held, out var renamed) ? renamed : held;
+            if (!listed.ContainsKey(key) && expected?.Contains(key) != true)
+            {
+                fenceGone.Add(key);
+            }
+        }
+
         // (3) and (4).
         var arrivals = DesktopItemOrder.Sort(listed.Values.Where(item => !known.Contains(item.Key)));
         var waiting = expected?.Where(key => !listed.ContainsKey(key)) ?? [];
-        return new DesktopPlan(applied, gone, arrivals, [.. listed.Keys, .. waiting]);
+        return new DesktopPlan(applied, gone, arrivals, [.. listed.Keys, .. waiting], fenceGone);
     }
 
     /// <summary>
@@ -127,7 +144,13 @@ public static partial class DesktopReconcile
                     config.Item = after;
                 }
             }
+
+            // [S-13003] A fence keeps a renamed item in its place.
+            DesktopFences.Rename(state, before, after);
         }
+
+        // [S-13003] An item gone from the desktop leaves its fence.
+        DesktopFences.Forget(state, plan.FenceGoneKeys);
 
         if (plan.Gone.Count > 0)
         {
@@ -151,6 +174,19 @@ public static partial class DesktopReconcile
             }
 
             return room;
+        }
+
+        // [S-13005] [S-13004] Into a fence of the view, at its end, unless the view shows the item already.
+        void IntoFence(ViewState view, string fenceId, DesktopItem item)
+        {
+            var shownHere = rooms.TryGetValue(view.Id, out var room) ? room.Shown : null;
+            if (shownHere?.Contains(item.Key) ?? DesktopViews.Shown(view).Contains(item.Key))
+            {
+                return;
+            }
+
+            DesktopFences.On(view).First(on => string.Equals(on.Widget.Id, fenceId, StringComparison.Ordinal)).Fence.Items.Add(item.Key);
+            shownHere?.Add(item.Key);
         }
 
         void Land(ViewState view, ScreenMetrics on, DesktopItem item, double? x, double? y)
@@ -177,8 +213,16 @@ public static partial class DesktopReconcile
             var item = plan.Arrivals[i];
 
             // [S-5591] Its own spot first: the view of the display it was dropped on, at the drop point.
+            // [S-13005] A spot in a fence (a drop on it, a paste or New › there): into that fence, whatever the view's value.
             string? landedOn = null;
-            if (spots is not null && i < spots.Count && spots[i] is { } spot
+            if (spots is not null && i < spots.Count && spots[i] is { Fence: { } fenceId } fenced
+                && state.FindView(fenced.ViewId) is { } fenceView
+                && DesktopFences.On(fenceView).Any(on => string.Equals(on.Widget.Id, fenceId, StringComparison.Ordinal)))
+            {
+                landedOn = fenceView.Id;
+                IntoFence(fenceView, fenceId, item);
+            }
+            else if (spots is not null && i < spots.Count && spots[i] is { } spot
                 && state.FindView(spot.ViewId) is { } spotView
                 && screenOf?.Invoke(spot.ViewId) is { IsUsable: true } spotScreen)
             {
@@ -199,10 +243,20 @@ public static partial class DesktopReconcile
                 continue;
             }
 
-            // [S-5526] Every other view that shows all desktop icons, at its first free spot.
+            // [S-13004] Every other view: into the first of its fences whose rules take the item, whatever the view's value;
+            // [S-5526] else, on a view that shows all desktop icons, at its first free spot.
             foreach (var view in state.Views)
             {
-                if (DesktopViews.Receives(view) && !string.Equals(view.Id, landedOn, StringComparison.Ordinal))
+                if (string.Equals(view.Id, landedOn, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (DesktopFences.Route(view, item) is { } routed)
+                {
+                    IntoFence(view, routed.Widget.Id, item);
+                }
+                else if (DesktopViews.Receives(view))
                 {
                     Land(view, screenOf?.Invoke(view.Id) is { IsUsable: true } shownOn ? shownOn : screen, item, null, null);
                 }

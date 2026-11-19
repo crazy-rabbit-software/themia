@@ -195,6 +195,10 @@ internal sealed partial class AppHost
             case FileCommand.HideFromView:
                 HideDesktopIcons(icons);
                 break;
+            case FileCommand.CreateFence:
+                // [S-13008] A fence round the selected desktop items, which move into it.
+                CreateFenceFromSelection();
+                break;
             case FileCommand.ShowMoreOptions:
                 // After the click's own menu has closed: the classic menu is tracked in a loop of its own.
                 if (!_dispatcher.TryEnqueue(() => ShowClassicItemMenu(menu, icons)))
@@ -333,13 +337,14 @@ internal sealed partial class AppHost
 
         try
         {
-            var facts = DesktopBackgroundFacts.Of(State, HostFileClipboard.Instance.HasFiles, ShellFileOps.TerminalPath() is not null);
+            var facts = DesktopBackgroundFacts.Of(State, HostFileClipboard.Instance.HasFiles, ShellFileOps.TerminalPath() is not null, DesktopUndoOffered());
             var templates = ShellNewTemplates.GetAsync() is { IsCompletedSuccessfully: true } read ? read.Result : [];
             var entries = DesktopBackgroundEntries(
                 DesktopBackground.Menu(facts),
                 templates,
                 command => RunDesktopMenuCommand(surface, dip, command),
-                template => NewOnDesktop(surface, dip, desktop => HostFileOps.Instance.NewFile(desktop, template)));
+                template => NewOnDesktop(surface, dip, desktop => HostFileOps.Instance.NewFile(desktop, template)),
+                facts.Undo);
             if (!surface.OpenMenuAt(dip, entries))
             {
                 Log.Warn(Scope, "the desktop's background menu did not open");
@@ -360,7 +365,8 @@ internal sealed partial class AppHost
     private const string SortGroup = "desktop-sort";
 
     internal static List<ItemMenuEntry> DesktopBackgroundEntries(
-        IReadOnlyList<DesktopMenuEntry> lines, IReadOnlyList<ShellNewTemplate> templates, Action<DesktopMenuCommand> run, Action<ShellNewTemplate> newFile)
+        IReadOnlyList<DesktopMenuEntry> lines, IReadOnlyList<ShellNewTemplate> templates, Action<DesktopMenuCommand> run, Action<ShellNewTemplate> newFile,
+        DesktopUndoName? undo = null)
     {
         ItemMenuEntry Entry(DesktopMenuEntry line)
         {
@@ -410,12 +416,27 @@ internal sealed partial class AppHost
                 DesktopMenuCommand.LockWidgets => new(Glyphs.Lock, Str.Shell_Menu_LockWidgets.Text(), Run, Checked: line.Checked),
                 DesktopMenuCommand.AddWidget => new(Glyphs.Apps, Str.Shell_Toolbar_AddWidget.Text(), Run),
                 DesktopMenuCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), Run, Shortcut: KeyChord.Shift(ChordKey.F10)),
+
+                // [S-13103] Explorer's own line: "Undo Delete", Ctrl+Z.
+                DesktopMenuCommand.Undo => new(Glyphs.Undo, Str.Desktop_Undo_Line.Format(("action", UndoName(undo))), Run, Shortcut: KeyChord.Ctrl(ChordKey.Z)),
                 _ => throw new ArgumentOutOfRangeException(nameof(lines), command, "a background menu command with no line"),
             };
         }
 
         return [.. lines.Select(Entry)];
     }
+
+    /// <summary>[S-13103] The word the Undo line names its step by, as Explorer's ("Undo Rename").</summary>
+    private static string UndoName(DesktopUndoName? name) => name switch
+    {
+        DesktopUndoName.Copy => Str.Desktop_Undo_Copy.Text(),
+        DesktopUndoName.Move => Str.Desktop_Undo_Move.Text(),
+        DesktopUndoName.NewFolder => Str.Desktop_Undo_NewFolder.Text(),
+        DesktopUndoName.Shortcut => Str.Desktop_Undo_Shortcut.Text(),
+        DesktopUndoName.Rename => Str.Desktop_Undo_Rename.Text(),
+        DesktopUndoName.NewFile => Str.Desktop_Undo_New.Text(),
+        _ => Str.Desktop_Undo_Delete.Text(),
+    };
 
     /// <summary>
     /// [S-5548] [S-5551] [S-5554] [S-5557] One line of the background menu, opened on
@@ -454,12 +475,17 @@ internal sealed partial class AppHost
                 // [S-5554] Reads the desktop again, as F5.
                 HostDesktopItems.Instance.Refresh();
                 break;
+            case DesktopMenuCommand.Undo:
+                // [S-13103] Ctrl+Z's own step.
+                Undo();
+                break;
 
             case DesktopMenuCommand.Paste:
                 _ = PasteAsync(at: (surface, hint.X!.Value, hint.Y!.Value));
                 break;
             case DesktopMenuCommand.PasteShortcut:
-                ExpectLanding(hint);
+                // [S-13102] The shortcuts it makes are one step: their undo recycles them.
+                ExpectLanding(hint with { Undo = DesktopFileUndoKind.Shortcut });
                 RunDesktopVerb(surface, "pastelink");
                 break;
             case DesktopMenuCommand.NewFolder:
@@ -551,7 +577,9 @@ internal sealed partial class AppHost
             return;
         }
 
-        ExpectLanding(new DesktopLandingHint(surface.CurrentViewId, dip.X / metrics.Width, dip.Y / metrics.Height, [name], Renames: true));
+        // [S-13102] What New › made is one step of the undo log (its undo recycles it), as Explorer's Undo New.
+        var undo = Directory.Exists(created) ? DesktopFileUndoKind.NewFolder : DesktopFileUndoKind.NewFile;
+        ExpectLanding(new DesktopLandingHint(surface.CurrentViewId, dip.X / metrics.Width, dip.Y / metrics.Height, [name], Renames: true) { Undo = undo });
     }
 
     /// <summary>

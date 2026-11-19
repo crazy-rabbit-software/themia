@@ -238,7 +238,7 @@ public sealed class DesktopParityTests
         landings.Expect(new DesktopLandingHint("v2", 0.5, 0.5, ["photo.jpg", "notes.txt"]));
 
         var first = landings.Place([new DesktopItem(Desk + "Photo.JPG", "Photo", DesktopItemKind.File), new DesktopItem(Desk + "download.zip", "download", DesktopItemKind.File)]);
-        Assert.Equal(new DesktopLandingSpot("v2", 0.5, 0.5), first[0]);
+        Assert.Equal(("v2", 0.5, 0.5, false, (string?)null), (first[0]!.Value.ViewId, first[0]!.Value.X, first[0]!.Value.Y, first[0]!.Value.Renames, first[0]!.Value.Fence));
         Assert.Null(first[1]);
         Assert.NotNull(landings.Pending);
 

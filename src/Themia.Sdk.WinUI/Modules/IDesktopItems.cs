@@ -45,6 +45,12 @@ public interface IDesktopItems
     /// <summary>[S-5543] The widget (its id) whose item shows its rename box now, or null.</summary>
     string? RenamingWidget { get; }
 
+    /// <summary>[S-13011] The item whose rename box shows now (its key), or null: a fence draws the box on that item of its own.</summary>
+    string? RenamingKey { get; }
+
+    /// <summary>[S-13000] What a fence asks of the desktop beyond the gestures on its items.</summary>
+    IDesktopFences Fences { get; }
+
     /// <summary>[S-5549] The item widget a drag hovers as its drop target now (its id), or null.</summary>
     string? DropTargetWidget { get; }
 

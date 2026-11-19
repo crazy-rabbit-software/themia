@@ -281,8 +281,10 @@ public static class DesktopCommands
         lines.Add(FileMenuLine.Separator);
 
         // [S-5527] Desktop items alone (never an own icon, which is the view's placed widget): off this view.
+        // [S-13008] And into a fence of their own, made round them.
         if (selection.All(icon => !icon.Own))
         {
+            lines.Add(new(FileCommand.CreateFence));
             lines.Add(new(FileCommand.HideFromView));
         }
 

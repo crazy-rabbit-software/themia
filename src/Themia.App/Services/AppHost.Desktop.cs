@@ -174,8 +174,13 @@ internal sealed partial class AppHost
         var plan = DesktopReconcile.Plan(State, listing, renames, Restoring(listing));
         if (plan.Changes(State))
         {
+            // [S-5591] Where the arrivals land, worked out once: [S-13102] the command that brought them may be a step of the undo log.
+            var spots = LandingSpots(plan.Arrivals);
             var deleted = DeletedBy(plan);
-            Mutate(state => ReconcileDesktop(state, plan), undo: deleted is null ? null : UndoAction.DeleteDesktopItems, effect: deleted);
+            var files = deleted is null ? FileStepOf(plan, spots) : null;
+            IUndoEffect? effect = deleted is not null ? deleted : files;
+            UndoAction? step = deleted is not null ? UndoAction.DeleteDesktopItems : files is not null ? UndoAction.DesktopFiles : null;
+            Mutate(state => ReconcileDesktop(state, plan, spots), undo: step, effect: effect);
         }
 
         // [S-5552] What New › made is on the desktop now: its rename box opens, the item selected.
@@ -218,12 +223,12 @@ internal sealed partial class AppHost
         var plan = DesktopReconcile.Plan(State, HostDesktopItems.Instance.Items, [], _restoring);
         if (plan.Changes(State))
         {
-            ReconcileDesktop(State, plan);
+            ReconcileDesktop(State, plan, LandingSpots(plan.Arrivals));
         }
     }
 
     /// <summary>[S-5520] [S-5521] [S-5526] Apply a plan: new items land in every view that shows all desktop icons, at its next free cells.</summary>
-    private void ReconcileDesktop(AppState state, DesktopPlan plan)
+    private void ReconcileDesktop(AppState state, DesktopPlan plan, IReadOnlyList<DesktopLandingSpot?> spots)
     {
         if (ItemKind is not { } kind)
         {
@@ -232,8 +237,7 @@ internal sealed partial class AppHost
 
         var screen = DeskPrimaryScreen;
 
-        // [S-5591] A drop's, a paste's or New ›'s arrivals land where they were expected.
-        var spots = LandingSpots(plan.Arrivals);
+        // [S-5591] A drop's, a paste's or New ›'s arrivals land where they were expected (spots).
         var made = new Dictionary<string, string>(DesktopItemKeys.Comparer);
         var unplaced = DesktopReconcile.Apply(
             state, plan, screen, (DeskCellDip.Width, DeskCellDip.Height),

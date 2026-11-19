@@ -3,23 +3,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Desktop;
 
-/// <summary>[S-5555] What the desktop's Sort by orders its items by, as Explorer's desktop menu offers.</summary>
-[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<DesktopSortBy>))]
-public enum DesktopSortBy
-{
-    /// <summary>By name: the order new items are laid out in (<see cref="DesktopItemOrder"/>).</summary>
-    Name,
-
-    /// <summary>By size, smallest first.</summary>
-    Size,
-
-    /// <summary>By item type (a file's extension), then by name.</summary>
-    ItemType,
-
-    /// <summary>By the date modified, newest first.</summary>
-    DateModified,
-}
-
 /// <summary>
 /// [S-5555] What a sort reads of one item beyond its name: a file's size, its type (its extension, lower
 /// case, empty for none) and when it was last written. A shell item and anything that could not be read

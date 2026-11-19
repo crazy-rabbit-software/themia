@@ -66,6 +66,9 @@ public enum FileCommand
     /// <summary>[S-5527] "Hide from this view": desktop items' icons off the view they stand on; the files stay.</summary>
     HideFromView,
 
+    /// <summary>[S-13008] "Create fence from selection": a fence round the selected desktop items, which move into it.</summary>
+    CreateFence,
+
     /// <summary>The shell's full classic menu (<c>IContextMenu</c>).</summary>
     ShowMoreOptions,
 

@@ -79,10 +79,27 @@ internal static class DragRender
                         screen.Background = wall;
                         await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-move-{tag}-{wallName}.png")).ConfigureAwait(true);
                         await LassoAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-lasso-{tag}-{wallName}.png")).ConfigureAwait(true);
+                        await FencesAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-fences-{tag}-{wallName}.png")).ConfigureAwait(true);
                         foreach (var size in new[] { DesktopIconSize.Small, DesktopIconSize.Medium, DesktopIconSize.Large })
                         {
                             await IconsAsync(screen, ticker, metrics, scale, size, System.IO.Path.Combine(outDir, $"drag-icons-{size.ToString().ToLowerInvariant()}-{tag}-{wallName}.png")).ConfigureAwait(true);
                         }
+                    }
+                }
+
+                // [S-13000] The fences again in Liquid glass, which frosts over the wallpaper.
+                foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
+                {
+                    var glass = new DesignState();
+                    DesignPresets.Apply(glass, DesignPresetId.LiquidGlass);
+                    glass.Theme = theme;
+                    DesignApplier.Apply(glass);
+                    screen.RequestedTheme = DesignApplier.Theme;
+                    var tag = theme == AppTheme.Light ? "light" : "dark";
+                    foreach (var (wallName, wall) in Wallpapers())
+                    {
+                        screen.Background = wall;
+                        await FencesAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-fences-glass-{tag}-{wallName}.png")).ConfigureAwait(true);
                     }
                 }
 
@@ -193,6 +210,58 @@ internal static class DragRender
         await Task.Delay(900).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"drag: wrote {path}");
+    }
+
+    /// <summary>
+    /// [S-13000] [S-13007] [S-13011] [S-13012] Fences on the locked desktop: one with two items selected among the free
+    /// icons' selection (the desktop's one look in both), one rolled up to its title bar, and the rectangle a right-drag
+    /// draws to make one, in the band's look.
+    /// </summary>
+    private static async Task FencesAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, string path)
+    {
+        screen.Children.Clear();
+        DesktopCell.Apply(DesktopIconSize.Medium);
+        var host = new NoticeRender.RenderCardHost(ticker);
+        var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+        screen.Children.Add(layer);
+
+        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.04, 0, 0), "thisPc").ConfigureAwait(true);
+        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.26, 0, 0), "selected").ConfigureAwait(true);
+        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.48, 0, 0), "recycleBin").ConfigureAwait(true);
+
+        var work = GridGeometry.Settle(new FracRect(0.14, 0.04, 0.27, 0.46), metrics);
+        await FenceAsync(layer, host, metrics, work, "selected").ConfigureAwait(true);
+        var rolled = GridGeometry.Settle(new FracRect(0.45, 0.04, 0.25, 0.06), metrics);
+        await FenceAsync(layer, host, metrics, rolled, "rolledUp").ConfigureAwait(true);
+        var many = GridGeometry.Settle(new FracRect(0.73, 0.04, 0.25, 0.5), metrics);
+        await FenceAsync(layer, host, metrics, many, "many").ConfigureAwait(true);
+
+        // The rectangle a right-drag on empty desktop draws before "Create fence here".
+        var band = new Border { Width = 0.3 * ScreenWidth, Height = 0.3 * ScreenHeight, IsHitTestVisible = false };
+        SelectionChrome.PaintBand(band);
+        Canvas.SetLeft(band, 0.4 * ScreenWidth);
+        Canvas.SetTop(band, 0.62 * ScreenHeight);
+        layer.Children.Add(band);
+
+        await Task.Delay(900).ConfigureAwait(true);
+        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
+        Console.WriteLine($"drag: wrote {path}");
+    }
+
+    /// <summary>A fence at <paramref name="rect"/> in a preview state.</summary>
+    private static async Task FenceAsync(Canvas layer, IWidgetCardHost host, ScreenMetrics metrics, FracRect rect, string state)
+    {
+        if (ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IHoldsDesktopItems).IsAssignableFrom(d.ConfigType)) is not { } kind)
+        {
+            return;
+        }
+
+        var card = new WidgetCard(host, WidgetInstance.Create(kind.Id, rect));
+        Place(layer, card, rect, metrics);
+        if (card.View is IWidgetPreviewState preview)
+        {
+            await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
+        }
     }
 
     /// <summary>[S-11875] [S-11876] Twelve icons at <paramref name="size"/> packed on the widget grid round a clock, the grid drawn to judge them.</summary>

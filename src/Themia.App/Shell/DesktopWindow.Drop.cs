@@ -311,14 +311,12 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     /// </summary>
     private DropEffect DropOnDesktop(WidgetDrag drag, string desktop, Point at)
     {
-        var names = drag.Paths.Select(Path.GetFileName)
-            .Concat(drag.VirtualFileNames.Select(n => Path.GetFileName(n.Replace('/', Path.DirectorySeparatorChar))))
-            .OfType<string>()
-            .Where(n => n.Length > 0)
-            .ToList();
-        _host.ExpectDeskDrop(this, at, names);
+        _host.ExpectDeskDrop(this, at, Services.AppHost.DropNames(drag));
+        var effect = drag.ForwardDrop(desktop, DropEffect.None);
 
-        return drag.ForwardDrop(desktop, DropEffect.None);
+        // [S-13102] What the shell did is one step of the undo log once the files arrive.
+        _host.NoteDropUndo(effect, drag.Paths);
+        return effect;
     }
 
     /// <summary>

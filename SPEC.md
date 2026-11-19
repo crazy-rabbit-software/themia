@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Fences on the desktop (FENCES); Windows' desktop parity (PARITY); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -9815,9 +9815,10 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   (else the background menu); **Shift+F10 opens the shell's classic menu directly**, as Explorer, and so does a
   right-click with Shift held (where the selection has no classic menu, an own icon on no path or a selection
   of both sources, they open the Windows 11 one). *(Until 2026-11-14 both keys opened the classic menu.)* What Delete and the clipboard do with an own icon in the selection is
-  [S-5583] and [S-5585]. **Ctrl+Z is not offered**: Explorer's undo lives in Explorer's own
-  process and no API reaches it from outside, so Themia's desktop has no undo of file operations
-  (its own arrangement keeps the edit bar's undo, [S-5546]).
+  [S-5583] and [S-5585]. **Ctrl+Z and Ctrl+Y** step the one history: Explorer's undo lives in Explorer's own
+  process and no API reaches it from outside, so the desktop's undo log carries its own file steps (a delete, [S-5597];
+  a copy, a move, a new folder or file, a shortcut, a rename, [S-13102]). Ctrl+Shift+N makes a new folder ([S-13101]),
+  Ctrl+Shift+C copies the paths ([S-13104]). *(Until 2026-11-19: "Ctrl+Z is not offered … no undo of file operations".)*
 - **[S-5588]** *(Retired 2026-11-15 by [S-11875], [S-11876]: Explorer's icon grid, `DesktopSlots`, one icon in one
   cell of a grid of its own, is gone; icons stand on the widget grid and are placed by its rules.)*
 - **[S-11875]** **An icon is whole grid cells** (owner, 2026-11-15: "the desktop icons should follow the same
@@ -9977,8 +9978,9 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   file types (`ShellNewTemplates`, the folder widget's, [S-1331]; made through `IShellFileOps`); then
   **Display settings** and **Personalise** (Windows Settings' pages) and, where Windows Terminal's `wt.exe`
   alias is there, **Open in Terminal** (in the desktop folder); then Themia's own lines ([S-5551]); then
-  **Show more options**. One separator between the groups, never two in a row and none at an end. **Undo is
-  not offered** ([S-5545] says why), nor **Group by**. View › is complete as Explorer's ([S-5557]). What a command brings (a paste, a new folder or file) lands where the click was ([S-5591]).
+  **Show more options**. One separator between the groups, never two in a row and none at an end. **Undo …**
+  after Paste shortcut while Ctrl+Z would take back a desktop file step ([S-13103]); no **Group by**. *(Until
+  2026-11-19: "Undo is not offered".)* View › is complete as Explorer's ([S-5557]). What a command brings (a paste, a new folder or file) lands where the click was ([S-5591]).
   **Show more options** (and Shift+F10, and Shift held at the right-click, [S-5545]) opens **the shell's
   classic menu**: for icons the `IContextMenu` of the selected desktop items (`ShellContextMenu.ShowForItems`,
   every extension's lines, Send to and Open with filling themselves through `IContextMenu2/3`'s messages; its
@@ -10123,8 +10125,9 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   edit mode with that icon's widget selected, so its page opens ([S-2340], [S-9509]), as Alt+Enter with an own
   icon focused does. **Several own icons**: Open (off when none opens), Copy path where every one has a path to
   say, then Delete (one row command is no row, [S-1741]: a labelled line). **A selection of both sources**: Open
-  and, where every one has a path to say, Copy path; no Rename and no Delete. **Every menu** then holds
-  **Edit mode** ([S-65], unchecked) after a separator, and last, after another, **Show more options** where the shell
+  and, where every one has a path to say, Copy path; no Rename and no Delete. **Every menu** then holds, after a separator and while every
+  icon is a desktop item's, **Create fence from selection** ([S-13008]) and Hide from this view ([S-5527]), then
+  **Edit mode** ([S-65], unchecked), and last, after another, **Show more options** where the shell
   has a classic menu for the selection: for desktop items theirs, for one own icon whose path is there that
   path's (the shell's own lines for the target, its Rename and Delete the target's), for any other own icon
   and a selection of both sources none (`DeskMenu.Classic`). Never two separators in a row and none at an end.
@@ -10221,6 +10224,145 @@ with no file refused everywhere else) and nothing of the desktop icons' menu ([S
 a shell item, one own icon, several, a selection of both, each line, Properties… entering edit mode, Show more
 options) was exercised on a live
 desktop in that change; nor Delete with its undo notice, F2 and Ctrl+C on own icons, and Narrator over both. The module's `SPEC.md` lists them.
+
+## Fences on the desktop (FENCES)
+
+Stardock Fences' feature, not its look (the owner, 2026-11-19: "think about how we could integrate something like fences
+... to create a group of icons with a header. it should also be build as a widget that can be created like fences does
+it"): a **fence** is a widget, the kind `fence` (`src/Widgets/Themia.Widget.Fence`, its own look and gestures in its
+`SPEC.md`, [S-10900]..[S-10920]), that holds real desktop items in a box with a title bar of its own. This section is the
+desktop's side: which items stand where, and how they get there.
+
+Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `DesktopReconcile.Plan.cs`, `DesktopViews.cs`,
+`DesktopLanding.cs` and `Model/LayoutHistory.cs`; `Themia.Sdk/Model/Configs/IHoldsDesktopItems.cs`,
+`Themia.Sdk/Files/FenceRules.cs`, `Themia.Sdk/Widgets/FenceGrid.cs`, `Themia.Sdk.WinUI/Modules/IDesktopFences.cs`;
+`Themia.App/Services/AppHost.DesktopFences.cs` and the fence parts of `AppHost.DesktopDesk.cs`,
+`Shell/DesktopWindow.Desktop.cs`. Tests `DesktopFencesTests`, `FenceRulesTests` (Core), the module's `FenceTests`.
+
+- **[S-13000]** **A fence holds desktop items by their keys** (`IHoldsDesktopItems`, the SDK's config contract: `Items`,
+  in the fence's order, each the desktop's key, [S-5510]; `Rules`, `RolledUp`, `OpenHeight`, `Sort`, `Name`). The host's
+  rules read and rewrite it without knowing the module, as they do `IDesktopItemConfig`. A fence asks the host through
+  `IDesktopItems.Fences` (`IDesktopFences`: where it laid its items, roll up, its sort's order, rename, remove, drops,
+  paste, a new folder), never edits its own items. It is a normal widget otherwise: it moves (by its title bar, [S-10904]),
+  stands on the grid, is drawn in Liquid glass and the design's looks, is selected with icons and cards ([S-11877]),
+  stays where it is with Lock widgets ([S-12950]), and is copied, cut and deleted in edit mode as any widget.
+- **[S-13001]** **One place per view**: a fence lives on one view; on that view its items are shown in it and **never on
+  the free desktop** (no item widget of theirs), and a view's Desktop icons value (All, Chosen, None, [S-5525]) concerns
+  the free desktop alone: an item in a fence is always shown with its fence, a None view keeps its fences' items, and the
+  Chosen view's list leaves them out (`DesktopViews.Shown` = the free icons, `Free`, and the fences' items,
+  `DesktopFences.Held`). Another view may show the same item free or in a fence of its own. Add widget's On the desktop
+  ([S-5523]) offers no item a fence of that view holds. Tests `DesktopFencesTests.S13001_`.
+- **[S-13002]** **Load** (`DesktopFences.Repair`, after every config's own repair): in each fence an invalid key and a
+  repeat go; an item in two fences of one view stays in the first (the view's order) and leaves the others; an item a
+  fence holds loses a free icon on that view (the fence was the user's choice); an unusable height to unroll to or an
+  unknown sort is dropped; its rules are made whole (`FenceRules.Repair`: unknown or repeated types go, an extension is
+  made `.ext` or goes, at most 32; the name text trimmed, at most 100 characters). Each repair is said. Items no longer on
+  the desktop are the reconcile's ([S-13003]): load has no listing. Tests `DesktopFencesTests.S13002_`, `FenceRulesTests.S13002_`.
+- **[S-13003]** **The reconcile keeps fences current** ([S-5520]): an item renamed in Explorer keeps its place in its fence
+  under the new key; an item no longer listed (deleted, moved or renamed away) leaves every fence, unless an undo is
+  putting it back (`expected`, [S-5597]); the plan names those entries (`DesktopPlan.FenceGone`). Not an undo step: the
+  disk changed. Tests `DesktopFencesTests.S13003_`.
+- **[S-13004]** **Rules** (Fences' own, kept small; `FenceRuleSet`, `FenceRules.Matches`): **New items of type…** (Images,
+  Documents, Installers, Archives, Videos, Music by their extensions, Shortcuts and Folders by the item's kind, and the
+  user's own extensions) and **Name contains…** (case aside). A new desktop item with no landing spot arrives, on each view,
+  in the first fence of that view (its widgets' order) whose rules it matches, whatever the view's value; a view with no
+  matching fence takes it by the normal rules ([S-5526]). A drop, a paste or New › at a point of the free desktop lands
+  there, never routed. A shell item matches nothing. Tests `DesktopFencesTests.S13004_`, `FenceRulesTests.S13004_`.
+- **[S-13005]** **Into a fence**: the desktop's own drag let go on a fence moves its desktop items in before the item
+  the mark shows (`DesktopFences.MoveIn`: each leaves the free desktop and every other fence of that view; one already in
+  the fence moves to the new place; own icons and cards in the drag stay where they were), one undo step. Files from
+  outside dropped on it go into the user's desktop folder through the shell's own drop target, as a drop on empty desktop
+  ([S-5549]: copy, move, link, the right-drag menu, virtual files), and arrive in the fence (`DesktopLandingHint.Fence`,
+  whatever its rules say); so do a paste with the fence's lease or its menu's Paste, and its New folder (with the rename
+  box, [S-5552]). Tests `DesktopFencesTests.S13005_`.
+- **[S-13006]** **Out of a fence**: its items dragged onto empty desktop of any display leave the fence and arrive on that
+  view's free desktop at the drop point (`DesktopGrid.Arrive`, centred on the point or the free spot nearest it,
+  [S-11876]; one already free there keeps its icon), with any free icons of the drag moving as a block ([S-5546]), one undo
+  step. A fence is never in the drag of its own items (`BeginDrag`), so over it the drop is the fence's. Dropped onto
+  Explorer, a folder, an app or the Recycle Bin the target does what it does; the item, gone from the desktop, leaves the
+  fence by [S-13003]. Tests `DesktopFencesTests.S13006_`.
+- **[S-13007]** **Created as Fences does**: on the locked desktop a rectangle drawn with the right button on empty desktop
+  (past the dead zone, drawn in the band's look) opens, at the release, a menu of one line, **Create fence here**; it makes
+  an empty fence on that rectangle snapped out to whole grid cells and at least the kind's minimum
+  (`DesktopFences.FromRect`), one undo step. A plain right-click still opens the background menu. Add widget's tile
+  (Files) places one as any widget. Tests `DesktopFencesTests.S13007_`.
+- **[S-13008]** **Create fence from selection**: the icon menu of a selection of desktop items ([S-5582], before Hide from
+  this view) makes a fence round their free icons on the view the menu opened on: their box with the title bar above, at
+  least the size that shows them all without scrolling (`FenceGrid.Around`, near square), snapped to the grid
+  (`DesktopFences.AroundIcons`); the items move in, in the selection's order. One undo step. Tests
+  `DesktopFencesTests.S13008_`, `DesktopCommandsTests`.
+- **[S-13009]** **Removing a fence never deletes a file**: its Remove fence asks first ("Put the 3 items back on the
+  desktop?", Put back the default, [S-10911]); edit mode's Delete removes it with no question, as any widget ([S-881]); both
+  put its items back on its view's free desktop where it stood (the free spots nearest its corner, one by one; none found
+  leaves an item for Add widget), and the undo notice is the way back: the undo brings the fence back with its items and
+  takes their free icons away again. Tests `DesktopFencesTests.S13009_`, `FenceTests.S10919_`.
+- **[S-13010]** **Membership is the arrangement**: the undo snapshot copies each fence's items (`WidgetShape.Held`), so a
+  move into or out of a fence, a fence made round a selection and a removal are undone and redone with the icons' places;
+  a change of membership alone is a step (`SameLayout` compares it). Tests `FenceTests.S10918_`.
+- **[S-13011]** **A fence's items are in the one selection** ([S-5540]): the fence tells the host where it draws the items
+  it shows now (`IDesktopFences.Laid`, in its DIPs, the scroll taken into account; none while rolled up) and the host
+  puts them in the selection's layout in screen pixels, so the band ([S-5544]) reaches into a fence, the arrows ([S-5541])
+  cross between fences and the free desktop, type-to-find finds them and Ctrl+A selects them. A fence item is a desktop
+  item to every command (`FenceIcon`: open, menus, delete, the clipboard, rename, properties); F2's box shows on the item
+  in its fence (`IDesktopItems.RenamingKey`).
+- **[S-13012]** **Roll up** (`IDesktopFences.RollUp`): the fence's height becomes its title bar's (`FenceGrid.TitleHeight`,
+  the kind's sizing pins it while rolled up), the height it had kept in its config (`OpenHeight`) to unroll to. Not an undo
+  step: a look, as Fences' own. Its items are out of the selection's layout while rolled up.
+- **[S-13013]** **A fence's sort** is a standing order (its page's Sort by, [S-10914]): the fence shows its items in the
+  desktop's own Sort by order (`DesktopSort.Order`: shell items, folders, files; name, item type, date modified or size)
+  while one is set, read again when its items or its sort change; As placed keeps the order they were put in.
+- **[S-13014]** **Per view**: a fence's items show only where the fence is; a fence copied or cut to another view takes
+  its items with it, and the views' own rules then hold (an item both free and fenced on the new view keeps its fence at
+  the next load, [S-13002]).
+
+Needs a manual pass on the live desktop: everything above that a pointer does (the right-drag rectangle and its menu, a
+drag into, out of and between fences, a drop from Explorer onto a fence, the band reaching into one, the arrows across),
+on one display and two of different scales; a rule taking a downloaded file; Remove fence's question and its undo.
+
+## Windows' desktop parity (PARITY)
+
+The owner, 2026-11-19: "make sure that this is deeply integrated into windows and how the desktop natively works.
+dragging and dropping stuff on the desktop, removing and undoing deletions, and copy pasting onto the desktop should all
+be possible without noticing a difference to normal windows." The audit (behaviour, Windows, Themia, gap, fix) was made
+against the DESKTOP section's rules; what it found missing is here.
+
+- **[S-13100]** **The audit's result**, for free icons and icons in fences alike: drags in from Explorer and apps, out to
+  Explorer, folders, apps and the Recycle Bin, between displays and onto a folder icon, the right-drag menu from outside,
+  drops of a URL (a `.url` file, the shell's) and of plain text (refused, as Explorer's), Delete and Shift+Delete with the
+  shell's prompts, Ctrl+C/X/V and the clipboard's formats both ways (CF_HDROP, Shell IDList, Preferred DropEffect), paste
+  at the click, F2 with Explorer's rules, type-to-find, the arrows, Enter, Alt+Enter, Ctrl+A, F5, the Menu key and
+  Shift+F10, and live sync through the shell's change notifications were Explorer's already ([S-5540]..[S-5597]). Fixed:
+  Ctrl+Shift+N ([S-13101]), Explorer's undo of the desktop's own file operations beyond a delete ([S-13102]), the menu's
+  Undo line ([S-13103]), Ctrl+Shift+C ([S-13104]). Left, with why: a right-drag of Themia's own icons (the drag XAML
+  starts from an island is a left press's, [S-5549]: the shell's Move here / Copy here / Create shortcuts here menu shows
+  for drags from other programs only); a drag of a shell item (This PC, the Recycle Bin) to another program ([S-5586]);
+  Paste shortcut into a fence (the desktop's own Paste shortcut lands at its click).
+- **[S-13101]** **Ctrl+Shift+N** makes a new folder in the user's desktop folder, as in Explorer (`WidgetKey.NewFolder`),
+  landing in the fence that has the keys, else at the last press on that display's empty desktop, else at its first free
+  spot, with its rename box open ([S-5552]); one step of the undo log ([S-13102]). Tests `DesktopFileUndoTests.S13101_`.
+- **[S-13102]** **Explorer's undo for the desktop's file operations** (`DesktopFileUndo`, a `DesktopFileStep` the undo log
+  carries both ways as [S-5597]'s delete, `UndoAction.DesktopFiles`): Explorer's undo lives in its own process, out of reach,
+  so the desktop's undo log carries each step's files itself. A **paste** (a copy: its undo recycles the copies; a cut: its
+  undo moves each back into the folder it came from), a **drop from outside** onto the desktop or a fence (by what the
+  shell did: a copy, a move, a link), **Paste shortcut**, **New › Folder** and Ctrl+Shift+N, **New › a file**, and a
+  **rename** (F2, the menu's Rename: its undo gives the old name back) are each one step, recorded when a read of the desktop
+  sees what it brought (the landing that named it, [S-5591]; a rename heard from the shell's notification), with the
+  arrangement's step: the icons come back where they stood. **Redo** does it again where it still can (the copy from its
+  source, the move, the folder under its name, the rename; a shortcut or a template's file is not made again). Every undo
+  and redo runs through the shell's own file operations (their prompts and conflict dialogs, the Recycle Bin, never a
+  permanent delete), never over something already there; what had to be left is said in one notice. Items an undo brings
+  back keep their icons in place till they are listed ([S-5597]'s wait). A step with a file side is a step even where the
+  arrangement stays (a rename). Tests `DesktopFileUndoTests.S13102_`.
+- **[S-13103]** **The background menu's Undo line**, as Explorer's ("Undo Delete", "Undo Rename", "Undo Copy", "Undo
+  Move", "Undo New folder", "Undo New", "Undo Shortcut"; Ctrl+Z beside it), after Paste shortcut, while Ctrl+Z would take
+  back one of the desktop's file steps ([S-5597], [S-13102]); an arrangement's step (a move of icons) gets no line, as
+  Explorer's has none. Tests `DesktopFileUndoTests.S13103_`, `DesktopEdgeTests.S5548_S13103_`.
+- **[S-13104]** **Ctrl+Shift+C** copies the selected files' paths, quoted, a line each, as Explorer's Copy as path
+  (`FileMenuEntries.CopyAsPath`, the menu line's own).
+
+Needs a manual pass on the live desktop: each undo and redo of [S-13102] against Explorer's own (a paste of a copy and of
+a cut, a drop from Explorer, Paste shortcut, New › Folder, Ctrl+Shift+N, New › a file, a rename), the Undo line's word, and
+Ctrl+Shift+C.
 
 ## Own desktop icons: drops and app layouts (PD)
 

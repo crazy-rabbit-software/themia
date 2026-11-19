@@ -259,6 +259,18 @@ internal static class MenuRender
             static _ => { },
             static _ => { });
         await RenderAsync(root, background, System.IO.Path.Combine(outDir, "desk-background.png")).ConfigureAwait(true);
+
+        // [S-13103] With a desktop file step to take back: Explorer's Undo line after Paste shortcut.
+        var undoable = AppHost.DesktopBackgroundEntries(
+            DesktopBackground.Menu(new DesktopBackgroundFacts(ClipboardHasFiles: true, HasTerminal: true, Undo: DesktopUndoName.Rename)),
+            templates,
+            static _ => { },
+            static _ => { },
+            DesktopUndoName.Rename);
+        await RenderAsync(root, undoable, System.IO.Path.Combine(outDir, "desk-background-undo.png")).ConfigureAwait(true);
+
+        // [S-13007] Fences' small menu after a rectangle drawn with the right button.
+        await RenderAsync(root, AppHost.FenceCreateEntries(static () => { }), System.IO.Path.Combine(outDir, "desk-fence-create.png")).ConfigureAwait(true);
         foreach (var (name, glyph) in new[] { ("view", Glyphs.View), ("sortby", Glyphs.Sort), ("new", Glyphs.Add) })
         {
             if (background.FirstOrDefault(e => e.Glyph == glyph && e.Children is not null).Children is { } children)

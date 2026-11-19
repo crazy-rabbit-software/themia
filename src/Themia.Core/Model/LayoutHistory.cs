@@ -17,11 +17,22 @@ public sealed record WidgetShape(
     /// <summary>[S-6590] The widget's background image, undone with its background.</summary>
     public string? BackgroundImage { get; init; }
 
+    /// <summary>
+    /// [S-13010] A fence's items as they were (<see cref="IHoldsDesktopItems"/>), copied: which desktop items stand in a
+    /// fence and which on the free desktop is the arrangement, so a move into or out of a fence is undone with the icons'
+    /// places. Null for every other widget.
+    /// </summary>
+    public IReadOnlyList<string>? Held { get; init; }
+
     public static WidgetShape Of(WidgetInstance widget)
     {
         ArgumentNullException.ThrowIfNull(widget);
         return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Background.Clone(), widget.Config) { BackgroundImage = widget.BackgroundImage };
+            widget.Background.Clone(), widget.Config)
+        {
+            BackgroundImage = widget.BackgroundImage,
+            Held = widget.Config is IHoldsDesktopItems fence ? [.. fence.Items] : null,
+        };
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -31,7 +42,8 @@ public sealed record WidgetShape(
         return Id == other.Id && Kind == other.Kind
             && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
             && Label == other.Label && Background.SameAs(other.Background)
-            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal);
+            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
+            && (Held is null ? other.Held is null : other.Held is not null && Held.SequenceEqual(other.Held, StringComparer.Ordinal));
     }
 }
 
@@ -197,6 +209,12 @@ public sealed class LayoutShape
                     };
                 }
 
+                // [S-13010] A fence's items come back with the arrangement.
+                if (w.Held is { } held && widget.Config is IHoldsDesktopItems fence)
+                {
+                    fence.Items = [.. held];
+                }
+
                 widgets.Add(widget);
             }
 
@@ -274,6 +292,12 @@ public sealed class LayoutHistory
 
     public int UndoCount => _log.UndoCount;
 
+    /// <summary>[S-13103] The step Ctrl+Z would take back, or null (drift not yet recorded aside).</summary>
+    public UndoAction? NextUndo => _log.NextUndo;
+
+    /// <summary>[S-13103] What that step did outside the state, or null.</summary>
+    public IUndoEffect? NextUndoEffect => _log.NextEffect(undo: true);
+
     /// <summary>
     /// Bumped by every recorded step, undo, redo and clear. An "Undo" button on a notice keeps the
     /// version it was offered at and acts only while it is unchanged: after anything else happened,
@@ -290,7 +314,9 @@ public sealed class LayoutHistory
         ArgumentNullException.ThrowIfNull(state);
 
         var now = LayoutShape.Capture(state);
-        var changed = !now.SameLayout(_baseline);
+
+        // [S-13102] A step that did something outside the state (a rename of a file) is a step even where the arrangement stays.
+        var changed = !now.SameLayout(_baseline) || effect is not null;
         if (changed)
         {
             _log.Record(action, _baseline, effect);

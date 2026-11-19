@@ -36,6 +36,41 @@ internal sealed partial class AppHost
     /// <summary>[S-5597] The undo's or redo's file side declined the step (the shell's delete was cancelled): no notice of a step.</summary>
     private bool _effectRefused;
 
+    /// <summary>[S-13102] A rename handed to the shell and not yet heard in a read of the desktop: its old and new key, and how many reads it has left.</summary>
+    private (string Old, string New, int Reads)? _pendingRename;
+
+    /// <summary>
+    /// [S-13102] The step of the desktop's own file operation that this read of the desktop shows done: the rename waiting,
+    /// when <paramref name="plan"/> hears it; else the arrivals a paste, a drop or New › Folder brought (their landing
+    /// <paramref name="spots"/> name the command), copied, moved or made. Null when the read shows none.
+    /// </summary>
+    private DesktopFileStep? FileStepOf(DesktopPlan plan, IReadOnlyList<DesktopLandingSpot?> spots)
+    {
+        if (_pendingRename is { } rename)
+        {
+            if (plan.Renames.Any(r => DesktopItemKeys.Comparer.Equals(r.Old, rename.Old) && DesktopItemKeys.Comparer.Equals(r.New, rename.New)))
+            {
+                _pendingRename = null;
+                return DesktopFileUndo.Renamed(rename.Old, rename.New);
+            }
+
+            _pendingRename = rename.Reads > 1 ? rename with { Reads = rename.Reads - 1 } : null;
+        }
+
+        DesktopLandingHint? hint = null;
+        var arrived = new List<string>();
+        for (var i = 0; i < spots.Count && i < plan.Arrivals.Count; i++)
+        {
+            if (spots[i]?.Hint is { Undo: not null } from && (hint is null || ReferenceEquals(hint, from)))
+            {
+                hint = from;
+                arrived.Add(plan.Arrivals[i].Key);
+            }
+        }
+
+        return hint?.Undo is { } kind ? DesktopFileUndo.Record(kind, arrived, hint.Sources) : null;
+    }
+
     /// <summary>[S-5597] A delete of <paramref name="icons"/>' files is asked for now: the record its step will carry.</summary>
     private void ExpectDesktopDelete(IReadOnlyList<DeskIcon> icons, bool permanent)
     {
@@ -97,9 +132,14 @@ internal sealed partial class AppHost
         return waiting;
     }
 
-    /// <summary>[S-5597] A step's file side, before its layout comes back. False declines the step.</summary>
+    /// <summary>[S-5597] [S-13102] A step's file side, before its layout comes back. False declines the step.</summary>
     private bool RunUndoEffect(IUndoEffect effect, bool undo)
     {
+        if (effect is DesktopFileStep files)
+        {
+            return RunFileStep(files, undo);
+        }
+
         if (effect is not DesktopDeleteStep step)
         {
             return true;
@@ -202,4 +242,82 @@ internal sealed partial class AppHost
     }
 
     private static bool Exists(string path) => File.Exists(path) || Directory.Exists(path);
+
+    /// <summary>
+    /// [S-13102] A desktop file step taken back (or done again): its plan's operations through the shell's own file
+    /// operations (their prompts and conflict dialogs, the Recycle Bin for what goes), the items they bring kept where the
+    /// step's layout puts them till they are listed ([S-5597]'s wait), and a notice for what had to be left. The step is
+    /// always taken: what could not be undone keeps or loses its icon with the next read.
+    /// </summary>
+    private bool RunFileStep(DesktopFileStep step, bool undo)
+    {
+        var plan = undo ? DesktopFileUndo.Undo(step, Exists) : DesktopFileUndo.Redo(step, Exists);
+        Log.Info(Scope, $"{(undo ? "undo" : "redo")} of a desktop {step.Kind}: {plan.Actions.Count} operation(s), {plan.Left} left");
+        if (plan.Expected.Count > 0)
+        {
+            (_restoring ??= new HashSet<string>(DesktopItemKeys.Comparer)).UnionWith(plan.Expected);
+            _restoringReads = DesktopUndoReads;
+        }
+
+        foreach (var action in plan.Actions)
+        {
+            _ = RunFileActionAsync(action);
+        }
+
+        if (plan.Left > 0)
+        {
+            Notices.Show(new Notice(NoticeKind.Warning, Str.Desktop_Restore_Skipped.Plural(plan.Left))
+            {
+                Message = Str.Desktop_Restore_SkippedBody.Text(),
+                Key = RestoreNoticeKey,
+            });
+        }
+
+        return true;
+    }
+
+    /// <summary>[S-13102] One operation of an undo or a redo, through the shell (or, for a folder made again, the file system); logged when it does not go through.</summary>
+    private async Task RunFileActionAsync(DesktopFileAction action)
+    {
+        try
+        {
+            var ops = HostFileOps.Instance;
+            var outcome = action.Op switch
+            {
+                DesktopFileOp.Recycle => await ops.RecycleAsync([action.Path]).ConfigureAwait(true),
+                DesktopFileOp.MoveInto when action.Folder is { } folder => await ops.MoveAsync([action.Path], folder).ConfigureAwait(true),
+                DesktopFileOp.CopyInto when action.Folder is { } folder => await ops.CopyAsync([action.Path], folder).ConfigureAwait(true),
+                DesktopFileOp.Rename when action.Name is { } name => await ops.RenameAsync(action.Path, name).ConfigureAwait(true),
+                DesktopFileOp.MakeFolder => MakeFolder(action.Path),
+                _ => FileOpOutcome.Failed,
+            };
+            if (outcome != FileOpOutcome.Done)
+            {
+                Log.Warn(Scope, $"an undo's {action.Op} on the desktop did not go through ({outcome})");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"an undo's {action.Op} on the desktop failed", ex);
+        }
+    }
+
+    /// <summary>[S-13102] A redo of New › Folder: the folder made again under its own name (empty, as it was made).</summary>
+    private static FileOpOutcome MakeFolder(string path)
+    {
+        try
+        {
+            Directory.CreateDirectory(path);
+            return FileOpOutcome.Done;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            Log.Warn(Scope, "a redo could not make its folder on the desktop again", ex);
+            return FileOpOutcome.Failed;
+        }
+    }
+
+    /// <summary>[S-13103] What the background menu's Undo line names now: the step Ctrl+Z would take back, while it is one of the desktop's file steps.</summary>
+    private DesktopUndoName? DesktopUndoOffered()
+        => _history is { } history ? DesktopFileUndo.Offered(history.NextUndo, history.NextUndoEffect) : null;
 }

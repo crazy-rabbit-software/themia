@@ -43,6 +43,9 @@ public enum UndoAction
 
     /// <summary>[S-5597] Desktop items sent to the Recycle Bin: an undo puts them back from it, a redo recycles them again.</summary>
     DeleteDesktopItems = 15,
+
+    /// <summary>[S-13102] A file operation on the desktop (a copy, a move, a new folder, a shortcut, a rename): its step's <c>DesktopFileStep</c> takes it back.</summary>
+    DesktopFiles = 16,
 }
 
 /// <summary>[S-885] The words a notice uses for an <see cref="UndoAction"/>.</summary>

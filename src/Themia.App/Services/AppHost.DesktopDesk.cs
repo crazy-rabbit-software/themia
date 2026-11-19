@@ -1,6 +1,7 @@
 using Themia.App.Interop;
 using Themia.App.Services.Files;
 using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
@@ -172,8 +173,15 @@ internal sealed partial class AppHost : IDesktopDesk
 
     /// <summary>[S-5580] The icon with <paramref name="key"/> as the desktop's commands see it, or null when no widget shows it.</summary>
     private DeskIcon? DeskIconOf(string? key)
-        => key is not null && _deskWidgets.TryGetValue(key, out var at) && at.Widget.Config is IDesktopItemConfig config
-            ? DeskIcon.Of(config, PathExists)
+        => key is not null && _deskWidgets.TryGetValue(key, out var at)
+            ? at.Widget.Config switch
+            {
+                IDesktopItemConfig config => DeskIcon.Of(config, PathExists),
+
+                // [S-13011] An item a fence holds is a desktop item by its key.
+                IHoldsDesktopItems => FenceIcon(key),
+                _ => null,
+            }
             : null;
 
     /// <summary>[S-5580] The icons of <paramref name="keys"/>, in their order.</summary>
@@ -216,6 +224,15 @@ internal sealed partial class AppHost : IDesktopDesk
                 var r = widget.Rect;
                 boxes.Add(new DesktopBox(key, display, bounds.Left + (r.X * bounds.Width), bounds.Top + (r.Y * bounds.Height), r.W * bounds.Width, r.H * bounds.Height));
                 widgets.TryAdd(key, (surface, widget));
+            }
+
+            // [S-13011] A fence's items, where it draws them: in the one selection as every icon, found by the band and the arrows.
+            foreach (var (key, fence, box) in FenceItemBoxes(surface, State.ViewForMonitor(surface.Monitor.Id), display))
+            {
+                if (widgets.TryAdd(key, (surface, fence)))
+                {
+                    boxes.Add(box);
+                }
             }
 
             display++;
@@ -394,7 +411,20 @@ internal sealed partial class AppHost : IDesktopDesk
                 CopySelection(cut: key == WidgetKey.Cut);
                 return true;
             case WidgetKey.Paste:
-                _ = PasteAsync();
+                // [S-13005] With a fence's lease, what is pasted lands in that fence.
+                _ = PasteAsync(fence: FenceIdOf(widgetId));
+                return true;
+            case WidgetKey.CopyAsPath:
+                // [S-13104] Ctrl+Shift+C: the selected files' paths, quoted, a line each, as Explorer's Copy as path.
+                if (DeskIcons(_desk.Selected).Where(icon => icon.Kind == DeskIconKind.Item).Select(icon => icon.Value).ToList() is { Count: > 0 } paths)
+                {
+                    FileMenuEntries.CopyAsPath(paths);
+                }
+
+                return true;
+            case WidgetKey.NewFolder:
+                // [S-13101] Ctrl+Shift+N: a new folder where the keys are, its rename box open.
+                NewFolderFromKeys(FenceIdOf(widgetId));
                 return true;
             case WidgetKey.Undo:
                 // [S-5597] The desktop's Ctrl+Z and Ctrl+Y step the one history, a delete's items back from the bin among its steps.
@@ -536,7 +566,7 @@ internal sealed partial class AppHost : IDesktopDesk
     /// <paramref name="into"/> (a folder icon's Paste) the files go into that folder instead, as
     /// Explorer's Paste on a folder, and nothing lands on the desktop.
     /// </summary>
-    private async Task PasteAsync(string? into = null, (DesktopWindow Surface, double X, double Y)? at = null)
+    private async Task PasteAsync(string? into = null, (DesktopWindow Surface, double X, double Y)? at = null, string? fence = null)
     {
         try
         {
@@ -546,14 +576,20 @@ internal sealed partial class AppHost : IDesktopDesk
             }
 
             var surface = at?.Surface ?? KeyboardSurface ?? DesktopKeysSurface ?? _windows.FirstOrDefault(w => w.IsAlive && w.Monitor.IsPrimary);
-            if (into is null && surface is not null)
+            IReadOnlyList<string> names = content.Paths.Count > 0 ? [.. content.Paths.Select(Path.GetFileName).OfType<string>()] : [];
+
+            // [S-13102] A paste of files onto the desktop is one step of the undo log once they arrive: a copy's undo
+            // recycles the copies, a cut's moves them back.
+            DesktopFileUndoKind? undo = content.Paths.Count == 0 ? null : content.Effect == DropEffect.Move ? DesktopFileUndoKind.Move : DesktopFileUndoKind.Copy;
+            if (into is null && fence is not null && DesktopFences.Find(State, fence) is { } fenced)
+            {
+                // [S-13005] Into a fence: what arrives lands in it.
+                ExpectLanding(new DesktopLandingHint(fenced.View.Id, null, null, names, Fence: fence) { Undo = undo, Sources = content.Paths });
+            }
+            else if (into is null && surface is not null)
             {
                 var spot = at ?? (_emptyPress is { } press && ReferenceEquals(press.Surface, surface) ? press : null);
-                ExpectLanding(new DesktopLandingHint(
-                    surface.CurrentViewId,
-                    spot?.X,
-                    spot?.Y,
-                    content.Paths.Count > 0 ? [.. content.Paths.Select(Path.GetFileName).OfType<string>()] : []));
+                ExpectLanding(new DesktopLandingHint(surface.CurrentViewId, spot?.X, spot?.Y, names) { Undo = undo, Sources = content.Paths });
             }
 
             if (content.Paths.Count > 0)
@@ -626,7 +662,53 @@ internal sealed partial class AppHost : IDesktopDesk
     }
 
     private bool WidgetShows(string widgetId, string key)
-        => State.Views.SelectMany(v => v.Widgets).Any(w => w.Id == widgetId && w.Config is IDesktopItemConfig c && DesktopItemKeys.Comparer.Equals(DesktopItemKeys.Of(c), key));
+        => State.Views.SelectMany(v => v.Widgets).Any(w => w.Id == widgetId && w.Config switch
+        {
+            IDesktopItemConfig c => DesktopItemKeys.Comparer.Equals(DesktopItemKeys.Of(c), key),
+
+            // [S-13011] A fence shows the box on its own item.
+            IHoldsDesktopItems fence => fence.Items.Contains(key, DesktopItemKeys.Comparer),
+            _ => false,
+        });
+
+    /// <summary>[S-13005] The fence a widget id names (a fence holding the keyboard), or null.</summary>
+    private string? FenceIdOf(string? widgetId)
+        => widgetId is not null && DesktopFences.Find(State, widgetId) is not null ? widgetId : null;
+
+    /// <summary>
+    /// [S-13101] Ctrl+Shift+N on the desktop: a new folder in the user's desktop folder, landing in the fence that has the
+    /// keys, else at the last press on the empty desktop of the display with the keys, else at its first free spot; its
+    /// rename box opens ([S-5552]) and it is one step of the undo log ([S-13102]).
+    /// </summary>
+    private void NewFolderFromKeys(string? fence)
+    {
+        if (fence is not null)
+        {
+            NewFolder(fence);
+            return;
+        }
+
+        var surface = KeyboardSurface ?? DesktopKeysSurface ?? _windows.FirstOrDefault(w => w.IsAlive && w.Monitor.IsPrimary);
+        if (surface is null || DesktopFolderPath() is not { } desktop)
+        {
+            return;
+        }
+
+        if (HostFileOps.Instance.NewFolder(desktop) is not { } created || Path.GetFileName(created) is not { Length: > 0 } name)
+        {
+            Log.Warn(Scope, "Ctrl+Shift+N made no folder on the desktop");
+            return;
+        }
+
+        double? x = null;
+        double? y = null;
+        if (_emptyPress is { } press && ReferenceEquals(press.Surface, surface))
+        {
+            (x, y) = (press.X, press.Y);
+        }
+
+        ExpectLanding(new DesktopLandingHint(surface.CurrentViewId, x, y, [name], Renames: true) { Undo = DesktopFileUndoKind.NewFolder });
+    }
 
     public string? CommitRename(string key, string text)
     {
@@ -720,6 +802,9 @@ internal sealed partial class AppHost : IDesktopDesk
         {
             var folder = Path.GetDirectoryName(key) ?? string.Empty;
             _desk.SelectWhenShown(Path.Combine(folder, fullName));
+
+            // [S-13102] Once a read of the desktop hears it, the rename is one step of the undo log.
+            _pendingRename = (key, Path.Combine(folder, fullName), DesktopUndoReads);
             if (await HostFileOps.Instance.RenameAsync(key, fullName).ConfigureAwait(true) != FileOpOutcome.Done)
             {
                 Log.Info(Scope, "a desktop item was not renamed (the shell said no, or the user cancelled)");
@@ -789,7 +874,10 @@ internal sealed partial class AppHost : IDesktopDesk
         }
 
         var source = _windows.FirstOrDefault(w => w.IsAlive && w.Hwnd == window) ?? (_deskWidgets.TryGetValue(key, out var at) ? at.Surface : null);
-        var widgets = new HashSet<string>(keys.Select(k => _deskWidgets.TryGetValue(k, out var held) ? held.Widget.Id : null).OfType<string>(), StringComparer.Ordinal);
+        // [S-13006] A fence is never in the drag of its items: over it the drop is the fence's, not the icons' own move.
+        var widgets = new HashSet<string>(
+            keys.Select(k => _deskWidgets.TryGetValue(k, out var held) && held.Widget.Config is not IHoldsDesktopItems ? held.Widget.Id : null).OfType<string>(),
+            StringComparer.Ordinal);
         var drag = DesktopCommands.Drag(DeskIcons(keys));
         var offer = new ItemDragOffer(drag.Paths, DesktopCommands.DragEffects(drag));
         _deskDrag = new DeskDragState(offer, new HashSet<string>(keys, DesktopItemKeys.Comparer), widgets, source, key, Win32.GetCursorPos(out var pointer) ? pointer : (Win32.Point?)null);
@@ -872,6 +960,17 @@ internal sealed partial class AppHost : IDesktopDesk
         var targetView = State.ViewForMonitor(target.Monitor.Id);
         var moving = sourceView.Widgets.Where(w => DeskKey(w) is { } key && drag.Keys.Contains(key)).ToList();
         var held = moving.FindIndex(w => DesktopItemKeys.Comparer.Equals(DeskKey(w), drag.Held));
+
+        // [S-13006] Items dragged out of a fence arrive on the free desktop at the drop point; free ones move as below.
+        var fenced = DesktopFences.Held(sourceView).Overlaps(drag.Keys);
+        if (moving.Count == 0 && fenced)
+        {
+            Mutate(_ => FenceItemsOut(sourceView, targetView, to, dip, drag.Keys), undo: UndoAction.Move);
+            return;
+        }
+
+        // The held icon in a fence: the block of free ones is held by its first.
+        held = held < 0 && fenced ? 0 : held;
         if (moving.Count == 0 || held < 0)
         {
             return;
@@ -919,6 +1018,11 @@ internal sealed partial class AppHost : IDesktopDesk
 
                     targetView.Widgets.Add(widget);
                 }
+            }
+
+            if (fenced)
+            {
+                FenceItemsOut(sourceView, targetView, to, dip, drag.Keys);
             }
         }, undo: UndoAction.Move);
     }
@@ -1026,6 +1130,34 @@ internal sealed partial class AppHost : IDesktopDesk
         if (metrics.IsUsable)
         {
             ExpectLanding(new DesktopLandingHint(surface.CurrentViewId, dip.X / metrics.Width, dip.Y / metrics.Height, names));
+        }
+    }
+
+    /// <summary>[S-5591] The names a drop brings: its files' and its virtual files'.</summary>
+    internal static List<string> DropNames(Themia.App.Widgets.IWidgetDrag drag)
+        => [.. drag.Paths.Select(Path.GetFileName)
+            .Concat(drag.VirtualFileNames.Select(n => Path.GetFileName(n.Replace('/', Path.DirectorySeparatorChar))))
+            .OfType<string>()
+            .Where(n => n.Length > 0)];
+
+    /// <summary>
+    /// [S-13102] A drop into the desktop folder was carried out by the shell (<paramref name="effect"/>: what it did): the
+    /// landing it expects becomes one step of the undo log once its files arrive (a copy's undo recycles them, a move's puts
+    /// them back where they came from, <paramref name="sources"/>, a link's recycles the shortcuts). A drop that did nothing
+    /// is no step.
+    /// </summary>
+    public void NoteDropUndo(DropEffect effect, IReadOnlyList<string> sources)
+    {
+        DesktopFileUndoKind? kind = effect switch
+        {
+            DropEffect.Move => DesktopFileUndoKind.Move,
+            DropEffect.Copy => DesktopFileUndoKind.Copy,
+            DropEffect.Link => DesktopFileUndoKind.Shortcut,
+            _ => null,
+        };
+        if (kind is not null && _landings.Pending is { Undo: null } hint)
+        {
+            _landings.Expect(hint with { Undo = kind, Sources = sources });
         }
     }
 

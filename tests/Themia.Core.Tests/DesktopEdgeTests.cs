@@ -95,19 +95,24 @@ public sealed class DesktopEdgeTests
     }
 
     [Fact]
-    public void S5548_no_background_menu_has_two_separators_in_a_row_or_one_at_an_end_and_none_offers_undo()
+    public void S5548_S13103_no_background_menu_has_two_separators_in_a_row_or_one_at_an_end_and_undo_only_with_a_file_step()
     {
         foreach (var clipboard in new[] { true, false })
         {
             foreach (var terminal in new[] { true, false })
             {
-                var menu = DesktopBackground.Menu(new DesktopBackgroundFacts(clipboard, terminal));
+                foreach (var undo in new DesktopUndoName?[] { null, DesktopUndoName.Delete })
+                {
+                    var menu = DesktopBackground.Menu(new DesktopBackgroundFacts(clipboard, terminal, Undo: undo));
 
-                Assert.False(menu[0].IsSeparator);
-                Assert.False(menu[^1].IsSeparator);
-                Assert.DoesNotContain(Enumerable.Range(1, menu.Count - 1), i => menu[i].IsSeparator && menu[i - 1].IsSeparator);
-                Assert.Equal(DesktopMenuCommand.ShowMoreOptions, menu[^1].Command);
-                Assert.DoesNotContain(Enum.GetNames<DesktopMenuCommand>(), name => name.Contains("Undo", StringComparison.OrdinalIgnoreCase));
+                    Assert.False(menu[0].IsSeparator);
+                    Assert.False(menu[^1].IsSeparator);
+                    Assert.DoesNotContain(Enumerable.Range(1, menu.Count - 1), i => menu[i].IsSeparator && menu[i - 1].IsSeparator);
+                    Assert.Equal(DesktopMenuCommand.ShowMoreOptions, menu[^1].Command);
+
+                    // [S-13103] Explorer's Undo line while Ctrl+Z would take back a file step of the desktop, else none.
+                    Assert.Equal(undo is null ? 0 : 1, menu.Count(line => line.Command == DesktopMenuCommand.Undo));
+                }
             }
         }
     }

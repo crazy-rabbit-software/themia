@@ -66,6 +66,9 @@ public enum DesktopMenuCommand
 
     /// <summary>The shell's classic background menu.</summary>
     ShowMoreOptions,
+
+    /// <summary>[S-13103] "Undo Rename" (Ctrl+Z): the desktop's own file step taken back, as Explorer's line.</summary>
+    Undo,
 }
 
 /// <summary>[S-5548] The submenus of the desktop's background menu, each with its own title.</summary>
@@ -114,18 +117,20 @@ public sealed record DesktopMenuEntry(DesktopMenuCommand? Command, DesktopMenuGr
 /// <param name="IconSize">[S-5593] The desktop's icon size.</param>
 /// <param name="Sort">[S-5596] What the icons were last sorted by.</param>
 /// <param name="WidgetsLocked">[S-12951] Lock widgets is on.</param>
+/// <param name="Undo">[S-13103] The desktop file step Ctrl+Z would take back, or null (<see cref="DesktopFileUndo.Offered"/>).</param>
 public readonly record struct DesktopBackgroundFacts(
     bool ClipboardHasFiles,
     bool HasTerminal,
     DesktopIconSize IconSize = DesktopIconSize.Medium,
     DesktopSortBy Sort = DesktopSortBy.Name,
-    bool WidgetsLocked = false)
+    bool WidgetsLocked = false,
+    DesktopUndoName? Undo = null)
 {
     /// <summary>The facts of <paramref name="state"/>: its view settings and its last sort.</summary>
-    public static DesktopBackgroundFacts Of(AppState state, bool clipboardHasFiles, bool hasTerminal)
+    public static DesktopBackgroundFacts Of(AppState state, bool clipboardHasFiles, bool hasTerminal, DesktopUndoName? undo = null)
     {
         ArgumentNullException.ThrowIfNull(state);
-        return new(clipboardHasFiles, hasTerminal, state.Preferences.DesktopIconSize, state.Desktop.Sort, state.Preferences.LockWidgets);
+        return new(clipboardHasFiles, hasTerminal, state.Preferences.DesktopIconSize, state.Desktop.Sort, state.Preferences.LockWidgets, undo);
     }
 }
 
@@ -148,8 +153,9 @@ public static class DesktopBackground
     /// (Folder, Shortcut; the host appends the shell's file types); **Display settings**,
     /// **Personalise** and, where Windows Terminal is installed, **Open in Terminal**; Themia's own
     /// **Edit mode**, **Lock widgets** (checked while on, [S-12951]) and **Add widget**, where an app's lines go; **Show more options** last. One
-    /// separator between the groups, never two in a row and none at an end. Undo is not offered
-    /// ([S-5545]).
+    /// separator between the groups, never two in a row and none at an end. [S-13103] **Undo …** after Paste shortcut
+    /// while Ctrl+Z would take back one of the desktop's file steps (a delete, a copy, a move, a new folder, a shortcut,
+    /// a rename), as Explorer's own line ("Undo Delete").
     /// </summary>
     public static IReadOnlyList<DesktopMenuEntry> Menu(DesktopBackgroundFacts facts)
     {
@@ -176,6 +182,11 @@ public static class DesktopBackground
         {
             lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.Paste));
             lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.PasteShortcut));
+        }
+
+        if (facts.Undo is not null)
+        {
+            lines.Add(DesktopMenuEntry.Of(DesktopMenuCommand.Undo));
         }
 
         lines.Add(DesktopMenuEntry.Sub(

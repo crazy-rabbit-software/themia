@@ -468,7 +468,7 @@ internal sealed partial class DesktopWindow
 
     private void OnRootPointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        if (EndDesktopBand(e))
+        if (EndDesktopBand(e) || EndFenceBand(e))
         {
             e.Handled = true;
             return;
@@ -485,6 +485,7 @@ internal sealed partial class DesktopWindow
     private void OnRootPointerCaptureLost(object sender, PointerRoutedEventArgs e)
     {
         EndDesktopBand(null);
+        EndFenceBand(null);
         EndLasso();
     }
 

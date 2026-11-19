@@ -97,7 +97,8 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   and the file widgets' shared data (FolderBadges, RecentFileRules, DesktopCell (the cell at each icon size), DesktopTip, the app layouts: AppLayoutModel, LayoutTree,
   LayoutPlan, IHoldsAppLayouts; VideoStreamRules, HlsVariants, the stream's facts; Files/: FileNames, FileDrops,
   SurfaceDrops, DesktopItem with DesktopItemKeys, DesktopCommands (what a command does to a selection of
-  desktop icons), DragGhost (Explorer's drag picture), TypeIconName and the records the file contracts carry)
+  desktop icons), DragGhost (Explorer's drag picture), TypeIconName, FenceRules (a fence's rules), DesktopSortBy and the
+  records the file contracts carry; Widgets/FenceGrid, a fence's small grid; Model/Configs/IHoldsDesktopItems, a fence's config contract)
   Widgets/ (WidgetArea, LayoutMath, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
   HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ColourPicker, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
@@ -110,7 +111,8 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Shell/ (EditBarLayout, SelectionPage) Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Desktop/ (the desktop layer's rules: DesktopReconcile, DesktopViews (which items each view shows: All, Chosen, None), DesktopGrid (icons on the widget grid: their box, arrivals,
   auto arrange, a drop back), DesktopSelection with DesktopPicks (the locked desktop's one selection of icons and
-  cards), DesktopDragOut, DesktopSort, DesktopBackground)
+  cards), DesktopDragOut, DesktopSort, DesktopBackground, DesktopFences (which items stand in a fence: membership,
+  routing by rules, making and removing one), DesktopDeleteUndo and DesktopFileUndo (Explorer's undo of the desktop's file steps))
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
   Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
@@ -122,7 +124,8 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    UiLanguage, ScrollFade, Notices, the meters' and details' shared views (MeterView,
                    DetailView, SparkBand, CoreGraphGrid), AudioFeed, the screen-time widgets' shared parts, AddFooterRow,
                    RotatedBox; Modules/: the host's contracts (IWidgetHost's members, among them the file shell's:
-                   FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
+                   FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams; DesktopItems with its
+                   Fences, IDesktopFences;
                    SettingsHost for a module's menu lines); Shell/: FluentLayout (the layout editor's rows), ColorChoice, PlaceSearch,
                    MenuArtIcons, FolderBrowse, ScreenTimeMenuLines, SkyPlaceRows. References Themia.Sdk only, never Core. What
                    needs Win32 (eyedropper, file icons, geocoder, the OLE drop target, the shell's file operations and menus)
@@ -139,7 +142,7 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    Pages/ (PageFlyout, PageView: every page drawn as Windows' settings cards; PageRows, SelectionRows)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
-src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 108): module, config, view, Samples/
+src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 109): module, config, view, Samples/
                    (its sample, ships), Preview/ (render-only states, Debug), Localization/Locales/ (its own
                    <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
@@ -406,7 +409,21 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them. A
   selected icon shows its highlight alone; its corners only in edit mode and a move ([S-11889]). Ctrl+Z / Ctrl+Y
   on the desktop step the one history; a desktop delete's step puts its items back from the Recycle Bin
-  (`DesktopDeleteStep`, an `IUndoEffect` the undo log carries both ways, [S-5597]).
+  (`DesktopDeleteStep`, an `IUndoEffect` the undo log carries both ways, [S-5597]), and a paste, a drop from outside,
+  New ›, Ctrl+Shift+N, Paste shortcut and a rename are steps too (`DesktopFileStep`, `DesktopFileUndo`, recorded when a
+  read of the desktop sees what the command's landing named, [S-13102]; the background menu's "Undo …" line, [S-13103]).
+  Explorer's own undo is out of reach (its process): never claim it, carry the step. Parity with Windows' desktop is the
+  bar (owner, 2026-11-19: "without noticing a difference to normal windows"): SPEC PARITY lists what is left and why.
+- **Fences** (SPEC FENCES, [S-13000]..[S-13014]; the module `src/Widgets/Themia.Widget.Fence`, [S-10900]..[S-10920];
+  owner, 2026-11-19): a fence is a widget whose config holds real desktop items by key (`IHoldsDesktopItems`). On its
+  view its items are never free icons (`DesktopViews.Shown` = `Free` + `DesktopFences.Held`); a view's All/Chosen/None is
+  the free desktop's alone. Every gesture on a fence item is the desktop's one selection's, keyed by the item (the fence
+  reports where it draws them, `IDesktopFences.Laid`, so the band and the arrows reach in); what is the fence's (drops
+  into it, roll up, remove, paste, new folder, its sort's order) is asked of `IDesktopItems.Fences`, carried out by Core's
+  `DesktopFences` through `Mutate`. Membership is the arrangement: the undo snapshot copies it (`WidgetShape.Held`).
+  Removing a fence never deletes a file (its items go back where it stood). Made by a right-drag rectangle on empty
+  desktop ("Create fence here"), "Create fence from selection" in the icon menu, or Add widget. Rules route new items
+  (`FenceRules`; first matching fence of each view).
 - **Item selection** (files: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
   A desktop icon is one kind, `desktopItem`, with two sources ([S-5600]): a desktop item (a key, the

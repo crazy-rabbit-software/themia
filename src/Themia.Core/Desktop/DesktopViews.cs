@@ -26,8 +26,21 @@ public static class DesktopViews
         return view.DesktopIcons != ViewDesktopIcons.None;
     }
 
-    /// <summary>[S-5527] The keys of the desktop items this view shows: a Chosen view's chosen set.</summary>
+    /// <summary>
+    /// [S-5527] [S-13001] The keys of the desktop items this view shows: its free icons (a Chosen view's chosen set,
+    /// <see cref="Free"/>) and the items its fences hold (<see cref="DesktopFences.Held"/>), which are shown with their fence
+    /// whatever the view's value; an item shown either way gets no second icon.
+    /// </summary>
     public static IReadOnlySet<string> Shown(ViewState view)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        var shown = DesktopFences.Held(view);
+        shown.UnionWith(Free(view));
+        return shown;
+    }
+
+    /// <summary>[S-5527] The keys of the free desktop icons this view holds (an item widget each): a Chosen view's chosen set.</summary>
+    public static IReadOnlySet<string> Free(ViewState view)
     {
         ArgumentNullException.ThrowIfNull(view);
         return new HashSet<string>(
@@ -52,7 +65,7 @@ public static class DesktopViews
         view.DesktopIcons = value;
         if (value == ViewDesktopIcons.None)
         {
-            Hide(view, Shown(view));
+            Hide(view, Free(view));
         }
 
         return true;
@@ -136,7 +149,7 @@ public static class DesktopViews
             repairs.Add($"view '{view.Id}' had an unknown desktop icons value; it shows all of them");
         }
 
-        if (view.DesktopIcons == ViewDesktopIcons.None && Hide(view, Shown(view)) is > 0 and var dropped)
+        if (view.DesktopIcons == ViewDesktopIcons.None && Hide(view, Free(view)) is > 0 and var dropped)
         {
             repairs.Add($"view '{view.Id}' shows no desktop icons but held {dropped}; dropped");
         }

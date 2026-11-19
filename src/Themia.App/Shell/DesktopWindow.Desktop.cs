@@ -23,6 +23,17 @@ internal sealed partial class DesktopWindow
     private Border? _deskBand;
 
     /// <summary>
+    /// [S-13007] A rectangle drawn with the right button on empty desktop, as Fences makes a fence: where it started,
+    /// whether it is armed (the press captured) and drawing (past the dead zone), and its shape on the ghost layer. Its
+    /// release opens "Create fence here" instead of the background menu.
+    /// </summary>
+    private Point _fenceStart;
+    private bool _fenceArmed;
+    private bool _fenceDrawing;
+    private bool _fenceMenuShown;
+    private Border? _fenceBand;
+
+    /// <summary>
     /// [S-5502] [S-5544] [S-5550] A press on empty desktop outside edit mode: the surface covers the
     /// work area ([S-5501]), so it is always Themia's; a press on a card is the card's. The item selection goes (Ctrl or Shift keep it for the band), the desktop takes the keys,
     /// and a left press may become the band; the right button's menu opens on its release
@@ -49,8 +60,89 @@ internal sealed partial class DesktopWindow
             _deskBanding = false;
             _deskBandArmed = _root.CapturePointer(e.Pointer);
         }
+        else if (point.Properties.IsRightButtonPressed)
+        {
+            // [S-13007] A right press may become the rectangle a fence is made on.
+            _fenceStart = point.Position;
+            _fenceDrawing = false;
+            _fenceMenuShown = false;
+            _fenceArmed = _root.CapturePointer(e.Pointer);
+        }
 
         e.Handled = true;
+    }
+
+    /// <summary>[S-13007] The pointer moved with the right button down on empty desktop: past the dead zone it draws the fence's rectangle.</summary>
+    private void UpdateFenceBand(Point now)
+    {
+        if (!_fenceArmed)
+        {
+            return;
+        }
+
+        if (!_fenceDrawing && !SelectionBand.PastThreshold(now.X - _fenceStart.X, now.Y - _fenceStart.Y))
+        {
+            return;
+        }
+
+        _fenceDrawing = true;
+        var shape = EnsureFenceBand();
+        Canvas.SetLeft(shape, Math.Min(_fenceStart.X, now.X));
+        Canvas.SetTop(shape, Math.Min(_fenceStart.Y, now.Y));
+        shape.Width = Math.Abs(now.X - _fenceStart.X);
+        shape.Height = Math.Abs(now.Y - _fenceStart.Y);
+        shape.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// [S-13007] The right button came up (or the capture went): a rectangle drawn opens Fences' small menu at the release
+    /// ("Create fence here"); a plain right click goes on to the background menu.
+    /// </summary>
+    private bool EndFenceBand(PointerRoutedEventArgs? e)
+    {
+        if (!_fenceArmed)
+        {
+            return false;
+        }
+
+        _fenceArmed = false;
+        if (e is not null)
+        {
+            _root.ReleasePointerCapture(e.Pointer);
+        }
+
+        if (_fenceBand is not null)
+        {
+            _fenceBand.Visibility = Visibility.Collapsed;
+        }
+
+        if (!_fenceDrawing)
+        {
+            return false;
+        }
+
+        _fenceDrawing = false;
+        if (e is not null)
+        {
+            _fenceMenuShown = true;
+            _host.FenceRectDrawn(this, _fenceStart, e.GetCurrentPoint(_root).Position);
+        }
+
+        return true;
+    }
+
+    /// <summary>[S-13007] The rectangle in the band's one look, on the ghost layer (never hit-testable).</summary>
+    private Border EnsureFenceBand()
+    {
+        if (_fenceBand is not null)
+        {
+            return _fenceBand;
+        }
+
+        _fenceBand = new Border { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+        SelectionChrome.PaintBand(_fenceBand);
+        _ghostLayer.Children.Add(_fenceBand);
+        return _fenceBand;
     }
 
     /// <summary>
@@ -180,6 +272,13 @@ internal sealed partial class DesktopWindow
         if (EditMode)
         {
             return false;
+        }
+
+        // [S-13007] A rectangle was drawn: its release opened "Create fence here" instead.
+        if (_fenceMenuShown)
+        {
+            _fenceMenuShown = false;
+            return true;
         }
 
         // [S-5545] Shift held: the shell's classic menu at once, as Explorer.

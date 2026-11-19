@@ -58,6 +58,12 @@ internal interface IDesktopDesk
     (int Position, int Count)? PositionOf(string key);
 
     string? RenameTo(string key, string name);
+
+    /// <summary>[S-13011] The item whose rename box shows, by its key.</summary>
+    string? RenamingKey { get; }
+
+    /// <summary>[S-13000] The fences' side of the desktop.</summary>
+    IDesktopFences Fences { get; }
 }
 
 /// <summary>
@@ -131,6 +137,12 @@ internal sealed class HostDesktopItems : IDesktopItems
 
     /// <inheritdoc />
     public string? DropTargetWidget => Desk?.DropTargetWidget;
+
+    /// <inheritdoc />
+    public string? RenamingKey => Desk?.RenamingKey;
+
+    /// <inheritdoc />
+    public IDesktopFences Fences => Desk?.Fences ?? NoFences.Instance;
 
     /// <inheritdoc />
     public void Press(string key, bool ctrl, bool shift) => Desk?.Press(key, ctrl, shift);
@@ -403,5 +415,51 @@ internal static class DesktopItemStat
             Log.Debug("desktop-items", $"a desktop item's size and dates could not be read for its tip ({ex.GetType().Name})");
             return null;
         }
+    }
+}
+
+/// <summary>[S-13000] The fences' side where there is no desktop (a debug render): a fence there acts on nothing.</summary>
+internal sealed class NoFences : IDesktopFences
+{
+    public static NoFences Instance { get; } = new();
+
+    public bool DeskDragRunning => false;
+
+    public string? DesktopFolder => null;
+
+    public void Laid(string fenceId, IReadOnlyList<FenceItemBox> boxes)
+    {
+        // ignore: nothing is selected in a render
+    }
+
+    public void RollUp(string fenceId, bool rolledUp)
+    {
+        // ignore: a render writes no state
+    }
+
+    public IReadOnlyList<string> Order(IReadOnlyList<string> keys, Themia.Core.Desktop.DesktopSortBy by) => keys;
+
+    public void Rename(string fenceId, string name)
+    {
+        // ignore: a render writes no state
+    }
+
+    public void Remove(string fenceId, bool putBack)
+    {
+        // ignore: a render writes no state
+    }
+
+    public DropEffect DropDeskDrag(string fenceId, int index) => DropEffect.None;
+
+    public DropEffect DropFiles(string fenceId, Themia.App.Widgets.IWidgetDrag drag) => DropEffect.None;
+
+    public void Paste(string fenceId)
+    {
+        // ignore: a render touches no file
+    }
+
+    public void NewFolder(string fenceId)
+    {
+        // ignore: a render touches no file
     }
 }

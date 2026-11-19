@@ -1,0 +1,39 @@
+{
+  "$englishOnly": ["fence.label", "fence.desc", "fence.count", "fence.empty", "fence.rename", "fence.rollUp", "fence.unroll", "fence.remove", "fence.putBack", "fence.putBack.action", "fence.title", "fence.sort", "fence.sort.none", "fence.rollUpOnClick", "fence.hoverPeek", "fence.rules", "fence.rules.types", "fence.rules.extensions", "fence.rules.extensionsHint", "fence.rules.name", "fence.rules.note", "fence.type.images", "fence.type.documents", "fence.type.installers", "fence.type.archives", "fence.type.videos", "fence.type.music", "fence.type.shortcuts", "fence.type.folders", "fence.sampleName"],
+  "fence.label": "Fence",
+  "fence.desc": "A box of desktop icons with a title",
+  "fence.count": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "fence.empty": "Drag desktop icons here",
+  "fence.rename": "Rename fence",
+  "fence.rollUp": "Roll up",
+  "fence.unroll": "Unroll",
+  "fence.remove": "Remove fence",
+  "fence.putBack": {
+    "one": "Put the {count} item back on the desktop?",
+    "other": "Put the {count} items back on the desktop?"
+  },
+  "fence.putBack.action": "Put back",
+  "fence.title": "Fence name",
+  "fence.sort": "Sort by",
+  "fence.sort.none": "As placed",
+  "fence.rollUpOnClick": "Roll up with a click on the title",
+  "fence.hoverPeek": "Open while the pointer is over it",
+  "fence.rules": "New items",
+  "fence.rules.types": "Of type",
+  "fence.rules.extensions": "Other extensions",
+  "fence.rules.extensionsHint": "For example: pdf, docx",
+  "fence.rules.name": "Name contains",
+  "fence.rules.note": "New desktop items that match arrive in this fence.",
+  "fence.type.images": "Images",
+  "fence.type.documents": "Documents",
+  "fence.type.installers": "Installers",
+  "fence.type.archives": "Archives",
+  "fence.type.videos": "Videos",
+  "fence.type.music": "Music",
+  "fence.type.shortcuts": "Shortcuts",
+  "fence.type.folders": "Folders",
+  "fence.sampleName": "Work"
+}

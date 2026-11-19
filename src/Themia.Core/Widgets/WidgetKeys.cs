@@ -24,6 +24,7 @@ public static class WidgetKeys
     private const int VkF2 = 0x71;
     private const int VkF10 = 0x79;
     private const int VkM = 0x4D;
+    private const int VkN = 0x4E;
     private const int VkA = 0x41;
     private const int VkC = 0x43;
     private const int VkV = 0x56;
@@ -81,6 +82,12 @@ public static class WidgetKeys
         if (ctrl && shift && !alt && virtualKey == VkZ)
         {
             return WidgetKey.Redo;
+        }
+
+        // [S-13101] Ctrl+Shift+N makes a new folder, as in Explorer; a view without folders does not answer it.
+        if (ctrl && shift && !alt && virtualKey == VkN)
+        {
+            return WidgetKey.NewFolder;
         }
 
         if (alt && !ctrl && !shift && virtualKey == VkReturn)

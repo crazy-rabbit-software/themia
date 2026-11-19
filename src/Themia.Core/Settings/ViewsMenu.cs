@@ -193,8 +193,10 @@ public static class ViewsMenu
             yield break;
         }
 
-        var items = DesktopItemOrder.Sort(host.DesktopItems.DistinctBy(item => item.Key, DesktopItemKeys.Comparer));
-        var shown = DesktopViews.Shown(view);
+        // [S-13001] The free desktop's choice alone: an item in a fence of this view is shown with its fence, never listed here.
+        var held = DesktopFences.Held(view);
+        var items = DesktopItemOrder.Sort(host.DesktopItems.Where(item => !held.Contains(item.Key)).DistinctBy(item => item.Key, DesktopItemKeys.Comparer));
+        var shown = DesktopViews.Free(view);
         List<SettingsLine> ticks = items.Count == 0
             ? [new SettingsNote(Keys.ChosenIcons(id) + "/none", Str.Desktop_ViewIcons_Empty.Text())]
             : [.. items.Select(item => new SettingsToggle(Keys.ChosenIcon(id, item.Key), item.Name, ItemGlyph(item.Kind), shown.Contains(item.Key),
