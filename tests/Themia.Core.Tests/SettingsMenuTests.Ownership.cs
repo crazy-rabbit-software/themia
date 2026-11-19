@@ -25,8 +25,7 @@ public sealed partial class SettingsMenuTests
         public World()
         {
             // Ids of the test's own: every world finds the same lines by the same keys.
-            // [S-9979] With a server, so ⚙ › AI assistants is there to own its switch.
-            Settings = new FakeHost { Mcp = new FakeMcp() };
+            Settings = new FakeHost();
             foreach (var name in new[] { "Work", "Evening" })
             {
                 Settings.State.Views.Add(ViewState.Create(name));

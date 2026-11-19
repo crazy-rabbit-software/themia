@@ -40,7 +40,7 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
   no menu and no command of its own ([S-5604]).
 - **[S-5611]** **Its name.** The kind is a **Desktop icon** (`desktopItem.label`, in every language: the
   forty translations the desktop item's label had; the English was "Desktop item"): its page's title, the
-  selection's entry ("Desktop icon", "2 × Desktop icon"), the placing bar, the assistants' list. Only its
+  selection's entry ("Desktop icon", "2 × Desktop icon"), the placing bar. Only its
   **tile on the add page**, which makes an own icon, is called **Shortcut** (`WidgetDescriptor.AddLabel`,
   [S-11709]; the search finds the tile under both names), and an own icon that opens nothing yet is drawn
   under that name ([S-9502]). *(Until 2026-11-14 the kind's label was "Shortcut", so a plain desktop file

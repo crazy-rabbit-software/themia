@@ -425,7 +425,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   compiled in every configuration; error, loading, empty, hovered and edge-case states are
   `IWidgetPreviewState` in `Preview/`, removed outside Debug by `src/Widgets/Directory.Build.targets`, and
   their `sample` state calls the sample. No `#if` in either. A sample holds its data in the view alone, never
-  writes a store, the clipboard or anything the assistants' server reads; a view whose host already hands it
+  writes a store, the clipboard or anything another widget reads; a view whose host already hands it
   sample data (the meters over the sample PC) has none. The sample PC and a gallery service reach a
   picture's cards only through their host (`SampleWorld`, `PreviewCardHost.Samples`), never a static.
 - **The locked desktop** ([S-2008], [S-11874]..[S-11879]): outside edit mode a widget pressed and dragged moves

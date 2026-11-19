@@ -71,9 +71,9 @@ public static class SettingsPages
     /// [S-2315] General, in Karpo's sections (karpo-app, Karpo.Core/KarpoMenu.cs <c>Rows</c>, docs/widgets.md §517,
     /// §579): under <b>General</b> Start with Windows, the Language and its Formats card and Pause during
     /// full-screen apps (no Quit Themia: [S-3532] retired, as Karpo's Quit Karpo); under <b>Desktop icons</b>
-    /// Themia's own desktop's; under <b>Services</b> Online updates and AI assistants (where a server runs), each
-    /// a card that opens; under <b>Themia</b> Themia Pro, Back up &amp; reset and Uninstall Themia, cards too; then
-    /// <b>About Themia</b>, a section of its own ([S-3580]). Motion is the Appearance's ([S-2316], Karpo's §682).
+    /// Themia's own desktop's; under <b>Services</b> Online updates, a card that opens; under <b>Themia</b> Themia
+    /// Pro, Back up &amp; reset and Uninstall Themia, cards too; then <b>About Themia</b>, a section of its own
+    /// ([S-3580]). Motion is the Appearance's ([S-2316], Karpo's §682).
     /// </summary>
     public static SettingsPage General(ISettingsMenuHost host)
     {
@@ -90,20 +90,12 @@ public static class SettingsPages
             .. SettingsMenu.Desktop(host),
             new SettingsHeading(SettingsMenu.Keys.ServicesHeading, Str.SettingsPages_General_Services.Text()),
             SettingsMenu.OnlineUpdates(host) with { Card = true },
-        ];
-        if (SettingsMenu.Assistants(host) is { } assistants)
-        {
-            lines.Add(assistants with { Card = true });
-        }
-
-        lines.AddRange(
-        [
             new SettingsHeading(SettingsMenu.Keys.ThemiaHeading, Str.SettingsPages_General_Themia.Text()),
             SettingsMenu.Pro(host) with { Card = true },
             SettingsMenu.Backup(host) with { Card = true },
             SettingsMenu.Uninstall(host) with { Card = true },
             SettingsMenu.About(host),
-        ]);
+        ];
         return new SettingsPage(SettingsPageId.General, Sectioned(lines, Str.Common_General.Text()));
     }
 

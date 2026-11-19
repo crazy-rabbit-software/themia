@@ -19,7 +19,7 @@ namespace Themia.App.Shell.Gallery;
 /// row as a deep link opens it, its picker open (<c>-appearance-style</c>, <c>-theme</c>, <c>-accent</c> (a colour),
 /// <c>-background</c> (a fill), <c>-border</c>, <c>-font</c>, <c>-general-motion</c> (an expander), <c>-online-weather</c>,
 /// <c>-language</c> (a lookup), <c>-language-find</c> ("deu" typed), <c>-temperature</c> (a deep link
-/// lands), <c>-advice</c>, <c>-replace</c> (an "are you sure?" page), the assistants', Pro's, Back up's and About's,
+/// lands), <c>-advice</c>, <c>-replace</c> (an "are you sure?" page), Pro's, Back up's and About's,
 /// and Accounts'. A stand-in host: nothing reaches Windows or the user's state.
 /// </summary>
 internal static partial class EditBarRender
@@ -94,15 +94,6 @@ internal static partial class EditBarRender
         custom.State.Design.CornerRadiusPx = 17;
         custom.State.Design.PrimaryColor = "#3A6EA5";
         await SettingsShot(screen, outDir, theme, "appearance-replace", custom, a + "/style", view => Click(view, a + "/style/" + DesignPresets.All[1].Id)).ConfigureAwait(true);
-
-        // [S-9979] AI assistants: off (the default), listening with its setups, and a port taken.
-        await SettingsShot(screen, outDir, theme, "general-assistants", new RenderSettingsHost(), SettingsMenu.Keys.McpServer).ConfigureAwait(true);
-        var listening = new RenderSettingsHost { Mcp = new RenderMcpHost(new McpServerStatus(McpServerState.Listening, RenderMcpHost.Address)) };
-        listening.State.Preferences.McpServer = true;
-        await SettingsShot(screen, outDir, theme, "general-assistants-on", listening, SettingsMenu.Keys.McpServer).ConfigureAwait(true);
-        var taken = new RenderSettingsHost { Mcp = new RenderMcpHost(new McpServerStatus(McpServerState.Failed, RenderMcpHost.Address, McpProblem.PortTaken)) };
-        taken.State.Preferences.McpServer = true;
-        await SettingsShot(screen, outDir, theme, "general-assistants-failed", taken, SettingsMenu.Keys.McpServer).ConfigureAwait(true);
 
         // [S-3560] Accounts over stand-in accounts.
         await AccountsShots(screen, outDir, theme).ConfigureAwait(true);
@@ -202,9 +193,6 @@ internal static partial class EditBarRender
 
         public IAboutMenuHost About => this;
 
-        /// <summary>[S-9979] A made-up server: nothing listens, and a copy reaches no clipboard.</summary>
-        public IMcpMenuHost? Mcp { get; init; } = new RenderMcpHost(new McpServerStatus(McpServerState.Off));
-
         public SettingsOutcomes Outcomes { get; } = new();
 
         // ---- [S-3583] a made-up licence: a developer build unless a state is given ----------------
@@ -273,21 +261,6 @@ internal static partial class EditBarRender
         public void UninstallNow(bool deleteData)
         {
             // ignore: a render never uninstalls ([S-1555]).
-        }
-    }
-
-    /// <summary>[S-9979] A stand-in server for ⚙ › AI assistants: its status given, its token made up and never shown.</summary>
-    private sealed class RenderMcpHost(McpServerStatus status) : IMcpMenuHost
-    {
-        public static readonly Themia.Core.Mcp.McpAddress Address = new(48213, new string('x', 43));
-
-        public McpServerStatus Status { get; } = status;
-
-        public bool Copy(string text) => true;
-
-        public void NewAddress()
-        {
-            // ignore: a render opens no socket.
         }
     }
 }

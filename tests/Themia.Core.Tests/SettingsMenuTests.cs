@@ -87,16 +87,13 @@ public sealed partial class SettingsMenuTests
         public IAboutMenuHost About { get; }
 
         public SettingsOutcomes Outcomes { get; } = new();
-
-        /// <summary>[S-9979] No server unless a test gives one.</summary>
-        public IMcpMenuHost? Mcp { get; set; }
     }
 
     /// <summary>Every section builder's lines, as the pages group them ([S-2300]): the lines found by their keys' paths.</summary>
     private static IReadOnlyList<SettingsLine> Root(FakeHost host) =>
     [
         .. SettingsMenu.General(host), .. SettingsMenu.Desktop(host), SettingsMenu.Appearance(host), SettingsMenu.Accounts(host), SettingsMenu.Language(host),
-        SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host), .. (SettingsMenu.Assistants(host) is { } assistants ? [assistants] : Array.Empty<SettingsLine>()),
+        SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host),
         SettingsMenu.Pro(host), SettingsMenu.Backup(host), SettingsMenu.Uninstall(host), SettingsMenu.About(host),
     ];
 

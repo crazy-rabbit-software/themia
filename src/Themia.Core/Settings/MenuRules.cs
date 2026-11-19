@@ -117,7 +117,7 @@ public static class MenuRules
     public static readonly IReadOnlySet<string> Proper = new HashSet<string>(StringComparer.Ordinal)
     {
         "Windows", "Themia", "Pro", "Microsoft", "Store", "To", "Do", "IMAP", "SMTP", "CalDAV",
-        "CardDAV", "AI", "Claude", "Code", "JSON", "MCP", "URL", "RSS", "PC", "CPU", "GPU", "RAM", "VPN", "Wi-Fi", "Bluetooth", "UTC",
+        "CardDAV", "JSON", "URL", "RSS", "PC", "CPU", "GPU", "RAM", "VPN", "Wi-Fi", "Bluetooth", "UTC",
         "GMT", "Lometics", "GmbH", "Explorer", "File", "Liquid", "Celsius", "Fahrenheit", "°C", "°F",
         "AQI", "US", "EU", "UV", "Open-Meteo", "ID", "OK", "PIN", "Ctrl", "Alt", "Shift", "F2", "API", "HTTP", "HTTPS",
     };

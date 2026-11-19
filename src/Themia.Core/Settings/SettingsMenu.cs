@@ -330,9 +330,6 @@ public interface ISettingsMenuHost
     /// <summary>[S-3580] The app itself: About Themia ›.</summary>
     IAboutMenuHost About { get; }
 
-    /// <summary>[S-9979] The assistants' server: ⚙ › AI assistants; null where none runs (a render's detached state).</summary>
-    IMcpMenuHost? Mcp => null;
-
     /// <summary>[S-3572] [S-3576] How what the lines of Themia Pro and Back up &amp; reset started went, under each.</summary>
     SettingsOutcomes Outcomes { get; }
 
@@ -418,11 +415,6 @@ public static partial class SettingsMenu
         /// <summary>[S-2311] The Appearance page's live preview.</summary>
         public const string Preview = "appearance/preview";
         public const string Online = "online";
-        public const string Mcp = "assistants";
-        public const string McpServer = "assistants/server";
-        public const string McpCopyClaudeCode = "assistants/copyClaudeCode";
-        public const string McpCopyJson = "assistants/copyJson";
-        public const string McpNewAddress = "assistants/newAddress";
         public const string Pro = "pro";
         public const string ProUpgrade = "pro/upgrade";
         public const string ProRestore = "pro/restore";

@@ -7,9 +7,9 @@ namespace Themia.App.Widgets;
 /// <c>IWidgetPreviewState</c>'s, in <c>Preview/</c>, Debug only, whose <c>sample</c> state calls this.
 /// <para>
 /// Only a card built for a picture (a preview card, [S-11851]) is ever asked: the sample is held by this
-/// view alone, never written into a store, the clipboard or anything another widget or the assistants'
-/// server reads. A view whose live sources are the sample world's anyway (the meters and details over the
-/// sample PC's hub, [S-1931]) has no sample of its own.
+/// view alone, never written into a store, the clipboard or anything another widget reads. A view whose
+/// live sources are the sample world's anyway (the meters and details over the sample PC's hub, [S-1931])
+/// has no sample of its own.
 /// </para>
 /// </summary>
 public interface IWidgetSample

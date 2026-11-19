@@ -200,6 +200,19 @@ public sealed class ShellSettingsTests : IDisposable
         Assert.True(with.State!.Preferences.LockWidgets);
     }
 
+    [Fact]
+    public void S1050_a_preferences_key_this_build_does_not_have_is_dropped_loudly_and_the_rest_loads()
+    {
+        // [S-9960] retired: the assistants' server switch is gone; a file that still holds it loads without it, said once.
+        var result = AppStateStore.Parse(StateFile.Replace(
+            "\"monitorViews\": {},", "\"monitorViews\": {}, \"preferences\": { \"lockWidgets\": true, \"mcpServer\": true },", StringComparison.Ordinal));
+
+        Assert.Equal(ParseRefusal.None, result.Refusal);
+        Assert.True(result.State!.Preferences.LockWidgets);
+        Assert.Equal(["preferences: dropped the unknown key 'mcpServer'"], result.Repairs.Where(r => r.StartsWith("preferences:", StringComparison.Ordinal)));
+        Assert.DoesNotContain("mcpServer", SettingsTransfer.Serialize(result.State), StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("\"\"")]
     [InlineData("\" \"")]

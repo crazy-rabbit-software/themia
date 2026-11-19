@@ -243,9 +243,10 @@ public sealed class AppStateStore : IAsyncDisposable
     }
 
     /// <summary>
-    /// [S-1050] The schema changes in place: a key the design, a view or a widget does not have in this build (a hand
-    /// edit, or a key the app no longer writes, such as the groups that are gone, [S-2450], or Over the edge, [S-2330])
-    /// is taken out before the typed read, loudly, one line each, never kept beside the state or read into anything.
+    /// [S-1050] The schema changes in place: a key the design, the preferences, a view or a widget does not have in this
+    /// build (a hand edit, or a key the app no longer writes, such as the groups that are gone, [S-2450], Over the edge,
+    /// [S-2330], or the assistants' server switch, [S-9960]) is taken out before the typed read, loudly, one line each,
+    /// never kept beside the state or read into anything.
     /// </summary>
     private static List<string> DropUnknownKeys(JsonNode? document)
     {
@@ -262,6 +263,16 @@ public sealed class AppStateStore : IAsyncDisposable
             {
                 design.Remove(key);
                 dropped.Add($"design: dropped the unknown key '{key}'");
+            }
+        }
+
+        if (root["preferences"] is JsonObject preferences)
+        {
+            var preferenceKeys = Keys(StateJson.Options.GetTypeInfo(typeof(AppPreferences)));
+            foreach (var key in preferences.Select(p => p.Key).Where(k => !preferenceKeys.Contains(k)).ToList())
+            {
+                preferences.Remove(key);
+                dropped.Add($"preferences: dropped the unknown key '{key}'");
             }
         }
 

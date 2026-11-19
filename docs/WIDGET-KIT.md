@@ -1210,7 +1210,7 @@ field of the view. `scripts/new-module.ps1` writes a sample that draws the view 
 with the widget's sample data. Rules for a sample:
 
 - **Hold, never write.** The data lives in the view (a held list, a pinned instant, an in-memory source);
-  nothing goes into a store, the clipboard, an account or anything the assistants' server reads. A sample
+  nothing goes into a store, the clipboard, an account or anything another widget reads. A sample
   that needs files writes them under `%TEMP%\themia-sample` (`SampleFiles`, `SamplePictureFiles`).
 - **No sample where the host hands sample data.** The meters, the details and Top processes read the
   sample PC's hub from their host ([S-1931]); they have no sample, and neither has a kind whose states are

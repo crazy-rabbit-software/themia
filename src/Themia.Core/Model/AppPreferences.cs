@@ -43,12 +43,6 @@ public sealed class AppPreferences
     public RefreshPreferences Refresh { get; set; } = RefreshPreferences.WithDefaults();
 
     /// <summary>
-    /// [S-9960] The assistants' server (MCP) is on: off by default, and only ⚙ › AI assistants turns
-    /// it on. This PC's own choice: an imported file never switches it ([S-498]).
-    /// </summary>
-    public bool McpServer { get; set; }
-
-    /// <summary>
     /// [S-1575] The colour picker's recent colours: what was last kept from its mixer, its hex box or
     /// the eyedropper, newest first, at most one line (<see cref="Themia.Core.Settings.ColourPicker.MostRecent"/>),
     /// <c>#RRGGBB</c>. A memory of this PC's, not a look: one list for every colour row.
@@ -64,7 +58,6 @@ public sealed class AppPreferences
         LockWidgets = LockWidgets,
         Region = Region.Clone(),
         Refresh = Refresh.Clone(),
-        McpServer = McpServer,
         RecentColours = [.. RecentColours],
     };
 }

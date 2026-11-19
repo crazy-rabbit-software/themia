@@ -34,7 +34,7 @@ public sealed partial class SettingsMenuTests
     [Fact]
     public void S2315_general_is_karpos_sections_general_desktop_services_themia_and_about()
     {
-        var page = SettingsPages.General(new FakeHost { Mcp = new FakeMcp() });
+        var page = SettingsPages.General(new FakeHost());
 
         Assert.Equal(["page", SettingsMenu.Keys.DesktopHeading, SettingsMenu.Keys.ServicesHeading, SettingsMenu.Keys.ThemiaHeading, SettingsMenu.Keys.About], page.Sections.Select(s => s.Key));
         Assert.Equal(Str.Common_General.Text(), page.Sections[0].Heading);
@@ -42,7 +42,7 @@ public sealed partial class SettingsMenuTests
         // Karpo's General: Start with Windows, the language and its formats, then Themia's own switches; no Quit.
         Assert.Equal(["startup", SettingsMenu.Keys.Language + "/display", SettingsMenu.Keys.Formats, "gameMode"], page.Sections[0].Lines.Select(l => l.Key));
         Assert.Equal(["desktopIconSize", "desktopIconLayout", "lockWidgets"], page.Sections[1].Lines.Select(l => l.Key));
-        Assert.Equal([SettingsMenu.Keys.Online, SettingsMenu.Keys.Mcp], page.Sections[2].Lines.Select(l => l.Key));
+        Assert.Equal([SettingsMenu.Keys.Online], page.Sections[2].Lines.Select(l => l.Key));
         Assert.Equal([SettingsMenu.Keys.Pro, SettingsMenu.Keys.Backup, SettingsMenu.Keys.Uninstall], page.Sections[3].Lines.Select(l => l.Key));
 
         // Karpo's levels are cards that open in place, one level, never a page of their own.
@@ -213,7 +213,7 @@ public sealed partial class SettingsMenuTests
             SettingsLine[] roots =
             [
                 .. SettingsMenu.General(host), .. SettingsMenu.Desktop(host), SettingsMenu.Appearance(host), SettingsMenu.Accounts(host), SettingsMenu.Language(host),
-                SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host), SettingsMenu.Assistants(host)!, SettingsMenu.Backup(host), SettingsMenu.Pro(host), SettingsMenu.About(host),
+                SettingsMenu.OnlineUpdates(host), SettingsMenu.Motion(host), SettingsMenu.Backup(host), SettingsMenu.Pro(host), SettingsMenu.About(host),
             ];
             return roots.SelectMany(r => r is SettingsSubmenu s && !s.Page ? s.Lines : [r]).SelectMany(l => l is SettingsSubmenu { Card: true } c ? c.Lines : [l]);
         }
