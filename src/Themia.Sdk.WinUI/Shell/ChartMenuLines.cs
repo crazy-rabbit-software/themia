@@ -19,7 +19,7 @@ public static class ChartMenuLines
         ArgumentNullException.ThrowIfNull(looks);
         if (looks.ChartTypes.Count > 1)
         {
-            menu.StyleLines.Add(WidgetMenuLines.Shared(SharedSettings.ChartType, menu.Choice(Glyphs.ScreenTimeChart, Str.Chart_Type.Text(),
+            menu.StyleLines.Add(WidgetMenuLines.Shared(SharedSettings.ChartType, menu.Choice(Glyphs.ChartType, Str.Chart_Type.Text(),
                 [.. looks.ChartTypes.Select(type => (type, Label(type)))],
                 ChartLooks.Effective(looks),
                 type => looks.Chart = type)));

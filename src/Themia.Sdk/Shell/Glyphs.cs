@@ -245,6 +245,9 @@ public static class Glyphs
 
     /// <summary>[S-3320] The screen-time chart (AreaChart) and donut (PieSingle); the app list keeps <see cref="ScreenTime"/>.</summary>
     public static readonly string ScreenTimeChart = From(0xE9D2);
+
+    /// <summary>[S-6752] A graph's Chart type line (Diagnostic, a line graph): its own, never a kind's glyph on the same page ([S-2374] R13).</summary>
+    public static readonly string ChartType = From(0xE9D9);
     public static readonly string ScreenTimeDonut = From(0xEB05);
     public static readonly string Bell = From(0xEA8F);
 
