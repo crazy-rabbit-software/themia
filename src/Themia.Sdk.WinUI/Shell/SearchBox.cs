@@ -47,6 +47,9 @@ public sealed partial class SearchBox : Grid
     private WordsPlace? _place;
 
     private TextBox? _box;
+
+    /// <summary>Whether a box on screen without a text box was logged (once).</summary>
+    private bool _noBoxLogged;
     private int _caret = -1;
 
     public SearchBox(string placeholder, SearchSize size = SearchSize.Field)
@@ -363,7 +366,14 @@ public sealed partial class SearchBox : Grid
         _box = Find(_suggest);
         if (_box is null)
         {
-            Log.Warn(Scope, "the search box's template has no text box");
+            // A box not yet loaded or still collapsed (a line shown on demand) has no text box to find yet, and every
+            // layout pass of the window asks again (OnLaidOut): only a box on screen without one is worth a line, once.
+            if (_suggest.IsLoaded && _suggest.Visibility == Visibility.Visible && !_noBoxLogged)
+            {
+                _noBoxLogged = true;
+                Log.Warn(Scope, "the search box's template has no text box");
+            }
+
             return null;
         }
 
