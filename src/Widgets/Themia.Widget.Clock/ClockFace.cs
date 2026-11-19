@@ -193,59 +193,134 @@ public static class ClockFace
     public static double WordsWidth => FamilyType.EstimateWidth(Words, 12);
 
     /// <summary>
-    /// The clock's sizing ([S-2438]): its face on the family's one-readout step (68; the words 40; the dial 144),
-    /// with the line under it where the face has one, in the card's inset of 12. The time faces (Digital, Minimal, Stacked, Flip) may be widened to twice their face, the
-    /// line under cut to what fits, at the one height; the dial and the words are one size. A larger box (the
-    /// relaxed range, [S-12411]) scales the face up as one to fill it ([S-12804]). <paramref name="meridiem"/> is the widest AM/PM of the language when the region writes
+    /// The clock's sizing ([S-2438]): its face on the family's one-readout step (68; the words 40; the dial 144), with the
+    /// line under it where the face has one, in the card's inset of 12. The time faces (Digital, Minimal, Stacked, Flip)
+    /// may be widened to twice their face, the line under cut to what fits, at the one height. A larger box (the relaxed
+    /// range, [S-12411]) scales the face up as one to fill it ([S-12804]). <paramref name="meridiem"/> is the widest AM/PM of the language when the region writes
     /// 12-hour time, else empty: the face is as wide as its widest time.
+    /// <para>
+    /// [S-12833] A smaller box scales it down as one (owner, 2026-11-19: "you should be able to make the clock even smaller";
+    /// "the clock has a min height that is way to big"): its least box is its figures (or words) alone at the legibility
+    /// floor in the card's inset (<see cref="FaceFloor"/>), the meridiem and the line under having given way on the way
+    /// down (<see cref="Fit"/>); the dial's is its floor, <see cref="DialFloor"/>, in the inset.
+    /// </para>
     /// </summary>
     public static WidgetSizing Sizing(ClockConfig config, string meridiem)
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        var step = Step;
-        var unit = string.IsNullOrEmpty(meridiem) ? string.Empty : " " + meridiem;
-        var under = config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.OffsetMode != ClockOffsetMode.None);
-        var underLine = under ? FamilyType.Under(step).LineHeight : 0;
-        var seconds = config.DrawsSeconds;
-
-        (double W, double H, bool Widens) face = config.Style switch
-        {
-            ClockStyle.Stacked => (
-                ReadoutRules.Width(step, new ReadoutText(Figures, unit, OneReadout: true)),
-                ((seconds ? 3 : 2) * step.LineHeight) + underLine,
-                true),
-            ClockStyle.Flip => (
-                FlipRules.RowWidth(step, seconds ? 3 : 2, Figures) + (unit.Length == 0 ? 0 : FamilySpace.S2 + (HeroFit.Ems(meridiem) * FamilyType.Unit(step).FontSize)),
-                step.LineHeight + underLine,
-                true),
-            ClockStyle.Analog => (DialSide, DialSide + (under ? DialGap + FamilyType.Body.LineHeight : 0), false),
-            ClockStyle.Word => Sentence(under),
-            _ => (
-                ReadoutRules.Width(step, new ReadoutText(seconds ? "88:88:88" : "88:88", unit, OneReadout: true)),
-                step.LineHeight + underLine,
-                true),
-        };
-
+        var face = Face(config, meridiem, meridiemShown: true, underShown: true);
         var box = new SizeDip(
-            Math.Ceiling(face.W) + (2 * FamilySpace.Inset) + Slack,
-            Math.Ceiling(face.H) + (2 * FamilySpace.Inset) + Slack);
-        // [S-12833] A face of figures scales down as one until its smallest text is at the legibility floor: its least
-        // size is the natural box at that scale (owner, 2026-11-19: "you should be able to make the clock even smaller").
-        var smallest = Math.Min(step.FontSize, Math.Min(under ? FamilyType.Under(step).FontSize : double.PositiveInfinity, unit.Length > 0 ? FamilyType.Unit(step).FontSize : double.PositiveInfinity));
-        return face.Widens
-            ? WidgetSizing.Range(box, box, box with { Width = 2 * box.Width }).ScalesDown(ScaleFloor.Least(smallest))
-            : WidgetSizing.Fixed(box);
+            Math.Ceiling(face.Width) + (2 * FamilySpace.Inset) + Slack,
+            Math.Ceiling(face.Height) + (2 * FamilySpace.Inset) + Slack);
+        var widens = config.Style is not (ClockStyle.Analog or ClockStyle.Word);
+        var least = config.Style == ClockStyle.Analog
+            ? new SizeDip(DialFloor, DialFloor)
+            : FaceFloor.LeastBox(PartSizes(config, meridiem), floor => Plan(config, meridiem, floor));
+        return WidgetSizing.Range(box, box, widens ? box with { Width = 2 * box.Width } : box)
+            .ScalesDownTo(new SizeDip(least.Width + (2 * FamilySpace.Inset), least.Height + (2 * FamilySpace.Inset)));
     }
 
-    /// <summary>[S-6024] The words' face: its column, as many of its lines as the language's longest sentence wraps to, the line under.</summary>
-    private static (double W, double H, bool Widens) Sentence(bool under)
+    /// <summary>
+    /// [S-12833] The text sizes of a clock's face (<see cref="FaceFloor"/>): its main reading (the figures on their step, the
+    /// words on theirs) and the smaller parts it draws (the meridiem on the step's unit, the line under on the step's
+    /// line under). The dial is no text face: none.
+    /// </summary>
+    public static IReadOnlyList<double> PartSizes(ClockConfig config, string meridiem)
     {
-        var step = Words;
-        var width = WordsWidth;
-        var longest = WordClock.Longest(Strings.Current);
-        var height = (WordClock.Lines(longest, width * WordClock.WidthMargin, step) * step.LineHeight) + (under ? FamilyType.Under(step).LineHeight : 0);
-        return (width, height, false);
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Style == ClockStyle.Analog)
+        {
+            return [];
+        }
+
+        var step = MainStep(config);
+        var sizes = new List<double>(3) { step.FontSize };
+        if (Meridiem(config, meridiem))
+        {
+            sizes.Add(FamilyType.Unit(step).FontSize);
+        }
+
+        if (Under(config))
+        {
+            sizes.Add(FamilyType.Under(step).FontSize);
+        }
+
+        return sizes;
+    }
+
+    /// <summary>[S-12833] The face's plan drawing its parts of at least <paramref name="floor"/> DIP: its width and its ink's height, no inset.</summary>
+    public static FacePlan Plan(ClockConfig config, string meridiem, double floor)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var step = MainStep(config);
+        var face = Face(config, meridiem, FamilyType.Unit(step).FontSize >= floor, FamilyType.Under(step).FontSize >= floor);
+        return new FacePlan(face.Width, face.Ink);
+    }
+
+    /// <summary>
+    /// [S-12833] How the face stands in a card's content box of <paramref name="width"/> × <paramref name="height"/>: which of
+    /// its parts it draws (the meridiem and the line under give way where they would be drawn under the floor) and the most
+    /// it is drawn at. The dial draws every part it plans (<see cref="Dial"/>).
+    /// </summary>
+    public static FaceFit Fit(double width, double height, ClockConfig config, string meridiem)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Style == ClockStyle.Analog
+            ? FaceFit.All
+            : FaceFloor.Fit(width, height, PartSizes(config, meridiem), floor => Plan(config, meridiem, floor));
+    }
+
+    /// <summary>The step of the face's main reading: the words' for the words, the figures' for the rest.</summary>
+    private static TypeStep MainStep(ClockConfig config) => config.Style == ClockStyle.Word ? Words : Step;
+
+    /// <summary>Whether the face draws a meridiem: a time face in a region that writes 12-hour time.</summary>
+    private static bool Meridiem(ClockConfig config, string meridiem)
+        => !string.IsNullOrEmpty(meridiem) && config.Style is not (ClockStyle.Analog or ClockStyle.Word);
+
+    /// <summary>Whether the face has a line under: a world clock's city or the offset, never on the minimal clock ([S-6014]).</summary>
+    private static bool Under(ClockConfig config)
+        => config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.OffsetMode != ClockOffsetMode.None);
+
+    /// <summary>
+    /// The face at its step with the parts asked for: its width, its height (its lines and the line under) and its ink
+    /// (the height less the leading over its first ink and under its last: the figures' capitals and baseline, a flip
+    /// card's whole box, the line under's baseline), no inset.
+    /// </summary>
+    private static (double Width, double Height, double Ink) Face(ClockConfig config, string meridiem, bool meridiemShown, bool underShown)
+    {
+        var step = MainStep(config);
+        var withMeridiem = meridiemShown && Meridiem(config, meridiem);
+        var unit = withMeridiem ? " " + meridiem : string.Empty;
+        var under = underShown && Under(config);
+        var underStep = FamilyType.Under(step);
+        var underLine = under ? underStep.LineHeight : 0;
+        var seconds = config.DrawsSeconds;
+
+        // The leading over the first ink and under the last: a text line's, none over a flip card (its box is its ink).
+        double Ink(double height, bool cards) => height - (cards ? 0 : LineInk.Of(step).Over) - (under ? LineInk.Of(underStep).Under : cards ? 0 : LineInk.Of(step).Under);
+
+        switch (config.Style)
+        {
+            case ClockStyle.Stacked:
+                var stacked = ((seconds ? 3 : 2) * step.LineHeight) + underLine;
+                return (ReadoutRules.Width(step, new ReadoutText(Figures, unit, OneReadout: true)), stacked, Ink(stacked, cards: false));
+            case ClockStyle.Flip:
+                var flip = step.LineHeight + underLine;
+                var beside = withMeridiem ? FamilySpace.S2 + (HeroFit.Ems(meridiem) * FamilyType.Unit(step).FontSize) : 0;
+                return (FlipRules.RowWidth(step, seconds ? 3 : 2, Figures) + beside, flip, Ink(flip, cards: true));
+            case ClockStyle.Analog:
+                var dial = DialSide;
+                var tall = dial + (under ? DialGap + FamilyType.Body.LineHeight : 0);
+                return (dial, tall, tall);
+            case ClockStyle.Word:
+                var width = WordsWidth;
+                var words = (WordClock.Lines(WordClock.Longest(Strings.Current), width * WordClock.WidthMargin, step) * step.LineHeight) + underLine;
+                return (width, words, Ink(words, cards: false));
+            default:
+                var line = step.LineHeight + underLine;
+                return (ReadoutRules.Width(step, new ReadoutText(seconds ? "88:88:88" : "88:88", unit, OneReadout: true)), line, Ink(line, cards: false));
+        }
     }
 
     /// <summary>

@@ -8150,11 +8150,27 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   a date, a reading on `ReadingFit` or `InkFit`) scales down as well as up, until its smallest text is 9 DIP or its
   smallest glyph 12 (`ScaleFloor`, one floor for every kind; `ScaleFloors.Of` reads a face's parts); its kind's least
   size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`): the
-  clock (planned in its natural box at every size, never folded) and the date at their smallest text; the one-reading
-  kinds on `ReadingFit` (air quality, alarm, brightness, countdown, drive, exchange rate, focus session, moon, music,
-  music progress, next meeting, pomodoro, quote, recycle bin, screen time, volume, weather now) at the family's Caption;
-  a meter's reading alone at its unit. Rows and list items keep their whole-cell rule (a list's least is one item). Tests
-  `BlockFitTests.S12833_` (the floor, scaling down, monotonic), `ClockFaceTests.S6741_S12833_`.
+  one-reading kinds on `ReadingFit` (air quality, alarm, brightness, countdown, drive, exchange rate, focus session,
+  moon, music, music progress, next meeting, pomodoro, quote, recycle bin, screen time, volume, weather now) at the
+  family's Caption; a meter's reading alone at its unit. Rows and list items keep their whole-cell rule (a list's least
+  is one item). **The main reading sets the floor, its smaller parts give way** (owner, 2026-11-19: "the clock has a
+  min height that is way to big"; the clock's meridiem and line under at 9 had held its figures large: a world clock
+  89 tall, a stacked one 208, the dial and the words not scaling down at all, 170 and 234; the date's page 101): a face
+  that states its parts (`FaceFloor`: their text sizes and its plan with the parts of at least a size) goes down until
+  its **main reading** (its largest text: the clock's figures or words, the date's line or its day's number) is at 9.
+  A smaller part (a meridiem, the line under, the page's weekday and month) is drawn while the card keeps it at 9 and
+  gives way under that, the smallest first (`FaceFloor.Fit`, `FaceFit.Floor`), so no drawn text is ever under 9 and
+  none holds the reading large; once a part gave way the rest is never drawn larger than it was when the part went
+  (`FaceFit.Most`, `InkFit.Most`, `BlockFit.Lay`'s `most`), so the face only gets smaller as its card does. Its least
+  box is the main reading alone at 9 in the card's inset, which does not scale (`FaceFloor.LeastBox` + 24,
+  `WidgetSizing.ScalesDownTo`), never under 32: the clock 48 × 32 (Digital, Minimal; 60 with seconds), Stacked 35 × 43
+  (55 with seconds), Flip 51..58 × 36..37 (its cards' room), Words 87 × 66, whatever its meridiem and line under; the dial goes down
+  to its floor (`ClockFace.DialFloor`, 40) in the inset, 64 × 64; the date's line its widest day at 9 by 32, its page
+  its number alone, 35 × 32. Seconds are figures and never give way; the clock is planned in its natural box at every
+  size, never folded (never stacked, never without its seconds). Tests `BlockFitTests.S12833_` (the floor, scaling
+  down, monotonic), `FaceFloorTests.S12833_` (the main reading's floor, parts giving way smallest first, never drawn
+  under 9, the scale only falling), `ClockFaceTests.S6011_S12833_`, `.S6741_S12833_` (each style's least height, the figures at 9, every part at
+  the natural box, monotonic), `DateTests.S10802_S12833_`.
 - **[S-12834]** **What stands over a list is whole cells, and the rows start right under it** (owner, 2026-11-19,
   docs/WIDGET-RULES.md WR-1: "there should not be a space at the top"; WR-5: "Empty stated rows / leftover whole cells
   may stand at the foot; never above the first item, never between items"; WR-6: "Every repeated item is a whole number

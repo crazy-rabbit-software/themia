@@ -16,9 +16,11 @@ namespace Themia.Widget.Date;
 /// [S-10800] [S-10803] Today in its style: the face laid out at the step its Size names, in the box its sizing
 /// made for the language's widest day, then scaled up as one until its ink fills the card (<see cref="InkFit"/>, [S-12808]), so a
 /// larger card is a larger date, never a band round it. The family's inset at the sides and the foot (the card gives the
-/// top); a mate joined under it takes the foot ([S-12483]). Turns over within a minute of midnight.
+/// top); a mate joined under it takes the foot ([S-12483]). Turns over within a minute of midnight. [S-12833] A smaller card
+/// scales it down as one to its main reading at the legibility floor, the page's weekday and month giving way first
+/// (<see cref="DateLayout.Fit"/>).
 /// </summary>
-internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
+internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWidgetSizeAware
 {
     private readonly TextBlock _line = Family.Text(FamilyType.Big40);
     private readonly TextBlock _weekday = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
@@ -28,6 +30,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
     private readonly InkFit _fit = new();
     private DateConfig _config = new();
     private ContentAlign _align = ContentAlign.Center;
+    private WidgetArea _area;
     private Ticker? _ticker;
     private IDisposable? _subscription;
 
@@ -69,6 +72,13 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
         Lay();
     }
 
+    /// <summary>[S-12833] The card's word on its room: which parts the face keeps in it.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        _area = area;
+        Lay();
+    }
+
     public void Detach()
     {
         Strings.Changed -= OnLanguage;
@@ -90,7 +100,14 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
     private void Lay()
     {
         var locale = Strings.Current;
-        var face = DateLayout.Face(_config, locale);
+
+        // [S-12833] The page's weekday and month give way where the card would draw them under the floor.
+        var fit = _area.IsMeasured
+            ? DateLayout.Fit(_area.Width - (2 * FamilySpace.Inset), _area.Height - FamilySpace.Inset, _config, locale)
+            : FaceFit.All;
+        var lines = DateLayout.Lines(_config, fit.Floor);
+        var face = DateLayout.Face(_config, locale, fit.Floor);
+        _fit.Most = fit.Most;
         _face.Children.Clear();
         _face.Width = face.Width;
         _face.Height = face.Height;
@@ -108,7 +125,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
             Family.Step(_number, number);
             Family.Step(_weekday, FamilyType.Under(number));
             Family.Step(_month, FamilyType.Under(number));
-            foreach (var part in new[] { _weekday, _number, _month })
+            foreach (var part in lines ? new[] { _weekday, _number, _month } : [_number])
             {
                 part.TextAlignment = text;
                 _face.Children.Add(part);

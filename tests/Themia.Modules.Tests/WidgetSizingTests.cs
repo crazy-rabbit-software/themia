@@ -209,7 +209,10 @@ public sealed class WidgetSizingTests
         // [S-12411] Relaxed: no practical Max; the face scales up with the card.
         Assert.Equal(SizeStretch.Ceiling, digital.Max.Height);
         var dial = At(ClockStyle.Analog);
+        // [S-12833] The dial scales down too, to its floor in the inset.
+        Assert.Equal(new SizeDip(ClockFace.DialFloor + 24, ClockFace.DialFloor + 24), dial.Min);
         Assert.Equal(ClockFace.DialSide + (2 * Themia.Sdk.Kit.FamilySpace.Inset) + ClockFace.Slack, dial.Natural.Height);
+        Assert.Equal(ClockFace.DialSide + 24 + ClockFace.Slack, dial.Natural.Width);
         Assert.Equal(new SizeDip(SizeStretch.Ceiling, SizeStretch.Ceiling), dial.Max);
         Assert.Null(typeof(ClockConfig).GetProperty("Size"));
     }

@@ -38,10 +38,15 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   2026-11-20, owner: "the size should not be settable, it is set by the size of the widget", [S-2449] retired). The
   clock is converted to the sizing ([S-2438], `ClockFace.Sizing`): its natural card is its face plus the inset (and 2
   of slack for pixel rounding); Digital, Minimal, Stacked and Flip may be widened to twice their face (the
-  line under then takes its longer form), Analog and Words are one size. **The face fills its card** (owner,
+  line under then takes its longer form). **It scales down to its figures at 9** (owner, 2026-11-19: "the clock has a
+  min height that is way to big"; root [S-12833], `ClockFace.Sizing`, `.Fit`): its least card is its figures (the
+  words) alone at 9 DIP in the inset, never under 32 (Digital and Minimal 48 × 32, Stacked 35 × 43, Flip about
+  53 × 37, Words 87 × 66; more with seconds), the dial its floor of 40 in the inset (64 × 64); on the way down the
+  line under and then the meridiem give way where the card would draw them under 9, and the face is never drawn
+  larger for it. **The face fills its card** (owner,
   2026-11-17: "the clock widget does not stretch out to fill the space properly, there is way too much spacing
-  in it"; root [S-12804]): planned in its natural box, it is scaled up as one to the card (`Viewbox`, uniform,
-  never down), as a display clock is, so a larger card is a larger clock and the spare is only what the
+  in it"; root [S-12804]): planned in its natural box, it is scaled up as one to the card (`InkFit`, uniform; down only as
+  [S-12833] says), as a display clock is, so a larger card is a larger clock and the spare is only what the
   card's other axis leaves; the dial is planned in the whole box (its strokes stay the family's). The
   one-step climb (`ReadoutSizes.Climb`) is gone. Every style but Minimal draws one line under its face where
   it has one: a world clock's city and the offset ([S-6741]). The settings (seconds, zone, offset, alignment)

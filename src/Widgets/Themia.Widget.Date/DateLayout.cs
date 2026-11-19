@@ -49,45 +49,96 @@ public static class DateLayout
     /// <summary>[S-10801] The whole date, the tooltip in every style: "Monday, November 17, 2026".</summary>
     public static string Full(Locale locale, DateOnly day) => LocaleFormat.Date(locale, day, DateStyle.Full);
 
-    /// <summary>[S-12833] The face's smallest text: the page's weekday and month line, else the date's one line.</summary>
-    public static double SmallestText(DateConfig config)
+    /// <summary>
+    /// [S-12833] The text sizes of the face (<see cref="FaceFloor"/>): its main reading (the date's one line, the page's day
+    /// number) and, on the page, the weekday's and the month's line, which give way first.
+    /// </summary>
+    public static IReadOnlyList<double> PartSizes(DateConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return config.Style == DateWidgetStyle.Page ? FamilyType.Under(NumberStep).FontSize : LineStep.FontSize;
+        if (config.Style != DateWidgetStyle.Page)
+        {
+            return [LineStep.FontSize];
+        }
+
+        var number = NumberStep;
+        return [number.FontSize, FamilyType.Under(number).FontSize];
     }
 
     /// <summary>
     /// [S-10802] The face's box at its natural size: the widest day of the language in the style on its step (the
     /// page: the number's step and the weekday's and month's line under it, the widest of the three), no inset.
     /// </summary>
-    public static SizeDip Face(DateConfig config, Locale locale)
+    public static SizeDip Face(DateConfig config, Locale locale) => Face(config, locale, lines: true).Box;
+
+    /// <summary>
+    /// [S-12833] The face as it is drawn where the room keeps the parts of at least <paramref name="floor"/> DIP: the page
+    /// its number alone once its weekday and month gave way.
+    /// </summary>
+    public static SizeDip Face(DateConfig config, Locale locale, double floor)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return Face(config, locale, Lines(config, floor)).Box;
+    }
+
+    /// <summary>[S-12833] Whether the page draws its weekday and month where the room keeps the parts of at least <paramref name="floor"/>.</summary>
+    public static bool Lines(DateConfig config, double floor)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Style == DateWidgetStyle.Page && FamilyType.Under(NumberStep).FontSize >= floor;
+    }
+
+    /// <summary>[S-12833] The face's plan drawing its parts of at least <paramref name="floor"/> DIP: its width and its ink's height, no inset.</summary>
+    public static FacePlan Plan(DateConfig config, Locale locale, double floor)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var face = Face(config, locale, Lines(config, floor));
+        return new FacePlan(face.Box.Width, face.Ink);
+    }
+
+    /// <summary>[S-12833] How the face stands in a card's content box of <paramref name="width"/> × <paramref name="height"/>.</summary>
+    public static FaceFit Fit(double width, double height, DateConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return FaceFloor.Fit(width, height, PartSizes(config), floor => Plan(config, locale, floor));
+    }
+
+    /// <summary>The face's box and its ink's height (the box less the leading over its first capitals and under its last baseline).</summary>
+    private static (SizeDip Box, double Ink) Face(DateConfig config, Locale locale, bool lines)
     {
         ArgumentNullException.ThrowIfNull(config);
         if (config.Style == DateWidgetStyle.Page)
         {
             var number = NumberStep;
+            var digits = HeroFit.Ems("88") * number.FontSize;
+            if (!lines)
+            {
+                return (new SizeDip(Math.Ceiling(digits), number.LineHeight), number.LineHeight - LineInk.Of(number).Over - LineInk.Of(number).Under);
+            }
+
             var line = FamilyType.Under(number);
             var words = Math.Max(WidestOf(locale, DateWidgetStyle.Page, 0, line), WidestOf(locale, DateWidgetStyle.Page, 1, line));
-            var digits = HeroFit.Ems("88") * number.FontSize;
-            return new SizeDip(Math.Ceiling(Math.Max(words, digits)), number.LineHeight + (2 * line.LineHeight));
+            var tall = number.LineHeight + (2 * line.LineHeight);
+            return (new SizeDip(Math.Ceiling(Math.Max(words, digits)), tall), tall - LineInk.Of(line).Over - LineInk.Of(line).Under);
         }
 
         var step = LineStep;
-        return new SizeDip(Math.Ceiling(WidestOf(locale, config.Style, 0, step)), step.LineHeight);
+        return (new SizeDip(Math.Ceiling(WidestOf(locale, config.Style, 0, step)), step.LineHeight), step.LineHeight - LineInk.Of(step).Over - LineInk.Of(step).Under);
     }
 
     /// <summary>
     /// [S-10802] The sizing: the face in the card's inset of 12 on every side, one height by the style, widened
     /// up to twice (beside a wider mate, under a clock); the host relaxes it ([S-12411]) and a larger box scales the face
-    /// up to fill it ([S-10803]).
+    /// up to fill it ([S-10803]). [S-12833] A smaller box scales it down as one: its least box is its main reading alone (the
+    /// line, the page's number) at the legibility floor in the inset, the page's weekday and month having given way.
     /// </summary>
     public static WidgetSizing Sizing(DateConfig config, Locale locale)
     {
         var face = Face(config, locale);
         var box = new SizeDip(face.Width + (2 * FamilySpace.Inset), face.Height + (2 * FamilySpace.Inset));
-
-        // [S-12833] Its face scales down as one until its smallest text is at the legibility floor.
-        return WidgetSizing.Range(box, box, box with { Width = 2 * box.Width }).ScalesDown(ScaleFloor.Least(SmallestText(config)));
+        var least = FaceFloor.LeastBox(PartSizes(config), floor => Plan(config, locale, floor));
+        return WidgetSizing.Range(box, box, box with { Width = 2 * box.Width })
+            .ScalesDownTo(new SizeDip(least.Width + (2 * FamilySpace.Inset), least.Height + (2 * FamilySpace.Inset)));
     }
 
     /// <summary>The widest text of <paramref name="style"/> (the page: its weekday, part 0, or its month, part 1) on <paramref name="step"/> over two years.</summary>
