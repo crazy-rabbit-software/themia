@@ -400,15 +400,18 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   ([S-2457]). Everything that produces or moves widgets is the one placement session (`PlacementPayload`: a new
   widget, a ready-made group, a copy, a move); a ready-made group lands as loose widgets laid as one block
   (`ReadyMadeGroups.Laid`) and selected ([S-2471], [S-2475]).
-- **The add page** ([S-11700]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593): Add opens a flyout as
-  wide as the bar, flush under it: a search box and tabs (Start: the starter groups, `ReadyMadeGroup.Starter`,
-  then Popular; then a tab per subject: its ready-made groups, its widgets, each family under its name), compact
-  tiles of at least 200 (icon, name, caption: Karpo's) and beside them a preview pane of the tile pointed at or
-  focused ([S-13600]..[S-13604]): a picture of the thing itself (`AddPictures`: real cards on sample data, in every
-  build; a glyph until drawn). The model is Core's (`AddTree` the subjects and families, `AddPage`
-  the tabs, sections and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a
-  widget places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the
-  placement session.
+- **The add page** ([S-13610]..[S-13617], [S-11701]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593; owner,
+  2026-11-19: the library will hold hundreds of kinds): Add opens a flyout as wide as the bar, flush under it: a
+  **rail** (the search box, then Start, each subject and More with its count, Karpo's side list) and the chosen
+  subject's content (its ready-made groups, its own widgets, then each **family** of two or more as a **stack**: a
+  head with name, count and chevron over one row of tiles ending in "+N"; the head or "+N" opens it in place).
+  Search is flat over every widget and group. Compact tiles of at least 200 (icon, name, caption: Karpo's) and
+  beside them a preview pane of the tile or family head pointed at or focused ([S-13600]..[S-13604]): a picture of
+  the thing itself (`AddPictures`: real cards on sample data, in every build; a glyph until drawn), drawn lazily,
+  the previewed first. The model is Core's (`AddTree` the subjects and families, `AddRail`, `AddPage` the
+  sections, stacks and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a widget
+  places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the placement
+  session.
 - **Samples and previews** ([S-11850]..[S-11854]; docs/WIDGET-KIT.md 6.8): **a widget's sample ships, its
   render-only states do not, by folder.** The sample (the add page's picture, on the sample day's data in
   `Themia.Sdk/Samples`) is `IWidgetSample.ShowSampleAsync` in the module's `Samples/<Name>View.Sample.cs`,
