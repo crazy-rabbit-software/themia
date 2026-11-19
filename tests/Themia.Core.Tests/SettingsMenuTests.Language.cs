@@ -59,10 +59,12 @@ public sealed partial class SettingsMenuTests
         var display = At<SettingsChoice>(host, "language", "language/display");
 
         Assert.Equal(41, display.Options.Count);
-        Assert.Equal("Windows setting (Deutsch)", display.Options[0].Text);
+        Assert.Equal("Default (Deutsch)", display.Options[0].Text);
         Assert.True(display.Options[0].Holds);
-        Assert.Equal("Deutsch", display.Value);
-        Assert.Equal("Deutsch", At<SettingsSubmenu>(host, "language").Value);
+
+        // [S-2372] Following Windows, the line says so in Karpo's one form, with what it comes to (its §518).
+        Assert.Equal("Default (Deutsch)", display.Value);
+        Assert.Equal("Default (Deutsch)", At<SettingsSubmenu>(host, "language").Value);
         Assert.Contains(display.Options, o => o.Text == "日本語");
         Assert.Contains(display.Options, o => o.Text == "العربية");
         Assert.Equal(display.Options.Count, display.Options.Select(o => o.Key).Distinct(StringComparer.Ordinal).Count());
@@ -114,11 +116,11 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost();
         foreach (var format in At<SettingsSubmenu>(host, "language", "language/formats").Lines.OfType<SettingsChoice>())
         {
-            Assert.StartsWith("Windows setting (", format.Options[0].Text, StringComparison.Ordinal);
+            Assert.StartsWith("Default (", format.Options[0].Text, StringComparison.Ordinal);
             Assert.True(format.Options[0].Holds);
 
-            // [S-3536] The line says what is in force, as the option names it inside its brackets.
-            Assert.Equal("Windows setting (" + format.Value + ")", format.Options[0].Text);
+            // [S-2372] While it follows Windows the line says the very words of its option, "Default (…)" (Karpo's §518).
+            Assert.Equal(format.Options[0].Text, format.Value);
         }
 
         At<SettingsChoice>(host, "language", "language/formats", "language/clock").Options.Single(o => o.Key == "language/clock/TwentyFour").Pick();

@@ -75,7 +75,7 @@ public static partial class SettingsMenu
         var windows = RegionFormat.Windows ?? RegionFormat.Language(Strings.Current);
         var display = DisplayLanguage(host);
 
-        // [S-3771] Each format offers "Windows setting (…)" first, naming what Windows says.
+        // [S-3771] [S-2372] Each format offers "Default (…)" first, naming what Windows says (Karpo's §518).
         string Hours(bool use24) => use24 ? Str.LanguageRegion_Clock24.Format(("hours", 24)) : Str.LanguageRegion_Clock12.Format(("hours", 12));
         string Day(WeekStartDay day) => day switch
         {
@@ -87,8 +87,8 @@ public static partial class SettingsMenu
             ? $"{Str.WidgetsC_Weather_Settings_Fahrenheit.Text()} (°F)"
             : $"{Str.WidgetsC_Weather_Settings_Celsius.Text()} (°C)";
 
-        // [S-3536] The line says what is in force ("12-hour"), short enough to stand beside its words;
-        // its submenu says where it comes from ("Windows setting (12-hour)").
+        // [S-3536] [S-2372] The line says what is in force ("12-hour"), short enough to stand beside its words; while it
+        // follows Windows it says so in Karpo's one form, the very words of its option ("Default (12-hour)", §518).
         SettingsChoice Format<T>(string key, Str text, string glyph, T current, string inForce, IReadOnlyList<(T Value, string Text)> options, Action<RegionPreferences, T> set)
             where T : struct, Enum
             => new(key, text.Text(), glyph, [.. options.Select(o =>
@@ -103,7 +103,7 @@ public static partial class SettingsMenu
                 });
             })])
             {
-                Value = inForce,
+                Value = EqualityComparer<T>.Default.Equals(current, default) ? FollowWindows(inForce) : inForce,
             };
 
         var use24 = region.Clock switch { ClockHours.Twelve => false, ClockHours.TwentyFour => true, _ => windows.Use24Hour };
@@ -164,6 +164,9 @@ public static partial class SettingsMenu
         })
         {
             Disabled = follows,
+
+            // [S-2375] Greyed, it says why (Karpo's §309).
+            Why = follows ? Str.SettingsPages_General_FormatsAllWindows.Text() : null,
         });
 
         var lines = new List<SettingsLine>
@@ -206,7 +209,8 @@ public static partial class SettingsMenu
         }
 
         var windows = LanguageName(LanguageResolver.Setting(host.WindowsLanguage));
-        var spoken = current == AppLanguage.System ? windows : LanguageName(current);
+        // [S-2372] Following Windows it says so, with what that comes to ("Default (English)", Karpo's §518).
+        var spoken = current == AppLanguage.System ? FollowWindows(windows) : LanguageName(current);
         var options = new List<SettingsRadio>(Languages.Length + 1)
         {
             Option(AppLanguage.System, FollowWindows(windows), "Windows system default"),
@@ -240,7 +244,7 @@ public static partial class SettingsMenu
         return Str.Settings_Language_English.Text();
     }
 
-    /// <summary>[S-3771] "Windows setting (…)", naming what Windows says.</summary>
+    /// <summary>[S-3771] [S-2372] "Default (…)", naming what Windows says (Karpo's §518).</summary>
     private static string FollowWindows(string value) => Str.LanguageRegion_FollowWindows.Format(("value", value));
 
     /// <summary>

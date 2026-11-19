@@ -5,5 +5,5 @@
   "languageRegion.clock": "Time format",
   "languageRegion.clock12": "{hours}-hour",
   "languageRegion.clock24": "{hours}-hour",
-  "languageRegion.followWindows": "Windows setting ({value})"
+  "languageRegion.followWindows": "Default ({value})"
 }

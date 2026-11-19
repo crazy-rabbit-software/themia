@@ -2119,6 +2119,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   view's Show on this display "This display shows it now", a countdown's Time "Set its day first", a gallery's Open in
   Explorer "Choose a folder first". The rules hold it ([S-2374] R20); an account form's Test and Add are said by the
   form's own note over them.
+- **[S-2372]** **What follows Windows says "Default (…)"** (owner, 2026-11-19, as [S-2370]; Karpo's §518, "Default
+  (Value) if it is the default value"): the Language's and each format's first option reads "Default (English)",
+  "Default (24-hour)" (until 2026-11-19 "Windows setting (…)"), and while it holds, the line says the same words at its
+  end (the Language line said "English"; the formats their bare value). A value set says itself. The rules hold it
+  ([S-2374] R18). Tests `SettingsMenuTests.S3536_`.
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,
