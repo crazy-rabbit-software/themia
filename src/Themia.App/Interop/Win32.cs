@@ -117,6 +117,17 @@ internal static partial class Win32
     [LibraryImport("user32.dll")]
     internal static partial uint GetDpiForWindow(nint hWnd);
 
+    /// <summary>The system's DPI as a per-monitor-aware thread sees it (the display's scale, not 96).</summary>
+    [LibraryImport("user32.dll")]
+    internal static partial uint GetDpiForSystem();
+
+    /// <summary>[S-2377] The DPI awareness the calling thread's new windows are made with; returns the one it had (0 on failure).</summary>
+    [LibraryImport("user32.dll")]
+    internal static partial nint SetThreadDpiAwarenessContext(nint dpiContext);
+
+    /// <summary><c>DPI_AWARENESS_CONTEXT_UNAWARE</c>: a window drawn at 96 DPI, scaled by Windows.</summary>
+    internal const nint DpiAwarenessUnaware = -1;
+
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool GetClientRect(nint hWnd, out Rect lpRect);

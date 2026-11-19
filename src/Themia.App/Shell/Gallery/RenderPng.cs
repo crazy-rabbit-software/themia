@@ -15,7 +15,16 @@ internal static class RenderPng
     /// </summary>
     public const int MaxSide = 4096;
 
-    public static Task SaveAsync(UIElement element, string path) => PngFile.SaveAsync(element, path);
+    public static async Task SaveAsync(UIElement element, string path)
+    {
+        await PngFile.SaveAsync(element, path).ConfigureAwait(true);
+
+        // [S-2377] What icons it drew and where, beside it, when asked.
+        if (IconCensus.On)
+        {
+            IconCensus.Write(element, path);
+        }
+    }
 
     /// <summary>
     /// A popup (a menu) laid on <paramref name="ground"/>: its acrylic does not render to a bitmap and came out

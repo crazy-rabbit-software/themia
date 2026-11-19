@@ -14,7 +14,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug only: draw the open icon picker ([S-1803], [S-13605]) to a PNG, off-screen.
-/// <c>Themia.exe --iconpicker-png &lt;out.png&gt; [--search text] [--theme light|dark] [--initials]</c>.
+/// <c>Themia.exe --iconpicker-png &lt;out.png&gt; [--search text] [--theme light|dark] [--initials] [--raster 100]</c>.
 /// <para>
 /// The picker stands inline in its card on a page; it is drawn here in a stand-in for that card's opened
 /// body (the page's 580 flyout less its gutters, from the card's name column), the default chosen, so its
@@ -52,7 +52,7 @@ internal static class IconPickerRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <out.png> [--search text] [--theme light|dark] [--initials]");
+            Log.Error(Scope, $"usage: {Flag} <out.png> [--search text] [--theme light|dark] [--initials] [--raster 100]");
             app.Exit();
             return true;
         }
@@ -97,15 +97,12 @@ internal static class IconPickerRender
                     Children = { presenter },
                 };
 
-                window = new Window { Content = root, Title = "Themia icon picker render" };
+                window = RenderRaster.Window(args, () => new Window { Content = root, Title = "Themia icon picker render" });
                 UiLanguage.Apply(root);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
 
                 // Off-screen and never activated: it must not appear on the user's desktop.
                 window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)(700 * scale), (int)(640 * scale)));
+                RenderRaster.Size(window, 700, 640);
                 window.AppWindow.Show(activateWindow: false);
 
                 // A render, not app code: the box takes text once it is loaded, and the grid

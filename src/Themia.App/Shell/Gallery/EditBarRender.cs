@@ -22,7 +22,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2328] Debug only: draw the real edit bar ([S-2320]) and its flyouts off-screen to PNGs.
-/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|select]</c> writes the bar
+/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|select|unplaced] [--raster 100]</c> writes the bar
 /// (<c>editbar-&lt;theme&gt;.png</c>: nothing selected; <c>-widget</c>, one widget; <c>-many</c>, two of a kind;
 /// <c>-mixed</c>, three of several; <c>-errors</c>, the problems' button; <c>-open</c>, General's entry lit;
 /// <c>-narrow</c> and <c>-narrowest</c>, 900- and 640-wide displays; <c>-add</c>, the add menu; <c>-placing</c>,
@@ -79,7 +79,7 @@ internal static partial class EditBarRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|appearance|select]");
+            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced] [--raster 100]");
             app.Exit();
             return true;
         }
@@ -118,15 +118,12 @@ internal static partial class EditBarRender
                     Background = DesignApplier.Brush("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray),
                 };
 
-                window = new Window { Content = new Grid { Children = { screen } }, Title = "Themia edit bar render" };
+                window = RenderRaster.Window(args, () => new Window { Content = new Grid { Children = { screen } }, Title = "Themia edit bar render" });
                 UiLanguage.ApplyLanguageOnly(screen);
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                var dpi = Win32.GetDpiForWindow(hwnd);
-                var scale = dpi > 0 ? dpi / 96.0 : 1.0;
 
                 // Off-screen and never activated: it must not appear on the user's desktop.
                 window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((OpenHeight + 80) * scale)));
+                RenderRaster.Size(window, ScreenWidth + 40, OpenHeight + 80);
                 window.AppWindow.Show(activateWindow: false);
 
                 if (only is null or "bar")

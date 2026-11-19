@@ -73,6 +73,9 @@ Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store
 Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>] [--theme light|dark] [--edit]   # a ready-made
            # group placed, as a scene; --edit: edit mode, the placed widgets selected; no state: its "sample" preview [S-2475]
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
+           [--icon-census]   # beside each PNG <png>.icons.json: every icon drawn and its box; then
+           # python scripts/icon-clip-check.py <dir> names each icon cut by its box, measured on the PNG [S-2377]
+--editbar-png, --iconpicker-png: [--raster 100]   # drawn at 100 % whatever the display's scale [S-2377]
 ```
 
 Build output (`artifacts/`, `bin/`, `obj/`) cannot be read by agents; write render PNGs outside it.
