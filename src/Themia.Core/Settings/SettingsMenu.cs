@@ -18,6 +18,12 @@ public abstract record SettingsLine(string Key)
     /// <summary>Shown but not clickable.</summary>
     public bool Disabled { get; init; }
 
+    /// <summary>
+    /// [S-2375] Why it is greyed, said under its name while <see cref="Disabled"/> (Karpo's <c>OptionRow.Why</c>, §309:
+    /// "greyed, with why under it"); null for nothing said.
+    /// </summary>
+    public string? Why { get; init; }
+
     /// <summary>[S-3810] The colour its glyph is drawn in (<c>#RRGGBB</c>: a view's mark); null for the theme's.</summary>
     public string? GlyphColour { get; init; }
 

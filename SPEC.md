@@ -2113,6 +2113,12 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   `CommonSettingsTests.AValueTheyDoNotAgreeOnIsMixed`): the page of several's own rows (Alignment, Background image,
   Scale), a colour and a number box say "Mixed", as the shared lines did; until now a dash, the number box's a mis-encoded
   one.
+- **[S-2375]** **A greyed row says why** (owner, 2026-11-19, as [S-2370]; Karpo's §309 `OptionRow.Why`, "greyed, with
+  why under it"): a settings line (`SettingsLine.Why`) and a widget's entry (`ItemMenuEntry.Why`) that stand greyed say
+  why on the row's caption line under its name (`PageRows.Greyed`): Formats' Reset all "Every format follows Windows", a
+  view's Show on this display "This display shows it now", a countdown's Time "Set its day first", a gallery's Open in
+  Explorer "Choose a folder first". The rules hold it ([S-2374] R20); an account form's Test and Add are said by the
+  form's own note over them.
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,

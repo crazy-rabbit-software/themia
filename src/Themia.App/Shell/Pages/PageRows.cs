@@ -39,6 +39,7 @@ internal static class PageRows
     {
         ArgumentNullException.ThrowIfNull(line);
         var row = RowOf(line, ask, preview) with { Disabled = line.Disabled, Marked = line.Marked || line.GlyphColour is not null || line.Picture is not null };
+        row = Greyed(row, line.Disabled, line.Why);
         return line.Picture is { } picture ? row with { Icon = () => MenuPictures.Create(picture) } : row;
     }
 
@@ -231,7 +232,14 @@ internal static class PageRows
 
     /// <summary>One entry as a row; [S-2317] its icon its own where it is a file's or the icon it chose.</summary>
     private static PageRow Of(ItemMenuEntry entry, string key)
-        => RowOf(entry, key) with { Marked = entry.IconFile is not null || entry.Icon is not null };
+        => Greyed(RowOf(entry, key) with { Marked = entry.IconFile is not null || entry.Icon is not null }, entry.Disabled, entry.Why);
+
+    /// <summary>
+    /// [S-2375] A greyed row says why under its name (Karpo's §309, <c>OptionRow.Why</c>): its caption while it is greyed,
+    /// in place of what it would say there otherwise.
+    /// </summary>
+    private static PageRow Greyed(PageRow row, bool disabled, string? why)
+        => disabled && !string.IsNullOrWhiteSpace(why) ? row with { Caption = why } : row;
 
     private static PageRow RowOf(ItemMenuEntry entry, string key)
     {

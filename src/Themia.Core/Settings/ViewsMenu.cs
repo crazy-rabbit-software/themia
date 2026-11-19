@@ -141,6 +141,9 @@ public static class ViewsMenu
             new SettingsCommand(Keys.Show(id), Str.SettingsPages_Views_ShowHere.Text(), Glyphs.Display, () => host.Show(id))
             {
                 Disabled = here,
+
+                // [S-2375] Greyed, it says why (Karpo's §309).
+                Why = here ? Str.SettingsPages_Views_ShownHereNow.Text() : null,
             },
         ]);
 

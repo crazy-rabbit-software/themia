@@ -74,6 +74,10 @@ namespace Themia.App.Widgets;
 /// </param>
 /// <param name="Icon">[S-9602] The properties menu's icon line: the one icon picker inline in its card; item menus have none.</param>
 /// <param name="Field">[S-2332] The properties menu's line of text typed in place, its box at the line's end; item menus have none.</param>
+/// <param name="Why">
+/// [S-2375] Why a <paramref name="Disabled"/> line is greyed, said under its name on the page (Karpo's §309); item menus
+/// ignore it. Null for nothing said.
+/// </param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -97,7 +101,8 @@ public readonly record struct ItemMenuEntry(
     string? LinkTo = null,
     string? Shares = null,
     Themia.Sdk.WinUI.MenuIcon? Icon = null,
-    Themia.Sdk.WinUI.MenuField? Field = null)
+    Themia.Sdk.WinUI.MenuField? Field = null,
+    string? Why = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);

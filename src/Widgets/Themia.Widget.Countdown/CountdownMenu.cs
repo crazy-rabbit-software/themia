@@ -87,6 +87,7 @@ internal static class CountdownMenu
         // The time needs a day to fall on: greyed until there is one.
         menu.Lines.Add(new ItemMenuEntry(Glyphs.Clock, CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), null,
             Disabled: day is null,
+            Why: day is null ? Str.SettingsPages_Why_DayFirst.Text() : null,
             Value: day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time)),
             Field: new MenuField(
                 AlarmTimes.Text((int)time.TotalMinutes),
