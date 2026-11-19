@@ -206,7 +206,11 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _price.VerticalAlignment = rows ? VerticalAlignment.Top : VerticalAlignment.Stretch;
         _block.Visibility = rows ? Visibility.Collapsed : Visibility.Visible;
         _head.Visibility = rows ? Visibility.Visible : Visibility.Collapsed;
-        var spare = rows ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, _price.MinHeight) - _price.MinHeight : 0;
+        // Over rows its first ink stands on the card's inset (WR-1: the value's capitals, not its line's top) and its line
+        // under's box reaches the grid line the rows start on.
+        var ink = rows ? LineInk.Of(FamilyType.Big28).Over : 0;
+        var spare = rows ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset - ink, _price.MinHeight) - _price.MinHeight : 0;
+        _price.Margin = Family.SideInset with { Top = -ink };
         _price.UnderText.Padding = new Thickness(0, 0, 0, spare);
     }
 
