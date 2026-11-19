@@ -41,7 +41,8 @@ with their translations). Tests: `Tests/WeatherFactTests.cs` (run by `tests/Them
   by a resize.
 - **[S-13902]** With no reading its row stays, its label and "--" drawn unavailable, and why is its tooltip
   ([S-12813]); a reading kept through a failed refresh stays and the status's problem glyph says so ([S-7042],
-  [S-12481]: the place is the reading's to name). Every fact card at one place reads the reading's answer: one request
+  [S-12481]: the place is the reading's to name), the row leaving the glyph its room at its end so the glyph never
+  stands on the value. Every fact card at one place reads the reading's answer: one request
   ([S-2663]).
 - **[S-13903]** Its options are all on the properties menu ([S-3719]): Appearance and **Location** (the weather
   family's search, [S-3722]); its fact is its kind, never a setting; the temperature unit and the update interval are

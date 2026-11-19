@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 
@@ -80,11 +81,18 @@ internal sealed partial class WeatherFactView : Grid, IWidgetView, IWidgetOpens,
             _row.Show([new FactLine(FactGlyph(_fact), unread.Label, unread.Value, Available: false)]);
             ToolTipService.SetToolTip(_row, OnlineParts.Caption(_feed.Status) is { Length: > 0 } why ? why : null);
             _status.Clear();
+            _row.Margin = ListEdge.Margin;
             return;
         }
 
-        _status.Show(OnlineParts.Problems(held), busy: false);
+        var problems = OnlineParts.Problems(held);
+        _status.Show(problems, busy: false);
         ToolTipService.SetToolTip(_row, null);
+
+        // [S-13902] Its one row is the first: the problem glyph over the top end would stand on the value, so the row
+        // leaves the glyph its room while it shows.
+        var edge = ListEdge.Margin;
+        _row.Margin = problems.Count > 0 ? new Thickness(edge.Left, edge.Top, edge.Right + FamilyShape.Icon + LineRules.PartGap, edge.Bottom) : edge;
         var fact = WeatherFactRules.For(Strings.Current, _fact, reading, _feed.Want?.Unit ?? RegionFormat.Current.Temperature);
         _row.Show([new FactLine(FactGlyph(_fact), fact.Label, fact.Value)]);
     }
