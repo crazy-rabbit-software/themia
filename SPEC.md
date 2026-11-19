@@ -1055,6 +1055,26 @@ module author's guide is docs/WIDGET-KIT.md 16.
   48, as its widget's config states) over its name in Caption, primary, centred and cut with its ellipsis at
   the cell's edge, 4 apart; cells 12 apart, their marks 4 around them, so a grid's marks start at the
   inset less 4 (`RowRules.CellMarkEdge`, [S-2220]) and the first cell's lead and name at the inset.
+- **[S-13950]** **An inline box stands in exactly the box of the words it replaces** (owner, 2026-11-19: "there are layout
+  shifts when i click add task in the task widget. layout shifts for these kind of inputs should never happen. fix for all
+  the widgets"). Opening, typing in, committing or cancelling a box a widget types into in place of its own words (the add
+  row's line, [S-3850]; a task's or a habit's name, [S-600], [S-1425]; a folder item's name, [S-1331]; a fence's title,
+  [S-10910]) moves and resizes nothing else: the box is the one `InlineBox` (SDK), which takes the words' panel, place,
+  cell, margin and alignment (`StandIn`; `StandOut` gives them back), their type (size, family, weight, tracking,
+  alignment) and their lines' height exactly (`InlineFit`: a Body line is 20, so a row of 28 stays 28), with no padding
+  or frame between its edge and its text (the text edge is the words'), no fill or frame under the pointer or on focus
+  (the caret, the selection and the placeholder say where the keys go; a row's ring, [S-1288], says which row holds the
+  box), no clear button and no header; one line never wraps taller (long words scroll in it), and its caret scrolls the
+  words inside it, never the list round it (the row holding it is in sight already). What it stood in for comes back
+  where it stood, and the row's other parts (its check or +, a due date, a habit's dots and run, a second line) never
+  move. WinUI's own text box (a 32 minimum, padding 10,5,6,6, a frame, a 30-wide clear button, wrapping) had grown
+  the add row to 32.7 (50.7 with long words), cutting the task list's last row, and stood a rename's text 5 to 11 right
+  of the name. No widget and no kit part builds a text box of its own (`InlineBoxGuardTests`; a popup's box, the note's
+  field and the desktop icon's Explorer box, [S-5607], aside). The inline check (`Themia.exe --inline-check <out.txt>`,
+  Debug) draws every such box open over its rest state at the kind's min, natural and max and judges every text, glyph,
+  picture, row and list viewport (`InlineFit.Judge`); the search box a contact list always shows, gaining the keys, is
+  judged with them. Not covered: a search opened from a tool line or the card menu ([S-1326], [S-1275]) still adds its
+  row of 40 above the list (the list's own sizing).
 - **[S-6714]** **Status** (empty, problem, set up): one 28 row where the content's first row would
   be, under the header: [state glyph 16] 8 [one sentence, Body, secondary, ellipsis, its whole text
   in the tooltip] 12 [its one action] (`StatusBlock`). Empty: the widget's glyph, tertiary. Problem:
@@ -4751,7 +4771,7 @@ its content. What is left of this section is how a view measures the fixed parts
   cells and lines (`StatPart`) are no longer theirs.
 - **[S-3850]** **The add footer** (every widget that adds an item in place: Habits [S-1427], Tasks
   [S-780]). One Row block of 32 ([S-6711]), built only by `AddFooterRow`: the + glyph as its lead and
-  its name the secondary Body line ("Add a habit", "Add a task"), the card's side inset, the row hover; a tap swaps the line for the widget's text box (Enter adds and keeps it
+  its name the secondary Body line ("Add a habit", "Add a task"), the card's side inset, the row hover; a tap swaps the line for the widget's text box, the one inline box standing in the line's words with the row's ring on ([S-13950]: the row keeps its height) (Enter adds and keeps it
   open, leaving it adds and closes, Escape cancels). It is **pinned to the bottom of the content
   box**: the list sits at the top and scrolls or pages above it, and the room a short list leaves is
   between them, never under the footer (the Windows 11 list-ends-in-its-add-row pattern, held in

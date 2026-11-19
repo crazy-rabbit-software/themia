@@ -32,11 +32,8 @@ public sealed partial class KitList
     /// <summary>The check lead of each drawn row, by place, for the click that toggles it.</summary>
     private readonly Dictionary<int, Border> _checksByRow = [];
 
-    /// <summary>The open editor: renaming an item (its id) or adding one (null).</summary>
-    private (TextBox Box, string? Id)? _editor;
-
-    /// <summary>What an open box hid, to show again when it closes.</summary>
-    private readonly List<UIElement> _editorHidden = [];
+    /// <summary>The open editor: renaming an item (its id) or adding one (null), and the row it stands in (its ring on while it is open).</summary>
+    private (InlineBox Box, string? Id, RowBlock Row)? _editor;
 
     private Border? _pressRow;
     private uint _pressPointer;
@@ -351,7 +348,9 @@ public sealed partial class KitList
 
     /// <summary>
     /// [S-600] Rename in place: the title becomes a box holding the whole title. Enter or leaving it
-    /// commits, Escape cancels, Tab commits and opens the next row's box.
+    /// commits, Escape cancels, Tab commits and opens the next row's box. [S-13950] The box stands in the
+    /// title's own box (its line, its type, its text edge); the check, the due and a second line stay as they
+    /// were, and the row's ring says where the keys are.
     /// </summary>
     public void BeginRename(KitItem item)
     {
@@ -364,25 +363,7 @@ public sealed partial class KitList
         }
 
         CancelEdit();
-
-        var box = NewEditor(item.Title);
-        SetColumn(box, 1);
-        SetColumnSpan(box, 3);
-
-        // The title's column takes the box; the check stays as it was.
-        _editorHidden.Clear();
-        foreach (var child in body.Children.OfType<FrameworkElement>())
-        {
-            if (GetColumn(child) >= 1 && child.Visibility == Visibility.Visible)
-            {
-                child.Visibility = Visibility.Collapsed;
-                _editorHidden.Add(child);
-            }
-        }
-
-        body.Children.Add(box);
-        _editor = (box, item.Id);
-        StartTyping(box);
+        Open(NewEditor(body.NameText, item.Title), item.Id, body);
     }
 
     private void OpenAddEditor() => BeginAdd();
@@ -397,25 +378,16 @@ public sealed partial class KitList
 
         CancelEdit();
 
-        var box = NewEditor(text);
+        var box = NewEditor(_addRow.Words, text);
         box.PlaceholderText = _spec.AddPlaceholder?.Invoke() ?? string.Empty;
-        _editorHidden.Clear();
-        _editorHidden.AddRange(_addRow.Open(box));
-        _editor = (box, null);
-        StartTyping(box);
+        _addRow.Fit(true);
+        Open(box, null, _addRow.Row);
     }
 
-    private TextBox NewEditor(string text)
+    /// <summary>[S-13950] The one inline box over <paramref name="words"/>, its keys and focus heard here.</summary>
+    private InlineBox NewEditor(TextBlock words, string text)
     {
-        var box = new TextBox
-        {
-            Text = text,
-            TextWrapping = TextWrapping.Wrap,
-            AcceptsReturn = false,
-            MinWidth = 0,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
+        var box = new InlineBox(words, text);
         box.KeyDown += OnEditorKeyDown;
         box.PreviewKeyDown += OnEditorPreviewKeyDown;
         box.LostFocus += OnEditorLostFocus;
@@ -423,15 +395,23 @@ public sealed partial class KitList
         return box;
     }
 
+    /// <summary>[S-13950] The box in its words' place, the row's ring on, the keys asked for.</summary>
+    private void Open(InlineBox box, string? id, RowBlock row)
+    {
+        box.StandIn();
+        row.Focused = true;
+        _editor = (box, id, row);
+        StartTyping(box);
+    }
+
     /// <summary>
     /// Ask for the keyboard first: outside edit mode the surface is unfocusable, so without this the
     /// caret would blink here while the letters went to whatever window had focus.
     /// </summary>
-    private void StartTyping(TextBox box)
+    private void StartTyping(InlineBox box)
     {
         TextInput?.Invoke(true);
-        box.Focus(FocusState.Programmatic);
-        box.SelectionStart = box.Text.Length;
+        box.TakeKeys();
     }
 
     private void OnEditorGotFocus(object sender, RoutedEventArgs args) => TextInput?.Invoke(_editor is not null);
@@ -536,18 +516,9 @@ public sealed partial class KitList
         editor.Box.LostFocus -= OnEditorLostFocus;
         editor.Box.GotFocus -= OnEditorGotFocus;
 
-        if (editor.Box.Parent is Panel parent)
-        {
-            parent.Children.Remove(editor.Box);
-        }
-
-        // Only what the box hid comes back (the add row's line, a row's texts).
-        foreach (var child in _editorHidden)
-        {
-            child.Visibility = Visibility.Visible;
-        }
-
-        _editorHidden.Clear();
+        // The words come back where the box stood; the ring goes unless the cursor is on that row.
+        editor.Box.StandOut();
+        editor.Row.Focused = _cursorIndex >= 0 && _cursorIndex < _rowElements.Count && ReferenceEquals(_rowElements[_cursorIndex].Child, editor.Row);
 
         TextInput?.Invoke(false);
     }

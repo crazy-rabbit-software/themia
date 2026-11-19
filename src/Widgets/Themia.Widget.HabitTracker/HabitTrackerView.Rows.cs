@@ -29,7 +29,7 @@ internal sealed partial class HabitTrackerView
     private readonly AddFooterRow _addRow;
 
     /// <summary>The open text box: renaming the habit with this id, or (null id) adding one.</summary>
-    private (TextBox Box, string? HabitId)? _editor;
+    private (InlineBox Box, string? HabitId)? _editor;
 
     private bool _rowFocused;
     private string? _focusId;
@@ -329,7 +329,7 @@ internal sealed partial class HabitTrackerView
 
     /// <summary>
     /// Rename in place: the name becomes a text box holding it. Enter or leaving it commits, Escape
-    /// cancels; a blank or unchanged name commits nothing.
+    /// cancels; a blank or unchanged name commits nothing. [S-13950] The box stands in the name's own box.
     /// </summary>
     private void BeginRename(string habitId)
     {
@@ -340,7 +340,7 @@ internal sealed partial class HabitTrackerView
 
         CloseEditor();
 
-        var box = NewEditor(habit.Name);
+        var box = NewEditor(row.Host.NameText, habit.Name);
         row.Adopt(box);
         _editor = (box, habitId);
         StartTyping(box);
@@ -358,9 +358,12 @@ internal sealed partial class HabitTrackerView
 
         CloseEditor();
 
-        var box = NewEditor(string.Empty);
+        // [S-13950] The box stands in the add row's line: the row keeps its height, glyph and inset; its ring says where the keys are.
+        var box = NewEditor(_addRow.Words, string.Empty);
         box.PlaceholderText = HabitTrackerStr.WidgetsB_Habits_NamePlaceholder.Text();
-        _addRow.Open(box);
+        _addRow.Fit(true);
+        box.StandIn();
+        _addRow.Row.Focused = true;
         _editor = (box, null);
         StartTyping(box);
     }
@@ -372,16 +375,10 @@ internal sealed partial class HabitTrackerView
     private void FitAddRow(HabitLayoutPlan plan)
         => _addRow.Fit((plan.AddRow && Writable) || _editor is { HabitId: null });
 
-    private TextBox NewEditor(string text)
+    /// <summary>[S-13950] The one inline box over <paramref name="words"/>, its keys and focus heard here.</summary>
+    private InlineBox NewEditor(TextBlock words, string text)
     {
-        var box = new TextBox
-        {
-            Text = text,
-            AcceptsReturn = false,
-            MinWidth = 0,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
+        var box = new InlineBox(words, text);
         box.KeyDown += OnEditorKeyDown;
         box.PreviewKeyDown += OnEditorPreviewKeyDown;
         box.LostFocus += OnEditorLostFocus;
@@ -393,11 +390,10 @@ internal sealed partial class HabitTrackerView
     /// Ask the surface for the keyboard first: outside edit mode it is unfocusable, so without this
     /// the caret would blink here while the letters went to whatever window had focus.
     /// </summary>
-    private void StartTyping(TextBox box)
+    private void StartTyping(InlineBox box)
     {
         UpdateKeyboard();
-        box.Focus(FocusState.Programmatic);
-        box.SelectionStart = box.Text.Length;
+        box.TakeKeys();
     }
 
     private void OnEditorGotFocus(object sender, RoutedEventArgs args) => UpdateKeyboard();
@@ -502,20 +498,15 @@ internal sealed partial class HabitTrackerView
         editor.Box.LostFocus -= OnEditorLostFocus;
         editor.Box.GotFocus -= OnEditorGotFocus;
 
+        // The words come back where the box stood (a habit's name, the add row's line); the ring goes with the box.
+        editor.Box.StandOut();
         if (editor.HabitId is { } owner && RowFor(owner) is { } holder && holder.Holds(editor.Box))
         {
             holder.Release();
         }
-        else if (editor.Box.Parent is Panel parent)
-        {
-            // The add footer's: what it hid comes back.
-            parent.Children.Remove(editor.Box);
 
-            foreach (var child in parent.Children)
-            {
-                child.Visibility = Visibility.Visible;
-            }
-        }
+        _addRow.Row.Focused = false;
+        PaintFocus();
 
         if (editor.HabitId is { } habitId && RowFor(habitId) is { } row && _plan is { } plan)
         {
@@ -556,10 +547,12 @@ internal sealed partial class HabitTrackerView
         private HabitPeriod _period = HabitPeriod.Daily;
         private int _streakCount;
         private bool _showStreak = true;
-        private bool _editing;
         private string _name = string.Empty;
         private string _rate = string.Empty;
         private string? _value;
+
+        /// <summary>[S-13950] The rename box standing in this row's name, while it does.</summary>
+        private InlineBox? _held;
 
         public HabitRow(HabitTrackerView owner, string id)
         {
@@ -639,10 +632,8 @@ internal sealed partial class HabitTrackerView
                 _rate = $"{_rate} · {(best == 0 ? HabitTrackerStr.WidgetsB_Habits_NoBest.Text() : HabitTrackerStr.WidgetsB_Habits_BestRun.Format(("units", HabitPeriods.Units(_period, best))))}";
             }
 
-            if (!_editing)
-            {
-                Host.Show(_name, _value, _rate);
-            }
+            // [S-13950] Under an open rename box too: the box stands in the name's place, the words it hid stay current.
+            Host.Show(_name, _value, _rate);
         }
 
         /// <summary>
@@ -689,13 +680,6 @@ internal sealed partial class HabitTrackerView
         public void SetLayout(HabitLayoutPlan plan)
         {
             Host.Lines = plan.Lines;
-
-            if (_editing)
-            {
-                // Renaming: the box takes the name's and the dots' place until it closes.
-                return;
-            }
-
             _value = _showStreak && plan.Streak && _streakCount > 0
                 ? plan.StreakWords ? HabitPeriods.Units(_period, _streakCount) : LocaleFormat.Integer(_streakCount)
                 : null;
@@ -710,34 +694,25 @@ internal sealed partial class HabitTrackerView
             Host.Meter(shown > 0 ? _history : null, shown > 0 ? (shown * HabitLayout.DotPitch) - HabitLayout.DotGap : 0);
         }
 
-        /// <summary>Put an editor where the name is; the dots and the run make room for it until it closes.</summary>
-        public void Adopt(TextBox box)
+        /// <summary>
+        /// [S-13950] Put an editor in the name's own box: the check, the dots, the run and the second line stay where
+        /// they are; the row's ring says where the keys are until it closes.
+        /// </summary>
+        public void Adopt(InlineBox box)
         {
-            if (box.Parent is Panel old && !ReferenceEquals(old, Host))
-            {
-                old.Children.Remove(box);
-            }
-
-            _editing = true;
-            Host.Meter(null, 0);
-            Host.ValueText.Visibility = Visibility.Collapsed;
-            if (!ReferenceEquals(box.Parent, Host))
-            {
-                Host.Cells(box);
-            }
-
-            box.Visibility = Visibility.Visible;
+            _held = box;
+            box.StandIn();
+            Host.Focused = true;
         }
 
-        /// <summary>Take the editor down; the row's parts come back as <see cref="SetLayout"/> lays them.</summary>
+        /// <summary>The editor is down (its owner stood it out): the row is drawn as <see cref="SetLayout"/> lays it.</summary>
         public void Release()
         {
-            _editing = false;
-            Host.Cells(null);
+            _held = null;
         }
 
         /// <summary>Whether this row holds <paramref name="box"/>.</summary>
-        public bool Holds(TextBox box) => _editing && ReferenceEquals(box.Parent, Host);
+        public bool Holds(InlineBox box) => ReferenceEquals(box, _held);
 
         /// <summary>[S-1288] The keyboard's ring on the row.</summary>
         public bool Focused

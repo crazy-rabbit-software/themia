@@ -74,13 +74,8 @@ internal sealed partial class FolderView
 
         public required Grid IconBox { get; init; }
 
+        /// <summary>The name: what a rename's box stands in for ([S-1331], [S-13950]).</summary>
         public required TextBlock Name { get; init; }
-
-        /// <summary>Where a rename's box stands in for the name ([S-1331]): the row's grid (in <see cref="NameColumn"/>) or the cell.</summary>
-        public required Panel NameCell { get; init; }
-
-        /// <summary>The grid column of <see cref="NameCell"/> the name stands in.</summary>
-        public int NameColumn { get; init; }
 
         /// <summary>A cell, not a row: its name may be shown in full when selected ([S-6629]).</summary>
         public bool Tile { get; init; }
@@ -614,26 +609,22 @@ internal sealed partial class FolderView
         block.Lead(iconBox);
 
         TextBlock name;
-        Panel nameCell;
-        var nameColumn = 1;
+        Grid? cells = null;
 
         if (details)
         {
             block.Show(string.Empty);
-            var cells = new Grid { ColumnSpacing = FolderColumns.Gap };
+            cells = new Grid { ColumnSpacing = FolderColumns.Gap };
             cells.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             name = Family.Text(FamilyType.Body, ColourRole.TextPrimary, FileNamesDisplay(entry));
             name.VerticalAlignment = VerticalAlignment.Center;
             cells.Children.Add(name);
             block.Cells(cells);
-            nameCell = cells;
-            nameColumn = 0;
         }
         else
         {
             block.Show(FileNamesDisplay(entry), plan?.Modified == true ? FolderFormatting.Modified(entry.Modified, now) : null);
             name = block.NameText;
-            nameCell = block;
         }
 
         // [S-6412] As wide as its text: a press on the rest of the row selects, never drags the item out.
@@ -653,11 +644,9 @@ internal sealed partial class FolderView
             Glyph = glyph,
             IconBox = iconBox,
             Name = name,
-            NameCell = nameCell,
-            NameColumn = nameColumn,
         };
 
-        if (details && nameCell is Grid grid)
+        if (cells is { } grid)
         {
             for (var c = 0; c < columns.Count; c++)
             {
@@ -800,7 +789,6 @@ internal sealed partial class FolderView
             Glyph = glyph,
             IconBox = iconBox,
             Name = cell.NameText,
-            NameCell = cell,
             Tile = true,
         };
 

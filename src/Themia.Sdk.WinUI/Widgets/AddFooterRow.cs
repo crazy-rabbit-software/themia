@@ -13,7 +13,8 @@ namespace Themia.App.Widgets;
 /// [S-3850] The one "Add …" row a list widget adds from (Habits, Tasks): a Row block ([S-6711]) of 32
 /// leading with the + glyph, its name the line ("Add a task") in the secondary role, pinned to the
 /// bottom of the content box under the list, the way a Windows 11 list ends in its add row. A tap
-/// opens the widget's own text box in place of the line; whether it shows at all is
+/// opens the widget's own text box in place of the line: the one <see cref="InlineBox"/>, standing in the
+/// line's words, so the row keeps its height, glyph, inset and type ([S-13950]); whether it shows at all is
 /// the widget's plan's (where it can add, [S-2440]).
 /// <para>
 /// The view owns the editor (what Enter, Tab and Escape do is its own rule); this owns the shape, so
@@ -65,22 +66,11 @@ public sealed class AddFooterRow
         }
     }
 
-    /// <summary>
-    /// Put the view's editor where the line is; returns what it hid. Taking the editor down is the
-    /// view's: removing the box from its parent and showing what it hid again brings the line back.
-    /// </summary>
-    public IReadOnlyList<UIElement> Open(TextBox box)
-    {
-        ArgumentNullException.ThrowIfNull(box);
+    /// <summary>[S-13950] The line's words: what the view's <see cref="InlineBox"/> stands in for, in their own box.</summary>
+    public TextBlock Words => _row.NameText;
 
-        var line = (UIElement)_row.NameText.Parent;
-        line.Visibility = Visibility.Collapsed;
-        Grid.SetColumn(box, 1);
-        Grid.SetColumnSpan(box, 3);
-        _row.Children.Add(box);
-        Element.Visibility = Visibility.Visible;
-        return [line];
-    }
+    /// <summary>The row's block: its ring says where the keys are while the box is open.</summary>
+    public RowBlock Row => _row;
 
     /// <summary>Apply the pass: shown (or kept while it holds an editor).</summary>
     public void Fit(bool show) => Element.Visibility = show ? Visibility.Visible : Visibility.Collapsed;

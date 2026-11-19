@@ -30,7 +30,7 @@ internal sealed partial class FolderView
 
     private bool _closingSearch;
 
-    private sealed record RenameSession(ItemVisual Visual, TextBox Box);
+    private sealed record RenameSession(ItemVisual Visual, InlineBox Box);
 
     /// <summary>Where the last menu opened, in screen pixels: "Show more options" opens the shell's menu there.</summary>
     private (int X, int Y) _menuPoint;
@@ -211,26 +211,18 @@ internal sealed partial class FolderView
     /// <summary>
     /// [S-1331] Rename in place: the name becomes a text box holding the name as shown (without the
     /// extension when extensions are hidden, as Explorer does); Enter or a click elsewhere commits,
-    /// Escape cancels.
+    /// Escape cancels. [S-13950] The box stands in the name's own box (its line, its type, its text edge):
+    /// the row or the cell keeps its size and nothing round it moves.
     /// </summary>
     private void BeginRename(ItemVisual visual)
     {
         CancelRename();
 
         var shown = FileNames.Display(visual.Entry.Name, visual.Entry.IsDirectory, _config.Extensions);
-        var box = new TextBox
-        {
-            Text = shown,
-            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
-            MinHeight = 0,
-            VerticalAlignment = VerticalAlignment.Center,
-            TextWrapping = TextWrapping.NoWrap,
-        };
+        var box = new InlineBox(visual.Name, shown) { IsSpellCheckEnabled = false };
 
         _renaming = new RenameSession(visual, box);
-        visual.Name.Visibility = Visibility.Collapsed;
-        Grid.SetColumn(box, visual.NameColumn);
-        visual.NameCell.Children.Add(box);
+        box.StandIn();
 
         box.GotFocus += (_, _) => _surface?.RequestTextInput(true);
         box.LostFocus += (_, _) =>
@@ -317,11 +309,7 @@ internal sealed partial class FolderView
         }
     }
 
-    private static void EndRename(RenameSession session)
-    {
-        session.Visual.NameCell.Children.Remove(session.Box);
-        session.Visual.Name.Visibility = Visibility.Visible;
-    }
+    private static void EndRename(RenameSession session) => session.Box.StandOut();
 
     private static void ShowNote(FrameworkElement at, string message)
     {

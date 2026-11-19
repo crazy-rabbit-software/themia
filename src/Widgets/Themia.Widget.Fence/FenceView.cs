@@ -63,7 +63,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
     private UIElement? _peekWatch;
 
     /// <summary>[S-10910] The title's rename box while it shows.</summary>
-    private TextBox? _titleBox;
+    private InlineBox? _titleBox;
 
     /// <summary>[S-10912] A click on the title that a double-click may follow: the double-click takes its roll-up back.</summary>
     private bool _titleToggled;
@@ -407,7 +407,11 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
     }
 
-    /// <summary>[S-10910] The title becomes a box (F2, a double-click, the menu's Rename): Enter or a click elsewhere keeps it, Escape takes it back.</summary>
+    /// <summary>
+    /// [S-10910] The title becomes a box (F2, a double-click, the menu's Rename): Enter or a click elsewhere keeps it, Escape
+    /// takes it back. [S-13950] The box stands in the title's own box (its line, its type, its text edge): the title bar keeps
+    /// its height and the count and the chevron stay where they are.
+    /// </summary>
     private void OpenTitleBox()
     {
         if (_titleBox is not null || (!Acts && !_fixture.On))
@@ -415,20 +419,13 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
             return;
         }
 
-        var box = new TextBox
+        var box = new InlineBox(_title, _config.Name.Length > 0 ? _config.Name : FenceStr.Fence_Label.Text())
         {
-            Text = _config.Name.Length > 0 ? _config.Name : FenceStr.Fence_Label.Text(),
-            AcceptsReturn = false,
             IsSpellCheckEnabled = false,
-            MinHeight = 0,
-            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            FontSize = FamilyType.Body.FontSize,
             MaxLength = FenceConfig.MaxName,
         };
         _titleBox = box;
-        _title.Visibility = Visibility.Collapsed;
-        _titleBar.Children.Add(box);
+        box.StandIn();
         if (_fixture.On)
         {
             box.Loaded += (_, _) => box.SelectAll();
@@ -465,8 +462,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
 
         _titleBox = null;
-        _titleBar.Children.Remove(box);
-        _title.Visibility = Visibility.Visible;
+        box.StandOut();
         _surface?.RequestTextInput(false);
         if (commit && WidgetId is { } id)
         {
