@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Media;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 
@@ -24,7 +23,8 @@ namespace Themia.Sdk.WinUI.Kit;
 /// </summary>
 public sealed partial class InlineBox : TextBox
 {
-    private readonly TextBlock _words;
+    /// <summary>Where the box stands in for its words.</summary>
+    private readonly WordsPlace _place;
 
     /// <param name="words">The words the box stands in for: it takes their type, their line and, open, their place.</param>
     /// <param name="text">What the box holds when it opens.</param>
@@ -32,7 +32,7 @@ public sealed partial class InlineBox : TextBox
     {
         ArgumentNullException.ThrowIfNull(words);
 
-        _words = words;
+        _place = new WordsPlace(this, words);
         Text = text ?? string.Empty;
         AcceptsReturn = false;
         TextWrapping = TextWrapping.NoWrap;
@@ -93,73 +93,23 @@ public sealed partial class InlineBox : TextBox
     ];
 
     /// <summary>Whether the box stands in for its words now.</summary>
-    public bool Standing => _panel is not null;
-
-    /// <summary>The panel the box stands in, while it does.</summary>
-    private Panel? _panel;
-
-    /// <summary>Asked to stand in before the words stood in a panel of the live tree: it does once they load.</summary>
-    private bool _waiting;
+    public bool Standing => _place.Standing;
 
     /// <summary>The keys were asked for before the box could take them: it takes them once it loads.</summary>
     private bool _keysWanted;
 
     /// <summary>
     /// Stand in for the words: the box takes their panel, their place in it, their grid cell and span, margin and
-    /// alignment; the words are collapsed (a collapsed text takes no room, the box takes exactly theirs). Words whose
-    /// panel is not known yet (a row built but not yet in the live tree) are stood in for as soon as they load.
+    /// alignment; the words are collapsed (<see cref="WordsPlace"/>).
     /// </summary>
-    public void StandIn()
-    {
-        if (_panel is not null)
-        {
-            return;
-        }
-
-        if ((_words.Parent ?? VisualTreeHelper.GetParent(_words)) is not Panel panel)
-        {
-            if (!_waiting)
-            {
-                _waiting = true;
-                _words.Loaded += OnWordsLoaded;
-            }
-
-            return;
-        }
-
-        Grid.SetRow(this, Grid.GetRow(_words));
-        Grid.SetColumn(this, Grid.GetColumn(_words));
-        Grid.SetRowSpan(this, Grid.GetRowSpan(_words));
-        Grid.SetColumnSpan(this, Grid.GetColumnSpan(_words));
-        Margin = _words.Margin;
-
-        // Words as wide as their text (a file's name) still give the box their whole room to type in; centred words keep the centre.
-        HorizontalAlignment = _words.HorizontalAlignment == HorizontalAlignment.Center ? HorizontalAlignment.Center : HorizontalAlignment.Stretch;
-        VerticalAlignment = _words.VerticalAlignment;
-        if (!double.IsNaN(_words.Width))
-        {
-            Width = _words.Width;
-        }
-
-        MaxWidth = _words.MaxWidth;
-        panel.Children.Insert(panel.Children.IndexOf(_words), this);
-        _words.Visibility = Visibility.Collapsed;
-        _panel = panel;
-    }
+    public void StandIn() => _place.In();
 
     /// <summary>Step out: the box leaves its panel and the words come back where they stood.</summary>
     public void StandOut()
     {
-        StopWaiting();
         _keysWanted = false;
         Loaded -= OnLoadedTakeKeys;
-        if (_panel is { } panel)
-        {
-            panel.Children.Remove(this);
-            _panel = null;
-        }
-
-        _words.Visibility = Visibility.Visible;
+        _place.Out();
     }
 
     /// <summary>
@@ -168,7 +118,7 @@ public sealed partial class InlineBox : TextBox
     /// </summary>
     public void TakeKeys()
     {
-        if (_panel is not null && Focus(FocusState.Programmatic))
+        if (_place.Standing && Focus(FocusState.Programmatic))
         {
             SelectionStart = Text.Length;
             return;
@@ -184,26 +134,11 @@ public sealed partial class InlineBox : TextBox
     private void OnLoadedTakeKeys(object sender, RoutedEventArgs args)
     {
         Loaded -= OnLoadedTakeKeys;
-        if (_keysWanted && _panel is not null)
+        if (_keysWanted && _place.Standing)
         {
             _keysWanted = false;
             Focus(FocusState.Programmatic);
             SelectionStart = Text.Length;
-        }
-    }
-
-    private void OnWordsLoaded(object sender, RoutedEventArgs args)
-    {
-        StopWaiting();
-        StandIn();
-    }
-
-    private void StopWaiting()
-    {
-        if (_waiting)
-        {
-            _waiting = false;
-            _words.Loaded -= OnWordsLoaded;
         }
     }
 
