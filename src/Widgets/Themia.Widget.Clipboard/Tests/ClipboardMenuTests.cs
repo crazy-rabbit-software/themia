@@ -29,7 +29,7 @@ public sealed class ClipboardMenuTests
         Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(), lines.Lines[2].Text);
         Assert.True(lines.Lines[3].IsSeparator);
         Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), lines.Lines[4].Text);
-        Assert.Equal("50", lines.Lines[4].Value);
+        Assert.Equal("50 items", lines.Lines[4].Value);
         Assert.Equal(6, lines.Lines.Count);
         var note = lines.Lines[^1];
         Assert.True(note.Note);

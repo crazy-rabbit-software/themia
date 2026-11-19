@@ -58,7 +58,7 @@ internal static class HabitTrackerMenu
             // [S-1426] Zero removes the strip.
             menu.StyleLines.Add(menu.Number(Glyphs.Count, HabitTrackerStr.WidgetsB_Settings_Habits_History_Label.Text(),
                 config.EffectiveHistoryDots, 0, HabitRules.MaxHistory, 1,
-                value => value.ToString(CultureInfo.InvariantCulture), value => config.HistoryDots = value));
+                KitMenuLines.Days, value => config.HistoryDots = value));
         }
 
         if (config.Offers(HabitsSetting.Lines))

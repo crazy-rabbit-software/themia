@@ -5,6 +5,7 @@ using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Gallery;
 
 namespace Themia.App.Shell.Config;
@@ -48,8 +49,8 @@ internal static class GalleryMenu
         // size, the scatter's and the mosaic's count.
         if (config.Offers(GallerySetting.Cells))
         {
-            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Columns.Text(), config.EffectiveColumns, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, v => LocaleFormat.Integer(v), v => config.Columns = v));
-            menu.StyleLines.Add(menu.Number(null, Str.Kit_Rows.Text(), config.EffectiveRows, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, v => LocaleFormat.Integer(v), v => config.Rows = v));
+            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Columns.Text(), config.EffectiveColumns, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, n => Str.Kit_UnitColumns.Plural(n), v => config.Columns = v));
+            menu.StyleLines.Add(menu.Number(null, Str.Kit_Rows.Text(), config.EffectiveRows, GalleryConfig.MinCells, GalleryConfig.MaxCells, 1, KitMenuLines.Rows, v => config.Rows = v));
             menu.StyleLines.Add(menu.Choice(
                 null,
                 GalleryStr.Gallery_CellSize.Text(),
@@ -60,7 +61,7 @@ internal static class GalleryMenu
 
         if (config.Offers(GallerySetting.Shown))
         {
-            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Shown.Text(), config.EffectiveShown, 1, GalleryConfig.MaxShown, 1, v => LocaleFormat.Integer(v), v => config.Shown = v));
+            menu.StyleLines.Add(menu.Number(null, GalleryStr.Gallery_Shown.Text(), config.EffectiveShown, 1, GalleryConfig.MaxShown, 1, KitMenuLines.Items, v => config.Shown = v));
         }
 
         var lines = menu.Lines;
@@ -92,7 +93,7 @@ internal static class GalleryMenu
         if (config.Offers(GallerySetting.Count))
         {
             lines.Add(menu.Number(Glyphs.Count, GalleryStr.WidgetsB_Settings_Gallery_Count_Label.Text(), config.EffectiveMaxImages,
-                1, GalleryConfig.MaxImageCount, 1, Whole, value => config.MaxImages = value));
+                1, GalleryConfig.MaxImageCount, 1, KitMenuLines.Items, value => config.MaxImages = value));
         }
 
         if (config.Offers(GallerySetting.Shuffle))
@@ -130,7 +131,8 @@ internal static class GalleryMenu
         {
             var folder = FolderPath.Validate(config.Path);
             lines.Add(ItemMenuEntry.Separator);
-            lines.Add(new ItemMenuEntry(Glyphs.Open, Str.Folder_OpenInExplorer.Text(), () => _ = SettingsHost.Launcher.Open(folder.Path), Disabled: !folder.IsValid));
+            lines.Add(new ItemMenuEntry(Glyphs.Open, Str.Folder_OpenInExplorer.Text(), () => _ = SettingsHost.Launcher.Open(folder.Path), Disabled: !folder.IsValid,
+                Why: folder.IsValid ? null : Str.SettingsPages_Why_FolderFirst.Text()));
         }
     }
 

@@ -16,7 +16,13 @@
     "kit.size",
     "kit.sizeSmall",
     "kit.sizeMedium",
-    "kit.sizeLarge"
+    "kit.sizeLarge",
+    "kit.unitRows",
+    "kit.unitColumns",
+    "kit.unitLines",
+    "kit.unitItems",
+    "kit.unitDays",
+    "kit.unitHours"
   ],
   "kit.ownerProblem": "{name}: {reason}",
   "kit.refreshUpdated": "Refresh · updated {age}",
@@ -36,5 +42,29 @@
   "kit.size": "Size",
   "kit.sizeSmall": "Small",
   "kit.sizeMedium": "Medium",
-  "kit.sizeLarge": "Large"
+  "kit.sizeLarge": "Large",
+  "kit.unitRows": {
+    "one": "{count} row",
+    "other": "{count} rows"
+  },
+  "kit.unitColumns": {
+    "one": "{count} column",
+    "other": "{count} columns"
+  },
+  "kit.unitLines": {
+    "one": "{count} line",
+    "other": "{count} lines"
+  },
+  "kit.unitItems": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "kit.unitDays": {
+    "one": "{count} day",
+    "other": "{count} days"
+  },
+  "kit.unitHours": {
+    "one": "{count} hour",
+    "other": "{count} hours"
+  }
 }

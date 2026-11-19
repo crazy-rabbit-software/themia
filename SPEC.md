@@ -2127,6 +2127,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 - **[S-2373]** **Online updates says what it holds** (owner, 2026-11-19, as [S-2370]; Karpo's Online card "15 min",
   its R4): shut, its card says at its end the one interval every kind of source is asked at ("Every 15 minutes"), or
   Custom where they differ. The rules hold every card that holds settings to it ([S-2374] R4).
+- **[S-2371]** **Every number says its unit** (owner, 2026-11-19, as [S-2370]; Karpo's §302, "make sure that all
+  properties that have a unit also have it in the ui", `MenuConventionTests.EveryNumberSaysItsUnit`): a count says what
+  it counts ("5 rows", "2 columns", "3 lines", "50 items", "7 days", "8 hours"; `KitMenuLines.Count` says its Rows,
+  Columns and Lines in theirs, items else, or the words it is given; `KitMenuLines.Rows`, `Days`, `Hours`, `Items`),
+  never bare digits. The rules hold every widget's number to it ([S-2374] R21).
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,

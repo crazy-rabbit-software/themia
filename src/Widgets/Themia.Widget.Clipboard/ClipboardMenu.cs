@@ -2,6 +2,7 @@ using Themia.App.Widgets;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Clipboard;
 
 namespace Themia.App.Shell.Config;
@@ -34,7 +35,7 @@ internal static class ClipboardMenu
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Number(Glyphs.Count, ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(),
             config.EffectiveCapacity, ClipboardHistory.MinCapacity, ClipboardHistory.MaxCapacity, 1,
-            value => value.ToString(System.Globalization.CultureInfo.InvariantCulture), value => config.Capacity = value));
+            KitMenuLines.Items, value => config.Capacity = value));
 
         menu.Lines.Add(WidgetMenuLines.Note(ClipboardStr.WidgetsA_Clipboard_Settings_PrivacyNote.Text()));
     }

@@ -108,7 +108,7 @@ public sealed class ScreenTimeAppsMenuTests
     {
         var config = new ScreenTimeAppsConfig();
         var rows = Line(Build(config, null).Lines, Str.Kit_Rows.Text());
-        Assert.Equal("5", rows.Value);
+        Assert.Equal("5 rows", rows.Value);
 
         // A day with no share shown has nothing for a second line; the share gives it one.
         Assert.DoesNotContain(Build(config, null).Lines, l => l.Text == Str.Kit_Lines.Text());

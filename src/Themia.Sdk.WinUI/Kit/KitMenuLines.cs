@@ -102,12 +102,32 @@ public static class KitMenuLines
         return next.Count == 0 ? [.. chosen] : [.. all.Where(next.Contains)];
     }
 
-    /// <summary>[S-7063] How many items: a number within the widget's bounds ([S-3726]).</summary>
-    public static ItemMenuEntry Count(WidgetMenuLines menu, string? glyph, string label, int value, int min, int max, int step, Action<int> set)
+    /// <summary>
+    /// [S-7063] How many items: a number within the widget's bounds ([S-3726]), [S-2371] saying its unit as Karpo's counts do
+    /// ("12 rows", its §302): <paramref name="say"/>'s words, else the kit's own for its Rows, Columns and Lines, else items.
+    /// </summary>
+    public static ItemMenuEntry Count(WidgetMenuLines menu, string? glyph, string label, int value, int min, int max, int step, Action<int> set, Func<int, string>? say = null)
     {
         ArgumentNullException.ThrowIfNull(menu);
-        return menu.Number(glyph, label, value, min, max, step, v => LocaleFormat.Integer(v), set);
+        ArgumentNullException.ThrowIfNull(label);
+        say ??= label == Str.Kit_Rows.Text() ? Rows
+            : label == Str.Kit_Columns.Text() ? n => Str.Kit_UnitColumns.Plural(n)
+            : label == Str.Kit_Lines.Text() ? n => Str.Kit_UnitLines.Plural(n)
+            : n => Str.Kit_UnitItems.Plural(n);
+        return menu.Number(glyph, label, value, min, max, step, say, set);
     }
+
+    /// <summary>[S-2371] A count of rows in its unit ("5 rows").</summary>
+    public static string Rows(int count) => Str.Kit_UnitRows.Plural(count);
+
+    /// <summary>[S-2371] A count of days in its unit ("3 days").</summary>
+    public static string Days(int count) => Str.Kit_UnitDays.Plural(count);
+
+    /// <summary>[S-2371] A count of hours in its unit ("8 hours").</summary>
+    public static string Hours(int count) => Str.Kit_UnitHours.Plural(count);
+
+    /// <summary>[S-2371] A count of items in its unit ("20 items").</summary>
+    public static string Items(int count) => Str.Kit_UnitItems.Plural(count);
 
     /// <summary>
     /// [S-2440] A list that states its rows ([S-2440]): how many rows it shows (1 to 20; dragging its
