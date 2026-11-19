@@ -11,7 +11,8 @@ namespace Themia.Widget.Fence;
 
 /// <summary>
 /// [S-13023] A search fence: the files its rules match in a folder or drive, as Windows Search finds them
-/// (<see cref="IDesktopFences.SearchAsync"/>), drawn in the fence's grid as its items are. They are views of the files, not
+/// (<see cref="IDesktopFences.SearchAsync"/>), drawn in the body's cells of the desktop icon grid, scrolled by whole rows
+/// ([S-13043]). They are views of the files, not
 /// desktop items: they are selected in the fence alone (the SDK's <see cref="ItemSelection"/>: a press, Ctrl, Shift, the
 /// arrows), a double-click or Enter opens them, a right-click is the shell's own menu for them, a drag takes them out as a
 /// copy or a shortcut (never a move: the files stay where they are), F5 or the menu's Refresh searches again. Removing the
@@ -29,6 +30,9 @@ internal sealed partial class FenceView
     private string? _searchedFor;
 
     private bool _searching;
+
+    /// <summary>[S-13043] The first row of found files the body shows.</summary>
+    private int _foundScroll;
 
     /// <summary>[S-13023] The fence's own selection of found files (they are in no desktop selection).</summary>
     private readonly ItemSelection _picks = new(StringComparer.OrdinalIgnoreCase);
@@ -120,7 +124,7 @@ internal sealed partial class FenceView
     {
         _picks.SetOrder(_shown);
         _picks.Press(_picks.IndexOf(cell.Key), ctrl, shift);
-        _press = (cell.Key, point.Position, ctrl || shift);
+        _press = (cell.Key, point.Position);
         PointerMoved -= OnPressMoved;
         PointerMoved += OnPressMoved;
         PaintCells();
@@ -182,10 +186,18 @@ internal sealed partial class FenceView
         }
 
         _picks.SetOrder(_shown);
-        var columns = FenceGrid.Columns(Math.Max(0, ActualWidth), CellSize);
-        if (!_picks.Key(key, SelectionInput.ShiftHeld(), columns, Math.Max(1, (int)(_scroll.ViewportHeight / Math.Max(1, CellSize.Height)))))
+        var layout = CellLayout(_found.Count, _foundScroll);
+        if (!_picks.Key(key, SelectionInput.ShiftHeld(), layout.Columns, Math.Max(1, layout.Rows)))
         {
             return false;
+        }
+
+        // [S-13043] The focused file in sight: the body scrolls by whole rows to it.
+        if (_picks.Focus is { } focused && _shown.IndexOf(focused) is >= 0 and var at && !layout.Shows(at) && layout.Rows > 0)
+        {
+            var row = at / layout.Columns;
+            _foundScroll = row < layout.Scroll ? row : row - layout.Rows + 1;
+            Layout();
         }
 
         PaintCells();

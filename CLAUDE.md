@@ -98,7 +98,7 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   LayoutPlan, IHoldsAppLayouts; VideoStreamRules, HlsVariants, the stream's facts; Files/: FileNames, FileDrops,
   SurfaceDrops, DesktopItem with DesktopItemKeys, DesktopCommands (what a command does to a selection of
   desktop icons), DragGhost (Explorer's drag picture), TypeIconName, FenceRules (a fence's rules), DesktopSortBy and the
-  records the file contracts carry; Widgets/FenceGrid, a fence's small grid; Model/Configs/IHoldsDesktopItems, a fence's config contract)
+  records the file contracts carry; Widgets/FenceGrid, a fence's cells (the one layout of its body); Model/Configs/IHoldsDesktopItems, a fence's config contract)
   Widgets/ (WidgetArea, LayoutMath, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
   HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ColourPicker, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
@@ -112,7 +112,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Desktop/ (the desktop layer's rules: DesktopReconcile, DesktopViews (which items each view shows: All, Chosen, None), DesktopGrid (icons on the widget grid: their box, arrivals,
   auto arrange, a drop back), DesktopSelection with DesktopPicks (the locked desktop's one selection of icons and
   cards), DesktopDragOut, DesktopSort, DesktopBackground, DesktopFences (which items stand in a fence: membership,
-  routing by rules, making and removing one), DesktopDeleteUndo and DesktopFileUndo (Explorer's undo of the desktop's file steps))
+  routing by rules, making and removing one, laying its icons on the icon grid, the one drop cell; FenceCells, its rect on the grid), DesktopDeleteUndo and DesktopFileUndo (Explorer's undo of the desktop's file steps))
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
   Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
@@ -420,14 +420,21 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   read of the desktop sees what the command's landing named, [S-13102]; the background menu's "Undo …" line, [S-13103]).
   Explorer's own undo is out of reach (its process): never claim it, carry the step. Parity with Windows' desktop is the
   bar (owner, 2026-11-19: "without noticing a difference to normal windows"): SPEC PARITY lists what is left and why.
-- **Fences** (SPEC FENCES, [S-13000]..[S-13014]; the module `src/Widgets/Themia.Widget.Fence`, [S-10900]..[S-10920];
-  owner, 2026-11-19): a fence is a widget whose config holds real desktop items by key (`IHoldsDesktopItems`). On its
-  view its items are never free icons (`DesktopViews.Shown` = `Free` + `DesktopFences.Held`); a view's All/Chosen/None is
-  the free desktop's alone. Every gesture on a fence item is the desktop's one selection's, keyed by the item (the fence
-  reports where it draws them, `IDesktopFences.Laid`, so the band and the arrows reach in); what is the fence's (drops
-  into it, roll up, remove, paste, new folder, its sort's order) is asked of `IDesktopItems.Fences`, carried out by Core's
-  `DesktopFences` through `Mutate`. Membership is the arrangement: the undo snapshot copies it (`WidgetShape.Held`).
-  Removing a fence never deletes a file (its items go back where it stood). Made by a right-drag rectangle on empty
+- **Fences** (SPEC FENCES, [S-13000]..[S-13014], [S-13040]..[S-13044]; the module `src/Widgets/Themia.Widget.Fence`,
+  [S-10900]..[S-10920]; owner, 2026-11-19: "the fence should basically just be a helper to align the icon on the
+  underlying engine without this transition in between"): a fence is a widget whose config holds real desktop items by key
+  (`IHoldsDesktopItems`), a **region of the desktop icon grid**: its title bar is grid rows, its body whole icon boxes, and
+  each item it holds is the desktop's own icon (its item widget on that view) laid on a cell of the body by
+  `DesktopFences.Lay` in every `Mutate` (`AppHost.LayFences`). It draws no item of its own (only a search's files and a
+  picture's items, in the same cells, `FenceGrid.Layout`). An icon moved into, inside or out of a fence is the desktop's one
+  move; where it lands is `DesktopFences.DropCell` for the free desktop and a fence alike, and `DesktopFences.Land` makes it
+  the fence's or free on the drop: no hand-off, preview or glide of a fence's own. Never write a second layout or drag for
+  fence items. On its view its items are never free icons (`DesktopViews.Free` leaves them out; `Shown` = `Free` +
+  `DesktopFences.Held`); a view's All/Chosen/None is the free desktop's alone; auto arrange, Sort by and the settle lay the
+  free icons only (`DesktopFences.FreeIcons`). What is the fence's (roll up, scroll by whole rows, remove, drops of files,
+  paste, new folder) is asked of `IDesktopItems.Fences`, carried out by Core's `DesktopFences` through `Mutate`;
+  `AppHost.PlaceInFence` puts items into one from elsewhere. Membership is the arrangement: the undo snapshot copies it
+  (`WidgetShape.Held`). Removing a fence never deletes a file (its icons stay where it showed them). Made by a right-drag rectangle on empty
   desktop ("Create fence here"), "Create fence from selection" in the icon menu, or Add widget. Rules route new items
   (`FenceRules`; first matching fence of each view).
 - **Item selection** (files: anything selected like desktop icons) through the SDK's one rule set

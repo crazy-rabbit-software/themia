@@ -182,15 +182,17 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-874] Stack the cards in the view's paint order: the view's widget list, which "bring to
-    /// front" and "send to back" rearrange. Through <c>Canvas.ZIndex</c>, never by moving elements in
+    /// front" and "send to back" rearrange ([S-13042]: a fence's icons right over their fence,
+    /// <see cref="Themia.Core.Desktop.DesktopFences.PaintOrder"/>). Through <c>Canvas.ZIndex</c>, never by moving elements in
     /// the tree, so nothing is unloaded and reloaded — a view that reacts to Unloaded would otherwise
     /// restart.
     /// </summary>
     private void ApplyPaintOrder(ViewState view)
     {
-        for (var i = 0; i < view.Widgets.Count; i++)
+        var order = Themia.Core.Desktop.DesktopFences.PaintOrder(view);
+        for (var i = 0; i < order.Count; i++)
         {
-            var model = view.Widgets[i];
+            var model = order[i];
             if (_cards.Find(c => ReferenceEquals(c.Model, model)) is { } card)
             {
                 Canvas.SetZIndex(card, i);
@@ -278,6 +280,13 @@ internal sealed partial class DesktopWindow
         _cards.AddRange(kept);
 
         ApplyPaintOrder(view);
+
+        // [S-13042] [S-13043] The icons a fence does not show now (scrolled away, rolled up) are drawn by no card.
+        var fenced = _host.FenceHidden(view, Metrics);
+        foreach (var card in _cards)
+        {
+            card.Visibility = fenced.Contains(card.Model.Id) ? Visibility.Collapsed : Visibility.Visible;
+        }
 
         foreach (var card in _cards)
         {

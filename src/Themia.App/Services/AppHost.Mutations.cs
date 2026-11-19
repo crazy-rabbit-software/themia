@@ -53,6 +53,16 @@ internal sealed partial class AppHost
         // [S-854] on a display whose metrics have not settled, once they have.
         _sizings.Refit(State, SurfacesNow());
 
+        // [S-13040] [S-13042] Every fence laid on its display's icon grid, its icons on its cells, in the same step.
+        try
+        {
+            LayFences(State);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "laying the fences threw; their icons stay where they were", ex);
+        }
+
         if (undo is { } step)
         {
             _history?.Commit(State, step, effect);
@@ -97,7 +107,8 @@ internal sealed partial class AppHost
             return;
         }
 
-        if (_sizings.Waits(State))
+        // [S-13040] A fence is laid on its display's icon grid at the real metrics (a start, another resolution or scale).
+        if (_sizings.Waits(State) || State.Views.Exists(v => v.Widgets.Exists(w => w.Config is IHoldsDesktopItems)))
         {
             Mutate(_ => { }, undo: null);
         }

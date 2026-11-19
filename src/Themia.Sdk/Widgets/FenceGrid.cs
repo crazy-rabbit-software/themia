@@ -1,105 +1,103 @@
-using Themia.Core.Geometry;
-
 namespace Themia.Sdk;
 
 /// <summary>
-/// [S-10902] [S-13008] [S-13019] A fence's own small grid, as pure layout: the title bar on top, then its items in reading
-/// order, as many to a row as the body's width holds, the body scrolling when they are more than it shows. Each item stands
-/// in the box a desktop icon has on the widget grid (the desktop's cell at the icon size in force rounded up to whole grid
-/// cells, the host's), from the body's left edge and its top, box against box with no inset (the owner, 2026-11-19: "the
-/// fence items should also not have any additionaly spacing to the outside"): a fence's items stand on the same spacing as
-/// the free icons beside it. The view draws by it and the host sizes a new fence by it, so the two never disagree.
+/// [S-13019] [S-13040] A fence's cells, as pure layout in any unit: fractions of its display for the host (the desktop
+/// icon grid, <c>FenceCells</c>), DIPs for a picture of one. A fence is a region of the desktop's icon grid (the owner,
+/// 2026-11-19: "the fence should basically just be a helper to align the icon on the underlying engine"): its title bar is
+/// <see cref="TitleCells"/> rows of the widget grid, and under it its body is whole icon boxes (a desktop icon's box on the
+/// grid), its items in reading order, as many to a row as the body holds, box against box from the body's top-left. A body
+/// with more items than it holds shows whole rows from <see cref="Layout.Scroll"/>; rolled up it has none. There is no
+/// other layout of a fence's items.
 /// </summary>
 public static class FenceGrid
 {
-    /// <summary>The title bar's height, in DIPs: the fence's own, never the Header widget's.</summary>
-    public const double TitleHeight = 32;
+    /// <summary>[S-13040] The title bar's height in rows of the widget grid ([S-06]): every fence's body starts on a grid line.</summary>
+    public const int TitleCells = 3;
+
+    /// <summary>
+    /// [S-13012] The title bar as a sizing states it, in whole DIPs: grid-fitted (rounded up to whole cells) it is exactly
+    /// <see cref="TitleCells"/> rows on every display. A grid cell is the screen's length over that length / 10 rounded,
+    /// 9.5..10.5 DIPs on every real screen, and (3 − 1) × 10.5 &lt; 28 ≤ 3 × 9.5.
+    /// </summary>
+    public const double TitleDip = 28;
 
     /// <summary>The fewest columns a fence made round a selection is laid out with, and the most.</summary>
     public const int MinColumns = 1;
 
     public const int MaxColumns = 8;
 
-    /// <summary>How many cells of <paramref name="cell"/> a body <paramref name="width"/> wide holds across: at least one.</summary>
-    public static int Columns(double width, SizeDip cell)
-        => cell.Width <= 0 || !double.IsFinite(width) ? 1 : Math.Max(1, (int)Math.Floor((width + 1e-6) / cell.Width));
+    /// <summary>
+    /// One fence's body as cells, in one unit: its top-left (<see cref="Left"/>, <see cref="Top"/>, under the title bar),
+    /// its size, one icon box (<see cref="CellWidth"/> × <see cref="CellHeight"/>) and the first row it shows.
+    /// </summary>
+    public readonly record struct Layout(double Left, double Top, double Width, double Height, double CellWidth, double CellHeight, int Scroll)
+    {
+        /// <summary>How many boxes a row holds: at least one.</summary>
+        public int Columns => Fit(Width, CellWidth, atLeastOne: true);
+
+        /// <summary>How many whole rows the body shows: none while rolled up (no height).</summary>
+        public int Rows => Fit(Height, CellHeight, atLeastOne: false);
+
+        /// <summary>How many boxes the body shows at once.</summary>
+        public int Shown => Columns * Rows;
+
+        /// <summary>The furthest the body scrolls with <paramref name="count"/> items: the rows past what it shows.</summary>
+        public int MaxScroll(int count) => Math.Max(0, RowsOf(count, Columns) - Rows);
+
+        /// <summary>This layout with its scroll kept between none and <see cref="MaxScroll"/> for <paramref name="count"/> items.</summary>
+        public Layout Clamped(int count) => this with { Scroll = Math.Clamp(Scroll, 0, MaxScroll(count)) };
+
+        /// <summary>Whether item <paramref name="index"/> stands in a row the body shows now.</summary>
+        public bool Shows(int index)
+        {
+            if (index < 0)
+            {
+                return false;
+            }
+
+            var row = (index / Columns) - Scroll;
+            return row >= 0 && row < Rows;
+        }
+
+        /// <summary>
+        /// The box of item <paramref name="index"/>: reading order, <see cref="Columns"/> to a row, from the body's top-left,
+        /// the scroll's rows above it. Where the body does not show it the box is outside the body.
+        /// </summary>
+        public (double X, double Y, double W, double H) Cell(int index)
+        {
+            var i = Math.Max(0, index);
+            var columns = Columns;
+            return (Left + (i % columns * CellWidth), Top + (((i / columns) - Scroll) * CellHeight), CellWidth, CellHeight);
+        }
+
+        /// <summary>
+        /// [S-13040] The place in the order the body's cell under (<paramref name="x"/>, <paramref name="y"/>) stands for (the
+        /// scroll's rows counted), or -1 where the point is not on a cell the body shows.
+        /// </summary>
+        public int SlotAt(double x, double y)
+        {
+            if (CellWidth <= 0 || CellHeight <= 0 || !double.IsFinite(x) || !double.IsFinite(y))
+            {
+                return -1;
+            }
+
+            var column = (int)Math.Floor((x - Left) / CellWidth);
+            var row = (int)Math.Floor((y - Top) / CellHeight);
+            return column < 0 || column >= Columns || row < 0 || row >= Rows ? -1 : ((row + Scroll) * Columns) + column;
+        }
+
+        /// <summary>Whether (<paramref name="x"/>, <paramref name="y"/>) is inside the body's whole boxes.</summary>
+        public bool Contains(double x, double y) => SlotAt(x, y) >= 0;
+    }
 
     /// <summary>How many rows <paramref name="count"/> items take in <paramref name="columns"/>.</summary>
-    public static int Rows(int count, int columns) => count <= 0 ? 0 : ((count - 1) / Math.Max(1, columns)) + 1;
+    public static int RowsOf(int count, int columns) => count <= 0 ? 0 : ((count - 1) / Math.Max(1, columns)) + 1;
 
-    /// <summary>
-    /// The cell of item <paramref name="index"/> in the body's own DIPs (its top-left the body's, under the title bar):
-    /// reading order, <paramref name="columns"/> to a row, from the body's left edge, box against box.
-    /// <paramref name="width"/> is the body's (kept in the signature: a row never stands past it).
-    /// </summary>
-    public static PixelRect Cell(int index, int columns, SizeDip cell, double width)
+    /// <summary>How many whole <paramref name="cell"/>s <paramref name="length"/> holds (float noise forgiven).</summary>
+    private static int Fit(double length, double cell, bool atLeastOne)
     {
-        columns = Math.Max(1, columns);
-        return new PixelRect((index % columns) * cell.Width, (index / columns) * cell.Height, cell.Width, cell.Height);
-    }
-
-    /// <summary>The body's content height for <paramref name="count"/> items: their rows, nothing round them.</summary>
-    public static double ContentHeight(int count, int columns, SizeDip cell) => Rows(count, columns) * cell.Height;
-
-    /// <summary>The item under the body point (<paramref name="x"/>, <paramref name="y"/> in the body's content DIPs, scrolled in), or -1.</summary>
-    public static int IndexAt(double x, double y, int columns, SizeDip cell, double width, int count)
-    {
-        for (var i = 0; i < count; i++)
-        {
-            var r = Cell(i, columns, cell, width);
-            if (x >= r.X && x < r.X + r.Width && y >= r.Y && y < r.Y + r.Height)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    /// <summary>
-    /// [S-13005] Where a drop at the body point goes in the order: before the cell under it when the point is in its
-    /// first half (across), else after it; past the last item, or below every row, the end.
-    /// </summary>
-    public static int InsertAt(double x, double y, int columns, SizeDip cell, double width, int count)
-    {
-        columns = Math.Max(1, columns);
-        if (count == 0 || cell.Width <= 0 || cell.Height <= 0)
-        {
-            return 0;
-        }
-
-        var first = Cell(0, columns, cell, width);
-        var row = (int)Math.Floor((y - first.Y) / cell.Height);
-        if (row < 0)
-        {
-            return 0;
-        }
-
-        if (row >= Rows(count, columns))
-        {
-            return count;
-        }
-
-        var across = (x - first.X) / cell.Width;
-        var column = Math.Clamp((int)Math.Floor(across + 0.5), 0, columns);
-        return Math.Clamp((row * columns) + column, 0, count);
-    }
-
-    /// <summary>
-    /// [S-13021] The order a fence shows while the desktop's drag is over it: its <paramref name="shown"/> items without the
-    /// <paramref name="dragged"/> ones, those inserted (in the drag's order) where a drop before shown item
-    /// <paramref name="at"/> puts them (counted among the items that stay, so a move inside the fence lands where pointed):
-    /// the ghosts' slots, and where the drop leaves them.
-    /// </summary>
-    public static List<string> Preview(IReadOnlyList<string> shown, IReadOnlyList<string> dragged, int at, IEqualityComparer<string> comparer)
-    {
-        ArgumentNullException.ThrowIfNull(shown);
-        ArgumentNullException.ThrowIfNull(dragged);
-        var moving = new HashSet<string>(dragged, comparer);
-        var order = shown.Where(key => !moving.Contains(key)).ToList();
-        var before = shown.Take(Math.Clamp(at, 0, shown.Count)).Count(key => !moving.Contains(key));
-        order.InsertRange(Math.Clamp(before, 0, order.Count), dragged.Distinct(comparer));
-        return order;
+        var n = cell > 0 && double.IsFinite(length) ? (int)Math.Floor((length / cell) + 1e-6) : 0;
+        return atLeastOne ? Math.Max(1, n) : Math.Max(0, n);
     }
 
     /// <summary>
@@ -109,6 +107,6 @@ public static class FenceGrid
     public static SizeDip Around(int count, SizeDip cell)
     {
         var columns = Math.Clamp((int)Math.Ceiling(Math.Sqrt(Math.Max(1, count))), MinColumns, MaxColumns);
-        return new SizeDip(columns * cell.Width, TitleHeight + ContentHeight(Math.Max(1, count), columns, cell));
+        return new SizeDip(columns * cell.Width, TitleDip + (RowsOf(Math.Max(1, count), columns) * cell.Height));
     }
 }

@@ -185,7 +185,8 @@ public static partial class DesktopReconcile
             return room;
         }
 
-        // [S-13005] [S-13004] Into a fence of the view, at its end, unless the view shows the item already.
+        // [S-13005] [S-13004] Into a fence of the view, at its end, unless the view shows the item already. [S-13042] Its icon
+        // is made at the fence's corner; the fence lays it on its cell in the same change.
         void IntoFence(ViewState view, string fenceId, DesktopItem item)
         {
             var shownHere = rooms.TryGetValue(view.Id, out var room) ? room.Shown : null;
@@ -194,7 +195,9 @@ public static partial class DesktopReconcile
                 return;
             }
 
-            DesktopFences.On(view).First(on => string.Equals(on.Widget.Id, fenceId, StringComparison.Ordinal)).Fence.Items.Add(item.Key);
+            var fence = DesktopFences.On(view).First(on => string.Equals(on.Widget.Id, fenceId, StringComparison.Ordinal));
+            view.Widgets.Add(create(item, new FracRect(fence.Widget.X, fence.Widget.Y, 0, 0)));
+            fence.Fence.Items.Add(item.Key);
             shownHere?.Add(item.Key);
         }
 

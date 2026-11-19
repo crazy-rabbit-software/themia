@@ -8,53 +8,53 @@ Stardock Fences' feature, not its look (the owner, 2026-11-19: "think about how 
 it"): a box of real desktop items with a title bar of its own.
 
 Owning files: everything in this folder. Tests: `Tests/FenceTests.cs` (run by `tests/Themia.Modules.Tests`); the rules
-it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, `DesktopFileUndoTests`).
+it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceGridTests`, `FenceRulesTests`, `DesktopFileUndoTests`).
+
+A fence is a region of the desktop icon grid (the owner, 2026-11-19: "the fence should basically just be a helper to align
+the icon on the underlying engine without this transition in between", root [S-13040]..[S-13044]): its items are the
+desktop's own icons, laid by the host on the cells of its body; the view draws its title bar and what is no desktop icon.
 
 - **[S-10900]** **What it remembers** (`FenceConfig`, the SDK's `IHoldsDesktopItems`): its title (`Name`, empty for the
   kind's word "Fence"), the desktop items it holds by their keys in its order (`Items`, [S-13000]), whether it is rolled
-  up and the height it unrolls to (`RolledUp`, `OpenHeight`, [S-13012]), its standing sort (`Sort`, null for as placed,
-  [S-13013]), its rules for new items (`Rules`, [S-13004]) and how its title bar rolls it up (`RollUpOnClick`,
-  `HoverPeek`, both on in a new fence), what it shows (`Source`, [S-13022]) and a search's query (`Query`: folder, recency,
-  count, [S-13023]). A clone copies all of it, the lists anew. Tests `FenceTests.S10900_`.
-- **[S-10901]** **Its size is the user's** (the kind's sizing, relaxed, [S-12411]): at least one cell of the desktop under
-  its title bar, naturally the size that shows six items without scrolling (`FenceGrid.Around`), as large as the work
-  area holds. Rolled up its height is its title bar's alone (a stepped axis the relax keeps), its width as it was. It joins
-  no widget it touches (`WidgetTraits.NeverJoins`): its title bar is its own edge. The title bar is the card's top edge
-  (`IWidgetTopEdge`): the card adds no inset above it. Its tile is in Add widget's Files, beside the desktop icon.
-  Tests `FenceTests.S10901_`.
-- **[S-10902]** **Its own small grid** (`FenceGrid`, the SDK's, tested in `FenceRulesTests.S10902_`): under the title bar
-  ([S-10910]) the items stand in reading order, as many to a row as the body's width holds (at least one), each in the box
-  a desktop icon has on the widget grid of the fence's display (`IDesktopFences.ItemBox`: the desktop's cell at the icon
-  size in force rounded up to whole grid cells, [S-5593], [S-11875]), box against box from the body's left edge and top,
-  with nothing round them ([S-13019]). More items than it shows scroll the body (no horizontal scroll), with the bottom
-  fade every scrolling list has (`ScrollFade`, [S-1281]); "Drag desktop icons here" stands in an empty one. A change of
-  place (a drop, a reorder, a new width) glides (the canvas's reposition transition).
-- **[S-10903]** **An item looks as a desktop icon does**: the shell's icon with its overlay ([S-5512], from the host's
-  cache at the display's pixels, [S-5563]) over its name in two lines, the highlight on the whole box (hover, selected,
-  inactive, the focus cue, a drop target), a cut or hidden item faded ([S-5545], [S-5547]). The highlight is the desktop
-  icon's own (`SelectionLook.DesktopIcon`: its strengths, the whole box, its corners; the owner, 2026-11-19: "the selection
-  should look the same"): its white wash on a dark card, the same wash in black on a light one where white would not show
-  (`SelectionLook.DesktopIconOver`, by the card text's lightness, [S-13019]); its name is the card's text colour.
-- **[S-10904]** **Every gesture on an item is the desktop's** ([S-13011]): a press selects in the one selection (Ctrl
-  toggles, Shift the range, a press on a selected item narrows on release), a double-click opens the selection, a
-  right-click opens the desktop's menu for it (Shift: the shell's classic menu), all keyed by the item. A press in the
-  body never moves the fence; a left press on its empty body starts the desktop's own band there ([S-13020]); a press on the title bar is the card's (it moves the fence and what is selected with it,
-  [S-2008]); in edit mode the card has every press.
+  up and the height it unrolls to (`RolledUp`, `OpenHeight`, [S-13012]), the first row its body shows (`Scroll`, [S-13043]),
+  its standing sort (`Sort`, null for as placed, [S-13013]), its rules for new items (`Rules`, [S-13004]) and how its title
+  bar rolls it up (`RollUpOnClick`, `HoverPeek`, both on in a new fence), what it shows (`Source`, [S-13022]) and a search's
+  query (`Query`: folder, recency, count, [S-13023]). A clone copies all of it, the lists anew. Tests `FenceTests.S10900_`.
+- **[S-10901]** **Its size is the user's** (the kind's sizing, relaxed, [S-12411]): at least two icon boxes across and one
+  under its title bar, naturally the size that shows six items without scrolling (`FenceGrid.Around`), as large as the work
+  area holds; on the desktop the host lays it to whole boxes ([S-13040]). Rolled up its height is its title bar's alone
+  (`FenceGrid.TitleDip`, which grid-fits to exactly its three rows on every display; a stepped axis the relax keeps), its
+  width as it was. It joins no widget it touches (`WidgetTraits.NeverJoins`): its title bar is its own edge. The title bar
+  is the card's top edge (`IWidgetTopEdge`): the card adds no inset above it. Its tile is in Add widget's Files, beside the
+  desktop icon. Tests `FenceTests.S10901_`.
+- **[S-10902]** **Its body is cells of the desktop icon grid** (`FenceGrid.Layout`, the SDK's one layout, tested in
+  `FenceRulesTests`): under the title bar (`IDesktopFences.Cells`: whole grid rows, and one desktop icon's box on the widget
+  grid of the fence's display, [S-5593], [S-11875]) the items stand in reading order, as many to a row as the body holds,
+  box against box from the body's corner, with nothing round them ([S-13019]). On the desktop they are the desktop's icons,
+  laid there by the host ([S-13040]); the view draws only what is no desktop icon (a search's files, a picture's items) in
+  the same cells. More items than it shows: whole rows from its scroll, the mouse wheel a row a notch, a thin thumb at the
+  body's right edge ([S-13043]); "Drag desktop icons here" stands in an empty one.
+- **[S-10903]** **An item is a desktop icon**: on the desktop each item is the desktop's own icon card ([S-13042]), so its
+  icon, name, highlight, hover, focus cue, cut and hidden fades are a free icon's, exactly. What the fence draws itself (a
+  search's files, a picture's items) looks the same: the shell's icon with its overlay ([S-5512], at the display's pixels,
+  [S-5563]) over its name in two lines, the highlight on the whole box in the desktop icon's palette
+  (`SelectionLook.DesktopIcon`), its white wash in black on a light card (`SelectionLook.DesktopIconOver`, [S-13019]), its
+  name the card's text colour.
+- **[S-10904]** **Every gesture on an item is a desktop icon's** ([S-13011]): its icon is the desktop's (press, Ctrl, Shift,
+  double-click, right-click, F2, the move). A press in the body between its icons never moves the fence: a left press there
+  starts the desktop's own band ([S-13020]); a press on the title bar is the card's (it moves the fence, its icons with it,
+  and what is selected with it, [S-2008]); in edit mode the card has every press.
 - **[S-10905]** **The keys with the fence's lease are the desktop's** ([S-5541]..[S-5545]), sent from the fence: arrows,
-  Enter, F2 (the rename box on the item, [S-5543]), Delete, Ctrl+C/X, Alt+Enter, F5, the Menu key, type-to-find; Ctrl+V
-  and Ctrl+Shift+N land what they bring in this fence ([S-13005], [S-13101]). F2 with no item of it focused renames the
-  fence ([S-10910]). Escape ends the lease and keeps the selection.
-- **[S-10906]** **A drag from a fence** is the desktop's drag of the selection ([S-5549]), started by the fence once the
-  press leaves the dead zone ([S-6624]): onto empty desktop the items leave the fence where they are let go ([S-13006]),
-  onto another fence they move into it, onto Explorer, a folder, an app or the Recycle Bin the target does what it does.
-  The picture is Explorer's ghost ([S-5564]) of this fence's icons: the held one in front, up to two more selected ones
-  behind, the count in a badge.
-- **[S-10907]** **Drops on a fence** ([S-13005]): the desktop's own drag moves its desktop items in where its preview shows
-  them: see-through ghosts of the dragged items at their slots, the other items stepping aside, and on the drop the items
-  arrive in their ghosts ([S-13021]; at the end while a standing sort orders them); files from outside go through the
-  shell into the desktop folder and arrive in the fence; over a folder item of the fence the drop is that folder's own
-  shell target ([S-5587]), the folder drawn as the drop target. The caption names the fence ("Move to Work"). Never in
-  edit mode.
+  Enter, F2, Delete, Ctrl+C/X, Alt+Enter, F5, the Menu key, type-to-find; Ctrl+V and Ctrl+Shift+N land what they bring in
+  this fence ([S-13005], [S-13101]), from one of its icons too. F2 with no item of it focused renames the fence ([S-10910]).
+  Escape ends the lease and keeps the selection.
+- **[S-10906]** **A move of its items** is the desktop's one move of icons ([S-13041]): within the fence to another place,
+  onto empty desktop of any display (a free icon where it lands), onto another fence (into it); dragged off the desktop
+  (Explorer, a folder, an app, the Recycle Bin) it is the shell's drag of the selection, as any icon's ([S-11878]).
+- **[S-10907]** **Drops on a fence** ([S-13005]): the desktop's own icons land on its cells by the move ([S-13041]), never
+  through it; files from outside go through the shell into the desktop folder and arrive in the fence; over one of its
+  folder icons the drop is that icon's own ([S-5587]). The caption names the fence ("Move to Work"). Never in edit mode,
+  never on a search fence.
 - **[S-10910]** **The title bar**: the fence's name (its title, else "Fence"), cut with an ellipsis, then how many items
   it holds ("6 items") and a chevron (up while open, down while rolled up), a hairline under it while open. A
   double-click on it, F2 with no item focused, or the menu's Rename fence turns the name into a box: Enter or a click
@@ -63,13 +63,13 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
 - **[S-10911]** **The card's menu** (its context actions, [S-1746]): Paste and New folder into the fence ([S-13005]),
   Rename fence, Roll up or Unroll, Remove fence. Remove fence never deletes a file: a fence with items asks first, beside
   its title bar, "Put the 3 items back on the desktop?" with Put back (the default) and Cancel; Put back removes it and
-  its items arrive where it stood ([S-13009]), one undo step that brings it back with them. An empty fence goes at once.
+  its items stay where it showed them ([S-13009]), one undo step that brings it back with them. An empty fence goes at once.
 - **[S-10912]** **A click on the title rolls it up**, as Fences' roll-up ([S-13012]): the fence shrinks to its title bar, gliding ([S-13028]);
   a click again unrolls it to the height it had. The page's switch "Roll up with a click on the title" turns that off.
   A double-click renames instead: its first click's roll-up is taken back.
 - **[S-10913]** **Hover peek**: while the pointer rests on a rolled-up fence it opens, and rolls up again when the pointer
-  leaves (not while its rename box or a drag holds it); a click while it peeks keeps it open. The page's switch "Open
-  while the pointer is over it" turns that off.
+  leaves the fence (its icons are the fence's: the pointer over one has not left; not while its rename box or a drag holds
+  it); a click while it peeks keeps it open. The page's switch "Open while the pointer is over it" turns that off.
 - **[S-10914]** **Its page** ([S-2340]): Fence name (asked), Shows (What I put in it, Desktop items that match, Files
   that match from a folder or drive, [S-13022], [S-13023]; for a search: Look in, Changed, At most), Sort by (As placed, Name, Item type, Date modified, Size:
   the fence's standing order, the desktop's own sort rule, [S-13013]), the two roll-up switches, and New items › its rules
@@ -78,23 +78,23 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
   collecting fence: that every match stands here; a search fence: that every matching file of its place is shown, the
   files staying where they are; the page is then "Which items").
 - **[S-10915]** **Pictures** ([S-11850]): the sample is a fence named "Work" with six of the sample desk's items (names on
-  no disk, so the shell draws their type's icons, the same on every machine). Debug renders' states (`--widget-png Fence
-  --state …`): `sample`, `empty`, `selected`, `inactive`, `renaming`, `title`, `rolledUp`, `many` (it scrolls), `cut`,
-  `sorted`, `dropping` (the desktop's drag of two items over it, their ghosts at their slots, [S-13021]).
+  no disk, so the shell draws their type's icons, the same on every machine), drawn in its cells as the desktop's icons are.
+  Debug renders' states (`--widget-png Fence --state …`): `sample`, `empty`, `selected`, `inactive`, `title`, `rolledUp`,
+  `many` (its thumb), `cut`, `sorted`. The fence on the desktop beside free icons, its icons laid by Core over the grid:
+  `--drag-png` (`drag-fences-*`).
 - **[S-10916]** **Stored whole**: the config round-trips through the state file (the sort and the file types by name);
   a new one is as placed, rolls up on a click, peeks, and has no rule. Tests `FenceTests.S10916_`.
 - **[S-10917]** **Load repair**: a null item list or rule set is empty and the title is cleaned and cut, each said; the
   items' keys, a repeat across fences and a free twin are the desktop's load rules ([S-13002]). Tests `FenceTests.S10917_`.
 - **[S-10918]** **Which items stand in a fence is the arrangement** ([S-13010]): moving items in or out is one undo step
-  that puts every icon back where it stood, free or fenced, and its redo does it again. Tests `FenceTests.S10918_`.
-- **[S-10919]** **A removed fence's undo** brings it back with its items and takes their free icons away again
-  ([S-13009]). Tests `FenceTests.S10919_`.
-- **[S-10920]** **No item is both free and in a fence on one view** after load ([S-13001], [S-13002]). Tests
-  `FenceTests.S10920_`.
+  that puts every icon back where it stood, free or on its fence's cell, and its redo does it again. Tests `FenceTests.S10918_`.
+- **[S-10919]** **A removed fence's undo** brings it back with its items on their cells ([S-13009]). Tests `FenceTests.S10919_`.
+- **[S-10920]** **No item is both free and in a fence on one view**: its icon is the fence's; a fence stored before fences
+  laid icons gets them at load ([S-13001], [S-13044]). Tests `FenceTests.S10920_S13044_`.
 
-Needs a manual pass on the live desktop: its min, natural and max on the showcase views ([S-1810]); a press on an item
-selecting with the free icons, the band reaching into a fence, the arrows crossing between a fence and the free desktop;
-F2 in a fence; a drag out onto empty desktop, onto another fence and onto Explorer; a drop from Explorer onto it (and a
-right-drag with the shell's menu); a folder item taking a drop; roll-up by a click and hover peek with the pointer;
-the scroll fade; Remove fence's question; Narrator over its items (they are not in the desktop list's UI Automation
-order, [S-5576]: left).
+Needs a manual pass on the live desktop: its min, natural and max on the showcase views ([S-1810]); an icon moved into a
+fence, inside it and out of it with no jump at the edge; the fence moved with its icons; the band reaching into a fence;
+F2 in a fence; a drag off the desktop onto Explorer; a drop from Explorer onto it (and a right-drag with the shell's
+menu); a folder icon taking a drop; roll-up by a click and hover peek with the pointer over its icons; the wheel's scroll
+and its thumb; a resize snapping to whole boxes; Remove fence's question; two displays of different scale; the light
+theme's labels over a light card.

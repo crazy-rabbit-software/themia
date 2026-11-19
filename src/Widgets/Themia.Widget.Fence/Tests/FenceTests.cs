@@ -22,6 +22,7 @@ public sealed class FenceTests
         Rules = new FenceRuleSet { Types = [FenceFileType.Images], Extensions = [".psd"], NameContains = "invoice" },
         RolledUp = true,
         OpenHeight = 0.3,
+        Scroll = 2,
         Sort = DesktopSortBy.DateModified,
         RollUpOnClick = false,
         HoverPeek = false,
@@ -37,7 +38,7 @@ public sealed class FenceTests
         Assert.NotSame(config.Items, copy.Items);
         Assert.NotSame(config.Rules, copy.Rules);
         Assert.Equal(config.Items, copy.Items);
-        Assert.Equal((config.Name, config.RolledUp, config.OpenHeight, config.Sort, config.RollUpOnClick, config.HoverPeek), (copy.Name, copy.RolledUp, copy.OpenHeight, copy.Sort, copy.RollUpOnClick, copy.HoverPeek));
+        Assert.Equal((config.Name, config.RolledUp, config.OpenHeight, config.Scroll, config.Sort, config.RollUpOnClick, config.HoverPeek), (copy.Name, copy.RolledUp, copy.OpenHeight, copy.Scroll, copy.Sort, copy.RollUpOnClick, copy.HoverPeek));
         Assert.Equal(config.Rules.Types, copy.Rules.Types);
         Assert.Equal(config.Rules.Extensions, copy.Rules.Extensions);
         Assert.Equal(config.Rules.NameContains, copy.Rules.NameContains);
@@ -55,6 +56,7 @@ public sealed class FenceTests
         Assert.Equal(DesktopSortBy.DateModified, back.Sort);
         Assert.Equal([FenceFileType.Images], back.Rules.Types);
         Assert.True(back.RolledUp);
+        Assert.Equal(2, back.Scroll);
         Assert.False(back.HoverPeek);
 
         // A new fence: as placed, rolling up on a click, opening under the pointer, no rules.
@@ -115,9 +117,17 @@ public sealed class FenceTests
         var open = Kind.SizingOf(new FenceConfig());
         var rolled = Kind.SizingOf(new FenceConfig { RolledUp = true });
 
-        Assert.True(open.Natural.Height > FenceGrid.TitleHeight + 100);
+        Assert.True(open.Natural.Height > FenceGrid.TitleDip + 100);
         Assert.True(open.Max.Height >= SizeStretch.Ceiling);
-        Assert.Equal((FenceGrid.TitleHeight, FenceGrid.TitleHeight, FenceGrid.TitleHeight), (rolled.Min.Height, rolled.Natural.Height, rolled.Max.Height));
+        Assert.Equal((FenceGrid.TitleDip, FenceGrid.TitleDip, FenceGrid.TitleDip), (rolled.Min.Height, rolled.Natural.Height, rolled.Max.Height));
+
+        // [S-13040] Grid-fitted on any display (a cell 9.5..10.5 DIPs) the title bar is exactly its rows.
+        foreach (var screen in new[] { new ScreenMetrics(1536, 864), new ScreenMetrics(1920, 1080), new ScreenMetrics(1366, 728), new ScreenMetrics(2560, 1392) })
+        {
+            var limits = SizeFit.Limits(rolled, screen, 1)!;
+            Assert.Equal(FenceGrid.TitleCells, limits.Height.Range(0) * GridGeometry.GridDims(screen).Rows, 6);
+            Assert.Equal(FenceCells.TitleHeight(screen), limits.Height.Range(0), 9);
+        }
         Assert.Equal(open.Min.Width, rolled.Min.Width);
         Assert.True(rolled.Max.Width >= SizeStretch.Ceiling);
         Assert.True(Kind.Traits.HasFlag(WidgetTraits.NeverJoins));
@@ -134,60 +144,81 @@ public sealed class FenceTests
         ((IDesktopItemConfig)item.Config).Item = Desk + "a.txt";
         home.Widgets.AddRange([fence, item]);
         var history = new LayoutHistory(state);
+        var screen = new ScreenMetrics(1000, 800);
+        var box = DesktopGrid.IconSize(new SizeDip(76, 100), screen);
 
-        // Into the fence: one step of the arrangement.
+        // Into the fence: its icon is the fence's, laid on its first cell; one step of the arrangement.
         DesktopFences.MoveIn(home, fence.Id, [Desk + "a.txt"], 0);
+        DesktopFences.Lay(home, screen, box);
         Assert.True(history.Commit(state, UndoAction.Move));
-        Assert.Single(home.Widgets);
+        Assert.Equal(2, home.Widgets.Count);
+        var laid = home.Widgets.Single(w => w.Id == item.Id).Rect;
+        Assert.NotEqual(new FracRect(0.01, 0.01, 0.08, 0.125), laid);
 
-        // Its undo: the free icon back where it stood and the fence empty again; its redo: in the fence again.
+        // Its undo: the free icon back where it stood and the fence empty again; its redo: in the fence, on its cell.
         Assert.Equal(UndoAction.Move, history.Undo(state));
         Assert.Equal(2, home.Widgets.Count);
         Assert.Empty(((FenceConfig)home.Widgets.Single(w => w.Id == fence.Id).Config).Items);
-        Assert.Equal(item.Rect, home.Widgets.Single(w => w.Id == item.Id).Rect);
+        Assert.Equal(new FracRect(0.01, 0.01, 0.08, 0.125), home.Widgets.Single(w => w.Id == item.Id).Rect);
         Assert.Equal(UndoAction.Move, history.Redo(state));
-        Assert.Equal([Desk + "a.txt"], ((FenceConfig)home.Widgets.Single().Config).Items);
+        Assert.Equal([Desk + "a.txt"], ((FenceConfig)home.Widgets.Single(w => w.Id == fence.Id).Config).Items);
+        Assert.Equal(laid, home.Widgets.Single(w => w.Id == item.Id).Rect);
     }
 
     [Fact]
-    public void S10919_a_removed_fences_undo_brings_it_back_with_its_items_and_takes_their_free_icons_away()
+    public void S10919_a_removed_fences_undo_brings_it_back_with_its_items_on_their_cells()
+    {
+        var home = ViewState.Create("Home");
+        var state = new AppState { Views = [home], ActiveViewId = home.Id };
+        var screen = new ScreenMetrics(1000, 800);
+        var box = DesktopGrid.IconSize(new SizeDip(76, 100), screen);
+        var fence = WidgetInstance.Create(new WidgetId("fence"), new FracRect(0.5, 0.1, 0.3, 0.3));
+        home.Widgets.Add(fence);
+        foreach (var name in new[] { "a.txt", "b.txt" })
+        {
+            var icon = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0, 0, 0, 0));
+            ((IDesktopItemConfig)icon.Config).Item = Desk + name;
+            home.Widgets.Add(icon);
+            ((FenceConfig)fence.Config).Items.Add(Desk + name);
+        }
+
+        DesktopFences.Lay(home, screen, box);
+        var history = new LayoutHistory(state);
+        var cells = home.Widgets.Where(w => w.Config is IDesktopItemConfig).Select(w => w.Rect).ToList();
+
+        // Removed: the icons it showed stay where they stood, free now.
+        home.Widgets.Remove(fence);
+        DesktopFences.PutBack(home, fence, screen, box, (76, 100), key => new Themia.Sdk.DesktopItem(key, key, DesktopItemKind.File), (i, r) =>
+        {
+            var w = WidgetInstance.Create(new WidgetId("desktopItem"), r);
+            ((IDesktopItemConfig)w.Config).Item = i.Key;
+            return w;
+        });
+        Assert.True(history.Commit(state, UndoAction.Delete));
+        Assert.Equal(cells, home.Widgets.Where(w => w.Config is IDesktopItemConfig).Select(w => w.Rect));
+        Assert.Equal(2, DesktopViews.Free(home).Count);
+
+        Assert.Equal(UndoAction.Delete, history.Undo(state));
+        var back = Assert.Single(home.Widgets, w => w.Id == fence.Id);
+        Assert.Equal([Desk + "a.txt", Desk + "b.txt"], ((FenceConfig)back.Config).Items);
+        Assert.Empty(DesktopViews.Free(home));
+    }
+
+    [Fact]
+    public void S10920_S13044_load_gives_a_fences_items_their_icons_and_none_is_free_beside()
     {
         var home = ViewState.Create("Home");
         var state = new AppState { Views = [home], ActiveViewId = home.Id };
         var fence = WidgetInstance.Create(new WidgetId("fence"), new FracRect(0.5, 0.1, 0.3, 0.3));
         ((FenceConfig)fence.Config).Items = [Desk + "a.txt", Desk + "b.txt"];
-        home.Widgets.Add(fence);
-        var history = new LayoutHistory(state);
-
-        home.Widgets.Remove(fence);
-        DesktopFences.LayFree(home, [new Themia.Sdk.DesktopItem(Desk + "a.txt", "a.txt", DesktopItemKind.File), new Themia.Sdk.DesktopItem(Desk + "b.txt", "b.txt", DesktopItemKind.File)],
-            fence.X, fence.Y, new ScreenMetrics(1000, 800), (90, 100), (i, r) =>
-            {
-                var w = WidgetInstance.Create(new WidgetId("desktopItem"), r);
-                ((IDesktopItemConfig)w.Config).Item = i.Key;
-                return w;
-            });
-        Assert.True(history.Commit(state, UndoAction.Delete));
-        Assert.Equal(2, home.Widgets.Count);
-
-        Assert.Equal(UndoAction.Delete, history.Undo(state));
-        var back = Assert.Single(home.Widgets);
-        Assert.Equal(fence.Id, back.Id);
-        Assert.Equal([Desk + "a.txt", Desk + "b.txt"], ((FenceConfig)back.Config).Items);
-    }
-
-    [Fact]
-    public void S10920_load_keeps_no_item_both_free_and_in_a_fence_of_one_view()
-    {
-        var home = ViewState.Create("Home");
-        var state = new AppState { Views = [home], ActiveViewId = home.Id };
-        var fence = WidgetInstance.Create(new WidgetId("fence"), new FracRect(0.5, 0.1, 0.3, 0.3));
-        ((FenceConfig)fence.Config).Items = [Desk + "a.txt"];
         var item = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.01, 0.01, 0.08, 0.125));
         ((IDesktopItemConfig)item.Config).Item = Desk + "a.txt";
         home.Widgets.AddRange([fence, item]);
 
+        // Stored when a fence drew its own items: b.txt gets its icon (the real kind's), a.txt's is the fence's.
         Assert.NotEmpty(DesktopFences.Repair(state));
-        Assert.Equal([fence.Id], home.Widgets.Select(w => w.Id));
+        Assert.Equal(3, home.Widgets.Count);
+        Assert.Empty(DesktopViews.Free(home));
+        Assert.Empty(DesktopFences.Repair(state));
     }
 }

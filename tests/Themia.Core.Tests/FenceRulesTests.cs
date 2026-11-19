@@ -94,61 +94,59 @@ public sealed class FenceRulesTests
         Assert.Empty(FenceRules.Repair(rules));
     }
 
-    // ---- the grid ([S-10902]) ----------------------------------------------------------------------------------------
+    // ---- the cells ([S-10902], [S-13040]) ---------------------------------------------------------------------------
 
     private static readonly SizeDip Cell = new(76, 100);
 
+    /// <summary>A body at (10, 30), 240 × 250, of <see cref="Cell"/> boxes, from <paramref name="scroll"/>.</summary>
+    private static FenceGrid.Layout Body(int scroll = 0) => new(10, 30, 240, 250, Cell.Width, Cell.Height, scroll);
+
     [Fact]
-    public void S10902_S13019_a_fence_lays_its_cells_in_reading_order_box_against_box_from_its_edge()
+    public void S10902_S13019_a_fence_lays_its_cells_in_reading_order_box_against_box_from_its_body_corner()
     {
-        Assert.Equal(3, FenceGrid.Columns(240, Cell));
-        Assert.Equal(3, FenceGrid.Columns(228, Cell));
-        Assert.Equal(1, FenceGrid.Columns(50, Cell));
-        Assert.Equal(1, FenceGrid.Columns(double.NaN, Cell));
+        Assert.Equal(3, Body().Columns);
+        Assert.Equal(2, Body().Rows);
+        Assert.Equal(1, (Body() with { Width = 50 }).Columns);
+        Assert.Equal(1, (Body() with { Width = double.NaN }).Columns);
+        Assert.Equal(0, (Body() with { Height = 0 }).Rows);
 
         // [S-13019] No inset and no centring: the first cell is at the body's corner, as a free icon is at its cell's.
-        var first = FenceGrid.Cell(0, 3, Cell, 240);
-        var fourth = FenceGrid.Cell(3, 3, Cell, 240);
-        Assert.Equal((0d, 0d), (first.X, first.Y));
-        Assert.Equal(first.X, fourth.X);
-        Assert.Equal(first.Y + Cell.Height, fourth.Y);
-        Assert.Equal(first.X + (2 * Cell.Width), FenceGrid.Cell(2, 3, Cell, 240).X);
-        Assert.Equal(2 * Cell.Height, FenceGrid.ContentHeight(4, 3, Cell));
-        Assert.Equal(0, FenceGrid.ContentHeight(0, 3, Cell));
+        Assert.Equal((10d, 30d, Cell.Width, Cell.Height), Body().Cell(0));
+        Assert.Equal((10d, 130d, Cell.Width, Cell.Height), Body().Cell(3));
+        Assert.Equal((10 + (2 * Cell.Width), 30d, Cell.Width, Cell.Height), Body().Cell(2));
+        Assert.Equal(2, FenceGrid.RowsOf(4, 3));
+        Assert.Equal(0, FenceGrid.RowsOf(0, 3));
     }
 
     [Fact]
-    public void S10902_a_point_finds_its_item_and_the_place_a_drop_there_goes()
+    public void S13040_a_point_finds_the_place_its_cell_stands_for_scrolled_rows_counted()
     {
-        var c = FenceGrid.Cell(4, 3, Cell, 240);
-        Assert.Equal(4, FenceGrid.IndexAt(c.X + 10, c.Y + 10, 3, Cell, 240, 6));
-        Assert.Equal(-1, FenceGrid.IndexAt(c.X + 10, c.Y + 10, 3, Cell, 240, 4));
-        Assert.Equal(-1, FenceGrid.IndexAt(239, 1, 3, Cell, 240, 6));
-
-        // The left half of a cell goes before it, the right half after it; past the rows, the end.
-        Assert.Equal(4, FenceGrid.InsertAt(c.X + 10, c.Y + 10, 3, Cell, 240, 6));
-        Assert.Equal(5, FenceGrid.InsertAt(c.X + 60, c.Y + 10, 3, Cell, 240, 6));
-        Assert.Equal(6, FenceGrid.InsertAt(c.X, c.Y + 500, 3, Cell, 240, 6));
-        Assert.Equal(0, FenceGrid.InsertAt(c.X, -50, 3, Cell, 240, 6));
-        Assert.Equal(0, FenceGrid.InsertAt(10, 10, 3, Cell, 240, 0));
+        var (x, y, _, _) = Body().Cell(4);
+        Assert.Equal(4, Body().SlotAt(x + 10, y + 10));
+        Assert.Equal(-1, Body().SlotAt(x + 10, y + 500));
+        Assert.Equal(-1, Body().SlotAt(5, 40));
+        Assert.Equal(-1, Body().SlotAt(10 + (3 * Cell.Width) + 1, 40));
+        Assert.Equal(7, Body(scroll: 1).SlotAt(x + 10, y + 10));
     }
 
     [Fact]
-    public void S13021_the_preview_puts_the_dragged_items_at_their_slots_and_the_others_step_aside()
+    public void S13043_the_body_scrolls_by_whole_rows_and_shows_only_the_rows_it_holds()
     {
-        string[] shown = ["a", "b", "c", "d"];
+        // Ten items in three columns are four rows; the body shows two.
+        Assert.Equal(2, Body().MaxScroll(10));
+        Assert.Equal(2, Body(scroll: 99).Clamped(10).Scroll);
+        Assert.Equal(0, Body(scroll: -3).Clamped(10).Scroll);
+        Assert.Equal(0, Body(scroll: 2).Clamped(6).Scroll);
 
-        // From outside, before "c": the newcomers stand at slots 2 and 3, c and d step aside.
-        Assert.Equal(["a", "b", "x", "y", "c", "d"], FenceGrid.Preview(shown, ["x", "y"], 2, StringComparer.OrdinalIgnoreCase));
+        var scrolled = Body(scroll: 1);
+        Assert.False(scrolled.Shows(2));
+        Assert.True(scrolled.Shows(3));
+        Assert.True(scrolled.Shows(8));
+        Assert.False(scrolled.Shows(9));
 
-        // Inside the fence: "a" pointed before "d" lands between c and d, counted among the items that stay.
-        Assert.Equal(["b", "c", "a", "d"], FenceGrid.Preview(shown, ["A"], 3, StringComparer.OrdinalIgnoreCase).Select(k => k.ToLowerInvariant()));
-
-        // At the end, past the end, before the start; a key dragged twice stands once.
-        Assert.Equal(["a", "b", "c", "d", "x"], FenceGrid.Preview(shown, ["x"], 4, StringComparer.Ordinal));
-        Assert.Equal(["a", "b", "c", "d", "x"], FenceGrid.Preview(shown, ["x"], 99, StringComparer.Ordinal));
-        Assert.Equal(["x", "a", "b", "c", "d"], FenceGrid.Preview(shown, ["x", "x"], -3, StringComparer.Ordinal));
-        Assert.Equal(["x"], FenceGrid.Preview([], ["x"], 0, StringComparer.Ordinal));
+        // The first row it shows stands at the body's top: a whole row moved, the cells where they were.
+        Assert.Equal(Body().Cell(0), scrolled.Cell(3));
+        Assert.False((Body() with { Height = 0 }).Shows(0));
     }
 
     [Fact]
@@ -158,9 +156,9 @@ public sealed class FenceRulesTests
         var nine = FenceGrid.Around(9, Cell);
         var many = FenceGrid.Around(200, Cell);
 
-        Assert.Equal((Cell.Width, FenceGrid.TitleHeight + Cell.Height), (one.Width, one.Height));
-        Assert.Equal(3, FenceGrid.Columns(nine.Width, Cell));
-        Assert.Equal(FenceGrid.TitleHeight + FenceGrid.ContentHeight(9, 3, Cell), nine.Height);
-        Assert.Equal(FenceGrid.MaxColumns, FenceGrid.Columns(many.Width, Cell));
+        Assert.Equal((Cell.Width, FenceGrid.TitleDip + Cell.Height), (one.Width, one.Height));
+        Assert.Equal(3, (Body() with { Width = nine.Width }).Columns);
+        Assert.Equal(FenceGrid.TitleDip + (3 * Cell.Height), nine.Height);
+        Assert.Equal(FenceGrid.MaxColumns, (Body() with { Width = many.Width }).Columns);
     }
 }

@@ -156,7 +156,8 @@ public static class DesktopDisplays
             // [S-11887] The view's icons settled by the one rule: valid ones stay, an icon outside the work area,
             // of another box or on another icon is laid round them, the widgets and the stand-ins just laid in.
             var size = DesktopGrid.IconSize(new SizeDip(cellDip.Width, cellDip.Height), view.Screen);
-            var icons = held.Widgets.Where(w => !removes.Contains(w.Id) && w.Config is IDesktopItemConfig).ToList();
+            // [S-13042] A fence's icons are its own to lay: the settle moves the free ones.
+            var icons = DesktopFences.FreeIcons(held).Where(w => !removes.Contains(w.Id)).ToList();
             var others = held.Widgets.Where(w => !removes.Contains(w.Id) && w.Config is not IDesktopItemConfig).Select(w => w.Rect).ToList();
             others.AddRange(adds.Where(a => a.ViewId == held.Id).Select(a => a.Rect));
             var settled = DesktopGrid.Settle([.. icons.Select(w => w.Rect)], others, size, view.Screen);

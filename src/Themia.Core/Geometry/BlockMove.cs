@@ -9,19 +9,28 @@ namespace Themia.Core.Geometry;
 /// <see cref="Step"/> says whether it changed (another cell), so the surface touches the cards, the local grid and the
 /// border marks only then. Pure; the surface holds one per move.
 /// </para>
+/// <para>
+/// [S-13041] With <c>cell</c> the held card's landing is a cell of what it lands in (a fence's body on the desktop
+/// icon grid, <c>DesktopFences.DropCell</c>): the block follows the held card there. The one drop computation for the
+/// free desktop and a fence: there is no other.
+/// </para>
 /// </summary>
 public sealed class BlockMove
 {
     private readonly ScreenMetrics _screen;
     private readonly double _rasterScale;
+    private readonly int _held;
+    private readonly Func<FracRect, FracRect>? _cell;
 
-    public BlockMove(IReadOnlyList<FracRect> start, IReadOnlyList<FracRect>? apart, ScreenMetrics screen, double rasterScale)
+    public BlockMove(IReadOnlyList<FracRect> start, IReadOnlyList<FracRect>? apart, ScreenMetrics screen, double rasterScale, int held = -1, Func<FracRect, FracRect>? cell = null)
     {
         ArgumentNullException.ThrowIfNull(start);
         Start = start;
         Apart = apart;
         _screen = screen;
         _rasterScale = rasterScale;
+        _held = held;
+        _cell = cell;
     }
 
     /// <summary>The rects the moving cards started at.</summary>
@@ -43,6 +52,14 @@ public sealed class BlockMove
         if (Apart is { } apart)
         {
             landing = BlockGeometry.Apart(Start, landing, Landing, apart, _screen, _rasterScale);
+        }
+
+        // [S-13041] The held card on the cell of what it lands in: the block follows it.
+        if (_cell is { } cellOf && _held >= 0 && _held < Start.Count)
+        {
+            var at = At(Start[_held], landing);
+            var cell = cellOf(at);
+            landing = new BlockGeometry.Delta(landing.Dx + (cell.X - at.X), landing.Dy + (cell.Y - at.Y));
         }
 
         var changed = landing != Landing;

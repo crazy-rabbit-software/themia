@@ -69,12 +69,12 @@ public static class WidgetScale
     /// <see cref="Effective"/>, but a desktop icon is drawn at 1 whatever the display's scale or its own. Its
     /// size is the desktop's one icon size, and the icon grid packs it at that cell ([S-5589], [S-5594]): a
     /// scaled icon was painted wider than its cell, so the last column ran past the work area's side and
-    /// was cut off (2026-11-15).
+    /// was cut off (2026-11-15). [S-13040] So is a fence: its body is the icons' cells, its title bar grid rows.
     /// </summary>
     public static double For(WidgetInstance widget, double display, double? previewed = null)
     {
         ArgumentNullException.ThrowIfNull(widget);
-        return widget.Config is IDesktopItemConfig ? 1.0 : Effective(display, previewed ?? widget.Scale);
+        return widget.Config is IDesktopItemConfig or IHoldsDesktopItems ? 1.0 : Effective(display, previewed ?? widget.Scale);
     }
 
     /// <summary>The whole number of percent a scale reads as, for its label.</summary>

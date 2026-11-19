@@ -39,13 +39,18 @@ public static class DesktopViews
         return shown;
     }
 
-    /// <summary>[S-5527] The keys of the free desktop icons this view holds (an item widget each): a Chosen view's chosen set.</summary>
+    /// <summary>
+    /// [S-5527] The keys of the free desktop icons this view holds (an item widget each): a Chosen view's chosen set.
+    /// [S-13042] An item a fence of the view holds is not free: its icon is the fence's.
+    /// </summary>
     public static IReadOnlySet<string> Free(ViewState view)
     {
         ArgumentNullException.ThrowIfNull(view);
-        return new HashSet<string>(
+        var free = new HashSet<string>(
             view.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item).Where(key => key.Length > 0),
             DesktopItemKeys.Comparer);
+        free.ExceptWith(DesktopFences.Held(view));
+        return free;
     }
 
     /// <summary>

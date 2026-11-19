@@ -90,7 +90,8 @@ internal sealed partial class AppHost
 
             // [S-11887] The view's icons as one arrangement: no two overlap, none lands on a widget.
             var (fromBox, toBox) = (DesktopGrid.IconSize(from, metrics), DesktopGrid.IconSize(to, metrics));
-            var icons = view.Widgets.Where(w => w.Config is IDesktopItemConfig).ToList();
+            // [S-13042] A fence's icons are laid by their fence at the new box: the free ones rescale.
+            var icons = DesktopFences.FreeIcons(view);
             var others = view.Widgets.Where(w => w.Config is not IDesktopItemConfig).Select(w => w.Rect).ToList();
             var rescaled = DesktopGrid.Rescale([.. icons.Select(w => w.Rect)], others, fromBox, toBox, metrics);
             for (var i = 0; i < icons.Count; i++)

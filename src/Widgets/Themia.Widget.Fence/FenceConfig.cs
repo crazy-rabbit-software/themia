@@ -31,6 +31,9 @@ public sealed class FenceConfig : WidgetConfig, IHoldsDesktopItems
     public double OpenHeight { get; set; }
 
     /// <inheritdoc />
+    public int Scroll { get; set; }
+
+    /// <inheritdoc />
     public DesktopSortBy? Sort { get; set; }
 
     /// <summary>[S-10912] A click on the title bar rolls the fence up (and unrolls it), as Fences' own; on by default.</summary>
@@ -52,6 +55,7 @@ public sealed class FenceConfig : WidgetConfig, IHoldsDesktopItems
         Rules = Rules.Clone(),
         RolledUp = RolledUp,
         OpenHeight = OpenHeight,
+        Scroll = Scroll,
         Sort = Sort,
         RollUpOnClick = RollUpOnClick,
         HoverPeek = HoverPeek,

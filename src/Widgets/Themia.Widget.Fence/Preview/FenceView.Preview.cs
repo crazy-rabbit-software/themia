@@ -5,16 +5,15 @@ using Themia.Sdk;
 namespace Themia.Widget.Fence;
 
 /// <summary>
-/// [S-10915] Debug renders only ([S-1917]): a fence in each of its states, on the sample's items (names on no disk).
-/// <c>sample</c> the sample; <c>empty</c> a new fence; <c>selected</c> two items selected, the focus on one;
-/// <c>inactive</c> the same while another window has the keyboard; <c>renaming</c> an item's rename box; <c>title</c> the
-/// title's rename box; <c>rolledUp</c> the title bar alone; <c>many</c> more items than it shows (it scrolls, the bottom
-/// fading); <c>cut</c> an item cut to the clipboard; <c>sorted</c> its items by name; <c>dropping</c> [S-13021] the desktop's
-/// drag of two items over it, their ghosts at their slots before the second item, the rest stepped aside.
+/// [S-10915] Debug renders only ([S-1917]): a fence in each of its states, on the sample's items (names on no disk), drawn
+/// in its cells of the icon grid as the desktop's icons are. <c>sample</c> the sample; <c>empty</c> a new fence;
+/// <c>selected</c> two items selected, the focus on one; <c>inactive</c> the same while another window has the keyboard;
+/// <c>title</c> the title's rename box; <c>rolledUp</c> the title bar alone; <c>many</c> more items than it shows (the
+/// body's thumb); <c>cut</c> an item cut to the clipboard; <c>sorted</c> its items by name.
 /// </summary>
 internal sealed partial class FenceView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "empty", "selected", "inactive", "renaming", "title", "rolledUp", "many", "cut", "sorted", "dropping"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "empty", "selected", "inactive", "title", "rolledUp", "many", "cut", "sorted"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -33,13 +32,6 @@ internal sealed partial class FenceView : IWidgetPreviewState
                     f.Inactive = state == "inactive";
                 }).ConfigureAwait(true);
                 break;
-            case "renaming":
-                await ShowFixtureAsync(new FenceConfig { Name = name }, SampleItems, f =>
-                {
-                    f.Selected.Add(SampleItems[0].Key);
-                    f.Renaming = SampleItems[0].Key;
-                }).ConfigureAwait(true);
-                break;
             case "title":
                 await ShowFixtureAsync(new FenceConfig { Name = name }, SampleItems).ConfigureAwait(true);
                 OpenTitleBox();
@@ -53,13 +45,8 @@ internal sealed partial class FenceView : IWidgetPreviewState
             case "cut":
                 await ShowFixtureAsync(new FenceConfig { Name = name }, SampleItems, f => f.Faded.Add(SampleItems[3].Key)).ConfigureAwait(true);
                 break;
-            case "dropping":
-                await ShowFixtureAsync(new FenceConfig { Name = name }, SampleItems.Take(4), f => f.Dragged = [SampleItems[4], SampleItems[5]]).ConfigureAwait(true);
-                ShowPreview(1);
-                await Task.WhenAll(_loads).ConfigureAwait(true);
-                break;
             case "sorted":
-                await ShowFixtureAsync(new FenceConfig { Name = name }, [.. DesktopItemOrder.Sort(SampleItems)]).ConfigureAwait(true);
+                await ShowFixtureAsync(new FenceConfig { Name = name, Sort = Themia.Core.Desktop.DesktopSortBy.Name }, SampleItems).ConfigureAwait(true);
                 break;
             default:
                 await ShowSampleAsync().ConfigureAwait(true);

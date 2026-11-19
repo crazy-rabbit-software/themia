@@ -17,6 +17,8 @@ internal sealed class FenceFake : WidgetConfig, IHoldsDesktopItems
 
     public double OpenHeight { get; set; }
 
+    public int Scroll { get; set; }
+
     public DesktopSortBy? Sort { get; set; }
 
     public string Name { get; set; } = string.Empty;
@@ -25,7 +27,7 @@ internal sealed class FenceFake : WidgetConfig, IHoldsDesktopItems
 
     public FenceQuery Query { get; set; } = new();
 
-    public override WidgetConfig Clone() => new FenceFake { Items = [.. Items], Rules = Rules.Clone(), RolledUp = RolledUp, OpenHeight = OpenHeight, Sort = Sort, Name = Name, Source = Source, Query = Query.Clone() };
+    public override WidgetConfig Clone() => new FenceFake { Items = [.. Items], Rules = Rules.Clone(), RolledUp = RolledUp, OpenHeight = OpenHeight, Scroll = Scroll, Sort = Sort, Name = Name, Source = Source, Query = Query.Clone() };
 }
 
 /// <summary>[S-13000]..[S-13014] The fences' rules: membership, routing, the reconcile, making one, taking it away, load.</summary>
@@ -54,7 +56,11 @@ public sealed class DesktopFencesTests
 
     private static WidgetInstance Create(DesktopItem item, FracRect rect) => new() { Id = Guid.NewGuid().ToString("n"), Config = new DeskIconFake { Item = item.Key }, Rect = rect };
 
-    private static IEnumerable<string> FreeKeys(ViewState view) => view.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item.Replace(Desk, string.Empty, StringComparison.Ordinal));
+    /// <summary>[S-13042] A new icon for a key, as the host makes one for an item put into a fence.</summary>
+    private static WidgetInstance Make(string key) => new() { Id = Guid.NewGuid().ToString("n"), Config = new DeskIconFake { Item = key }, Rect = new FracRect(0, 0, 0, 0) };
+
+    /// <summary>[S-13042] The free icons: item widgets no fence holds.</summary>
+    private static IEnumerable<string> FreeKeys(ViewState view) => DesktopViews.Free(view).Select(k => k.Replace(Desk, string.Empty, StringComparison.Ordinal)).Order();
 
     private static IEnumerable<string> Names(WidgetInstance fence) => F(fence).Items.Select(k => k.Replace(Desk, string.Empty, StringComparison.Ordinal));
 
@@ -103,12 +109,15 @@ public sealed class DesktopFencesTests
         home.Widgets.AddRange([target, other, Icon("a.txt", new FracRect(0, 0, 0.09, 0.125))]);
         work.Widgets.Add(Icon("a.txt", new FracRect(0, 0, 0.09, 0.125)));
 
-        var added = DesktopFences.MoveIn(home, "f", [Desk + "a.txt", Desk + "b.txt"], 1);
+        var added = DesktopFences.MoveIn(home, "f", [Desk + "a.txt", Desk + "b.txt"], 1, Make);
 
         Assert.Equal(2, added);
         Assert.Equal(["x.txt", "a.txt", "b.txt", "y.txt"], Names(target));
         Assert.Empty(Names(other));
         Assert.Empty(FreeKeys(home));
+
+        // [S-13042] The free icon is the fence's now (kept, laid on its cell); one with none got one.
+        Assert.Equal(2, home.Widgets.Count(w => w.Config is IDesktopItemConfig));
 
         // Another view keeps its own free icon: a fence lives on one view.
         Assert.Equal(["a.txt"], FreeKeys(work));
@@ -122,13 +131,13 @@ public sealed class DesktopFencesTests
         home.Widgets.Add(fence);
 
         // "a" dropped before "d" (index 3 of the order as shown): it goes between c and d.
-        Assert.Equal(0, DesktopFences.MoveIn(home, "f", [Desk + "a"], 3));
+        Assert.Equal(0, DesktopFences.MoveIn(home, "f", [Desk + "a"], 3, Make));
         Assert.Equal(["b", "c", "a", "d"], Names(fence));
 
         // To the end, and to the front.
-        DesktopFences.MoveIn(home, "f", [Desk + "b"], 99);
+        DesktopFences.MoveIn(home, "f", [Desk + "b"], 99, Make);
         Assert.Equal(["c", "a", "d", "b"], Names(fence));
-        DesktopFences.MoveIn(home, "f", [Desk + "d"], -5);
+        DesktopFences.MoveIn(home, "f", [Desk + "d"], -5, Make);
         Assert.Equal(["d", "c", "a", "b"], Names(fence));
     }
 
@@ -219,14 +228,14 @@ public sealed class DesktopFencesTests
         var rect = DesktopFences.AroundIcons(icons, 3, cell, Screen)!.Value;
 
         Assert.True(rect.X <= 0.10 + 1e-9);
-        Assert.True(rect.Y * Screen.Height <= (0.25 * Screen.Height) - FenceGrid.TitleHeight + 1e-6);
+        Assert.True(rect.Y * Screen.Height <= (0.25 * Screen.Height) - (FenceCells.TitleHeight(Screen) * Screen.Height) + 1e-6);
         Assert.True((rect.X + rect.W) >= 0.26 - 1e-9);
         Assert.True((rect.Y + rect.H) >= 0.5 - 1e-9);
 
         // At least what shows the three without scrolling.
         var need = FenceGrid.Around(3, cell);
         Assert.True(rect.W * Screen.Width >= need.Width - 1e-6);
-        Assert.True(rect.H * Screen.Height >= need.Height - 1e-6);
+        Assert.True(rect.H * Screen.Height >= need.Height - FenceGrid.TitleDip + (FenceCells.TitleHeight(Screen) * Screen.Height) - 1e-6);
         Assert.Null(DesktopFences.AroundIcons([], 0, cell, Screen));
     }
 
@@ -344,7 +353,7 @@ public sealed class DesktopFencesTests
     // ---- load ([S-13002]) -------------------------------------------------------------------------------------------
 
     [Fact]
-    public void S13002_load_drops_bad_and_repeated_items_the_first_fence_wins_and_a_free_twin_goes()
+    public void S13002_S13044_load_drops_bad_and_repeated_items_the_first_fence_wins_and_a_held_item_gets_its_icon()
     {
         var home = ViewState.Create("Home");
         var work = ViewState.Create("Work");
@@ -362,18 +371,22 @@ public sealed class DesktopFencesTests
         var elsewhere = Fence("h", "a.txt");
         work.Widgets.Add(elsewhere);
 
-        var repairs = DesktopFences.Repair(state);
+        var repairs = DesktopFences.Repair(state, (key, _) => Make(key));
 
         Assert.NotEmpty(repairs);
         Assert.Equal(["a.txt", "b.txt"], Names(first));
         Assert.Equal(["c.txt"], Names(second));
         Assert.Equal(["d.txt"], FreeKeys(home));
+
+        // [S-13044] Stored before fences laid icons: each held item has its icon now, one per item; c.txt's is its own.
+        Assert.Equal(["a.txt", "b.txt", "c.txt", "d.txt"], home.Widgets.Select(w => w.Config).OfType<IDesktopItemConfig>().Select(c => c.Item.Replace(Desk, string.Empty, StringComparison.Ordinal)).Order());
+        Assert.Single(work.Widgets, w => w.Config is IDesktopItemConfig);
         Assert.Equal(["a.txt"], Names(elsewhere));
         Assert.Equal(0, F(second).OpenHeight);
         Assert.Null(F(second).Sort);
         Assert.Equal([".pdf", ".docx"], F(second).Rules.Extensions);
 
-        // Whole now: a second pass says nothing.
-        Assert.Empty(DesktopFences.Repair(state));
+        // Whole now: a second pass says nothing (the icons are made once).
+        Assert.Empty(DesktopFences.Repair(state, (key, _) => Make(key)));
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Widgets;
-using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
 using Themia.Core.Widgets;
@@ -17,29 +16,24 @@ using Windows.Foundation;
 namespace Themia.Widget.Fence;
 
 /// <summary>
-/// [S-10902] [S-10903] [S-13011] The fence's items: one cell each, drawn as a desktop icon is (the shell's icon with its
-/// overlay over its name, the desktop icon's highlight, a cut or hidden item faded), every gesture the desktop's.
+/// [S-10902] [S-10903] [S-13023] The cells a fence draws itself, for what is no desktop icon: the files a search fence finds
+/// and a picture's items (the sample, a render's states). Each is drawn as a desktop icon is (the shell's icon with its
+/// overlay over its name, the desktop icon's highlight, a cut item faded), in the body's cells of the desktop icon grid
+/// (<see cref="FenceGrid"/>, the one layout). A fence's desktop items are never drawn here: they are the desktop's icons.
 /// </summary>
 internal sealed partial class FenceView
 {
-    /// <summary>The cells by item key, and the keys in the order they are shown.</summary>
-    private readonly Dictionary<string, Cell> _cells = new(DesktopItemKeys.Comparer);
+    /// <summary>The cells by key, and the keys in the order they are shown.</summary>
+    private readonly Dictionary<string, Cell> _cells = new(StringComparer.OrdinalIgnoreCase);
     private List<string> _shown = [];
 
-    /// <summary>[S-13013] The standing sort's order of the items, asked once per change of the items or the sort; null to ask again.</summary>
-    private IReadOnlyList<string>? _order;
-    private DesktopSortBy? _orderBy;
-
-    /// <summary>A left press on an item that may become its drag: the item and where it was pressed (the view's DIPs).</summary>
-    private (string Key, Point At, bool Modified)? _press;
+    /// <summary>A left press on a found file that may become its drag: the file and where it was pressed (the view's DIPs).</summary>
+    private (string Key, Point At)? _press;
 
     /// <summary>The icon loads under way, for a picture that waits for them (the sample).</summary>
     private readonly List<Task> _loads = [];
 
-    /// <summary>[S-5543] The cell showing its rename box.</summary>
-    private Cell? _renameCell;
-
-    /// <summary>One item's cell.</summary>
+    /// <summary>One file's cell.</summary>
     private sealed class Cell
     {
         public required string Key { get; init; }
@@ -58,8 +52,6 @@ internal sealed partial class FenceView
 
         public DesktopItem Item { get; set; } = null!;
 
-        public TextBox? Box { get; set; }
-
         public IDisposable? Hover { get; set; }
 
         public bool Hovered { get; set; }
@@ -72,39 +64,22 @@ internal sealed partial class FenceView
         public GhostIcon? Ghost { get; set; }
     }
 
-    /// <summary>[S-13013] The items in the order the fence shows them: a preview's own, else its config's (by its standing sort).</summary>
+    /// <summary>What the fence draws itself: a picture's items, or what a search found (the newest first); none for a fence of desktop icons.</summary>
     private List<DesktopItem> ShownItems()
     {
         if (_fixture.On)
         {
-            return [.. _fixture.Items];
+            return _config.Sort is null ? [.. _fixture.Items] : [.. DesktopItemOrder.Sort(_fixture.Items)];
         }
 
-        // [S-13023] A search fence shows what its search found, the newest first.
-        if (Searches)
-        {
-            return [.. _found.Select(AsItem)];
-        }
-
-        if (_order is null || _orderBy != _config.Sort)
-        {
-            _orderBy = _config.Sort;
-            _order = _config.Sort is { } by && _config.Items.Count > 1 ? Fences.Order(_config.Items, by) : [.. _config.Items];
-        }
-
-        var desk = _host.DesktopItems;
-        return [.. _order.Select(key => desk.Find(key) ?? new DesktopItem(key, DesktopItemKeys.FallbackName(key), DesktopItemKind.File))];
+        return Searches ? [.. _found.Select(AsItem)] : [];
     }
 
-    /// <summary>Whether the cached order holds exactly the config's items.</summary>
-    private bool SameItems()
-        => _order is { } order && order.Count == _config.Items.Count && order.ToHashSet(DesktopItemKeys.Comparer).SetEquals(_config.Items);
-
-    /// <summary>One cell per item shown: kept for an item still there, made for a new one, taken down for one gone.</summary>
+    /// <summary>One cell per file shown: kept for one still there, made for a new one, taken down for one gone.</summary>
     private void SyncCells(IReadOnlyList<DesktopItem> items)
     {
         _loads.RemoveAll(task => task.IsCompleted);
-        var keep = new HashSet<string>(items.Select(i => i.Key), DesktopItemKeys.Comparer);
+        var keep = new HashSet<string>(items.Select(i => i.Key), StringComparer.OrdinalIgnoreCase);
         foreach (var gone in _cells.Keys.Where(k => !keep.Contains(k)).ToList())
         {
             DropCell(_cells[gone]);
@@ -115,17 +90,8 @@ internal sealed partial class FenceView
         {
             if (!_cells.TryGetValue(item.Key, out var cell))
             {
-                // [S-13021] An item dropped in arrives in its ghost, where the preview showed it.
-                if (Adopt(item.Key) is { } ghost)
-                {
-                    cell = ghost;
-                }
-                else
-                {
-                    cell = MakeCell(item.Key);
-                    _canvas.Children.Add(cell.Root);
-                }
-
+                cell = MakeCell(item.Key);
+                _canvas.Children.Add(cell.Root);
                 _cells[item.Key] = cell;
             }
 
@@ -140,10 +106,6 @@ internal sealed partial class FenceView
         }
 
         _shown = [.. items.Select(i => i.Key)];
-        if (_preview is null)
-        {
-            DropGhosts();
-        }
     }
 
     private Cell MakeCell(string key)
@@ -193,11 +155,6 @@ internal sealed partial class FenceView
         cell.IconRequest++;
         cell.Hover?.Dispose();
         cell.Hover = null;
-        if (ReferenceEquals(_renameCell, cell))
-        {
-            CloseItemBox();
-        }
-
         _canvas.Children.Remove(cell.Root);
     }
 
@@ -245,19 +202,17 @@ internal sealed partial class FenceView
         catch (Exception ex)
         {
             // An icon is decoration: the name still shows.
-            Log.Warn(Scope, "could not load a fence item's icon", ex);
+            Log.Warn(Scope, "could not load a fence file's icon", ex);
         }
     }
 
-    /// <summary>[S-5602] Every cell's look from the desktop's one selection.</summary>
+    /// <summary>[S-5602] Every cell's look: a search's own selection, a picture's set one.</summary>
     private void PaintCells()
     {
-        foreach (var cell in _cells.Values.Concat(_ghosts.Values))
+        foreach (var cell in _cells.Values)
         {
             PaintCell(cell);
         }
-
-        SyncItemBox();
     }
 
     /// <summary>
@@ -270,26 +225,20 @@ internal sealed partial class FenceView
 
     private void PaintCell(Cell cell)
     {
-        var desk = _host.DesktopItems;
         var key = cell.Key;
-        var selected = _fixture.On ? _fixture.Selected.Contains(key) : Searches ? _picks.IsSelected(key) : desk.IsSelected(key);
-        var focus = _fixture.On ? _fixture.Focus == key : Searches ? _picks.Cues && _picks.IsFocus(key) : desk.ShowsFocus(key);
-        var active = _fixture.On ? !_fixture.Inactive : Searches || desk.Active;
-        var target = DesktopItemKeys.Comparer.Equals(_dropKey, key);
-        SelectionChrome.Paint(cell.Chrome, new SelectionCue(selected, cell.Hovered, focus, focus, active, target), Look);
-        var faded = _fixture.On ? _fixture.Faded.Contains(key) : !Searches && (desk.IsCut(key) || cell.Item?.Hidden == true);
-        cell.IconHost.Opacity = faded ? SelectionLook.Faded : 1;
-
-        // [S-13021] A dragged item's ghost in the preview, see-through as the drag's own picture.
-        cell.Stack.Opacity = Ghosted(key) ? SelectionLook.DragOpacity : 1;
+        var selected = _fixture.On ? _fixture.Selected.Contains(key) : _picks.IsSelected(key);
+        var focus = _fixture.On ? _fixture.Focus == key : _picks.Cues && _picks.IsFocus(key);
+        var active = !_fixture.On || !_fixture.Inactive;
+        SelectionChrome.Paint(cell.Chrome, new SelectionCue(selected, cell.Hovered, focus, focus, active, false), Look);
+        cell.IconHost.Opacity = _fixture.On && _fixture.Faded.Contains(key) ? SelectionLook.Faded : 1;
     }
 
-    // ---- gestures ([S-13011]) ----------------------------------------------------------------------
+    // ---- a search's files ([S-13023]) --------------------------------------------------------------
 
-    /// <summary>A left press selects as the desktop does (Ctrl toggles, Shift the range) and may become the item's drag; never the card's move.</summary>
+    /// <summary>A left press selects in the fence's own selection (Ctrl toggles, Shift the range) and may become the file's drag; never the card's move.</summary>
     private void OnItemPressed(Cell cell, PointerRoutedEventArgs e)
     {
-        if (!Acts || cell.Box is not null)
+        if (!Acts || !Searches)
         {
             return;
         }
@@ -302,21 +251,10 @@ internal sealed partial class FenceView
         }
 
         var keys = e.KeyModifiers;
-        var ctrl = keys.HasFlag(Windows.System.VirtualKeyModifiers.Control);
-        var shift = keys.HasFlag(Windows.System.VirtualKeyModifiers.Shift);
-        if (Searches)
-        {
-            OnFoundPressed(cell, point, ctrl, shift);
-            return;
-        }
-
-        _host.DesktopItems.Press(cell.Key, ctrl, shift);
-        _press = (cell.Key, point.Position, ctrl || shift);
-        PointerMoved -= OnPressMoved;
-        PointerMoved += OnPressMoved;
+        OnFoundPressed(cell, point, keys.HasFlag(Windows.System.VirtualKeyModifiers.Control), keys.HasFlag(Windows.System.VirtualKeyModifiers.Shift));
     }
 
-    /// <summary>[S-5549] Past the dead zone with the button held, the press is the shell's drag of the selection, from this fence.</summary>
+    /// <summary>[S-5549] Past the dead zone with the button held, the press is the file's drag.</summary>
     private void OnPressMoved(object sender, PointerRoutedEventArgs e)
     {
         if (_press is not { } press)
@@ -343,50 +281,37 @@ internal sealed partial class FenceView
         e.Handled = true;
         if (_cells.TryGetValue(press.Key, out var cell))
         {
-            _ = Searches ? DragFoundAsync(cell, point) : DragAsync(cell, point);
+            _ = DragFoundAsync(cell, point);
         }
     }
 
     private void OnItemReleased(Cell cell, PointerRoutedEventArgs e)
     {
-        if (_press is { } press && DesktopItemKeys.Comparer.Equals(press.Key, cell.Key))
+        if (_press is { } press && string.Equals(press.Key, cell.Key, StringComparison.OrdinalIgnoreCase))
         {
-            if (Searches)
-            {
-                OnFoundReleased(cell);
-            }
-            else
-            {
-                _host.DesktopItems.Release(cell.Key);
-            }
+            OnFoundReleased(cell);
         }
 
         _press = null;
         PointerMoved -= OnPressMoved;
     }
 
-    /// <summary>[S-5530] A double-click opens the selection (the item alone when it is not selected).</summary>
+    /// <summary>[S-5530] A double-click opens the selection (the file alone when it is not selected).</summary>
     private void OnItemDoubleTapped(Cell cell, DoubleTappedRoutedEventArgs e)
     {
-        if (!Acts || cell.Box is not null)
+        if (!Acts || !Searches)
         {
             return;
         }
 
         e.Handled = true;
-        if (Searches)
-        {
-            OpenFound(cell.Key);
-            return;
-        }
-
-        _host.DesktopItems.Open(cell.Key);
+        OpenFound(cell.Key);
     }
 
-    /// <summary>[S-5548] A right-click is the desktop's menu for the selection (Shift: the shell's classic one at once).</summary>
+    /// <summary>[S-5548] A right-click is the shell's menu for the selection.</summary>
     private void OnItemRightTapped(Cell cell, RightTappedRoutedEventArgs e)
     {
-        if (!Acts || XamlRoot is not { } root)
+        if (!Acts || !Searches || XamlRoot is not { } root)
         {
             return;
         }
@@ -396,58 +321,14 @@ internal sealed partial class FenceView
         var at = e.GetPosition(null);
         var window = Window();
         var (x, y) = _host.ExplorerMenus.ToScreen(window, (int)Math.Round(at.X * scale), (int)Math.Round(at.Y * scale));
-        if (Searches)
-        {
-            FoundMenu(cell, x, y, window);
-            return;
-        }
-
-        _host.DesktopItems.Context(cell.Key, x, y, window, classic: SelectionInput.ShiftHeld());
+        FoundMenu(cell, x, y, window);
     }
 
-    /// <summary>The window this view is drawn in, for the menus and the drag's source surface.</summary>
+    /// <summary>The window this view is drawn in, for the menus.</summary>
     private nint Window()
         => XamlRoot?.ContentIslandEnvironment is { } environment
             ? Microsoft.UI.Win32Interop.GetWindowFromWindowId(environment.AppWindowId)
             : 0;
-
-    /// <summary>
-    /// [S-5549] [S-13006] One drag of the selection from this fence, from the host's beginning through XAML's drag to its
-    /// end: onto empty desktop the items leave the fence where they are let go, onto another fence they move there, onto a
-    /// folder, Explorer, an app or the Recycle Bin the target does what it does. The ghost is Explorer's, of this fence's
-    /// pictures. The host's state is cleared on every way out.
-    /// </summary>
-    private async Task DragAsync(Cell held, PointerPoint point)
-    {
-        var desk = _host.DesktopItems;
-        ItemDragOffer? drag = null;
-        try
-        {
-            drag = desk.BeginDrag(held.Key, Window());
-            if (drag is null)
-            {
-                return;
-            }
-
-            var grab = point.Position;
-            var square = held.IconHost.TransformToVisual(this).TransformBounds(new Rect(0, 0, held.IconHost.ActualWidth, held.IconHost.ActualHeight));
-            var anchor = new Point(Math.Clamp(grab.X - square.X, 0, square.Width), Math.Clamp(grab.Y - square.Y, 0, square.Height));
-            var offer = drag;
-            var effect = await ItemDrag.StartAsync(this, point, offer, () => Ghost(held, square.Width, anchor, offer, desk.IsSelected)).ConfigureAwait(true);
-            Log.Debug(Scope, $"a drag from a fence ended: {effect}");
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "a fence item's drag failed", ex);
-        }
-        finally
-        {
-            if (drag is not null)
-            {
-                desk.EndDrag(drag);
-            }
-        }
-    }
 
     /// <summary>[S-5564] Explorer's ghost from this fence: the held icon in front, up to two more selected ones behind, the count in a badge.</summary>
     private DragPicture? Ghost(Cell held, double side, Point anchor, ItemDragOffer offer, Func<string, bool> isSelected)
@@ -466,7 +347,7 @@ internal sealed partial class FenceView
                 break;
             }
 
-            if (!DesktopItemKeys.Comparer.Equals(key, held.Key) && _cells.TryGetValue(key, out var other) && other.Ghost is { } picture)
+            if (!string.Equals(key, held.Key, StringComparison.OrdinalIgnoreCase) && _cells.TryGetValue(key, out var other) && other.Ghost is { } picture)
             {
                 icons.Add(picture);
             }
@@ -474,111 +355,5 @@ internal sealed partial class FenceView
 
         var count = Math.Max(Math.Max(1, selected.Count), offer.Paths.Count);
         return ItemDrag.Ghost(icons, count, side, anchor, XamlRoot?.RasterizationScale ?? 1.0);
-    }
-
-    // ---- F2 on an item ([S-5543]) ------------------------------------------------------------------
-
-    /// <summary>The box shows on the item the host renames in this fence, and goes when it no longer does.</summary>
-    private void SyncItemBox()
-    {
-        var key = _fixture.On ? _fixture.Renaming
-            : Searches ? null
-            : WidgetId is { } id && string.Equals(_host.DesktopItems.RenamingWidget, id, StringComparison.Ordinal) ? _host.DesktopItems.RenamingKey : null;
-        if (key is null || !_cells.TryGetValue(key, out var cell) || !DesktopRename.CanRename(cell.Item))
-        {
-            CloseItemBox();
-            return;
-        }
-
-        if (ReferenceEquals(_renameCell, cell))
-        {
-            return;
-        }
-
-        CloseItemBox();
-        var (text, select) = DesktopRename.Edit(cell.Item);
-        var box = new TextBox
-        {
-            Text = text,
-            TextAlignment = TextAlignment.Center,
-            TextWrapping = TextWrapping.Wrap,
-            AcceptsReturn = false,
-            IsSpellCheckEnabled = false,
-            MinHeight = 0,
-            MinWidth = 0,
-            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
-            Margin = new Thickness(-DesktopCell.SideInset, 0, -DesktopCell.SideInset, 0),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            FontSize = FamilyType.Caption.FontSize,
-        };
-        cell.Box = box;
-        _renameCell = cell;
-        cell.Name.Visibility = Visibility.Collapsed;
-        cell.Stack.Children.Add(box);
-        if (_fixture.On)
-        {
-            box.Loaded += (_, _) => box.Select(0, select);
-            return;
-        }
-
-        box.GotFocus += (_, _) => _surface?.RequestTextInput(true);
-        box.LostFocus += (_, _) =>
-        {
-            _surface?.RequestTextInput(false);
-            if (ReferenceEquals(cell.Box, box))
-            {
-                CommitItem(cell, box);
-            }
-        };
-        box.KeyDown += (_, args) =>
-        {
-            if (args.Key == Windows.System.VirtualKey.Enter)
-            {
-                args.Handled = true;
-                CommitItem(cell, box);
-            }
-            else if (args.Key == Windows.System.VirtualKey.Escape)
-            {
-                args.Handled = true;
-                _host.DesktopItems.CancelRename();
-            }
-        };
-        box.Loaded += (_, _) =>
-        {
-            box.Focus(FocusState.Programmatic);
-            box.Select(0, select);
-        };
-    }
-
-    /// <summary>[S-5543] Enter or a click elsewhere: through the host's rename (the shell's own); a name it refuses keeps the box with the tip saying why.</summary>
-    private void CommitItem(Cell cell, TextBox box)
-    {
-        if (_host.DesktopItems.CommitRename(cell.Key, box.Text) is { } why)
-        {
-            var tip = new ToolTip { Content = why };
-            ToolTipService.SetToolTip(box, tip);
-            tip.IsOpen = true;
-            box.Focus(FocusState.Programmatic);
-        }
-    }
-
-    private void CloseItemBox()
-    {
-        if (_renameCell is not { } cell || cell.Box is not { } box)
-        {
-            _renameCell = null;
-            return;
-        }
-
-        cell.Box = null;
-        _renameCell = null;
-        if (ToolTipService.GetToolTip(box) is ToolTip tip)
-        {
-            tip.IsOpen = false;
-        }
-
-        cell.Stack.Children.Remove(box);
-        cell.Name.Visibility = Visibility.Visible;
-        _surface?.RequestTextInput(false);
     }
 }

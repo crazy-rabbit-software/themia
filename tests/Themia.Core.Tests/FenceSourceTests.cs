@@ -65,7 +65,7 @@ public sealed class FenceSourceTests
         var (collectWidget, collect) = Fence("collect", FenceSource.Desktop, FenceFileType.Images);
         view.Widgets.AddRange([heldWidget, collectWidget]);
 
-        DesktopFences.Collect(state, [File("a.png"), File("d.png")]);
+        DesktopFences.Collect(state, [File("a.png"), File("d.png")], key => new WidgetInstance { Id = Guid.NewGuid().ToString("n"), Config = new DeskIconFake { Item = key }, Rect = new FracRect(0, 0, 0, 0) });
 
         Assert.Equal(["a.png", "gone.png"], Names(held.Items));
         Assert.Equal(["d.png"], Names(collect.Items));

@@ -218,7 +218,8 @@ public static class DesktopGrid
                 continue;
             }
 
-            var icons = view.Widgets.Where(w => w.Config is IDesktopItemConfig).ToList();
+            // [S-13042] A fence's icons are its own to lay: Auto arrange packs the free ones.
+            var icons = DesktopFences.FreeIcons(view);
             if (icons.Count == 0)
             {
                 continue;

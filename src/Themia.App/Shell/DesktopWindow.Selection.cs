@@ -60,8 +60,11 @@ internal sealed partial class DesktopWindow
     private int _lassoCaught;
     private List<string> _lassoBase = [];
 
-    /// <summary>[S-11877] Whether the widget <paramref name="widgetId"/> is drawn on this surface now (a card that hides itself, [S-873], is not).</summary>
-    internal bool Draws(string widgetId) => CardFor(widgetId) is not { } card || card.IsShown(EditMode);
+    /// <summary>
+    /// [S-11877] Whether the widget <paramref name="widgetId"/> is drawn on this surface now (a card that hides itself, [S-873],
+    /// is not; [S-13042] nor an icon its fence does not show).
+    /// </summary>
+    internal bool Draws(string widgetId) => CardFor(widgetId) is not { } card || (card.Visibility == Visibility.Visible && card.IsShown(EditMode));
 
     /// <summary>[S-11877] The desktop's one selection changed: every card on the locked desktop draws whether it is in it.</summary>
     internal void RepaintDeskSelection()
@@ -107,6 +110,12 @@ internal sealed partial class DesktopWindow
             ids.Add(card.Model.Id);
         }
 
+        // [S-13042] A fence moves its icons with it: they stay on its cells.
+        foreach (var fence in ids.Where(id => view.Find(id)?.Config is IHoldsDesktopItems).ToList())
+        {
+            ids.AddRange(Services.AppHost.FenceIconsOf(view, fence).Where(icon => !ids.Contains(icon)));
+        }
+
         var cards = new List<(WidgetCard Card, FracRect Start)>();
         foreach (var id in ids)
         {
@@ -123,22 +132,28 @@ internal sealed partial class DesktopWindow
 
         // [S-11959] Kept apart in edit mode and on the locked desktop alike: whatever moves (a selection, whole
         // icons among cards) never lands over a card that stays.
-        var apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card)) : null;
-        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, apart));
+        // [S-13041] Icons alone land on a fence too (its cells are the grid's): its card and its icons are no obstacle then,
+        // and the held icon lands by the one drop computation (on a fence's body, on its cell).
+        var models = cards.ConvertAll(c => c.Card.Model);
+        var cell = _host.DropCellFor(this, models);
+        var apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card), skipFences: cell is not null) : null;
+        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, apart, cards.FindIndex(c => ReferenceEquals(c.Card, card)), cell));
     }
 
-    /// <summary>[S-11890] The two translations of a move of <paramref name="cards"/>, on this display as it is now.</summary>
-    private BlockMove Block(List<(WidgetCard Card, FracRect Start)> cards, List<FracRect>? apart)
-        => new([.. cards.Select(c => c.Start)], apart, Metrics, RasterScale);
+    /// <summary>[S-11890] The two translations of a move of <paramref name="cards"/>, on this display as it is now; [S-13041] the held card's landing on the cell of what it lands on.</summary>
+    private BlockMove Block(List<(WidgetCard Card, FracRect Start)> cards, List<FracRect>? apart, int held = -1, Func<FracRect, FracRect>? cell = null)
+        => new([.. cards.Select(c => c.Start)], apart, Metrics, RasterScale, held, cell);
 
     /// <summary>
     /// [S-11959] The rects of this display's drawn cards other than <paramref name="moving"/> (widgets and desktop
-    /// icons alike; a card that hides itself, [S-873], is not drawn): what a move keeps apart from.
+    /// icons alike; a card that hides itself, [S-873], is not drawn): what a move keeps apart from. [S-13041] With
+    /// <paramref name="skipFences"/> (icons alone moving) a fence and its icons are not: icons land in a fence.
     /// </summary>
-    private List<FracRect> Staying(IEnumerable<WidgetCard> moving)
+    private List<FracRect> Staying(IEnumerable<WidgetCard> moving, bool skipFences = false)
     {
         var set = moving.ToHashSet();
-        return [.. _cards.Where(c => c.Visibility == Visibility.Visible && c.IsShown(EditMode) && !set.Contains(c)).Select(c => c.LiveRect)];
+        var fenced = skipFences ? Services.AppHost.FencesAndTheirIcons(ViewForThisMonitor(_host.State)) : [];
+        return [.. _cards.Where(c => c.Visibility == Visibility.Visible && c.IsShown(EditMode) && !set.Contains(c) && !fenced.Contains(c.Model.Id)).Select(c => c.LiveRect)];
     }
 
     /// <summary>
@@ -309,7 +324,9 @@ internal sealed partial class DesktopWindow
                         break;
                     }
 
-                    return card.View is IDesktopIconView icon ? icon.TakesDrops : card.View is Themia.App.Widgets.IWidgetDropTarget;
+                    // [S-13041] A fence is no drop target for the desktop's own icons: they land on its cells by the move.
+                    return card.View is IDesktopIconView icon ? icon.TakesDrops
+                        : card.Model.Config is not IHoldsDesktopItems && card.View is Themia.App.Widgets.IWidgetDropTarget;
                 }
             }
         }
@@ -382,8 +399,8 @@ internal sealed partial class DesktopWindow
         // [S-2244] Dropped: they join where they landed, one join pass.
         JoinCards();
 
-        // [S-884] The whole drag, every selected widget, is one undo step.
-        _host.CommitGeometry(UndoAction.Move);
+        // [S-884] The whole drag, every selected widget, is one undo step; [S-13041] its icons land in a fence or out of one in it.
+        _host.LandMoved(this, [.. move.Cards.Select(c => c.Card.Model.Id)], UndoAction.Move);
     }
 
     /// <summary>

@@ -59,9 +59,6 @@ internal interface IDesktopDesk
 
     string? RenameTo(string key, string name);
 
-    /// <summary>[S-13011] The item whose rename box shows, by its key.</summary>
-    string? RenamingKey { get; }
-
     /// <summary>[S-13000] The fences' side of the desktop.</summary>
     IDesktopFences Fences { get; }
 }
@@ -137,9 +134,6 @@ internal sealed class HostDesktopItems : IDesktopItems
 
     /// <inheritdoc />
     public string? DropTargetWidget => Desk?.DropTargetWidget;
-
-    /// <inheritdoc />
-    public string? RenamingKey => Desk?.RenamingKey;
 
     /// <inheritdoc />
     public IDesktopFences Fences => Desk?.Fences ?? NoFences.Instance;
@@ -427,17 +421,15 @@ internal sealed class NoFences : IDesktopFences
 
     public string? DesktopFolder => null;
 
-    public void Laid(string fenceId, IReadOnlyList<FenceItemBox> boxes)
-    {
-        // ignore: nothing is selected in a render
-    }
-
     public void RollUp(string fenceId, bool rolledUp)
     {
         // ignore: a render writes no state
     }
 
-    public IReadOnlyList<string> Order(IReadOnlyList<string> keys, Themia.Core.Desktop.DesktopSortBy by) => keys;
+    public void Scroll(string fenceId, int rows)
+    {
+        // ignore: a render writes no state
+    }
 
     public void Rename(string fenceId, string name)
     {
@@ -448,8 +440,6 @@ internal sealed class NoFences : IDesktopFences
     {
         // ignore: a render writes no state
     }
-
-    public DropEffect DropDeskDrag(string fenceId, int index) => DropEffect.None;
 
     public DropEffect DropFiles(string fenceId, Themia.App.Widgets.IWidgetDrag drag) => DropEffect.None;
 
@@ -463,11 +453,10 @@ internal sealed class NoFences : IDesktopFences
         // ignore: a render touches no file
     }
 
-    public Themia.Sdk.SizeDip ItemBox(string fenceId) => DesktopCell.Grid(DesktopCell.Current);
+    /// <summary>[S-13040] A picture's cells: the title bar as the sizing states it, the desktop's plain cell for a box.</summary>
+    public FenceCellsDip Cells(string fenceId) => new(FenceGrid.TitleDip, DesktopCell.Grid(DesktopCell.Current));
 
     public bool Band(string fenceId, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs press) => false;
-
-    public IReadOnlyList<DesktopItem> DraggedItems => [];
 
     public Task<IReadOnlyList<FoundFile>> SearchAsync(FenceRuleSet rules, FenceQuery query, CancellationToken token)
         => Task.FromResult<IReadOnlyList<FoundFile>>([]);

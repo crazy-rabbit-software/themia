@@ -225,7 +225,8 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        _host.CommitGeometry(action);
+        // [S-13041] Nudged icons land in a fence or out of one as a move's do.
+        _host.LandMoved(this, [.. _host.Selection.Ids], action);
     }
 
     private void OnKeyUp(object sender, KeyRoutedEventArgs args)

@@ -294,7 +294,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         }
         else
         {
-            _host.CommitGeometry(UndoAction.Resize);
+            // [S-13040] A fence resized keeps whole cells: it is laid again in the step.
+            _host.LandMoved(this, [card.Model.Id], UndoAction.Resize);
         }
     }
 

@@ -3,8 +3,9 @@ using Themia.Sdk;
 namespace Themia.Widget.Fence;
 
 /// <summary>
-/// [S-11850] What a picture of a fence draws instead of the desktop (the sample, a debug render's states): its own items
-/// and the selection, focus, cut and rename it sets. A fixture is drawn, never acted on and never saved.
+/// [S-11850] What a picture of a fence draws instead of the desktop (the sample, a debug render's states): items in its
+/// cells, drawn as the desktop's icons are, and the selection, focus and cut it sets. A fixture is drawn, never acted on and
+/// never saved; on the desktop a fence's items are the desktop's own icons.
 /// </summary>
 internal sealed partial class FenceView
 {
@@ -24,11 +25,6 @@ internal sealed partial class FenceView
 
         public bool Inactive { get; set; }
 
-        public string? Renaming { get; set; }
-
-        /// <summary>[S-13021] The items a drag over the fence carries, for its ghost preview.</summary>
-        public List<DesktopItem> Dragged { get; set; } = [];
-
         /// <summary>Back to a fence at rest holding <paramref name="items"/>.</summary>
         public void Rest(IEnumerable<DesktopItem> items)
         {
@@ -38,8 +34,6 @@ internal sealed partial class FenceView
             Faded.Clear();
             Focus = null;
             Inactive = false;
-            Renaming = null;
-            Dragged = [];
         }
     }
 
@@ -49,7 +43,6 @@ internal sealed partial class FenceView
         _fixture.Rest(items);
         set?.Invoke(_fixture);
         _config = config;
-        _order = null;
         CloseTitleBox(commit: false);
         Render();
         await Task.WhenAll(_loads).ConfigureAwait(true);

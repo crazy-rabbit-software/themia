@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Widgets;
@@ -17,21 +16,20 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.Fence;
 
 /// <summary>
-/// [S-10900]..[S-10915] A fence as Fences draws one, in Themia's look: its own title bar (the name, how many items, a
-/// click rolls it up) over its own small grid of the desktop's items, each in the desktop's one cell at the icon size in
-/// force (<see cref="DesktopCell"/>), in reading order (<see cref="FenceGrid"/>), scrolling with the bottom fade
-/// (<see cref="ScrollFade"/>) when they are more than it shows.
+/// [S-10900]..[S-10915] [S-13040] A fence as Fences draws one, in Themia's look: its own title bar (the name, how many items,
+/// a click rolls it up) over its body, a region of the desktop icon grid. Its items are not drawn here: each is a desktop
+/// icon the host lays on a cell of the body (the owner, 2026-11-19: "the fence should basically just be a helper to align
+/// the icon on the underlying engine"), so it looks, selects, drags and drops exactly as a free icon does. The title bar is
+/// whole rows of the widget grid and the body whole icon boxes (<see cref="IDesktopFences.Cells"/>, <see cref="FenceGrid"/>).
 /// <para>
-/// Its items are the desktop's own ([S-13011]): every gesture on one (a press, the keys, typing, the menu, F2's commit, a
-/// double-click, a drag) is handed to the host's one desktop selection under the item's key, as a desktop icon's are
-/// (<see cref="IWidgetHost.DesktopItems"/>), and each draws the one item selection's look on a card (<see cref="SelectionLook.Rows"/>).
-/// What is the fence's own (where it draws its items, rolling up, its title, drops into it) is asked of
-/// <see cref="IDesktopFences"/>. A press on the title bar is the card's (it moves the fence); a press in the body is the
-/// items' (it never moves the fence).
+/// What the fence draws in its body is what is no desktop icon: the files a search fence finds ([S-13023]) and a picture's
+/// items (the sample, a render's states), in the same cells by the same layout. What is the fence's own (rolling up, the
+/// title, the body's band, drops of files into it) is asked of <see cref="IDesktopFences"/>. A press on the title bar is the
+/// card's (it moves the fence, its icons with it); a press on its empty body starts the desktop's band.
 /// </para>
 /// <para>
-/// Split by concern: this file owns the lifecycle, the title bar and the layout; <c>.Items.cs</c> the cells and their
-/// gestures; <c>.Drop.cs</c> drops into the fence.
+/// Split by concern: this file owns the lifecycle, the title bar and the body; <c>.Items.cs</c> the cells it draws (a
+/// search's files, a picture's items); <c>.Drop.cs</c> drops of files into the fence.
 /// </para>
 /// </summary>
 internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidgetSurfaceAware, IWidgetContextActions, IWidgetTopEdge
@@ -40,24 +38,19 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     private readonly IWidgetHost _host;
 
-    private readonly Grid _titleBar = new() { Height = FenceGrid.TitleHeight, Padding = new Thickness(FamilySpace.S3, 0, FamilySpace.S3, 0) };
+    private readonly Grid _titleBar = new() { Padding = new Thickness(FamilySpace.S3, 0, FamilySpace.S3, 0) };
     private readonly TextBlock _title = Family.Text(FamilyType.BodyStrong);
     private readonly TextBlock _count = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly FontIcon _chevron = Family.Glyph(Glyphs.ChevronDown, FamilyShape.Icon, ColourRole.TextSecondary);
     private readonly Border _divider = new() { Height = FamilyShape.Hairline, VerticalAlignment = VerticalAlignment.Bottom };
 
-    private readonly ScrollViewer _scroll = new()
-    {
-        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-        VerticalScrollMode = ScrollMode.Enabled,
-        HorizontalScrollMode = ScrollMode.Disabled,
-        ZoomMode = ZoomMode.Disabled,
-    };
-
-    private readonly Canvas _canvas = new() { Background = Fluent.Clear(), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+    /// <summary>The body: the cells drawn here (a search's files, a picture's items) on a canvas clipped to it.</summary>
+    private readonly Grid _body = new() { Background = Fluent.Clear() };
+    private readonly Canvas _canvas = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = true };
     private readonly TextBlock _empty = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
-    private readonly ScrollFade _fade;
+
+    /// <summary>[S-13043] Where the body stands in its rows when it has more than it shows: a thin thumb at its right edge.</summary>
+    private readonly Border _thumb = new() { Width = FamilySpace.S1, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false };
 
     private IWidgetSurface? _surface;
     private FenceConfig _config = new();
@@ -65,6 +58,9 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     /// <summary>[S-10913] The fence opened by the pointer resting on it (hover peek): it rolls up again when the pointer leaves.</summary>
     private bool _peeking;
+
+    /// <summary>[S-10913] While peeking with the pointer over one of the fence's icons: the window's root, heard for the pointer leaving the fence.</summary>
+    private UIElement? _peekWatch;
 
     /// <summary>[S-10910] The title's rename box while it shows.</summary>
     private TextBox? _titleBox;
@@ -107,27 +103,19 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _empty.TextWrapping = TextWrapping.Wrap;
         _empty.Margin = new Thickness(FamilySpace.S3);
         _empty.IsHitTestVisible = false;
-        _scroll.Content = _canvas;
-        var body = new Grid { Background = Fluent.Clear() };
-        body.Children.Add(_scroll);
-        body.Children.Add(_empty);
-        SetRow(body, 1);
-        Children.Add(body);
-        _body = body;
+        _thumb.Background = Family.Brush(ColourRole.TextTertiary);
+        _body.Children.Add(_canvas);
+        _body.Children.Add(_empty);
+        _body.Children.Add(_thumb);
+        SetRow(_body, 1);
+        Children.Add(_body);
 
-        _fade = new ScrollFade(_scroll, _canvas);
-
-        // [S-13021] Items glide to a new place (a drop, the preview stepping aside, a reorder) rather than jump.
-        _canvas.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection { new Microsoft.UI.Xaml.Media.Animation.RepositionThemeTransition() };
         SizeChanged += (_, _) =>
         {
             OnRollSized();
             Layout();
         };
-        _scroll.ViewChanged += (_, _) => ReportBoxes();
     }
-
-    private readonly Grid _body;
 
     /// <summary>[S-13028] The roll-up the body was last drawn for; null before the first.</summary>
     private bool? _shownRolled;
@@ -138,7 +126,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
     /// <summary>[S-13028] The card reached its title bar's height: the rolled-up body goes.</summary>
     private void OnRollSized()
     {
-        if (_rolling && ActualHeight <= FenceGrid.TitleHeight + 1)
+        if (_rolling && ActualHeight <= Cells.Title + 1)
         {
             _rolling = false;
             _body.Visibility = Visibility.Collapsed;
@@ -156,6 +144,15 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     private IDesktopFences Fences => _host.DesktopItems.Fences;
 
+    /// <summary>
+    /// [S-13040] The title bar's height and an icon box, in DIPs: the host's for the fence's display (whole grid rows, a desktop
+    /// icon's box on the grid); in a picture the title bar as the sizing states it and the desktop's plain cell.
+    /// </summary>
+    private FenceCellsDip Cells
+        => WidgetId is { } id && !_fixture.On && !_host.IsPreview
+            ? Fences.Cells(id)
+            : new FenceCellsDip(FenceGrid.TitleDip, DesktopCell.Grid(DesktopCell.Current));
+
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -167,6 +164,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _titleBar.Tapped += OnTitleTapped;
         _titleBar.DoubleTapped += OnTitleDoubleTapped;
         _body.PointerPressed += OnBodyPressed;
+        _body.PointerWheelChanged += OnBodyWheel;
         PointerEntered += OnPointerEntered;
         PointerExited += OnPointerExited;
         ApplyConfig(config);
@@ -174,13 +172,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     public void ApplyConfig(WidgetConfig config)
     {
-        var before = _config;
         _config = config as FenceConfig ?? new FenceConfig();
-        if (!ReferenceEquals(before, _config) || _order is null || !SameItems())
-        {
-            _order = null;
-        }
-
         Render();
 
         // [S-13023] A search fence searches when shown, and again when its rules or query changed.
@@ -200,30 +192,20 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _titleBar.Tapped -= OnTitleTapped;
         _titleBar.DoubleTapped -= OnTitleDoubleTapped;
         _body.PointerPressed -= OnBodyPressed;
+        _body.PointerWheelChanged -= OnBodyWheel;
         PointerEntered -= OnPointerEntered;
         PointerExited -= OnPointerExited;
+        WatchPeek(false);
         CloseTitleBox(commit: false);
         CancelSearch();
         _searchedFor = null;
         ClearCells();
-        if (WidgetId is { } id)
-        {
-            Fences.Laid(id, []);
-        }
     }
 
     private void OnLanguage(Locale locale) => Render();
 
-    /// <summary>The listing, the selection, a rename box or a drag changed: the items may have new names, icons or looks.</summary>
-    private void OnDeskChanged()
-    {
-        if (_order is not null && !SameItems())
-        {
-            _order = null;
-        }
-
-        Render();
-    }
+    /// <summary>The listing or the selection changed: the count may be another, a search's files their looks.</summary>
+    private void OnDeskChanged() => Render();
 
     // ---- keys ([S-13011]) ---------------------------------------------------------------------------
 
@@ -296,7 +278,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     /// <summary>
     /// [S-13009] Remove fence: never a file. With items, it asks first ("Put the 3 items back on the desktop?", Put back
-    /// the action); the answer puts them back where it stood, Cancel keeps the fence. An empty fence goes at once.
+    /// the action); the answer leaves them where it stood, Cancel keeps the fence. An empty fence goes at once.
     /// </summary>
     private async Task RemoveAsync(string id)
     {
@@ -328,6 +310,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         if (_peeking)
         {
             _peeking = false;
+            WatchPeek(false);
             return;
         }
 
@@ -359,6 +342,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
     /// <summary>[S-10913] The pointer rests on a rolled-up fence: it opens while the pointer is over it.</summary>
     private void OnPointerEntered(object sender, PointerRoutedEventArgs e)
     {
+        WatchPeek(false);
         if (Acts && _config.RolledUp && _config.HoverPeek && WidgetId is { } id && !_peeking)
         {
             _peeking = true;
@@ -366,13 +350,60 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
     }
 
-    /// <summary>[S-10913] The pointer left a fence it peeked open: it rolls up again (unless a drag or a rename holds it).</summary>
+    /// <summary>
+    /// [S-10913] The pointer left a fence it peeked open: it rolls up again (unless a drag or a rename holds it). Onto one of
+    /// its own icons (drawn over the card) it has not left: the window's root is heard till the pointer leaves the fence.
+    /// </summary>
     private void OnPointerExited(object sender, PointerRoutedEventArgs e)
     {
-        if (_peeking && WidgetId is { } id && _titleBox is null && _renameCell is null && !Fences.DeskDragRunning)
+        if (!_peeking)
+        {
+            return;
+        }
+
+        if (Inside(e.GetCurrentPoint(this).Position))
+        {
+            WatchPeek(true);
+            return;
+        }
+
+        EndPeek();
+    }
+
+    /// <summary>[S-10913] Roll a peeked fence up again, unless its rename box or a drag holds it.</summary>
+    private void EndPeek()
+    {
+        WatchPeek(false);
+        if (_peeking && WidgetId is { } id && _titleBox is null && !Fences.DeskDragRunning)
         {
             _peeking = false;
             Fences.RollUp(id, true);
+        }
+    }
+
+    private bool Inside(Windows.Foundation.Point at) => at.X >= 0 && at.Y >= 0 && at.X < ActualWidth && at.Y < ActualHeight;
+
+    /// <summary>[S-10913] Hear the window's root (every pointer move, handled or not) while the pointer is over the fence's icons.</summary>
+    private void WatchPeek(bool on)
+    {
+        if (_peekWatch is { } watched)
+        {
+            watched.RemoveHandler(PointerMovedEvent, (PointerEventHandler)OnPeekMoved);
+            _peekWatch = null;
+        }
+
+        if (on && XamlRoot?.Content is UIElement root)
+        {
+            root.AddHandler(PointerMovedEvent, (PointerEventHandler)OnPeekMoved, handledEventsToo: true);
+            _peekWatch = root;
+        }
+    }
+
+    private void OnPeekMoved(object sender, PointerRoutedEventArgs e)
+    {
+        if (!Inside(e.GetCurrentPoint(this).Position))
+        {
+            EndPeek();
         }
     }
 
@@ -445,9 +476,9 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
     }
 
     /// <summary>
-    /// [S-13011] A press on the body is the items', never the card's move: the fence moves by its title bar. [S-13020] A left
-    /// press on its empty body starts the desktop's band there, as on empty desktop: it selects this fence's items (and the
-    /// free icons and other fences' it reaches) by the desktop's rules.
+    /// [S-13020] A left press on the fence's empty body (between its icons, past its last) starts the desktop's band there,
+    /// as on empty desktop: it selects this fence's icons (and the free icons and other fences' it reaches) by the
+    /// desktop's rules. Never the card's move: the fence moves by its title bar.
     /// </summary>
     private void OnBodyPressed(object sender, PointerRoutedEventArgs e)
     {
@@ -475,94 +506,104 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
     }
 
+    /// <summary>
+    /// [S-13043] The wheel over a search fence's body scrolls its files by whole rows. A fence of desktop icons is scrolled by
+    /// the surface (the wheel over its icons reaches it there too), so its icons move a row of the grid at once.
+    /// </summary>
+    private void OnBodyWheel(object sender, PointerRoutedEventArgs e)
+    {
+        if (!Searches || !Acts)
+        {
+            return;
+        }
+
+        var delta = e.GetCurrentPoint(this).Properties.MouseWheelDelta;
+        var layout = CellLayout(_found.Count);
+        var to = (layout with { Scroll = _foundScroll + (delta > 0 ? -1 : 1) }).Clamped(_found.Count).Scroll;
+        e.Handled = true;
+        if (to != _foundScroll)
+        {
+            _foundScroll = to;
+            Layout();
+        }
+    }
+
     // ---- drawing ------------------------------------------------------------------------------------
 
-    /// <summary>[S-10901] [S-10902] The title bar and the items as the config and the desktop say now.</summary>
+    /// <summary>[S-10901] [S-10902] The title bar and the body as the config and the desktop say now.</summary>
     private void Render()
     {
         var items = ShownItems();
+        var count = Searches || _fixture.On ? items.Count : _config.Items.Count;
         _title.Text = _config.Name.Length > 0 ? _config.Name : FenceStr.Fence_Label.Text();
-        _count.Text = FenceStr.Fence_Count.Plural(items.Count);
+        _count.Text = FenceStr.Fence_Count.Plural(count);
         _chevron.Glyph = _config.RolledUp ? Glyphs.ChevronDown : Glyphs.ChevronUp;
         _divider.Visibility = _config.RolledUp ? Visibility.Collapsed : Visibility.Visible;
+        _titleBar.Height = Cells.Title;
+
         // [S-13028] Rolled up just now, the body stays while the card's foot glides up over it (its row the title bar's
-        // leftover), so the items are covered rather than gone at once; it goes when the card is down to its title bar
+        // leftover), so what it draws is covered rather than gone at once; it goes when the card is down to its title bar
         // (OnRollSized). Let down, it is there at once and the foot glides down to show it. The empty sentence, centred,
         // would stand over the title bar in a row of no height: it goes while rolled up.
         _rolling = _config.RolledUp && (_rolling || (_shownRolled == false && _attached && !_fixture.On));
         _shownRolled = _config.RolledUp;
         _body.Visibility = !_config.RolledUp || _rolling ? Visibility.Visible : Visibility.Collapsed;
         _empty.Text = Searches && !_fixture.On ? SearchEmptyText() : FenceStr.Fence_Empty.Text();
-        _empty.Visibility = items.Count == 0 && !_config.RolledUp ? Visibility.Visible : Visibility.Collapsed;
+        _empty.Visibility = count == 0 && !_config.RolledUp ? Visibility.Visible : Visibility.Collapsed;
         SyncCells(items);
         Layout();
         PaintCells();
     }
 
-    /// <summary>[S-10902] The cells on the fence's own grid at the width it has now, then where they are told to the host.</summary>
-    private void Layout()
+    /// <summary>[S-13040] The body's cells in the fence's DIPs: under the title bar, whole icon boxes, from the scroll given.</summary>
+    private FenceGrid.Layout CellLayout(int count, int scroll = 0)
     {
-        var cell = CellSize;
-        var width = Math.Max(0, ActualWidth);
-        var columns = FenceGrid.Columns(width, cell);
-
-        // [S-13021] While the desktop's drag is over the fence, its preview's order: the dragged ones at their slots.
-        var order = _preview ?? _shown;
-        for (var i = 0; i < order.Count; i++)
-        {
-            if (_cells.TryGetValue(order[i], out var view) || _ghosts.TryGetValue(order[i], out view))
-            {
-                var r = FenceGrid.Cell(i, columns, cell, width);
-                Canvas.SetLeft(view.Root, r.X);
-                Canvas.SetTop(view.Root, r.Y);
-                view.Root.Width = r.Width;
-                view.Root.Height = r.Height;
-            }
-        }
-
-        _canvas.Width = width;
-        _canvas.Height = FenceGrid.ContentHeight(order.Count, columns, cell);
-        _fade.Refresh();
-        ReportBoxes();
-    }
-
-    /// <summary>[S-13011] Where the items shown now stand in the card, told to the host for the band, the arrows and the drag; none while rolled up.</summary>
-    private void ReportBoxes()
-    {
-        if (!_attached || WidgetId is not { } id || _fixture.On)
-        {
-            return;
-        }
-
-        // [S-13023] A search fence's files are no desktop items: nothing of it is in the desktop's selection.
-        if (_config.RolledUp || _scroll.ViewportHeight <= 0 || Searches)
-        {
-            Fences.Laid(id, []);
-            return;
-        }
-
-        var cell = CellSize;
-        var width = Math.Max(0, ActualWidth);
-        var columns = FenceGrid.Columns(width, cell);
-        var top = FenceGrid.TitleHeight - _scroll.VerticalOffset;
-        var bottom = FenceGrid.TitleHeight + _scroll.ViewportHeight;
-        var boxes = new List<FenceItemBox>(_shown.Count);
-        for (var i = 0; i < _shown.Count; i++)
-        {
-            var r = FenceGrid.Cell(i, columns, cell, width);
-            var y = top + r.Y;
-            if (y + r.Height > FenceGrid.TitleHeight && y < bottom)
-            {
-                boxes.Add(new FenceItemBox(_shown[i], r.X, y, r.Width, r.Height));
-            }
-        }
-
-        Fences.Laid(id, boxes);
+        var cells = Cells;
+        return new FenceGrid.Layout(0, 0, Math.Max(0, ActualWidth), _config.RolledUp ? 0 : Math.Max(0, ActualHeight - cells.Title), cells.Box.Width, cells.Box.Height, scroll)
+            .Clamped(count);
     }
 
     /// <summary>
-    /// [S-5593] [S-13019] The box an item stands in: a desktop icon's on the widget grid of the fence's display (the host's),
-    /// so the items keep the free icons' spacing; in a picture the desktop's plain cell.
+    /// [S-13040] [S-13043] The cells it draws (a search's files, a picture's items) on the body's grid, and the thumb that
+    /// says where the body stands in its rows (a fence of desktop icons: its config's scroll, the host's).
     /// </summary>
-    private SizeDip CellSize => WidgetId is { } id && !_fixture.On && !_host.IsPreview ? Fences.ItemBox(id) : DesktopCell.Grid(DesktopCell.Current);
+    private void Layout()
+    {
+        var count = Searches || _fixture.On ? _shown.Count : _config.Items.Count;
+        var layout = CellLayout(count, Searches ? _foundScroll : _fixture.On ? 0 : _config.Scroll);
+        if (Searches)
+        {
+            _foundScroll = layout.Scroll;
+        }
+
+        for (var i = 0; i < _shown.Count; i++)
+        {
+            if (_cells.TryGetValue(_shown[i], out var view))
+            {
+                var (x, y, w, h) = layout.Cell(i);
+                view.Root.Visibility = layout.Shows(i) ? Visibility.Visible : Visibility.Collapsed;
+                Canvas.SetLeft(view.Root, x);
+                Canvas.SetTop(view.Root, y);
+                view.Root.Width = w;
+                view.Root.Height = h;
+            }
+        }
+
+        _canvas.Width = Math.Max(0, ActualWidth);
+        _canvas.Height = Math.Max(0, layout.Height);
+        _canvas.Clip = new Microsoft.UI.Xaml.Media.RectangleGeometry { Rect = new Windows.Foundation.Rect(0, 0, _canvas.Width, _canvas.Height) };
+
+        var rows = FenceGrid.RowsOf(count, layout.Columns);
+        if (layout.Rows > 0 && rows > layout.Rows)
+        {
+            var track = layout.Rows * layout.CellHeight;
+            _thumb.Height = Math.Max(FamilySpace.S3, track * layout.Rows / rows);
+            _thumb.Margin = new Thickness(0, (track - _thumb.Height) * layout.Scroll / Math.Max(1, rows - layout.Rows), 0, 0);
+            _thumb.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            _thumb.Visibility = Visibility.Collapsed;
+        }
+    }
 }

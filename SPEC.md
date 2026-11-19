@@ -10498,31 +10498,36 @@ it"): a **fence** is a widget, the kind `fence` (`src/Widgets/Themia.Widget.Fenc
 `SPEC.md`, [S-10900]..[S-10920]), that holds real desktop items in a box with a title bar of its own. This section is the
 desktop's side: which items stand where, and how they get there.
 
-Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `DesktopReconcile.Plan.cs`, `DesktopViews.cs`,
+Owning files: `Themia.Core/Desktop/DesktopFences.cs`, `Themia.Core/Desktop/FenceCells.cs`, the fence parts of `DesktopReconcile.Plan.cs`, `DesktopViews.cs`,
 `DesktopLanding.cs` and `Model/LayoutHistory.cs`; `Themia.Sdk/Model/Configs/IHoldsDesktopItems.cs`,
 `Themia.Sdk/Files/FenceRules.cs`, `Themia.Sdk/Widgets/FenceGrid.cs`, `Themia.Sdk.WinUI/Modules/IDesktopFences.cs`;
 `Themia.App/Services/AppHost.DesktopFences.cs` and the fence parts of `AppHost.DesktopDesk.cs`,
-`Shell/DesktopWindow.Desktop.cs`. Tests `DesktopFencesTests`, `FenceRulesTests` (Core), the module's `FenceTests`.
+`Shell/DesktopWindow.Desktop.cs` and the fence parts of `DesktopWindow.Selection.cs` and `.Layout.cs` (the move's drop cell, the
+paint order, the icons a fence does not show). Tests `DesktopFencesTests`, `FenceGridTests`, `FenceRulesTests` (Core), the
+module's `FenceTests`.
 
 - **[S-13000]** **A fence holds desktop items by their keys** (`IHoldsDesktopItems`, the SDK's config contract: `Items`,
-  in the fence's order, each the desktop's key, [S-5510]; `Rules`, `RolledUp`, `OpenHeight`, `Sort`, `Name`). The host's
-  rules read and rewrite it without knowing the module, as they do `IDesktopItemConfig`. A fence asks the host through
-  `IDesktopItems.Fences` (`IDesktopFences`: where it laid its items, roll up, its sort's order, rename, remove, drops,
-  paste, a new folder), never edits its own items. It is a normal widget otherwise: it moves (by its title bar, [S-10904]),
-  stands on the grid, is drawn in Liquid glass and the design's looks, is selected with icons and cards ([S-11877]),
-  stays where it is with Lock widgets ([S-12950]), and is copied, cut and deleted in edit mode as any widget.
-- **[S-13001]** **One place per view**: a fence lives on one view; on that view its items are shown in it and **never on
-  the free desktop** (no item widget of theirs), and a view's Desktop icons value (All, Chosen, None, [S-5525]) concerns
-  the free desktop alone: an item in a fence is always shown with its fence, a None view keeps its fences' items, and the
-  Chosen view's list leaves them out (`DesktopViews.Shown` = the free icons, `Free`, and the fences' items,
-  `DesktopFences.Held`). Another view may show the same item free or in a fence of its own. Add widget's On the desktop
-  ([S-5523]) offers no item a fence of that view holds. Tests `DesktopFencesTests.S13001_`.
+  in the fence's order, each the desktop's key, [S-5510]; `Rules`, `RolledUp`, `OpenHeight`, `Scroll`, `Sort`, `Name`). The
+  host's rules read and rewrite it without knowing the module, as they do `IDesktopItemConfig`. A fence asks the host through
+  `IDesktopItems.Fences` (`IDesktopFences`: roll up, scroll, its cells, rename, remove, drops of files, paste, a new folder),
+  never edits its own items. It is a normal widget otherwise: it moves (by its title bar, [S-10904], its icons with it,
+  [S-13042]), stands on the grid, is drawn in Liquid glass and the design's looks, is selected with icons and cards
+  ([S-11877]), stays where it is with Lock widgets ([S-12950]), and is copied, cut and deleted in edit mode as any widget. It
+  is drawn at scale 1 whatever the display's or its own scale, as a desktop icon is (`WidgetScale.For`): its body is icon
+  cells.
+- **[S-13001]** **One place per view**: a fence lives on one view; on that view each item it holds is a desktop icon of
+  that view (its one item widget, [S-13015]) that the fence lays on a cell of its body ([S-13040]), and **never a free icon**
+  besides; a view's Desktop icons value (All, Chosen, None, [S-5525]) concerns the free desktop alone: an item in a fence is
+  always shown with its fence, a None view keeps its fences' items, and the Chosen view's list leaves them out
+  (`DesktopViews.Free` is the item widgets no fence holds; `Shown` = `Free` and the fences' items, `DesktopFences.Held`).
+  Another view may show the same item free or in a fence of its own. Add widget's On the desktop ([S-5523]) offers no item a
+  fence of that view holds. Tests `DesktopFencesTests.S13001_`.
 - **[S-13002]** **Load** (`DesktopFences.Repair`, after every config's own repair): in each fence an invalid key and a
-  repeat go; an item in two fences of one view stays in the first (the view's order) and leaves the others; an item a
-  fence holds loses a free icon on that view (the fence was the user's choice); an unusable height to unroll to or an
-  unknown sort is dropped; its rules are made whole (`FenceRules.Repair`: unknown or repeated types go, an extension is
-  made `.ext` or goes, at most 32; the name text trimmed, at most 100 characters). Each repair is said. Items no longer on
-  the desktop are the reconcile's ([S-13003]): load has no listing. Tests `DesktopFencesTests.S13002_`, `FenceRulesTests.S13002_`.
+  repeat go; an item in two fences of one view stays in the first (the view's order) and leaves the others; an unusable
+  height to unroll to, a negative scroll or an unknown sort is dropped; its rules are made whole (`FenceRules.Repair`: unknown
+  or repeated types go, an extension is made `.ext` or goes, at most 32; the name text trimmed, at most 100 characters); a
+  held item with no icon on its view gets one ([S-13044]). Each repair is said. Items no longer on the desktop are the
+  reconcile's ([S-13003]): load has no listing. Tests `DesktopFencesTests.S13002_`, `FenceRulesTests.S13002_`.
 - **[S-13003]** **The reconcile keeps fences current** ([S-5520]): an item renamed in Explorer keeps its place in its fence
   under the new key; an item no longer listed (deleted, moved or renamed away) leaves every fence, unless an undo is
   putting it back (`expected`, [S-5597]); the plan names those entries (`DesktopPlan.FenceGone`). Not an undo step: the
@@ -10533,19 +10538,22 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
   in the first fence of that view (its widgets' order) whose rules it matches, whatever the view's value; a view with no
   matching fence takes it by the normal rules ([S-5526]). A drop, a paste or New › at a point of the free desktop lands
   there, never routed. A shell item matches nothing. Tests `DesktopFencesTests.S13004_`, `FenceRulesTests.S13004_`.
-- **[S-13005]** **Into a fence**: the desktop's own drag let go on a fence moves its desktop items in before the item
-  the mark shows (`DesktopFences.MoveIn`: each leaves the free desktop and every other fence of that view; one already in
-  the fence moves to the new place; own icons and cards in the drag stay where they were), one undo step. Files from
-  outside dropped on it go into the user's desktop folder through the shell's own drop target, as a drop on empty desktop
-  ([S-5549]: copy, move, link, the right-drag menu, virtual files), and arrive in the fence (`DesktopLandingHint.Fence`,
-  whatever its rules say); so do a paste with the fence's lease or its menu's Paste, and its New folder (with the rename
-  box, [S-5552]). Tests `DesktopFencesTests.S13005_`.
-- **[S-13006]** **Out of a fence**: its items dragged onto empty desktop of any display leave the fence and arrive on that
-  view's free desktop at the drop point (`DesktopGrid.Arrive`, centred on the point or the free spot nearest it,
-  [S-11876]; one already free there keeps its icon), with any free icons of the drag moving as a block ([S-5546]), one undo
-  step. A fence is never in the drag of its own items (`BeginDrag`), so over it the drop is the fence's. Dropped onto
-  Explorer, a folder, an app or the Recycle Bin the target does what it does; the item, gone from the desktop, leaves the
-  fence by [S-13003]. Tests `DesktopFencesTests.S13006_`.
+- **[S-13005]** **Into a fence**: an icon (or several) moved onto a fence's body lands on the cell under it and is the
+  fence's at the place that cell stands for ([S-13041]: the desktop's one move and drop computation); `DesktopFences.MoveIn`
+  puts items in by their keys for everything else (a fence made round a selection, a collecting fence, `AppHost.PlaceInFence`
+  for a command or the unplaced items' page): each leaves the free desktop and every other fence of that view, its icon kept
+  (one with none on the view gets one, [S-13042]); one already in the fence moves to the new place; own icons and cards stay
+  where they were. One undo step. Files from outside dropped on it go into the user's desktop folder through the shell's own
+  drop target, as a drop on empty desktop ([S-5549]: copy, move, link, the right-drag menu, virtual files), and arrive in the
+  fence (`DesktopLandingHint.Fence`, whatever its rules say; their icons are made at its corner and laid on its cells); so do
+  a paste with the fence's lease, from one of its icons or its menu's Paste, and its New folder (with the rename box,
+  [S-5552]). Tests `DesktopFencesTests.S13005_`, `FenceGridTests.S13041_`.
+- **[S-13006]** **Out of a fence**: its icons moved off its body (onto empty desktop of any display, another fence) land
+  where the move puts them on the grid, as any icon's move ([S-13041]), and leave the fence; an icon moved to another
+  display's view leaves the fence of the view it left ([S-13042]). One undo step. A fence is never a drop target of the
+  desktop's own icons (`DesktopWindow.DropTargetUnder`, `DesktopCommands.MovesIcons`): over it they move, they never become
+  the shell's drag. Dragged off the desktop onto Explorer, a folder, an app or the Recycle Bin the target does what it does
+  ([S-11878]); the item, gone from the desktop, leaves the fence by [S-13003]. Tests `FenceGridTests.S13041_`.
 - **[S-13007]** **Created as Fences does**: on the locked desktop a rectangle drawn with the right button on empty desktop
   (past the dead zone, drawn in the band's look) opens, at the release, a menu of one line, **Create fence here**; it makes
   an empty fence on that rectangle snapped out to whole grid cells and at least the kind's minimum
@@ -10558,48 +10566,46 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
   `DesktopFencesTests.S13008_`, `DesktopCommandsTests`.
 - **[S-13009]** **Removing a fence never deletes a file**: its Remove fence asks first ("Put the 3 items back on the
   desktop?", Put back the default, [S-10911]); edit mode's Delete removes it with no question, as any widget ([S-881]); both
-  put its items back on its view's free desktop where it stood (the free spots nearest its corner, one by one; none found
-  leaves an item for Add widget), and the undo notice is the way back: the undo brings the fence back with its items and
-  takes their free icons away again. Tests `DesktopFencesTests.S13009_`, `FenceTests.S10919_`.
+  leave its items on its view's free desktop where it stood (`DesktopFences.PutBack`: the icons it showed stay on their cells,
+  free icons now; the ones it did not show, scrolled away or rolled up, are laid at the free spots nearest its corner; none
+  found leaves an item for Add widget), and the undo notice is the way back: the undo brings the fence back with its items.
+  Tests `FenceGridTests.S13009_`, `FenceTests.S10919_`.
 - **[S-13010]** **Membership is the arrangement**: the undo snapshot copies each fence's items (`WidgetShape.Held`), so a
   move into or out of a fence, a fence made round a selection and a removal are undone and redone with the icons' places;
   a change of membership alone is a step (`SameLayout` compares it). Tests `FenceTests.S10918_`.
-- **[S-13011]** **A fence's items are in the one selection** ([S-5540]): the fence tells the host where it draws the items
-  it shows now (`IDesktopFences.Laid`, in its DIPs, the scroll taken into account; none while rolled up) and the host
-  puts them in the selection's layout in screen pixels, so the band ([S-5544]) reaches into a fence, the arrows ([S-5541])
-  cross between fences and the free desktop, type-to-find finds them and Ctrl+A selects them. A fence item is a desktop
-  item to every command (`FenceIcon`: open, menus, delete, the clipboard, rename, properties); F2's box shows on the item
-  in its fence (`IDesktopItems.RenamingKey`).
-- **[S-13012]** **Roll up** (`IDesktopFences.RollUp`): the fence's height becomes its title bar's (`FenceGrid.TitleHeight`,
-  the kind's sizing pins it while rolled up), the height it had kept in its config (`OpenHeight`) to unroll to. Not an undo
-  step: a look, as Fences' own. Its items are out of the selection's layout while rolled up.
-- **[S-13013]** **A fence's sort** is a standing order (its page's Sort by, [S-10914]): the fence shows its items in the
+- **[S-13011]** **A fence's items are in the one selection** ([S-5540]) because they are desktop icons: the band ([S-5544])
+  reaches into a fence, the arrows ([S-5541]) cross between fences and the free desktop, type-to-find finds them and Ctrl+A
+  selects them, every command is a desktop icon's (open, menus, delete, the clipboard, F2's box on the icon, properties). An
+  icon its fence does not show now (scrolled away, rolled up) is drawn by no card and in no selection's layout
+  (`DesktopFences.Hidden`).
+- **[S-13012]** **Roll up** (`IDesktopFences.RollUp`): the fence's height becomes its title bar's ([S-13040]: whole grid rows;
+  the kind's sizing pins it while rolled up, `FenceGrid.TitleDip`), the height it had kept in its config (`OpenHeight`) to
+  unroll to. Not an undo step: a look, as Fences' own. Its icons are drawn by no card while it is rolled up.
+- **[S-13013]** **A fence's sort** is a standing order (its page's Sort by, [S-10914]): the fence holds its items in the
   desktop's own Sort by order (`DesktopSort.Order`: shell items, folders, files; name, item type, date modified or size)
-  while one is set, read again when its items or its sort change; As placed keeps the order they were put in.
+  while one is set, put in that order in every change (`AppHost.LayFences`); As placed keeps the order they were put in.
+  Sort by on the desktop's menu sorts the free icons, never a fence's.
 - **[S-13014]** **Per view**: a fence's items show only where the fence is; a fence copied or cut to another view takes
   its items with it, and the views' own rules then hold (an item both free and fenced on the new view keeps its fence at
   the next load, [S-13002]).
 - **[S-13019]** **A fence's items stand as the free icons do** (the owner, 2026-11-19: "the fence items should also not have
   any additionaly spacing to the outside, the selection should look the same and the behaviour should be made similar to
-  how the desktop icons behave"): each in a desktop icon's box on the widget grid of the fence's display
-  (`IDesktopFences.ItemBox`, `AppHost.DeskItemBox`: the cell rounded up to whole grid cells, [S-11875]), box against box
-  from the body's edge with no inset and no centring (`FenceGrid`), so items in a fence keep the spacing of the icons
-  beside it; a fence made round a selection is sized by those boxes. Their highlight is the desktop icon's own palette
-  (`SelectionLook.DesktopIcon`), its white wash in black on a light card (`DesktopIconOnLight`, `SelectionTone.Dark`).
-  Tests `FenceRulesTests.S10902_S13019_`, `ItemSelectionTests.S13019_`.
+  how the desktop icons behave"): they are desktop icons, each in a desktop icon's box on the widget grid of the fence's
+  display ([S-13040]), box against box from the body's corner with no inset and no centring, so items in a fence have the
+  spacing, the label and the selection and hover look of the icons beside it. A fence made round a selection is sized by
+  those boxes. What a fence draws itself (a search's files, [S-13023]; a picture's items) is drawn in the same cells with the
+  desktop icon's palette, its white wash in black on a light card (`DesktopIconOnLight`, `SelectionTone.Dark`). Tests
+  `FenceRulesTests.S10902_S13019_`, `ItemSelectionTests.S13019_`.
 - **[S-13020]** **The band inside a fence** ("inside the fence you should be able to select the items with the lasso in the
   same way you can do for the desktop"): a left press on empty body of a fence starts the desktop's own band from there
   (`IDesktopFences.Band`, `DesktopWindow.BeginDesktopBandFrom`): the same look, Ctrl and Shift rules and one selection; it
   selects that fence's items and whatever else it reaches (other fences' items, free icons, cards), never the fence it
   began in; a plain press there clears the selection as on empty desktop, names no place for a paste on the free desktop,
   and offers no area at its release ([S-13018]).
-- **[S-13021]** **A drop into a fence previews and glides** ("when placing them inside it should smoothly move them there
-  and it should show a ghost preview instead of just the blue line"): while the desktop's drag of its icons is over a
-  fence, the fence shows the order a drop there leaves (`FenceGrid.Preview`): a see-through ghost of each dragged item
-  (`IDesktopFences.DraggedItems`, at the drag picture's opacity) at its slot, the other items stepping aside; leaving puts
-  them back; the drop turns the ghosts into the items where they stand, and every change of place glides (the fence's
-  reposition transition). There is no insertion line. `--widget-png Fence --state dropping` draws it. Tests
-  `FenceRulesTests.S13021_`.
+- **[S-13021]** *(Replaced by [S-13041], owner 2026-11-19: "there is some kind of transition when dragging an icon into the
+  fence or out of it. this should not be.")* A drop into a fence had its own preview (ghosts at slots, the other items
+  stepping aside, a glide into place); there is none now: an icon moving over a fence is the desktop's one move, its landing
+  shown by the local grid as anywhere else, and the fence's other icons stand still until the drop.
 - **[S-13022]** **A fence that collects** (the owner, 2026-11-19: "also allow to create fences that show items of some kind,
   also give the option to show items of some kind from anywhere from the drive. (query style)"): a fence's page chooses what
   it **Shows** (`FenceSource`, stored in its config and read through `IHoldsDesktopItems.Source`): **What I put in it**
@@ -10624,24 +10630,61 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
   `--desktop-items-check <out.txt> --search <ext> [folder]` runs one search and writes counts by extension and the time
   (no file names). Tests `FenceSourceTests.S13023_`, the module's `FenceTests.S10900_`. Needs a manual pass: a
   search fence on a live desktop (a drag out, the menu, a non-indexed folder's slower answer).
-- **[S-13026]** **The drag's picture stays over a fence** (the owner, 2026-11-19: "when it shows the ghost preview in the
+- **[S-13026]** **The drag's picture stays over the surface** (the owner, 2026-11-19: "when it shows the ghost preview in the
   fence it should not stop showing the drag preview"): while a drag of ours is over one of Themia's surfaces, the surface
   draws the drag's picture itself (Explorer's ghost of the dragged icons, `ItemDrag.RunningPicture`) on its ghost layer
   with the pointer at its hot spot, and XAML's copy is hidden there (`DragUIOverride.IsContentVisible`), so the picture is
-  under the pointer over empty desktop, cards and a fence alike, the fence's ghosts at their slots beside it ([S-13021]).
-  It goes when the drag leaves the surface, drops or ends; over another app's window the system's picture shows as
-  before. A drag with no picture keeps XAML's. Pure wiring: **needs a live check** (a free icon dragged onto a fence, a
-  fence's item onto another fence, on two displays).
+  under the pointer over empty desktop, cards and a fence alike. It goes when the drag leaves the surface, drops or ends;
+  over another app's window the system's picture shows as before. A drag with no picture keeps XAML's. Pure wiring:
+  **needs a live check** (icons dragged off the desktop and back over a fence, on two displays).
 - **[S-13027]** **The band takes a fence's items, not the fence** (the owner, 2026-11-19: "a fence should not be selected
   by the lasso if you also select the items of the fence, then only the items should be selected and take presedence"):
   a band that touches a fence and catches any of its items selects those items and leaves the fence out; a fence it
   touches with none of its items caught is selected as any card (`DesktopFences.BandHits`). Tests `DeskFixesTests.S13027_`.
 - **[S-13028]** **Rolling up glides** (the owner, 2026-11-19: "rolling up a fence should be nicely animated"): rolled up or
   let down (its chevron, a click on the title, hover peek, the menu), a fence's card glides from the box it had to the
-  new one over the shell's one glide (`CardGlide`: [S-2347]'s cubic ease-out over 250 ms), its top-left still, its foot
-  rising over its items (they stay till it reaches the title bar) or falling to show them; a layout pass
-  meanwhile draws it where the glide stands; its joins come back when it lands (`DesktopWindow.GlideCard`). At once while
-  Windows' animations are off. The stored rect changes at once, as before. Tests `DeskFixesTests.S13028_`.
+  new one over the shell's one glide (`CardGlide`: [S-2347]'s cubic ease-out over 250 ms), its top-left still; its icons go
+  from the surface as it rolls up and stand on their cells as it lets down; a layout pass meanwhile draws the card where the
+  glide stands; its joins come back when it lands (`DesktopWindow.GlideCard`). At once while Windows' animations are off.
+  The stored rect changes at once, as before. Tests `DeskFixesTests.S13028_`.
+- **[S-13040]** **A fence is a region of the desktop icon grid** (the owner, 2026-11-19: "the fence right now has kind of its
+  own layouting engine which is good but it does not integrate well with the normal themia layouting engine with the grid.
+  there is some kind of transition when dragging an icon into the fence or out of it. this should not be. the fence should
+  basically just be a helper to align the icon on the underlying engine without this transition in between."): its title
+  bar is `FenceGrid.TitleCells` (3) rows of the widget grid ([S-06]) and its body under it whole icon boxes (a desktop icon's
+  box on that grid, [S-11875]), so its frame stands on grid lines and every cell of it is a cell a free icon could stand on:
+  same box, same pitch, same label layout. `DesktopFences.Lay` (in every change of the state, `AppHost.LayFences`, and once
+  the displays' metrics are real) snaps the fence's rect to that (`FenceCells.Snap`: its corner on the nearest grid lines,
+  whole boxes across and down, at least one) and stands each item's icon on its cell in the fence's order (reading order,
+  as many to a row as the body holds, `FenceGrid.Layout`, the one layout). There is no layout of a fence's items of its own.
+  Tests `FenceGridTests.S13040_`, `FenceRulesTests.S13040_`.
+- **[S-13041]** **One move, one drop computation** (the same quote): an icon moving over, into or out of a fence is the
+  desktop's one move ([S-2008]: the card follows the pointer on the grid, the local grid lights where it lands); crossing
+  the fence's edge changes nothing (no hand-off to the shell's drag, no preview of the fence's, no re-layout, no size
+  change, no glide). Where it lands is `DesktopFences.DropCell` for the free desktop and a fence alike: the grid's landing,
+  and on a fence's body the cell under the icon's centre, never past the items that stay (a fence fills its cells in order)
+  nor a row its body does not show; the move's block follows the held icon there (`BlockMove`'s cell). Let go,
+  `DesktopFences.Land` makes each icon the fence's whose body it landed on, at the place its cell stands for, or a free icon
+  where it stands; the same for a shell drag of the desktop's icons dropped back on the desktop or over a fence
+  (`AppHost.MoveDeskDrag`) and for icons nudged with the keys. With Keep widgets from overlapping on, a move of icons alone
+  is kept apart from everything but fences and their icons. The desktop's own drop has no glide, so neither has a fence's.
+  Tests `FenceGridTests.S13041_`.
+- **[S-13042]** **A fence's items are desktop icons**: each held item has its one item widget on the fence's view (made at
+  the fence's corner when an item comes in with none there: a rule, a drop of files, a paste, `MoveIn`), drawn right over its
+  fence (`DesktopFences.PaintOrder`), moved with the fence when the fence moves (the move carries them), and an item whose
+  icon left the view (hidden, deleted, cut, moved to another display) leaves its fence (`Lay`). Auto arrange, Sort by, the
+  icon size's rescale and the displays' settle lay the free icons (`DesktopFences.FreeIcons`); a fence's are its own. Tests
+  `FenceGridTests.S13042_`.
+- **[S-13043]** **A fence scrolls by whole rows**: more items than its body shows, it shows whole rows from its `Scroll`
+  (kept between the top and its last row); the mouse wheel over its body or one of its icons moves it a row a notch
+  (`IDesktopFences.Scroll`, `AppHost.FenceWheel`; not an undo step), so its icons move by a row of the grid at once, on
+  the grid; a thin thumb at its right edge says where it stands. An icon it does not show is drawn by no card, tucked in the
+  fence's corner where it takes no room of the free desktop (`DesktopFences.Hidden`). A search fence scrolls its files the
+  same way, in the view. Tests `FenceGridTests.S13043_`, `FenceRulesTests.S13043_`.
+- **[S-13044]** **Stored before fences laid icons** (when a fence drew its own items, none of them had an icon on its view):
+  load gives each held item its icon (`DesktopFences.Repair`, `DesktopFences.NewIcon`), once (a second load finds them),
+  and the fence lays them on its cells when its display is known. Tests `DesktopFencesTests.S13002_S13044_`,
+  `FenceTests.S10920_S13044_`.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

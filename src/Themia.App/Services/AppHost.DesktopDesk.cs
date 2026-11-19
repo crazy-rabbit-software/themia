@@ -179,9 +179,6 @@ internal sealed partial class AppHost : IDesktopDesk
             ? at.Widget.Config switch
             {
                 IDesktopItemConfig config => DeskIcon.Of(config, PathExists),
-
-                // [S-13011] An item a fence holds is a desktop item by its key.
-                IHoldsDesktopItems => FenceIcon(key),
                 _ => null,
             }
             : null;
@@ -226,15 +223,6 @@ internal sealed partial class AppHost : IDesktopDesk
                 var r = widget.Rect;
                 boxes.Add(new DesktopBox(key, display, bounds.Left + (r.X * bounds.Width), bounds.Top + (r.Y * bounds.Height), r.W * bounds.Width, r.H * bounds.Height));
                 widgets.TryAdd(key, (surface, widget));
-            }
-
-            // [S-13011] A fence's items, where it draws them: in the one selection as every icon, found by the band and the arrows.
-            foreach (var (key, fence, box) in FenceItemBoxes(surface, State.ViewForMonitor(surface.Monitor.Id), display))
-            {
-                if (widgets.TryAdd(key, (surface, fence)))
-                {
-                    boxes.Add(box);
-                }
             }
 
             display++;
@@ -362,13 +350,6 @@ internal sealed partial class AppHost : IDesktopDesk
         _desk.Band(hits);
         RepaintDesk();
     }
-
-    /// <summary>[S-13027] The selection key of the fence that draws the item <paramref name="key"/> (as last laid out), or null for any other key.</summary>
-    private string? FenceKeyOf(string key)
-        => _deskWidgets.TryGetValue(key, out var at) && at.Widget.Config is IHoldsDesktopItems && DeskKey(at.Widget) is { } fence
-            && !DesktopItemKeys.Comparer.Equals(fence, key) // the fence's own card key is no item of it
-            ? fence
-            : null;
 
     /// <summary>[S-5544] The band is over: what it selected stays, and no display draws it any more.</summary>
     public void DesktopBandEnd()
@@ -710,18 +691,31 @@ internal sealed partial class AppHost : IDesktopDesk
     }
 
     private bool WidgetShows(string widgetId, string key)
-        => State.Views.SelectMany(v => v.Widgets).Any(w => w.Id == widgetId && w.Config switch
-        {
-            IDesktopItemConfig c => DesktopItemKeys.Comparer.Equals(DesktopItemKeys.Of(c), key),
+        => State.Views.SelectMany(v => v.Widgets).Any(w => w.Id == widgetId && w.Config is IDesktopItemConfig c && DesktopItemKeys.Comparer.Equals(DesktopItemKeys.Of(c), key));
 
-            // [S-13011] A fence shows the box on its own item.
-            IHoldsDesktopItems fence => fence.Items.Contains(key, DesktopItemKeys.Comparer),
-            _ => false,
-        });
-
-    /// <summary>[S-13005] The fence a widget id names (a fence holding the keyboard), or null.</summary>
+    /// <summary>[S-13005] The fence a widget id names (a fence holding the keyboard, or one of its icons), or null.</summary>
     private string? FenceIdOf(string? widgetId)
-        => widgetId is not null && DesktopFences.Find(State, widgetId) is not null ? widgetId : null;
+    {
+        if (widgetId is null)
+        {
+            return null;
+        }
+
+        if (DesktopFences.Find(State, widgetId) is not null)
+        {
+            return widgetId;
+        }
+
+        foreach (var view in State.Views)
+        {
+            if (view.Find(widgetId)?.Config is IDesktopItemConfig { Item.Length: > 0 } icon && DesktopFences.Holding(view, icon.Item) is { } fence)
+            {
+                return fence.Widget.Id;
+            }
+        }
+
+        return null;
+    }
 
     /// <summary>
     /// [S-13101] Ctrl+Shift+N on the desktop: a new folder in the user's desktop folder, landing in the fence that has the
@@ -922,9 +916,8 @@ internal sealed partial class AppHost : IDesktopDesk
         }
 
         var source = _windows.FirstOrDefault(w => w.IsAlive && w.Hwnd == window) ?? (_deskWidgets.TryGetValue(key, out var at) ? at.Surface : null);
-        // [S-13006] A fence is never in the drag of its items: over it the drop is the fence's, not the icons' own move.
         var widgets = new HashSet<string>(
-            keys.Select(k => _deskWidgets.TryGetValue(k, out var held) && held.Widget.Config is not IHoldsDesktopItems ? held.Widget.Id : null).OfType<string>(),
+            keys.Select(k => _deskWidgets.TryGetValue(k, out var held) ? held.Widget.Id : null).OfType<string>(),
             StringComparer.Ordinal);
         var drag = DesktopCommands.Drag(DeskIcons(keys));
         var offer = new ItemDragOffer(drag.Paths, DesktopCommands.DragEffects(drag));
@@ -994,7 +987,9 @@ internal sealed partial class AppHost : IDesktopDesk
     /// the display it started on (icons of both sources, and any card selected with them) move there as one
     /// block, the held icon where its picture is, snapped to the widget grid as a move is
     /// (<see cref="DesktopGrid.Drop"/>), to another display's view too (one widget per desktop item in a view:
-    /// one already there gives way). One undo step, never a file operation.
+    /// one already there gives way). [S-13041] The held icon lands by the one drop computation: over a fence's body on
+    /// its cell, and the icons land in a fence or out of one by where they stand (<see cref="DesktopFences.Land"/>), as a
+    /// move on the desktop does. One undo step, never a file operation.
     /// </summary>
     public void MoveDeskDrag(DesktopWindow target, Point dip)
     {
@@ -1016,17 +1011,6 @@ internal sealed partial class AppHost : IDesktopDesk
         var targetView = State.ViewForMonitor(target.Monitor.Id);
         var moving = sourceView.Widgets.Where(w => DeskKey(w) is { } key && drag.Keys.Contains(key)).ToList();
         var held = moving.FindIndex(w => DesktopItemKeys.Comparer.Equals(DeskKey(w), drag.Held));
-
-        // [S-13006] Items dragged out of a fence arrive on the free desktop at the drop point; free ones move as below.
-        var fenced = DesktopFences.Held(sourceView).Overlaps(drag.Keys);
-        if (moving.Count == 0 && fenced)
-        {
-            Mutate(_ => FenceItemsOut(sourceView, targetView, to, dip, drag.Keys), undo: UndoAction.Move);
-            return;
-        }
-
-        // The held icon in a fence: the block of free ones is held by its first.
-        held = held < 0 && fenced ? 0 : held;
         if (moving.Count == 0 || held < 0)
         {
             return;
@@ -1057,6 +1041,15 @@ internal sealed partial class AppHost : IDesktopDesk
         // [S-11878] The block lands as a move does: snapped to the grid, kept in reach; nothing is pushed aside.
         var spots = DesktopGrid.Drop(dragged, held, x, y, to);
 
+        // [S-13041] The held icon on the cell of what it lands on (a fence's body), the block with it.
+        var ids = new HashSet<string>(moving.Select(w => w.Id), StringComparer.Ordinal);
+        if (moving.TrueForAll(w => w.Config is IDesktopItemConfig))
+        {
+            var cell = DesktopFences.DropCell(targetView, spots[held], to, DeskIconSize(to), ids);
+            var (dx, dy) = (cell.X - spots[held].X, cell.Y - spots[held].Y);
+            spots = [.. spots.Select(r => r with { X = r.X + dx, Y = r.Y + dy })];
+        }
+
         Mutate(state =>
         {
             for (var i = 0; i < moving.Count; i++)
@@ -1076,10 +1069,8 @@ internal sealed partial class AppHost : IDesktopDesk
                 }
             }
 
-            if (fenced)
-            {
-                FenceItemsOut(sourceView, targetView, to, dip, drag.Keys);
-            }
+            // [S-13041] Into a fence or out of one by where they stand; one that left its view leaves its fence there.
+            DesktopFences.Land(targetView, ids, to, DeskIconSize(to));
         }, undo: UndoAction.Move);
     }
 
@@ -1100,7 +1091,9 @@ internal sealed partial class AppHost : IDesktopDesk
 
         var view = State.ViewForMonitor(surface.Monitor.Id);
         var widgets = new Dictionary<string, WidgetInstance>(DesktopItemKeys.Comparer);
-        foreach (var widget in view.Widgets)
+
+        // [S-13042] A fence's icons are its own to order (its Sort by): the free ones are sorted.
+        foreach (var widget in DesktopFences.FreeIcons(view))
         {
             if (widget.Config is IDesktopItemConfig config)
             {

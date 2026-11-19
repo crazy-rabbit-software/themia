@@ -186,8 +186,20 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void OnDesktopWheel(object sender, PointerRoutedEventArgs e)
     {
-        if (_closed || EditMode || !e.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control))
+        if (_closed || EditMode)
         {
+            return;
+        }
+
+        // [S-13043] The plain wheel over a fence (its body or an icon in it) scrolls it a row a notch, on the grid.
+        if (!e.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control))
+        {
+            var wheel = e.GetCurrentPoint(_root);
+            if (!e.Handled && _host.FenceWheel(this, wheel.Position, wheel.Properties.MouseWheelDelta))
+            {
+                e.Handled = true;
+            }
+
             return;
         }
 
