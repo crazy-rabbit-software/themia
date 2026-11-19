@@ -65,26 +65,6 @@ public static class BlockGeometry
     }
 
     /// <summary>
-    /// [S-11891] The translation the block is <b>drawn</b> at while it is dragged: the pointer's own
-    /// (<paramref name="dxFrac"/>, <paramref name="dyFrac"/>), kept in reach as <see cref="Move"/> keeps it
-    /// ([S-6608]) and on whole <see cref="GridGeometry.PixelStep"/>s ([S-11873]: every card's cell moves by the
-    /// same pixels), but never snapped: the cards stay glued to the pointer, and <see cref="Move"/> says where
-    /// they land.
-    /// </summary>
-    public static Delta Follow(IReadOnlyList<FracRect> start, double dxFrac, double dyFrac, ScreenMetrics screen, double rasterScale)
-    {
-        ArgumentNullException.ThrowIfNull(start);
-        if (!double.IsFinite(dxFrac) || !double.IsFinite(dyFrac) || !Bounds(start).IsFinite)
-        {
-            return default;
-        }
-
-        var (loX, hiX, loY, hiY) = Reach(start, screen);
-        var delta = new Delta(GridGeometry.Between(dxFrac, loX, hiX), GridGeometry.Between(dyFrac, loY, hiY));
-        return Whole(start, delta, screen, rasterScale);
-    }
-
-    /// <summary>
     /// [S-11873] <paramref name="delta"/> as whole pixel steps: the nearest that keeps the block in reach as
     /// <see cref="Settle"/> left it; where no whole step does (a block already at its limit), as it was.
     /// </summary>

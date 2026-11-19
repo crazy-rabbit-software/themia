@@ -7,7 +7,7 @@ namespace Themia.Core.Tests;
 /// <summary>
 /// [S-11890] A move touches only what changed: pointer moves coalesced to one step a frame, the keep-apart check
 /// looking only at the cards near the block, the landing reported changed only on another cell, the local grid as
-/// clipped layers. [S-11891] The cards follow the pointer in whole pixel steps and land on the grid.
+/// clipped layers. [S-11891] The cards are drawn on the grid while dragged, where they land.
 /// </summary>
 public sealed class DragPipelineTests
 {
@@ -65,75 +65,65 @@ public sealed class DragPipelineTests
     }
 
     [Fact]
-    public void S11890_a_step_says_where_the_block_lands_changed_only_when_it_reaches_another_cell()
+    public void S11890_a_step_says_the_block_moved_only_when_it_reaches_another_cell()
     {
         var move = new BlockMove([R(0.4, 0.4, 0.1, 0.1)], apart: null, Screen, rasterScale: 1);
-        var landings = 0;
-        var shown = 0;
+        var moves = 0;
 
-        // 30 DIPs to the right, one DIP at a time: drawn anew every DIP, landing anew on the 10, 20 and 30 DIP cells.
+        // 30 DIPs to the right, one DIP at a time: it moves on to the 10, 20 and 30 DIP cells (the snap's half cell).
         for (var dip = 1; dip <= 30; dip++)
         {
-            var step = move.Step(dip * 0.001, 0);
-            shown += step.ShownChanged ? 1 : 0;
-            landings += step.LandingChanged ? 1 : 0;
+            moves += move.Step(dip * 0.001, 0) ? 1 : 0;
         }
 
-        Assert.Equal(30, shown);
-        Assert.Equal(3, landings);
+        Assert.Equal(3, moves);
         Assert.Equal(0.03, move.Landing.Dx, 9);
 
         // The same place again changes nothing.
-        Assert.Equal(new BlockStep(false, false), move.Step(0.03, 0));
+        Assert.False(move.Step(0.03, 0));
     }
 
     [Theory]
-    [InlineData(1.0, 13.3, 13)]
-    [InlineData(1.5, 13.3, 14)]
-    [InlineData(1.25, 13.3, 12)]
-    public void S11891_the_block_is_drawn_at_the_pointer_in_whole_pixel_steps_and_lands_on_the_grid(double scale, double pointerDip, double drawnDip)
+    [InlineData(1.0, 13.3)]
+    [InlineData(1.0, 4.9)]
+    [InlineData(1.5, 13.3)]
+    [InlineData(1.5, 27.6)]
+    [InlineData(1.25, 13.3)]
+    public void S11891_the_dragged_block_is_drawn_on_the_grid_never_between_its_lines(double scale, double pointerDip)
     {
-        var move = new BlockMove([R(0.4, 0.4, 0.1, 0.1), R(0.5, 0.4, 0.1, 0.1)], apart: null, Screen, scale);
-        move.Step(pointerDip / 1000, 0);
+        // Regression (owner, 2026-11-19: "the items dont stick to the grid anymore when moving in the preview"): the
+        // one translation the cards are drawn at is the snapped move, so mid-drag they stand where they will land.
+        var start = new[] { R(0.4, 0.4, 0.1, 0.1), R(0.5, 0.4, 0.1, 0.1) };
+        var move = new BlockMove(start, apart: null, Screen, scale);
+        move.Step(pointerDip / 1000, pointerDip / 2000);
 
-        Assert.Equal(drawnDip / 1000, move.Shown.Dx, 9);
-        // [S-1584] [S-11873] It lands where a snapped move does: on the 10 DIP line, on whole pixel steps (at 125 %
-        // four DIPs, so within one such step of it).
-        var landing = BlockGeometry.Move([R(0.4, 0.4, 0.1, 0.1), R(0.5, 0.4, 0.1, 0.1)], pointerDip / 1000, 0, Screen, scale);
-        Assert.Equal(landing, move.Landing);
-        Assert.InRange(move.Landing.Dx * 1000, 10 - GridGeometry.PixelStep(scale), 10 + GridGeometry.PixelStep(scale));
-        var landed = move.LandingBounds();
-        Assert.Equal(0.4 + landing.Dx, landed.X, 9);
-        Assert.Equal(0.2, landed.W, 9);
+        Assert.Equal(BlockGeometry.Move(start, pointerDip / 1000, pointerDip / 2000, Screen, scale), move.Landing);
 
-        // [S-11873] Drawn there, each card's cell moved by the same whole pixels: the two still touch.
-        var left = GridGeometry.ToPixels(move.At(R(0.4, 0.4, 0.1, 0.1), move.Shown), Screen, scale);
-        var right = GridGeometry.ToPixels(move.At(R(0.5, 0.4, 0.1, 0.1), move.Shown), Screen, scale);
+        // On the 10 DIP lines (within one whole pixel step of them where the pitch is not a whole number of steps).
+        var step = GridGeometry.PixelStep(scale);
+        var x = move.LandingBounds().X * 1000;
+        Assert.InRange(Math.Abs(x - (Math.Round(x / 10) * 10)), 0, step);
+
+        // [S-11873] Each card's cell moved by the same whole pixels: the two still touch.
+        var left = GridGeometry.ToPixels(move.At(start[0], move.Landing), Screen, scale);
+        var right = GridGeometry.ToPixels(move.At(start[1], move.Landing), Screen, scale);
         Assert.Equal(left.X + left.Width, right.X, 9);
     }
 
     [Fact]
-    public void S11891_kept_apart_the_drawn_block_stops_flush_where_it_lands_and_never_slides_into_a_card()
+    public void S11891_kept_apart_the_block_stops_flush_by_a_card_and_slides_along_the_free_axis_on_the_grid()
     {
         var neighbour = R(0.3, 0.1, 0.1, 0.1);
         var move = new BlockMove([R(0.1, 0.1, 0.1, 0.1)], [neighbour], Screen, rasterScale: 1);
 
-        // 4 DIPs past flush: it lands flush (the snap), and is drawn flush too, not 4 DIPs over the neighbour.
+        // 4 DIPs past flush: it stands flush, not over the neighbour.
         move.Step(0.104, 0);
         Assert.Equal(0.1, move.Landing.Dx, 9);
-        Assert.Equal(0.1, move.Shown.Dx, 9);
 
-        // Pushed on along the neighbour's side and down past it, the drawn block slides along the free axis.
-        move.Step(0.13, 0.004);
-        Assert.Equal(0.1, move.Shown.Dx, 9);
-        Assert.Equal(0.004, move.Shown.Dy, 9);
-    }
-
-    [Fact]
-    public void S11891_far_past_the_screen_the_drawn_block_stops_where_the_landing_does()
-    {
-        var start = new[] { R(0.4, 0.4, 0.1, 0.1) };
-        Assert.Equal(BlockGeometry.Move(start, 5, -5, Screen, 1.5), BlockGeometry.Follow(start, 5, -5, Screen, 1.5));
+        // Pushed on along the neighbour's side and down, it slides down by whole cells.
+        move.Step(0.13, 0.016);
+        Assert.Equal(0.1, move.Landing.Dx, 9);
+        Assert.Equal(0.02, move.Landing.Dy, 9);
     }
 
     [Theory]

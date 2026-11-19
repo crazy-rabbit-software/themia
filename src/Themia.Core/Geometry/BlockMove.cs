@@ -1,20 +1,13 @@
 namespace Themia.Core.Geometry;
 
-/// <summary>What a pointer step of a <see cref="BlockMove"/> changed: where the block is drawn, where it lands.</summary>
-public readonly record struct BlockStep(bool ShownChanged, bool LandingChanged);
-
 /// <summary>
 /// [S-11890] [S-11891] A block of cards dragged by the pointer (a selection in edit mode, the locked desktop's move):
-/// two translations, kept apart. <see cref="Shown"/> is where the cards are drawn: the pointer's own, whole pixel
-/// steps, never snapped (<see cref="BlockGeometry.Follow"/>), so the cards stay glued to it. <see cref="Landing"/> is
-/// where they land when it lets go: snapped to the grid as a block (<see cref="BlockGeometry.Move"/>), which the local
-/// grid lights. With widgets kept apart ([S-11959]) both go through <see cref="BlockGeometry.Apart"/>: the landing
-/// against where it stood, the drawn place against the landing, so a card drawn beside one that stays stops flush
-/// where it would land instead of sliding into it.
+/// one translation, <see cref="Landing"/>, the move snapped to the grid as a block (<see cref="BlockGeometry.Move"/>,
+/// [S-1584]) and, with widgets kept apart ([S-11959]), kept apart (<see cref="BlockGeometry.Apart"/>). The cards are
+/// drawn there while they are dragged and land there: they always stick to the grid.
 /// <para>
-/// <see cref="Step"/> says which of the two changed, so the surface does only that: the cards' offsets for a new
-/// <see cref="Shown"/>, the local grid and the border marks only for a new <see cref="Landing"/> (another cell).
-/// Pure; the surface holds one per move.
+/// <see cref="Step"/> says whether it changed (another cell), so the surface touches the cards, the local grid and the
+/// border marks only then. Pure; the surface holds one per move.
 /// </para>
 /// </summary>
 public sealed class BlockMove
@@ -37,30 +30,24 @@ public sealed class BlockMove
     /// <summary>[S-11959] The rects of the cards that stay, with widgets kept apart; null when they may overlap.</summary>
     public IReadOnlyList<FracRect>? Apart { get; }
 
-    /// <summary>[S-11891] The translation the cards are drawn at now.</summary>
-    public BlockGeometry.Delta Shown { get; private set; }
-
-    /// <summary>[S-1584] The translation the cards land at if the pointer lets go now: on the grid, kept apart.</summary>
+    /// <summary>[S-1584] [S-11891] The translation the cards are drawn at and land at: on the grid, kept apart.</summary>
     public BlockGeometry.Delta Landing { get; private set; }
 
     /// <summary>
     /// The pointer is (<paramref name="dxFrac"/>, <paramref name="dyFrac"/>) from where it pressed, in fractions of the
-    /// screen: both translations follow, and the step says which of them changed.
+    /// screen: the block follows on the grid; true when that put it in another cell.
     /// </summary>
-    public BlockStep Step(double dxFrac, double dyFrac)
+    public bool Step(double dxFrac, double dyFrac)
     {
         var landing = BlockGeometry.Move(Start, dxFrac, dyFrac, _screen, _rasterScale);
-        var shown = BlockGeometry.Follow(Start, dxFrac, dyFrac, _screen, _rasterScale);
         if (Apart is { } apart)
         {
             landing = BlockGeometry.Apart(Start, landing, Landing, apart, _screen, _rasterScale);
-            shown = BlockGeometry.Apart(Start, shown, landing, apart, _screen, _rasterScale);
         }
 
-        var step = new BlockStep(shown != Shown, landing != Landing);
-        Shown = shown;
+        var changed = landing != Landing;
         Landing = landing;
-        return step;
+        return changed;
     }
 
     /// <summary>Where the card that started at <paramref name="start"/> stands under <paramref name="delta"/>.</summary>

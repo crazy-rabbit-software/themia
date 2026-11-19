@@ -39,7 +39,7 @@ internal sealed partial class DesktopWindow
         /// <summary>[S-2244] The cards have moved: they are free of their neighbours until dropped.</summary>
         public bool Moved { get; set; }
 
-        /// <summary>[S-11890] [S-11891] Where the block is drawn and where it lands ([S-11959]: kept apart with it).</summary>
+        /// <summary>[S-11890] [S-11891] Where the block is drawn and lands: on the grid ([S-11959]: kept apart with it).</summary>
         public BlockMove Block { get; } = block;
 
         /// <summary>[S-11890] The pointer's moves since the last frame, the latest kept.</summary>
@@ -139,9 +139,8 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-1584] The pointer moved: every moving card follows by the same translation ([S-11873]: in whole device
-    /// pixels, so the cards keep their spacing to the pixel). [S-11891] They follow the pointer itself; where the
-    /// block lands is <see cref="BlockGeometry"/>'s snap to the grid, clamped for the block as a whole, which the local
-    /// grid lights. [S-78] The display the drop would hand the widgets to shows their ghost, and the cards here fade.
+    /// pixels, so the cards keep their spacing to the pixel). [S-11891] They are drawn where they land: snapped to the
+    /// grid as a block (<see cref="BlockGeometry.Move"/>), clamped for the block as a whole, which the local grid lights. [S-78] The display the drop would hand the widgets to shows their ghost, and the cards here fade.
     /// [S-11890] The first move is drawn at once; the ones after are coalesced to one step a rendered frame
     /// (<see cref="PointerFrames"/>, <see cref="CompositionTarget.Rendering"/>), the latest pointer winning.
     /// </summary>
@@ -185,9 +184,9 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-11890] One step of a move, touching only what changed: the moving cards' offsets when where they are drawn
-    /// changed; the local grid and the border marks ([S-11874], [S-11881]) when where they land changed (another
-    /// cell) or the hand-off preview came or went. The first step also frees the moving cards from their neighbours
+    /// [S-11890] One step of a move, touching only what changed: the moving cards' offsets, the local grid and the
+    /// border marks ([S-11874], [S-11881]) when where the block lands changed (another cell); the grid and marks also
+    /// when the hand-off preview came or went. The first step also frees the moving cards from their neighbours
     /// (one join pass, [S-2244]); after it the joins stand still until the drop: the moving cards keep their places to
     /// one another and join only among themselves ([S-2457]). Nothing is stored and no event raised until the drop.
     /// </summary>
@@ -204,14 +203,14 @@ internal sealed partial class DesktopWindow
 
         DragProfile.Start();
         var first = !move.Moved;
-        var step = move.Block.Step(dxFrac, dyFrac);
+        var landed = move.Block.Step(dxFrac, dyFrac);
         DragProfile.Lap(DragStage.Geometry);
 
-        if (first || step.ShownChanged)
+        if (first || landed)
         {
             foreach (var (moving, start) in move.Cards)
             {
-                var at = move.Block.At(start, move.Block.Shown);
+                var at = move.Block.At(start, move.Block.Landing);
                 moving.SetLiveRect(at);
                 moving.FollowMove(GridGeometry.ToPixels(at, metrics, RasterScale));
             }
@@ -239,7 +238,7 @@ internal sealed partial class DesktopWindow
 
         DragProfile.Lap(DragStage.HandOff);
 
-        if (first || leavingChanged || step.LandingChanged)
+        if (first || leavingChanged || landed)
         {
             // [S-11874] The local grid round where the block lands (edit mode: its box lit over the whole grid), not
             // while the block is going to another display. [S-11881] On the locked desktop the borders near it with it.
@@ -365,7 +364,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        // [S-11891] Drawn where the pointer was, they land where the local grid lit: on the grid, kept apart.
+        // [S-11891] They land where they were drawn and the local grid lit: on the grid, kept apart.
         foreach (var (moving, start) in move.Cards)
         {
             moving.Model.Rect = move.Moved ? move.Block.At(start, move.Block.Landing) : moving.LiveRect;

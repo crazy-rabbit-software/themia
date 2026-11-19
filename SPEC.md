@@ -8079,7 +8079,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   on the work area's ([S-06], [S-6609]), and the move stops where the first of its
   widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
   each rect is then kept in reach ([S-09]). Offsets between the widgets never change. That is where the block
-  **lands**; while it is dragged it is drawn at the pointer itself ([S-11891]). Resizing is per
+  **lands**, and while it is dragged it is drawn there, on the grid ([S-11891]). Resizing is per
   card and narrows the selection to it ([S-2451]).
 - **[S-11879]** **A mixed block on the locked desktop** (owner, 2026-11-15: "the widgets in the desktop should also
   be selected with the lasso, and also moved with everything as well then"): outside edit mode a press on any selected
@@ -10796,23 +10796,23 @@ power buttons, whose whole body is their button) open nothing.
   feel that responsive / fluid"): a move in edit mode or on the locked desktop (`DesktopWindow.PreviewMove`) draws its
   first pointer step at once, then coalesces the pointer's moves to **one step a rendered frame**, the latest winning
   (`PointerFrames`, on `CompositionTarget.Rendering`; a drop takes a waiting step first). A step (`BlockMove.Step`)
-  says what changed: a new drawn place moves the moving cards' canvas offsets alone (`WidgetCard.FollowMove`: the
+  says whether the block reached another cell: only then the moving cards' canvas offsets move (`WidgetCard.FollowMove`: the
   cell and the glass shape shift by the same pixels; the frost and the glass's tint follow the offset, [S-2114]),
   no size, resize grips, relayout, state change or event; the cards are freed from their neighbours by one join pass
   on the first step ([S-2244]) and joined again by one on the drop, none between (the moving cards keep their places
-  to one another, [S-2457]); the local grid and the border marks ([S-11874], [S-11881]) change only when where the
-  block lands changes (another cell) or the hand-off preview comes or goes; the keep-apart check ([S-11959]) looks
+  to one another, [S-2457]); the local grid and the border marks ([S-11874], [S-11881]) change with them, or when the
+  hand-off preview comes or goes; the keep-apart check ([S-11959]) looks
   only at the cards that share area with the box the three tries land in (`BlockGeometry.Near`: exact, the same answer
   as every card). The drop: one store of the rects, one join pass, one undo step. `--drag-bench <out.txt>` (Debug)
   times each stage (`DragProfile`) over a 120-frame pointer path on a real surface of 21 widgets (joined rows, icons),
   locked and edit mode, solid and Liquid glass. Tests `DragPipelineTests.S11890_`.
-- **[S-11891]** **The dragged cards are glued to the pointer** (same request): while dragged a block is drawn at the
-  pointer's own translation (`BlockGeometry.Follow`: kept in reach, [S-6608], on whole pixel steps, [S-11873]), never
-  stepping cell by cell behind it; where it will **land** is the snapped move ([S-1584]), lit by the local grid's box
-  ([S-11874]; in edit mode the box alone over the whole grid), and the drop puts it there (at most half a cell, or the
-  edge magnet's 8 DIPs, [S-6609]). Kept apart ([S-11959]) the drawn place is kept apart too, against the landing: by a
-  card that stays it stops flush where it would land and slides along the free axis, never drawn over the card.
-  Tests `DragPipelineTests.S11891_`.
+- **[S-11891]** **The dragged cards stick to the grid** (owner, 2026-11-19: "now the items dont stick to the grid
+  anymore when moving in the preview. they should always stick to the grid"; replaces the same day's glue to the
+  pointer): while dragged a block is drawn at the one translation it lands at, the snapped move ([S-1584]: on the grid
+  or an edge magnet, [S-6609]; kept in reach, [S-6608]; on whole pixel steps, [S-11873]; kept apart, [S-11959]: by a
+  card that stays it stops flush and slides along the free axis), stepping cell by cell; the local grid lights that
+  box ([S-11874]; in edit mode the box alone over the whole grid), and the drop leaves it there. Tests
+  `DragPipelineTests.S11891_`.
 - **[S-11881]** **A locked move shows the borders** (owner, 2026-11-15: "when moving the widgets around in non edit
   mode it should show the borders too"): while a block moves on the locked desktop the moving cards show their
   corner marks (edit mode's look, [S-31b], on the surface's marker plates), and every other card near where it lands
