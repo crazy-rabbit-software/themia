@@ -9,6 +9,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 using Windows.System;
 
 namespace Themia.Sdk.WinUI;
@@ -22,6 +23,15 @@ namespace Themia.Sdk.WinUI;
 /// keys are <see cref="SearchKeys"/>' (where it is told how many results it has, <see cref="Count"/>), its
 /// results' keys <see cref="Results"/>'; its status line <see cref="Status"/>.
 /// <para>A box with no <see cref="Count"/> keeps WinUI's own keys (a suggestion list, the layout editor's).</para>
+/// <para>
+/// [S-13606] [S-13950] It comes in two sizes (<see cref="SearchSize"/>), one component: the <b>field</b> (32, above) where
+/// a search is always there, and the <b>line</b> where a widget opens a search on demand: the box stands in exactly the
+/// box of the line it opens on (a tool line's label, <see cref="StandIn"/>; or a list's first row), as tall as the
+/// line, the magnifier in the line's lead slot and the words in the line's type at the line's text edge, no frame,
+/// fill, clear button or magnifier button round them (the accent line at its foot, inside the line, while it has the
+/// keys), so opening it, typing in it and closing it move nothing (owner, 2026-11-19: "layout shifts for these kind
+/// of inputs should never happen"). Its keys are the field's.
+/// </para>
 /// </summary>
 public sealed partial class SearchBox : Grid
 {
@@ -30,27 +40,161 @@ public sealed partial class SearchBox : Grid
     /// <summary>The box itself: WinUI's search box (sealed, so held rather than derived from).</summary>
     private readonly AutoSuggestBox _suggest;
 
+    /// <summary>The line's magnifier, in the line's lead slot; null for the field.</summary>
+    private readonly Border? _lead;
+
+    /// <summary>Where the line stands in for a tool line's words, once it has.</summary>
+    private WordsPlace? _place;
+
     private TextBox? _box;
     private int _caret = -1;
 
-    public SearchBox(string placeholder)
+    public SearchBox(string placeholder, SearchSize size = SearchSize.Field)
     {
+        Size = size;
         _suggest = new AutoSuggestBox
         {
             PlaceholderText = placeholder,
-            MinHeight = ShellMetrics.Page.Control,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
-            QueryIcon = new FontIcon { Glyph = Glyphs.Search, FontSize = FamilyType.CaptionSize },
         };
+
+        if (size == SearchSize.Field)
+        {
+            _suggest.MinHeight = ShellMetrics.Page.Control;
+            _suggest.QueryIcon = new FontIcon { Glyph = Glyphs.Search, FontSize = FamilyType.CaptionSize };
+        }
+        else
+        {
+            _lead = BuildLine();
+        }
+
         AutomationProperties.SetName(_suggest, placeholder);
         _suggest.TextChanged += (_, _) => Changed?.Invoke(_suggest.Text);
-        _suggest.Loaded += (_, _) => PlaceCaret();
+        _suggest.Loaded += OnSuggestLoaded;
         _suggest.LayoutUpdated += OnLaidOut;
         VerticalAlignment = VerticalAlignment.Center;
         Children.Add(_suggest);
         PreviewKeyDown += OnKey;
     }
+
+    /// <summary>[S-13606] The field's 32 or the line's (<see cref="SearchSize"/>).</summary>
+    public SearchSize Size { get; }
+
+    /// <summary>[S-13950] The line's lead slot: the magnifier is centred in it (a list row's lead, 32 with an avatar; 16 by default).</summary>
+    public double LeadWidth
+    {
+        get => _lead?.Width ?? 0;
+        set
+        {
+            if (_lead is not null)
+            {
+                _lead.Width = value;
+            }
+        }
+    }
+
+    /// <summary>Whether the line stands in for a tool line's words now.</summary>
+    public bool Standing => _place?.Standing == true;
+
+    /// <summary>
+    /// [S-13950] The line stands in for <paramref name="words"/> (a tool line's label): their panel, place and cell, their
+    /// line's height, their type; the words collapsed until <see cref="StandOut"/>.
+    /// </summary>
+    public void StandIn(TextBlock words)
+    {
+        ArgumentNullException.ThrowIfNull(words);
+        if (_place is null || !ReferenceEquals(_place.Words, words))
+        {
+            _place?.Out();
+            _place = new WordsPlace(this, words);
+        }
+
+        TypeOf(words);
+        Visibility = Visibility.Visible;
+        _place.In();
+    }
+
+    /// <summary>The line steps out: the words come back where they stood.</summary>
+    public void StandOut() => _place?.Out();
+
+    /// <summary>[S-13950] The line in the type and line of <paramref name="words"/>: its height theirs, its words in their size and family.</summary>
+    public void TypeOf(TextBlock words)
+    {
+        ArgumentNullException.ThrowIfNull(words);
+        if (Size != SearchSize.Line)
+        {
+            return;
+        }
+
+        Height = InlineFit.Of(words.LineHeight > 0 ? words.LineHeight : FamilyType.LineOf(words.FontSize)).Height;
+        _suggest.FontSize = words.FontSize;
+        _suggest.FontFamily = words.FontFamily;
+        _suggest.CharacterSpacing = words.CharacterSpacing;
+    }
+
+    /// <summary>
+    /// [S-13950] The line: [the magnifier in the lead slot] 8 [the words], as tall as a Body line until it takes the line it
+    /// stands in for. The platform's search box keeps its keys and its caret; what it would add round the words goes, in
+    /// every state, through its own resource keys (its states set fills and the focused frame straight on its border).
+    /// </summary>
+    private Border BuildLine()
+    {
+        var lead = new Border
+        {
+            Width = FamilyShape.Icon,
+            Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = Family.Glyph(Glyphs.Search),
+        };
+
+        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        SetColumn(_suggest, 1);
+        Children.Add(lead);
+
+        Height = FamilyType.Body.LineHeight;
+        _suggest.MinHeight = 0;
+        _suggest.MinWidth = 0;
+        _suggest.VerticalAlignment = VerticalAlignment.Stretch;
+        _suggest.BorderThickness = new Thickness(0);
+        _suggest.CornerRadius = new CornerRadius(0);
+        _suggest.FontSize = FamilyType.Body.FontSize;
+        _suggest.Background = Family.Brush(ColourRole.Clear);
+        _suggest.Foreground = Family.Brush(ColourRole.TextPrimary);
+
+        var clear = Family.Brush(ColourRole.Clear);
+        foreach (var key in LineFills)
+        {
+            _suggest.Resources[key] = clear;
+        }
+
+        var placeholder = Family.Brush(ColourRole.TextSecondary);
+        foreach (var key in LinePlaceholders)
+        {
+            _suggest.Resources[key] = placeholder;
+        }
+
+        // The accent line at its foot while it has the keys, inside the line's height (a hairline under the words).
+        _suggest.Resources["TextControlBorderThemeThicknessFocused"] = new Thickness(0, 0, 0, FamilyShape.Hairline);
+        _suggest.Resources["TextControlBorderBrushFocused"] = Family.Brush(ColourRole.Accent);
+
+        // Its caret scrolls the words inside it, never what holds the line.
+        BringIntoViewRequested += (_, args) => args.Handled = true;
+        return lead;
+    }
+
+    /// <summary>The fills the line never draws: at rest, under the pointer, focused, disabled.</summary>
+    private static readonly string[] LineFills =
+    [
+        "TextControlBackground", "TextControlBackgroundPointerOver", "TextControlBackgroundFocused", "TextControlBackgroundDisabled",
+    ];
+
+    /// <summary>The placeholder in every state: the line's secondary words.</summary>
+    private static readonly string[] LinePlaceholders =
+    [
+        "TextControlPlaceholderForeground", "TextControlPlaceholderForegroundPointerOver", "TextControlPlaceholderForegroundFocused",
+    ];
 
     /// <summary>Every change of the words, typed or set.</summary>
     public event Action<string>? Changed;
@@ -112,7 +256,23 @@ public sealed partial class SearchBox : Grid
     public void FocusAt(int caret)
     {
         _caret = caret;
-        _ = _suggest.Focus(FocusState.Programmatic);
+
+        // A line just opened in its words' place is in the tree but not loaded yet: it takes the keys once it is.
+        _keysWanted = !_suggest.Focus(FocusState.Programmatic);
+        PlaceCaret();
+    }
+
+    /// <summary>The keys were asked for before the box could take them.</summary>
+    private bool _keysWanted;
+
+    private void OnSuggestLoaded(object sender, RoutedEventArgs args)
+    {
+        if (_keysWanted)
+        {
+            _keysWanted = false;
+            _ = _suggest.Focus(FocusState.Programmatic);
+        }
+
         PlaceCaret();
     }
 
@@ -200,10 +360,36 @@ public sealed partial class SearchBox : Grid
         }
 
         _suggest.LayoutUpdated -= OnLaidOut;
+        if (Size == SearchSize.Line)
+        {
+            Compact(box, query);
+            return;
+        }
+
         if (query.Visibility != Visibility.Visible || query.Content is null)
         {
             query.Content = new FontIcon { Glyph = Glyphs.Search, FontSize = FamilyType.CaptionSize };
             query.Visibility = Visibility.Visible;
+        }
+    }
+
+    /// <summary>
+    /// [S-13950] The line's text box: no 32 minimum, no padding (the words at the line's text edge), and neither the clear
+    /// button nor the magnifier button (each 32 wide and 28 or more tall; the magnifier is the lead's, Escape empties it).
+    /// </summary>
+    private static void Compact(TextBox box, Button query)
+    {
+        box.MinHeight = 0;
+        box.MinWidth = 0;
+        box.Padding = new Thickness(0);
+        foreach (var button in new[] { query, Named(box, "DeleteButton") })
+        {
+            if (button is not null)
+            {
+                button.MaxWidth = 0;
+                button.MaxHeight = 0;
+                button.IsHitTestVisible = false;
+            }
         }
     }
 
@@ -331,4 +517,14 @@ public sealed partial class SearchBox : Grid
         VirtualKey.Down => WidgetKey.Down,
         _ => null,
     };
+}
+
+/// <summary>[S-13606] The one search box's two sizes.</summary>
+public enum SearchSize
+{
+    /// <summary>The 32 field, where a search is always there (a page's lookup, a widget's Search box setting).</summary>
+    Field,
+
+    /// <summary>[S-13950] The line a widget opens a search on: as tall as the line it stands in, nothing round its words.</summary>
+    Line,
 }

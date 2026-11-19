@@ -44,6 +44,9 @@ public sealed partial class ToolLine : Grid
         Decide();
     }
 
+    /// <summary>[S-13950] The label's words: what a search opened on the line stands in for (<c>SearchBox.StandIn</c>), in their own box.</summary>
+    public TextBlock Words => _label;
+
     /// <summary>The line's trailing parts: the view adds its buttons, labels and state here.</summary>
     public LineParts Parts { get; } = new();
 
