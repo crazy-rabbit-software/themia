@@ -114,7 +114,7 @@ internal sealed partial class AppHost
 
     /// <summary>
     /// [S-13704] Put the desktop items <paramref name="keys"/> into the fence <paramref name="fenceId"/> of a view, at its end
-    /// (<see cref="DesktopFences.MoveIn"/>: each leaves the free desktop and every other fence of that view); one undo step.
+    /// (<see cref="PlaceInFence"/>: each leaves the free desktop and every other fence of that view); one undo step.
     /// Only listed items: an own icon is never a fence's.
     /// </summary>
     public void PutDesktopItemsInFence(string viewId, string fenceId, IReadOnlyList<string> keys)
@@ -126,7 +126,12 @@ internal sealed partial class AppHost
             return;
         }
 
-        Mutate(state => _ = state.FindView(viewId) is { } view ? DesktopFences.MoveIn(view, fenceId, listed, int.MaxValue) : 0, undo: UndoAction.Move);
+        // [S-13040] Through the fence's one way in: each item gets its icon on the view, laid on the fence's cells.
+        if (!PlaceInFence(fenceId, listed))
+        {
+            return;
+        }
+
         Log.Info(Scope, $"{listed.Count} desktop item(s) were put in a fence");
     }
 
