@@ -130,6 +130,50 @@ public sealed class DesktopGridTests
         Assert.Equal(["b", "c"], DesktopPicks.Moving(view, selection, "c", KeyOf));
     }
 
+    [Fact]
+    public void S11879_widgets_are_picked_with_ctrl_or_shift_and_move_as_one_block_while_unlocked()
+    {
+        // The owner, 2026-11-19: "in non edit mode when the dashboard is not locked i should be able to select multiple
+        // widgets and move them around together." A plain press stays the widget's; Ctrl or Shift picks it.
+        Assert.True(DesktopPicks.PicksOnPress(editMode: false, leftButton: true, ctrl: true, shift: false));
+        Assert.True(DesktopPicks.PicksOnPress(editMode: false, leftButton: true, ctrl: false, shift: true));
+        Assert.False(DesktopPicks.PicksOnPress(editMode: false, leftButton: true, ctrl: false, shift: false));
+        Assert.False(DesktopPicks.PicksOnPress(editMode: false, leftButton: false, ctrl: true, shift: false));
+        Assert.False(DesktopPicks.PicksOnPress(editMode: true, leftButton: true, ctrl: true, shift: false));
+
+        var view = ViewState.Create("Home");
+        view.Widgets.Add(Card("clock", new FracRect(0, 0, 0.1, 0.1)));
+        view.Widgets.Add(Card("weather", new FracRect(0.5, 0, 0.1, 0.1)));
+        view.Widgets.Add(Icon("i", @"C:\d\a.txt", new FracRect(0.8, 0.8, 0.05, 0.05)));
+        view.Widgets.Add(Card("tasks", new FracRect(0.3, 0.5, 0.1, 0.1)));
+        string? KeyOf(WidgetInstance w) => DesktopPicks.KeyOf(w, _ => true);
+        var selection = new DesktopSelection();
+        selection.SetLayout(view.Widgets.Select(w => new DesktopBox(KeyOf(w)!, 0, w.Rect.X * 100, w.Rect.Y * 100, w.Rect.W * 100, w.Rect.H * 100)), _ => null);
+
+        // Ctrl+clicks, as the card hands them to the selection (a press and its release).
+        foreach (var id in new[] { "clock", "weather" })
+        {
+            var key = KeyOf(view.Widgets.Find(w => w.Id == id)!)!;
+            selection.Press(key, ctrl: true, shift: false);
+            selection.Release(key);
+        }
+
+        var icon = KeyOf(view.Widgets[2])!;
+        selection.Press(icon, ctrl: true, shift: false);
+        selection.Release(icon);
+
+        Assert.Equal(["clock", "weather", "i"], DesktopPicks.Selected(view, selection, KeyOf));
+        Assert.Equal(["clock", "weather", "i"], DesktopPicks.Moving(view, selection, "weather", KeyOf, lockWidgets: false));
+        Assert.Equal(["tasks"], DesktopPicks.Moving(view, selection, "tasks", KeyOf, lockWidgets: false));
+
+        // Ctrl+click again takes one out; with Lock widgets on the picked widgets stay and the icon moves.
+        var weather = KeyOf(view.Widgets[1])!;
+        selection.Press(weather, ctrl: true, shift: false);
+        selection.Release(weather);
+        Assert.Equal(["clock", "i"], DesktopPicks.Selected(view, selection, KeyOf));
+        Assert.Equal(["i"], DesktopPicks.Moving(view, selection, "i", KeyOf, lockWidgets: true));
+    }
+
     [Theory]
     [InlineData(1.0)]
     [InlineData(1.25)]

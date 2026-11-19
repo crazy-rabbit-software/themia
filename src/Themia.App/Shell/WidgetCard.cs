@@ -98,6 +98,12 @@ internal interface IWidgetCardHost
     /// </summary>
     void KeyboardPress(WidgetCard card);
 
+    /// <summary>
+    /// [S-11879] A Ctrl or Shift press on this card outside edit mode: it goes into the desktop's one selection by the
+    /// icons' rules (Ctrl toggles, Shift adds the range). Returns whether the selection took it (a preview host never does).
+    /// </summary>
+    bool DeskPick(WidgetCard card, bool ctrl, bool shift) => false;
+
     /// <summary>[S-1251] True for a debug render's host: its cards are previews and must not act on the machine.</summary>
     bool IsPreview => false;
 
@@ -1296,6 +1302,22 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
 
         _host.KeyboardPress(this);
+
+        // [S-11879] Ctrl or Shift with a left press puts the card in (or takes it out of) the desktop's one selection, as
+        // a desktop icon's press does: several widgets are picked by hand, then pressed and moved as one block. The
+        // view never hears that press as its own (no open, no row picked), and it does not arm a move.
+        var pressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
+        var ctrl = (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) != 0;
+        var shift = (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Shift) != 0;
+        if (_view is not IDesktopIconView && !_host.IsPreview
+            && Themia.Core.Desktop.DesktopPicks.PicksOnPress(editMode: false, pressed, ctrl, shift)
+            && _host.DeskPick(this, ctrl, shift))
+        {
+            _openArmed = false;
+            _moveArmed = false;
+            e.Handled = true;
+            return;
+        }
 
         // [S-2008] A button takes its press itself, so the card's own press handler never arms the move:
         // it is armed here, where handled presses are heard too.

@@ -54,6 +54,15 @@ public static class DesktopPicks
     }
 
     /// <summary>
+    /// [S-11879] Whether a press on a widget card (not a desktop icon, whose own press picks it) goes to the desktop's one
+    /// selection: outside edit mode, the left button, with Ctrl (toggle) or Shift (the range). Lock widgets does not
+    /// matter: a locked widget is picked as any (the lock only keeps it from moving, [S-12950]). A plain press stays the
+    /// widget's own (its content, its click, its move).
+    /// </summary>
+    public static bool PicksOnPress(bool editMode, bool leftButton, bool ctrl, bool shift)
+        => !editMode && leftButton && (ctrl || shift);
+
+    /// <summary>
     /// [S-11879] What a move of the widget <paramref name="heldId"/> on the locked desktop carries: every
     /// selected widget of <paramref name="view"/>, icons and cards alike, when the held one is selected; the
     /// held one alone otherwise. The held one is always in it.

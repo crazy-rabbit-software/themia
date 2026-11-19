@@ -278,6 +278,27 @@ internal sealed partial class AppHost : IDesktopDesk
         RepaintDesk();
     }
 
+    /// <summary>
+    /// [S-11879] A widget card pressed with Ctrl or Shift on the locked desktop: in (or out of) the desktop's one selection
+    /// under its card key, by the icons' rules (Ctrl toggles, Shift adds the range from the anchor), as a click. The
+    /// desktop is active (the selection's look) from then on. False for a widget with no key.
+    /// </summary>
+    public bool DeskPick(WidgetInstance widget, bool ctrl, bool shift)
+    {
+        LayoutDesk();
+        if (DeskKey(widget) is not { } key)
+        {
+            return false;
+        }
+
+        CloseRenameFor(null);
+        _desk.Press(key, ctrl, shift);
+        _desk.Release(key);
+        _deskActive = true;
+        RepaintDesk();
+        return true;
+    }
+
     /// <summary>[S-11877] Escape on the locked desktop: the one selection, icons and cards, is cleared.</summary>
     public void ClearDeskSelection()
     {

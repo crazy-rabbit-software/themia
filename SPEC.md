@@ -8087,7 +8087,13 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   (`DesktopPicks.Moving` over the desktop's one selection, [S-11877]); an unselected one moves alone and the selection
   stays. The block moves as [S-1584] says: one translation, its corner snapped
   to the grid, kept in reach, in whole device pixels ([S-11873]), handed to another display's view where it is let go
-  there ([S-1591]), one undo step. Tests `DesktopGridTests.S11879_`.
+  there ([S-1591]), one undo step. **Picked by hand** (owner, 2026-11-19: "in non edit mode when the dashboard is not
+  locked i should be able to select multiple widgets and move them around together"): besides the band, a left press
+  with **Ctrl** (toggle) or **Shift** (the range) on any widget card puts it in the one selection as a desktop icon's
+  press does (`DesktopPicks.PicksOnPress`, `AppHost.DeskPick`); that press is not the widget's (no open, no row, no
+  move); a plain press stays the widget's. With Lock widgets on the picked widgets stay and only icons move ([S-12950]).
+  Before, a card reached the selection by the band alone, and the band and the move died on the first press after
+  another app ([S-13017]). Tests `DesktopGridTests.S11879_`.
 - **[S-11885]** *(Retired 2026-11-17 with the groups, [S-2450]: the locked desktop moves and selects exactly what is
   pressed or selected, `DesktopPicks.Selected`, `.Moving`, `.Selects`. Test
   `DesktopGridTests.S11877_a_locked_move_or_lasso_takes_what_it_touches_and_never_a_neighbour_it_only_touches`.)*
