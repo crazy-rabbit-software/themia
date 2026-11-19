@@ -2124,6 +2124,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   "Default (24-hour)" (until 2026-11-19 "Windows setting (…)"), and while it holds, the line says the same words at its
   end (the Language line said "English"; the formats their bare value). A value set says itself. The rules hold it
   ([S-2374] R18). Tests `SettingsMenuTests.S3536_`.
+- **[S-2373]** **Online updates says what it holds** (owner, 2026-11-19, as [S-2370]; Karpo's Online card "15 min",
+  its R4): shut, its card says at its end the one interval every kind of source is asked at ("Every 15 minutes"), or
+  Custom where they differ. The rules hold every card that holds settings to it ([S-2374] R4).
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,

@@ -41,6 +41,12 @@ public static partial class SettingsMenu
         lines.Add(new SettingsSeparator(Keys.Online + "/-note"));
         lines.Add(new SettingsNote(Keys.Online + "/note", Str.WidgetPrefs_Updates_Note.Text()));
 
-        return new SettingsSubmenu(Keys.Online, Str.SettingsMenu_OnlineUpdates.Text(), Glyphs.Refresh, lines);
+        // [S-2373] The card says what it holds at its end, as Karpo's Online ("15 min", its §517 R4): the one interval every
+        // kind of source is asked at, or Custom where they differ.
+        var every = UpdateCadence.Rows.Select(row => UpdateCadence.Minutes(refresh, row)).Distinct().ToList();
+        return new SettingsSubmenu(Keys.Online, Str.SettingsMenu_OnlineUpdates.Text(), Glyphs.Refresh, lines)
+        {
+            Value = every.Count == 1 ? UpdateCadence.Every(every[0]) : Str.SettingsPages_General_FormatsCustom.Text(),
+        };
     }
 }
