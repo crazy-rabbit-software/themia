@@ -55,8 +55,10 @@ public sealed partial class ReadingFit : Panel
         }
 
         packed += Math.Max(0, shown.Count - 1) * _plan.Spacing;
+        // [S-12813] Sized by the reading's ink (a placeholder keeps its reading's size), placed by the ink drawn.
+        var held = shown.Count == 0 ? LineInk.None : new LineInk(PartInk.Held(shown[0]).Over, PartInk.Held(shown[^1]).Under);
         var ink = shown.Count == 0 ? LineInk.None : new LineInk(PartInk.Of(shown[0]).Over, PartInk.Of(shown[^1]).Under);
-        _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, ink);
+        _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink);
         _scale.ScaleX = _fill.Scale;
         _scale.ScaleY = _fill.Scale;
 

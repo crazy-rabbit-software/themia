@@ -49,6 +49,9 @@ public static class BlockFit
         return new BlockLay(scale, Math.Max(0, top) - (inkTop * scale));
     }
 
+    /// <summary>The DIP a block's parts are given over their width when the width holds its scale.</summary>
+    public const double WidthSlack = 1;
+
     /// <summary>
     /// [S-12814] The rule for a one-readout block (owner, 2026-11-19: "the drive widget still has a fucking space at the
     /// top, maybe also at the bottom. make sure that this does not happen anywhere"). Only the parts with a width of
@@ -58,21 +61,28 @@ public static class BlockFit
     /// <paramref name="ink"/> inside it) fit the height. It is then laid out in the whole height the scale leaves it,
     /// its first ink on the room's top and its last on its foot: what the parts do not take goes between them, never
     /// over the first ink or under the last. Never smaller than its own size: a room shorter than the parts keeps them
-    /// packed from the top, the first ink on it.
+    /// packed from the top, the first ink on it. [S-12813] A block showing a placeholder ("--") is sized by the ink
+    /// of the reading it stands for (<paramref name="ink"/>) and placed by the ink it draws (<paramref name="drawn"/>,
+    /// the dashes' top lower than capitals): the same size as its readings, its dashes on the top.
     /// </summary>
-    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink)
+    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, LineInk? drawn = null)
     {
-        var over = double.IsFinite(ink.Over) ? Math.Max(0, ink.Over) : 0;
-        var under = double.IsFinite(ink.Under) ? Math.Max(0, ink.Under) : 0;
+        static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
+        var over = Room(ink.Over);
+        var under = Room(ink.Under);
+        var placedOver = Room((drawn ?? ink).Over);
+        var placedUnder = Room((drawn ?? ink).Under);
         if (!(packedHeight > 0) || !double.IsFinite(packedHeight) || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
         {
-            return new BlockFill(1, double.IsFinite(packedHeight) ? Math.Max(0, packedHeight) : 0, -over);
+            return new BlockFill(1, double.IsFinite(packedHeight) ? Math.Max(0, packedHeight) : 0, -placedOver);
         }
 
         var span = Math.Max(1e-6, packedHeight - over - under);
-        var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / intrinsicWidth : double.PositiveInfinity;
+        // A whole pixel of slack over the parts' width: laid out at exactly their width, layout rounding would trim a
+        // text to its ellipsis (the weather's "Can't reach the servi...").
+        var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / (intrinsicWidth + WidthSlack) : double.PositiveInfinity;
         var scale = Math.Max(1, Math.Min(byWidth, height / span));
-        var laid = Math.Max(packedHeight, (height / scale) + over + under);
-        return new BlockFill(scale, laid, -over * scale);
+        var laid = Math.Max(packedHeight, (height / scale) + placedOver + placedUnder);
+        return new BlockFill(scale, laid, -placedOver * scale);
     }
 }

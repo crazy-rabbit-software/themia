@@ -120,6 +120,58 @@ public class BlockFitTests
     }
 
     [Fact]
+    public void S12813_a_placeholder_keeps_its_readings_size_and_stands_its_dashes_on_the_top()
+    {
+        // The drive card without its drive: "--" and "%" on the 28 readout (36 line), its reason under it, its bar.
+        // The dashes ink lower than figures would; sized by the figures, placed by the dashes.
+        var step = new TypeStep(28, 36, true);
+        var held = LineInk.Of(step);
+        var drawn = LineInk.Placeholder(step, 0);
+        Assert.True(drawn.Over > held.Over);
+
+        var reading = BlockFit.Fill(306, 106, 60, 64, held);
+        var fill = BlockFit.Fill(306, 106, 60, 64, held, drawn);
+
+        Assert.Equal(reading.Scale, fill.Scale, 6);
+        Assert.Equal(0, fill.Top + (drawn.Over * fill.Scale), 6);
+        Assert.Equal(106, fill.Top + ((fill.Height - drawn.Under) * fill.Scale), 6);
+    }
+
+    [Fact]
+    public void S12814_a_width_held_block_keeps_a_pixel_over_its_text_so_rounding_never_trims_it()
+    {
+        // The weather's "--" over "Can't reach the service" (150 wide) in a tall card: the width holds the scale.
+        var fill = BlockFit.Fill(306, 400, 150, 52, new LineInk(9.2, 4));
+
+        Assert.Equal(306 / (150 + BlockFit.WidthSlack), fill.Scale, 6);
+        Assert.True((306 / fill.Scale) - 150 >= BlockFit.WidthSlack - 1e-9);
+    }
+
+    [Theory]
+    [InlineData("--", true)]
+    [InlineData("–", true)]
+    [InlineData("- -", true)]
+    [InlineData("47", false)]
+    [InlineData("-4", false)]
+    [InlineData("", false)]
+    public void S12813_only_dashes_dots_and_spaces_are_a_placeholder(string text, bool capless)
+    {
+        Assert.Equal(capless, LineInk.Capless(text));
+    }
+
+    [Fact]
+    public void S12813_a_placeholders_unit_capitals_stand_higher_than_its_dashes()
+    {
+        var step = new TypeStep(28, 36, true);
+        var bare = LineInk.Placeholder(step, 0);
+        var unit = LineInk.Placeholder(step, 20);
+
+        Assert.Equal((36 * LineInk.FaceBaseline) - (28 * LineInk.FaceDash), bare.Over, 6);
+        Assert.Equal((36 * LineInk.FaceBaseline) - (20 * LineInk.FaceCap), unit.Over, 6);
+        Assert.Equal(LineInk.Of(step).Under, unit.Under, 6);
+    }
+
+    [Fact]
     public void S12814_a_room_shorter_than_the_parts_keeps_them_packed_from_the_top()
     {
         var fill = BlockFit.Fill(300, 40, 100, 80, new LineInk(6, 4));

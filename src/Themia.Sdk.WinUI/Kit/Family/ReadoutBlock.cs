@@ -65,15 +65,21 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
     /// <summary>
     /// [S-12808] The room in its box over its first ink and under its last: the value's capitals (or its lead
     /// glyph, centred on the value's line, where that stands higher) and the line under's baseline, or the value's.
+    /// [S-12813] A placeholder value ("--") inks from its dashes' top (or its unit's capitals), lower than capitals.
     /// </summary>
-    public LineInk Ink
+    public LineInk Ink => Inked(LineInk.Capless(_value.Text) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : LineInk.Of(_step));
+
+    /// <summary>
+    /// [S-12813] The ink of the reading it stands for: the value's capitals even while a placeholder is shown, so a
+    /// block scaled to fit (<see cref="ReadingFit"/>) keeps the size its readings draw at.
+    /// </summary>
+    public LineInk Held => Inked(LineInk.Of(_step));
+
+    private LineInk Inked(LineInk line)
     {
-        get
-        {
-            var value = LineInk.Of(_step).With(_lead.Visibility == Visibility.Visible ? _lead.Height : 0, _step.LineHeight);
-            var under = _under.Visibility == Visibility.Visible ? LineInk.Of(FamilyType.Under(_step)).Under : value.Under;
-            return new LineInk(value.Over, under);
-        }
+        var value = line.With(_lead.Visibility == Visibility.Visible ? _lead.Height : 0, _step.LineHeight);
+        var under = _under.Visibility == Visibility.Visible ? LineInk.Of(FamilyType.Under(_step)).Under : value.Under;
+        return new LineInk(value.Over, under);
     }
 
     /// <inheritdoc />

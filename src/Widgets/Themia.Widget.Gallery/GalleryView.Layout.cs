@@ -36,8 +36,11 @@ internal sealed partial class GalleryView
     private readonly RectangleGeometry _clip = new();
     private readonly List<GalleryFrame> _frames = [];
 
-    /// <summary>[S-6714] A scan with nothing to draw: the Status row at the top, never a centred panel.</summary>
-    private readonly StatusBlock _status = new() { Visibility = Visibility.Collapsed };
+    /// <summary>
+    /// [S-6714] A scan with nothing to draw: the Status row at the top, never a centred panel. [S-12815] The view
+    /// owns the card's top edge ([S-5700]): the row stands on its own top, no inset over it to take back.
+    /// </summary>
+    private readonly StatusBlock _status = new() { Visibility = Visibility.Collapsed, Margin = default };
 
     private WidgetArea _area;
     private GalleryPlan? _plan;

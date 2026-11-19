@@ -22,6 +22,34 @@ public readonly record struct LineInk(double Over, double Under)
 
     public const double FaceBaseline = 0.8;
 
+    /// <summary>
+    /// [S-12813] Where a dash ("--", a reading's placeholder) inks its top over the baseline, a fraction of the font
+    /// size: measured on the renders, the dash stands at about a third of the capitals' height.
+    /// </summary>
+    public const double FaceDash = 0.31;
+
+    /// <summary>
+    /// [S-12813] A line on <paramref name="step"/> that draws a placeholder of dashes and, beside it, a unit of
+    /// <paramref name="unitSize"/> (0: none): its ink starts at the dash's top or the unit's capitals, whichever
+    /// stands higher, not at the capitals the line's step would draw.
+    /// </summary>
+    public static LineInk Placeholder(TypeStep step, double unitSize)
+    {
+        var line = Of(step);
+        if (line == None)
+        {
+            return None;
+        }
+
+        var baseline = step.LineHeight * FaceBaseline;
+        var reach = Math.Max(step.FontSize * FaceDash, unitSize > 0 ? unitSize * FaceCap : 0);
+        return new LineInk(Math.Max(line.Over, baseline - reach), line.Under);
+    }
+
+    /// <summary>Whether <paramref name="text"/> draws no capital or figure: dashes, dots and spaces (a placeholder).</summary>
+    public static bool Capless(string? text)
+        => !string.IsNullOrEmpty(text) && text.All(c => c is '-' or '‒' or '–' or '—' or '−' or '.' or '·' or ' ');
+
     /// <summary>A text line on <paramref name="step"/>: its leading over its capitals and under its baseline.</summary>
     public static LineInk Of(TypeStep step)
     {

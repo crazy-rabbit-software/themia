@@ -14,7 +14,15 @@ namespace Themia.App.Widgets;
 public static class PartInk
 {
     /// <summary>The room in <paramref name="element"/>'s box (its margin included) over its first ink and under its last; measured parts only.</summary>
-    public static LineInk Of(UIElement element)
+    public static LineInk Of(UIElement element) => Of(element, held: false);
+
+    /// <summary>
+    /// [S-12813] The ink <paramref name="element"/> is sized by: <see cref="Of(UIElement)"/>, but a part showing a
+    /// placeholder reads as what it stands for (<see cref="IInked.Held"/>).
+    /// </summary>
+    public static LineInk Held(UIElement element) => Of(element, held: true);
+
+    private static LineInk Of(UIElement element, bool held)
     {
         ArgumentNullException.ThrowIfNull(element);
         if (element.Visibility != Visibility.Visible)
@@ -25,12 +33,12 @@ public static class PartInk
         var margin = element is FrameworkElement fe ? fe.Margin : default;
         var inner = element switch
         {
-            IInked part => part.Ink,
+            IInked part => held ? part.Held : part.Ink,
             TextBlock text => text.LineHeight > 0 ? LineInk.Of(new TypeStep(text.FontSize, text.LineHeight, false)) : LineInk.None,
-            Border border when border.Child is { } child => Add(Of(child), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
-            StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children), stack.Padding.Top, stack.Padding.Bottom),
-            SpreadStack { Orientation: Orientation.Vertical } spread => Stacked(spread.Children),
-            Panel panel => Beside(panel),
+            Border border when border.Child is { } child => Add(Of(child, held), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
+            StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children, held), stack.Padding.Top, stack.Padding.Bottom),
+            SpreadStack { Orientation: Orientation.Vertical } spread => Stacked(spread.Children, held),
+            Panel panel => Beside(panel, held),
             _ => LineInk.None,
         };
 
@@ -38,14 +46,14 @@ public static class PartInk
     }
 
     /// <summary>A vertical stack: its first shown part's room over and its last's under.</summary>
-    private static LineInk Stacked(UIElementCollection children)
+    private static LineInk Stacked(UIElementCollection children, bool held)
     {
         var shown = children.Where(c => c.Visibility == Visibility.Visible).ToList();
-        return shown.Count == 0 ? LineInk.None : new LineInk(Of(shown[0]).Over, Of(shown[^1]).Under);
+        return shown.Count == 0 ? LineInk.None : new LineInk(Of(shown[0], held).Over, Of(shown[^1], held).Under);
     }
 
     /// <summary>Parts side by side (a grid, a row): the least room over and under any of them, where each stands in the panel's height.</summary>
-    private static LineInk Beside(Panel panel)
+    private static LineInk Beside(Panel panel, bool held)
     {
         // Its own box: what it measured less its own margin (each part's slot holds the part's).
         var own = panel is FrameworkElement self ? self.Margin.Top + self.Margin.Bottom : 0;
@@ -78,7 +86,7 @@ public static class PartInk
                 VerticalAlignment.Bottom => room,
                 _ => room / 2,
             };
-            var ink = Of(part);
+            var ink = Of(part, held);
             if (row == 0)
             {
                 over = Math.Min(over, top + ink.Over);

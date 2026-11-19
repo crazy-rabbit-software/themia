@@ -47,8 +47,11 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
     private readonly Image _picture = new() { Stretch = Stretch.Uniform };
     private SoftwareBitmapSource? _pictureSource;
 
-    /// <summary>[S-1314] A stream with no picture: the Status row at the top, never a centred panel.</summary>
-    private readonly StatusBlock _status = new() { Visibility = Visibility.Collapsed };
+    /// <summary>
+    /// [S-1314] A stream with no picture: the Status row at the top, never a centred panel. [S-12815] The view owns
+    /// the card's top edge ([S-5700]): the row stands on its own top, no inset over it to take back.
+    /// </summary>
+    private readonly StatusBlock _status = new() { Visibility = Visibility.Collapsed, Margin = default };
 
     /// <summary>
     /// A Debug render's still (`Preview/`): the frame is handed in and no session is ever opened, so a

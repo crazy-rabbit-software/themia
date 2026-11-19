@@ -17,7 +17,8 @@ every card in the PNG by its alpha and its first and last row of ink (a pixel of
   DIP and 4 more for a lead glyph drawn inside its box.
 
 A kind whose frame is a picture, a video or a chart's own is declared in EXCEPT with its reason and judged on the top
-alone. Every render runs under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix)
+alone. A kind whose face stands centred (CENTRED, the tiles and power buttons) passes with its first ink within the
+inset + 4 DIP or its face centred: top and foot within 4 DIP and a quarter of the face's height (a descender's room). Every render runs under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix)
 and <out>/findings.txt; exits 1 on any finding.
 """
 import argparse
@@ -57,9 +58,18 @@ EXCEPT = {
     'screenTimeDonut': 'a chart whose frame is the inset',
     'stockHistory': 'a chart whose frame is the inset (the graph widgets\' own)',
     'exchangeHistory': 'a chart whose frame is the inset (the graph widgets\' own)',
-    'header': 'one line, its card one line tall',
 }
 GRAPH = re.compile(r'(Graph|History)$')
+
+# Kinds whose face stands centred in its card, judged on that alone: no band over the face but its own, alike under it.
+CENTRED = {
+    'clock': 'one line whose width holds its size (the coordinator, 2026-11-19: fine), centred in the height',
+    'date': 'one line sized to the longest date its format shows, its width holds it, centred in the height',
+    'header': 'one line, centred in its card',
+}
+TILE = re.compile(r'Toggle$')
+POWER = {'sleep', 'signOut', 'shutdown', 'screenOff', 'restart', 'lock', 'hibernate'}
+TILE_WHY = 'a tile face: its glyph (and name under it where it fits) centred in the box ([S-5700], [S-12806])'
 
 # Kinds whose content spans the width: rows, facts, bars.
 STRETCH = LISTS | {'airFacts', 'weatherFacts', 'cpuFacts', 'gpuFacts', 'memoryFacts', 'networkFacts', 'pingFacts',
@@ -69,7 +79,7 @@ STRETCH = LISTS | {'airFacts', 'weatherFacts', 'cpuFacts', 'gpuFacts', 'memoryFa
 def kinds_in(root):
     names = []
     for d in sorted(glob.glob(os.path.join(root, 'src', 'Widgets', 'Themia.Widget.*'))):
-        if os.path.isdir(d):
+        if glob.glob(os.path.join(d, '*.csproj')):
             n = os.path.basename(d)[len('Themia.Widget.'):]
             names.append(n[0].lower() + n[1:])
     return names
@@ -139,6 +149,11 @@ def judge(kind, state, card):
     limit = INSET + SLACK
     # A card one line tall centres its one line: its bands are the line's own, alike over and under it.
     if h <= 2 * INSET + 28 + SLACK and abs(top - foot) <= SLACK:
+        return found
+    if kind in CENTRED or TILE.search(kind) or kind in POWER:
+        ink = h - top - foot
+        if top > limit and abs(top - foot) > SLACK + ink / 4:
+            found.append(f'off centre {top:.1f}/{foot:.1f}')
         return found
     if top > limit:
         found.append(f'top {top:.1f}')
