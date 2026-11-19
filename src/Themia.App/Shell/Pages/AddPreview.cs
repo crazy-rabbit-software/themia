@@ -18,8 +18,8 @@ using P = Themia.Sdk.Kit.ShellMetrics.Page;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-13602] The add page's preview pane, beside its tiles: the tile pointed at or on the keyboard (else the
-/// first shown) as the thing itself, large (<see cref="AddPictures"/>: real cards on sample data; the tile's
+/// [S-13602] [S-13614] The add page's preview pane, beside its tiles: the tile or family pointed at or on the keyboard (else the
+/// first tile shown) as the thing itself, large (<see cref="AddPictures"/>: real cards on sample data; the tile's
 /// glyph until it is drawn), its name, what it is, and the free plan's limit where placing it would pass it.
 /// After Karpo's add page (karpo-app, docs/widgets.md §593), whose pick under the pointer shows itself as a
 /// ghost where it goes: Themia's widget has no place until it is placed, so it shows here. Nothing in it
@@ -71,14 +71,18 @@ internal sealed partial class AddPreview : Grid
         Clear();
     }
 
-    /// <summary>The tile shown, by its key; null with none.</summary>
+    /// <summary>What it shows, by its key (a tile's, a family's); null with nothing.</summary>
     public string? Key { get; private set; }
+
+    /// <summary>The tile whose picture it wants (a family's first widget's for a family); null with nothing.</summary>
+    public string? PictureKey { get; private set; }
 
     /// <summary>[S-13602] Show <paramref name="tile"/>: its glyph until its picture comes (<see cref="ShowPicture"/>).</summary>
     public void Show(AddTile tile, bool overLimit)
     {
         ArgumentNullException.ThrowIfNull(tile);
         Key = tile.Key;
+        PictureKey = tile.Key;
         var words = AddTileWords.Of(tile);
         Opacity = 1;
         DropImage();
@@ -90,10 +94,30 @@ internal sealed partial class AddPreview : Grid
         Line(_limit, overLimit ? Str.AddMenu_OverLimit.Format(("count", LocaleFormat.Integer(LicenseRules.FreeWidgetLimit))) : string.Empty);
     }
 
+    /// <summary>
+    /// [S-13614] Show a <paramref name="family"/>: its first widget's picture (its glyph until it comes), the
+    /// family's name, "N widgets", and its widgets' names, one a line.
+    /// </summary>
+    public void Show(AddFamily family)
+    {
+        ArgumentNullException.ThrowIfNull(family);
+        Key = family.Key;
+        PictureKey = family.Picture.Key;
+        Opacity = 1;
+        DropImage();
+        _glyph.Glyph = AddTileWords.Of(family.Picture).Glyph;
+        _glyph.Visibility = Visibility.Visible;
+        _name.Text = family.Title.Text();
+        Line(_caption, Str.Groups_Add_Count.Plural(family.Tiles.Count));
+        Line(_about, string.Join(Environment.NewLine, family.Tiles.Select(t => AddTileWords.Of(t).Name)));
+        Line(_limit, string.Empty);
+    }
+
     /// <summary>[S-13602] Nothing to show (nothing matched): the pane keeps its place, empty.</summary>
     public void Clear()
     {
         Key = null;
+        PictureKey = null;
         DropImage();
         _glyph.Visibility = Visibility.Collapsed;
         _name.Text = string.Empty;

@@ -89,11 +89,12 @@ internal static partial class EditBarRender
 
     /// <summary>
     /// [S-11712] One picture of the add page open under the real bar (Add marked) on a stand-in display of
-    /// <paramref name="width"/> × <paramref name="height"/> over the busy wallpaper: <paramref name="tab"/>
-    /// chosen or <paramref name="search"/> typed, the tile of <paramref name="hover"/>'s key pointed at ([S-13602]),
-    /// every picture the page asked for drawn before the shot.
+    /// <paramref name="width"/> × <paramref name="height"/> over the busy wallpaper: the rail's <paramref name="tab"/>
+    /// chosen or <paramref name="search"/> typed, the family of <paramref name="open"/>'s key opened ([S-13612]), the
+    /// tile or family head of <paramref name="hover"/>'s key pointed at ([S-13602], [S-13614]), every picture the
+    /// page asked for drawn before the shot.
     /// </summary>
-    internal static async Task AddPageShot(Grid screen, string path, double width, double height, AddFolderId? tab, string? search, string? hover = null)
+    internal static async Task AddPageShot(Grid screen, string path, double width, double height, AddFolderId? tab, string? search, string? hover = null, string? open = null)
     {
         screen.Children.Clear();
         screen.Width = width;
@@ -110,7 +111,7 @@ internal static partial class EditBarRender
         HangAddMenu(canvas, page, bar, barRect.X, barRect.Y, width, height);
         if (tab is { } chosen)
         {
-            page.View.ShowTab(chosen);
+            page.View.ShowItem(chosen);
         }
 
         if (search is not null)
@@ -118,10 +119,20 @@ internal static partial class EditBarRender
             page.View.SetQuery(search);
         }
 
-        // [S-13602] The pointer resting on a tile: the preview shows it.
-        if (hover is not null && !page.View.PreviewKey(hover))
+        // [S-13612] A family opened in place.
+        if (open is not null && !page.View.OpenFamily(open))
         {
-            Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: no tile '{hover}' shown (a key: kind:<id>, group:<id>, item:<key>)");
+            Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: no family '{open}' shown (a key: family:<Id>)");
+        }
+
+        // [S-13602] [S-13614] The pointer resting on a tile or a family's head: the preview shows it.
+        if (hover is not null)
+        {
+            canvas.UpdateLayout();
+            if (!page.View.PreviewKey(hover))
+            {
+                Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: no tile '{hover}' shown (a key: kind:<id>, group:<id>, item:<key>, family:<Id>)");
+            }
         }
 
         canvas.UpdateLayout();

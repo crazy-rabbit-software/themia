@@ -2238,7 +2238,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   the count in the header card and the shared sections only ([S-3702]), For all of them among them
   ([S-11754]); a mixed value of the card's own rows says Mixed ([S-2376]).
 - **[S-2345]** **Two tabs** (owner, 2026-11-15: "the appearance in the widget settings should get an own tab";
-  Karpo's tab strip, §592, WinUI's SelectorBar; `SelectionPage.Tabs`, `PageTabButton`, the add page's tab too):
+  Karpo's tab strip, §592, WinUI's SelectorBar; `SelectionPage.Tabs`, `PageTabButton`):
   under the header card a strip of **Settings** (the link to an entered member's group, What it shows, For all of
   them, Header) and **Appearance** (the Appearance section, its heading the tab's words so not said twice), the
   chosen tab's sections under it; the strip 8 under the header card and 8 over the cards. Only where both have
@@ -2342,9 +2342,9 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   docs/widgets.md §7b, §136): it answers the one question a person adding a widget has (what do I
   want?) by subject. Its folders are declared once in Core (`Widgets/AddTree.cs`: `AddFolderId`,
   a closed set, each with its words; a folder wears its first widget's glyph), and each widget places
-  itself in one ([S-6907]). **Popular** and **Browse**; Browse is a folder per subject (a tab of the
-  page); inside a subject a **family** (one widget in several parts) is a folder of its own (a heading
-  on the page). Never deeper than that. The catalogue has no sections of its own.
+  itself in one ([S-6907]). **Popular** and **Browse**; Browse is a folder per subject (an item of the
+  page's rail, [S-13610]); inside a subject a **family** (one widget in several parts) is a folder of its own (a
+  stack on the page, [S-13612]). Never deeper than that. The catalogue has no sections of its own.
 - **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,
   Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcut (the desktop icon kind's tile, which
   makes an own icon, [S-5523]). **Browse**, in
@@ -2361,8 +2361,8 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   toggles). Every kind has exactly one home; only Popular shows kinds again. The calendar, the audio
   visualizer and the folder are one widget each, their former variants its styles ([S-3640], [S-3216],
   [S-4123]), found by the variants' old names too ([S-943]). A family left with one widget is that
-  widget among its subject's own; a subject with none is no tab; a kind the tree does not know stands
-  in **More**, the last tab, never missing, while `AddMenuTests` fail until it has a home.
+  widget among its subject's own; a subject with none is not on the rail; a kind the tree does not know stands
+  in **More**, the rail's last item, never missing, while `AddMenuTests` fail until it has a home.
 - **[S-3512]** *(Retired by [S-11707]: there is no cascade and no column of rows; the page is tiles.)*
 - **[S-3513]** Search lists each widget once, at its home, and matches it on its name, keywords,
   kind, description and **the names of the folders it is in** (subject and family: [S-940]'s
@@ -2370,17 +2370,11 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
 - **[S-3514]** *(Retired by [S-11708]: the keys walk the tiles; there is no tree to open.)*
 - **[S-3515]** *(Retired by [S-11706].)*
 - **[S-3506]** *(Retired by [S-11712]: the add page's pictures are `--picker-png` and `--editbar-png`'s `-add*`.)*
-- **[S-11700]** The **add page** (`AddPage`): a top row of the search box (240) and the **tabs**: **Start**
-  first, then a tab per subject in Browse's order (Time, Calendar & mail, Weather & sky, News & markets,
-  Music & media, Notes & tools, Files & apps, System, Devices & power, Quick settings), then More while
-  anything stands in it. The tabs are a strip as Karpo's and WinUI's SelectorBar draw theirs: 40 tall, no
-  fill until pointed at, words in Body and secondary, the chosen tab's in BodyStrong and primary over the
-  accent's 16 × 3 pill; the strip scrolls sideways where it does not fit beside the box. The page opens on
-  Start, the caret in the search box; it is built afresh each time it opens ([S-1109]: its words follow
-  the language).
-- **[S-11701]** A tab is **sections**, each a heading in BodyStrong (24 after the section before, 8 over its
-  tiles) over its tiles; no section is empty and each has a key the same in every language (`tab/kind`,
-  a family's `tab/family:Id`).
+- **[S-11700]** *(Retired by [S-13610] (2026-11-19): the subjects are no tab strip beside the search box but a rail
+  under it; Start, the subjects in Browse's order and More stay as they were.)*
+- **[S-11701]** A rail item's content is **sections**, each a heading in BodyStrong (24 after the section before,
+  8 over its tiles) over its tiles, a family's its stack under its head ([S-13612]); no section is empty and each
+  has a key the same in every language (`subject/kind`, a family's `subject/family:Id`).
 - **[S-11702]** A **tile** is one button on a page card (Windows' card fill and rim, radius 4; the subtle
   fills under the pointer and pressed): its icon, its name in Body and one
   Caption line ([S-13601]; its picture is the preview's, [S-13602]) (a ready-made group: "n widgets"; a widget: its description; a desktop item: "On the desktop"), each
@@ -2392,33 +2386,20 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
 - **[S-11703]** **Start**: **Ready-made**, the starter groups in their order (data: `ReadyMadeGroup.Starter`
   on My day, This PC, Weather station, Now playing, My files, Screen time, Inbox and tasks), then
   **Popular** ([S-3511]).
-- **[S-11704]** A **subject's tab**: **Ready-made**, the groups whose `Home` is the subject or a family
-  of it, in `ReadyMadeGroups.All`' order; **Widgets**, the subject's own widgets in the tree's order (a
-  family of one among them); [S-5523] **On the desktop**, the view's unplaced desktop items, in the
-  subject the desktop icon kind is at home in (the kind's own tile, "Shortcut", is among the widgets); then each family of two or more
-  under its name (Processor's under "CPU", …), its widgets in order.
+- **[S-11704]** *(Retired by [S-13611]: a subject's families are stacks, not a section of every tile each.)*
 - **[S-11705]** Every kind and every ready-made group the build offers has **exactly one home** on the
-  page (a subject's tab, or More); Start shows some again. `AddTree.SubjectOf` gives a family's subject.
-- **[S-11706]** **Typing searches** every tab ([S-3513], [S-2473]): in place of the tab, **Ready-made**
-  over the groups that match and **Widgets** over the widgets, each best first; spaces alone search
-  nothing; nothing matching shows the family's status row ("No results for “…”", [S-6714]); clearing the
-  box returns to the tab. Choosing a tab clears the box.
+  page (a subject, or More; a family's in its stack alone); Start shows some again. `AddTree.SubjectOf` gives a family's subject.
+- **[S-11706]** *(Retired by [S-13615]: the search is the same, and flat over the families.)*
 - **[S-11707]** The page's **flyout** (`AddPageFlyout`, `FlyoutPlacement.Under`): exactly as wide as the bar,
   flush with its sides, 12 under it, no beak (Karpo's §593: no one entry to point at); the pages' ground,
   rim, radius and shadow, Windows' colours always; as tall as its page has wanted since it opened (it
-  grows, it never jumps back) up to 70 % of the work area, scrolling inside. Tiles of at least 200 fill
-  the list evenly, 4 apart either way, the preview pane beside them (`AddPageLayout`, `ShellMetrics.AddPage`,
-  [S-13601], [S-13603]). It is one of the bar's
+  grows, it never jumps back) up to 70 % of the work area, the rail and the content each scrolling inside. The
+  rail on the left, tiles of at least 200 filling the list evenly, 4 apart either way, the preview pane beside them
+  (`AddPageLayout`, `ShellMetrics.AddPage`, [S-13610], [S-13601], [S-13616]). It is one of the bar's
   flyouts ([S-2327]): one at a time, the open one closes as it opens and it closes as another opens; Add
   opens it and closes it again, Add marked with the accent's pill while it is open; a press outside it
   and the bar closes it, as do a placement and leaving edit mode.
-- **[S-11708]** **Keys** (`AddPageKeys`): the caret is in the search box as the page opens; Tab walks the
-  box, the tabs and the tiles; Down from the box goes to the first tile, Up from a tile's first row back
-  to the box; the arrows walk the tiles as they stand (a section a grid, Left and Right in reading order
-  across sections, Up and Down to the same column of the row above or below, held to its tiles; mirrored
-  right to left); Home and End go to the first and last tile; Enter or Space on a tile picks it, Enter in
-  the box picks the first tile shown; typing on a tile goes to the box; Ctrl+Tab and Ctrl+Shift+Tab step
-  the tabs round; Escape empties the box first, then closes the page, the keyboard back on Add.
+- **[S-11708]** *(Retired by [S-13617]: the keys walk the rail too, and a family's head.)*
 - **[S-11709]** [S-5523] The desktop icon kind (`desktopItem`) has its tile like any kind, **Shortcut**, at
   home in Files & apps and among Popular: it places an own icon that waits for its target ([S-9511]). The
   tile's name is the tile's alone (`WidgetDescriptor.AddLabel`, `TileName`: a kind of two sources whose
@@ -2441,12 +2422,14 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   its box, never a blank. *(Until 2026-11-19 each tile carried its picture in a 120-tall box: [S-13600].)*
 - **[S-11711]** *(Retired by [S-11850]: the samples ship, and every build draws the pictures.)*
 - **[S-11712]** Debug renders: `--picker-png <out.png> [--tab Id] [--search text] [--width w] [--height h]
-  [--theme light|dark] [--lang xx]` draws the page open under the real bar on a stand-in display (1920 ×
+  [--hover key] [--open family:Id] [--theme light|dark] [--lang xx]` draws the page open under the real bar on a stand-in display (1920 ×
   1032 unless sized), every picture drawn before the shot (a minute at most, said when cut short);
   `--editbar-png`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
-  `-add-weather`, `-add-search` ("music"), `-add-none` (nothing found), `-add-narrow` (a 900-wide display),
-  `-add-hover` (the pointer on Forecast) and `-add-hover-group` (on This PC in System). `--hover <key>` (a tile's
-  key: `kind:clock`, `group:thisPc`) rests the pointer on that tile, its preview shown ([S-13602]).
+  `-add-weather`, `-add-family` (System, the CPU family open and its head pointed at), `-add-search` ("music"),
+  `-add-none` (nothing found), `-add-narrow` (a 900-wide display), `-add-hover` (the pointer on Forecast) and
+  `-add-hover-group` (on This PC in System). `--tab <Id>` shows that rail item; `--hover <key>` (a tile's key:
+  `kind:clock`, `group:thisPc`; a family's: `family:Processor`) rests the pointer on that tile or family head, its
+  preview shown ([S-13602], [S-13614]); `--open family:<Id>` opens that family in place ([S-13612]).
 
 #### The tiles and the preview on hover ([S-13600]..[S-13604])
 
@@ -2456,7 +2439,8 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   itself shown only for the tile pointed at. Karpo shows its pick as a ghost where it will stand on the bar; a Themia
   widget has no place until it is placed (the placement session follows the pointer, [S-421]), so the page shows it in
   a **preview pane** beside its tiles. The tabs, sections, search, keys, homes, ready-made groups, desktop items, the
-  Pro hint and every way in ([S-3501], [S-13018]'s lassoed area, `PlaceWidgetIn`) are unchanged.
+  Pro hint and every way in ([S-3501], [S-13018]'s lassoed area, `PlaceWidgetIn`) are unchanged. *(The tabs became a
+  rail on 2026-11-19, [S-13610].)*
 - **[S-13601]** A **tile** (Karpo's `TileTwoLines`): 52 tall, at least 200 wide, 4 apart either way, filling the list's
   width evenly; on a page card, the subtle fills under the pointer and pressed; the thing's icon (its kind's, its
   group's, a desktop item's) 12 in, then 12, its name in Body over one Caption line (a widget: its description; a
@@ -2466,15 +2450,75 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   and never up, centred (its glyph, 48, until it is drawn), then its name in BodyStrong, a group's "n widgets" in
   Caption, what it is in Body (a widget's description, a group's line), and the free plan's limit in the accent where
   placing it would pass it ([S-1065]). It shows the tile **under the pointer or reached by the keys** (Tab, the
-  arrows); until one is, the **first tile shown** (the one Enter in the box picks), and a new tab or search starts there
-  again; the pointer leaving a tile leaves the pane as it is (no blink while crossing the gaps). Nothing matching
+  arrows) and a family's head too ([S-13614]); until one is, the **first tile shown** (the one Enter in the box picks),
+  and a new subject or search starts there again; the pointer leaving a tile leaves the pane as it is (no blink while crossing the gaps). Nothing matching
   empties it. Nothing in it acts, and a screen reader is not told it twice (the tile says its name, caption and limit).
-  The page is as tall as its tiles or its pane, whichever is taller ([S-11707]).
-- **[S-13603]** The pane stands beside the tiles while the list keeps two tiles across (`AddPageLayout.Split`: the
-  page's width less 376 at least 404); narrower, there is no pane and the tiles take the whole width (no preview).
+  The page is as tall as its rail, its tiles or its pane, whichever is tallest ([S-11707]).
+- **[S-13603]** The pane stands beside the tiles while the list keeps two tiles across beside the rail and it
+  (`AddPageLayout.Split`: the page's width less the rail's 256 and the pane's 376 at least 404); narrower, there is
+  no pane and the tiles take its room (no preview); narrower still, the rail its glyphs alone ([S-13616]).
 - **[S-13604]** **Pictures** are drawn one at a time as before ([S-11710], [S-11853]), the **previewed tile's first**
-  (`AddPictures.Prefer`: to the front of what is waiting; the one being drawn finishes), then every other tile shown,
-  so pointing at one later shows it at once. `--add-pictures-check` still draws the Start tab's every picture.
+  (`AddPictures.Prefer`: to the front of what is waiting; the one being drawn finishes), then every other tile in
+  sight and a screen below it ([S-13613]), so pointing at one later shows it at once. `--add-pictures-check` still
+  draws Start's every picture.
+
+#### The rail and family stacks ([S-13610]..[S-13617])
+
+- **[S-13610]** The owner (2026-11-19): *"with changes like that the amount of "widgets" in the library will explode,
+  because later we will split other widgets into smaller peaces too. think about how to structure the add widget panel
+  to be able to handle and nicely display this amount of widgets."* (Weather facts became one-row widgets; more will
+  follow, so expect several hundred kinds.) The owner chose **Rail + family stacks**: *"Subjects move to a left rail
+  with counts. In each subject a family is one tile/stack showing its count; pointing at it previews the family, and
+  clicking opens its widgets in place (like Android's widget picker grouping). Search still finds every single
+  widget."* The **rail** (`AddPage.Rail`, `AddRail`) stands on the page's left, 240 wide, under the search box (240,
+  8 over the rail): **Start** first, then a subject per Browse folder in Browse's order, then **More** while anything
+  stands in it, as Karpo's side list drew its items (NavigationView's look): each 36 tall, 4 apart, no fill at rest
+  and the subtle fills under the pointer and pressed, the chosen one on the subtle fill with the accent's 3 × 16 pill at
+  its start; its glyph (a subject's first widget's; Start's a home, More's the apps') at 16, its name in Body at 48,
+  cut short, and at its end, 12 in, its **count** in Caption and secondary: how many widgets are at home in it (Start
+  counts none, it only shows some again; groups are not counted). A click shows that item and clears the search; the
+  page opens on Start, built afresh each time ([S-1109]). The rail scrolls on its own where it is taller than the page.
+- **[S-13611]** A subject's **content** (beside the rail, 16 off it, scrolling): its name in Title (20), 12 over
+  **Ready-made** (the groups whose `Home` is the subject or a family of it, in `ReadyMadeGroups.All`' order),
+  **Widgets** (the subject's own, in the tree's order, a family of one among them), [S-5523] **On the desktop** (the
+  view's unplaced desktop items, in the subject the desktop icon kind is at home in), then **each family of two or
+  more** as one stack ([S-13612]), in the tree's order. Every kind stands exactly once ([S-11705]): a family's in its
+  stack alone.
+- **[S-13612]** A **family stack** (`AddFamily`): a **head** 36 tall over its tiles (a subtle row as wide as the list,
+  its fill reaching 8 past the tiles' start, its words where a heading's stand: the family's name in BodyStrong, its
+  count in Caption and secondary and a chevron, right while closed, down while open, at its end), then its **first
+  row** of tiles, the row's last cell a **"+N" tile** (a tile's card: "+N" in BodyStrong over "Show all" in Caption)
+  for the rest where they do not fit one row (`AddPageLayout.Stack`: one tile and "+N" where one stands across). The
+  head's click or the "+N" tile's opens the family **in place**, every tile of it, the "+N" gone; the head's click
+  closes it again. A family that fits one row shows whole, its head with no chevron and nothing to open. Several may be
+  open at once, in any subject, while the page is open; a new count across lays a closed stack again.
+- **[S-13613]** **Hundreds of kinds** stay cheap: the rail and the homes are made as the page is (ids only); a
+  subject's sections when it is first shown, then kept (`AddPage.Sections`); a closed family draws one row; only the
+  tiles in sight and a screen below it ask for their pictures (`AddPageView.WantInSight`, as the content scrolls),
+  the previewed one first ([S-13604]).
+- **[S-13614]** Pointing at a family's **head** or its "+N" tile, or the keys reaching them, **previews the family**
+  in the preview pane ([S-13602]): its first widget's picture (`AddFamily.Picture`, drawn first as a previewed tile's),
+  the family's name in BodyStrong, "N widgets" in Caption, and its widgets' names, one a line, in Body. Its tiles
+  preview as every tile does.
+- **[S-13615]** **Typing searches** every subject ([S-3513], [S-2473]), **flat**: in place of the subject,
+  **Ready-made** over the groups that match and **Widgets** over the widgets, each best first, a family's widgets each
+  a tile of its own (a family never hides a result; its name finds all of them, [S-3513]); the rail shows no item
+  chosen. Spaces alone search nothing; nothing matching shows the family's status row ("No results for “…”",
+  [S-6714]); clearing the box returns to the subject. Choosing a rail item clears the box.
+- **[S-13616]** **Narrow pages** (`AddPageLayout.Split`): the preview pane drops first ([S-13603]); where even then
+  the rail leaves fewer than two tiles across, the rail shows its **glyphs alone**, 48 wide (NavigationView's compact
+  pane; the name and count in its tooltip), and the search box stands over the content instead. *(Under the bar's
+  own least width the first is what happens: the 900-wide display keeps its rail.)*
+- **[S-13617]** **Keys** (`AddPageKeys`): the caret is in the search box as the page opens; Tab walks the box, the rail
+  (one stop, its chosen item) and the content's stops. On the **rail** Up and Down walk it, the item reached shown;
+  Home and End go to its first and last; Up from the first goes to the box; Right or Enter goes into the content's
+  first stop. In the **content** the arrows walk the stops as they stand: each section a grid, a family's head a row
+  of its own over its stack; Right in reading order across sections, Left back within a row and at a row's start back
+  to the rail's chosen item, Up and Down to the same column of the row above or below, held to its stops; Up from the
+  first row back to the box, Down from the box to the first stop (mirrored right to left); Home and End go to the first
+  and last stop. Enter or Space picks a tile, opens or closes a family on its head or "+N"; Enter in the box picks the
+  first tile shown; typing anywhere on the page goes to the box; Ctrl+Tab and Ctrl+Shift+Tab step the rail round;
+  Escape empties the box first, then closes the page, the keyboard back on Add.
 
 #### The pictures in every build ([S-11850]..[S-11854])
 
@@ -2515,7 +2559,7 @@ too. What they need at run time ships; the render tooling does not.
   in about 4.3 s in the Native AOT build, 13 MB of pixels; every tab's 152 about 64 MB, so the bound
   drops the oldest; at low priority, the glyphs meanwhile).
 - **[S-11854]** `Themia.exe --add-pictures-check <out.png>`, in **every build**, the one flag a Release build
-  knows besides the app's own ([S-68]): draws the page's Start tab off-screen through the shipped path,
+  knows besides the app's own ([S-68]): draws the page's Start off-screen through the shipped path,
   writes it to the PNG, prints how many pictures of how many, their bytes and the time, and exits (0 when
   every picture was drawn). Only as the first argument, with a `.png` path; it reads and writes no state
   and never reaches the hand-off.
@@ -2523,9 +2567,9 @@ too. What they need at run time ships; the render tooling does not.
 Needs a live pass: the page under the bar on every display at mixed DPI and with a top taskbar (as wide as
 the bar, 70 % of a short display); the pointer (hover fills, a press outside closing it, a tile's click
 starting the placement with the ghost of the widget or the whole group under the pointer, Escape and a
-right-click cancelling); the keys of [S-11708]; the pictures drawing in the running app, Debug and the
+right-click cancelling); the keys of [S-13617]; the pictures drawing in the running app, Debug and the
 packaged Store build, their cache across openings, after a design or language change and dropped a minute
-after closing; a screen reader on the tabs and tiles.
+after closing; a screen reader on the rail, the family heads and the tiles.
 
 #### Unplaced icons ([S-13700]..[S-13706])
 
@@ -6544,7 +6588,7 @@ there: Themia never takes a key from the app the user is typing in.
   path, `AppHost.OpenAddMenu`: edit mode on, a placement in progress dropped, and the add page
   ([S-3501]) opened under the bar of the display under the pointer (as a paste lands there, [S-74]), [S-11707].
   The surface takes the foreground (the hotkey press is what lets it)
-  so typing reaches the page's search ([S-11708]). Both hotkeys are rows of one table, Core
+  so typing reaches the page's search ([S-13617]). Both hotkeys are rows of one table, Core
   `ShellHotkeys`, registered `MOD_NOREPEAT` and unregistered on shutdown by the command window's one
   loop; one another program owns is logged and skipped, as [S-65]. The surface menu's Add widget
   shows Ctrl+N. (Tests `S1998_`.)
@@ -8199,7 +8243,7 @@ proxy failover; the classic per-scheme+host proxy cache and its invalidation (PX
 
 Search is `Core/Widgets/WidgetSearch.cs` over each descriptor's `Keywords` and `Providers` (their ids) ([S-6902]; ported from `widgetSearch.ts`,
 `searchKeywords.ts`, WidgetPicker.SPEC S-01..S-11; tests `WidgetSearchTests`, the original's cases);
-the page it searches is the edit bar's add page ([S-3501], [S-11706]), `Core/Widgets/AddPage.cs`.
+the page it searches is the edit bar's add page ([S-3501], [S-13615]), `Core/Widgets/AddPage.cs`.
 
 - **[S-940]** A query matches six weighted fields: label 1.0, curated keywords 0.9, the kind's name
   split on camel case 0.8, the add menu's folders it is in 0.55 ([S-3513]), account providers 0.55, description 0.45 (S-01).
@@ -8776,11 +8820,11 @@ placement they will just be a collection of regular widgets like any others").
   config property one its kind has; two widgets or more; no two boxes overlapping; every widget touching
   another, so the recipe draws as one panel ([S-2240]); the whole within a 1280 × 720 work area. A build
   lacking one of a recipe's kinds leaves the recipe out whole.
-- **[S-2473]** **The add page** ([S-11700]): the starters first on Start ([S-11703]), every recipe under
-  **Ready-made** in its subject's tab ([S-11704]), a tile each: its joined panel's picture, its name and
+- **[S-2473]** **The add page** ([S-13610]): the starters first on Start ([S-11703]), every recipe under
+  **Ready-made** in its subject ([S-13611]), a tile each: its joined panel's picture, its name and
   how many widgets it places ("4 widgets"); picked as a widget's tile is. The search finds recipes with
   the widgets, by name, description and the names of the widgets they hold, under their own heading
-  ([S-11706]).
+  ([S-13615]).
 - **[S-2474]** **The seeds**: **This PC** (one column of one width, network's 344: CPU, memory, disk and network, each reading over its history, [S-11090]; owner, 2026-11-15: "the this pc group should be one column not multiple"), **My day**
   (the clock on top, the next meeting, After this and the tasks under it as one panel, [S-11409]) and **Weather station** ([S-11172]: the
   reading, its facts, the forecast and the rain in the next hour, stacked), each with its kinds'

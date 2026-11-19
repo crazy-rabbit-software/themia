@@ -204,6 +204,7 @@ internal static partial class EditBarRender
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add.png"), ScreenWidth, OpenHeight, null, null).ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-system.png"), ScreenWidth, OpenHeight, AddFolderId.System, null).ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-weather.png"), ScreenWidth, OpenHeight, AddFolderId.Weather, null).ConfigureAwait(true);
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-family.png"), ScreenWidth, OpenHeight, AddFolderId.System, null, "family:Processor", "family:Processor").ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-search.png"), ScreenWidth, OpenHeight, null, "music").ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-none.png"), ScreenWidth, OpenHeight, null, "zzqx").ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-narrow.png"), 900, OpenHeight, null, null).ConfigureAwait(true);

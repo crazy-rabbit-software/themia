@@ -13,16 +13,17 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-11712] Debug only: draw the add page open under the real edit bar to a PNG, off-screen, like the
 /// other debug renders. <c>Themia.exe --picker-png &lt;out.png&gt; [--tab Id] [--search text] [--width w]
-/// [--height h] [--hover key] [--theme light|dark] [--lang xx]</c>: <c>--tab</c> chooses a tab by its <see cref="AddFolderId"/>
+/// [--height h] [--hover key] [--open family:Id] [--theme light|dark] [--lang xx]</c>: <c>--tab</c> chooses a rail item by its <see cref="AddFolderId"/>
 /// (Start, Time, … QuickSettings), <c>--search</c> types into the search box, <c>--width</c> and
 /// <c>--height</c> size the stand-in display (1920 × 1032 DIPs: a 1080p display at 100 % with its taskbar);
-/// <c>--hover</c> rests the pointer on the tile of that key (<c>kind:clock</c>, <c>group:thisPc</c>), its preview shown ([S-13602]).
+/// <c>--hover</c> rests the pointer on the tile or family head of that key (<c>kind:clock</c>, <c>group:thisPc</c>,
+/// <c>family:Processor</c>), its preview shown ([S-13602], [S-13614]); <c>--open</c> opens that family in place ([S-13612]).
 /// Every picture the page asks for is drawn before the shot. One path with <c>--editbar-png</c>'s add shots.
 /// </summary>
 internal static class PickerRender
 {
     private const string Scope = "picker-render";
-    private const string Usage = "usage: --picker-png <out.png> [--tab Id] [--search text] [--width w] [--height h] [--hover key] [--theme light|dark]";
+    private const string Usage = "usage: --picker-png <out.png> [--tab Id] [--search text] [--width w] [--height h] [--hover key] [--open family:Id] [--theme light|dark]";
 
     public static bool TryRunFromCommandLine(Application app, string[] args)
     {
@@ -93,7 +94,7 @@ internal static class PickerRender
                 window.AppWindow.Show(activateWindow: false);
 
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
-                await EditBarRender.AddPageShot(screen, outPath, width, height, tab, search, Option(args, "--hover")).ConfigureAwait(true);
+                await EditBarRender.AddPageShot(screen, outPath, width, height, tab, search, Option(args, "--hover"), Option(args, "--open")).ConfigureAwait(true);
                 Console.WriteLine($"picker: wrote {outPath}");
             }
             catch (Exception ex)

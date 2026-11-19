@@ -137,11 +137,13 @@ public static class ShellMetrics
     }
 
     /// <summary>
-    /// [S-11707] [S-13600] The add page (Karpo's §593, §578: <c>PanelMetrics.TileLeast</c>, <c>TileTwoLines</c>,
-    /// its tab strip): as wide as the bar, flush under it at a flyout's gap, no beak; a top row of the 240
-    /// search box and a tab strip 40 tall; tiles of at least 200 filling the list's width, 4 apart, each 52
-    /// tall (its icon 12 in, its name and one caption line 12 after it); beside the list the 360 preview
-    /// pane, 16 off it, its picture box 240 tall, 16 in.
+    /// [S-11707] [S-13600] [S-13610] The add page (Karpo's §593, §578: <c>PanelMetrics.TileLeast</c>, <c>TileTwoLines</c>;
+    /// its old side list's items, <c>NavItem</c>, <c>NavPitch</c>): as wide as the bar, flush under it at a flyout's gap,
+    /// no beak; the rail 240 wide (the search box over its items, each 36 tall, 4 apart, the accent's 3 × 16 pill
+    /// on the chosen one, its icon at 16, its name at 48, its count 12 from its end), 48 with icons alone; tiles of at
+    /// least 200 filling the list's width, 4 apart, each 52 tall (its icon 12 in, its name and one caption line 12
+    /// after it), 16 off the rail; a family's head 36 tall over its stack; beside the list the 360 preview pane, 16
+    /// off it, its picture box 240 tall, 16 in.
     /// </summary>
     public static class AddPage
     {
@@ -170,16 +172,42 @@ public static class ShellMetrics
         /// <summary>[S-13602] The tile's glyph in the preview's picture box until its picture is drawn.</summary>
         public const double PreviewGlyph = 48;
 
-        /// <summary>The tab strip's height (Karpo's tab strips, WinUI's SelectorBar).</summary>
-        public const double TabHeight = 40;
+        /// <summary>[S-13610] The rail's width: the search box's, and its items' (Karpo's side list, NavigationView's pane).</summary>
+        public const double Rail = 240;
 
-        /// <summary>Inside a tab, before and after its words.</summary>
-        public const double TabPad = 12;
+        /// <summary>[S-13616] The rail with its icons alone (NavigationView's compact pane).</summary>
+        public const double RailCompact = 48;
 
-        public const double SearchWidth = 240;
+        /// <summary>[S-13610] Between the rail and the tiles.</summary>
+        public const double RailGap = 16;
 
-        /// <summary>Between the search box and the tab strip.</summary>
-        public const double TopGap = 12;
+        public const double SearchWidth = Rail;
+
+        /// <summary>[S-13610] A rail item's height (Karpo's <c>NavItem</c>), and between two (its <c>NavPitch</c> less it).</summary>
+        public const double RailItem = 36;
+
+        public const double RailItemGap = 4;
+
+        /// <summary>[S-13610] A rail item's icon's start, and its name's (Karpo's 16 and 48, a page row's).</summary>
+        public const double RailIconAt = 16;
+
+        public const double RailNameAt = 48;
+
+        /// <summary>[S-13610] A rail item's count, this far from its end.</summary>
+        public const double RailCountEnd = 12;
+
+        /// <summary>[S-13610] The chosen item's pill (NavigationView's selection indicator): 3 × 16 at its start.</summary>
+        public const double RailPillWidth = 3;
+
+        public const double RailPillHeight = 16;
+
+        /// <summary>[S-13612] A family's head over its stack; its fill reaches this far out past the tiles' start.</summary>
+        public const double FamilyHead = 36;
+
+        public const double FamilyHeadInset = 8;
+
+        /// <summary>[S-13612] How far a family's head stands above where a heading would: its words where a heading's stand.</summary>
+        public const double FamilyHeadRise = (FamilyHead - FamilyType.BodyLine) / 2;
     }
 
     /// <summary>

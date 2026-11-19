@@ -9,9 +9,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-11700]..[S-11709] The add page: its tabs, its sections and tiles, the search, the layout and the
-/// keys. Here, not in Core's tests, because the page is built from every widget of the build and every
-/// ready-made group, and only this host has them all.
+/// [S-13610]..[S-13617] [S-11701]..[S-11709] The add page: its rail, its sections, family stacks and tiles, the
+/// search, the layout and the keys. Here, not in Core's tests, because the page is built from every widget of
+/// the build and every ready-made group, and only this host has them all.
 /// </summary>
 public sealed class AddPageTests
 {
@@ -20,37 +20,70 @@ public sealed class AddPageTests
     private static AddPage Page => AddPage.Of(Every, ReadyMadeGroups.Offered());
 
     private static IEnumerable<AddTile> AllTiles(AddPage page, bool withStart)
-        => page.Tabs.Where(t => withStart || t.Id != AddFolderId.Start).SelectMany(t => page.Sections(t.Id)).SelectMany(s => s.Tiles);
+        => page.Rail.Where(t => withStart || t.Id != AddFolderId.Start).SelectMany(t => page.Sections(t.Id)).SelectMany(s => s.Tiles);
+
+    private static AddFamily Processor(AddPage page)
+        => page.Sections(AddFolderId.System).Single(s => s.Family?.Id == AddFolderId.Processor).Family!;
+
+    // ---- [S-13610] the rail ---------------------------------------------------------------------
 
     [Fact]
-    public void S11700_start_first_then_every_subject_in_browses_order_and_no_more_when_every_kind_has_a_home()
+    public void S13610_the_rail_is_start_then_every_subject_in_browses_order_and_no_more_when_every_kind_has_a_home()
     {
         var page = Page;
 
         AddFolderId[] subjects = [AddFolderId.Time, AddFolderId.CalendarMail, AddFolderId.Weather, AddFolderId.Markets, AddFolderId.Media,
             AddFolderId.Notes, AddFolderId.Files, AddFolderId.System, AddFolderId.Devices, AddFolderId.QuickSettings];
-        Assert.Equal([AddFolderId.Start, .. subjects], page.Tabs.Select(t => t.Id));
-        Assert.All(page.Tabs, tab => Assert.False(string.IsNullOrWhiteSpace(tab.Title.Text(Locale.En))));
-        Assert.Equal("Start", page.Tabs[0].Title.Text(Locale.En));
+        Assert.Equal([AddFolderId.Start, .. subjects], page.Rail.Select(t => t.Id));
+        Assert.All(page.Rail, item => Assert.False(string.IsNullOrWhiteSpace(item.Title.Text(Locale.En))));
+        Assert.All(page.Rail, item => Assert.False(string.IsNullOrEmpty(item.Glyph)));
+        Assert.Equal("Start", page.Rail[0].Title.Text(Locale.En));
     }
 
     [Fact]
-    public void S11700_a_kind_the_tree_does_not_know_still_stands_in_more_the_last_tab()
+    public void S13610_each_subjects_count_is_the_widgets_at_home_in_it_and_start_counts_none()
+    {
+        var page = Page;
+
+        Assert.Equal(0, page.Rail[0].Count);
+        foreach (var item in page.Rail.Skip(1))
+        {
+            Assert.Equal(page.Homes.Count(h => h.Path[0].Id == item.Id), item.Count);
+            Assert.Equal(page.Sections(item.Id).SelectMany(s => s.Tiles).OfType<AddWidgetTile>().Count(), item.Count);
+        }
+
+        // Every kind counted once: the counts add up to the catalogue.
+        Assert.Equal(Every.Length, page.Rail.Sum(i => i.Count));
+    }
+
+    [Fact]
+    public void S13610_a_subjects_glyph_is_its_first_widgets()
+    {
+        var system = Page.Rail.Single(i => i.Id == AddFolderId.System);
+        var shelf = AddTree.Browse.Rows.OfType<AddShelf>().Single(s => s.Id == AddFolderId.System);
+        Assert.Equal(ModuleCatalog.Of(shelf.Icon).Glyph, system.Glyph);
+    }
+
+    [Fact]
+    public void S13610_a_kind_the_tree_does_not_know_still_stands_in_more_the_last_item()
     {
         WidgetId[] unknown = [new("notBuiltA"), new("notBuiltB")];
         var page = AddPage.Of([.. Every, .. unknown], ReadyMadeGroups.Offered());
 
-        Assert.Equal(AddFolderId.More, page.Tabs[^1].Id);
+        Assert.Equal(AddFolderId.More, page.Rail[^1].Id);
+        Assert.Equal(2, page.Rail[^1].Count);
         var more = Assert.Single(page.Sections(AddFolderId.More));
         Assert.Equal(unknown, more.Tiles.Cast<AddWidgetTile>().Select(t => t.Kind));
         Assert.Equal([AddFolderId.More], page.Homes.Single(h => h.Kind == unknown[0]).Path.Select(s => s.Id));
     }
 
+    // ---- [S-11701] [S-13611] sections -----------------------------------------------------------
+
     [Fact]
     public void S11701_no_section_is_empty_and_every_section_key_is_its_own()
     {
         var page = Page;
-        var sections = page.Tabs.SelectMany(t => page.Sections(t.Id)).ToList();
+        var sections = page.Rail.SelectMany(t => page.Sections(t.Id)).ToList();
 
         Assert.All(sections, s => Assert.NotEmpty(s.Tiles));
         Assert.All(sections, s => Assert.False(string.IsNullOrWhiteSpace(s.Heading.Text(Locale.En))));
@@ -84,7 +117,7 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11704_a_subject_is_its_ready_made_groups_its_own_widgets_then_each_family_under_its_name()
+    public void S13611_a_subject_is_its_ready_made_groups_its_own_widgets_then_each_family_as_a_stack()
     {
         var system = Page.Sections(AddFolderId.System);
 
@@ -101,10 +134,21 @@ public sealed class AddPageTests
         var processor = system.Single(s => s.Key == $"{AddFolderId.System}/family:{AddFolderId.Processor}");
         Assert.Equal(new WidgetId("cpu"), Assert.IsType<AddWidgetTile>(processor.Tiles[0]).Kind);
         Assert.Equal(ModuleCatalog.Of(new WidgetId("cpu")).Label.Text(Locale.En), processor.Heading.Text(Locale.En));
+
+        // [S-13612] Each family section carries its family, its tiles and name the section's; no other section has one.
+        Assert.All(system.Where(s => s.Kind == AddSectionKind.Family), s =>
+        {
+            var family = Assert.IsType<AddFamily>(s.Family);
+            Assert.Equal(s.Tiles, family.Tiles);
+            Assert.True(family.Tiles.Count >= 2);
+            Assert.Equal(s.Heading.Text(Locale.En), family.Title.Text(Locale.En));
+        });
+        var page = Page;
+        Assert.All(page.Rail.SelectMany(i => page.Sections(i.Id)).Where(s => s.Kind != AddSectionKind.Family), s => Assert.Null(s.Family));
     }
 
     [Fact]
-    public void S11704_a_family_left_with_one_widget_is_that_widget_among_its_subjects_own()
+    public void S13611_a_family_left_with_one_widget_is_that_widget_among_its_subjects_own()
     {
         WidgetId[] gone = [new("cpuHistory"), new("cpuCores"), new("cpuFacts"), new("topProcesses")];
         var page = AddPage.Of([.. Every.Except(gone)], ReadyMadeGroups.Offered());
@@ -128,14 +172,18 @@ public sealed class AddPageTests
         var groups = tiles.OfType<AddGroupTile>().Select(t => t.Group.Id).ToList();
         Assert.Equal(ReadyMadeGroups.Offered().Select(g => g.Id).Order(), groups.Order());
 
-        // Each group stands in the tab of the subject it is about.
-        foreach (var tab in page.Tabs.Where(t => t.Id != AddFolderId.Start))
+        // Each group stands in the subject it is about.
+        foreach (var item in page.Rail.Where(t => t.Id != AddFolderId.Start))
         {
-            foreach (var group in page.Sections(tab.Id).SelectMany(s => s.Tiles).OfType<AddGroupTile>())
+            foreach (var group in page.Sections(item.Id).SelectMany(s => s.Tiles).OfType<AddGroupTile>())
             {
-                Assert.Equal(tab.Id, AddTree.SubjectOf(group.Group.Home));
+                Assert.Equal(item.Id, AddTree.SubjectOf(group.Group.Home));
             }
         }
+
+        // [S-13612] A kind in a family stands in its stack alone, never among its subject's own widgets too.
+        var stacked = page.Rail.SelectMany(i => page.Sections(i.Id)).Where(s => s.Family is not null).SelectMany(s => s.Tiles).ToHashSet();
+        Assert.DoesNotContain(page.Rail.SelectMany(i => page.Sections(i.Id)).Where(s => s.Kind == AddSectionKind.Widgets).SelectMany(s => s.Tiles), stacked.Contains);
     }
 
     [Fact]
@@ -149,7 +197,98 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11706_every_kind_and_every_group_is_found_by_its_own_name()
+    public void S13613_a_subjects_sections_are_made_once_when_first_asked_for()
+    {
+        var page = Page;
+        var first = page.Sections(AddFolderId.Weather);
+        Assert.Same(first, page.Sections(AddFolderId.Weather));
+        Assert.Empty(page.Sections(AddFolderId.Popular));
+    }
+
+    [Fact]
+    public void S13613_hundreds_of_kinds_split_into_families_stand_as_a_stack_each_every_one_counted()
+    {
+        // A subject of 20 own widgets and 30 families of 12 one-row parts: 380 kinds.
+        WidgetId Kind(string name) => new(name);
+        var own = Enumerable.Range(0, 20).Select(i => (AddNode)new AddLeaf(Kind($"own{i}"))).ToList();
+        AddFolderId[] ids = [AddFolderId.Processor, AddFolderId.Graphics, AddFolderId.MemoryReading];
+        var families = Enumerable.Range(0, 30).Select(f => (AddNode)new AddShelf(ids[f % ids.Length], LocalText.Fixed($"Family {f}"), Kind($"f{f}p0"),
+            [.. Enumerable.Range(0, 12).Select(p => (AddNode)new AddLeaf(Kind($"f{f}p{p}")))])).ToList();
+        var subject = new AddShelf(AddFolderId.Weather, LocalText.Fixed("Weather"), Kind("own0"), [.. own, .. families]);
+        var browse = new AddShelf(AddFolderId.Browse, LocalText.Fixed("Browse"), Kind("own0"), [subject]);
+        var popular = new AddShelf(AddFolderId.Popular, LocalText.Fixed("Popular"), Kind("own0"), [new AddLeaf(Kind("own0"), Again: true)]);
+        WidgetId[] offered = [.. own.Cast<AddLeaf>().Select(l => l.Kind), .. families.Cast<AddShelf>().SelectMany(f => f.Rows.Cast<AddLeaf>().Select(l => l.Kind))];
+
+        var page = AddPage.Of(popular, browse, offered, [], null, null);
+
+        Assert.Equal(380, page.Rail.Single(i => i.Id == AddFolderId.Weather).Count);
+        Assert.Equal(380, page.Homes.Count);
+        var sections = page.Sections(AddFolderId.Weather);
+        Assert.Equal(1 + 30, sections.Count);
+        Assert.Equal(20, sections[0].Tiles.Count);
+        Assert.All(sections.Skip(1), s => Assert.Equal(12, s.Family!.Tiles.Count));
+
+        // Closed, the whole subject draws its own widgets and one row per family: 20 + 30 × 3 at three across.
+        var drawn = sections[0].Tiles.Count + sections.Skip(1).Sum(s => AddPageLayout.Stack(s.Tiles.Count, 3, open: false).Stops);
+        Assert.Equal(20 + (30 * 3), drawn);
+    }
+
+    // ---- [S-13612] [S-13614] family stacks --------------------------------------------------------
+
+    [Fact]
+    public void S13612_a_collapsed_stack_shows_its_first_row_ending_in_plus_n()
+    {
+        // Five widgets, three across: two tiles and "+3".
+        Assert.Equal(new AddStack(2, 3), AddPageLayout.Stack(5, 3, open: false));
+        Assert.Equal(3, AddPageLayout.Stack(5, 3, open: false).Stops);
+
+        // Eleven one-row facts, four across: three and "+8"; opened, all eleven and no "+N".
+        Assert.Equal(new AddStack(3, 8), AddPageLayout.Stack(11, 4, open: false));
+        Assert.Equal(new AddStack(11, 0), AddPageLayout.Stack(11, 4, open: true));
+        Assert.Equal(11, AddPageLayout.Stack(11, 4, open: true).Stops);
+
+        // A family that fits one row shows whole, open or not.
+        Assert.Equal(new AddStack(3, 0), AddPageLayout.Stack(3, 3, open: false));
+        Assert.Equal(new AddStack(2, 0), AddPageLayout.Stack(2, 5, open: false));
+
+        // One across: its first tile and "+N" under it.
+        Assert.Equal(new AddStack(1, 4), AddPageLayout.Stack(5, 1, open: false));
+        Assert.Equal(new AddStack(1, 1), AddPageLayout.Stack(2, 1, open: false));
+    }
+
+    [Fact]
+    public void S13612_a_stack_shows_and_hides_every_tile_of_its_family_once()
+    {
+        foreach (var columns in new[] { 1, 2, 3, 5 })
+        {
+            foreach (var count in new[] { 2, 3, 5, 11, 40 })
+            {
+                var closed = AddPageLayout.Stack(count, columns, open: false);
+                Assert.Equal(count, closed.Shown + closed.Hidden);
+                Assert.True(closed.Stops <= Math.Max(columns, 2), $"{count} in {columns} across takes more than its first row");
+                Assert.True(closed.Shown >= 1);
+            }
+        }
+    }
+
+    [Fact]
+    public void S13614_a_familys_preview_is_its_first_widgets_picture_under_its_own_key()
+    {
+        var page = Page;
+        var processor = Processor(page);
+
+        Assert.Equal("family:Processor", processor.Key);
+        Assert.Equal(new AddWidgetTile(new WidgetId("cpu")), processor.Picture);
+        Assert.Equal(processor.Tiles[0], processor.Picture);
+
+        // Its key is no tile's: the preview tells a family from its first widget.
+        Assert.DoesNotContain(AllTiles(page, withStart: true), t => t.Key == processor.Key);
+    }
+
+    // ---- [S-13615] the search ---------------------------------------------------------------------
+
+    [Fact]
+    public void S13615_every_kind_and_every_group_is_found_by_its_own_name()
     {
         var page = Page;
         foreach (var home in page.Homes)
@@ -167,7 +306,7 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11706_a_search_lists_groups_then_widgets_under_a_heading_each_from_every_subject()
+    public void S13615_a_search_lists_groups_then_widgets_under_a_heading_each_from_every_subject()
     {
         var found = Page.Find("cpu");
 
@@ -181,19 +320,38 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11706_a_groups_subject_finds_it_as_a_widgets_does()
+    public void S13615_a_search_is_flat_a_familys_widgets_each_on_their_own()
+    {
+        var page = Page;
+        var processor = Processor(page);
+
+        // The family's name finds every one of its widgets, none stacked, none behind a "+N".
+        var found = page.Find(processor.Title.Text(Locale.En));
+        Assert.All(found, s => Assert.Null(s.Family));
+        Assert.DoesNotContain(found, s => s.Kind == AddSectionKind.Family);
+        var widgets = found.Single(s => s.Kind == AddSectionKind.Widgets).Tiles;
+        Assert.All(processor.Tiles, t => Assert.Contains(t, widgets));
+
+        // A family's later widget by its own name, as a tile of its own.
+        Assert.Contains(new AddWidgetTile(new WidgetId("topProcesses")), page.Find("top processes").SelectMany(s => s.Tiles));
+    }
+
+    [Fact]
+    public void S13615_a_groups_subject_finds_it_as_a_widgets_does()
     {
         var found = Page.Find("music").SelectMany(s => s.Tiles).ToList();
         Assert.Contains(new AddGroupTile(ReadyMadeGroups.NowPlaying), found);
     }
 
     [Fact]
-    public void S11706_spaces_search_nothing_and_no_match_is_no_section()
+    public void S13615_spaces_search_nothing_and_no_match_is_no_section()
     {
         Assert.False(AddPage.Searching("   "));
         Assert.Empty(Page.Find("   "));
         Assert.Empty(Page.Find("zzqxv"));
     }
+
+    // ---- [S-13601] [S-13616] the layout -----------------------------------------------------------
 
     [Fact]
     public void S13601_tiles_of_at_least_200_fill_the_list_4_apart()
@@ -212,16 +370,21 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S13603_the_preview_pane_stands_beside_the_list_while_the_list_keeps_two_tiles_across()
+    public void S13616_the_rail_the_list_and_the_preview_share_the_width_the_preview_dropping_first()
     {
-        // A 1920 display's bar less the flyout's gutters: three tiles across beside the 360 pane.
-        Assert.Equal((692.0, 360.0), AddPageLayout.Split(1068));
-        Assert.Equal(3, AddPageLayout.Columns(AddPageLayout.Split(1068).List));
+        // A 1920 display's bar less the flyout's gutters: the rail, two tiles across, the 360 pane.
+        Assert.Equal((240.0, 596.0, 360.0), AddPageLayout.Split(1228));
+        Assert.Equal(2, AddPageLayout.Columns(AddPageLayout.Split(1228).List));
 
-        // Just room for two tiles and the pane; one DIP less and the list takes the whole width.
-        Assert.Equal((404.0, 360.0), AddPageLayout.Split(404 + 16 + 360));
-        Assert.Equal((779.0, 0.0), AddPageLayout.Split(779));
-        Assert.Equal((0.0, 0.0), AddPageLayout.Split(-5));
+        // Just room for the rail, two tiles and the pane; less and the pane goes, the list taking its room.
+        Assert.Equal((240.0, 404.0, 360.0), AddPageLayout.Split(240 + 16 + 404 + 16 + 360));
+        Assert.Equal((240.0, 779.0, 0.0), AddPageLayout.Split(240 + 16 + 779));
+        Assert.False(AddPageLayout.Compact(240 + 16 + 404));
+
+        // Narrower still: the rail its glyphs alone, the list the rest.
+        Assert.Equal((48.0, 403.0 + 192, 0.0), AddPageLayout.Split(240 + 16 + 403));
+        Assert.True(AddPageLayout.Compact(240 + 16 + 403));
+        Assert.Equal((48.0, 0.0, 0.0), AddPageLayout.Split(-5));
     }
 
     [Fact]
@@ -246,8 +409,10 @@ public sealed class AddPageTests
         Assert.Equal(Math.Floor(1032 * 0.7), tall.Height);
     }
 
+    // ---- [S-13617] the keys -----------------------------------------------------------------------
+
     [Fact]
-    public void S11708_down_from_the_box_goes_to_the_first_tile_and_up_from_the_first_row_back()
+    public void S13617_down_from_the_box_goes_to_the_first_stop_and_up_from_the_first_row_back()
     {
         int[] counts = [3, 5];
         Assert.Equal(new AddKeyStep(new AddCursor(0, 0), true), AddPageKeys.Move(counts, 4, null, WidgetKey.Down));
@@ -256,14 +421,14 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11708_the_arrows_walk_the_grid_and_cross_sections()
+    public void S13617_the_arrows_walk_the_grid_and_cross_sections()
     {
         int[] counts = [3, 6];
         const int across = 4;
 
-        // Right at a section's end goes on to the next; Left back.
+        // Right at a section's end goes on to the next; Left inside a row back one.
         Assert.Equal(new AddCursor(1, 0), AddPageKeys.Move(counts, across, new AddCursor(0, 2), WidgetKey.Right).Cursor);
-        Assert.Equal(new AddCursor(0, 2), AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Left).Cursor);
+        Assert.Equal(new AddCursor(1, 1), AddPageKeys.Move(counts, across, new AddCursor(1, 2), WidgetKey.Left).Cursor);
 
         // Down from a section's last row: the same column of the next's first row, held to its tiles.
         Assert.Equal(new AddCursor(1, 2), AddPageKeys.Move(counts, across, new AddCursor(0, 2), WidgetKey.Down).Cursor);
@@ -284,12 +449,56 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11708_ctrl_tab_steps_the_tabs_round()
+    public void S13617_left_at_a_rows_start_goes_back_to_the_rail()
+    {
+        int[] counts = [3, 6];
+        var back = AddPageKeys.Move(counts, 4, new AddCursor(1, 4), WidgetKey.Left);
+        Assert.True(back.Handled);
+        Assert.True(back.ToRail);
+        Assert.Null(back.Cursor);
+        Assert.True(AddPageKeys.Move(counts, 4, new AddCursor(1, 0), WidgetKey.Left).ToRail);
+        Assert.False(AddPageKeys.Move(counts, 4, new AddCursor(1, 1), WidgetKey.Left).ToRail);
+    }
+
+    [Fact]
+    public void S13617_a_familys_head_is_a_run_of_one_over_its_stack()
+    {
+        // Widgets (3), then a family: its head, then its stack of two tiles and "+N".
+        int[] counts = [3, 1, 3];
+        const int across = 3;
+
+        Assert.Equal(new AddCursor(1, 0), AddPageKeys.Move(counts, across, new AddCursor(0, 2), WidgetKey.Down).Cursor);
+        Assert.Equal(new AddCursor(2, 0), AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Down).Cursor);
+        Assert.Equal(new AddCursor(1, 0), AddPageKeys.Move(counts, across, new AddCursor(2, 2), WidgetKey.Up).Cursor);
+        Assert.Equal(new AddCursor(0, 0), AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Up).Cursor);
+        Assert.Equal(new AddCursor(2, 0), AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Right).Cursor);
+        Assert.True(AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Left).ToRail);
+    }
+
+    [Fact]
+    public void S13617_the_rail_walks_up_and_down_up_from_the_first_to_the_box_and_right_into_the_content()
+    {
+        Assert.Equal(new AddRailStep(3, AddRailMove.Item), AddPageKeys.Rail(11, 2, WidgetKey.Down));
+        Assert.Equal(new AddRailStep(1, AddRailMove.Item), AddPageKeys.Rail(11, 2, WidgetKey.Up));
+        Assert.Equal(new AddRailStep(0, AddRailMove.Box), AddPageKeys.Rail(11, 0, WidgetKey.Up));
+        Assert.Equal(new AddRailStep(10, AddRailMove.Item), AddPageKeys.Rail(11, 10, WidgetKey.Down));
+        Assert.Equal(new AddRailStep(0, AddRailMove.Item), AddPageKeys.Rail(11, 6, WidgetKey.Home));
+        Assert.Equal(new AddRailStep(10, AddRailMove.Item), AddPageKeys.Rail(11, 6, WidgetKey.End));
+        Assert.Equal(new AddRailStep(6, AddRailMove.Content), AddPageKeys.Rail(11, 6, WidgetKey.Right));
+        Assert.Equal(new AddRailStep(6, AddRailMove.Content), AddPageKeys.Rail(11, 6, WidgetKey.Enter));
+        Assert.Equal(AddRailMove.None, AddPageKeys.Rail(11, 6, WidgetKey.Left).Move);
+        Assert.Equal(AddRailMove.None, AddPageKeys.Rail(0, 0, WidgetKey.Down).Move);
+    }
+
+    [Fact]
+    public void S13617_ctrl_tab_steps_the_rail_round()
     {
         Assert.Equal(1, AddPageKeys.Tab(11, 0, back: false));
         Assert.Equal(0, AddPageKeys.Tab(11, 10, back: false));
         Assert.Equal(10, AddPageKeys.Tab(11, 0, back: true));
     }
+
+    // ---- [S-11709] the desktop icon kind ----------------------------------------------------------
 
     [Fact]
     public void S11709_the_desktop_icon_kind_has_its_tile_and_its_subject_lists_the_unplaced_items_too()
@@ -312,7 +521,7 @@ public sealed class AddPageTests
         var desktop = files.Single(s => s.Kind == AddSectionKind.Desktop);
         Assert.Equal(unplaced, desktop.Tiles.Cast<AddItemTile>().Select(t => t.Item));
         Assert.True(files.ToList().IndexOf(widgets) < files.ToList().IndexOf(desktop));
-        Assert.DoesNotContain(page.Tabs.Where(t => t.Id != AddFolderId.Files).SelectMany(t => page.Sections(t.Id)), s => s.Kind == AddSectionKind.Desktop);
+        Assert.DoesNotContain(page.Rail.Where(t => t.Id != AddFolderId.Files).SelectMany(t => page.Sections(t.Id)), s => s.Kind == AddSectionKind.Desktop);
 
         // Nothing unplaced (or none given, or no item kind): no section, the tile stays.
         foreach (var bare in new[] { AddPage.Of(Every, ReadyMadeGroups.Offered(), itemKind, []), AddPage.Of(Every, ReadyMadeGroups.Offered(), itemKind), AddPage.Of(Every, ReadyMadeGroups.Offered(), null, unplaced), Page })

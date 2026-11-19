@@ -369,7 +369,7 @@ public sealed class ReadyMadeGroupsTests
     {
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
 
-        Assert.Equal(AddFolderId.Start, page.Tabs[0].Id);
+        Assert.Equal(AddFolderId.Start, page.Rail[0].Id);
         var first = page.Sections(AddFolderId.Start)[0];
         Assert.Equal(AddSectionKind.ReadyMade, first.Kind);
         Assert.Equal(new AddGroupTile(ReadyMadeGroups.MyDay), first.Tiles[0]);
@@ -380,7 +380,7 @@ public sealed class ReadyMadeGroupsTests
     {
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], []);
 
-        Assert.DoesNotContain(page.Tabs.SelectMany(t => page.Sections(t.Id)), s => s.Kind == AddSectionKind.ReadyMade);
+        Assert.DoesNotContain(page.Rail.SelectMany(t => page.Sections(t.Id)), s => s.Kind == AddSectionKind.ReadyMade);
     }
 
     // ---- [S-2475] the picture ----------------------------------------------------------------------

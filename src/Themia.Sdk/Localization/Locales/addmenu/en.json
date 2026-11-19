@@ -3,7 +3,10 @@
     "addMenu.start",
     "addMenu.widgets",
     "addMenu.noResults",
-    "addMenu.tabs",
+    "addMenu.subjects",
+    "addMenu.moreCount",
+    "addMenu.showAll",
+    "addMenu.showFewer",
     "addMenu.overLimit"
   ],
   "addMenu.popular": "Popular",
@@ -24,6 +27,9 @@
   "addMenu.start": "Start",
   "addMenu.widgets": "Widgets",
   "addMenu.noResults": "No results for “{query}”",
-  "addMenu.tabs": "Subjects",
+  "addMenu.subjects": "Subjects",
+  "addMenu.moreCount": "+{count}",
+  "addMenu.showAll": "Show all",
+  "addMenu.showFewer": "Show fewer",
   "addMenu.overLimit": "Beyond the free plan's {count} widgets: Pro"
 }

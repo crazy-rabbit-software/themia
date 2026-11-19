@@ -12,7 +12,7 @@ using P = Themia.Sdk.Kit.ShellMetrics.Page;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-2345] [S-11700] A tab of a strip, the one tab of every page (the add page's, the selection page's),
+/// [S-2345] A tab of a strip, the one tab of every page (the selection page's),
 /// as WinUI's SelectorBar draws its items and Karpo's tab strip (§592) after it: 40 tall, its words 12 in
 /// from either side, no fill until pointed at, its words in Body and secondary; the chosen one's in
 /// BodyStrong and primary over the accent's 16 × 3 pill.

@@ -1,3 +1,4 @@
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk;
@@ -41,7 +42,7 @@ public enum AddSectionKind
     /// <summary>A subject's widgets outside a family, or a search's widgets.</summary>
     Widgets,
 
-    /// <summary>One family of a subject, under its name.</summary>
+    /// <summary>[S-13612] One family of a subject: a stack under its head (<see cref="AddSection.Family"/>).</summary>
     Family,
 
     /// <summary>[S-5523] This view's unplaced desktop items.</summary>
@@ -49,34 +50,58 @@ public enum AddSectionKind
 }
 
 /// <summary>[S-11701] A section of the add page: a heading over its tiles. Never empty.</summary>
-/// <param name="Key">The same in every language: <c>tab/kind</c>, a family's <c>tab/family:Id</c>.</param>
-public sealed record AddSection(string Key, AddSectionKind Kind, LocalText Heading, IReadOnlyList<AddTile> Tiles);
-
-/// <summary>[S-11700] A tab of the add page: Start, a subject, or More.</summary>
-public sealed record AddTab(AddFolderId Id, LocalText Title);
+/// <param name="Key">The same in every language: <c>subject/kind</c>, a family's <c>subject/family:Id</c>.</param>
+public sealed record AddSection(string Key, AddSectionKind Kind, LocalText Heading, IReadOnlyList<AddTile> Tiles)
+{
+    /// <summary>[S-13612] The family a <see cref="AddSectionKind.Family"/> section stacks; null for every other section.</summary>
+    public AddFamily? Family { get; init; }
+}
 
 /// <summary>
-/// [S-11700]..[S-11706] The add page, after Karpo's (<c>karpo-app</c>, docs/widgets.md §593, §578): tabs
-/// of tiles, built from <see cref="AddTree"/> (the subjects, the families, the homes, Popular) and
-/// <see cref="ReadyMadeGroups"/>, pure, so the page the app draws is a drawing of what this returns.
-/// <b>Start</b> first (the starter groups, then Popular), then a tab per subject in Browse's order (its
-/// ready-made groups, its widgets, each family under its name), then <b>More</b> while the tree leaves a
-/// kind out. A search lists what matches from every tab, groups and widgets under a heading each.
+/// [S-13612] [S-13614] A family of two or more widgets in a subject (one widget in several parts: a reading's meter
+/// and its details, the one-row weather facts): one stack on the page under a head of its name and count.
+/// </summary>
+/// <param name="Tiles">Its widgets in the tree's order; never fewer than two.</param>
+public sealed record AddFamily(AddFolderId Id, LocalText Title, IReadOnlyList<AddTile> Tiles)
+{
+    /// <summary>Its key, the same in every language: what a render's <c>--hover</c> and <c>--open</c> name.</summary>
+    public string Key => "family:" + Id;
+
+    /// <summary>[S-13614] The tile whose picture stands for the family in the preview: its first widget's.</summary>
+    public AddTile Picture => Tiles[0];
+}
+
+/// <summary>
+/// [S-13610] An item of the add page's rail: Start, a subject, or More; its glyph (a subject's first widget's)
+/// and how many widgets are at home in it (Start counts none: it only shows some again).
+/// </summary>
+public sealed record AddRailItem(AddFolderId Id, LocalText Title, string Glyph, int Count);
+
+/// <summary>
+/// [S-13610]..[S-13616] The add page, pure (Karpo's add list, <c>karpo-app</c> docs/widgets.md §593, grouped as
+/// Android's widget picker groups an app's widgets): a <b>rail</b> of Start, a subject per Browse folder and
+/// More while the tree leaves a kind out, each with its count; a subject's <b>content</b> its ready-made groups,
+/// its own widgets, its unplaced desktop items and each family of two or more as one stack
+/// (<see cref="AddFamily"/>); a <b>search</b> every widget and group that matches, flat. Built from
+/// <see cref="AddTree"/> (the subjects, the families, the homes, Popular) and <see cref="ReadyMadeGroups"/>, so
+/// the page the app draws is a drawing of what this returns. A subject's sections are made when it is first
+/// shown: a page of hundreds of kinds opens at the cost of the rail.
 /// </summary>
 public sealed class AddPage
 {
-    private readonly Dictionary<AddFolderId, IReadOnlyList<AddSection>> _sections;
+    private readonly Dictionary<AddFolderId, Func<IReadOnlyList<AddSection>>> _make;
+    private readonly Dictionary<AddFolderId, IReadOnlyList<AddSection>> _made = [];
 
-    private AddPage(IReadOnlyList<AddTab> tabs, Dictionary<AddFolderId, IReadOnlyList<AddSection>> sections, IReadOnlyList<AddHome> homes, IReadOnlyList<ReadyMadeGroup> groups)
+    private AddPage(IReadOnlyList<AddRailItem> rail, Dictionary<AddFolderId, Func<IReadOnlyList<AddSection>>> make, IReadOnlyList<AddHome> homes, IReadOnlyList<ReadyMadeGroup> groups)
     {
-        Tabs = tabs;
-        _sections = sections;
+        Rail = rail;
+        _make = make;
         Homes = homes;
         Groups = groups;
     }
 
-    /// <summary>[S-11700] The tabs, in order: Start, the subjects, More where anything stands in it.</summary>
-    public IReadOnlyList<AddTab> Tabs { get; }
+    /// <summary>[S-13610] The rail, in order: Start, the subjects in Browse's order, More where anything stands in it.</summary>
+    public IReadOnlyList<AddRailItem> Rail { get; }
 
     /// <summary>[S-3511] [S-3513] Every widget the page offers, once, at its home (Start's Popular repeats some).</summary>
     public IReadOnlyList<AddHome> Homes { get; }
@@ -84,11 +109,26 @@ public sealed class AddPage
     /// <summary>[S-2473] The ready-made groups the page offers, in <see cref="ReadyMadeGroups.All"/>' order.</summary>
     public IReadOnlyList<ReadyMadeGroup> Groups { get; }
 
-    /// <summary>[S-11701] A tab's sections; none for a tab the page does not have.</summary>
-    public IReadOnlyList<AddSection> Sections(AddFolderId tab) => _sections.GetValueOrDefault(tab) ?? [];
+    /// <summary>[S-11701] [S-13613] A rail item's sections, made the first time they are asked for; none for an item the page does not have.</summary>
+    public IReadOnlyList<AddSection> Sections(AddFolderId item)
+    {
+        if (_made.TryGetValue(item, out var made))
+        {
+            return made;
+        }
+
+        if (!_make.TryGetValue(item, out var make))
+        {
+            return [];
+        }
+
+        made = make();
+        _made[item] = made;
+        return made;
+    }
 
     /// <summary>
-    /// [S-11700] The page for <paramref name="offered"/> kinds (the catalogue's, in its order) and the
+    /// [S-13610] The page for <paramref name="offered"/> kinds (the catalogue's, in its order) and the
     /// ready-made <paramref name="groups"/> this build can place. [S-5523] <paramref name="itemKind"/>, the
     /// desktop icon kind, has its tile like any kind (it makes an own icon), and the view's
     /// <paramref name="unplaced"/> desktop items are tiles too, in a section of the subject it is at home in.
@@ -103,31 +143,33 @@ public sealed class AddPage
         ArgumentNullException.ThrowIfNull(groups);
 
         var have = new HashSet<WidgetId>(offered);
-
-        var tabs = new List<AddTab> { new(AddFolderId.Start, Str.AddMenu_Start.Local()) };
-        var sections = new Dictionary<AddFolderId, IReadOnlyList<AddSection>>();
+        var rail = new List<AddRailItem> { new(AddFolderId.Start, Str.AddMenu_Start.Local(), Glyphs.Home, 0) };
+        var make = new Dictionary<AddFolderId, Func<IReadOnlyList<AddSection>>>();
         var homes = new List<AddHome>();
 
         // [S-11703] Start: the starter groups in their order, then Popular.
-        var start = new List<AddSection>();
-        Add(start, AddFolderId.Start, AddSectionKind.ReadyMade, Str.Groups_Add_ReadyMade.Local(),
-            [.. groups.Where(g => g.Starter is not null).OrderBy(g => g.Starter).Select(g => (AddTile)new AddGroupTile(g))]);
-        Add(start, AddFolderId.Start, AddSectionKind.Popular, Str.AddMenu_Popular.Local(),
-            [.. popular.Rows.OfType<AddLeaf>().Where(leaf => have.Contains(leaf.Kind)).Select(leaf => (AddTile)new AddWidgetTile(leaf.Kind))]);
-        sections[AddFolderId.Start] = start;
+        make[AddFolderId.Start] = () =>
+        {
+            var start = new List<AddSection>();
+            Add(start, AddFolderId.Start, AddSectionKind.ReadyMade, Str.Groups_Add_ReadyMade.Local(),
+                [.. groups.Where(g => g.Starter is not null).OrderBy(g => g.Starter).Select(g => (AddTile)new AddGroupTile(g))]);
+            Add(start, AddFolderId.Start, AddSectionKind.Popular, Str.AddMenu_Popular.Local(),
+                [.. popular.Rows.OfType<AddLeaf>().Where(leaf => have.Contains(leaf.Kind)).Select(leaf => (AddTile)new AddWidgetTile(leaf.Kind))]);
+            return start;
+        };
 
-        // [S-11704] A subject: its groups, its own widgets, each family under its name.
+        // [S-13611] [S-13613] A subject: its homes now (the rail's count, the search), its sections when it is shown.
         var placedGroups = new HashSet<string>(StringComparer.Ordinal);
         foreach (var subject in browse.Rows.OfType<AddShelf>())
         {
-            var own = new List<AddTile>();
-            var families = new List<AddSection>();
+            var own = new List<WidgetId>();
+            var families = new List<(AddShelf Shelf, List<WidgetId> Kinds)>();
             foreach (var row in subject.Rows)
             {
                 switch (row)
                 {
                     case AddLeaf leaf when have.Contains(leaf.Kind):
-                        own.Add(new AddWidgetTile(leaf.Kind));
+                        own.Add(leaf.Kind);
                         homes.Add(new AddHome(leaf.Kind, [subject]));
                         break;
                     case AddShelf family:
@@ -136,12 +178,12 @@ public sealed class AddPage
                         // A family of one is that widget, among the subject's own ([S-3511]).
                         if (kinds.Count == 1)
                         {
-                            own.Add(new AddWidgetTile(kinds[0]));
+                            own.Add(kinds[0]);
                             homes.Add(new AddHome(kinds[0], [subject]));
                         }
                         else if (kinds.Count > 1)
                         {
-                            families.Add(new AddSection($"{subject.Id}/family:{family.Id}", AddSectionKind.Family, family.Title, [.. kinds.Select(k => (AddTile)new AddWidgetTile(k))]));
+                            families.Add((family, kinds));
                             homes.AddRange(kinds.Select(k => new AddHome(k, [subject, family])));
                         }
 
@@ -153,20 +195,31 @@ public sealed class AddPage
             placedGroups.UnionWith(mine.Select(g => g.Id));
 
             // [S-5523] The view's unplaced desktop items where the item kind is at home.
-            var items = itemKind is { } item && Holds(subject, item) && unplaced is { Count: > 0 }
-                ? unplaced.Select(i => (AddTile)new AddItemTile(i)).ToList()
-                : [];
-
-            var list = new List<AddSection>();
-            Add(list, subject.Id, AddSectionKind.ReadyMade, Str.Groups_Add_ReadyMade.Local(), [.. mine.Select(g => (AddTile)new AddGroupTile(g))]);
-            Add(list, subject.Id, AddSectionKind.Widgets, Str.AddMenu_Widgets.Local(), own);
-            Add(list, subject.Id, AddSectionKind.Desktop, Str.Desktop_Add_Folder.Local(), items);
-            list.AddRange(families);
-            if (list.Count > 0)
+            IReadOnlyList<DesktopItem> items = itemKind is { } item && Holds(subject, item) && unplaced is { Count: > 0 } ? unplaced : [];
+            var count = own.Count + families.Sum(f => f.Kinds.Count);
+            if (count == 0 && mine.Count == 0 && items.Count == 0)
             {
-                tabs.Add(new AddTab(subject.Id, subject.Title));
-                sections[subject.Id] = list;
+                continue;
             }
+
+            rail.Add(new AddRailItem(subject.Id, subject.Title, GlyphOf(subject.Icon), count));
+            make[subject.Id] = () =>
+            {
+                var list = new List<AddSection>();
+                Add(list, subject.Id, AddSectionKind.ReadyMade, Str.Groups_Add_ReadyMade.Local(), [.. mine.Select(g => (AddTile)new AddGroupTile(g))]);
+                Add(list, subject.Id, AddSectionKind.Widgets, Str.AddMenu_Widgets.Local(), [.. own.Select(k => (AddTile)new AddWidgetTile(k))]);
+                Add(list, subject.Id, AddSectionKind.Desktop, Str.Desktop_Add_Folder.Local(), [.. items.Select(i => (AddTile)new AddItemTile(i))]);
+                foreach (var (shelf, kinds) in families)
+                {
+                    AddTile[] tiles = [.. kinds.Select(k => (AddTile)new AddWidgetTile(k))];
+                    list.Add(new AddSection($"{subject.Id}/family:{shelf.Id}", AddSectionKind.Family, shelf.Title, tiles)
+                    {
+                        Family = new AddFamily(shelf.Id, shelf.Title, tiles),
+                    });
+                }
+
+                return list;
+            };
         }
 
         // [S-3511] What the tree has no home for, and a group whose subject is not on the page: More.
@@ -176,16 +229,22 @@ public sealed class AddPage
         if (left.Count > 0 || stray.Count > 0)
         {
             var more = new AddShelf(AddFolderId.More, Str.AddMenu_Subject_More.Local(), left.Count > 0 ? left[0] : browse.Icon, [.. left.Select(k => (AddNode)new AddLeaf(k))]);
-            var list = new List<AddSection>();
-            Add(list, AddFolderId.More, AddSectionKind.ReadyMade, Str.Groups_Add_ReadyMade.Local(), [.. stray.Select(g => (AddTile)new AddGroupTile(g))]);
-            Add(list, AddFolderId.More, AddSectionKind.Widgets, Str.AddMenu_Widgets.Local(), [.. left.Select(k => (AddTile)new AddWidgetTile(k))]);
             homes.AddRange(left.Select(k => new AddHome(k, [more])));
-            tabs.Add(new AddTab(AddFolderId.More, more.Title));
-            sections[AddFolderId.More] = list;
+            rail.Add(new AddRailItem(AddFolderId.More, more.Title, Glyphs.Apps, left.Count));
+            make[AddFolderId.More] = () =>
+            {
+                var list = new List<AddSection>();
+                Add(list, AddFolderId.More, AddSectionKind.ReadyMade, Str.Groups_Add_ReadyMade.Local(), [.. stray.Select(g => (AddTile)new AddGroupTile(g))]);
+                Add(list, AddFolderId.More, AddSectionKind.Widgets, Str.AddMenu_Widgets.Local(), [.. left.Select(k => (AddTile)new AddWidgetTile(k))]);
+                return list;
+            };
         }
 
-        return new AddPage(tabs, sections, homes, groups);
+        return new AddPage(rail, make, homes, groups);
     }
+
+    /// <summary>A subject's glyph: its first widget's (a kind this build does not know: the apps' glyph).</summary>
+    private static string GlyphOf(WidgetId kind) => ModuleCatalog.TryGet(kind, out var descriptor) ? descriptor.Glyph : Glyphs.Apps;
 
     /// <summary>Add a section of <paramref name="tiles"/> unless it would be empty.</summary>
     private static void Add(List<AddSection> sections, AddFolderId tab, AddSectionKind kind, LocalText heading, IReadOnlyList<AddTile> tiles)
@@ -200,7 +259,7 @@ public sealed class AddPage
     private static bool Holds(AddShelf shelf, WidgetId kind)
         => shelf.Rows.Any(row => row is AddLeaf { Again: false } leaf && leaf.Kind == kind || row is AddShelf inner && Holds(inner, kind));
 
-    // ---- [S-11706] the search -----------------------------------------------------------------
+    // ---- [S-13615] the search -----------------------------------------------------------------
 
     /// <summary>
     /// The search index, built once per language and page shape: the names change with the language
@@ -208,12 +267,13 @@ public sealed class AddPage
     /// </summary>
     private (Locale Locale, (IndexedWidget Index, AddTile Tile)[] Entries)? _index;
 
-    /// <summary>[S-11706] Whether <paramref name="query"/> searches at all (spaces alone do not).</summary>
+    /// <summary>[S-13615] Whether <paramref name="query"/> searches at all (spaces alone do not).</summary>
     public static bool Searching(string? query) => WidgetSearch.Tokenize(query).Length > 0;
 
     /// <summary>
-    /// [S-11706] [S-3513] [S-2473] What a search shows in place of the tab: the ready-made groups and the
-    /// widgets that match, from every tab, each under one heading, best first. Each widget once, at its
+    /// [S-13615] [S-3513] [S-2473] What a search shows in place of a subject: the ready-made groups and the
+    /// widgets that match, from every subject, each under one heading, best first, flat: a family's widgets
+    /// stand each on its own, never stacked. Each widget once, at its
     /// home, matched on its name, keywords, kind, description and the names of its subject and family;
     /// each group on its name, what it is about and the widgets it holds. Nothing matching: no section.
     /// </summary>

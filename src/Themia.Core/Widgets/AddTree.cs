@@ -15,7 +15,7 @@ public sealed record AddLeaf(WidgetId Kind, bool Again = false) : AddNode;
 /// <summary>A line between two runs of a folder's rows: the order the runs come in.</summary>
 public sealed record AddLine : AddNode;
 
-/// <summary>A folder: a subject (a tab of the add page) or a family inside one (a heading over its widgets).</summary>
+/// <summary>A folder: a subject (an item of the add page's rail) or a family inside one (a stack of its widgets).</summary>
 /// <param name="Icon">The kind whose glyph stands for it: its first widget's.</param>
 public sealed record AddShelf(AddFolderId Id, LocalText Title, WidgetId Icon, IReadOnlyList<AddNode> Rows) : AddNode;
 
@@ -28,7 +28,7 @@ public sealed record AddHome(WidgetId Kind, IReadOnlyList<AddShelf> Path);
 /// <b>Popular</b> (a fixed handful, each again from its home) and <b>Browse</b> (a folder per subject);
 /// inside a subject a <b>family</b> — one widget in several parts (a reading's meter and its details,
 /// the seven power buttons) — is a folder of its own. Never deeper than that. The add page
-/// (<see cref="AddPage"/>) draws it: a subject a tab, a family a heading over its widgets.
+/// (<see cref="AddPage"/>) draws it: a subject an item of its rail, a family a stack of its widgets ([S-13610], [S-13612]).
 /// <para>
 /// The folders are declared here; each widget places itself in one through its descriptor
 /// (<see cref="WidgetDescriptor.Add"/>, [S-6907]). A kind the tree has no home for is still listed,
@@ -75,11 +75,11 @@ public static class AddTree
 
     /// <summary>
     /// [S-3511] What most people add first, each again where it is at home, in the order of how often
-    /// it is wanted (each widget's <see cref="AddPlacement.Popular"/>): the Start tab's Popular.
+    /// it is wanted (each widget's <see cref="AddPlacement.Popular"/>): Start's Popular.
     /// </summary>
     public static AddShelf Popular => Tree.Value.Popular;
 
-    /// <summary>[S-3511] Every subject, a folder each, in the tabs' order. Inside each, the most wanted first.</summary>
+    /// <summary>[S-3511] Every subject, a folder each, in the rail's order. Inside each, the most wanted first.</summary>
     public static AddShelf Browse => Tree.Value.Browse;
 
     /// <summary>

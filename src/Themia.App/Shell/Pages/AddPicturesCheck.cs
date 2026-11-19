@@ -12,7 +12,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-11854] The one check a shipped build runs instead of the app: <c>Themia.exe --add-pictures-check
-/// &lt;out.png&gt;</c> draws the add page's Start tab off-screen, every picture through the shipped path
+/// &lt;out.png&gt;</c> draws the add page's Start off-screen, every picture through the shipped path
 /// ([S-11710]), writes the page to the PNG, prints how many pictures, their bytes and the time, and exits
 /// (0 when every picture asked for was drawn). So a Release or Store build is seen to draw its pictures
 /// without the Debug render tooling. Only as the first argument, with a <c>.png</c> path; it reads and
@@ -97,7 +97,7 @@ internal static class AddPicturesCheck
                 Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
                 await PngFile.SaveAsync(screen, outPath).ConfigureAwait(true);
                 var (count, bytes) = AddPictures.Held;
-                Console.WriteLine($"check: Start tab: {count} of {wanted} pictures in {took} ms, {bytes / 1024} KB of pixels{(finished ? string.Empty : $" (cut short after {Bound.TotalSeconds:0} s)")}");
+                Console.WriteLine($"check: Start: {count} of {wanted} pictures in {took} ms, {bytes / 1024} KB of pixels{(finished ? string.Empty : $" (cut short after {Bound.TotalSeconds:0} s)")}");
                 Console.WriteLine($"check: wrote {outPath}");
                 exit = finished && count == wanted ? 0 : 1;
             }
