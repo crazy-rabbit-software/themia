@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// Debug only: draw the desktop view bar ([S-906]) on a stand-in display, at a set of anchors,
 /// sizes and modes, one PNG each, off-screen.
-/// <c>Themia.exe --viewbar-png &lt;outDir&gt; [--views n] [--theme light|dark]</c>.
+/// <c>Themia.exe --viewbar-png &lt;outDir&gt; [--views n] [--only &lt;prefix&gt;] [--theme light|dark]</c>.
 /// <para>
 /// The bar is the real <see cref="ViewBar"/>, fitted to the real room ([S-917]) and placed by the real
 /// rule (<see cref="ViewBarRules.Place"/>) inside a work area that leaves a taskbar strip at the
@@ -49,8 +49,8 @@ internal static class ViewBarRender
 
     private sealed record Case(string Name, ViewBarAnchor Anchor, ViewBarSize Size, ViewBarLabels Labels, bool Editing, bool Hidden = false, ViewBarType Type = ViewBarType.Inline)
     {
-        /// <summary>[S-5404] A select shot is drawn closed and, beside it, with its menu open.</summary>
-        public bool DrawsMenu => Type == ViewBarType.Select;
+        /// <summary>[S-5404] A select shot (and [S-13406] an arrows shot, its label's menu) is drawn closed and, beside it, with its menu open.</summary>
+        public bool DrawsMenu => Type is ViewBarType.Select or ViewBarType.Arrows;
     }
 
     private const ViewBarLabels Both = ViewBarLabels.IconAndText;
@@ -66,6 +66,28 @@ internal static class ViewBarRender
         new("select-left-XL", ViewBarAnchor.LeftCenter, ViewBarSize.ExtraLarge, Both, Editing: false, Type: ViewBarType.Select),
         new("select-right-M-text", ViewBarAnchor.RightCenter, ViewBarSize.Medium, Text, Editing: false, Type: ViewBarType.Select),
         new("select-topcenter-M-edit", ViewBarAnchor.TopCenter, ViewBarSize.Medium, Both, Editing: true, Type: ViewBarType.Select),
+    ];
+
+    /// <summary>
+    /// [S-13406] The styles of [S-13400]: the dots, Previous / Next and the one button, each at a row and a side
+    /// anchor, M to XL, with each label where it applies, and in edit mode.
+    /// </summary>
+    private static readonly Case[] StyleCases =
+    [
+        new("dots-bottomcenter-M", ViewBarAnchor.BottomCenter, ViewBarSize.Medium, Both, Editing: false, Type: ViewBarType.Dots),
+        new("dots-bottomleft-L", ViewBarAnchor.BottomLeft, ViewBarSize.Large, Both, Editing: false, Type: ViewBarType.Dots),
+        new("dots-left-XL", ViewBarAnchor.LeftCenter, ViewBarSize.ExtraLarge, Both, Editing: false, Type: ViewBarType.Dots),
+        new("dots-topright-M-edit", ViewBarAnchor.TopRight, ViewBarSize.Medium, Both, Editing: true, Type: ViewBarType.Dots),
+        new("arrows-bottomcenter-M", ViewBarAnchor.BottomCenter, ViewBarSize.Medium, Both, Editing: false, Type: ViewBarType.Arrows),
+        new("arrows-bottomleft-L-icons", ViewBarAnchor.BottomLeft, ViewBarSize.Large, Icons, Editing: false, Type: ViewBarType.Arrows),
+        new("arrows-topright-XL-text", ViewBarAnchor.TopRight, ViewBarSize.ExtraLarge, Text, Editing: false, Type: ViewBarType.Arrows),
+        new("arrows-right-L", ViewBarAnchor.RightCenter, ViewBarSize.Large, Both, Editing: false, Type: ViewBarType.Arrows),
+        new("arrows-topcenter-M-edit", ViewBarAnchor.TopCenter, ViewBarSize.Medium, Both, Editing: true, Type: ViewBarType.Arrows),
+        new("cycle-bottomleft-M", ViewBarAnchor.BottomLeft, ViewBarSize.Medium, Both, Editing: false, Type: ViewBarType.Cycle),
+        new("cycle-bottomcenter-L-icons", ViewBarAnchor.BottomCenter, ViewBarSize.Large, Icons, Editing: false, Type: ViewBarType.Cycle),
+        new("cycle-topright-XL-text", ViewBarAnchor.TopRight, ViewBarSize.ExtraLarge, Text, Editing: false, Type: ViewBarType.Cycle),
+        new("cycle-left-L", ViewBarAnchor.LeftCenter, ViewBarSize.Large, Both, Editing: false, Type: ViewBarType.Cycle),
+        new("cycle-topcenter-M-edit", ViewBarAnchor.TopCenter, ViewBarSize.Medium, Both, Editing: true, Type: ViewBarType.Cycle),
     ];
 
     private static readonly Case[] Cases =
@@ -86,6 +108,7 @@ internal static class ViewBarRender
         new("topcenter-L-edit-toolbar", ViewBarAnchor.TopCenter, ViewBarSize.Large, Both, Editing: true),
         new("left-M-edit-hidden", ViewBarAnchor.LeftCenter, ViewBarSize.Medium, Both, Editing: true, Hidden: true),
         .. SelectCases,
+        .. StyleCases,
     ];
 
     private static readonly ViewBarItem[] Items =
@@ -106,7 +129,7 @@ internal static class ViewBarRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, "usage: --viewbar-png <outDir> [--views n] [--theme light|dark]");
+            Log.Error(Scope, "usage: --viewbar-png <outDir> [--views n] [--only <prefix>] [--theme light|dark]");
             app.Exit();
             return true;
         }
@@ -147,6 +170,14 @@ internal static class ViewBarRender
 
                 IReadOnlyList<ViewBarItem> items = many is { } count ? ManyItems(count) : Items;
                 IReadOnlyList<Case> cases = many is null ? Cases : ManyCases();
+                // [S-13406] --only <prefix>: the shots whose name starts with it (dots, arrows, cycle, select, ...).
+                var onlyAt = Array.IndexOf(args, "--only");
+                if (onlyAt >= 0 && onlyAt + 1 < args.Length)
+                {
+                    var only = args[onlyAt + 1];
+                    cases = [.. cases.Where(c => c.Name.StartsWith(only, StringComparison.OrdinalIgnoreCase))];
+                }
+
                 var prefix = many is { } total ? $"viewbar-{total}v-{theme}-" : "viewbar-";
 
                 foreach (var c in cases)
@@ -200,6 +231,7 @@ internal static class ViewBarRender
         cases.Add(new("topcenter-edit-names", ViewBarAnchor.TopCenter, ViewBarSize.Large, Both, Editing: true));
         cases.Add(new("rightcenter-edit-icons", ViewBarAnchor.RightCenter, ViewBarSize.ExtraLarge, Icons, Editing: true));
         cases.AddRange(SelectCases);
+        cases.AddRange(StyleCases);
         return cases;
     }
 

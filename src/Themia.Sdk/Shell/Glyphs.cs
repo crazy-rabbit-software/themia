@@ -359,6 +359,9 @@ public static class Glyphs
     /// <summary>[S-1323] The breadcrumb's separator.</summary>
     public static readonly string ChevronRight = From(0xE76C);
 
+    /// <summary>[S-13402] The view bar's Previous (Next is <see cref="ChevronRight"/>); mirrored in a right-to-left language.</summary>
+    public static readonly string ChevronLeft = From(0xE76B);
+
     /// <summary>[S-6416] Explorer's menu: Share (Segoe "Share").</summary>
     public static readonly string Share = From(0xE72D);
 

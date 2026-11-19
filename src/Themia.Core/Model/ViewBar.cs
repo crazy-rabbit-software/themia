@@ -24,7 +24,11 @@ public enum ViewBarSize
     ExtraLarge,
 }
 
-/// <summary>[S-5400] How the view bar offers its views: every one inline, or only the shown one to pick from.</summary>
+/// <summary>
+/// [S-5400] [S-13400] How the view bar offers its views, its style: every one inline, only the shown one to pick
+/// from, a dot per view, the shown one between Previous and Next, or one button that steps to the next.
+/// Stored by number, so a new style is added at the end.
+/// </summary>
 public enum ViewBarType
 {
     /// <summary>A row (or column) of chips, one per view on the bar, side by side ([S-906]).</summary>
@@ -32,6 +36,15 @@ public enum ViewBarType
 
     /// <summary>One button with the shown view alone; a click opens the list of the bar's views to pick another ([S-5401]).</summary>
     Select,
+
+    /// <summary>[S-13401] A dot per view on the bar, the shown one a longer accent pill: the pager's look; its name in the tooltip.</summary>
+    Dots,
+
+    /// <summary>[S-13402] The shown view between a Previous and a Next button; its label opens the list of the bar's views.</summary>
+    Arrows,
+
+    /// <summary>[S-13403] One button with the shown view: a click shows the next view on the bar, after the last the first.</summary>
+    Cycle,
 }
 
 /// <summary>[S-5405] What names a view on the bar: its icon (or initials) and its name, the icon alone, or the name alone.</summary>
@@ -132,7 +145,102 @@ public static class ViewBarRules
     /// row. [S-5401] A select bar is one button, so it is a row at every anchor.
     /// </summary>
     public static bool IsVertical(ViewBarAnchor anchor, ViewBarType type = ViewBarType.Inline)
-        => type == ViewBarType.Inline && anchor is ViewBarAnchor.LeftCenter or ViewBarAnchor.RightCenter;
+        => HasChips(type) && anchor is ViewBarAnchor.LeftCenter or ViewBarAnchor.RightCenter;
+
+    /// <summary>
+    /// [S-13400] Whether the style draws a chip per view (inline, and the dots, [S-13401]): those stack at the side
+    /// anchors ([S-910]), fit their room and overflow ([S-917]), and in edit mode are dragged to reorder ([S-914]).
+    /// The other styles show the shown view alone and are a row at every anchor.
+    /// </summary>
+    public static bool HasChips(ViewBarType type) => type is ViewBarType.Inline or ViewBarType.Dots;
+
+    /// <summary>[S-13401] Whether the Labels setting ([S-5405]) applies: every style but the dots, which name a view in its tooltip only.</summary>
+    public static bool UsesLabels(ViewBarType type) => type != ViewBarType.Dots;
+
+    /// <summary>[S-13404] One notch of a mouse wheel (Windows' <c>WHEEL_DELTA</c>).</summary>
+    public const double WheelNotch = 120;
+
+    /// <summary>
+    /// [S-13404] The view <paramref name="delta"/> steps away from the shown one among the views on the bar, in the
+    /// user's order, round from the last to the first and back (Previous, Next, the one button, the wheel). The
+    /// views are the bar's ([S-908]), so a view the bar leaves out is never stepped onto. A display showing a view
+    /// the bar does not offer steps onto the first (forward) or the last (back). Null when there is nowhere to go:
+    /// no view, or the one view is already shown.
+    /// </summary>
+    /// <param name="viewIds">The views on the bar, in bar order (<see cref="VisibleViews"/>).</param>
+    /// <param name="shownId">The view the display shows.</param>
+    /// <param name="delta">How many views on: positive forward, negative back.</param>
+    public static string? Step(IReadOnlyList<string> viewIds, string? shownId, int delta)
+    {
+        ArgumentNullException.ThrowIfNull(viewIds);
+
+        var count = viewIds.Count;
+        if (count == 0 || delta == 0)
+        {
+            return null;
+        }
+
+        var at = shownId is null ? -1 : IndexOf(viewIds, shownId);
+        int next;
+        if (at < 0)
+        {
+            next = delta > 0 ? Mod(delta - 1, count) : Mod(delta, count);
+        }
+        else
+        {
+            next = Mod(at + delta, count);
+        }
+
+        return next == at ? null : viewIds[next];
+    }
+
+    /// <summary>
+    /// [S-13404] A wheel turned over the bar: how many views to step (positive towards the user, which is Next;
+    /// negative away, Previous) and what is kept for the next event. A notch is one view; a touchpad's small
+    /// deltas add up to a notch first; turning the other way starts again from nothing, so a hesitating finger
+    /// never steps back twice.
+    /// </summary>
+    /// <param name="kept">What the last event kept (0 at first).</param>
+    /// <param name="delta">The event's wheel delta: positive away from the user, as Windows reports it.</param>
+    public static (int Steps, double Kept) Wheel(double kept, double delta)
+    {
+        if (!double.IsFinite(delta) || delta == 0)
+        {
+            return (0, double.IsFinite(kept) ? kept : 0);
+        }
+
+        var start = double.IsFinite(kept) && Math.Sign(kept) == Math.Sign(delta) ? kept : 0;
+        var total = start + delta;
+        var notches = (int)Math.Truncate(total / WheelNotch);
+        return (-notches, total - (notches * WheelNotch));
+    }
+
+    /// <summary>
+    /// [S-13403] Where the shown view stands among the views on the bar, for the one button's "2/4": its index in bar
+    /// order and how many there are; null when the bar does not offer it (or offers nothing).
+    /// </summary>
+    public static (int Index, int Count)? Position(IReadOnlyList<string> viewIds, string? shownId)
+    {
+        ArgumentNullException.ThrowIfNull(viewIds);
+
+        var at = shownId is null ? -1 : IndexOf(viewIds, shownId);
+        return at < 0 ? null : (at, viewIds.Count);
+    }
+
+    private static int IndexOf(IReadOnlyList<string> ids, string id)
+    {
+        for (var i = 0; i < ids.Count; i++)
+        {
+            if (string.Equals(ids[i], id, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static int Mod(int value, int count) => ((value % count) + count) % count;
 
     /// <summary>[S-5405] Whether a chip, the select button and the menu's rows draw the view's icon (or initials).</summary>
     public static bool ShowsMark(ViewBarLabels labels) => labels != ViewBarLabels.TextOnly;
@@ -330,15 +438,15 @@ public static class ViewBarRules
     }
 
     /// <summary>
-    /// [S-5402] The views the bar's menu lists, as indexes in bar order: a select bar lists every
-    /// view on the bar; the inline bar's overflow chip ([S-918]) lists the ones <paramref name="fit"/>
-    /// left out. One menu, two callers.
+    /// [S-5402] The views the bar's menu lists, as indexes in bar order: a select bar, the arrows' label
+    /// ([S-13402]) and the one button's right-click ([S-13403]) list every view on the bar; the overflow chip of
+    /// a bar of chips (inline, dots: [S-918], [S-13401]) lists the ones <paramref name="fit"/> left out. One menu.
     /// </summary>
     public static IReadOnlyList<int> MenuViews(ViewBarType type, int count, ViewBarFit fit)
     {
         ArgumentNullException.ThrowIfNull(fit);
 
-        if (type == ViewBarType.Select)
+        if (!HasChips(type))
         {
             return [.. Enumerable.Range(0, Math.Max(0, count))];
         }

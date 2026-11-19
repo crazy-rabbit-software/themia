@@ -1,11 +1,29 @@
 {
-  "$comment": "[S-5400] [S-5405] The view bar's type (Inline, Select) and labels, and the select button's tooltip.",
+  "$comment": "[S-5400] [S-5405] [S-13400] The view bar's type (its style: Inline, Select, Dots, Previous and next, One button) and labels, and the buttons' tooltips.",
+  "$englishOnly": [
+    "shell.viewBar.typeDots",
+    "shell.viewBar.typeArrows",
+    "shell.viewBar.typeCycle",
+    "shell.viewBar.previous",
+    "shell.viewBar.next",
+    "shell.viewBar.previousTip",
+    "shell.viewBar.nextTip",
+    "shell.viewBar.cycleTip"
+  ],
   "barMenus.viewBar.type": "Type",
   "barMenus.viewBar.labels": "Labels",
   "shell.viewBar.typeInline": "Inline",
   "shell.viewBar.typeSelect": "Select",
+  "shell.viewBar.typeDots": "Dots",
+  "shell.viewBar.typeArrows": "Previous and next",
+  "shell.viewBar.typeCycle": "One button",
   "shell.viewBar.labelsIconAndText": "Icon and text",
   "shell.viewBar.labelsIconOnly": "Icon only",
   "shell.viewBar.labelsTextOnly": "Text only",
-  "shell.viewBar.pickTip": "{name}\nClick to choose a view"
+  "shell.viewBar.pickTip": "{name}\nClick to choose a view",
+  "shell.viewBar.previous": "Previous view",
+  "shell.viewBar.next": "Next view",
+  "shell.viewBar.previousTip": "Previous view: {name}",
+  "shell.viewBar.nextTip": "Next view: {name}",
+  "shell.viewBar.cycleTip": "{name}\nClick for the next view, {next}\nRight-click to choose a view"
 }

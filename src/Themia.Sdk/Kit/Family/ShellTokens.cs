@@ -314,6 +314,15 @@ public static class ShellMetrics
 
         /// <summary>A view's name is cut past this.</summary>
         public const double NameMaxWidth = 220;
+
+        /// <summary>[S-13401] The dots style's dot at M, L and XL; the shown view's pill is <see cref="DotPill"/> dots long.</summary>
+        public const double DotM = 6;
+
+        public const double DotL = 8;
+
+        public const double DotXl = 10;
+
+        public const double DotPill = 3;
     }
 
     /// <summary>[S-881] A notice: Windows' toast width; an action under the detail at least this wide.</summary>

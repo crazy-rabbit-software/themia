@@ -94,6 +94,18 @@ internal sealed partial class ViewBar : Grid
 
     private bool _menuPressed;
 
+    /// <summary>
+    /// [S-13400] The buttons of the styles that show the shown view alone (Previous, its label, Next; the one
+    /// button), by name, so a rebuild an Enter caused gives the focus back to the same one.
+    /// </summary>
+    private readonly Dictionary<string, Border> _buttons = new(StringComparer.Ordinal);
+
+    /// <summary>The button pressed and not yet let go: a click lands only on the one it started on.</summary>
+    private Border? _clickPressed;
+
+    /// <summary>[S-13404] The wheel's part of a notch kept from the last event (<see cref="ViewBarRules.Wheel"/>).</summary>
+    private double _wheelKept;
+
     /// <summary>[S-918] / [S-5401] The overflow chip or the select button; null when every chip fits.</summary>
     internal FrameworkElement? MenuButton => _menuButton;
 
@@ -110,6 +122,9 @@ internal sealed partial class ViewBar : Grid
     /// <summary>[S-1979] The view whose chip takes the focus back after the rebuild an Enter caused.</summary>
     private string? _refocusId;
 
+    /// <summary>[S-13400] The button (<see cref="_buttons"/>) that takes the focus back after the rebuild a key caused.</summary>
+    private string? _refocusButton;
+
     public ViewBar(IViewBarOwner owner)
     {
         _owner = owner;
@@ -125,6 +140,7 @@ internal sealed partial class ViewBar : Grid
         PointerMoved += OnPointerMoved;
         PointerReleased += OnPointerReleased;
         PointerCaptureLost += OnPointerCaptureLost;
+        PointerWheelChanged += OnWheel;
         AutomationProperties.SetName(this, Str.Shell_ViewBar_Name.Text());
     }
 
@@ -218,8 +234,11 @@ internal sealed partial class ViewBar : Grid
 
         var metrics = MetricsFor(look.Size);
         _panel.Children.Clear();
+        _buttons.Clear();
+        _clickPressed = null;
         _panel.Orientation = look.Vertical ? Orientation.Vertical : Orientation.Horizontal;
-        _panel.Spacing = Fluent.Space1;
+        // [S-13401] The dots' slots carry their own room either side, so the dots sit evenly.
+        _panel.Spacing = look.Type == ViewBarType.Dots ? 0 : Fluent.Space1;
         _panel.Margin = new Thickness(metrics.BarPad);
 
         // [S-917] What the bar spends besides chips: its padding at both ends, and the grip with its gap.
@@ -241,8 +260,26 @@ internal sealed partial class ViewBar : Grid
             return;
         }
 
+        if (look.Type is ViewBarType.Arrows or ViewBarType.Cycle)
+        {
+            // [S-13402] [S-13403] The shown view alone, stepped through; the menu lists every view on the bar.
+            _menuViews = [.. ViewBarRules.MenuViews(look.Type, _items.Count, new ViewBarFit([], Overflow: false)).Select(i => _items[i])];
+            if (look.Type == ViewBarType.Arrows)
+            {
+                BuildArrows(look, metrics, _room - fixedLength);
+            }
+            else
+            {
+                _menuButton = BuildCycle(look, metrics, _room - fixedLength);
+                _panel.Children.Add(_menuButton);
+            }
+
+            FinishRebuild(look);
+            return;
+        }
+
         var anyColour = _items.Any(i => DesignApplier.UserBrush(i.Color) is not null);
-        var chips = _items.Select(item => BuildChip(item, look, metrics, anyColour)).ToList();
+        var chips = _items.Select(item => look.Type == ViewBarType.Dots ? BuildDotChip(item, look, metrics) : BuildChip(item, look, metrics, anyColour)).ToList();
         var overflow = BuildOverflowChip(look, metrics);
         var fit = ViewBarRules.Fit(
             [.. chips.Select(c => Length(c, look.Vertical))],
@@ -278,6 +315,12 @@ internal sealed partial class ViewBar : Grid
         {
             _refocusId = null;
             again.Loaded += (_, _) => again.Focus(FocusState.Keyboard);
+        }
+
+        if (_refocusButton is { } name && _buttons.TryGetValue(name, out var button))
+        {
+            _refocusButton = null;
+            button.Loaded += (_, _) => button.Focus(FocusState.Keyboard);
         }
 
         ToolTipService.SetToolTip(this, null);
@@ -407,12 +450,23 @@ internal sealed partial class ViewBar : Grid
 
         content.HorizontalAlignment = look.Vertical && !look.IconOnly ? HorizontalAlignment.Left : HorizontalAlignment.Center;
         content.VerticalAlignment = VerticalAlignment.Center;
+        // [S-13405] A row's chips keep the pill's room under their words, every chip alike, so the names stay on one line.
+        var foot = look.Vertical ? 0 : ShellMetrics.Bar.PillHeight;
+        content.Margin = look.IconOnly ? new Thickness(0, 0, 0, foot) : new Thickness(metrics.PadX, metrics.PadY, metrics.PadX, metrics.PadY + foot);
+
+        // [S-13405] The shown view's chip carries the accent pill Windows' selectors mark the picked item with: at
+        // its foot on a row, at its start on a column (the edit bar's open entry has the same, [S-2321]).
+        var face = new Grid();
+        face.Children.Add(content);
+        if (item.Shown)
+        {
+            face.Children.Add(Pill(look.Vertical));
+        }
 
         var chip = new Border
         {
-            Child = content,
+            Child = face,
             Tag = item.Id,
-            Padding = look.IconOnly ? new Thickness(0) : new Thickness(metrics.PadX, metrics.PadY, metrics.PadX, metrics.PadY),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             BorderThickness = new Thickness(Fluent.Hairline),
             MinHeight = metrics.Square,
@@ -489,21 +543,107 @@ internal sealed partial class ViewBar : Grid
     }
 
     /// <summary>
-    /// [S-5401] The select bar: one raised button with the shown view alone, labelled as the bar is
-    /// ([S-5405]: its icon in its colour, its name, or both; text only with the colour dot), and a
-    /// chevron, opening the menu of every view on the bar ([S-5402]). A display showing a view the
-    /// bar does not offer reads "Views" with the shared view glyph.
+    /// [S-13405] The accent pill of the shown view: <see cref="ShellMetrics.Bar.PillWidth"/> across and
+    /// <see cref="ShellMetrics.Bar.PillHeight"/> thick, centred at the chip's foot on a row, at its start on a column.
     /// </summary>
-    /// <param name="room">The length left for the button along the bar, so a long name is cut rather than running off the display.</param>
-    private Border BuildSelect(ViewBarLook look, Metrics metrics, double room)
+    private static Border Pill(bool vertical) => new()
     {
-        var shown = _items.FirstOrDefault(i => i.Shown)
-            ?? new ViewBarItem(string.Empty, Str.Shell_ViewBar_Name.Text(), Glyphs.View, Shown: true, IsDefault: false);
+        Width = vertical ? ShellMetrics.Bar.PillHeight : ShellMetrics.Bar.PillWidth,
+        Height = vertical ? ShellMetrics.Bar.PillWidth : ShellMetrics.Bar.PillHeight,
+        CornerRadius = new CornerRadius(ShellMetrics.Bar.PillRadius),
+        Background = Family.Brush(ColourRole.Accent),
+        HorizontalAlignment = vertical ? HorizontalAlignment.Left : HorizontalAlignment.Center,
+        VerticalAlignment = vertical ? VerticalAlignment.Center : VerticalAlignment.Bottom,
+        Margin = vertical ? new Thickness(Fluent.Hairline, 0, 0, 0) : new Thickness(0, 0, 0, Fluent.Hairline),
+        IsHitTestVisible = false,
+    };
+
+    /// <summary>[S-13401] The dots style's dot at the bar's size.</summary>
+    private static double DotSize(ViewBarSize size) => size switch
+    {
+        ViewBarSize.Large => ShellMetrics.ViewBar.DotL,
+        ViewBarSize.ExtraLarge => ShellMetrics.ViewBar.DotXl,
+        _ => ShellMetrics.ViewBar.DotM,
+    };
+
+    /// <summary>
+    /// [S-13401] One view as a dot, the pager's look: a round dot in the view's colour (the tertiary text where it
+    /// has none), the shown view a pill three dots long in its colour or the accent. Its slot is the step's square
+    /// across and the dot plus room either side along, so it is easy to hit; its name is its tooltip. A chip like
+    /// any other: a click shows its view, in edit mode it is dragged to reorder ([S-914]) and right-clicked for the
+    /// chip menu ([S-915]); outside edit mode a right-click lists the views by name.
+    /// </summary>
+    private Border BuildDotChip(ViewBarItem item, ViewBarLook look, Metrics metrics)
+    {
+        var dot = DotSize(look.Size);
+        var length = item.Shown ? dot * ShellMetrics.ViewBar.DotPill : dot;
+        var tint = DesignApplier.UserBrush(item.Color);
+        var round = dot / 2;
+        var mark = new Border
+        {
+            Width = look.Vertical ? dot : length,
+            Height = look.Vertical ? length : dot,
+            CornerRadius = new CornerRadius(round),
+            Background = tint ?? Family.Brush(item.Shown ? ColourRole.Accent : ColourRole.TextTertiary),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            IsHitTestVisible = false,
+        };
+
+        var along = length + (metrics.Square / 2);
+        var chip = new Border
+        {
+            Child = mark,
+            Tag = item.Id,
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            BorderThickness = new Thickness(Fluent.Hairline),
+            Width = look.Vertical ? metrics.Square : along,
+            Height = look.Vertical ? along : metrics.Square,
+        };
+
+        var note = item.IsDefault ? Str.Shell_ViewBar_DefaultTip.Format(("name", item.Name)) : null;
+        ToolTipService.SetToolTip(chip, look.Editing ? Str.Shell_ViewBar_EditTip.Format(("name", note ?? item.Name)) : note ?? item.Name);
+        AutomationProperties.SetName(chip, item.Name);
+        AutomationProperties.SetItemStatus(chip, item.Shown ? Str.Shell_ViewBar_Showing.Text() : string.Empty);
+        HoverFill(chip, shown: false);
+
+        if (look.Editing)
+        {
+            chip.IsTabStop = true;
+            chip.UseSystemFocusVisuals = true;
+            chip.KeyDown += (_, e) => e.Handled = OnKey(chip, item.Id, e.Key);
+        }
+
+        chip.PointerPressed += (_, e) => OnPressed(e, item.Id);
+        chip.RightTapped += (_, e) =>
+        {
+            e.Handled = true;
+            if (_look?.Editing == true)
+            {
+                _owner.ShowChipMenu(chip, item.Id, e);
+            }
+            else
+            {
+                _owner.ShowViewMenu(chip, _items, ViewBarLabels.IconAndText);
+            }
+        };
+
+        return chip;
+    }
+
+    /// <summary>
+    /// The shown view's face on a one-view button (select, the arrows' label, the one button): its mark, or its
+    /// colour dot with text only, and its name, as the labels say ([S-5405]); the name cut to what the bar has
+    /// left after <paramref name="besides"/> (the button's own glyphs and paddings).
+    /// </summary>
+    private static StackPanel Face(ViewBarItem shown, ViewBarLook look, Metrics metrics, double room, double besides)
+    {
         var row = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = FamilySpace.GlyphGap,
             VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
         };
 
         if (ViewBarRules.ShowsMark(look.Labels))
@@ -518,10 +658,257 @@ internal sealed partial class ViewBar : Grid
         if (ViewBarRules.ShowsName(look.Labels))
         {
             var name = BuildName(shown, metrics, "TextFillColorPrimaryBrush");
-            var spare = room - (2 * metrics.PadX) - (2 * metrics.Icon) - (2 * row.Spacing);
+            var spare = room - besides - metrics.Icon - row.Spacing;
             name.MaxWidth = double.IsFinite(spare) ? Math.Clamp(spare, metrics.Icon, ShellMetrics.ViewBar.NameMaxWidth) : ShellMetrics.ViewBar.NameMaxWidth;
             row.Children.Add(name);
         }
+
+        return row;
+    }
+
+    /// <summary>The shown view, or "Views" with the shared view glyph on a display showing a view the bar does not offer.</summary>
+    private ViewBarItem ShownItem()
+        => _items.FirstOrDefault(i => i.Shown)
+            ?? new ViewBarItem(string.Empty, Str.Shell_ViewBar_Name.Text(), Glyphs.View, Shown: true, IsDefault: false);
+
+    /// <summary>The view <paramref name="delta"/> steps away on the bar ([S-13404]); null when there is nowhere to go.</summary>
+    private ViewBarItem? StepTarget(int delta)
+    {
+        var id = ViewBarRules.Step([.. _items.Select(i => i.Id)], _items.FirstOrDefault(i => i.Shown)?.Id, delta);
+        return id is null ? null : _items.FirstOrDefault(i => i.Id == id);
+    }
+
+    /// <summary>[S-13404] Show the view <paramref name="delta"/> steps away on the bar, round from the last to the first.</summary>
+    private void Step(int delta)
+    {
+        if (StepTarget(delta) is { } target)
+        {
+            _owner.SwitchTo(target.Id);
+        }
+    }
+
+    /// <summary>
+    /// [S-13402] Previous / Next: the shown view between two arrow buttons, a row at every anchor. The arrows are
+    /// subtle squares (the chevrons mirror in a right-to-left language), their tooltips naming the view they go
+    /// to; the label is the raised control and opens the menu of every view on the bar, as the select bar's
+    /// button does ([S-5402]), to jump straight to one.
+    /// </summary>
+    private void BuildArrows(ViewBarLook look, Metrics metrics, double room)
+    {
+        var shown = ShownItem();
+        var previous = Arrow(look, metrics, "previous", Glyphs.ChevronLeft, -1);
+        var next = Arrow(look, metrics, "next", Glyphs.ChevronRight, 1);
+
+        var besides = (2 * metrics.Square) + (2 * _panel.Spacing) + (2 * metrics.PadX);
+        var label = new Border
+        {
+            Child = Face(shown, look, metrics, room, besides),
+            Padding = look.IconOnly ? new Thickness(0) : new Thickness(metrics.PadX, metrics.PadY, metrics.PadX, metrics.PadY),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            BorderThickness = new Thickness(Fluent.Hairline),
+            MinHeight = metrics.Square,
+            MinWidth = metrics.Square,
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+
+        if (look.IconOnly)
+        {
+            label.Height = metrics.Square;
+        }
+
+        var tip = Str.Shell_ViewBar_PickTip.Format(("name", shown.Name));
+        ToolTipService.SetToolTip(label, tip);
+        AutomationProperties.SetName(label, shown.Name);
+        AutomationProperties.SetHelpText(label, tip);
+        HoverFill(label, shown: true);
+        Clicks(label, look, "label", _ => OpenMenu(label));
+        _menuButton = label;
+        _buttons["label"] = label;
+
+        _panel.Children.Add(previous);
+        _panel.Children.Add(label);
+        _panel.Children.Add(next);
+    }
+
+    /// <summary>[S-13402] One of the arrows: a subtle square with its chevron, stepping <paramref name="delta"/> views.</summary>
+    private Border Arrow(ViewBarLook look, Metrics metrics, string name, string glyph, int delta)
+    {
+        var button = new Border
+        {
+            Child = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", metrics.Icon - FamilySpace.S1),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            BorderThickness = new Thickness(Fluent.Hairline),
+            Width = metrics.Square,
+            Height = metrics.Square,
+        };
+
+        var target = StepTarget(delta) ?? ShownItem();
+        ToolTipService.SetToolTip(button, (delta < 0 ? Str.Shell_ViewBar_PreviousTip : Str.Shell_ViewBar_NextTip).Format(("name", target.Name)));
+        AutomationProperties.SetName(button, delta < 0 ? Str.Shell_ViewBar_Previous.Text() : Str.Shell_ViewBar_Next.Text());
+        HoverFill(button, shown: false);
+        Clicks(button, look, name, _ => Step(delta));
+        _buttons[name] = button;
+        return button;
+    }
+
+    /// <summary>
+    /// [S-13403] The one button: the shown view, raised, labelled as the bar is, with a chevron pointing on. A
+    /// click shows the next view on the bar, after the last the first; Shift+click the previous. Its tooltip names
+    /// the view a click goes to; a right-click opens the menu of every view on the bar to jump straight to one.
+    /// </summary>
+    private Border BuildCycle(ViewBarLook look, Metrics metrics, double room)
+    {
+        var shown = ShownItem();
+        var chevronSize = ShellMetrics.Chevron;
+        // Where the shown view stands among the bar's ("2/4"), in the tertiary words: there is more to step to.
+        var position = ViewBarRules.Position([.. _items.Select(i => i.Id)], _items.FirstOrDefault(i => i.Shown)?.Id);
+        var count = position is { } at
+            ? LocaleFormat.Integer(at.Index + 1) + "/" + LocaleFormat.Integer(at.Count)
+            : null;
+        var counter = Fluent.Text(FamilyType.Caption, "TextFillColorTertiaryBrush");
+        counter.Text = count ?? string.Empty;
+        counter.VerticalAlignment = VerticalAlignment.Center;
+        counter.TextTrimming = TextTrimming.None;
+        counter.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var counterLength = count is null ? 0 : counter.DesiredSize.Width + FamilySpace.GlyphGap;
+
+        var face = Face(shown, look, metrics, room, (2 * metrics.PadX) + chevronSize + FamilySpace.GlyphGap + counterLength);
+        if (count is not null)
+        {
+            face.Children.Add(counter);
+        }
+
+        var chevron = Fluent.Icon(Glyphs.ChevronRight, "TextFillColorSecondaryBrush", chevronSize);
+        chevron.VerticalAlignment = VerticalAlignment.Center;
+        face.Children.Add(chevron);
+
+        var button = new Border
+        {
+            Child = face,
+            Padding = new Thickness(look.IconOnly ? metrics.PadX - FamilySpace.S1 : metrics.PadX, metrics.PadY, metrics.PadX - FamilySpace.S1, metrics.PadY),
+            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            BorderThickness = new Thickness(Fluent.Hairline),
+            MinHeight = metrics.Square,
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+
+        var next = StepTarget(1) ?? shown;
+        var tip = Str.Shell_ViewBar_CycleTip.Format(("name", shown.Name), ("next", next.Name));
+        ToolTipService.SetToolTip(button, tip);
+        AutomationProperties.SetName(button, shown.Name);
+        AutomationProperties.SetHelpText(button, tip);
+        HoverFill(button, shown: true);
+        Clicks(button, look, "cycle", back => Step(back ? -1 : 1));
+        _buttons["cycle"] = button;
+        return button;
+    }
+
+    /// <summary>
+    /// [S-13402] [S-13403] A step button's press: its own press and release (never the bar's capture or drag, and
+    /// the surface underneath starts no rubber band from it), <paramref name="click"/> told whether Shift was
+    /// held. A right-click opens the menu of every view on the bar. In edit mode it takes the keyboard: Enter or
+    /// Space clicks it, the arrow keys step back (Left, Up) and on (Right, Down), and the focus comes back to it
+    /// after the switch redraws the bar.
+    /// </summary>
+    private void Clicks(Border button, ViewBarLook look, string name, Action<bool> click)
+    {
+        if (look.Editing)
+        {
+            button.IsTabStop = true;
+            button.UseSystemFocusVisuals = true;
+            button.KeyDown += (_, e) =>
+            {
+                var delta = e.Key switch
+                {
+                    Windows.System.VirtualKey.Left or Windows.System.VirtualKey.Up => -1,
+                    Windows.System.VirtualKey.Right or Windows.System.VirtualKey.Down => 1,
+                    _ => 0,
+                };
+
+                if (e.Key is Windows.System.VirtualKey.Enter or Windows.System.VirtualKey.Space)
+                {
+                    _refocusButton = name;
+                    click(false);
+                    e.Handled = true;
+                }
+                else if (delta != 0)
+                {
+                    _refocusButton = name;
+                    Step(delta);
+                    e.Handled = true;
+                }
+            };
+        }
+
+        button.PointerPressed += (_, e) =>
+        {
+            if (e.GetCurrentPoint(button).Properties.IsLeftButtonPressed)
+            {
+                _clickPressed = button;
+                e.Handled = true;
+            }
+        };
+        button.PointerReleased += (_, e) =>
+        {
+            if (ReferenceEquals(_clickPressed, button))
+            {
+                _clickPressed = null;
+                e.Handled = true;
+                click((e.KeyModifiers & Windows.System.VirtualKeyModifiers.Shift) != 0);
+            }
+        };
+        button.PointerExited += (_, _) =>
+        {
+            if (ReferenceEquals(_clickPressed, button))
+            {
+                _clickPressed = null;
+            }
+        };
+        button.RightTapped += (_, e) =>
+        {
+            e.Handled = true;
+            if (_menuViews.Count > 0)
+            {
+                _owner.ShowViewMenu(button, _menuViews, look.Labels);
+            }
+        };
+    }
+
+    /// <summary>
+    /// [S-13404] The wheel over the bar, every style, in and out of edit mode: a notch towards the user shows the
+    /// next view on the bar, away the previous, round from the last to the first; a horizontal wheel steps right
+    /// to Next. Handled, so nothing under the bar scrolls; not during a press on a chip or the grip.
+    /// </summary>
+    private void OnWheel(object sender, PointerRoutedEventArgs e)
+    {
+        if (_pressing)
+        {
+            return;
+        }
+
+        var properties = e.GetCurrentPoint(this).Properties;
+        var delta = properties.IsHorizontalMouseWheel ? -properties.MouseWheelDelta : properties.MouseWheelDelta;
+        var (steps, kept) = ViewBarRules.Wheel(_wheelKept, delta);
+        _wheelKept = kept;
+        e.Handled = true;
+        if (steps != 0)
+        {
+            Step(steps);
+        }
+    }
+
+
+    /// <summary>
+    /// [S-5401] The select bar: one raised button with the shown view alone, labelled as the bar is
+    /// ([S-5405]: its icon in its colour, its name, or both; text only with the colour dot), and a
+    /// chevron, opening the menu of every view on the bar ([S-5402]). A display showing a view the
+    /// bar does not offer reads "Views" with the shared view glyph.
+    /// </summary>
+    /// <param name="room">The length left for the button along the bar, so a long name is cut rather than running off the display.</param>
+    private Border BuildSelect(ViewBarLook look, Metrics metrics, double room)
+    {
+        var shown = ShownItem();
+        var row = Face(shown, look, metrics, room, (2 * metrics.PadX) + metrics.Icon + FamilySpace.GlyphGap);
 
         var chevron = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorSecondaryBrush", ShellMetrics.Chevron);
         chevron.VerticalAlignment = VerticalAlignment.Center;
@@ -904,8 +1291,8 @@ internal sealed partial class ViewBar : Grid
     /// <summary>[S-1979] Put the keyboard on the shown view's chip (the surface's F6); false when the bar has none to focus.</summary>
     internal bool FocusFirstChip()
     {
-        // [S-5401] A select bar's one stop is its button.
-        if (_look?.Type == ViewBarType.Select)
+        // [S-5401] A select bar's one stop is its button; [S-13402] the arrows' is their label, [S-13403] the one button.
+        if (_look is { } look && !ViewBarRules.HasChips(look.Type))
         {
             return _menuButton?.Focus(FocusState.Keyboard) == true;
         }

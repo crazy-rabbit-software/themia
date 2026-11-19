@@ -130,7 +130,7 @@ public static class DisplayMenu
 
     /// <summary>
     /// [S-3544] A display's view bar ([S-906], [S-916]) in its card under its heading: shown or not, its type
-    /// ([S-5400]) and labels ([S-5405]), where it sits (the eight anchors), its size; then the views it offers
+    /// ([S-5400], [S-13400]: its style) and labels ([S-5405]), where it sits (the eight anchors), its size; then the views it offers
     /// under theirs ([S-908]): All views (on while the bar offers every view; a click on it then keeps only the view
     /// the display shows, else offers all, [S-1708]'s rule) and one switch per view, each with its mark ([S-3810]).
     /// Every switch is read back from what was stored: the last view on the bar cannot be switched off.
@@ -156,6 +156,9 @@ public static class DisplayMenu
         [
             (ViewBarType.Inline, Str.Shell_ViewBar_TypeInline.Text()),
             (ViewBarType.Select, Str.Shell_ViewBar_TypeSelect.Text()),
+            (ViewBarType.Dots, Str.Shell_ViewBar_TypeDots.Text()),
+            (ViewBarType.Arrows, Str.Shell_ViewBar_TypeArrows.Text()),
+            (ViewBarType.Cycle, Str.Shell_ViewBar_TypeCycle.Text()),
         ];
         (ViewBarLabels Value, string Text)[] labels =
         [
@@ -175,7 +178,11 @@ public static class DisplayMenu
         yield return new SettingsHeading(key, Str.BarMenus_ViewBar.Text());
         yield return new SettingsToggle(key + "/show", Str.Shell_ViewBar_Show.Text(), Glyphs.View, !bar.Hidden, on => Change(b => b.Hidden = !on));
         yield return Choice(key + "/type", Str.BarMenus_ViewBar_Type.Text(), Glyphs.ListLayout, types, bar.Type, v => Change(b => b.Type = v));
-        yield return Choice(key + "/labels", Str.BarMenus_ViewBar_Labels.Text(), Glyphs.Tag, labels, bar.Labels, v => Change(b => b.Labels = v));
+        // [S-13401] The dots name a view in its tooltip alone: Labels stands greyed while they are the type.
+        yield return Choice(key + "/labels", Str.BarMenus_ViewBar_Labels.Text(), Glyphs.Tag, labels, bar.Labels, v => Change(b => b.Labels = v)) with
+        {
+            Disabled = !ViewBarRules.UsesLabels(bar.Type),
+        };
         yield return Choice(key + "/position", Str.BarMenus_ViewBar_Position.Text(), Glyphs.Display, anchors, bar.Anchor, v => Change(b => b.Anchor = v));
         yield return Choice(key + "/size", Str.BarMenus_ViewBar_Size.Text(), Glyphs.Scale, sizes, bar.Size, v => Change(b => b.Size = v));
 

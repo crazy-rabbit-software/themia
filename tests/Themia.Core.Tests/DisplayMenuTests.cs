@@ -191,6 +191,34 @@ public sealed class DisplayMenuTests
     }
 
     [Fact]
+    public void S13400_type_offers_every_style_in_order_and_picking_one_stores_it()
+    {
+        var host = new FakeHost();
+        var type = In<SettingsChoice>(host, "b", Bar("b") + "/type");
+
+        Assert.Equal(
+            [ViewBarType.Inline, ViewBarType.Select, ViewBarType.Dots, ViewBarType.Arrows, ViewBarType.Cycle],
+            type.Options.Select(o => Enum.Parse<ViewBarType>(o.Key[(o.Key.LastIndexOf('/') + 1)..])));
+        Assert.Equal(Enum.GetValues<ViewBarType>().Length, type.Options.Count);
+
+        type.Options.Single(o => o.Key.EndsWith("/" + ViewBarType.Cycle, StringComparison.Ordinal)).Pick();
+
+        Assert.Equal(ViewBarType.Cycle, ViewBarRules.For(host.State, "b").Type);
+    }
+
+    [Fact]
+    public void S13401_labels_stand_greyed_while_the_bar_is_dots()
+    {
+        var host = new FakeHost();
+        Assert.False(In<SettingsChoice>(host, "b", Bar("b") + "/labels").Disabled);
+
+        In<SettingsChoice>(host, "b", Bar("b") + "/type").Options.Single(o => o.Key.EndsWith("/" + ViewBarType.Dots, StringComparison.Ordinal)).Pick();
+
+        Assert.True(In<SettingsChoice>(host, "b", Bar("b") + "/labels").Disabled);
+        Assert.False(In<SettingsChoice>(host, "a", Bar("a") + "/labels").Disabled);
+    }
+
+    [Fact]
     public void S3718_picking_the_option_that_holds_changes_nothing()
     {
         var host = new FakeHost();

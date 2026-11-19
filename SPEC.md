@@ -2467,7 +2467,7 @@ placed by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu
 - **[S-3549]** *(Retired by [S-2313]: Manage views is gone; every view is a card of the page, dragged by its grip or Ctrl+Up / Down, Add a view under them.)*
 - **[S-3543]** *(Retired by [S-2314] (2026-11-15): the Display page is every display's card; the view a display shows, its scale and its view bar are in its card.)*
 - **[S-3544]** A display's **view bar** ([S-906]), in that display's card under the heading **View bar**: **Show the
-  view bar**, **Type** (Inline, Select, [S-5400]), **Labels** (Icon and text, Icon only, Text only, [S-5405]),
+  view bar**, **Type** (its style: Inline, Select, Dots, Previous and next, One button, [S-5400], [S-13400]), **Labels** (Icon and text, Icon only, Text only, [S-5405]),
   **Position** (the eight anchors), **Size** (Medium, Large, Extra large), each standing open in the card; then under
   the heading **Views** the views on the bar (`ViewBarRules.Offer`): **All views** (on while the bar offers every
   view; switched off it keeps only the view that display shows, `ViewBarRules.SetAllVisible`), then a switch per view
@@ -9085,7 +9085,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   with chevrons: a strip hides the shown view as easily as any other and needs a scroll position
   per display; the overflow keeps every drawn chip one click away and is how Windows overflows a
   command bar.
-- **[S-919]** Debug render: `Themia.exe --viewbar-png <outDir> [--views n] [--theme light|dark]`.
+- **[S-919]** Debug render: `Themia.exe --viewbar-png <outDir> [--views n] [--only <prefix>] [--theme light|dark]`.
   With `--views n` (1..60) it draws n views, the shown one two thirds along, at all eight anchors
   with each of the three labels ([S-5405], the sizes in turn) and two edit-mode shots, and the
   overflow menu of the bottom-left icon-and-text and text-only shots; it prints each bar's box and
@@ -9093,7 +9093,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 - **[S-5400]** Each display's bar has a type (`ViewBarSettings.Type`, `ViewBarType`): **Inline** (the
   default, the bar above: every view the bar offers as a chip, side by side or stacked) or **Select**
   (only the shown view, [S-5401]; a click opens the list of the bar's views to pick another,
-  [S-5402]). Set by Display ▾ › View bar › Type ([S-3544]), after Show the view bar. At load an
+  [S-5402]), or one of the styles of [S-13400] (Dots, Previous and next, One button). Set by Display ▾ › View bar › Type ([S-3544]), after Show the view bar. At load an
   unknown type resets to Inline and is logged as a repair.
 - **[S-5401]** A select bar is one raised button: the shown view, labelled as the bar is ([S-5405]),
   the name cut to the room the bar has, and a chevron; a display showing a view the bar does not
@@ -9135,6 +9135,51 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   has a colour, so the names start on one line (`ViewBarRules.Dot`). The menu's rows put the dot
   where the icon was (`ViewMark.Dot`). The flow follows the language, so in a right-to-left
   language the dot sits right of the name.
+- **[S-13400]** **The view bar's styles** (owner, 2026-11-19: "the screen switcher should be overworked. add multiple
+  variants from which the user can choose. also add a variant where you just have next or previous buttons or just
+  one button that changes through the view"). The type ([S-5400]) is the bar's style, one setting, per display, in
+  Display ▾ › the display's card › View bar › **Type** ([S-3544]): **Inline** (the default, reworked, [S-13405]),
+  **Select** ([S-5401]), **Dots** ([S-13401]), **Previous and next** ([S-13402]), **One button** ([S-13403]). Stored by
+  number (`ViewBarType`, the new ones after Select); an unknown one resets to Inline at load ([S-5400]). Every style
+  keeps the bar's fill and stroke ([S-911]), its anchors ([S-909]), sizes, the hidden preview ([S-907]), the edit-mode
+  grip and drag ([S-913]) and the views the bar offers ([S-908]). The styles with a chip per view (Inline, Dots:
+  `ViewBarRules.HasChips`) stack at the side anchors ([S-910]), fit and overflow ([S-917], [S-918]) and drag to reorder
+  in edit mode ([S-914]); the others show the shown view alone and are a row at every anchor (`IsVertical`, `Room`).
+  The live preview is the bar itself: the Display page is open in edit mode, where the bar is always drawn ([S-907]),
+  so a pick redraws it on its display at once. Tests `ViewBarStyleTests`, `DisplayMenuTests.S13400_`.
+- **[S-13401]** **Dots**: a dot per view on the bar, Windows' pager look: round, the step's size (6, 8, 10 at M, L,
+  XL, `ShellMetrics.ViewBar.Dot*`), in the view's colour ([S-3810]) or the tertiary text; the shown view a pill three
+  dots long in its colour or the accent. Each dot's slot is the step's square across and the dot plus half a square
+  along, so it is easy to hit, and lights subtly under the pointer; its name (with the default view's note) is its
+  tooltip, its automation name the view's. A click shows its view; in edit mode a dot is a chip (dragged to reorder,
+  right-clicked for the chip menu, [S-915], the keyboard of [S-1979]); outside edit mode a right-click lists every view
+  on the bar by name ([S-5402]'s menu) to jump straight to one. The Labels setting does not apply (`UsesLabels`):
+  its row stands greyed while the type is Dots. Test `DisplayMenuTests.S13401_`.
+- **[S-13402]** **Previous and next**: the shown view between two arrow buttons. The arrows are subtle squares of the
+  step (chevrons, mirrored in a right-to-left language) whose tooltips name the view they go to ("Next view: Home
+  office"); the label between them is the raised control, labelled as the bar is ([S-5405]), its name cut to the room
+  left, and a click on it opens the menu of every view on the bar ([S-5402]) to jump straight to one. A right-click on
+  any of the three opens that menu too. In edit mode each takes the keyboard: Enter / Space clicks it, Left / Up steps
+  back, Right / Down on, and the focus stays on it after the switch.
+- **[S-13403]** **One button**: the shown view, raised, labelled as the bar is, then where it stands among the bar's
+  views ("2/4", the tertiary caption, `ViewBarRules.Position`) and a chevron pointing on. A click shows the next view
+  on the bar, after the last the first; Shift+click the previous. Its tooltip names the view a click goes to and says a
+  right-click chooses one: a right-click opens the menu of every view on the bar. In edit mode it takes the keyboard as
+  the arrows do ([S-13402]).
+- **[S-13404]** **Stepping** (`ViewBarRules.Step`): Previous, Next, the one button and the wheel step through the views
+  on the bar ([S-908]) in the user's order, round from the last to the first and back, so a view the bar leaves out is
+  never stepped onto; a display showing a view the bar does not offer steps onto its first (on) or last (back); with
+  one view shown there is nowhere to go. **The wheel** over the bar, every style, in and out of edit mode, steps a view
+  a notch (towards the user Next, away Previous; a tilt right Next): `ViewBarRules.Wheel` adds a touchpad's small
+  deltas up to a notch (120) first and starts again from nothing when the turn reverses; handled, so nothing under the
+  bar scrolls; not during a press on a chip or the grip. Each step is a switch through `ShowViewOn` ([S-19]).
+- **[S-13405]** **Inline, reworked**: the shown view's chip, still the raised control ([S-911]), carries the accent pill
+  Windows' selectors mark the picked item with, the edit bar's open entry's ([S-2321], `ShellMetrics.Bar.Pill*`, 16 × 3):
+  at its foot on a row, at its start on a column. Every chip on a row keeps the pill's room under its words, so the
+  names stay on one line.
+- **[S-13406]** `--viewbar-png` ends both sets with the styles' shots (`viewbar-dots-…`, `-arrows-…`, `-cycle-…`: a row
+  and a side anchor each, M to XL, the labels where they apply, edit mode), each arrows shot also with its label's menu
+  open (`…-menu.png`); `--only <prefix>` draws the shots whose name starts with it (`--only cycle`).
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
 tooltip on the bar (licensing refuses through `AllowCreate`). Debug render:
