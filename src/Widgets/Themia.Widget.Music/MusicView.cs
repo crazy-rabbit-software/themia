@@ -34,9 +34,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
     private readonly Button _previous;
     private readonly Button _playPause;
     private readonly Button _next;
-    private readonly StatusBlock _status = new();
     private readonly NowPlayingFeed _feed;
-    private readonly string _glyph;
 
     private MusicConfig _config = new();
     private IWidgetSurface? _surface;
@@ -46,7 +44,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
     public MusicView(IWidgetHost host)
     {
         _feed = new NowPlayingFeed(host.Media, Present);
-        _glyph = ModuleCatalog.Of(new WidgetId("music")).Glyph;
 
         // [S-11311] The lines at the content's top, the transport 4 under them at the bottom inset.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
@@ -67,8 +64,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _fit.Parts.Add(_lines);
         _fit.Parts.Add(_controls);
         Children.Add(_fit);
-        _status.Hide();
-        Children.Add(_status);
         _lines.Visibility = Visibility.Collapsed;
         _controls.Visibility = Visibility.Collapsed;
     }
@@ -107,19 +102,22 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             _surface?.SetHidden(hide);
         }
 
+        // [S-12813] The player keeps its face with nothing to play: why in its title's place, drawn unavailable, and
+        // its transport there, disabled; never a status row in its place.
         var track = now.HasTrack;
-        _lines.Visibility = track ? Visibility.Visible : Visibility.Collapsed;
-        _controls.Visibility = track ? Visibility.Visible : Visibility.Collapsed;
+        _lines.Visibility = Visibility.Visible;
+        _controls.Visibility = Visibility.Visible;
+        _track.Text = track ? now.Title : MusicRules.StatusMessage(now.State);
+        _track.Foreground = Family.Brush(track ? ColourRole.TextPrimary : ColourRole.TextDisabled);
+        _subtitle.Text = track ? now.Subtitle : string.Empty;
         if (!track)
         {
-            // [S-6714] Nothing to play is the Status row at the top: the music glyph and why.
-            _status.Show(StatusKind.Empty, _glyph, MusicRules.StatusMessage(now.State));
+            ControlsBlock.Reglyph(_playPause, Glyphs.Play, MusicStr.WidgetsB_Music_Play.Text());
+            Enable(_previous, false);
+            _playPause.IsEnabled = false;
+            Enable(_next, false);
             return;
         }
-
-        _status.Hide();
-        _track.Text = now.Title;
-        _subtitle.Text = now.Subtitle;
 
         var playing = now.State == MusicState.Playing;
         ControlsBlock.Reglyph(_playPause, playing ? Glyphs.Pause : Glyphs.Play, playing ? MusicStr.WidgetsB_Music_Pause.Text() : MusicStr.WidgetsB_Music_Play.Text());

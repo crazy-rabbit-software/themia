@@ -30,7 +30,7 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
   foot, 12 and its day line (24, a tool line, [S-454], [S-12481]) over it (152 × 176, 192 × 216, 240 × 264). Its wedges stand in the family's track (4,
   [S-6704]); the hole's figure is [S-1210]'s on 28 (40 may stand in a large ring's hole), centred, its
   line under (the day's "of 4h", a window's "2h 10m/day", or the focused app's share) where it fits,
-  cut to the hole's width. Nothing to draw is the Status block's one row at the top ([S-6714]).
+  cut to the hole's width. Nothing to draw keeps the ring ([S-12813]): its track alone, and in the hole "--" while nothing records or none spent ("0m") in a period that recorded, disabled, why under it where the hole holds it and always as the ring's tooltip.
 - **[S-3343]** Linked focus in the links' one look ([S-11902]): the wedge pointed at or picked is whole,
   every other at its tone times 0.6 (pointed) or 0.3 (picked) (the lit wedge's 1.3 times thicker stroke
   went: one track), and the hole names it ("Code · 41%"). An app

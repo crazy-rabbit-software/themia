@@ -20,7 +20,7 @@ their translations). Tests: `Tests/AirFactsTests.cs`.
   Europe) is the em dash, never a row left out. Nothing sheds or appears with the box; a broken pick is
   repaired. It reads the same air answer as the index at the same place (`AirInterests`, [S-5101]). A
   reading kept through a failed refresh stays and the status's problem glyph says so ([S-7042],
-  [S-12481]); with none the Status row says why ([S-6734]). The place is the index's to name.
+  [S-12481]); with none every picked row stays, its label and "--" disabled, and why is their tooltip ([S-12813]). The place is the index's to name.
 - **[S-11136]** **Sizes** (`SkyFacts.Sizing`, [S-11170]): the inset, a 28 row a reading (1..11), the
   inset; 200..420 wide, a new one 240. Dragging the bottom edge sets the pick ([S-2442]).
 - **[S-11137]** Its options are all on the properties menu ([S-3719]): **Facts**, the pick

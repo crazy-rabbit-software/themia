@@ -22,7 +22,6 @@ internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetContextAc
 {
     private readonly KitStatus _status;
     private readonly FactList _rows = new() { Visibility = Visibility.Collapsed };
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<AirInterest, AirReading> _feed;
     private AirFactsConfig _config = new();
 
@@ -34,7 +33,6 @@ internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetContextAc
             () => AirInterests.For(_config),
             Render);
         Children.Add(_rows);
-        Children.Add(_empty);
         _status.Place(this);
     }
 
@@ -61,14 +59,16 @@ internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetContextAc
     {
         if (_feed.Held is not { Value: { } air } held)
         {
-            OnlineParts.ShowState(_empty, _feed.Status, AirFactsModule.Glyph, _feed.Refresh);
-            _rows.Visibility = Visibility.Collapsed;
+            // [S-12813] The rows stay, "--", the reason their tooltip (a status glyph would stand over the first "--").
+            _rows.Visibility = Visibility.Visible;
+            _rows.Show([.. AirFactRules.Unread(_config.Facts).Select(f => new FactLine(FactGlyph(f.Kind), f.Label, f.Value, Available: false))]);
+            ToolTipService.SetToolTip(_rows, OnlineParts.Caption(_feed.Status) is { Length: > 0 } why ? why : null);
             _status.Clear();
             return;
         }
 
-        _empty.Hide();
         _status.Show(OnlineParts.Problems(held), busy: false);
+        ToolTipService.SetToolTip(_rows, null);
         _rows.Visibility = Visibility.Visible;
         _rows.Show([.. AirFactRules.For(_config.Facts, air).Select(f => new FactLine(FactGlyph(f.Kind), f.Label, f.Value))]);
     }

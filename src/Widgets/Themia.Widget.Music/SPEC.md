@@ -26,8 +26,8 @@ under the root's rules is the module host's `MusicHostTests`.
   primary) over the artist and album in one Body line (secondary), each cut with its ellipsis, at the
   content's top; the transport (Previous, Play/Pause as the one main action in the accent, Next: 28
   icon buttons, left to right in every language) 4 under them at the bottom inset (a larger box keeps the face and its controls one block, centred, [S-12410]). A disabled
-  transport button keeps its place, its glyph disabled. Nothing playing is the Status row at the top
-  (the music glyph and why, [S-6714]). What it shows is fixed: no art, no progress, no styles. Its
+  transport button keeps its place, its glyph disabled. Nothing playing keeps the face ([S-12813]): why
+  ("Nothing playing") in the title's place, disabled, and the transport there, every button disabled. What it shows is fixed: no art, no progress, no styles. Its
   card (`MusicFace.Sizing`): the inset, the two lines, 4, the transport, the inset (96, a Small cover's
   side), one height, 200 to 420 wide (a new one 244), where a wider card only gives the lines more
   room. It starts without a header. It reads the session through the SDK's `NowPlayingFeed`, as the

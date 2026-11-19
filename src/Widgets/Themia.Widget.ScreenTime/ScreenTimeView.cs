@@ -33,9 +33,6 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
 
-    /// <summary>[S-6714] Nothing to read: the Status block's one row at the top.</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
-
     private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
     private IScreenTimeSource? _source;
@@ -65,11 +62,9 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
         SetRow(_fit, 1);
-        SetRow(_empty, 1);
         Children.Add(_nav.Line);
         _fit.Parts.Add(_readout);
         Children.Add(_fit);
-        Children.Add(_empty);
     }
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
@@ -143,30 +138,33 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
         if (_source is null)
         {
-            ShowEmpty(Str.WidgetsC_ScreenTime_NotRecording.Text());
+            ShowEmpty("--", Str.WidgetsC_ScreenTime_NotRecording.Text());
             return;
         }
 
         _data = ScreenTimeData.Build(_source, _config.Period, _nav.Pinned);
         if (_data.Total <= 0)
         {
-            ShowEmpty((_data.Window ? Str.WidgetsC_ScreenTime_NoActivityPeriod : Str.Screentime_NoActivity).Text());
+            ShowEmpty(ScreenTimeRules.FormatDuration(0), (_data.Window ? Str.WidgetsC_ScreenTime_NoActivityPeriod : Str.Screentime_NoActivity).Text());
             return;
         }
 
         _segments = ScreenTimeRules.Segments(_data.Apps, _data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
-        _empty.Visibility = Visibility.Collapsed;
         _readout.Visibility = Visibility.Visible;
         ApplyFocus();
     }
 
-    private void ShowEmpty(string message)
+    /// <summary>
+    /// [S-12813] Nothing to read: the readout stays, <paramref name="value"/> ("--" while nothing records, none
+    /// spent in a period that recorded) drawn unavailable, <paramref name="message"/> its line under.
+    /// </summary>
+    private void ShowEmpty(string value, string message)
     {
         _data = null;
         _segments = [];
-        _empty.Show(StatusKind.Empty, Glyphs.Hours, message);
-        _empty.Visibility = Visibility.Visible;
-        _readout.Visibility = Visibility.Collapsed;
+        _readout.Visibility = Visibility.Visible;
+        _readout.Show(value, under: message, valueRole: ColourRole.TextDisabled);
+        _readout.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
     }
 
     /// <summary>[S-11503] The total and its line, or the focused app's time over the period and its share.</summary>

@@ -82,3 +82,11 @@ public static class ForecastGrid
 
     private static double Cell(double length, int count) => Math.Max(0, (length - ((count - 1) * Gap)) / count);
 }
+
+/// <summary>[S-12813] The forecast's default: the days it shows, nothing read for any.</summary>
+public static class ForecastDefaults
+{
+    /// <summary><paramref name="days"/> days from <paramref name="today"/>, no sky and no figures (each drawn "--").</summary>
+    public static IReadOnlyList<ForecastDay> Unread(DateOnly today, int days)
+        => [.. Enumerable.Range(0, Math.Max(0, days)).Select(i => new ForecastDay(today.AddDays(i), null, null, null, null))];
+}

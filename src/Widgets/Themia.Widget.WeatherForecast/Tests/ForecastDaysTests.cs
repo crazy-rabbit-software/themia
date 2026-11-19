@@ -8,6 +8,23 @@ namespace Themia.Widget.WeatherForecast.Tests;
 /// <summary>[S-6171] [S-11146] The forecast's grid: its fixed arrangement by the days, its cells and its size.</summary>
 public class ForecastDaysTests
 {
+    [Fact]
+    public void S724_without_a_forecast_the_days_stay_from_today_with_nothing_read()
+    {
+        var today = new DateOnly(2026, 11, 19);
+
+        var days = ForecastDefaults.Unread(today, 5);
+
+        Assert.Equal(Enumerable.Range(0, 5).Select(i => today.AddDays(i)), days.Select(d => d.Day));
+        Assert.All(days, d =>
+        {
+            Assert.Null(d.Code);
+            Assert.Null(d.Low);
+            Assert.Null(d.High);
+            Assert.Equal("--", WeatherReport.Degrees(d.High));
+        });
+    }
+
     [Theory]
     [InlineData(1, 1, 1)]
     [InlineData(4, 4, 1)]

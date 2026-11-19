@@ -21,6 +21,21 @@ public sealed class AirFactsTests
         => Assert.Equal([AirFactKind.Uv, AirFactKind.Pm25, AirFactKind.Pollen, AirFactKind.Pm10], new AirFactsConfig().Facts);
 
     [Fact]
+    public void S11135_without_an_answer_every_picked_row_keeps_its_label_and_the_default()
+    {
+        var picked = new[] { AirFactKind.Pm10, AirFactKind.Uv, AirFactKind.Birch };
+
+        var facts = AirFactRules.Unread(picked);
+
+        Assert.Equal(picked, facts.Select(f => f.Kind));
+        Assert.All(facts, f =>
+        {
+            Assert.Equal("--", f.Value);
+            Assert.Equal(AirFactRules.Name(f.Kind), f.Label);
+        });
+    }
+
+    [Fact]
     public void S11135_each_picked_row_is_one_row_and_a_reading_not_sent_is_the_dash()
     {
         var air = Air(",\"european_aqi\":25,\"pm2_5\":7.7,\"pm10\":11.9,\"uv_index\":2.5");

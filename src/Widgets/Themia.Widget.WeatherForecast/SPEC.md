@@ -16,7 +16,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
 `tests/Themia.Modules.Tests`).
 
 - **[S-724]** The forecast's look is its style ([S-6163]): Rows (the default), Columns, the
-  temperature curve or the grid; what was its layout setting.
+  temperature curve or the grid; what was its layout setting. Without a forecast the style keeps its days from
+  today, "--" and the unknown sky, why as their tooltip ([S-12813], `ForecastDefaults.Unread`).
 - **[S-725]** Rows (`WeatherForecastLayout.Rows`): one Row block per day ([S-6711]): the day's sky
   glyph as its 16 lead, the day as its name ("Today" in BodyStrong, never the accent), a range bar
   (the Chart block's track, the day's low to its high on the scale of the days shown, 32 % of the

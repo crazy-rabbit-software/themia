@@ -7796,7 +7796,16 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   rows ("--") and says the note as its tooltip; a list with no rows to draw (top processes, adapters) keeps its
   Status row. A one-reading widget without an answer (Weather now, Air quality, Exchange rate) keeps its readout,
   "--" disabled, the reason as its line under (`OnlineParts.ShowDefault`); Retry is the card menu's Refresh, and
-  not set up stays the card's Set up row ([S-1862]). The graphs follow it in their own widgets. Tests `FactsDefaultsTests.S12813_`.
+  not set up stays the card's Set up row ([S-1862]). The graphs follow it in their own widgets. The air and weather
+  facts keep their picked rows ("--", the reason their tooltip, where a status glyph would cover the first "--"); the
+  forecast its days in its style, "--" and the unknown sky, the reason their tooltip (`ForecastDefaults.Unread`); screen time its readout and the donut its
+  ring's track, "--" while nothing records and "0m" for a period with none spent, the reason under it; music its
+  face, the reason in the title's place and the transport disabled. A list with nothing to list (Bluetooth, removable
+  drives, the screen time apps, habits, the mixer's sessions) keeps its one Status row on its top edge, its stated
+  rows empty under it ([S-12800]); a picture's or a stream's (Gallery, Video stream) stands on its own top, the view
+  owning the card's edge ([S-5700]). A placeholder's dashes ink lower than capitals: a readout showing one is sized
+  as its reading (`IInked.Held`) and placed by its dashes' ink (`LineInk.Placeholder`), so its first ink still
+  stands on the top ([S-12814]). Tests `FactsDefaultsTests.S12813_`, `BlockFitTests.S12813_`, the modules' `S12813_`.
 - **[S-12814]** **A block has no band over its first ink or under its last** (owner, 2026-11-19: "the drive widget
   still has a fucking space at the top, maybe also at the bottom. make sure that this does not happen anywhere"). A
   one-readout block ([S-12808], `ReadingFit`, the rule `BlockFit.Fill`) scales up as one to the largest size at which

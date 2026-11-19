@@ -72,6 +72,16 @@ public static class WeatherFactRules
         return [.. picked.Select(kind => new WeatherFact(kind, Name(kind, locale), Value(locale, kind, reading, unit)))];
     }
 
+    /// <summary>
+    /// [S-12813] Without a reading: every picked row, its label and "--" (the facts' default, drawn unavailable), so
+    /// the card keeps its rows and the state is only its status glyph's tooltip.
+    /// </summary>
+    public static IReadOnlyList<WeatherFact> Unread(Locale locale, IReadOnlyList<WeatherFactKind> picked)
+    {
+        ArgumentNullException.ThrowIfNull(picked);
+        return [.. picked.Select(kind => new WeatherFact(kind, Name(kind, locale), DetailFact.Unavailable(string.Empty).Value))];
+    }
+
     /// <summary>[S-722] One reading's value, or <see cref="Missing"/> where the service sent none.</summary>
     public static string Value(Locale locale, WeatherFactKind kind, CurrentWeather reading, TemperatureUnit unit)
     {

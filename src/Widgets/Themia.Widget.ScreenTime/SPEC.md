@@ -20,7 +20,7 @@ translations, "of {value}" the donut's). Tests: `Tests/ScreenTimeTests.cs`.
   (`FamilyType.Big28`, start-aligned, [S-2449]) with one line under it: one height (12 + 24 + 36 + 16 + 12 =
   100 for a day, 76 for a window, `ScreenTimeReading.Sizing`), 160..320 wide (the least holds "888h 59m"),
   a new one 200 × that. It is what the chart's figure was ([S-3332], retired): the chart draws the bars
-  alone. Nothing to read (not recording, no use in the period) is the Status block's one row ([S-6714]).
+  alone. Nothing to read keeps the readout ([S-12813]): "--" while nothing records, none spent ("0m") in a period that recorded, disabled, why as its line under.
 - **[S-11501]** **Its words** (`ScreenTimeReading.Headline`): a day's total with "of 4h" under it where
   a daily limit is set; a window's total with its average per day and "of 6h/day" ("3h 21m/day · of
   6h/day"); over the limit (a window: its average) the figure is Critical ([S-457]). The line ends in

@@ -7,17 +7,27 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917], [S-2052]): <c>sample</c> is the sample (<see cref="ShowSampleAsync"/>,
-/// in the card's style: <c>--style rows|columns|curve|grid</c>); <c>stale</c> the same week through a failed refresh.
+/// in the card's style: <c>--style rows|columns|curve|grid</c>); <c>stale</c> the same week through a failed refresh;
+/// <c>failed</c> no forecast and the service out of reach, the days kept ([S-12813]).
 /// </summary>
 internal sealed partial class WeatherForecastView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "stale"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "stale", "failed"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         if (state == "sample")
         {
             return ShowSampleAsync();
+        }
+
+        if (state == "failed")
+        {
+            HoldSampleWeek();
+            _forecast = null;
+            _status = FetchStatus.Unreachable;
+            Render();
+            return Task.CompletedTask;
         }
 
         if (state != "stale")

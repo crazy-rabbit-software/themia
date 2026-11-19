@@ -21,6 +21,21 @@ public sealed class WeatherFactsTests
     // ---- [S-722] the readings ---------------------------------------------------------------------
 
     [Fact]
+    public void S722_without_a_reading_every_picked_row_keeps_its_label_and_the_default()
+    {
+        var picked = new[] { WeatherFactKind.Wind, WeatherFactKind.Today, WeatherFactKind.Humidity };
+
+        var facts = WeatherFactRules.Unread(Locale.En, picked);
+
+        Assert.Equal(picked, facts.Select(f => f.Kind));
+        Assert.All(facts, f =>
+        {
+            Assert.Equal("--", f.Value);
+            Assert.Equal(WeatherFactRules.Name(f.Kind, Locale.En), f.Label);
+        });
+    }
+
+    [Fact]
     public void S722_each_picked_fact_is_one_row_in_the_pick_s_order_and_a_missing_reading_is_the_dash()
     {
         var reading = new CurrentWeather(18, 17, 63, 11, 2) { WindDirection = 315, Pressure = null, UvIndex = 3 };

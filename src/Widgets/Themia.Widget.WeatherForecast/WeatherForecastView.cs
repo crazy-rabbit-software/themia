@@ -42,9 +42,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     private readonly KitStatus _mark;
     private readonly Grid _body = new();
 
-    /// <summary>[S-6734] Why there is no forecast to draw: the Status block's row at the top.</summary>
-    private readonly StatusBlock _state = new();
-
 
     private Ticker? _ticker;
     private WeatherForecastConfig _config = new();
@@ -67,6 +64,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     private FetchStatus _status = FetchStatus.Loading;
 
     private Fetched<Forecast>? _forecast;
+
+    /// <summary>[S-12813] Without a forecast: its days with nothing read, drawn in the style ("--").</summary>
+    private IReadOnlyList<ForecastDay>? _unread;
     private WidgetArea _area;
 
     /// <summary>What is on screen: the style, its plan and the day the labels were computed for.</summary>
@@ -77,11 +77,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     {
         _host = host;
         _mark = new KitStatus(host);
-        _state.Visibility = Visibility.Collapsed;
         _days = new LinkLights<DateLink>(_links, LinkTopics.HoveredDate, LinkTopics.SelectedDate);
 
         Children.Add(_body);
-        Children.Add(_state);
         _mark.Place(this);
     }
 
@@ -236,15 +234,20 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
 
         if (days is null || days.Count == 0)
         {
-            // [S-6734] Not set up is the card's Set up row ([S-1862]); every other state is one row here.
-            OnlineParts.ShowState(_state, _status, WeatherForecastModule.Glyph, () => Reload(force: true));
-            _body.Visibility = Visibility.Collapsed;
+            // [S-12813] The days stay in the style, "--" and the unknown sky; why is their tooltip (not set up is the
+            // card's Set up row, [S-1862]); a status glyph would stand over the first day's "--".
+            _forecast = null;
+            _unread = ForecastDefaults.Unread(DateOnly.FromDateTime(DateTime.Now), _config.EffectiveDays);
+            _body.Visibility = Visibility.Visible;
             _mark.Clear();
-            ClearBody();
+            ToolTipService.SetToolTip(_body, OnlineParts.Caption(_status) is { Length: > 0 } why ? why : null);
+            _built = null;
+            Lay();
             return;
         }
 
-        _state.Hide();
+        _unread = null;
+        ToolTipService.SetToolTip(_body, null);
         _body.Visibility = Visibility.Visible;
         _mark.Show(OnlineParts.Problems(held), busy: false);
 
@@ -256,7 +259,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// <summary>Pick the style's plan for the current area, and rebuild only if it changed.</summary>
     private void Lay()
     {
-        if (_detached || _forecast?.Value?.Days is not { Count: > 0 } days || !_area.IsMeasured)
+        if (_detached || (_forecast?.Value?.Days ?? _unread) is not { Count: > 0 } days || !_area.IsMeasured)
         {
             return;
         }

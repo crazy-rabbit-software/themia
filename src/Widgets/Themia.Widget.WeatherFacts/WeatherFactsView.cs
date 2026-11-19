@@ -18,13 +18,12 @@ namespace Themia.Widget.WeatherFacts;
 /// order, from the view's top (<see cref="FactList"/>). The reading comes from the background sync
 /// through <see cref="SkyFeed{TWant, T}"/>, the same answer the reading card (<c>weatherNow</c>) draws.
 /// A reading kept through a failed refresh stays and the status's problem glyph says so ([S-7042]);
-/// with none, the Status row at the top says why ([S-6734]).
+/// with none, the rows stay with "--" and the status glyph's tooltip says why ([S-12813]).
 /// </summary>
 internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions
 {
     private readonly KitStatus _status;
     private readonly FactList _rows = new();
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<WeatherInterest, CurrentWeather> _feed;
     private WeatherFactsConfig _config = new();
 
@@ -37,7 +36,6 @@ internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens
             Render);
         _rows.Visibility = Visibility.Collapsed;
         Children.Add(_rows);
-        Children.Add(_empty);
         _status.Place(this);
     }
 
@@ -69,14 +67,16 @@ internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens
     {
         if (_feed.Held is not { Value: { } reading } held)
         {
-            OnlineParts.ShowState(_empty, _feed.Status, Glyphs.Weather, _feed.Refresh);
-            _rows.Visibility = Visibility.Collapsed;
+            // [S-12813] The rows stay, "--", the reason their tooltip (a status glyph would stand over the first "--").
+            _rows.Visibility = Visibility.Visible;
+            _rows.Show([.. WeatherFactRules.Unread(Strings.Current, _config.Facts).Select(f => new FactLine(FactGlyph(f.Kind), f.Label, f.Value, Available: false))]);
+            ToolTipService.SetToolTip(_rows, OnlineParts.Caption(_feed.Status) is { Length: > 0 } why ? why : null);
             _status.Clear();
             return;
         }
 
-        _empty.Hide();
         _status.Show(OnlineParts.Problems(held), busy: false);
+        ToolTipService.SetToolTip(_rows, null);
         var unit = _feed.Want?.Unit ?? RegionFormat.Current.Temperature;
         _rows.Visibility = Visibility.Visible;
         _rows.Show([.. WeatherFactRules.For(_config.Facts, reading, unit).Select(f => new FactLine(FactGlyph(f.Kind), f.Label, f.Value))]);

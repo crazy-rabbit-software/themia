@@ -61,6 +61,16 @@ public static class AirFactRules
         return [.. picked.Select(kind => new AirFact(kind, Name(kind), Value(kind, air)))];
     }
 
+    /// <summary>
+    /// [S-12813] Without an answer: every picked row, its label and "--" (the facts' default, drawn unavailable), so
+    /// the card keeps its rows and the state is only its status glyph's tooltip.
+    /// </summary>
+    public static IReadOnlyList<AirFact> Unread(IReadOnlyList<AirFactKind> picked)
+    {
+        ArgumentNullException.ThrowIfNull(picked);
+        return [.. picked.Select(kind => new AirFact(kind, Name(kind), DetailFact.Unavailable(string.Empty).Value))];
+    }
+
     public static string Value(AirFactKind kind, AirReading air)
     {
         ArgumentNullException.ThrowIfNull(air);

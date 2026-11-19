@@ -47,8 +47,8 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
     private readonly Grid _ring = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
-    /// <summary>[S-6714] Nothing to draw: the Status block's one row at the top.</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
+    /// <summary>[S-12813] The ring with nothing on it: its track, under the wedges while there are none.</summary>
+    private readonly Microsoft.UI.Xaml.Shapes.Ellipse _track = new() { Visibility = Visibility.Collapsed, IsHitTestVisible = false };
     private readonly List<(ScreenTimeSegment Segment, Wedge Arc)> _arcs = [];
 
     /// <summary>[S-3325] One wedge per app (and Other), kept across reads.</summary>
@@ -93,6 +93,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         };
 
         // The figure takes no pointer input, so the wedges under its box stay hoverable.
+        _ring.Children.Add(_track);
         _ring.Children.Add(_canvas);
         _ring.Children.Add(_figure);
 
@@ -105,10 +106,8 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
         SetRow(_ring, 1);
-        SetRow(_empty, 1);
         Children.Add(_nav.Line);
         Children.Add(_ring);
-        Children.Add(_empty);
     }
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
@@ -189,7 +188,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
         if (_source is null)
         {
-            ShowEmpty(Str.WidgetsC_ScreenTime_NotRecording.Text());
+            ShowEmpty("--", Str.WidgetsC_ScreenTime_NotRecording.Text());
             return;
         }
 
@@ -197,23 +196,49 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
         if (_data.Total <= 0)
         {
-            ShowEmpty((_data.Window ? Str.WidgetsC_ScreenTime_NoActivityPeriod : Str.Screentime_NoActivity).Text());
+            ShowEmpty(ScreenTimeRules.FormatDuration(0), (_data.Window ? Str.WidgetsC_ScreenTime_NoActivityPeriod : Str.Screentime_NoActivity).Text());
             return;
         }
 
-        _empty.Visibility = Visibility.Collapsed;
         _ring.Visibility = Visibility.Visible;
         Draw();
     }
 
-    private void ShowEmpty(string message)
+    /// <summary>
+    /// [S-12813] Nothing to draw: the ring stays, its track alone, and in its hole <paramref name="value"/> ("--"
+    /// while nothing records, none spent in a period that recorded) drawn unavailable with
+    /// <paramref name="message"/> under it where the hole holds it, and always as the ring's tooltip.
+    /// </summary>
+    private void ShowEmpty(string value, string message)
     {
         _data = null;
         _segments = [];
         DropWedges();
-        _empty.Show(StatusKind.Empty, Glyphs.ScreenTimeDonut, message);
-        _empty.Visibility = Visibility.Visible;
-        _ring.Visibility = Visibility.Collapsed;
+        _plan = ScreenTimeDonutLayout.Donut(_config.Size);
+        SizeRing(showTrack: true);
+        ToolTipService.SetToolTip(_ring, message);
+
+        var figure = ScreenTimeRules.Figure(0, _plan.Largest, _plan.Hole, under: true);
+        _figure.Use(figure.Step, centred: true);
+        var height = figure.Step.LineHeight + (figure.Under ? FamilyType.Under(figure.Step).LineHeight : 0);
+        _figure.MaxWidth = Math.Floor(ScreenTimeRules.HoleWidth(height, _plan.Hole));
+        _figure.Show(value, under: figure.Under ? message : null, valueRole: ColourRole.TextDisabled);
+        _ring.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>The ring's box at the plan's size; its track shown only with no wedge on it.</summary>
+    private void SizeRing(bool showTrack)
+    {
+        var size = _plan.Ring;
+        _canvas.Width = size;
+        _canvas.Height = size;
+        _ring.Width = size;
+        _ring.Height = size;
+        _track.Width = size;
+        _track.Height = size;
+        _track.StrokeThickness = _plan.Thickness;
+        _track.Stroke = Family.Brush(ColourRole.Track);
+        _track.Visibility = showTrack ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>
@@ -235,10 +260,8 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         var radius = (size - _plan.Thickness) / 2;
         var centre = size / 2;
 
-        _canvas.Width = size;
-        _canvas.Height = size;
-        _ring.Width = size;
-        _ring.Height = size;
+        SizeRing(showTrack: false);
+        ToolTipService.SetToolTip(_ring, null);
 
         // [S-3325] The wedges of the apps still on the ring are moved, not built again.
         var (wedges, _) = _wedges.Sync([.. _segments.Select(s => s.Key)], NewWedge, DropWedge);

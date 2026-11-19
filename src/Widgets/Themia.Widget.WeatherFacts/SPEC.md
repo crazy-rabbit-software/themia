@@ -22,7 +22,7 @@ their translations). Tests: `Tests/WeatherFactsTests.cs` (run by `tests/Themia.M
   top to its foot ([S-12402]); a new card picks Today, Feels like, Humidity, Wind. Nothing sheds or appears with the box; a
   name or value too long ends in its ellipsis. A stored pick that is empty, holds a fact twice or one
   it does not have is repaired (load validation, logged). A reading kept through a failed refresh stays
-  and the status's problem glyph says so ([S-7042], [S-12481]: the place is the reading's to name); with none the Status row says why ([S-6734]). It
+  and the status's problem glyph says so ([S-7042], [S-12481]: the place is the reading's to name); with none every picked row stays, its label and "--" disabled, and why is their tooltip ([S-12813]). It
   reads the same answer as the reading at the same place: one request ([S-2663]).
 - **[S-11106]** **Sizes** (`SkyFacts.Sizing`, [S-11170]): the height the inset 12, a 28 row a fact,
   the inset 12, stepped by a row and following the pick (1..11 rows; four: 136); 200..420 wide, a new
