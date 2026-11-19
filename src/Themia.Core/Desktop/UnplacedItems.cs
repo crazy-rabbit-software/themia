@@ -73,6 +73,38 @@ public static class UnplacedItems
     }
 
     /// <summary>
+    /// [S-13707] The box the desktop gives each icon on <paramref name="screen"/> (<paramref name="box"/>, fractions of it: the
+    /// desktop's own, whole grid cells round its icon cell, [S-11875]) in DIPs: the cell an icon is drawn in on the page, so it
+    /// stands at the size and in the cell it gets when placed (owner, 2026-11-19: "it should show the icons exactly how they
+    /// would look like on the desktop"). The page never works out a cell of its own: whatever the desktop's cell becomes, so does
+    /// the page's.
+    /// </summary>
+    public static SizeDip Dips((double W, double H) box, ScreenMetrics screen)
+        => screen.IsUsable ? new SizeDip(box.W * screen.Width, box.H * screen.Height) : new SizeDip(box.W, box.H);
+
+    /// <summary>[S-13707] How many icon boxes <paramref name="box"/> DIPs wide stand side by side in a row <paramref name="width"/> wide: at least one.</summary>
+    public static int Columns(double width, double box)
+        => box > 0 && double.IsFinite(width) && width > 0 ? Math.Max(1, (int)Math.Floor((width + 1e-6) / box)) : 1;
+
+    /// <summary>
+    /// [S-13707] Where <paramref name="count"/> icons stand on the page, in DIPs from its list's corner: as the desktop lays
+    /// icons, box against box with no gap (every card paints its whole cell, [S-11884]), in reading order, as many to a row
+    /// as <paramref name="width"/> holds (<see cref="Columns"/>), row after row.
+    /// </summary>
+    public static IReadOnlyList<PixelRect> Cells(int count, double width, SizeDip box)
+    {
+        var columns = Columns(width, box.Width);
+        return [.. Enumerable.Range(0, Math.Max(0, count)).Select(i => new PixelRect(i % columns * box.Width, i / columns * box.Height, box.Width, box.Height))];
+    }
+
+    /// <summary>[S-13707] How tall the page's icons stand: whole rows of <paramref name="box"/>, none for none.</summary>
+    public static double Height(int count, double width, SizeDip box)
+    {
+        var columns = Columns(width, box.Width);
+        return count <= 0 ? 0 : (((count - 1) / columns) + 1) * box.Height;
+    }
+
+    /// <summary>
     /// [S-13705] The rects of <paramref name="count"/> icons dragged from the page as one block, each an icon's box
     /// (<paramref name="icon"/>, fractions of the display): <see cref="BlockColumns"/> to a row, row after row, the first
     /// at the block's corner, in the desktop's reading order as its arrivals and Auto arrange lay icons ([S-11876], [S-5594]).

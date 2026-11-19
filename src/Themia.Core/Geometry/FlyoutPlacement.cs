@@ -54,6 +54,17 @@ public static class FlyoutPlacement
     }
 
     /// <summary>
+    /// [S-13707] A page's flyout as wide as the bar (the Unplaced icons page, <see cref="Settings.SettingsPages.BarWide"/>): the
+    /// add page's box (<see cref="Under"/>: the bar's width, flush with its sides, as tall as its page up to 70 % of the work
+    /// area), still hung from its entry: its beak's tip over <paramref name="entry"/>'s middle, kept on the straight of the top.
+    /// </summary>
+    public static FlyoutSpot Wide(PixelRect entry, PixelRect bar, PixelRect area, double content)
+    {
+        var spot = Under(bar, area, content);
+        return spot with { Tip = Tip(entry.X + (entry.Width / 2.0) - spot.X, spot.Width) };
+    }
+
+    /// <summary>
     /// [S-2344] Where the selected widgets (<paramref name="widgets"/>, the surface's DIPs as their cards are
     /// drawn now) lie under the panel of a flyout standing at <paramref name="spot"/>: one window per covered
     /// part, cut to the panel, never two over the same spot (a later widget gives up what an earlier one

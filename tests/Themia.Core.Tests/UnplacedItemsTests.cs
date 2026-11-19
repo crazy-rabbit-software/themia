@@ -1,6 +1,7 @@
 using Themia.Core.Desktop;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Sdk;
 using Xunit;
 
@@ -146,5 +147,79 @@ public sealed class UnplacedItemsTests
         Assert.Equal(0.1, block[5].X, 9);
         Assert.Equal([new FracRect(0, 0, 0.1, 0.2)], UnplacedItems.Block(1, (0.1, 0.2)));
         Assert.Empty(UnplacedItems.Block(0, (0.1, 0.2)));
+    }
+
+    [Fact]
+    public void S13707_the_flyout_is_exactly_as_wide_as_the_bar_and_still_points_at_its_entry()
+    {
+        // Owner, 2026-11-19: "the on desktop not on home view should be as wide as the edit bar".
+        Assert.True(SettingsPages.BarWide(SettingsPageId.DesktopItems));
+        Assert.All(Enum.GetValues<SettingsPageId>().Where(p => p != SettingsPageId.DesktopItems), p => Assert.False(SettingsPages.BarWide(p)));
+
+        var area = new PixelRect(0, 0, 1920, 1040);
+        var bar = new PixelRect(12, 12, 1896, 48);
+        var entry = new PixelRect(400, 16, 40, 40);
+        var spot = FlyoutPlacement.Wide(entry, bar, area, 300);
+        var add = FlyoutPlacement.Under(bar, area, 300);
+
+        // The add page's box, one rule: the bar's width, flush with its sides, its height the page's.
+        Assert.Equal((add.X, add.Y, add.Width, add.Height), (spot.X, spot.Y, spot.Width, spot.Height));
+        Assert.Equal((bar.X, bar.Width), (spot.X, spot.Width));
+
+        // Hung from its entry: the beak's tip over the entry's middle, in the panel's own DIPs.
+        Assert.Equal(420 - bar.X, spot.Tip, 9);
+
+        // Wider bars make it wider; a tall page is still cut at 70 % of the work area.
+        var narrow = FlyoutPlacement.Wide(entry, new PixelRect(12, 12, 876, 48), new PixelRect(0, 0, 900, 1040), 5000);
+        Assert.Equal(876, narrow.Width);
+        Assert.Equal(Math.Floor(1040 * 0.7), narrow.Height);
+    }
+
+    [Theory]
+    [InlineData(DesktopIconSize.Small)]
+    [InlineData(DesktopIconSize.Medium)]
+    [InlineData(DesktopIconSize.Large)]
+    public void S13707_an_icon_on_the_page_has_the_box_the_desktop_gives_it(DesktopIconSize size)
+    {
+        // Owner, 2026-11-19: "it should show the icons exactly how they would look like on the desktop".
+        var screen = new ScreenMetrics(1920, 1080);
+        var (w, h) = DesktopGrid.IconSize(DesktopCell.Grid(size), screen);
+        var box = UnplacedItems.Dips((w, h), screen);
+
+        Assert.Equal(w * screen.Width, box.Width, 9);
+        Assert.Equal(h * screen.Height, box.Height, 9);
+
+        // At least Explorer's cell at that size: whole grid cells round it up, never down.
+        Assert.True(box.Width >= DesktopCell.Grid(size).Width - 1e-9 && box.Height >= DesktopCell.Grid(size).Height - 1e-9);
+    }
+
+    [Fact]
+    public void S13707_icons_stand_box_against_box_in_rows_as_wide_as_the_page_holds()
+    {
+        var screen = new ScreenMetrics(1920, 1080);
+        var medium = UnplacedItems.Dips(DesktopGrid.IconSize(DesktopCell.Grid(DesktopIconSize.Medium), screen), screen);
+        var large = UnplacedItems.Dips(DesktopGrid.IconSize(DesktopCell.Grid(DesktopIconSize.Large), screen), screen);
+
+        // Cells per row: as many whole boxes as the width holds, at least one.
+        Assert.Equal((int)Math.Floor(1848 / medium.Width), UnplacedItems.Columns(1848, medium.Width));
+        Assert.True(UnplacedItems.Columns(1848, large.Width) < UnplacedItems.Columns(1848, medium.Width));
+        Assert.True(UnplacedItems.Columns(852, medium.Width) < UnplacedItems.Columns(1848, medium.Width));
+        Assert.Equal(3, UnplacedItems.Columns(300, 100));
+        Assert.Equal(3, UnplacedItems.Columns(399.9, 100));
+        Assert.Equal(1, UnplacedItems.Columns(50, 100));
+        Assert.Equal(1, UnplacedItems.Columns(0, 100));
+
+        // Reading order, no gap, wrapping into the next row.
+        var cells = UnplacedItems.Cells(7, 300, new SizeDip(100, 120));
+        Assert.Equal(new PixelRect(0, 0, 100, 120), cells[0]);
+        Assert.Equal(new PixelRect(200, 0, 100, 120), cells[2]);
+        Assert.Equal(new PixelRect(0, 120, 100, 120), cells[3]);
+        Assert.Equal(new PixelRect(0, 240, 100, 120), cells[6]);
+        Assert.Empty(UnplacedItems.Cells(0, 300, new SizeDip(100, 120)));
+
+        // As tall as its rows.
+        Assert.Equal(360, UnplacedItems.Height(7, 300, new SizeDip(100, 120)));
+        Assert.Equal(120, UnplacedItems.Height(3, 300, new SizeDip(100, 120)));
+        Assert.Equal(0, UnplacedItems.Height(0, 300, new SizeDip(100, 120)));
     }
 }

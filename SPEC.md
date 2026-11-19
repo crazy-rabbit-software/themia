@@ -2108,7 +2108,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   the wheel, Page Up / Down, Home and End), centred on its entry 12 under the bar, pushed in to stay 12
   from the work area's sides and its foot; radius 8, Windows' own colours always (the ground
   `SolidBackgroundFillColorBase`, the cards `CardBackgroundFillColorDefault` with `CardStrokeColorDefault`),
-  never the widgets' look. No title: the entry names the page.
+  never the widgets' look. No title: the entry names the page. The Unplaced icons page's is as wide as the bar instead
+  ([S-13707]).
 - **[S-2326]** Its **beak**: 8 tall and 16 across at its top, its tip over the entry's middle, held to the
   top's straight (the corner's radius and half the beak in from either end), so a flyout pushed in at a
   screen edge still points at its entry; the beak and the panel one outline with one rim and one shadow.
@@ -2571,16 +2572,19 @@ right-click cancelling); the keys of [S-13617]; the pictures drawing in the runn
 packaged Store build, their cache across openings, after a design or language change and dropped a minute
 after closing; a screen reader on the rail, the family heads and the tiles.
 
-#### Unplaced icons ([S-13700]..[S-13706])
+#### Unplaced icons ([S-13700]..[S-13707])
 
 The owner (2026-11-19): *"in edit mode there should be a page with the desktop icons that are on the physical desktop
 folder but are not placed on the given view, this should be a page in the settings too, own entry in the topbar."*
+And (2026-11-19): *"the on desktop not on home view should be as wide as the edit bar and it should show the icons
+exactly how they would look like on the desktop."*
 Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`SettingsPageId.DesktopItems`,
-`DesktopItems()`, `IconAlone`), `Shell/EditBarLayout.cs` (`iconAlone`); App `Shell/Pages/UnplacedPageView.cs`,
-`Shell/DesktopWindow.UnplacedPage.cs`, `AppHost.DesktopViews.cs` (`PlaceDesktopItems`, `PutDesktopItemsInFence`),
-`AppHost.Desktop.cs` (`UnplacedDesktopItems`, `BeginPlacement(items, screen)`, `DesktopListed`), the entry's badge in
-`EditBar.cs`; render `Gallery/EditBarRender.Unplaced.cs`. Tests `UnplacedItemsTests`, `SettingsMenuTests.S13700_`,
-`EditBarLayoutTests.S13701_`.
+`DesktopItems()`, `IconAlone`, `BarWide`), `Shell/EditBarLayout.cs` (`iconAlone`), `Geometry/FlyoutPlacement.cs`
+(`Wide`); App `Shell/Pages/UnplacedPageView.cs` (+ `.Icons.cs`: the icons' host), `Shell/DesktopWindow.UnplacedPage.cs`,
+`DesktopWindow.BarMenus.cs` (`PlaceFlyout`), `PageFlyout.ContentHeightAt`, `AppHost.DesktopViews.cs`
+(`PlaceDesktopItems`, `PutDesktopItemsInFence`), `AppHost.Desktop.cs` (`UnplacedDesktopItems`,
+`BeginPlacement(items, screen)`, `DesktopListed`), the entry's badge in `EditBar.cs`; render
+`Gallery/EditBarRender.Unplaced.cs`. Tests `UnplacedItemsTests`, `SettingsMenuTests.S13700_`, `EditBarLayoutTests.S13701_`.
 
 - **[S-13700]** **The page** is a settings page like the others (`SettingsPageId.DesktopItems`, after Views in the
   bar's order), its one line a live part of the page host's (`SettingsPreview` with its `Name`, drawn as the
@@ -2588,7 +2592,7 @@ Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`Set
   listing (the user's and the public desktop, the one listing desktop icons come from, [S-5510]) that **the view
   shown on that display** shows nowhere, neither a free icon of it nor in a fence of it (`UnplacedItems.Of`, the same
   list Add widget's On the desktop offers, [S-5523]), in `DesktopItemOrder`. Under the words "On the desktop, not on
-  <view>" each item is a row of its shell icon (the desktop's own, overlay included, [S-5512]) and its name. A view
+  <view>" each item is **its desktop icon, drawn exactly as the desktop draws it** ([S-13707]: never a list row). A view
   that shows no desktop icons (None, [S-5525]) lists none and says so, pointing at Views › Desktop icons; with every
   icon placed the page says that.
 - **[S-13701]** **Its entry** on the edit bar is its icon alone at every width (`SettingsPages.IconAlone`; its name
@@ -2596,26 +2600,44 @@ Owning files: Core `Desktop/UnplacedItems.cs`, `Settings/SettingsPages.cs` (`Set
   before; while the display's view leaves any icon unplaced, a count badge (Windows' InfoBadge look: the accent pill
   over the icon's top end corner, at most "99+", `UnplacedItems.Badge`; the screen reader hears "n desktop icons are
   not on this view"). It opens the page under the bar like every entry ([S-2327]).
-- **[S-13702]** **Search**: from nine items on (`UnplacedItems.SearchFrom`) a search box over the list narrows it to
+- **[S-13702]** **Search**: from nine items on (`UnplacedItems.SearchFrom`) a search box over the icons narrows them to
   the names holding every typed word, any case (`UnplacedItems.Matching`); nothing matching says so.
-- **[S-13703]** **Selection and placing**: the rows are selected as files are (`ItemSelection`, [S-6620]: click,
-  Ctrl/Shift+click, the arrows, Home/End, Ctrl+A, Ctrl+Space; `SelectionChrome`'s look). A row's **+** places it (or
-  the whole selection when it is in it, `UnplacedItems.Acting`), a double-click places it, Enter places the
-  selection, and the action row over the list ("Place n icons", the accent button) places the selection: at the
-  view's **next free grid cells** in the desktop's order, the arrivals' and Auto arrange's reading order
-  ([S-11876], [S-5594]; `DesktopViews.Fill` through `AppHost.PlaceDesktopItems`), one undo step. Nothing on a None
-  view.
+- **[S-13703]** **Selection and placing**: the icons are selected as files are (`ItemSelection`, [S-6620]: click,
+  Ctrl/Shift+click, the arrows across a row and down to the same column of the next row as laid, Page Up/Down,
+  Home/End, Ctrl+A, Ctrl+Space), painted in the desktop icon's selection look (`SelectionLook.DesktopIcon`, through the
+  icon's own view, [S-13707]; active while the page has the keyboard or a selection). A double-click on an icon places
+  it, Enter places the selection, and the action row over the icons ("Place n icons", the accent button) places the
+  selection: at the view's **next free grid cells** in the desktop's order, the arrivals' and Auto arrange's reading
+  order ([S-11876], [S-5594]; `DesktopViews.Fill` through `AppHost.PlaceDesktopItems`), one undo step. An icon has no
+  button of its own (a desktop icon has none). Nothing on a None view.
 - **[S-13704]** **Put in a fence**: the action row has "Put in <fence>" for every fence of the view but a search fence
   (`UnplacedItems.Fences`, [S-13023]); it moves the selection into that fence at its end (`DesktopFences.MoveIn`), one
   undo step.
-- **[S-13705]** **Dragged onto the desktop**: a press on a row moved past the dead zone ([S-2008]'s `Travelled`) starts
+- **[S-13705]** **Dragged onto the desktop**: a press on an icon moved past the dead zone ([S-2008]'s `Travelled`) starts
   the one placement session ([S-421]) with what the press acts on, laid as one block of rows four wide
   (`UnplacedItems.Block`, `AppHost.BeginPlacement(items, screen)`); the page closes for it (posted after the
   pointer's event, [S-2346]), the ghost follows the pointer, and **letting go places them there** (or a click, as any
   placement; Escape or a right press gives it up). The page opens again when the placement is over.
 - **[S-13706]** **Live**: the page and the badge are read again whenever the state changes (an icon placed, removed
   from the view or hidden, a fence's items) and when a read of the desktop comes in (a file added or gone, even where
-  no view changed: `AppHost.DesktopListed`); the selection keeps what is still listed.
+  no view changed: `AppHost.DesktopListed`), and when the desktop's icon size changes (the icons follow it, [S-13707]);
+  the selection keeps what is still listed.
+- **[S-13707]** **As wide as the bar, the icons as on the desktop** (owner, 2026-11-19, quoted above). The page's
+  flyout (`SettingsPages.BarWide`) is **exactly as wide as the bar** and flush with its sides, by the add page's own
+  box ([S-11707], `FlyoutPlacement.Under`, through `FlyoutPlacement.Wide`), as tall as its page measured at that width
+  (`PageFlyout.ContentHeightAt`) up to 70 % of the work area, and still hung from its entry: its beak's tip over the
+  entry's middle. Its icons are **the desktop's own icon view** (the desktop item kind's `IDesktopIconView`, made by its
+  module as the desktop makes it, `ModuleHost.CreateView`): the shell's icon with its overlay at the display's pixels
+  ([S-5512], [S-5563]), the name under it on the wallpaper (`WallpaperLabel`, wrapped on two lines and cut with an
+  ellipsis, [S-6733]), the hover and the selection in the desktop icon's look, a cut item faded; each in **the box the
+  desktop gives an icon on that display** (`AppHost.DeskIconBox`, whole grid cells round the icon cell at the icon size
+  in force, [S-11875], [S-5593]; `UnplacedItems.Dips`), never a cell of the page's own, so whatever the desktop's
+  icon cell becomes the page's becomes too. They stand **box against box in rows across the page** as the desktop
+  lays icons, in reading order, as many to a row as its width holds (`UnplacedItems.Columns`, `Cells`, `Height`: a
+  wider bar or a smaller icon size holds more), on a stretch of the display's wallpaper (its blurred picture, the
+  Appearance preview's, [S-2311], its top under the page's; the cards' ground where there is none), so what is seen is
+  what is placed. The icons' host is a preview's (`IsPreview`: they act on nothing themselves) whose desktop is the
+  page's: its items, and its selection painted ([S-13703]); the page takes their press, drag and keys.
 
 Needs a live pass: the drag off the page onto the desktop (the release landing the icons, on another display too,
 and the page opening again), placing and putting in a fence with the real listing, the badge following files

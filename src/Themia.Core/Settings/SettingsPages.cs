@@ -141,6 +141,13 @@ public static class SettingsPages
     }
 
     /// <summary>
+    /// [S-13707] Whether <paramref name="page"/>'s flyout is as wide as the bar, as the add page's ([S-11707]), rather than the
+    /// pages' 580: the Unplaced icons page, whose icons stand in rows across it as on the desktop (owner, 2026-11-19: "the on
+    /// desktop not on home view should be as wide as the edit bar").
+    /// </summary>
+    public static bool BarWide(SettingsPageId page) => page == SettingsPageId.DesktopItems;
+
+    /// <summary>
     /// [S-13701] Whether a page's entry shows its icon alone at every width (its words the tooltip): Unplaced icons, an
     /// icon with its count badge (owner, 2026-11-19: "own entry in the topbar"), so the bar keeps its words on the
     /// displays it kept them on before it.

@@ -251,13 +251,13 @@ internal sealed partial class PageFlyout : Grid
     public event Action? LetGo;
 
     /// <summary>How tall the page wants to be at the flyout's width, before the room cuts it.</summary>
-    public double ContentHeight
+    public double ContentHeight => ContentHeightAt(F.Width);
+
+    /// <summary>[S-13707] How tall the page wants to be at <paramref name="width"/> (a page as wide as the bar), before the room cuts it.</summary>
+    public double ContentHeightAt(double width)
     {
-        get
-        {
-            Page.Measure(new Size(F.Width, double.PositiveInfinity));
-            return Page.DesiredSize.Height;
-        }
+        Page.Measure(new Size(width, double.PositiveInfinity));
+        return Page.DesiredSize.Height;
     }
 
     /// <summary>[S-2325] Stand at <paramref name="spot"/> (its top the panel's; the beak above it).</summary>

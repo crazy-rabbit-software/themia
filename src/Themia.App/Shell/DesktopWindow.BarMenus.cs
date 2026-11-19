@@ -291,7 +291,10 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-2325] Hung from its entry: centred on it, 12 under the bar, inside the work area, as tall as its page up to 70 % of it.</summary>
+    /// <summary>
+    /// [S-2325] Hung from its entry: centred on it, 12 under the bar, inside the work area, as tall as its page up to 70 % of it;
+    /// [S-13707] a page as wide as the bar (<see cref="SettingsPages.BarWide"/>) the bar's width, still pointing at its entry.
+    /// </summary>
     private void PlaceFlyout()
     {
         if (_closed || _flyout is not { } flyout)
@@ -308,7 +311,11 @@ internal sealed partial class DesktopWindow
         var area = GridGeometry.AllowedPixels(metrics);
         var bar = ToolbarRect(area);
         var entry = _toolbar.EntryBox(_selectionOpen ? null : _openPage, _flyoutLayer) ?? new PixelRect(bar.X, bar.Y, bar.Width, bar.Height);
-        flyout.Place(FlyoutPlacement.Place(entry, bar, area, flyout.ContentHeight));
+
+        // [S-13707] The Unplaced icons page is as wide as the bar, as the add page is: measured at that width.
+        flyout.Place(!_selectionOpen && _openPage is { } page && SettingsPages.BarWide(page)
+            ? FlyoutPlacement.Wide(entry, bar, area, flyout.ContentHeightAt(bar.Width))
+            : FlyoutPlacement.Place(entry, bar, area, flyout.ContentHeight));
         ShineSelection();
     }
 

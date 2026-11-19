@@ -8,7 +8,7 @@ using Themia.Sdk;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-13700]..[S-13706] The Unplaced icons page on this display: the desktop's icons the view shown here does not
+/// [S-13700]..[S-13707] The Unplaced icons page on this display: the desktop's icons the view shown here does not
 /// place, read for this display's view each time it is drawn; placing them at the next free cells, putting them in a
 /// fence, dragging them onto the desktop (the one placement session, let go where the pointer lets go); and the
 /// entry's badge on the bar. The rules are Core's (<see cref="UnplacedItems"/>).
@@ -29,17 +29,25 @@ internal sealed partial class DesktopWindow
         Place: keys => _host.PlaceDesktopItems(CurrentViewId, keys),
         PutIn: (fence, keys) => _host.PutDesktopItemsInFence(CurrentViewId, fence, keys),
         Drag: BeginUnplacedDrag,
-        Icon: HostDesktopItems.Instance.IconAsync));
+        Icon: HostDesktopItems.Instance.IconAsync,
+        Ground: () => Backdrop?.Picture));
 
-    /// <summary>[S-13700] What the page shows now: this display's view, what it does not place, and its fences.</summary>
+    /// <summary>
+    /// [S-13700] What the page shows now: this display's view, what it does not place, and its fences; [S-13707] its icons in
+    /// the box the desktop gives an icon on this display (the desktop's own, <c>DeskIconBox</c>: it follows the icon size).
+    /// </summary>
     private UnplacedModel UnplacedNow()
     {
         var view = ViewForThisMonitor(_host.State);
+        var metrics = Metrics;
         return new UnplacedModel(
             view.Name,
             DesktopViews.Holds(view),
             _host.UnplacedDesktopItems(view.Id),
-            [.. UnplacedItems.Fences(view).Select(f => (f.Widget.Id, string.IsNullOrWhiteSpace(f.Fence.Name) ? ModuleCatalog.Of(f.Widget.Kind).Name : f.Fence.Name))]);
+            [.. UnplacedItems.Fences(view).Select(f => (f.Widget.Id, string.IsNullOrWhiteSpace(f.Fence.Name) ? ModuleCatalog.Of(f.Widget.Kind).Name : f.Fence.Name))])
+        {
+            Box = UnplacedItems.Dips(_host.DeskIconBox(metrics), metrics),
+        };
     }
 
     /// <summary>[S-13701] How many desktop icons this display's view does not place: the entry's badge.</summary>

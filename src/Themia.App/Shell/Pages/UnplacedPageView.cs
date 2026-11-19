@@ -1,14 +1,14 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -23,7 +23,14 @@ namespace Themia.App.Shell;
 /// <summary>[S-13700] What the Unplaced icons page shows now: the view's name, its unplaced items and the fences they can go in.</summary>
 /// <param name="ViewName">The view shown on the page's display.</param>
 /// <param name="Holds">Whether the view shows desktop icons at all (<see cref="DesktopViews.Holds"/>).</param>
-internal sealed record UnplacedModel(string ViewName, bool Holds, IReadOnlyList<DesktopItem> Items, IReadOnlyList<(string Id, string Name)> Fences);
+internal sealed record UnplacedModel(string ViewName, bool Holds, IReadOnlyList<DesktopItem> Items, IReadOnlyList<(string Id, string Name)> Fences)
+{
+    /// <summary>
+    /// [S-13707] The box the desktop gives an icon on the page's display, in DIPs (<see cref="UnplacedItems.Dips"/> of the
+    /// desktop's own box): the cell each icon is drawn in, as on the desktop. None for none.
+    /// </summary>
+    public SizeDip Box { get; init; }
+}
 
 /// <summary>What the Unplaced icons page does, given by its display (or a render's stand-in).</summary>
 /// <param name="Read">[S-13700] The page's model as the desktop and the view are now.</param>
@@ -31,47 +38,66 @@ internal sealed record UnplacedModel(string ViewName, bool Holds, IReadOnlyList<
 /// <param name="PutIn">[S-13704] Put these items into the fence of that id.</param>
 /// <param name="Drag">[S-13705] These items were dragged off the page: their placement follows the pointer.</param>
 /// <param name="Icon">The shell's icon of an item at so many physical pixels.</param>
+/// <param name="Ground">[S-13707] What the icons stand on: the display's wallpaper (its blurred picture), or null for none.</param>
 internal sealed record UnplacedCommands(
     Func<UnplacedModel> Read,
     Action<IReadOnlyList<string>> Place,
     Action<string, IReadOnlyList<string>> PutIn,
     Action<IReadOnlyList<string>> Drag,
-    Func<DesktopItem, int, Task<ImageSource?>> Icon);
+    Func<DesktopItem, int, Task<ImageSource?>> Icon,
+    Func<ImageSource?> Ground);
 
 /// <summary>
-/// [S-13700]..[S-13706] The Unplaced icons page's live part (the page's one line, drawn as the Appearance's preview is,
+/// [S-13700]..[S-13707] The Unplaced icons page's live part (the page's one line, drawn as the Appearance's preview is,
 /// <see cref="IPagePreview"/>): under the words saying which view it is about, a search box once the list is long
-/// (<see cref="UnplacedItems.Searches"/>), then one card of the items, each its shell icon and name and a button that
-/// places it, selected as files are (<see cref="ItemSelection"/>: click, Ctrl/Shift+click, the arrows, Ctrl+A, the one
-/// look <see cref="SelectionChrome"/>), dragged off onto the desktop to place them where they are let go; under it the
-/// selection's actions: Place on this view and Put in each fence. Drawn again from <see cref="UnplacedCommands.Read"/>
-/// each time the page is (<see cref="Refresh"/>): a file added to or gone from the desktop, an icon placed or removed.
+/// (<see cref="UnplacedItems.Searches"/>) and the selection's actions (Place on this view, Put in each fence), then the
+/// icons on a stretch of the display's wallpaper, each the desktop's own icon view (<c>.Icons.cs</c>) at the desktop's icon
+/// size in the box the desktop gives it, box against box in rows across the page as the desktop lays them
+/// (<see cref="UnplacedItems.Cells"/>): what is seen is what is placed (owner, 2026-11-19: "it should show the icons
+/// exactly how they would look like on the desktop"). They are selected as files are (<see cref="ItemSelection"/>: click,
+/// Ctrl/Shift+click, the arrows across and down the rows, Ctrl+A), painted in the desktop icon's selection look, dragged
+/// off onto the desktop to place them where they are let go, and placed by a double-click or Enter. Drawn again from
+/// <see cref="UnplacedCommands.Read"/> each time the page is (<see cref="Refresh"/>): a file added to or gone from the
+/// desktop, an icon placed or removed, another icon size.
 /// </summary>
 internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 {
     private const string Scope = "unplaced-page";
 
-    /// <summary>The shell icon's box in a row (Windows Settings' 20 icon box is too small for a file's picture).</summary>
-    private const double IconBox = 24;
-
     private readonly UnplacedCommands _commands;
     private readonly ItemSelection _selection = new(DesktopItemKeys.Comparer);
     private readonly TextBlock _caption = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
     private readonly TextBox _search;
-    private readonly StackPanel _rows = new();
-    private readonly Border _card;
+    private readonly IconGrid _icons = new();
+    private readonly Border _desk;
     private readonly TextBlock _note = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
     private readonly Border _noteCard;
     private readonly StackPanel _foot = new() { Spacing = P.FootGap };
-    private readonly List<(DesktopItem Item, Border Chrome)> _shown = [];
-    private UnplacedModel _model = new(string.Empty, true, [], []);
+    private readonly Dictionary<string, Cell> _cells = new(DesktopItemKeys.Comparer);
+    private readonly List<Cell> _shown = [];
+    private readonly Ticker _ticker;
+    private readonly IconDesk _iconDesk;
+    private readonly IconHost _iconHost;
 
-    /// <summary>The item a press is on, where it began, and whether it became a drag.</summary>
+    /// <summary>[S-13707] The desktop icon's kind (the one whose config is an <see cref="IDesktopItemConfig"/>), or null in a build without it.</summary>
+    private readonly WidgetDescriptor? _kind = ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType));
+    private UnplacedModel _model = new(string.Empty, true, [], []);
+    private ImageSource? _ground;
+    private bool _disposed;
+
+    /// <summary>The item a press is on and where it began.</summary>
     private (string Key, Windows.Foundation.Point At)? _press;
+
+    /// <summary>One item's icon: the desktop's own icon view in its box.</summary>
+    private sealed record Cell(string Key, Grid Root, FrameworkElement View);
 
     public UnplacedPageView(UnplacedCommands commands)
     {
         _commands = commands ?? throw new ArgumentNullException(nameof(commands));
+        var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread() ?? throw new InvalidOperationException("the page is built on the UI thread");
+        _ticker = new Ticker(dispatcher);
+        _iconDesk = new IconDesk(this, Services.Files.HostDesktopItems.Instance);
+        _iconHost = new IconHost(new CardWidgetHost(new PreviewCardHost(_ticker)), _iconDesk);
         Spacing = P.CardGap;
 
         _caption.TextWrapping = TextWrapping.Wrap;
@@ -90,20 +116,35 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         _search.TextChanged += (_, _) => Draw();
         Children.Add(_search);
 
-        // [S-13703] The selection's actions over the list, as a command bar: in reach however long the list is.
+        // [S-13703] The selection's actions over the icons, as a command bar: in reach however many rows there are.
         _foot.Margin = new Thickness(0, 0, 0, P.HeadingGap);
         Children.Add(_foot);
 
-        _card = Card(_rows);
-        _card.KeyDown += OnKey;
-        _card.IsTabStop = true;
-        _card.UseSystemFocusVisuals = true;
-        AutomationProperties.SetName(_card, Str.Unplaced_Page_Name.Text());
-        Children.Add(_card);
+        // [S-13707] The icons on the display's wallpaper, as they stand on the desktop: their names are drawn for it.
+        _desk = new Border
+        {
+            Child = _icons,
+            BorderBrush = ShellBrush.Of(ShellRole.CardStroke),
+            BorderThickness = new Thickness(FamilyShape.Hairline),
+            CornerRadius = new CornerRadius(P.CardRadius),
+            Padding = new Thickness(Fluent.Space2),
+            IsTabStop = true,
+            UseSystemFocusVisuals = true,
+        };
+        _desk.KeyDown += OnKey;
+        _desk.GotFocus += (_, _) => Paint();
+        _desk.LostFocus += (_, _) => Paint();
+        AutomationProperties.SetName(_desk, Str.Unplaced_Page_Name.Text());
+        Children.Add(_desk);
 
         _note.TextWrapping = TextWrapping.Wrap;
         _noteCard = Card(new Border { Child = _note, Padding = new Thickness(P.IconAt, P.EndInset, P.EndInset, P.EndInset) });
         Children.Add(_noteCard);
+
+        if (_kind is null)
+        {
+            Log.Error(Scope, "this build has no desktop icon kind; the page draws no icon");
+        }
 
         Refresh();
     }
@@ -111,6 +152,11 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
     /// <summary>[S-13706] The page is drawn again: the desktop and the view as they are now; the selection keeps what is still listed.</summary>
     public void Refresh()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         try
         {
             _model = _commands.Read();
@@ -123,6 +169,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 
         _caption.Text = Str.Unplaced_Page_Caption.Format(("view", _model.ViewName));
         _search.Visibility = UnplacedItems.Searches(_model.Items.Count) ? Visibility.Visible : Visibility.Collapsed;
+        PaintGround();
         Draw();
     }
 
@@ -144,28 +191,68 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         Draw();
     }
 
+    /// <summary>The page goes: its icons let go of the desktop, and the ticker stops.</summary>
     public void Dispose()
     {
-        // ignore: the page holds no subscription; its display follows the desktop and asks it to draw again.
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        foreach (var cell in _cells.Values)
+        {
+            DropCell(cell);
+        }
+
+        _cells.Clear();
+        _shown.Clear();
+        _icons.Children.Clear();
+        _ticker.Dispose();
     }
 
-    /// <summary>[S-13702] The rows of what the search matches, the selection kept over them, and the selection's actions.</summary>
+    /// <summary>[S-6626] The selection is drawn active while the page has the keyboard or holds a selection.</summary>
+    private bool Active => _desk.FocusState != FocusState.Unfocused || _selection.Count > 0;
+
+    /// <summary>[S-13707] The display's wallpaper under the icons, as on the desktop (its top under the page's); the cards' ground where there is none.</summary>
+    private void PaintGround()
+    {
+        ImageSource? ground;
+        try
+        {
+            ground = _commands.Ground();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(Scope, "the display's wallpaper could not be read for the page; its icons stand on the cards' ground", ex);
+            ground = null;
+        }
+
+        if (_desk.Background is not null && ReferenceEquals(ground, _ground))
+        {
+            return;
+        }
+
+        _ground = ground;
+        _desk.Background = ground is null
+            ? ShellBrush.Of(ShellRole.CardSecondary)
+            : new ImageBrush { ImageSource = ground, Stretch = Stretch.UniformToFill, AlignmentY = AlignmentY.Top };
+    }
+
+    /// <summary>[S-13702] [S-13707] The icons of what the search matches, in their cells; the selection kept over them; the selection's actions.</summary>
     private void Draw()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         var query = _search.Visibility == Visibility.Visible ? _search.Text : null;
         var items = UnplacedItems.Matching(_model.Items, query);
         _selection.SetOrder([.. items.Select(i => i.Key)]);
+        SyncCells(items);
 
-        _rows.Children.Clear();
-        _shown.Clear();
-        for (var i = 0; i < items.Count; i++)
-        {
-            var row = Row(items[i]);
-            _rows.Children.Add(row.Chrome);
-            _shown.Add(row);
-        }
-
-        _card.Visibility = items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _desk.Visibility = _shown.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         _noteCard.Visibility = items.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
         _note.Text = !_model.Holds ? Str.Unplaced_Page_NoneHere.Text()
             : _model.Items.Count == 0 ? Str.Unplaced_Page_None.Text()
@@ -173,74 +260,115 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         Paint();
     }
 
-    /// <summary>One item's row: its shell icon at 16, its name at 48, its place button at the card's end.</summary>
-    private (DesktopItem Item, Border Chrome) Row(DesktopItem item)
+    /// <summary>
+    /// [S-13707] One icon per item shown, in the desktop's box at the icon size in force: kept for one still there, made for a
+    /// new one, taken down for one gone; laid in the order shown.
+    /// </summary>
+    private void SyncCells(IReadOnlyList<DesktopItem> items)
     {
-        var icon = new Image { Width = IconBox, Height = IconBox, Stretch = Stretch.Uniform };
-        _ = LoadIconAsync(item, icon);
-
-        var name = Fluent.Text(FamilyType.Body);
-        name.Text = item.Name;
-        name.TextTrimming = TextTrimming.CharacterEllipsis;
-        name.TextWrapping = TextWrapping.NoWrap;
-        name.VerticalAlignment = VerticalAlignment.Center;
-
-        var place = Subtle(new Button
+        var keep = new HashSet<string>(items.Select(i => i.Key), DesktopItemKeys.Comparer);
+        foreach (var gone in _cells.Keys.Where(k => !keep.Contains(k)).ToList())
         {
-            Content = UiLanguage.Mirrored(new FontIcon { Glyph = Glyphs.Add, FontSize = Fluent.IconSize }),
-            Width = P.Control,
-            Height = P.Control,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Center,
-            IsEnabled = _model.Holds,
-            Tag = item.Key + "#place",
-        });
-        var placeWords = Str.Unplaced_Page_PlaceOne.Text();
-        ToolTipService.SetToolTip(place, placeWords);
-        AutomationProperties.SetName(place, placeWords);
-        place.Click += (_, _) => Do(() => _commands.Place(UnplacedItems.Acting(_selection.Selected, item.Key)));
+            DropCell(_cells[gone]);
+            _cells.Remove(gone);
+        }
 
-        var grid = new Grid
+        var box = _model.Box;
+        _icons.Box = box;
+        _shown.Clear();
+        foreach (var item in items)
         {
-            Height = P.OneLine,
-            ColumnDefinitions =
+            if (!_cells.TryGetValue(item.Key, out var cell))
             {
-                new ColumnDefinition { Width = new GridLength(P.NameAt) },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-            Padding = new Thickness(0, 0, P.EndInset - Fluent.Space2, 0),
-            Background = ThemeBrush.Of(ColourRoles.Key(ColourRole.Clear), Colors.Transparent),
-        };
-        // Centred in the 48 before the name: its middle where a row's 16 icon at 16 has its own.
-        icon.HorizontalAlignment = HorizontalAlignment.Center;
-        icon.VerticalAlignment = VerticalAlignment.Center;
-        grid.Children.Add(icon);
-        Grid.SetColumn(name, 1);
-        grid.Children.Add(name);
-        Grid.SetColumn(place, 2);
-        grid.Children.Add(place);
+                if (MakeCell(item) is not { } made)
+                {
+                    continue;
+                }
 
-        var chrome = SelectionChrome.Wrap(grid);
-        chrome.Tag = item.Key;
-        AutomationProperties.SetName(chrome, item.Name);
-        chrome.PointerPressed += (_, e) => OnPressed(item.Key, chrome, e);
-        chrome.PointerMoved += (_, e) => OnMoved(chrome, e);
-        chrome.PointerReleased += (_, e) => OnReleased(item.Key, chrome, e);
-        chrome.PointerCaptureLost += (_, _) => _press = null;
-        chrome.DoubleTapped += (_, e) =>
+                cell = made;
+                _cells[item.Key] = cell;
+            }
+
+            cell.Root.Width = box.Width;
+            cell.Root.Height = box.Height;
+            cell.View.Width = box.Width;
+            cell.View.Height = box.Height;
+            AutomationProperties.SetName(cell.Root, item.Name);
+            _shown.Add(cell);
+        }
+
+        // The children follow the order shown; the ones that stay are not taken off and put back unless it changed.
+        if (!_icons.Children.SequenceEqual(_shown.Select(c => (UIElement)c.Root)))
+        {
+            _icons.Children.Clear();
+            foreach (var cell in _shown)
+            {
+                _icons.Children.Add(cell.Root);
+            }
+        }
+
+        _icons.InvalidateMeasure();
+    }
+
+    /// <summary>[S-13707] The desktop's icon view for <paramref name="item"/>, attached as the desktop attaches it, and the press it takes.</summary>
+    private Cell? MakeCell(DesktopItem item)
+    {
+        if (_kind is null)
+        {
+            return null;
+        }
+
+        FrameworkElement view;
+        try
+        {
+            view = ModuleHost.CreateView(_kind.Id, _iconHost);
+            if (view is IWidgetView widget)
+            {
+                widget.Attach(_ticker, AppHost.NewItemWidget(_kind.Id, item, default).Config);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "a desktop icon could not be drawn on the unplaced icons page; the page shows the rest", ex);
+            return null;
+        }
+
+        var root = new Grid { Background = Fluent.Clear(), Tag = item.Key };
+        root.Children.Add(view);
+        var key = item.Key;
+
+        // The view marks its double-clicks and right-clicks handled (they are the desktop's there): the page hears them anyway.
+        root.AddHandler(PointerPressedEvent, new PointerEventHandler((_, e) => OnPressed(key, root, e)), handledEventsToo: true);
+        root.PointerMoved += (_, e) => OnMoved(root, e);
+        root.PointerReleased += (_, e) => OnReleased(key, root, e);
+        root.PointerCaptureLost += (_, _) => _press = null;
+        root.AddHandler(DoubleTappedEvent, new DoubleTappedEventHandler((_, e) =>
         {
             e.Handled = true;
-            Do(() => _commands.Place([item.Key]));
-        };
-        return (item, chrome);
+            if (_model.Holds)
+            {
+                Do(() => _commands.Place([key]));
+            }
+        }), handledEventsToo: true);
+        return new Cell(key, root, view);
+    }
+
+    private static void DropCell(Cell cell)
+    {
+        try
+        {
+            (cell.View as IWidgetView)?.Detach();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(Scope, "a desktop icon on the unplaced icons page could not let go", ex);
+        }
     }
 
     /// <summary>[S-6621] A left press selects as a file's does (Ctrl toggles, Shift the range); it may become a drag.</summary>
-    private void OnPressed(string key, UIElement row, PointerRoutedEventArgs e)
+    private void OnPressed(string key, UIElement cell, PointerRoutedEventArgs e)
     {
-        var point = e.GetCurrentPoint(row);
-        if (!point.Properties.IsLeftButtonPressed || IsOnButton(e.OriginalSource as DependencyObject, row))
+        if (!e.GetCurrentPoint(cell).Properties.IsLeftButtonPressed)
         {
             return;
         }
@@ -249,16 +377,16 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         var shift = (e.KeyModifiers & VirtualKeyModifiers.Shift) != 0;
         _selection.Press(_selection.IndexOf(key), ctrl, shift);
         _press = (key, e.GetCurrentPoint(this).Position);
-        _ = row.CapturePointer(e.Pointer);
-        _ = _card.Focus(FocusState.Pointer);
+        _ = cell.CapturePointer(e.Pointer);
+        _ = _desk.Focus(FocusState.Pointer);
         Paint();
         e.Handled = true;
     }
 
     /// <summary>[S-13705] Past the drag's dead zone the press drags what it acts on off the page, onto the desktop.</summary>
-    private void OnMoved(UIElement row, PointerRoutedEventArgs e)
+    private void OnMoved(UIElement cell, PointerRoutedEventArgs e)
     {
-        if (_press is not { } press || !e.GetCurrentPoint(row).Properties.IsLeftButtonPressed || !_model.Holds)
+        if (_press is not { } press || !e.GetCurrentPoint(cell).Properties.IsLeftButtonPressed || !_model.Holds)
         {
             return;
         }
@@ -271,7 +399,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
 
         _press = null;
         _selection.CancelPress();
-        row.ReleasePointerCapture(e.Pointer);
+        cell.ReleasePointerCapture(e.Pointer);
         var keys = UnplacedItems.Acting(_selection.Selected, press.Key);
         e.Handled = true;
 
@@ -282,7 +410,7 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
     }
 
-    private void OnReleased(string key, UIElement row, PointerRoutedEventArgs e)
+    private void OnReleased(string key, UIElement cell, PointerRoutedEventArgs e)
     {
         if (_press is null)
         {
@@ -290,13 +418,16 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         }
 
         _press = null;
-        row.ReleasePointerCapture(e.Pointer);
+        cell.ReleasePointerCapture(e.Pointer);
         _selection.Release(_selection.IndexOf(key));
         Paint();
         e.Handled = true;
     }
 
-    /// <summary>[S-6623] The list's keys as a file list's: the arrows, Home/End, Ctrl+A, Ctrl+Space; Enter places the selection.</summary>
+    /// <summary>
+    /// [S-6623] [S-13707] The icons' keys as the desktop's: the arrows across a row and down to the same column of the next,
+    /// Page Up/Down, Home/End, Ctrl+A, Ctrl+Space; Enter places the selection.
+    /// </summary>
     private void OnKey(object sender, KeyRoutedEventArgs e)
     {
         var shift = SelectionInput.ShiftHeld();
@@ -317,32 +448,35 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
             return;
         }
 
-        if (_selection.Key(key, shift, columns: 1, pageRows: Math.Max(1, (int)(ActualHeight / P.OneLine))))
+        var box = _model.Box;
+        var columns = UnplacedItems.Columns(_icons.ActualWidth, box.Width);
+        var pageRows = Math.Max(1, (int)((XamlRoot?.Size.Height ?? box.Height) * ShellMetrics.Flyout.MostShare / Math.Max(1, box.Height)));
+        if (_selection.Key(key, shift, columns, pageRows))
         {
             Paint();
-            if (_selection.Focus is { } focus && _shown.Find(s => DesktopItemKeys.Comparer.Equals(s.Item.Key, focus)).Chrome is { } row)
+            if (_selection.Focus is { } focus && _cells.TryGetValue(focus, out var cell))
             {
-                row.StartBringIntoView();
+                cell.Root.StartBringIntoView();
             }
 
             e.Handled = true;
         }
     }
 
-    /// <summary>Every row's mark as the selection has it, and the foot's actions for it.</summary>
+    /// <summary>[S-13707] Every icon paints the selection as the page has it, in the desktop icon's look; then the foot's actions for it.</summary>
     private void Paint()
     {
-        var active = _card.FocusState != FocusState.Unfocused || _selection.Count > 0;
-        foreach (var (item, chrome) in _shown)
+        if (_disposed)
         {
-            SelectionChrome.Paint(chrome, new SelectionCue(_selection.IsSelected(item.Key), false, _selection.IsFocus(item.Key), _selection.Cues, active));
+            return;
         }
 
+        _iconDesk.Paint();
         DrawFoot();
     }
 
     /// <summary>
-    /// [S-13703] [S-13704] Under the list: how many are selected and what to do with them (Place, Put in each fence), or
+    /// [S-13703] [S-13704] Over the icons: how many are selected and what to do with them (Place, Put in each fence), or
     /// how to drag them while none is.
     /// </summary>
     private void DrawFoot()
@@ -420,49 +554,6 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         Padding = new Thickness(Fluent.Space1),
     };
 
-    /// <summary>No fill and no rim at rest, the subtle fills under the pointer and pressed (a row's icon button).</summary>
-    private static Button Subtle(Button button)
-    {
-        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-        button.BorderThickness = new Thickness(0);
-        button.Resources["ButtonBackground"] = clear;
-        button.Resources["ButtonBackgroundPointerOver"] = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
-        button.Resources["ButtonBackgroundPressed"] = ThemeBrush.Of("SubtleFillColorTertiaryBrush", Colors.DimGray);
-        button.Resources["ButtonBackgroundDisabled"] = clear;
-        button.Padding = new Thickness(0);
-        return button;
-    }
-
-    private static bool IsOnButton(DependencyObject? source, UIElement row)
-    {
-        for (var node = source; node is not null && !ReferenceEquals(node, row); node = VisualTreeHelper.GetParent(node))
-        {
-            if (node is ButtonBase)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>The item's shell icon at the row's box in physical pixels; the box stays empty when the shell has none.</summary>
-    private async Task LoadIconAsync(DesktopItem item, Image image)
-    {
-        try
-        {
-            var scale = XamlRoot?.RasterizationScale is > 0 and var s ? s : 1.0;
-            if (await _commands.Icon(item, (int)Math.Ceiling(IconBox * scale)).ConfigureAwait(true) is { } source)
-            {
-                image.Source = source;
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Warn(Scope, "a desktop item's icon could not be loaded for the unplaced icons page", ex);
-        }
-    }
-
     private static void Do(Action action)
     {
         try
@@ -472,6 +563,42 @@ internal sealed partial class UnplacedPageView : StackPanel, IPagePreview
         catch (Exception ex)
         {
             Log.Error(Scope, "an action of the unplaced icons page failed", ex);
+        }
+    }
+
+    /// <summary>
+    /// [S-13707] The icons' cells as the desktop lays icons (<see cref="UnplacedItems.Cells"/>): each child in a desktop icon's
+    /// box, box against box, as many to a row as the width holds, row after row; as tall as its rows. Measured at the width
+    /// it is given, so the flyout's height follows the bar's width.
+    /// </summary>
+    private sealed partial class IconGrid : Panel
+    {
+        public SizeDip Box { get; set; }
+
+        protected override Windows.Foundation.Size MeasureOverride(Windows.Foundation.Size availableSize)
+        {
+            var box = new Windows.Foundation.Size(Box.Width, Box.Height);
+            foreach (var child in Children)
+            {
+                child.Measure(box);
+            }
+
+            var count = Children.Count;
+            var width = double.IsFinite(availableSize.Width) ? availableSize.Width : count * Box.Width;
+            var columns = UnplacedItems.Columns(width, Box.Width);
+            return new Windows.Foundation.Size(Math.Min(count, columns) * Box.Width, UnplacedItems.Height(count, width, Box));
+        }
+
+        protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
+        {
+            var cells = UnplacedItems.Cells(Children.Count, finalSize.Width, Box);
+            for (var i = 0; i < Children.Count; i++)
+            {
+                var cell = cells[i];
+                Children[i].Arrange(new Windows.Foundation.Rect(cell.X, cell.Y, cell.Width, cell.Height));
+            }
+
+            return finalSize;
         }
     }
 }
