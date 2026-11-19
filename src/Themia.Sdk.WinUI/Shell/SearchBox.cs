@@ -46,6 +46,7 @@ public sealed partial class SearchBox : Grid
         AutomationProperties.SetName(_suggest, placeholder);
         _suggest.TextChanged += (_, _) => Changed?.Invoke(_suggest.Text);
         _suggest.Loaded += (_, _) => PlaceCaret();
+        _suggest.LayoutUpdated += OnLaidOut;
         VerticalAlignment = VerticalAlignment.Center;
         Children.Add(_suggest);
         PreviewKeyDown += OnKey;
@@ -180,6 +181,40 @@ public sealed partial class SearchBox : Grid
             if ((child as TextBox ?? Find(child)) is { } found)
             {
                 return found;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// The magnifier, once the box's template stands. WinUI finds its query button when the text box inside loads; a box
+    /// that loads collapsed (a widget's, shown on demand) has no template yet then, and its magnifier never comes. So
+    /// the first layout that has the button shows it, with the magnifier, itself.
+    /// </summary>
+    private void OnLaidOut(object? sender, object e)
+    {
+        if (Inner() is not { } box || Named(box, "QueryButton") is not Button query)
+        {
+            return;
+        }
+
+        _suggest.LayoutUpdated -= OnLaidOut;
+        if (query.Visibility != Visibility.Visible || query.Content is null)
+        {
+            query.Content = new FontIcon { Glyph = Glyphs.Search, FontSize = FamilyType.CaptionSize };
+            query.Visibility = Visibility.Visible;
+        }
+    }
+
+    private static FrameworkElement? Named(DependencyObject root, string name)
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            if ((child is FrameworkElement { Name: var found } element && found == name ? element : Named(child, name)) is { } hit)
+            {
+                return hit;
             }
         }
 
