@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "बड़ा आइकन",
   "styles.weatherNow.minimal": "न्यूनतम",
   "styles.weatherNow.standard": "मानक",
-  "widget.weatherCurrent.label": "मौसम",
+  "widget.weatherCurrent.label": "मौसम सारांश",
   "widgetsA.catalog.weather.description": "आपके स्थान का मौसम",
   "widgetsC.weather.feelsShort": "महसूस {temperature}"
 }

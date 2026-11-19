@@ -3,7 +3,7 @@
   "styles.weatherNow.largeIcon": "Velká ikona",
   "styles.weatherNow.minimal": "Minimalistické",
   "styles.weatherNow.standard": "Standardní",
-  "widget.weatherCurrent.label": "Počasí",
+  "widget.weatherCurrent.label": "Přehled počasí",
   "widgetsA.catalog.weather.description": "Počasí tam, kde jsi",
   "widgetsC.weather.feelsShort": "Pocitově {temperature}"
 }

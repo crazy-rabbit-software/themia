@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Ikon besar",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standar",
-  "widget.weatherCurrent.label": "Cuaca",
+  "widget.weatherCurrent.label": "Ringkasan cuaca",
   "widgetsA.catalog.weather.description": "Kondisi di tempat Anda",
   "widgetsC.weather.feelsShort": "Terasa {temperature}"
 }

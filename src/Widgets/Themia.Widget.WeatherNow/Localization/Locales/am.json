@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "ትልቅ አዶ",
   "styles.weatherNow.minimal": "ቀላል",
   "styles.weatherNow.standard": "መደበኛ",
-  "widget.weatherCurrent.label": "የአየር ሁኔታ",
+  "widget.weatherCurrent.label": "የአየር ሁኔታ ማጠቃለያ",
   "widgetsA.catalog.weather.description": "ባሉበት ያለው የአየር ሁኔታ",
   "widgetsC.weather.feelsShort": "የሚሰማው {temperature}"
 }

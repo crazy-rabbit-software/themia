@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "বড় আইকন",
   "styles.weatherNow.minimal": "ন্যূনতম",
   "styles.weatherNow.standard": "স্ট্যান্ডার্ড",
-  "widget.weatherCurrent.label": "আবহাওয়া",
+  "widget.weatherCurrent.label": "আবহাওয়ার সারাংশ",
   "widgetsA.catalog.weather.description": "আপনার এলাকার আবহাওয়া",
   "widgetsC.weather.feelsShort": "অনুভূত {temperature}"
 }

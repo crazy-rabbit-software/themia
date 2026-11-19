@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Aikoni kubwa",
   "styles.weatherNow.minimal": "Rahisi",
   "styles.weatherNow.standard": "Kawaida",
-  "widget.weatherCurrent.label": "Hali ya hewa",
+  "widget.weatherCurrent.label": "Muhtasari wa hali ya hewa",
   "widgetsA.catalog.weather.description": "Hali ya hewa ulipo",
   "widgetsC.weather.feelsShort": "Inahisi {temperature}"
 }

@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "အိုင်ကွန် အကြီး",
   "styles.weatherNow.minimal": "အနည်းဆုံး",
   "styles.weatherNow.standard": "စံ",
-  "widget.weatherCurrent.label": "ရာသီဥတု",
+  "widget.weatherCurrent.label": "ရာသီဥတု အနှစ်ချုပ်",
   "widgetsA.catalog.weather.description": "သင်ရှိရာ အခြေအနေ",
   "widgetsC.weather.feelsShort": "{temperature} ဟု ခံစားရ"
 }

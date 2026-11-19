@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "मोठे चिन्ह",
   "styles.weatherNow.minimal": "किमान",
   "styles.weatherNow.standard": "मानक",
-  "widget.weatherCurrent.label": "हवामान",
+  "widget.weatherCurrent.label": "हवामान सारांश",
   "widgetsA.catalog.weather.description": "तुम्ही जिथे आहात तिथली स्थिती",
   "widgetsC.weather.feelsShort": "जाणवते {temperature}"
 }

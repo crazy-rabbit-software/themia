@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Büyük simge",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standart",
-  "widget.weatherCurrent.label": "Hava durumu",
+  "widget.weatherCurrent.label": "Hava durumu özeti",
   "widgetsA.catalog.weather.description": "Bulunduğunuz yerdeki hava koşulları",
   "widgetsC.weather.feelsShort": "Hissedilen {temperature}"
 }

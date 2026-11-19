@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Великий значок",
   "styles.weatherNow.minimal": "Мінімальний",
   "styles.weatherNow.standard": "Стандартний",
-  "widget.weatherCurrent.label": "Погода",
+  "widget.weatherCurrent.label": "Зведення погоди",
   "widgetsA.catalog.weather.description": "Погода там, де ти",
   "widgetsC.weather.feelsShort": "Відчувається {temperature}"
 }

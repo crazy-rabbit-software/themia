@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "نماد بزرگ",
   "styles.weatherNow.minimal": "ساده",
   "styles.weatherNow.standard": "استاندارد",
-  "widget.weatherCurrent.label": "آب‌وهوا",
+  "widget.weatherCurrent.label": "خلاصهٔ آب‌وهوا",
   "widgetsA.catalog.weather.description": "وضعیت هوا در محل شما",
   "widgetsC.weather.feelsShort": "محسوس {temperature}"
 }

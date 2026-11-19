@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "大图标",
   "styles.weatherNow.minimal": "极简",
   "styles.weatherNow.standard": "标准",
-  "widget.weatherCurrent.label": "天气",
+  "widget.weatherCurrent.label": "天气摘要",
   "widgetsA.catalog.weather.description": "你所在地的天气",
   "widgetsC.weather.feelsShort": "体感 {temperature}"
 }

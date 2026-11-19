@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -12,6 +13,13 @@ public sealed class WeatherNowTests
     private static readonly WidgetDescriptor Kind = new WeatherNowModule().Descriptor;
 
     private static WidgetSizing Of(WeatherNowStyle style) => Kind.Sizing(new WeatherNowConfig { Style = style });
+
+    [Fact]
+    public void S13904_it_is_called_weather_summary_in_every_language()
+    {
+        Assert.Equal(("Weather summary", "Wetterübersicht"), (Kind.Label.Text(Locale.En), Kind.Label.Text(Locale.De)));
+        Assert.All(Enum.GetValues<Locale>(), locale => Assert.False(string.IsNullOrWhiteSpace(Kind.Label.Text(locale))));
+    }
 
     [Fact]
     public void S11101_each_style_is_one_height_its_content_in_the_inset_and_140_to_320_wide()

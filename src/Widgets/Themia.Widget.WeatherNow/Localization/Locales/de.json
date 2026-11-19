@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Großes Symbol",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Wetter",
+  "widget.weatherCurrent.label": "Wetterübersicht",
   "widgetsA.catalog.weather.description": "Das Wetter an deinem Ort",
   "widgetsC.weather.feelsShort": "Gefühlt {temperature}"
 }

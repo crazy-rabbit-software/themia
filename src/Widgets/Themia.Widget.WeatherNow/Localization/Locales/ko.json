@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "큰 아이콘",
   "styles.weatherNow.minimal": "최소",
   "styles.weatherNow.standard": "표준",
-  "widget.weatherCurrent.label": "날씨",
+  "widget.weatherCurrent.label": "날씨 요약",
   "widgetsA.catalog.weather.description": "현재 위치의 날씨",
   "widgetsC.weather.feelsShort": "체감 {temperature}"
 }

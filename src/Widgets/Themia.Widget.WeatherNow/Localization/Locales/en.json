@@ -3,7 +3,7 @@
   "styles.weatherNow.largeIcon": "Large icon",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Weather",
+  "widget.weatherCurrent.label": "Weather summary",
   "widgetsA.catalog.weather.description": "Conditions where you are",
   "widgetsC.weather.feelsShort": "Feels {temperature}"
 }

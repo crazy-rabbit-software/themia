@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Biểu tượng lớn",
   "styles.weatherNow.minimal": "Tối giản",
   "styles.weatherNow.standard": "Tiêu chuẩn",
-  "widget.weatherCurrent.label": "Thời tiết",
+  "widget.weatherCurrent.label": "Tóm tắt thời tiết",
   "widgetsA.catalog.weather.description": "Thời tiết nơi bạn ở",
   "widgetsC.weather.feelsShort": "Cảm giác {temperature}"
 }

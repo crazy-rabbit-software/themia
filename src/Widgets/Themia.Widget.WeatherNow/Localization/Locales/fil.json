@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Malaking icon",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Karaniwan",
-  "widget.weatherCurrent.label": "Panahon",
+  "widget.weatherCurrent.label": "Buod ng panahon",
   "widgetsA.catalog.weather.description": "Lagay ng panahon kung nasaan ka",
   "widgetsC.weather.feelsShort": "Pakiramdam {temperature}"
 }

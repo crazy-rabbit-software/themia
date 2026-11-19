@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Groot pictogram",
   "styles.weatherNow.minimal": "Minimaal",
   "styles.weatherNow.standard": "Standaard",
-  "widget.weatherCurrent.label": "Weer",
+  "widget.weatherCurrent.label": "Weeroverzicht",
   "widgetsA.catalog.weather.description": "Het weer waar je bent",
   "widgetsC.weather.feelsShort": "Voelt als {temperature}"
 }

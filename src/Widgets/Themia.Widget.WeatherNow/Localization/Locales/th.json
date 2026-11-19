@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "ไอคอนใหญ่",
   "styles.weatherNow.minimal": "เรียบง่าย",
   "styles.weatherNow.standard": "มาตรฐาน",
-  "widget.weatherCurrent.label": "สภาพอากาศ",
+  "widget.weatherCurrent.label": "สรุปสภาพอากาศ",
   "widgetsA.catalog.weather.description": "สภาพอากาศในที่ที่คุณอยู่",
   "widgetsC.weather.feelsShort": "รู้สึก {temperature}"
 }

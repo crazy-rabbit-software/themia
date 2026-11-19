@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Babban gunki",
   "styles.weatherNow.minimal": "Mafi sauƙi",
   "styles.weatherNow.standard": "Na yau da kullum",
-  "widget.weatherCurrent.label": "Yanayi",
+  "widget.weatherCurrent.label": "Taƙaitaccen yanayi",
   "widgetsA.catalog.weather.description": "Yanayi a inda kake",
   "widgetsC.weather.feelsShort": "Yana ji {temperature}"
 }

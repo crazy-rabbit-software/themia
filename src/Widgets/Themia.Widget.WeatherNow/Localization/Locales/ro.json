@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Pictogramă mare",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Vreme",
+  "widget.weatherCurrent.label": "Rezumat meteo",
   "widgetsA.catalog.weather.description": "Condițiile de unde ești",
   "widgetsC.weather.feelsShort": "Se simte {temperature}"
 }

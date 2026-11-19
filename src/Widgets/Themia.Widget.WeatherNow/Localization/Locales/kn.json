@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "ದೊಡ್ಡ ಐಕಾನ್",
   "styles.weatherNow.minimal": "ಕನಿಷ್ಠ",
   "styles.weatherNow.standard": "ಪ್ರಮಾಣಿತ",
-  "widget.weatherCurrent.label": "ಹವಾಮಾನ",
+  "widget.weatherCurrent.label": "ಹವಾಮಾನ ಸಾರಾಂಶ",
   "widgetsA.catalog.weather.description": "ನೀನು ಇರುವಲ್ಲಿನ ಹವಾಮಾನ ಸ್ಥಿತಿ",
   "widgetsC.weather.feelsShort": "{temperature} ಅನಿಸುತ್ತದೆ"
 }

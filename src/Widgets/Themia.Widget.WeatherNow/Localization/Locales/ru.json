@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Крупный значок",
   "styles.weatherNow.minimal": "Минимальный",
   "styles.weatherNow.standard": "Стандартный",
-  "widget.weatherCurrent.label": "Погода",
+  "widget.weatherCurrent.label": "Сводка погоды",
   "widgetsA.catalog.weather.description": "Погода там, где вы находитесь",
   "widgetsC.weather.feelsShort": "Ощущ. {temperature}"
 }

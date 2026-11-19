@@ -1,8 +1,8 @@
-# Weather now (WEATHER)
+# Weather summary (WEATHER)
 
-The module `weatherNow` ([S-6911]): the weather's **reading** where the user says they are, from
-open-meteo: the sky, the temperature, the condition. An atom ([S-11170]..[S-11172]: the old card's
-readings are the `weatherFacts` atom, the old card the ready-made group "Weather"); its id stays
+The module `weatherNow` ([S-6911]), named **Weather summary** ([S-13904]): the weather's **reading** where the user
+says they are, from open-meteo: the sky, the temperature, the condition. An atom ([S-11170]..[S-11172]: the old card's
+readings are the weather facts, a widget a fact ([S-13900]), the old card the ready-made group "Weather"); its id stays
 `weatherNow`. Its tags are this file's alone; the root `SPEC.md` holds the host's sections and what
 the weather widgets share (the request [S-720], the place [S-728], [S-2260], the stored
 answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2853], the glyphs [S-733]; the background
@@ -16,7 +16,10 @@ sample|stale|failed`, the SDK's `SampleWeather` at `SamplePlace`), `Localization
 `WeatherNowStr`). Tests: `Tests/WeatherNowTests.cs`, `Tests/WeatherNowMenuTests.cs`,
 `Tests/WeatherNowOpenTests.cs` (run by `tests/Themia.Modules.Tests`).
 
-- [S-722]: moved with the readings into the `weatherFacts` module's `SPEC.md`.
+- [S-722]: moved with the readings into the weather facts family's `SPEC.md` (`Themia.Widget.WeatherFacts`).
+- **[S-13904]** Its name is **Weather summary** in the catalogue, the add page and the selection's page, in every
+  language (owner, 2026-11-19: "the weather widget should be called weather summary or similar", when the weather facts
+  became a widget a fact, [S-13900]); its id stays `weatherNow`. Test `WeatherNowTests.S13904_`.
 - **[S-723]** *(Retired by [S-11100]: no ladder, no readings, no 40 step.)*
 - **[S-11100]** **What it shows** is the reading and nothing else, the same at every size in its range:
   the temperature as the Readout on the family's 28 ([S-2449], [S-6702]) with its unit, the condition

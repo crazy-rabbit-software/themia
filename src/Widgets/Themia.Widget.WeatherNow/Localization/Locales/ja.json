@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "大きいアイコン",
   "styles.weatherNow.minimal": "ミニマル",
   "styles.weatherNow.standard": "標準",
-  "widget.weatherCurrent.label": "天気",
+  "widget.weatherCurrent.label": "天気の概要",
   "widgetsA.catalog.weather.description": "現在地の天気",
   "widgetsC.weather.feelsShort": "体感 {temperature}"
 }

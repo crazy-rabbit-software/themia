@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Μεγάλο εικονίδιο",
   "styles.weatherNow.minimal": "Μινιμαλιστικό",
   "styles.weatherNow.standard": "Τυπικό",
-  "widget.weatherCurrent.label": "Καιρός",
+  "widget.weatherCurrent.label": "Σύνοψη καιρού",
   "widgetsA.catalog.weather.description": "Οι συνθήκες εκεί που βρίσκεσαι",
   "widgetsC.weather.feelsShort": "Αίσθηση {temperature}"
 }

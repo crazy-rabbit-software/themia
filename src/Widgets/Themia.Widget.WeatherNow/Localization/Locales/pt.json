@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Ícone grande",
   "styles.weatherNow.minimal": "Mínimo",
   "styles.weatherNow.standard": "Padrão",
-  "widget.weatherCurrent.label": "Clima",
+  "widget.weatherCurrent.label": "Resumo do clima",
   "widgetsA.catalog.weather.description": "O clima onde você está",
   "widgetsC.weather.feelsShort": "Sensação {temperature}"
 }

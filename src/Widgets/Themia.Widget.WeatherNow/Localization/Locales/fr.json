@@ -2,7 +2,7 @@
   "styles.weatherNow.largeIcon": "Grande icône",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standard",
-  "widget.weatherCurrent.label": "Météo",
+  "widget.weatherCurrent.label": "Résumé météo",
   "widgetsA.catalog.weather.description": "La météo là où tu es",
   "widgetsC.weather.feelsShort": "Ressenti {temperature}"
 }
