@@ -8,7 +8,7 @@ SDK's `MusicRules`, the seek bar the SDK's `MusicSeekBar`, the session's connect
 
 Owning files: everything in this folder: `MusicProgressModule.cs` (descriptor, view factory, menu
 lines, JSON context), `MusicProgressConfig.cs`, `MusicProgressFace.cs` (its row and sizing),
-`MusicProgressView.cs`, `Preview/` (Debug renders: `--state sample`), `Localization/Locales/` (its own
+`MusicProgressView.cs`, `Preview/` (Debug renders: `--state sample|hovered`), `Localization/Locales/` (its own
 `MusicProgressStr`; the hide-when-idle words copied with their translations from `music`). Tests:
 `Tests/MusicProgressTests.cs` (run by `tests/Themia.Modules.Tests`).
 
@@ -17,7 +17,7 @@ lines, JSON context), `MusicProgressConfig.cs`, `MusicProgressFace.cs` (its row 
   (every figure an 8, so the bar does not move as the seconds go by), the seek bar between them 8
   from each (its rail the Track role, its fill and thumb the accent; click to jump, drag to scrub,
   [S-1465]), left to right in every language. A larger card scales the row up as one, the bar never narrower than
-  in a card of the natural width, the row centred in the height when the width holds it ([S-12814]). A stream with no end shows no total; no track, an empty
+  in a card of the natural width, the row centred in the height when the width holds it ([S-12814]). The pointer on the bar shows its thumb and changes nothing else: the row keeps its scale and place ([S-12816]). A stream with no end shows no total; no track, an empty
   rail. The elapsed time ticks once a second while a track plays, from the session's anchor, and
   nothing at rest. Its card (`MusicProgressFace.Sizing`): the inset, the row, the inset (40), one
   height, 200 to 520 wide (a new one 340), where a wider card only lengthens the bar. It starts

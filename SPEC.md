@@ -7890,6 +7890,25 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   music progress, next meeting, pomodoro, quote, recycle bin, screen time, volume, weather now) at the family's Caption;
   a meter's reading alone at its unit. Rows and list items keep their whole-cell rule (a list's least is one item). Tests
   `BlockFitTests.S12833_` (the floor, scaling down, monotonic), `ClockFaceTests.S6741_S12833_`.
+- **[S-12816]** **The pointer never changes a widget's layout** (owner, 2026-11-19: "some widgets like the now playing
+  scrubber changes text sizes when hovering over it with the mouse … this should not be"). Hover and press are paint:
+  a fill, a colour, a thumb or a ring drawn over the parts, never a part shown or hidden, resized or re-texted in a way
+  that changes what a block is measured by ([S-12808], [S-12814]: its parts' widths and ink). The music progress seek
+  bar ([S-1465], `MusicSeekBar`) fades its thumb in and out (opacity, so a hover costs no layout pass) and states its
+  ink, its track's whether or not the thumb shows (`SeekBarFace.Ink`, `IInked`): before, the shown thumb counted as ink
+  reaching the bar's edges, and at the next layout pass under the pointer (a tick, a resize) a wide, short card's
+  times drew smaller (520x40: 20 px figures to 17; 900x40: 24 to 17). And a block is never measured on a face it
+  does not keep: music progress holds its time columns at their widest case and the bar at its natural length from
+  the start, with a track or without (`HoldWidths`), and measures its fit again when they change (`ReadingFit.Refit`);
+  measured first with no track (no times, the bar at its least), its scale stayed far too large (340x80: 43 px
+  figures for 13) until a later layout pass, under the pointer or not, drew it small. Audited, paint only: the
+  Controls row's sliders (Brightness, Volume: their thumb's ink is the constant `PartInk.SliderThumb`, their
+  PointerOver states recolour), buttons and tiles (quick toggles, power buttons: the face recolours), link cards and
+  lit rows (`LinkLook`, `ItemFill`, the selection chrome: fills and colours), list rows' hover bands. Not a hover
+  look but a reading: a meter's number standing at a moment pointed at on a linked chart ([S-11914]) says other text
+  (the moment beside it, no lead), and its fit follows that text. Tests `SeekBarFaceTests.S12816_`; renders
+  `--widget-png musicProgress --state sample|hovered --sizes 340x40,340x80,520x120,900x40,520x40` draw the same type
+  size, run after run.
 - **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card
   draws a side, or the stretch of a side, where a card it joins lies across it. Touching cards read as one sheet:

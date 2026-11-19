@@ -52,13 +52,13 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
         // [S-12814] The line keeps its natural proportions when it scales: the bar never narrower than it is in a card of
         // the natural width (ReadingFit is held by the times and the bar together, not the times alone, which shrank
         // the bar to a dot), and the one line stands centred in the card's height, as the clock's does.
-        _seek.MinWidth = ControlsRules.MinSlider;
         _row.VerticalAlignment = VerticalAlignment.Center;
         SetColumn(_seek, 1);
         SetColumn(_total, 2);
         _row.Children.Add(_elapsed);
         _row.Children.Add(_seek);
         _row.Children.Add(_total);
+        HoldWidths();
 
         // [S-12808] One line: planned at the natural box (its ink centred there) and scaled up as one.
         _fit.Parts.Add(_row);
@@ -128,6 +128,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
             _seek.Value = 0;
             _elapsed.Text = string.Empty;
             _total.Text = string.Empty;
+            HoldWidths();
             return;
         }
 
@@ -140,10 +141,29 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 
         // A stream with no end has no total to show, and "0:00" in that slot reads as a track that will not start.
         _total.Text = now.Timeline.Duration > TimeSpan.Zero ? MusicRules.Clock(now.Timeline.Duration) : string.Empty;
+        HoldWidths();
+    }
+
+    /// <summary>
+    /// The time columns at their widest case and the bar at its natural length, with a track or without (no track:
+    /// "8:88"), so the line is one width whatever it shows.
+    /// </summary>
+    private void HoldWidths()
+    {
         var time = MusicProgressFace.TimeWidth(_total.Text);
+        var bar = Math.Max(ControlsRules.MinSlider, MusicProgressFace.NaturalWidth - (2 * FamilySpace.Inset) - (2 * time) - (2 * _row.ColumnSpacing));
+        if (_row.ColumnDefinitions[0].Width == new GridLength(time) && _seek.MinWidth == bar)
+        {
+            return;
+        }
+
         _row.ColumnDefinitions[0].Width = new GridLength(time);
         _row.ColumnDefinitions[2].Width = new GridLength(time);
-        _seek.MinWidth = Math.Max(ControlsRules.MinSlider, MusicProgressFace.NaturalWidth - (2 * FamilySpace.Inset) - (2 * time) - (2 * _row.ColumnSpacing));
+        _seek.MinWidth = bar;
+
+        // [S-12816] The line's width holds the block's scale ([S-12814]): measured while it had no track (no times, the
+        // bar at its least) the block scaled far up, and a later layout pass (the pointer coming by) drew it small again.
+        ReadingFit.Refit(_row);
     }
 
     /// <summary>[S-1465] The elapsed time follows the pointer while scrubbing; -1 means the scrub was abandoned.</summary>

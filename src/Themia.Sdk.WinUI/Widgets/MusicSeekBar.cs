@@ -22,17 +22,23 @@ namespace Themia.App.Widgets;
 /// layout pass. The pointer is captured by the bar itself while scrubbing, which keeps the drag
 /// inside the widget (outside edit mode the card does not drag).
 /// </para>
+/// <para>
+/// [S-12816] The pointer never moves the layout: the thumb is faded in and out (opacity, never visibility, so a hover
+/// costs no layout pass), and the bar states its ink (<see cref="IInked"/>), its track's whether or not the thumb
+/// shows. A block that scales by its parts' ink (<see cref="ReadingFit"/>) read the shown thumb as ink reaching the
+/// bar's edges and drew the times smaller while the pointer stayed on the bar.
+/// </para>
 /// </summary>
-public sealed partial class MusicSeekBar : Grid
+public sealed partial class MusicSeekBar : Grid, IInked
 {
     /// <summary>The visible line.</summary>
-    private const double TrackHeight = FamilyShape.Track;
+    private const double TrackHeight = SeekBarFace.Track;
 
     /// <summary>The thumb shown while hovering or scrubbing a seekable track.</summary>
-    private const double ThumbSize = 12;
+    private const double ThumbSize = SeekBarFace.Thumb;
 
     /// <summary>The height the bar takes: the thumb's, so the thumb is never clipped and is easy to hit.</summary>
-    public const double BarHeight = ThumbSize;
+    public const double BarHeight = SeekBarFace.Height;
 
     private readonly Border _track = new();
     private readonly Border _fill = new();
@@ -75,7 +81,7 @@ public sealed partial class MusicSeekBar : Grid
         _thumb.Stroke = Family.Brush(ColourRole.Solid);
         _thumb.StrokeThickness = FamilyShape.Stroke;
         _thumb.RenderTransform = _thumbShift;
-        _thumb.Visibility = Visibility.Collapsed;
+        _thumb.Opacity = 0;
 
         Children.Add(_track);
         Children.Add(_fill);
@@ -85,8 +91,8 @@ public sealed partial class MusicSeekBar : Grid
         PointerMoved += OnMoved;
         PointerReleased += OnReleased;
         PointerCaptureLost += OnCaptureLost;
-        PointerEntered += (_, _) => { _hovering = true; ShowThumb(); };
-        PointerExited += (_, _) => { _hovering = false; ShowThumb(); };
+        PointerEntered += (_, _) => Point(true);
+        PointerExited += (_, _) => Point(false);
         SizeChanged += (_, _) => Draw(_value);
     }
 
@@ -131,6 +137,19 @@ public sealed partial class MusicSeekBar : Grid
 
     public bool IsScrubbing => _scrubbing;
 
+    /// <summary>[S-12816] Its track's ink, the thumb shown or not: what a block it stands in is scaled and placed by.</summary>
+    public LineInk Ink => SeekBarFace.Ink;
+
+    /// <summary>A bar keeps its height in a stack.</summary>
+    public bool Grows => false;
+
+    /// <summary>The pointer over the bar, or gone from it (a render's hovered state stands in for it): the thumb shows over a seekable track.</summary>
+    public void Point(bool over)
+    {
+        _hovering = over;
+        ShowThumb();
+    }
+
     private void Draw(double fraction)
     {
         var width = ActualWidth;
@@ -139,7 +158,7 @@ public sealed partial class MusicSeekBar : Grid
     }
 
     private void ShowThumb()
-        => _thumb.Visibility = _canSeek && (_hovering || _scrubbing) ? Visibility.Visible : Visibility.Collapsed;
+        => _thumb.Opacity = SeekBarFace.ThumbShown(_canSeek, _hovering, _scrubbing) ? 1 : 0;
 
     private double FractionAt(PointerRoutedEventArgs e) => MusicRules.ScrubFraction(e.GetCurrentPoint(this).Position.X, ActualWidth);
 
