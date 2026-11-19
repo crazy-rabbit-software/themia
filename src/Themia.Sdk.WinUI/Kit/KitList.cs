@@ -140,6 +140,16 @@ public sealed partial class KitList : Grid, IStatusRoom
         if (Checked && HoldBack(items))
         {
             _held = (items, plan, area, now);
+
+            // [S-12834] A new size still lays the rows at its pitch (whole cells): under an editor or a drag nothing is
+            // rebuilt, the rows standing take the new height.
+            if (area.IsMeasured && (plan.RowHeight != _plan.RowHeight || plan.HeadingHeight != _plan.HeadingHeight))
+            {
+                _plan = _plan with { RowHeight = plan.RowHeight, HeadingHeight = plan.HeadingHeight };
+                _area = area;
+                Repitch();
+            }
+
             return;
         }
 

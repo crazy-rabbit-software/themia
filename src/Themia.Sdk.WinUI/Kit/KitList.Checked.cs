@@ -216,6 +216,31 @@ public sealed partial class KitList
         _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
     }
 
+    /// <summary>[S-12834] The rows and headings standing take the plan's pitch again (a new size under an editor or a drag).</summary>
+    private void Repitch()
+    {
+        if (_checks is not { } panel)
+        {
+            return;
+        }
+
+        foreach (var child in panel.Children)
+        {
+            switch (child)
+            {
+                case Border { Child: RowBlock row }:
+                    row.Height = _plan.RowHeight;
+                    break;
+                case Grid heading:
+                    heading.Height = _plan.HeadingHeight;
+                    SectionHeading.Fill(heading.Children.OfType<TextBlock>().First(), _plan.HeadingHeight);
+                    break;
+            }
+        }
+
+        CapToWholeLines();
+    }
+
     /// <summary>[S-784] A group's heading (the done ones): one row of 28 (stretched as the rows are, [S-12410]), BodyStrong, secondary.</summary>
     private Grid CheckHeading(string text) => SectionHeading.Make(text, _plan.HeadingHeight);
 

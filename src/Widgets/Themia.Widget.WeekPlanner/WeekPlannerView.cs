@@ -455,10 +455,11 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     }
 
     /// <summary>[S-12834] A day's line with nothing on it, holding its place in the week's grid: one of its cells, empty.</summary>
-    private static Border EmptyCell()
+    private static RowBlock EmptyCell()
     {
-        var cell = new Border { IsHitTestVisible = false, Background = Family.Brush(ColourRole.Clear) };
-        ItemMark.Mark(cell);
+        // A row of the family's with nothing in it (a Row block is an item of its own).
+        var cell = new RowBlock(RowKind.List, lead: 0) { IsHitTestVisible = false };
+        cell.Show(string.Empty);
         return cell;
     }
 
