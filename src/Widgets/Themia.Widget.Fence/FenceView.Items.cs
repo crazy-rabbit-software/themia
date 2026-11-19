@@ -109,9 +109,18 @@ internal sealed partial class FenceView
         {
             if (!_cells.TryGetValue(item.Key, out var cell))
             {
-                cell = MakeCell(item.Key);
+                // [S-13021] An item dropped in arrives in its ghost, where the preview showed it.
+                if (Adopt(item.Key) is { } ghost)
+                {
+                    cell = ghost;
+                }
+                else
+                {
+                    cell = MakeCell(item.Key);
+                    _canvas.Children.Add(cell.Root);
+                }
+
                 _cells[item.Key] = cell;
-                _canvas.Children.Add(cell.Root);
             }
 
             var renamed = cell.Item is not null && !string.Equals(cell.Item.Name, item.Name, StringComparison.Ordinal);
@@ -125,6 +134,10 @@ internal sealed partial class FenceView
         }
 
         _shown = [.. items.Select(i => i.Key)];
+        if (_preview is null)
+        {
+            DropGhosts();
+        }
     }
 
     private Cell MakeCell(string key)
@@ -149,7 +162,7 @@ internal sealed partial class FenceView
         };
         stack.Children.Add(iconHost);
         stack.Children.Add(name);
-        var chrome = SelectionChrome.Wrap(null, SelectionLook.Rows);
+        var chrome = SelectionChrome.Wrap(null, Look);
         var root = new Grid { Background = Fluent.Clear() };
         root.Children.Add(chrome);
         root.Children.Add(stack);
@@ -233,13 +246,21 @@ internal sealed partial class FenceView
     /// <summary>[S-5602] Every cell's look from the desktop's one selection.</summary>
     private void PaintCells()
     {
-        foreach (var cell in _cells.Values)
+        foreach (var cell in _cells.Values.Concat(_ghosts.Values))
         {
             PaintCell(cell);
         }
 
         SyncItemBox();
     }
+
+    /// <summary>
+    /// [S-13019] The desktop icon's own look (its strengths, the whole cell, its corners): its white wash on a dark card, the
+    /// same wash in black on a light one, where white would not show (<see cref="SelectionLook.DesktopIconOver"/>).
+    /// </summary>
+    private static SelectionPalette Look
+        => SelectionLook.DesktopIconOver(Family.Brush(ColourRole.TextPrimary) is SolidColorBrush text
+            && SelectionLook.LightGround(new RgbColor(text.Color.R, text.Color.G, text.Color.B)));
 
     private void PaintCell(Cell cell)
     {
@@ -249,9 +270,12 @@ internal sealed partial class FenceView
         var focus = _fixture.On ? _fixture.Focus == key : desk.ShowsFocus(key);
         var active = _fixture.On ? !_fixture.Inactive : desk.Active;
         var target = DesktopItemKeys.Comparer.Equals(_dropKey, key);
-        SelectionChrome.Paint(cell.Chrome, new SelectionCue(selected, cell.Hovered, focus, focus, active, target), SelectionLook.Rows);
+        SelectionChrome.Paint(cell.Chrome, new SelectionCue(selected, cell.Hovered, focus, focus, active, target), Look);
         var faded = _fixture.On ? _fixture.Faded.Contains(key) : desk.IsCut(key) || cell.Item?.Hidden == true;
         cell.IconHost.Opacity = faded ? SelectionLook.Faded : 1;
+
+        // [S-13021] A dragged item's ghost in the preview, see-through as the drag's own picture.
+        cell.Stack.Opacity = Ghosted(key) ? SelectionLook.DragOpacity : 1;
     }
 
     // ---- gestures ([S-13011]) ----------------------------------------------------------------------

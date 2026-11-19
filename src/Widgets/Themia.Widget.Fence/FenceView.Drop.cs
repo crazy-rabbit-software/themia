@@ -11,20 +11,27 @@ using Windows.Foundation;
 namespace Themia.Widget.Fence;
 
 /// <summary>
-/// [S-13005] Drops on a fence: the desktop's own drag of its icons moves its desktop items in, at the place the mark shows
-/// (as placed; a fence with a standing sort takes them into its order); files from outside go into the user's desktop
+/// [S-13005] Drops on a fence: the desktop's own drag of its icons moves its desktop items in, at the place the preview
+/// shows (as placed; a fence with a standing sort takes them into its order); files from outside go into the user's desktop
 /// folder through the shell's own drop target (copy, move, link, the right-drag menu, virtual files) and arrive in this
 /// fence; over a folder item of the fence the drop is that folder's own. Never in edit mode.
+/// <para>
+/// [S-13021] While the desktop's drag is over the fence its items show where they would land: a see-through ghost of each
+/// dragged item at its slot, the fence's other items stepping aside (gliding, the canvas's reposition transition); let go,
+/// the ghosts become the items in place, so the drop glides in rather than jumps. The owner, 2026-11-19: "when placing them
+/// inside it should smoothly move them there and it should show a ghost preview instead of just the blue line."
+/// </para>
 /// </summary>
 internal sealed partial class FenceView : IWidgetDropTarget
 {
     /// <summary>[S-5587] The folder item a drag hovers (its own shell target answers), or null.</summary>
     private string? _dropKey;
 
-    /// <summary>[S-13005] Where the desktop's drag would go in, shown as a thin mark between cells.</summary>
-    private readonly Border _dropMark = new() { Width = FamilyShape.Stroke, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+    /// <summary>[S-13021] The order the fence shows while the desktop's drag is over it (its items, the dragged ones at their slots); null otherwise.</summary>
+    private List<string>? _preview;
 
-    private bool _dropMarkAdded;
+    /// <summary>[S-13021] The ghost cells of dragged items this fence does not hold, by key: kept after a drop until the items arrive in them.</summary>
+    private readonly Dictionary<string, Cell> _ghosts = new(DesktopItemKeys.Comparer);
 
     DropEffect IWidgetDropTarget.DragOver(IWidgetDrag drag, Point local)
     {
@@ -39,7 +46,7 @@ internal sealed partial class FenceView : IWidgetDropTarget
             if (cell is { Item.Kind: DesktopItemKind.Folder } && !_host.DesktopItems.Dragging(cell.Key))
             {
                 SetDropKey(cell.Key);
-                ShowMark(null);
+                ShowPreview(null);
                 drag.Place = cell.Item.Name;
                 return SurfaceDrops.Single(drag.ForwardOver(cell.Key, DropEffect.None));
             }
@@ -48,11 +55,11 @@ internal sealed partial class FenceView : IWidgetDropTarget
             drag.Place = _title.Text;
             if (Fences.DeskDragRunning)
             {
-                ShowMark(index);
+                ShowPreview(index);
                 return DropEffect.Move;
             }
 
-            ShowMark(null);
+            ShowPreview(null);
             return Fences.DesktopFolder is { } desktop && !drag.IsEmpty ? SurfaceDrops.Single(drag.ForwardOver(desktop, DropEffect.None)) : DropEffect.None;
         }
         catch (Exception ex)
@@ -65,7 +72,7 @@ internal sealed partial class FenceView : IWidgetDropTarget
     void IWidgetDropTarget.DragLeave()
     {
         SetDropKey(null);
-        ShowMark(null);
+        ShowPreview(null);
     }
 
     DropEffect IWidgetDropTarget.Drop(IWidgetDrag drag, Point local)
@@ -85,8 +92,13 @@ internal sealed partial class FenceView : IWidgetDropTarget
 
             if (Fences.DeskDragRunning)
             {
+                // [S-13021] The ghosts stay where they stand: the items arrive in them (none came in: they go).
+                _landing = true;
+
                 // A standing sort decides the order: the drop goes at the end of the stored one.
-                return Fences.DropDeskDrag(id, _config.Sort is null ? StoredIndex(index) : _config.Items.Count);
+                var effect = Fences.DropDeskDrag(id, _config.Sort is null ? StoredIndex(index) : _config.Items.Count);
+                _landing = effect != DropEffect.None;
+                return effect;
             }
 
             return drag.IsEmpty ? DropEffect.None : Fences.DropFiles(id, drag);
@@ -99,7 +111,8 @@ internal sealed partial class FenceView : IWidgetDropTarget
         finally
         {
             SetDropKey(null);
-            ShowMark(null);
+            ShowPreview(null);
+            _landing = false;
         }
     }
 
@@ -133,31 +146,89 @@ internal sealed partial class FenceView : IWidgetDropTarget
         }
     }
 
-    /// <summary>[S-13005] The mark before shown item <paramref name="index"/> (after the last for the end), or none.</summary>
-    private void ShowMark(int? index)
+    /// <summary>[S-13021] A drop is landing: the ghosts are kept for the items to arrive in, not taken down with the preview.</summary>
+    private bool _landing;
+
+    /// <summary>
+    /// [S-13021] The preview of the desktop's drag let go before shown item <paramref name="index"/> (a standing sort: at the
+    /// end), or none: the dragged items at their slots as ghosts (this fence's own dragged items fade in their new place),
+    /// the others stepping aside; none puts every item back.
+    /// </summary>
+    private void ShowPreview(int? index)
     {
-        if (index is not { } at || _config.Sort is not null)
+        if (index is not { } at)
         {
-            _dropMark.Visibility = Visibility.Collapsed;
+            if (_preview is null)
+            {
+                return;
+            }
+
+            _preview = null;
+            if (!_landing)
+            {
+                DropGhosts();
+            }
+
+            Layout();
+            PaintCells();
             return;
         }
 
-        if (!_dropMarkAdded)
+        var dragged = _fixture.On ? _fixture.Dragged : Fences.DraggedItems;
+        if (dragged.Count == 0)
         {
-            _dropMark.Background = Family.Brush(ColourRole.Accent);
-            _canvas.Children.Add(_dropMark);
-            _dropMarkAdded = true;
+            return;
         }
 
-        var cell = CellSize;
-        var width = Math.Max(0, ActualWidth);
-        var columns = FenceGrid.Columns(width, cell);
-        var r = at < _shown.Count ? FenceGrid.Cell(at, columns, cell, width) : FenceGrid.Cell(Math.Max(0, _shown.Count - 1), columns, cell, width) is var last && _shown.Count > 0
-            ? last with { X = last.X + last.Width }
-            : FenceGrid.Cell(0, columns, cell, width);
-        Canvas.SetLeft(_dropMark, r.X - (FamilyShape.Stroke / 2));
-        Canvas.SetTop(_dropMark, r.Y + DesktopCell.HighlightTop);
-        _dropMark.Height = Math.Max(0, r.Height - DesktopCell.HighlightTop - DesktopCell.Below);
-        _dropMark.Visibility = Visibility.Visible;
+        var order = FenceGrid.Preview(_shown, dragged.Select(i => i.Key).ToList(), _config.Sort is null ? at : _shown.Count, DesktopItemKeys.Comparer);
+        if (_preview is not null && _preview.SequenceEqual(order, DesktopItemKeys.Comparer))
+        {
+            return;
+        }
+
+        foreach (var item in dragged)
+        {
+            if (!_cells.ContainsKey(item.Key) && !_ghosts.ContainsKey(item.Key))
+            {
+                var ghost = MakeCell(item.Key);
+                ghost.Item = item;
+                ghost.Name.Text = item.Name;
+                ghost.Root.IsHitTestVisible = false;
+                _ghosts[item.Key] = ghost;
+                _canvas.Children.Add(ghost.Root);
+                _loads.Add(LoadIconAsync(ghost));
+            }
+        }
+
+        _preview = order;
+        Layout();
+        PaintCells();
     }
+
+    /// <summary>[S-13021] Take every ghost down.</summary>
+    private void DropGhosts()
+    {
+        foreach (var ghost in _ghosts.Values)
+        {
+            DropCell(ghost);
+        }
+
+        _ghosts.Clear();
+    }
+
+    /// <summary>[S-13021] A ghost the item has now arrived in: it becomes that item's cell where it stands (no jump), or null.</summary>
+    private Cell? Adopt(string key)
+    {
+        if (!_ghosts.Remove(key, out var ghost))
+        {
+            return null;
+        }
+
+        ghost.Root.IsHitTestVisible = true;
+        return ghost;
+    }
+
+    /// <summary>[S-13021] Whether <paramref name="key"/> is drawn as a ghost now: a dragged item in the preview.</summary>
+    private bool Ghosted(string key)
+        => _preview is not null && (_ghosts.ContainsKey(key) || (_fixture.On ? _fixture.Dragged.Exists(i => DesktopItemKeys.Comparer.Equals(i.Key, key)) : _host.DesktopItems.Dragging(key)));
 }

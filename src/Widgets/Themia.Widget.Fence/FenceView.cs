@@ -116,6 +116,9 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _body = body;
 
         _fade = new ScrollFade(_scroll, _canvas);
+
+        // [S-13021] Items glide to a new place (a drop, the preview stepping aside, a reorder) rather than jump.
+        _canvas.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection { new Microsoft.UI.Xaml.Media.Animation.RepositionThemeTransition() };
         SizeChanged += (_, _) => Layout();
         _scroll.ViewChanged += (_, _) => ReportBoxes();
     }
@@ -398,12 +401,22 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
     }
 
-    /// <summary>[S-13011] A press on the body is the items', never the card's move: the fence moves by its title bar.</summary>
+    /// <summary>
+    /// [S-13011] A press on the body is the items', never the card's move: the fence moves by its title bar. [S-13020] A left
+    /// press on its empty body starts the desktop's band there, as on empty desktop: it selects this fence's items (and the
+    /// free icons and other fences' it reaches) by the desktop's rules.
+    /// </summary>
     private void OnBodyPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (Acts)
+        if (!Acts)
         {
-            e.Handled = true;
+            return;
+        }
+
+        e.Handled = true;
+        if (WidgetId is { } id && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            _ = Fences.Band(id, e);
         }
     }
 
@@ -431,9 +444,12 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         var cell = CellSize;
         var width = Math.Max(0, ActualWidth);
         var columns = FenceGrid.Columns(width, cell);
-        for (var i = 0; i < _shown.Count; i++)
+
+        // [S-13021] While the desktop's drag is over the fence, its preview's order: the dragged ones at their slots.
+        var order = _preview ?? _shown;
+        for (var i = 0; i < order.Count; i++)
         {
-            if (_cells.TryGetValue(_shown[i], out var view))
+            if (_cells.TryGetValue(order[i], out var view) || _ghosts.TryGetValue(order[i], out view))
             {
                 var r = FenceGrid.Cell(i, columns, cell, width);
                 Canvas.SetLeft(view.Root, r.X);
@@ -444,7 +460,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
 
         _canvas.Width = width;
-        _canvas.Height = FenceGrid.ContentHeight(_shown.Count, columns, cell);
+        _canvas.Height = FenceGrid.ContentHeight(order.Count, columns, cell);
         _fade.Refresh();
         ReportBoxes();
     }
@@ -482,6 +498,9 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         Fences.Laid(id, boxes);
     }
 
-    /// <summary>[S-5593] The desktop's one cell at the icon size in force, two name lines.</summary>
-    private static SizeDip CellSize => DesktopCell.Grid(DesktopCell.Current);
+    /// <summary>
+    /// [S-5593] [S-13019] The box an item stands in: a desktop icon's on the widget grid of the fence's display (the host's),
+    /// so the items keep the free icons' spacing; in a picture the desktop's plain cell.
+    /// </summary>
+    private SizeDip CellSize => WidgetId is { } id && !_fixture.On && !_host.IsPreview ? Fences.ItemBox(id) : DesktopCell.Grid(DesktopCell.Current);
 }

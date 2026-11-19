@@ -10383,6 +10383,27 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
 - **[S-13014]** **Per view**: a fence's items show only where the fence is; a fence copied or cut to another view takes
   its items with it, and the views' own rules then hold (an item both free and fenced on the new view keeps its fence at
   the next load, [S-13002]).
+- **[S-13019]** **A fence's items stand as the free icons do** (the owner, 2026-11-19: "the fence items should also not have
+  any additionaly spacing to the outside, the selection should look the same and the behaviour should be made similar to
+  how the desktop icons behave"): each in a desktop icon's box on the widget grid of the fence's display
+  (`IDesktopFences.ItemBox`, `AppHost.DeskItemBox`: the cell rounded up to whole grid cells, [S-11875]), box against box
+  from the body's edge with no inset and no centring (`FenceGrid`), so items in a fence keep the spacing of the icons
+  beside it; a fence made round a selection is sized by those boxes. Their highlight is the desktop icon's own palette
+  (`SelectionLook.DesktopIcon`), its white wash in black on a light card (`DesktopIconOnLight`, `SelectionTone.Dark`).
+  Tests `FenceRulesTests.S10902_S13019_`, `ItemSelectionTests.S13019_`.
+- **[S-13020]** **The band inside a fence** ("inside the fence you should be able to select the items with the lasso in the
+  same way you can do for the desktop"): a left press on empty body of a fence starts the desktop's own band from there
+  (`IDesktopFences.Band`, `DesktopWindow.BeginDesktopBandFrom`): the same look, Ctrl and Shift rules and one selection; it
+  selects that fence's items and whatever else it reaches (other fences' items, free icons, cards), never the fence it
+  began in; a plain press there clears the selection as on empty desktop, names no place for a paste on the free desktop,
+  and offers no area at its release ([S-13018]).
+- **[S-13021]** **A drop into a fence previews and glides** ("when placing them inside it should smoothly move them there
+  and it should show a ghost preview instead of just the blue line"): while the desktop's drag of its icons is over a
+  fence, the fence shows the order a drop there leaves (`FenceGrid.Preview`): a see-through ghost of each dragged item
+  (`IDesktopFences.DraggedItems`, at the drag picture's opacity) at its slot, the other items stepping aside; leaving puts
+  them back; the drop turns the ghosts into the items where they stand, and every change of place glides (the fence's
+  reposition transition). There is no insertion line. `--widget-png Fence --state dropping` draws it. Tests
+  `FenceRulesTests.S13021_`.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

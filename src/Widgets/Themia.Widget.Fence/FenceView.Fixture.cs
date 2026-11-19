@@ -26,6 +26,9 @@ internal sealed partial class FenceView
 
         public string? Renaming { get; set; }
 
+        /// <summary>[S-13021] The items a drag over the fence carries, for its ghost preview.</summary>
+        public List<DesktopItem> Dragged { get; set; } = [];
+
         /// <summary>Back to a fence at rest holding <paramref name="items"/>.</summary>
         public void Rest(IEnumerable<DesktopItem> items)
         {
@@ -36,6 +39,7 @@ internal sealed partial class FenceView
             Focus = null;
             Inactive = false;
             Renaming = null;
+            Dragged = [];
         }
     }
 

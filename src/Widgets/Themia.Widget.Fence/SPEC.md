@@ -22,20 +22,22 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
   (`IWidgetTopEdge`): the card adds no inset above it. Its tile is in Add widget's Files, beside the desktop icon.
   Tests `FenceTests.S10901_`.
 - **[S-10902]** **Its own small grid** (`FenceGrid`, the SDK's, tested in `FenceRulesTests.S10902_`): under the title bar
-  ([S-10910]) the items stand in the desktop's one cell at the icon size in force (`DesktopCell.Grid`, [S-5593]), in
-  reading order, as many to a row as the body's width holds (at least one), the row centred, 4 DIPs round them. More
-  items than it shows scroll the body (no horizontal scroll), with the bottom fade every scrolling list has (`ScrollFade`,
-  [S-1281]); "Drag desktop icons here" stands in an empty one.
+  ([S-10910]) the items stand in reading order, as many to a row as the body's width holds (at least one), each in the box
+  a desktop icon has on the widget grid of the fence's display (`IDesktopFences.ItemBox`: the desktop's cell at the icon
+  size in force rounded up to whole grid cells, [S-5593], [S-11875]), box against box from the body's left edge and top,
+  with nothing round them ([S-13019]). More items than it shows scroll the body (no horizontal scroll), with the bottom
+  fade every scrolling list has (`ScrollFade`, [S-1281]); "Drag desktop icons here" stands in an empty one. A change of
+  place (a drop, a reorder, a new width) glides (the canvas's reposition transition).
 - **[S-10903]** **An item looks as a desktop icon does**: the shell's icon with its overlay ([S-5512], from the host's
-  cache at the display's pixels, [S-5563]) over its name in two lines in the desktop's cell, the highlight on the whole
-  cell (hover, selected, inactive, the focus cue, a drop target), a cut or hidden item faded ([S-5545], [S-5547]). It
-  stands on the card, not on the wallpaper, so its highlight is the item selection's look on a card (`SelectionLook.Rows`,
-  as the folder widget's tiles and Explorer's own windows draw a selected icon: the desktop icon's palette is tuned for a
-  wallpaper and vanished on a light card) and its name the card's text colour.
+  cache at the display's pixels, [S-5563]) over its name in two lines, the highlight on the whole box (hover, selected,
+  inactive, the focus cue, a drop target), a cut or hidden item faded ([S-5545], [S-5547]). The highlight is the desktop
+  icon's own (`SelectionLook.DesktopIcon`: its strengths, the whole box, its corners; the owner, 2026-11-19: "the selection
+  should look the same"): its white wash on a dark card, the same wash in black on a light one where white would not show
+  (`SelectionLook.DesktopIconOver`, by the card text's lightness, [S-13019]); its name is the card's text colour.
 - **[S-10904]** **Every gesture on an item is the desktop's** ([S-13011]): a press selects in the one selection (Ctrl
   toggles, Shift the range, a press on a selected item narrows on release), a double-click opens the selection, a
   right-click opens the desktop's menu for it (Shift: the shell's classic menu), all keyed by the item. A press in the
-  body never moves the fence; a press on the title bar is the card's (it moves the fence and what is selected with it,
+  body never moves the fence; a left press on its empty body starts the desktop's own band there ([S-13020]); a press on the title bar is the card's (it moves the fence and what is selected with it,
   [S-2008]); in edit mode the card has every press.
 - **[S-10905]** **The keys with the fence's lease are the desktop's** ([S-5541]..[S-5545]), sent from the fence: arrows,
   Enter, F2 (the rename box on the item, [S-5543]), Delete, Ctrl+C/X, Alt+Enter, F5, the Menu key, type-to-find; Ctrl+V
@@ -46,8 +48,9 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
   onto another fence they move into it, onto Explorer, a folder, an app or the Recycle Bin the target does what it does.
   The picture is Explorer's ghost ([S-5564]) of this fence's icons: the held one in front, up to two more selected ones
   behind, the count in a badge.
-- **[S-10907]** **Drops on a fence** ([S-13005]): the desktop's own drag moves its desktop items in, before the item the
-  thin accent mark between cells shows (at the end while a standing sort orders them); files from outside go through the
+- **[S-10907]** **Drops on a fence** ([S-13005]): the desktop's own drag moves its desktop items in where its preview shows
+  them: see-through ghosts of the dragged items at their slots, the other items stepping aside, and on the drop the items
+  arrive in their ghosts ([S-13021]; at the end while a standing sort orders them); files from outside go through the
   shell into the desktop folder and arrive in the fence; over a folder item of the fence the drop is that folder's own
   shell target ([S-5587]), the folder drawn as the drop target. The caption names the fence ("Move to Work"). Never in
   edit mode.
@@ -73,7 +76,7 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
 - **[S-10915]** **Pictures** ([S-11850]): the sample is a fence named "Work" with six of the sample desk's items (names on
   no disk, so the shell draws their type's icons, the same on every machine). Debug renders' states (`--widget-png Fence
   --state …`): `sample`, `empty`, `selected`, `inactive`, `renaming`, `title`, `rolledUp`, `many` (it scrolls), `cut`,
-  `sorted`.
+  `sorted`, `dropping` (the desktop's drag of two items over it, their ghosts at their slots, [S-13021]).
 - **[S-10916]** **Stored whole**: the config round-trips through the state file (the sort and the file types by name);
   a new one is as placed, rolls up on a click, peeks, and has no rule. Tests `FenceTests.S10916_`.
 - **[S-10917]** **Load repair**: a null item list or rule set is empty and the title is cleaned and cut, each said; the

@@ -9,11 +9,12 @@ namespace Themia.Widget.Fence;
 /// <c>sample</c> the sample; <c>empty</c> a new fence; <c>selected</c> two items selected, the focus on one;
 /// <c>inactive</c> the same while another window has the keyboard; <c>renaming</c> an item's rename box; <c>title</c> the
 /// title's rename box; <c>rolledUp</c> the title bar alone; <c>many</c> more items than it shows (it scrolls, the bottom
-/// fading); <c>cut</c> an item cut to the clipboard; <c>sorted</c> its items by name.
+/// fading); <c>cut</c> an item cut to the clipboard; <c>sorted</c> its items by name; <c>dropping</c> [S-13021] the desktop's
+/// drag of two items over it, their ghosts at their slots before the second item, the rest stepped aside.
 /// </summary>
 internal sealed partial class FenceView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "empty", "selected", "inactive", "renaming", "title", "rolledUp", "many", "cut", "sorted"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "empty", "selected", "inactive", "renaming", "title", "rolledUp", "many", "cut", "sorted", "dropping"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -51,6 +52,11 @@ internal sealed partial class FenceView : IWidgetPreviewState
                 break;
             case "cut":
                 await ShowFixtureAsync(new FenceConfig { Name = name }, SampleItems, f => f.Faded.Add(SampleItems[3].Key)).ConfigureAwait(true);
+                break;
+            case "dropping":
+                await ShowFixtureAsync(new FenceConfig { Name = name }, SampleItems.Take(4), f => f.Dragged = [SampleItems[4], SampleItems[5]]).ConfigureAwait(true);
+                ShowPreview(1);
+                await Task.WhenAll(_loads).ConfigureAwait(true);
                 break;
             case "sorted":
                 await ShowFixtureAsync(new FenceConfig { Name = name }, [.. DesktopItemOrder.Sort(SampleItems)]).ConfigureAwait(true);
