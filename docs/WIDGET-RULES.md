@@ -50,7 +50,9 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   and section headings are the shared components.
 - **WR-12 Nothing changes size on hover or press.** 2026-11-19: "some widgets like the now playing scrubber changes
   text sizes when hovering over it with the mouse" … "this should not be". Text, items and the scale of a block are
-  the same at rest, under the pointer and pressed.
+  the same at rest, under the pointer and pressed. 2026-11-19: "there are layout shifts when i click add task in the
+  task widget. layout shifts for these kind of inputs should never happen. fix for all the widgets". An inline input
+  stands in exactly the box of what it replaces: opening, typing, committing or cancelling it moves nothing else.
 - **WR-13 Hover lights the item under the pointer, edge to edge.** 2026-11-19: "the hover areas of the disk widgets
   are fucked up and wrong. when hovering over a widget it also does not show the hover effect, it just shows it for
   all the other same kind disk widgets."; 2026-11-19: "when hovering over an email it highlights multiple emails. it
