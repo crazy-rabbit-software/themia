@@ -3126,17 +3126,17 @@ block does it:
 
   | Block | Stretches to | Beyond it |
   |---|---|---|
-  | Row (`RowBlock`) | 1.5 x its height (`ItemStretch.RowCap`: `MinHeight`/`MaxHeight`), texts centred | spacing round the rows (`SpreadStack`), or empty under the last |
-  | Kit list, custom row lists | one pitch filling the list (`KitPlanner.Pitch`, `ItemStretch.Pitch`), headings with them | at 1.5 x: empty under the rows |
-  | Grid cell (calendar month) | any (a cell is a box) | none |
+  | Row (`RowBlock`) | 1.5 x its height (`ItemStretch.RowCap`: `MinHeight`/`MaxHeight`), texts centred; the first and the last text on the insets ([S-12807]) | spacing between the rows (`SpreadStack`, `ItemStretch.Reach`) |
+  | Kit list, custom row lists | one pitch whose text reaches the view's top and the foot's inset (`KitPlanner.Reach`, `ItemStretch.Rows`, `RowsAbove`), headings with them | at 1.5 x: spacing between the rows (`RowReach.Gap`) |
+  | Grid cell (calendar month) | never: the weeks reach the header and the foot's inset ([S-12807]) | spacing between the weeks |
   | Readout, Status, Controls, Header | never (text stays on the family's steps) | the block centred in the room under the header, the foot inset under it (`NaturalBlock.Hold`; a size-aware view centres an inner part, as `MeterView.CentringTop`, since the card measures the view's own box) |
   | Clock face (picks its step by its box) | one family step past its Size (`ReadoutSizes.Climb`) | spacing round it |
   | Chart, dial, tile, picture | the box | none |
 
 - **No inset to the card's border.** The card has no padding ([S-6711]); each block decides: rows, list
   rows and their hover/selected fills run edge to edge and carry the 12 side inset as their own padding,
-  so the text never touches the border; a list's rows run down to the card's bottom edge (the foot inset
-  its sizing counts is theirs to stretch into); a chart, a history, a tile, a cover run edge to edge as
+  so the text never touches the border; a list's first row's text stands on the content's top and its last
+  row's on the foot's inset, their bands reaching into the insets ([S-12807]); a chart, a history, a tile, a cover run edge to edge as
   before; the header keeps its own inset; a readout block keeps the 12 on its sides (its text would touch
   the border otherwise). A fill at a card corner takes the card's corners: rows' square fills through the
   card's rounded clip, a tile's own round fill through `IWidgetCorners` ([S-11883]).

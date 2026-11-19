@@ -140,7 +140,7 @@ public sealed partial class MeterView
                 break;
 
             case MeterLook.Rows:
-                // [S-12410] Rows of items fill the card down to its edge (stretched up to half again, then spaced).
+                // [S-12807] Rows of items under the reading reach the foot's inset (stretched up to half again, then spaced).
                 Body(new SpreadStack { Margin = new Thickness(0, FamilySpace.S2, 0, FamilySpace.Inset) });
                 break;
 
@@ -529,10 +529,11 @@ public sealed partial class MeterView
         {
             // [S-11005] Items alone, from the view's top, which is the card's ([S-11600]: under a header
             // or at the inset). Rows carry their own side inset; the cores' bars, rings and graphs stand
-            // in the card's inset on the sides and the foot.
+            // in the card's inset on the sides and the foot. [S-12807] The rows reach the view's top and the
+            // foot's inset (the stack's margin), their text on both.
             SetRow(_body, 0);
             SetRowSpan(_body, 2);
-            _body.Margin = _look == MeterLook.Rows ? default : Family.Inset with { Top = 0 };
+            _body.Margin = _look == MeterLook.Rows ? new Thickness(0, 0, 0, FamilySpace.Inset) : Family.Inset with { Top = 0 };
         }
 
         switch (_look)

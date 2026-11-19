@@ -31,7 +31,15 @@ public sealed class AddFooterRow
         _onAdd = onAdd;
         _row.LeadGlyph(Glyphs.Add);
 
-        Element = new Border { Child = _row, VerticalAlignment = VerticalAlignment.Bottom, Visibility = Visibility.Collapsed };
+        // [S-12807] Its text on the foot's inset line: its band under the text reaches into the inset, so the
+        // list's last line stands where every list's does (ItemStretch.RowsAbove lays the rows over it).
+        Element = new Border
+        {
+            Child = _row,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(0, 0, 0, FamilySpace.Inset - FamilyShape.RowBand(1)),
+            Visibility = Visibility.Collapsed,
+        };
         ItemFill.Paint(Element, ItemRole.Row);
         Element.Tapped += OnTapped;
         _hover = Fluent.Hover(Element);

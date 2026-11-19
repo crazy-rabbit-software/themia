@@ -30,7 +30,8 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
 
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
     private readonly WidgetLinks _dates = new();
-    private readonly StackPanel _list = new() { VerticalAlignment = VerticalAlignment.Top };
+    /// <summary>[S-12807] The config's rows under the day line, reaching the foot's inset (its margin).</summary>
+    private readonly SpreadStack _list = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
     private readonly List<AppRow> _rows = [];
 
     /// <summary>[S-6714] Nothing to list: the Status block's one row at the top.</summary>
@@ -204,6 +205,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         var named = ScreenTimeRules.ListNamed(plan.Rows, data.Apps.Count);
         _segments = plan.Rows == 0 ? [] : ScreenTimeRules.Segments(data.Apps, data.Total, named, Str.Screentime_Other.Text());
         var rows = Math.Min(plan.Rows, _segments.Count);
+        _list.Rows = plan.Rows;
         var tones = ScreenTimeRules.Tones(_segments);
 
         // A row's lead is made for its size: rows of another lead are made again.

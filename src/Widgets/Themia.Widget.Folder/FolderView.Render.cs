@@ -262,21 +262,21 @@ internal sealed partial class FolderView
         }
         else
         {
-            // [S-12410] The list's rows run down to the card's edge, stretched over its foot's inset.
-            var list = FolderLayout.ListHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb);
-            var pitch = FolderLayout.Pitch(list, XamlRoot?.RasterizationScale ?? 1);
-            if (pitch != _rowPitch)
+            // [S-12807] The list's rows reach the items' top and the foot's inset, the first one's band over the top.
+            var reach = FolderLayout.Reach(height, XamlRoot?.RasterizationScale ?? 1);
+            if (reach.Pitch != _rowPitch)
             {
-                _rowPitch = pitch;
+                _rowPitch = reach.Pitch;
                 foreach (var row in _items.Children.OfType<Border>().Where(b => b.Tag is int))
                 {
-                    row.Height = pitch;
+                    row.Height = reach.Pitch;
                 }
             }
 
+            _rowGap = reach.Gap;
             _scroll.Padding = new Thickness(0);
-            _scroll.Margin = new Thickness(0);
-            _scroll.Height = FolderLayout.Rows(list) * pitch;
+            ListReach.Apply(_scroll, reach, _items);
+            _scroll.Height = reach.Length(FolderLayout.Rows(height));
         }
 
         FillViewport();
@@ -422,8 +422,11 @@ internal sealed partial class FolderView
         }
     }
 
-    /// <summary>[S-12410] A list row's height: 28 stretched to fill the list down to the card's edge.</summary>
+    /// <summary>[S-12807] A list row's height: 28 stretched so the rows reach the items' top and the foot's inset.</summary>
     private double _rowPitch = FolderLayout.RowHeight;
+
+    /// <summary>[S-12807] The spacing between list rows past their cap.</summary>
+    private double _rowGap;
 
     /// <summary>When the items on screen were drawn: the clock their "modified" cells read.</summary>
     private DateTimeOffset _renderedAt;
@@ -435,7 +438,7 @@ internal sealed partial class FolderView
     private (double Extent, int Columns) ItemExtent()
         => _plan?.Grid is { } grid
             ? (grid.PitchY, Math.Max(1, grid.Columns))
-            : (_rowPitch, 1);
+            : (_rowPitch + _rowGap, 1);
 
     /// <summary>The DIPs of list in view: the scroller's once it is measured, the tile's before.</summary>
     private double Viewport() => _scroll.ViewportHeight > 0 ? _scroll.ViewportHeight : _area.Height;

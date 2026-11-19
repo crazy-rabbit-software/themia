@@ -19,7 +19,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// [S-7060] The list part of every kit widget: the family's rows ([S-6711], <see cref="RowBlock"/>) for
 /// the plan the ladder chose (<see cref="KitPlanner.Plan"/>), full-bleed with their own inset ([S-190]),
 /// no separators, in columns read left to right, as many whole rows as fit under a scroll with the
-/// shared fade ([S-639], [S-1281]), stretched down to the card's edge ([S-12410]).
+/// shared fade ([S-639], [S-1281]), their text reaching the view's top and the foot's inset ([S-12807]).
 /// <para>
 /// One focus model, <see cref="RowFocus"/>: a click focuses a row, a double-click or Enter runs its
 /// primary action ([S-1288], [S-1306]); the card makes the list inert in edit mode ([S-1751]), so it
@@ -84,8 +84,8 @@ public sealed partial class KitList : Grid
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        // [S-6712] [S-12410] The rows stand in the view's top and run down to the card's edge: they stretch
-        // into the foot's inset the sizing counts (KitPlanner.Pitch), no band left under them.
+        // [S-6712] [S-12807] The rows reach the view's top and the foot's inset: the first row's text on the
+        // card's inset (its band over it, KitPlan.RowOver), the last row's on the foot's (KitPlanner.Reach).
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _columnHeader.Visibility = Visibility.Collapsed;
@@ -147,6 +147,7 @@ public sealed partial class KitList : Grid
         _items = items;
         _plan = plan;
         _area = area;
+        Reach();
 
         if (_cursorId is not null)
         {
@@ -270,8 +271,18 @@ public sealed partial class KitList : Grid
         }
 
         var lines = (_rowElements.Count + columns - 1) / columns;
-        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area))));
-        _scroll.Height = shown * _plan.RowHeight;
+        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area, _plan))));
+        _scroll.Height = (shown * _plan.RowHeight) + ((shown - 1) * _plan.RowGap);
+    }
+
+    /// <summary>
+    /// [S-12807] The rows' part starts its first row's band over the view's top (so that row's text stands
+    /// on the card's inset), and rows past their cap stand the plan's gap apart.
+    /// </summary>
+    private void Reach()
+    {
+        FrameworkElement part = Checked ? _checkHost! : Paged ? _page : _scroll;
+        ListReach.Apply(part, new RowReach(_plan.RowHeight, _plan.RowOver, _plan.RowGap), _rows);
     }
 
     /// <summary>[S-1304] The site's own icon (the host's one cache), with a globe in its place until it arrives or when the site has none.</summary>

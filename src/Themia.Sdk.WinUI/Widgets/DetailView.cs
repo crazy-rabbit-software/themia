@@ -32,8 +32,8 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
-    /// <summary>[S-12410] The fact rows fill the view down to the card's edge: stretched up to half again, then spaced.</summary>
-    private readonly SpreadStack _facts = new();
+    /// <summary>[S-12807] The fact rows reach the view's top and the foot's inset (its margin).</summary>
+    private readonly SpreadStack _facts = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
     private readonly List<RowBlock> _factRows = [];
     private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
 
@@ -205,8 +205,8 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         var plan = PlanFor(_sheet);
         _plan = plan;
 
-        // The rows from the view's top, down to the card's edge (the foot's inset is theirs to stretch
-        // into, [S-12410]). They carry their own side inset.
+        // [S-12807] The rows from the view's top to the foot's inset, their text reaching both. They carry
+        // their own side inset.
         _facts.Visibility = plan.Facts > 0 ? Visibility.Visible : Visibility.Collapsed;
         SetRow(_facts, 1);
         SetRowSpan(_facts, plan.List ? 1 : 2);
@@ -219,6 +219,9 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     /// <summary>Keep a fact row for each fact the plan shows; the rest collapsed.</summary>
     private void LayFacts(int count)
     {
+        // [S-12807] The pick's rows reach the ends; a fact this machine does not report leaves its row empty.
+        _facts.Rows = _config is FactsConfig picked ? picked.Facts.Count : count;
+
         while (_factRows.Count < count)
         {
             var row = new RowBlock(RowKind.Fact, lead: 0);

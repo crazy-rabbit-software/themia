@@ -41,6 +41,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
     private readonly StackPanel _list = new();
+    private RowReach _reach = new(FamilyShape.Row1, FamilyShape.RowBand(1), 0);
     private readonly ScrollViewer _scroll;
     private ScrollFade? _fade;
     private readonly KitStatePanel _state;
@@ -205,11 +206,18 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _scroll.Visibility = Visibility.Visible;
         var now = _clock();
 
+        // [S-12807] The rows the config states reach the view's top and the foot's inset: their pitch, the first
+        // one's band over the top, the gap past their cap; a heading or a fold line is one row of 28 stretched alike.
+        _reach = _area.IsMeasured
+            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : new RowReach(_plan.RowHeight, FamilyShape.RowBand(_plan.Lines), 0);
+        ListReach.Apply(_scroll, _reach, _list);
+
         if (_plan.Grouped)
         {
             foreach (var group in NotificationRules.Groups(items))
             {
-                AddLine(Heading(group), FamilyShape.Row1, heading: true);
+                AddLine(Heading(group), LinePitch, heading: true);
                 var (rows, more) = NotificationRules.Fold(group, _open.Contains(group.AppId), _plan.Folded);
                 foreach (var item in rows)
                 {
@@ -218,7 +226,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
 
                 if (more > 0 || (_open.Contains(group.AppId) && group.Items.Count > _plan.Folded))
                 {
-                    AddLine(Fold(group, more), FamilyShape.Row1, heading: false);
+                    AddLine(Fold(group, more), LinePitch, heading: false);
                 }
             }
         }
@@ -231,7 +239,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         }
 
         // [S-6712] As tall as the whole lines that fit, never ending on a heading.
-        var room = KitPlanner.ListHeight(_area);
+        var room = _area.Height - FamilySpace.Inset + (2 * _reach.Over);
         var bottoms = _lines.Select(l => l.Bottom).ToList();
         var content = bottoms.Count > 0 ? bottoms[^1] : 0;
         _scroll.Height = !_area.IsMeasured ? double.NaN
@@ -243,10 +251,14 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _fade?.Refresh();
     }
 
+    /// <summary>[S-12807] A heading's or a fold line's height: one row of 28, stretched as the rows are.</summary>
+    private double LinePitch => FamilyShape.Row1 * (_reach.Pitch / _plan.RowHeight);
+
     private void AddLine(FrameworkElement line, double height, bool heading)
     {
+        line.Height = height;
         _list.Children.Add(line);
-        _lines.Add(((_lines.Count > 0 ? _lines[^1].Bottom : 0) + height, heading));
+        _lines.Add(((_lines.Count > 0 ? _lines[^1].Bottom + _reach.Gap : 0) + height, heading));
     }
 
     /// <summary>[S-4403] Access Windows has not given: the state row's sentence and the one button that fixes it.</summary>
@@ -361,7 +373,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
 
         _rows.Add((row, item));
         LinkRow(row, item);
-        AddLine(row, _plan.RowHeight, heading: false);
+        AddLine(row, _reach.Pitch, heading: false);
     }
 
     /// <summary>[S-4405] The sender's icon, 16: the bell until one comes, and where none does.</summary>

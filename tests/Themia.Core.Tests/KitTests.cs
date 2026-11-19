@@ -273,7 +273,7 @@ public sealed class KitTests
         var area = new WidgetArea(width, height);
         var plan = KitPlanner.Plan(area, Rich, KitShow.All);
 
-        Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(area)) >= 1, tier);
+        Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(area, plan)) >= 1, tier);
 
         // [S-12410] The rows stretch to fill the box, never past half again their natural height.
         Assert.InRange(plan.RowHeight, FamilyShape.RowHeight(plan.Lines), FamilyShape.RowHeight(plan.Lines) * ItemStretch.RowCap);
@@ -284,16 +284,22 @@ public sealed class KitTests
     [InlineData(6, 1)]
     [InlineData(6, 2)]
     [InlineData(20, 3)]
-    public void S12410_a_list_at_its_natural_box_runs_its_rows_down_to_the_card_s_edge(int rows, int lines)
+    public void S12807_a_list_at_its_natural_box_reaches_the_top_and_the_foot_s_inset_with_its_text(int rows, int lines)
     {
-        // The sizing counts the foot's inset under the rows; the rows take it (whole pixels each), less than a pixel a row left.
+        // The sizing counts the foot's inset under the rows; the rows' text runs from the view's top to that inset
+        // (their first band over the top, the last in the inset), less than a pixel a gap left; one row is centred.
         var choices = new KitChoices(KitShow.All) { Rows = new KitRowsChoice(rows, lines) };
         var height = KitSizing.Steps(choices.Rows, addFooter: false).At(rows) - FamilySpace.ContentTop;
         var plan = KitPlanner.Plan(new WidgetArea(300, height), Rich, choices);
 
         Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
-        Assert.True(height - (rows * plan.RowHeight) < rows, $"{height - (rows * plan.RowHeight)} left under {rows} rows");
-        Assert.Equal(rows, KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))));
+        var text = FamilyShape.RowHeight(lines) - (2 * FamilyShape.RowBand(lines));
+        var top = -plan.RowOver + ((plan.RowHeight - text) / 2);
+        var end = -plan.RowOver + ((rows - 1) * (plan.RowHeight + plan.RowGap)) + ((plan.RowHeight + text) / 2);
+        var room = height - FamilySpace.Inset;
+        Assert.True(end <= room + 1e-9 && (rows == 1 || room - end < rows), $"{room - end} left under {rows} rows' text");
+        Assert.Equal(rows == 1 ? room - end : 0, top, 6);
+        Assert.Equal(rows, KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height), plan)));
     }
 
     [Fact]

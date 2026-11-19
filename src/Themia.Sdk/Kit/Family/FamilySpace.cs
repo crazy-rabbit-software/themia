@@ -183,6 +183,17 @@ public static class FamilyShape
         _ => Row3,
     };
 
+    /// <summary>
+    /// [S-12807] The band over and under a row's text at its natural height (<see cref="RowHeight"/>): 4 for one
+    /// line, 2 for two or three. A list whose rows reach its ends cancels it there, so its first and last text
+    /// stand on the inset.
+    /// </summary>
+    public static double RowBand(int lines)
+    {
+        var clamped = Math.Clamp(lines, 1, 3);
+        return (RowHeight(clamped) - FamilyType.BodyLine - ((clamped - 1) * FamilyType.CaptionLine)) / 2;
+    }
+
     /// <summary>The radius that makes a <paramref name="width"/> × <paramref name="height"/> part round.</summary>
     public static double Round(double width, double height) => Math.Max(0, Math.Min(width, height) / 2);
 

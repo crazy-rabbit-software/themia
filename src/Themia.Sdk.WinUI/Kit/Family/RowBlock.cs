@@ -391,6 +391,9 @@ public sealed partial class RowBlock : Grid
         MinHeight = natural;
         MaxHeight = natural * ItemStretch.RowCap;
     }
+
+    /// <summary>[S-12807] The band over and under its text at its natural height (<see cref="FamilyShape.RowBand"/>): what a list cancels at its ends.</summary>
+    public double Band => FamilyShape.RowBand(_lines);
 }
 
 /// <summary>

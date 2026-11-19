@@ -311,20 +311,21 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         // [S-11310] One column of the config's rows, the rest a scroll away.
         _columns.ColumnDefinitions.Clear();
         _columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        // [S-12807] The config's rows reach the view's top and the foot's inset.
+        var reach = _area.IsMeasured
+            ? ItemStretch.Rows(_area.Height, plan.Rows, plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : new RowReach(FamilyShape.RowHeight(plan.Lines), FamilyShape.RowBand(plan.Lines), 0);
         var column = new StackPanel();
         _columns.Children.Add(column);
-
-        // [S-12410] The config's rows run down to the card's edge, the foot's inset theirs to stretch into.
-        var natural = FamilyShape.RowHeight(plan.Lines);
-        var pitch = _area.IsMeasured ? ItemStretch.Pitch(_area.Height, plan.Rows, natural, scale: XamlRoot?.RasterizationScale ?? 1) : natural;
         foreach (var device in devices)
         {
             var row = BuildRow(device, plan);
-            row.Height = pitch;
+            row.Height = reach.Pitch;
             column.Children.Add(row);
         }
 
-        _scroll.Height = plan.Rows * pitch;
+        _scroll.Height = reach.Length(plan.Rows);
+        ListReach.Apply(_scroll, reach, column);
     }
 
     /// <summary>

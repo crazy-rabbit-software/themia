@@ -9,7 +9,7 @@ namespace Themia.Core.Widgets;
 /// <param name="Time">When it came, as the row's value.</param>
 /// <param name="Grouped">Under app headings rather than flat with an icon per row.</param>
 /// <param name="Folded">Notifications an app shows before "See more" when grouped.</param>
-public readonly record struct NotificationPlan(int Lines, bool Lead, bool Time, bool Grouped, int Folded)
+public readonly record struct NotificationPlan(int Lines, bool Lead, bool Time, bool Grouped, int Folded, int Rows = 1)
 {
     /// <summary>A notification's one height (28 or 40).</summary>
     public double RowHeight => FamilyShape.RowHeight(Lines);
@@ -25,6 +25,6 @@ public static class NotificationsLayout
     public static NotificationPlan Plan(NotificationsConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return new NotificationPlan(config.RowsShown.Lines, Lead: true, Time: true, Grouped: config.AppHeadings, NotificationRules.FoldAt);
+        return new NotificationPlan(config.RowsShown.Lines, Lead: true, Time: true, Grouped: config.AppHeadings, NotificationRules.FoldAt, config.RowsShown.Rows);
     }
 }

@@ -36,12 +36,10 @@ public static class RemovableDrivesPlan
     }
 
     /// <summary>
-    /// [S-12410] A row's height in a view <paramref name="height"/> tall: two lines' 40, stretched over the
-    /// config's rows down to the card's edge (the foot's inset the sizing counts), at most half again.
+    /// [S-12807] The config's rows in a view <paramref name="height"/> tall: two lines' 40 each, their text
+    /// from the view's top to the foot's inset, at most half again (<see cref="Themia.Core.Widgets.ItemStretch.Rows"/>);
+    /// the list is <see cref="Themia.Core.Widgets.RowReach.Length"/> of the config's rows.
     /// </summary>
-    public static double Pitch(double height, int rows, double scale = 1)
-        => Themia.Core.Widgets.ItemStretch.Pitch(height, KitSizing.ClampRows(rows), FamilyShape.RowHeight(Lines), scale: scale);
-
-    /// <summary>[S-11027] The list's height: the config's rows, two lines each, at <paramref name="pitch"/> a row ([S-12410]).</summary>
-    public static double ListHeight(int rows, double pitch) => KitSizing.ClampRows(rows) * pitch;
+    public static Themia.Core.Widgets.RowReach Reach(double height, int rows, double scale = 1)
+        => Themia.Core.Widgets.ItemStretch.Rows(height, KitSizing.ClampRows(rows), Lines, scale: scale);
 }

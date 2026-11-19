@@ -34,9 +34,9 @@ their translations). Tests: `Tests/WeatherFactsTests.cs` (run by `tests/Themia.M
   (the weather family's search, [S-3722]); the temperature unit and the update interval are ⚙'s,
   followed, no link row ([S-3749]). A click on the card opens the forecast for its place, as the reading's
   ([S-2035]). Tests `WeatherFactsTests`.
-- **[S-12402]** **The rows fill the content** ([S-12400]): the fact rows reach from the content's top to
-  the card's edge ([S-12410]: the foot's inset is theirs), a box taller than the pick stretching them up to
-  half again, then spacing them evenly
+- **[S-12402]** **The rows fill the content** ([S-12400]): the fact rows' text reaches from the content's top
+  to the foot's inset ([S-12807]), a box taller than the pick stretching them up to half again, then spacing
+  them
   (`SkyFactList`, a `SpreadStack`; the air facts' rows share it); each row spans the width, its value at
   the end.
 

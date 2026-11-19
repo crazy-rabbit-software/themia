@@ -177,7 +177,7 @@ Needs a live pass: a real folder (navigation, double-click and Enter opening, re
 New, Delete to the Recycle Bin), drag in and out with Explorer and Outlook, the Explorer menu's
 two-tone icons and Show more options, the clipboard both ways with Explorer, a ZIP, OneDrive pin
 states, edit mode leaving it inert, multi-monitor and mixed DPI.
-- **[S-12451]** **The list runs down to the card's edge** ([S-12410]): the List and Details rows are the
-  whole rows of 28 that fit the items' room and the card's bottom inset (`FolderLayout.ListHeight`),
-  stretched to fill it up to half again (`FolderLayout.Pitch`); the Grid's and the Icons' cells keep
-  their size and the inset their marks stand in. Tests `FolderPitchTests.S12451_`.
+- **[S-12451]** **The list reaches the foot's inset** ([S-12807]): the List and Details rows are the whole
+  rows of 28 that fit the items' room, their text from the items' top to the foot's inset, up to half again
+  (`FolderLayout.Reach`); the Grid's and the Icons' cells keep their size and the inset their marks stand in.
+  Tests `FolderPitchTests.S12451_`.

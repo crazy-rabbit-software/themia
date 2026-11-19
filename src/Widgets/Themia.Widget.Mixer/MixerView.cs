@@ -199,14 +199,15 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         var plan = MixerLayout.Plan(_area.IsMeasured ? _area.Width : MixerLayout.NaturalWidth, _config.ShowIcons, _config.Lines, _config.Rows, main.Count, quiet.Count);
         _shown = [.. main, .. quiet.Take(plan.Quiet)];
 
-        // [S-12410] The config's rows run down to the card's edge: they stretch into the foot's inset the
-        // sizing counts (up to half again their height), each row exactly that pitch.
-        var natural = FamilyShape.RowHeight(plan.Lines);
-        _pitch = _area.IsMeasured
-            ? ItemStretch.Pitch(_area.Height, MixerLayout.ClampRows(_config.Rows), natural, scale: XamlRoot?.RasterizationScale ?? 1)
-            : natural;
+        // [S-12807] The config's rows reach the view's top and the foot's inset (up to half again their
+        // height), each row exactly that pitch, the first one's band over the top.
+        var reach = _area.IsMeasured
+            ? ItemStretch.Rows(_area.Height, MixerLayout.ClampRows(_config.Rows), plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : new RowReach(FamilyShape.RowHeight(plan.Lines), FamilyShape.RowBand(plan.Lines), 0);
+        _pitch = reach.Pitch;
         ShowRows(plan, main.Count);
-        _scroller.Height = plan.Rows * _pitch;
+        _scroller.Height = reach.Length(plan.Rows);
+        ListReach.Apply(_scroller, reach, _list);
 
         RestoreFocus();
     }

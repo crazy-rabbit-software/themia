@@ -360,12 +360,12 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     private WidgetArea _area;
 
     /// <summary>
-    /// [S-12410] A row's height (a day's heading's too): 28 stretched over the heading and the config's rows
-    /// down to the card's edge (the foot's inset the sizing counts), at most half again.
+    /// [S-12807] A row's height (a day's heading's too): 28, the heading's and the config's rows' text from the
+    /// view's top to the foot's inset, at most half again; the first line's band over the top.
     /// </summary>
-    private double Pitch => _area.IsMeasured
-        ? ItemStretch.Pitch(_area.Height, Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows) + 1, FamilyShape.Row1, scale: XamlRoot?.RasterizationScale ?? 1)
-        : FamilyShape.Row1;
+    private RowReach Reach => _area.IsMeasured
+        ? ItemStretch.Rows(_area.Height, Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows) + 1, 1, scale: XamlRoot?.RasterizationScale ?? 1)
+        : new RowReach(FamilyShape.Row1, FamilyShape.RowBand(1), 0);
 
     private void Render()
     {
@@ -416,18 +416,21 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
             _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
 
+        var reach = Reach;
         for (var s = 0; s < slots.Count; s++)
         {
             var stack = new StackPanel();
             SetColumn(stack, s);
             _content.Children.Add(stack);
             DrawDay(stack, days[slots[s].Day], slots[s], today, zone, showColors, times: true);
+            ListReach.Apply(_content, reach, stack);
             foreach (var line in stack.Children.OfType<FrameworkElement>())
             {
-                line.Height = Pitch;
+                line.Height = reach.Pitch;
             }
         }
 
+        // [S-12807] The headings' band over the view's top, so their text stands on the card's inset.
         _content.Visibility = Visibility.Visible;
     }
 

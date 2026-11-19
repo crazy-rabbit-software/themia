@@ -172,15 +172,13 @@ public static class FolderLayout
     public static int Rows(double height) => Math.Max(1, RowRules.Fit(height, 1));
 
     /// <summary>
-    /// [S-12410] The list's rows' room: the items' height and the card's bottom inset under them, which the
-    /// rows run down into (the cells of the grid and the icons keep it: their marks stand inside it).
+    /// [S-12807] The list's rows in the items' <paramref name="height"/> (<see cref="ItemsHeight"/>, down to the
+    /// foot's inset): the whole rows of 28 there, their text from the items' top to the foot's inset line, each at
+    /// most half again, the first one's band over the top and the last one's in the inset (the cells of the grid and
+    /// the icons keep the inset: their marks stand inside it).
     /// </summary>
-    public static double ListHeight(WidgetArea area, bool search, bool header, bool breadcrumb)
-        => ItemsHeight(area, search, header, breadcrumb) + FamilySpace.Inset;
-
-    /// <summary>[S-12410] A list row's height in <paramref name="height"/>: the whole rows of 28 there, stretched to fill it (at most half again).</summary>
-    public static double Pitch(double height, double scale = 1)
-        => ItemStretch.Pitch(height, Rows(height), RowHeight, scale: scale);
+    public static RowReach Reach(double height, double scale = 1)
+        => ItemStretch.Reach(height, Rows(height), RowHeight, FamilyShape.RowBand(1), scale: scale);
 
     /// <summary>
     /// [S-1326] The tool line's parts ([S-6710]: at most two buttons): Back and Up in navigate mode, else

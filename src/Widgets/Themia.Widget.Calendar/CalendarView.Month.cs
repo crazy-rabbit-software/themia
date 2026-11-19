@@ -41,17 +41,20 @@ internal sealed partial class CalendarView
         var fit = CalendarSizing.Month(_config.MonthEvents, innerWidth, _config.MonthLines);
         var columnWidth = innerWidth / 7;
 
-        // [S-12400] [S-12410] The weeks fill the content down to the card's edge: a box taller than their
-        // cells shares the rest evenly among them (a calendar's cell is a box, it takes any room), the foot's
-        // inset included, never a band left under the last. The sides keep the inset as the day numbers' own.
-        var room = height - fit.HeaderHeight;
-        var slots = ItemStretch.Lay(room, [.. Enumerable.Repeat(StretchItem.Free(fit.CellHeight), fit.Rows)], 0, StretchRest.Around, XamlRoot?.RasterizationScale ?? 1);
+        // [S-12400] [S-12807] The weeks reach from under the header to the foot's inset: the first week's cells
+        // under the header, the last week's marks on the inset, never a band left under them nor on the card's
+        // edge; a box taller than their cells spaces them evenly (each week's room over it). The sides keep the
+        // inset as the day numbers' own.
+        var room = height - fit.HeaderHeight - FamilySpace.Inset;
+        var slots = ItemStretch.Reach(room, [.. Enumerable.Repeat(StretchItem.Fixed(fit.CellHeight), fit.Rows)], 0, 0, XamlRoot?.RasterizationScale ?? 1);
 
         var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0) };
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.HeaderHeight) });
+        var over = new double[fit.Rows];
         for (var r = 0; r < fit.Rows; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(slots[r].Length) });
+            over[r] = Math.Max(0, slots[r].Start - (r > 0 ? slots[r - 1].End : 0));
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(over[r] + slots[r].Length) });
         }
 
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
@@ -146,6 +149,7 @@ internal sealed partial class CalendarView
                 week.Children.Add(chip);
             }
 
+            ListReach.Shift(week, over[r]);
             SetRow(week, 1 + r);
             grid.Children.Add(week);
         }

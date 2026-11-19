@@ -412,4 +412,13 @@ public sealed class FamilyBlockRulesTests
             last = glyph;
         }
     }
+
+    [Theory]
+    [InlineData(1, 4)]
+    [InlineData(2, 2)]
+    [InlineData(3, 2)]
+    [InlineData(0, 4)]
+    [InlineData(9, 2)]
+    public void S12807_a_rows_band_is_what_its_height_leaves_over_and_under_its_text(int lines, double band)
+        => Assert.Equal(band, FamilyShape.RowBand(lines));
 }

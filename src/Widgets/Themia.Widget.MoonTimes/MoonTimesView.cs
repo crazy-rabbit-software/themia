@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Core.Astronomy;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -19,7 +20,8 @@ namespace Themia.Widget.MoonTimes;
 /// </summary>
 internal sealed partial class MoonTimesView : Grid, IWidgetView, IWidgetSizeAware
 {
-    private readonly StackPanel _stack = new() { VerticalAlignment = VerticalAlignment.Top };
+    /// <summary>[S-12807] The rows reach the content's top and the foot's inset (its margin), their text on both.</summary>
+    private readonly SpreadStack _stack = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
     private readonly List<(SkyEventRow Row, SkyMoonDisc Lead)> _rows = [];
     private MoonTimesConfig _config = new();
     private IDisposable? _subscription;

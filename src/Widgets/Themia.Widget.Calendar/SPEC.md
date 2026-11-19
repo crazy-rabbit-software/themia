@@ -39,7 +39,7 @@ chip's times still shorten with the column, as text does).
 - **[S-11544]** **Month**: six weeks always (the month's and the next days', dimmed), so every month is
   one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; 36 + the weekday
   line + six cells + 12, 260..420 wide, a new one 300) or Titles ([S-11547]). The weeks fill the
-  content edge to edge, down to the card's edge ([S-12400], [S-12410], `ItemStretch.Lay`): a box taller than their cells shares the rest evenly.
+  content edge to edge, the first week under the weekday line and the last week's marks on the foot's inset ([S-12400], [S-12807], `ItemStretch.Reach`): a box taller than their cells spaces the weeks evenly.
   The day readout a narrow month fell back to is gone.
 - **[S-11547]** **Month with titles** (owner request 2026-11-15: "a size where he actually shows the
   events", Outlook's and Windows' month view): each day cell its number over **Events a day** (1..6, a

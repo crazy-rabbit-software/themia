@@ -22,7 +22,7 @@ public sealed class RemovableDrivesTests
     [Fact]
     public void S11027_its_height_follows_its_rows_and_a_dragged_edge_sets_them()
     {
-        Assert.Equal(4 * 40, RemovableDrivesPlan.ListHeight(4, 40));
+        Assert.Equal(4 * 40, RemovableDrivesPlan.Reach(100, 4).Length(4));
         var sizing = Kind.SizingOf();
         Assert.Equal(12 + (4 * 40) + 12, sizing.Natural.Height);
         var two = Assert.IsType<RemovableDrivesConfig>(Kind.SizeSets!(new RemovableDrivesConfig(), new SizeDip(300, 12 + 80 + 12)));
@@ -31,11 +31,13 @@ public sealed class RemovableDrivesTests
     }
 
     [Fact]
-    public void S12452_its_rows_run_down_to_the_cards_edge_and_never_past_half_again()
+    public void S12452_its_rows_reach_the_top_and_the_foots_inset_and_never_pass_half_again()
     {
-        // The view at the natural box: four rows of 40 and the foot's 12, which the rows take.
-        Assert.Equal(43, RemovableDrivesPlan.Pitch((4 * 40) + 12, 4));
-        Assert.Equal(60, RemovableDrivesPlan.Pitch(900, 4));
-        Assert.Equal(40, RemovableDrivesPlan.Pitch(100, 4));
+        // The view at the natural box: four rows of 40 and the foot's 12. The texts span 172 - 12 = 160, of
+        // which four texts take 144: their bands share what is left, the first one's over the top.
+        var natural = RemovableDrivesPlan.Reach((4 * 40) + 12, 4);
+        Assert.Equal((40d, 2d, 1d), (natural.Pitch, natural.Over, natural.Gap));
+        Assert.Equal(60, RemovableDrivesPlan.Reach(900, 4).Pitch);
+        Assert.Equal((40d, 2d), (RemovableDrivesPlan.Reach(100, 4).Pitch, RemovableDrivesPlan.Reach(100, 4).Over));
     }
 }

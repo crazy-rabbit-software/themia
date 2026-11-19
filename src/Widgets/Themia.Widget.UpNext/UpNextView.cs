@@ -25,8 +25,22 @@ namespace Themia.Widget.UpNext;
 /// which meeting is next; it never fetches on its own (a 5-minute poll and the accounts' change event).
 /// A click on a row opens that meeting in its calendar ([S-1268]).
 /// </summary>
-internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware
 {
+    private WidgetArea _area;
+
+    /// <summary>[S-12807] The box decides how the config's rows reach the view's ends, never how many.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        if (area == _area)
+        {
+            return;
+        }
+
+        _area = area;
+        Render();
+    }
+
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);
 
     private static readonly TimeSpan Minute = TimeSpan.FromMinutes(1);
@@ -186,9 +200,19 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
             ToolTipService.SetToolTip(row, $"{(string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject)}{Environment.NewLine}{NextMeetingRules.Range(locale, item, zone)}");
         }
 
-        // [S-2440] As tall as the rows its config states; the rest a scroll away.
+        // [S-2440] As tall as the rows its config states; the rest a scroll away. [S-12807] The rows reach the
+        // view's top and the foot's inset, the first one's band over the top.
         var fit = Math.Max(1, _config.RowsShown.Rows);
-        _scroll.Height = after.Count > fit ? fit * FamilyShape.Row1 : double.NaN;
+        var reach = _area.IsMeasured
+            ? ItemStretch.Rows(_area.Height, fit, 1, scale: XamlRoot?.RasterizationScale ?? 1)
+            : new RowReach(FamilyShape.Row1, FamilyShape.RowBand(1), 0);
+        foreach (var row in _rows)
+        {
+            row.Height = reach.Pitch;
+        }
+
+        _scroll.Height = after.Count > fit ? reach.Length(fit) : double.NaN;
+        ListReach.Apply(_scroll, reach, _list);
         _scroll.Visibility = Visibility.Visible;
         _fade?.Refresh();
         LightRows();

@@ -146,9 +146,9 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         var locale = Strings.Current;
         var picture = !(_surface?.IsPreview ?? false) && _previewDevices is null;
-        var pitch = _area.IsMeasured
-            ? RemovableDrivesPlan.Pitch(_area.Height, _rowCount, XamlRoot?.RasterizationScale ?? 1)
-            : FamilyShape.RowHeight(RemovableDrivesPlan.Lines);
+        var reach = _area.IsMeasured
+            ? RemovableDrivesPlan.Reach(_area.Height, _rowCount, XamlRoot?.RasterizationScale ?? 1)
+            : new RowReach(FamilyShape.RowHeight(RemovableDrivesPlan.Lines), FamilyShape.RowBand(RemovableDrivesPlan.Lines), 0);
         for (var i = 0; i < _rows.Count; i++)
         {
             var shown = i < _devices.Count;
@@ -156,11 +156,13 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             if (shown)
             {
                 _rows[i].Show(_devices[i], look, picture, locale);
-                _rows[i].Block.Height = pitch;
+                _rows[i].Block.Height = reach.Pitch;
             }
         }
 
-        _scroll.Height = RemovableDrivesPlan.ListHeight(_rowCount, pitch);
+        // [S-12807] The first row's band over the view's top, so its text stands on the card's inset.
+        _scroll.Height = reach.Length(KitSizing.ClampRows(_rowCount));
+        ListReach.Apply(_scroll, reach, _list);
         LinkRows();
 
         if (_focus >= _devices.Count)

@@ -25,8 +25,22 @@ namespace Themia.App.Widgets;
 /// or takes it off the list. The list is the shared <see cref="RecentItems"/>, redrawn when its folder
 /// changes; the minute tick only keeps "2h" honest. Keys through the lease, as every list ([S-1288]).
 /// </summary>
-internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys, IWidgetSizeAware
 {
+    private WidgetArea _area;
+
+    /// <summary>[S-12807] The box decides how the config's rows reach the view's ends, never how many.</summary>
+    public void ApplySize(WidgetArea area)
+    {
+        if (area == _area)
+        {
+            return;
+        }
+
+        _area = area;
+        Render();
+    }
+
     /// <inheritdoc />
     public CardOpen? Opens => RecentFilesModule.Opens;
 
@@ -167,9 +181,19 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
             _list.Children.Add(row);
         }
 
-        // [S-11200] As tall as the rows the config asks for: never a part of one at its foot.
+        // [S-11200] As tall as the rows the config asks for: never a part of one at its foot. [S-12807] The rows
+        // reach the view's top and the foot's inset, the first one's band over the top.
         var shown = _config.RowsShown;
-        _scroll.Height = Math.Min(_rows.Count, shown.Rows) * FamilyShape.RowHeight(shown.Lines);
+        var reach = _area.IsMeasured
+            ? ItemStretch.Rows(_area.Height, shown.Rows, shown.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : new RowReach(FamilyShape.RowHeight(shown.Lines), FamilyShape.RowBand(shown.Lines), 0);
+        foreach (var row in _rows)
+        {
+            row.Height = reach.Pitch;
+        }
+
+        _scroll.Height = reach.Length(Math.Min(_rows.Count, shown.Rows));
+        ListReach.Apply(_scroll, reach, _list);
 
         _cursor = _cursor < _rows.Count ? _cursor : -1;
         ShowCursor();

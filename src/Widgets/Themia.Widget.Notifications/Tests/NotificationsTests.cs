@@ -17,7 +17,7 @@ public sealed class NotificationsTests
         var config = new NotificationsConfig();
         var plan = NotificationsLayout.Plan(config);
 
-        Assert.Equal(new NotificationPlan(2, true, true, false, NotificationRules.FoldAt), plan);
+        Assert.Equal(new NotificationPlan(2, true, true, false, NotificationRules.FoldAt, 4), plan);
         Assert.Equal(new SizeDip(300, 12 + (4 * 40) + 12), new NotificationsModule().Descriptor.Sizing(config).Natural);
     }
 

@@ -18,15 +18,14 @@ internal sealed partial class WeatherForecastView
     /// One Row block per day the plan shows: the day's sky glyph, the day (today strong), its range bar,
     /// "low high"; the sky in words and the precipitation as the second line where the tier gives one.
     /// <para>
-    /// [S-12403] [S-12410] The rows fill the content down to the card's edge, a box taller than the days
-    /// (whole grid cells, the foot's inset) stretching them up to half again, then spacing them
-    /// (<see cref="SpreadStack"/>); across, each bar takes what
+    /// [S-12807] The rows reach the content's top and the foot's inset (<see cref="SpreadStack"/>, the foot's
+    /// inset its margin): the first day's text on the card's inset, the last day's on the foot's; across, each bar takes what
     /// the widest day and the widest value leave, the same length on every row.
     /// </para>
     /// </summary>
     private SpreadStack BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
     {
-        var list = new SpreadStack();
+        var list = new SpreadStack { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
         var bars = new List<(RowBlock Row, ChartBar Bar)>();
 
         for (var i = 0; i < Math.Min(plan.Days, days.Count); i++)

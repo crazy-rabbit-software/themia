@@ -61,8 +61,8 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     public HabitTrackerView(IWidgetHost host)
     {
         _host = host;
-        // [S-3850] The rows take the tile and the add footer is pinned under them. [S-12410] They run down
-        // to the card's edge: the foot's inset the sizing counts is the rows' to stretch into.
+        // [S-3850] The rows take the tile and the add footer is pinned under them. [S-12807] The rows' text
+        // reaches the view's top and the add footer's, whose text stands on the foot's inset.
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / status
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add footer
 
@@ -288,17 +288,18 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         LayHeatmap(count);
 
         // [S-11530] The config's rows at the top and the add footer under them ([S-3850]); fewer habits
-        // leave their rows empty. Whole rows in the viewport: the rest scroll. [S-12410] The rows stretch
-        // over the room the add footer leaves (up to half again), down to the card's edge.
-        var pitch = _area.IsMeasured
-            ? ItemStretch.Pitch(_area.Height - FamilyShape.Row1, plan.Rows, plan.RowHeight, scale: XamlRoot?.RasterizationScale ?? 1)
-            : plan.RowHeight;
-        _scroll.Height = plan.Rows < count ? plan.Rows * pitch : double.NaN;
+        // leave their rows empty. Whole rows in the viewport: the rest scroll. [S-12807] The rows reach the
+        // view's top and the add footer, whose text stands on the foot's inset (up to half again their height).
+        var reach = _area.IsMeasured
+            ? ItemStretch.RowsAbove(_area.Height, plan.Rows, plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : new RowReach(plan.RowHeight, FamilyShape.RowBand(plan.Lines), 0);
+        _scroll.Height = plan.Rows < count ? reach.Length(plan.Rows) : double.NaN;
+        ListReach.Apply(_scroll, reach, _list);
 
         foreach (var row in _rows)
         {
             row.SetLayout(plan);
-            row.Host.Height = pitch;
+            row.Host.Height = reach.Pitch;
         }
 
         FitAddRow(plan);

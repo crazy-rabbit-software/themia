@@ -158,10 +158,10 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
 
     private WidgetArea _area;
 
-    /// <summary>[S-12410] A row's height: its lines' natural one stretched over the config's rows down to the card's edge.</summary>
-    private double Pitch => _area.IsMeasured
-        ? ItemStretch.Pitch(_area.Height, _plan.Rows, _plan.RowHeight, scale: XamlRoot?.RasterizationScale ?? 1)
-        : _plan.RowHeight;
+    /// <summary>[S-12807] The config's rows reaching the view's top and the foot's inset.</summary>
+    private RowReach Reach => _area.IsMeasured
+        ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+        : new RowReach(_plan.RowHeight, FamilyShape.RowBand(_plan.Lines), 0);
 
     private void Redraw()
     {
@@ -199,17 +199,18 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
         // show two different ideas of "now".
         var now = _clock();
 
-        var pitch = Pitch;
+        var reach = Reach;
         for (var i = 0; i < entries.Count; i++)
         {
             var row = BuildRow(entries[i], i == 0, now);
-            row.Height = pitch;
+            row.Height = reach.Pitch;
             _rows.Add(row);
             _list.Children.Add(row);
         }
 
         // [S-2440] As tall as the rows its config states: never a part of one at its foot.
-        _scroll.Height = Math.Min(_rows.Count, _plan.Rows) * pitch;
+        _scroll.Height = reach.Length(Math.Min(_rows.Count, _plan.Rows));
+        ListReach.Apply(_scroll, reach, _list);
 
         _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;
         ShowCursor();

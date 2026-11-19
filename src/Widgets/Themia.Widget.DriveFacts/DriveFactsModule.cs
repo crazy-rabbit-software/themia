@@ -99,7 +99,7 @@ public sealed class DriveFactsConfig : FactsConfig, IDriveChoice
 /// drive without figures keeps its rows, each it cannot read "--" dimmed ([S-11007]). The drives come
 /// from the host's one walk (<see cref="IDrives"/>), as the Drive reading's.
 /// </summary>
-internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetSurfaceAware
+internal sealed partial class DriveFactsView : SpreadStack, IWidgetView, IWidgetSurfaceAware
 {
     private readonly IWidgetHost _host;
     private readonly List<RowBlock> _rows = [];
@@ -118,7 +118,9 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
     public DriveFactsView(IWidgetHost host)
     {
         _host = host;
-        VerticalAlignment = VerticalAlignment.Top;
+
+        // [S-12807] The rows reach the content's top and the foot's inset, their text on both.
+        Margin = new Thickness(0, 0, 0, FamilySpace.Inset);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;

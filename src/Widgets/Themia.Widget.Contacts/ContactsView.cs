@@ -605,7 +605,10 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     {
         // A resize being dragged hands the view the config that size means ([S-2447]): never the box's own count.
         var shown = Math.Max(1, Math.Min(lines, plan.Rows));
-        _scroll.Height = lines > shown ? shown * plan.Pitch : double.NaN;
+        _scroll.Height = lines > shown ? (shown * plan.Pitch) + ((shown - 1) * plan.Gap) : double.NaN;
+
+        // [S-12807] The first row's band over the rows' room, so its text stands where the room starts.
+        ListReach.Apply(_scroll, new RowReach(plan.Pitch, plan.Over, plan.Gap));
     }
 
     /// <summary>[S-1270] [S-1271] The list and the compact rows: Row blocks in columns, read left to right.</summary>
@@ -613,6 +616,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     {
         var compact = plan.Layout == ContactsLayout.Compact;
         var grid = new Grid();
+        ListReach.Apply(_scroll, new RowReach(plan.Pitch, plan.Over, plan.Gap), grid);
         for (var c = 0; c < plan.Columns; c++)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -673,6 +677,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         var list = new StackPanel();
+        ListReach.Apply(_scroll, new RowReach(plan.Pitch, plan.Over, plan.Gap), list);
         foreach (var contact in contacts)
         {
             var cells = new Grid();
@@ -741,6 +746,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         // [S-11406] The lines its config states; the rest is a scroll away.
         var shown = Math.Max(1, Math.Min(lines, plan.Rows));
         _scroll.Height = lines > shown ? (shown * plan.Pitch) - FamilySpace.ColumnGap : double.NaN;
+        _scroll.Margin = default;
         Use(panel);
     }
 

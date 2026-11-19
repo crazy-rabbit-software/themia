@@ -16,7 +16,13 @@ namespace Themia.Widget.Contacts;
 /// <param name="Icon">The grid: a cell's monogram (48).</param>
 /// <param name="Pitch">A row's (a grid line's) height.</param>
 /// <param name="Rows">How many rows (grid lines) show; the rest is a scroll away.</param>
-public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Columns, double ColumnWidth, int Lines, bool Avatar, bool Aside, double Icon, double Pitch, int Rows);
+/// <param name="Over">[S-12807] How far the rows start over their room: the first row's band, so its text stands where the room starts.</param>
+/// <param name="Gap">[S-12807] The spacing between two rows past their cap.</param>
+public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Columns, double ColumnWidth, int Lines, bool Avatar, bool Aside, double Icon, double Pitch, int Rows, double Over = 0, double Gap = 0)
+{
+    /// <summary>[S-12807] The rows laid as <paramref name="reach"/> says.</summary>
+    public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch, Over = reach.Over, Gap = reach.Gap };
+}
 
 /// <summary>
 /// [S-11406] The contacts widget's plan and sizes on the family's parts ([S-6711]..[S-6713]), each
@@ -58,18 +64,21 @@ public static class ContactsPlan
         return config.EffectiveLayout switch
         {
             ContactsLayout.Grid => new ContactsLayoutPlan(ContactsLayout.Grid, Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid), CellWidth, 1, false, false, CellIcon, CellHeight + FamilySpace.ColumnGap, Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid)),
-            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, Pitch(area, search + HeaderHeight, rows, FamilyShape.Row1, scale), rows),
-            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, Pitch(area, search, rows, FamilyShape.Row1, scale), rows),
-            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, lines, true, false, 0, Pitch(area, search, rows, FamilyShape.RowHeight(lines), scale), rows),
+            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, FamilyShape.Row1, rows).With(Reach(area, search + HeaderHeight, rows, 1, scale)),
+            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, FamilyShape.Row1, rows).With(Reach(area, search, rows, 1, scale)),
+            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, lines, true, false, 0, FamilyShape.RowHeight(lines), rows).With(Reach(area, search, rows, lines, scale)),
         };
     }
 
     /// <summary>
-    /// [S-12410] A row's height: its natural one stretched over the config's rows down to the card's edge
-    /// (the foot's inset the sizing counts), at most half again; the natural before the box is measured.
+    /// [S-12807] The config's rows under <paramref name="over"/> (the search box, the column titles): their text
+    /// from where their room starts to the foot's inset, each at most half again its natural height; natural
+    /// rows before the box is measured.
     /// </summary>
-    private static double Pitch(WidgetArea area, double over, int rows, double natural, double scale)
-        => area.IsMeasured ? ItemStretch.Pitch(area.Height - over, rows, natural, scale: scale) : natural;
+    private static RowReach Reach(WidgetArea area, double over, int rows, int lines, double scale)
+        => area.IsMeasured
+            ? ItemStretch.Rows(area.Height, rows, lines, over, scale)
+            : new RowReach(FamilyShape.RowHeight(lines), FamilyShape.RowBand(lines), 0);
 
     /// <summary>
     /// [S-11406] Each layout's own sizes, with the search box where it is on: List and Compact the

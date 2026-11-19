@@ -44,7 +44,7 @@ public sealed partial class DetailView : IWidgetKeys
     private string? _focusKey;
     private int _lines = 1;
 
-    /// <summary>[S-12410] A list row's height: its lines' natural one, stretched to fill the room up to half again.</summary>
+    /// <summary>[S-12807] A list row's height: its lines' natural one, stretched so the rows reach the view's ends, up to half again.</summary>
     private double _pitch = FamilyShape.Row1;
 
     private void BuildList()
@@ -82,12 +82,13 @@ public sealed partial class DetailView : IWidgetKeys
             return;
         }
 
-        // [S-6712] As tall as its whole rows: never a part of one at its foot. [S-12410] The rows stretch to
-        // fill the room down to the card's edge (the foot's inset included), up to half again their height.
+        // [S-6712] As tall as its whole rows: never a part of one at its foot. [S-12807] The rows reach the
+        // view's top and the foot's inset, up to half again their height, the first one's band over the top.
         _lines = p.ListLines;
-        var facts = p.Facts * FamilyShape.Row1;
-        _pitch = ItemStretch.Pitch(_area.Height - facts, p.ListRows, FamilyShape.RowHeight(_lines), scale: XamlRoot?.RasterizationScale ?? 1);
-        _scroll.Height = p.ListRows * _pitch;
+        var reach = ItemStretch.Rows(_area.Height, p.ListRows, _lines, scale: XamlRoot?.RasterizationScale ?? 1);
+        _pitch = reach.Pitch;
+        _scroll.Height = reach.Length(p.ListRows);
+        ListReach.Apply(_scroll, reach, _list);
         SetRow(_scroll, 2);
     }
 
@@ -102,7 +103,7 @@ public sealed partial class DetailView : IWidgetKeys
         }
 
         var count = ListCount;
-        var rowHeight = _pitch;
+        var rowHeight = _pitch + _list.Spacing;
         var lead = _sheet.Rows.Any(r => r.Symbol != RowSymbol.None || r.IconPath is not null);
         var built = FolderRealize.Target(count, _rows.Count, _scroll.VerticalOffset, _scroll.ViewportHeight, rowHeight, 1, _focus);
 
