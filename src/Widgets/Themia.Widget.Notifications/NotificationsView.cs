@@ -217,7 +217,9 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         {
             foreach (var group in NotificationRules.Groups(items))
             {
-                AddLine(Heading(group), LinePitch, heading: true);
+                var heading = Heading(group);
+                LinkHeading(heading, group); // [S-11930]
+                AddLine(heading, LinePitch, heading: true);
                 var (rows, more) = NotificationRules.Fold(group, _open.Contains(group.AppId), _plan.Folded);
                 foreach (var item in rows)
                 {
@@ -372,7 +374,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         ToolTipService.SetToolTip(row, NotificationsStr.Panels_Notifications_Open.Format(("app", app)));
 
         _rows.Add((row, item));
-        LinkRow(row, item);
         AddLine(row, _reach.Pitch, heading: false);
     }
 
@@ -565,7 +566,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
             case ListCommand.Focus:
                 _cursor = decision.Index;
                 ShowCursor();
-                PointCursor();
                 return true;
 
             case ListCommand.Open:
@@ -585,7 +585,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
                 var had = _cursor is not null;
                 _cursor = null;
                 ShowCursor();
-                PointCursor();
                 return had;
 
             default:

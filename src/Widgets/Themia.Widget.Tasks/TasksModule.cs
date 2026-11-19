@@ -5,7 +5,6 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
-using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
@@ -43,7 +42,6 @@ public sealed class TasksModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(((TasksConfig)c).RowsShown, addFooter: true),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((TasksConfig)c).RowsShown, addFooter: true),
         Traits = WidgetTraits.HasItems,
-        Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
     };
 

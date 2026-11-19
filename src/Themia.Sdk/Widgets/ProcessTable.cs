@@ -251,7 +251,9 @@ public static class ProcessTable
             var name = s.Count > 1 ? $"{s.Name} ({LocaleFormat.Integer(locale, s.Count)})" : s.Name;
             var icon = iconPath?.Invoke(s);
             var key = RowKey(s, grouped);
-            var app = AppKey(s.Name, icon);
+
+            // [S-11965] Grouped, a row is its program; one row per process is one of the program's processes: no app.
+            var app = grouped ? AppKey(s.Name, icon) : null;
             rows.Add(sort == ProcessSort.Memory
                 ? new DetailRow(key, name, memory, cpu, Symbol: RowSymbol.App, IconPath: icon, App: app)
                 : new DetailRow(key, name, cpu, memory, Symbol: RowSymbol.App, IconPath: icon, App: app));

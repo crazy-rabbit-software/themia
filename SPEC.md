@@ -6276,9 +6276,10 @@ the same thing in the others and a composition of small widgets reads as one (Ka
 `docs/widgets.md` §9, taken over in breadth: the declaration in data and the two emphasis levels; the
 engine is Themia's own). Owning files: SDK `Themia.Sdk/Links/` (`ViewLinks.cs`: `LinkTopicId`,
 `LinkTopics`, `LinkBoard`, `LinkMember`, `LinkRegistry`; `LinkUse`, `LinkEmphasis`, `LinkKeys`,
-`LinkInstants`, `LinkCardState`); WinUI SDK `Widgets/WidgetLinks.cs` (`WidgetLinks`), `LinkLights.cs` (`LinkLights<T>`, `LinkLook`), `LinkCard.cs` (`LinkCard<T>`), `MeterView.Links.cs`; App
+`LinkInstants`, `LinkCardState`, `LinkPartsState`); WinUI SDK `Widgets/WidgetLinks.cs` (`WidgetLinks`), `LinkLights.cs` (`LinkLights<T>`, `LinkLook`), `LinkCard.cs` (`LinkCard<T>`), `MeterView.Links.cs`; App
 `AppServices.Links`, `IWidgetSurface.Links`, `IWidgetCardHost.Links`. Tests `ViewLinksTests` (`S33xx_`),
-`ViewLinksLookTests` (`S119xx_`), `ViewLinksCardTests` (a whole card), `ViewLinksConformanceTests` (Modules).
+`ViewLinksLookTests` (`S119xx_`), `ViewLinksCardTests` (a whole card), `ViewLinksOneItemTests` (the parts of a
+widget, one item one light), `ViewLinksConformanceTests` (Modules).
 
 The board:
 
@@ -6346,6 +6347,20 @@ The one look, everywhere ([S-6706]: the family's item layer and accent; no hue o
   its own change ([S-3303]), so a widget that took a hover over from another (the same value set again owns it
   silently, [S-3304]; touching cards, the next entered before the last left) and then let it go stayed lit with
   nothing pointed at.
+- **[S-11965]** **One item, one light** (owner, 2026-11-19: "when hovering over an email it highlights multiple emails.
+  it should only highglight exactly the same item, not all from the sender for example as it does right now"). A
+  hover lights exactly the item under the pointer. In the widget the pointer is on, only the part under it is lit
+  (its row's hover; a mark whole and the others at 0.6), never another part that carries the same value (a
+  multi-day event's other row); the keyboard cursor lights nothing more than its own mark ([S-3307]). In the other
+  widgets of the view a part lights only where it **is** that same item: the message ([S-11966]), the event by its id
+  ([S-3623]), the contact ([S-11940]), the day ([S-11920]), the file, the drive, the device, the app, the moment. A
+  part is keyed by what it is, never by what it carries: a mail is not its sender, an event not its organiser or its
+  day, a task not its due day, a notification not its app, one process or audio session not its program, a habit's
+  dot not the day, a folder under a drive's root not the drive. Such a part takes no part in that topic: it neither
+  publishes it nor lights for it, so pointing at a sender, a day, an app or a drive never lights every item that has
+  it. The rule is `LinkPartsState` (`LinkLights` draws it), `LinkCardState` for a whole card, and each kind's key.
+  A pick ([S-3302]) still lights every part that is the thing picked. The screen-time widgets' app focus ([S-3310],
+  [S-3333]) is a filter of the whole family on one app (its series in every bar), not a hover of one item, and stays.
 
 Declared in data:
 
@@ -6365,7 +6380,8 @@ Declared in data:
 - **[S-11909]** A store scene can set links, so a picture shows the effect: `"links": { "hoveredDate":
   "today+1", "selectedDate": "2026-11-13", "hoveredApp": "code", "selectedApp": "msedge",
   "hoveredInstant": "-00:00:30" | { "at": "-00:00:30", "subject": "cpu" }, "hoveredPerson": "a@b.c",
-  "hoveredFile": "C:\\…", "hoveredDrive": "C:", "hoveredDevice": "A4:C1:38:0B:22:9F" }` (`SceneLinks`),
+  "hoveredFile": "C:\\…", "hoveredDrive": "C:", "hoveredDevice": "A4:C1:38:0B:22:9F", "hoveredMessage": { "account":
+  "sample:work", "id": "…" } }` (`SceneLinks`),
   parsed and checked like the rest of the scene file (each value keyed as its widgets key it; an empty
   block or a wrong value refused where it is written; inherited through `like`). The renderer sets them
   on the scene's one board through a member of its own after the cards drew their states, before the
@@ -6400,28 +6416,31 @@ A moment in time (`HoveredInstant`, `InstantLink(at, subject)`, a hover):
 A day (`HoveredDate`, `DateLink`, a hover), and the selected day's (`SelectedDate`, [S-3620]) other followers:
 
 - **[S-11920]** The day under the pointer is shared: a calendar's day ([S-11923]), a forecast's day, a
-  planner's day head, a screen-time chart's day, a habit's daily dot or cell ([S-11924]), a task's due day
-  ([S-11925]). Every day part a follower draws lights for it in the one look: a row, cell or head takes the
+  planner's day head, a screen-time chart's day, a cell of the habit tracker's one grid ([S-11924]): parts that are a
+  day, one per day in their widget. A task, an event and a habit's dot are on a day and are not it ([S-11965]).
+  Every day part a follower draws lights for it in the one look: a row, cell or head takes the
   item layer's hover fill (`LinkLights<DateLink>`, `LinkLook.Row`), a chart's or a set of marks' day stays
   whole and the others go to 0.6 ([S-11902]). A hover never moves, pages or scrolls anything, and a day a
   widget does not draw changes nothing in it.
-- **[S-11921]** A task's day is its due day as its row says it, in the viewer's zone (`TaskDue.DayLink`, the
+- **[S-11921]** *(Retired by [S-11965], 2026-11-19: a task is not its due day; it takes no part.)* A task's day is its due day as its row says it, in the viewer's zone (`TaskDue.DayLink`, the
   due rule of [S-593]); a task without a due date has none and takes no part.
-- **[S-11922]** An event's day is the local day a timed event starts on, an all-day event's first date,
+- **[S-11922]** *(Retired by [S-11965], 2026-11-19: an event is not its day; it is its event, [S-3623].)* An event's day is the local day a timed event starts on, an all-day event's first date,
   never converted (`CalendarShare.Day`, [S-3611]).
 - **[S-11923]** The calendar publishes and lights the day in every style without moving or paging: the
   month's cell (under its chips; a selected cell with chips keeps its selected fill when the hover goes),
   the week's column head and the narrow week's head (its marks publish only), the year's day (a plain
   number the row's, a square without events the chip's hover fill; today's disc and a square in its event's
   colour keep their face and publish only), the day view whole (its one day, as a card that is the match,
-  [S-11903]), and the agenda's day heading and event rows (a row is its day as well as its event, [S-3623]).
+  [S-11903]), and the agenda's day heading (its event rows are their events, [S-3623], never their day, [S-11965]).
   A day redrawn under the pointer lets its hover go.
 - **[S-11924]** `weatherForecast` publishes and lights a day's row, column, cell or (curve) column marker
   behind the line; `weekPlanner` its day heads; `screenTimeChart` the day its pointer or Left / Right is on
   ([S-3307]) as it always lit it, and another widget's day the same way (its bar or ring whole, the others at
-  0.6) when its period holds it (`ScreenTimeRules.DayIndex`); `habitTracker` its history dots and heatmap
-  cells as marks of their day, for a daily habit only (`HabitPeriods.Day`, [S-11926]).
-- **[S-11925]** `tasks` publishes a row's due day and lights the rows due on the day pointed at (the kit
+  0.6) when its period holds it (`ScreenTimeRules.DayIndex`); `habitTracker` the cells of its one heatmap for the
+  list as marks of their day, under a daily cadence (`HabitPeriods.Day`, [S-11926]); a habit's dot and a cell of a
+  habit's own grid are that habit's day, one of several on it, and take no part ([S-11965]).
+- **[S-11925]** *(Retired by [S-11965], 2026-11-19: the rows on a day are not the day; `tasks` takes no part,
+  `upNext` and the agenda's rows light for their event alone.)* `tasks` publishes a row's due day and lights the rows due on the day pointed at (the kit
   list's rows, through its `Decorate`); `upNext` lights the meetings on that day; the calendar's agenda its
   rows on it ([S-11923]).
 - **[S-11926]** A habit's period is a day only when it is daily: an hour, a week, a month or a custom
@@ -6439,8 +6458,8 @@ A day (`HoveredDate`, `DateLink`, a hover), and the selected day's (`SelectedDat
 The event under the pointer (`HoveredEvent`, [S-3623]) beyond the calendars and the next meeting:
 
 - **[S-11935]** `upNext`: a row is its meeting (`CalendarShare.Key`): the pointer on it publishes the
-  meeting, and the row takes the item layer's hover fill while that meeting is pointed at anywhere on the
-  view, as it does for a day it is on ([S-11925]); the rows are lit in place.
+  meeting and lights that row alone, and the row takes the item layer's hover fill while that same meeting is
+  pointed at elsewhere on the view, never for its day or its organiser ([S-11965]); the rows are lit in place.
 - **[S-11936]** `weekPlanner`: an event's row publishes its event under the pointer and takes the hover fill
   while that event is pointed at elsewhere (a birthday is no event and takes no part); a row redrawn under
   the pointer lets its hover go.
@@ -6450,18 +6469,19 @@ The event under the pointer (`HoveredEvent`, [S-3623]) beyond the calendars and 
 
 The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyond the screen-time widgets:
 
-- **[S-11930]** `topProcesses`, `mixer`, `notifications` and `desktopItem` (an own icon on an app, [S-11934]) take part: the pointer (or the keyboard
+- **[S-11930]** `topProcesses` and `mixer` (grouped: a row per program), `notifications` (an app's heading) and `desktopItem` (an own icon on an app, [S-11934]) take part: the pointer (or the keyboard
   cursor, [S-3307]) on a row or an item that is an app publishes it, and a row lights in the one look for the
   app pointed at anywhere on the view (the item layer's hover fill; a desktop icon as the pointer would draw it,
   the desktop's hover) and for the app picked (the selected fill and the accent pill), in place, never
   rebuilt. A click keeps its own meaning (focus, open, launch): only the screen-time widgets pick an app
-  ([S-3310]), so these publish the hover and follow both. A row that is no app takes no part.
+  ([S-3310]), so these publish the hover and follow both. A row that is no app takes no part: one process or one
+  audio session of a program (ungrouped), a notification (its app is its heading's) ([S-11965]).
 - **[S-11932]** Every kind keys an app as screen time records it (`LinkKeys.App`, the executable's lower-case
   stem): a process by its executable's path when it is known, else by its image name (`ProcessTable.AppKey`,
-  each row's `DetailRow.App`; the detail list's rows light through `DetailPart.AppLinks`, the topics its part
-  names); a mixer row by its session's executable (`MixerRules.AppKey`: its path, or a grouped row's key, which
-  is that path); the system sounds and a session whose process could not be read are none.
-- **[S-11933]** A notification is its sender's app where its AppUserModelID says which
+  each row's `DetailRow.App`, grouped rows only; the detail list's rows light through `DetailPart.AppLinks`, the
+  topics its part names); a grouped mixer row by its executable (`MixerRules.AppKey`: its path, or the row's key,
+  which is that path); the system sounds, a session whose process could not be read and every ungrouped row are none.
+- **[S-11933]** A notification group's heading is its sender's app where its AppUserModelID says which
   (`NotificationRules.AppKey`): an id that is the executable's path (a desktop app's, a known folder and the
   path under it), an id that names its executable (`Microsoft.Office.OUTLOOK.EXE.15` → `outlook`), a Squirrel
   installer's (`com.squirrel.slack.slack` → `slack`), and the senders whose id does not say it, by their id or
@@ -6472,22 +6492,31 @@ The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyo
 
 The person under the pointer (`HoveredPerson`, `PersonLink`, a hover; keyed by `LinkKeys.Person`, [S-11941]):
 
-- **[S-11940]** A mail's sender (`email`'s rows), a contact (`contacts`' rows and cells, and the selection its
-  keys move, [S-3307]), a meeting's organiser (`nextMeeting`'s organiser line, `upNext`'s rows, the calendar's
-  agenda rows) is a person: the pointer on it publishes them, and while a person is pointed at anywhere on
-  the view every row that is them takes the item layer's hover fill, in place ([S-11901]); `nextMeeting` lights
-  as a whole card ([S-11944]). A row without a person (no organiser) takes no part.
+- **[S-11940]** A contact is a person (`contacts`' rows and cells, and the selection its keys move, [S-3307]):
+  the pointer on it publishes them, and while a person is pointed at elsewhere on the view (another contacts
+  widget, the next meeting's organiser line, [S-11944]) the row that is them takes the item layer's hover fill, in
+  place ([S-11901]). A mail they sent is its message ([S-11966]) and a meeting they organise its event ([S-3623]):
+  neither publishes nor lights for a person ([S-11965]; until 2026-11-19 a sender lit every mail they sent).
 - **[S-11942]** A kit list's rows take part through its binding (`KitBinding.Decorate`, `Redrawing`: handed to
-  every list it makes, a style's new list too), as a kit view's own list does ([S-11925]); Mail's row is its
-  message's sender (`FromAddress`, else `FromName`).
+  every list it makes, a style's new list too), as a kit view's own list does; Mail's row is its message
+  ([S-11966]).
 - **[S-11943]** An event's person is its organiser (`CalendarShare.Person`): by their address where the provider
   gave one (Graph's `organizer.emailAddress.address`, Google's `organizer.email`, an iCalendar `ORGANIZER`'s
-  `mailto:`; `CalendarEvent.OrganizerAddress`, kept on the offline shelf), so the organiser is the same person
-  as their mail and their contact; else by the name the event shows, folded. The sample day's organisers carry
+  `mailto:`; `CalendarEvent.OrganizerAddress`, kept on the offline shelf), so the organiser the next meeting's line
+  points at is the same person as their contact; else by the name the event shows, folded. The sample day's organisers carry
   the sample cast's addresses.
 - **[S-11944]** `nextMeeting`: pointing at its organiser's line publishes the organiser (the card publishes its
-  meeting, [S-4825]); the whole card takes the item layer's hover fill while its organiser is pointed at
-  elsewhere, as for its meeting ([S-11903]), and only while the line shows (Show organizer on).
+  meeting, [S-4825]), so their contact lights. The card is its meeting: it lights for that meeting alone
+  ([S-11903]), never while its organiser is pointed at elsewhere ([S-11965]).
+
+The message under the pointer (`HoveredMessage`, `MessageLink`, a hover; keyed by `LinkKeys.Message`, [S-11966]):
+
+- **[S-11966]** A mail message is one thing across the view: `email`'s row is its message, by its account and the
+  provider's id (`MailMessage.AccountId`, `RawId`; the same raw id in two mailboxes is two messages), never its
+  sender. The pointer on a row publishes the message and lights that row alone ([S-11965]); while a message is
+  pointed at in another mail widget of the view (an inbox and an unread list showing it both), the row that is it
+  takes the item layer's hover fill, in place, through the kit list's `Decorate` ([S-11942]). Two mails from one
+  sender are two things: neither lights for the other. A store scene can point at one ([S-11909]).
 
 The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKeys.File`, [S-11946]):
 
@@ -6512,7 +6541,7 @@ The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKe
 The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `LinkKeys.Drive`, [S-11951]):
 
 - **[S-11950]** A drive is one thing across the view: the `drive` card, the `driveFacts` card, a `disk` reading and
-  a `diskHistory` chart of one drive ([S-11953]) and a `folder` on it ([S-11954]) are that drive as a whole card, a
+  a `diskHistory` chart of one drive ([S-11953]) and a `folder` at its root ([S-11954]) are that drive as a whole card, a
   `removableDrives` row is its drive. The pointer on the card (or the row, or the list's keyboard cursor, [S-3307])
   publishes the drive, and while a drive is pointed at anywhere on the view every card that is it takes the item
   layer's hover fill over its whole box (`LinkCard`, [S-11903], [S-11963]) and every row that is it the row's hover
@@ -6527,9 +6556,11 @@ The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `Lin
   (`MeterPart.Drive`, as `MeterPart.Instant` names the moment's) and says its config's drive (`DriveOf`). The
   history card publishes the drive while the pointer is on it and the moment under the pointer
   ([S-11910]) as it moves, both at once.
-- **[S-11954]** `folder`: pointing at its header (the card's row its own buttons stand in) or its path crumb publishes
-  the drive the folder on screen is on; the whole card lights while that drive is pointed at elsewhere. Its entries
-  publish their files ([S-11945]), never the drive. A folder on a share is on no drive.
+- **[S-11954]** `folder`: a folder at a drive's root (`C:\`) is that drive (`LinkKeys.DriveRootLink`): pointing at its
+  header (the card's row its own buttons stand in) or its path crumb publishes it, and the whole card lights while
+  it is pointed at elsewhere. A folder under the root is on the drive, not the drive, and takes no part (until
+  2026-11-19 every folder on a drive lit with it, [S-11965]). Its entries publish their files ([S-11945]), never the
+  drive. A folder on a share is on no drive.
 
 A Bluetooth device under the pointer (`HoveredDevice`, `DeviceLink`, a hover; keyed by `LinkKeys.Device`, [S-11956]):
 
@@ -6557,11 +6588,12 @@ Topics:
 | `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |
 | `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
-| `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `upNext`, `weatherForecast`, `weekPlanner` |
-| `HoveredPerson` | Hover | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` |
+| `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `weatherForecast`, `weekPlanner` |
+| `HoveredPerson` | Hover | `contacts`, `nextMeeting` | `contacts` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles` | `desktopItem`, `folder`, `recentFiles` |
 | `HoveredDrive` | Hover | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` |
 | `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
+| `HoveredMessage` | Hover | `email` | `email` |
 <!-- /view-links:table -->
 
 - **[S-3310]** The screen-time widgets ([S-3320]) share `HoveredApp` and `SelectedApp` by app key

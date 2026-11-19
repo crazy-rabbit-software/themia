@@ -3,9 +3,10 @@ using Themia.Core.Widgets;
 namespace Themia.Core.Links;
 
 /// <summary>
-/// [S-11931] [S-11941] [S-11946] [S-11951] [S-11956] The one way each kind of linked thing is keyed, so
-/// two widgets that show the same app, person, file, drive or device publish and match the same value.
-/// Every kind that takes part keys through these; none keys its own way.
+/// [S-11931] [S-11941] [S-11946] [S-11951] [S-11956] [S-11966] The one way each kind of linked thing is keyed, so
+/// two widgets that show the same app, person, file, drive, device or message publish and match the same value.
+/// Every kind that takes part keys through these; none keys its own way. [S-11965] A key is what a part is, never
+/// something it carries (a mail's sender, an event's organiser or day, a task's due day, a notification's app).
 /// </summary>
 public static class LinkKeys
 {
@@ -79,6 +80,23 @@ public static class LinkKeys
 
     /// <summary>[S-11951] The value a drive is published as, or null for none.</summary>
     public static DriveLink? DriveLink(string? path) => Drive(path) is { } key ? new DriveLink(key) : null;
+
+    /// <summary>
+    /// [S-11954] [S-11965] The drive a path is only where it is that drive's root (<c>C:\</c>, <c>c:</c>): a folder on
+    /// screen at its drive's root is that drive; a folder anywhere under it is another thing and is null.
+    /// </summary>
+    public static DriveLink? DriveRootLink(string? path)
+    {
+        var text = path?.Trim().Replace('/', '\\');
+        return text is { Length: 2 or 3 } && (text.Length == 2 || text[2] == '\\') ? DriveLink(text) : null;
+    }
+
+    /// <summary>
+    /// [S-11966] A mail message: its account and the provider's own id, both as given (an id is the provider's
+    /// handle, compared exactly). The same id in two accounts is two messages. Null without either.
+    /// </summary>
+    public static MessageLink? Message(string? account, string? id)
+        => string.IsNullOrWhiteSpace(account) || string.IsNullOrWhiteSpace(id) ? null : new MessageLink(account, id);
 
     /// <summary>
     /// [S-11956] A Bluetooth device: its address's twelve hex digits, upper-case, whatever separators it was

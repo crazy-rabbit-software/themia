@@ -56,7 +56,8 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
 Needs a live pass: a Microsoft, Google and CardDAV address book with a few hundred people (search,
 the menu's email, call and message hand-offs), and the search box under the keyboard lease.
 - View links: a row or cell is its person (address, else name); the pointer or the keys' selection on it
-  publishes them, and their row takes the hover fill while they are pointed at on the view ([S-11940]).
+  publishes them, and their row takes the hover fill while they are pointed at elsewhere on the view (another contacts
+  widget, the next meeting's organiser line); a mail or a meeting of theirs never lights it ([S-11940], [S-11965]).
 - **[S-12450]** **The rows reach the foot's inset** ([S-12807]): the list's, the compact list's and the
   details table's rows lay their text from under the search box and the titles to the foot's inset, up to half
   again their height (`ContactsPlan.Of`'s `Pitch`, `Over`, `Gap`, whole device pixels); the cards keep their size.

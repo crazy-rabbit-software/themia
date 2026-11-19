@@ -157,7 +157,6 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         // [S-4825] The view's links: the event under the pointer is shared with the calendars there.
         _member = _surface?.Links?.Join();
         _member?.Watch(LinkTopics.HoveredEvent, OnHoveredElsewhere);
-        _member?.Watch(LinkTopics.HoveredPerson, OnPersonElsewhere);
 
         // [S-588] The poll fires once on subscribing: the first load.
         _poll = ticker.Subscribe(Poll, () => _ = _feed.RefreshAsync(force: false));
@@ -432,27 +431,24 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     /// </summary>
     private void OnHoveredElsewhere(EventLink? value) => LightCard();
 
-    /// <summary>[S-11944] Another widget points at a person: when it is the organiser this card shows, the card lights.</summary>
-    private void OnPersonElsewhere(PersonLink? value) => LightCard();
-
     /// <summary>
-    /// [S-11903] [S-11944] [S-11962] The whole card takes the item layer's hover fill under the pointer, and while
-    /// its event, or the organiser its line shows, is pointed at elsewhere on the view; anything it does not show
-    /// changes nothing here. [S-11964] What is pointed at is what the board holds now, never a value remembered from
-    /// the last change heard. [S-11963] The fill is the card's, over its whole box.
+    /// [S-11903] [S-11962] [S-11965] The whole card takes the item layer's hover fill under the pointer, and while its
+    /// event is pointed at elsewhere on the view; anything else, its organiser pointed at among them, changes nothing
+    /// here (the card is the meeting, not the people in it). [S-11964] What is pointed at is what the board holds now,
+    /// never a value remembered from the last change heard. [S-11963] The fill is the card's, over its whole box.
     /// </summary>
     private void LightCard()
     {
         var pointedEvent = _member?.Get(LinkTopics.HoveredEvent);
-        var pointedPerson = _member?.Get(LinkTopics.HoveredPerson);
         var lit = _shown is { } item
-            && (_pointing
-                || (pointedEvent is not null && pointedEvent.Equals(CalendarShare.Key(item)))
-                || (pointedPerson is not null && _organizer.Row.Visibility == Visibility.Visible && pointedPerson.Equals(CalendarShare.Person(item))));
+            && (_pointing || (pointedEvent is not null && pointedEvent.Equals(CalendarShare.Key(item))));
         LinkLook.Card(this, lit ? LinkLight.Pointed : LinkLight.None);
     }
 
-    /// <summary>[S-11944] Pointing at the organiser's line publishes the organiser (and, as the card, the meeting).</summary>
+    /// <summary>
+    /// [S-11944] Pointing at the organiser's line publishes the organiser, a person (and, as the card, the meeting): the
+    /// contact that is them lights. Nothing lights the line or the card for a person.
+    /// </summary>
     private void OnOrganizerEntered(object sender, PointerRoutedEventArgs args)
     {
         if (_shown is { } item && CalendarShare.Person(item) is { } person)

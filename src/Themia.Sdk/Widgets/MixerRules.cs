@@ -66,14 +66,15 @@ public static class MixerRules
     public static MixerRow StandIn { get; } = new(SystemSoundsKey, string.Empty, null, Unavailable.Share, false, false, true, 1);
 
     /// <summary>
-    /// [S-11932] The app a mixer row is on its view's links: its executable's lower-case stem (the path,
-    /// else a grouped row's key, which is the executable's path). The system sounds, and a session whose
-    /// process could not be read (<c>pid:N</c>, an instance id without a path), are no app.
+    /// [S-11932] [S-11965] The app a mixer row is on its view's links: grouped ([S-442]: one row per executable), its
+    /// executable's lower-case stem (the path, else the row's key, which is the executable's path). The system sounds,
+    /// and a session whose process could not be read (<c>pid:N</c>, an instance id without a path), are no app.
+    /// Ungrouped, a row is one session of its app, one of several the app may have, and is none.
     /// </summary>
-    public static string? AppKey(MixerRow row)
+    public static string? AppKey(MixerRow row, bool grouped)
     {
         ArgumentNullException.ThrowIfNull(row);
-        if (row.IsSystem || row.Key == SystemSoundsKey || row.Key == MasterKey)
+        if (!grouped || row.IsSystem || row.Key == SystemSoundsKey || row.Key == MasterKey)
         {
             return null;
         }

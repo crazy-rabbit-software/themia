@@ -30,7 +30,7 @@ public enum LinkTopicId
     /// <summary>[S-11920] A day under the pointer: a calendar's cell, a forecast's day, a task's due day.</summary>
     HoveredDate = 6,
 
-    /// <summary>[S-11940] A person under the pointer: a sender, a contact, an organiser.</summary>
+    /// <summary>[S-11940] A person under the pointer: a contact, a meeting's organiser line.</summary>
     HoveredPerson = 7,
 
     /// <summary>[S-11945] A file or folder under the pointer, by its full path.</summary>
@@ -41,6 +41,9 @@ public enum LinkTopicId
 
     /// <summary>[S-11955] A Bluetooth device under the pointer, by its address.</summary>
     HoveredDevice = 10,
+
+    /// <summary>[S-11966] A mail message under the pointer, by its account and the provider's id.</summary>
+    HoveredMessage = 11,
 }
 
 /// <summary>[S-3302] How long a shared value lives.</summary>
@@ -115,6 +118,12 @@ public sealed record DriveLink(string Root);
 /// <summary>[S-11955] A Bluetooth device, by <see cref="LinkKeys.Device"/>: its address, upper-case without separators.</summary>
 public sealed record DeviceLink(string Address);
 
+/// <summary>
+/// [S-11966] One mail message, by <see cref="LinkKeys.Message"/>: its account and the provider's id (the same raw id
+/// in two mailboxes is two messages), never its sender.
+/// </summary>
+public sealed record MessageLink(string Account, string Message);
+
 /// <summary>[S-3311] A run of days, both ends included. Built in order whichever way round the ends are given.</summary>
 public sealed record RangeLink
 {
@@ -156,9 +165,11 @@ public static class LinkTopics
 
     public static readonly LinkTopic<DeviceLink> HoveredDevice = new(LinkTopicId.HoveredDevice, LinkLifetime.Hover);
 
+    public static readonly LinkTopic<MessageLink> HoveredMessage = new(LinkTopicId.HoveredMessage, LinkLifetime.Hover);
+
     /// <summary>Every topic, in its id's order.</summary>
     public static IReadOnlyList<LinkTopic> All { get; } =
-        [HoveredApp, SelectedApp, SelectedDate, VisibleRange, HoveredEvent, HoveredInstant, HoveredDate, HoveredPerson, HoveredFile, HoveredDrive, HoveredDevice];
+        [HoveredApp, SelectedApp, SelectedDate, VisibleRange, HoveredEvent, HoveredInstant, HoveredDate, HoveredPerson, HoveredFile, HoveredDrive, HoveredDevice, HoveredMessage];
 }
 
 /// <summary>

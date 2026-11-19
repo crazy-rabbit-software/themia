@@ -230,7 +230,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _binding.Dispose();
         _links.Leave();
-        People.Clear();
+        Messages.Clear();
         _source?.Dispose();
         _source = null;
         _ticker = null;

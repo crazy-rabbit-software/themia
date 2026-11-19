@@ -36,16 +36,17 @@ public sealed class ViewLinksAppTests
     {
         MixerRow Row(string key, string? path, bool system = false) => new(key, "x", path, 1, false, true, system, 1);
 
-        Assert.Equal("spotify", MixerRules.AppKey(Row(@"c:\users\a\appdata\roaming\spotify\spotify.exe", @"C:\Users\a\AppData\Roaming\Spotify\Spotify.exe")));
+        Assert.Equal("spotify", MixerRules.AppKey(Row(@"c:\users\a\appdata\roaming\spotify\spotify.exe", @"C:\Users\a\AppData\Roaming\Spotify\Spotify.exe"), grouped: true));
 
         // Grouped, the key is the executable's path: it names the app when the path was not kept.
-        Assert.Equal("msedge", MixerRules.AppKey(Row("msedge.exe", null)));
-        Assert.Null(MixerRules.AppKey(MixerRules.StandIn));
-        Assert.Null(MixerRules.AppKey(Row(MixerRules.SystemSoundsKey, null, system: true)));
-        Assert.Null(MixerRules.AppKey(Row("pid:4242", null)));
+        Assert.Equal("msedge", MixerRules.AppKey(Row("msedge.exe", null), grouped: true));
+        Assert.Null(MixerRules.AppKey(MixerRules.StandIn, grouped: true));
+        Assert.Null(MixerRules.AppKey(Row(MixerRules.SystemSoundsKey, null, system: true), grouped: true));
+        Assert.Null(MixerRules.AppKey(Row("pid:4242", null), grouped: true));
 
-        // Ungrouped, an instance id without a path is no app, even with ".exe" in it.
-        Assert.Null(MixerRules.AppKey(Row(@"{0.0.0.00000000}.{abc}|\Device\HarddiskVolume3\Apps\x.exe%b{def}", null)));
+        // [S-11965] Ungrouped, a row is one session of its app and no app, its path known or not.
+        Assert.Null(MixerRules.AppKey(Row(@"{0.0.0.00000000}.{abc}|\Device\HarddiskVolume3\Apps\x.exe%b{def}", null), grouped: false));
+        Assert.Null(MixerRules.AppKey(Row(@"{0.0.0.00000000}.{abc}|spotify.exe%b{def}", @"C:\Users\a\AppData\Roaming\Spotify\Spotify.exe"), grouped: false));
     }
 
     [Theory]

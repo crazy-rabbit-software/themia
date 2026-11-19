@@ -1,59 +1,14 @@
 using Themia.Core.Links;
-using Themia.Core.Office;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-11920]..[S-11929] A day on the view's links: what day a task, an event, a habit's period stand for; where a planner and screen time go for a selected day.</summary>
+/// <summary>[S-11920]..[S-11929] A day on the view's links: what day a habit's period stands for; where a planner and screen time go for a selected day.</summary>
 public sealed class ViewLinksDateTests
 {
     private static readonly TimeZoneInfo Utc = TimeZoneInfo.Utc;
-
-    private static readonly TimeZoneInfo Tokyo = TimeZoneInfo.CreateCustomTimeZone("Test+9", TimeSpan.FromHours(9), "Test+9", "Test+9");
-
-    private static readonly TimeZoneInfo Hawaii = TimeZoneInfo.CreateCustomTimeZone("Test-10", TimeSpan.FromHours(-10), "Test-10", "Test-10");
-
-    [Fact]
-    public void S11921_a_task_is_its_due_day_and_none_without_one()
-    {
-        Assert.Equal(new DateLink(new DateOnly(2026, 11, 13)), TaskDue.DayLink("2026-11-13T00:00:00.0000000", Utc));
-        Assert.Equal(new DateLink(new DateOnly(2026, 11, 13)), TaskDue.DayLink("2026-11-13", Hawaii));
-        Assert.Null(TaskDue.DayLink(null, Utc));
-        Assert.Null(TaskDue.DayLink("", Utc));
-        Assert.Null(TaskDue.DayLink("not a date", Utc));
-    }
-
-    [Fact]
-    public void S11921_a_due_written_as_the_creators_midnight_in_utc_is_the_viewers_local_day()
-    {
-        // To Do's mobile app writes a UTC+7 user's "due the 10th" as the 9th 17:00 UTC: the 10th in Tokyo too.
-        Assert.Equal(new DateLink(new DateOnly(2026, 8, 10)), TaskDue.DayLink("2026-08-09T17:00:00.0000000", Tokyo));
-    }
-
-    [Fact]
-    public void S11922_a_timed_event_is_its_local_start_day()
-    {
-        var late = new CalendarEvent
-        {
-            Id = "e",
-            Start = new DateTimeOffset(2026, 11, 12, 20, 0, 0, TimeSpan.Zero),
-            End = new DateTimeOffset(2026, 11, 12, 21, 0, 0, TimeSpan.Zero),
-        };
-
-        Assert.Equal(new DateLink(new DateOnly(2026, 11, 12)), CalendarShare.Day(late, Utc));
-        Assert.Equal(new DateLink(new DateOnly(2026, 11, 13)), CalendarShare.Day(late, Tokyo));
-    }
-
-    [Fact]
-    public void S11922_an_all_day_event_is_its_date_in_every_zone()
-    {
-        var holiday = CalendarEvent.AllDayEvent("h", "Holiday", new DateOnly(2026, 11, 13), new DateOnly(2026, 11, 15));
-
-        Assert.Equal(new DateLink(new DateOnly(2026, 11, 13)), CalendarShare.Day(holiday, Hawaii));
-        Assert.Equal(new DateLink(new DateOnly(2026, 11, 13)), CalendarShare.Day(holiday, Tokyo));
-    }
 
     [Fact]
     public void S11926_only_a_daily_period_is_a_day()

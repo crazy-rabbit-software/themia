@@ -218,4 +218,24 @@ public sealed class ViewLinksLookTests
         Assert.Null(SceneParser.Parse(Scene(links), out var refusal));
         Assert.Contains("hoveredEvent", refusal!.ToString(), StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void S11966_a_scene_points_at_a_message_keyed_as_the_mail_widget_keys_it()
+    {
+        var file = SceneParser.Parse(Scene("""{ "hoveredMessage": { "account": "sample:work", "id": "mail-2" } }"""), out var refusal);
+        Assert.Null(refusal);
+        var board = new LinkBoard();
+        file!.Scenes[0].Links!.Apply(board.Join(), DateTimeOffset.Now);
+        Assert.Equal(new MessageLink("sample:work", "mail-2"), board.Peek(LinkTopics.HoveredMessage));
+    }
+
+    [Theory]
+    [InlineData("""{ "hoveredMessage": "mail-2" }""")]
+    [InlineData("""{ "hoveredMessage": { "account": "sample:work" } }""")]
+    [InlineData("""{ "hoveredMessage": { "account": "a", "id": "x", "from": "ana" } }""")]
+    public void S11966_a_wrong_message_is_refused_where_it_is_written(string links)
+    {
+        Assert.Null(SceneParser.Parse(Scene(links), out var refusal));
+        Assert.Contains("hoveredMessage", refusal!.ToString(), StringComparison.Ordinal);
+    }
 }

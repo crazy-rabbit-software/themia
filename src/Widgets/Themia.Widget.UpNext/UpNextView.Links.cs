@@ -7,49 +7,28 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.UpNext;
 
 /// <summary>
-/// [S-11925] [S-11935] Up next's place on its view's links. A row is its meeting: the pointer on it publishes
-/// the meeting (<see cref="LinkTopics.HoveredEvent"/>, <see cref="CalendarShare.Key"/>), and the row takes the
-/// item layer's hover fill while that meeting is pointed at anywhere on the view (a calendar's chip, the next
-/// meeting, a planner's row), or while a day it is on is (<see cref="LinkTopics.HoveredDate"/>: a calendar's
-/// cell, a forecast's day, a task's due day, <see cref="CalendarShare.Day"/>), or while its organiser is
-/// (<see cref="LinkTopics.HoveredPerson"/>, [S-11940]: a mail's sender, a contact, <see cref="CalendarShare.Person"/>);
-/// the pointer on a row publishes its organiser too. The rows are lit in place, never rebuilt.
+/// [S-11935] [S-11965] Up next's place on its view's links. A row is its meeting, and only its meeting: the pointer on
+/// it publishes the meeting (<see cref="LinkTopics.HoveredEvent"/>, <see cref="CalendarShare.Key"/>) and lights that row
+/// alone; the row takes the item layer's hover fill while that same meeting is pointed at in another widget of the view
+/// (a calendar's chip, the next meeting, a planner's row). Neither the day a meeting is on nor its organiser lights it:
+/// several meetings share those. The rows are lit in place, never rebuilt.
 /// </summary>
 internal sealed partial class UpNextView
 {
     private readonly WidgetLinks _links = new();
 
-    /// <summary>[S-11925] The day pointed at on the view.</summary>
-    private DateLink? _pointedDay;
-
-    /// <summary>[S-11935] The meeting another widget points at.</summary>
-    private EventLink? _pointedEvent;
-
-    /// <summary>[S-11935] The meeting this widget's pointer is on.</summary>
+    /// <summary>[S-11935] The row this widget's pointer is on, and its meeting.</summary>
+    private RowBlock? _ownRow;
     private EventLink? _ownEvent;
 
-    /// <summary>[S-11940] The person pointed at on the view, or the organiser under this widget's pointer.</summary>
-    private PersonLink? _pointedPerson;
-
     private void FollowLinks()
-    {
-        _links.Follow(LinkTopics.HoveredDate, value =>
+        => _links.Follow(LinkTopics.HoveredEvent, _ =>
         {
-            _pointedDay = value;
-            LightRows();
-        });
-        _links.Follow(LinkTopics.HoveredEvent, value =>
-        {
-            _pointedEvent = value;
+            // Another widget points now: this widget's pointer is no longer what the view points at.
+            _ownRow = null;
             _ownEvent = null;
             LightRows();
         });
-        _links.Follow(LinkTopics.HoveredPerson, value =>
-        {
-            _pointedPerson = value;
-            LightRows();
-        });
-    }
 
     /// <summary>[S-11935] A new row: the pointer on it publishes its meeting, whichever it shows then.</summary>
     private void LinkRow(RowBlock row)
@@ -58,49 +37,39 @@ internal sealed partial class UpNextView
         {
             if (row.Tag is CalendarEvent item)
             {
+                _ownRow = row;
                 _ownEvent = CalendarShare.Key(item);
                 _links.Set(LinkTopics.HoveredEvent, _ownEvent);
-                _pointedPerson = CalendarShare.Person(item);
-                _links.Set(LinkTopics.HoveredPerson, _pointedPerson);
                 LightRows();
             }
         };
 
         row.PointerExited += (_, _) =>
         {
-            if (_ownEvent is not null && row.Tag is CalendarEvent item && _ownEvent.Equals(CalendarShare.Key(item)))
+            if (ReferenceEquals(row, _ownRow))
             {
+                _ownRow = null;
                 _ownEvent = null;
                 _links.Set(LinkTopics.HoveredEvent, null);
-                _links.Set(LinkTopics.HoveredPerson, null);
-
-                // [S-11964] What the board holds now, not what was heard last: a hover this row took over from another
-                // widget (the same meeting set again) and let go is cleared without this widget hearing it.
-                _pointedEvent = _links.Get(LinkTopics.HoveredEvent);
-                _pointedPerson = _links.Get(LinkTopics.HoveredPerson);
                 LightRows();
             }
         };
     }
 
     /// <summary>
-    /// [S-11900] [S-11901] Light every row shown against what the view points at: the meeting pointed at, or a
-    /// meeting on the day pointed at, takes the hover fill.
+    /// [S-11900] [S-11901] [S-11965] Light every row shown: under this widget's pointer the row under it alone; else the
+    /// row that is the meeting pointed at on the view. [S-11964] What the board holds is read now, never remembered.
     /// </summary>
     private void LightRows()
     {
-        var zone = TimeZoneInfo.Local;
         var shown = _rows.Where(r => r.Visibility == Visibility.Visible && r.Tag is CalendarEvent).Select(r => (Row: r, Item: (CalendarEvent)r.Tag)).ToList();
-        var day = LinkEmphasis.Shown(_pointedDay, shown.Select(s => CalendarShare.Day(s.Item, zone)));
-        var meeting = LinkEmphasis.Shown(_ownEvent ?? _pointedEvent, shown.Select(s => CalendarShare.Key(s.Item)));
-        var person = LinkEmphasis.Shown(_pointedPerson, shown.Select(s => CalendarShare.Person(s.Item)).OfType<PersonLink>());
+        var meeting = _ownEvent is null ? LinkEmphasis.Shown(_links.Get(LinkTopics.HoveredEvent), shown.Select(s => CalendarShare.Key(s.Item))) : null;
 
         foreach (var (row, item) in shown)
         {
-            var light = LinkEmphasis.Light(CalendarShare.Key(item), meeting, null) != LinkLight.None
-                || LinkEmphasis.Light(CalendarShare.Person(item), person, null) != LinkLight.None
-                ? LinkLight.Pointed
-                : LinkEmphasis.Light(CalendarShare.Day(item, zone), day, null);
+            var light = _ownEvent is not null
+                ? ReferenceEquals(row, _ownRow) ? LinkLight.Pointed : LinkLight.None
+                : LinkEmphasis.Light(CalendarShare.Key(item), meeting, null);
             LinkLook.Row(row, light);
         }
     }

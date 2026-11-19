@@ -296,6 +296,21 @@ public static class SceneParser
             hoveredEvent = new SceneEvent(Part("account"), parts.ContainsKey("calendar") ? Part("calendar") : null, Part("id"));
         }
 
+        // [S-11966] A message: { "account": .., "id": .. }, each a word.
+        SceneMessage? hoveredMessage = null;
+        if (props.TryGetValue("hoveredMessage", out var mail))
+        {
+            var at = $"{path}.hoveredMessage";
+            if (mail.ValueKind != JsonValueKind.Object)
+            {
+                throw Refuse(at, "not a message ({ \"account\": .., \"id\": .. })");
+            }
+
+            var parts = Properties(mail, at, "account", "id");
+            string Part(string name) => parts.TryGetValue(name, out var v) && Text(v, $"{at}.{name}").Trim() is { Length: > 0 } t ? t : throw Refuse(at, $"no \"{name}\"");
+            hoveredMessage = new SceneMessage(Part("account"), Part("id"));
+        }
+
         return new SceneLinks(
             HoveredDate: Day("hoveredDate"),
             SelectedDate: Day("selectedDate"),
@@ -306,7 +321,8 @@ public static class SceneParser
             HoveredFile: Keyed("hoveredFile", text => Path.IsPathFullyQualified(text) ? LinkKeys.File(text) : null, "a full path"),
             HoveredDrive: Keyed("hoveredDrive", LinkKeys.Drive, "a drive (C:)"),
             HoveredDevice: Keyed("hoveredDevice", LinkKeys.Device, "a device address (A4:C1:38:0B:22:9F)"),
-            HoveredEvent: hoveredEvent);
+            HoveredEvent: hoveredEvent,
+            HoveredMessage: hoveredMessage);
     }
 
     private static SceneScreen Screen(JsonElement element, string path)

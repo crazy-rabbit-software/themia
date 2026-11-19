@@ -26,9 +26,6 @@ internal sealed partial class CalendarView
     /// <summary>The agenda's items on screen by id, for the rows' hooks and Enter.</summary>
     private readonly Dictionary<string, DayItem> _agendaItems = new(StringComparer.Ordinal);
 
-    /// <summary>[S-11923] The day each row on screen is listed under.</summary>
-    private readonly Dictionary<string, DateOnly> _agendaDays = new(StringComparer.Ordinal);
-
     /// <summary>
     /// The room over the rows: none in the agenda, the strip and its gap in a narrow week ([S-2283]).
     /// A height, not a margin, so the rows stand on the family's spaces.
@@ -69,7 +66,6 @@ internal sealed partial class CalendarView
         var rows = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 
         _agendaItems.Clear();
-        _agendaDays.Clear();
 
         if (rows.Count == 0)
         {
@@ -87,7 +83,6 @@ internal sealed partial class CalendarView
         {
             var kit = AgendaSpec.Item(item, day, now, _selected, showColors ? MarkOf : null);
             _agendaItems[kit.Id] = item;
-            _agendaDays[kit.Id] = day;
             items.Add(kit);
         }
 
@@ -118,21 +113,16 @@ internal sealed partial class CalendarView
     private string MarkOf(CalendarEvent item)
         => CalendarRules.ResolveColor(CalendarRules.ColorKey(item.AccountId, item.CalendarId), item.SourceIndex, _config.CalendarColors);
 
-    /// <summary>What only the calendar knows of a row: its tooltip and its links across widgets ([S-3623]); the kit's list opens it ([S-3652]).</summary>
+    /// <summary>
+    /// What only the calendar knows of a row: its tooltip and its links across widgets ([S-3623]); the kit's list opens
+    /// it ([S-3652]). [S-11965] A row is its event alone: never its organiser or the day it is listed under (its day's
+    /// heading is that day).
+    /// </summary>
     private void DecorateAgendaRow(KitItem item, FrameworkElement row)
     {
         if (_agendaItems.TryGetValue(item.Id, out var day) && day.Event is { } ev)
         {
             Describe(row, ev);
-
-            // [S-11940] An event's row is its organiser as well: pointed at, and lit while they are.
-            People.Row(row, CalendarShare.Person(ev));
-        }
-
-        // [S-11923] An event's row is its day: the pointer on it publishes that day, that day pointed at lights it.
-        if (_agendaDays.TryGetValue(item.Id, out var listed))
-        {
-            LinkRowDay(row, listed);
         }
     }
 
@@ -154,6 +144,5 @@ internal sealed partial class CalendarView
         _agenda.Clear();
         _agenda.Visibility = Visibility.Collapsed;
         _agendaItems.Clear();
-        _agendaDays.Clear();
     }
 }

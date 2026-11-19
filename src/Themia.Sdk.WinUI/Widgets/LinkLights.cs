@@ -10,24 +10,23 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-11900] The parts of one widget that a hovered (and, where the topic has one, a picked) value lights:
+/// [S-11900] [S-11965] The parts of one widget that a hovered (and, where the topic has one, a picked) value lights:
 /// rows (<see cref="Row"/>: the item layer's hover fill, or the selected fill with the accent pill) and
 /// marks (<see cref="Mark"/>: whole, the others at <see cref="FamilyShape.LinkPointed"/> or
 /// <see cref="FamilyShape.LinkPicked"/>). Parts are registered as they are drawn and forgotten with
-/// <see cref="Clear"/>; a change elsewhere repaints fills and opacities only, never rebuilds a row
-/// ([S-11961]). A part registered with <c>publishes</c> sets the hover while the pointer is on it
-/// ([S-11960]: it never scrolls, pages or resizes anything).
+/// <see cref="Clear"/>; a change elsewhere repaints fills and opacities only, never rebuilds a row. A part registered
+/// with <c>publishes</c> sets the hover while the pointer is on it (it never scrolls, pages or resizes anything).
+/// Which part stands how is <see cref="LinkPartsState{TPart, T}"/>'s: under this widget's own pointer the part under it
+/// alone, from another widget every part that is the same item.
 /// </summary>
 public sealed class LinkLights<T>
     where T : class, IEquatable<T>
 {
     private readonly WidgetLinks _links;
-    private readonly LinkTopic<T> _hovered;
     private readonly LinkTopic<T>? _picked;
+    private readonly LinkPartsState<UIElement, T> _state;
     private readonly Dictionary<UIElement, Part> _parts = [];
     private readonly HashSet<UIElement> _wired = [];
-    private T? _selected;
-    private T? _own;
 
     /// <param name="links">The widget's place on the links.</param>
     /// <param name="hovered">The hover topic the parts light for.</param>
@@ -35,18 +34,18 @@ public sealed class LinkLights<T>
     public LinkLights(WidgetLinks links, LinkTopic<T> hovered, LinkTopic<T>? picked = null)
     {
         _links = links;
-        _hovered = hovered;
         _picked = picked;
+        _state = new LinkPartsState<UIElement, T>(() => links.Get(hovered), value => links.Set(hovered, value));
         links.Follow(hovered, _ =>
         {
-            _own = null;
+            _state.Heard();
             Apply();
         });
         if (picked is not null)
         {
             links.Follow(picked, value =>
             {
-                _selected = value;
+                _state.Picked = value;
                 Apply();
             });
         }
@@ -61,10 +60,10 @@ public sealed class LinkLights<T>
     /// value set again owns it silently) and then let it go never hears its own clear, and a remembered value would
     /// keep its row lit with nothing pointed at.
     /// </summary>
-    public T? Pointed => _own ?? _links.Get(_hovered);
+    public T? Pointed => _state.Pointed;
 
     /// <summary>The value picked on the view now.</summary>
-    public T? Picked => _selected;
+    public T? Picked => _state.Picked;
 
     /// <summary>Forget every part (before the widget draws its parts again).</summary>
     public void Clear()
@@ -76,12 +75,14 @@ public sealed class LinkLights<T>
 
         _wired.Clear();
         _parts.Clear();
+        _state.ForgetAll();
     }
 
     /// <summary>Forget one part (a mark the widget took down while the rest stay).</summary>
     public void Remove(UIElement element)
     {
         _parts.Remove(element);
+        _state.Forget(element);
         if (_wired.Remove(element))
         {
             Unwire(element);
@@ -94,23 +95,22 @@ public sealed class LinkLights<T>
     /// the row back as the widget draws it when it stops being lit (its default: the item layer's rest fill).
     /// </summary>
     public void Row(FrameworkElement row, T? key, bool publishes = true, ItemRole role = ItemRole.Row, Action? rest = null)
-        => Add(row, new Part(key, PartKind.Row, role, 1, rest), publishes);
+        => Add(row, key, new Part(PartKind.Row, role, 1, rest), publishes);
 
     /// <summary>
     /// [S-11902] A mark (a bar, a ring's part, a chip, a day's dot) that is <paramref name="key"/>, drawn at
     /// <paramref name="opacity"/> of its own: whole while it is the thing, the others less.
     /// </summary>
     public void Mark(UIElement mark, T? key, bool publishes = true, double opacity = 1)
-        => Add(mark, new Part(key, PartKind.Mark, ItemRole.Row, opacity, null), publishes);
+        => Add(mark, key, new Part(PartKind.Mark, ItemRole.Row, opacity, null), publishes);
 
     /// <summary>
-    /// The widget's own pointer (or keyboard cursor, [S-3307]) is on <paramref name="key"/> (null: it left):
-    /// publish it and light it here too.
+    /// [S-3307] The widget's keyboard cursor (or a part it draws without registering) is on <paramref name="key"/>
+    /// (null: it let go): publish it. Nothing here is lit for it ([S-11965]): the cursor's own mark says where it is.
     /// </summary>
     public void Point(T? key)
     {
-        _own = key;
-        _links.Set(_hovered, key);
+        _state.Point(key);
         Apply();
     }
 
@@ -122,47 +122,22 @@ public sealed class LinkLights<T>
             return;
         }
 
-        _selected = _links.Joined ? _links.Toggle(_picked, key) : Equals(_selected, key) ? null : key;
+        _state.Picked = _links.Joined ? _links.Toggle(_picked, key) : Equals(_state.Picked, key) ? null : key;
         Apply();
     }
 
     /// <summary>Light every registered part against what is pointed at and picked now.</summary>
     public void Apply()
     {
-        var shown = _parts.Values.Select(part => part.Key).OfType<T>().ToHashSet();
-        var pointed = LinkEmphasis.Shown(Pointed, shown);
-        var picked = LinkEmphasis.Shown(_selected, shown);
-
         foreach (var (element, part) in _parts)
         {
-            var light = LinkEmphasis.Light(part.Key, pointed, picked);
-            if (part.Kind == PartKind.Mark)
-            {
-                element.Opacity = part.Opacity * LinkEmphasis.Strength(part.Key, pointed, picked);
-                continue;
-            }
-
-            if (light == part.Shown)
-            {
-                continue;
-            }
-
-            part.Shown = light;
-            if (light == LinkLight.None && part.Rest is { } back)
-            {
-                back();
-                LinkLook.Pill((FrameworkElement)element, false);
-            }
-            else
-            {
-                LinkLook.Row((FrameworkElement)element, light, part.Role);
-            }
+            Paint(element, part, drawn: false);
         }
 
         Changed?.Invoke();
     }
 
-    private void Add(UIElement element, Part part, bool publishes)
+    private void Add(UIElement element, T? key, Part part, bool publishes)
     {
         if (_parts.TryGetValue(element, out var before))
         {
@@ -171,6 +146,7 @@ public sealed class LinkLights<T>
         }
 
         _parts[element] = part;
+        _state.Set(element, key);
 
         if (publishes && _wired.Add(element))
         {
@@ -180,16 +156,36 @@ public sealed class LinkLights<T>
             element.PointerCaptureLost += OnLeft;
         }
 
-        var shown = _parts.Values.Select(p => p.Key).OfType<T>().ToHashSet();
-        var pointed = LinkEmphasis.Shown(Pointed, shown);
-        var picked = LinkEmphasis.Shown(_selected, shown);
+        Paint(element, part, drawn: true);
+    }
+
+    /// <summary>
+    /// One part as it stands now: a mark's opacity; a row painted when its light changes, and a row just drawn when it
+    /// is lit (it was drawn at rest).
+    /// </summary>
+    private void Paint(UIElement element, Part part, bool drawn)
+    {
         if (part.Kind == PartKind.Mark)
         {
-            element.Opacity = part.Opacity * LinkEmphasis.Strength(part.Key, pointed, picked);
+            element.Opacity = part.Opacity * _state.Strength(element);
+            return;
         }
-        else if (LinkEmphasis.Light(part.Key, pointed, picked) is var light && light != LinkLight.None)
+
+        // A part drawn again at rest keeps the light it had, so the next Apply puts a row that was lit back.
+        var light = _state.Light(element);
+        if (drawn ? light == LinkLight.None : light == part.Shown)
         {
-            part.Shown = light;
+            return;
+        }
+
+        part.Shown = light;
+        if (light == LinkLight.None && part.Rest is { } back)
+        {
+            back();
+            LinkLook.Pill((FrameworkElement)element, false);
+        }
+        else
+        {
             LinkLook.Row((FrameworkElement)element, light, part.Role);
         }
     }
@@ -205,9 +201,9 @@ public sealed class LinkLights<T>
 
     private void OnEntered(object sender, PointerRoutedEventArgs args)
     {
-        if (sender is UIElement element && _parts.TryGetValue(element, out var part) && part.Key is { } key)
+        if (sender is UIElement element && _state.Enter(element))
         {
-            Point(key);
+            Apply();
         }
     }
 
@@ -218,9 +214,9 @@ public sealed class LinkLights<T>
             return;
         }
 
-        if (Equals(part.Key, _own))
+        if (_state.Leave(element))
         {
-            Point(null);
+            Apply();
         }
 
         // An interactive row paints itself at rest as the pointer leaves: one still lit (a pick) is lit again.
@@ -236,10 +232,8 @@ public sealed class LinkLights<T>
         Mark,
     }
 
-    private sealed class Part(T? key, PartKind kind, ItemRole role, double opacity, Action? rest)
+    private sealed class Part(PartKind kind, ItemRole role, double opacity, Action? rest)
     {
-        public T? Key { get; } = key;
-
         public PartKind Kind { get; } = kind;
 
         public ItemRole Role { get; } = role;

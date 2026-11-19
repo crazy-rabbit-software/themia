@@ -156,8 +156,7 @@ Needs a live pass: a signed-in Microsoft, Google and CalDAV calendar in every st
 an event in Outlook or the browser, the hover link with Next meeting and the week planner on the
 view), and the showcase views on the live desktop.
 - View links: publishes and follows the day under the pointer in every style without moving ([S-11923]), besides the selected day, the range and the event ([S-3620]..[S-3625]).
-- View links: an agenda row publishes its organiser and lights while they are pointed at on the view
-  ([S-11940], [S-11943]).
+- View links: an agenda row is its event alone, never its organiser or its day: one item, one light ([S-11965]).
 - No card header ([S-12481]): the period's title and back and forward are the calendar's own first line, a
   tool line (`ToolLine`: the title as its label, the problem glyph, the ring, the two buttons) at the side
   inset with 4 under it, in every style but the agenda; each of those styles' sizing counts it

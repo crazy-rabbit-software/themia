@@ -5,11 +5,12 @@ using Themia.Core.Office;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-11940] Contacts' place on its view's links: a person's row (or cell) is that person
+/// [S-11940] [S-11965] Contacts' place on its view's links: a person's row (or cell) is that person
 /// (<see cref="LinkKeys.Person"/> of their address, else their name). The pointer on it, or the selection the
 /// keys move ([S-3307]), publishes them (<see cref="LinkTopics.HoveredPerson"/>); while a person is pointed at
-/// anywhere on the view (a mail's sender, a meeting's organiser), their row takes the item layer's hover fill,
-/// in place.
+/// elsewhere on the view (another contacts widget's row, the next meeting's organiser line), the row that is them
+/// takes the item layer's hover fill, in place. A mail they sent or a meeting they organise is no person and lights
+/// nothing here.
 /// </summary>
 internal sealed partial class ContactsView
 {

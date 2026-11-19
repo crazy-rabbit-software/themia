@@ -77,5 +77,5 @@ files' is the module host's `DeskInfoHostTests`.
 
 Needs a live pass: a signed-in Microsoft and Google account with a Teams, Zoom and Meet meeting
 (Join opening the app), a declined invitation, and the hover link with a calendar on the view.
-- View links: the organiser's line publishes the organiser, and the card lights while they are pointed at on
-  the view ([S-11944]).
+- View links: the organiser's line publishes the organiser (their contact lights); the card is its meeting and
+  lights for nothing else, its organiser pointed at elsewhere included ([S-11944], [S-11965]).

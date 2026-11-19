@@ -107,7 +107,7 @@ internal sealed partial class HabitTrackerView
                 }
 
                 cell.Visibility = Visibility.Visible;
-                MarkDay(cell, period, cadence.Period); // [S-11924]
+                MarkDay(cell, period, cadence.Period, plan.PerHabit); // [S-11924]
                 var when = HabitPeriods.Describe(period, cadence);
 
                 if (plan.PerHabit)

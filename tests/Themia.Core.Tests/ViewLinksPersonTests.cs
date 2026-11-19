@@ -15,7 +15,7 @@ public sealed class ViewLinksPersonTests
         => new() { Id = "e", Start = At, End = At.AddHours(1), Organizer = organizer, OrganizerAddress = address };
 
     [Fact]
-    public void S11943_an_organiser_with_an_address_is_the_same_person_as_a_sender_or_a_contact()
+    public void S11943_an_organiser_with_an_address_is_the_same_person_as_their_contact()
     {
         var organiser = CalendarShare.Person(Event("Ana Silva", "Ana.Silva@Lumen.example"));
 

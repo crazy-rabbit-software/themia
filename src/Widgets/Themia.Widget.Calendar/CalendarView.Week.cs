@@ -203,12 +203,10 @@ internal sealed partial class CalendarView
         Func<CalendarEvent, string>? mark = showColors ? MarkOf : null;
         var rows = new List<KitItem>(items.Count);
         _agendaItems.Clear();
-        _agendaDays.Clear();
         foreach (var item in items)
         {
             var row = AgendaSpec.DayRow(item, chosen, now, mark);
             _agendaItems[row.Id] = item;
-            _agendaDays[row.Id] = chosen;
             rows.Add(row);
         }
 

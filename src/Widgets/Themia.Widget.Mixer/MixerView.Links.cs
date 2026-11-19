@@ -4,9 +4,9 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-11930] [S-11932] The mixer's place on its view's links: a row is its session's app
+/// [S-11930] [S-11932] [S-11965] The mixer's place on its view's links: grouped by app, a row is its app
 /// (<see cref="MixerRules.AppKey"/>; the system sounds and a session whose process could not be read take
-/// no part). The pointer or the keyboard cursor on a row publishes the app
+/// no part); ungrouped, a row is one session and takes no part. The pointer or the keyboard cursor on a row publishes the app
 /// (<see cref="LinkTopics.HoveredApp"/>); a row lights for the app pointed at anywhere on the view (the item
 /// layer's hover fill) and for the app picked there (<see cref="LinkTopics.SelectedApp"/>: the selected fill
 /// and the accent pill), in place. A click keeps its meaning: the mixer never picks.
@@ -40,5 +40,5 @@ internal sealed partial class MixerView
     private void PointCursor(int index)
         => Apps.Point(index >= 0 && index < _shown.Count ? AppOf(_shown[index]) : null);
 
-    private static AppLink? AppOf(MixerRow row) => MixerRules.AppKey(row) is { } key ? new AppLink(key) : null;
+    private AppLink? AppOf(MixerRow row) => MixerRules.AppKey(row, _config.GroupByApp) is { } key ? new AppLink(key) : null;
 }

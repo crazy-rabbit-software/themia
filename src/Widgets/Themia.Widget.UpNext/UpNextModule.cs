@@ -38,7 +38,7 @@ public sealed class UpNextModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(((UpNextConfig)c).RowsShown, addFooter: false, Widths),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((UpNextConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems,
-        Links = LinkUse.Of([LinkTopicId.HoveredEvent, LinkTopicId.HoveredPerson], [LinkTopicId.HoveredDate, LinkTopicId.HoveredEvent, LinkTopicId.HoveredPerson]),
+        Links = LinkUse.Both(LinkTopicId.HoveredEvent),
         Add = new(AddFolderId.CalendarMail, 0, 2),
     };
 

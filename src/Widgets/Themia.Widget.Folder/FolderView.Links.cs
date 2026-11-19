@@ -78,16 +78,20 @@ internal sealed partial class FolderView
 
     private static FileLink? FileOf(ItemVisual visual) => LinkKeys.FileLink(visual.Entry.FullPath);
 
-    // ---- the drive it is on ([S-11954]) ----------------------------------------------------------
+    // ---- the drive it shows ([S-11954]) ----------------------------------------------------------
 
     private LinkCard<DriveLink>? _driveCard;
 
-    /// <summary>[S-11954] The card as the drive its folder is on: its tool line and its path publish it, the whole card lights for it.</summary>
+    /// <summary>
+    /// [S-11954] [S-11965] The card as the drive while the folder on screen is that drive's root: its tool line and its
+    /// path publish it, the whole card lights for it. A folder anywhere under the root is not the drive: it neither
+    /// publishes it nor lights for it, so pointing at a drive never lights every folder on it.
+    /// </summary>
     private LinkCard<DriveLink> DriveCard => _driveCard ??= new LinkCard<DriveLink>(_links, LinkTopics.HoveredDrive, this);
 
     /// <summary>
-    /// [S-11954] The pointer on the tool line or on the path crumb
-    /// publishes the folder's drive; on its entries it is the entry's file that is pointed at, not the drive.
+    /// [S-11954] The pointer on the tool line or on the path crumb publishes the drive the folder shows (its root); on
+    /// its entries it is the entry's file that is pointed at, not the drive.
     /// </summary>
     private void JoinDriveLinks()
     {
@@ -95,6 +99,6 @@ internal sealed partial class FolderView
         DriveCard.Publishes(_line);
     }
 
-    /// <summary>[S-11954] The drive of the folder on screen now (a share's none).</summary>
-    private void LinkDrive() => DriveCard.Key = _resolved.IsValid ? LinkKeys.DriveLink(CurrentPath) : null;
+    /// <summary>[S-11954] [S-11965] The drive the folder on screen now is (its root's), else none (a folder under it, a share).</summary>
+    private void LinkDrive() => DriveCard.Key = _resolved.IsValid ? LinkKeys.DriveRootLink(CurrentPath) : null;
 }

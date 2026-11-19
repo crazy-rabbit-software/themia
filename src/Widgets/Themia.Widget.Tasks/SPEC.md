@@ -87,4 +87,4 @@ Needs a live pass: a CalDAV account (Nextcloud Tasks, a DAVx⁵ / jtx Board serv
 over CalDAV: its lists, due dates, recurring tasks), a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on
 this PC, dragging a row, the keys, and the showcase views on the live desktop.
-- View links: a row publishes its due day, and the rows due on the day pointed at take the hover fill ([S-11921], [S-11925]).
+- View links: none. A task is not its due day, so no day lights a task and a task lights no day ([S-11965]).

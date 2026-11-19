@@ -19,18 +19,13 @@ internal sealed partial class CalendarView
 
     private readonly WidgetLinks _links = new();
 
-    /// <summary>[S-11923] The days drawn now (cells, heads, headings, agenda rows): the day pointed at anywhere on the view lights.</summary>
+    /// <summary>
+    /// [S-11923] The days drawn now (cells, heads, the agenda's headings): the day pointed at anywhere on the view lights.
+    /// [S-11965] An event is never its day: its chip or row lights for the event alone.
+    /// </summary>
     private readonly LinkLights<DateLink> _days;
 
-    /// <summary>
-    /// [S-11940] The agenda's event rows by their organiser (<see cref="CalendarShare.Person"/>): the pointer on one
-    /// publishes the organiser, and a row whose organiser is pointed at anywhere on the view takes the hover fill.
-    /// </summary>
-    private LinkLights<PersonLink>? _people;
-
-    private LinkLights<PersonLink> People => _people ??= new LinkLights<PersonLink>(_links, LinkTopics.HoveredPerson);
-
-    /// <summary>[S-11923] The days lit on the agenda's rows and headings, which the kit's list draws again on its own.</summary>
+    /// <summary>[S-11923] The days lit on the agenda's headings, which the kit's list draws again on its own.</summary>
     private readonly List<FrameworkElement> _rowDays = [];
 
     /// <summary>[S-3620] The selected day, this widget's or another's on the view; also the keys' cursor day ([S-3624]).</summary>
@@ -168,7 +163,7 @@ internal sealed partial class CalendarView
         };
     }
 
-    /// <summary>[S-11923] An agenda row or heading for its day; forgotten when the kit's list draws its rows again.</summary>
+    /// <summary>[S-11923] An agenda heading for its day; forgotten when the kit's list draws its rows again.</summary>
     private void LinkRowDay(FrameworkElement element, DateOnly day)
     {
         _rowDays.Add(element);
@@ -184,7 +179,6 @@ internal sealed partial class CalendarView
         }
 
         _rowDays.Clear();
-        _people?.Clear();
     }
 
     /// <summary>[S-3623] An event drawn: it lights the same event in the other calendars while pointed at, and dims when another is.</summary>
