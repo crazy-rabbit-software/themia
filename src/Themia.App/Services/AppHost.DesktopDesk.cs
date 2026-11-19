@@ -118,9 +118,11 @@ internal sealed partial class AppHost : IDesktopDesk
     /// <summary>
     /// [S-5540] [S-11877] The key a widget is selected under on the locked desktop
     /// (<see cref="DesktopPicks.KeyOf"/>): a desktop item the listing holds under its own key, an own icon
-    /// under its own, any other widget its card key; null for a desktop item not listed.
+    /// under its own, any other widget its card key; null for a desktop item not listed, and [S-12953] for every
+    /// widget that is no icon while Lock widgets is on.
     /// </summary>
-    private static string? DeskKey(WidgetInstance widget) => DesktopPicks.KeyOf(widget, key => HostDesktopItems.Instance.Find(key) is not null);
+    private string? DeskKey(WidgetInstance widget)
+        => DesktopPicks.KeyOf(widget, key => HostDesktopItems.Instance.Find(key) is not null, State.Preferences.LockWidgets);
 
     /// <summary>The name type-to-find and a sort read of <paramref name="key"/>: the listing's, an own icon's as drawn, a card's title.</summary>
     private string? DeskName(string key)

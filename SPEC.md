@@ -8235,7 +8235,7 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   locked i should be able to select multiple widgets and move them around together"): besides the band, a left press
   with **Ctrl** (toggle) or **Shift** (the range) on any widget card puts it in the one selection as a desktop icon's
   press does (`DesktopPicks.PicksOnPress`, `AppHost.DeskPick`); that press is not the widget's (no open, no row, no
-  move); a plain press stays the widget's. With Lock widgets on the picked widgets stay and only icons move ([S-12950]).
+  move); a plain press stays the widget's. With Lock widgets on no widget card is picked at all, icons alone ([S-12953]).
   Before, a card reached the selection by the band alone, and the band and the move died on the first press after
   another app ([S-13017]). Tests `DesktopGridTests.S11879_`.
 - **[S-11885]** *(Retired 2026-11-17 with the groups, [S-2450]: the locked desktop moves and selects exactly what is
@@ -11082,8 +11082,8 @@ power buttons, whose whole body is their button) open nothing.
   only be able to move the desktop icons but not any other widgets"): a Themia-level setting, off by default
   (`AppPreferences.LockWidgets`, stored as `preferences.lockWidgets`; a file without it loads off; an import brings it
   and says so). While on, outside edit mode a widget pressed and dragged **does not move** (`CardGestures.MovesLocked`
-  with `pinned`, `WidgetLock.Pins`): the press stays the widget's own click or gesture. Desktop icons move, drag out,
-  lasso and select as before. **A mixed selection's move carries its icons only**; its widgets stay put
+  with `pinned`, `WidgetLock.Pins`): the press stays the widget's own click or gesture, and the widget is not selected
+  either ([S-12953]). Desktop icons move, drag out, lasso and select as before. **A mixed selection's move carries its icons only**; its widgets stay put
   (`DesktopPicks.Moving` over `WidgetLock.Movable`). **Groups are units** ([S-11885]): a group holding any widget stays
   whole, its icons with it; a group of icons alone moves. Edit mode moves everything: editing is explicit. There are
   no keyboard nudges outside edit mode, so none to hold. Its one place is General › Desktop icons (a toggle under the
@@ -11094,6 +11094,18 @@ power buttons, whose whole body is their button) open nothing.
   on; a click flips the setting (`ShellMenus.LockLine`, `DesktopMenuCommand.LockWidgets`, `FileCommand.LockWidgets`).
   Not on edit mode's empty-surface menu, an action menu that holds no setting ([S-1744], [S-3590]). Tests
   `ContextMenuTests.S12951_`, `DesktopCommandsTests`.
+- **[S-12953]** **Locked widgets are not selected** (owner, 2026-11-19: "when the widgets are locked you should also not
+  be able to select them except for the desktop icons of course"): while Lock widgets is on, outside edit mode, a widget
+  card is **not in the desktop's one selection** ([S-11877]): no click, Ctrl/Shift+click ([S-11879]), band, Ctrl+A,
+  arrow or type-to-find reaches it, it draws no selection, and no move carries it (`DesktopPicks.KeyOf` gives it no
+  key, `DesktopPicks.PicksOnPress` refuses its press, `WidgetLock.Selectable`). A Ctrl/Shift press on it stays the
+  widget's own press. **Desktop icons stay the desktop's**, as Windows' own: free icons (both sources, [S-5600]) and
+  the items inside a fence ([S-13011]) are selected, opened, dragged and lassoed as ever. Decision: a fence is a widget
+  card here (its card is not selected or moved), its items are icons; a band over a locked desktop catches icons only.
+  Turning the lock on lets go of every card the selection held at once (the next layout drops keyless widgets,
+  `AppHost.SetLockWidgets`); icons stay selected. Edit mode keeps its own selection and selects everything. A widget
+  that is one button (`IWidgetButton`) arms its locked move through `CardGestures.MovesLocked` as every card does, so a
+  locked button never moves either (it armed itself before). Tests `DesktopGridTests.S12953_`.
 - **[S-11874]** **The local grid** (`LocalGrid`, Core; `LocalGridOverlay`): while a block moves on the locked
   desktop the grid's lines are drawn **only round the box it lands in**, their strength falling with their place
   round it ([S-11886]: a rectangle grown evenly out of the box) to nothing at `LocalGrid.RadiusCells` (6 cells) past it, on

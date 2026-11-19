@@ -1312,7 +1312,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var ctrl = (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) != 0;
         var shift = (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Shift) != 0;
         if (_view is not IDesktopIconView && !_host.IsPreview
-            && Themia.Core.Desktop.DesktopPicks.PicksOnPress(editMode: false, pressed, ctrl, shift)
+            && Themia.Core.Desktop.DesktopPicks.PicksOnPress(editMode: false, pressed, ctrl, shift, _host.WidgetsLocked)
             && _host.DeskPick(this, ctrl, shift))
         {
             _openArmed = false;
@@ -1322,9 +1322,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
 
         // [S-2008] A button takes its press itself, so the card's own press handler never arms the move:
-        // it is armed here, where handled presses are heard too.
-        if (e.Handled && _view is IWidgetButton && !_host.IsPreview
-            && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        // it is armed here, where handled presses are heard too. [S-12953] By the one rule: a locked button stays put.
+        if (e.Handled && _view is IWidgetButton
+            && CardGestures.MovesLocked(editMode: false, _host.IsPreview, pressed, ownsDrags: false, pinned: _host.Pins(this)))
         {
             _moveArmed = true;
             _moveStart = e.GetCurrentPoint(ParentSurface()).Position;

@@ -18,8 +18,12 @@ public static class DesktopPicks
     /// The key <paramref name="widget"/> is selected under on the locked desktop: an own icon's own key, a
     /// desktop item's key while the listing holds it (<paramref name="listed"/>), any other widget its card
     /// key; null for a desktop item the listing does not hold (it cannot be selected until it does).
+    /// [S-12953] With Lock widgets on (<paramref name="widgetsLocked"/>) a widget that is not a desktop icon has no key:
+    /// it is not in the desktop's selection at all, so no click, Ctrl/Shift+click, band, Ctrl+A or arrow reaches it, it
+    /// draws no selection, and a selection that held it lets it go at the next layout. A fence is such a widget; the
+    /// items it holds are desktop icons and keep their own keys (they are laid out apart, [S-13011]).
     /// </summary>
-    public static string? KeyOf(WidgetInstance widget, Func<string, bool> listed)
+    public static string? KeyOf(WidgetInstance widget, Func<string, bool> listed, bool widgetsLocked = false)
     {
         ArgumentNullException.ThrowIfNull(widget);
         ArgumentNullException.ThrowIfNull(listed);
@@ -27,7 +31,7 @@ public static class DesktopPicks
         {
             IDesktopItemConfig { Item.Length: 0 } own => DesktopItemKeys.Own(own.ItemId),
             IDesktopItemConfig item => listed(item.Item) ? item.Item : null,
-            _ => DesktopItemKeys.Widget(widget.Id),
+            _ => WidgetLock.Selectable(widgetsLocked, isIcon: false) ? DesktopItemKeys.Widget(widget.Id) : null,
         };
     }
 
@@ -55,12 +59,12 @@ public static class DesktopPicks
 
     /// <summary>
     /// [S-11879] Whether a press on a widget card (not a desktop icon, whose own press picks it) goes to the desktop's one
-    /// selection: outside edit mode, the left button, with Ctrl (toggle) or Shift (the range). Lock widgets does not
-    /// matter: a locked widget is picked as any (the lock only keeps it from moving, [S-12950]). A plain press stays the
-    /// widget's own (its content, its click, its move).
+    /// selection: outside edit mode, the left button, with Ctrl (toggle) or Shift (the range). A plain press stays the
+    /// widget's own (its content, its click, its move). [S-12953] Never while Lock widgets is on
+    /// (<paramref name="widgetsLocked"/>): a locked widget is not picked at all, the press stays its own.
     /// </summary>
-    public static bool PicksOnPress(bool editMode, bool leftButton, bool ctrl, bool shift)
-        => !editMode && leftButton && (ctrl || shift);
+    public static bool PicksOnPress(bool editMode, bool leftButton, bool ctrl, bool shift, bool widgetsLocked = false)
+        => !editMode && leftButton && (ctrl || shift) && WidgetLock.Selectable(widgetsLocked, isIcon: false);
 
     /// <summary>
     /// [S-11879] What a move of the widget <paramref name="heldId"/> on the locked desktop carries: every

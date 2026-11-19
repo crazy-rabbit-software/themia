@@ -104,6 +104,89 @@ public sealed class DesktopGridTests
         Assert.Equal(["i", "j", "clock"], DesktopPicks.Moving(view, selection, "i", KeyOf, lockWidgets: false));
     }
 
+    // ---- [S-12953] Locked widgets are not selected ------------------------------------------------------
+
+    /// <summary>A view of an icon, a card and an own icon, laid out in the selection by <paramref name="locked"/>'s keys.</summary>
+    private static (ViewState View, DesktopSelection Selection, Func<WidgetInstance, string?> KeyOf) LockedDesk(bool locked)
+    {
+        var view = ViewState.Create("Home");
+        view.Widgets.Add(Icon("i", @"C:\d\a.txt", new FracRect(0, 0, 0.1, 0.1)));
+        view.Widgets.Add(Card("clock", new FracRect(0.2, 0, 0.2, 0.1)));
+        view.Widgets.Add(new WidgetInstance { Id = "own", Config = new DeskIconFake { ItemId = "own" }, Rect = new FracRect(0.5, 0, 0.1, 0.1) });
+        string? KeyOf(WidgetInstance w) => DesktopPicks.KeyOf(w, _ => true, widgetsLocked: locked);
+        var selection = new DesktopSelection();
+        selection.SetLayout(
+            view.Widgets.Select(w => (W: w, Key: KeyOf(w))).Where(p => p.Key is not null)
+                .Select(p => new DesktopBox(p.Key!, 0, p.W.Rect.X * 100, p.W.Rect.Y * 100, p.W.Rect.W * 100, p.W.Rect.H * 100)),
+            _ => null);
+        return (view, selection, KeyOf);
+    }
+
+    [Fact]
+    public void S12953_locked_icons_are_selected_and_cards_are_refused()
+    {
+        // Owner, 2026-11-19: "when the widgets are locked you should also not be able to select them except for the
+        // desktop icons of course". Before, a locked card was picked as any (the lock only held its move).
+        var (view, selection, keyOf) = LockedDesk(locked: true);
+        Assert.Null(keyOf(view.Widgets[1]));
+        Assert.NotNull(keyOf(view.Widgets[0]));
+        Assert.NotNull(keyOf(view.Widgets[2]));
+        Assert.True(WidgetLock.Selectable(lockWidgets: true, isIcon: true));
+        Assert.False(WidgetLock.Selectable(lockWidgets: true, isIcon: false));
+        Assert.True(WidgetLock.Selectable(lockWidgets: false, isIcon: false));
+
+        // A Ctrl or Shift press on a locked card is not a pick: it stays the widget's own press.
+        Assert.False(DesktopPicks.PicksOnPress(editMode: false, leftButton: true, ctrl: true, shift: false, widgetsLocked: true));
+        Assert.False(DesktopPicks.PicksOnPress(editMode: false, leftButton: true, ctrl: false, shift: true, widgetsLocked: true));
+        Assert.True(DesktopPicks.PicksOnPress(editMode: false, leftButton: true, ctrl: true, shift: false, widgetsLocked: false));
+
+        // An icon's press selects it; Ctrl+A takes the icons and never the card.
+        selection.Press(keyOf(view.Widgets[0])!, ctrl: false, shift: false);
+        selection.Release(keyOf(view.Widgets[0])!);
+        Assert.Equal(["i"], DesktopPicks.Selected(view, selection, keyOf));
+        selection.SelectAll();
+        Assert.Equal(["i", "own"], DesktopPicks.Selected(view, selection, keyOf));
+        Assert.False(DesktopPicks.Selects(selection, view.Widgets[1], keyOf));
+        Assert.Equal(["i", "own"], DesktopPicks.Moving(view, selection, "i", keyOf, lockWidgets: true));
+    }
+
+    [Fact]
+    public void S12953_a_lasso_while_locked_catches_icons_only()
+    {
+        var (view, selection, keyOf) = LockedDesk(locked: true);
+        selection.BeginBand(ctrl: false, shift: false);
+        selection.Band(DesktopBand.Hits(new BandRect(0, 0, 100, 20), selection.Ordered));
+        selection.EndBand();
+
+        Assert.Equal(["i", "own"], DesktopPicks.Selected(view, selection, keyOf));
+        Assert.DoesNotContain(selection.Ordered, b => b.Key == DesktopItemKeys.Widget("clock"));
+
+        // Unlocked, the same band takes the card too.
+        var (_, open, openKeyOf) = LockedDesk(locked: false);
+        open.BeginBand(ctrl: false, shift: false);
+        open.Band(DesktopBand.Hits(new BandRect(0, 0, 100, 20), open.Ordered));
+        open.EndBand();
+        Assert.Equal(["i", "clock", "own"], DesktopPicks.Selected(view, open, openKeyOf));
+    }
+
+    [Fact]
+    public void S12953_turning_the_lock_on_lets_go_of_the_selected_cards_and_keeps_the_icons()
+    {
+        var (view, selection, openKeyOf) = LockedDesk(locked: false);
+        selection.SelectAll();
+        Assert.Equal(["i", "clock", "own"], DesktopPicks.Selected(view, selection, openKeyOf));
+
+        // The lock turns on: the next layout has no key for the card, so the selection lets it go.
+        string? lockedKeyOf(WidgetInstance w) => DesktopPicks.KeyOf(w, _ => true, widgetsLocked: true);
+        selection.SetLayout(
+            view.Widgets.Select(w => (W: w, Key: lockedKeyOf(w))).Where(p => p.Key is not null)
+                .Select(p => new DesktopBox(p.Key!, 0, p.W.Rect.X * 100, p.W.Rect.Y * 100, p.W.Rect.W * 100, p.W.Rect.H * 100)),
+            _ => null);
+        Assert.False(selection.IsSelected(DesktopItemKeys.Widget("clock")));
+        Assert.Equal(["i", "own"], DesktopPicks.Selected(view, selection, lockedKeyOf));
+        Assert.Equal(2, selection.Count);
+    }
+
     [Fact]
     public void S11877_a_locked_move_or_lasso_takes_what_it_touches_and_never_a_neighbour_it_only_touches()
     {

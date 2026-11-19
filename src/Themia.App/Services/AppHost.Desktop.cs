@@ -131,7 +131,9 @@ internal sealed partial class AppHost
 
     /// <summary>
     /// [S-12950] [S-12951] Lock widgets on or off: the desktop's menus' line flips the one setting (General › Desktop
-    /// icons is its home, [S-3590]). Read at each press, so nothing is repainted.
+    /// icons is its home, [S-3590]). Read at each press. [S-12953] Turning it on lets go of every card the desktop's
+    /// selection holds: a locked card has no key there, so the layout the state's change runs (<see cref="OnDeskStateChanged"/>,
+    /// whoever flips it, the General page too) drops it and repaints; its icons stay selected.
     /// </summary>
     public void SetLockWidgets(bool on)
     {

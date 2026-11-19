@@ -25,6 +25,15 @@ public static class WidgetLock
     public static bool Holds(bool lockWidgets, bool editMode, bool isIcon) => lockWidgets && !editMode && !isIcon;
 
     /// <summary>
+    /// [S-12953] Whether a widget may be in the locked desktop's one selection (<see cref="DesktopPicks"/>; owner,
+    /// 2026-11-19: "when the widgets are locked you should also not be able to select them"): always a desktop icon
+    /// (either source, a fence's items too: selecting and opening icons is the desktop's, as Windows' own), any other
+    /// widget (a fence's card included) only while Lock widgets is off. Edit mode has its own selection
+    /// (<see cref="WidgetSelection"/>), which the lock never touches.
+    /// </summary>
+    public static bool Selectable(bool lockWidgets, bool isIcon) => isIcon || !lockWidgets;
+
+    /// <summary>
     /// Whether the widget <paramref name="widgetId"/> of <paramref name="view"/> cannot be moved now: the lock holds
     /// it. False for an id the view does not hold.
     /// </summary>
