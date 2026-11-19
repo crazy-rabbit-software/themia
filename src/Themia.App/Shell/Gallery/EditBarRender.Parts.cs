@@ -90,9 +90,10 @@ internal static partial class EditBarRender
     /// <summary>
     /// [S-11712] One picture of the add page open under the real bar (Add marked) on a stand-in display of
     /// <paramref name="width"/> × <paramref name="height"/> over the busy wallpaper: <paramref name="tab"/>
-    /// chosen or <paramref name="search"/> typed, every picture the page asked for drawn before the shot.
+    /// chosen or <paramref name="search"/> typed, the tile of <paramref name="hover"/>'s key pointed at ([S-13602]),
+    /// every picture the page asked for drawn before the shot.
     /// </summary>
-    internal static async Task AddPageShot(Grid screen, string path, double width, double height, AddFolderId? tab, string? search)
+    internal static async Task AddPageShot(Grid screen, string path, double width, double height, AddFolderId? tab, string? search, string? hover = null)
     {
         screen.Children.Clear();
         screen.Width = width;
@@ -115,6 +116,12 @@ internal static partial class EditBarRender
         if (search is not null)
         {
             page.View.SetQuery(search);
+        }
+
+        // [S-13602] The pointer resting on a tile: the preview shows it.
+        if (hover is not null && !page.View.PreviewKey(hover))
+        {
+            Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: no tile '{hover}' shown (a key: kind:<id>, group:<id>, item:<key>)");
         }
 
         canvas.UpdateLayout();

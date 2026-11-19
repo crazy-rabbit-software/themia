@@ -126,22 +126,38 @@ public static class ShellMetrics
     }
 
     /// <summary>
-    /// [S-11707] The add page (Karpo's §593, §578: <c>PanelMetrics.TileLeast</c>, its tab strip): as wide as
-    /// the bar, flush under it at a flyout's gap, no beak; a top row of the 240 search box and a tab strip
-    /// 40 tall; tiles of at least 200 filling the width, 8 apart, each a 120 picture box over its name and
-    /// one caption line, 8 in; the picture fitted 8 inside its box.
+    /// [S-11707] [S-13600] The add page (Karpo's §593, §578: <c>PanelMetrics.TileLeast</c>, <c>TileTwoLines</c>,
+    /// its tab strip): as wide as the bar, flush under it at a flyout's gap, no beak; a top row of the 240
+    /// search box and a tab strip 40 tall; tiles of at least 200 filling the list's width, 4 apart, each 52
+    /// tall (its icon 12 in, its name and one caption line 12 after it); beside the list the 360 preview
+    /// pane, 16 off it, its picture box 240 tall, 16 in.
     /// </summary>
     public static class AddPage
     {
         public const double TileLeast = 200;
 
-        public const double TileGap = 8;
+        public const double TileGap = 4;
 
-        /// <summary>A tile's picture box: as wide as the tile less its padding, this tall.</summary>
-        public const double Picture = 120;
+        /// <summary>A tile's height: two lines of words (Karpo's <c>TileTwoLines</c>).</summary>
+        public const double Tile = 52;
 
-        /// <summary>Inside a tile, round its picture box and words; and round the picture inside its box.</summary>
-        public const double TilePad = 8;
+        /// <summary>Inside a tile: before its icon, between the icon and the words, after the words.</summary>
+        public const double TilePad = 12;
+
+        /// <summary>[S-13600] The preview pane's width beside the tiles.</summary>
+        public const double Preview = 360;
+
+        /// <summary>[S-13600] Between the tiles and the preview pane.</summary>
+        public const double PreviewGap = 16;
+
+        /// <summary>[S-13600] Inside the preview pane, round its picture box and words; and round the picture inside its box.</summary>
+        public const double PreviewPad = 16;
+
+        /// <summary>[S-13600] The preview's picture box: as wide as the pane less its padding, this tall.</summary>
+        public const double PreviewPicture = 240;
+
+        /// <summary>[S-13602] The tile's glyph in the preview's picture box until its picture is drawn.</summary>
+        public const double PreviewGlyph = 48;
 
         /// <summary>The tab strip's height (Karpo's tab strips, WinUI's SelectorBar).</summary>
         public const double TabHeight = 40;

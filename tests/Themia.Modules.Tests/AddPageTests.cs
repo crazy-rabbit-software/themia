@@ -196,22 +196,36 @@ public sealed class AddPageTests
     }
 
     [Fact]
-    public void S11707_tiles_of_at_least_200_fill_the_width_8_apart()
+    public void S13601_tiles_of_at_least_200_fill_the_list_4_apart()
     {
         Assert.Equal(1, AddPageLayout.Columns(150));
-        Assert.Equal(1, AddPageLayout.Columns(407));
-        Assert.Equal(2, AddPageLayout.Columns(408));
-        Assert.Equal(5, AddPageLayout.Columns(1048));
+        Assert.Equal(1, AddPageLayout.Columns(403));
+        Assert.Equal(2, AddPageLayout.Columns(404));
+        Assert.Equal(5, AddPageLayout.Columns(1016));
+        Assert.Equal(4, AddPageLayout.Columns(1015));
 
         var columns = AddPageLayout.Columns(1048);
         var tile = AddPageLayout.TileWidth(1048, columns);
         Assert.True(tile >= 200);
-        Assert.True((columns * tile) + ((columns - 1) * 8) <= 1048);
-        Assert.True((columns * tile) + ((columns - 1) * 8) > 1048 - columns);
+        Assert.True((columns * tile) + ((columns - 1) * 4) <= 1048);
+        Assert.True((columns * tile) + ((columns - 1) * 4) > 1048 - columns);
     }
 
     [Fact]
-    public void S11707_a_picture_is_scaled_down_to_its_box_and_never_up()
+    public void S13603_the_preview_pane_stands_beside_the_list_while_the_list_keeps_two_tiles_across()
+    {
+        // A 1920 display's bar less the flyout's gutters: three tiles across beside the 360 pane.
+        Assert.Equal((692.0, 360.0), AddPageLayout.Split(1068));
+        Assert.Equal(3, AddPageLayout.Columns(AddPageLayout.Split(1068).List));
+
+        // Just room for two tiles and the pane; one DIP less and the list takes the whole width.
+        Assert.Equal((404.0, 360.0), AddPageLayout.Split(404 + 16 + 360));
+        Assert.Equal((779.0, 0.0), AddPageLayout.Split(779));
+        Assert.Equal((0.0, 0.0), AddPageLayout.Split(-5));
+    }
+
+    [Fact]
+    public void S13602_a_picture_is_scaled_down_to_its_box_and_never_up()
     {
         Assert.Equal(1, AddPageLayout.Fit(100, 50, 184, 104));
         Assert.Equal(0.5, AddPageLayout.Fit(368, 100, 184, 104));

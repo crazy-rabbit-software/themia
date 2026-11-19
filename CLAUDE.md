@@ -383,8 +383,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   (`ReadyMadeGroups.Laid`) and selected ([S-2471], [S-2475]).
 - **The add page** ([S-11700]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593): Add opens a flyout as
   wide as the bar, flush under it: a search box and tabs (Start: the starter groups, `ReadyMadeGroup.Starter`,
-  then Popular; then a tab per subject: its ready-made groups, its widgets, each family under its name), tiles
-  of at least 200 with a picture of the thing itself (`AddPictures`: real cards on sample data, in every
+  then Popular; then a tab per subject: its ready-made groups, its widgets, each family under its name), compact
+  tiles of at least 200 (icon, name, caption: Karpo's) and beside them a preview pane of the tile pointed at or
+  focused ([S-13600]..[S-13604]): a picture of the thing itself (`AddPictures`: real cards on sample data, in every
   build; a glyph until drawn). The model is Core's (`AddTree` the subjects and families, `AddPage`
   the tabs, sections and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a
   widget places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the

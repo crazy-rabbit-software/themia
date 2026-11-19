@@ -30,12 +30,13 @@ namespace Themia.App.Shell;
 internal sealed record AddPageCommands(Action<AddTile> Pick, Action Close, Func<AddTile, bool> OverLimit);
 
 /// <summary>
-/// [S-11700]..[S-11711] The add page as drawn, after Karpo's (karpo-app, docs/widgets.md §593, §578, §592):
-/// a top row of the search box and the subjects' tab strip (40 tall, the chosen tab's words strong over
-/// the accent's pill), then the chosen tab's sections, each a BodyStrong heading over its tiles (as many
-/// of at least 200 as fit, the row filling the width, 8 apart). A tile is one button on a page card: a
-/// picture of the thing itself (<see cref="AddPictures"/>; its glyph until it is drawn) over its name
-/// and one caption line. Typing searches every tab; nothing matching says so in the family's status row.
+/// [S-11700]..[S-11708] [S-13600]..[S-13604] The add page as drawn, after Karpo's (karpo-app, docs/widgets.md
+/// §593, §578, §592): a top row of the search box and the subjects' tab strip (40 tall, the chosen tab's
+/// words strong over the accent's pill), then the chosen tab's sections, each a BodyStrong heading over its
+/// tiles (as many of at least 200 as fit, the row filling the list, 4 apart), and beside them the preview
+/// pane (<see cref="AddPreview"/>). A tile is one compact button on a page card: the thing's icon, its name
+/// and one caption line; the picture of the thing itself is the preview's, of the tile pointed at or on
+/// the keyboard. Typing searches every tab; nothing matching says so in the family's status row.
 /// The page's model is Core's (<see cref="AddPage"/>, <see cref="AddPageKeys"/>, <see cref="AddPageLayout"/>).
 /// </summary>
 internal sealed partial class AddPageView : Grid
@@ -52,14 +53,16 @@ internal sealed partial class AddPageView : Grid
     private readonly StackPanel _sections = new();
     private readonly ScrollViewer _body;
     private readonly StatusBlock _none = new();
+    private readonly Grid _main = new();
+    private readonly AddPreview _preview = new();
 
     /// <summary>The sections shown now, each its grid of tiles.</summary>
     private readonly List<(AddSection Section, TileGrid Grid)> _shown = [];
 
-    /// <summary>The tiles shown now, by their key: a picture drawn later finds its tile here.</summary>
-    private readonly Dictionary<string, Tile> _tiles = new(StringComparer.Ordinal);
-
     private AddFolderId _tab = AddFolderId.Start;
+
+    /// <summary>[S-13602] The tile the preview shows, or null.</summary>
+    private AddTile? _previewed;
 
     public AddPageView(AddPage page, AddPageCommands commands, AddPictures? pictures)
     {
@@ -116,8 +119,17 @@ internal sealed partial class AddPageView : Grid
             Margin = new Thickness(0, P.HeadingGap, 0, 0),
         };
         _sections.Padding = new Thickness(0, 0, 0, P.Bottom);
-        SetRow(_body, 1);
-        Children.Add(_body);
+
+        // [S-13603] The tiles' list and, beside it, the preview pane: as the page's width shares them out.
+        _main.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _main.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+        _preview.Margin = new Thickness(A.PreviewGap, P.HeadingGap, 0, P.Bottom);
+        SetColumn(_preview, 1);
+        _main.Children.Add(_body);
+        _main.Children.Add(_preview);
+        SetRow(_main, 1);
+        Children.Add(_main);
+        SizeChanged += (_, e) => Split(e.NewSize.Width);
 
         foreach (var tab in page.Tabs)
         {
@@ -167,11 +179,80 @@ internal sealed partial class AddPageView : Grid
         }
     }
 
-    /// <summary>How tall the page wants to be at <paramref name="width"/>, before the room cuts it.</summary>
+    /// <summary>How tall the page wants to be at <paramref name="width"/>, before the room cuts it: its tiles, or its preview where that is taller.</summary>
     public double ContentHeight(double width)
     {
-        _sections.Measure(new Size(Math.Max(0, width - Padding.Left - Padding.Right), double.PositiveInfinity));
-        return Padding.Top + P.Tabs + _body.Margin.Top + _sections.DesiredSize.Height;
+        var (list, preview) = Split(width);
+        _sections.Measure(new Size(list, double.PositiveInfinity));
+        var tall = _body.Margin.Top + _sections.DesiredSize.Height;
+        if (preview > 0)
+        {
+            _preview.Measure(new Size(preview, double.PositiveInfinity));
+            tall = Math.Max(tall, _preview.Margin.Top + _preview.DesiredSize.Height + _preview.Margin.Bottom);
+        }
+
+        return Padding.Top + P.Tabs + tall;
+    }
+
+    /// <summary>[S-13603] Share the page's <paramref name="width"/> between the list and the preview pane.</summary>
+    private (double List, double Preview) Split(double width)
+    {
+        var split = AddPageLayout.Split(width - Padding.Left - Padding.Right);
+        _main.ColumnDefinitions[1].Width = new GridLength(split.Preview > 0 ? split.Preview + A.PreviewGap : 0);
+        _preview.Visibility = split.Preview > 0 ? Visibility.Visible : Visibility.Collapsed;
+        return split;
+    }
+
+    /// <summary>
+    /// [S-13602] Preview the tile of <paramref name="key"/> as if pointed at (a render's hover state); false
+    /// when no tile shown has that key.
+    /// </summary>
+    internal bool PreviewKey(string key)
+    {
+        if (_shown.SelectMany(s => s.Section.Tiles).FirstOrDefault(t => string.Equals(t.Key, key, StringComparison.Ordinal)) is not { } tile)
+        {
+            return false;
+        }
+
+        Preview(tile);
+        if (_shown.SelectMany(s => s.Grid.Children.OfType<Tile>()).FirstOrDefault(t => t.Key == key) is { } view)
+        {
+            view.Pointed();
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// [S-13602] Show <paramref name="tile"/> in the preview pane: its picture at once where it is kept, else
+    /// its glyph until the picture, drawn before every other asked for ([S-13604]), comes.
+    /// </summary>
+    private void Preview(AddTile tile)
+    {
+        if (string.Equals(_previewed?.Key, tile.Key, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _previewed = tile;
+        _preview.Show(tile, _commands.OverLimit(tile));
+        if (AddPictures.Cached(tile) is { } picture)
+        {
+            _preview.ShowPicture(picture);
+        }
+        else
+        {
+            _pictures?.Prefer(tile, drawn => Drew(tile, drawn));
+        }
+    }
+
+    /// <summary>A picture came: the preview shows it while it still shows its tile.</summary>
+    private void Drew(AddTile tile, AddPicture picture)
+    {
+        if (string.Equals(_preview.Key, tile.Key, StringComparison.Ordinal))
+        {
+            _preview.ShowPicture(picture);
+        }
     }
 
     /// <summary>[S-11701] [S-11706] Draw the tab's sections, or the search's, or the status row saying nothing matched.</summary>
@@ -188,11 +269,12 @@ internal sealed partial class AddPageView : Grid
 
         _sections.Children.Clear();
         _shown.Clear();
-        _tiles.Clear();
         _pictures?.Forget();
+        _previewed = null;
 
         if (sections.Count == 0)
         {
+            _preview.Clear();
             _none.Show(StatusKind.Empty, Glyphs.Search, searching ? Str.AddMenu_NoResults.Format(("query", query.Trim())) : string.Empty);
             _sections.Children.Add(_none);
         }
@@ -210,21 +292,23 @@ internal sealed partial class AddPageView : Grid
             AutomationProperties.SetName(grid, heading.Text);
             foreach (var tile in section.Tiles)
             {
-                var view = new Tile(tile, _commands.OverLimit(tile), () => Pick(tile));
-                _tiles.TryAdd(tile.Key, view);
-                grid.Children.Add(view);
-                if (AddPictures.Cached(tile) is { } picture)
+                grid.Children.Add(new Tile(tile, _commands.OverLimit(tile), () => Pick(tile), () => Preview(tile)));
+
+                // [S-13604] Every tile shown gets its picture ready, after the preview's, so pointing at it shows it at once.
+                if (AddPictures.Cached(tile) is null)
                 {
-                    view.Show(picture);
-                }
-                else
-                {
-                    _pictures?.Want(tile, drawn => _tiles.GetValueOrDefault(tile.Key)?.Show(drawn));
+                    _pictures?.Want(tile, drawn => Drew(tile, drawn));
                 }
             }
 
             _sections.Children.Add(grid);
             _shown.Add((section, grid));
+        }
+
+        // [S-13602] Until a tile is pointed at, the preview shows the first: the one Enter in the box picks.
+        if (sections.Count > 0 && sections[0].Tiles.Count > 0)
+        {
+            Preview(sections[0].Tiles[0]);
         }
 
         _body.ChangeView(null, 0, null, disableAnimation: true);
@@ -378,7 +462,7 @@ internal sealed partial class AddPageView : Grid
     // ---- the parts ------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-11707] Tiles of at least 200 across the width, the row filling it evenly, 8 apart either way;
+    /// [S-13601] Tiles of at least 200 across the list, the row filling it evenly, 4 apart either way;
     /// a row as tall as its tallest tile.
     /// </summary>
     private sealed partial class TileGrid : Panel
@@ -427,57 +511,70 @@ internal sealed partial class AddPageView : Grid
     }
 
     /// <summary>
-    /// [S-11702] A tile: one button on a page card (its fill and rim, radius 4; the subtle fills under the
-    /// pointer and pressed): its picture box (the picture fitted, never scaled up, centred; the kind's glyph
-    /// until it is drawn), its name in Body and one Caption line; over the free plan's widgets, the Pro hint.
+    /// [S-13601] A tile, Karpo's (§578): one compact button on a page card (its fill and rim, radius 4; the
+    /// subtle fills under the pointer and pressed), 52 tall: the thing's icon 12 in, then its name in Body
+    /// over one Caption line, each cut short; over the free plan's widgets, the Pro hint at its end. Pointed
+    /// at or reached by the keys, it is the preview's ([S-13602]).
     /// </summary>
     private sealed partial class Tile : Grid
     {
         private readonly Button _button;
-        private readonly Grid _box;
-        private readonly FontIcon _glyph;
 
-        public Tile(AddTile tile, bool overLimit, Action pick)
+        public Tile(AddTile tile, bool overLimit, Action pick, Action point)
         {
+            Key = tile.Key;
+            Height = A.Tile;
             Background = ShellBrush.Of(ShellRole.CardFill);
             BorderBrush = ShellBrush.Of(ShellRole.CardStroke);
             BorderThickness = new Thickness(FamilyShape.Hairline);
             CornerRadius = new CornerRadius(P.CardRadius);
 
-            var (glyph, name, caption) = Words(tile);
-            _glyph = Fluent.Icon(glyph, "TextFillColorTertiaryBrush", ShellMetrics.Page.HeaderGlyph);
-            _glyph.HorizontalAlignment = HorizontalAlignment.Center;
-            _glyph.VerticalAlignment = VerticalAlignment.Center;
-            _box = new Grid { Height = A.Picture, Children = { _glyph } };
+            var words = AddTileWords.Of(tile);
+            var glyph = Fluent.Icon(words.Glyph, "TextFillColorPrimaryBrush");
+            glyph.VerticalAlignment = VerticalAlignment.Center;
 
+            var title = Fluent.Text(FamilyType.Body);
+            title.Text = words.Name;
+            title.TextTrimming = TextTrimming.CharacterEllipsis;
+            title.TextWrapping = TextWrapping.NoWrap;
+            var line = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
+            line.Text = words.Caption;
+            line.TextTrimming = TextTrimming.CharacterEllipsis;
+            line.TextWrapping = TextWrapping.NoWrap;
+            var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { title, line } };
+
+            var row = new Grid
+            {
+                ColumnSpacing = A.TilePad,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Auto },
+                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                    new ColumnDefinition { Width = GridLength.Auto },
+                },
+                Children = { glyph, text },
+            };
+            SetColumn(text, 1);
+
+            var limit = Str.AddMenu_OverLimit.Format(("count", LocaleFormat.Integer(LicenseRules.FreeWidgetLimit)));
             if (overLimit)
             {
                 var pro = Fluent.Text(FamilyType.Caption);
                 pro.Foreground = ShellBrush.Of(ShellRole.AccentText);
                 pro.Text = "Pro";
-                pro.HorizontalAlignment = HorizontalAlignment.Right;
-                pro.VerticalAlignment = VerticalAlignment.Top;
-                _box.Children.Add(pro);
+                pro.VerticalAlignment = VerticalAlignment.Center;
+                SetColumn(pro, 2);
+                row.Children.Add(pro);
             }
-
-            var title = Fluent.Text(FamilyType.Body);
-            title.Text = name;
-            title.TextTrimming = TextTrimming.CharacterEllipsis;
-            title.TextWrapping = TextWrapping.NoWrap;
-            title.Margin = new Thickness(0, A.TilePad, 0, 0);
-            var line = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
-            line.Text = caption;
-            line.TextTrimming = TextTrimming.CharacterEllipsis;
-            line.TextWrapping = TextWrapping.NoWrap;
 
             _button = new Button
             {
-                Content = new StackPanel { Children = { _box, title, line } },
+                Content = row,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Top,
-                Padding = new Thickness(A.TilePad),
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(A.TilePad, 0, A.TilePad, 0),
                 BorderThickness = new Thickness(0),
                 CornerRadius = new CornerRadius(P.CardRadius),
                 Tag = tile.Key,
@@ -485,61 +582,27 @@ internal sealed partial class AddPageView : Grid
             PageTabButton.Subtle(_button);
             _button.Click += (_, _) => pick();
 
-            var said = overLimit ? $"{name}, {caption}. {Str.AddMenu_OverLimit.Format(("count", LocaleFormat.Integer(LicenseRules.FreeWidgetLimit)))}" : $"{name}, {caption}";
+            // [S-13602] Pointing at a tile, or the keys reaching it, shows it in the preview.
+            _button.PointerEntered += (_, _) => point();
+            _button.GotFocus += (_, _) => point();
+
+            var said = overLimit ? $"{words.Name}, {words.Caption}. {limit}" : $"{words.Name}, {words.Caption}";
             AutomationProperties.SetName(_button, said);
-            ToolTipService.SetToolTip(_button, overLimit ? Str.AddMenu_OverLimit.Format(("count", LocaleFormat.Integer(LicenseRules.FreeWidgetLimit))) : caption);
+            ToolTipService.SetToolTip(_button, overLimit ? limit : words.Caption);
             Children.Add(_button);
         }
 
+        public string Key { get; }
+
         public bool HasFocus => _button.FocusState != FocusState.Unfocused;
+
+        /// <summary>A render's pointer resting on the tile: the subtle fill it wears under the pointer.</summary>
+        public void Pointed() => _button.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
 
         public bool FocusTile()
         {
             _button.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
             return _button.Focus(FocusState.Keyboard);
         }
-
-        /// <summary>[S-11710] The picture in its box: fitted 8 inside it, scaled down, never up, centred.</summary>
-        public void Show(AddPicture picture)
-        {
-            var image = new Image
-            {
-                Source = picture.Image,
-                Stretch = Stretch.Fill,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-            };
-
-            void Fit()
-            {
-                var width = _box.ActualWidth > 0 ? _box.ActualWidth : A.TileLeast - (2 * A.TilePad);
-                var scale = AddPageLayout.Fit(picture.Width, picture.Height, width - (2 * A.TilePad), A.Picture - (2 * A.TilePad));
-                image.Width = Math.Round(picture.Width * scale);
-                image.Height = Math.Round(picture.Height * scale);
-            }
-
-            Fit();
-            _box.SizeChanged += (_, _) => Fit();
-            _box.Children.Remove(_glyph);
-            _box.Children.Insert(0, image);
-        }
-
-        /// <summary>A tile's glyph, its name and its caption line.</summary>
-        private static (string Glyph, string Name, string Caption) Words(AddTile tile) => tile switch
-        {
-            AddWidgetTile one => (ModuleCatalog.Of(one.Kind).Glyph, ModuleCatalog.Of(one.Kind).TileName, ModuleCatalog.Of(one.Kind).Describe()),
-            AddGroupTile group => (group.Group.Glyph, group.Group.Name.Text(), Str.Groups_Add_Count.Plural(group.Group.Widgets.Count)),
-            AddItemTile item => (ItemGlyph(item.Item.Kind), item.Item.Name, Str.Desktop_Add_Folder.Text()),
-            _ => (Glyphs.Apps, string.Empty, string.Empty),
-        };
-
-        /// <summary>[S-5523] A desktop item's glyph: what it is, as Explorer's own icons say it.</summary>
-        private static string ItemGlyph(DesktopItemKind kind) => kind switch
-        {
-            DesktopItemKind.Folder => Glyphs.Folder,
-            DesktopItemKind.Shortcut => Glyphs.Link,
-            DesktopItemKind.ShellItem => Glyphs.Display,
-            _ => Glyphs.File,
-        };
     }
 }

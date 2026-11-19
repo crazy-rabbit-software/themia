@@ -189,13 +189,17 @@ internal static partial class EditBarRender
         await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 900 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
         await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 640 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrowest.png", room: 640).ConfigureAwait(true);
 
-        // [S-11712] The add page: Start, two subjects, a search with results and one with none, a narrow display.
+        // [S-11712] The add page: Start, two subjects, a search with results and one with none, a narrow display, a tile pointed at.
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add.png"), ScreenWidth, OpenHeight, null, null).ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-system.png"), ScreenWidth, OpenHeight, AddFolderId.System, null).ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-weather.png"), ScreenWidth, OpenHeight, AddFolderId.Weather, null).ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-search.png"), ScreenWidth, OpenHeight, null, "music").ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-none.png"), ScreenWidth, OpenHeight, null, "zzqx").ConfigureAwait(true);
         await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-narrow.png"), 900, OpenHeight, null, null).ConfigureAwait(true);
+
+        // [S-13602] The pointer resting on a tile: its preview beside the tiles (a widget, then a ready-made group).
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-hover.png"), ScreenWidth, OpenHeight, null, null, "kind:weatherForecast").ConfigureAwait(true);
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-hover-group.png"), ScreenWidth, OpenHeight, AddFolderId.System, null, "group:thisPc").ConfigureAwait(true);
 
         var hint = new TextBlock
         {

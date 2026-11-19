@@ -54,7 +54,7 @@ internal sealed class AddPictures : IDisposable
     private static DispatcherQueueTimer? _drop;
 
     private readonly Canvas _stage;
-    private readonly Queue<(AddTile Tile, Action<AddPicture> Ready)> _wanted = new();
+    private readonly LinkedList<(AddTile Tile, Action<AddPicture> Ready)> _wanted = new();
     private readonly HashSet<string> _queued = new(StringComparer.Ordinal);
     private readonly DispatcherQueue? _dispatcher;
     private TaskCompletionSource _idle = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -101,7 +101,41 @@ internal sealed class AddPictures : IDisposable
             return;
         }
 
-        _wanted.Enqueue((tile, ready));
+        _wanted.AddLast((tile, ready));
+        Run();
+    }
+
+    /// <summary>
+    /// [S-13604] Draw <paramref name="tile"/>'s picture next, before every other asked for (the one being drawn
+    /// finishes first): the tile the preview shows. Asked for already, it moves to the front with its own
+    /// <paramref name="ready"/>; asked for again later, it is not drawn twice.
+    /// </summary>
+    public void Prefer(AddTile tile, Action<AddPicture> ready)
+    {
+        ArgumentNullException.ThrowIfNull(tile);
+        ArgumentNullException.ThrowIfNull(ready);
+        if (_disposed || tile is AddItemTile)
+        {
+            return;
+        }
+
+        for (var node = _wanted.First; node is not null; node = node.Next)
+        {
+            if (string.Equals(node.Value.Tile.Key, tile.Key, StringComparison.Ordinal))
+            {
+                _wanted.Remove(node);
+                break;
+            }
+        }
+
+        _queued.Add(tile.Key);
+        _wanted.AddFirst((tile, ready));
+        Run();
+    }
+
+    /// <summary>Start drawing what is asked for, after the page's own frame, unless it is drawing already.</summary>
+    private void Run()
+    {
         if (!_running)
         {
             _running = true;
@@ -175,8 +209,10 @@ internal sealed class AddPictures : IDisposable
         var drawn = 0;
         try
         {
-            while (!_disposed && _wanted.TryDequeue(out var next))
+            while (!_disposed && _wanted.First is { } first)
             {
+                var next = first.Value;
+                _wanted.RemoveFirst();
                 _queued.Remove(next.Tile.Key);
                 if (Cache.Get(next.Tile.Key) is not { } picture)
                 {

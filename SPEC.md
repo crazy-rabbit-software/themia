@@ -2217,13 +2217,13 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   tiles) over its tiles; no section is empty and each has a key the same in every language (`tab/kind`,
   a family's `tab/family:Id`).
 - **[S-11702]** A **tile** is one button on a page card (Windows' card fill and rim, radius 4; the subtle
-  fills under the pointer and pressed): a 120-tall picture box ([S-11710]), then its name in Body and one
-  Caption line (a ready-made group: "n widgets"; a widget: its description; a desktop item: "On the desktop"), each
+  fills under the pointer and pressed): its icon, its name in Body and one
+  Caption line ([S-13601]; its picture is the preview's, [S-13602]) (a ready-made group: "n widgets"; a widget: its description; a desktop item: "On the desktop"), each
   cut short with an ellipsis; the caption is its tooltip. It places a widget at its natural size, a
   ready-made group whole ([S-2471]), or a desktop item's widget ([S-5523]). Picking one closes the page and
   starts the placement session ([S-421], [S-1587]). Where placing it would pass the free plan's widgets
   ([S-1065]) the tile shows **Pro** at its picture's corner, the limit in its tooltip; picking it meets the
-  gate as before (refused with the notice, nothing placed). The limit is unchanged.
+  gate as before (refused with the notice, nothing placed); the preview says the limit too ([S-13602]). The limit is unchanged.
 - **[S-11703]** **Start**: **Ready-made**, the starter groups in their order (data: `ReadyMadeGroup.Starter`
   on My day, This PC, Weather station, Now playing, My files, Screen time, Inbox and tasks), then
   **Popular** ([S-3511]).
@@ -2242,7 +2242,8 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   flush with its sides, 12 under it, no beak (Karpo's §593: no one entry to point at); the pages' ground,
   rim, radius and shadow, Windows' colours always; as tall as its page has wanted since it opened (it
   grows, it never jumps back) up to 70 % of the work area, scrolling inside. Tiles of at least 200 fill
-  the width evenly, 8 apart either way (`AddPageLayout`, `ShellMetrics.AddPage`). It is one of the bar's
+  the list evenly, 4 apart either way, the preview pane beside them (`AddPageLayout`, `ShellMetrics.AddPage`,
+  [S-13601], [S-13603]). It is one of the bar's
   flyouts ([S-2327]): one at a time, the open one closes as it opens and it closes as another opens; Add
   opens it and closes it again, Add marked with the accent's pill while it is open; a press outside it
   and the bar closes it, as do a placement and leaving edit mode.
@@ -2262,23 +2263,53 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   view's unplaced desktop items are tiles of **On the desktop** in the same subject, none when nothing is
   unplaced. *(Retired 2026-11-14: "the desktop item kind is never a tile and
   has no home"; the kinds `shortcut` and `desktopItem` are one.)*
-- **[S-11710]** A tile's **picture** is the thing itself (`AddPictures`): its widget at its natural size, or
+- **[S-11710]** A tile's **picture** (shown in the preview pane, [S-13602]) is the thing itself (`AddPictures`): its widget at its natural size, or
   its recipe's widgets at their boxes joined as one panel ([S-2240]), built as real cards on a preview host
   with the design applied, so the user sees their look, and with **sample data only**, in every build
   ([S-11850]): the sample world handed to those cards alone ([S-11851]: the sample PC's hub for the system
   readings, [S-1931], a gallery service of their own); each view's own sample ([S-11852]); a kit list reads
   no account (the providers' recordings in Debug, [S-9929]); never this PC's readings, files or accounts.
   Drawn to a bitmap off the UI's hot path (one at a time at low priority after the page shows, the cards on
-  a stage under the page's ground and detached once drawn), then fitted into its box 8 in, scaled down and
-  never up, centred. Cached per look (the design as stored, light or dark, the language) and tile, within a
+  a stage under the page's ground and detached once drawn; the previewed tile's first, [S-13604]), then fitted
+  into the preview's box, scaled down and never up, centred. Cached per look (the design as stored, light or dark, the language) and tile, within a
   bound ([S-11853]); a new look starts the cache again. A picture not yet drawn shows the tile's glyph on
-  its box, never a blank.
+  its box, never a blank. *(Until 2026-11-19 each tile carried its picture in a 120-tall box: [S-13600].)*
 - **[S-11711]** *(Retired by [S-11850]: the samples ship, and every build draws the pictures.)*
 - **[S-11712]** Debug renders: `--picker-png <out.png> [--tab Id] [--search text] [--width w] [--height h]
   [--theme light|dark] [--lang xx]` draws the page open under the real bar on a stand-in display (1920 ×
   1032 unless sized), every picture drawn before the shot (a minute at most, said when cut short);
   `--editbar-png`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
-  `-add-weather`, `-add-search` ("music"), `-add-none` (nothing found), `-add-narrow` (a 900-wide display).
+  `-add-weather`, `-add-search` ("music"), `-add-none` (nothing found), `-add-narrow` (a 900-wide display),
+  `-add-hover` (the pointer on Forecast) and `-add-hover-group` (on This PC in System). `--hover <key>` (a tile's
+  key: `kind:clock`, `group:thisPc`) rests the pointer on that tile, its preview shown ([S-13602]).
+
+#### The tiles and the preview on hover ([S-13600]..[S-13604])
+
+- **[S-13600]** The owner (2026-11-19): *"rework the whole new widget menu. it should not show the preview like it does at
+  the moment. it should show the preview somewhere when hovering over it. make it similar to how karpo does it."* The
+  add page is Karpo's (`karpo-app`, docs/widgets.md §578, §593): compact tiles of an icon and a name, and the thing
+  itself shown only for the tile pointed at. Karpo shows its pick as a ghost where it will stand on the bar; a Themia
+  widget has no place until it is placed (the placement session follows the pointer, [S-421]), so the page shows it in
+  a **preview pane** beside its tiles. The tabs, sections, search, keys, homes, ready-made groups, desktop items, the
+  Pro hint and every way in ([S-3501], [S-13018]'s lassoed area, `PlaceWidgetIn`) are unchanged.
+- **[S-13601]** A **tile** (Karpo's `TileTwoLines`): 52 tall, at least 200 wide, 4 apart either way, filling the list's
+  width evenly; on a page card, the subtle fills under the pointer and pressed; the thing's icon (its kind's, its
+  group's, a desktop item's) 12 in, then 12, its name in Body over one Caption line (a widget: its description; a
+  group: "n widgets"; a desktop item: "On the desktop"), each cut short with an ellipsis; the Pro hint at its end.
+- **[S-13602]** The **preview pane** (`AddPreview`): a page card 360 wide, 16 off the tiles, at the top beside them
+  (it does not scroll with them), 16 in: a picture box 240 tall with the tile's picture ([S-11710]) fitted, scaled down
+  and never up, centred (its glyph, 48, until it is drawn), then its name in BodyStrong, a group's "n widgets" in
+  Caption, what it is in Body (a widget's description, a group's line), and the free plan's limit in the accent where
+  placing it would pass it ([S-1065]). It shows the tile **under the pointer or reached by the keys** (Tab, the
+  arrows); until one is, the **first tile shown** (the one Enter in the box picks), and a new tab or search starts there
+  again; the pointer leaving a tile leaves the pane as it is (no blink while crossing the gaps). Nothing matching
+  empties it. Nothing in it acts, and a screen reader is not told it twice (the tile says its name, caption and limit).
+  The page is as tall as its tiles or its pane, whichever is taller ([S-11707]).
+- **[S-13603]** The pane stands beside the tiles while the list keeps two tiles across (`AddPageLayout.Split`: the
+  page's width less 376 at least 404); narrower, there is no pane and the tiles take the whole width (no preview).
+- **[S-13604]** **Pictures** are drawn one at a time as before ([S-11710], [S-11853]), the **previewed tile's first**
+  (`AddPictures.Prefer`: to the front of what is waiting; the one being drawn finishes), then every other tile shown,
+  so pointing at one later shows it at once. `--add-pictures-check` still draws the Start tab's every picture.
 
 #### The pictures in every build ([S-11850]..[S-11854])
 
