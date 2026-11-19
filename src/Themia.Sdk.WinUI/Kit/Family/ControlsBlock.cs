@@ -154,11 +154,12 @@ public sealed partial class ControlsBlock : Grid
     /// <summary>
     /// [S-6716] The Controls slider alone, for a control that stands in a row's meter place (a
     /// mixer's app): its rail the Track role, its value the accent, no thumb tooltip, no focus. Its
-    /// owner hooks <c>ValueChanged</c>.
+    /// owner hooks <c>ValueChanged</c>. [S-13060] A press on its track sets the value on the release, never on a press that
+    /// becomes the card's move (<see cref="TrackSlider"/>).
     /// </summary>
     public static Slider RailSlider(double minimum, double maximum, double value)
     {
-        var slider = new Slider
+        var slider = new TrackSlider
         {
             Minimum = minimum,
             Maximum = maximum,

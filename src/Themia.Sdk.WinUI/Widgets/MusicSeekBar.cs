@@ -20,7 +20,12 @@ namespace Themia.App.Widgets;
 /// tooltip are a settings control, and this has to sit as a 4px line under a title at every size.
 /// The fill and the thumb move by render transforms, so the once-a-second advance never costs a
 /// layout pass. The pointer is captured by the bar itself while scrubbing, which keeps the drag
-/// inside the widget (outside edit mode the card does not drag).
+/// inside the widget.
+/// </para>
+/// <para>
+/// [S-13060] A drag from the thumb scrubs; a press on the track elsewhere waits (<see cref="TrackPress"/>), as a slider's
+/// track does: let go without moving, it seeks to where it was pressed; moved past the threshold, the card takes it for its
+/// move (and nothing was sought); still held after that (nothing took it), the bar scrubs from there.
 /// </para>
 /// <para>
 /// [S-12816] The pointer never moves the layout: the thumb is faded in and out (opacity, never visibility, so a hover
@@ -50,6 +55,9 @@ public sealed partial class MusicSeekBar : Grid, IInked
     private bool _scrubbing;
     private bool _hovering;
     private bool _canSeek;
+
+    /// <summary>[S-13060] A press on the track that waits for its release or its drag.</summary>
+    private readonly TrackPress _press = new();
 
     public MusicSeekBar()
     {
@@ -86,6 +94,10 @@ public sealed partial class MusicSeekBar : Grid, IInked
         Children.Add(_track);
         Children.Add(_fill);
         Children.Add(_thumb);
+
+        // [S-13060] The card's move arms on a press on the track; a drag from the thumb is the bar's.
+        PressParts.Mark(this, PressPart.Track);
+        PressParts.Mark(_thumb, PressPart.Thumb);
 
         PointerPressed += OnPressed;
         PointerMoved += OnMoved;
@@ -164,8 +176,25 @@ public sealed partial class MusicSeekBar : Grid, IInked
 
     private void OnPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (!_canSeek || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        var point = e.GetCurrentPoint(this);
+        if (!_canSeek || !point.Properties.IsLeftButtonPressed)
         {
+            return;
+        }
+
+        e.Handled = true;
+
+        // [S-13060] Off the thumb the press waits: a click seeks on the release, a drag is the card's move.
+        if (!ReferenceEquals(e.OriginalSource, _thumb))
+        {
+            _press.Press(point.Position.X, point.Position.Y);
+            if (!CapturePointer(e.Pointer))
+            {
+                // A press that could not be held hears no release: it is a click now.
+                _press.Lost();
+                Committed?.Invoke(FractionAt(e));
+            }
+
             return;
         }
 
@@ -174,7 +203,6 @@ public sealed partial class MusicSeekBar : Grid, IInked
         Draw(fraction);
         ShowThumb();
         Scrubbing?.Invoke(fraction);
-        e.Handled = true;
 
         // A click that could not capture is still a click: seek straight away.
         if (!_scrubbing)
@@ -185,6 +213,19 @@ public sealed partial class MusicSeekBar : Grid, IInked
 
     private void OnMoved(object sender, PointerRoutedEventArgs e)
     {
+        // [S-13060] A track press still held past the card's move: nothing took the drag, the bar scrubs from here.
+        if (!_scrubbing && _press.Pending)
+        {
+            var at = e.GetCurrentPoint(this).Position;
+            if (_press.Move(at.X, at.Y) != TrackStep.Follow)
+            {
+                return;
+            }
+
+            _scrubbing = true;
+            ShowThumb();
+        }
+
         if (!_scrubbing)
         {
             return;
@@ -198,6 +239,19 @@ public sealed partial class MusicSeekBar : Grid, IInked
 
     private void OnReleased(object sender, PointerRoutedEventArgs e)
     {
+        // [S-13060] A click on the track: seek where it was pressed.
+        if (!_scrubbing && _press.Pending)
+        {
+            var (x, _) = _press.At;
+            _ = _press.Release();
+            ReleasePointerCapture(e.Pointer);
+            var at = MusicRules.ScrubFraction(x, ActualWidth);
+            Draw(at);
+            Committed?.Invoke(at);
+            e.Handled = true;
+            return;
+        }
+
         if (!_scrubbing)
         {
             return;
@@ -205,6 +259,7 @@ public sealed partial class MusicSeekBar : Grid, IInked
 
         var fraction = FractionAt(e);
         _scrubbing = false;
+        _press.Lost();
         ReleasePointerCapture(e.Pointer);
         Draw(fraction);
         ShowThumb();
@@ -212,9 +267,13 @@ public sealed partial class MusicSeekBar : Grid, IInked
         e.Handled = true;
     }
 
-    /// <summary>Capture taken away (the surface deactivated mid-drag): no seek; the bar goes back to the track.</summary>
+    /// <summary>
+    /// Capture taken away (the card took the pointer for its move, the surface deactivated mid-drag): no seek; the bar
+    /// goes back to the track.
+    /// </summary>
     private void OnCaptureLost(object sender, PointerRoutedEventArgs e)
     {
+        _press.Lost();
         if (!_scrubbing)
         {
             return;
