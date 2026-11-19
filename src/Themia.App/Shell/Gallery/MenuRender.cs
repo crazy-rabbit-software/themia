@@ -334,8 +334,8 @@ internal static class MenuRender
         }
 
         // The command bar and its list (the "overflow") can be separate popups; each is written, the
-        // first as <name>.png and the others as <name>-<n>.png. Acrylic does not render to a bitmap,
-        // so the PNGs have a transparent background.
+        // first as <name>.png and the others as <name>-<n>.png. Acrylic does not render to a bitmap:
+        // each is laid on the acrylic's fallback, so its words read as they do on the desktop.
         var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(root.XamlRoot);
         if (popups.Count == 0)
         {
@@ -351,7 +351,7 @@ internal static class MenuRender
             }
 
             var target = i == 0 ? path : System.IO.Path.ChangeExtension(path, null) + $"-{i}.png";
-            await RenderPng.SaveAsync(content, target).ConfigureAwait(true);
+            await RenderPng.SaveOnGroundAsync(content, target, RenderPng.MenuGround).ConfigureAwait(true);
             Console.WriteLine($"menu: wrote {target}");
         }
 

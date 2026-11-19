@@ -428,6 +428,10 @@ internal static partial class EditBarRender
             new(new WidgetId("desktopItem"), 200, 360, 76, 100, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Budget.xlsx"}"""),
         ];
         PropsCard[] countdown = [new(new WidgetId("countdown"), 140, 160, 280, 180, true)];
+
+        // [S-2332] [S-9602] A header: its title and caption typed in place, its place its Location alone.
+        PropsCard[] header = [new(new WidgetId("header"), 140, 160, 300, 52, true, Config: """{"text":"Weather","caption":"This week"}""")];
+        PropsCard[] alarm = [new(new WidgetId("alarm"), 140, 160, 280, 160, true)];
         // [S-2240] Two touching cards, selected together: they join as any touching cards do, no group.
         PropsCard[] station =
         [
@@ -474,6 +478,9 @@ internal static partial class EditBarRender
             (iconFile, "desktop-icon-file", null, null, null),
             (iconOwn, "desktop-icon-own", null, null, null),
             (iconTwo, "desktop-icon-two", null, null, null),
+            (header, "header", null, null, null),
+            (alarm, "alarm", null, null, null),
+            (countdown, "countdown", null, null, null),
             (countdown, "vocabulary", null, null, Vocabulary),
             (countdown, "vocabulary-colour", "w/Accent", null, Vocabulary),
             (countdown, "vocabulary-feeds", "w/Feeds", null, Vocabulary),

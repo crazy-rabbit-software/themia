@@ -333,7 +333,7 @@ internal static class ViewBarRender
         var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(screen.XamlRoot);
         if (popups.Count > 0 && popups[0].Child is FrameworkElement content)
         {
-            await RenderPng.SaveAsync(content, path).ConfigureAwait(true);
+            await RenderPng.SaveOnGroundAsync(content, path, RenderPng.MenuGround).ConfigureAwait(true);
             Console.WriteLine($"viewbar: wrote {path} ({content.ActualWidth:0}x{content.ActualHeight:0}, cap {cap:0}, {bar.MenuViews.Count} views)");
         }
         else

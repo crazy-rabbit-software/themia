@@ -18,6 +18,35 @@ internal static class RenderPng
     public static Task SaveAsync(UIElement element, string path) => PngFile.SaveAsync(element, path);
 
     /// <summary>
+    /// A popup (a menu) laid on <paramref name="ground"/>: its acrylic does not render to a bitmap and came out
+    /// see-through, so a dark menu's white words read as white on white wherever the PNG was looked at. The ground is
+    /// the acrylic's own fallback, what Windows draws where acrylic is off.
+    /// </summary>
+    public static async Task SaveOnGroundAsync(UIElement element, string path, Windows.UI.Color ground)
+    {
+        var bitmap = new RenderTargetBitmap();
+        await bitmap.RenderAsync(element);
+        var pixels = (await bitmap.GetPixelsAsync()).ToArray();
+
+        // Premultiplied BGRA over an opaque ground: out = src + ground × (1 − α).
+        for (var i = 0; i + 3 < pixels.Length; i += 4)
+        {
+            var rest = 255 - pixels[i + 3];
+            pixels[i] = (byte)Math.Min(255, pixels[i] + (ground.B * rest / 255));
+            pixels[i + 1] = (byte)Math.Min(255, pixels[i + 1] + (ground.G * rest / 255));
+            pixels[i + 2] = (byte)Math.Min(255, pixels[i + 2] + (ground.R * rest / 255));
+            pixels[i + 3] = 255;
+        }
+
+        await EncodeAsync(path, bitmap.PixelWidth, bitmap.PixelHeight, pixels).ConfigureAwait(true);
+    }
+
+    /// <summary>The fallback of Windows' in-app acrylic (<c>AcrylicInAppFillColorDefault</c>) in the design's theme: #2C2C2C dark, #FFFFFF light (as <see cref="FlyoutSurface"/>).</summary>
+    public static Windows.UI.Color MenuGround => DesignApplier.Theme == ElementTheme.Light
+        ? Windows.UI.Color.FromArgb(255, 0xFF, 0xFF, 0xFF)
+        : Windows.UI.Color.FromArgb(255, 0x2C, 0x2C, 0x2C);
+
+    /// <summary>
     /// [S-1074] A picture of exactly <paramref name="width"/> × <paramref name="height"/> pixels, drawn
     /// tile by tile: <paramref name="show"/> makes <paramref name="element"/> show one tile (at most
     /// <paramref name="step"/> a side, at most <see cref="MaxSide"/>), which must then come out that
