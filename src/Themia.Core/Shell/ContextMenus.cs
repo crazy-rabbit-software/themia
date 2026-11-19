@@ -182,8 +182,11 @@ public enum CardPress
 /// <summary>[S-1745] Telling a click on a card from a drag and from selecting, as pure rules.</summary>
 public static class CardGestures
 {
-    /// <summary>DIPs the pointer must travel, on either axis, before a press is a drag rather than a click.</summary>
-    public const double DragThreshold = 3;
+    /// <summary>
+    /// DIPs the pointer must travel, on either axis, before a press is a drag rather than a click: [S-13060] the one
+    /// threshold, the parts' that wait for the release (a slider's track) too.
+    /// </summary>
+    public const double DragThreshold = Widgets.PressGesture.DragThreshold;
 
     /// <summary>What a press starts.</summary>
     public static CardPress Press(bool editMode, bool leftButton, bool ctrl, bool onHandle)
@@ -202,8 +205,7 @@ public static class CardGestures
     }
 
     /// <summary>Whether the pointer has travelled far enough from the press to be a drag.</summary>
-    public static bool Travelled(double dx, double dy)
-        => !double.IsFinite(dx) || !double.IsFinite(dy) || Math.Abs(dx) >= DragThreshold || Math.Abs(dy) >= DragThreshold;
+    public static bool Travelled(double dx, double dy) => Widgets.PressGesture.Travelled(dx, dy);
 
     /// <summary>
     /// [S-1751] Whether the widget's own content (header and view) takes pointer input. In edit mode
@@ -222,6 +224,15 @@ public static class CardGestures
     /// </summary>
     public static bool MovesLocked(bool editMode, bool preview, bool leftButton, bool ownsDrags, bool pinned)
         => !editMode && !preview && leftButton && !ownsDrags && !pinned;
+
+    /// <summary>
+    /// [S-13060] <see cref="MovesLocked(bool, bool, bool, bool, bool)"/> for a press on <paramref name="part"/> of the
+    /// view, heard by the card whether a part took it first or not (<paramref name="handled"/>), so the move arms on the
+    /// first press whatever is under the pointer: a list row, a button, a slider's track, a chart, a text box at rest
+    /// (<see cref="Widgets.PressGesture.CardMayMove"/>). A thumb's drag, a text being typed in and a part's own drag stay theirs.
+    /// </summary>
+    public static bool MovesLocked(bool editMode, bool preview, bool leftButton, bool ownsDrags, bool pinned, Widgets.PressPart part, bool handled)
+        => MovesLocked(editMode, preview, leftButton, ownsDrags, pinned) && Widgets.PressGesture.CardMayMove(part, handled);
 
     /// <summary>
     /// [S-2000] Whether a click on the card (one no child of the view took) opens what the widget is
