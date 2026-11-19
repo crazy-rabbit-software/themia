@@ -1890,12 +1890,22 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   Ctrl+Up / Down on its head. Opened, its rows one level in ([S-2303]); a picker inside is folded ([S-2348]).
   Nothing on a page acts on "the selected" view, display or account.
 - **[S-2311]** The Appearance's **preview** (Karpo's §592, §613, §671; `AppearancePreview`): first on the page and
-  bare (no card), the page's width, 220 tall, radius 4 with the card's hairline: a stretch of the display's own
-  desktop (its blurred wallpaper, [S-2112], at the display's size, scaled down) with three real cards (Clock, Weather
-  now, Calendar) on their samples ([S-11850]), placed as the desktop places them so their frost is the desktop's, the
-  gap between them the design's (at least 12). The card draws them in the design as it stands: each change of the
-  state paints them again; only a design replaced whole builds them again. It sets nothing. Built once while the
-  page stands, its ticker and sample world gone with the page.
+  bare (no card), the page's width and as tall as its picture at that width (it keeps its aspect), radius 4 with the
+  card's hairline: a stretch of the display's own desktop (its blurred wallpaper, [S-2112], at the display's size,
+  scaled down) with a whole **bento** of real cards on their samples ([S-11850]) (owner, 2026-11-19: "the appearance
+  style preview should show a whole bento grid of widgets not just three"): `AppearanceBento` (Core, pure), 6 × 4
+  bento cells, each 14 grid cells square ([S-06]: 140 DIPs on a 10-DIP grid), the tiles 2 grid cells apart, twelve
+  cards of 1 × 1, 2 × 1 and 2 × 2 cells packed with no hole and no overlap: Clock and Calendar (the month) on top, a
+  CPU meter and the Wi-Fi toggle tile under the clock, Tasks, the network history graph and Music (now playing) under
+  them, down the right the weather station joined (Weather now, its facts, the forecast: one join's tiles split the gap
+  between them and meet, so they draw as one panel, [S-2240]), and under it the battery meter and the Lock tile. Each
+  box holds its kind's least size; a kind whose size follows a count shows what its box holds ([S-2442]). The bento
+  stands in the display's middle on its grid lines, placed as the desktop places cards so their frost is the
+  desktop's, and the cards join by the desktop's own path. The card draws them in the design as it stands: each
+  change of the state paints and joins them again; only a design replaced whole builds them again. It sets nothing
+  and reads nothing live: the samples, the sample PC's readings and the preview's one ticker. Built once while the
+  page stands, its ticker and sample world gone with the page. Tests `AppearanceBentoTests.S2311_`,
+  `AppearanceBentoKindsTests.S2311_`.
 - **[S-2312]** **Accounts** (Karpo's Accounts page, `Karpo.Core/OptionAccountRows.cs` `Page`): under **Your accounts**
   every account a card (its provider's icon, or the warning while it needs signing in again; its name; its address
   and provider under it, its provider alone where its name is its address; at its end while shut what it holds

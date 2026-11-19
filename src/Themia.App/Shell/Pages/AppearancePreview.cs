@@ -6,6 +6,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Settings;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using P = Themia.Sdk.Kit.ShellMetrics.Page;
@@ -14,22 +15,18 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-2311] The Appearance page's live preview, after Karpo's (karpo-app, Karpo.Dock/LookPreview.cs, docs/widgets.md
-/// §592, §613, §671): a stretch of this display's desktop at the page's top, bare — its wallpaper, and on it a few real
-/// widget cards (a clock, the weather now, the calendar) on their samples ([S-11850]), drawn by the card itself in the
-/// design as it stands, so a style, a colour or a radius picked shows at once. The cards stand where the desktop's would
-/// (their frost is the display's own blurred wallpaper, [S-2114]); the stretch is scaled to the page's width. Built once
-/// while the page stands; each change of the state paints the cards again (<see cref="Refresh"/>), and only a design
-/// replaced whole (an undo, an import) builds them again.
+/// §592, §613, §671): a stretch of this display's desktop at the page's top, bare — its wallpaper, and on it a small
+/// desktop of real widget cards laid as a bento (<see cref="AppearanceBento"/>: a clock, a month, the weather station
+/// joined, a meter, a toggle, the tasks, a graph, the music...) on their samples ([S-11850]), drawn by the card itself
+/// in the design as it stands, so a style, a colour or a radius picked shows at once. The cards stand on the display's
+/// grid where the desktop's would, in its middle (their frost is the display's own blurred wallpaper, [S-2114]), and
+/// touching ones join as on the desktop ([S-2240]); the stretch is scaled to the page's width, its height following.
+/// Built once while the page stands; each change of the state paints the cards again (<see cref="Refresh"/>), and
+/// only a design replaced whole (an undo, an import) builds them again.
 /// </summary>
 internal sealed partial class AppearancePreview : Grid, IPagePreview
 {
     private const string Scope = "appearance-preview";
-
-    /// <summary>[S-2311] The kinds shown, left to right: one with a big readout, one with a row of facts, one with a grid.</summary>
-    private static readonly Sdk.WidgetId[] Kinds = [new("clock"), new("weatherNow"), new("calendar")];
-
-    /// <summary>[S-2311] Where on the display the stretch starts, as fractions of it: the middle, where a wallpaper has its picture.</summary>
-    private const double At = 0.3;
 
     private readonly Backdrop? _backdrop;
     private readonly ScreenMetrics _metrics;
@@ -43,7 +40,7 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
     private bool _disposed;
 
     /// <param name="backdrop">The display's blurred wallpaper, or null for none (the ground is the cards' secondary fill).</param>
-    /// <param name="metrics">The display's size in DIPs: the cards are sized and their frost placed on it.</param>
+    /// <param name="metrics">The display's size in DIPs: the cards are sized on its grid and their frost placed on it.</param>
     /// <param name="design">The design as it stands now.</param>
     public AppearancePreview(Backdrop? backdrop, ScreenMetrics metrics, Func<DesignState> design)
     {
@@ -54,7 +51,6 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
         _ticker = new Services.Ticker(dispatcher);
         _samples = new SampleWorld(_ticker, dispatcher);
 
-        Height = PreviewHeight;
         CornerRadius = new CornerRadius(P.CardRadius);
         BorderBrush = ShellBrush.Of(ShellRole.CardStroke);
         BorderThickness = new Thickness(FamilyShape.Hairline);
@@ -70,9 +66,6 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
         Build();
     }
 
-    /// <summary>[S-2311] The preview's height on the page: a card row and its margins at the page's width.</summary>
-    internal const double PreviewHeight = 220;
-
     public void Refresh()
     {
         if (_disposed)
@@ -87,7 +80,7 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
             return;
         }
 
-        Lay(design);
+        Lay();
     }
 
     public void Dispose()
@@ -117,7 +110,10 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
         }
     }
 
-    /// <summary>The cards made again over the design as it stands: one change of it replaced it whole.</summary>
+    /// <summary>
+    /// The cards made again over the design as it stands (one change of it replaced it whole): one per bento tile,
+    /// on its box on the display's grid, the bento in the display's middle.
+    /// </summary>
     private void Build()
     {
         Clear();
@@ -127,49 +123,57 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
         _ground.Width = _metrics.Width;
         _ground.Height = _metrics.Height;
 
+        var (cols, rows) = GridGeometry.GridDims(_metrics);
+        var left = Math.Max(0, (cols - AppearanceBento.Width) / 2);
+        var top = Math.Max(0, (rows - AppearanceBento.Height) / 2);
         var host = new Host(_ticker, _backdrop, _metrics) { Design = design, Samples = _samples };
-        foreach (var kind in Kinds)
+        var tiles = AppearanceBento.Tiles;
+        var boxes = AppearanceBento.Boxes(tiles);
+        for (var i = 0; i < tiles.Count; i++)
         {
+            var (tile, box) = (tiles[i], boxes[i]);
             try
             {
-                var natural = Sdk.ModuleCatalog.Of(kind).Natural;
-                var model = WidgetInstance.Create(kind, FracRect.FromPixels(0, 0, natural.Width, natural.Height, _metrics));
-                var card = new WidgetCard(host, model);
+                var rect = new FracRect((left + box.X) / (double)cols, (top + box.Y) / (double)rows, box.Width / (double)cols, box.Height / (double)rows);
+                var cell = GridGeometry.ToPixels(rect, _metrics);
+                var model = WidgetInstance.Create(tile.Id, rect);
+
+                // [S-2442] [S-11807] A kind whose size follows a count (the tasks' rows, the forecast's days) shows the
+                // largest step its box holds, as the desktop asks it of a cell.
+                model.Config = SizeFit.ConfigFor(model.Config, rect, _metrics, 1, SizeFit.Limits(model, _metrics, 1));
+
+                var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
+                card.SetLiveRect(rect);
                 card.ApplyEditMode(false);
+                Canvas.SetLeft(card, cell.X);
+                Canvas.SetTop(card, cell.Y);
                 _scene.Children.Add(card);
                 _cards.Add(card);
             }
             catch (Exception ex)
             {
-                Log.Warn(Scope, $"the preview's {kind} card could not be built; the preview shows the rest", ex);
+                Log.Warn(Scope, $"the preview's {tile.Kind} card could not be built; the preview shows the rest", ex);
             }
         }
 
-        Lay(design);
+        Lay();
         _ = ShowSamplesAsync();
     }
 
-    /// <summary>The cards side by side at their natural sizes, a little apart, painted in the design.</summary>
-    private void Lay(DesignState design)
+    /// <summary>The cards painted in the design as it stands, then joined where they touch (a fill made Transparent joins nothing).</summary>
+    private void Lay()
     {
-        var x = _metrics.Width * At;
-        var y = _metrics.Height * At;
-        var gap = Fluent.Space3;
         foreach (var card in _cards)
         {
-            var natural = Sdk.ModuleCatalog.Of(card.Model.Kind).Natural;
-            card.Width = natural.Width;
-            card.Height = natural.Height;
-            Canvas.SetLeft(card, x);
-            Canvas.SetTop(card, y);
             card.ApplyDesign();
-            x += card.Width + gap;
         }
 
+        // [S-2240] The cells were put on whole DIPs (scale 1), so the join measures them the same way.
+        WidgetCard.Join(_cards, _metrics, 1, editMode: false, _ => 0);
         Fit();
     }
 
-    /// <summary>The stretch the cards stand on, scaled to the page's width and centred in the preview's height.</summary>
+    /// <summary>The stretch the cards stand on, scaled to the page's width; the preview as tall as that makes it.</summary>
     private void Fit()
     {
         if (_cards.Count == 0 || ActualWidth <= 0)
@@ -182,17 +186,21 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
         var top = _cards.Min(Canvas.GetTop) - margin;
         var right = _cards.Max(c => Canvas.GetLeft(c) + c.Width) + margin;
         var bottom = _cards.Max(c => Canvas.GetTop(c) + c.Height) + margin;
-        var scale = Math.Min(ActualWidth / (right - left), PreviewHeight / (bottom - top));
-        var offsetX = ((ActualWidth / scale) - (right - left)) / 2;
-        var offsetY = ((PreviewHeight / scale) - (bottom - top)) / 2;
+        var scale = ActualWidth / (right - left);
+        var height = Math.Round((bottom - top) * scale);
+        if (Math.Abs(Height - height) > 0.5 || double.IsNaN(Height))
+        {
+            Height = height;
+        }
+
         _scene.RenderTransform = new CompositeTransform
         {
-            TranslateX = (-left + offsetX) * scale,
-            TranslateY = (-top + offsetY) * scale,
+            TranslateX = -left * scale,
+            TranslateY = -top * scale,
             ScaleX = scale,
             ScaleY = scale,
         };
-        Clip = new RectangleGeometry { Rect = new Windows.Foundation.Rect(0, 0, ActualWidth, PreviewHeight) };
+        Clip = new RectangleGeometry { Rect = new Windows.Foundation.Rect(0, 0, ActualWidth, height) };
     }
 
     /// <summary>[S-11850] Each card's sample, as the add page's pictures show them.</summary>
