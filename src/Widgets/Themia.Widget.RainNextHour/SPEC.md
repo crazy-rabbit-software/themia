@@ -17,16 +17,18 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   setting beyond the place and the location name.
 - **[S-5121]** `RainInterest`; the weather cadence ([S-3780]). The sentence is re-read from the held
   nowcast every minute, so "in 30 min" counts down between fetches.
-- **[S-5125]** The bars are the Chart block's columns ([S-6717]), one per quarter hour in equal cells
-  across the content, filled from the foot on a fixed scale (heavy rain fills the chart), a wet quarter
-  never under 8 %, a dry one its empty track; the window's two ends under them in Caption tertiary
-  ("Now" and the time two hours on), left to right in every language.
-- **[S-5126]** The layout (`RainLayout`), at the top of the content: the sentence on one Title line
-  (its ellipsis where the card is narrow); then the caption (Body, secondary: the heaviest rain, the
-  total, the chance; its ellipsis too); then 8 down the bars, 48 tall, and their time line 4 under them.
-  A dry window, one too short to speak for the hour, or no answer at all keeps the bars, their empty
-  tracks and their time line, with its one plain sentence ("No rain in the next 2 hours", the answer's
-  state) as the caption over them in place of the sentence and its caption ([S-6753]: never no chart).
+- **[S-5125]** The bars are the one chart's columns ([S-6750], `RainLayout.Chart`), one per quarter hour in equal
+  cells across the card, edge to edge ([S-6754]), filled from the line's foot on a fixed scale (heavy rain fills the
+  chart), a wet quarter never under 8 %, a dry one none (with none, the foot's hairline); the window's two ends under
+  them in Caption tertiary ("Now" and the time two hours on, the chart's ends at the inset off the foot), left to right
+  in every language.
+- **[S-5126]** The layout (`RainLayout`): the plot is the card's whole box ([S-6754]: the view owns its top edge);
+  over its top, at the inset, the sentence on one Title line (its ellipsis where the card is narrow); then the caption
+  (Body, secondary: the heaviest rain, the total, the chance; its ellipsis too); then 8 down the bars, 48 tall at the
+  atom's height (taller in a taller card: the plot takes the box), and their time line 4 under them, at the inset off
+  the foot. A dry window, one too short to speak for the hour, or no answer at all keeps the chart, its foot's hairline
+  and its time line, with its one plain sentence ("No rain in the next 2 hours", the answer's state) as the caption
+  over them in place of the sentence and its caption ([S-6753]: never no chart).
 - **[S-11140]** **An atom** ([S-11170]): the sentence, its caption and the bars, the same at every size
   in its range (no ladder, no part that comes or goes with the box). **Sizes** (`RainLayout.Sizing`):
   one height (148), 220..420 wide, a new one 300: the bars get wider. It follows the

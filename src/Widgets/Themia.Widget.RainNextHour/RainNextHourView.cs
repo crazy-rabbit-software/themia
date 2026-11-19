@@ -15,17 +15,20 @@ using Themia.Widget.RainNextHour;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-5120] [S-11140] Rain in the next two hours at a place, on the family's tokens: one sentence ("Rain
-/// in 15 min") on a Title line at the content's top, the intensity, total and chance the Body line under
-/// it, then a column per quarter hour on a fixed scale (the Chart block's columns) with the window's two
-/// ends under them ([S-5126]); the same at every size in its range (<see cref="RainLayout"/>).
-/// A dry window, one too short to speak for the hour, or no nowcast yet keeps the columns (their empty tracks)
-/// with its one plain sentence as the caption over them ([S-6753]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
+/// [S-5120] [S-11140] [S-6754] Rain in the next two hours at a place, on the family's tokens and the one chart
+/// ([S-6750]): the plot the card's edge to edge, a column per quarter hour on a fixed scale; over its top one sentence
+/// ("Rain in 15 min") on a Title line at the inset and the intensity, total and chance the Body line under it; at its
+/// foot the window's two ends ([S-5126]); the same at every size in its range (<see cref="RainLayout"/>). A dry window,
+/// one too short to speak for the hour, or no nowcast yet keeps the chart (its foot's hairline) with its one plain
+/// sentence over it ([S-6753]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
 /// between fetches.
 /// </summary>
 internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetContextActions
+    IWidgetContextActions, IWidgetTopEdge
 {
+    /// <summary>[S-5700] [S-6754] The plot is drawn to the card's top edge; the sentence keeps the inset over it.</summary>
+    public bool OwnsTopEdge => true;
+
     /// <inheritdoc />
     public CardOpen? Opens => RainNextHourModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
 
@@ -34,11 +37,9 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     private readonly TextBlock _headline = Family.Text(FamilyType.Title);
     private readonly TextBlock _caption = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly StackPanel _top = new();
-    private readonly Grid _chart = new() { RowSpacing = RainLayout.LabelGap };
-    private readonly Grid _bars = new() { IsHitTestVisible = false };
-    private readonly List<ChartBar> _columns = [];
-    private readonly TextBlock _timeStart = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
-    private readonly TextBlock _timeEnd = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
+
+    /// <summary>[S-1113] Time runs left to right in every language, as on the stock chart.</summary>
+    private readonly Chart _chart = new() { FlowDirection = FlowDirection.LeftToRight };
 
     private RainNextHourConfig _config = new();
     private readonly SkyFeed<RainInterest, RainNowcast> _feed;
@@ -54,7 +55,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
             () => new(h => host.Weather.Updated += h, h => host.Weather.Updated -= h, host.Weather.Key, host.Weather.Rain, host.Weather.Show),
             () => _config.Interest(),
             Render);
-        _top.Margin = Family.SideInset;
+        _top.Margin = new Thickness(FamilySpace.Inset, FamilySpace.Inset, FamilySpace.Inset, 0);
         _top.VerticalAlignment = VerticalAlignment.Top;
         _headline.TextWrapping = TextWrapping.NoWrap;
         _headline.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -62,31 +63,9 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         _top.Children.Add(_headline);
         _top.Children.Add(_caption);
 
-        // [S-1113] Time runs left to right in every language, as on the stock chart.
-        _chart.FlowDirection = FlowDirection.LeftToRight;
-        _chart.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        _chart.VerticalAlignment = VerticalAlignment.Bottom;
-        _chart.Height = RainLayout.Chart;
-        _chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _chart.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        for (var i = 0; i < RainRules.WindowSteps; i++)
-        {
-            _bars.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            var column = new ChartBar(vertical: true);
-            SetColumn(column, i);
-            _columns.Add(column);
-            _bars.Children.Add(column);
-        }
-
-        _timeEnd.HorizontalAlignment = HorizontalAlignment.Right;
-        SetRow(_timeStart, 1);
-        SetRow(_timeEnd, 1);
-        _chart.Children.Add(_bars);
-        _chart.Children.Add(_timeStart);
-        _chart.Children.Add(_timeEnd);
-
-        Children.Add(_top);
+        // [S-6754] The plot first, the card's whole box; the sentence over its top.
         Children.Add(_chart);
+        Children.Add(_top);
         _status.Place(this);
     }
 
@@ -109,9 +88,9 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     }
 
     /// <summary>
-    /// [S-6753] The window's columns are always drawn (owner, 2026-11-19: "even if there is no rain in the next two hours
-    /// ... it should show the default values in the graph"): no nowcast, a dry window or one too short is the empty
-    /// tracks with its sentence as the caption over them, never a Status row in their place.
+    /// [S-6753] The window's chart is always drawn (owner, 2026-11-19: "even if there is no rain in the next two hours
+    /// ... it should show the default values in the graph"): no nowcast, a dry window or one too short is the chart at
+    /// its foot's hairline with its sentence over it, never a Status row in its place.
     /// </summary>
     private void Render()
     {
@@ -132,14 +111,13 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         _caption.Text = warns ? RainText.Caption(outlook!) : outlook is not null ? RainText.Headline(outlook) : OnlineParts.Caption(_feed.Status);
 
         var start = (outlook is { Steps.Count: > 0 } ? outlook.Steps[0].Start : now).ToLocalTime();
-        _timeStart.Text = RainNextHourStr.Online_Rain_Now.Text();
-        _timeEnd.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime));
+        var ends = new ChartEnds(RainNextHourStr.Online_Rain_Now.Text(), LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime)));
 
-        // [S-5125] A column per quarter hour on a fixed scale; a dry one is its empty track.
-        for (var i = 0; i < _columns.Count; i++)
-        {
-            _columns[i].Show(warns && i < outlook!.Steps.Count ? RainRules.BarShare(outlook.Steps[i].Millimetres) : 0);
-        }
+        // [S-5125] A column per quarter hour on a fixed scale; a dry one none.
+        var shares = Enumerable.Range(0, RainRules.WindowSteps)
+            .Select(i => warns && i < outlook!.Steps.Count ? RainRules.BarShare(outlook.Steps[i].Millimetres) : 0)
+            .ToList();
+        _chart.Show(size => RainLayout.Chart(shares, ends, size.Width));
     }
 
     public void Detach() => _feed.Detach();
