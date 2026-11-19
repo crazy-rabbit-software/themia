@@ -13,8 +13,8 @@ colour), and judges:
   measure may be off by (antialiasing, a glyph's own room in its box). Where the card's items stand on its top edge
   (the layout's item boxes, `ItemMark`), the band over the ink is the item's own padding and the item check
   (scripts/item-check.py) judges the boxes instead.
-- WR-4 / WR-7 foot: the band under the last ink is at most the inset and the 4 DIP, but where the card's items reach
-  down from its top edge: their leftover whole cells and empty stated rows may stand at the foot (WR-5).
+- WR-4 / WR-7 foot: the band under the last ink is at most the inset and the 4 DIP, but in a card with items: their
+  leftover whole cells and empty stated rows may stand at the foot (WR-5), judged by the item check.
 - sides: the band beside the ink, either side, is at most the inset and the 4 DIP where the content spans the width
   (a card with items: WR-3).
 
@@ -126,7 +126,9 @@ def judge(kind, card, layout):
     on_top = any(i['y'] <= 0.5 for i in items)
     if top > limit and not on_top:
         found.append(f'WR-1 top {top:.1f}')
-    if foot > limit and not on_top:
+    # Under a card's items the room left is theirs: whole cells and empty stated rows at the foot (WR-5), judged by
+    # the item check.
+    if foot > limit and not items:
         found.append(f'WR-4 foot {foot:.1f}')
     if items and (left > limit or right > limit):
         found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
