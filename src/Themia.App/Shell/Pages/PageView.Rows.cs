@@ -574,6 +574,19 @@ internal sealed partial class PageView
         };
         box.LostFocus += (_, _) => Keep();
 
+        // [S-2370] The wheel over a number box steps it, as Karpo's (its §502); the page scrolls under the pointer elsewhere.
+        box.PointerWheelChanged += (_, e) =>
+        {
+            var delta = e.GetCurrentPoint(box).Properties.MouseWheelDelta;
+            if (row.Disabled || delta == 0)
+            {
+                return;
+            }
+
+            Step(delta > 0 ? 1 : -1);
+            e.Handled = true;
+        };
+
         Button Spin(string glyph, int by, Str name)
         {
             var spin = Plain(new Button

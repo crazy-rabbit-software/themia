@@ -48,13 +48,21 @@ public sealed class ClipboardMenuTests
         _asked = Typed.Ask(Build(config).Lines.Single(l => l.Text == ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
-        Assert.NotNull(ask.Refuse("0"));
-        Assert.NotNull(ask.Refuse("201"));
+        // [S-2370] A number box: words that read as no number are refused, a number is held to 1..200.
         Assert.NotNull(ask.Refuse("lots"));
 
         ask.Done("12");
         Assert.Equal(12, config.Capacity);
         Assert.Equal(1, _saves);
+        Assert.Equal(200, Held(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), "201"));
+        Assert.Equal(1, Held(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), "0"));
+    }
+
+    private int Held(string line, string typed)
+    {
+        var config = new ClipboardConfig();
+        Typed.Ask(Build(config).Lines.Single(l => l.Text == line)).Done(typed);
+        return config.Capacity;
     }
 
     [Fact]

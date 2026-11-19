@@ -2080,8 +2080,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   entry's `MenuField` (what it holds, its hint, its refusal, what keeping does) are the page's text box at the line's
   end ([S-2302]: Enter or leaving keeps it, Escape restores it, why not under the name), never a page of its own: a
   Header's Title and Caption, a countdown's and an alarm's Name, Day and Time, a habit list's interval, a stock's
-  shares owned, a video stream's address, the tasks' words filter, a ping host, a sun's or moon's coordinates and
-  every number of more steps than dots (`WidgetMenuLines.Number`). On the page of several the box sets every holder
+  shares owned, a video stream's address, the tasks' words filter, a ping host and a sun's or moon's coordinates (a
+  number is its number box, [S-2370]). On the page of several the box sets every holder
   (`SharedRowLines`, empty with the hint Mixed while they differ). A line asked once to make or rename something (a
   list's Add…, an item's Rename…, a path typed beside a folder picker) still asks on its own page. Not yet: a fence's
   title and rules (the fence's own code, under other work), a desktop icon's Name. Tests `WidgetMenuLinesTests.S2332_`,
@@ -2101,6 +2101,14 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   view bar, Type, Labels, Position, Size; then **Views**, likewise: All views and each view's switch with its mark.
   What only a shown bar draws (its type, labels, place, size and views) stands greyed while it is hidden. Tests
   `DisplayMenuTests.S2349_`.
+- **[S-2370]** **Every number is a number box, a widget's too** (owner, 2026-11-19: "have you even compared the seetings in
+  themia with those of karpo? the themia ones are miles behind. make sure that you put the features of the karpo settings
+  into themia too"; Karpo's §521, §302, §502, `MenuConventionTests.ARowsDepthFollowsItsType`): `WidgetMenuLines.Number` is
+  the page's number box (240 × 32, − and + inside, its value in its unit: "7 days", "30 min") whatever its range, never a
+  choice of dots (a Rows of 1..10 was ten radio rows) nor a plain text box: Up, Down, − and + step it, **the wheel over
+  it steps it**, a number typed is read in the box's unit ([S-2309]) and held to the range and the step. A box whose top
+  is written with a grouping mark ("1,000") reads a typed number at its own size (`NumberEntry`: "42" was read as 42000).
+  Tests `WidgetMenuLinesTests.S2370_`, `NumberEntryTests.S2370_`, the modules' menu tests.
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,
@@ -3032,11 +3040,10 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   the eyedropper only where custom colours are allowed). A swatch keeps a fill's opacity. The row shows
   the colour's swatch and its words at the end. A pick sets and saves; the value that holds changes nothing.
 - **[S-3726]** A **number** (`WidgetMenuLines.Number`: a value, its range, its step and how it is
-  written) shows its value at the end of its row. Up to twenty steps it is a choice of one, one tick
-  per step; more is a row that asks for it as text ([S-3721], [S-3736]): the field's placeholder says the range
-  in the number's own words, its unit included ("Enter a number from 15 min to 720 min", the line's
-  format; the calendar's custom range in days), refused outside the range with the same words as the
-  reason, a decimal comma read as a point, and rounded to the nearest step.
+  written) shows its value at the end of its row, in its unit. It is the page's number box whatever its range
+  ([S-2370]; until 2026-11-19 up to twenty steps were a choice of ticks and more a box that refused what lay outside
+  the range): a typed number read in the box's unit, held to the range and rounded to the nearest step. A number
+  asked once on its own (the calendar's custom range in days) still says its range in its own words.
 - **[S-3727]** A **confirmed** row (`WidgetMenuLines.Confirm`, its line `Asks`) asks first, on the
   "are you sure?" level of [S-3737]: the question, and under it what goes with it where the row says
   (`detail`: the habits and streaks of a habit list, a note's text for every widget showing it, a

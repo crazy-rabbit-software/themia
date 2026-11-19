@@ -76,8 +76,9 @@ public sealed class ScreenTimeDonutMenuTests
 
         _asked = Typed.Ask(Line(limits, Str.WidgetsC_ScreenTime_DailyLimit.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
-        Assert.Equal("240", ask.Initial);
-        Assert.NotNull(ask.Refuse("1441"));
+        // [S-2370] A number box saying its unit; a number held to the day's 1440 minutes in quarter hours.
+        Assert.StartsWith("240", ask.Initial, StringComparison.Ordinal);
+        Assert.NotNull(ask.Refuse("never"));
         ask.Done("100");
 
         Assert.Equal(105 * 60, tracker.Preferences.GoalSeconds);

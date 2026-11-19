@@ -90,14 +90,17 @@ public sealed class ContactsMenuTests
     }
 
     [Theory]
-    [InlineData("4")]
-    [InlineData("1001")]
-    [InlineData("many")]
-    public void S7511_the_count_refuses_less_than_five_and_more_than_the_box_takes(string typed)
+    [InlineData("4", 5)]
+    [InlineData("1001", 1000)]
+    public void S7511_the_count_is_held_to_five_and_what_the_box_takes(string typed, int held)
     {
-        _asked = Typed.Ask(Line(Build(new ContactsConfig()).Lines, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()));
+        // [S-2370] A number box: a number outside the range is held to its end, never refused.
+        var config = new ContactsConfig();
+        _asked = Typed.Ask(Line(Build(config).Lines, ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()));
 
-        Assert.NotNull(_asked!.Refuse(typed));
+        Assert.NotNull(_asked!.Refuse("many"));
+        _asked.Done(typed);
+        Assert.Equal(held, config.Count);
     }
 
     [Fact]

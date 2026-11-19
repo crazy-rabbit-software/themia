@@ -49,8 +49,8 @@ public sealed class PomodoroMenuTests
         _asked = Typed.Ask(Build(config).Lines[1]);
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
-        Assert.NotNull(ask.Refuse("0"));
-        Assert.NotNull(ask.Refuse("181"));
+        // [S-2370] A number box: words that read as no number are refused, a number is held to 1..180.
+        Assert.NotNull(ask.Refuse("short"));
         Assert.Null(ask.Refuse("15"));
 
         ask.Done("15");

@@ -114,13 +114,14 @@ public sealed class CalendarMenuTests
     }
 
     [Fact]
-    public void S7513_the_week_is_one_to_fourteen_days_as_dots()
+    public void S7513_the_week_is_one_to_fourteen_days_in_a_number_box()
     {
+        // [S-2370] Its number box, never fourteen dots.
         var config = new CalendarWidgetConfig { Style = CalendarStyle.Week };
-        var days = Line(Build(config).StyleLines, CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text());
+        var days = Line(Build(config).StyleLines, CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text()).Slider!;
 
-        Assert.Equal(CalendarPeriod.WeekMaxDays, days.Children!.Count);
-        Line(days.Children!, LocaleFormat.Integer(5)).Action!();
+        Assert.Equal((1d, (double)CalendarPeriod.WeekMaxDays), (days.Min, days.Max));
+        days.Commit(5);
         Assert.Equal(5, config.WeekDays);
         Assert.Equal(1, _saves);
     }

@@ -87,10 +87,10 @@ public sealed class WidgetMenuLinesTests
         });
 
         // An item's Rename… and the list's Add… open a field's level; a confirmed line its question's.
-        // [S-2332] A number typed as text and a line of text the widget holds are typed in place: they ask nothing.
+        // [S-2332] [S-2370] A number's box and a line of text the widget holds are typed in place: they ask nothing.
         var typed = menu.Number<int>(null, "Every", 30, 5, 600, 5, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { });
         Assert.False(typed.Asks);
-        Assert.NotNull(typed.Field);
+        Assert.NotNull(typed.Slider);
         Assert.False(menu.Text(null, "Title", "Weather", _ => { }).Asks);
         Assert.True(list.Children![0].Children![0].Asks);
         Assert.True(list.Children!.Last().Asks);
@@ -237,49 +237,47 @@ public sealed class WidgetMenuLinesTests
     // ---- numbers ------------------------------------------------------------------------------
 
     [Fact]
-    public void S3726_a_number_of_few_steps_is_a_choice_of_dots_with_its_value_at_the_end()
+    public void S2370_a_number_of_few_steps_is_a_number_box_in_its_unit_never_a_choice_of_dots()
     {
+        // Karpo's §521, §302 (owner, 2026-11-19: "make sure that you put the features of the karpo settings into themia
+        // too"): a number is its box with − and +, whatever its range, saying its unit; until now a Rows of 1..10 was a
+        // choice of ten dots.
         var set = new List<int>();
         var line = Lines().Number(null, "Rows", 4, 1, 10, 1, n => n + " rows", set.Add);
 
+        Assert.Null(line.Children);
+        Assert.Null(line.Field);
+        Assert.Null(line.Action);
         Assert.Equal("4 rows", line.Value);
-        var options = line.Children!;
-        Assert.Equal(10, options.Count);
-        Assert.Equal("4 rows", Assert.Single(options, o => o.Checked == true).Text);
+        var box = line.Slider!;
+        Assert.Equal((4d, 1d, 10d, 1d), (box.Value, box.Min, box.Max, box.Step));
+        Assert.Equal("7 rows", box.Format(7));
 
-        options[3].Action!();
+        Assert.False(box.Commit(4));
         Assert.Empty(set);
-        options[6].Action!();
+        Assert.True(box.Commit(7));
         Assert.Equal([7], set);
         Assert.Equal(1, _saves);
     }
 
     [Fact]
-    public void S3726_a_number_of_many_steps_is_asked_for_refused_outside_its_range_and_rounded_to_a_step()
+    public void S2370_a_number_of_many_steps_is_the_same_box_held_to_its_range_and_rounded_to_a_step()
     {
         var set = new List<int>();
         var line = Lines().Number(null, "Minutes", 30, 5, 600, 5, n => n + " min", set.Add);
 
         Assert.Null(line.Children);
+        Assert.Null(line.Field);
         Assert.Equal("30 min", line.Value);
-        // [S-2332] Typed in place in its box.
-        Assert.Null(line.Action);
-        var ask = Typed.Ask(line);
-        Assert.Equal("30", ask.Initial);
+        var box = line.Slider!;
 
-        // The box says the range in the number's own unit before anything is typed.
-        Assert.Contains("5 min", ask.Placeholder);
-        Assert.Contains("600 min", ask.Placeholder);
-        Assert.Contains("5 min", ask.Refuse("2"));
-        Assert.Contains("600 min", ask.Refuse("601"));
-        Assert.NotNull(ask.Refuse("many"));
-        Assert.Null(ask.Refuse("42"));
-
-        ask.Done("30");
-        Assert.Empty(set);
-        ask.Done("42");
-        Assert.Equal([40], set);
-        Assert.Equal(1, _saves);
+        // [S-2309] What is typed is read in the box's unit, then held to the range and the grain.
+        Assert.Equal(42d, Themia.Core.Settings.NumberEntry.Value("42 min", box.Max, box.Format));
+        Assert.True(box.Commit(42));
+        Assert.True(box.Commit(9000));
+        Assert.True(box.Commit(-3));
+        Assert.Equal([40, 600, 5], set);
+        Assert.Equal(3, _saves);
     }
 
     [Theory]

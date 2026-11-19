@@ -38,14 +38,15 @@ public sealed class FocusSessionMenuTests
         _asked = Typed.Ask(Build(config).Lines[0]);
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
-        Assert.NotNull(ask.Refuse("3"));
-        Assert.NotNull(ask.Refuse("241"));
+        // [S-2370] A number box: words that read as no number are refused, a number held to the range and its steps.
         Assert.NotNull(ask.Refuse("soon"));
         Assert.Null(ask.Refuse("45"));
 
         ask.Done("47");
         Assert.Equal(45, config.Minutes);
         Assert.Equal(1, _saves);
+        ask.Done("241");
+        Assert.Equal(240, config.Minutes);
     }
 
     [Fact]

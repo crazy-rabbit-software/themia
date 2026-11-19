@@ -22,9 +22,6 @@ namespace Themia.Sdk.WinUI;
 /// </summary>
 public sealed class WidgetMenuLines
 {
-    /// <summary>[S-3726] The most steps a number offers as dots; more is asked for as typed text.</summary>
-    public const int MaxNumberSteps = 20;
-
     private const string Scope = "menu-lines";
 
     private readonly Action _save;
@@ -273,13 +270,12 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3726] A number from <paramref name="min"/> to <paramref name="max"/> in steps of
-    /// <paramref name="step"/>, shown at the end of its line as <paramref name="format"/> writes it.
-    /// Up to <see cref="MaxNumberSteps"/> steps it is a choice of one (a submenu of dots, one per
-    /// step); [S-2332] more is typed in place in its box (<see cref="MenuField"/>), its hint the range in the
-    /// number's own words (<paramref name="format"/>'s, so typed minutes say minutes: "from 15 min to 720 min"),
-    /// refused outside it (the same words are the reason) and rounded to the nearest step. A pick or a typed
-    /// number sets and saves; the value that holds changes nothing.
+    /// [S-3726] [S-2370] A number from <paramref name="min"/> to <paramref name="max"/> in steps of
+    /// <paramref name="step"/>, written in its unit as <paramref name="format"/> writes it ("7 days", "30 min"): Karpo's
+    /// number box (its §521, §302: "a number a stepper in the row", typed in), 240 × 32 with − and + inside, whatever
+    /// its range: Up, Down, the wheel and − / + step it, a number typed is read in the box's unit, held to the range
+    /// and rounded to the step ([S-2309]). A step or a typed number sets and saves; the value that holds changes
+    /// nothing. Never a choice of dots and never a page of its own.
     /// </summary>
     public ItemMenuEntry Number<T>(string? glyph, string text, T value, T min, T max, T step, Func<T, string> format, Action<T> set)
         where T : INumber<T>
@@ -291,27 +287,18 @@ public sealed class WidgetMenuLines
             throw new ArgumentOutOfRangeException(nameof(step), "a number needs a positive step and min ≤ max");
         }
 
-        var steps = NumberSteps(min, max, step);
-        if (steps.Count <= MaxNumberSteps)
-        {
-            return Choice(glyph, text, [.. steps.Select(s => (s, format(s)))], value, set) with { Value = format(value) };
-        }
-
-        // [S-2332] More steps than dots: typed in place in its box, never a page of its own; the range its hint and its refusal.
-        var reason = Str.Menu_NumberRange.Format(("min", format(min)), ("max", format(max)));
-        return new(glyph, text, null, Value: format(value), Field: new MenuField(
-            value.ToString(null, CultureInfo.InvariantCulture),
-            reason,
-            typed => ParseNumber(typed, min, max, step, out T _) ? null : reason,
-            typed =>
+        var box = new MenuSlider(
+            double.CreateChecked(value),
+            double.CreateChecked(min),
+            double.CreateChecked(max),
+            double.CreateChecked(step),
+            v => format(T.CreateChecked(Math.Round(v, 10))),
+            v =>
             {
-                if (ParseNumber(typed, min, max, step, out var number) && number != value)
-                {
-                    set(number);
-                    _save();
-                }
-            },
-            AllowEmpty: false));
+                set(T.CreateChecked(Math.Round(v, 10)));
+                _save();
+            });
+        return new(glyph, text, null, Slider: box, Value: format(value));
     }
 
     /// <summary>
@@ -344,23 +331,6 @@ public sealed class WidgetMenuLines
                 _save();
             });
         return new(glyph, text, null, Slider: slider, Value: format(value));
-    }
-
-    /// <summary>[S-3726] The steps a number offers, from <paramref name="min"/> up to <paramref name="max"/>.</summary>
-    public static IReadOnlyList<T> NumberSteps<T>(T min, T max, T step)
-        where T : INumber<T>
-    {
-        var low = double.CreateChecked(min);
-        var size = double.CreateChecked(step);
-        var count = (int)Math.Floor(((double.CreateChecked(max) - low) / size) + 1e-9) + 1;
-        var steps = new List<T>(Math.Min(count, MaxNumberSteps + 1));
-        for (var i = 0; i < count && steps.Count <= MaxNumberSteps; i++)
-        {
-            steps.Add(T.CreateChecked(Math.Round(low + (i * size), 10)));
-        }
-
-        // Past the dots' limit only the count matters: the line asks instead.
-        return steps;
     }
 
     /// <summary>

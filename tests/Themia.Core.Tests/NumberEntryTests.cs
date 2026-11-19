@@ -37,4 +37,17 @@ public sealed class NumberEntryTests
         Assert.Equal(12, NumberEntry.Value("12 px", 32, Px));
         Assert.Null(NumberEntry.Value("x", 32, Px));
     }
+
+    [Fact]
+    public void S2370_a_box_whose_top_is_written_with_a_grouping_mark_reads_a_typed_number_at_its_own_size()
+    {
+        // Regression: a count up to 1000 written "1,000" read its grouping comma as a decimal mark, so "42" became 42000.
+        static string Grouped(double v) => v >= 1000 ? $"{(long)v / 1000},{(long)v % 1000:000}" : v.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        Assert.Equal(42d, NumberEntry.Value("42", 1000, Grouped));
+        Assert.Equal(42d, NumberEntry.Value("42 people", 1000, v => Grouped(v) + " people"));
+
+        // A box that writes another size still reads in it.
+        Assert.Equal(1500d, NumberEntry.Value("1.5 s", 2000, v => (v / 1000).ToString(System.Globalization.CultureInfo.InvariantCulture) + " s"));
+    }
 }

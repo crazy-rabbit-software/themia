@@ -1,4 +1,5 @@
 using Themia.App.Widgets;
+using Themia.Core.Settings;
 
 namespace Themia.Sdk.WinUI;
 
@@ -6,11 +7,31 @@ namespace Themia.Sdk.WinUI;
 /// [S-2332] A line's box typed into as the page types into it: what is typed trimmed, kept where the line's refusal
 /// takes it (an empty box only where it may be empty). Read as the question a line used to ask on a page of its own,
 /// so a module's test reads its box's hint, what it holds, its refusal and what typing does the one way.
+/// [S-2370] A number's box as the page's number box takes it: what is typed read in the box's unit ([S-2309]), held to
+/// the range and the step; only words that read as no number are refused (the box puts back what it said).
 /// </summary>
 internal static class Typed
 {
     public static WidgetTextAsk Ask(ItemMenuEntry line)
     {
+        if (line.Slider is { } box)
+        {
+            string? Refuse(string typed) => NumberEntry.Value(typed, box.Max != 0 ? box.Max : box.Min, box.Format) is null ? line.Text : null;
+            return new WidgetTextAsk(
+                line.Text,
+                line.Text,
+                string.Empty,
+                Refuse,
+                typed =>
+                {
+                    if (NumberEntry.Value(typed, box.Max != 0 ? box.Max : box.Min, box.Format) is { } value)
+                    {
+                        box.Commit(value);
+                    }
+                },
+                Initial: box.Value is { } held ? box.Format(held) : null);
+        }
+
         var field = line.Field ?? throw new InvalidOperationException($"'{line.Text}' has no box typed in place");
         return new WidgetTextAsk(
             line.Text,

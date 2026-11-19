@@ -121,7 +121,8 @@ public sealed class GalleryMenuTests
         _asked = Typed.Ask(Build(config).StyleLines[0]);
 
         var ask = _asked!;
-        Assert.NotNull(ask.Refuse("0"));
+        // [S-2370] A number box: words that read as no number are refused, a number is held to its range.
+        Assert.NotNull(ask.Refuse("soon"));
         Assert.Null(ask.Refuse("45"));
         ask.Done("45");
 

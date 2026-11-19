@@ -67,7 +67,12 @@ public static class NumberEntry
             return null;
         }
 
-        var factor = sample != 0 && Read(format(sample)) is { } written && written != 0 ? written / sample : 1;
+        // A whole sample written with its digits alone ("1,000" for 1000) is written at its own size: the grouping mark is
+        // no decimal mark (a box up to 1000 read "42" as 42000 and held it at its top, [S-2370]).
+        var written = format(sample);
+        var whole = sample == Math.Floor(sample) && Math.Abs(sample) < 1e15
+            && string.Concat(written.Where(char.IsAsciiDigit)) == Math.Abs((long)sample).ToString(CultureInfo.InvariantCulture);
+        var factor = whole || sample == 0 ? 1 : Read(written) is { } read && read != 0 ? read / sample : 1;
         return shown / factor;
     }
 }

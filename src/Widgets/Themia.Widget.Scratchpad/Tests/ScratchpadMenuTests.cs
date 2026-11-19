@@ -59,12 +59,14 @@ public sealed class ScratchpadMenuTests
 
         _asked = Typed.Ask(size);
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
-        Assert.NotNull(ask.Refuse("0"));
-        Assert.NotNull(ask.Refuse("25"));
+        // [S-2370] A number box: "8 px" read in its unit, a number held to 1..24 px.
+        Assert.NotNull(ask.Refuse("thick"));
 
-        ask.Done("8");
+        ask.Done("8 px");
         Assert.Equal(8, config.PenWidth);
         Assert.Equal(1, _saves);
+        ask.Done("25");
+        Assert.Equal(24, config.PenWidth);
     }
 
     [Fact]

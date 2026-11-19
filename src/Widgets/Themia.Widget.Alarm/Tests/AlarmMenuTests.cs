@@ -145,13 +145,15 @@ public sealed class AlarmMenuTests
         var config = new AlarmConfig();
         var lines = Build(config);
 
-        var volume = Line(lines, AlarmStr.Alarm_Settings_Volume_Label.Text());
-        Assert.Equal(11, volume.Children!.Count);
+        // [S-2370] Both number boxes: the volume in tens, the snooze held to 1..30 minutes.
+        var volume = Line(lines, AlarmStr.Alarm_Settings_Volume_Label.Text()).Slider!;
+        Assert.Equal((0d, 100d, 10d), (volume.Min, volume.Max, volume.Step));
 
         _asked = Typed.Ask(Line(lines, AlarmStr.Alarm_Settings_Snooze_Label.Text()));
-        Assert.NotNull(_asked!.Refuse("0"));
-        Assert.NotNull(_asked.Refuse("31"));
+        Assert.NotNull(_asked!.Refuse("later"));
         _asked.Done("5");
         Assert.Equal(5, config.SnoozeMinutes);
+        _asked.Done("31");
+        Assert.Equal(30, config.SnoozeMinutes);
     }
 }

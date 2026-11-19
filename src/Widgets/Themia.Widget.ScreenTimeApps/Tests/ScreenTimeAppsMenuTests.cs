@@ -151,8 +151,8 @@ public sealed class ScreenTimeAppsMenuTests
 
         _asked = Typed.Ask(Line(edge, Str.WidgetsC_ScreenTime_DailyLimit.Text()));
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
-        Assert.NotNull(ask.Refuse("10"));
-        Assert.NotNull(ask.Refuse("721"));
+        // [S-2370] A number box: words that read as no number are refused, a number is held to its range.
+        Assert.NotNull(ask.Refuse("long"));
         ask.Done("90");
         Assert.Equal(5400, tracker.Preferences.AppLimits["edge"]);
 

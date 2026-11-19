@@ -131,9 +131,11 @@ public sealed class RssMenuTests
         var config = new RssConfig();
         var count = Line(Build(config).Lines, RssStr.WidgetsC_Rss_Settings_Articles.Text());
 
-        Assert.Equal(10, count.Children!.Count);
-        Assert.Equal(LocaleFormat.Integer(20), count.Value);
-        Line(count.Children!, LocaleFormat.Integer(35)).Action!();
+        // [S-2370] A number box held to 5..50 in fives, never ten dots.
+        var box = count.Slider!;
+        Assert.Equal((5d, 50d, 5d), (box.Min, box.Max, box.Step));
+        Assert.Equal(20d, box.Value);
+        box.Commit(36);
         Assert.Equal(35, config.MaxItems);
     }
 }
