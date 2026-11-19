@@ -38,6 +38,9 @@ internal static class FamilyCheckRender
     {
         "hover", "pressed", "focus", "hovered", "selected", "lasso", "inactive", "fullname", "packaged", "unknown",
         "confirm", "editing", "open", "linked", "sticker", "file", "dropTarget",
+
+        // [S-13950] An inline box open: the platform's text box, what the inline check measures.
+        "adding", "typing", "renaming", "search", "searching", "opened", "editingLong",
     };
 
     public static ApplicationTheme? RequestedTheme(string[] args)

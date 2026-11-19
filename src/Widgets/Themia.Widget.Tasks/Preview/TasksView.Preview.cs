@@ -17,7 +17,10 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class TasksView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done", "stale", "failed", "nolocal", "caldav"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done", "stale", "failed", "nolocal", "caldav", "adding", "typing", "renaming"];
+
+    /// <summary>Words wider than any row, typed into a box: they scroll in it, never wrap it taller.</summary>
+    private const string LongWords = "Pick up the parcel from the post office before it closes at six";
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -81,6 +84,23 @@ internal sealed partial class TasksView : IWidgetPreviewState
         if (state == "tasks")
         {
             return ShowSampleAsync();
+        }
+
+        // [S-13950] The inline boxes over the sample: the add row open (empty, then with words longer than
+        // the row), a row's title renamed in place.
+        if (state is "adding" or "typing" or "renaming")
+        {
+            _ = ShowSampleAsync();
+            if (state == "renaming" && _displayed.Count > 0)
+            {
+                _list.BeginRename(Items(_displayed, DateOnly.FromDateTime(DateTime.Now))[0]);
+            }
+            else
+            {
+                _list.BeginAdd(state == "typing" ? LongWords : string.Empty);
+            }
+
+            return Task.CompletedTask;
         }
 
         LocalTask[]? tasks = state switch

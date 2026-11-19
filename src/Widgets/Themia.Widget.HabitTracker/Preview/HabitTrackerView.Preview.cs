@@ -12,13 +12,38 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class HabitTrackerView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "habits", "few", "empty"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "habits", "few", "empty", "adding", "typing", "renaming"];
+
+    /// <summary>Words wider than any row, typed into a box: they scroll in it, never wrap it taller.</summary>
+    private const string LongWords = "Practise the piano for half an hour before dinner every day";
 
     public Task ShowPreviewStateAsync(string state)
     {
         if (state == "sample")
         {
             return ShowSampleAsync();
+        }
+
+        // [S-13950] The inline boxes over the sample: the add row open (empty, then with words longer than
+        // the row), a habit's name renamed in place.
+        if (state is "adding" or "typing" or "renaming")
+        {
+            _ = ShowSampleAsync();
+            if (state == "renaming" && _rows.Count > 0)
+            {
+                BeginRename(_rows[0].Id);
+            }
+            else
+            {
+                OpenAddEditor();
+                if (state == "typing" && _editor is { } editor)
+                {
+                    editor.Box.Text = LongWords;
+                    editor.Box.SelectionStart = LongWords.Length;
+                }
+            }
+
+            return Task.CompletedTask;
         }
 
         var today = Bucket(SampleDay.Now).Key;

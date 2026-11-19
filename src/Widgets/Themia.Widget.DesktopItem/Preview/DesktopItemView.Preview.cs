@@ -12,7 +12,7 @@ namespace Themia.Widget.DesktopItem;
 /// Desktop items: <c>document</c>, <c>folder</c>, <c>link</c> (a shortcut file, with the arrow), <c>thisPc</c>,
 /// <c>recycleBin</c>, <c>twoWords</c> (a name of two words on its two lines, [S-5606]), <c>longName</c> (cut
 /// at two lines), and the interaction states <c>hover</c>, <c>selected</c>, <c>selectedHover</c>,
-/// <c>inactive</c>, <c>focus</c>, <c>editing</c> (the rename box), <c>dropTarget</c>, <c>cut</c>, <c>hidden</c>.
+/// <c>inactive</c>, <c>focus</c>, <c>editing</c> (the rename box; <c>editingLong</c> on the long name, [S-13950]), <c>dropTarget</c>, <c>cut</c>, <c>hidden</c>.
 /// This PC and the Recycle Bin are the shell's own (every PC has them); the files and the link are names on
 /// no disk, so the shell draws their type's icon (and the arrow), the same on every machine.
 /// </para>
@@ -30,7 +30,7 @@ internal sealed partial class DesktopItemView : IWidgetPreviewState
     public IReadOnlyList<string> PreviewStates { get; } =
     [
         "sample", "document", "folder", "link", "thisPc", "recycleBin", "twoWords", "longName",
-        "hover", "selected", "selectedHover", "inactive", "focus", "editing", "dropTarget", "cut", "hidden",
+        "hover", "selected", "selectedHover", "inactive", "focus", "editing", "editingLong", "dropTarget", "cut", "hidden",
         "web", "ownFolder", "app", "settings", "layout", "emoji", "ownTwoWords", "ownLongName", "missing", "refused", "waiting",
         "ownSelected", "ownInactive", "ownFocus", "ownEditing", "ownDropTarget",
     ];
@@ -62,7 +62,7 @@ internal sealed partial class DesktopItemView : IWidgetPreviewState
             case "recycleBin":
                 ShowItem(new("::{645FF040-5081-101B-9F08-00AA002F954E}", "Recycle Bin", DesktopItemKind.ShellItem), state);
                 break;
-            case "longName":
+            case "longName" or "editingLong":
                 ShowItem(new(@"C:\Users\Public\Desktop\Quarterly budget review with all the departments 2026.xlsx", "Quarterly budget review with all the departments 2026.xlsx", DesktopItemKind.File), state);
                 break;
 
@@ -126,10 +126,10 @@ internal sealed partial class DesktopItemView : IWidgetPreviewState
                 return;
         }
 
-        _fixture.Selected = state is "selected" or "selectedHover" or "inactive" or "focus" or "editing" or "ownSelected" or "ownInactive" or "ownFocus" or "ownEditing";
+        _fixture.Selected = state is "selected" or "selectedHover" or "inactive" or "focus" or "editing" or "editingLong" or "ownSelected" or "ownInactive" or "ownFocus" or "ownEditing";
         _fixture.Inactive = state is "inactive" or "ownInactive";
         _fixture.Focused = state is "focus" or "ownFocus";
-        _fixture.Renaming = state is "editing" or "ownEditing";
+        _fixture.Renaming = state is "editing" or "editingLong" or "ownEditing";
         _fixture.DropTarget = state is "dropTarget" or "ownDropTarget";
         _fixture.Faded = state is "cut" or "hidden";
         _hovered = state is "hover" or "selectedHover";

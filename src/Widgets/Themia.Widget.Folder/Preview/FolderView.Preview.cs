@@ -45,13 +45,34 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         return ItemEntries();
     }
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["documents", "pictures", "selected", "inactive", "fullname"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["documents", "pictures", "selected", "inactive", "fullname", "renaming", "search", "searching"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
         if (state == "documents")
         {
             await ShowSampleAsync().ConfigureAwait(true);
+            return;
+        }
+
+        // [S-13950] The inline boxes over the sample: an item's name renamed in place, the tool line's search
+        // open (empty, then with words typed).
+        if (state is "renaming" or "search" or "searching")
+        {
+            await ShowSampleAsync().ConfigureAwait(true);
+            if (state == "renaming" && _visuals.Count > 0)
+            {
+                BeginRename(_visuals[0]);
+            }
+            else if (state != "renaming")
+            {
+                ToggleSearch();
+                if (state == "searching")
+                {
+                    _searchBox.Text = "re";
+                }
+            }
+
             return;
         }
 

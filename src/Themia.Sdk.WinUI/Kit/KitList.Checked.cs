@@ -385,7 +385,10 @@ public sealed partial class KitList
         StartTyping(box);
     }
 
-    private void OpenAddEditor()
+    private void OpenAddEditor() => BeginAdd();
+
+    /// <summary>[S-599] Open the add row's box, as a tap on the row does, holding <paramref name="text"/> (a render's typed words).</summary>
+    public void BeginAdd(string text = "")
     {
         if (_editor is { Id: null } || _addRow is null)
         {
@@ -394,7 +397,7 @@ public sealed partial class KitList
 
         CancelEdit();
 
-        var box = NewEditor(string.Empty);
+        var box = NewEditor(text);
         box.PlaceholderText = _spec.AddPlaceholder?.Invoke() ?? string.Empty;
         _editorHidden.Clear();
         _editorHidden.AddRange(_addRow.Open(box));
