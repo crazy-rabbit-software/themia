@@ -41,6 +41,10 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   inset on every side, 200..520 wide (a new one 300), one height per style (`ScreenTimeChartLayout.Sizing`):
   Bars 12 + 24 + 72 of bars + their labels' row (4 + 16) + 12 = 140; Calendar 12 + 24 + the letters
   (16 + 4) + its weeks of 20 rings 4 apart + 12 (a week 88, a month's five weeks 184). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
+  The bars are a graph's plot, the card's whole box (owner, 2026-11-19: "Plot edge to edge", [S-6754]): the view owns
+  the card's top edge with them, the first bar stands on the card's left edge and the last on its right, the bars rise
+  from over their end labels (at the inset off the foot and the sides) to the card's top (under the day line where a
+  day has one), so the same card holds 12 more of bars; the caption and the Status row keep the inset over them.
   The total over it is the reading atom's ([S-11500]); the ready-made group "Screen time" stands that
   reading over it ([S-11520]). A window with no use is the chart all the same: its days on a foot hairline, the sentence as a caption
   ([S-6753]); only no recording at all is the Status block's one row ([S-6714]).

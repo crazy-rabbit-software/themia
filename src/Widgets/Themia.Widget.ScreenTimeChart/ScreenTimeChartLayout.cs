@@ -6,8 +6,9 @@ namespace Themia.Core.Widgets;
 
 /// <summary>
 /// [S-11505] The chart's sizes on the family's tokens, pure: its day line ([S-454]) and the drawing in
-/// the card's 12 inset on every side, 200..520 wide, one height per style (and, for the calendar, per
-/// period: its weeks). The total over it is the reading atom's ([S-11500]).
+/// the card's 12 inset on every side (the bars: the card's whole box, their words in the inset, [S-6754]), 200..520
+/// wide, one height per style (and, for the calendar, per period: its weeks). The total over it is the reading
+/// atom's ([S-11500]).
 /// </summary>
 public static class ScreenTimeChartLayout
 {

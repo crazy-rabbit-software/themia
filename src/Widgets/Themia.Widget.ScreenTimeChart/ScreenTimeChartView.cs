@@ -27,8 +27,14 @@ namespace Themia.App.Widgets;
 /// sets one bar part's height and a tooltip, and builds nothing.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetKeys, IWidgetTopEdge
 {
+    /// <summary>
+    /// [S-5700] [S-6754] The bars are a graph's plot, the card's whole box (owner, 2026-11-19: "Plot edge to edge"): the
+    /// view owns the card's top edge and keeps the inset over its words itself. The calendar's rings stand in the inset.
+    /// </summary>
+    public bool OwnsTopEdge => ChartStyle == ScreenTimeChartStyle.Bars;
+
     private readonly ScreenTimeLinks _links;
 
     /// <summary>[S-11924] The day on the view's links: this chart's pointed day published, another widget's followed.</summary>
@@ -222,6 +228,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         Clear();
         _empty.Show(StatusKind.Empty, Glyphs.ScreenTimeChart, message);
         _empty.Visibility = Visibility.Visible;
+        Edges();
         _drawing.Visibility = Visibility.Collapsed;
         _note.Visibility = Visibility.Collapsed;
     }
@@ -250,18 +257,19 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
         _tones = ScreenTimeRules.Tones(_segments);
 
-        // [S-12410] The bars are a chart: their plot takes the whole height the card gives, down to the
-        // card's inset (the end labels' text stays off the edge). The calendar's rings keep their size: a
-        // taller card centres them in the room under the day line, the foot's inset counted with them.
-        // [S-12483] The same joined or alone.
-        var width = Math.Max(1, _area.Width - (2 * FamilySpace.Inset));
-        var drawing = ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
+        // [S-12410] [S-6754] The bars are a chart: their plot is the card's whole box, edge to edge, the end labels
+        // inside it at the inset (Plot edge to edge). The calendar's rings keep their size: a taller card centres them in
+        // the room under the day line, the foot's inset counted with them. [S-12483] The same joined or alone.
         var calendar = ChartStyle == ScreenTimeChartStyle.Calendar;
-        var room = _area.Height - ScreenTimeChartLayout.DayLine(Period);
-        var height = calendar ? drawing : Math.Max(drawing, Math.Floor(room - FamilySpace.Inset));
+        var width = calendar ? Math.Max(1, _area.Width - (2 * FamilySpace.Inset)) : Math.Max(1, _area.Width);
+        var drawing = ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
+        var height = calendar ? drawing : Math.Max(1, Math.Floor(_area.Height));
         _drawing.Height = height;
         _drawing.VerticalAlignment = calendar ? VerticalAlignment.Center : VerticalAlignment.Top;
-        _drawing.Margin = calendar ? Family.SideInset with { Bottom = FamilySpace.Inset } : Family.SideInset;
+        _drawing.Margin = calendar ? Family.SideInset with { Bottom = FamilySpace.Inset } : default;
+        SetRow(_drawing, calendar ? 1 : 0);
+        SetRowSpan(_drawing, calendar ? 1 : 2);
+        Edges();
 
         // [S-3325] Built once for what it is made of; every other read moves what is there.
         var frame = new Frame(ChartStyle, data.Range.Count, width, height, Today.Key, data.Range.Count > 0 ? data.Range[0].Date : string.Empty, Strings.Current, data.Total <= 0);
@@ -307,11 +315,20 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         public string? Tip { get; set; }
     }
 
+    /// <summary>[S-6754] The view owns the card's top edge with the bars: its words keep the card's inset over them themselves.</summary>
+    private void Edges()
+    {
+        var top = OwnsTopEdge ? FamilySpace.Inset : 0;
+        _nav.Line.Margin = Family.SideInset with { Top = top };
+        _note.Margin = Family.SideInset with { Top = _nav.Line.Visibility == Visibility.Visible ? 0 : top };
+        _empty.Margin = new Thickness(0, _nav.Line.Visibility == Visibility.Visible ? 0 : top, 0, 0);
+    }
+
     /// <summary>
-    /// [S-3331] One bar per day, oldest left, today right, 8 apart for a week and 4 for a month, each
-    /// split by app in the ring's order and scaled to the window's busiest day; the first day's and
-    /// today's names at the two ends under them (Caption, tertiary, [S-6717]). Builds the columns and
-    /// the labels; <see cref="FillBars"/> stands the parts in them.
+    /// [S-3331] [S-6754] One bar per day, oldest left, today right, 8 apart for a week and 4 for a month, each
+    /// split by app in the ring's order and scaled to the window's busiest day, the first at the card's left edge and
+    /// the last at its right; the first day's and today's names at the two ends under them, at the inset (Caption,
+    /// tertiary, [S-6717]). Builds the columns and the labels; <see cref="FillBars"/> stands the parts in them.
     /// </summary>
     private Grid Bars(ScreenTimeData data, double height)
     {
@@ -323,6 +340,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             VerticalAlignment = VerticalAlignment.Top,
         };
 
+        chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(BarsTop) });
         chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(BarArea(height)) });
         chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
@@ -337,6 +355,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             _bars.Add(new Bar(column, stack));
 
             HoverDay(column, i);
+            SetRow(column, 1);
             SetColumn(column, i);
             _columns.Add(column);
             chart.Children.Add(column);
@@ -346,6 +365,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         if (data.Total <= 0 && count > 0)
         {
             var foot = new Microsoft.UI.Xaml.Shapes.Rectangle { Height = FamilyShape.Hairline, Fill = Family.Brush(ColourRole.Track), VerticalAlignment = VerticalAlignment.Bottom };
+            SetRow(foot, 1);
             SetColumnSpan(foot, count);
             chart.Children.Add(foot);
         }
@@ -357,7 +377,8 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             foreach (var label in new[] { first, last })
             {
                 label.VerticalAlignment = VerticalAlignment.Bottom;
-                SetRow(label, 1);
+                label.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+                SetRow(label, 2);
                 SetColumnSpan(label, count);
                 chart.Children.Add(label);
             }
@@ -378,8 +399,11 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         return label;
     }
 
-    /// <summary>The bars' own height: the drawing less the end labels' row.</summary>
-    private static double BarArea(double height) => Math.Max(1, height - ScreenTimeChartLayout.LabelRow);
+    /// <summary>[S-6754] What stands over the bars: the day line under the inset where there is one; none, and the bars reach the top edge.</summary>
+    private double BarsTop => ScreenTimeChartLayout.DayLine(Period) is var line and > 0 ? FamilySpace.Inset + line : 0;
+
+    /// <summary>The bars' own height: the drawing less what stands over them and the end labels' row at the foot's inset.</summary>
+    private double BarArea(double height) => Math.Max(1, height - BarsTop - ScreenTimeChartLayout.LabelRow - FamilySpace.Inset);
 
     /// <summary>
     /// [S-3331] [S-3325] Each day's parts at their share of the busiest day, the stack's outer corners
