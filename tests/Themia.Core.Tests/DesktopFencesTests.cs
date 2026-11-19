@@ -21,7 +21,11 @@ internal sealed class FenceFake : WidgetConfig, IHoldsDesktopItems
 
     public string Name { get; set; } = string.Empty;
 
-    public override WidgetConfig Clone() => new FenceFake { Items = [.. Items], Rules = Rules.Clone(), RolledUp = RolledUp, OpenHeight = OpenHeight, Sort = Sort, Name = Name };
+    public FenceSource Source { get; set; }
+
+    public FenceQuery Query { get; set; } = new();
+
+    public override WidgetConfig Clone() => new FenceFake { Items = [.. Items], Rules = Rules.Clone(), RolledUp = RolledUp, OpenHeight = OpenHeight, Sort = Sort, Name = Name, Source = Source, Query = Query.Clone() };
 }
 
 /// <summary>[S-13000]..[S-13014] The fences' rules: membership, routing, the reconcile, making one, taking it away, load.</summary>

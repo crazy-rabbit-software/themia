@@ -77,7 +77,8 @@ public static class DesktopFences
 
     /// <summary>
     /// [S-13004] The fence of <paramref name="view"/> a new <paramref name="item"/> arrives in by its rules: the first, in
-    /// the view's order, whose rules it matches (<see cref="FenceRules.Matches"/>); null when none takes it.
+    /// the view's order, whose rules it matches (<see cref="FenceRules.Matches"/>); null when none takes it. [S-13023] A
+    /// search fence holds no desktop item: never.
     /// </summary>
     public static FenceOn? Route(ViewState view, DesktopItem item)
     {
@@ -85,7 +86,7 @@ public static class DesktopFences
         ArgumentNullException.ThrowIfNull(item);
         foreach (var on in On(view))
         {
-            if (FenceRules.Matches(on.Fence.Rules, item))
+            if (on.Fence.Source != FenceSource.Search && FenceRules.Matches(on.Fence.Rules, item))
             {
                 return on;
             }
@@ -106,7 +107,7 @@ public static class DesktopFences
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(keys);
         var target = On(view).FirstOrDefault(on => string.Equals(on.Widget.Id, fenceId, StringComparison.Ordinal));
-        if (target.Fence is null)
+        if (target.Fence is null || target.Fence.Source == FenceSource.Search)
         {
             return 0;
         }
@@ -317,6 +318,75 @@ public static class DesktopFences
         }
 
         return repairs;
+    }
+
+    /// <summary>
+    /// [S-13022] [S-13023] Every fence made to show what its source says, against the desktop's <paramref name="listing"/>: a
+    /// collecting fence (<see cref="FenceSource.Desktop"/>) takes in every listed item its rules match that no fence before
+    /// it on that view holds (from the free desktop and from other fences, <see cref="MoveIn"/>, at its end), and lets go of
+    /// a listed item its rules no longer match; a search fence (<see cref="FenceSource.Search"/>) holds no desktop item and
+    /// lets go of any it held. What was let go is returned by view, for the free desktop (the caller lays it at free spots,
+    /// <see cref="LayFree"/>); an item another fence of that view holds now is not in it. Nothing listed is never taken: an
+    /// item not in the listing stays for the reconcile ([S-13003]).
+    /// </summary>
+    public static IReadOnlyList<(ViewState View, IReadOnlyList<string> Keys)> Collect(AppState state, IReadOnlyList<DesktopItem> listing)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(listing);
+        var listed = new Dictionary<string, DesktopItem>(DesktopItemKeys.Comparer);
+        foreach (var item in listing)
+        {
+            listed.TryAdd(item.Key, item);
+        }
+
+        var released = new List<(ViewState, IReadOnlyList<string>)>();
+        foreach (var view in state.Views)
+        {
+            var letGo = new List<string>();
+            foreach (var on in On(view).ToList())
+            {
+                switch (on.Fence.Source)
+                {
+                    case FenceSource.Search when on.Fence.Items.Count > 0:
+                        letGo.AddRange(on.Fence.Items);
+                        on.Fence.Items.Clear();
+                        break;
+
+                    case FenceSource.Desktop:
+                        var stale = on.Fence.Items.Where(key => listed.TryGetValue(key, out var item) && !FenceRules.Matches(on.Fence.Rules, item)).ToList();
+                        if (stale.Count > 0)
+                        {
+                            on.Fence.Items.RemoveAll(stale.Contains);
+                            letGo.AddRange(stale);
+                        }
+
+                        // Held before this one on the view: by an earlier fence (the first in the view's order keeps it).
+                        var earlier = new HashSet<string>(DesktopItemKeys.Comparer);
+                        foreach (var before in On(view).TakeWhile(other => !ReferenceEquals(other.Widget, on.Widget)))
+                        {
+                            earlier.UnionWith(before.Fence.Items);
+                        }
+
+                        var wanted = DesktopItemOrder.Sort(listed.Values.Where(item => FenceRules.Matches(on.Fence.Rules, item)
+                            && !earlier.Contains(item.Key) && !on.Fence.Items.Contains(item.Key, DesktopItemKeys.Comparer)));
+                        if (wanted.Count > 0)
+                        {
+                            MoveIn(view, on.Widget.Id, [.. wanted.Select(item => item.Key)], on.Fence.Items.Count);
+                        }
+
+                        break;
+                }
+            }
+
+            var held = Held(view);
+            var free = letGo.Where(key => !held.Contains(key)).Distinct(DesktopItemKeys.Comparer).ToList();
+            if (free.Count > 0)
+            {
+                released.Add((view, free));
+            }
+        }
+
+        return released;
     }
 
     /// <summary>[S-13003] A rename heard from the shell: the key is rewritten in every fence that holds the old one, in place.</summary>

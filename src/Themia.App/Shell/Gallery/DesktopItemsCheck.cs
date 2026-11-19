@@ -40,6 +40,25 @@ internal static class DesktopItemsCheck
             var lines = new List<string>();
             try
             {
+                // [S-13023] --search <ext> [folder]: a search fence's search for one extension, timed (no file names written).
+                var searchAt = Array.IndexOf(args, "--search");
+                if (searchAt >= 0 && searchAt + 1 < args.Length)
+                {
+                    var rules = new FenceRuleSet { Extensions = FenceRules.ParseExtensions(args[searchAt + 1]) };
+                    var query = new FenceQuery { Folder = searchAt + 2 < args.Length ? args[searchAt + 2] : string.Empty, Max = FenceSearch.MostResults };
+                    var clock = System.Diagnostics.Stopwatch.StartNew();
+                    var found = await Services.Files.FileSearch.FindAsync(rules, query, CancellationToken.None).ConfigureAwait(true);
+                    lines.Add($"search: {found.Count} file(s) in {clock.ElapsedMilliseconds} ms for {FenceSearch.Aqs(rules, query, DateTime.UtcNow)}");
+                    foreach (var group in found.GroupBy(f => FenceRules.ExtensionOfKey(f.Path)))
+                    {
+                        lines.Add($"  {group.Key}: {group.Count()}, newest {group.Max(f => f.ModifiedUtc):yyyy-MM-dd}");
+                    }
+
+                    await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
+                    app.Exit();
+                    return;
+                }
+
                 // --key <key> <kind>: one item's icon only (a key on no disk tests the type fallback).
                 var keyAt = Array.IndexOf(args, "--key");
                 IReadOnlyList<DesktopItem>? items = keyAt >= 0 && keyAt + 2 < args.Length && Enum.TryParse<DesktopItemKind>(args[keyAt + 2], out var kindArg)

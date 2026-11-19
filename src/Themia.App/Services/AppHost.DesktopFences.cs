@@ -394,6 +394,34 @@ internal sealed partial class AppHost : IDesktopFences
     private string? _bandExcept;
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<FoundFile>> SearchAsync(FenceRuleSet rules, FenceQuery query, CancellationToken token)
+        => FileSearch.FindAsync(rules, query, token);
+
+    /// <summary>
+    /// [S-13022] [S-13023] Every fence shown as its source says, in the change being made (<see cref="Mutate"/>): collecting
+    /// fences take in what their rules match, a search fence holds nothing; what they let go lands on its view's free
+    /// desktop at the first free spots. Nothing before the desktop is read.
+    /// </summary>
+    private void CollectFences(AppState state)
+    {
+        if (ItemKind is not { } kind || !HostDesktopItems.Instance.HasListing || !state.Views.Exists(v => DesktopFences.On(v).Any(on => on.Fence.Source != FenceSource.Held)))
+        {
+            return;
+        }
+
+        foreach (var (view, keys) in DesktopFences.Collect(state, HostDesktopItems.Instance.Items))
+        {
+            var items = keys.Select(key => HostDesktopItems.Instance.Find(key)).OfType<DesktopItem>().ToList();
+            var left = DesktopFences.LayFree(view, items, null, null, ScreenOfView(view.Id) ?? DeskPrimaryScreen, (DeskCellDip.Width, DeskCellDip.Height),
+                (item, rect) => NewItemWidget(kind.Id, item, rect));
+            if (left.Count > 0)
+            {
+                Log.Info(Scope, $"{left.Count} item(s) a fence let go found no free spot; Add widget lists them");
+            }
+        }
+    }
+
+    /// <inheritdoc />
     public IReadOnlyList<DesktopItem> DraggedItems
         => _deskDrag is { } drag
             ? [.. _desk.Selected.Where(drag.Keys.Contains).Select(key => HostDesktopItems.Instance.Find(key)).OfType<DesktopItem>()]

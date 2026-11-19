@@ -39,6 +39,12 @@ public sealed class FenceConfig : WidgetConfig, IHoldsDesktopItems
     /// <summary>[S-10913] A rolled-up fence opens while the pointer rests on its title bar, and rolls up again when it leaves.</summary>
     public bool HoverPeek { get; set; } = true;
 
+    /// <inheritdoc />
+    public FenceSource Source { get; set; } = FenceSource.Held;
+
+    /// <inheritdoc />
+    public FenceQuery Query { get; set; } = new();
+
     public override WidgetConfig Clone() => new FenceConfig
     {
         Name = Name,
@@ -49,6 +55,8 @@ public sealed class FenceConfig : WidgetConfig, IHoldsDesktopItems
         Sort = Sort,
         RollUpOnClick = RollUpOnClick,
         HoverPeek = HoverPeek,
+        Source = Source,
+        Query = Query.Clone(),
     };
 
     /// <summary>
@@ -69,6 +77,20 @@ public sealed class FenceConfig : WidgetConfig, IHoldsDesktopItems
             Rules = new FenceRuleSet();
             repairs.Add("a fence's rules were null; it has none");
         }
+
+        if (Query is null)
+        {
+            Query = new FenceQuery();
+            repairs.Add("a fence's query was null; it has the default one");
+        }
+
+        if (!Enum.IsDefined(Source))
+        {
+            Source = FenceSource.Held;
+            repairs.Add("a fence had an unknown source; it holds what is put in");
+        }
+
+        repairs.AddRange(FenceSearch.Repair(Query));
 
         var name = CleanName(Name);
         if (!string.Equals(name, Name, StringComparison.Ordinal))

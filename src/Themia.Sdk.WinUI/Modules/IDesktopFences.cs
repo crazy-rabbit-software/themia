@@ -80,6 +80,13 @@ public interface IDesktopFences
     /// </summary>
     bool Band(string fenceId, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs press);
 
+    /// <summary>
+    /// [S-13023] The files <paramref name="rules"/> and <paramref name="query"/> find (Windows Search over the query's folder,
+    /// or the user's own folder, for <c>FenceSearch.Aqs</c>), checked against the rules, the newest first, at most the query's
+    /// count (<c>FenceSearch.Shown</c>). Background work; never throws: a failed search is no file (logged).
+    /// </summary>
+    Task<IReadOnlyList<FoundFile>> SearchAsync(FenceRuleSet rules, FenceQuery query, CancellationToken token);
+
     /// <summary>[S-13021] The desktop items the running drag of the desktop's icons carries, in its order (none while none runs): a fence's ghost preview draws them.</summary>
     IReadOnlyList<DesktopItem> DraggedItems { get; }
 }

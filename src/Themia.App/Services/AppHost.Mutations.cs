@@ -33,6 +33,9 @@ internal sealed partial class AppHost
         try
         {
             change(State);
+
+            // [S-13022] [S-13023] Fences that show by a rule show it after every change, in the same step.
+            CollectFences(State);
         }
         catch (Exception ex)
         {

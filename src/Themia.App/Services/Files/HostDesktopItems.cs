@@ -468,4 +468,7 @@ internal sealed class NoFences : IDesktopFences
     public bool Band(string fenceId, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs press) => false;
 
     public IReadOnlyList<DesktopItem> DraggedItems => [];
+
+    public Task<IReadOnlyList<FoundFile>> SearchAsync(FenceRuleSet rules, FenceQuery query, CancellationToken token)
+        => Task.FromResult<IReadOnlyList<FoundFile>>([]);
 }

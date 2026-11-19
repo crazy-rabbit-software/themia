@@ -30,4 +30,10 @@ public interface IHoldsDesktopItems
 
     /// <summary>[S-10910] Its title.</summary>
     string Name { get; set; }
+
+    /// <summary>[S-13022] What it shows: what was put in, every desktop item its rules match, or files a search finds.</summary>
+    FenceSource Source { get; set; }
+
+    /// <summary>[S-13023] A search fence's place, recency and count (its rules are <see cref="Rules"/>).</summary>
+    FenceQuery Query { get; set; }
 }
