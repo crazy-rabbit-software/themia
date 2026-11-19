@@ -207,6 +207,20 @@ public sealed class WidgetMenuLines
         return new(glyph, text, null, Search: search with { Value = value });
     }
 
+    /// <summary>
+    /// [S-13606] One answer of a <see cref="MenuSearch"/>: its words alone (no glyph: the search's line says what it
+    /// finds), whether it is the one in force (dotted), and what a pick does. Every search answers with these, so
+    /// every lookup lists the same rows.
+    /// </summary>
+    public static ItemMenuEntry Found(string text, bool holds, Action pick)
+    {
+        ArgumentNullException.ThrowIfNull(pick);
+        return new(null, text, pick, Checked: holds, Group: FoundGroup);
+    }
+
+    /// <summary>The radio group of a search's answers (a page draws each lookup's in one of its own).</summary>
+    public const string FoundGroup = "found";
+
     /// <summary>A submenu of <paramref name="lines"/>, opened beside its line.</summary>
     public static ItemMenuEntry Submenu(string? glyph, string text, IReadOnlyList<ItemMenuEntry> lines)
     {
