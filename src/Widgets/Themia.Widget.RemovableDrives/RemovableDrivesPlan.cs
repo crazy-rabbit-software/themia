@@ -40,6 +40,6 @@ public static class RemovableDrivesPlan
     /// from the view's top to the foot's inset, at most half again (<see cref="Themia.Core.Widgets.ItemStretch.Rows"/>);
     /// the list is <see cref="Themia.Core.Widgets.RowReach.Length"/> of the config's rows.
     /// </summary>
-    public static Themia.Core.Widgets.RowReach Reach(double height, int rows, double scale = 1)
-        => Themia.Core.Widgets.ItemStretch.Rows(height, KitSizing.ClampRows(rows), Lines, scale: scale);
+    public static Themia.Core.Widgets.RowReach Reach(double height, int rows, Themia.Core.Widgets.ItemGrid grid)
+        => Themia.Core.Widgets.ItemStretch.Rows(height, KitSizing.ClampRows(rows), Lines, grid);
 }

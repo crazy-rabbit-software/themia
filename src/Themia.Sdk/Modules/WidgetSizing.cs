@@ -45,6 +45,22 @@ public sealed record WidgetSizing
 
     public required SizeDip Min { get; init; }
 
+    /// <summary>[S-12833] [S-06b] The least a face that scales down is sized at: the grid's least widget.</summary>
+    public const double LeastScaled = 32;
+
+    /// <summary>
+    /// [S-12833] This sizing for a face that scales down as one to <paramref name="least"/> (<c>ScaleFloor.Least</c> of its
+    /// smallest text): its Min the natural box at that scale (whole DIPs, never under <see cref="LeastScaled"/>) on every
+    /// axis it does not step; Natural and Max kept.
+    /// </summary>
+    public WidgetSizing ScalesDown(double least)
+    {
+        var k = least > 0 && double.IsFinite(least) ? Math.Min(1, least) : 1;
+        double Axis(double natural, double min, SizeSteps? steps)
+            => steps is not null ? min : Math.Min(min, Math.Max(LeastScaled, Math.Ceiling(natural * k)));
+        return this with { Min = new SizeDip(Axis(Natural.Width, Min.Width, WidthSteps), Axis(Natural.Height, Min.Height, HeightSteps)) };
+    }
+
     /// <summary>[S-10] Where a newly added widget lands.</summary>
     public required SizeDip Natural { get; init; }
 

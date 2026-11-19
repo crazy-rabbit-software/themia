@@ -123,7 +123,7 @@ public partial class SpreadStack : Panel
             items.Add(items[^1]);
         }
 
-        var slots = ItemStretch.Reach(Down ? finalSize.Height : finalSize.Width, items, _spacing, XamlRoot?.RasterizationScale ?? 1, _justify);
+        var slots = ItemStretch.Reach(Down ? finalSize.Height : finalSize.Width, items, ItemGrids.Of(this), _spacing, _justify);
         Laid = [.. shown.Select((child, i) => (child, slots[i]))];
         for (var i = 0; i < shown.Count; i++)
         {

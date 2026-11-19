@@ -40,7 +40,11 @@ public sealed class AddFooterRow
             Visibility = Visibility.Collapsed,
         };
 
+        ItemMark.Mark(Element);
         ItemFill.Paint(Element, ItemRole.Row);
+
+        // [S-12830] A row of the list's: whole grid cells tall, as the rows over it (ItemStretch.RowsAbove keeps them).
+        Element.Loaded += (_, _) => Element.Height = ItemGrids.Of(Element).Whole(FamilyShape.RowHeight(1));
         Element.Tapped += OnTapped;
         _hover = Fluent.Hover(Element);
         Label = label;

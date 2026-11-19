@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>
 /// [S-12804] The face fills its box: it is planned at its Size's step in the natural box (<see cref="ClockFace"/>)
-/// and scaled up as one to the card (<see cref="InkFit"/>, uniformly, never down) until its ink, not its line's
+/// and scaled as one to the card (<see cref="InkFit"/>, uniformly, down to its smallest text's floor, [S-12833]) until its ink, not its line's
 /// leading, fills the card's height or its width, as a display clock is, so a larger card is a larger clock and never
 /// a band round a small one (owner, 2026-11-19: "the clock widget has too big of a space at the top and bottom"). The dial is planned in the whole box.
 /// </para>
@@ -172,9 +172,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     }
 
     /// <summary>
-    /// The box the face is planned in: the view less its inset of 12 on the sides and the foot (the card's is over
-    /// it), held to the natural box ([S-12804]: the fit scales the face from there to the card, so its step is its
-    /// Size's and a larger card is a larger face, never a band). The dial is planned in the whole box: drawn at its
+    /// The box the face is planned in: the natural box ([S-12804]: the fit scales the face from there to the card, so its
+    /// step is its Size's and a larger card is a larger face, never a band; [S-12833] a smaller one a smaller face). The dial is planned in the whole box: drawn at its
     /// size, its hairlines stay hairlines.
     /// </summary>
     private (double Width, double Height) ContentBox()
@@ -185,8 +184,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         {
             var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
             var natural = ClockFace.Sizing(_config, meridiem).Natural;
-            width = Math.Min(width, natural.Width - (2 * FamilySpace.Inset));
-            height = Math.Min(height, natural.Height - FamilySpace.Inset - FamilySpace.Inset);
+            // [S-12833] Planned in the natural box at every size: a smaller card scales the same face down (to its
+            // smallest text's floor), never a folded one (no seconds, no meridiem, stacked).
+            width = natural.Width - (2 * FamilySpace.Inset);
+            height = natural.Height - FamilySpace.Inset - FamilySpace.Inset;
         }
 
         return (Math.Max(0, width), Math.Max(0, height));

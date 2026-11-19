@@ -243,7 +243,7 @@ internal sealed partial class WidgetCard
         // The slot was measured while the view was parked, which it did not hear ([S-1881]).
         if (_view is IWidgetSizeAware sizeAware && _view.ActualWidth > 0 && _view.ActualHeight > 0)
         {
-            sizeAware.ApplySize(new WidgetArea(_view.ActualWidth, _view.ActualHeight));
+            sizeAware.ApplySize(new WidgetArea(_view.ActualWidth, _view.ActualHeight, CellPitch));
         }
     }
 }

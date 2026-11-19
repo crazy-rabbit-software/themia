@@ -264,7 +264,7 @@ internal sealed partial class FolderView
         else
         {
             // [S-12807] The list's rows reach the items' top and the foot's inset, the first one's band over the top.
-            var reach = FolderLayout.Reach(height, XamlRoot?.RasterizationScale ?? 1);
+            var reach = FolderLayout.Reach(height, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
             if (reach.Pitch != _rowPitch)
             {
                 _rowPitch = reach.Pitch;
@@ -688,6 +688,7 @@ internal sealed partial class FolderView
         }
 
         WidgetItems.Mark(visual.Root); // [S-814] a press here is the item's, not the background's
+        ItemMark.Mark(visual.Root);
         ItemFill.Paint(visual.Root, ItemRole.Row); // [S-6513] the item layer at rest; the selection is laid over it
         Prime(visual);
         ToolTipService.SetToolTip(visual.Root, Tip(entry));
@@ -804,6 +805,7 @@ internal sealed partial class FolderView
         };
 
         WidgetItems.Mark(visual.Root); // [S-814] a press here is the item's, not the background's
+        ItemMark.Mark(visual.Root);
         ItemFill.Paint(visual.Root, ItemRole.Row); // [S-6513] the item layer at rest; the selection is laid over it
         Prime(visual);
         ToolTipService.SetToolTip(visual.Root, grid.Named ? Tip(entry) : $"{entry.Name}\n{Tip(entry)}");

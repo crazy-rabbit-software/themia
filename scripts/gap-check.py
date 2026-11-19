@@ -1,33 +1,32 @@
-"""[S-12815] The gap check: every widget kind, in every state its renders offer, at its range and at real desktop
-sizes, measured for the empty band between its ink and its card's edges. Needs a Debug build of the app.
+"""[S-12815] [S-12831] The gap check: every widget kind, in every state its renders offer, at its range (its least size,
+its natural and its large) and at real desktop sizes, measured for the empty band between its ink and its card's
+edges, against the owner's rules as worded in docs/WIDGET-RULES.md. Needs a Debug build of the app.
 
 usage: python scripts/gap-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a,b] [--jobs 4] [--timeout 120]
 
 For each kind it asks the render for the kind's states (`--state` with an unknown name lists them), draws each state
-with `--widget-png <kind> <png> --state <s> --sizes range --transparent` and again at the desktop sizes below, finds
-every card in the PNG by its alpha and its first and last row of ink (a pixel off the card's own colour), and judges:
+with `--widget-png <kind> <png> --state <s> --sizes range --transparent --layout-json <json>` and again at the desktop
+sizes below, finds every card in the PNG by its alpha, its first and last row of ink (a pixel off the card's own
+colour), and judges:
 
-- top: the band over the first ink is at most the inset + 4 DIP, for every kind and state (owner, 2026-11-19: "there
-  should not be a space at the top");
-- foot: the band under the last ink is at most the inset + 4 DIP, but for a list whose config's rows outnumber its
-  items ([S-12800]: the rows it states keep their places, the rest stay empty at the foot), declared in LISTS;
-- balance: top and foot differ by at most 4 DIP, for every kind but those of rows (STRETCH: lists, facts);
-- a card one line tall (two insets and a row), or a list's one row grown to its card, whose bands are alike is
-  fine: its one line is centred;
-- a block that spans the content side to side (its width holds its scale) with no band over it may leave the room
-  under it (owner, 2026-11-19: the top, never; the foot is fine);
-- sides: for a kind whose content spans the width (STRETCH), in its sample, each side band is at most the inset + 4
-  DIP and 4 more for a lead glyph drawn inside its box.
+- WR-1 top: the band over the first ink is at most the inset (12, the padding inside an item, WR-3) and the 4 DIP the
+  measure may be off by (antialiasing, a glyph's own room in its box). Where the card's items stand on its top edge
+  (the layout's item boxes, `ItemMark`), the band over the ink is the item's own padding and the item check
+  (scripts/item-check.py) judges the boxes instead.
+- WR-4 / WR-7 foot: the band under the last ink is at most the inset and the 4 DIP, but where the card's items reach
+  down from its top edge: their leftover whole cells and empty stated rows may stand at the foot (WR-5).
+- sides: the band beside the ink, either side, is at most the inset and the 4 DIP where the content spans the width
+  (a card with items: WR-3).
 
-A kind whose frame is a picture, a video or a chart's own is declared in EXCEPT with its reason and judged on the top
-alone. A kind whose face stands centred (CENTRED, the tiles and power buttons) passes with its first ink within the
-inset + 4 DIP or its face centred: top and foot within 4 DIP and a quarter of the face's height (a descender's room).
-A kind that keeps a line over its content (RESERVED) is allowed that line; a drawing pad (DRAWN) only has to render. Every render runs under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix)
-and <out>/findings.txt; exits 1 on any finding.
+The one exemption the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
+filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture. Every render runs
+under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix), <out>/gaps.json and
+<out>/findings.txt; exits 1 on any finding.
 """
 import argparse
 import concurrent.futures as futures
 import glob
+import json
 import os
 import re
 import subprocess
@@ -37,55 +36,17 @@ import numpy as np
 from PIL import Image
 
 INSET = 12.0
-SLACK = 4.0
-SIDE = 4.0  # a row's lead glyph draws inside its 16 box: up to 4 more at the sides
+TOLERANCE = 4.0  # DIP the ink measure may be off by
 SCALE = 1.5  # the renders' raster scale
 # Desktop sizes, a few to a render so the page fits the screen and keeps the raster scale.
 SIZES = ['330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300']
 
-# Lists whose config states its rows: fewer items than rows leave the rest empty at the foot ([S-12800]).
-LISTS = {
-    'bluetooth', 'clipboard', 'contacts', 'deviceBatteries', 'email', 'folder', 'habitTracker', 'mixer',
-    'networkAdapters', 'notifications', 'recentFiles', 'removableDrives', 'rss', 'tasks', 'topProcesses', 'upNext',
-    'weekPlanner', 'calendar', 'screenTimeApps', 'gpuEngines', 'cpuCores', 'fence', 'notes', 'scratchpad', 'stopwatch',
-}
-
-# Kinds whose own frame stands where it does: judged on the top alone.
-EXCEPT = {
+# docs/WIDGET-RULES.md, "Exemptions granted by the owner": a picture or a video filling the card edge to edge.
+PICTURES = {
     'gallery': 'a picture fills the card edge to edge',
     'videoStream': 'a video fills the card edge to edge',
-    'musicCover': 'a picture fills the card edge to edge',
-    'desktopItem': 'an icon cell on the desktop grid, no card content',
-    'audioVisualizer': 'a spectrum chart whose frame is the inset',
-    'sun': 'a picture of the sky whose frame is the inset',
-    'screenTimeChart': 'a chart whose frame is the inset',
-    'screenTimeDonut': 'a chart whose frame is the inset',
-    'stockHistory': 'a chart whose frame is the inset (the graph widgets\' own)',
-    'exchangeHistory': 'a chart whose frame is the inset (the graph widgets\' own)',
+    'musicCover': 'the cover art fills the card edge to edge',
 }
-GRAPH = re.compile(r'(Graph|History)$')
-
-# Kinds whose face stands centred in its card, judged on that alone: no band over the face but its own, alike under it.
-CENTRED = {
-    'clock': 'one line whose width holds its size (the coordinator, 2026-11-19: fine), centred in the height',
-    'date': 'one line sized to the longest date its format shows, its width holds it, centred in the height',
-    'header': 'one line, centred in its card',
-    'musicProgress': 'one line, the times and the bar at their natural proportions, its width holds it, centred',
-}
-# Kinds that keep a line over their content whatever it holds: their top is judged that much lower.
-RESERVED = {
-    'notes': (32, "the note's own line, kept for its bar whether or not it stands ([S-3963]: focusing never moves "
-                  "the text), and the editor's line over the first text"),
-}
-# Kinds whose ink is what the person draws: nothing to judge but that the render ran.
-DRAWN = {'scratchpad': 'a drawing pad: its ink is what the person drew, its tools at the foot'}
-TILE = re.compile(r'Toggle$')
-POWER = {'sleep', 'signOut', 'shutdown', 'screenOff', 'restart', 'lock', 'hibernate'}
-TILE_WHY = 'a tile face: its glyph (and name under it where it fits) centred in the box ([S-5700], [S-12806])'
-
-# Kinds whose content spans the width: rows, facts, bars.
-STRETCH = LISTS | {'airFacts', 'weatherFacts', 'cpuFacts', 'gpuFacts', 'memoryFacts', 'networkFacts', 'pingFacts',
-                   'batteryFacts', 'driveFacts', 'sunTimes', 'moonTimes', 'weatherForecast'}
 
 
 def kinds_in(root):
@@ -153,41 +114,22 @@ def measure(path):
     return out
 
 
-def judge(kind, state, card):
+def judge(kind, card, layout):
     w, h, top, foot, left, right = card
-    found = []
-    if kind in DRAWN:
-        return found
     if top is None:
-        return ['nothing drawn']
-    limit = INSET + SLACK
-    # A card one line tall centres its one line, and so does a list's one row grown to its card: the bands are the
-    # line's own, alike over and under it.
-    one_line = h <= 2 * INSET + 28 + SLACK or (kind in LISTS and h - top - foot <= 28)
-    if one_line and abs(top - foot) <= SLACK:
-        return found
-    if kind in CENTRED or TILE.search(kind) or kind in POWER:
-        ink = h - top - foot
-        if top > limit and abs(top - foot) > SLACK + ink / 4:
-            found.append(f'off centre {top:.1f}/{foot:.1f}')
-        return found
-    if top > limit + RESERVED.get(kind, (0, ''))[0]:
-        found.append(f'top {top:.1f}')
-    if kind in EXCEPT or GRAPH.search(kind):
-        return found
-    listed = kind in LISTS
-    # A block whose width holds its scale spans the content side to side: the room it leaves is under it, never over.
-    held = left <= limit + SIDE and right <= limit + SIDE and top <= limit
-    if held and kind not in STRETCH:
-        return found
-    if foot > limit and not listed:
-        found.append(f'foot {foot:.1f}')
-    # Rows (a list's, a facts list's) reach the foot edge and stand their text centred: top and foot are each judged,
-    # not their balance (a descender's room differs from a capital's).
-    if abs(top - foot) > SLACK and kind not in STRETCH:
-        found.append(f'balance {top:.1f}/{foot:.1f}')
-    if kind in STRETCH and state in ('', 'sample') and (left > limit + SIDE or right > limit + SIDE):
-        found.append(f'sides {left:.1f}/{right:.1f}')
+        return ['WR-10 nothing drawn']
+    if kind in PICTURES:
+        return []
+    found = []
+    limit = INSET + TOLERANCE
+    items = (layout or {}).get('items', [])
+    on_top = any(i['y'] <= 0.5 for i in items)
+    if top > limit and not on_top:
+        found.append(f'WR-1 top {top:.1f}')
+    if foot > limit and not on_top:
+        found.append(f'WR-4 foot {foot:.1f}')
+    if items and (left > limit or right > limit):
+        found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
     return found
 
 
@@ -196,18 +138,24 @@ def check(exe, kind, out, timeout):
     for state in states(exe, kind, out, timeout):
         for label, sizes in [('range', 'range')] + [(f'desk{i}', group) for i, group in enumerate(SIZES)]:
             png = os.path.join(out, 'png', f'{kind}.{state or "default"}.{label}.png')
-            cmd = [exe, '--widget-png', kind, png, '--theme', 'dark', '--sizes', sizes, '--transparent']
+            layout_path = png + '.layout.json'
+            cmd = [exe, '--widget-png', kind, png, '--theme', 'dark', '--sizes', sizes, '--transparent', '--layout-json', layout_path]
             if state:
                 cmd += ['--state', state]
             text = run(cmd, timeout)
             if text == 'TIMEOUT' or not os.path.exists(png):
                 lines.append((kind, state, label, '-', '-', '-', ['render failed' if text != 'TIMEOUT' else 'render timed out']))
                 continue
-            for card in measure(png):
+            layouts = []
+            if os.path.exists(layout_path):
+                with open(layout_path, encoding='utf-8') as f:
+                    layouts = json.load(f).get('cards', [])
+            for n, card in enumerate(measure(png)):
                 w, h, top, foot = card[:4]
                 box = f'{w:.0f}x{h:.0f}'
                 fmt = lambda v: '-' if v is None else f'{v:.1f}'
-                lines.append((kind, state, label, box, fmt(top), fmt(foot), judge(kind, state, card)))
+                layout = layouts[n] if n < len(layouts) else None
+                lines.append((kind, state, label, box, fmt(top), fmt(foot), judge(kind, card, layout)))
     return lines
 
 
@@ -238,6 +186,9 @@ def main():
         f.write('| kind | state | set | card (DIP) | top | foot | findings |\n|---|---|---|---|---|---|---|\n')
         for k, s, label, box, top, foot, fs in rows:
             f.write(f'| {k} | {s or "default"} | {label} | {box} | {top} | {foot} | {"; ".join(fs)} |\n')
+    with open(os.path.join(a.out, 'gaps.json'), 'w', encoding='utf-8') as f:
+        json.dump([{'kind': k, 'state': s or 'default', 'set': label, 'card': box, 'top': top, 'foot': foot, 'findings': fs}
+                   for k, s, label, box, top, foot, fs in rows], f, indent=1)
     with open(os.path.join(a.out, 'findings.txt'), 'w', encoding='utf-8') as f:
         for k, s, label, box, top, foot, fs in findings:
             f.write(f'{k}\t{s or "default"}\t{label}\t{box}\t{"; ".join(fs)}\n')

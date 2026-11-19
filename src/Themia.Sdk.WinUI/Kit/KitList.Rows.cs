@@ -115,6 +115,7 @@ public sealed partial class KitList
     private Border Item(FrameworkElement content, KitItem item, int index)
     {
         var row = new Border { Child = content, Tag = index };
+        ItemMark.Mark(row);
         ItemFill.Paint(row, ItemRole.Row);
         WidgetItems.Mark(row);
         _rowHooks.Add(Fluent.Hover(row));

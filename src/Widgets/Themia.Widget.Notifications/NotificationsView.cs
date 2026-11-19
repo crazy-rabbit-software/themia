@@ -41,7 +41,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
     private readonly StackPanel _list = new();
-    private RowReach _reach = ItemStretch.Natural(1);
+    private RowReach _reach = ItemStretch.Natural(1, ItemGrid.Default());
     private readonly ScrollViewer _scroll;
     private ScrollFade? _fade;
     private readonly KitStatePanel _state;
@@ -209,8 +209,8 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         // [S-12807] The rows the config states reach the view's top and the foot's inset: their pitch, the first
         // one's band over the top, the gap past their cap; a heading or a fold line is one row of 28 stretched alike.
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
-            : ItemStretch.Natural(_plan.Lines);
+            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemStretch.Natural(_plan.Lines, _area.Grid());
         ListEdge.Apply(_scroll);
 
         if (_plan.Grouped)

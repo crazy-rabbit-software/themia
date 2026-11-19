@@ -176,8 +176,8 @@ public static class FolderLayout
     /// foot's inset): the whole rows of 28 there, grown to fill it, touching (the cells of the grid and the icons keep
     /// the inset: their marks stand inside it).
     /// </summary>
-    public static RowReach Reach(double height, double scale = 1)
-        => ItemStretch.Reach(height, Rows(height), RowHeight, scale);
+    public static RowReach Reach(double height, ItemGrid grid)
+        => ItemStretch.Reach(height, Rows(height), RowHeight, grid);
 
     /// <summary>
     /// [S-1326] The tool line's parts ([S-6710]: at most two buttons): Back and Up in navigate mode, else

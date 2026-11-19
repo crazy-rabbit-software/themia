@@ -167,6 +167,7 @@ internal sealed partial class HabitTrackerView
 
         _dragging = false;
         row.Host.ReleasePointerCaptures();
+        ItemMark.Mark(row.Host);
         ItemFill.Paint(row.Host, ItemRole.Row);
         Canvas.SetZIndex(row.Host, 0);
 

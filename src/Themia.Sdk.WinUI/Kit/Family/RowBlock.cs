@@ -69,6 +69,7 @@ public sealed partial class RowBlock : Grid, IInked
 
         Padding = Family.SideInset;
         Background = Family.Brush(ColourRole.Clear);
+        ItemMark.Mark(this);
         Apply();
 
         // [S-2139] Whether it follows another row is known once it stands in its list (a change of the design's
@@ -272,6 +273,7 @@ public sealed partial class RowBlock : Grid, IInked
             if (value)
             {
                 ItemFill.Paint(this, ItemRole.Row);
+                PointerPreview.Register(this, pressed => ItemFill.Paint(this, ItemRole.Row, pressed ? ItemState.Pressed : ItemState.Hover));
                 PointerEntered += OnEntered;
                 PointerExited += OnGone;
                 PointerCaptureLost += OnGone;
@@ -279,6 +281,7 @@ public sealed partial class RowBlock : Grid, IInked
             }
             else
             {
+                PointerPreview.Forget(this);
                 PointerEntered -= OnEntered;
                 PointerExited -= OnGone;
                 PointerCaptureLost -= OnGone;

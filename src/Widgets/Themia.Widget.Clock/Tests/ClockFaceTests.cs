@@ -17,11 +17,35 @@ public sealed class ClockFaceTests
     /// <summary>The content box a card of <paramref name="box"/> gives the face: the card less its inset of 12 (the clock has no header).</summary>
     private static (double Width, double Height) Content(SizeDip box) => (box.Width - (2 * FamilySpace.Inset), box.Height - (2 * FamilySpace.Inset));
 
-    /// <summary>The boxes of a clock's range: its Min, its Natural and its Max.</summary>
+    /// <summary>
+    /// The boxes of a clock's range the face is planned in at its step: its Natural and its Max (under its Natural the
+    /// face is the same plan scaled down, [S-12833]).
+    /// </summary>
     private static IEnumerable<(double Width, double Height)> Range(ClockConfig config, string meridiem)
     {
         var sizing = ClockFace.Sizing(config, meridiem);
-        return [Content(sizing.Min), Content(sizing.Natural), Content(sizing.Max)];
+        return [Content(sizing.Natural), Content(sizing.Max)];
+    }
+
+    [Theory]
+    [MemberData(nameof(Sizes))]
+    public void S6741_S12833_a_time_face_scales_down_until_its_smallest_text_is_at_the_floor(ReadoutSize size)
+    {
+        // Owner, 2026-11-19: "you should be able to make the clock even smaller than it is right now".
+        foreach (var style in new[] { ClockStyle.Digital, ClockStyle.Stacked, ClockStyle.Minimal })
+        {
+            var config = new ClockConfig { Size = size, Style = style, OffsetMode = ClockOffsetMode.Utc };
+            var sizing = ClockFace.Sizing(config, "AM");
+
+            Assert.True(sizing.Min.Height < sizing.Natural.Height, $"{style} {size}: {sizing.Min.Height} not under {sizing.Natural.Height}");
+            Assert.True(sizing.Min.Width < sizing.Natural.Width);
+            Assert.True(sizing.Min.Height >= WidgetSizing.LeastScaled && sizing.Min.Width >= WidgetSizing.LeastScaled);
+        }
+
+        // At its least, the smallest text (the meridiem's unit, the line under) is drawn at the floor, 9.
+        var plain = ClockFace.Sizing(new ClockConfig { Size = size, Style = ClockStyle.Minimal }, string.Empty);
+        var step = ReadoutSizes.Step(size);
+        Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(plain.Natural.Height * ScaleFloor.Text / step.FontSize)), plain.Min.Height, 6);
     }
 
     [Theory]

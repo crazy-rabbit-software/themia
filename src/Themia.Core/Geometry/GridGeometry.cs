@@ -35,6 +35,13 @@ public static class GridGeometry
     }
 
     /// <summary>
+    /// [S-06b] [S-12830] The grid's drawn pitch on <paramref name="screen"/>, in DIPs: its width over its columns (about
+    /// <see cref="MinCellPx"/>). What a widget's items are whole numbers of; the target for a screen that cannot be read.
+    /// </summary>
+    public static double CellPitch(ScreenMetrics screen)
+        => screen.IsUsable ? screen.Width / GridDims(screen).Cols : MinCellPx;
+
+    /// <summary>
     /// [S-06c] Every this many cells the overlay draws a heavier line, so the fine mesh can be
     /// counted at a glance. Purely visual: snapping stays on every line.
     /// </summary>

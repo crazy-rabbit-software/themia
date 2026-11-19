@@ -41,8 +41,8 @@ public static class KitChecks
         var rowLines = choices.OneLine ? 1 : KitSizing.ClampLines(sized.Lines);
         // [S-12807] The add row is the list's last: its text on the foot's inset, its band past it.
         var reach = !choices.CanAdd ? KitPlanner.Reach(area, sized.Rows, rowLines)
-            : area.IsMeasured ? ItemStretch.RowsAbove(Math.Max(0, area.Height), KitSizing.ClampRows(sized.Rows), rowLines)
-            : ItemStretch.Natural(rowLines);
+            : area.IsMeasured ? ItemStretch.RowsAbove(Math.Max(0, area.Height), KitSizing.ClampRows(sized.Rows), rowLines, area.Grid())
+            : ItemStretch.Natural(rowLines, area.Grid());
         return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), HeadingHeight: KitPlanner.HeadingPitch(reach.Pitch, rowLines))
         {
             AddRow = choices.CanAdd,

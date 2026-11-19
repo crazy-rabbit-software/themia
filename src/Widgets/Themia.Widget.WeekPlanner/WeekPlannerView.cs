@@ -364,8 +364,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     /// view's top to the foot's inset, at most half again; the first line's band over the top.
     /// </summary>
     private RowReach Reach => _area.IsMeasured
-        ? ItemStretch.Rows(_area.Height, Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows) + 1, 1, scale: XamlRoot?.RasterizationScale ?? 1)
-        : ItemStretch.Natural(1);
+        ? ItemStretch.Rows(_area.Height, Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows) + 1, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+        : ItemStretch.Natural(1, _area.Grid());
 
     private void Render()
     {
@@ -615,6 +615,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     private Border Item(RowBlock block)
     {
         var row = new Border { Child = block };
+        ItemMark.Mark(row);
         ItemFill.Paint(row, ItemRole.Row);
         _hovers.Add(Fluent.Hover(row));
         return row;

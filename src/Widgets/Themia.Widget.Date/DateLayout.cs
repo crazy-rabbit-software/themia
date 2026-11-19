@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Widget.Date;
@@ -55,6 +56,13 @@ public static class DateLayout
     /// <summary>[S-10801] The whole date, the tooltip in every style: "Monday, November 17, 2026".</summary>
     public static string Full(Locale locale, DateOnly day) => LocaleFormat.Date(locale, day, DateStyle.Full);
 
+    /// <summary>[S-12833] The face's smallest text: the page's weekday and month line, else the date's one line.</summary>
+    public static double SmallestText(DateConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Style == DateWidgetStyle.Page ? FamilyType.Under(NumberStep(config.Size)).FontSize : LineStep(config.Size).FontSize;
+    }
+
     /// <summary>
     /// [S-10802] The face's box at its natural size: the widest day of the language in the style on its step (the
     /// page: the number's step and the weekday's and month's line under it, the widest of the three), no inset.
@@ -84,7 +92,9 @@ public static class DateLayout
     {
         var face = Face(config, locale);
         var box = new SizeDip(face.Width + (2 * FamilySpace.Inset), face.Height + (2 * FamilySpace.Inset));
-        return WidgetSizing.Range(box, box, box with { Width = 2 * box.Width });
+
+        // [S-12833] Its face scales down as one until its smallest text is at the legibility floor.
+        return WidgetSizing.Range(box, box, box with { Width = 2 * box.Width }).ScalesDown(ScaleFloor.Least(SmallestText(config)));
     }
 
     /// <summary>The widest text of <paramref name="style"/> (the page: its weekday, part 0, or its month, part 1) on <paramref name="step"/> over two years.</summary>

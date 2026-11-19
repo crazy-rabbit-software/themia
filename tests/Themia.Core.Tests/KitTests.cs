@@ -286,8 +286,9 @@ public sealed class KitTests
     [InlineData(20, 3)]
     public void S12807_a_lists_rows_touch_and_fill_the_view_down_to_the_foot_s_inset(int rows, int lines)
     {
-        // The sizing counts the foot's inset under the rows; the rows run from the view's top to that inset, touching
-        // (whole pixels: the rest under them).
+        // [S-12830] The rows run from the card's top edge down, whole cells, touching, as many as the card holds at
+        // whole cells (a natural card holds them all where the inset's room covers the cells' round-up); the cells left
+        // over stand under them, fewer than one a row.
         var choices = new KitChoices(KitShow.All) { Rows = new KitRowsChoice(rows, lines) };
         foreach (var extra in new[] { 0.0, 37, 300 })
         {
@@ -296,8 +297,10 @@ public sealed class KitTests
 
             Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
             var room = height + FamilySpace.Inset;
-            Assert.InRange(room - (rows * plan.RowHeight), 0, rows);
-            Assert.Equal(rows, KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))));
+            var shown = Math.Min(rows, ItemStretch.Rows(height, rows, lines, ItemGrid.Default()).Shown);
+            Assert.True(ItemGrid.Default().IsWhole(plan.RowHeight, 1e-6));
+            Assert.InRange(room - (shown * plan.RowHeight), 0, (shown + 1) * ItemGrid.DefaultCell);
+            Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))) >= shown);
         }
     }
 

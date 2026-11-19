@@ -91,7 +91,7 @@ internal static class WidgetRender
             || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample] [--tree] [--layout-json out.json] [--hover fx,fy] [--pressed fx,fy]");
             Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--chart area|line|bars|candles] [--detail simple|detailed] [--scale f] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc] [--design k=v,...] [--machine sample]");
             app.Exit();
             return true;
@@ -305,6 +305,21 @@ internal static class WidgetRender
                     await Task.Delay(400).ConfigureAwait(true);
                 }
 
+                // [S-12831] --hover fx,fy / --pressed fx,fy: each card's item (or control) under that point of it (fractions
+                // of the card) shows its look under the pointer, as the owner's hover rules are judged (WR-12, WR-13).
+                foreach (var (flag, pressed) in new[] { ("--hover", false), ("--pressed", true) })
+                {
+                    if (Option(args, flag) is { } where && Fraction(where) is { } point)
+                    {
+                        foreach (var card in cards)
+                        {
+                            PointAt(card, point, pressed);
+                        }
+
+                        await Task.Delay(400).ConfigureAwait(true);
+                    }
+                }
+
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
                 await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
                 Console.WriteLine($"widget: wrote {outPath}");
@@ -314,6 +329,14 @@ internal static class WidgetRender
                 {
                     TreeDump.Write(cards, tiers, outPath + ".tree.json");
                     Console.WriteLine($"widget: wrote {outPath}.tree.json");
+                }
+
+                // [S-12831] --layout-json: each card's item boxes, its grid pitch and the ink outside its items, for the item check.
+                if (Option(args, "--layout-json") is { } layoutPath)
+                {
+                    var full = System.IO.Path.GetFullPath(layoutPath);
+                    ItemDump.Write(cards, tiers, kind.ToString(), state, full);
+                    Console.WriteLine($"widget: wrote {full}");
                 }
 
                 // A state that opens a popup (a confirmation) is not part of the page's bitmap: each
@@ -630,6 +653,48 @@ internal static class WidgetRender
         }
 
         return tiers;
+    }
+
+    /// <summary>"0.5,0.25": a point of a card as fractions of its width and height.</summary>
+    private static Windows.Foundation.Point? Fraction(string text)
+    {
+        var parts = text.Split(',', StringSplitOptions.TrimEntries);
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        return parts.Length == 2
+            && double.TryParse(parts[0], System.Globalization.NumberStyles.Float, inv, out var x)
+            && double.TryParse(parts[1], System.Globalization.NumberStyles.Float, inv, out var y)
+            && x is >= 0 and <= 1 && y is >= 0 and <= 1
+                ? new Windows.Foundation.Point(x, y)
+                : null;
+    }
+
+    /// <summary>[S-12831] The topmost item or control of <paramref name="card"/> under <paramref name="fraction"/> shows its pointer look.</summary>
+    private static void PointAt(WidgetCard card, Windows.Foundation.Point fraction, bool pressed)
+    {
+        var local = new Windows.Foundation.Point(fraction.X * card.ActualWidth, fraction.Y * card.ActualHeight);
+        Windows.Foundation.Point host;
+        try
+        {
+            host = card.TransformToVisual(null).TransformPoint(local);
+        }
+        catch (ArgumentException)
+        {
+            // ignore: the card is not in the window's tree; nothing to point at
+            return;
+        }
+
+        foreach (var element in VisualTreeHelper.FindElementsInHostCoordinates(host, card))
+        {
+            if (PointerPreview.Show(element, pressed))
+            {
+                return;
+            }
+
+            if (element is Control control && VisualStateManager.GoToState(control, pressed ? "Pressed" : "PointerOver", false))
+            {
+                return;
+            }
+        }
     }
 
     private static string? Option(string[] args, string name)

@@ -118,6 +118,12 @@ public sealed partial class MeterView
 
         if (moment is not null && moment.Subject == Subject && ValueAt(moment.At) is { } value)
         {
+            // [S-12814] WR-12: the moment's value and time are drawn at the reading's scale, never a scale of their own.
+            if (_fit is not null)
+            {
+                _fit.Hold = true;
+            }
+
             _standsAt = moment;
             ShowReading(_reading, value, true, null, ColourRole.TextPrimary, LinkInstants.Caption(moment.At, DateTimeOffset.Now));
         }
@@ -125,6 +131,10 @@ public sealed partial class MeterView
         {
             _standsAt = null;
             Present(_last ?? _part.Waiting);
+            if (_fit is not null)
+            {
+                _fit.Hold = false;
+            }
         }
     }
 

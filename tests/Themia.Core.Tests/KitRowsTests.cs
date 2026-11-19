@@ -117,9 +117,11 @@ public sealed class KitRowsTests
                 var plan = KitPlanner.Plan(area, schedule, choices);
                 Assert.Equal((1, lines, lines >= 2), (plan.Columns, plan.Lines, plan.Subtitle));
 
-                // [S-12807] Its rows grow with the box until they touch and fill it, a heading with them.
-                var natural = FamilyShape.RowHeight(lines);
-                Assert.Equal(area.Height < 6 * natural ? natural : Math.Floor((area.Height + 12) / 6), plan.RowHeight);
+                // [S-12807] [S-12830] Its rows grow with the box in whole cells until they touch and fill it, a heading
+                // with them.
+                var reach = ItemStretch.Rows(area.Height, 6, lines, area.Grid());
+                Assert.Equal(reach.Pitch, plan.RowHeight, 6);
+                Assert.True(area.Grid().IsWhole(plan.RowHeight, 1e-6));
                 Assert.Equal(FamilyShape.Row1 * plan.RowHeight / FamilyShape.RowHeight(lines), plan.HeadingHeight, 6);
             }
         }

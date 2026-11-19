@@ -206,7 +206,7 @@ internal interface IWidgetCardHost
 /// One widget on the desktop: the Fluent card chrome, the drag and resize affordances, and the
 /// right-click menu. The widget's own view is dropped inside and knows nothing about input.
 /// </summary>
-internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwner
+internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwner, IGridCellHost
 {
     private const string Scope = "card";
 
@@ -701,6 +701,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         => _host.Metrics is { IsUsable: true } metrics
             ? SizeFit.Limits(SizeFit.Of(_resizeConfig ?? Model.Config), metrics, _contentScale)
             : null;
+
+    /// <summary>
+    /// [S-12830] The desktop grid's pitch on this card's display, in the card's content units (the content scale
+    /// divides it): what the view's items are whole numbers of. The target before the display is measured.
+    /// </summary>
+    public double CellPitch
+        => GridGeometry.CellPitch(_host.Metrics) / (_contentScale > 0 && double.IsFinite(_contentScale) ? _contentScale : 1);
 
     /// <summary>[S-2442] While a resize is dragged, the view shows the config its size means (a list's rows).</summary>
     private void PreviewResizedConfig(ScreenMetrics metrics)

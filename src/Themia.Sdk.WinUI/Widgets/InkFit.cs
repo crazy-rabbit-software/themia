@@ -65,7 +65,7 @@ public sealed partial class InkFit : Panel
         }
 
         var size = child.DesiredSize;
-        var lay = BlockFit.Lay(finalSize.Width, finalSize.Height, size.Width, size.Height, PartInk.Of(child));
+        var lay = BlockFit.Lay(finalSize.Width, finalSize.Height, size.Width, size.Height, PartInk.Of(child), ScaleFloors.Of([child]));
         _scale.ScaleX = lay.Scale;
         _scale.ScaleY = lay.Scale;
         var drawn = size.Width * lay.Scale;

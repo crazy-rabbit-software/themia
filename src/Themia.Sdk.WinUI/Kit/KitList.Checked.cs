@@ -225,6 +225,7 @@ public sealed partial class KitList
         }
 
         var row = new Border { Child = block, Tag = index };
+        ItemMark.Mark(row);
         ItemFill.Paint(row, ItemRole.Row);
         _checksByRow[index] = marker;
 
@@ -707,6 +708,7 @@ public sealed partial class KitList
         _dragging = false;
         _dragEnded = true;
         row.ReleasePointerCaptures();
+        ItemMark.Mark(row);
         ItemFill.Paint(row, ItemRole.Row);
 
         var ids = panel.InSlotOrder().OfType<Border>().Select(b => b.Tag).OfType<int>().Where(i => i < _items.Count).Select(i => _items[i].Id).ToList();

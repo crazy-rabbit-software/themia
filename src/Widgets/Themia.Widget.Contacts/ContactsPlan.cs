@@ -74,8 +74,8 @@ public static class ContactsPlan
     /// </summary>
     private static RowReach Reach(WidgetArea area, double over, int rows, int lines, double scale)
         => area.IsMeasured
-            ? ItemStretch.Rows(area.Height, rows, lines, over, scale, edge: false)
-            : ItemStretch.Natural(lines);
+            ? ItemStretch.Rows(area.Height, rows, lines, area.Grid(scale), over, edge: false)
+            : ItemStretch.Natural(lines, area.Grid(scale));
 
     /// <summary>
     /// [S-11406] Each layout's own sizes, with the search box where it is on: List and Compact the

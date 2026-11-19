@@ -98,29 +98,21 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
     /// </summary>
     public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary, ColourRole leadRole = ColourRole.TextSecondary, ColourRole underRole = ColourRole.TextSecondary)
     {
-        var changed = Set(_value, value);
-        changed |= Set(_unit, unit);
+        Set(_value, value);
+        Set(_unit, unit);
 
         // An en space before the delta: a run has no margin of its own.
-        changed |= Set(_delta, string.IsNullOrEmpty(delta) ? string.Empty : " " + delta);
+        Set(_delta, string.IsNullOrEmpty(delta) ? string.Empty : " " + delta);
         if (_under.Text != (under ?? string.Empty))
         {
             _under.Text = under ?? string.Empty;
             ShowUnder();
-            changed = true;
         }
 
         if (_lead.Glyph != (lead ?? string.Empty))
         {
             _lead.Glyph = lead ?? string.Empty;
             _lead.Visibility = string.IsNullOrEmpty(lead) ? Visibility.Collapsed : Visibility.Visible;
-            changed = true;
-        }
-
-        // [S-12814] A block scaled to fit is measured again for its new text (its width may hold the scale).
-        if (changed)
-        {
-            ReadingFit.Refit(this);
         }
 
         if (deltaRole != _deltaRole || valueRole != _valueRole || leadRole != _leadRole || underRole != _underRole || !_painted)
@@ -133,15 +125,12 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
         }
     }
 
-    private static bool Set(Run run, string text)
+    private static void Set(Run run, string text)
     {
-        if (run.Text == text)
+        if (run.Text != text)
         {
-            return false;
+            run.Text = text;
         }
-
-        run.Text = text;
-        return true;
     }
 
     /// <summary>Draw the readout on a step chosen elsewhere (a Tile's, a row of readouts sharing one).</summary>

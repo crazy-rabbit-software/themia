@@ -185,8 +185,8 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         // reach the view's top and the foot's inset, the first one's band over the top.
         var shown = _config.RowsShown;
         var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, shown.Rows, shown.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
-            : ItemStretch.Natural(shown.Lines);
+            ? ItemStretch.Rows(_area.Height, shown.Rows, shown.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemStretch.Natural(shown.Lines, _area.Grid());
         foreach (var row in _rows)
         {
             row.Height = reach.Pitch;

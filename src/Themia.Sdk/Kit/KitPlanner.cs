@@ -253,7 +253,7 @@ public static class KitPlanner
     /// (<see cref="ItemStretch.Rows"/>); natural rows before the box is measured.
     /// </summary>
     public static RowReach Reach(WidgetArea area, int rows, int lines, double reserved = 0, bool edge = true)
-        => area.IsMeasured ? ItemStretch.Rows(Math.Max(0, area.Height), KitSizing.ClampRows(rows), lines, reserved, edge: edge) : ItemStretch.Natural(lines);
+        => area.IsMeasured ? ItemStretch.Rows(Math.Max(0, area.Height), KitSizing.ClampRows(rows), lines, area.Grid(), reserved, edge) : ItemStretch.Natural(lines, area.Grid());
 
     /// <summary>[S-12410] A heading's height beside rows of <paramref name="pitch"/>: one row of 28, stretched as they are.</summary>
     public static double HeadingPitch(double pitch, int lines) => FamilyShape.Row1 * (pitch / FamilyShape.RowHeight(lines));

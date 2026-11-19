@@ -771,6 +771,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private Border Item(FrameworkElement content, Contact contact)
     {
         var row = new Border { Child = content, CornerRadius = content is RowBlock ? default : Family.Radius };
+        ItemMark.Mark(row);
         ItemFill.Paint(row, ItemRole.Row);
         _hovers.Add(Fluent.Hover(row));
         _rows[contact.Id] = row;

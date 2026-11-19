@@ -115,6 +115,8 @@ public static class Fluent
         public HoverHandler(Border row)
         {
             _row = row;
+            ItemMark.Mark(row);
+            PointerPreview.Register(row, pressed => ItemFill.Paint(_row, ItemRole.Row, pressed ? ItemState.Pressed : ItemState.Hover));
             _row.PointerEntered += OnEntered;
             _row.PointerExited += OnGone;
             _row.PointerCaptureLost += OnGone;
@@ -133,6 +135,7 @@ public static class Fluent
             }
 
             _disposed = true;
+            PointerPreview.Forget(_row);
             _row.PointerEntered -= OnEntered;
             _row.PointerExited -= OnGone;
             _row.PointerCaptureLost -= OnGone;

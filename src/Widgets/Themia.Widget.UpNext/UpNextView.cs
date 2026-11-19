@@ -204,8 +204,8 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
         // view's top and the foot's inset, the first one's band over the top.
         var fit = Math.Max(1, _config.RowsShown.Rows);
         var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, fit, 1, scale: XamlRoot?.RasterizationScale ?? 1)
-            : ItemStretch.Natural(1);
+            ? ItemStretch.Rows(_area.Height, fit, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemStretch.Natural(1, _area.Grid());
         foreach (var row in _rows)
         {
             row.Height = reach.Pitch;

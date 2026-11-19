@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Xunit;
 
@@ -172,6 +173,55 @@ public class BlockFitTests
     }
 
     [Fact]
+    public void S12833_a_smaller_room_scales_the_block_down_to_its_floor_and_no_further()
+    {
+        // A reading of 28 over a caption of 12 (156 x 52): its least scale is the caption's at 9 DIP.
+        var least = ScaleFloor.Least(12);
+        Assert.Equal(0.75, least, 6);
+
+        var half = BlockFit.Fill(78, 26, 156, 52, new LineInk(9.2, 4), least: least);
+        Assert.Equal(least, half.Scale, 6);
+
+        var most = BlockFit.Fill(140, 52, 156, 52, new LineInk(9.2, 4), least: least);
+        Assert.InRange(most.Scale, least, 1);
+        Assert.Equal(140 / (156 + BlockFit.WidthSlack), most.Scale, 6);
+    }
+
+    [Fact]
+    public void S12833_the_scale_never_falls_as_the_room_grows()
+    {
+        var least = ScaleFloor.Least(12);
+        var last = 0.0;
+        foreach (var room in new[] { 20.0, 40, 60, 80, 120, 200, 400, 800 })
+        {
+            var fill = BlockFit.Fill(room * 3, room, 156, 52, new LineInk(9.2, 4), least: least);
+            Assert.True(fill.Scale >= last - 1e-9, $"room {room}: {fill.Scale} under {last}");
+            last = fill.Scale;
+        }
+    }
+
+    [Theory]
+    [InlineData(12, 0, 0.75)]
+    [InlineData(9, 0, 1)]
+    [InlineData(6, 0, 1)]
+    [InlineData(28, 16, 0.75)]
+    [InlineData(40, 0, 0.225)]
+    [InlineData(0, 0, 1)]
+    public void S12833_the_floor_is_the_smallest_texts_at_9_or_glyphs_at_12(double text, double glyph, double least)
+        => Assert.Equal(least, ScaleFloor.Least(text, glyph), 6);
+
+    [Fact]
+    public void S12833_a_face_that_scales_down_is_sized_down_to_its_floor_never_under_the_least_widget()
+    {
+        var sizing = WidgetSizing.Range(new(200, 80), new(200, 80), new(400, 80)).ScalesDown(0.5);
+        Assert.Equal(new SizeDip(100, 40), sizing.Min);
+        Assert.Equal(new SizeDip(200, 80), sizing.Natural);
+
+        var tiny = WidgetSizing.Range(new(40, 40), new(40, 40), new(80, 40)).ScalesDown(0.25);
+        Assert.Equal(new SizeDip(WidgetSizing.LeastScaled, WidgetSizing.LeastScaled), tiny.Min);
+    }
+
+    [Fact]
     public void S12814_a_room_shorter_than_the_parts_keeps_them_packed_from_the_top()
     {
         var fill = BlockFit.Fill(300, 40, 100, 80, new LineInk(6, 4));
@@ -181,11 +231,11 @@ public class BlockFitTests
     [Fact]
     public void S12814_justified_parts_take_the_room_between_them_and_one_part_takes_it_all()
     {
-        var two = ItemStretch.Reach(100, [StretchItem.Fixed(36), StretchItem.Fixed(28)], justify: true);
+        var two = ItemStretch.Reach(100, [StretchItem.Fixed(36), StretchItem.Fixed(28)], ItemGrid.Default(), justify: true);
         Assert.Equal(new ItemSlot(0, 36), two[0]);
         Assert.Equal(new ItemSlot(72, 28), two[1]);
 
-        var one = ItemStretch.Reach(100, [StretchItem.Fixed(36)], justify: true);
+        var one = ItemStretch.Reach(100, [StretchItem.Fixed(36)], ItemGrid.Default(), justify: true);
         Assert.Equal(new ItemSlot(0, 100), one[0]);
     }
 }

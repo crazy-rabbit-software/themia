@@ -203,7 +203,8 @@ public sealed class WidgetSizingTests
         var (small, medium, large) = (At(ReadoutSize.Small, ClockStyle.Digital), At(ReadoutSize.Medium, ClockStyle.Digital), At(ReadoutSize.Large, ClockStyle.Digital));
         Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
         Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
-        Assert.True(medium.Min.Height == medium.Natural.Height && !medium.FixedWidth);
+        // [S-12833] It scales down to its smallest text's floor: its least height under its natural one.
+        Assert.True(medium.Min.Height < medium.Natural.Height && !medium.FixedWidth);
 
         // [S-12411] Relaxed: no practical Max, the number stays its Size.
         Assert.Equal(SizeStretch.Ceiling, medium.Max.Height);

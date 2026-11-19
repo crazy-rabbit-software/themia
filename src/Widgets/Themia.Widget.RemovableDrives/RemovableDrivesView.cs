@@ -147,8 +147,8 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         var locale = Strings.Current;
         var picture = !(_surface?.IsPreview ?? false) && _previewDevices is null;
         var reach = _area.IsMeasured
-            ? RemovableDrivesPlan.Reach(_area.Height, _rowCount, XamlRoot?.RasterizationScale ?? 1)
-            : ItemStretch.Natural(RemovableDrivesPlan.Lines);
+            ? RemovableDrivesPlan.Reach(_area.Height, _rowCount, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemStretch.Natural(RemovableDrivesPlan.Lines, _area.Grid());
         for (var i = 0; i < _rows.Count; i++)
         {
             var shown = i < _devices.Count;

@@ -7819,9 +7819,13 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   what the parts do not take goes between them (`SpreadStack.Justify`; one part takes it all, a readout's value on its
   top and its line under on its foot), never over the first ink or under the last. What holds the width holds the scale whole:
   a Controls row asks for the width its controls need unfolded (a slider at its least, so scaling never folds it
-  away), a seek bar beside its times its natural width; a slider's ink is its thumb; a readout whose text changes
-  measures its fit again (`ReadingFit.Refit`: a text grown past its clamped width would otherwise be cut). Never smaller than its own size: a
-  room shorter than its parts keeps them packed from the top. A drive, a reading or a facts list without data draws its
+  away), a seek bar beside its times its natural width; a slider's ink is its thumb. The fit measures its parts and its
+  plan unbounded across, so a part whose text changes is measured again at that width and its new width reaches the fit
+  by itself (a measure at the scaled width clamped a grown text and the old scale cut the new one). WR-12 (owner,
+  2026-11-19: "some widgets like the now playing scrubber changes text sizes when hovering over it with the mouse ...
+  this should not be"): a fit can be held (`ReadingFit.Hold`) while a pointer shows another text in it (a meter's
+  reading showing a linked moment's value and time) and keeps its scale. A smaller room scales it down, to its floor
+  ([S-12833]); a room shorter than its parts at that floor keeps them packed from the top. A drive, a reading or a facts list without data draws its
   default ([S-12813]: the drive's "--", its reason under it and its empty bar), never a status line at the top of an
   empty card. Tests `BlockFitTests.S12814_` (the owner's 330x130 drive card among them).
 - **[S-12815]** **A list's first row stands on the card's top edge, and the gap check** (owner, 2026-11-19: "or the
@@ -7831,13 +7835,57 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its text stands about the inset under it, the same in every list; its rows run touching to the card's foot edge
   (`ItemStretch.Rows`: the view's height and the top inset; `KitPlanner.ListHeight`). Under a tool line, a search box
   or column titles the rows start under them. A list keeps a place for every row its config states ([S-12800]): fewer
-  items leave the foot's rows empty, which is fine; a space at the top never is. `scripts/gap-check.py` audits it: every
-  kind, every state its renders offer, at its range and at desktop sizes (330x130, 350x70, 350x80, 330x140, 300x164,
-  600x200, 520x600, 900x300), each card's band over its first ink and under its last against its edge. A finding is a
-  top band over the inset + 4 DIP (every kind and state), a foot band over it or top and foot more than 4 DIP apart
-  (but for a list with rows it states and does not fill), or a side band over it for a kind whose content spans the
-  width; pictures, video and charts whose frame is the inset are declared with their reason and judged on the top
-  alone. It writes the whole matrix and exits non-zero on any finding.
+  items leave the foot's rows empty, which is fine; a space at the top never is. `scripts/gap-check.py` audits the ink
+  ([S-12831] the checks).
+- **[S-12830]** **Items are whole grid cells** (owner, 2026-11-19: "items inside widgets should be designed in a way
+  that they match the size of the grid on the desktop, for example they should be designed so that they are 3 blocks
+  high or wide, that means that a widget that is 10 blocks hight should not show 4 items because then the items would
+  have an uneven size which i dont want. do this for all the widgets."; docs/WIDGET-RULES.md WR-6). Every repeated item
+  (a list's row, a fact row, a day of a month) is a whole number of the desktop grid's cells along the axis it repeats,
+  at least the cells its natural length takes (a row's 28: three), all alike; a view shows as many as its room holds at
+  those sizes, never one squeezed in at less; the cells left over stand at the foot, never above the first item or
+  between two (WR-5). The cell is the grid's drawn pitch on the card's display ([S-06b]: screen / columns, about 10,
+  `GridGeometry.CellPitch`), in the card's content units: the card hands it to its view in `WidgetArea.Cell` and to
+  any part under it (`IGridCellHost`, `ItemGrids.Of`); the one rule is `ItemStretch` on an `ItemGrid` (`Rows`/`Reach`:
+  the pitch and `RowReach.Shown`, the rows the room holds; `SpreadStack`'s growing rows in whole cells too). A kit
+  list's sizing steps by whole-cell rows from the card's edge (`KitSizing.Steps`), an add row is one whole-cell row.
+  Tests `ItemStretchTests.S12830_` (10 cells: three rows of three, never four of 2.5; the pitch follows the display;
+  the left-over cells at the foot), `KitTests`, `KitRowsTests`, the folder's and removable drives' pitch tests.
+- **[S-12831]** **The item check, the layout dump and the pointer renders** (docs/WIDGET-RULES.md WR-1..WR-6, WR-12,
+  WR-13). A render writes its cards' item boxes beside it (`--widget-png … --layout-json <out.json>`, Debug,
+  `ItemDump`): each card's box and grid pitch, every item (`ItemMark`: a family row, a list's row, a fact row, an add
+  row, a month's day cell) as the box it shows in the card, grouped by the panel that lays it, and the ink outside every
+  item. `scripts/item-check.py` judges them for every kind, every state, at its range and at desktop sizes: the items
+  of a column reach the card's left and right edges (WR-3), touch along the axis they repeat (WR-2), the first stands
+  on the card's top edge or right under what stands over it (WR-1, WR-5), each is whole cells and all alike (WR-6;
+  across, the card's whole cells shared to a cell, the last taking the part cell), none is cut; it writes
+  `items.json` and `items.md` and exits 1 on any finding. `scripts/gap-check.py` judges the ink against the card's
+  edges: the band over the first ink and under the last at most the inset (the padding inside an item, WR-3) and the
+  4 DIP the measure may be off by, but where the card's items stand on its top edge (their boxes are the item check's);
+  its one exemption is the owner's: a picture or a video filling the card. `--hover fx,fy` and `--pressed fx,fy` show
+  the item (`PointerPreview`: what lights a row) or control under that point of every card as under the pointer, for
+  WR-12 and WR-13 to be judged on renders.
+- **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
+  for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
+  the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day
+  cells tile the card (`MonthLayouts.Plan`): seven columns from the card's left edge to its right, each whole grid cells
+  (the width's whole cells shared as evenly as they go, the last column taking what is not a whole cell), the weekday
+  line ending on a grid line, the weeks under it, whole cells each and alike, as many of the six as hold a day's number
+  at whole cells (the anchor's week among them), the cells left over at the foot. A cell is filled by its content: its
+  day's events as one-line chips under its number where it has room for a chip line (Outlook's month view: a span a
+  bar in its calendar's colour, a meeting its dot, start and title; "+k" on the number's line), its dots where it has
+  not, its number alone on a day of nothing; the number grows with the cell (as large as what the chips or dots leave of
+  its height and half its width allow). Without an account it keeps its face (WR-10): the month with today marked under
+  its own compact Set up row in the period line's place (`CalendarConfig.SetsUpInPlace`); an account gone or a problem
+  the same row. Tests `MonthLayoutTests.S11544_`.
+- **[S-12833]** **A face that scales scales down too** (owner, 2026-11-19: "you should be able to make the clock even
+  smaller than it is right now. for the widgets that can scale there should basically be no lower limit except for one
+  that makes sense so you can still see the widget."; docs/WIDGET-RULES.md WR-14). A face that scales as one (a clock,
+  a date, a reading on `ReadingFit` or `InkFit`) scales down as well as up, until its smallest text is 9 DIP or its
+  smallest glyph 12 (`ScaleFloor`, one floor for every kind; `ScaleFloors.Of` reads a face's parts); its kind's least
+  size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`): the
+  clock and the date so far. Rows and list items keep their whole-cell rule (a list's least is one item). Tests
+  `BlockFitTests.S12833_` (the floor, scaling down, monotonic), `ClockFaceTests.S6741_S12833_`.
 - **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card
   draws a side, or the stretch of a side, where a card it joins lies across it. Touching cards read as one sheet:

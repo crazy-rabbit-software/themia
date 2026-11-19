@@ -238,8 +238,11 @@ public static class ClockFace
         var box = new SizeDip(
             Math.Ceiling(face.W) + (2 * FamilySpace.Inset) + Slack,
             Math.Ceiling(face.H) + (2 * FamilySpace.Inset) + Slack);
+        // [S-12833] A face of figures scales down as one until its smallest text is at the legibility floor: its least
+        // size is the natural box at that scale (owner, 2026-11-19: "you should be able to make the clock even smaller").
+        var smallest = Math.Min(step.FontSize, Math.Min(under ? FamilyType.Under(step).FontSize : double.PositiveInfinity, unit.Length > 0 ? FamilyType.Unit(step).FontSize : double.PositiveInfinity));
         return face.Widens
-            ? WidgetSizing.Range(box, box, box with { Width = 2 * box.Width })
+            ? WidgetSizing.Range(box, box, box with { Width = 2 * box.Width }).ScalesDown(ScaleFloor.Least(smallest))
             : WidgetSizing.Fixed(box);
     }
 
