@@ -16,7 +16,8 @@ lines, JSON context), `MusicProgressConfig.cs`, `MusicProgressFace.cs` (its row 
   time and the total in Caption, tertiary, at its two ends in columns as wide as their widest case
   (every figure an 8, so the bar does not move as the seconds go by), the seek bar between them 8
   from each (its rail the Track role, its fill and thumb the accent; click to jump, drag to scrub,
-  [S-1465]), left to right in every language. A stream with no end shows no total; no track, an empty
+  [S-1465]), left to right in every language. A larger card scales the row up as one, the bar never narrower than
+  in a card of the natural width, the row centred in the height when the width holds it ([S-12814]). A stream with no end shows no total; no track, an empty
   rail. The elapsed time ticks once a second while a track plays, from the session's anchor, and
   nothing at rest. Its card (`MusicProgressFace.Sizing`): the inset, the row, the inset (40), one
   height, 200 to 520 wide (a new one 340), where a wider card only lengthens the bar. It starts

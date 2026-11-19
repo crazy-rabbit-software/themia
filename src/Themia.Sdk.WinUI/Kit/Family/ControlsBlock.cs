@@ -35,7 +35,18 @@ public sealed partial class ControlsBlock : Grid
             Fold(availableSize.Width);
         }
 
-        return base.MeasureOverride(availableSize);
+        var size = base.MeasureOverride(availableSize);
+        if (double.IsFinite(availableSize.Width) || _parts.Count == 0)
+        {
+            return size;
+        }
+
+        // [S-12814] Unbounded, it asks for the width it needs whole (a slider at its least): a block scaled up to fit
+        // its room (ReadingFit) never scales it so far that its slider folds away (the volume and brightness cards
+        // without a device drew nothing).
+        var parts = _parts.Select(p => new ControlPart(p.Kind, PartWidth(p))).ToList();
+        var whole = ControlsRules.Needs(parts, [.. Enumerable.Repeat(true, parts.Count)]);
+        return new Windows.Foundation.Size(Math.Max(size.Width, whole), size.Height);
     }
 
     /// <summary>The one main action: a text button in the accent.</summary>

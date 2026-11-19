@@ -116,7 +116,10 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(NotesLayout.LineHeight) });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         SetRow(_body, 1);
-        SetRow(_message, 1);
+
+        // [S-12815] Without a note the Status row stands on the card's top edge, over the note's line (its picker
+        // stands over the row's end, as the bar does over the note's first line).
+        SetRowSpan(_message, 2);
         Children.Add(_body);
         Children.Add(_message);
 

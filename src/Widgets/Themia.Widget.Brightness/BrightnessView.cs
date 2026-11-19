@@ -173,15 +173,20 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         }
 
         var snapshot = Snapshot;
+        _controls.Visibility = Visibility.Visible;
         if (!snapshot.Ready)
         {
-            // Not looked at yet: the frame, never a wrong level (§11).
-            _controls.Visibility = Visibility.Collapsed;
-            _reading.Visibility = Visibility.Collapsed;
+            // Not looked at yet: never a wrong level (§11), the default ([S-12813]): "--" and the slider disabled at
+            // the middle.
+            UnavailableLook.Enable(false, _slider);
+            UnavailableLook.Say(this, null);
+            _echoing = true;
+            _slider.Value = Unavailable.Slider(null);
+            _echoing = false;
+            ShowReading(null, null);
             return;
         }
 
-        _controls.Visibility = Visibility.Visible;
         var level = Level();
 
         // [S-4445] [S-1940] Nothing to set (no display has a brightness, or not the one this is on):
@@ -201,23 +206,24 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         var words = level is { } shown ? BrightnessStr.Panels_Brightness_Level.Format(("level", Formatting.Percent(shown / 100.0))) : reason;
         AutomationProperties.SetName(_slider, words);
         ToolTipService.SetToolTip(_slider, level is null ? null : words);
-        ShowReading(_grabbed ? (int)Math.Round(_slider.Value) : level);
+        ShowReading(_grabbed ? (int)Math.Round(_slider.Value) : level, reason);
     }
 
     /// <summary>
-    /// [S-2152] The level as a Readout on <see cref="LevelFace"/>'s step; none where nothing can be set
-    /// (that stays the disabled slider, [S-4445]) or where the card holds only the controls.
+    /// [S-2152] The level as a Readout on <see cref="LevelFace"/>'s step. [S-12813] Where nothing can be set it stays,
+    /// "--" disabled over the disabled slider ([S-4445]), the reason its line under.
     /// </summary>
-    private void ShowReading(int? level)
+    private void ShowReading(int? level, string? reason)
     {
-        _reading.Visibility = level is not null ? Visibility.Visible : Visibility.Collapsed;
-        if (level is not { } value)
+        _reading.Visibility = Visibility.Visible;
+        _reading.Use(LevelFace.Step);
+        var split = ReadoutRules.Split(Formatting.Percent((level ?? 0) / 100.0));
+        if (level is null)
         {
+            _reading.Show("--", split.Unit, reason, valueRole: ColourRole.TextDisabled);
             return;
         }
 
-        _reading.Use(LevelFace.Step);
-        var split = ReadoutRules.Split(Formatting.Percent(value / 100.0));
         _reading.Show(split.Value, split.Unit);
     }
 
@@ -249,7 +255,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         SetLevel((int)Math.Round(value));
 
         // [S-2152] The Readout follows the hand, not the display's next answer.
-        ShowReading((int)Math.Round(value));
+        ShowReading((int)Math.Round(value), null);
     }
 
     private void OnGrab(object sender, PointerRoutedEventArgs args) => _grabbed = true;
@@ -293,7 +299,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         _echoing = true;
         _slider.Value = level;
         _echoing = false;
-        ShowReading(level);
+        ShowReading(level, null);
     }
 
     /// <summary>[S-4444] The arrows, Page Up/Down, Home and End, as on Windows' slider.</summary>

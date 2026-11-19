@@ -200,15 +200,20 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         {
             // [S-1940] No device to set (none, the chosen one not connected, Core Audio not answering):
             // the same slider and speaker, disabled at the middle ([S-1941]), the reason on hover.
-            UnavailableLook.Say(this, snapshot.Status switch
+            var reason = snapshot.Status switch
             {
                 AudioStatus.DeviceMissing => VolumeStr.WidgetsC_Volume_NotConnected.Format(("device", AudioRules.DeviceName(_config.DeviceId, snapshot.Devices, _config.DeviceName))),
                 AudioStatus.NoDevice => VolumeStr.WidgetsC_Volume_NoDevice.Text(),
                 _ => VolumeStr.WidgetsC_Volume_Unavailable.Text(),
-            });
+            };
+            UnavailableLook.Say(this, reason);
             UnavailableLook.Enable(false, _slider, _mute);
             Glyph(ColourRole.TextDisabled);
-            _reading.Visibility = Visibility.Collapsed;
+
+            // [S-12813] The reading stays: "--" disabled, the reason its line under.
+            _reading.Visibility = Visibility.Visible;
+            _reading.Use(LevelFace.Step);
+            _reading.Show("--", ReadoutRules.Split(Formatting.Percent(0)).Unit, reason, valueRole: ColourRole.TextDisabled);
             ShowLevel(Unavailable.Share, muted: false);
             ToolTipService.SetToolTip(_mute, null);
             return;

@@ -28,6 +28,9 @@ public sealed partial class MeterView
 
     // Gauge and Ring: the part and the reading in one box; Numbers: the two readings in one grid.
     private Grid? _box;
+
+    // [S-12814] Number: the reading alone, scaled up as one to fill the content (its first ink on the top).
+    private ReadingFit? _fit;
     private ChartRing? _dial;
     private ReadoutBlock? _second;
 
@@ -70,7 +73,7 @@ public sealed partial class MeterView
         _items = null;
         _itemList = [];
 
-        foreach (var element in new FrameworkElement?[] { _body, _box })
+        foreach (var element in new FrameworkElement?[] { _body, _box, _fit })
         {
             if (element is not null)
             {
@@ -80,6 +83,7 @@ public sealed partial class MeterView
 
         // The reading back in its row (a gauge, a ring or the numbers held it in their box).
         _box?.Children.Remove(_reading);
+        _fit?.Parts.Remove(_reading);
         if (!Children.Contains(_reading))
         {
             Children.Add(_reading);
@@ -92,6 +96,7 @@ public sealed partial class MeterView
 
         _body = null;
         _box = null;
+        _fit = null;
         _dial = null;
         _second = null;
         _columns.Clear();
@@ -123,6 +128,17 @@ public sealed partial class MeterView
                 _reading.Margin = default;
                 _box.Children.Insert(0, _dial);
                 Children.Add(_box);
+                break;
+
+            case MeterLook.Number:
+                // [S-12814] The reading alone fills the content as one block: scaled up to the largest size its
+                // width and height take, its figures on the top inset (the fit keeps the sides' and the foot's).
+                _fit = new ReadingFit();
+                SetRowSpan(_fit, 2);
+                Children.Remove(_reading);
+                _reading.Margin = default;
+                _fit.Parts.Add(_reading);
+                Children.Add(_fit);
                 break;
 
             case MeterLook.Numbers:
@@ -617,7 +633,7 @@ public sealed partial class MeterView
         {
             MeterLook.Battery => MeterSizing.PartTop + MeterSizing.BatteryIn(width, height).Height,
             MeterLook.Signal => MeterSizing.PartTop + MeterSizing.SignalIn(width, height),
-            MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Graph or MeterLook.History => height,
+            MeterLook.Gauge or MeterLook.Ring or MeterLook.Rows or MeterLook.Graph or MeterLook.History or MeterLook.Number => height,
             _ => 0,
         };
 

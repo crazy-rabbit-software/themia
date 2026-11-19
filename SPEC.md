@@ -925,7 +925,8 @@ actually touch each other, there is still a little space vertically which i dont
     title or count pill, the gallery's counter, the habit list's count) is gone: a Header widget names a
     group, and the reading's tooltip still says which drive.
 - **[S-5700]** **The card gives its view's top the inset** (none where the view owns its top edge,
-  `IWidgetTopEdge`: a picture, a stream, a spectrum, the album art, the quick toggles, the power buttons),
+  `IWidgetTopEdge`: a picture, a stream, a spectrum, the album art, the quick toggles, the power buttons, the drive
+  facts, whose view is its list and stands on the edge as every list does, [S-12815]),
   joined to another card or not ([S-12483]). Every view keeps its own side and foot insets
   (a Row carries the side inset to reach both edges with its hover, [S-6711]; a list, a face, a block
   pads its foot). The Set up row, the waiting row and the error card follow the same rule as a view
@@ -4610,7 +4611,8 @@ its content. What is left of this section is how a view measures the fixed parts
   short of room the items keep their natural lengths ([S-11800]: no item is ever added or dropped). Rows: [S-12807];
   a one-readout block (a reading, its lines, its controls) scales up as one ([S-12808], `ReadingFit`); a clock or a
   date face as one by its ink ([S-12804], `InkFit`); the calendar's month cells ([S-12809], `ScaleBox`); a meter's
-  reading alone one line centred by its ink (`MeterView`). Across, rows, bars and charts span the content's width.
+  reading alone (Number) as one block too ([S-12814], `ReadingFit` in `MeterView`), its battery and signal pictures
+  centred at their natural size. Across, rows, bars and charts span the content's width.
   **No inset to the card's border**: rows, list rows and their fills run edge to edge (the 12 side inset is the
   row's own padding, so text stays off the border) and from the content's top to the foot's inset line ([S-12807]);
   charts and tiles run edge to edge; the header keeps its inset. A fill at a card corner takes the card's corners
@@ -7805,7 +7807,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   rows empty under it ([S-12800]); a picture's or a stream's (Gallery, Video stream) stands on its own top, the view
   owning the card's edge ([S-5700]). A placeholder's dashes ink lower than capitals: a readout showing one is sized
   as its reading (`IInked.Held`) and placed by its dashes' ink (`LineInk.Placeholder`), so its first ink still
-  stands on the top ([S-12814]). Tests `FactsDefaultsTests.S12813_`, `BlockFitTests.S12813_`, the modules' `S12813_`.
+  stands on the top ([S-12814]). Brightness and volume without a display or device keep their readout, "--"
+  disabled, the reason its line under, over the disabled slider; brightness draws the same before the displays are
+  read. Tests `FactsDefaultsTests.S12813_`, `BlockFitTests.S12813_`, the modules' own.
 - **[S-12814]** **A block has no band over its first ink or under its last** (owner, 2026-11-19: "the drive widget
   still has a fucking space at the top, maybe also at the bottom. make sure that this does not happen anywhere"). A
   one-readout block ([S-12808], `ReadingFit`, the rule `BlockFit.Fill`) scales up as one to the largest size at which
@@ -7813,7 +7817,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   together fit its height: a bar, a slider or a graph spans any width and never holds the block small. It is then laid
   out in the whole height the scale leaves it, its first ink on the content's top and its last on the foot's inset;
   what the parts do not take goes between them (`SpreadStack.Justify`; one part takes it all, a readout's value on its
-  top and its line under on its foot), never over the first ink or under the last. Never smaller than its own size: a
+  top and its line under on its foot), never over the first ink or under the last. What holds the width holds the scale whole:
+  a Controls row asks for the width its controls need unfolded (a slider at its least, so scaling never folds it
+  away), a seek bar beside its times its natural width; a slider's ink is its thumb; a readout whose text changes
+  measures its fit again (`ReadingFit.Refit`: a text grown past its clamped width would otherwise be cut). Never smaller than its own size: a
   room shorter than its parts keeps them packed from the top. A drive, a reading or a facts list without data draws its
   default ([S-12813]: the drive's "--", its reason under it and its empty bar), never a status line at the top of an
   empty card. Tests `BlockFitTests.S12814_` (the owner's 330x130 drive card among them).

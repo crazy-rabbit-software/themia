@@ -46,13 +46,12 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     /// <summary>
     /// [S-5710] [S-11407] The meeting: its lines a column at the start, the end column (the countdown over
     /// Join) beside them at every width. The bottom inset is the content's (the top one the card's, [S-5700]).
-    /// [S-12410] One block, centred in the room under the header with the foot's inset counted with it.
+    /// [S-12410] [S-12814] One block, scaled up as one in its fit (<see cref="_fit"/>), its title's ink on the top inset.
     /// </summary>
     private readonly Grid _content = new()
     {
-        Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
         ColumnSpacing = NextMeetingJoin.Gap,
-        VerticalAlignment = VerticalAlignment.Center,
+        VerticalAlignment = VerticalAlignment.Top,
         Visibility = Visibility.Collapsed,
         ColumnDefinitions =
         {
@@ -60,6 +59,9 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
             new ColumnDefinition { Width = GridLength.Auto },
         },
     };
+
+    /// <summary>[S-12814] The block in the card: the sides' and the foot's insets, scaled up as one, no band over it.</summary>
+    private readonly ReadingFit _fit = new();
 
     private readonly StackPanel _text = new() { Spacing = NextMeetingJoin.LineGap, VerticalAlignment = VerticalAlignment.Center };
 
@@ -137,7 +139,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _organizer.Row.PointerEntered += OnOrganizerEntered;
         _organizer.Row.PointerExited += OnOrganizerExited;
 
-        Children.Add(_content);
+        _fit.Parts.Add(_content);
+        Children.Add(_fit);
         Children.Add(_state);
     }
 

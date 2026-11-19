@@ -24,11 +24,12 @@ the sun, the levels through `IWidgetHost.Brightness`, its own display through it
   (`--state levels`) it stays one widget with one Readout: the slider sets them together ([S-4442]),
   so the Readout is the level the slider shows (its own display's, else the first's), not a Row per
   display, which would be a value per display with no control of its own. No display to set
-  ([S-4445]) draws no Readout.
+  ([S-4445]) keeps the Readout, "--" disabled, the reason its line under ([S-12813]).
 - **[S-4445]** No display has a brightness (or, with "Only the screen it's on", not that one): the
   slider drawn disabled, at the middle ([S-1940], [S-1941], user request 2026-10-19),
   "No display brightness to set" as the tile's tooltip and the slider's name; no key or wheel moves it.
-  Until the displays have been looked at the widget draws its frame only.
+  Until the displays have been looked at it draws the same default, "--" over the disabled slider, without a
+  reason ([S-12813]: never an empty card; never a wrong level).
 - **[S-4446]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Screens it dims** (All screens / Only the
   screen it's on, [S-4442]).

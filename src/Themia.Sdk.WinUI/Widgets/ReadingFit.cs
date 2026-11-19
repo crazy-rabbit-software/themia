@@ -29,6 +29,23 @@ public sealed partial class ReadingFit : Panel
         Children.Add(_plan);
     }
 
+    /// <summary>
+    /// [S-12814] Measure again the fit <paramref name="part"/> stands in, if any: a part whose text grew past the width
+    /// it was last measured at keeps its clamped size, so the change never reaches the fit by itself and the scale
+    /// that held the old text would cut the new one (a disk's "0 B/s" turning "10 MB/s").
+    /// </summary>
+    public static void Refit(DependencyObject part)
+    {
+        for (var node = part is null ? null : VisualTreeHelper.GetParent(part); node is not null; node = VisualTreeHelper.GetParent(node))
+        {
+            if (node is ReadingFit fit)
+            {
+                fit.InvalidateMeasure();
+                return;
+            }
+        }
+    }
+
     /// <summary>The block's parts, top to bottom.</summary>
     public UIElementCollection Parts => _plan.Children;
 

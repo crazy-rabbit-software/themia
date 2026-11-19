@@ -9,7 +9,7 @@ namespace Themia.App.Widgets;
 /// [S-12807] [S-12808] Where a measured part's ink starts and ends inside its box (<see cref="LineInk"/>): a family
 /// text's leading over its capitals and under its baseline, a row's (<see cref="IInked"/>), and for a panel
 /// the part of it that reaches furthest up and down, as it stands in the panel. A glyph, a chart, a bar, anything
-/// else inks its whole box. What a <see cref="SpreadStack"/> stands on the insets.
+/// else inks its whole box; a horizontal slider its thumb. What a <see cref="SpreadStack"/> stands on the insets.
 /// </summary>
 public static class PartInk
 {
@@ -34,6 +34,7 @@ public static class PartInk
         var inner = element switch
         {
             IInked part => held ? part.Held : part.Ink,
+            Slider { Orientation: Orientation.Horizontal } slider => Thumb(slider),
             TextBlock text => text.LineHeight > 0 ? LineInk.Of(new TypeStep(text.FontSize, text.LineHeight, false)) : LineInk.None,
             Border border when border.Child is { } child => Add(Of(child, held), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
             StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children, held), stack.Padding.Top, stack.Padding.Bottom),
@@ -99,6 +100,20 @@ public static class PartInk
         }
 
         return double.IsFinite(over) && double.IsFinite(under) ? new LineInk(over, under) : LineInk.None;
+    }
+
+    /// <summary>
+    /// The thumb of a horizontal slider, its ring included, measured on the renders: the template's box is taller
+    /// than it (32), and the thumb is the slider's first and last ink.
+    /// </summary>
+    public const double SliderThumb = 22;
+
+    /// <summary>A horizontal slider: the room its box holds over and under its thumb, centred on the rail.</summary>
+    private static LineInk Thumb(Slider slider)
+    {
+        var box = slider.DesiredSize.Height - slider.Margin.Top - slider.Margin.Bottom;
+        var room = Math.Max(0, (box - SliderThumb) / 2);
+        return new LineInk(room, room);
     }
 
     private static LineInk Add(LineInk ink, double over, double under) => new(ink.Over + over, ink.Under + under);

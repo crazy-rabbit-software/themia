@@ -21,7 +21,7 @@ readout, the slider and the speaker through the shared `AudioFeed`), `VolumeMenu
   ([S-2734]): output device and "Allow changes"; read-only greys the controls rather than hiding
   them. No device (none, the chosen one not connected, Core Audio not answering) draws the speaker
   button and the slider disabled, the slider at the middle ([S-1940], [S-1941]), the reason as the
-  tile's tooltip, and no Readout; no key, wheel or click does anything. Until Core Audio first
+  tile's tooltip, and the Readout "--" disabled with the reason its line under ([S-12813]); no key, wheel or click does anything. Until Core Audio first
   answers the tile is its frame. Renders `--state level|unavailable`.
 - **[S-2151]** Over the controls the level is a Readout, as the meters beside it (owner decision
   2026-11-12; the root's [S-2150], [S-11308], `LevelFace`): "60%" at the view's top on 28 at every size, the reading and the controls always both, the card 136 tall and 160 to 360 wide. Its line under is the output

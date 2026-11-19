@@ -99,9 +99,15 @@ public sealed class DriveFactsConfig : FactsConfig, IDriveChoice
 /// drive without figures keeps its rows, each it cannot read "--" dimmed ([S-11007]). The drives come
 /// from the host's one walk (<see cref="IDrives"/>), as the Drive reading's.
 /// </summary>
-internal sealed partial class DriveFactsView : FactList, IWidgetView, IWidgetSurfaceAware
+internal sealed partial class DriveFactsView : FactList, IWidgetView, IWidgetSurfaceAware, IWidgetTopEdge
 {
     private readonly IWidgetHost _host;
+
+    /// <summary>
+    /// [S-12815] The view is the list itself: its rows stand on the card's top edge, as every list's do. The card sets a
+    /// view's top margin, which would put back the inset the list's own margin takes away.
+    /// </summary>
+    public bool OwnsTopEdge => true;
 
     /// <summary>
     /// [S-11950] The card is its drive on the view's links: the pointer on it publishes the drive

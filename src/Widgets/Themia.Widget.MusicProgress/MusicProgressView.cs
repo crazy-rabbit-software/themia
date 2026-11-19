@@ -48,6 +48,12 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
         _row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         _total.HorizontalAlignment = HorizontalAlignment.Right;
         _seek.VerticalAlignment = VerticalAlignment.Center;
+
+        // [S-12814] The line keeps its natural proportions when it scales: the bar never narrower than it is in a card of
+        // the natural width (ReadingFit is held by the times and the bar together, not the times alone, which shrank
+        // the bar to a dot), and the one line stands centred in the card's height, as the clock's does.
+        _seek.MinWidth = ControlsRules.MinSlider;
+        _row.VerticalAlignment = VerticalAlignment.Center;
         SetColumn(_seek, 1);
         SetColumn(_total, 2);
         _row.Children.Add(_elapsed);
@@ -137,6 +143,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
         var time = MusicProgressFace.TimeWidth(_total.Text);
         _row.ColumnDefinitions[0].Width = new GridLength(time);
         _row.ColumnDefinitions[2].Width = new GridLength(time);
+        _seek.MinWidth = Math.Max(ControlsRules.MinSlider, MusicProgressFace.NaturalWidth - (2 * FamilySpace.Inset) - (2 * time) - (2 * _row.ColumnSpacing));
     }
 
     /// <summary>[S-1465] The elapsed time follows the pointer while scrubbing; -1 means the scrub was abandoned.</summary>

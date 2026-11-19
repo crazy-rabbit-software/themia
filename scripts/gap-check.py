@@ -11,14 +11,18 @@ every card in the PNG by its alpha and its first and last row of ink (a pixel of
   should not be a space at the top");
 - foot: the band under the last ink is at most the inset + 4 DIP, but for a list whose config's rows outnumber its
   items ([S-12800]: the rows it states keep their places, the rest stay empty at the foot), declared in LISTS;
-- balance: top and foot differ by at most 4 DIP, with the same list exception;
-- a card one line tall (two insets and a row) whose bands are alike is fine: its one line is centred;
+- balance: top and foot differ by at most 4 DIP, for every kind but those of rows (STRETCH: lists, facts);
+- a card one line tall (two insets and a row), or a list's one row grown to its card, whose bands are alike is
+  fine: its one line is centred;
+- a block that spans the content side to side (its width holds its scale) with no band over it may leave the room
+  under it (owner, 2026-11-19: the top, never; the foot is fine);
 - sides: for a kind whose content spans the width (STRETCH), in its sample, each side band is at most the inset + 4
   DIP and 4 more for a lead glyph drawn inside its box.
 
 A kind whose frame is a picture, a video or a chart's own is declared in EXCEPT with its reason and judged on the top
 alone. A kind whose face stands centred (CENTRED, the tiles and power buttons) passes with its first ink within the
-inset + 4 DIP or its face centred: top and foot within 4 DIP and a quarter of the face's height (a descender's room). Every render runs under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix)
+inset + 4 DIP or its face centred: top and foot within 4 DIP and a quarter of the face's height (a descender's room).
+A kind that keeps a line over its content (RESERVED) is allowed that line; a drawing pad (DRAWN) only has to render. Every render runs under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix)
 and <out>/findings.txt; exits 1 on any finding.
 """
 import argparse
@@ -66,7 +70,15 @@ CENTRED = {
     'clock': 'one line whose width holds its size (the coordinator, 2026-11-19: fine), centred in the height',
     'date': 'one line sized to the longest date its format shows, its width holds it, centred in the height',
     'header': 'one line, centred in its card',
+    'musicProgress': 'one line, the times and the bar at their natural proportions, its width holds it, centred',
 }
+# Kinds that keep a line over their content whatever it holds: their top is judged that much lower.
+RESERVED = {
+    'notes': (32, "the note's own line, kept for its bar whether or not it stands ([S-3963]: focusing never moves "
+                  "the text), and the editor's line over the first text"),
+}
+# Kinds whose ink is what the person draws: nothing to judge but that the render ran.
+DRAWN = {'scratchpad': 'a drawing pad: its ink is what the person drew, its tools at the foot'}
 TILE = re.compile(r'Toggle$')
 POWER = {'sleep', 'signOut', 'shutdown', 'screenOff', 'restart', 'lock', 'hibernate'}
 TILE_WHY = 'a tile face: its glyph (and name under it where it fits) centred in the box ([S-5700], [S-12806])'
@@ -144,25 +156,35 @@ def measure(path):
 def judge(kind, state, card):
     w, h, top, foot, left, right = card
     found = []
+    if kind in DRAWN:
+        return found
     if top is None:
         return ['nothing drawn']
     limit = INSET + SLACK
-    # A card one line tall centres its one line: its bands are the line's own, alike over and under it.
-    if h <= 2 * INSET + 28 + SLACK and abs(top - foot) <= SLACK:
+    # A card one line tall centres its one line, and so does a list's one row grown to its card: the bands are the
+    # line's own, alike over and under it.
+    one_line = h <= 2 * INSET + 28 + SLACK or (kind in LISTS and h - top - foot <= 28)
+    if one_line and abs(top - foot) <= SLACK:
         return found
     if kind in CENTRED or TILE.search(kind) or kind in POWER:
         ink = h - top - foot
         if top > limit and abs(top - foot) > SLACK + ink / 4:
             found.append(f'off centre {top:.1f}/{foot:.1f}')
         return found
-    if top > limit:
+    if top > limit + RESERVED.get(kind, (0, ''))[0]:
         found.append(f'top {top:.1f}')
     if kind in EXCEPT or GRAPH.search(kind):
         return found
     listed = kind in LISTS
+    # A block whose width holds its scale spans the content side to side: the room it leaves is under it, never over.
+    held = left <= limit + SIDE and right <= limit + SIDE and top <= limit
+    if held and kind not in STRETCH:
+        return found
     if foot > limit and not listed:
         found.append(f'foot {foot:.1f}')
-    if abs(top - foot) > SLACK and not listed:
+    # Rows (a list's, a facts list's) reach the foot edge and stand their text centred: top and foot are each judged,
+    # not their balance (a descender's room differs from a capital's).
+    if abs(top - foot) > SLACK and kind not in STRETCH:
         found.append(f'balance {top:.1f}/{foot:.1f}')
     if kind in STRETCH and state in ('', 'sample') and (left > limit + SIDE or right > limit + SIDE):
         found.append(f'sides {left:.1f}/{right:.1f}')
