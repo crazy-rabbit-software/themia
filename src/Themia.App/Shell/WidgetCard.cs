@@ -403,6 +403,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-800] Handled presses too: a click on a row's button or a list item is still a click in
         // this widget, and the controls inside mark their presses handled.
         AddHandler(PointerPressedEvent, new PointerEventHandler(OnLeasePointerPressed), handledEventsToo: true);
+        GettingFocus += OnGettingFocus;
     }
 
     public WidgetInstance Model { get; }
