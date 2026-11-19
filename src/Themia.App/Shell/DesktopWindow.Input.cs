@@ -322,7 +322,7 @@ internal sealed partial class DesktopWindow
                 return true;
         }
 
-        if (!Win32.SetForegroundWindow(_hwnd))
+        if (!TakeForegroundNow())
         {
             return false;
         }
@@ -335,7 +335,36 @@ internal sealed partial class DesktopWindow
     private Action? _afterPress;
 
     /// <summary>[S-13017] Whether a mouse button is down now (the physical state, so the order of the press's handlers does not matter).</summary>
-    private static bool PressHeld() => Win32.GetAsyncKeyState(0x01) < 0 || Win32.GetAsyncKeyState(0x02) < 0;
+    private bool PressHeld() => CheckButton is { } held ? held() : Win32.GetAsyncKeyState(0x01) < 0 || Win32.GetAsyncKeyState(0x02) < 0;
+
+    /// <summary>
+    /// A debug check that presses with input of its own (<c>--first-drag-check</c>): whether its button is down, in place
+    /// of the physical mouse's; while set the surface never takes the foreground from the user's window, it counts the
+    /// times it would have (<see cref="CheckForegroundTaken"/>, <see cref="CheckForegroundMidPress"/>). Null in the app.
+    /// </summary>
+    internal Func<bool>? CheckButton { get; set; }
+
+    /// <summary>The times a check's surface would have taken the foreground.</summary>
+    internal int CheckForegroundTaken { get; private set; }
+
+    /// <summary>[S-13017] The times a check's surface would have taken the foreground while its button was down (the drag would die).</summary>
+    internal int CheckForegroundMidPress { get; private set; }
+
+    /// <summary>A debug check's release: what waits for the press to let go runs now (the root's release handler's step).</summary>
+    internal void CheckLetGo() => RunForegroundAfterPress();
+
+    /// <summary>The surface becomes the foreground window; a check's surface only counts it.</summary>
+    private bool TakeForegroundNow()
+    {
+        if (CheckButton is { } held)
+        {
+            CheckForegroundTaken++;
+            CheckForegroundMidPress += held() ? 1 : 0;
+            return true;
+        }
+
+        return Win32.SetForegroundWindow(_hwnd);
+    }
 
     /// <summary>
     /// [S-13017] The press let go (a release, or a move with no button down after a drag the shell ran): the surface
@@ -354,7 +383,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        if (Win32.GetForegroundWindow() == _hwnd || Win32.SetForegroundWindow(_hwnd))
+        if (Win32.GetForegroundWindow() == _hwnd || TakeForegroundNow())
         {
             then();
         }

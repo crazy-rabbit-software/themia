@@ -394,7 +394,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         HookViewSize();
 
         PointerPressed += OnPointerPressed;
-        PointerMoved += OnPointerMoved;
+        AddHandler(PointerMovedEvent, new PointerEventHandler(OnPointerMoved), handledEventsToo: HearsHandledMoves);
         PointerReleased += OnPointerReleased;
         PointerCaptureLost += OnPointerCaptureLost;
         RightTapped += OnRightTapped;
@@ -877,23 +877,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     {
         if (!_host.EditMode)
         {
-            // [S-2000] A press no child took arms the click that may open the widget's subject.
-            _openArmed = CardGestures.Opens(
-                editMode: false,
-                preview: _host.IsPreview,
-                leftButton: e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
-                modifier: e.KeyModifiers != Windows.System.VirtualKeyModifiers.None,
-                showsSetup: ShowsSetup);
-
-            // [S-2008] The same press, moved past the dead zone, moves the card (and what is selected with it)
-            // on the locked desktop, unless the view drags its own content.
-            _moveArmed = CardGestures.MovesLocked(
-                editMode: false,
-                preview: _host.IsPreview,
-                leftButton: e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
-                ownsDrags: _view is IWidgetOwnsDrags,
-                pinned: _host.Pins(this));
-            _moveStart = e.GetCurrentPoint(ParentSurface()).Position;
+            LockedPress(
+                e.GetCurrentPoint(ParentSurface()).Position,
+                e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
+                e.KeyModifiers != Windows.System.VirtualKeyModifiers.None);
             return;
         }
 
@@ -948,18 +935,32 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        if (!_dragging && !LockedMove(e))
+        var point = e.GetCurrentPoint(ParentSurface());
+        if (!_dragging && !LockedMove(point.Position, point.Properties.IsLeftButtonPressed, () => TakePointer(e)))
         {
             return;
         }
 
+        if (Follow(point.Position) && _view is IDesktopIconView icon)
+        {
+            DragOut(e, icon);
+        }
+
+        e.Handled = true;
+    }
+
+    /// <summary>
+    /// The held press's step to <paramref name="now"/> (the surface's DIPs): a resize or the move of what is selected. True
+    /// when a desktop icon's move is to become the shell's drag from here on ([S-11878]).
+    /// </summary>
+    private bool Follow(Point now)
+    {
         var metrics = _host.Metrics;
         if (!metrics.IsUsable)
         {
-            return;
+            return false;
         }
 
-        var now = e.GetCurrentPoint(ParentSurface()).Position;
         _moved |= CardGestures.Travelled(now.X - _dragStartPoint.X, now.Y - _dragStartPoint.Y);
 
         var dxFrac = (now.X - _dragStartPoint.X) / metrics.Width;
@@ -978,13 +979,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             _host.PreviewMove(this, dxFrac, dyFrac);
 
             // [S-11878] A desktop icon's move that leaves the desktop (or reaches a drop target) is the shell's drag from here on.
-            if (!_host.EditMode && _view is IDesktopIconView icon && _host.DragsOut(this))
-            {
-                DragOut(e, icon);
-            }
+            return !_host.EditMode && _view is IDesktopIconView && _host.DragsOut(this);
         }
 
-        e.Handled = true;
+        return false;
     }
 
     /// <summary>
@@ -1004,55 +1002,14 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     }
 
     /// <summary>
-    /// [S-2008] A widget pressed and dragged on the locked desktop: past the dead zone the press becomes the
-    /// card's move, from where it was pressed, so the widget (and the selection it is in, [S-11879]) follows
-    /// the pointer at once, on the grid. Edit mode stays off: no bar, no page, no handles, no full grid; the
-    /// local grid shows round where it lands ([S-11874]). False while the press is still a click, or is not
-    /// one that may move.
+    /// [S-2008] The pointer for the card's move: taken from every element inside that holds it (a button holds it from its
+    /// press: the card's capture would fail and the press end as the button's click, a toggle flipped by a drag), then
+    /// captured by the card. False when the card could not capture it.
     /// </summary>
-    private bool LockedMove(PointerRoutedEventArgs e)
+    private bool TakePointer(PointerRoutedEventArgs e)
     {
-        if (!_moveArmed || _host.EditMode)
-        {
-            return false;
-        }
-
-        var point = e.GetCurrentPoint(ParentSurface());
-        if (!point.Properties.IsLeftButtonPressed)
-        {
-            _moveArmed = false;
-            return false;
-        }
-
-        if (!CardGestures.Travelled(point.Position.X - _moveStart.X, point.Position.Y - _moveStart.Y))
-        {
-            return false;
-        }
-
-        _moveArmed = false;
-        _openArmed = false;
-
-        _press = CardPress.Move;
-        _activeHandle = null;
-        _narrowOnRelease = false;
-        _dragStartRect = LiveRect;
-        _dragStartPoint = _moveStart;
-        _moved = false;
-
-        // A button inside holds the pointer from its press: take it from the button, or the card's capture
-        // fails and the press ends as the button's click (a toggle flipped by a drag).
         TakePointerFromInside(e);
-        _dragging = CapturePointer(e.Pointer);
-        if (_dragging)
-        {
-            _host.BeginMove(this);
-        }
-        else
-        {
-            _host.PressEnded(this);
-        }
-
-        return _dragging;
+        return CapturePointer(e.Pointer);
     }
 
     /// <summary>
@@ -1348,36 +1305,15 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     private void OnLeasePointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (_host.EditMode)
+        if (LeasePress(
+            e.OriginalSource,
+            e.GetCurrentPoint(ParentSurface()).Position,
+            e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
+            ctrl: (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) != 0,
+            shift: (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Shift) != 0,
+            handled: e.Handled))
         {
-            return;
-        }
-
-        _host.KeyboardPress(this);
-
-        // [S-11879] Ctrl or Shift with a left press puts the card in (or takes it out of) the desktop's one selection, as
-        // a desktop icon's press does: several widgets are picked by hand, then pressed and moved as one block. The
-        // view never hears that press as its own (no open, no row picked), and it does not arm a move.
-        var pressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
-        var ctrl = (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) != 0;
-        var shift = (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Shift) != 0;
-        if (_view is not IDesktopIconView && !_host.IsPreview
-            && Themia.Core.Desktop.DesktopPicks.PicksOnPress(editMode: false, pressed, ctrl, shift, _host.WidgetsLocked)
-            && _host.DeskPick(this, ctrl, shift))
-        {
-            _openArmed = false;
-            _moveArmed = false;
             e.Handled = true;
-            return;
-        }
-
-        // [S-2008] A button takes its press itself, so the card's own press handler never arms the move:
-        // it is armed here, where handled presses are heard too. [S-12953] By the one rule: a locked button stays put.
-        if (e.Handled && _view is IWidgetButton
-            && CardGestures.MovesLocked(editMode: false, _host.IsPreview, pressed, ownsDrags: false, pinned: _host.Pins(this)))
-        {
-            _moveArmed = true;
-            _moveStart = e.GetCurrentPoint(ParentSurface()).Position;
         }
     }
 

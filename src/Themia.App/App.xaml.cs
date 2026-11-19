@@ -264,6 +264,12 @@ public partial class App : Application
             return;
         }
 
+        // And the first press on any widget, dragged, moving it: posted pointer messages through a real host and surface ([S-13060]).
+        if (Shell.Gallery.FirstDragCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And the surface's drop plumbing, exercised off-screen ([S-1026]).
         if (Shell.Gallery.DropCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
