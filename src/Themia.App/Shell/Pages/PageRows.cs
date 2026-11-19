@@ -133,7 +133,7 @@ internal static class PageRows
             {
                 Text = icon.Text,
                 Icon = IconOf(icon.Glyph, icon.GlyphColour),
-                Picker = () => new IconPicker(icon.Current, new IconLook(Glyphs.View, icon.DefaultText), icon.DefaultName, glyph =>
+                Picker = () => new IconPicker(icon.Current, icon.DefaultName, icon.DefaultText, glyph =>
                 {
                     if (!string.Equals(glyph, icon.Current, StringComparison.Ordinal))
                     {
@@ -253,7 +253,7 @@ internal static class PageRows
             {
                 Text = entry.Text,
                 Icon = icon,
-                Picker = () => new IconPicker(pick.Current, new IconLook(Glyphs.Emoji, null), pick.NoneName, pick.Set),
+                Picker = () => new IconPicker(pick.Current, pick.NoneName, null, pick.Set),
                 Disabled = entry.Disabled,
             };
         }

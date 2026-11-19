@@ -413,9 +413,13 @@ public static class ShellMetrics
 
         public const double Result = 48;
 
-        public const double Cell = 32;
+        /// <summary>[S-13605] An icon's square in the icon picker (Karpo's §249, §682: 40 DIP, its glyph 20).</summary>
+        public const double Cell = 40;
 
         public const double Glyph = IconBox;
+
+        /// <summary>[S-13605] The icon picker's one height under its search (Karpo's <c>PickerHeightDip</c>, <c>MostTall</c>): it scrolls inside.</summary>
+        public const double IconsTall = 400;
 
         public const double FontListHeight = 360;
 

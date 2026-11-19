@@ -10822,12 +10822,21 @@ that puts every widget on the real desktop at its min, natural and max. Owning f
   tag, a word of a tag, a tag prefix, then a substring of the name, then of a tag; ties go to a
   suggested icon, the shorter name, the lower code point. An empty query lists every icon. A query of
   punctuation only ("$") is matched whole against the tags.
-- **[S-1803]** The picker (View ▾ › a view › Icon ›'s submenu, [S-3542]) is built when it opens: the default cell (initials for a view, [S-903]) beside a search
-  box, over a virtualised grid of 8 columns of 32-DIP cells (the menu's one width, [S-3734]), 8 rows high, scrolling. Typing filters at
-  once; Enter in the box takes the best match, Down moves into the grid; arrows, Home/End and Page
-  keys move in the grid and Enter or Space picks. The current icon is selected and scrolled to. No
-  match says so in the grid's place, which keeps its size. Debug render:
-  `Themia.exe --iconpicker-png <out.png> [--search text] [--theme light|dark] [--initials]`.
+- **[S-1803]** The picker (a view's Icon in its card on the Views page, a widget's Icon on its page) is built when it
+  opens, inline in its card, Karpo's ([S-13605]): the search box across the top, over a virtualised grid of 40-DIP
+  squares (as many across as the card is wide), 400 high whatever a search leaves, scrolling inside; its first square
+  the default (Karpo's cross). Typing filters at once; Enter in the box takes the best match (the default with nothing
+  typed), Down moves into the grid; arrows, Home/End and Page keys move in the grid and Enter or Space picks. The
+  current icon (or the default) is selected and scrolled to. No match says so in the grid's place, which keeps its
+  size. Debug render: `Themia.exe --iconpicker-png <out.png> [--search text] [--theme light|dark] [--initials]`.
+- **[S-13605]** The owner (2026-11-19): *"make the icon picker like it is in karpo"*. Karpo's (`karpo-app`, docs/widgets.md
+  §249, §306, §682): **one grid, no headings** (alike glyphs together, `FluentIcons`' order, no categories: Karpo
+  dropped its six headings in §306), **dense** (40-DIP squares of the 20 glyph, no names under them; a name is the
+  square's tooltip and its name to a screen reader), the **search over it** across the picker's width, **one height**
+  (400, Karpo's `PickerHeightDip`) so the card and the page under it never move while typing, and the **cross first**:
+  the default (a view's initials, a widget's own glyph), "Initials (WK)" or the default's name in its tooltip, ringed
+  while no icon is chosen, so an icon is cleared one way everywhere; a search leaves only the glyphs that match, without
+  it. The row's head still shows what is drawn (the icon chosen, else the default), never the cross.
 - **[S-1810]** Showcase views: one view per widget kind in the registry's order (by id, [S-6902]), named after the widget
   and with its glyph as the view icon, holding three default instances of it, at its min, natural and
   max ([S-2448], each with the config that size means, [S-11601]). Each cell is the size times the

@@ -6,18 +6,19 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Localization;
 using Themia.Sdk.Kit;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
 
 /// <summary>
-/// Debug only: draw the open icon picker ([S-1803]) to a PNG, off-screen.
+/// Debug only: draw the open icon picker ([S-1803], [S-13605]) to a PNG, off-screen.
 /// <c>Themia.exe --iconpicker-png &lt;out.png&gt; [--search text] [--theme light|dark] [--initials]</c>.
 /// <para>
-/// The picker lives in a flyout, which a render cannot open without a window on the desktop; it is
-/// drawn here inside a stand-in for the flyout's presenter, with the Home glyph as the current value.
-/// <c>--initials</c> shows the default as a view's initials, as the view page does.
+/// The picker stands inline in its card on a page; it is drawn here in a stand-in for that card's opened
+/// body (the page's 580 flyout less its gutters, from the card's name column), the default chosen, so its
+/// cross is ringed. <c>--initials</c> names the default as a view's initials, as the Views page does.
 /// </para>
 /// </summary>
 internal static class IconPickerRender
@@ -66,18 +67,23 @@ internal static class IconPickerRender
 
             try
             {
-                var look = new IconLook(Glyphs.View, initials ? "WK" : null);
-                var picker = new IconPicker("", look, null, _ => { });
+                EditBarRender.ApplyDesignTheme(app);
 
-                // A stand-in for the flyout presenter: the same acrylic fill, stroke and padding.
+                // The default chosen: its cross ringed.
+                var picker = initials
+                    ? new IconPicker(null, Str.Shell_View_Initials.Text(), "WK", _ => { })
+                    : new IconPicker(null, null, null, _ => { });
+
+                // A stand-in for the card's opened body on a page: its fill and rim, the picker from the name column to the end.
                 var presenter = new Border
                 {
                     Child = picker,
-                    Padding = new Thickness(Fluent.Space4),
-                    CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius),
+                    Width = ShellMetrics.Flyout.Cards,
+                    Padding = new Thickness(ShellMetrics.Page.NameAt, ShellMetrics.Inline.Pad, ShellMetrics.Page.EndInset, ShellMetrics.Inline.Pad),
+                    CornerRadius = new CornerRadius(ShellMetrics.Page.CardRadius),
                     BorderThickness = new Thickness(1),
-                    BorderBrush = DesignApplier.Brush("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
-                    Background = DesignApplier.Brush("AcrylicBackgroundFillColorDefaultBrush", Colors.Black),
+                    BorderBrush = DesignApplier.Brush("CardStrokeColorDefaultBrush", Colors.Gray),
+                    Background = DesignApplier.Brush("CardBackgroundFillColorDefaultBrush", Colors.Black),
                     HorizontalAlignment = HorizontalAlignment.Left,
                     VerticalAlignment = VerticalAlignment.Top,
                 };
@@ -86,6 +92,8 @@ internal static class IconPickerRender
                 {
                     Padding = new Thickness(Fluent.Space4),
                     Background = DesignApplier.Brush("SolidBackgroundFillColorBaseBrush", Colors.Black),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
                     Children = { presenter },
                 };
 
@@ -97,7 +105,7 @@ internal static class IconPickerRender
 
                 // Off-screen and never activated: it must not appear on the user's desktop.
                 window.AppWindow.Move(new PointInt32(-32000, -32000));
-                window.AppWindow.Resize(new SizeInt32((int)(600 * scale), (int)(600 * scale)));
+                window.AppWindow.Resize(new SizeInt32((int)(700 * scale), (int)(640 * scale)));
                 window.AppWindow.Show(activateWindow: false);
 
                 // A render, not app code: the box takes text once it is loaded, and the grid
@@ -110,7 +118,7 @@ internal static class IconPickerRender
                 }
 
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outPath)!);
-                await RenderPng.SaveAsync(presenter, outPath).ConfigureAwait(true);
+                await RenderPng.SaveAsync(root, outPath).ConfigureAwait(true);
                 Console.WriteLine($"iconpicker: wrote {outPath}");
             }
             catch (Exception ex)

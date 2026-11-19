@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Widgets;
@@ -15,21 +14,21 @@ using Windows.System;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-1803] The icon picker: the default cell and a search box over a virtualised grid of every
-/// Segoe Fluent glyph (<see cref="FluentIcons"/>), ranked by <see cref="IconSearch"/>. [S-3542] It is
-/// a submenu's content (a view's Icon ›), so it fits the menu's one width: eight 32-DIP cells and
-/// the scroll bar beside them inside 300 DIPs.
+/// [S-1803] [S-13605] The icon picker, Karpo's (karpo-app, docs/widgets.md §249, §306, §682): inline in its
+/// card, the search box across the top, then one dense grid of every Segoe Fluent glyph
+/// (<see cref="FluentIcons"/>, ranked by <see cref="IconSearch"/>) in 40-DIP squares, no headings, as many
+/// across as the card is wide, one height (400) whatever a search leaves, scrolling inside. Its first square
+/// is the cross, the default (a view's initials, a widget's own glyph): it takes the icon chosen away,
+/// ringed while nothing is chosen; a search leaves the glyphs that match in place of the grid, without it.
 /// <para>
-/// A <see cref="GridView"/> of glyph strings rather than a button per glyph: its wrap panel only
-/// realises the rows in view, so 1,500 glyphs cost what 80 do, and it brings arrow keys, Home/End,
-/// Page Up/Down and Enter for free. The items are the stored values themselves (the glyph string),
+/// A <see cref="GridView"/> rather than a button per glyph: its wrap panel only realises the rows in view,
+/// so 1,500 glyphs cost what 80 do, and it brings arrow keys, Home/End, Page Up/Down and Enter for free.
+/// The items are the stored values themselves (the glyph string; the default a <see cref="DefaultCell"/>),
 /// drawn by the container's own text in the symbol font, so no data template is needed.
 /// </para>
 /// </summary>
 internal sealed partial class IconPicker : Grid
 {
-    private const int Columns = 8;
-    private const int VisibleRows = 8;
     private const double Cell = ShellMetrics.Picker.Cell;
 
     /// <summary>The glyph in a cell: the 20-DIP icon box Settings draws its icons in ([S-903]).</summary>
@@ -40,71 +39,60 @@ internal sealed partial class IconPicker : Grid
 
     private readonly string? _value;
     private readonly Action<string?> _choose;
+    private readonly DefaultCell _default;
     private readonly TextBox _box;
     private readonly GridView _grid;
     private readonly TextBlock _empty;
-    private List<string> _shown = [];
+    private List<object> _shown = [];
 
-    public IconPicker(string? value, IconLook look, string? defaultName, Action<string?> choose)
+    /// <param name="value">The glyph chosen, or null for the default.</param>
+    /// <param name="defaultName">What the default is called ("Initials"; a widget's "Its own icon").</param>
+    /// <param name="defaultText">What the default draws where it is words (a view's initials), said after its name; null for none.</param>
+    public IconPicker(string? value, string? defaultName, string? defaultText, Action<string?> choose)
     {
-        ArgumentNullException.ThrowIfNull(look);
         ArgumentNullException.ThrowIfNull(choose);
 
         _value = value;
         _choose = choose;
         defaultName ??= Str.Common_Default.Text();
+        _default = new DefaultCell(string.IsNullOrEmpty(defaultText) ? defaultName : $"{defaultName} ({defaultText})");
 
         RowSpacing = Fluent.Space2;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-        // The default first, beside the box: it is a value of its own, not a glyph in the set.
-        var useDefault = new ToggleButton
-        {
-            Content = look.For(null),
-            Width = Cell,
-            Height = Cell,
-            Padding = new Thickness(0),
-            IsChecked = value is null,
-        };
-        ToolTipService.SetToolTip(useDefault, defaultName);
-        AutomationProperties.SetName(useDefault, defaultName);
-        useDefault.Click += (_, _) => _choose(null);
 
         _box = new TextBox
         {
             PlaceholderText = Str.Shell_Icon_Search.Text(),
             IsSpellCheckEnabled = false,
             IsTextPredictionEnabled = false,
-            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
         };
         AutomationProperties.SetName(_box, Str.Shell_Icon_Search.Text());
         _box.TextChanged += (_, _) => Refresh();
         _box.KeyDown += OnBoxKeyDown;
-
-        var header = new Grid { ColumnSpacing = Fluent.Space2 };
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        SetColumn(_box, 1);
-        header.Children.Add(useDefault);
-        header.Children.Add(_box);
-        Children.Add(header);
+        Children.Add(_box);
 
         _grid = new GridView
         {
             SelectionMode = ListViewSelectionMode.Single,
             IsItemClickEnabled = true,
-            Width = (Columns * Cell) + Fluent.Space4, // room for the scroll bar beside eight columns
-            Height = VisibleRows * Cell,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Height = ShellMetrics.Picker.IconsTall,
             ItemContainerStyle = CellStyle(),
             TabNavigation = KeyboardNavigationMode.Once,
         };
         AutomationProperties.SetName(_grid, Str.Shell_Icon_Search.Text());
         _grid.ItemClick += (_, e) =>
         {
-            if (e.ClickedItem is string glyph)
+            switch (e.ClickedItem)
             {
-                _choose(glyph);
+                case DefaultCell:
+                    _choose(null);
+                    break;
+                case string glyph:
+                    _choose(glyph);
+                    break;
             }
         };
         _grid.ContainerContentChanging += OnContainerContentChanging;
@@ -115,8 +103,8 @@ internal sealed partial class IconPicker : Grid
         _empty.VerticalAlignment = VerticalAlignment.Top;
         _empty.Visibility = Visibility.Collapsed;
 
-        // The grid's box stays when nothing matches, so the submenu does not jump while typing.
-        var body = new Grid { Width = _grid.Width, Height = _grid.Height, Children = { _grid, _empty } };
+        // The grid's box stays when nothing matches, so the card does not jump while typing.
+        var body = new Grid { Height = _grid.Height, Children = { _grid, _empty } };
         SetRow(body, 1);
         Children.Add(body);
 
@@ -148,10 +136,17 @@ internal sealed partial class IconPicker : Grid
     private void Refresh()
     {
         var query = _box.Text;
-        _shown = [.. Search().Find(query).Select(icon => icon.Glyph)];
+        var searching = !string.IsNullOrWhiteSpace(query);
+        List<object> shown = searching ? [] : [_default];
+        shown.AddRange(Search().Find(query).Select(icon => (object)icon.Glyph));
+        _shown = shown;
         _grid.ItemsSource = _shown;
 
-        if (_value is not null && _shown.Contains(_value))
+        if (_value is null && !searching)
+        {
+            _grid.SelectedItem = _default;
+        }
+        else if (_value is not null && _shown.Contains(_value))
         {
             _grid.SelectedItem = _value;
         }
@@ -162,7 +157,7 @@ internal sealed partial class IconPicker : Grid
         _grid.Visibility = none ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    /// <summary>Enter takes the best match; Down moves into the grid, onto the first glyph.</summary>
+    /// <summary>Enter takes the best match; Down moves into the grid, onto the first square.</summary>
     private void OnBoxKeyDown(object sender, KeyRoutedEventArgs e)
     {
         if (_shown.Count == 0)
@@ -173,7 +168,7 @@ internal sealed partial class IconPicker : Grid
         if (e.Key == VirtualKey.Enter)
         {
             e.Handled = true;
-            _choose(_shown[0]);
+            _choose(_shown[0] as string);
         }
         else if (e.Key == VirtualKey.Down)
         {
@@ -189,17 +184,25 @@ internal sealed partial class IconPicker : Grid
         }
     }
 
-    /// <summary>A realised cell gets the glyph's name as its tooltip and accessible name; a recycled one keeps nothing.</summary>
+    /// <summary>A realised square gets its name as its tooltip and accessible name; a recycled one keeps nothing.</summary>
     private static void OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
     {
-        if (args.InRecycleQueue || args.Item is not string glyph || FluentIcons.ByGlyph(glyph) is not { } icon)
+        if (args.InRecycleQueue)
         {
             return;
         }
 
-        var name = FluentIcons.NameFor(icon, Strings.Current);
-        ToolTipService.SetToolTip(args.ItemContainer, name);
-        AutomationProperties.SetName(args.ItemContainer, name);
+        var name = args.Item switch
+        {
+            DefaultCell cell => cell.Name,
+            string glyph when FluentIcons.ByGlyph(glyph) is { } icon => FluentIcons.NameFor(icon, Strings.Current),
+            _ => null,
+        };
+        if (name is not null)
+        {
+            ToolTipService.SetToolTip(args.ItemContainer, name);
+            AutomationProperties.SetName(args.ItemContainer, name);
+        }
     }
 
     /// <summary>
@@ -229,20 +232,15 @@ internal sealed partial class IconPicker : Grid
             },
         };
     }
-}
 
-/// <summary>[S-903] How an icon choice draws a value: the glyph, or for the default the default glyph or text (a view's initials).</summary>
-internal sealed class IconLook(string defaultGlyph, string? defaultText)
-{
-    public UIElement For(string? glyph) => glyph is null && defaultText is not null
-        ? Initials(defaultText)
-        : new FontIcon { Glyph = glyph ?? defaultGlyph, FontSize = FamilyShape.Icon };
-
-    /// <summary>A view's initials where it has no icon: BodyStrong, in the colour of the cell it stands in.</summary>
-    private static TextBlock Initials(string text)
+    /// <summary>
+    /// [S-13605] The default's square: Karpo's cross (§306), drawn as its text; a value of its own, never a
+    /// glyph of the set (the cross is one too), so choosing it is choosing no icon.
+    /// </summary>
+    private sealed class DefaultCell(string name)
     {
-        var initials = new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center };
-        Family.Step(initials, FamilyType.BodyStrong);
-        return initials;
+        public string Name { get; } = name;
+
+        public override string ToString() => Glyphs.Dismiss;
     }
 }
