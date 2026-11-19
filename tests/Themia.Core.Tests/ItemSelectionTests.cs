@@ -110,6 +110,42 @@ public sealed class ItemSelectionTests
     }
 
     [Fact]
+    public void S6621_a_redraw_between_the_press_and_the_release_still_narrows_on_the_release()
+    {
+        // The desktop lays its items out again between a press and its release (every repaint of the icons does): the
+        // press on one icon of a selection still selects it alone when it lets go, wherever the redraw put it.
+        var s = Selection(5);
+        s.Click(0, false, false);
+        s.Click(3, ctrl: false, shift: true);
+
+        s.Press(2, ctrl: false, shift: false);
+        s.SetOrder([Id(0), Id(1), Id(2), Id(3), Id(4)]);
+        s.Release(2);
+        Assert.Equal([Id(2)], s.Selected);
+
+        s.Click(0, false, false);
+        s.Click(3, ctrl: false, shift: true);
+        s.Press(1, ctrl: false, shift: false);
+        s.SetOrder([Id(4), Id(1), Id(0), Id(2), Id(3)]);
+        s.Release(1);
+        Assert.Equal([Id(1)], s.Selected);
+    }
+
+    [Fact]
+    public void S6621_a_redraw_that_drops_the_pressed_item_drops_the_narrowing()
+    {
+        var s = Selection(5);
+        s.Click(0, false, false);
+        s.Click(3, ctrl: false, shift: true);
+
+        s.Press(2, ctrl: false, shift: false);
+        s.SetOrder([Id(0), Id(1), Id(3), Id(4)]);
+        s.Release(2);
+
+        Assert.Equal([Id(0), Id(1), Id(3)], s.Selected);
+    }
+
+    [Fact]
     public void S6621_a_drag_from_the_selection_carries_all_of_it()
     {
         var s = Selection(5);

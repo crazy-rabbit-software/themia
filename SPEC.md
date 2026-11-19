@@ -6139,7 +6139,8 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   widget's `ClickMode` (single: a plain click; double: a double-click), unchanged.
 - **[S-6621]** A plain press on an item already selected changes nothing until the release
   (`Press`/`Release`), so dragging it drags the whole selection (the folder's files out); a click without a drag then selects it alone. A press elsewhere or with a
-  modifier acts at once.
+  modifier acts at once. The waiting press is the item's, by id: a redraw between the press and the release (`SetOrder`;
+  the desktop lays its icons out again on every repaint) keeps it while the item is still drawn ([S-12954]).
 - **[S-6622]** A right press (`Context`) on an item outside the selection selects it alone; on one
   inside, the selection stays and the item menu acts on all of it.
 - **[S-6623]** Keys, with the widget's keyboard lease ([S-800]), one map (`ItemSelection.Key`):
@@ -11433,6 +11434,19 @@ power buttons, whose whole body is their button) open nothing.
   `AppHost.SetLockWidgets`); icons stay selected. Edit mode keeps its own selection and selects everything. A widget
   that is one button (`IWidgetButton`) arms its locked move through `CardGestures.MovesLocked` as every card does, so a
   locked button never moves either (it armed itself before). Tests `DesktopGridTests.S12953_`.
+- **[S-12954]** **Several widgets outside edit mode; locked, icons by every gesture** (owner, 2026-11-19: "selecting
+  mutliple widgets in non edit mode is not possible anymore. only in locked mode it should not be possible." and "the
+  desktop icons should also be selectable in locked mode. make sure of that"): with Lock widgets **off**, outside edit
+  mode, widget cards and desktop icons are selected together in the one selection: Ctrl+click on cards and icons
+  ([S-11879]), Shift+click (the range in the desktop's order), the band over cards and icons ([S-5544]), Ctrl+A; the
+  selection moves as one block by any of its cards or icons. With Lock widgets **on**, cards are left out ([S-12953])
+  and the desktop icons (free, in a fence, both sources) keep **every** gesture: click, Ctrl+click, Shift+click, the
+  band, Ctrl+A, the arrows, type-to-find, and a drag of the selection carries them. A click on one icon of a selection
+  selects it alone on the release ([S-6621]), also while the icons are laid out again between the press and the release
+  (every repaint of the desk does; before, that relayout dropped the waiting press, so such a click kept the whole
+  selection, locked or not). Through the app's own wiring with real input: `--desk-select-check <out.txt> --live
+  [--locked]` (Debug; a real host and surface, every gesture above, PASS or FAIL). Tests `DesktopGridTests.S12954_`,
+  `ItemSelectionTests.S6621_a_redraw_`.
 - **[S-11874]** **The local grid** (`LocalGrid`, Core; `LocalGridOverlay`): while a block moves on the locked
   desktop the grid's lines are drawn **only round the box it lands in**, their strength falling with their place
   round it ([S-11886]: a rectangle grown evenly out of the box) to nothing at `LocalGrid.RadiusCells` (6 cells) past it, on

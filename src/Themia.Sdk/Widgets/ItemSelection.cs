@@ -38,8 +38,11 @@ public sealed class ItemSelection
 
     private BandMode _bandMode;
 
-    /// <summary>A plain press on a selected item narrows the selection on release, not press ([S-6621]).</summary>
-    private int? _deferred;
+    /// <summary>
+    /// A plain press on a selected item narrows the selection on release, not press ([S-6621]): the pressed item's id, so a
+    /// redraw between the press and its release (the desktop lays its icons out again on every repaint) keeps it.
+    /// </summary>
+    private string? _deferred;
 
     /// <param name="comparer">How ids compare: paths ignore case, plain ids do not.</param>
     public ItemSelection(StringComparer? comparer = null)
@@ -77,7 +80,8 @@ public sealed class ItemSelection
 
     /// <summary>
     /// The items as now drawn, in order. Selected items that are gone are dropped; a focus or anchor
-    /// that is gone is cleared. The same ids keep their selection across a redraw.
+    /// that is gone is cleared. The same ids keep their selection across a redraw, and [S-6621] a press waiting for its
+    /// release to narrow keeps waiting while its item is still drawn.
     /// </summary>
     public void SetOrder(IReadOnlyList<string> ids)
     {
@@ -93,7 +97,10 @@ public sealed class ItemSelection
 
         _selected.RemoveWhere(id => !_index.ContainsKey(id));
         _bandBase?.RemoveWhere(id => !_index.ContainsKey(id));
-        _deferred = null;
+        if (_deferred is not null && !_index.ContainsKey(_deferred))
+        {
+            _deferred = null;
+        }
 
         if (Focus is not null && !_index.ContainsKey(Focus))
         {
@@ -127,7 +134,7 @@ public sealed class ItemSelection
 
         if (!ctrl && !shift && _selected.Contains(_order[index]))
         {
-            _deferred = index;
+            _deferred = _order[index];
             Focus = _order[index];
             return;
         }
@@ -138,7 +145,7 @@ public sealed class ItemSelection
     /// <summary>[S-6621] The release of a press that was neither a drag nor a band: a deferred press narrows now.</summary>
     public void Release(int index)
     {
-        if (_deferred is { } pressed && pressed == index && InRange(index))
+        if (_deferred is { } pressed && InRange(index) && _comparer.Equals(_order[index], pressed))
         {
             Click(index, ctrl: false, shift: false);
         }

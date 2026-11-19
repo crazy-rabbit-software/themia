@@ -187,6 +187,116 @@ public sealed class DesktopGridTests
         Assert.Equal(2, selection.Count);
     }
 
+    /// <summary>
+    /// [S-12954] The host's one desk as it runs a gesture: lays the view out (by <paramref name="locked"/>'s keys) before each
+    /// step and again after it, as every repaint of the icons does, so a rule that forgets across a layout fails here.
+    /// </summary>
+    private sealed class Desk(ViewState view, bool locked)
+    {
+        public DesktopSelection Selection { get; } = new();
+
+        public string? KeyOf(WidgetInstance w) => DesktopPicks.KeyOf(w, _ => true, widgetsLocked: locked);
+
+        public void Layout() => Selection.SetLayout(
+            view.Widgets.Select(w => (W: w, Key: KeyOf(w))).Where(p => p.Key is not null)
+                .Select(p => new DesktopBox(p.Key!, 0, p.W.Rect.X * 100, p.W.Rect.Y * 100, p.W.Rect.W * 100, p.W.Rect.H * 100)),
+            _ => null);
+
+        /// <summary>A left click on <paramref name="id"/>: an icon's press is the desk's; a card's only when it picks.</summary>
+        public void Click(string id, bool ctrl = false, bool shift = false)
+        {
+            var widget = view.Widgets.Find(w => w.Id == id)!;
+            if (!WidgetLock.IsIcon(widget) && !DesktopPicks.PicksOnPress(editMode: false, leftButton: true, ctrl, shift, locked))
+            {
+                return;
+            }
+
+            if (KeyOf(widget) is not { } key)
+            {
+                return;
+            }
+
+            Layout();
+            Selection.Press(key, ctrl, shift);
+            Layout();
+            Selection.Release(key);
+            Layout();
+        }
+
+        public void Band(BandRect band)
+        {
+            Layout();
+            Selection.BeginBand(ctrl: false, shift: false);
+            Layout();
+            Selection.Band(DesktopBand.Hits(band, Selection.Ordered));
+            Layout();
+            Selection.EndBand();
+        }
+
+        public void Key(WidgetKey key)
+        {
+            Layout();
+            _ = Selection.Key(key, shift: false);
+            Layout();
+        }
+
+        public List<string> Selected => DesktopPicks.Selected(view, Selection, KeyOf);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void S12954_unlocked_cards_and_icons_are_picked_together_and_locked_icons_by_every_gesture(bool locked)
+    {
+        // Owner, 2026-11-19: "selecting mutliple widgets in non edit mode is not possible anymore. only in locked mode it
+        // should not be possible." and "the desktop icons should also be selectable in locked mode. make sure of that".
+        var view = ViewState.Create("Home");
+        view.Widgets.Add(Card("clock", new FracRect(0, 0, 0.2, 0.1)));
+        view.Widgets.Add(Card("tasks", new FracRect(0, 0.2, 0.2, 0.2)));
+        view.Widgets.Add(Icon("a", @"C:\d\a.txt", new FracRect(0.8, 0, 0.1, 0.1)));
+        view.Widgets.Add(Icon("b", @"C:\d\b.txt", new FracRect(0.8, 0.1, 0.1, 0.1)));
+        view.Widgets.Add(new WidgetInstance { Id = "own", Config = new DeskIconFake { ItemId = "own" }, Rect = new FracRect(0.8, 0.2, 0.1, 0.1) });
+        var desk = new Desk(view, locked);
+        desk.Layout();
+        List<string> Allowed(params string[] ids) => [.. ids.Where(id => !locked || WidgetLock.IsIcon(view.Widgets.Find(w => w.Id == id)!))];
+
+        // Ctrl+click: the cards while unlocked, the icons always.
+        desk.Click("clock", ctrl: true);
+        desk.Click("tasks", ctrl: true);
+        desk.Click("a", ctrl: true);
+        desk.Click("own", ctrl: true);
+        Assert.Equal(Allowed("clock", "tasks", "a", "own"), desk.Selected);
+
+        // Ctrl+click again takes one out.
+        desk.Click("a", ctrl: true);
+        Assert.Equal(Allowed("clock", "tasks", "own"), desk.Selected);
+
+        // A click on one of the selection selects it alone on the release, across the layouts between.
+        desk.Click("own");
+        Assert.Equal(["own"], desk.Selected);
+
+        // Shift+click: the icons' range; a card's Shift+click is its own press while locked.
+        desk.Click("a");
+        desk.Click("b", shift: true);
+        Assert.Equal(["a", "b"], desk.Selected);
+        desk.Click("clock", shift: true);
+        Assert.Equal(locked ? ["a", "b"] : ["clock", "tasks", "a"], desk.Selected);
+
+        // The band over everything.
+        desk.Band(new BandRect(0, 0, 100, 100));
+        Assert.Equal(Allowed("clock", "tasks", "a", "b", "own"), desk.Selected);
+
+        // Ctrl+A and the arrows.
+        desk.Click("a");
+        desk.Key(WidgetKey.Down);
+        Assert.Equal(["b"], desk.Selected);
+        desk.Key(WidgetKey.SelectAll);
+        Assert.Equal(Allowed("clock", "tasks", "a", "b", "own"), desk.Selected);
+
+        // A move of the selection by an icon carries what the lock lets move.
+        Assert.Equal(Allowed("clock", "tasks", "a", "b", "own"), DesktopPicks.Moving(view, desk.Selection, "a", desk.KeyOf, locked));
+    }
+
     [Fact]
     public void S11877_a_locked_move_or_lasso_takes_what_it_touches_and_never_a_neighbour_it_only_touches()
     {
