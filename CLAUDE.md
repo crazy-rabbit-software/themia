@@ -350,8 +350,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   per display, one width, at the top, never moved or dragged ([S-2329]; a selected widget under its page is
   seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Unplaced icons (its icon and
   a count badge, [S-13700]), Appearance),
-  the divider and the selection's entry in its kept room, the toggles (Over the edge, Keep widgets from overlapping:
-  `EditBarToggles`, each its setting's one place, [S-2330], [S-11959]; the grid is always on, no Snap to grid, [S-06]), the problems' room, Add widget, Done. Each entry opens
+  the divider and the selection's entry in its kept room, the toggle (Keep widgets from overlapping:
+  `EditBarToggles`, its setting's one place, [S-2330], [S-11959]; the grid is always on, no Snap to grid, [S-06]; widgets
+  always go over the screen edge, no Over the edge, [S-2330]), the problems' room, Add widget, Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
   never the widgets' look), one at a time. No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting

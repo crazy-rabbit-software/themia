@@ -25,8 +25,8 @@ public sealed class TaskbarSidesTests
 
     private const double Eps = 1e-9;
 
-    private static ScreenMetrics Screen(PixelRect work, bool overEdge = true)
-        => new(2560 / 1.5, 1440 / 1.5) { Allowed = GridGeometry.AllowedArea(Monitor, work), HoldsWhole = !overEdge };
+    private static ScreenMetrics Screen(PixelRect work)
+        => new(2560 / 1.5, 1440 / 1.5) { Allowed = GridGeometry.AllowedArea(Monitor, work) };
 
     private static readonly ScreenMetrics LeftBar = Screen(new PixelRect(72, 0, 2488, 1440));
     private static readonly ScreenMetrics RightBar = Screen(new PixelRect(0, 0, 2488, 1440));

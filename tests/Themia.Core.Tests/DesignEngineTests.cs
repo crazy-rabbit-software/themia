@@ -399,7 +399,7 @@ public sealed class DesignEngineTests
     [Fact]
     public void S832_applying_a_preset_sets_its_fields_and_nothing_else()
     {
-        var design = new DesignState { FontScale = 1.25, IntroAnimation = IntroAnimation.Fade, OverEdge = false };
+        var design = new DesignState { FontScale = 1.25, IntroAnimation = IntroAnimation.Fade, WidgetCollisions = true };
 
         DesignPresets.Apply(design, DesignPresetId.Harbor);
 
@@ -411,7 +411,7 @@ public sealed class DesignEngineTests
         // The user's own accessibility and motion choices survive.
         Assert.Equal(1.25, design.FontScale);
         Assert.Equal(IntroAnimation.Fade, design.IntroAnimation);
-        Assert.False(design.OverEdge);
+        Assert.True(design.WidgetCollisions);
     }
 
     [Fact]
@@ -575,7 +575,7 @@ public sealed class DesignEngineTests
     public void S6483_unowned_fields_are_not_a_custom_look()
     {
         // Text size and motion are the user's own and no preset touches them.
-        var design = new DesignState { FontScale = 1.5, IntroAnimation = IntroAnimation.Fade, OverEdge = false };
+        var design = new DesignState { FontScale = 1.5, IntroAnimation = IntroAnimation.Fade, WidgetCollisions = true };
         Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Moss));
     }
 

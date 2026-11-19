@@ -412,17 +412,19 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S2330_over_the_edge_is_the_bars_alone_and_nothing_sets_a_grid()
+    public void S2330_nothing_sets_a_grid_or_whether_widgets_go_over_the_edge()
     {
         var writers = WritersByPath();
 
-        // [S-06] The grid is always on: no setting, so nothing anywhere writes one.
+        // [S-06] The grid is always on: no setting, so nothing anywhere writes one. [S-2330] Widgets always go over the
+        // screen's edge (owner, 2026-11-20): no setting either.
         Assert.DoesNotContain(writers.Keys, key => key.Contains("snap", StringComparison.OrdinalIgnoreCase));
-        Assert.Equal(["bar"], writers["design.overEdge"]);
+        Assert.DoesNotContain(writers.Keys, key => key.Contains("edge", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(typeof(DesignState).GetProperties(), p => p.Name.Contains("Edge", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void S11959_keep_apart_is_the_bars_second_toggle_and_nothing_else_sets_it()
+    public void S11959_keep_apart_is_the_bars_one_toggle_and_nothing_else_sets_it()
     {
         // Regression (owner, 2026-11-16): "is the collision feature implemented? i cannot see the toggle button anywhere".
         Assert.Equal(["bar"], WritersByPath()["design.widgetCollisions"]);
@@ -430,13 +432,13 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost();
         Assert.False(host.State.Design.WidgetCollisions);
         var toggles = EditBarToggles.Of(host);
-        Assert.Equal([EditBarToggles.OverEdge, EditBarToggles.Collisions], toggles.Select(t => t.Key));
-        Assert.Equal(EditBarToggles.Count, toggles.Count);
+        Assert.Equal([EditBarToggles.Collisions], toggles.Select(t => t.Key));
+        Assert.Equal(1, EditBarToggles.Count);
 
-        toggles[1].Set(true);
+        toggles[0].Set(true);
         Assert.True(host.State.Design.WidgetCollisions);
         Assert.True(host.State.Design.Clone().WidgetCollisions);
-        Assert.False(toggles[1].On);
-        Assert.True(EditBarToggles.Of(host)[1].On);
+        Assert.False(toggles[0].On);
+        Assert.True(EditBarToggles.Of(host)[0].On);
     }
 }

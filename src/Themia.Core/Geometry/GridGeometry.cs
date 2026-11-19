@@ -133,8 +133,8 @@ public static class GridGeometry
 
     /// <summary>
     /// [S-6608] [S-855] Where a rect of this size may start on each axis and still be in reach: on a side that holds
-    /// it (<see cref="Holds"/>: a taskbar's, or every side with Over the edge off) wholly inside the allowed area; on
-    /// any other side over the edge by all but the visible minimum (<see cref="Keep"/>).
+    /// it (<see cref="Holds"/>: a taskbar's) wholly inside the allowed area; on any other side (the monitor's own edge)
+    /// over the edge by all but the visible minimum (<see cref="Keep"/>).
     /// </summary>
     public static (double LoX, double HiX, double LoY, double HiY) Reach(ScreenMetrics screen, double w, double h)
     {
@@ -150,13 +150,14 @@ public static class GridGeometry
 
     /// <summary>
     /// [S-6608] The overlap, as fractions of the screen, a rect of this size must keep with the
-    /// allowed area: <see cref="MinVisiblePx"/>, but never more than the rect or the area itself.
-    /// [S-2330] With Over the edge off (<see cref="ScreenMetrics.HoldsWhole"/>) the whole rect.
+    /// allowed area: <see cref="MinVisiblePx"/>, but never more than the rect or the area itself. Widgets may
+    /// always go over the monitor's own edge ([S-2330]: no setting keeps them whole on it, a taskbar's edge holds them,
+    /// [S-855]); this is what stops one being lost off it.
     /// </summary>
     public static (double X, double Y) Keep(ScreenMetrics screen, double w, double h)
     {
         var a = screen.Allowed;
-        var (px, py) = screen.HoldsWhole ? (w, h) : screen.IsUsable ? (MinVisiblePx / screen.Width, MinVisiblePx / screen.Height) : (0.01, 0.01);
+        var (px, py) = screen.IsUsable ? (MinVisiblePx / screen.Width, MinVisiblePx / screen.Height) : (0.01, 0.01);
         return (Math.Max(0, Math.Min(px, Math.Min(w, a.W))), Math.Max(0, Math.Min(py, Math.Min(h, a.H))));
     }
 
@@ -169,13 +170,12 @@ public static class GridGeometry
     /// <summary>
     /// [S-855] The sides of the allowed area a rect stays wholly inside. A side where the allowed area ends inside
     /// the monitor ends at a strip another program reserved (the taskbar, a dock registered as an appbar), on this
-    /// display or on another that shows the same view: what lies past it is hidden there, so nothing hangs over it,
-    /// Over the edge or not (owner, 2026-11-20: "hidden widgets on both screens"). A side that is the monitor's own
-    /// edge lets a rect hang over it while Over the edge is on ([S-6608]); with it off every side holds ([S-2330]).
-    /// An auto-hidden taskbar reserves nothing, so its edge is the monitor's.
+    /// display or on another that shows the same view: what lies past it is hidden there, so nothing hangs over it
+    /// (owner, 2026-11-20: "hidden widgets on both screens"). A side that is the monitor's own edge always lets a rect
+    /// hang over it ([S-6608]; owner, 2026-11-20: "they should always be able to go over the screen", [S-2330]). An
+    /// auto-hidden taskbar reserves nothing, so its edge is the monitor's.
     /// </summary>
-    public static EdgeHolds Holds(ScreenMetrics screen)
-        => screen.HoldsWhole ? new EdgeHolds(true, true, true, true) : Strips(screen.Allowed);
+    public static EdgeHolds Holds(ScreenMetrics screen) => Strips(screen.Allowed);
 
     /// <summary>[S-855] The sides of <paramref name="allowed"/> that end at a reserved strip (inside the monitor).</summary>
     public static EdgeHolds Strips(FracRect allowed)
@@ -302,9 +302,9 @@ public static class GridGeometry
         }
 
         var (minW, minH) = MinFraction(screen);
-        var (keepX, keepY) = Keep(screen with { HoldsWhole = false }, double.PositiveInfinity, double.PositiveInfinity);
+        var (keepX, keepY) = Keep(screen, double.PositiveInfinity, double.PositiveInfinity);
 
-        // [S-2330] Over the edge off: a moved edge stops on the allowed area's edge; [S-855] on a taskbar's, always.
+        // [S-855] A moved edge stops on a taskbar's edge; past the monitor's own it may go ([S-2330]).
         var held = Holds(screen);
 
         double left = r.X, top = r.Y, right = r.Right, bottom = r.Bottom;

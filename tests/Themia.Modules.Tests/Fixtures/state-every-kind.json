@@ -2196,7 +2196,6 @@
     "theme": "System",
     "fontFamily": "system",
     "fontScale": 1,
-    "overEdge": true,
     "widgetCollisions": false,
     "cornerRadiusPx": 4,
     "background": {

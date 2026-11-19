@@ -89,8 +89,7 @@ Sections, grouped by area (file order below; search for the heading).
   propagating NaN into storage. A widget is also held to its sizing: painted fitted into it
   ([S-2446]), resized within it ([S-2445]); its Max may be larger than the work area allows, and the
   work area wins.
-- **[S-6608]** While the bar's **Widgets can go over the screen edge** is on (the default; off, the whole widget stays
-  on the work area, [S-2330]) a widget may hang over **any edge** of its display, but always keeps at least
+- **[S-6608]** A widget may always hang over **any edge** of its display (no setting, [S-2330]), but always keeps at least
   `MinVisiblePx` (**32 DIP**, a grab's worth; the [S-08] floor was 32 until 2026-11-17 and is one grid cell now) of
   itself on the allowed area on each axis: a widget no larger is never cut at all, a bigger one always leaves 32 DIP
   to see, grab and drag back. Pushed further, it slides back just that far, keeping its size; a
@@ -104,8 +103,8 @@ Sections, grouped by area (file order below; search for the heading).
   ([S-02]) and nothing re-settles on a display change ([S-841]), so on a much smaller display the
   overhang scales with it. (Tests `S6608_`.) **A taskbar's edge is not one to hang over** ([S-855], owner
   2026-11-20): where the work area ends inside the monitor (a taskbar on any side, an appbar, on this display or on
-  another showing the view) the whole widget stays on the work area's side of it, Over the edge or not; the
-  overhang is the monitor's own edges'.
+  another showing the view) the whole widget stays on the work area's side of it; the overhang is the monitor's own
+  edges'.
 - **[S-6609]** On the grid ([S-06]) the work area's edges are a **magnet**: a moved rect, block or resized edge within `EdgeMagnetPx` (**8 DIP**, under one grid
   cell) of one lands flush on it, judged on the raw position before the grid rounds it; past that the
   drag goes on over the edge. It catches an edge the grid misses (a taskbar's top is rarely on a grid
@@ -2108,19 +2107,23 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   the work area's top on every display, whatever is selected or dragged, and its flyouts hang under it. A
   selected widget its page covers is seen through the page instead ([S-2344]). *(2026-11-14 to -15 it went
   to the foot while it or its flyout covered a selected widget; removed whole.)*
-- **[S-2330]** **Two toggles at the bar's root** (owner, 2026-11-15: "widgets can go over the edge toggle
-  should be integrated on the root level of the topbar"; `EditBarToggles`, Core lines the bar draws, `Count` their
-  kept room): **Widgets can go over the screen edge** (`design.overEdge`, default on, [S-6608]), then **Keep
-  widgets from overlapping** (`design.widgetCollisions`, default off, [S-11959]), each an icon toggle button 40
-  wide after the gutter, 4 apart, its words the tooltip and name; off a subtle button like the entries, on WinUI's
-  checked toggle (the accent's fill, the glyph on it). Each is its setting's one place ([S-3590]): no page sets
-  it. *(Retired 2026-11-15: the Snap to grid toggle; the grid is always on, [S-06].)* Over the edge off: every
-  gesture (placing, moving, a block's move, resizing, pasting) keeps the whole widget on the work area
-  (`ScreenMetrics.HoldsWhole`, `GridGeometry.Keep`, a resized edge stopping on the work area's edge); a widget
-  already hanging over stays until it is next moved. Tests `EditBarLayoutTests.S2320_`,
-  `SettingsMenuTests.S2330_`, `EdgeOverhangTests.S2330_`.
+- **[S-2330]** **One toggle at the bar's root** (`EditBarToggles`, Core lines the bar draws, `Count` its kept room):
+  **Keep widgets from overlapping** (`design.widgetCollisions`, default off, [S-11959]), an icon toggle button 40
+  wide after the gutter, its words the tooltip and name; off a subtle button like the entries, on WinUI's checked
+  toggle (the accent's fill, the glyph on it). It is its setting's one place ([S-3590]): no page sets it.
+  *(Retired 2026-11-15: the Snap to grid toggle; the grid is always on, [S-06].)* **Widgets always go over the
+  screen edge** (owner, 2026-11-20: "widgets can go over screen edge should not be a setting anymore, they should
+  always be able to go over the screen"): every gesture (placing, moving, a block's move or resize, resizing,
+  pasting) may hang a widget over the **monitor's own** edges. The rules that stay: [S-6608]'s visible minimum (32 DIP
+  of every widget on the allowed area, `GridGeometry.Keep`), so no widget is ever lost off the screen, and [S-855]'s
+  taskbar edge, which still holds the whole widget (`GridGeometry.Holds`: nothing hangs under a taskbar or an appbar
+  of any display showing the view).
+  *(2026-11-15 to -20 a second toggle, **Widgets can go over the screen edge**, `design.overEdge`, kept the whole
+  widget on the work area while off; removed whole. A state file that still holds the key loads with it dropped,
+  one repair line, [S-1050].)* Tests `EditBarLayoutTests.S2320_`, `SettingsMenuTests.S2330_`,
+  `EdgeOverhangTests.S2330_`, `AppStateStoreTests.S2330_`.
 - **[S-11959]** **Keep widgets from overlapping** (`Design.WidgetCollisions`, off by default; key `collisions`), the
-  bar's second toggle ([S-2330]; owner, 2026-11-16: "is the collision feature implemented? i cannot see the toggle
+  bar's toggle ([S-2330]; owner, 2026-11-16: "is the collision feature implemented? i cannot see the toggle
   button anywhere"; first, 2026-11-15, a General switch under Snap to grid). On, a widget moved never lands over
   another: every move there is, a drag in edit mode or on the locked desktop ([S-2008], a mixed selection of icons
   and cards, [S-11879]) and the arrow keys (one cell a press on the always-on grid, [S-06];
@@ -6042,8 +6045,8 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   its own work area (`DesktopWindow.WorkArea`). (2) **A taskbar's edge is never hung over** (`GridGeometry.Holds`,
   `Strips`, `Reach`): an allowed area's side that ends inside the monitor ends at a strip another program reserved
   (the taskbar on any side, a dock registered as an appbar, on this display or another showing the view); a
-  gesture keeps the whole widget on its side, Over the edge or not, and Over the edge hangs a widget over the
-  monitor's own edges only. An auto-hidden taskbar reserves nothing: its edge is the monitor's. (3) **What is stored
+  gesture keeps the whole widget on its side, and a widget hangs over the monitor's own edges only ([S-2330]: always,
+  no setting). An auto-hidden taskbar reserves nothing: its edge is the monitor's. (3) **What is stored
   is settled clear of it** (`WorkAreaSettle`, in every mutation and after an undo step, on settled metrics [S-854];
   a display pass or a work-area change runs one): a widget reaching past a taskbar's edge of its view's work area
   (laid out against another display's work area, before the view was shown on a second display, or under a taskbar

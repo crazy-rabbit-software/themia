@@ -239,9 +239,9 @@ internal static partial class EditBarRender
         var bar = new EditBar(commands);
         bar.Fill(commands);
 
-        // [S-2330] The toggles at its root over a stand-in state: Snap to grid on, Over the edge off, both looks seen.
+        // [S-2330] The toggle at its root over a stand-in state: Keep widgets from overlapping on, its lit look seen.
         var host = new RenderSettingsHost();
-        host.State.Design.OverEdge = false;
+        host.State.Design.WidgetCollisions = true;
         bar.Show(state.Toggles.Count > 0 ? state : state with { Toggles = Core.Shell.EditBarToggles.Of(host) });
         UiLanguage.ApplyFlow(bar);
         return bar;

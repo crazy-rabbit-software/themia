@@ -243,14 +243,29 @@ public sealed class AppStateStore : IAsyncDisposable
     }
 
     /// <summary>
-    /// [S-1050] The schema changes in place: a key a view or a widget does not have in this build (a hand edit, or a
-    /// key the app no longer writes, such as the groups that are gone, [S-2450]) is taken out before the typed read,
-    /// loudly, one line each, never kept beside the state or read into anything.
+    /// [S-1050] The schema changes in place: a key the design, a view or a widget does not have in this build (a hand
+    /// edit, or a key the app no longer writes, such as the groups that are gone, [S-2450], or Over the edge, [S-2330])
+    /// is taken out before the typed read, loudly, one line each, never kept beside the state or read into anything.
     /// </summary>
     private static List<string> DropUnknownKeys(JsonNode? document)
     {
         var dropped = new List<string>();
-        if (document is not JsonObject root || root["views"] is not JsonArray views)
+        if (document is not JsonObject root)
+        {
+            return dropped;
+        }
+
+        if (root["design"] is JsonObject design)
+        {
+            var designKeys = Keys(StateJson.Options.GetTypeInfo(typeof(DesignState)));
+            foreach (var key in design.Select(p => p.Key).Where(k => !designKeys.Contains(k)).ToList())
+            {
+                design.Remove(key);
+                dropped.Add($"design: dropped the unknown key '{key}'");
+            }
+        }
+
+        if (root["views"] is not JsonArray views)
         {
             return dropped;
         }

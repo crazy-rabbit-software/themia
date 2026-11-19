@@ -56,17 +56,11 @@ public readonly record struct ScreenMetrics(double Width, double Height)
     }
 
     public bool IsUsable => Width > 0 && Height > 0 && double.IsFinite(Width) && double.IsFinite(Height);
-
-    /// <summary>
-    /// [S-2330] Over the edge is off (<c>Design.OverEdge</c>): a gesture keeps the whole widget on the
-    /// allowed area, not only the visible minimum of [S-6608].
-    /// </summary>
-    public bool HoldsWhole { get; init; }
 }
 
 /// <summary>
 /// [S-855] Which sides of the allowed area hold a rect wholly inside them (<see cref="GridGeometry.Holds"/>): a
-/// taskbar's side always, every side with Over the edge off; a side that does not lets the rect hang over it.
+/// taskbar's side; a side that does not (the monitor's own edge) lets the rect hang over it.
 /// </summary>
 public readonly record struct EdgeHolds(bool Left, bool Top, bool Right, bool Bottom)
 {

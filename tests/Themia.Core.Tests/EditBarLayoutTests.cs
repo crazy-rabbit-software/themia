@@ -55,11 +55,10 @@ public sealed class EditBarLayoutTests
         Assert.Equal(divider.Right + B.DividerRoom, plan.SelectionX);
         Assert.Equal(plan.SelectionX, plan.Of(BarPartKind.Selection)!.Value.X);
 
-        // [S-2330] The two toggles (Over the edge, Keep widgets from overlapping) after the gutter, icon buttons 4 apart, then the errors' room.
-        var edge = plan.Of(BarPartKind.Toggle, 0)!.Value;
-        var apart = plan.Of(BarPartKind.Toggle, 1)!.Value;
-        Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly, true), (edge.X, edge.Width, edge.IconOnly));
-        Assert.Equal(edge.Right + B.EntryGap, apart.X);
+        // [S-2330] The one toggle (Keep widgets from overlapping) after the gutter, an icon button, then the errors' room.
+        var apart = plan.Of(BarPartKind.Toggle, 0)!.Value;
+        Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly, true), (apart.X, apart.Width, apart.IconOnly));
+        Assert.Null(plan.Of(BarPartKind.Toggle, 1));
 
         var errors = plan.Of(BarPartKind.Errors)!.Value;
         Assert.Equal(apart.Right + B.EntryGap, errors.X);
@@ -84,8 +83,8 @@ public sealed class EditBarLayoutTests
         Assert.Null(bare.Of(BarPartKind.Selection));
         Assert.Null(bare.Of(BarPartKind.Errors));
 
-        // [S-2330] The toggles stand whatever is selected.
-        Assert.Equal(bare.Of(BarPartKind.Toggle, 1), Lay(selection: 300, errors: true).Of(BarPartKind.Toggle, 1));
+        // [S-2330] The toggle stands whatever is selected.
+        Assert.Equal(bare.Of(BarPartKind.Toggle, 0), Lay(selection: 300, errors: true).Of(BarPartKind.Toggle, 0));
     }
 
     [Fact]

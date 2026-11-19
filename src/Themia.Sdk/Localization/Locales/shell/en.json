@@ -1,6 +1,5 @@
 {
   "$englishOnly": [
-    "shell.toolbar.overEdgeName",
     "shell.setup.place",
     "shell.setup.account",
     "shell.tasks.readOnly",
@@ -150,7 +149,6 @@
   "shell.setup.place": "Choose a place",
   "shell.setup.account": "Add an account to show this",
   "shell.toolbar.addWidget": "Add widget",
-  "shell.toolbar.overEdgeName": "Widgets can go over the screen edge",
   "shell.toolbar.collisionsName": "Keep widgets from overlapping",
   "shell.editBar.selected": {
     "one": "{count} selected",

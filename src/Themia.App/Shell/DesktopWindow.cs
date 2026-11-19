@@ -227,11 +227,10 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
             if (Win32.GetClientRect(_hwnd, out var client) && client.Width > 0 && client.Height > 0)
             {
-                return new ScreenMetrics(client.Width / scale, client.Height / scale) { Allowed = allowed, HoldsWhole = !Design.OverEdge };
+                return new ScreenMetrics(client.Width / scale, client.Height / scale) { Allowed = allowed };
             }
 
-            // [S-2330] Over the edge off: every gesture keeps the whole widget on the work area.
-            return new ScreenMetrics(_monitor.Bounds.Width / scale, _monitor.Bounds.Height / scale) { Allowed = allowed, HoldsWhole = !Design.OverEdge };
+            return new ScreenMetrics(_monitor.Bounds.Width / scale, _monitor.Bounds.Height / scale) { Allowed = allowed };
         }
     }
 

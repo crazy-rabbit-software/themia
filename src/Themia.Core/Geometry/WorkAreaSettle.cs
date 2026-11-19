@@ -13,7 +13,7 @@ namespace Themia.Core.Geometry;
 /// before the view was shown on two displays, or under a taskbar that moved, grew or stopped hiding) is moved in as
 /// little as it takes: the whole view by one translation where that holds everything (so a layout made against one
 /// work area keeps its joins, gaps and alignment), else each set of touching widgets by its own, carrying along a
-/// widget it would come to lie over. What hangs over the monitor's own edge (Over the edge, [S-6608]) is left.
+/// widget it would come to lie over. What hangs over the monitor's own edge ([S-6608], always allowed, [S-2330]) is left.
 /// Pure: the host runs it in every mutation, on settled metrics ([S-854]).
 /// </summary>
 public static class WorkAreaSettle
@@ -75,7 +75,7 @@ public static class WorkAreaSettle
                 // Wider than the room on an axis: each widget kept in it on its own, as a gesture's clamp does.
                 foreach (var i in groups[g])
                 {
-                    settled[i] = GridGeometry.Clamp(rects[i], screen with { HoldsWhole = false });
+                    settled[i] = GridGeometry.Clamp(rects[i], screen);
                 }
             }
         }

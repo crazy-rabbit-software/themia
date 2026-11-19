@@ -15,7 +15,7 @@ public enum BarPartKind
     /// <summary>The selection's entry.</summary>
     Selection,
 
-    /// <summary>[S-2330] A toggle at the bar's root (<see cref="BarPart.Index"/> its place among them): Over the edge, Keep widgets from overlapping ([S-11959]).</summary>
+    /// <summary>[S-2330] A toggle at the bar's root (<see cref="BarPart.Index"/> its place among them): Keep widgets from overlapping ([S-11959]).</summary>
     Toggle,
 
     /// <summary>The errors' icon button: only while there are problems.</summary>

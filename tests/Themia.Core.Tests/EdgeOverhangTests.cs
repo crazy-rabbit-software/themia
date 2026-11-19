@@ -234,50 +234,38 @@ public class EdgeOverhangTests
         Assert.Equal(0.15, BlockGeometry.Apply(start[1], delta, screen).X - BlockGeometry.Apply(start[0], delta, screen).X, 9);
     }
 
-    // ---- [S-2330] Over the edge off: the whole widget stays on the work area ------------------------
+    // ---- [S-2330] No Over the edge setting: every gesture may go over the monitor's edges, never a taskbar's ----
 
-    private static readonly ScreenMetrics Whole = new(1920, 1080) { HoldsWhole = true, Allowed = new FracRect(0, 0, 1, 1000.0 / 1080) };
-
-    [Theory]
-    [MemberData(nameof(Edges))]
-    public void S2330_with_over_the_edge_off_a_rect_pushed_past_an_edge_stops_inside_it(string edge, FracRect pushed, FracRect _)
-    {
-        var settled = GridGeometry.Clamp(pushed, Whole);
-        var a = Whole.Allowed;
-
-        Assert.True(settled.X >= a.X - Eps && settled.Right <= a.Right + Eps, edge);
-        Assert.True(settled.Y >= a.Y - Eps && settled.Bottom <= a.Bottom + Eps, edge);
-        Assert.Equal((0.2, 0.2), (settled.W, settled.H));
-    }
+    private static readonly ScreenMetrics Taskbar = new(1920, 1080) { Allowed = new FracRect(0, 0, 1, 1000.0 / 1080) };
 
     [Fact]
-    public void S2330_with_over_the_edge_off_a_resized_edge_stops_on_the_work_areas_edge()
+    public void S2330_a_resized_edge_always_goes_over_the_monitors_edge_and_stops_at_the_visible_minimum()
     {
+        // Owner, 2026-11-20: "widgets can go over screen edge should not be a setting anymore, they should always be
+        // able to go over the screen". [S-855] A taskbar's edge still holds the whole widget.
         var start = new FracRect(0.7, 0.7, 0.2, 0.2);
 
-        var right = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.5, 0.5, Whole), Whole, ResizeHandle.BottomRight);
-        Assert.Equal(1, right.Right, 9);
-        Assert.Equal(Whole.Allowed.Bottom, right.Bottom, 9);
-        Assert.Equal((0.7, 0.7), (right.X, right.Y));
-
-        var left = GridGeometry.Settle(GridGeometry.Resize(new FracRect(0.1, 0.1, 0.2, 0.2), ResizeHandle.TopLeft, -0.5, -0.5, Whole), Whole, ResizeHandle.TopLeft);
-        Assert.Equal((0, 0), (left.X, left.Y));
-        Assert.Equal(0.3, left.Right, 9);
-        Assert.Equal(0.3, left.Bottom, 9);
-
-        // On (the default): the same drag hangs over, as [S-6608] lets it.
-        var over = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.5, 0.5, Screen), Screen, ResizeHandle.BottomRight);
+        var over = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.BottomRight, 0.5, 0.5, Taskbar), Taskbar, ResizeHandle.BottomRight);
         Assert.True(over.Right > 1);
+        Assert.Equal(Taskbar.Allowed.Bottom, over.Bottom, 9);
+        Assert.Equal((0.7, 0.7), (over.X, over.Y));
+
+        // A top-left edge dragged far past the screen's corner: over it, and never so far the widget is lost.
+        var left = GridGeometry.Settle(GridGeometry.Resize(new FracRect(0.1, 0.1, 0.2, 0.2), ResizeHandle.TopLeft, -0.5, -0.5, Taskbar), Taskbar, ResizeHandle.TopLeft);
+        Assert.True(left.X < 0 && left.Y < 0);
+        Assert.True(Visible(left, Taskbar).X >= GridGeometry.MinVisiblePx - 1e-6);
     }
 
     [Fact]
-    public void S2330_with_over_the_edge_off_a_block_stops_where_its_first_widget_meets_the_edge()
+    public void S2330_a_block_always_goes_over_the_edge_until_a_widget_would_keep_less_than_the_visible_minimum()
     {
         FracRect[] start = [new FracRect(0.5, 0.4, 0.2, 0.2), new FracRect(0.72, 0.4, 0.2, 0.2)];
 
-        var delta = BlockGeometry.Move(start, 0.5, 0, Whole);
+        var delta = BlockGeometry.Move(start, 0.5, 0, Taskbar);
+        var right = BlockGeometry.Apply(start[1], delta, Taskbar);
 
-        Assert.Equal(1, BlockGeometry.Apply(start[1], delta, Whole).Right, 9);
-        Assert.Equal(0.22, BlockGeometry.Apply(start[1], delta, Whole).X - BlockGeometry.Apply(start[0], delta, Whole).X, 9);
+        Assert.True(right.Right > 1);
+        Assert.Equal(GridGeometry.MinVisiblePx, Visible(right, Taskbar).X, 6);
+        Assert.Equal(0.22, right.X - BlockGeometry.Apply(start[0], delta, Taskbar).X, 9);
     }
 }
