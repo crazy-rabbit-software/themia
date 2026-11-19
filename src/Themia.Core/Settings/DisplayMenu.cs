@@ -98,10 +98,10 @@ public static class DisplayMenu
 
         // [S-845] Switched off from any display's page, so it is switched back on from another's; the last one on is greyed.
         var canSwitch = !on || DisplayPlan.CanDisable(connected, state.DisabledMonitors, id);
+        // [S-2349] The display's own lines first, no heading (its card's head names it); then its view bar's groups.
         List<SettingsLine> lines =
         [
             view,
-            new SettingsSeparator(key + "/-on"),
             new SettingsToggle(Keys.On(id), Str.SettingsPages_Display_ShowThemia.Text(), Glyphs.Display, on, value => host.SetEnabled(id, value))
             {
                 Disabled = !canSwitch,
@@ -173,26 +173,41 @@ public static class DisplayMenu
             (ViewBarSize.ExtraLarge, Str.Shell_Size_ExtraLarge.Text()),
         ];
 
+        // [S-2349] Two groups, each a glyph's head and its rows a step in (Karpo's §685): the bar (shown or not, its type,
+        // labels, place and size), then the views it offers. What only a shown bar draws stands greyed while it is hidden.
         var key = Keys.ViewBar(id);
+        var hidden = bar.Hidden;
         yield return new SettingsSeparator(key + "/-");
-        yield return new SettingsHeading(key, Str.BarMenus_ViewBar.Text());
-        yield return new SettingsToggle(key + "/show", Str.Shell_ViewBar_Show.Text(), Glyphs.View, !bar.Hidden, on => Change(b => b.Hidden = !on));
-        yield return Choice(key + "/type", Str.BarMenus_ViewBar_Type.Text(), Glyphs.ListLayout, types, bar.Type, v => Change(b => b.Type = v));
+        yield return new SettingsHeading(key, Str.BarMenus_ViewBar.Text()) { Glyph = Glyphs.ListLayout };
+        yield return new SettingsToggle(key + "/show", Str.Shell_ViewBar_Show.Text(), Glyphs.View, !hidden, on => Change(b => b.Hidden = !on));
+        yield return Choice(key + "/type", Str.BarMenus_ViewBar_Type.Text(), Glyphs.ListLayout, types, bar.Type, v => Change(b => b.Type = v)) with
+        {
+            Disabled = hidden,
+        };
         // [S-13401] The dots name a view in its tooltip alone: Labels stands greyed while they are the type.
         yield return Choice(key + "/labels", Str.BarMenus_ViewBar_Labels.Text(), Glyphs.Tag, labels, bar.Labels, v => Change(b => b.Labels = v)) with
         {
-            Disabled = !ViewBarRules.UsesLabels(bar.Type),
+            Disabled = hidden || !ViewBarRules.UsesLabels(bar.Type),
         };
-        yield return Choice(key + "/position", Str.BarMenus_ViewBar_Position.Text(), Glyphs.Display, anchors, bar.Anchor, v => Change(b => b.Anchor = v));
-        yield return Choice(key + "/size", Str.BarMenus_ViewBar_Size.Text(), Glyphs.Scale, sizes, bar.Size, v => Change(b => b.Size = v));
+        yield return Choice(key + "/position", Str.BarMenus_ViewBar_Position.Text(), Glyphs.Display, anchors, bar.Anchor, v => Change(b => b.Anchor = v)) with
+        {
+            Disabled = hidden,
+        };
+        yield return Choice(key + "/size", Str.BarMenus_ViewBar_Size.Text(), Glyphs.Scale, sizes, bar.Size, v => Change(b => b.Size = v)) with
+        {
+            Disabled = hidden,
+        };
 
         var offer = ViewBarRules.Offer(state.Views, bar);
         var picked = ViewBarRules.VisibleViews(state.Views, bar).Select(v => v.Id).ToHashSet(StringComparer.Ordinal);
         var views = key + "/views";
         yield return new SettingsSeparator(views + "/-");
-        yield return new SettingsHeading(views, Str.BarMenus_ViewBar_Views.Text());
+        yield return new SettingsHeading(views, Str.BarMenus_ViewBar_Views.Text()) { Glyph = Glyphs.View };
         yield return new SettingsToggle(views + "/all", Str.Shell_ViewBar_AllViews.Text(), null, offer.All,
-            on => host.Mutate(s => ViewBarRules.Update(s, id, b => b.VisibleViews = ViewBarRules.SetAllVisible(s.Views, on, ViewsMenu.ShownOn(s, id)))));
+            on => host.Mutate(s => ViewBarRules.Update(s, id, b => b.VisibleViews = ViewBarRules.SetAllVisible(s.Views, on, ViewsMenu.ShownOn(s, id)))))
+        {
+            Disabled = hidden,
+        };
         foreach (var view in state.Views)
         {
             var viewId = view.Id;
@@ -200,6 +215,8 @@ public static class DisplayMenu
                 on => host.Mutate(s => ViewBarRules.Update(s, id, b => b.VisibleViews = ViewBarRules.ToggleVisible(s.Views, b, viewId, on))))
             {
                 GlyphColour = view.Color,
+                Marked = true,
+                Disabled = hidden,
             };
         }
     }

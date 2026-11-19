@@ -28,6 +28,13 @@ internal sealed partial class PageView
     /// <summary>A row: its body in a border that carries its key (a deep link lights it).</summary>
     private FrameworkElement RowOf(PageRow row, bool inside, bool first)
     {
+        // [S-2317] A card's own lines carry no glyph of their setting, as Karpo's (§644): their names stand where every
+        // row's does; a mark or a picture of their own stays, and a group's head keeps its glyph.
+        if (inside && !row.Marked && row.Kind is not (SettingsRowKind.Heading or SettingsRowKind.Radio) && !Foot(row))
+        {
+            row = row with { Icon = null };
+        }
+
         FrameworkElement body = row.Kind switch
         {
             SettingsRowKind.Toggle => ToggleRow(row),
@@ -41,7 +48,7 @@ internal sealed partial class PageView
             SettingsRowKind.Radio => RadioRow(row),
             SettingsRowKind.SubPage => SubPageRow(row),
             SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon or SettingsRowKind.Expander
-                => inside ? StandingOpen(row) : Expander(row),
+                => Expander(row, inside),
             SettingsRowKind.Preview => PreviewRow(row),
             _ => new Border(),
         };
@@ -111,6 +118,7 @@ internal sealed partial class PageView
     {
         _steps.Add(new SubStep(row.Key));
         _open = null;
+        _unfolded.Clear();
         Show();
         FocusFirst();
     }
@@ -716,13 +724,27 @@ internal sealed partial class PageView
         return panel;
     }
 
-    /// <summary>A heading over the rows of its card (a group of a sub-page).</summary>
-    private static TextBlock HeadingRow(PageRow row)
+    /// <summary>
+    /// A heading over the rows of its card (a group of a sub-page); [S-2349] one with a glyph a group's head (Karpo's
+    /// §685): a line of its own, its glyph in the icon column and its words semibold where the rows' names start.
+    /// </summary>
+    private static FrameworkElement HeadingRow(PageRow row)
     {
         var words = Fluent.Text(FamilyType.BodyStrong);
         words.Text = row.Text;
-        words.Margin = new Thickness(P.IconAt, Fluent.Space3, P.EndInset, Fluent.Space1);
-        return words;
+        if (row.Icon is null)
+        {
+            words.Margin = new Thickness(P.IconAt, Fluent.Space3, P.EndInset, Fluent.Space1);
+            return words;
+        }
+
+        var head = Lay(row, null, null);
+        if (head.Children.OfType<StackPanel>().FirstOrDefault()?.Children.FirstOrDefault() is TextBlock name)
+        {
+            name.FontWeight = words.FontWeight;
+        }
+
+        return head;
     }
 
     /// <summary>[S-2308] An option standing open: a radio row 36 tall, its icon (a view's mark) before its words.</summary>
@@ -746,6 +768,9 @@ internal sealed partial class PageView
             Margin = new Thickness(P.IconAt, 0, P.EndInset, 0),
             VerticalContentAlignment = VerticalAlignment.Center,
             Tag = row.Key + "#head",
+
+            // A group of its own unless its choice names one (Options): never a group shared with another choice's.
+            GroupName = row.Key,
         };
         radio.Click += (_, _) => Do(row.Run);
         return radio;

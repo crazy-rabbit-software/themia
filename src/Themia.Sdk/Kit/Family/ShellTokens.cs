@@ -198,6 +198,9 @@ public static class ShellMetrics
 
         public const double EndInset = 16;
 
+        /// <summary>[S-2349] How much further in a group's rows stand under its head in a card (Karpo's <c>IndentStep</c>).</summary>
+        public const double IndentStep = 28;
+
         /// <summary>A control's height (a box, a button).</summary>
         public const double Control = 32;
 

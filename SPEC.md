@@ -1847,8 +1847,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   expander, a picker). A submenu marked a page of its own (`SettingsSubmenu.Page`: an account, Add
   account) or one whose lines open further is a **sub-page**: it stands in the page's place behind a
   32-DIP back head (the back arrow and its title in BodyStrong; the whole head goes back). Inside an
-  expander a picker stands open under its name. A line of text asked on its own (a view's Rename tool,
-  a widget's Ask) and an "are you sure?" (a preset over one's own look, deleting a view, an import, a
+  expander a picker is **folded** ([S-2348]): its head as any picker's, its body unfolding under its line on a
+  click. A line of text asked on its own (a view's Rename tool,
+  a list's Add… or Rename…) and an "are you sure?" (a preset over one's own look, deleting a view, an import, a
   widget's Confirm) are pages of their own too, the question their head; only their button does it.
 - **[S-2304]** **Cards** (`SettingsRows.Cards`), Windows' settings cards: each row a card of its own,
   with the notes under it (what holds against it, how a try went); options of a choice standing open,
@@ -1886,7 +1887,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   its icon buttons (`Tools`: a view's Duplicate and Delete, an account's Sign out; their keys work while the head
   has the keyboard) and, where it is put in order (`Order`), Windows' gripper at its head's start (Karpo's §551
   handle, its icon and name 12 further in): the whole card dragged by it, or
-  Ctrl+Up / Down on its head. Opened, its rows one level in ([S-2303]); a picker inside stands open under its name.
+  Ctrl+Up / Down on its head. Opened, its rows one level in ([S-2303]); a picker inside is folded ([S-2348]).
   Nothing on a page acts on "the selected" view, display or account.
 - **[S-2311]** The Appearance's **preview** (Karpo's §592, §613, §671; `AppearancePreview`): first on the page and
   bare (no card), the page's width, 220 tall, radius 4 with the card's hairline: a stretch of the display's own
@@ -2054,6 +2055,39 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   `-vocabulary-confirm`), over stand-in hosts that reach neither Windows nor the user's state; then the
   edit markers ([S-31b]). `--editbar-png` writes no `settings-*`, `views-*`, `display-*` or `props-*`
   pictures any more.
+- **[S-2331]** **Every choice shows what holds** (owner, 2026-11-19: "the selects dont all show as selected. fix that
+  too"): a choice's radio rows are a radio group of their own, named by the choice's row (`PageView.Options`; a
+  lookup's finds by its row too; a lone radio row its own). One name shared by every choice on a page made them one
+  group, so of the Display card's View, Type, Labels, Position and Size, or General's Formats, one option stood
+  checked. Seen in `page-*-general-formats`, `page-*-display-type`. The popups' pictures (`--menu-png`,
+  `--viewbar-png`) are laid on the in-app acrylic's fallback (#2C2C2C dark, #FFFFFF light; `RenderPng.SaveOnGroundAsync`):
+  acrylic does not render to a bitmap, and a dark menu's white words read white on white.
+- **[S-2332]** **A line of text a widget holds is typed in place** (owner, 2026-11-19: "the title and caption for
+  example should show inline not under the additional menu. fix for all widgets"): `WidgetMenuLines.Text` and the
+  entry's `MenuField` (what it holds, its hint, its refusal, what keeping does) are the page's text box at the line's
+  end ([S-2302]: Enter or leaving keeps it, Escape restores it, why not under the name), never a page of its own: a
+  Header's Title and Caption, a countdown's and an alarm's Name, Day and Time, a habit list's interval, a stock's
+  shares owned, a video stream's address, the tasks' words filter, a ping host, a sun's or moon's coordinates and
+  every number of more steps than dots (`WidgetMenuLines.Number`). On the page of several the box sets every holder
+  (`SharedRowLines`, empty with the hint Mixed while they differ). A line asked once to make or rename something (a
+  list's Add…, an item's Rename…, a path typed beside a folder picker) still asks on its own page. Not yet: a fence's
+  title and rules (the fence's own code, under other work), a desktop icon's Name. Tests `WidgetMenuLinesTests.S2332_`,
+  `HeaderTests.S9602_`, the modules' menu tests (through `Typed.Ask`).
+- **[S-2348]** **Inside a card, pickers are folded** (owner, 2026-11-19: "in the settings the second level of select
+  sections should not be extended, right now in the display settings for example all of those are always extended.
+  they should be folded by default"; Karpo's picker head in its expander, §682 `PanelRow.Folded`): a choice, lookup,
+  colour, font or icon (and a list's item) inside an opened card shows its head (its name, what holds in Body, the
+  chevron) and unfolds its body under its line on a click (`PageView._unfolded`; several may stand unfolded, all
+  folded again as the card closes, a tab changes or a sub-page opens); a way in to one (`Open`, a render's click)
+  opens its card and unfolds it. A card's own lines carry no glyph of their setting (Karpo's §644), their names where
+  every row's stand; a mark of their own (a view's, `SettingsLine.Marked`, a colour, a picture, a file's icon) stays.
+- **[S-2349]** **The Display card in groups** (owner, 2026-11-19: "tidy up the displays configuration section in
+  general. right now there are a lot of settings that are just put one after another"; Karpo's §685 group heads):
+  opened, a display's own lines first (View, Show Themia here, Widget scale); then under a divider **View bar**, a
+  heading with its glyph (`SettingsHeading.Glyph`), its rows a step in (28, `ShellMetrics.Page.IndentStep`): Show the
+  view bar, Type, Labels, Position, Size; then **Views**, likewise: All views and each view's switch with its mark.
+  What only a shown bar draws (its type, labels, place, size and views) stands greyed while it is hidden. Tests
+  `DisplayMenuTests.S2349_`.
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,
@@ -7465,9 +7499,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (it follows the default device), the moon's month over its grid. Tests `WeatherGraphsTests.S12708_S12801_`,
   `SystemAtomsTests.S12801_`, the air graph's `S10402_`, `MailFeedTests.S6403_S12801_`, `PingFactsTests`.
 - **[S-12802]** **The Header widget names the place** ([S-9604]): it holds the shared place and shows its city after
-  its title while Show the place is on; every ready-made group about a place (Weather, Weather station, Sun, Moon,
-  Air quality, Weather graphs) places its header with it on (`ReadyMadeWidget.HeadsPlace`, `"showsPlace": true` in
-  its fragment), so setting the group's place once ([S-11753]) names it there and nowhere else. Test
+  its title while it holds one (no Show the place switch since 2026-11-19); a ready-made group's header is placed with
+  no place, so setting the group's place once ([S-11753]) names it there and nowhere else. Test
   `ReadyMadeGroupsTests.S12802_`.
 - **[S-12803]** **The screen time widgets' day line is a day's alone**: for a day it says which with its arrows
   ([S-454]); for a window (the last 7 or 30 days) there is no line and its sizing counts none

@@ -43,6 +43,12 @@ internal sealed partial class PageView : ContentControl
     /// <summary>The one card opened inside (an expander, a picker), by its row's key.</summary>
     private string? _open;
 
+    /// <summary>
+    /// [S-2303] The pickers (and lists) unfolded inside the open card, by their rows' keys: inside a card each is folded
+    /// until clicked (owner, 2026-11-19), as Karpo's picker heads in an expander; emptied as the card closes.
+    /// </summary>
+    private readonly HashSet<string> _unfolded = new(StringComparer.Ordinal);
+
     /// <summary>[S-2345] The tab chosen, by its key, kept while the page lives; null: the first.</summary>
     private string? _tab;
 
@@ -182,6 +188,7 @@ internal sealed partial class PageView : ContentControl
         ArgumentNullException.ThrowIfNull(path);
         _steps.Clear();
         _open = null;
+        _unfolded.Clear();
         _model ??= _build();
 
         // [S-2345] A way in lands on the tab its section stands on.
@@ -207,12 +214,21 @@ internal sealed partial class PageView : ContentControl
             {
                 _steps.Add(new SubStep(row.Key));
                 _open = null;
+                _unfolded.Clear();
+                inCard = false;
             }
-            else if (!inCard && row.Kind is SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon)
+            else if (Opens(row.Kind))
             {
-                // [S-2310] Inside an opened card a picker stands open already: the card stays the one open.
-                _open = row.Key;
-                inCard = row.Kind == SettingsRowKind.Expander;
+                // [S-2303] Inside an opened card a picker is folded: a way in unfolds it, the card staying the one open.
+                if (inCard)
+                {
+                    _unfolded.Add(row.Key);
+                }
+                else
+                {
+                    _open = row.Key;
+                    inCard = row.Kind == SettingsRowKind.Expander;
+                }
             }
 
             rows = row.Rows;
@@ -291,6 +307,7 @@ internal sealed partial class PageView : ContentControl
         {
             var open = _open;
             _open = null;
+            _unfolded.Clear();
             Show();
             Refocus(new FocusTag(open + "#head", 0));
             return true;
@@ -346,6 +363,7 @@ internal sealed partial class PageView : ContentControl
             {
                 _tab = key;
                 _open = null;
+                _unfolded.Clear();
                 Show();
             });
             strip.Margin = new Thickness(0, first ? 0 : P.TabsGap - P.CardGap, 0, P.TabsGap);
@@ -566,8 +584,19 @@ internal sealed partial class PageView : ContentControl
             case SettingsRowKind.SubPage:
                 Push(row);
                 break;
-            case SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon:
-                _open = row.Key;
+            case var kind when Opens(kind):
+                // [S-2303] A picker inside a card: its card opened, it unfolded in it.
+                if (CardOf(_model, key) is { } card)
+                {
+                    _open = card.Key;
+                    _unfolded.Add(row.Key);
+                }
+                else
+                {
+                    _open = row.Key;
+                    _unfolded.Clear();
+                }
+
                 Show();
                 if (Tagged(this, row.Key + "#row") is { } shown)
                 {
@@ -591,8 +620,20 @@ internal sealed partial class PageView : ContentControl
     {
         _tab = key;
         _open = null;
+        _unfolded.Clear();
         Show();
     }
+
+    /// <summary>[S-2308] The kinds of row that open in place: an expander and the inline pickers.</summary>
+    private static bool Opens(SettingsRowKind kind)
+        => kind is SettingsRowKind.Expander or SettingsRowKind.Choice or SettingsRowKind.Lookup or SettingsRowKind.Colour or SettingsRowKind.Font or SettingsRowKind.Icon;
+
+    /// <summary>The top-level expander of <paramref name="model"/> that <paramref name="key"/>'s row stands in; null for a row of a section's own.</summary>
+    private static PageRow? CardOf(PageModel model, string key)
+        => model.Sections.SelectMany(s => s.Rows).FirstOrDefault(r => r.Kind == SettingsRowKind.Expander && r.Key != key && r.Rows is { } inner && Holds(inner, key));
+
+    private static bool Holds(IReadOnlyList<PageRow> rows, string key)
+        => rows.Any(r => r.Key == key || (r.Rows is { } inner && Holds(inner, key)));
 
     /// <summary>[S-2328] A render's typing into the open lookup's box.</summary>
     internal void DebugType(string text)

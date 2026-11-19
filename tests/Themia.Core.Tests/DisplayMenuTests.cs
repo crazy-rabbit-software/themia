@@ -191,6 +191,39 @@ public sealed class DisplayMenuTests
     }
 
     [Fact]
+    public void S2349_a_displays_card_is_its_own_lines_then_the_bar_and_its_views_each_a_group_under_a_glyphs_head()
+    {
+        var host = new FakeHost();
+        var lines = Card(host, "a").Lines;
+        var b = Bar("a");
+
+        // Its own lines first, no divider nor heading between them: the view, Show Themia here (and why not), the scale.
+        Assert.Equal(
+            [DisplayMenu.Keys.View("a"), DisplayMenu.Keys.On("a"), DisplayMenu.Keys.On("a") + "/last", DisplayMenu.Keys.Scale("a")],
+            lines.TakeWhile(l => l is not SettingsSeparator).Select(l => l.Key));
+
+        // Then two groups, each a divider and a heading with a glyph (Karpo's §685).
+        var heads = lines.OfType<SettingsHeading>().ToList();
+        Assert.Equal([b, b + "/views"], heads.Select(h => h.Key));
+        Assert.All(heads, h => Assert.NotNull(h.Glyph));
+        Assert.All(lines.OfType<SettingsToggle>().Where(t => t.Key.StartsWith(b + "/views/", StringComparison.Ordinal) && t.Key != b + "/views/all"), t => Assert.True(t.Marked));
+    }
+
+    [Fact]
+    public void S2349_what_only_a_shown_bar_draws_stands_greyed_while_it_is_hidden()
+    {
+        var host = new FakeHost();
+        var b = Bar("a");
+        string[] keys = [b + "/type", b + "/labels", b + "/position", b + "/size", b + "/views/all", b + "/views/home", b + "/views/work"];
+        Assert.All(keys, k => Assert.False(Card(host, "a").Lines.Single(l => l.Key == k).Disabled));
+
+        In<SettingsToggle>(host, "a", b + "/show").Set(false);
+
+        Assert.All(keys, k => Assert.True(Card(host, "a").Lines.Single(l => l.Key == k).Disabled));
+        Assert.False(In<SettingsToggle>(host, "a", b + "/show").Disabled);
+    }
+
+    [Fact]
     public void S13400_type_offers_every_style_in_order_and_picking_one_stores_it()
     {
         var host = new FakeHost();

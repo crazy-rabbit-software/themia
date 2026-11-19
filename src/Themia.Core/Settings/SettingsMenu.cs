@@ -23,13 +23,27 @@ public abstract record SettingsLine(string Key)
 
     /// <summary>[S-3581] A picture in its icon column instead of a glyph (the app's mark, the studio's).</summary>
     public MenuPicture? Picture { get; init; }
+
+    /// <summary>
+    /// [S-2317] Its glyph is its thing's own mark (a view's), not one naming the setting: a card's line keeps it where a
+    /// setting's glyph is left out (Karpo's §644). A colour or a picture is always the line's own.
+    /// </summary>
+    public bool Marked { get; init; }
 }
 
 /// <summary>A divider between groups; leading, trailing and doubled ones are dropped.</summary>
 public sealed record SettingsSeparator(string Key) : SettingsLine(Key);
 
-/// <summary>[S-3740] A heading over a group (Karpo's): its words in the 12-DIP semibold, never picked.</summary>
-public sealed record SettingsHeading(string Key, string Text) : SettingsLine(Key);
+/// <summary>
+/// [S-3740] A heading over a group (Karpo's): its words in the 12-DIP semibold, never picked. [S-2349] Inside a card one
+/// with a <see cref="Glyph"/> heads a group (Karpo's §685): its glyph and words a line of their own, the rows under it to
+/// the next heading or divider a step in.
+/// </summary>
+public sealed record SettingsHeading(string Key, string Text) : SettingsLine(Key)
+{
+    /// <summary>[S-2349] The glyph of a group's head inside a card; null for a plain heading.</summary>
+    public string? Glyph { get; init; }
+}
 
 /// <summary>[S-3728] Words only, greyed, never clickable; nothing at all while <see cref="Text"/> is empty.</summary>
 public sealed record SettingsNote(string Key, string Text) : SettingsLine(Key)

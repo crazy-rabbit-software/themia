@@ -29,10 +29,14 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class PageView
 {
-    /// <summary>[S-2308] A card that opens: its head (icon, name, what holds, a chevron) and, open, what it opens.</summary>
-    private StackPanel Expander(PageRow row)
+    /// <summary>
+    /// [S-2308] A card that opens: its head (icon, name, what holds, a chevron) and, open, what it opens. [S-2303]
+    /// <paramref name="inside"/> an opened card (Karpo's picker head in its expander, §682 <c>PanelRow.Folded</c>) it is
+    /// folded until its head is clicked, its body unfolding under its line; the card's other rows stay as they are.
+    /// </summary>
+    private StackPanel Expander(PageRow row, bool inside = false)
     {
-        var open = _open == row.Key;
+        var open = inside ? _unfolded.Contains(row.Key) : _open == row.Key;
         var head = Plain(new Button
         {
             Content = Lay(row, HeadEnd(row, open), row.Caption, lead: row.Order is not null ? Grip(row) : null),
@@ -42,7 +46,20 @@ internal sealed partial class PageView
         AutomationProperties.SetName(head, Said(row));
         head.Click += (_, _) =>
         {
-            _open = open ? null : row.Key;
+            if (inside)
+            {
+                // ignore: Remove's answer; Add after it only where it was not there.
+                if (!_unfolded.Remove(row.Key))
+                {
+                    _unfolded.Add(row.Key);
+                }
+            }
+            else
+            {
+                _open = open ? null : row.Key;
+                _unfolded.Clear();
+            }
+
             Show();
             // [S-2347] The card with what it opened, scrolled only as far as it takes to stand whole in sight.
             if (!open && Tagged(this, row.Key + "#row") is { } shown)
@@ -56,18 +73,9 @@ internal sealed partial class PageView
         if (open)
         {
             card.Children.Add(Hairline());
-            card.Children.Add(Body(row));
+            card.Children.Add(Body(row, inside));
         }
 
-        return card;
-    }
-
-    /// <summary>[S-2303] Inside an expander a picker stands open: its name over it (a card has no third level).</summary>
-    private FrameworkElement StandingOpen(PageRow row)
-    {
-        var card = new StackPanel();
-        card.Children.Add(Lay(row, End(row.Kind == SettingsRowKind.Expander ? null : row.Value, null), row.Caption));
-        card.Children.Add(Body(row));
         return card;
     }
 
@@ -119,32 +127,47 @@ internal sealed partial class PageView
         Fill = ShellBrush.Of(ShellRole.CardStroke),
     };
 
-    /// <summary>[S-2308] What an opened card holds.</summary>
-    private FrameworkElement Body(PageRow row)
+    /// <summary>[S-2308] What an opened card holds; <paramref name="inside"/> a card, a picker's body square at its foot (more rows follow).</summary>
+    private FrameworkElement Body(PageRow row, bool inside = false)
     {
         if (row.Kind == SettingsRowKind.Expander)
         {
             // [S-2303] An expander's rows on its own card, one level in, no deeper.
             var rows = new StackPanel();
             var inner = row.Rows ?? [];
+
+            // [S-2349] Under a group's head (a heading with a glyph) its rows a step in, to the next heading or divider.
+            var step = 0.0;
             for (var i = 0; i < inner.Count; i++)
             {
                 if (inner[i].Kind == SettingsRowKind.Break)
                 {
                     rows.Children.Add(Hairline());
+                    step = 0;
                     continue;
+                }
+
+                if (inner[i].Kind == SettingsRowKind.Heading)
+                {
+                    step = inner[i].Icon is null ? 0 : P.IndentStep;
                 }
 
                 // [S-2308] Options standing open in the card: radio rows, more than six in columns.
                 if (inner[i].Kind == SettingsRowKind.Radio)
                 {
                     var run = inner.Skip(i).TakeWhile(r => r.Kind == SettingsRowKind.Radio).ToList();
-                    rows.Children.Add(new Border { Padding = new Thickness(P.IconAt, 0, P.EndInset, 0), Child = Options(run) });
+                    rows.Children.Add(new Border { Padding = new Thickness(P.IconAt + step, 0, P.EndInset, 0), Child = Options(run, row.Key + "#" + i) });
                     i += run.Count - 1;
                     continue;
                 }
 
-                rows.Children.Add(RowOf(inner[i], inside: true, first: i == 0 || inner[i - 1].Kind == SettingsRowKind.Break));
+                var shown = RowOf(inner[i], inside: true, first: i == 0 || inner[i - 1].Kind == SettingsRowKind.Break);
+                if (step > 0 && inner[i].Kind != SettingsRowKind.Heading)
+                {
+                    shown.Margin = new Thickness(step, 0, 0, 0);
+                }
+
+                rows.Children.Add(shown);
             }
 
             return rows;
@@ -152,7 +175,7 @@ internal sealed partial class PageView
 
         FrameworkElement picker = row.Kind switch
         {
-            SettingsRowKind.Choice => Options(row.Rows ?? []),
+            SettingsRowKind.Choice => Options(row.Rows ?? [], row.Key),
             SettingsRowKind.Lookup => Lookup(row),
             SettingsRowKind.Colour => ColourPicker(row),
             _ => Picked(row),
@@ -162,13 +185,17 @@ internal sealed partial class PageView
         {
             Background = ShellBrush.Of(ShellRole.CardSecondary),
             Padding = new Thickness(I.Pad),
-            CornerRadius = new CornerRadius(0, 0, P.CardRadius, P.CardRadius),
+            CornerRadius = inside ? new CornerRadius(0) : new CornerRadius(0, 0, P.CardRadius, P.CardRadius),
             Child = picker,
         };
     }
 
-    /// <summary>[S-2308] A choice's options: radio rows 36 tall; more than six in up to three columns, each at least 180 wide.</summary>
-    private FrameworkElement Options(IReadOnlyList<PageRow> options)
+    /// <summary>
+    /// [S-2308] A choice's options: radio rows 36 tall; more than six in up to three columns, each at least 180 wide.
+    /// Their radio group is the choice's own (<paramref name="group"/>, its row's key): one name shared by every
+    /// choice on the page made them one group, so the page showed one option of all its choices checked.
+    /// </summary>
+    private FrameworkElement Options(IReadOnlyList<PageRow> options, string group)
     {
         var radios = options.Where(o => o.Kind == SettingsRowKind.Radio).ToList();
         var columns = radios.Count <= I.InColumn ? 1 : Math.Min(I.Columns, (int)Math.Floor((ShellMetrics.Flyout.Cards - (2 * I.Pad)) / I.OptionLeast));
@@ -190,7 +217,7 @@ internal sealed partial class PageView
         {
             var radio = RadioRow(radios[i]);
             radio.Margin = new Thickness(0);
-            radio.GroupName = "options";
+            radio.GroupName = group;
             Grid.SetColumn(radio, i / perColumn);
             Grid.SetRow(radio, i % perColumn);
             grid.Children.Add(radio);
@@ -260,7 +287,7 @@ internal sealed partial class PageView
             if (radio is RadioButton r)
             {
                 r.Margin = new Thickness(0);
-                r.GroupName = "found";
+                r.GroupName = row.Key + "#found";
             }
 
             list.Children.Add(radio);
