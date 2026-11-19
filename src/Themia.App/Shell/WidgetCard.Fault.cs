@@ -273,6 +273,10 @@ internal sealed partial class WidgetCard
     {
         var old = _view;
         DetachQuietly();
+
+        // [S-11963] What the old view lit goes with it: the new one lights the card again if it is the thing.
+        _linkState = ItemState.Rest;
+        PaintLinkFill();
         _view = next;
         Swap(old, next);
     }

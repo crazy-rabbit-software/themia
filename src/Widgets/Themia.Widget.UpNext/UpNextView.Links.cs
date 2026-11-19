@@ -72,8 +72,12 @@ internal sealed partial class UpNextView
             {
                 _ownEvent = null;
                 _links.Set(LinkTopics.HoveredEvent, null);
-                _pointedPerson = null;
                 _links.Set(LinkTopics.HoveredPerson, null);
+
+                // [S-11964] What the board holds now, not what was heard last: a hover this row took over from another
+                // widget (the same meeting set again) and let go is cleared without this widget hearing it.
+                _pointedEvent = _links.Get(LinkTopics.HoveredEvent);
+                _pointedPerson = _links.Get(LinkTopics.HoveredPerson);
                 LightRows();
             }
         };

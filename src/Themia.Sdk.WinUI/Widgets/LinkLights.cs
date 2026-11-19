@@ -26,7 +26,6 @@ public sealed class LinkLights<T>
     private readonly LinkTopic<T>? _picked;
     private readonly Dictionary<UIElement, Part> _parts = [];
     private readonly HashSet<UIElement> _wired = [];
-    private T? _pointed;
     private T? _selected;
     private T? _own;
 
@@ -38,9 +37,8 @@ public sealed class LinkLights<T>
         _links = links;
         _hovered = hovered;
         _picked = picked;
-        links.Follow(hovered, value =>
+        links.Follow(hovered, _ =>
         {
-            _pointed = value;
             _own = null;
             Apply();
         });
@@ -57,8 +55,13 @@ public sealed class LinkLights<T>
     /// <summary>Called after the parts were lit again (for what a widget derives: a caption, a total).</summary>
     public event Action? Changed;
 
-    /// <summary>The value pointed at now: this widget's own pointer, else another widget's.</summary>
-    public T? Pointed => _own ?? _pointed;
+    /// <summary>
+    /// The value pointed at now: this widget's own pointer, else what the view's board holds. [S-11964] Read from the
+    /// board, never remembered from the last change heard: a widget that took a hover over from another (the same
+    /// value set again owns it silently) and then let it go never hears its own clear, and a remembered value would
+    /// keep its row lit with nothing pointed at.
+    /// </summary>
+    public T? Pointed => _own ?? _links.Get(_hovered);
 
     /// <summary>The value picked on the view now.</summary>
     public T? Picked => _selected;
@@ -268,6 +271,70 @@ public static class LinkLook
             _ => ItemState.Rest,
         });
         Pill(row, light == LinkLight.Picked);
+    }
+
+    /// <summary>
+    /// [S-11903] [S-11963] Light the whole card <paramref name="view"/> stands in as <paramref name="light"/>: the card
+    /// paints the item layer's fill over its whole box, edge to edge and in its own corners
+    /// (<see cref="IWidgetSurface.LightCard"/>), never the view's own background, which stops at the inset the card
+    /// gives the view's top and at any margin the view keeps at its foot. A view not yet in its card is lit as it
+    /// loads into it.
+    /// </summary>
+    public static void Card(FrameworkElement view, LinkLight light)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        Wanted.AddOrUpdate(view, new CardLight(light));
+        if (SurfaceOf(view) is { } surface)
+        {
+            surface.LightCard(State(light));
+        }
+        else if (light != LinkLight.None)
+        {
+            view.Loaded -= OnCardLoaded;
+            view.Loaded += OnCardLoaded;
+        }
+    }
+
+    /// <summary>What each view last asked of its card, for one that asked before it stood in it.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<FrameworkElement, CardLight> Wanted = [];
+
+    private sealed record CardLight(LinkLight Light);
+
+    private static ItemState State(LinkLight light) => light switch
+    {
+        LinkLight.Pointed => ItemState.Hover,
+        LinkLight.Picked => ItemState.Selected,
+        _ => ItemState.Rest,
+    };
+
+    private static void OnCardLoaded(object sender, RoutedEventArgs args)
+    {
+        if (sender is not FrameworkElement view)
+        {
+            return;
+        }
+
+        view.Loaded -= OnCardLoaded;
+        if (Wanted.TryGetValue(view, out var wanted) && SurfaceOf(view) is { } surface)
+        {
+            surface.LightCard(State(wanted.Light));
+        }
+    }
+
+    /// <summary>The card (the surface) <paramref name="view"/> stands in, or null while it stands in none.</summary>
+    private static IWidgetSurface? SurfaceOf(DependencyObject view)
+    {
+        for (var at = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(view) ?? (view as FrameworkElement)?.Parent;
+             at is not null;
+             at = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(at) ?? (at as FrameworkElement)?.Parent)
+        {
+            if (at is IWidgetSurface surface)
+            {
+                return surface;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>

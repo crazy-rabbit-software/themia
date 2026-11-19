@@ -30,7 +30,8 @@ I/O meters' are `IoStylesHostTests`.
 - **[S-2016]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
   folder's `Taskmgr.exe`); the module decides it (`DiskModule.Opens`, through its part's `Opens`).
 - View links: a reading of one drive is that drive as a card: the pointer on it publishes the drive and the card
-  takes the hover fill while it is pointed at elsewhere; every drive together takes no part ([S-11950], [S-11953]).
+  takes the hover fill, over its whole box, under the pointer and while it is pointed at elsewhere; every drive together
+  takes no part ([S-11950], [S-11953], [S-11962], [S-11963]).
 
 Needs a manual pass: the meter on a live desktop (a copy moving the chart, a USB drive chosen then
 removed, all drives, both styles, the header switched off).

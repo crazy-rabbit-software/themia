@@ -63,6 +63,15 @@ public interface IWidgetSurface
     Themia.Core.Links.LinkBoard? Links => null;
 
     /// <summary>
+    /// [S-11903] [S-11963] Light the whole card as one item in <paramref name="state"/> (the hover fill while it, or the
+    /// thing it is, is pointed at; <see cref="Themia.Core.Widgets.ItemState.Rest"/> to let go): the item layer's fill over
+    /// the card's whole box, edge to edge, in its corners, under the view. Through <see cref="LinkLook.Card"/> only.
+    /// </summary>
+    void LightCard(Themia.Core.Widgets.ItemState state)
+    {
+    }
+
+    /// <summary>
     /// [S-873] Paint nothing, or paint again: the card drops its fill, border and content, so the
     /// wallpaper shows where it stood. For a widget that has nothing
     /// to show right now (music with nothing playing). Edit mode always shows it, so a hidden widget

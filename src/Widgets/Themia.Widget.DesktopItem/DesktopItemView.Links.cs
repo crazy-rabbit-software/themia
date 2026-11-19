@@ -75,5 +75,13 @@ internal sealed partial class DesktopItemView
         {
             _links.Set(LinkTopics.HoveredFile, on ? file : null);
         }
+
+        if (!on)
+        {
+            // [S-11964] What the board holds now, not what was heard last: a hover this icon took over from another
+            // widget (the same app or file set again) and let go is cleared without this icon hearing it.
+            _pointedApp = _links.Get(LinkTopics.HoveredApp);
+            _pointedFile = _links.Get(LinkTopics.HoveredFile);
+        }
     }
 }

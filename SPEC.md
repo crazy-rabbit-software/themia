@@ -6029,9 +6029,9 @@ the same thing in the others and a composition of small widgets reads as one (Ka
 `docs/widgets.md` §9, taken over in breadth: the declaration in data and the two emphasis levels; the
 engine is Themia's own). Owning files: SDK `Themia.Sdk/Links/` (`ViewLinks.cs`: `LinkTopicId`,
 `LinkTopics`, `LinkBoard`, `LinkMember`, `LinkRegistry`; `LinkUse`, `LinkEmphasis`, `LinkKeys`,
-`LinkInstants`); WinUI SDK `Widgets/WidgetLinks.cs` (`WidgetLinks`), `LinkLights.cs` (`LinkLights<T>`, `LinkLook`), `LinkCard.cs` (`LinkCard<T>`), `MeterView.Links.cs`; App
+`LinkInstants`, `LinkCardState`); WinUI SDK `Widgets/WidgetLinks.cs` (`WidgetLinks`), `LinkLights.cs` (`LinkLights<T>`, `LinkLook`), `LinkCard.cs` (`LinkCard<T>`), `MeterView.Links.cs`; App
 `AppServices.Links`, `IWidgetSurface.Links`, `IWidgetCardHost.Links`. Tests `ViewLinksTests` (`S33xx_`),
-`ViewLinksLookTests` (`S119xx_`), `ViewLinksConformanceTests` (Modules).
+`ViewLinksLookTests` (`S119xx_`), `ViewLinksCardTests` (a whole card), `ViewLinksConformanceTests` (Modules).
 
 The board:
 
@@ -6083,6 +6083,22 @@ The one look, everywhere ([S-6706]: the family's item layer and accent; no hue o
   drive) takes the item layer's hover fill over its content.
 - **[S-11904]** No animation: a part lights in the frame the value arrives. High contrast: the item layer's
   own states, the system's highlight colours.
+- **[S-11962]** A whole card that is one thing (a drive's card, a meter of one drive, the next meeting) shows the
+  hover under its own pointer as well: the pointer on the card lights it as it lights the others that are the same
+  thing (owner, 2026-11-19: "when hovering over a widget it also does not show the hover effect, it just shows it for
+  all the other same kind disk widgets"). A part of a card that publishes for it (a folder's tool line or path) keeps
+  its own hover and leaves the card as it is (`LinkCardState.Enter(wholeCard)`).
+- **[S-11963]** A whole card is lit by the card, never by the view: the item layer's fill over the card's whole box,
+  edge to edge, in its corners, over its material and under the view (`LinkLook.Card` → `IWidgetSurface.LightCard`).
+  The view's own box stops at the inset the card gives its top ([S-5700]) and at any margin it keeps at its foot, so
+  its background lit as the card left a dark band over the top and under the foot (owner, 2026-11-19: "the hover
+  areas of the disk widgets are fucked up and wrong"). Not in edit mode ([S-1751]).
+- **[S-11964]** What is pointed at elsewhere is what the board holds when a part is lit, read then, never a value
+  remembered from the last change heard (`LinkCardState`, `LinkLights.Pointed`, `nextMeeting`, `upNext`'s rows,
+  `desktopItem`; `ScreenTimeLinks` already read it): a member never hears
+  its own change ([S-3303]), so a widget that took a hover over from another (the same value set again owns it
+  silently, [S-3304]; touching cards, the next entered before the last left) and then let it go stayed lit with
+  nothing pointed at.
 
 Declared in data:
 
@@ -6252,9 +6268,10 @@ The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `Lin
   a `diskHistory` chart of one drive ([S-11953]) and a `folder` on it ([S-11954]) are that drive as a whole card, a
   `removableDrives` row is its drive. The pointer on the card (or the row, or the list's keyboard cursor, [S-3307])
   publishes the drive, and while a drive is pointed at anywhere on the view every card that is it takes the item
-  layer's hover fill over its content (`LinkCard`, [S-11903]; the card's header band is the card's, not the view's,
-  and stays as it is) and every row that is it the row's hover fill ([S-11901]). A card's own pointer never lights
-  it. Painted in place, never rebuilt.
+  layer's hover fill over its whole box (`LinkCard`, [S-11903], [S-11963]) and every row that is it the row's hover
+  fill ([S-11901]). The card under the pointer shows that hover too ([S-11962]); cards of the same kind are no
+  different from the others: two disk readings of one drive both light, a reading of another drive does not.
+  Painted in place, never rebuilt.
 - **[S-11951]** A drive is the letter and colon of a path on it, upper-case (`LinkKeys.Drive`: `c:\Users` → `C:`);
   a path on no lettered drive (a share) is none.
 - **[S-11952]** A disk atom's drive is its scope's (`DiskScopes.DriveLink`): its drive, the system drive when none is

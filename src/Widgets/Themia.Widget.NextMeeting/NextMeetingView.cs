@@ -92,11 +92,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     private IDisposable? _tick;
     private LinkMember? _member;
 
-    /// <summary>[S-4825] The event another widget points at.</summary>
-    private EventLink? _pointedEvent;
-
-    /// <summary>[S-11944] The person another widget points at.</summary>
-    private PersonLink? _pointedPerson;
+    /// <summary>[S-11962] The pointer is on the card's content: the card shows its hover.</summary>
+    private bool _pointing;
     private NextMeetingConfig _config = new();
     private CalendarEvent? _shown;
     private bool _detached;
@@ -190,6 +187,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _feed.Stop();
         _member?.Dispose();
         _member = null;
+        _pointing = false;
+        LightCard();
 
         _content.PointerEntered -= OnPointerEntered;
         _content.PointerExited -= OnPointerExited;
@@ -408,42 +407,46 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     /// <summary>[S-4825] Pointing at the event lights it in the calendar widgets on the view.</summary>
     private void OnPointerEntered(object sender, PointerRoutedEventArgs args)
     {
+        _pointing = true;
         if (_shown is { } item)
         {
             _member?.Set(LinkTopics.HoveredEvent, CalendarShare.Key(item));
-            LinkLook.Row(this, LinkLight.None);
         }
+
+        LightCard();
     }
 
-    private void OnPointerExited(object sender, PointerRoutedEventArgs args) => _member?.Clear(LinkTopics.HoveredEvent);
+    private void OnPointerExited(object sender, PointerRoutedEventArgs args)
+    {
+        _pointing = false;
+        _member?.Clear(LinkTopics.HoveredEvent);
+        LightCard();
+    }
 
     /// <summary>
     /// [S-4825] [S-11903] Another widget points at an event: when it is this one's, the whole card takes the
     /// item layer's hover fill; another event changes nothing here (this widget does not show it).
     /// </summary>
-    private void OnHoveredElsewhere(EventLink? value)
-    {
-        _pointedEvent = value;
-        LightCard();
-    }
+    private void OnHoveredElsewhere(EventLink? value) => LightCard();
 
     /// <summary>[S-11944] Another widget points at a person: when it is the organiser this card shows, the card lights.</summary>
-    private void OnPersonElsewhere(PersonLink? value)
-    {
-        _pointedPerson = value;
-        LightCard();
-    }
+    private void OnPersonElsewhere(PersonLink? value) => LightCard();
 
     /// <summary>
-    /// [S-11903] [S-11944] The whole card takes the item layer's hover fill while its event, or the organiser its
-    /// line shows, is pointed at elsewhere on the view; anything it does not show changes nothing here.
+    /// [S-11903] [S-11944] [S-11962] The whole card takes the item layer's hover fill under the pointer, and while
+    /// its event, or the organiser its line shows, is pointed at elsewhere on the view; anything it does not show
+    /// changes nothing here. [S-11964] What is pointed at is what the board holds now, never a value remembered from
+    /// the last change heard. [S-11963] The fill is the card's, over its whole box.
     /// </summary>
     private void LightCard()
     {
+        var pointedEvent = _member?.Get(LinkTopics.HoveredEvent);
+        var pointedPerson = _member?.Get(LinkTopics.HoveredPerson);
         var lit = _shown is { } item
-            && ((_pointedEvent is not null && _pointedEvent.Equals(CalendarShare.Key(item)))
-                || (_pointedPerson is not null && _organizer.Row.Visibility == Visibility.Visible && _pointedPerson.Equals(CalendarShare.Person(item))));
-        LinkLook.Row(this, lit ? LinkLight.Pointed : LinkLight.None);
+            && (_pointing
+                || (pointedEvent is not null && pointedEvent.Equals(CalendarShare.Key(item)))
+                || (pointedPerson is not null && _organizer.Row.Visibility == Visibility.Visible && pointedPerson.Equals(CalendarShare.Person(item))));
+        LinkLook.Card(this, lit ? LinkLight.Pointed : LinkLight.None);
     }
 
     /// <summary>[S-11944] Pointing at the organiser's line publishes the organiser (and, as the card, the meeting).</summary>

@@ -315,7 +315,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-2103] The widget's fill is one surface across the whole card.
         // [S-6590] The background image under everything, across the whole card.
         // [S-2140] The grain over the material, under the content.
-        foreach (var layer in new FrameworkElement[] { _image, _fill, _glass, _lens, _grain })
+        // [S-11963] The card lit as one item (view links), over the material and under the view.
+        foreach (var layer in new FrameworkElement[] { _image, _fill, _glass, _lens, _grain, _linkFill })
         {
             content.Children.Add(layer);
         }
@@ -637,6 +638,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     {
         ApplySelection();
         ApplyHidden();
+        PaintLinkFill();
 
         // Outside edit mode the card must not eat pointer input at all: a clock is something you
         // look at, and the desktop underneath stays usable.
@@ -1349,6 +1351,32 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     string? IWidgetSurface.WidgetId => _host.IsPreview ? null : Model.Id;
 
     Themia.Core.Links.LinkBoard? IWidgetSurface.Links => _host.Links;
+
+    /// <summary>
+    /// [S-11903] [S-11963] The card lit as one item (a drive's card under the pointer, or its drive pointed at
+    /// elsewhere): one layer over the card's material and under the view, the whole content area edge to edge,
+    /// clipped to the card's corners by the surface, so the band is the card and never the view's box (which stops
+    /// at the inset the card gives its top). Not in edit mode, where the view takes no pointer ([S-1751]).
+    /// </summary>
+    void IWidgetSurface.LightCard(ItemState state)
+    {
+        _linkState = state;
+        PaintLinkFill();
+    }
+
+    private readonly Border _linkFill = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+    private ItemState _linkState = ItemState.Rest;
+
+    private void PaintLinkFill()
+    {
+        var lit = _linkState != ItemState.Rest && !_host.EditMode;
+        if (lit)
+        {
+            ItemFill.Paint(_linkFill, ItemRole.Row, _linkState);
+        }
+
+        _linkFill.Visibility = lit ? Visibility.Visible : Visibility.Collapsed;
+    }
 
     /// <inheritdoc />
     void IWidgetSurface.SetHidden(bool hidden)
