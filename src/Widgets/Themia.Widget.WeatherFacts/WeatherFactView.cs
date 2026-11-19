@@ -89,10 +89,10 @@ internal sealed partial class WeatherFactView : Grid, IWidgetView, IWidgetOpens,
         _status.Show(problems, busy: false);
         ToolTipService.SetToolTip(_row, null);
 
-        // [S-13902] Its one row is the first: the problem glyph over the top end would stand on the value, so the row
-        // leaves the glyph its room while it shows.
-        var edge = ListEdge.Margin;
-        _row.Margin = problems.Count > 0 ? new Thickness(edge.Left, edge.Top, edge.Right + FamilyShape.Icon + LineRules.PartGap, edge.Bottom) : edge;
+        // [S-13902] [S-12834] Its one row is the first: the problem glyph over the top end would stand on the value, so the
+        // row's value leaves the glyph its room while it shows (the facts list's status room), the row's box still running
+        // from the card's left edge to its right (WR-3).
+        _row.Margin = ListEdge.Margin;
         var fact = WeatherFactRules.For(Strings.Current, _fact, reading, _feed.Want?.Unit ?? RegionFormat.Current.Temperature);
         _row.Show([new FactLine(FactGlyph(_fact), fact.Label, fact.Value)]);
     }
