@@ -26,6 +26,24 @@ internal sealed partial class AppHost
     /// </summary>
     public IReadOnlyList<MonitorTarget> Displays => _displays;
 
+#if DEBUG
+    /// <summary>Debug checks only: a stand-in display's surface counts as one of the host's surfaces (the desktop's selection lays out over them).</summary>
+    internal void AdoptSurfaceForCheck(DesktopWindow window) => _windows.Add(window);
+
+    /// <summary>Debug checks only: the desk follows the host as at the app's start (<see cref="StartDesk"/>), and lets go.</summary>
+    internal void StartDeskForCheck(bool start)
+    {
+        if (start)
+        {
+            StartDesk();
+        }
+        else
+        {
+            StopDesk();
+        }
+    }
+
+#endif
     /// <summary>A connected display by its stable id, or null.</summary>
     public MonitorTarget? FindDisplay(string id)
         => _displays.FindIndex(d => d.Id == id) is var at and >= 0 ? _displays[at] : null;

@@ -252,6 +252,12 @@ public partial class App : Application
             return;
         }
 
+        // And the locked desktop's one selection of cards and icons through a real host and surface, real input with --live ([S-12954]).
+        if (Shell.Gallery.DeskSelectCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And the surface's drop plumbing, exercised off-screen ([S-1026]).
         if (Shell.Gallery.DropCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

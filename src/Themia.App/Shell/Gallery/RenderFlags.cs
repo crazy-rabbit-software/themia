@@ -29,6 +29,7 @@ internal static class RenderFlags
         "--switch-check",
         "--startup-check",
         "--drop-check",
+        DeskSelectCheck.Flag,
         "--family-check",
         "--clock-style-check",
         DesktopRender.Flag,
