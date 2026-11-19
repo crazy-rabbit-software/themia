@@ -196,12 +196,7 @@ public sealed partial class KitList
     }
 
     /// <summary>[S-784] A group's heading (the done ones): one row of 28 (stretched as the rows are, [S-12410]), BodyStrong, secondary.</summary>
-    private Grid CheckHeading(string text)
-    {
-        var heading = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, text);
-        heading.VerticalAlignment = VerticalAlignment.Center;
-        return new Grid { Children = { heading }, Height = _plan.HeadingHeight, Padding = Family.SideInset };
-    }
+    private Grid CheckHeading(string text) => SectionHeading.Make(text, _plan.HeadingHeight);
 
     /// <summary>
     /// [S-7037] One row, a Row block: the check as its lead, the title as the name (BodyStrong when

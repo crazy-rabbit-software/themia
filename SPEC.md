@@ -7781,6 +7781,12 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   line without, so the columns line up), a list without has no lead (the system facts have none). The inventory of
   the other families and their outliers is the plan for the next ones (docs: none; renders `--widget-png
   cpuFacts|driveFacts|weatherFacts|stopwatch --state sample --sizes range`).
+- **[S-12812]** **One section heading** (owner, 2026-11-19: "generally i feel like the widgets have to much variance in
+  themselves. they should reuse more of the same components"). A heading inside a card over a section of rows (a day
+  of the agenda and the schedule, a day of the week planner, a list's done group) is one kit part,
+  `SectionHeading.Make`: one row of 28 stretched as its list's rows are, BodyStrong, secondary (primary for the
+  current one: today, the chosen day), the row's side inset. Three copies (`KitList.Paged`, `KitList.Checked`, the
+  week planner) are one.
 - **[S-12813]** **Missing data draws the default, never nothing** (owner, 2026-11-19: "even if there is no rain in the
   next two hours or even if there is no cpu data available it should show the default values in the graph and not
   just not show the graph. for both cases. also for other widgets"). A shared part never vanishes because its data is

@@ -442,9 +442,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     {
         if (slot.Heading)
         {
-            var title = Family.Text(FamilyType.BodyStrong, day.Day == today ? ColourRole.TextPrimary : ColourRole.TextSecondary, Formatting.DayHeading(day.Day, today));
-            title.VerticalAlignment = VerticalAlignment.Center;
-            var head = new Grid { Children = { title }, Height = FamilyShape.Row1, Padding = Family.SideInset, Background = Family.Brush(ColourRole.Clear) };
+            var head = SectionHeading.Make(Formatting.DayHeading(day.Day, today), FamilyShape.Row1, day.Day == today);
+            head.Background = Family.Brush(ColourRole.Clear);
             LinkHead(head, day.Day);
             stack.Children.Add(head);
         }
