@@ -10,6 +10,7 @@ using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Music;
 using Themia.App.Services;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("music", typeof(MusicModule))]
 
@@ -32,7 +33,7 @@ public sealed class MusicModule : IWidgetModule
         Label = MusicStr.WidgetsA_Catalog_Music_Label.Local(),
         Description = MusicStr.WidgetsA_Catalog_Music_Description.Local(),
         Glyph = Glyphs.Music,
-        Sizing = _ => MusicFace.Sizing(),
+        Sizing = _ => MusicFace.Sizing().ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 0, Popular: 7),
     };

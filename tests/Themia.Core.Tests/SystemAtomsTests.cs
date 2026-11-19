@@ -52,7 +52,9 @@ public sealed class SystemAtomsTests
             var sizing = MeterSizing.Reading(look, worst, rows: 2);
             Assert.Empty(sizing.Problems());
             Assert.True(sizing.Min.Width >= MeterSizing.ReadingMinWidth);
-            Assert.True(sizing.Min.Width >= MeterSizing.ReadingWidth(MeterSizing.Identified(look, worst)) + 24, $"{look}: the reading is cut at its least");
+            // [S-12833] The reading alone holds at its natural width and draws scaled down under it.
+            var held = look == MeterLook.Number ? sizing.Natural.Width : sizing.Min.Width;
+            Assert.True(held >= MeterSizing.ReadingWidth(MeterSizing.Identified(look, worst)) + 24, $"{look}: the reading is cut at its least");
             Assert.True(sizing.Max.Width <= 480);
         }
     }
@@ -61,9 +63,13 @@ public sealed class SystemAtomsTests
     public void S11001_the_number_is_the_header_the_reading_at_28_and_the_inset_and_two_stand_8_apart()
     {
         var one = MeterSizing.Reading(MeterLook.Number, Percent);
-        Assert.Equal((60, 60), (one.Min.Height, one.Max.Height));
+
+        // [S-12833] The reading alone is 60 tall at its natural size and scales down as one to its unit's floor.
+        var k = ScaleFloor.Least(FamilyType.Unit(FamilyType.Big28).FontSize, FamilyShape.Icon);
+        double Least(double natural) => Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(natural * k));
+        Assert.Equal((Least(60), 60), (one.Min.Height, one.Max.Height));
         var least = Math.Max(120, Math.Ceiling((MeterSizing.ReadingWidth(Percent with { Lead = true }) + 24) / 4) * 4);
-        Assert.Equal((least, 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
+        Assert.Equal((Math.Min(least, Least(160)), 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
 
         Assert.Equal(12 + 44 + 56 + 12, MeterSizing.Reading(MeterLook.Rows, Percent, rows: 2).Natural.Height);
     }
@@ -86,7 +92,8 @@ public sealed class SystemAtomsTests
 
         // The sizing counts the glyph where it is drawn: never narrower than the reading with it.
         var sizing = MeterSizing.Reading(look, Percent, rows: 2);
-        Assert.True(sizing.Min.Width >= MeterSizing.ReadingWidth(MeterSizing.Identified(look, Percent)) + 24, $"{look}: the glyph and the reading fit");
+        var held = look == MeterLook.Number ? sizing.Natural.Width : sizing.Min.Width; // [S-12833] the reading alone scales down
+        Assert.True(held >= MeterSizing.ReadingWidth(MeterSizing.Identified(look, Percent)) + 24, $"{look}: the glyph and the reading fit");
     }
 
     [Fact]

@@ -139,7 +139,10 @@ public static class MeterSizing
                 // and the network's two lines up at one width (This PC, [S-2474]).
                 var w = Widths(reading);
                 var h = top + Line + foot;
-                return WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(Math.Max(w.Max, NumbersMaxWidth), h));
+
+                // [S-12833] The reading alone scales down as one until its unit is at the legibility floor.
+                var alone = WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(Math.Max(w.Max, NumbersMaxWidth), h));
+                return look == MeterLook.Number ? alone.ScalesDown(ScaleFloor.Least(FamilyType.Unit(FamilyType.Big28).FontSize, FamilyShape.Icon)) : alone;
             }
         }
     }

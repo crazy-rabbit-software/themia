@@ -8,6 +8,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.MusicProgress;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("musicProgress", typeof(MusicProgressModule))]
 
@@ -30,7 +31,7 @@ public sealed class MusicProgressModule : IWidgetModule
         Label = MusicProgressStr.MusicProgress_Label.Local(),
         Description = MusicProgressStr.MusicProgress_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => MusicProgressFace.Sizing(),
+        Sizing = _ => MusicProgressFace.Sizing().ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 5),
     };

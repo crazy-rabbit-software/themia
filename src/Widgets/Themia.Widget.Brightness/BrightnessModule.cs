@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Brightness;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("brightness", typeof(BrightnessModule))]
 
@@ -31,7 +32,7 @@ public sealed class BrightnessModule : IWidgetModule
         Label = BrightnessStr.Panels_Brightness_Label.Local(),
         Description = BrightnessStr.Panels_Brightness_Desc.Local(),
         Glyph = Glyphs.Brightness,
-        Sizing = _ => LevelFace.Sizing(under: false),
+        Sizing = _ => LevelFace.Sizing(under: false).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Devices, 1, 0),
     };

@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Countdown;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("countdown", typeof(CountdownModule))]
 
@@ -28,7 +29,7 @@ public sealed class CountdownModule : IWidgetModule
         Label = CountdownStr.Widget_Countdown_Label.Local(),
         Description = CountdownStr.WidgetsA_Catalog_Countdown_Description.Local(),
         Glyph = Glyphs.Countdown,
-        Sizing = c => CountdownLayout.Sizing((CountdownConfig)c, Strings.Current),
+        Sizing = c => CountdownLayout.Sizing((CountdownConfig)c, Strings.Current).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 2),
     };

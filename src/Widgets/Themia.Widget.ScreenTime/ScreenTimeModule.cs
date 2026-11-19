@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.ScreenTime;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("screenTime", typeof(ScreenTimeModule))]
 
@@ -28,7 +29,7 @@ public sealed class ScreenTimeModule : IWidgetModule
         Label = ScreenTimeStr.ScreenTime_Label.Local(),
         Description = ScreenTimeStr.ScreenTime_Desc.Local(),
         Glyph = Glyphs.Hours,
-        Sizing = c => ScreenTimeReading.Sizing(((ScreenTimeConfig)c).Period),
+        Sizing = c => ScreenTimeReading.Sizing(((ScreenTimeConfig)c).Period).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Links = LinkUse.Of([], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 0),

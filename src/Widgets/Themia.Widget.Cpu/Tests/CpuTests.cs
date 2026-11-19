@@ -34,10 +34,10 @@ public sealed class CpuTests
     {
         var sizing = Kind.Sizing(new CpuConfig());
         Assert.Empty(sizing.Problems());
-        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
         Assert.Equal(12 + 36 + 12, sizing.Natural.Height);
+        Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(sizing.Natural.Height * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Unit(Themia.Sdk.Kit.FamilyType.Big28).FontSize, Themia.Sdk.Kit.FamilyShape.Icon))), sizing.Min.Height); // [S-12833] scales down as one
         Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]: no practical Max
-        Assert.Equal((124d, 160d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // [S-12411] no practical Max; 124: the CPU glyph leads "100%" ([S-12801])
+        Assert.Equal((Math.Min(124d, Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(160d * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Unit(Themia.Sdk.Kit.FamilyType.Big28).FontSize, Themia.Sdk.Kit.FamilyShape.Icon)))), 160d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // [S-12411] no practical Max; 124: the CPU glyph leads "100%" ([S-12801]), less as it scales down ([S-12833])
         Assert.Null(Kind.SizeSets);
     }
 

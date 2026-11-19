@@ -20,14 +20,15 @@ public sealed class ScreenTimeTests
         var sizing = Kind.Sizing(new ScreenTimeConfig());
         var height = FamilySpace.ContentTop + ScreenTimeReading.DayLine(ScreenTimePeriod.Week) + FamilyType.Big28.LineHeight + FamilyType.Under(FamilyType.Big28).LineHeight + FamilySpace.Inset;
         Assert.Equal(new SizeDip(200, height), sizing.Natural);
-        Assert.Equal((160d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        // [S-12833] It scales down as one to its Caption's floor: its least is its natural box at that scale.
+        Assert.Equal((Math.Min(160d, Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(200d * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize)))), Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
+        Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(sizing.Natural.Height * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Caption.FontSize))), sizing.Min.Height);
         Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
         Assert.Empty(sizing.Problems());
         Assert.Null(Kind.SizeSets);
 
-        // The widest figure fits its least width inside the inset.
-        Assert.True(ReadoutRules.Width(FamilyType.Big28, new ReadoutText(ScreenTimeRules.FormatDuration(ScreenTimeReading.WorstSeconds))) <= sizing.Min.Width - (2 * FamilySpace.Inset));
+        // The widest figure fits its natural width inside the inset (a smaller card draws it scaled down, [S-12833]).
+        Assert.True(ReadoutRules.Width(FamilyType.Big28, new ReadoutText(ScreenTimeRules.FormatDuration(ScreenTimeReading.WorstSeconds))) <= sizing.Natural.Width - (2 * FamilySpace.Inset));
     }
 
     [Fact]

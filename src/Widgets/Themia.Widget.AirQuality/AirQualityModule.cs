@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.AirQuality;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("airQuality", typeof(AirQualityModule))]
 
@@ -31,7 +32,7 @@ public sealed class AirQualityModule : IWidgetModule
         Label = AirQualityStr.Online_Air_Label.Local(),
         Description = AirQualityStr.Online_Air_Desc.Local(),
         Glyph = Glyph,
-        Sizing = c => AirLayout.Sizing((AirQualityConfig)c),
+        Sizing = c => AirLayout.Sizing((AirQualityConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Weather, 0, 4),
     };

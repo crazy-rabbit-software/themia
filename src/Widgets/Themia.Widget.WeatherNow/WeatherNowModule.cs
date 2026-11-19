@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.WeatherNow;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("weatherNow", typeof(WeatherNowModule))]
 
@@ -31,7 +32,7 @@ public sealed class WeatherNowModule : IWidgetModule
         Label = WeatherNowStr.Widget_WeatherCurrent_Label.Local(),
         Description = WeatherNowStr.WidgetsA_Catalog_Weather_Description.Local(),
         Glyph = Glyphs.Weather,
-        Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c),
+        Sizing = c => WeatherNowStyles.Sizing((WeatherNowConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
     };

@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Drive;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("drive", typeof(DriveModule))]
 
@@ -33,7 +34,7 @@ public sealed class DriveModule : IWidgetModule
         Label = DriveStr.Drives_Drive_Label.Local(),
         Description = DriveStr.Drives_Drive_Desc.Local(),
         Glyph = Glyphs.Disk,
-        Sizing = c => DriveFace.Sizing(((DriveConfig)c).Style),
+        Sizing = c => DriveFace.Sizing(((DriveConfig)c).Style).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Devices, 2, 0),

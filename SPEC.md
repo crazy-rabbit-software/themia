@@ -7884,7 +7884,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   a date, a reading on `ReadingFit` or `InkFit`) scales down as well as up, until its smallest text is 9 DIP or its
   smallest glyph 12 (`ScaleFloor`, one floor for every kind; `ScaleFloors.Of` reads a face's parts); its kind's least
   size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`): the
-  clock and the date so far. Rows and list items keep their whole-cell rule (a list's least is one item). Tests
+  clock (planned in its natural box at every size, never folded) and the date at their smallest text; the one-reading
+  kinds on `ReadingFit` (air quality, alarm, brightness, countdown, drive, exchange rate, focus session, moon, music,
+  music progress, next meeting, pomodoro, quote, recycle bin, screen time, volume, weather now) at the family's Caption;
+  a meter's reading alone at its unit. Rows and list items keep their whole-cell rule (a list's least is one item). Tests
   `BlockFitTests.S12833_` (the floor, scaling down, monotonic), `ClockFaceTests.S6741_S12833_`.
 - **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card

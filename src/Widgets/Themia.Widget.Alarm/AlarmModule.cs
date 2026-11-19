@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Alarm;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("alarm", typeof(AlarmModule))]
 
@@ -34,7 +35,7 @@ public sealed class AlarmModule : IWidgetModule
         Label = AlarmStr.Alarm_Label.Local(),
         Description = AlarmStr.Alarm_Desc.Local(),
         Glyph = Glyph,
-        Sizing = c => AlarmFace.Sizing((AlarmConfig)c, Strings.Current),
+        Sizing = c => AlarmFace.Sizing((AlarmConfig)c, Strings.Current).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 1),
     };

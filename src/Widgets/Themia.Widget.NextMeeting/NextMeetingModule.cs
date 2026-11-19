@@ -12,6 +12,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.NextMeeting;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("nextMeeting", typeof(NextMeetingModule))]
 
@@ -36,7 +37,7 @@ public sealed class NextMeetingModule : IWidgetModule
         Label = NextMeetingStr.Meeting_Label.Local(),
         Description = NextMeetingStr.Meeting_Desc.Local(),
         Glyph = Glyphs.Meeting,
-        Sizing = c => NextMeetingJoin.Sizing((NextMeetingConfig)c),
+        Sizing = c => NextMeetingJoin.Sizing((NextMeetingConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredEvent, LinkTopicId.HoveredPerson], [LinkTopicId.HoveredEvent, LinkTopicId.HoveredPerson]),
         Add = new(AddFolderId.CalendarMail, 0, 1),

@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Volume;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("volume", typeof(VolumeModule))]
 
@@ -31,7 +32,7 @@ public sealed class VolumeModule : IWidgetModule
         Label = VolumeStr.Widget_Volume_Label.Local(),
         Description = VolumeStr.WidgetsA_Catalog_Volume_Description.Local(),
         Glyph = Glyphs.Volume,
-        Sizing = _ => LevelFace.Sizing(under: true),
+        Sizing = _ => LevelFace.Sizing(under: true).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 0, 2),
     };

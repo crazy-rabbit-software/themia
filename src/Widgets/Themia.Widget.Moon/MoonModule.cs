@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Moon;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("moon", typeof(MoonModule))]
 
@@ -28,7 +29,7 @@ public sealed class MoonModule : IWidgetModule
         Label = MoonStr.WidgetsC_Moon_Label.Local(),
         Description = MoonStr.WidgetsC_Moon_Desc.Local(),
         Glyph = Glyphs.Moon,
-        Sizing = c => MoonLayout.Sizing((MoonConfig)c),
+        Sizing = c => MoonLayout.Sizing((MoonConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Weather, 1, 2),
     };

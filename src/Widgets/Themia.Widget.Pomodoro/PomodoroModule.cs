@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Pomodoro;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("pomodoro", typeof(PomodoroModule))]
 
@@ -31,7 +32,7 @@ public sealed class PomodoroModule : IWidgetModule
         Label = PomodoroStr.Widget_Pomodoro_Label.Local(),
         Description = PomodoroStr.WidgetsA_Catalog_Pomodoro_Description.Local(),
         Glyph = Glyph,
-        Sizing = c => PomodoroFace.Sizing((PomodoroConfig)c, Strings.Current),
+        Sizing = c => PomodoroFace.Sizing((PomodoroConfig)c, Strings.Current).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 0),
     };

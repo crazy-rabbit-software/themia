@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.FocusSession;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("focusSession", typeof(FocusSessionModule))]
 
@@ -31,7 +32,7 @@ public sealed class FocusSessionModule : IWidgetModule
         Label = FocusSessionStr.Panels_Focus_Label.Local(),
         Description = FocusSessionStr.Panels_Focus_Desc.Local(),
         Glyph = Glyph,
-        Sizing = c => FocusSessionLayout.Sizing((FocusSessionConfig)c, Strings.Current),
+        Sizing = c => FocusSessionLayout.Sizing((FocusSessionConfig)c, Strings.Current).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 1),
     };

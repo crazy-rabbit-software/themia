@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.RecycleBin;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("recycleBin", typeof(RecycleBinModule))]
 
@@ -31,7 +32,7 @@ public sealed class RecycleBinModule : IWidgetModule
         Label = RecycleBinStr.WidgetsC_Location_RecycleBin.Local(),
         Description = RecycleBinStr.RecycleBin_Desc.Local(),
         Glyph = Glyphs.RecycleBin,
-        Sizing = _ => WidgetSizing.Fixed(RecycleBinLayout.Size),
+        Sizing = _ => WidgetSizing.Fixed(RecycleBinLayout.Size).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Files, 0, 3),
     };

@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.ExchangeRate;
+using Themia.Sdk.Kit;
 
 [assembly: ThemiaWidget("exchangeRate", typeof(ExchangeRateModule))]
 
@@ -32,7 +33,7 @@ public sealed class ExchangeRateModule : IWidgetModule
         Label = ExchangeRateStr.Online_Rates_Label.Local(),
         Description = ExchangeRateStr.Online_Rates_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => RatesLayout.Sizing(),
+        Sizing = _ => RatesLayout.Sizing().ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
         Traits = WidgetTraits.None,
         Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 2),
