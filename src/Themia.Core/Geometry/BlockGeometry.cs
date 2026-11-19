@@ -65,6 +65,26 @@ public static class BlockGeometry
     }
 
     /// <summary>
+    /// [S-11891] The translation the block is <b>drawn</b> at while it is dragged: the pointer's own
+    /// (<paramref name="dxFrac"/>, <paramref name="dyFrac"/>), kept in reach as <see cref="Move"/> keeps it
+    /// ([S-6608]) and on whole <see cref="GridGeometry.PixelStep"/>s ([S-11873]: every card's cell moves by the
+    /// same pixels), but never snapped: the cards stay glued to the pointer, and <see cref="Move"/> says where
+    /// they land.
+    /// </summary>
+    public static Delta Follow(IReadOnlyList<FracRect> start, double dxFrac, double dyFrac, ScreenMetrics screen, double rasterScale)
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        if (!double.IsFinite(dxFrac) || !double.IsFinite(dyFrac) || !Bounds(start).IsFinite)
+        {
+            return default;
+        }
+
+        var (loX, hiX, loY, hiY) = Reach(start, screen);
+        var delta = new Delta(GridGeometry.Between(dxFrac, loX, hiX), GridGeometry.Between(dyFrac, loY, hiY));
+        return Whole(start, delta, screen, rasterScale);
+    }
+
+    /// <summary>
     /// [S-11873] <paramref name="delta"/> as whole pixel steps: the nearest that keeps the block in reach as
     /// <see cref="Settle"/> left it; where no whole step does (a block already at its limit), as it was.
     /// </summary>
@@ -182,23 +202,64 @@ public static class BlockGeometry
         ArgumentNullException.ThrowIfNull(others);
 
         var slack = Slack(screen, rasterScale);
+        var alongX = wanted with { Dy = last.Dy };
+        var alongY = wanted with { Dx = last.Dx };
+
+        // [S-11890] Only the cards near where any of the three tries lands can hold it: the rest are never looked at.
+        others = Near(start, [wanted, alongX, alongY], others, screen, slack);
         if (others.Count == 0 || Clear(start, wanted, others, screen, slack))
         {
             return wanted;
         }
 
-        var alongX = wanted with { Dy = last.Dy };
         if (Clear(start, alongX, others, screen, slack))
         {
             return alongX;
         }
 
-        var alongY = wanted with { Dx = last.Dx };
         return Clear(start, alongY, others, screen, slack) ? alongY : last;
     }
 
+    /// <summary>
+    /// [S-11890] The rects of <paramref name="others"/> that share area with the box every rect of
+    /// <paramref name="start"/> lands in under any of <paramref name="deltas"/>: the only ones that can hold the
+    /// block (<see cref="Clear"/>). Exact, not a guess: a rect that shares more than <paramref name="slack"/> with a
+    /// landed rect shares at least as much with the box round all of them.
+    /// </summary>
+    internal static IReadOnlyList<FracRect> Near(IReadOnlyList<FracRect> start, ReadOnlySpan<Delta> deltas, IReadOnlyList<FracRect> others, ScreenMetrics screen, (double X, double Y) slack)
+    {
+        var landed = new List<FracRect>(start.Count * deltas.Length);
+        foreach (var delta in deltas)
+        {
+            foreach (var from in start)
+            {
+                if (from.IsFinite)
+                {
+                    landed.Add(Apply(from, delta, screen));
+                }
+            }
+        }
+
+        if (landed.Count == 0)
+        {
+            return others;
+        }
+
+        var box = Bounds(landed);
+        var near = new List<FracRect>();
+        foreach (var other in others)
+        {
+            if (other.IsFinite && Over(box, other, slack))
+            {
+                near.Add(other);
+            }
+        }
+
+        return near;
+    }
+
     /// <summary>[S-11959] How thin an overlap may be and still count as touching, on each axis, in fractions.</summary>
-    private static (double X, double Y) Slack(ScreenMetrics screen, double? rasterScale)
+    internal static (double X, double Y) Slack(ScreenMetrics screen, double? rasterScale)
     {
         const double Rounding = 1e-6;
         if (rasterScale is not { } scale || screen.Width <= 0 || screen.Height <= 0)
@@ -212,7 +273,7 @@ public static class BlockGeometry
     }
 
     /// <summary>[S-11959] No moving rect lands over a staying one it did not already lie over at the start.</summary>
-    private static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen, (double X, double Y) slack)
+    internal static bool Clear(IReadOnlyList<FracRect> start, Delta delta, IReadOnlyList<FracRect> others, ScreenMetrics screen, (double X, double Y) slack)
     {
         foreach (var from in start)
         {

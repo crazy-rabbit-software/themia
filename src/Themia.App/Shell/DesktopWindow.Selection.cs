@@ -25,7 +25,7 @@ internal sealed partial class DesktopWindow
     private const double LassoThreshold = 3;
 
     /// <summary>A move of one or more cards that started on this surface.</summary>
-    private sealed class MoveSession(WidgetCard anchor, List<(WidgetCard Card, FracRect Start)> cards, PlacementPayload? payload)
+    private sealed class MoveSession(WidgetCard anchor, List<(WidgetCard Card, FracRect Start)> cards, PlacementPayload? payload, BlockMove block)
     {
         /// <summary>The card the pointer holds.</summary>
         public WidgetCard Anchor { get; } = anchor;
@@ -39,11 +39,14 @@ internal sealed partial class DesktopWindow
         /// <summary>[S-2244] The cards have moved: they are free of their neighbours until dropped.</summary>
         public bool Moved { get; set; }
 
-        /// <summary>[S-11959] With widgets kept apart: the rects of the cards that stay; null when they may overlap.</summary>
-        public List<FracRect>? Apart { get; init; }
+        /// <summary>[S-11890] [S-11891] Where the block is drawn and where it lands ([S-11959]: kept apart with it).</summary>
+        public BlockMove Block { get; } = block;
 
-        /// <summary>[S-11959] The translation the block stands at now.</summary>
-        public BlockGeometry.Delta Last { get; set; }
+        /// <summary>[S-11890] The pointer's moves since the last frame, the latest kept.</summary>
+        public PointerFrames Frames { get; } = new();
+
+        /// <summary>[S-78] Whether the last step showed the block going to another display.</summary>
+        public bool Leaving { get; set; }
     }
 
     private MoveSession? _move;
@@ -116,11 +119,13 @@ internal sealed partial class DesktopWindow
 
         // [S-11959] Kept apart in edit mode and on the locked desktop alike: whatever moves (a selection, whole
         // icons among cards) never lands over a card that stays.
-        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id))
-        {
-            Apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card)) : null,
-        };
+        var apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card)) : null;
+        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, apart));
     }
+
+    /// <summary>[S-11890] The two translations of a move of <paramref name="cards"/>, on this display as it is now.</summary>
+    private BlockMove Block(List<(WidgetCard Card, FracRect Start)> cards, List<FracRect>? apart)
+        => new([.. cards.Select(c => c.Start)], apart, Metrics, RasterScale);
 
     /// <summary>
     /// [S-11959] The rects of this display's drawn cards other than <paramref name="moving"/> (widgets and desktop
@@ -133,19 +138,61 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1584] The pointer moved: every moving card follows by the same translation, which
-    /// <see cref="BlockGeometry"/> snaps to the grid and clamps for the block as a whole ([S-11873]: in whole
-    /// device pixels, so the cards keep their spacing to the pixel). [S-78] The display the
-    /// drop would hand the widgets to shows their ghost, and the cards here fade. [S-11874] On the locked
-    /// desktop the local grid shows round where the block lands.
+    /// [S-1584] The pointer moved: every moving card follows by the same translation ([S-11873]: in whole device
+    /// pixels, so the cards keep their spacing to the pixel). [S-11891] They follow the pointer itself; where the
+    /// block lands is <see cref="BlockGeometry"/>'s snap to the grid, clamped for the block as a whole, which the local
+    /// grid lights. [S-78] The display the drop would hand the widgets to shows their ghost, and the cards here fade.
+    /// [S-11890] The first move is drawn at once; the ones after are coalesced to one step a rendered frame
+    /// (<see cref="PointerFrames"/>, <see cref="CompositionTarget.Rendering"/>), the latest pointer winning.
     /// </summary>
     public void PreviewMove(WidgetCard card, double dxFrac, double dyFrac)
     {
-        if (_move is not { } move || !ReferenceEquals(move.Anchor, card))
+        if (_move is not { } move || !ReferenceEquals(move.Anchor, card) || !Metrics.IsUsable)
         {
             return;
         }
 
+        if (!move.Moved)
+        {
+            StepMove(move, dxFrac, dyFrac);
+            return;
+        }
+
+        if (move.Frames.Offer(dxFrac, dyFrac))
+        {
+            CompositionTarget.Rendering += OnMoveFrame;
+        }
+    }
+
+    /// <summary>[S-11890] A frame is about to be drawn: the move takes the pointer's latest place.</summary>
+    private void OnMoveFrame(object? sender, object args)
+    {
+        CompositionTarget.Rendering -= OnMoveFrame;
+        if (_move is { } move && !_closed && move.Frames.Take() is { } at)
+        {
+            StepMove(move, at.Dx, at.Dy);
+        }
+    }
+
+    /// <summary>[S-11890] The move's waiting pointer step, if any, applied now (before a drop, and by the bench).</summary>
+    internal void FlushMove()
+    {
+        CompositionTarget.Rendering -= OnMoveFrame;
+        if (_move is { } move && move.Frames.Take() is { } at)
+        {
+            StepMove(move, at.Dx, at.Dy);
+        }
+    }
+
+    /// <summary>
+    /// [S-11890] One step of a move, touching only what changed: the moving cards' offsets when where they are drawn
+    /// changed; the local grid and the border marks ([S-11874], [S-11881]) when where they land changed (another
+    /// cell) or the hand-off preview came or went. The first step also frees the moving cards from their neighbours
+    /// (one join pass, [S-2244]); after it the joins stand still until the drop: the moving cards keep their places to
+    /// one another and join only among themselves ([S-2457]). Nothing is stored and no event raised until the drop.
+    /// </summary>
+    private void StepMove(MoveSession move, double dxFrac, double dyFrac)
+    {
         var metrics = Metrics;
         if (!metrics.IsUsable)
         {
@@ -155,38 +202,53 @@ internal sealed partial class DesktopWindow
         // [S-2343] [S-3710] Nothing hangs over the selection while it is dragged; its page opens where it lands.
         ClearForDrag();
 
-        var starts = move.Cards.Select(c => c.Start).ToList();
-        var delta = BlockGeometry.Move(starts, dxFrac, dyFrac, metrics, RasterScale);
-        if (move.Apart is { } apart)
+        DragProfile.Start();
+        var first = !move.Moved;
+        var step = move.Block.Step(dxFrac, dyFrac);
+        DragProfile.Lap(DragStage.Geometry);
+
+        if (first || step.ShownChanged)
         {
-            // [S-11959] The block never comes over a card that stays: it slides along it, or waits.
-            delta = BlockGeometry.Apart(starts, delta, move.Last, apart, metrics, RasterScale);
-            move.Last = delta;
+            foreach (var (moving, start) in move.Cards)
+            {
+                var at = move.Block.At(start, move.Block.Shown);
+                moving.SetLiveRect(at);
+                moving.FollowMove(GridGeometry.ToPixels(at, metrics, RasterScale));
+            }
         }
 
-        var landing = new List<FracRect>(move.Cards.Count);
-        foreach (var (moving, start) in move.Cards)
-        {
-            var at = BlockGeometry.Apply(start, delta, metrics);
-            landing.Add(at);
-            PositionCard(moving, at);
-        }
+        DragProfile.Lap(DragStage.Position);
 
-        // [S-2244] Dragged cards are free; the ones they leave get their corners back at once.
-        move.Moved = true;
-        JoinCards();
+        if (first)
+        {
+            // [S-2244] Dragged cards are free; the ones they leave get their corners back at once.
+            move.Moved = true;
+            JoinCards();
+        }
 
         var leaving = move.Payload is { } payload && _host.PreviewHandOff(this, payload);
-        foreach (var (moving, _) in move.Cards)
+        var leavingChanged = first || leaving != move.Leaving;
+        move.Leaving = leaving;
+        if (leavingChanged)
         {
-            moving.SetLeaving(leaving);
+            foreach (var (moving, _) in move.Cards)
+            {
+                moving.SetLeaving(leaving);
+            }
         }
 
-        // [S-11874] Edit mode draws the whole grid; the locked desktop only round the target, and not while
-        // the block is going to another display. [S-11881] The borders near it with it.
-        var target = !EditMode && !leaving ? BlockGeometry.Bounds(landing) : (FracRect?)null;
-        ShowLocalGrid(target);
-        ShowMoveBorders(target, move);
+        DragProfile.Lap(DragStage.HandOff);
+
+        if (first || leavingChanged || step.LandingChanged)
+        {
+            // [S-11874] The local grid round where the block lands (edit mode: its box lit over the whole grid), not
+            // while the block is going to another display. [S-11881] On the locked desktop the borders near it with it.
+            var target = !leaving ? move.Block.LandingBounds() : (FracRect?)null;
+            ShowLocalGrid(target);
+            DragProfile.Lap(DragStage.LocalGrid);
+            ShowMoveBorders(EditMode ? null : target, move);
+            DragProfile.Lap(DragStage.Marks);
+        }
     }
 
     /// <summary>
@@ -262,6 +324,7 @@ internal sealed partial class DesktopWindow
         }
 
         _move = null;
+        CompositionTarget.Rendering -= OnMoveFrame;
         _host.EndHandOffPreview();
         ShowLocalGrid(null);
         ShowMoveBorders(null, move);
@@ -282,9 +345,11 @@ internal sealed partial class DesktopWindow
     {
         ArgumentNullException.ThrowIfNull(card);
 
+        // [S-11890] The pointer's last place counts: a step still waiting for its frame is taken first.
+        FlushMove();
         var move = _move is { } session && ReferenceEquals(session.Anchor, card)
             ? session
-            : new MoveSession(card, [(card, card.LiveRect)], null);
+            : new MoveSession(card, [(card, card.LiveRect)], null, Block([(card, card.LiveRect)], null));
         _move = null;
 
         _host.EndHandOffPreview();
@@ -300,17 +365,18 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        foreach (var (moving, _) in move.Cards)
+        // [S-11891] Drawn where the pointer was, they land where the local grid lit: on the grid, kept apart.
+        foreach (var (moving, start) in move.Cards)
         {
-            moving.Model.Rect = moving.LiveRect;
+            moving.Model.Rect = move.Moved ? move.Block.At(start, move.Block.Landing) : moving.LiveRect;
         }
 
         foreach (var (moving, _) in move.Cards)
         {
-            PositionCard(moving, moving.LiveRect);
+            PositionCard(moving, moving.Model.Rect);
         }
 
-        // [S-2244] Dropped: they join where they landed.
+        // [S-2244] Dropped: they join where they landed, one join pass.
         JoinCards();
 
         // [S-884] The whole drag, every selected widget, is one undo step.

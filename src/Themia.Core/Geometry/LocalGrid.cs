@@ -1,7 +1,10 @@
 namespace Themia.Core.Geometry;
 
-/// <summary>One stretch of a grid line the local grid draws, in the surface's DIPs, with its strength (0..1).</summary>
-public readonly record struct GridSegment(double X1, double Y1, double X2, double Y2, double Alpha);
+/// <summary>
+/// [S-11890] One layer of the local grid: the grid's lines inside <paramref name="Region"/> (the surface's DIPs),
+/// drawn at <paramref name="Opacity"/> over the layers before it.
+/// </summary>
+public readonly record struct GridLevel(PixelRect Region, double Opacity);
 
 /// <summary>
 /// [S-11874] The local grid of a move on the locked desktop (owner, 2026-11-15: "it should not actually go
@@ -12,9 +15,8 @@ public readonly record struct GridSegment(double X1, double Y1, double X2, doubl
 /// <para>
 /// [S-11886] The fade keeps the target box's rectangle (owner, 2026-11-15: "it should also not be round
 /// anymore"): a line's strength is <see cref="Strength"/> of the point, a smooth fall from the box's edges
-/// (the larger of the two axis distances) to the box grown by the radius on every side. Each line is cut into
-/// <see cref="SegmentsPerCell"/> stretches a cell, each at the strength of its middle; a stretch at or past
-/// the radius is not drawn. Lines stand where the edit-mode overlay draws them (<see cref="GridFit.LineDip"/>),
+/// (the larger of the two axis distances) to the box grown by the radius on every side, rounded up to
+/// <see cref="Steps"/> strengths (<see cref="Levels"/>); nothing at or past the radius is drawn. Lines stand where the edit-mode overlay draws them (<see cref="GridFit.LineDip"/>),
 /// so a card's edge and its line share their pixels. The strongest line is <see cref="PeakOpacity"/>, and
 /// the grid fades out slower than it came (<see cref="FadeOutMs"/>).
 /// </para>
@@ -24,8 +26,8 @@ public static class LocalGrid
     /// <summary>[S-11886] How far round the target box, in grid cells, the lines fade out (owner, 2026-11-15: "the fade out of the grid should be bigger"): 6, twice the first 3.</summary>
     public const double RadiusCells = 6;
 
-    /// <summary>[S-11886] How many stretches each cell of a line is cut into, each at its own strength: the fade's edge is smooth.</summary>
-    public const int SegmentsPerCell = 4;
+    /// <summary>[S-11874] How many strengths the lines are drawn in: the falloff rounded up to these steps reads as smooth.</summary>
+    public const int Steps = 10;
 
     /// <summary>
     /// [S-11886] The strongest line's opacity, on the target box (owner, 2026-11-15: "should be less visible"):
@@ -117,11 +119,14 @@ public static class LocalGrid
     }
 
     /// <summary>
-    /// The stretches of grid line to draw round <paramref name="target"/> (the box the moving block lands
-    /// in, fractions of the screen), each a <see cref="SegmentsPerCell"/>th of a cell long with its strength
-    /// (<see cref="Strength"/>); none past the fade, none off the screen. Empty for an unusable screen.
+    /// [S-11890] The local grid round <paramref name="target"/> as <see cref="Steps"/> nested layers of the whole grid,
+    /// each clipped to a rectangle: layer k holds the lines where the strength (<see cref="Strength"/>) is above
+    /// (k-1)/<see cref="Steps"/>, the box grown by the distance where <see cref="Falloff"/> falls to that, and is drawn
+    /// at the opacity that, over the layers under it, makes a line there <see cref="PeakOpacity"/> times its strength
+    /// rounded up to a step. The same picture as cutting every line into stretches at their own strengths, but the
+    /// lines are drawn once for the screen and a new target only moves the clips. Empty for an unusable screen.
     /// </summary>
-    public static IReadOnlyList<GridSegment> Lines(FracRect target, ScreenMetrics screen, double radiusCells = RadiusCells)
+    public static IReadOnlyList<GridLevel> Levels(FracRect target, ScreenMetrics screen, double radiusCells = RadiusCells)
     {
         var box = Lit(target, screen);
         if (!screen.IsUsable || box.Width <= 0 || box.Height <= 0)
@@ -129,63 +134,27 @@ public static class LocalGrid
             return [];
         }
 
-        var (cols, rows) = GridGeometry.GridDims(screen);
-        var pitchX = screen.Width / cols;
-        var pitchY = screen.Height / rows;
         var radius = RadiusDip(screen, radiusCells);
-
-        // The lines and cells that can reach: the box grown by the radius, on the screen.
-        var c0 = Math.Max(0, (int)Math.Floor((box.X - radius) / pitchX));
-        var c1 = Math.Min(cols, (int)Math.Ceiling((box.X + box.Width + radius) / pitchX));
-        var r0 = Math.Max(0, (int)Math.Floor((box.Y - radius) / pitchY));
-        var r1 = Math.Min(rows, (int)Math.Ceiling((box.Y + box.Height + radius) / pitchY));
-
-        double X(int c) => GridFit.LineDip(c, cols, screen.Width);
-        double Y(int r) => GridFit.LineDip(r, rows, screen.Height);
-
-        var segments = new List<GridSegment>();
-        const int n = SegmentsPerCell;
-
-        // Vertical lines, each cell of them cut in n.
-        for (var c = c0; c <= c1; c++)
+        var levels = new GridLevel[Steps];
+        var under = 0.0;
+        for (var k = 1; k <= Steps; k++)
         {
-            var x = X(c);
-            for (var r = r0; r < r1; r++)
-            {
-                var (top, bottom) = (Y(r), Y(r + 1));
-                for (var k = 0; k < n; k++)
-                {
-                    var (y1, y2) = (top + ((bottom - top) * k / n), top + ((bottom - top) * (k + 1) / n));
-                    var alpha = Strength(box, x, (y1 + y2) / 2, radius);
-                    if (alpha > 0)
-                    {
-                        segments.Add(new GridSegment(x, y1, x, y2, alpha));
-                    }
-                }
-            }
+            // Strength > (k-1)/Steps: nearer the box than where the smoothstep falls to it.
+            var reach = radius * (1 - InverseSmoothstep((k - 1) / (double)Steps));
+            var region = new PixelRect(box.X - reach, box.Y - reach, box.Width + (2 * reach), box.Height + (2 * reach));
+
+            // Over the layers below (together `under`), this one brings a line here to PeakOpacity * k / Steps.
+            var wanted = PeakOpacity * k / Steps;
+            levels[k - 1] = new GridLevel(region, 1 - ((1 - wanted) / (1 - under)));
+            under = wanted;
         }
 
-        // Horizontal lines, each cell of them cut in n.
-        for (var r = r0; r <= r1; r++)
-        {
-            var y = Y(r);
-            for (var c = c0; c < c1; c++)
-            {
-                var (left, right) = (X(c), X(c + 1));
-                for (var k = 0; k < n; k++)
-                {
-                    var (x1, x2) = (left + ((right - left) * k / n), left + ((right - left) * (k + 1) / n));
-                    var alpha = Strength(box, (x1 + x2) / 2, y, radius);
-                    if (alpha > 0)
-                    {
-                        segments.Add(new GridSegment(x1, y, x2, y, alpha));
-                    }
-                }
-            }
-        }
-
-        return segments;
+        return levels;
     }
+
+    /// <summary>The t in 0..1 whose smoothstep (3t² - 2t³) is <paramref name="y"/> (0..1).</summary>
+    internal static double InverseSmoothstep(double y)
+        => 0.5 - Math.Sin(Math.Asin(1 - (2 * Math.Clamp(y, 0, 1))) / 3);
 
     /// <summary>
     /// [S-11881] The outlines a move on the locked desktop shows (owner, 2026-11-15: "when moving the widgets

@@ -232,6 +232,12 @@ public partial class App : Application
             return;
         }
 
+        // [S-11890] What each stage of a move's pointer step costs, on a real surface.
+        if (Shell.Gallery.DragBench.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And what a view switch costs, and whether it leaks ([S-1883]).
         if (Shell.Gallery.SwitchCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

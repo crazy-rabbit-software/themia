@@ -8078,7 +8078,8 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   translation: the block's bounding box is moved, its top-left snapped to the grid or an edge flush
   on the work area's ([S-06], [S-6609]), and the move stops where the first of its
   widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
-  each rect is then kept in reach ([S-09]). Offsets between the widgets never change. Resizing is per
+  each rect is then kept in reach ([S-09]). Offsets between the widgets never change. That is where the block
+  **lands**; while it is dragged it is drawn at the pointer itself ([S-11891]). Resizing is per
   card and narrows the selection to it ([S-2451]).
 - **[S-11879]** **A mixed block on the locked desktop** (owner, 2026-11-15: "the widgets in the desktop should also
   be selected with the lasso, and also moved with everything as well then"): outside edit mode a press on any selected
@@ -10633,9 +10634,11 @@ power buttons, whose whole body is their button) open nothing.
   desktop the grid's lines are drawn **only round the box it lands in**, their strength falling with their place
   round it ([S-11886]: a rectangle grown evenly out of the box) to nothing at `LocalGrid.RadiusCells` (6 cells) past it, on
   the lines the edit-mode overlay draws (`GridFit.LineDip`, `CrispLine`), the target's own cells lit in the accent's
-  wash; in ten strengths of one path each, under the cards, redrawn only when the target moves to another cell,
+  wash; in ten strengths (`LocalGrid.Steps`), under the cards: the whole screen's lines drawn once per screen in ten
+  layers of one path each, a new target only moving each layer's clip ([S-11890], `LocalGrid.Levels`),
   fading in as the move starts (`LocalGrid.FadeInMs`, 120 ms) and out, slower, as it lands (`FadeOutMs`, 360 ms),
-  an opacity transition. Not while the block is going to another display ([S-78]). Tests `DesktopGridTests.S11874_`;
+  an opacity transition. In edit mode, whose whole grid is drawn, only the target's box is lit ([S-11891]). Not while
+  the block is going to another display ([S-78]). Tests `DragPipelineTests.S11874_`;
   `--drag-png` draws it (`drag-move-*`).
 - **[S-11886]** **Fainter, wider, rectangular, slower out** (owner, 2026-11-15: "the light grid … should be less
   visible"; "should fade out a little slower"; later the same day: "the fade out of the grid should be bigger, and it
@@ -10643,9 +10646,31 @@ power buttons, whose whole body is their button) open nothing.
   A line's strength is `LocalGrid.Strength`: 1 on the target box, then smoothstep of the point's distance from the
   box's edges taken per axis as the larger of the two, to 0 at `RadiusCells` (**6**, twice the first 3) cells, so
   the fade keeps the box's rectangle and grows evenly outward (no ellipse); the neighbours' borders ([S-11881]) fade
-  by the same strength. Each line
-  is cut into `SegmentsPerCell` (4) stretches a cell, each at its middle's true strength, so the edge is smooth.
-  The fade-out takes `FadeOutMs` (360) against the fade-in's 120. Tests `DesktopGridTests.S11886_`.
+  by the same strength. A line is drawn at `PeakOpacity` times its strength rounded up to a tenth: layer k of
+  `LocalGrid.Levels` holds the lines where the strength is above (k-1)/10 (the box grown by where the smoothstep falls
+  to that), at the opacity that over the layers under it makes PeakOpacity × k/10.
+  The fade-out takes `FadeOutMs` (360) against the fade-in's 120. Tests `DragPipelineTests.S11886_`.
+- **[S-11890]** **A move touches only what changed** (owner, 2026-11-19: "dragging widgets on the desktop does not
+  feel that responsive / fluid"): a move in edit mode or on the locked desktop (`DesktopWindow.PreviewMove`) draws its
+  first pointer step at once, then coalesces the pointer's moves to **one step a rendered frame**, the latest winning
+  (`PointerFrames`, on `CompositionTarget.Rendering`; a drop takes a waiting step first). A step (`BlockMove.Step`)
+  says what changed: a new drawn place moves the moving cards' canvas offsets alone (`WidgetCard.FollowMove`: the
+  cell and the glass shape shift by the same pixels; the frost and the glass's tint follow the offset, [S-2114]),
+  no size, resize grips, relayout, state change or event; the cards are freed from their neighbours by one join pass
+  on the first step ([S-2244]) and joined again by one on the drop, none between (the moving cards keep their places
+  to one another, [S-2457]); the local grid and the border marks ([S-11874], [S-11881]) change only when where the
+  block lands changes (another cell) or the hand-off preview comes or goes; the keep-apart check ([S-11959]) looks
+  only at the cards that share area with the box the three tries land in (`BlockGeometry.Near`: exact, the same answer
+  as every card). The drop: one store of the rects, one join pass, one undo step. `--drag-bench <out.txt>` (Debug)
+  times each stage (`DragProfile`) over a 120-frame pointer path on a real surface of 21 widgets (joined rows, icons),
+  locked and edit mode, solid and Liquid glass. Tests `DragPipelineTests.S11890_`.
+- **[S-11891]** **The dragged cards are glued to the pointer** (same request): while dragged a block is drawn at the
+  pointer's own translation (`BlockGeometry.Follow`: kept in reach, [S-6608], on whole pixel steps, [S-11873]), never
+  stepping cell by cell behind it; where it will **land** is the snapped move ([S-1584]), lit by the local grid's box
+  ([S-11874]; in edit mode the box alone over the whole grid), and the drop puts it there (at most half a cell, or the
+  edge magnet's 8 DIPs, [S-6609]). Kept apart ([S-11959]) the drawn place is kept apart too, against the landing: by a
+  card that stays it stops flush where it would land and slides along the free axis, never drawn over the card.
+  Tests `DragPipelineTests.S11891_`.
 - **[S-11881]** **A locked move shows the borders** (owner, 2026-11-15: "when moving the widgets around in non edit
   mode it should show the borders too"): while a block moves on the locked desktop the moving cards show their
   corner marks (edit mode's look, [S-31b], on the surface's marker plates), and every other card near where it lands

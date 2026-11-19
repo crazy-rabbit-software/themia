@@ -289,6 +289,9 @@ internal sealed partial class DesktopWindow
 
         JoinCards();
 
+        // [S-11890] The local grid's lines for this screen, drawn now so the first move draws nothing.
+        _localGrid.Prepare(Metrics, RasterScale);
+
         Log.Debug(Scope, $"relayout {_monitor.GdiName}: view='{view.Name}' widgets={wanted.Count} " +
             $"metrics={Metrics.Width:0}x{Metrics.Height:0} scale={RasterScale:0.00} edit={EditMode}");
 
@@ -419,6 +422,9 @@ internal sealed partial class DesktopWindow
         _gridOverlay.Visibility = Visibility.Visible;
     }
 
-    /// <summary>[S-11874] The local grid round <paramref name="target"/> while a block moves on the locked desktop, or faded out with null.</summary>
-    private void ShowLocalGrid(FracRect? target) => _localGrid.Show(target, Metrics, RasterScale);
+    /// <summary>
+    /// [S-11874] The local grid round <paramref name="target"/> while a block moves, or faded out with null. [S-11891]
+    /// In edit mode, whose whole grid is drawn, only the target's box lit.
+    /// </summary>
+    private void ShowLocalGrid(FracRect? target) => _localGrid.Show(target, Metrics, RasterScale, lines: !EditMode);
 }

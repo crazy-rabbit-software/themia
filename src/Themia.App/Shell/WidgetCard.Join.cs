@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
@@ -67,14 +68,18 @@ internal sealed partial class WidgetCard
         }
 
         var outlines = CardJoins.Paint(cells, sets, rasterScale);
+        DragProfile.Lap(DragStage.Joins);
 
         // [S-2123] Liquid glass: cards that meet are one glass shape.
         var parts = CardJoins.Bodies(cells, sets, rasterScale, LiquidGlass.Light.DividerInset);
+        DragProfile.Lap(DragStage.Glass);
         for (var i = 0; i < cards.Count; i++)
         {
             cards[i].Cell = cells[i];
             cards[i].ApplyJoin(outlines[i]);
+            DragProfile.Lap(DragStage.JoinApply);
             cards[i].ApplyGlassPart(parts[i]);
+            DragProfile.Lap(DragStage.Glass);
         }
     }
 
@@ -83,6 +88,30 @@ internal sealed partial class WidgetCard
     /// where its surface is painted and its own edit markers stand.
     /// </summary>
     public PixelRect Cell { get; private set; }
+
+    /// <summary>
+    /// [S-11890] The card is carried by a move to <paramref name="cell"/> (its live rect on whole device pixels, the
+    /// same size): its offset follows, and so do its cell and its glass shape, by the same pixels, since the cards a
+    /// move carries keep their places to one another and their joins ([S-2457]). Nothing is joined or painted again:
+    /// what is drawn behind it (the frost, the glass's tint) follows the offset ([S-2114]).
+    /// </summary>
+    public void FollowMove(PixelRect cell)
+    {
+        var (dx, dy) = (cell.X - Cell.X, cell.Y - Cell.Y);
+        Cell = cell;
+        if (_part is { } part)
+        {
+            _part = part with { Body = part.Body with { X = part.Body.X + dx, Y = part.Body.Y + dy } };
+        }
+
+        Canvas.SetLeft(this, cell.X);
+        Canvas.SetTop(this, cell.Y);
+        if (Width != cell.Width || Height != cell.Height)
+        {
+            Width = cell.Width;
+            Height = cell.Height;
+        }
+    }
 
     /// <summary>
     /// [S-2241] Take a new outline: the corners and the border follow at once; nothing else is redone.
