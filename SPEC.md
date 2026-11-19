@@ -8056,7 +8056,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   the search opened on a tool line stands in the label's whole box ([S-13950]); one opened in a list's first line is
   that line (an item, a row's height). The **add row** stands right under the last row ([S-3850]). A list of rows laid
   by `SpreadStack` (facts, a forecast's days, screen time's apps) shows only the rows its room holds whole: one that
-  would be cut by the card is not shown, its cells the foot's (WR-6). **Days side by side** (the week planner) are the
+  would be cut by the card is not shown, its cells the foot's (WR-6). **Rows under a reading** (a stock's holding and
+  extended print, a stopwatch's laps) are rows, never scaled with the face: the reading stands at its own size (the
+  price) or at its block's natural lines (the stopwatch's face and controls, `ReadingFit.Natural`), grown to a grid line,
+  and the rows grow from right under it to the card's foot; without rows the reading fills the card as one block
+  ([S-12808]). **Days side by side** (the week planner) are the
   columns of one grid of cells (`ItemStretch.Columns`, the month's rule: whole cells from the card's left edge to its
   right, the last taking the part cell), every line of the week running across the card, a day with fewer lines
   holding its place with empty cells. A **status mark** (`KitStatus`'s problem glyph or ring over the content's top end
