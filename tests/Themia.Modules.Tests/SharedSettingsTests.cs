@@ -182,20 +182,18 @@ public sealed class SharedSettingsTests
         Assert.Equal(SharedSettings.GpuAdapter.Key, GpuAdapterLine.Line(menuOf, 0, _ => { }, [new GpuAdapter(0, "One", "1", 0, 0), new GpuAdapter(1, "Two", "2", 0, 0)])?.Shares);
     }
 
-
-    private static WidgetInstance Widget(string kind, string id, string? group = null)
+    private static WidgetInstance Widget(string kind, string id)
     {
         var widget = WidgetInstance.Create(new WidgetId(kind), new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
-        widget.Group = group;
         return widget;
     }
 
+    /// <summary>A weather station placed: four loose widgets ([S-2475]) and a clock.</summary>
     private static (AppState State, ViewState View) Station()
     {
         var view = ViewState.Create("v");
-        view.Groups.Add(new WidgetGroup { Id = "g", Name = "Weather station" });
-        view.Widgets.AddRange([Widget("weatherNow", "now", "g"), Widget("weatherFacts", "facts", "g"), Widget("weatherForecast", "days", "g"), Widget("rainNextHour", "rain", "g"), Widget("clock", "clock")]);
+        view.Widgets.AddRange([Widget("weatherNow", "now"), Widget("weatherFacts", "facts"), Widget("weatherForecast", "days"), Widget("rainNextHour", "rain"), Widget("clock", "clock")]);
         return (new AppState { Views = [view] }, view);
     }
 
@@ -207,52 +205,19 @@ public sealed class SharedSettingsTests
     }
 
     [Fact]
-    public void S11754_S11755_a_whole_group_selected_is_its_page_its_shared_settings_and_no_member_alone()
+    public void S11755_several_widgets_selected_are_their_shared_settings_and_their_look_never_one_alone()
     {
         var (state, view) = Station();
         var model = SelectionPage.Of(state, Selecting(view, "now", "facts", "days", "rain"), view.Id)!;
 
-        Assert.Equal(SelectionKind.Group, model.Kind);
-        Assert.Equal("g", model.GroupId);
-        Assert.Equal("Weather station", model.GroupTitle);
+        Assert.Equal(SelectionKind.Several, model.Kind);
         Assert.Equal([SelectionSection.Shared, SelectionSection.Appearance], SelectionPage.Sections(model, ownLines: true, styleLines: true));
 
         var place = Assert.Single(model.Shared, r => r.Setting == SharedSettings.Place);
         Assert.Equal(["now", "facts", "days", "rain"], place.Holders);
         Assert.False(place.Mixed);
-        Assert.Equal("Weather station", SelectionPage.Words(model, k => ModuleCatalog.Of(k).Name));
-        Assert.Equal(ReadyMadeGroups.WeatherStation.Glyph, SelectionPage.Glyph(model));
-    }
-
-    /// <summary>
-    /// [S-2454] Regression (owner, 2026-11-15: "when i select multiple widgets i am not able to group them"):
-    /// the page of several widgets, the one place a selection's commands are, offered Cut, Copy and Remove
-    /// only; Group was a key and a right-click away. Its header card now offers Group, and Ungroup where a
-    /// group is among them; a lone widget and an entered member offer neither, a whole group Ungroup only.
-    /// </summary>
-    [Fact]
-    public void S2454_the_page_of_several_widgets_offers_group_and_a_group_ungroup()
-    {
-        var (state, view) = Station();
-        view.Widgets.Add(Widget("clock", "clock2"));
-
-        var lone = SelectionPage.Of(state, Selecting(view, "clock", "clock2"), view.Id)!;
-        Assert.Equal(SelectionKind.Several, lone.Kind);
-        Assert.Equal((true, false), (lone.CanGroup, lone.CanUngroup));
-
-        // A group and a lone widget: Group merges them, Ungroup dissolves the group.
-        var mixed = SelectionPage.Of(state, Selecting(view, "now", "facts", "days", "rain", "clock"), view.Id)!;
-        Assert.Equal((true, true), (mixed.CanGroup, mixed.CanUngroup));
-
-        var whole = SelectionPage.Of(state, Selecting(view, "now", "facts", "days", "rain"), view.Id)!;
-        Assert.Equal((false, true), (whole.CanGroup, whole.CanUngroup));
-
-        var one = SelectionPage.Of(state, Selecting(view, "clock"), view.Id)!;
-        Assert.Equal((false, false), (one.CanGroup, one.CanUngroup));
-
-        // What the page offers is what Ctrl+G does: one group of the two, selected whole after.
-        Assert.NotNull(WidgetGroups.Group(view, ["clock", "clock2"]));
-        Assert.Equal(SelectionKind.Group, SelectionPage.Of(state, Selecting(view, "clock", "clock2"), view.Id)!.Kind);
+        Assert.Equal("4 widgets", SelectionPage.Words(model, k => ModuleCatalog.Of(k).Name));
+        Assert.Equal(Themia.App.Shell.Glyphs.Apps, SelectionPage.Glyph(model));
     }
 
     [Fact]
@@ -289,7 +254,7 @@ public sealed class SharedSettingsTests
     }
 
     [Fact]
-    public void S11754_several_lone_widgets_share_the_section_and_an_entered_member_is_its_own_page()
+    public void S11754_several_widgets_share_the_section_and_one_widget_is_its_own_page()
     {
         var (state, view) = Station();
         var a = Widget("sun", "sun");
@@ -298,33 +263,11 @@ public sealed class SharedSettingsTests
 
         var several = SelectionPage.Of(state, Selecting(view, "sun", "moon"), view.Id)!;
         Assert.Equal(SelectionKind.Several, several.Kind);
-        Assert.Null(several.GroupId);
         Assert.Contains(several.Shared, r => r.Setting == SharedSettings.Place && !r.Mixed);
-
-        // Part of a group with a lone widget: several, not the group.
         Assert.Equal(SelectionKind.Several, SelectionPage.Of(state, Selecting(view, "now", "facts", "days", "rain", "clock"), view.Id)!.Kind);
-
-        var entered = new WidgetSelection();
-        entered.Enter(view.Id, "g", "facts");
-        var member = SelectionPage.Of(state, entered, view.Id)!;
-        Assert.Equal(SelectionKind.Member, member.Kind);
-        Assert.Equal("Weather station", member.GroupTitle);
-        Assert.Empty(member.Shared);
 
         var one = SelectionPage.Of(state, Selecting(view, "clock"), view.Id)!;
         Assert.Equal(SelectionKind.One, one.Kind);
         Assert.Empty(one.Shared);
-    }
-
-    [Fact]
-    public void S11754_a_group_is_renamed_and_a_blank_name_is_none()
-    {
-        var (_, view) = Station();
-        Assert.True(WidgetGroups.Rename(view, "g", SelectionPage.GroupName("  Roof ")));
-        Assert.Equal("Roof", view.FindGroup("g")!.Name);
-        Assert.False(WidgetGroups.Rename(view, "g", "Roof"));
-        Assert.True(WidgetGroups.Rename(view, "g", SelectionPage.GroupName("")));
-        Assert.Null(view.FindGroup("g")!.Name);
-        Assert.False(WidgetGroups.Rename(view, "missing", "x"));
     }
 }

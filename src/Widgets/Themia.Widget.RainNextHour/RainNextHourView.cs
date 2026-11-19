@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// between fetches.
 /// </summary>
 internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetContextActions, IWidgetJoins
+    IWidgetContextActions
 {
     /// <inheritdoc />
     public CardOpen? Opens => RainNextHourModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
@@ -96,10 +96,6 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
         Children.Add(_state);
         _status.Place(this);
     }
-
-    /// <summary>[S-12483] The chart runs to a foot a group mate joins: its foot inset goes there.</summary>
-    public void ApplyJoins(JoinedSides sides)
-        => _chart.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, sides.Foot);
 
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_feed.Held), _feed.Refresh)] : [];

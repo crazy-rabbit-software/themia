@@ -23,12 +23,11 @@ namespace Themia.App.Widgets;
 /// <para>
 /// [S-7042] A reading kept through a failed refresh stays on screen and the status's problem glyph says
 /// so ([S-12481]); with no reading at all the Status block's one row at the top says why ([S-6734]). The
-/// place stands on the condition's line ("Overcast · Zürich", [S-12481]); [S-12483] the reading meets a
-/// side a group mate joins.
+/// place stands on the condition's line ("Overcast · Zürich", [S-12481]); [S-12483] the same joined or alone.
 /// </para>
 /// </summary>
 internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetContextActions, IWidgetAligned, IWidgetJoins
+    IWidgetContextActions, IWidgetAligned
 {
     /// <inheritdoc />
     public CardOpen? Opens => WeatherNowModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
@@ -71,7 +70,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
             VerticalAlignment = VerticalAlignment.Center,
 
             // [S-12800] The sides and the foot keep the inset (the card gives the top), so the reading is centred in
-            // what the sizing counted, never 6 off; a mate joined under it takes the foot (ApplyJoins).
+            // what the sizing counted, never 6 off, joined or alone ([S-12483]).
             Margin = Family.SideInset with { Bottom = FamilySpace.Inset },
             Visibility = Visibility.Collapsed,
             ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } },
@@ -81,18 +80,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
         Children.Add(_face);
         Children.Add(_empty);
         _status.Place(this);
-    }
-
-    /// <summary>[S-12483] The reading stands against a side a group mate joins, its foot's inset gone there; centred when free.</summary>
-    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
-    {
-        _face.Margin = Family.SideInset with { Bottom = sides.Foot };
-        _face.VerticalAlignment = sides.Block switch
-        {
-            Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
-            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
     }
 
     /// <summary>[S-730] "Refresh": the network now, past both the back-off and the cache.</summary>

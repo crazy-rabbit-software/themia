@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Ready-made groups, no groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; No card header (HEADERLESS); The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -77,7 +77,8 @@ Sections, grouped by area (file order below; search for the heading).
 
 ## Constraints
 
-- **[S-08]** Minimum widget size is a **pixel floor** (`MinWidgetPx`, 32 DIP, [S-06b]), converted to a
+- **[S-08]** Minimum widget size is a **pixel floor**, one grid cell (`MinWidgetPx` = `WidgetSizing.Floor`, 10 DIP,
+  [S-06b]; was 32 until 2026-11-17, owner: the quick toggles "should not really have a smallest size at all"), converted to a
   fractional floor at the moment of resize, so it means the same physical size on every monitor. It
   is every widget's last floor: a kind's sizing never starts under it ([S-11800]), and a resize stops at
   the sizing's Min first ([S-2445]).
@@ -90,8 +91,8 @@ Sections, grouped by area (file order below; search for the heading).
   work area wins.
 - **[S-6608]** While the bar's **Widgets can go over the screen edge** is on (the default; off, the whole widget stays
   on the work area, [S-2330]) a widget may hang over **any edge** of its display, but always keeps at least
-  `MinVisiblePx` (**32 DIP**, the [S-08] floor) of itself on the allowed area on each axis: a
-  floor-sized widget is never cut at all, a bigger one always leaves a whole minimum widget's worth
+  `MinVisiblePx` (**32 DIP**, a grab's worth; the [S-08] floor was 32 until 2026-11-17 and is one grid cell now) of
+  itself on the allowed area on each axis: a widget no larger is never cut at all, a bigger one always leaves 32 DIP
   to see, grab and drag back. Pushed further, it slides back just that far, keeping its size; a
   resize stops the moved edge there. The minimum is kept on the **work area**, so nothing can be lost
   under the taskbar either; an area narrower than it keeps what it can hold. It is DIPs, so the
@@ -327,6 +328,20 @@ Sections, grouped by area (file order below; search for the heading).
   (the first rung taking, on one and on two displays), and with Karpo running: its bar, a flyout and a
   tooltip opened from it stay in front of the widgets during Win+D, with Karpo's edge holding its
   strip, floating over the windows and on hover.
+- **[S-34f]** **A surface never takes the foreground under a full-screen app** (the owner, 2026-11-19: "in
+  fullscreen mode when clicking themia sometimes karpo comes to front"). Every way a surface takes the
+  foreground goes through `DesktopWindow.TakeForeground` (the keyboard lease, the empty desktop's keys, the add
+  page from Ctrl+Alt+Shift+W, the settings on a second start), and edit mode's focus asks the same: not while
+  a window above the surface covers its whole display (`ZOrderPolicy.MayTakeForeground` over
+  `DesktopZOrder.MayTakeForeground`'s walk up the z-order; on screen, another program's, not click-through,
+  not maximised with a caption). Under that app the surface stays unseen whatever it does, and the foreground only told the shell
+  and Karpo (its §702, §705) that the full-screen app was no longer its display's front: Karpo's bars came
+  back over the video. A click on a surface never meets it (what was clicked was on screen). Karpo's side of
+  the same report (appbar.log 2026-11-18: Explorer's desktop window, spanning both displays, read as the
+  video's display's front after a click on the other display's desktop) is fixed in Karpo, §705. Tests
+  `ZOrderPolicyTests.S34f_`. Live pass: a video full screen on one display; Ctrl+Alt+W and
+  Ctrl+Alt+Shift+W with the pointer over it, a click on a widget, an icon, a flyout and empty desktop on the
+  other display: Karpo's bars stay away over the video.
 - **[S-28]** While the surface is pinned for Show Desktop, a **widget surface taking the foreground
   holds the pin**, exactly as Start or the taskbar does. Clicking a widget makes the surface the
   foreground, so the desktop no longer owns it and Show Desktop stops reading as active — but
@@ -881,11 +896,11 @@ actually touch each other, there is still a little space vertically which i dont
   title, no glyph, at any size and in any language; there is no header placement, no header fill,
   colour or opacity, no header tone or case token and no Header section on the selection's page. A
   title is a widget of its own: the **Header** widget ([S-9600], `src/Widgets/Themia.Widget.Header`),
-  placed, sized and grouped like any other. The sizing counts no header: the content starts at the
+  placed and sized like any other, joined to the cards it touches. The sizing counts no header: the content starts at the
   card's inset (`FamilySpace.ContentTop` is the inset), so every kind that showed a header by default is
   24 shorter than it was. The schema changed in place: a widget has no `header`, the design no
   `headerBackgroundColor`/`headerOpacity`, the look tokens no `headerTone`/`headerCase`; `--design` and
-  `--widget-png` lost their header keys. Tests `JoinedSidesTests.S12480_`, `SizeFitTests`,
+  `--widget-png` lost their header keys. Tests `CardContentTests.S12480_`, `SizeFitTests`,
   `HeaderTests` (the module's).
 - **[S-12481]** **What a header carried besides a name moved into the widget's own content**, decided per
   kind and kept concise ([S-666]):
@@ -911,10 +926,10 @@ actually touch each other, there is still a little space vertically which i dont
     group, and the reading's tooltip still says which drive.
 - **[S-5700]** **The card gives its view's top the inset** (none where the view owns its top edge,
   `IWidgetTopEdge`: a picture, a stream, a spectrum, the album art, the quick toggles, the power buttons),
-  and **none where a group mate joins it** ([S-12482]). Every view keeps its own side and foot insets
+  joined to another card or not ([S-12483]). Every view keeps its own side and foot insets
   (a Row carries the side inset to reach both edges with its hover, [S-6711]; a list, a face, a block
   pads its foot). The Set up row, the waiting row and the error card follow the same rule as a view
-  that does not own the edge. The rule is `JoinedSides.TopInset`, laid by `WidgetCard.ApplyEdges`.
+  that does not own the edge. The rule is `CardContent.TopInset`, laid by `WidgetCard.ApplyEdges`.
 - **[S-11600]** **The top is the card's, the sides and the foot the view's**: a view never pads its own
   top; its content starts exactly one inset under the card's top edge at every size of its range (none
   where a mate joins). A chart drawn edge to edge (a history, a stock's chart) reaches the sides and the
@@ -1984,11 +1999,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   bar's second toggle ([S-2330]; owner, 2026-11-16: "is the collision feature implemented? i cannot see the toggle
   button anywhere"; first, 2026-11-15, a General switch under Snap to grid). On, a widget moved never lands over
   another: every move there is, a drag in edit mode or on the locked desktop ([S-2008], a mixed selection of icons
-  and cards, [S-11879], whole groups, [S-11885]) and the arrow keys (one cell a press on the always-on grid, [S-06];
+  and cards, [S-11879]) and the arrow keys (one cell a press on the always-on grid, [S-06];
   a press that would land over another does not move). The block goes all the way where it lands clear, else
   slides along the clear axis, else stays where it stood (`BlockGeometry.Apart`). What moves is held, never what
   stays: desktop icons and cards alike stay clear (a card that hides itself, [S-873], is not drawn, so not in the
-  way); a group's members move together and never hold each other. Touching edges are no overlap, nor an overlap
+  way); the selected widgets move together and never hold each other. Touching edges are no overlap, nor an overlap
   thinner than one whole pixel step of the drag ([S-11873]), so a block still lands flush beside a neighbour on a
   display whose grid pitch is not whole steps. Widgets already lying over each other are left as they are, and a
   moved one may stay over or leave the one it started over, but never comes over another. Resizing, placing, a
@@ -2056,14 +2071,13 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   a header, [S-3711]); **Appearance** (Alignment ([S-6584]), Background, Item background, Item text
   ([S-6566], [S-6571], [S-6574]), the background image ([S-6593]), Scale ([S-6531])). Several selected:
   the count in the header card and the shared sections only ([S-3702]), For all of them among them
-  ([S-11756]); a mixed value of the card's own rows reads as a dash. A whole group: its own page
-  ([S-11754]); an entered member: its own page under the link to its group ([S-11757]).
+  ([S-11754]); a mixed value of the card's own rows reads as a dash.
 - **[S-2345]** **Two tabs** (owner, 2026-11-15: "the appearance in the widget settings should get an own tab";
   Karpo's tab strip, §592, WinUI's SelectorBar; `SelectionPage.Tabs`, `PageTabButton`, the add page's tab too):
   under the header card a strip of **Settings** (the link to an entered member's group, What it shows, For all of
   them, Header) and **Appearance** (the Appearance section, its heading the tab's words so not said twice), the
   chosen tab's sections under it; the strip 8 under the header card and 8 over the cards. Only where both have
-  something: a group sharing nothing has its look alone, no strip. The tab chosen is kept while the page lives;
+  something: several widgets sharing nothing have their look alone, no strip. The tab chosen is kept while the page lives;
   a way in (`RequestSettings`, Set up) lands on the tab its section stands on. Renders `select-<theme>-one-appearance`,
   `-many-appearance`, `-group`, `-group-appearance`. Tests `EditBarLayoutTests.S2345_`.
 - **[S-2346]** **Every press on a flyout is the flyout's, and lands** (owner, 2026-11-15: "sometimes i cannot open a
@@ -2204,7 +2218,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   a family's `tab/family:Id`).
 - **[S-11702]** A **tile** is one button on a page card (Windows' card fill and rim, radius 4; the subtle
   fills under the pointer and pressed): a 120-tall picture box ([S-11710]), then its name in Body and one
-  Caption line (a group: "n widgets"; a widget: its description; a desktop item: "On the desktop"), each
+  Caption line (a ready-made group: "n widgets"; a widget: its description; a desktop item: "On the desktop"), each
   cut short with an ellipsis; the caption is its tooltip. It places a widget at its natural size, a
   ready-made group whole ([S-2471]), or a desktop item's widget ([S-5523]). Picking one closes the page and
   starts the placement session ([S-421], [S-1587]). Where placing it would pass the free plan's widgets
@@ -2249,7 +2263,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   unplaced. *(Retired 2026-11-14: "the desktop item kind is never a tile and
   has no home"; the kinds `shortcut` and `desktopItem` are one.)*
 - **[S-11710]** A tile's **picture** is the thing itself (`AddPictures`): its widget at its natural size, or
-  its group's widgets at their boxes joined as one panel ([S-2240]), built as real cards on a preview host
+  its recipe's widgets at their boxes joined as one panel ([S-2240]), built as real cards on a preview host
   with the design applied, so the user sees their look, and with **sample data only**, in every build
   ([S-11850]): the sample world handed to those cards alone ([S-11851]: the sample PC's hub for the system
   readings, [S-1931], a gallery service of their own); each view's own sample ([S-11852]); a kit list reads
@@ -2497,7 +2511,7 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   foot, [S-3739]) is a level of its own over the look every widget shares (⚙ › Appearance): its
   Default is that look, so it is an override, not a copy. A group's For all of them ([S-11751]) is no
   level either: its row is the widgets' own setting (the very line a member's page has, [S-11753]) set on
-  several widgets at once, and each member's page keeps it; a group holds an id and a name only.
+  several widgets at once, and each widget's page keeps it.
 - **[S-3591]** Who sets what, after the audit of every bar menu and every widget's menu (2026-10-26):
   ⚙ (Themia as a whole): start with Windows, the desktop icons, pausing in full screen, the look every
   widget shares, the accounts, the language and the regional formats (time format, start of week,
@@ -2527,8 +2541,7 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   an account ([S-3749]) (a focus session's Length is its own),
   and no widget's config has a field of a type only a higher level holds (a temperature scale, a
   clock, a week start, a cadence, a theme, a language). No shared setting's contract ([S-11750]) reads
-  such a type, each is held by a widget's config, and a group has no field but its id and name
-  (`S3592_a_shared_setting_is_the_widgets_own…`).
+  such a type, each is held by a widget's config (`S3592_a_shared_setting_is_the_widgets_own…`).
 - **[S-3593]** Edit mode's menus live only while edit mode does (user request 2026-10-26: "release
   the edit-mode menus when edit mode ends"). The bar's buttons and its add menu are built as edit
   mode starts (`EditBar.Fill`), a page's flyout as it opens (`OpenPage`, `OpenSelectionPage`) and
@@ -2968,7 +2981,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   and no chevron, its tooltip "Opens Accounts"; a pick closes the menu and opens ⚙ › Accounts on the widget's
   display (`WidgetMenuLines.OpenSetting`, `DesktopWindow.RequestSetting`); greyed where there is no edit bar (a
   render, a test). The other ways somewhere stay what they are: a widget's Set up ([S-1862]), Windows' own
-  settings pages (location, [S-2851]), an entered member's way back to its group ([S-11757]). **No link row to
+  settings pages (location, [S-2851]). **No link row to
   a setting a widget follows** (the time format, the start of the week, the temperature unit, an update
   interval: Clock, Calendar, Week planner, the weather widgets, Rain, Stocks, the stock chart and Feed had one
   each): the widget follows ⚙'s and says nothing of it; `WidgetMenuLines.Link` and the settings pages'
@@ -4281,19 +4294,18 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
 - **[S-11873]** **A block's move is whole device pixels** (owner, 2026-11-15: "when moving a group around freely the
   spacing of the widgets inside the group changes slightly when moving"). Each card's cell was rounded on its own from
   the drag's fractional offset, and rounding to even put 4.5 px on 4 and 7.5 px on 8, so cards moved by the same
-  amount came out a pixel apart. A block (a group, a selection, a mixed selection of icons and cards on the locked
+  amount came out a pixel apart. A block (a selection, a mixed selection of icons and cards on the locked
   desktop, [S-11879]) is snapped as a block ([S-06]), then that offset is put on whole `GridGeometry.PixelStep`s
   (the fewest whole DIPs that are whole device pixels: 1 at 100 %, 2 at 150 %, 4 at 125 %), one offset for every card
   (`BlockGeometry.Move(..., rasterScale)`), and every edge rounds half up (`GridGeometry.WholeDip`, `DevicePixel`, the
   grid's `LineDip` and `CrispLine` alike), so the cards' pixels keep their places relative to one another while it
-  moves and where it lands. Tests `GroupMoveTests.S11873_`.
+  moves and where it lands. Tests `BlockMoveTests.S11873_`.
 - **[S-11810]** **Insets on the cards' pixels** (owner, 2026-11-15: "the group borders dont align with the
   widget borders inside … everything should align on the given grid"). Every inset is whole device pixels
   (the gap rounded to whole pixels once, the start side the lower half, the end side the rest, so neighbours
   still show exactly the gap), so a card's edge and the grid's line share their pixels at gap 0
-  (`GridFit.LineDip`). The box round a group's members (`CardJoins.Frame`) is what Liquid glass draws a
-  group's one shape from ([S-2123]); no frame is drawn round a group any more ([S-2453]). Tests `GroupJoinTests.S11810_`,
-  `S11810_S2453_a_groups_frame_is_round_its_members_cells_on_the_grids_lines`.
+  (`GridFit.LineDip`). The box round touching cards (`CardJoins.Frame`) is what Liquid glass draws their one
+  shape from ([S-2123]). Tests `CardPaintTests.S11810_the_box_round_several_cards_is_round_their_cells_on_the_grids_lines`.
 - **[S-2449]** **A big number's size is a setting.** A one-readout widget (the clock, the timers; not the
   toggles and power buttons, whose box is free, [S-11882]) states its readout's size in its config (`IReadoutSized.Size`,
   `ReadoutSize` Small, Medium, Large: the family's 40, 68 and 96, `ReadoutSizes.Step`; a new one
@@ -6924,10 +6936,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   of a profile down the glass, 80 % at the top, 40 % at 12 %, 16 % at the middle, 34 % at 88 %, 66 % at the foot
   light; 60 / 26 / 10 / 22 / 46 dark), the content, the **dividers** and the **rim** (the 1-DIP border, white down the
   glass: 92 % at the top, 58 % at 6 %, 16 % at 30 %, 8 % at 55 %, 24 % at 90 %, 62 % at the foot light;
-  56 / 34 / 10 / 5 / 13 / 36 dark). **A group is one glass shape** (`CardJoins.Bodies`): members of one group whose
-  painted boxes meet are one body; the rim, glow and lens run down the body's height (absolute gradients from each
-  card's offset in it), the tint is measured over the body's area, the lens and the lift stop at a side a mate covers,
-  and each pair of mates that meet gets one hairline divider on the upper or left card (black / white at the divider token's 10 %, 14 DIPs short of the body's outer edge, running on to a T inside). Approximated: the lensing is stepped bands
+  56 / 34 / 10 / 5 / 13 / 36 dark). **Touching cards are one glass shape** (`CardJoins.Bodies`): cards whose
+  painted boxes meet, and every card they meet in turn, are one body; the rim, glow and lens run down the body's height (absolute gradients from each
+  card's offset in it), the tint is measured over the body's area, the lens and the lift stop at a side a joined card
+  covers, and each pair of cards that meet gets one hairline divider on the upper or left card (black / white at the divider token's 10 %, 14 DIPs short of the body's outer edge, running on to a T inside). Approximated: the lensing is stepped bands
   of light, not a sampled bend of what lies behind; the light is fixed above, not the device's tilt; the blur is the
   display's one frost; continuous corners are circular arcs; the light/dark adaptation is the tint's amount over the
   theme's own glass. Tests `LiquidGlassTests.S2123_`.
@@ -6969,7 +6981,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   | innerFill, innerHover, innerSelected | 0..0.4 | 0.08, 0.06, 0.12 | [S-2138] a vibrant item's ink |
   | trackOpacity | 0..0.5 | 0.12 | [S-2138] a vibrant track's ink |
   | rowDividers | None, Hairline, Inset | None | [S-2139] |
-  | dividerOpacity | 0..0.4 | 0.1 | [S-2139] a glass group's dividers |
+  | dividerOpacity | 0..0.4 | 0.1 | [S-2139] a glass body's dividers |
 - **[S-2131]** **The frost** is made with the design's tokens (`LookRules.Frost`, `DesignApplier.Frost`): the box radius
   whose three passes at the picture's 1/12 scale come nearest a Gaussian of `frostBlur` display pixels (40 is radius 3,
   the frost Themia always had), then each pixel moved from its Rec. 709 grey by `frostSaturation` and toward white or
@@ -7013,7 +7025,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-2139]** **Row dividers** (`FamilyLook.Rows`, `RowBlock`): none (the family's own), a hairline across the row from
   inset to inset, or one from the text edge (iOS's and macOS's inset separator), in the track's role, at the row's top
   edge over every row but the first of its list: inside the row's height, so no size changes. `dividerOpacity` is a
-  glass group's dividers' ([S-2123]).
+  glass body's dividers' ([S-2123]).
 - **[S-2140]** **Grain**: a fine, fixed grain (`LookRules.Grain`, a hash of each pixel's place: the same every run) over
   a painted card's material and under its content, at `grain`.
 - **[S-2141]** **On the Appearance page** ([S-2316]), Karpo-style rows, one level each: **Material** (rendering, frost
@@ -7289,27 +7301,28 @@ is one switch, [S-2110]); the eyedropper (optional in the audit). Motion setting
 
 ### Cards that touch (JOIN)
 
-Every card paints its whole cell ([S-11884]), so cards placed edge to edge touch. Only the members of one
-group join into one panel: round on the outside, square inside, no line between ([S-11870]). Cards of no
-group that touch stay separate cards, every corner round and every side drawn (owner, 2026-11-15: "the
-space between widgets will only come from how you place them now").
+Every card paints its whole cell ([S-11884]), so cards placed edge to edge touch, and **any two cards that
+touch join** into one panel: round on the outside, square inside, no line between ([S-11870]) (owner,
+2026-11-17: "the widgets should connect when the edges of them touch, right now they only connect when the
+edges touch and they are grouped together"). There are no groups ([S-2450]). A desktop icon never joins
+([S-11880]). Joining is the cards' chrome only: a card's content is laid out the same joined or alone ([S-12483]).
 
-- **[S-2240]** **When the cells of two members of one group touch along a side, they join**
-  (`CardJoins.Outlines`, Core, pure: each card's box and group in, an outline per card out). Two cards are
-  joined on a side when they are members of the same group ([S-2450]), that side of one lies on the opposite
-  side of the other within the tolerance (half a device pixel, `CardJoins.Tolerance`: 0.5 DIP at 100 %, 0.25
-  at 200 %) and they overlap along it by more than the tolerance; cards that meet only at a corner do not.
-  **Cards of no group, or of two groups, never join**: touching, each keeps its four round corners and its
-  whole border (since 2026-11-15; before, any two touching cards joined with one line between). Only a card
-  that takes part in joins does (`CardJoins.Joins`): one whose background is not Transparent, or that has a
-  picture of its own ([S-6590]), and whose kind is a card (not `WidgetTraits.NeverJoins`, [S-11880]: a desktop
-  icon never joins); a bare widget, a hidden one ([S-873]) and one being dragged ([S-2244]) join nothing. The
-  rule takes no radius and no border: two members of different looks join by the same geometry, each drawing
-  its own radius. Tests `CardJoinsTests.S2240_`, `GroupJoinTests.S2240_`.
+- **[S-2240]** **When the cells of two cards touch along a side, they join** (`CardJoins.Outlines`, Core, pure:
+  each card's box in, an outline per card out; owner, 2026-11-17). Two cards are joined on a side when that side
+  of one lies on the opposite side of the other within the tolerance (half a device pixel, `CardJoins.Tolerance`:
+  0.5 DIP at 100 %, 0.25 at 200 %) and they overlap along it by more than the tolerance; cards that meet only at a
+  corner do not. There is no group and no other condition (from 2026-11-15 to 2026-11-17 only members of one
+  group joined; that rule is gone with the groups, [S-2450]). Only a card that takes part in joins does
+  (`CardJoins.Joins`): one whose background is not Transparent, or that has a picture of its own ([S-6590]), and
+  whose kind is a card (not `WidgetTraits.NeverJoins`, [S-11880]: a desktop icon never joins); a bare widget, a
+  hidden one ([S-873]) and one being dragged ([S-2244]) join nothing. The rule takes no radius and no border: two
+  cards of different looks join by the same geometry, each drawing its own radius. Tests
+  `CardJoinsTests.S2240_regression_ungrouped_cards_that_touch_join`,
+  `CardPaintTests.S2240_regression_cards_placed_border_to_border_join_into_one_panel_with_no_group`.
 - **[S-2241]** **Corners.** A card's corner is square when a joined neighbour covers it: on one of the
   two sides meeting there, a joined neighbour's span reaches that corner (within the tolerance).
-  Otherwise it keeps the card's radius. A grouped column of equal cards rounds only the top card's top
-  corners and the bottom card's bottom ones; a narrow member on a wide one squares its lower corners while
+  Otherwise it keeps the card's radius. A column of equal cards rounds only the top card's top
+  corners and the bottom card's bottom ones; a narrow card on a wide one squares its lower corners while
   the wide one keeps the top corners the narrow one does not reach. The card's outline (`CardOutline`,
   physical sides; mirrored for a card laid out right to left) gives one corner radius per corner to
   everything that follows the card's shape (`WidgetCard.Join.cs`): the surface's clip (the frost, the
@@ -7320,8 +7333,8 @@ space between widgets will only come from how you place them now").
   at all clips nothing in WinUI, so such a card clips its frost to its box itself (`ClipFrost`; only
   then, as a rectangle clip under a rounded one changes how the round corners are smoothed). Tests
   `CardJoinsTests.S2241_`.
-- **[S-2242]** *(Retired 2026-11-15 by [S-2240]: only group members join, and between them no line is drawn
-  ([S-11870]); the rule of one line between two joined cards of no group, `CardJoinsTests.S2242_`, is gone.)*
+- **[S-2242]** *(Retired 2026-11-15: between joined cards no line is drawn ([S-11870]); the rule of one line
+  between two joined cards, `CardJoinsTests.S2242_`, is gone.)*
 - **[S-2243]** **The border's path** (`CardOutline.Stroke`, drawn by a `Path`, which replaced the
   `Rectangle`): half the stroke inside the card, a round corner an arc at the radius less that half, a
   square corner a point; all four sides drawn are one closed figure (a free card draws as before), a
@@ -7330,12 +7343,12 @@ space between widgets will only come from how you place them now").
   or dotted pattern starts again at each run's start, so two neighbours' dashes need not line up
   across a join. Tests `CardJoinsTests.S2243_`.
 - **[S-2244]** **One path, live.** The desktop (`DesktopWindow.JoinCards`) and the scene renderer
-  ([S-1076]) both call `WidgetCard.Join` over a surface's cards (each card's cell, its set and its group;
-  the rule gives each its outline, [S-2249]). The desktop joins again whenever the layout is applied: a relayout (a view
+  ([S-1076]) both call `WidgetCard.Join` over a surface's cards (each card's cell and its set; the rule gives
+  each its outline, [S-2249]). The desktop joins again whenever the layout is applied: a relayout (a view
   switch, a design change such as a preset), a card hidden or shown, a move, a resize,
   a keyboard nudge. A card being resized is free, every corner round and its whole border, until it is
   dropped; the cards a drag carries (with the selection, once the drag has moved) are free of the cards
-  standing still but stay joined among themselves, so a dragged group stays one panel ([S-2457]); their
+  standing still but stay joined among themselves, so a dragged block stays one panel ([S-2457]); their
   former neighbours get their corners back at once. Edit mode's selection outlines, handles, markers, ghosts and the snap
   guides keep their own shapes; so does an intro's cover while it plays ([S-1007]).
 - **[S-2245]** *(Retired 2026-11-14 by [S-21]: the window's region is the work area, so it no longer
@@ -7350,29 +7363,23 @@ space between widgets will only come from how you place them now").
   from a whole DIP (`GridGeometry.ToPixels`, [S-11872]), so two edges are the same pixel or at least one
   whole pixel apart: one pixel apart or over is no meeting, at 100 % as at 125, 150 or 200 % and on a
   screen whose DIPs are fractional; the half pixel only absorbs float noise. On the grid they meet on its
-  line. Tests `GroupJoinTests.S2248_`.
-- **[S-2249]** **A group is one connected panel** (owner, 2026-11-15: "when i now place widgets border to
-  border … and then i group them it does not connect them"; `CardJoins.Paint`, the one path the desktop,
-  the scenes and the add page's pictures take through `WidgetCard.Join`). Every card paints its whole cell
-  ([S-11884]); members of one group whose cells meet ([S-2248]) join ([S-2240], [S-2241]) with no line
-  between ([S-11870]): square inner corners, one outer outline, round outside. So **Group** (Ctrl+G, the card
-  menu, the selection page) on widgets placed border to border connects them every time; **Ungroup** leaves
-  every card where it is and makes them separate cards again, each round all round. Widgets of no group (or
-  of two) that touch stay separate cards. **Members that are not neighbours** stay where they are, drawn as
-  separate cards (the group is still the lock of [S-2450]: selected, moved and framed as one); Group never
-  moves a widget. A member and a lone widget meeting the same side: only the member's corners over its mate
-  are square, the lone card keeps all four. A member being dragged away (another set, [S-2457]) or resized
-  ([S-2244]) is free until it lands; a dragged group stays one panel. Moving a member keeps the panel
-  connected wherever its cell still meets a mate; dropped apart, it is a separate card of the group. A
-  resize or a refit ([S-2447]) of one member changes that member's cell alone. Tests `GroupJoinTests.S2249_`
-  (the regression: `S2249_regression_grouping_cards_placed_border_to_border_joins_them_into_one_panel`).
+  line. Tests `CardPaintTests.S2248_`.
+- **[S-2249]** **Touching cards are one connected panel** (`CardJoins.Paint`, the one path the desktop, the scenes
+  and the add page's pictures take through `WidgetCard.Join`). Every card paints its whole cell ([S-11884]); cards
+  whose cells meet ([S-2248]) join ([S-2240], [S-2241]) with no line between ([S-11870]): square inner corners,
+  one outer outline, round outside. Placing, moving or resizing a card so it meets another joins them at once;
+  moving it away parts them, each round all round again. A card that takes no part in joins (an icon, a bare
+  widget) beside a panel keeps all four corners, and the panel's corner over it stays round. A card being dragged
+  away (another set, [S-2457]) or resized ([S-2244]) is free until it lands; a dragged selection stays one panel
+  among itself. A resize or a refit ([S-2447]) of one card changes that card's cell alone. Tests
+  `CardPaintTests.S2249_`.
 - **[S-11884]** **No gap between widgets** (owner, 2026-11-15: "the padding of the widgets should also be
   removed, the space between widgets will only come from how you place them now"): a card paints its whole
   cell, on the grid's lines. There is no gap setting (Appearance › Cards has no Gap row), no
   `DesignState.WidgetGapPx`, no gap in a preset, in `--design` or a scene's design text (`gap=` is refused
   as an unknown key) and no `widgetGapPx` in a state file; sizing (`SizeFit`, `GridFit`, `PlacementSizes`,
   `ReadyMadeGroups.Laid`, a desktop icon's box) adds nothing round a card. Space between widgets is where
-  they are placed. Ready-made groups stay connected ([S-2249]). Tests `GroupJoinTests.S2240_S11884_`,
+  they are placed. Ready-made groups stay connected ([S-2249]). Tests `CardPaintTests.S2240_S11884_`,
   `CardJoinsTests.S2240_S11884_`, `GridFitTests.S11807_the_content_scale_is_inside_the_whole_cells`.
 - **[S-11880]** **A desktop icon is no card** (owner, 2026-11-15: "the desktop icons have two rounded and two
   normal corners, this should not be"): its kind states `WidgetTraits.NeverJoins`, so it never joins the
@@ -7380,43 +7387,34 @@ space between widgets will only come from how you place them now").
   its card's surface is not clipped to a card's corners (`CardJoins.ClipRadius`): the highlight, which fills
   the cell's width from its top, kept the card's 8-DIP corners at the top and its own 2 at the bottom; now
   all four are `SelectionLook.DesktopIcon`'s. Given a card of its own it is clipped as any card, and still
-  never joins. Tests `GroupJoinTests.S11880_`, the module's `S9515_`.
-- **[S-12482]** **On a side a group mate joins, the content runs to the edge** (owner, 2026-11-16: "there is
-  still a little space vertically which i dont want there to be. fix that for all the widgets"). The
-  card knows its outline ([S-2241]); `CardOutline.Joined` is the top and the foot a mate joins (a side not
-  drawn, or crossed by a seam), and the card tells its view (`WidgetCard.ApplyEdges`, on every join, config
-  and view swap): there is no inset over a joined top ([S-5700]: `JoinedSides.TopInset`), and the view's
-  foot keeps none on a joined foot. One rule for every kind, in the card and family layer, never per
-  widget. The outer sides keep the family's look. Tests `JoinedSidesTests.S12482_`.
-- **[S-12483]** **How a view runs to a joined side.** A block held at its natural height (`NaturalBlock`)
-  stands against the one joined side (`JoinedSides.Block`: the top, the foot, or the middle when free or
-  joined on both) and on a joined foot its own foot inset stands past the card's edge, clipped (the card's
-  content never draws over its neighbour); a meter's reading (`MeterView`) and every view that centres a
-  block or keeps a foot inset of its own takes the sides through `IWidgetJoins` (`JoinedSides.Above`,
-  `.Foot`): Weather now, the forecast, the rain, Air quality, the moon, the sun, a stock, an exchange
-  rate, a drive, the screen time widgets, the quote, the habit grid, the clock, the next meeting, the
-  Header widget. A list's rows already run into its foot ([S-12410]) and a chart to its edges.
-- **[S-12484]** **The left and the right keep the inset.** Across a seam on a side a member's text would
-  run into its mate's (the inbox's subject into the task's name), so only the top and the foot run to a
-  joined edge; a row's hover already reaches both edges ([S-6711]).
+  never joins. Tests `CardPaintTests.S11880_`, the module's `S9515_`.
+- **[S-12482]** *(Retired 2026-11-17 by [S-12483]: a joined top or foot no longer changes the content; the
+  card's chrome alone joins. `CardOutline.Joined`, `JoinedSides` and `JoinedSidesTests` are gone.)*
+- **[S-12483]** **A join is chrome, never layout** (owner, 2026-11-17: "the widgets now change their internal
+  layout when connecting to other widgets. this should not be done"). A widget's content is laid out the same
+  whether a card joins it or not: the card gives its view the family's inset at the top (none for a view that
+  owns its top edge, `CardContent.TopInset`, [S-5700]) and nothing else; the view keeps its sides and its foot
+  ([S-12800]). Joining changes only the card: square inner corners ([S-2241]), one outline with no line at the
+  seam ([S-11870]), one glass body in Liquid glass ([S-2123]). There is no word from the card to its view about
+  its joins (no `JoinedSides`, `IWidgetJoins`, `ApplyJoins`, `NaturalBlock.Join` or `HourGraph.Join`), and a
+  block held at its natural height stands in the middle of its room ([S-12410]). Stacked widgets still sit flush
+  card to card: the one-inset rule leaves no extra band ([S-12800]). Test
+  `CardContentTests.S12483_a_cards_content_box_is_the_same_joined_and_alone` (also a guard: no source names
+  those types).
+- **[S-12484]** *(Retired 2026-11-17 by [S-12483]: every side keeps its inset, joined or not.)*
 - **[S-12800]** **One inset, no extra band** (owner, 2026-11-17: "the widgets should be designed in a way from the
   top to bottom and left and right that there is no additional spacing so that they nicely fill the whole contents.
   for example the graph widgets right now have a little bit too much spacing on the top and bottom so that they do not
   nicely tie together when stacked"). A widget's content stands one family inset (12) from the card's edge on every
   free side and reaches it: the card gives the top ([S-5700]), the view keeps the sides and the foot, never a second
   inset over the top or a margin round the whole (the weather graphs' frame carried `Family.Inset` on all four sides,
-  24 over its top line in a card and 12 over and under it in a group; now `HourGraph.Join`: the sides and a foot that a
-  mate joining under it takes, and `HourGraphPanel` is every graph's view, so the card's word reaches it). On a
-  joined side the content runs to the edge ([S-12482]) through the one family path: a block held at its natural
-  height (`NaturalBlock`: Music progress too), a view that keeps a foot (`IWidgetJoins` with `JoinedSides.Foot`:
-  Weather now, the calendar's day, week and year, the note's text, the scratchpad's ink bar), and rows that start
-  at the top (`JoinedSides.Rows`: at the foot where only the foot is joined, so the last meets the mate under it:
-  recent files, removable drives, screen time's apps, drive facts, sun times, the week planner). A reading block is
+  24 over its top line in a card; now the sides and the foot, `HourGraphPanel` being every graph's view). Joined or
+  not, the content is the same ([S-12483]). A reading block is
   centred in what its sizing counted (Weather now's sat 6 off its middle), and a sizing counts every line its view
   holds (a stock's line under its price, [S-11161]). Kept on purpose: a grid of cells keeps its foot inside the inset
   for the cells' marks (the folder's grid and icons, the contacts' grid); a list keeps the rows its config states,
   so fewer items than rows leave the rest empty ([S-11800]: content decides the size, never the items now). Tests
-  `JoinedSidesTests.S12800_`, the stock's `S11161_`; renders `--recipe-png` of every group.
+  `CardContentTests`, the stock's `S11161_`; renders `--recipe-png` of every group.
 - **[S-12801]** **A widget names no context** (owner, 2026-11-17: "the small widgets like the weather graph ones all
   show the location, but with that in a group the location would be shown x times for all the widgets. this should
   not be. stuff like that should be removed as a user would just put the location in the header"). Nothing in a
@@ -7458,35 +7456,30 @@ space between widgets will only come from how you place them now").
   Tests the clock's `S6011_the_clock_has_no_date_style_and_no_date_line`, the Date module's.
 - **[S-12806]** **A quick toggle or power button has no real minimum** (owner, 2026-11-17: "the buttons like the
   night mode toggle should be able to be smaller than they are now, they should not really have a smallest size
-  at all"): its least box is the family's smallest glyph (16) in the inset, 40 (`TileRules.MinSide`; was the 28
-  glyph's 52), and under the 28 glyph's room in the inset (52) the inset gives way down to 4 round the glyph,
-  which is the 28 while it fits and else the 16 (`TileFace.Mark`, `.Inset`), so a box the grid rounds smaller
-  still draws; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`.
-- **[S-11870]** **No line inside a group** (owner, 2026-11-12: "the lines in between the widgets in one
-  group dont look good. remove them."). Between two joined cards that are members of the same group
-  ([S-2450]) no line is drawn at all: neither card draws a side, or the stretch of a side, where a
-  member of its own group lies across it. A group reads as one sheet: its outer border stays whole,
-  round outside ([S-2241]). Two cards that touch but are not of one group (two lone widgets, a lone
-  widget and a member, members of two groups) are not joined at all ([S-2240]): each draws its whole
-  border and round corners, so the user still sees where one thing ends and the next begins. `CardJoins.Outlines` takes each card's group (null: none);
-  group mates count as neighbours for [S-2242]'s rule, and then the stretches across them are left out
-  of whatever side is drawn: a side wholly across mates is not drawn, a side partly across them keeps
-  its other stretches (`CardOutline.Seams`, fractions of the side from its physical start, mirrored
-  for a right-to-left card). It follows the join's own life ([S-2244]): a group change (Ctrl+G,
-  Ctrl+Shift+G, Remove from group, an undo) is a state change, which lays the cards out and joins them
-  again, so the lines go or come back at once though no box moved; an entered member dragged away
-  from its mates is free while it moves ([S-2457]) and, dropped where it touches none, draws its whole
-  border; a dragged group keeps its seamless inside. Edit mode is unchanged: the group's frame and an
-  entered member's own markers ([S-2453]) show what is what. Tests `CardJoinsTests.S11870_`.
+  at all"): its least box is the app's floor, one grid cell (`TileRules.MinSide` = `WidgetSizing.Floor`, 10, [S-08];
+  was 40, the 16 glyph in the inset). Under the 28 glyph's room in the inset (52) the inset gives way down to 4 round
+  the glyph, which is the 28 while it fits and else the 16; under the 16's room (24) the glyph is two thirds of the
+  box and the inset the rest (`TileFace.Mark`, `.Inset`), so every box from the floor draws its glyph whole, growing
+  with the box; the name and state are its tooltip and fill there. Test `FamilyBlockRulesTests.S12806_`; render
+  `--widget-png nightLightToggle --sizes 10x10,16x16,24x24,40x40`.
+- **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
+  group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card
+  draws a side, or the stretch of a side, where a card it joins lies across it. Touching cards read as one sheet:
+  the outer border stays whole, round outside ([S-2241]). A side wholly across its neighbours is not drawn, a side
+  partly across them keeps its other stretches (`CardOutline.Seams`, fractions of the side from its physical
+  start, mirrored for a right-to-left card). It follows the join's own life ([S-2244]): a move, a resize, a
+  placement or an undo lays the cards out and joins them again, so the lines go or come back at once; a card
+  dragged away is free while it moves ([S-2457]) and, dropped where it touches none, draws its whole border; a
+  dragged selection keeps its seamless inside. Tests `CardJoinsTests.S11870_`.
 - **[S-11871]** **A side in runs** (`CardOutline.Stroke`): a seam breaks its side, so a side draws as
   one or more runs. A run that stops at a seam runs on into it by the stroke's width, under the end
-  of the line the group mate across draws down its own side to that edge ([S-2243]), so the two meet
+  of the line the card across draws down its own side to that edge ([S-2243]), so the two meet
   with no notch; a run that reaches a corner turns it as before. Tests `CardJoinsTests.S11871_`.
 - **[S-11872]** **One sheet, no seam.** With no line between them, nothing else may mark where two
-  members meet. The card's fill is one flat colour at one opacity ([S-2100]; no gradient, no header
-  band, [S-2103]), so it needs no shading over the group's bounds; the frost is the display's one
+  joined cards meet. The card's fill is one flat colour at one opacity ([S-2100]; no gradient, no header
+  band, [S-2103]), so it needs no shading over the panel's bounds; the frost is the display's one
   blurred picture placed by the card's place on it ([S-2114]), so it runs on across a join (measured
-  across every join of the groups at 100, 150 and 250 %: equal on both sides). What did show was
+  across every join of the ready-made groups at 100, 150 and 250 %: equal on both sides). What did show was
   the edge itself: a card edge between two device pixels (an odd DIP at 150 %, most at 125 %) was drawn
   half by each neighbour, their translucent fills each half covering one row, so the wallpaper showed
   through there as a light line. A card's cell now puts each edge on a whole device pixel
@@ -8086,31 +8079,26 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   on the work area's ([S-06], [S-6609]), and the move stops where the first of its
   widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
   each rect is then kept in reach ([S-09]). Offsets between the widgets never change. Resizing is per
-  card and narrows the selection to it; a group's members are resized only once it is entered ([S-2453]).
+  card and narrows the selection to it ([S-2451]).
 - **[S-11879]** **A mixed block on the locked desktop** (owner, 2026-11-15: "the widgets in the desktop should also
   be selected with the lasso, and also moved with everything as well then"): outside edit mode a press on any selected
   widget, icon or card, moves **every selected widget of that display's view** as one block
   (`DesktopPicks.Moving` over the desktop's one selection, [S-11877]); an unselected one moves alone and the selection
-  stays (its group comes with it, [S-11885]). The block moves as [S-1584] says: one translation, its corner snapped
+  stays. The block moves as [S-1584] says: one translation, its corner snapped
   to the grid, kept in reach, in whole device pixels ([S-11873]), handed to another display's view where it is let go
   there ([S-1591]), one undo step. Tests `DesktopGridTests.S11879_`.
-- **[S-11885]** **The locked desktop takes whole groups** (owner, 2026-11-15: "when not in edit mode and moving
-  widgets on the desktop directly it does not respect the grouping of widgets"): as in edit mode the unit is a lone
-  widget or a whole group ([S-2451], `WidgetGroups.Units`, the one rule both share). A press and move on any member
-  moves every member together, their offsets kept, as one block snapped and in whole device pixels ([S-11873]); a
-  band that touches one member selects the whole group, and a member is drawn selected with its group
-  (`DesktopPicks.Selected` and `Moving` grow the desktop selection's widgets to whole units, `DesktopPicks.Selects`
-  the look; `AppHost.DeskSelects`). The selection's keys themselves stay those of what was pressed or touched.
-  Tests `DesktopGridTests.S11885_` (the regression, which failed first: a member moved alone).
+- **[S-11885]** *(Retired 2026-11-17 with the groups, [S-2450]: the locked desktop moves and selects exactly what is
+  pressed or selected, `DesktopPicks.Selected`, `.Moving`, `.Selects`. Test
+  `DesktopGridTests.S11877_a_locked_move_or_lasso_takes_what_it_touches_and_never_a_neighbour_it_only_touches`.)*
 - **[S-11877]** **One selection, one lasso** on the locked desktop: the desktop's band ([S-5544]) on empty desktop
   selects widgets and desktop icons together, by the one overlap rule (`DesktopBand.Hits`, the band touching the box);
   Ctrl toggles, Shift adds ([S-6625]); Escape or a press on empty desktop clears both (`ClearDeskSelection`). The
   host's desktop selection is the one model (`DesktopSelection`; a card under its card key, [S-5540]); a card asks
   it (`DesktopWindow.IsSelected` outside edit mode, `AppHost.DeskSelects`) and draws its **four corners in the accent,
-  no handles, no grips, no edge bars** (`WidgetCard.ApplySelection`: `EditMarks.Corners` on the locked desktop); an
+  no handles, no grips, no edge bars** (`WidgetCard.ApplySelection`: the corners' ink alone on the locked desktop); an
   icon draws its own selection look ([S-6627]) alone, no corners ([S-11889]). Delete, Cut, Copy, Enter and F2 keep their meaning per kind: on the
-  icons the file commands ([S-5545]), on cards nothing outside edit mode. Edit mode keeps its own units and groups
-  (`WidgetSelection`, [S-2450]), started empty. Tests `DesktopGridTests.S11877_`; `--drag-png` draws it
+  icons the file commands ([S-5545]), on cards nothing outside edit mode. Edit mode keeps its own selection
+  (`WidgetSelection`, [S-2451]), started empty. Tests `DesktopGridTests.S11877_`; `--drag-png` draws it
   (`drag-lasso-*`).
 - **[S-1585]** A ghost of several widgets shows **every widget's outline** at its offset in the
   block. An outline too small for the icon and name shows the frame alone.
@@ -8149,9 +8137,8 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   in one landing ([S-76], [S-77]) and selects it there.
 - **[S-1592]** Delete, Copy, Cut, Bring to front and Send to back act on the whole
   selection; the card menu says how many ("Delete 3 widgets"). A right-click on a selected card keeps
-  the selection; on any other card it selects that card's unit (its whole group, [S-2451]) first.
-  Layering keeps the order the selected widgets had among themselves, a group's members included. The
-  card menu also offers Group, Ungroup and Remove from group where they apply ([S-2454]).
+  the selection; on any other card it selects that card first ([S-2451]).
+  Layering keeps the order the selected widgets had among themselves.
 - **[S-1593]** A press on a card of a multi-selection keeps the selection so the drag that may follow
   carries all of it; released without moving (3 DIPs), it narrows the selection to that card.
 
@@ -8160,90 +8147,71 @@ Not done: a debug render of the multi-widget ghost (the outlines are pinned by
 rubber band, Ctrl+click, block drag clamping at the taskbar, hand-off of a selection across
 displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 
-## Groups and ready-made groups (GROUPS)
+## Ready-made groups, no groups (GROUPS)
 
-Owning files: `Themia.Core/Model/WidgetGroups.cs` (the rules), `AppState.cs` (`WidgetGroup`,
-`ViewState.Groups`, `WidgetInstance.Group`), `WidgetSelection.cs` (the group rules of a press, a click,
-Ctrl+click, Escape and Tab), `PlacementPayload.cs`, `WidgetTransfer.cs`, `LayoutHistory.cs`,
-`Widgets/CardJoins.cs` (sets), `Model/ReadyMadeGroups.cs` (the recipes), `Scenes/ReadyMadeScene.cs`;
-`AppHost.Groups.cs`, `WidgetCard.cs` (the press, the members' corners), `DesktopWindow.Keys.cs`,
-`Shell/Pages/AddPageView.cs`. Tests: `WidgetGroupsTests`, `GroupShellTests`, `SceneGroupsTests`, `ReadyMadeGroupsTests`.
+Owning files: `Themia.Core/Model/ReadyMadeGroups.cs` (the recipes), `PlacementPayload.cs`, `WidgetSelection.cs`
+(a press, a click, Ctrl+click, Escape, Tab, `SelectionRules.PressTarget`), `Widgets/CardJoins.cs` (sets),
+`Scenes/ReadyMadeScene.cs`; `AppHost.Gestures.cs`, `WidgetCard.cs` and `WidgetCard.Markers.cs` (the press, the
+lifted grips), `EditMarkerLayer.cs`, `Shell/Pages/AddPageView.cs`. Tests: `NoGroupsTests`, `NoGroupsShellTests`,
+`SelectedHandlesTests`, `ReadyMadeGroupsTests`, `ReadyMadePlacementTests`.
 
-Small widgets put side by side already draw as one panel ([S-2240]); a group is what makes such a
-composition one thing to arrange: an optional lock over ordinary cards, never a card of its own. Its
-members that meet close the gap between them and draw no line there, so the group reads as one
-connected sheet at any gap ([S-2249], [S-11870]).
+Small widgets put side by side draw as one panel because they touch ([S-2240]); there is nothing else that
+makes a composition one thing. Several widgets selected together are arranged and set together.
 
-- **[S-2450]** **State.** A view holds its groups (`Groups`: an id and an optional name); a widget holds
-  the id of its group (`group`, not written when it has none). No nesting: a widget is in one group at
-  most and a group holds widgets only. A group of fewer than two members does not exist: load
-  validation repairs the groups after the widgets (a group with a blank or repeated id is dropped, a
-  blank name is none, a widget naming a group its view lacks is lone, a group of fewer than two
-  dissolves), logged with the other repairs, and every mutation settles the same rule
-  (`WidgetGroups.Settle` in `AppHost.Mutate`), so a delete, a cut or a move that leaves one member frees
-  it. Export and import carry the groups with the views ([S-494]); the assistants' `list_widgets` says
-  each widget's group and each view's groups (id, name) ([S-9971]).
-- **[S-2451]** **Selection: the unit is a group or a lone widget.** A press on a member of a group that
-  is not selected selects the whole group; a click (released without moving, [S-1593]) on a member of
-  the group that is selected alone **enters** it: that member alone is selected, inside the group
-  (`WidgetSelection.Entered`). Inside, a press on another member enters that one; a press outside
-  selects that unit and leaves the group. **Escape** steps out: an entered member to its whole group,
-  a selection to nothing ([S-1583]). **Ctrl+click** puts a whole group in or out of the selection
-  ([S-1580]); the **rubber band** takes a group when it touches one member ([S-1581]); **Ctrl+A** takes
-  everything. **Tab** cycles units in reading order (a group by its top-left corner); inside an entered
-  group it cycles its members ([S-1973]). An entered group that dissolves is entered no more.
-- **[S-2452]** **A selected group acts as one**: it moves, copies, cuts, pastes, deletes and is layered
-  (Bring to front / Send to back, the members keeping their order among themselves) as the selection
-  of its members does ([S-1584], [S-1592]); the arrow keys nudge it whole ([S-1970]). An entered member
-  is moved on its own and stays a member wherever it is dropped.
-- **[S-2453]** **Resizing is a member's alone.** A group draws **no marks of its own** (owner, 2026-11-15: "a
-  group should not have the corners and edges marked anymore"): no brackets, edge bars or grips round its outline,
-  in any state (selected, entered, on the locked desktop's lasso, in edit mode). Its members draw their corners alone
-  ([S-2459]), in the accent while they are selected (the group selected whole shows it through them), neutral
-  otherwise; an entered member shows its own markers and handles. *(Until 2026-11-15 `GroupFrameLayer` drew a frame
-  of the markers round the members' cells; removed whole.)*
-- **[S-2459]** **A member's corners** (owner, 2026-11-15: "when a widget in the group is selected it should show the
-  corners of the other widgets inside the group too ... also when the group is selected"): in edit mode every member
-  of a group that is not the entered, selected one draws its four corner brackets, with no grips and no edge bars (in
-  the accent while it is selected, neutral otherwise, [S-2453]), as the widgets around show theirs: the group selected whole, entered with another member, or neither
-  (`SelectionRules.MarksOf`, `EditMarks`; the rule had hidden them all). Tests `GroupMoveTests.S2459_`,
-  `WidgetGroupsTests.S2459_`. Shift+arrows do nothing to a selection that
-  holds a whole group.
-- **[S-2454]** **Group and ungroup.** **Ctrl+G** makes one group of the selection (two widgets or more,
-  a member bringing its whole group; groups in it merge into the new one, which takes the name of the
-  first of them, in view order, that had one; the new group is selected whole). **Ctrl+Shift+G**
-  dissolves every group the selection touches (inside an entered group, that group); the widgets stay
-  where they are and stay selected. A widget's card menu offers **Group**, **Ungroup** and, on an
-  entered member, **Remove from group**, only where each applies; so does the header card of the
-  selection's page (`SelectionModel.CanGroup`, `.CanUngroup`): **Group** (Ctrl+G) for several units,
-  **Ungroup** (Ctrl+Shift+G) for a group whole or several holding one (owner, 2026-11-15: "when i select
-  multiple widgets i am not able to group them": the page of several offered Cut, Copy and Remove only).
-  A right-click ends its own press, so it never holds the page shut ([S-2343]). A group left with one
-  member dissolves. Tests `SharedSettingsTests.S2454_`.
-- **[S-2455]** **Copies and moves.** A payload carries the groups it holds two or more members of; a
-  member taken alone travels as a lone widget. A copy of a group lands as a new group (fresh id, the
-  same name) every time it is pasted; a move keeps its group, across views and displays too, and the
-  view it left lets it go. A duplicated view ([S-900]) has new groups of its copies.
-- **[S-2456]** **Undo** covers every group change: the layout shapes carry each widget's group and each
-  view's groups (id, name), `SameLayout` compares them, a restore puts them back. Group and Ungroup
-  (and Remove from group) are one step each, named "group" and "ungroup".
-- **[S-2457]** **Joined while dragged.** The cards a drag carries (a group, any selection dragged
-  together) stay joined among themselves while they move, a set of their own free of the cards standing
-  still ([S-2244]; `CardJoins.Outlines` takes a set per card: two cards join only within one set), with no
-  line between them ([S-11870]).
-- **[S-2458]** **Scenes** ([S-1076]): a widget may carry `"group": "<name>"` (two widgets or more to a
-  group, its name its id on the scene's view); the `edit` block may select a group whole (`"group"`) or
-  enter one with a member (`"enter": "<widget id>"`), so the pictures show both frames and the page of
-  each ([S-11754], [S-11757]); its `open` names a member's own page by the member's scene id
-  (`member/<widget id>`, [S-11755]). A group of one, an edit naming a group or a member that is not
-  there, or both at once are refused at their path.
+- **[S-2450]** **There are no groups** (owner, 2026-11-17: "actually remove the group feature. ... you should keep
+  the ability to select multiple widgets of course and also the ability to move them together or configure them
+  together"). A view holds widgets only: no `Groups`, no widget `group`, no group in a payload, an undo shape, a
+  scene, the assistants' list or an export. A state file that still names them loads with those keys dropped,
+  one repair line each ([S-1050]: load validation takes out every key a view or a widget does not have,
+  `AppStateStore.DropUnknownKeys`). No Ctrl+G or Ctrl+Shift+G, no Group, Ungroup or Remove from group on the card
+  menu or the selection's page, no group page or name, no entering a group. *(2026-11-12 to 2026-11-17 a group was
+  a lock over two or more widgets of one view: `WidgetGroups`, `WidgetSelection.Entered`, `EditMarks`,
+  `SelectionRules.MarksOf`, the group's page and name; removed whole.)* Tests `NoGroupsTests.S2450_`,
+  `NoGroupsTests.S1050_`, `NoGroupsShellTests.S2450_`.
+- **[S-2451]** **Selection is widgets** ([S-1580]..[S-1583]): a press selects the widget alone, a press on a widget
+  of the selection keeps it so the drag carries all of it, and its click (released without moving) narrows to it
+  ([S-1593]); **Ctrl+click** (or Shift) puts one widget in or out; the **rubber band** takes the widgets it touches
+  and nothing they only touch; **Ctrl+A** takes everything; **Tab** cycles the widgets in reading order, one at a
+  time ([S-1973]); **Escape** clears the selection. A press on a resize handle selects that widget alone. Tests
+  `NoGroupsTests.S1593_`, `.S1580_`, `.S1581_`, `.S1973_`.
+- **[S-2452]** **Several selected act as one**: they move as one block, by one translation, snapped and in whole
+  device pixels ([S-1584], [S-11873]), kept apart from the cards that stay when Keep widgets from overlapping is on
+  ([S-11959]); they copy, cut, paste, delete and are layered together ([S-1592]); the arrow keys nudge them whole
+  ([S-1970]). Their page is **For all of them** (each shared setting once, [S-11751]) and the Appearance tab, set on
+  every one ([S-11754], [S-11755]). Tests `NoGroupsTests.S1584_`, `BlockMoveTests.S11873_`,
+  `WidgetCollisionsTests.S11959_a_selection_moves_as_one_block_its_touching_widgets_never_holding_each_other`.
+- **[S-2453]** **Every selected widget shows its marks**: in edit mode each card draws its eight markers (a
+  selected one in the accent, every other neutral, [S-31c]) and its handles; several selected show theirs each.
+  *(The group's corners-only marks, [S-2459], are gone with the groups.)*
+- **[S-2459]** *(Retired 2026-11-17 with the groups, [S-2450].)*
+- **[S-2454]** *(Retired 2026-11-17: Group and Ungroup are gone, [S-2450].)*
+- **[S-2455]** **Copies and moves** carry widgets only: a copy of several lands as loose widgets with fresh ids,
+  a move keeps their ids; a duplicated view ([S-900]) copies its widgets. Tests `NoGroupsTests.S1588_`,
+  `NoGroupsTests.S900_`.
+- **[S-2456]** *(Retired 2026-11-17: undo has no group to carry.)*
+- **[S-2457]** **Joined while dragged.** The cards a drag carries (any selection dragged together) stay joined
+  among themselves while they move, a set of their own free of the cards standing still ([S-2244];
+  `CardJoins.Outlines` takes a set per card: two cards join only within one set), with no line between them
+  ([S-11870]). Tests `NoGroupsShellTests.S2457_`.
+- **[S-2458]** *(Retired 2026-11-17: a scene has no `group` key and its `edit` block no `group` or `enter`; a scene
+  selects widgets by their `selected`, a ready-made group's entry by its own `selected`, [S-11860].)*
+- **[S-1597]** **A selected widget keeps all its handles over the cards above it** (owner, 2026-11-17: "when a
+  widget is selected even if it clips behind another one i should be able to grab all its edges and corners to
+  resize it or move it"). In edit mode a selected card's eight grips and its move area stand on a plate of the
+  surface's marker layer over every card (`WidgetCard.MarkerLift` on `EditMarkerLayer.Lifts`, above the cards'
+  ink), so a press on a selected card's edge, corner or body goes to it first even where another card is drawn
+  over it; the cards' drawing order stays (`SelectionRules.PressTarget`: the topmost selected card whose box, grown
+  by its grips' reach, holds the point, else the topmost card there). A widget that is not selected keeps its grips
+  on its own card. To reach the card on top where a selected one lies under it, select it elsewhere, or press
+  Escape first. Tests `SelectedHandlesTests.S1597_`; render `--editbar-png --only select`
+  (`select-*-under-another`).
 - **[S-11860]** **A ready-made group in a scene**: an entry of a scene's `widgets` may be
   `{ "readyMade": "<id>", "at": [x, y] }` in place of a widget. It stands for every widget of that
-  recipe ([S-2470]) at its box from the point, with the recipe's config, header and label, as one group,
-  so a picture of a group is the group the add page places and never a copy of its boxes. Its widgets
-  are named `<id>-<kind>` (a second of a kind `<id>-<kind>-<n>`), the id the entry's own `id`, else the
-  recipe's; the group is named by the entry's `group`, else as the recipe is called in the render's
-  language; `states` gives a kind its preview state. An id that is no recipe (those there are, listed),
+  recipe ([S-2470]) at its box from the point, with the recipe's config, header and label, loose widgets as
+  placing leaves them ([S-2475]), so a picture of a group is what the add page places and never a copy of its
+  boxes. Its widgets are named `<id>-<kind>` (a second of a kind `<id>-<kind>-<n>`), the id the entry's own `id`,
+  else the recipe's; `"selected": true` selects all of them (in edit mode); `states` gives a kind its preview
+  state. An id that is no recipe (those there are, listed),
   a point that leaves a widget outside the display, a state for a kind the recipe has not, or a widget's
   property on such an entry is refused at its path. Tests `SceneParserTests.S11860_`.
 - **[S-11861]** **A scene shows samples.** A scene's widget given no `state` shows its shipped sample
@@ -8270,9 +8238,9 @@ about (their place, account, drive, host, pair, symbol, period, Size), so a grou
 page where a setting the members share is set once. Owning files: SDK `Model/SharedSettings.cs` (the
 registry), `Model/Configs/SharedContracts.cs` (the contracts added), `Themia.Sdk.WinUI/Widgets/ItemMenu.cs`
 (`ItemMenuEntry.Shares`), `Modules/WidgetMenuLines.cs` (`Shared`); Core `Shell/SelectionPage.cs` (the
-model), `Model/QuickSet.cs` (`SetShared`), `Model/WidgetGroups.cs` (`Rename`); App `Shell/Pages/SelectionRows.cs`,
+model), `Model/QuickSet.cs` (`SetShared`); App `Shell/Pages/SelectionRows.cs`,
 `SharedRowLines.cs`, `DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`. Tests: `SharedSettingsTests`
-(Modules), `EditBarLayoutTests.S11754_` (Core), `SettingOwnershipTests.S3592_a_shared_setting…`.
+(Modules), `EditBarLayoutTests.S11755_` (Core), `SettingOwnershipTests.S3592_a_shared_setting…`.
 
 - **[S-11750]** **Shared settings** (`SharedSettings.All`): a setting several kinds hold is one entry
   over one config contract (`SharedSetting<T>`: its key, whether a config holds it, whether two hold the
@@ -8311,32 +8279,25 @@ model), `Model/QuickSet.cs` (`SetShared`), `Model/WidgetGroups.cs` (`Rename`); A
   the screen-time period, the span, Size, Rows, Lines, Columns and Hide when idle. Every kind that holds
   a setting marks its line wherever its look offers it (a look that offers none, a calendar's month, has
   no row to share), and a mark names only a setting its config holds.
-- **[S-11754]** **A whole group selected**: the bar's entry is the group's name (its own, or "Group") and
-  its glyph (the ready-made group's it was placed as, found by its name; the group glyph otherwise). Its
-  page (`SelectionPage.Of`, `SelectionKind.Group`): the header card with the group's glyph, its name as a
-  box that renames it (Enter or leaving keeps it, Escape restores it; empty, or "Group", is no name; one
-  step), "n widgets" under it, and Ungroup (Ctrl+Shift+G), Cut, Copy and Remove at its end; then on the
-  Settings tab For all of them ([S-11751]) and on the Appearance tab ([S-2345]) the shared appearance rows of
-  [S-2342], set on every member. No title or header placement: a title names one widget, and where a member's
-  header stands is that member's.
-- **[S-11755]** **No member alone** (owner, 2026-11-15: "the group should not show the individual widget in the
-  settings, just the appearance settings and the combination of the settings that are shared"): a group's page
-  lists no member and opens no member's page; a member's own settings are its page once the group is entered
-  ([S-11757], [S-2451]), and a member leaves its group from its card's menu (Remove from group). *(2026-11-14 to -15
-  a Widgets section held a row per member opening its own page as a sub-page, Remove from group at its end;
-  removed whole with its commands, `SelectionModel.Members`, `PageRow.Page` and the scene's `member/` keys.)*
-- **[S-11756]** Several lone widgets (or widgets of several groups) selected share For all of them too, after
-  the style and before the header's place, on the Settings tab; their look on the Appearance tab ([S-2345]).
-- **[S-11757]** **An entered member** ([S-2451]) is its own page as one widget's, with a link row first
-  under its header card, "Group: <name>", whose click selects the group whole and shows its page.
+- **[S-11754]** **Several selected**: the bar's entry is "2 × Clock" for several of one kind, "n widgets" for
+  several kinds, with the kind's glyph or the apps glyph ([S-2341]). Their page (`SelectionPage.Of`,
+  `SelectionKind.Several`): the header card with Cut, Copy and Remove, "n widgets" or "n × Kind" and the kinds under
+  it; then on the Settings tab For all of them ([S-11751]) and on the Appearance tab ([S-2345]) the shared
+  appearance rows of [S-2342], set on every one. No title or header placement: a title names one widget.
+- **[S-11755]** **No widget alone** (owner, 2026-11-15: "the group should not show the individual widget in the
+  settings, just the appearance settings and the combination of the settings that are shared"): the page of
+  several lists no widget and opens no widget's page; one widget's own settings are its page when it is
+  selected alone. Tests `SharedSettingsTests.S11755_`, `EditBarLayoutTests.S11755_`.
+- **[S-11756]** *(Folded into [S-11754] 2026-11-17: several widgets are the one case.)*
+- **[S-11757]** *(Retired 2026-11-17 with the groups: no member is entered, [S-2450].)*
 
-Needs a live pass: renaming a group in its header card (focus, Enter, leaving, Escape, an undo); a shared
-line's write reaching every member at once (a place found, a toggle, a typed host, a drive, a span) and
-the cards following; Mixed turning into one value on a pick; the Settings and Appearance tabs by the pointer
-and the keys; the link from an entered member; a lookup (a place, a symbol) asked once on the group's page.
+Needs a live pass: a shared line's write reaching every selected widget at once (a place found, a toggle, a typed
+host, a drive, a span) and the cards following; Mixed turning into one value on a pick; the Settings and
+Appearance tabs by the pointer and the keys; a lookup (a place, a symbol) asked once on the page of several.
 
-**Ready-made groups.** A ready-made group is a recipe that places several widgets, touching, already
-grouped, so a first desktop is a few clicks.
+**Ready-made groups.** A ready-made group is a recipe that places several widgets, touching, so a first
+desktop is a few clicks (owner, 2026-11-17: "the premade groups to place should also be kept, but after the
+placement they will just be a collection of regular widgets like any others").
 
 - **[S-2470]** **Data** (`ReadyMadeGroups.All`): an id, a name and a one-line description (through `Str`,
   the `groups` locale area), a glyph, its subject in the add menu (`AddFolderId`), and its widgets: a
@@ -8345,12 +8306,13 @@ grouped, so a first desktop is a few clicks.
   its two strings (docs/WIDGET-KIT.md 18). A place, an account or a folder is left to the widget's own
   Set up, never filled with someone else's.
 - **[S-2471]** **Placing** is the one placement session ([S-1587]): a ghost of every widget at its
-  offset, one click lands them all, touching, as one new group named after the recipe (fresh ids every
-  time), selected whole; one undo step ("add"). The licence counts it as adding its widgets one by one
+  offset, one click lands them all, touching, laid as one block (`ReadyMadeGroups.Laid`, [S-11809]), as loose
+  widgets (fresh ids every time) that are selected together; one undo step ("add"). Once placed they are widgets
+  like any others: they join because they touch ([S-2240]), and nothing holds them together. The licence counts it as adding its widgets one by one
   ([S-1065]): the gate before the ghost and on landing see all of them, and it lands whole or not at all.
   Every offered group is held to it (`ReadyMadePlacementTests`): placed through the tile's own plan on a
-  1080p, a 150 % 1440p and a 1280 × 720 display, the grid on and off, it lands every widget as one group,
-  clean to load validation, its page the group's.
+  1080p, a 150 % 1440p and a 1280 × 720 display, the grid on and off, it lands every widget loose, selected,
+  clean to load validation, with no group key in the state, its page the page of several.
 - **[S-2472]** **Rules** every recipe keeps (`ReadyMadeGroupsTests`): every kind installed and every
   config property one its kind has; two widgets or more; no two boxes overlapping; every widget touching
   another, so the recipe draws as one panel ([S-2240]); the whole within a 1280 × 720 work area. A build
@@ -8385,13 +8347,13 @@ grouped, so a first desktop is a few clicks.
   (120) in a row.
 - **[S-11343]** **Power**: Lock, Sleep, Restart and Shut down, four Medium tiles (120) in a row.
 - **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--theme light|dark] [--edit]
-  [--scale <n>]` draws a recipe placed: a scene built from it (`ReadyMadeScene`), its widgets as one
-  group on a sample wallpaper, no edit chrome, so the picture is the panel; `--edit` draws it in edit
-  mode, the new group selected under the bar with its page hung from the bar's entry. A widget given no
+  [--scale <n>]` draws a recipe placed: a scene built from it (`ReadyMadeScene`), its widgets touching on a
+  sample wallpaper, no edit chrome, so the picture is the panel; `--edit` draws it in edit mode, the placed
+  widgets selected under the bar with their page hung from the bar's entry. A widget given no
   state shows its "sample" preview where it has one.
 - **[S-11606]** **A recipe is one panel** (`ReadyMadeGroupsTests`, every recipe): each widget's box is a
   size its kind takes for the recipe's config (placing it moves nothing, [S-2446]), and the
-  boxes fill the group's bounds with no notch. Every recipe is looked at in `--recipe-png` (a contact
+  boxes fill the recipe's bounds with no notch. Every recipe is looked at in `--recipe-png` (a contact
   sheet of all of them): no double line, no spare air, and text edges in line from one atom to the next.
 - **[S-12485]** **Every ready-made group comes with its Header widget** (owner, 2026-11-16: "the groups should
   already include preplaced matching headers"): `ReadyMadeGroups.Headed` puts a Header widget ([S-9600])
@@ -8405,9 +8367,9 @@ grouped, so a first desktop is a few clicks.
 - **[S-11607]** *(Retired by [S-12485]: every group's header is its own Header widget.)* An old card's group
   carried one header, on its first atom.
 
-Not live-verified: entering a group by clicks, dragging a group and an entered member, the keys,
-the card menu's lines, a group handed to another display, placing a recipe on a display with a
-taskbar or a scale other than 100 %.
+Not live-verified: dragging several selected widgets, a selected widget's handles grabbed where another card
+covers them ([S-1597]), a selection handed to another display, placing a recipe on a display with a taskbar or a
+scale other than 100 %.
 
 ## Weather, sky and money as atoms (ATOMS-SKY)
 
@@ -8826,7 +8788,7 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   every seam. The card hands a view whose fill reaches its edge its corners (`IWidgetCorners.ApplyCorners`,
   in the view's DIPs: the card's per-corner radius over its content scale) when the view attaches and on
   every join, design and content-scale change; `TileBlock.Corners` puts them on its fill and its overlay.
-  Round where the card is, square where a group mate joins it ([S-2241]), in solid and Liquid glass alike.
+  Round where the card is, square where a neighbour joins it ([S-2241]), in solid and Liquid glass alike.
 - **[S-11804]** **A tile's name wraps before it is cut** (2026-11-12): under the glyph the name takes a
   second line where it runs past one ("Do not disturb", "Bitte nicht stören"), word by word, and only past
   the second is it cut with its ellipsis (`TileRules.NameLines`, `TileBlock`); the Switch look's row keeps
@@ -10408,7 +10370,8 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   not drawn, as Explorer's View › Auto arrange icons); the chosen line of a set (View › sizes, Sort by) shows the dot
   (`MenuMarks.Slot`). `ItemMenu` builds plain items only: never a `ToggleMenuFlyoutItem`, `RadioMenuFlyoutItem` or
   `AppBarToggleButton`, each of which makes WinUI reserve a check column beside the icons. The view bar's select menu
-  is the one exception left (a shrink-only list). Tests `ContextMenuTests.S12952_`; `--menu-png` draws them.
+  too (2026-11-17): the shown view's line shows the dot in the slot where every other view shows its mark (`ViewBar.ViewMenu`);
+  no file is excepted. Tests `ContextMenuTests.S12952_`; `--menu-png` and `--viewbar-png` draw them.
 - **[S-1755]** The pictures are Windows', never shipped with Themia: the standard-contrast `theme-light` /
   `theme-dark` SVGs under `%WINDIR%\SystemApps\MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\FileExplorerExtensions\Assets\images`,
   one file per picture (`MenuArtRules.FileName`), each read once per theme and kept. A Windows without

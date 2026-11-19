@@ -563,7 +563,7 @@ internal static class WidgetRender
         if (at + 1 < args.Length
             && double.TryParse(args[at], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var w)
             && double.TryParse(args[at + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var h)
-            && w >= 40 && h >= 40 && w <= 2000 && h <= 2000)
+            && w >= Themia.Sdk.WidgetSizing.Floor && h >= Themia.Sdk.WidgetSizing.Floor && w <= 2000 && h <= 2000)
         {
             return (w, h);
         }
@@ -598,7 +598,7 @@ internal static class WidgetRender
             }
             else
             {
-                Console.WriteLine($"widget: '{item}' is not a size (WxH, 40 to 2000)");
+                Console.WriteLine($"widget: '{item}' is not a size (WxH, {Themia.Sdk.WidgetSizing.Floor} to 2000)");
             }
         }
 

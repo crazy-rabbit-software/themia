@@ -11,7 +11,7 @@ namespace Themia.Core.Icons;
 /// <param name="Tags">Lower-case search words from the Gallery ("house", "envelope").</param>
 public sealed record FluentIcon(int Code, string Name, string[] Tags)
 {
-    /// <summary>The glyph as stored in a view's or group's icon: the one character itself.</summary>
+    /// <summary>The glyph as stored in a view's icon: the one character itself.</summary>
     public string Glyph { get; } = char.ConvertFromUtf32(Code);
 
     /// <summary>The name with its words spaced, for a tooltip: "Global Nav Button".</summary>

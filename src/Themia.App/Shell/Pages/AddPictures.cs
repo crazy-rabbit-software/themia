@@ -18,8 +18,8 @@ internal sealed record AddPicture(ImageSource Image, double Width, double Height
 
 /// <summary>
 /// [S-11710] The add page's pictures: each tile's widget, or its ready-made group as one joined panel,
-/// built as real cards (a preview card host, the kind's natural size, a group's boxes joined as the
-/// desktop joins them, [S-2240]) with sample data only, in every build ([S-11850]): the cards' host hands
+/// built as real cards (a preview card host, the kind's natural size, a recipe's boxes joined as the
+/// desktop joins touching cards, [S-2240]) with sample data only, in every build ([S-11850]): the cards' host hands
 /// them a sample world of their own ([S-11851]: the sample PC's hub, [S-1931], a gallery service), each
 /// view that has one shows its sample (<see cref="IWidgetSample"/>), a kit list reads no account — and
 /// drawn to a bitmap off the UI's hot path: one at a time, after the page is up, the cards on a stage
@@ -230,7 +230,7 @@ internal sealed class AddPictures : IDisposable
                 models = [WidgetInstance.Create(one.Kind, Core.Geometry.FracRect.FromPixels(0, 0, natural.Width, natural.Height, metrics))];
                 break;
             case AddGroupTile group when ReadyMadeGroups.Build(group.Group, metrics) is { } built:
-                models = built.Widgets;
+                models = built;
                 break;
             default:
                 return (null, 0);
@@ -241,7 +241,7 @@ internal sealed class AddPictures : IDisposable
         try
         {
             // [S-11807] A picture is the thing as the desktop paints it: whole cells of its picture's grid.
-            // [S-11809] A group's boxes as its placement lays them out, as one block.
+            // [S-11809] A recipe's boxes as its placement lays them out, as one block.
             IReadOnlyList<Core.Geometry.FracRect> boxes = tile is AddGroupTile recipe
                 ? ReadyMadeGroups.Laid(recipe.Group, metrics, new Core.Geometry.PlacementSizes(1))
                 : [.. models.Select(m => Core.Geometry.SizeFit.Shown(m.Rect, Core.Geometry.SizeFit.Limits(m, metrics, 1), metrics))];
@@ -265,7 +265,7 @@ internal sealed class AddPictures : IDisposable
             panel.Height = bottom;
             _stage.Children.Add(panel);
 
-            // [S-2240] A group's cards join as on the desktop.
+            // [S-2240] Touching cards join as on the desktop.
             // The cells were put on whole DIPs (scale 1), so the join measures them the same way.
             WidgetCard.Join(cards, metrics, 1, editMode: false, _ => 0);
             await SettleAsync(panel).ConfigureAwait(true);

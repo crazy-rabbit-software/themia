@@ -165,7 +165,7 @@ public sealed class LookTokens
     /// <summary>[S-2139] The list rows' dividers.</summary>
     public RowDivider RowDividers { get; set; } = RowDivider.None;
 
-    /// <summary>[S-2139] A divider's ink opacity: the rows' and a glass group's between its members (0 to 0.4).</summary>
+    /// <summary>[S-2139] A divider's ink opacity: the rows' and a glass body's between its cards (0 to 0.4).</summary>
     public double DividerOpacity { get; set; } = 0.1;
 
     /// <summary>[S-2130] Every number token, in the page's order: the one table the settings, the parser, load validation and the tests read.</summary>

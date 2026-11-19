@@ -20,14 +20,14 @@ namespace Themia.Widget.ScreenTime;
 /// line (a day with its arrows, [S-454], [S-12481]). [S-11503] It joins the view's links: a focused app's time over the
 /// period, and its share, stand in place of the total.
 /// </summary>
-internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetJoins
+internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
 
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
     private readonly WidgetLinks _dates = new();
-    /// <summary>[S-12410] One block, centred in the room under its day line with the foot's inset counted with it ([S-12483]: against a side a group mate joins).</summary>
+    /// <summary>[S-12410] One block, centred in the room under its day line with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
     private readonly ReadoutBlock _readout = new() { Margin = Family.SideInset with { Bottom = FamilySpace.Inset }, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left };
 
     /// <summary>[S-6714] Nothing to read: the Status block's one row at the top.</summary>
@@ -66,18 +66,6 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         Children.Add(_nav.Line);
         Children.Add(_readout);
         Children.Add(_empty);
-    }
-
-    /// <summary>[S-12483] The reading meets a side a group mate joins; the foot's inset goes where a mate joins it.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        _readout.VerticalAlignment = sides.Block switch
-        {
-            BlockEdge.Top => VerticalAlignment.Top,
-            BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
-        _readout.Margin = Family.SideInset with { Bottom = sides.Foot };
     }
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>

@@ -39,8 +39,7 @@
             596,
             300,
             84
-          ],
-          "group": "Stocks"
+          ]
         },
         {
           "id": "stockHistory",
@@ -50,8 +49,7 @@
             680,
             300,
             108
-          ],
-          "group": "Stocks"
+          ]
         }
       ]
     },
@@ -176,8 +174,7 @@
             288,
             280,
             84
-          ],
-          "group": "Ping"
+          ]
         },
         {
           "id": "pingHistory",
@@ -187,8 +184,7 @@
             372,
             280,
             64
-          ],
-          "group": "Ping"
+          ]
         },
         {
           "id": "pingFacts",
@@ -198,8 +194,7 @@
             436,
             280,
             136
-          ],
-          "group": "Ping"
+          ]
         },
         {
           "id": "gpu",
@@ -209,8 +204,7 @@
             24,
             262,
             84
-          ],
-          "group": "Graphics"
+          ]
         },
         {
           "id": "gpuHistory",
@@ -220,8 +214,7 @@
             108,
             262,
             64
-          ],
-          "group": "Graphics"
+          ]
         },
         {
           "id": "gpuFacts",
@@ -231,8 +224,7 @@
             172,
             262,
             136
-          ],
-          "group": "Graphics"
+          ]
         },
         {
           "id": "network",
@@ -242,8 +234,7 @@
             324,
             262,
             128
-          ],
-          "group": "Network"
+          ]
         },
         {
           "id": "networkHistory",
@@ -253,8 +244,7 @@
             452,
             262,
             64
-          ],
-          "group": "Network"
+          ]
         },
         {
           "id": "networkFacts",
@@ -264,8 +254,7 @@
             516,
             262,
             136
-          ],
-          "group": "Network"
+          ]
         },
         {
           "id": "drive",
@@ -285,8 +274,7 @@
             24,
             262,
             84
-          ],
-          "group": "Processor"
+          ]
         },
         {
           "id": "cpuHistory",
@@ -296,8 +284,7 @@
             108,
             262,
             64
-          ],
-          "group": "Processor"
+          ]
         },
         {
           "id": "cpuFacts",
@@ -307,8 +294,7 @@
             172,
             262,
             136
-          ],
-          "group": "Processor"
+          ]
         },
         {
           "id": "memory",
@@ -318,8 +304,7 @@
             324,
             262,
             84
-          ],
-          "group": "Memory"
+          ]
         },
         {
           "id": "memoryHistory",
@@ -329,8 +314,7 @@
             408,
             262,
             64
-          ],
-          "group": "Memory"
+          ]
         },
         {
           "id": "memoryFacts",
@@ -340,8 +324,7 @@
             472,
             262,
             136
-          ],
-          "group": "Memory"
+          ]
         },
         {
           "id": "battery",
@@ -351,8 +334,7 @@
             624,
             262,
             84
-          ],
-          "group": "Battery"
+          ]
         },
         {
           "id": "batteryHistory",
@@ -362,8 +344,7 @@
             708,
             262,
             64
-          ],
-          "group": "Battery"
+          ]
         }
       ]
     },

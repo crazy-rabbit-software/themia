@@ -12,11 +12,11 @@ namespace Themia.App.Shell;
 /// <summary>
 /// [S-2123] Liquid glass (<see cref="CardMaterial.LiquidGlass"/>): the card drawn as <see cref="LiquidGlass"/> says,
 /// every layer a plain WinUI one (no effect graph, nothing reflected: Native AOT safe). Bottom up: the lift (faint
-/// rings under the card, never past a side a group mate covers so it never falls on the mate), the frost ([S-2110]), the tint (the fill:
+/// rings under the card, never past a side a joined card covers so it never falls on it), the frost ([S-2110]), the tint (the fill:
 /// the glass's own over a Default background, as clear as the text allows over what lies behind the whole glass
 /// shape), the glow and the lens bands (under the content), the card's content, the dividers to the mates below and
-/// beside it, and the rim (the card's border path). A group's members are one glass shape (<see cref="CardJoins.Bodies"/>):
-/// every gradient runs down the body's height, not the card's, so the rim, the glow and the lens light the group as
+/// beside it, and the rim (the card's border path). Cards that touch are one glass shape (<see cref="CardJoins.Bodies"/>):
+/// every gradient runs down the body's height, not the card's, so the rim, the glow and the lens light the touching cards as
 /// one piece.
 /// </summary>
 internal sealed partial class WidgetCard
@@ -27,7 +27,7 @@ internal sealed partial class WidgetCard
     /// <summary>[S-2123] The lens: one border per band, from the rim in, over the glow and under the content.</summary>
     private readonly Grid _lens = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
 
-    /// <summary>[S-2123] The hairlines to the group mates this card draws toward, over the content.</summary>
+    /// <summary>[S-2123] The hairlines to the joined cards this card draws toward, over the content.</summary>
     private readonly Microsoft.UI.Xaml.Shapes.Path _dividers = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
 
     /// <summary>[S-2123] The lift: its rings under the surface, standing on the surface's box.</summary>
@@ -44,7 +44,7 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-2123] The glass shape this card is part of (<see cref="CardJoins.Bodies"/>): the glass is drawn again
-    /// when it changes, so a group joined, left or moved lights as one piece.
+    /// when it changes, so cards joined, parted or moved light as one piece.
     /// </summary>
     private void ApplyGlassPart(GlassPart part)
     {
@@ -126,7 +126,7 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-2123] The lens: a band of light inside the rim, as stepped borders from the rim in (each band its weight of
-    /// the lens profile down the body), on the sides the card draws: none along a side a group mate covers, where the
+    /// the lens profile down the body), on the sides the card draws: none along a side a joined card covers, where the
     /// glass runs on.
     /// </summary>
     private void DrawLens(GlassLook look, double radiusPx, (double X, double Y, double Width, double Height) body)
@@ -158,7 +158,7 @@ internal sealed partial class WidgetCard
         }
     }
 
-    /// <summary>[S-2123] The hairlines toward the group mates below and beside this card, inside its own edge.</summary>
+    /// <summary>[S-2123] The hairlines toward the joined cards below and beside this card, inside its own edge.</summary>
     private void DrawDividers(GlassLook look)
     {
         if (_part is not { Dividers.Count: > 0 } part)
@@ -191,7 +191,7 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-2123] The tint: over a Default background the glass's own, as opaque as the theme's text needs over the
-    /// blurred wallpaper under the whole glass shape (<see cref="LiquidGlass.TintOpacity"/>), so a group's members are
+    /// blurred wallpaper under the whole glass shape (<see cref="LiquidGlass.TintOpacity"/>), so touching cards are
     /// one tint; a colour of the user's stays theirs. Again as the card moves: what lies behind it changed.
     /// </summary>
     private void TintGlass(CardFill fill)
@@ -266,7 +266,7 @@ internal sealed partial class WidgetCard
     /// <summary>
     /// [S-2123] The lift: a large, faint shadow as rings round the surface (<see cref="LiquidGlass.LiftRings"/>), under
     /// it and moved down by the shadow's offset. Never past a side the card leaves to a mate or a joined neighbour, so
-    /// one card's lift never darkens the glass beside it: a group lifts as one piece. Shown only while the frost covers
+    /// one card's lift never darkens the glass beside it: touching cards lift as one piece. Shown only while the frost covers
     /// the surface: the rings run under it, and over no picture the clear glass would show them.
     /// </summary>
     private void Lift(GlassLook look, double radiusPx)

@@ -8,15 +8,11 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-1167] What a meter kind may add to its card besides the reading: commands on the right-click menu
 /// (Refresh, Open in Explorer) and a mark over the content's top end (Ping's problem glyph, [S-12481]). The
-/// view only passes them through; each kind decides in its own <see cref="MeterPart"/>. [S-12482] [S-12483]
-/// It stands its reading against a side a group mate joins.
+/// view only passes them through; each kind decides in its own <see cref="MeterPart"/>.
 /// </summary>
-public sealed partial class MeterView : IWidgetContextActions, IWidgetJoins
+public sealed partial class MeterView : IWidgetContextActions
 {
     private IWidgetSurface? _surface;
-
-    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
-    private JoinedSides _joins;
 
     /// <summary>[S-2510] A read outside the cadence (Refresh). Not while detached.</summary>
     public void SampleNow()
@@ -28,21 +24,6 @@ public sealed partial class MeterView : IWidgetContextActions, IWidgetJoins
     }
 
     public IReadOnlyList<WidgetAction> ContextActions => _part.ContextActions(this);
-
-    /// <summary>[S-12483] The reading's block meets a joined side; the foot's inset goes where a mate joins.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        if (sides == _joins)
-        {
-            return;
-        }
-
-        _joins = sides;
-        if (_area.IsMeasured)
-        {
-            LaySized();
-        }
-    }
 
     /// <summary>[S-12481] The kind's mark over the content's top end, over every row and column, once.</summary>
     private void PlaceMark()

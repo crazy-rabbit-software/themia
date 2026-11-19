@@ -12,7 +12,7 @@ namespace Themia.App.Shell;
 /// [S-2240]..[S-2244] Cards that touch become one surface: the card takes its outline from
 /// <see cref="CardJoins"/> (which corners stay round, which border sides draw) and gives it to
 /// everything that follows its shape: the surface's clip (the frost, the fill, a background image, the
-/// view and any overlay inside it) and the border; [S-12482] and its view, which runs to a side a mate joins.
+/// view and any overlay inside it) and the border. [S-12483] Never its view: the content lays out the same joined or alone.
 /// </summary>
 internal sealed partial class WidgetCard
 {
@@ -41,9 +41,8 @@ internal sealed partial class WidgetCard
     /// [S-2240] [S-2244] [S-2249] The one path that joins the cards of a surface, the desktop's and a
     /// scene's: each card's cell (its live rect on whole device pixels, which it paints whole), its set
     /// (none for a card that takes no part in joins, <see cref="CardJoins.Joins"/>: no surface, a desktop
-    /// icon; hidden; or free: <paramref name="set"/> null, resized) and its group go to the rule
-    /// (<see cref="CardJoins.Paint"/>), which joins the members of one group that meet; each card takes its
-    /// outline. [S-2457] Cards join only within their set: the dragged ones are a set of their own, so they
+    /// icon; hidden; or free: <paramref name="set"/> null, resized) go to the rule (<see cref="CardJoins.Paint"/>),
+    /// which joins any two cards that meet; each card takes its outline. [S-2457] Cards join only within their set: the dragged ones are a set of their own, so they
     /// stay joined among themselves while they move.
     /// </summary>
     public static void Join(IReadOnlyList<WidgetCard> cards, ScreenMetrics metrics, double rasterScale, bool editMode, Func<WidgetCard, int?> set)
@@ -57,7 +56,6 @@ internal sealed partial class WidgetCard
 
         var cells = new PixelRect[cards.Count];
         var sets = new int?[cards.Count];
-        var groups = new string?[cards.Count];
         for (var i = 0; i < cards.Count; i++)
         {
             var card = cards[i];
@@ -66,13 +64,12 @@ internal sealed partial class WidgetCard
                 && CardJoins.Joins(ModuleCatalog.Of(card.Model.Kind).Traits, card.DrawsSurface);
             cells[i] = GridGeometry.ToPixels(card.LiveRect, metrics, rasterScale);
             sets[i] = joins ? inSet : null;
-            groups[i] = card.Model.Group;
         }
 
-        var outlines = CardJoins.Paint(cells, sets, groups, rasterScale);
+        var outlines = CardJoins.Paint(cells, sets, rasterScale);
 
-        // [S-2123] Liquid glass: a group's members that meet are one glass shape.
-        var parts = CardJoins.Bodies(cells, sets, groups, rasterScale, LiquidGlass.Light.DividerInset);
+        // [S-2123] Liquid glass: cards that meet are one glass shape.
+        var parts = CardJoins.Bodies(cells, sets, rasterScale, LiquidGlass.Light.DividerInset);
         for (var i = 0; i < cards.Count; i++)
         {
             cards[i].Cell = cells[i];
@@ -82,8 +79,8 @@ internal sealed partial class WidgetCard
     }
 
     /// <summary>
-    /// [S-2453] The card's cell on its display as the last join drew it (its live rect on whole device pixels):
-    /// where its surface is painted and its own edit markers stand, and so what its group's frame is drawn round.
+    /// [S-2249] The card's cell on its display as the last join drew it (its live rect on whole device pixels):
+    /// where its surface is painted and its own edit markers stand.
     /// </summary>
     public PixelRect Cell { get; private set; }
 
@@ -98,7 +95,6 @@ internal sealed partial class WidgetCard
         }
 
         _outline = outline;
-        ApplyEdges();
         ApplyDesign();
     }
 
@@ -115,7 +111,7 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-2243] The border's path for the surface's size: one closed rounded figure for a free card,
-    /// broken where a side is left to the neighbour or, [S-11871], where a group mate lies across.
+    /// broken where a side is left to the neighbour or, [S-11871], where a neighbour lies across.
     /// Redrawn when the size, the stroke or the outline changes; content insets never depend on it.
     /// </summary>
     private void DrawStroke()

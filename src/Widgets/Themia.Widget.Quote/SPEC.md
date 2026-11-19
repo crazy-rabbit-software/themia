@@ -21,7 +21,7 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-1990]** Quote keys (`QuoteKeys.Of`), only with two or more quotes: Right, Space or Enter
   the next quote (what a tap does), Left the one before. Ephemeral, like the tap.
 - **[S-1496]** *(Retired: the ladder by the tile's size, the attribution given way and the lines that
-  fit; [S-11306].)* The quote is primary, start-aligned, the block centred in its room ([S-12410]; at its natural box from the view's top; [S-12483] against a side a group mate joins) (the widget's alignment
+  fit; [S-11306].)* The quote is primary, start-aligned, the block centred in its room ([S-12410]; at its natural box from the view's top; the same joined or alone, [S-12483]) (the widget's alignment
   moves it, [S-6583]); nothing else is drawn (the rotation caption is retired). While the list is empty the
   card's Set up row says "Add a quote" ([S-1862]). Debug renders: `--state sample|long` pin the bundled
   Newton and the plant-a-tree proverb.

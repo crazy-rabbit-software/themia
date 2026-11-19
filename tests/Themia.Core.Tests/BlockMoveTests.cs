@@ -5,14 +5,14 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-11873] A block moved freely moves by whole device pixels, so its cards keep their spacing to the
-/// pixel; [S-2459] a group's members show their corners in edit mode.
+/// [S-11873] A block (several selected widgets, moved together) moved freely moves by whole device pixels, so
+/// its cards keep their spacing to the pixel.
 /// </summary>
-public sealed class GroupMoveTests
+public sealed class BlockMoveTests
 {
     private static readonly ScreenMetrics Screen = new(2560 / 1.5, 1440 / 1.5);
 
-    /// <summary>A column of a group and one card beside it, at fractions that are no whole DIPs.</summary>
+    /// <summary>A column of two cards and one card beside it, selected together, at fractions that are no whole DIPs.</summary>
     private static readonly FracRect[] Group =
     [
         new(0.1034, 0.1210, 0.1301, 0.0911),
@@ -27,7 +27,7 @@ public sealed class GroupMoveTests
     [InlineData(1.75)]
     [InlineData(2.0)]
     [InlineData(2.5)]
-    public void S11873_a_group_moved_freely_keeps_every_cards_pixels_relative_to_the_others(double scale)
+    public void S11873_a_selection_moved_freely_keeps_every_cards_pixels_relative_to_the_others(double scale)
     {
         var start = Group.Select(r => GridGeometry.ToPixels(r, Screen, scale)).ToArray();
 
@@ -80,7 +80,6 @@ public sealed class GroupMoveTests
     public void S11873_a_pixel_step_is_the_fewest_whole_dips_that_are_whole_pixels(double scale, int step)
         => Assert.Equal(step, GridGeometry.PixelStep(scale));
 
-
     [Fact]
     public void S11873_a_block_at_its_limit_stops_there_whole()
     {
@@ -99,23 +98,4 @@ public sealed class GroupMoveTests
         Assert.Equal(5 / 1.5, GridGeometry.DevicePixel(3, 1.5), 9);
         Assert.Equal(8 / 1.5, GridGeometry.DevicePixel(5, 1.5), 9);
     }
-
-    // ---- [S-2459] a member's corners ----
-
-    [Fact]
-    public void S2459_a_lone_widget_and_the_entered_selected_member_draw_their_handles()
-    {
-        Assert.Equal(EditMarks.Handles, SelectionRules.MarksOf(group: null, entered: null, selected: false));
-        Assert.Equal(EditMarks.Handles, SelectionRules.MarksOf(group: null, entered: "g", selected: true));
-        Assert.Equal(EditMarks.Handles, SelectionRules.MarksOf(group: "g", entered: "g", selected: true));
-    }
-
-    [Theory]
-    [InlineData(null, false)] // the group neither selected nor entered
-    [InlineData(null, true)] // the group selected whole: every member is in the selection
-    [InlineData("g", false)] // another member of the group entered
-    [InlineData("h", false)] // another group entered
-    [InlineData("h", true)]
-    public void S2459_every_other_member_shows_its_corners(string? entered, bool selected)
-        => Assert.Equal(EditMarks.Corners, SelectionRules.MarksOf("g", entered, selected));
 }

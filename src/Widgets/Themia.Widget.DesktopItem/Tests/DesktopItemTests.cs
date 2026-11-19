@@ -124,6 +124,31 @@ public sealed class DesktopItemTests
         Assert.Equal(typeof(DesktopItemConfig), kind.ConfigType);
     }
 
+    /// <summary>
+    /// [S-5612] Regression (owner, 2026-11-19: "the hover and highlight of a desktop icon should always be the same area
+    /// that the widget itself has (where the corners are)"): the fill was Explorer's smaller mark, 3 under the cell's top
+    /// and as tall as the name. Now it is the card box itself, at every icon size and display scale.
+    /// </summary>
+    [Theory]
+    [InlineData(DesktopIconSize.Small, 1.0)]
+    [InlineData(DesktopIconSize.Medium, 1.0)]
+    [InlineData(DesktopIconSize.Medium, 1.25)]
+    [InlineData(DesktopIconSize.Medium, 1.5)]
+    [InlineData(DesktopIconSize.Large, 1.5)]
+    [InlineData(DesktopIconSize.Large, 2.0)]
+    public void S5612_the_highlight_is_the_icons_whole_card_box_where_its_corners_are(DesktopIconSize size, double scale)
+    {
+        var screen = new Themia.Core.Geometry.ScreenMetrics(1920 / scale, 1080 / scale);
+        var cell = DesktopCell.Grid(size);
+        var rect = Themia.Core.Geometry.FracRect.FromPixels(0.1, 0.1, cell.Width, cell.Height, screen);
+        var card = Themia.Core.Geometry.GridGeometry.ToPixels(rect, screen, scale);
+
+        var highlight = DesktopCell.Highlight(card.Width, card.Height);
+
+        Assert.Equal(new Themia.Core.Geometry.PixelRect(0, 0, card.Width, card.Height), highlight);
+        Assert.Equal(card, highlight with { X = card.X, Y = card.Y });
+    }
+
     [Fact]
     public void S9515_a_desktop_icon_never_joins_the_icons_it_touches_and_is_never_clipped_to_a_cards_corners()
     {

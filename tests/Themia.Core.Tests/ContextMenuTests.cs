@@ -294,13 +294,13 @@ public sealed class ContextMenuTests
 
     /// <summary>
     /// [S-12952] Regression (owner, 2026-11-17: "there is one column too much on the left side in the context menu"):
-    /// a toggle or radio flyout item makes WinUI reserve a check column beside the icons. No shipped menu builds one; the
-    /// view bar's select menu (its ticks beside the views' marks) is the one file left, shrink-only.
+    /// a toggle or radio flyout item makes WinUI reserve a check column beside the icons. No shipped menu builds one, the
+    /// view bar's select menu included (its shown view's dot stands in its mark's slot).
     /// </summary>
     [Fact]
     public void S12952_no_menu_builds_a_toggle_or_radio_item_that_adds_a_second_leading_column()
     {
-        string[] allowed = ["src/Themia.App/Shell/ViewBar.cs"];
+        string[] allowed = [];
         var offenders = RepoFiles.CSharp(RepoFiles.Src)
             .Where(f => File.ReadLines(f).Any(line => !line.TrimStart().StartsWith("//", StringComparison.Ordinal)
                 && System.Text.RegularExpressions.Regex.IsMatch(line, @"\b(ToggleMenuFlyoutItem|RadioMenuFlyoutItem|AppBarToggleButton)\b")))

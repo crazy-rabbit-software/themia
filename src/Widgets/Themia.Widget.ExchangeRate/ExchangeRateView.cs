@@ -21,12 +21,12 @@ namespace Themia.App.Widgets;
 /// the rate rises or holds, Critical while it falls (no green, [S-6706]). The rate and "per CHF" name the
 /// pair; which day's rate it is stands on its hover ([S-12481]). Its 90 days are the history atom's.
 /// </summary>
-internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetAligned, IWidgetJoins
+internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end: the one stale rule, no age.</summary>
     private readonly KitStatus _mark;
 
-    /// <summary>[S-12410] The rate is one block, centred in the room with the foot's inset counted with it ([S-12483]: against a side a group mate joins).</summary>
+    /// <summary>[S-12410] The rate is one block, centred in the room with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
     private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center, Margin = Family.SideInset with { Bottom = FamilySpace.Inset } };
 
     /// <summary>[S-6734] No rate to draw: the Status row at the top.</summary>
@@ -56,18 +56,6 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
         Children.Add(_rate);
         Children.Add(_state);
         _mark.Place(this);
-    }
-
-    /// <summary>[S-12483] The rate stands against a side a group mate joins, with no foot inset where one joins it.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        _rate.VerticalAlignment = sides.Block switch
-        {
-            BlockEdge.Top => VerticalAlignment.Top,
-            BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
-        _rate.Margin = Family.SideInset with { Bottom = sides.Foot };
     }
 
     public IReadOnlyList<WidgetAction> ContextActions =>

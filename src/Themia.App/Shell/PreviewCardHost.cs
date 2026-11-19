@@ -41,13 +41,6 @@ internal class PreviewCardHost(Ticker ticker) : IWidgetCardHost
     /// <summary>[S-3713] The ids drawn selected; none elsewhere.</summary>
     public IReadOnlySet<string> Selected { get; init; } = new HashSet<string>();
 
-    /// <summary>[S-2458] The group a scene draws entered (its selected member shows its own markers), or null.</summary>
-    public string? Entered { get; init; }
-
-    /// <summary>[S-2453] A group's member draws its corners alone unless it is the entered, selected one.</summary>
-    public EditMarks MarksOf(WidgetCard card)
-        => SelectionRules.MarksOf(card.Model.Group, Entered, Selected.Contains(card.Model.Id));
-
     public ViewState? ViewForCards => null;
 
     /// <summary>[S-3300] Every card of a preview is on one stand-in view, so a linked state shows on each.</summary>

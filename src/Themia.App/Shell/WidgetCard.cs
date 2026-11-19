@@ -182,9 +182,9 @@ internal interface IWidgetCardHost
     }
 
     /// <summary>
-    /// [S-2451] A press on the card in edit mode selects by the group rules (its whole group, or a member
-    /// of the entered group). Returns whether the selection changed; one that kept it lets the release
-    /// decide (<see cref="RequestClick"/>).
+    /// [S-1593] A press on the card in edit mode: the card alone, or a selection that holds it kept so the drag
+    /// carries all of it. Returns whether the selection changed; one that kept it lets the release decide
+    /// (<see cref="RequestClick"/>).
     /// </summary>
     bool RequestPress(WidgetCard card, bool onHandle)
     {
@@ -192,20 +192,8 @@ internal interface IWidgetCardHost
         return true;
     }
 
-    /// <summary>[S-2451] Released without moving after a press that kept the selection: enter the group, or narrow to the card's unit.</summary>
+    /// <summary>[S-1593] Released without moving after a press that kept the selection: narrow to the card.</summary>
     void RequestClick(WidgetCard card) => RequestSelect(card);
-
-    /// <summary>[S-2453] What the card draws of its edit markers (<see cref="SelectionRules.MarksOf"/>): its handles, or a member's corners.</summary>
-    EditMarks MarksOf(WidgetCard card) => EditMarks.Handles;
-
-    /// <summary>[S-2454] The card menu's facts with what it may offer about groups.</summary>
-    CardMenuFacts WithGroups(CardMenuFacts facts) => facts;
-
-    /// <summary>[S-2454] Group, Ungroup or Remove from group, from the card menu.</summary>
-    void RequestGroupCommand(ShellCommand command)
-    {
-        // ignore: a debug render's cards are not grouped by hand
-    }
 }
 
 /// <summary>
@@ -315,7 +303,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // that padded everything pushed every list row away from the edge and stopped its hover
         // highlight short of it, so a row read as a box inside a box rather than as a row ([S-6711]:
         // a row carries the side inset itself). The card gives the view's top its inset ([S-5700]),
-        // none where a group mate joins it ([S-12482]).
+        // joined or alone ([S-12483]).
         var content = new Grid();
 
         // [S-2103] The widget's fill is one surface across the whole card.
@@ -328,8 +316,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         content.Children.Add(_view);
 
-        // [S-12483] A view's foot may stand past the card's edge where a mate joins it: the card's content
-        // never draws over its neighbour.
+        // The card's content never draws past its cell over a neighbour.
         content.SizeChanged += (_, args) => content.Clip = new RectangleGeometry { Rect = new Rect(0, 0, args.NewSize.Width, args.NewSize.Height) };
 
         _content = content;
@@ -420,19 +407,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-5700] [S-12482] [S-12483] Lay the view against the card's top and foot: its top at the family's
-    /// inset (none where a group mate joins it or the view owns the edge), and the view told which sides a
-    /// mate joins, so its content meets the mate's across the seam (<see cref="NaturalBlock.Join"/> for a
-    /// block held at its natural height, <see cref="IWidgetJoins"/> for a view that lays its foot itself).
-    /// Re-run on every join, config and view swap.
+    /// [S-5700] [S-12483] Lay the view under the card's top: at the family's inset, none where the view owns the
+    /// edge (<see cref="CardContent.TopInset"/>). Never the joins: a card joined to another lays its content out
+    /// exactly as alone. Re-run on every config and view swap.
     /// </summary>
     public void ApplyEdges()
     {
-        var joins = _outline.Joined;
-        var top = joins.TopInset((_view as IWidgetTopEdge)?.OwnsTopEdge == true);
-        _view.Margin = _view.Margin with { Top = top };
-        NaturalBlock.Join(_view, joins);
-        (_view as IWidgetJoins)?.ApplyJoins(joins);
+        _view.Margin = _view.Margin with { Top = CardContent.TopInset((_view as IWidgetTopEdge)?.OwnsTopEdge == true) };
 
         // [S-1862] The Set up and waiting rows never own the edge.
         if (_setup is not null)
@@ -446,8 +427,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         }
     }
 
-    /// <summary>[S-1862] [S-5700] Where a row the card lays over the view starts: at the inset, none where a mate joins the top.</summary>
-    private Thickness OverlayTop => new(0, _outline.Joined.TopInset(ownsTopEdge: false), 0, 0);
+    /// <summary>[S-1862] [S-5700] Where a row the card lays over the view starts: at the inset.</summary>
+    private static Thickness OverlayTop => new(0, CardContent.TopInset(ownsTopEdge: false), 0, 0);
 
     /// <summary>[S-873] Whether the card draws anything: a hidden one draws only in edit mode.</summary>
     public bool IsShown(bool editMode) => !_hidden || editMode;
@@ -629,8 +610,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     public void ApplySelection()
     {
-        // [S-2453] A group's member draws its corners alone (no handles): its group's frame stands for it,
-        // until the group is entered with it.
         var editing = _host.EditMode;
         var selected = _host.IsSelected(this);
 
@@ -638,14 +617,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // no handles, no grips. [S-11881] A locked move shows the corners of the moving cards and of the ones
         // near where they land. [S-11889] A desktop icon too, round its grid box, over its highlight, but only in edit mode and in a move:
         // selected on the locked desktop it shows its highlight alone.
-        var marks = editing ? _host.MarksOf(this) : EditMarks.Corners;
         _markersShown = SelectionRules.MarksShown(editing, selected, editing ? null : _moveMarks, icon: _view is IDesktopIconView);
-        _marks = marks;
-        _markers.Visibility = editing && marks == EditMarks.Handles ? Visibility.Visible : Visibility.Collapsed;
+        _markers.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
+
+        // [S-1597] A selected card's grips and move area stand above every card, so one under another keeps all of them.
+        Lift(editing && selected);
         ApplyResizable();
         FollowPlates();
-
-        // [S-2453] A selected group shows it through its members' corners alone: no frame round the group.
         PaintMarkers(selected);
     }
 
@@ -777,7 +755,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     /// <summary>
     /// [S-11883] A view whose fill reaches the card's edge takes the card's corners (round where the card
-    /// is, square where a group mate joins it), in its own DIPs: the content is scaled by the content scale.
+    /// is, square where a neighbour joins it), in its own DIPs: the content is scaled by the content scale.
     /// </summary>
     private void ApplyViewCorners()
     {
@@ -909,8 +887,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // [S-1593] A press on a widget already in a multi-selection keeps the selection, so the drag
         // that may follow carries all of it. A resize is about this one widget only.
-        // [S-2451] The group rules decide: a press selects the card's unit (its whole group), or keeps
-        // a selection that holds it so the drag carries all of it; the release then enters the group or narrows.
         _narrowOnRelease = !_host.RequestPress(this, onHandle: _activeHandle is not null) && _activeHandle is null;
 
         Focus(FocusState.Pointer);
@@ -1193,13 +1169,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     internal List<ItemMenuEntry> CardMenu()
     {
         var cards = _host.ViewForCards;
-        var facts = _host.WithGroups(new CardMenuFacts(
+        var facts = new CardMenuFacts(
             EditMode: _host.EditMode,
             CanBringToFront: cards?.CanBringToFront(Model.Id) == true,
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
             SelectionCount: _host.SelectionCount,
             CanPaste: _host.CanPaste,
-            WidgetsLocked: _host.WidgetsLocked));
+            WidgetsLocked: _host.WidgetsLocked);
 
         var entries = new List<ItemMenuEntry>();
         foreach (var item in ShellMenus.ForCard(facts))
@@ -1240,9 +1216,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             ShellCommand.Delete => new(Glyphs.Delete, _host.DeleteRemovesFromView(this) ? Str.Desktop_Delete_FromView.Text() : Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: KeyChord.Plain(ChordKey.Delete)),
             ShellCommand.BringToFront => new(Glyphs.MoveUp, Str.Shell_Card_BringToFront.Text(), () => _host.RequestZOrder(this, front: true), Disabled: disabled),
             ShellCommand.SendToBack => new(Glyphs.MoveDown, Str.Shell_Card_SendToBack.Text(), () => _host.RequestZOrder(this, front: false), Disabled: disabled),
-            ShellCommand.Group => new(Glyphs.Group, Str.Groups_Card_Group.Text(), () => _host.RequestGroupCommand(ShellCommand.Group), Shortcut: KeyChord.Ctrl(ChordKey.G)),
-            ShellCommand.Ungroup => new(Glyphs.Clear, Str.Groups_Card_Ungroup.Text(), () => _host.RequestGroupCommand(ShellCommand.Ungroup), Shortcut: KeyChord.CtrlShift(ChordKey.G)),
-            ShellCommand.LeaveGroup => new(Glyphs.Back, Str.Groups_Card_Leave.Text(), () => _host.RequestGroupCommand(ShellCommand.LeaveGroup)),
             // [S-65] One line, Edit mode, checked while on (Windows' View toggles); a click flips it.
             ShellCommand.ToggleEditMode => new(Glyphs.Edit, Str.Shell_Menu_EditMode.Text(), () => _host.RequestEditMode(!_host.EditMode), Checked: _host.EditMode),
             // [S-12951] Lock widgets under it, checked while on; a click flips the one setting.

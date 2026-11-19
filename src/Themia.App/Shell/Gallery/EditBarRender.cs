@@ -386,7 +386,7 @@ internal static partial class EditBarRender
     private static bool _countingErrors;
 
     /// <summary>One widget of a selection shot: its kind, where its card is, its name, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null, string? Group = null);
+    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
 
     /// <summary>[S-2340]..[S-2343] The selection's page beside real cards, each case on the stand-in display.</summary>
     private static async Task SelectionShots(Grid screen, Ticker ticker, string outDir, string theme)
@@ -419,10 +419,18 @@ internal static partial class EditBarRender
             new(new WidgetId("desktopItem"), 200, 360, 76, 100, true, Config: """{"item":"C:\\Users\\Sample\\Desktop\\Budget.xlsx"}"""),
         ];
         PropsCard[] countdown = [new(new WidgetId("countdown"), 140, 160, 280, 180, true)];
+        // [S-2240] Two touching cards, selected together: they join as any touching cards do, no group.
         PropsCard[] station =
         [
-            new(new WidgetId("weatherNow"), 140, 160, 300, 200, true, Group: "Weather station"),
-            new(new WidgetId("weatherForecast"), 140, 360, 300, 200, true, Group: "Weather station"),
+            new(new WidgetId("weatherNow"), 140, 160, 300, 200, true),
+            new(new WidgetId("weatherForecast"), 140, 360, 300, 200, true),
+        ];
+
+        // [S-1597] A selected card under another: its handles stand over the card above it.
+        PropsCard[] under =
+        [
+            new(new WidgetId("clock"), 20, 540, 240, 160, true),
+            new(new WidgetId("weatherNow"), 140, 610, 200, 160, false),
         ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
@@ -437,17 +445,18 @@ internal static partial class EditBarRender
             // [S-2344] A selected widget under its own page: seen through it, live as its settings change.
             (covered, "covered", null, null, null),
             (coveredGroup, "covered-two", null, null, null),
+            (under, "under-another", null, null, null),
             (clock, "style", "style", null, null),
             (clock, "background", "background", null, null),
             (clock, "appearance-end", null, null, null),
             (two, "two", null, null, null),
             (many, "many", null, null, null),
 
-            // [S-2345] The Appearance tab; [S-11754] a group: For all of them and the look, no member alone.
+            // [S-2345] The Appearance tab; [S-11754] several touching: For all of them and the look, no widget alone.
             (clock, "one-appearance", "tab:appearance", null, null),
             (many, "many-appearance", "tab:appearance", null, null),
-            (station, "group", null, null, null),
-            (station, "group-appearance", "tab:appearance", null, null),
+            (station, "touching", null, null, null),
+            (station, "touching-appearance", "tab:appearance", null, null),
             (toggle, "toggle", null, null, null),
             (weather, "weather", null, null, null),
             (weather, "weather-location", "w/" + Str.Shell_Place_Location.Text(), "zur", null),
@@ -611,12 +620,6 @@ internal static partial class EditBarRender
 
             view.Widgets.Add(model);
             widgets.Add((model, spec));
-        }
-
-        // [S-11754] The cards a case names one group are one, under that name.
-        if (widgets.Where(w => w.Spec.Group is not null).ToList() is { Count: > 1 } grouped && WidgetGroups.Group(view, grouped.Select(w => w.Model.Id)) is { } made)
-        {
-            WidgetGroups.Rename(view, made.Id, grouped[0].Spec.Group);
         }
 
         var chosen = widgets.Where(w => w.Spec.Selected).Select(w => w.Model).ToList();

@@ -21,11 +21,8 @@ namespace Themia.App.Widgets;
 /// come from the host's one walk (<see cref="IDrives"/>), never read here. Its facts are the Drive facts
 /// atom's.
 /// </summary>
-internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IWidgetJoins
+internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
 {
-    /// <summary>[S-12483] The sides a group mate joins: the block against them, no foot inset where one joins it.</summary>
-    private Themia.Sdk.Kit.JoinedSides _joins;
-
     /// <inheritdoc />
     public CardOpen? Opens => DriveModule.Opens(_config.Drive, Path.GetPathRoot(Environment.SystemDirectory));
 
@@ -51,8 +48,8 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _figure.Children.Add(_readout);
         _figure.Children.Add(_bar);
         // [S-12410] The share, its line and the bar are one block, centred in the room with the foot's inset
-        // counted with it: at its natural box nothing moves, a larger box spaces it ([S-12483]: against a
-        // side a group mate joins).
+        // counted with it: at its natural box nothing moves, a larger box spaces it, joined
+        // or alone ([S-12483]).
         _figure.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         _status.Hide();
@@ -61,23 +58,6 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
-
-    /// <summary>[S-12483] The block (or the ring) stands against a side a group mate joins.</summary>
-    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
-    {
-        _joins = sides;
-        _figure.VerticalAlignment = Edge;
-        _figure.Margin = Family.SideInset with { Bottom = sides.Foot };
-        Lay();
-    }
-
-    /// <summary>[S-12483] Where the block stands in a taller box.</summary>
-    private VerticalAlignment Edge => _joins.Block switch
-    {
-        Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
-        Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
-        _ => VerticalAlignment.Center,
-    };
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {

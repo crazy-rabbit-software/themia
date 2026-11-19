@@ -99,7 +99,7 @@ public sealed class DriveFactsConfig : FactsConfig, IDriveChoice
 /// drive without figures keeps its rows, each it cannot read "--" dimmed ([S-11007]). The drives come
 /// from the host's one walk (<see cref="IDrives"/>), as the Drive reading's.
 /// </summary>
-internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetSurfaceAware, IWidgetJoins
+internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetSurfaceAware
 {
     private readonly IWidgetHost _host;
     private readonly List<RowBlock> _rows = [];
@@ -114,9 +114,6 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
     private IWidgetSurface? _surface;
     private IDisposable? _watch;
     private DriveFactsConfig _config = new();
-
-    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
-    public void ApplyJoins(JoinedSides sides) => VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public DriveFactsView(IWidgetHost host)
     {

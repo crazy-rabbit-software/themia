@@ -32,7 +32,7 @@ namespace Themia.App.Widgets;
 /// bigger rows; never a summary or a chart (concise widgets, [S-666]).
 /// </para>
 /// </summary>
-internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetKeys, IWidgetOwnsDrags, IWidgetJoins
+internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetKeys, IWidgetOwnsDrags
 {
     private const string Scope = "habits";
 

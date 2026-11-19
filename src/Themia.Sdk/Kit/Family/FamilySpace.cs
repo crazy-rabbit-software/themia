@@ -3,7 +3,7 @@ namespace Themia.Sdk.Kit;
 /// <summary>
 /// [S-6703] [S-2220] The family's space: one 4-based scale, 4 · 8 · 12 · 16 · 24, and the insets every
 /// widget shares, which are sums of it. A card is inset 12 on every side at every tier ([S-12480]: no card
-/// has a header, so the content starts at the inset; [S-12482] none on a side a group mate joins); a
+/// has a header, so the content starts at the inset; joined or alone, [S-12483]); a
 /// glyph is 8 from its text, a name 12 from its value (and a column from the next).
 /// <para>
 /// Today's views drew with 37 paddings and 416 margins; most were a token plus or minus a few pixels
@@ -32,13 +32,12 @@ public static class FamilySpace
     /// <summary>[S-9601] The Header widget's line, and a tool line's ([S-12481]): one BodyStrong (or Body) line.</summary>
     public const double HeaderLine = 20;
 
-    /// <summary>[S-9601] From the Header widget's line to the content of the group mate under it, and from a tool line to its view's content.</summary>
+    /// <summary>[S-9601] From the Header widget's line to its strip's foot, and from a tool line to its view's content.</summary>
     public const double HeaderGap = S1;
 
     /// <summary>
     /// [S-12480] Where a widget's content starts under its card's top edge: the inset, as on every other
-    /// side (no card has a header above its view). A side a group mate joins has none ([S-12482]); the
-    /// sizing states the free card.
+    /// side (no card has a header above its view), joined to another card or not ([S-12483]).
     /// </summary>
     public const double ContentTop = Inset;
 

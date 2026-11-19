@@ -170,7 +170,12 @@ internal sealed partial class DesktopWindow
 
         if (editing)
         {
-            _root.Focus(FocusState.Programmatic);
+            // [S-34f] Focus on an activatable surface activates it: never one a full-screen app covers.
+            if (DesktopZOrder.MayTakeForeground(_hwnd, _monitor.Bounds))
+            {
+                _root.Focus(FocusState.Programmatic);
+            }
+
             DrawGridOverlay();
         }
     }
@@ -362,7 +367,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-2244] [S-2457] Which cards a card may join: a resized one none (null); the cards a drag carries
-    /// (a group, a selection) one another (1), free of the cards standing still (0).
+    /// (a selection) one another (1), free of the cards standing still (0).
     /// </summary>
     private int? JoinSet(WidgetCard card)
         => card.IsResizing ? null

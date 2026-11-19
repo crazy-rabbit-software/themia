@@ -13,9 +13,9 @@ public readonly record struct GlassStop(double Offset, double Alpha);
 /// <item>the <b>glow</b>: the highlight's light falling in at the top edge, <see cref="GlowDepth"/> DIPs deep (<see cref="Glow"/>): no sheen over the rest of the surface;</item>
 /// <item>the <b>lens</b>: the refraction band inside the rim, <see cref="LensBands"/> bands of <see cref="LensBandWidth"/> DIPs from the rim in, each at its weight times the <see cref="Lens"/> profile down the glass: the background bent and brightened along the edge, strongest where the light falls (top and foot);</item>
 /// <item>the <b>rim</b>: the crisp specular edge, a <see cref="RimWidth"/> stroke whose light runs down the glass (<see cref="Rim"/>): bright along the top, fading down the sides, catching again along the foot;</item>
-/// <item>the <b>dividers</b>: inside a group that is one glass shape, a hairline (<see cref="Divider"/> at <see cref="DividerAlpha"/>) between members, <see cref="DividerInset"/> short of the glass's outer edge, as iOS's grouped controls.</item>
+/// <item>the <b>dividers</b>: inside touching cards that are one glass shape, a hairline (<see cref="Divider"/> at <see cref="DividerAlpha"/>) between members, <see cref="DividerInset"/> short of the glass's outer edge, as iOS's grouped controls.</item>
 /// </list>
-/// Every stop's offset is down the glass's whole height (a group's: <see cref="CardJoins.Bodies"/>); the corners are <see cref="RadiusPx"/>.
+/// Every stop's offset is down the glass's whole height (touching cards as one: <see cref="CardJoins.Bodies"/>); the corners are <see cref="RadiusPx"/>.
 /// </summary>
 public sealed record GlassLook(
     RgbColor Tint,
@@ -47,8 +47,8 @@ public sealed record GlassLook(
 /// approximated: the lensing is stepped bands of light along the edge, not a sampled bend of what lies behind; the
 /// highlight is fixed to a light from above, not the device's tilt or the pointer; the blur is the display's one frost
 /// ([S-2112]); continuous (squircle) corners are circular arcs; the light/dark adaptation is the tint's amount over
-/// the theme's own glass (the text keeps the theme's colour), not a switch of the glass's appearance. A group of cards
-/// is one glass shape: one rim round it, one glow and lens down its height, one tint over its area, hairline
+/// the theme's own glass (the text keeps the theme's colour), not a switch of the glass's appearance. Cards that touch are
+/// one glass shape: one rim round it, one glow and lens down its height, one tint over its area, hairline
 /// dividers between its members (<see cref="CardJoins.Bodies"/>).
 /// </summary>
 public static class LiquidGlass

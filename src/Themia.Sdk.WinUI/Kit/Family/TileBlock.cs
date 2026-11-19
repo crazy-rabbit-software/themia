@@ -167,8 +167,8 @@ public sealed partial class TileBlock : Grid
     }
 
     /// <summary>
-    /// [S-11883] The tile's fill takes the card's corners (round where the card is, square where a group
-    /// mate joins it), so a joined panel of tiles shows no notch at its seams.
+    /// [S-11883] The tile's fill takes the card's corners (round where the card is, square where a
+    /// neighbour joins it), so a joined panel of tiles shows no notch at its seams.
     /// </summary>
     public void Corners(CornerRadius corners)
     {

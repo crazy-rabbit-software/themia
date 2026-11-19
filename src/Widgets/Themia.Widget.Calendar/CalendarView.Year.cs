@@ -43,7 +43,7 @@ internal sealed partial class CalendarView
         {
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
-            Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, _joins.Foot),
+            Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
             ColumnSpacing = gap,
             RowSpacing = gap,
         };

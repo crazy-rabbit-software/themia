@@ -8,9 +8,6 @@ namespace Themia.Core.Shell;
 /// <summary>[S-2342] [S-11754] A section of the selection's page, in its order under the header card.</summary>
 public enum SelectionSection
 {
-    /// <summary>[S-11757] An entered member: the link back to its group's page.</summary>
-    InGroup,
-
     /// <summary>What it shows: the style first with what that look draws under it, then the widget's own lines.</summary>
     Shows,
 
@@ -27,7 +24,7 @@ public enum SelectionSection
 /// </summary>
 public enum SelectionTab
 {
-    /// <summary>Settings: the link to an entered member's group, What it shows, For all of them.</summary>
+    /// <summary>Settings: What it shows, For all of them.</summary>
     Settings,
 
     /// <summary>Appearance: the Appearance section alone.</summary>
@@ -40,14 +37,8 @@ public enum SelectionKind
     /// <summary>One lone widget.</summary>
     One,
 
-    /// <summary>Several widgets that are not one whole group.</summary>
+    /// <summary>Several widgets.</summary>
     Several,
-
-    /// <summary>[S-2451] One group, whole.</summary>
-    Group,
-
-    /// <summary>[S-2451] One member of a group, entered.</summary>
-    Member,
 }
 
 /// <summary>[S-11751] A shared setting as the page shows it: the widgets that hold it (two or more) and whether they disagree.</summary>
@@ -55,31 +46,15 @@ public sealed record SharedRow(SharedSetting Setting, IReadOnlyList<string> Hold
 
 /// <summary>
 /// [S-11754] The selection's page as a model: what is selected, what it offers (<see cref="QuickSetOffer"/>:
-/// the header, the look), the group it is or is in and the settings its widgets share. A group's page shows
-/// no member one by one ([S-11755]): what they share, and how they look.
+/// the header, the look) and the settings its widgets share. Several widgets' page shows no widget one by
+/// one ([S-11755]): what they share, and how they look.
 /// </summary>
-public sealed record SelectionModel(SelectionKind Kind, QuickSetOffer Offer, IReadOnlyList<SharedRow> Shared)
-{
-    /// <summary>The group selected whole, or the one the entered member is in.</summary>
-    public string? GroupId { get; init; }
-
-    /// <summary>That group's stored name, null for none.</summary>
-    public string? GroupName { get; init; }
-
-    /// <summary>[S-11754] The group's name as the page and the bar say it: its own, or "Group".</summary>
-    public string? GroupTitle => GroupId is null ? null : SelectionPage.GroupTitle(GroupName);
-
-    /// <summary>[S-2454] Group (Ctrl+G) makes one group of the selection: its header card offers it.</summary>
-    public bool CanGroup { get; init; }
-
-    /// <summary>[S-2454] Ungroup (Ctrl+Shift+G) dissolves a group the selection holds: its header card offers it.</summary>
-    public bool CanUngroup { get; init; }
-}
+public sealed record SelectionModel(SelectionKind Kind, QuickSetOffer Offer, IReadOnlyList<SharedRow> Shared);
 
 /// <summary>
-/// [S-2340]..[S-2343] [S-11754]..[S-11757] The selection's entry on the edit bar and its page, after
+/// [S-2340]..[S-2343] [S-11754] [S-11755] The selection's entry on the edit bar and its page, after
 /// Karpo's widget page (karpo-app, docs/widgets.md §529, §575, §596): the entry is the kind's glyph and
-/// name, "2 × Clock" for several of one kind, "3 widgets" for several kinds, a group's name for a group;
+/// name, "2 × Clock" for several of one kind, "3 widgets" for several kinds;
 /// the page a header card, then the sections the selection shares. Pure: the page's rows are the
 /// properties' lines ([S-3719]), the host's to build.
 /// </summary>
@@ -128,25 +103,9 @@ public static class SelectionPage
 
         var picked = new HashSet<string>(selection.Ids, StringComparer.Ordinal);
         var widgets = view.Widgets.Where(w => picked.Contains(w.Id)).ToList();
-        if (selection.Entered is { } entered && view.FindGroup(entered) is { } inside)
-        {
-            return new SelectionModel(SelectionKind.Member, offer, []) { GroupId = inside.Id, GroupName = inside.Name };
-        }
-
-        var shared = Shared(widgets);
-        if (WholeGroup(view, widgets) is { } group)
-        {
-            return new SelectionModel(SelectionKind.Group, offer, shared) { GroupId = group.Id, GroupName = group.Name, CanUngroup = true };
-        }
-
-        // [S-2454] Several units: Group makes them one; Ungroup dissolves a group among them.
         return widgets.Count == 1
             ? new SelectionModel(SelectionKind.One, offer, [])
-            : new SelectionModel(SelectionKind.Several, offer, shared)
-            {
-                CanGroup = WidgetGroups.CanGroup(view, picked),
-                CanUngroup = WidgetGroups.CanUngroup(view, picked),
-            };
+            : new SelectionModel(SelectionKind.Several, offer, Shared(widgets));
     }
 
     /// <summary>[S-11751] The settings two or more of <paramref name="widgets"/> share, each with its holders and whether they disagree.</summary>
@@ -164,57 +123,17 @@ public static class SelectionPage
         ];
     }
 
-    /// <summary>[S-2451] The group <paramref name="widgets"/> are, whole and nothing else; null otherwise.</summary>
-    private static WidgetGroup? WholeGroup(ViewState view, List<WidgetInstance> widgets)
-    {
-        if (widgets.Count < 2 || widgets[0].Group is not { } id || !widgets.All(w => string.Equals(w.Group, id, StringComparison.Ordinal)))
-        {
-            return null;
-        }
-
-        return WidgetGroups.Members(view, id).Count == widgets.Count ? view.FindGroup(id) : null;
-    }
-
-    /// <summary>[S-11754] A group's name as said: its own, or "Group" while it has none.</summary>
-    public static string GroupTitle(string? name) => string.IsNullOrWhiteSpace(name) ? Str.Groups_Page_Name.Text() : name;
-
-    /// <summary>
-    /// [S-11754] What a typed group name stores: trimmed, and null (no name: "Group" in whatever language
-    /// is current) when it is blank or that word itself.
-    /// </summary>
-    public static string? GroupName(string? typed)
-    {
-        var text = typed?.Trim();
-        return string.IsNullOrEmpty(text) || string.Equals(text, Str.Groups_Page_Name.Text(), StringComparison.Ordinal) ? null : text;
-    }
-
-    /// <summary>[S-11754] A group's glyph: its ready-made group's, found by the name it was placed under, else the group glyph.</summary>
-    public static string GroupGlyph(string? name)
-        => name is { Length: > 0 } && ReadyMadeGroups.All.FirstOrDefault(r => string.Equals(r.Name.Text(), name, StringComparison.Ordinal)) is { } recipe
-            ? recipe.Glyph
-            : Glyphs.Group;
-
-    /// <summary>[S-2341] [S-11754] The entry's words for <paramref name="model"/>: a group's name for a group, else as <see cref="Words(QuickSetOffer, Func{WidgetId, string})"/>.</summary>
+    /// <summary>[S-2341] The entry's words for <paramref name="model"/>, as <see cref="Words(QuickSetOffer, Func{WidgetId, string})"/>.</summary>
     public static string? Words(SelectionModel? model, Func<WidgetId, string> name)
     {
         ArgumentNullException.ThrowIfNull(name);
-        return model switch
-        {
-            null => null,
-            { Kind: SelectionKind.Group } => model.GroupTitle,
-            _ => Words(model.Offer, name),
-        };
+        return model is null ? null : Words(model.Offer, name);
     }
 
-    /// <summary>[S-2341] [S-11754] The entry's glyph: a group's, the one kind's, or the apps glyph for several kinds.</summary>
+    /// <summary>[S-2341] The entry's glyph: the one kind's, or the apps glyph for several kinds.</summary>
     public static string Glyph(SelectionModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        if (model.Kind == SelectionKind.Group)
-        {
-            return GroupGlyph(model.GroupName);
-        }
-
         return (model.Offer.TitleKind ?? model.Offer.CommonKind) is { } kind ? ModuleCatalog.Of(kind).Glyph : Glyphs.Apps;
     }
 
@@ -234,12 +153,10 @@ public static class SelectionPage
     }
 
     /// <summary>
-    /// [S-2342] [S-11754] The sections under the header card. One widget (and an entered member, after the
-    /// link to its group): What it shows where the look has a style or the widget has lines of its own
+    /// [S-2342] [S-11754] The sections under the header card. One widget: What it shows where the look has a style or the widget has lines of its own
     /// (<paramref name="ownLines"/>) or what its look draws with (<paramref name="styleLines"/>); Appearance.
     /// Several: the style for one kind, For all of them where they share a setting, Appearance ([S-3702]).
-    /// [S-12480] No Header section: no card has a header; a title is a Header widget of its own. A group: For all of them and Appearance,
-    /// never a member one by one ([S-11755]).
+    /// [S-12480] No Header section: no card has a header; a title is a Header widget of its own.
     /// </summary>
     public static IReadOnlyList<SelectionSection> Sections(SelectionModel model, bool ownLines, bool styleLines)
     {
@@ -247,12 +164,7 @@ public static class SelectionPage
 
         var offer = model.Offer;
         var sections = new List<SelectionSection>(4);
-        if (model.Kind == SelectionKind.Member)
-        {
-            sections.Add(SelectionSection.InGroup);
-        }
-
-        if (model.Kind != SelectionKind.Group && (offer.HasStyle || (offer.HasTitle && (ownLines || styleLines))))
+        if (offer.HasStyle || (offer.HasTitle && (ownLines || styleLines)))
         {
             sections.Add(SelectionSection.Shows);
         }
@@ -293,10 +205,9 @@ public static class SelectionPage
         _ => throw new ArgumentOutOfRangeException(nameof(tab), tab, "not a tab"),
     };
 
-    /// <summary>[S-2342] [S-11754] A section's heading; null for the link to the group, which stands under the header card alone.</summary>
-    public static string? Heading(SelectionSection section) => section switch
+    /// <summary>[S-2342] [S-11754] A section's heading.</summary>
+    public static string Heading(SelectionSection section) => section switch
     {
-        SelectionSection.InGroup => null,
         SelectionSection.Shows => Str.EditBar_Page_Shows.Text(),
         SelectionSection.Shared => Str.Groups_Page_Shared.Text(),
         SelectionSection.Appearance => Str.Settings_Section_Appearance.Text(),

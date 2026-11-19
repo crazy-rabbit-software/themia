@@ -201,6 +201,7 @@ public sealed class AppStateStore : IAsyncDisposable
         }
 
         var dropped = DropUnknownKinds(document);
+        dropped.AddRange(DropUnknownKeys(document));
 
         AppState? parsed;
         try
@@ -239,6 +240,52 @@ public sealed class AppStateStore : IAsyncDisposable
 
         dropped.AddRange(Validate(parsed));
         return new ParseResult(parsed, ParseRefusal.None, null, null, dropped);
+    }
+
+    /// <summary>
+    /// [S-1050] The schema changes in place: a key a view or a widget does not have in this build (a hand edit, or a
+    /// key the app no longer writes, such as the groups that are gone, [S-2450]) is taken out before the typed read,
+    /// loudly, one line each, never kept beside the state or read into anything.
+    /// </summary>
+    private static List<string> DropUnknownKeys(JsonNode? document)
+    {
+        var dropped = new List<string>();
+        if (document is not JsonObject root || root["views"] is not JsonArray views)
+        {
+            return dropped;
+        }
+
+        var viewKeys = Keys(StateJson.Options.GetTypeInfo(typeof(ViewState)));
+        var widgetKeys = Keys(StateJson.WidgetInstance);
+        foreach (var view in views.OfType<JsonObject>())
+        {
+            var viewName = view["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var viewText) ? viewText : "?";
+            foreach (var key in view.Select(p => p.Key).Where(k => !viewKeys.Contains(k)).ToList())
+            {
+                view.Remove(key);
+                dropped.Add($"view '{viewName}': dropped the unknown key '{key}'");
+            }
+
+            if (view["widgets"] is not JsonArray widgets)
+            {
+                continue;
+            }
+
+            foreach (var widget in widgets.OfType<JsonObject>())
+            {
+                var id = widget["id"] is JsonValue idValue && idValue.TryGetValue<string>(out var text) ? text : "?";
+                foreach (var key in widget.Select(p => p.Key).Where(k => !widgetKeys.Contains(k)).ToList())
+                {
+                    widget.Remove(key);
+                    dropped.Add($"widget '{id}' in view '{viewName}': dropped the unknown key '{key}'");
+                }
+            }
+        }
+
+        return dropped;
+
+        static HashSet<string> Keys(System.Text.Json.Serialization.Metadata.JsonTypeInfo info)
+            => new(info.Properties.Select(p => p.Name), StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -434,9 +481,6 @@ public sealed class AppStateStore : IAsyncDisposable
 
             // [S-5525] Which desktop icons it shows: an unknown value is All; a None view holds no item widget.
             repairs.AddRange(Desktop.DesktopViews.Repair(view));
-
-            // [S-2450] Groups after the widgets, whose ids are settled by then: a group of fewer than two dissolves, loudly.
-            repairs.AddRange(WidgetGroups.Repair(view));
         }
 
         if (state.FindView(state.ActiveViewId) is null)

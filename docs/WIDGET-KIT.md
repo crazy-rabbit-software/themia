@@ -226,7 +226,7 @@ outside the folder.
   **Modules never reference Core**, so a module cannot reach a host internal; a conformance test
   reads every module csproj.
 - **`Themia.Sdk.WinUI`** holds the view contracts (`IWidgetView`, `IWidgetSurface`,
-  `IWidgetSizeAware`, `IWidgetKeys`, `IWidgetJoins`, `IWidgetContextActions`,
+  `IWidgetSizeAware`, `IWidgetKeys`, `IWidgetContextActions`,
   `IWidgetAligned`, `IWidgetPreviewState`), `IWidgetModule`, `IWidgetHost`, `Ticker`, and the UI
   parts every widget uses (`Fluent`, `FluentLayout`, `Glyphs`, `ItemFill`, `ItemMenu`, `RowFocus`,
   `ScrollFade`, `EmptyStatePanel`, the `Kit*` parts of section 6). Today 151 widget files use
@@ -2903,8 +2903,8 @@ is `TextDisabled` (`UnavailableLook`).
 | Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Use(step, width, label, state, name, stateStep)`, `Corners(corners)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.Face(width, height, stateLine)`, `Sizing(look, stateLine)`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
 | Controls | `ControlsBlock` | `Main(label, run)` or `MainIcon(glyph, tooltip, run)` (a transport's Play), `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`, `Switch(on, name, changed)` (and `Set` to show a state read back); `Relabel`/`Reglyph` (Start → Pause); `ControlsBlock.TextButton`/`IconButton`/`RailSlider` alone (a control in a row's meter place) | `ControlsRules.Check` (one main action), `Shown` (the main action and the switch stay) |
 
-Layout around them is the family's too: content from the card's inset (12; none on a top a group mate
-joins, [S-12482]); rows, the status and a band full width (they carry their own inset); everything
+Layout around them is the family's too: content from the card's inset (12, joined to another card or
+not, [S-12483]); rows, the status and a band full width (they carry their own inset); everything
 else inside the 12 inset; Controls at the bottom inset. The meters (`MeterView`, `MeterPlan`) and the
 detail widgets (`DetailView`, `DetailFace`) are the reference for a widget of a Readout and a part under
 it, or a Readout and rows under it. A block is looked at in its widgets' renders (`--widget-png`,
@@ -3049,9 +3049,8 @@ WidgetSizing SizingOf(WidgetConfig? config = null);  SizeDip Natural { get; } //
 The sizing is the card's box with no header ([S-12480]): the content starts at the card's inset
 (`FamilySpace.ContentTop` is the inset). It may read ambient facts the host owns (the language, the
 region's 12/24-hour time, the text size) but nothing of the instance (not its rect, scale or joins).
-In a group the card tells the view the top and foot a mate joins (`JoinedSides`, [S-12482]): a block held
-by `NaturalBlock` stands against it, a view that centres a block or pads its foot itself implements
-`IWidgetJoins` ([S-12483]); the sizing never changes for it.
+Joining another card never reaches the view ([S-12483]): the card's chrome joins (square inner corners, one
+outline, one glass body), the content is laid out exactly as alone; there is no join hook for a view.
 
 ### 17.2 What the host does with it (nothing for a kind to write)
 

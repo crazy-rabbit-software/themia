@@ -37,15 +37,6 @@ public enum ShellCommand
 
     /// <summary>[S-1744] The edit bar's settings menu (⚙), opened on this display ([S-3520]).</summary>
     Settings,
-
-    /// <summary>[S-2454] Group the selection (Ctrl+G).</summary>
-    Group,
-
-    /// <summary>[S-2454] Dissolve the selection's groups (Ctrl+Shift+G).</summary>
-    Ungroup,
-
-    /// <summary>[S-2454] Take the entered member out of its group.</summary>
-    LeaveGroup,
 }
 
 /// <summary>One line of a shell menu: what it does, whether it can be clicked, and a toggle's state.</summary>
@@ -74,9 +65,6 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
 /// <param name="CanSendToBack">It is not already behind everything it overlaps.</param>
 /// <param name="SelectionCount">How many widgets the commands act on ([S-1592]).</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
-/// <param name="CanGroup">[S-2454] The selection holds two or more widgets that are not already one group.</param>
-/// <param name="CanUngroup">[S-2454] The selection holds a whole group (not one entered member).</param>
-/// <param name="CanLeaveGroup">[S-2454] The selection is one member inside its entered group.</param>
 /// <param name="WidgetsLocked">[S-12951] Lock widgets is on: its line is checked.</param>
 public readonly record struct CardMenuFacts(
     bool EditMode,
@@ -84,9 +72,6 @@ public readonly record struct CardMenuFacts(
     bool CanSendToBack,
     int SelectionCount,
     bool CanPaste,
-    bool CanGroup = false,
-    bool CanUngroup = false,
-    bool CanLeaveGroup = false,
     bool WidgetsLocked = false);
 
 /// <summary>What the empty-surface menu depends on.</summary>
@@ -125,27 +110,6 @@ public static class ShellMenus
         items.Add(ShellMenuItem.Divider);
         items.Add(new(ShellCommand.BringToFront, Enabled: many || facts.CanBringToFront));
         items.Add(new(ShellCommand.SendToBack, Enabled: many || facts.CanSendToBack));
-
-        // [S-2454] Grouping, only where it applies: Group for two or more units, Ungroup for a whole
-        // group, Remove from group for an entered member.
-        if (facts.CanGroup || facts.CanUngroup || facts.CanLeaveGroup)
-        {
-            items.Add(ShellMenuItem.Divider);
-            if (facts.CanGroup)
-            {
-                items.Add(new(ShellCommand.Group));
-            }
-
-            if (facts.CanUngroup)
-            {
-                items.Add(new(ShellCommand.Ungroup));
-            }
-
-            if (facts.CanLeaveGroup)
-            {
-                items.Add(new(ShellCommand.LeaveGroup));
-            }
-        }
 
         items.Add(ShellMenuItem.Divider);
         items.Add(new(ShellCommand.ToggleEditMode));
@@ -254,7 +218,7 @@ public static class CardGestures
     /// card whose view does not drag its own content (<paramref name="ownsDrags"/>). The move never turns
     /// edit mode on: there is no other outcome (owner, 2026-11-15: "when dragging widgets it goes into full
     /// edit mode, i dont want that"). [S-12950] Never on a card Lock widgets holds (<paramref name="pinned"/>:
-    /// <see cref="Desktop.WidgetLock.Pins"/>, a widget or a group holding one): its press stays its own.
+    /// <see cref="Desktop.WidgetLock.Pins"/>): its press stays its own.
     /// </summary>
     public static bool MovesLocked(bool editMode, bool preview, bool leftButton, bool ownsDrags, bool pinned)
         => !editMode && !preview && leftButton && !ownsDrags && !pinned;

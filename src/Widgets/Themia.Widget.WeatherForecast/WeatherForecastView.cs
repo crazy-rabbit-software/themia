@@ -31,11 +31,8 @@ namespace Themia.App.Widgets;
 /// </para>
 /// </summary>
 internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetSizeAware, IWidgetContextActions, IWidgetJoins
+    IWidgetSizeAware, IWidgetContextActions
 {
-    /// <summary>[S-12483] The sides a group mate joins: no foot inset where one joins it.</summary>
-    private JoinedSides _joins;
-
     /// <inheritdoc />
     public CardOpen? Opens => WeatherForecastModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
 
@@ -86,19 +83,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         Children.Add(_body);
         Children.Add(_state);
         _mark.Place(this);
-    }
-
-    /// <summary>[S-12483] The days run to a foot a group mate joins.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        if (sides == _joins)
-        {
-            return;
-        }
-
-        _joins = sides;
-        _built = null;
-        Lay();
     }
 
     /// <summary>

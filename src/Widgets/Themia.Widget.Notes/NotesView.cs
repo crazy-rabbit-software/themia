@@ -32,7 +32,7 @@ namespace Themia.App.Widgets;
 /// one note at every size; another note is picked from the line's picker, never from a list beside the text.
 /// </para>
 /// </summary>
-internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetJoins
+internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware
 {
     private const string Scope = "notes";
 
@@ -102,15 +102,12 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 #endif
     private bool _detached;
 
-    /// <summary>[S-12483] [S-12800] The text's foot inset; none where a group mate joins the foot, so the text meets it.</summary>
-    public void ApplyJoins(JoinedSides sides) => _body.Margin = Family.SideInset with { Bottom = sides.Foot };
-
     public NotesView(IWidgetHost host)
     {
         _host = host;
         // [S-6703] The text under the note's line, in the card's inset either side and under it; the Status
         // row carries its own side inset.
-        ApplyJoins(JoinedSides.Free);
+        _body.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         BuildEditor();
 

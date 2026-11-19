@@ -33,12 +33,6 @@ public sealed class WidgetSelection
 
     public bool Contains(string? id) => id is not null && _ids.Contains(id, StringComparer.Ordinal);
 
-    /// <summary>
-    /// [S-2451] The group the selection is inside ("entered"): one of its members is selected alone, shows
-    /// its own handles and moves on its own. Null when the selection is units (lone widgets and whole groups).
-    /// </summary>
-    public string? Entered { get; private set; }
-
     /// <summary>[S-1580] Select exactly one widget, or nothing for a null id. Returns whether anything changed.</summary>
     public bool Set(string? viewId, string? id)
     {
@@ -61,7 +55,6 @@ public sealed class WidgetSelection
             return Replace(viewId, [id]);
         }
 
-        Entered = null;
         if (_ids.Remove(id))
         {
             if (_ids.Count == 0)
@@ -88,7 +81,7 @@ public sealed class WidgetSelection
             return Clear();
         }
 
-        if (string.Equals(viewId, ViewId, StringComparison.Ordinal) && next.SequenceEqual(_ids, StringComparer.Ordinal) && Entered is null)
+        if (string.Equals(viewId, ViewId, StringComparison.Ordinal) && next.SequenceEqual(_ids, StringComparer.Ordinal))
         {
             return false;
         }
@@ -96,27 +89,6 @@ public sealed class WidgetSelection
         _ids.Clear();
         _ids.AddRange(next);
         ViewId = viewId;
-        Entered = null;
-        return true;
-    }
-
-    /// <summary>[S-2451] Enter a group: <paramref name="memberId"/> alone is selected, inside <paramref name="groupId"/>.</summary>
-    public bool Enter(string viewId, string groupId, string memberId)
-    {
-        ArgumentNullException.ThrowIfNull(viewId);
-        ArgumentNullException.ThrowIfNull(groupId);
-        ArgumentNullException.ThrowIfNull(memberId);
-
-        if (string.Equals(viewId, ViewId, StringComparison.Ordinal) && string.Equals(Entered, groupId, StringComparison.Ordinal)
-            && _ids.Count == 1 && string.Equals(_ids[0], memberId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        _ids.Clear();
-        _ids.Add(memberId);
-        ViewId = viewId;
-        Entered = groupId;
         return true;
     }
 
@@ -129,140 +101,47 @@ public sealed class WidgetSelection
 
         _ids.Clear();
         ViewId = null;
-        Entered = null;
         return true;
     }
 
     /// <summary>
-    /// [S-2451] What a press on a widget selects at once. Inside an entered group a press on another
-    /// member enters that one; a press on a widget whose whole unit is selected keeps the selection (the
-    /// drag that may follow carries all of it, [S-1593]); anything else selects the widget's unit: its
-    /// whole group, or itself. Returns whether the selection changed; a press that kept it lets
-    /// <see cref="Click"/> decide on release.
+    /// [S-1593] What a press on a widget selects at once: a press on a selected widget keeps the selection
+    /// (the drag that may follow carries all of it); anything else selects the widget alone. Returns whether
+    /// the selection changed; a press that kept it lets <see cref="Click"/> decide on release.
     /// </summary>
     public bool Press(ViewState view, string id)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(id);
-
-        if (Entered is { } entered && SameView(view) && WidgetGroups.GroupOf(view, id)?.Id == entered)
-        {
-            return Enter(view.Id, entered, id);
-        }
-
-        if (Keeps(view, id))
-        {
-            return false;
-        }
-
-        return Replace(view.Id, WidgetGroups.Unit(view, id));
+        return !Keeps(view, id) && Replace(view.Id, [id]);
     }
 
-    /// <summary>[S-2451] Whether a press on <paramref name="id"/> keeps the selection: its whole unit is in it already.</summary>
+    /// <summary>[S-1593] Whether a press on <paramref name="id"/> keeps the selection: it is selected already.</summary>
     public bool Keeps(ViewState view, string id)
     {
         ArgumentNullException.ThrowIfNull(view);
-        return SameView(view) && Contains(id) && (Entered is not null || WidgetGroups.Unit(view, id).TrueForAll(Contains));
+        return SameView(view) && Contains(id);
     }
 
     /// <summary>
-    /// [S-2451] A click (released without moving, [S-1593]) on a widget whose press kept the selection: on a
-    /// member of the group that is selected alone, it enters the group with that member; on a widget of a
-    /// larger selection, it narrows the selection to the widget's unit. Returns whether anything changed.
+    /// [S-1593] A click (released without moving) on a widget whose press kept the selection: the selection
+    /// narrows to that widget. Returns whether anything changed.
     /// </summary>
     public bool Click(ViewState view, string id)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(id);
-
-        if (Entered is not null)
-        {
-            return false;
-        }
-
-        var unit = WidgetGroups.Unit(view, id);
-        if (WidgetGroups.GroupOf(view, id) is { } group && SameView(view) && _ids.Count == unit.Count && unit.TrueForAll(Contains))
-        {
-            return Enter(view.Id, group.Id, id);
-        }
-
-        return Replace(view.Id, unit);
+        return Replace(view.Id, [id]);
     }
 
     /// <summary>
-    /// [S-2451] A press on a resize handle: the card alone. Handles show only on a lone widget or an
-    /// entered member, so inside an entered group this keeps it entered.
-    /// </summary>
-    public bool PressHandle(ViewState view, string id)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        ArgumentNullException.ThrowIfNull(id);
-
-        return Entered is { } entered && SameView(view) && WidgetGroups.GroupOf(view, id)?.Id == entered
-            ? Enter(view.Id, entered, id)
-            : Replace(view.Id, [id]);
-    }
-
-    /// <summary>[S-2451] Ctrl+click: the widget's unit (its whole group) in or out of the selection. An entered group is left first.</summary>
-    public bool ToggleUnit(ViewState view, string id)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-        ArgumentNullException.ThrowIfNull(id);
-
-        var unit = WidgetGroups.Unit(view, id);
-        if (unit.Count == 0)
-        {
-            return false;
-        }
-
-        if (!SameView(view))
-        {
-            return Replace(view.Id, unit);
-        }
-
-        var current = Entered is { } entered ? WidgetGroups.Members(view, entered).Select(w => w.Id).ToList() : [.. _ids];
-        var next = unit.TrueForAll(current.Contains)
-            ? current.Where(i => !unit.Contains(i)).ToList()
-            : [.. current, .. unit.Where(i => !current.Contains(i))];
-        return next.Count == 0 ? Clear() : Replace(view.Id, next);
-    }
-
-    /// <summary>[S-2451] Escape steps out one level: an entered member to its whole group, anything else to nothing.</summary>
-    public bool StepOut(ViewState? view)
-    {
-        if (Entered is { } entered && view is not null && SameView(view) && WidgetGroups.Members(view, entered) is { Count: > 0 } members)
-        {
-            return Replace(view.Id, members.Select(m => m.Id));
-        }
-
-        return Clear();
-    }
-
-    /// <summary>
-    /// [S-2451] Tab in edit mode: the next unit in reading order (a group by its top-left corner), or,
-    /// inside an entered group, the next member. Shift+Tab goes back. False when there is nothing to land on.
+    /// [S-1973] Tab in edit mode: the widget after the primary in reading order, alone; Shift+Tab goes back.
+    /// False when there is nothing to land on.
     /// </summary>
     public bool Cycle(ViewState view, bool backwards, IReadOnlySet<string>? hidden = null)
     {
         ArgumentNullException.ThrowIfNull(view);
-
-        if (Entered is { } entered && SameView(view))
-        {
-            var members = new ViewState { Id = view.Id, Name = view.Name, Widgets = WidgetGroups.Members(view, entered) };
-            return SelectionRules.Cycle(members, Primary, backwards, hidden) is { } next && Enter(view.Id, entered, next);
-        }
-
-        var units = SelectionRules.UnitsInReadingOrder(view, hidden);
-        if (units.Count == 0)
-        {
-            return false;
-        }
-
-        var at = SameView(view) && Primary is { } primary ? units.FindIndex(u => u.Contains(primary)) : -1;
-        var to = at < 0
-            ? (backwards ? units.Count - 1 : 0)
-            : backwards ? (at - 1 + units.Count) % units.Count : (at + 1) % units.Count;
-        return Replace(view.Id, units[to]);
+        return SelectionRules.Cycle(view, SameView(view) ? Primary : null, backwards, hidden) is { } next && Replace(view.Id, [next]);
     }
 
     private bool SameView(ViewState view) => string.Equals(view.Id, ViewId, StringComparison.Ordinal);
@@ -291,29 +170,8 @@ public sealed class WidgetSelection
             ViewId = null;
         }
 
-        // [S-2451] An entered group that dissolved (or a member that left it) is entered no more.
-        var left = Entered is { } entered && (_ids.Count == 0 || view.FindGroup(entered) is null
-            || !_ids.TrueForAll(id => string.Equals(view.Find(id)?.Group, entered, StringComparison.Ordinal)));
-        if (left)
-        {
-            Entered = null;
-        }
-
-        return removed > 0 || left;
+        return removed > 0;
     }
-}
-
-/// <summary>[S-2453] What a card draws of its edit markers in edit mode.</summary>
-public enum EditMarks
-{
-    /// <summary>All eight marks with their grips: the card is resized on its own (a lone widget, the entered member).</summary>
-    Handles = 0,
-
-    /// <summary>
-    /// The four corner brackets alone, neutral and without grips: a member of a group the group's frame stands
-    /// for, so the user still sees where each member is, as the widgets around show theirs.
-    /// </summary>
-    Corners = 1,
 }
 
 /// <summary>
@@ -322,16 +180,6 @@ public enum EditMarks
 /// </summary>
 public static class SelectionRules
 {
-    /// <summary>
-    /// [S-2453] What a widget of <paramref name="group"/> (null: none) draws in edit mode while
-    /// <paramref name="entered"/> is the entered group: a lone widget and the entered, selected member their
-    /// handles; every other member its corners, whether its group is selected, entered with another member,
-    /// or neither (owner, 2026-11-15: "when a widget in the group is selected it should show the corners of
-    /// the other widgets inside the group too … also when the group is selected").
-    /// </summary>
-    public static EditMarks MarksOf(string? group, string? entered, bool selected)
-        => group is null || (selected && string.Equals(group, entered, StringComparison.Ordinal)) ? EditMarks.Handles : EditMarks.Corners;
-
     /// <summary>
     /// [S-31b] [S-11877] [S-11881] [S-11889] Whether a widget draws its marks: always in edit mode; on the locked
     /// desktop while a block moves (<paramref name="moveAlpha"/>: its strength, 1 moving, the local grid's near where
@@ -371,35 +219,43 @@ public static class SelectionRules
             }
         }
 
-        // [S-2451] A band that touches one member takes its whole group.
-        return WidgetGroups.Units(view, hits);
+        return hits;
     }
 
     /// <summary>
-    /// [S-2451] The view's units (a lone widget, or a group's members) in reading order: a unit by its
-    /// top edge, then its left edge, then the first of it in view order. Hidden widgets are left out.
+    /// [S-1597] Which card a press at (<paramref name="x"/>, <paramref name="y"/>) goes to in edit mode. A selected
+    /// card's handles and body come first (owner, 2026-11-17: "when a widget is selected even if it clips behind
+    /// another one i should be able to grab all its edges and corners to resize it or move it"): the topmost
+    /// selected card whose box, grown by <paramref name="grip"/> on every side (its handles stand across its
+    /// edges), holds the point; else the topmost card whose box holds it; null over no card. The drawing order
+    /// stays: <paramref name="cards"/> in paint order, the last on top.
     /// </summary>
-    public static List<List<string>> UnitsInReadingOrder(ViewState view, IReadOnlySet<string>? hidden = null)
+    public static string? PressTarget(IReadOnlyList<(string Id, PixelRect Box)> cards, IReadOnlySet<string> selected, double x, double y, double grip)
     {
-        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(cards);
+        ArgumentNullException.ThrowIfNull(selected);
 
-        var units = new List<(List<string> Ids, double Y, double X, int Index)>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        for (var i = 0; i < view.Widgets.Count; i++)
+        var reach = double.IsFinite(grip) && grip > 0 ? grip : 0;
+        static bool Holds(PixelRect box, double x, double y, double grow)
+            => x >= box.X - grow && x < box.X + box.Width + grow && y >= box.Y - grow && y < box.Y + box.Height + grow;
+
+        for (var i = cards.Count - 1; i >= 0; i--)
         {
-            var widget = view.Widgets[i];
-            if (hidden?.Contains(widget.Id) == true || !seen.Add(widget.Group ?? "\0" + widget.Id))
+            if (selected.Contains(cards[i].Id) && Holds(cards[i].Box, x, y, reach))
             {
-                continue;
+                return cards[i].Id;
             }
-
-            var members = widget.Group is { } g
-                ? WidgetGroups.Members(view, g).Where(m => hidden?.Contains(m.Id) != true).ToList()
-                : [widget];
-            units.Add(([.. members.Select(m => m.Id)], members.Min(m => m.Y), members.Min(m => m.X), i));
         }
 
-        return [.. units.OrderBy(u => u.Y).ThenBy(u => u.X).ThenBy(u => u.Index).Select(u => u.Ids)];
+        for (var i = cards.Count - 1; i >= 0; i--)
+        {
+            if (Holds(cards[i].Box, x, y, 0))
+            {
+                return cards[i].Id;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>[S-1582] Ctrl+A: every widget of the view, less the hidden ones.</summary>

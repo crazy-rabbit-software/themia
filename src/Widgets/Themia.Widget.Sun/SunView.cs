@@ -29,10 +29,8 @@ namespace Themia.App.Widgets;
 /// the horizon a Track hairline. [S-168] All the astronomy lives in <see cref="Themia.Core.Astronomy"/>.
 /// </para>
 /// </summary>
-internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware, IWidgetJoins
+internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware
 {
-    /// <summary>[S-12483] The sides a group mate joins: no foot inset where one joins it, the day bar against it.</summary>
-    private JoinedSides _joins;
 
     private readonly Canvas _canvas = new()
     {
@@ -149,16 +147,6 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware, IWi
     }
 
     /// <summary>[S-11110] The graphic fills its box: the content in the inset, whatever the style.</summary>
-    /// <summary>[S-12483] The graphic runs to a foot a group mate joins.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        if (sides != _joins)
-        {
-            _joins = sides;
-            Lay();
-        }
-    }
-
     private void Lay()
     {
         if (!_area.IsMeasured)
@@ -167,21 +155,16 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSizeAware, IWi
         }
 
         var bar = _config.Style == SunStyle.DayBar;
-        _box = (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), bar ? SunLayout.Dot : Math.Max(0, _area.Height - _joins.Foot));
-        _canvas.Margin = Family.Inset with { Top = 0, Bottom = _joins.Foot };
+        _box = (Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), bar ? SunLayout.Dot : Math.Max(0, _area.Height - FamilySpace.Inset));
+        _canvas.Margin = Family.Inset with { Top = 0, Bottom = FamilySpace.Inset };
         _canvas.Visibility = Visibility.Visible;
         _canvas.Width = _box.Width;
         _canvas.Height = _box.Height;
 
         // [S-12410] The day bar is one line of its dot's height: a taller box centres it in the room, the
-        // foot's inset counted with it (so at its natural box nothing moves), against a side a group mate
-        // joins ([S-12483]); the arc fills the box.
-        _canvas.VerticalAlignment = !bar ? VerticalAlignment.Top : _joins.Block switch
-        {
-            BlockEdge.Top => VerticalAlignment.Top,
-            BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
+        // foot's inset counted with it (so at its natural box nothing moves), joined or
+        // alone ([S-12483]); the arc fills the box.
+        _canvas.VerticalAlignment = bar ? VerticalAlignment.Center : VerticalAlignment.Top;
 
         // [S-6005] One style's shapes, never the other's.
         foreach (var shape in (UIElement[])[_elapsedFill, _dayTrack, _nightTrack, _doneTrack, _horizon])

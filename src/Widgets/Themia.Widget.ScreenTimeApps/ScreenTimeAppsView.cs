@@ -23,7 +23,7 @@ namespace Themia.App.Widgets;
 /// The history is the app's one tracker ([S-458]); the widget has no timer of its own.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetJoins
+internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
@@ -44,9 +44,6 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private bool _detached;
 
     private readonly IWidgetHost _host;
-
-    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
-    public void ApplyJoins(JoinedSides sides) => _list.VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public ScreenTimeAppsView(IWidgetHost host)
     {

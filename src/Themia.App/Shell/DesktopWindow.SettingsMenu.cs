@@ -73,7 +73,7 @@ internal sealed partial class DesktopWindow
                 return;
             }
 
-            if (Interop.Win32.GetForegroundWindow() != _hwnd && !Interop.Win32.SetForegroundWindow(_hwnd))
+            if (!TakeForeground())
             {
                 Core.Diagnostics.Log.Info(Scope, "could not take the foreground for the settings menu; typing will not reach it");
             }

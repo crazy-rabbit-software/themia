@@ -1,10 +1,5 @@
 {
   "$englishOnly": [
-    "groups.undo.group",
-    "groups.undo.ungroup",
-    "groups.card.group",
-    "groups.card.ungroup",
-    "groups.card.leave",
     "groups.add.readyMade",
     "groups.add.count",
     "groups.recipe.thisPc",
@@ -73,20 +68,11 @@
     "groups.recipe.powerAbout",
     "groups.recipe.screenTime",
     "groups.recipe.screenTimeAbout",
-    "groups.page.name",
     "groups.page.shared",
-    "groups.page.mixed",
-    "groups.page.inGroup"
+    "groups.page.mixed"
   ],
-  "groups.undo.group": "group",
-  "groups.undo.ungroup": "ungroup",
-  "groups.card.group": "Group",
-  "groups.card.ungroup": "Ungroup",
-  "groups.card.leave": "Remove from group",
-  "groups.page.name": "Group",
   "groups.page.shared": "For all of them",
   "groups.page.mixed": "Mixed",
-  "groups.page.inGroup": "Group: {name}",
   "groups.add.readyMade": "Ready-made",
   "groups.add.count": {
     "one": "{count} widget",

@@ -46,7 +46,7 @@ namespace Themia.App.Widgets;
 /// actually saw: a press it never sees the end of was a widget being dragged, and is discarded.
 /// </para>
 /// </summary>
-internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetOwnsDrags, IWidgetJoins
+internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetOwnsDrags
 {
     private const string Scope = "scratchpad";
 

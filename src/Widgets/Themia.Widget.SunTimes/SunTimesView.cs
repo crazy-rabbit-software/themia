@@ -18,7 +18,7 @@ namespace Themia.Widget.SunTimes;
 /// in their order, one line each, from the content's top; the next of sunrise and sunset emphasised. A
 /// name takes its short form where the long one and the value do not fit side by side.
 /// </summary>
-internal sealed partial class SunTimesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetJoins
+internal sealed partial class SunTimesView : Grid, IWidgetView, IWidgetSizeAware
 {
     private readonly StackPanel _stack = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly List<SkyEventRow> _rows = [];
@@ -27,9 +27,6 @@ internal sealed partial class SunTimesView : Grid, IWidgetView, IWidgetSizeAware
     private Ticker? _ticker;
     private DateTimeOffset _now = DateTimeOffset.Now;
     private double _room = double.PositiveInfinity;
-
-    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
-    public void ApplyJoins(JoinedSides sides) => _stack.VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public SunTimesView()
     {

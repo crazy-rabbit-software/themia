@@ -16,11 +16,9 @@ Owning files: everything in this folder. Tests: `Tests/HeaderTests.cs` (run by
 - **[S-9601]** Drawn with the family's header look (`HeaderBlock`: a 16 glyph, 8, the name in BodyStrong
   at the secondary level with its ellipsis; the caption in Caption, tertiary). Sized as a thin strip
   (`HeaderLayout`): the card's inset over it, the line of 20, a Caption line with a caption, and the
-  header's gap of 4 under it, so over a group mate it reads as a card's header did (the mate's content 4
-  under its line). Any width from 96 to 960, natural 240; the relaxed range lets it be stretched
-  ([S-12411]). [S-12483] Over a mate joined under it the block stands at its strip's foot, the gap of 4
-  under it; otherwise in the middle of the whole strip (the card's top inset given back), so a lone
-  header at 36 has 8 over and under its line.
+  header's gap of 4 under it. Any width from 96 to 960, natural 240; the relaxed range lets it be stretched
+  ([S-12411]). [S-12483] The block stands in the middle of the whole strip (the card's top inset given back),
+  joined to the cards under it or alone alike, so a header at 36 has 8 over and under its line.
 - **[S-9602]** Its page: Title and Caption (each a line of text asked beside the page, empty clears it) and
   Icon, the one icon picker ([S-1803]) inline in its card (`WidgetMenuLines.Icon`, `MenuIcon`), its first
   cell None.

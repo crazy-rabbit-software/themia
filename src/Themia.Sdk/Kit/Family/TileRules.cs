@@ -155,12 +155,15 @@ public static class TileRules
     public static TileFace Face(double width, double height, bool stateLine = true)
     {
         // [S-12806] A box too small for the 28 glyph in the inset: the glyph alone, as large as it can be (28, else the
-        // family's smallest, 16) with the inset given up down to 4 round it.
+        // family's smallest, 16) with the inset given up down to 4 round it; under the 16's room (24) the glyph is two
+        // thirds of the box, the inset the rest, down to the floor's box.
         var side = Math.Min(double.IsFinite(width) ? width : 0, double.IsFinite(height) ? height : 0);
         if (side < GlyphAloneSide)
         {
-            var mark = side - (2 * TightInset) >= FamilyType.Big28.FontSize ? FamilyType.Big28.FontSize : FamilyShape.Icon;
-            var inset = Math.Clamp(Math.Floor((side - mark) / 2), TightInset, FamilySpace.Inset);
+            var mark = side - (2 * TightInset) >= FamilyType.Big28.FontSize ? FamilyType.Big28.FontSize
+                : side - (2 * TightInset) >= FamilyShape.Icon ? FamilyShape.Icon
+                : Math.Max(0, Math.Floor(side * 2 / 3));
+            var inset = Math.Clamp(Math.Floor((side - mark) / 2), 0, FamilySpace.Inset);
             var (name, state) = TextAt(FamilyType.Big28);
             return new TileFace(FamilyType.Big28, false, name, state, mark, inset);
         }
@@ -199,10 +202,10 @@ public static class TileRules
     /// <summary>
     /// [S-12806] The smallest a Tile or Round tile may be (owner, 2026-11-17: "the buttons like the night mode toggle
     /// should be able to be smaller than they are now, they should not really have a smallest size at all"): the
-    /// family's smallest glyph (16) in the family's inset, 40 (the app's floor is 32, [S-08]). <see cref="Face"/> holds
-    /// down to the glyph with 4 round it, so a box the grid or the floor rounds smaller still draws.
+    /// app's floor, one grid cell ([S-08], <see cref="WidgetSizing.Floor"/>). <see cref="Face"/> draws the glyph in
+    /// whatever box that leaves, the inset and then the glyph giving way.
     /// </summary>
-    public const double MinSide = FamilyShape.Icon + (2 * FamilySpace.Inset);
+    public const double MinSide = WidgetSizing.Floor;
 
     /// <summary>
     /// [S-11882] [S-11804] Where a new Tile or Round tile lands: the 28 glyph, its name on two lines and (a

@@ -9,8 +9,8 @@ namespace Themia.App.Widgets;
 /// <summary>The forecast's rows and columns, on the family's blocks. [S-725] [S-726] [S-727]</summary>
 internal sealed partial class WeatherForecastView
 {
-    /// <summary>The content's box: the inset either side and at the foot, none at a foot a group mate joins ([S-12483]).</summary>
-    private Thickness ContentInset => new(FamilySpace.Inset, 0, FamilySpace.Inset, _joins.Foot);
+    /// <summary>The content's box: the inset either side and at the foot, joined or alone ([S-12483]).</summary>
+    private Thickness ContentInset => new(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
 
     // ---- Rows [S-725] ------------------------------------------------------------------------
 

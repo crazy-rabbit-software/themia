@@ -20,7 +20,7 @@ namespace Themia.App.Widgets;
 /// its band under it. The pollutants and pollen are the air facts' atom. The answer comes through the
 /// SDK's <see cref="SkyFeed{TWant, T}"/>, the same the air facts read.
 /// </summary>
-internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContextActions, IWidgetAligned, IWidgetJoins
+internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContextActions, IWidgetAligned
 {
     /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end.</summary>
     private readonly KitStatus _status;
@@ -49,7 +49,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
             Render);
 
         // [S-12410] The readout (or the gauge) is one block, centred in the room with the foot's inset
-        // counted with it ([S-12483]: against a side a group mate joins, the foot's inset gone there): at its natural box nothing moves, a larger box spaces it, never huddled.
+        // counted with it ([S-12483]: the same joined or alone): at its natural box nothing moves, a larger box spaces it, never huddled.
         _hero.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
         _hero.Use(FamilyType.Big28);
         _hero.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -67,21 +67,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
         Children.Add(_gauge);
         Children.Add(_empty);
         _status.Place(this);
-    }
-
-    /// <summary>[S-12483] The block stands against a side a group mate joins, with no foot inset where one joins it.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        var edge = sides.Block switch
-        {
-            BlockEdge.Top => VerticalAlignment.Top,
-            BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
-        _hero.VerticalAlignment = edge;
-        _gauge.VerticalAlignment = edge;
-        _hero.Margin = Family.SideInset with { Bottom = sides.Foot };
-        _gauge.Margin = Family.SideInset with { Bottom = sides.Foot };
     }
 
     /// <summary>[S-730] Refresh: the network now.</summary>

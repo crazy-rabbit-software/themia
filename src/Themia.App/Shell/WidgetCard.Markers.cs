@@ -17,7 +17,10 @@ namespace Themia.App.Shell;
 /// at each corner and a short bar at the centre of each edge. They are the eight resize handles too;
 /// <see cref="EditMarkers"/> places them, this paints them. The grips (which take the presses) are the
 /// card's own; the ink is on two plates the surface's <see cref="EditMarkerLayer"/> draws above every
-/// card, every halo under every bar, so where two widgets meet their marks are one line.
+/// card, every halo under every bar, so where two widgets meet their marks are one line. [S-1597] A
+/// selected card's grips and its move area are lifted onto a third plate above every card
+/// (<see cref="MarkerLift"/>), so a selected card under another is still resized and moved by all of it
+/// (<see cref="SelectionRules.PressTarget"/>); the cards' drawing order stays.
 /// </summary>
 internal sealed partial class WidgetCard
 {
@@ -31,6 +34,19 @@ internal sealed partial class WidgetCard
     internal Canvas MarkerInks { get; } = new() { IsHitTestVisible = false };
 
     private readonly List<Marker> _markerParts = [];
+
+    /// <summary>
+    /// [S-1597] The plate a selected card's grips stand on in edit mode, above every card: its move area under
+    /// its eight grips, in the card's own coordinates, placed where the card stands. Takes the presses it gets
+    /// as the card does.
+    /// </summary>
+    internal Canvas MarkerLift { get; } = new();
+
+    /// <summary>[S-1597] The selected card's move area on the lift plate: the whole card, under its grips.</summary>
+    private readonly ResizeHandleDot _liftBody = new() { Background = Family.Brush(ColourRole.Clear) };
+
+    /// <summary>[S-1597] Whether the grips are on the lift plate now (selected, in edit mode, on a surface).</summary>
+    private bool _lifted;
 
     /// <summary>The size and scale the markers were last laid out for, so a repeat is free.</summary>
     private (double Width, double Height, double Scale) _markersLaidOut = (-1, -1, -1);
@@ -110,6 +126,13 @@ internal sealed partial class WidgetCard
             _markerParts.Add(new Marker(handle, grip, halos, inks));
         }
 
+        // [S-1597] The lift plate: the move area first, the grips over it while lifted.
+        _liftBody.SetCursorShape(InputSystemCursorShape.SizeAll);
+        MarkerLift.Children.Add(_liftBody);
+        MarkerLift.Visibility = Visibility.Collapsed;
+        MarkerLift.PointerPressed += OnPointerPressed;
+        MarkerLift.RightTapped += OnRightTapped;
+
         SizeChanged += (_, _) => LayoutMarkers();
         Loaded += (_, _) => WatchScale(XamlRoot);
         Unloaded += (_, _) => WatchScale(null);
@@ -135,6 +158,28 @@ internal sealed partial class WidgetCard
             plate.Opacity = Opacity * MoveMarksAlpha;
             plate.Visibility = shown;
         }
+
+        Canvas.SetLeft(MarkerLift, Canvas.GetLeft(this));
+        Canvas.SetTop(MarkerLift, Canvas.GetTop(this));
+        MarkerLift.Visibility = _lifted && shown == Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>
+    /// [S-1597] Lift the grips onto <see cref="MarkerLift"/> (above every card) or put them back on the card. Only on
+    /// a surface whose marker layer holds the plate; a card on none keeps them.
+    /// </summary>
+    private void Lift(bool up)
+    {
+        up &= MarkerLift.Parent is not null;
+        if (up == _lifted)
+        {
+            return;
+        }
+
+        _lifted = up;
+        (_markers.Parent as Panel)?.Children.Remove(_markers);
+        (up ? MarkerLift.Children : Children).Add(_markers);
+        FollowPlates();
     }
 
     /// <summary>Whether the marks show (edit mode); the field is read before the grip canvas exists.</summary>
@@ -162,13 +207,11 @@ internal sealed partial class WidgetCard
         ApplySelection();
     }
 
-    /// <summary>[S-2453] What the card draws of its marks: its handles, or a member's corners alone.</summary>
-    private EditMarks _marks;
-
     /// <summary>Take the plates off the surface's marker layer, as the card leaves it.</summary>
     private void DropPlates()
     {
-        foreach (var plate in new[] { MarkerHalos, MarkerInks })
+        Lift(false);
+        foreach (var plate in new[] { MarkerHalos, MarkerInks, MarkerLift })
         {
             (plate.Parent as Panel)?.Children.Remove(plate);
         }
@@ -197,6 +240,8 @@ internal sealed partial class WidgetCard
     private void LayoutMarkers()
     {
         var scale = XamlRoot?.RasterizationScale ?? 1.0;
+        _liftBody.Width = Math.Max(0, ActualWidth);
+        _liftBody.Height = Math.Max(0, ActualHeight);
         var key = (ActualWidth, ActualHeight, scale);
         if (ActualWidth <= 0 || ActualHeight <= 0 || key == _markersLaidOut)
         {
@@ -268,8 +313,8 @@ internal sealed partial class WidgetCard
             part.Grip.IsHitTestVisible = resizes;
             part.Grip.SetCursorShape(CursorFor(part.Handle, w, h));
 
-            // [S-2453] A member its group's frame stands for keeps its corners alone.
-            var inked = IsCorner(part.Handle) || (resizes && _marks == EditMarks.Handles) ? Visibility.Visible : Visibility.Collapsed;
+            // [S-11877] Outside edit mode a selected card shows its four corners alone.
+            var inked = IsCorner(part.Handle) || (resizes && _host.EditMode) ? Visibility.Visible : Visibility.Collapsed;
             foreach (var bar in part.Inks.Concat(part.Halos))
             {
                 bar.Visibility = inked;

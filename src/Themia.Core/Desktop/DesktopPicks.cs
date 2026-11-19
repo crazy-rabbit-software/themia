@@ -10,8 +10,7 @@ namespace Themia.Core.Desktop;
 /// (<see cref="DesktopItemKeys.Of"/>), any other widget under its card key
 /// (<see cref="DesktopItemKeys.Widget"/>). There is no second selection outside edit mode: a card is
 /// selected exactly when the desktop's selection holds its key, and a move carries what it holds. Edit
-/// mode keeps its own selection (<see cref="WidgetSelection"/>), started empty as edit mode starts; both
-/// take whole units, a lone widget or a whole group ([S-2451], [S-11885]). Pure.
+/// mode keeps its own selection (<see cref="WidgetSelection"/>), started empty as edit mode starts. Pure.
 /// </summary>
 public static class DesktopPicks
 {
@@ -33,39 +32,32 @@ public static class DesktopPicks
     }
 
     /// <summary>
-    /// The ids of the widgets of <paramref name="view"/> the selection holds, in the view's order, [S-11885]
-    /// grown to whole units: a member whose key is held brings its group (<see cref="WidgetGroups.Units"/>,
-    /// edit mode's own rule, [S-2451]), so a lasso that touches one member selects the group.
+    /// The ids of the widgets of <paramref name="view"/> the selection holds, in the view's order.
     /// </summary>
     public static List<string> Selected(ViewState view, DesktopSelection selection, Func<WidgetInstance, string?> keyOf)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(selection);
         ArgumentNullException.ThrowIfNull(keyOf);
-        return WidgetGroups.Units(view, view.Widgets.Where(w => keyOf(w) is { } key && selection.IsSelected(key)).Select(w => w.Id));
+        return [.. view.Widgets.Where(w => keyOf(w) is { } key && selection.IsSelected(key)).Select(w => w.Id)];
     }
 
     /// <summary>
-    /// [S-11885] Whether <paramref name="widget"/> of <paramref name="view"/> is drawn selected on the locked
-    /// desktop: the selection holds its key or the key of a member of its group (its unit, [S-2451]).
+    /// [S-11877] Whether <paramref name="widget"/> is drawn selected on the locked desktop: the selection holds its key.
     /// </summary>
-    public static bool Selects(ViewState view, DesktopSelection selection, WidgetInstance widget, Func<WidgetInstance, string?> keyOf)
+    public static bool Selects(DesktopSelection selection, WidgetInstance widget, Func<WidgetInstance, string?> keyOf)
     {
-        ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(selection);
         ArgumentNullException.ThrowIfNull(widget);
         ArgumentNullException.ThrowIfNull(keyOf);
-        var unit = WidgetGroups.Unit(view, widget.Id);
-        return (unit.Count == 0 ? [widget] : view.Widgets.Where(w => unit.Contains(w.Id, StringComparer.Ordinal)))
-            .Any(w => keyOf(w) is { } key && selection.IsSelected(key));
+        return keyOf(widget) is { } key && selection.IsSelected(key);
     }
 
     /// <summary>
     /// [S-11879] What a move of the widget <paramref name="heldId"/> on the locked desktop carries: every
     /// selected widget of <paramref name="view"/>, icons and cards alike, when the held one is selected; the
-    /// held one alone otherwise. [S-11885] Always in whole units: the held one's group comes with it, as every
-    /// selected member's does (<see cref="WidgetGroups.Units"/>, [S-2451]). The held one is always in it.
-    /// [S-12950] With Lock widgets on (<paramref name="lockWidgets"/>) only the units of desktop icons alone move
+    /// held one alone otherwise. The held one is always in it.
+    /// [S-12950] With Lock widgets on (<paramref name="lockWidgets"/>) only desktop icons move
     /// (<see cref="WidgetLock.Movable"/>): a mixed selection's widgets stay put; a held widget never starts a move.
     /// </summary>
     public static List<string> Moving(ViewState view, DesktopSelection selection, string heldId, Func<WidgetInstance, string?> keyOf, bool lockWidgets = false)
@@ -73,9 +65,8 @@ public static class DesktopPicks
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(heldId);
         var held = view.Widgets.Find(w => string.Equals(w.Id, heldId, StringComparison.Ordinal));
-        var selected = held is not null && Selects(view, selection, held, keyOf);
+        var selected = held is not null && Selects(selection, held, keyOf);
         var ids = selected ? Selected(view, selection, keyOf) : [];
-        ids = WidgetGroups.Units(view, ids.Append(heldId));
         if (!ids.Contains(heldId, StringComparer.Ordinal))
         {
             ids.Add(heldId);

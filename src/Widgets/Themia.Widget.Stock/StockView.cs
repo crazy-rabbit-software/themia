@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// <see cref="SkyFeed{TWant, T}"/>.
 /// </summary>
 internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions, IWidgetAligned, IWidgetJoins
+    IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
     /// <inheritdoc />
     public CardOpen? Opens => _config.Page();
@@ -62,8 +62,8 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _facts.Children.Add(_extendedRow);
 
         // [S-12410] The price and its rows are one block, centred in the room with the foot's inset counted
-        // with it: at its natural box nothing moves, a larger box spaces it ([S-12483]: against a side a
-        // group mate joins, no foot inset there).
+        // with it: at its natural box nothing moves, a larger box spaces it, joined or
+        // alone ([S-12483]).
         _block = new StackPanel
         {
             VerticalAlignment = VerticalAlignment.Center,
@@ -76,18 +76,6 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     private readonly StackPanel _block;
-
-    /// <summary>[S-12483] The block stands against a side a group mate joins, with no foot inset where one joins it.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        _block.VerticalAlignment = sides.Block switch
-        {
-            BlockEdge.Top => VerticalAlignment.Top,
-            BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
-        _block.Margin = new Thickness(0, 0, 0, sides.Foot);
-    }
 
     /// <summary>[S-1311] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>

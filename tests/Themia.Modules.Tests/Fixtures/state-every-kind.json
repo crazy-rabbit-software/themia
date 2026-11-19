@@ -4,7 +4,6 @@
     {
       "id": "fixture",
       "name": "Every kind",
-      "groups": [],
       "widgets": [
         {
           "id": "w00",

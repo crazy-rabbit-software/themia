@@ -13,9 +13,9 @@ namespace Themia.App.Widgets;
 /// through the SDK's <c>SkyFeed</c> ([S-11171], redrawing every half hour so the window moves on with the clock)
 /// and hands each change here with its kind's rules (the answer at a moment to a <see cref="HourGraphModel"/>,
 /// null for nothing in the window), so every graph says its states the same way. A graph's view is this panel
-/// (it derives from it), so the card's word on its joined sides reaches the graph ([S-12482], [S-12800]).
+/// (it derives from it) ([S-12800]).
 /// </summary>
-public partial class HourGraphPanel : Grid, IWidgetJoins
+public partial class HourGraphPanel : Grid
 {
     /// <summary>[S-12706] How often a graph redraws without news: the window and the now marker move on.</summary>
     public static TimeSpan Cadence { get; } = TimeSpan.FromMinutes(30);
@@ -33,9 +33,6 @@ public partial class HourGraphPanel : Grid, IWidgetJoins
         Children.Add(_graph);
         Children.Add(_state);
     }
-
-    /// <summary>[S-12483] [S-12800] The graph's foot meets a mate joined under it.</summary>
-    public void ApplyJoins(JoinedSides sides) => _graph.Join(sides);
 
     /// <summary>[S-11850] A sample's fixed moment; null on the desktop (the clock's).</summary>
     public DateTimeOffset? PinnedNow { get; set; }

@@ -131,13 +131,9 @@ internal sealed partial class AppHost : IDesktopDesk
                 : null);
 
     /// <summary>
-    /// [S-11877] Whether the desktop's one selection holds <paramref name="widget"/> (an icon or a card);
-    /// [S-11885] a group's member is selected with its whole group (<see cref="DesktopPicks.Selects"/>).
+    /// [S-11877] Whether the desktop's one selection holds <paramref name="widget"/> (an icon or a card).
     /// </summary>
-    public bool DeskSelects(WidgetInstance widget)
-        => State.Views.Find(v => v.Widgets.Contains(widget)) is { } view
-            ? DesktopPicks.Selects(view, _desk, widget, DeskKey)
-            : DeskKey(widget) is { } key && _desk.IsSelected(key);
+    public bool DeskSelects(WidgetInstance widget) => DesktopPicks.Selects(_desk, widget, DeskKey);
 
     /// <summary>
     /// [S-11879] A move on the locked desktop begins on <paramref name="heldId"/> in <paramref name="view"/>:

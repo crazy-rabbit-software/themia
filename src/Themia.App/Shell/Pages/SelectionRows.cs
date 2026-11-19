@@ -43,31 +43,18 @@ internal sealed record SelectionCommands(
 {
     /// <summary>[S-11751] A shared setting's lines, wired to every widget that holds it (<see cref="SharedRowLines"/>); null: none.</summary>
     public Func<SharedRow, IReadOnlyList<ItemMenuEntry>>? SharedLines { get; init; }
-
-    /// <summary>[S-11754] Rename the group, by its id, as typed; null: the name is words only.</summary>
-    public Action<string, string>? RenameGroup { get; init; }
-
-    /// <summary>[S-2454] Group the selection, as Ctrl+G does.</summary>
-    public Action? Group { get; init; }
-
-    /// <summary>[S-2454] Ungroup the group, as Ctrl+Shift+G does.</summary>
-    public Action? Ungroup { get; init; }
-
-    /// <summary>[S-11757] An entered member's link: its whole group selected and its page shown.</summary>
-    public Action? OpenGroup { get; init; }
 }
 
 /// <summary>[S-3731] What the selected cards show while a value is tried: a scale or a fill not yet kept.</summary>
 internal sealed record CardPreview(double? Scale = null, FillChoice? Background = null, FillChoice? Items = null);
 
 /// <summary>
-/// [S-2340]..[S-2343] [S-11754]..[S-11757] The selection's page as rows, after Karpo's widget page
+/// [S-2340]..[S-2343] [S-11754] [S-11755] The selection's page as rows, after Karpo's widget page
 /// (karpo-app, docs/widgets.md §529): the header card (the kind's glyph on a tile, the widget's name over
 /// its kind, Cut / Copy / Remove); then What it shows (the style first as an inline picker, what that look
 /// draws under it, the widget's own lines) and Appearance (alignment, background, item background, item text, background image, scale). Several
 /// selected: their count, For all of them (each setting two or more share, once) and what else they share
-/// ([S-3702]). A group: its name to rename, For all of them and the Appearance of all of them, never a member
-/// one by one ([S-11755]). [S-2345] The Appearance a tab of its own beside the rest's Settings. It is where a
+/// ([S-3702]), never a widget one by one ([S-11755]). [S-2345] The Appearance a tab of its own beside the rest's Settings. It is where a
 /// widget's options are: there is no widget settings page ([S-6536]).
 /// </summary>
 internal static class SelectionRows
@@ -89,7 +76,6 @@ internal static class SelectionRows
         {
             var rows = section switch
             {
-                SelectionSection.InGroup => InGroup(model, commands),
                 SelectionSection.Shows => Shows(offer, commands, widget),
                 SelectionSection.Shared => Shared(model, commands),
                 _ => Appearance(offer, commands),
@@ -109,7 +95,7 @@ internal static class SelectionRows
 
     private static string KeyOf(SelectionSection section) => section.ToString().ToLowerInvariant();
 
-    /// <summary>[S-2340] [S-11754] The header card: the kind (or the group), the name, its tools (their words with their keys).</summary>
+    /// <summary>[S-2340] [S-11754] The header card: the kind, the name, its tools (their words with their keys).</summary>
     private static PageHeader HeaderCard(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetId> kinds)
     {
         var offer = model.Offer;
@@ -124,17 +110,6 @@ internal static class SelectionRows
 
         List<PageTool> tools = [];
 
-        // [S-2454] Grouping first, as the card menu offers it: Group for several units, Ungroup for a group they hold.
-        if (model.CanGroup)
-        {
-            tools.Add(Tool("group", Glyphs.Group, Str.Groups_Card_Group.Text(), KeyChord.Ctrl(ChordKey.G), commands.Group));
-        }
-
-        if (model.CanUngroup)
-        {
-            tools.Add(Tool("ungroup", Glyphs.Clear, Str.Groups_Card_Ungroup.Text(), KeyChord.CtrlShift(ChordKey.G), commands.Ungroup));
-        }
-
         if (commands.Cut is not null || commands.Copy is not null || commands.Delete is not null)
         {
             tools.Add(Tool("cut", Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), KeyChord.Ctrl(ChordKey.X), commands.Cut));
@@ -142,18 +117,6 @@ internal static class SelectionRows
 
             // [S-5524] Desktop items' widgets leave this view only: the files stay on the desktop.
             tools.Add(Tool("remove", Glyphs.Delete, offer.RemovesFromView ? Str.Desktop_Delete_FromView.Text() : Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), KeyChord.Plain(ChordKey.Delete), commands.Delete));
-        }
-
-        if (model.Kind == SelectionKind.Group)
-        {
-            var title = model.GroupTitle ?? string.Empty;
-            var groupId = model.GroupId!;
-            return new PageHeader(SelectionPage.Glyph(model), title, Str.Shell_Views_WidgetCount.Plural(offer.Count), tools)
-            {
-                Rename = commands.RenameGroup is { } rename
-                    ? new PageEdit(Str.Groups_Page_Name.Text(), model.GroupName ?? string.Empty, typed => rename(groupId, typed)) { Title = Str.Common_Rename.Text() }
-                    : null,
-            };
         }
 
         var kind = offer.TitleKind ?? offer.CommonKind;
@@ -166,23 +129,6 @@ internal static class SelectionRows
             ? offer.CommonKind is not null ? SelectionPage.Words(offer, id => ModuleCatalog.Of(id).Name) ?? string.Empty : string.Join(", ", kinds.Select(k => ModuleCatalog.Of(k).Name))
             : name != kindName ? kindName ?? string.Empty : kind is { } described ? ModuleCatalog.Of(described).Describe() : string.Empty;
         return new PageHeader(SelectionPage.Glyph(model), name, caption, tools);
-    }
-
-    /// <summary>[S-11757] An entered member: the link back to its group's page.</summary>
-    private static List<PageRow> InGroup(SelectionModel model, SelectionCommands commands)
-    {
-        var title = model.GroupTitle ?? string.Empty;
-        return
-        [
-            new PageRow("group", SettingsRowKind.Link)
-            {
-                Text = Str.Groups_Page_InGroup.Format(("name", title)),
-                Icon = PageRows.IconOf(SelectionPage.GroupGlyph(model.GroupName), null),
-                Owner = title,
-                Run = commands.OpenGroup,
-                Disabled = commands.OpenGroup is null,
-            },
-        ];
     }
 
     /// <summary>

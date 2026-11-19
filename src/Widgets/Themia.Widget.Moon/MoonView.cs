@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 /// grid, today ringed in the accent, the month's name over it. The rise, set and next full and new moon
 /// are the moon times' atom.
 /// </summary>
-internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWidgetJoins
+internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
 {
     private readonly SkyMoonDisc _disc = new();
     private readonly ReadoutBlock _value = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -60,7 +60,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWid
         _readout.Children.Add(_valueLine);
         _readout.Children.Add(_name);
         // [S-12410] The readout (or the month) is one block, centred in the room with the foot's inset
-        // counted with it: at its natural box nothing moves ([S-12483]: against a side a group mate joins).
+        // counted with it: at its natural box nothing moves ([S-12483]: the same joined or alone).
         _readout.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         _todayRing.Stroke = Family.Brush(ColourRole.Accent);
@@ -192,19 +192,4 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned, IWid
     }
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
-
-    /// <summary>[S-12483] The block stands against a side a group mate joins, with no foot inset where one joins it.</summary>
-    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
-    {
-        var edge = sides.Block switch
-        {
-            Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
-            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
-        _readout.VerticalAlignment = edge;
-        _month.VerticalAlignment = edge;
-        _readout.Margin = Family.SideInset with { Bottom = sides.Foot };
-        _month.Margin = Family.SideInset with { Bottom = sides.Foot };
-    }
 }

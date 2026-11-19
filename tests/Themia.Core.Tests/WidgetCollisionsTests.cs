@@ -148,23 +148,22 @@ public sealed class WidgetCollisionsTests
     }
 
     [Fact]
-    public void S11959_a_group_moves_as_one_unit_its_joined_members_never_holding_each_other()
+    public void S11959_a_selection_moves_as_one_block_its_touching_widgets_never_holding_each_other()
     {
-        // [S-2451] [S-11885] A group's members move together and touch (one panel): only a widget outside the group holds them.
+        // [S-1584] Several selected widgets move together and touch (one panel): only a widget outside the selection holds them.
         var view = ViewState.Create("Home");
         view.Widgets.Add(Card("a", R(0, 0, 0.1, 0.1)));
         view.Widgets.Add(Card("b", R(0.1, 0, 0.1, 0.1)));
         view.Widgets.Add(Card("lone", R(0.5, 0, 0.1, 0.1)));
-        Assert.NotNull(WidgetGroups.Group(view, ["a", "b"]));
 
-        var ids = WidgetGroups.Units(view, ["a"]);
+        var ids = SelectionRules.InView(view, ["b", "a"]);
         Assert.Equal(["a", "b"], ids);
         var (moving, staying) = Split(view, ids);
 
         // Up to the lone card, flush: the whole way.
         Assert.Equal(new BlockGeometry.Delta(0.3, 0), BlockGeometry.Apart(moving, new(0.3, 0), default, staying, Screen));
 
-        // One cell further, member b would come over it: the group stays where it stood.
+        // One cell further, b would come over it: the block stays where it stood.
         Assert.Equal(new BlockGeometry.Delta(0.3, 0), BlockGeometry.Apart(moving, new(0.31, 0), new(0.3, 0), staying, Screen));
     }
 }

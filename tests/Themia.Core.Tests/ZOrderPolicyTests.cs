@@ -1,3 +1,4 @@
+using Themia.Core.Geometry;
 using Themia.Core.Shell;
 using Xunit;
 
@@ -233,4 +234,47 @@ public sealed class ZOrderPolicyTests
     [Fact]
     public void S33g_the_controllers_own_placement_moves_a_lifted_surface()
         => Assert.Equal(ZMove.Allow, ZOrderPolicy.Move(lifted: true, ownPlacement: true));
+
+    private static readonly PixelRect Display1 = new(0, 0, 3840, 2160);
+
+    private static AboveWindow Window(double left, double top, double right, double bottom, bool onScreen = true, bool own = false, bool maximized = false)
+        => new(PixelRect.FromEdges(left, top, right, bottom), onScreen, own, maximized);
+
+    /// <summary>
+    /// The owner's report (2026-11-19, "in fullscreen mode when clicking themia sometimes karpo comes to
+    /// front"): a surface that took the foreground under a full-screen video told Karpo the video was no
+    /// longer its display's front, and Karpo's bars came back over it. A covered surface never asks.
+    /// </summary>
+    [Fact]
+    public void S34f_a_surface_under_a_full_screen_app_never_takes_the_foreground()
+    {
+        Assert.False(ZOrderPolicy.MayTakeForeground(Display1, [Window(0, 0, 3840, 2160)]));
+        Assert.False(ZOrderPolicy.MayTakeForeground(Display1, [Window(200, 200, 900, 700), Window(-10, -10, 3850, 2170)]));
+    }
+
+    [Fact]
+    public void S34f_a_surface_takes_the_foreground_where_nothing_covers_its_display()
+    {
+        Assert.True(ZOrderPolicy.MayTakeForeground(Display1, []));
+        Assert.True(ZOrderPolicy.MayTakeForeground(Display1, [Window(0, 0, 3777, 2160), Window(0, 0, 3840, 2159)]));
+
+        // A full-screen app on the other display covers nothing here.
+        Assert.True(ZOrderPolicy.MayTakeForeground(Display1, [Window(-3840, 0, 0, 2160)]));
+    }
+
+    [Fact]
+    public void S34f_what_is_not_on_screen_its_own_windows_and_a_maximised_window_cover_nothing()
+    {
+        Assert.True(ZOrderPolicy.MayTakeForeground(Display1, [Window(0, 0, 3840, 2160, onScreen: false)]));
+        Assert.True(ZOrderPolicy.MayTakeForeground(Display1, [Window(0, 0, 3840, 2160, own: true)]));
+        Assert.True(ZOrderPolicy.MayTakeForeground(Display1, [Window(-8, -8, 3848, 2168, maximized: true)]));
+    }
+
+    [Fact]
+    public void S34f_covering_means_every_edge_of_the_display()
+    {
+        Assert.True(ZOrderPolicy.Covers(PixelRect.FromEdges(-11, -11, 3851, 2171), Display1));
+        Assert.False(ZOrderPolicy.Covers(PixelRect.FromEdges(0, 0, 3840, 2159), Display1));
+        Assert.False(ZOrderPolicy.Covers(PixelRect.FromEdges(0, 0, 3840, 2160), new PixelRect(0, 0, 0, 0)));
+    }
 }

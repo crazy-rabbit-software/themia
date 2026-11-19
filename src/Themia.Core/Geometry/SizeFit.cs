@@ -139,8 +139,9 @@ public static class SizeFit
 
     /// <summary>
     /// [S-11809] The boxes a picture paints its widgets in (a scene, the add page's tile): a lone widget
-    /// as <see cref="Shown"/> paints it, the members of a group fitted together as one block
-    /// (<see cref="GridFit.Layout"/>) so the edges they share stay shared at any scale and gap.
+    /// as <see cref="Shown"/> paints it, widgets whose cells touch (<see cref="Touching"/>, a ready-made
+    /// group as laid) fitted together as one block (<see cref="GridFit.Layout"/>) so the edges they share
+    /// stay shared at any scale and gap.
     /// <paramref name="limits"/> gives each widget's limits (its scale, the gap, the grid).
     /// </summary>
     public static IReadOnlyList<FracRect> ShownAll(IReadOnlyList<WidgetInstance> widgets, Func<WidgetInstance, SizeLimits?> limits, ScreenMetrics screen)
@@ -149,9 +150,8 @@ public static class SizeFit
         ArgumentNullException.ThrowIfNull(limits);
         var all = widgets.Select(limits).ToList();
         var shown = widgets.Select((w, i) => Shown(w.Rect, all[i], screen)).ToArray();
-        foreach (var group in widgets.Select((w, i) => (w.Group, i)).Where(m => m.Group is not null).GroupBy(m => m.Group, StringComparer.Ordinal))
+        foreach (var at in Touching([.. widgets.Select(w => w.Rect)]))
         {
-            var at = group.Select(m => m.i).ToList();
             if (at.Count < 2)
             {
                 continue;
@@ -165,6 +165,36 @@ public static class SizeFit
         }
 
         return shown;
+    }
+
+    /// <summary>
+    /// [S-11809] The widgets that touch one another, as sets of indexes: two whose rects meet edge to edge
+    /// (a side on the other's opposite side, overlapping along it) are in one set, and so is everything
+    /// that touches either. A widget touching nothing is a set of its own. In first-index order.
+    /// </summary>
+    public static List<List<int>> Touching(IReadOnlyList<FracRect> rects)
+    {
+        ArgumentNullException.ThrowIfNull(rects);
+        const double tol = 1e-6;
+        var root = Enumerable.Range(0, rects.Count).ToArray();
+        int Find(int i) => root[i] == i ? i : root[i] = Find(root[i]);
+        static bool Near(double a, double b) => Math.Abs(a - b) <= tol;
+        static bool Across(double a0, double a1, double b0, double b1) => Math.Min(a1, b1) - Math.Max(a0, b0) > tol;
+        for (var i = 0; i < rects.Count; i++)
+        {
+            for (var j = i + 1; j < rects.Count; j++)
+            {
+                var (a, b) = (rects[i], rects[j]);
+                var meet = (Across(a.X, a.Right, b.X, b.Right) && (Near(a.Bottom, b.Y) || Near(b.Bottom, a.Y)))
+                    || (Across(a.Y, a.Bottom, b.Y, b.Bottom) && (Near(a.Right, b.X) || Near(b.Right, a.X)));
+                if (meet)
+                {
+                    root[Find(i)] = Find(j);
+                }
+            }
+        }
+
+        return [.. Enumerable.Range(0, rects.Count).GroupBy(Find).Select(g => g.ToList())];
     }
 
     /// <summary>[S-2442] The card's box of a cell, in DIPs at widget scale 1: what a resize asks a kind's <see cref="WidgetDescriptor.SizeSets"/> for.</summary>

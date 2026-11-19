@@ -25,7 +25,7 @@ namespace Themia.App.Widgets;
 /// or takes it off the list. The list is the shared <see cref="RecentItems"/>, redrawn when its folder
 /// changes; the minute tick only keeps "2h" honest. Keys through the lease, as every list ([S-1288]).
 /// </summary>
-internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys, IWidgetJoins
+internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => RecentFilesModule.Opens;
@@ -57,9 +57,6 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
 
     /// <summary>[S-6913] What the view asks of the host: the recent items, the file icons, the launcher, the file operations.</summary>
     private readonly IWidgetHost _widgetHost;
-
-    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
-    public void ApplyJoins(JoinedSides sides) => _scroll.VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public RecentFilesView(IWidgetHost host)
     {

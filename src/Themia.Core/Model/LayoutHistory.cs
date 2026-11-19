@@ -17,14 +17,11 @@ public sealed record WidgetShape(
     /// <summary>[S-6590] The widget's background image, undone with its background.</summary>
     public string? BackgroundImage { get; init; }
 
-    /// <summary>[S-2456] The group the widget is in: grouping, ungrouping and leaving a group are undone like a move.</summary>
-    public string? Group { get; init; }
-
     public static WidgetShape Of(WidgetInstance widget)
     {
         ArgumentNullException.ThrowIfNull(widget);
         return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Background.Clone(), widget.Config) { BackgroundImage = widget.BackgroundImage, Group = widget.Group };
+            widget.Background.Clone(), widget.Config) { BackgroundImage = widget.BackgroundImage };
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -34,8 +31,7 @@ public sealed record WidgetShape(
         return Id == other.Id && Kind == other.Kind
             && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
             && Label == other.Label && Background.SameAs(other.Background)
-            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
-            && string.Equals(Group, other.Group, StringComparison.Ordinal);
+            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal);
     }
 }
 
@@ -47,17 +43,6 @@ public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyLi
 
     /// <summary>[S-5528] Which desktop icons it shows: an undo of a switch to None brings the icons and the value back.</summary>
     public ViewDesktopIcons DesktopIcons { get; init; }
-
-    /// <summary>[S-2456] The view's groups, as (id, name) pairs in order.</summary>
-    public IReadOnlyList<(string Id, string? Name)> Groups { get; init; } = [];
-
-    /// <summary>Whether the groups are the same ids and names, in the same order.</summary>
-    public bool SameGroups(ViewShape other)
-    {
-        ArgumentNullException.ThrowIfNull(other);
-        return Groups.Count == other.Groups.Count
-            && Groups.Zip(other.Groups).All(p => p.First.Id == p.Second.Id && p.First.Name == p.Second.Name);
-    }
 }
 
 /// <summary>
@@ -108,7 +93,6 @@ public sealed class LayoutShape
             {
                 Color = view.Color,
                 DesktopIcons = view.DesktopIcons,
-                Groups = [.. view.Groups.Select(g => (g.Id, g.Name))],
             });
         }
 
@@ -130,7 +114,7 @@ public sealed class LayoutShape
             var mine = Views[v];
             var theirs = other.Views[v];
             if (mine.Id != theirs.Id || mine.Name != theirs.Name || mine.Icon != theirs.Icon || mine.Color != theirs.Color || mine.DesktopIcons != theirs.DesktopIcons
-                || mine.Widgets.Count != theirs.Widgets.Count || !mine.SameGroups(theirs))
+                || mine.Widgets.Count != theirs.Widgets.Count)
             {
                 return false;
             }
@@ -196,7 +180,6 @@ public sealed class LayoutShape
                     widget.Label = w.Label;
                     widget.Background = w.Background.Clone();
                     widget.BackgroundImage = w.BackgroundImage;
-                    widget.Group = w.Group;
                 }
                 else
                 {
@@ -210,7 +193,6 @@ public sealed class LayoutShape
                         Label = w.Label,
                         Background = w.Background.Clone(),
                         BackgroundImage = w.BackgroundImage,
-                        Group = w.Group,
                         Config = w.Config,
                     };
                 }
@@ -219,7 +201,6 @@ public sealed class LayoutShape
             }
 
             view.Widgets = widgets;
-            view.Groups = [.. shape.Groups.Select(g => new WidgetGroup { Id = g.Id, Name = g.Name })];
             restored.Add(view);
         }
 

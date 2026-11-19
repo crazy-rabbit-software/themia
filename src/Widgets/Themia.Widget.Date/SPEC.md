@@ -25,7 +25,7 @@ context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the 
   is none of the three into Medium.
 - **[S-10803]** **It fills its card** (root [S-12804]): the face is laid out at its step in its natural box and
   scaled up as one to the card (a `Viewbox`, uniform, never down), placed by the widget's alignment ([S-6581],
-  centred by default); the family's inset at the sides and the foot, none on a foot a group mate joins
+  centred by default); the family's inset at the sides and the foot, joined or alone
   ([S-12483]).
 - **[S-10804]** Its picture ([S-11850]) is the sample day ([S-2050]); the Debug state `longest` draws a long
   September Wednesday to see the face hold its widest.

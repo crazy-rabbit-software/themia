@@ -39,9 +39,6 @@ internal sealed partial class AppHost
             Log.Error(Scope, "a state mutation threw; state may be partially applied", ex);
         }
 
-        // [S-2450] A change that left a group with one member (a delete, a cut, a move) dissolves it.
-        WidgetGroups.Settle(State);
-
         // [S-5593] Another desktop icon size is in force before the sizings are read: every icon refits
         // below. The icons follow a setting, which no undo takes back: adopted without a step.
         if (ApplyDesktopIconSize())

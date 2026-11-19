@@ -93,6 +93,11 @@ internal static unsafe partial class Win32
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool IsIconic(nint hWnd);
 
+    /// <summary>[S-34f] Whether a window is maximised.</summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool IsZoomed(nint hWnd);
+
     [LibraryImport("user32.dll", EntryPoint = "GetWindowTextLengthW", SetLastError = true)]
     internal static partial int GetWindowTextLength(nint hWnd);
 }

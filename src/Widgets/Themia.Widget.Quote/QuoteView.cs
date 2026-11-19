@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// per click for something that is supposed to come back to today's quote in the morning.
 /// </para>
 /// </summary>
-internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidgetAligned, IWidgetContextActions, IWidgetJoins
+internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidgetAligned, IWidgetContextActions
 {
     /// <summary>[S-1496] The quote: the information, primary, wrapping, on its step.</summary>
     private readonly TextBlock _text = Family.Text(FamilyType.Body);
@@ -66,7 +66,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
         _mark.Visibility = Visibility.Collapsed;
 
         // [S-6703] In the card's side inset. [S-12410] One block, centred in the room with the foot's inset
-        // counted with it ([S-12483]: against a side a group mate joins): a wider box wraps the quote on fewer lines than its
+        // counted with it ([S-12483]: the same joined or alone): a wider box wraps the quote on fewer lines than its
         // height was made for, and the spare stands round it, never under it alone.
         _body = new StackPanel
         {
@@ -93,18 +93,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
     public IReadOnlyList<WidgetAction> ContextActions => !_detached && _config.EffectiveQuotes.Count > 1
         ? [new(Glyphs.Reset, QuoteStr.WidgetsC_Quote_ShowAnother.Text(), OnNext)]
         : [];
-
-    /// <summary>[S-12483] The block meets a side a group mate joins; the foot's inset goes where a mate joins it.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        _body.VerticalAlignment = sides.Block switch
-        {
-            BlockEdge.Top => VerticalAlignment.Top,
-            BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
-        _body.Margin = Family.SideInset with { Bottom = sides.Foot };
-    }
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {

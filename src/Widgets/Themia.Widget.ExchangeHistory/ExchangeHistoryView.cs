@@ -22,7 +22,7 @@ namespace Themia.Widget.ExchangeHistory;
 internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions
 {
     private readonly KitStatus _mark;
-    /// <summary>[S-6717] [S-11002] A history band: edge to edge at the sides and the foot, as the stock's; the top is the card's (the inset, none where a group mate joins it).</summary>
+    /// <summary>[S-6717] [S-11002] A history band: edge to edge at the sides and the foot, as the stock's; the top is the card's (the inset).</summary>
     private readonly ChartSeries _chart = new() { FlowDirection = FlowDirection.LeftToRight, Visibility = Visibility.Collapsed };
     private readonly StatusBlock _state = new() { Visibility = Visibility.Collapsed };
     private readonly IWidgetHost _host;

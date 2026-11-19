@@ -47,7 +47,7 @@ public sealed record ReadyMadeWidget(string Kind, ReadyMadeBox Box, string? Conf
 
 /// <summary>
 /// [S-2470] A ready-made group: a recipe that places several widgets, touching (so they draw as one
-/// panel, [S-2240]), already grouped ([S-2450]) under the recipe's name. Pure data; its words go through
+/// panel, [S-2240]); once placed they are loose widgets like any others ([S-2475]). Pure data; its words go through
 /// <see cref="Str"/>. <paramref name="Home"/> is the subject of the add menu it is about: a search result
 /// shows it as the recipe's place ([S-2473]).
 /// </summary>
@@ -400,7 +400,7 @@ public static class ReadyMadeGroups
         }
 
         var scale = double.IsFinite(sizes.Scale) && sizes.Scale > 0 ? sizes.Scale : 1;
-        IReadOnlyList<SizeLimits?> limits = Build(recipe, screen) is var (widgets, _)
+        IReadOnlyList<SizeLimits?> limits = Build(recipe, screen) is { } widgets
             ? [.. widgets.Select(w => SizeFit.Limits(w, screen, scale))]
             : [.. boxes.Select(_ => (SizeLimits?)null)];
         var asked = recipe.Widgets.Select(w => (w.Box.Width * scale / screen.Width, w.Box.Height * scale / screen.Height)).ToList();
@@ -410,14 +410,13 @@ public static class ReadyMadeGroups
     /// <summary>
     /// [S-2471] The widgets of <paramref name="recipe"/> on <paramref name="screen"/>, its corner at
     /// (<paramref name="xPx"/>, <paramref name="yPx"/>) DIPs, every id new, each the kind's default config
-    /// with the fragment over it (as the first-run seed builds them), in one new group named after the
-    /// recipe. Null, logged, when this build lacks one of its kinds.
+    /// with the fragment over it (as the first-run seed builds them): loose widgets, in no group of any
+    /// kind ([S-2475]). Null, logged, when this build lacks one of its kinds.
     /// </summary>
-    public static (List<WidgetInstance> Widgets, WidgetGroup Group)? Build(ReadyMadeGroup recipe, ScreenMetrics screen, double xPx = 0, double yPx = 0)
+    public static List<WidgetInstance>? Build(ReadyMadeGroup recipe, ScreenMetrics screen, double xPx = 0, double yPx = 0)
     {
         ArgumentNullException.ThrowIfNull(recipe);
 
-        var group = WidgetGroup.Create(recipe.Name.Text());
         var widgets = new List<WidgetInstance>(recipe.Widgets.Count);
         foreach (var part in recipe.Widgets)
         {
@@ -429,10 +428,9 @@ public static class ReadyMadeGroups
             }
 
             widget.Label = part.Label ?? widget.Label;
-            widget.Group = group.Id;
             widgets.Add(widget);
         }
 
-        return (widgets, group);
+        return widgets;
     }
 }

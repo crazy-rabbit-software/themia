@@ -513,20 +513,21 @@ public sealed class SceneParserTests
             Assert.StartsWith(recipe.Id + "-" + part.Kind, widget.Id, StringComparison.Ordinal);
         }
 
-        // One group, and every widget of it named once.
-        Assert.Single(scene.Widgets.Select(w => w.Group).Distinct());
-        Assert.NotNull(scene.Widgets[0].Group);
+        // [S-2475] Loose widgets, every one named once, none selected unless the entry says so.
         Assert.Equal(scene.Widgets.Count, scene.Widgets.Select(w => w.Id).Distinct().Count());
+        Assert.All(scene.Widgets, w => Assert.False(w.Selected));
     }
 
     [Fact]
-    public void S11860_a_ready_made_group_takes_its_own_id_group_name_and_states()
+    public void S11860_a_ready_made_group_takes_its_own_id_selection_and_states()
     {
         var recipe = ReadyMadeGroups.All[0];
         var kind = recipe.Widgets[0].Kind;
-        var scene = Parsed(One($$"""{ "readyMade": "{{recipe.Id}}", "at": [0, 0], "id": "left", "group": "Mine", "states": { "{{kind}}": "sample" } }""")).Find("a")!;
+        var file = $$"""{ "scenes": [ { "name": "a", "edit": {}, "widgets": [ { "readyMade": "{{recipe.Id}}", "at": [0, 0], "id": "left", "selected": true, "states": { "{{kind}}": "sample" } } ] } ] }""";
+        var scene = Parsed(file).Find("a")!;
 
-        Assert.All(scene.Widgets, w => Assert.Equal("Mine", w.Group));
+        Assert.All(scene.Widgets, w => Assert.True(w.Selected));
+        Assert.Equal(scene.Widgets.Count, scene.Selected.Count());
         Assert.All(scene.Widgets, w => Assert.StartsWith("left-", w.Id, StringComparison.Ordinal));
         Assert.Equal("sample", scene.Widgets[0].State);
     }

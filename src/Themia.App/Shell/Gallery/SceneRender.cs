@@ -182,7 +182,7 @@ internal static class SceneRender
 
     /// <summary>
     /// [S-2475] <c>--recipe-png</c>: the ready-made group as it lands, a scene of its own (ReadyMadeScene):
-    /// on a sample wallpaper, one panel, no edit chrome; <c>--edit</c> draws it in edit mode, the new group
+    /// on a sample wallpaper, one panel, no edit chrome; <c>--edit</c> draws it in edit mode, the placed widgets
     /// selected under the bar with its page. <c>--states</c> gives a kind a preview state; a kind given none
     /// shows its "sample" state where it has one.
     /// </summary>
@@ -223,7 +223,7 @@ internal static class SceneRender
             states[parts[0]] = parts[1];
         }
 
-        // [S-2475] The group as it stands on the desktop; --edit draws it selected under the bar, its page open.
+        // [S-2475] The placed widgets as they stand on the desktop; --edit draws them selected under the bar, their page open.
         var theme = string.Equals(Option(args, "--theme"), "light", StringComparison.OrdinalIgnoreCase) ? AppTheme.Light : AppTheme.Dark;
         var file = ReadyMadeScene.Of(recipe, states, edit: Array.IndexOf(args, "--edit") >= 0, theme);
         return Finish(file, file.Scenes[0], Path.Combine(Environment.CurrentDirectory, "recipe.json"), args[at + 2], scale, sampleWhereOffered: true, out problem);
@@ -355,8 +355,7 @@ internal static class SceneRender
         var view = ViewState.Create("scene");
         view.Widgets.AddRange(job.Widgets.Select(w => w.Model));
 
-        // [S-2458] The scene's groups and the selection its edit block draws: a group whole, or one member entered.
-        view.Groups.AddRange(SceneWidgets.Groups(job.Scene));
+        // [S-1077] The selection the scene draws: the widgets marked selected.
         var selection = SceneWidgets.Selection(job.Scene, view);
         var selected = selection.Ids.ToHashSet(StringComparer.Ordinal);
         var links = new Themia.Core.Links.LinkBoard();
@@ -366,8 +365,8 @@ internal static class SceneRender
         // its own content scale; each on a host of its own so it replays its own preview state.
         var placed = new List<(SceneWidget Spec, PixelRect Cell)>(job.Widgets.Count);
 
-        // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop; [S-11809] a
-        // group's members fitted as one block, so the edges they share stay shared; [S-11807] on whole
+        // [S-2446] A widget is painted in its rect fitted into its sizing, as on the desktop; [S-11809] touching
+        // widgets fitted as one block, so the edges they share stay shared; [S-11807] on whole
         // grid cells, as the desktop paints every widget ([S-06]: the grid is always on).
         var models = job.Widgets.Select(w => w.Model).ToList();
         var fitted = SizeFit.ShownAll(models, m => SizeFit.Limits(m, metrics, WidgetScale.For(m, job.Scene.Scale)), metrics);
@@ -380,7 +379,6 @@ internal static class SceneRender
                 Metrics = metrics,
                 EditMode = edit is not null,
                 Selected = selected,
-                Entered = selection.Entered,
                 Links = links,
                 FixtureState = spec.State,
             };
@@ -469,7 +467,7 @@ internal static class SceneRender
 
     /// <summary>
     /// [S-11862] The scene's layout as drawn, written beside its picture as <c>&lt;picture&gt;.layout.json</c>:
-    /// the display's DIPs and every widget's id, kind, group and box in DIPs (the box it is painted in:
+    /// the display's DIPs and every widget's id, kind and box in DIPs (the box it is painted in:
     /// fitted into its sizing, a ready-made group's widgets where the recipe puts them). What composes
     /// pictures from scenes reads this, never the scene file's own numbers.
     /// </summary>
@@ -491,11 +489,6 @@ internal static class SceneRender
             json.WriteStartObject();
             json.WriteString("id", spec.Id);
             json.WriteString("kind", spec.Kind.Value);
-            if (spec.Group is { } group)
-            {
-                json.WriteString("group", group);
-            }
-
             json.WriteStartArray("at");
             json.WriteNumberValue(cell.X);
             json.WriteNumberValue(cell.Y);
@@ -579,7 +572,7 @@ internal static class SceneRender
         var width = job.File.Screen.Width;
         var selected = job.Widgets.Where(w => job.Scene.Selected.Contains(w.Spec)).ToList();
 
-        // [S-2458] [S-11754] The selection as the desktop holds it: a group whole, or one member entered.
+        // [S-1077] The selection as the desktop holds it: the widgets marked selected.
         var selection = SceneWidgets.Selection(job.Scene, view);
         var barRect = new PixelRect(0, 0, 0, 0);
         EditBar? bar = null;

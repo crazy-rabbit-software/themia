@@ -60,9 +60,9 @@ Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at its min, natural and max; quit Themia first
 Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
            # to one PNG of exactly screen × scale px (default 2) [S-1074]; store/capture.ps1 draws every scene of store/scenes.json
-           # a scene widget may carry "group": "<name>"; the "edit" block "group": "<name>" or "enter": "<widget id>" [S-2458]
-Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>]   # a ready-made group placed, as a scene:
-           # edit mode, the new group selected; a widget given no state shows its "sample" preview [S-2475]
+           # a scene widget may carry "selected": true; a "readyMade" entry too (all its widgets) [S-11860]
+Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>] [--theme light|dark] [--edit]   # a ready-made
+           # group placed, as a scene; --edit: edit mode, the placed widgets selected; no state: its "sample" preview [S-2475]
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
 ```
 
@@ -112,7 +112,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
   Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
-  Model/WidgetGroups.cs (groups: a view's Groups, a widget's Group; the rules), WidgetSelection (units, entered group)
+  Model/WidgetSelection.cs (the edit-mode selection of widgets; SelectionRules: lasso, Tab, PressTarget)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
                    Kit/ (KitList, KitStatus, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
@@ -231,7 +231,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   from its config; the host adds it at Natural, stops resizes at Min/Max and on the steps, paints the
   stored rect fitted into the sizing and refits on a config change; the grid is always on ([S-06]: no
   setting, no Alt, no free path) and it fits every sizing, a desktop icon's too, to whole grid cells first
-  (`GridFit`, [S-11807], [S-11875]; a ready-made group as one block, [S-11808], [S-11809]:
+  (`GridFit`, [S-11807], [S-11875]; a ready-made group, or touching widgets in a picture, as one block, [S-11808], [S-11809]:
   `ReadyMadeGroups.Laid`, never member by member),
   so a kind states content's DIPs, never grid sizes. Inside its range a kind shows the
   same parts: what it shows is config (rows, lines, facts, columns, Size S/M/L). A kit list states its
@@ -249,15 +249,16 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   centred in its room (`NaturalBlock`). Never a per-widget stretch of its own.
 - **No card header** ([S-12480], [S-12481]; owner 2026-11-16): a card draws its view and nothing over it,
   no title row, at any size. A title is the **Header** widget (`src/Widgets/Themia.Widget.Header`, [S-9600]),
-  placed and grouped like any widget; every ready-made group starts with one ([S-12485]). What a header
+  placed like any widget; every ready-made group starts with one ([S-12485]). What a header
   carried besides a name lives in the widget's own content: the sources' state as `KitStatus` over the
   content's top end, tools as a `ToolLine` (the content's first row, counted in the sizing), whole-widget
   commands on the card menu. Never add a header-like row, title or `SetHeaderTitle`-style hook back.
   **No context in a widget, no extra band** ([S-12800]..[S-12803]; owner 2026-11-17): a widget never names
   what a Header over its group says once (place, account, device or host, a list's or feed's name, its own kind's
   name, "Last 7 days"; the Header holds the shared place, `showsPlace`); what a reading is, its kind's glyph
-  leading it says (meters, graphs). Content stands one inset from every free edge and reaches it: the card gives
-  the top, the view the sides and foot, a joined side through `NaturalBlock`, `IWidgetJoins` or `JoinedSides.Rows`.
+  leading it says (meters, graphs). Content stands one inset from every edge and reaches it: the card gives
+  the top, the view the sides and foot. **A join is chrome, never layout** ([S-12483]; owner, 2026-11-17): a
+  widget's content is laid out the same joined or alone; no view hears of its joins (no join hook, `CardContent`).
   A one-readout face (clock, date) is planned at its Size's step and scaled up as one to fill its card ([S-12804]);
   the date is the Date widget's, never the clock's ([S-12805]); a quick toggle has no real minimum ([S-12806]).
 - **Concise first** ([S-666], user rule): a setting may only add more of the widget's own items (rows,
@@ -356,26 +357,24 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   0.6 or 0.3). SPEC's topic table is made from the descriptors (`S11907_`).
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`. One leading column
   ([S-12952]): a toggle or choice line shows its check or dot in the icon slot (`MenuMarks.Slot`), never a
-  Toggle/RadioMenuFlyoutItem or AppBarToggleButton (`S12952_` guard).
-- **Widget selection and groups** ([S-1580]..[S-1594], [S-2450]..[S-2458]): edit mode selects units, a
-  lone widget or a whole group (a view's `Groups`, a widget's `Group`: a lock over ordinary cards, never
-  a card of its own); a second click enters a group (one member, its own handles), Escape steps out.
-  The rules are Core's (`WidgetSelection`, `WidgetGroups`, tested); the surface only asks them. Members
-  whose cells meet are one connected panel (`CardJoins.Paint`: neighbours by cells, [S-2248], [S-2249], [S-11810]);
-  there is no gap between widgets, every card paints its whole cell ([S-11884]), and cards of no group that touch
-  stay separate cards, never joined ([S-2240]); a desktop icon never joins (`WidgetTraits.NeverJoins`, [S-11880]).
-  A group draws no frame or marks of its own ([S-2453]): its members draw their corners (`SelectionRules.MarksOf`,
-  [S-2459]), in the accent while selected; a block's move is snapped and whole device pixels ([S-11873]);
-  in Liquid glass a group is one glass shape (`CardJoins.Bodies`, [S-2123]); a view whose fill reaches the card's
-  edge takes the card's corners (`IWidgetCorners`, [S-11883]: square where a mate joins). **Seams** ([S-12482]..[S-12484]):
-  on a top or foot a mate joins (`CardOutline.Joined`, `JoinedSides`) the content runs to the edge, so the members'
-  items meet: the card drops its top inset there (`WidgetCard.ApplyEdges`), `NaturalBlock` stands a held block
-  against the joined side and drops its foot past the edge, and a view that centres a block or pads its foot itself
-  implements `IWidgetJoins`; the left and the right keep the inset. One rule in the card and family layer, never
-  per widget. A group
-  of fewer than two dissolves (load validation and every `Mutate`). Ctrl+G / Ctrl+Shift+G, the card
-  menu and the selection page's header card group and ungroup. Everything that produces or moves widgets is the one placement session
-  (`PlacementPayload`: a new widget, a ready-made group, a copy, a move).
+  Toggle/RadioMenuFlyoutItem or AppBarToggleButton (`S12952_` guard, no file excepted; the view bar's select menu too).
+- **Widget selection, no groups** ([S-1580]..[S-1597], [S-2450]..[S-2457]; owner, 2026-11-17: "actually remove
+  the group feature"): there are no groups, no `WidgetGroups`, no view `Groups`, no widget `group`, no Ctrl+G, no
+  group page; a state file that still names them loads with those keys dropped loudly (`AppStateStore.DropUnknownKeys`).
+  Edit mode selects widgets (`WidgetSelection`: a press the widget alone or keeps a selection that holds it, a click
+  narrows, Ctrl/Shift+click toggles one, the lasso what it touches, Tab one by one, Escape clears); several selected
+  move as one block (snapped, whole device pixels, [S-11873]; kept apart, [S-11959]) and are set together on the page
+  of several ("For all of them" and Appearance, [S-11754], [S-11755]). Every selected card shows its marks; a selected
+  card's grips and move area are lifted over every card (`WidgetCard.MarkerLift` on `EditMarkerLayer.Lifts`,
+  `SelectionRules.PressTarget`, [S-1597]) so one under another keeps all its handles; the drawing order stays.
+  **Any two cards whose cells meet join** (`CardJoins.Paint`: neighbours by cells, [S-2240], [S-2248], [S-2249]):
+  square inner corners, one outline with no line at the seam ([S-11870], `CardOutline.Seams`), in Liquid glass one
+  body (`CardJoins.Bodies`, [S-2123]); a desktop icon never joins (`WidgetTraits.NeverJoins`, [S-11880]); there is
+  no gap between widgets, every card paints its whole cell ([S-11884]); a view whose fill reaches the card's edge
+  takes the card's corners (`IWidgetCorners`, [S-11883]). The cards a drag carries join only among themselves
+  ([S-2457]). Everything that produces or moves widgets is the one placement session (`PlacementPayload`: a new
+  widget, a ready-made group, a copy, a move); a ready-made group lands as loose widgets laid as one block
+  (`ReadyMadeGroups.Laid`) and selected ([S-2471], [S-2475]).
 - **The add page** ([S-11700]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593): Add opens a flyout as
   wide as the bar, flush under it: a search box and tabs (Start: the starter groups, `ReadyMadeGroup.Starter`,
   then Popular; then a tab per subject: its ready-made groups, its widgets, each family under its name), tiles
@@ -394,12 +393,12 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   sample data (the meters over the sample PC) has none. The sample PC and a gallery service reach a
   picture's cards only through their host (`SampleWorld`, `PreviewCardHost.Samples`), never a static.
 - **The locked desktop** ([S-2008], [S-11874]..[S-11879]): outside edit mode a widget pressed and dragged moves
-  (with the selection it is in, whole groups as in edit mode: `WidgetGroups.Units`, [S-11885]), snapped, the local
+  (with the selection it is in, [S-11879]), snapped, the local
   grid round where it lands (`LocalGrid`: a faint rectangle fading out of the box, [S-11886]) with the moving and nearby cards' corner
   marks ([S-11881]); edit mode never turns
   on by a drag; **Lock widgets** ([S-12950], [S-12951]; its home General › Desktop icons, the menus' line under Edit
   mode flips it) keeps every widget where it is outside edit mode, icons alone move (`WidgetLock`: a mixed selection
-  moves its icons, a group holding a widget stays whole; edit mode moves everything); with Keep widgets from overlapping on, every move (both modes, keys too) goes through
+  moves its icons; edit mode moves everything); with Keep widgets from overlapping on, every move (both modes, keys too) goes through
   `BlockGeometry.Apart` ([S-11959]). Edit mode is entered and left by one checked menu line, **Edit mode** ([S-65]). Desktop icons are widgets for placement (`DesktopGrid`: whole cells, arrivals in reading order);
   an icon's move becomes the shell's drag only off the desktop or over a drop target (`DesktopDragOut`). One
   selection of icons and cards (`DesktopSelection` + `DesktopPicks`), one lasso; `--drag-png` draws them. A
@@ -432,11 +431,10 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Size, Rows) is an
   entry of the SDK's `SharedSettings` over a config contract, and its standard line is marked with
   `WidgetMenuLines.Shared` ([S-11750]..[S-11753]); a new kind that holds one implements the contract and
-  uses (or marks) that line. **A group's page** ([S-11754]..[S-11757], `SelectionPage.Of` in Core,
-  `SelectionRows` + `SharedRowLines` in the app): the group's name to rename, For all of them (each shared
-  setting once: the first holder's own line over a scratch copy, every write set on every holder, Mixed
-  while they disagree) and Appearance, never a member one by one ([S-11755]); several lone widgets get For
-  all of them too; an entered member links back to its group.
+  uses (or marks) that line. **The page of several** ([S-11754], [S-11755], `SelectionPage.Of` in Core,
+  `SelectionRows` + `SharedRowLines` in the app): For all of them (each shared setting once: the first holder's
+  own line over a scratch copy, every write set on every holder, Mixed while they disagree) and Appearance,
+  never a widget one by one ([S-11755]).
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
   `$englishOnly` list. Dates and numbers through `LocaleFormat`.
 - **Out of scope by decision:** tray icon, always-on-top pin, pop-out windows, Lemon Squeezy, updater,

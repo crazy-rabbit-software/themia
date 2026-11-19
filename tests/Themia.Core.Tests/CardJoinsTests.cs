@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-2240]..[S-2243] Members of one group that touch become one surface: which corners stay round, which sides draw.</summary>
+/// <summary>[S-2240]..[S-2243] Cards that touch become one surface: which corners stay round, which sides draw.</summary>
 public class CardJoinsTests
 {
     private const double Tol = 0.25; // half a device pixel at 200 %
@@ -31,22 +31,25 @@ public class CardJoinsTests
         Assert.Equal(0.5, CardJoins.Tolerance(double.NaN));
     }
 
-    /// <summary>[S-2240] Only the members of one group join: every box here is a member of "g".</summary>
-    private static CardOutline[] Group(params PixelRect?[] boxes) => CardJoins.Outlines(boxes, Tol, groups: [.. boxes.Select(_ => (string?)"g")]);
+    /// <summary>[S-2240] Any two cards that meet join: there are no groups.</summary>
+    private static CardOutline[] Group(params PixelRect?[] boxes) => CardJoins.Outlines(boxes, Tol);
 
     [Fact]
-    public void S2240_S11884_cards_of_no_group_that_touch_stay_separate_cards()
+    public void S2240_regression_ungrouped_cards_that_touch_join()
     {
-        // Owner, 2026-11-15: no gap between widgets; the space between them is how they are placed. Two
-        // lone cards edge to edge are two cards, every corner round and every side drawn.
+        // Owner, 2026-11-17: "the widgets should connect when the edges of them touch, right now they only connect
+        // when the edges touch and they are grouped together". Three cards edge to edge, no group of any kind.
         PixelRect?[] boxes = [Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(100, 0, 50, 100)];
-        Assert.All(CardJoins.Outlines(boxes, Tol), x => Assert.Equal(CardOutline.Free, x));
-        Assert.All(CardJoins.Outlines(boxes, Tol, groups: [null, null, null]), x => Assert.Equal(CardOutline.Free, x));
-        Assert.All(CardJoins.Outlines(boxes, Tol, groups: ["g", "h", "i"]), x => Assert.Equal(CardOutline.Free, x));
+        var o = CardJoins.Outlines(boxes, Tol);
+        Assert.False(o[0].DrawsBottom);
+        Assert.False(o[1].DrawsTop);
+        Assert.False(o[0].DrawsRight);
+        Assert.False(o[2].DrawsLeft);
+        Assert.False(o[0].RoundBottomLeft || o[1].RoundTopLeft);
     }
 
     [Fact]
-    public void S2241_a_grouped_row_rounds_only_its_far_left_and_far_right()
+    public void S2241_a_row_rounds_only_its_far_left_and_far_right()
     {
         var o = Group(Box(0, 0, 50, 80), Box(50, 0, 50, 80));
 
@@ -55,7 +58,7 @@ public class CardJoinsTests
     }
 
     [Fact]
-    public void S2241_a_grouped_two_by_two_grid_is_one_panel()
+    public void S2241_a_two_by_two_grid_is_one_panel()
     {
         var o = Group(Box(0, 0, 50, 50), Box(50, 0, 50, 50), Box(0, 50, 50, 50), Box(50, 50, 50, 50));
 
@@ -66,7 +69,7 @@ public class CardJoinsTests
     }
 
     [Fact]
-    public void S2241_a_t_junction_in_a_group_squares_its_inner_corners()
+    public void S2241_a_t_junction_squares_its_inner_corners()
     {
         // A wide member over two narrow ones side by side.
         var o = Group(Box(0, 0, 100, 40), Box(0, 40, 50, 40), Box(50, 40, 50, 40));
@@ -172,9 +175,9 @@ public class CardJoinsTests
     }
 
     [Fact]
-    public void S11870_a_column_of_three_in_one_group_draws_no_line_inside_and_its_outer_border_whole()
+    public void S11870_a_column_of_three_draws_no_line_inside_and_its_outer_border_whole()
     {
-        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(0, 100, 100, 50)], Tol, groups: ["g", "g", "g"]);
+        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(0, 100, 100, 50)], Tol);
 
         Assert.Equal(O("TL TR", "LTR"), o[0]);
         Assert.Equal(O("", "LR"), o[1]);
@@ -190,26 +193,10 @@ public class CardJoinsTests
     }
 
     [Fact]
-    public void S11870_two_groups_side_by_side_each_draw_their_own_border_between()
+    public void S11870_a_card_that_joins_nothing_against_a_panel_is_a_card_of_its_own()
     {
-        // Two columns of two, each a group: a | b over c | d, the left column "g", the right "h".
-        var o = CardJoins.Outlines(
-            [Box(0, 0, 50, 40), Box(0, 40, 50, 40), Box(50, 0, 50, 40), Box(50, 40, 50, 40)],
-            Tol,
-            groups: ["g", "g", "h", "h"]);
-
-        // Each column is one panel; between the groups each keeps its own side and round corners.
-        Assert.Equal(O("TL TR", "LTR"), o[0]);
-        Assert.Equal(O("BL BR", "LRB"), o[1]);
-        Assert.Equal(O("TL TR", "LTR"), o[2]);
-        Assert.Equal(O("BL BR", "LRB"), o[3]);
-    }
-
-    [Fact]
-    public void S11870_a_lone_card_against_a_group_is_a_card_of_its_own()
-    {
-        // A group of two side by side, a lone card as wide as both under it.
-        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), Box(0, 40, 100, 40)], Tol, groups: ["g", "g", null]);
+        // Two cards side by side, a card that takes no part in joins (a desktop icon: null box) as wide as both under them.
+        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), null], Tol);
 
         Assert.Equal(O("TL BL", "LTB"), o[0]);
         Assert.Equal(O("TR BR", "TRB"), o[1]);
@@ -217,37 +204,37 @@ public class CardJoinsTests
     }
 
     [Fact]
-    public void S11870_a_side_partly_across_a_group_mate_leaves_out_only_that_stretch()
+    public void S11870_a_side_partly_across_a_neighbour_leaves_out_only_that_stretch()
     {
-        // A wide member over a narrow mate (x 20..60) and a lone card (x 60..100): the wide card draws
-        // its bottom only over the lone card; the lone card is a card of its own.
-        var o = CardJoins.Outlines([Box(0, 0, 100, 40), Box(20, 40, 40, 40), Box(60, 40, 40, 40)], Tol, groups: ["g", "g", null]);
+        // A wide card over a narrow one (x 20..60) and a card that joins nothing (x 60..100, its own set): the wide
+        // card draws its bottom only over that one.
+        var o = CardJoins.Outlines([Box(0, 0, 100, 40), Box(20, 40, 40, 40), Box(60, 40, 40, 40)], Tol, sets: [0, 0, 1]);
 
         Assert.True(o[0].DrawsBottom);
         Assert.Equal([new OutlineSeam(CardSide.Bottom, 0.2, 0.6)], o[0].Seams);
         Assert.False(o[1].DrawsTop);
         Assert.Equal(CardOutline.Free, o[2]);
 
-        // A narrow member on a wide mate: the wide one draws its top on either side of the narrow one.
-        var under = CardJoins.Outlines([Box(20, 0, 40, 30), Box(0, 30, 100, 50)], Tol, groups: ["g", "g"]);
+        // A narrow card on a wide one: the wide one draws its top on either side of the narrow one.
+        var under = CardJoins.Outlines([Box(20, 0, 40, 30), Box(0, 30, 100, 50)], Tol);
         Assert.Equal(O("TL TR", "LTR"), under[0]);
         Assert.True(under[1].DrawsTop);
         Assert.Equal([new OutlineSeam(CardSide.Top, 0.2, 0.6)], under[1].Seams);
     }
 
     [Fact]
-    public void S11870_a_member_apart_from_its_mates_draws_its_whole_border()
+    public void S11870_a_card_apart_from_the_others_draws_its_whole_border()
     {
-        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(300, 0, 100, 50)], Tol, groups: ["g", "g", "g"]);
+        var o = CardJoins.Outlines([Box(0, 0, 100, 50), Box(0, 50, 100, 50), Box(300, 0, 100, 50)], Tol);
 
         Assert.Equal(CardOutline.Free, o[2]);
     }
 
     [Fact]
-    public void S11870_a_dragged_group_keeps_its_seamless_inside_free_of_the_cards_standing_still()
+    public void S11870_a_dragged_block_keeps_its_seamless_inside_free_of_the_cards_standing_still()
     {
-        // The dragged pair (set 1, one group) over a still card of the same group (set 0).
-        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), Box(0, 40, 100, 40)], Tol, sets: [1, 1, 0], groups: ["g", "g", "g"]);
+        // The dragged pair (set 1) over a still card (set 0).
+        var o = CardJoins.Outlines([Box(0, 0, 50, 40), Box(50, 0, 50, 40), Box(0, 40, 100, 40)], Tol, sets: [1, 1, 0]);
 
         Assert.False(o[0].DrawsRight);
         Assert.False(o[1].DrawsLeft);
@@ -264,12 +251,6 @@ public class CardJoinsTests
         Assert.Equal([new OutlineSeam(CardSide.Bottom, 0.5, 0.75), new OutlineSeam(CardSide.Right, 0.125, 0.5)], m.Seams);
         Assert.Equal(o, m.Mirrored());
         Assert.NotEqual(o, o with { Seams = null });
-    }
-
-    [Fact]
-    public void S11870_one_group_per_box()
-    {
-        Assert.Throws<ArgumentException>(() => CardJoins.Outlines([Box(0, 0, 1, 1)], Tol, groups: ["g", "g"]));
     }
 
     [Fact]

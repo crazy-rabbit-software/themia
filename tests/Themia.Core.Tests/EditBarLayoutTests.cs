@@ -237,26 +237,20 @@ public sealed class EditBarLayoutTests
     }
 
     [Fact]
-    public void S11754_S11755_a_groups_page_is_what_its_widgets_share_and_their_look_never_a_member_alone()
+    public void S11755_several_widgets_page_is_what_they_share_and_their_look_never_a_widget_alone()
     {
         SharedRow[] place = [new(SharedSettings.Place, ["a", "b"], Mixed: false)];
         var offer = new QuickSetOffer(2, null, null, null, null);
-        var group = new SelectionModel(SelectionKind.Group, offer, place) { GroupId = "g" };
         var several = new SelectionModel(SelectionKind.Several, offer, place);
-        var bare = new SelectionModel(SelectionKind.Group, offer, []) { GroupId = "g" };
-        var member = new SelectionModel(SelectionKind.Member, new QuickSetOffer(1, null, "a", Clock, null), []) { GroupId = "g", GroupName = "Station" };
+        var bare = new SelectionModel(SelectionKind.Several, offer, []);
 
-        // A group: what they share and their look; no member's own page.
-        Assert.Equal([SelectionSection.Shared, SelectionSection.Appearance], SelectionPage.Sections(group, ownLines: true, styleLines: true));
+        Assert.Equal([SelectionSection.Shared, SelectionSection.Appearance], SelectionPage.Sections(several, ownLines: true, styleLines: true));
         Assert.Equal([SelectionSection.Appearance], SelectionPage.Sections(bare, ownLines: true, styleLines: true));
         Assert.DoesNotContain("Members", Enum.GetNames<SelectionSection>());
 
-        // Several widgets that are not one group share the same section.
-        Assert.Equal([SelectionSection.Shared, SelectionSection.Appearance], SelectionPage.Sections(several, ownLines: true, styleLines: true));
-
-        // An entered member is its own page, under the link back to its group.
-        Assert.Equal([SelectionSection.InGroup, SelectionSection.Shows, SelectionSection.Appearance], SelectionPage.Sections(member, ownLines: true, styleLines: false));
-        Assert.Equal("Station", member.GroupTitle);
+        // There are no groups: no group or member page, no link back to one.
+        Assert.Equal(["One", "Several"], Enum.GetNames<SelectionKind>());
+        Assert.DoesNotContain("InGroup", Enum.GetNames<SelectionSection>());
     }
 
     [Fact]
@@ -264,8 +258,8 @@ public sealed class EditBarLayoutTests
     {
         SharedRow[] place = [new(SharedSettings.Place, ["a", "b"], Mixed: false)];
         var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, null, "w", Clock, null), []);
-        var group = new SelectionModel(SelectionKind.Group, new QuickSetOffer(2, null, null, null, null), place) { GroupId = "g" };
-        var bare = new SelectionModel(SelectionKind.Group, new QuickSetOffer(2, null, null, null, null), []) { GroupId = "g" };
+        var group = new SelectionModel(SelectionKind.Several, new QuickSetOffer(2, null, null, null, null), place);
+        var bare = new SelectionModel(SelectionKind.Several, new QuickSetOffer(2, null, null, null, null), []);
 
         // One widget: what it shows on Settings, its look on Appearance.
         var tabs = SelectionPage.Tabs(SelectionPage.Sections(one, ownLines: true, styleLines: false));
@@ -273,7 +267,7 @@ public sealed class EditBarLayoutTests
         Assert.Equal([SelectionSection.Shows], tabs[0].Sections);
         Assert.Equal([SelectionSection.Appearance], tabs[1].Sections);
 
-        // A group: For all of them on Settings, the look on Appearance.
+        // Several: For all of them on Settings, the look on Appearance.
         var grouped = SelectionPage.Tabs(SelectionPage.Sections(group, ownLines: true, styleLines: true));
         Assert.Equal([SelectionSection.Shared], grouped[0].Sections);
         Assert.Equal(SelectionTab.Appearance, grouped[1].Tab);
@@ -284,21 +278,10 @@ public sealed class EditBarLayoutTests
     }
 
     [Fact]
-    public void S11754_a_group_is_called_by_its_name_or_group_and_a_typed_name_is_trimmed()
+    public void S2341_the_entry_says_the_kind_or_how_many()
     {
-        Assert.Equal("Group", SelectionPage.GroupTitle(null));
-        Assert.Equal("Group", SelectionPage.GroupTitle("  "));
-        Assert.Equal("Station", SelectionPage.GroupTitle("Station"));
-
-        Assert.Null(SelectionPage.GroupName(""));
-        Assert.Null(SelectionPage.GroupName("   "));
-        Assert.Null(SelectionPage.GroupName(" Group "));
-        Assert.Equal("Roof", SelectionPage.GroupName("  Roof "));
-
-        var group = new SelectionModel(SelectionKind.Group, new QuickSetOffer(4, null, null, null, null), []) { GroupId = "g", GroupName = "Weather station" };
-        Assert.Equal("Weather station", SelectionPage.Words(group, _ => "?"));
-        Assert.Equal(ReadyMadeGroups.WeatherStation.Glyph, SelectionPage.Glyph(group));
-        Assert.Equal(Glyphs.Group, SelectionPage.Glyph(group with { GroupName = "Roof" }));
+        var two = new SelectionModel(SelectionKind.Several, new QuickSetOffer(4, null, null, null, null), []);
+        Assert.Equal(Glyphs.Apps, SelectionPage.Glyph(two));
         Assert.Null(SelectionPage.Words((SelectionModel?)null, _ => "?"));
     }
 }

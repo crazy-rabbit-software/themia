@@ -34,7 +34,7 @@ internal static partial class EditBarRender
         return SelectionEntry(view, selection);
     }
 
-    /// <summary>[S-2341] [S-11754] The bar's selection entry for <paramref name="selection"/> on <paramref name="view"/>: a group's name and glyph too.</summary>
+    /// <summary>[S-2341] [S-11754] The bar's selection entry for <paramref name="selection"/> on <paramref name="view"/>.</summary>
     internal static BarSelection? SelectionEntry(ViewState view, WidgetSelection selection)
     {
         var model = SelectionPage.Of(new AppState { Views = [view] }, selection, view.Id);
@@ -144,8 +144,8 @@ internal static partial class EditBarRender
     }
 
     /// <summary>
-    /// [S-2340] [S-11754] The selection's page over <paramref name="selection"/> of <paramref name="view"/> (a
-    /// group whole, an entered member, several, one), its lines the modules' own (or <paramref name="lines"/>'
+    /// [S-2340] [S-11754] The selection's page over <paramref name="selection"/> of <paramref name="view"/> (several
+    /// or one), its lines the modules' own (or <paramref name="lines"/>'
     /// stand-in for the one widget), its shared lines built as the surface builds them, its commands doing nothing.
     /// </summary>
     internal static PageView SelectionPageOf(ViewState view, WidgetSelection selection, Action<WidgetMenuLines>? lines = null)
@@ -164,10 +164,6 @@ internal static partial class EditBarRender
             WidgetLines: id => lines is not null ? Stand(lines, Ask, Confirm) : view.Find(id) is { } found ? Over(found.Kind, found.Config, () => { }, Ask, Confirm) : null)
         {
             SharedLines = row => SharedRowLines.Of(row, [.. view.Widgets.Where(w => row.Holders.Contains(w.Id))], Over, Ask, Confirm, _ => { }),
-            RenameGroup = (_, _) => { },
-            Group = () => { },
-            Ungroup = () => { },
-            OpenGroup = () => { },
         };
 
         var kinds = view.Widgets.Where(w => selection.Contains(w.Id)).Select(w => w.Kind).Distinct().ToList();

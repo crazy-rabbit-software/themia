@@ -129,11 +129,7 @@ internal sealed record PageTool(string Key, string Glyph, string Name, Windows.S
 internal sealed record PageSection(string Key, string? Heading, IReadOnlyList<PageRow> Rows);
 
 /// <summary>[S-2340] The selection page's header card: the kind's glyph on a tile, the name over a caption, icon buttons at its end.</summary>
-internal sealed record PageHeader(string Glyph, string Name, string Caption, IReadOnlyList<PageTool> Tools)
-{
-    /// <summary>[S-11754] The name as a box that renames (a group's): its hint, what it holds, what keeping it does. Null: words only.</summary>
-    public PageEdit? Rename { get; init; }
-}
+internal sealed record PageHeader(string Glyph, string Name, string Caption, IReadOnlyList<PageTool> Tools);
 
 /// <summary>[S-2345] A tab of a page's strip: its words and the keys of the sections it shows.</summary>
 internal sealed record PageTab(string Key, string Title, IReadOnlyList<string> Sections);

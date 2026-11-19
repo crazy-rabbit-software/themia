@@ -85,7 +85,7 @@ public sealed class ReadyMadeGroupsTests
     {
         PixelRect?[] boxes = [.. Of(id).Widgets.Select(w => (PixelRect?)new PixelRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height))];
 
-        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(1), groups: [.. boxes.Select(_ => (string?)"group")]);
+        var outlines = CardJoins.Outlines(boxes, CardJoins.Tolerance(1));
 
         for (var i = 0; i < outlines.Length; i++)
         {
@@ -95,12 +95,12 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
-    public void S11870_a_recipe_placed_as_one_group_draws_its_outer_border_only(string id)
+    public void S11870_a_recipe_placed_draws_its_outer_border_only(string id)
     {
         var boxes = Of(id).Widgets.Select(w => new PixelRect(w.Box.X, w.Box.Y, w.Box.Width, w.Box.Height)).ToList();
         var tol = CardJoins.Tolerance(1);
 
-        var outlines = CardJoins.Outlines([.. boxes.Select(b => (PixelRect?)b)], tol, groups: [.. boxes.Select(_ => (string?)"group")]);
+        var outlines = CardJoins.Outlines([.. boxes.Select(b => (PixelRect?)b)], tol);
 
         for (var i = 0; i < boxes.Count; i++)
         {
@@ -222,7 +222,7 @@ public sealed class ReadyMadeGroupsTests
     [MemberData(nameof(Recipes))]
     public void S12485_a_placed_group_s_header_carries_the_title_in_its_config(string id)
     {
-        var (widgets, _) = ReadyMadeGroups.Build(Of(id), Screen)!.Value;
+        var widgets = ReadyMadeGroups.Build(Of(id), Screen)!;
         var header = Assert.IsType<Themia.Widget.Header.HeaderConfig>(widgets[0].Config);
         Assert.False(string.IsNullOrWhiteSpace(header.Text));
         Assert.Equal(Of(id).Glyph, header.Glyph);
@@ -233,7 +233,7 @@ public sealed class ReadyMadeGroupsTests
     public void S12802_a_group_about_a_place_has_a_header_that_names_it_and_no_other_does(string id)
     {
         // [S-12801] The members name no place; the header over a group of widgets about one names it once.
-        var (widgets, _) = ReadyMadeGroups.Build(Of(id), Screen)!.Value;
+        var widgets = ReadyMadeGroups.Build(Of(id), Screen)!;
         var header = Assert.IsType<Themia.Widget.Header.HeaderConfig>(widgets[0].Config);
         var aboutAPlace = widgets.Skip(1).Any(w => w.Config is IPlaced);
         Assert.Equal(aboutAPlace, header.ShowsPlace);
@@ -301,7 +301,7 @@ public sealed class ReadyMadeGroupsTests
     // ---- [S-2471] placing one ---------------------------------------------------------------------
 
     [Fact]
-    public void S2471_placing_lands_every_widget_as_one_new_group_named_after_the_recipe_in_one_step()
+    public void S2471_placing_lands_every_widget_loose_and_selected_in_one_step()
     {
         var state = new AppState { Views = [ViewState.Create("v")] };
         state.ActiveViewId = state.Views[0].Id;
@@ -312,16 +312,14 @@ public sealed class ReadyMadeGroupsTests
         state.ApplyPlacement(plan, state.Views[0].Id);
         history.Commit(state, UndoActions.ForPlacement(payload.Mode));
 
+        // [S-2475] After the placement a collection of regular widgets: what the placement selects, nothing more.
         var view = state.Views[0];
-        var group = Assert.Single(view.Groups);
-        Assert.Equal(Str.Groups_Recipe_ThisPc.Text(), group.Name);
-        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, WidgetGroups.Members(view, group.Id).Count);
+        Assert.Equal(ReadyMadeGroups.ThisPc.Widgets.Count, view.Widgets.Count);
         Assert.Equal(plan.Roots, view.Widgets.Select(w => w.Id));
         Assert.Equal(1, history.UndoCount);
 
         history.Undo(state);
         Assert.Empty(state.Views[0].Widgets);
-        Assert.Empty(state.Views[0].Groups);
     }
 
     [Fact]
@@ -353,14 +351,13 @@ public sealed class ReadyMadeGroupsTests
     }
 
     [Fact]
-    public void S2471_each_placement_is_a_new_group_with_new_ids()
+    public void S2471_each_placement_is_new_widgets_with_new_ids()
     {
         var payload = PlacementPayload.ForReadyMade(ReadyMadeGroups.Weather);
 
         var first = payload.Plan(0.3, 0.3, Screen);
         var second = payload.Plan(0.6, 0.3, Screen);
 
-        Assert.NotEqual(first.Groups[0].Id, second.Groups[0].Id);
         Assert.Empty(first.Roots.Intersect(second.Roots));
     }
 
@@ -389,14 +386,13 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
-    public void S2475_the_recipe_scene_is_its_widgets_as_one_group_with_no_edit_chrome(string id)
+    public void S2475_the_recipe_scene_is_its_widgets_with_no_edit_chrome(string id)
     {
         var recipe = Of(id);
 
         var scene = ReadyMadeScene.Of(recipe, new Dictionary<string, string>()).Scenes[0];
 
         Assert.Equal(recipe.Widgets.Count, scene.Widgets.Count);
-        Assert.Equal([recipe.Name.Text()], scene.Groups);
         Assert.Null(scene.Edit);
         Assert.Empty(scene.Selected);
         Assert.Empty(SceneWidgets.Check(scene, SceneScreen.Default));
@@ -404,7 +400,7 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
-    public void S2475_asked_for_edit_mode_the_group_is_selected_under_the_bar(string id)
+    public void S2475_asked_for_edit_mode_the_placed_widgets_are_selected_under_the_bar(string id)
     {
         var recipe = Of(id);
 

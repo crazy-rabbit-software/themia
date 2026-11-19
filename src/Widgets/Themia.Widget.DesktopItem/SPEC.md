@@ -91,10 +91,16 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
 
 ## The look
 
-- **[S-5602]** The highlight is one mark **behind the icon and the name, over the whole cell**
-  (`SelectionChrome.Wrap(null, SelectionLook.DesktopIcon)`), **the cell's width and as tall as the icon and
-  the lines the name really takes** (`DesktopCell.HighlightHeight`: 86 with two lines, 70 with one), as
-  Explorer's hugs its items; it takes nothing of the cell's room. Its numbers are `SelectionLook.DesktopIcon`, a
+- **[S-5602]** The highlight is one mark **behind the icon and the name** (`SelectionChrome.Wrap(null,
+  SelectionLook.DesktopIcon)`), **the icon widget's whole card box** ([S-5612]); it takes nothing of the cell's room.
+- **[S-5612]** **The highlight is where the corners are** (owner, 2026-11-19: "the hover and highlight of a desktop
+  icon should always be the same area that the widget itself has (where the corners are)"): hovered, selected,
+  highlighted or a drop target, the fill covers exactly the icon's card box, the rect its corner marks trace (its
+  whole grid cells, [S-11875]), never Explorer's smaller mark inside the cell (it started 3 under the cell's top and
+  was as tall as the icon and the name's lines, `DesktopCell.HighlightHeight`, which now only counts the cell's
+  height); its corners are `SelectionLook.DesktopIcon`'s radius, the card never clipping them ([S-11880]). The rule
+  is `DesktopCell.Highlight` (the card's DIPs in, the box out), placed by the view on every size change. Test
+  `DesktopItemTests.S5612_` (every icon size, 100 % to 200 %); renders `--desktop-png`, `--drag-png`. Its numbers are `SelectionLook.DesktopIcon`, a
   `SelectionPalette` of its own (hover, selected, selected under the pointer, the inactive selection,
   the focus stroke, the radius and the border), the one place the desktop icon's highlight is tuned
   against Explorer's, and **measured there** (2026-11-14, inside against just outside the item's edge): a

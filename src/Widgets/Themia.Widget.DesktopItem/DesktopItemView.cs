@@ -67,7 +67,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         Margin = new Thickness(DesktopCell.SideInset, DesktopCell.HighlightTop + DesktopCell.IconTop, DesktopCell.SideInset, 0),
     };
 
-    /// <summary>The highlight behind the icon and the name, over the whole cell: it takes nothing of the cell's room.</summary>
+    /// <summary>[S-5612] The highlight behind the icon and the name: the whole card box, where its corners are (<see cref="DesktopCell.Highlight"/>).</summary>
     private readonly Border _chrome = SelectionChrome.Wrap(null, SelectionLook.DesktopIcon);
 
     private IWidgetSurface? _surface;
@@ -101,10 +101,8 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         // [S-5564] A picture decoded after it was set (a file, a site's icon) is drawn only now: the ghost's copy follows.
         _image.ImageOpened += (_, _) => KeepDragIcon();
         _stack.Children.Add(_name);
-        // [S-5601] The highlight is the cell's width and hugs the icon and the name's own lines, as Explorer's.
-        _chrome.VerticalAlignment = VerticalAlignment.Top;
-        _chrome.Margin = new Thickness(0, DesktopCell.HighlightTop, 0, 0);
-        _stack.SizeChanged += (_, args) => _chrome.Height = DesktopCell.HighlightHeight(_size, args.NewSize.Height - DesktopCell.Icon(_size) - DesktopCell.Gap);
+        // [S-5612] The highlight is the whole card box (the view owns the card's top edge, [S-5700], so its box is the card's).
+        SizeChanged += (_, args) => PlaceChrome(DesktopCell.Highlight(args.NewSize.Width, args.NewSize.Height));
         Resize(_size);
         Children.Add(_chrome);
         Children.Add(_stack);
@@ -123,7 +121,16 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         _iconHost.Height = icon;
         _image.Width = icon;
         _image.Height = icon;
-        _chrome.Height = DesktopCell.HighlightHeight(size, 2 * FamilyType.CaptionLine);
+    }
+
+    /// <summary>[S-5612] Put the highlight on <paramref name="box"/>, in the view's (the card's) DIPs.</summary>
+    private void PlaceChrome(Themia.Core.Geometry.PixelRect box)
+    {
+        _chrome.HorizontalAlignment = HorizontalAlignment.Left;
+        _chrome.VerticalAlignment = VerticalAlignment.Top;
+        _chrome.Margin = new Thickness(box.X, box.Y, 0, 0);
+        _chrome.Width = box.Width;
+        _chrome.Height = box.Height;
     }
 
     /// <summary>[S-5700] The cell is the whole card, from its top edge: the card adds no inset above it (one would push the name's second line out of the cell).</summary>

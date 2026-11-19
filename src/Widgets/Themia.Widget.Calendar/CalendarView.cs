@@ -39,7 +39,7 @@ namespace Themia.App.Widgets;
 /// Polls every five minutes; a context-menu Refresh asks past every cache.
 /// </para>
 /// </summary>
-internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys, IWidgetJoins
+internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
     /// <inheritdoc />
     public CardOpen? Opens => CalendarModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
@@ -587,25 +587,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         Render();
     }
 
-    /// <summary>
-    /// [S-12483] [S-12800] The day, week and year faces keep the foot's inset, none where a group mate joins the foot;
-    /// the month already runs into it.
-    /// </summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        if (sides != _joins)
-        {
-            _joins = sides;
-            Render();
-        }
-    }
-
     // -----------------------------------------------------------------------------------------
     // Drawing
     // -----------------------------------------------------------------------------------------
-
-    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
-    private JoinedSides _joins;
 
     private void Render()
     {

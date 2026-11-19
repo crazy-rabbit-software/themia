@@ -72,8 +72,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>[S-31b] The cards' edit markers, drawn above all of them so neighbours' marks meet as one line.</summary>
     private readonly EditMarkerLayer _markerLayer;
 
-    /// <summary>[S-2453] The groups' frames, over the cards' markers.</summary>
-
     public DesktopWindow(AppHost host, MonitorTarget monitor)
     {
         _host = host;
@@ -106,7 +104,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = Themia.Sdk.WinUI.Kit.Family.Brush(Themia.Sdk.Kit.ColourRole.Clear),
-            Children = { _menuAnchor, _gridOverlay, _localGrid, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _barLayer, _ghostLayer, _toolbar, _flyoutLayer, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _localGrid, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _markerLayer.Lifts, _barLayer, _ghostLayer, _toolbar, _flyoutLayer, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.
@@ -336,7 +334,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>[S-12951] The menus' Lock widgets line.</summary>
     public void RequestLockWidgets(bool on) => _host.SetLockWidgets(on);
 
-    /// <summary>[S-12950] Whether Lock widgets keeps <paramref name="card"/> (or its group) where it is.</summary>
+    /// <summary>[S-12950] Whether Lock widgets keeps <paramref name="card"/> where it is.</summary>
     public bool Pins(WidgetCard card)
     {
         ArgumentNullException.ThrowIfNull(card);
@@ -380,29 +378,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     /// <inheritdoc />
     public void RequestClick(WidgetCard card) => _host.ClickSelect(card.Model.Id);
-
-    /// <inheritdoc />
-    public EditMarks MarksOf(WidgetCard card) => _host.MarksOf(card.Model);
-
-    /// <inheritdoc />
-    public CardMenuFacts WithGroups(CardMenuFacts facts) => _host.WithGroups(facts);
-
-    /// <inheritdoc />
-    public void RequestGroupCommand(ShellCommand command)
-    {
-        switch (command)
-        {
-            case ShellCommand.Group:
-                _host.GroupSelected();
-                break;
-            case ShellCommand.Ungroup:
-                _host.UngroupSelected();
-                break;
-            case ShellCommand.LeaveGroup:
-                _host.LeaveGroupSelected();
-                break;
-        }
-    }
 
     public void RequestCopy(WidgetCard card) => _host.CopySelected();
 

@@ -37,6 +37,12 @@ public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCo
 /// </summary>
 public sealed record WidgetSizing
 {
+    /// <summary>
+    /// [S-08] The smallest any widget may be on either axis, in DIPs: one cell of the widget grid ([S-06], about
+    /// 10), so a kind with no real minimum (a quick toggle, [S-12806]) goes as small as the grid goes.
+    /// </summary>
+    public const double Floor = 10;
+
     public required SizeDip Min { get; init; }
 
     /// <summary>[S-10] Where a newly added widget lands.</summary>

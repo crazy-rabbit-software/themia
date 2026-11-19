@@ -11,7 +11,7 @@ namespace Themia.App.Shell;
 internal delegate WidgetMenuLines? LinesOver(WidgetId kind, WidgetConfig config, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm);
 
 /// <summary>
-/// [S-11751] [S-11753] A shared setting's lines on a group's page (or several widgets'): the very lines one
+/// [S-11751] [S-11753] A shared setting's lines on several widgets' page: the very lines one
 /// holder's module builds for it (marked <see cref="ItemMenuEntry.Shares"/>), over a scratch copy of that
 /// holder's config; every write they make (a pick, a toggle, a typed value, a place found by a lookup, run
 /// once) is then set on every holder at once, as one change. While the holders disagree the lines read

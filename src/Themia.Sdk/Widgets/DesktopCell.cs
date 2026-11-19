@@ -115,8 +115,17 @@ public static class DesktopCell
     /// <summary>[S-5588] The icon grid's cell at <paramref name="size"/>: an icon with both name lines, whatever an icon's own lines are.</summary>
     public static SizeDip Grid(DesktopIconSize size) => Size(size, 2);
 
-    /// <summary>[S-5601] The highlight's height round an icon of <paramref name="size"/> whose name is <paramref name="nameHeight"/> tall: it hugs the icon and the lines the name really takes, as Explorer's does.</summary>
+    /// <summary>[S-5601] The room an icon of <paramref name="size"/> and a name <paramref name="nameHeight"/> tall take from the cell's top inset to under the name: what the cell's height counts.</summary>
     public static double HighlightHeight(DesktopIconSize size, double nameHeight) => IconTop + Icon(size) + Gap + Math.Max(0, nameHeight) + NameBottom;
+
+    /// <summary>
+    /// [S-5612] The hover, selected and highlighted fill of a desktop icon whose card is <paramref name="width"/> ×
+    /// <paramref name="height"/> DIPs, in the card's own DIPs: the whole card box, the very rect its corner marks trace
+    /// (its whole grid cells, [S-11875]), never a smaller mark inside it (owner, 2026-11-19: "the hover and highlight of
+    /// a desktop icon should always be the same area that the widget itself has (where the corners are)").
+    /// </summary>
+    public static Themia.Core.Geometry.PixelRect Highlight(double width, double height)
+        => new(0, 0, double.IsFinite(width) ? Math.Max(0, width) : 0, double.IsFinite(height) ? Math.Max(0, height) : 0);
 
     /// <summary>The width a name wraps at in a cell of <paramref name="size"/> drawn <paramref name="actualWidth"/> wide (not measured yet: the cell's own).</summary>
     public static double NameWidth(DesktopIconSize size, double actualWidth)

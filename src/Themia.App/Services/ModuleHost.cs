@@ -26,7 +26,7 @@ internal static class ModuleHost
     /// <summary>
     /// [S-3719] A widget's own lines on its properties menu, built by <paramref name="kind"/>'s module over
     /// <paramref name="config"/> (the live one: the lines change it in place and <paramref name="save"/>
-    /// stores it; or [S-11751] a scratch copy whose save sets what it holds on every widget of a group),
+    /// stores it; or [S-11751] a scratch copy whose save sets what it holds on every widget selected that holds it),
     /// asking for text and confirmations beside the menu. A module that throws is logged and has none.
     /// [S-3749] <paramref name="openSetting"/> opens the level a link row leads to (⚙ › Accounts,
     /// [S-3558]; a format; an update interval).

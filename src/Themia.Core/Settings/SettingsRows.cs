@@ -21,7 +21,7 @@ public enum SettingsRowKind
     /// <summary>An action button at the row's end.</summary>
     Action,
 
-    /// <summary>[S-3749] A link row: somewhere the user must go to do something (an account to add or manage, the group), the open mark at its end.</summary>
+    /// <summary>[S-3749] A link row: somewhere the user must go to do something (an account to add or manage), the open mark at its end.</summary>
     Link,
 
     /// <summary>One of the user's own things (a view): icon buttons at its end, dragged or Ctrl+Up / Down to reorder.</summary>

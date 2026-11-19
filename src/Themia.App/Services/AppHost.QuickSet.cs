@@ -8,8 +8,8 @@ namespace Themia.App.Services;
 
 /// <summary>
 /// [S-3703]/[S-3704] The selection page's writes: header, background, item background ([S-6521]), scale
-/// ([S-6531]), alignment ([S-6584]) and title, of the widgets it names (the selection); a shared setting set on every widget that holds it ([S-11751]); a
-/// group renamed ([S-11754]). Each through <see cref="Mutate"/>, one change each.
+/// ([S-6531]), alignment ([S-6584]) and title, of the widgets it names (the selection); a shared setting set on every widget that holds it ([S-11751]).
+/// Each through <see cref="Mutate"/>, one change each.
 /// </summary>
 internal sealed partial class AppHost
 {
@@ -51,25 +51,6 @@ internal sealed partial class AppHost
         if (SelectionView is { } view && view.Widgets.Any(w => ids.Contains(w.Id, StringComparer.Ordinal) && setting.Holds(w.Config) && !setting.Same(from, w.Config)))
         {
             Mutate(_ => QuickSet.SetShared(view, ids, setting, from));
-        }
-    }
-
-    /// <summary>[S-11754] A group's name, as typed: one step; a blank name (or "Group") is none.</summary>
-    public void RenameGroup(string groupId, string? typed)
-    {
-        if (SelectionView is { } view && view.FindGroup(groupId) is { } group
-            && !string.Equals(group.Name, SelectionPage.GroupName(typed), StringComparison.Ordinal))
-        {
-            Mutate(_ => WidgetGroups.Rename(view, groupId, SelectionPage.GroupName(typed)));
-        }
-    }
-
-    /// <summary>[S-11757] An entered member's link to its group: the whole group selected, its page shown.</summary>
-    public void SelectGroupOfEntered()
-    {
-        if (Selection.Entered is not null)
-        {
-            ChangeSelection(Selection.StepOut(SelectionView));
         }
     }
 

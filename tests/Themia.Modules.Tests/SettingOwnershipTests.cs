@@ -398,8 +398,5 @@ public sealed class SettingOwnershipTests
             // Held by a widget's config: some kind of the build holds it.
             Assert.Contains(ModuleRegistry.Widgets, m => setting.Holds(m.Descriptor.CreateDefault()));
         }
-
-        // The group holds an id and a name only: nothing of what its widgets show.
-        Assert.Equal(["Id", "Name"], typeof(WidgetGroup).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanWrite).Select(p => p.Name).Order(StringComparer.Ordinal));
     }
 }

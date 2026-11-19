@@ -50,8 +50,7 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2303] [S-11755] A sub-page's row: the whole row opens it; its icon buttons (a member's Remove from
-    /// group) stand before the chevron, their keys working while the row has the keyboard (Delete).
+    /// [S-2303] [S-11755] A sub-page's row: the whole row opens it; its icon buttons stand before the chevron, their keys working while the row has the keyboard (Delete).
     /// </summary>
     private Button SubPageRow(PageRow row)
     {
@@ -1023,18 +1022,9 @@ internal sealed partial class PageView
             Background = ShellBrush.Of(ShellRole.CardSecondary),
             Child = new FontIcon { Glyph = header.Glyph, FontSize = P.HeaderGlyph, Foreground = ShellBrush.Of(ShellRole.AccentText) },
         };
-        FrameworkElement name;
-        if (header.Rename is { } rename)
-        {
-            name = TitleBox(header, rename);
-        }
-        else
-        {
-            var words = Fluent.Text(FamilyType.Title);
-            words.Text = header.Name;
-            words.TextTrimming = TextTrimming.CharacterEllipsis;
-            name = words;
-        }
+        var name = Fluent.Text(FamilyType.Title);
+        name.Text = header.Name;
+        name.TextTrimming = TextTrimming.CharacterEllipsis;
 
         var caption = CaptionText(header.Caption);
         caption.TextWrapping = TextWrapping.NoWrap;
@@ -1087,54 +1077,6 @@ internal sealed partial class PageView
             Margin = new Thickness(0, 0, 0, P.CardGap),
             Tag = "header#card",
         };
-    }
-
-    /// <summary>
-    /// [S-11754] A name that renames (a group's): a box in the title's type with no rim until pointed at or
-    /// typed in; Enter or leaving keeps it, Escape restores it, empty keeps the hint ("Group").
-    /// </summary>
-    private TextBox TitleBox(PageHeader header, PageEdit edit)
-    {
-        var box = new TextBox
-        {
-            Text = edit.Initial,
-            PlaceholderText = edit.Placeholder,
-            FontSize = FamilyType.Title.FontSize,
-            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-            Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
-            Margin = new Thickness(-Fluent.Space1, 0, 0, 0),
-            MinHeight = P.Control,
-            BorderThickness = new Thickness(0),
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            VerticalContentAlignment = VerticalAlignment.Center,
-            Tag = "header#name",
-        };
-        AutomationProperties.SetName(box, header.Name);
-        void Keep()
-        {
-            var typed = box.Text.Trim();
-            if (typed != edit.Initial)
-            {
-                Do(() => edit.Commit(typed));
-            }
-        }
-
-        box.KeyDown += (_, e) =>
-        {
-            switch (e.Key)
-            {
-                case VirtualKey.Enter:
-                    Keep();
-                    e.Handled = true;
-                    break;
-                case VirtualKey.Escape when box.Text != edit.Initial:
-                    box.Text = edit.Initial;
-                    e.Handled = true;
-                    break;
-            }
-        };
-        box.LostFocus += (_, _) => Keep();
-        return box;
     }
 
     /// <summary>Run what a row does: an exception is logged, never raised out of a click.</summary>

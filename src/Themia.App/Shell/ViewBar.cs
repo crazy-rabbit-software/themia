@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
@@ -592,7 +593,8 @@ internal sealed partial class ViewBar : Grid
     /// [S-918] / [S-5402] The bar's menu: each view listed, its icon in its colour, in bar order (the
     /// default view's name semi-bold); a click shows it here. The overflow chip lists the views left
     /// off the bar, which a pick brings onto it ([S-917]); the select bar lists every view, the shown
-    /// one ticked. Every row has the view's name; text only ([S-5405]) puts the colour dot where the
+    /// one marked by the choice's dot in its one leading slot ([S-12952], <see cref="MenuMarks.Slot"/>: no second
+    /// column for a tick). Every row has the view's name; text only ([S-5405]) puts the colour dot where the
     /// icon was ([S-5406]). Capped at <paramref name="maxHeight"/> so a long list scrolls inside it; a
     /// typed letter moves to the next view starting with it ([S-5403]).
     /// </summary>
@@ -604,13 +606,17 @@ internal sealed partial class ViewBar : Grid
         var menu = new MenuFlyout { MenuFlyoutPresenterStyle = MenuStyle(maxHeight) };
         var ticks = views.Any(v => v.Shown);
         var names = views.Select(v => v.Name).ToList();
+        MenuFlyoutItem? shown = null;
         foreach (var view in views)
         {
-            MenuFlyoutItem item = ticks
-                ? new ToggleMenuFlyoutItem { IsChecked = view.Shown }
-                : new MenuFlyoutItem();
-            item.Text = view.Name;
-            if (ViewBarRules.ShowsMark(labels))
+            var item = new MenuFlyoutItem { Text = view.Name };
+            if (ticks && view.Shown)
+            {
+                // [S-12952] The shown view: the choice's dot in the slot its mark stands in on the others.
+                item.Icon = new FontIcon { Glyph = MenuMarks.Slot(true, choice: true, null) };
+                shown = item;
+            }
+            else if (ViewBarRules.ShowsMark(labels))
             {
                 item.Icon = ViewMark.Icon(view.Icon, view.Color);
             }
@@ -638,15 +644,12 @@ internal sealed partial class ViewBar : Grid
         }
 
         // [S-5402] A select bar's menu opens on the shown view, as a combo box does.
-        if (ticks)
+        if (shown is { } current)
         {
             menu.Opened += (_, _) =>
             {
-                if (menu.Items.OfType<ToggleMenuFlyoutItem>().FirstOrDefault(i => i.IsChecked) is { } current)
-                {
-                    current.Focus(FocusState.Programmatic);
-                    current.StartBringIntoView();
-                }
+                current.Focus(FocusState.Programmatic);
+                current.StartBringIntoView();
             };
         }
 

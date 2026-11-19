@@ -5,7 +5,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-11883] A view whose own fill reaches the card's edge (a quick toggle's or a power button's tile,
 /// whose whole face is the button) takes the card's corners for that fill: round where the card is
-/// round, square where a group mate joins it ([S-2241]). Without it the fill kept its own round
+/// round, square where a neighbour joins it ([S-2241]). Without it the fill kept its own round
 /// corners inside a joined panel, a notch at every seam (owner, 2026-11-15: "the button widgets when in
 /// a group have rounded corners which looks off").
 /// <para>

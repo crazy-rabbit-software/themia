@@ -66,11 +66,11 @@ internal sealed partial class DriveView
 
         var locale = Strings.Current;
         var width = Math.Max(0, _area.Width - (2 * FamilySpace.Inset));
-        var ring = DriveFace.Ring(width, Math.Max(0, _area.Height - _joins.Foot));
+        var ring = DriveFace.Ring(width, Math.Max(0, _area.Height - FamilySpace.Inset));
         _figure.Visibility = Visibility.Collapsed;
         parts.Root.Visibility = Visibility.Visible;
-        parts.Root.Margin = Family.SideInset with { Bottom = _joins.Foot };   // [S-12410] centred, the foot's inset with it ([S-12483]: none where a mate joins)
-        parts.Root.VerticalAlignment = Edge;
+        parts.Root.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };   // [S-12410] centred, the foot's inset with it
+        parts.Root.VerticalAlignment = VerticalAlignment.Center;
 
         var share = ReadoutRules.Split(Formatting.Percent(locale, drive.UsedFraction ?? 0));
         parts.Box.Width = ring;

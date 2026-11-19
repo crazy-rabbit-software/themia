@@ -5,15 +5,14 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-2248] When two cards are neighbours (their cells meet), [S-2249] the members of one group whose
-/// cells meet paint as one connected panel (there is no gap between widgets, [S-11884]: every card paints
-/// its whole cell), [S-2240] cards of no group that touch stay separate, and [S-11810] a group's frame is
-/// its members' own card edges on whole device pixels.
+/// [S-2248] When two cards are neighbours (their cells meet), [S-2240] [S-2249] any two cards whose cells
+/// meet paint as one connected panel (there is no gap between widgets, [S-11884]: every card paints its whole
+/// cell; there are no groups), and [S-11810] the box round several cards is their own edges on whole device pixels.
 /// </summary>
-public sealed class GroupJoinTests
+public sealed class CardPaintTests
 {
-    private static CardOutline[] Paint(PixelRect[] cells, string?[] groups, double scale = 1, int?[]? sets = null)
-        => CardJoins.Paint(cells, sets ?? [.. cells.Select(_ => (int?)0)], groups, scale);
+    private static CardOutline[] Paint(PixelRect[] cells, double scale = 1, int?[]? sets = null)
+        => CardJoins.Paint(cells, sets ?? [.. cells.Select(_ => (int?)0)], scale);
 
     private static bool OnDevicePixel(double dip, double scale) => Math.Abs((dip * scale) - Math.Round(dip * scale)) < 1e-6;
 
@@ -68,15 +67,16 @@ public sealed class GroupJoinTests
         }
     }
 
-    // ---- [S-2249] a group is one panel, lone cards stay cards ----
+    // ---- [S-2240] [S-2249] cards that touch are one panel ----
 
     [Fact]
-    public void S2249_regression_grouping_cards_placed_border_to_border_joins_them_into_one_panel()
+    public void S2240_regression_cards_placed_border_to_border_join_into_one_panel_with_no_group()
     {
-        // Owner, 2026-11-15: two widgets put border to border, then grouped, did not connect.
+        // Owner, 2026-11-17: "the widgets should connect when the edges of them touch, right now they only connect
+        // when the edges touch and they are grouped together".
         PixelRect[] cells = [new(0, 0, 200, 120), new(200, 0, 160, 120)];
 
-        var grouped = Paint(cells, ["g", "g"]);
+        var grouped = Paint(cells);
         Assert.False(grouped[0].DrawsRight);
         Assert.False(grouped[1].DrawsLeft);
         Assert.False(grouped[0].RoundTopRight || grouped[0].RoundBottomRight);
@@ -85,69 +85,66 @@ public sealed class GroupJoinTests
     }
 
     [Fact]
-    public void S2240_S11884_lone_cards_that_touch_stay_two_cards_with_all_their_corners()
+    public void S2240_S11884_cards_a_gap_apart_stay_two_cards_with_all_their_corners()
     {
-        // Owner, 2026-11-15: "the space between widgets will only come from how you place them now": two
-        // ungrouped cards placed edge to edge are two cards, never one surface with a shared line.
-        PixelRect[] cells = [new(0, 0, 100, 50), new(100, 0, 100, 50), new(0, 50, 200, 40)];
-        Assert.All(Paint(cells, [null, null, null]), o => Assert.Equal(CardOutline.Free, o));
-
-        // Members of two different groups are not mates either.
-        Assert.All(Paint(cells, ["a", "b", "c"]), o => Assert.Equal(CardOutline.Free, o));
+        // Owner, 2026-11-15: "the space between widgets will only come from how you place them now".
+        PixelRect[] cells = [new(0, 0, 100, 50), new(101, 0, 100, 50), new(0, 51, 200, 40)];
+        Assert.All(Paint(cells), o => Assert.Equal(CardOutline.Free, o));
     }
 
     [Fact]
     public void S2249_a_three_member_panel_squares_its_inner_corners_and_keeps_its_outer_ones()
     {
         PixelRect[] cells = [new(0, 0, 200, 120), new(200, 0, 160, 120), new(0, 120, 360, 60)];
-        var p = Paint(cells, ["g", "g", "g"]);
+        var p = Paint(cells);
         Assert.False(p[0].DrawsRight || p[1].DrawsLeft || p[0].DrawsBottom || p[2].DrawsTop);
         Assert.True(p[0].RoundTopLeft && p[1].RoundTopRight && p[2].RoundBottomLeft && p[2].RoundBottomRight);
         Assert.False(p[0].RoundBottomLeft || p[1].RoundBottomRight || p[2].RoundTopLeft || p[2].RoundTopRight);
     }
 
     [Fact]
-    public void S2249_members_that_are_not_neighbours_stay_separate_cards()
+    public void S2249_cards_that_are_not_neighbours_stay_separate_cards()
     {
         PixelRect[] cells = [new(0, 0, 100, 50), new(300, 200, 100, 50)];
-        var p = Paint(cells, ["g", "g"]);
+        var p = Paint(cells);
         Assert.Equal(CardOutline.Free, p[0]);
         Assert.Equal(CardOutline.Free, p[1]);
     }
 
     [Fact]
-    public void S2249_a_dragged_member_or_one_being_resized_is_free()
+    public void S2249_a_dragged_card_or_one_being_resized_is_free()
     {
         PixelRect[] cells = [new(0, 0, 100, 50), new(100, 0, 100, 50)];
-        Assert.Equal(CardOutline.Free, Paint(cells, ["g", "g"], sets: [0, 1])[0]);
-        Assert.Equal(CardOutline.Free, Paint(cells, ["g", "g"], sets: [0, null])[0]);
+        Assert.Equal(CardOutline.Free, Paint(cells, sets: [0, 1])[0]);
+        Assert.Equal(CardOutline.Free, Paint(cells, sets: [0, null])[0]);
 
-        // A group dragged whole is one set: still one panel.
-        Assert.False(Paint(cells, ["g", "g"], sets: [1, 1])[0].DrawsRight);
+        // A block dragged whole is one set: still one panel.
+        Assert.False(Paint(cells, sets: [1, 1])[0].DrawsRight);
     }
 
     [Fact]
-    public void S2249_a_lone_card_beside_a_group_keeps_its_own_corners()
+    public void S2249_a_card_that_takes_no_part_beside_a_panel_keeps_its_own_corners()
     {
-        // A wide member over a narrow mate and a lone card: only the corner over the mate is square.
+        // A wide card over a narrow neighbour and a card that joins nothing (an icon, a bare widget): only the corner
+        // over the neighbour is square.
         PixelRect[] cells = [new(0, 0, 200, 100), new(0, 100, 100, 50), new(100, 100, 100, 50)];
-        var p = Paint(cells, ["g", "g", null]);
+        var p = Paint(cells, sets: [0, 0, null]);
         Assert.False(p[0].RoundBottomLeft);
         Assert.True(p[0].RoundBottomRight);
         Assert.Equal(CardOutline.Free, p[2]);
     }
 
     [Fact]
-    public void S11880_a_card_that_never_joins_is_free_beside_its_group_mates()
+    public void S11880_a_card_that_never_joins_is_free_beside_the_cards_it_touches()
     {
-        // A desktop icon (WidgetTraits.NeverJoins) takes no part in joins whatever its fill, even grouped.
+        // A desktop icon (WidgetTraits.NeverJoins) takes no part in joins whatever its fill.
         Assert.False(CardJoins.Joins(Themia.Sdk.WidgetTraits.NeverJoins, drawsSurface: true));
         Assert.False(CardJoins.Joins(Themia.Sdk.WidgetTraits.StartsTransparent | Themia.Sdk.WidgetTraits.NeverJoins, drawsSurface: true));
         Assert.True(CardJoins.Joins(Themia.Sdk.WidgetTraits.None, drawsSurface: true));
         Assert.False(CardJoins.Joins(Themia.Sdk.WidgetTraits.None, drawsSurface: false));
 
         PixelRect[] cells = [new(0, 0, 100, 100), new(100, 0, 100, 100)];
-        Assert.All(Paint(cells, ["g", "g"], sets: [null, null]), o => Assert.Equal(CardOutline.Free, o));
+        Assert.All(Paint(cells, sets: [null, null]), o => Assert.Equal(CardOutline.Free, o));
     }
 
     [Fact]
@@ -160,14 +157,14 @@ public sealed class GroupJoinTests
         Assert.Equal(8, CardJoins.ClipRadius(Themia.Sdk.WidgetTraits.None, drawsSurface: false, 8));
     }
 
-    // ---- [S-11810] the group's frame ----
+    // ---- [S-11810] the box round several cards ----
 
     [Theory]
     [InlineData(1)]
     [InlineData(1.5)]
     [InlineData(1.25)]
     [InlineData(2)]
-    public void S11810_S2453_a_groups_frame_is_round_its_members_cells_on_the_grids_lines(double scale)
+    public void S11810_the_box_round_several_cards_is_round_their_cells_on_the_grids_lines(double scale)
     {
         var screen = new ScreenMetrics(2560 / 1.5, 1440 / 1.5);
         var (cols, rows) = GridGeometry.GridDims(screen);
@@ -176,7 +173,7 @@ public sealed class GroupJoinTests
 
         var frame = CardJoins.Frame(cells)!.Value;
 
-        // The members' cells, the edges each one's own markers are centred on and the cards are painted to.
+        // The cards' cells, the edges each one's own markers are centred on and the cards are painted to.
         Assert.Equal(cells.Min(c => c.X), frame.X, 9);
         Assert.Equal(cells.Max(c => c.X + c.Width), frame.X + frame.Width, 9);
         Assert.Equal(cells.Min(c => c.Y), frame.Y, 9);
@@ -192,6 +189,6 @@ public sealed class GroupJoinTests
     }
 
     [Fact]
-    public void S11810_no_member_no_frame()
+    public void S11810_no_card_no_box()
         => Assert.Null(CardJoins.Frame([]));
 }

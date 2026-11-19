@@ -139,7 +139,7 @@ internal sealed partial class DesktopWindow
 
         try
         {
-            if (Win32.GetForegroundWindow() != _hwnd && !Win32.SetForegroundWindow(_hwnd))
+            if (!TakeForeground())
             {
                 Log.Info(Scope, "could not take the foreground for the add page; typing will not reach its search");
             }

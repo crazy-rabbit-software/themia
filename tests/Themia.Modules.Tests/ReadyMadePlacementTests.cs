@@ -34,7 +34,7 @@ public sealed class ReadyMadePlacementTests
 
     [Theory]
     [MemberData(nameof(Placements))]
-    public void S2471_every_offered_ready_made_group_lands_whole_as_one_group(string id, int screenAt, bool gridSizes)
+    public void S2471_every_offered_ready_made_group_lands_whole_as_loose_widgets(string id, int screenAt, bool gridSizes)
     {
         var recipe = ReadyMadeGroups.Find(id)!;
         var screen = Screens[screenAt];
@@ -49,21 +49,23 @@ public sealed class ReadyMadePlacementTests
         Assert.Equal(recipe.Widgets.Count, plan.NetAdded(state));
 
         state.ApplyPlacement(plan, state.Views[0].Id);
-        WidgetGroups.Settle(state);
 
+        // [S-2475] Loose widgets like any others, every one of them what the placement selects.
         var view = state.Views[0];
         Assert.Equal(recipe.Widgets.Select(w => w.Kind), view.Widgets.Select(w => w.Kind.Value));
-        var group = Assert.Single(view.Groups);
-        Assert.Equal(recipe.Widgets.Count, WidgetGroups.Members(view, group.Id).Count);
+        Assert.Equal(view.Widgets.Select(w => w.Id), plan.Roots);
         Assert.Empty(AppStateStore.Validate(state));
         Assert.All(view.Widgets, w => Assert.True(w.Rect.IsFinite && w.Rect.W > 0 && w.Rect.H > 0, $"{id}: {w.Kind.Value} has no box"));
+        var written = Themia.Core.Storage.SettingsTransfer.Serialize(state);
+        Assert.DoesNotContain("\"group\":", written, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"groups\":", written, StringComparison.Ordinal);
 
-        // Selected whole, its page is the group's.
+        // Selected together, their page is several widgets': what they share and their look.
         var selection = new WidgetSelection();
         selection.Replace(view.Id, plan.Roots);
         var page = SelectionPage.Of(state, selection, view.Id);
         Assert.NotNull(page);
-        Assert.Equal(SelectionKind.Group, page.Kind);
+        Assert.Equal(SelectionKind.Several, page.Kind);
     }
 
     /// <summary>The content scales a display places with.</summary>
@@ -136,7 +138,7 @@ public sealed class ReadyMadePlacementTests
                 foreach (var raster in Rasters)
                 {
                     var cells = plan.Added.Select(w => GridGeometry.ToPixels(w.Rect, screen, raster)).ToArray();
-                    var outlines = CardJoins.Paint(cells, [.. cells.Select(_ => (int?)0)], [.. plan.Added.Select(w => w.Group)], raster);
+                    var outlines = CardJoins.Paint(cells, [.. cells.Select(_ => (int?)0)], raster);
                     foreach (var (a, b) in neighbours)
                     {
                         var (ka, kb) = (plan.Added[a].Kind.Value, plan.Added[b].Kind.Value);

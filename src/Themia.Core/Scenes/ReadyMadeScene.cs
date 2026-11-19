@@ -29,7 +29,6 @@ public static class ReadyMadeScene
         ArgumentNullException.ThrowIfNull(recipe);
         ArgumentNullException.ThrowIfNull(states);
 
-        var name = recipe.Name.Text();
         var widgets = recipe.Widgets.Select((w, i) => new SceneWidget(
             $"$.readyMade.{recipe.Id}.widgets[{i}]",
             recipe.Widgets.Take(i).Any(o => o.Kind == w.Kind) ? $"{w.Kind}-{i}" : w.Kind,
@@ -38,10 +37,10 @@ public static class ReadyMadeScene
             State: states.TryGetValue(w.Kind, out var state) ? state : null,
             Label: w.Label,
             Config: w.Fragment,
-            Group: name)).ToList();
+            Selected: edit)).ToList();
 
-        // A selection's page hangs from the bar's entry ([S-2343]): edit mode is the bar, the group selected.
-        var scene = new Scene(recipe.Id.ToLowerInvariant(), theme, string.Empty, Wallpaper, widgets, edit ? new SceneEdit(Bar: true, Group: name) : null, Scale: 1, Taskbar: true);
+        // A selection's page hangs from the bar's entry ([S-2343]): edit mode is the bar, the placed widgets selected ([S-2475]).
+        var scene = new Scene(recipe.Id.ToLowerInvariant(), theme, string.Empty, Wallpaper, widgets, edit ? new SceneEdit(Bar: true) : null, Scale: 1, Taskbar: true);
         return new SceneFile(SceneScreen.Default, [scene]);
     }
 }

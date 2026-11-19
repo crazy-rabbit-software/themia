@@ -115,7 +115,7 @@ internal sealed partial class DesktopWindow
         }
 
         // [S-11959] Kept apart in edit mode and on the locked desktop alike: whatever moves (a selection, whole
-        // groups, icons among cards) never lands over a card that stays.
+        // icons among cards) never lands over a card that stays.
         _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id))
         {
             Apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card)) : null,

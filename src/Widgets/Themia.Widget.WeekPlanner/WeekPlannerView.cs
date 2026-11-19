@@ -39,7 +39,7 @@ namespace Themia.App.Widgets;
 /// is <see cref="WeekPlannerRules"/>.
 /// </para>
 /// </summary>
-internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetJoins
+internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware
 {
     /// <inheritdoc />
     public CardOpen? Opens => WeekPlannerModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
@@ -85,9 +85,6 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
 
     /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
-
-    /// <summary>[S-12483] [S-12800] The rows stand at the foot where only the foot is joined, so the last meets the mate under it.</summary>
-    public void ApplyJoins(JoinedSides sides) => _content.VerticalAlignment = NaturalBlock.Alignment(sides.Rows);
 
     public WeekPlannerView(IWidgetHost host)
     {

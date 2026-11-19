@@ -1,3 +1,5 @@
+using Themia.Core.Geometry;
+
 namespace Themia.Core.Shell;
 
 /// <summary>What to do with the widget surface's z-order right now.</summary>
@@ -179,7 +181,44 @@ public static class ZOrderPolicy
     /// <param name="ownPlacement">Whether the controller itself is placing the surface right now.</param>
     public static ZMove Move(bool lifted, bool ownPlacement)
         => !lifted ? ZMove.ToAnchor : ownPlacement ? ZMove.Allow : ZMove.KeepOrder;
+
+    /// <summary>
+    /// [S-34f] Whether a surface may take the foreground (a key's way to it: the add page from
+    /// Ctrl+Alt+Shift+W, the settings on a second start, edit mode's focus): never while a full-screen
+    /// app covers its display from above. The surface stays under that app whatever it does, so the
+    /// foreground would give it nothing the user can see, and it would tell the shell and a dock (Karpo,
+    /// its §702 and §705) that the full-screen app is no longer the display's front: their bars came back
+    /// over the video. A click on the surface never meets this: what it clicked was on screen.
+    /// </summary>
+    /// <param name="display">The surface's display, whole, in physical pixels.</param>
+    /// <param name="above">Every window above the surface in the z-order.</param>
+    public static bool MayTakeForeground(PixelRect display, ReadOnlySpan<AboveWindow> above)
+    {
+        foreach (var window in above)
+        {
+            if (window.OnScreen && !window.Own && !window.MaximizedWithCaption && Covers(window.Rect, display))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>[S-34f] Whether <paramref name="window"/> reaches every edge of <paramref name="display"/> (a full-screen app runs to all four, and past them on some).</summary>
+    public static bool Covers(PixelRect window, PixelRect display)
+        => display.Width > 0 && display.Height > 0
+            && window.X <= display.X && window.Y <= display.Y
+            && window.X + window.Width >= display.X + display.Width
+            && window.Y + window.Height >= display.Y + display.Height;
 }
+
+/// <summary>[S-34f] One window above a surface, as <see cref="ZOrderPolicy.MayTakeForeground"/> sees it.</summary>
+/// <param name="Rect">Where it is, in physical pixels.</param>
+/// <param name="OnScreen">Visible, not minimised, not cloaked, and not click-through (an overlay drawn over a whole display, a recorder's or a game bar's, is no app in front).</param>
+/// <param name="Own">One of this app's windows (a surface, its flyouts).</param>
+/// <param name="MaximizedWithCaption">Maximised with a title bar: it covers a display only where nothing holds a strip there, and is no full-screen app.</param>
+public readonly record struct AboveWindow(PixelRect Rect, bool OnScreen, bool Own, bool MaximizedWithCaption);
 
 /// <summary>[S-33g] What becomes of a z-order move asked of a surface.</summary>
 public enum ZMove

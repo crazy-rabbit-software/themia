@@ -114,7 +114,7 @@ public static partial class SettingsMenu
             TokenSlider(host, key, "trackOpacity", Str.SettingsPages_Look_Track, Glyphs.Gauge, Percent),
         ]);
 
-    /// <summary>[S-2141] Layout: the list rows' dividers and a divider's strength (a glass group's too).</summary>
+    /// <summary>[S-2141] Layout: the list rows' dividers and a divider's strength (a glass body's too).</summary>
     private static SettingsSubmenu Layout(ISettingsMenuHost host, string key)
         => new(key, Str.SettingsPages_Look_Layout.Text(), Glyphs.ListLayout,
         [

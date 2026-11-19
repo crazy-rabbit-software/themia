@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Microsoft.UI.Dispatching;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Shell;
 
 namespace Themia.App.Interop;
@@ -466,6 +467,52 @@ internal static unsafe class DesktopZOrder
 
         // The z-order moved under the walk and the surface was missed: the event of that move asks again.
         return self < 0 ? new LiftPlace(LiftMove.Stay, -1) : ZOrderPolicy.Lift(CollectionsMarshal.AsSpan(Walk), self);
+    }
+
+    /// <summary>
+    /// [S-34f] Whether the surface <paramref name="hwnd"/> may take the foreground: no full-screen app
+    /// covers <paramref name="display"/> from above it (<see cref="ZOrderPolicy.MayTakeForeground"/>).
+    /// Walks up from the surface; the windows are read as they are now.
+    /// </summary>
+    public static bool MayTakeForeground(nint hwnd, Win32.Rect display)
+    {
+        if (!Win32.IsWindow(hwnd))
+        {
+            return false;
+        }
+
+        var above = new List<AboveWindow>();
+        var next = Win32.GetWindow(hwnd, Win32.GwHwndPrev);
+        for (var hops = 0; next != 0 && hops < WalkLimit; hops++)
+        {
+            if (Win32.GetWindowRect(next, out var rect))
+            {
+                bool own;
+                lock (Gate)
+                {
+                    own = OriginalProcs.ContainsKey(next);
+                }
+
+                var style = (uint)Win32.GetWindowLongPtr(next, Win32.GwlStyle);
+                var ex = (uint)Win32.GetWindowLongPtr(next, Win32.GwlExStyle);
+                above.Add(new AboveWindow(
+                    PixelRect.FromEdges(rect.Left, rect.Top, rect.Right, rect.Bottom),
+                    OnScreen: Win32.IsWindowVisible(next) && !Win32.IsIconic(next) && !ShellSignals.IsCloaked(next)
+                        && (ex & Win32.WsExTransparent) == 0,
+                    Own: own || (Win32.GetWindowThreadProcessId(next, out var process) != 0 && process == (uint)Environment.ProcessId),
+                    MaximizedWithCaption: Win32.IsZoomed(next) && (style & Win32.WsCaption) == Win32.WsCaption));
+            }
+
+            next = Win32.GetWindow(next, Win32.GwHwndPrev);
+        }
+
+        var allowed = ZOrderPolicy.MayTakeForeground(PixelRect.FromEdges(display.Left, display.Top, display.Right, display.Bottom), CollectionsMarshal.AsSpan(above));
+        if (!allowed)
+        {
+            Log.Debug(Scope, "a full-screen app covers this display: the surface leaves it the foreground");
+        }
+
+        return allowed;
     }
 
     /// <summary>[S-34d] One repair from the allowance; the first refusal is logged.</summary>

@@ -12,7 +12,7 @@ public enum CardSide
 }
 
 /// <summary>
-/// [S-11870] A stretch of a side the card leaves without a line because a member of its own group lies
+/// [S-11870] A stretch of a side the card leaves without a line because a card it joins lies
 /// across it: <paramref name="From"/> and <paramref name="To"/> are fractions of the side's length
 /// from its physical start (the left end of the top and the bottom, the top end of the left and the
 /// right), so the outline needs no size and mirrors without one.
@@ -23,7 +23,7 @@ public readonly record struct OutlineSeam(CardSide Side, double From, double To)
 /// [S-2241] What a card draws of its outline once its neighbours are known: which of its four corners
 /// are round and which of its four border sides are drawn. Physical sides (left is the screen's
 /// left); a card laid out right to left takes <see cref="Mirrored"/>. [S-11870] A side drawn may still
-/// leave out the stretches in <see cref="Seams"/>, where a member of the card's own group lies across.
+/// leave out the stretches in <see cref="Seams"/>, where a card it joins lies across.
 /// </summary>
 public readonly record struct CardOutline(
     bool RoundTopLeft,
@@ -44,14 +44,6 @@ public readonly record struct CardOutline(
 
     /// <summary>The seams, none when the outline has none.</summary>
     private IReadOnlyList<OutlineSeam> SeamList => Seams ?? [];
-
-    /// <summary>
-    /// [S-12482] The top and the foot a group mate joins, as the card tells its view: a side left wholly to
-    /// mates (not drawn) or crossed by one along a stretch (a seam). Physical, so the same in either flow.
-    /// </summary>
-    public Themia.Sdk.Kit.JoinedSides Joined => new(
-        !DrawsTop || SeamList.Any(s => s.Side == CardSide.Top),
-        !DrawsBottom || SeamList.Any(s => s.Side == CardSide.Bottom));
 
     /// <summary>The same outline seen from a right-to-left flow, where the start is the physical right.</summary>
     public CardOutline Mirrored() => new(
@@ -93,7 +85,7 @@ public readonly record struct CardOutline(
     /// All four drawn whole is one closed figure; none drawn is none.
     /// <para>
     /// [S-11871] A seam breaks its side into runs. A run that stops at a seam runs on into it by the
-    /// stroke, under the end of the line the group mate across draws down its own side to that edge,
+    /// stroke, under the end of the line the neighbour across draws down its own side to that edge,
     /// so the two meet with no notch.
     /// </para>
     /// </summary>
@@ -272,6 +264,26 @@ public readonly record struct CardOutline(
     }
 }
 
+/// <summary>
+/// [S-12483] Where a card's view stands inside its cell: under the family's inset at the top ([S-5700]), none
+/// for a view that owns its top edge (a picture drawn to it); the view gives its sides and foot ([S-12800]).
+/// Never the card's outline: joining (<see cref="CardJoins"/>) changes the cards' chrome, square corners, one
+/// outline, a closed seam, one glass body, never the content's place, insets or size (owner, 2026-11-17: "the
+/// widgets now change their internal layout when connecting to other widgets. this should not be done").
+/// </summary>
+public static class CardContent
+{
+    /// <summary>How far under the card's top edge its view starts.</summary>
+    public static double TopInset(bool ownsTopEdge) => ownsTopEdge ? 0 : Themia.Sdk.Kit.FamilySpace.Inset;
+
+    /// <summary>The view's box inside a card's <paramref name="cell"/>: the cell less its top inset.</summary>
+    public static PixelRect Box(PixelRect cell, bool ownsTopEdge)
+    {
+        var top = Math.Min(cell.Height, TopInset(ownsTopEdge));
+        return new PixelRect(cell.X, cell.Y + top, cell.Width, cell.Height - top);
+    }
+}
+
 /// <summary>[S-2123] A hairline between two members of one glass shape, from (X1, Y1) to (X2, Y2) in the card's own DIPs.</summary>
 public readonly record struct DividerLine(double X1, double Y1, double X2, double Y2);
 
@@ -285,11 +297,11 @@ public readonly record struct OutlineSegment(double X, double Y, double ArcRadiu
 public sealed record OutlineFigure(double StartX, double StartY, IReadOnlyList<OutlineSegment> Segments, bool Closed);
 
 /// <summary>
-/// [S-2240] [S-2241] [S-11870] Members of one group that touch become one surface (owner, 2026-11-15:
-/// "the space between widgets will only come from how you place them now"): two members whose boxes
-/// meet along a side are joined there, the corners a joined mate covers are square and neither draws
-/// the line between. Cards of no group (or of two) that touch stay separate cards, every corner round.
-/// Pure: boxes in, an outline per card out, so the desktop and the scene renderer agree on every case.
+/// [S-2240] [S-2241] [S-11870] Cards that touch become one surface (owner, 2026-11-17: "the widgets should
+/// connect when the edges of them touch"): two cards whose boxes meet along a side are joined there, the
+/// corners a joined neighbour covers are square and neither draws the line between. There are no groups:
+/// any two cards that meet join, a desktop icon never (<see cref="Joins"/>). Pure: boxes in, an outline per
+/// card out, so the desktop and the scene renderer agree on every case.
 /// </summary>
 public static class CardJoins
 {
@@ -316,16 +328,15 @@ public static class CardJoins
     /// <see cref="CardOutline.Free"/>, and joins nothing.
     /// <para>
     /// [S-2457] <paramref name="sets"/>, when given, says which set each card is in: two cards join only
-    /// within one set. The cards a drag carries are a set of their own, so a dragged group stays one
+    /// within one set. The cards a drag carries are a set of their own, so a dragged block stays one
     /// panel while it moves, free of the cards standing still.
     /// </para>
     /// <para>
-    /// [S-2240] [S-11870] <paramref name="groups"/> says which group each card is a member of (null:
-    /// none); only two members of one group join (none without it). A side wholly across its mates is
-    /// not drawn, a side partly across them leaves those stretches out (<see cref="CardOutline.Seams"/>).
+    /// [S-11870] A side wholly across its neighbours is not drawn, a side partly across them leaves those
+    /// stretches out (<see cref="CardOutline.Seams"/>).
     /// </para>
     /// </summary>
-    public static CardOutline[] Outlines(IReadOnlyList<PixelRect?> boxes, double tolerance, IReadOnlyList<int>? sets = null, IReadOnlyList<string?>? groups = null)
+    public static CardOutline[] Outlines(IReadOnlyList<PixelRect?> boxes, double tolerance, IReadOnlyList<int>? sets = null)
     {
         ArgumentNullException.ThrowIfNull(boxes);
         if (sets is not null && sets.Count != boxes.Count)
@@ -333,17 +344,9 @@ public static class CardJoins
             throw new ArgumentException("one set per box", nameof(sets));
         }
 
-        if (groups is not null && groups.Count != boxes.Count)
-        {
-            throw new ArgumentException("one group per box", nameof(groups));
-        }
-
         var tol = double.IsFinite(tolerance) && tolerance > 0 ? tolerance : 0;
         var n = boxes.Count;
         var joins = new List<Join>();
-
-        // [S-2240] Only members of one group join: cards of no group (or of two) that touch stay two cards.
-        bool Mates(int a, int b) => groups is not null && groups[a] is { } g && string.Equals(g, groups[b], StringComparison.Ordinal);
 
         for (var i = 0; i < n; i++)
         {
@@ -354,7 +357,7 @@ public static class CardJoins
 
             for (var j = i + 1; j < n; j++)
             {
-                if (boxes[j] is not { } b || (sets is not null && sets[i] != sets[j]) || !Mates(i, j))
+                if (boxes[j] is not { } b || (sets is not null && sets[i] != sets[j]))
                 {
                     continue;
                 }
@@ -373,7 +376,7 @@ public static class CardJoins
             return outlines;
         }
 
-        // The spans of the group mates joined along each side of each card, in the side's own axis.
+        // The spans of the neighbours joined along each side of each card, in the side's own axis.
         var spans = new List<(double From, double To)>[n, 4];
         void Add(int card, CardSide side, int other)
         {
@@ -409,7 +412,7 @@ public static class CardJoins
             bool ReachesStart(List<(double From, double To)>? s, double at) => s is not null && s.Exists(x => x.From <= at + tol);
             bool ReachesEnd(List<(double From, double To)>? s, double at) => s is not null && s.Exists(x => x.To >= at - tol);
 
-            // [S-11870] A side drawn leaves out what lies across its group mates; wholly across them it is not drawn.
+            // [S-11870] A side drawn leaves out what lies across its neighbours; wholly across them it is not drawn.
             var seams = new List<OutlineSeam>();
             bool Draws(CardSide side)
             {
@@ -469,24 +472,22 @@ public static class CardJoins
     /// <summary>
     /// [S-2249] The outline each card of a surface is painted with. A card paints its whole cell (there
     /// is no gap between widgets: the space between them is where they are placed, owner 2026-11-15), so
-    /// the cells join as they are ([S-2240], [S-11870]): members of one group (in one
-    /// <paramref name="sets"/> set) whose cells meet ([S-2248]) are one sheet, every other card is
-    /// free. A null set is a card that joins nothing (<see cref="Joins"/> false: no card surface, a
+    /// the cells join as they are ([S-2240], [S-11870]): cards in one <paramref name="sets"/> set whose
+    /// cells meet ([S-2248]) are one sheet, every other card is free. A null set is a card that joins nothing (<see cref="Joins"/> false: no card surface, a
     /// desktop icon; hidden; being resized). <paramref name="cells"/> are the cells as drawn
     /// (<see cref="GridGeometry.ToPixels"/> at <paramref name="rasterScale"/>), so a shared edge is one
     /// device pixel in both.
     /// </summary>
-    public static CardOutline[] Paint(IReadOnlyList<PixelRect> cells, IReadOnlyList<int?> sets, IReadOnlyList<string?> groups, double rasterScale)
+    public static CardOutline[] Paint(IReadOnlyList<PixelRect> cells, IReadOnlyList<int?> sets, double rasterScale)
     {
         ArgumentNullException.ThrowIfNull(cells);
         ArgumentNullException.ThrowIfNull(sets);
-        ArgumentNullException.ThrowIfNull(groups);
-        if (sets.Count != cells.Count || groups.Count != cells.Count)
+        if (sets.Count != cells.Count)
         {
-            throw new ArgumentException("one set and one group per cell");
+            throw new ArgumentException("one set per cell");
         }
 
-        return Outlines([.. cells.Select((p, i) => sets[i] is null ? (PixelRect?)null : p)], Tolerance(rasterScale), [.. sets.Select(s => s ?? -1)], groups);
+        return Outlines([.. cells.Select((p, i) => sets[i] is null ? (PixelRect?)null : p)], Tolerance(rasterScale), [.. sets.Select(s => s ?? -1)]);
     }
 
     /// <summary>
@@ -510,10 +511,8 @@ public static class CardJoins
         => traits.HasFlag(Themia.Sdk.WidgetTraits.NeverJoins) && !drawsSurface ? 0 : radius;
 
     /// <summary>
-    /// [S-11810] [S-2453] A group's frame: the box round its members' cells as drawn (each on whole device
-    /// pixels, <see cref="GridGeometry.ToPixels"/>), the edges a lone widget's own markers are centred on
-    /// ([S-31b]), so the group's marks stand as far from its outer cards as a widget's from its card, on the
-    /// same device pixels; at gap 0 the cells are the painted boxes and the grid's lines. Null for no member.
+    /// [S-11810] The box round several cells as drawn (each on whole device pixels,
+    /// <see cref="GridGeometry.ToPixels"/>): a glass body round the cards it joins. Null for none.
     /// </summary>
     public static PixelRect? Frame(IEnumerable<PixelRect> cells)
     {
@@ -530,21 +529,20 @@ public static class CardJoins
     }
 
     /// <summary>
-    /// [S-2123] Which glass shape each card is part of, for Liquid glass: members of one group whose painted boxes
-    /// meet (within one set, <see cref="Paint"/>'s painted boxes) are one body, the box round them all, and each
+    /// [S-2123] Which glass shape each card is part of, for Liquid glass: cards whose painted boxes meet (within
+    /// one set, the painted boxes), and every card they meet in turn, are one body, the box round them all, and each
     /// pair that meets gets one hairline divider on the upper or left card's side across their shared stretch,
     /// <paramref name="dividerInset"/> short of the body's outer edge at either end that reaches it (a T inside the
-    /// body runs on). A card of no group, in no set, or touching no mate is a body of its own with no divider.
+    /// body runs on). A card in no set, or touching no card, is a body of its own with no divider.
     /// Divider lines are in the card's own DIPs from its painted box's corner.
     /// </summary>
-    public static GlassPart[] Bodies(IReadOnlyList<PixelRect> painted, IReadOnlyList<int?> sets, IReadOnlyList<string?> groups, double rasterScale, double dividerInset)
+    public static GlassPart[] Bodies(IReadOnlyList<PixelRect> painted, IReadOnlyList<int?> sets, double rasterScale, double dividerInset)
     {
         ArgumentNullException.ThrowIfNull(painted);
         ArgumentNullException.ThrowIfNull(sets);
-        ArgumentNullException.ThrowIfNull(groups);
-        if (sets.Count != painted.Count || groups.Count != painted.Count)
+        if (sets.Count != painted.Count)
         {
-            throw new ArgumentException("one set and one group per box");
+            throw new ArgumentException("one set per box");
         }
 
         var tol = Tolerance(rasterScale);
@@ -558,8 +556,7 @@ public static class CardJoins
         {
             for (var j = i + 1; j < n; j++)
             {
-                if (sets[i] is not { } si || sets[j] != si || groups[i] is not { } g || !string.Equals(g, groups[j], StringComparison.Ordinal)
-                    || Meeting(painted[i], painted[j], tol) is not { } meeting)
+                if (sets[i] is not { } si || sets[j] != si || Meeting(painted[i], painted[j], tol) is not { } meeting)
                 {
                     continue;
                 }

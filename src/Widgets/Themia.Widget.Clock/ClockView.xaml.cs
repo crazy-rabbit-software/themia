@@ -31,7 +31,7 @@ namespace Themia.App.Widgets;
 /// larger card is a larger clock and never a band round a small one. The dial is planned in the whole box.
 /// </para>
 /// </summary>
-public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned, IWidgetJoins
+public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned
 {
     /// <inheritdoc />
     public CardOpen? Opens => ClockModule.Opens;
@@ -179,33 +179,16 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     private (double Width, double Height) ContentBox()
     {
         var width = _area.Width - (2 * FamilySpace.Inset);
-        var height = _area.Height - _joins.Foot;
+        var height = _area.Height - FamilySpace.Inset;
         if (_config.Style != ClockStyle.Analog)
         {
             var meridiem = RegionFormat.Current.Use24Hour ? string.Empty : ClockFormatter.WidestMeridiem(Strings.Current);
             var natural = ClockFace.Sizing(_config, meridiem).Natural;
             width = Math.Min(width, natural.Width - (2 * FamilySpace.Inset));
-            height = Math.Min(height, natural.Height - FamilySpace.Inset - _joins.Foot);
+            height = Math.Min(height, natural.Height - FamilySpace.Inset - FamilySpace.Inset);
         }
 
         return (Math.Max(0, width), Math.Max(0, height));
-    }
-
-    /// <summary>[S-12483] The sides a group mate joins, as the card last told.</summary>
-    private Themia.Sdk.Kit.JoinedSides _joins;
-
-    /// <summary>[S-12483] The face meets a joined side: no foot inset under it there, the block at that side.</summary>
-    public void ApplyJoins(Themia.Sdk.Kit.JoinedSides sides)
-    {
-        _joins = sides;
-        Root.Padding = Family.Inset with { Top = 0, Bottom = sides.Foot };
-        _fit.VerticalAlignment = sides.Block switch
-        {
-            Themia.Sdk.Kit.BlockEdge.Top => VerticalAlignment.Top,
-            Themia.Sdk.Kit.BlockEdge.Bottom => VerticalAlignment.Bottom,
-            _ => VerticalAlignment.Center,
-        };
-        Lay();
     }
 
     /// <summary>Plan the face for the area and the style, then draw the instant into it.</summary>

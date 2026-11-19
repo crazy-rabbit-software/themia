@@ -154,33 +154,6 @@ public static class SceneParser
             throw Refuse(path, $"the widget at {selected.Path} is selected, but the scene has no \"edit\"");
         }
 
-        // [S-2458] A group holds two or more widgets; the edit block selects one, or enters one with a member.
-        foreach (var name in scene.Groups)
-        {
-            if (scene.Widgets.Count(w => string.Equals(w.Group, name, StringComparison.Ordinal)) < 2)
-            {
-                throw Refuse(path, $"the group \"{name}\" holds one widget: a group holds two or more");
-            }
-        }
-
-        if (scene.Edit is { Group: { } selectsGroup } && !scene.Groups.Contains(selectsGroup, StringComparer.Ordinal))
-        {
-            throw Refuse(path + ".edit.group", $"no widget is in a group \"{selectsGroup}\"");
-        }
-
-        if (scene.Edit is { Enter: { } enters })
-        {
-            if (scene.Edit.Group is not null)
-            {
-                throw Refuse(path + ".edit", "\"group\" selects a group whole and \"enter\" one member inside it: one of the two");
-            }
-
-            if (scene.Widgets.FirstOrDefault(w => string.Equals(w.Id, enters, StringComparison.Ordinal)) is not { Group: not null })
-            {
-                throw Refuse(path + ".edit.enter", $"\"{enters}\" is no widget of a group in the scene");
-            }
-        }
-
         if (scene.Edit is { Open: not null } && !scene.Selected.Any())
         {
             throw Refuse(path, "\"edit.open\" opens a submenu of the properties menu, but no widget is selected");
@@ -399,7 +372,7 @@ public static class SceneParser
 
     private static SceneEdit Edit(JsonElement element, string path)
     {
-        var props = Properties(element, path, "bar", "open", "add", "group", "enter");
+        var props = Properties(element, path, "bar", "open", "add");
         string? open = null;
         if (props.TryGetValue("open", out var o))
         {
@@ -413,15 +386,13 @@ public static class SceneParser
         return new SceneEdit(
             props.TryGetValue("bar", out var bar) ? Bool(bar, path + ".bar") : true,
             open,
-            props.TryGetValue("add", out var add) && Bool(add, path + ".add"),
-            props.TryGetValue("group", out var group) ? Text(group, path + ".group") : null,
-            props.TryGetValue("enter", out var enter) ? Text(enter, path + ".enter") : null);
+            props.TryGetValue("add", out var add) && Bool(add, path + ".add"));
     }
 
     /// <summary>
     /// [S-11860] One entry of a scene's widgets: a widget, or a ready-made group by its id
     /// (<c>{ "readyMade": "thisPc", "at": [x, y] }</c>), which stands for the group's widgets where the
-    /// recipe puts them, as one group.
+    /// recipe puts them, loose widgets as placing leaves them ([S-2475]).
     /// </summary>
     private static IEnumerable<SceneWidget> Entry(JsonElement element, string path, SceneScreen screen)
         => element.ValueKind == JsonValueKind.Object && element.TryGetProperty("readyMade", out _)
@@ -431,13 +402,13 @@ public static class SceneParser
     /// <summary>
     /// [S-11860] A ready-made group in a scene: every widget of the recipe at its box from the entry's
     /// point, with the recipe's config and label, named <c>id-kind</c> (a second of a kind
-    /// <c>id-kind-n</c>; the id is the entry's, else the recipe's), in one group named as the entry says,
-    /// else as the recipe is called. <c>states</c> gives a kind its preview state. So a picture of a group
-    /// is the group the add page places, never a copy of its boxes.
+    /// <c>id-kind-n</c>; the id is the entry's, else the recipe's), loose widgets as placing leaves them
+    /// ([S-2475]); <c>selected</c> selects all of them. <c>states</c> gives a kind its preview state. So a
+    /// picture of a group is the group the add page places, never a copy of its boxes.
     /// </summary>
     private static IEnumerable<SceneWidget> ReadyMade(JsonElement element, string path, SceneScreen screen)
     {
-        var props = Properties(element, path, "readyMade", "at", "id", "group", "states");
+        var props = Properties(element, path, "readyMade", "at", "id", "selected", "states");
         var recipeId = Text(props["readyMade"], path + ".readyMade");
         var recipe = ReadyMadeGroups.Find(recipeId)
             ?? throw Refuse(path + ".readyMade", $"no ready-made group \"{recipeId}\" (has: {string.Join(", ", ReadyMadeGroups.All.Select(r => r.Id))})");
@@ -456,7 +427,7 @@ public static class SceneParser
         var x = Number(point[0], path + ".at[0]");
         var y = Number(point[1], path + ".at[1]");
         var prefix = props.TryGetValue("id", out var id) ? Id(id, path + ".id") : recipe.Id;
-        var group = props.TryGetValue("group", out var named) ? GroupName(named, path + ".group") : recipe.Name.Text();
+        var selected = props.TryGetValue("selected", out var selects) && Bool(selects, path + ".selected");
 
         var states = new Dictionary<string, string>(StringComparer.Ordinal);
         if (props.TryGetValue("states", out var statesElement))
@@ -496,7 +467,7 @@ public static class SceneParser
                 State: states.TryGetValue(part.Kind, out var chosen) ? chosen : null,
                 Label: part.Label,
                 Config: part.Fragment,
-                Group: group));
+                Selected: selected));
         }
 
         return widgets;
@@ -505,7 +476,7 @@ public static class SceneParser
     private static SceneWidget Widget(JsonElement element, string path, SceneScreen screen)
     {
         var props = Properties(element, path,
-            "id", "kind", "at", "state", "style", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected", "group");
+            "id", "kind", "at", "state", "style", "background", "items", "itemText", "scale", "align", "label", "bare", "config", "selected");
 
         if (!props.TryGetValue("kind", out var kindElement))
         {
@@ -540,15 +511,7 @@ public static class SceneParser
             Label: props.TryGetValue("label", out var label) ? Text(label, path + ".label") : null,
             Bare: props.TryGetValue("bare", out var bare) && Bool(bare, path + ".bare"),
             Config: props.TryGetValue("config", out var config) ? Config(config, path + ".config") : null,
-            Selected: props.TryGetValue("selected", out var selected) && Bool(selected, path + ".selected"),
-            Group: props.TryGetValue("group", out var group) ? GroupName(group, path + ".group") : null);
-    }
-
-    /// <summary>[S-2458] A group's name in a scene: any text that is not blank.</summary>
-    private static string GroupName(JsonElement element, string path)
-    {
-        var text = Text(element, path);
-        return text.Trim().Length > 0 ? text : throw Refuse(path, "a group's name is not blank");
+            Selected: props.TryGetValue("selected", out var selected) && Bool(selected, path + ".selected"));
     }
 
     /// <summary>[S-1079] A widget's name in its scene, for what points at it (the store's pages): letters, digits and '-'.</summary>

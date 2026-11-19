@@ -8,8 +8,7 @@ namespace Themia.Core.Desktop;
 /// be able to move the desktop icons but not any other widgets"): while <see cref="AppPreferences.LockWidgets"/> is on,
 /// a move on the locked desktop ([S-2008], [S-11879]) carries desktop icons only. A widget pressed and dragged stays
 /// where it is (the press stays its own click or gesture); a mixed selection's move carries its icons and leaves its
-/// widgets; a group ([S-11885]) is one unit, so a group holding any widget stays whole, its icons too. Edit mode
-/// moves everything: editing is explicit. Pure.
+/// widgets. Edit mode moves everything: editing is explicit. Pure.
 /// </summary>
 public static class WidgetLock
 {
@@ -26,8 +25,8 @@ public static class WidgetLock
     public static bool Holds(bool lockWidgets, bool editMode, bool isIcon) => lockWidgets && !editMode && !isIcon;
 
     /// <summary>
-    /// Whether the widget <paramref name="widgetId"/> of <paramref name="view"/> cannot be moved now: its unit (itself,
-    /// or its whole group, [S-2451]) holds a widget the lock holds. False for an id the view does not hold.
+    /// Whether the widget <paramref name="widgetId"/> of <paramref name="view"/> cannot be moved now: the lock holds
+    /// it. False for an id the view does not hold.
     /// </summary>
     public static bool Pins(ViewState view, string widgetId, bool lockWidgets, bool editMode)
     {
@@ -38,13 +37,12 @@ public static class WidgetLock
             return false;
         }
 
-        var unit = WidgetGroups.Unit(view, widgetId);
-        return view.Widgets.Any(w => unit.Contains(w.Id, StringComparer.Ordinal) && Holds(lockWidgets, editMode, IsIcon(w)));
+        return view.Find(widgetId) is { } widget && Holds(lockWidgets, editMode, IsIcon(widget));
     }
 
     /// <summary>
-    /// What of <paramref name="ids"/> (a move's widgets, in whole units) may move: all of them unless the lock holds,
-    /// then only the units that are desktop icons alone, in their order.
+    /// What of <paramref name="ids"/> (a move's widgets) may move: all of them unless the lock holds, then only the
+    /// desktop icons, in their order.
     /// </summary>
     public static List<string> Movable(ViewState view, IReadOnlyList<string> ids, bool lockWidgets, bool editMode)
     {

@@ -89,7 +89,7 @@ public static partial class SettingsMenu
 
     /// <summary>
     /// [S-3571] The free allowance as readings, the way Windows reads out storage: "12 of 20" widgets
-    /// (every view, groups and their members included) and "2 of 2" views.
+    /// (every view and its widgets) and "2 of 2" views.
     /// </summary>
     private static IEnumerable<SettingsLine> Allowance(ISettingsMenuHost host)
     {

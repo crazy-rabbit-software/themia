@@ -45,7 +45,7 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
             Render);
         BuildChart();
 
-        // [S-11600] The sides and the foot are edge to edge; the top is the card's (the inset, none where a group mate joins it).
+        // [S-11600] The sides and the foot are edge to edge; the top is the card's (the inset).
         _chart.Visibility = Visibility.Collapsed;
         Children.Add(_chart);
         Children.Add(_state);

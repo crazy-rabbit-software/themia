@@ -18,7 +18,7 @@ namespace Themia.Widget.Date;
 /// card is a larger date, never a band round it. The family's inset at the sides and the foot (the card gives the
 /// top); a mate joined under it takes the foot ([S-12483]). Turns over within a minute of midnight.
 /// </summary>
-internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWidgetJoins
+internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
 {
     private readonly TextBlock _line = Family.Text(FamilyType.Big40);
     private readonly TextBlock _weekday = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
@@ -43,7 +43,8 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
 
         _fit.Child = _face;
         Children.Add(_fit);
-        ApplyJoins(JoinedSides.Free);
+        Padding = Family.SideInset with { Bottom = FamilySpace.Inset };
+        _fit.VerticalAlignment = VerticalAlignment.Center;
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -67,13 +68,6 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
     {
         _align = align;
         Lay();
-    }
-
-    /// <summary>[S-12483] [S-12800] The sides keep the inset, the foot too unless a mate joins it; the face meets a joined side.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        Padding = Family.SideInset with { Bottom = sides.Foot };
-        _fit.VerticalAlignment = NaturalBlock.Alignment(sides.Block);
     }
 
     public void Detach()

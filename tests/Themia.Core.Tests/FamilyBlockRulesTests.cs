@@ -322,8 +322,8 @@ public sealed class FamilyBlockRulesTests
             Assert.Empty(tile.Problems());
             Assert.Equal(tile, TileRules.Sizing(TileLook.Round, stateLine));
 
-            // The least is the family's smallest glyph in the inset ([S-12806]); the most is large on both axes, each free.
-            Assert.Equal(new SizeDip(40, 40), tile.Min);
+            // The least is the app's floor, one grid cell ([S-12806], [S-08]); the most is large on both axes, each free.
+            Assert.Equal(new SizeDip(WidgetSizing.Floor, WidgetSizing.Floor), tile.Min);
             Assert.Equal(new SizeDip(TileRules.MaxSide, TileRules.MaxSide), tile.Max);
             Assert.True(TileRules.MaxSide >= 400);
         }
@@ -344,7 +344,8 @@ public sealed class FamilyBlockRulesTests
     public void S12806_under_the_glyphs_inset_the_inset_gives_way_and_the_glyph_shrinks_to_the_smallest()
     {
         // Owner, 2026-11-17: "they should not really have a smallest size at all".
-        Assert.Equal(40, TileRules.MinSide);
+        Assert.Equal(WidgetSizing.Floor, TileRules.MinSide);
+        Assert.Equal(10, WidgetSizing.Floor);
         Assert.Equal((28.0, 6.0), (TileRules.Face(40, 40).MarkSize, TileRules.Face(40, 40).Inset));
         Assert.Equal((16.0, 4.0), (TileRules.Face(24, 24).MarkSize, TileRules.Face(24, 24).Inset));
         Assert.Equal((16.0, 6.0), (TileRules.Face(28, 60).MarkSize, TileRules.Face(28, 60).Inset));
@@ -352,13 +353,17 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal((28.0, 10.0), (TileRules.Face(48, 48).MarkSize, TileRules.Face(48, 48).Inset));
         Assert.Equal((28.0, 12.0), (TileRules.Face(52, 52).MarkSize, TileRules.Face(52, 52).Inset));
 
-        // Every box from the least: the glyph alone fits its inset, never under 4, and grows with the box.
+        // Under the 16's room the glyph is two thirds of the box, the inset the rest.
+        Assert.Equal((6.0, 2.0), (TileRules.Face(10, 10).MarkSize, TileRules.Face(10, 10).Inset));
+        Assert.Equal((13.0, 3.0), (TileRules.Face(20, 20).MarkSize, TileRules.Face(20, 20).Inset));
+
+        // Every box from the floor: the glyph alone fits its inset (4 from the 16's room on), and grows with the box.
         var last = 0.0;
-        for (var side = 24.0; side < 60; side++)
+        for (var side = TileRules.MinSide; side < 60; side++)
         {
             var face = TileRules.Face(side, side);
             Assert.False(face.Texted);
-            Assert.True(face.Inset >= TileRules.TightInset && face.MarkSize + (2 * face.Inset) <= side, $"{side}: {face}");
+            Assert.True(face.Inset >= (side >= 24 ? TileRules.TightInset : 1) && face.MarkSize + (2 * face.Inset) <= side && face.MarkSize > 0, $"{side}: {face}");
             Assert.True(face.MarkSize >= last, $"{side}: shrank");
             last = face.MarkSize;
         }

@@ -25,7 +25,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private EditBarState ToolbarState()
     {
-        // [S-2341] [S-11754] The selection's entry: a group's name and glyph, else the kind's or the count.
+        // [S-2341] The selection's entry: the kind's name and glyph, or the count.
         BarSelection? selection = null;
         if (_selectionModel is { } model && SelectionPage.Words(model, id => ModuleCatalog.Of(id).Name) is { } words)
         {

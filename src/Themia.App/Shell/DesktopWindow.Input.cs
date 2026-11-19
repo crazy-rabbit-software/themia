@@ -182,7 +182,7 @@ internal sealed partial class DesktopWindow
 
         // Asking is not enough: the surface has to actually be the foreground window before Windows
         // routes a keystroke to it. The click that granted the lease is what lets it ask.
-        if (!_host.EditMode && Win32.GetForegroundWindow() != _hwnd && !Win32.SetForegroundWindow(_hwnd))
+        if (!_host.EditMode && !TakeForeground())
         {
             return false;
         }
@@ -261,7 +261,7 @@ internal sealed partial class DesktopWindow
             return true;
         }
 
-        if (Win32.GetForegroundWindow() != _hwnd && !Win32.SetForegroundWindow(_hwnd))
+        if (!TakeForeground())
         {
             return false;
         }
@@ -269,6 +269,16 @@ internal sealed partial class DesktopWindow
         _root.Focus(FocusState.Programmatic);
         return true;
     }
+
+    /// <summary>
+    /// [S-34f] The one way a surface takes the foreground: never while a full-screen app covers its
+    /// display from above (<see cref="DesktopZOrder.MayTakeForeground"/>), where it would still be
+    /// under that app and only tell the shell and a dock that the app is no longer in front. True when
+    /// the surface is the foreground window.
+    /// </summary>
+    internal bool TakeForeground()
+        => Win32.GetForegroundWindow() == _hwnd
+            || (DesktopZOrder.MayTakeForeground(_hwnd, _monitor.Bounds) && Win32.SetForegroundWindow(_hwnd));
 
     /// <summary>[S-5550] A key while the empty desktop holds them: the desktop's items take it; Escape ends the hold.</summary>
     private void RouteDesktopKey(KeyRoutedEventArgs args, KeyPhase phase)

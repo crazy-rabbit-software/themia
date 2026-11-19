@@ -108,7 +108,7 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-11702] [S-421] A tile was picked: the page closes and the placement session starts, the ghost
-    /// of the widget, of every widget of the group, or of the desktop item's widget under the pointer.
+    /// of the widget, of every widget of the recipe, or of the desktop item's widget under the pointer.
     /// The licence gate is the session's own ([S-1065]).
     /// </summary>
     private void PickFromAddPage(AddTile tile)
@@ -120,7 +120,7 @@ internal sealed partial class DesktopWindow
                 _host.BeginPlacement(one.Kind);
                 break;
             case AddGroupTile group:
-                // [S-2471] One click, one new group.
+                // [S-2471] One click places the recipe: loose widgets, selected together ([S-2475]).
                 _host.BeginPlacement(PlacementPayload.ForReadyMade(group.Group));
                 break;
             case AddItemTile item:

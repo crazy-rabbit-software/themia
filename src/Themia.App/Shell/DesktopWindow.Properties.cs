@@ -8,8 +8,8 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-2340]..[S-2343] [S-11754]..[S-11757] The selection's entry on this display's edit bar and its page:
-/// selecting a widget (or a group) adds its entry and opens its flyout, once per selection (closed by the
+/// [S-2340]..[S-2343] [S-11754] [S-11755] The selection's entry on this display's edit bar and its page:
+/// selecting widgets adds their entry and opens its flyout, once per selection (closed by the
 /// user it stays closed; a click on the widget again opens it again). While the pointer holds a widget (a
 /// press, a drag, a resize) nothing opens; the page opens when the pointer lets go.
 /// </summary>
@@ -43,10 +43,6 @@ internal sealed partial class DesktopWindow
         SetBackgroundImage: path => _host.SetBackgroundImage(ids, path))
     {
         SharedLines = SharedLinesOf,
-        RenameGroup = _host.RenameGroup,
-        Group = _host.GroupSelected,
-        Ungroup = _host.UngroupSelected,
-        OpenGroup = _host.SelectGroupOfEntered,
     };
 
     /// <summary>[S-3719] One widget's own lines over its live config, asking on the flyout.</summary>
@@ -163,7 +159,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var key = string.Join(",", _host.Selection.Ids.Order(StringComparer.Ordinal)) + "|" + _host.Selection.Entered;
+        var key = string.Join(",", _host.Selection.Ids.Order(StringComparer.Ordinal));
         (_selectionShown, var opens) = SelectionPage.Flyout(_selectionShown, key, _host.Placing is not null, _propertiesHeld);
         if (opens)
         {

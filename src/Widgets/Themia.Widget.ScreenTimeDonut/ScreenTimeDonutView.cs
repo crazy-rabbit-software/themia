@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// kept per app across reads: a read moves its arc and its tip, and only a new app gets a new one.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetJoins
+internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
@@ -109,13 +109,6 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         Children.Add(_nav.Line);
         Children.Add(_ring);
         Children.Add(_empty);
-    }
-
-    /// <summary>[S-12483] The ring meets a foot a group mate joins: at its foot, the inset there none.</summary>
-    public void ApplyJoins(JoinedSides sides)
-    {
-        _ring.VerticalAlignment = sides.Block == BlockEdge.Bottom ? VerticalAlignment.Bottom : VerticalAlignment.Top;
-        _ring.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, sides.Foot);
     }
 
     /// <summary>[S-454] Back to today, while a past day is pinned.</summary>

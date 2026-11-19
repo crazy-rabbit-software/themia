@@ -19,8 +19,8 @@ namespace Themia.App.Widgets;
 /// now (a hairline and a dot on the line) and the figures at the marked slots. Geometry is <see cref="HourGraphRules"/>'s;
 /// every kind draws through this one part so they read as one family. Time runs left to right in every language.
 /// <para>
-/// [S-12800] It keeps the family's inset at the sides and the foot only: the card gives its top ([S-5700]), and a
-/// group mate joined under it takes the foot (<see cref="Join"/>), so stacked graphs meet as one widget's parts.
+/// [S-12800] It keeps the family's inset at the sides and the foot only: the card gives its top ([S-5700]), the same
+/// joined or alone ([S-12483]).
 /// </para>
 /// </summary>
 public sealed partial class HourGraph : Grid
@@ -38,7 +38,7 @@ public sealed partial class HourGraph : Grid
     public HourGraph()
     {
         FlowDirection = FlowDirection.LeftToRight;
-        Join(JoinedSides.Free);
+        Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -81,9 +81,6 @@ public sealed partial class HourGraph : Grid
 
         _plot.SizeChanged += (_, _) => Draw();
     }
-
-    /// <summary>[S-12482] [S-12800] The sides' inset and the foot's: none where a group mate joins the foot.</summary>
-    public void Join(JoinedSides sides) => Margin = Family.SideInset with { Bottom = sides.Foot };
 
     /// <summary>Draw <paramref name="model"/>; the plot is drawn again whenever its box changes.</summary>
     public void Show(HourGraphModel model)
