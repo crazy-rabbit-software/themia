@@ -31,6 +31,7 @@ internal static class RenderFlags
         "--drop-check",
         DeskSelectCheck.Flag,
         "--family-check",
+        InlineCheckRender.Flag,
         "--clock-style-check",
         DesktopRender.Flag,
         SceneRender.Flag,

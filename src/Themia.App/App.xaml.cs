@@ -270,6 +270,12 @@ public partial class App : Application
             return;
         }
 
+        // And every widget's inline box, open over its rest state: nothing moves ([S-13950]).
+        if (Shell.Gallery.InlineCheckRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And a live clock handed every style in turn ([S-6016]).
         if (Shell.Gallery.ClockStyleRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

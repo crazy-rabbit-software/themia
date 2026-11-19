@@ -72,6 +72,8 @@ Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store
            # a scene widget may carry "selected": true; a "readyMade" entry too (all its widgets) [S-11860]
 Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>] [--theme light|dark] [--edit]   # a ready-made
            # group placed, as a scene; --edit: edit mode, the placed widgets selected; no state: its "sample" preview [S-2475]
+Themia.exe --inline-check <out.txt>   # every widget's inline box (add row, rename, title, search) open over its rest
+           # state at min, natural and max: a finding per part that moved, grew or went; exit 1 on any [S-13950]
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
            [--icon-census]   # beside each PNG <png>.icons.json: every icon drawn and its box; then
            # python scripts/icon-clip-check.py <dir> names each icon cut by its box, measured on the PNG [S-2377]
