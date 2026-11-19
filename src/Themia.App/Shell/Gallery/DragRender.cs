@@ -79,7 +79,7 @@ internal static class DragRender
                         screen.Background = wall;
                         await MoveAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-move-{tag}-{wallName}.png")).ConfigureAwait(true);
                         await LassoAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-lasso-{tag}-{wallName}.png")).ConfigureAwait(true);
-                        await FencesAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-fences-{tag}-{wallName}.png")).ConfigureAwait(true);
+                        await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-{tag}-{wallName}.png")).ConfigureAwait(true);
                         foreach (var size in new[] { DesktopIconSize.Small, DesktopIconSize.Medium, DesktopIconSize.Large })
                         {
                             await IconsAsync(screen, ticker, metrics, scale, size, System.IO.Path.Combine(outDir, $"drag-icons-{size.ToString().ToLowerInvariant()}-{tag}-{wallName}.png")).ConfigureAwait(true);
@@ -99,7 +99,7 @@ internal static class DragRender
                     foreach (var (wallName, wall) in Wallpapers())
                     {
                         screen.Background = wall;
-                        await FencesAsync(screen, ticker, metrics, System.IO.Path.Combine(outDir, $"drag-fences-glass-{tag}-{wallName}.png")).ConfigureAwait(true);
+                        await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-glass-{tag}-{wallName}.png")).ConfigureAwait(true);
                     }
                 }
 
@@ -213,55 +213,102 @@ internal static class DragRender
     }
 
     /// <summary>
-    /// [S-13000] [S-13007] [S-13011] [S-13012] Fences on the locked desktop: one with two items selected among the free
-    /// icons' selection (the desktop's one look in both), one rolled up to its title bar, and the rectangle a right-drag
-    /// draws to make one, in the band's look.
+    /// [S-13000] [S-13007] [S-13012] [S-13040] [S-13042] [S-13043] Fences on the locked desktop, over the widget grid drawn
+    /// faintly to judge the cells: each a region of the desktop icon grid whose items are the desktop's own icon cards, laid
+    /// by Core's one layout (<see cref="DesktopFences.Lay"/>) beside free icons on the same grid: one with two items selected,
+    /// one rolled up to its title bar, one with more items than it shows scrolled a row (its thumb), free icons on the same
+    /// rows and columns, and the rectangle a right-drag draws to make one, in the band's look.
     /// </summary>
-    private static async Task FencesAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, string path)
+    private static async Task FencesAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, string path)
     {
         screen.Children.Clear();
         DesktopCell.Apply(DesktopIconSize.Medium);
         var host = new NoticeRender.RenderCardHost(ticker);
+        var grid = new SnapGridOverlay();
+        grid.Draw(metrics, scale);
+        screen.Children.Add(grid);
         var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
         screen.Children.Add(layer);
 
-        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.04, 0, 0), "thisPc").ConfigureAwait(true);
-        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.26, 0, 0), "selected").ConfigureAwait(true);
-        await IconAsync(layer, host, metrics, new FracRect(0.02, 0.48, 0, 0), "recycleBin").ConfigureAwait(true);
+        if (ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IHoldsDesktopItems).IsAssignableFrom(d.ConfigType)) is not { } fenceKind
+            || ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType)) is not { } iconKind)
+        {
+            return;
+        }
 
-        var work = GridGeometry.Settle(new FracRect(0.14, 0.04, 0.27, 0.46), metrics);
-        await FenceAsync(layer, host, metrics, work, "selected").ConfigureAwait(true);
-        var rolled = GridGeometry.Settle(new FracRect(0.45, 0.04, 0.25, 0.06), metrics);
-        await FenceAsync(layer, host, metrics, rolled, "rolledUp").ConfigureAwait(true);
-        var many = GridGeometry.Settle(new FracRect(0.73, 0.04, 0.25, 0.5), metrics);
-        await FenceAsync(layer, host, metrics, many, "many").ConfigureAwait(true);
+        var box = DesktopGrid.IconSize(DesktopCell.Grid(DesktopCell.Current), metrics);
+        var (cols, rows) = GridGeometry.GridDims(metrics);
+        FracRect Cells(int c, int r, double w, double h) => new(c / (double)cols, r / (double)rows, w, h);
+
+        // Free icons in a column at the work area's edge, and one on the row of the fence's first cells, past it.
+        var view = ViewState.Create("render");
+        var states = new Dictionary<string, string>(StringComparer.Ordinal);
+        WidgetInstance Icon(FracRect at, string state)
+        {
+            var icon = WidgetInstance.Create(iconKind.Id, at with { W = box.W, H = box.H });
+            ((IDesktopItemConfig)icon.Config).Item = $@"C:\Users\Public\Desktop\render {view.Widgets.Count}.txt";
+            view.Widgets.Add(icon);
+            states[icon.Id] = state;
+            return icon;
+        }
+
+        Icon(Cells(1, 1, 0, 0), "thisPc");
+        Icon(Cells(1, 1 + (int)Math.Round(box.H * rows), 0, 0), "selected");
+        Icon(Cells(1, 1 + (2 * (int)Math.Round(box.H * rows)), 0, 0), "recycleBin");
+
+        WidgetInstance Fence(FracRect at, int count, string[] looks, Action<IHoldsDesktopItems> set)
+        {
+            var fence = WidgetInstance.Create(fenceKind.Id, at);
+            var held = (IHoldsDesktopItems)fence.Config;
+            held.Name = "Work";
+            view.Widgets.Add(fence);
+            for (var i = 0; i < count; i++)
+            {
+                var icon = Icon(at, looks[i % looks.Length]);
+                held.Items.Add(((IDesktopItemConfig)icon.Config).Item);
+            }
+
+            set(held);
+            return fence;
+        }
+
+        var across = (int)Math.Round(box.W * cols);
+        var down = (int)Math.Round(box.H * rows);
+        var title = FenceGrid.TitleCells;
+        Fence(Cells(1 + across, 1, 3 * box.W, 0), 6, ["document", "selected", "folder", "twoWords", "link", "selected"], _ => { });
+        Icon(Cells(1 + (4 * across), 1 + title, 0, 0), "document");
+        Fence(Cells(2 + (5 * across), 1, 3 * box.W, 0), 6, ["document"], f => f.RolledUp = true);
+        Fence(Cells(2 + (5 * across), 1 + (2 * title), 3 * box.W, (title / (double)rows) + (2 * box.H)), 20, ["document", "folder", "link", "twoWords", "longName"], f => f.Scroll = 1);
+        foreach (var on in DesktopFences.On(view))
+        {
+            if (!on.Fence.RolledUp && on.Widget.H <= 0)
+            {
+                on.Widget.H = (title / (double)rows) + (2 * box.H);
+            }
+        }
+
+        DesktopFences.Lay(view, metrics, box);
+        var hidden = DesktopFences.Hidden(view, metrics, box);
+        foreach (var widget in DesktopFences.PaintOrder(view).Where(w => !hidden.Contains(w.Id)))
+        {
+            var card = new WidgetCard(host, widget);
+            Place(layer, card, widget.Rect, metrics);
+            if (states.TryGetValue(widget.Id, out var state) && card.View is IWidgetPreviewState preview)
+            {
+                await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
+            }
+        }
 
         // The rectangle a right-drag on empty desktop draws before "Create fence here".
-        var band = new Border { Width = 0.3 * ScreenWidth, Height = 0.3 * ScreenHeight, IsHitTestVisible = false };
+        var band = new Border { Width = 0.3 * ScreenWidth, Height = 0.25 * ScreenHeight, IsHitTestVisible = false };
         SelectionChrome.PaintBand(band);
         Canvas.SetLeft(band, 0.4 * ScreenWidth);
-        Canvas.SetTop(band, 0.62 * ScreenHeight);
+        Canvas.SetTop(band, 0.68 * ScreenHeight);
         layer.Children.Add(band);
 
         await Task.Delay(900).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"drag: wrote {path}");
-    }
-
-    /// <summary>A fence at <paramref name="rect"/> in a preview state.</summary>
-    private static async Task FenceAsync(Canvas layer, IWidgetCardHost host, ScreenMetrics metrics, FracRect rect, string state)
-    {
-        if (ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IHoldsDesktopItems).IsAssignableFrom(d.ConfigType)) is not { } kind)
-        {
-            return;
-        }
-
-        var card = new WidgetCard(host, WidgetInstance.Create(kind.Id, rect));
-        Place(layer, card, rect, metrics);
-        if (card.View is IWidgetPreviewState preview)
-        {
-            await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
-        }
     }
 
     /// <summary>[S-11875] [S-11876] Twelve icons at <paramref name="size"/> packed on the widget grid round a clock, the grid drawn to judge them.</summary>
