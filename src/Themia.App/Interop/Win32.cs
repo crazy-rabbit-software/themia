@@ -137,6 +137,10 @@ internal static partial class Win32
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool SetForegroundWindow(nint hWnd);
 
+    /// <summary>[S-13017] A mouse button's physical state now (VK_LBUTTON 0x01, VK_RBUTTON 0x02): the high bit set while it is down.</summary>
+    [LibraryImport("user32.dll")]
+    internal static partial short GetAsyncKeyState(int virtualKey);
+
     /// <summary>
     /// [S-66] Let <paramref name="processId"/> take the foreground: a second start, which the user
     /// just launched and so may, hands that right to the copy that opens its menu.

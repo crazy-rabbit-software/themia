@@ -10373,6 +10373,14 @@ against the DESKTOP section's rules; what it found missing is here.
   Move", "Undo New folder", "Undo New", "Undo Shortcut"; Ctrl+Z beside it), after Paste shortcut, while Ctrl+Z would take
   back one of the desktop's file steps ([S-5597], [S-13102]); an arrangement's step (a move of icons) gets no line, as
   Explorer's has none. Tests `DesktopFileUndoTests.S13103_`, `DesktopEdgeTests.S5548_S13103_`.
+- **[S-13017]** **The first press after another app drags** (the owner, 2026-11-19: "sometimes when dragging on the
+  desktop immediately after i was in a different application i have to click twice for the drag to work"): a press on
+  a card, an icon or empty desktop gives the keys to the desktop (a card's lease, [S-800]; the empty desktop's hold,
+  [S-5550]), which needs the surface to be the foreground window. Taken during the press, the activation took the
+  pointer from what had just captured it (the band, a move), so the drag ended at once; Explorer's desktop starts it on
+  the first press. The surface now takes the foreground (and the focus that needs it) when the press lets go
+  (`DesktopWindow.TakeForeground`: deferred while a mouse button is down, run on the release or the next move with no
+  button down, if the keys are still meant for it). Win32 focus: **not confirmed on a live desktop**.
 - **[S-13104]** **Ctrl+Shift+C** copies the selected files' paths, quoted, a line each, as Explorer's Copy as path
   (`FileMenuEntries.CopyAsPath`, the menu line's own).
 

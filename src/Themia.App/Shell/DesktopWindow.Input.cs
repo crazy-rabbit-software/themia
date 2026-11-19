@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Interop;
+using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
@@ -180,21 +181,25 @@ internal sealed partial class DesktopWindow
 
         ApplyInteractivity();
 
-        // Asking is not enough: the surface has to actually be the foreground window before Windows
-        // routes a keystroke to it. The click that granted the lease is what lets it ask.
-        if (!_host.EditMode && !TakeForeground())
-        {
-            return false;
-        }
-
         // A click on a row's button leaves focus on the button, which still bubbles keys up to the
         // root; a click on plain text leaves focus wherever it was, so the root takes it.
-        if (!FocusIsIn(card))
+        void FocusRoot()
         {
-            _root.Focus(FocusState.Programmatic);
+            if (!FocusIsIn(card))
+            {
+                _root.Focus(FocusState.Programmatic);
+            }
         }
 
-        return true;
+        if (_host.EditMode)
+        {
+            FocusRoot();
+            return true;
+        }
+
+        // Asking is not enough: the surface has to actually be the foreground window before Windows
+        // routes a keystroke to it. The click that granted the lease is what lets it ask.
+        return TakeForeground(FocusRoot);
     }
 
     /// <summary>
@@ -261,24 +266,82 @@ internal sealed partial class DesktopWindow
             return true;
         }
 
-        if (!TakeForeground())
-        {
-            return false;
-        }
-
-        _root.Focus(FocusState.Programmatic);
-        return true;
+        return TakeForeground(() => _root.Focus(FocusState.Programmatic));
     }
 
     /// <summary>
     /// [S-34f] The one way a surface takes the foreground: never while a full-screen app covers its
     /// display from above (<see cref="DesktopZOrder.MayTakeForeground"/>), where it would still be
     /// under that app and only tell the shell and a dock that the app is no longer in front. True when
-    /// the surface is the foreground window.
+    /// the surface is the foreground window (or will be when the press that asked lets go).
+    /// <para>
+    /// [S-13017] Never in the middle of a press: activating the surface while a button is held (the first
+    /// press after the user was in another app) takes the pointer from the card or the band that captured
+    /// it, so the drag that press began died and a second press was needed. Explorer's desktop starts the
+    /// drag on the first press; so does this: the foreground (and <paramref name="then"/>, the focus that
+    /// needs it) waits till the press lets go (<see cref="RunForegroundAfterPress"/>), when it is still wanted.
+    /// </para>
     /// </summary>
-    internal bool TakeForeground()
-        => Win32.GetForegroundWindow() == _hwnd
-            || (DesktopZOrder.MayTakeForeground(_hwnd, _monitor.Bounds) && Win32.SetForegroundWindow(_hwnd));
+    internal bool TakeForeground(Action? then = null)
+    {
+        if (Win32.GetForegroundWindow() == _hwnd)
+        {
+            then?.Invoke();
+            return true;
+        }
+
+        if (!DesktopZOrder.MayTakeForeground(_hwnd, _monitor.Bounds))
+        {
+            return false;
+        }
+
+        if (PressHeld())
+        {
+            _afterPress = then ?? (static () => { });
+            return true;
+        }
+
+        if (!Win32.SetForegroundWindow(_hwnd))
+        {
+            return false;
+        }
+
+        then?.Invoke();
+        return true;
+    }
+
+    /// <summary>[S-13017] What waits for the press to let go before the surface takes the foreground; null when nothing does.</summary>
+    private Action? _afterPress;
+
+    /// <summary>[S-13017] Whether a mouse button is down now (the physical state, so the order of the press's handlers does not matter).</summary>
+    private static bool PressHeld() => Win32.GetAsyncKeyState(0x01) < 0 || Win32.GetAsyncKeyState(0x02) < 0;
+
+    /// <summary>
+    /// [S-13017] The press let go (a release, or a move with no button down after a drag the shell ran): the surface
+    /// takes the foreground it was asked for during the press, if the keys are still meant for it.
+    /// </summary>
+    private void RunForegroundAfterPress()
+    {
+        if (_afterPress is not { } then || _closed || PressHeld())
+        {
+            return;
+        }
+
+        _afterPress = null;
+        if (!_host.EditMode && !ReferenceEquals(_host.KeyboardSurface, this) && !ReferenceEquals(_host.DesktopKeysSurface, this))
+        {
+            return;
+        }
+
+        if (Win32.GetForegroundWindow() == _hwnd || Win32.SetForegroundWindow(_hwnd))
+        {
+            then();
+        }
+        else
+        {
+            Log.Info(Scope, "the surface could not take the foreground after the press; the keys stay with the window that has it");
+        }
+    }
 
     /// <summary>[S-5550] A key while the empty desktop holds them: the desktop's items take it; Escape ends the hold.</summary>
     private void RouteDesktopKey(KeyRoutedEventArgs args, KeyPhase phase)
