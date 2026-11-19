@@ -24,6 +24,12 @@ public sealed class AppPreferences
     public DesktopIconSize DesktopIconSize { get; set; } = DesktopIconSize.Medium;
 
     /// <summary>
+    /// [S-13970] How every desktop icon lays out its name (text below, text beside, icon only): one layout for every
+    /// desktop icon on every display and in every fence, never an icon's own. Text below by default, as Explorer's.
+    /// </summary>
+    public DesktopIconLayout DesktopIconLayout { get; set; } = DesktopIconLayout.Below;
+
+    /// <summary>
     /// [S-12950] Lock widgets: outside edit mode a widget is not moved by a drag, only desktop icons are
     /// (<see cref="Themia.Core.Desktop.WidgetLock"/>). Off by default; edit mode moves everything either way.
     /// </summary>
@@ -54,6 +60,7 @@ public sealed class AppPreferences
         Language = Language,
         GameModeSuspend = GameModeSuspend,
         DesktopIconSize = DesktopIconSize,
+        DesktopIconLayout = DesktopIconLayout,
         LockWidgets = LockWidgets,
         Region = Region.Clone(),
         Refresh = Refresh.Clone(),

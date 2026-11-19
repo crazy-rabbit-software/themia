@@ -544,6 +544,13 @@ public sealed class AppStateStore : IAsyncDisposable
             repairs.Add("unknown desktop icon size; medium icons");
         }
 
+        // [S-13970] A number that names no icon layout (the names are read strictly) is text below, Explorer's.
+        if (!Enum.IsDefined(state.Preferences.DesktopIconLayout))
+        {
+            state.Preferences.DesktopIconLayout = Themia.Sdk.DesktopIconLayout.Below;
+            repairs.Add("unknown desktop icon layout; text below the icons");
+        }
+
         // [S-1575] The recent colours: what is no colour dropped, each once, one line at most.
         var recent = Themia.Core.Settings.ColourPicker.Recent(state.Preferences.RecentColours);
         if (state.Preferences.RecentColours is null || !recent.SequenceEqual(state.Preferences.RecentColours))

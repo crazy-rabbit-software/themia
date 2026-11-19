@@ -67,8 +67,9 @@ internal sealed partial class AppHost : IDisposable
         // [S-3770] [S-3780] The shared regional formats and update cadences, before any widget or sync reads them.
         StartRegion();
 
-        // [S-5593] The desktop's icon size, before any sizing is read or any icon drawn.
+        // [S-5593] [S-13970] The desktop's icon size and layout, before any sizing is read or any icon drawn.
         Themia.Sdk.DesktopCell.Apply(State.Preferences.DesktopIconSize);
+        Themia.Sdk.DesktopCell.Apply(State.Preferences.DesktopIconLayout);
 
         // [S-2447] What each widget's sizing is as loaded: a later config change is compared with it.
         // [S-854] After the language, the regional formats and the icon size, which sizings read (a

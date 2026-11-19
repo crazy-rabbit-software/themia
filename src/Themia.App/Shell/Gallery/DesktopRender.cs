@@ -25,7 +25,10 @@ namespace Themia.App.Shell.Gallery;
 /// target, a cut and a hidden item, a name on two lines and one cut short, the rename box, and the
 /// desktop's band (<see cref="SelectionChrome.PaintBand"/>) half over them.
 /// [S-5593] <c>--icon-size small|medium|large</c> draws them at that desktop icon size (medium without
-/// it), the files named <c>desktop-&lt;size&gt;-…</c> for the other two. [S-5610] Under the icons, the
+/// it), the files named <c>desktop-&lt;size&gt;-…</c> for the other two. [S-13970] <c>--icon-layout
+/// below|beside|icononly</c> draws them in that icon layout (text below without it), the files named
+/// <c>desktop-&lt;layout&gt;-&lt;size&gt;-…</c> for the other two; icon only's names on hover, focus and rename stand
+/// over the icons under them, on the overhang plate over every card ([S-13975]). [S-5610] Under the icons, the
 /// tips some of them show, as boxes: a tip is a popup, which a render cannot catch.
 /// </summary>
 internal static class DesktopRender
@@ -72,11 +75,27 @@ internal static class DesktopRender
             return true;
         }
 
+        // [S-13970] The desktop's icon layout for this render: the cell and where the name stands follow it.
+        var layoutAt = Array.IndexOf(args, "--icon-layout");
+        var layout = DesktopIconLayout.Below;
+        if (layoutAt >= 0 && (layoutAt + 1 >= args.Length || !Enum.TryParse(args[layoutAt + 1], ignoreCase: true, out layout) || !Enum.IsDefined(layout)))
+        {
+            Log.Error(Scope, "usage: --icon-layout below|beside|icononly");
+            app.Exit();
+            return true;
+        }
+
         DesktopCell.Apply(size);
-        var grid = DesktopCell.Grid(size);
+        DesktopCell.Apply(layout);
+        var grid = DesktopCell.Grid(size, layout);
+
+        // [S-13974] Room under the last row for icon only's names, which stand past their cells.
+        var hangRoom = DesktopCell.NameOverhangs(layout) ? (DesktopCell.HoverLines * Themia.Sdk.Kit.FamilyType.CaptionLine) + Cell : 0;
         var ScreenWidth = (2 * Cell) + (5 * grid.Width);
-        var ScreenHeight = (2 * Cell) + (4 * grid.Height) + TipsHeight;
-        var prefix = size == DesktopIconSize.Medium ? "desktop" : $"desktop-{size.ToString().ToLowerInvariant()}";
+        var ScreenHeight = (2 * Cell) + (4 * grid.Height) + hangRoom + TipsHeight;
+        var prefix = layout != DesktopIconLayout.Below
+            ? $"desktop-{layout.ToString().ToLowerInvariant()}-{size.ToString().ToLowerInvariant()}"
+            : size == DesktopIconSize.Medium ? "desktop" : $"desktop-{size.ToString().ToLowerInvariant()}";
         _ = dispatcher.TryEnqueue(async () =>
         {
             Window? window = null;
@@ -122,6 +141,15 @@ internal static class DesktopRender
                             }
                         }
 
+                        // [S-13975] What the icons draw past their cells, over every card, as the surface's plate.
+                        var hangs = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+                        foreach (var card in layer.Children.OfType<WidgetCard>().ToList())
+                        {
+                            hangs.Children.Add(card.OverhangPlate);
+                        }
+
+                        layer.Children.Add(hangs);
+
                         // [S-5544] The band from empty desktop, half over the first columns' middle rows.
                         var band = new Border { Width = 150, Height = 150, IsHitTestVisible = false };
                         SelectionChrome.PaintBand(band);
@@ -137,7 +165,7 @@ internal static class DesktopRender
                         }
 
                         Canvas.SetLeft(tips, Cell);
-                        Canvas.SetTop(tips, Cell + (4 * grid.Height) + Cell);
+                        Canvas.SetTop(tips, Cell + (4 * grid.Height) + hangRoom + Cell);
                         layer.Children.Add(tips);
                         screen.Children.Add(layer);
 

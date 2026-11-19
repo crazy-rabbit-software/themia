@@ -21,8 +21,9 @@ namespace Themia.Widget.DesktopItem;
 
 /// <summary>
 /// [S-5600]..[S-5609] [S-9500] One desktop icon as Explorer's desktop draws one, for both sources (a
-/// desktop item, an own icon): its icon over its name (legible over any wallpaper, [S-6733]) in the
-/// desktop's one cell (<see cref="DesktopCell"/>), in the desktop icon's selection look
+/// desktop item, an own icon): its icon and its name (legible over any wallpaper, [S-6733]) in the
+/// desktop's one cell (<see cref="DesktopCell"/>) and its one icon layout ([S-13970]: the name below the icon,
+/// beside it, or shown on hover alone), in the desktop icon's selection look
 /// (<see cref="SelectionLook.DesktopIcon"/>, [S-6627]), on no card.
 /// <para>
 /// One behaviour for both: every gesture is the desktop's ([S-5540]..[S-5549]). A press, a key, a
@@ -43,7 +44,8 @@ namespace Themia.Widget.DesktopItem;
 /// <para>
 /// Split by concern: this file owns the lifecycle, the gestures, the drawing and the rename box;
 /// <c>.Own.cs</c> an own icon's checks and tooltip ([S-9504], [S-9510]); <c>.Icon.cs</c> the icon
-/// ([S-5609], [S-9503]); <c>.Drop.cs</c> the drops ([S-5587], [S-9508]); <c>.Links.cs</c> its view's links.
+/// ([S-5609], [S-9503]); <c>.Drop.cs</c> the drops ([S-5587], [S-9508]); <c>.Links.cs</c> its view's links;
+/// <c>.Layout.cs</c> the icon layout and icon only's name past the cell ([S-13970]..[S-13975]).
 /// </para>
 /// </summary>
 internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, IWidgetSurfaceAware, IWidgetDropTarget, IWidgetTopEdge, IDesktopIconView
@@ -58,14 +60,8 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     private DesktopIconSize _size = DesktopCell.Current;
     private readonly WallpaperLabel _name = new(FamilyType.Caption);
 
-    /// <summary>The icon over the name, inside the cell's insets: what the cell draws.</summary>
-    private readonly StackPanel _stack = new()
-    {
-        Spacing = DesktopCell.Gap,
-        HorizontalAlignment = HorizontalAlignment.Center,
-        VerticalAlignment = VerticalAlignment.Top,
-        Margin = new Thickness(DesktopCell.SideInset, DesktopCell.HighlightTop + DesktopCell.IconTop, DesktopCell.SideInset, 0),
-    };
+    /// <summary>The icon and the name, inside the cell's insets: what the cell draws, laid out for the icon layout (<see cref="Relook"/>).</summary>
+    private readonly StackPanel _stack = new();
 
     /// <summary>[S-5612] The highlight behind the icon and the name: the whole card box, where its corners are (<see cref="DesktopCell.Highlight"/>).</summary>
     private readonly Border _chrome = SelectionChrome.Wrap(null, SelectionLook.DesktopIcon);
@@ -95,32 +91,26 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     public DesktopItemView(IWidgetHost host)
     {
         _host = host;
-        _name.HorizontalAlignment = HorizontalAlignment.Center;
         _stack.Children.Add(_iconHost);
 
         // [S-5564] A picture decoded after it was set (a file, a site's icon) is drawn only now: the ghost's copy follows.
         _image.ImageOpened += (_, _) => KeepDragIcon();
-        _stack.Children.Add(_name);
+        BuildOverhang();
+
         // [S-5612] The highlight is the whole card box (the view owns the card's top edge, [S-5700], so its box is the card's).
-        SizeChanged += (_, args) => PlaceChrome(DesktopCell.Highlight(args.NewSize.Width, args.NewSize.Height));
-        Resize(_size);
+        // [S-13974] Icon only's name stands under the icon, which is centred in the box.
+        SizeChanged += (_, args) =>
+        {
+            PlaceChrome(DesktopCell.Highlight(args.NewSize.Width, args.NewSize.Height));
+            PlaceOverhang();
+        };
+        Relook(_size, _layout);
         Children.Add(_chrome);
         Children.Add(_stack);
 
         // Clear, not null: the empty part of the cell takes the press too.
         Background = Fluent.Clear();
         FollowLinks();
-    }
-
-    /// <summary>[S-5593] The icon's square and the highlight at <paramref name="size"/>: the cell is the host's to size ([S-11204]).</summary>
-    private void Resize(DesktopIconSize size)
-    {
-        _size = size;
-        var icon = DesktopCell.Icon(size);
-        _iconHost.Width = icon;
-        _iconHost.Height = icon;
-        _image.Width = icon;
-        _image.Height = icon;
     }
 
     /// <summary>[S-5612] Put the highlight on <paramref name="box"/>, in the view's (the card's) DIPs.</summary>
@@ -273,14 +263,14 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     /// <summary>The listing, the selection, a rename box or a drag's target changed: a desktop item may have a new name or icon, and both sources a new look.</summary>
     private void OnDeskChanged()
     {
-        if (Own && _size == DesktopCell.Current)
+        if (Own && _size == DesktopCell.Current && _layout == DesktopCell.CurrentLayout)
         {
             Paint();
             SyncBox();
         }
         else
         {
-            // A desktop item may have a new name or icon; either source another icon size ([S-5593]).
+            // A desktop item may have a new name or icon; either source another icon size or layout ([S-5593], [S-13970]).
             Render();
         }
     }
@@ -473,25 +463,28 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
 
         _toldSelected = selected;
         _toldFocused = focused;
+
+        // [S-13974] Icon only's name shows while pointed at, focused or renamed.
+        PaintName(focus);
     }
 
     private void Render()
     {
-        // [S-5593] Another icon size is in force: the icon's square follows it, and the icon is asked at its pixels below.
-        if (_size != DesktopCell.Current)
+        // [S-5593] [S-13970] Another icon size or layout is in force: the icon's square and its name's place follow it, and
+        // the icon is asked at its pixels below.
+        if (_size != DesktopCell.Current || _layout != DesktopCell.CurrentLayout)
         {
-            Resize(DesktopCell.Current);
+            Relook(DesktopCell.Current, DesktopCell.CurrentLayout);
         }
 
-        var fit = DesktopCell.Fit(_size, _config.LabelLines);
+        var fit = DesktopCell.Fit(_size, _layout, _config.LabelLines);
         _name.Text = ShownName;
         _name.MaxLines = fit.Lines;
-        _name.TextMaxWidth = DesktopCell.NameWidth(_size, ActualWidth);
+        _name.TextMaxWidth = DesktopCell.NameWidth(_size, _layout, ActualWidth);
         BuildIcon();
         PaintHealth();
-        Paint();
         SyncBox();
-        _name.Visibility = _box is null ? Visibility.Visible : Visibility.Collapsed;
+        Paint();
         _ = LoadIconAsync();
     }
 
@@ -521,22 +514,20 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         {
             Text = text,
             PlaceholderText = Own ? OwnIconRules.DerivedName(_config) : string.Empty,
-            TextAlignment = TextAlignment.Center,
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = false,
             IsSpellCheckEnabled = false,
             MinHeight = 0,
             MinWidth = 0,
             Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
-
-            // Out into the cell's inset: Explorer's box is wider than the name it edits.
-            Margin = new Thickness(-DesktopCell.SideInset, 0, -DesktopCell.SideInset, 0),
-            HorizontalAlignment = HorizontalAlignment.Center,
             FontSize = FamilyType.Caption.FontSize,
         };
+
+        // [S-13973] [S-13974] Where the name stands in the icon layout: under the icon, beside it, or past the cell.
+        LayBox(box);
         _box = box;
-        _name.Visibility = Visibility.Collapsed;
-        _stack.Children.Add(box);
+        BoxHost.Children.Add(box);
+        Paint();
 
         if (_fixture.On)
         {
@@ -607,8 +598,8 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
                 tip.IsOpen = false;
             }
 
-            _stack.Children.Remove(box);
-            _name.Visibility = Visibility.Visible;
+            (box.Parent as Panel)?.Children.Remove(box);
+            Paint();
             _surface?.RequestTextInput(false);
         }
         finally

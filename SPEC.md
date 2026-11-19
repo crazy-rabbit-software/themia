@@ -2677,7 +2677,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   off in Windows, a policy, a change that did not take, the raw error under that advice only);
   **Pause during full-screen apps** ([S-2315]); under its own heading **Desktop icons**: the desktop's one view setting, the one its
   background menu's View › sets too ([S-5593]): **Desktop icon size** (a choice: Large icons,
-  Medium icons, Small icons); no Show desktop icons, Auto arrange or Align toggle (the icons always show and
+  Medium icons, Small icons) and under it **Desktop icon layout** (a choice: Text below icons, Text beside icons,
+  Icons only, [S-13970]); no Show desktop icons, Auto arrange or Align toggle (the icons always show and
   stand on the widget grid, [S-5500], [S-11875]; Auto arrange is the menu's one-shot, [S-5594]). Pause during full-screen apps is game mode ([S-920]; "Paused now" at its end
   while it holds the widgets).
 - **[S-3526]** **Appearance ›**, the look every widget shares ([S-3830]), behind dividers: **Style ›**
@@ -10475,6 +10476,58 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   The surface hears the wheel where it hears a press (Windows sends it to the window under the pointer,
   active or not): **not confirmed on a live desktop**. Tests `DesktopViewTests.S5593_`,
   `DesktopGridTests.S5593_`, `DesktopSortTests.S5593_`, `SettingsMenuTests.S5593_`.
+- **[S-13970]** **The desktop's icon layout** (owner, 2026-11-19: "desktop icons should not only have the size settings as
+  they have now, they should also have different types, e.g. right now the text is below the icon, they should also have
+  an option where the text shows to the right of it or where the text only shows when hovering. the sizes and aspect ratios
+  of course may change for all of these different layout types. the layout type is the same for all widgets on the whole
+  deskop, the fences should respect it too."): **Text below icons** (Explorer's, a new state's), **Text beside icons**
+  ([S-13973]) and **Icons only** ([S-13974]), **one setting for the whole desktop** (`Preferences.DesktopIconLayout`, a
+  `DesktopIconLayout`: every view, every display, every fence, never an icon's own; stored by name, a number that names
+  none repaired to Text below, logged), beside the icon size and as it is ([S-5593]): the General page's **Desktop icon
+  layout** sets it ([S-3525]) and the background menu's View › sets the same value ([S-5557]). The host puts it in force
+  as it does the size (`DesktopCell.Apply`, `DesktopCell.CurrentLayout`) at start, in an import and **inside the very change
+  that set it** (`AppHost.ApplyDesktopIconLook`), so the kind's sizing, the host's grid, the fences and every icon view
+  (the Unplaced icons page's too) read one value. Not an undo step. Tests `DesktopIconLayoutTests.S13970_`,
+  `SettingsMenuTests.S13970_`.
+- **[S-13971]** **Each layout and size has its own cell** (`DesktopCell.Size(size, layout, lines)`, `Grid`): text below is
+  Explorer's ([S-5601]: 60 × 84, 76 × 100, 124 × 148 at small, medium, large); **text beside** is the icon, its name's room
+  (112, 136, 160) and the insets (4 round, 8 between): **160 × 40, 200 × 56, 272 × 104**, as tall as the icon or two
+  Caption lines, whichever is taller; **icons only** is the icon and 8 round it: **48 × 48, 64 × 64, 112 × 112**. Each is
+  rounded up to whole grid cells as every icon's box ([S-11875]): at medium on a 10-DIP grid 80 × 100, 200 × 60, 70 × 70.
+  Not measured from Explorer (its desktop has no such views): the family's steps and the name's two lines. Tests
+  `DesktopIconLayoutTests.S13971_` (every layout and size, 100 % to 200 %).
+- **[S-13972]** **A layout change re-lays the desktop as a size change does, by its one path**: a change of the icon size,
+  the layout or both is one change of the cell (`AppHost.ApplyDesktopIconLook` → `DesktopGrid.Rebox`: each view's free
+  icons keep their arrangement at the new box by `DesktopGrid.Rescale`, [S-11887], round the other widgets and round each
+  fence where it stands once laid on the new box), then every fence lays its icons on the new box by its one lay
+  (`DesktopFences.Lay`, [S-13040], in the same `Mutate`): no second engine. A column stays a column in its order, a row a
+  row, no two overlap, none lands on a widget or a fence, and a layout and back puts them where they were. A fence keeps
+  its place and about its size in whole boxes of the new layout; what no longer fits scrolls by rows ([S-13043]).
+  Selection, the band, a move, a drop, the rename box and the hover all work on the cells of whatever layout is in force:
+  they are the grid's. Tests `DesktopIconLayoutTests.S13972_`.
+- **[S-13973]** **Text beside**: the icon at the cell's start and its name after it, from its start, on its 1 or 2 lines
+  (the icon's Name lines, [S-11204]), wrapped on whole words and cut with an ellipsis, the two centred top to bottom
+  (`DesktopCellLayout.Arrange`, the one placing of a cell's icon and name, SDK); the rename box stands where the name
+  was, as wide as its room. Tests `DesktopIconLayoutTests.S13973_`.
+- **[S-13974]** **Icons only**: the icon alone, centred in its square cell; **its name shows while the icon is pointed
+  at, has the keyboard's focus (after keyboard use) or is being renamed** (`DesktopCell.ShowsName`), on a plate under the
+  icon (the name's shadow colour at `SelectionLook.NamePlate` under its light text, so it reads over the icons it covers),
+  wrapped at text beside's width on up to four lines, **drawn over the neighbours above every icon**, as Windows' expanded
+  label (`DesktopCell.NameOverhangs`; [S-13975]). F2's box stands there too, so a rename works as in the other layouts. The
+  tip always leads with the name (`DesktopCell.TipNames`, [S-5610]) and a screen reader always has it ([S-5608]). Tests
+  `DesktopIconLayoutTests.S13974_`.
+- **[S-13975]** **What a view draws past its card** (`IWidgetOverhang`, SDK): a card clips its view to its box, so the
+  view's overhang part is lifted onto the card's overhang plate (`WidgetCard.OverhangPlate`, a `CardOverhang`), which stands
+  where the card stands, shows and fades with it and goes with it; the surface draws every plate over every card and under
+  the edit marks (`EditMarkerLayer.Overhangs`). Its empty room takes no press; a press on what it holds is the card's
+  (`WidgetPress.Locate`), so the rename box there keeps the card's keyboard lease. A picture with no plate shows no
+  overhang. Renders `--desktop-png --icon-layout icononly`, `--drag-png --icon-layout icononly`.
+- **[S-13976]** **Fences follow the layout** ([S-13040]): a fence's cells are the icon boxes of the layout in force, its
+  icons laid by `DesktopFences.Lay`; a fence made for n items (`FenceGrid.Around`) is as near square as the boxes allow,
+  with fewer columns for text beside's wide boxes by their proportion (a list of a column or two), and a fence of them is at
+  least one box across (`FenceGrid.MinAcross`; two otherwise). The cells a fence draws itself (a search's files, a
+  picture's items) take the same layout (`DesktopCellLayout`); in icons only their names are their tips. Tests
+  `DesktopIconLayoutTests.S13972_S13976_`, `S13976_`.
 - **[S-5594]** **Auto arrange icons is a one-shot** (2026-11-15, the owner: "auto arrange icons should not be
   a toggle but is a context menu action"): the background menu's View › line **Auto arrange icons** (no check
   mark) packs the desktop icons of every shown view once, now, on the widget grid **from the work area's top-left
@@ -10684,7 +10737,9 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
 - **[S-5557]** **View ›, complete as Explorer's** (2026-11-14): the menu's first line is **View ›**, where
   Explorer's own desktop menu has it, holding **Large icons**, **Medium icons** and **Small icons** (one of
   a set: the size in force carries Explorer's dot; choosing one sets the desktop's icon size, [S-5593], the
-  one setting its row on the General page sets, [S-3525]), a separator and **Auto arrange icons**, a
+  one setting its row on the General page sets, [S-3525]), a separator, **Text below icons**, **Text beside
+  icons** and **Icons only** (a set of their own, the layout in force with the dot, [S-13970]; as File Explorer's
+  View lists its layouts after its sizes), a separator and **Auto arrange icons**, a
   one-shot with no check mark that packs the icons now ([S-5594]). No Show desktop icons and no Align icons
   to grid line (2026-11-15: the icons always show and align, [S-5500], [S-5595]); Sort by › is always
   there. A line is a command with its check mark or its dot, a submenu with its

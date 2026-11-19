@@ -42,9 +42,9 @@ internal sealed partial class AppHost
             Log.Error(Scope, "a state mutation threw; state may be partially applied", ex);
         }
 
-        // [S-5593] Another desktop icon size is in force before the sizings are read: every icon refits
-        // below. The icons follow a setting, which no undo takes back: adopted without a step.
-        if (ApplyDesktopIconSize())
+        // [S-5593] [S-13972] Another desktop icon size or layout is in force before the sizings are read: every icon
+        // refits below. The icons follow a setting, which no undo takes back: adopted without a step.
+        if (ApplyDesktopIconLook())
         {
             undo = null;
         }
@@ -244,9 +244,10 @@ internal sealed partial class AppHost
         Select(null);
         Clipboard.Clear();
 
-        // [S-5593] The incoming views were laid out at the incoming icon size: it is put in force as it
-        // is, so the mutation below fits nothing from the old size to it.
+        // [S-5593] [S-13970] The incoming views were laid out at the incoming icon size and layout: they are put in force
+        // as they are, so the mutation below fits nothing from the old box to theirs.
         DesktopCell.Apply(incoming.Preferences.DesktopIconSize);
+        DesktopCell.Apply(incoming.Preferences.DesktopIconLayout);
 
         Mutate(state =>
         {

@@ -40,6 +40,15 @@ public enum DesktopMenuCommand
     /// <summary>[S-5593] View › Small icons.</summary>
     SmallIcons,
 
+    /// <summary>[S-13970] View › Text below icons.</summary>
+    TextBelowIcons,
+
+    /// <summary>[S-13970] View › Text beside icons.</summary>
+    TextBesideIcons,
+
+    /// <summary>[S-13970] View › Icons only.</summary>
+    IconsOnly,
+
     /// <summary>[S-5594] View › Auto arrange icons: once, now: the icons packed from the top-left corner in column order.</summary>
     AutoArrangeIcons,
 
@@ -118,19 +127,21 @@ public sealed record DesktopMenuEntry(DesktopMenuCommand? Command, DesktopMenuGr
 /// <param name="Sort">[S-5596] What the icons were last sorted by.</param>
 /// <param name="WidgetsLocked">[S-12951] Lock widgets is on.</param>
 /// <param name="Undo">[S-13103] The desktop file step Ctrl+Z would take back, or null (<see cref="DesktopFileUndo.Offered"/>).</param>
+/// <param name="IconLayout">[S-13970] The desktop's icon layout.</param>
 public readonly record struct DesktopBackgroundFacts(
     bool ClipboardHasFiles,
     bool HasTerminal,
     DesktopIconSize IconSize = DesktopIconSize.Medium,
     DesktopSortBy Sort = DesktopSortBy.Name,
     bool WidgetsLocked = false,
-    DesktopUndoName? Undo = null)
+    DesktopUndoName? Undo = null,
+    DesktopIconLayout IconLayout = DesktopIconLayout.Below)
 {
     /// <summary>The facts of <paramref name="state"/>: its view settings and its last sort.</summary>
     public static DesktopBackgroundFacts Of(AppState state, bool clipboardHasFiles, bool hasTerminal, DesktopUndoName? undo = null)
     {
         ArgumentNullException.ThrowIfNull(state);
-        return new(clipboardHasFiles, hasTerminal, state.Preferences.DesktopIconSize, state.Desktop.Sort, state.Preferences.LockWidgets, undo);
+        return new(clipboardHasFiles, hasTerminal, state.Preferences.DesktopIconSize, state.Desktop.Sort, state.Preferences.LockWidgets, undo, state.Preferences.DesktopIconLayout);
     }
 }
 
@@ -145,8 +156,9 @@ public static class DesktopBackground
 
     /// <summary>
     /// [S-5548] [S-5551] [S-5554] [S-5557] The background menu, as Windows 11's desktop shows it:
-    /// **View ›** ([S-5593], [S-5594]: Large, Medium and Small icons, the one in force carrying the dot;
-    /// Auto arrange icons, which packs the icons once, now: no setting, no check mark; the icons always
+    /// **View ›** ([S-5593], [S-5594]: Large, Medium and Small icons, the one in force carrying the dot; [S-13970] Text
+    /// below icons, Text beside icons and Icons only, a set of their own after a separator, as File Explorer's View
+    /// lists its layouts after its sizes; Auto arrange icons, which packs the icons once, now: no setting, no check mark; the icons always
     /// show and always stand on the icon grid, [S-5595]), **Sort by ›** (Name, Size, Item type, Date
     /// modified, the last sort carrying the dot, [S-5596]) and
     /// **Refresh**; **Paste** and **Paste shortcut** while the clipboard holds files, and **New ›**
@@ -166,6 +178,10 @@ public static class DesktopBackground
                 DesktopMenuEntry.Radio(DesktopMenuCommand.LargeIcons, facts.IconSize == DesktopIconSize.Large),
                 DesktopMenuEntry.Radio(DesktopMenuCommand.MediumIcons, facts.IconSize == DesktopIconSize.Medium),
                 DesktopMenuEntry.Radio(DesktopMenuCommand.SmallIcons, facts.IconSize == DesktopIconSize.Small),
+                DesktopMenuEntry.Separator,
+                DesktopMenuEntry.Radio(DesktopMenuCommand.TextBelowIcons, facts.IconLayout == DesktopIconLayout.Below),
+                DesktopMenuEntry.Radio(DesktopMenuCommand.TextBesideIcons, facts.IconLayout == DesktopIconLayout.Beside),
+                DesktopMenuEntry.Radio(DesktopMenuCommand.IconsOnly, facts.IconLayout == DesktopIconLayout.IconOnly),
                 DesktopMenuEntry.Separator,
                 DesktopMenuEntry.Of(DesktopMenuCommand.AutoArrangeIcons)),
             DesktopMenuEntry.Sub(
@@ -226,6 +242,15 @@ public static class DesktopBackground
         DesktopMenuCommand.LargeIcons => DesktopIconSize.Large,
         DesktopMenuCommand.MediumIcons => DesktopIconSize.Medium,
         DesktopMenuCommand.SmallIcons => DesktopIconSize.Small,
+        _ => null,
+    };
+
+    /// <summary>[S-13970] The icon layout a View › layout line sets; null for any other command.</summary>
+    public static DesktopIconLayout? LayoutOf(DesktopMenuCommand command) => command switch
+    {
+        DesktopMenuCommand.TextBelowIcons => DesktopIconLayout.Below,
+        DesktopMenuCommand.TextBesideIcons => DesktopIconLayout.Beside,
+        DesktopMenuCommand.IconsOnly => DesktopIconLayout.IconOnly,
         _ => null,
     };
 

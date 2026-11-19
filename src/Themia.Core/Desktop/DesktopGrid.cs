@@ -264,6 +264,37 @@ public static class DesktopGrid
     }
 
     /// <summary>
+    /// [S-5593] [S-13972] One view's desktop icons when the desktop's cell changes from <paramref name="from"/> to
+    /// <paramref name="to"/> (in DIPs: another icon size, another icon layout, or both): its free icons (<see cref="DesktopFences.FreeIcons"/>)
+    /// keep their arrangement at the new box by <see cref="Rescale"/>, round every other widget of the view, a fence where it
+    /// stands once laid on the new box (<see cref="FenceCells.Snap"/>); a fence's icons are its fence's to lay
+    /// (<see cref="DesktopFences.Lay"/>, which the host runs in the same change). The one path every change of the cell takes.
+    /// Returns whether any icon moved.
+    /// </summary>
+    public static bool Rebox(ViewState view, SizeDip from, SizeDip to, ScreenMetrics screen)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        var icons = DesktopFences.FreeIcons(view);
+        if (icons.Count == 0)
+        {
+            return false;
+        }
+
+        var box = IconSize(to, screen);
+        var others = view.Widgets.Where(w => w.Config is not IDesktopItemConfig)
+            .Select(w => w.Config is IHoldsDesktopItems fence ? FenceCells.Snap(w.Rect, fence.RolledUp, screen, box) : w.Rect).ToList();
+        var rescaled = Rescale([.. icons.Select(w => w.Rect)], others, IconSize(from, screen), box, screen);
+        var moved = false;
+        for (var i = 0; i < icons.Count; i++)
+        {
+            moved |= icons[i].Rect != rescaled[i];
+            icons[i].Rect = rescaled[i];
+        }
+
+        return moved;
+    }
+
+    /// <summary>
     /// [S-11887] Per icon, the top-left corner of the arrangement it is part of: the icons joined by standing
     /// within half a box (<paramref name="box"/>) of one another, on both axes.
     /// </summary>

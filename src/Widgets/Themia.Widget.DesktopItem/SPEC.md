@@ -81,13 +81,20 @@ icon's checks and tooltip), `.Icon.cs`, `.Drop.cs` and `.Links.cs`, `DesktopItem
   unchanged. A capture of Explorer at those two sizes should confirm or replace them. The geometry is the
   SDK's `DesktopCell`, in one place, every number of it a function of the size.
 - **[S-11204]** Converted to the sizing ([S-2438]): **one fixed size per its Name lines** (1 or 2, a new one
-  2; the one page line both sources share) **at the desktop's icon size** (`DesktopCell.Current`, which the
-  host puts in force, [S-5593]): at medium 76 × 100 with two, 76 × 84 with one; at large 124 × 148 and
+  2; the one page line both sources share) **at the desktop's icon size and layout** (`DesktopCell.Current` and
+  `DesktopCell.CurrentLayout`, which the host puts in force, [S-5593], [S-13970]; text beside and icons only, root
+  `SPEC.md` [S-13971]); text below: at medium 76 × 100 with two, 76 × 84 with one; at large 124 × 148 and
   124 × 132; at small 60 × 84 and 60 × 68 (`DesktopCell.Size`), no handle. When the size changes the host
   refits every icon in that same change ([S-2447]) and the view draws its icon's square and highlight at
   the new size and asks the icon again at its pixels ([S-5609]). It was 90 × 110, which counted the old 8 gap between widgets (now 0 and the host's) and 2 to
   spare. The ladder that shed lines and shrank the icon in a smaller box is gone. *([S-9512], the
   Shortcut's own name lines, retired 2026-11-14 into this line.)*
+
+- **[S-5613]** **The icon layout** ([S-13970]..[S-13975], root `SPEC.md`): the view draws its icon and name in the layout
+  in force, never its own (`DesktopItemView.Layout.cs`: `Relook`, through the SDK's `DesktopCellLayout`); a change of
+  layout is drawn at once, a rename box open moving with the name. In icons only the name is on the view's overhang
+  (`IWidgetOverhang`), shown while pointed at, keyboard-focused or renamed, and the tip always names the item. Renders
+  `--desktop-png --icon-layout below|beside|icononly [--icon-size …]`.
 
 ## The look
 

@@ -142,10 +142,13 @@ public sealed class DesktopSortTests
     {
         var view = Top()[0];
 
+        // Changed 2026-11-19 ([S-13970], owner): the icon layouts stand between the sizes and Auto arrange.
         Assert.Equal(DesktopMenuGroup.View, view.Group);
         Assert.Null(view.Command);
         Assert.Equal(
-            [DesktopMenuCommand.LargeIcons, DesktopMenuCommand.MediumIcons, DesktopMenuCommand.SmallIcons, null, DesktopMenuCommand.AutoArrangeIcons],
+            [DesktopMenuCommand.LargeIcons, DesktopMenuCommand.MediumIcons, DesktopMenuCommand.SmallIcons, null,
+             DesktopMenuCommand.TextBelowIcons, DesktopMenuCommand.TextBesideIcons, DesktopMenuCommand.IconsOnly, null,
+             DesktopMenuCommand.AutoArrangeIcons],
             view.Children.Select(c => c.Command));
 
         // A new state: medium icons carry the dot. Auto arrange acts once: no check mark, no dot.
@@ -166,7 +169,7 @@ public sealed class DesktopSortTests
     {
         var view = DesktopBackground.Menu(new DesktopBackgroundFacts(false, false, IconSize: size))[0];
 
-        var chosen = Assert.Single(view.Children, c => c.Chosen == true);
+        var chosen = Assert.Single(view.Children.Take(3), c => c.Chosen == true);
         Assert.Equal(line, chosen.Command);
         Assert.Equal(size, DesktopBackground.SizeOf(line));
         Assert.Null(DesktopBackground.SizeOf(DesktopMenuCommand.AutoArrangeIcons));

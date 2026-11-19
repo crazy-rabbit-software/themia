@@ -78,6 +78,12 @@ public static class SelectionLook
     /// <summary>[S-5549] How much of the dragged desktop icons shows in the picture that follows the pointer, as Explorer's see-through drag image.</summary>
     public const double DragOpacity = 0.65;
 
+    /// <summary>
+    /// [S-13974] How much of the name's shadow colour lies under icon only's name shown on hover, which is drawn over the
+    /// neighbouring icons: enough that its light text reads over any icon or wallpaper, while the icons under it still show.
+    /// </summary>
+    public const double NamePlate = 0.72;
+
     public const double HoverFill = 0.12;
     public const double HoverStroke = 0.35;
     public const double SelectedFill = 0.32;

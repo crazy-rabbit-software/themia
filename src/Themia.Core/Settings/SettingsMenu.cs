@@ -386,6 +386,9 @@ public static partial class SettingsMenu
         /// <summary>[S-5593] The desktop's icon size.</summary>
         public const string DesktopIconSize = "desktopIconSize";
 
+        /// <summary>[S-13970] The desktop's icon layout: text below, text beside, icon only.</summary>
+        public const string DesktopIconLayout = "desktopIconLayout";
+
         /// <summary>[S-12950] Lock widgets: outside edit mode only desktop icons move.</summary>
         public const string LockWidgets = "lockWidgets";
         public const string GameMode = "gameMode";

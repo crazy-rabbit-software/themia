@@ -41,7 +41,7 @@ public sealed partial class SettingsMenuTests
 
         // Karpo's General: Start with Windows, the language and its formats, then Themia's own switches; no Quit.
         Assert.Equal(["startup", SettingsMenu.Keys.Language + "/display", SettingsMenu.Keys.Formats, "gameMode"], page.Sections[0].Lines.Select(l => l.Key));
-        Assert.Equal(["desktopIconSize", "lockWidgets"], page.Sections[1].Lines.Select(l => l.Key));
+        Assert.Equal(["desktopIconSize", "desktopIconLayout", "lockWidgets"], page.Sections[1].Lines.Select(l => l.Key));
         Assert.Equal([SettingsMenu.Keys.Online, SettingsMenu.Keys.Mcp], page.Sections[2].Lines.Select(l => l.Key));
         Assert.Equal([SettingsMenu.Keys.Pro, SettingsMenu.Keys.Backup, SettingsMenu.Keys.Uninstall], page.Sections[3].Lines.Select(l => l.Key));
 

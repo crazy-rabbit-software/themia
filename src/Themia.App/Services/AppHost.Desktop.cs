@@ -26,7 +26,7 @@ internal sealed partial class AppHost
         _command.ShellRestarted += OnDesktopShellRestarted;
         _command.DesktopChanged += Files.HostDesktopItems.Instance.OnNotification;
         HostDesktopItems.Instance.Listed += OnDesktopListed;
-        _deskSizeSettled = State.Preferences.DesktopIconSize;
+        _deskLookSettled = DeskLookOf(State);
         StartDesk();
         DesktopIcons.Hold();
 
@@ -49,30 +49,33 @@ internal sealed partial class AppHost
         DesktopIcons.Release();
     }
 
-    /// <summary>[S-5593] The desktop's icon size as the icons were last settled for it.</summary>
-    private DesktopIconSize _deskSizeSettled;
+    /// <summary>[S-5593] [S-13970] The desktop's icon size and layout as the icons were last settled for them.</summary>
+    private (DesktopIconSize Size, DesktopIconLayout Layout) _deskLookSettled;
 
-    /// <summary>[S-11875] An icon's box in DIPs at the icon size in force: what the desktop's Core rules size icons by.</summary>
-    private SizeDip DeskCellDip => DeskCellAt(DesktopCell.Current);
+    /// <summary>[S-5593] [S-13970] The desktop's icon size and layout as <paramref name="state"/> has them.</summary>
+    private static (DesktopIconSize Size, DesktopIconLayout Layout) DeskLookOf(AppState state)
+        => (state.Preferences.DesktopIconSize, state.Preferences.DesktopIconLayout);
 
-    private static SizeDip DeskCellAt(DesktopIconSize size) => DesktopCell.Grid(size);
+    /// <summary>[S-11875] [S-13971] An icon's box in DIPs at the icon size and layout in force: what the desktop's Core rules size icons by.</summary>
+    private static SizeDip DeskCellDip => DesktopCell.Grid(DesktopCell.Current, DesktopCell.CurrentLayout);
 
     /// <summary>[S-11875] An icon's box on a display: whole grid cells (<see cref="DesktopGrid.IconSize"/>).</summary>
     private (double W, double H) DeskIconSize(ScreenMetrics screen) => DesktopGrid.IconSize(DeskCellDip, screen);
 
     /// <summary>
-    /// [S-5593] The desktop's icon size as the state has it, put in force (<see cref="DesktopCell.Apply"/>)
-    /// inside the mutation that changed it, whoever made it (View ›, the General page, Ctrl + wheel, an
-    /// import): every icon of a shown view keeps its place in the arrangement, which grows or shrinks with
-    /// the icon (<see cref="DesktopGrid.Rescale"/>: no two overlap, [S-11887]), at its new size in whole grid cells ([S-11875]). A view
-    /// no display shows keeps its rects; its icons are painted at the new size when it is shown. Returns
-    /// whether the size changed.
+    /// [S-5593] [S-13972] The desktop's icon size and layout as the state has them, put in force
+    /// (<see cref="DesktopCell.Apply(DesktopIconSize)"/>, <see cref="DesktopCell.Apply(DesktopIconLayout)"/>) inside the
+    /// mutation that changed them, whoever made it (View ›, the General page, Ctrl + wheel, an import): every icon of a
+    /// shown view keeps its place in the arrangement, which grows or shrinks with the icon's box
+    /// (<see cref="DesktopGrid.Rebox"/>: no two overlap, [S-11887]), at its new box in whole grid cells ([S-11875]); the
+    /// fences lay their icons on the new box in the same change (<see cref="LayFences"/>). A view no display shows keeps
+    /// its rects; its icons are painted at the new box when it is shown. Returns whether either changed.
     /// </summary>
-    private bool ApplyDesktopIconSize()
+    private bool ApplyDesktopIconLook()
     {
-        var size = State.Preferences.DesktopIconSize;
-        var from = DeskCellAt(DesktopCell.Current);
-        if (!DesktopCell.Apply(size))
+        var (size, layout) = DeskLookOf(State);
+        var from = DeskCellDip;
+        if (!(DesktopCell.Apply(size) | DesktopCell.Apply(layout)))
         {
             return false;
         }
@@ -88,34 +91,27 @@ internal sealed partial class AppHost
                 continue;
             }
 
-            // [S-11887] The view's icons as one arrangement: no two overlap, none lands on a widget.
-            var (fromBox, toBox) = (DesktopGrid.IconSize(from, metrics), DesktopGrid.IconSize(to, metrics));
-            // [S-13042] A fence's icons are laid by their fence at the new box: the free ones rescale.
-            var icons = DesktopFences.FreeIcons(view);
-            var others = view.Widgets.Where(w => w.Config is not IDesktopItemConfig).Select(w => w.Rect).ToList();
-            var rescaled = DesktopGrid.Rescale([.. icons.Select(w => w.Rect)], others, fromBox, toBox, metrics);
-            for (var i = 0; i < icons.Count; i++)
-            {
-                icons[i].Rect = rescaled[i];
-            }
+            // [S-11887] The view's icons as one arrangement: no two overlap, none lands on a widget. [S-13042] A fence's
+            // icons are laid by their fence at the new box: the free ones rescale.
+            DesktopGrid.Rebox(view, from, to, metrics);
         }
 
-        Log.Info(Scope, $"desktop icons are {size} now");
+        Log.Info(Scope, $"desktop icons are {size}, {layout} now");
         return true;
     }
 
     /// <summary>
-    /// [S-5593] The desktop's icon size changed (the state says so, whoever changed it): the displays'
-    /// rules run again for the new size.
+    /// [S-5593] [S-13972] The desktop's icon size or layout changed (the state says so, whoever changed it): the displays'
+    /// rules run again for the new box.
     /// </summary>
     private void SettleDesktopViewSettings()
     {
-        if (_deskSizeSettled == State.Preferences.DesktopIconSize)
+        if (_deskLookSettled == DeskLookOf(State))
         {
             return;
         }
 
-        _deskSizeSettled = State.Preferences.DesktopIconSize;
+        _deskLookSettled = DeskLookOf(State);
         SettleDesktopDisplays();
         RepaintDesk();
     }
@@ -126,6 +122,16 @@ internal sealed partial class AppHost
         if (State.Preferences.DesktopIconSize != size && Enum.IsDefined(size))
         {
             Mutate(s => s.Preferences.DesktopIconSize = size, undo: null);
+            SettingsOutdated?.Invoke();
+        }
+    }
+
+    /// <summary>[S-13970] Another desktop icon layout: one setting, stored and applied at once (the mutation puts it in force), as the size.</summary>
+    public void SetDesktopIconLayout(DesktopIconLayout layout)
+    {
+        if (State.Preferences.DesktopIconLayout != layout && Enum.IsDefined(layout))
+        {
+            Mutate(s => s.Preferences.DesktopIconLayout = layout, undo: null);
             SettingsOutdated?.Invoke();
         }
     }

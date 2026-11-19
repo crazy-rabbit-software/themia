@@ -52,10 +52,11 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
 Themia.exe --picker-png <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
 Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
-Themia.exe --desktop-png <outDir> [--icon-size small|medium|large]   # a stand-in desktop of icons of both sources, their
-           # states, the band and the tips [S-5605]; the desktop's icon size [S-5593]
+Themia.exe --desktop-png <outDir> [--icon-size small|medium|large] [--icon-layout below|beside|icononly]   # a stand-in desktop
+           # of icons of both sources, their states, the band and the tips [S-5605]; the desktop's icon size [S-5593] and layout [S-13970]
 Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local grid, icons on the widget grid at each icon
-           # size, a mixed lasso selection (icons and cards), both themes [S-11874]..[S-11879]
+           # size, a mixed lasso selection (icons and cards), both themes [S-11874]..[S-11879]; --icon-layout below|beside|icononly
+           # instead: that layout's icons and fences at medium and large [S-13970]..[S-13976]
 Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass]   # the locked desktop's one selection
            # through a real host and surface: --live drives it with real input (SendInput, over every window), PASS or FAIL [S-12954]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real

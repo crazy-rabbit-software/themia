@@ -50,8 +50,8 @@ public static partial class SettingsMenu
     }
 
     /// <summary>
-    /// [S-2315] Desktop icons, the General page's section of its own: the desktop's icon size ([S-5593]) and
-    /// Lock widgets ([S-12950]).
+    /// [S-2315] Desktop icons, the General page's section of its own: the desktop's icon size ([S-5593]), its icon
+    /// layout ([S-13970]) and Lock widgets ([S-12950]).
     /// </summary>
     public static IReadOnlyList<SettingsLine> Desktop(ISettingsMenuHost host)
     {
@@ -72,6 +72,19 @@ public static partial class SettingsMenu
             Size(DesktopIconSize.Large, Str.Desktop_Icons_Large),
             Size(DesktopIconSize.Medium, Str.Desktop_Icons_Medium),
             Size(DesktopIconSize.Small, Str.Desktop_Icons_Small),
+        ]));
+
+        // [S-13970] The desktop's icon layout, beside the size and as it is: one choice for the whole desktop (every view,
+        // every display, the fences), the one View › sets too.
+        var layout = state.Preferences.DesktopIconLayout;
+        SettingsRadio Layout(DesktopIconLayout value, Str text) => new(
+            Keys.DesktopIconLayout + "/" + value.ToString().ToLowerInvariant(), text.Text(), layout == value,
+            () => host.Mutate(s => s.Preferences.DesktopIconLayout = value, relayout: true));
+        lines.Add(new SettingsChoice(Keys.DesktopIconLayout, Str.Desktop_Icons_Layout.Text(), Glyphs.BulletList,
+        [
+            Layout(DesktopIconLayout.Below, Str.Desktop_Icons_TextBelow),
+            Layout(DesktopIconLayout.Beside, Str.Desktop_Icons_TextBeside),
+            Layout(DesktopIconLayout.IconOnly, Str.Desktop_Icons_IconOnly),
         ]));
 
         // [S-12950] [S-12951] Lock widgets: this is its one place ([S-3590]); the desktop's menus' Lock widgets line

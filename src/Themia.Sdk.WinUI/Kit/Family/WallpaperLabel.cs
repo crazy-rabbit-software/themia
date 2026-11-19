@@ -76,6 +76,26 @@ public sealed partial class WallpaperLabel : Grid
         }
     }
 
+    /// <summary>
+    /// [S-13973] Where the lines stand: centred under an icon (the default), or from the start beside one, the label then
+    /// standing at its box's start too.
+    /// </summary>
+    public TextAlignment Alignment
+    {
+        get => _text.TextAlignment;
+        set
+        {
+            var along = value == TextAlignment.Center ? HorizontalAlignment.Center : HorizontalAlignment.Left;
+            foreach (var text in new[] { _text, _shadow })
+            {
+                text.TextAlignment = value;
+                text.HorizontalAlignment = along;
+            }
+
+            HorizontalAlignment = along;
+        }
+    }
+
     /// <summary>Whether the text is cut (for the full name on hover or selection, [S-6627]).</summary>
     public bool IsTrimmed => _text.IsTextTrimmed;
 

@@ -24,14 +24,18 @@ namespace Themia.App.Shell.Gallery;
 /// <c>drag-icons-&lt;size&gt;-…</c> desktop icons at each icon size on the widget grid, beside a clock, packed by
 /// Auto arrange's rule, with the edit-mode grid drawn faintly to judge the cells; <c>drag-lasso-…</c> a mixed
 /// lasso selection (icons in their selection look with their corners, [S-11889], cards with their corners) under the band.
+/// [S-13970] <c>--icon-layout below|beside|icononly</c> draws instead, on a larger screen, the icons and the fences in that
+/// icon layout at medium and large icons (<c>drag-icons-&lt;layout&gt;-&lt;size&gt;-…</c>, <c>drag-fences-&lt;layout&gt;-&lt;size&gt;-…</c>),
+/// dark over the dark wallpaper and light over the light one, an icon pointed at and one focused among them (icon only's
+/// names over their neighbours, [S-13974]).
 /// </summary>
 internal static class DragRender
 {
     public const string Flag = "--drag-png";
 
     private const string Scope = "drag-render";
-    private const double ScreenWidth = 960;
-    private const double ScreenHeight = 540;
+    private static double ScreenWidth = 960;
+    private static double ScreenHeight = 540;
 
     public static bool TryRunFromCommandLine(Application app, string[] args)
     {
@@ -49,6 +53,23 @@ internal static class DragRender
         }
 
         var outDir = System.IO.Path.GetFullPath(args[at + 1]);
+
+        // [S-13970] One icon layout's icons and fences, on a screen with room for text beside's wide boxes.
+        var layoutAt = Array.IndexOf(args, "--icon-layout");
+        DesktopIconLayout? layout = null;
+        if (layoutAt >= 0)
+        {
+            if (layoutAt + 1 >= args.Length || !Enum.TryParse<DesktopIconLayout>(args[layoutAt + 1], ignoreCase: true, out var named) || !Enum.IsDefined(named))
+            {
+                Log.Error(Scope, "usage: --icon-layout below|beside|icononly");
+                app.Exit();
+                return true;
+            }
+
+            layout = named;
+            (ScreenWidth, ScreenHeight) = (1440, 900);
+        }
+
         _ = dispatcher.TryEnqueue(async () =>
         {
             Window? window = null;
@@ -69,6 +90,12 @@ internal static class DragRender
 
                 ticker = new Ticker(dispatcher);
                 var metrics = new ScreenMetrics(ScreenWidth, ScreenHeight);
+                if (layout is { } only)
+                {
+                    await LayoutAsync(screen, ticker, metrics, scale, only, outDir).ConfigureAwait(true);
+                    return;
+                }
+
                 foreach (var theme in new[] { AppTheme.Dark, AppTheme.Light })
                 {
                     DesignApplier.Apply(new DesignState { Theme = theme });
@@ -118,6 +145,50 @@ internal static class DragRender
         });
 
         return true;
+    }
+
+    /// <summary>
+    /// [S-13970] [S-13976] The icons and the fences in <paramref name="layout"/> at medium and large icons: dark over the dark
+    /// wallpaper, light over the light one.
+    /// </summary>
+    private static async Task LayoutAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, DesktopIconLayout layout, string outDir)
+    {
+        var name = layout.ToString().ToLowerInvariant();
+        DesktopCell.Apply(layout);
+        try
+        {
+            var walls = Wallpapers().ToList();
+            foreach (var (theme, (wallName, wall)) in new[] { (AppTheme.Dark, walls[0]), (AppTheme.Light, walls[1]) })
+            {
+                DesignApplier.Apply(new DesignState { Theme = theme });
+                screen.RequestedTheme = DesignApplier.Theme;
+                screen.Background = wall;
+                var tag = theme == AppTheme.Light ? "light" : "dark";
+                foreach (var size in new[] { DesktopIconSize.Medium, DesktopIconSize.Large })
+                {
+                    var at = $"{name}-{size.ToString().ToLowerInvariant()}-{tag}-{wallName}.png";
+                    await IconsAsync(screen, ticker, metrics, scale, size, System.IO.Path.Combine(outDir, $"drag-icons-{at}")).ConfigureAwait(true);
+                    await FencesAsync(screen, ticker, metrics, scale, System.IO.Path.Combine(outDir, $"drag-fences-{at}"), size).ConfigureAwait(true);
+                }
+            }
+        }
+        finally
+        {
+            DesktopCell.Apply(DesktopIconSize.Medium);
+            DesktopCell.Apply(DesktopIconLayout.Below);
+        }
+    }
+
+    /// <summary>[S-13975] What the icons draw past their cards (icon only's names), over every card on <paramref name="layer"/>, as the surface's plate.</summary>
+    private static void Hang(Canvas layer)
+    {
+        var hangs = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
+        foreach (var card in layer.Children.OfType<WidgetCard>().ToList())
+        {
+            hangs.Children.Add(card.OverhangPlate);
+        }
+
+        layer.Children.Add(hangs);
     }
 
     /// <summary>
@@ -219,10 +290,10 @@ internal static class DragRender
     /// one rolled up to its title bar, one with more items than it shows scrolled a row (its thumb), free icons on the same
     /// rows and columns, and the rectangle a right-drag draws to make one, in the band's look.
     /// </summary>
-    private static async Task FencesAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, string path)
+    private static async Task FencesAsync(Grid screen, Ticker ticker, ScreenMetrics metrics, double scale, string path, DesktopIconSize size = DesktopIconSize.Medium)
     {
         screen.Children.Clear();
-        DesktopCell.Apply(DesktopIconSize.Medium);
+        DesktopCell.Apply(size);
         var host = new NoticeRender.RenderCardHost(ticker);
         var grid = new SnapGridOverlay();
         grid.Draw(metrics, scale);
@@ -275,10 +346,13 @@ internal static class DragRender
         var across = (int)Math.Round(box.W * cols);
         var down = (int)Math.Round(box.H * rows);
         var title = FenceGrid.TitleCells;
-        Fence(Cells(1 + across, 1, 3 * box.W, 0), 6, ["document", "selected", "folder", "twoWords", "link", "selected"], _ => { });
-        Icon(Cells(1 + (4 * across), 1 + title, 0, 0), "document");
-        Fence(Cells(2 + (5 * across), 1, 3 * box.W, 0), 6, ["document"], f => f.RolledUp = true);
-        Fence(Cells(2 + (5 * across), 1 + (2 * title), 3 * box.W, (title / (double)rows) + (2 * box.H)), 20, ["document", "folder", "link", "twoWords", "longName"], f => f.Scroll = 1);
+
+        // [S-13976] A fence of text beside's wide boxes is a list: one box across.
+        var wide = FenceGrid.MinAcross(DesktopCell.Grid(size)) == 1 ? 1 : 3;
+        Fence(Cells(1 + across, 1, wide * box.W, (title / (double)rows) + (FenceGrid.RowsOf(6, wide) * box.H)), 6, ["document", "selected", "hover", "twoWords", "link", "selected"], _ => { });
+        Icon(Cells(1 + ((wide + 1) * across), 1 + title, 0, 0), "document");
+        Fence(Cells(2 + ((wide + 2) * across), 1, wide * box.W, 0), 6, ["document"], f => f.RolledUp = true);
+        Fence(Cells(2 + ((wide + 2) * across), 1 + (2 * title), wide * box.W, (title / (double)rows) + (2 * box.H)), 20, ["document", "folder", "link", "twoWords", "longName"], f => f.Scroll = 1);
         foreach (var on in DesktopFences.On(view))
         {
             if (!on.Fence.RolledUp && on.Widget.H <= 0)
@@ -298,6 +372,8 @@ internal static class DragRender
                 await preview.ShowPreviewStateAsync(state).ConfigureAwait(true);
             }
         }
+
+        Hang(layer);
 
         // The rectangle a right-drag on empty desktop draws before "Create fence here".
         var band = new Border { Width = 0.3 * ScreenWidth, Height = 0.25 * ScreenHeight, IsHitTestVisible = false };
@@ -339,6 +415,7 @@ internal static class DragRender
 
         // [S-11880] The surface's one join over them, as the desktop runs it: icons that touch stay free.
         WidgetCard.Join([.. layer.Children.OfType<WidgetCard>()], metrics, scale, editMode: false, _ => 0);
+        Hang(layer);
 
         await Task.Delay(900).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);

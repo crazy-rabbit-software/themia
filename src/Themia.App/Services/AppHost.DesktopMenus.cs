@@ -362,6 +362,7 @@ internal sealed partial class AppHost
     /// Shortcut. Static: the menu render and <c>--desktop-menu-check</c> read them too.
     /// </summary>
     private const string SizeGroup = "desktop-icon-size";
+    private const string LayoutGroup = "desktop-icon-layout";
     private const string SortGroup = "desktop-sort";
 
     internal static List<ItemMenuEntry> DesktopBackgroundEntries(
@@ -394,6 +395,11 @@ internal sealed partial class AppHost
                 DesktopMenuCommand.LargeIcons => new(null, Str.Desktop_Icons_Large.Text(), Run, Checked: line.Chosen, Group: SizeGroup),
                 DesktopMenuCommand.MediumIcons => new(null, Str.Desktop_Icons_Medium.Text(), Run, Checked: line.Chosen, Group: SizeGroup),
                 DesktopMenuCommand.SmallIcons => new(null, Str.Desktop_Icons_Small.Text(), Run, Checked: line.Chosen, Group: SizeGroup),
+
+                // [S-13970] The layouts, a set of their own.
+                DesktopMenuCommand.TextBelowIcons => new(null, Str.Desktop_Icons_TextBelow.Text(), Run, Checked: line.Chosen, Group: LayoutGroup),
+                DesktopMenuCommand.TextBesideIcons => new(null, Str.Desktop_Icons_TextBeside.Text(), Run, Checked: line.Chosen, Group: LayoutGroup),
+                DesktopMenuCommand.IconsOnly => new(null, Str.Desktop_Icons_IconOnly.Text(), Run, Checked: line.Chosen, Group: LayoutGroup),
 
                 // [S-5594] A one-shot: it arranges now, no check mark.
                 DesktopMenuCommand.AutoArrangeIcons => new(null, Str.Desktop_Icons_AutoArrange.Text(), Run),
@@ -461,6 +467,13 @@ internal sealed partial class AppHost
         {
             // [S-5593] A size line sets the one icon size, for every display.
             SetDesktopIconSize(size);
+            return;
+        }
+
+        if (DesktopBackground.LayoutOf(command) is { } layout)
+        {
+            // [S-13970] A layout line sets the one icon layout, for every display and every fence.
+            SetDesktopIconLayout(layout);
             return;
         }
 

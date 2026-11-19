@@ -18,8 +18,9 @@ namespace Themia.Widget.Fence;
 /// <summary>
 /// [S-10902] [S-10903] [S-13023] The cells a fence draws itself, for what is no desktop icon: the files a search fence finds
 /// and a picture's items (the sample, a render's states). Each is drawn as a desktop icon is (the shell's icon with its
-/// overlay over its name, the desktop icon's highlight, a cut item faded), in the body's cells of the desktop icon grid
-/// (<see cref="FenceGrid"/>, the one layout). A fence's desktop items are never drawn here: they are the desktop's icons.
+/// overlay and its name, the desktop icon's highlight, a cut item faded), in the body's cells of the desktop icon grid
+/// (<see cref="FenceGrid"/>, the one layout), in the desktop's icon layout ([S-13976]: the name below, beside, or in icon
+/// only its tip). A fence's desktop items are never drawn here: they are the desktop's icons.
 /// </summary>
 internal sealed partial class FenceView
 {
@@ -99,6 +100,7 @@ internal sealed partial class FenceView
             var first = cell.Item is null;
             cell.Item = item;
             cell.Name.Text = item.Name;
+            LayCell(cell);
             if (first || renamed || cell.IconPixels != IconPixels())
             {
                 _loads.Add(LoadIconAsync(cell));
@@ -115,19 +117,10 @@ internal sealed partial class FenceView
         var iconHost = new Grid { Width = icon, Height = icon, HorizontalAlignment = HorizontalAlignment.Center };
         iconHost.Children.Add(image);
         var name = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
-        name.TextAlignment = TextAlignment.Center;
-        name.HorizontalAlignment = HorizontalAlignment.Center;
         name.TextWrapping = TextWrapping.WrapWholeWords;
         name.TextTrimming = TextTrimming.CharacterEllipsis;
         name.MaxLines = 2;
-        name.MaxWidth = DesktopCell.NameWidth(DesktopCell.Current, 0);
-        var stack = new StackPanel
-        {
-            Spacing = DesktopCell.Gap,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(DesktopCell.SideInset, DesktopCell.HighlightTop + DesktopCell.IconTop, DesktopCell.SideInset, 0),
-        };
+        var stack = new StackPanel();
         stack.Children.Add(iconHost);
         stack.Children.Add(name);
         var chrome = SelectionChrome.Wrap(null, Look);
@@ -148,6 +141,24 @@ internal sealed partial class FenceView
             PaintCell(cell);
         });
         return cell;
+    }
+
+    /// <summary>
+    /// [S-13976] A cell in the desktop's icon layout in force, as the desktop's own icons are: the name under the icon or
+    /// beside it; in icon only no name in the cell, the tip says it (a fence's own cells have no name on hover).
+    /// </summary>
+    private static void LayCell(Cell cell)
+    {
+        var (size, layout) = (DesktopCell.Current, DesktopCell.CurrentLayout);
+        DesktopCellLayout.Arrange(cell.Stack, layout);
+        var beside = layout == DesktopIconLayout.Beside;
+        cell.Name.TextAlignment = DesktopCellLayout.NameAlignment(layout);
+        cell.Name.HorizontalAlignment = beside ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+        cell.Name.VerticalAlignment = beside ? VerticalAlignment.Center : VerticalAlignment.Top;
+        cell.Name.MaxWidth = DesktopCell.NameWidth(size, layout, 0);
+        var overhangs = DesktopCell.NameOverhangs(layout);
+        cell.Name.Visibility = overhangs ? Visibility.Collapsed : Visibility.Visible;
+        ToolTipService.SetToolTip(cell.Root, overhangs ? cell.Item?.Name : null);
     }
 
     private void DropCell(Cell cell)

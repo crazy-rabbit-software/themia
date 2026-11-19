@@ -146,6 +146,7 @@ internal sealed partial class DesktopItemView
     {
         var missing = _health == TargetHealth.Missing;
         _stack.Opacity = missing || Refused ? SelectionLook.Faded : 1;
+        _hang.Opacity = _stack.Opacity;
         _name.Strikethrough = missing;
         PaintTip();
     }
@@ -188,7 +189,9 @@ internal sealed partial class DesktopItemView
     private void PaintTip()
     {
         var name = ShownName;
-        var cut = _name.IsTrimmed;
+
+        // [S-13974] Icon only draws no name at rest: its tip always leads with it.
+        var cut = DesktopCell.TipNames(_layout, _name.IsTrimmed);
         string? tip;
 
         if (!Own)

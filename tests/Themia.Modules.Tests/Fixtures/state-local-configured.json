@@ -397,6 +397,7 @@
     "language": "System",
     "gameModeSuspend": false,
     "desktopIconSize": "Medium",
+    "desktopIconLayout": "Below",
     "lockWidgets": false,
     "region": {
       "clock": "System",

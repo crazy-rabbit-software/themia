@@ -101,12 +101,21 @@ public static class FenceGrid
     }
 
     /// <summary>
-    /// [S-13008] The DIP size of a fence that shows <paramref name="count"/> items without scrolling, as near square as the
-    /// cells allow (<see cref="MinColumns"/>..<see cref="MaxColumns"/> across), with its title bar.
+    /// [S-13008] [S-13976] The DIP size of a fence that shows <paramref name="count"/> items without scrolling, as near square
+    /// as the cells allow (<see cref="MinColumns"/>..<see cref="MaxColumns"/> across), with its title bar: as many columns
+    /// as rows for a cell at least as tall as it is wide (text below, icon only); for a wide one (text beside) fewer columns
+    /// by the cell's own proportion, so the fence is a list of a column or two rather than a wide band.
     /// </summary>
     public static SizeDip Around(int count, SizeDip cell)
     {
-        var columns = Math.Clamp((int)Math.Ceiling(Math.Sqrt(Math.Max(1, count))), MinColumns, MaxColumns);
+        var wide = cell.Width > cell.Height && cell.Height > 0 ? cell.Height / cell.Width : 1;
+        var columns = Math.Clamp((int)Math.Ceiling(Math.Sqrt(Math.Max(1, count) * wide)), MinColumns, MaxColumns);
         return new SizeDip(columns * cell.Width, TitleDip + (RowsOf(Math.Max(1, count), columns) * cell.Height));
     }
+
+    /// <summary>
+    /// [S-10901] [S-13976] The fewest icon boxes a fence's body is across: two, or one for a wide box (text beside), which is
+    /// a list's column on its own.
+    /// </summary>
+    public static int MinAcross(SizeDip cell) => cell.Width > cell.Height ? 1 : 2;
 }

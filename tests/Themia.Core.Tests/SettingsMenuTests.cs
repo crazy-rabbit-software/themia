@@ -219,7 +219,7 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost { Startup = new AutostartStatus(AutostartState.Off, AutostartProblem.Failed, "0x80070005") };
         var keys = SettingsMenu.General(host).Select(l => l.Key).ToArray();
         Assert.Equal(["startup", "startup/advice", "startup/detail", "gameMode"], keys);
-        Assert.Equal(["desktopIconSize", "lockWidgets"], SettingsMenu.Desktop(host).Select(l => l.Key));
+        Assert.Equal(["desktopIconSize", "desktopIconLayout", "lockWidgets"], SettingsMenu.Desktop(host).Select(l => l.Key));
     }
 
     [Fact]
@@ -239,13 +239,33 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
+    public void S13970_the_desktops_icon_layout_is_one_choice_beside_the_size_for_every_display()
+    {
+        var host = new FakeHost();
+        var line = At<SettingsChoice>(host, SettingsMenu.Keys.DesktopIconLayout);
+
+        Assert.Equal(["desktopIconLayout/below", "desktopIconLayout/beside", "desktopIconLayout/icononly"], line.Options.Select(o => o.Key));
+        Assert.Equal([true, false, false], line.Options.Select(o => o.Holds));
+        Assert.Equal(Str.Desktop_Icons_TextBelow.Text(), line.Value);
+        Assert.Equal(Str.Desktop_Icons_Layout.Text(), line.Text);
+
+        line.Options[2].Pick();
+
+        Assert.Equal(Themia.Sdk.DesktopIconLayout.IconOnly, host.State.Preferences.DesktopIconLayout);
+        Assert.Equal(Str.Desktop_Icons_IconOnly.Text(), At<SettingsChoice>(host, SettingsMenu.Keys.DesktopIconLayout).Value);
+
+        // The size is its own setting: the layout's choice leaves it.
+        Assert.Equal(Themia.Sdk.DesktopIconSize.Medium, host.State.Preferences.DesktopIconSize);
+    }
+
+    [Fact]
     public void S5500_S5594_S5595_desktop_icons_holds_the_icon_size_and_lock_widgets_no_show_arrange_or_align_toggle()
     {
         var lines = SettingsMenu.Desktop(new FakeHost());
 
         // [S-12950] Lock widgets is the one toggle here.
         Assert.Equal([SettingsMenu.Keys.LockWidgets], lines.OfType<SettingsToggle>().Select(l => l.Key));
-        Assert.Equal([SettingsMenu.Keys.DesktopIconSize, SettingsMenu.Keys.LockWidgets], lines.Select(l => l.Key));
+        Assert.Equal([SettingsMenu.Keys.DesktopIconSize, SettingsMenu.Keys.DesktopIconLayout, SettingsMenu.Keys.LockWidgets], lines.Select(l => l.Key));
     }
 
     [Fact]
