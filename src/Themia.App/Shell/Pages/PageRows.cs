@@ -258,6 +258,9 @@ internal static class PageRows
             {
                 Text = entry.Text,
                 Icon = icon,
+
+                // What holds said at its head's end where no glyph pictures it.
+                Value = pick.Current is null ? pick.NoneName : null,
                 Picker = () => new IconPicker(pick.Current, pick.NoneName, null, pick.Set),
                 Disabled = entry.Disabled,
             };

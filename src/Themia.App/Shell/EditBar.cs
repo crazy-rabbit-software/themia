@@ -176,14 +176,15 @@ internal sealed partial class EditBar : Grid
         Entry.Subtle(_errors);
         _row.Children.Add(_errors);
 
-        // [S-3501] Windows' standard button: the one command that adds, its "+" in the accent; [S-11707]
-        // it opens the add page under the bar, and while that is open the accent's pill marks it.
+        // [S-3501] A command bar's button as the pages' entries are, Karpo's "+ Add" (§575: no fill nor rim until
+        // pointed at, Done the one accent button); [S-11707] it opens the add page under the bar, and while that is
+        // open the accent's pill marks it.
         _addPill = Entry.Pill();
-        var addWords = Entry.Labelled(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), ShellBrush.Of(ShellRole.AccentText));
+        var addWords = Entry.Labelled(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), null);
         addWords.VerticalAlignment = VerticalAlignment.Center;
         _add = new Button { Content = new Grid { Children = { addWords, _addPill } }, Tag = "add" };
         _add.Click += (_, _) => commands.Add();
-        Entry.Sized(_add);
+        Entry.Subtle(_add);
         _add.VerticalContentAlignment = VerticalAlignment.Stretch;
         AutomationProperties.SetName(_add, Str.Shell_Toolbar_AddWidget.Text());
         _row.Children.Add(_add);

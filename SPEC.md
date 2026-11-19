@@ -1977,7 +1977,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   (drawn only while something is selected, its room always kept); the **selection's room**, 256 DIPs
   always kept ([S-2324]); a 16 gutter; the **toggles** ([S-2330], 40 each, 4 apart); 4; the **problems' room** (a 40 icon button while there are
   problems; Themia keeps no standing list of them yet, so the room stays empty); 4; **Add widget**
-  (Windows' standard button, its "+" in the accent, [S-3501]); 8; **Done** (the one accent button, at
+  ([S-3501]; a command bar's button as the entries, no fill nor rim until pointed at, as Karpo's "+ Add", its §575;
+  owner, 2026-11-19: "the individual settings components between karpo and themia should bascially be the same ...
+  same with the topbar"); 8; **Done** (the one accent button, at
   least 80, ending 8 from the bar's end). One width whatever is selected and however many problems there
   are. There is no grip (the bar is never dragged), no Undo or Redo (Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z still
   step the history, [S-885]), no search, no fold and no close button.
