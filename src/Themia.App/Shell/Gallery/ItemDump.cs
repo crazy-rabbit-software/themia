@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Widgets;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 
 namespace Themia.App.Shell.Gallery;
@@ -15,7 +16,8 @@ namespace Themia.App.Shell.Gallery;
 /// the item check (<c>scripts/item-check.py</c>, the owner's WR-2..WR-6): the card's box and its grid pitch, each item
 /// (<see cref="ItemMark"/>) as the box it shows in the card (cut by the scroll viewer or clip it stands in), grouped by
 /// the panel that lays it, and the ink that stands in the card outside every item (texts, glyphs, pictures, shapes),
-/// so the check can tell what stands over a list from a band over it.
+/// so the check can tell what stands over a list from a band over it. [S-6754] And every graph's plot (the one
+/// <see cref="Chart"/>'s box), for the gap check (<c>scripts/gap-check.py</c>): a plot reaches the card's edges.
 /// </summary>
 internal static class ItemDump
 {
@@ -37,12 +39,16 @@ internal static class ItemDump
             w.WriteNumber("cell", Math.Round(card.CellPitch, 4));
             w.WriteNumber("scale", card.XamlRoot?.RasterizationScale ?? 1);
 
+            // [S-12835] [S-6754] The card's compact Set up line over the view: a plot stands right under it.
+            w.WriteNumber("setup", Math.Round(card.SetupBand, 2));
+
             var items = new List<(FrameworkElement Item, Rect Box, bool Cut)>();
             var ink = new List<(FrameworkElement Part, Rect Box)>();
             var texts = new List<(FrameworkElement Part, Rect Box)>();
+            var plots = new List<Rect>();
             if (card.View is { } view)
             {
-                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts);
+                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots);
             }
 
             var groups = new Dictionary<DependencyObject, int>();
@@ -91,6 +97,17 @@ internal static class ItemDump
             }
 
             w.WriteEndArray();
+
+            // [S-6754] Each chart's plot as it shows in the card.
+            w.WriteStartArray("plots");
+            foreach (var box in plots)
+            {
+                w.WriteStartObject();
+                Box(w, box);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
             w.WriteEndObject();
         }
 
@@ -107,7 +124,7 @@ internal static class ItemDump
     }
 
     /// <summary>The items and the free ink under <paramref name="node"/>, each as it shows inside <paramref name="clip"/> (card coordinates).</summary>
-    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts)
+    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots)
     {
         if (node is UIElement { Visibility: not Visibility.Visible } || node is UIElement { Opacity: <= 0 })
         {
@@ -120,6 +137,12 @@ internal static class ItemDump
             if (shown is null)
             {
                 return;
+            }
+
+            // A curve its owner laid out on the chart's parts (the forecast's, over its day columns) is no plot of its own.
+            if (fe is Chart { Model.Laid: false })
+            {
+                plots.Add(shown.Value);
             }
 
             if (!insideItem && ItemMark.IsItem(fe))
@@ -147,7 +170,7 @@ internal static class ItemDump
         var n = VisualTreeHelper.GetChildrenCount(node);
         for (var i = 0; i < n; i++)
         {
-            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts);
+            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots);
         }
     }
 

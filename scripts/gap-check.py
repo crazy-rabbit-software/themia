@@ -17,6 +17,11 @@ colour), and judges:
   leftover whole cells and empty stated rows may stand at the foot (WR-5), judged by the item check.
 - sides: the band beside the ink, either side, is at most the inset and the 4 DIP where the content spans the width
   (a card with items: WR-3).
+- [S-6754] a graph's plot (the one chart's box, `plots` in the layout): the plot reaches the card's edges, left, right,
+  top and foot (owner, 2026-11-19: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand
+  inside it, over the plot); its top right under the card's compact Set up line where the card shows one ([S-12835],
+  the layout's `setup`). Where it does, the plot is the card's top and foot (WR-1, WR-4: a line chart's line stands
+  where its value is, its plot still reaches the edges); a graph kind drawn with no plot is a finding (WR-10).
 
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
@@ -57,6 +62,24 @@ WINDOWS_LOOK = {'desktopItem': "a desktop icon is drawn as Windows' own: icon an
 TILE = re.compile(r'Toggle$')
 POWER = {'sleep', 'signOut', 'shutdown', 'screenOff', 'restart', 'lock', 'hibernate'}
 ONE_LINE = {'clock', 'date', 'header'}
+
+# [S-6754] The graph kinds: drawn on the one chart, their plot edge to edge in every state.
+GRAPH = re.compile(r'(History|Graph)$')
+GRAPHS = {'rainNextHour'}
+EDGE = 0.5  # DIP: layout rounding
+
+
+def graph(kind):
+    return bool(GRAPH.search(kind)) or kind in GRAPHS
+
+
+def plot_box(layout):
+    """The plots' union in the card (DIPs), or None without a plot."""
+    plots = (layout or {}).get('plots', [])
+    if not plots:
+        return None
+    return (min(p['x'] for p in plots), min(p['y'] for p in plots),
+            max(p['x'] + p['w'] for p in plots), max(p['y'] + p['h'] for p in plots))
 
 
 def centred(kind):
@@ -146,11 +169,23 @@ def judge(kind, card, layout):
     limit = INSET + TOLERANCE
     items = (layout or {}).get('items', [])
     on_top = any(i['y'] <= 0.5 for i in items)
-    if top > limit and not on_top:
+    # [S-6754] A graph's plot reaches every edge of its card; where it does, it is the card's top and foot.
+    plot = plot_box(layout)
+    plot_top = plot_foot = False
+    if layout is not None and graph(kind) and plot is None:
+        found.append('WR-10 no plot')
+    if plot is not None:
+        l, t, r, b = plot
+        cw, ch = layout['w'], layout['h']
+        top_edge = layout.get('setup', 0) + EDGE
+        if l > EDGE or r < cw - EDGE or t > top_edge or b < ch - EDGE:
+            found.append(f'plot not edge to edge {l:.1f}..{r:.1f} x {t:.1f}..{b:.1f} of {cw:.0f}x{ch:.0f}')
+        plot_top, plot_foot = t <= top_edge, b >= ch - EDGE
+    if top > limit and not on_top and not plot_top:
         found.append(f'WR-1 top {top:.1f}')
     # Under a card's items the room left is theirs: whole cells and empty stated rows at the foot (WR-5), judged by
     # the item check.
-    if foot > limit and not items:
+    if foot > limit and not items and not plot_foot:
         found.append(f'WR-4 foot {foot:.1f}')
     if items and (left > limit or right > limit):
         found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
