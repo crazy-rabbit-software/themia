@@ -97,8 +97,12 @@ public static class ItemDrag
         }
 
         Running = offer;
+        RunningPicture = drawn?.Picture;
         try
         {
+            // [S-13025] The window the drag starts from is the foreground window before OLE's loop runs, or that loop sees no
+            // mouse: the first drag after another app died and needed a second press.
+            TakeForeground(element);
             Log.Debug(Scope, $"drag: asked of XAML ({offer.Paths.Count} file(s), {offer.Effects})");
 
             // DataPackageOperation's bits are the drop effects'. Not awaited alone: see above.
@@ -119,7 +123,50 @@ public static class ItemDrag
             if (ReferenceEquals(Running, offer))
             {
                 Running = null;
+                RunningPicture = null;
             }
+        }
+    }
+
+    /// <summary>
+    /// [S-13026] The picture of the drag started here that still runs (what <see cref="Running"/> shows under the pointer),
+    /// or null: the desktop draws it itself while the drag is over one of its surfaces, so it never goes while a fence there
+    /// shows where the items would land.
+    /// </summary>
+    public static DragPicture? RunningPicture { get; private set; }
+
+    /// <summary>[S-13025] The host's way to make the window a drag starts from the foreground window (by its handle); none in a render.</summary>
+    private static Func<nint, bool>? _foreground;
+
+    /// <summary>[S-13025] The host's foreground for a drag's window. Once per process, before any drag.</summary>
+    internal static void InstallForeground(Func<nint, bool> foreground)
+    {
+        ArgumentNullException.ThrowIfNull(foreground);
+        if (Interlocked.CompareExchange(ref _foreground, foreground, null) is not null)
+        {
+            throw new InvalidOperationException("the drag's foreground is installed once per process");
+        }
+    }
+
+    /// <summary>[S-13025] Ask the host to make <paramref name="element"/>'s window the foreground window; what it could not do it logs.</summary>
+    private static void TakeForeground(UIElement element)
+    {
+        if (Volatile.Read(ref _foreground) is not { } take || element.XamlRoot?.ContentIslandEnvironment is not { } environment)
+        {
+            return;
+        }
+
+        try
+        {
+            var window = Microsoft.UI.Win32Interop.GetWindowFromWindowId(environment.AppWindowId);
+            if (window != 0 && !take(window))
+            {
+                Log.Info(Scope, "drag: its window could not take the foreground; the drag may not follow the mouse until it does");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "drag: taking the foreground for it threw", ex);
         }
     }
 
@@ -158,7 +205,7 @@ public static class ItemDrag
     }
 
     /// <summary>XAML's event: nothing thrown here may reach it, a drag that cannot be filled is cancelled.</summary>
-    private static void Fill(DragStartingEventArgs args, ItemDragOffer offer, (SoftwareBitmap Bitmap, Point Anchor)? drawn)
+    private static void Fill(DragStartingEventArgs args, ItemDragOffer offer, (SoftwareBitmap Bitmap, Point Anchor, DragPicture Picture)? drawn)
     {
         try
         {
@@ -188,8 +235,8 @@ public static class ItemDrag
         }
     }
 
-    /// <summary>The drag's picture as the bitmap XAML's drag takes and the pointer's place in it, made before the drag starts; null for none, or one that could not be made (logged).</summary>
-    private static (SoftwareBitmap Bitmap, Point Anchor)? Draw(Func<DragPicture?>? picture)
+    /// <summary>The drag's picture as the bitmap XAML's drag takes, the pointer's place in it and the picture itself, made before the drag starts; null for none, or one that could not be made (logged).</summary>
+    private static (SoftwareBitmap Bitmap, Point Anchor, DragPicture Picture)? Draw(Func<DragPicture?>? picture)
     {
         if (picture is null)
         {
@@ -207,7 +254,7 @@ public static class ItemDrag
             bitmap.DpiX = drawn.Dpi;
             bitmap.DpiY = drawn.Dpi;
             var (x, y) = drawn.Anchor;
-            return (bitmap, new Point(x, y));
+            return (bitmap, new Point(x, y), drawn);
         }
         catch (Exception ex)
         {

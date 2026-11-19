@@ -342,7 +342,15 @@ internal sealed partial class DesktopWindow
         // [S-2446] A widget is painted in its stored rect fitted into its sizing on this
         // display (another monitor, DPI or scale), anchored at its top-left and kept in reach. The
         // stored rect is not rewritten by being shown: only a gesture or a config change does that.
+        // [S-13028] A card gliding to its stored rect is drawn where the glide stands (unfitted on the way: a fence's roll
+        // passes heights its pinned sizing would not let it stand at).
+        var stored = rect == card.Model.Rect;
         rect = SizeFit.Shown(rect, card.Limits, metrics);
+        if (stored)
+        {
+            rect = Gliding(card, rect);
+        }
+
         card.SetLiveRect(rect);
         card.ApplyResizable();
 

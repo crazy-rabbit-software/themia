@@ -225,6 +225,9 @@ internal sealed partial class DesktopWindow
         // [S-1017] A show in flight ends (its overlay and tiles go) before the cards do.
         _show?.Stop();
 
+        // [S-13028] A card gliding stops with the surface.
+        StopGlides();
+
         DesktopZOrder.Forget(_hwnd);
         _host.StateChanged -= OnStateChanged;
         _host.EditModeChanged -= OnEditModeChanged;

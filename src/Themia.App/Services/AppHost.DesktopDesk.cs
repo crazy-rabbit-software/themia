@@ -352,11 +352,21 @@ internal sealed partial class AppHost : IDesktopDesk
             window.ShowDesktopBand(Themia.Core.Desktop.DesktopBand.On(band, info.Bounds, info.WorkArea, window.BandScale));
         }
 
-        var hits = Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Ordered).Where(key => _bandExcept is null || !string.Equals(key, _bandExcept, StringComparison.Ordinal)).ToList();
+        // [S-13027] A fence whose items the band catches is left out: the items take precedence.
+        var hits = DesktopFences.BandHits(
+            [.. Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Ordered).Where(key => _bandExcept is null || !string.Equals(key, _bandExcept, StringComparison.Ordinal))],
+            FenceKeyOf);
         BandCaught = hits.Count;
         _desk.Band(hits);
         RepaintDesk();
     }
+
+    /// <summary>[S-13027] The selection key of the fence that draws the item <paramref name="key"/> (as last laid out), or null for any other key.</summary>
+    private string? FenceKeyOf(string key)
+        => _deskWidgets.TryGetValue(key, out var at) && at.Widget.Config is IHoldsDesktopItems && DeskKey(at.Widget) is { } fence
+            && !DesktopItemKeys.Comparer.Equals(fence, key) // the fence's own card key is no item of it
+            ? fence
+            : null;
 
     /// <summary>[S-5544] The band is over: what it selected stays, and no display draws it any more.</summary>
     public void DesktopBandEnd()
@@ -950,6 +960,14 @@ internal sealed partial class AppHost : IDesktopDesk
         _dropTargetWidget = null;
         RepaintDesk();
     }
+
+    /// <summary>
+    /// [S-13025] A drag of ours is about to start from the window <paramref name="window"/>: the surface it is becomes the
+    /// foreground window now (<see cref="DesktopWindow.TakeForegroundForDrag"/>). True when it is; a window that is no
+    /// surface of ours (the layout editor) is left as it is.
+    /// </summary>
+    public bool TakeForegroundForDrag(nint window)
+        => _windows.FirstOrDefault(w => w.IsAlive && w.Hwnd == window) is not { } surface || surface.TakeForegroundForDrag();
 
     public bool Dragging(string key) => _deskDrag is { } drag && drag.Keys.Contains(key);
 

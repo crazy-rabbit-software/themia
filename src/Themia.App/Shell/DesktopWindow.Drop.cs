@@ -118,6 +118,8 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
 
             // [S-5546] Icons that only move on the desktop show their picture and nothing else, as Explorer's.
             var moves = _drag is { } drag && Resolve(drag).Moves;
+            // [S-13026] The drag's picture is the surface's own here, under the pointer wherever it is (a fence's ghosts beside it).
+            e.DragUIOverride.IsContentVisible = !ShowDragPicture(ItemDrag.RunningPicture, ToContent(at.X, at.Y));
             e.DragUIOverride.IsGlyphVisible = !moves;
             e.DragUIOverride.IsCaptionVisible = !moves && _drag?.Place is not null;
             if (!moves && _drag?.Place is { } place)
@@ -143,6 +145,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
                 return;
             }
 
+            HideDragPicture();
             var effect = Drop(0, OwnKeys(e.Modifiers), at.X, at.Y, (DropEffect)(uint)e.AllowedOperations);
             e.AcceptedOperation = (Windows.ApplicationModel.DataTransfer.DataPackageOperation)(uint)effect;
             e.Handled = true;
@@ -155,6 +158,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
 
     private void OnOwnDragLeave(object sender, DragEventArgs e)
     {
+        HideDragPicture();
         if (ItemDrag.Running is not null && _drag is { Data: 0 })
         {
             Leave();
@@ -410,6 +414,7 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     /// <summary>The drag is over (left, dropped, or the surface is closing): clear every trace of it.</summary>
     private void EndDrag()
     {
+        HideDragPicture();
         if (_drag is not { } drag)
         {
             return;

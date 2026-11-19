@@ -285,23 +285,41 @@ internal sealed partial class DesktopWindow
     /// needs it) waits till the press lets go (<see cref="RunForegroundAfterPress"/>), when it is still wanted.
     /// </para>
     /// </summary>
-    internal bool TakeForeground(Action? then = null)
+    internal bool TakeForeground(Action? then = null) => TakeForeground(shellDrag: false, then);
+
+    /// <summary>
+    /// [S-13025] A shell drag of our own (<see cref="Themia.Sdk.WinUI.ItemDrag"/>) is about to start from this surface: it
+    /// becomes the foreground window now, press held or not (<see cref="PressForeground"/>), because OLE's drag loop
+    /// follows the mouse through a capture that a background window's thread is not given, so the first drag after
+    /// another app saw no mouse and died. Nothing has the pointer captured at that point (the card let it go, a fence item
+    /// never took it), so the activation takes nothing from anyone. False (logged) when Windows refused.
+    /// </summary>
+    internal bool TakeForegroundForDrag()
     {
-        if (Win32.GetForegroundWindow() == _hwnd)
-        {
-            then?.Invoke();
-            return true;
-        }
+        var before = Win32.GetForegroundWindow();
+        var taken = !_closed && TakeForeground(shellDrag: true, then: null);
+        Log.Debug(Scope, $"a drag starts on {_monitor.GdiName}: the surface {(before == _hwnd ? "was" : taken ? "became" : "could not become")} the foreground window");
+        return taken;
+    }
 
-        if (!DesktopZOrder.MayTakeForeground(_hwnd, _monitor.Bounds))
+    private bool TakeForeground(bool shellDrag, Action? then)
+    {
+        var isForeground = Win32.GetForegroundWindow() == _hwnd;
+        var step = PressForeground.When(
+            isForeground,
+            mayTake: isForeground || DesktopZOrder.MayTakeForeground(_hwnd, _monitor.Bounds),
+            pressHeld: !isForeground && PressHeld(),
+            shellDrag);
+        switch (step)
         {
-            return false;
-        }
-
-        if (PressHeld())
-        {
-            _afterPress = then ?? (static () => { });
-            return true;
+            case ForegroundStep.Already:
+                then?.Invoke();
+                return true;
+            case ForegroundStep.Never:
+                return false;
+            case ForegroundStep.AfterPress:
+                _afterPress = then ?? (static () => { });
+                return true;
         }
 
         if (!Win32.SetForegroundWindow(_hwnd))

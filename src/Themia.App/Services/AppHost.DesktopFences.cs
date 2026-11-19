@@ -59,6 +59,7 @@ internal sealed partial class AppHost : IDesktopFences
         }
 
         var screen = ScreenOfView(at.View.Id) ?? DeskPrimaryScreen;
+        var before = at.Fence.Widget.Rect;
         Mutate(_ =>
         {
             var (widget, fence) = (at.Fence.Widget, at.Fence.Fence);
@@ -82,6 +83,12 @@ internal sealed partial class AppHost : IDesktopFences
                 fence.OpenHeight = 0;
             }
         }, undo: null);
+
+        // [S-13028] The roll glides on every display that shows the fence's view.
+        foreach (var surface in _windows.Where(w => w.IsAlive && string.Equals(w.CurrentViewId, at.View.Id, StringComparison.Ordinal)))
+        {
+            surface.GlideCard(at.Fence.Widget.Id, before);
+        }
     }
 
     /// <summary>[S-13013] A fence's standing sort: its items in the order of <paramref name="by"/>, by Core's one sort (<see cref="DesktopSort.Order"/>).</summary>

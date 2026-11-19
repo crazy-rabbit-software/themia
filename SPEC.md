@@ -10484,6 +10484,24 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
   `--desktop-items-check <out.txt> --search <ext> [folder]` runs one search and writes counts by extension and the time
   (no file names). Tests `FenceSourceTests.S13023_`, the module's `FenceTests.S10900_`. Needs a manual pass: a
   search fence on a live desktop (a drag out, the menu, a non-indexed folder's slower answer).
+- **[S-13026]** **The drag's picture stays over a fence** (the owner, 2026-11-19: "when it shows the ghost preview in the
+  fence it should not stop showing the drag preview"): while a drag of ours is over one of Themia's surfaces, the surface
+  draws the drag's picture itself (Explorer's ghost of the dragged icons, `ItemDrag.RunningPicture`) on its ghost layer
+  with the pointer at its hot spot, and XAML's copy is hidden there (`DragUIOverride.IsContentVisible`), so the picture is
+  under the pointer over empty desktop, cards and a fence alike, the fence's ghosts at their slots beside it ([S-13021]).
+  It goes when the drag leaves the surface, drops or ends; over another app's window the system's picture shows as
+  before. A drag with no picture keeps XAML's. Pure wiring: **needs a live check** (a free icon dragged onto a fence, a
+  fence's item onto another fence, on two displays).
+- **[S-13027]** **The band takes a fence's items, not the fence** (the owner, 2026-11-19: "a fence should not be selected
+  by the lasso if you also select the items of the fence, then only the items should be selected and take presedence"):
+  a band that touches a fence and catches any of its items selects those items and leaves the fence out; a fence it
+  touches with none of its items caught is selected as any card (`DesktopFences.BandHits`). Tests `DeskFixesTests.S13027_`.
+- **[S-13028]** **Rolling up glides** (the owner, 2026-11-19: "rolling up a fence should be nicely animated"): rolled up or
+  let down (its chevron, a click on the title, hover peek, the menu), a fence's card glides from the box it had to the
+  new one over the shell's one glide (`CardGlide`: [S-2347]'s cubic ease-out over 250 ms), its top-left still, its foot
+  rising over its items (they stay till it reaches the title bar) or falling to show them; a layout pass
+  meanwhile draws it where the glide stands; its joins come back when it lands (`DesktopWindow.GlideCard`). At once while
+  Windows' animations are off. The stored rect changes at once, as before. Tests `DeskFixesTests.S13028_`.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each
@@ -10551,6 +10569,19 @@ against the DESKTOP section's rules; what it found missing is here.
   the first press. The surface now takes the foreground (and the focus that needs it) when the press lets go
   (`DesktopWindow.TakeForeground`: deferred while a mouse button is down, run on the release or the next move with no
   button down, if the keys are still meant for it). Win32 focus: **not confirmed on a live desktop**.
+- **[S-13025]** **The first drag after another app, through the shell** (the owner, 2026-11-19: "there is still a bug with
+  the dragging of the desktop icons. sometimes i have to clikc again for the dragging to start working"): a drag of ours
+  that becomes the shell's (an icon's move reaching a fence or leaving the desktop, [S-11878]; every drag of a fence's
+  items, [S-13006]; any `ItemDrag`) runs OLE's drag loop on the UI thread, which follows the mouse through a capture, and
+  Windows gives the capture of a window that is not the foreground only the mouse over that window's visible part; OLE's
+  capture window is hidden, so a drag begun while another app was in front saw no mouse and ended with nothing, and the
+  press after the first one's release (which had made the surface the foreground, [S-13017]) worked. The window a drag
+  starts from now becomes the foreground window right before the drag starts, press held or not (`ItemDrag` asks the
+  host, `DesktopWindow.TakeForegroundForDrag`; the rule `PressForeground.When`: a plain press still waits for its release,
+  a shell drag does not, a full-screen app over the display keeps it); nothing holds the pointer captured then (the
+  card's move let it go, a fence item never took it). Each drag's start logs whether the surface was, became or could not
+  become the foreground window. Tests `DeskFixesTests.S13025_`, `S13017_`. Win32 focus and OLE's loop: **not confirmed
+  on a live desktop**.
 - **[S-13104]** **Ctrl+Shift+C** copies the selected files' paths, quoted, a line each, as Explorer's Copy as path
   (`FileMenuEntries.CopyAsPath`, the menu line's own).
 

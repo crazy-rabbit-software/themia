@@ -33,6 +33,8 @@ public partial class App : Application
             : Services.Files.FileIcons.IconAsync(new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, Directory.Exists(file), 0, default, false), pixels));
         // [S-5565] The number in the badge of a drag's ghost: real text, drawn at once.
         Themia.Sdk.WinUI.ItemDrag.InstallInk(Interop.TextInk.Draw);
+        // [S-13025] A drag of ours starts from the foreground window, or OLE's loop sees no mouse (the first drag after another app).
+        Themia.Sdk.WinUI.ItemDrag.InstallForeground(window => _host?.TakeForegroundForDrag(window) ?? true);
         Shell.ColorChoice.InstallEyedropper(new Interop.ScreenEyedropper());
 
         // [S-1575] The picker's recent colours live in the state (none before the host is there: a render).

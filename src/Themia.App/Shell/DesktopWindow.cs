@@ -135,7 +135,16 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         // [S-13017] The foreground a press asked for is taken when it lets go, whoever handled the release; a shell
         // drag that took the press over ends with no release here, so the next move with no button down counts.
         _root.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler((_, _) => RunForegroundAfterPress()), handledEventsToo: true);
-        _root.AddHandler(UIElement.PointerMovedEvent, new PointerEventHandler((_, _) => RunForegroundAfterPress()), handledEventsToo: true);
+        _root.AddHandler(UIElement.PointerMovedEvent, new PointerEventHandler((_, _) =>
+        {
+            RunForegroundAfterPress();
+
+            // [S-13026] A drag that ended where no leave reached this surface (cancelled away from it) leaves no picture.
+            if (_dragImageOf is not null && Themia.Sdk.WinUI.ItemDrag.Running is null)
+            {
+                HideDragPicture();
+            }
+        }), handledEventsToo: true);
 
         // [S-5593] Ctrl + wheel on the desktop steps its icon size.
         _root.PointerWheelChanged += OnDesktopWheel;

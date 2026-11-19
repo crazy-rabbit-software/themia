@@ -119,11 +119,31 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
         // [S-13021] Items glide to a new place (a drop, the preview stepping aside, a reorder) rather than jump.
         _canvas.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection { new Microsoft.UI.Xaml.Media.Animation.RepositionThemeTransition() };
-        SizeChanged += (_, _) => Layout();
+        SizeChanged += (_, _) =>
+        {
+            OnRollSized();
+            Layout();
+        };
         _scroll.ViewChanged += (_, _) => ReportBoxes();
     }
 
     private readonly Grid _body;
+
+    /// <summary>[S-13028] The roll-up the body was last drawn for; null before the first.</summary>
+    private bool? _shownRolled;
+
+    /// <summary>[S-13028] Rolled up and the card still gliding down to its title bar: the body stays till it is there.</summary>
+    private bool _rolling;
+
+    /// <summary>[S-13028] The card reached its title bar's height: the rolled-up body goes.</summary>
+    private void OnRollSized()
+    {
+        if (_rolling && ActualHeight <= FenceGrid.TitleHeight + 1)
+        {
+            _rolling = false;
+            _body.Visibility = Visibility.Collapsed;
+        }
+    }
 
     /// <summary>[S-10901] The title bar is the card's top edge: the card adds no inset above it.</summary>
     public bool OwnsTopEdge => true;
@@ -465,9 +485,15 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _count.Text = FenceStr.Fence_Count.Plural(items.Count);
         _chevron.Glyph = _config.RolledUp ? Glyphs.ChevronDown : Glyphs.ChevronUp;
         _divider.Visibility = _config.RolledUp ? Visibility.Collapsed : Visibility.Visible;
-        _body.Visibility = _config.RolledUp ? Visibility.Collapsed : Visibility.Visible;
+        // [S-13028] Rolled up just now, the body stays while the card's foot glides up over it (its row the title bar's
+        // leftover), so the items are covered rather than gone at once; it goes when the card is down to its title bar
+        // (OnRollSized). Let down, it is there at once and the foot glides down to show it. The empty sentence, centred,
+        // would stand over the title bar in a row of no height: it goes while rolled up.
+        _rolling = _config.RolledUp && (_rolling || (_shownRolled == false && _attached && !_fixture.On));
+        _shownRolled = _config.RolledUp;
+        _body.Visibility = !_config.RolledUp || _rolling ? Visibility.Visible : Visibility.Collapsed;
         _empty.Text = Searches && !_fixture.On ? SearchEmptyText() : FenceStr.Fence_Empty.Text();
-        _empty.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        _empty.Visibility = items.Count == 0 && !_config.RolledUp ? Visibility.Visible : Visibility.Collapsed;
         SyncCells(items);
         Layout();
         PaintCells();

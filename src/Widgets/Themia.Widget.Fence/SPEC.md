@@ -64,7 +64,7 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
   Rename fence, Roll up or Unroll, Remove fence. Remove fence never deletes a file: a fence with items asks first, beside
   its title bar, "Put the 3 items back on the desktop?" with Put back (the default) and Cancel; Put back removes it and
   its items arrive where it stood ([S-13009]), one undo step that brings it back with them. An empty fence goes at once.
-- **[S-10912]** **A click on the title rolls it up**, as Fences' roll-up ([S-13012]): the fence shrinks to its title bar;
+- **[S-10912]** **A click on the title rolls it up**, as Fences' roll-up ([S-13012]): the fence shrinks to its title bar, gliding ([S-13028]);
   a click again unrolls it to the height it had. The page's switch "Roll up with a click on the title" turns that off.
   A double-click renames instead: its first click's roll-up is taken back.
 - **[S-10913]** **Hover peek**: while the pointer rests on a rolled-up fence it opens, and rolls up again when the pointer
