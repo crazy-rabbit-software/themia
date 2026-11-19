@@ -478,10 +478,10 @@ public static class ScreenTimeRules
     /// <summary>
     /// [S-454] [S-12803] The day line's height over a screen-time widget's content: its line and the gap under it for
     /// a day (its arrows step the day, and the line says which), none for a window (the last 7 or 30 days): words that
-    /// only name the period are the group's Header widget's to say, once ([S-12801]).
+    /// only name the period are the group's Header widget's to say, once ([S-12801]). [S-12834] The line's whole-cell band.
     /// </summary>
     public static double DayLine(ScreenTimePeriod period)
-        => ClampPeriod(period) == ScreenTimePeriod.Day ? FamilySpace.HeaderLine + FamilySpace.HeaderGap : 0;
+        => ClampPeriod(period) == ScreenTimePeriod.Day ? LineRules.NaturalBand : 0;
 
     /// <summary>[S-454] What a window period is called (the page's choice).</summary>
     /// [S-1115] The day count is a placeholder, so it is written in the language's own digits.

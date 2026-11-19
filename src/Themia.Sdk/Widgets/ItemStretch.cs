@@ -144,6 +144,39 @@ public static class ItemStretch
     public static RowReach RowsAbove(double height, int count, int lines, ItemGrid grid, int footLines = 1)
         => Rows(height, count, lines, grid, FamilyShape.RowHeight(footLines));
 
+    /// <summary>
+    /// [S-12830] [S-12834] <paramref name="count"/> columns across a card <paramref name="width"/> wide, from its left edge to
+    /// its right (WR-3), on <paramref name="grid"/>: each whole cells (WR-6), the width's whole cells shared as evenly as
+    /// they go (the first ones a cell more), the last column taking what of the width is not a whole cell; a width of
+    /// fewer whole cells than columns is shared evenly. The month's days, the week planner's days.
+    /// </summary>
+    public static double[] Columns(double width, int count, ItemGrid grid)
+    {
+        width = double.IsFinite(width) ? Math.Max(0, width) : 0;
+        var columns = new double[Math.Max(0, count)];
+        if (columns.Length == 0)
+        {
+            return columns;
+        }
+
+        var cells = grid.Within(width);
+        if (cells < columns.Length)
+        {
+            Array.Fill(columns, width / columns.Length);
+            return columns;
+        }
+
+        var each = cells / columns.Length;
+        var extra = cells % columns.Length;
+        for (var c = 0; c < columns.Length; c++)
+        {
+            columns[c] = (each + (c < extra ? 1 : 0)) * grid.Pitch;
+        }
+
+        columns[^1] += width - (cells * grid.Pitch);
+        return columns;
+    }
+
     /// <summary>[S-12807] Rows of <paramref name="lines"/> lines before a list's box is measured: the whole cells they take.</summary>
     public static RowReach Natural(int lines, ItemGrid grid) => new(grid.Whole(FamilyShape.RowHeight(lines)));
 

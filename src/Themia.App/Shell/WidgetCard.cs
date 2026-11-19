@@ -423,7 +423,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     public void ApplyEdges()
     {
-        _view.Margin = _view.Margin with { Top = CardContent.TopInset((_view as IWidgetTopEdge)?.OwnsTopEdge == true) };
+        // [S-12835] Under the card's compact Set up line the view keeps its face: it stands under the line's whole cells.
+        var under = _setup is not null ? LineRules.EdgeRow(new ItemGrid(CellPitch, XamlRoot?.RasterizationScale ?? 1)) : 0;
+        _view.Margin = _view.Margin with { Top = CardContent.TopInset((_view as IWidgetTopEdge)?.OwnsTopEdge == true) + under };
 
         // [S-1862] The Set up and waiting rows never own the edge.
         if (_setup is not null)

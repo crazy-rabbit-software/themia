@@ -70,7 +70,12 @@ public sealed partial class KitList
 
         _addRow = new AddFooterRow(_spec.AddLabel?.Invoke() ?? string.Empty, OpenAddEditor);
         SetRow(_addRow.Element, 2);
+
+        // [S-3850] [S-12834] The add row stands right under the last row (WR-5: "there should not be a space"; empty
+        // room only at the foot): the rows take what they need, the add row its row, the rest is the foot's.
+        RowDefinitions[1].Height = GridLength.Auto;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
     }
 
     /// <summary>[S-1110] The add row's words again, after a language change.</summary>
@@ -91,6 +96,22 @@ public sealed partial class KitList
         ArgumentNullException.ThrowIfNull(element);
         SetRow(element, 1);
         Children.Add(element);
+        _overlay = element;
+        SpanOverlay();
+    }
+
+    private FrameworkElement? _overlay;
+
+    /// <summary>
+    /// [S-12835] The state over the list takes the list's room down to the foot (its empty rows, WR-10) unless the add row
+    /// stands under it, right under the state's line.
+    /// </summary>
+    private void SpanOverlay()
+    {
+        if (_overlay is not null)
+        {
+            SetRowSpan(_overlay, _addRow?.Element.Visibility == Visibility.Visible ? 1 : 3);
+        }
     }
 
     /// <summary>
@@ -98,7 +119,10 @@ public sealed partial class KitList
     /// or while it holds an editor; at the rows' density and inset.
     /// </summary>
     private void FitAddRow(bool shown)
-        => _addRow?.Fit((shown && _plan.AddRow) || _editor is { Id: null });
+    {
+        _addRow?.Fit((shown && _plan.AddRow) || _editor is { Id: null });
+        SpanOverlay();
+    }
 
     /// <summary>[S-3850] Without a list (another screen) the add row goes, unless it holds the user's words.</summary>
     private void HideAddRow(KitPlan plan)
@@ -381,6 +405,7 @@ public sealed partial class KitList
         var box = NewEditor(_addRow.Words, text);
         box.PlaceholderText = _spec.AddPlaceholder?.Invoke() ?? string.Empty;
         _addRow.Fit(true);
+        SpanOverlay();
         Open(box, null, _addRow.Row);
     }
 

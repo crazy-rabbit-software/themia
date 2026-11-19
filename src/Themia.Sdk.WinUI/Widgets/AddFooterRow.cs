@@ -11,8 +11,9 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-3850] The one "Add …" row a list widget adds from (Habits, Tasks): a Row block ([S-6711]) of 32
-/// leading with the + glyph, its name the line ("Add a task") in the secondary role, pinned to the
-/// bottom of the content box under the list, the way a Windows 11 list ends in its add row. A tap
+/// leading with the + glyph, its name the line ("Add a task") in the secondary role, right under the
+/// list's last row, the way a Windows 11 list ends in its add row ([S-12834]: the room left over is the
+/// foot's, never between the rows and the add row, WR-5). A tap
 /// opens the widget's own text box in place of the line: the one <see cref="InlineBox"/>, standing in the
 /// line's words, so the row keeps its height, glyph, inset and type ([S-13950]); whether it shows at all is
 /// the widget's plan's (where it can add, [S-2440]).
@@ -32,12 +33,11 @@ public sealed class AddFooterRow
         _onAdd = onAdd;
         _row.LeadGlyph(Glyphs.Add);
 
-        // [S-12807] Its ink on the foot's inset line: its band and its leading under the ink reach into the inset,
-        // so the list's last ink stands where every list's does (ItemStretch.RowsAbove lays the rows over it).
+        // [S-12834] Right under the rows (the view lays it in the grid row after theirs; the foot takes the rest).
         Element = new Border
         {
             Child = _row,
-            VerticalAlignment = VerticalAlignment.Bottom,
+            VerticalAlignment = VerticalAlignment.Top,
             Visibility = Visibility.Collapsed,
         };
 

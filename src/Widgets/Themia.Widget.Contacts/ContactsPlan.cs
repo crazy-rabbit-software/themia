@@ -32,8 +32,8 @@ public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Colu
 /// </summary>
 public static class ContactsPlan
 {
-    /// <summary>[S-1275] The search box: one control of 28 and the gap under it.</summary>
-    public const double SearchHeight = FamilyShape.Button + FamilySpace.S2;
+    /// <summary>[S-1275] [S-12834] The search box: one control of 28, the rows right under it (grown to a grid line in the view).</summary>
+    public const double SearchHeight = FamilyShape.Button;
 
     /// <summary>[S-582] The details table's column titles: one Caption line and the gap under it.</summary>
     public static double HeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
@@ -69,12 +69,13 @@ public static class ContactsPlan
     }
 
     /// <summary>
-    /// [S-12807] The config's rows under <paramref name="over"/> (the search box, the column titles): touching, from
-    /// where their room starts to the foot's inset; natural rows before the box is measured.
+    /// [S-12807] [S-12834] The config's rows under <paramref name="over"/> (the search box, the column titles): touching,
+    /// from the card's top edge or right under what stands over them (its whole cells, with the card's inset over it) to
+    /// the card's foot; natural rows before the box is measured.
     /// </summary>
     private static RowReach Reach(WidgetArea area, double over, int rows, int lines, double scale)
         => area.IsMeasured
-            ? ItemStretch.Rows(area.Height, rows, lines, area.Grid(scale), over, edge: false)
+            ? ItemStretch.Rows(area.Height, rows, lines, area.Grid(scale), over > 0 ? FamilySpace.Inset + over : 0)
             : ItemStretch.Natural(lines, area.Grid(scale));
 
     /// <summary>

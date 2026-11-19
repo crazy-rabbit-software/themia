@@ -14,10 +14,12 @@ namespace Themia.Sdk.WinUI.Kit;
 /// folder's way back and up, the screen time's day and its arrows, the note's formatting bar. Never a card's
 /// header and never the widget's name (no card has a header, [S-12480]; a title is a Header widget of its
 /// own, [S-9600]): the label says what the tools act on now ("November 2026", "Documents"). The view lays it
-/// in its own first row at its side inset, with <see cref="FamilySpace.HeaderGap"/> under it. With no label
-/// and no part to show it is collapsed and takes no room. The trailing <see cref="LineParts"/> of family
-/// parts (<see cref="Button"/>, <see cref="Count"/>, a problem glyph, a ring, a label) fold by
-/// <see cref="LineRules"/>.
+/// in its own first row at its side inset. [S-12834] The line is a band of whole grid cells: its 20 and the gap
+/// under it grown to end on a grid line counted from the card's top edge (<see cref="LineRules.Band"/>), its label's
+/// box filling the band (its words on the line's top), so whatever stands under it starts right under it, on a grid
+/// line, with no space between (WR-1, WR-5). With no label and no part to show it is collapsed and takes no room.
+/// The trailing <see cref="LineParts"/> of family parts (<see cref="Button"/>, <see cref="Count"/>, a problem
+/// glyph, a ring, a label) fold by <see cref="LineRules"/>.
 /// </summary>
 public sealed partial class ToolLine : Grid
 {
@@ -26,18 +28,21 @@ public sealed partial class ToolLine : Grid
     public ToolLine()
     {
         _label = Family.Text(FamilyType.Body, ColourRole.TextSecondary, string.Empty);
-        _label.VerticalAlignment = VerticalAlignment.Center;
+
+        // [S-12834] The label's box is the band: its words on the line's top, its box down to the band's grid line.
+        _label.VerticalAlignment = VerticalAlignment.Top;
 
         // [S-640] A label that does not fit ends in an ellipsis: a Grid does not clip a child to its cell.
         _label.TextTrimming = TextTrimming.CharacterEllipsis;
         _label.TextWrapping = TextWrapping.NoWrap;
 
-        Height = FamilySpace.HeaderLine;
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         Children.Add(_label);
 
-        Parts.VerticalAlignment = VerticalAlignment.Center;
+        // The parts stand on the line of 20 at the band's top, beside the label's words.
+        Parts.VerticalAlignment = VerticalAlignment.Top;
+        Parts.Height = FamilySpace.HeaderLine;
         SetColumn(Parts, 1);
         Children.Add(Parts);
         Parts.Changed += Decide;
@@ -75,7 +80,10 @@ public sealed partial class ToolLine : Grid
             Parts.Fold(availableSize.Width, LabelWidth());
         }
 
-        return base.MeasureOverride(availableSize);
+        var band = LineRules.Band(ItemGrids.Of(this));
+        SectionHeading.Fill(_label, band, top: true);
+        var desired = base.MeasureOverride(availableSize);
+        return new Windows.Foundation.Size(desired.Width, band);
     }
 
     /// <summary>The label's whole width, as it would stand with room to spare.</summary>

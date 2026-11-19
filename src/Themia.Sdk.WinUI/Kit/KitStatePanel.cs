@@ -19,6 +19,12 @@ namespace Themia.Sdk.WinUI.Kit;
 /// widens what the account may read ([S-9919]), else the widget's own (Try again, start a list on
 /// this PC). Loading, offline and "nothing on" need no action and show none. No account at all is the
 /// card's Set up row instead ([S-1862]).
+/// <para>
+/// [S-12835] The row is the compact line over the list's face, never the face's place (WR-10): under it the list's
+/// rows stand empty (<see cref="EmptyRows"/>, at the list's pitch, <see cref="RowPitch"/>), as many as its slot holds
+/// whole, so the widget keeps its rows with nothing in them. A view that draws its own face under the row (the
+/// calendar's month) gives the panel no room under it and no row is drawn.
+/// </para>
 /// </summary>
 public sealed partial class KitStatePanel : Grid
 {
@@ -42,12 +48,25 @@ public sealed partial class KitStatePanel : Grid
 
         _widgetHost = host;
         _glyph = glyph;
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        SetRow(_empty, 1);
         Children.Add(_row);
+        Children.Add(_empty);
         SizeChanged += OnSizeChanged;
     }
 
+    private readonly EmptyRows _empty = new();
+
     /// <summary>The state's row.</summary>
     public StatusBlock Row => _row;
+
+    /// <summary>[S-12835] The pitch of the list's rows the face keeps under the row (unset: a one-line row's whole cells).</summary>
+    public double RowPitch
+    {
+        get => _empty.Pitch;
+        set => _empty.Pitch = value;
+    }
 
     /// <summary>
     /// Show a sentence, as a problem (the warning) or a plain state (the widget's glyph), with its one
@@ -61,7 +80,21 @@ public sealed partial class KitStatePanel : Grid
 
         _shown = (message, offerAccounts, grant, action, problem, details ?? []);
         _grantPage = grant;
+        _empty.Margin = default;
         Draw();
+        Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// [S-12835] Nothing for the panel to say (the card's compact Set up line says it over the face): the list's rows
+    /// alone, empty, from the card's top edge as the list's own would stand.
+    /// </summary>
+    public void ShowFace()
+    {
+        _shown = null;
+        _run = null;
+        _row.Hide();
+        _empty.Margin = ListEdge.Margin;
         Visibility = Visibility.Visible;
     }
 

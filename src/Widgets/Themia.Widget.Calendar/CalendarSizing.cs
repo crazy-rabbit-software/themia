@@ -15,11 +15,11 @@ public static class CalendarSizing
 {
     public const int DefaultAgendaRows = 6;
 
-    /// <summary>[S-569] [S-12481] The period's line (a tool line) and the gap under it, over every style but the agenda.</summary>
-    public const double NavLine = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+    /// <summary>[S-569] [S-12481] [S-12834] The period's line (a tool line) and the gap under it, over every style but the agenda: its whole-cell band.</summary>
+    public static double NavLine => LineRules.NaturalBand;
 
     /// <summary>[S-12481] Where a style with the period's line starts its drawing: the card's inset and the line.</summary>
-    public const double ContentTop = FamilySpace.ContentTop + NavLine;
+    public static double ContentTop => FamilySpace.ContentTop + NavLine;
 
     public const int DefaultWeekRows = 3;
 

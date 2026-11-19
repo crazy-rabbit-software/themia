@@ -107,16 +107,21 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
         // [S-584] [S-13606] The one search box (Windows' own, with the system's caret, clear button, magnifier and
-        // menu): one control of 32, the card's inset either side, 8 over the list. [S-13607] Its keys are every
-        // search's: Enter and Down select the first person shown, Escape empties it.
+        // menu): the card's inset either side, [S-12834] the family's control of 28 grown to end on a grid line, the list
+        // right under it (WR-1, WR-5). [S-13607] Its keys are every search's: Enter and Down select the first person
+        // shown, Escape empties it.
         _search.Visibility = Visibility.Collapsed;
-        _search.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2);
+        _search.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0);
         SetRow(_search, 0);
 
         // [S-13950] The same box at the line's size, in the list's first line; Escape on it empty folds it away.
         _lineSearch.LetGo = CloseLineSearch;
         _searchSlot.Child = _lineSearch;
         SetRow(_searchSlot, 2);
+
+        // [S-12834] The line stands in the list's first line, a line of the list's own: on the card's top edge, as tall as a row.
+        _searchSlot.Margin = ListEdge.Margin;
+        ItemMark.Mark(_searchSlot);
         foreach (var box in new[] { _search, _lineSearch })
         {
             box.Count = () => _visible.Count;
@@ -565,8 +570,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 return;
 
             case Screen.NoAccounts:
-                // [S-1862] The card shows its Set up row over this.
-                _state.Hide();
+                // [S-1862] [S-12835] The card's compact Set up line says so over the face: the rows kept, empty.
+                _state.ShowFace();
                 return;
 
             case Screen.AccountsGone:
@@ -579,6 +584,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         var plan = ContactsPlan.Of(_area, _config, XamlRoot?.RasterizationScale ?? 1);
+        _search.Fill(LineRules.Under(_area.Grid(XamlRoot?.RasterizationScale ?? 1), FamilySpace.Inset, FamilyShape.Button));
         if (line)
         {
             // [S-13950] The line takes the list's first line (a row, or a line of cells): the rows under it keep their places,
@@ -624,11 +630,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 break;
         }
 
-        // [S-13950] The list starts under the line, one line down: each row stands where it stood.
-        if (line)
-        {
-            _scroll.Margin = new Thickness(0, plan.Pitch, 0, 0);
-        }
+        // [S-12815] Without a field over it the list stands on the card's top edge; [S-13950] under the line, one line
+        // down: each row stands where it stood.
+        _scroll.Margin = showSearch ? default : ListEdge.Margin with { Top = ListEdge.Margin.Top + (line ? plan.Pitch : 0) };
 
         if (_selectedId is { } id)
         {

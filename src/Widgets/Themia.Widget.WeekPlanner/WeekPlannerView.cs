@@ -384,8 +384,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
                 return;
 
             case Screen.NoAccounts:
-                // [S-1862] The card shows its Set up button over this.
-                _state.Hide();
+                // [S-1862] [S-12835] The card's compact Set up line says so over the face: the rows kept, empty.
+                _state.ShowFace();
                 return;
 
             case Screen.AccountsGone:
@@ -411,48 +411,76 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         var slots = WeekPlannerRules.Columns(counts, _config.Days, _config.RowsPerDay);
         var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
 
+        // [S-12834] The days are columns of one grid of cells (WR-3: "items reach from edge to edge"; WR-6: whole grid
+        // cells): from the card's left edge to its right, each whole cells (the last taking the part cell), every line of
+        // them as tall as the rows' pitch, a day with fewer lines than another holding its place with empty cells, so
+        // every line of the week runs across the card and the lines touch from its top edge down; the room left over is
+        // the foot's (WR-5).
+        var reach = Reach;
+        var widths = _area.IsMeasured ? ItemStretch.Columns(_area.Width, slots.Count, _area.Grid(XamlRoot?.RasterizationScale ?? 1)) : null;
         for (var c = 0; c < slots.Count; c++)
         {
-            _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            _content.ColumnDefinitions.Add(new ColumnDefinition { Width = widths is null ? new GridLength(1, GridUnitType.Star) : new GridLength(widths[c]) });
         }
 
-        var reach = Reach;
+        var columns = new List<List<FrameworkElement>>();
         for (var s = 0; s < slots.Count; s++)
         {
-            var stack = new StackPanel();
-            SetColumn(stack, s);
-            _content.Children.Add(stack);
+            var stack = new List<FrameworkElement>();
             DrawDay(stack, days[slots[s].Day], slots[s], today, zone, showColors, times: true);
-            ListEdge.Apply(stack);
-            foreach (var line in stack.Children.OfType<FrameworkElement>())
+            columns.Add(stack);
+        }
+
+        var lines = Math.Min(columns.Count == 0 ? 0 : columns.Max(c => c.Count), Math.Max(1, reach.Shown));
+        for (var l = 0; l < lines; l++)
+        {
+            _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(reach.Pitch) });
+        }
+
+        for (var c = 0; c < columns.Count; c++)
+        {
+            for (var l = 0; l < lines; l++)
             {
-                line.Height = reach.Pitch;
+                var cell = l < columns[c].Count ? columns[c][l] : EmptyCell();
+                cell.Height = reach.Pitch;
+                SetColumn(cell, c);
+                SetRow(cell, l);
+                _content.Children.Add(cell);
             }
         }
 
         // [S-12807] The headings' band over the view's top, so their text stands on the card's inset.
+        ListEdge.Apply(_content);
         _content.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>[S-12834] A day's line with nothing on it, holding its place in the week's grid: one of its cells, empty.</summary>
+    private static Border EmptyCell()
+    {
+        var cell = new Border { IsHitTestVisible = false, Background = Family.Brush(ColourRole.Clear) };
+        ItemMark.Mark(cell);
+        return cell;
     }
 
     /// <summary>
     /// [S-5323] A day: its heading (one row of 28, BodyStrong; primary for today, secondary for the rest,
     /// never the accent), its events, then its tasks, then "+3" when the day has more than fit.
     /// </summary>
-    private void DrawDay(StackPanel stack, PlannerDay day, PlannerSlot slot, DateOnly today, TimeZoneInfo zone, bool showColors, bool times)
+    private void DrawDay(List<FrameworkElement> stack, PlannerDay day, PlannerSlot slot, DateOnly today, TimeZoneInfo zone, bool showColors, bool times)
     {
         if (slot.Heading)
         {
-            var head = SectionHeading.Make(Formatting.DayHeading(day.Day, today), FamilyShape.Row1, day.Day == today);
+            var head = SectionHeading.Make(Formatting.DayHeading(day.Day, today), Reach.Pitch, day.Day == today);
             head.Background = Family.Brush(ColourRole.Clear);
             LinkHead(head, day.Day);
-            stack.Children.Add(head);
+            stack.Add(head);
         }
 
         if (day.Count == 0)
         {
             if (day.Day == today && slot.Shown > 0)
             {
-                stack.Children.Add(Note(WeekPlannerStr.Planner_Free.Text()));
+                stack.Add(Note(WeekPlannerStr.Planner_Free.Text()));
             }
 
             return;
@@ -466,7 +494,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
                 break;
             }
 
-            stack.Children.Add(EventRow(item, day.Day, zone, showColors, times));
+            stack.Add(EventRow(item, day.Day, zone, showColors, times));
         }
 
         foreach (var task in day.Tasks)
@@ -476,12 +504,12 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
                 break;
             }
 
-            stack.Children.Add(TaskRow(task, today, zone));
+            stack.Add(TaskRow(task, today, zone));
         }
 
         if (slot.Hidden > 0)
         {
-            stack.Children.Add(Note($"+{LocaleFormat.Integer(Strings.Current, slot.Hidden)}"));
+            stack.Add(Note($"+{LocaleFormat.Integer(Strings.Current, slot.Hidden)}"));
         }
     }
 
@@ -634,6 +662,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         _eventRows.Point(null);
         _content.Children.Clear();
         _content.ColumnDefinitions.Clear();
+        _content.RowDefinitions.Clear();
     }
 
     /// <summary>[S-3773] The region's clock, as every time the widgets write.</summary>

@@ -421,4 +421,32 @@ public sealed class FamilyBlockRulesTests
     [InlineData(9, 2)]
     public void S12807_a_rows_band_is_what_its_height_leaves_over_and_under_its_text(int lines, double band)
         => Assert.Equal(band, FamilyShape.RowBand(lines));
+
+    [Theory]
+    [InlineData(10, 28)]    // 12 + 28 = 40: four cells
+    [InlineData(12, 24)]    // 12 + 24 = 36: three cells of 12
+    [InlineData(9.6, 26.4)] // 12 + 26.4 = 38.4: four cells of 9.6
+    public void S12834_a_tool_line_is_a_band_ending_on_a_grid_line_under_the_cards_inset(double cell, double band)
+    {
+        // WR-1 (owner, 2026-11-19): "there should not be a space at the top"; the rows under a line start right under it.
+        var grid = new ItemGrid(cell);
+        Assert.Equal(band, LineRules.Band(grid), 6);
+        Assert.True(grid.IsWhole(FamilySpace.Inset + LineRules.Band(grid), 1e-6));
+        Assert.True(LineRules.Band(grid) >= FamilySpace.HeaderLine + FamilySpace.HeaderGap);
+        Assert.Equal(28, LineRules.NaturalBand, 6);
+    }
+
+    [Fact]
+    public void S12834_a_line_on_the_cards_top_edge_and_a_field_over_rows_end_on_grid_lines()
+    {
+        var grid = ItemGrid.Default();
+
+        // The compact state or Set up line on the card's top edge: a row of 28 in whole cells.
+        Assert.Equal(30, LineRules.EdgeRow(grid), 6);
+
+        // A widget's search field: the family's control of 28 from where it stands, grown to the next grid line.
+        Assert.Equal(28, LineRules.Under(grid, FamilySpace.Inset, FamilyShape.Button), 6);
+        Assert.Equal(30, LineRules.Under(grid, 40, FamilyShape.Button), 6);
+        Assert.True(grid.IsWhole(40 + LineRules.Under(grid, 40, FamilyShape.Button), 1e-6));
+    }
 }

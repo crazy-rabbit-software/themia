@@ -10,6 +10,8 @@ namespace Themia.Sdk.WinUI.Kit;
 /// tooltip] 12 [its one action]. A set-up's action is the accent main action; Try again and Open
 /// Accounts are standard buttons. Too narrow for both, the sentence goes and the glyph and action
 /// stay (<see cref="StatusRules.ShowsSentence"/>). Like a row, it carries the side inset itself.
+/// [S-12834] Its row is whole grid cells (<see cref="LineRules.EdgeRow"/>: 30 on the default grid), the sentence's box
+/// filling it with its words centred, so the rows a face keeps under it (WR-10) start right under it on a grid line.
 /// </summary>
 public sealed partial class StatusBlock : Grid
 {
@@ -20,7 +22,6 @@ public sealed partial class StatusBlock : Grid
 
     public StatusBlock()
     {
-        Height = FamilyShape.Row1;
         Padding = Family.SideInset;
         VerticalAlignment = VerticalAlignment.Top;
 
@@ -34,7 +35,7 @@ public sealed partial class StatusBlock : Grid
         _glyph = Family.Glyph(string.Empty, FamilyShape.Icon, ColourRole.TextTertiary);
         _glyph.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
         _sentence = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
-        _sentence.VerticalAlignment = VerticalAlignment.Center;
+        _sentence.VerticalAlignment = VerticalAlignment.Top;
         SetColumn(_sentence, 1);
         Children.Add(_glyph);
         Children.Add(_sentence);
@@ -48,7 +49,12 @@ public sealed partial class StatusBlock : Grid
             Fold(availableSize.Width);
         }
 
-        return base.MeasureOverride(availableSize);
+        // [S-12834] The row's whole cells; the sentence's words centred in its box, which fills the row.
+        var row = double.IsFinite(Height) ? Height : LineRules.EdgeRow(Themia.App.Widgets.ItemGrids.Of(this));
+        SectionHeading.Fill(_sentence, row);
+
+        var desired = base.MeasureOverride(availableSize);
+        return new Windows.Foundation.Size(desired.Width, row);
     }
 
     /// <summary>The sentence (its tooltip is the whole of it).</summary>
@@ -80,6 +86,9 @@ public sealed partial class StatusBlock : Grid
         {
             _action = ControlsBlock.TextButton(action, look.MainAction, () => _run?.Invoke());
             _action.Margin = new Thickness(FamilySpace.ColumnGap, 0, 0, 0);
+
+            // [S-12834] On the row's foot, so what stands under the line starts right under its button too.
+            _action.VerticalAlignment = VerticalAlignment.Bottom;
             ToolTipService.SetToolTip(_action, sentence);
             SetColumn(_action, 2);
             Children.Add(_action);

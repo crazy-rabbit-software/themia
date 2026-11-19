@@ -58,6 +58,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     private readonly Grid _columns = new();
     private readonly ScrollViewer _scroll;
     private readonly StatusBlock _status = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly EmptyRows _face = EmptyRows.UnderStatus();
 
     // The rows on screen: each unhooks its hover when the list is drawn again. A leaked one keeps the
     // row alive and re-lights it after the list has been redrawn.
@@ -109,6 +110,9 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         _status.Visibility = Visibility.Collapsed;
         Children.Add(_scroll);
         Children.Add(_status);
+
+        // [S-12835] No devices to list: the rows kept, "--", under the status's line.
+        Children.Add(_face);
         Children.Add(_busy);
     }
 
@@ -295,10 +299,12 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
             if (_snapshot.Status == BluetoothStatus.Failed)
             {
                 _status.Show(StatusKind.Problem, Glyphs.Bluetooth, message, Str.Common_Retry.Text(), Reload);
+                _face.Visibility = Visibility.Visible;
             }
             else
             {
                 _status.Show(_snapshot.Status == BluetoothStatus.PermissionDenied ? StatusKind.Problem : StatusKind.Empty, Glyphs.Bluetooth, message);
+                _face.Visibility = Visibility.Visible;
             }
 
             _scroll.Visibility = Visibility.Collapsed;
@@ -306,6 +312,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         }
 
         _status.Hide();
+        _face.Visibility = Visibility.Collapsed;
         _scroll.Visibility = Visibility.Visible;
 
         // [S-11310] One column of the config's rows, the rest a scroll away.

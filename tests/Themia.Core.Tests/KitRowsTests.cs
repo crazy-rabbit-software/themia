@@ -122,7 +122,9 @@ public sealed class KitRowsTests
                 var reach = ItemStretch.Rows(area.Height, 6, lines, area.Grid());
                 Assert.Equal(reach.Pitch, plan.RowHeight, 6);
                 Assert.True(area.Grid().IsWhole(plan.RowHeight, 1e-6));
-                Assert.Equal(FamilyShape.Row1 * plan.RowHeight / FamilyShape.RowHeight(lines), plan.HeadingHeight, 6);
+                // [S-12834] A heading is one of the rows that tile the list: as tall as they are, whole cells (WR-6: "all items
+                // of a widget are the same size"), so the rows under it start right under it and touch it (WR-2).
+                Assert.Equal(plan.RowHeight, plan.HeadingHeight, 6);
             }
         }
 

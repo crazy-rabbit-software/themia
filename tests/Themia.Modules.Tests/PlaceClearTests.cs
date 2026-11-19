@@ -104,7 +104,9 @@ public class PlaceClearTests
 
         Assert.False(config.HasLocation);
         Assert.True(WidgetSetup.Needed((WidgetConfig)config, FeatureSet.None));
-        Assert.False(WidgetLiveness.Runs((WidgetConfig)config, FeatureSet.None));
+
+        // [S-12835] Waiting for its place it still runs, its face under the card's compact Set up line (WR-10).
+        Assert.True(WidgetLiveness.Runs((WidgetConfig)config, FeatureSet.None));
     }
 
     [Theory]

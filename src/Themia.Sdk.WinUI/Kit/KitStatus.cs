@@ -95,11 +95,60 @@ public sealed partial class KitStatus : StackPanel
             width = Math.Max(0, DesiredSize.Width - Margin.Left - Margin.Right) + FamilySpace.S2;
         }
 
+        _room = width;
         if (Parent is Panel view)
         {
-            foreach (var part in view.Children.OfType<IStatusRoom>())
+            foreach (var part in Rooms(view))
             {
                 part.StatusRoom(width);
+            }
+        }
+    }
+
+    private double _room;
+
+    /// <summary>[S-12834] Every part of the view that leaves the status room, however deep it stands (a list in the view's body).</summary>
+    private static IEnumerable<IStatusRoom> Rooms(DependencyObject node)
+    {
+        IEnumerable<UIElement> children = node switch
+        {
+            Panel panel => panel.Children,
+            Border { Child: { } child } => [child],
+            _ => [],
+        };
+
+        foreach (var child in children)
+        {
+            if (child is IStatusRoom part)
+            {
+                yield return part;
+            }
+
+            foreach (var deeper in Rooms(child))
+            {
+                yield return deeper;
+            }
+        }
+    }
+
+    /// <summary>
+    /// [S-12834] A part built after the status last spoke (a list a view draws anew) asks for its room when it stands in
+    /// the view: the status of the nearest panel over it that has one.
+    /// </summary>
+    public static void Ask(FrameworkElement part)
+    {
+        ArgumentNullException.ThrowIfNull(part);
+        if (part is not IStatusRoom room)
+        {
+            return;
+        }
+
+        for (DependencyObject? node = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(part); node is not null; node = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(node))
+        {
+            if (node is Panel panel && panel.Children.OfType<KitStatus>().FirstOrDefault() is { } status)
+            {
+                room.StatusRoom(status._room);
+                return;
             }
         }
     }

@@ -214,9 +214,10 @@ public sealed class FolderBrowserTests
     [Fact]
     public void S11203_a_folder_keeps_a_free_size_in_its_range_and_details_is_as_wide_as_its_columns()
     {
+        // [S-12834] Over the items: the card's inset and the tool line's whole-cell band (12 + 28 = 40).
         var list = FolderLayout.Sizing(new FolderConfig());
-        Assert.Equal((new SizeDip(220, 160), new SizeDip(300, 36 + (8 * 28) + 12), new SizeDip(800, 640)), (list.Min, list.Natural, list.Max));
-        Assert.Equal(36 + (4 * 64) - 12 + 12, FolderLayout.Sizing(new FolderConfig { Style = FolderStyle.Grid }).Natural.Height);
+        Assert.Equal((new SizeDip(220, 160), new SizeDip(300, 40 + (8 * 28) + 12), new SizeDip(800, 640)), (list.Min, list.Natural, list.Max));
+        Assert.Equal(40 + (4 * 64) - 12 + 12, FolderLayout.Sizing(new FolderConfig { Style = FolderStyle.Grid }).Natural.Height);
         Assert.Empty(list.Problems());
 
         var details = new FolderConfig { Style = FolderStyle.Details };
@@ -230,7 +231,8 @@ public sealed class FolderBrowserTests
 
         // Everything over the items on: the least height holds them and one row.
         var tall = new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true };
-        Assert.Equal(36 + 36 + 28 + 24 + 28 + 12, FolderLayout.Sizing(tall).Min.Height);
+        // [S-12834] The search box is the family's control of 28, the items right under it.
+        Assert.Equal(40 + 28 + 28 + 24 + 28 + 12, FolderLayout.Sizing(tall).Min.Height);
     }
 
     [Fact]

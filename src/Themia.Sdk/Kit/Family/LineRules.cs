@@ -42,6 +42,33 @@ public static class LineRules
     /// <summary>The gap between two trailing parts that are not both buttons.</summary>
     public const double PartGap = FamilySpace.S1;
 
+    /// <summary>
+    /// [S-12834] A tool line's band under the card's top inset (owner, 2026-11-19, WR-1: "there should not be a space at
+    /// the top"; WR-6: "items inside widgets should be designed in a way that they match the size of the grid on the
+    /// desktop"): the line of 20 and the gap under it, grown to end on a line of <paramref name="grid"/> counted from the
+    /// card's top edge, so the rows under it start right under it on a grid line and the line is whole cells with the
+    /// card's inset over it. On the default grid of 10: 28 (12 + 28 = 40, four cells).
+    /// </summary>
+    public static double Band(Themia.Core.Widgets.ItemGrid grid)
+        => grid.Whole(FamilySpace.Inset + FamilySpace.HeaderLine + FamilySpace.HeaderGap) - FamilySpace.Inset;
+
+    /// <summary>
+    /// [S-12834] A part <paramref name="natural"/> tall standing <paramref name="top"/> under the card's top edge (a widget's
+    /// search field over its rows): grown to end on a line of <paramref name="grid"/>, so what stands under it starts right
+    /// under it on a grid line (WR-1, WR-5).
+    /// </summary>
+    public static double Under(Themia.Core.Widgets.ItemGrid grid, double top, double natural)
+        => grid.Whole(Math.Max(0, top) + Math.Max(0, natural)) - Math.Max(0, top);
+
+    /// <summary>[S-12834] <see cref="Band"/> on the default grid: what a kind's sizing counts for its line before its card's grid is known.</summary>
+    public static double NaturalBand => Band(Themia.Core.Widgets.ItemGrid.Default());
+
+    /// <summary>
+    /// [S-12834] A line standing on the card's top edge (a state's or a set-up's compact row, a list's first): one row of
+    /// 28 grown to whole cells of <paramref name="grid"/> (30 on the default grid), the rows under it starting on a grid line.
+    /// </summary>
+    public static double EdgeRow(Themia.Core.Widgets.ItemGrid grid) => grid.Whole(FamilyShape.Row1);
+
     /// <summary>How far a last button reaches past the inset: its glyph sits on the inset.</summary>
     public const double ButtonOverhang = (FamilyShape.LineButton - FamilyShape.Icon) / 2;
 

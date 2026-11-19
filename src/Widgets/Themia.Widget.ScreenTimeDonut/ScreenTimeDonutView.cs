@@ -104,7 +104,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         // [S-454] [S-12481] The day and its arrows, the content's first line.
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
+        _nav.Line.Margin = Family.SideInset;
         SetRow(_ring, 1);
         Children.Add(_nav.Line);
         Children.Add(_ring);

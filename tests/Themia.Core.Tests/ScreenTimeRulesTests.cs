@@ -542,7 +542,9 @@ public sealed class ScreenTimeRulesTests
     [Fact]
     public void S12803_a_day_has_its_line_and_arrows_a_window_no_line_naming_it()
     {
-        Assert.Equal(FamilySpace.HeaderLine + FamilySpace.HeaderGap, ScreenTimeRules.DayLine(ScreenTimePeriod.Day));
+        // [S-12834] The day line is a tool line: its band of whole cells under the card's inset (28 on the default grid).
+        Assert.Equal(LineRules.NaturalBand, ScreenTimeRules.DayLine(ScreenTimePeriod.Day));
+        Assert.Equal(28, LineRules.NaturalBand);
         Assert.Equal(0, ScreenTimeRules.DayLine(ScreenTimePeriod.Week));
         Assert.Equal(0, ScreenTimeRules.DayLine(ScreenTimePeriod.Month));
     }

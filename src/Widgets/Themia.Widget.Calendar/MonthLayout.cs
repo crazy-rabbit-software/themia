@@ -54,23 +54,7 @@ public static class MonthLayouts
     {
         width = double.IsFinite(width) ? Math.Max(0, width) : 0;
         var pitch = grid.Pitch;
-        var columns = new double[7];
-        var cells = grid.Within(width);
-        if (cells >= 7)
-        {
-            var each = cells / 7;
-            var extra = cells % 7;
-            for (var c = 0; c < 7; c++)
-            {
-                columns[c] = (each + (c < extra ? 1 : 0)) * pitch;
-            }
-
-            columns[6] += width - (cells * pitch);
-        }
-        else
-        {
-            Array.Fill(columns, width / 7);
-        }
+        var columns = ItemStretch.Columns(width, 7, grid);
 
         var headerEnd = grid.Whole(top + FamilyType.Caption.LineHeight);
         var room = Math.Max(0, cardHeight - headerEnd);

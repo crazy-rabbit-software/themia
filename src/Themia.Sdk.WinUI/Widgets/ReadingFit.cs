@@ -61,6 +61,24 @@ public sealed partial class ReadingFit : Panel
         set => _plan.Spacing = value;
     }
 
+    /// <summary>
+    /// [S-12834] The block's natural height: its shown parts at their own size, packed with their spacing. A view with rows
+    /// under its block (a stock's holding, a stopwatch's laps) gives the block that, grown to a grid line, and the rows the
+    /// rest (WR-6: rows are whole cells and never scale with a face).
+    /// </summary>
+    public double Natural()
+    {
+        var shown = _plan.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
+        var packed = 0.0;
+        foreach (var part in shown)
+        {
+            part.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            packed += part.DesiredSize.Height;
+        }
+
+        return packed + (Math.Max(0, shown.Count - 1) * _plan.Spacing);
+    }
+
     protected override Size MeasureOverride(Size availableSize)
     {
         // The parts at their own size: what has a width of its own, and the parts packed.

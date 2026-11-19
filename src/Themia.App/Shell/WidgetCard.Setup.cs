@@ -14,18 +14,17 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-1862] A widget that cannot show anything until it is set up gets one "Set up" button in place
-/// of its body, decided here for every widget by <see cref="WidgetSetup.Needed"/> rather than by
-/// each view in its own words.
+/// [S-1862] A widget that waits to be set up gets one compact "Set up" line, decided here for every widget by
+/// <see cref="WidgetSetup.Needed"/> rather than by each view in its own words.
 /// <para>
-/// [S-1881] The view under it is parked: built but not attached, so it ticks, polls and subscribes to
-/// nothing, and logs nothing. The moment the config (or a newly signed-in account) makes the widget
-/// useful the button goes and a fresh view is attached in its place; a widget whose config is emptied
-/// again is detached and parked. A widget set up by using it (<see cref="ISetupRule.SetsUpInPlace"/>:
-/// a shortcut that opens nothing yet) gets no button: it runs, draws its own waiting look and takes the
-/// drop that sets it up; its page's marked line is the other way. The check runs whenever the config
-/// arrives, when the view saves a change itself (a target dropped onto it), and when the accounts
-/// change.
+/// [S-12835] (owner, 2026-11-19, WR-10: "No data, no account, not set up, offline: the widget keeps its face ... and says
+/// why in a compact line; it never swaps its face for a status line alone") The line stands on the card's top edge,
+/// whole cells (<see cref="LineRules.EdgeRow"/>), and the view keeps its face under it: it runs, set up or not, laid under
+/// the line, drawing what it has (its rows empty, its reading "--", its month). A widget whose view draws its own line
+/// (<see cref="ISetupRule.SetsUpInPlace"/>: the calendar's in its period line's place, a shortcut that opens nothing yet
+/// and takes the drop that sets it up) gets none from the card. The check runs whenever the config arrives, when the
+/// view saves a change itself (a target dropped onto it), and when the accounts change. [S-1881] A view parked is one
+/// waiting for the device's location ([S-2854]): nothing fetched or drawn for a place it does not have.
 /// </para>
 /// </summary>
 internal sealed partial class WidgetCard
@@ -77,7 +76,7 @@ internal sealed partial class WidgetCard
     /// </summary>
     private WidgetConfig ViewConfig => DevicePlaces.Resolve(_resizeConfig ?? Model.Config, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
 
-    /// <summary>[S-1881] [S-2854] Whether the view runs: set up, and not waiting for the device's location.</summary>
+    /// <summary>[S-12835] [S-2854] Whether the view runs: set up or not ([S-12835]: it keeps its face), unless it waits for the device's location.</summary>
     private bool Runs(FeatureSet signedIn)
         => WidgetLiveness.Runs(Model.Config, signedIn) && DevicePlaces.Waits(Model.Config, AppServices.DeviceLocationNow) is null;
 
@@ -113,8 +112,8 @@ internal sealed partial class WidgetCard
     private void ApplySetup()
     {
         var signedIn = SignedIn();
-        // [S-1881] A widget set up in place draws its own waiting look and takes the drop itself: no row
-        // over it (a Set up row does not fit a desktop cell, and it would cover the drop target's look).
+        // [S-1881] [S-12835] A widget set up in place draws its own line (or its own waiting look, taking the drop itself):
+        // no line from the card over it.
         var needed = !IsFaulted && WidgetSetup.Needed(Model.Config, signedIn) && !WidgetLiveness.SetUpInPlace(Model.Config);
         ApplyWaiting(IsFaulted || needed ? null : DevicePlaces.Waits(Model.Config, AppServices.DeviceLocationNow));
 
@@ -130,6 +129,9 @@ internal sealed partial class WidgetCard
             _setup = null;
         }
 
+        // [S-12835] The view stands under the Set up line while there is one.
+        ApplyEdges();
+
         // [S-1881] Run exactly when the widget is useful. Unparking swaps a fresh view in, which runs
         // this check again for the new view, so this pass ends there.
         if (!IsFaulted && Unpark(Runs(signedIn)))
@@ -137,8 +139,9 @@ internal sealed partial class WidgetCard
             return;
         }
 
-        // Every time, not only on a change: a retried view arrives fresh, fully visible.
-        var covered = _setup is not null || _waiting is not null;
+        // Every time, not only on a change: a retried view arrives fresh, fully visible. [S-12835] The Set up line never
+        // covers the face; only the device location's wait parks it.
+        var covered = _waiting is not null;
         _view.Opacity = covered ? 0 : 1;
         _view.IsHitTestVisible = !covered;
     }
@@ -188,17 +191,15 @@ internal sealed partial class WidgetCard
     }
 
 #if DEBUG
-    /// <summary>[S-6731] Debug renders only: what the card draws for the widget, for the family's render walk: its Set up row or its view.</summary>
+    /// <summary>[S-6731] Debug renders only: what the card draws for the widget, for the family's render walk: its Set up line and its view.</summary>
     internal IEnumerable<FrameworkElement> FamilyRoots()
     {
         if (_setup is not null)
         {
             yield return _setup;
         }
-        else
-        {
-            yield return _view;
-        }
+
+        yield return _view;
     }
 #endif
 
@@ -218,6 +219,7 @@ internal sealed partial class WidgetCard
         {
             _content.Children.Remove(_setup);
             _setup = null;
+            ApplyEdges();
         }
 
         _view.Opacity = 1;

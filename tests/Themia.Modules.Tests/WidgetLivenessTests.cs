@@ -90,25 +90,29 @@ public class WidgetLivenessTests
     }
 
     [Fact]
-    public void S1881_a_widget_that_needs_setting_up_does_not_run()
+    public void S12835_a_widget_that_needs_setting_up_runs_and_keeps_its_face()
     {
-        Assert.False(WidgetLiveness.Runs(Weather(placed: false).Config, FeatureSet.None));
+        // WR-10 (owner, 2026-11-19): "No data, no account, not set up, offline: the widget keeps its face".
+        Assert.True(WidgetLiveness.Runs(Weather(placed: false).Config, FeatureSet.None));
         Assert.True(WidgetLiveness.Runs(Weather(placed: true).Config, FeatureSet.None));
-        Assert.False(WidgetLiveness.Runs(new StockConfig(), FeatureSet.None));
-        Assert.False(WidgetLiveness.Runs(new RssConfig { Feeds = [] }, FeatureSet.None));
-        Assert.False(WidgetLiveness.Runs(new EmailConfig(), FeatureSet.None));
+        Assert.True(WidgetLiveness.Runs(new StockConfig(), FeatureSet.None));
+        Assert.True(WidgetLiveness.Runs(new RssConfig { Feeds = [] }, FeatureSet.None));
+        Assert.True(WidgetLiveness.Runs(new EmailConfig(), FeatureSet.None));
         Assert.True(WidgetLiveness.Runs(new EmailConfig(), HostFeatures.Mail));
     }
 
     [Fact]
-    public void S1881_every_kind_runs_exactly_when_it_needs_no_setup_except_the_ones_set_up_in_place()
+    public void S12835_every_kind_runs_set_up_or_not_and_only_the_ones_set_up_in_place_draw_their_own_line()
     {
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
-            // [S-12832] The calendar keeps its face without an account, under its own Set up row.
-            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == new WidgetId("desktopItem") || kind == new WidgetId("calendar");
-            Assert.True(WidgetLiveness.Runs(config, FeatureSet.None) == expected, kind.ToString());
+            Assert.True(WidgetLiveness.Runs(config, FeatureSet.None), kind.ToString());
+
+            // [S-12832] The calendar draws its compact Set up row in its period line's place; an own desktop icon its
+            // waiting look. Every other kind waiting for setup is the card's compact line over its face.
+            var own = kind == new WidgetId("desktopItem") || kind == new WidgetId("calendar");
+            Assert.True(WidgetLiveness.SetUpInPlace(config) == own, kind.ToString());
         }
     }
 
@@ -131,7 +135,7 @@ public class WidgetLivenessTests
     }
 
     [Fact]
-    public void S1881_an_unconfigured_widget_on_screen_is_not_live()
+    public void S12835_an_unconfigured_widget_on_screen_is_live_and_keeps_its_face()
     {
         var view = ViewState.Create("Shown");
         var unplaced = Weather(placed: false);
@@ -141,8 +145,8 @@ public class WidgetLivenessTests
 
         var live = WidgetLiveness.Live(state, ["a"], FeatureSet.None);
 
-        Assert.Single(live);
-        Assert.DoesNotContain(unplaced, live);
+        Assert.Equal(2, live.Count);
+        Assert.Contains(unplaced, live);
     }
 
     private sealed record Card(WidgetInstance Model);

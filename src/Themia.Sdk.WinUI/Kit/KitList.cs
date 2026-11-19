@@ -28,7 +28,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// somebody else and is set as text, never as markup.
 /// </para>
 /// </summary>
-public sealed partial class KitList : Grid
+public sealed partial class KitList : Grid, IStatusRoom
 {
     private const string Scope = "kit";
 
@@ -215,6 +215,7 @@ public sealed partial class KitList : Grid
                 Mark(_cursorIndex, true);
             }
 
+            ApplyRoom();
             return;
         }
 
@@ -226,6 +227,7 @@ public sealed partial class KitList : Grid
                 Mark(_cursorIndex, true);
             }
 
+            ApplyRoom();
             return;
         }
 
@@ -266,6 +268,83 @@ public sealed partial class KitList : Grid
 
         FitWholeRows(columns);
         _fade?.Refresh();
+        ApplyRoom();
+    }
+
+    private double _statusRoom;
+    private FrameworkElement? _roomed;
+
+    /// <summary>
+    /// [S-12813] [S-12834] The status glyph over the card's top end corner (a stale list's warning, the busy ring) stands
+    /// beside the top end row's text, never over it: that row (the first of the last column, or the table's column
+    /// titles over the rows) ends that much sooner, as a facts list's first row does.
+    /// </summary>
+    public void StatusRoom(double width)
+    {
+        _statusRoom = double.IsFinite(width) ? Math.Max(0, width) : 0;
+        ApplyRoom();
+    }
+
+    private void ApplyRoom()
+    {
+        var top = TopEndRow();
+        if (_roomed is not null && !ReferenceEquals(_roomed, top))
+        {
+            EndRoom(_roomed, 0);
+        }
+
+        _roomed = top;
+        if (top is not null)
+        {
+            EndRoom(top, _statusRoom);
+        }
+    }
+
+    /// <summary>The row (or heading, or column titles) standing at the list's top end corner, under the status.</summary>
+    private FrameworkElement? TopEndRow()
+    {
+        if (_plan.ColumnHeader && _columnHeader.Visibility == Visibility.Visible)
+        {
+            return _columnHeader;
+        }
+
+        if (Checked)
+        {
+            if (_checks is not { } panel || panel.Children.Count == 0)
+            {
+                return null;
+            }
+
+            var order = panel.InSlotOrder().ToList();
+            var at = KitChecks.LinesFor(order.Count, panel.Columns) * (panel.Columns - 1);
+            return at < order.Count ? order[at] as FrameworkElement : null;
+        }
+
+        if (Paged)
+        {
+            return _page.Children.Count > 0 && _page.Children[^1] is Panel { Children.Count: > 0 } column ? column.Children[0] as FrameworkElement : null;
+        }
+
+        var columns = Math.Max(1, _plan.Columns);
+        return columns - 1 < _rowElements.Count ? _rowElements[columns - 1] : null;
+    }
+
+    /// <summary>A row's (a heading's) end inset: the side inset and <paramref name="room"/> more.</summary>
+    private static void EndRoom(FrameworkElement row, double room)
+    {
+        var part = row is Border { Child: FrameworkElement child } ? child : row;
+        switch (part)
+        {
+            case Control control:
+                control.Padding = control.Padding with { Right = FamilySpace.Inset + room };
+                break;
+            case Grid grid:
+                grid.Padding = grid.Padding with { Right = FamilySpace.Inset + room };
+                break;
+            case Border border:
+                border.Padding = border.Padding with { Right = FamilySpace.Inset + room };
+                break;
+        }
     }
 
     /// <summary>
@@ -380,6 +459,7 @@ public sealed partial class KitList : Grid
         }
 
         _rowElements.Clear();
+        _roomed = null;
         _checksByRow.Clear();
         _checks?.Children.Clear();
         _page.Children.Clear();

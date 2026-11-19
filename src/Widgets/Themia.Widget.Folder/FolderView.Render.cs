@@ -103,7 +103,7 @@ internal sealed partial class FolderView
         // [S-1326] [S-6710] [S-12481] The tool line, the content's first line: the folder's name as its label,
         // the busy ring, the git badge as its informing label and at most two buttons, wanted by
         // FolderLayout.Header; the line folds them by its own rule.
-        _line = new ToolLine { Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap } };
+        _line = new ToolLine { Margin = Family.SideInset };
         var parts = _line.Parts;
         _busy = parts.Add(LinePartKind.Busy, ToolLine.Busy());
         _gitText = parts.Add(LinePartKind.Label, ToolLine.Note(string.Empty));
@@ -133,7 +133,7 @@ internal sealed partial class FolderView
         // first item shown, Escape empties it and, empty, folds it away.
         _searchBox = new SearchBox(FolderStr.WidgetsB_Folder_SearchPlaceholder.Text())
         {
-            Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2),
+            Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0),
             Visibility = Visibility.Collapsed,
         };
         SetRow(_searchBox, 2);
@@ -245,6 +245,7 @@ internal sealed partial class FolderView
     {
         _crumbHost.Visibility = plan.Breadcrumb ? Visibility.Visible : Visibility.Collapsed;
         _searchBox.Visibility = plan.SearchBox ? Visibility.Visible : Visibility.Collapsed;
+        _searchBox.Fill(FolderLayout.SearchBand(_area.Grid(XamlRoot?.RasterizationScale ?? 1), plan.Breadcrumb));
         _columnHeader.Visibility = plan.ColumnHeader ? Visibility.Visible : Visibility.Collapsed;
 
         // [S-6712] [S-6713] As tall as its whole rows (or rows of cells): never a part of one at its foot.

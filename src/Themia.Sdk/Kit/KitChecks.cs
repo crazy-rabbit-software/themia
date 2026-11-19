@@ -43,7 +43,7 @@ public static class KitChecks
         var reach = !choices.CanAdd ? KitPlanner.Reach(area, sized.Rows, rowLines)
             : area.IsMeasured ? ItemStretch.RowsAbove(Math.Max(0, area.Height), KitSizing.ClampRows(sized.Rows), rowLines, area.Grid())
             : ItemStretch.Natural(rowLines, area.Grid());
-        return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), HeadingHeight: KitPlanner.HeadingPitch(reach.Pitch, rowLines))
+        return new KitPlan(spec.Look, 1, Math.Max(0, area.Width), rowLines, true, rowLines >= 2 && Has(KitShow.Subtitle), false, Has(KitShow.When), HeadingHeight: reach.Pitch)
         {
             AddRow = choices.CanAdd,
             Headings = true,

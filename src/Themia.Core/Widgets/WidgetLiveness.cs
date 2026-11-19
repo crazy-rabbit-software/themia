@@ -57,19 +57,20 @@ public static class WidgetLiveness
         => [.. ShownViews(state, displayIds).SelectMany(v => v.Widgets).Where(w => Runs(w.Config, signedIn))];
 
     /// <summary>
-    /// [S-1881] Whether a widget on screen runs its view. One that needs setting up
-    /// (<see cref="WidgetSetup.Needed"/>) shows only the Set up button and does not: it has nothing
-    /// to poll, nothing to tick and nothing to draw until the user configures it. The one exception
-    /// is a widget the user sets up by using it: a shortcut that opens nothing yet takes a dropped file
-    /// under its button ([S-1862]), so it keeps running (it polls nothing).
+    /// [S-1881] [S-12835] Whether a widget on screen runs its view: every one does, set up or not (owner, 2026-11-19,
+    /// WR-10: "No data, no account, not set up, offline: the widget keeps its face ... and says why in a compact line; it
+    /// never swaps its face for a status line alone"). One that waits for setup (<see cref="WidgetSetup.Needed"/>) draws
+    /// its face with nothing in it under the compact Set up line; it has nothing to poll until the user configures it, so
+    /// it asks for nothing.
     /// </summary>
     public static bool Runs(WidgetConfig config, FeatureSet signedIn)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return !WidgetSetup.Needed(config, signedIn) || SetUpInPlace(config);
+        ArgumentNullException.ThrowIfNull(signedIn);
+        return true;
     }
 
-    /// <summary>[S-1881] A widget whose setup is done on the widget itself, under its Set up button.</summary>
+    /// <summary>[S-1881] [S-12835] A widget whose view draws its own Set up line (or its waiting look): the card draws none over it.</summary>
     public static bool SetUpInPlace(WidgetConfig config) => config is ISetupRule { SetsUpInPlace: true };
 
     /// <summary>

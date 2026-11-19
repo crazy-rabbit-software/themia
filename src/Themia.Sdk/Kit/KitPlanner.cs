@@ -172,7 +172,7 @@ public sealed record KitSpec(
 /// <param name="ColumnHeader">[S-7034] The table's column titles over its rows.</param>
 /// <param name="Table">[S-7034] The table's columns at their widths, in the user's order; null for any other look.</param>
 /// <param name="RowHeight">The rows' one height: <see cref="FamilyShape.RowHeight"/> of <see cref="Lines"/>, stretched so the rows reach the list's ends ([S-12807], <see cref="KitPlanner.Reach"/>).</param>
-/// <param name="HeadingHeight">[S-7035] A group heading's height: one row of 28, stretched as the rows are.</param>
+/// <param name="HeadingHeight">[S-7035] [S-12834] A group heading's height: one of the rows that tile the list, as tall as they are (whole cells, WR-6).</param>
 public readonly record struct KitPlan(
     KitRowLook Look,
     int Columns,
@@ -255,8 +255,6 @@ public static class KitPlanner
     public static RowReach Reach(WidgetArea area, int rows, int lines, double reserved = 0, bool edge = true)
         => area.IsMeasured ? ItemStretch.Rows(Math.Max(0, area.Height), KitSizing.ClampRows(rows), lines, area.Grid(), reserved, edge) : ItemStretch.Natural(lines, area.Grid());
 
-    /// <summary>[S-12410] A heading's height beside rows of <paramref name="pitch"/>: one row of 28, stretched as they are.</summary>
-    public static double HeadingPitch(double pitch, int lines) => FamilyShape.Row1 * (pitch / FamilyShape.RowHeight(lines));
 
     private static KitPlan Rows(WidgetArea area, KitSpec spec, KitChoices choices)
     {
@@ -359,6 +357,6 @@ public static class KitPlanner
         // second) at every size; the pages hold the rows its height was made for.
         var chosen = KitSizing.ClampLines(choices.Rows.Lines);
         var reach = Reach(area, choices.Rows.Rows, chosen);
-        return new KitPlan(KitRowLook.Schedule, 1, Math.Max(0, area.Width), chosen, true, chosen >= 2, false, true, HeadingHeight: HeadingPitch(reach.Pitch, chosen)).With(reach);
+        return new KitPlan(KitRowLook.Schedule, 1, Math.Max(0, area.Width), chosen, true, chosen >= 2, false, true, HeadingHeight: reach.Pitch).With(reach);
     }
 }

@@ -34,7 +34,7 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
     private readonly ReadoutBlock _price = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset };
 
     /// <summary>[S-2777] [S-1308] The holding and the extended print: fact rows under the price.</summary>
-    private readonly StackPanel _facts = new() { VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+    private readonly RowStack _facts = new();
     private readonly RowBlock _holdingRow = new(RowKind.Fact, lead: 0);
     private readonly RowBlock _extendedRow = new(RowKind.Fact, lead: 0);
 
@@ -61,21 +61,23 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _facts.Children.Add(_holdingRow);
         _facts.Children.Add(_extendedRow);
 
-        // [S-12410] The price and its rows are one block, centred in the room with the foot's inset counted
-        // with it: at its natural box nothing moves, a larger box spaces it, joined or
-        // alone ([S-12483]).
-        _block = new StackPanel
-        {
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(0, 0, 0, FamilySpace.Inset),
-            Children = { _price, _facts },
-        };
+        // [S-12808] [S-12834] The price and its line under are one readout block that fills the room over the rows, scaled
+        // as one (WR-7: "All together, scaled"); the holding's and the extended print's rows are rows (WR-6: whole grid cells,
+        // never scaled), touching from under the block to the card's foot edge, edge to edge (WR-3).
+        _block = new ReadingFit();
+        _block.Parts.Add(_price);
+        _facts.Margin = new Thickness(0, 0, 0, 0);
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        SetRow(_facts, 1);
         Children.Add(_block);
+        Children.Add(_facts);
         Children.Add(_state);
+        SetRowSpan(_state, 2);
         _mark.Place(this);
     }
 
-    private readonly StackPanel _block;
+    private readonly ReadingFit _block;
 
     /// <summary>[S-1311] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -171,6 +173,15 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _holdingRow.Visibility = _config.SharesOwned is not null ? Visibility.Visible : Visibility.Collapsed;
         _extendedRow.Visibility = _config.WantsPrePost ? Visibility.Visible : Visibility.Collapsed;
         _facts.Visibility = _config.Rows > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        // [S-12834] With rows the block takes its natural lines grown to a grid line (its last ink on the rows' top, WR-1)
+        // and the rows grow from there to the card's foot (WR-4); without, the block fills the card, its last ink on the
+        // foot's inset.
+        var rows = _config.Rows > 0;
+        RowDefinitions[0].Height = rows ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
+        RowDefinitions[1].Height = rows ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        _block.Height = rows ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, _block.Natural()) : double.NaN;
+        _block.Margin = _block.Margin with { Bottom = rows ? 0 : FamilySpace.Inset };
     }
 
     /// <summary>

@@ -123,11 +123,19 @@ public partial class SpreadStack : Panel
             items.Add(items[^1]);
         }
 
-        var slots = ItemStretch.Reach(Down ? finalSize.Height : finalSize.Width, items, ItemGrids.Of(this), _spacing, _justify);
-        Laid = [.. shown.Select((child, i) => (child, slots[i]))];
+        var room = Down ? finalSize.Height : finalSize.Width;
+        var slots = ItemStretch.Reach(room, items, ItemGrids.Of(this), _spacing, _justify);
+
+        // [S-12834] WR-6 (owner, 2026-11-19: "a widget that is 10 blocks hight should not show 4 items"): a row the room
+        // does not hold whole is not shown, never cut by the card; the cells it would take are the foot's (WR-5). It is
+        // laid in no room past the stack's end (clipped to nothing there), its own visibility left to its owner.
+        var whole = shown.Select((_, i) => !items[i].Grows || slots[i].End <= room + LayoutMath.Tolerance).ToList();
+        Laid = [.. shown.Select((child, i) => (child, slots[i])).Where((_, i) => whole[i])];
         for (var i = 0; i < shown.Count; i++)
         {
-            shown[i].Arrange(Down
+            shown[i].Arrange(!whole[i]
+                ? new Rect(Down ? finalSize.Width : 0, Down ? 0 : finalSize.Height, 0, 0)
+                : Down
                 ? new Rect(0, slots[i].Start, finalSize.Width, slots[i].Length)
                 : new Rect(slots[i].Start, 0, slots[i].Length, finalSize.Height));
         }

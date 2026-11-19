@@ -139,6 +139,33 @@ public class ItemStretchTests
         Assert.Equal(0, slots[1].Length);
     }
 
+    [Theory]
+    [InlineData(600, 3, new double[] { 200, 200, 200 })]
+    [InlineData(350, 3, new double[] { 120, 120, 110 })]       // 35 cells: 12, 12, 11, the first ones a cell more
+    [InlineData(355, 3, new double[] { 120, 120, 115 })]       // the last column takes what is not a whole cell
+    [InlineData(20, 3, new double[] { 20.0 / 3, 20.0 / 3, 20.0 / 3 })]
+    public void S12834_columns_run_edge_to_edge_in_whole_cells_the_last_taking_the_part_cell(double width, int count, double[] expected)
+    {
+        var columns = ItemStretch.Columns(width, count, Grid);
+
+        // WR-3: from the card's left edge to its right; WR-6: whole cells but the last, alike to a cell.
+        Assert.Equal(width, columns.Sum(), 6);
+        if (width >= count * Grid.Pitch)
+        {
+            Assert.All(columns[..^1], c => Assert.True(Grid.IsWhole(c, 1e-6)));
+            Assert.True(columns[..^1].Max() - columns[..^1].Min() <= Grid.Pitch + 1e-6);
+        }
+
+        Assert.Equal(expected.OrderBy(c => c), columns.OrderBy(c => c).Select(c => Math.Round(c, 6)), new ToleranceComparer());
+    }
+
+    private sealed class ToleranceComparer : IEqualityComparer<double>
+    {
+        public bool Equals(double x, double y) => Math.Abs(x - y) < 1e-6;
+
+        public int GetHashCode(double obj) => 0;
+    }
+
     [Fact]
     public void S12830_whole_cells_are_whole_cells()
     {

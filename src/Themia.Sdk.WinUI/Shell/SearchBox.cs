@@ -81,6 +81,45 @@ public sealed partial class SearchBox : Grid
     /// <summary>[S-13606] The field's 32 or the line's (<see cref="SearchSize"/>).</summary>
     public SearchSize Size { get; }
 
+    private double _fill = double.NaN;
+
+    /// <summary>
+    /// [S-12834] A widget's field over its rows, in a band of whole grid cells (WR-1, WR-5: the rows start right under it,
+    /// on a grid line): the box fills <paramref name="height"/> exactly (<c>LineRules.Under</c>: the family's control of 28
+    /// grown to end on a grid line), its words centred in it. A page's field keeps its 32.
+    /// </summary>
+    public void Fill(double height)
+    {
+        if (Size != SearchSize.Field || !double.IsFinite(height) || height <= 0 || height.Equals(_fill))
+        {
+            return;
+        }
+
+        _fill = height;
+        Height = height;
+        VerticalAlignment = VerticalAlignment.Top;
+        _suggest.MinHeight = 0;
+        _suggest.VerticalAlignment = VerticalAlignment.Stretch;
+        if (Inner() is { } box)
+        {
+            FitBox(box);
+        }
+    }
+
+    /// <summary>[S-12834] The field's text box in its band: no 32 minimum, its words centred in the band's height.</summary>
+    private void FitBox(TextBox box)
+    {
+        if (!double.IsFinite(_fill))
+        {
+            return;
+        }
+
+        box.MinHeight = 0;
+        var spare = Math.Max(0, _fill - FamilyType.Body.LineHeight - (2 * FamilyShape.Hairline));
+        var over = Math.Floor(spare / 2);
+        box.Padding = box.Padding with { Top = over, Bottom = spare - over };
+    }
+
     /// <summary>[S-13950] The line's lead slot: the magnifier is centred in it (a list row's lead, 32 with an avatar; 16 by default).</summary>
     public double LeadWidth
     {
@@ -127,7 +166,8 @@ public sealed partial class SearchBox : Grid
             return;
         }
 
-        Height = InlineFit.Of(words.LineHeight > 0 ? words.LineHeight : FamilyType.LineOf(words.FontSize)).Height;
+        // [S-12834] The words' whole box: their line and the band their padding gives it (a tool line's label fills its band).
+        Height = InlineFit.Of(words.LineHeight > 0 ? words.LineHeight : FamilyType.LineOf(words.FontSize)).Height + words.Padding.Top + words.Padding.Bottom;
         _suggest.FontSize = words.FontSize;
         _suggest.FontFamily = words.FontFamily;
         _suggest.CharacterSpacing = words.CharacterSpacing;
@@ -371,6 +411,8 @@ public sealed partial class SearchBox : Grid
             query.Content = new FontIcon { Glyph = Glyphs.Search, FontSize = FamilyType.CaptionSize };
             query.Visibility = Visibility.Visible;
         }
+
+        FitBox(box);
     }
 
     /// <summary>

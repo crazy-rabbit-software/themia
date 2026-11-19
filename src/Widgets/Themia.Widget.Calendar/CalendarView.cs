@@ -105,7 +105,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         _status = new KitStatus(host);
 
         // [S-569] [S-12481] The period's line: its title, then the problem glyph, the ring, back and forward.
-        _line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
+        _line.Margin = Family.SideInset;
         _line.Parts.Add(LinePartKind.Problem, _lineProblem);
         _line.Parts.Add(LinePartKind.Busy, _lineBusy);
         _back = _line.Parts.Add(LinePartKind.Button, ToolLine.Button(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
@@ -132,8 +132,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         SetRow(_content, 1);
         SetRow(rows, 1);
 
-        // [S-12832] A state (no account, a problem) is one compact row in the period line's place, the face kept under it.
-        _state.Row.Margin = default;
+        // [S-12832] [S-12834] A state (no account, a problem) is one compact row in the period line's place, on the card's
+        // top edge (whole cells, as every state's row), the face kept under it.
         SetRow(_state, 0);
         Children.Add(_line);
         Children.Add(_content);
@@ -644,7 +644,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         // [S-569] [S-12481] The line (or the state's row in its place) takes its room off the top of the box the style
         // is drawn in; the month lays its rows on the card's grid from where it starts under the card's top edge.
-        var over = stated ? FamilyShape.Row1 : ShowsLine ? CalendarSizing.NavLine : 0;
+        // [S-12834] Both are whole cells: the line's band ends on a grid line, the state's row on the card's top edge too.
+        var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var over = stated ? LineRules.EdgeRow(cells) - FamilySpace.Inset : ShowsLine ? LineRules.Band(cells) : 0;
         var height = _area.Height - over;
 
         switch (Layout)

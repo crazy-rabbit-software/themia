@@ -25,7 +25,7 @@ internal sealed partial class WeatherForecastView
     /// </summary>
     private SpreadStack BuildRows(IReadOnlyList<ForecastDay> days, DateOnly today, Range range, ForecastRowsPlan plan)
     {
-        var list = new SpreadStack { Margin = ListEdge.Margin };
+        var list = new RowStack { Margin = ListEdge.Margin };
         var bars = new List<(RowBlock Row, ChartBar Bar)>();
 
         for (var i = 0; i < Math.Min(plan.Days, days.Count); i++)

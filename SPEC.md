@@ -397,13 +397,14 @@ Owning files: `Themia.Core/Widgets/WidgetLiveness.cs`, `Themia.Core/Widgets/Fold
   subscriber and stop with their last, so a service whose widgets are all hidden does no work. The
   exceptions by design are the screen-time tracker ([S-459]) and the offline sync ([S-2608]), which
   keeps the account and feed widgets of every view synced so a view switch asks nothing.
-- **[S-1881]** A widget that needs setting up ([S-1860], [S-1861]) does not run: its view is built but
-  **parked** under the Set up button, never attached, so it polls nothing, ticks nothing and logs
-  nothing. When the config or a newly signed-in account makes it useful a fresh view is attached in
-  its place; a widget emptied again is detached and parked. A parked view hears no config, no size,
-  no keys and offers no context actions. A widget set up by using it (`ISetupRule.SetsUpInPlace`:
-  an own desktop icon that opens nothing yet, [S-9511]) gets **no Set up row**: it runs, draws its own waiting
-  look and takes the drop that sets it up (a row does not fit a desktop cell). A view acquires nothing in its
+- **[S-1881]** A widget that needs setting up ([S-1860], [S-1861]) **runs and keeps its face** ([S-12835], WR-10):
+  its view is attached under the card's compact Set up line and draws what it has (its rows empty, its reading "--",
+  its month); it has nothing to poll until the user configures it. Only a widget waiting for the device's location
+  ([S-2854]) is **parked**: built, never attached, so it polls nothing, ticks nothing and logs nothing, and a fresh view
+  is attached once the location comes; a parked view hears no config, no size, no keys and offers no context
+  actions. A widget whose view draws its own Set up line or waiting look (`ISetupRule.SetsUpInPlace`: the calendar's
+  in its period line's place, [S-12832]; an own desktop icon that opens nothing yet and takes the drop that sets it
+  up, [S-9511]) gets **no line from the card**. A view acquires nothing in its
   constructor that only Detach releases (a timer's Tick roots the view from the native side): such
   subscriptions are made in Attach. A card detaches its view exactly once, whichever path asks first,
   and a view whose Attach throws half-way is still detached.
@@ -4784,10 +4785,11 @@ its content. What is left of this section is how a view measures the fixed parts
 - **[S-3850]** **The add footer** (every widget that adds an item in place: Habits [S-1427], Tasks
   [S-780]). One Row block of 32 ([S-6711]), built only by `AddFooterRow`: the + glyph as its lead and
   its name the secondary Body line ("Add a habit", "Add a task"), the card's side inset, the row hover; a tap swaps the line for the widget's text box, the one inline box standing in the line's words with the row's ring on ([S-13950]: the row keeps its height) (Enter adds and keeps it
-  open, leaving it adds and closes, Escape cancels). It is **pinned to the bottom of the content
-  box**: the list sits at the top and scrolls or pages above it, and the room a short list leaves is
-  between them, never under the footer (the Windows 11 list-ends-in-its-add-row pattern, held in
-  place). It shows wherever an add is possible, always, and the list's height counts it (Tasks
+  open, leaving it adds and closes, Escape cancels). It stands **right under the list's last row** ([S-12834];
+  owner, 2026-11-19, WR-5: "Empty stated rows / leftover whole cells may stand at the foot; never above the first
+  item, never between items"): the list sits at the top and scrolls or pages above it, and the room a short list
+  leaves is the foot's, under the add row, never between the rows and it (the Windows 11
+  list-ends-in-its-add-row pattern). It shows wherever an add is possible, always, and the list's height counts it (Tasks
   [S-2440], Habits [S-11530]; the rung rule `AddFooter.Show` is gone, [S-11580]). It takes no keys of its own; the editor in it keeps the widget's lease
   ([S-809]) while it is open.
 
@@ -8038,6 +8040,47 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   music progress, next meeting, pomodoro, quote, recycle bin, screen time, volume, weather now) at the family's Caption;
   a meter's reading alone at its unit. Rows and list items keep their whole-cell rule (a list's least is one item). Tests
   `BlockFitTests.S12833_` (the floor, scaling down, monotonic), `ClockFaceTests.S6741_S12833_`.
+- **[S-12834]** **What stands over a list is whole cells, and the rows start right under it** (owner, 2026-11-19,
+  docs/WIDGET-RULES.md WR-1: "there should not be a space at the top"; WR-5: "Empty stated rows / leftover whole cells
+  may stand at the foot; never above the first item, never between items"; WR-6: "Every repeated item is a whole number
+  of desktop grid cells along the axis it repeats; all items of a widget are the same size"; WR-3: "An item's box ...
+  runs from the card's left edge to its right edge"). A **tool line** (`ToolLine`: the calendar's period, a folder's,
+  the screen time's day) is a band of whole cells under the card's inset (`LineRules.Band`: its 20 and the gap under
+  it grown to end on a grid line counted from the card's top edge, 28 on the default grid of 10), its label's box
+  filling the band (its words on the line's top, `SectionHeading.Fill`), so the rows under it start right under it on
+  a grid line; a kind's sizing counts `LineRules.NaturalBand`. A **state's or Set up's compact line** (`StatusBlock`)
+  is one row of whole cells on the card's top edge (`LineRules.EdgeRow`, 30), its sentence's box filling it. A
+  **section heading** (`SectionHeading`, [S-12812]) is one of its list's rows: as tall as they are (`KitPlan.HeadingHeight`
+  = the rows' pitch) and an item of the list's, so a section's rows touch it. A widget's **search field** over its
+  rows is the family's control of 28 grown to a grid line (`SearchBox.Fill`, `LineRules.Under`), the rows right under it;
+  the search opened on a tool line stands in the label's whole box ([S-13950]); one opened in a list's first line is
+  that line (an item, a row's height). The **add row** stands right under the last row ([S-3850]). A list of rows laid
+  by `SpreadStack` (facts, a forecast's days, screen time's apps) shows only the rows its room holds whole: one that
+  would be cut by the card is not shown, its cells the foot's (WR-6). **Days side by side** (the week planner) are the
+  columns of one grid of cells (`ItemStretch.Columns`, the month's rule: whole cells from the card's left edge to its
+  right, the last taking the part cell), every line of the week running across the card, a day with fewer lines
+  holding its place with empty cells. A **status mark** (`KitStatus`'s problem glyph or ring over the content's top end
+  corner) never covers an item's text: the row standing at that corner (a kit list's top end row, a table's column
+  titles, the first row of any `SpreadStack`, a facts list's) ends that much sooner (`IStatusRoom`, found however deep
+  the part stands; a list built after the status spoke asks for its room, `KitStatus.Ask`). Tests
+  `FamilyBlockRulesTests.S12834_`, `ItemStretchTests.S12834_`, `KitRowsTests.S11541_`, the folder's `S11203_`; renders
+  `--widget-png folder|tasks|habitTracker|weekPlanner|contacts|screenTimeApps|email --state sample|done|search|stale
+  --sizes range` judged by `scripts/item-check.py`.
+- **[S-12835]** **No data, no account, not set up: the face is kept under one compact line** (owner, 2026-11-19,
+  docs/WIDGET-RULES.md WR-10: "even if there is no rain in the next two hours or even if there is no cpu data available
+  it should show the default values in the graph and not just not show the graph. for both cases. also for other
+  widgets."; "No data, no account, not set up, offline: the widget keeps its face (its graph, its rows, its month, its
+  reading as "--") and says why in a compact line; it never swaps its face for a status line alone"). A widget waiting
+  for setup runs ([S-1881], `WidgetLiveness.Runs`): the card lays its compact Set up line on its top edge
+  ([S-1862]) and the view under it (`WidgetCard.ApplyEdges`), drawing its face with what it has; the calendar's model
+  (`SetsUpInPlace`, [S-12832]) is the rule for every kind, the card drawing the line for the views that do not draw
+  their own. A list with nothing to list keeps its rows: under the state's line (`KitStatePanel`: loading, empty, a
+  problem, an account gone) its stated rows stand at the list's pitch, each the family's row with "--" for its name and
+  its value, drawn unavailable (`EmptyRows`, as a facts list's missing fact, [S-12813]), as many as the room holds
+  whole, the first right under the line; a kit list not set up or without an account shows them alone under the card's
+  line (`KitStatePanel.ShowFace`, `KitBinding`), as the contacts and the week planner do without an account. Tests
+  `WidgetLivenessTests.S12835_`, `PlaceClearTests.S2848_`; renders `--widget-png rss|email|deviceBatteries --state
+  empty|failed|loading --sizes range`.
 - **[S-12816]** **The pointer never changes a widget's layout** (owner, 2026-11-19: "some widgets like the now playing
   scrubber changes text sizes when hovering over it with the mouse … this should not be"). Hover and press are paint:
   a fill, a colour, a thumb or a ring drawn over the parts, never a part shown or hidden, resized or re-texted in a way
@@ -11496,8 +11539,8 @@ gallery ([S-1863]).
 - **[S-1861]** An account widget needs setting up while no signed-in account offers its feature: Mail,
   Calendar, Contacts, Tasks (account source only). The features are the union of the signed-in providers' (`WidgetSetup.Offered`); an
   account that needs signing in again still counts (the widget says so itself, with the Accounts link).
-- **[S-1862]** Such a widget's body is the Status block's set-up row ([S-6714]) and nothing else, where
-  its first content row would be (under the header; at the top inset when the header is not above):
+- **[S-1862]** Such a widget's Set up is the Status block's set-up row ([S-6714]) as one compact line on the card's
+  top edge, whole grid cells ([S-12834], `LineRules.EdgeRow`), its face kept under it ([S-12835]: never the row alone):
   the widget's glyph, one sentence saying what it waits for, and one accent button ("Set up"; its
   tooltip the sentence). The sentence is the config's own (`ISetupRule.SetupSentence`, in the
   module's words: "Choose a place" for every widget about a place; "Add a feed", "Add an account to

@@ -35,6 +35,7 @@ internal sealed partial class HabitTrackerView
     private void BuildHeatmap()
     {
         SetRow(_heat, 0);
+        SetRowSpan(_heat, 3);
         Children.Add(_heat);
     }
 

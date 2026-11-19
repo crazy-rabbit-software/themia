@@ -43,7 +43,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     private readonly Button _lapIcon;
     private readonly Button _resetIcon;
     /// <summary>[S-12811] The laps as the rows every facts widget draws.</summary>
-    private readonly FactList _laps = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly FactList _laps = new();
 
     private Ticker? _ticker;
     private StopwatchConfig _config = new();
@@ -60,13 +60,17 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         _controls.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         _iconControls.Margin = _controls.Margin;
 
-        // A Row carries the side inset itself, so the laps reach the card's edges with their hover.
-        _laps.Margin = new Thickness(-FamilySpace.Inset, 0, -FamilySpace.Inset, 0);
+        // A Row carries the side inset itself, so the laps reach the card's edges with their hover. [S-12834] The laps are
+        // rows (WR-6: whole grid cells, never scaled with the face): under the block, to the card's foot edge.
+        _laps.Margin = new Thickness(-FamilySpace.Inset, 0, -FamilySpace.Inset, -FamilySpace.Inset);
         _fit.Parts.Add(_clock);
         _fit.Parts.Add(_controls);
         _fit.Parts.Add(_iconControls);
-        _fit.Parts.Add(_laps);
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        SetRow(_laps, 1);
         Children.Add(_fit);
+        Children.Add(_laps);
 
         // [S-4601] Start first, then Lap and Reset.
         _startButton = _controls.Main(StopwatchStr.Stopwatch_Start.Text(), () => Act(state => state.Act(Now())));
@@ -282,10 +286,15 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         _controls.Visibility = icons ? Visibility.Collapsed : Visibility.Visible;
         _iconControls.Visibility = icons ? Visibility.Visible : Visibility.Collapsed;
         var laps = StopwatchFace.LapRows(_config);
-        _laps.Height = laps * FamilyShape.Row1;
         _laps.Visibility = laps > 0 ? Visibility.Visible : Visibility.Collapsed;
         _clock.Use(StopwatchFace.Sized(_config).Step, centred: true);
+
+        // [S-12834] With laps the block takes its natural lines grown to a grid line (its last ink on the laps' top, WR-1)
+        // and the laps grow from there to the card's foot (WR-4, WR-6); without, the block fills the card.
+        RowDefinitions[0].Height = laps > 0 ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
+        RowDefinitions[1].Height = laps > 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
         Render();
+        _fit.Height = laps > 0 ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, _fit.Natural()) : double.NaN;
     }
 
     public void Detach()

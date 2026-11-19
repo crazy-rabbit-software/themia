@@ -35,6 +35,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
     private readonly StackPanel _list = new();
     private readonly List<DeviceRow> _rows = [];
     private readonly StatusBlock _empty = new();
+    private readonly EmptyRows _face = EmptyRows.UnderStatus();
     private ScrollFade? _fade;
     private IWidgetSurface? _surface;
     private IDisposable? _watch;
@@ -58,6 +59,9 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         _empty.Hide();
         Children.Add(_empty);
+
+        // [S-12835] No drive to list: the rows kept, "--", under the status's line.
+        Children.Add(_face);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -115,11 +119,13 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         if (_devices.Count == 0)
         {
             _empty.Show(StatusKind.Empty, Glyphs.Usb, RemovableDrivesStr.Drives_Nothing.Text());
+            _face.Visibility = Visibility.Visible;
             _scroll.Visibility = Visibility.Collapsed;
         }
         else
         {
             _empty.Hide();
+            _face.Visibility = Visibility.Collapsed;
             _scroll.Visibility = Visibility.Visible;
         }
 

@@ -226,6 +226,14 @@ public sealed class KitBinding : IDisposable
         var read = _source.Read();
         Last = read;
 
+        if (read.Refused is null && !_config.Configured)
+        {
+            // [S-12835] Not set up: the card's compact Set up line says so over the face, the list's rows empty under it.
+            Screen = new KitScreen(KitScreenKind.NoAccounts, string.Empty, false, []);
+            ShowFace(read);
+            return;
+        }
+
         if (read.Refused is { } refused)
         {
             Screen = KitScreen.Refused(refused);
@@ -235,6 +243,13 @@ public sealed class KitBinding : IDisposable
             var items = KitItems.Clean(read.Items, read.WebHosts);
             var empty = read.EmptySentence is { } own ? own.Text() : _spec.Empty();
             Screen = KitScreens.Decide(Strings.Current, read.Accounts, read.Chosen ?? [], read.Outcomes, items.Count, empty, grantPage: read.GrantPage, now: _clock());
+
+            if (Screen.Kind == KitScreenKind.NoAccounts)
+            {
+                // [S-12835] No account: the card's compact Set up line says so over the face.
+                ShowFace(read);
+                return;
+            }
 
             if (Screen.Kind == KitScreenKind.Items)
             {
@@ -251,10 +266,22 @@ public sealed class KitBinding : IDisposable
             }
         }
 
+        // [S-12835] WR-10: the state is the compact line over the list's face, its rows kept empty under it.
         List.Clear();
         List.Visibility = Visibility.Collapsed;
+        State.RowPitch = KitPlanner.Plan(_area, _spec, _config.Choices).RowHeight;
         State.Show(Screen);
         Status.Show(read.Notes, _source.Busy);
+    }
+
+    /// <summary>[S-12835] The list's face with nothing in it: its rows empty, no line of the panel's (the card's says why).</summary>
+    private void ShowFace(KitRead read)
+    {
+        List.Clear();
+        List.Visibility = Visibility.Collapsed;
+        State.RowPitch = KitPlanner.Plan(_area, _spec, _config!.Choices).RowHeight;
+        State.ShowFace();
+        Status.Show(read.Notes, _source?.Busy ?? false);
     }
 
     /// <summary>Carry out an action the user picked (a menu line, a double-click, a key).</summary>

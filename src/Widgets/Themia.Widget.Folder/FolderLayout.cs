@@ -53,8 +53,15 @@ public static class FolderLayout
     /// <summary>The path's row.</summary>
     public const double BreadcrumbHeight = FamilyShape.Row1;
 
-    /// <summary>The search box (a 32 text box) and the 8 under it.</summary>
-    public const double SearchHeight = FamilyShape.Button + FamilySpace.S2;
+    /// <summary>[S-12834] The search box: the family's control of 28, the items right under it (grown to a grid line in the view, <see cref="SearchBand"/>).</summary>
+    public const double SearchHeight = FamilyShape.Button;
+
+    /// <summary>
+    /// [S-12834] The search box's band under the tool line (and the path's row) on <paramref name="grid"/>: the control of 28
+    /// grown to end on a grid line, so the items start right under it (WR-1, WR-5).
+    /// </summary>
+    public static double SearchBand(ItemGrid grid, bool breadcrumb)
+        => LineRules.Under(grid, FamilySpace.Inset + LineRules.Band(grid) + (breadcrumb ? BreadcrumbHeight : 0), SearchHeight);
 
     /// <summary>The details table's titles: a Caption line and 8, as the kit's table ([S-7034]).</summary>
     public static double ColumnHeaderHeight => KitPlanner.ColumnHeaderHeight;
@@ -157,16 +164,19 @@ public static class FolderLayout
         return FamilySpace.ContentTop + over + (rows * (row + gap)) - gap + FamilySpace.Inset;
     }
 
-    /// <summary>[S-1326] [S-12481] The folder's tool line over everything (its name, the ring, the git badge, two buttons) and the gap under it.</summary>
-    public const double ToolLineHeight = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+    /// <summary>
+    /// [S-1326] [S-12481] [S-12834] The folder's tool line over everything (its name, the ring, the git badge, two buttons) and
+    /// the gap under it: its whole-cell band on the default grid, for the sizing (the view lays the band of its card's grid).
+    /// </summary>
+    public static double ToolLineHeight => LineRules.NaturalBand;
 
     /// <summary>
     /// The height the items have: the view's area less what stands above them (the tool line first) and the card's bottom
     /// inset. <see cref="Rows"/> of it are whole rows.
     /// </summary>
     public static double ItemsHeight(WidgetArea area, bool search, bool header, bool breadcrumb)
-        => Math.Max(0, area.Height - FamilySpace.Inset - ToolLineHeight
-            - (search ? SearchHeight : 0) - (header ? ColumnHeaderHeight : 0) - (breadcrumb ? BreadcrumbHeight : 0));
+        => Math.Max(0, area.Height - FamilySpace.Inset - LineRules.Band(area.Grid())
+            - (search ? SearchBand(area.Grid(), breadcrumb) : 0) - (header ? ColumnHeaderHeight : 0) - (breadcrumb ? BreadcrumbHeight : 0));
 
     /// <summary>[S-6712] The whole rows of 28 in <paramref name="height"/>, at least one.</summary>
     public static int Rows(double height) => Math.Max(1, RowRules.Fit(height, 1));

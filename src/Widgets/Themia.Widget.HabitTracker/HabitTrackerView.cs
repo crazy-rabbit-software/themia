@@ -61,10 +61,11 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     public HabitTrackerView(IWidgetHost host)
     {
         _host = host;
-        // [S-3850] The rows take the tile and the add footer is pinned under them. [S-12807] The rows' text
-        // reaches the view's top and the add footer's, whose text stands on the foot's inset.
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / status
+        // [S-3850] [S-12834] The rows from the card's top edge and the add footer right under the last of them; the
+        // room left over is the foot's (WR-5: empty room only at the foot, never between items).
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // rows / status
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add footer
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // the foot
 
         _scroll = new ScrollViewer
         {
