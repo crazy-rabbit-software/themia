@@ -65,7 +65,6 @@ public sealed partial class DetailView : IWidgetKeys
 
         foreach (var row in _rows)
         {
-            row.Block.PointerPressed -= OnRowPressed;
             row.Block.Tapped -= OnRowTapped;
             row.Block.RightTapped -= OnRowRightTapped;
             row.Block.Detach();
@@ -111,7 +110,6 @@ public sealed partial class DetailView : IWidgetKeys
         {
             var row = new ListRow();
             row.Block.Tag = _rows.Count;
-            row.Block.PointerPressed += OnRowPressed;
             row.Block.Tapped += OnRowTapped;
             row.Block.RightTapped += OnRowRightTapped;
             _rows.Add(row);
@@ -224,17 +222,18 @@ public sealed partial class DetailView : IWidgetKeys
         }
     }
 
-    /// <summary>A click on a row puts the ring on it; the card takes the keyboard lease for the click.</summary>
-    private void OnRowPressed(object sender, PointerRoutedEventArgs args)
+    /// <summary>
+    /// [S-2004] A click on a row puts the ring on it (the card takes the keyboard lease for the press); it is the row's and
+    /// never reaches the card. [S-13060] On the tap, never the press: a press that becomes the card's move focuses nothing.
+    /// </summary>
+    private void OnRowTapped(object sender, TappedRoutedEventArgs args)
     {
+        args.Handled = true;
         if (sender is RowBlock { Tag: int index } && !_detached)
         {
             Focus(index, bringIntoView: false);
         }
     }
-
-    /// <summary>[S-2004] A click on a row is the row's (it focused it): it never reaches the card.</summary>
-    private static void OnRowTapped(object sender, TappedRoutedEventArgs args) => args.Handled = true;
 
     /// <summary>
     /// [S-2437] A right-click on a row opens the row's own menu when its part has one, with the ring on

@@ -301,7 +301,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
                 Block.Lead(_icon);
             }
 
-            Block.PointerPressed += OnPressed;
+            Block.Tapped += OnTapped;
             Block.DoubleTapped += OnDoubleTapped;
             _menu = ItemMenu.Attach(Block, Entries);
             WidgetItems.Mark(Block);
@@ -323,7 +323,8 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             ];
         }
 
-        private void OnPressed(object sender, PointerRoutedEventArgs args)
+        /// <summary>[S-13060] A click focuses the drive's row on the tap, never the press: a press that becomes the card's move focuses nothing.</summary>
+        private void OnTapped(object sender, TappedRoutedEventArgs args)
         {
             var index = _owner._rows.IndexOf(this);
             if (index >= 0)
@@ -356,7 +357,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         public void Dispose()
         {
-            Block.PointerPressed -= OnPressed;
+            Block.Tapped -= OnTapped;
             Block.DoubleTapped -= OnDoubleTapped;
             _menu.Dispose();
             Block.Detach();
