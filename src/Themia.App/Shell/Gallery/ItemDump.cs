@@ -39,9 +39,10 @@ internal static class ItemDump
 
             var items = new List<(FrameworkElement Item, Rect Box, bool Cut)>();
             var ink = new List<(FrameworkElement Part, Rect Box)>();
+            var texts = new List<(FrameworkElement Part, Rect Box)>();
             if (card.View is { } view)
             {
-                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink);
+                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts);
             }
 
             var groups = new Dictionary<DependencyObject, int>();
@@ -78,6 +79,18 @@ internal static class ItemDump
             }
 
             w.WriteEndArray();
+
+            // The texts inside the items, for a mark that stands over one (a status glyph over a row's value).
+            w.WriteStartArray("texts");
+            foreach (var (part, box) in texts)
+            {
+                w.WriteStartObject();
+                w.WriteString("t", part.GetType().Name);
+                Box(w, box);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
             w.WriteEndObject();
         }
 
@@ -94,7 +107,7 @@ internal static class ItemDump
     }
 
     /// <summary>The items and the free ink under <paramref name="node"/>, each as it shows inside <paramref name="clip"/> (card coordinates).</summary>
-    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink)
+    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts)
     {
         if (node is UIElement { Visibility: not Visibility.Visible } || node is UIElement { Opacity: <= 0 })
         {
@@ -115,9 +128,13 @@ internal static class ItemDump
                 items.Add((fe, shown.Value, cut));
                 insideItem = true;
             }
-            else if (!insideItem && fe is TextBlock { Text.Length: > 0 } or FontIcon or Image or Shape or ButtonBase or TextBox)
+            else if (!insideItem && fe is TextBlock { Text.Length: > 0 } or FontIcon or Image or Shape or ButtonBase or TextBox or ProgressRing)
             {
                 ink.Add((fe, shown.Value));
+            }
+            else if (insideItem && fe is TextBlock text && (text.Text.Length > 0 || text.Inlines.Count > 0))
+            {
+                texts.Add((fe, shown.Value));
             }
 
             // What a scroll viewer or a clip shows of its content is its own box.
@@ -130,7 +147,7 @@ internal static class ItemDump
         var n = VisualTreeHelper.GetChildrenCount(node);
         for (var i = 0; i < n; i++)
         {
-            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink);
+            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts);
         }
     }
 

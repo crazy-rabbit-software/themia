@@ -22,10 +22,31 @@ public readonly record struct FactLine(string Glyph, string Name, string Value, 
 /// width ends in its ellipsis; a fact that cannot be read now is drawn unavailable. [S-12807] The rows fill the content from its top to the foot's inset (its margin), touching;
 /// <see cref="SpreadStack.Rows"/> the pick's count, so fewer facts leave the rest empty.
 /// </summary>
-public partial class FactList : SpreadStack
+public partial class FactList : SpreadStack, IStatusRoom
 {
     private readonly List<RowBlock> _rows = [];
     private bool _led;
+    private double _statusRoom;
+
+    /// <summary>
+    /// [S-12813] The status glyph over the card's top end corner (a stale reading's warning) stands beside the first
+    /// row's value, never over it: the first row ends that much sooner.
+    /// </summary>
+    public void StatusRoom(double width)
+    {
+        _statusRoom = double.IsFinite(width) ? Math.Max(0, width) : 0;
+        ApplyRoom();
+    }
+
+    private void ApplyRoom()
+    {
+        var first = true;
+        foreach (var row in _rows)
+        {
+            row.Padding = Family.SideInset with { Right = FamilySpace.Inset + (first && row.Visibility == Visibility.Visible ? _statusRoom : 0) };
+            first &= row.Visibility != Visibility.Visible;
+        }
+    }
 
     public FactList() => Margin = ListEdge.Margin;
 
@@ -69,5 +90,7 @@ public partial class FactList : SpreadStack
                 _rows[i].Available = facts[i].Available;
             }
         }
+
+        ApplyRoom();
     }
 }

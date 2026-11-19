@@ -17,7 +17,9 @@ the panel that lays them, and the ink outside every item. For every group of ite
 - WR-6 whole cells: along the axis a column repeats, every item is a whole number of grid cells and all are alike;
   along a row the items are whole cells and alike to a cell, the last taking what of the card's width is not a whole
   cell (the coordinator's "the last item absorbing the remainder of the card when the card isn't whole cells").
-- no item is cut by its card or its list's viewport.
+- no item is cut by its card or its list's viewport;
+- no mark outside the items (a status glyph, a busy ring) stands over an item's text (a stale facts list's warning
+  over its first value).
 
 Writes <out>/items.json (every kind x state x size x card x group with its findings), <out>/items.md (the findings),
 and exits 1 on any finding. A kind whose face is a picture or a video filling the card (docs/WIDGET-RULES.md
@@ -180,6 +182,18 @@ def judge(card):
         if any(i.get('cut') for i in items):
             found.append('an item is cut by its viewport')
         out.append({'group': g, 'axis': axis, 'items': len(items), 'findings': found})
+    # A mark outside the items (a status glyph, a ring) standing over an item's text hides it.
+    marks = [k for k in card.get('ink', []) if k['t'] in ('FontIcon', 'ProgressRing', 'Image')]
+    hidden = []
+    for m in marks:
+        for t in card.get('texts', []):
+            dx = min(m['x'] + m['w'], t['x'] + t['w']) - max(m['x'], t['x'])
+            dy = min(m['y'] + m['h'], t['y'] + t['h']) - max(m['y'], t['y'])
+            if dx > 1 and dy > 1:
+                hidden.append(f"a {m['t']} at {m['x']:.0f},{m['y']:.0f} stands over an item's text")
+                break
+    if hidden:
+        out.append({'group': 'marks', 'axis': '-', 'items': len(marks), 'findings': hidden})
     return out
 
 

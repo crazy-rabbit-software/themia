@@ -61,6 +61,7 @@ public sealed partial class KitStatus : StackPanel
         if (Parent is null)
         {
             view.Children.Add(this);
+            LeaveRoom();
         }
     }
 
@@ -78,6 +79,29 @@ public sealed partial class KitStatus : StackPanel
         _ring.IsActive = busy;
         _ring.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         Visibility = problems.Count > 0 || busy ? Visibility.Visible : Visibility.Collapsed;
+        LeaveRoom();
+    }
+
+    /// <summary>
+    /// [S-12813] The content under the status's corner leaves it room (a facts list's first row ends its value before
+    /// the glyph, never under it): every part of the view that takes it (<see cref="IStatusRoom"/>) hears how wide it is.
+    /// </summary>
+    private void LeaveRoom()
+    {
+        var width = 0.0;
+        if (Visibility == Visibility.Visible)
+        {
+            Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            width = Math.Max(0, DesiredSize.Width - Margin.Left - Margin.Right) + FamilySpace.S2;
+        }
+
+        if (Parent is Panel view)
+        {
+            foreach (var part in view.Children.OfType<IStatusRoom>())
+            {
+                part.StatusRoom(width);
+            }
+        }
     }
 
     /// <summary>Nothing to say: the glyph hidden, the ring stopped.</summary>
@@ -98,4 +122,11 @@ public sealed partial class KitStatus : StackPanel
             Log.Info("kit", "nothing here opens ⚙ › Accounts");
         }
     }
+}
+
+/// <summary>[S-12813] A part under a status's corner that leaves it room (a facts list's first row).</summary>
+public interface IStatusRoom
+{
+    /// <summary>The status's width over the content's top end corner (0: none shown).</summary>
+    void StatusRoom(double width);
 }
