@@ -18,8 +18,8 @@ namespace Themia.Widget.Contacts;
 /// <param name="Rows">How many rows (grid lines) show; the rest is a scroll away.</param>
 public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Columns, double ColumnWidth, int Lines, bool Avatar, bool Aside, double Icon, double Pitch, int Rows)
 {
-    /// <summary>[S-12807] The rows laid as <paramref name="reach"/> says: its pitch, touching.</summary>
-    public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch };
+    /// <summary>[S-12807] [S-12834] The rows laid as <paramref name="reach"/> says: its pitch, touching, and no more of them than the room holds whole (WR-6).</summary>
+    public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch, Rows = Math.Min(Rows, reach.Shown) };
 }
 
 /// <summary>

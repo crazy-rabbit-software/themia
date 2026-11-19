@@ -596,7 +596,16 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 _visible = [.. _visible.Skip(plan.Columns)];
             }
 
-            plan = plan with { Rows = Math.Max(1, plan.Rows - 1) };
+            // [S-12834] A card whose room holds one line has none left under the line: no row is cut by its foot (WR-6).
+            plan = plan with { Rows = Math.Max(0, plan.Rows - 1) };
+        }
+
+        // [S-12834] WR-6: no more rows than the card holds whole under what stands over them (the field, the line).
+        if (_area.IsMeasured && plan.Layout != ContactsLayout.Grid && plan.Pitch > 0)
+        {
+            var top = showSearch ? FamilySpace.Inset + LineRules.Under(_area.Grid(XamlRoot?.RasterizationScale ?? 1), FamilySpace.Inset, FamilyShape.Button) : line ? plan.Pitch : 0;
+            var fit = (int)Math.Floor((_area.Height + FamilySpace.Inset - top + LayoutMath.Tolerance) / plan.Pitch);
+            plan = plan with { Rows = Math.Max(0, Math.Min(plan.Rows, fit)) };
         }
 
         if (_visible.Count == 0)
@@ -654,6 +663,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _fade = null;
         _scroll.Content = null;
         _scroll.Height = double.NaN;
+        _scroll.Visibility = Visibility.Visible;
         _scroll.Margin = default;
         _columnHeader.Children.Clear();
         _columnHeader.ColumnDefinitions.Clear();
@@ -664,8 +674,11 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private void StatedRows(int lines, ContactsLayoutPlan plan)
     {
         // A resize being dragged hands the view the config that size means ([S-2447]): never the box's own count.
-        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
+        var shown = Math.Max(0, Math.Min(lines, plan.Rows));
         _scroll.Height = lines > shown ? shown * plan.Pitch : double.NaN;
+
+        // [S-12834] No room for a row under what stands over the rows: none is drawn (never a row cut to nothing).
+        _scroll.Visibility = shown > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         // [S-12807] The first row's band over the rows' room, so its text stands where the room starts.
     }
