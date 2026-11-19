@@ -68,5 +68,15 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
 
 ## Exemptions granted by the owner
 
-None yet. A kind whose face is a picture or a video filling the card edge to edge (gallery, video, cover art) meets
-WR-1..WR-4 by that picture; nothing else is exempt.
+- **Pictures and video.** A kind whose face is a picture or a video filling the card edge to edge (gallery, video,
+  cover art) meets WR-1..WR-4 by that picture.
+- **Tiles stand centred.** 2026-11-19, asked whether a quick toggle's or power button's icon and name may stay
+  centred in the tile: "Centred is fine". The bands over and under a tile's face are alike; nothing else of WR-1..WR-4
+  is relaxed.
+- **A one-line face may stand centred.** 2026-11-19, asked about clock, date and the Header widget, whose one line grows
+  until the width stops it: "Centred is fine". The leftover height is shared alike over and under the line.
+- **Desktop icons keep Windows' look.** 2026-11-19, asked whether the widget rules apply to desktop icons: "Keep
+  Windows' look". A desktop icon follows Windows' icon cell (and the icon layouts, [S-13970]), not WR-1..WR-6.
+
+Nothing else is exempt. Graphs are not: 2026-11-19, asked whether a graph's plot should reach the card's edges: "Plot
+edge to edge" (the plot and its fill reach the card's edges, the labels stand inside it, over the plot).

@@ -18,8 +18,10 @@ colour), and judges:
 - sides: the band beside the ink, either side, is at most the inset and the 4 DIP where the content spans the width
   (a card with items: WR-3).
 
-The one exemption the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
-filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture. Every render runs
+The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
+filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
+Windows' icon cell (not judged); a tile (quick toggles, power buttons) and a one-line face (clock, date, header) may
+stand centred: the bands over and under the face alike (within the tolerance), its sides as any card's. Every render runs
 under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix), <out>/gaps.json and
 <out>/findings.txt; exits 1 on any finding.
 """
@@ -47,6 +49,18 @@ PICTURES = {
     'videoStream': 'a video fills the card edge to edge',
     'musicCover': 'the cover art fills the card edge to edge',
 }
+
+# docs/WIDGET-RULES.md, "Exemptions granted by the owner" (2026-11-19): desktop icons keep Windows' icon cell.
+WINDOWS_LOOK = {'desktopItem': "a desktop icon is drawn as Windows' own: icon and name in its cell"}
+
+# docs/WIDGET-RULES.md, "Exemptions granted by the owner" (2026-11-19): a tile's face and a one-line face stand centred.
+TILE = re.compile(r'Toggle$')
+POWER = {'sleep', 'signOut', 'shutdown', 'screenOff', 'restart', 'lock', 'hibernate'}
+ONE_LINE = {'clock', 'date', 'header'}
+
+
+def centred(kind):
+    return bool(TILE.search(kind)) or kind in POWER or kind in ONE_LINE
 
 
 def kinds_in(root):
@@ -120,6 +134,14 @@ def judge(kind, card, layout):
         return ['WR-10 nothing drawn']
     if kind in PICTURES:
         return []
+    if kind in WINDOWS_LOOK:
+        return []
+    if centred(kind):
+        # Centred, as the owner granted: the bands over and under the face alike; the sides as any card's.
+        found = []
+        if abs(top - foot) > TOLERANCE:
+            found.append(f'centred face off centre {top:.1f}/{foot:.1f}')
+        return found
     found = []
     limit = INSET + TOLERANCE
     items = (layout or {}).get('items', [])
