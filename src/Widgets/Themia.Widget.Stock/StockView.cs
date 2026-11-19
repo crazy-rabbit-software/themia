@@ -61,16 +61,17 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _facts.Children.Add(_holdingRow);
         _facts.Children.Add(_extendedRow);
 
-        // [S-12808] [S-12834] The price and its line under are one readout block that fills the room over the rows, scaled
-        // as one (WR-7: "All together, scaled"); the holding's and the extended print's rows are rows (WR-6: whole grid cells,
-        // never scaled), touching from under the block to the card's foot edge, edge to edge (WR-3).
+        // [S-12808] [S-12834] Alone, the price and its line under are one readout block that fills the card, scaled as one
+        // (WR-7: "All together, scaled"). With the holding's or the extended print's rows (WR-6: whole grid cells, never
+        // scaled) the price stands at its own size on the card's inset, its lines grown to a grid line, and the rows grow
+        // from right under it to the card's foot edge, edge to edge (WR-1, WR-3, WR-4).
         _block = new ReadingFit();
         _block.Parts.Add(_price);
-        _facts.Margin = new Thickness(0, 0, 0, 0);
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         SetRow(_facts, 1);
         Children.Add(_block);
+        Children.Add(_head);
         Children.Add(_facts);
         Children.Add(_state);
         SetRowSpan(_state, 2);
@@ -78,6 +79,9 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     private readonly ReadingFit _block;
+
+    /// <summary>[S-12834] Where the price stands over rows: at its own size, on the card's inset.</summary>
+    private readonly Grid _head = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
 
     /// <summary>[S-1311] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
@@ -180,8 +184,28 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         var rows = _config.Rows > 0;
         RowDefinitions[0].Height = rows ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
         RowDefinitions[1].Height = rows ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        _block.Height = rows ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, _block.Natural()) : double.NaN;
-        _block.Margin = _block.Margin with { Bottom = rows ? 0 : FamilySpace.Inset };
+        Place(rows);
+    }
+
+    /// <summary>[S-12834] The price in the block that fills the card, or over the rows at its own size, its lines grown to a grid line.</summary>
+    private void Place(bool rows)
+    {
+        var inFit = _block.Parts.Contains(_price);
+        if (rows && inFit)
+        {
+            _block.Parts.Remove(_price);
+            _head.Children.Add(_price);
+        }
+        else if (!rows && !inFit)
+        {
+            _head.Children.Remove(_price);
+            _block.Parts.Add(_price);
+        }
+
+        _block.Visibility = rows ? Visibility.Collapsed : Visibility.Visible;
+        _head.Visibility = rows ? Visibility.Visible : Visibility.Collapsed;
+        var spare = rows ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, _price.MinHeight) - _price.MinHeight : 0;
+        _price.UnderText.Padding = new Thickness(0, 0, 0, spare);
     }
 
     /// <summary>
