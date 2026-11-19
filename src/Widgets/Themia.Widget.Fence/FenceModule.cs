@@ -52,7 +52,7 @@ public sealed class FenceModule : IWidgetModule
     {
         var cell = DesktopCell.Grid(DesktopCell.Current);
         var natural = FenceGrid.Around(6, cell);
-        var min = new SizeDip(Math.Max(120, cell.Width + (2 * FenceGrid.Pad)), FenceGrid.TitleHeight + FenceGrid.ContentHeight(1, 1, cell));
+        var min = new SizeDip(Math.Max(120, cell.Width), FenceGrid.TitleHeight + FenceGrid.ContentHeight(1, 1, cell));
         if (config.RolledUp)
         {
             return WidgetSizing.Range(min with { Height = FenceGrid.TitleHeight }, natural with { Height = FenceGrid.TitleHeight }, new SizeDip(natural.Width * 2, FenceGrid.TitleHeight))

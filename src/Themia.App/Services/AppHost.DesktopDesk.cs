@@ -260,13 +260,22 @@ internal sealed partial class AppHost : IDesktopDesk
         RepaintDesk();
     }
 
-    /// <summary>[S-5502] [S-5544] A left or right press on empty desktop: the selection goes (a band may follow), the desktop takes the keys.</summary>
-    public void DesktopEmptyPressed(DesktopWindow surface, Point dip, bool ctrl, bool shift)
+    /// <summary>
+    /// [S-5502] [S-5544] A left or right press on empty desktop: the selection goes (a band may follow), the desktop takes the keys.
+    /// [S-13020] <paramref name="inFence"/>: the press was on empty body of a fence (its band); it names no place on the free
+    /// desktop for a paste, and the band never takes that fence.
+    /// </summary>
+    public void DesktopEmptyPressed(DesktopWindow surface, Point dip, bool ctrl, bool shift, bool inFence = false)
     {
         CloseRenameFor(null);
         _landings.ClearOpen();
         var metrics = surface.Metrics;
-        _emptyPress = metrics.IsUsable ? (surface, dip.X / metrics.Width, dip.Y / metrics.Height) : null;
+        if (!inFence)
+        {
+            _bandExcept = null;
+            _emptyPress = metrics.IsUsable ? (surface, dip.X / metrics.Width, dip.Y / metrics.Height) : null;
+        }
+
         LayoutDesk();
         if (!ctrl && !shift)
         {
@@ -343,7 +352,7 @@ internal sealed partial class AppHost : IDesktopDesk
             window.ShowDesktopBand(Themia.Core.Desktop.DesktopBand.On(band, info.Bounds, info.WorkArea, window.BandScale));
         }
 
-        var hits = Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Ordered);
+        var hits = Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Ordered).Where(key => _bandExcept is null || !string.Equals(key, _bandExcept, StringComparison.Ordinal)).ToList();
         BandCaught = hits.Count;
         _desk.Band(hits);
         RepaintDesk();

@@ -462,4 +462,10 @@ internal sealed class NoFences : IDesktopFences
     {
         // ignore: a render touches no file
     }
+
+    public Themia.Sdk.SizeDip ItemBox(string fenceId) => DesktopCell.Grid(DesktopCell.Current);
+
+    public bool Band(string fenceId, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs press) => false;
+
+    public IReadOnlyList<DesktopItem> DraggedItems => [];
 }

@@ -99,20 +99,22 @@ public sealed class FenceRulesTests
     private static readonly SizeDip Cell = new(76, 100);
 
     [Fact]
-    public void S10902_a_fence_lays_its_cells_in_reading_order_as_many_to_a_row_as_fit_centred()
+    public void S10902_S13019_a_fence_lays_its_cells_in_reading_order_box_against_box_from_its_edge()
     {
         Assert.Equal(3, FenceGrid.Columns(240, Cell));
+        Assert.Equal(3, FenceGrid.Columns(228, Cell));
         Assert.Equal(1, FenceGrid.Columns(50, Cell));
         Assert.Equal(1, FenceGrid.Columns(double.NaN, Cell));
 
+        // [S-13019] No inset and no centring: the first cell is at the body's corner, as a free icon is at its cell's.
         var first = FenceGrid.Cell(0, 3, Cell, 240);
         var fourth = FenceGrid.Cell(3, 3, Cell, 240);
-        Assert.Equal((6, FenceGrid.Pad), (first.X, first.Y));
+        Assert.Equal((0d, 0d), (first.X, first.Y));
         Assert.Equal(first.X, fourth.X);
         Assert.Equal(first.Y + Cell.Height, fourth.Y);
         Assert.Equal(first.X + (2 * Cell.Width), FenceGrid.Cell(2, 3, Cell, 240).X);
-        Assert.Equal((2 * FenceGrid.Pad) + (2 * Cell.Height), FenceGrid.ContentHeight(4, 3, Cell));
-        Assert.Equal(2 * FenceGrid.Pad, FenceGrid.ContentHeight(0, 3, Cell));
+        Assert.Equal(2 * Cell.Height, FenceGrid.ContentHeight(4, 3, Cell));
+        Assert.Equal(0, FenceGrid.ContentHeight(0, 3, Cell));
     }
 
     [Fact]
@@ -121,7 +123,7 @@ public sealed class FenceRulesTests
         var c = FenceGrid.Cell(4, 3, Cell, 240);
         Assert.Equal(4, FenceGrid.IndexAt(c.X + 10, c.Y + 10, 3, Cell, 240, 6));
         Assert.Equal(-1, FenceGrid.IndexAt(c.X + 10, c.Y + 10, 3, Cell, 240, 4));
-        Assert.Equal(-1, FenceGrid.IndexAt(1, 1, 3, Cell, 240, 6));
+        Assert.Equal(-1, FenceGrid.IndexAt(239, 1, 3, Cell, 240, 6));
 
         // The left half of a cell goes before it, the right half after it; past the rows, the end.
         Assert.Equal(4, FenceGrid.InsertAt(c.X + 10, c.Y + 10, 3, Cell, 240, 6));
@@ -132,13 +134,31 @@ public sealed class FenceRulesTests
     }
 
     [Fact]
+    public void S13021_the_preview_puts_the_dragged_items_at_their_slots_and_the_others_step_aside()
+    {
+        string[] shown = ["a", "b", "c", "d"];
+
+        // From outside, before "c": the newcomers stand at slots 2 and 3, c and d step aside.
+        Assert.Equal(["a", "b", "x", "y", "c", "d"], FenceGrid.Preview(shown, ["x", "y"], 2, StringComparer.OrdinalIgnoreCase));
+
+        // Inside the fence: "a" pointed before "d" lands between c and d, counted among the items that stay.
+        Assert.Equal(["b", "c", "a", "d"], FenceGrid.Preview(shown, ["A"], 3, StringComparer.OrdinalIgnoreCase).Select(k => k.ToLowerInvariant()));
+
+        // At the end, past the end, before the start; a key dragged twice stands once.
+        Assert.Equal(["a", "b", "c", "d", "x"], FenceGrid.Preview(shown, ["x"], 4, StringComparer.Ordinal));
+        Assert.Equal(["a", "b", "c", "d", "x"], FenceGrid.Preview(shown, ["x"], 99, StringComparer.Ordinal));
+        Assert.Equal(["x", "a", "b", "c", "d"], FenceGrid.Preview(shown, ["x", "x"], -3, StringComparer.Ordinal));
+        Assert.Equal(["x"], FenceGrid.Preview([], ["x"], 0, StringComparer.Ordinal));
+    }
+
+    [Fact]
     public void S13008_a_fence_for_n_items_is_near_square_and_shows_them_all()
     {
         var one = FenceGrid.Around(1, Cell);
         var nine = FenceGrid.Around(9, Cell);
         var many = FenceGrid.Around(200, Cell);
 
-        Assert.Equal((Cell.Width + (2 * FenceGrid.Pad), FenceGrid.TitleHeight + (2 * FenceGrid.Pad) + Cell.Height), (one.Width, one.Height));
+        Assert.Equal((Cell.Width, FenceGrid.TitleHeight + Cell.Height), (one.Width, one.Height));
         Assert.Equal(3, FenceGrid.Columns(nine.Width, Cell));
         Assert.Equal(FenceGrid.TitleHeight + FenceGrid.ContentHeight(9, 3, Cell), nine.Height);
         Assert.Equal(FenceGrid.MaxColumns, FenceGrid.Columns(many.Width, Cell));

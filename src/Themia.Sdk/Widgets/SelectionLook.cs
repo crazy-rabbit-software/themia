@@ -14,6 +14,9 @@ public enum SelectionTone
 
     /// <summary>[S-5602] White: Explorer's desktop icons, whose highlight is a wash of white over the wallpaper.</summary>
     Light,
+
+    /// <summary>[S-13019] Black: the desktop icon's wash on a light ground (a fence on a light card), where white would not show.</summary>
+    Dark,
 }
 
 /// <summary>[S-6627] A selection mark: its tone, and the fill's and the 1-DIP border's opacity of it (0..1).</summary>
@@ -98,6 +101,9 @@ public static class SelectionLook
     /// <summary>[S-5602] The desktop icon's wash: white, as Explorer's desktop draws it.</summary>
     public static readonly RgbColor White = new(0xFF, 0xFF, 0xFF);
 
+    /// <summary>[S-13019] The desktop icon's wash on a light ground.</summary>
+    public static readonly RgbColor Black = new(0x00, 0x00, 0x00);
+
     /// <summary>The inactive selection's grey: mid-grey reads as grey over a light card and a dark one.</summary>
     public static readonly RgbColor NeutralGrey = new(0x80, 0x80, 0x80);
 
@@ -134,6 +140,19 @@ public static class SelectionLook
         Tone = SelectionTone.Light,
         InactiveTone = SelectionTone.Light,
     };
+
+    /// <summary>
+    /// [S-13019] The desktop icon's look on a light ground: every number of <see cref="DesktopIcon"/> (the strengths, the
+    /// whole cell, the corners), its wash black instead of white, so a fence's items on a light card are highlighted
+    /// exactly as the free icons are on the wallpaper, only seen.
+    /// </summary>
+    public static SelectionPalette DesktopIconOnLight { get; } = DesktopIcon with { Tone = SelectionTone.Dark, InactiveTone = SelectionTone.Dark };
+
+    /// <summary>[S-13019] The desktop icon's look for a ground: white over a dark one (the wallpaper, a dark card), black over a light one.</summary>
+    public static SelectionPalette DesktopIconOver(bool lightGround) => lightGround ? DesktopIconOnLight : DesktopIcon;
+
+    /// <summary>[S-13019] Whether a ground whose text is <paramref name="text"/> is light: its text is dark (relative luminance under a half).</summary>
+    public static bool LightGround(RgbColor text) => ((0.2126 * text.R) + (0.7152 * text.G) + (0.0722 * text.B)) / 255.0 < 0.5;
 
     /// <summary>[S-6624] The band's mark.</summary>
     public static SelectionInk Band { get; } = new(SelectionTone.Highlight, BandFill, BandStroke);
@@ -179,6 +198,7 @@ public static class SelectionLook
     {
         SelectionTone.Neutral => NeutralGrey,
         SelectionTone.Light => White,
+        SelectionTone.Dark => Black,
         _ => highlight,
     };
 

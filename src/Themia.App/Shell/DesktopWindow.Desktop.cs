@@ -72,6 +72,40 @@ internal sealed partial class DesktopWindow
         e.Handled = true;
     }
 
+    /// <summary>[S-13020] The running band began on empty body of a fence: it offers no area at its release.</summary>
+    private bool _deskBandInFence;
+
+    /// <summary>
+    /// [S-13020] A left press on empty body of a fence (handed over by its host): the desktop's band from that point, as a
+    /// press on empty desktop starts it (Ctrl or Shift keep the selection), the pointer captured here so the band follows it
+    /// anywhere. Returns whether it started.
+    /// </summary>
+    internal bool BeginDesktopBandFrom(PointerRoutedEventArgs press)
+    {
+        if (_closed || EditMode)
+        {
+            return false;
+        }
+
+        var point = press.GetCurrentPoint(_root);
+        if (!point.Properties.IsLeftButtonPressed)
+        {
+            return false;
+        }
+
+        var ctrl = press.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Control);
+        var shift = press.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Shift);
+        _host.DesktopEmptyPressed(this, point.Position, ctrl, shift, inFence: true);
+        _deskBandStart = point.Position;
+        _deskBandCtrl = ctrl;
+        _deskBandShift = shift;
+        _deskBanding = false;
+        _deskBandInFence = true;
+        _deskBandArmed = _root.CapturePointer(press.Pointer);
+        _deskBandInFence = _deskBandArmed;
+        return _deskBandArmed;
+    }
+
     /// <summary>[S-13007] The pointer moved with the right button down on empty desktop: past the dead zone it draws the fence's rectangle.</summary>
     private void UpdateFenceBand(Point now)
     {
@@ -241,6 +275,8 @@ internal sealed partial class DesktopWindow
         }
 
         _deskBandArmed = false;
+        var inFence = _deskBandInFence;
+        _deskBandInFence = false;
         if (e is not null)
         {
             _root.ReleasePointerCapture(e.Pointer);
@@ -251,7 +287,7 @@ internal sealed partial class DesktopWindow
             _deskBanding = false;
             var caught = _host.BandCaught;
             _host.DesktopBandEnd();
-            if (e is not null)
+            if (e is not null && !inFence)
             {
                 _host.LassoReleased(this, _deskBandStart, e.GetCurrentPoint(_root).Position, caught);
             }

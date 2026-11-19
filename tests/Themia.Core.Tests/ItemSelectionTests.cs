@@ -570,4 +570,21 @@ public sealed class ItemSelectionTests
     [InlineData(true, true, true, true, true, false)] // being renamed
     public void S6629_only_the_focused_selected_cut_short_name_shows_in_full(bool selected, bool focused, bool active, bool trimmed, bool renaming, bool shows)
         => Assert.Equal(shows, SelectionLook.ShowsFullName(selected, focused, active, trimmed, renaming));
+
+    [Fact]
+    public void S13019_a_fence_item_is_highlighted_as_a_desktop_icon_with_the_wash_its_ground_shows()
+    {
+        // Light text: a dark card (or the wallpaper) takes the desktop icon's white wash; dark text, a light card, the same in black.
+        Assert.False(SelectionLook.LightGround(new RgbColor(0xFF, 0xFF, 0xFF)));
+        Assert.True(SelectionLook.LightGround(new RgbColor(0x1A, 0x1A, 0x1A)));
+        Assert.Same(SelectionLook.DesktopIcon, SelectionLook.DesktopIconOver(lightGround: false));
+
+        var light = SelectionLook.DesktopIconOver(lightGround: true);
+        Assert.Equal(SelectionTone.Dark, light.Tone);
+        Assert.Equal(SelectionTone.Dark, light.InactiveTone);
+        var cue = new SelectionCue(Selected: true, Hovered: false);
+        Assert.Equal(SelectionLook.Ink(cue, SelectionLook.DesktopIcon) with { Tone = SelectionTone.Dark }, SelectionLook.Ink(cue, light));
+        Assert.Equal(SelectionLook.DesktopIcon.Radius, light.Radius);
+        Assert.Equal(SelectionLook.Black, SelectionLook.Colour(SelectionTone.Dark, SelectionLook.DefaultHighlight));
+    }
 }

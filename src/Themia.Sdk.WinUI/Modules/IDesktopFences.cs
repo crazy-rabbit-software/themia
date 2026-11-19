@@ -65,4 +65,21 @@ public interface IDesktopFences
 
     /// <summary>The user's desktop folder (wherever it is redirected), where a drop on a fence goes; null when Windows names none.</summary>
     string? DesktopFolder { get; }
+
+    /// <summary>
+    /// [S-13019] The box one item stands in, in DIPs: a desktop icon's on the widget grid of the display the fence is on
+    /// (the desktop's cell at the icon size in force rounded up to whole grid cells), so a fence's items keep the free
+    /// icons' spacing. The desktop's plain cell where the fence is on no display.
+    /// </summary>
+    Themia.Sdk.SizeDip ItemBox(string fenceId);
+
+    /// <summary>
+    /// [S-13020] A left press on empty body of the fence: the desktop's own band starts there, on the surface it is drawn
+    /// on, by the desktop's rules (no Ctrl or Shift: the selection goes first; it reaches the items of this fence, of other
+    /// fences and the free icons alike, never the fence itself). Returns whether it started (the press is then the band's).
+    /// </summary>
+    bool Band(string fenceId, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs press);
+
+    /// <summary>[S-13021] The desktop items the running drag of the desktop's icons carries, in its order (none while none runs): a fence's ghost preview draws them.</summary>
+    IReadOnlyList<DesktopItem> DraggedItems { get; }
 }

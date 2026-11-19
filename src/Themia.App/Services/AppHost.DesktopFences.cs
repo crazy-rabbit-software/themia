@@ -1,5 +1,6 @@
 using Themia.App.Services.Files;
 using Themia.App.Shell;
+using Microsoft.UI.Xaml.Input;
 using Themia.App.Widgets;
 using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
@@ -277,7 +278,7 @@ internal sealed partial class AppHost : IDesktopFences
             rects = [new FracRect(x, y, 0, 0)];
         }
 
-        if (DesktopFences.AroundIcons(rects, keys.Count, DeskCellDip, surface.Metrics) is { } rect)
+        if (DesktopFences.AroundIcons(rects, keys.Count, DeskItemBox(surface.Metrics), surface.Metrics) is { } rect)
         {
             CreateFence(surface, rect, keys);
         }
@@ -354,6 +355,49 @@ internal sealed partial class AppHost : IDesktopFences
             Log.Info(Scope, $"{left.Count} item(s) dragged out of a fence found no free spot; Add widget lists them");
         }
     }
+
+    /// <inheritdoc />
+    public SizeDip ItemBox(string fenceId)
+    {
+        return DesktopFences.Find(State, fenceId) is { } at && ScreenOfView(at.View.Id) is { IsUsable: true } screen
+            ? DeskItemBox(screen)
+            : DeskCellDip;
+    }
+
+    /// <summary>[S-13019] A desktop icon's box on the widget grid of <paramref name="screen"/>, in DIPs: what a fence's item stands in.</summary>
+    private SizeDip DeskItemBox(ScreenMetrics screen)
+    {
+        var (w, h) = DeskIconSize(screen);
+        return new SizeDip(w * screen.Width, h * screen.Height);
+    }
+
+    /// <inheritdoc />
+    public bool Band(string fenceId, PointerRoutedEventArgs press)
+    {
+        ArgumentNullException.ThrowIfNull(press);
+        if (EditMode || (SurfaceUnderCursor() ?? _windows.FirstOrDefault(w => w.IsAlive && w.Draws(fenceId))) is not { } surface)
+        {
+            return false;
+        }
+
+        _bandExcept = DesktopItemKeys.Widget(fenceId);
+        if (surface.BeginDesktopBandFrom(press))
+        {
+            return true;
+        }
+
+        _bandExcept = null;
+        return false;
+    }
+
+    /// <summary>[S-13020] The fence a band began in: never in its own band's hits.</summary>
+    private string? _bandExcept;
+
+    /// <inheritdoc />
+    public IReadOnlyList<DesktopItem> DraggedItems
+        => _deskDrag is { } drag
+            ? [.. _desk.Selected.Where(drag.Keys.Contains).Select(key => HostDesktopItems.Instance.Find(key)).OfType<DesktopItem>()]
+            : [];
 
     /// <summary>[S-13011] The boxes the fences of <paramref name="view"/> on <paramref name="surface"/> lay their items in, in physical screen pixels.</summary>
     private IEnumerable<(string Key, WidgetInstance Fence, DesktopBox Box)> FenceItemBoxes(DesktopWindow surface, ViewState view, int display)
