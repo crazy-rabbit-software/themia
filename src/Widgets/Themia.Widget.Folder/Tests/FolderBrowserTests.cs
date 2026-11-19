@@ -165,7 +165,7 @@ public sealed class FolderBrowserTests
     [InlineData(FolderStyle.Grid, 560, true, 7)]
     public void S11203_cells_are_the_family_s_32_at_every_width_and_more_room_shows_more_of_them(FolderStyle style, double width, bool named, int columns)
     {
-        var plan = FolderLayout.Plan(new WidgetArea(width, 300), new FolderConfig { Style = style }, 20, true, false, false, false);
+        var plan = FolderLayout.Plan(new WidgetArea(width, 300), new FolderConfig { Style = style }, 20, true, false, false);
         var grid = plan.Grid!.Value;
 
         Assert.Equal(32, grid.Icon);
@@ -181,7 +181,7 @@ public sealed class FolderBrowserTests
     public void S1323_rows_are_the_row_block_s_one_line_of_28_and_only_whole_ones_show(double height, int rows)
     {
         var area = new WidgetArea(320, height);
-        var plan = FolderLayout.Plan(area, new FolderConfig(), 40, true, false, false, false);
+        var plan = FolderLayout.Plan(area, new FolderConfig(), 40, true, false, false);
 
         Assert.Null(plan.Grid);
         Assert.Equal(28, FolderLayout.RowHeight);
@@ -194,7 +194,7 @@ public sealed class FolderBrowserTests
         var plain = new FolderConfig { Style = FolderStyle.Details };
         foreach (var area in new[] { new WidgetArea(200, 114), new WidgetArea(800, 524) })
         {
-            var plan = FolderLayout.Plan(area, plain, 20, true, false, false, false);
+            var plan = FolderLayout.Plan(area, plain, 20, true, false, false);
             Assert.False(plan.Breadcrumb);
             Assert.False(plan.SearchBox);
             Assert.True(plan.ColumnHeader);
@@ -202,13 +202,13 @@ public sealed class FolderBrowserTests
         }
 
         var all = new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true, ColumnTitles = false };
-        var small = FolderLayout.Plan(new WidgetArea(200, 114), all, 20, true, false, false, false);
+        var small = FolderLayout.Plan(new WidgetArea(200, 114), all, 20, true, false, false);
         Assert.True(small.Breadcrumb && small.SearchBox && !small.ColumnHeader);
 
-        Assert.True(FolderLayout.Plan(new WidgetArea(150, 100), new FolderConfig(), 4, true, false, false, false).Modified);
-        Assert.False(FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig { ShowDate = false }, 4, true, false, false, false).Modified);
-        Assert.Empty(FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig(), 4, true, false, false, false).Columns);
-        Assert.True(FolderLayout.Plan(new WidgetArea(300, 96), plain, 20, true, searchOpen: true, navigate: false, hasGit: false).SearchBox);
+        Assert.True(FolderLayout.Plan(new WidgetArea(150, 100), new FolderConfig(), 4, true, false, false).Modified);
+        Assert.False(FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig { ShowDate = false }, 4, true, false, false).Modified);
+        Assert.Empty(FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig(), 4, true, false, false).Columns);
+        Assert.True(FolderLayout.Plan(new WidgetArea(300, 96), all, 20, true, navigate: false, hasGit: false).SearchBox);
     }
 
     [Fact]

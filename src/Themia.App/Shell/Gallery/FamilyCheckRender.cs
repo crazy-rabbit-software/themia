@@ -40,7 +40,7 @@ internal static class FamilyCheckRender
         "confirm", "editing", "open", "linked", "sticker", "file", "dropTarget",
 
         // [S-13950] An inline box open: the platform's text box, what the inline check measures.
-        "adding", "typing", "renaming", "search", "searching", "opened", "editingLong",
+        "adding", "typing", "renaming", "search", "searching", "searchClosed", "opened", "openedTyping", "openedClosed", "editingLong",
     };
 
     public static ApplicationTheme? RequestedTheme(string[] args)

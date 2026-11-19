@@ -640,7 +640,11 @@ internal sealed partial class FolderView
 
     // ---- search ---------------------------------------------------------------------------------
 
-    /// <summary>[S-1326] The header's search: a box above the list that filters as you type.</summary>
+    /// <summary>
+    /// [S-1326] The tool line's search, filtering as it is typed in. [S-13950] It opens in the line's label, the one search
+    /// box at the line's size (the line keeps its 20, its buttons and the items their places); with the Search box
+    /// setting on, the field over the items is already there and takes the keys.
+    /// </summary>
     private void ToggleSearch()
     {
         if (_searchOpen)
@@ -649,10 +653,27 @@ internal sealed partial class FolderView
             return;
         }
 
+        if (_config.SearchBox)
+        {
+            _searchBox.FocusEnd();
+            return;
+        }
+
         _searchOpen = true;
-        Lay();
-        _searchBox.Visibility = Visibility.Visible;
-        _searchBox.FocusEnd();
+        _lineSearch.StandIn(_line.Words);
+        _lineSearch.FocusEnd();
+    }
+
+    /// <summary>[S-1326] The items filter as the words change, in either box.</summary>
+    private void OnSearchTyped(string text)
+    {
+        if (_closingSearch)
+        {
+            return;
+        }
+
+        _search = text;
+        Render();
     }
 
     private void CloseSearch()
@@ -665,7 +686,9 @@ internal sealed partial class FolderView
         _searchOpen = false;
         _closingSearch = true;
         _searchBox.Text = string.Empty;
+        _lineSearch.Text = string.Empty;
         _closingSearch = false;
+        _lineSearch.StandOut();
         _search = string.Empty;
         Lay();
         Render();

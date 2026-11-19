@@ -35,6 +35,9 @@ internal sealed partial class FolderView
     private Border _crumbHost = null!;
     private StackPanel _crumbs = null!;
     private SearchBox _searchBox = null!;
+
+    /// <summary>[S-13950] The search the tool line's Search opens: the one search box at the line's size, in the line's label while open.</summary>
+    private SearchBox _lineSearch = null!;
     private Grid _columnHeader = null!;
     private ScrollViewer _scroll = null!;
     private Grid _scrollContent = null!;
@@ -126,29 +129,26 @@ internal sealed partial class FolderView
         };
         SetRow(_crumbHost, 1);
 
-        // [S-13606] The one search box; [S-13607] its keys: Enter opens the first item shown, Escape empties it and,
-        // empty, folds it away.
+        // [S-13606] The one search box (the Search box setting's field over the items); [S-13607] its keys: Enter opens the
+        // first item shown, Escape empties it and, empty, folds it away.
         _searchBox = new SearchBox(FolderStr.WidgetsB_Folder_SearchPlaceholder.Text())
         {
             Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2),
             Visibility = Visibility.Collapsed,
-            Count = () => _shown.Count,
-            PickBest = () => OpenEntry(_shown[0]),
-            LetGo = CloseSearch,
         };
-        _searchBox.Changed += text =>
-        {
-            if (_closingSearch)
-            {
-                return;
-            }
-
-            _search = text;
-            Render();
-        };
-        _searchBox.GotFocus += (_, _) => _surface?.RequestTextInput(true);
-        _searchBox.LostFocus += (_, _) => _surface?.RequestTextInput(false);
         SetRow(_searchBox, 2);
+
+        // [S-13950] The same box at the line's size: the tool line's Search opens it in the line's label, so nothing moves.
+        _lineSearch = new SearchBox(FolderStr.WidgetsB_Folder_SearchPlaceholder.Text(), SearchSize.Line);
+        foreach (var box in new[] { _searchBox, _lineSearch })
+        {
+            box.Count = () => _shown.Count;
+            box.PickBest = () => OpenEntry(_shown[0]);
+            box.LetGo = CloseSearch;
+            box.Changed += OnSearchTyped;
+            box.GotFocus += (_, _) => _surface?.RequestTextInput(true);
+            box.LostFocus += (_, _) => _surface?.RequestTextInput(false);
+        }
 
         // [S-7034] The details table's titles: a Caption line over the columns, as the kit's table.
         _columnHeader = new Grid
@@ -225,7 +225,7 @@ internal sealed partial class FolderView
             return;
         }
 
-        var plan = FolderLayout.Plan(_area, _config, _shown.Count, _shown.Any(e => !e.IsDirectory), _searchOpen, Navigates, _git is not null);
+        var plan = FolderLayout.Plan(_area, _config, _shown.Count, _shown.Any(e => !e.IsDirectory), Navigates, _git is not null);
         _plan = plan;
         ApplyChrome(plan);
 
@@ -349,7 +349,7 @@ internal sealed partial class FolderView
 
         if (_area.IsMeasured)
         {
-            _plan = FolderLayout.Plan(_area, _config, _shown.Count, _shown.Any(e => !e.IsDirectory), _searchOpen, Navigates, _git is not null);
+            _plan = FolderLayout.Plan(_area, _config, _shown.Count, _shown.Any(e => !e.IsDirectory), Navigates, _git is not null);
             ApplyChrome(_plan);
         }
 

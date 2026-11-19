@@ -152,17 +152,17 @@ public sealed class FolderKindsTests
     {
         var area = new WidgetArea(800, 524);
 
-        Assert.False(FolderLayout.Plan(area, new FolderConfig(), 20, true, false, false, false).ColumnHeader);
-        Assert.True(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, true, false, false, false).ColumnHeader);
-        Assert.Null(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, true, false, false, false).Grid);
+        Assert.False(FolderLayout.Plan(area, new FolderConfig(), 20, true, false, false).ColumnHeader);
+        Assert.True(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, true, false, false).ColumnHeader);
+        Assert.Null(FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Details }, 20, true, false, false).Grid);
     }
 
     [Fact]
     public void S4121_icons_cells_are_the_icon_alone_and_grid_cells_keep_their_name()
     {
         var area = new WidgetArea(320, 240);
-        var icons = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Icons }, 20, true, false, false, false).Grid!.Value;
-        var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid }, 20, true, false, false, false).Grid!.Value;
+        var icons = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Icons }, 20, true, false, false).Grid!.Value;
+        var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid }, 20, true, false, false).Grid!.Value;
 
         Assert.False(icons.Named);
         Assert.Equal(icons.Icon, icons.Height);

@@ -12,6 +12,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Windows.Graphics;
 
@@ -20,7 +21,8 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-13950] Debug only: the inline check. <c>Themia.exe --inline-check &lt;out.txt&gt;</c> draws every widget's inline box
 /// open over the state it opens on (the add row, a row's rename, typed words longer than the row, a fence's title, a
-/// folder item's name, a search box taking the keys), one card at a time at the kind's min, natural and max, off-screen
+/// folder item's name, a search box taking the keys, a search opened on a tool line or on a list's first line, typed in
+/// and closed again), one card at a time at the kind's min, natural and max, off-screen
 /// as <c>--widget-png</c> does; measures every text, glyph, picture, row and list viewport in the card at rest and open
 /// (<see cref="Collect"/>), and judges them by <see cref="InlineFit.Judge"/>: the box is the box of the words it stands
 /// in for and nothing else moves, grows or goes. Writes one line per finding (none: "ok") and exits 1 on any.
@@ -31,25 +33,47 @@ internal static class InlineCheckRender
     public const string Flag = "--inline-check";
 
     /// <summary>
-    /// Every inline input a widget has, by the render state that opens it over its rest state. Not here: a desktop icon's
+    /// Every inline input a widget has, by the render state that opens it over its rest state, and how it is judged: Open (a
+    /// box stands open), Closed (opened, typed in and closed again: no box, nothing moved), Filters (a search over a list:
+    /// the list's rows say other things, never stand elsewhere, <see cref="InlineFit.Judge"/>). Not here: a desktop icon's
     /// rename box, which is Explorer's own (wider than the name and over the icons below, [S-5607]: it moves nothing, but
-    /// it is not the name's box), and a search opened from a tool line or the card menu (a row of its own, the list's
-    /// sizing, [S-1326], [S-1275]).
+    /// it is not the name's box).
     /// </summary>
-    private static readonly (string Kind, string? Style, string AtRest, string Open)[] Cases =
+    private static readonly (string Kind, string? Style, string AtRest, string Open, Judged How)[] Cases =
     [
-        ("tasks", null, "tasks", "adding"),
-        ("tasks", null, "tasks", "typing"),
-        ("tasks", null, "tasks", "renaming"),
-        ("habitTracker", null, "sample", "adding"),
-        ("habitTracker", null, "sample", "typing"),
-        ("habitTracker", null, "sample", "renaming"),
-        ("folder", null, "documents", "renaming"),
-        ("folder", "details", "documents", "renaming"),
-        ("folder", "grid", "documents", "renaming"),
-        ("fence", null, "sample", "title"),
-        ("contacts", null, "sample", "search"),
+        ("tasks", null, "tasks", "adding", Judged.Open),
+        ("tasks", null, "tasks", "typing", Judged.Open),
+        ("tasks", null, "tasks", "renaming", Judged.Open),
+        ("habitTracker", null, "sample", "adding", Judged.Open),
+        ("habitTracker", null, "sample", "typing", Judged.Open),
+        ("habitTracker", null, "sample", "renaming", Judged.Open),
+        ("folder", null, "documents", "renaming", Judged.Open),
+        ("folder", "details", "documents", "renaming", Judged.Open),
+        ("folder", "grid", "documents", "renaming", Judged.Open),
+        ("fence", null, "sample", "title", Judged.Open),
+        ("contacts", null, "sample", "search", Judged.Open),
+
+        // [S-13950] The searches a widget opens on demand: the tool line's (the folder's) and the card menu's (the contacts' with the box off).
+        ("folder", null, "documents", "search", Judged.Open),
+        ("folder", null, "documents", "searching", Judged.Filters),
+        ("folder", null, "documents", "searchClosed", Judged.Closed),
+        ("contacts", null, "nobox", "opened", Judged.Filters),
+        ("contacts", null, "nobox", "openedTyping", Judged.Filters),
+        ("contacts", null, "nobox", "openedClosed", Judged.Closed),
     ];
+
+    /// <summary>How a case is judged.</summary>
+    private enum Judged
+    {
+        /// <summary>A box stands open: it is its words' box, nothing else moved.</summary>
+        Open,
+
+        /// <summary>A search over a list stands open: round the list nothing moved, the list's rows stand on their places.</summary>
+        Filters,
+
+        /// <summary>Opened, typed in and closed: no box, nothing moved.</summary>
+        Closed,
+    }
 
     public static bool TryRunFromCommandLine(Application app, string[] args)
     {
@@ -96,7 +120,7 @@ internal static class InlineCheckRender
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 var host = new NoticeRender.RenderCardHost(ticker) { Design = design };
 
-                foreach (var (name, styleName, rest, open) in Cases)
+                foreach (var (name, styleName, rest, open, how) in Cases)
                 {
                     if (!ModuleCatalog.TryFind(name, out var picked))
                     {
@@ -112,9 +136,12 @@ internal static class InlineCheckRender
                         var label = $"{name}{(styleName is null ? string.Empty : "/" + styleName)} {open} {tier.Name}";
                         var before = await DrawAsync(page, host, kind, style, tier, rest).ConfigureAwait(true);
                         var after = await DrawAsync(page, host, kind, style, tier, open).ConfigureAwait(true);
-                        var findings = after.Box is null
-                            ? ["no box is open"]
-                            : InlineFit.Judge(before.Card, after.Card, after.Box, before.Parts, after.Parts);
+                        IReadOnlyList<string> findings = (how, after.Box) switch
+                        {
+                            (Judged.Closed, not null) => ["a box is still open"],
+                            (not Judged.Closed, null) => ["no box is open"],
+                            _ => InlineFit.Judge(before.Card, after.Card, after.Box, before.Parts, after.Parts, filters: how == Judged.Filters),
+                        };
                         failed += findings.Count;
                         lines.Add(findings.Count == 0 ? $"{label}: ok" : $"{label}: {string.Join("; ", findings)}");
                         Console.WriteLine($"inline-check: {lines[^1]}");
@@ -195,22 +222,23 @@ internal static class InlineCheckRender
         InlinePart? box = null;
         if (card.View is DependencyObject view)
         {
-            Walk(card, view, parts, seen, ref box);
+            Walk(card, view, parts, seen, ref box, listed: false);
         }
 
         return (parts, box);
     }
 
-    private static void Walk(WidgetCard card, DependencyObject node, List<InlinePart> parts, Dictionary<string, int> seen, ref InlinePart? box)
+    private static void Walk(WidgetCard card, DependencyObject node, List<InlinePart> parts, Dictionary<string, int> seen, ref InlinePart? box, bool listed)
     {
         if (node is UIElement { Visibility: not Visibility.Visible })
         {
             return;
         }
 
-        if (node is TextBox or AutoSuggestBox)
+        // The box: a text box, or the one search box whole (the line's magnifier is the line's own).
+        if (node is TextBox or AutoSuggestBox or SearchBox)
         {
-            box ??= Place(card, (FrameworkElement)node, "box");
+            box ??= Place(card, (FrameworkElement)node, "box", listed);
             return;
         }
 
@@ -218,12 +246,12 @@ internal static class InlineCheckRender
         {
             var n = seen.GetValueOrDefault(key);
             seen[key] = n + 1;
-            parts.Add(Place(card, element, n == 0 ? key : $"{key} #{n + 1}"));
+            parts.Add(Place(card, element, n == 0 ? key : $"{key} #{n + 1}", listed));
         }
 
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(node); i++)
         {
-            Walk(card, VisualTreeHelper.GetChild(node, i), parts, seen, ref box);
+            Walk(card, VisualTreeHelper.GetChild(node, i), parts, seen, ref box, listed || node is ScrollViewer);
         }
     }
 
@@ -232,17 +260,17 @@ internal static class InlineCheckRender
         TextBlock { Text.Length: > 0 } text => $"text {text.Text}",
         FontIcon { Glyph.Length: > 0 } glyph => $"glyph {(int)glyph.Glyph[0]:X4}",
         Image => "picture",
-        RowBlock => "row",
+        RowBlock => InlineFit.RowKey,
 
         // A list's viewport: a list cut shorter (its last row no longer shown) is a shift too.
-        ScrollViewer => "scroll",
+        ScrollViewer => InlineFit.ScrollKey,
         _ => null,
     };
 
-    private static InlinePart Place(WidgetCard card, FrameworkElement element, string key)
+    private static InlinePart Place(WidgetCard card, FrameworkElement element, string key, bool listed)
     {
         var at = element.TransformToVisual(card).TransformPoint(new Windows.Foundation.Point(0, 0));
-        return new InlinePart(key, at.X, at.Y, element.ActualWidth, element.ActualHeight);
+        return new InlinePart(key, at.X, at.Y, element.ActualWidth, element.ActualHeight, listed);
     }
 }
 #endif

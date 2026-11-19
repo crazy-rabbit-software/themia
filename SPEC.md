@@ -1073,8 +1073,14 @@ module author's guide is docs/WIDGET-KIT.md 16.
   field and the desktop icon's Explorer box, [S-5607], aside). The inline check (`Themia.exe --inline-check <out.txt>`,
   Debug) draws every such box open over its rest state at the kind's min, natural and max and judges every text, glyph,
   picture, row and list viewport (`InlineFit.Judge`); the search box a contact list always shows, gaining the keys, is
-  judged with them. Not covered: a search opened from a tool line or the card menu ([S-1326], [S-1275]) still adds its
-  row of 40 above the list (the list's own sizing).
+  judged with them. **A search opened on demand** (coordinator, the same day, on the owner's rule: "opening a search must
+  not push the list") is the one search box at the line's size ([S-13606]): the folder's tool-line Search opens it in
+  the line's label (the label's box: the line keeps its 20 and its buttons, the items their places; the list's plan
+  reserves room for the Search box setting's field alone, [S-1326]); the contacts' card-menu Search with the box off
+  opens it in the list's first line (the first row's box, its lead slot and side inset): the people of that line sit
+  under it while nothing is typed, the rows under it keep their places, and what is typed fills those same rows
+  ([S-1275]). Typing filters the rows in place (what they say changes, never where they stand), closing gives the
+  line back; the check judges both open, typed in and closed again (filtered rows: each row drawn on a row's place).
 - **[S-6714]** **Status** (empty, problem, set up): one 28 row where the content's first row would
   be, under the header: [state glyph 16] 8 [one sentence, Body, secondary, ellipsis, its whole text
   in the tooltip] 12 [its one action] (`StatusBlock`). Empty: the widget's glyph, tertiary. Problem:
@@ -1957,8 +1963,14 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   `SearchBox` (Themia.Sdk.WinUI): a lookup's (the language, a place, a symbol, a currency, a zone, a device, an app to
   limit), the add page's, the icon and font pickers', the Contacts and Folder widgets' and the layout editor's apps.
   It is Windows 11's search box (WinUI's `AutoSuggestBox`, as Karpo's search field, `karpo-app` `MenuTextField`,
-  docs/widgets.md §641): 32 tall, the clear button and the magnifier at its end, the placeholder greyed, no spelling
-  marks. Every lookup's answers are the same rows (`WidgetMenuLines.Found`): a radio row 36 tall, its words alone (no
+  docs/widgets.md §641) in **two sizes, one component** (`SearchSize`; owner, 2026-11-19: "layout shifts for these kind
+  of inputs should never happen. fix for all the widgets"): the **field**, where a search is always there (a page's
+  lookups, the add page, the pickers, a widget's Search box setting): 32 tall, the clear button and the magnifier at
+  its end, the placeholder greyed, no spelling marks; and the **line**, where a widget opens a search on demand (the
+  folder's tool-line Search, the contacts' card-menu Search with the box off): it stands in exactly the box of the line
+  it opens on (`SearchBox.StandIn`, [S-13950]), as tall as that line, the magnifier in the line's lead slot and the
+  words in the line's type, no frame, fill, clear button or magnifier button (Escape empties it, then folds it away),
+  the accent line at its foot inside the line while it has the keys. Its keys are the field's ([S-13607]). Every lookup's answers are the same rows (`WidgetMenuLines.Found`): a radio row 36 tall, its words alone (no
   glyph, no link colour), the one in force dotted (one at most); the lookup's line leads with what it finds' glyph
   (the stock symbol's with the Stocks glyph, never a magnifier).
 - **[S-13607]** **One key rule** (`SearchKeys`, Karpo's §641): in the box Enter takes the best result, Down goes to
@@ -5719,7 +5731,8 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   width; a person's actions (Send email, Call, Message, Copy …) are the row menu's, [S-1277].)*
 - **[S-1275]** *(Its size rule retired by [S-11406]: what each layout shows is its config's.)* Search box: always from 220 px tall; from 128 a header search button (one of the kit's
   24 header buttons, [S-7064]) opens it (it folds away again when left empty); below 128 none. A
-  typed query keeps the box open. The box is one control of 32 at the card's inset, 8 over the list.
+  typed query keeps the box open. The box is one control of 32 at the card's inset, 8 over the list. *(With the box
+  off, the card menu's Search opens the line in the list's first line instead, [S-13950]: nothing moves.)*
 - **[S-1277]** Keys (classic S-31/32), `ContactsView.HandleKey`: Up/Down move the selection through the
   people on screen (from none, Down picks the first, Up the last), Home/End jump, Escape clears, Enter
   writes (else calls). A click anywhere else — another widget, the desktop, another app — ends the

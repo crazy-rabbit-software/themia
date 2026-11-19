@@ -117,4 +117,78 @@ public class InlineFitTests
 
         Assert.Empty(InlineFit.Judge(Card, Card, search, rows, rows));
     }
+
+    // ---- a search opened on demand ([S-13950]) ------------------------------------------------------
+
+    // The folder at rest: its tool line's label and its two buttons, the list's viewport and three rows (listed).
+    private static readonly InlinePart Label = new("text Documents", 12, 0, 70, 20);
+    private static readonly InlinePart SearchButton = new("glyph E721", 236, 2, 16, 16);
+    private static readonly InlinePart Items = new("scroll", 0, 24, 300, 84);
+    private static readonly InlinePart[] Rows =
+    [
+        new("row", 0, 24, 300, 28, Listed: true), new("text Northwind", 36, 28, 66, 20, Listed: true),
+        new("row #2", 0, 52, 300, 28, Listed: true), new("text Onboarding", 36, 56, 75, 20, Listed: true),
+        new("row #3", 0, 80, 300, 28, Listed: true), new("text Receipts", 36, 84, 57, 20, Listed: true),
+    ];
+
+    private static readonly InlinePart[] Folder = [Label, SearchButton, Items, .. Rows];
+
+    [Fact]
+    public void S13950_a_search_opened_on_the_tool_line_stands_in_its_label_and_moves_nothing()
+    {
+        // The line: the label's box (its left edge, top and 20), as wide as the label's room before the buttons.
+        var line = new InlinePart("box", 12, 0, 212, 20);
+
+        Assert.Empty(InlineFit.Judge(Card, Card, line, Folder, [SearchButton, Items, .. Rows]));
+    }
+
+    [Fact]
+    public void S13950_the_field_opened_over_the_list_pushed_it_down()
+    {
+        // The bug: the 32 field and its 8 opened under the line and every row stood 40 lower.
+        var field = new InlinePart("box", 12, 24, 276, 32.7);
+        InlinePart[] open = [Label, SearchButton, Items with { Y = 64.7, Height = 44 }, .. Rows.Select(r => r with { Y = r.Y + 40.7 })];
+
+        var findings = InlineFit.Judge(Card, Card, field, Folder, open);
+
+        Assert.Contains(findings, f => f.StartsWith("\"row\" moved", StringComparison.Ordinal));
+        Assert.Contains(findings, f => f.StartsWith("\"scroll\" moved", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void S13950_typing_in_a_search_changes_what_the_rows_say_never_where_they_stand()
+    {
+        // "re" leaves two items, drawn on the first two rows' places; round the list nothing moved.
+        var line = new InlinePart("box", 12, 0, 212, 20);
+        InlinePart[] open =
+        [
+            SearchButton, Items,
+            new("row", 0, 24, 300, 28, Listed: true), new("text Receipts", 36, 28, 57, 20, Listed: true),
+            new("row #2", 0, 52, 300, 28, Listed: true), new("text Release notes", 36, 56, 90, 20, Listed: true),
+        ];
+
+        Assert.Empty(InlineFit.Judge(Card, Card, line, Folder, open, filters: true));
+    }
+
+    [Fact]
+    public void S13950_a_row_a_search_draws_off_the_rows_places_is_a_finding()
+    {
+        var line = new InlinePart("box", 12, 0, 212, 20);
+        InlinePart[] open = [SearchButton, Items, new("row", 0, 30, 300, 28, Listed: true)];
+
+        Assert.Equal(["a row (0,30 300x28) stands on no row's place"], InlineFit.Judge(Card, Card, line, Folder, open, filters: true));
+    }
+
+    [Fact]
+    public void S13950_a_filtering_search_still_holds_what_stands_round_the_list()
+    {
+        var line = new InlinePart("box", 12, 0, 212, 20);
+        InlinePart[] open = [SearchButton with { X = 220 }, Items, .. Rows];
+
+        Assert.Contains(InlineFit.Judge(Card, Card, line, Folder, open, filters: true), f => f.StartsWith("\"glyph E721\" moved", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void S13950_a_search_closed_again_leaves_everything_where_it_was()
+        => Assert.Empty(InlineFit.Judge(Card, Card, null, Folder, Folder));
 }

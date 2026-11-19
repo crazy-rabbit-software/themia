@@ -50,8 +50,9 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
 - **[S-11203]** Converted to the sizing ([S-2438]), not split: a file browser keeps a **free size**, 220..800
   wide and 160..640 high (`FolderLayout.Sizing`), and is the one kind where more room shows more of the user's
   own entries, as a window does (more rows, more columns of cells; the rest scrolls). What stood or fell with
-  the box is a setting under Style, each on or off: **Search box** (off: the tool line's Search opens it, as
-  before; on: it always stands and the line has no Search), **Path** (off), and in Details **Column
+  the box is a setting under Style, each on or off: **Search box** (off: the tool line's Search opens the search in
+  the line's label, the one search box at the line's size, taking no room, [S-13950]; on: the field always stands and
+  the line has no Search), **Path** (off), and in Details **Column
   titles** (on) and in List **Date modified** (on). Each style states its own natural size and least: the
   list, the grid and the icons 300 wide, Details its least width and 60 more, its least the insets, the 16
   lead, a name of 120 and every chosen column with its 12 (492 for Size, Modified, Type); a new one's height

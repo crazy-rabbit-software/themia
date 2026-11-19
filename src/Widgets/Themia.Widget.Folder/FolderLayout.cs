@@ -19,7 +19,7 @@ public readonly record struct FolderHeaderPlan(bool Back, bool Up, bool Search, 
 
 /// <summary>[S-1323] One layout pass of the folder widget: what the body and the tool line show, from the config.</summary>
 /// <param name="Breadcrumb">The path as a row of 28 above the items (the Path setting).</param>
-/// <param name="SearchBox">The search box above the items (the Search box setting, or opened from the tool line).</param>
+/// <param name="SearchBox">The search box above the items (the Search box setting); one opened from the tool line stands in its label and takes no room ([S-13950]).</param>
 /// <param name="ColumnHeader">The details table's column titles (the Column titles setting).</param>
 /// <param name="Columns">The details table's columns after Name: every one chosen.</param>
 /// <param name="Modified">The list's one value, the date modified (the Date modified setting).</param>
@@ -66,14 +66,14 @@ public static class FolderLayout
     /// One layout pass. <paramref name="area"/> is the view's slot (the card less its top inset);
     /// <paramref name="anyFile"/> whether anything shown is a file ([S-6411]).
     /// </summary>
-    public static FolderPlan Plan(WidgetArea area, FolderConfig config, int count, bool anyFile, bool searchOpen, bool navigate, bool hasGit)
+    public static FolderPlan Plan(WidgetArea area, FolderConfig config, int count, bool anyFile, bool navigate, bool hasGit)
     {
         ArgumentNullException.ThrowIfNull(config);
 
         var tiles = config.Style is FolderStyle.Grid or FolderStyle.Icons;
         var details = config.Style == FolderStyle.Details;
         var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
-        var search = config.SearchBox || searchOpen;
+        var search = config.SearchBox;
         var header = details && config.ColumnTitles;
         var named = config.Style == FolderStyle.Grid;
         CellGrid? grid = tiles ? RowRules.Cells(width, ItemsHeight(area, search, header, config.ShowPath), CellIcon, named) : null;

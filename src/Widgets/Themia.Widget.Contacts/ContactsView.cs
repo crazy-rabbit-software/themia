@@ -49,6 +49,15 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private static readonly string MessageGlyph = char.ConvertFromUtf32(0xE8BD);
 
     private readonly SearchBox _search = new(ContactsStr.Contacts_SearchPlaceholder.Text());
+
+    /// <summary>
+    /// [S-13950] The search the card menu opens while the box is off: the one search box at the line's size, standing in the
+    /// list's first line (<see cref="_searchSlot"/>), so opening, typing and closing move no row.
+    /// </summary>
+    private readonly SearchBox _lineSearch = new(ContactsStr.Contacts_SearchPlaceholder.Text(), SearchSize.Line);
+
+    /// <summary>[S-13950] The list's first line, which the line search takes while it is open: the first row's box, its side inset.</summary>
+    private readonly Border _searchSlot = new() { Padding = Family.SideInset, VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
     private readonly KitStatePanel _state;
@@ -102,13 +111,21 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         // search's: Enter and Down select the first person shown, Escape empties it.
         _search.Visibility = Visibility.Collapsed;
         _search.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2);
-        _search.Count = () => _visible.Count;
-        _search.PickBest = SelectFirst;
-        _search.ToFirst = SelectFirst;
-        _search.Changed += OnSearchChanged;
-        _search.GotFocus += OnSearchFocus;
-        _search.LostFocus += OnSearchBlur;
         SetRow(_search, 0);
+
+        // [S-13950] The same box at the line's size, in the list's first line; Escape on it empty folds it away.
+        _lineSearch.LetGo = CloseLineSearch;
+        _searchSlot.Child = _lineSearch;
+        SetRow(_searchSlot, 2);
+        foreach (var box in new[] { _search, _lineSearch })
+        {
+            box.Count = () => _visible.Count;
+            box.PickBest = SelectFirst;
+            box.ToFirst = SelectFirst;
+            box.Changed += OnSearchChanged;
+            box.GotFocus += OnSearchFocus;
+            box.LostFocus += OnSearchBlur;
+        }
 
         _columnHeader.Visibility = Visibility.Collapsed;
         SetRow(_columnHeader, 1);
@@ -128,6 +145,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         Children.Add(_search);
         Children.Add(_columnHeader);
         Children.Add(_scroll);
+        Children.Add(_searchSlot);
         Children.Add(_state);
 
         // [S-12481] The problem glyph and the ring over the content's top end.
@@ -172,6 +190,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private void OnLanguage(Locale locale)
     {
         _search.Placeholder = ContactsStr.Contacts_SearchPlaceholder.Text();
+        _lineSearch.Placeholder = ContactsStr.Contacts_SearchPlaceholder.Text();
         Render();
     }
 
@@ -200,7 +219,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             : [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
 
     /// <summary>[S-1275] The list is up and its search box is on request and closed.</summary>
-    private bool OffersSearch => _screen == Screen.Ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && !SearchShown(true);
+    private bool OffersSearch => _screen == Screen.Ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && !LineOpen(true);
 
     public void Detach()
     {
@@ -221,9 +240,13 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         _surface?.RequestTextInput(false);
-        _search.Changed -= OnSearchChanged;
-        _search.GotFocus -= OnSearchFocus;
-        _search.LostFocus -= OnSearchBlur;
+        foreach (var box in new[] { _search, _lineSearch })
+        {
+            box.Changed -= OnSearchChanged;
+            box.GotFocus -= OnSearchFocus;
+            box.LostFocus -= OnSearchBlur;
+        }
+
         Tapped -= OnBackgroundTapped;
         _state.Detach();
         _status.Detach();
@@ -386,12 +409,22 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     }
 
 
-    /// <summary>[S-1275] The card menu's Search opens the box and puts the caret in it.</summary>
+    /// <summary>
+    /// [S-1275] The card menu's Search opens the box and puts the caret in it. [S-13950] With the box off it is the line,
+    /// in the list's first line (the rows under it stay where they are); with the box on, the field takes the keys.
+    /// </summary>
     private void OpenSearch()
     {
         _searchOpen = true;
         Render();
-        _search.Focus(FocusState.Programmatic);
+        (FieldShown(true) ? _search : _lineSearch).FocusEnd();
+    }
+
+    /// <summary>[S-13607] Escape on the empty line: it folds away and the first line is the list's again.</summary>
+    private void CloseLineSearch()
+    {
+        _searchOpen = false;
+        Render();
     }
 
     private void OnBackgroundTapped(object sender, TappedRoutedEventArgs args)
@@ -495,12 +528,12 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _status.Show(problems, _busy, _warningOpensAccounts);
     }
 
-    /// <summary>[S-11406] The box is there when the config has it, else on request through the card menu's Search.</summary>
-    private bool SearchShown(bool ready)
-    {
-        var search = ContactRules.Search(_config.SearchBox);
-        return ready && (search == ContactSearch.Shown || (search == ContactSearch.OnDemand && (_searchOpen || _query.Length > 0)));
-    }
+    /// <summary>[S-11406] The box (the field over the list) is there when the config has it.</summary>
+    private bool FieldShown(bool ready) => ready && ContactRules.Search(_config.SearchBox) == ContactSearch.Shown;
+
+    /// <summary>[S-13950] Else the card menu's Search opens the line in the list's first line; a typed query keeps it open.</summary>
+    private bool LineOpen(bool ready)
+        => ready && ContactRules.Search(_config.SearchBox) == ContactSearch.OnDemand && (_searchOpen || _query.Length > 0);
 
     private void Render()
     {
@@ -512,10 +545,13 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         ClearRows();
 
         var ready = _screen == Screen.Ready;
-        var showSearch = SearchShown(ready);
+        var showSearch = FieldShown(ready);
+        var line = LineOpen(ready);
         _search.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
+        _searchSlot.Visibility = line ? Visibility.Visible : Visibility.Collapsed;
         SetRow(_state, 0);
         SetRowSpan(_state, 3);
+        _state.Margin = default;
 
         // A search typed into a box that has since been hidden still filters; the box shows the
         // query again as soon as there is room for it.
@@ -542,13 +578,29 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
                 return;
         }
 
+        var plan = ContactsPlan.Of(_area, _config, XamlRoot?.RasterizationScale ?? 1);
+        if (line)
+        {
+            // [S-13950] The line takes the list's first line (a row, or a line of cells): the rows under it keep their places,
+            // and while nothing is typed the people of that line are under it, the rest where they were.
+            _searchSlot.Height = plan.Pitch;
+            _lineSearch.LeadWidth = plan.Avatar ? FamilyShape.IconLarge : FamilyShape.Icon;
+            if (_query.Length == 0)
+            {
+                _visible = [.. _visible.Skip(plan.Columns)];
+            }
+
+            plan = plan with { Rows = Math.Max(1, plan.Rows - 1) };
+        }
+
         if (_visible.Count == 0)
         {
             // The box stays, so a search that matched nothing can be changed; the row stands under it.
-            if (showSearch)
+            if (showSearch || line)
             {
                 SetRow(_state, 2);
                 SetRowSpan(_state, 1);
+                _state.Margin = line ? new Thickness(0, plan.Pitch, 0, 0) : default;
             }
 
             _state.Show((_contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
@@ -557,7 +609,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         _state.Hide();
 
-        var plan = ContactsPlan.Of(_area, _config, XamlRoot?.RasterizationScale ?? 1);
         switch (plan.Layout)
         {
             case ContactsLayout.Details:
@@ -571,6 +622,12 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
             default:
                 DrawRows(_visible, plan);
                 break;
+        }
+
+        // [S-13950] The list starts under the line, one line down: each row stands where it stood.
+        if (line)
+        {
+            _scroll.Margin = new Thickness(0, plan.Pitch, 0, 0);
         }
 
         if (_selectedId is { } id)
@@ -593,6 +650,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _fade = null;
         _scroll.Content = null;
         _scroll.Height = double.NaN;
+        _scroll.Margin = default;
         _columnHeader.Children.Clear();
         _columnHeader.ColumnDefinitions.Clear();
         _columnHeader.Visibility = Visibility.Collapsed;
