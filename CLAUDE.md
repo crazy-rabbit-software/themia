@@ -54,9 +54,9 @@ Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local gri
            # size, a mixed lasso selection (icons and cards), both themes [S-11874]..[S-11879]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
-Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select]   # the edit bar (editbar-*: nothing,
+Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced]   # the edit bar (editbar-*: nothing,
            # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
-           # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*); the selection's page
+           # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*); the selection's page
            # beside real cards (select-*) [S-2328]. --picker-png takes --theme too. There is no settings window [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at its min, natural and max; quit Themia first
@@ -330,7 +330,8 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   as in Karpo's) and the eyedropper; layout and rules in `ColourPicker`. Stored as `#RRGGBB`.
 - **The edit bar** ([S-2320]..[S-2329], Karpo's command bar, `karpo-app` docs/widgets.md §575): one 48-DIP row
   per display, one width, at the top, never moved or dragged ([S-2329]; a selected widget under its page is
-  seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Appearance),
+  seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Unplaced icons (its icon and
+  a count badge, [S-13700]), Appearance),
   the divider and the selection's entry in its kept room, the toggles (Over the edge, Keep widgets from overlapping:
   `EditBarToggles`, each its setting's one place, [S-2330], [S-11959]; the grid is always on, no Snap to grid, [S-06]), the problems' room, Add widget, Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,

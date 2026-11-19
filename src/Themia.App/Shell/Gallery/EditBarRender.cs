@@ -150,6 +150,12 @@ internal static partial class EditBarRender
                     await DisplayShots(screen, outDir, theme).ConfigureAwait(true);
                 }
 
+                // [S-13700] The Unplaced icons page and its entry's badge.
+                if (only is null or "pages" or "unplaced")
+                {
+                    await UnplacedShots(screen, outDir, theme).ConfigureAwait(true);
+                }
+
                 if (only is null or "select")
                 {
                     ticker = new Ticker(dispatcher);

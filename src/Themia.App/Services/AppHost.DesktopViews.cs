@@ -73,7 +73,25 @@ internal sealed partial class AppHost
             return;
         }
 
-        if (HostDesktopItems.Instance.Find(key) is not { } item || DesktopViews.Shown(current).Contains(key) || !DesktopViews.Holds(current))
+        PlaceDesktopItems(viewId, [key]);
+    }
+
+    /// <summary>
+    /// [S-5527] [S-13703] Place the desktop items <paramref name="keys"/> on a view at its next free cells, in the desktop's
+    /// order (<see cref="DesktopViews.Fill"/>, the arrivals' and Auto arrange's reading order, [S-11876]); one undo step.
+    /// An item the view shows already, or one no longer listed, is left; nothing on a view that shows no desktop icons.
+    /// </summary>
+    public void PlaceDesktopItems(string viewId, IReadOnlyList<string> keys)
+    {
+        ArgumentNullException.ThrowIfNull(keys);
+        if (State.FindView(viewId) is not { } current || ItemKind is not { } kind || !DesktopViews.Holds(current))
+        {
+            return;
+        }
+
+        var shown = DesktopViews.Shown(current);
+        var items = keys.Where(key => !shown.Contains(key)).Select(HostDesktopItems.Instance.Find).OfType<DesktopItem>().ToList();
+        if (items.Count == 0)
         {
             return;
         }
@@ -84,14 +102,32 @@ internal sealed partial class AppHost
         {
             if (state.FindView(viewId) is { } view)
             {
-                unplaced = DesktopViews.Fill(view, [item], screen, (DeskCellDip.Width, DeskCellDip.Height), (it, rect) => NewItemWidget(kind.Id, it, rect));
+                unplaced = DesktopViews.Fill(view, items, screen, (DeskCellDip.Width, DeskCellDip.Height), (it, rect) => NewItemWidget(kind.Id, it, rect));
             }
         }, undo: UndoAction.Add);
 
         if (unplaced.Count > 0)
         {
-            Log.Info(Scope, "the desktop item found no free cell on the view; Add widget lists it");
+            Log.Info(Scope, $"{unplaced.Count} desktop item(s) found no free cell on the view; Unplaced icons lists them");
         }
+    }
+
+    /// <summary>
+    /// [S-13704] Put the desktop items <paramref name="keys"/> into the fence <paramref name="fenceId"/> of a view, at its end
+    /// (<see cref="DesktopFences.MoveIn"/>: each leaves the free desktop and every other fence of that view); one undo step.
+    /// Only listed items: an own icon is never a fence's.
+    /// </summary>
+    public void PutDesktopItemsInFence(string viewId, string fenceId, IReadOnlyList<string> keys)
+    {
+        ArgumentNullException.ThrowIfNull(keys);
+        var listed = keys.Where(key => HostDesktopItems.Instance.Find(key) is not null).ToList();
+        if (listed.Count == 0 || State.FindView(viewId) is not { } current || !UnplacedItems.Fences(current).Any(f => f.Widget.Id == fenceId))
+        {
+            return;
+        }
+
+        Mutate(state => _ = state.FindView(viewId) is { } view ? DesktopFences.MoveIn(view, fenceId, listed, int.MaxValue) : 0, undo: UndoAction.Move);
+        Log.Info(Scope, $"{listed.Count} desktop item(s) were put in a fence");
     }
 
     /// <summary>[S-5527] The icon menu's Hide from this view: each desktop item's icon off the view it stands on, one undo step.</summary>

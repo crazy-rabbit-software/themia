@@ -237,6 +237,7 @@ internal sealed partial class DesktopWindow
         _host.Clipboard.Changed -= OnClipboardChanged;
         _host.SettingsOutdated -= SyncBarMenu;
         _host.SuspendedChanged -= OnSuspendedForSettings;
+        _host.DesktopListed -= OnDesktopListedForUnplaced;
 
         // [S-3557] A settings page open here closes with the surface: with the last one the accounts' forms empty.
         CloseFlyout(focusEntry: false);

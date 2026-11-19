@@ -171,6 +171,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _host.Clipboard.Changed += OnClipboardChanged;
         _host.SettingsOutdated += SyncBarMenu;
         _host.SuspendedChanged += OnSuspendedForSettings;
+        _host.DesktopListed += OnDesktopListedForUnplaced;
 
         // [S-1110] One central redraw when the language changes; no card follows it on its own.
         ApplyFlow();

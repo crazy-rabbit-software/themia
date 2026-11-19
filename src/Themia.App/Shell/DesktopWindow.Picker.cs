@@ -157,7 +157,7 @@ internal sealed partial class DesktopWindow
                 break;
             case AddItemTile item:
                 // [S-5523] Its widget, placed like any widget.
-                _host.BeginPlacement(item.Item, Metrics);
+                _host.BeginPlacement([item.Item], Metrics);
                 break;
         }
     }
@@ -388,6 +388,7 @@ internal sealed partial class DesktopWindow
         _toolbar.Visibility = EditMode ? Visibility.Visible : Visibility.Collapsed;
         PlaceProperties();
         HideGhost();
+        ReopenUnplacedAfterPlacing();
     }
 
     /// <summary>What the click will do, in words: "Click to place Clock", "Click to move 3 widgets".</summary>

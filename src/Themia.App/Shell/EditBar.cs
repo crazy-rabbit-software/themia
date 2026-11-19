@@ -47,6 +47,9 @@ internal sealed record EditBarState(BarSelection? Selection, int Errors, Setting
 
     /// <summary>[S-2330] The toggles at the bar's root (<see cref="EditBarToggles"/>), as the state is now.</summary>
     public IReadOnlyList<SettingsToggle> Toggles { get; init; } = [];
+
+    /// <summary>[S-13701] How many desktop icons the display's view does not place: the Unplaced icons entry's badge.</summary>
+    public int Unplaced { get; init; }
 }
 
 /// <summary>
@@ -230,7 +233,8 @@ internal sealed partial class EditBar : Grid
             state.Errors > 0,
             Measure(Str.Shell_Toolbar_AddWidget.Text()),
             Measure(Str.Common_Done.Text()),
-            state.Widest);
+            state.Widest,
+            SettingsPages.Order.Select((p, i) => (p, i)).Where(e => SettingsPages.IconAlone(e.p)).Select(e => e.i).ToHashSet());
 
         BarWidth = plan.Width;
         Width = plan.Width;
@@ -240,6 +244,10 @@ internal sealed partial class EditBar : Grid
         {
             var part = plan.Of(BarPartKind.Page, SettingsPages.Order.ToList().IndexOf(page))!.Value;
             entry.Lay(part, state.Open == page);
+
+            // [S-13701] Unplaced icons counts what the display's view does not place, while there is any.
+            entry.Badge(page == SettingsPageId.DesktopItems ? Core.Desktop.UnplacedItems.Badge(state.Unplaced) : null,
+                state.Unplaced > 0 ? Str.Unplaced_Badge.Plural(state.Unplaced) : null);
         }
 
         if (plan.Of(BarPartKind.Divider) is { } divider)
@@ -391,6 +399,9 @@ internal sealed partial class EditBar : Grid
         private readonly Border _icon = new() { Width = B.Icon, Height = B.Icon, VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _words;
         private readonly Rectangle _pill = Pill();
+        private readonly TextBlock _count = Fluent.Text(FamilyType.Caption, "TextOnAccentFillColorPrimaryBrush");
+        private readonly Border _badge;
+        private string _said = string.Empty;
 
         /// <summary>[S-2321] The open entry's accent pill at its foot (hidden until open).</summary>
         internal static Rectangle Pill() => new()
@@ -412,8 +423,27 @@ internal sealed partial class EditBar : Grid
             Subtle(this);
             _words = Words(words);
             _words.Margin = new Thickness(B.IconGap, 0, 0, 0);
+            _count.HorizontalAlignment = HorizontalAlignment.Center;
+            _count.VerticalAlignment = VerticalAlignment.Center;
+            _count.TextLineBounds = TextLineBounds.TrimToCapHeight;
+            _count.ClearValue(TextBlock.LineHeightProperty);
+            _badge = new Border
+            {
+                Child = new Grid { Children = { _count } },
+                MinWidth = B.Badge,
+                Height = B.Badge,
+                Padding = new Thickness(B.BadgePad, 0, B.BadgePad, 0),
+                CornerRadius = new CornerRadius(B.BadgeRadius),
+                Background = Family.Brush(ColourRole.Accent),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(-B.Badge, -B.BadgeOut, -B.BadgeOut - B.BadgePad, 0),
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed,
+            };
             Set(glyph, words);
-            var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Children = { _icon, _words } };
+            var icon = new Grid { VerticalAlignment = VerticalAlignment.Center, Children = { _icon, _badge } };
+            var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Children = { icon, _words } };
             Content = new Grid { Children = { row, _pill } };
             HorizontalContentAlignment = HorizontalAlignment.Left;
             VerticalContentAlignment = VerticalAlignment.Stretch;
@@ -423,8 +453,19 @@ internal sealed partial class EditBar : Grid
         {
             _icon.Child = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = B.Icon });
             _words.Text = words;
+            _said = words;
             ToolTipService.SetToolTip(this, words);
             AutomationProperties.SetName(this, words);
+        }
+
+        /// <summary>[S-13701] The count badge over the icon's corner (none: <paramref name="count"/> null); what it counts said with the entry's words.</summary>
+        public void Badge(string? count, string? said)
+        {
+            _badge.Visibility = count is null ? Visibility.Collapsed : Visibility.Visible;
+            _count.Text = count ?? string.Empty;
+            var name = count is not null && said is not null ? $"{_said}, {said}" : _said;
+            ToolTipService.SetToolTip(this, name);
+            AutomationProperties.SetName(this, name);
         }
 
         /// <summary>[S-2320] Where the plan puts it; [S-2321] lit while its flyout is open.</summary>

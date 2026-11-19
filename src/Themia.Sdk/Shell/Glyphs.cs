@@ -128,6 +128,9 @@ public static class Glyphs
     /// <summary>[S-11959] The edit bar's Keep widgets from overlapping: tiles standing apart (Segoe "GridView").</summary>
     public static readonly string KeepApart = From(0xF0E2);
 
+    /// <summary>[S-13701] The edit bar's Unplaced icons: icons in rows (Segoe "Tiles").</summary>
+    public static readonly string DesktopIcons = From(0xECA5);
+
     /// <summary>[S-5548] The desktop menu's "Paste shortcut" (Explorer's picture, [S-1754]; Segoe "ClipboardList" without it).</summary>
     public static readonly string PasteShortcut = From(0xF0E3);
 

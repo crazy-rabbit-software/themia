@@ -65,6 +65,9 @@ public static class EditBarLayout
     /// <summary>An entry of an icon and <paramref name="words"/> DIPs of words: 12, the icon, 8, the words, 12.</summary>
     public static double EntryWidth(double words) => M.Lead + M.Icon + M.IconGap + Math.Ceiling(words) + M.Lead;
 
+    /// <summary>[S-13701] A page entry's words that are never shown: its icon alone.</summary>
+    private const double IconAloneWords = double.NaN;
+
     /// <summary>[S-2324] An entry cut short keeps at least this: 12, the icon, 8, a name's least, 12.</summary>
     public static double CutLeast => EntryWidth(M.NameLeast);
 
@@ -72,11 +75,16 @@ public static class EditBarLayout
     /// [S-2320] The bar: <paramref name="pages"/> the widths of the pages' words, <paramref name="selection"/>
     /// the selection entry's (null: nothing selected), how many <paramref name="toggles"/> stand at its root
     /// ([S-2330]), whether there are <paramref name="errors"/>, Add's and Done's words, and the widest the bar
-    /// may be (the work area less its margins; infinity for no limit).
+    /// may be (the work area less its margins; infinity for no limit). [S-13701] The pages at <paramref name="iconAlone"/>
+    /// show their icon alone at every width (their words the tooltip).
     /// </summary>
-    public static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, int toggles, bool errors, double add, double done, double widest)
+    public static EditBarPlan Lay(IReadOnlyList<double> pages, double? selection, int toggles, bool errors, double add, double done, double widest, IReadOnlySet<int>? iconAlone = null)
     {
         ArgumentNullException.ThrowIfNull(pages);
+        if (iconAlone is { Count: > 0 })
+        {
+            pages = [.. pages.Select((words, i) => iconAlone.Contains(i) ? IconAloneWords : words)];
+        }
 
         var plan = Lay(pages, selection, toggles, errors, add, done, M.Selection, compact: false);
         if (plan.Width <= widest)
@@ -110,8 +118,9 @@ public static class EditBarLayout
         var x = M.Pad;
         for (var i = 0; i < pages.Count; i++)
         {
-            var wide = compact ? M.IconOnly : EntryWidth(pages[i]);
-            parts.Add(new BarPart(BarPartKind.Page, i, x, wide, compact));
+            var alone = compact || double.IsNaN(pages[i]);
+            var wide = alone ? M.IconOnly : EntryWidth(pages[i]);
+            parts.Add(new BarPart(BarPartKind.Page, i, x, wide, alone));
             x += wide + M.EntryGap;
         }
 

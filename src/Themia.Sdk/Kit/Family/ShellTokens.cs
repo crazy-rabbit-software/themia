@@ -90,6 +90,17 @@ public static class ShellMetrics
         public const double PillHeight = 3;
 
         public const double PillRadius = PillHeight / 2;
+
+        /// <summary>[S-13701] An entry's count badge (WinUI's InfoBadge): 16 tall, a pill, over its icon's top end corner.</summary>
+        public const double Badge = 16;
+
+        public const double BadgeRadius = Badge / 2;
+
+        /// <summary>[S-13701] Inside the badge, either side of its number.</summary>
+        public const double BadgePad = 4;
+
+        /// <summary>[S-13701] How far the badge stands out past its icon's corner (inside the entry's 32: the icon stands 8 in).</summary>
+        public const double BadgeOut = 6;
     }
 
     /// <summary>

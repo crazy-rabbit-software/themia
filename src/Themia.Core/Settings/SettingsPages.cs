@@ -10,6 +10,9 @@ public enum SettingsPageId
     Accounts,
     Display,
     Views,
+
+    /// <summary>[S-13700] The desktop's icons the view shown on the bar's display does not place.</summary>
+    DesktopItems,
     Appearance,
 }
 
@@ -28,9 +31,9 @@ public sealed record SettingsPage(SettingsPageId Id, IReadOnlyList<SettingsSecti
 }
 
 /// <summary>
-/// [S-2300]..[S-2306] The edit bar's five pages over the settings' lines, after Karpo's edit bar
+/// [S-2300]..[S-2306] [S-13700] The edit bar's six pages over the settings' lines, after Karpo's edit bar
 /// (karpo-app, docs/widgets.md §575): <b>General</b> ([S-2315]), <b>Accounts</b> ([S-2312]), <b>Display</b>
-/// (every display a card, [S-2314]), <b>Views</b> (every view a card, [S-2313]) and <b>Appearance</b> ([S-2316]).
+/// (every display a card, [S-2314]), <b>Views</b> (every view a card, [S-2313]), <b>Unplaced icons</b> ([S-13700]) and <b>Appearance</b> ([S-2316]).
 /// The lines stay what they are (<see cref="SettingsMenu"/>, <see cref="DisplayMenu"/>,
 /// <see cref="ViewsMenu"/>): a page only groups them, one rule for all ([S-2301]), so every setting
 /// has exactly one home ([S-2306]).
@@ -47,6 +50,7 @@ public static class SettingsPages
         SettingsPageId.Accounts => Str.Shell_Settings_Nav_Accounts.Text(),
         SettingsPageId.Display => Str.BarMenus_Display.Text(),
         SettingsPageId.Views => Str.Shell_ViewBar_Name.Text(),
+        SettingsPageId.DesktopItems => Str.Unplaced_Page_Name.Text(),
         SettingsPageId.Appearance => Str.Settings_Section_Appearance.Text(),
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, "not a page"),
     };
@@ -58,6 +62,7 @@ public static class SettingsPages
         SettingsPageId.Accounts => Glyphs.Contact,
         SettingsPageId.Display => Glyphs.Display,
         SettingsPageId.Views => Glyphs.View,
+        SettingsPageId.DesktopItems => Glyphs.DesktopIcons,
         SettingsPageId.Appearance => Glyphs.Palette,
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, "not a page"),
     };
@@ -134,6 +139,24 @@ public static class SettingsPages
         ArgumentNullException.ThrowIfNull(host);
         return new SettingsPage(SettingsPageId.Views, Sectioned(ViewsMenu.Root(host), null));
     }
+
+    /// <summary>
+    /// [S-13701] Whether a page's entry shows its icon alone at every width (its words the tooltip): Unplaced icons, an
+    /// icon with its count badge (owner, 2026-11-19: "own entry in the topbar"), so the bar keeps its words on the
+    /// displays it kept them on before it.
+    /// </summary>
+    public static bool IconAlone(SettingsPageId page) => page == SettingsPageId.DesktopItems;
+
+    /// <summary>[S-13700] The Unplaced icons page's one line: the list of the view's unplaced desktop icons.</summary>
+    public const string UnplacedKey = "unplaced";
+
+    /// <summary>
+    /// [S-13700] Unplaced icons: one live part, the page host's (the list of the desktop's icons the view shown on its
+    /// display does not place, its search and its actions, <see cref="Desktop.UnplacedItems"/>), as the Appearance's
+    /// preview is ([S-2311]). It sets nothing.
+    /// </summary>
+    public static SettingsPage DesktopItems()
+        => new(SettingsPageId.DesktopItems, Sectioned([new SettingsPreview(UnplacedKey) { Name = Str.Unplaced_Page_Name.Text() }], null));
 
     /// <summary>
     /// [S-2301] The one rule that makes a page of lines: a heading line starts a section under its

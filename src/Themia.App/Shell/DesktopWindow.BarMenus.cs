@@ -50,6 +50,9 @@ internal sealed partial class DesktopWindow
             SettingsPageId.Accounts => () => PageRows.Of(SettingsPages.Accounts(settings), AskOnFlyout),
             SettingsPageId.Display => () => PageRows.Of(SettingsPages.Display(display), AskOnFlyout),
             SettingsPageId.Views => () => PageRows.Of(SettingsPages.Views(views), AskOnFlyout),
+
+            // [S-13700] Its list: this display's view's unplaced desktop icons.
+            SettingsPageId.DesktopItems => () => PageRows.Of(SettingsPages.DesktopItems(), AskOnFlyout, UnplacedPart),
             // [S-2311] Its preview: this display's wallpaper and real cards in the design as it stands.
             _ => () => PageRows.Of(SettingsPages.Appearance(settings), AskOnFlyout, () => new AppearancePreview(Backdrop, Metrics, () => _host.State.Design)),
         };

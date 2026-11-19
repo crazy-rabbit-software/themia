@@ -9,12 +9,26 @@ namespace Themia.Core.Tests;
 public sealed partial class SettingsMenuTests
 {
     [Fact]
-    public void S2300_the_bar_has_five_pages_in_order_each_with_its_glyph()
+    public void S2300_the_bar_has_six_pages_in_order_each_with_its_glyph()
     {
-        Assert.Equal([SettingsPageId.General, SettingsPageId.Accounts, SettingsPageId.Display, SettingsPageId.Views, SettingsPageId.Appearance], SettingsPages.Order);
+        // [S-13700] Unplaced icons has its own entry, after Views (owner, 2026-11-19: "own entry in the topbar").
+        Assert.Equal([SettingsPageId.General, SettingsPageId.Accounts, SettingsPageId.Display, SettingsPageId.Views, SettingsPageId.DesktopItems, SettingsPageId.Appearance], SettingsPages.Order);
         Assert.Equal(Glyphs.Settings, SettingsPages.Glyph(SettingsPageId.General));
-        Assert.Equal(5, SettingsPages.Order.Select(SettingsPages.Glyph).Distinct().Count());
-        Assert.Equal(5, SettingsPages.Order.Select(SettingsPages.Name).Distinct().Count());
+        Assert.Equal(6, SettingsPages.Order.Select(SettingsPages.Glyph).Distinct().Count());
+        Assert.Equal(6, SettingsPages.Order.Select(SettingsPages.Name).Distinct().Count());
+    }
+
+    [Fact]
+    public void S13700_unplaced_icons_is_one_live_part_that_sets_nothing()
+    {
+        var page = SettingsPages.DesktopItems();
+
+        Assert.Equal(SettingsPageId.DesktopItems, page.Id);
+        var line = Assert.IsType<SettingsPreview>(Assert.Single(Assert.Single(page.Sections).Lines));
+        Assert.Equal(SettingsPages.UnplacedKey, line.Key);
+        Assert.Equal(Str.Unplaced_Page_Name.Text(), line.Name);
+        Assert.Equal(SettingsRowKind.Preview, SettingsRows.KindOf(line));
+        Assert.Null(SettingsPages.Appearance(new FakeHost()).Sections[0].Lines.OfType<SettingsPreview>().Single().Name);
     }
 
     [Fact]

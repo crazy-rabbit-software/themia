@@ -199,7 +199,13 @@ internal sealed partial class AppHost
 
         // [S-5560]..[S-5562] The listing may hold what an unplugged display's view needs a stand-in for.
         SettleDesktopDisplays();
+
+        // [S-13706] What a view lacks may have changed with no change to the state (a file on a Chosen view's desktop).
+        DesktopListed?.Invoke();
     }
+
+    /// <summary>[S-13706] A read of the desktop was taken in (after its reconcile): the Unplaced icons page and its badge follow it.</summary>
+    public event Action? DesktopListed;
 
     /// <summary>[S-5552] The arrival New › made, to open its rename box once the reconcile that placed it is applied.</summary>
     private (string Key, string Widget)? _renameArrival;
@@ -338,24 +344,31 @@ internal sealed partial class AppHost
         return widget;
     }
 
-    /// <summary>[S-5523] What Add widget offers on <paramref name="viewId"/>: the listed items with no widget there.</summary>
+    /// <summary>
+    /// [S-5523] [S-13700] What Add widget and the Unplaced icons page offer on <paramref name="viewId"/>: the listed items
+    /// the view shows nowhere (<see cref="UnplacedItems.Of"/>).
+    /// </summary>
     public IReadOnlyList<DesktopItem> UnplacedDesktopItems(string viewId)
         => State.FindView(viewId) is { } view
-            ? DesktopReconcile.Unplaced(view, HostDesktopItems.Instance.Items)
+            ? UnplacedItems.Of(view, HostDesktopItems.Instance.Items)
             : [];
 
-    /// <summary>[S-5523] Place the widget of one unplaced item like any widget, from where it lands.</summary>
-    public void BeginPlacement(DesktopItem item, ScreenMetrics screen)
+    /// <summary>
+    /// [S-5523] [S-13705] Place the widgets of unplaced items like any widget, from where they land: one item (Add widget's
+    /// tile), or several as one block (<see cref="UnplacedItems.Block"/>, a drag from the Unplaced icons page).
+    /// </summary>
+    public void BeginPlacement(IReadOnlyList<DesktopItem> items, ScreenMetrics screen)
     {
-        if (ItemKind is not { } kind || !screen.IsUsable)
+        ArgumentNullException.ThrowIfNull(items);
+        if (ItemKind is not { } kind || !screen.IsUsable || items.Count == 0)
         {
             return;
         }
 
-        var (w, h) = DeskIconSize(screen);
-        var widget = NewItemWidget(kind.Id, item, new FracRect(0, 0, w, h));
-        var holder = new ViewState { Id = "desktop-item", Name = string.Empty, Widgets = [widget] };
-        if (PlacementPayload.FromView(holder, [widget.Id], PlacementMode.Copy) is { } payload)
+        var block = UnplacedItems.Block(items.Count, DeskIconSize(screen));
+        var widgets = items.Select((item, i) => NewItemWidget(kind.Id, item, block[i])).ToList();
+        var holder = new ViewState { Id = "desktop-item", Name = string.Empty, Widgets = widgets };
+        if (PlacementPayload.FromView(holder, [.. widgets.Select(w => w.Id)], PlacementMode.Copy) is { } payload)
         {
             BeginPlacement(payload);
         }

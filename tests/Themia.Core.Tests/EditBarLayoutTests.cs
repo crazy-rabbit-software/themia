@@ -21,6 +21,26 @@ public sealed class EditBarLayoutTests
         => EditBarLayout.Lay(Pages, selection, EditBarToggles.Count, errors, 80, 20, widest);
 
     [Fact]
+    public void S13701_unplaced_icons_is_an_icon_alone_and_costs_the_bar_no_more()
+    {
+        // Its entry is its icon and its badge at every width: the bar keeps the words of the other five where it kept them.
+        Assert.True(Settings.SettingsPages.IconAlone(Settings.SettingsPageId.DesktopItems));
+        Assert.All(Settings.SettingsPages.Order.Where(p => p != Settings.SettingsPageId.DesktopItems), p => Assert.False(Settings.SettingsPages.IconAlone(p)));
+
+        double[] six = [52, 60, 48, 40, 100, 76];
+        var withIcon = EditBarLayout.Lay(six, null, EditBarToggles.Count, false, 80, 20, double.PositiveInfinity, new HashSet<int> { 4 });
+        var entry = withIcon.Of(BarPartKind.Page, 4)!.Value;
+        Assert.True(entry.IconOnly);
+        Assert.Equal(B.IconOnly, entry.Width);
+        Assert.False(withIcon.Of(BarPartKind.Page, 3)!.Value.IconOnly);
+        Assert.Equal(Lay().Width + B.IconOnly + B.EntryGap, withIcon.Width);
+
+        // Just as wide as the five words need: the others keep their words.
+        var tight = EditBarLayout.Lay(six, null, EditBarToggles.Count, false, 80, 20, withIcon.Width, new HashSet<int> { 4 });
+        Assert.False(tight.Of(BarPartKind.Page, 0)!.Value.IconOnly);
+    }
+
+    [Fact]
     public void S2320_the_parts_stand_in_karpos_order_with_karpos_gaps()
     {
         var plan = Lay(selection: 40, errors: true);

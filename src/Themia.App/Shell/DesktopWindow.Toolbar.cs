@@ -38,6 +38,7 @@ internal sealed partial class DesktopWindow
         {
             AddOpen = _addPage is not null,
             Toggles = EditBarToggles.Of(new SurfaceSettingsHost(this)),
+            Unplaced = UnplacedCount(),
         };
     }
 

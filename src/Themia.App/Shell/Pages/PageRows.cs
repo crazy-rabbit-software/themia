@@ -174,7 +174,8 @@ internal static class PageRows
             },
 
             // [S-2311] The Appearance's preview, the page host's; none where the page was built without one (a test's).
-            SettingsPreview => row with { Text = Str.SettingsPages_Appearance_Preview.Text(), Picker = preview },
+            // [S-13700] The Unplaced icons page's list is its page's own live part the same way.
+            SettingsPreview live => row with { Text = live.Name ?? Str.SettingsPages_Appearance_Preview.Text(), Picker = preview },
             SettingsItem item => row with
             {
                 Text = item.Text,

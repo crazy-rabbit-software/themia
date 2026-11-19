@@ -186,7 +186,11 @@ public sealed record SettingsSubmenu(string Key, string Text, string? Glyph, IRe
 /// [S-2311] The Appearance page's live preview (Karpo's §592, §671): real widget cards drawn in the design as it
 /// stands, at the page's top, bare (no card round it). It sets nothing.
 /// </summary>
-public sealed record SettingsPreview(string Key) : SettingsLine(Key);
+public sealed record SettingsPreview(string Key) : SettingsLine(Key)
+{
+    /// <summary>[S-13700] What it is called (a screen reader says it); null for the Appearance's preview.</summary>
+    public string? Name { get; init; }
+}
 
 /// <summary>
 /// [S-3732] A line's place in an ordered list (the views): where it is, how many there are, and what
