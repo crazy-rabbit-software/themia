@@ -38,6 +38,12 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   for example. fix that"; answer "Bigger numbers too"; "the calendar does not match the fucking design rules i told
   you."
 
+- **WR-14 A face that scales scales down too.** 2026-11-19: "you should be able to make the clock even smaller than it
+  is right now. for the widgets that can scale there should basically be no lower limit except for one that makes
+  sense so you can still see the widget." A face that scales as one (a clock, a date, a reading) is sized down to where
+  its smallest text is still read (9 DIP; a glyph 12) and never under the grid's least widget (32 DIP); rows and list
+  items keep WR-6 (a list's least is one item).
+
 ## Content
 
 - **WR-10 Defaults, never hidden.** 2026-11-19: "even if there is no rain in the next two hours or even if there is no
