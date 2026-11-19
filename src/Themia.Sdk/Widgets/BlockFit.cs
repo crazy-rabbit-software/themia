@@ -28,17 +28,18 @@ public static class BlockFit
     /// <summary>
     /// A block planned <paramref name="naturalWidth"/> × <paramref name="naturalHeight"/>, its ink inside by
     /// <paramref name="ink"/>, in a room <paramref name="width"/> × <paramref name="height"/>, never drawn under
-    /// <paramref name="least"/> ([S-12833]: its smallest text at the legibility floor, <see cref="ScaleFloor"/>).
+    /// <paramref name="least"/> ([S-12833]: its smallest text at the legibility floor, <see cref="ScaleFloor"/>) and never over
+    /// <paramref name="most"/> (<see cref="FaceFit.Most"/>: the scale a part of it gave way at).
     /// </summary>
-    public static BlockLay Lay(double width, double height, double naturalWidth, double naturalHeight, LineInk ink = default, double least = 1)
+    public static BlockLay Lay(double width, double height, double naturalWidth, double naturalHeight, LineInk ink = default, double least = 1, double most = double.PositiveInfinity)
         => !(naturalHeight > 0) || !double.IsFinite(naturalHeight) ? new BlockLay(1, 0)
-            : Lay(width, height, naturalWidth, double.IsFinite(ink.Over) ? ink.Over : 0, naturalHeight - (double.IsFinite(ink.Under) ? ink.Under : 0), least);
+            : Lay(width, height, naturalWidth, double.IsFinite(ink.Over) ? ink.Over : 0, naturalHeight - (double.IsFinite(ink.Under) ? ink.Under : 0), least, most);
 
     /// <summary>
     /// A block planned <paramref name="naturalWidth"/> wide whose ink runs from <paramref name="inkTop"/> to
     /// <paramref name="inkBottom"/> in its plan (either may lie outside the plan's own box: parts that did not fit it).
     /// </summary>
-    public static BlockLay Lay(double width, double height, double naturalWidth, double inkTop, double inkBottom, double least = 1)
+    public static BlockLay Lay(double width, double height, double naturalWidth, double inkTop, double inkBottom, double least = 1, double most = double.PositiveInfinity)
     {
         if (!(naturalWidth > 0) || !double.IsFinite(naturalWidth) || !double.IsFinite(inkTop) || !double.IsFinite(inkBottom)
             || !(width > 0) || !(height > 0) || !double.IsFinite(width) || !double.IsFinite(height))
@@ -47,7 +48,8 @@ public static class BlockFit
         }
 
         var span = inkBottom - inkTop;
-        var scale = Math.Max(ScaleFloor.Clamp(least), Math.Min(width / naturalWidth, span > 0 ? height / span : 1));
+        var fill = Math.Min(width / naturalWidth, span > 0 ? height / span : 1);
+        var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
         var top = (height - (span * scale)) / 2;
 
         // Taller than the room even at its own size: its first ink on the top.

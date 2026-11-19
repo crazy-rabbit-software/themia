@@ -9,8 +9,9 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-12804] [S-12808] A one-readout face scaled up as one to fill its box (<see cref="BlockFit"/>), as a display clock
 /// is: its ink (<see cref="PartInk"/>: the digits' capitals and baseline, not their line's leading) fills the box's
-/// height, or its width stops it and it stands centred on its ink in the height left. Never smaller than its own
-/// size. Across, it stands where <see cref="Align"/> says; the panel itself always takes its whole box.
+/// height, or its width stops it and it stands centred on its ink in the height left. [S-12833] A smaller box scales it
+/// down as one, never under its smallest drawn text's floor (<see cref="ScaleFloors"/>) and never over <see cref="Most"/>.
+/// Across, it stands where <see cref="Align"/> says; the panel itself always takes its whole box.
 /// </summary>
 public sealed partial class InkFit : Panel
 {
@@ -30,6 +31,25 @@ public sealed partial class InkFit : Panel
             }
         }
     }
+
+    /// <summary>
+    /// [S-12833] The most the face is drawn at (<see cref="FaceFit.Most"/>): once a part of it gave way, a smaller room never
+    /// draws the rest larger than it was when the part went. Unbounded while every part is drawn.
+    /// </summary>
+    public double Most
+    {
+        get => _most;
+        set
+        {
+            if (value != _most)
+            {
+                _most = value;
+                InvalidateArrange();
+            }
+        }
+    }
+
+    private double _most = double.PositiveInfinity;
 
     /// <summary>The face.</summary>
     public FrameworkElement? Child
@@ -65,7 +85,7 @@ public sealed partial class InkFit : Panel
         }
 
         var size = child.DesiredSize;
-        var lay = BlockFit.Lay(finalSize.Width, finalSize.Height, size.Width, size.Height, PartInk.Of(child), ScaleFloors.Of([child]));
+        var lay = BlockFit.Lay(finalSize.Width, finalSize.Height, size.Width, size.Height, PartInk.Of(child), ScaleFloors.Of([child]), _most);
         _scale.ScaleX = lay.Scale;
         _scale.ScaleY = lay.Scale;
         var drawn = size.Width * lay.Scale;

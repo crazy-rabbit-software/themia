@@ -56,9 +56,19 @@ public sealed record WidgetSizing
     public WidgetSizing ScalesDown(double least)
     {
         var k = least > 0 && double.IsFinite(least) ? Math.Min(1, least) : 1;
-        double Axis(double natural, double min, SizeSteps? steps)
-            => steps is not null ? min : Math.Min(min, Math.Max(LeastScaled, Math.Ceiling(natural * k)));
-        return this with { Min = new SizeDip(Axis(Natural.Width, Min.Width, WidthSteps), Axis(Natural.Height, Min.Height, HeightSteps)) };
+        return ScalesDownTo(new SizeDip(Natural.Width * k, Natural.Height * k));
+    }
+
+    /// <summary>
+    /// [S-12833] This sizing for a face that scales down as one to <paramref name="least"/>, the box it states for its main
+    /// reading at the legibility floor in the card's inset (<c>FaceFloor.LeastBox</c> plus the inset): its Min that box
+    /// (whole DIPs, never under <see cref="LeastScaled"/>, never over the stated Min) on every axis it does not step.
+    /// </summary>
+    public WidgetSizing ScalesDownTo(SizeDip least)
+    {
+        static double Axis(double wanted, double min, SizeSteps? steps)
+            => steps is not null || !(wanted > 0) || !double.IsFinite(wanted) ? min : Math.Min(min, Math.Max(LeastScaled, Math.Ceiling(wanted)));
+        return this with { Min = new SizeDip(Axis(least.Width, Min.Width, WidthSteps), Axis(least.Height, Min.Height, HeightSteps)) };
     }
 
     /// <summary>[S-10] Where a newly added widget lands.</summary>
