@@ -481,6 +481,11 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 2. New behaviour has a test; a fixed bug has a regression test.
 3. UI work: rendered through `--editbar-png`, `--widget-png` (and the other render flags) and looked at. Widget layout is
    checked at its min, natural and max on the showcase views (`--add-showcase-views`) on the live desktop: a manual pass, say so.
+   **Any change to a widget, the kit, widget layout or the gap check ends with the widget audit** (the saved workflow
+   `.claude/workflows/widget-audit.js`, args `{repo, out}`): every kind × every owner rule in `docs/WIDGET-RULES.md`
+   gets a verdict from a reviewer who did not build the change, failures are re-measured by a skeptic, and a critic
+   lists exemptions the owner never granted. Not done until it returns `pass: true`; report its verdict, not "looked
+   fine". The rules file is the owner's words only; a check script or SPEC entry that allows less is the bug.
 4. Touched interop, focus, z-order, displays, autostart, Store or sign-in code that cannot run in CI:
    say exactly what still needs a manual pass (multi-monitor, mixed DPI, a live account, the
    packaged build). Never imply it was verified.

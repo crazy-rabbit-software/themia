@@ -24,6 +24,8 @@ store/out/
 .claude/*
 # The project's skills are shared; their per-run plans and logs are not.
 !.claude/skills/
+# The project's saved workflows are shared too (the widget audit).
+!.claude/workflows/
 .claude/skills/*/runs/
 *.log
 
