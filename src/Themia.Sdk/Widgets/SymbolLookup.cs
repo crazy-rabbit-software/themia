@@ -12,7 +12,17 @@ public static class SymbolLookup
 
     /// <summary>The instruments a query names, best first; empty for a query too short to ask.</summary>
     public static Task<IReadOnlyList<SymbolHit>> FindAsync(string query, CancellationToken token)
+#if DEBUG
+        => (DebugLookup ?? Volatile.Read(ref _search) ?? throw new InvalidOperationException("no symbol search installed: the host installs it before any menu is shown"))(query, token);
+
+    /// <summary>
+    /// Debug renders only: answers in place of the market services, so every state of the symbol search can be
+    /// drawn without a network (as the place search's <c>PlaceSearch.DebugLookup</c>). Null in every real run.
+    /// </summary>
+    internal static Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>>? DebugLookup { get; set; }
+#else
         => (Volatile.Read(ref _search) ?? throw new InvalidOperationException("no symbol search installed: the host installs it before any menu is shown"))(query, token);
+#endif
 
     /// <summary>The host's market search. Once per process.</summary>
     internal static void Install(Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> search)

@@ -457,8 +457,14 @@ internal static partial class EditBarRender
             new(new WidgetId("weatherNow"), 140, 610, 200, 160, false),
         ];
 
-        // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
+        // [S-3722] Every lookup of a widget's page, side by side: a stock's symbol, a rate's currency, a clock's zone.
+        PropsCard[] stock = [new(new WidgetId("stock"), 140, 160, 300, 200, true)];
+        PropsCard[] rate = [new(new WidgetId("exchangeRate"), 140, 160, 300, 200, true)];
+
+        // [S-2847] The location searches answer from fixture places, [S-1307] the symbol searches from fixture
+        // hits; [S-3323] the screen-time lines read the sample history.
         PlaceRender.UseFixture();
+        SymbolRender.UseFixture();
         AppServices.ScreenTime ??= new SampleScreenTime();
         UseSamplePools();
 
@@ -484,6 +490,16 @@ internal static partial class EditBarRender
             (toggle, "toggle", null, null, null),
             (weather, "weather", null, null, null),
             (weather, "weather-location", "w/" + Str.Shell_Place_Location.Text(), "zur", null),
+            (weather, "weather-location-open", "w/" + Str.Shell_Place_Location.Text(), null, null),
+            (weather, "weather-location-wait", "w/" + Str.Shell_Place_Location.Text(), PlaceRender.Unanswered, null),
+            (weather, "weather-location-none", "w/" + Str.Shell_Place_Location.Text(), "qqqq", null),
+            (stock, "stock-symbol", "w/" + Str.Stocks_Tab_Symbols.Text(), "micro", null),
+            (stock, "stock-symbol-open", "w/" + Str.Stocks_Tab_Symbols.Text(), null, null),
+            (stock, "stock-symbol-wait", "w/" + Str.Stocks_Tab_Symbols.Text(), SymbolRender.Unanswered, null),
+            (stock, "stock-symbol-offline", "w/" + Str.Stocks_Tab_Symbols.Text(), SymbolRender.Unreached, null),
+            (stock, "stock-symbol-none", "w/" + Str.Stocks_Tab_Symbols.Text(), "qqqq", null),
+            (rate, "rate-currency", "w/" + Str.Online_Rates_Settings_Base_Label.Text(), "e", null),
+            (clock, "clock-zone", "w/Timezone", "york", null),
             (weather, "setup-weather", SetupOpen, null, null),
             (icon, "desktop-icon", null, null, null),
             (iconFile, "desktop-icon-file", null, null, null),
