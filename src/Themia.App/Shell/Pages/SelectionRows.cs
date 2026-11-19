@@ -59,8 +59,8 @@ internal sealed record CardPreview(double? Scale = null, FillChoice? Background 
 /// </summary>
 internal static class SelectionRows
 {
-    /// <summary>What a mixed selection's value reads: a dash, as Explorer's properties show differing values.</summary>
-    private const string Mixed = "—";
+    /// <summary>[S-2376] What a mixed selection's value reads: Mixed, as Karpo's (its §528) and the shared lines say it.</summary>
+    private static string Mixed => Str.Groups_Page_Mixed.Text();
 
     /// <summary>[S-2340] [S-2345] The page for <paramref name="model"/>, <paramref name="kinds"/> the kinds selected: its sections on their tabs.</summary>
     public static PageModel Of(SelectionModel model, SelectionCommands commands, IReadOnlyList<WidgetId> kinds)

@@ -96,7 +96,7 @@ internal sealed partial class PageView
             var swatch = Swatch(colour, colour.Mixed ? null : colour.Chosen, held: false, fill: colour.Fill);
             swatch.Margin = new Thickness(0, 0, Fluent.Space2, 0);
             end.Children.Add(swatch);
-            said = Said(colour.Mixed ? "—" : colour.IsFill ? ColorChoice.DescribeFill(colour.Fill!, colour.Options) : ColorChoice.Describe(colour.Chosen, colour.Options), FamilyType.Body);
+            said = Said(colour.Mixed ? Str.Groups_Page_Mixed.Text() : colour.IsFill ? ColorChoice.DescribeFill(colour.Fill!, colour.Options) : ColorChoice.Describe(colour.Chosen, colour.Options), FamilyType.Body);
         }
         else if (row.Value is { Length: > 0 } value && !(open && expander))
         {

@@ -126,7 +126,7 @@ internal sealed partial class PageView
     /// <summary>
     /// [S-2305] A row's three columns: its icon at 16, its name at 48 (a caption under it makes the row
     /// 60 tall), its control ending 16 from the card's end; [S-2317] a thing put in order its handle
-    /// (<paramref name="lead"/>) 4 in at its start, its icon and name 12 further in (Karpo's Â§551).
+    /// (<paramref name="lead"/>) 4 in at its start, its icon and name 12 further in (Karpo's §551).
     /// </summary>
     private static Grid Lay(PageRow row, UIElement? end, string? caption, bool critical = false, string? text = null, FrameworkElement? lead = null)
     {
@@ -309,13 +309,13 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2318] A row that only acts with nothing to say before its button (Karpo's <c>PanelRow.Foot</c>, Â§578): its
+    /// [S-2318] A row that only acts with nothing to say before its button (Karpo's <c>PanelRow.Foot</c>, §578): its
     /// button alone, no card round it.
     /// </summary>
     private static bool Foot(PageRow row) => row.Kind == SettingsRowKind.Action && row.Caption is not { Length: > 0 };
 
     /// <summary>
-    /// [S-2318] A row that says what it does (Karpo's Â§521): a card, its icon and what it does in Body before a
+    /// [S-2318] A row that says what it does (Karpo's §521): a card, its icon and what it does in Body before a
     /// standard button at its end whose words are the row's (12 either side, 120 to 240 wide; a chevron after
     /// them where its click asks first), its value in Caption 12 before the button.
     /// </summary>
@@ -361,7 +361,7 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2318] A row that only acts, its button alone (Karpo's Â§578 foot): no card, a hyperlink button's look â€”
+    /// [S-2318] A row that only acts, its button alone (Karpo's §578 foot): no card, a hyperlink button's look —
     /// no fill nor rim until pointed at, its glyph and its words in the accent's text colour (the critical colour
     /// for a danger), a chevron after its words where its click asks first; on a page from the cards' start, in
     /// a card's opened level its glyph where its rows' names start. Its value is its tooltip.
@@ -421,7 +421,7 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2318] A reading or a note that has a button standing in its line (Karpo's Â§638 <c>Beside</c>: Lometics'
+    /// [S-2318] A reading or a note that has a button standing in its line (Karpo's §638 <c>Beside</c>: Lometics'
     /// site beside its name): the button at the line's end.
     /// </summary>
     private FrameworkElement BesideRow(PageRow row, PageRow beside)
@@ -465,7 +465,7 @@ internal sealed partial class PageView
         return toggle;
     }
 
-    /// <summary>[S-3741] Windows' toggle switch, drawn: a 40 Ã— 20 track with a 12 knob, the accent filled while on.</summary>
+    /// <summary>[S-3741] Windows' toggle switch, drawn: a 40 × 20 track with a 12 knob, the accent filled while on.</summary>
     private static Grid SwitchArt(bool on, bool enabled)
     {
         Brush track, stroke, knob;
@@ -511,14 +511,15 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2302] [S-2309] A number box: 240 Ã— 32, its value as the line writes it, âˆ’ and + inside; a
+    /// [S-2302] [S-2309] A number box: 240 × 32, its value as the line writes it, − and + inside; a
     /// typed value read in the box's units and held to the range and the grain on Enter or leaving it,
     /// Escape restoring it; Up and Down step it.
     /// </summary>
     private FrameworkElement NumberBox(PageRow row)
     {
         var slider = row.Number!;
-        var shown = slider.Value is { } v ? slider.Format(v) : "â€”";
+        // [S-2376] A number the selected widgets do not agree on says Mixed (the dash stood here mis-encoded).
+        var shown = slider.Value is { } v ? slider.Format(v) : Str.Groups_Page_Mixed.Text();
         var box = new TextBox
         {
             Text = shown,
@@ -619,7 +620,7 @@ internal sealed partial class PageView
     }
 
     /// <summary>
-    /// [S-2302] [S-3736] A text box: 240 Ã— 32; Enter or leaving it keeps what is typed (unless it cannot
+    /// [S-2302] [S-3736] A text box: 240 × 32; Enter or leaving it keeps what is typed (unless it cannot
     /// be kept: why, under the name, in the critical colour), Escape restores it; a form's field hands on
     /// every letter; a password's box never shows what it holds.
     /// </summary>
@@ -713,7 +714,7 @@ internal sealed partial class PageView
 
         if (row.Value is not null || row.Icon is not null)
         {
-            // [S-3561] A reading: words (over its line, Karpo's note card, Â§579) and a value in Caption at its end.
+            // [S-3561] A reading: words (over its line, Karpo's note card, §579) and a value in Caption at its end.
             return Lay(row, End(row.Value, null), row.Caption);
         }
 

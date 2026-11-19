@@ -1965,7 +1965,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
 
   Not Karpo's: a number's slider row ([S-3731]) is a 240 number box, as Karpo's steppers; Karpo's popups (§633), its
   value resets (§613) and a mixed row's own values (§529) have no Themia counterpart (every picker is inline, no
-  value has a reset of its own, Mixed reads a dash); a page's head is its first section's heading, as Karpo's.
+  value has a reset of its own; Mixed says Mixed, [S-2376]); a page's head is its first section's heading, as Karpo's.
 - **[S-2318]** **Rows that act, as Karpo's** (`PageView.ActionRow`, `FootButton`, `BesideRow`; Karpo's §521, §578,
   §638): a row that says what it does (`Caption`) is a card, its icon and those words before a standard button
   whose words are the row's (its value in Caption 12 before the button); one with nothing to say is its button
@@ -2109,6 +2109,10 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   it steps it**, a number typed is read in the box's unit ([S-2309]) and held to the range and the step. A box whose top
   is written with a grouping mark ("1,000") reads a typed number at its own size (`NumberEntry`: "42" was read as 42000).
   Tests `WidgetMenuLinesTests.S2370_`, `NumberEntryTests.S2370_`, the modules' menu tests.
+- **[S-2376]** **A value several widgets disagree on says Mixed** (owner, 2026-11-19, as [S-2370]; Karpo's §528,
+  `CommonSettingsTests.AValueTheyDoNotAgreeOnIsMixed`): the page of several's own rows (Alignment, Background image,
+  Scale), a colour and a number box say "Mixed", as the shared lines did; until now a dash, the number box's a mis-encoded
+  one.
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,
@@ -2126,7 +2130,7 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   a header, [S-3711]); **Appearance** (Alignment ([S-6584]), Background, Item background, Item text
   ([S-6566], [S-6571], [S-6574]), the background image ([S-6593]), Scale ([S-6531])). Several selected:
   the count in the header card and the shared sections only ([S-3702]), For all of them among them
-  ([S-11754]); a mixed value of the card's own rows reads as a dash.
+  ([S-11754]); a mixed value of the card's own rows says Mixed ([S-2376]).
 - **[S-2345]** **Two tabs** (owner, 2026-11-15: "the appearance in the widget settings should get an own tab";
   Karpo's tab strip, §592, WinUI's SelectorBar; `SelectionPage.Tabs`, `PageTabButton`, the add page's tab too):
   under the header card a strip of **Settings** (the link to an entered member's group, What it shows, For all of
@@ -3030,7 +3034,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   2026-10-19): it is a row of the menu's own ([S-3735]). Its colours are the menu's one colour
   vocabulary ([S-3724]): Background and Item background fills, Item text a colour, built by the
   host as `ItemMenuEntry` colour lines and drawn by the same path as a widget's own; a mixed
-  selection reads as a dash and holds no tick.
+  selection says Mixed and holds no tick ([S-2376]).
 - **[S-3724]** A **colour** setting (`WidgetMenuLines.Colour`: `#RRGGBB`, or empty to follow the
   default) and a **fill** setting (`WidgetMenuLines.Fill`: a `FillChoice`) are rows whose level is the
   one colour level (`MenuColour` holds the value and what a pick does; Karpo's colour level):
@@ -3080,7 +3084,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   **stores once on the release**, one change and one undo step; a key (Left, Right, Home, End, Page
   Up/Down) steps it and stores the step; Up and Down move between the rows as on any row. A value is
   kept inside the range on the step's grain (`MenuSlider.Snap`); the value that holds stores
-  nothing. A mixed selection's slider reads as a dash. Leaving its level mid-drag stores nothing.
+  nothing. A mixed selection's slider says Mixed ([S-2376]). Leaving its level mid-drag stores nothing.
 - **[S-3732]** An **ordered list**'s item rows ([S-3729], `ItemMenuEntry.Order`, `MenuOrder`) are
   **dragged up and down** inside their level (user request 2026-10-19): a mouse press that travels 4
   DIPs ([S-913]) starts it (the row fades), an accent drop line shows
