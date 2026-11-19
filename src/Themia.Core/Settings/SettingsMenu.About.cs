@@ -98,7 +98,7 @@ public static partial class SettingsMenu
             new SettingsSeparator(Keys.About + "/-links"),
 
             // [S-1072] What the Store listing points to as well: rows that only act, their buttons alone (Karpo's §578).
-            new SettingsCommand(Keys.About + "/privacy", Str.Shell_About_Privacy.Text(), Glyphs.Lock, () => about.Open(AboutLinks.Privacy(Strings.Current))),
+            new SettingsCommand(Keys.About + "/privacy", Str.Shell_About_Privacy.Text(), Glyphs.Shield, () => about.Open(AboutLinks.Privacy(Strings.Current))),
             new SettingsCommand(Keys.About + "/support", Str.Shell_About_Support.Text(), Glyphs.Mail, () => about.Open(AboutLinks.Support))
             {
                 Value = AboutLinks.SupportAddress,

@@ -18,6 +18,9 @@ public static class Glyphs
     public static readonly string Eyedropper = From(0xEF3C);
     public static readonly string Grid = From(0xE80A);
     public static readonly string Info = From(0xE946);
+
+    /// <summary>[S-2374] About's privacy policy: its own mark, never Lock widgets' lock on the same page.</summary>
+    public static readonly string Shield = From(0xEA18);
     public static readonly string View = From(0xE7C4);
     public static readonly string Display = From(0xE7F4);
     public static readonly string Add = From(0xE710);

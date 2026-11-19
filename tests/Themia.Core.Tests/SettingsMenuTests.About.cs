@@ -224,7 +224,7 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost();
         var backup = At<SettingsSubmenu>(host, SettingsMenu.Keys.Backup);
 
-        Assert.Equal("Back up & reset", backup.Text);
+        Assert.Equal("Back up and reset", backup.Text);
         Assert.Equal(
             ["backup/export", "backup/export/outcome", "backup/import", "backup/import/outcome", "backup/open", "backup/open/path", "-", "backup/reset", "backup/reset/outcome"],
             KeysOf(backup));

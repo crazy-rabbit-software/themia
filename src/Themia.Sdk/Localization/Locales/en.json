@@ -1,11 +1,12 @@
 {
-  "$englishOnly": ["stocks.marketOpen", "desktop.menu.properties"],
+  "$englishOnly": ["stocks.marketOpen", "desktop.menu.properties", "common.defaultOf"],
   "common.add": "Add",
   "common.back": "Back",
   "common.cancel": "Cancel",
   "common.clear": "Clear",
   "common.copy": "Copy",
   "common.default": "Default",
+  "common.defaultOf": "Default ({value})",
   "common.delete": "Delete",
   "common.deleteEmptyConfirm": "Delete \"{name}\"? This cannot be undone.",
   "common.done": "Done",

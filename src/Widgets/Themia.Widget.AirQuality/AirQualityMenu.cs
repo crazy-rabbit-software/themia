@@ -38,7 +38,7 @@ internal static class AirQualityMenu
             [
                 .. index.Children!,
                 ItemMenuEntry.Separator,
-                new(null, Str.Online_Source.Format(("name", "Copernicus Atmosphere Monitoring Service (CAMS) · Open-Meteo")), () => { }, Disabled: true),
+                WidgetMenuLines.Note(Str.Online_Source.Format(("name", "Copernicus Atmosphere Monitoring Service (CAMS) · Open-Meteo"))),
             ],
         });
     }

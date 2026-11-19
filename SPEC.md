@@ -2132,6 +2132,20 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   it counts ("5 rows", "2 columns", "3 lines", "50 items", "7 days", "8 hours"; `KitMenuLines.Count` says its Rows,
   Columns and Lines in theirs, items else, or the words it is given; `KitMenuLines.Rows`, `Days`, `Hours`, `Items`),
   never bare digits. The rules hold every widget's number to it ([S-2374] R21).
+- **[S-2374]** **Karpo's menu rules, held as tests** (owner, 2026-11-19: "have you even compared the seetings in themia
+  with those of karpo? ... make sure that you put the features of the karpo settings into themia too"; `karpo-app`
+  `MenuRulesTests`, `MenuConventionTests`): Core's `MenuRules` reads a page's rows as the user sees them (a neutral
+  `RuleRow` made of a settings line or a widget's entry; a card's lines without the glyph [S-2348] leaves off) and names
+  what breaks: **R3** no choice of two with Off (a switch); **R4** a choice and a number say what holds, a card holding
+  settings says it at its end; **R7** one word per concept (Place, never Location; Update interval; Reset all; Duration)
+  and a title no sentence; **R8** "and" never "&", "Add a …", sentence case; **R10** a heading over rows of its own;
+  **R11** a reset is Reset all and last; **R12** nothing destructive mid-level; **R13** no icon twice on a level; **R14**
+  a value at most 24 characters (inside "Default (…)"), a title never cut; **R18** "Default (…)" ([S-2372]); **R20** a
+  greyed row says why ([S-2375]); **R21** a number says its unit ([S-2371]). `SettingsMenuTests.S2374_` holds every page
+  of the edit bar, `WidgetMenuRulesTests.S2374_` every widget kind's page; what still breaks a rule is a shrink-only
+  allowance (a line kept now fails too), the rules' own exceptions a list with why. Mended with them: "Back up and
+  reset", a place's line "Place", About's privacy policy its own shield (Lock widgets wears the lock), the air quality's
+  data credit a note.
 - **[S-2340]** The **selection's page** (`SelectionRows`, after Karpo's widget page §529): a header card
   80 tall (a 48 tile with the kind's glyph, the widget's name in Title over a Caption line: its kind
   under a title of its own, what the kind is under the kind's name, how many of what for several; Cut,
