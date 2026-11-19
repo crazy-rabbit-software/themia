@@ -43,7 +43,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     private readonly Grid _drawing = new() { FlowDirection = FlowDirection.LeftToRight, Margin = Family.SideInset };
 
     /// <summary>[S-6714] Nothing to draw: the Status block's one row at the top.</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
+    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
 
     /// <summary>Every app part of every bar, by app key, so a focus can light them all at once.</summary>
     private readonly List<(string Key, Border Part)> _parts = [];

@@ -66,7 +66,6 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-        _fit.Hold(config);
         Strings.Changed += OnLanguage;
         _widgetHost.RecycleBin.Changed += Render;
         _binWatch ??= _widgetHost.RecycleBin.Watch();
@@ -75,7 +74,6 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         Render();
     }
 

@@ -99,7 +99,6 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config, Padding);
         _config = config as AlarmConfig ?? new AlarmConfig();
         Lay();
     }

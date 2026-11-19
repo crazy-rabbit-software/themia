@@ -53,7 +53,7 @@ internal sealed partial class AddPageView : Grid
     private readonly ScrollViewer _tabScroll;
     private readonly StackPanel _sections = new();
     private readonly ScrollViewer _body;
-    private readonly StatusBlock _none = new();
+    private readonly StatusBlock _none = new() { Margin = default };
     private readonly Grid _main = new();
     private readonly AddPreview _preview = new();
 

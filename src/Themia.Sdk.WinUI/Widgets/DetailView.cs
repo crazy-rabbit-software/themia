@@ -33,7 +33,7 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly WidgetId _kind;
 
     /// <summary>[S-12807] The fact rows reach the view's top and the foot's inset (its margin).</summary>
-    private readonly SpreadStack _facts = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
+    private readonly SpreadStack _facts = new() { Margin = ListEdge.Margin };
     private readonly List<RowBlock> _factRows = [];
     private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
 

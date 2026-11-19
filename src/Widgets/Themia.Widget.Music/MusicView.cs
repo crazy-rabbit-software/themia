@@ -89,7 +89,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config, Padding);
         _config = config as MusicConfig ?? new MusicConfig();
         _feed.Reload();
         Present();

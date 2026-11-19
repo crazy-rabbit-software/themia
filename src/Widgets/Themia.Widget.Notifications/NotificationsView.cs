@@ -211,6 +211,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _reach = _area.IsMeasured
             ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
             : ItemStretch.Natural(_plan.Lines);
+        ListEdge.Apply(_scroll);
 
         if (_plan.Grouped)
         {
@@ -238,7 +239,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         }
 
         // [S-6712] As tall as the whole lines that fit, never ending on a heading.
-        var room = _area.Height - FamilySpace.Inset;
+        var room = _area.Height + FamilySpace.Inset;
         var bottoms = _lines.Select(l => l.Bottom).ToList();
         var content = bottoms.Count > 0 ? bottoms[^1] : 0;
         _scroll.Height = !_area.IsMeasured ? double.NaN

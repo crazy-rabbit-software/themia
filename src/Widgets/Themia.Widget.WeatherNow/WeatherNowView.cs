@@ -94,7 +94,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         _config = config as WeatherNowConfig ?? new WeatherNowConfig();
         _feed.Cadence(_config.TickInterval);
         _feed.Reload();
@@ -114,8 +113,11 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     {
         if (_feed.Held is not { Value: { } reading } held)
         {
-            OnlineParts.ShowState(_empty, _feed.Status, Glyphs.Weather, _feed.Refresh);
-            _face.Visibility = Visibility.Collapsed;
+            // [S-12813] The reading stays: "--", the reason its caption.
+            _empty.Hide();
+            _bigGlyph.Visibility = Visibility.Collapsed;
+            OnlineParts.ShowDefault(_reading, _feed.Status, "°");
+            _face.Visibility = Visibility.Visible;
             _status.Clear();
             return;
         }

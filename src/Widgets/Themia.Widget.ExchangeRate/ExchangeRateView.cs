@@ -98,7 +98,6 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     /// <summary>The base, the quote or the style: all drawn from the one table in hand.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         _config = config as ExchangeRateConfig ?? new ExchangeRateConfig();
         Reload(force: false);
     }
@@ -169,15 +168,9 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
         // [S-5145] [S-6734] No table yet: how the sync went; the latest day lacks one of the two: said as a state.
         if (rate is null)
         {
-            _rate.Visibility = Visibility.Collapsed;
-            if (_table is null)
-            {
-                OnlineParts.ShowState(_state, _status, ExchangeRateModule.Glyph, () => Reload(force: true));
-            }
-            else
-            {
-                _state.Show(StatusKind.Empty, ExchangeRateModule.Glyph, Str.Online_Rates_Missing.Text());
-            }
+            // [S-12813] The rate stays: "--", the reason its caption.
+            _state.Hide();
+            OnlineParts.ShowDefault(_rate, _status, sentence: _table is null ? null : Str.Online_Rates_Missing.Text());
 
             return;
         }

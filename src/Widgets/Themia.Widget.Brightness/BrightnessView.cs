@@ -112,7 +112,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         _config = config as BrightnessConfig ?? new BrightnessConfig();
         Lay();
     }

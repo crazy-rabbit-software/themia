@@ -48,7 +48,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     private readonly Grid _ring = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
     /// <summary>[S-6714] Nothing to draw: the Status block's one row at the top.</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
+    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
     private readonly List<(ScreenTimeSegment Segment, Wedge Arc)> _arcs = [];
 
     /// <summary>[S-3325] One wedge per app (and Other), kept across reads.</summary>

@@ -23,6 +23,10 @@ public sealed partial class StatusBlock : Grid
         Height = FamilyShape.Row1;
         Padding = Family.SideInset;
         VerticalAlignment = VerticalAlignment.Top;
+
+        // [S-12815] The row a card's state stands in is its first row: on the card's top edge, as a list's first row
+        // (a view that stands it under something else sets its margin).
+        Margin = Themia.App.Widgets.ListEdge.Margin;
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });

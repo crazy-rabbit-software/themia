@@ -52,12 +52,17 @@ public static class PartInk
         var height = Math.Max(0, panel.DesiredSize.Height - own);
         var rows = panel is Grid grid ? Math.Max(1, grid.RowDefinitions.Count) : 1;
         double over = double.PositiveInfinity, under = double.PositiveInfinity;
-        foreach (var child in panel.Children)
+
+        // A picture or a glyph beside a text draws inside its box (its own margins): the text says where the ink is.
+        var shown = panel.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
+        var pictures = shown.Where(c => c is Image or FontIcon).ToList();
+        if (pictures.Count < shown.Count)
         {
-            if (child.Visibility != Visibility.Visible || child is not FrameworkElement part)
-            {
-                continue;
-            }
+            shown = [.. shown.Except(pictures)];
+        }
+
+        foreach (var part in shown)
+        {
 
             // In a grid of rows only the first row's parts can ink its top and only the last row's its foot.
             var row = panel is Grid ? Grid.GetRow(part) : 0;

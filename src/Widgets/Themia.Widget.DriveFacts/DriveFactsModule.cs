@@ -120,7 +120,7 @@ internal sealed partial class DriveFactsView : SpreadStack, IWidgetView, IWidget
         _host = host;
 
         // [S-12807] The rows reach the content's top and the foot's inset, their text on both.
-        Margin = new Thickness(0, 0, 0, FamilySpace.Inset);
+        Margin = ListEdge.Margin;
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;

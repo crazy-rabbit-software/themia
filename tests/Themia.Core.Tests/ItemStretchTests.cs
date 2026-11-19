@@ -36,17 +36,21 @@ public class ItemStretchTests
     [Fact]
     public void S12807_a_views_rows_run_from_its_top_to_the_foots_inset()
     {
-        // A view of four rows and the foot's 12: the rows span 112, touching.
-        Assert.Equal(ItemStretch.Reach(112, 4, 28), ItemStretch.Rows(124, 4, 1));
-        Assert.Equal(new RowReach(40), ItemStretch.Rows(172, 4, 1));
+        // [S-12815] A view of four rows and the foot's 12 under the card's top inset: the rows run from the card's top
+        // edge to its foot edge, 136, touching.
+        Assert.Equal(ItemStretch.Reach(136, 4, 28), ItemStretch.Rows(124, 4, 1));
+        Assert.Equal(new RowReach(46), ItemStretch.Rows(172, 4, 1));
+
+        // Under a tool line, a search box or column titles: from the view's top.
+        Assert.Equal(new RowReach(40), ItemStretch.Rows(172, 4, 1, reserved: 12, edge: false));
     }
 
     [Fact]
     public void S12807_rows_over_an_add_row_end_where_it_starts()
     {
-        // Four rows, the add row of 28 and the foot's 12.
+        // Four rows, the add row of 28 on the card's foot edge, the rows from its top edge.
         const double View = (4 * 40) + 28 + 12;
-        Assert.Equal(new RowReach(40), ItemStretch.RowsAbove(View, 4, 1));
+        Assert.Equal(new RowReach(Math.Floor((View + 12 - 28) / 4)), ItemStretch.RowsAbove(View, 4, 1));
     }
 
     [Fact]

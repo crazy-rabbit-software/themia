@@ -7675,11 +7675,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   dont reach all the way"; then, asked how: "Rows grow, touch"). Every list of rows (a facts atom's, the forecast's
   days, a meter's items, the sun's and moon's times, the kit's lists and the schedule, the details' lists, the
   clipboard, contacts, habits, mixer, Bluetooth, removable drives, notifications, up next, recent files, screen
-  time's apps, the week planner's lines, the folder's list) lays its rows from the content's top (the card's inset,
-  [S-5700]) to the foot's inset line ([S-12800]), every row as tall as the room over the stated rows (whole pixels,
-  the rest under the last), no gap between rows and no cap: the rows' hover bands touch one another and fill the
-  content box; a row's texts and lead stay centred in it, so the first and last text stand a little in from the
-  insets (accepted). One rule, `ItemStretch` (`Rows`, `RowsAbove` over an add row, `Natural` before the box is
+  time's apps, the week planner's lines, the folder's list) lays its rows from the card's top edge to its foot edge
+  ([S-12815]: under a tool line, a search box or column titles from under them), every row as tall as the room over
+  the stated rows (whole pixels, the rest under the last), no gap between rows and no cap: the rows' hover bands touch
+  one another and the card's edges; a row's texts and lead stay centred in it, so the first and last text stand about
+  the inset from the card's edges. One rule, `ItemStretch` (`Rows`, `RowsAbove` over an add row, `Natural` before the box is
   measured; `SpreadStack` for a stack of rows and parts, a row growing, `IInked.Grows`); a list takes the pitch, its
   rows stacked with no spacing (`KitPlan.RowHeight`, `KitPlanner.ListHeight(area)`). Fewer items than the config's
   rows leave the rest of those rows empty ([S-12800]). The add row ([S-3850], `AddFooterRow`) stands on the foot's
@@ -7720,6 +7720,31 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (`IWidgetHost.FileIcons`, the root as a system folder so the shell gives its own icon, not a plain folder's). A
   mapped network drive is a drive of the same widget ([S-4650]: its share, its space; disconnected it says
   "Disconnected network drive"). A bare UNC path without a letter is not a drive here yet.
+- **[S-12814]** **A block has no band over its first ink or under its last** (owner, 2026-11-19: "the drive widget
+  still has a fucking space at the top, maybe also at the bottom. make sure that this does not happen anywhere"). A
+  one-readout block ([S-12808], `ReadingFit`, the rule `BlockFit.Fill`) scales up as one to the largest size at which
+  the parts with a width of their own (the reading, its caption, an icon) fit the content's width and the parts packed
+  together fit its height: a bar, a slider or a graph spans any width and never holds the block small. It is then laid
+  out in the whole height the scale leaves it, its first ink on the content's top and its last on the foot's inset;
+  what the parts do not take goes between them (`SpreadStack.Justify`; one part takes it all, a readout's value on its
+  top and its line under on its foot), never over the first ink or under the last. Never smaller than its own size: a
+  room shorter than its parts keeps them packed from the top. A drive, a reading or a facts list without data draws its
+  default ([S-12813]: the drive's "--", its reason under it and its empty bar), never a status line at the top of an
+  empty card. Tests `BlockFitTests.S12814_` (the owner's 330x130 drive card among them).
+- **[S-12815]** **A list's first row stands on the card's top edge, and the gap check** (owner, 2026-11-19: "or the
+  stick too. audit all the widgets and make sure that this shit does not happen anywhere. test this properly"; "no
+  this is fine if it happens, but there should not be a space at the top"). A list whose rows are the first thing in
+  its card stands the inset over its view's top (`ListEdge`), so its first row's band reaches the card's top edge and
+  its text stands about the inset under it, the same in every list; its rows run touching to the card's foot edge
+  (`ItemStretch.Rows`: the view's height and the top inset; `KitPlanner.ListHeight`). Under a tool line, a search box
+  or column titles the rows start under them. A list keeps a place for every row its config states ([S-12800]): fewer
+  items leave the foot's rows empty, which is fine; a space at the top never is. `scripts/gap-check.py` audits it: every
+  kind, every state its renders offer, at its range and at desktop sizes (330x130, 350x70, 350x80, 330x140, 300x164,
+  600x200, 520x600, 900x300), each card's band over its first ink and under its last against its edge. A finding is a
+  top band over the inset + 4 DIP (every kind and state), a foot band over it or top and foot more than 4 DIP apart
+  (but for a list with rows it states and does not fill), or a side band over it for a kind whose content spans the
+  width; pictures, video and charts whose frame is the inset are declared with their reason and judged on the top
+  alone. It writes the whole matrix and exits non-zero on any finding.
 - **[S-11870]** **No line between joined cards** (owner, 2026-11-12: "the lines in between the widgets in one
   group dont look good. remove them."). Between two joined cards ([S-2240]) no line is drawn at all: neither card
   draws a side, or the stretch of a side, where a card it joins lies across it. Touching cards read as one sheet:

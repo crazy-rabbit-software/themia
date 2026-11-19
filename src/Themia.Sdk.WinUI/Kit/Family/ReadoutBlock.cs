@@ -18,7 +18,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// (<see cref="ReadingFit"/>), reading where its ink stands (<see cref="Ink"/>).
 /// </para>
 /// </summary>
-public sealed partial class ReadoutBlock : StackPanel, IInked
+public sealed partial class ReadoutBlock : SpreadStack, IInked
 {
     private readonly FontIcon _lead;
     private readonly TextBlock _line;
@@ -38,6 +38,9 @@ public sealed partial class ReadoutBlock : StackPanel, IInked
 
     public ReadoutBlock()
     {
+        // [S-12814] Given more height than its lines (a block filling its card), the value stands on the top and the
+        // line under on the foot, the room between them.
+        Justify = true;
         _lead = Family.Glyph(string.Empty, _step.FontSize, ColourRole.TextSecondary);
         _lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
         _lead.Visibility = Visibility.Collapsed;

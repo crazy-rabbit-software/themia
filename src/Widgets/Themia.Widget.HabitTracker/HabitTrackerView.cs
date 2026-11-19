@@ -294,6 +294,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             ? ItemStretch.RowsAbove(_area.Height, plan.Rows, plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
             : ItemStretch.Natural(plan.Lines);
         _scroll.Height = plan.Rows < count ? reach.Length(plan.Rows) : double.NaN;
+        ListEdge.Apply(_scroll);
 
         foreach (var row in _rows)
         {

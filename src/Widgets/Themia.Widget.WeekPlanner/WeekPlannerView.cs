@@ -423,6 +423,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
             SetColumn(stack, s);
             _content.Children.Add(stack);
             DrawDay(stack, days[slots[s].Day], slots[s], today, zone, showColors, times: true);
+            ListEdge.Apply(stack);
             foreach (var line in stack.Children.OfType<FrameworkElement>())
             {
                 line.Height = reach.Pitch;

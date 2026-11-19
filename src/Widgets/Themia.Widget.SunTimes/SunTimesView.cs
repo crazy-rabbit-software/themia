@@ -21,7 +21,7 @@ namespace Themia.Widget.SunTimes;
 internal sealed partial class SunTimesView : Grid, IWidgetView, IWidgetSizeAware
 {
     /// <summary>[S-12807] The rows reach the content's top and the foot's inset (its margin), their text on both.</summary>
-    private readonly SpreadStack _stack = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
+    private readonly SpreadStack _stack = new() { Margin = ListEdge.Margin };
     private readonly List<SkyEventRow> _rows = [];
     private SunTimesConfig _config = new();
     private IDisposable? _subscription;

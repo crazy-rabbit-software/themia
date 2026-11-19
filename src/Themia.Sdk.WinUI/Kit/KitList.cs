@@ -148,6 +148,17 @@ public sealed partial class KitList : Grid
         _plan = plan;
         _area = area;
 
+        // [S-12815] The rows stand on the card's top edge unless the table's column titles stand over them.
+        FrameworkElement part = Checked ? _checkHost! : Paged ? _page : _scroll;
+        if (plan.ColumnHeader)
+        {
+            part.Margin = default;
+        }
+        else
+        {
+            ListEdge.Apply(part);
+        }
+
         if (_cursorId is not null)
         {
             var at = IndexOf(_cursorId);

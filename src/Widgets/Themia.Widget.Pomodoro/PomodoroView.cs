@@ -137,7 +137,6 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config, Padding);
         _config = config as PomodoroConfig ?? new PomodoroConfig();
 
         // While the timer is stopped the clock follows the configured length, so changing it in

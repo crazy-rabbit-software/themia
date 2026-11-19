@@ -48,9 +48,10 @@ public static class ItemStretch
 {
     /// <summary>
     /// [S-12807] Lay <paramref name="items"/> (with <paramref name="gap"/> between two, a family token) in a room
-    /// <paramref name="available"/> long.
+    /// <paramref name="available"/> long. [S-12814] <paramref name="justify"/>: with nothing that grows, the room goes
+    /// between the items (the first on the start, the last on the end; one item takes it all) instead of round them.
     /// </summary>
-    public static ItemSlot[] Reach(double available, IReadOnlyList<StretchItem> items, double gap = 0, double scale = 1)
+    public static ItemSlot[] Reach(double available, IReadOnlyList<StretchItem> items, double gap = 0, double scale = 1, bool justify = false)
     {
         ArgumentNullException.ThrowIfNull(items);
         var n = items.Count;
@@ -74,7 +75,8 @@ public static class ItemStretch
 
         var spare = double.IsFinite(available) ? available - need : 0;
         var pixels = spare > 0 ? Math.Floor((spare * scale) + 1e-6) : 0;
-        var at = growing == 0 && pixels > 0 ? Math.Floor(pixels / 2) / scale : 0;
+        var spread = justify && growing == 0;
+        var at = growing == 0 && !spread && pixels > 0 ? Math.Floor(pixels / 2) / scale : 0;
         var share = 0;
         for (var i = 0; i < n; i++)
         {
@@ -83,9 +85,13 @@ public static class ItemStretch
             {
                 length += Share(pixels, growing, share++) / scale;
             }
+            else if (spread && n == 1)
+            {
+                length += pixels / scale;
+            }
 
             slots[i] = new ItemSlot(at, length);
-            at += length + gap;
+            at += length + gap + (spread && i < n - 1 ? Share(pixels, n - 1, i) / scale : 0);
         }
 
         return slots;
@@ -109,15 +115,18 @@ public static class ItemStretch
     }
 
     /// <summary>
-    /// [S-12807] A list's <paramref name="count"/> rows of <paramref name="lines"/> lines in a view
-    /// <paramref name="height"/> tall (the card's inset over it, the list from its top; less
-    /// <paramref name="reserved"/> for what stands under or over the rows): their boxes from the view's top to the
-    /// foot's inset line, touching. A list applies it as its rows' height (<see cref="RowReach.Pitch"/>).
+    /// [S-12807] [S-12815] A list's <paramref name="count"/> rows of <paramref name="lines"/> lines in a view
+    /// <paramref name="height"/> tall (the card's inset over it; less <paramref name="reserved"/> for what stands under
+    /// or over the rows): their boxes touching, from the card's top edge (<paramref name="edge"/>: the list stands
+    /// <see cref="FamilySpace.Inset"/> over the view's top, <c>ListEdge</c>; else from the view's top, under a search box,
+    /// a tool line or column titles) to the card's foot edge, so the first and the last row's bands reach the card's
+    /// edges and their text stands about the inset from them. A list applies it as its rows' height
+    /// (<see cref="RowReach.Pitch"/>).
     /// </summary>
-    public static RowReach Rows(double height, int count, int lines, double reserved = 0, double scale = 1)
-        => Reach(height - FamilySpace.Inset - reserved, count, FamilyShape.RowHeight(lines), scale);
+    public static RowReach Rows(double height, int count, int lines, double reserved = 0, double scale = 1, bool edge = true)
+        => Reach(height + (edge ? FamilySpace.Inset : 0) - reserved, count, FamilyShape.RowHeight(lines), scale);
 
-    /// <summary>[S-12807] <see cref="Rows"/> with an add row of <paramref name="footLines"/> lines standing right under them ([S-3850]).</summary>
+    /// <summary>[S-12807] <see cref="Rows"/> with an add row of <paramref name="footLines"/> lines standing right under them, on the card's foot edge ([S-3850]).</summary>
     public static RowReach RowsAbove(double height, int count, int lines, int footLines = 1, double scale = 1)
         => Rows(height, count, lines, FamilyShape.RowHeight(footLines), scale);
 

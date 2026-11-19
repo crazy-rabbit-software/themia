@@ -93,7 +93,6 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config, Padding);
         var next = config as StopwatchConfig ?? new StopwatchConfig();
 
         // Only another config is read again: the one held is this view's own writing.

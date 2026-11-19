@@ -109,7 +109,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config, Padding);
         _config = config as FocusSessionConfig ?? new FocusSessionConfig();
         Lay();
     }

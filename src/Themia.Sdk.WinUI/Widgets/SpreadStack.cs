@@ -65,6 +65,25 @@ public partial class SpreadStack : Panel
 
     private int _rows;
 
+    /// <summary>
+    /// [S-12814] With nothing that grows, the room goes between the parts (the first on the start, the last on the end;
+    /// one part takes it all) instead of round them: a readout block's parts ([S-12808]).
+    /// </summary>
+    public bool Justify
+    {
+        get => _justify;
+        set
+        {
+            if (value != _justify)
+            {
+                _justify = value;
+                InvalidateArrange();
+            }
+        }
+    }
+
+    private bool _justify;
+
     private bool Down => _orientation == Orientation.Vertical;
 
     /// <summary>The shown parts and the slots the last arrange gave them along the stack, first to last.</summary>
@@ -104,7 +123,7 @@ public partial class SpreadStack : Panel
             items.Add(items[^1]);
         }
 
-        var slots = ItemStretch.Reach(Down ? finalSize.Height : finalSize.Width, items, _spacing, XamlRoot?.RasterizationScale ?? 1);
+        var slots = ItemStretch.Reach(Down ? finalSize.Height : finalSize.Width, items, _spacing, XamlRoot?.RasterizationScale ?? 1, _justify);
         Laid = [.. shown.Select((child, i) => (child, slots[i]))];
         for (var i = 0; i < shown.Count; i++)
         {

@@ -192,7 +192,7 @@ internal sealed partial class CalendarView
             HideAgenda();
 
             // [S-2285] A day with nothing says so in the Status block's row where the first row would be.
-            var none = new StatusBlock();
+            var none = new StatusBlock { Margin = default };
             SetRow(none, 2);
             none.Show(StatusKind.Empty, Themia.App.Shell.Glyphs.Calendar, (chosen == today ? CalendarStr.Calendar_NoEventsToday : CalendarStr.WidgetsA_Calendar_NoEvents).Text());
             _content.Children.Add(none);

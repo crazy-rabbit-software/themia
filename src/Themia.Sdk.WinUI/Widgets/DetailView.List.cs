@@ -88,6 +88,7 @@ public sealed partial class DetailView : IWidgetKeys
         var reach = ItemStretch.Rows(_area.Height, p.ListRows, _lines, scale: XamlRoot?.RasterizationScale ?? 1);
         _pitch = reach.Pitch;
         _scroll.Height = reach.Length(p.ListRows);
+        ListEdge.Apply(_scroll);
         SetRow(_scroll, 2);
     }
 

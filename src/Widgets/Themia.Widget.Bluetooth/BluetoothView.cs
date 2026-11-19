@@ -325,6 +325,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         }
 
         _scroll.Height = reach.Length(plan.Rows);
+        ListEdge.Apply(_scroll);
     }
 
     /// <summary>

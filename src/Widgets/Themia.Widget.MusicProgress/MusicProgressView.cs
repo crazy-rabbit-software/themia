@@ -79,7 +79,6 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config, Padding);
         _config = config as MusicProgressConfig ?? new MusicProgressConfig();
 
         _feed.Reload();

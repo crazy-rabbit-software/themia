@@ -210,6 +210,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
 
         // [S-2440] As tall as the rows its config states: never a part of one at its foot.
         _scroll.Height = reach.Length(Math.Min(_rows.Count, _plan.Rows));
+        ListEdge.Apply(_scroll);
 
         _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;
         ShowCursor();

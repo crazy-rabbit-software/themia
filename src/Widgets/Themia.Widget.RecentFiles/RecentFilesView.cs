@@ -193,6 +193,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         }
 
         _scroll.Height = reach.Length(Math.Min(_rows.Count, shown.Rows));
+        ListEdge.Apply(_scroll);
 
         _cursor = _cursor < _rows.Count ? _cursor : -1;
         ShowCursor();

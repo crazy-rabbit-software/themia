@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Themia.App.Services.Web;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
@@ -32,6 +33,19 @@ public static class OnlineParts
     public static string RefreshLabel<T>(Fetched<T>? held)
         where T : class
         => KitFreshness.RefreshLabel(Strings.Current, held is null ? [] : [Outcome(held)], DateTimeOffset.Now);
+
+    /// <summary>
+    /// [S-12813] No answer to draw: the readout stays, "--" (with <paramref name="unit"/>) and disabled, the reason its
+    /// line under (the sentence for <paramref name="status"/>, or <paramref name="sentence"/>), never a status row in
+    /// its place. Not set up says nothing more: the card's Set up row says it ([S-1862]).
+    /// </summary>
+    public static void ShowDefault(ReadoutBlock readout, FetchStatus status, string unit = "", string? sentence = null)
+    {
+        ArgumentNullException.ThrowIfNull(readout);
+        var caption = sentence ?? (FetchState.Look(status).Kind == StatusKind.Setup ? string.Empty : FetchState.Message(status));
+        readout.Show("--", unit, caption, valueRole: ColourRole.TextDisabled);
+        readout.Visibility = Visibility.Visible;
+    }
 
     /// <summary>
     /// [S-6734] Say why there is no answer in <paramref name="row"/>: the sentence for <paramref name="status"/>

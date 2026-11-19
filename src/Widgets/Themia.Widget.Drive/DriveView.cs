@@ -27,7 +27,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <inheritdoc />
     public CardOpen? Opens => DriveModule.Opens(_config.Drive, Path.GetPathRoot(Environment.SystemDirectory));
 
-    private readonly StackPanel _figure = new();
+    private readonly SpreadStack _figure = new() { Justify = true };
 
     /// <summary>[S-12808] The share, its line and the bar: one block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
@@ -37,7 +37,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// [S-12810] The drive's own icon, as This PC draws it (the shell's: a fixed disk, the Windows drive, a USB stick, a
     /// mapped network drive), leading the share at the readout's step.
     /// </summary>
-    private readonly Image _icon = new() { Width = FamilyType.Big28.LineHeight, Height = FamilyType.Big28.LineHeight, Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Top };
+    private readonly Image _icon = new() { Width = FamilyType.Big28.LineHeight, Height = FamilyType.Big28.LineHeight, Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Center };
     private string? _iconRoot;
     private readonly ChartBar _bar = DriveBar.Create();
     private readonly StatusBlock _status = new();
@@ -83,7 +83,6 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         _config = config as DriveConfig ?? new DriveConfig();
         UseStyle();
         Show();
@@ -123,19 +122,22 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         var locale = Strings.Current;
         ToolTipService.SetToolTip(this, $"{DriveRules.Title(locale, drive)} · {DriveRules.Description(locale, drive)} · {DriveRules.SpaceLine(locale, drive)}");
 
+        _status.Hide();
         if (DriveFace.Status(locale, drive) is { } status)
         {
-            _status.Show(status.Kind, DriveRules.Glyph(drive), status.Sentence);
-            _figure.Visibility = Visibility.Collapsed;
+            // [S-12813] Not connected, no media: the drive's default (its icon, "--", the empty bar), the reason under it.
             if (_ringParts is not null)
             {
                 _ringParts.Root.Visibility = Visibility.Collapsed;
             }
 
+            _figure.Visibility = Visibility.Visible;
+            _readout.Show("--", "%", status.Sentence, valueRole: ColourRole.TextDisabled);
+            ShowIcon(drive);
+            DriveBar.Show(_bar, drive);
             return;
         }
 
-        _status.Hide();
         if (_ringParts is not null)
         {
             LayRing(drive);
@@ -159,6 +161,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         _iconRoot = drive.Root;
         _icon.Source = null;
+        _icon.Visibility = Visibility.Collapsed;
         const int system = 0x4;
         var pixels = (int)Math.Ceiling(FamilyType.Big28.LineHeight * 4 * (XamlRoot?.RasterizationScale ?? 1));
         try
@@ -166,7 +169,9 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
             var image = await _widgetHost.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels);
             if (_iconRoot == drive.Root)
             {
+                // No icon to draw takes no room: the share stands where its ink is.
                 _icon.Source = image;
+                _icon.Visibility = image is null ? Visibility.Collapsed : Visibility.Visible;
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)

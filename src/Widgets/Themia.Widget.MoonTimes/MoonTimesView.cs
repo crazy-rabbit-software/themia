@@ -21,7 +21,7 @@ namespace Themia.Widget.MoonTimes;
 internal sealed partial class MoonTimesView : Grid, IWidgetView, IWidgetSizeAware
 {
     /// <summary>[S-12807] The rows reach the content's top and the foot's inset (its margin), their text on both.</summary>
-    private readonly SpreadStack _stack = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
+    private readonly SpreadStack _stack = new() { Margin = ListEdge.Margin };
     private readonly List<(SkyEventRow Row, SkyMoonDisc Lead)> _rows = [];
     private MoonTimesConfig _config = new();
     private IDisposable? _subscription;

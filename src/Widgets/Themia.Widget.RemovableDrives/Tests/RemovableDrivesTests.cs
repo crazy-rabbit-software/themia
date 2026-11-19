@@ -34,8 +34,8 @@ public sealed class RemovableDrivesTests
     public void S12452_its_rows_fill_the_view_touching()
     {
         // The view at the natural box: four rows of 40 and the foot's 12; a taller view grows them until they touch.
-        Assert.Equal(40, RemovableDrivesPlan.Reach((4 * 40) + 12, 4).Pitch);
-        Assert.Equal(222, RemovableDrivesPlan.Reach(900, 4).Pitch);
+        Assert.Equal(46, RemovableDrivesPlan.Reach((4 * 40) + 12, 4).Pitch);
+        Assert.Equal(228, RemovableDrivesPlan.Reach(900, 4).Pitch);
         Assert.Equal(40, RemovableDrivesPlan.Reach(100, 4).Pitch);
     }
 }

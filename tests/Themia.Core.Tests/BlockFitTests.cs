@@ -79,4 +79,61 @@ public class BlockFitTests
         var lay = BlockFit.Lay(176, 52, 176, 52, new LineInk(6, 6));
         Assert.Equal(new BlockLay(1, 0), lay);
     }
+
+    [Fact]
+    public void S12814_a_bar_never_holds_the_block_small_its_text_and_bar_reach_the_top_and_the_foot()
+    {
+        // The owner's drive card, 330x130 (306 x 106 inside the insets): an icon and "47%" with its line under (60 wide,
+        // 52 tall, the 28 readout's leading 9.2 over its figures) over a bar 4 tall, 8 under it. The bar spans any width,
+        // so only the text's 60 limits the width: the height does, at 106 / (64 - 9.2).
+        var ink = new LineInk(9.2, 0);
+        var fill = BlockFit.Fill(306, 106, 60, 64, ink);
+
+        Assert.Equal(106 / (64 - 9.2), fill.Scale, 6);
+        Assert.Equal(-9.2 * fill.Scale, fill.Top, 6);
+
+        // Laid in the whole height: its first ink on the top, its last (the bar's foot) on the foot.
+        Assert.Equal(0, fill.Top + (ink.Over * fill.Scale), 6);
+        Assert.Equal(106, fill.Top + (fill.Height * fill.Scale), 6);
+    }
+
+    [Theory]
+    [InlineData(330, 130)]
+    [InlineData(350, 70)]
+    [InlineData(350, 80)]
+    [InlineData(330, 140)]
+    [InlineData(300, 164)]
+    [InlineData(600, 200)]
+    [InlineData(520, 600)]
+    [InlineData(900, 300)]
+    public void S12814_at_every_desktop_size_the_ink_spans_the_room_top_to_foot(double width, double height)
+    {
+        // A reading and its caption (156 wide, 52 tall) with a control row (28): whatever limits the scale, the room
+        // left goes between the parts, never over the first ink or under the last.
+        var ink = new LineInk(9.2, 0);
+        var fill = BlockFit.Fill(width, height, 156, 80, ink);
+
+        Assert.True(fill.Scale >= 1);
+        Assert.True(156 * fill.Scale <= width + 1e-6 || fill.Scale == 1);
+        Assert.Equal(0, fill.Top + (ink.Over * fill.Scale), 6);
+        Assert.Equal(Math.Max(height, (80 - 9.2) * fill.Scale), fill.Top + ((fill.Height - ink.Under) * fill.Scale), 6);
+    }
+
+    [Fact]
+    public void S12814_a_room_shorter_than_the_parts_keeps_them_packed_from_the_top()
+    {
+        var fill = BlockFit.Fill(300, 40, 100, 80, new LineInk(6, 4));
+        Assert.Equal(new BlockFill(1, 80, -6), fill);
+    }
+
+    [Fact]
+    public void S12814_justified_parts_take_the_room_between_them_and_one_part_takes_it_all()
+    {
+        var two = ItemStretch.Reach(100, [StretchItem.Fixed(36), StretchItem.Fixed(28)], justify: true);
+        Assert.Equal(new ItemSlot(0, 36), two[0]);
+        Assert.Equal(new ItemSlot(72, 28), two[1]);
+
+        var one = ItemStretch.Reach(100, [StretchItem.Fixed(36)], justify: true);
+        Assert.Equal(new ItemSlot(0, 100), one[0]);
+    }
 }

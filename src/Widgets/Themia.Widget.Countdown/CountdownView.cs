@@ -96,7 +96,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config, Padding);
         _config = config as CountdownConfig ?? new CountdownConfig();
         ShowName();
         Rebuild();

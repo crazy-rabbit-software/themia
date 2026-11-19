@@ -207,6 +207,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         _pitch = reach.Pitch;
         ShowRows(plan, main.Count);
         _scroller.Height = reach.Length(plan.Rows);
+        ListEdge.Apply(_scroller);
 
         RestoreFocus();
     }

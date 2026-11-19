@@ -119,7 +119,7 @@ public sealed class KitRowsTests
 
                 // [S-12807] Its rows grow with the box until they touch and fill it, a heading with them.
                 var natural = FamilyShape.RowHeight(lines);
-                Assert.Equal(area.Height < 6 * natural ? natural : Math.Floor((area.Height - 12) / 6), plan.RowHeight);
+                Assert.Equal(area.Height < 6 * natural ? natural : Math.Floor((area.Height + 12) / 6), plan.RowHeight);
                 Assert.Equal(FamilyShape.Row1 * plan.RowHeight / FamilyShape.RowHeight(lines), plan.HeadingHeight, 6);
             }
         }

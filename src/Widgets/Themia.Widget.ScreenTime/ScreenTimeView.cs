@@ -34,7 +34,7 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     private readonly ReadingFit _fit = new();
 
     /// <summary>[S-6714] Nothing to read: the Status block's one row at the top.</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
+    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
 
     private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
@@ -91,8 +91,6 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
     public void ApplyConfig(WidgetConfig config)
     {
-        // [S-12808] The day line ([S-12803]) stands over the block's room, never in it.
-        _fit.Hold(config, new Thickness(0, ScreenTimeRules.DayLine(ScreenTimeRules.ClampPeriod((config as ScreenTimeConfig ?? new ScreenTimeConfig()).Period)), 0, 0));
         _config = config as ScreenTimeConfig ?? new ScreenTimeConfig();
         Render();
     }

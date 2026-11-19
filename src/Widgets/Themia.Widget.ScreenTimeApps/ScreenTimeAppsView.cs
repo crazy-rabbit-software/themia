@@ -31,11 +31,11 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
     private readonly WidgetLinks _dates = new();
     /// <summary>[S-12807] The config's rows under the day line, reaching the foot's inset (its margin).</summary>
-    private readonly SpreadStack _list = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset) };
+    private readonly SpreadStack _list = new() { Margin = ListEdge.Margin };
     private readonly List<AppRow> _rows = [];
 
     /// <summary>[S-6714] Nothing to list: the Status block's one row at the top.</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
+    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed, Margin = default };
 
     private IWidgetSurface? _surface;
     private IScreenTimeSource? _source;
@@ -165,6 +165,9 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         }
 
         _nav.Update(_config.Period);
+
+        // [S-12815] Under the day line the rows start under it; with none, on the card's top edge.
+        _list.Margin = _nav.Line.Visibility == Visibility.Visible ? default : ListEdge.Margin;
 
         if (_source is null)
         {

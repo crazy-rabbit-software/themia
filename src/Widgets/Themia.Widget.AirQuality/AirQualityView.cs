@@ -85,7 +85,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         _config = config as AirQualityConfig ?? new AirQualityConfig();
         _feed.Reload();
     }
@@ -107,8 +106,10 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
         if (_feed.Held is not { Value: { } air } held || AirQualityRules.Index(air, scale) is not { } index)
         {
             // [S-6734] Not set up is the card's Set up row; an answer without this index is one with nothing in it.
-            OnlineParts.ShowState(_empty, _feed.Held is not null ? FetchStatus.Empty : _feed.Status, AirQualityModule.Glyph, _feed.Refresh);
-            _hero.Visibility = _gauge.Visibility = Visibility.Collapsed;
+            // [S-12813] The index stays: "--", the reason its caption.
+            _empty.Hide();
+            _gauge.Visibility = Visibility.Collapsed;
+            OnlineParts.ShowDefault(_hero, _feed.Held is not null ? FetchStatus.Empty : _feed.Status);
             _status.Clear();
             return;
         }

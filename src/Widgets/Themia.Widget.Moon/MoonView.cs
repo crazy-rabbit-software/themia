@@ -27,7 +27,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private readonly ReadoutBlock _value = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock _name = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly StackPanel _valueLine = new() { Orientation = Orientation.Horizontal };
-    private readonly StackPanel _readout = new() { Visibility = Visibility.Collapsed };
+    private readonly SpreadStack _readout = new() { Justify = true, Visibility = Visibility.Collapsed };
 
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
@@ -43,7 +43,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private ContentAlign _align = ContentAlign.Left;
 
     /// <summary>[S-6050] The Phase month style: the month's name over a disc a day.</summary>
-    private readonly StackPanel _month = new() { Visibility = Visibility.Collapsed };
+    private readonly SpreadStack _month = new() { Justify = true, Visibility = Visibility.Collapsed };
     private readonly TextBlock _monthName = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly Canvas _monthGrid = new() { HorizontalAlignment = HorizontalAlignment.Left, FlowDirection = FlowDirection.LeftToRight };
     private readonly List<SkyMoonDisc> _monthDiscs = [];
@@ -98,7 +98,6 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         _config = config as MoonConfig ?? new MoonConfig();
 
         // One cadence for good: the config cannot change it, so subscribe once.

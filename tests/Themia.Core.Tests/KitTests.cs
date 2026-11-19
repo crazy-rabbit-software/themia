@@ -295,7 +295,7 @@ public sealed class KitTests
             var plan = KitPlanner.Plan(new WidgetArea(300, height), Rich, choices);
 
             Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
-            var room = height - FamilySpace.Inset;
+            var room = height + FamilySpace.Inset;
             Assert.InRange(room - (rows * plan.RowHeight), 0, rows);
             Assert.Equal(rows, KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))));
         }

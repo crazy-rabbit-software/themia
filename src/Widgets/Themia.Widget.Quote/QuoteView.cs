@@ -38,7 +38,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     /// <summary>[S-1496] The attribution, on the quote's line under, secondary.</summary>
     private readonly TextBlock _author = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly StackPanel _body;
+    private readonly SpreadStack _body;
 
     /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
     private readonly ReadingFit _fit = new();
@@ -71,8 +71,9 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
         // [S-6703] In the card's side inset. [S-12808] One block, the quote and its author together, planned at the
         // natural box and scaled up as one ([S-12483]: the same joined or alone).
-        _body = new StackPanel
+        _body = new SpreadStack
         {
+            Justify = true,
             Children = { _mark, _text, _author },
         };
 
@@ -111,7 +112,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     public void ApplyConfig(WidgetConfig config)
     {
-        _fit.Hold(config);
         _config = config as QuoteConfig ?? new QuoteConfig();
 
         Subscribe();

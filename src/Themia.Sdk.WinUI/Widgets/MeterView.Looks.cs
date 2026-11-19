@@ -141,7 +141,7 @@ public sealed partial class MeterView
 
             case MeterLook.Rows:
                 // [S-12807] Rows of items under the reading reach the foot's inset (stretched up to half again, then spaced).
-                Body(new SpreadStack { Margin = new Thickness(0, FamilySpace.S2, 0, FamilySpace.Inset) });
+                Body(new SpreadStack { Margin = new Thickness(0, FamilySpace.S2, 0, 0) });
                 break;
 
             case MeterLook.Tiles:
@@ -533,7 +533,7 @@ public sealed partial class MeterView
             // foot's inset (the stack's margin), their text on both.
             SetRow(_body, 0);
             SetRowSpan(_body, 2);
-            _body.Margin = _look == MeterLook.Rows ? new Thickness(0, 0, 0, FamilySpace.Inset) : Family.Inset with { Top = 0 };
+            _body.Margin = _look == MeterLook.Rows ? ListEdge.Margin : Family.Inset with { Top = 0 };
         }
 
         switch (_look)

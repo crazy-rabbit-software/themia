@@ -90,8 +90,9 @@ public static class DriveBar
     {
         ArgumentNullException.ThrowIfNull(bar);
         ArgumentNullException.ThrowIfNull(drive);
+        // [S-12813] A drive that cannot be read keeps its bar, empty: the default, never a gap.
         bar.Show(drive.UsedFraction ?? 0);
         bar.Role(DriveRules.Role(drive));
-        bar.Visibility = drive.UsedFraction is null ? Visibility.Collapsed : Visibility.Visible;
+        bar.Visibility = Visibility.Visible;
     }
 }

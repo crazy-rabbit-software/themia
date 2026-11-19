@@ -191,7 +191,7 @@ public sealed partial class SkyFactList : SpreadStack
 {
     private readonly List<RowBlock> _rows = [];
 
-    public SkyFactList() => Margin = new Thickness(0, 0, 0, FamilySpace.Inset);
+    public SkyFactList() => Margin = ListEdge.Margin;
 
     /// <summary>Draw <paramref name="facts"/>, one row each, reusing the rows already built.</summary>
     public void Show(IReadOnlyList<SkyFact> facts)
