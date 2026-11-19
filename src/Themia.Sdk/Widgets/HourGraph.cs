@@ -119,9 +119,110 @@ public static class HourGraphRules
 
     /// <summary>What a graph needs besides its plot, top to bottom, its insets included.</summary>
     public static double Frame(bool arrows)
-        => FamilySpace.Inset + FamilyType.Body.LineHeight + FamilySpace.S2
-            + (arrows ? FamilySpace.S1 + FamilyShape.Icon : 0)
-            + FamilySpace.S1 + FamilyType.Caption.LineHeight + FamilySpace.Inset;
+        => Over + Under(arrows) + FamilySpace.S1 + FamilyType.Caption.LineHeight + FamilySpace.Inset;
+
+    /// <summary>[S-6754] The top line over the plot's top: the inset, its Body line and 8 to the line's room.</summary>
+    public static double Over => FamilySpace.Inset + FamilyType.Body.LineHeight + FamilySpace.S2;
+
+    /// <summary>[S-6754] The wind's arrow line over the plot's foot, over the time line, with its 4 to the time line.</summary>
+    public static double Under(bool arrows) => arrows ? FamilyShape.Icon + FamilySpace.S1 : 0;
+
+    /// <summary>
+    /// [S-12703] [S-6751] [S-6754] What the one chart draws for <paramref name="model"/> across a plot <paramref name="width"/>
+    /// wide, the card's edge to edge: the slots on their cells' middles, the shares on the frame's scale, the top line over
+    /// the plot's top and the arrows over its foot kept clear of the line, "Now" and the window's end at the foot (Simple)
+    /// or the times (Detailed), in <paramref name="locale"/> and <paramref name="zone"/>.
+    /// </summary>
+    public static ChartModel Chart(HourGraphModel model, double width, Locale locale, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(zone);
+        var w = width;
+        var slots = model.Slots;
+        var n = slots.Count;
+        var (low, high) = model.Range ?? (0, 1);
+        double Value(double? share) => share is { } v ? low + (v * (high - low)) : double.NaN;
+        var chart = new ChartModel
+        {
+            Type = model.Look switch { HourGraphLook.Line => ChartType.Line, HourGraphLook.Bars => ChartType.Bars, _ => ChartType.Area },
+            Detail = model.Detail,
+            Low = low,
+            High = high,
+            Baseline = low,
+            Over = Over,
+            Under = Under(model.Arrows),
+            PadTop = FamilyType.CaptionLine,
+            PadBottom = FamilyType.CaptionLine,
+            RoundCaps = true,
+            LoneDots = true,
+            Format = model.Range is null ? null : model.Format,
+            Caption = model.Caption,
+            Ends = new ChartEnds(model.StartLabel, model.EndLabel),
+        };
+
+        if (n == 0)
+        {
+            return chart;
+        }
+
+        var first = slots[0].At;
+        var times = new List<ChartTick>();
+        if (model.Detail == ChartDetail.Detailed)
+        {
+            var (at, step) = ChartPlot.Times(first, slots[^1].At, ChartPlot.TimeRoom(w), zone);
+            foreach (var moment in at)
+            {
+                var local = TimeZoneInfo.ConvertTime(moment, zone);
+                var text = step >= TimeSpan.FromDays(1)
+                    ? LocaleFormat.WeekdayName(locale, local.DayOfWeek, NameWidth.Short)
+                    : LocaleFormat.Time(locale, TimeOnly.FromDateTime(local.DateTime));
+                times.Add(new ChartTick(X(moment, first, model.Step, n, w), text));
+            }
+        }
+
+        return chart with
+        {
+            Series = [.. slots.Select((s, i) => new ChartSample(X(i, n, w), Value(s.Value), s.Role))],
+            Second = [.. slots.Select((s, i) => new ChartSample(X(i, n, w), Value(s.Second)))],
+            Shades = [.. model.Shade.Select(span => new ChartShade(X(span.Rise, first, model.Step, n, w), X(span.Set, first, model.Step, n, w)))],
+            Rules = [.. Midnights(first, slots[^1].At, zone).Select(m => X(m, first, model.Step, n, w))],
+            Now = X(model.Now, first, model.Step, n, w),
+            Marks = [.. model.Marks.Where(m => m.Slot >= 0 && m.Slot < n).Select(m => new ChartMark(X(m.Slot, n, w), Value(slots[m.Slot].Value), m.Text, m.Under, m.Under ? ColourRole.TextSecondary : ColourRole.TextPrimary))],
+            Times = times,
+        };
+    }
+
+    /// <summary>
+    /// [S-12703] [S-6754] The slots whose wind arrow is drawn in a <paramref name="frame"/>: as many as stand a glyph and a
+    /// gap apart, each whole inside the frame's text box, from the first that is; with its middle across the plot.
+    /// </summary>
+    public static IReadOnlyList<(int Slot, double X)> Arrows(int count, ChartFrame frame)
+    {
+        ArgumentNullException.ThrowIfNull(frame);
+        var list = new List<(int, double)>();
+        if (count <= 0)
+        {
+            return list;
+        }
+
+        var w = frame.Plot.Width;
+        var cell = w / count;
+        var every = Math.Max(1, (int)Math.Ceiling((FamilyShape.Icon + FamilySpace.S1) / cell));
+        var half = FamilyShape.Icon / 2;
+        var first = Enumerable.Range(0, count).FirstOrDefault(i => X(i, count, w) - half >= frame.Text.Left - 1e-9, count);
+        for (var i = first; i < count; i += every)
+        {
+            var x = X(i, count, w);
+            if (x + half > frame.Text.Right + 1e-9)
+            {
+                break;
+            }
+
+            list.Add((i, x));
+        }
+
+        return list;
+    }
 
     /// <summary>
     /// [S-12704] Every weather graph's sizing: 220..640 wide, the plot 56..240 tall, a new card 320 by a 96 plot;

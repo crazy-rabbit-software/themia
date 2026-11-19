@@ -18,12 +18,12 @@ namespace Themia.Widget.StockHistory;
 /// <summary>[S-11165] One instrument's price over its period as a chart. SPEC.md beside this file.</summary>
 public sealed class StockHistoryModule : IWidgetModule
 {
-    /// <summary>[S-11166] The chart's band under the inset: its least, a new card's and its most.</summary>
-    public const double BandMin = 64;
+    /// <summary>[S-11166] [S-6754] The trace's own band, under and over what the chart writes: its least, a new card's and its most.</summary>
+    public const double LineMin = 44;
 
-    public const double BandStart = 96;
+    public const double LineStart = 76;
 
-    public const double BandMax = 240;
+    public const double LineMax = 220;
 
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
@@ -42,18 +42,41 @@ public sealed class StockHistoryModule : IWidgetModule
         Add = new(AddFolderId.Markets, 0, 1),
     };
 
-    /// <summary>[S-11166] The chart edge to edge under the inset: 200..480 wide, its band 64..240 tall.</summary>
-    internal static WidgetSizing Sizing()
-        => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
+    /// <summary>
+    /// [S-11166] [S-6754] The chart the card's edge to edge: 200..480 wide, as tall as what its Simple chart writes (the
+    /// ends' line, the markers' where they are on) and the trace's band, 44..220 (without markers 76..252 in all).
+    /// </summary>
+    internal static WidgetSizing Sizing(StockHistoryConfig config)
+    {
+        var (top, bottom) = Keeps(config);
+        var keeps = top + bottom;
+        return WidgetSizing.Range(new(200, keeps + LineMin), new(280, keeps + LineStart), new(480, keeps + LineMax)) with { Room = StretchRoom.Picture };
+    }
+
+    /// <summary>[S-6754] What its Simple chart keeps over the trace and under it: the markers' lines where they are on, the ends' line.</summary>
+    private static (double Top, double Bottom) Keeps(StockHistoryConfig config)
+        => ChartPlot.Keeps(Frame(config) with { Detail = ChartDetail.Simple, PadTop = config.ShowMinMax ? FamilyType.CaptionLine : 0, PadBottom = config.ShowMinMax ? FamilyType.CaptionLine : 0, Ends = new ChartEnds(string.Empty, string.Empty) });
 
     /// <summary>
     /// [S-6751] Its sizing at its detail: Detailed keeps a line over the trace and one under it as the markers do, and
-    /// the times it always has, so it grows only by what the markers do not keep already.
+    /// the times it always has, so it grows only by what its Simple chart (the markers, the ends) does not keep already.
     /// </summary>
     internal static WidgetSizing Sized(StockHistoryConfig config)
     {
-        var markers = config.ShowMinMax ? FamilyType.CaptionLine : 0;
-        return ChartPlot.Sized(Sizing(), ChartLooks.EffectiveDetail(config), markers, markers + FamilyType.CaptionLine + StockChartLabels.TimesBottom);
+        var (top, bottom) = Keeps(config);
+        return ChartPlot.Sized(Sizing(config), ChartLooks.EffectiveDetail(config), top, bottom);
+    }
+
+    /// <summary>
+    /// [S-1310] [S-1311] [S-6754] The stock chart before its data: its look, and a Caption line kept over the trace and
+    /// one under it for the high's and the low's prices where the markers are on (Simple; Detailed writes its own).
+    /// </summary>
+    internal static ChartModel Frame(StockHistoryConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var detail = ChartLooks.EffectiveDetail(config);
+        var markers = config.ShowMinMax && detail == ChartDetail.Simple ? FamilyType.CaptionLine : 0;
+        return new ChartModel { Type = ChartLooks.Effective(config), Detail = detail, PadTop = markers, PadBottom = markers };
     }
 
     /// <summary>[S-11167] Every option is on the properties menu: the instrument and its period as the price's, and the markers.</summary>

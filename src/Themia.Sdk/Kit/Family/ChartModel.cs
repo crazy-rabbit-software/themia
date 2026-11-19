@@ -17,13 +17,18 @@ public readonly record struct ChartMark(double X, double Value, string Text, boo
 /// <summary>[S-6750] A span of the plot shaded behind everything (the UV graph's daylight), DIPs from its left edge.</summary>
 public readonly record struct ChartShade(double From, double To);
 
+/// <summary>[S-6754] The window's two ends a Simple chart writes at its foot ("Now" and the window's end, a price's first and last time).</summary>
+public readonly record struct ChartEnds(string Start, string End);
+
 /// <summary>
-/// [S-6750] [S-6751] What the one chart draws: the series (and a second, tertiary), its type and detail, the value scale
-/// they are drawn against, the room its owner keeps over and under the line for what it writes (Simple), and what is
-/// drawn behind and over it: shaded spans, hairlines across (days' borders), the moment now, the figures. Detailed
-/// adds the value grid (<see cref="Format"/> writes its values), the <see cref="Times"/> along the foot, the low, the
-/// high and the latest marked, and a hairline at the latest. Built by each graph widget from its data and laid out
-/// again when its plot changes size; the geometry is <see cref="ChartPlot"/>'s and <see cref="ChartRules"/>'.
+/// [S-6750] [S-6751] [S-6754] What the one chart draws: the series (and a second, tertiary), its type and detail, the value
+/// scale they are drawn against, the room its owner keeps over and under the line for what it writes (Simple), what its
+/// owner stands over the plot's top and foot (a reading, a top line, the wind's arrows) and what is drawn behind and over
+/// it: shaded spans, hairlines across (days' borders), the moment now, the figures, the window's ends. Detailed adds the
+/// value grid (<see cref="Format"/> writes its values), the <see cref="Times"/> along the foot, the low, the high and the
+/// latest marked, and a hairline at the latest. The plot is the chart's whole box, the card edge to edge, and all of it is
+/// written inside it (<see cref="ChartPlot.Frame"/>). Built by each graph widget from its data and laid out again when its
+/// plot changes size; the geometry is <see cref="ChartPlot"/>'s and <see cref="ChartRules"/>'.
 /// </summary>
 public sealed record ChartModel
 {
@@ -53,8 +58,20 @@ public sealed record ChartModel
     /// <summary>What the owner keeps free under the line inside the plot (its figures, its times), DIPs.</summary>
     public double PadBottom { get; init; }
 
-    /// <summary>The wash closes at the scale's foot (a weather graph's zero) instead of the plot's bottom edge.</summary>
-    public bool WashToFloor { get; init; }
+    /// <summary>
+    /// [S-6754] What the owner stands over the plot's top (a reading, a top line), DIPs from the plot's top edge, its inset
+    /// and its gap to the line included: the line keeps under it, the plot still runs to the edge behind it.
+    /// </summary>
+    public double Over { get; init; }
+
+    /// <summary>
+    /// [S-6754] What the owner stands over the plot's foot, over the line of times or ends (the wind's arrows and their
+    /// gap), DIPs: the line keeps over it, the plot still runs to the foot under it.
+    /// </summary>
+    public double Under { get; init; }
+
+    /// <summary>[S-6754] The window's two ends a Simple chart writes at its foot; null writes none. Detailed writes its <see cref="Times"/> there.</summary>
+    public ChartEnds? Ends { get; init; }
 
     /// <summary>The main line's ends are round (the weather graphs').</summary>
     public bool RoundCaps { get; init; }

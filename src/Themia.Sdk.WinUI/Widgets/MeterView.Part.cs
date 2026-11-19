@@ -32,7 +32,8 @@ public sealed partial class MeterView : IWidgetContextActions
         {
             mark.HorizontalAlignment = HorizontalAlignment.Right;
             mark.VerticalAlignment = VerticalAlignment.Top;
-            mark.Margin = new Thickness(0, FamilySpace.S1, FamilySpace.Inset, 0);
+            // [S-6754] Where the view owns the card's top edge (a history), the card's inset over it is the mark's own.
+            mark.Margin = new Thickness(0, (OwnsTopEdge ? FamilySpace.Inset : 0) + FamilySpace.S1, FamilySpace.Inset, 0);
             Canvas.SetZIndex(mark, 1);
             SetRowSpan(mark, 8);
             SetColumnSpan(mark, 8);

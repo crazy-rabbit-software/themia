@@ -46,8 +46,7 @@ internal sealed partial class StockHistoryView
         }
 
         _rule.X1 = _rule.X2 = _drawn[i].X;
-        _rule.Y1 = 0;
-        _rule.Y2 = _chart.ActualHeight;
+        (_rule.Y1, _rule.Y2) = Rules();
         _rule.Visibility = Visibility.Visible;
     }
 }

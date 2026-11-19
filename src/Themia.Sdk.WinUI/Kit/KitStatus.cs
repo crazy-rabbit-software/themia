@@ -54,12 +54,16 @@ public sealed partial class KitStatus : StackPanel
     /// <summary>Over every row and column a view's grid has.</summary>
     private const int Span = 64;
 
-    /// <summary>Put the status over <paramref name="view"/>'s content: its last child, across its whole grid.</summary>
+    /// <summary>
+    /// Put the status over <paramref name="view"/>'s content: its last child, across its whole grid. [S-6754] A view that
+    /// owns the card's top edge (a graph's plot) has no inset from the card over it: the status keeps it itself.
+    /// </summary>
     public void Place(Panel view)
     {
         ArgumentNullException.ThrowIfNull(view);
         if (Parent is null)
         {
+            Margin = Margin with { Top = (view is IWidgetTopEdge { OwnsTopEdge: true } ? FamilySpace.Inset : 0) + FamilySpace.S1 };
             view.Children.Add(this);
             LeaveRoom();
         }

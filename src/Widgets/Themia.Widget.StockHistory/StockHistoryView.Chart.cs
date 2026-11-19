@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.StockHistory;
 
 namespace Themia.App.Widgets;
 
@@ -13,8 +14,8 @@ namespace Themia.App.Widgets;
 /// [S-1311] The chart and what is written on it, on the one chart ([S-6717], [S-6750]) in its look ([S-6752]): the
 /// period's line at 2 with its wash, alone, or its candles (the accent, Critical while the price falls), the bars outside the regular session as
 /// the second series in the tertiary role ([S-1308]), the optional high and low markers [S-1310], the
-/// start and end times in Caption tertiary inside its bottom band [S-1309], and the pointer readout.
-/// Edge to edge and down to the card's foot, whose rounded corners clip it, the inset over it.
+/// start and end times the chart writes at its foot [S-1309], and the pointer readout. The card's edge to edge, its top
+/// too, whose rounded corners clip it ([S-6754]).
 /// </summary>
 internal sealed partial class StockHistoryView
 {
@@ -25,9 +26,8 @@ internal sealed partial class StockHistoryView
     private readonly Border _probe = new() { Visibility = Visibility.Collapsed, Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0) };
     private readonly TextBlock _probeText = Family.Text(FamilyType.Caption);
 
-    private readonly Grid _labels = new() { IsHitTestVisible = false, VerticalAlignment = VerticalAlignment.Bottom };
-    private readonly TextBlock _startTime = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
-    private readonly TextBlock _endTime = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
+    /// <summary>[S-1309] The period's start and end times, in the exchange's zone; written by the chart at its foot.</summary>
+    private ChartEnds _ends = new(string.Empty, string.Empty);
 
     /// <summary>Where each bar was drawn, for the markers and the pointer readout.</summary>
     private readonly List<ChartPoint> _drawn = [];
@@ -42,7 +42,6 @@ internal sealed partial class StockHistoryView
         _overlay.Children.Add(_probe);
 
         _chart.Children.Add(_series);
-        _chart.Children.Add(_labels);
         _chart.Children.Add(_overlay);
 
         // The chart's own surface takes the pointer for the readout; the rest of the card is still
@@ -53,14 +52,6 @@ internal sealed partial class StockHistoryView
         _chart.PointerMoved += OnChartPointerMoved;
         _chart.PointerExited += OnChartPointerGone;
         _chart.PointerCanceled += OnChartPointerGone;
-
-        // [S-1311] The start and end times, over the wash in the chart's bottom band, at the text's
-        // inset; the trace's band keeps clear of them (StockChartLabels.Band).
-        _endTime.HorizontalAlignment = HorizontalAlignment.Right;
-        _startTime.HorizontalAlignment = HorizontalAlignment.Left;
-        _labels.Children.Add(_startTime);
-        _labels.Children.Add(_endTime);
-        _labels.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, StockChartLabels.TimesBottom);
     }
 
     /// <summary>[S-1309] [S-1311] The start and end times, only those, in the exchange's zone.</summary>
@@ -68,8 +59,7 @@ internal sealed partial class StockHistoryView
     {
         var labels = ExchangeTime.Labels(quote.Bars, quote.ExchangeOffset, _config.Range, DateTimeOffset.Now.Offset);
 
-        _startTime.Text = labels.Count > 0 ? labels[0] : string.Empty;
-        _endTime.Text = labels.Count > 0 ? labels[^1] : string.Empty;
+        _ends = new ChartEnds(labels.Count > 0 ? labels[0] : string.Empty, labels.Count > 0 ? labels[^1] : string.Empty);
 
         // The labels take no pointer (the chart's readout does), so the zone is the chart's tooltip.
         ToolTipService.SetToolTip(_chart, ExchangeTime.ZoneNote(quote.ZoneName));
@@ -84,7 +74,6 @@ internal sealed partial class StockHistoryView
     {
         var quote = _quote?.Value is { Bars.Count: >= 2 } held ? held : null;
         _series.Role(_falling ? ColourRole.Critical : ColourRole.Accent);
-        _labels.Visibility = quote is not null && ChartLooks.EffectiveDetail(_config) == ChartDetail.Simple ? Visibility.Visible : Visibility.Collapsed;
         _series.Show(size => Layout(quote, size.Width, caption));
         MarkInstant();
     }
@@ -96,17 +85,13 @@ internal sealed partial class StockHistoryView
         var type = ChartLooks.Effective(_config);
         var detail = ChartLooks.EffectiveDetail(_config);
 
-        // [S-1310] [S-1311] The trace keeps clear of what is written on the chart: the high/low prices above and
+        // [S-1310] [S-1311] [S-6754] The trace keeps clear of what is written on the chart: the high/low prices above and
         // below it, the times under that. The wash still reaches the bottom edge.
         var markers = _config.ShowMinMax && detail == ChartDetail.Simple;
-        var line = FamilyType.CaptionLine;
-        var model = new ChartModel
+        var model = StockHistoryModule.Frame(_config) with
         {
-            Type = type,
-            Detail = detail,
-            PadTop = markers ? line : 0,
-            PadBottom = (markers ? line : 0) + line + StockChartLabels.TimesBottom,
             Caption = caption,
+            Ends = detail == ChartDetail.Simple ? (quote is null ? new ChartEnds(string.Empty, string.Empty) : _ends) : null,
         };
 
         if (quote is null)
@@ -194,17 +179,25 @@ internal sealed partial class StockHistoryView
         PublishInstant(bar.Time);
 
         _rule.X1 = _rule.X2 = point.X;
-        _rule.Y1 = 0;
-        _rule.Y2 = _chart.ActualHeight;
+        (_rule.Y1, _rule.Y2) = Rules();
         _rule.Visibility = Visibility.Visible;
 
         var range = _config.Range is QuoteRange.Day or QuoteRange.FiveDays ? QuoteRange.FiveDays : QuoteRange.Year;
         _probeText.Text = $"{ExchangeTime.Label(bar.Time, quote.ExchangeOffset, range, DateTimeOffset.Now.Offset)} · {MarketQuote.Price(bar.Close, quote.PriceHint)}";
         _probe.Visibility = Visibility.Visible;
 
+        // [S-6754] Inside the plot's text box, as everything written on the chart.
         var estimate = (HeroFit.Ems(_probeText.Text) * FamilyType.Caption.FontSize) + (2 * FamilySpace.S1);
-        Canvas.SetLeft(_probe, Math.Clamp(point.X - (estimate / 2), 0, Math.Max(0, width - estimate)));
-        Canvas.SetTop(_probe, 0);
+        var frame = _series.Frame ?? ChartPlot.Frame(_series.Model, width, _chart.ActualHeight);
+        Canvas.SetLeft(_probe, ChartPlot.Across(frame, point.X, estimate));
+        Canvas.SetTop(_probe, frame.Text.Top);
+    }
+
+    /// <summary>[S-6754] Where a hairline down the plot runs: clear of the times written at its foot, as the chart's own.</summary>
+    private (double Top, double Bottom) Rules()
+    {
+        var frame = _series.Frame ?? ChartPlot.Frame(_series.Model, _chart.ActualWidth, _chart.ActualHeight);
+        return (frame.RulesTop, frame.RulesBottom);
     }
 
     private void OnChartPointerGone(object sender, PointerRoutedEventArgs args)

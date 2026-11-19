@@ -14,10 +14,13 @@ namespace Themia.App.Widgets;
 /// through the SDK's <c>SkyFeed</c> ([S-11171], redrawing every half hour so the window moves on with the clock)
 /// and hands each change here with its kind's rules (the answer at a moment to a <see cref="HourGraphModel"/>,
 /// null for nothing in the window), so every graph says its states the same way. A graph's view is this panel
-/// (it derives from it) ([S-12800]).
+/// (it derives from it) ([S-12800]). [S-6754] Its plot runs to the card's edges, the top one too: it owns it ([S-5700]).
 /// </summary>
-public partial class HourGraphPanel : Grid
+public partial class HourGraphPanel : Grid, IWidgetTopEdge
 {
+    /// <summary>[S-5700] [S-6754] The plot is drawn to the card's top edge; the top line keeps the inset over it.</summary>
+    public bool OwnsTopEdge => true;
+
     /// <summary>[S-12706] How often a graph redraws without news: the window and the now marker move on.</summary>
     public static TimeSpan Cadence { get; } = TimeSpan.FromMinutes(30);
 

@@ -9,14 +9,17 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-6717] [S-6750] [S-6751] [S-6753] The one chart every graph widget draws through (owner, 2026-11-19: "they should
-/// reuse more of the same components"): the histories, the weather graphs, a price's period, a rate's days. It draws a
-/// <see cref="ChartModel"/> in its box: behind, the shaded spans, the days' hairlines and (Detailed) the value grid with
-/// its values; then the series as its type says (the line at 2 with its 16 % wash, the line alone, round columns from
-/// the foot, or candles rising in the accent and falling Critical), each piece in its role, the second series tertiary;
-/// over it the moment now, the figures, and (Detailed) the times along the foot, the low and the high with their dots and
-/// the latest value's hairline and pill. A series with nothing to draw is drawn at its baseline, the frame and all, with
-/// its caption: never no chart ([S-6753]). Geometry is <see cref="ChartPlot"/>'s and <see cref="ChartRules"/>'; the
+/// [S-6717] [S-6750] [S-6751] [S-6753] [S-6754] The one chart every graph widget draws through (owner, 2026-11-19: "they
+/// should reuse more of the same components"): the histories, the weather graphs, a price's period, a rate's days, the
+/// rain's next two hours. Its box is the plot, the card's edge to edge (owner, 2026-11-19: "Plot edge to edge"): behind,
+/// the shaded spans, the days' hairlines and (Detailed) the value grid; then the series as its type says (the line at 2
+/// with its 16 % wash down to the foot, the line alone, round columns, or candles rising in the accent and falling
+/// Critical), each piece in its role, the second series tertiary; over it the moment now, the figures, and what it writes
+/// inside the plot at the family's inset (<see cref="ChartPlot.Frame"/>): the values on the grid, the times (Detailed) or
+/// the window's ends (Simple) along the foot, the low and the high with their dots and the latest value's hairline and
+/// pill, and a caption. Its owner's parts over the plot (a reading, a top line, the wind's arrows) stand in the room the
+/// model names, the line kept clear of them. A series with nothing to draw is drawn at its baseline, the frame and all,
+/// with its caption: never no chart ([S-6753]). Geometry is <see cref="ChartPlot"/>'s and <see cref="ChartRules"/>'; the
 /// chart redraws when its box or its model changes. Time runs left to right in every language: its owner says so.
 /// </summary>
 public sealed partial class Chart : Grid
@@ -28,6 +31,8 @@ public sealed partial class Chart : Grid
 
     // What is drawn in the chart's role (a sample with no role of its own): recoloured in place when the role changes.
     private readonly List<(Shape? Shape, Border? Bar, bool Fill)> _roled = [];
+    // [S-6754] What it writes this draw, each with its box and its rank (the lower first): kept where it touches none kept before.
+    private readonly List<(UIElement Element, Rect Box, int Rank)> _written = [];
     private ChartModel _model = ChartModel.Empty;
     private Func<Size, ChartModel>? _layout;
     private ColourRole _role = ColourRole.Accent;
@@ -41,6 +46,12 @@ public sealed partial class Chart : Grid
 
     /// <summary>What it draws now.</summary>
     public ChartModel Model => _model;
+
+    /// <summary>[S-6754] Where it laid its parts the last time it drew (null before it had a box).</summary>
+    public ChartFrame? Frame { get; private set; }
+
+    /// <summary>[S-6754] It drew in a new frame: an owner's parts over the plot (the wind's arrows, a marker) follow it.</summary>
+    public event Action<ChartFrame>? Drawn;
 
     /// <summary>Draw <paramref name="model"/>; it is drawn again whenever the chart's box changes.</summary>
     public void Show(ChartModel model)
@@ -84,10 +95,14 @@ public sealed partial class Chart : Grid
         }
     }
 
+    /// <summary>[S-6754] Which written label gives way to which where two would touch: the lower rank stays.</summary>
+    private const int CaptionRank = 0, LatestRank = 1, FigureRank = 2, ExtremeRank = 3, TimeRank = 4, ValueRank = 5;
+
     private void Draw()
     {
         _canvas.Children.Clear();
         _roled.Clear();
+        _written.Clear();
         var (w, h) = (ActualWidth, ActualHeight);
         if (!(w > 0) || !(h > 0))
         {
@@ -106,7 +121,10 @@ public sealed partial class Chart : Grid
             model = model with { Low = Math.Min(model.Low, candles.Min(c => c.Low)), High = Math.Max(model.High, candles.Max(c => c.High)) };
         }
 
-        var plot = new Plot(model, w, h);
+        // [S-6754] The plot is the whole box; what is written stands inside it, the line clear of it.
+        var frame = ChartPlot.Frame(model, w, h);
+        var plot = new Plot(model, frame);
+
         // [S-6753] A chart with nothing to draw stands at its baseline; a curve its owner laid out is drawn as given.
         var samples = model.Laid ? model.Series : ChartPlot.Drawn(model, w);
         var empty = !ChartPlot.HasLine(model.Series) && candles.Count == 0;
@@ -123,12 +141,12 @@ public sealed partial class Chart : Grid
 
         foreach (var x in model.Rules)
         {
-            Down(x, h, ColourRole.Track);
+            Down(x, frame, ColourRole.Track);
         }
 
         if (plot.Detailed)
         {
-            Grid(model, plot, w, labels: false);
+            Grid(model, plot, frame, labels: false);
         }
 
         if (model.Type == ChartType.Bars && !model.Laid)
@@ -147,51 +165,64 @@ public sealed partial class Chart : Grid
 
         if (model.Now is { } now && now >= 0 && now <= w)
         {
-            Now(model, samples, plot, now, h);
+            Now(model, samples, plot, frame, now);
         }
 
         if (plot.Detailed)
         {
-            Grid(model, plot, w, labels: true);
+            Grid(model, plot, frame, labels: true);
         }
 
-        Marks(model, plot, w, h);
+        Marks(model, plot, frame, w);
         if (plot.Detailed && !empty && !model.Laid)
         {
-            Extremes(model, samples, candles, plot, w, h);
+            Extremes(model, samples, candles, plot, frame, w);
         }
 
         if (plot.Detailed)
         {
-            Times(model.Times, w, h);
+            Times(model.Times, frame);
+        }
+        else if (model.Ends is { } ends)
+        {
+            Ends(ends, frame);
         }
 
         if (model.Caption.Length > 0)
         {
-            Add(Family.Text(FamilyType.Caption, ColourRole.TextSecondary, model.Caption), FamilySpace.S1, 0);
+            var caption = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, model.Caption);
+            caption.MaxWidth = frame.Text.Width;
+            caption.TextTrimming = TextTrimming.CharacterEllipsis;
+            caption.TextWrapping = TextWrapping.NoWrap;
+            Written(caption, frame.Text.Left, frame.CaptionTop, CaptionRank);
         }
+
+        Settle();
+        Frame = frame;
+        Drawn?.Invoke(frame);
     }
 
-    /// <summary>The value scale in this box: the owner's room over and under the line, a Detailed chart's room, and where a value stands.</summary>
+    /// <summary>The value scale in the frame's band: where a value stands on the line and as a column's top.</summary>
     private readonly struct Plot
     {
         private readonly ChartModel _model;
 
-        public Plot(ChartModel model, double w, double h)
+        public Plot(ChartModel model, ChartFrame frame)
         {
             _model = model;
             Detailed = model.Detail == ChartDetail.Detailed;
-            var (top, bottom) = ChartPlot.Room(model.Detail, times: true);
-            Top = Math.Max(model.PadTop, top);
-            Band = Math.Max(1, h - Top - Math.Max(model.PadBottom, bottom));
+            Top = frame.LineTop;
+            Band = frame.Band;
+            Width = frame.Plot.Width;
 
-            // Columns stand on the plot's foot (over the times when Detailed) and rise into what is left under the top room.
-            Foot = h - (Detailed ? FamilySpace.S1 + FamilyType.CaptionLine : 0);
+            // Columns stand on the band's foot (over what is written at the plot's foot) and rise to its top.
+            Foot = frame.LineBottom;
             Room = Math.Max(0, Foot - Top);
-            Width = w;
         }
 
         public bool Detailed { get; }
+
+        public double Width { get; }
 
         public double Top { get; }
 
@@ -200,8 +231,6 @@ public sealed partial class Chart : Grid
         public double Foot { get; }
 
         public double Room { get; }
-
-        public double Width { get; }
 
         /// <summary>A value's height on the line.</summary>
         public double Y(double value) => _model.Laid ? value : Top + ChartRules.Y(_model.Fraction(value), Band);
@@ -214,16 +243,19 @@ public sealed partial class Chart : Grid
     }
 
     /// <summary>
-    /// [S-6751] The value grid: a Track hairline at each nice step behind the series, and (<paramref name="labels"/>,
-    /// drawn over the series so a column never hides it) its value over it at the left.
+    /// [S-6751] [S-6754] The value grid: a Track hairline at each nice step across the whole plot behind the series, and
+    /// (<paramref name="labels"/>, drawn over the series so a column never hides it) its value over it at the text's inset,
+    /// on the Solid pill: the series runs under the values at the plot's left side, and a line or a column through a value
+    /// would be read as part of it.
     /// </summary>
-    private void Grid(ChartModel model, Plot plot, double w, bool labels)
+    private void Grid(ChartModel model, Plot plot, ChartFrame frame, bool labels)
     {
         if (model.Laid)
         {
             return;
         }
 
+        var w = frame.Plot.Width;
         var line = FamilyType.CaptionLine;
         foreach (var tick in ChartPlot.Ticks(model.Low, model.High, ChartPlot.ValueRoom(model.Type == ChartType.Bars ? plot.Room : plot.Band), model.TickUnit))
         {
@@ -238,7 +270,7 @@ public sealed partial class Chart : Grid
             // with a caption (nothing to draw) writes no values: they would say a scale of nothing, under its words.
             if (model.Format is { } format && tick > model.Low && model.Caption.Length == 0)
             {
-                Add(Family.Text(FamilyType.Caption, ColourRole.TextTertiary, format(tick)), FamilySpace.S1, y - line < 0 ? y : y - line);
+                Write(format(tick), ColourRole.TextTertiary, frame.Text.Left, ChartPlot.Within(frame, y - line, line), scrim: true, ValueRank);
             }
         }
     }
@@ -246,8 +278,9 @@ public sealed partial class Chart : Grid
     /// <summary>The line and its wash: each run of samples as stretches of one role; washes, then the second series, then the lines.</summary>
     private void Lines(ChartModel model, IReadOnlyList<ChartSample> samples, Plot plot, double h)
     {
-        var foot = model.WashToFloor ? plot.Y(model.Low) : h;
+        // [S-6754] The wash runs down to the plot's foot, the card's: the fill reaches the edge under what is written there.
         var type = model.Type == ChartType.Line ? ChartType.Line : ChartType.Area;
+        samples = model.Laid ? samples : ChartPlot.ToEdges(samples, plot.Width);
         var washes = new List<(Path, ColourRole?)>();
         var lines = new List<(Path, ColourRole?)>();
         var dots = new List<(Point, ColourRole?)>();
@@ -279,7 +312,7 @@ public sealed partial class Chart : Grid
                     points.Add(new ChartPoint(samples[i].X, plot.Y(samples[i].Value)));
                 }
 
-                var outline = ChartPlot.Outline(points, type, foot);
+                var outline = ChartPlot.Outline(points, type, h);
                 if (outline.Area.Count > 0)
                 {
                     washes.Add((new Path { Data = Figure(outline.Area, closed: true), Opacity = FamilyShape.Wash }, role));
@@ -321,7 +354,8 @@ public sealed partial class Chart : Grid
     /// <summary>The second series: tertiary, each run on the same scale.</summary>
     private void Second(ChartModel model, Plot plot)
     {
-        foreach (var (first, last) in ChartPlot.Runs(model.Second))
+        var second = model.Laid ? model.Second : ChartPlot.ToEdges(model.Second, plot.Width);
+        foreach (var (first, last) in ChartPlot.Runs(second))
         {
             if (last == first)
             {
@@ -331,7 +365,7 @@ public sealed partial class Chart : Grid
             var points = new List<ChartPoint>(last - first + 1);
             for (var i = first; i <= last; i++)
             {
-                points.Add(new ChartPoint(model.Second[i].X, plot.Y(model.Second[i].Value)));
+                points.Add(new ChartPoint(second[i].X, plot.Y(second[i].Value)));
             }
 
             Add(new Path { Data = Figure(points, closed: false), Stroke = Family.Brush(ColourRole.TextTertiary), StrokeThickness = FamilyShape.Stroke, StrokeLineJoin = PenLineJoin.Round }, 0, 0);
@@ -339,8 +373,8 @@ public sealed partial class Chart : Grid
     }
 
     /// <summary>
-    /// [S-6750] [S-6753] A round column per sample over nothing, filled from the foot in its role; with no column to draw
-    /// (nothing yet, or every value nothing: a dry day), the foot's hairline, so the chart still stands.
+    /// [S-6750] [S-6753] A round column per sample over nothing, filled from the band's foot in its role; with no column to
+    /// draw (nothing yet, or every value nothing: a dry day), the foot's hairline across the plot, so the chart still stands.
     /// </summary>
     private void Bars(IReadOnlyList<ChartSample> samples, Plot plot, double w)
     {
@@ -388,9 +422,9 @@ public sealed partial class Chart : Grid
     }
 
     /// <summary>The moment now: a secondary hairline down the plot and, on a line, a dot where the line is between its two samples.</summary>
-    private void Now(ChartModel model, IReadOnlyList<ChartSample> samples, Plot plot, double x, double h)
+    private void Now(ChartModel model, IReadOnlyList<ChartSample> samples, Plot plot, ChartFrame frame, double x)
     {
-        Down(x, h, ColourRole.TextSecondary);
+        Down(x, frame, ColourRole.TextSecondary);
         if (model.Type is ChartType.Bars or ChartType.Candles || samples.Count == 0)
         {
             return;
@@ -415,8 +449,8 @@ public sealed partial class Chart : Grid
         Dot(new Point(x, plot.Y(a + ((b - a) * t))), samples[i].Role, FamilyShape.Track * 2);
     }
 
-    /// <summary>The figures at their points: over or under the point (over a column), kept inside the plot; a dot where asked.</summary>
-    private void Marks(ChartModel model, Plot plot, double w, double h)
+    /// <summary>The figures at their points: over or under the point (over a column), kept inside the text box; a dot where asked.</summary>
+    private void Marks(ChartModel model, Plot plot, ChartFrame frame, double w)
     {
         var bars = model.Type == ChartType.Bars && !model.Laid;
         var width = ChartPlot.BarWidth(w / Math.Max(1, model.Series.Count));
@@ -433,31 +467,26 @@ public sealed partial class Chart : Grid
             }
 
             var y = bars ? plot.Foot - Math.Max(Math.Min(width, FamilyShape.Track), model.Fraction(mark.Value) * plot.Room) : plot.Y(mark.Value);
-            Figure(mark.Text, mark.TextRole, mark.X, y, mark.Under, w, h, bars);
+            Figure(mark.Text, mark.TextRole, mark.X, y, mark.Under, frame, bars);
         }
     }
 
-    /// <summary>A figure centred on <paramref name="x"/>, over <paramref name="y"/> or under it, kept inside the plot; its box.</summary>
-    private Rect Figure(string text, ColourRole role, double x, double y, bool under, double w, double h, bool onColumn)
+    /// <summary>A figure centred on <paramref name="x"/>, over <paramref name="y"/> or under it, kept inside the text box.</summary>
+    private void Figure(string text, ColourRole role, double x, double y, bool under, ChartFrame frame, bool onColumn)
     {
         var line = FamilyType.CaptionLine;
         var block = Family.Text(FamilyType.Caption, role, text);
         block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var width = block.DesiredSize.Width;
-
-        // A figure keeps a step off the plot's sides, as text does at a card's edge.
-        var left = Math.Clamp(x - (width / 2), FamilySpace.S1, Math.Max(FamilySpace.S1, w - width - FamilySpace.S1));
-        var top = onColumn ? y - line : y + (under ? FamilyShape.Stroke : -FamilyShape.Stroke - line);
-        top = Math.Clamp(top, 0, Math.Max(0, h - line));
-        Add(block, left, top);
-        return new Rect(left, top, width, line);
+        var left = ChartPlot.Across(frame, x, block.DesiredSize.Width);
+        var top = ChartPlot.Within(frame, onColumn ? y - line : y + (under ? FamilyShape.Stroke : -FamilyShape.Stroke - line), line);
+        Written(block, left, top, FigureRank);
     }
 
     /// <summary>
-    /// [S-6751] Detailed: the latest value's hairline across the plot and its pill at the right edge, then the high over
-    /// its point and the low under its point, each with its dot, where they leave the pill clear.
+    /// [S-6751] Detailed: the latest value's hairline across the plot and its pill at the text's right edge, then the high
+    /// over its point and the low under its point, each with its dot (their figures where they leave the pill clear).
     /// </summary>
-    private void Extremes(ChartModel model, IReadOnlyList<ChartSample> samples, IReadOnlyList<Candle> candles, Plot plot, double w, double h)
+    private void Extremes(ChartModel model, IReadOnlyList<ChartSample> samples, IReadOnlyList<Candle> candles, Plot plot, ChartFrame frame, double w)
     {
         var format = model.Format ?? (v => Themia.Core.Localization.LocaleFormat.Number(Themia.Core.Localization.Strings.Current, v, 2));
         // The newest value: the last candle's close, or the last sample of the series, or of the second where it runs on
@@ -467,23 +496,14 @@ public sealed partial class Chart : Grid
         double? latest = candles.Count > 0 ? candles[^1].Close
             : after.Count > 0 && (finite.Count == 0 || after[^1].X > finite[^1].X) ? after[^1].Value
             : finite.Count > 0 ? finite[^1].Value : null;
-        var pill = Rect.Empty;
+        var line = FamilyType.CaptionLine;
         if (latest is { } now)
         {
             var y = plot.At(now);
             Add(new Rectangle { Width = w, Height = FamilyShape.Hairline, Fill = Family.Brush(ColourRole.TextTertiary) }, 0, y - (FamilyShape.Hairline / 2));
-            var text = Family.Text(FamilyType.Caption, ColourRole.TextPrimary, format(now));
-            var box = new Border
-            {
-                Child = text,
-                Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
-                CornerRadius = Family.Radius,
-                Background = Family.Brush(ColourRole.Solid),
-            };
+            var box = Pill(Family.Text(FamilyType.Caption, ColourRole.TextPrimary, format(now)));
             box.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            var line = FamilyType.CaptionLine;
-            pill = new Rect(Math.Max(0, w - box.DesiredSize.Width), Math.Clamp(y - (line / 2), 0, Math.Max(0, h - line)), box.DesiredSize.Width, line);
-            Add(box, pill.X, pill.Y);
+            Written(box, Math.Max(frame.Text.Left, frame.Text.Right - box.DesiredSize.Width), ChartPlot.Within(frame, y - (line / 2), line), LatestRank);
         }
 
         if (model.Marks.Count > 0)
@@ -537,24 +557,15 @@ public sealed partial class Chart : Grid
                 Dot(new Point(at.X, y), null, MarkerDot);
             }
 
-            var line = FamilyType.CaptionLine;
-            var text = format(at.Value);
-            var block = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, text);
+            var block = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, format(at.Value));
             block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            var width = block.DesiredSize.Width;
-            var left = Math.Clamp(at.X - (width / 2), FamilySpace.S1, Math.Max(FamilySpace.S1, w - width - FamilySpace.S1));
-            var labelTop = Math.Clamp(y + (under ? FamilyShape.Stroke : -FamilyShape.Stroke - line), 0, Math.Max(0, h - line));
-            var box = new Rect(left, labelTop, width, line);
-            box.Intersect(pill);
-            if (box.IsEmpty)
-            {
-                Add(block, left, labelTop);
-            }
+            var left = ChartPlot.Across(frame, at.X, block.DesiredSize.Width);
+            Written(block, left, ChartPlot.Within(frame, y + (under ? FamilyShape.Stroke : -FamilyShape.Stroke - line), line), ExtremeRank);
         }
     }
 
-    /// <summary>[S-6751] The times along the foot, each centred on its place and kept inside; one that would touch the last is left out.</summary>
-    private void Times(IReadOnlyList<ChartTick> times, double w, double h)
+    /// <summary>[S-6751] The times along the foot, each centred on its place and kept inside the text box; one that would touch the last is left out.</summary>
+    private void Times(IReadOnlyList<ChartTick> times, ChartFrame frame)
     {
         var right = double.NegativeInfinity;
         foreach (var tick in times)
@@ -562,19 +573,95 @@ public sealed partial class Chart : Grid
             var block = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, tick.Text);
             block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             var width = block.DesiredSize.Width;
-            var left = Math.Clamp(tick.At - (width / 2), FamilySpace.S1, Math.Max(FamilySpace.S1, w - width - FamilySpace.S1));
+            var left = ChartPlot.Across(frame, tick.At, width);
             if (left < right + FamilySpace.S2)
             {
                 continue;
             }
 
             right = left + width;
-            Add(block, left, h - FamilyType.CaptionLine);
+            Written(block, left, frame.FootLine, TimeRank);
         }
     }
 
-    private void Down(double x, double h, ColourRole role)
-        => Add(new Rectangle { Width = FamilyShape.Hairline, Height = h, Fill = Family.Brush(role) }, x - (FamilyShape.Hairline / 2), 0);
+    /// <summary>[S-6754] Simple: the window's two ends along the foot, at the text's left and right edges; the end left out where it would touch the start.</summary>
+    private void Ends(ChartEnds ends, ChartFrame frame)
+    {
+        var start = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, ends.Start);
+        start.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var end = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, ends.End);
+        end.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        if (ends.Start.Length > 0)
+        {
+            Written(start, frame.Text.Left, frame.FootLine, TimeRank);
+        }
+
+        var endLeft = frame.Text.Right - end.DesiredSize.Width;
+        if (ends.End.Length > 0 && (ends.Start.Length == 0 || endLeft >= frame.Text.Left + start.DesiredSize.Width + FamilySpace.S2))
+        {
+            Written(end, endLeft, frame.FootLine, TimeRank);
+        }
+    }
+
+    /// <summary>A Caption pill: the text on the Solid scrim, 4 either side, the family's radius.</summary>
+    private static Border Pill(TextBlock text)
+        => new()
+        {
+            Child = text,
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+            CornerRadius = Family.Radius,
+            Background = Family.Brush(ColourRole.Solid),
+        };
+
+    /// <summary>[S-6754] Text written over the plot at (<paramref name="left"/>, <paramref name="top"/>); on a scrim (its pill round it, the text where it would be) when asked.</summary>
+    private void Write(string text, ColourRole role, double left, double top, bool scrim, int rank)
+    {
+        var block = Family.Text(FamilyType.Caption, role, text);
+        if (scrim)
+        {
+            Written(Pill(block), left - FamilySpace.S1, top, rank);
+        }
+        else
+        {
+            Written(block, left, top, rank);
+        }
+    }
+
+    /// <summary>[S-6754] A label to write at (<paramref name="left"/>, <paramref name="top"/>), settled with the others at the end of the draw.</summary>
+    private void Written(FrameworkElement element, double left, double top, int rank)
+    {
+        element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        _written.Add((element, new Rect(left, top, element.DesiredSize.Width, element.DesiredSize.Height), rank));
+    }
+
+    /// <summary>
+    /// [S-6754] Write the labels: by rank (the caption, the latest value's pill, the owner's figures, the high and the low,
+    /// the times, the values on the grid), each where it touches none written before it; one that would is left out, so
+    /// no two labels ever stand on each other.
+    /// </summary>
+    private void Settle()
+    {
+        var kept = new List<Rect>(_written.Count);
+        foreach (var (element, box, _) in _written.OrderBy(w => w.Rank))
+        {
+            if (kept.Any(k => Overlaps(k, box)))
+            {
+                continue;
+            }
+
+            kept.Add(box);
+            Add(element, box.X, box.Y);
+        }
+    }
+
+    /// <summary>Whether two labels' boxes share more than a hairline.</summary>
+    private static bool Overlaps(Rect a, Rect b)
+        => Math.Min(a.X + a.Width, b.X + b.Width) - Math.Max(a.X, b.X) > FamilyShape.Hairline
+            && Math.Min(a.Y + a.Height, b.Y + b.Height) - Math.Max(a.Y, b.Y) > FamilyShape.Hairline;
+
+    /// <summary>A hairline down the plot in <paramref name="role"/>, between the owner's parts at its top and what is written at its foot.</summary>
+    private void Down(double x, ChartFrame frame, ColourRole role)
+        => Add(new Rectangle { Width = FamilyShape.Hairline, Height = Math.Max(0, frame.RulesBottom - frame.RulesTop), Fill = Family.Brush(role) }, x - (FamilyShape.Hairline / 2), frame.RulesTop);
 
     private void Dot(Point at, ColourRole? role, double size)
     {

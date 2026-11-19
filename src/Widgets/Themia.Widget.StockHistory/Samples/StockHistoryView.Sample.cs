@@ -5,7 +5,11 @@ using Themia.Widget.StockHistory;
 
 namespace Themia.App.Widgets;
 
-/// <summary>[S-11850] [S-1917] The chart's sample: the SDK's sample quote (<see cref="SampleQuote"/>), the price atom's, rising, its high and low marked.</summary>
+/// <summary>
+/// [S-11850] [S-1917] The chart's sample: the SDK's sample quote (<see cref="SampleQuote"/>), the price atom's, rising, in
+/// the card's own look (its high and low marked where its config marks them: the markers make the card taller, [S-11166],
+/// so a sample never turns them on in a card sized without them).
+/// </summary>
 internal sealed partial class StockHistoryView : IWidgetSample
 {
     public Task ShowSampleAsync()
@@ -19,7 +23,6 @@ internal sealed partial class StockHistoryView : IWidgetSample
     {
         var sample = (StockHistoryConfig)_config.Clone();
         sample.Symbol = "MSFT";
-        sample.ShowMinMax = true;
         _config = sample;
         return SampleQuote.Quote(rising);
     }

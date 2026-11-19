@@ -13,15 +13,15 @@ and `StockHistoryView.Chart.cs` (moved from the old card), `StockChartLabels.cs`
 quote|falling|stale`: the SDK's `SampleQuote`, the price's), `Localization/Locales/` (its own
 `StockHistoryStr`: the markers' words moved here with their translations). Tests: `Tests/StockHistoryTests.cs`.
 
-- **[S-11165]** **What it shows**: the period's bars as the Chart block's series ([S-6717]), edge to edge
-  and down to the card's foot (whose rounded corners clip it) under the inset: the line at 2 with its
+- **[S-11165]** **What it shows**: the period's bars as the Chart block's series ([S-6717]), the card's
+  edge to edge, its top edge too (whose rounded corners clip it; [S-6754]): the line at 2 with its
   wash, the accent while the price rose or held, Critical while it fell ([S-6706]); the bars outside the
   regular session as the second series in the tertiary role ([S-1308]); the start and end times
-  (Caption tertiary) inside its bottom band at every size, the trace kept clear of them
-  (`StockChartLabels.Band`); the period's high and low marked where **High and low** is on ([S-1310]: a
-  dot in the line's role and the price, Caption tertiary, kept inside the chart's width,
-  `StockChartLabels.Place`). The pointer over the chart reads the bar under it (time · price, Caption on
-  the solid pill). Nothing else at any size; no price axis. A chart that sits under its reading (a
+  (Caption tertiary, the chart's ends) at the inset off the foot at every size, the trace kept clear of them
+  (`ChartPlot.Frame`); the period's high and low marked where **High and low** is on ([S-1310]: a
+  dot in the line's role and the price, Caption tertiary, kept inside the chart's text box,
+  `ChartPlot.Across`). The pointer over the chart reads the bar under it (time · price, Caption on
+  the solid pill at the text box's top). Nothing else at any size; no price axis. A chart that sits under its reading (a
   Header widget over the group names the instrument, [S-12481]); the status's problem glyph stands over
   its top end ([S-7042]). No
   quote, or fewer than two bars: the chart at its baseline with the state's sentence as its caption ([S-6753]).
@@ -29,8 +29,10 @@ quote|falling|stale`: the SDK's `SampleQuote`, the price's), `Localization/Local
   and low; a coin's bucketed from its prices) and Detail Simple or Detailed ([S-6751]: the grid and its prices, a few
   times in place of the start and end, the high and the low marked whatever High and low says, the latest price's
   hairline and pill).
-- **[S-11166]** **Sizes**: 200..480 wide (a new one 280), the chart's band 64..240 tall (a
-  new one 96) under the 12 inset: the chart only gets longer or taller.
+- **[S-11166]** **Sizes**: 200..480 wide (a new one 280), as tall as what the chart writes (the ends' line at the
+  inset; the markers' lines where they are on, Detailed's room) and the trace's band 44..220 (a new one 76): without
+  the markers 76..252 (a new one 108); the markers or Detailed 44 taller (`StockHistoryModule.Sizing`, `Sized`): the
+  chart only gets longer or taller, the trace never shorter.
 - **[S-11167]** Its options are all on the properties menu ([S-3719]): **Symbol** (the line Set up
   opens), behind a divider **Timeframe**, **Extended hours** (where they exist) and **High and low** (the
   SDK's `StockQuoteLines`, the price's); the update interval is ⚙'s, followed, no link row ([S-3749]).

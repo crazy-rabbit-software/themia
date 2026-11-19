@@ -55,6 +55,33 @@ public readonly record struct Candle(double Open, double High, double Low, doubl
 /// <summary>[S-6750] Where a candle is drawn: its body (the open to the close) and its wick (the low to the high).</summary>
 public readonly record struct CandleShape(double BodyLeft, double BodyTop, double BodyWidth, double BodyHeight, double WickX, double WickTop, double WickBottom, bool Rises);
 
+/// <summary>[S-6754] A box in a chart's plot, DIPs from the plot's top-left corner.</summary>
+public readonly record struct ChartBox(double Left, double Top, double Width, double Height)
+{
+    public double Right => Left + Width;
+
+    public double Bottom => Top + Height;
+
+    /// <summary>Whether <paramref name="other"/> stands wholly inside this box.</summary>
+    public bool Holds(ChartBox other)
+        => other.Left >= Left - 1e-9 && other.Top >= Top - 1e-9 && other.Right <= Right + 1e-9 && other.Bottom <= Bottom + 1e-9;
+}
+
+/// <summary>
+/// [S-6754] Where the one chart lays its parts (<see cref="ChartPlot.Frame"/>): the <paramref name="Plot"/>, its whole box
+/// edge to edge; the <paramref name="Text"/> box everything written stands in (the plot less the family's inset); the
+/// series' band from <paramref name="LineTop"/> to <paramref name="LineBottom"/> (columns stand on its foot); the top of the
+/// foot's line of times or ends (<paramref name="FootLine"/>) and of the owner's parts over it (<paramref name="UnderTop"/>);
+/// where a caption and the figures may start, under the owner's parts (<paramref name="CaptionTop"/>); and the span the
+/// hairlines down the plot run (the moment now, the days' borders): from under the owner's parts at the top
+/// (<paramref name="RulesTop"/>) to over what is written at the foot (<paramref name="RulesBottom"/>).
+/// </summary>
+public sealed record ChartFrame(ChartBox Plot, ChartBox Text, double LineTop, double LineBottom, double FootLine, double UnderTop, double CaptionTop, double RulesTop, double RulesBottom)
+{
+    /// <summary>The series' band's height, at least one DIP.</summary>
+    public double Band => Math.Max(1, LineBottom - LineTop);
+}
+
 /// <summary>[S-6750] A series as it is stroked and, for an area, the outline its wash fills (empty for a line).</summary>
 public sealed record ChartOutline(IReadOnlyList<ChartPoint> Line, IReadOnlyList<ChartPoint> Area)
 {
@@ -144,6 +171,43 @@ public static class ChartPlot
     {
         ArgumentNullException.ThrowIfNull(model);
         return HasLine(model.Series) ? model.Series : [new ChartSample(0, model.Baseline), new ChartSample(Math.Max(0, width), model.Baseline)];
+    }
+
+    /// <summary>
+    /// [S-6754] A line's samples reaching the plot's sides (owner, 2026-11-19: "Plot edge to edge"): a sample stands for
+    /// its cell, so where the side is within half a cell of the first sample (half the spacing to the next) the first
+    /// value is held out to the left edge, and the last to the right edge (<paramref name="width"/>) likewise. A series
+    /// still growing in from one side (a history filling) stays where its samples are; a gap at a side stays a gap.
+    /// </summary>
+    public static IReadOnlyList<ChartSample> ToEdges(IReadOnlyList<ChartSample> samples, double width)
+    {
+        ArgumentNullException.ThrowIfNull(samples);
+        if (samples.Count < 2)
+        {
+            return samples;
+        }
+
+        var (first, last) = (samples[0], samples[^1]);
+        var left = first.X > 0 && double.IsFinite(first.Value) && first.X <= ((samples[1].X - first.X) / 2) + 1e-6;
+        var right = last.X < width && double.IsFinite(last.Value) && width - last.X <= ((last.X - samples[^2].X) / 2) + 1e-6;
+        if (!left && !right)
+        {
+            return samples;
+        }
+
+        var list = new List<ChartSample>(samples.Count + 2);
+        if (left)
+        {
+            list.Add(first with { X = 0 });
+        }
+
+        list.AddRange(samples);
+        if (right)
+        {
+            list.Add(last with { X = width });
+        }
+
+        return list;
     }
 
     /// <summary>[S-6753] Whether a series has a line: a run of two finite samples or more.</summary>
@@ -355,24 +419,99 @@ public static class ChartPlot
         => end > start ? (at - start) / (end - start) : 0;
 
     /// <summary>
-    /// [S-6751] What a Detailed chart keeps free inside its plot: a Caption line over the highest point (the high's
-    /// figure) and under the lowest (the low's), and the times' line at the foot (4 over a Caption line) where it has
-    /// times. A Simple chart keeps nothing.
+    /// [S-6751] [S-6754] What a chart of <paramref name="detail"/> with nothing of its owner's keeps free over its line and
+    /// under it inside its plot: Detailed, a Caption line over the highest point (the high's figure) and under the lowest
+    /// (the low's), the times' line at the foot 4 under that, all of it the family's inset off the edges; a Simple chart
+    /// keeps nothing: its line runs edge to edge.
     /// </summary>
-    public static (double Top, double Bottom) Room(ChartDetail detail, bool times)
-        => detail == ChartDetail.Detailed
-            ? (FamilyType.CaptionLine, FamilyType.CaptionLine + (times ? FamilySpace.S1 + FamilyType.CaptionLine : 0))
-            : (0, 0);
+    public static (double Top, double Bottom) Room(ChartDetail detail) => Keeps(new ChartModel { Detail = detail });
+
+    /// <summary>[S-6754] What <paramref name="model"/>'s frame keeps free over its line and under it, whatever its box's height.</summary>
+    public static (double Top, double Bottom) Keeps(ChartModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        const double tall = 10_000;
+        var frame = Frame(model, tall, tall);
+        return (frame.LineTop, tall - frame.LineBottom);
+    }
+
+    /// <summary>[S-6754] Text written on a chart keeps the family's inset off its edges, as text does on every card.</summary>
+    public const double TextInset = FamilySpace.Inset;
 
     /// <summary>
-    /// [S-6751] A kind's sizing for its detail: Detailed is taller on every bound by what its <see cref="Room"/> (with
-    /// times) needs past what the kind already keeps free over its line (<paramref name="ownTop"/>) and under it
-    /// (<paramref name="ownBottom"/>, its own time line included), so the chart's line keeps its height.
+    /// [S-6754] Where the one chart lays its parts in a box <paramref name="width"/> by <paramref name="height"/> (owner,
+    /// 2026-11-19: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand inside it, over the
+    /// plot). The plot is the whole box, the card's from edge to edge and from its top to its foot: what is written stands
+    /// in it, the family's inset off every edge, and never pushes it inward. The series' band keeps clear of what is
+    /// written at the plot's top and foot: the owner's parts over the top (<see cref="ChartModel.Over"/>) and a Caption
+    /// line for the figures over the highest point (<see cref="ChartModel.PadTop"/>, Detailed's high); at the foot, the
+    /// line of times (Detailed) or ends (Simple, <see cref="ChartModel.Ends"/>) at the inset, the owner's parts over it
+    /// (<see cref="ChartModel.Under"/>), 4, and a Caption line for the figures under the lowest point. With nothing
+    /// written at an edge the band reaches it. Columns stand on the band's foot, so no column hides under a time.
+    /// </summary>
+    public static ChartFrame Frame(ChartModel model, double width, double height)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        var (w, h) = (Math.Max(0, width), Math.Max(0, height));
+        var detailed = model.Detail == ChartDetail.Detailed;
+        var line = FamilyType.CaptionLine;
+        var text = new ChartBox(TextInset, TextInset, Math.Max(0, w - (2 * TextInset)), Math.Max(0, h - (2 * TextInset)));
+
+        // Over the line: the owner's parts (their inset theirs), then the figures' line; alone, the figures keep the inset.
+        var over = Math.Max(0, model.Over);
+        var figuresOver = Math.Max(Math.Max(0, model.PadTop), detailed ? line : 0);
+        var top = over > 0 ? over + figuresOver : figuresOver > 0 ? TextInset + figuresOver : 0;
+
+        // Under it: the line of times or ends at the inset, the owner's parts over that, 4, the figures' line.
+        var writesFoot = detailed || model.Ends is not null;
+        var under = Math.Max(0, model.Under);
+        var footText = writesFoot ? line : 0;
+        var figuresUnder = Math.Max(Math.Max(0, model.PadBottom), detailed ? line : 0);
+        var foot = footText + under > 0 ? TextInset + footText + under + FamilySpace.S1 + figuresUnder
+            : figuresUnder > 0 ? TextInset + figuresUnder : 0;
+
+        var lineTop = Math.Min(top, h);
+        var lineBottom = Math.Max(lineTop, h - foot);
+        var footLine = Math.Max(0, h - TextInset - line);
+        var rulesTop = Math.Min(over, h);
+        return new ChartFrame(
+            new ChartBox(0, 0, w, h),
+            text,
+            lineTop,
+            lineBottom,
+            footLine,
+            Math.Max(0, (writesFoot ? footLine : h - TextInset) - under),
+            Math.Max(over, TextInset),
+            rulesTop,
+            footText + under > 0 ? Math.Max(rulesTop, h - TextInset - footText - under - FamilySpace.S1) : h);
+    }
+
+    /// <summary>[S-6754] The left of a label <paramref name="width"/> wide centred on <paramref name="at"/>, kept inside the frame's text box.</summary>
+    public static double Across(ChartFrame frame, double at, double width)
+    {
+        ArgumentNullException.ThrowIfNull(frame);
+        return Math.Clamp(at - (width / 2), frame.Text.Left, Math.Max(frame.Text.Left, frame.Text.Right - width));
+    }
+
+    /// <summary>
+    /// [S-6754] The top of a label <paramref name="height"/> tall wanted at <paramref name="top"/>, kept inside the frame's
+    /// text box and under the owner's parts over the plot.
+    /// </summary>
+    public static double Within(ChartFrame frame, double top, double height)
+    {
+        ArgumentNullException.ThrowIfNull(frame);
+        return Math.Clamp(top, frame.CaptionTop, Math.Max(frame.CaptionTop, frame.Text.Bottom - height));
+    }
+
+    /// <summary>
+    /// [S-6751] A kind's sizing for its detail: Detailed is taller on every bound by what its <see cref="Room"/> needs
+    /// past what the kind's Simple chart already keeps free over its line (<paramref name="ownTop"/>) and under it
+    /// (<paramref name="ownBottom"/>, its own ends' line included: <see cref="Keeps"/>), so the chart's line keeps its height.
     /// </summary>
     public static WidgetSizing Sized(WidgetSizing sizing, ChartDetail detail, double ownTop, double ownBottom)
     {
         ArgumentNullException.ThrowIfNull(sizing);
-        var (top, bottom) = Room(detail, times: true);
+        var (top, bottom) = Room(detail);
         var extra = Math.Max(0, top - ownTop) + Math.Max(0, bottom - ownBottom);
         if (!(extra > 0))
         {

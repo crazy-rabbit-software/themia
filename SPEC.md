@@ -880,6 +880,7 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
 - **[S-215]** A chart is the card's bottom band, edge to edge with no padding at its sides or under
   it ([S-1824] for the meters, [S-1311] for Stocks; user decision 2026-10-11, reversing the inset
   of 2026-10-05). The card's rounded corners clip it; only the text above keeps the content inset.
+  Since 2026-11-19 its top too: the plot is the whole card and the text stands over it ([S-6754]).
 - **[S-215b]** The graph and the bar share one grid row rather than taking one each. They are
   alternatives — one shows exactly when the other does not — and as separate rows the grid's row
   spacing still sat between them, leaving a gap under a chart that is supposed to touch the
@@ -1131,7 +1132,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   is a 4 round track with its fill (`ChartBar`; a column is the same track standing up, filled from
   its foot or between two ends; a fill moves along its track by a transform, never a margin), a ring a stroke-2 arc over its track from twelve, clockwise (`ChartRing`), a gauge the
   ring's upper half from nine o'clock (`ChartRing` half, `ChartRules.GaugeSweep`, `GaugeHeight`); a band
-  (the one `Chart`, [S-6750]) runs edge to edge at the card's bottom ([S-215]), its samples laid out by its owner (a
+  (the one `Chart`, [S-6750]) is the whole card, edge to edge ([S-215], [S-6754]), its samples laid out by its owner (a
   meter's history on fixed slots, a weather graph's cells, a price's bars evenly). A part's role, fraction and points
   are set again only when they change ([S-6330]).
 - **[S-6739]** **A timer's face** (Alarm, Countdown, Stopwatch, Pomodoro, Focus session; `TimerFace`):
@@ -1162,10 +1163,12 @@ module author's guide is docs/WIDGET-KIT.md 16.
   they should reuse more of the same components"): every graph widget draws through the SDK's one `Chart`
   (`Themia.Sdk.WinUI/Kit/Family/Chart.cs`) over a `ChartModel` (pure, `Themia.Sdk/Kit/Family`): the histories
   (`SparkBand`: CPU, GPU, memory, disk, network, ping, battery, the cores' cells), the weather graphs (`HourGraph`),
-  the stock's and the rate's history and the forecast's curve (laid out by its owner). The model holds the samples (x in
-  DIPs, a value on its `Low`..`High` scale, a role or the chart's own), a second series (tertiary), real periods for
-  candles (`Ohlc`), the room its owner keeps over and under the line, shaded spans, the days' hairlines, now, the
-  figures (`ChartMark`), a value's words and the times. Its geometry is `ChartPlot`'s, tested: the outline (a
+  the stock's and the rate's history, the rain's next two hours ([S-5125]) and the forecast's curve (laid out by its
+  owner). The model holds the samples (x in DIPs, a value on its `Low`..`High` scale, a role or the chart's own), a
+  second series (tertiary), real periods for candles (`Ohlc`), the room its owner keeps over and under the line for its
+  figures, what its owner stands over the plot's top and foot (`Over`, `Under`: a top line, a reading, the wind's
+  arrows), shaded spans, the days' hairlines, now, the figures (`ChartMark`), a value's words, the times and the
+  window's two ends (`Ends`, written at the foot when Simple). Its geometry is `ChartPlot`'s, tested: the outline (a
   line, or the line closed down to the foot for its wash), the runs (a gap breaks the line, a lone sample a dot when
   asked), the worse role of a piece's two ends, a column's width (60 % of its cell, the stroke to half a large icon)
   and the candles. **The types** (`ChartType`, owner: "more configuration options like area like now or just line
@@ -1177,16 +1180,17 @@ module author's guide is docs/WIDGET-KIT.md 16.
   make real ones); the body from the open to the close (at least the stroke tall) in the accent rising and Critical
   falling (no green, [S-6706]), the wick a hairline from the low to the high (`ChartPlot.Shape`).
 - **[S-6751]** **Detailed** (`ChartDetail`; owner: "a new style for the graph based widgets like network history that
-  shows more details like lines"): over Simple's chart, Track hairlines across at the value axis' nice round steps
-  (`ChartPlot.Ticks`: every multiple of the smallest 1, 2 or 5 × 10ⁿ step that leaves at most one tick per one and a
-  half Caption lines of the plot, two to five) with their values (Caption tertiary at the left, over the line), a few
-  times along the foot (`ChartPlot.Times`: whole steps of the local clock, 10 s to a year, one per 64 DIPs, two to
-  six; a price's at bars evenly apart; a label that would touch the last is left out), the high over its point and the
-  low under it with their dots (a kind with figures of its own, a weather graph's, keeps them instead), and the latest
-  value's hairline across with its value in a pill at the right edge. It keeps a Caption line free over the line and
-  one under it and the times' line at the foot (`ChartPlot.Room`); a kind that keeps less of its own is that much
-  taller when Detailed (`ChartPlot.Sized`: a history 52, the rate 52, the stock 32 without its markers), so its
-  line keeps its height. Simple writes nothing more than it did.
+  shows more details like lines"): over Simple's chart, Track hairlines across the whole plot at the value axis' nice
+  round steps (`ChartPlot.Ticks`: every multiple of the smallest 1, 2 or 5 × 10ⁿ step that leaves at most one tick per
+  one and a half Caption lines of the plot, two to five) with their values (Caption tertiary at the text's left inset,
+  over the line, on the Solid pill), a few times along the foot (`ChartPlot.Times`: whole steps
+  of the local clock, 10 s to a year, one per 64 DIPs, two to six; a price's at bars evenly apart; a label that would
+  touch the last is left out), the high over its point and the low under it with their dots (a kind with figures of
+  its own, a weather graph's, keeps them instead), and the latest value's hairline across with its value in a pill at
+  the text's right inset. It keeps a Caption line free over the line and one under it and the times' line at the foot,
+  all at the family's inset off the plot's edges (`ChartPlot.Room`: 28 over, 48 under); a kind that keeps less of its
+  own is that much taller when Detailed (`ChartPlot.Sized`: a history 76, the rate 76, the stock what its markers and
+  ends do not keep), so its line keeps its height. Simple writes nothing more than it did.
 - **[S-6752]** **The chart look is two settings** on every graph kind (`IChartLooks` in the SDK; `ChartMenuLines`
   puts them under the Style picker as the shared settings `chartType` and `chartDetail`, [S-11750]): **Chart type**,
   one of the types the kind's data has (the histories Area or Line; the weather graphs Area, Line or Bars; the stock's
@@ -1203,9 +1207,35 @@ module author's guide is docs/WIDGET-KIT.md 16.
   an answer still loading, failed or with nothing in its window) is the chart all the same: its frame, its grid and
   times when Detailed, and a flat series at its baseline (`ChartModel.Baseline`, 0 or the scale's foot;
   `ChartPlot.Drawn`); an all-zero series is drawn as it is and keeps its axis. Why there is nothing is a Caption
-  (secondary, at the plot's top left: "No data yet", the answer's sentence, "No forecast for the next hours"),
-  never a Status row in the chart's place; the card menu's Refresh is the retry. The same for the rain atom's columns
-  (their empty tracks under its sentence) and the screen-time chart's empty window (its days on a foot hairline).
+  (secondary, at the plot's top left inset, under what its owner stands over the plot: "No data yet", the answer's
+  sentence, "No forecast for the next hours"), never a Status row in the chart's place; the card menu's Refresh is the
+  retry. The same for the rain atom's chart (its foot's hairline under its sentence, [S-5126]) and the screen-time
+  chart's empty window (its days on a foot hairline). The empty chart's frame is the one with data: the plot edge to
+  edge, the baseline across it ([S-6754]).
+- **[S-6754]** **Plot edge to edge** (owner, 2026-11-19, asked whether a graph's plot should reach the card's edges:
+  "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand inside it, over the plot;
+  docs/WIDGET-RULES.md). Every graph kind on the one `Chart`, in every type, both details and with no data, draws its
+  plot as the card's whole box: the graph's view owns the card's top edge ([S-5700]: the histories, the weather graphs,
+  the stock's and the rate's history, the rain's next two hours; off the one chart, the screen-time chart's bars,
+  [S-11505]) and the chart fills it (`ChartPlot.Frame`, tested: the plot is the box). What is written stands inside it, the family's inset (12) off every edge (`ChartFrame.Text`;
+  `ChartPlot.Across`, `ChartPlot.Within`): the owner's parts over the plot's top (a weather graph's top line with its
+  reading, the rain's sentence: `ChartModel.Over`) and over its foot (the wind's arrows, `Under`), the times (Detailed)
+  or the window's two ends ("Now" and its end, a price's first and last time: `Ends`, Simple) on the foot's line, the
+  values, the figures, the latest value's pill and the caption. None of it pushes the plot inward: the series' band
+  keeps clear of what is written at the plot's top and foot (the owner's parts, then a Caption line for the figures;
+  the foot's line, the owner's parts over it, 4, a Caption line), and with nothing written at an edge the band reaches
+  it (a Simple history's line runs from the card's top to its foot). The wash runs down to the card's foot under the
+  words; a line reaches the plot's sides where they are within half a cell of its first and last samples
+  (`ChartPlot.ToEdges`; a history still filling in from the right stays where its samples are); shaded spans and the
+  value grid cross the whole plot; the hairlines down it (now, the days' borders, a linked moment's marker) run between
+  the owner's parts and the foot's words. Columns stand on the band's foot, so no column hides under a time. Contrast:
+  the series keeps clear of the words at the plot's top and foot, which stand over the 16 % wash as they are; the grid's
+  values, which the series runs under at the plot's left side, stand on the Solid pill, as the latest value does. No two labels stand on each other: by rank (the caption, the latest value's pill, the owner's figures, the
+  high and the low, the times, the grid's values) a label that would touch one written before it is left out. The
+  status's problem glyph keeps the inset over the plot (`KitStatus.Place`). Nothing moves on hover ([S-12831], WR-12):
+  the stock's pointer readout, its crosshair and a linked moment's hairline are drawn over the plot, inside its text
+  box. The gap check judges it (`scripts/gap-check.py`: each chart's plot from `--layout-json`'s `plots` reaches the
+  card's edges; where it does it is the card's top and foot).
 - **[S-6745]** **The shell's measurements** (`ShellMetrics`, `Themia.Sdk/Kit/Family/ShellTokens.cs`): the
   app's own chrome is drawn from the family's tokens like a widget, its own spacings on the scale; what
   Windows or Karpo measure for a piece of chrome and the family has no token for is named there, each
@@ -5331,7 +5361,7 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
 - **[S-1824]** The history is the card's bottom band, edge to edge (user decision 2026-10-11): no
   inset at its left, right or under it, from 8 under the reading to the card's foot
   (`MeterPlan.Band`). Only the reading keeps the content inset (16). The card's rounded corners clip
-  the band. The trace is kept half a stroke inside the band's width and height (`ChartRules.Y`), so
+  the band. A history alone (no reading, [S-11002]) owns the card's top edge too ([S-6754]). The trace is kept half a stroke inside the band's width and height (`ChartRules.Y`), so
   the newest sample's stroke is not cut in half at an edge.
 - **[S-1825]** A window still filling stays right-aligned, as Task Manager draws it: the trace grows
   in from the right, one slot per sample. The shared ticker keeps whole-second cadences under a
@@ -7008,8 +7038,10 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   160..640 wide, 48..200 tall, a new one 160 × 64 (`MeterSizing.History`); a wider card is a longer
   chart of its span (`HistoryConfig.GraphSpanSeconds`, [S-1121], on its menu's first level,
   `AtomMenuLines.Span`), and its chart look under Style ([S-6752]: Area or Line, Simple or Detailed; Detailed
-  52 taller, `MeterSizing.HistoryOf`, its values as the reading writes them and its times on the clock, [S-6751]).
-  No samples yet is the band at its baseline with "No data yet" ([S-6753]).
+  76 taller, `MeterSizing.HistoryOf`, its values as the reading writes them and its times on the clock, [S-6751]).
+  No samples yet is the band at its baseline with "No data yet" ([S-6753]). The band is the whole card, its top edge
+  too (`MeterView` owns it, [S-5700]; the plot edge to edge, [S-6754]): Simple, its line runs from the card's top to
+  its foot; the kind's mark (Ping's problem glyph) keeps the inset over it.
 - **[S-11003]** **A dial** (Gauge, Ring): as large as the content box takes (`MeterSizing.GaugeIn`,
   `RingIn`), the reading at 28 in its bowl or hole; its least diameter holds the widest reading there
   (24 either side of a gauge's bowl, 8 over its foot; three quarters of a ring's hole), up to 296.
@@ -7874,7 +7906,8 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   free side and reaches it (a list's first and last text too, [S-12807]): the card gives the top ([S-5700]), the
   view keeps the sides and the foot, never a second
   inset over the top or a margin round the whole (the weather graphs' frame carried `Family.Inset` on all four sides,
-  24 over its top line in a card; now the sides and the foot, `HourGraphPanel` being every graph's view). Joined or
+  24 over its top line in a card; now the sides and the foot, `HourGraphPanel` being every graph's view; since
+  2026-11-19 a graph's plot is the whole card and its words keep the inset over it, [S-6754]). Joined or
   not, the content is the same ([S-12483]). A reading block is
   centred in what its sizing counted (Weather now's sat 6 off its middle), and a sizing counts every line its view
   holds (a stock's line under its price, [S-11161]). Kept on purpose: a grid of cells keeps its foot inside the inset
@@ -12661,13 +12694,16 @@ Sdk.WinUI: `Widgets/HourGraph.cs` (the part that draws it), `Widgets/HourGraphPa
 - **[S-12703]** **One frame** (`HourGraph`, on the one `Chart`, [S-6750]): the top line (the kind's glyph, 16
   secondary, leading the reading now, BodyStrong, primary or its band's Caution/Critical; a measure the kind lets the
   person choose after it, Body secondary, ellipsis, [S-12801]; the stale rule's Caution glyph at the line's end with
-  its lines as the tooltip, [S-7042]); 8 down the plot; the wind's arrow line
-  (16, 4 under the plot); 4 down the time line (Caption tertiary: "Now" on the left, the window's last hour on the right,
-  with its weekday when it is not today); the family's inset at the sides and the foot (the card gives the top; a
-  mate joined under it takes the foot, [S-12800]), no header of its own (a group's Header widget names it). In the plot: shaded spans (the Subtle role, the UV graph's daylight), the days' borders (local midnights, Track
-  hairlines), the series, the second series (tertiary, at the stroke), now (a secondary hairline, and on a line a dot where
-  the line is) and the figures at the marked slots (Caption: over a point primary, under it secondary, kept inside the
-  plot; a Caption line is kept free over the highest point and under the lowest). The slots are equal cells, each value on
+  its lines as the tooltip, [S-7042]); 8 down the line's room; the wind's arrow line
+  (16, 4 over the time line, each arrow whole inside the text box, `HourGraphRules.Arrows`); the time line (Caption
+  tertiary, the chart's `Ends`: "Now" on the left, the window's last hour on the right, with its weekday when it is not
+  today) at the family's inset off the foot; the plot is the card's whole box under all of it ([S-6754]:
+  `HourGraphPanel` owns the top edge, the top line keeps the inset over it, `HourGraphRules.Chart`), no header of its own
+  (a group's Header widget names it). In the plot: shaded spans (the Subtle role, the UV graph's daylight, top to foot),
+  the days' borders (local midnights, Track hairlines under the top line), the series (held out to the plot's sides),
+  its wash down to the card's foot, the second series (tertiary, at the stroke), now (a secondary hairline, and on a line
+  a dot where the line is) and the figures at the marked slots (Caption: over a point primary, under it secondary, kept
+  inside the text box; a Caption line is kept free over the highest point and under the lowest). The slots are equal cells, each value on
   its cell's middle; time runs left to right in every language ([S-1113]). The looks (`HourGraphLook`, the chart type of
   [S-6752]; Detailed, [S-6751], writes its times in the plot in place of the time line): **Line** (the
   stroke alone), **Area** (the stroke over the 16 % wash) and **Bars** (a round column per slot from the foot, its cell's

@@ -28,8 +28,11 @@ namespace Themia.App.Widgets;
 /// with the tile, so a large tile is a longer chart, never a bigger number.
 /// </para>
 /// </summary>
-public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
+public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost, IWidgetTopEdge
 {
+    /// <summary>[S-5700] [S-6754] A history's plot is drawn to the card's top edge as to its sides and foot: it owns it.</summary>
+    public bool OwnsTopEdge => _part.Atom == MeterAtom.History;
+
     private const string Scope = "meter";
 
     private readonly MeterPart _part;

@@ -45,7 +45,7 @@ public sealed class ExchangeHistoryModule : IWidgetModule
         Add = new(AddFolderId.Markets, 0, 3),
     };
 
-    /// <summary>[S-11156] The band under the card's top inset, to the sides and the foot: 200..480 wide, 48..200 tall.</summary>
+    /// <summary>[S-11156] [S-6754] The chart the card's whole box: 200..480 wide, the band 48..200 tall and the inset a Simple chart writes nothing in.</summary>
     internal static WidgetSizing Sizing()
         => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax)) with { Room = StretchRoom.Picture };
 

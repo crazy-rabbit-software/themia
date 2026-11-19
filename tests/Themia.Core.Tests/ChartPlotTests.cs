@@ -145,17 +145,122 @@ public sealed class ChartPlotTests
     [Fact]
     public void S6751_detailed_keeps_room_for_what_it_writes_and_simple_none()
     {
-        Assert.Equal((0.0, 0.0), ChartPlot.Room(ChartDetail.Simple, times: true));
-        Assert.Equal((FamilyType.CaptionLine, FamilyType.CaptionLine + FamilySpace.S1 + FamilyType.CaptionLine), ChartPlot.Room(ChartDetail.Detailed, times: true));
+        // [S-6754] Its words keep the family's inset off the plot's edges: the high's line over the line, the low's and
+        // the times' (4 apart) under it.
+        const double line = FamilyType.CaptionLine;
+        Assert.Equal((0.0, 0.0), ChartPlot.Room(ChartDetail.Simple));
+        Assert.Equal((FamilySpace.Inset + line, FamilySpace.Inset + line + FamilySpace.S1 + line), ChartPlot.Room(ChartDetail.Detailed));
 
         var sizing = WidgetSizing.Range(new(160, 48), new(160, 64), new(640, 200));
         Assert.Same(sizing, ChartPlot.Sized(sizing, ChartDetail.Simple, 0, 0));
         var taller = ChartPlot.Sized(sizing, ChartDetail.Detailed, 0, 0);
-        Assert.Equal(48 + 52, taller.Min.Height);
+        Assert.Equal(48 + 28 + 48, taller.Min.Height);
         Assert.Equal(160, taller.Min.Width);
 
         // A kind that keeps the room already (a weather graph: its figures' lines and its time line) grows by nothing.
-        Assert.Same(sizing, ChartPlot.Sized(sizing, ChartDetail.Detailed, FamilyType.CaptionLine, 52));
+        Assert.Same(sizing, ChartPlot.Sized(sizing, ChartDetail.Detailed, 28, 48));
+    }
+
+    /// <summary>Every chart a graph kind draws: Simple and Detailed, each type, an owner's top line and arrow line, ends, no data.</summary>
+    public static TheoryData<string> Looks => ["history", "detailed", "bars", "candles", "weather", "wind", "weather-detailed", "stock", "empty"];
+
+    private static ChartModel Look(string look) => look switch
+    {
+        "history" => new ChartModel { Series = [new(0, 0.2), new(80, 0.9), new(160, 0.4)] },
+        "detailed" => new ChartModel { Detail = ChartDetail.Detailed, Series = [new(0, 0.2), new(160, 0.4)] },
+        "bars" => new ChartModel { Type = ChartType.Bars, Series = [new(20, 0.2), new(60, 1)] },
+        "candles" => new ChartModel { Type = ChartType.Candles, Detail = ChartDetail.Detailed, Series = [new(0, 3), new(160, 4)], Low = 3, High = 4 },
+        "weather" => new ChartModel { Over = 40, PadTop = FamilyType.CaptionLine, PadBottom = FamilyType.CaptionLine, Ends = new("Now", "17:00") },
+        "wind" => new ChartModel { Over = 40, Under = FamilyShape.Icon + FamilySpace.S1, PadTop = FamilyType.CaptionLine, PadBottom = FamilyType.CaptionLine, Ends = new("Now", "17:00") },
+        "weather-detailed" => new ChartModel { Detail = ChartDetail.Detailed, Over = 40, PadTop = FamilyType.CaptionLine, PadBottom = FamilyType.CaptionLine },
+        "stock" => new ChartModel { PadTop = FamilyType.CaptionLine, PadBottom = FamilyType.CaptionLine, Ends = new("9:30 AM", "4:00 PM") },
+        _ => new ChartModel { Caption = "No data yet" },
+    };
+
+    [Theory]
+    [MemberData(nameof(Looks))]
+    public void S6754_the_plot_is_the_card_edge_to_edge_and_what_is_written_stands_inside_it(string look)
+    {
+        // Owner, 2026-11-19: "Plot edge to edge": the plot and its fill reach the card's edges, the labels inside it.
+        var model = Look(look);
+        foreach (var (w, h) in ((double, double)[])[(160, 124), (320, 168), (600, 200), (900, 600)])
+        {
+            var frame = ChartPlot.Frame(model, w, h);
+            Assert.Equal(new ChartBox(0, 0, w, h), frame.Plot);
+            Assert.Equal(new ChartBox(FamilySpace.Inset, FamilySpace.Inset, w - (2 * FamilySpace.Inset), h - (2 * FamilySpace.Inset)), frame.Text);
+            Assert.True(frame.Plot.Holds(frame.Text));
+
+            // The series' band inside the plot, under the owner's parts over its top, over what is written at its foot.
+            Assert.InRange(frame.LineTop, model.Over, frame.LineBottom);
+            Assert.InRange(frame.LineBottom, frame.LineTop, h);
+            Assert.True(frame.CaptionTop >= Math.Max(model.Over, FamilySpace.Inset));
+
+            // The foot's words (times or ends) at the inset off the foot, the owner's parts over them, both under the band.
+            Assert.Equal(h - FamilySpace.Inset, frame.FootLine + FamilyType.CaptionLine, 6);
+            var writesFoot = model.Detail == ChartDetail.Detailed || model.Ends is not null;
+            if (writesFoot)
+            {
+                Assert.True(frame.Text.Holds(new ChartBox(frame.Text.Left, frame.FootLine, 10, FamilyType.CaptionLine)));
+                Assert.True(frame.LineBottom <= frame.UnderTop - FamilySpace.S1 + 1e-9);
+                Assert.Equal(frame.FootLine - model.Under, frame.UnderTop, 6);
+                Assert.True(frame.RulesBottom <= frame.UnderTop);
+            }
+
+            // A label anywhere is kept inside the text box and under the owner's parts.
+            foreach (var at in (double[])[-50, 0, w / 2, w, w + 50])
+            {
+                var left = ChartPlot.Across(frame, at, 40);
+                var top = ChartPlot.Within(frame, at - 100, FamilyType.CaptionLine);
+                Assert.True(frame.Text.Holds(new ChartBox(left, top, 40, FamilyType.CaptionLine)), $"{look} {w}x{h} at {at}");
+                Assert.True(top >= frame.CaptionTop);
+            }
+        }
+    }
+
+    [Fact]
+    public void S6754_a_simple_chart_with_nothing_written_runs_its_line_and_hairlines_edge_to_edge()
+    {
+        var frame = ChartPlot.Frame(new ChartModel(), 160, 48);
+        Assert.Equal((0.0, 48.0), (frame.LineTop, frame.LineBottom));
+        Assert.Equal((0.0, 48.0), (frame.RulesTop, frame.RulesBottom));
+        Assert.Equal((0.0, 0.0), ChartPlot.Keeps(new ChartModel()));
+
+        // An owner's top line keeps the line under it; its hairlines start under it too.
+        var owned = ChartPlot.Frame(new ChartModel { Over = 40 }, 320, 168);
+        Assert.Equal((40.0, 168.0), (owned.LineTop, owned.LineBottom));
+        Assert.Equal(40, owned.RulesTop);
+    }
+
+    [Fact]
+    public void S6754_with_no_data_the_frame_is_the_same_and_its_baseline_runs_the_plot_edge_to_edge()
+    {
+        var data = new ChartModel { Detail = ChartDetail.Detailed, Over = 40, Series = [new(0, 0.3), new(320, 0.6)] };
+        var none = data with { Series = [], Caption = "No data yet" };
+        Assert.Equal(ChartPlot.Frame(data, 320, 168), ChartPlot.Frame(none, 320, 168));
+
+        var baseline = ChartPlot.Drawn(none, 320);
+        Assert.Equal([new ChartSample(0, 0), new ChartSample(320, 0)], baseline);
+        var frame = ChartPlot.Frame(none, 320, 168);
+        Assert.True(frame.Text.Holds(new ChartBox(frame.Text.Left, frame.CaptionTop, 80, FamilyType.CaptionLine)));
+    }
+
+    [Fact]
+    public void S6754_a_line_reaches_the_plot_sides_from_its_cells_but_a_history_filling_in_does_not()
+    {
+        // A sample on its cell's middle (a weather graph's hours): held out to both sides.
+        ChartSample[] cells = [new(10, 1, ColourRole.Caution), new(30, 2), new(50, 3)];
+        var edges = ChartPlot.ToEdges(cells, 60);
+        Assert.Equal([new ChartSample(0, 1, ColourRole.Caution), .. cells, new ChartSample(60, 3)], edges);
+
+        // A history still filling in from the right edge: its oldest sample stays where it is.
+        ChartSample[] filling = [new(100, 1), new(110, 2), new(120, 3)];
+        Assert.Equal([.. filling], ChartPlot.ToEdges(filling, 120));
+
+        // A gap at a side stays a gap; a single sample is no line to hold out.
+        ChartSample[] gap = [new(10, double.NaN), new(30, 2), new(50, double.NaN)];
+        Assert.Same(gap, ChartPlot.ToEdges(gap, 60));
+        ChartSample[] one = [new(10, 1)];
+        Assert.Same(one, ChartPlot.ToEdges(one, 60));
     }
 
     [Fact]

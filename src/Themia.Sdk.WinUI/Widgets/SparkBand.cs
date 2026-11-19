@@ -47,6 +47,9 @@ public sealed partial class SparkBand : Grid
 
     private DateTimeOffset? _markedAt;
     private TimeSpan _markedPeriod;
+
+    // [S-6754] The span the hairlines down the plot run in its last frame: clear of the times written at its foot.
+    private (double Top, double Bottom) _rules;
     private readonly Queue<double> _first;
     private readonly Queue<double> _second;
     private int _capacity;
@@ -69,6 +72,11 @@ public sealed partial class SparkBand : Grid
         Children.Add(_series);
         _marker.Fill = Family.Brush(ColourRole.TextSecondary);
         Children.Add(_marker);
+        _series.Drawn += frame =>
+        {
+            _rules = (frame.RulesTop, Math.Max(0, frame.Plot.Height - frame.RulesBottom));
+            PlaceMarker();
+        };
         SizeChanged += (_, _) =>
         {
             Redraw();
@@ -230,7 +238,7 @@ public sealed partial class SparkBand : Grid
             ? LinkInstants.X(at, FamilyShape.Stroke, ActualWidth - FamilyShape.Stroke, Span(_markedPeriod), DateTimeOffset.Now)
             : null;
         _marker.Visibility = x is null ? Microsoft.UI.Xaml.Visibility.Collapsed : Microsoft.UI.Xaml.Visibility.Visible;
-        _marker.Margin = new Microsoft.UI.Xaml.Thickness(x ?? 0, 0, 0, 0);
+        _marker.Margin = new Microsoft.UI.Xaml.Thickness(x ?? 0, _rules.Top, 0, _rules.Bottom);
     }
 
     /// <summary>Forget the history: the next reading is of something else.</summary>

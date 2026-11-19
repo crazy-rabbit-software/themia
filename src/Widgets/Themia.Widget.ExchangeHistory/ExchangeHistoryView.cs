@@ -19,10 +19,13 @@ namespace Themia.Widget.ExchangeHistory;
 /// rate atom's colour, [S-6706]). Time runs left to right in every language. The table is the one the
 /// rate reads (<see cref="IRateAnswers"/>), so the two agree; a Header widget over it names the pair ([S-12481]).
 /// </summary>
-internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetTopEdge
 {
+    /// <summary>[S-5700] [S-6754] The plot is drawn to the card's top edge as to its sides and foot.</summary>
+    public bool OwnsTopEdge => true;
+
     private readonly KitStatus _mark;
-    /// <summary>[S-6717] [S-11002] A history band: edge to edge at the sides and the foot, as the stock's; the top is the card's (the inset).</summary>
+    /// <summary>[S-6717] [S-11002] [S-6754] A history band: the card's edge to edge, its top edge too, as the stock's.</summary>
     private readonly Chart _chart = new() { FlowDirection = FlowDirection.LeftToRight };
     private readonly IWidgetHost _host;
     private IRateAnswers? _web;

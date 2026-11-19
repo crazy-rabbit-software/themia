@@ -83,7 +83,9 @@ internal sealed partial class ExchangeHistoryView
         }
 
         var index = days.ToList().IndexOf(d);
-        _marker.Margin = new Thickness(index * _chart.ActualWidth / (days.Count - 1), 0, 0, 0);
+        // [S-6754] Down the plot as the chart's own hairlines run: clear of the times written at its foot.
+        var frame = _chart.Frame;
+        _marker.Margin = new Thickness(index * _chart.ActualWidth / (days.Count - 1), frame?.RulesTop ?? 0, 0, frame is { } f ? Math.Max(0, f.Plot.Height - f.RulesBottom) : 0);
         _marker.Visibility = Visibility.Visible;
     }
 }

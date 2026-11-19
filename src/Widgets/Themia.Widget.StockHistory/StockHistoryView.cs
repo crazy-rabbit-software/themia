@@ -16,13 +16,16 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-11165] One instrument's price over its period as a chart ([S-1311]'s chart, the Chart block,
-/// [S-6717]): edge to edge and down to the card's foot under the inset, the accent while the price rose
+/// [S-6717]): the card's edge to edge, its top edge too ([S-6754]), the accent while the price rose
 /// or held, Critical while it fell (the price atom's colour), the start and end times always, the high and
 /// low where switched on. It reads the quote the price atom reads (<see cref="SkyFeed{TWant, T}"/>), so
 /// the two agree; a Header widget over it names the instrument ([S-12481]).
 /// </summary>
-internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetTopEdge
 {
+    /// <summary>[S-5700] [S-6754] The plot is drawn to the card's top edge as to its sides and foot.</summary>
+    public bool OwnsTopEdge => true;
+
     /// <inheritdoc />
     public CardOpen? Opens => _config.Page();
 
@@ -44,7 +47,7 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
             Render);
         BuildChart();
 
-        // [S-11600] The sides and the foot are edge to edge; the top is the card's (the inset).
+        // [S-6754] The plot is the card's whole box; what is written stands inside it.
         Children.Add(_chart);
         _mark.Place(this);
     }

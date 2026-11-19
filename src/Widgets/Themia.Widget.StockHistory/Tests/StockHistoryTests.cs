@@ -16,7 +16,7 @@ public sealed class StockHistoryTests
     private static readonly WidgetDescriptor Kind = new StockHistoryModule().Descriptor;
 
     [Fact]
-    public void S11166_the_chart_starts_headerless_200_to_480_wide_its_band_64_to_240_under_the_inset()
+    public void S11166_the_chart_starts_headerless_200_to_480_wide_76_to_252_tall_without_its_markers()
     {
         var sizing = Kind.Sizing(new StockHistoryConfig());
 
@@ -28,24 +28,49 @@ public sealed class StockHistoryTests
     [Fact]
     public void S11165_the_times_sit_inside_the_chart_under_the_lowest_point_and_its_price()
     {
-        var band = StockChartLabels.Band(ChartHeight, markers: true, times: true);
+        var config = new StockHistoryConfig { ShowMinMax = true };
+        var model = StockHistoryModule.Frame(config) with { Ends = new ChartEnds("9:30 AM", "4:00 PM") };
+        var frame = ChartPlot.Frame(model, ChartWidth, ChartHeight);
         var line = FamilyType.Caption.LineHeight;
 
-        // The high's price fits above the trace, the low's under it, and the times under that.
-        Assert.Equal(line, band.Top, 6);
-        Assert.True(band.Top + band.Usable + line <= StockChartLabels.TimesTop(ChartHeight) + 0.001);
-        Assert.True(StockChartLabels.TimesTop(ChartHeight) + line <= ChartHeight);
+        // [S-6754] The plot is the card's whole box; the high's price fits above the trace, the low's under it, and the
+        // times under that, at the inset off the foot.
+        Assert.Equal(new ChartBox(0, 0, ChartWidth, ChartHeight), frame.Plot);
+        Assert.True(frame.LineTop - line >= frame.Text.Top - 0.001);
+        Assert.True(frame.LineBottom + line <= frame.FootLine + 0.001);
+        Assert.Equal(ChartHeight - FamilySpace.Inset, frame.FootLine + line, 6);
     }
 
     [Fact]
     public void S11165_marker_prices_stay_inside_the_chart_at_both_edges()
     {
-        var placed = StockChartLabels.Place(ChartWidth,
-            [new ChartMarker(ChartWidth, 20, "412.30", Above: true), new ChartMarker(0, 200, "408.00", Above: false)]);
+        var frame = ChartPlot.Frame(StockHistoryModule.Frame(new StockHistoryConfig { ShowMinMax = true }), ChartWidth, ChartHeight);
+        const double width = 48;
+        foreach (var x in (double[])[0, ChartWidth])
+        {
+            var left = ChartPlot.Across(frame, x, width);
+            Assert.True(left >= FamilySpace.Inset && left + width <= ChartWidth - FamilySpace.Inset);
+        }
+    }
 
-        Assert.All(placed, box => Assert.True(box.Left >= 0 && box.Right <= ChartWidth));
-        Assert.True(placed[0].Bottom <= 20);
-        Assert.True(placed[1].Top >= 200);
+    [Fact]
+    public void S11166_the_markers_and_detailed_are_taller_by_what_they_write_so_the_trace_keeps_its_band()
+    {
+        // The trace's band is the same whatever is written over and under it: the markers' lines and Detailed's room
+        // make the card taller, never the trace shorter.
+        var plain = Kind.Sizing(new StockHistoryConfig());
+        var extra = FamilySpace.Inset + FamilyType.CaptionLine + FamilyType.CaptionLine;
+        Assert.Equal(plain.Natural.Height + extra, Kind.Sizing(new StockHistoryConfig { ShowMinMax = true }).Natural.Height);
+        Assert.Equal(plain.Min.Height + extra, Kind.Sizing(new StockHistoryConfig { ShowMinMax = true }).Min.Height);
+        Assert.Equal(plain.Natural.Height + extra, Kind.Sizing(new StockHistoryConfig { ShowMinMax = true, Detail = ChartDetail.Detailed }).Natural.Height);
+        Assert.Equal(plain.Natural.Height + extra, Kind.Sizing(new StockHistoryConfig { Detail = ChartDetail.Detailed }).Natural.Height);
+
+        foreach (var config in (StockHistoryConfig[])[new(), new() { ShowMinMax = true }, new() { Detail = ChartDetail.Detailed }])
+        {
+            var min = Kind.Sizing(config).Min;
+            var frame = ChartPlot.Frame(StockHistoryModule.Frame(config) with { Ends = new ChartEnds("9:30 AM", "4:00 PM") }, min.Width, min.Height);
+            Assert.Equal(StockHistoryModule.LineMin, frame.LineBottom - frame.LineTop, 6);
+        }
     }
 
     [Fact]

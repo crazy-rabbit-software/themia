@@ -194,6 +194,39 @@ public sealed class WeatherGraphsTests
         Assert.Equal("PM2.5 µg/m³", HourGraphRules.Framed(new HourGraphModel(slots, HourGraphLook.Line), "", "PM2.5 µg/m³", T0, Locale.En, TimeZoneInfo.Utc).Label);
     }
 
+    [Theory]
+    [InlineData(false, ChartDetail.Simple)]
+    [InlineData(true, ChartDetail.Simple)]
+    [InlineData(false, ChartDetail.Detailed)]
+    [InlineData(true, ChartDetail.Detailed)]
+    public void S6754_a_weather_graph_plots_edge_to_edge_its_top_line_and_arrows_over_it(bool arrows, ChartDetail detail)
+    {
+        var slots = Enumerable.Range(0, 25).Select(i => new HourSlot(T0.AddHours(i), 0.5, Direction: arrows ? 90 : null)).ToList();
+        var model = HourGraphRules.Framed(new HourGraphModel(slots, HourGraphLook.Area) { Detail = detail }, "", string.Empty, T0, Locale.En, TimeZoneInfo.Utc);
+        var size = HourGraphRules.Sizing(arrows).Min;
+        var chart = HourGraphRules.Chart(model, size.Width, Locale.En, TimeZoneInfo.Utc);
+        var frame = ChartPlot.Frame(chart, size.Width, size.Height);
+
+        // The plot is the card's; the top line stands over its top, the line under it and its figures' line.
+        Assert.Equal(new ChartBox(0, 0, size.Width, size.Height), frame.Plot);
+        Assert.Equal(HourGraphRules.Over + FamilyType.CaptionLine, frame.LineTop);
+
+        // The line keeps the height it had under the old frame: the plot's least less its figures' lines.
+        Assert.Equal(HourGraphRules.PlotMin - (2 * FamilyType.CaptionLine), frame.LineBottom - frame.LineTop, 6);
+
+        // "Now" and the end (Simple) at the foot; the slots on their cells' middles, the line held out to the sides.
+        Assert.Equal(new ChartEnds("Now", model.EndLabel), chart.Ends);
+        Assert.Equal(HourGraphRules.X(0, slots.Count, size.Width), chart.Series[0].X);
+        Assert.Equal(0, ChartPlot.ToEdges(chart.Series, size.Width)[0].X);
+        Assert.Equal(size.Width, ChartPlot.ToEdges(chart.Series, size.Width)[^1].X);
+
+        // The wind's arrows stand over the time line, each whole inside the text box.
+        var drawn = HourGraphRules.Arrows(slots.Count, frame);
+        Assert.NotEmpty(drawn);
+        Assert.All(drawn, a => Assert.True(a.X - (FamilyShape.Icon / 2) >= frame.Text.Left && a.X + (FamilyShape.Icon / 2) <= frame.Text.Right));
+        Assert.True(frame.UnderTop + (arrows ? FamilyShape.Icon : 0) <= frame.FootLine);
+    }
+
     [Fact]
     public void S12704_every_graph_states_one_sizing_relaxed_as_a_chart()
     {
