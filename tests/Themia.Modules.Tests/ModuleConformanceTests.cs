@@ -25,11 +25,14 @@ public sealed partial class ModuleConformanceTests
 {
     private static string Src => Path.Combine(RepoFiles.Root, "src");
 
-    /// <summary>Every widget module project folder (src/Widgets/Themia.Widget.*), by its widget id.</summary>
+    /// <summary>Every widget module project folder (src/Widgets/Themia.Widget.*), by its project's name.</summary>
     private static Dictionary<string, string> WidgetFolders()
         => Directory.EnumerateDirectories(Path.Combine(Src, "Widgets"), "Themia.Widget.*")
             .Where(d => File.Exists(Path.Combine(d, Path.GetFileName(d) + ".csproj")))
-            .ToDictionary(d => Camel(Path.GetFileName(d)["Themia.Widget.".Length..]), d => d, StringComparer.Ordinal);
+            .ToDictionary(d => Path.GetFileName(d), d => d, StringComparer.Ordinal);
+
+    /// <summary>[S-6901] The folder of the project that declares <paramref name="id"/>: its module's assembly (a family project declares several).</summary>
+    private static string FolderOf(string id) => Path.Combine(Src, "Widgets", Module(id).GetType().Assembly.GetName().Name!);
 
     private static Dictionary<string, string> ProviderFolders()
         => !Directory.Exists(Path.Combine(Src, "Providers"))
@@ -50,7 +53,22 @@ public sealed partial class ModuleConformanceTests
     [Fact]
     public void S6911_every_module_folder_is_in_the_registry_and_nothing_else_is()
     {
-        Assert.Equal(WidgetFolders().Keys.Order(StringComparer.Ordinal), ModuleRegistry.WidgetIds.Order(StringComparer.Ordinal));
+        // Each folder is one project: the widget its name says, or a family's kinds ([S-6901], ThemiaWidgetFamily).
+        var projects = ModuleRegistry.Widgets.GroupBy(m => m.GetType().Assembly).ToList();
+        Assert.Equal(WidgetFolders().Keys.Order(StringComparer.Ordinal), projects.Select(p => p.Key.GetName().Name!).Order(StringComparer.Ordinal));
+        foreach (var project in projects)
+        {
+            var name = project.Key.GetName().Name!;
+            var ids = project.Select(m => m.Descriptor.Id.Value).ToList();
+            if (project.Key.GetCustomAttribute<ThemiaWidgetFamilyAttribute>() is null)
+            {
+                Assert.Equal([Camel(name["Themia.Widget.".Length..])], ids);
+            }
+            else
+            {
+                Assert.True(ids.Count > 1, $"{name} is a family of {ids.Count}");
+            }
+        }
 
         // The providers here are the provider projects' and Core's own (declared in Core until their sign-in moves).
         var core = typeof(AppState).Assembly.GetCustomAttributes<ThemiaProviderAttribute>().Select(a => a.Id);
@@ -421,7 +439,7 @@ public sealed partial class ModuleConformanceTests
             return;
         }
 
-        var folder = WidgetFolders()[id];
+        var folder = FolderOf(id);
         var tests = Path.Combine(folder, "Tests") + Path.DirectorySeparatorChar;
         var code = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
             .Where(f => !f.StartsWith(tests, StringComparison.OrdinalIgnoreCase) && !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))

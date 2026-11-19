@@ -14,13 +14,15 @@ namespace Themia.Modules.Generator;
 /// provider is a module project, or Core's for the host's own providers (THEMIAMOD005). Ids are
 /// checked here, so a malformed one (THEMIAMOD001), one declared twice (THEMIAMOD002), a type that
 /// is not a module (THEMIAMOD003) or a module project declaring another id than its name
-/// (THEMIAMOD004) fails the build instead of a start.
+/// (THEMIAMOD004) fails the build instead of a start. A widget project marked a family
+/// (<c>[assembly: ThemiaWidgetFamily]</c>) declares several widgets of ids of their own.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed class ModuleRegistryGenerator : IIncrementalGenerator
 {
     public const string WidgetAttribute = "Themia.Sdk.ThemiaWidgetAttribute";
     public const string ProviderAttribute = "Themia.Sdk.ThemiaProviderAttribute";
+    public const string FamilyAttribute = "Themia.Sdk.ThemiaWidgetFamilyAttribute";
     public const string WidgetContract = "Themia.Sdk.WinUI.IWidgetModule";
     public const string ProviderContract = "Themia.Sdk.IProviderModule";
 
@@ -138,6 +140,8 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
 
         foreach (var assembly in compilation.SourceModule.ReferencedAssemblySymbols.OrderBy(a => a.Name, StringComparer.Ordinal))
         {
+            // [S-6901] A family project's widgets are its kinds, each its own id; its name is the family's.
+            var family = assembly.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == FamilyAttribute);
             foreach (var attribute in assembly.GetAttributes())
             {
                 var name = attribute.AttributeClass?.ToDisplayString();
@@ -163,7 +167,7 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
                     continue;
                 }
 
-                if (IdOfProject(assembly.Name) is { } named && (named.Widget != isWidget || named.Id != id))
+                if (IdOfProject(assembly.Name) is { } named && (named.Widget != isWidget || (named.Id != id && !(family && named.Widget))))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(NotItsName, location,
                         assembly.Name, isWidget ? "widget" : "provider", id, named.Widget ? "widget" : "provider", named.Id));

@@ -20,6 +20,8 @@ public sealed class ModuleRegistryGeneratorTests
             public sealed class ThemiaWidgetAttribute(string id, System.Type module) : System.Attribute;
             [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple = true)]
             public sealed class ThemiaProviderAttribute(string id, System.Type module) : System.Attribute;
+            [System.AttributeUsage(System.AttributeTargets.Assembly)]
+            public sealed class ThemiaWidgetFamilyAttribute : System.Attribute;
             public interface IProviderModule;
         }
         namespace Themia.Sdk.WinUI
@@ -205,5 +207,49 @@ public sealed class ModuleRegistryGeneratorTests
 
         Assert.Equal(fine ? [] : ["THEMIAMOD004"], result.Ids);
         Assert.Equal(fine, result.Registry.Contains("new global::M.Module()", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void S6901_a_family_project_declares_several_widgets_of_their_own_ids()
+    {
+        var family = Library("Themia.Widget.WeatherFacts", """
+            [assembly: Themia.Sdk.ThemiaWidgetFamily]
+            [assembly: Themia.Sdk.ThemiaWidget("weatherHumidity", typeof(F.Humidity))]
+            [assembly: Themia.Sdk.ThemiaWidget("weatherWind", typeof(F.Wind))]
+            namespace F
+            {
+                public abstract class Fact : Themia.Sdk.WinUI.IWidgetModule;
+                public sealed class Humidity : Fact;
+                public sealed class Wind : Fact;
+            }
+            """);
+
+        var result = Run("namespace App { }", family);
+
+        Assert.Empty(result.Errors);
+        Assert.Contains("WidgetIds = [\"weatherHumidity\", \"weatherWind\"];", result.Registry, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void S6901_a_family_project_still_declares_no_provider_and_no_id_twice()
+    {
+        var family = Library("Themia.Widget.WeatherFacts", """
+            [assembly: Themia.Sdk.ThemiaWidgetFamily]
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(F.Clock))]
+            [assembly: Themia.Sdk.ThemiaProvider("weather", typeof(F.Weather))]
+            namespace F
+            {
+                public sealed class Clock : Themia.Sdk.WinUI.IWidgetModule;
+                public sealed class Weather : Themia.Sdk.IProviderModule;
+            }
+            """);
+        var clock = Library("Themia.Widget.Clock", """
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(Clock.ClockModule))]
+            namespace Clock { public sealed class ClockModule : Themia.Sdk.WinUI.IWidgetModule; }
+            """);
+
+        var result = Run("namespace App { }", family, clock);
+
+        Assert.Equal(["THEMIAMOD002", "THEMIAMOD004"], result.Ids.Order(StringComparer.Ordinal));
     }
 }

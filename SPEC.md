@@ -1350,7 +1350,10 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   Native AOT keeps every module. A malformed id fails the build (THEMIAMOD001), so does an id declared twice (THEMIAMOD002), a type that is not
   a public, non-abstract module class with a public parameterless constructor (THEMIAMOD003), and a
   module project (`Themia.Widget.<Name>`, `Themia.Provider.<Name>`) declaring anything but the one
-  module its name says, `<name>` in camelCase (THEMIAMOD004).
+  module its name says, `<name>` in camelCase (THEMIAMOD004). A **family** project
+  (`[assembly: ThemiaWidgetFamily]`; owner, 2026-11-19: widgets split into smaller pieces, "the amount of "widgets" in
+  the library will explode") declares several widgets, each a kind of its own id sharing the project's code (the
+  weather facts, a widget a fact, [S-13900]); it still declares no provider and no id another declares.
 - **[S-6902]** Each widget has one `WidgetDescriptor`, the pure half of its module: what the host
   knows of it without its UI. The host installs the registry into `ModuleCatalog` before it reads
   any widget (the app first thing in its constructor), once; a registry with a missing
@@ -1426,7 +1429,7 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   `<Project Sdk="Microsoft.NET.Sdk" />` plus the providers it reads. A module builds on the SDK and
   providers only, never on Core, the app or another widget; code two widgets share goes into the
   SDK. The module test host checks every module the registry holds (`ModuleConformanceTests`): its
-  folder is its id, its name and description are its own table's and said in English, its strings
+  folder is its id (a family's folder is its kinds', [S-6901]), its name and description are its own table's and said in English, its strings
   are whole in every language or `$englishOnly` with matching placeholders, its default config
   round-trips through the state under its id with the host's options, it references nothing it may
   not, and its `Traits.HasItems` matches whether its view paints items ([S-6570]). The host

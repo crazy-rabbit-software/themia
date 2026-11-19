@@ -23,8 +23,9 @@ public sealed partial class ViewLinksConformanceTests
     [MemberData(nameof(Widgets))]
     public void S11906_a_kinds_code_names_exactly_the_topics_its_descriptor_declares(string id)
     {
-        var descriptor = ModuleRegistry.Widgets.Single(m => m.Descriptor.Id.Value == id).Descriptor;
-        var folder = Path.Combine(RepoFiles.Src, "Widgets", "Themia.Widget." + char.ToUpperInvariant(id[0]) + id[1..]);
+        var module = ModuleRegistry.Widgets.Single(m => m.Descriptor.Id.Value == id);
+        var descriptor = module.Descriptor;
+        var folder = Path.Combine(RepoFiles.Src, "Widgets", module.GetType().Assembly.GetName().Name!); // a family's kinds share a project ([S-6901])
         Assert.True(Directory.Exists(folder), folder);
 
         var named = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)

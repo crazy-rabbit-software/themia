@@ -17,6 +17,14 @@ public sealed class ThemiaWidgetAttribute(string id, Type module) : Attribute
     public Type Module { get; } = module;
 }
 
+/// <summary>
+/// [S-6901] Marks a widget module project as a family (owner, 2026-11-19: widgets split into smaller pieces, one
+/// reading each): it declares several widgets, each a kind of its own with its own id, sharing the project's code
+/// (the weather facts: one kind per fact). Without it a module project declares the one widget its name says.
+/// </summary>
+[AttributeUsage(AttributeTargets.Assembly)]
+public sealed class ThemiaWidgetFamilyAttribute : Attribute;
+
 /// <summary>[S-6901] Declares a provider module (an account or data service).</summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 public sealed class ThemiaProviderAttribute(string id, Type module) : Attribute

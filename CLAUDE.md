@@ -167,7 +167,10 @@ Adding a widget or a provider is creating its folder: run `scripts/new-module.ps
 project, the module class with its descriptor, the config, a view stub, the 40 locale files, the
 `SPEC.md` with the next free tag block, a first test, and one line in `Themia.slnx`). The glob
 references, the registry generator (THEMIAMOD001..005: the id is the folder's name in camelCase)
-and the module test host pick it up; nothing in the app, Core or the SDK is edited. A module builds
+and the module test host pick it up; nothing in the app, Core or the SDK is edited. A **family** of small
+widgets that share their code (a widget a reading, split from one that showed many: the weather facts, [S-13900])
+is one project marked `[assembly: ThemiaWidgetFamily]` that declares each kind with its own id, module and
+config ([S-6901]); its kinds share one add-page family (`AddFolderId`, `AddTree`). A module builds
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
