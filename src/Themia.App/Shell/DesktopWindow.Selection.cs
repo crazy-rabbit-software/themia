@@ -54,6 +54,10 @@ internal sealed partial class DesktopWindow
     private Rectangle? _lassoBand;
     private Point _lassoStart;
     private bool _lassoing;
+
+    /// <summary>[S-13018] Whether the edit-mode lasso is drawn (past its dead zone), and how many widgets it touches now.</summary>
+    private bool _lassoDrawn;
+    private int _lassoCaught;
     private List<string> _lassoBase = [];
 
     /// <summary>[S-11877] Whether the widget <paramref name="widgetId"/> is drawn on this surface now (a card that hides itself, [S-873], is not).</summary>
@@ -428,6 +432,8 @@ internal sealed partial class DesktopWindow
         }
 
         _lassoStart = at;
+        _lassoDrawn = false;
+        _lassoCaught = 0;
         _lassoing = _root.CapturePointer(e.Pointer);
     }
 
@@ -462,6 +468,8 @@ internal sealed partial class DesktopWindow
             view,
             new FracRect(left / metrics.Width, top / metrics.Height, width / metrics.Width, height / metrics.Height),
             HiddenIds());
+        _lassoDrawn = true;
+        _lassoCaught = hits.Count;
         _host.SelectMany(view.Id, _lassoBase.Concat(hits));
     }
 
@@ -476,8 +484,15 @@ internal sealed partial class DesktopWindow
         if (_lassoing)
         {
             _root.ReleasePointerCapture(e.Pointer);
+            var (drawn, caught) = (_lassoDrawn, _lassoCaught);
             EndLasso();
             e.Handled = true;
+
+            // [S-13018] A lasso let go over empty desktop offers its area's menu.
+            if (drawn)
+            {
+                _host.LassoReleased(this, _lassoStart, e.GetCurrentPoint(_root).Position, caught);
+            }
         }
     }
 
@@ -492,6 +507,7 @@ internal sealed partial class DesktopWindow
     private void EndLasso()
     {
         _lassoing = false;
+        _lassoDrawn = false;
         _lassoBase = [];
         if (_lassoBand is not null)
         {

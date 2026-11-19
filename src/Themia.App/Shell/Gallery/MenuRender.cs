@@ -271,6 +271,9 @@ internal static class MenuRender
 
         // [S-13007] Fences' small menu after a rectangle drawn with the right button.
         await RenderAsync(root, AppHost.FenceCreateEntries(static () => { }), System.IO.Path.Combine(outDir, "desk-fence-create.png")).ConfigureAwait(true);
+
+        // [S-13018] A lasso let go over empty desktop: its area's menu.
+        await RenderAsync(root, AppHost.LassoEntries(static () => { }, static () => { }), System.IO.Path.Combine(outDir, "desk-lasso-area.png")).ConfigureAwait(true);
         foreach (var (name, glyph) in new[] { ("view", Glyphs.View), ("sortby", Glyphs.Sort), ("new", Glyphs.Add) })
         {
             if (background.FirstOrDefault(e => e.Glyph == glyph && e.Children is not null).Children is { } children)

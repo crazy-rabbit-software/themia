@@ -138,6 +138,26 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
+    public void S13018_a_widget_added_into_a_lassoed_area_takes_the_box_its_kind_allows_there()
+    {
+        // A tall area: a task list takes the rows it holds, as wide as the area, anchored at its corner.
+        var area = Themia.Core.Desktop.LassoArea.Offered(new FracRect(0.2, 0.1, 0.3, 0.5), caught: 0, Screen)!.Value;
+        var tasks = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0, 0, 0.1, 0.1));
+        Themia.Core.Desktop.LassoArea.Fill(tasks, area, Screen, 1);
+
+        Assert.True(Assert.IsType<TasksConfig>(tasks.Config).Rows > 6);
+        Assert.Equal(area.X, tasks.Rect.X, 9);
+        Assert.Equal(area.Y, tasks.Rect.Y, 9);
+        Assert.True(tasks.Rect.W <= area.W + 1e-9 && tasks.Rect.H <= area.H + 1e-9);
+
+        // An area larger than a kind's maximum: the widget stops at its maximum, inside the area.
+        var toggle = WidgetInstance.Create(new WidgetId("wifiToggle"), new FracRect(0, 0, 0.1, 0.1));
+        var max = SizeFit.Limits(toggle, Screen, 1)!;
+        Themia.Core.Desktop.LassoArea.Fill(toggle, area, Screen, 1);
+        Assert.True(toggle.Rect.W <= max.Width.Max + 1e-9 && toggle.Rect.W <= area.W + 1e-9);
+    }
+
+    [Fact]
     public void S2447_a_config_change_of_rows_refits_the_stored_rect_at_its_top_left()
     {
         var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, (12 + (6 * 28) + 28 + 12) / 1000.0));

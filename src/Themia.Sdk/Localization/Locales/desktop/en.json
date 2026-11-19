@@ -1,5 +1,5 @@
 {
-  "$englishOnly": ["desktop.menu.sortBy", "desktop.menu.sort.name", "desktop.menu.sort.size", "desktop.menu.sort.type", "desktop.menu.sort.date", "desktop.menu.refresh", "desktop.menu.view", "desktop.icons.size", "desktop.icons.large", "desktop.icons.medium", "desktop.icons.small", "desktop.icons.autoArrange", "desktop.tip.location", "desktop.tip.type", "desktop.tip.size", "desktop.tip.modified", "desktop.tip.created", "desktop.viewIcons.label", "desktop.viewIcons.all", "desktop.viewIcons.chosen", "desktop.viewIcons.none", "desktop.viewIcons.list", "desktop.viewIcons.count", "desktop.viewIcons.empty", "desktop.hideFromView", "desktop.restore.skipped", "desktop.restore.skippedBody", "desktop.fence.createHere", "desktop.fence.fromSelection", "desktop.fence.removed", "desktop.undo.line", "desktop.undo.rename", "desktop.undo.copy", "desktop.undo.move", "desktop.undo.newFolder", "desktop.undo.delete", "desktop.undo.shortcut", "desktop.undo.new"],
+  "$englishOnly": ["desktop.menu.sortBy", "desktop.menu.sort.name", "desktop.menu.sort.size", "desktop.menu.sort.type", "desktop.menu.sort.date", "desktop.menu.refresh", "desktop.menu.view", "desktop.icons.size", "desktop.icons.large", "desktop.icons.medium", "desktop.icons.small", "desktop.icons.autoArrange", "desktop.tip.location", "desktop.tip.type", "desktop.tip.size", "desktop.tip.modified", "desktop.tip.created", "desktop.viewIcons.label", "desktop.viewIcons.all", "desktop.viewIcons.chosen", "desktop.viewIcons.none", "desktop.viewIcons.list", "desktop.viewIcons.count", "desktop.viewIcons.empty", "desktop.hideFromView", "desktop.restore.skipped", "desktop.restore.skippedBody", "desktop.fence.createHere", "desktop.area.addWidget", "desktop.fence.fromSelection", "desktop.fence.removed", "desktop.undo.line", "desktop.undo.rename", "desktop.undo.copy", "desktop.undo.move", "desktop.undo.newFolder", "desktop.undo.delete", "desktop.undo.shortcut", "desktop.undo.new"],
   "desktop.icons.size": "Desktop icon size",
   "desktop.icons.large": "Large icons",
   "desktop.icons.medium": "Medium icons",
@@ -35,6 +35,7 @@
   },
   "desktop.restore.skippedBody": "It's no longer in the Recycle Bin, or something else has its name now.",
   "desktop.fence.createHere": "Create fence here",
+  "desktop.area.addWidget": "Add widget here",
   "desktop.fence.fromSelection": "Create fence from selection",
   "desktop.fence.removed": {
     "one": "Fence removed, its {count} item put back",

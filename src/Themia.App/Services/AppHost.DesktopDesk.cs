@@ -308,9 +308,13 @@ internal sealed partial class AppHost : IDesktopDesk
         }
     }
 
+    /// <summary>[S-13018] How many widgets the running band touches now (icons, cards, a fence's items): none offers its area.</summary>
+    public int BandCaught { get; private set; }
+
     /// <summary>[S-5544] The band starts.</summary>
     public void DesktopBandBegin(bool ctrl, bool shift)
     {
+        BandCaught = 0;
         _desk.BeginBand(ctrl, shift);
         RepaintDesk();
     }
@@ -339,7 +343,9 @@ internal sealed partial class AppHost : IDesktopDesk
             window.ShowDesktopBand(Themia.Core.Desktop.DesktopBand.On(band, info.Bounds, info.WorkArea, window.BandScale));
         }
 
-        _desk.Band(Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Ordered));
+        var hits = Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Ordered);
+        BandCaught = hits.Count;
+        _desk.Band(hits);
         RepaintDesk();
     }
 

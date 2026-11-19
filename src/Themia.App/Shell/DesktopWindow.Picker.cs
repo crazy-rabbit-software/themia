@@ -32,6 +32,29 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-11707] The add page, while it is open on this display.</summary>
     private AddPageFlyout? _addPage;
 
+    /// <summary>[S-13018] The lassoed area the open add page places into (fractions of this display); null for the bar's Add.</summary>
+    private FracRect? _addArea;
+
+    /// <summary>
+    /// [S-13018] Add widget here, from a lassoed area's menu: edit mode on, the add page opened; the widget picked there is
+    /// laid into <paramref name="area"/> at once (no ghost to aim). A ready-made group or a desktop item still follows the pointer.
+    /// </summary>
+    internal void OpenAddPageFor(FracRect area)
+    {
+        if (_closed)
+        {
+            return;
+        }
+
+        if (!EditMode)
+        {
+            _host.SetEditMode(true);
+        }
+
+        OpenAddPage();
+        _addArea = _addPage is null ? null : area;
+    }
+
     /// <summary>[S-11707] The bar's Add: the add page opened, or closed again.</summary>
     private void ToggleAddPage()
     {
@@ -84,6 +107,7 @@ internal sealed partial class DesktopWindow
 
         _flyoutLayer.Children.Remove(page);
         _addPage = null;
+        _addArea = null;
         ShowToolbar();
         if (focusAdd)
         {
@@ -113,7 +137,15 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void PickFromAddPage(AddTile tile)
     {
+        var area = _addArea;
         CloseAddPage(focusAdd: false);
+
+        // [S-13018] Opened for a lassoed area: the widget goes into it.
+        if (area is { } into && tile is AddWidgetTile kindTile && _host.PlaceWidgetIn(this, kindTile.Kind, into))
+        {
+            return;
+        }
+
         switch (tile)
         {
             case AddWidgetTile one:

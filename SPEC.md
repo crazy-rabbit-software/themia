@@ -10381,6 +10381,17 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
 - **[S-13014]** **Per view**: a fence's items show only where the fence is; a fence copied or cut to another view takes
   its items with it, and the views' own rules then hold (an item both free and fenced on the new view keeps its fence at
   the next load, [S-13002]).
+- **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
+  show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
+  locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each
+  way (`LassoArea.Offered`, `MinCells`) opens at the release a one-column menu (`AppHost.LassoEntries`): **Add widget
+  here** turns edit mode on and opens the add page; a widget picked there is laid into the area at once, no ghost to aim:
+  the config that box means for its kind, then the area fitted into its sizing on the grid from the area's corner
+  (`LassoArea.Fill`; a ready-made group or a desktop item picked there is placed as usual); **Create fence here** makes a
+  fence on the area snapped out to whole cells and at least the kind's minimum, taking in the free icons whose middle is
+  inside it (`LassoArea.IconsInside`), one undo step ([S-13007]'s rules). A lasso that touched something is a selection
+  and opens nothing; Escape or a click elsewhere closes the menu. Drawn by `--menu-png` (`desk-lasso-area`). Tests
+  `LassoAreaTests.S13018_`, `WidgetSizingTests.S13018_`.
 
 Needs a manual pass on the live desktop: everything above that a pointer does (the right-drag rectangle and its menu, a
 drag into, out of and between fences, a drop from Explorer onto a fence, the band reaching into one, the arrows across),

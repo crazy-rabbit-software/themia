@@ -241,7 +241,7 @@ public static class DesktopFences
     }
 
     /// <summary>Out to whole cells of the widget grid ([S-06]: the corner down to its line, the size up), then kept on the display ([S-09]).</summary>
-    private static FracRect Snap(FracRect rect, ScreenMetrics screen)
+    internal static FracRect Snap(FracRect rect, ScreenMetrics screen)
     {
         var (cols, rows) = GridGeometry.GridDims(screen);
         double Down(double f, int n) => Math.Floor((f * n) + 1e-9) / n;

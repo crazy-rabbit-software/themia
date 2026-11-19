@@ -229,7 +229,10 @@ internal sealed partial class DesktopWindow
     /// <summary>The DIP-to-pixel factor this surface draws at, for the host's screen-space band.</summary>
     public double BandScale => RasterScale;
 
-    /// <summary>[S-5544] The left button came up, or the capture went: what the band selected stays.</summary>
+    /// <summary>
+    /// [S-5544] The left button came up, or the capture went: what the band selected stays. [S-13018] A band let go
+    /// over empty desktop (it touched nothing) offers its area's menu at the release.
+    /// </summary>
     private bool EndDesktopBand(PointerRoutedEventArgs? e)
     {
         if (!_deskBandArmed)
@@ -246,7 +249,12 @@ internal sealed partial class DesktopWindow
         if (_deskBanding)
         {
             _deskBanding = false;
+            var caught = _host.BandCaught;
             _host.DesktopBandEnd();
+            if (e is not null)
+            {
+                _host.LassoReleased(this, _deskBandStart, e.GetCurrentPoint(_root).Position, caught);
+            }
         }
 
         return true;
