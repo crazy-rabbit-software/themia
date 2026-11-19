@@ -54,7 +54,7 @@ Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local gri
            # size, a mixed lasso selection (icons and cards), both themes [S-11874]..[S-11879]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
-Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|select]   # the edit bar (editbar-*: nothing,
+Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select]   # the edit bar (editbar-*: nothing,
            # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*); the selection's page
            # beside real cards (select-*) [S-2328]. --picker-png takes --theme too. There is no settings window [S-3585]

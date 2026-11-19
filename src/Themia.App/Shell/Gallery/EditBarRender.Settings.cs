@@ -24,7 +24,7 @@ namespace Themia.App.Shell.Gallery;
 /// </summary>
 internal static partial class EditBarRender
 {
-    private static async Task SettingsShots(Grid screen, string outDir, string theme)
+    private static async Task SettingsShots(Grid screen, string outDir, string theme, bool appearanceOnly = false)
     {
         // [S-2311] The Appearance's preview over a picture of Windows' own, frosted as the desktop frosts it, where this PC has it.
         using var wallpaper = File.Exists(PreviewWallpaper) ? RenderWallpaper.Use(PreviewWallpaper, new Core.Geometry.ScreenMetrics(1920, 1200)) : null;
@@ -54,9 +54,25 @@ internal static partial class EditBarRender
             ("general-temperature", SettingsMenu.Keys.Temperature),
         ];
 
-        foreach (var (name, key) in cases)
+        foreach (var (name, key) in cases.Where(c => !appearanceOnly || c.Name.StartsWith("appearance", StringComparison.Ordinal)))
         {
             await SettingsShot(screen, outDir, theme, name, new RenderSettingsHost(), key, after: name.EndsWith("-end", StringComparison.Ordinal) ? f => f.Scroll(Windows.System.VirtualKey.End) : null).ConfigureAwait(true);
+        }
+
+        // [S-2311] The preview in other styles: the page at its top with a preset applied (page-<theme>-appearance-<preset>),
+        // each preset in the theme it was made for (the render's theme is the app's; the page does not switch it).
+        var renderTheme = theme == "light" ? AppTheme.Light : AppTheme.Dark;
+        foreach (var preset in DesignPresets.All.Where(p => p.Id is DesignPresetId.LiquidGlass or DesignPresetId.Paper or DesignPresetId.Midnight
+            && (p.Values.Theme == AppTheme.System || p.Values.Theme == renderTheme)).Select(p => p.Id))
+        {
+            var styled = new RenderSettingsHost();
+            DesignPresets.Apply(styled.State.Design, preset);
+            await SettingsShot(screen, outDir, theme, "appearance-" + preset.ToString().ToLowerInvariant(), styled, null).ConfigureAwait(true);
+        }
+
+        if (appearanceOnly)
+        {
+            return;
         }
 
         // [S-2308] The languages' lookup finds a language as it is typed.
