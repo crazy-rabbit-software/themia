@@ -73,7 +73,7 @@ internal sealed partial class DesktopItemAutomationPeer(DesktopItemView owner)
             return;
         }
 
-        Desk.Press(owner.Key, ctrl, shift: false);
+        Desk.Press(owner.Key, ctrl, shift: false, owner.WidgetId);
         Desk.Release(owner.Key);
     }
 

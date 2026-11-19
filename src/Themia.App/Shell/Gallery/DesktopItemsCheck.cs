@@ -86,6 +86,16 @@ internal static class DesktopItemsCheck
                     }
 
                     lines.Add($"icons: {drawn} of {items.Count}");
+
+                    // Items Explorer shows under one name (the user's and the Public desktop each holding it): each its own key.
+                    var keys = new HashSet<string>(items.Select(i => i.Key), DesktopItemKeys.Comparer);
+                    foreach (var shared in items.GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
+                    {
+                        var folders = shared.Select(i => Path.GetDirectoryName(i.Key) ?? "?").Distinct(StringComparer.OrdinalIgnoreCase).Count();
+                        lines.Add($"one name, {shared.Count()} items: {folders} folder(s), keys distinct {shared.Select(i => i.Key).Distinct(DesktopItemKeys.Comparer).Count() == shared.Count()}, rooted {shared.All(i => Path.IsPathFullyQualified(i.Key))}");
+                    }
+
+                    lines.Add($"keys: {keys.Count} distinct of {items.Count}");
                 }
             }
             catch (Exception ex)

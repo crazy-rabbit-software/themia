@@ -51,8 +51,11 @@ public interface IDesktopItems
     /// <summary>[S-5549] The item widget a drag hovers as its drop target now (its id), or null.</summary>
     string? DropTargetWidget { get; }
 
-    /// <summary>[S-5540] A left press on <paramref name="key"/>'s widget outside edit mode (Ctrl toggles, Shift selects the range).</summary>
-    void Press(string key, bool ctrl, bool shift);
+    /// <summary>
+    /// [S-5540] A left press on <paramref name="key"/>'s widget <paramref name="widgetId"/> outside edit mode (Ctrl toggles, Shift
+    /// selects the range). The widget says which display the press is on: an item two displays show is ranged where it was pressed.
+    /// </summary>
+    void Press(string key, bool ctrl, bool shift, string? widgetId);
 
     /// <summary>[S-6621] The release of a press that was no drag.</summary>
     void Release(string key);

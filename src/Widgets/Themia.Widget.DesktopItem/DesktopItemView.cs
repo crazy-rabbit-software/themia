@@ -173,7 +173,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
     /// <summary>[S-5608] A screen reader sees the icon as a list item of the desktop's list.</summary>
     protected override Microsoft.UI.Xaml.Automation.Peers.AutomationPeer OnCreateAutomationPeer() => new DesktopItemAutomationPeer(this);
 
-    private string? WidgetId => _surface?.WidgetId;
+    internal string? WidgetId => _surface?.WidgetId;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -307,7 +307,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         var keys = e.KeyModifiers;
         var ctrl = keys.HasFlag(Windows.System.VirtualKeyModifiers.Control);
         var shift = keys.HasFlag(Windows.System.VirtualKeyModifiers.Shift);
-        _host.DesktopItems.Press(Key, ctrl, shift);
+        _host.DesktopItems.Press(Key, ctrl, shift, WidgetId);
         _pressed = true;
         _pressModified = ctrl || shift;
     }

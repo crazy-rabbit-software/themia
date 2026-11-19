@@ -27,7 +27,7 @@ internal interface IDesktopDesk
 
     string? DropTargetWidget { get; }
 
-    void Press(string key, bool ctrl, bool shift);
+    void Press(string key, bool ctrl, bool shift, string? widgetId);
 
     void Release(string key);
 
@@ -139,7 +139,7 @@ internal sealed class HostDesktopItems : IDesktopItems
     public IDesktopFences Fences => Desk?.Fences ?? NoFences.Instance;
 
     /// <inheritdoc />
-    public void Press(string key, bool ctrl, bool shift) => Desk?.Press(key, ctrl, shift);
+    public void Press(string key, bool ctrl, bool shift, string? widgetId) => Desk?.Press(key, ctrl, shift, widgetId);
 
     /// <inheritdoc />
     public void Release(string key) => Desk?.Release(key);
@@ -363,6 +363,15 @@ internal sealed class HostDesktopItems : IDesktopItems
         }
     }
 
+#if DEBUG
+    /// <summary>Debug checks only: <paramref name="items"/> are the listing, as a read would land them (no read, nothing watched).</summary>
+    internal void AdoptForCheck(IReadOnlyList<DesktopItem> items)
+    {
+        HasListing = true;
+        Adopt(items);
+    }
+
+#endif
     private void Adopt(IReadOnlyList<DesktopItem> items)
     {
         _items = items;

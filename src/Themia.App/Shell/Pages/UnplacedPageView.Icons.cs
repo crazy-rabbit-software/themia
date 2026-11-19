@@ -165,7 +165,7 @@ internal sealed partial class UnplacedPageView
 
         public string? DropTargetWidget => null;
 
-        public void Press(string key, bool ctrl, bool shift)
+        public void Press(string key, bool ctrl, bool shift, string? widgetId)
         {
             // ignore: the icons act on nothing (a preview's host); the page takes their press.
         }

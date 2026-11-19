@@ -10583,7 +10583,12 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   an icon selects it alone, Ctrl toggles it, Shift selects the range from the anchor, a press on a selected item
   narrows only on release (a move cancels that, so the selection moves whole), a right press keeps a selection it
   lands in. The order a range, the arrows and Home/End run in is the desktop's (`DesktopNav.Order`): display by display
-  from the left, down each column, then the next; an item shown on two displays (two views) holds one place. An item
+  from the left, down each column, then the next; an item shown on two displays (two views) holds one place: its place
+  on the display the last gesture was on (a press, the band, the keys, a menu: `AppHost` tells `DesktopNav.Order` that
+  display) when that display shows it, else its first, so a Shift range and the arrows run where the user is, and it is
+  drawn selected on every display that shows it (the owner, 2026-11-20: "there are two quartus desktop icons and i cannot
+  select them together"; the user's Quartus was on Home's display, left of Today's, and Today's copy of it held Home's
+  place: a range on Today ran through Home and the band on Today could not catch it). An item
   no longer shown (a card that draws nothing, [S-873]) leaves the selection; an icon's look is the SDK's one
   ([S-6627]), inactive while another window has the keyboard ([S-6626]); a card's is its corners ([S-11877]).
 - **[S-5541]** **Arrows by place** (`DesktopNav.Step`): the nearest item that way in the same column
@@ -10618,12 +10623,14 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   and hands it to **every surface it reaches**, each drawing it on its ghost layer in its own DIPs and
   scale (`On`; the window's region cuts it to that display's part, [S-21], so there is no edge where
   it runs on). It selects, live, the widgets it touches **on any display**, desktop icons of both sources
-  and cards alike ([S-11877]), by their boxes in screen pixels (`Hits` over the one selection's, [S-5540], [S-5563]): alone, added to
+  and cards alike ([S-11877]), by their boxes in screen pixels (`Hits` over every box the displays show,
+  `DesktopSelection.Boxes`: an item two displays show is caught where either shows it, [S-5540], [S-5563]): alone, added to
   the earlier selection with Shift, toggled with Ctrl ([S-6625]). What it selected stays when the
   button comes up; the band ends on every display with the button, the capture or the surface that
   held it. A display Themia is switched off on ([S-845]) has no surface: the band does not go there.
   *(Until 2026-11-14 the band was clamped to the surface it started on and selected that display's
-  icons only.)* Tests `DesktopBandTests.S5544_`. Live pass still needed: two displays, mixed scale,
+  icons only.)* Tests `DesktopBandTests.S5544_`, `DeskTwinSelectionTests` (one item on two displays' views, the owner's
+  two Quartus icons), `--desk-select-check --twice` (host-level). Live pass still needed: two displays, mixed scale,
   a display left of and above the primary.
 - **[S-5545]** **Commands** with the keys: Delete is the shell's own "delete" verb on the selected
   files (`IContextMenu`, as Explorer invokes it), with the shell's own prompt as the user set it up

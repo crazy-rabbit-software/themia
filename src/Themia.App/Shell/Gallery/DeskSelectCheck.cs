@@ -17,9 +17,11 @@ namespace Themia.App.Shell.Gallery;
 /// [S-11877] [S-11879] [S-12953] Debug only: <c>Themia.exe --desk-select-check &lt;out.txt&gt; [--locked] [--live] [--twice]
 /// [--glass]</c>. The locked desktop's one selection through the app's own wiring: a real <see cref="AppHost"/> over a detached
 /// store with its desk started as at the app's start, and a real <see cref="DesktopWindow"/> on a stand-in display whose view
-/// holds cards of several sorts (a clock, a calendar, a list, a text widget, the weather, a fence) and two desktop icons.
+/// holds cards of several sorts (a clock, a calendar, a list, a text widget, the weather, a fence), two own icons and two
+/// desktop items of one name, the user's and the Public desktop's (a listing of them handed to the host; [S-5540]: with
+/// <c>--twice</c> the user's is on the other display's view too, as the owner's Quartus on Home and Today).
 /// Without <c>--live</c> the host's gestures are called as the presses call them (Ctrl+press on each card, a band over
-/// everything). With <c>--live</c> the stand-in display is put on the primary screen over every window and driven with real
+/// everything; a click, Ctrl+click, Shift+click and a band on the two of one name). With <c>--live</c> the stand-in display is put on the primary screen over every window and driven with real
 /// input (SendInput: the pointer, Ctrl, Shift, the arrows, Ctrl+A), so every press goes through XAML's routing as the user's:
 /// Ctrl+click on every card and icon (first while another app has the foreground), the band, a click and Shift+click on icons,
 /// Down, Ctrl+A, a click on one icon of a selection, and a drag of the selection by an icon. Before each press it checks the
@@ -94,7 +96,19 @@ internal static partial class DeskSelectCheck
                 ("fence", WidgetInstance.Create(new WidgetId("fence"), new FracRect(0.55, 0.32, 0.22, 0.30))),
                 ("iconA", WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.86, 0.08, 0.07, 0.11))),
                 ("iconB", WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.86, 0.30, 0.07, 0.11))),
+                ("twinU", WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.86, 0.52, 0.07, 0.11))),
+                ("twinP", WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.86, 0.66, 0.07, 0.11))),
             };
+
+            // [S-5510] One file name on the user's desktop and on the Public one: two items Explorer shows side by side, two keys.
+            const string Twin = "Twin (Check 1.0).lnk";
+            var twins = new[]
+            {
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), Twin),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory), Twin),
+            };
+            ((IDesktopItemConfig)items[^2].Widget.Config).Item = twins[0];
+            ((IDesktopItemConfig)items[^1].Widget.Config).Item = twins[1];
             view.Widgets.AddRange(items.Select(i => i.Widget));
             state.ShowViewOn(DisplayId, view.Id);
 
@@ -105,12 +119,19 @@ internal static partial class DeskSelectCheck
             host = new AppHost(DispatcherQueue.GetForCurrentThread(), AppStateStore.Detached(Path.Combine(Path.GetTempPath(), "themia-desk-select-check", "state.json")), state);
             surface = new DesktopWindow(host, monitor);
             host.AdoptSurfaceForCheck(surface);
+            string? homeTwin = null;
             if (twice)
             {
                 var other = state.Views[1];
                 other.Widgets.Clear();
                 other.Widgets.Add(WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.05, 0.05, 0.2, 0.15)));
                 other.Widgets.Add(WidgetInstance.Create(new WidgetId("fence"), new FracRect(0.3, 0.2, 0.25, 0.3)));
+
+                // [S-5540] The user's twin on this view too (the owner's Home beside Today): one key on two displays.
+                var home = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.7, 0.4, 0.07, 0.11));
+                ((IDesktopItemConfig)home.Config).Item = twins[0];
+                other.Widgets.Add(home);
+                homeTwin = home.Id;
                 state.ShowViewOn(DisplayId + "-2", other.Id);
                 var left = live
                     ? new Win32.Rect { Left = 60, Top = 60, Right = 60 + 1200, Bottom = 60 + 800 }
@@ -122,6 +143,7 @@ internal static partial class DeskSelectCheck
 
             // The desk follows the host as at the app's start: the icons' presses reach it, the listing and state relay it ([S-5540]).
             host.StartDeskForCheck(start: true);
+            Services.Files.HostDesktopItems.Instance.AdoptForCheck([.. twins.Select(key => new DesktopItem(key, "Twin (Check 1.0)", DesktopItemKind.Shortcut))]);
             surface.ShowSurface();
 
             // A diagnostic's wait, not a correctness path: the surface lays out and the intro ends.
@@ -130,7 +152,7 @@ internal static partial class DeskSelectCheck
             var shown = surface;
             var running = host;
             var names = items.Select(it => it.Name).ToList();
-            var icons = names.Where(n => n.StartsWith("icon", StringComparison.Ordinal)).ToList();
+            var icons = names.Where(n => n.StartsWith("icon", StringComparison.Ordinal) || n.StartsWith("twin", StringComparison.Ordinal)).ToList();
             var cards = names.Except(icons).ToList();
             WidgetInstance Model(int i) => running.State.Views[0].Find(items[i].Widget.Id) ?? items[i].Widget;
             int Index(string name) => names.IndexOf(name);
@@ -170,6 +192,33 @@ internal static partial class DeskSelectCheck
                 Expect("band running", Allowed(names));
                 host.DesktopBandEnd();
                 Expect("band ended", Allowed(names));
+
+                // [S-5510] [S-5540] The two items of one name, one per desktop folder: each its own key, selected together.
+                // With --twice the user's twin is on the other display's view too (Home beside Today): a band and a range here
+                // still take it where this display shows it.
+                string KeyOf(string name) => DesktopItemKeys.Of((IDesktopItemConfig)Model(Index(name)).Config);
+                void Click(string name, bool ctrl = false, bool shift = false)
+                {
+                    host.Press(KeyOf(name), ctrl, shift, items[Index(name)].Widget.Id);
+                    host.Release(KeyOf(name));
+                }
+
+                Say($"     twins: keys distinct {!DesktopItemKeys.Comparer.Equals(KeyOf("twinU"), KeyOf("twinP"))}"
+                    + (homeTwin is { } homeId ? $", twinU on the other display (left) too: drawn there {second?.CardFor(homeId) is not null && second.Draws(homeId)}" : string.Empty));
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                Say($"     twins' places in the desktop's order: twinU {host.PositionOf(KeyOf("twinU"))}, twinP {host.PositionOf(KeyOf("twinP"))}");
+                Click("twinU");
+                Expect("click twinU", ["twinU"]);
+                Click("twinP", ctrl: true);
+                Expect("ctrl+click twinP", ["twinU", "twinP"]);
+                Click("twinP");
+                Click("twinU", shift: true);
+                Expect("click twinP, shift+click twinU", ["twinU", "twinP"]);
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                host.DesktopBandBegin(ctrl: false, shift: false);
+                host.DesktopBand(surface, new Point(metrics.Width * 0.84, metrics.Height * 0.50), new Point(metrics.Width * 0.95, metrics.Height * 0.79));
+                host.DesktopBandEnd();
+                Expect("band over the twins", ["twinU", "twinP"]);
             }
             else
             {

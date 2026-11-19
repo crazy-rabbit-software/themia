@@ -23,20 +23,41 @@ public static class DesktopNav
 {
     /// <summary>
     /// [S-5540] The items in the desktop's order: by display, then by column (left edge), then by row
-    /// (top edge), the key breaking a tie. An item shown twice (in the views of two displays) keeps its
-    /// first place only: the selection holds an item once.
+    /// (top edge), the key breaking a tie. The selection holds an item once, so an item shown twice (in the views of two
+    /// displays) holds one place: its place on <paramref name="display"/> (the display the last gesture was on) when that
+    /// display shows it, else its first (the owner, 2026-11-20: "there are two quartus desktop icons and i cannot select
+    /// them together": the one Today showed held Home's place, so a range or an arrow on Today ran through Home).
     /// </summary>
-    public static IReadOnlyList<DesktopBox> Order(IEnumerable<DesktopBox> boxes)
+    public static IReadOnlyList<DesktopBox> Order(IEnumerable<DesktopBox> boxes, int? display = null)
     {
         ArgumentNullException.ThrowIfNull(boxes);
+        var shown = Shown(boxes);
+        var kept = new Dictionary<string, DesktopBox>(DesktopItemKeys.Comparer);
+        foreach (var box in shown)
+        {
+            if (!kept.TryGetValue(box.Key, out var first) || (box.Display == display && first.Display != display))
+            {
+                kept[box.Key] = box;
+            }
+        }
+
         var seen = new HashSet<string>(DesktopItemKeys.Comparer);
+        return [.. shown.Where(b => kept[b.Key] == b && seen.Add(b.Key))];
+    }
+
+    /// <summary>
+    /// [S-5544] Every box the displays show, in the desktop's order (<see cref="Order"/>'s, an item two displays show
+    /// once on each): what a band catches, so it catches an item where the display it runs over shows it.
+    /// </summary>
+    public static IReadOnlyList<DesktopBox> Shown(IEnumerable<DesktopBox> boxes)
+    {
+        ArgumentNullException.ThrowIfNull(boxes);
         return [.. boxes
             .Where(b => DesktopItemKeys.IsValid(b.Key) && b.Width > 0 && b.Height > 0)
             .OrderBy(b => b.Display)
             .ThenBy(b => Math.Round(b.X, 3))
             .ThenBy(b => Math.Round(b.Y, 3))
-            .ThenBy(b => b.Key, DesktopItemKeys.Comparer)
-            .Where(b => seen.Add(b.Key))];
+            .ThenBy(b => b.Key, DesktopItemKeys.Comparer)];
     }
 
     /// <summary>
@@ -160,11 +181,15 @@ public sealed class DesktopSelection
     private readonly ItemSelection _selection = new(DesktopItemKeys.Comparer);
     private readonly TypeAhead _typeAhead = new();
     private IReadOnlyList<DesktopBox> _ordered = [];
+    private IReadOnlyList<DesktopBox> _boxes = [];
     private IReadOnlyList<string> _names = [];
     private string? _pendingKey;
 
-    /// <summary>The items in the desktop's order, as last laid out.</summary>
+    /// <summary>The items in the desktop's order, as last laid out: each once, on the display of the last gesture where it shows ([S-5540]).</summary>
     public IReadOnlyList<DesktopBox> Ordered => _ordered;
+
+    /// <summary>[S-5544] Every box the displays show, an item two displays show once on each: what a band catches.</summary>
+    public IReadOnlyList<DesktopBox> Boxes => _boxes;
 
     /// <summary>The selected keys, in the desktop's order.</summary>
     public IReadOnlyList<string> Selected => _selection.Selected;
@@ -182,14 +207,16 @@ public sealed class DesktopSelection
     /// <summary>
     /// The items as they sit now (every display's shown item widgets) and the names type-to-find
     /// reads. Selected items no longer shown leave the selection; the rest keep it. An item asked
-    /// for with <see cref="SelectWhenShown"/> is selected alone once it is shown.
+    /// for with <see cref="SelectWhenShown"/> is selected alone once it is shown. [S-5540] <paramref name="display"/>: the
+    /// display the last gesture was on, where an item two displays show takes its place in the order (a range, the arrows).
     /// </summary>
-    public void SetLayout(IEnumerable<DesktopBox> boxes, Func<string, string?> nameOf)
+    public void SetLayout(IEnumerable<DesktopBox> boxes, Func<string, string?> nameOf, int? display = null)
     {
         ArgumentNullException.ThrowIfNull(boxes);
         ArgumentNullException.ThrowIfNull(nameOf);
 
-        _ordered = DesktopNav.Order(boxes);
+        _boxes = DesktopNav.Shown(boxes);
+        _ordered = DesktopNav.Order(_boxes, display);
         _names = [.. _ordered.Select(b => nameOf(b.Key) ?? DesktopItemKeys.FallbackName(b.Key))];
         _selection.SetOrder([.. _ordered.Select(b => b.Key)]);
 
@@ -308,7 +335,7 @@ public sealed class DesktopSelection
     public void Band(IEnumerable<string> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
-        _selection.Band(keys.Select(_selection.IndexOf).Where(i => i >= 0).Order());
+        _selection.Band(keys.Select(_selection.IndexOf).Where(i => i >= 0).Distinct().Order());
     }
 
     public void EndBand() => _selection.EndBand();

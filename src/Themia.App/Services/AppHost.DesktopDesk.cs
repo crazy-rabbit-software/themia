@@ -51,6 +51,25 @@ internal sealed partial class AppHost : IDesktopDesk
     /// <summary>The first widget showing each key (a desktop item's, an own icon's, a card's), and the surface it is on, as last laid out.</summary>
     private Dictionary<string, (DesktopWindow Surface, WidgetInstance Widget)> _deskWidgets = new(DesktopItemKeys.Comparer);
 
+    /// <summary>
+    /// [S-5540] The surface the desktop's last gesture was on (a press, the band, the keys, a menu): an item two displays show
+    /// takes its place in the selection's order there, so a range and the arrows run where the user is.
+    /// </summary>
+    private DesktopWindow? _deskSurface;
+
+    /// <summary>[S-5540] The surface that shows the widget <paramref name="widgetId"/>, or null.</summary>
+    private DesktopWindow? SurfaceShowing(string? widgetId)
+        => widgetId is null ? null : _windows.FirstOrDefault(w => w.IsAlive && w.CardFor(widgetId) is not null);
+
+    /// <summary>[S-5540] The desktop's gesture is on <paramref name="surface"/> now (none known keeps the last).</summary>
+    private void GestureOn(DesktopWindow? surface)
+    {
+        if (surface is not null)
+        {
+            _deskSurface = surface;
+        }
+    }
+
     // ---- IDesktopDesk: what the item widgets read --------------------------------------------------
 
     public bool IsSelected(string key) => _desk.IsSelected(key);
@@ -210,8 +229,14 @@ internal sealed partial class AppHost : IDesktopDesk
         var boxes = new List<DesktopBox>();
         var widgets = new Dictionary<string, (DesktopWindow, WidgetInstance)>(DesktopItemKeys.Comparer);
         var display = 0;
+        int? gesture = null;
         foreach (var surface in _windows.Where(w => w.IsAlive).OrderBy(w => w.Monitor.Bounds.Left).ThenBy(w => w.Monitor.Bounds.Top))
         {
+            if (ReferenceEquals(surface, _deskSurface))
+            {
+                gesture = display;
+            }
+
             var bounds = surface.Monitor.Bounds;
             foreach (var widget in State.ViewForMonitor(surface.Monitor.Id).Widgets)
             {
@@ -229,13 +254,14 @@ internal sealed partial class AppHost : IDesktopDesk
         }
 
         _deskWidgets = widgets;
-        _desk.SetLayout(boxes, DeskName);
+        _desk.SetLayout(boxes, DeskName, gesture);
     }
 
     // ---- presses ----------------------------------------------------------------------------------
 
-    public void Press(string key, bool ctrl, bool shift)
+    public void Press(string key, bool ctrl, bool shift, string? widgetId)
     {
+        GestureOn(SurfaceShowing(widgetId));
         CloseRenameFor(key);
         _landings.ClearOpen();
         LayoutDesk();
@@ -259,6 +285,7 @@ internal sealed partial class AppHost : IDesktopDesk
     {
         CloseRenameFor(null);
         _landings.ClearOpen();
+        GestureOn(surface);
         var metrics = surface.Metrics;
         if (!inFence)
         {
@@ -284,6 +311,7 @@ internal sealed partial class AppHost : IDesktopDesk
     /// </summary>
     public bool DeskPick(WidgetInstance widget, bool ctrl, bool shift)
     {
+        GestureOn(SurfaceShowing(widget.Id));
         LayoutDesk();
         if (DeskKey(widget) is not { } key)
         {
@@ -327,6 +355,7 @@ internal sealed partial class AppHost : IDesktopDesk
     /// </summary>
     public void DesktopBand(DesktopWindow surface, Point start, Point now)
     {
+        GestureOn(surface);
         var surfaces = _windows.Where(w => w.IsAlive).ToList();
         var areas = surfaces.ConvertAll(w => w.Monitor.Info.WorkArea);
         var display = surface.Monitor.Info.Bounds;
@@ -344,7 +373,7 @@ internal sealed partial class AppHost : IDesktopDesk
 
         // [S-13027] A fence whose items the band catches is left out: the items take precedence.
         var hits = DesktopFences.BandHits(
-            [.. Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Ordered).Where(key => _bandExcept is null || !string.Equals(key, _bandExcept, StringComparison.Ordinal))],
+            [.. Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Boxes).Where(key => _bandExcept is null || !string.Equals(key, _bandExcept, StringComparison.Ordinal))],
             FenceKeyOf);
         BandCaught = hits.Count;
         _desk.Band(hits);
@@ -412,6 +441,7 @@ internal sealed partial class AppHost : IDesktopDesk
 
     public bool Key(WidgetKey key, bool shift, string? widgetId)
     {
+        GestureOn(SurfaceShowing(widgetId) ?? DesktopKeysSurface);
         LayoutDesk();
         switch (key)
         {

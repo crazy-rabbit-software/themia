@@ -29,6 +29,7 @@ internal sealed partial class AppHost
     public void Context(string key, int screenX, int screenY, nint owner, bool classic)
     {
         CloseRenameFor(null);
+        GestureOn(_windows.FirstOrDefault(w => w.IsAlive && w.Hwnd == owner));
         LayoutDesk();
         _desk.Context(key);
         _deskActive = true;
