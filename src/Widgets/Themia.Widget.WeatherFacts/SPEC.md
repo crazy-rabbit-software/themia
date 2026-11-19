@@ -8,7 +8,7 @@ group "Weather" ([S-11172]), the old weather card. Its tags are this file's and 
 
 Owning files: everything in this folder: `WeatherFactsModule.cs` (descriptor, sizing, view factory,
 JSON context), `WeatherFactsConfig.cs`, `WeatherFactRules.cs` (the facts, their names and values),
-`WeatherFactsView.cs` (the SDK's `SkyFeed` and `SkyFactList`), `WeatherFactsMenu.cs`, `Preview/`
+`WeatherFactsView.cs` (the SDK's `SkyFeed` and `FactList`), `WeatherFactsMenu.cs`, `Preview/`
 (Debug renders: `--state sample|stale|failed`, the same sample reading and place as the reading's),
 `Localization/Locales/` (its own `WeatherFactsStr`: the fact names moved here from the reading with
 their translations). Tests: `Tests/WeatherFactsTests.cs` (run by `tests/Themia.Modules.Tests`).
@@ -36,7 +36,7 @@ their translations). Tests: `Tests/WeatherFactsTests.cs` (run by `tests/Themia.M
   ([S-2035]). Tests `WeatherFactsTests`.
 - **[S-12402]** **The rows fill the content** ([S-12400]): the fact rows fill the content from its top
   to the foot's inset, touching ([S-12807]): a box taller than the pick grows them
-  (`SkyFactList`, a `SpreadStack`; the air facts' rows share it); each row spans the width, its value at
+  (`FactList`, a `SpreadStack`; every facts widget's rows share it, [S-12811]); each row spans the width, its value at
   the end.
 
 Needs a live pass: the pick's reorder and remove on the live menu, a drag of the bottom edge, the

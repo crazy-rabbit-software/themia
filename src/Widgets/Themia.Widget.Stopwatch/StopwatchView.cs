@@ -42,7 +42,8 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     private readonly Button _startIcon;
     private readonly Button _lapIcon;
     private readonly Button _resetIcon;
-    private readonly StackPanel _laps = new() { VerticalAlignment = VerticalAlignment.Top };
+    /// <summary>[S-12811] The laps as the rows every facts widget draws.</summary>
+    private readonly FactList _laps = new() { VerticalAlignment = VerticalAlignment.Top };
 
     private Ticker? _ticker;
     private StopwatchConfig _config = new();
@@ -254,31 +255,22 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         var laps = _state.Splits;
         var rows = StopwatchFace.LapRows(_config);
 
-        while (_laps.Children.Count < rows)
+        var lines = new List<FactLine>();
+        if (rows > 0 && laps.Length == 0)
         {
-            _laps.Children.Add(new RowBlock(RowKind.Fact, lead: 0));
+            lines.Add(new FactLine(string.Empty, StopwatchStr.Stopwatch_NoLaps.Text(), string.Empty));
         }
 
-        for (var i = 0; i < _laps.Children.Count; i++)
+        for (var i = 0; i < rows && i < laps.Length; i++)
         {
-            var row = (RowBlock)_laps.Children[i];
-            var shown = i < rows && (i < laps.Length || (i == 0 && laps.Length == 0));
-            row.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-            if (!shown)
+            if (_state.LapAt(laps.Length - 1 - i) is { } lap)
             {
-                continue;
-            }
-
-            row.Lines = 1;
-            if (laps.Length == 0)
-            {
-                row.Show(StopwatchStr.Stopwatch_NoLaps.Text(), string.Empty);
-            }
-            else if (_state.LapAt(laps.Length - 1 - i) is { } lap)
-            {
-                row.Show(StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length - i))), Time(lap.Length, true));
+                lines.Add(new FactLine(string.Empty, StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length - i))), Time(lap.Length, true)));
             }
         }
+
+        _laps.Rows = rows;
+        _laps.Show(lines);
     }
 
     // ---- the face ---------------------------------------------------------------------------

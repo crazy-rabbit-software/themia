@@ -8,7 +8,7 @@ pollen [S-5105], [S-5106], the stale rule [S-5160]).
 
 Owning files: everything in this folder: `AirFactsModule.cs`, `AirFactsConfig.cs`, `AirFactRules.cs`
 (the rows and their words, over the SDK's `AirQualityRules`), `AirFactsView.cs` (`SkyFeed`,
-`SkyFactList`), `Preview/` (`--state sample|poor|stale|failed`: the index's fixtures), `Localization/
+`FactList`), `Preview/` (`--state sample|poor|stale|failed`: the index's fixtures), `Localization/
 Locales/` (its own `AirFactsStr`: the UV, pollutant and pollen words moved here from the index with
 their translations). Tests: `Tests/AirFactsTests.cs`.
 

@@ -7770,6 +7770,27 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (`IWidgetHost.FileIcons`, the root as a system folder so the shell gives its own icon, not a plain folder's). A
   mapped network drive is a drive of the same widget ([S-4650]: its share, its space; disconnected it says
   "Disconnected network drive"). A bare UNC path without a letter is not a drive here yet.
+- **[S-12811]** **Every facts list is one component** (owner, 2026-11-19: "the drive facts and similar widgets should
+  also show their entries like the items"; then "they dont need to have an icon neccsarily, but they should reuse the
+  same base"; "generally i feel like the widgets have to much variance in themselves. they should reuse more of the
+  same components"). Every list of label and value lines (the CPU, GPU, memory, network, ping, battery and drive
+  facts, a detail widget's facts, the weather and air facts, the stopwatch's laps) is drawn by one component,
+  `FactList` (a `FactLine` each: glyph, name, value, available): the family's fact rows ([S-6711]), the same anatomy,
+  type, roles and band as the weather facts', filling the content, touching ([S-12807]), so they cannot drift apart.
+  A glyph is the line's own and optional: a list whose lines carry one leads every row with it (the slot kept for a
+  line without, so the columns line up), a list without has no lead (the system facts have none). The inventory of
+  the other families and their outliers is the plan for the next ones (docs: none; renders `--widget-png
+  cpuFacts|driveFacts|weatherFacts|stopwatch --state sample --sizes range`).
+- **[S-12813]** **Missing data draws the default, never nothing** (owner, 2026-11-19: "even if there is no rain in the
+  next two hours or even if there is no cpu data available it should show the default values in the graph and not
+  just not show the graph. for both cases. also for other widgets"). A shared part never vanishes because its data is
+  missing or zero: a meter or bar stands at 0, a readout says "--", a facts list keeps every picked fact's row with
+  its label and "--", drawn unavailable (`FactsRules.Pick`); the state ("No data", "Not connected", "Set up") is only
+  a caption or the tooltip over that visual, never in its place. A facts atom whose sheet is only a note keeps its
+  rows ("--") and says the note as its tooltip; a list with no rows to draw (top processes, adapters) keeps its
+  Status row. A one-reading widget without an answer (Weather now, Air quality, Exchange rate) keeps its readout,
+  "--" disabled, the reason as its line under (`OnlineParts.ShowDefault`); Retry is the card menu's Refresh, and
+  not set up stays the card's Set up row ([S-1862]). The graphs follow it in their own widgets. Tests `FactsDefaultsTests.S12813_`.
 - **[S-12814]** **A block has no band over its first ink or under its last** (owner, 2026-11-19: "the drive widget
   still has a fucking space at the top, maybe also at the bottom. make sure that this does not happen anywhere"). A
   one-readout block ([S-12808], `ReadingFit`, the rule `BlockFit.Fill`) scales up as one to the largest size at which
@@ -8716,7 +8737,7 @@ scale other than 100 %.
 Owner's decision 2026-11-12 ([S-2438]): the weather, sky and money widgets are split into atoms, each
 one thing at its own size, and the old cards come back as ready-made groups ([S-2470]). Owning files:
 `Themia.Sdk/Widgets/SkyFacts.cs` (the fact atoms' pick and sizing), `Themia.Sdk.WinUI/Widgets/SkyFeed.cs`
-(how an atom follows its answer), `SkyParts.cs` (`SkyFactList`, `SkyEventRow`, `SkyMoonDisc`),
+(how an atom follows its answer), `SkyParts.cs` (`SkyEventRow`, `SkyMoonDisc`), `FactList.cs` (every facts widget's rows, [S-12811]),
 `Shell/SkyFactLines.cs` (the pick's menu line), `Themia.Core/Model/ReadyMadeGroups.cs` (the recipes);
 each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyMadeGroupsTests`.
 

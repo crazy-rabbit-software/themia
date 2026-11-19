@@ -33,8 +33,8 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
     private readonly WidgetId _kind;
 
     /// <summary>[S-12807] The fact rows reach the view's top and the foot's inset (its margin).</summary>
-    private readonly SpreadStack _facts = new() { Margin = ListEdge.Margin };
-    private readonly List<RowBlock> _factRows = [];
+    /// <summary>[S-12811] The facts as the rows every facts widget draws.</summary>
+    private readonly FactList _facts = new();
     private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
 
     private WidgetConfig _config;
@@ -190,7 +190,9 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
             return;
         }
 
-        if (ShowsEmpty)
+        // [S-12813] A facts atom never trades its rows for the state: its picked facts stay, "--" where nothing was
+        // read, the note their tooltip. A list with no rows to draw says why in its Status row.
+        if (ShowsEmpty && _part.Atom != DetailAtom.Facts)
         {
             _empty.Show(StatusKind.Empty, ModuleCatalog.Of(_kind).Glyph, _sheet.Note ?? string.Empty);
             _empty.Visibility = Visibility.Visible;
@@ -216,24 +218,8 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         Fill();
     }
 
-    /// <summary>Keep a fact row for each fact the plan shows; the rest collapsed.</summary>
-    private void LayFacts(int count)
-    {
-        // [S-12807] The pick's rows reach the ends; a fact this machine does not report leaves its row empty.
-        _facts.Rows = _config is FactsConfig picked ? picked.Facts.Count : count;
-
-        while (_factRows.Count < count)
-        {
-            var row = new RowBlock(RowKind.Fact, lead: 0);
-            _factRows.Add(row);
-            _facts.Children.Add(row);
-        }
-
-        for (var i = 0; i < _factRows.Count; i++)
-        {
-            _factRows[i].Visibility = i < count ? Visibility.Visible : Visibility.Collapsed;
-        }
-    }
+    /// <summary>[S-12807] The pick's rows fill the content; a fact this machine does not report leaves its row empty.</summary>
+    private void LayFacts(int count) => _facts.Rows = _config is FactsConfig picked ? picked.Facts.Count : count;
 
     /// <summary>Put the sheet's text into the elements the plan shows.</summary>
     private void Fill()
@@ -244,15 +230,9 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidge
         }
 
         // [S-1940] Not on this machine: the whole tile says why, every part of it disabled.
-        UnavailableLook.Say(this, _sheet.Absent ? _sheet.Note : null);
+        UnavailableLook.Say(this, _sheet.Absent || ShowsEmpty ? _sheet.Note : null);
 
-        var facts = FactsOf(_sheet);
-        for (var i = 0; i < plan.Facts && i < facts.Count && i < _factRows.Count; i++)
-        {
-            var fact = facts[i];
-            _factRows[i].Show(fact.Label, fact.Value);
-            _factRows[i].Available = fact.Available && !_sheet.Absent;
-        }
+        _facts.Show([.. FactsOf(_sheet).Take(plan.Facts).Select(f => FactLine.Of(f) with { Available = f.Available && !_sheet.Absent })]);
 
         FillList();
     }

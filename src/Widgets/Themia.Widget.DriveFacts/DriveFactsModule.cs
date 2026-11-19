@@ -99,10 +99,9 @@ public sealed class DriveFactsConfig : FactsConfig, IDriveChoice
 /// drive without figures keeps its rows, each it cannot read "--" dimmed ([S-11007]). The drives come
 /// from the host's one walk (<see cref="IDrives"/>), as the Drive reading's.
 /// </summary>
-internal sealed partial class DriveFactsView : SpreadStack, IWidgetView, IWidgetSurfaceAware
+internal sealed partial class DriveFactsView : FactList, IWidgetView, IWidgetSurfaceAware
 {
     private readonly IWidgetHost _host;
-    private readonly List<RowBlock> _rows = [];
 
     /// <summary>
     /// [S-11950] The card is its drive on the view's links: the pointer on it publishes the drive
@@ -115,13 +114,7 @@ internal sealed partial class DriveFactsView : SpreadStack, IWidgetView, IWidget
     private IDisposable? _watch;
     private DriveFactsConfig _config = new();
 
-    public DriveFactsView(IWidgetHost host)
-    {
-        _host = host;
-
-        // [S-12807] The rows reach the content's top and the foot's inset, their text on both.
-        Margin = ListEdge.Margin;
-    }
+    public DriveFactsView(IWidgetHost host) => _host = host;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -159,22 +152,9 @@ internal sealed partial class DriveFactsView : SpreadStack, IWidgetView, IWidget
         Card.Key = LinkKeys.DriveLink(drive.Root);
         var facts = FactsRules.Pick(locale, DriveRules.Sheet(locale, drive), _config.Facts, DriveRules.Facts);
 
-        while (_rows.Count < facts.Count)
-        {
-            var row = new RowBlock(RowKind.Fact, lead: 0);
-            _rows.Add(row);
-            Children.Add(row);
-        }
-
-        for (var i = 0; i < _rows.Count; i++)
-        {
-            _rows[i].Visibility = i < facts.Count ? Visibility.Visible : Visibility.Collapsed;
-            if (i < facts.Count)
-            {
-                _rows[i].Show(facts[i].Label, facts[i].Value);
-                _rows[i].Available = facts[i].Available;
-            }
-        }
+        // [S-12811] The drive's facts as the rows every facts widget draws.
+        Rows = _config.Facts.Count;
+        Show([.. facts.Select(FactLine.Of)]);
     }
 
     public void Detach()

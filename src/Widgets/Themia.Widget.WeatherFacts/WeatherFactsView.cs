@@ -15,7 +15,7 @@ namespace Themia.Widget.WeatherFacts;
 
 /// <summary>
 /// [S-11105] The weather's readings at the card's place as fact rows: exactly the picked facts, in their
-/// order, from the view's top (<see cref="SkyFactList"/>). The reading comes from the background sync
+/// order, from the view's top (<see cref="FactList"/>). The reading comes from the background sync
 /// through <see cref="SkyFeed{TWant, T}"/>, the same answer the reading card (<c>weatherNow</c>) draws.
 /// A reading kept through a failed refresh stays and the status's problem glyph says so ([S-7042]);
 /// with none, the Status row at the top says why ([S-6734]).
@@ -23,7 +23,7 @@ namespace Themia.Widget.WeatherFacts;
 internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens, IWidgetContextActions
 {
     private readonly KitStatus _status;
-    private readonly SkyFactList _rows = new();
+    private readonly FactList _rows = new();
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<WeatherInterest, CurrentWeather> _feed;
     private WeatherFactsConfig _config = new();
@@ -79,7 +79,7 @@ internal sealed partial class WeatherFactsView : Grid, IWidgetView, IWidgetOpens
         _status.Show(OnlineParts.Problems(held), busy: false);
         var unit = _feed.Want?.Unit ?? RegionFormat.Current.Temperature;
         _rows.Visibility = Visibility.Visible;
-        _rows.Show([.. WeatherFactRules.For(_config.Facts, reading, unit).Select(f => new SkyFact(FactGlyph(f.Kind), f.Label, f.Value))]);
+        _rows.Show([.. WeatherFactRules.For(_config.Facts, reading, unit).Select(f => new FactLine(FactGlyph(f.Kind), f.Label, f.Value))]);
     }
 
     /// <summary>The glyph for a reading, checked against the font ([S-733]).</summary>

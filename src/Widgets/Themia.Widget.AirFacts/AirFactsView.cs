@@ -14,14 +14,14 @@ namespace Themia.Widget.AirFacts;
 
 /// <summary>
 /// [S-11135] The air's readings at the card's place as fact rows: exactly the picked rows, in their order,
-/// from the content's top (<see cref="SkyFactList"/>), from the same air answer the index draws
+/// from the content's top (<see cref="FactList"/>), from the same air answer the index draws
 /// (<see cref="SkyFeed{TWant, T}"/>). A reading kept through a failed refresh stays and the status's
 /// problem glyph says so ([S-7042]); with none, the Status row says why ([S-6734]).
 /// </summary>
 internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetContextActions
 {
     private readonly KitStatus _status;
-    private readonly SkyFactList _rows = new() { Visibility = Visibility.Collapsed };
+    private readonly FactList _rows = new() { Visibility = Visibility.Collapsed };
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly SkyFeed<AirInterest, AirReading> _feed;
     private AirFactsConfig _config = new();
@@ -70,7 +70,7 @@ internal sealed partial class AirFactsView : Grid, IWidgetView, IWidgetContextAc
         _empty.Hide();
         _status.Show(OnlineParts.Problems(held), busy: false);
         _rows.Visibility = Visibility.Visible;
-        _rows.Show([.. AirFactRules.For(_config.Facts, air).Select(f => new SkyFact(FactGlyph(f.Kind), f.Label, f.Value))]);
+        _rows.Show([.. AirFactRules.For(_config.Facts, air).Select(f => new FactLine(FactGlyph(f.Kind), f.Label, f.Value))]);
     }
 
     /// <summary>A row's 16 lead, checked against the font ([S-733]).</summary>
