@@ -140,6 +140,11 @@ internal static partial class EditBarRender
                     await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
                 }
 
+                if (only is "display")
+                {
+                    await DisplayShots(screen, outDir, theme).ConfigureAwait(true);
+                }
+
                 if (only is null or "select")
                 {
                     ticker = new Ticker(dispatcher);

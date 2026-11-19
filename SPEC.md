@@ -9180,6 +9180,8 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 - **[S-13406]** `--viewbar-png` ends both sets with the styles' shots (`viewbar-dots-…`, `-arrows-…`, `-cycle-…`: a row
   and a side anchor each, M to XL, the labels where they apply, edit mode), each arrows shot also with its label's menu
   open (`…-menu.png`); `--only <prefix>` draws the shots whose name starts with it (`--only cycle`).
+  `--editbar-png --only display` draws the Display page's shots alone, `page-<theme>-display-type.png` with the Type
+  (the styles) open.
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
 tooltip on the bar (licensing refuses through `AllowCreate`). Debug render:

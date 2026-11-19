@@ -66,11 +66,21 @@ internal static partial class EditBarRender
             }, click == "<end>" ? f => f.Scroll(Windows.System.VirtualKey.End) : null).ConfigureAwait(true);
         }
 
+        await DisplayShots(screen, outDir, theme).ConfigureAwait(true);
+    }
+
+    /// <summary>
+    /// [S-2328] The Display page's shots; [S-13406] <c>-display-type</c> its view bar's Type (the styles) open.
+    /// <c>--editbar-png --only display</c> draws these alone.
+    /// </summary>
+    private static async Task DisplayShots(Grid screen, string outDir, string theme)
+    {
         (string Name, string? Key)[] display =
         [
             (string.Empty, null),
             ("-open", DisplayMenu.Keys.Display("render-1")),
             ("-bar", DisplayMenu.Keys.ViewBar("render-1") + "/position"),
+            ("-type", DisplayMenu.Keys.ViewBar("render-1") + "/type"),
             ("-second", DisplayMenu.Keys.Display("render-2")),
             ("-off", DisplayMenu.Keys.Display("render-3")),
             ("-new", DisplayMenu.Keys.NewDisplays),
