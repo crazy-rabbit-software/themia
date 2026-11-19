@@ -99,8 +99,8 @@ internal sealed partial class AddRail : StackPanel
         {
             Width = A.RailPillWidth,
             Height = A.RailPillHeight,
-            RadiusX = A.RailPillWidth / 2,
-            RadiusY = A.RailPillWidth / 2,
+            RadiusX = A.RailPillRadius,
+            RadiusY = A.RailPillRadius,
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center,
             Fill = Family.Brush(ColourRole.Accent),

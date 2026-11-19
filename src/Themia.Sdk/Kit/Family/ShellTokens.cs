@@ -201,6 +201,9 @@ public static class ShellMetrics
 
         public const double RailPillHeight = 16;
 
+        /// <summary>[S-13610] The pill's ends are round: half its width.</summary>
+        public const double RailPillRadius = RailPillWidth / 2;
+
         /// <summary>[S-13612] A family's head over its stack; its fill reaches this far out past the tiles' start.</summary>
         public const double FamilyHead = 36;
 
