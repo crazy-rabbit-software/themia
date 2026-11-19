@@ -134,6 +134,15 @@ public abstract class CalendarConfig : WidgetConfig, ISetupRule, IInterests
 
     string? ISetupRule.SetupSentence => SetupSentence;
 
+    /// <summary>
+    /// [S-1881] [S-12832] Whether it runs while it waits for an account: a widget that keeps its face without one (the
+    /// calendar's month, the owner's "show default values, don't hide") draws its own compact Set up row over it.
+    /// </summary>
+    [JsonIgnore]
+    public virtual bool SetsUpInPlace => false;
+
+    bool ISetupRule.SetsUpInPlace => SetsUpInPlace;
+
     /// <summary>[S-3640] The shape the widget draws: the calendar's style, a fixed one for the others. Never stored here.</summary>
     [JsonIgnore]
     public abstract CalendarStyle Layout { get; }

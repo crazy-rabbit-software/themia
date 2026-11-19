@@ -24,6 +24,10 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     [JsonIgnore]
     public override string? SetupSentence => CalendarStr.Calendar_Setup_Sentence.Text();
 
+    /// <summary>[S-12832] Without an account it keeps its face (an empty month, today marked) under its own Set up row.</summary>
+    [JsonIgnore]
+    public override bool SetsUpInPlace => true;
+
     private static readonly StyleOption[] CalendarStyles =
     [
         StyleOption.Of(CalendarStyle.Month, CalendarStr.Styles_Calendar_Month.Local(), 0xE787),

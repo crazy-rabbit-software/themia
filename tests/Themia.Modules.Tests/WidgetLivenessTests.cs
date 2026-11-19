@@ -106,7 +106,8 @@ public class WidgetLivenessTests
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
-            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == new WidgetId("desktopItem");
+            // [S-12832] The calendar keeps its face without an account, under its own Set up row.
+            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == new WidgetId("desktopItem") || kind == new WidgetId("calendar");
             Assert.True(WidgetLiveness.Runs(config, FeatureSet.None) == expected, kind.ToString());
         }
     }

@@ -131,7 +131,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         var rows = RowsHost();
         SetRow(_content, 1);
         SetRow(rows, 1);
-        SetRow(_state, 1);
+
+        // [S-12832] A state (no account, a problem) is one compact row in the period line's place, the face kept under it.
+        _state.Row.Margin = default;
+        SetRow(_state, 0);
         Children.Add(_line);
         Children.Add(_content);
         Children.Add(rows);
@@ -607,39 +610,42 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
             HideAgenda();
         }
         // [S-568] [S-12481] The period is its line's label; the agenda has no line.
-        _line.Label = ready && ShowsLine ? CalendarRules.Title(Layout, _anchor, Today, _config.Period, Strings.Current) : string.Empty;
+        _line.Label = ShowsLine ? CalendarRules.Title(Layout, _anchor, Today, _config.Period, Strings.Current) : string.Empty;
         UpdateState();
 
+        // [S-12832] (owner, 2026-11-19: "even if there is no rain in the next two hours or even if there is no cpu data
+        // available it should show the default values ... also for other widgets") No account, an account gone or a
+        // problem is one compact row in the period line's place; the style's face stays under it with nothing on it
+        // (the month, today marked). Loading shows the face and the line's ring.
+        var stated = true;
         switch (_screen)
         {
-            case Screen.Loading:
-                _state.Show(Str.Common_Loading.Text(), offerAccounts: false);
-                ShowNavigation(false);
-                return;
-
             case Screen.NoAccounts:
-                // [S-1862] The card shows its Set up button over this.
-                _state.Hide();
-                ShowNavigation(false);
-                return;
+                _state.Show(_config.SetupSentence ?? SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
+                break;
 
             case Screen.AccountsGone:
                 _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
-                ShowNavigation(false);
-                return;
+                break;
 
             case Screen.Problem:
                 _state.Show(_problemText(), _problemOffersAccounts, problem: true);
-                ShowNavigation(false);
-                return;
+                break;
+
+            default:
+                _state.Hide();
+                stated = false;
+                break;
         }
 
-        _state.Hide();
+        _line.Visibility = stated || !ShowsLine ? Visibility.Collapsed : Visibility.Visible;
 
         var width = _area.Width;
 
-        // [S-569] [S-12481] The line takes its 24 off the top of the box the style is drawn in.
-        var height = _area.Height - (ShowsLine ? CalendarSizing.NavLine : 0);
+        // [S-569] [S-12481] The line (or the state's row in its place) takes its room off the top of the box the style
+        // is drawn in; the month lays its rows on the card's grid from where it starts under the card's top edge.
+        var over = stated ? FamilyShape.Row1 : ShowsLine ? CalendarSizing.NavLine : 0;
+        var height = _area.Height - over;
 
         switch (Layout)
         {
@@ -660,12 +666,12 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
                 break;
 
             default:
-                DrawMonth(width, height);
+                DrawMonth(width, height, FamilySpace.ContentTop + over);
                 break;
         }
 
         // After drawing: the agenda only knows its pages once it has fitted them.
-        ShowNavigation(true);
+        ShowNavigation(ready);
     }
 
     /// <summary>
