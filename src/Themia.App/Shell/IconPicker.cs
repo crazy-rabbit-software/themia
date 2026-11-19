@@ -8,6 +8,7 @@ using Themia.Core.Icons;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Windows.System;
 
@@ -40,7 +41,7 @@ internal sealed partial class IconPicker : Grid
     private readonly string? _value;
     private readonly Action<string?> _choose;
     private readonly DefaultCell _default;
-    private readonly TextBox _box;
+    private readonly SearchBox _box;
     private readonly GridView _grid;
     private readonly TextBlock _empty;
     private List<object> _shown = [];
@@ -61,16 +62,13 @@ internal sealed partial class IconPicker : Grid
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        _box = new TextBox
+        // [S-13606] The one search box; [S-13607] its keys: Enter takes the best match, Down goes into the grid.
+        _box = new SearchBox(Str.Shell_Icon_Search.Text())
         {
-            PlaceholderText = Str.Shell_Icon_Search.Text(),
-            IsSpellCheckEnabled = false,
-            IsTextPredictionEnabled = false,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Count = () => _shown.Count,
+            PickBest = () => _choose(_shown[0] as string),
         };
-        AutomationProperties.SetName(_box, Str.Shell_Icon_Search.Text());
-        _box.TextChanged += (_, _) => Refresh();
-        _box.KeyDown += OnBoxKeyDown;
+        _box.Changed += _ => Refresh();
         Children.Add(_box);
 
         _grid = new GridView
@@ -96,9 +94,23 @@ internal sealed partial class IconPicker : Grid
             }
         };
         _grid.ContainerContentChanging += OnContainerContentChanging;
+        _box.ToFirst = () =>
+        {
+            if (_grid.ContainerFromIndex(0) is GridViewItem first)
+            {
+                first.Focus(FocusState.Keyboard);
+            }
+            else
+            {
+                _grid.Focus(FocusState.Keyboard);
+            }
+        };
 
-        _empty = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
-        _empty.TextWrapping = TextWrapping.Wrap;
+        // Up from the top row, Escape, Backspace and typing on a square go back to the box.
+        _box.Results(_grid, source => source is GridViewItem item ? _grid.IndexFromContainer(item) < Columns() ? 0 : 1 : null);
+
+        // [S-13608] Nothing matching is said in the one status line, where the grid stood.
+        _empty = SearchBox.Status(string.Empty);
         _empty.Margin = new Thickness(Fluent.Space1, Fluent.Space2, Fluent.Space1, 0);
         _empty.VerticalAlignment = VerticalAlignment.Top;
         _empty.Visibility = Visibility.Collapsed;
@@ -157,32 +169,8 @@ internal sealed partial class IconPicker : Grid
         _grid.Visibility = none ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    /// <summary>Enter takes the best match; Down moves into the grid, onto the first square.</summary>
-    private void OnBoxKeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        if (_shown.Count == 0)
-        {
-            return;
-        }
-
-        if (e.Key == VirtualKey.Enter)
-        {
-            e.Handled = true;
-            _choose(_shown[0] as string);
-        }
-        else if (e.Key == VirtualKey.Down)
-        {
-            e.Handled = true;
-            if (_grid.ContainerFromIndex(0) is GridViewItem first)
-            {
-                first.Focus(FocusState.Keyboard);
-            }
-            else
-            {
-                _grid.Focus(FocusState.Keyboard);
-            }
-        }
-    }
+    /// <summary>How many squares stand across the grid now (at least one).</summary>
+    private int Columns() => Math.Max(1, (int)Math.Floor(_grid.ActualWidth / Cell));
 
     /// <summary>A realised square gets its name as its tooltip and accessible name; a recycled one keeps nothing.</summary>
     private static void OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)

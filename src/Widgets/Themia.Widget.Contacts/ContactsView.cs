@@ -48,7 +48,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private static readonly string PhoneGlyph = char.ConvertFromUtf32(0xE717);
     private static readonly string MessageGlyph = char.ConvertFromUtf32(0xE8BD);
 
-    private readonly TextBox _search = new();
+    private readonly SearchBox _search = new(ContactsStr.Contacts_SearchPlaceholder.Text());
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
     private readonly KitStatePanel _state;
@@ -97,19 +97,17 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        // [S-584] The stock Windows search box, so it has the system's caret, clear button and menu:
-        // one control of 32, the card's inset either side, 8 over the list.
-        _search.PlaceholderText = ContactsStr.Contacts_SearchPlaceholder.Text();
-        _search.IsSpellCheckEnabled = false;
-        _search.IsTextPredictionEnabled = false;
-        _search.Height = FamilyShape.Button;
-        _search.Padding = new Thickness(FamilySpace.S3, FamilySpace.S1, FamilySpace.S2, FamilySpace.S1);
+        // [S-584] [S-13606] The one search box (Windows' own, with the system's caret, clear button, magnifier and
+        // menu): one control of 32, the card's inset either side, 8 over the list. [S-13607] Its keys are every
+        // search's: Enter and Down select the first person shown, Escape empties it.
         _search.Visibility = Visibility.Collapsed;
         _search.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2);
-        _search.TextChanged += OnSearchChanged;
+        _search.Count = () => _visible.Count;
+        _search.PickBest = SelectFirst;
+        _search.ToFirst = SelectFirst;
+        _search.Changed += OnSearchChanged;
         _search.GotFocus += OnSearchFocus;
         _search.LostFocus += OnSearchBlur;
-        _search.KeyDown += OnSearchKeyDown;
         SetRow(_search, 0);
 
         _columnHeader.Visibility = Visibility.Collapsed;
@@ -173,7 +171,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
     private void OnLanguage(Locale locale)
     {
-        _search.PlaceholderText = ContactsStr.Contacts_SearchPlaceholder.Text();
+        _search.Placeholder = ContactsStr.Contacts_SearchPlaceholder.Text();
         Render();
     }
 
@@ -223,10 +221,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         _surface?.RequestTextInput(false);
-        _search.TextChanged -= OnSearchChanged;
+        _search.Changed -= OnSearchChanged;
         _search.GotFocus -= OnSearchFocus;
         _search.LostFocus -= OnSearchBlur;
-        _search.KeyDown -= OnSearchKeyDown;
         Tapped -= OnBackgroundTapped;
         _state.Detach();
         _status.Detach();
@@ -353,15 +350,24 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     // -----------------------------------------------------------------------------------------
 
     /// <summary>[S-585] The list follows the box as it is typed in.</summary>
-    private void OnSearchChanged(object sender, TextChangedEventArgs args)
+    private void OnSearchChanged(string text)
     {
-        if (_query == _search.Text)
+        if (_query == text)
         {
             return;
         }
 
-        _query = _search.Text;
+        _query = text;
         Render();
+    }
+
+    /// <summary>[S-13607] Enter or Down in the box: the first person shown is selected.</summary>
+    private void SelectFirst()
+    {
+        if (_visible.Count > 0)
+        {
+            Select(_visible[0].Id);
+        }
     }
 
     // The surface takes no keystrokes unless asked: the box asks while it has focus ([S-584]).
@@ -379,14 +385,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
     }
 
-    private void OnSearchKeyDown(object sender, KeyRoutedEventArgs args)
-    {
-        if (args.Key == Windows.System.VirtualKey.Escape)
-        {
-            args.Handled = true;
-            _search.Text = string.Empty;
-        }
-    }
 
     /// <summary>[S-1275] The card menu's Search opens the box and puts the caret in it.</summary>
     private void OpenSearch()

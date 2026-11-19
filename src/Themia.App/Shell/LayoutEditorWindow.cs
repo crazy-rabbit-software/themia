@@ -777,13 +777,13 @@ internal sealed class LayoutEditorWindow
     /// <summary>A searchable list of the Start menu's apps (original: the searchable app drop-down).</summary>
     private FrameworkElement AppPicker(LayoutNode pane, LayoutAssignment? assignment)
     {
-        var box = new AutoSuggestBox
+        // [S-13606] The one search box; its suggestions are WinUI's own list (no Count: WinUI's keys), the editor being
+        // a window of its own, not a page's inline picker.
+        var search = new SearchBox(Str.LayoutEditor_SearchApps.Text())
         {
-            PlaceholderText = Str.LayoutEditor_SearchApps.Text(),
             Text = assignment?.Source == LayoutSource.App ? Label(assignment) : string.Empty,
-            QueryIcon = new SymbolIcon(Symbol.Find),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
         };
+        var box = search.Suggest;
 
         void Suggest(string query)
         {
@@ -817,7 +817,7 @@ internal sealed class LayoutEditorWindow
 
         box.SuggestionChosen += (_, e) => Choose(e.SelectedItem as string);
         box.QuerySubmitted += (_, e) => Choose(e.ChosenSuggestion as string ?? (box.ItemsSource as List<string>)?.FirstOrDefault());
-        return box;
+        return search;
     }
 
     /// <summary>

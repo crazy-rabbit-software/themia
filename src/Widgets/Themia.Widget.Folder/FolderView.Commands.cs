@@ -664,7 +664,7 @@ internal sealed partial class FolderView
         _searchOpen = true;
         Lay();
         _searchBox.Visibility = Visibility.Visible;
-        _searchBox.Focus(FocusState.Programmatic);
+        _searchBox.FocusEnd();
     }
 
     private void CloseSearch()
@@ -683,17 +683,4 @@ internal sealed partial class FolderView
         Render();
     }
 
-    private void OnSearchKeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        if (e.Key == Windows.System.VirtualKey.Escape)
-        {
-            e.Handled = true;
-            CloseSearch();
-        }
-        else if (e.Key == Windows.System.VirtualKey.Enter && _shown.Count > 0)
-        {
-            e.Handled = true;
-            OpenEntry(_shown[0]);
-        }
-    }
 }

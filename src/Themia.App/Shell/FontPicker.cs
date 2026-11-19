@@ -7,6 +7,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Windows.System;
 
 namespace Themia.App.Shell;
@@ -21,9 +22,9 @@ namespace Themia.App.Shell;
 /// <see cref="ListViewBase.ContainerContentChanging"/> into an empty template's grid.
 /// </para>
 /// <para>
-/// Keys: typing goes to the search box (also from the list); Down moves into the list, Up from its
-/// first row back to the box; Enter in the box takes the best match, on a row that row; Escape
-/// closes the settings menu's Font submenu it stands in ([S-3528]), as any submenu. As wide as that submenu.
+/// Keys: every search's ([S-13607], <see cref="SearchBox"/>): typing goes to the search box (also from the list);
+/// Down moves into the list, Up from its first row back to the box; Enter in the box takes the best match, on a
+/// row that row; Escape empties the box, and with it empty closes the Font card it stands in, as any picker.
 /// </para>
 /// </summary>
 internal sealed partial class FontPicker : Grid
@@ -39,7 +40,7 @@ internal sealed partial class FontPicker : Grid
 
     private readonly Action<string> _choose;
     private readonly string _chosen;
-    private readonly TextBox _box;
+    private readonly SearchBox _box;
     private readonly ListView _list;
     private readonly TextBlock _empty;
     private readonly Dictionary<string, FontFamily?> _families = new(StringComparer.OrdinalIgnoreCase);
@@ -59,15 +60,14 @@ internal sealed partial class FontPicker : Grid
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        _box = new TextBox
+        // [S-13606] The one search box; [S-13607] its keys: Enter takes the best match, Down goes into the list.
+        _box = new SearchBox(Str.Shell_Font_Search.Text())
         {
-            PlaceholderText = Str.Shell_Font_Search.Text(),
-            IsSpellCheckEnabled = false,
-            IsTextPredictionEnabled = false,
+            Count = () => _shown.Count,
+            PickBest = PickBest,
+            ToFirst = ToFirst,
         };
-        AutomationProperties.SetName(_box, Str.Shell_Font_Search.Text());
-        _box.TextChanged += (_, _) => Refresh();
-        _box.KeyDown += OnBoxKeyDown;
+        _box.Changed += _ => Refresh();
         Children.Add(_box);
 
         _list = new ListView
@@ -87,11 +87,12 @@ internal sealed partial class FontPicker : Grid
             }
         };
         _list.ContainerContentChanging += OnContainerContentChanging;
-        _list.PreviewKeyDown += OnListKeyDown;
-        _list.CharacterReceived += OnListCharacter;
 
-        _empty = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
-        _empty.TextWrapping = TextWrapping.Wrap;
+        // Up from the first row, Escape, Backspace and typing on a row go back to the box.
+        _box.Results(_list, source => source is ListViewItem item ? _list.IndexFromContainer(item) : null);
+
+        // [S-13608] Nothing matching is said in the one status line, over the list.
+        _empty = SearchBox.Status(string.Empty);
         _empty.Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
         _empty.Visibility = Visibility.Collapsed;
 
@@ -115,7 +116,7 @@ internal sealed partial class FontPicker : Grid
     }
 
     /// <summary>Put the caret in the search box.</summary>
-    public void FocusSearch() => _box.Focus(FocusState.Programmatic);
+    public void FocusSearch() => _box.FocusEnd();
 
     /// <summary>Type into the search box, for the debug render.</summary>
     internal void SetQuery(string text) => _box.Text = text;
@@ -155,61 +156,26 @@ internal sealed partial class FontPicker : Grid
         }
     }
 
-    /// <summary>Enter takes the best match; Down moves into the list, onto its first row.</summary>
-    private void OnBoxKeyDown(object sender, KeyRoutedEventArgs e)
+    /// <summary>Enter in the box: the best match, where one is.</summary>
+    private void PickBest()
     {
-        if (e.Key == VirtualKey.Enter)
+        if (FontSearch.Best(_options, _box.Text) is { } best)
         {
-            if (FontSearch.Best(_options, _box.Text) is { } best)
-            {
-                e.Handled = true;
-                _choose(best.Value);
-            }
-        }
-        else if (e.Key == VirtualKey.Down && _shown.Count > 0)
-        {
-            e.Handled = true;
-            if (_list.ContainerFromIndex(0) is ListViewItem first)
-            {
-                first.Focus(FocusState.Keyboard);
-            }
-            else
-            {
-                _list.Focus(FocusState.Keyboard);
-            }
+            _choose(best.Value);
         }
     }
 
-    /// <summary>Up from the first row goes back to the box; Backspace edits the query.</summary>
-    private void OnListKeyDown(object sender, KeyRoutedEventArgs e)
+    /// <summary>Down in the box: onto the list's first row.</summary>
+    private void ToFirst()
     {
-        if (e.Key == VirtualKey.Up && e.OriginalSource is ListViewItem item && _list.IndexFromContainer(item) == 0)
+        if (_list.ContainerFromIndex(0) is ListViewItem first)
         {
-            e.Handled = true;
-            FocusSearch();
+            first.Focus(FocusState.Keyboard);
         }
-        else if (e.Key == VirtualKey.Back && _box.Text.Length > 0)
+        else
         {
-            e.Handled = true;
-            _box.Text = _box.Text[..^1];
-            FocusSearch();
-            _box.SelectionStart = _box.Text.Length;
+            _list.Focus(FocusState.Keyboard);
         }
-    }
-
-    /// <summary>Type-to-search from the list: the character goes into the box, and so does the caret.</summary>
-    private void OnListCharacter(UIElement sender, CharacterReceivedRoutedEventArgs e)
-    {
-        // Space activates a row, as Enter does; every other printable character is search text.
-        if (char.IsControl(e.Character) || e.Character == ' ')
-        {
-            return;
-        }
-
-        e.Handled = true;
-        _box.Text += e.Character;
-        FocusSearch();
-        _box.SelectionStart = _box.Text.Length;
     }
 
     /// <summary>

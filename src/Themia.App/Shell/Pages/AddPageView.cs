@@ -10,6 +10,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Licensing;
 using Themia.Core.Localization;
+using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -47,7 +48,7 @@ internal sealed partial class AddPageView : Grid
     private readonly AddPageCommands _commands;
     private readonly AddPictures? _pictures;
 
-    private readonly TextBox _search;
+    private readonly SearchBox _search;
     private readonly StackPanel _tabs = new() { Orientation = Orientation.Horizontal, Spacing = P.TabGap };
     private readonly ScrollViewer _tabScroll;
     private readonly StackPanel _sections = new();
@@ -74,16 +75,9 @@ internal sealed partial class AddPageView : Grid
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _search = new TextBox
-        {
-            PlaceholderText = Str.Shell_Picker_Search.Text(),
-            IsSpellCheckEnabled = false,
-            IsTextPredictionEnabled = false,
-            Width = A.SearchWidth,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        AutomationProperties.SetName(_search, Str.Shell_Picker_Search.Text());
-        _search.TextChanged += (_, _) => Draw();
+        // [S-13606] The one search box, as every search of Themia's.
+        _search = new SearchBox(Str.Shell_Picker_Search.Text()) { Width = A.SearchWidth };
+        _search.Changed += _ => Draw();
 
         _tabScroll = new ScrollViewer
         {
@@ -145,7 +139,7 @@ internal sealed partial class AddPageView : Grid
     public AddFolderId Tab => _tab;
 
     /// <summary>[S-11708] The caret in the search box: as the page opens, typing searches at once.</summary>
-    public void FocusSearch() => _search.Focus(FocusState.Programmatic);
+    public void FocusSearch() => _search.FocusEnd();
 
     /// <summary>
     /// Type into the search box (a render). Drawn at once: a box not yet loaded raises no TextChanged, and
@@ -355,24 +349,33 @@ internal sealed partial class AddPageView : Grid
             return true;
         }
 
-        var inBox = _search.FocusState != FocusState.Unfocused;
-        switch (key)
+        // [S-13607] The one search key rule: Escape empties the box (from a tile too), an empty box's Escape closes
+        // the page; Enter in the box adds the best match (or the tab's first tile).
+        var inBox = _search.HasKeys;
+        var typed = _search.Text.Length > 0;
+        var tiles = _shown.Count > 0 ? _shown[0].Section.Tiles.Count : 0;
+        var search = key switch
         {
-            case VirtualKey.Escape when _search.Text.Length > 0:
-                _search.Text = string.Empty;
-                FocusSearch();
+            VirtualKey.Escape => inBox ? SearchKeys.InBox(WidgetKey.Escape, typed, tiles) : SearchKeys.OnResult(WidgetKey.Escape, 1, typed),
+            VirtualKey.Enter when inBox => SearchKeys.InBox(WidgetKey.Enter, typed, tiles),
+            _ => SearchMove.None,
+        };
+        switch (search)
+        {
+            case SearchMove.Clear:
+                _search.Clear();
                 return true;
-            case VirtualKey.Escape:
+            case SearchMove.LetGo:
                 _commands.Close();
                 return true;
-            case VirtualKey.Enter when inBox:
-                // The best match (or the tab's first tile) is what Enter in the box adds.
-                if (_shown.Count > 0 && _shown[0].Section.Tiles.Count > 0)
-                {
-                    Pick(_shown[0].Section.Tiles[0]);
-                }
-
+            case SearchMove.PickBest:
+                Pick(_shown[0].Section.Tiles[0]);
                 return true;
+        }
+
+        if (key == VirtualKey.Enter && inBox)
+        {
+            return true;
         }
 
         if (Map(key) is not { } move || (inBox && move != WidgetKey.Down))
@@ -429,14 +432,12 @@ internal sealed partial class AddPageView : Grid
     /// <summary>[S-11708] Typing on a tile goes to the search box.</summary>
     private void OnCharacter(UIElement sender, CharacterReceivedRoutedEventArgs e)
     {
-        if (_search.FocusState != FocusState.Unfocused || char.IsControl(e.Character) || e.Character == ' ')
+        if (_search.HasKeys || char.IsControl(e.Character) || e.Character == ' ')
         {
             return;
         }
 
-        _search.Text += e.Character;
-        _search.SelectionStart = _search.Text.Length;
-        FocusSearch();
+        _search.Type(e.Character);
         e.Handled = true;
     }
 

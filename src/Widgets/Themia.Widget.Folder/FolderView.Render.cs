@@ -34,7 +34,7 @@ internal sealed partial class FolderView
     private Border _sortButton = null!;
     private Border _crumbHost = null!;
     private StackPanel _crumbs = null!;
-    private TextBox _searchBox = null!;
+    private SearchBox _searchBox = null!;
     private Grid _columnHeader = null!;
     private ScrollViewer _scroll = null!;
     private Grid _scrollContent = null!;
@@ -131,25 +131,26 @@ internal sealed partial class FolderView
         };
         SetRow(_crumbHost, 1);
 
-        _searchBox = new TextBox
+        // [S-13606] The one search box; [S-13607] its keys: Enter opens the first item shown, Escape empties it and,
+        // empty, folds it away.
+        _searchBox = new SearchBox(FolderStr.WidgetsB_Folder_SearchPlaceholder.Text())
         {
-            PlaceholderText = FolderStr.WidgetsB_Folder_SearchPlaceholder.Text(),
-            Height = FamilyShape.Button,
             Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2),
-            VerticalAlignment = VerticalAlignment.Center,
             Visibility = Visibility.Collapsed,
+            Count = () => _shown.Count,
+            PickBest = () => OpenEntry(_shown[0]),
+            LetGo = CloseSearch,
         };
-        _searchBox.TextChanged += (_, _) =>
+        _searchBox.Changed += text =>
         {
             if (_closingSearch)
             {
                 return;
             }
 
-            _search = _searchBox.Text;
+            _search = text;
             Render();
         };
-        _searchBox.KeyDown += OnSearchKeyDown;
         _searchBox.GotFocus += (_, _) => _surface?.RequestTextInput(true);
         _searchBox.LostFocus += (_, _) => _surface?.RequestTextInput(false);
         SetRow(_searchBox, 2);
