@@ -128,7 +128,7 @@ public sealed partial class Chart : Grid
 
         if (plot.Detailed)
         {
-            Grid(model, plot, w);
+            Grid(model, plot, w, labels: false);
         }
 
         if (model.Type == ChartType.Bars && !model.Laid)
@@ -148,6 +148,11 @@ public sealed partial class Chart : Grid
         if (model.Now is { } now && now >= 0 && now <= w)
         {
             Now(model, samples, plot, now, h);
+        }
+
+        if (plot.Detailed)
+        {
+            Grid(model, plot, w, labels: true);
         }
 
         Marks(model, plot, w, h);
@@ -208,8 +213,11 @@ public sealed partial class Chart : Grid
         public double At(double value) => _model.Type == ChartType.Bars ? Column(value) : Y(value);
     }
 
-    /// <summary>[S-6751] The value grid behind the series: a Track hairline at each nice step, its value over it at the left.</summary>
-    private void Grid(ChartModel model, Plot plot, double w)
+    /// <summary>
+    /// [S-6751] The value grid: a Track hairline at each nice step behind the series, and (<paramref name="labels"/>,
+    /// drawn over the series so a column never hides it) its value over it at the left.
+    /// </summary>
+    private void Grid(ChartModel model, Plot plot, double w, bool labels)
     {
         if (model.Laid)
         {
@@ -220,10 +228,15 @@ public sealed partial class Chart : Grid
         foreach (var tick in ChartPlot.Ticks(model.Low, model.High, ChartPlot.ValueRoom(model.Type == ChartType.Bars ? plot.Room : plot.Band), model.TickUnit))
         {
             var y = plot.At(tick);
-            Add(new Rectangle { Width = w, Height = FamilyShape.Hairline, Fill = Family.Brush(ColourRole.Track) }, 0, y - (FamilyShape.Hairline / 2));
+            if (!labels)
+            {
+                Add(new Rectangle { Width = w, Height = FamilyShape.Hairline, Fill = Family.Brush(ColourRole.Track) }, 0, y - (FamilyShape.Hairline / 2));
+                continue;
+            }
 
-            // The foot's own value is not written: it is where the line rests, and its words would lie on it.
-            if (model.Format is { } format && tick > model.Low)
+            // The foot's own value is not written: it is where the line rests, and its words would lie on it. A chart
+            // with a caption (nothing to draw) writes no values: they would say a scale of nothing, under its words.
+            if (model.Format is { } format && tick > model.Low && model.Caption.Length == 0)
             {
                 Add(Family.Text(FamilyType.Caption, ColourRole.TextTertiary, format(tick)), FamilySpace.S1, y - line < 0 ? y : y - line);
             }

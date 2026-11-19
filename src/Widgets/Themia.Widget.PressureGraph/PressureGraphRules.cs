@@ -43,7 +43,7 @@ public static class PressureGraphRules
         var model = HourGraphRules.Of(slots, config) with
         {
             Range = scale,
-            Format = v => LocaleFormat.Integer(locale, (long)Math.Round(v)),
+            Format = v => Bare(v),
             Reading = WeatherReport.Pressure(values.FirstOrDefault(v => v is not null)),
             Marks = marks,
         };
