@@ -53,7 +53,10 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   the same at rest, under the pointer and pressed.
 - **WR-13 Hover lights the item under the pointer, edge to edge.** 2026-11-19: "the hover areas of the disk widgets
   are fucked up and wrong. when hovering over a widget it also does not show the hover effect, it just shows it for
-  all the other same kind disk widgets."
+  all the other same kind disk widgets."; 2026-11-19: "when hovering over an email it highlights multiple emails. it
+  should only highglight exactly the same item, not all from the sender for example as it does right now." Hover
+  lights exactly the item under the pointer; a link to another widget lights only that same item there, never
+  several items that share a sender, organiser or kind.
 
 ## Exemptions granted by the owner
 
