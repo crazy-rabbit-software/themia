@@ -80,6 +80,12 @@ internal sealed partial class FenceView
             return [.. _fixture.Items];
         }
 
+        // [S-13023] A search fence shows what its search found, the newest first.
+        if (Searches)
+        {
+            return [.. _found.Select(AsItem)];
+        }
+
         if (_order is null || _orderBy != _config.Sort)
         {
             _orderBy = _config.Sort;
@@ -266,12 +272,12 @@ internal sealed partial class FenceView
     {
         var desk = _host.DesktopItems;
         var key = cell.Key;
-        var selected = _fixture.On ? _fixture.Selected.Contains(key) : desk.IsSelected(key);
-        var focus = _fixture.On ? _fixture.Focus == key : desk.ShowsFocus(key);
-        var active = _fixture.On ? !_fixture.Inactive : desk.Active;
+        var selected = _fixture.On ? _fixture.Selected.Contains(key) : Searches ? _picks.IsSelected(key) : desk.IsSelected(key);
+        var focus = _fixture.On ? _fixture.Focus == key : Searches ? _picks.Cues && _picks.IsFocus(key) : desk.ShowsFocus(key);
+        var active = _fixture.On ? !_fixture.Inactive : Searches || desk.Active;
         var target = DesktopItemKeys.Comparer.Equals(_dropKey, key);
         SelectionChrome.Paint(cell.Chrome, new SelectionCue(selected, cell.Hovered, focus, focus, active, target), Look);
-        var faded = _fixture.On ? _fixture.Faded.Contains(key) : desk.IsCut(key) || cell.Item?.Hidden == true;
+        var faded = _fixture.On ? _fixture.Faded.Contains(key) : !Searches && (desk.IsCut(key) || cell.Item?.Hidden == true);
         cell.IconHost.Opacity = faded ? SelectionLook.Faded : 1;
 
         // [S-13021] A dragged item's ghost in the preview, see-through as the drag's own picture.
@@ -298,6 +304,12 @@ internal sealed partial class FenceView
         var keys = e.KeyModifiers;
         var ctrl = keys.HasFlag(Windows.System.VirtualKeyModifiers.Control);
         var shift = keys.HasFlag(Windows.System.VirtualKeyModifiers.Shift);
+        if (Searches)
+        {
+            OnFoundPressed(cell, point, ctrl, shift);
+            return;
+        }
+
         _host.DesktopItems.Press(cell.Key, ctrl, shift);
         _press = (cell.Key, point.Position, ctrl || shift);
         PointerMoved -= OnPressMoved;
@@ -331,7 +343,7 @@ internal sealed partial class FenceView
         e.Handled = true;
         if (_cells.TryGetValue(press.Key, out var cell))
         {
-            _ = DragAsync(cell, point);
+            _ = Searches ? DragFoundAsync(cell, point) : DragAsync(cell, point);
         }
     }
 
@@ -339,7 +351,14 @@ internal sealed partial class FenceView
     {
         if (_press is { } press && DesktopItemKeys.Comparer.Equals(press.Key, cell.Key))
         {
-            _host.DesktopItems.Release(cell.Key);
+            if (Searches)
+            {
+                OnFoundReleased(cell);
+            }
+            else
+            {
+                _host.DesktopItems.Release(cell.Key);
+            }
         }
 
         _press = null;
@@ -355,6 +374,12 @@ internal sealed partial class FenceView
         }
 
         e.Handled = true;
+        if (Searches)
+        {
+            OpenFound(cell.Key);
+            return;
+        }
+
         _host.DesktopItems.Open(cell.Key);
     }
 
@@ -371,6 +396,12 @@ internal sealed partial class FenceView
         var at = e.GetPosition(null);
         var window = Window();
         var (x, y) = _host.ExplorerMenus.ToScreen(window, (int)Math.Round(at.X * scale), (int)Math.Round(at.Y * scale));
+        if (Searches)
+        {
+            FoundMenu(cell, x, y, window);
+            return;
+        }
+
         _host.DesktopItems.Context(cell.Key, x, y, window, classic: SelectionInput.ShiftHeld());
     }
 
@@ -402,7 +433,7 @@ internal sealed partial class FenceView
             var square = held.IconHost.TransformToVisual(this).TransformBounds(new Rect(0, 0, held.IconHost.ActualWidth, held.IconHost.ActualHeight));
             var anchor = new Point(Math.Clamp(grab.X - square.X, 0, square.Width), Math.Clamp(grab.Y - square.Y, 0, square.Height));
             var offer = drag;
-            var effect = await ItemDrag.StartAsync(this, point, offer, () => Ghost(held, square.Width, anchor, offer)).ConfigureAwait(true);
+            var effect = await ItemDrag.StartAsync(this, point, offer, () => Ghost(held, square.Width, anchor, offer, desk.IsSelected)).ConfigureAwait(true);
             Log.Debug(Scope, $"a drag from a fence ended: {effect}");
         }
         catch (Exception ex)
@@ -419,15 +450,14 @@ internal sealed partial class FenceView
     }
 
     /// <summary>[S-5564] Explorer's ghost from this fence: the held icon in front, up to two more selected ones behind, the count in a badge.</summary>
-    private DragPicture? Ghost(Cell held, double side, Point anchor, ItemDragOffer offer)
+    private DragPicture? Ghost(Cell held, double side, Point anchor, ItemDragOffer offer, Func<string, bool> isSelected)
     {
         if (held.Ghost is not { } front || side <= 0)
         {
             return null;
         }
 
-        var desk = _host.DesktopItems;
-        var selected = _shown.Where(desk.IsSelected).ToList();
+        var selected = _shown.Where(isSelected).ToList();
         var icons = new List<GhostIcon> { front };
         foreach (var key in selected)
         {
@@ -452,6 +482,7 @@ internal sealed partial class FenceView
     private void SyncItemBox()
     {
         var key = _fixture.On ? _fixture.Renaming
+            : Searches ? null
             : WidgetId is { } id && string.Equals(_host.DesktopItems.RenamingWidget, id, StringComparison.Ordinal) ? _host.DesktopItems.RenamingKey : null;
         if (key is null || !_cells.TryGetValue(key, out var cell) || !DesktopRename.CanRename(cell.Item))
         {

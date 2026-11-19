@@ -66,6 +66,35 @@ public sealed class FenceTests
     }
 
     [Fact]
+    public void S10900_what_a_fence_shows_and_its_query_are_stored_cloned_and_repaired()
+    {
+        var config = new FenceConfig
+        {
+            Source = FenceSource.Search,
+            Query = new FenceQuery { Folder = @"D:\Photos", Modified = FenceRecency.Week, Max = 120 },
+            Rules = new FenceRuleSet { Types = [FenceFileType.Images] },
+        };
+
+        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
+        Assert.Contains("\"Search\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"Week\"", json, StringComparison.Ordinal);
+        var back = Assert.IsType<FenceConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
+        Assert.Equal(FenceSource.Search, back.Source);
+        Assert.Equal((@"D:\Photos", FenceRecency.Week, 120), (back.Query.Folder, back.Query.Modified, back.Query.Max));
+
+        var copy = Assert.IsType<FenceConfig>(config.Clone());
+        Assert.NotSame(config.Query, copy.Query);
+        Assert.Equal((config.Source, config.Query.Folder, config.Query.Modified, config.Query.Max), (copy.Source, copy.Query.Folder, copy.Query.Modified, copy.Query.Max));
+
+        // A new fence holds what is put in it; a hand-edited query is made whole, loudly.
+        Assert.Equal(FenceSource.Held, new FenceConfig().Source);
+        var edited = new FenceConfig { Source = (FenceSource)9, Query = null! };
+        Assert.Equal(2, edited.Repair().Count);
+        Assert.Equal(FenceSource.Held, edited.Source);
+        Assert.NotNull(edited.Query);
+    }
+
+    [Fact]
     public void S10917_repair_makes_a_hand_edited_fence_whole()
     {
         var config = new FenceConfig { Name = "  Wo\nrk  " + new string('x', 200), Items = null!, Rules = null! };

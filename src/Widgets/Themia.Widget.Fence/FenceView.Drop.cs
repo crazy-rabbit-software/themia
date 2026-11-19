@@ -37,7 +37,8 @@ internal sealed partial class FenceView : IWidgetDropTarget
     {
         try
         {
-            if (!Acts || WidgetId is null)
+            // [S-13023] A search fence holds no file: nothing is dropped into it.
+            if (!Acts || WidgetId is null || Searches)
             {
                 return DropEffect.None;
             }
@@ -79,7 +80,7 @@ internal sealed partial class FenceView : IWidgetDropTarget
     {
         try
         {
-            if (!Acts || WidgetId is not { } id)
+            if (!Acts || WidgetId is not { } id || Searches)
             {
                 return DropEffect.None;
             }

@@ -162,6 +162,9 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
 
         Render();
+
+        // [S-13023] A search fence searches when shown, and again when its rules or query changed.
+        SearchIfNeeded();
     }
 
     public void Detach()
@@ -180,6 +183,8 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         PointerEntered -= OnPointerEntered;
         PointerExited -= OnPointerExited;
         CloseTitleBox(commit: false);
+        CancelSearch();
+        _searchedFor = null;
         ClearCells();
         if (WidgetId is { } id)
         {
@@ -210,6 +215,12 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
             return false;
         }
 
+        // [S-13023] A search fence's files are its own: its keys work on them.
+        if (Searches && key != WidgetKey.Rename)
+        {
+            return FoundKey(key);
+        }
+
         if (_host.DesktopItems.Key(key, SelectionInput.ShiftHeld(), WidgetId))
         {
             return true;
@@ -224,7 +235,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         return false;
     }
 
-    public bool HandleText(char character) => Acts && _titleBox is null && _host.DesktopItems.Type(character);
+    public bool HandleText(char character) => Acts && _titleBox is null && !Searches && _host.DesktopItems.Type(character);
 
     public bool KeepsSelectionWhenLeft => true;
 
@@ -238,6 +249,18 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
             if (!Acts || WidgetId is not { } id)
             {
                 return [];
+            }
+
+            // [S-13023] A search fence holds no file: nothing is pasted or made in it; it searches again.
+            if (Searches)
+            {
+                return
+                [
+                    new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => SearchIfNeeded(again: true)),
+                    new(Glyphs.Rename, FenceStr.Fence_Rename.Text(), OpenTitleBox),
+                    new(_config.RolledUp ? Glyphs.ChevronDown : Glyphs.ChevronUp, (_config.RolledUp ? FenceStr.Fence_Unroll : FenceStr.Fence_RollUp).Text(), () => Fences.RollUp(id, !_config.RolledUp)),
+                    new(Glyphs.Delete, FenceStr.Fence_Remove.Text(), () => _ = RemoveAsync(id)),
+                ];
             }
 
             return
@@ -414,6 +437,18 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         }
 
         e.Handled = true;
+
+        // [S-13023] A search fence's files are in no desktop selection: a press on its empty body clears its own.
+        if (Searches)
+        {
+            if (_picks.Clear())
+            {
+                PaintCells();
+            }
+
+            return;
+        }
+
         if (WidgetId is { } id && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             _ = Fences.Band(id, e);
@@ -431,7 +466,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _chevron.Glyph = _config.RolledUp ? Glyphs.ChevronDown : Glyphs.ChevronUp;
         _divider.Visibility = _config.RolledUp ? Visibility.Collapsed : Visibility.Visible;
         _body.Visibility = _config.RolledUp ? Visibility.Collapsed : Visibility.Visible;
-        _empty.Text = FenceStr.Fence_Empty.Text();
+        _empty.Text = Searches && !_fixture.On ? SearchEmptyText() : FenceStr.Fence_Empty.Text();
         _empty.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         SyncCells(items);
         Layout();
@@ -473,7 +508,8 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
             return;
         }
 
-        if (_config.RolledUp || _scroll.ViewportHeight <= 0)
+        // [S-13023] A search fence's files are no desktop items: nothing of it is in the desktop's selection.
+        if (_config.RolledUp || _scroll.ViewportHeight <= 0 || Searches)
         {
             Fences.Laid(id, []);
             return;

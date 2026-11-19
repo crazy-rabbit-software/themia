@@ -10404,6 +10404,30 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
   them back; the drop turns the ghosts into the items where they stand, and every change of place glides (the fence's
   reposition transition). There is no insertion line. `--widget-png Fence --state dropping` draws it. Tests
   `FenceRulesTests.S13021_`.
+- **[S-13022]** **A fence that collects** (the owner, 2026-11-19: "also allow to create fences that show items of some kind,
+  also give the option to show items of some kind from anywhere from the drive. (query style)"): a fence's page chooses what
+  it **Shows** (`FenceSource`, stored in its config and read through `IHoldsDesktopItems.Source`): **What I put in it**
+  (Fences' own, as before), **Desktop items that match**, or **Files that match, from a folder or drive** ([S-13023]). A
+  collecting fence holds every listed desktop item its rules match ([S-13004]'s kinds, extensions and name text: its
+  "Which items" page), now and later: after every change of the state (`AppHost.Mutate` → `DesktopFences.Collect`, in the
+  same undo step) it takes in each match that no fence before it on that view holds (from the free desktop and from later
+  fences) and lets go of each item its rules no longer match, which lands on the view's free desktop at the first free
+  spots. An item taken out by hand comes back while it matches: the rules decide. Tests `FenceSourceTests.S13022_`.
+- **[S-13023]** **A search fence**: shows the files its rules match in a folder or drive (empty: the user's own folder) and
+  every folder under it, changed within Any time, the last day, week, month or year, at most a count (10..500, 60 new),
+  the newest first; its page has Look in (a folder picker), Changed and At most under the source. The search is Windows
+  Search's, as Explorer's search box makes it (`FileSearch`: the rules' Advanced Query Syntax, `FenceSearch.Aqs`, parsed
+  and resolved by the shell's query parser against the system index, scoped search folder, `ISearchFolderItemFactory`,
+  enumerated; the index answers indexed places at once), off the UI thread, and every answer is checked against the rules
+  (`FenceSearch.Shown`). It runs when the fence is shown and when its rules or query change, and again on F5 or its menu's
+  Refresh. The files are views, not desktop items: selected in the fence alone (`ItemSelection`: a press, Ctrl, Shift, the
+  arrows, Space, Ctrl+A), opened by a double-click or Enter, the shell's own menu on a right-click, dragged out as a copy or
+  a shortcut (never moved); nothing is dropped, pasted or made in it, its items are in no desktop selection, it holds no
+  desktop item (one it held goes back to the free desktop), new items never route to it, and removing it touches no file.
+  Empty, it says "Searching…", "Choose the kinds of file it shows on its page" or "No files match". Debug:
+  `--desktop-items-check <out.txt> --search <ext> [folder]` runs one search and writes counts by extension and the time
+  (no file names). Tests `FenceSourceTests.S13023_`, the module's `FenceTests.S10900_`. Needs a manual pass: a
+  search fence on a live desktop (a drag out, the menu, a non-indexed folder's slower answer).
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

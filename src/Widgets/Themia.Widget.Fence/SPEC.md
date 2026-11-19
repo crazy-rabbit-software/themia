@@ -14,7 +14,8 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
   kind's word "Fence"), the desktop items it holds by their keys in its order (`Items`, [S-13000]), whether it is rolled
   up and the height it unrolls to (`RolledUp`, `OpenHeight`, [S-13012]), its standing sort (`Sort`, null for as placed,
   [S-13013]), its rules for new items (`Rules`, [S-13004]) and how its title bar rolls it up (`RollUpOnClick`,
-  `HoverPeek`, both on in a new fence). A clone copies all of it, the lists anew. Tests `FenceTests.S10900_`.
+  `HoverPeek`, both on in a new fence), what it shows (`Source`, [S-13022]) and a search's query (`Query`: folder, recency,
+  count, [S-13023]). A clone copies all of it, the lists anew. Tests `FenceTests.S10900_`.
 - **[S-10901]** **Its size is the user's** (the kind's sizing, relaxed, [S-12411]): at least one cell of the desktop under
   its title bar, naturally the size that shows six items without scrolling (`FenceGrid.Around`), as large as the work
   area holds. Rolled up its height is its title bar's alone (a stepped axis the relax keeps), its width as it was. It joins
@@ -69,10 +70,13 @@ it stands on are Core's and the SDK's (`DesktopFencesTests`, `FenceRulesTests`, 
 - **[S-10913]** **Hover peek**: while the pointer rests on a rolled-up fence it opens, and rolls up again when the pointer
   leaves (not while its rename box or a drag holds it); a click while it peeks keeps it open. The page's switch "Open
   while the pointer is over it" turns that off.
-- **[S-10914]** **Its page** ([S-2340]): Fence name (asked), Sort by (As placed, Name, Item type, Date modified, Size:
+- **[S-10914]** **Its page** ([S-2340]): Fence name (asked), Shows (What I put in it, Desktop items that match, Files
+  that match from a folder or drive, [S-13022], [S-13023]; for a search: Look in, Changed, At most), Sort by (As placed, Name, Item type, Date modified, Size:
   the fence's standing order, the desktop's own sort rule, [S-13013]), the two roll-up switches, and New items › its rules
   ([S-13004]): a switch per file type (Images, Documents, Installers, Archives, Videos, Music, Shortcuts, Folders), Other
-  extensions (asked, "pdf, docx"), Name contains (asked), under a note saying new desktop items that match arrive here.
+  extensions (asked, "pdf, docx"), Name contains (asked), under a note saying new desktop items that match arrive here (a
+  collecting fence: that every match stands here; a search fence: that every matching file of its place is shown, the
+  files staying where they are; the page is then "Which items").
 - **[S-10915]** **Pictures** ([S-11850]): the sample is a fence named "Work" with six of the sample desk's items (names on
   no disk, so the shell draws their type's icons, the same on every machine). Debug renders' states (`--widget-png Fence
   --state …`): `sample`, `empty`, `selected`, `inactive`, `renaming`, `title`, `rolledUp`, `many` (it scrolls), `cut`,

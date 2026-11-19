@@ -1,5 +1,5 @@
 {
-  "$englishOnly": ["fence.label", "fence.desc", "fence.count", "fence.empty", "fence.rename", "fence.rollUp", "fence.unroll", "fence.remove", "fence.putBack", "fence.putBack.action", "fence.title", "fence.sort", "fence.sort.none", "fence.rollUpOnClick", "fence.hoverPeek", "fence.rules", "fence.rules.types", "fence.rules.extensions", "fence.rules.extensionsHint", "fence.rules.name", "fence.rules.note", "fence.type.images", "fence.type.documents", "fence.type.installers", "fence.type.archives", "fence.type.videos", "fence.type.music", "fence.type.shortcuts", "fence.type.folders", "fence.sampleName"],
+  "$englishOnly": ["fence.label", "fence.desc", "fence.count", "fence.empty", "fence.rename", "fence.rollUp", "fence.unroll", "fence.remove", "fence.putBack", "fence.putBack.action", "fence.title", "fence.sort", "fence.sort.none", "fence.rollUpOnClick", "fence.hoverPeek", "fence.rules", "fence.rules.types", "fence.rules.extensions", "fence.rules.extensionsHint", "fence.rules.name", "fence.rules.note", "fence.type.images", "fence.type.documents", "fence.type.installers", "fence.type.archives", "fence.type.videos", "fence.type.music", "fence.type.shortcuts", "fence.type.folders", "fence.sampleName", "fence.source", "fence.source.held", "fence.source.desktop", "fence.source.search", "fence.rules.noteDesktop", "fence.rules.noteSearch", "fence.rules.which", "fence.query.folder", "fence.query.modified", "fence.query.any", "fence.query.day", "fence.query.week", "fence.query.month", "fence.query.year", "fence.query.max", "fence.search.none", "fence.search.noRule", "fence.search.searching"],
   "fence.label": "Fence",
   "fence.desc": "A box of desktop icons with a title",
   "fence.count": {
@@ -35,5 +35,23 @@
   "fence.type.music": "Music",
   "fence.type.shortcuts": "Shortcuts",
   "fence.type.folders": "Folders",
-  "fence.sampleName": "Work"
+  "fence.sampleName": "Work",
+  "fence.source": "Shows",
+  "fence.source.held": "What I put in it",
+  "fence.source.desktop": "Desktop items that match",
+  "fence.source.search": "Files that match, from a folder or drive",
+  "fence.rules.noteDesktop": "Every desktop item that matches stands in this fence, now and later.",
+  "fence.rules.noteSearch": "Every file that matches in the place below is shown here. The files stay where they are.",
+  "fence.rules.which": "Which items",
+  "fence.query.folder": "Look in",
+  "fence.query.modified": "Changed",
+  "fence.query.any": "Any time",
+  "fence.query.day": "In the last day",
+  "fence.query.week": "In the last week",
+  "fence.query.month": "In the last month",
+  "fence.query.year": "In the last year",
+  "fence.query.max": "At most",
+  "fence.search.none": "No files match",
+  "fence.search.noRule": "Choose the kinds of file it shows on its page",
+  "fence.search.searching": "Searching…"
 }

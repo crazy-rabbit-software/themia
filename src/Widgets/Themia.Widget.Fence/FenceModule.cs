@@ -65,8 +65,9 @@ public sealed class FenceModule : IWidgetModule
     public FrameworkElement CreateView(IWidgetHost host) => new FenceView(host);
 
     /// <summary>
-    /// [S-10914] Its page: the title (asked), the standing sort, how the title bar rolls it up, and the rules that bring
-    /// new desktop items into it ([S-13004]: file types, other extensions, a name's text).
+    /// [S-10914] Its page: the title (asked), what it shows ([S-13022]: what is put in, the desktop items that match, or files
+    /// that match from a folder or drive, [S-13023]: where, how recent, how many), the standing sort, how the title bar
+    /// rolls it up, and the rules ([S-13004]: file types, other extensions, a name's text).
     /// </summary>
     public void MenuLines(WidgetMenuLines menu, Themia.Core.Model.WidgetConfig config)
     {
@@ -77,6 +78,39 @@ public sealed class FenceModule : IWidgetModule
         }
 
         menu.Lines.Add(Ask(menu, Glyphs.Rename, FenceStr.Fence_Title.Text(), fence.Name, null, typed => fence.Name = FenceConfig.CleanName(typed)));
+        menu.Lines.Add(menu.Choice(
+            Glyphs.Folder,
+            FenceStr.Fence_Source.Text(),
+            [
+                (FenceSource.Held, FenceStr.Fence_Source_Held.Text()),
+                (FenceSource.Desktop, FenceStr.Fence_Source_Desktop.Text()),
+                (FenceSource.Search, FenceStr.Fence_Source_Search.Text()),
+            ],
+            fence.Source,
+            source => fence.Source = source));
+        if (fence.Source == FenceSource.Search)
+        {
+            menu.Lines.Add(menu.PickFolder(null, FenceStr.Fence_Query_Folder.Text(), fence.Query.Folder, folder =>
+            {
+                fence.Query.Folder = folder;
+                FenceSearch.Repair(fence.Query);
+            }));
+            menu.Lines.Add(menu.Choice(
+                null,
+                FenceStr.Fence_Query_Modified.Text(),
+                [
+                    (FenceRecency.Any, FenceStr.Fence_Query_Any.Text()),
+                    (FenceRecency.Day, FenceStr.Fence_Query_Day.Text()),
+                    (FenceRecency.Week, FenceStr.Fence_Query_Week.Text()),
+                    (FenceRecency.Month, FenceStr.Fence_Query_Month.Text()),
+                    (FenceRecency.Year, FenceStr.Fence_Query_Year.Text()),
+                ],
+                fence.Query.Modified,
+                recency => fence.Query.Modified = recency));
+            menu.Lines.Add(menu.Number(null, FenceStr.Fence_Query_Max.Text(), fence.Query.Max, 10, FenceSearch.MostResults, 10,
+                n => LocaleFormat.Integer(n), n => fence.Query.Max = n));
+        }
+
         // A choice holds no null: -1 is "As placed".
         menu.Lines.Add(menu.Choice(
             Glyphs.Sort,
@@ -93,14 +127,20 @@ public sealed class FenceModule : IWidgetModule
         menu.Lines.Add(menu.Toggle(Glyphs.ChevronUp, FenceStr.Fence_RollUpOnClick.Text(), fence.RollUpOnClick, on => fence.RollUpOnClick = on));
         menu.Lines.Add(menu.Toggle(null, FenceStr.Fence_HoverPeek.Text(), fence.HoverPeek, on => fence.HoverPeek = on));
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Folder, FenceStr.Fence_Rules.Text(), RuleLines(menu, fence)));
+        menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Folder, (fence.Source == FenceSource.Held ? FenceStr.Fence_Rules : FenceStr.Fence_Rules_Which).Text(), RuleLines(menu, fence)));
     }
 
     /// <summary>[S-10914] [S-13004] The rules' page: a switch per file type, the user's own extensions and a name's text, each asked.</summary>
     private static IReadOnlyList<ItemMenuEntry> RuleLines(WidgetMenuLines menu, FenceConfig fence)
     {
         var rules = fence.Rules;
-        var lines = new List<ItemMenuEntry> { WidgetMenuLines.Note(FenceStr.Fence_Rules_Note.Text()) };
+        var note = fence.Source switch
+        {
+            FenceSource.Desktop => FenceStr.Fence_Rules_NoteDesktop,
+            FenceSource.Search => FenceStr.Fence_Rules_NoteSearch,
+            _ => FenceStr.Fence_Rules_Note,
+        };
+        var lines = new List<ItemMenuEntry> { WidgetMenuLines.Note(note.Text()) };
         foreach (var type in Enum.GetValues<FenceFileType>())
         {
             lines.Add(menu.Toggle(null, TypeName(type), rules.Types.Contains(type), on =>
