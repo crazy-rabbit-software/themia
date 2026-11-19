@@ -200,20 +200,8 @@ public readonly record struct KitPlan(
     /// <summary>[S-7037] The time in its long words, with its date.</summary>
     public bool LongWhen { get; init; }
 
-    /// <summary>[S-12807] How far the list starts over the view's top: its first row's band and its leading over its ink, so that ink stands on the inset.</summary>
-    public double RowOver { get; init; }
-
-    /// <summary>[S-12807] How far the last row's box ends past the foot's inset line: its band and its leading under its ink.</summary>
-    public double RowUnder { get; init; }
-
-    /// <summary>[S-12807] The spacing between two rows once they are at their cap ([S-12410]).</summary>
-    public double RowGap { get; init; }
-
-    /// <summary>[S-12807] The plan's rows laid as <paramref name="reach"/> says: their pitch, the room over the first and under the last, the gap.</summary>
-    public KitPlan With(RowReach reach) => this with { RowHeight = reach.Pitch, RowOver = reach.Over, RowGap = reach.Gap, RowUnder = reach.Under };
-
-    /// <summary>[S-12807] The plan's rows as the reach rule laid them.</summary>
-    public RowReach Reach => new(RowHeight, RowOver, RowGap, RowUnder);
+    /// <summary>[S-12807] The plan's rows laid as <paramref name="reach"/> says: their pitch, touching.</summary>
+    public KitPlan With(RowReach reach) => this with { RowHeight = reach.Pitch };
 }
 
 /// <summary>
@@ -247,33 +235,24 @@ public static class KitPlanner
     }
 
     /// <summary>
-    /// [S-12807] The height <paramref name="plan"/>'s list has for its rows in <paramref name="area"/>: the
-    /// view's down to the foot's inset, with the first row's box over the view's top and the last row's under
-    /// the inset line (<see cref="KitPlan.RowOver"/>, <see cref="KitPlan.RowUnder"/>, at most the inset: never past the card's edge).
+    /// [S-12807] The height a list has for its rows in <paramref name="area"/>: the view's, down to the foot's inset.
     /// </summary>
-    public static double ListHeight(WidgetArea area, KitPlan plan) => Math.Max(0, area.Height - FamilySpace.Inset + plan.RowOver + plan.RowUnder);
+    public static double ListHeight(WidgetArea area) => Math.Max(0, area.Height - FamilySpace.Inset);
 
     /// <summary>[S-6712] Whole rows of <paramref name="plan"/> (its rows and the gaps between them) in a list <paramref name="height"/> tall, under the table's column titles when it has them.</summary>
     public static int Fit(KitPlan plan, double height)
     {
         var room = height - (plan.ColumnHeader ? ColumnHeaderHeight : 0);
-        var stride = plan.RowHeight + plan.RowGap;
-        return double.IsFinite(room) && room > 0 && plan.RowHeight > 0 ? (int)Math.Floor((room + plan.RowGap + LayoutMath.Tolerance) / stride) : 0;
+        return double.IsFinite(room) && room > 0 && plan.RowHeight > 0 ? (int)Math.Floor((room + LayoutMath.Tolerance) / plan.RowHeight) : 0;
     }
 
     /// <summary>
-    /// [S-12807] <paramref name="rows"/> rows of <paramref name="lines"/> lines in <paramref name="area"/>
-    /// (less <paramref name="reserved"/>: a table's titles, an add row): their text from the view's top to the
-    /// foot's inset (<see cref="ItemStretch.Reach(double, int, double, double, double, double, double, LineInk)"/>), each
-    /// row up to half again its natural height; natural rows before the box is measured. <paramref name="lead"/>: the
-    /// rows' lead glyph (0: none), whose ink may reach further than the text's.
+    /// [S-12807] <paramref name="rows"/> rows of <paramref name="lines"/> lines in <paramref name="area"/> (less
+    /// <paramref name="reserved"/>: a table's titles, an add row): touching, from the view's top to the foot's inset
+    /// (<see cref="ItemStretch.Rows"/>); natural rows before the box is measured.
     /// </summary>
-    public static RowReach Reach(WidgetArea area, int rows, int lines, double reserved = 0, double lead = 0)
-    {
-        return area.IsMeasured
-            ? ItemStretch.Rows(Math.Max(0, area.Height), KitSizing.ClampRows(rows), lines, reserved, lead: lead)
-            : ItemStretch.Natural(lines, lead);
-    }
+    public static RowReach Reach(WidgetArea area, int rows, int lines, double reserved = 0)
+        => area.IsMeasured ? ItemStretch.Rows(Math.Max(0, area.Height), KitSizing.ClampRows(rows), lines, reserved) : ItemStretch.Natural(lines);
 
     /// <summary>[S-12410] A heading's height beside rows of <paramref name="pitch"/>: one row of 28, stretched as they are.</summary>
     public static double HeadingPitch(double pitch, int lines) => FamilyShape.Row1 * (pitch / FamilyShape.RowHeight(lines));
@@ -297,7 +276,7 @@ public static class KitPlanner
         var subtitle = (has(KitShow.Subtitle) || has(KitShow.Badges)) && lines >= 2;
         var preview = has(KitShow.Preview) && lines >= (subtitle ? 3 : 2);
         var columns = KitSizing.ClampColumns(rows.Columns);
-        return new KitPlan(spec.Look, columns, Math.Max(0, area.Width) / columns, lines, has(KitShow.Lead), subtitle, preview, has(KitShow.When), has(KitShow.Badges) && subtitle).With(Reach(area, rows.Rows, lines, lead: has(KitShow.Lead) ? FamilyShape.Icon : 0));
+        return new KitPlan(spec.Look, columns, Math.Max(0, area.Width) / columns, lines, has(KitShow.Lead), subtitle, preview, has(KitShow.When), has(KitShow.Badges) && subtitle).With(Reach(area, rows.Rows, lines));
     }
 
     /// <summary>
@@ -312,7 +291,7 @@ public static class KitPlanner
         var chosen = choices.Columns is { Count: > 0 } picked ? picked : [KitColumn.Title];
         var fits = TableColumns(chosen, InnerWidth(width, lead), ColumnGap);
         // [S-12807] Under the titles the rows' room starts: the first row's band reaches into the titles' gap.
-        return new KitPlan(KitRowLook.Table, 1, width, 1, lead, false, false, false, ColumnHeader: rows.ColumnTitles, Table: fits).With(Reach(area, rows.Rows, 1, rows.ColumnTitles ? ColumnHeaderHeight : 0, lead ? FamilyShape.Icon : 0));
+        return new KitPlan(KitRowLook.Table, 1, width, 1, lead, false, false, false, ColumnHeader: rows.ColumnTitles, Table: fits).With(Reach(area, rows.Rows, 1, rows.ColumnTitles ? ColumnHeaderHeight : 0));
     }
 
     /// <summary>A row's width inside its side insets and past its lead: what its text has to share.</summary>
@@ -378,7 +357,7 @@ public static class KitPlanner
         // [S-11541] A schedule that states its rows: one column, its lines (the span and where on the
         // second) at every size; the pages hold the rows its height was made for.
         var chosen = KitSizing.ClampLines(choices.Rows.Lines);
-        var reach = Reach(area, choices.Rows.Rows, chosen, lead: FamilyShape.Icon);
+        var reach = Reach(area, choices.Rows.Rows, chosen);
         return new KitPlan(KitRowLook.Schedule, 1, Math.Max(0, area.Width), chosen, true, chosen >= 2, false, true, HeadingHeight: HeadingPitch(reach.Pitch, chosen)).With(reach);
     }
 }

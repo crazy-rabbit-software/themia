@@ -1,37 +1,20 @@
 using Themia.Core.Widgets;
-using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Folder.Tests;
 
-/// <summary>[S-12451] [S-12807] The folder's list rows reach the items' top and the foot's inset with their ink: whole rows of 28 stretched over what is left, at most half again.</summary>
+/// <summary>[S-12451] [S-12807] The folder's list rows fill the items' room: whole rows of 28 grown until they touch.</summary>
 public sealed class FolderPitchTests
 {
     [Theory]
-    [InlineData(224)]    // the natural list: 8 rows
-    [InlineData(112)]    // four whole rows
-    [InlineData(57)]     // two whole rows
-    public void S12451_a_list_row_reaches_the_items_ends_up_to_half_again(double height)
+    [InlineData(224, 28)]   // the natural list: 8 rows of 28
+    [InlineData(112, 28)]   // four whole rows
+    [InlineData(57, 28)]    // two whole rows, a pixel over: the rest under them
+    [InlineData(41, 41)]    // one row in a 41 box: it takes the box
+    public void S12451_a_list_row_fills_the_items_room(double height, double pitch)
     {
         var reach = FolderLayout.Reach(height);
-        var rows = FolderLayout.Rows(height);
-        var ink = LineInk.Row(1, FolderLayout.Lead);
-        var halo = (reach.Pitch - 20) / 2;
-
-        // The first row's ink (its icon) on the items' top, the last one's on their end; no box past the inset.
-        Assert.Equal(0, -reach.Over + halo + ink.Over, 6);
-        Assert.Equal(height, reach.Length(rows) - reach.Over - reach.Under, 6);
-        Assert.InRange(reach.Pitch, 20, 42);
-        Assert.True(reach.Over <= 12 + 1e-9 && reach.Under <= 12 + 1e-9);
-    }
-
-    [Fact]
-    public void S12451_one_row_is_centred_round_its_ink()
-    {
-        var reach = FolderLayout.Reach(41);
-        var ink = LineInk.Row(1, FolderLayout.Lead);
-        var top = -reach.Over + ((reach.Pitch - 20) / 2) + ink.Over;
-        var foot = 41 - (top + 20 - ink.Over - ink.Under);
-        Assert.InRange(foot - top, 0, 1);
+        Assert.Equal(pitch, reach.Pitch);
+        Assert.True(reach.Length(FolderLayout.Rows(height)) <= height + 1e-9);
     }
 }

@@ -14,12 +14,11 @@ namespace Themia.Sdk.WinUI.Kit;
 /// widest case the widget names, so it does not jump with the reading. A one-readout widget's
 /// readout is centred; every other is start-aligned.
 /// <para>
-/// [S-12808] Its lines stand together (<see cref="SpreadStack.Reaches"/> off) until a one-readout view lets it reach
-/// its box: then the value's ink stands on the content's top and the line under's ink on the foot's inset, the room
-/// between them.
+/// [S-12808] Its lines stand together at their natural spacing, always; a one-readout view scales the whole block
+/// (<see cref="ReadingFit"/>), reading where its ink stands (<see cref="Ink"/>).
 /// </para>
 /// </summary>
-public sealed partial class ReadoutBlock : SpreadStack, IInked
+public sealed partial class ReadoutBlock : StackPanel, IInked
 {
     private readonly FontIcon _lead;
     private readonly TextBlock _line;
@@ -39,7 +38,6 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
 
     public ReadoutBlock()
     {
-        Reaches = false;
         _lead = Family.Glyph(string.Empty, _step.FontSize, ColourRole.TextSecondary);
         _lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
         _lead.Visibility = Visibility.Collapsed;
@@ -76,7 +74,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
     }
 
     /// <inheritdoc />
-    public double Band => 0;
+    public bool Grows => false;
 
     /// <summary>The line under the value.</summary>
     public TextBlock UnderText => _under;

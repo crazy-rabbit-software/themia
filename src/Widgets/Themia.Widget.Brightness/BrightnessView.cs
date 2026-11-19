@@ -40,6 +40,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     /// <summary>[S-2152] The level, where a meter's reading stands: the view's top, in the side inset.</summary>
     private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
 
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
+
     private readonly PointerEventHandler _grab;
     private readonly PointerEventHandler _release;
     private readonly PointerEventHandler _wheel;
@@ -60,7 +63,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         _brightness = host.Brightness;
 
         // [S-4440] [S-6716] The slider is the Controls block's row at the bottom inset.
-        _controls.Margin = Family.SideInset;
+
         _slider = _controls.Slider(0, 100, 0, OnSliderChanged);
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
@@ -70,10 +73,11 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         _wheel = OnWheel;
 
         _controls.Visibility = Visibility.Collapsed;
-        _reading.Margin = Family.SideInset;
 
-        // [S-12808] The level's ink on the content's top, the slider on the foot's inset, the room between them.
-        Children.Add(new SpreadStack { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Children = { _reading, _controls } });
+        // [S-12808] The level and the slider: one block, planned at the natural box and scaled up as one.
+        _fit.Parts.Add(_reading);
+        _fit.Parts.Add(_controls);
+        Children.Add(_fit);
 
         // The wheel anywhere on the tile, as on the volume tile.
         Background = Family.Brush(ColourRole.Clear);
@@ -108,6 +112,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as BrightnessConfig ?? new BrightnessConfig();
         Lay();
     }

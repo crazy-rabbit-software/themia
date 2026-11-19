@@ -24,8 +24,10 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
 {
     /// <summary>[S-12481] The problem glyph ([S-7042]) over the content's top end.</summary>
     private readonly KitStatus _status;
-    /// <summary>[S-12808] The index's ink on the content's top, its band's on the foot's inset, the room between them.</summary>
-    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, Reaches = true };
+    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left };
+
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
 
     /// <summary>[S-6170] The gauge: the half ring, the index in its bowl, the band under it.</summary>
     private readonly ChartRing _dial = new(half: true);
@@ -51,7 +53,6 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
 
         // [S-12410] The readout (or the gauge) is one block, centred in the room with the foot's inset
         // counted with it ([S-12483]: the same joined or alone): at its natural box nothing moves, a larger box spaces it, never huddled.
-        _hero.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
         _hero.Use(FamilyType.Big28);
         _hero.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
         _gaugeReading.Use(FamilyType.Big28);
@@ -64,7 +65,8 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
 
         _hero.Visibility = Visibility.Collapsed;
         _gauge.Visibility = Visibility.Collapsed;
-        Children.Add(_hero);
+        _fit.Parts.Add(_hero);
+        Children.Add(_fit);
         Children.Add(_gauge);
         Children.Add(_empty);
         _status.Place(this);
@@ -83,6 +85,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetContext
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as AirQualityConfig ?? new AirQualityConfig();
         _feed.Reload();
     }

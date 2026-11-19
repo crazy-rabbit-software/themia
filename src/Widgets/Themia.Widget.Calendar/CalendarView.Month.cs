@@ -6,9 +6,11 @@ using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
@@ -38,23 +40,24 @@ internal sealed partial class CalendarView
         // [S-11544] Six weeks of the config's cells at every size: the height was made for them.
         var weeks = MonthPlan.Weeks(_anchor, start);
         var innerWidth = Math.Max(0, width - (2 * FamilySpace.Inset));
-        var fit = CalendarSizing.Month(_config.MonthEvents, innerWidth, _config.MonthLines);
-        var columnWidth = innerWidth / 7;
 
-        // [S-12400] [S-12807] The weeks reach from under the header to the foot's inset: the first week's cells
-        // under the header, the last week's marks on the inset, never a band left under them nor on the card's
-        // edge; a box taller than their cells spaces them evenly (each week's room over it). The sides keep the
-        // inset as the day numbers' own.
-        var room = height - fit.HeaderHeight - FamilySpace.Inset;
-        var slots = ItemStretch.Reach(room, [.. Enumerable.Repeat(StretchItem.Fixed(fit.CellHeight), fit.Rows)], 0, 0, XamlRoot?.RasterizationScale ?? 1);
+        // [S-12809] The weekday line and the weeks fill the content edge to edge, the cells touching: the rows grow
+        // with the height, the columns with the width, and the type grows with the cells (each week and the weekday
+        // line drawn larger by the lesser of the two growths, laid out in its row shrunk by as much).
+        var room = Math.Max(0, height - FamilySpace.Inset);
+        var natural = CalendarSizing.Month(_config.MonthEvents, innerWidth, _config.MonthLines);
+        var planned = natural.HeaderHeight + (natural.Rows * natural.CellHeight);
+        var tall = planned > 0 ? Math.Max(1, room / planned) : 1;
+        var naturalColumn = Math.Max(1, ModuleCatalog.Of(_config.Kind).SizingOf(_config).Natural.Width - (2 * FamilySpace.Inset)) / 7;
+        var grow = Math.Max(1, Math.Min(tall, (innerWidth / 7) / naturalColumn));
+        var fit = CalendarSizing.Month(_config.MonthEvents, innerWidth / grow, _config.MonthLines);
+        var columnWidth = innerWidth / grow / 7;
 
         var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0) };
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.HeaderHeight) });
-        var over = new double[fit.Rows];
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.HeaderHeight * tall) });
         for (var r = 0; r < fit.Rows; r++)
         {
-            over[r] = Math.Max(0, slots[r].Start - (r > 0 ? slots[r - 1].End : 0));
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(over[r] + slots[r].Length) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.CellHeight * tall) });
         }
 
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
@@ -73,7 +76,7 @@ internal sealed partial class CalendarView
                 header.Children.Add(holder);
             }
 
-            grid.Children.Add(header);
+            grid.Children.Add(new ScaleBox { Factor = grow, Child = header });
         }
 
         // Three dots and the muted one are 28: a narrower cell takes two and the muted one.
@@ -149,9 +152,9 @@ internal sealed partial class CalendarView
                 week.Children.Add(chip);
             }
 
-            ListReach.Shift(week, over[r]);
-            SetRow(week, 1 + r);
-            grid.Children.Add(week);
+            var scaled = new ScaleBox { Factor = grow, Child = week };
+            SetRow(scaled, 1 + r);
+            grid.Children.Add(scaled);
         }
 
         _content.Children.Add(grid);

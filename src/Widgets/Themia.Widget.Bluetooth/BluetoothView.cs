@@ -313,8 +313,8 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         _columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         // [S-12807] The config's rows reach the view's top and the foot's inset.
         var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, plan.Rows, plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: _config.ShowIcon ? FamilyShape.Icon : 0)
-            : ItemStretch.Natural(plan.Lines, _config.ShowIcon ? FamilyShape.Icon : 0);
+            ? ItemStretch.Rows(_area.Height, plan.Rows, plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : ItemStretch.Natural(plan.Lines);
         var column = new StackPanel();
         _columns.Children.Add(column);
         foreach (var device in devices)
@@ -325,7 +325,6 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         }
 
         _scroll.Height = reach.Length(plan.Rows);
-        ListReach.Apply(_scroll, reach, column);
     }
 
     /// <summary>

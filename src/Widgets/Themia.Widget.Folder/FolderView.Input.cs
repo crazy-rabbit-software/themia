@@ -461,7 +461,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     private bool MoveCursor(WidgetKey key)
     {
         var columns = _plan?.Grid?.Columns ?? 1;
-        var row = _plan?.Grid?.PitchY ?? (_rowPitch + _rowGap);
+        var row = _plan?.Grid?.PitchY ?? _rowPitch;
         var pageRows = Math.Max(1, (int)(_scroll.ViewportHeight / Math.Max(1, row)));
 
         if (!_selection.Key(key, ShiftDown(), columns, pageRows))

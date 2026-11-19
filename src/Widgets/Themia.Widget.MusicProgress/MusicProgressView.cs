@@ -20,6 +20,9 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 {
     private readonly TextBlock _elapsed = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
     private readonly TextBlock _total = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one (in the view's padding).</summary>
+    private readonly ReadingFit _fit = new() { Margin = default };
+
     private readonly MusicSeekBar _seek = new();
 
     /// <summary>The one line: the elapsed time, the bar, the total.</summary>
@@ -51,8 +54,9 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
         _row.Children.Add(_seek);
         _row.Children.Add(_total);
 
-        // [S-12808] One line: its ink centred in the content, a taller box's room over and under it alike.
-        Children.Add(new SpreadStack { Children = { _row } });
+        // [S-12808] One line: planned at the natural box (its ink centred there) and scaled up as one.
+        _fit.Parts.Add(_row);
+        Children.Add(_fit);
 
         _seek.Scrubbing += OnScrubbing;
         _seek.Committed += fraction => _feed.Seek(MusicRules.SeekTarget(fraction, _feed.Now.Timeline.Duration));
@@ -75,6 +79,7 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config, Padding);
         _config = config as MusicProgressConfig ?? new MusicProgressConfig();
 
         _feed.Reload();

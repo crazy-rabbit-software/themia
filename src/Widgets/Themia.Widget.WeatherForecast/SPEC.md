@@ -72,9 +72,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   Dragging the rows' bottom edge or the columns' side edge sets the days ([S-2442]).
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
   other styles offer nothing there.
-- **[S-12403]** **The days fill the content** ([S-12400]), in every style. Rows: the first day's text on
-  the content's top, the last day's on the foot's inset ([S-12807]), a box taller than the days stretching
-  the rows up to half again, then spacing them; each
+- **[S-12403]** **The days fill the content** ([S-12400]), in every style. Rows: the days fill the content
+  from its top to the foot's inset, touching ([S-12807]): a box taller than the days grows the rows; each
   range bar takes what the widest day name (with two lines, the widest second line too) and the widest
   value leave, the same length on every row, never under [S-725]'s share (`WeatherForecastLayout.MeterWidth`).
   Columns: equal columns across the whole width, the standing bar taking the height the other parts

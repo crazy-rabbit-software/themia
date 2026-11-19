@@ -209,9 +209,8 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         // [S-12807] The rows the config states reach the view's top and the foot's inset: their pitch, the first
         // one's band over the top, the gap past their cap; a heading or a fold line is one row of 28 stretched alike.
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: _plan.Lead ? FamilyShape.Icon : 0)
-            : ItemStretch.Natural(_plan.Lines, _plan.Lead ? FamilyShape.Icon : 0);
-        ListReach.Apply(_scroll, _reach, _list);
+            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : ItemStretch.Natural(_plan.Lines);
 
         if (_plan.Grouped)
         {
@@ -239,7 +238,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         }
 
         // [S-6712] As tall as the whole lines that fit, never ending on a heading.
-        var room = _area.Height - FamilySpace.Inset + _reach.Over + _reach.Under;
+        var room = _area.Height - FamilySpace.Inset;
         var bottoms = _lines.Select(l => l.Bottom).ToList();
         var content = bottoms.Count > 0 ? bottoms[^1] : 0;
         _scroll.Height = !_area.IsMeasured ? double.NaN
@@ -258,7 +257,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     {
         line.Height = height;
         _list.Children.Add(line);
-        _lines.Add(((_lines.Count > 0 ? _lines[^1].Bottom + _reach.Gap : 0) + height, heading));
+        _lines.Add(((_lines.Count > 0 ? _lines[^1].Bottom : 0) + height, heading));
     }
 
     /// <summary>[S-4403] Access Windows has not given: the state row's sentence and the one button that fixes it.</summary>

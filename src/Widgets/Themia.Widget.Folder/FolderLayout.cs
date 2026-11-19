@@ -173,12 +173,11 @@ public static class FolderLayout
 
     /// <summary>
     /// [S-12807] The list's rows in the items' <paramref name="height"/> (<see cref="ItemsHeight"/>, down to the
-    /// foot's inset): the whole rows of 28 there, their ink from the items' top to the foot's inset line, each at
-    /// most half again, the first one's band over the top and the last one's in the inset (the cells of the grid and
-    /// the icons keep the inset: their marks stand inside it).
+    /// foot's inset): the whole rows of 28 there, grown to fill it, touching (the cells of the grid and the icons keep
+    /// the inset: their marks stand inside it).
     /// </summary>
     public static RowReach Reach(double height, double scale = 1)
-        => ItemStretch.Reach(height, Rows(height), RowHeight, FamilyShape.RowBand(1), scale: scale, ink: LineInk.Row(1, Lead));
+        => ItemStretch.Reach(height, Rows(height), RowHeight, scale);
 
     /// <summary>
     /// [S-1326] The tool line's parts ([S-6710]: at most two buttons): Back and Up in navigate mode, else

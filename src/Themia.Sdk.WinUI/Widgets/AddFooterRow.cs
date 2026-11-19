@@ -39,7 +39,7 @@ public sealed class AddFooterRow
             VerticalAlignment = VerticalAlignment.Bottom,
             Visibility = Visibility.Collapsed,
         };
-        ListReach.Foot(Element, FamilySpace.Inset - FamilyShape.RowBand(1) - LineInk.Row(1, FamilyShape.Icon).Under);
+        Element.Margin = new Thickness(0, 0, 0, FamilySpace.Inset);
         ItemFill.Paint(Element, ItemRole.Row);
         Element.Tapped += OnTapped;
         _hover = Fluent.Hover(Element);

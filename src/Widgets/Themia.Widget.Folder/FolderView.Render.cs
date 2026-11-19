@@ -273,9 +273,7 @@ internal sealed partial class FolderView
                 }
             }
 
-            _rowGap = reach.Gap;
             _scroll.Padding = new Thickness(0);
-            ListReach.Apply(_scroll, reach, _items);
             _scroll.Height = reach.Length(FolderLayout.Rows(height));
         }
 
@@ -425,8 +423,6 @@ internal sealed partial class FolderView
     /// <summary>[S-12807] A list row's height: 28 stretched so the rows reach the items' top and the foot's inset.</summary>
     private double _rowPitch = FolderLayout.RowHeight;
 
-    /// <summary>[S-12807] The spacing between list rows past their cap.</summary>
-    private double _rowGap;
 
     /// <summary>When the items on screen were drawn: the clock their "modified" cells read.</summary>
     private DateTimeOffset _renderedAt;
@@ -438,7 +434,7 @@ internal sealed partial class FolderView
     private (double Extent, int Columns) ItemExtent()
         => _plan?.Grid is { } grid
             ? (grid.PitchY, Math.Max(1, grid.Columns))
-            : (_rowPitch + _rowGap, 1);
+            : (_rowPitch, 1);
 
     /// <summary>The DIPs of list in view: the scroller's once it is measured, the tile's before.</summary>
     private double Viewport() => _scroll.ViewportHeight > 0 ? _scroll.ViewportHeight : _area.Height;

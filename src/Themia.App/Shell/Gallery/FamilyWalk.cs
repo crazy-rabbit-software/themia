@@ -76,13 +76,7 @@ internal static class FamilyWalk
     public static IEnumerable<FamilyFact> Facts(FrameworkElement fe)
     {
         var lengths = new List<(string, double)>();
-
-        // [S-12807] A list's reach (its first row's band over its top, its rows' gap) is the rule's, tested there.
-        var laid = ListReach.IsLaid(fe);
-        if (!laid)
-        {
-            Lengths(lengths, "margin", fe.Margin);
-        }
+        Lengths(lengths, "margin", fe.Margin);
 
         switch (fe)
         {
@@ -107,13 +101,13 @@ internal static class FamilyWalk
                 break;
             case Grid grid:
                 Lengths(lengths, "padding", grid.Padding);
-                Add(lengths, "spacing", laid ? 0 : grid.RowSpacing);
+                Add(lengths, "spacing", grid.RowSpacing);
                 Add(lengths, "spacing", grid.ColumnSpacing);
                 yield return Box(nameof(Grid), fe, lengths, grid.CornerRadius, grid.Background, grid.BorderBrush, grid.BorderThickness);
                 break;
             case StackPanel stack:
                 Lengths(lengths, "padding", stack.Padding);
-                Add(lengths, "spacing", laid ? 0 : stack.Spacing);
+                Add(lengths, "spacing", stack.Spacing);
                 yield return Box(nameof(StackPanel), fe, lengths, stack.CornerRadius, stack.Background, stack.BorderBrush, stack.BorderThickness);
                 break;
             case Panel panel:

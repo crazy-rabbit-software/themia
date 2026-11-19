@@ -27,8 +27,10 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     private readonly KitStatus _mark;
 
     /// <summary>[S-12410] The rate is one block, centred in the room with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
-    /// <summary>[S-12808] The rate's ink on the content's top, its line under's on the foot's inset, the room between them.</summary>
-    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, Reaches = true, Margin = Family.SideInset with { Bottom = FamilySpace.Inset } };
+    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left };
+
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
 
     /// <summary>[S-6734] No rate to draw: the Status row at the top.</summary>
     private readonly StatusBlock _state = new();
@@ -54,7 +56,8 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
         // Collapsed until a state is said: a view waiting for setup is never attached.
         _state.Visibility = Visibility.Collapsed;
 
-        Children.Add(_rate);
+        _fit.Parts.Add(_rate);
+        Children.Add(_fit);
         Children.Add(_state);
         _mark.Place(this);
     }
@@ -95,6 +98,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetSurfa
     /// <summary>The base, the quote or the style: all drawn from the one table in hand.</summary>
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as ExchangeRateConfig ?? new ExchangeRateConfig();
         Reload(force: false);
     }

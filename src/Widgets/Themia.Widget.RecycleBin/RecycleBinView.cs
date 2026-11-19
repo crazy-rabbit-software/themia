@@ -29,6 +29,9 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
     public CardOpen? Opens => RecycleBinModule.Opens;
 
     private readonly ReadoutBlock _size = new() { VerticalAlignment = VerticalAlignment.Top };
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
+
     private readonly ControlsBlock _controls = new();
     private readonly Button _empty;
 
@@ -46,13 +49,13 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
     {
         _widgetHost = host;
         _state = () => host.RecycleBin.Current;
-        _size.Margin = Family.SideInset;
         _empty = _controls.Main(RecycleBinStr.RecycleBin_Empty.Text(), () => _ = EmptyAsync());
-        _controls.Margin = Family.SideInset;
         _size.Use(FamilyType.Big28);
 
-        // [S-12808] The size's ink on the content's top, Empty on the foot's inset, the room between them.
-        Children.Add(new SpreadStack { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Children = { _size, _controls } });
+        // [S-12808] The size, its count and Empty: one block, planned at the natural box and scaled up as one.
+        _fit.Parts.Add(_size);
+        _fit.Parts.Add(_controls);
+        Children.Add(_fit);
 
         // The whole tile is the way into the bin, as its icon on the desktop is.
         Background = Family.Brush(ColourRole.Clear);
@@ -63,6 +66,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
+        _fit.Hold(config);
         Strings.Changed += OnLanguage;
         _widgetHost.RecycleBin.Changed += Render;
         _binWatch ??= _widgetHost.RecycleBin.Watch();
@@ -71,6 +75,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, 
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         Render();
     }
 

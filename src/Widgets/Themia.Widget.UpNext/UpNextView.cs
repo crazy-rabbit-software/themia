@@ -212,7 +212,6 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
         }
 
         _scroll.Height = after.Count > fit ? reach.Length(fit) : double.NaN;
-        ListReach.Apply(_scroll, reach, _list);
         _scroll.Visibility = Visibility.Visible;
         _fade?.Refresh();
         LightRows();

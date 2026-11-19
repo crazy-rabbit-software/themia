@@ -273,10 +273,10 @@ public sealed class KitTests
         var area = new WidgetArea(width, height);
         var plan = KitPlanner.Plan(area, Rich, KitShow.All);
 
-        Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(area, plan)) >= 1, tier);
+        Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(area)) >= 1, tier);
 
-        // [S-12410] The rows stretch to fill the box, never past half again their natural height.
-        Assert.InRange(plan.RowHeight, FamilyShape.RowHeight(plan.Lines), FamilyShape.RowHeight(plan.Lines) * ItemStretch.RowCap);
+        // [S-12807] The rows grow to fill the box, never under their natural height.
+        Assert.True(plan.RowHeight >= FamilyShape.RowHeight(plan.Lines), tier);
     }
 
     [Theory]
@@ -284,27 +284,21 @@ public sealed class KitTests
     [InlineData(6, 1)]
     [InlineData(6, 2)]
     [InlineData(20, 3)]
-    public void S12807_a_list_at_its_natural_box_reaches_the_top_and_the_foot_s_inset_with_its_ink(int rows, int lines)
+    public void S12807_a_lists_rows_touch_and_fill_the_view_down_to_the_foot_s_inset(int rows, int lines)
     {
-        // The sizing counts the foot's inset under the rows; the rows' ink (the lead glyph's or the text's capitals
-        // and baseline) runs from the view's top to that inset (their first band and leading over the top, the last
-        // in the inset); one row is centred.
+        // The sizing counts the foot's inset under the rows; the rows run from the view's top to that inset, touching
+        // (whole pixels: the rest under them).
         var choices = new KitChoices(KitShow.All) { Rows = new KitRowsChoice(rows, lines) };
-        var height = KitSizing.Steps(choices.Rows, addFooter: false).At(rows) - FamilySpace.ContentTop;
-        var plan = KitPlanner.Plan(new WidgetArea(300, height), Rich, choices);
-
-        Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
-        var text = FamilyShape.RowHeight(lines) - (2 * FamilyShape.RowBand(lines));
-        var ink = LineInk.Row(plan.Lines, FamilyShape.Icon);
-        var top = -plan.RowOver + ((plan.RowHeight - text) / 2) + ink.Over;
-        var end = -plan.RowOver + ((rows - 1) * (plan.RowHeight + plan.RowGap)) + ((plan.RowHeight + text) / 2) - ink.Under;
-        var room = height - FamilySpace.Inset;
-        Assert.Equal(rows == 1 ? room - end : 0, top, 1);
-        if (rows > 1)
+        foreach (var extra in new[] { 0.0, 37, 300 })
         {
-            Assert.Equal(room, end, 6);
+            var height = KitSizing.Steps(choices.Rows, addFooter: false).At(rows) - FamilySpace.ContentTop + extra;
+            var plan = KitPlanner.Plan(new WidgetArea(300, height), Rich, choices);
+
+            Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
+            var room = height - FamilySpace.Inset;
+            Assert.InRange(room - (rows * plan.RowHeight), 0, rows);
+            Assert.Equal(rows, KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))));
         }
-        Assert.Equal(rows, KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height), plan)));
     }
 
     [Fact]

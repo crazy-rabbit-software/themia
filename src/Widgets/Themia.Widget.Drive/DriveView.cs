@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -26,8 +27,18 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <inheritdoc />
     public CardOpen? Opens => DriveModule.Opens(_config.Drive, Path.GetPathRoot(Environment.SystemDirectory));
 
-    private readonly SpreadStack _figure = new();
+    private readonly StackPanel _figure = new();
+
+    /// <summary>[S-12808] The share, its line and the bar: one block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
     private readonly ReadoutBlock _readout = new();
+
+    /// <summary>
+    /// [S-12810] The drive's own icon, as This PC draws it (the shell's: a fixed disk, the Windows drive, a USB stick, a
+    /// mapped network drive), leading the share at the readout's step.
+    /// </summary>
+    private readonly Image _icon = new() { Width = FamilyType.Big28.LineHeight, Height = FamilyType.Big28.LineHeight, Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0), VerticalAlignment = VerticalAlignment.Top };
+    private string? _iconRoot;
     private readonly ChartBar _bar = DriveBar.Create();
     private readonly StatusBlock _status = new();
 
@@ -45,14 +56,12 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _widgetHost = host;
         _bar.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         _readout.Use(FamilyType.Big28);
-        _figure.Children.Add(_readout);
+        _figure.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Children = { _icon, _readout } });
         _figure.Children.Add(_bar);
-        // [S-12808] The share and its line, and the bar, are one block: the share's ink on the content's top, the bar
-        // on the foot's inset, the room of a larger box between them, joined or alone ([S-12483]).
-        _figure.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
 
         _status.Hide();
-        Children.Add(_figure);
+        _fit.Parts.Add(_figure);
+        Children.Add(_fit);
         Children.Add(_status);
     }
 
@@ -74,6 +83,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as DriveConfig ?? new DriveConfig();
         UseStyle();
         Show();
@@ -135,7 +145,34 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _figure.Visibility = Visibility.Visible;
         var used = ReadoutRules.Split(Formatting.Percent(locale, drive.UsedFraction!.Value));
         _readout.Show(used.Value, used.Unit, DriveRules.SpaceLine(locale, drive));
+        ShowIcon(drive);
         DriveBar.Show(_bar, drive);
+    }
+
+    /// <summary>[S-12810] Ask the shell for the drive's icon once per drive; the root's own (system) icon, never the plain folder's.</summary>
+    private async void ShowIcon(DriveEntry drive)
+    {
+        if (drive.Root == _iconRoot)
+        {
+            return;
+        }
+
+        _iconRoot = drive.Root;
+        _icon.Source = null;
+        const int system = 0x4;
+        var pixels = (int)Math.Ceiling(FamilyType.Big28.LineHeight * 4 * (XamlRoot?.RasterizationScale ?? 1));
+        try
+        {
+            var image = await _widgetHost.FileIcons.IconAsync(new FolderEntry(drive.Letter, drive.Root, true, 0, default, false, system), pixels);
+            if (_iconRoot == drive.Root)
+            {
+                _icon.Source = image;
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)
+        {
+            Log.Warn("drive", $"no icon for {drive.Letter}", ex);
+        }
     }
 
     public IReadOnlyList<WidgetAction> ContextActions

@@ -28,8 +28,10 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
     /// <summary>[S-11928] The day selected on the view, followed.</summary>
     private readonly WidgetLinks _dates = new();
     /// <summary>[S-12410] One block, centred in the room under its day line with the foot's inset counted with it ([S-12483]: the same joined or alone).</summary>
-    /// <summary>[S-12808] The total's ink on the content's top, its line under's on the foot's inset, the room between them.</summary>
-    private readonly ReadoutBlock _readout = new() { Margin = Family.SideInset with { Bottom = FamilySpace.Inset }, Reaches = true, HorizontalAlignment = HorizontalAlignment.Left };
+    private readonly ReadoutBlock _readout = new() { HorizontalAlignment = HorizontalAlignment.Left };
+
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
 
     /// <summary>[S-6714] Nothing to read: the Status block's one row at the top.</summary>
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
@@ -62,10 +64,11 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _nav.Line.Margin = Family.SideInset with { Bottom = FamilySpace.HeaderGap };
-        SetRow(_readout, 1);
+        SetRow(_fit, 1);
         SetRow(_empty, 1);
         Children.Add(_nav.Line);
-        Children.Add(_readout);
+        _fit.Parts.Add(_readout);
+        Children.Add(_fit);
         Children.Add(_empty);
     }
 
@@ -88,6 +91,8 @@ internal sealed partial class ScreenTimeView : Grid, IWidgetView, IWidgetSurface
 
     public void ApplyConfig(WidgetConfig config)
     {
+        // [S-12808] The day line ([S-12803]) stands over the block's room, never in it.
+        _fit.Hold(config, new Thickness(0, ScreenTimeRules.DayLine(ScreenTimeRules.ClampPeriod((config as ScreenTimeConfig ?? new ScreenTimeConfig()).Period)), 0, 0));
         _config = config as ScreenTimeConfig ?? new ScreenTimeConfig();
         Render();
     }

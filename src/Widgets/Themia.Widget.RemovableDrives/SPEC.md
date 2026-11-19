@@ -34,6 +34,6 @@ languages). Tests: `Tests/RemovableDrivesTests.cs` (run by `tests/Themia.Modules
 
 Needs a manual pass: the widget on a live desktop (a stick plugged in and ejected, a card reader with
 and without a card, a disc, the keys).
-- **[S-12452]** **The rows reach the top and the foot's inset** ([S-12807]): the config's rows of 40 lay their
-  text from the view's top to the foot's inset, up to half again (`RemovableDrivesPlan.Reach`).
+- **[S-12452]** **The rows reach the top and the foot's inset** ([S-12807]): the config's rows of 40 grow until
+  they touch and fill the view from its top to the foot's inset (`RemovableDrivesPlan.Reach`).
   Tests `RemovableDrivesTests.S12452_`.

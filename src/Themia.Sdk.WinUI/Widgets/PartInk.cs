@@ -62,8 +62,10 @@ public static class PartInk
             // In a grid of rows only the first row's parts can ink its top and only the last row's its foot.
             var row = panel is Grid ? Grid.GetRow(part) : 0;
             var span = panel is Grid ? Grid.GetRowSpan(part) : 1;
-            // A part that measures nothing (a ring, a canvas the panel sizes) fills the panel: it inks its whole box.
-            var room = part.DesiredSize.Height > 0 ? Math.Max(0, height - part.DesiredSize.Height) : 0;
+            // Only a text's place in the panel is read; any other part (a button, a ring, a canvas the panel sizes) is
+            // taken to ink the panel's whole height.
+            var texty = part is IInked or TextBlock or Panel or Border;
+            var room = texty && part.DesiredSize.Height > 0 ? Math.Max(0, height - part.DesiredSize.Height) : 0;
             // A part shorter than its slot stands centred when it stretches (its own height holds it).
             var top = part.VerticalAlignment switch
             {

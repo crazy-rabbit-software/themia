@@ -147,7 +147,6 @@ public sealed partial class KitList : Grid
         _items = items;
         _plan = plan;
         _area = area;
-        Reach();
 
         if (_cursorId is not null)
         {
@@ -271,18 +270,8 @@ public sealed partial class KitList : Grid
         }
 
         var lines = (_rowElements.Count + columns - 1) / columns;
-        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area, _plan))));
-        _scroll.Height = (shown * _plan.RowHeight) + ((shown - 1) * _plan.RowGap);
-    }
-
-    /// <summary>
-    /// [S-12807] The rows' part starts its first row's band over the view's top (so that row's text stands
-    /// on the card's inset), and rows past their cap stand the plan's gap apart.
-    /// </summary>
-    private void Reach()
-    {
-        FrameworkElement part = Checked ? _checkHost! : Paged ? _page : _scroll;
-        ListReach.Apply(part, _plan.Reach, _rows);
+        var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area))));
+        _scroll.Height = shown * _plan.RowHeight;
     }
 
     /// <summary>[S-1304] The site's own icon (the host's one cache), with a globe in its place until it arrives or when the site has none.</summary>

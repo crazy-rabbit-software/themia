@@ -190,9 +190,8 @@ public sealed partial class KitList
             headings.Add(heading);
         }
 
-        // [S-12807] Less the add row under them, its ink on the foot's inset (ItemStretch.RowsAbove).
-        var add = ItemStretch.FootRow() + _plan.RowUnder;
-        var room = KitPlanner.ListHeight(_area, _plan) - (_addRow?.Element.Visibility == Visibility.Visible ? add : 0);
+        // [S-12807] Less the add row under them, on the foot's inset (ItemStretch.RowsAbove).
+        var room = KitPlanner.ListHeight(_area) - (_addRow?.Element.Visibility == Visibility.Visible ? FamilyShape.Row1 : 0);
         _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
     }
 

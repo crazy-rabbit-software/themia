@@ -162,7 +162,6 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         // [S-12807] The first row's band over the view's top, so its text stands on the card's inset.
         _scroll.Height = reach.Length(KitSizing.ClampRows(_rowCount));
-        ListReach.Apply(_scroll, reach, _list);
         LinkRows();
 
         if (_focus >= _devices.Count)

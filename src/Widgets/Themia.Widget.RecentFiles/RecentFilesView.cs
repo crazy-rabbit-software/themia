@@ -185,15 +185,14 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         // reach the view's top and the foot's inset, the first one's band over the top.
         var shown = _config.RowsShown;
         var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, shown.Rows, shown.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: FamilyShape.Icon)
-            : ItemStretch.Natural(shown.Lines, FamilyShape.Icon);
+            ? ItemStretch.Rows(_area.Height, shown.Rows, shown.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : ItemStretch.Natural(shown.Lines);
         foreach (var row in _rows)
         {
             row.Height = reach.Pitch;
         }
 
         _scroll.Height = reach.Length(Math.Min(_rows.Count, shown.Rows));
-        ListReach.Apply(_scroll, reach, _list);
 
         _cursor = _cursor < _rows.Count ? _cursor : -1;
         ShowCursor();

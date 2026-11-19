@@ -25,6 +25,9 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <inheritdoc />
     public CardOpen? Opens => AlarmModule.Opens;
 
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one (in the view's padding).</summary>
+    private readonly ReadingFit _fit = new() { Margin = default };
+
     private readonly ReadoutBlock _time = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
     // The rows of controls, one shown: the switch, and while it rings or is snoozed the buttons that
@@ -61,15 +64,17 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         _ringIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
         _ringIcons.Icon(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze);
         _snoozedIcons.MainIcon(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss);
-        // [S-12808] The time's ink on the content's top, its row of controls on the foot's inset, the room between.
-        var block = new SpreadStack { Spacing = FamilySpace.S2, Children = { _time } };
+        // [S-12808] The time, its line and its row of controls: one block, planned at the natural box and scaled up
+        // as one.
+        _fit.Spacing = FamilySpace.S2;
+        _fit.Parts.Add(_time);
         foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow, _ringIcons, _snoozedIcons })
         {
             row.HorizontalAlignment = HorizontalAlignment.Center;
-            block.Children.Add(row);
+            _fit.Parts.Add(row);
         }
 
-        Children.Add(block);
+        Children.Add(_fit);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -94,6 +99,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config, Padding);
         _config = config as AlarmConfig ?? new AlarmConfig();
         Lay();
     }

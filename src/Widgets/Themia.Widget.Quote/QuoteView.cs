@@ -38,7 +38,11 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     /// <summary>[S-1496] The attribution, on the quote's line under, secondary.</summary>
     private readonly TextBlock _author = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
-    private readonly SpreadStack _body;
+    private readonly StackPanel _body;
+
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
+
 
 
     private QuoteConfig _config = new();
@@ -65,15 +69,15 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
         _mark.Margin = new Thickness(0, 0, 0, FamilySpace.S2);
         _mark.Visibility = Visibility.Collapsed;
 
-        // [S-6703] In the card's side inset. [S-12808] One block, the quote's first ink on the content's top and the
-        // author's on the foot's inset, the room of a taller box between them ([S-12483]: the same joined or alone).
-        _body = new SpreadStack
+        // [S-6703] In the card's side inset. [S-12808] One block, the quote and its author together, planned at the
+        // natural box and scaled up as one ([S-12483]: the same joined or alone).
+        _body = new StackPanel
         {
-            Margin = Family.SideInset with { Bottom = FamilySpace.Inset },
             Children = { _mark, _text, _author },
         };
 
-        Children.Add(_body);
+        _fit.Parts.Add(_body);
+        Children.Add(_fit);
 
         // The whole card advances the quote, not only the button: the widget is one sentence and a
         // name, and a target that size should not need aiming at.
@@ -107,6 +111,7 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as QuoteConfig ?? new QuoteConfig();
 
         Subscribe();

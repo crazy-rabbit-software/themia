@@ -8,16 +8,15 @@ namespace Themia.Widget.Contacts.Tests;
 public sealed class ContactsPitchTests
 {
     [Fact]
-    public void S12450_rows_reach_the_foot_s_inset_and_never_pass_half_again()
+    public void S12450_rows_fill_the_view_touching()
     {
         var config = new ContactsConfig { Layout = ContactsLayout.List, Lines = 2, Rows = 5, SearchBox = true };
         var sizing = ContactsPlan.Sizing(config);
 
         // The view at the natural box: the card less its header.
         var natural = ContactsPlan.Of(new WidgetArea(300, sizing.Natural.Height - 12), config);
-        Assert.InRange(natural.Pitch, 40, 60);
-        Assert.InRange(natural.Over, 2, 12);
-        Assert.InRange(ContactsPlan.Of(new WidgetArea(300, 2000), config).Pitch, 41, 60);
+        Assert.Equal(40, natural.Pitch);
+        Assert.True(ContactsPlan.Of(new WidgetArea(300, 2000), config).Pitch > 60);
         Assert.Equal(40, ContactsPlan.Of(default, config).Pitch);
     }
 
@@ -26,9 +25,7 @@ public sealed class ContactsPitchTests
     {
         var compact = new ContactsConfig { Layout = ContactsLayout.Compact, Rows = 6, SearchBox = false };
         var rows = ContactsPlan.Of(new WidgetArea(300, (6 * 28) + 12), compact);
-        // [S-12807] The first row's capitals on the room's top: its band and leading over it, never past the inset.
-        Assert.Equal(0, -rows.Over + ((rows.Pitch - 20) / 2) + Themia.Sdk.Kit.LineInk.Row(1).Over, 6);
-        Assert.True(rows.Pitch >= 28 && rows.Over <= 12);
+        Assert.Equal(28, rows.Pitch);
 
         var grid = new ContactsConfig { Layout = ContactsLayout.Grid };
         Assert.Equal(ContactsPlan.CellHeight + 12, ContactsPlan.Of(new WidgetArea(300, 2000), grid).Pitch);

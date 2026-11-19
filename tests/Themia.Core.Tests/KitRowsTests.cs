@@ -117,18 +117,9 @@ public sealed class KitRowsTests
                 var plan = KitPlanner.Plan(area, schedule, choices);
                 Assert.Equal((1, lines, lines >= 2), (plan.Columns, plan.Lines, plan.Subtitle));
 
-                // [S-12410] [S-12807] Its rows stretch with the box up to half again (never past the inset with their
-                // ink's leading), narrow their bands in a box short of them, a heading with them.
+                // [S-12807] Its rows grow with the box until they touch and fill it, a heading with them.
                 var natural = FamilyShape.RowHeight(lines);
-                if (area.Height < 6 * natural)
-                {
-                    Assert.InRange(plan.RowHeight, natural - (2 * FamilyShape.RowBand(lines)), natural);
-                }
-                else
-                {
-                    Assert.InRange(plan.RowHeight, natural + 1, natural * ItemStretch.RowCap);
-                }
-
+                Assert.Equal(area.Height < 6 * natural ? natural : Math.Floor((area.Height - 12) / 6), plan.RowHeight);
                 Assert.Equal(FamilyShape.Row1 * plan.RowHeight / FamilyShape.RowHeight(lines), plan.HeadingHeight, 6);
             }
         }

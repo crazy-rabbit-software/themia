@@ -30,6 +30,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     /// <summary>Every view of one stopwatch (the same view on two displays): one press reaches all of them.</summary>
     private static event Action<StopwatchConfig>? Acted;
 
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one (in the view's padding).</summary>
+    private readonly ReadingFit _fit = new() { Margin = default };
+
     private readonly ReadoutBlock _clock = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly ControlsBlock _controls = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private readonly ControlsBlock _iconControls = new() { HorizontalAlignment = HorizontalAlignment.Center };
@@ -52,14 +55,17 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     {
         // [S-11302] The face, its controls 8 under it, the laps under them; the inset at the sides and the foot.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        // [S-12808] The face's ink on the content's top, the controls and the laps down to the foot's inset, the room
-        // of a taller box between them.
+        // [S-12808] The face, its controls and the laps: one block, planned at the natural box and scaled up as one.
         _controls.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         _iconControls.Margin = _controls.Margin;
 
         // A Row carries the side inset itself, so the laps reach the card's edges with their hover.
         _laps.Margin = new Thickness(-FamilySpace.Inset, 0, -FamilySpace.Inset, 0);
-        Children.Add(new SpreadStack { Children = { _clock, _controls, _iconControls, _laps } });
+        _fit.Parts.Add(_clock);
+        _fit.Parts.Add(_controls);
+        _fit.Parts.Add(_iconControls);
+        _fit.Parts.Add(_laps);
+        Children.Add(_fit);
 
         // [S-4601] Start first, then Lap and Reset.
         _startButton = _controls.Main(StopwatchStr.Stopwatch_Start.Text(), () => Act(state => state.Act(Now())));
@@ -87,6 +93,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config, Padding);
         var next = config as StopwatchConfig ?? new StopwatchConfig();
 
         // Only another config is read again: the one held is this view's own writing.

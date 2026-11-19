@@ -11,6 +11,6 @@ public interface IInked
     /// <summary>The room in its box over its first ink and under its last.</summary>
     LineInk Ink { get; }
 
-    /// <summary>[S-12807] The band over and under its content at its natural height, which a stack's ends cancel (a row's; 0 for a readout).</summary>
-    double Band { get; }
+    /// <summary>[S-12807] Whether it grows with its stack's room (a row: its texts stay centred in it), or keeps its height (a readout).</summary>
+    bool Grows { get; }
 }

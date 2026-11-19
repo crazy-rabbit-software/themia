@@ -30,6 +30,9 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys
 {
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one (in the view's padding).</summary>
+    private readonly ReadingFit _fit = new() { Margin = default };
+
     private readonly ReadoutBlock _readout = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly ChartRing _ring = new();
     private readonly Grid _face = new() { HorizontalAlignment = HorizontalAlignment.Center };
@@ -93,8 +96,11 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
 
         // The content in the card's inset: the readout's box over the Controls row.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        // [S-12808] The face's ink on the content's top, the controls on the foot's inset, the room between them.
-        Children.Add(new SpreadStack { Children = { _column, _controls, _iconControls } });
+        // [S-12808] The face and its controls: one block, planned at the natural box and scaled up as one.
+        _fit.Parts.Add(_column);
+        _fit.Parts.Add(_controls);
+        _fit.Parts.Add(_iconControls);
+        Children.Add(_fit);
 
         Render();
     }
@@ -131,6 +137,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config, Padding);
         _config = config as PomodoroConfig ?? new PomodoroConfig();
 
         // While the timer is stopped the clock follows the configured length, so changing it in

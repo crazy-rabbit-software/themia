@@ -291,10 +291,9 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         // leave their rows empty. Whole rows in the viewport: the rest scroll. [S-12807] The rows reach the
         // view's top and the add footer, whose text stands on the foot's inset (up to half again their height).
         var reach = _area.IsMeasured
-            ? ItemStretch.RowsAbove(_area.Height, plan.Rows, plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: FamilyShape.Icon)
-            : ItemStretch.Natural(plan.Lines, FamilyShape.Icon);
+            ? ItemStretch.RowsAbove(_area.Height, plan.Rows, plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+            : ItemStretch.Natural(plan.Lines);
         _scroll.Height = plan.Rows < count ? reach.Length(plan.Rows) : double.NaN;
-        ListReach.Apply(_scroll, reach, _list);
 
         foreach (var row in _rows)
         {

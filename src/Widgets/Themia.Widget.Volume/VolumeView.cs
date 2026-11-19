@@ -41,6 +41,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
     private readonly Slider _slider;
 
     /// <summary>[S-2151] The level, where a meter's reading stands: the view's top, in the side inset.</summary>
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
+
     private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
     private readonly Button _mute;
 
@@ -85,7 +88,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         _feed = new AudioFeed(host.Audio, OnSnapshot);
 
         // [S-2730] [S-6716] The speaker and the slider are the Controls block's row at the bottom inset.
-        _controls.Margin = Family.SideInset;
+
         _controls.FlowDirection = FlowDirection.LeftToRight;
         _mute = _controls.Icon(Glyphs.Volume3, Str.Mixer_Mute.Text(), () => ToggleMute());
         _mute.IsTabStop = false;
@@ -111,11 +114,13 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         Background = Family.Brush(ColourRole.Clear);
 
         _controls.Visibility = Visibility.Collapsed;
-        _reading.Margin = Family.SideInset;
         _reading.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
 
-        // [S-12808] The level's ink on the content's top, the mute and slider on the foot's inset, the room between.
-        Children.Add(new SpreadStack { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Children = { _reading, _controls } });
+        // [S-12808] The level, its device, the mute and the slider: one block, planned at the natural box and scaled
+        // up as one.
+        _fit.Parts.Add(_reading);
+        _fit.Parts.Add(_controls);
+        Children.Add(_fit);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -138,6 +143,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as VolumeConfig ?? new VolumeConfig();
         Lay();
     }

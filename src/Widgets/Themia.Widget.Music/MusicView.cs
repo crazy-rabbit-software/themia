@@ -27,6 +27,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
     private readonly TextBlock _track = Family.Text(FamilyType.BodyStrong, ColourRole.TextPrimary);
     private readonly TextBlock _subtitle = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly StackPanel _lines = new() { VerticalAlignment = VerticalAlignment.Top };
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one (in the view's padding).</summary>
+    private readonly ReadingFit _fit = new() { Margin = default };
+
     private readonly ControlsBlock _controls = new();
     private readonly Button _previous;
     private readonly Button _playPause;
@@ -60,8 +63,10 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         _playPause = _controls.MainIcon(Glyphs.Play, MusicStr.WidgetsB_Music_Play.Text(), () => _feed.Press(MediaTransport.PlayPause));
         _next = _controls.Icon(Glyphs.Next, MusicStr.WidgetsB_Music_Next.Text(), () => _feed.Press(MediaTransport.Next));
 
-        // [S-12808] The track's ink on the content's top, the transport on the foot's inset, the room between them.
-        Children.Add(new SpreadStack { Children = { _lines, _controls } });
+        // [S-12808] The track, its artist and the transport: one block, planned at the natural box and scaled up as one.
+        _fit.Parts.Add(_lines);
+        _fit.Parts.Add(_controls);
+        Children.Add(_fit);
         _status.Hide();
         Children.Add(_status);
         _lines.Visibility = Visibility.Collapsed;
@@ -84,6 +89,7 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config, Padding);
         _config = config as MusicConfig ?? new MusicConfig();
         _feed.Reload();
         Present();

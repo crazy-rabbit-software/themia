@@ -160,8 +160,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
 
     /// <summary>[S-12807] The config's rows reaching the view's top and the foot's inset.</summary>
     private RowReach Reach => _area.IsMeasured
-        ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1, lead: _plan.Lead ? FamilyShape.Icon : 0)
-        : ItemStretch.Natural(_plan.Lines, _plan.Lead ? FamilyShape.Icon : 0);
+        ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, scale: XamlRoot?.RasterizationScale ?? 1)
+        : ItemStretch.Natural(_plan.Lines);
 
     private void Redraw()
     {
@@ -210,7 +210,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
 
         // [S-2440] As tall as the rows its config states: never a part of one at its foot.
         _scroll.Height = reach.Length(Math.Min(_rows.Count, _plan.Rows));
-        ListReach.Apply(_scroll, reach, _list);
 
         _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;
         ShowCursor();

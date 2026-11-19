@@ -20,7 +20,7 @@ internal sealed partial class DriveView
 
     private sealed class RingParts
     {
-        public readonly SpreadStack Root = new();
+        public readonly StackPanel Root = new() { VerticalAlignment = VerticalAlignment.Center };
         public readonly Grid Box = new() { HorizontalAlignment = HorizontalAlignment.Left };
         public readonly ChartRing Ring = new();
         public readonly ReadoutBlock Share = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
@@ -69,7 +69,7 @@ internal sealed partial class DriveView
         var ring = DriveFace.Ring(width, Math.Max(0, _area.Height - FamilySpace.Inset));
         _figure.Visibility = Visibility.Collapsed;
         parts.Root.Visibility = Visibility.Visible;
-        parts.Root.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };   // [S-12808] the ring on the top, its line's ink on the foot's inset
+        parts.Root.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };   // [S-12410] the ring grows with the box, centred, the foot's inset with it
 
         var share = ReadoutRules.Split(Formatting.Percent(locale, drive.UsedFraction ?? 0));
         parts.Box.Width = ring;

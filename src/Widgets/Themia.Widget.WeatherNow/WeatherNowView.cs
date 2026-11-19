@@ -36,8 +36,11 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
     private readonly KitStatus _status;
 
     private readonly FontIcon _bigGlyph = Family.Glyph(Glyphs.Weather, WeatherNowStyles.LargeGlyph, ColourRole.TextSecondary);
-    private readonly ReadoutBlock _reading = new() { Reaches = true };
+    private readonly ReadoutBlock _reading = new();
     private readonly Grid _face;
+
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
 
     /// <summary>[S-6734] Without a reading: why, in one row at the top.</summary>
     private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
@@ -63,20 +66,17 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
         // A condition longer than the card ends in its ellipsis: the reading's column takes what the glyph leaves.
         _reading.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
-        // [S-12401] [S-12808] The reading is the content's one block: its value's ink on the content's top, the
-        // condition's on the foot's inset, the room of a taller box between them (a value alone is centred).
+        // [S-12401] [S-12808] The reading is the content's one block, its value and condition together, scaled up
+        // as one in a larger box (the sides and the foot keep the inset, the fit's margin), joined or alone ([S-12483]).
         _face = new Grid
         {
-
-            // [S-12800] The sides and the foot keep the inset (the card gives the top), so the reading is centred in
-            // what the sizing counted, never 6 off, joined or alone ([S-12483]).
-            Margin = Family.SideInset with { Bottom = FamilySpace.Inset },
             Visibility = Visibility.Collapsed,
             ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } },
             Children = { _bigGlyph, _reading },
         };
         SetColumn(_reading, 1);
-        Children.Add(_face);
+        _fit.Parts.Add(_face);
+        Children.Add(_fit);
         Children.Add(_empty);
         _status.Place(this);
     }
@@ -94,6 +94,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens,
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as WeatherNowConfig ?? new WeatherNowConfig();
         _feed.Cadence(_config.TickInterval);
         _feed.Reload();

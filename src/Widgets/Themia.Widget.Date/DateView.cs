@@ -14,8 +14,8 @@ namespace Themia.Widget.Date;
 
 /// <summary>
 /// [S-10800] [S-10803] Today in its style: the face laid out at the step its Size names, in the box its sizing
-/// made for the language's widest day, then scaled up as one to fill the card (a <see cref="Viewbox"/>), so a larger
-/// card is a larger date, never a band round it. The family's inset at the sides and the foot (the card gives the
+/// made for the language's widest day, then scaled up as one until its ink fills the card (<see cref="InkFit"/>, [S-12808]), so a
+/// larger card is a larger date, never a band round it. The family's inset at the sides and the foot (the card gives the
 /// top); a mate joined under it takes the foot ([S-12483]). Turns over within a minute of midnight.
 /// </summary>
 internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
@@ -25,7 +25,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
     private readonly TextBlock _number = Family.Text(FamilyType.Hero68);
     private readonly TextBlock _month = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly StackPanel _face = new();
-    private readonly Viewbox _fit = new() { Stretch = Stretch.Uniform, StretchDirection = StretchDirection.UpOnly };
+    private readonly InkFit _fit = new();
     private DateConfig _config = new();
     private ContentAlign _align = ContentAlign.Center;
     private Ticker? _ticker;
@@ -44,7 +44,6 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
         _fit.Child = _face;
         Children.Add(_fit);
         Padding = Family.SideInset with { Bottom = FamilySpace.Inset };
-        _fit.VerticalAlignment = VerticalAlignment.Center;
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -95,7 +94,7 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned
         _face.Children.Clear();
         _face.Width = face.Width;
         _face.Height = face.Height;
-        _fit.HorizontalAlignment = Aligned.Horizontal(_align);
+        _fit.Align = Aligned.Horizontal(_align);
         var text = _align switch
         {
             ContentAlign.Center => TextAlignment.Center,

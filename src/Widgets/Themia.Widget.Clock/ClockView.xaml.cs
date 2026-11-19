@@ -27,8 +27,9 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>
 /// [S-12804] The face fills its box: it is planned at its Size's step in the natural box (<see cref="ClockFace"/>)
-/// and scaled up as one to the card (a <see cref="Viewbox"/>, uniformly, never down), as a display clock is, so a
-/// larger card is a larger clock and never a band round a small one. The dial is planned in the whole box.
+/// and scaled up as one to the card (<see cref="InkFit"/>, uniformly, never down) until its ink, not its line's
+/// leading, fills the card's height or its width, as a display clock is, so a larger card is a larger clock and never
+/// a band round a small one (owner, 2026-11-19: "the clock widget has too big of a space at the top and bottom"). The dial is planned in the whole box.
 /// </para>
 /// </summary>
 public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned
@@ -39,8 +40,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     /// <summary>The face's one block, at its planned step; the fit scales it to the box.</summary>
     private readonly StackPanel _stack = new();
 
-    /// <summary>[S-12804] The face scaled up as one to fill the content box; the alignment and the joins place it.</summary>
-    private readonly Viewbox _fit = new() { Stretch = Stretch.Uniform, StretchDirection = StretchDirection.UpOnly, VerticalAlignment = VerticalAlignment.Center };
+    /// <summary>[S-12804] The face scaled up as one until its ink fills the content box (<see cref="InkFit"/>); the alignment places it.</summary>
+    private readonly InkFit _fit = new();
 
     /// <summary>[S-6741] The digital, stacked and minimal readout.</summary>
     private readonly ReadoutBlock _readout = new();
@@ -309,7 +310,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         var horizontal = Aligned.Horizontal(_align);
         var text = Aligned.Text(_align);
         _stack.HorizontalAlignment = horizontal;
-        _fit.HorizontalAlignment = horizontal;
+        _fit.Align = horizontal;
         _words.TextAlignment = text;
         _words.HorizontalAlignment = horizontal;
         _flipLine.HorizontalAlignment = horizontal;

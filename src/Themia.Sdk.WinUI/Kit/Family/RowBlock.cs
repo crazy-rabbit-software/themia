@@ -10,8 +10,8 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-6711] The Row block: [lead] 8 [name, Body] 12 [inline meter] 12 [value, Body, end-aligned], a
 /// second line in Caption secondary and a third in Caption tertiary under the name; 28, 40 or 56
-/// tall by its lines ([S-6712]), never by the tier; in a box with room to spare up to half again that
-/// ([S-12410], <see cref="ItemStretch.RowCap"/>), its texts centred. What is read is primary (<see cref="RowRules.Roles"/>):
+/// tall by its lines ([S-6712]), never by the tier; in a box with room to spare as tall as its list gives it, the
+/// rows touching ([S-12807]), its texts centred. What is read is primary (<see cref="RowRules.Roles"/>):
 /// a fact's value, a list item's name. The row carries the card's side inset as its own padding, so
 /// it and its hover reach both edges and its name stands at the widget's one text edge (40 with a
 /// 16 lead, 16 without). No divider. Hover and selection are the item layer's (<see cref="ItemFill"/>)
@@ -385,15 +385,12 @@ public sealed partial class RowBlock : Grid, IInked
         Second.Visibility = _lines >= 2 && Second.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         Third.Visibility = _lines >= 3 && Third.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
-        // [S-12410] Its natural height by its lines, stretching up to half again that where its list has
-        // the room (its texts stay centred in it); never taller, the rest is its list's spacing.
-        var natural = FamilyShape.RowHeight(_lines);
-        MinHeight = natural;
-        MaxHeight = natural * ItemStretch.RowCap;
+        // [S-12807] Its natural height by its lines, growing to what its list gives it (its texts stay centred).
+        MinHeight = FamilyShape.RowHeight(_lines);
     }
 
-    /// <summary>[S-12807] The band over and under its text at its natural height (<see cref="FamilyShape.RowBand"/>): what a list cancels at its ends.</summary>
-    public double Band => FamilyShape.RowBand(_lines);
+    /// <inheritdoc />
+    public bool Grows => true;
 
     /// <summary>[S-12807] The room inside its text over its first ink and under its last: its lines' leading, or its lead's room where that reaches further.</summary>
     public LineInk Ink => LineInk.Row(_lines, _lead.Visibility == Visibility.Visible && _lead.Child is not null ? _lead.Width : 0);

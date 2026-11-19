@@ -27,7 +27,11 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private readonly ReadoutBlock _value = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock _name = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly StackPanel _valueLine = new() { Orientation = Orientation.Horizontal };
-    private readonly SpreadStack _readout = new() { Visibility = Visibility.Collapsed };
+    private readonly StackPanel _readout = new() { Visibility = Visibility.Collapsed };
+
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one.</summary>
+    private readonly ReadingFit _fit = new();
+
 
     private MoonConfig _config = new();
 
@@ -39,7 +43,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
     private ContentAlign _align = ContentAlign.Left;
 
     /// <summary>[S-6050] The Phase month style: the month's name over a disc a day.</summary>
-    private readonly SpreadStack _month = new() { Visibility = Visibility.Collapsed };
+    private readonly StackPanel _month = new() { Visibility = Visibility.Collapsed };
     private readonly TextBlock _monthName = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly Canvas _monthGrid = new() { HorizontalAlignment = HorizontalAlignment.Left, FlowDirection = FlowDirection.LeftToRight };
     private readonly List<SkyMoonDisc> _monthDiscs = [];
@@ -59,22 +63,21 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
         _valueLine.Children.Add(_value);
         _readout.Children.Add(_valueLine);
         _readout.Children.Add(_name);
-        // [S-12808] The readout (or the month) is one block, its first ink on the content's top and its last on the
-        // foot's inset, the room of a taller box between its parts ([S-12483]: the same joined or alone).
-        _readout.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
+        // [S-12808] The readout (or the month) is one block, planned at the natural box and scaled up as one
+        // ([S-12483]: the same joined or alone).
 
         _todayRing.Stroke = Family.Brush(ColourRole.Accent);
         _todayRing.Width = MoonLayout.Pitch;
         _todayRing.Height = MoonLayout.Pitch;
         _month.Spacing = FamilySpace.S2;
-        _month.Margin = Family.SideInset with { Bottom = FamilySpace.Inset };
         _month.Children.Add(_monthName);
         _month.Children.Add(_monthGrid);
         _monthGrid.Width = MoonLayout.Columns * MoonLayout.Pitch;
         _monthGrid.Height = MoonLayout.Rows * MoonLayout.Pitch;
 
-        Children.Add(_readout);
-        Children.Add(_month);
+        _fit.Parts.Add(_readout);
+        _fit.Parts.Add(_month);
+        Children.Add(_fit);
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -95,6 +98,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetAligned
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config);
         _config = config as MoonConfig ?? new MoonConfig();
 
         // One cadence for good: the config cannot change it, so subscribe once.

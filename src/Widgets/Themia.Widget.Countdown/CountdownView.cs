@@ -33,6 +33,9 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     /// <summary>[S-12481] The event's name over the face: the header's look, one line, ending in its ellipsis.</summary>
     private readonly TextBlock _name = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary);
 
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one (in the view's padding).</summary>
+    private readonly ReadingFit _fit = new() { Margin = default };
+
     private readonly ReadoutBlock _readout = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly ChartRing _ring = new();
     private readonly Grid _face = new();
@@ -41,8 +44,6 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     /// <summary>[S-6032] The Flip style: one card per unit, its unit under it.</summary>
     private readonly StackPanel _flipRow = new() { Orientation = Orientation.Horizontal, FlowDirection = FlowDirection.LeftToRight, Spacing = FlipRules.Gap };
     private readonly List<(FlipCard Card, TextBlock Unit)> _flips = [];
-    /// <summary>[S-12808] The name's ink on the content's top, the last part's on the foot's inset, the room between them.</summary>
-    private readonly SpreadStack _column = new();
 
     private CountdownPlan _plan;
 
@@ -63,14 +64,16 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         _name.TextWrapping = TextWrapping.NoWrap;
         _name.Height = FamilySpace.HeaderLine;
         _name.Margin = new Thickness(0, 0, 0, FamilySpace.HeaderGap);
-        _column.Children.Add(_name);
-        _column.Children.Add(_face);
-        _column.Children.Add(_flipRow);
-        _column.Children.Add(_bar);
+        // [S-12808] The name, the face, the flip cards and the bar: one block, planned at the natural box and scaled
+        // up as one.
+        _fit.Parts.Add(_name);
+        _fit.Parts.Add(_face);
+        _fit.Parts.Add(_flipRow);
+        _fit.Parts.Add(_bar);
 
         // The content in the card's inset; the top is the card's.
         Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
-        Children.Add(_column);
+        Children.Add(_fit);
     }
 
     /// <summary>[S-6037] [S-12481] The event's name over the face; an untitled countdown has no line for it.</summary>
@@ -93,6 +96,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config, Padding);
         _config = config as CountdownConfig ?? new CountdownConfig();
         ShowName();
         Rebuild();
@@ -160,11 +164,11 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         // [S-1862] No target: the card shows its Set up row over this, so draw nothing.
         if (_config.Target is not { } target)
         {
-            _column.Visibility = Visibility.Collapsed;
+            _fit.Visibility = Visibility.Collapsed;
             return;
         }
 
-        _column.Visibility = Visibility.Visible;
+        _fit.Visibility = Visibility.Visible;
         var now = _clock();
         var cards = CountdownLayout.Cards(target, now, _config.Format == CountdownFormat.DaysHoursMinutesSeconds);
         _plan = CountdownLayout.Plan(_config, Strings.Current);
@@ -284,7 +288,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         }
 
         // [C-05] The whole instant, for a date line that is necessarily abbreviated (or not shown).
-        ToolTipService.SetToolTip(_column, CountdownFormatter.FullTargetLabel(target, zone, Strings.Current));
+        ToolTipService.SetToolTip(_fit, CountdownFormatter.FullTargetLabel(target, zone, Strings.Current));
 
         // [S-11303] Without the time the target was set the bar is its track alone.
         if (_config.DrawsProgress)

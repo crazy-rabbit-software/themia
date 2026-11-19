@@ -30,6 +30,9 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetKeys
 {
+    /// <summary>[S-12808] The block, planned at the natural box and scaled up as one (in the view's padding).</summary>
+    private readonly ReadingFit _fit = new() { Margin = default };
+
     private readonly Grid _dial = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly ChartRing _ring = new();
     private readonly ReadoutBlock _clock = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
@@ -77,14 +80,15 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
         _longerIcon = _idleIcons.Icon(Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text(), () => StepLength(+1));
         _runningIcons.Icon(Glyphs.Stop, FocusSessionStr.Panels_Focus_End.Text(), Toggle);
 
-        // [S-12808] The dial's ink on the content's top, its row of controls on the foot's inset, the room between.
-        var block = new SpreadStack { Spacing = FamilySpace.S2, Children = { _dial } };
+        // [S-12808] The dial and its row of controls: one block, planned at the natural box and scaled up as one.
+        _fit.Spacing = FamilySpace.S2;
+        _fit.Parts.Add(_dial);
         foreach (var row in new[] { _idleRow, _runningRow, _idleIcons, _runningIcons })
         {
-            block.Children.Add(row);
+            _fit.Parts.Add(row);
         }
 
-        Children.Add(block);
+        Children.Add(_fit);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -105,6 +109,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
 
     public void ApplyConfig(WidgetConfig config)
     {
+        _fit.Hold(config, Padding);
         _config = config as FocusSessionConfig ?? new FocusSessionConfig();
         Lay();
     }

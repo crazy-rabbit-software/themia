@@ -249,10 +249,13 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   ([S-12410], [S-12411], docs/WIDGET-KIT.md 17.4): the descriptor relaxes the stated range to no practical
   maximum (`SizeStretch.Relax`: Max = `SizeStretch.Ceiling` on every axis the config does not step; the work
   area is the bound; the user decides how large); in a larger box items
-  stretch to their caps (`ItemStretch`: a row 1.5x, a chart the box, text never) and the rest is spacing;
-  rows and fills run to the card's edge (no content inset; text keeps the item's own); a list's and a
-  one-readout block's first ink stands on the content's top and its last on the foot's inset, the room between
-  its parts (`ItemStretch.Reach`, `SpreadStack`, `LineInk`/`PartInk`, [S-12807], [S-12808]). Never a per-widget stretch of its own.
+  stretch (`ItemStretch`: rows and charts fill, text never);
+  rows and fills run to the card's edge (no content inset; text keeps the item's own); items have no spacing
+  between them and fill the box top to bottom and left to right (owner, 2026-11-19): a list's rows grow until they
+  touch (`ItemStretch.Rows`, `SpreadStack`, [S-12807]); a one-readout block keeps its parts together and scales up as
+  one until its ink fills the height or the width stops it (`ReadingFit`/`InkFit`, `BlockFit`, `LineInk`/`PartInk`,
+  [S-12808], [S-12804]); the month's cells fill and their type grows (`ScaleBox`, [S-12809]). Never a per-widget
+  stretch of its own.
 - **No card header** ([S-12480], [S-12481]; owner 2026-11-16): a card draws its view and nothing over it,
   no title row, at any size. A title is the **Header** widget (`src/Widgets/Themia.Widget.Header`, [S-9600]),
   placed like any widget; every ready-made group starts with one ([S-12485]). What a header
