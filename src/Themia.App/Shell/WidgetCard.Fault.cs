@@ -292,6 +292,8 @@ internal sealed partial class WidgetCard
 
         _content.Children.Insert(at >= 0 ? at : _content.Children.Count, next);
 
+        // [S-13975] The new view's overhang, if it has one, on the plate in the old one's place.
+        HangOverhang();
         HookViewSize();
         ApplySetup();
         ApplyEdges();

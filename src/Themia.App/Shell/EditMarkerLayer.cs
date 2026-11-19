@@ -22,6 +22,12 @@ internal sealed class EditMarkerLayer
     /// <summary>[S-1597] The selected cards' grips and move areas, over every card and its ink; empty room takes no press.</summary>
     public Canvas Lifts { get; } = UiLanguage.KeepLeftToRight(new Canvas());
 
+    /// <summary>
+    /// [S-13975] What views draw past their cards (an icon's name in icon only, its rename box), over every card and under
+    /// the edit marks; empty room takes no press.
+    /// </summary>
+    public Canvas Overhangs { get; } = UiLanguage.KeepLeftToRight(new Canvas());
+
     /// <summary>Draw <paramref name="card"/>'s markers here, as it joins the surface.</summary>
     public void Add(WidgetCard card)
     {
@@ -31,6 +37,11 @@ internal sealed class EditMarkerLayer
             Halos.Children.Add(card.MarkerHalos);
             Inks.Children.Add(card.MarkerInks);
             Lifts.Children.Add(card.MarkerLift);
+        }
+
+        if (card.OverhangPlate.Parent is null)
+        {
+            Overhangs.Children.Add(card.OverhangPlate);
         }
 
         // [S-1597] A card selected before it joined the layer lifts its grips now.

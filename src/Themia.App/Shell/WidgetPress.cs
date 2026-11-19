@@ -28,6 +28,12 @@ internal static class WidgetPress
                 return (card, SessionInput.Classify(onItem, onControl, handled));
             }
 
+            // [S-13975] What a view draws past its card (an icon's rename box in icon only) is the card's.
+            if (element is CardOverhang overhang)
+            {
+                return (overhang.Card, SessionInput.Classify(onItem, onControl, handled));
+            }
+
             onItem |= element is UIElement ui && WidgetItems.IsItem(ui);
             onControl |= IsControl(element);
         }

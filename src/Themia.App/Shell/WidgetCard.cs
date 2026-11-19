@@ -331,6 +331,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // [S-1862] Over the view, once the content grid exists to hold it.
         AttachSetup();
 
+        // [S-13975] What the view draws past the card stands on its own plate, over every card.
+        BuildOverhang();
+
         _fontScope = new ContentPresenter
         {
             Content = content,
@@ -678,6 +681,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         DetachSetup();
         StopView();
         DropPlates();
+        DropOverhang();
     }
 
     public void SetLiveRect(FracRect rect) => LiveRect = rect;
