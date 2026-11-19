@@ -19,20 +19,21 @@ Owning files: everything in this folder. Tests: `Tests/HeaderTests.cs` (run by
   header's gap of 4 under it. Any width from 96 to 960, natural 240; the relaxed range lets it be stretched
   ([S-12411]). [S-12483] The block stands in the middle of the whole strip (the card's top inset given back),
   joined to the cards under it or alone alike, so a header at 36 has 8 over and under its line.
-- **[S-9602]** Its page: Title and Caption (each a line of text asked beside the page, empty clears it) and
-  Icon, the one icon picker ([S-1803]) inline in its card (`WidgetMenuLines.Icon`, `MenuIcon`), its first
-  cell None.
+- **[S-9602]** Its page: Title and Caption, each typed in place in its box (owner, 2026-11-19: "the title and
+  caption for example should show inline not under the additional menu"; `WidgetMenuLines.Text`, [S-2332]; empty
+  clears it, kept as load repair keeps it), and Icon, the one icon picker ([S-1803]) inline in its card
+  (`WidgetMenuLines.Icon`, `MenuIcon`), its first cell None. Test `HeaderTests.S9602_`.
 - **[S-9604]** **The place of the widgets it heads** (owner, 2026-11-17: "a user would just put the location in
   the header if he wants to display it"): `HeaderConfig` holds the place every widget about one shares
-  (`IPlaced`: Use my location, the place and its name; a group's page sets it once on the header and its mates,
-  [S-11753]) and, while **Show the place** is on (`showsPlace`, off for a new header), shows its city after the
-  title on its one line ("Weather · Zürich"; the device's "My location"); without a place the title alone. It
-  never waits for setup. The widgets under it name no place of their own ([S-12801]). The ready-made groups about
-  a place (Weather, Weather station, Sun, Moon, Air quality, Weather graphs) place their header with it on
-  ([S-12802]); its picture names the sample place while it has none. Its page: the title, icon and caption, a
-  divider, Show the place and the place's lines (`WeatherPlaceRows`, marked shared). Load repair trims the
-  place's name and clears a place with one coordinate or one out of range. Tests `PlaceClearTests.S9604_`,
-  `ReadyMadeGroupsTests.S12802_`.
+  (`IPlaced`: the place and its name, or the device's; a group's page sets it once on the header and its mates,
+  [S-11753]) and, while it holds one, shows its city after the title on its one line ("Weather · Zürich"; the
+  device's "My location"); without a place the title alone. It never waits for setup. The widgets under it name no
+  place of their own ([S-12801]). Its page names the place by its **Location** alone, under a divider apart from the
+  title and caption (`WeatherPlaceRows.Named`, marked shared; a place found replaces the device's): no Show the place
+  switch and no Use my location (owner, 2026-11-19: "show the place should not be a caption setting, use my location
+  neither"). The ready-made groups about a place place their header with no place yet; it names one once the
+  group's is set ([S-12802]). Load repair trims the place's name and clears a place with one coordinate or one out
+  of range. Tests `PlaceClearTests.S9604_`, `ReadyMadeGroupsTests.S12802_`, `HeaderTests.S9602_`.
 - **[S-9603]** On the add page among the Notes subject's widgets (a title is words the person writes);
   every ready-made group comes with one preplaced at its top ([S-12485]). Groupable like any widget: in a
   group it joins its mates as one panel ([S-2249]).

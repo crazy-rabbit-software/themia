@@ -1,5 +1,5 @@
 {
-  "$englishOnly": ["header.label", "header.desc", "header.title", "header.titleDefault", "header.caption", "header.icon", "header.noIcon", "header.sampleTitle", "header.showsPlace"],
+  "$englishOnly": ["header.label", "header.desc", "header.title", "header.titleDefault", "header.caption", "header.icon", "header.noIcon", "header.sampleTitle"],
   "header.label": "Header",
   "header.desc": "A title over your widgets",
   "header.title": "Title",
@@ -7,6 +7,5 @@
   "header.caption": "Caption",
   "header.icon": "Icon",
   "header.noIcon": "None",
-  "header.sampleTitle": "My day",
-  "header.showsPlace": "Show the place"
+  "header.sampleTitle": "My day"
 }

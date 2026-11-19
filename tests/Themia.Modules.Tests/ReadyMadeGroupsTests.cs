@@ -230,13 +230,14 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
-    public void S12802_a_group_about_a_place_has_a_header_that_names_it_and_no_other_does(string id)
+    public void S12802_a_groups_header_holds_its_place_with_its_mates_and_names_none_until_one_is_set(string id)
     {
-        // [S-12801] The members name no place; the header over a group of widgets about one names it once.
+        // [S-12801] The members name no place; the header over them holds the group's place ([S-11753]) and names it
+        // once it is set with them, never before (no switch of its own, owner 2026-11-19).
         var widgets = ReadyMadeGroups.Build(Of(id), Screen)!;
         var header = Assert.IsType<Themia.Widget.Header.HeaderConfig>(widgets[0].Config);
-        var aboutAPlace = widgets.Skip(1).Any(w => w.Config is IPlaced);
-        Assert.Equal(aboutAPlace, header.ShowsPlace);
+        Assert.IsAssignableFrom<IPlaced>(header);
+        Assert.Null(header.PlaceLabel);
     }
 
     [Theory]

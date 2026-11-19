@@ -77,19 +77,17 @@ public class PlaceClearTests
         Assert.False(WidgetSetup.Needed(header, FeatureSet.None));
         Assert.Null(header.PlaceLabel);
 
+        // [S-9604] Set with the widgets it heads, it names the place at once: no switch of its own (owner, 2026-11-19).
         header.Latitude = 47.37;
         header.Longitude = 8.54;
         header.PlaceName = "Zürich, Switzerland";
-        Assert.Null(header.PlaceLabel); // not shown until asked for
-        header.ShowsPlace = true;
         Assert.Equal("Zürich", header.PlaceLabel);
 
         var back = Assert.IsType<HeaderConfig>(RoundTrip(header));
-        Assert.Equal(("Zürich", true), (back.PlaceLabel, back.ShowsPlace));
+        Assert.Equal("Zürich", back.PlaceLabel);
 
         header.ClearLocation();
         Assert.Null(header.PlaceLabel);
-        Assert.True(header.ShowsPlace);
         Assert.False(WidgetSetup.Needed(header, FeatureSet.None));
     }
 

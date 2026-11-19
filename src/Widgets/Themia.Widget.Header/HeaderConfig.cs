@@ -12,8 +12,9 @@ namespace Themia.Widget.Header;
 /// <para>
 /// [S-9604] [S-12802] It may name the place of the widgets it heads ("Weather · Zürich"): it holds the place every
 /// widget about one shares (<see cref="IPlaced"/>, so a group's page sets it once on the header and its mates,
-/// [S-11753]) and shows its city after the title while <see cref="ShowsPlace"/> is on. The widgets under it name
-/// no place of their own ([S-12801]). It never waits for a place: without one it shows the title alone.
+/// [S-11753]) and shows its city after the title while it holds one; its own page has no place line (owner,
+/// 2026-11-19). The widgets under it name no place of their own ([S-12801]). It never waits for a place: without one
+/// it shows the title alone.
 /// </para>
 /// </summary>
 public sealed class HeaderConfig : WidgetConfig, IContentAligned, IPlaced
@@ -26,9 +27,6 @@ public sealed class HeaderConfig : WidgetConfig, IContentAligned, IPlaced
 
     /// <summary>[S-9601] A line under the title (a date, a note), or empty for none: the strip is one line taller with one.</summary>
     public string Caption { get; set; } = string.Empty;
-
-    /// <summary>[S-9604] Whether the place's city follows the title; off for a new header, on over a ready-made group about a place.</summary>
-    public bool ShowsPlace { get; set; }
 
     /// <summary>[S-9604] Degrees north of the place it names, or null while none is set.</summary>
     public double? Latitude { get; set; }
@@ -49,15 +47,15 @@ public sealed class HeaderConfig : WidgetConfig, IContentAligned, IPlaced
     public bool HasLocation => Latitude is { } lat && Longitude is { } lon && double.IsFinite(lat) && double.IsFinite(lon);
 
     /// <summary>
-    /// [S-9604] The city the title is followed by: the first part of the place's name, while the header shows its
-    /// place and has one (the device's "My location" while it uses that); null otherwise.
+    /// [S-9604] The city the title is followed by: the first part of the place's name while the header holds one (the
+    /// device's "My location" while it uses that); null otherwise.
     /// </summary>
-    public string? PlaceLabel => ShowsPlace && (HasLocation || UseDeviceLocation) ? LineRules.About(PlaceName.Split(',', 2)[0]) : null;
+    public string? PlaceLabel => (HasLocation || UseDeviceLocation) ? LineRules.About(PlaceName.Split(',', 2)[0]) : null;
 
     /// <summary>[S-9604] A header never waits for setup: without a place it is its title.</summary>
     bool ISetupRule.NeedsSetup(FeatureSet signedIn) => false;
 
-    /// <summary>[S-2848] Forget the place; whether the header shows one is the person's and stays.</summary>
+    /// <summary>[S-2848] Forget the place: the header shows its title alone.</summary>
     public void ClearLocation()
     {
         Latitude = null;
@@ -81,7 +79,6 @@ public sealed class HeaderConfig : WidgetConfig, IContentAligned, IPlaced
         Text = Text,
         Glyph = Glyph,
         Caption = Caption,
-        ShowsPlace = ShowsPlace,
         Latitude = Latitude,
         Longitude = Longitude,
         PlaceName = PlaceName,

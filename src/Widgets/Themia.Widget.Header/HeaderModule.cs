@@ -42,8 +42,9 @@ public sealed class HeaderModule : IWidgetModule
     public FrameworkElement CreateView(IWidgetHost host) => new HeaderView();
 
     /// <summary>
-    /// [S-9602] Its lines: the title and the caption (each asked beside the page), and the icon, the one icon picker
-    /// inline; [S-9604] then Show the place and the place's lines every widget about a place shares (a group sets it once).
+    /// [S-9602] Its lines: the title and the caption, each typed in place in its box ([S-2332]), and the icon, the one
+    /// icon picker inline; [S-9604] then, apart from them, the place it names: its Location alone (no Show the place, no
+    /// Use my location), shared with the widgets it heads.
     /// </summary>
     public void MenuLines(WidgetMenuLines menu, Themia.Core.Model.WidgetConfig config)
     {
@@ -53,32 +54,16 @@ public sealed class HeaderModule : IWidgetModule
             return;
         }
 
-        menu.Lines.Add(Ask(menu, Glyphs.Rename, HeaderStr.Header_Title.Text(), header.Text, typed => header.Text = typed));
+        menu.Lines.Add(Text(menu, Glyphs.Rename, HeaderStr.Header_Title.Text(), header.Text, typed => header.Text = typed));
+        menu.Lines.Add(Text(menu, Glyphs.Font, HeaderStr.Header_Caption.Text(), header.Caption, typed => header.Caption = typed));
         menu.Lines.Add(menu.Icon(HeaderStr.Header_Icon.Text(), header.Glyph, HeaderStr.Header_NoIcon.Text(), glyph => header.Glyph = glyph ?? string.Empty));
-        menu.Lines.Add(Ask(menu, Glyphs.Font, HeaderStr.Header_Caption.Text(), header.Caption, typed => header.Caption = typed));
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Toggle(Glyphs.Place, HeaderStr.Header_ShowsPlace.Text(), header.ShowsPlace, on => header.ShowsPlace = on));
-        menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, header));
+        menu.Lines.Add(WeatherPlaceRows.Named(menu, header));
     }
 
-    /// <summary>A line of text asked beside the page; an empty one clears it.</summary>
-    private static ItemMenuEntry Ask(WidgetMenuLines menu, string glyph, string text, string current, Action<string> set)
-        => new(glyph, text, () => menu.Ask(new WidgetTextAsk(
-            text,
-            text,
-            Str.Common_Save.Text(),
-            _ => null,
-            typed =>
-            {
-                var clean = HeaderLayout.Clean(typed);
-                if (!string.Equals(clean, current, StringComparison.Ordinal))
-                {
-                    set(clean);
-                    menu.Save();
-                }
-            },
-            Initial: current,
-            AllowEmpty: true)), Asks: true, Value: current);
+    /// <summary>[S-2332] A line of text typed in place, kept as load repair keeps it; an empty one clears it.</summary>
+    private static ItemMenuEntry Text(WidgetMenuLines menu, string glyph, string text, string current, Action<string> set)
+        => menu.Text(glyph, text, current, typed => set(HeaderLayout.Clean(typed)));
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

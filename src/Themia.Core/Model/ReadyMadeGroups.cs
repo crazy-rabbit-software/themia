@@ -31,17 +31,11 @@ public sealed record ReadyMadeWidget(string Kind, ReadyMadeBox Box, string? Conf
     public (Str Title, string Glyph)? Heading { get; init; }
 
     /// <summary>
-    /// [S-12802] Whether this Header widget names the place of the widgets it heads (their place is set once for the
-    /// group, [S-11753], and they name none of their own, [S-12801]): over a group about a place.
-    /// </summary>
-    public bool HeadsPlace { get; init; }
-
-    /// <summary>
     /// The config fragment placing this widget merges over its kind's default: <see cref="Config"/>, or for
     /// the Header widget its title and glyph now ([S-12485]).
     /// </summary>
     public string? Fragment => Heading is var (title, glyph)
-        ? $$"""{ "text": "{{JsonEncodedText.Encode(title.Text()).Value}}", "glyph": "{{JsonEncodedText.Encode(glyph).Value}}"{{(HeadsPlace ? ", \"showsPlace\": true" : string.Empty)}} }"""
+        ? $$"""{ "text": "{{JsonEncodedText.Encode(title.Text()).Value}}", "glyph": "{{JsonEncodedText.Encode(glyph).Value}}" }"""
         : Config;
 }
 
@@ -118,7 +112,7 @@ public static class ReadyMadeGroups
         new("weatherFacts", new(0, 76, 300, 136)),
         new("weatherForecast", new(0, 212, 300, 164)),
         new("rainNextHour", new(0, 376, 300, 148)),
-    ]) { Starter = 3 }, Str.Groups_Recipe_Weather, place: true);
+    ]) { Starter = 3 }, Str.Groups_Recipe_Weather);
 
     /// <summary>
     /// [S-11209] My files: the Documents folder as a list on the left; beside it the files opened last,
@@ -243,28 +237,28 @@ public static class ReadyMadeGroups
     [
         new("weatherNow", new(0, 0, 240, 76)),
         new("weatherFacts", new(0, 76, 240, 136)),
-    ]), place: true);
+    ]));
 
     /// <summary>[S-11172] Sun: the sun's path across the sky and its times.</summary>
     public static ReadyMadeGroup Sun { get; } = Headed(new("sun", Str.Groups_Recipe_Sun, Str.Groups_Recipe_SunAbout, Glyphs.Sun, AddFolderId.Weather,
     [
         new("sun", new(0, 0, 280, 152)),
         new("sunTimes", new(0, 152, 280, 108)),
-    ]), place: true);
+    ]));
 
     /// <summary>[S-11172] Moon: how much of the moon is lit, its rise, set and next full moon.</summary>
     public static ReadyMadeGroup Moon { get; } = Headed(new("moon", Str.Groups_Recipe_Moon, Str.Groups_Recipe_MoonAbout, Glyphs.Moon, AddFolderId.Weather,
     [
         new("moon", new(0, 0, 240, 76)),
         new("moonTimes", new(0, 76, 240, 108)),
-    ]), place: true);
+    ]));
 
     /// <summary>[S-11172] Air quality: the air quality index, UV, fine dust and pollen.</summary>
     public static ReadyMadeGroup AirQuality { get; } = Headed(new("airQuality", Str.Groups_Recipe_AirQuality, Str.Groups_Recipe_AirQualityAbout, Glyphs.EnergySaver, AddFolderId.Weather,
     [
         new("airQuality", new(0, 0, 240, 76)),
         new("airFacts", new(0, 76, 240, 136)),
-    ]), place: true);
+    ]));
 
     /// <summary>[S-12709] Weather graphs: the next day's temperature, rain and UV, hour by hour, stacked as one panel on one frame.</summary>
     public static ReadyMadeGroup WeatherGraphs { get; } = Headed(new("weatherGraphs", Str.Groups_Recipe_WeatherGraphs, Str.Groups_Recipe_WeatherGraphsAbout, Glyphs.Thermometer, AddFolderId.Weather,
@@ -272,7 +266,7 @@ public static class ReadyMadeGroups
         new("temperatureGraph", new(0, 0, 320, 168)),
         new("rainGraph", new(0, 168, 320, 168)),
         new("uvGraph", new(0, 336, 320, 168)),
-    ]), place: true);
+    ]));
 
     /// <summary>[S-11172] Exchange rates: a currency pair's rate today and its last 90 days.</summary>
     public static ReadyMadeGroup ExchangeRates { get; } = Headed(new("exchangeRates", Str.Groups_Recipe_ExchangeRates, Str.Groups_Recipe_ExchangeRatesAbout, Glyphs.Stocks, AddFolderId.Markets,
@@ -360,10 +354,10 @@ public static class ReadyMadeGroups
     /// name, or <paramref name="title"/> where that says it shorter: "Weather" over the weather station) and the
     /// recipe's glyph, joined to the members under it as one panel; the members stand under it as they were.
     /// </summary>
-    private static ReadyMadeGroup Headed(ReadyMadeGroup group, Str? title = null, bool place = false)
+    private static ReadyMadeGroup Headed(ReadyMadeGroup group, Str? title = null)
     {
         var bounds = group.Bounds;
-        var header = new ReadyMadeWidget("header", new(bounds.X, bounds.Y, bounds.Width, HeaderHeight)) { Heading = (title ?? group.Name, group.Glyph), HeadsPlace = place };
+        var header = new ReadyMadeWidget("header", new(bounds.X, bounds.Y, bounds.Width, HeaderHeight)) { Heading = (title ?? group.Name, group.Glyph) };
         return group with { Widgets = [header, .. group.Widgets.Select(w => w with { Box = w.Box with { Y = w.Box.Y + HeaderHeight } })] };
     }
 

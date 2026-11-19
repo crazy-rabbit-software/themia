@@ -45,6 +45,34 @@ public sealed class HeaderTests
     }
 
     [Fact]
+    public void S9602_title_and_caption_are_typed_in_place_S9604_and_the_place_is_its_location_alone()
+    {
+        var saves = 0;
+        var asked = 0;
+        var header = new HeaderConfig { Text = "Weather" };
+        var menu = new Themia.Sdk.WinUI.WidgetMenuLines(() => saves++, _ => asked++);
+        new HeaderModule().MenuLines(menu, header);
+
+        // Title, Caption, Icon; then the Location alone: no Show the place, no Use my location (owner, 2026-11-19).
+        var lines = menu.Lines.Where(l => !l.IsSeparator).ToList();
+        Assert.Equal(4, lines.Count);
+        var title = lines[0].Field!;
+        var caption = lines[1].Field!;
+        Assert.NotNull(lines[2].Icon);
+        Assert.NotNull(lines[3].Search);
+        Assert.Equal(SharedSettings.Place.Key, lines[3].Shares);
+        Assert.True(menu.Lines[3].IsSeparator);
+
+        Assert.Equal("Weather", title.Current);
+        title.Keep(" Weather now ");
+        caption.Keep("Zürich");
+        title.Keep("Weather");
+        Assert.Equal(("Weather now", "Zürich"), (header.Text, header.Caption));
+        Assert.Equal(2, saves);
+        Assert.Equal(0, asked);
+    }
+
+    [Fact]
     public void S9600_it_aligns_its_block_and_starts_on_a_card_like_any_widget()
     {
         Assert.IsAssignableFrom<IContentAligned>(new HeaderConfig());
