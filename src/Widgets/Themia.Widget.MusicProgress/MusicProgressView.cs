@@ -159,11 +159,10 @@ internal sealed partial class MusicProgressView : Grid, IWidgetView, IWidgetSurf
 
         _row.ColumnDefinitions[0].Width = new GridLength(time);
         _row.ColumnDefinitions[2].Width = new GridLength(time);
-        _seek.MinWidth = bar;
-
         // [S-12816] The line's width holds the block's scale ([S-12814]): measured while it had no track (no times, the
         // bar at its least) the block scaled far up, and a later layout pass (the pointer coming by) drew it small again.
-        ReadingFit.Refit(_row);
+        // The new widths invalidate the row's measure, and the block's ReadingFit fits again on that measure.
+        _seek.MinWidth = bar;
     }
 
     /// <summary>[S-1465] The elapsed time follows the pointer while scrubbing; -1 means the scrub was abandoned.</summary>
