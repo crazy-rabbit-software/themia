@@ -489,9 +489,9 @@ internal sealed partial class DesktopWindow
             e.Handled = true;
 
             // [S-13018] A lasso let go over empty desktop offers its area's menu.
-            if (drawn)
+            if (drawn && _host.LassoReleased(this, _lassoStart, e.GetCurrentPoint(_root).Position, caught, ReleaseHeldBand))
             {
-                _host.LassoReleased(this, _lassoStart, e.GetCurrentPoint(_root).Position, caught);
+                HoldBand(_lassoBand);
             }
         }
     }
@@ -509,10 +509,7 @@ internal sealed partial class DesktopWindow
         _lassoing = false;
         _lassoDrawn = false;
         _lassoBase = [];
-        if (_lassoBand is not null)
-        {
-            _lassoBand.Visibility = Visibility.Collapsed;
-        }
+        HideBand(_lassoBand);
     }
 
     private Rectangle EnsureLassoBand()

@@ -10465,6 +10465,11 @@ Owning files: `Themia.Core/Desktop/DesktopFences.cs`, the fence parts of `Deskto
   inside it (`LassoArea.IconsInside`), one undo step ([S-13007]'s rules). A lasso that touched something is a selection
   and opens nothing; Escape or a click elsewhere closes the menu. Drawn by `--menu-png` (`desk-lasso-area`). Tests
   `LassoAreaTests.S13018_`, `WidgetSizingTests.S13018_`.
+- **[S-13024]** **The band stays while its area menu is open** (the owner, 2026-11-19: "when the add widget here
+  context menu comes up the lasso select should stay visible"): when a let-go lasso opens the area menu ([S-13018]) or a
+  drawn right-drag rectangle opens Create fence here ([S-13007]), the band stays drawn where it was let go, in its one
+  look, until the menu closes (a pick, Escape, a click elsewhere); then it goes (`DesktopWindow.HoldBand` /
+  `ReleaseHeldBand`). A lasso that opens no menu goes at its release, as before.
 
 Needs a manual pass on the live desktop: everything above that a pointer does (the right-drag rectangle and its menu, a
 drag into, out of and between fences, a drop from Explorer onto a fence, the band reaching into one, the arrows across),

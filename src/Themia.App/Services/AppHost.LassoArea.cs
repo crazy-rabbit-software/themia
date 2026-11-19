@@ -20,14 +20,15 @@ internal sealed partial class AppHost
 {
     /// <summary>
     /// [S-13018] The lasso from <paramref name="start"/> to <paramref name="end"/> (DIPs of <paramref name="surface"/>) was
-    /// let go having touched <paramref name="caught"/> widgets: an area offers its menu at the release.
+    /// let go having touched <paramref name="caught"/> widgets: an area offers its menu at the release. True when the menu
+    /// opened; <paramref name="closed"/> runs once as it closes (the band stays drawn until then).
     /// </summary>
-    public void LassoReleased(DesktopWindow surface, Point start, Point end, int caught)
+    public bool LassoReleased(DesktopWindow surface, Point start, Point end, int caught, Action closed)
     {
         var metrics = surface.Metrics;
         if (!metrics.IsUsable)
         {
-            return;
+            return false;
         }
 
         var band = new FracRect(
@@ -37,7 +38,7 @@ internal sealed partial class AppHost
             Math.Abs(end.Y - start.Y) / metrics.Height);
         if (LassoArea.Offered(band, caught, metrics) is not { } area)
         {
-            return;
+            return false;
         }
 
         var viewId = surface.CurrentViewId;
@@ -49,10 +50,13 @@ internal sealed partial class AppHost
             }
         };
 
-        if (!surface.OpenMenuAt(end, LassoEntries(() => surface.OpenAddPageFor(area), fence)))
+        if (!surface.OpenMenuAt(end, LassoEntries(() => surface.OpenAddPageFor(area), fence), closed))
         {
             Log.Warn(Scope, "the menu for a lassoed area did not open");
+            return false;
         }
+
+        return true;
     }
 
     /// <summary>[S-13018] The lassoed area's menu: Add widget here, then Create fence here (when the build has fences). Static: the menu render draws it too.</summary>

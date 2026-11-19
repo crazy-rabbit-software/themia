@@ -69,8 +69,8 @@ internal sealed partial class DesktopWindow
     /// surface: the same <see cref="ItemMenu"/> every Themia menu is, opened as its own popup window at
     /// the pointer and kept inside the display's work area by the framework ([S-1500], [S-1748]).
     /// </summary>
-    internal bool OpenMenuAt(Point at, IEnumerable<ItemMenuEntry> entries)
-        => !_closed && ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), entries);
+    internal bool OpenMenuAt(Point at, IEnumerable<ItemMenuEntry> entries, Action? closed = null)
+        => !_closed && ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), entries, closed);
 
     /// <summary>[S-5582] <see cref="OpenMenuAt"/> for a screen point (physical pixels) over this surface.</summary>
     internal bool OpenMenuAtScreen(int screenX, int screenY, IEnumerable<ItemMenuEntry> entries)

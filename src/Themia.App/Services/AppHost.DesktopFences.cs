@@ -227,17 +227,17 @@ internal sealed partial class AppHost : IDesktopFences
     /// surface's DIPs) was let go: Fences' small menu, "Create fence here", opens at the release; its line makes a fence
     /// on that rectangle, snapped to the grid. Outside edit mode only: the locked desktop is where fences are made.
     /// </summary>
-    public void FenceRectDrawn(DesktopWindow surface, Point start, Point end)
+    public bool FenceRectDrawn(DesktopWindow surface, Point start, Point end, Action closed)
     {
         if (FenceKind is null || EditMode)
         {
-            return;
+            return false;
         }
 
         var metrics = surface.Metrics;
         if (!metrics.IsUsable)
         {
-            return;
+            return false;
         }
 
         var drawn = new FracRect(
@@ -245,10 +245,13 @@ internal sealed partial class AppHost : IDesktopFences
             Math.Min(start.Y, end.Y) / metrics.Height,
             Math.Abs(end.X - start.X) / metrics.Width,
             Math.Abs(end.Y - start.Y) / metrics.Height);
-        if (!surface.OpenMenuAt(end, FenceCreateEntries(() => CreateFence(surface, drawn, []))))
+        if (!surface.OpenMenuAt(end, FenceCreateEntries(() => CreateFence(surface, drawn, [])), closed))
         {
             Log.Warn(Scope, "the menu to create a fence did not open");
+            return false;
         }
+
+        return true;
     }
 
     /// <summary>[S-13007] Fences' small menu after a drawn rectangle: its one line. Static: the menu render draws it too.</summary>

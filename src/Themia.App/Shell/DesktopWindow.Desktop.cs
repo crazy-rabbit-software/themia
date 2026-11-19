@@ -145,11 +145,7 @@ internal sealed partial class DesktopWindow
             _root.ReleasePointerCapture(e.Pointer);
         }
 
-        if (_fenceBand is not null)
-        {
-            _fenceBand.Visibility = Visibility.Collapsed;
-        }
-
+        HideBand(_fenceBand);
         if (!_fenceDrawing)
         {
             return false;
@@ -159,7 +155,10 @@ internal sealed partial class DesktopWindow
         if (e is not null)
         {
             _fenceMenuShown = true;
-            _host.FenceRectDrawn(this, _fenceStart, e.GetCurrentPoint(_root).Position);
+            if (_host.FenceRectDrawn(this, _fenceStart, e.GetCurrentPoint(_root).Position, ReleaseHeldBand))
+            {
+                HoldBand(_fenceBand);
+            }
         }
 
         return true;
@@ -244,10 +243,7 @@ internal sealed partial class DesktopWindow
     {
         if (part is not { } band || _closed)
         {
-            if (_deskBand is not null)
-            {
-                _deskBand.Visibility = Visibility.Collapsed;
-            }
+            HideBand(_deskBand);
 
             return;
         }
@@ -287,13 +283,56 @@ internal sealed partial class DesktopWindow
             _deskBanding = false;
             var caught = _host.BandCaught;
             _host.DesktopBandEnd();
-            if (e is not null && !inFence)
+            if (e is not null && !inFence
+                && _host.LassoReleased(this, _deskBandStart, e.GetCurrentPoint(_root).Position, caught, ReleaseHeldBand))
             {
-                _host.LassoReleased(this, _deskBandStart, e.GetCurrentPoint(_root).Position, caught);
+                HoldBand(_deskBand);
             }
         }
 
         return true;
+    }
+
+    /// <summary>[S-13024] The band whose area menu is open: it stays drawn until the menu closes.</summary>
+    private FrameworkElement? _heldBand;
+
+    /// <summary>
+    /// [S-13024] A band's area menu opened (owner, 2026-11-19: "when the add widget here context menu comes up the lasso
+    /// select should stay visible"): <paramref name="band"/> stays drawn where it was let go while the menu is open.
+    /// </summary>
+    private void HoldBand(FrameworkElement? band)
+    {
+        if (band is null || _closed)
+        {
+            return;
+        }
+
+        _heldBand = band;
+        band.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>[S-13024] The area menu closed: its band goes, unless a new band already took the shape over.</summary>
+    private void ReleaseHeldBand()
+    {
+        if (_heldBand is not { } band)
+        {
+            return;
+        }
+
+        _heldBand = null;
+        if (!_deskBandArmed && !_fenceArmed && !_lassoing)
+        {
+            band.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    /// <summary>A band is taken down at its end, unless its area menu holds it ([S-13024]).</summary>
+    private void HideBand(FrameworkElement? band)
+    {
+        if (band is not null && !ReferenceEquals(band, _heldBand))
+        {
+            band.Visibility = Visibility.Collapsed;
+        }
     }
 
     /// <summary>[S-6627] The band in the SDK's one look, on the ghost layer (never hit-testable).</summary>
