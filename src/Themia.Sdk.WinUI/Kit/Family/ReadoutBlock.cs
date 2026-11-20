@@ -103,7 +103,9 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
 
     private LineInk Inked(LineInk line, bool drawn)
     {
-        var value = line.With(GlyphInk.Of(_leadGlyph), _lead.Visibility == Visibility.Visible ? _lead.Height : 0, _step.LineHeight);
+        // [S-14240] The lead glyph's ink in its box, measured as every glyph's is (PartInk): its whole box where unmeasured.
+        var leads = _lead.Visibility == Visibility.Visible;
+        var value = line.With(leads ? PartInk.Of(_lead) : LineInk.None, leads ? _lead.Height : 0, _step.LineHeight);
         var step = FamilyType.Under(_step);
         var under = _under.Visibility != Visibility.Visible ? value.Under
             : drawn ? InkMeter.Line(step, _under.Text, PartInk.FontOf(_under.FontFamily), _under.FontWeight.Weight).Under
@@ -248,26 +250,31 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
 
     /// <summary>
     /// [S-14240] The lead glyph's ink, not its box, starts the line (WR-3: what stands on the start inset is ink, as a
-    /// text's is): its box reaches back over the room its glyph leaves on the start side (<see cref="GlyphInk"/>), the
-    /// gap to the value still from its box. Right to left the start is its right, the glyph drawn unmirrored.
+    /// text's is): its box reaches back over the room its glyph leaves on the start side, as measured
+    /// (<see cref="InkMeter.Room"/>), the gap to the value still from its box. Right to left the start is its right, the
+    /// glyph drawn unmirrored. [S-14247] And the line's ink, not its advance, at its ends: the room its first and last
+    /// letters leave there, as measured (a figure's, a unit's, a placeholder's dashes': <see cref="InkRoom.Ends"/>), so a
+    /// block the width stops stands its ink on both side insets. Unmeasured (no meter): the boxes.
     /// </summary>
     protected override Size MeasureOverride(Size availableSize)
     {
-        var ink = GlyphInk.Of(_leadGlyph);
-        var room = FlowDirection == FlowDirection.RightToLeft ? 1 - ink.Right : ink.Left;
-        var margin = new Thickness(-Math.Max(0, room) * _lead.Width, 0, FamilySpace.GlyphGap, 0);
+        var rtl = FlowDirection == FlowDirection.RightToLeft;
+        var leads = _lead.Visibility == Visibility.Visible;
+        var glyph = leads ? InkMeter.Room(new InkText(_lead.Glyph, PartInk.FontOf(_lead.FontFamily), _lead.FontSize, _lead.FontWeight.Weight, 0)) : null;
+
+        // The glyph's em box stands centred in the icon's box (PartInk's glyph).
+        var em = double.IsFinite(_lead.Width) ? Math.Max(0, (_lead.Width - _lead.FontSize) / 2) : 0;
+        var margin = new Thickness(glyph is { } g ? -(Math.Max(0, g.Start(rtl)) + em) : 0, 0, FamilySpace.GlyphGap, 0);
         if (_lead.Margin != margin)
         {
             _lead.Margin = margin;
         }
 
-        // [S-14247] The line's ink, not its advance, at its ends: the room its first and last letters leave there (a
-        // figure's, a unit's, a placeholder's dashes'), so a block the width stops stands its ink on both side insets.
-        var dashes = LineInk.Capless(_value.Text);
-        var start = _lead.Visibility == Visibility.Visible ? 0 : (dashes ? LineInk.FaceDashSide : LineInk.FaceSide) * _step.FontSize;
-        var end = _delta.Text.Length > 0 ? LineInk.FaceSide * _delta.FontSize
-            : _unit.Text.Length > 0 ? LineInk.FaceSide * _unit.FontSize
-            : (dashes ? LineInk.FaceDashSide : LineInk.FaceSide) * _step.FontSize;
+        var font = PartInk.FontOf(_line.FontFamily);
+        var value = InkMeter.Room(new InkText(_value.Text, font, _step.FontSize, _line.FontWeight.Weight, _step.LineHeight));
+        var run = _delta.Text.Length > 0 ? _delta : _unit.Text.Length > 0 ? _unit : null;
+        var last = run is null ? value : InkMeter.Room(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight));
+        var (start, end) = InkRoom.Ends(value, last, rtl, leads);
         var line = new Thickness(-start, 0, -end, 0);
         if (_line.Margin != line)
         {

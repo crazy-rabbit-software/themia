@@ -8270,13 +8270,14 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   be a space at the top"; WR-3, WR-4). A FontIcon's box is its em (Segoe Fluent Icons: ascent the em, descent 0), but
   most glyphs ink only part of it: the memory chip leaves an eighth over and under, the drive is a flat bar through
   the middle, the battery a third over and under and an eighth before it. A Readout led by one (`ReadoutBlock`: the
-  meters' Number look, the network's arrows, Weather now's sky) reads its ink as where the glyph draws in its box
-  (`GlyphInk.Of`, a table read off the font's outlines by `scripts/glyph-ink.py`, `GlyphInk.g.cs`; a glyph it does not
-  know, or text, inks its whole box; `LineInk.With(GlyphBox, …)`), so its block scales until the glyph's or the
-  figures' ink, whichever reaches further, fills the height, and on the start side its box reaches back over the room
-  its glyph leaves there (right to left, its right), so the glyph's ink stands on the start inset as a text's does; the
-  gap to the value is still from its box. Was: a memory card 320 × 120 had 24 over its chip and 21 under it, a disk card
-  29 over its drive, a battery 39 over and under. Tests `GlyphInkTests.S14240_`.
+  meters' Number look, the network's arrows, Weather now's sky) reads its ink as where the glyph draws in its box,
+  measured as every glyph's is ([S-14200]: `InkMeter`, `PartInk`'s glyph; unmeasured, its whole box;
+  `LineInk.With(LineInk, …)`), so its block scales until the glyph's or the figures' ink, whichever reaches further,
+  fills the height, and on the start side its box reaches back over the room its glyph leaves there, as measured
+  (`InkMeter.Room`, `InkRoom.Start`; right to left, its right), so the glyph's ink stands on the start inset as a text's
+  does; the gap to the value is still from its box. One path: the meter, never a table of the font's glyphs beside it.
+  Was: a memory card 320 × 120 had 24 over its chip and 21 under it, a disk card 29 over its drive, a battery 39 over
+  and under. Tests `GlyphInkTests.S14240_`.
 - **[S-14241]** **The network's two readings fill their card as one block** (owner, 2026-11-19, WR-7: "All together,
   scaled"). The Numbers look ([S-6264]) stands its two Readouts, download and upload on the one line, as one part of
   the reading's fit (`ReadingFit`, [S-12808]): they scale up together until their ink fills the height or the width
@@ -8310,9 +8311,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-14247]** **A Readout's line stands its ink at its ends** (WR-3). A text's advance holds room before its first
   ink and after its last (Segoe UI Variable: a figure 0.042 of its size, "%" 0.035, a dash 0.06), which a block scaled
   four times grows to 5 to 8 beside the inset. A Readout's line (`ReadoutBlock`) reaches back over that room at its
-  start (where no glyph leads it) and its end (its unit's, its delta's, else its value's), by the least the face's
-  letters leave (`LineInk.FaceSide`, 0.034; a placeholder's dashes `LineInk.FaceDashSide`, 0.06), so it never reaches
-  past its ink. The fit's one DIP of room over its parts' width ([S-12814], `BlockFit.WidthSlack`) stays: a part laid
+  start (where no glyph leads it) and its end (its delta's, else its unit's, else its value's), as the meter measures
+  it on the text drawn ([S-14200]: `InkMeter.Room`, the rule `InkRoom.Ends`; right to left, where the runs' order
+  across follows their own direction, each side the least either run leaves there), so it never reaches past its ink;
+  unmeasured, its box. Tests `GlyphInkTests.S14247_`. The fit's one DIP of room over its parts' width ([S-12814], `BlockFit.WidthSlack`) stays: a part laid
   at exactly its width would be trimmed by layout rounding; drawn, it is the block's scale in DIPs at its end.
 - **[S-14200]** **A face stands on its ink as drawn** (docs/WIDGET-RULES.md, the exemptions: a tile's face and a one-line
   face "Centred is fine", the bands over and under it alike). Where a text's or a glyph's ink stands in its box is

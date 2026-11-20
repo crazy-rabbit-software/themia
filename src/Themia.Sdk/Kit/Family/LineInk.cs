@@ -29,16 +29,6 @@ public readonly record struct LineInk(double Over, double Under)
     public const double FaceDash = 0.31;
 
     /// <summary>
-    /// [S-14247] The room the face's figures, units and letters leave before their ink and after it, a fraction of the
-    /// font size: read off Segoe UI Variable's outlines (figures 0.042, "%" 0.035, "s" 0.034..0.040), the least of them,
-    /// so a line trimmed by it never reaches past its ink.
-    /// </summary>
-    public const double FaceSide = 0.034;
-
-    /// <summary>[S-14247] The room a dash ("--", a placeholder) leaves before its ink and after it: 0.06 of the font size.</summary>
-    public const double FaceDashSide = 0.06;
-
-    /// <summary>
     /// [S-12813] A line on <paramref name="step"/> that draws a placeholder of dashes and, beside it, a unit of
     /// <paramref name="unitSize"/> (0: none): its ink starts at the dash's top or the unit's capitals, whichever
     /// stands higher, not at the capitals the line's step would draw.
@@ -76,14 +66,15 @@ public readonly record struct LineInk(double Over, double Under)
     /// A part whose ink is this text's or a glyph's of <paramref name="glyph"/> centred on the text's
     /// <paramref name="height"/>, whichever reaches further (a row's lead beside its lines).
     /// </summary>
-    public LineInk With(double glyph, double height) => With(GlyphBox.Whole, glyph, height);
+    public LineInk With(double glyph, double height) => With(None, glyph, height);
 
     /// <summary>
     /// [S-14240] A part whose ink is this text's or a glyph's whose box of <paramref name="glyph"/> is centred on the
-    /// text's <paramref name="height"/> and which inks <paramref name="ink"/> of that box (<see cref="GlyphInk"/>: the
-    /// memory chip an eighth inside it over and under), whichever reaches further.
+    /// text's <paramref name="height"/>, the glyph inking inside that box by <paramref name="ink"/> (the room over and
+    /// under its ink in its box, as <see cref="InkMeter"/> measures it: the memory chip an eighth of it; <see cref="None"/>:
+    /// its whole box), whichever reaches further.
     /// </summary>
-    public LineInk With(GlyphBox ink, double glyph, double height)
+    public LineInk With(LineInk ink, double glyph, double height)
     {
         if (!(glyph > 0) || !double.IsFinite(height))
         {
@@ -91,7 +82,7 @@ public readonly record struct LineInk(double Over, double Under)
         }
 
         var room = (height - glyph) / 2;
-        return new LineInk(Math.Min(Over, room + (ink.Top * glyph)), Math.Min(Under, room + ((1 - ink.Bottom) * glyph)));
+        return new LineInk(Math.Min(Over, room + Math.Max(0, ink.Over)), Math.Min(Under, room + Math.Max(0, ink.Under)));
     }
 
     /// <summary>The ink of a family row of <paramref name="lines"/> lines (a Body name, Captions under it) led by a <paramref name="lead"/> (0: none).</summary>

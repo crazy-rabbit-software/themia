@@ -49,12 +49,15 @@ internal static unsafe partial class InkMeasure
 
     private static readonly Guid FactoryIid = new(0xb859ee5a, 0xd838, 0x4b5b, 0xa2, 0xe8, 0x1a, 0xdc, 0x7d, 0x93, 0xdb, 0x48);
     private static readonly Guid Layout1Iid = new(0x9064d822, 0x80a7, 0x465c, 0xa9, 0x86, 0xdf, 0x65, 0xf7, 0x8b, 0x8f, 0xeb);
-    private static readonly ConcurrentDictionary<InkText, LineInk?> Measured = new();
+    private static readonly ConcurrentDictionary<InkText, InkRoom?> Measured = new();
     private static readonly Lazy<nint> Factory = new(CreateFactory, LazyThreadSafetyMode.ExecutionAndPublication);
     private static int _warned;
 
-    /// <summary>The room in <paramref name="text"/>'s box over its first ink and under its last; null where nothing is inked or DirectWrite will not say.</summary>
-    public static LineInk? Measure(InkText text)
+    /// <summary>
+    /// The room in <paramref name="text"/>'s box over its first ink and under its last, and before its first and after its
+    /// last across ([S-14240]); null where nothing is inked or DirectWrite will not say.
+    /// </summary>
+    public static InkRoom? Measure(InkText text)
     {
         if (Measured.TryGetValue(text, out var known))
         {
@@ -72,7 +75,7 @@ internal static unsafe partial class InkMeasure
     }
 
     /// <summary>The text's ink as laid out, and how many lines it took.</summary>
-    private static (LineInk? Ink, uint Lines) Lay(InkText text)
+    private static (InkRoom? Ink, uint Lines) Lay(InkText text)
     {
         var factory = Factory.Value;
         if (factory == 0 || string.IsNullOrEmpty(text.Text) || !(text.FontSize > 0) || !double.IsFinite(text.FontSize))
@@ -187,8 +190,15 @@ internal static unsafe partial class InkMeasure
 
             double over = -overhang.Top, under = -overhang.Bottom;
 
+            // [S-14240] Across: the overhang's left is from the layout's left edge, its right from the width it was laid out
+            // in; the text's own box is its laid lines (from their left, as wide as the widest without trailing spaces).
+            var laidWidth = wraps ? text.Width : Unbounded;
+            double left = -overhang.Left - metrics.Left, right = metrics.Left + metrics.Width - (laidWidth + overhang.Right);
+
             // Nothing inked (spaces alone): no ink to stand on.
-            return (double.IsFinite(over) && double.IsFinite(under) && over + under < metrics.Height ? new LineInk(over, under) : null, metrics.LineCount);
+            return (double.IsFinite(over) && double.IsFinite(under) && over + under < metrics.Height
+                ? new InkRoom(over, under, double.IsFinite(left) ? left : 0, double.IsFinite(right) ? right : 0)
+                : null, metrics.LineCount);
         }
         catch (Exception ex)
         {
@@ -205,7 +215,7 @@ internal static unsafe partial class InkMeasure
     /// The lines a text cut at its most shows: its words up to the end of the last line shown and the ellipsis, as XAML
     /// trims them; where the ellipsis would take a line of its own, those words alone.
     /// </summary>
-    private static LineInk? Shown(InkText text, LineMetrics* lines, int count)
+    private static InkRoom? Shown(InkText text, LineMetrics* lines, int count)
     {
         var length = 0;
         for (var i = 0; i < text.MaxLines && i < count; i++)
@@ -265,7 +275,7 @@ internal static unsafe partial class InkMeasure
         return 0;
     }
 
-    private static LineInk? Failed(string why, Exception? ex = null)
+    private static InkRoom? Failed(string why, Exception? ex = null)
     {
         // Once: a face measures on every layout, and the model stands for it either way.
         if (Interlocked.Exchange(ref _warned, 1) == 0)
