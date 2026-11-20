@@ -37,9 +37,16 @@ the wave and the waveform), `Preview/` (Debug renders: `--state playing|unavaila
 - **[S-3206]** Idle is a flat baseline: every bar (spoke, curve point) a stub as thick as the family's
   track (4 DIP, [S-6704]), the same on every tile, no text; the LED columns light their first cell. A
   device the capture cannot reach ([S-3204]) draws that baseline in the disabled role ([S-1940],
-  `UnavailableLook.Fill`), "Audio output unavailable" as the tile's tooltip, never a Status row (the
-  widget has no header and no text, and the disabled baseline is its "unavailable" as a meter's greyed
-  parts are); the spectrum comes back in the accent when the worker reaches it.
+  `UnavailableLook.Fill`) and says why in the compact line over it ([S-14265]); the spectrum comes back in the
+  accent when the worker reaches it.
+- **[S-14265]** **Unavailable keeps the bars and says why** (owner, 2026-11-19, WR-10: "No data, no account, not set up,
+  offline: the widget keeps its face ... and says why in a compact line; it never swaps its face for a status line
+  alone"). A device the capture cannot reach: the bars at rest in the disabled role on the card's floor, and the Status
+  block's line on the card's top edge (`StatusBlock.Line`, the warning, "Audio output unavailable", the tooltip too),
+  over the spectrum, taking no pointer. The spectrum is the family's Chart drawn off the one chart, so it is reported as
+  the card's plot (`PlotMark`): edge to edge, its bars standing at their levels inside it ([S-6754]). Before, the line was
+  a tooltip alone and a render of the state showed nothing a reader could see. Renders `--widget-png audioVisualizer
+  --state unavailable|playing --sizes range`, judged by `scripts/gap-check.py`.
 - **[S-3207]** Debug renders cannot capture sound: `--widget-png AudioVisualizer --style <name> --state playing`
   draws a still synthetic spectrum, `--state unavailable` the disabled baseline.
 - **[S-3211]** A frame writes numbers only, never allocates: a scale per bar or spoke, the fill (the

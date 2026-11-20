@@ -2,11 +2,14 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
+using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Sdk;
 using Themia.Widget.AudioVisualizer;
 
@@ -21,7 +24,8 @@ namespace Themia.App.Widgets;
 /// The bars come from the one shared loopback capture (the host's, <see cref="IAudioCapture"/>, [S-3203]),
 /// held exactly while this tile can be seen: attached, in the tree, not a preview. Game mode
 /// detaches every widget, so it lets go too. In silence the bars rest on a flat baseline
-/// ([S-3206]); only a device the capture cannot reach puts a sentence in their place ([S-3204]).
+/// ([S-3206]); a device the capture cannot reach keeps that baseline, disabled, and says so in the compact
+/// line over it ([S-3204], [S-14265]).
 /// </para>
 /// </summary>
 internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetTopEdge
@@ -35,6 +39,12 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
     private SpectrumCanvas _bars;
     private WidgetArea _area;
     private bool _available = true;
+
+    /// <summary>
+    /// [S-14265] Why the spectrum rests (owner, 2026-11-19, WR-10: "No data, no account, not set up, offline: the widget
+    /// keeps its face ... and says why in a compact line"): the Status block's line on the card's top edge, over the plot.
+    /// </summary>
+    private readonly StatusBlock _why = StatusBlock.Line();
 
     /// <summary>The newest frame drawn, so a new style's drawing starts from it rather than from nothing.</summary>
     private AudioFrame? _last;
@@ -57,6 +67,12 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
 
         Children.Add(_bars);
+
+        // [S-14265] It owns its top edge: the line stands on it, not over an inset the card does not give.
+        _why.Margin = default;
+        _why.IsHitTestVisible = false;
+        _why.Hide();
+        Children.Add(_why);
 
         Loaded += (_, _) => SyncCapture();
         Unloaded += (_, _) => SyncCapture();
@@ -178,7 +194,16 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
             _last = null;
         }
 
-        UnavailableLook.Say(this, available ? null : AudioVisualizerStr.WidgetsC_Visualizer_Unavailable.Text());
+        var reason = available ? null : AudioVisualizerStr.WidgetsC_Visualizer_Unavailable.Text();
+        UnavailableLook.Say(this, reason);
+        if (reason is null)
+        {
+            _why.Hide();
+        }
+        else
+        {
+            _why.Show(StatusKind.Problem, Glyphs.Visualizer, reason);
+        }
 
         if (available != _available)
         {

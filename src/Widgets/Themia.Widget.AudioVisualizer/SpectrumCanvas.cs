@@ -65,6 +65,9 @@ internal sealed partial class SpectrumCanvas : Canvas
     {
         _style = style;
         _fill = available ? Family.Brush(ColourRole.Accent) : UnavailableLook.Fill;
+
+        // [S-6754] [S-14265] The family's Chart drawn off the one chart: its plot, edge to edge, judged as a graph's.
+        PlotMark.Mark(this);
         _plan = VisualizerLayout.Plan(default, style);
 
         var shapes = style switch
