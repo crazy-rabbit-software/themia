@@ -6956,7 +6956,8 @@ and their history are the same in every style. Tests `MeterPlanTests`, `IoStyles
   lead glyph, secondary), always on one line as Task Manager writes send and receive (user request
   2026-11-15): download's column as wide as its widest case, so upload never moves, then 24
   (`MeterSizing.NumbersGap`), then upload; one reading's height (84), from the line's own width
-  (`MeterSizing.NumbersWidth` and the inset) to 480. No history. The disk's two directions are its Bars
+  (`MeterSizing.NumbersWidth` and the inset) to 480; in a larger card the two scale up as one block
+  ([S-14241]). No history. The disk's two directions are its Bars
   style's rows ([S-6265]): each carries a bar, so each keeps its row; its Number style is one figure.
 - **[S-6265]** **Bars** (disk): the total rate as the reading, and under it a labelled row for reads
   and one for writes ("Read  42 MB/s"), each with a bar (the shared bar rows, [S-6304]).
@@ -8244,6 +8245,54 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   each at its Caption's floor, three quarters of its natural box (a recycle bin 135 × 84, a countdown 345 × 104).
   Tests `FaceFloorTests.S12833_` (a Readout's parts, a Controls row, a stated face only shrinking),
   `ReadingFaceFloorTests.S12833_` (each kind's least height bound, every part at its natural box, monotonic).
+- **[S-14240]** **A lead glyph stands its ink on the insets, not its box** (owner, 2026-11-19, WR-1: "there should not
+  be a space at the top"; WR-3, WR-4). A FontIcon's box is its em (Segoe Fluent Icons: ascent the em, descent 0), but
+  most glyphs ink only part of it: the memory chip leaves an eighth over and under, the drive is a flat bar through
+  the middle, the battery a third over and under and an eighth before it. A Readout led by one (`ReadoutBlock`: the
+  meters' Number look, the network's arrows, Weather now's sky) reads its ink as where the glyph draws in its box
+  (`GlyphInk.Of`, a table read off the font's outlines by `scripts/glyph-ink.py`, `GlyphInk.g.cs`; a glyph it does not
+  know, or text, inks its whole box; `LineInk.With(GlyphBox, …)`), so its block scales until the glyph's or the
+  figures' ink, whichever reaches further, fills the height, and on the start side its box reaches back over the room
+  its glyph leaves there (right to left, its right), so the glyph's ink stands on the start inset as a text's does; the
+  gap to the value is still from its box. Was: a memory card 320 × 120 had 24 over its chip and 21 under it, a disk card
+  29 over its drive, a battery 39 over and under. Tests `GlyphInkTests.S14240_`.
+- **[S-14241]** **The network's two readings fill their card as one block** (owner, 2026-11-19, WR-7: "All together,
+  scaled"). The Numbers look ([S-6264]) stands its two Readouts, download and upload on the one line, as one part of
+  the reading's fit (`ReadingFit`, [S-12808]): they scale up together until their ink fills the height or the width
+  stops them, the download's column still holding its widest so the upload never moves as the figures change. Was:
+  both at 28 in the left half of any card, centred in its height (688 × 120: 46 over, 46 under, 403 to the right).
+- **[S-14242]** **The sun's arc reaches the content's top** (owner, 2026-11-19, WR-1). The noon point of the day's arc
+  stands on the content's top and the night's lowest point on its foot ([S-11806]); the marker on the arc reaches its
+  half (6) over either into the card's inset, clipped there and no further. Was: the noon point 6 under the top, a
+  band of 17 over every arc. Tests `SunPathGeometryTests.S11806_`, `.S14242_`.
+- **[S-14243]** **A face's pieces give way by the block as it is drawn** (owner, 2026-11-19, WR-7: "Keep them
+  together"; content decides size, size never content). The pieces a face states ([S-12833]: a name, a date under the
+  time, a unit, a lead glyph) give way, smallest first, only where the scale the drawn block fills the room at would
+  draw them under the floor (9): the fit measures its parts with each floor in turn (`ReadingFit`), once per room, and
+  again only when a reading grows so far that a piece kept would go under it. The stated plan, sized on the face's
+  widest reading, still makes the kind's least box. Was: a countdown's "3d 5h" in a 300 × 164 card had dropped its
+  name and its date (its widest wording, "88 days ago", would have drawn them at 8.9) while the time was drawn at
+  1.6 times its size, and its 330 × 140 neighbour kept all three.
+- **[S-14244]** **A part's change fits the block again** (WR-1, WR-4). A part of a reading's fit measured again on its
+  own (its text changed: a reading becoming "--", a placeholder its reading) has the fit work out its scale and where
+  its first ink stands again, even where the plan's own size stays (a Controls row wider than the reading kept it).
+  Was: a brightness card waiting for its displays drew its "--" 26 under the top in a 300 × 164 card, its fit still
+  placing the "0%" the dashes had replaced.
+- **[S-14245]** **A part of a height of its own inks where it stands in its row** (WR-4). In a row of parts side by side
+  (`PartInk`), a part with a height of its own (a Controls row's 28 icon button, centred beside its 32 slider) stands
+  where its alignment puts it, as a text does; only a part the row sizes inks the row's whole height. Was: the volume's
+  mute button was read as reaching the row's foot, and the block stood 2 (5 drawn) over the foot's inset.
+- **[S-14246]** **The cores' columns run from inset to inset** (WR-3: "the items dont reach from edge to edge"). The
+  CPU cores' bars (`MeterLook.Columns`) stand the first on the start inset and the last on the end's, the room between
+  them alike (`SpreadStack.Justify` across). Was: each centred in an equal share of the width, 17 to 29 inside the
+  inset either side.
+- **[S-14247]** **A Readout's line stands its ink at its ends** (WR-3). A text's advance holds room before its first
+  ink and after its last (Segoe UI Variable: a figure 0.042 of its size, "%" 0.035, a dash 0.06), which a block scaled
+  four times grows to 5 to 8 beside the inset. A Readout's line (`ReadoutBlock`) reaches back over that room at its
+  start (where no glyph leads it) and its end (its unit's, its delta's, else its value's), by the least the face's
+  letters leave (`LineInk.FaceSide`, 0.034; a placeholder's dashes `LineInk.FaceDashSide`, 0.06), so it never reaches
+  past its ink. The fit's one DIP of room over its parts' width ([S-12814], `BlockFit.WidthSlack`) stays: a part laid
+  at exactly its width would be trimmed by layout rounding; drawn, it is the block's scale in DIPs at its end.
 - **[S-12834]** **What stands over a list is whole cells, and the rows start right under it** (owner, 2026-11-19,
   docs/WIDGET-RULES.md WR-1: "there should not be a space at the top"; WR-5: "Empty stated rows / leftover whole cells
   may stand at the foot; never above the first item, never between items"; WR-6: "Every repeated item is a whole number
@@ -9385,8 +9434,8 @@ are single metrics (METRICS). Tests: each module's, `ReadyMadeGroupsTests`.
 - **[S-11806]** **The sun's arc fits its box in every season** (`SunPathPlot.For`, 2026-11-12): the
   altitude axis tops out at the day's own noon (`SunPathPlot.NoonAltitude`: 90 less the latitude's
   difference from the sun's declination, at least 1), not the year's highest, so a November arc rises to
-  the box's top as a June one does instead of standing low under empty sky; the noon point stands the
-  marker's half (6) under the top, the horizon 16 % over the foot (the night's dip under it). The sun's
+  the box's top as a June one does instead of standing low under empty sky; the noon point stands on the
+  top, its marker's half over it in the card's inset ([S-14242]), the horizon 16 % over the foot (the night's dip under it). The sun's
   place along the curve is still the time of day; the curve's height is the day's own shape, not the
   true elevation against another day's. A polar night has no day arc (the axis 1, the night's dip alone).
   Tests `SunPathGeometryTests.S11806_`.
