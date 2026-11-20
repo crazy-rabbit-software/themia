@@ -2389,8 +2389,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   taller before it makes it scroll: the old head-to-the-top `BringIntoView` shifted the page before the flyout had
   grown), and glides there over 250 ms on 16-ms frames, a cubic ease-out (`PageReveal.Glide`, `PageFlyout`); at once
   while Windows' animation effects are off; the user's own wheel, press or Page keys take over from a glide. A tab
-  switch moves nothing. Tests `PageRevealTests.S2347_`; `--editbar-png --only pages` draws pages opened at their
-  rows (`page-*-general-temperature`, `-appearance-*`).
+  switch moves nothing. The row revealed is the one the drawing that opened it laid out (2026-11-20: a card or picker
+  opened by its head looked its row up before the new drawing was laid out, found the drawing before's, which went,
+  and nothing scrolled; seen as `select-*-vocabulary-feeds` standing at the page's top). Tests `PageRevealTests.S2347_`;
+  `--editbar-png --only pages` draws pages opened at their rows (`page-*-general-temperature`, `-appearance-*`), `--only
+  select` cards opened by a click (`select-*-vocabulary-feeds`, `-vocabulary-confirm`).
 - **[S-2350]** **A page's flyout follows its page both ways** (owner, 2026-11-20: "the settings height does not change
   back when i close a section again"): the flyout is as tall as its page up to 70 % of the work area ([S-2325]) after
   every change of the page's rows, a card or picker opened **and closed again** (by its head, Escape's way back, a tab, a

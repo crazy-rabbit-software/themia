@@ -618,6 +618,7 @@ internal sealed partial class PageView : ContentControl
                 }
 
                 Show();
+                UpdateLayout();
                 if (Tagged(this, row.Key + "#row") is { } shown)
                 {
                     BringIntoView?.Invoke(shown);

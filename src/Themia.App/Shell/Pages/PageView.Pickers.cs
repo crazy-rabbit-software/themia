@@ -80,10 +80,16 @@ internal sealed partial class PageView
             }
 
             Show();
-            // [S-2347] The card with what it opened, scrolled only as far as it takes to stand whole in sight.
-            if (!open && Tagged(this, row.Key + "#row") is { } shown)
+
+            // [S-2347] The card with what it opened, scrolled only as far as it takes to stand whole in sight: its row as
+            // this drawing laid it out (before the layout the tree still holds the drawing before, whose row is gone).
+            if (!open)
             {
-                BringIntoView?.Invoke(shown);
+                UpdateLayout();
+                if (Tagged(this, row.Key + "#row") is { } shown)
+                {
+                    BringIntoView?.Invoke(shown);
+                }
             }
         };
         ThingKeys(head, row, inside);
