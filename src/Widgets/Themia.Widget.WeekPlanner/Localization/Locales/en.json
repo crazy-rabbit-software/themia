@@ -1,6 +1,5 @@
 {
-  "$englishOnly": ["weekPlanner.days", "weekPlanner.rowsPerDay"],
-  "weekPlanner.days": "Days",
+  "$englishOnly": ["weekPlanner.rowsPerDay"],
   "weekPlanner.rowsPerDay": "Rows per day",
   "planner.desc": "The days ahead with their events, and what is due today",
   "planner.free": "Nothing planned",

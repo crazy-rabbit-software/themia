@@ -59,7 +59,7 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     /// <summary>[S-5324] List the tasks due today (and overdue) under today's events.</summary>
     public bool ShowTasks { get; set; } = true;
 
-    /// <summary>[S-11410] How many days stand side by side, today first: 1 to 7.</summary>
+    /// <summary>[S-11410] [S-14410] How many days stand side by side, today first: 1 to 7; the card's width's (a resize sets it).</summary>
     public int Days { get; set; } = 3;
 
     /// <summary>[S-11410] How many rows each day shows under its heading; more say "+N".</summary>

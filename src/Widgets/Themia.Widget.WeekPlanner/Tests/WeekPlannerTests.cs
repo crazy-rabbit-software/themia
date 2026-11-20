@@ -62,4 +62,21 @@ public sealed class WeekPlannerTests
         config.ShowTasks = false;
         Assert.DoesNotContain(SyncInterests.From(state).Tasks, t => t.AccountId == "tasks");
     }
+
+    [Fact]
+    public void S5320_S14410_the_days_are_the_cards_a_side_edge_sets_them_a_bottom_edge_the_rows()
+    {
+        // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows
+        // the card's size."
+        var config = new WeekPlannerConfig { Days = 3, RowsPerDay = 5 };
+        var kind = new WeekPlannerModule().Descriptor;
+        var natural = kind.Sizing(config).Natural;
+
+        var five = Assert.IsType<WeekPlannerConfig>(kind.SizeSets!(config, natural with { Width = 5 * WeekPlannerRules.ColumnWidth }));
+        Assert.Equal((5, 5), (five.Days, five.RowsPerDay));
+        var taller = Assert.IsType<WeekPlannerConfig>(kind.SizeSets(config, natural with { Height = natural.Height + (2 * 28) }));
+        Assert.Equal((3, 7), (taller.Days, taller.RowsPerDay));
+        Assert.Equal((3, 5), (config.Days, config.RowsPerDay));
+        Assert.Same(config, kind.SizeSets(config, natural));
+    }
 }

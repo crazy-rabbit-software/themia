@@ -12772,15 +12772,16 @@ config, its page, setup and sync); the SDK's rules it is drawn by stay here. Tes
 `tests/Themia.Core.Tests/WeekPlannerTests.cs`. Issue #160.
 
 - **[S-5321]** A rolling week: today and the six days after (`WeekPlannerRules.Range`), fetched whole
-  whatever it shows. *(How many days stand side by side is the config's, [S-11410]; the width no
-  longer decides it, nothing stacks and no column drops the start times.)*
+  whatever it shows. *(How many days stand side by side is the card's width's, [S-11410], [S-14410]: a whole
+  column a day; nothing stacks and no column drops the start times.)*
 - **[S-11410]** **The planner states its sizes** (owner decision 2026-11-12): `Days` (1..7, default
   3) stand side by side, today first, each a column of 200 (`WeekPlannerRules.ColumnWidth`; its rows
-  carry the card's side inset, so the columns meet), so the width is the days' and has no handle;
-  `RowsPerDay` (1..12, default 5) rows under each day's heading, the height the content top, the
-  heading (28), the rows (28 each) and the inset, stepped by a row (a new one 600 × 216); dragging
-  the bottom edge sets RowsPerDay. Every event row has its start. Its menu has Days and Rows per day
-  first. Tests `WeekPlannerTests.S11410_`, `WeekPlannerMenuTests`.
+  carry the card's side inset, so the columns meet), the width stepped by a day and following them; the days are
+  the card's (2026-11-20, [S-14410]: dragging a side edge sets them, no Days line); `RowsPerDay` (1..12, default 5)
+  rows under each day's heading, the height the content top, the heading (28), the rows (28 each) and the inset,
+  stepped by a row (a new one 600 × 216); dragging the bottom edge sets RowsPerDay (`WeekPlannerModule.SetRows`).
+  Every event row has its start. Its menu has Rows per day first. Tests `WeekPlannerTests.S11410_`,
+  `WeekPlannerTests.S5320_S14410_`, `WeekPlannerMenuTests`.
 - **[S-5322]** A day's rows (`WeekPlannerRules.Build`), each a Row block of 32 ([S-6711]): its
   events as a calendar day lists them ([S-570]: birthdays, all-day, then timed by start), today
   without the timed events already over; an event row is its calendar's colour as a 2 px bar in the

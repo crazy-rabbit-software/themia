@@ -28,8 +28,7 @@ internal static class WeekPlannerMenu
         ArgumentNullException.ThrowIfNull(planner);
         ArgumentNullException.ThrowIfNull(taskAccounts);
 
-        // [S-11410] How many days and how many rows a day: the planner's size follows them.
-        menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Calendar, WeekPlannerStr.WeekPlanner_Days.Text(), Math.Clamp(planner.Days, 1, WeekPlannerRules.Days), 1, WeekPlannerRules.Days, 1, v => planner.Days = v));
+        // [S-11410] How many rows a day: the planner's height follows them. [S-14410] How many days is the card's width.
         menu.Lines.Add(KitMenuLines.Count(menu, null, WeekPlannerStr.WeekPlanner_RowsPerDay.Text(), Math.Clamp(planner.RowsPerDay, 1, WeekPlannerRules.MaxRows), 1, WeekPlannerRules.MaxRows, 1, v => planner.RowsPerDay = v));
         menu.Lines.Add(ItemMenuEntry.Separator);
 

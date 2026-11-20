@@ -47,22 +47,25 @@ public sealed class WeekPlannerModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => WeekPlannerMenu.Lines(menu, (WeekPlannerConfig)config, SettingsHost.Office, SettingsHost.Tasks?.Accounts ?? []);
 
-    /// <summary>[S-11410] Dragging the bottom edge sets the rows a day shows.</summary>
-    private static WidgetConfig SetRows(WidgetConfig config, SizeDip size)
+    /// <summary>[S-11410] [S-14410] Dragging the bottom edge sets the rows a day shows, a side edge the days.</summary>
+    internal static WidgetConfig SetRows(WidgetConfig config, SizeDip size)
     {
         if (config is not WeekPlannerConfig planner)
         {
             return config;
         }
 
-        var rows = WeekPlannerRules.Sizing(planner.Days, planner.RowsPerDay).HeightSteps!.Nearest(size.Height);
-        if (rows == planner.RowsPerDay)
+        var sizing = WeekPlannerRules.Sizing(planner.Days, planner.RowsPerDay);
+        var rows = sizing.HeightSteps!.Nearest(size.Height);
+        var days = sizing.WidthSteps!.Nearest(size.Width);
+        if (rows == planner.RowsPerDay && days == planner.Days)
         {
             return config;
         }
 
         var copy = (WeekPlannerConfig)planner.Clone();
         copy.RowsPerDay = rows;
+        copy.Days = days;
         return copy;
     }
 
