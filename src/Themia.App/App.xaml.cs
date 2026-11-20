@@ -33,6 +33,8 @@ public partial class App : Application
             : Services.Files.FileIcons.IconAsync(new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, Directory.Exists(file), 0, default, false), pixels));
         // [S-5565] The number in the badge of a drag's ghost: real text, drawn at once.
         Themia.Sdk.WinUI.ItemDrag.InstallInk(Interop.TextInk.Draw);
+        // [S-14200] Where a text's ink really stands, for the faces that stand on it, before anything is drawn.
+        Themia.Sdk.Kit.InkMeter.Install(Interop.InkMeasure.Measure);
         // [S-13025] A drag of ours starts from the foreground window, or OLE's loop sees no mouse (the first drag after another app).
         Themia.Sdk.WinUI.ItemDrag.InstallForeground(window => _host?.TakeForegroundForDrag(window) ?? true);
         Shell.ColorChoice.InstallEyedropper(new Interop.ScreenEyedropper());
