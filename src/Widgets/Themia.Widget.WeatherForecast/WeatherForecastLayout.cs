@@ -21,12 +21,13 @@ public sealed record ForecastRowsPlan(int Days, int Lines, double Meter, bool Co
 public sealed record ForecastColumnsPlan(int Days, double ColumnWidth, double Icon, bool Low, bool Bar, bool Precipitation);
 
 /// <summary>
-/// [S-724]..[S-726] [S-11145] [S-11146] The forecast as an atom: its <c>Days</c> (1..14, a new one 5)
-/// decide what it shows in every style, and each style's size follows from them. Rows: a row a day, the
-/// height stepped by the days, 220..420 wide. Columns: a 56..72 column a day, the width stepped by the
-/// days, one height. Curve: a column a day, 48..72 wide each, the chart's band 72..144 tall. Grid: the days
-/// in a fixed arrangement (one row up to four days, two up to eight, three past), its cells 64..80 wide,
-/// one height. Nothing sheds or appears with the box: a bar or a chart gets longer, a column wider.
+/// [S-724]..[S-726] [S-11145] [S-11146] [S-14410] The forecast as an atom: its <c>Days</c> (1..14, a new one 5)
+/// decide what it shows in every style, and they are the card's: each style steps an axis by one day and a resize
+/// stores the days its box holds (<see cref="SizeSets"/>; no menu line). Rows: a row a day, the height stepped by
+/// the days, 220..420 wide. Columns: a 56 column a day, the width stepped by the days, one height. Curve: a 56
+/// column a day, the width stepped by the days, the chart's band 72..144 tall. Grid: the days in their arrangement
+/// (one row up to four days, two up to eight, three past), a 64 cell a step across and a row a step down
+/// (<see cref="ForecastGrid.DaysFor"/>). Nothing else sheds or appears with the box: a bar or a chart gets longer.
 /// </summary>
 public static class WeatherForecastLayout
 {
@@ -109,19 +110,18 @@ public static class WeatherForecastLayout
             {
                 var parts = ForecastCurve.Parts(config.ShowPrecipitation);
                 return WidgetSizing.Range(
-                    new(inset + (days * ForecastCurve.ColumnMin), chrome + parts + ForecastCurve.ChartMin),
-                    new(inset + (days * ForecastCurve.ColumnStart), chrome + parts + ForecastCurve.ChartStart),
-                    new(inset + (days * ColumnMax), chrome + parts + ForecastCurve.ChartMax));
+                    new(1, chrome + parts + ForecastCurve.ChartMin),
+                    new(1, chrome + parts + ForecastCurve.ChartStart),
+                    new(1, chrome + parts + ForecastCurve.ChartMax))
+                    .WithWidthSteps(new SizeSteps(inset, ForecastCurve.ColumnStart, 1, 14, days));
             }
 
             case ForecastStyle.Grid:
             {
                 var (columns, rows) = ForecastGrid.Arrangement(days);
-                var height = chrome + ForecastGrid.Length(rows, ForecastGrid.CellMinHeight);
-                return WidgetSizing.Range(
-                    new(inset + ForecastGrid.Length(columns, ForecastGrid.CellMinWidth), height),
-                    new(inset + ForecastGrid.Length(columns, ForecastGrid.CellStart), height),
-                    new(inset + ForecastGrid.Length(columns, ForecastGrid.CellMaxWidth), height));
+                return WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1))
+                    .WithWidthSteps(ForecastGrid.ColumnSteps(columns))
+                    .WithHeightSteps(ForecastGrid.RowSteps(rows));
             }
 
             default:
@@ -131,8 +131,9 @@ public static class WeatherForecastLayout
     }
 
     /// <summary>
-    /// [S-2442] [S-11146] The config a forecast of <paramref name="size"/> means: in Rows the days its
-    /// height holds, in Columns the days its width holds; the other styles' size never sets the days.
+    /// [S-2442] [S-11146] [S-14410] The config a forecast of <paramref name="size"/> means: in Rows the days its height
+    /// holds, in Columns and Curve the days its width holds, in Grid the days whose arrangement its cells across and
+    /// rows down hold (<see cref="ForecastGrid.DaysFor"/>).
     /// </summary>
     public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size)
     {
@@ -142,19 +143,22 @@ public static class WeatherForecastLayout
             return config;
         }
 
-        var steps = Sizing(forecast) switch
-        {
-            { HeightSteps: { FollowsConfig: true } rows } => (Steps: rows, Along: size.Height),
-            { WidthSteps: { FollowsConfig: true } columns } => (Steps: columns, Along: size.Width),
-            _ => (Steps: (SizeSteps?)null, Along: 0.0),
-        };
-        if (steps.Steps is not { } axis || axis.Nearest(steps.Along) == forecast.EffectiveDays)
+        var sizing = Sizing(forecast);
+        int? days = forecast.Style == ForecastStyle.Grid
+            ? ForecastGrid.DaysFor(sizing.WidthSteps!.Nearest(size.Width), sizing.HeightSteps!.Nearest(size.Height))
+            : sizing switch
+            {
+                { HeightSteps: { FollowsConfig: true } rows } => rows.Nearest(size.Height),
+                { WidthSteps: { FollowsConfig: true } columns } => columns.Nearest(size.Width),
+                _ => null,
+            };
+        if (days is not { } wanted || wanted == forecast.EffectiveDays)
         {
             return config;
         }
 
         var copy = (WeatherForecastConfig)forecast.Clone();
-        copy.Days = axis.Nearest(steps.Along);
+        copy.Days = wanted;
         return copy;
     }
 

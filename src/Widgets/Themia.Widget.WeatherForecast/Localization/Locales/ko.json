@@ -1,5 +1,4 @@
 {
-  "forecast.daysLabel": "표시할 일수",
   "forecast.layoutColumns": "열",
   "forecast.layoutRows": "행",
   "styles.forecast.curve": "기온 곡선",

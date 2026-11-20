@@ -92,13 +92,20 @@ public sealed class ForecastCurveTests
     }
 
     [Fact]
-    public void S11146_the_curve_s_size_follows_the_days_with_a_small_range()
+    public void S11146_S14410_the_curve_s_width_steps_by_a_56_day_and_a_drag_sets_the_days()
     {
-        var sizing = WeatherForecastLayout.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Curve, Days = 5 });
+        var config = new WeatherForecastConfig { Style = ForecastStyle.Curve, Days = 5 };
+        var sizing = WeatherForecastLayout.Sizing(config);
 
-        Assert.Equal((24 + (5 * 48.0), 24 + (5 * 56.0), 24 + (5 * 72.0)), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal((24 + 56.0, 24 + (5 * 56.0), 24 + (14 * 56.0)), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(5, sizing.WidthSteps!.Count);
         Assert.Equal(12 + ForecastCurve.Parts(true) + 96 + 12, sizing.Natural.Height);
         Assert.Equal(sizing.Natural.Height - 96 + 72, sizing.Min.Height);
+
+        // A card two days wider means seven days; its height is the chart's, never a count.
+        var seven = Assert.IsType<WeatherForecastConfig>(WeatherForecastLayout.SizeSets(config, new Themia.Sdk.SizeDip(24 + (7 * 56), 300)));
+        Assert.Equal(7, seven.Days);
+        Assert.Equal(5, config.Days);
     }
 
     [Fact]

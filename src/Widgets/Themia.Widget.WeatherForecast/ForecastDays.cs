@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
@@ -15,7 +16,8 @@ public sealed record ForecastGridPlan(int Days, int Columns, int Rows, double Ce
 /// <summary>
 /// [S-6171] [S-11146] The forecast's grid: the days as cells (the day, the sky's 32 glyph, the high
 /// beside the low, centred), 12 apart as the family's cells ([S-6713]), in a fixed arrangement by the
-/// day count (<see cref="Arrangement"/>); a cell 64..80 wide and one height.
+/// day count (<see cref="Arrangement"/>); a 64 cell a step across and a row a step down, the days what the card's
+/// cells hold ([S-14410], <see cref="DaysFor"/>).
 /// </summary>
 public static class ForecastGrid
 {
@@ -68,6 +70,32 @@ public static class ForecastGrid
 
     /// <summary>The length of <paramref name="count"/> cells of <paramref name="cell"/>, 12 apart.</summary>
     public static double Length(int count, double cell) => (count * cell) + ((count - 1) * Gap);
+
+    /// <summary>[S-14410] The most cells across an arrangement has: five, fourteen days in three rows.</summary>
+    public const int MostColumns = 5;
+
+    /// <summary>[S-14410] The most rows an arrangement has.</summary>
+    public const int MostRows = 3;
+
+    /// <summary>[S-14410] The grid's width: the inset either side and a 64 cell and its gap a step, <paramref name="columns"/> of them.</summary>
+    public static SizeSteps ColumnSteps(int columns)
+        => new((2 * FamilySpace.Inset) - Gap, CellStart + Gap, 1, MostColumns, Math.Clamp(columns, 1, MostColumns));
+
+    /// <summary>[S-14410] The grid's height: the content top and the inset under, a cell and its gap a step, <paramref name="rows"/> of them.</summary>
+    public static SizeSteps RowSteps(int rows)
+        => new(FamilySpace.ContentTop + FamilySpace.Inset - Gap, CellMinHeight + Gap, 1, MostRows, Math.Clamp(rows, 1, MostRows));
+
+    /// <summary>
+    /// [S-14410] The days a grid of <paramref name="columns"/> cells across and <paramref name="rows"/> down holds:
+    /// the most days whose arrangement is that, else those of the nearest arrangement (the fewest cells off, the more
+    /// days on a tie), so a resize lands on an arrangement and never leaves a whole row empty.
+    /// </summary>
+    public static int DaysFor(int columns, int rows)
+        => Enumerable.Range(1, 14)
+            .Select(d => (Days: d, Shape: Arrangement(d)))
+            .OrderBy(a => Math.Abs(a.Shape.Columns - columns) + Math.Abs(a.Shape.Rows - rows))
+            .ThenByDescending(a => a.Days)
+            .First().Days;
 
     /// <summary>[S-6171] [S-11146] The grid for the box: the config's days in their arrangement, the cells sharing the content, the 32 glyph.</summary>
     public static ForecastGridPlan Plan(WidgetArea area, WeatherForecastConfig config)

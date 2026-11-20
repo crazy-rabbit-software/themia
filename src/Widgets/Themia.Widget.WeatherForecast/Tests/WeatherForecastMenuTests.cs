@@ -19,27 +19,19 @@ public sealed class WeatherForecastMenuTests
     }
 
     [Fact]
-    public void S6173_appearance_then_the_location_then_days_and_precipitation_each_behind_a_divider()
+    public void S6173_S14410_appearance_then_the_location_then_precipitation_each_behind_a_divider_and_no_days_line()
     {
         var lines = Build(new WeatherForecastConfig());
 
+        // [S-14410] How many days is the card's: no line sets it.
         Assert.Equal(
-            ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
+            ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
-    }
-
-    [Fact]
-    public void S6173_days_are_one_to_fourteen_the_current_marked_and_a_pick_stores_it()
-    {
-        var config = new WeatherForecastConfig { Days = 7 };
-        var days = Build(config).Lines.Single(l => l.Text == WeatherForecastStr.Forecast_DaysLabel.Text()).Children!;
-
-        Assert.Equal(14, days.Count);
-        Assert.True(days[6].Checked);
-
-        days[2].Action!();
-        Assert.Equal(3, config.Days);
-        Assert.Equal(1, _saves);
+        foreach (var style in Enum.GetValues<ForecastStyle>())
+        {
+            var menu = Build(new WeatherForecastConfig { Style = style });
+            Assert.DoesNotContain(menu.StyleLines.Concat(menu.Lines), l => l.Text == "Days shown");
+        }
     }
 
     [Fact]

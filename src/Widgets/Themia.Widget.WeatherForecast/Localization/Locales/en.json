@@ -1,6 +1,5 @@
 {
   "$englishOnly": [],
-  "forecast.daysLabel": "Days shown",
   "forecast.layoutColumns": "Columns",
   "forecast.layoutRows": "Rows",
   "styles.forecast.curve": "Temperature curve",

@@ -56,21 +56,27 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   forecast no longer reads the current-conditions reading.)*
 - **[S-6173]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page: Appearance ([S-3723]), then behind a divider each Location (the weather family's search, [S-3722], as the
-  current conditions', [S-6174]), Days (1 to 14, the current one with the dot: the size follows) and the precipitation
-  switch; the temperature unit and the update interval are ⚙'s, followed, no link row ([S-3590], [S-3749]). (Tests `WeatherForecastMenuTests`.)
+  current conditions', [S-6174]) and the precipitation switch (how many days is the card's, [S-14410]: no Days
+  line); the temperature unit and the update interval are ⚙'s, followed, no link row ([S-3590], [S-3749]). (Tests `WeatherForecastMenuTests`.)
 - **[S-2036]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
   in the UI language's market and the unit shown ([S-2006], `WeatherForecastModule.Opens`); nothing
   while it has no place (it shows Set up then).
 
 - **[S-11145]** **An atom** ([S-11170]): its **Days** (1..14, a new one 5; `WeatherForecastConfig.Days`,
-  also what it asks for) decide what it shows in every style; nothing sheds or appears with the box (a
-  bar or the chart longer, a column or cell wider). Days and lines out of range are repaired.
+  also what it asks for) decide what it shows in every style, and they are the card's (owner, 2026-11-20: "Anything
+  that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's size", [S-14410]): no
+  menu line sets them; a resize stores the days its box holds. Nothing else sheds or appears with the box (a bar or
+  the chart longer). Days and lines out of range are repaired.
 - **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`, the inset over and under): **Rows** a 28 or
   40 row a day, the height stepped by the days and following them, 220..420 wide (a new one 300 × 164);
   **Columns** a 56 column a day, the width stepped by the days and following them, one height (184 with
-  the rain, 164 without); **Curve** 48..72 a day wide (a new one 56), the chart's band 72..144 (a new one
-  96) under the days' parts; **Grid** cells 56..80 wide (a new one 64) in its arrangement, one height.
-  Dragging the rows' bottom edge or the columns' side edge sets the days ([S-2442]).
+  the rain, 164 without); **Curve** a 56 column a day, the width stepped by the days and following them, the chart's
+  band 72..144 (a new one 96) under the days' parts; **Grid** its arrangement (one row up to four days, two up to
+  eight, three past), a 64 cell and its 12 a step across and a cell's height and its 12 a step down, both following
+  the days. Dragging the rows' bottom edge, the columns' or the curve's side edge sets the days ([S-2442]); a grid
+  dragged to some cells across and rows down takes the most days whose arrangement that is, else those of the
+  nearest arrangement (`ForecastGrid.DaysFor`), so no whole row stands empty. Tests `ForecastDaysTests.S11146_S14410_`,
+  `ForecastCurveTests.S11146_S14410_`, `WeatherForecastMenuTests.S6173_S14410_`.
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
   other styles offer nothing there.
 - **[S-12403]** **The days fill the content** ([S-12400]), in every style. Rows: the days fill the content

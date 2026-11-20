@@ -73,15 +73,45 @@ public class ForecastDaysTests
     }
 
     [Fact]
-    public void S11146_the_grid_is_one_height_its_cells_64_wide_at_first_and_80_at_most()
+    public void S11146_S14410_the_grid_steps_by_a_64_cell_across_and_a_row_down_following_its_arrangement()
     {
         var sizing = WeatherForecastLayout.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Grid, Days = 7 });
 
-        Assert.True(sizing.FixedHeight);
         Assert.Equal(12 + (2 * ForecastGrid.CellMinHeight) + 12 + 12, sizing.Natural.Height);
         Assert.Equal(24 + (4 * 64) + (3 * 12), sizing.Natural.Width);
-        Assert.Equal(24 + (4 * 80) + (3 * 12), sizing.Max.Width);
-        Assert.Equal(24 + (4 * 56) + (3 * 12), sizing.Min.Width);
+        Assert.Equal((4, 2), (sizing.WidthSteps!.Count, sizing.HeightSteps!.Count));
+        Assert.Equal(24 + 64, sizing.Min.Width);
+        Assert.Equal(24 + (5 * 64) + (4 * 12), sizing.Max.Width);
+        Assert.Equal(12 + (3 * ForecastGrid.CellMinHeight) + (2 * 12) + 12, sizing.Max.Height);
+    }
+
+    [Theory]
+    [InlineData(1, 1, 1)]
+    [InlineData(4, 1, 4)]
+    [InlineData(3, 2, 6)]
+    [InlineData(4, 2, 8)]
+    [InlineData(3, 3, 9)]
+    [InlineData(4, 3, 12)]
+    [InlineData(5, 3, 14)]
+    [InlineData(2, 2, 6)]
+    [InlineData(5, 1, 4)]
+    public void S11146_S14410_a_grid_of_cells_across_and_rows_down_holds_the_days_of_its_nearest_arrangement(int columns, int rows, int days)
+        => Assert.Equal(days, ForecastGrid.DaysFor(columns, rows));
+
+    [Fact]
+    public void S11146_S14410_every_days_arrangement_is_found_again_from_its_own_cells()
+    {
+        for (var days = 1; days <= 14; days++)
+        {
+            var (columns, rows) = ForecastGrid.Arrangement(days);
+            Assert.Equal((columns, rows), ForecastGrid.Arrangement(ForecastGrid.DaysFor(columns, rows)));
+        }
+
+        // A drag lands the grid on what its cells hold: three across, three down is nine days.
+        var config = new WeatherForecastConfig { Style = ForecastStyle.Grid, Days = 7 };
+        var sizing = WeatherForecastLayout.Sizing(config);
+        var nine = Assert.IsType<WeatherForecastConfig>(WeatherForecastLayout.SizeSets(config, new Themia.Sdk.SizeDip(sizing.WidthSteps!.At(3), sizing.HeightSteps!.At(3))));
+        Assert.Equal(9, nine.Days);
     }
 
     [Fact]
