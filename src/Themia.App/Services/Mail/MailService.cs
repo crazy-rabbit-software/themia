@@ -17,11 +17,12 @@ namespace Themia.App.Services.Mail;
 /// (<see cref="SyncHost"/>).
 /// <para>
 /// <b>Sync owns the network.</b> Each mail account has a <see cref="Box"/>: the newest messages of
-/// every folder a Mail widget in any view reads ([S-2608]), loaded from the account's shelf at start
-/// and saved back after every change. A folder's counts are probed every
-/// <see cref="MailRefresh.ProbeInterval"/> and its list fetched only when they moved or the list is
-/// old (<see cref="MailRefresh"/>); failures back off on <see cref="Backoff"/>. The cadence rides the
-/// shared <see cref="Ticker"/>, so it stops while the desktop is hidden.
+/// every folder a Mail widget in any view reads ([S-2608]), read from the account's shelf off the UI
+/// thread at start ([S-2693]) and saved back after every change. Each folder is an entry of the one sync
+/// engine ([S-2691]): its counts are probed every <see cref="MailRefresh.ProbeInterval"/> (the accounts
+/// cadence) and its list fetched only when they moved or the list is old (<see cref="MailRefresh"/>);
+/// failures back off; what is in flight is cancelled when the account leaves or the service closes.
+/// The cadence rides the shared <see cref="Ticker"/>, so it stops while the desktop is hidden.
 /// </para>
 /// <para>
 /// <b>Widgets only read.</b> A feed a widget opens is a view over the boxes: it draws what is stored
@@ -29,8 +30,8 @@ namespace Themia.App.Services.Mail;
 /// being opened — unless the folder has never been synced, or the widget wants more rows than are held.
 /// </para>
 /// <para>
-/// <b>Changes</b> ([S-2624]) show at once and wait in the account's queue (<see cref="WriteQueue"/>,
-/// persisted in the shelf) until the provider has them: one at a time, in order; offline or
+/// <b>Changes</b> ([S-2624]) show at once and wait in the account's queue (the one <see cref="WriteDrain{TResult}"/>,
+/// [S-2692], persisted in the shelf) until the provider has them: one at a time, in order; offline or
 /// throttled they wait and retry; refused they are taken back and the header says why.
 /// </para>
 /// <para>
@@ -43,18 +44,23 @@ internal sealed class MailService : IMailSource, IDisposable
     private const string Scope = "mail";
 
     private readonly AccountService _accounts;
-    private readonly Ticker _ticker;
     private readonly SyncHost _sync;
+    private readonly SyncEngine<FolderSync> _engine;
     private readonly Dictionary<string, Box> _boxes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Feed> _feeds = new(StringComparer.Ordinal);
-    private IDisposable? _tick;
-    private bool _disposed;
 
     public MailService(AccountService accounts, Ticker ticker, SyncHost sync)
     {
+        ArgumentNullException.ThrowIfNull(ticker);
         _accounts = accounts;
-        _ticker = ticker;
         _sync = sync;
+        _engine = new SyncEngine<FolderSync>(new SyncEntries<FolderSync>(Scope), FetchFolderAsync, () => DateTimeOffset.UtcNow, ticker.Subscribe, f => f.Box.MaySend)
+        {
+            // More rows wanted than held is a reason to ask, whatever the schedule says.
+            AlsoDue = f => f.Rows > f.Held && f.LastFetch is not null && f.Schedule.Status == FetchStatus.Ok,
+        };
+        _engine.Changed += _ => PublishAll();
+        _engine.Polled += DrainAll;
         _accounts.AccountsChanged += OnAccountsChanged;
         _sync.InterestsChanged += Reconcile;
         _sync.NetworkAvailable += OnNetworkAvailable;
@@ -69,7 +75,7 @@ internal sealed class MailService : IMailSource, IDisposable
     public IMailFeed Open(MailQuery query)
     {
         ArgumentNullException.ThrowIfNull(query);
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ObjectDisposedException.ThrowIf(_engine.Disposed, this);
 
         if (!_feeds.TryGetValue(query.Key, out var feed))
         {
@@ -103,11 +109,11 @@ internal sealed class MailService : IMailSource, IDisposable
     /// <summary>
     /// Follow the accounts and the widgets: a box per mail account that something reads, each folder
     /// at the largest count anything asked for this run. A new folder, or one asked for more rows
-    /// than it holds, is due at once.
+    /// than it holds, is due at once. A stored folder nobody reads stays stored but is not synced.
     /// </summary>
     private void Reconcile()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
@@ -141,11 +147,13 @@ internal sealed class MailService : IMailSource, IDisposable
 
         foreach (var id in _boxes.Keys.Where(id => !wanted.ContainsKey(id) || accounts.All(a => a.Id != id)).ToList())
         {
-            _boxes[id].Cancel();
+            var gone = _boxes[id];
             _boxes.Remove(id);
+            _engine.Entries.RemoveWhere(f => ReferenceEquals(f.Box, gone));
+            gone.Cancel();
         }
 
-        foreach (var (id, folders) in wanted)
+        foreach (var (id, _) in wanted)
         {
             if (accounts.FirstOrDefault(a => a.Id == id) is not { } account)
             {
@@ -154,58 +162,77 @@ internal sealed class MailService : IMailSource, IDisposable
 
             if (!_boxes.TryGetValue(id, out var box))
             {
-                box = Box.Load(this, account);
+                box = new Box(this, account);
                 _boxes[id] = box;
+                _ = box.LoadAsync();
             }
 
             box.Usable = account.Problem is null;
-            box.Want(folders, _sync.Interests.AccountInterval);
         }
 
-        if (_boxes.Count > 0)
+        // [S-3782] Each folder is probed at the shared accounts cadence.
+        var interval = _sync.Interests.AccountInterval;
+        _engine.Reconcile(() =>
         {
-            _tick ??= _ticker.Subscribe(TimeSpan.FromMinutes(1), OnTick);
-        }
-        else
-        {
-            _tick?.Dispose();
-            _tick = null;
-        }
+            foreach (var (id, folders) in wanted)
+            {
+                if (!_boxes.TryGetValue(id, out var box))
+                {
+                    continue;
+                }
 
-        Poll(force: false, null);
+                foreach (var (folder, count) in folders)
+                {
+                    var sync = _engine.Entries.Want(FolderSync.KeyOf(id, folder), () => box.Folder(folder));
+                    sync.Rows = Math.Max(sync.Rows, count);
+                    sync.Schedule.Interval = interval;
+                }
+            }
+        }, drop: false);
+
         PublishAll();
     }
-
-    private void OnTick() => Poll(force: false, null);
 
     private void OnNetworkAvailable()
     {
         foreach (var box in _boxes.Values)
         {
-            box.Wake();
+            box.Drain.Wake();
         }
 
-        Poll(force: false, null);
+        _engine.Wake();
     }
 
-    /// <summary>Sync every due folder (all of a feed's, now, when <paramref name="force"/>), and send what is queued.</summary>
-    private void Poll(bool force, Feed? only)
+    /// <summary>The user's Refresh of a feed: its folder in each of its accounts now, and their queues woken.</summary>
+    private void Refresh(Feed feed)
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
 
-        var now = DateTimeOffset.UtcNow;
+        var forced = new List<FolderSync>();
+        foreach (var account in MailScreens.Targets(Accounts, feed.Query.AccountIds))
+        {
+            if (_boxes.TryGetValue(account.Id, out var box))
+            {
+                box.Drain.Wake();
+                if (_engine.Entries.Find(FolderSync.KeyOf(account.Id, feed.Query.Folder)) is { } folder)
+                {
+                    forced.Add(folder);
+                }
+            }
+        }
 
+        _engine.Force(forced);
+    }
+
+    /// <summary>After every look at what is due: each account's queue sends what is ready.</summary>
+    private void DrainAll()
+    {
         foreach (var box in _boxes.Values.ToArray())
         {
-            if (only is not null && !MailScreens.Targets(Accounts, only.Query.AccountIds).Any(a => a.Id == box.AccountId))
-            {
-                continue;
-            }
-
-            box.Poll(force ? only?.Query.Folder : null, now);
+            _ = box.Drain.DrainAsync();
         }
     }
 
@@ -346,17 +373,16 @@ internal sealed class MailService : IMailSource, IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
 
-        _disposed = true;
+        // [S-2691] Every fetch and send in flight hears it; what they bring back after is dropped.
+        _engine.Dispose();
         _accounts.AccountsChanged -= OnAccountsChanged;
         _sync.InterestsChanged -= Reconcile;
         _sync.NetworkAvailable -= OnNetworkAvailable;
-        _tick?.Dispose();
-        _tick = null;
 
         foreach (var box in _boxes.Values)
         {
@@ -530,13 +556,63 @@ internal sealed class MailService : IMailSource, IDisposable
         return [.. messages.OfType<MailMessage>()];
     }
 
+    /// <summary>
+    /// One run of a folder: its counts probed, and its list fetched when they moved, the list is old, more rows
+    /// are wanted than held or the user asked. A refusal of an IMAP login is told to the account service.
+    /// </summary>
+    private async Task<SyncRun> FetchFolderAsync(FolderSync folder, bool asked, CancellationToken cancellation)
+    {
+        var box = folder.Box;
+        var started = box.Tick();
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation, box.Cancellation);
+        var token = linked.Token;
+
+        try
+        {
+            var counts = await ProbeAsync(box, folder.Folder, token).ConfigureAwait(true);
+            var count = Math.Clamp(Math.Max(folder.Rows, 1), 1, MailLimits.PerFolder);
+            var fetched = false;
+
+            if (asked || count > folder.Held || MailRefresh.NeedsFetch(folder.Known, counts, folder.LastFetch, DateTimeOffset.UtcNow))
+            {
+                (folder.Messages, folder.Cursor) = await FetchAsync(box, folder.Folder, count, folder.Messages, folder.Cursor, counts, token).ConfigureAwait(true);
+                folder.LastFetch = DateTimeOffset.UtcNow;
+                folder.Held = count;
+                box.Landed(started);
+                fetched = true;
+            }
+
+            var changed = fetched || folder.Known != counts;
+            folder.Known = counts;
+            folder.CurrentAt = DateTimeOffset.UtcNow;
+
+            if (changed)
+            {
+                box.Save();
+            }
+
+            return SyncRun.Ok;
+        }
+        catch (AccountException ex) when (ex.Error == AccountError.SignInRequired && box.Provider == HostProviders.Imap)
+        {
+            // An IMAP refusal happens on our socket, not in the account service's HTTP path,
+            // so the service has to be told for the account to say "sign in again".
+            _accounts.ReportImapLoginRefused(box.AccountId);
+            throw;
+        }
+    }
+
     // -----------------------------------------------------------------------------------------
     // One account
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>One folder of one account, as stored and as last synced.</summary>
-    private sealed class FolderSync(MailFolder folder)
+    /// <summary>One folder of one account, as stored and as last synced: an entry of the sync engine.</summary>
+    private sealed class FolderSync(Box box, MailFolder folder) : SyncEntry(KeyOf(box.AccountId, folder), MailRefresh.ProbeInterval)
     {
+        public static string KeyOf(string accountId, MailFolder folder) => $"{accountId}|{folder.Wire()}";
+
+        public Box Box { get; } = box;
+
         public MailFolder Folder { get; } = folder;
 
         public IReadOnlyList<MailMessage> Messages { get; set; } = [];
@@ -558,15 +634,9 @@ internal sealed class MailService : IMailSource, IDisposable
         public SyncCursor? Cursor { get; set; }
 
         /// <summary>How many the widgets want; never shrinks during a run.</summary>
-        public int Wanted { get; set; }
+        public int Rows { get; set; }
 
-        public SyncSchedule Schedule { get; } = new(MailRefresh.ProbeInterval);
-
-        /// <summary>Whether the user asked for this folder; the header's busy ring is only for that.</summary>
-        public bool Asked { get; set; }
-
-        /// <summary>A widget in some view reads it: only these are synced.</summary>
-        public bool Active { get; set; }
+        public override string Subject => $"{Box.AccountId}: {Folder.Wire()}";
     }
 
     /// <summary>One mail account: its folders, its queue, its shelf.</summary>
@@ -574,23 +644,23 @@ internal sealed class MailService : IMailSource, IDisposable
     {
         private readonly MailService _owner;
         private readonly Dictionary<MailFolder, FolderSync> _folders = [];
-        private readonly CancellationTokenSource _cancel = new();
+        private readonly CancellationTokenSource _cancel;
 
         /// <summary>Confirmed changes kept on top until a fetch that started after them lands ([S-2622]).</summary>
         private readonly List<(PendingWrite Write, long Confirmed)> _echo = [];
 
-        private readonly Dictionary<string, TaskCompletionSource<string?>> _waiting = new(StringComparer.Ordinal);
-        private List<PendingWrite> _pending = [];
         private long _clock;
-        private bool _writing;
         private string? _refused;
 
-        private Box(MailService owner, MailAccount account)
+        public Box(MailService owner, MailAccount account)
         {
             _owner = owner;
             AccountId = account.Id;
             Provider = account.Provider;
             Address = account.Address;
+            _cancel = CancellationTokenSource.CreateLinkedTokenSource(owner._engine.Cancellation);
+            Drain = new WriteDrain<bool>(Scope, account.Id, SendAsync, () => DateTimeOffset.UtcNow, () => MaySend, _cancel.Token);
+            Drain.Settled += OnSettled;
         }
 
         public string AccountId { get; }
@@ -602,215 +672,95 @@ internal sealed class MailService : IMailSource, IDisposable
         /// <summary>False while the account needs signing in: nothing is asked, what is stored stays.</summary>
         public bool Usable { get; set; } = true;
 
-        /// <summary>Queued changes, counted once the head has had to wait; a change on its way out says nothing.</summary>
-        public int PendingCount => _pending.Any(w => w.Attempts > 0) ? _pending.Count : 0;
+        /// <summary>[S-2693] The shelf is still being read: nothing is asked or sent, nothing saved over it.</summary>
+        public bool Loading { get; private set; } = true;
+
+        public bool MaySend => Usable && !Loading && !_cancel.IsCancellationRequested;
+
+        public CancellationToken Cancellation => _cancel.Token;
+
+        public WriteDrain<bool> Drain { get; }
 
         public string? Refused => _refused;
 
-        public static Box Load(MailService owner, MailAccount account)
+        public FolderSync Folder(MailFolder folder)
         {
-            var box = new Box(owner, account);
-            var read = owner._sync.Vault.Load(SyncKind.Mail, account.Id, SyncJsonContext.Default.MailShelf, MailShelf.Version);
-
-            if (read.Value is { } shelf)
+            if (!_folders.TryGetValue(folder, out var sync))
             {
-                var dropped = 0;
-                shelf = MailShelves.Validate(shelf, ref dropped);
-                if (dropped > 0)
-                {
-                    Log.Warn(Scope, $"{account.Id}: {dropped} unusable entries dropped from the stored mail");
-                }
-
-                var now = DateTimeOffset.UtcNow;
-                foreach (var stored in shelf.Folders)
-                {
-                    var folder = new FolderSync(stored.Folder)
-                    {
-                        Messages = [.. stored.Messages.Select(m => MailShelves.Restore(m, account.Id, account.Provider, stored.Folder))],
-                        Known = stored.Total is { } total && stored.Unread is { } unread ? new MailFolderStatus(total, unread) : null,
-                        LastFetch = stored.At,
-                        CurrentAt = stored.At,
-                        Held = stored.Count,
-                        Cursor = stored.Cursor,
-                    };
-
-                    folder.Schedule.Seed(stored.At, now);
-                    box._folders[stored.Folder] = folder;
-                }
-
-                box._pending = shelf.Pending;
-
-                // [S-3823] What is stored, for ⚙ › Accounts.
-                owner._sync.Report(account.Id, SyncStats.Of(shelf));
+                sync = new FolderSync(this, folder);
+                _folders[folder] = sync;
             }
 
-            return box;
+            return sync;
         }
 
-        /// <summary>
-        /// The folders widgets read now; a stored folder nobody reads stays stored but is not synced.
-        /// [S-3782] Each is probed at the shared accounts cadence.
-        /// </summary>
-        public void Want(Dictionary<MailFolder, int> folders, TimeSpan interval)
+        public long Tick() => ++_clock;
+
+        /// <summary>A fetch that started at <paramref name="started"/> landed: confirmed changes older than it are in it.</summary>
+        public void Landed(long started) => _echo.RemoveAll(e => e.Confirmed < started);
+
+        /// <summary>[S-2693] The account's shelf, read off the UI thread; what was asked meanwhile is kept.</summary>
+        public async Task LoadAsync()
         {
-            foreach (var sync in _folders.Values)
-            {
-                sync.Active = false;
-            }
-
-            foreach (var (folder, count) in folders)
-            {
-                if (!_folders.TryGetValue(folder, out var sync))
-                {
-                    sync = new FolderSync(folder);
-                    _folders[folder] = sync;
-                }
-
-                sync.Wanted = Math.Max(sync.Wanted, count);
-                sync.Active = true;
-                sync.Schedule.Interval = interval;
-            }
-        }
-
-        public bool Holds(MailFolder folder) => _folders.ContainsKey(folder);
-
-        public void Wake()
-        {
-            foreach (var folder in _folders.Values)
-            {
-                folder.Schedule.Wake();
-            }
-
-            _pending = WriteQueue.Wake(_pending);
-        }
-
-        /// <summary>Sync what is due; <paramref name="forced"/> is the folder the user refreshed, now.</summary>
-        public void Poll(MailFolder? forced, DateTimeOffset now)
-        {
-            if (!Usable)
-            {
-                return;
-            }
-
-            foreach (var folder in _folders.Values.Where(f => f.Active).ToArray())
-            {
-                if (forced == folder.Folder)
-                {
-                    folder.Schedule.Force(now);
-                    folder.Asked = true;
-                }
-
-                // More rows wanted than held is a reason to ask, whatever the schedule says.
-                var needsMore = folder.Wanted > folder.Held && folder.LastFetch is not null && !folder.Schedule.Busy
-                    && folder.Schedule.Status == FetchStatus.Ok;
-
-                if (folder.Schedule.IsDue(now) || needsMore)
-                {
-                    _ = RunAsync(folder, force: forced == folder.Folder || needsMore);
-                }
-            }
-
-            if (forced is not null)
-            {
-                _pending = WriteQueue.Wake(_pending);
-            }
-
-            _ = DrainAsync();
-        }
-
-        private async Task RunAsync(FolderSync folder, bool force)
-        {
-            folder.Schedule.Busy = true;
-            _owner.PublishAll();
-            var token = _cancel.Token;
-            var started = ++_clock;
-            var changed = false;
-            var fetched = false;
-
+            ShelfRead<MailShelf> read;
             try
             {
-                var counts = await _owner.ProbeAsync(this, folder.Folder, token).ConfigureAwait(true);
-                var now = DateTimeOffset.UtcNow;
-                var count = Math.Clamp(Math.Max(folder.Wanted, 1), 1, MailLimits.PerFolder);
-
-                if (force || count > folder.Held || MailRefresh.NeedsFetch(folder.Known, counts, folder.LastFetch, now))
-                {
-                    (folder.Messages, folder.Cursor) = await _owner.FetchAsync(this, folder.Folder, count, folder.Messages, folder.Cursor, counts, token).ConfigureAwait(true);
-                    folder.LastFetch = DateTimeOffset.UtcNow;
-                    folder.Held = count;
-                    _echo.RemoveAll(e => e.Confirmed < started);
-                    fetched = true;
-                }
-
-                changed = fetched || folder.Known != counts;
-                folder.Known = counts;
-                folder.CurrentAt = DateTimeOffset.UtcNow;
-                Record(folder, FetchStatus.Ok, null);
+                read = await _owner._sync.Vault.LoadAsync(SyncKind.Mail, AccountId, SyncJsonContext.Default.MailShelf, MailShelf.Version).ConfigureAwait(true);
             }
-            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                // ignore: the account left, or the service closed; nobody is waiting for it.
+                // The read never throws for bad data; anything here is a bug, and the account syncs from nothing.
+                Log.Error(Scope, "reading a mail shelf threw", ex);
+                read = new ShelfRead<MailShelf>(null, ShelfReadOutcome.Discarded, ex.Message);
+            }
+
+            if (_cancel.IsCancellationRequested)
+            {
                 return;
             }
-            catch (AccountException ex)
+
+            var queued = Drain.Pending.Count > 0;
+            if (read.Value is { } stored)
             {
-                if (ex.Error == AccountError.SignInRequired && Provider == HostProviders.Imap)
+                var dropped = 0;
+                var shelf = MailShelves.Validate(stored, ref dropped);
+                if (dropped > 0)
                 {
-                    // An IMAP refusal happens on our socket, not in the account service's HTTP path,
-                    // so the service has to be told for the account to say "sign in again".
-                    _owner._accounts.ReportImapLoginRefused(AccountId);
+                    Log.Warn(Scope, $"{AccountId}: {dropped} unusable entries dropped from the stored mail");
                 }
 
-                Record(folder, ex.ToFetchStatus(), ex.Message, ex.RetryAt);
-            }
-            catch (Exception ex) when (ex is HttpRequestException or IOException or InvalidOperationException or ObjectDisposedException)
-            {
-                // Should already be an AccountException; anything that slipped through is still one
-                // account's failure, never the desktop's.
-                Log.Error(Scope, $"unexpected failure reading {AccountId}", ex);
-                Record(folder, FetchStatus.BadResponse, ex.Message);
-            }
-            finally
-            {
-                folder.Schedule.Busy = false;
-                folder.Asked = false;
+                var now = DateTimeOffset.UtcNow;
+                foreach (var held in shelf.Folders)
+                {
+                    var folder = Folder(held.Folder);
+                    folder.Messages = [.. held.Messages.Select(m => MailShelves.Restore(m, AccountId, Provider, held.Folder))];
+                    folder.Known = held.Total is { } total && held.Unread is { } unread ? new MailFolderStatus(total, unread) : null;
+                    folder.LastFetch = held.At;
+                    folder.CurrentAt = held.At;
+                    folder.Held = held.Count;
+                    folder.Cursor = held.Cursor;
+                    folder.Schedule.Seed(held.At, now);
+                    if (folder.Asked)
+                    {
+                        // The user's Refresh came while the shelf was read: it still goes now.
+                        folder.Schedule.Force(now);
+                    }
+                }
+
+                Drain.Restore([.. shelf.Pending, .. Drain.Pending]);
+
+                // [S-3823] What is stored, for ⚙ › Accounts.
+                _owner._sync.Report(AccountId, SyncStats.Of(shelf));
             }
 
-            if (changed)
+            Loading = false;
+            if (queued)
             {
                 Save();
             }
 
+            _owner._engine.Poll();
             _owner.PublishAll();
-        }
-
-        private void Record(FolderSync folder, FetchStatus status, string? detail, DateTimeOffset? retryAt = null)
-        {
-            var now = DateTimeOffset.UtcNow;
-            var previous = folder.Schedule.Status;
-
-            if (status == FetchStatus.Ok)
-            {
-                folder.Schedule.Succeeded(now);
-            }
-            else
-            {
-                folder.Schedule.Failed(status, detail, now, retryAt);
-            }
-
-            if (previous == status)
-            {
-                return;
-            }
-
-            if (status == FetchStatus.Ok)
-            {
-                Log.Info(Scope, $"{AccountId}: reading {folder.Folder.Wire()}");
-            }
-            else
-            {
-                Log.Warn(Scope, $"{AccountId}: {FetchState.Message(status)} ({detail}); next try in {(folder.Schedule.NextAttempt - now).TotalMinutes:F0} min");
-            }
         }
 
         // ---- the queue ----------------------------------------------------------------------------
@@ -819,12 +769,11 @@ internal sealed class MailService : IMailSource, IDisposable
         {
             var write = new PendingWrite(Guid.NewGuid().ToString("n"), MailShelves.Kind(change), message.RawId, message.Folder.Wire(), null, null, DateTimeOffset.UtcNow);
 
-            if (WriteQueue.Add(_pending, write, headInFlight: _writing) is not { } next)
+            if (Drain.Add(write) is null)
             {
                 return Str.Sync_QueueFull.Text();
             }
 
-            _pending = next;
             _refused = null;
             Save();
             _owner.PublishAll();
@@ -832,103 +781,37 @@ internal sealed class MailService : IMailSource, IDisposable
             // A change queued behind others answers at once: it shows already, and its outcome
             // reaches the header. The head's first attempt answers the menu click: done or waiting
             // is fine, a refusal is said.
-            if (_pending[0].Id != write.Id || _writing)
-            {
-                _ = DrainAsync();
-                return null;
-            }
-
-            var answer = new TaskCompletionSource<string?>();
-            _waiting[write.Id] = answer;
-            _ = DrainAsync();
-            return await answer.Task.ConfigureAwait(true);
+            var sent = await Drain.SendNowAsync(write.Id).ConfigureAwait(true);
+            return sent is { Result: WriteResult.Refused } refused ? refused.Problem : null;
         }
 
-        private async Task DrainAsync()
+        private async Task<WriteSent<bool>> SendAsync(PendingWrite write, CancellationToken cancellation)
         {
-            if (_writing || !Usable)
-            {
-                return;
-            }
-
-            _writing = true;
-            try
-            {
-                while (WriteQueue.Ready(_pending, DateTimeOffset.UtcNow) is { } write && !_cancel.IsCancellationRequested)
-                {
-                    var (result, problem) = await SendAsync(write).ConfigureAwait(true);
-                    _pending = WriteQueue.Settle(_pending, write.Id, result, DateTimeOffset.UtcNow, problem);
-
-                    if (result == WriteResult.Done)
-                    {
-                        Commit(write);
-                    }
-                    else if (result == WriteResult.Refused)
-                    {
-                        _refused = problem ?? Str.WidgetsB_Email_ChangeFailed.Text();
-
-                        // Taken back: the next sync of that folder fetches the truth.
-                        if (MailNames.ParseFolder(write.Container) is { } folder && _folders.TryGetValue(folder, out var sync))
-                        {
-                            sync.Known = null;
-                            sync.Schedule.Force(DateTimeOffset.UtcNow);
-                        }
-                    }
-
-                    Save();
-                    _owner.PublishAll();
-
-                    if (_waiting.Remove(write.Id, out var answer))
-                    {
-                        answer.TrySetResult(result == WriteResult.Refused ? problem : null);
-                    }
-
-                    if (result == WriteResult.Retry)
-                    {
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                _writing = false;
-
-                // Anyone still waiting is behind a write that is waiting: their change is queued.
-                foreach (var answer in _waiting.Values)
-                {
-                    answer.TrySetResult(null);
-                }
-
-                _waiting.Clear();
-            }
-        }
-
-        private async Task<(WriteResult Result, string? Problem)> SendAsync(PendingWrite write)
-        {
-            var change = MailShelves.Change(write.Kind);
             var folder = MailNames.ParseFolder(write.Container) ?? MailFolder.Inbox;
+            await _owner.ApplyAsync(AccountId, Provider, write.Target, folder, MailShelves.Change(write.Kind), cancellation).ConfigureAwait(true);
+            return WriteSent<bool>.Done(true);
+        }
 
-            try
+        private void OnSettled(PendingWrite write, WriteSent<bool> sent)
+        {
+            if (sent.Result == WriteResult.Done)
             {
-                await _owner.ApplyAsync(AccountId, Provider, write.Target, folder, change, _cancel.Token).ConfigureAwait(true);
-                Log.Info(Scope, $"{change} done for a message in {AccountId}");
-                return (WriteResult.Done, null);
+                Commit(write);
             }
-            catch (OperationCanceledException) when (_cancel.IsCancellationRequested)
+            else if (sent.Result == WriteResult.Refused)
             {
-                return (WriteResult.Retry, null);
+                _refused = sent.Problem ?? Str.WidgetsB_Email_ChangeFailed.Text();
+
+                // Taken back: the next sync of that folder fetches the truth.
+                if (MailNames.ParseFolder(write.Container) is { } folder && _folders.TryGetValue(folder, out var sync))
+                {
+                    sync.Known = null;
+                    sync.Schedule.Force(DateTimeOffset.UtcNow);
+                }
             }
-            catch (AccountException ex)
-            {
-                var result = WriteQueue.Classify(ex.Error);
-                Log.Warn(Scope, $"could not {change} a message in {AccountId} ({(result == WriteResult.Retry ? "kept, will retry" : "refused")}): {ex.Message}");
-                return (result, ex.Message);
-            }
-            catch (Exception ex) when (ex is HttpRequestException or IOException or InvalidOperationException)
-            {
-                Log.Error(Scope, $"could not {change} a message in {AccountId}", ex);
-                return (WriteResult.Retry, ex.Message);
-            }
+
+            Save();
+            _owner.PublishAll();
         }
 
         /// <summary>A confirmed change becomes part of the stored list, and stays on top until a newer fetch has it.</summary>
@@ -953,7 +836,7 @@ internal sealed class MailService : IMailSource, IDisposable
             }
 
             var confirmed = MailShelves.Overlay(sync.Messages, [.. _echo.Select(e => e.Write)], folder);
-            return MailShelves.Overlay(confirmed, _pending, folder);
+            return MailShelves.Overlay(confirmed, [.. Drain.Pending], folder);
         }
 
         public MailAccountOutcome Outcome(MailFolder folder)
@@ -976,12 +859,13 @@ internal sealed class MailService : IMailSource, IDisposable
             return new MailAccountOutcome(AccountId, state, schedule.Status, schedule.Detail, sync.Known, at);
         }
 
+        /// <summary>Whether the user's own Refresh of this folder is out; the header's busy ring is only for that.</summary>
         public bool Busy(MailFolder folder) => _folders.TryGetValue(folder, out var sync) && sync.Schedule.Busy && sync.Asked;
 
-        private void Save()
+        public void Save()
         {
-            // An account signed out mid-sync must not be written back after its purge.
-            if (_owner._accounts.Find(AccountId) is null)
+            // An account signed out mid-sync must not be written back after its purge, nor a shelf still being read over.
+            if (Loading || _owner._accounts.Find(AccountId) is null)
             {
                 return;
             }
@@ -999,13 +883,14 @@ internal sealed class MailService : IMailSource, IDisposable
                     Messages = [.. f.Messages.Take(MailLimits.PerFolder).Select(MailShelves.Store)],
                     Cursor = f.Cursor,
                 })],
-                Pending = [.. _pending],
+                Pending = [.. Drain.Pending],
             };
 
             _owner._sync.Vault.SaveSoon(SyncKind.Mail, AccountId, shelf, SyncJsonContext.Default.MailShelf);
             _owner._sync.Report(AccountId, SyncStats.Of(shelf));
         }
 
+        /// <summary>The account left, or the service closed: what is in flight hears it, and its queue stops.</summary>
         public void Cancel()
         {
             try
@@ -1016,13 +901,6 @@ internal sealed class MailService : IMailSource, IDisposable
             {
                 // ignore: already torn down.
             }
-
-            foreach (var answer in _waiting.Values)
-            {
-                answer.TrySetResult(null);
-            }
-
-            _waiting.Clear();
         }
     }
 
@@ -1042,7 +920,7 @@ internal sealed class MailService : IMailSource, IDisposable
             var targets = MailScreens.Targets(service.Accounts, Query.AccountIds).Where(a => a.Problem is null).ToList();
             var boxes = targets.Select(a => service._boxes.GetValueOrDefault(a.Id)).OfType<Box>().ToList();
 
-            var pending = boxes.Sum(b => b.PendingCount);
+            var pending = boxes.Sum(b => b.Drain.Waiting);
             var note = boxes.Select(b => b.Refused).FirstOrDefault(r => r is not null)
                 ?? (pending > 0 ? Str.Sync_Pending.Plural(pending, ("count", pending)) : null);
 
@@ -1076,7 +954,7 @@ internal sealed class MailService : IMailSource, IDisposable
         {
             if (!_disposed)
             {
-                Feed.Owner.Poll(force: true, Feed);
+                Feed.Owner.Refresh(Feed);
             }
         }
 
