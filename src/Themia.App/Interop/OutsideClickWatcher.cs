@@ -17,33 +17,26 @@ namespace Themia.App.Interop;
 /// The hook is the one signal that sees every press: the desktop, the taskbar, another app, another
 /// display. It is kept cheap and harmless: installed only while a session is open (a press on a
 /// widget arms it, the first press outside disarms it), on a thread of its own whose only work is
-/// pumping messages — so a busy UI thread can never stall the system's mouse (the timeout trouble of
-/// the original's always-on hooks) — and the callback only reads the window under the pointer and
+/// pumping messages (<see cref="LowLevelHookThread"/>) — so a busy UI thread can never stall the system's mouse (the
+/// timeout trouble of the original's always-on hooks) — and the callback only reads the window under the pointer and
 /// queues one signal to the UI thread. The foreground event, on the same thread, covers leaving by
 /// keyboard (Alt+Tab, the Windows key).
 /// </para>
 /// </summary>
-internal sealed unsafe partial class OutsideClickWatcher : IDisposable
+internal sealed unsafe partial class OutsideClickWatcher : LowLevelHookThread
 {
     private const string Scope = "outside-click";
+    private const string Lost = "clicks outside go unheard";
 
     private const int WhMouseLl = 14;
-    private const uint WmQuit = 0x0012;
-    private const uint WmArm = 0x8001; // WM_APP + 1
-    private const uint WmDisarm = 0x8002;
-    private const uint PmNoRemove = 0x0000;
     private const uint GaRoot = 2;
     private const uint EventSystemForeground = 0x0003;
 
     /// <summary>The live watcher, for the static native callbacks. One per process.</summary>
     private static OutsideClickWatcher? _current;
 
-    private readonly DispatcherQueue _ui;
     private readonly Action _outside;
     private readonly uint _ownProcess = (uint)Environment.ProcessId;
-    private readonly Thread _thread;
-    private readonly ManualResetEventSlim _started = new();
-    private uint _threadId;
 
     /// <summary>1 while a signal is queued to the UI thread: a burst of presses is one signal.</summary>
     private int _queued;
@@ -51,109 +44,71 @@ internal sealed unsafe partial class OutsideClickWatcher : IDisposable
     /// <summary>The foreground window's class before the latest change (hook thread only).</summary>
     private string? _foregroundClass;
 
-    private bool _disposed;
+    /// <summary>Hook thread only: the mouse hook while armed.</summary>
+    private HookHandle? _mouse;
+
+    /// <summary>
+    /// Hook thread only: the foreground event's hook while armed. A raw handle on purpose: <c>UnhookWinEvent</c> must run
+    /// on the thread that set it, which a SafeHandle's finalizer cannot promise; <see cref="Stopped"/> removes it on every way out.
+    /// </summary>
+    private nint _foreground;
 
     /// <param name="ui">The UI thread, where <paramref name="outside"/> runs.</param>
     /// <param name="outside">A press outside, or another app took the foreground.</param>
     public OutsideClickWatcher(DispatcherQueue ui, Action outside)
+        : base(Scope, Lost, "Themia outside clicks", ui)
     {
-        _ui = ui;
         _outside = outside;
         _current = this;
-        _thread = new Thread(Run) { IsBackground = true, Name = "Themia outside clicks" };
-        _thread.Start();
-
-        // A handshake, not a guess: the thread signals as soon as it has a message queue to post to.
-        _started.Wait();
+        Start();
     }
 
-    /// <summary>Start listening (idempotent).</summary>
-    public void Arm() => _ = Post(WmArm);
-
-    /// <summary>Stop listening (idempotent): the hooks come off, nothing runs per mouse event.</summary>
-    public void Disarm() => _ = Post(WmDisarm);
-
-    public void Dispose()
+    protected override void Armed()
     {
-        if (_disposed)
+        _foregroundClass = ClassOf(Win32.GetForegroundWindow());
+        _mouse ??= HookHandle.Install(WhMouseLl, &OnMouseHook, Scope, "a click outside will not close menus");
+
+        if (_foreground == 0)
         {
-            return;
+            var proc = (nint)(delegate* unmanaged<nint, uint, nint, int, int, uint, uint, void>)&OnWinEvent;
+            _foreground = Win32.SetWinEventHook(
+                EventSystemForeground,
+                EventSystemForeground,
+                0,
+                proc,
+                0,
+                0,
+                Win32.WinEventOutOfContext | Win32.WinEventSkipOwnProcess);
+            if (_foreground == 0)
+            {
+                Log.Warn(Scope, "could not watch the foreground; switching apps by keyboard will not close menus");
+            }
         }
+    }
 
-        _disposed = true;
+    protected override void Disarmed() => Stopped();
 
-        // Joined only when the quit reached the thread: a thread that cannot be told to stop is left to
-        // die with the process (it is a background thread) rather than hanging the exit.
-        if (Post(WmQuit))
+    protected override void Stopped()
+    {
+        _mouse?.Dispose();
+        _mouse = null;
+
+        if (_foreground != 0)
         {
-            _thread.Join();
+            if (!Win32.UnhookWinEvent(_foreground))
+            {
+                Log.Warn(Scope, "could not remove the foreground hook");
+            }
+
+            _foreground = 0;
         }
+    }
 
-        _started.Dispose();
-
+    protected override void Disposed()
+    {
         if (ReferenceEquals(_current, this))
         {
             _current = null;
-        }
-    }
-
-    private bool Post(uint message)
-    {
-        if (_threadId != 0 && PostThreadMessage(_threadId, message, 0, 0))
-        {
-            return true;
-        }
-
-        Log.Warn(Scope, $"could not reach the watcher thread (win32 {Marshal.GetLastWin32Error()})");
-        return false;
-    }
-
-    /// <summary>The watcher thread: install and remove the hooks on request, pump until quit.</summary>
-    private void Run()
-    {
-        using var hooks = new Hooks();
-
-        try
-        {
-            // Any message call creates the thread's queue; PostThreadMessage needs it to exist.
-            PeekMessage(out _, 0, 0, 0, PmNoRemove);
-            _threadId = GetCurrentThreadId();
-            _started.Set();
-
-            while (true)
-            {
-                var got = GetMessage(out var msg, 0, 0, 0);
-                if (got == 0)
-                {
-                    break; // WM_QUIT
-                }
-
-                if (got < 0)
-                {
-                    Log.Error(Scope, $"GetMessage failed (win32 {Marshal.GetLastWin32Error()}); clicks outside go unheard");
-                    break;
-                }
-
-                switch (msg.Message)
-                {
-                    case WmArm:
-                        _foregroundClass = ClassOf(Win32.GetForegroundWindow());
-                        hooks.Install();
-                        break;
-                    case WmDisarm:
-                        hooks.Remove();
-                        break;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "the watcher thread threw; clicks outside go unheard", ex);
-        }
-        finally
-        {
-            // The constructor must never wait forever, whatever happened above.
-            _started.Set();
         }
     }
 
@@ -165,23 +120,15 @@ internal sealed unsafe partial class OutsideClickWatcher : IDisposable
             return;
         }
 
-        var queued = _ui.TryEnqueue(() =>
-        {
-            Volatile.Write(ref _queued, 0);
-            try
+        if (!Enqueue(
+            () =>
             {
+                Volatile.Write(ref _queued, 0);
                 _outside();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "handling a click outside threw", ex);
-            }
-        });
-
-        if (!queued)
+            },
+            "a click outside"))
         {
             Volatile.Write(ref _queued, 0);
-            Log.Warn(Scope, "could not queue a click outside to the UI thread");
         }
     }
 
@@ -241,7 +188,7 @@ internal sealed unsafe partial class OutsideClickWatcher : IDisposable
             Log.Error(Scope, "the mouse hook threw", ex);
         }
 
-        return CallNextHookEx(0, code, wParam, lParam);
+        return HookHandle.Next(code, wParam, lParam);
     }
 
     [UnmanagedCallersOnly]
@@ -260,71 +207,6 @@ internal sealed unsafe partial class OutsideClickWatcher : IDisposable
         }
     }
 
-    /// <summary>
-    /// The two hooks, owned by the watcher thread: both are removed on that thread (UnhookWinEvent must
-    /// run on the thread that installed it), on disarm and on every way out of the loop.
-    /// </summary>
-    private sealed class Hooks : IDisposable
-    {
-        private nint _mouse;
-        private nint _foreground;
-
-        public void Install()
-        {
-            if (_mouse == 0)
-            {
-                var proc = (nint)(delegate* unmanaged<int, nint, nint, nint>)&OnMouseHook;
-                _mouse = SetWindowsHookEx(WhMouseLl, proc, Win32.GetModuleHandle(null), 0);
-                if (_mouse == 0)
-                {
-                    Log.Warn(Scope, $"could not hook the mouse (win32 {Marshal.GetLastWin32Error()}); a click outside will not close menus");
-                }
-            }
-
-            if (_foreground == 0)
-            {
-                var proc = (nint)(delegate* unmanaged<nint, uint, nint, int, int, uint, uint, void>)&OnWinEvent;
-                _foreground = Win32.SetWinEventHook(
-                    EventSystemForeground,
-                    EventSystemForeground,
-                    0,
-                    proc,
-                    0,
-                    0,
-                    Win32.WinEventOutOfContext | Win32.WinEventSkipOwnProcess);
-                if (_foreground == 0)
-                {
-                    Log.Warn(Scope, "could not watch the foreground; switching apps by keyboard will not close menus");
-                }
-            }
-        }
-
-        public void Remove()
-        {
-            if (_mouse != 0)
-            {
-                if (!UnhookWindowsHookEx(_mouse))
-                {
-                    Log.Warn(Scope, $"could not unhook the mouse (win32 {Marshal.GetLastWin32Error()})");
-                }
-
-                _mouse = 0;
-            }
-
-            if (_foreground != 0)
-            {
-                if (!Win32.UnhookWinEvent(_foreground))
-                {
-                    Log.Warn(Scope, "could not remove the foreground hook");
-                }
-
-                _foreground = 0;
-            }
-        }
-
-        public void Dispose() => Remove();
-    }
-
     // ---- interop ----------------------------------------------------------------------------------
 
     [StructLayout(LayoutKind.Sequential)]
@@ -337,45 +219,9 @@ internal sealed unsafe partial class OutsideClickWatcher : IDisposable
         public nint ExtraInfo;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Msg
-    {
-        public nint Hwnd;
-        public uint Message;
-        public nint WParam;
-        public nint LParam;
-        public uint Time;
-        public Win32.Point Pt;
-        public uint Private;
-    }
-
-    [LibraryImport("user32.dll", EntryPoint = "SetWindowsHookExW", SetLastError = true)]
-    private static partial nint SetWindowsHookEx(int idHook, nint lpfn, nint hmod, uint dwThreadId);
-
-    [LibraryImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool UnhookWindowsHookEx(nint hhk);
-
-    [LibraryImport("user32.dll")]
-    private static partial nint CallNextHookEx(nint hhk, int nCode, nint wParam, nint lParam);
-
     [LibraryImport("user32.dll")]
     private static partial nint WindowFromPoint(Win32.Point point);
 
     [LibraryImport("user32.dll")]
     private static partial nint GetAncestor(nint hwnd, uint flags);
-
-    [LibraryImport("user32.dll", EntryPoint = "GetMessageW", SetLastError = true)]
-    private static partial int GetMessage(out Msg msg, nint hwnd, uint min, uint max);
-
-    [LibraryImport("user32.dll", EntryPoint = "PeekMessageW")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool PeekMessage(out Msg msg, nint hwnd, uint min, uint max, uint remove);
-
-    [LibraryImport("user32.dll", EntryPoint = "PostThreadMessageW", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool PostThreadMessage(uint threadId, uint msg, nint wParam, nint lParam);
-
-    [LibraryImport("kernel32.dll")]
-    private static partial uint GetCurrentThreadId();
 }
