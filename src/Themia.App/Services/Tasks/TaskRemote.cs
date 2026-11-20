@@ -115,30 +115,17 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         var kind = provider == HostProviders.Google ? CursorKind.GoogleUpdatedMin : CursorKind.GraphDelta;
         var scope = TaskShelves.CursorScope(listId, includeCompleted);
         var now = DateTimeOffset.UtcNow;
-        var check = held is null ? CursorCheck.Missing : SyncCursors.Check(cursor, kind, scope, now);
 
-        if (check == CursorCheck.Usable && held is not null && cursor is not null)
-        {
-            try
-            {
-                return provider == HostProviders.Google
-                    ? await GoogleChangesAsync(accountId, listId, includeCompleted, held, cursor, now, cancellation).ConfigureAwait(false)
-                    : await GraphRoundAsync(accountId, listId, includeCompleted, held, cursor, now, cancellation).ConfigureAwait(false);
-            }
-            catch (AccountException ex) when (DeltaRules.Rejected(ex.HttpStatus, ex.ProviderMessage))
-            {
-                // [S-2681] The provider no longer knows the cursor: the list in full, now.
-                Log.Info(Scope, $"{accountId}: list {listId} refused its change cursor (HTTP {ex.HttpStatus}); reading it in full");
-            }
-        }
-        else if (check is CursorCheck.Stale or CursorCheck.OtherScope)
-        {
-            Log.Debug(Scope, $"{accountId}: list {listId} read in full ({check})");
-        }
-
-        return provider == HostProviders.Google
-            ? await GoogleFullAsync(accountId, listId, includeCompleted, scope, now, cancellation).ConfigureAwait(false)
-            : await GraphRoundAsync(accountId, listId, includeCompleted, null, null, now, cancellation).ConfigureAwait(false);
+        return await DeltaSync.ChangesOrFullAsync<(IReadOnlyList<TaskItem>, SyncCursor?)>(
+            held is null || cursor is null ? CursorCheck.Missing : SyncCursors.Check(cursor, kind, scope, now),
+            async () => provider == HostProviders.Google
+                ? await GoogleChangesAsync(accountId, listId, includeCompleted, held!, cursor!, now, cancellation).ConfigureAwait(false)
+                : await GraphRoundAsync(accountId, listId, includeCompleted, held, cursor, now, cancellation).ConfigureAwait(false),
+            async () => provider == HostProviders.Google
+                ? await GoogleFullAsync(accountId, listId, includeCompleted, scope, now, cancellation).ConfigureAwait(false)
+                : await GraphRoundAsync(accountId, listId, includeCompleted, null, null, now, cancellation).ConfigureAwait(false),
+            Scope,
+            $"{accountId}: list {listId}").ConfigureAwait(false);
     }
 
     /// <summary>

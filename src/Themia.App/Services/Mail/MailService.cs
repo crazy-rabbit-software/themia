@@ -450,36 +450,24 @@ internal sealed class MailService : IMailSource, IDisposable
     {
         var scope = MailShelves.CursorScope(folder, count);
         var now = DateTimeOffset.UtcNow;
-        var check = SyncCursors.Check(cursor, CursorKind.GraphDelta, scope, now);
 
-        if (check == CursorCheck.Usable && cursor is not null)
-        {
-            try
+        return await DeltaSync.ChangesOrFullAsync<(IReadOnlyList<MailMessage>, SyncCursor?)>(
+            SyncCursors.Check(cursor, CursorKind.GraphDelta, scope, now),
+            async () =>
             {
-                var round = await GraphMailRoundAsync(box, folder, new Uri(cursor.Value), cancellation).ConfigureAwait(true);
+                var round = await GraphMailRoundAsync(box, folder, new Uri(cursor!.Value), cancellation).ConfigureAwait(true);
                 var (messages, refill) = DeltaMerge.Mail(held, round.Changed, round.Removed, count, DeltaMerge.ByReceived, counts.Total);
-                if (!refill)
-                {
-                    return (messages, round.Cursor is { } link ? SyncCursors.Advance(cursor, link, now) : null);
-                }
-
-                Log.Debug(Scope, $"{box.AccountId}: {folder.Wire()} is short after removals; reading it in full");
-            }
-            catch (AccountException ex) when (DeltaRules.Rejected(ex.HttpStatus, ex.ProviderMessage))
+                return new((messages, round.Cursor is { } link ? SyncCursors.Advance(cursor, link, now) : null), Short: refill);
+            },
+            async () =>
             {
-                Log.Info(Scope, $"{box.AccountId}: {folder.Wire()} refused its change cursor (HTTP {ex.HttpStatus}); reading it in full");
-            }
-        }
-        else if (check is CursorCheck.Stale or CursorCheck.OtherScope)
-        {
-            Log.Debug(Scope, $"{box.AccountId}: {folder.Wire()} read in full ({check})");
-        }
-
-        var newest = await GraphNewestAsync(box, folder, count, cancellation).ConfigureAwait(true);
-
-        var start = await GraphMailRoundAsync(box, folder, MailWire.GraphMessagesDelta(folder, DeltaMerge.MailFilter(newest, count)), cancellation).ConfigureAwait(true);
-        var (merged, _) = DeltaMerge.Mail(newest, start.Changed, start.Removed, count, DeltaMerge.ByReceived, counts.Total);
-        return (merged, start.Cursor is { } next ? SyncCursors.Start(CursorKind.GraphDelta, next, scope, now) : null);
+                var newest = await GraphNewestAsync(box, folder, count, cancellation).ConfigureAwait(true);
+                var start = await GraphMailRoundAsync(box, folder, MailWire.GraphMessagesDelta(folder, DeltaMerge.MailFilter(newest, count)), cancellation).ConfigureAwait(true);
+                var (merged, _) = DeltaMerge.Mail(newest, start.Changed, start.Removed, count, DeltaMerge.ByReceived, counts.Total);
+                return (merged, start.Cursor is { } next ? SyncCursors.Start(CursorKind.GraphDelta, next, scope, now) : null);
+            },
+            Scope,
+            $"{box.AccountId}: {folder.Wire()}").ConfigureAwait(true);
     }
 
     private async Task<(IReadOnlyList<MailMessage> Changed, IReadOnlyList<string> Removed, string? Cursor)> GraphMailRoundAsync(

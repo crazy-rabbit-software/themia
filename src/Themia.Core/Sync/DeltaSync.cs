@@ -445,3 +445,56 @@ public sealed class DeltaFallback(string logScope)
         return await plain().ConfigureAwait(true);
     }
 }
+
+/// <summary>What a round of changes since a cursor came to: the value, or too little to stand on (<see cref="Short"/>).</summary>
+/// <param name="Value">What the changes made of what was held.</param>
+/// <param name="Short">The changes left less than the owner shows (a removal took a message away the window no longer reaches): read in full.</param>
+public readonly record struct DeltaChanges<T>(T Value, bool Short = false)
+{
+    public static implicit operator DeltaChanges<T>(T value) => new(value);
+}
+
+/// <summary>
+/// [S-2681] [S-2682] [S-2689] "The changes since the cursor, else everything", written once for the mail folders, the
+/// calendar windows, the address books and the task lists: a usable cursor reads its changes; a cursor the provider
+/// refuses ([S-2681], <see cref="DeltaRules.Rejected"/>), a round too short to stand on, a stale or foreign one, or none
+/// reads in full. A failure that is not the cursor's is the caller's (it is the account's or the network's).
+/// </summary>
+public static class DeltaSync
+{
+    /// <param name="check">The stored cursor's check (<see cref="SyncCursors.Check"/>; Missing when nothing is held).</param>
+    /// <param name="changes">The round from the cursor; called only for a usable one.</param>
+    /// <param name="full">The read in full, which starts a new cursor.</param>
+    /// <param name="scope">The log's scope.</param>
+    /// <param name="what">What is read, for the log ("acct: list l1").</param>
+    public static async Task<T> ChangesOrFullAsync<T>(CursorCheck check, Func<Task<DeltaChanges<T>>> changes, Func<Task<T>> full, string scope, string what)
+    {
+        ArgumentNullException.ThrowIfNull(changes);
+        ArgumentNullException.ThrowIfNull(full);
+
+        if (check == CursorCheck.Usable)
+        {
+            try
+            {
+                var round = await changes();
+                if (!round.Short)
+                {
+                    return round.Value;
+                }
+
+                Log.Debug(scope, $"{what} is short after removals; reading it in full");
+            }
+            catch (AccountException ex) when (DeltaRules.Rejected(ex.HttpStatus, ex.ProviderMessage))
+            {
+                // [S-2681] Google's 410 "sync token is no longer valid", Graph's expired delta link, People's expired token.
+                Log.Info(scope, $"{what} refused its change cursor (HTTP {ex.HttpStatus}); reading it in full");
+            }
+        }
+        else if (check is CursorCheck.Stale or CursorCheck.OtherScope)
+        {
+            Log.Debug(scope, $"{what} read in full ({check})");
+        }
+
+        return await full();
+    }
+}

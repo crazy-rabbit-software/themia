@@ -74,36 +74,27 @@ internal sealed partial class AccountOfficeSource
         var account = Require(target.AccountId);
         var scope = WindowScope(from, to);
         var now = DateTimeOffset.UtcNow;
-        var check = held is null ? CursorCheck.Missing : SyncCursors.Check(held.Cursor, kind, scope, now);
 
-        if (check == CursorCheck.Usable && held?.Cursor is { } cursor)
-        {
-            try
+        return await DeltaSync.ChangesOrFullAsync(
+            held is null ? CursorCheck.Missing : SyncCursors.Check(held.Cursor, kind, scope, now),
+            async () =>
             {
+                var cursor = held!.Cursor!;
                 return kind switch
                 {
                     CursorKind.GraphDelta => await GraphWindowAsync(account, target, held, cursor, from, to, scope, now, ct).ConfigureAwait(true),
                     CursorKind.GoogleSyncToken => await GoogleWindowAsync(account, target, held, cursor, from, to, scope, now, ct).ConfigureAwait(true),
                     _ => await DavWindowChangesAsync(account, target, held, cursor, from, to, now, ct).ConfigureAwait(true),
                 };
-            }
-            catch (AccountException ex) when (DeltaRules.Rejected(ex.HttpStatus, ex.ProviderMessage))
+            },
+            async () => kind switch
             {
-                // [S-2681] Google's 410 "sync token is no longer valid", Graph's expired delta link.
-                Log.Info(Scope, $"{account.Id}: the calendar refused its change cursor (HTTP {ex.HttpStatus}); reading the window in full");
-            }
-        }
-        else if (check is CursorCheck.Stale or CursorCheck.OtherScope)
-        {
-            Log.Debug(Scope, $"{account.Id}: calendar window read in full ({check})");
-        }
-
-        return kind switch
-        {
-            CursorKind.GraphDelta => await GraphWindowAsync(account, target, held, null, from, to, scope, now, ct).ConfigureAwait(true),
-            CursorKind.GoogleSyncToken => await GoogleWindowAsync(account, target, held, null, from, to, scope, now, ct).ConfigureAwait(true),
-            _ => await DavWindowFullAsync(account, target, held, from, to, scope, now, ct).ConfigureAwait(true),
-        };
+                CursorKind.GraphDelta => await GraphWindowAsync(account, target, held, null, from, to, scope, now, ct).ConfigureAwait(true),
+                CursorKind.GoogleSyncToken => await GoogleWindowAsync(account, target, held, null, from, to, scope, now, ct).ConfigureAwait(true),
+                _ => await DavWindowFullAsync(account, target, held, from, to, scope, now, ct).ConfigureAwait(true),
+            },
+            Scope,
+            $"{account.Id}: the calendar window").ConfigureAwait(true);
     }
 
     /// <summary>A Graph calendar-view round: from the start of the window (in full) or from the delta link.</summary>
@@ -307,36 +298,24 @@ internal sealed partial class AccountOfficeSource
         }
 
         var now = DateTimeOffset.UtcNow;
-        var check = held is null ? CursorCheck.Missing : SyncCursors.Check(cursor, k, BookScope, now);
 
-        if (check == CursorCheck.Usable && held is not null && cursor is not null)
-        {
-            try
+        // [S-2681] Google People's tokens last seven days ("Sync token is expired").
+        return await DeltaSync.ChangesOrFullAsync(
+            held is null || cursor is null ? CursorCheck.Missing : SyncCursors.Check(cursor, k, BookScope, now),
+            async () => k switch
             {
-                return k switch
-                {
-                    CursorKind.GraphDelta => await GraphBookRoundAsync(account, held, cursor, new Uri(cursor.Value), now, ct).ConfigureAwait(true),
-                    CursorKind.GoogleSyncToken => await GoogleBookAsync(account, held, cursor, now, ct).ConfigureAwait(true),
-                    _ => await DavBookChangesAsync(account, held, cursor, now, ct).ConfigureAwait(true),
-                };
-            }
-            catch (AccountException ex) when (DeltaRules.Rejected(ex.HttpStatus, ex.ProviderMessage))
+                CursorKind.GraphDelta => await GraphBookRoundAsync(account, held!, cursor!, new Uri(cursor!.Value), now, ct).ConfigureAwait(true),
+                CursorKind.GoogleSyncToken => await GoogleBookAsync(account, held, cursor, now, ct).ConfigureAwait(true),
+                _ => await DavBookChangesAsync(account, held!, cursor!, now, ct).ConfigureAwait(true),
+            },
+            async () => k switch
             {
-                // [S-2681] Google People: "Sync token is expired" (tokens last seven days).
-                Log.Info(Scope, $"{account.Id}: the address book refused its change cursor (HTTP {ex.HttpStatus}); reading it in full");
-            }
-        }
-        else if (check is CursorCheck.Stale or CursorCheck.OtherScope)
-        {
-            Log.Debug(Scope, $"{account.Id}: address book read in full ({check})");
-        }
-
-        return k switch
-        {
-            CursorKind.GraphDelta => await GraphBookFullAsync(account, now, ct).ConfigureAwait(true),
-            CursorKind.GoogleSyncToken => await GoogleBookAsync(account, null, null, now, ct).ConfigureAwait(true),
-            _ => await DavBookFullAsync(account, now, ct).ConfigureAwait(true),
-        };
+                CursorKind.GraphDelta => await GraphBookFullAsync(account, now, ct).ConfigureAwait(true),
+                CursorKind.GoogleSyncToken => await GoogleBookAsync(account, null, null, now, ct).ConfigureAwait(true),
+                _ => await DavBookFullAsync(account, now, ct).ConfigureAwait(true),
+            },
+            Scope,
+            $"{account.Id}: the address book").ConfigureAwait(true);
     }
 
     private const string GraphContactFields = "id,displayName,emailAddresses,businessPhones,mobilePhone,homePhones,jobTitle,companyName";
