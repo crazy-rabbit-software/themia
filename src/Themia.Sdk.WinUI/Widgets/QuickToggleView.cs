@@ -198,7 +198,7 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         var look = _switch.Look(reading);
         var live = look is ToggleLook.On or ToggleLook.Off;
 
-        _tile.Show(Glyph(_toggle, on: look != ToggleLook.Off), QuickToggleRules.Name(locale, _toggle), QuickToggleRules.StateText(locale, look), QuickToggleRules.Tile(look));
+        _tile.Show(Glyph(_toggle, on: look != ToggleLook.Off), QuickToggleRules.Name(locale, _toggle), QuickToggleRules.StateLine(locale, look), QuickToggleRules.Tile(look));
         _tile.Face(!live ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
 
         var tooltip = QuickToggleRules.Tooltip(locale, _toggle, reading, look, _switch.Refused);

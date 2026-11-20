@@ -158,6 +158,19 @@ public class QuickToggleTests
         Assert.Equal(Themia.Sdk.Kit.TileState.Unavailable, QuickToggleRules.Tile(ToggleLook.Unavailable));
     }
 
+    [Fact]
+    public void S14202_a_reading_not_known_yet_says_the_default_on_its_state_line()
+    {
+        var en = Locale.En;
+        Assert.Equal("--", QuickToggleRules.StateLine(en, ToggleLook.Unknown));
+        Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.On), QuickToggleRules.StateLine(en, ToggleLook.On));
+        Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Off), QuickToggleRules.StateLine(en, ToggleLook.Off));
+        Assert.Equal(QuickToggleRules.StateText(en, ToggleLook.Unavailable), QuickToggleRules.StateLine(en, ToggleLook.Unavailable));
+
+        // The tooltip and the item status still say what is known: nothing, or the reason.
+        Assert.Equal(string.Empty, QuickToggleRules.StateText(en, ToggleLook.Unknown));
+    }
+
     // ---- decoders ------------------------------------------------------------------------------
 
     [Fact]
