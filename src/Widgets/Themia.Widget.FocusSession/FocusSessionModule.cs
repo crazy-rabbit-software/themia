@@ -32,7 +32,7 @@ public sealed class FocusSessionModule : IWidgetModule
         Label = FocusSessionStr.Panels_Focus_Label.Local(),
         Description = FocusSessionStr.Panels_Focus_Desc.Local(),
         Glyph = Glyph,
-        Sizing = c => FocusSessionLayout.Sizing((FocusSessionConfig)c, Strings.Current).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
+        Sizing = c => FocusSessionLayout.Sizing((FocusSessionConfig)c, Strings.Current).ScalesDownTo(FocusSessionLayout.Face((FocusSessionConfig)c)),
         Traits = WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 1),
     };

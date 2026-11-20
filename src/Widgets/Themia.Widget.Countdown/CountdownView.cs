@@ -66,7 +66,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         _name.Margin = new Thickness(0, 0, 0, FamilySpace.HeaderGap);
         // [S-12808] The name, the face, the flip cards and the bar: one block, planned at the natural box and scaled
         // up as one.
-        _fit.Parts.Add(_name);
+        _fit.AddGivesWay(_name, FamilyType.BodyStrong.FontSize);
         _fit.Parts.Add(_face);
         _fit.Parts.Add(_flipRow);
         _fit.Parts.Add(_bar);
@@ -120,6 +120,8 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     /// <summary>The target, its format or the room changed: cadence, layout and letters.</summary>
     private void Rebuild()
     {
+        // [S-12833] In a smaller card the date under the time (the cards' units) and the name give way before the time.
+        _fit.Face = CountdownLayout.Face(_config, Strings.Current);
         if (_detached)
         {
             return;
@@ -195,6 +197,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
         else if (_flips.Count > 0)
         {
             // [S-6005] What one style built is let go when another is chosen.
+            Forget();
             _flips.Clear();
             _flipRow.Children.Clear();
         }
@@ -205,6 +208,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
     {
         if (_flips.Count != cards.Count)
         {
+            Forget();
             _flips.Clear();
             _flipRow.Children.Clear();
             for (var i = 0; i < cards.Count; i++)
@@ -215,6 +219,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
                 unit.HorizontalAlignment = HorizontalAlignment.Center;
                 unit.TextTrimming = TextTrimming.CharacterEllipsis;
                 _flips.Add((card, unit));
+                _fit.GivesWay(unit, FamilyType.Under(_plan.Flip.Step).FontSize);
                 _flipRow.Children.Add(new StackPanel { Children = { card.Root, unit } });
             }
         }
@@ -227,7 +232,15 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetAligned
             Family.Step(_flips[i].Unit, under);
             _flips[i].Unit.Text = UnitText(cards[i].Unit);
             _flips[i].Unit.MaxWidth = _plan.Flip.CardWidth;
-            _flips[i].Unit.Visibility = Visibility.Visible;
+        }
+    }
+
+    /// <summary>[S-12833] The cards' units the fit hides where they give way: let go with their cards.</summary>
+    private void Forget()
+    {
+        foreach (var (_, unit) in _flips)
+        {
+            _fit.Forget(unit);
         }
     }
 

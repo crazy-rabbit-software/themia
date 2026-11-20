@@ -66,7 +66,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
         foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow })
         {
             row.HorizontalAlignment = HorizontalAlignment.Center;
-            _fit.Parts.Add(row);
+            _fit.AddGivesWay(row, ControlsRules.GivesWayAt);
         }
 
         Children.Add(_fit);
@@ -185,6 +185,8 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <summary>[S-11301] The face at the alarm's Size: the time's step, whatever the box.</summary>
     private void Lay()
     {
+        // [S-12833] In a smaller card its line under, its meridiem and its row of controls give way before its time.
+        _fit.Face = AlarmFace.Face(_config, Strings.Current);
         if (_detached)
         {
             return;

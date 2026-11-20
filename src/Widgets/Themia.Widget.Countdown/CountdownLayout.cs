@@ -161,6 +161,44 @@ public static class CountdownLayout
         return TimerFace.Sizing(new TimerSized(plan.Step, plan.Ring, plan.Width, plan.Height), controls: 0, header: false, extra: extra);
     }
 
+    /// <summary>
+    /// [S-12833] The countdown's parts (<see cref="FaceParts"/>): its time left the main reading, at 9 in its least card;
+    /// the date under it (the cards' units), the event's name over it give way on the way down; the ring and the cards
+    /// scale with it, the bar under it stays.
+    /// </summary>
+    public static FaceParts Face(CountdownConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var plan = Plan(config, locale);
+        var step = plan.Step;
+        var under = FamilyType.Under(step);
+        FaceRow face = plan.Look switch
+        {
+            CountdownLook.Ring => new FaceRow([FacePiece.Box(plan.Ring, plan.Ring), new FacePiece(0, 0, under.FontSize)]),
+            CountdownLook.Flip => new FaceRow([FacePiece.Box(plan.Width, step.LineHeight)]),
+            _ => new FaceRow([FacePiece.Text(step, plan.Width)]),
+        };
+        var rows = new List<FaceRow>(4);
+        if (Named(config))
+        {
+            rows.Add(new FaceRow([FacePiece.Text(FamilyType.BodyStrong, plan.Width, FamilyType.BodyStrong.FontSize)]));
+            face = face with { GapOver = FamilySpace.HeaderGap };
+        }
+
+        rows.Add(face);
+        if (plan.Look != CountdownLook.Ring)
+        {
+            rows.Add(new FaceRow([FacePiece.Text(under, plan.Width, under.FontSize)]));
+        }
+
+        if (config.DrawsProgress)
+        {
+            rows.Add(new FaceRow([FacePiece.Box(0, FamilyShape.Track)], GapOver: FamilySpace.S2));
+        }
+
+        return new FaceParts(step.FontSize, rows);
+    }
+
     /// <summary>[S-12481] The event's name over the face: its one line and the 4 under it (what the card's header cost before).</summary>
     public const double NameCost = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
 

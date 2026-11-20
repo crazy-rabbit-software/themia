@@ -25,6 +25,9 @@ public static class FocusSessionLayout
     /// <summary>[S-11305] The face, in its ring where Ring is on.</summary>
     public static TimerSized Sized(FocusSessionConfig config) => TimerFace.Sized(Worst(config), ring: config.Ring);
 
+    /// <summary>[S-12833] The focus widget's parts: its time the main reading, its line under and Controls row giving way.</summary>
+    public static FaceParts Face(FocusSessionConfig config) => TimerFace.Face(Sized(config), Worst(config), controls: true);
+
     /// <summary>
     /// [S-11305] The focus widget's sizing ([S-2438]): its face over the Controls row, as wide as the
     /// wider of the idle row (Start worded, − and +) and the running one (End session worded); one height,

@@ -62,6 +62,10 @@ public static class AlarmFace
         return TimerFace.Sized(Worst(Unit(locale)));
     }
 
+    /// <summary>[S-12833] The alarm's parts: its time the main reading, its meridiem, line under and Controls row giving way.</summary>
+    public static FaceParts Face(AlarmConfig config, Locale locale)
+        => TimerFace.Face(Sized(config, locale), Worst(Unit(locale)), controls: true);
+
     /// <summary>
     /// [S-11301] The alarm's sizing ([S-2438]): its face over the Controls row, which holds the switch, or Dismiss
     /// and Snooze (worded) while it rings; in the inset, the width up to half again wider, scaling down as one to its

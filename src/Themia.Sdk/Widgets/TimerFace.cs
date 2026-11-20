@@ -103,6 +103,28 @@ public static class TimerFace
     public static string Longest(params string[] labels) => labels.OrderByDescending(l => l?.Length ?? 0).FirstOrDefault() ?? string.Empty;
 
     /// <summary>
+    /// [S-12833] A timer's parts (<see cref="FaceParts"/>): its reading the main one, at 9 in its least card; its unit and
+    /// line under give way on the way down, then its Controls row (the card's menu keeps every command); a ring scales with
+    /// the reading in its hole.
+    /// </summary>
+    public static FaceParts Face(TimerSized face, ReadoutText worst, bool controls)
+    {
+        var step = face.Step;
+        var parts = face.Ring > 0
+            ? new FaceParts(step.FontSize,
+            [
+                new FaceRow(
+                [
+                    FacePiece.Box(face.Ring, face.Ring),
+                    new FacePiece(0, 0, string.IsNullOrEmpty(worst.Unit) ? 0 : FamilyType.Unit(step).FontSize),
+                    new FacePiece(0, 0, worst.LineUnder ? FamilyType.Under(step).FontSize : 0),
+                ]),
+            ])
+            : FaceParts.Readout(step, worst, face.Width);
+        return controls ? parts.Then(ControlsRules.Row(0)) : parts;
+    }
+
+    /// <summary>
     /// [S-11300] A timer's card from its face: the inset all round (the header's content top over it where
     /// the kind starts with one), the face and <paramref name="extra"/> under it (a progress bar), the
     /// Controls row and its 8 where it has one, <paramref name="below"/> under that (a stopwatch's laps),

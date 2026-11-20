@@ -75,7 +75,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
         _fit.Parts.Add(_dial);
         foreach (var row in new[] { _idleRow, _runningRow })
         {
-            _fit.Parts.Add(row);
+            _fit.AddGivesWay(row, ControlsRules.GivesWayAt);
         }
 
         Children.Add(_fit);
@@ -128,6 +128,8 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSurfa
     /// <summary>[S-11305] The face at the widget's Size: the time's step, in its ring where Ring is on.</summary>
     private void Lay()
     {
+        // [S-12833] In a smaller card its line under and its row of controls give way before its time.
+        _fit.Face = FocusSessionLayout.Face(_config);
         if (_detached)
         {
             return;
