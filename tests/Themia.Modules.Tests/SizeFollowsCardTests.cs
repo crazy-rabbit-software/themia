@@ -24,7 +24,7 @@ public sealed class SizeFollowsCardTests
     /// The kinds whose menus read a list only the running host installs (as <c>SettingOwnershipTests</c>): built with
     /// stand-ins by their own menu tests.
     /// </summary>
-    private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory"];
+    private static readonly string[] NeedsTheHost = ["brightness", "desktopItem", "disk", "diskHistory", "drive", "driveCapacity", "driveFileSystem", "driveFree", "driveType", "driveUsed", "gpu", "gpuClock", "gpuDedicatedMemory", "gpuEngines", "gpuFan", "gpuHistory", "gpuLoad", "gpuMemoryClock", "gpuSharedMemory", "gpuTemperature"];
 
     /// <summary>The words of the size lines that are gone (the kit's Size and its Small, Medium, Large), in English.</summary>
     private static readonly string[] SizeWords = ["Size", "Cell size"];
