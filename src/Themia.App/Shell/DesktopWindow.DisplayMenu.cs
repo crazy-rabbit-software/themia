@@ -36,7 +36,18 @@ internal sealed partial class DesktopWindow
 
         public IReadOnlyList<MenuDisplay> Displays => [.. Host.Displays.Select(d => new MenuDisplay(d.Id, d.ShortName, d.Describe(), d.Info))];
 
-        public void Mutate(Action<AppState> change, bool relayout = true) => Host.Mutate(change, relayout);
+        /// <summary>
+        /// [S-3531] A change made on the page; one the cards are not laid out again for (Lock widgets, a format, a cadence)
+        /// still shows on it: the surface draws the open page again only after a change that relays it out.
+        /// </summary>
+        public void Mutate(Action<AppState> change, bool relayout = true)
+        {
+            Host.Mutate(change, relayout);
+            if (!relayout)
+            {
+                surface.SyncBarMenu();
+            }
+        }
 
         public void SetScale(string displayId, double scale) => Host.SetDisplayScale(displayId, scale);
 

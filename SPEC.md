@@ -2943,7 +2943,10 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   display's) is written into its rows in place, so the open level, a slider and the focus stay
   where they are; what Windows reports (start with Windows, the desktop icons, game mode holding the
   widgets) updates it the same way. A language switch writes its words in the new language and keeps
-  what is open open: the lines' keys do not change.
+  what is open open: the lines' keys do not change. A change of its own that lays no card out again (Lock widgets, a
+  format, an update interval, a view's colour, the view a new display shows) is written into its rows too: the pages'
+  hosts draw the open page again after it (until 2026-11-20 General's Lock widgets switch stood as it was after a click,
+  seen by `--ui-bench`: no drawing).
 - **[S-3532]** *(Retired 2026-11-15, the owner: "dont show quit themia"; Karpo's Quit Karpo goes too.)* No page
   has a line that quits and the pages' host has no Quit (`SettingsMenuTests.S3532_`): Themia ends with Windows'
   sign-out or shutdown, or as Uninstall closes it ([S-3582]).

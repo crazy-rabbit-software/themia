@@ -27,7 +27,18 @@ internal sealed partial class DesktopWindow
 
         public void Show(string viewId) => Host.ShowView(DisplayId, viewId);
 
-        public void Mutate(Action<AppState> change, bool relayout = true) => Host.Mutate(change, relayout);
+        /// <summary>
+        /// [S-3531] A change made on the page; one the cards are not laid out again for (Lock widgets, a format, a cadence)
+        /// still shows on it: the surface draws the open page again only after a change that relays it out.
+        /// </summary>
+        public void Mutate(Action<AppState> change, bool relayout = true)
+        {
+            Host.Mutate(change, relayout);
+            if (!relayout)
+            {
+                surface.SyncBarMenu();
+            }
+        }
 
         public void Add() => _ = Host.AddView(DisplayId);
 
