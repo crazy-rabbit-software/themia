@@ -5809,8 +5809,9 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   `Themia.exe --widget-batch <jobs.json> [--theme light|dark] [--timeout s]` draws a list of jobs
   (`{"jobs": [{"id", "args"}]}`, a job's args what follows `--widget-png` on its own command line) one after another
   through the same render (`WidgetRender.Render`), so WinUI starts once for them all: the same layout dump as each
-  render's own process and the same pixels but the antialiasing of a few card-corner rim pixels and a unit of some
-  glyph edges, which differ from one batch run to the next as well (`scripts/pngdiff.py`). What a process takes whole
+  render's own process, byte for byte, and the same pixels but the antialiasing of a card's rounded corners (a few rim
+  pixels inside the band the gap check leaves out) and a few levels of some seams, which differ from one batch run to
+  the next as well; the checks' findings are the same (`scripts/pngdiff.py`, 15 kinds). What a process takes whole
   (the theme, `--lang`, `--icon-census`) is the batch's command line; a job naming one fails. Each job reports on
   stdout (`batch: start <id>`, its render's lines, `batch: done <id> ok|failed`); a job still drawing at the timeout
   ends the process (`batch: timeout <id>`, exit 3), and the caller goes on in a new process from the next job, as it
