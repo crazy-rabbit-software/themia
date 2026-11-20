@@ -22,7 +22,8 @@ namespace Themia.App.Shell;
 /// grid where the desktop's would, in its middle (their frost is the display's own blurred wallpaper, [S-2114]), and
 /// touching ones join as on the desktop ([S-2240]); the stretch is scaled to the page's width, its height following.
 /// Built once while the page stands; each change of the state paints the cards again (<see cref="Refresh"/>), and
-/// only a design replaced whole (an undo, an import) builds them again.
+/// only a design replaced whole (an undo, an import) builds them again. [S-2364] On the desktop it is kept from one
+/// opening of the page to the next while edit mode lasts (<see cref="Kept"/>), its cards not ticking while it is not shown.
 /// </summary>
 internal sealed partial class AppearancePreview : Grid, IPagePreview
 {
@@ -64,6 +65,18 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
 
         SizeChanged += (_, _) => Fit();
         Build();
+    }
+
+    /// <summary>[S-2364] The display's size it was built for: a preview kept for another is built again.</summary>
+    internal ScreenMetrics Metrics => _metrics;
+
+    /// <summary>[S-2364] Shown on a page, or put away until the next: its cards tick only while shown.</summary>
+    internal void Shown(bool shown)
+    {
+        if (!_disposed)
+        {
+            _ticker.SetPaused(!shown);
+        }
     }
 
     public void Refresh()
@@ -237,6 +250,33 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
         }
 
         _cards.Clear();
+    }
+
+    /// <summary>
+    /// [S-2364] A kept preview on one page: shown while the page stands, put away (not disposed) when the page goes, so the
+    /// next opening shows the same cards instead of building them again. Its owner disposes the preview.
+    /// </summary>
+    internal sealed partial class Kept : ContentControl, IPagePreview
+    {
+        private readonly AppearancePreview _preview;
+
+        public Kept(AppearancePreview preview)
+        {
+            _preview = preview ?? throw new ArgumentNullException(nameof(preview));
+            IsTabStop = false;
+            HorizontalContentAlignment = HorizontalAlignment.Stretch;
+            VerticalContentAlignment = VerticalAlignment.Stretch;
+            Content = preview;
+            preview.Shown(true);
+        }
+
+        public void Refresh() => _preview.Refresh();
+
+        public void Dispose()
+        {
+            Content = null;
+            _preview.Shown(false);
+        }
     }
 
     /// <summary>The preview's cards' host: the display's screen and its blurred wallpaper, nothing persisted.</summary>

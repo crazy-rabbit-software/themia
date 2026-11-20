@@ -2068,8 +2068,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   stands in the display's middle on its grid lines, placed as the desktop places cards so their frost is the
   desktop's, and the cards join by the desktop's own path. The card draws them in the design as it stands: each
   change of the state paints and joins them again; only a design replaced whole builds them again. It sets nothing
-  and reads nothing live: the samples, the sample PC's readings and the preview's one ticker. Built once while the
-  page stands, its ticker and sample world gone with the page. Tests `AppearanceBentoTests.S2311_`,
+  and reads nothing live: the samples, the sample PC's readings and the preview's one ticker. Built once and kept from
+  one opening of the page to the next while edit mode lasts, its ticker paused while the page is shut, its ticker and
+  sample world gone as edit mode ends ([S-2364]). Tests `AppearanceBentoTests.S2311_`,
   `AppearanceBentoKindsTests.S2311_`.
 - **[S-2312]** **Accounts** (Karpo's Accounts page, `Karpo.Core/OptionAccountRows.cs` `Page`): under **Your accounts**
   every account a card (its provider's icon, or the warning while it needs signing in again; its name; its address
@@ -2469,6 +2470,11 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   change: a third of the change's cost), and the edit bar measures each line of its words once for its size (it measured
   nine on every change and selection). Every card's own config is still applied again on every change (a widget's
   menu lines write its config in place, so a change cannot be told from none: the largest part left).
+- **[S-2364]** **The Appearance page opens on the preview it showed last**: its preview ([S-2311]) is kept by the
+  display from one opening of the page to the next while edit mode lasts (`AppearancePreview.Kept` on each page: shut,
+  the page puts it away, its ticker paused, instead of disposing it); built again for another display size or language,
+  and let go as edit mode ends and with the display. Its cards were built on every opening: about half of what opening
+  the page cost.
 - **[S-2344]** **A selected widget under its page is seen through it** (owner, 2026-11-15: "it should shine
   through the edit flyout ... it is just to see it visually"): where the selection's page covers a selected
   widget's card (as drawn now, so it follows a setting that changes the widget and a new selection), the

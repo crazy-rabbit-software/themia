@@ -53,9 +53,48 @@ internal sealed partial class DesktopWindow
 
             // [S-13700] Its list: this display's view's unplaced desktop icons.
             SettingsPageId.DesktopItems => () => PageRows.Of(SettingsPages.DesktopItems(), UnplacedPart),
-            // [S-2311] Its preview: this display's wallpaper and real cards in the design as it stands.
-            _ => () => PageRows.Of(SettingsPages.Appearance(settings), () => new AppearancePreview(Backdrop, Metrics, () => _host.State.Design)),
+            // [S-2311] Its preview: this display's wallpaper and real cards in the design as it stands; [S-2364] kept.
+            _ => () => PageRows.Of(SettingsPages.Appearance(settings), KeptPreview),
         };
+    }
+
+    /// <summary>
+    /// [S-2364] The Appearance page's preview, kept from one opening of the page to the next while edit mode lasts: its
+    /// cards were built on every opening (half of what opening the page cost). Built again for another display size or
+    /// language; let go as edit mode ends and with the surface.
+    /// </summary>
+    private AppearancePreview? _keptPreview;
+
+    /// <summary>[S-2364] The language the kept preview's cards speak.</summary>
+    private Core.Localization.Locale? _keptPreviewLocale;
+
+    /// <summary>[S-2364] The page the kept preview stands on now.</summary>
+    private AppearancePreview.Kept? _keptPreviewShown;
+
+    /// <summary>[S-2364] The kept preview for a page that opens, built where there is none for this display's size and language.</summary>
+    private AppearancePreview.Kept KeptPreview()
+    {
+        var metrics = Metrics;
+        if (_keptPreview is { } kept && (kept.Metrics.Width != metrics.Width || kept.Metrics.Height != metrics.Height || _keptPreviewLocale != Core.Localization.Strings.Current))
+        {
+            DropKeptPreview();
+        }
+
+        // A page before this one still holding it lets go first.
+        _keptPreviewShown?.Dispose();
+        _keptPreview ??= new AppearancePreview(Backdrop, metrics, () => _host.State.Design);
+        _keptPreviewLocale = Core.Localization.Strings.Current;
+        _keptPreviewShown = new AppearancePreview.Kept(_keptPreview);
+        return _keptPreviewShown;
+    }
+
+    /// <summary>[S-2364] The kept preview goes, its cards and samples with it.</summary>
+    private void DropKeptPreview()
+    {
+        _keptPreviewShown?.Dispose();
+        _keptPreviewShown = null;
+        _keptPreview?.Dispose();
+        _keptPreview = null;
     }
 
     /// <summary>[S-2351] An "are you sure?" asked after a step of its own, in place in the card of the open flyout's row keyed <paramref name="at"/>.</summary>
@@ -200,6 +239,7 @@ internal sealed partial class DesktopWindow
     private void ReleaseEditMenus()
     {
         CloseFlyout(focusEntry: false);
+        DropKeptPreview();
         _selectionShown = null;
         _toolbar.Release();
     }
