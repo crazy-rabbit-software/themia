@@ -63,6 +63,12 @@ public sealed partial class MeterView
             Build(look);
         }
 
+        // [S-12833] The Number look's parts: in a smaller card its glyph and unit give way before its figures.
+        if (_fit is not null)
+        {
+            _fit.Face = MeterSizing.Face(Worst);
+        }
+
         WatchItems();
     }
 

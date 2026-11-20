@@ -140,12 +140,18 @@ public static class MeterSizing
                 var w = Widths(reading);
                 var h = top + Line + foot;
 
-                // [S-12833] The reading alone scales down as one until its unit is at the legibility floor.
+                // [S-12833] The reading alone scales down as one to its figures at the floor, its glyph and unit giving way.
                 var alone = WidgetSizing.Range(new(w.Min, h), new(w.Natural, h), new(Math.Max(w.Max, NumbersMaxWidth), h));
-                return look == MeterLook.Number ? alone.ScalesDown(ScaleFloor.Least(FamilyType.Unit(FamilyType.Big28).FontSize, FamilyShape.Icon)) : alone;
+                return look == MeterLook.Number ? alone.ScalesDownTo(Face(worst)) : alone;
             }
         }
     }
+
+    /// <summary>
+    /// [S-12833] The Number look's parts (<see cref="FaceParts"/>): the figures its main reading, at 9 in its least card;
+    /// its kind's glyph and its unit give way on the way down.
+    /// </summary>
+    public static FaceParts Face(ReadoutText worst) => FaceParts.Readout(FamilyType.Big28, Identified(MeterLook.Number, worst));
 
     /// <summary>
     /// [S-12801] Whether a reading in <paramref name="look"/> leads with a glyph: its kind's (what it measures, so a bare

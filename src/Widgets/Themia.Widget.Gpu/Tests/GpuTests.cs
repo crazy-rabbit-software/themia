@@ -54,7 +54,7 @@ public sealed class GpuTests
     {
         var kind = ModuleCatalog.Of(new WidgetId("gpu"));
         Assert.Equal(60, kind.Sizing(new GpuConfig()).Natural.Height);
-        Assert.Equal((Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(60d * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Unit(Themia.Sdk.Kit.FamilyType.Big28).FontSize, Themia.Sdk.Kit.FamilyShape.Icon))), Themia.Sdk.SizeStretch.Ceiling), (kind.Sizing(new GpuConfig()).Min.Height, kind.Sizing(new GpuConfig()).Max.Height)); // [S-12833] scales down; relaxed, [S-12411]
+        Assert.Equal((32d, Themia.Sdk.SizeStretch.Ceiling), (kind.Sizing(new GpuConfig()).Min.Height, kind.Sizing(new GpuConfig()).Max.Height)); // [S-12833] scales down to its figures at 9; relaxed, [S-12411]
         Assert.Empty(kind.Sizing(new GpuConfig { Style = GpuStyle.Gauge }).Problems());
     }
 }

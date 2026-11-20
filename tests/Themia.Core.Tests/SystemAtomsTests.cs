@@ -51,7 +51,8 @@ public sealed class SystemAtomsTests
         {
             var sizing = MeterSizing.Reading(look, worst, rows: 2);
             Assert.Empty(sizing.Problems());
-            Assert.True(sizing.Min.Width >= MeterSizing.ReadingMinWidth);
+            // [S-12833] The Number look's least is its figures alone at 9 in the inset.
+            Assert.True(look == MeterLook.Number ? sizing.Min.Width == Math.Min(MeterSizing.ReadingMinWidth, Math.Ceiling(MeterSizing.Face(worst).LeastBox().Width + 24)) : sizing.Min.Width >= MeterSizing.ReadingMinWidth);
             // [S-12833] The reading alone holds at its natural width and draws scaled down under it.
             var held = look == MeterLook.Number ? sizing.Natural.Width : sizing.Min.Width;
             Assert.True(held >= MeterSizing.ReadingWidth(MeterSizing.Identified(look, worst)) + 24, $"{look}: the reading is cut at its least");
@@ -64,12 +65,13 @@ public sealed class SystemAtomsTests
     {
         var one = MeterSizing.Reading(MeterLook.Number, Percent);
 
-        // [S-12833] The reading alone is 60 tall at its natural size and scales down as one to its unit's floor.
-        var k = ScaleFloor.Least(FamilyType.Unit(FamilyType.Big28).FontSize, FamilyShape.Icon);
-        double Least(double natural) => Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(natural * k));
-        Assert.Equal((Least(60), 60), (one.Min.Height, one.Max.Height));
+        // [S-12833] The reading alone is 60 tall at its natural size and scales down as one to its figures at 9, its glyph
+        // and its unit giving way: "100" at 9 in the inset, 40 x 32.
+        var face = MeterSizing.Face(Percent).LeastBox();
+        Assert.Equal((Math.Max(WidgetSizing.LeastScaled, Math.Ceiling(face.Height + 24)), 60), (one.Min.Height, one.Max.Height));
+        Assert.Equal(32, one.Min.Height);
         var least = Math.Max(120, Math.Ceiling((MeterSizing.ReadingWidth(Percent with { Lead = true }) + 24) / 4) * 4);
-        Assert.Equal((Math.Min(least, Least(160)), 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
+        Assert.Equal((Math.Min(least, Math.Ceiling(face.Width + 24)), 160, 480), (one.Min.Width, one.Natural.Width, one.Max.Width));
 
         Assert.Equal(12 + 44 + 56 + 12, MeterSizing.Reading(MeterLook.Rows, Percent, rows: 2).Natural.Height);
     }

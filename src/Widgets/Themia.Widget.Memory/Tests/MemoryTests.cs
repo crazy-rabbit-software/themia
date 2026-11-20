@@ -18,8 +18,8 @@ public sealed class MemoryTests
     public void S1130_the_number_and_the_bar_are_one_height_and_the_bar_needs_240()
     {
         var number = Kind.Sizing(new MemoryConfig());
-        // [S-12833] The reading alone scales down as one to its unit's floor.
-        Assert.Equal((Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(60d * Themia.Core.Widgets.ScaleFloor.Least(Themia.Sdk.Kit.FamilyType.Unit(Themia.Sdk.Kit.FamilyType.Big28).FontSize, Themia.Sdk.Kit.FamilyShape.Icon))), 60d, Themia.Sdk.SizeStretch.Ceiling), (number.Min.Height, number.Natural.Height, number.Max.Height)); // relaxed, [S-12411]: no practical Max
+        // [S-12833] The reading alone scales down as one to its figures at 9, its glyph and unit giving way.
+        Assert.Equal((32d, 60d, Themia.Sdk.SizeStretch.Ceiling), (number.Min.Height, number.Natural.Height, number.Max.Height)); // relaxed, [S-12411]: no practical Max
 
         var bar = Kind.Sizing(new MemoryConfig { Style = MemoryStyle.Bar });
         Assert.Equal((240, 12 + 36 + 8 + 28 + 12), (bar.Min.Width, bar.Natural.Height));
