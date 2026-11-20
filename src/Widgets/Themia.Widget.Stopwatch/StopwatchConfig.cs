@@ -6,14 +6,14 @@ namespace Themia.Core.Model;
 /// <summary>
 /// [S-4602] A stopwatch widget: what it holds is the stopwatch itself, kept here so a running
 /// stopwatch is still running after a restart (<see cref="StopwatchRecord"/>), and so each widget is a
-/// stopwatch of its own; [S-11302] how many laps it lists.
+/// stopwatch of its own; [S-11302] how many laps it lists, which is the card's height ([S-14410]).
 /// </summary>
 public sealed class StopwatchConfig : WidgetConfig
 {
     /// <summary>[S-11302] The most lap rows it lists.</summary>
     public const int MostLapRows = 10;
 
-    /// <summary>[S-11302] How many of the newest laps it lists under its controls, 0 to <see cref="MostLapRows"/>; a new one none.</summary>
+    /// <summary>[S-11302] [S-14410] How many of the newest laps it lists under its controls, 0 to <see cref="MostLapRows"/>; a new one none; a resize sets it.</summary>
     public int LapRows { get; set; }
 
     public StopwatchPhase Phase { get; set; }

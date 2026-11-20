@@ -37,8 +37,10 @@ key map `StopwatchKeys`), `StopwatchFace.cs` (the face, the sizing and its lap r
 - **[S-4605]** *(Retired: the face by the tile's size, the laps' column from an expanded width; [S-11302].)*
 - **[S-11302]** **Its laps.** Each stopwatch widget is its own stopwatch (its state is its config, [S-4602]; two
   widgets never share one), so its laps are the one widget's, not a widget of their own. The time on the family's
-  one-readout step (no Size since 2026-11-20, [S-2449] retired: the face scales with the card, [S-11300]). Its menu:
-  **Laps** (0 to 10, a new one 0): that many one-line fact rows (`RowBlock`, no lead,
+  one-readout step (no Size since 2026-11-20, [S-2449] retired: the face scales with the card, [S-11300]). It has no
+  menu lines: its **laps** (0 to 10, a new one 0) are the card's height (owner, 2026-11-20: "Anything that's just
+  'how many of the same item' (days, hours, weeks, processes) follows the card's size", [S-14410]): that many
+  one-line fact rows (`RowBlock`, no lead,
   28 each) under the Controls row, edge to edge, newest first, "Lap N" and its length; "No laps yet" in
   the first row until the first lap. The card follows (`StopwatchFace.Sizing`): the inset, the face, 8,
   the row, the lap rows, the inset; one height for its config, stepped by a lap row (dragging its

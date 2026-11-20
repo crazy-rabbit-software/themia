@@ -39,13 +39,8 @@ public sealed class StopwatchModule : IWidgetModule
         Add = new(AddFolderId.Time, 0, 3),
     };
 
-    /// <summary>[S-11302] Its options: how big its time is, and how many laps it lists.</summary>
-    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(menu);
-        var stopwatch = (StopwatchConfig)config;
-        menu.Lines.Add(KitMenuLines.Count(menu, LapGlyph, StopwatchStr.Stopwatch_Laps.Text(), StopwatchFace.LapRows(stopwatch), 0, StopwatchConfig.MostLapRows, 1, v => stopwatch.LapRows = v));
-    }
+    // [S-11302] [S-14410] No options of its own: how many laps it lists is the card's height (dragging the bottom edge
+    // sets them, StopwatchFace.SizeSets), how big its time is the card's size.
 
     public FrameworkElement CreateView(IWidgetHost host) => new StopwatchView();
 }

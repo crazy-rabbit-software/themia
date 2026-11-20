@@ -66,11 +66,14 @@ public sealed class StopwatchFaceTests
     }
 
     [Fact]
-    public void S11302_its_menu_is_the_laps_and_no_size()
+    public void S11302_S14410_it_has_no_menu_lines_its_laps_and_its_size_are_the_cards()
     {
+        // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows
+        // the card's size": the laps a stopwatch lists are what its height holds; dragging the bottom edge sets them.
         var menu = new WidgetMenuLines(() => { }, _ => { });
-        new StopwatchModule().MenuLines(menu, new StopwatchConfig());
+        ((IWidgetModule)new StopwatchModule()).MenuLines(menu, new StopwatchConfig());
 
-        Assert.Equal([StopwatchStr.Stopwatch_Laps.Text()], menu.Lines.Select(l => l.Text));
+        Assert.Empty(menu.Lines);
+        Assert.Empty(menu.StyleLines);
     }
 }
