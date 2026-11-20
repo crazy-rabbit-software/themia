@@ -21,7 +21,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// The trailing <see cref="LineParts"/> of family parts (<see cref="Button"/>, <see cref="Count"/>, a problem
 /// glyph, a ring, a label) fold by <see cref="LineRules"/>.
 /// </summary>
-public sealed partial class ToolLine : Grid
+public sealed partial class ToolLine : Grid, IInked
 {
     private readonly TextBlock _label;
 
@@ -68,6 +68,22 @@ public sealed partial class ToolLine : Grid
             }
         }
     }
+
+    /// <summary>
+    /// [S-14284] Where its ink stands, read by a block that scales the line with its reading (the screen-time day line,
+    /// <c>ReadingFit</c>): its words' capitals on the line's top and their baseline on the line, the band's gap under it;
+    /// a part beside the words (a 16 glyph in a 24 button standing 2 over the line) inks no higher than their capitals.
+    /// </summary>
+    public LineInk Ink
+    {
+        get
+        {
+            var words = LineInk.Of(FamilyType.Body);
+            return new LineInk(words.Over, Math.Max(0, DesiredSize.Height - FamilySpace.HeaderLine) + words.Under);
+        }
+    }
+
+    public bool Grows => false;
 
     /// <summary>The line stands while it has a label or a part to show; collapsed it takes no room.</summary>
     private void Decide() => Visibility = _label.Text.Length > 0 || Parts.Any ? Visibility.Visible : Visibility.Collapsed;

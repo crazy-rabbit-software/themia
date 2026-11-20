@@ -40,7 +40,8 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
   and its arrows stand right over the ring, as wide as it; the block is planned once, at the natural ring (168, its
   figure on 28 in the hole, `ScreenTimeDonutLayout.Plan`), and scaled as one to the card (`ReadingFit`, [S-14280]): a
   larger card draws a larger ring with a larger figure and day line, the ring's track (4 in the plan) and the figure
-  growing with it. Before, the ring was sized to the card on its own (`RingIn`), the day line stood across the card's
+  growing with it; the day line states its ink (`ToolLine` as `IInked`: its words' capitals and baseline), so the
+  block's first ink is its words, not its buttons' boxes. Before, the ring was sized to the card on its own (`RingIn`), the day line stood across the card's
   top corners and the figure stayed on 28 or 40 in a ring of any size. Tests `ScreenTimeDonutTests.S14284_`.
 - **[S-3343]** Linked focus in the links' one look ([S-11902]): the wedge pointed at or picked is whole,
   every other at its tone times 0.6 (pointed) or 0.3 (picked) (the lit wedge's 1.3 times thicker stroke
