@@ -372,7 +372,7 @@ internal sealed partial class DesktopWindow
         if (placing is not null)
         {
             EndLasso();
-            _placementHintText.Text = Str.Shell_Place_Hint.Format(("action", PlacementVerb(placing)));
+            _placementHintText.Text = Str.Shell_Place_Hint.Format(("action", PlacementHint.Verb(placing)));
             _placementHint.Visibility = Visibility.Visible;
             _toolbar.Visibility = Visibility.Collapsed;
             CloseFlyout(focusEntry: false);
@@ -398,34 +398,6 @@ internal sealed partial class DesktopWindow
         HideGhost();
         DropIconGhosts();
         ReopenUnplacedAfterPlacing();
-    }
-
-    /// <summary>What the click will do, in words: "Click to place Clock", "Click to move 3 widgets".</summary>
-    private static string PlacementVerb(PlacementPayload payload)
-    {
-        // [S-2471] A ready-made group is placed by its name, as one widget is.
-        if (payload.ReadyMade is { } group)
-        {
-            return Str.Shell_Place_PlaceOne.Format(("name", group.Name.Text()));
-        }
-
-        if (payload.SingleKind is { } kind)
-        {
-            var name = ModuleCatalog.Of(kind).Name;
-            return payload.Mode switch
-            {
-                PlacementMode.Move => Str.Shell_Place_MoveOne.Format(("name", name)),
-                PlacementMode.Copy => Str.Shell_Place_CopyOne.Format(("name", name)),
-                _ => Str.Shell_Place_PlaceOne.Format(("name", name)),
-            };
-        }
-
-        return payload.Mode switch
-        {
-            PlacementMode.Move => Str.Shell_Place_MoveMany.Plural(payload.Count),
-            PlacementMode.Copy => Str.Shell_Place_CopyMany.Plural(payload.Count),
-            _ => Str.Shell_Place_PlaceMany.Plural(payload.Count),
-        };
     }
 
     /// <summary>Where a point in this surface's own coordinates falls, as a fraction of it.</summary>
