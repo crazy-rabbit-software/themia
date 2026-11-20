@@ -11,7 +11,7 @@ namespace Themia.Core.Widgets;
 public readonly record struct TimerSized(TypeStep Step, double Ring, double Width, double Height);
 
 /// <summary>
-/// [S-6739] [S-11300] The face the timers share (Alarm, Countdown, Stopwatch, Pomodoro, Focus session),
+/// [S-6739] [S-11300] The face the timers share (Alarm, Countdown, Stopwatch, Focus session; the Pomodoro has its own),
 /// one-readout widgets ([S-6737]): the Readout on the family's step for one readout (<see cref="Step"/>, 68) with its
 /// line under, or one step under in the least ring that holds it, over the Controls row at the bottom inset, 8 under
 /// the face. That face is the card's natural size; the card's size is the user's (no Size setting, [S-2449] retired)

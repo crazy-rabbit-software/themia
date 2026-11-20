@@ -1135,7 +1135,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   (the one `Chart`, [S-6750]) is the whole card, edge to edge ([S-215], [S-6754]), its samples laid out by its owner (a
   meter's history on fixed slots, a weather graph's cells, a price's bars evenly). A part's role, fraction and points
   are set again only when they change ([S-6330]).
-- **[S-6739]** **A timer's face** (Alarm, Countdown, Stopwatch, Pomodoro, Focus session; `TimerFace`):
+- **[S-6739]** **A timer's face** (Alarm, Countdown, Stopwatch, Focus session; `TimerFace`; the Pomodoro has its own, [S-8117]):
   a one-readout widget ([S-6737]) whose Readout is on the family's one-readout step, with its line under,
   over its Controls row at the bottom inset; a ring face sets the readout in the Chart block's ring,
   in its hole, three quarters of the hole wide and half of it tall (`ChartRules.Hole`). *(The face by
@@ -8149,9 +8149,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   that makes sense so you can still see the widget."; docs/WIDGET-RULES.md WR-14). A face that scales as one (a clock,
   a date, a reading on `ReadingFit` or `InkFit`) scales down as well as up, until its smallest text is 9 DIP or its
   smallest glyph 12 (`ScaleFloor`, one floor for every kind; `ScaleFloors.Of` reads a face's parts); its kind's least
-  size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`; pomodoro,
-  the drive's ring and the quote still at the family's Caption: the quote's words are measured as one unwrapped line in
-  its fit, so it runs off its card at every size and cannot scale as one until that is fixed). Rows and list items keep their whole-cell rule (a list's least is
+  size is its natural box at that scale, never under the grid's least widget, 32 (`WidgetSizing.ScalesDown`; the
+  drive's ring and the quote still at the family's Caption: the quote's words are measured as one unwrapped line in
+  its fit, so it runs off its card at every size and cannot scale as one until that is fixed; the pomodoro's block at
+  its Body text and its glyphs, [S-8117]). Rows and list items keep their whole-cell rule (a list's least is
   one item). **The main reading sets the floor, its smaller parts give way** (owner, 2026-11-19: "the clock has a
   min height that is way to big"; the clock's meridiem and line under at 9 had held its figures large: a world clock
   89 tall, a stacked one 208, the dial and the words not scaling down at all, 170 and 234; the date's page 101): a face
