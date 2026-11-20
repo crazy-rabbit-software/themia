@@ -158,5 +158,9 @@ internal sealed partial class DateView : Grid, IWidgetView, IWidgetAligned, IWid
         }
 
         ToolTipService.SetToolTip(this, DateLayout.Full(locale, day));
+
+        // [S-14201] Another day may ink lower in the same box (a descender): the fit places the face on its ink again,
+        // which XAML does not do while its size stays.
+        _fit.InvalidateArrange();
     }
 }

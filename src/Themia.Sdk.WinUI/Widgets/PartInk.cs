@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 
@@ -7,9 +8,11 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-12807] [S-12808] Where a measured part's ink starts and ends inside its box (<see cref="LineInk"/>): a family
-/// text's leading over its capitals and under its baseline, a row's (<see cref="IInked"/>), and for a panel
-/// the part of it that reaches furthest up and down, as it stands in the panel. A glyph, a chart, a bar, anything
-/// else inks its whole box; a horizontal slider its thumb. What a <see cref="SpreadStack"/> stands on the insets.
+/// text's room over its first ink and under its last, a row's (<see cref="IInked"/>), and for a panel
+/// the part of it that reaches furthest up and down, as it stands in the panel. [S-14200] A text and a glyph are measured
+/// as they are drawn (<see cref="InkMeter"/>: a text's letters over its capitals and its descenders, a glyph's room in its
+/// em box). A chart, a bar, anything else inks its whole box; a horizontal slider its thumb. What a
+/// <see cref="SpreadStack"/> stands on the insets.
 /// </summary>
 public static class PartInk
 {
@@ -36,7 +39,8 @@ public static class PartInk
             IInked part => held ? part.Held : part.Ink,
             Slider { Orientation: Orientation.Horizontal } slider => Thumb(slider),
             ToggleSwitch toggle => Track(toggle),
-            TextBlock text => text.LineHeight > 0 ? LineInk.Of(new TypeStep(text.FontSize, text.LineHeight, false)) : LineInk.None,
+            TextBlock text => Text(text, held),
+            FontIcon icon => Glyph(icon),
             Border border when border.Child is { } child => Add(Of(child, held), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
             StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children, held), stack.Padding.Top, stack.Padding.Bottom),
             SpreadStack { Orientation: Orientation.Vertical } spread => Stacked(spread.Children, held),
@@ -77,10 +81,10 @@ public static class PartInk
             // In a grid of rows only the first row's parts can ink its top and only the last row's its foot.
             var row = panel is Grid ? Grid.GetRow(part) : 0;
             var span = panel is Grid ? Grid.GetRowSpan(part) : 1;
-            // Only a text's place in the panel is read, and [S-14245] a part of a height of its own (a Controls row's 28 icon
-            // button beside its 32 slider, centred: its foot 2 over the row's); any other part (a ring, a canvas the panel
-            // sizes) is taken to ink the panel's whole height.
-            var texty = part is IInked or TextBlock or Panel or Border || double.IsFinite(part.Height);
+            // Only a text's or a glyph's place in the panel is read, and [S-14245] a part of a height of its own (a Controls
+            // row's 28 icon button beside its 32 slider, centred: its foot 2 over the row's); any other part (a ring, a canvas
+            // the panel sizes) is taken to ink the panel's whole height.
+            var texty = part is IInked or TextBlock or Panel or Border or FontIcon || double.IsFinite(part.Height);
             var room = texty && part.DesiredSize.Height > 0 ? Math.Max(0, height - part.DesiredSize.Height) : 0;
             // A part shorter than its slot stands centred when it stretches (its own height holds it).
             var top = part.VerticalAlignment switch
@@ -127,4 +131,57 @@ public static class PartInk
     }
 
     private static LineInk Add(LineInk ink, double over, double under) => new(ink.Over + over, ink.Under + under);
+
+    /// <summary>
+    /// [S-14200] A family text (its block line height): the room over its first ink and under its last as it is drawn,
+    /// wrapped where it wraps; a planned line saying nothing yet is the model's capitals on the baseline, and so is a
+    /// placeholder read as what it stands for (<paramref name="held"/>, [S-12813]). A text on the font's own line: none.
+    /// </summary>
+    private static LineInk Text(TextBlock text, bool held)
+    {
+        if (!(text.LineHeight > 0))
+        {
+            return LineInk.None;
+        }
+
+        var step = new TypeStep(text.FontSize, text.LineHeight, false);
+        return held && LineInk.Capless(text.Text)
+            ? LineInk.Of(step)
+            : InkMeter.Line(step, text.Text, FontOf(text.FontFamily), text.FontWeight.Weight, WrapWidth(text), text.CharacterSpacing);
+    }
+
+    /// <summary>
+    /// [S-14200] A glyph: its ink's room in its em box (the font's own line), the em box centred in the icon's box. A
+    /// glyph the meter cannot measure inks its whole box.
+    /// </summary>
+    private static LineInk Glyph(FontIcon icon)
+    {
+        var size = icon.FontSize;
+        var box = double.IsFinite(icon.Height) && icon.Height > 0 ? icon.Height : size;
+        if (InkMeter.Measure(new InkText(icon.Glyph, FontOf(icon.FontFamily), size, icon.FontWeight.Weight, 0)) is not { } ink)
+        {
+            return LineInk.None;
+        }
+
+        var room = Math.Max(0, (box - size) / 2);
+        return new LineInk(ink.Over + room, ink.Under + room);
+    }
+
+    /// <summary>The family a text or a glyph is drawn in, as the meter names it (the first of a list); empty: the meter's own default.</summary>
+    internal static string FontOf(FontFamily? family) => family?.Source ?? string.Empty;
+
+    /// <summary>
+    /// The width a wrapping text wraps at as it is laid out: its widest line (a greedy wrap at that width breaks where it
+    /// broke), with a pixel's slack for layout rounding; a text that does not wrap is one line.
+    /// </summary>
+    private static double WrapWidth(TextBlock text)
+    {
+        if (text.TextWrapping == TextWrapping.NoWrap)
+        {
+            return double.PositiveInfinity;
+        }
+
+        var width = text.DesiredSize.Width - text.Margin.Left - text.Margin.Right;
+        return width > 0 ? width + 1 : double.PositiveInfinity;
+    }
 }

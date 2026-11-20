@@ -485,6 +485,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
         var locale = Strings.Current;
         var reading = ClockFormatter.Read(now, _config, locale, RegionFormat.Current.Use24Hour);
 
+        // [S-14201] New words or figures may ink higher or lower in the same box (a descender in the line under): the fit
+        // places the face on its ink again, which XAML does not do while its size stays.
+        _fit.InvalidateArrange();
+
         var under = _underShown ? Line(now, reading, locale) : null;
         if (_under.Text != (under ?? string.Empty))
         {

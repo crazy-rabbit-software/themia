@@ -70,23 +70,44 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
     public TypeStep Step => _step;
 
     /// <summary>
-    /// [S-12808] The room in its box over its first ink and under its last: the value's capitals (or its lead
-    /// glyph's ink, its box centred on the value's line, where that stands higher: [S-14240]) and the line under's
-    /// baseline, or the value's. [S-12813] A placeholder value ("--") inks from its dashes' top (or its unit's capitals),
+    /// [S-12808] The room in its box over its first ink and under its last: the value's (or its lead glyph's ink, its
+    /// box centred on the value's line, where that stands higher: [S-14240]) and the line under's, or the value's.
+    /// [S-14200] As they are drawn (<see cref="InkMeter"/>: the figures' own height, a descender, the unit beside the
+    /// value on its baseline). [S-12813] A placeholder value ("--") inks from its dashes' top (or its unit's capitals),
     /// lower than capitals.
     /// </summary>
-    public LineInk Ink => Inked(LineInk.Capless(_value.Text) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : LineInk.Of(_step));
+    public LineInk Ink => Inked(LineInk.Capless(_value.Text) ? LineInk.Placeholder(_step, _unit.Text.Length > 0 ? _unit.FontSize : 0) : Drawn(), drawn: true);
 
     /// <summary>
     /// [S-12813] The ink of the reading it stands for: the value's capitals even while a placeholder is shown, so a
-    /// block scaled to fit (<see cref="ReadingFit"/>) keeps the size its readings draw at.
+    /// block scaled to fit (<see cref="ReadingFit"/>) keeps the size its readings draw at; a reading, as drawn.
     /// </summary>
-    public LineInk Held => Inked(LineInk.Of(_step));
+    public LineInk Held => LineInk.Capless(_value.Text) ? Inked(LineInk.Of(_step), drawn: false) : Ink;
 
-    private LineInk Inked(LineInk line)
+    /// <summary>[S-14200] The value's line as drawn: the value and, on its baseline, the unit and the delta beside its last line.</summary>
+    private LineInk Drawn()
+    {
+        var font = PartInk.FontOf(_line.FontFamily);
+        var value = InkMeter.Line(_step, _value.Text, font, _line.FontWeight.Weight);
+        var oneLine = !_value.Text.Contains('\n', StringComparison.Ordinal);
+        foreach (var run in new[] { _unit, _delta })
+        {
+            if (InkMeter.Measure(new InkText(run.Text, font, run.FontSize, run.FontWeight.Weight, _step.LineHeight)) is { } beside)
+            {
+                value = new LineInk(oneLine ? Math.Min(value.Over, beside.Over) : value.Over, Math.Min(value.Under, beside.Under));
+            }
+        }
+
+        return value;
+    }
+
+    private LineInk Inked(LineInk line, bool drawn)
     {
         var value = line.With(GlyphInk.Of(_leadGlyph), _lead.Visibility == Visibility.Visible ? _lead.Height : 0, _step.LineHeight);
-        var under = _under.Visibility == Visibility.Visible ? LineInk.Of(FamilyType.Under(_step)).Under : value.Under;
+        var step = FamilyType.Under(_step);
+        var under = _under.Visibility != Visibility.Visible ? value.Under
+            : drawn ? InkMeter.Line(step, _under.Text, PartInk.FontOf(_under.FontFamily), _under.FontWeight.Weight).Under
+            : LineInk.Of(step).Under;
         return new LineInk(value.Over, under);
     }
 
