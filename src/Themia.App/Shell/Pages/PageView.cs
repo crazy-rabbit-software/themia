@@ -218,6 +218,14 @@ internal sealed partial class PageView : ContentControl
             _keptFor = _model;
         }
 
+        // [S-2346] New rows go into a new panel, the old one left whole: the row under the pointer stays in it until XAML is
+        // done with it. Only the preview, kept from one drawing to the next ([S-2311]), comes out of it to go into the new one.
+        if (rebuild && _preview is not null)
+        {
+            // ignore: false where the last drawing did not show it (a sub-page, a question).
+            _ = _body.Children.Remove(_preview);
+        }
+
         _marks = new PageMarks(_open, _unfolded, _typed, _refused, _answered);
         _drawn = [];
         _used.Clear();
@@ -256,17 +264,6 @@ internal sealed partial class PageView : ContentControl
         {
             if (rebuild)
             {
-                // [S-2346] A new panel, the old one left whole: the row under the pointer stays in it until XAML is done with
-                // it. Only the preview, kept from one drawing to the next ([S-2311]), comes out of it to go into the new one.
-                foreach (var element in _drawn)
-                {
-                    if (element is FrameworkElement { Parent: Panel old })
-                    {
-                        // ignore: it stands in that panel, so Remove's answer is true.
-                        _ = old.Children.Remove(element);
-                    }
-                }
-
                 _body = Body();
                 foreach (var element in _drawn)
                 {
@@ -574,7 +571,9 @@ internal sealed partial class PageView : ContentControl
 
     /// <summary>
     /// [S-2361] <paramref name="children"/> made <paramref name="wanted"/>, in its order: what goes is taken out, what is
-    /// new put in, and what stays is left where it stands (never taken out and put back: it is not laid out again).
+    /// new put in, and what stays is left where it stands (never taken out and put back: it is not laid out again). A kept
+    /// card is in this panel or in none: a drawing of the same rows takes what it does not show out of this panel, and new
+    /// rows keep no card (the preview leaves the old panel before they are drawn).
     /// </summary>
     private static void Lay(UIElementCollection children, List<UIElement> wanted)
     {
@@ -598,11 +597,6 @@ internal sealed partial class PageView : ContentControl
             if (at >= 0)
             {
                 children.RemoveAt(at);
-            }
-            else if (wanted[i] is FrameworkElement { Parent: Panel old })
-            {
-                // A card kept from an earlier drawing (a tab shown before, the page under a sub-page) stood in a panel of its own.
-                _ = old.Children.Remove(wanted[i]);
             }
 
             children.Insert(i, wanted[i]);

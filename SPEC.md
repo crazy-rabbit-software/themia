@@ -2461,7 +2461,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   pickers unfolded, what is typed, refused or answered, of its own rows at any depth, and whether it stands inside
   another) stays where it is, untouched and not laid out again; only the cards it changed are built and put in (the
   Appearance page's 55 rows: one card's, not every row's). What waited for the drawing (the reveal of what opened,
-  [S-2347]; the keyboard's place) follows it. New rows (any change of the state, a way in, [S-3534]) are drawn whole as
+  [S-2347]; the keyboard's place) follows it: a card opened by a click is now revealed (until 2026-11-20 the reveal
+  looked for the opened row before the new drawing was laid out, found none and scrolled nothing). New rows (any change of the state, a way in, [S-3534]) are drawn whole as
   before, in a new panel. Tests `KeptCardsTests.S2361_`.
 - **[S-2362]** **Opening General or Accounts draws the page once**: the read of start with Windows each opening makes
   ([S-936]) draws the open pages again only where Windows said something else than the last read (`AdoptStartup`).
