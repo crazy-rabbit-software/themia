@@ -58,6 +58,15 @@ files' is the module host's `DeskInfoHostTests`.
   line repeats the header's name. Tests `NextMeetingJoinTests.S5710_`.
 - **[S-2160]** *(Moved to After this, [S-11408]: the meetings after this one are its own atom.)*
 - **[S-2161]** *(Retired by [S-11407]: no rows under the block.)*
+- **[S-14262]** **No meeting, the block's face** (owner, 2026-11-19, WR-10: "No data, no account, not set up, offline:
+  the widget keeps its face (its graph, its rows, its month, its reading as "--") and says why in a compact line; it never
+  swaps its face for a status line alone"). Nothing coming up, loading, a problem, an account gone: the state's line on
+  the card's top edge ([S-14260], no list's rows under it: the block is no list), and under it the meeting block itself,
+  its title and the lines its config shows (the time, the place, the organiser) reading "--" in the unavailable role, the
+  countdown "--", no Join, scaled as a meeting is to fill the card under the line ([S-12814]); with no account the card's
+  Set up line stands over it instead. Its title and lines are cut at the width the block gives them, never holding it
+  small ([S-14261]). Before, a list's empty rows of 30 stood under the line, and a card of 130 kept 10 under them (WR-5).
+  Renders `--widget-png nextMeeting --state none --sizes range` and `--sizes steps`, judged by `scripts/item-check.py`.
 - **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event
   lights in the calendar widgets there, the others at 0.6 ([S-3623]); when another widget points at
   this one's event the whole card takes the item layer's hover fill over its whole box, as it does under the pointer

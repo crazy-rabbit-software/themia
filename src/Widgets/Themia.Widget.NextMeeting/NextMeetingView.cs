@@ -110,7 +110,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     {
         _widgetHost = host;
         // [S-5710] The calendar's glyph: with no header the state row says what the card is about.
-        _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed };
+        // [S-14262] Only its line: the meeting's face stands under it, no list's rows (the block is no list).
+        _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed, VerticalAlignment = VerticalAlignment.Top };
         _feed = new MeetingFeed(() => _config);
         _feed.Changed += Render;
 
@@ -227,25 +228,27 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
             return;
         }
 
-        _content.Visibility = Visibility.Collapsed;
-
         switch (_feed.Screen)
         {
             case MeetingScreen.Loading:
                 _state.Show(Str.Common_Loading.Text(), offerAccounts: false);
+                ShowFace();
                 return;
 
             case MeetingScreen.NoAccounts:
-                // [S-1862] The card shows its Set up row over this.
+                // [S-1862] The card shows its Set up row over this, and the view stands under it.
                 _state.Hide();
+                ShowFace();
                 return;
 
             case MeetingScreen.AccountsGone:
                 _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
+                ShowFace();
                 return;
 
             case MeetingScreen.Problem:
                 _state.Show(_feed.ProblemText(), _feed.ProblemOffersAccounts, problem: true);
+                ShowFace();
                 return;
         }
 
@@ -255,12 +258,15 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
         if (item is null)
         {
-            // [S-4822] Nothing coming up: the state row, where the meeting's first line would be.
+            // [S-4822] Nothing coming up: the state row, where the meeting's first line would be, over the block's face.
             _state.Show(NextMeetingStr.Meeting_None.Text(), offerAccounts: false);
+            ShowFace();
             return;
         }
 
         _state.Hide();
+        Paint(available: true);
+        _fit.Margin = _fit.Margin with { Top = 0 };
         var locale = Strings.Current;
         var zone = TimeZoneInfo.Local;
         var hasJoin = item.JoinUrl is not null;
@@ -286,6 +292,53 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         ToolTipService.SetToolTip(_join, NextMeetingStr.Meeting_JoinTip.Text());
         ToolTipService.SetToolTip(_text, Describe(item, locale, zone));
         _content.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// [S-14262] With no meeting to show (nothing coming up, loading, a problem, no account) the block keeps its face (owner,
+    /// 2026-11-19, WR-10: "No data, no account, not set up, offline: the widget keeps its face (its graph, its rows, its
+    /// month, its reading as "--") and says why in a compact line; it never swaps its face for a status line alone"): its
+    /// title and the lines its config shows read "--" in the unavailable role, no countdown, no Join, under the state's line
+    /// (or the card's Set up line); scaled as the meeting is, it fills the card under the line, so no band is left under it.
+    /// </summary>
+    private void ShowFace()
+    {
+        SetShown(null);
+        Paint(available: false);
+        _end.MinWidth = 0;
+        _end.VerticalAlignment = VerticalAlignment.Top;
+        _when.Margin = new Thickness(0, NextMeetingJoin.TitleLineOffset, 0, 0);
+        _when.Text = EmptyRows.Placeholder;
+        _text.VerticalAlignment = VerticalAlignment.Top;
+        _title.Text = EmptyRows.Placeholder;
+        _range.Text.Text = EmptyRows.Placeholder;
+        _location.Text.Text = EmptyRows.Placeholder;
+        _location.Row.Visibility = Show(_config.ShowPlace);
+        _organizer.Text.Text = EmptyRows.Placeholder;
+        _organizer.Row.Visibility = Show(_config.ShowOrganizer);
+        _controls.Visibility = Visibility.Collapsed;
+        ToolTipService.SetToolTip(_text, null);
+
+        // Under the state's line, which stands on the card's top edge in whole cells; the card's own Set up line lays the
+        // view under it already.
+        var under = _state.Visibility == Visibility.Visible ? LineRules.EdgeRow(ItemGrids.Of(this)) - FamilySpace.Inset : 0;
+        _fit.Margin = _fit.Margin with { Top = Math.Max(0, under) };
+        _content.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>[S-14262] The block's texts in their roles, or in the unavailable role while it shows its face with nothing in it.</summary>
+    private void Paint(bool available)
+    {
+        _title.Foreground = available ? Family.Brush(ColourRole.TextPrimary) : UnavailableLook.Text;
+        _when.Foreground = available ? Family.Brush(ColourRole.TextPrimary) : UnavailableLook.Text;
+        foreach (var (row, text) in new[] { _range, _location, _organizer })
+        {
+            text.Foreground = available ? Family.Brush(ColourRole.TextSecondary) : UnavailableLook.Text;
+            foreach (var glyph in row.Children.OfType<FontIcon>())
+            {
+                glyph.Foreground = available ? Family.Brush(ColourRole.TextSecondary) : UnavailableLook.Text;
+            }
+        }
     }
 
     /// <summary>
