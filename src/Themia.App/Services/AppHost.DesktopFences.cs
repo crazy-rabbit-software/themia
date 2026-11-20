@@ -516,11 +516,4 @@ internal sealed partial class AppHost : IDesktopFences
             }
         }
     }
-
-    /// <summary>[S-13027] The selection key of the fence that holds the item <paramref name="key"/> on the view it is laid out on, or null for any other key.</summary>
-    private string? FenceKeyOf(string key)
-        => _deskWidgets.TryGetValue(key, out var at) && at.Widget.Config is IDesktopItemConfig
-            && DesktopFences.Holding(State.ViewForMonitor(at.Surface.Monitor.Id), key) is { } fence
-            ? DeskKey(fence.Widget)
-            : null;
 }

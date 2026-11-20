@@ -8,6 +8,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Windows.Foundation;
 
@@ -158,7 +159,12 @@ internal static partial class DeskSelectCheck
             int Index(string name) => names.IndexOf(name);
 
             // What Lock widgets lets the selection hold of what the gesture reaches ([S-12953]).
-            List<string> Allowed(IEnumerable<string> reached) => [.. reached.Where(n => !locked || icons.Contains(n))];
+            // [S-13045] And a fence only while no icon is selected.
+            List<string> Allowed(IEnumerable<string> reached)
+            {
+                List<string> allowed = [.. reached.Where(n => !locked || icons.Contains(n))];
+                return allowed.Exists(icons.Contains) ? allowed.FindAll(n => n != "fence") : allowed;
+            }
 
             void Expect(string step, IEnumerable<string>? wanted)
             {
@@ -219,6 +225,29 @@ internal static partial class DeskSelectCheck
                 host.DesktopBand(surface, new Point(metrics.Width * 0.84, metrics.Height * 0.50), new Point(metrics.Width * 0.95, metrics.Height * 0.79));
                 host.DesktopBandEnd();
                 Expect("band over the twins", ["twinU", "twinP"]);
+
+                // [S-13045] The icons before the fence, whatever the gesture.
+                bool Pick(string name, bool ctrl = true, bool shift = false)
+                    => surface.CardFor(items[Index(name)].Widget.Id) is { } picked && surface.DeskPick(picked, ctrl, shift);
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                Pick("fence");
+                Expect("ctrl+press fence", Allowed(["fence"]));
+                Click("iconA", ctrl: true);
+                Expect("ctrl+click iconA", ["iconA"]);
+                Pick("fence");
+                Expect("ctrl+press fence with iconA", ["iconA"]);
+                Pick("clock");
+                Expect("ctrl+press clock with iconA", Allowed(["clock", "iconA"]));
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                Pick("fence");
+                Click("iconB", shift: true);
+                var ranged = names.Where(n => running.DeskSelects(Model(Index(n)))).ToList();
+                var rangeOk = ranged.Contains("iconB") && !ranged.Contains("fence");
+                failures += rangeOk ? 0 : 1;
+                Say($"{(rangeOk ? "ok  " : "FAIL")} ctrl+press fence, shift+click iconB: selected [{string.Join(",", ranged)}] (the range, no fence)");
+                host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                host.Key(WidgetKey.SelectAll, shift: false, items[Index("iconA")].Widget.Id);
+                Expect("Ctrl+A", Allowed(names));
             }
             else
             {

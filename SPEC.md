@@ -11255,10 +11255,10 @@ module's `FenceTests`.
   under the pointer over empty desktop, cards and a fence alike. It goes when the drag leaves the surface, drops or ends;
   over another app's window the system's picture shows as before. A drag with no picture keeps XAML's. Pure wiring:
   **needs a live check** (icons dragged off the desktop and back over a fence, on two displays).
-- **[S-13027]** **The band takes a fence's items, not the fence** (the owner, 2026-11-19: "a fence should not be selected
+- **[S-13027]** *(Widened by [S-13045]: any icon, by any gesture, lets go of every fence.)* **The band takes a fence's items, not the fence** (the owner, 2026-11-19: "a fence should not be selected
   by the lasso if you also select the items of the fence, then only the items should be selected and take presedence"):
   a band that touches a fence and catches any of its items selects those items and leaves the fence out; a fence it
-  touches with none of its items caught is selected as any card (`DesktopFences.BandHits`). Tests `DeskFixesTests.S13027_`.
+  touches with none of its items caught is selected as any card. Tests `FenceSelectionTests.S13045_`.
 - **[S-13028]** **Rolling up glides** (the owner, 2026-11-19: "rolling up a fence should be nicely animated"): rolled up or
   let down (its chevron, a click on the title, hover peek, the menu), a fence's card glides from the box it had to the
   new one over the shell's one glide (`CardGlide`: [S-2347]'s cubic ease-out over 250 ms), its top-left still; its icons go
@@ -11303,6 +11303,18 @@ module's `FenceTests`.
   load gives each held item its icon (`DesktopFences.Repair`, `DesktopFences.NewIcon`), once (a second load finds them),
   and the fence lays them on its cells when its display is known. Tests `DesktopFencesTests.S13002_S13044_`,
   `FenceTests.S10920_S13044_`.
+- **[S-13045]** **Icons before a fence, whatever the gesture** (the owner, 2026-11-19: "when selecting icons it should always
+  take presedence over the fence selection, as soon as there is one icon selected the fence should not be selected
+  anymore."): the desktop's one selection ([S-5540], [S-11877]) never holds a fence together with a desktop icon (free, in
+  any fence, an own icon). After every gesture (a click, Ctrl+click, a Shift range, the band, Ctrl+A, the arrows and
+  Space, type-to-find, a right press, a relayout) a selection that holds an icon lets go of every fence, whichever fence
+  the icons are in or out of; a fence is selected only while no icon is: a click on it, the band over fences and cards
+  alone, Ctrl+A on a desktop with no icon. Other cards stay with the icons ([S-12954]). A Ctrl+click on a fence while
+  icons are selected changes nothing; a band drawn back off the icons gives back the fence it still touches. One place:
+  `DesktopSelection` (the layout's boxes say which are fences, `DesktopBox.Fence`; `ItemSelection.Deselect` lets go of
+  them), so no gesture has a rule of its own. With Lock widgets on a fence is in no selection at all ([S-12953]). Tests
+  `FenceSelectionTests.S13045_` (every gesture); `--desk-select-check` (host-level: Ctrl+press the fence, then an icon,
+  the fence again, a Shift range, Ctrl+A, the band).
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

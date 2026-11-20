@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-13025] [S-13027] [S-13028] The desk fixes of 2026-11-19: the first drag, the band over a fence, the roll's glide.</summary>
+/// <summary>[S-13025] [S-13028] The desk fixes of 2026-11-19: the first drag, the roll's glide ([S-13027]'s band over a fence: <see cref="FenceSelectionTests"/>).</summary>
 public sealed class DeskFixesTests
 {
     // ---- [S-13025] the first press's drag ------------------------------------------------------------
@@ -33,36 +33,6 @@ public sealed class DeskFixesTests
     [InlineData(false)]
     public void S13025_a_full_screen_app_over_the_display_keeps_it(bool drag)
         => Assert.Equal(ForegroundStep.Never, PressForeground.When(isForeground: false, mayTake: false, pressHeld: true, shellDrag: drag));
-
-    // ---- [S-13027] the band over a fence --------------------------------------------------------------
-
-    private const string Fence = "widget:fence-1";
-    private const string Other = "widget:fence-2";
-
-    private static string? FenceOf(string key) => key switch
-    {
-        @"C:\d\a.txt" or @"C:\d\b.txt" => Fence,
-        @"C:\d\c.txt" => Other,
-        _ => null,
-    };
-
-    [Fact]
-    public void S13027_a_band_that_catches_a_fences_items_selects_the_items_and_not_the_fence()
-    {
-        var hits = DesktopFences.BandHits([Fence, @"C:\d\a.txt", @"C:\d\b.txt", "widget:clock"], FenceOf);
-        Assert.Equal([@"C:\d\a.txt", @"C:\d\b.txt", "widget:clock"], hits);
-    }
-
-    [Fact]
-    public void S13027_a_fence_touched_with_none_of_its_items_stays_selected()
-    {
-        var hits = DesktopFences.BandHits([Fence, Other, @"C:\d\c.txt"], FenceOf);
-        Assert.Equal([Fence, @"C:\d\c.txt"], hits);
-    }
-
-    [Fact]
-    public void S13027_items_alone_stay_as_they_are()
-        => Assert.Equal([@"C:\d\x.txt", "widget:clock"], DesktopFences.BandHits([@"C:\d\x.txt", "widget:clock"], FenceOf));
 
     // ---- [S-13028] the roll's glide -------------------------------------------------------------------
 

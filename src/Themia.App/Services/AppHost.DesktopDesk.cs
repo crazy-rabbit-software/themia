@@ -246,7 +246,8 @@ internal sealed partial class AppHost : IDesktopDesk
                 }
 
                 var r = widget.Rect;
-                boxes.Add(new DesktopBox(key, display, bounds.Left + (r.X * bounds.Width), bounds.Top + (r.Y * bounds.Height), r.W * bounds.Width, r.H * bounds.Height));
+                // [S-13045] A fence gives way to the icons in the selection.
+                boxes.Add(new DesktopBox(key, display, bounds.Left + (r.X * bounds.Width), bounds.Top + (r.Y * bounds.Height), r.W * bounds.Width, r.H * bounds.Height, widget.Config is IHoldsDesktopItems));
                 widgets.TryAdd(key, (surface, widget));
             }
 
@@ -371,10 +372,8 @@ internal sealed partial class AppHost : IDesktopDesk
             window.ShowDesktopBand(Themia.Core.Desktop.DesktopBand.On(band, info.Bounds, info.WorkArea, window.BandScale));
         }
 
-        // [S-13027] A fence whose items the band catches is left out: the items take precedence.
-        var hits = DesktopFences.BandHits(
-            [.. Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Boxes).Where(key => _bandExcept is null || !string.Equals(key, _bandExcept, StringComparison.Ordinal))],
-            FenceKeyOf);
+        // [S-13045] A fence it touches gives way to the icons it catches: the selection's own rule.
+        List<string> hits = [.. Themia.Core.Desktop.DesktopBand.Hits(band, _desk.Boxes).Where(key => _bandExcept is null || !string.Equals(key, _bandExcept, StringComparison.Ordinal))];
         BandCaught = hits.Count;
         _desk.Band(hits);
         RepaintDesk();

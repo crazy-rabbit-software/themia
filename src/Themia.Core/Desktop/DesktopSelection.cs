@@ -6,9 +6,10 @@ namespace Themia.Core.Desktop;
 /// <summary>
 /// [S-5540] One desktop item widget as it sits on the screen now: its item's key, the display it is on
 /// (left to right, so the order runs over the displays as the eye does) and its box in one coordinate
-/// space shared by every display (the virtual screen's physical pixels).
+/// space shared by every display (the virtual screen's physical pixels). [S-13045] <paramref name="Fence"/>: the widget is
+/// a fence, which gives way to the icons in the selection.
 /// </summary>
-public readonly record struct DesktopBox(string Key, int Display, double X, double Y, double Width, double Height)
+public readonly record struct DesktopBox(string Key, int Display, double X, double Y, double Width, double Height, bool Fence = false)
 {
     public double CenterX => X + (Width / 2);
 
@@ -182,6 +183,7 @@ public sealed class DesktopSelection
     private readonly TypeAhead _typeAhead = new();
     private IReadOnlyList<DesktopBox> _ordered = [];
     private IReadOnlyList<DesktopBox> _boxes = [];
+    private HashSet<string> _fences = new(DesktopItemKeys.Comparer);
     private IReadOnlyList<string> _names = [];
     private string? _pendingKey;
 
@@ -217,12 +219,30 @@ public sealed class DesktopSelection
 
         _boxes = DesktopNav.Shown(boxes);
         _ordered = DesktopNav.Order(_boxes, display);
+        _fences = new HashSet<string>(_boxes.Where(b => b.Fence).Select(b => b.Key), DesktopItemKeys.Comparer);
         _names = [.. _ordered.Select(b => nameOf(b.Key) ?? DesktopItemKeys.FallbackName(b.Key))];
         _selection.SetOrder([.. _ordered.Select(b => b.Key)]);
 
         if (_pendingKey is { } pending && _selection.SelectOnly(pending))
         {
             _pendingKey = null;
+        }
+
+        IconsFirst();
+    }
+
+    /// <summary>
+    /// [S-13045] Icons before a fence (the owner, 2026-11-19: "when selecting icons it should always take presedence over the
+    /// fence selection, as soon as there is one icon selected the fence should not be selected anymore"): a selection that
+    /// holds a desktop icon (free, in a fence, an own icon: any key that is no card's) lets go of every fence; a fence is
+    /// selected only while no icon is. Other cards stay with the icons ([S-12954]). The one place of the rule: every
+    /// gesture of this class ends here.
+    /// </summary>
+    private void IconsFirst()
+    {
+        if (_fences.Count > 0 && _selection.Selected.Any(key => DesktopItemKeys.WidgetOf(key) is null))
+        {
+            _selection.Deselect(_fences.Contains);
         }
     }
 
@@ -234,6 +254,8 @@ public sealed class DesktopSelection
         {
             _pendingKey = key;
         }
+
+        IconsFirst();
     }
 
     /// <summary>[S-6621] A left press on an item: Ctrl toggles, Shift selects the range, a press on a selected item narrows only on release.</summary>
@@ -241,16 +263,25 @@ public sealed class DesktopSelection
     {
         _typeAhead.Reset();
         _selection.Press(_selection.IndexOf(key), ctrl, shift);
+        IconsFirst();
     }
 
     /// <summary>[S-6621] The release of a press that was no drag.</summary>
-    public void Release(string key) => _selection.Release(_selection.IndexOf(key));
+    public void Release(string key)
+    {
+        _selection.Release(_selection.IndexOf(key));
+        IconsFirst();
+    }
 
     /// <summary>A drag ran from the press: the selection stays as it was.</summary>
     public void CancelPress() => _selection.CancelPress();
 
     /// <summary>[S-6622] A right press on an item: outside the selection it becomes the selection; inside, the selection stays.</summary>
-    public void Context(string key) => _selection.Context(_selection.IndexOf(key));
+    public void Context(string key)
+    {
+        _selection.Context(_selection.IndexOf(key));
+        IconsFirst();
+    }
 
     /// <summary>
     /// [S-5541] [S-6623] The selection's keys: the arrows by the items' places (Shift extends, Ctrl moves
@@ -258,6 +289,13 @@ public sealed class DesktopSelection
     /// False for any other key (Enter, F2, Delete, the clipboard: the host's commands).
     /// </summary>
     public bool Key(WidgetKey key, bool shift)
+    {
+        var used = Keyed(key, shift);
+        IconsFirst();
+        return used;
+    }
+
+    private bool Keyed(WidgetKey key, bool shift)
     {
         var (move, extend, focusOnly) = key switch
         {
@@ -309,6 +347,7 @@ public sealed class DesktopSelection
         }
 
         _selection.Type(found);
+        IconsFirst();
         return true;
     }
 
@@ -321,6 +360,7 @@ public sealed class DesktopSelection
         }
 
         _selection.SelectAll();
+        IconsFirst();
         return true;
     }
 
@@ -329,6 +369,7 @@ public sealed class DesktopSelection
     {
         _typeAhead.Reset();
         _selection.BeginBand(SelectionBand.Mode(ctrl, shift));
+        IconsFirst();
     }
 
     /// <summary>[S-5544] The band covers <paramref name="keys"/> now (live: an item it leaves goes back to how it was).</summary>
@@ -336,9 +377,14 @@ public sealed class DesktopSelection
     {
         ArgumentNullException.ThrowIfNull(keys);
         _selection.Band(keys.Select(_selection.IndexOf).Where(i => i >= 0).Distinct().Order());
+        IconsFirst();
     }
 
-    public void EndBand() => _selection.EndBand();
+    public void EndBand()
+    {
+        _selection.EndBand();
+        IconsFirst();
+    }
 
     /// <summary>[S-5502] A press on empty desktop: nothing selected. Returns whether anything was.</summary>
     public bool Clear()

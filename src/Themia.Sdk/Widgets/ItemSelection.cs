@@ -455,6 +455,17 @@ public sealed class ItemSelection
         _bandBase = null;
     }
 
+    /// <summary>
+    /// Let go of every selected item <paramref name="which"/> names; the rest stay, and the focus and the anchor stay where
+    /// they are (a widget's rule that keeps two sorts of item apart: the desktop's icons before a fence, [S-13045]).
+    /// Returns whether any went.
+    /// </summary>
+    public bool Deselect(Func<string, bool> which)
+    {
+        ArgumentNullException.ThrowIfNull(which);
+        return _selected.RemoveWhere(id => which(id)) > 0;
+    }
+
     /// <summary>Select exactly <paramref name="id"/> and focus it (a new folder about to be renamed).</summary>
     public bool SelectOnly(string id)
     {

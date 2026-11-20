@@ -45,29 +45,6 @@ public static class DesktopFences
         return held;
     }
 
-    /// <summary>
-    /// [S-13027] What a band selects when it reaches a fence (the owner, 2026-11-19: "a fence should not be selected by the
-    /// lasso if you also select the items of the fence, then only the items should be selected and take presedence"): the
-    /// keys it touches (<paramref name="hits"/>, in their order) less every fence whose own items are among them;
-    /// <paramref name="fenceOf"/> names the fence (its key in the selection) that draws an item key, null for any other key.
-    /// A fence the band touches with none of its items caught stays selected, as any card.
-    /// </summary>
-    public static List<string> BandHits(IReadOnlyList<string> hits, Func<string, string?> fenceOf)
-    {
-        ArgumentNullException.ThrowIfNull(hits);
-        ArgumentNullException.ThrowIfNull(fenceOf);
-        var fenced = new HashSet<string>(DesktopItemKeys.Comparer);
-        foreach (var key in hits)
-        {
-            if (fenceOf(key) is { } fence)
-            {
-                fenced.Add(fence);
-            }
-        }
-
-        return fenced.Count == 0 ? [.. hits] : [.. hits.Where(key => !fenced.Contains(key))];
-    }
-
     /// <summary>[S-13001] The fence of <paramref name="view"/> that holds <paramref name="key"/>, or null.</summary>
     public static FenceOn? Holding(ViewState view, string key)
     {
