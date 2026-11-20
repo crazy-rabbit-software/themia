@@ -8598,6 +8598,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   stands on as an item's text: the column's padding stands there in the inset's place ([S-14312]). A head is no item: it
   is not one of the cells that tile the card alike (WR-6) and the item check does not judge it. Was: "text in the inset
   left 4.0" on every month with chips; moving the letters to 12 would have stood them 8 off their numbers.
+- **[S-14315]** **A fence's title bar is its first row** (WR-3, [S-13040]). The title bar (the name, the count, the
+  chevron) is a band from the card's left edge to its right on its top, three grid rows tall, marked as the fence's item
+  (`ItemMark`): its name stands in its own padding (12 at the sides, centred down in its rows as a row's text is in its
+  band), so a rolled-up fence (its title bar alone, 28 tall) is a row, not a text 6.7 off the card's foot.
 - **[S-14317]** **A mark stands over a text's letters, or not at all** (the item check's marks rule, [S-12831]). The layout
   dump writes each text in an item with its letters' box (`ink`: its box less its side bearings, `PartInk.Across`, and the
   leading over and under its line, `PartInk.Of`), and the item check finds a status glyph or ring over an item's text by

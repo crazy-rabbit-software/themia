@@ -102,6 +102,10 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
         // Clear, not null: the bar takes the press (the card's move) and the click (the roll-up).
         _titleBar.Background = Fluent.Clear();
+
+        // [S-14315] The title bar is the fence's first row: a band from the card's left edge to its right on its top, its
+        // own padding round the name (12 at the sides, the name centred in its grid rows as a row's text is in its band).
+        ItemMark.Mark(_titleBar);
         Children.Add(_titleBar);
 
         _empty.HorizontalAlignment = HorizontalAlignment.Center;
@@ -121,6 +125,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
         SizeChanged += (_, _) =>
         {
+            _titleBar.Height = TitleHeight();
             OnRollSized();
             Layout();
         };
@@ -545,6 +550,13 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
 
     // ---- drawing ------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// [S-14315] The title bar's height: its grid rows, never past the card's foot. Rolled up, the card is the title bar
+    /// alone (on the desktop its rows exactly; a picture lays it at the sizing's 28 unfitted), so the bar, the fence's first
+    /// row, is never cut by its own card.
+    /// </summary>
+    private double TitleHeight() => ActualHeight > 0 ? Math.Min(Cells.Title, ActualHeight) : Cells.Title;
+
     /// <summary>[S-10901] [S-10902] The title bar and the body as the config and the desktop say now.</summary>
     private void Render()
     {
@@ -554,7 +566,7 @@ internal sealed partial class FenceView : Grid, IWidgetView, IWidgetKeys, IWidge
         _count.Text = FenceStr.Fence_Count.Plural(count);
         _chevron.Glyph = _config.RolledUp ? Glyphs.ChevronDown : Glyphs.ChevronUp;
         _divider.Visibility = _config.RolledUp ? Visibility.Collapsed : Visibility.Visible;
-        _titleBar.Height = Cells.Title;
+        _titleBar.Height = TitleHeight();
 
         // [S-13028] Rolled up just now, the body stays while the card's foot glides up over it (its row the title bar's
         // leftover), so what it draws is covered rather than gone at once; it goes when the card is down to its title bar
