@@ -33,7 +33,8 @@ public sealed class FaceFloorTests
     {
         var fit = FaceFloor.Fit(230, 64, Sizes, Plan);
 
-        Assert.Equal(new FaceFit(14, 1, double.PositiveInfinity), fit);
+        // Nothing gave way: everything is drawn, a piece the face did not state too.
+        Assert.Equal(new FaceFit(0, 1, double.PositiveInfinity, 1), fit);
         Assert.True(fit.Draws(14) && fit.Draws(28) && fit.Draws(68));
         Assert.Equal(FaceFit.All, FaceFloor.Fit(0, 64, Sizes, Plan));
         Assert.Equal(FaceFit.All, FaceFloor.Fit(double.NaN, 64, Sizes, Plan));
@@ -47,6 +48,13 @@ public sealed class FaceFloorTests
         Assert.Equal(28, half.Floor);
         Assert.Equal(9 / 14.0, half.Most, 6);
         Assert.False(half.Draws(14));
+
+        // A short room: the line under goes; kept to the scale it went at the face stands smaller than the room, filling it
+        // the reading and its unit grow back into the room the line left.
+        var shorter = FaceFloor.Fit(230, 40, Sizes, Plan);
+        Assert.Equal(28, shorter.Floor);
+        Assert.Equal(9 / 14.0, shorter.Scale, 6);
+        Assert.Equal(40 / 48.0, shorter.Fill, 6);
 
         // A fifth: the unit would be under 9 too; the reading alone, at what the room gives it.
         var fifth = FaceFloor.Fit(46, 13, Sizes, Plan);

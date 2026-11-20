@@ -8,13 +8,16 @@ public readonly record struct FacePlan(double Width, double Ink);
 
 /// <summary>
 /// [S-12833] How a face that scales stands in a room: the smallest text it draws (<see cref="Floor"/>: its parts smaller
-/// than that give way), the scale it is drawn at (<see cref="Scale"/>, as its plan estimates it) and the most it may be
-/// drawn at (<see cref="Most"/>: unbounded while every part is drawn, else the scale the last part gave way at).
+/// than that give way; 0 while none did, so a piece its kind did not state, a placeholder's reason, is drawn too), the
+/// scale it is drawn at keeping its size when a part goes (<see cref="Scale"/>, as its plan estimates it), the most that
+/// is (<see cref="Most"/>: unbounded while every part is drawn, else the scale the last part gave way at), and the scale
+/// at which the parts left fill the room (<see cref="Fill"/>: a block that fills its card, WR-1 and WR-4, grows back
+/// into the room a part left).
 /// </summary>
-public readonly record struct FaceFit(double Floor, double Scale, double Most)
+public readonly record struct FaceFit(double Floor, double Scale, double Most, double Fill)
 {
     /// <summary>Every part drawn, the face as its fit draws it: a room not measured yet.</summary>
-    public static FaceFit All => new(0, 1, double.PositiveInfinity);
+    public static FaceFit All => new(0, 1, double.PositiveInfinity, 1);
 
     /// <summary>Whether a part of text <paramref name="size"/> is drawn.</summary>
     public bool Draws(double size) => size >= Floor - 1e-9;
@@ -27,9 +30,11 @@ public readonly record struct FaceFit(double Floor, double Scale, double Most)
 /// or its day's number) and smaller parts (a meridiem, the line under, a weekday). The main reading alone sets how small the
 /// face goes: until it is drawn at the legibility floor (<see cref="ScaleFloor.Text"/>, 9 DIP). A smaller part is drawn while
 /// the face's scale keeps it at that floor too and gives way under it, the smallest first, so no text is ever drawn under 9
-/// and none holds the reading large. Once a part gave way the face is drawn no larger than the scale it gave way at, so a
-/// smaller room never draws a larger face (the scale only falls as the room shrinks). The least box is the main reading alone
-/// at its floor in the card's inset (<see cref="LeastBox"/>), never under the grid's least widget.
+/// and none holds the reading large; a part that went never comes back in a smaller room. A one-line face the owner lets
+/// stand centred (the clock, the date) then keeps the size it had when the part went (<see cref="FaceFit.Most"/>: its scale
+/// only falls as the room shrinks); a block that fills its card (<c>ReadingFit</c>, WR-1, WR-4) grows back into the room
+/// the part left (<see cref="FaceFit.Fill"/>). The least box is the main reading alone at its floor in the card's inset
+/// (<see cref="LeastBox"/>), never under the grid's least widget.
 /// </summary>
 public static class FaceFloor
 {
@@ -51,19 +56,22 @@ public static class FaceFloor
         var main = levels[^1];
         var least = ScaleFloor.Least(main);
         var most = double.PositiveInfinity;
+        var none = true;
         foreach (var floor in levels)
         {
-            var scale = Math.Min(most, Scale(width, height, plan(floor)));
+            var fill = Scale(width, height, plan(floor));
+            var scale = Math.Min(most, fill);
             if (floor >= main || floor * scale >= ScaleFloor.Text - 1e-9)
             {
-                return new FaceFit(floor, Math.Max(least, scale), most);
+                return new FaceFit(none ? 0 : floor, Math.Max(least, scale), most, Math.Max(least, fill));
             }
 
-            // It gives way here: at a smaller room the rest is never drawn larger than it was when it went.
+            // It gives way here: a face that keeps its size is never drawn larger at a smaller room than when it went.
             most = Math.Min(most, ScaleFloor.Text / floor);
+            none = false;
         }
 
-        return new FaceFit(main, least, most);
+        return new FaceFit(main, least, most, least);
     }
 
     /// <summary>

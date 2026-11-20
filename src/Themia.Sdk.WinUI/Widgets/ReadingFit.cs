@@ -63,7 +63,8 @@ public sealed partial class ReadingFit : Panel
     /// [S-12833] The face's parts as its kind states them (the same its sizing's least box is made of): in a room smaller
     /// than its natural box the pieces under the floor the room draws give way, smallest first (<see cref="FaceParts.Fit"/>):
     /// a block's own (<see cref="IFacePieces"/>, a Readout's unit, lead and line under) and the parts added with
-    /// <see cref="AddGivesWay"/>; once one went, the block is never drawn larger than it was then. Null: every part is drawn.
+    /// <see cref="AddGivesWay"/>; the parts left fill the room (WR-1, WR-4: <see cref="FaceFit.Fill"/>, the block grows back
+    /// into the room a part left). Null: every part is drawn.
     /// </summary>
     public FaceParts? Face
     {
@@ -218,7 +219,7 @@ public sealed partial class ReadingFit : Panel
         if (!_hold || _held != availableSize)
         {
             // [S-12833] Down to its smallest text's floor, up to what fills the room.
-            _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink, _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown), _faceFit.Most);
+            _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink, _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown));
             _held = availableSize;
         }
 

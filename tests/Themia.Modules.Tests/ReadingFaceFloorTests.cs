@@ -101,7 +101,7 @@ public sealed class ReadingFaceFloorTests
 
     [Theory]
     [MemberData(nameof(Faces))]
-    public void S12833_each_face_draws_every_part_at_its_natural_box_and_only_gets_smaller_with_its_card(string kind, string style, double most, double before)
+    public void S12833_each_face_draws_every_part_at_its_natural_box_and_its_parts_only_go_as_its_card_shrinks(string kind, string style, double most, double before)
     {
         _ = (most, before);
         var config = Config(kind, style);
@@ -115,18 +115,23 @@ public sealed class ReadingFaceFloorTests
         var natural = face.Fit(sizing.Natural.Width - 24, sizing.Natural.Height - 24 - over);
         Assert.All(face.Sizes, size => Assert.True(natural.Draws(size), $"{kind} {style}: {size} gave way at its natural box"));
 
-        double lastScale = double.PositiveInfinity, lastFloor = 0;
+        // Its fit fills the card (WR-1, WR-4: the block grows back into the room a part left), so its scale may rise where a
+        // part goes; a part that went never comes back, and nothing it draws is under 9.
+        var lastFloor = 0.0;
+        var least = face.Fit(sizing.Min.Width - 24, sizing.Min.Height - 24 - over);
         for (var t = 1.0; t >= 0; t -= 0.02)
         {
             var width = sizing.Min.Width + (t * (sizing.Natural.Width - sizing.Min.Width)) - 24;
             var height = sizing.Min.Height + (t * (sizing.Natural.Height - sizing.Min.Height)) - 24 - over;
             var fit = face.Fit(width, height);
-            Assert.True(fit.Scale <= lastScale + 1e-9 && fit.Floor >= lastFloor, $"{kind} {style} {width}x{height}");
-            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-6, $"{kind} {style}: {size} at {size * fit.Scale}"));
-            (lastScale, lastFloor) = (fit.Scale, fit.Floor);
+            Assert.True(fit.Floor >= lastFloor, $"{kind} {style} {width}x{height}: a part came back");
+            Assert.True(fit.Fill >= fit.Scale - 1e-9);
+            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Fill >= ScaleFloor.Text - 1e-6, $"{kind} {style}: {size} at {size * fit.Fill}"));
+            lastFloor = fit.Floor;
         }
 
         // At its least card the main reading alone, at the floor.
-        Assert.Equal(face.Main, lastFloor);
+        Assert.All(face.Sizes.Where(s => s < face.Main), size => Assert.False(least.Draws(size), $"{kind} {style}: {size} at its least"));
+        Assert.InRange(least.Scale * face.Main, ScaleFloor.Text - 1e-6, ScaleFloor.Text + 3);
     }
 }

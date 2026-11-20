@@ -8159,8 +8159,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its **main reading** (its largest text: the clock's figures or words, the date's line or its day's number) is at 9.
   A smaller part (a meridiem, the line under, the page's weekday and month) is drawn while the card keeps it at 9 and
   gives way under that, the smallest first (`FaceFloor.Fit`, `FaceFit.Floor`), so no drawn text is ever under 9 and
-  none holds the reading large; once a part gave way the rest is never drawn larger than it was when the part went
-  (`FaceFit.Most`, `InkFit.Most`, `BlockFit.Lay`'s `most`), so the face only gets smaller as its card does. Its least
+  none holds the reading large; a part that went never comes back in a smaller card, and while none went every piece
+  is drawn (`FaceFit.Floor` 0). The clock and the date, one-line faces the owner lets stand centred, then keep the size
+  they had when the part went (`FaceFit.Most`, `InkFit.Most`, `BlockFit.Lay`'s `most`), so they only get smaller as their
+  card does. Its least
   box is the main reading alone at 9 in the card's inset, which does not scale (`FaceFloor.LeastBox` + 24,
   `WidgetSizing.ScalesDownTo`), never under 32: the clock 48 × 32 (Digital, Minimal; 60 with seconds), Stacked 35 × 43
   (55 with seconds), Flip 51..58 × 36..37 (its cards' room), Words 87 × 66, whatever its meridiem and line under; the dial goes down
@@ -8176,7 +8178,7 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (`WidgetSizing.ScalesDownTo(FaceParts)`: the main reading alone at 9 in the inset) and its `ReadingFit` (`Face`: in
   each room the fit works out what it draws and hides the rest, a Readout's own pieces through `IFacePieces`, a part
   through `AddGivesWay`, `GivesWayBox` or `GivesWay`; with no text left drawn, a picture, it holds to the main reading's
-  floor). Weather now (39 × 32; the large icon stays, 57 × 36), air quality (40 × 32; the gauge, now in the fit, 76 × 51),
+  floor; the parts left fill the card, WR-1 and WR-4, the block growing back into the room a part left, `FaceFit.Fill`). Weather now (39 × 32; the large icon stays, 57 × 36), air quality (40 × 32; the gauge, now in the fit, 76 × 51),
   exchange rate (60 × 32), screen time (67 × 32 under its day line, which is whole cells and stays), recycle bin
   (45 × 32; Empty gives way and stays on the card's menu), drive's bar (54 × 40), moon (52 × 36; the phase month's discs
   are its reading, its month's name gives way), brightness and volume (40 × 32; the slider's row gives way), alarm and

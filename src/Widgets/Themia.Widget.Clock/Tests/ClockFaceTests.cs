@@ -108,7 +108,8 @@ public sealed class ClockFaceTests
             Assert.Equal(double.PositiveInfinity, natural.Most);
 
             var least = ClockFace.Fit(sizing.Min.Width - (2 * FamilySpace.Inset), sizing.Min.Height - (2 * FamilySpace.Inset), config, meridiem);
-            Assert.Equal(figures, least.Floor);
+            Assert.All(parts.Where(size => size < figures), size => Assert.False(least.Draws(size)));
+            Assert.True(least.Draws(figures));
             Assert.InRange(least.Scale * figures, ScaleFloor.Text - 1e-6, ScaleFloor.Text + 3);
         }
     }

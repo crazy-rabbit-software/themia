@@ -88,7 +88,8 @@ public sealed class DateTests
         var natural = DateLayout.Fit(sizing.Natural.Width - 24, sizing.Natural.Height - 24, config, Locale.En);
         Assert.All(DateLayout.PartSizes(config), part => Assert.True(natural.Draws(part)));
         var least = DateLayout.Fit(sizing.Min.Width - 24, sizing.Min.Height - 24, config, Locale.En);
-        Assert.Equal(main, least.Floor);
+        Assert.All(DateLayout.PartSizes(config).Where(size => size < main), size => Assert.False(least.Draws(size)));
+        Assert.True(least.Draws(main));
         Assert.False(DateLayout.Lines(config, least.Floor));
         Assert.InRange(least.Scale * main, ScaleFloor.Text - 1e-6, ScaleFloor.Text + 3);
     }
