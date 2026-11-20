@@ -80,13 +80,17 @@ public sealed class TimerFaceTests
         // Owner, 2026-11-20: "the size should not be settable, it is set by the size of the widget": the natural card is
         // the face at the one-readout step; a smaller card draws it smaller, down to its Body text (the line under, the
         // buttons) at 9 (WR-14).
+        // The insets (12 either side) and the slack (2) stay; the block inside them scales.
         var face = TimerFace.Sized(Timer);
         var sizing = TimerFace.Sizing(face, controls: 100, header: false);
-        Assert.Equal(Math.Ceiling(sizing.Natural.Height * 9 / 14), sizing.Min.Height);
-        Assert.Equal(Math.Ceiling(sizing.Natural.Width * 9 / 14), sizing.Min.Width);
+        Assert.Equal(Math.Ceiling((sizing.Natural.Height - 26) * 9 / 14) + 26, sizing.Min.Height);
+        Assert.Equal(Math.Ceiling((sizing.Natural.Width - 26) * 9 / 14) + 26, sizing.Min.Width);
 
         // A ring's readout is 40 with a Body line under it: the same floor.
         var ring = TimerFace.Sizing(TimerFace.Sized(Timer, ring: true), controls: 0, header: false);
-        Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(ring.Natural.Height * 9 / 14)), ring.Min.Height);
+        Assert.Equal(Math.Ceiling((ring.Natural.Height - 26) * 9 / 14) + 26, ring.Min.Height);
+
+        // Never under the grid's least widget.
+        Assert.Equal(new Themia.Sdk.SizeDip(Themia.Sdk.WidgetSizing.LeastScaled, Themia.Sdk.WidgetSizing.LeastScaled), TimerFace.Least(new Themia.Sdk.SizeDip(40, 40), header: false, 0.1));
     }
 }

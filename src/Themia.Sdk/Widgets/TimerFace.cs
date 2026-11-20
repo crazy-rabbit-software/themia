@@ -118,6 +118,21 @@ public static class TimerFace
             + Math.Ceiling(face.Height + extra) + (controls > 0 ? ControlsCost : 0) + below + FamilySpace.Inset + Slack;
         var box = new SizeDip(width, height);
         var smallest = Math.Min(FamilyType.Under(face.Step).FontSize, controls > 0 ? FamilyType.Body.FontSize : double.PositiveInfinity);
-        return WidgetSizing.Range(box, box, box with { Width = Math.Ceiling(width * WidthRange) }).ScalesDown(ScaleFloor.Least(smallest));
+        return WidgetSizing.Range(Least(box, header, ScaleFloor.Least(smallest)), box, box with { Width = Math.Ceiling(width * WidthRange) });
+    }
+
+    /// <summary>
+    /// [S-12833] The least card of a timer whose natural card is <paramref name="box"/>: the block inside the insets (and
+    /// the slack) scaled by <paramref name="least"/>, the insets kept (they never scale), never under the grid's least
+    /// widget. A card under it would cut the block, which never draws under its floor.
+    /// </summary>
+    public static SizeDip Least(SizeDip box, bool header, double least)
+    {
+        var k = ScaleFloor.Clamp(least);
+        var across = (2 * FamilySpace.Inset) + Slack;
+        var down = (header ? FamilySpace.ContentTop : FamilySpace.Inset) + FamilySpace.Inset + Slack;
+        return new SizeDip(
+            Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((box.Width - across) * k) + across),
+            Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((box.Height - down) * k) + down));
     }
 }

@@ -30,11 +30,11 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   empty at random), centre in the middle half of its cell, side 1.05–1.4× the cell's short side
   (capped at 90% of the card's), tilt ±12° as in the original, stacking order shuffled. The
   original's "within 28% of the centre" heaped every print in the middle of a big card. As many
-  prints as Pictures shown says ([S-11207]).
+  prints as its card holds ([S-11207], [S-14410]).
 - **[S-765]** Mosaic: the card cut recursively, the first half of the pictures getting a 35–65%
   share, across the longer side (the original alternated; same on a square, no slivers on a strip).
-  Cells tile the card exactly with no gaps; always cropped to fill. As many cells as Pictures shown
-  says ([S-11207]).
+  Cells tile the card exactly with no gaps; always cropped to fill. As many cells as its card holds
+  ([S-11207], [S-14410]).
 - **[S-6402]** The gallery's styles ([S-6000]) are its layouts, `GalleryConfig.Style`
   (`GalleryStyle`, `"style": "slideshow"`): **Slideshow**, **Grid**, **Scatter** ([S-764]) and
   **Mosaic** ([S-765]), in that order; the Layout row is gone. A folder's choice: one picture file

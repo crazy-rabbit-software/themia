@@ -1152,7 +1152,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   laps), the row and its 8, plus 2 of slack, as wide as the wider of the face and the row, the width up to half again
   wider with the face centred; the card's size past that is the user's ([S-12411]) and the block scales up with it
   as one ([S-12808]); it scales down as one too, to where its Body text (the line under, the buttons) is at the floor
-  (`ScalesDown`, [S-12833], WR-14): that is its Min. Nothing appears or goes with the size. Tests
+  ([S-12833], WR-14), the insets kept (`TimerFace.Least`): that is its Min. Nothing appears or goes with the size. Tests
   `TimerFaceTests.S11300_`.
 - **[S-6740]** **Split-flap cards** (the clock's Flip style, the Countdown's; `FlipCard`, `FlipRules`):
   one card per part of the time, 8 apart, each its figures' widest case on a family step with 12

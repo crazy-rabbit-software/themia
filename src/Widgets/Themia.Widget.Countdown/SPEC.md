@@ -30,13 +30,13 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
   days ago).
 - **[S-6031]** **Ring**: the time left as the Chart block's ring (`ChartRing`, stroke 2 over its
   Track, the arc in the accent), the duration and its date in the ring's hole (`ChartRules.Hole`) one
-  step under the Size's, the ring the least that holds them ([S-11300]); the ring is the share still
+  step under the face's (40), the ring the least that holds them ([S-11300]); the ring is the share still
   to go from when the target was set to the target (`CountdownLayout.Left`), so it empties as the day
   comes; without that time ([S-1448]) it draws its track alone. The ring is the progress: no bar
   under it.
 - **[S-6032]** **Flip**: split-flap cards ([S-6740], `FlipCard` sized by `FlipRules`) side by side,
   8 apart, each with its unit under it ("days", "hours", "min", "sec") on the cards' line under
-  (`FamilyType.Under`, secondary), the cards one step under the Size's and each as wide as three
+  (`FamilyType.Under`, secondary), the cards one step under the face's (40) and each as wide as three
   figures ([S-11303]): days while there is at least one (as many figures
   as it takes), then hours and minutes, two figures each, and seconds when the format shows them
   (`CountdownLayout.Cards`); a target gone by counts up in the critical role. A card whose figures

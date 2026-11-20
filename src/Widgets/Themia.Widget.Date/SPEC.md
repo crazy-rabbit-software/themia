@@ -4,7 +4,7 @@ The module `date` ([S-6911]). Its tags are [S-10800]..[S-10899], this file's alo
 `SPEC.md` holds the host's sections (the clock's date moved here, [S-12805]; the face fills its card as the
 clock's does, [S-12804]).
 
-Owning files: everything in this folder: `DateModule.cs` (descriptor, view factory, the Size line, JSON
+Owning files: everything in this folder: `DateModule.cs` (descriptor, view factory, JSON
 context), `DateConfig.cs` (`DateWidgetStyle`, the config), `DateLayout.cs` (the words and the sizes, pure),
 `DateView.cs`, `Samples/`, `Preview/`. Tests: `Tests/DateTests.cs` (run by `tests/Themia.Modules.Tests`).
 

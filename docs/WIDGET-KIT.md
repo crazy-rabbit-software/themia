@@ -2974,7 +2974,7 @@ A timer (alarm, countdown, stopwatch, pomodoro, focus session) plans its face on
 and the `ControlsBlock` centred at the bottom inset, always; a ring is the Chart block's `ChartRing` with the
 readout one step under (40) in its hole (`ChartRules.Hole`), the least ring that holds it. That face is the card's
 natural size (`TimerFace.Sizing`); the card's size is the user's and the block scales up and down with it as one
-(`ReadingFit`), down to its Body text's floor (`ScalesDown`, [S-12833]). One main action: the start/pause toggle
+(`ReadingFit`), down to its Body text's floor (`TimerFace.Least`, the insets kept, [S-12833]). One main action: the start/pause toggle
 (`Main`, `Relabel` to Pause), an alarm's Dismiss; icon buttons for reset, lap, skip and steppers; an on/off
 state is the row's `Switch` (`Set` to show a state read back). The row never drops a button; the keys
 and the card menu reach them too. Split-flap cards are `FlipCard`s sized by `FlipRules.Plan` (the figures' widest

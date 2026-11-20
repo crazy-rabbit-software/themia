@@ -27,9 +27,9 @@ public sealed class AlarmFaceTests
         // The inset, the 68 line and its Body line under, 8, the Controls row, the inset, the slack.
         Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, sizing.Natural.Height);
 
-        // [S-12833] Down as one until its Body text (the line under, the buttons) is at 9.
-        Assert.Equal(Math.Ceiling(sizing.Natural.Height * 9 / 14), sizing.Min.Height);
-        Assert.Equal(Math.Ceiling(sizing.Natural.Width * 9 / 14), sizing.Min.Width);
+        // [S-12833] Down as one until its Body text (the line under, the buttons) is at 9; the insets do not scale.
+        Assert.Equal(Math.Ceiling((sizing.Natural.Height - 26) * 9 / 14) + 26, sizing.Min.Height);
+        Assert.Equal(Math.Ceiling((sizing.Natural.Width - 26) * 9 / 14) + 26, sizing.Min.Width);
         Assert.Null(typeof(Themia.Core.Model.AlarmConfig).GetProperty("Size"));
         Assert.Equal(FamilyType.Hero68, AlarmFace.Sized(new Themia.Core.Model.AlarmConfig(), locale).Step);
     }
