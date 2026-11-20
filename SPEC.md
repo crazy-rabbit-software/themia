@@ -2446,9 +2446,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   state, one and three widgets selected and cleared, the selection's page closed and opened by its entry and its tabs,
   every page of the bar opened and closed, a view's card on Views and a section of Appearance expanded and collapsed,
   Lock widgets on General and a setting on Appearance switched, the add page opened, closed and its subjects switched,
-  a card's menu opened. Per step, over the
-  step and `--frames` rendered frames after it (24): the UI thread's milliseconds of the step with its layout (median,
-  95th percentile), its CPU time (`QueryThreadCycleTime`, the idle frames' own taken off), the frames longer than 20 ms
+  a card's menu opened; and what a whole state document of 77 KB costs written (as the store writes it) and read back.
+  Per step, over the step and `--frames` rendered frames after it (24): the UI thread's milliseconds of the step with its
+  layout (median, 95th percentile), its CPU time (`QueryThreadCycleTime`, the idle frames' own taken off), the frames longer than 20 ms
   (a 60 Hz frame past the idle frames' jitter) and the longest, the layout passes, the elements put in the tree, the
   page drawings, the bytes allocated on the UI thread and the collections. The counts are the evidence; the times are a
   Debug build's on a shared machine.

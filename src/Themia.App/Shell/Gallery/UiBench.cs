@@ -1,6 +1,7 @@
 #if DEBUG
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation.Peers;
@@ -195,6 +196,14 @@ internal static partial class UiBench
 
             host.SetEditMode(false);
             await probe.Settle().ConfigureAwait(true);
+
+            // What a whole snapshot of a state document of a real size costs (taken before a change to take a throwing one
+            // back): written as the store writes it, and read back as an import or a take-back reads it.
+            var document = Document(77 * 1024);
+            var json = JsonSerializer.Serialize(document, StateJson.AppState);
+            Say($"ui-bench: a state document of {json.Length / 1024.0:0.0} KB ({document.Views.Sum(v => v.Widgets.Count)} widgets in {document.Views.Count} views)");
+            await probe.Run("state snapshot: write (UTF-8 bytes)", () => _ = JsonSerializer.SerializeToUtf8Bytes(document, StateJson.AppState), repeat, Say).ConfigureAwait(true);
+            await probe.Run("state snapshot: read back", () => _ = JsonSerializer.Deserialize(json, StateJson.AppState), repeat, Say).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
@@ -336,6 +345,26 @@ internal static partial class UiBench
         }
 
         return (view, others, rows, icons);
+    }
+
+    /// <summary>A state document at least <paramref name="bytes"/> long: views of the bench's kinds, as many as it takes.</summary>
+    private static AppState Document(int bytes)
+    {
+        var state = new AppState();
+        string[] kinds = ["clock", "date", "battery", "cpu", "memory", "gpu", "wifiToggle", "countdown", "stopwatch", "moon", "pomodoro", "header", "desktopItem"];
+        while (JsonSerializer.Serialize(state, StateJson.AppState).Length < bytes)
+        {
+            var view = ViewState.Create($"View {state.Views.Count + 1}");
+            for (var i = 0; i < kinds.Length; i++)
+            {
+                view.Widgets.Add(WidgetInstance.Create(new WidgetId(kinds[i]), new FracRect(0.05 + (0.07 * i), 0.1, 0.06, 0.1)));
+            }
+
+            state.Views.Add(view);
+        }
+
+        state.ActiveViewId = state.Views[0].Id;
+        return state;
     }
 
     /// <summary>Each row's cards put edge to edge where they are drawn, so they join.</summary>
