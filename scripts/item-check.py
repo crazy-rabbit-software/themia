@@ -3,9 +3,11 @@ item boxes the render lays out, every kind, every state its renders offer, at it
 natural (`--sizes steps`: one to five cells more and fewer on each axis and odd heights of 11, 13 and 17 cells, the sizes
 whole-item steps once forbade, [S-14500]) and at desktop sizes. Needs a Debug build of the app.
 
-usage: python scripts/item-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a,b] [--sizes s1;s2] [--jobs 4]
-                                    [--timeout 120]
+usage: python scripts/item-check.py --exe <Themia.exe> [--changed [range] | --kinds a,b | --all] [--out <dir>]
+                                    [--sizes s1;s2] [--jobs 2] [--timeout 120] [--cache <dir>]
 
+The kinds: what a change touches (`--changed`, the default), `--kinds` or `--all`, their states from the build's
+catalog; the renders come from the one cached pass every check shares (scripts/renders.py, [S-14341] [S-14342]).
 Each render is drawn with `--widget-png <kind> <png> --sizes <s> --transparent [--state <s>] --layout-json <json>`: the
 JSON holds every card's box, its grid pitch, its items (rows, cells, tiles: `ItemMark`) as they show in it, grouped by
 the panel that lays them, and the ink outside every item. For every group of items it judges:
