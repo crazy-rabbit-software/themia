@@ -2372,8 +2372,9 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   undo, the press letting go) is posted once to the dispatcher (normal priority: never starved) and drawn after the event, asks while one
   is posted being that one, a press landing before its turn holding it again (`FlyoutRedraws` over `FlyoutPress`:
   `Redraw`/`Release` post, `Run` draws); what the drawing throws is logged, never let out of the callback. The page
-  itself never empties the panel it drew: each drawing (its own too, from a tab, a back head, an answer) is a new panel
-  put in the old one's place (`PageView`, a content control). Nothing over the flyouts takes a press: Debug's
+  itself never changes the panel it drew inside an event: a drawing of new rows is a new panel put in the old one's
+  place (`PageView`, a content control), and a drawing of the same rows (its own: a card opened, a tab, a back head, an
+  answer, [S-2361]) is posted and puts what changed in the standing panel after the event. Nothing over the flyouts takes a press: Debug's
   `--editbar-png` hit-tests a grid every 5 DIPs over each page's flyout and prints how many points the page took
   (`FlyoutHitProbe`: every point of every select-* and page-* picture, the shine-through windows over real cards
   included, is the page's), and plays a press, a change under it and its release through `FlyoutRedraws` on each

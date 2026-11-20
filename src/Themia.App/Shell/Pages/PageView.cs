@@ -30,9 +30,10 @@ namespace Themia.App.Shell;
 /// (<see cref="KeptCards"/>), and only the cards it changed are built and put in.
 /// </para>
 /// <para>
-/// [S-2346] A drawing is a new panel put in the old one's place, never the old one emptied: a drawing asked from
-/// inside a row's own pointer event (a click, a release) would otherwise take that row out of the panel XAML is
-/// still handing the event through, and XAML throws out of the panel's <c>Clear</c>.
+/// [S-2346] Never the panel changed inside an event: a drawing of new rows is a new panel put in the old one's place,
+/// and a drawing of the same rows is posted ([S-2361]). A drawing inside a row's own pointer event (a click, a
+/// release) that emptied the panel took that row out of the panel XAML was still handing the event through, and XAML
+/// threw out of the panel's <c>Clear</c>.
 /// </para>
 /// </summary>
 internal sealed partial class PageView : ContentControl
