@@ -131,8 +131,8 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   SurfaceDrops, DesktopItem with DesktopItemKeys, DesktopCommands (what a command does to a selection of
   desktop icons), DragGhost (Explorer's drag picture; a desktop icons' move shows the held icon alone, `OfMove`), TypeIconName, FenceRules (a fence's rules), DesktopSortBy and the
   records the file contracts carry; Widgets/FenceGrid, a fence's cells (the one layout of its body); Model/Configs/IHoldsDesktopItems, a fence's config contract)
-  Widgets/ (WidgetArea, LayoutMath, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
-  HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ColourPicker, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
+  Widgets/ (WidgetArea, LayoutMath, keys, fits, styles, IShownSettings, Formatting, RingArc, item roles,
+  HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ColourPicker, ScreenPick, ReorderKeys) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
   WidgetDescriptor, ModuleCatalog, IProviderModule, ProviderCatalog, FeatureSet, CadenceRow, WidgetTraits, AddPlacement)
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's rules, and the widgets not yet moved.

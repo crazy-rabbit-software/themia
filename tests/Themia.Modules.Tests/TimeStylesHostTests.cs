@@ -7,8 +7,7 @@ namespace Themia.Modules.Tests;
 
 /// <summary>
 /// [S-6030] The time widgets' styles, over every widget of the build (they are module projects, which
-/// only this host has). The rest of the time styles' tests are Core's TimeStylesTests and the
-/// modules' own.
+/// only this host has). The rest of the time styles' tests are the modules' own.
 /// </summary>
 public sealed class TimeStylesHostTests
 {

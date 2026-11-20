@@ -7,9 +7,6 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 public enum MeterLook
 {
-    /// <summary>[S-1762] Legacy: the reading over its history (a kind not split yet).</summary>
-    Graph = 0,
-
     /// <summary>[S-6302] The reading inside a half-circle gauge of the same share.</summary>
     Gauge = 1,
 

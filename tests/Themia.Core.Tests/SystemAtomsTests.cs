@@ -53,7 +53,6 @@ public sealed class SystemAtomsTests
 
     [Theory]
     [InlineData(MeterLook.Number, true)]
-    [InlineData(MeterLook.Graph, true)]
     [InlineData(MeterLook.Gauge, true)]
     [InlineData(MeterLook.Rows, true)]
     [InlineData(MeterLook.Signal, true)]

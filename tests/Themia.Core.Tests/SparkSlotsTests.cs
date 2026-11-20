@@ -20,10 +20,10 @@ public sealed class SparkSlotsTests
         Assert.Equal(Width - (Stroke / 2), x[^1], 9);
         Assert.Equal(Stroke / 2, x[0], 9);
 
-        // [S-1824] The same places Sparkline gives a full window, half a stroke inside either edge.
+        // [S-1824] A full window: one slot apart, half a stroke inside either edge.
         for (var i = 0; i < x.Length; i++)
         {
-            Assert.Equal(Sparkline.PlotX(i, Window, Window, Width, Stroke), x[i], 9);
+            Assert.Equal((Stroke / 2) + (i * (Width - Stroke) / (Window - 1)), x[i], 9);
         }
     }
 

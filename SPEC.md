@@ -3487,9 +3487,8 @@ the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
 files: `Shell/Pages/SelectionRows.cs` (the selection's page, [S-2340]), `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
-rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
-`Settings/ListDrop.cs`, `Settings/ListDrag.cs` and `Settings/MenuShare.cs` (tests `QuickSetTests`,
-`ListDropTests`, `ListDragTests`, `MenuShareTests`); a widget's own lines in the SDK's
+rules in Core `Model/QuickSet.cs` and `Shell/SelectionPage.cs`
+(tests `QuickSetTests`); a widget's own lines in the SDK's
 `Modules/WidgetMenuLines.cs` and `Modules/MenuSlider.cs` (tests `WidgetMenuLinesTests` in the module host).
 
 - **[S-3700]** *(Retired by [S-3707]: the controls are no longer a group on the edit bar. A user
@@ -3632,9 +3631,8 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
 - **[S-3732]** An **ordered list**'s item rows ([S-3729], `ItemMenuEntry.Order`, `MenuOrder`) are
   **dragged up and down** inside their level (user request 2026-10-19): a mouse press that travels 4
   DIPs ([S-913]) starts it (the row fades), an accent drop line shows
-  the gap it lands in (`ListDrop.Gap`: before the first line whose middle is below the pointer), and
-  the release moves the item there (`ListDrop.Target`; the gaps either side of it leave it where it
-  is) and saves once. It is drawn in the panel's own window with the pointer captured, never an OLE
+  the gap it lands in, and the release moves the item by as many places as the pointer travelled whole
+  steps of its height (`PageView.Draggable`; less than half a step leaves it where it is) and saves once. It is drawn in the panel's own window with the pointer captured, never an OLE
   drag. Ctrl+Up / Down on a focused item line moves it a place ([S-3748]), the focus staying
   on it. Each item line carries a grip before its chevron and says both ways in its tooltip and its
   automation help ("Drag to reorder, or press Ctrl+Up or Ctrl+Down"). A release on the
@@ -3841,7 +3839,7 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
 - **[S-6060]** *(Retired, group G5, 2026-10-29: every ring is the Chart block's `ChartRing`, stroke 2
   over its Track ring ([S-6717]); the timers set their readout in its hole ([S-6739]). `RingPart`, its
   geometry `RingArc` and the stroke of a twentieth of the diameter are gone.)*
-- **[S-6061]** One reflow rule for every dot grid (`DotGrid.Fit`: the moon's month): every column count is tried and the one whose square cells are largest kept, on a tie
+- **[S-6061]** *(Retired 2026-11-20: no widget lays a dot grid any more; `DotGrid` is gone.)* One reflow rule for every dot grid (`DotGrid.Fit`: the moon's month): every column count is tried and the one whose square cells are largest kept, on a tie
   the one with fewer empty cells in the last row; the gap is a quarter of the pitch, so a larger
   tile spaces the dots in proportion.
 - **[S-6010]** *(Retired by [S-6536]: the style is picked on the properties panel only.)*
@@ -4471,7 +4469,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   readout's width is judged by its glyphs ([S-6702]).
 
 
-Known and left: sparklines grow in from the right for their first minute by design ([Sparkline]);
+Known and left: sparklines grow in from the right for their first minute by design (`SparkSlots`);
 the scrolling lists (feed, folder) show a partial last row at
 the bottom edge as any scrolling list does.
 

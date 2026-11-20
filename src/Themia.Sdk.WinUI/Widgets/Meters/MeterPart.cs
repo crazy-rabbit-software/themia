@@ -165,8 +165,8 @@ public abstract class MeterPart
     /// <summary>[S-12481] A mark over the content's top end (Ping's problem glyph), or null. Read once.</summary>
     public virtual Microsoft.UI.Xaml.FrameworkElement? Mark => null;
 
-    /// <summary>[S-6300] What this config's style draws besides the reading; the history for a kind without styles.</summary>
-    public virtual MeterLook Look(WidgetConfig config) => MeterLook.Graph;
+    /// <summary>[S-6300] What this config's style draws besides the reading.</summary>
+    public abstract MeterLook Look(WidgetConfig config);
 
     /// <summary>
     /// [S-11000] Which of its subject's atoms this face is: the reading (the default), the history alone,
