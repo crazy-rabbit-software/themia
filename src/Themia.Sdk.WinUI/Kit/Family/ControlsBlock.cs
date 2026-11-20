@@ -70,9 +70,9 @@ public sealed partial class ControlsBlock : Grid
             MinWidth = 0,
             Width = ControlsRules.SwitchWidth,
 
-            // The template's own row is taller than the Controls row: the row stays 32 (its track is 20).
+            // [S-14283] At the template's own height: forced to the Controls row's 32 it cut its track's foot. Its ink is
+            // its track (PartInk), centred in that height.
             MinHeight = 0,
-            Height = FamilyShape.Button,
             VerticalAlignment = VerticalAlignment.Center,
             AllowFocusOnInteraction = false,
             IsTabStop = false,

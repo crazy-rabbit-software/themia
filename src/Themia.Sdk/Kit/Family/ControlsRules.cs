@@ -41,6 +41,9 @@ public static class ControlsRules
     /// <summary>A switch's width: Windows' toggle switch track (the Tile's switch look draws the same).</summary>
     public const double SwitchWidth = TileRules.SwitchWidth;
 
+    /// <summary>[S-14283] A switch's track's height: its ink, centred in the template's own height.</summary>
+    public const double SwitchTrack = 20;
+
     /// <summary>
     /// [S-12833] The text size a Controls row gives way at in a face drawn small (<c>FaceFloor</c>): its words' (Body);
     /// a 16 glyph on an icon button reads like 12, and a slider or a switch is no smaller to use than a word is to read.

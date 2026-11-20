@@ -35,6 +35,7 @@ public static class PartInk
         {
             IInked part => held ? part.Held : part.Ink,
             Slider { Orientation: Orientation.Horizontal } slider => Thumb(slider),
+            ToggleSwitch toggle => Track(toggle),
             TextBlock text => text.LineHeight > 0 ? LineInk.Of(new TypeStep(text.FontSize, text.LineHeight, false)) : LineInk.None,
             Border border when border.Child is { } child => Add(Of(child, held), border.Padding.Top + border.BorderThickness.Top, border.Padding.Bottom + border.BorderThickness.Bottom),
             StackPanel { Orientation: Orientation.Vertical } stack => Add(Stacked(stack.Children, held), stack.Padding.Top, stack.Padding.Bottom),
@@ -114,6 +115,14 @@ public static class PartInk
     {
         var box = slider.DesiredSize.Height - slider.Margin.Top - slider.Margin.Bottom;
         var room = Math.Max(0, (box - SliderThumb) / 2);
+        return new LineInk(room, room);
+    }
+
+    /// <summary>[S-14283] A toggle switch: the room its template's box holds over and under its track, centred in it.</summary>
+    private static LineInk Track(ToggleSwitch toggle)
+    {
+        var box = toggle.DesiredSize.Height - toggle.Margin.Top - toggle.Margin.Bottom;
+        var room = Math.Max(0, (box - ControlsRules.SwitchTrack) / 2);
         return new LineInk(room, room);
     }
 

@@ -8156,6 +8156,11 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   above, and across each part stands where its alignment puts it (a price at the start, a timer centred). The pomodoro's side-by-side column ([S-14281]) and the screen-time day line ([S-14282], [S-14284]) follow.
   Tests `BlockFitTests.S14280_`; renders `--widget-png stock|exchangeRate|screenTime|music|focusSession|alarm|moon|
   airQuality --sizes range` and `--sizes 330x140,300x164,600x200`.
+- **[S-14283]** **A Controls row's switch is drawn whole** (WR-7: the controls are the block's). The switch
+  (`ControlsBlock.Switch`, the alarm's) stands at its template's own height, its track (20, `ControlsRules.SwitchTrack`)
+  centred in it, and its ink is that track (`PartInk`, as a slider's is its thumb), so the block's last ink is the
+  track's foot. Before, the switch was held to the Controls row's 32 and the template cut its track's foot flat at
+  every size. Renders `--widget-png alarm --state set|off|snoozed|ringing --sizes range`.
 - **[S-12815]** **A list's first row stands on the card's top edge, and the gap check** (owner, 2026-11-19: "or the
   stick too. audit all the widgets and make sure that this shit does not happen anywhere. test this properly"; "no
   this is fine if it happens, but there should not be a space at the top"). A list whose rows are the first thing in
