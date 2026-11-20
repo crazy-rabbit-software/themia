@@ -3,6 +3,7 @@ its natural and its large) and at real desktop sizes, measured for the empty ban
 edges, against the owner's rules as worded in docs/WIDGET-RULES.md. Needs a Debug build of the app.
 
 usage: python scripts/gap-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a,b] [--jobs 4] [--timeout 120]
+       python scripts/gap-check.py --self-test   # the judge's rules on made-up cards, no render
 
 For each kind (`--changed`, the default, `--kinds` or `--all`) it draws each state the build's catalog lists, once a
 build for every check (scripts/renders.py, [S-14341] [S-14342]),
@@ -26,14 +27,19 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   top and foot (owner, 2026-11-19: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand
   inside it, over the plot); its top right under the card's compact Set up line where the card shows one ([S-12835],
   the layout's `setup`). Where it does, the plot is the card's top and foot (WR-1, WR-4: a line chart's line stands
-  where its value is, its plot still reaches the edges); a graph kind drawn with no plot is a finding (WR-10).
+  where its value is, its plot still reaches the edges) and, where it reaches the card's left and right edges, its sides
+  too (WR-3: a flat zero line with only a status text over it is a plot edge to edge); a graph kind drawn with no plot is
+  a finding (WR-10).
 
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
 Windows' icon cell (not judged); a tile (quick toggles, power buttons) and a one-line face (clock, date, header) may
 stand centred: the bands over and under the face alike (within the tolerance), its sides as any card's; a reading (a card
 with no item and no plot) whose ink reaches the edges of one axis may stand centred on the other ([S-14301], owner
-2026-11-20: "Centred is fine"): the two bands of that axis alike, not within the inset. Every render runs
+2026-11-20: "Centred is fine"): the two bands of that axis alike, not within the inset. Across, a reading that fills the
+height stands where its card's alignment puts it (the layout's `align`, [S-6583]: a kind that aligns in its style draws
+the alignment shown, any other is centred): centred, its two side bands alike; at the start, its left band within the
+inset and its right free; at the end, mirrored. Down it is always centred. Every render runs
 under a hard timeout and is killed when it overruns. Writes <out>/gaps.md (the whole matrix), <out>/gaps.json and
 <out>/findings.txt; exits 1 on any finding.
 """
@@ -150,6 +156,7 @@ def judge(kind, card, layout):
     plot_top = plot_foot = False
     if layout is not None and graph(kind) and plot is None:
         found.append('WR-10 no plot')
+    plot_sides = False
     if plot is not None:
         l, t, r, b = plot
         cw, ch = layout['w'], layout['h']
@@ -157,13 +164,15 @@ def judge(kind, card, layout):
         if l > EDGE or r < cw - EDGE or t > top_edge or b < ch - EDGE:
             found.append(f'plot not edge to edge {l:.1f}..{r:.1f} x {t:.1f}..{b:.1f} of {cw:.0f}x{ch:.0f}')
         plot_top, plot_foot = t <= top_edge, b >= ch - EDGE
+        # [S-6754] A plot from the card's left edge to its right is the card's sides, as it is its top and foot (WR-3).
+        plot_sides = l <= EDGE and r >= cw - EDGE
     # [S-14301] A reading (no item, no plot) that fills one axis stands centred on the other (owner, 2026-11-20:
-    # "Centred is fine"): that axis's bands alike, not within the inset.
+    # "Centred is fine"): that axis's bands alike, not within the inset; across, where its card's alignment puts it.
     if not items and plot is None:
         tall = top <= limit and foot <= limit
         wide = left <= limit and right <= limit
         if tall and not wide:
-            return found + ([] if abs(left - right) <= TOLERANCE else [f'reading off centre sides {left:.1f}/{right:.1f}'])
+            return found + across(left, right, (layout or {}).get('align', 'center'), limit)
         if wide and not tall:
             return found + ([] if abs(top - foot) <= TOLERANCE else [f'reading off centre top/foot {top:.1f}/{foot:.1f}'])
     if top > limit and not on_top and not plot_top:
@@ -173,9 +182,19 @@ def judge(kind, card, layout):
         found.append(f'WR-4 foot {foot:.1f}')
     # Item boxes from the card's left edge to its right: the item check's box rule judges them (WR-3), not their ink.
     width = (layout or {}).get('w', w)
-    if not (items and spans(items, width)) and (left > limit or right > limit):
+    if not (items and spans(items, width)) and not plot_sides and (left > limit or right > limit):
         found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
     return found
+
+
+def across(left, right, align, limit):
+    """[S-14301] The side bands of a reading that fills its card's height, judged by where its alignment puts it: centred,
+    the two alike; at the start, the left within the inset and the right free; at the end, the right within it."""
+    if align == 'left':
+        return [] if left <= limit else [f'reading off the start {left:.1f}/{right:.1f}']
+    if align == 'right':
+        return [] if right <= limit else [f'reading off the end {left:.1f}/{right:.1f}']
+    return [] if abs(left - right) <= TOLERANCE else [f'reading off centre sides {left:.1f}/{right:.1f}']
 
 
 def spans(items, width):
@@ -213,7 +232,42 @@ def check(kind, states, drawn, out):
     return lines
 
 
+def self_test():
+    """The judge's rules on made-up cards (w, h, top, foot, left, right), each a case the renders met."""
+    def card(w, h, top, foot, left, right, **layout):
+        return (w, h, top, foot, left, right), dict({'w': w, 'h': h, 'items': [], 'plots': []}, **layout)
+
+    cases = [
+        # [S-14301] A reading that fills the height stands where its alignment puts it.
+        ('recycleBin left in a wide card, its card centred', card(600, 200, 12, 12, 11.3, 423), [], True),
+        ('the same reading at the start of a card aligned left', card(600, 200, 12, 12, 11.3, 423, align='left'), [], False),
+        ('a reading aligned left off the start', card(600, 200, 12, 12, 40, 300, align='left'), [], True),
+        ('a reading aligned right at the end', card(600, 200, 12, 12, 300, 12, align='right'), [], False),
+        ('a reading aligned right standing at the start', card(600, 200, 12, 12, 12, 300, align='right'), [], True),
+        ('a centred reading', card(600, 200, 12, 12, 150, 152), [], False),
+        ('a centred reading, its card aligned centre', card(600, 200, 12, 12, 150, 152, align='center'), [], False),
+        # Down it is always centred, whatever the alignment.
+        ('a width-held reading centred down', card(300, 164, 30, 31, 12, 12, align='left'), [], False),
+        ('a width-held reading high', card(300, 164, 42.7, 58, 12, 12, align='left'), [], True),
+        # [S-6754] A plot edge to edge is the card's sides too: cpuHistory's "No data yet" over a flat zero line.
+        ('a graph whose plot spans the card', card(330, 130, 12.7, 0, 12.7, 254.7,
+                                                   plots=[{'x': 0, 'y': 0, 'w': 330, 'h': 130}]), [], False),
+        ('a graph whose plot stops short', card(330, 130, 12.7, 0, 12.7, 254.7,
+                                                plots=[{'x': 0, 'y': 0, 'w': 300, 'h': 130}]), [], True),
+    ]
+    failed = 0
+    for name, (measured, layout), _, finds in cases:
+        found = judge('cpuHistory' if layout['plots'] else 'recycleBin', measured, layout)
+        if bool(found) != finds:
+            failed += 1
+            print(f'FAIL {name}: {found}')
+    print(f'gap-check self-test: {len(cases) - failed} of {len(cases)} passed')
+    sys.exit(1 if failed else 0)
+
+
 def main():
+    if '--self-test' in sys.argv[1:]:
+        self_test()
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ap = argparse.ArgumentParser()
     renders.add_arguments(ap)

@@ -1253,7 +1253,9 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the stock's pointer readout, its crosshair and a linked moment's hairline are drawn over the plot, inside its text
   box. The gap check judges it (`scripts/gap-check.py`: each chart's plot from `--layout-json`'s `plots`, and a plot
   drawn off the chart marked one, `PlotMark`, reaches the card's edges, its top right under the card's Set up line where
-  it shows one; where it does it is the card's top and foot).
+  it shows one; where it does it is the card's top and foot, and where it reaches the card's left and right edges its
+  sides too: a graph with no data yet, its status text over a flat zero line, is a plot edge to edge, never a WR-3
+  finding of the text's short ink).
 - **[S-6745]** **The shell's measurements** (`ShellMetrics`, `Themia.Sdk/Kit/Family/ShellTokens.cs`): the
   app's own chrome is drawn from the family's tokens like a widget, its own spacings on the scale; what
   Windows or Karpo measure for a piece of chrome and the family has no token for is named there, each
@@ -8493,7 +8495,14 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   one axis stops it ([S-12808]); the leftover on the other axis is shared alike on both sides, never put between its
   parts (WR-7). The gap check judges a card with no item and no plot whose ink reaches both edges of one axis (each band
   within the inset and the tolerance) by the other axis's two bands being alike (within the tolerance); a reading that
-  reaches neither axis is still a finding, and lists, graphs and items are not relaxed.
+  reaches neither axis is still a finding, and lists, graphs and items are not relaxed. *Amended 2026-11-20* (a helper's
+  reading of the owner's answer together with the alignment setting the owner built, [S-6580]..[S-6584]; not a rule of
+  docs/WIDGET-RULES.md): across, a reading that fills the height stands where its card's alignment puts it. A kind that
+  aligns in its style ([S-6581]) stands as its card's alignment says ([S-6583]): Center, its two side bands alike; Left,
+  its left band within the inset and its right side free; Right, mirrored. Any other kind has no alignment to follow and
+  stands centred, the owner's words. Down, a reading that fills the width is always centred. The layout dump writes each
+  card's `align` (`ItemDump`: `ContentAlignment.Shown` where the kind aligns in its style, else `center`) and the check
+  judges by it (`python scripts/gap-check.py --self-test` holds the cases).
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day

@@ -6,6 +6,8 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Widgets;
+using Themia.Core.Model;
+using Themia.Core.Widgets;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Core.Widgets;
 using Windows.Foundation;
@@ -49,6 +51,10 @@ internal static class ItemDump
 
             // [S-12835] [S-6754] The card's compact Set up line over the view: a plot stands right under it.
             w.WriteNumber("setup", Math.Round(card.SetupBand, 2));
+
+            // [S-14301] Where the card's content stands across: the alignment it draws where its kind aligns in its style
+            // ([S-6583]), else centred (the owner's "Centred is fine": the leftover shared alike on both sides).
+            w.WriteString("align", Across(card.Model));
 
             var items = new List<(FrameworkElement Item, Rect Box, bool Cut)>();
             var ink = new List<(FrameworkElement Part, Rect Box)>();
@@ -129,6 +135,15 @@ internal static class ItemDump
         w.WriteEndArray();
         w.WriteEndObject();
     }
+
+    /// <summary>[S-14301] The card's content alignment as the check reads it: left, center or right.</summary>
+    private static string Across(WidgetInstance widget)
+        => !ContentAlignment.Applies(widget) ? "center" : ContentAlignment.Shown(widget) switch
+        {
+            ContentAlign.Right => "right",
+            ContentAlign.Center => "center",
+            _ => "left",
+        };
 
     private static void Box(Utf8JsonWriter w, Rect box)
     {
