@@ -44,6 +44,9 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
     private bool _detached;
 
+    /// <summary>[S-14500] The rows the list's room holds at their optimal; 0 before it is measured (the config's Rows then).</summary>
+    private int _held;
+
     private readonly IWidgetHost _host;
 
     public ScreenTimeAppsView(IWidgetHost host)
@@ -77,6 +80,21 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         _nav.Line.Margin = Family.SideInset;
         SetRow(_list, 1);
         SetRow(_empty, 1);
+
+        // [S-11510] [S-14500] How many rows stand is what the list's room holds at their optimal, stretched to fill it: a
+        // size that holds another count lays them again.
+        _list.SizeChanged += (_, args) =>
+        {
+            var held = ScreenTimeAppsLayout.RowsIn(args.NewSize.Height, _config.RowsShown.Lines, ItemGrids.Of(this));
+            if (held != _held)
+            {
+                _held = held;
+                if (_data is { } data && _list.Visibility == Visibility.Visible)
+                {
+                    Lay(data);
+                }
+            }
+        };
         Children.Add(_nav.Line);
         Children.Add(_list);
         Children.Add(_empty);
@@ -204,7 +222,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private void Lay(ScreenTimeData data)
     {
         var average = data.Window && _config.ShowAverage;
-        var plan = ScreenTimeAppsLayout.Apps(_config);
+        var plan = ScreenTimeAppsLayout.Apps(_config, _held);
         var named = ScreenTimeRules.ListNamed(plan.Rows, data.Apps.Count);
         _segments = plan.Rows == 0 ? [] : ScreenTimeRules.Segments(data.Apps, data.Total, named, Str.Screentime_Other.Text());
         var rows = Math.Min(plan.Rows, _segments.Count);

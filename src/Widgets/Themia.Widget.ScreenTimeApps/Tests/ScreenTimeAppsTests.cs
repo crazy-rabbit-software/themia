@@ -58,4 +58,21 @@ public sealed class ScreenTimeAppsTests
         Assert.Equal((20, 2), (config.Rows, config.Lines));
         Assert.Equal((7, 2), (((ScreenTimeAppsConfig)new ScreenTimeAppsConfig { Rows = 7, Lines = 2 }.Clone()).Rows, ((ScreenTimeAppsConfig)new ScreenTimeAppsConfig { Rows = 7, Lines = 2 }.Clone()).Lines));
     }
+
+    [Fact]
+    public void S11510_S14500_the_list_shows_the_rows_its_room_holds_at_their_optimal()
+    {
+        // The render of 2026-11-20 stood the config's five rows in any card: under the day line of a card 150 tall the
+        // fifth was cut to 20, at 180 twenty were left under the last. The rows its room holds stand, stretched to fill it.
+        var grid = ItemGrid.Default();
+        Assert.Equal(3, ScreenTimeAppsLayout.RowsIn(110, 1, grid));
+        Assert.Equal(4, ScreenTimeAppsLayout.RowsIn(140, 1, grid));
+        Assert.Equal(2, ScreenTimeAppsLayout.RowsIn(110, 2, grid));
+        Assert.Equal(1, ScreenTimeAppsLayout.RowsIn(20, 1, grid));
+        Assert.Equal(0, ScreenTimeAppsLayout.RowsIn(0, 1, grid));
+
+        var config = new ScreenTimeAppsConfig { Rows = 5 };
+        Assert.Equal(5, ScreenTimeAppsLayout.Apps(config).Rows);
+        Assert.Equal(3, ScreenTimeAppsLayout.Apps(config, held: 3).Rows);
+    }
 }
