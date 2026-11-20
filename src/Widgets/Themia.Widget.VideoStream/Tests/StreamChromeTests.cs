@@ -18,16 +18,17 @@ public sealed class StreamChromeTests
     }
 
     [Fact]
-    public void S11208_a_shaped_stream_keeps_its_shape_its_height_following_its_width()
+    public void S11208_S14500_a_shaped_stream_stands_new_in_its_shape_and_takes_every_cell_after()
     {
         var wide = VideoStreamSizing.Sizing(new VideoStreamConfig());
         Assert.Equal(new Themia.Sdk.SizeDip(320, 180), wide.Natural);
-        Assert.True(wide.FixedHeight);
-        Assert.Equal((160.0, 800.0), (wide.Min.Width, wide.Max.Width));
+        Assert.Equal(new Themia.Sdk.SizeDip(160, 90), wide.Min);
+        Assert.False(wide.FixedHeight);
+        Assert.Equal((800.0, 600.0), (wide.Max.Width, wide.Max.Height));
         Assert.Empty(wide.Problems());
 
         // A quarter turn stands the shape up; never taller than 600.
-        var standing = VideoStreamSizing.Sizing(new VideoStreamConfig { Rotation = StreamRotation.Quarter, Span = 99 });
+        var standing = VideoStreamSizing.Sizing(new VideoStreamConfig { Rotation = StreamRotation.Quarter });
         Assert.True(standing.Natural.Height <= 600);
         Assert.Equal(standing.Natural.Width * 16 / 9, standing.Natural.Height, 3);
 
@@ -36,17 +37,14 @@ public sealed class StreamChromeTests
     }
 
     [Fact]
-    public void S11208_dragging_a_shaped_stream_sets_its_span_on_a_copy()
+    public void S11208_S14500_a_shaped_stream_is_any_size_its_picture_as_its_fit_says()
     {
-        var config = new VideoStreamConfig();
-        var next = Assert.IsType<VideoStreamConfig>(VideoStreamSizing.SizeSets(config, new Themia.Sdk.SizeDip(480, 10)));
-
-        Assert.Equal(10, next.Span);
-        Assert.Equal(VideoStreamSizing.DefaultSpan, config.Span);
-        Assert.Equal(270, VideoStreamSizing.Sizing(next).Natural.Height, 3);
-
-        var free = new VideoStreamConfig { Aspect = StreamAspect.Free };
-        Assert.Same(free, VideoStreamSizing.SizeSets(free, new Themia.Sdk.SizeDip(480, 300)));
+        // Owner, 2026-11-20: "lets not limit the user in the alignment": no width steps of 32, no height pinned to the width.
+        var sizing = VideoStreamSizing.Sizing(new VideoStreamConfig());
+        foreach (var size in new[] { new Themia.Sdk.SizeDip(330, 180), new Themia.Sdk.SizeDip(330, 250), new Themia.Sdk.SizeDip(170, 110) })
+        {
+            Assert.Equal(size, sizing.Fit(size));
+        }
     }
     [Fact]
     public void S1312_the_defaults_are_hover_on_and_status_off()

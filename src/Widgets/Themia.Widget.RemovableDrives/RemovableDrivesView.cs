@@ -68,7 +68,6 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _rowCount = (config as RemovableDrivesConfig)?.Rows ?? RemovableDrivesPlan.DefaultRows;
         _detached = false;
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
@@ -78,14 +77,8 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         Show();
     }
 
-    public void ApplyConfig(WidgetConfig config)
-    {
-        _rowCount = (config as RemovableDrivesConfig)?.Rows ?? RemovableDrivesPlan.DefaultRows;
-        Show();
-    }
-
-    /// <summary>[S-11027] The config's rows: the list's height.</summary>
-    private int _rowCount = RemovableDrivesPlan.DefaultRows;
+    /// <summary>[S-11027] [S-14500] The config's rows decide the natural height alone: the rows shown are the card's.</summary>
+    public void ApplyConfig(WidgetConfig config) => Show();
 
     public void ApplySize(WidgetArea area)
     {
@@ -118,10 +111,10 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         if (_devices.Count == 0)
         {
-            // [S-14100] The state's row in the first row's place and the empty rows under it at the rows' pitch (two lines a
+            // [S-14500] The state's row in the first row's place and the empty rows under it at the rows' pitch (two lines a
             // row: four cells, the compact line alone three), so they end on the card's foot.
             var pitch = (_area.IsMeasured
-                ? RemovableDrivesPlan.Reach(_area.Height, _rowCount, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+                ? RemovableDrivesPlan.Reach(_area.Height, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
                 : ItemStretch.Natural(RemovableDrivesPlan.Lines, _area.Grid())).Pitch;
             _empty.Height = pitch;
             _face.Pitch = pitch;
@@ -161,7 +154,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         var locale = Strings.Current;
         var picture = !(_surface?.IsPreview ?? false) && _previewDevices is null;
         var reach = _area.IsMeasured
-            ? RemovableDrivesPlan.Reach(_area.Height, _rowCount, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            ? RemovableDrivesPlan.Reach(_area.Height, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
             : ItemStretch.Natural(RemovableDrivesPlan.Lines, _area.Grid());
         for (var i = 0; i < _rows.Count; i++)
         {
@@ -170,12 +163,13 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             if (shown)
             {
                 _rows[i].Show(_devices[i], look, picture, locale);
-                _rows[i].Block.Height = reach.Pitch;
+                _rows[i].Block.Height = reach.Height(i);
             }
         }
 
-        // [S-12807] The first row's band over the view's top, so its text stands on the card's inset.
-        _scroll.Height = reach.Length(KitSizing.ClampRows(_rowCount));
+        // [S-12807] The first row's band over the view's top, so its text stands on the card's inset; [S-14500] the rows
+        // the card holds fill it.
+        _scroll.Height = _area.IsMeasured ? reach.Room : double.NaN;
         ListEdge.Apply(_scroll);
         LinkRows();
 

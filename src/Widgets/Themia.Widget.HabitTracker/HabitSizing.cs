@@ -7,9 +7,9 @@ namespace Themia.Core.Habits;
 
 /// <summary>
 /// [S-11530]..[S-11532] The habit tracker's sizes, from its config alone, on the family's tokens: each
-/// style its own. The rows' styles (Dots, Checklist) are the habits' rows and the add row (28), each whole grid cells
-/// ([S-14100]), stepped by a row; the heatmap one grid for the list (one height) or a grid per habit (stepped by
-/// a habit). Pure.
+/// style its own. The rows' styles (Dots, Checklist) are the habits' rows and the add row (28) at their optimal (whole
+/// grid cells), the config's rows a new one's height; the heatmap one grid for the list (one height) or a grid per habit
+/// (the config's rows a new one's). [S-14500] Every cell between: the rows the card holds stretch to fill it. Pure.
 /// </summary>
 public static class HabitSizing
 {
@@ -89,34 +89,16 @@ public static class HabitSizing
                 return WidgetSizing.Range(new(HeatmapNarrowest, height), new(NaturalWidth, height), new(Widest, height));
             }
 
-            var steps = new SizeSteps(FamilySpace.ContentTop + FamilySpace.Inset - HabitHeatmap.BlockGap, HabitBlock + HabitHeatmap.BlockGap, MinRows, MaxRows, rows);
-            return WidgetSizing.Range(new(HeatmapNarrowest, 1), new(NaturalWidth, 1), new(Widest, 1)).WithHeightSteps(steps);
+            double Blocks(int n) => FamilySpace.ContentTop + FamilySpace.Inset - HabitHeatmap.BlockGap + (n * (HabitBlock + HabitHeatmap.BlockGap));
+            return WidgetSizing.Range(new(HeatmapNarrowest, Blocks(MinRows)), new(NaturalWidth, Blocks(rows)), new(Widest, Blocks(MaxRows)));
         }
 
         var least = config.Style == HabitTrackerStyle.Dots ? Math.Max(Narrowest, Math.Ceiling(DotsChrome(config) / FamilySpace.S1) * FamilySpace.S1) : Narrowest;
-        // [S-14100] The habits' rows and the add row under them, each whole grid cells, from the card's top edge to its
-        // foot edge: the card is exactly its rows.
-        var rowSteps = SizeSteps.InCells(FamilyShape.RowHeight(Lines(config)), MinRows, MaxRows, rows, FamilyShape.Row1);
-        return WidgetSizing.Range(new(least, 1), new(Math.Max(least, NaturalWidth), 1), new(Math.Max(least, Widest), 1)).WithHeightSteps(rowSteps);
-    }
 
-    /// <summary>[S-2442] The config a card of <paramref name="size"/> means: the habits that height holds. A copy when they change.</summary>
-    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        if (config is not HabitTrackerConfig habits || Sizing(habits).HeightSteps is not { FollowsConfig: true } steps)
-        {
-            return config;
-        }
-
-        var wanted = steps.Nearest(size.Height);
-        if (wanted == habits.Rows)
-        {
-            return config;
-        }
-
-        var copy = (HabitTrackerConfig)habits.Clone();
-        copy.Rows = wanted;
-        return copy;
+        // [S-14500] The habits' rows and the add row under them at their optimal, from the card's top edge to its foot edge.
+        var grid = ItemGrid.Default();
+        var row = ItemStretch.Optimal(FamilyShape.RowHeight(Lines(config)), grid);
+        var add = ItemStretch.Optimal(FamilyShape.Row1, grid);
+        return WidgetSizing.Range(new(least, add + row), new(Math.Max(least, NaturalWidth), add + (rows * row)), new(Math.Max(least, Widest), add + (MaxRows * row)));
     }
 }

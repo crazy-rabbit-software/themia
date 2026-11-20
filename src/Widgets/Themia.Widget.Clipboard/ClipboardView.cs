@@ -158,9 +158,9 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
 
     private WidgetArea _area;
 
-    /// <summary>[S-12807] The config's rows reaching the view's top and the foot's inset.</summary>
+    /// <summary>[S-12807] [S-14500] The rows the card holds at their optimal, reaching its top and foot edges, stretched to fill it.</summary>
     private RowReach Reach => _area.IsMeasured
-        ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+        ? ItemStretch.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
         : ItemStretch.Natural(_plan.Lines, _area.Grid());
 
     private void Redraw()
@@ -186,7 +186,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
             // [S-6714] Each state says which it is, in one row where the first entry would be.
             // "Nothing copied yet" and "the listener never started" need very different things.
             var listening = _host.ClipboardHistory?.Listening == true || _surface?.IsPreview == true;
-            // [S-14100] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
+            // [S-14500] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
             _state.RowPitch = Reach.Pitch;
             _state.Show((listening ? ClipboardStr.WidgetsA_Clipboard_Empty : ClipboardStr.WidgetsA_Clipboard_NoListener).Text(), offerAccounts: false, problem: !listening);
             _scroll.Visibility = Visibility.Collapsed;
@@ -205,13 +205,13 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetSurfaceA
         for (var i = 0; i < entries.Count; i++)
         {
             var row = BuildRow(entries[i], i == 0, now);
-            row.Height = reach.Pitch;
+            row.Height = reach.Height(i);
             _rows.Add(row);
             _list.Children.Add(row);
         }
 
-        // [S-2440] As tall as the rows its config states: never a part of one at its foot.
-        _scroll.Height = reach.Length(Math.Min(_rows.Count, _plan.Rows));
+        // [S-2440] [S-14500] As tall as the rows the card holds: never a part of one at its foot; fewer leave whole rows there.
+        _scroll.Height = _area.IsMeasured ? reach.Start(Math.Min(_rows.Count, reach.Shown)) : double.NaN;
         ListEdge.Apply(_scroll);
 
         _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;

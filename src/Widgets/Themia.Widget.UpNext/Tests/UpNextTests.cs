@@ -79,8 +79,9 @@ public sealed class UpNextTests
         Assert.Equal(new SizeDip(320, 3 * 30), sizing.Natural);
         Assert.Equal((260d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
-        var next = (UpNextConfig)new UpNextModule().Descriptor.SizeSets!(new UpNextConfig(), new SizeDip(320, 5 * 30));
-        Assert.Equal(5, next.Rows);
+        // [S-14500] A row at least, every cell taller too.
+        Assert.Equal(30, sizing.Min.Height);
+        Assert.Equal(5 * 30, new UpNextModule().Descriptor.Sizing(new UpNextConfig { Rows = 5 }).Natural.Height);
     }
 
     [Fact]

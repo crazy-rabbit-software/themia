@@ -65,19 +65,17 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
 - **[S-11145]** **An atom** ([S-11170]): its **Days** (1..14, a new one 5; `WeatherForecastConfig.Days`,
   also what it asks for) decide what it shows in every style, and they are the card's (owner, 2026-11-20: "Anything
   that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's size", [S-14410]): no
-  menu line sets them; a resize stores the days its box holds. Nothing else sheds or appears with the box (a bar or
+  menu line sets them and none is stored ([S-14502]): the card shows the days it holds at their optimal. Nothing else sheds or appears with the box (a bar or
   the chart longer, a column or cell wider). Days and lines out of range are repaired.
 - **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`): **Rows** a 28 or 40 row a day in whole grid cells from the
-  card's top edge to its foot edge ([S-14100], owner, 2026-11-20: "now the weather forecast widget always has one block
-  space at the bottom. this should obviously not be"), the height stepped by the days and following them, 220..420 wide
-  (a new one 300 × 150);
-  **Columns** a 56 column a day, the width stepped by the days and following them, one height (184 with
-  the rain, 164 without); **Curve** a 56 column a day, the width stepped by the days and following them, the chart's
-  band 72..144 (a new one 96) under the days' parts; **Grid** its arrangement (one row up to four days, two up to
-  eight, three past), a 64 cell and its 12 a step across and a cell's height and its 12 a step down, both following
-  the days. Dragging the rows' bottom edge, the columns' or the curve's side edge sets the days ([S-2442]); a grid
-  dragged to some cells across and rows down takes the most days whose arrangement that is, else those of the
-  nearest arrangement (`ForecastGrid.DaysFor`), so no whole row stands empty. Tests `ForecastDaysTests.S11146_S14410_`,
+  card's top edge to its foot edge (owner, 2026-11-20: "now the weather forecast widget always has one block space at
+  the bottom. this should obviously not be"), as many days as the card's height holds at a row's optimal, stretched
+  to fill it ([S-14500]), 220..420 wide (a new one 300 × 150, five days);
+  **Columns** a 56 column a day, as many as the width holds, sharing it, one height (184 with
+  the rain, 164 without); **Curve** a 56 column a day, as many as the width holds, the chart's
+  band 72..144 (a new one 96) under the days' parts; **Grid** as many 64 cells, 12 apart, as the card holds across and
+  down, the days its cells hold in their arrangement (`ForecastGrid.DaysFor`), so no whole row stands empty. Every
+  style takes every grid cell; a resize stores no days ([S-14502]). Tests `ForecastDaysTests.S11146_S14410_`,
   `ForecastCurveTests.S11146_S14410_`, `WeatherForecastMenuTests.S6173_S14410_`.
 - **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
   other styles offer nothing there.

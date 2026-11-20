@@ -43,9 +43,9 @@ key map `StopwatchKeys`), `StopwatchFace.cs` (the face, the sizing and its lap r
   one-line fact rows (`RowBlock`, no lead,
   28 each) under the Controls row, edge to edge, newest first, "Lap N" and its length; "No laps yet" in
   the first row until the first lap. The card follows (`StopwatchFace.Sizing`): the inset, the face, 8
-  and the row as one band of whole grid cells (`StopwatchFace.FaceHeight`), the lap rows of whole cells to the card's
-  foot ([S-14100]); one height for its config, stepped by a lap row (dragging its
-  bottom edge sets Laps, `StopwatchFace.SizeSets`), up to half again wider with the face centred. It
+  and the row as one band of whole grid cells (`StopwatchFace.FaceHeight`), the lap rows at their optimal to the
+  card's foot, as many as its height holds, stretched to fill it ([S-14500]; never stored, the `LapRows` count is
+  gone, [S-14502]), up to half again wider with the face centred. It
   starts without a header. No tier ladder is left. Tests `StopwatchFaceTests.S11302_`.
 
 Not ported: Karpo's 100 ms tick in an open folder; a running time here is whole seconds.

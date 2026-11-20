@@ -16,12 +16,14 @@ public sealed class ContactsPlanTests
     public void S11406_a_new_list_is_five_people_of_two_lines_under_the_search_box()
     {
         var config = new ContactsConfig();
-        var plan = Plan(config);
         var sizing = ContactsPlan.Sizing(config);
+        var plan = ContactsPlan.Of(new WidgetArea(300, sizing.Natural.Height - 12), config);
 
         Assert.Equal((ContactsLayout.List, 1, 2, true, 5), (plan.Layout, plan.Columns, plan.Lines, plan.Avatar, plan.Rows));
-        // [S-14100] The search box with the card's inset over it, one band of whole cells (40), and five rows of 40.
+        // [S-14500] The search box with the card's inset over it, one band of whole cells (40), and five rows of 40: a new
+        // one's; a taller card shows the rows it holds (400: nine).
         Assert.Equal(new Themia.Sdk.SizeDip(300, 40 + (5 * 40)), sizing.Natural);
+        Assert.Equal(9, Plan(config).Rows);
         Assert.Equal((220, 520), (sizing.Min.Width, sizing.Max.Width));
         Assert.Empty(sizing.Problems());
     }
@@ -52,32 +54,30 @@ public sealed class ContactsPlanTests
     }
 
     [Fact]
-    public void S11406_S14410_the_grid_steps_by_a_cell_across_and_a_line_down_and_a_drag_sets_both()
+    public void S11406_S14410_S14502_the_grids_cells_are_what_its_box_holds_a_new_one_three_across()
     {
-        var config = new ContactsConfig { Layout = ContactsLayout.Grid, SearchBox = false, GridColumns = 3, GridRows = 2 };
+        var config = new ContactsConfig { Layout = ContactsLayout.Grid, SearchBox = false, GridRows = 2 };
         var sizing = ContactsPlan.Sizing(config);
-        var plan = Plan(config);
 
         Assert.Equal(new Themia.Sdk.SizeDip(24 + (3 * 96) + (2 * 12), 12 + (2 * ContactsPlan.CellHeight) + 12 + 12), sizing.Natural);
-        Assert.Equal((3, 2), (sizing.WidthSteps!.Count, sizing.HeightSteps!.Count));
-        Assert.Equal((48.0, 3, 2), (plan.Icon, plan.Columns, plan.Rows));
-        Assert.Same(config, ContactsPlan.SizeSets(config, sizing.Natural));
 
-        // [S-14410] Owner, 2026-11-20: "Anything that's just 'how many of the same item' ... follows the card's size".
-        var wider = Assert.IsType<ContactsConfig>(ContactsPlan.SizeSets(config, sizing.Natural with { Width = sizing.WidthSteps.At(5) }));
-        Assert.Equal((5, 2), (wider.GridColumns, wider.GridRows));
-        Assert.Equal(3, config.GridColumns);
+        // At its natural box: three across, two lines; [S-14410] Owner, 2026-11-20: "Anything that's just 'how many of the
+        // same item' ... follows the card's size": five cells' width shows five, never stored.
+        var natural = ContactsPlan.Of(new WidgetArea(sizing.Natural.Width, sizing.Natural.Height - 12), config);
+        Assert.Equal((48.0, 3, 2), (natural.Icon, natural.Columns, natural.Rows));
+        var wider = ContactsPlan.Of(new WidgetArea(24 + (5 * 96) + (4 * 12) + 20, sizing.Natural.Height - 12), config);
+        Assert.Equal((5, 2), (wider.Columns, wider.Rows));
+        Assert.True(wider.ColumnWidth > 96);
     }
 
     [Fact]
-    public void S11406_dragging_sets_rows_and_out_of_range_is_repaired()
+    public void S11406_its_rows_are_a_new_cards_height_and_out_of_range_is_repaired()
     {
-        var next = (ContactsConfig)ContactsPlan.SizeSets(new ContactsConfig { SearchBox = false }, new Themia.Sdk.SizeDip(300, 8 * 40));
-        Assert.Equal(8, next.Rows);
+        Assert.Equal(8 * 40, ContactsPlan.Sizing(new ContactsConfig { SearchBox = false, Rows = 8 }).Natural.Height);
 
-        var wild = new ContactsConfig { Rows = 0, Lines = 9, GridColumns = 1, GridRows = 30 };
+        var wild = new ContactsConfig { Rows = 0, Lines = 9, GridRows = 30 };
         Assert.NotEmpty(wild.Repair());
-        Assert.Equal((1, 3, 2, 6), (wild.Rows, wild.Lines, wild.GridColumns, wild.GridRows));
+        Assert.Equal((1, 3, 6), (wild.Rows, wild.Lines, wild.GridRows));
     }
 
     [Fact]

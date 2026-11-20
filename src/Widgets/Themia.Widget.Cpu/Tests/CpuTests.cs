@@ -38,7 +38,6 @@ public sealed class CpuTests
         Assert.Equal(32, sizing.Min.Height); // [S-12833] scales down as one to its figures at 9, its glyph and unit giving way
         Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]: no practical Max
         Assert.Equal((40d, 160d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // [S-12411] no practical Max; [S-12833] its least "100" alone at 9 in the inset
-        Assert.Null(Kind.SizeSets);
     }
 
     [Fact]

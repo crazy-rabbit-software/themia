@@ -43,7 +43,6 @@ public sealed class CalendarModule : IWidgetModule
         Description = CalendarStr.Styles_Calendar_Desc.Local(),
         Glyph = Glyphs.Calendar,
         Sizing = c => CalendarSizing.Sizing((CalendarWidgetConfig)c),
-        SizeSets = CalendarSizing.SizeSets,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.SelectedDate, LinkTopicId.VisibleRange, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate], [LinkTopicId.SelectedDate, LinkTopicId.HoveredEvent, LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.CalendarMail, 0, 0, Popular: 3),

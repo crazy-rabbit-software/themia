@@ -45,7 +45,7 @@ public sealed partial class DetailView : IWidgetKeys
     private int _lines = 1;
 
     /// <summary>[S-12807] A list row's height: its lines' natural one, stretched so the rows reach the view's ends, up to half again.</summary>
-    private double _pitch = FamilyShape.Row1;
+    private RowReach _reach = new(FamilyShape.Row1, 1);
 
     private void BuildList()
     {
@@ -81,12 +81,11 @@ public sealed partial class DetailView : IWidgetKeys
             return;
         }
 
-        // [S-6712] As tall as its whole rows: never a part of one at its foot. [S-12807] The rows reach the
-        // view's top and the foot's inset, up to half again their height, the first one's band over the top.
+        // [S-6712] As tall as its whole rows: never a part of one at its foot. [S-12807] [S-14500] The rows reach the
+        // card's top edge and its foot, as many as it holds at their optimal, stretched to fill it.
         _lines = p.ListLines;
-        var reach = ItemStretch.Rows(_area.Height, p.ListRows, _lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
-        _pitch = reach.Pitch;
-        _scroll.Height = reach.Length(p.ListRows);
+        _reach = ItemStretch.Rows(_area.Height, _lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
+        _scroll.Height = _reach.Room;
         ListEdge.Apply(_scroll);
         SetRow(_scroll, 2);
     }
@@ -102,7 +101,7 @@ public sealed partial class DetailView : IWidgetKeys
         }
 
         var count = ListCount;
-        var rowHeight = _pitch + _list.Spacing;
+        var rowHeight = _reach.Pitch + _list.Spacing;
         var lead = _sheet.Rows.Any(r => r.Symbol != RowSymbol.None || r.IconPath is not null);
         var built = FolderRealize.Target(count, _rows.Count, _scroll.VerticalOffset, _scroll.ViewportHeight, rowHeight, 1, _focus);
 
@@ -126,7 +125,7 @@ public sealed partial class DetailView : IWidgetKeys
             if (shown)
             {
                 _rows[i].Show(_sheet.Rows[i], _lines, lead, !_sheet.Absent);
-                _rows[i].Block.Height = _pitch;
+                _rows[i].Block.Height = _reach.Height(i);
             }
         }
 

@@ -1,11 +1,10 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-11807] [S-14269] The grid's one count of whole cells along an axis (the coordinator's ask, 2026-11-20, for the owner's
-/// WR-6: "they should be designed so that they are 3 blocks high or wide"): a length that is <c>cells</c> of an axis's
-/// cells (its length over that axis's own pitch, the screen's DIPs along it over its lines) takes them rounded up, float
-/// noise forgiven, at least one. What the host lays a widget's box in (<c>GridFit</c>) and what a size step in cells takes
-/// (<c>SizeFit</c>, <see cref="Themia.Sdk.WholeCells.On"/>) are this one count, so a step is exactly what the host lays.
+/// [S-11807] The grid's one count of whole cells along an axis: a length that is <c>cells</c> of an axis's cells (its length
+/// over that axis's own pitch, the screen's DIPs along it over its lines) takes them rounded up, float noise forgiven, at
+/// least one. What the host lays a widget's box in (<c>GridFit</c>) and what a picture of a fence lays its title bar and
+/// icon boxes in (<c>FenceGrid.OnGrid</c>), so the picture is what the host lays.
 /// </summary>
 public static class GridCells
 {
@@ -22,12 +21,11 @@ public static class GridCells
 }
 
 /// <summary>
-/// [S-12830] The desktop grid a widget's items lay on (owner, 2026-11-19: "items inside widgets should be designed in a
-/// way that they match the size of the grid on the desktop, for example they should be designed so that they are 3
-/// blocks high or wide, that means that a widget that is 10 blocks hight should not show 4 items because then the items
-/// would have an uneven size which i dont want. do this for all the widgets."). <see cref="Cell"/> is the grid's drawn
-/// pitch on the widget's display in DIPs ([S-06b]: about 10, screen / columns), <see cref="Scale"/> the display's
-/// raster scale. Every repeated item is a whole number of cells along the axis it repeats (<see cref="ItemStretch"/>).
+/// [S-12830] [S-14500] The desktop grid a widget's items lay on (owner, 2026-11-20: "the items should have an optimal size
+/// and then they may stretch a little to fill up the remaining space"). <see cref="Cell"/> is the grid's drawn pitch on
+/// the widget's display in DIPs ([S-06b]: about 10, screen / columns), <see cref="Scale"/> the display's raster scale. A
+/// repeated item's optimal length is its natural length in whole cells (<see cref="Whole"/>, a row of 28 three); the
+/// items stretch from it to fill their room (<see cref="ItemStretch"/>).
 /// </summary>
 public readonly record struct ItemGrid(double Cell, double Scale = 1)
 {
@@ -44,7 +42,7 @@ public readonly record struct ItemGrid(double Cell, double Scale = 1)
     public double Raster => double.IsFinite(Scale) && Scale > 0 ? Scale : 1;
 
     /// <summary>
-    /// [S-14100] How far past a whole cell a length may reach and still count as that cell: a fiftieth of one. A display's
+    /// [S-14500] How far past a whole cell a length may reach and still count as that cell: a fiftieth of one. A display's
     /// pitch is its width over its columns, seldom exactly 10 (9.974 at 1536 wide): a row of 40 is 4.01 of those cells and
     /// takes four, not five.
     /// </summary>

@@ -25,13 +25,12 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
   their value; **Details** one line a person under the column titles, as wide as its columns need
   (24 + 88 a column, at least two) to 720, a new one 420; these three show `Rows` people (1..20,
   default 5), 220..520 wide for List and Compact, their height the search box where on (with the titles one band of
-  whole cells under the card's inset) and the rows, whole grid cells each ([S-14100]), dragging the bottom edge sets
-  Rows, more scroll inside them.
-  **Grid**: `GridColumns` cells a line (2..6, default 3) and `GridRows` lines (1..6, default 2) of
-  48 monograms over their names, the width stepped by a cell and the height by a line, more scroll inside it;
-  dragging an edge sets them; its Rows line sets the lines, and the cells a line are the card's alone (owner,
-  2026-11-20: "Anything that's just 'how many of the same item' ... follows the card's size", [S-14410]: the
-  Columns line is gone). **Search box**
+  whole cells under the card's inset) and the rows at their optimal; Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more scroll inside them.
+  **Grid**: cells of 48 monograms over their names, as many a line as the card's width holds (a new one three) and
+  `GridRows` lines (1..6, default 2) its natural height, as many lines as its height holds, more scroll inside it;
+  its Rows line sets the lines, and the cells a line are the card's alone (owner, 2026-11-20: "Anything that's just
+  'how many of the same item' ... follows the card's size", [S-14410]: the Columns line is gone, and with it the
+  stored `GridColumns`, [S-14502]). **Search box**
   (`SearchBox`, on by default): over the people; off, the card menu's Search opens it ([S-12481]). One
   column at every width; no layout falls back to another. The ladder ([S-1270], [S-1271], [S-1273],
   [S-1275], `ContactRules.Effective`) is gone. Tests `ContactsPlanTests.S11406_S14410_`, `ContactsMenuTests.S11406_`,

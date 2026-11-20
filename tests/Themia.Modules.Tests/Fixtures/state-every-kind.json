@@ -231,7 +231,6 @@
             "rows": 5,
             "lines": 2,
             "searchBox": true,
-            "gridColumns": 3,
             "gridRows": 2,
             "accountIds": [],
             "layout": "list",
@@ -560,7 +559,6 @@
           "scale": 1,
           "config": {
             "kind": "weatherForecast",
-            "days": 7,
             "lines": 1,
             "showPrecipitation": true,
             "style": "rows",
@@ -620,7 +618,6 @@
             "kind": "rss",
             "rows": 5,
             "lines": 2,
-            "columns": 1,
             "feeds": [],
             "maxItems": 20,
             "showSource": true,
@@ -836,7 +833,6 @@
             "shuffle": true,
             "slideshowSeconds": 10,
             "maxImages": 24,
-            "columns": 3,
             "rows": 2,
             "rotation": 0,
             "outline": false,
@@ -958,8 +954,7 @@
             "refreshSeconds": 0,
             "showStatus": false,
             "hoverControls": true,
-            "aspect": "Wide",
-            "span": 5
+            "aspect": "Wide"
           }
         },
         {
@@ -1399,19 +1394,15 @@
           "config": {
             "kind": "calendar",
             "style": "month",
-            "weekDays": 7,
             "weekFrom": "week",
             "agendaCount": 20,
             "agendaDays": 30,
             "rows": 6,
             "lines": 1,
             "yearNumbers": false,
-            "dayHours": 8,
             "monthEvents": "Dots",
-            "monthLines": 3,
             "weekRows": 3,
             "weekTitles": false,
-            "weekHours": 8,
             "accountIds": [],
             "calendars": {},
             "calendarColors": {},
@@ -1828,7 +1819,6 @@
           "scale": 1,
           "config": {
             "kind": "stopwatch",
-            "lapRows": 0,
             "phase": "Idle",
             "bankedMs": 0,
             "lapsMs": []
@@ -2165,7 +2155,6 @@
             "kind": "weekPlanner",
             "showTasks": true,
             "taskAccountId": "",
-            "days": 3,
             "rowsPerDay": 5,
             "accountIds": [],
             "calendars": {},

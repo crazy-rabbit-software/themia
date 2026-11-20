@@ -73,13 +73,12 @@ public class ForecastDaysTests
     }
 
     [Fact]
-    public void S11146_S14410_the_grid_steps_by_a_64_cell_across_and_a_row_down_following_its_arrangement()
+    public void S11146_S14500_the_grid_stands_new_in_five_days_arrangement_every_cell_between()
     {
-        var sizing = WeatherForecastLayout.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Grid, Days = 7 });
+        var sizing = WeatherForecastLayout.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Grid });
 
         Assert.Equal(12 + (2 * ForecastGrid.CellMinHeight) + 12 + 12, sizing.Natural.Height);
-        Assert.Equal(24 + (4 * 64) + (3 * 12), sizing.Natural.Width);
-        Assert.Equal((4, 2), (sizing.WidthSteps!.Count, sizing.HeightSteps!.Count));
+        Assert.Equal(24 + (3 * 64) + (2 * 12), sizing.Natural.Width);
         Assert.Equal(24 + 64, sizing.Min.Width);
         Assert.Equal(24 + (5 * 64) + (4 * 12), sizing.Max.Width);
         Assert.Equal(12 + (3 * ForecastGrid.CellMinHeight) + (2 * 12) + 12, sizing.Max.Height);
@@ -107,19 +106,18 @@ public class ForecastDaysTests
             Assert.Equal((columns, rows), ForecastGrid.Arrangement(ForecastGrid.DaysFor(columns, rows)));
         }
 
-        // A drag lands the grid on what its cells hold: three across, three down is nine days.
-        var config = new WeatherForecastConfig { Style = ForecastStyle.Grid, Days = 7 };
-        var sizing = WeatherForecastLayout.Sizing(config);
-        var nine = Assert.IsType<WeatherForecastConfig>(WeatherForecastLayout.SizeSets(config, new Themia.Sdk.SizeDip(sizing.WidthSteps!.At(3), sizing.HeightSteps!.At(3))));
-        Assert.Equal(9, nine.Days);
+        // [S-14502] The grid shows what its cells hold: three across, three down is nine days.
+        var config = new WeatherForecastConfig { Style = ForecastStyle.Grid };
+        Assert.Equal(9, WeatherForecastLayout.DaysIn(new WidgetArea(ForecastGrid.Width(3) - 24 + 24, ForecastGrid.Height(3) - 12), config));
     }
 
     [Fact]
     public void S6171_the_plan_shows_every_day_with_the_32_glyph_and_the_cells_share_the_content()
     {
-        var plan = ForecastGrid.Plan(new WidgetArea(340, 184), new WeatherForecastConfig { Style = ForecastStyle.Grid, Days = 7 });
+        var plan = ForecastGrid.Plan(new WidgetArea(340, 184), new WeatherForecastConfig { Style = ForecastStyle.Grid });
 
-        Assert.Equal((7, 4, 2), (plan.Days, plan.Columns, plan.Rows));
+        // [S-14502] Four cells across and two down hold eight days.
+        Assert.Equal((8, 4, 2), (plan.Days, plan.Columns, plan.Rows));
         Assert.Equal(FamilyShape.IconLarge, plan.Icon);
         Assert.Equal((340 - 24 - (3 * 12)) / 4.0, plan.CellWidth, 6);
     }

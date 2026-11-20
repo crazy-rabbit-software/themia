@@ -49,7 +49,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
     private WidgetArea _area;
 
     /// <summary>[S-12410] A row's height: its lines' natural one stretched to fill the card down to its edge.</summary>
-    private double _pitch = FamilyShape.Row1;
+    private RowReach _reach = new(FamilyShape.Row1, 1);
     private AudioSnapshot? _snapshot;
     private Dictionary<string, double> _overrides = new(StringComparer.Ordinal);
 
@@ -195,18 +195,19 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
         _status.Hide();
         _scroller.Visibility = Visibility.Visible;
 
-        // [S-449] [S-11309] The config's rows: the playing apps, then the quiet ones under them while rows are left.
-        var plan = MixerLayout.Plan(_area.IsMeasured ? _area.Width : MixerLayout.NaturalWidth, _config.ShowIcons, _config.Lines, _config.Rows, main.Count, quiet.Count);
-        _shown = [.. main, .. quiet.Take(plan.Quiet)];
+        // [S-12807] [S-14500] The rows the card holds at their optimal reach its top and foot edges, stretched to fill it,
+        // the first one's band over the top.
+        var lines = Math.Clamp(_config.Lines, 1, 2);
+        _reach = _area.IsMeasured
+            ? ItemStretch.Rows(_area.Height, lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            : ItemStretch.Natural(lines, _area.Grid());
 
-        // [S-12807] The config's rows reach the view's top and the foot's inset (up to half again their
-        // height), each row exactly that pitch, the first one's band over the top.
-        var reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, MixerLayout.ClampRows(_config.Rows), plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
-            : ItemStretch.Natural(plan.Lines, _area.Grid());
-        _pitch = reach.Pitch;
+        // [S-449] [S-11309] Those rows: the playing apps, then the quiet ones under them while rows are left.
+        var rows = _area.IsMeasured ? _reach.Shown : MixerLayout.ClampRows(_config.Rows);
+        var plan = MixerLayout.Plan(_area.IsMeasured ? _area.Width : MixerLayout.NaturalWidth, _config.ShowIcons, _config.Lines, rows, main.Count, quiet.Count);
+        _shown = [.. main, .. quiet.Take(plan.Quiet)];
         ShowRows(plan, main.Count);
-        _scroller.Height = reach.Length(plan.Rows);
+        _scroller.Height = _area.IsMeasured ? _reach.Room : double.NaN;
         ListEdge.Apply(_scroller);
 
         RestoreFocus();
@@ -243,7 +244,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
                 var visual = _rows[i];
                 visual.Host.Visibility = Visibility.Visible;
                 visual.Arrange(plan);
-                visual.Host.Height = _pitch;
+                visual.Host.Height = _reach.Height(i);
 
                 // [S-1228] An app holding a session but silent says so, and the quiet rows under the list always do.
                 visual.Show(row, dimmed: i >= mainCount || (!row.Active && !row.IsSystem), available: _unavailable is null);

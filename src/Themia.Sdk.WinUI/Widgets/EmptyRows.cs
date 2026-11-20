@@ -10,10 +10,10 @@ namespace Themia.App.Widgets;
 /// just not show the graph ... also for other widgets"; "No data, no account, not set up, offline: the widget keeps its
 /// face (its graph, its rows, its month, its reading as "--") and says why in a compact line"): the rows the list keeps
 /// a place for, under the compact line that says why, each the family's row with its defaults, "--" for its name and
-/// "--" for its value, drawn unavailable as a facts list's missing fact is ([S-12813]). As many as the room holds whole
-/// at the list's pitch (whole grid cells, [S-12830]), the first right under what stands over them, touching, the cells
-/// left over at the foot (WR-5); each one of the list's items (a Row block marks itself), so the face is judged as the
-/// list's rows are. They take no pointer: a row to come, not a control.
+/// "--" for its value, drawn unavailable as a facts list's missing fact is ([S-12813]). [S-14500] As many as the room
+/// holds at the list's pitch, stretched alike to fill it (their edges on whole device pixels), the first right under what
+/// stands over them, touching, none left over at the foot (WR-5); each one of the list's items (a Row block marks
+/// itself), so the face is judged as the list's rows are. They take no pointer: a row to come, not a control.
 /// </summary>
 public sealed partial class EmptyRows : StackPanel
 {
@@ -40,7 +40,7 @@ public sealed partial class EmptyRows : StackPanel
         return rows;
     }
 
-    /// <summary>The list's row pitch (whole cells); unset, a one-line row's whole cells on the card's grid.</summary>
+    /// <summary>The list's row pitch (its rows' height as laid); unset, a one-line row's optimal on the card's grid.</summary>
     public double Pitch
     {
         get => _pitch;
@@ -80,16 +80,20 @@ public sealed partial class EmptyRows : StackPanel
 
     protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
     {
-        var y = 0.0;
-        foreach (var child in Children)
+        // [S-14500] Each row its share of the room, its edges on whole device pixels: they end on the room's end.
+        var reach = Reach;
+        for (var i = 0; i < Children.Count; i++)
         {
-            var height = child is FrameworkElement { Height: var h } && double.IsFinite(h) ? h : 0;
-            child.Arrange(new Windows.Foundation.Rect(0, y, finalSize.Width, height));
-            y += height;
+            var top = reach.Start(i);
+            Children[i].Arrange(new Windows.Foundation.Rect(0, top, finalSize.Width, reach.Start(i + 1) - top));
         }
 
         return finalSize;
     }
+
+    /// <summary>[S-14500] The rows laid: as many as stand, sharing the room evenly.</summary>
+    private RowReach Reach
+        => Children.Count > 0 && _room > 0 ? new RowReach(_room / Children.Count, Children.Count, XamlRoot?.RasterizationScale ?? 1) : new RowReach(0, 1);
 
     private void Fill()
     {
@@ -102,8 +106,10 @@ public sealed partial class EmptyRows : StackPanel
             pitch = least;
         }
 
+        // [S-14500] As many as the room holds at the pitch, each stretched to its share of the room.
         var count = Fit(_room, pitch);
-        if (count == Children.Count && (count == 0 || Children[0] is FrameworkElement { Height: var h } && h.Equals(pitch)))
+        var reach = new RowReach(count > 0 ? _room / count : pitch, Math.Max(1, count), XamlRoot?.RasterizationScale ?? 1);
+        if (count == Children.Count && (count == 0 || Children[0] is FrameworkElement { Height: var h } && h.Equals(reach.Height(0))))
         {
             return;
         }
@@ -111,9 +117,11 @@ public sealed partial class EmptyRows : StackPanel
         Children.Clear();
         for (var i = 0; i < count; i++)
         {
-            var row = new Themia.Sdk.WinUI.Kit.RowBlock(RowKind.List, lead: 0) { Height = pitch, Available = false };
+            var row = new Themia.Sdk.WinUI.Kit.RowBlock(RowKind.List, lead: 0) { Height = reach.Height(i), Available = false };
             row.Show(Placeholder, Placeholder);
             Children.Add(row);
         }
+
+        InvalidateArrange();
     }
 }

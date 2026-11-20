@@ -20,23 +20,21 @@ public sealed class RemovableDrivesTests
     }
 
     [Fact]
-    public void S11027_its_height_follows_its_rows_and_a_dragged_edge_sets_them()
+    public void S11027_S14500_its_rows_are_a_new_cards_height_every_cell_from_one_row_up()
     {
-        Assert.Equal(4 * 40, RemovableDrivesPlan.Reach((4 * 40) - 12, 4, ItemGrid.Default()).Length(4));
+        Assert.Equal(4 * 40, RemovableDrivesPlan.Reach((4 * 40) - 12, ItemGrid.Default()).Length(4));
         var sizing = Kind.SizingOf();
         Assert.Equal(4 * 40, sizing.Natural.Height);
-        var two = Assert.IsType<RemovableDrivesConfig>(Kind.SizeSets!(new RemovableDrivesConfig(), new SizeDip(300, 2 * 40)));
-        Assert.Equal(2, two.Rows);
+        Assert.Equal(40, sizing.Min.Height);
         Assert.Equal(6, ((RemovableDrivesConfig)new RemovableDrivesConfig { Rows = 6 }.Clone()).Rows);
     }
 
     [Fact]
     public void S12452_its_rows_fill_the_view_touching()
     {
-        // [S-12830] The view at the natural box: four rows of four cells from the card's top edge, the two cells left at
-        // the foot; a taller view grows them in whole cells until they touch; a short one shows the rows it holds.
-        Assert.Equal(new RowReach(40, 4), RemovableDrivesPlan.Reach((4 * 40) + 12, 4, ItemGrid.Default()));
-        Assert.Equal(new RowReach(220, 4), RemovableDrivesPlan.Reach(900, 4, ItemGrid.Default()));
-        Assert.Equal(new RowReach(50, 2), RemovableDrivesPlan.Reach(100, 4, ItemGrid.Default()));
+        // [S-14500] The view at a box: as many rows of four cells as it holds from the card's top edge to its foot, sharing it.
+        Assert.Equal(new RowReach(46, 4), RemovableDrivesPlan.Reach((4 * 40) + 12, ItemGrid.Default()));
+        Assert.Equal(new RowReach(912.0 / 22, 22), RemovableDrivesPlan.Reach(900, ItemGrid.Default()));
+        Assert.Equal(new RowReach(56, 2), RemovableDrivesPlan.Reach(100, ItemGrid.Default()));
     }
 }

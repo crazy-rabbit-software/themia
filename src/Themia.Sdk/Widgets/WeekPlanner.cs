@@ -120,23 +120,31 @@ public static class WeekPlannerRules
     /// <summary>[S-11410] The most rows a day shows.</summary>
     public const int MaxRows = 12;
 
-    /// <summary>
-    /// [S-11410] [S-14410] [S-14100] The planner's size: the days side by side, each a column of <see cref="ColumnWidth"/>
-    /// in whole grid cells (its rows carry the side inset, so the columns meet), the width stepped by a day's column and
-    /// following the days (the card's: a resize stores the days its width holds), the columns whole cells and alike at
-    /// every width; the height a day's heading (28) and its rows (28 each), each whole grid cells from the card's top edge
-    /// to its foot edge, stepped by a row (owner, 2026-11-20: no cell left over under the last row).
-    /// </summary>
-    public static WidgetSizing Sizing(int days, int rows)
-        => WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1))
-            .WithWidthSteps(DaySteps(days))
-            .WithHeightSteps(SizeSteps.InCells(FamilyShape.Row1, 1, MaxRows, Math.Clamp(rows, 1, MaxRows), FamilyShape.Row1));
+    /// <summary>[S-11410] [S-14410] How many days a new planner stands side by side: its natural width's.</summary>
+    public const int DefaultDays = 3;
 
     /// <summary>
-    /// [S-14410] [S-14100] The width's steps: a day's column a step, whole grid cells (<see cref="SizeSteps.InCells"/>),
-    /// 1..<see cref="Days"/>, <paramref name="days"/> of them.
+    /// [S-11410] [S-14410] [S-14500] The planner's size: the days side by side, each a column of <see cref="ColumnWidth"/> at
+    /// its optimal (whole grid cells; its rows carry the side inset, so the columns meet), a new one
+    /// <see cref="DefaultDays"/> of them; the height a day's heading (28) and its rows (28 each) at their optimal from the
+    /// card's top edge to its foot edge, its <paramref name="rows"/> a new one's. Both axes take every cell (owner,
+    /// 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps of one"):
+    /// the days are as many as the width holds (<see cref="DaysIn"/>) and the rows as many as the height holds, each
+    /// stretched to fill it.
     /// </summary>
-    public static SizeSteps DaySteps(int days) => SizeSteps.InCells(ColumnWidth, 1, Days, Math.Clamp(days, 1, Days));
+    public static WidgetSizing Sizing(int rows)
+    {
+        var grid = ItemGrid.Default();
+        var column = ItemStretch.Optimal(ColumnWidth, grid);
+        var row = ItemStretch.Optimal(FamilyShape.Row1, grid);
+        return WidgetSizing.Range(
+            new(column, row + row),
+            new(DefaultDays * column, row + (Math.Clamp(rows, 1, MaxRows) * row)),
+            new(Days * column, row + (MaxRows * row)));
+    }
+
+    /// <summary>[S-11410] [S-14410] [S-14500] The days a planner <paramref name="width"/> wide shows: as many columns as it holds at their optimal, 1..<see cref="Days"/>.</summary>
+    public static int DaysIn(double width, ItemGrid grid) => ItemStretch.Count(width, ColumnWidth, grid, 1, Days);
 
     /// <summary>A day's rows in <paramref name="fit"/> whole rows: all of them, or all but one and a "+N" row; in one row its first item.</summary>
     private static (int Shown, int Hidden) Cut(int count, int fit)

@@ -200,8 +200,27 @@ public readonly record struct KitPlan(
     /// <summary>[S-7037] The time in its long words, with its date.</summary>
     public bool LongWhen { get; init; }
 
-    /// <summary>[S-12807] The plan's rows laid as <paramref name="reach"/> says: their pitch, touching.</summary>
-    public KitPlan With(RowReach reach) => this with { RowHeight = reach.Pitch };
+    /// <summary>
+    /// [S-14500] The rows as laid (<see cref="ItemStretch.Rows"/>): how many the room shows, their even share of it and the
+    /// raster their edges fall on (<see cref="RowAt"/>), so rows of a pitch the pixels cannot share evenly still end exactly
+    /// on the list's end.
+    /// </summary>
+    public RowReach Reach { get; init; }
+
+    /// <summary>[S-14500] The add row's height under the rows, stretched as they are (<see cref="ItemStretch.RowsAbove"/>); 0 where none.</summary>
+    public double FootHeight => Reach.Foot;
+
+    /// <summary>[S-12807] [S-14500] The plan's rows laid as <paramref name="reach"/> says: their pitch, touching, the add row under them.</summary>
+    public KitPlan With(RowReach reach) => this with { RowHeight = reach.Pitch, Reach = reach };
+
+    /// <summary>
+    /// [S-14500] Line <paramref name="index"/>'s height down the list: the rows' even share of the room, its edges on whole
+    /// device pixels (<see cref="RowReach.Height"/>), so the rows fill it to the pixel; the plan's pitch before it is laid.
+    /// </summary>
+    public double RowAt(int index) => Reach.Pitch > 0 ? Reach.Height(index) : RowHeight;
+
+    /// <summary>[S-14500] Where line <paramref name="index"/> starts down the list: the lines before it, as <see cref="RowAt"/> lays them.</summary>
+    public double LineStart(int index) => Reach.Pitch > 0 ? Reach.Start(index) : Math.Max(0, index) * RowHeight;
 }
 
 /// <summary>
@@ -215,13 +234,13 @@ public static class KitPlanner
     public static double ColumnHeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
     /// <summary>
-    /// [S-14100] The column titles with the card's inset over them, as one length from the card's top edge: what a table's
-    /// sizing counts (<see cref="KitSizing.Steps"/>), whole cells of its grid (40 on the default grid of 10).
+    /// [S-14500] The column titles with the card's inset over them, as one length from the card's top edge: what a table's
+    /// sizing counts (<see cref="KitSizing.Parts"/>), whole cells of its grid (40 on the default grid of 10).
     /// </summary>
     public static double TitlesOver => FamilySpace.Inset + ColumnHeaderHeight;
 
     /// <summary>
-    /// [S-12834] [S-14100] The column titles' band under the card's inset on <paramref name="grid"/>: the titles and their gap
+    /// [S-12834] [S-14500] The column titles' band under the card's inset on <paramref name="grid"/>: the titles and their gap
     /// grown to end on a grid line (<see cref="LineRules.Under"/>), so the rows under them start right under them on one
     /// (WR-1, WR-5, WR-6). On the default grid of 10: 28.
     /// </summary>
@@ -273,12 +292,12 @@ public static class KitPlanner
     }
 
     /// <summary>
-    /// [S-12807] <paramref name="rows"/> rows of <paramref name="lines"/> lines in <paramref name="area"/> (less
-    /// <paramref name="reserved"/>: a table's titles, an add row): touching, from the view's top to the foot's inset
-    /// (<see cref="ItemStretch.Rows"/>); natural rows before the box is measured.
+    /// [S-12807] [S-14500] Rows of <paramref name="lines"/> lines in <paramref name="area"/> (less
+    /// <paramref name="reserved"/>: a table's titles, an add row): as many as it holds at their optimal, touching, from the
+    /// view's top to the card's foot (<see cref="ItemStretch.Rows"/>); one at its optimal before the box is measured.
     /// </summary>
-    public static RowReach Reach(WidgetArea area, int rows, int lines, double reserved = 0, bool edge = true)
-        => area.IsMeasured ? ItemStretch.Rows(Math.Max(0, area.Height), KitSizing.ClampRows(rows), lines, area.Grid(), reserved, edge) : ItemStretch.Natural(lines, area.Grid());
+    public static RowReach Reach(WidgetArea area, int lines, double reserved = 0, bool edge = true)
+        => area.IsMeasured ? ItemStretch.Rows(Math.Max(0, area.Height), lines, area.Grid(), reserved, edge) : ItemStretch.Natural(lines, area.Grid());
 
 
     private static KitPlan Rows(WidgetArea area, KitSpec spec, KitChoices choices)
@@ -299,8 +318,9 @@ public static class KitPlanner
         var lines = spec.Look == KitRowLook.Line ? 1 : KitSizing.ClampLines(rows.Lines, KitSizing.MaxLines);
         var subtitle = (has(KitShow.Subtitle) || has(KitShow.Badges)) && lines >= 2;
         var preview = has(KitShow.Preview) && lines >= (subtitle ? 3 : 2);
-        var columns = KitSizing.ClampColumns(rows.Columns);
-        return new KitPlan(spec.Look, columns, Math.Max(0, area.Width) / columns, lines, has(KitShow.Lead), subtitle, preview, has(KitShow.When), has(KitShow.Badges) && subtitle).With(Reach(area, rows.Rows, lines));
+        // [S-11400] [S-14410] The columns the card's width holds, up to the list's most.
+        var columns = Math.Min(KitSizing.ClampColumns(rows.Columns), area.IsMeasured ? KitSizing.ColumnsFor(area.Width) : 1);
+        return new KitPlan(spec.Look, columns, Math.Max(0, area.Width) / columns, lines, has(KitShow.Lead), subtitle, preview, has(KitShow.When), has(KitShow.Badges) && subtitle).With(Reach(area, lines));
     }
 
     /// <summary>
@@ -314,8 +334,8 @@ public static class KitPlanner
         var lead = has(KitShow.Lead);
         var chosen = choices.Columns is { Count: > 0 } picked ? picked : [KitColumn.Title];
         var fits = TableColumns(chosen, InnerWidth(width, lead), ColumnGap);
-        // [S-12807] [S-14100] Under the titles' band (whole cells from the card's top edge) the rows' room starts.
-        return new KitPlan(KitRowLook.Table, 1, width, 1, lead, false, false, false, ColumnHeader: rows.ColumnTitles, Table: fits).With(Reach(area, rows.Rows, 1, rows.ColumnTitles ? TitlesOver : 0));
+        // [S-12807] [S-14500] Under the titles' band (whole cells from the card's top edge) the rows' room starts.
+        return new KitPlan(KitRowLook.Table, 1, width, 1, lead, false, false, false, ColumnHeader: rows.ColumnTitles, Table: fits).With(Reach(area, 1, rows.ColumnTitles ? TitlesOver : 0));
     }
 
     /// <summary>A row's width inside its side insets and past its lead: what its text has to share.</summary>
@@ -381,7 +401,7 @@ public static class KitPlanner
         // [S-11541] A schedule that states its rows: one column, its lines (the span and where on the
         // second) at every size; the pages hold the rows its height was made for.
         var chosen = KitSizing.ClampLines(choices.Rows.Lines);
-        var reach = Reach(area, choices.Rows.Rows, chosen);
+        var reach = Reach(area, chosen);
         return new KitPlan(KitRowLook.Schedule, 1, Math.Max(0, area.Width), chosen, true, chosen >= 2, false, true, HeadingHeight: reach.Pitch).With(reach);
     }
 }

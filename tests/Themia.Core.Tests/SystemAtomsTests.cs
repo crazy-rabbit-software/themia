@@ -127,8 +127,9 @@ public sealed class SystemAtomsTests
             Assert.Empty(sizing.Problems());
         }
 
-        // [S-14100] Four rows of whole cells (30) edge to edge, a cell more for each a step: they grow together, none left over.
+        // [S-14500] Four rows at their optimal (30) edge to edge; every cell taller too, the rows stretched to fill it.
         Assert.Equal(4 * 30, MeterSizing.ItemRows(4).Natural.Height);
-        Assert.Equal(40, MeterSizing.ItemRows(4).HeightSteps!.Step);
+        Assert.Equal(4 * 30, MeterSizing.ItemRows(4).Min.Height);
+        Assert.Equal(137, Themia.Sdk.SizeStretch.Relax(MeterSizing.ItemRows(4)).FitHeight(137));
     }
 }

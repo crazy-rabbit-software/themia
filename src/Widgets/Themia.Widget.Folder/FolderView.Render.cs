@@ -264,19 +264,21 @@ internal sealed partial class FolderView
         }
         else
         {
-            // [S-12807] The list's rows reach the items' top and the foot's inset, the first one's band over the top.
+            // [S-12807] [S-14500] The list's rows reach the items' top and the card's foot, as many as it holds at their
+            // optimal, stretched to fill it; each its share on whole device pixels.
             var reach = FolderLayout.Reach(height, _area.Grid(XamlRoot?.RasterizationScale ?? 1));
-            if (reach.Pitch != _rowPitch)
+            if (reach != _rowReach)
             {
+                _rowReach = reach;
                 _rowPitch = reach.Pitch;
                 foreach (var row in _items.Children.OfType<Border>().Where(b => b.Tag is int))
                 {
-                    row.Height = reach.Pitch;
+                    row.Height = reach.Height((int)row.Tag);
                 }
             }
 
             _scroll.Padding = new Thickness(0);
-            _scroll.Height = reach.Length(FolderLayout.Rows(height));
+            _scroll.Height = reach.Room;
         }
 
         FillViewport();
@@ -422,8 +424,11 @@ internal sealed partial class FolderView
         }
     }
 
-    /// <summary>[S-12807] A list row's height: 28 stretched so the rows reach the items' top and the foot's inset.</summary>
+    /// <summary>[S-12807] [S-14500] A list row's height: 28 at its optimal, stretched so the rows reach the items' top and the card's foot.</summary>
     private double _rowPitch = FolderLayout.RowHeight;
+
+    /// <summary>[S-14500] The list's rows as laid: each row's share of the room on whole device pixels.</summary>
+    private RowReach _rowReach = new(FolderLayout.RowHeight);
 
 
     /// <summary>When the items on screen were drawn: the clock their "modified" cells read.</summary>
@@ -643,7 +648,7 @@ internal sealed partial class FolderView
         {
             Entry = entry,
             Index = index,
-            Root = new Border { Height = _rowPitch, Child = new Grid { Children = { chrome, block } }, Tag = index },
+            Root = new Border { Height = _rowReach.Height(index), Child = new Grid { Children = { chrome, block } }, Tag = index },
             Chrome = chrome,
             Content = block,
             Image = image,

@@ -56,7 +56,7 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   subject and account off is one line), default 2. Each style states its own sizes: List and Compact
   the kit's (220..520, a new one 300 × 248), the Table 320..720 (a new one 420), its rows one line,
   its **Column titles** a setting under Style (on by default) and never the height's ([S-11401]).
-  The height follows the rows; dragging the bottom edge sets Rows; more messages scroll inside them
+  Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more messages scroll inside them
   (the wheel as before). Nothing appears or disappears with the size: [S-1280]'s ladder is gone. Tests
   `EmailSizingTests`, `EmailMenuTests.S11402_`.
 - **[S-1280]** *(Retired by [S-11402]: what a row shows is its lines, never the tile.)* Mail's ladder (the kit's message and table looks on the family's rows, [S-7032],

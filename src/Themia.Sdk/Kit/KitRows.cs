@@ -4,15 +4,14 @@ using Themia.Core.Widgets;
 namespace Themia.Sdk.Kit;
 
 /// <summary>
-/// [S-2440] A kit list that shows a set number of rows: its config states how many rows it shows and
-/// how many lines each has, and its size follows from them ([S-2438]); dragging its bottom edge sets
-/// the rows ([S-2442]). Any kit list adopts it by implementing this on its config, stating
-/// <see cref="KitSizing.Sizing"/> and <see cref="KitSizing.SizeSets"/> on its descriptor and adding
-/// <c>KitMenuLines.Rows</c> to its menu.
+/// [S-2440] [S-14500] A kit list that states its rows: its config states how many rows a new card stands (its natural
+/// height, [S-2438]) and how many lines each has; the card's height shows as many rows as it holds at their optimal,
+/// stretched to fill it. Any kit list adopts it by implementing this on its config, stating <see cref="KitSizing.Sizing"/>
+/// on its descriptor and adding <c>KitMenuLines.Rows</c> to its menu.
 /// </summary>
 public interface IKitRows
 {
-    /// <summary>How many rows the list shows: <see cref="KitSizing.MinRows"/>..<see cref="KitSizing.MaxRows"/>; more items scroll.</summary>
+    /// <summary>How many rows a new card stands (its natural height): <see cref="KitSizing.MinRows"/>..<see cref="KitSizing.MaxRows"/>.</summary>
     int Rows { get; set; }
 
     /// <summary>How many lines each row has: 1 to the kind's most (2, or 3 where a row has a third: a preview).</summary>
@@ -26,20 +25,10 @@ public interface IKitRows
 }
 
 /// <summary>
-/// [S-11400] [S-14410] A kit list that may show its rows in two columns side by side: the card's width's, never a
-/// setting (owner, 2026-11-20: "Anything that's just 'how many of the same item' ... follows the card's size"): a width
-/// that holds two columns' least shows two (<see cref="KitSizing.ColumnsFor"/>); the rows count down each column.
-/// </summary>
-public interface IKitColumns
-{
-    /// <summary>1 or 2.</summary>
-    int Columns { get; set; }
-}
-
-/// <summary>
-/// [S-2440] What a kit list with rows of its own shows, for its plan: a number of rows of a number of
-/// lines, in <paramref name="Columns"/> columns ([S-11400]), with a table's column titles over them
-/// where <paramref name="ColumnTitles"/> ([S-11401]).
+/// [S-2440] What a kit list with rows of its own shows, for its plan: rows of a number of lines (its
+/// <paramref name="Rows"/> its natural height's), in up to <paramref name="Columns"/> columns as the card's width holds them
+/// ([S-11400], [S-14410]: <see cref="KitSizing.ColumnsFor"/>), with a table's column titles over them where
+/// <paramref name="ColumnTitles"/> ([S-11401]).
 /// </summary>
 public readonly record struct KitRowsChoice(int Rows, int Lines, int Columns = 1, bool ColumnTitles = false);
 
@@ -47,11 +36,12 @@ public readonly record struct KitRowsChoice(int Rows, int Lines, int Columns = 1
 public readonly record struct KitWidths(double Min, double Natural, double Max);
 
 /// <summary>
-/// [S-2440] [S-14100] The size of a kit list that states its rows: its rows (28 or 40 each by its lines) from the card's
-/// top edge to its foot edge, under a table's column titles and over the add row where it has them, each part and each
-/// row whole grid cells (three a row of 28 on the default grid), so the card is exactly its whole rows (owner,
-/// 2026-11-20: "same for the task widget, there is also a one block space at the bottom now. why is that?"); the height
-/// stepped by a row, the width in its range. Pure, so every kit list shares it.
+/// [S-2440] [S-14500] The size of a kit list that states its rows: its rows (28 or 40 each by its lines) at their optimal
+/// (whole grid cells, three a row of 28 on the default grid) from the card's top edge to its foot edge, under a table's
+/// column titles and over the add row where it has them, each part whole cells; its Rows decide its natural height, and
+/// its height takes every cell from one row up, the rows as many as it holds, stretched to fill it (owner, 2026-11-20:
+/// "the items should have an optimal size and then they may stretch a little to fill up the remaining space"). The width
+/// in its range. Pure, so every kit list shares it.
 /// </summary>
 public static class KitSizing
 {
@@ -88,76 +78,47 @@ public static class KitSizing
     /// <summary>[S-11400] Columns held to 1 or 2.</summary>
     public static int ClampColumns(int columns) => Math.Clamp(columns, 1, MaxColumns);
 
-    /// <summary>[S-2440] The config's choice, held to its ranges (its columns where it has them, [S-11400]).</summary>
+    /// <summary>[S-2440] The config's choice, held to its ranges: one column.</summary>
     public static KitRowsChoice Choice(IKitRows rows)
     {
         ArgumentNullException.ThrowIfNull(rows);
-        return new(ClampRows(rows.Rows), ClampLines(rows.Lines, MaxLines), rows is IKitColumns c ? ClampColumns(c.Columns) : 1);
+        return new(ClampRows(rows.Rows), ClampLines(rows.Lines, MaxLines));
     }
 
     /// <summary>
-    /// [S-2440] [S-14100] The height's steps in whole grid cells (<see cref="SizeSteps.InCells"/>): a row as the step, the
-    /// config's rows as the count, over the parts that stand with the rows: <paramref name="over"/> (a kind's own line
-    /// over its rows, as its natural length from the card's top edge: a day line), a table's column titles
-    /// (<see cref="KitPlanner.TitlesOver"/>, [S-11401]) and the add row (a row of 28, [S-3850]). The rows reach the card's
-    /// top edge where nothing stands over them and its foot edge where no add row stands under them: no inset over or
-    /// under them.
+    /// [S-2440] [S-14500] The height of the parts that stand with the rows, each its own whole cells of the default grid:
+    /// <paramref name="over"/> (a kind's own line over its rows, as its natural length from the card's top edge: a day line),
+    /// a table's column titles (<see cref="KitPlanner.TitlesOver"/>, [S-11401]) and the add row (a row of 28, [S-3850]).
+    /// The rows reach the card's top edge where nothing stands over them and its foot edge where no add row stands under
+    /// them: no inset over or under them.
     /// </summary>
-    public static SizeSteps Steps(KitRowsChoice choice, bool addFooter, double over = 0)
-        => SizeSteps.InCells(
-            FamilyShape.RowHeight(choice.Lines),
-            MinRows,
-            MaxRows,
-            choice.Rows,
-            over,
-            choice.ColumnTitles ? KitPlanner.TitlesOver : 0,
-            addFooter ? FamilyShape.Row1 : 0);
+    public static double Parts(KitRowsChoice choice, bool addFooter, double over = 0)
+    {
+        static double Part(double length) => length > 0 && double.IsFinite(length) ? ItemStretch.Optimal(length, ItemGrid.Default()) : 0;
+        return Part(over) + Part(choice.ColumnTitles ? KitPlanner.TitlesOver : 0) + Part(addFooter ? FamilyShape.Row1 : 0);
+    }
+
+    /// <summary>[S-14500] A row's optimal height on the default grid: its natural (28 or 40 by its lines) in whole cells.</summary>
+    public static double RowOptimal(int lines) => ItemStretch.Optimal(FamilyShape.RowHeight(lines), ItemGrid.Default());
 
     /// <summary>
-    /// [S-2440] The sizing of a kit list showing <paramref name="shown"/> (the config's rows and the lines
+    /// [S-2440] [S-14500] The sizing of a kit list showing <paramref name="shown"/> (the config's rows and the lines
     /// its rows really have: a one-line style has one): its width range (the kit's, or the look's own
-    /// <paramref name="widths"/>; its natural and largest times its columns, its least one column's so a narrower card
-    /// goes back to one, [S-11400], [S-14410]), its height in rows (over <paramref name="over"/>, <see cref="Steps"/>).
+    /// <paramref name="widths"/>; a card wide enough for two columns' least shows two, [S-11400], [S-14410]), its height its
+    /// parts (<see cref="Parts"/>) and one row at least, its rows at natural, every cell between.
     /// </summary>
     public static WidgetSizing Sizing(KitRowsChoice shown, bool addFooter, KitWidths? widths = null, double over = 0)
     {
         var w = widths ?? new KitWidths(MinWidth, NaturalWidth, MaxWidth);
-        var columns = ClampColumns(shown.Columns);
-        return (WidgetSizing.Range(new(w.Min, 1), new(w.Natural * columns, 1), new(w.Max * columns, 1)) with { Room = StretchRoom.List })
-            .WithHeightSteps(Steps(shown, addFooter, over));
+        var parts = Parts(shown, addFooter, over);
+        var row = RowOptimal(shown.Lines);
+        return WidgetSizing.Range(
+            new(w.Min, parts + row),
+            new(w.Natural, parts + (ClampRows(shown.Rows) * row)),
+            new(w.Max * ClampColumns(shown.Columns), parts + (MaxRows * row))) with { Room = StretchRoom.List };
     }
 
     /// <summary>[S-11400] [S-14410] The columns a list <paramref name="width"/> wide shows: two where it holds two columns' least, else one.</summary>
     public static int ColumnsFor(double width, KitWidths? widths = null)
         => double.IsFinite(width) && width + LayoutMath.Tolerance >= MaxColumns * (widths ?? new KitWidths(MinWidth, NaturalWidth, MaxWidth)).Min ? MaxColumns : 1;
-
-    /// <summary>
-    /// [S-2442] The config a list of <paramref name="size"/> means: the rows that height holds, its rows
-    /// being as <paramref name="shown"/> says, and where it has columns the columns that width holds ([S-14410],
-    /// <see cref="ColumnsFor"/>). A copy when they change, the same config otherwise; never the given one changed.
-    /// </summary>
-    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size, KitRowsChoice shown, bool addFooter, KitWidths? widths = null, double over = 0)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        if (config is not IKitRows rows)
-        {
-            return config;
-        }
-
-        var wanted = Steps(shown, addFooter, over).Nearest(size.Height);
-        var columns = config is IKitColumns c ? (Now: ClampColumns(c.Columns), Wanted: ColumnsFor(size.Width, widths)) : (Now: 1, Wanted: 1);
-        if (wanted == rows.Rows && columns.Wanted == columns.Now)
-        {
-            return config;
-        }
-
-        var copy = config.Clone();
-        ((IKitRows)copy).Rows = wanted;
-        if (copy is IKitColumns set)
-        {
-            set.Columns = columns.Wanted;
-        }
-
-        return copy;
-    }
 }

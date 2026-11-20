@@ -11,9 +11,8 @@ public sealed record JoinShift(bool Vertical, double Delta, IReadOnlyList<Widget
 
 /// <summary>
 /// [S-14104] A refit keeps the cards it touched touching (owner, 2026-11-19: "the items have no spacing between them";
-/// [S-2240]: cards whose cells meet join). A refit fits a card at its top-left ([S-2447]), so where its stepped axis
-/// shrinks or grows (a loaded card fitted to its whole rows, [S-14103]; a config that changed its rows) its bottom or right
-/// edge moves: every card of the view that touched that edge, and every card that touched one of those along the same
+/// [S-2240]: cards whose cells meet join). A refit fits a card at its top-left ([S-2447]), so where an axis shrinks or grows
+/// (a config that changed its least, or its rows and so its natural height, [S-14503]) its bottom or right edge moves: every card of the view that touched that edge, and every card that touched one of those along the same
 /// axis, moves with it by the same amount, so what was joined stays joined. Nothing else moves. A move that would take a
 /// card past the view's allowed area (the work area: never under a taskbar, [S-841]) or into a card it did not overlap
 /// before is kept back whole: the cards stay where they were. Pure, so the refit and the tests share it.

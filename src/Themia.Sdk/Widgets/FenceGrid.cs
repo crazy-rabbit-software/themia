@@ -116,37 +116,16 @@ public static class FenceGrid
     }
 
     /// <summary>
-    /// [S-14263] A fence's sizes in whole icon boxes under its title bar, every part whole grid cells (<see cref="SizeSteps.InCells"/>,
-    /// [S-14100]; owner, 2026-11-20, WR-5: "now the weather forecast widget always has one block space at the bottom. this
-    /// should obviously not be"): across, <see cref="MinAcross"/> boxes and more; down, the title bar's
-    /// <see cref="TitleCells"/> rows and one box and more, or the title bar alone while rolled up. Counted on each axis as
-    /// the host lays a desktop icon's box ([S-14269]), every step is the host's whole boxes on any display, and a picture of a
-    /// fence is its title bar and whole rows of boxes too, never a part row; the most of each reaches past
-    /// <see cref="SizeStretch.Ceiling"/>, so the user still makes it as large as the work area.
-    /// </summary>
-    public static (SizeSteps Across, SizeSteps Down) Steps(SizeDip cell, bool rolledUp)
-    {
-        var across = SizeSteps.InCells(cell.Width, MinAcross(cell), Most(cell.Width));
-        var down = rolledUp
-            ? SizeSteps.InCells(cell.Height, 0, 0, null, TitleDip)
-            : SizeSteps.InCells(cell.Height, 1, Most(cell.Height), null, TitleDip);
-        return (across, down);
-    }
-
-    /// <summary>
     /// [S-14263] A fence's title bar and one icon box on <paramref name="grid"/>, each whole cells of it as the host counts them
-    /// ([S-14269], <see cref="GridCells"/>), as the host lays them on its display (<c>FenceCells</c>): what a picture of a fence
-    /// (the sample, a render) lays its cells by.
+    /// (<see cref="GridCells"/>), as the host lays them on its display (<c>FenceCells</c>): what a picture of a fence (the
+    /// sample, a render) lays its cells by. [S-14501] The fence's own box takes any whole cells; its boxes stand from the
+    /// body's top-left, and the sliver at its far edge and foot a box does not fill stays empty.
     /// </summary>
     public static (double Title, SizeDip Box) OnGrid(SizeDip cell, ItemGrid grid)
     {
         double Whole(double length) => GridCells.Up(length / grid.Pitch) * grid.Pitch;
         return (Whole(TitleDip), new SizeDip(Whole(cell.Width), Whole(cell.Height)));
     }
-
-    /// <summary>How many boxes of <paramref name="length"/> (whole cells on the default grid) reach the stretch's ceiling.</summary>
-    private static int Most(double length)
-        => (int)Math.Ceiling(SizeStretch.Ceiling / (GridCells.Up(length / ItemGrid.DefaultCell) * ItemGrid.DefaultCell));
 
     /// <summary>
     /// [S-10901] [S-13976] The fewest icon boxes a fence's body is across: two, or one for a wide box (text beside), which is

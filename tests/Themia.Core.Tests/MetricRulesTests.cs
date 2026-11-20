@@ -19,7 +19,7 @@ public sealed class MetricRulesTests
     // ---- [S-14600] the size ---------------------------------------------------------------------------
 
     [Fact]
-    public void S14600_the_card_is_its_one_row_in_whole_grid_cells_with_no_room_over_or_under_it()
+    public void S14600_the_card_is_its_one_row_at_its_optimal_with_no_room_over_or_under_it()
     {
         var sizing = MetricRules.Sizing;
 
@@ -28,14 +28,14 @@ public sealed class MetricRulesTests
         Assert.True(MetricRules.RowHeight >= FamilyShape.Row1);
         Assert.Equal(new SizeDip(240, 30), sizing.Natural);
         Assert.Equal(new SizeDip(200, 30), sizing.Min);
-        Assert.Equal(30, sizing.Max.Height);
-        Assert.True(sizing.FixedHeight);
         Assert.Empty(sizing.Problems());
 
-        // [S-12411] The width is relaxed; the height keeps its one step (a stepped axis is never relaxed).
+        // [S-12411] [S-14500] Relaxed on both axes: every cell taller too, its row stretched to fill it.
+        Assert.Equal(SizeStretch.Ceiling, SizeStretch.Relax(sizing).Max.Height);
+        Assert.Equal(53, SizeStretch.Relax(sizing).FitHeight(53));
         var relaxed = SizeStretch.Relax(sizing);
-        Assert.Equal((SizeStretch.Ceiling, 30d), (relaxed.Max.Width, relaxed.Max.Height));
-        Assert.Equal(30, relaxed.FitHeight(52));
+        Assert.Equal((SizeStretch.Ceiling, SizeStretch.Ceiling), (relaxed.Max.Width, relaxed.Max.Height));
+        Assert.Equal(30, relaxed.FitHeight(12));
     }
 
     [Fact]
@@ -160,20 +160,16 @@ public sealed class MetricRulesTests
 
         Assert.Equal((1, 1, MetricRules.LineRows), (MetricRules.Rows(MetricTrend.None), MetricRules.Rows(MetricTrend.Arrow), MetricRules.Rows(MetricTrend.Line)));
         Assert.Equal(2, MetricRules.LineRows);
-        Assert.Equal((30d, 30d, 30d), (none.Min.Height, none.Natural.Height, none.Max.Height));
-        Assert.Equal((30d, 30d, 30d), (arrow.Min.Height, arrow.Natural.Height, arrow.Max.Height));
+        Assert.Equal((30d, 30d), (none.Min.Height, none.Natural.Height));
+        Assert.Equal((30d, 30d), (arrow.Min.Height, arrow.Natural.Height));
 
-        // A line: its reading row and the line's row, each a 28 row in whole cells, the card exactly those two (WR-6).
-        Assert.Equal((60d, 60d, 60d), (line.Min.Height, line.Natural.Height, line.Max.Height));
+        // A line: its reading row and the line's row, each a 28 row at its optimal; [S-14500] every cell taller too, the two
+        // rows stretched alike.
+        Assert.Equal((60d, 60d), (line.Min.Height, line.Natural.Height));
         Assert.Equal(2 * MetricRules.RowHeight, line.Natural.Height);
-        Assert.True(line.FixedHeight);
         Assert.Empty(line.Problems());
         Assert.Equal(60, SizeStretch.Relax(line).FitHeight(52));
-        Assert.Equal(60, SizeStretch.Relax(line).FitHeight(90));
-
-        // Its steps are whole rows on any pitch: two 28 rows on an 8 grid are 32 each.
-        var (start, step) = MetricRules.HeightStepsFor(MetricTrend.Line).On(new ItemGrid(8));
-        Assert.Equal(64, start + (2 * step));
+        Assert.Equal(90, SizeStretch.Relax(line).FitHeight(90));
 
         // No room beside the value: the line is the band under and behind the row.
         Assert.Equal(0, MetricRules.TrendRoom(MetricTrend.Line));

@@ -38,8 +38,8 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   step's line under, Caption under all three, secondary) while Show author is on, its line kept even
   for a quote without an author, so nothing moves as the quotes turn. The card follows
   (`QuoteLayout.Sizing`): the inset, the mark and its 8 on the Marks style, the lines, the attribution's
-  line, the inset; stepped by a line and following Lines (dragging its bottom edge sets them,
-  `QuoteLayout.SizeSets`), 200 to 520 wide (a new one 320), where the quote only rewraps. No tier ladder is left. Tests `QuoteLayoutTests.S11306_`.
+  line, the inset, Lines deciding its natural height, every cell taller too ([S-14500]; a resize stores no Lines,
+  [S-14502]), 200 to 520 wide (a new one 320), where the quote only rewraps. No tier ladder is left. Tests `QuoteLayoutTests.S11306_`.
 - **[S-1502]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. **Size** and **Lines** under its Style ([S-11306]), Appearance ([S-3723]), then **Quotes**, the editable list ([S-3729]) in the
   rotation's order: each quote by its text, a submenu of Rename… (its text; never empty), Author…

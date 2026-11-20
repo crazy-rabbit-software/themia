@@ -20,8 +20,7 @@ context), `RecentFilesConfig.cs`, `RecentFilesView.cs` (the rows, the icons thro
 - **[S-11200]** Converted to the sizing ([S-2438]) on the kit's rows contract (`IKitRows`,
   `KitSizing`, [S-2440]), though its view is its own: **Rows** (1..20, default 6) and **Lines per row**
   (1 or 2, default 2: the folder line) are its menu's two lines (`KitMenuLines.Rows`); its height
-  follows them (36 + rows × 28 or 40 + 12, no add footer), 220..520 wide, a new one 300 × 288; dragging
-  its bottom edge sets Rows. The icon and the time are always shown; more files scroll inside the rows.
+  follows them (its rows at their optimal, no add footer), 220..520 wide, a new one 300 × 288; Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]). The icon and the time are always shown; more files scroll inside the rows.
   No ladder is left: nothing appears or disappears with its size.
 - **[S-4844]** A click focuses the row, drawn as the desktop draws a selected file and the row
   under the pointer lit as its hover ([S-6627]: the chrome laid behind the row, over its whole width,

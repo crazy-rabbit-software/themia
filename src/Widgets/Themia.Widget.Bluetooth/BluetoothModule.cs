@@ -34,7 +34,6 @@ public sealed class BluetoothModule : IWidgetModule
         Description = BluetoothStr.WidgetsA_Catalog_Bluetooth_Description.Local(),
         Glyph = Glyphs.Bluetooth,
         Sizing = c => KitSizing.Sizing(KitSizing.Choice((BluetoothConfig)c), addFooter: false),
-        SizeSets = (c, s) => KitSizing.SizeSets(c, s, KitSizing.Choice((BluetoothConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
         Add = new(AddFolderId.Devices, 1, 1),

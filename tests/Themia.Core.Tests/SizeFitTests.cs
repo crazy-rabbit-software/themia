@@ -15,9 +15,6 @@ public sealed class SizeFitTests
 
     private static WidgetSizing Meter => WidgetSizing.Range(new(160, 112), new(220, 144), new(480, 200));
 
-    private static WidgetSizing List(int rows) => WidgetSizing.Range(new(220, 1), new(300, 1), new(520, 1))
-        .WithHeightSteps(new SizeSteps(Base: 76, Step: 28, MinCount: 1, MaxCount: 20, Count: rows));
-
     private static void Near(double expected, double actual) => Assert.Equal(expected, actual, 6);
 
 
@@ -98,10 +95,18 @@ public sealed class SizeFitTests
     }
 
     [Fact]
-    public void S2442_the_wanted_size_is_the_whole_cell_at_widget_scale_one()
+    public void S14500_a_resized_edge_lands_on_every_whole_cell_between_min_and_max()
     {
-        var wanted = SizeFit.Wanted(new FracRect(0, 0, 0.3, 0.15), Screen, scale: 2);
-        Assert.Equal(150, wanted.Width, 6);
-        Assert.Equal(75, wanted.Height, 6);
+        // Owner, 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps
+        // of one". A list's range: a row at least, twenty at most; its bottom edge stops on each cell between.
+        var list = SizeFit.Limits(WidgetSizing.Range(new(220, 30), new(300, 180), new(520, 600)), Screen, 1);
+        var start = new FracRect(0.2, 0.2, 0.3, 0.18);
+
+        foreach (var cells in new[] { 3, 4, 10, 11, 13, 17, 59, 60 })
+        {
+            var asked = (cells / 100.0) - 0.18;
+            var landed = GridGeometry.Settle(GridGeometry.Resize(start, ResizeHandle.Bottom, 0, asked, Screen), Screen, ResizeHandle.Bottom, list);
+            Near(cells / 100.0, landed.H);
+        }
     }
 }

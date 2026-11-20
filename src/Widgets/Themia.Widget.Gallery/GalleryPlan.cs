@@ -29,8 +29,8 @@ public enum GalleryMode
 /// <param name="Controls">Offer the previous / pause / next bar on hover (the slideshow's).</param>
 /// <param name="MainWidth">The main picture area's width.</param>
 /// <param name="MainHeight">The main picture area's height.</param>
-/// <param name="Columns">The grid's columns (the config's), else 1.</param>
-/// <param name="Rows">The grid's rows (the config's), else 1.</param>
+/// <param name="Columns">The grid's columns (what the card's width holds), else 1.</param>
+/// <param name="Rows">The grid's rows (what the card's height holds), else 1.</param>
 public sealed record GalleryPlan(
     GalleryMode Mode,
     int Pictures,
@@ -43,9 +43,9 @@ public sealed record GalleryPlan(
     /// <summary>
     /// [S-11207] The plan for <paramref name="config"/> with <paramref name="available"/> pictures in
     /// <paramref name="area"/> (the view's slot): a picture file or the photo of the day is one still
-    /// picture; the slideshow one at a time with its counter and its hover bar; the grid its Columns ×
-    /// Rows cells; the scatter and the mosaic as many pictures as their box holds (<see cref="ShownIn"/>). Fewer pictures than
-    /// that show what there is; one alone is that picture, full-bleed.
+    /// picture; the slideshow one at a time with its counter and its hover bar; the grid as many cells across and down as
+    /// its box holds ([S-14500], <see cref="Cells"/>); the scatter and the mosaic as many pictures as their box holds
+    /// (<see cref="ShownIn"/>). Fewer pictures than that show what there is; one alone is that picture, full-bleed.
     /// </summary>
     public static GalleryPlan For(WidgetArea area, GalleryConfig config, int available)
     {
@@ -57,10 +57,10 @@ public sealed record GalleryPlan(
 
         return config.Style switch
         {
-            GalleryStyle.Grid => Many(GalleryMode.Grid, config.EffectiveColumns * config.EffectiveRows, area, available) with
+            GalleryStyle.Grid => Many(GalleryMode.Grid, Cells(area.Width, GalleryConfig.DefaultColumns) * Cells(area.Height, config.EffectiveRows), area, available) with
             {
-                Columns = config.EffectiveColumns,
-                Rows = config.EffectiveRows,
+                Columns = Cells(area.Width, GalleryConfig.DefaultColumns),
+                Rows = Cells(area.Height, config.EffectiveRows),
             },
             GalleryStyle.Scatter => Many(GalleryMode.Scatter, ShownIn(area), area, available),
             GalleryStyle.Mosaic => Many(GalleryMode.Mosaic, ShownIn(area), area, available),
@@ -99,47 +99,33 @@ public sealed record GalleryPlan(
     /// <summary>[S-11207] A free gallery's range: the slideshow, the scatter, the mosaic, one picture.</summary>
     public static readonly SizeDip Least = new(160, 120), Natural = new(320, 240), Largest = new(800, 600);
 
-    /// <summary>[S-11207] The grid's steps on one axis: a cell and its gap each, the config's count of them.</summary>
-    public static SizeSteps GridSteps(int count)
-        => new(-Gap, CellSide + Gap, GalleryConfig.MinCells, GalleryConfig.MaxCells, count);
+    /// <summary>[S-11207] The grid's length on one axis: <paramref name="count"/> cells of 96, 4 apart.</summary>
+    public static double GridLength(int count) => (count * (CellSide + Gap)) - Gap;
 
     /// <summary>
-    /// [S-11207] The gallery's sizes (headerless, its default): the grid is its Columns × Rows cells of
-    /// 96, 4 apart, full-bleed, both axes stepped by a cell and following the config;
-    /// everything else a free range, 160..800 × 120..600, a new one 320 × 240.
+    /// [S-11207] [S-14410] [S-14500] How many grid cells a length holds at their side and gap
+    /// (<see cref="GalleryConfig.MinCells"/>..<see cref="GalleryConfig.MaxCells"/>; the cells stretch to fill it): the
+    /// card's, never a setting; before the box is measured, <paramref name="unmeasured"/>.
+    /// </summary>
+    public static int Cells(double length, int unmeasured)
+        => double.IsFinite(length) && length > 0
+            ? Math.Clamp((int)Math.Floor((length + Gap + LayoutMath.Tolerance) / (CellSide + Gap)), GalleryConfig.MinCells, GalleryConfig.MaxCells)
+            : unmeasured;
+
+    /// <summary>
+    /// [S-11207] [S-14500] The gallery's sizes (headerless, its default): the grid's cells of 96, 4 apart, full-bleed, a new
+    /// one <see cref="GalleryConfig.DefaultColumns"/> across and its Rows down, every cell between (as many cells as it
+    /// holds, stretched to fill it); everything else a free range, 160..800 × 120..600, a new one 320 × 240.
     /// </summary>
     public static WidgetSizing Sizing(GalleryConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         if (config.Style == GalleryStyle.Grid && !config.IsSingleSource)
         {
-            return WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1))
-                .WithWidthSteps(GridSteps(config.EffectiveColumns))
-                .WithHeightSteps(GridSteps(config.EffectiveRows));
+            var (least, most) = (GridLength(GalleryConfig.MinCells), GridLength(GalleryConfig.MaxCells));
+            return WidgetSizing.Range(new(least, least), new(GridLength(GalleryConfig.DefaultColumns), GridLength(config.EffectiveRows)), new(most, most)) with { Room = StretchRoom.Picture };
         }
 
         return WidgetSizing.Range(Least, Natural, Largest) with { Room = StretchRoom.Picture };
-    }
-
-    /// <summary>[S-11207] The config a grid of <paramref name="size"/> means: the columns and rows it holds. A copy when they change.</summary>
-    public static WidgetConfig SizeSets(GalleryConfig config, SizeDip size)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        if (config.Style != GalleryStyle.Grid || config.IsSingleSource)
-        {
-            return config;
-        }
-
-        var columns = GridSteps(config.EffectiveColumns).Nearest(size.Width);
-        var rows = GridSteps(config.EffectiveRows).Nearest(size.Height);
-        if (columns == config.EffectiveColumns && rows == config.EffectiveRows)
-        {
-            return config;
-        }
-
-        var copy = (GalleryConfig)config.Clone();
-        copy.Columns = columns;
-        copy.Rows = rows;
-        return copy;
     }
 }

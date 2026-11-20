@@ -41,32 +41,22 @@ public sealed class StopwatchFaceTests
     }
 
     [Fact]
-    public void S11302_the_height_follows_the_lap_rows_and_dragging_it_sets_them()
+    public void S11302_S14500_a_new_one_is_its_face_and_every_cell_taller_lists_the_laps_it_holds()
     {
-        var none = Sizing(new StopwatchConfig());
-        var four = Sizing(new StopwatchConfig { LapRows = 4 });
+        var sizing = Sizing(new StopwatchConfig());
 
-        // [S-14100] A lap row each, whole cells (30), under the face's band.
-        Assert.Equal(none.Natural.Height + (4 * 30), four.Natural.Height);
-        Assert.Equal(none.Natural.Height + (10 * 30), four.Max.Height);
-        Assert.Equal(4, four.HeightSteps!.Count);
-
-        var config = new StopwatchConfig { LapRows = 4 };
-        var three = Assert.IsType<StopwatchConfig>(StopwatchFace.SizeSets(config, four.Natural with { Height = none.Natural.Height + (3 * 30) }));
-        Assert.Equal(3, three.LapRows);
-        Assert.Equal(4, config.LapRows);
-        Assert.Same(config, StopwatchFace.SizeSets(config, four.Natural));
+        // [S-14500] A new one is its face's band (whole cells) and lists no laps; taller, a lap row each at its optimal (30),
+        // up to ten, stretched to the card's foot.
+        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        Assert.Equal(Themia.Core.Widgets.ItemGrid.Default().Whole(12 + StopwatchFace.FaceHeight(new StopwatchConfig(), Themia.Core.Localization.Strings.Current)), sizing.Natural.Height);
+        Assert.Equal(sizing.Natural.Height + 37, sizing.FitHeight(sizing.Natural.Height + 37));
     }
 
     [Fact]
-    public void S11302_lap_rows_are_repaired_into_range_and_copied()
+    public void S11302_S14502_a_stored_lap_count_is_dropped_loudly()
     {
-        var config = new StopwatchConfig { LapRows = 40 };
-        Assert.NotEmpty(config.Repair());
-        Assert.Equal(10, config.LapRows);
-
-        var copy = (StopwatchConfig)new StopwatchConfig { LapRows = 3 }.Clone();
-        Assert.Equal(3, copy.LapRows);
+        // How many laps it lists is the card's: no field holds it, so a file that still stores one loads without it.
+        Assert.DoesNotContain(typeof(StopwatchConfig).GetProperties(), p => p.Name == "LapRows");
     }
 
     [Fact]

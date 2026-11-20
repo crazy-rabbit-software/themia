@@ -61,7 +61,7 @@ public static class KeyboardNudge
     /// [S-1971] Resize one rect one press: Right and Down grow it, Left and Up shrink it, always by the
     /// right or bottom edge so the top-left corner stays put. The [S-08] floor and the visible
     /// minimum ([S-6608]) stop the edge. [S-2445] The widget's sizing's <paramref name="limits"/> stop it
-    /// at its Min and Max too; on a stepped axis a press is one step (a row), whatever the step size.
+    /// at its Min and Max too; [S-14500] a press is one whole cell on the grid.
     /// </summary>
     public static FracRect Resize(FracRect rect, NudgeDirection direction, NudgeStep step, ScreenMetrics screen, SizeLimits? limits = null)
     {
@@ -87,12 +87,12 @@ public static class KeyboardNudge
     }
 
     /// <summary>
-    /// How far one press moves the edge on an axis: a step on a stepped axis; [S-11807] on the grid at
-    /// least one whole cell (a finer press would round back up to the cells it started from).
+    /// How far one press moves the edge on an axis: [S-11807] on the grid at least one whole cell (a finer press would
+    /// round back up to the cells it started from).
     /// </summary>
     private static double Press(AxisLimits axis, double asked)
     {
-        var press = axis.Stepped ? axis.Step : Math.Abs(asked);
+        var press = Math.Abs(asked);
         return axis.OnGrid ? Math.Max(press, 1.0 / axis.Lines) : press;
     }
 }

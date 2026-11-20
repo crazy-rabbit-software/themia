@@ -17,7 +17,7 @@ public sealed class ScreenTimeAppsTests
         var sizing = Kind.Sizing(new ScreenTimeAppsConfig());
         Assert.Equal(new SizeDip(300, 40 + (5 * 30)), sizing.Natural);
         Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.True(sizing.HeightSteps!.FollowsConfig);
+        Assert.Equal(40 + 30, sizing.Min.Height);
         Assert.Empty(sizing.Problems());
 
         var twelve = Kind.Sizing(new ScreenTimeAppsConfig { Rows = 12 });
@@ -41,13 +41,13 @@ public sealed class ScreenTimeAppsTests
     }
 
     [Fact]
-    public void S11510_dragging_the_bottom_edge_sets_rows_on_a_copy()
+    public void S11510_S14500_a_height_takes_every_cell_from_one_row_up()
     {
-        var config = new ScreenTimeAppsConfig();
-        var set = Assert.IsType<ScreenTimeAppsConfig>(Kind.SizeSets!(config, new SizeDip(300, 40 + (8 * 30))));
-        Assert.Equal(8, set.Rows);
-        Assert.Equal(5, config.Rows);
-        Assert.Same(config, Kind.SizeSets!(config, Kind.Sizing(config).Natural));
+        var sizing = Kind.Sizing(new ScreenTimeAppsConfig());
+        foreach (var height in new[] { 70.0, 80, 110, 230, 237 })
+        {
+            Assert.Equal(height, sizing.FitHeight(height));
+        }
     }
 
     [Fact]

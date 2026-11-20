@@ -31,7 +31,6 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
         Description = ScreenTimeAppsStr.WidgetsC_ScreenTime_Apps_Desc.Local(),
         Glyph = Glyphs.ScreenTime,
         Sizing = c => KitSizing.Sizing(((ScreenTimeAppsConfig)c).RowsShown, addFooter: false, over: DayLine(((ScreenTimeAppsConfig)c).Period)),
-        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((ScreenTimeAppsConfig)c).RowsShown, addFooter: false, over: DayLine(((ScreenTimeAppsConfig)c).Period)),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.ScreenTime, 0, 3),
@@ -42,7 +41,7 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
         => ScreenTimeAppsMenu.Lines(menu, (ScreenTimeAppsConfig)config, SettingsHost.ScreenTime);
 
     /// <summary>
-    /// [S-454] [S-12481] [S-12803] [S-14100] The day line over the rows for a day (the card's inset, its line and the gap
+    /// [S-454] [S-12481] [S-12803] [S-14500] The day line over the rows for a day (the card's inset, its line and the gap
     /// under it, whole cells from the card's top edge: <see cref="LineRules.BandOver"/>), none for a window.
     /// </summary>
     public static double DayLine(ScreenTimePeriod period) => ScreenTimeRules.DayLine(period) > 0 ? LineRules.BandOver : 0;

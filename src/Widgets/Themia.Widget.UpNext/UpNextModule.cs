@@ -36,7 +36,6 @@ public sealed class UpNextModule : IWidgetModule
         Description = UpNextStr.UpNext_Desc.Local(),
         Glyph = Glyphs.Calendar,
         Sizing = c => KitSizing.Sizing(((UpNextConfig)c).RowsShown, addFooter: false, Widths),
-        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((UpNextConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Both(LinkTopicId.HoveredEvent),
         Add = new(AddFolderId.CalendarMail, 0, 2),

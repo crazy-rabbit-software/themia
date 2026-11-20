@@ -737,7 +737,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
 
         _columnHeader.Visibility = Visibility.Visible;
 
-        // [S-14100] The titles' band ends on a grid line under what stands over it (the card's inset, the search field),
+        // [S-14500] The titles' band ends on a grid line under what stands over it (the card's inset, the search field),
         // so the rows under it start on one and the card is exactly its bands and its whole rows.
         var pitch = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
         var over = FamilySpace.Inset + (_search.Visibility == Visibility.Visible ? LineRules.Under(pitch, FamilySpace.Inset, FamilyShape.Button) : 0);

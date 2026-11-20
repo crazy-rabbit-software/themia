@@ -124,11 +124,11 @@ public sealed class RssTests
         => KitPlanner.Plan(new WidgetArea(width, 400), RssSpec.Spec, ((IKitConfig)config).Choices);
 
     [Fact]
-    public void S11403_a_new_feed_is_five_headlines_of_two_lines_in_one_column_at_any_width()
+    public void S11403_a_new_feed_is_five_headlines_of_two_lines_in_one_column_short_of_two_columns_least()
     {
         var config = new RssConfig();
         var narrow = Plan(config, 220);
-        var wide = Plan(config, 520);
+        var wide = Plan(config, 430);
 
         Assert.Equal(narrow with { ColumnWidth = 0 }, wide with { ColumnWidth = 0 });
         Assert.Equal((1, 2), (wide.Columns, wide.Lines));
@@ -138,31 +138,26 @@ public sealed class RssTests
     }
 
     [Fact]
-    public void S11403_three_lines_add_the_summary_and_two_columns_double_the_width()
+    public void S11403_three_lines_add_the_summary_and_a_wide_card_two_columns()
     {
-        var config = new RssConfig { Lines = 3, Columns = 2 };
+        var config = new RssConfig { Lines = 3 };
         var plan = Plan(config, 600);
         var sizing = new RssModule().Descriptor.Sizing(config);
 
         Assert.True(plan.Preview);
         Assert.Equal(2, plan.Columns);
-        Assert.Equal((220, 600, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // relaxed, [S-12411]: 600 x 2.5, held to the ceiling
+        Assert.Equal((220, 300, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width)); // [S-14502] a new one one column's; relaxed, [S-12411]
     }
 
     [Fact]
-    public void S11403_its_columns_are_the_cards_width_a_drag_sets_them()
+    public void S11403_S14502_its_columns_are_the_cards_width_never_stored()
     {
         // [S-14410] No Columns line: a card that holds two columns' least (440) shows two, a narrower one one.
-        var kind = new RssModule().Descriptor;
         var config = new RssConfig();
-        var natural = kind.Sizing(config).Natural;
-
-        var wide = Assert.IsType<RssConfig>(kind.SizeSets!(config, natural with { Width = 600 }));
-        Assert.Equal((2, config.Rows), (wide.Columns, wide.Rows));
-        var narrow = Assert.IsType<RssConfig>(kind.SizeSets(wide, natural with { Width = 300 }));
-        Assert.Equal(1, narrow.Columns);
-        Assert.Same(config, kind.SizeSets(config, natural));
-        Assert.Equal(1, config.Columns);
+        Assert.Equal(2, Plan(config, 600).Columns);
+        Assert.Equal(2, Plan(config, 440).Columns);
+        Assert.Equal(1, Plan(config, 439).Columns);
+        Assert.Equal(1, Plan(config, 300).Columns);
     }
 
     [Fact]
@@ -177,12 +172,12 @@ public sealed class RssTests
     }
 
     [Fact]
-    public void S11403_rows_lines_and_columns_out_of_range_are_repaired_and_copied()
+    public void S11403_rows_and_lines_out_of_range_are_repaired_and_copied()
     {
-        var config = new RssConfig { Rows = 40, Lines = 0, Columns = 3 };
+        var config = new RssConfig { Rows = 40, Lines = 0 };
         Assert.NotEmpty(config.Repair());
         var copy = (RssConfig)config.Clone();
-        Assert.Equal((20, 1, 2), (copy.Rows, copy.Lines, copy.Columns));
+        Assert.Equal((20, 1), (copy.Rows, copy.Lines));
     }
 
     /// <summary>[S-1306] With nothing focused, every movement key but End lands on the newest headline, as every kit list ([S-7020]); it was the last one for Up and Left.</summary>

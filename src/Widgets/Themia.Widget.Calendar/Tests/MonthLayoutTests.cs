@@ -19,21 +19,20 @@ public sealed class MonthLayoutTests
     [InlineData(420, 600)]
     [InlineData(900, 300)]
     [InlineData(333, 247)]
-    public void S11544_the_days_tile_the_card_in_whole_cells_edge_to_edge(double width, double height)
+    public void S11544_S14500_the_days_tile_the_card_edge_to_edge_and_top_to_foot(double width, double height)
     {
         var top = 36.0;
         var month = MonthLayouts.Plan(width, height, top, Grid, anchorRow: 2, mostItems: 2);
 
-        // Across: from the left edge to the right, whole cells shared to a cell, the last taking the part cell.
+        // Across: from the left edge to the right, the width shared evenly, alike to a pixel.
         Assert.Equal(width, month.Columns.Sum(), 6);
-        Assert.All(month.Columns.Take(6), c => Assert.True(Grid.IsWhole(c, 1e-6), $"{c}"));
-        Assert.True(month.Columns.Take(6).Max() - month.Columns.Take(6).Min() <= Grid.Pitch + 1e-6);
+        Assert.True(month.Columns.Max() - month.Columns.Min() <= 1 + 1e-6);
 
-        // Down: the weekday line ends on a grid line, the weeks whole cells and alike, the rest at the foot.
+        // Down: the weekday line ends on a grid line, the weeks alike and at least their optimal, sharing the rest to the
+        // card's foot: nothing left over.
         Assert.Equal(0, (top + month.HeaderHeight) % Grid.Pitch, 6);
-        Assert.True(Grid.IsWhole(month.RowHeight, 1e-6));
-        var left = height - (top + month.HeaderHeight) - (month.Rows * month.RowHeight);
-        Assert.InRange(left, -1e-6, month.Rows * Grid.Pitch);
+        Assert.True(month.RowHeight >= Grid.Whole(MonthLayouts.LeastRow) - 1e-6);
+        Assert.Equal(height, top + month.HeaderHeight + (month.Rows * month.RowHeight), 6);
     }
 
     [Fact]
@@ -94,22 +93,20 @@ public sealed class MonthLayoutTests
     }
 
     [Fact]
-    public void S14101_at_every_step_the_weeks_fill_the_card_from_under_the_weekday_line_to_its_foot()
+    public void S14101_S14500_at_every_cell_the_weeks_fill_the_card_from_under_the_weekday_line_to_its_foot()
     {
         foreach (var config in new[] { new Themia.Core.Model.CalendarWidgetConfig(), new Themia.Core.Model.CalendarWidgetConfig { MonthEvents = Themia.Core.Model.MonthEvents.Chips } })
         {
             var sizing = CalendarSizing.MonthSizing(config);
-            var down = sizing.HeightSteps!;
-            var across = sizing.WidthSteps!;
-            for (var n = down.MinCount; n <= Math.Min(down.MaxCount, down.MinCount + 12); n++)
+            for (var n = 0; n <= 25; n++)
             {
-                var (width, height) = (across.At(across.MinCount + n), down.At(n));
+                var (width, height) = (Math.Ceiling(sizing.Min.Width / 10) * 10 + (n * 10), Math.Ceiling(sizing.Min.Height / 10) * 10 + (n * 10));
                 var top = FamilySpace.Inset + LineRules.Band(Grid);
                 var month = MonthLayouts.Plan(width, height, top, Grid, anchorRow: 2, mostItems: 2);
 
                 Assert.Equal(CalendarSizing.MonthWeeks, month.Rows);
                 Assert.Equal(height, top + month.HeaderHeight + (month.Rows * month.RowHeight), 6);
-                Assert.All(month.Columns, c => Assert.Equal(month.Columns[0], c, 6));
+                Assert.True(month.Columns.Max() - month.Columns.Min() <= 1 + 1e-6);
                 Assert.Equal(width, month.Columns.Sum(), 6);
             }
         }

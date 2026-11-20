@@ -3028,23 +3028,19 @@ ladder), and `OnePathSizingTests` fail on the old names.
 ```csharp
 public readonly record struct SizeDip(double Width, double Height);          // DIPs of the card's box,
                                                                               // header included, scale 1
-public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCount, int? Count = null);
-                                                                              // Base + n x Step; Count: the
-                                                                              // axis follows the config
 public sealed record WidgetSizing                                             // Min <= Natural <= Max
 {
-    SizeDip Min, Natural, Max; SizeSteps? WidthSteps, HeightSteps;               // all finite
+    SizeDip Min, Natural, Max;                                                // all finite, no steps:
+                                                                              // every grid cell between
     bool FixedWidth, FixedHeight;                                             // Min == Max: no handle
+    bool KeepsHeight;                                                         // a height never relaxed
     static WidgetSizing Range(SizeDip min, SizeDip natural, SizeDip max);
     static WidgetSizing Fixed(SizeDip size);
-    WidgetSizing WithHeightSteps(SizeSteps s);  WidgetSizing WithWidthSteps(SizeSteps s);
     SizeDip Fit(SizeDip wanted);  IReadOnlyList<string> Problems();
 }
 
 // on WidgetDescriptor:
 required Func<WidgetConfig, WidgetSizing> Sizing { get; init; }               // pure, from the config
-Func<WidgetConfig, SizeDip, WidgetConfig>? SizeSets { get; init; }            // size -> config (a count);
-                                                                              // returns a copy or the same
 WidgetSizing SizingOf(WidgetConfig? config = null);  SizeDip Natural { get; } // [S-10] where it lands
 ```
 
@@ -3056,15 +3052,16 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
 
 ### 17.2 What the host does with it (nothing for a kind to write)
 
-- **Add** at `Natural`. **Resize**: the moved edge stops at Min and Max, a stepped axis lands on its
-  steps (they replace the grid), a fixed axis has no handle; Shift+arrows the same, a step per press.
+- **Add** at `Natural`. **Resize**: the moved edge stops at Min and Max and lands on any grid line between, one
+  cell at a time on every axis (SPEC [S-14500]), a fixed axis has no handle; Shift+arrows the same, a cell per press.
 - **Layout**: the stored fraction is painted fitted into the sizing on that display (DIP x the
   display's and the widget's scale, plus the gap), anchored top-left, kept in reach. Being shown never
   rewrites the stored rect; a gesture or a config change does.
-- **Config change**: when the sizing changes (a style, a count, a Size), the stored rect is refitted in
-  the same mutation, one undo step.
-- **Count**: with `SizeSets`, a resize drop stores the config that size means with the rect, one undo
-  step; while dragging the view already shows that config.
+- **Config change**: when the sizing changes (a style, a list's Rows), the stored rect is refitted in
+  the same mutation, one undo step; a change that moves only the natural (Rows) puts the card at its new natural
+  (SPEC [S-14503]).
+- **No count is stored**: a resize stores the rect alone; how many of the same item stand is what the card holds
+  as it is laid out (SPEC [S-14502]).
 - **Renders**: `--widget-png <Kind>` draws a kind at min, natural and max (`SizeFit.CheckedAt`;
   `--sizes range|WxH`); the showcase views and the family check walk the range.
 
@@ -3087,18 +3084,18 @@ outline, one glass body), the content is laid out exactly as alone; there is no 
    (SPEC [S-2449] retired, owner 2026-11-20: "the size should not be settable, it is set by the size of the
    widget"): its natural size is that face, its Min the face scaled to its smallest text's floor (`ScalesDown`), and
    its view scales the block with the card (`ReadingFit`, `InkFit`). How many of the same item it shows (days, hours,
-   laps, columns, tiles) is the card's too: the axis steps by one item and a resize stores the count its box holds
-   (`SizeSets`), with no count line in its menu; what the items are, a chart's span and a list's **Rows** stay
-   settings (SPEC [S-14410]).
+   laps, columns, tiles) is the card's too: the view shows as many as its box holds at their optimal (their natural
+   in whole cells, `ItemStretch.Optimal`, `Count`), stretched evenly to fill it, with no count line in its menu and
+   nothing stored by a resize; what the items are, a chart's span and a list's **Rows** (its natural height) stay
+   settings (SPEC [S-14410], [S-14500], [S-14502]).
 4. **A list**: on the kit, implement `IKitRows` on the config (`Rows` 1..20, default
    `KitSizing.DefaultRows`; `Lines` 1 or 2; copied in `Clone`, held to range in `Repair`), state
-   `Sizing = c => KitSizing.Sizing(choice, addFooter)` and
-   `SizeSets = (c, s) => KitSizing.SizeSets(c, s, choice, addFooter)` where `choice` is the rows as
+   `Sizing = c => KitSizing.Sizing(choice, addFooter)` where `choice` is the rows as
    drawn (a one-line style has one line), say when its lines are the user's (`IKitRows.OffersLines`,
    true unless its look draws one line or its lines are fixed) and add `KitMenuLines.Rows(menu, config)`
    to its lines. An `IKitConfig` passes its rows to the plan by itself (`IKitConfig.Choices`); a view that
    plans itself passes `KitChoices.Rows`. The kit then plans one column, its lines, every field it has
-   on, at every size; more items scroll inside the rows.
+   on, at every size; the card shows the rows it holds at their optimal, stretched; more items scroll inside them.
 5. **Test it at its range** (`SizeFit.CheckedAt`: its min, natural and max): what it shows is the same
    at each, and the box holds it.
 6. **Renders**: `--widget-png <Kind> <out.png> --theme dark|light` (its range, every style) before and
@@ -3120,22 +3117,22 @@ block does it:
 
 - **The range is relaxed for you.** A kind states the range its *content* needs (17.3). The descriptor
   hands out `SizeStretch.Relax` of it (`WidgetDescriptor.Sizing`): no practical maximum, Max on every axis
-  its config does not step (a fixed one included) raised to `SizeStretch.Ceiling` (3840 DIPs), the work
+  (a fixed one included) raised to `SizeStretch.Ceiling` (3840 DIPs), the work
   area the bound: how large is the user's to decide ([S-12411]). Min and Natural stay. The room is
   `WidgetSizing.Room`, set where the sizing is made: `Standard` (text, readouts, facts), `List`
   (`KitSizing`), `Picture` (a chart, a history, a tile, a cover, a gallery:
   `MeterSizing.History/Columns/Tiles/Graphs`, `TileRules.Sizing`), `None` (the desktop icon's cell: not
-  relaxed). A row-stepped height keeps its steps (Rows is still the config). Renders check a kind at its
+  relaxed); a height the kind keeps (`KeepsHeight`: a fence rolled up) neither. Renders check a kind at its
   min, natural and a large size, twice the natural (`SizeStretch.Large`).
 - **Items stretch to their caps, the rest is spacing** (`ItemStretch` in `Themia.Sdk/Widgets`, whole
-  device pixels): `Lay(available, items (natural, max), gap, rest)` for a stack, `Pitch(available, count,
-  natural)` for like rows. The caps per block:
+  device pixels): `Reach(available, items, grid)` for a stack, `Reach(available, natural, grid)` and `Rows` for
+  like rows (as many as hold their optimal, `Optimal`, `Count`, sharing the room, SPEC [S-14500]). The caps per block:
 
   | Block | Stretches to | Beyond it |
   |---|---|---|
   | Row (`RowBlock`) | any height its list gives it (`MinHeight` its natural), texts centred; the rows touch and fill the content ([S-12807]) | none: the rows take it (`SpreadStack`, `ItemStretch.Reach`) |
-  | Kit list, custom row lists | one pitch: the room over the stated rows, from the view's top to the foot's inset (`KitPlanner.Reach`, `ItemStretch.Rows`, `RowsAbove`), headings with them | none: the rows touch |
-  | Grid cell (calendar month) | never: the weeks reach the header and the foot's inset ([S-12807]) | spacing between the weeks |
+  | Kit list, custom row lists | as many rows as the room holds at their optimal, sharing it on whole device pixels, from the card's top edge to its foot edge (`KitPlanner.Reach`, `ItemStretch.Rows`, `RowsAbove`, [S-14500]), headings and the add row with them | none: the rows touch |
+  | Grid cell (calendar month) | its share of the card: the weeks from under the weekday line to the foot, the columns edge to edge ([S-14101], [S-14500]) | none: the cells touch |
   | Readout, Status, Controls, Header | never (text stays on the family's steps) | [S-12808] the block's parts together, planned at the natural box (`ReadingFit`) and scaled up as one until the card's height or width stops it (`BlockFit`); one line alone centred by its ink (`MeterView.CentringTop`) |
   | Clock face (planned on its natural box) | scaled as one with the card, up and down to its floor (`InkFit`) | spacing round it |
   | Chart, dial, tile, picture | the box | none |
@@ -3147,8 +3144,9 @@ block does it:
   before; the header keeps its own inset; a readout block keeps the 12 on its sides (its text would touch
   the border otherwise). A fill at a card corner takes the card's corners: rows' square fills through the
   card's rounded clip, a tile's own round fill through `IWidgetCorners` ([S-11883]).
-- Check a kind at min, natural, max and two odd sizes (`--sizes range,WxH,WxH`): nothing huddled in a
-  corner, nothing clipped, nothing past its cap, the natural box as before.
+- Check a kind at min, natural, max and cell by cell round its natural (`--sizes range`, `--sizes steps`, an odd
+  height such as 11 cells): nothing huddled in a corner, nothing clipped, nothing past its cap, its items alike,
+  touching, never under their optimal, the natural box as before (`scripts/item-check.py`).
 
 ## 18. Ready-made groups (recipes)
 

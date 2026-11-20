@@ -6,15 +6,10 @@ namespace Themia.Core.Model;
 /// <summary>
 /// [S-4602] A stopwatch widget: what it holds is the stopwatch itself, kept here so a running
 /// stopwatch is still running after a restart (<see cref="StopwatchRecord"/>), and so each widget is a
-/// stopwatch of its own; [S-11302] how many laps it lists, which is the card's height ([S-14410]).
+/// stopwatch of its own. How many laps it lists is the card's height ([S-14410], [S-14500]), never stored.
 /// </summary>
 public sealed class StopwatchConfig : WidgetConfig
 {
-    /// <summary>[S-11302] The most lap rows it lists.</summary>
-    public const int MostLapRows = 10;
-
-    /// <summary>[S-11302] [S-14410] How many of the newest laps it lists under its controls, 0 to <see cref="MostLapRows"/>; a new one none; a resize sets it.</summary>
-    public int LapRows { get; set; }
 
     public StopwatchPhase Phase { get; set; }
 
@@ -49,12 +44,6 @@ public sealed class StopwatchConfig : WidgetConfig
     {
         var repairs = new List<string>();
 
-        if (LapRows is < 0 or > MostLapRows)
-        {
-            repairs.Add($"Stopwatch lap rows {LapRows} out of range");
-            LapRows = Math.Clamp(LapRows, 0, MostLapRows);
-        }
-
         if (!Enum.IsDefined(Phase))
         {
             repairs.Add("Stopwatch had an unknown phase; reset");
@@ -88,6 +77,5 @@ public sealed class StopwatchConfig : WidgetConfig
         BankedMs = BankedMs,
         StartedAt = StartedAt,
         LapsMs = [.. LapsMs ?? []],
-        LapRows = LapRows,
     };
 }

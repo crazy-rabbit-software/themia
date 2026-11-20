@@ -22,29 +22,31 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
 the box; no `Disclosure`, no tier, no width decides what a style shows (the weekday names and a
 chip's times still shorten with the column, as text does). How many of the same item a style shows (a day's or a
 week's hours, a week's days, the events a month day lists) is the card's (owner, 2026-11-20: "Anything that's just
-'how many of the same item' (days, hours, weeks, processes) follows the card's size", [S-14410]): its axis steps by
-one and a resize stores the count, no menu line sets it; a list's Rows stay a setting.
+'how many of the same item' (days, hours, weeks, processes) follows the card's size", [S-14410]): the card shows as
+many as it holds at their optimal, stretched to fill it, every axis taking every grid cell ([S-14500]); no menu line
+sets the count and a resize stores none ([S-14502]); a list's Rows stay a setting, its natural height.
 
 - **[S-11540]** **Agenda**: `Rows` (1..20, a new one 6) and `Lines` (1, a new one, or 2: the span,
   where and who on the second) on the kit's rows contract ([S-2440], `IKitRows`; the schedule look's
-  rows, [S-11541]): its height is 36 + the rows + 12, 260..520 wide (a new one 300), dragging the
-  bottom edge sets Rows; one column at every width, the pages holding the rows the height was made
-  for (a day's heading takes a row). Its Style lines add Rows and Lines after the range and the count.
+  rows, [S-11541]): its natural height is its rows at their optimal, 260..520 wide (a new one 300); Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]);
+  one column at every width, the pages holding the rows the card holds (a day's heading takes a row). Its Style lines add Rows and Lines after the range and the count.
 - **[S-11542]** **Year**: twelve months, 4 × 3, a square a day (8; a new one's) or, with **Day numbers** on (its
   Style line, a mode, `YearNumbers`), the day numbers under the weekday letters (a Caption line a day): natural (and
   least) 272 × 256 and 496 × 448 (`CalendarSizing.Year`, `YearSizing`). The card's size is the user's (owner,
   2026-11-20: "the size should not be settable, it is set by the size of the widget"; the old Size line, [S-2449], is
   gone): a larger card draws the twelve months larger as one block (`CalendarSizing.YearScale`, a `ScaleBox`, never
   under 1), at the content's top-left in the inset. Tests `CalendarSizingTests.S11542_`.
-- **[S-11543]** **Day**: its **hours** (4..16, a new one 8; the card's height, no line), an hour a 28 row, over one
+- **[S-11543]** **Day**: its **hours** (4..16, a new one 8; the card's height, no line, none stored: as many as the
+  card holds at an hour's optimal, `CalendarSizing.HoursIn`, [S-14502]), an hour a 28 row at its optimal, over one
   band line for the all-day items (its item's bar, or chips shared among several, "+N"; a day without
   gives that line to its hours): 36 + the band's line and 4 + the hours + 12, 240..480 wide (a new one
-  300), dragging the bottom edge sets the hours. The hours are the wanted day (07-22 widened to its
+  300), the hours stretched to fill it. The hours are the wanted day (07-22 widened to its
   events) where it is no longer, else that many from just before the next event or now
   (`CalendarFit.HoursOf`).
 - **[S-11544]** **Month**: six weeks always (the month's and the next days', dimmed), so every month is
   one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots; the period's line, the weekday
-  line and six cells, whole grid cells each, a cell a week and a cell a column a step, 280 wide new, [S-14101]) or
+  line and six weeks at their optimal, every cell between, the weeks and the columns stretched to fill the card, 280
+  wide new, [S-14101], [S-14500]) or
   Titles ([S-11547]). The weeks fill the
   content edge to edge, the first week under the weekday line and the last week's marks on the foot's inset ([S-12400], [S-12807], `ItemStretch.Reach`): a box taller than their cells spaces the weeks evenly.
   The day readout a narrow month fell back to is gone.
@@ -61,14 +63,15 @@ one and a resize stores the count, no menu line sets it; a list's Rows stay a se
   parts the weeks. Seven columns of 56..180 (a new one 100) + the inset: 416..1284 wide (a new one 724);
   the height is the period's line with the inset, the weekday line and six times (4 + the number's 16 + the lines' 20
   each), every part whole grid cells ([S-14101]),
-  dragging the bottom edge sets the lines (`CalendarSizing.MonthLineSteps`). Debug render:
+  the chip lines are what a week holds ([S-14502]). Debug render:
   `--style month --state titles` (the sample in this look, at its own min, natural and max).
 - **[S-14101]** **The month fills its card and keeps its dots longer** (owner, 2026-11-20: "the calendar does not
   always stretch the contents to the top and bottom although it would be easily possible."; "the calendar shows the
-  individual events too early, the items should stay small for a little longer."). Its seven columns step by one cell
-  each across and its six weeks by one cell each down (`CalendarSizing.MonthSizing`, `SizeSteps.Growing` over
-  `MonthOver`: the period's line with the inset over it and the weekday line, each whole cells as `MonthLayouts.Plan`
-  lays them), so at every size the weeks fill the card from under the weekday line to its foot, alike, none left over;
+  individual events too early, the items should stay small for a little longer."). The card takes every grid cell
+  ([S-14500], `CalendarSizing.MonthSizing` over `MonthOver`: the period's line with the inset over it and the weekday
+  line, each whole cells as `MonthLayouts.Plan` lays them); its seven columns share the width and its six weeks the
+  height under `MonthOver` evenly on whole device pixels, so at every size the weeks fill the card from under the
+  weekday line to its foot, alike, none left over;
   a state's row (Set up, an account gone) stands in the period line's band, so the weeks keep the room the sizing made.
   A dots month's cell shows its day's events as chips only once it holds two chip lines under its number in a column of
   80, where a chip's title reads and "+k more" has its words (`MonthChipRoom.Dots`; before, one chip line in a column of
@@ -78,13 +81,13 @@ one and a resize stores the count, no menu line sets it; a list's Rows stay a se
 - **[S-11545]** **Week, the day strip** (a new one's): each column's head (its weekday, its number) over
   the room its marks take at most ([S-2282]: three, then "+n"), then 8, then the chosen day's **Rows**
   (1..12, a new one 3; Style line) as the agenda's one-line rows ([S-2285]): one height for the
-  config, a 40 column a day wide (`CalendarSizing.StripSteps`; a new one's seven days 304), dragging the bottom edge
-  sets the rows and a side edge the days ([S-14410]).
+  config, a 40 column a day at its optimal (a new one's seven days 304), as many days as the card's width holds,
+  sharing it, and the rows its height holds ([S-14410], [S-14502]: none stored by a resize).
 - **[S-11546]** **Titles in the week** (a Style switch, off by default): the columns hold their events'
-  titles, each 96 wide ([S-2281]), so the card is the days × 96 + the hours' labels (44) + the inset wide, stepped
-  by a day (`CalendarSizing.TitleSteps`); one band line of all-day bars over an hour grid of its **hours** (4..16, a
-  new one 8), the height following the hours; dragging the bottom edge sets the hours and a side edge the days
-  ([S-14410]: no line sets either). The per-column chip lists the week drew between the two looks are gone.
+  titles, each 96 wide at least ([S-2281]), so a new card is the days × 96 + the hours' labels (44) + the inset wide;
+  one band line of all-day bars over an hour grid of its **hours** (4..16, a new one 8); the days are what the card's
+  width holds and the hours what its height holds, stretched to fill it ([S-14410], [S-14502]: no line sets either and
+  a resize stores neither). The per-column chip lists the week drew between the two looks are gone.
 
 - **[S-3650]** The agenda is the kit's paged list ([S-7035], [S-7036]): `AgendaSpec` gives its spec
   (the schedule look on the family's rows, two columns at most) and an agenda row as a kit item: its

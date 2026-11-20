@@ -45,7 +45,7 @@ internal sealed partial class CalendarView
         var inner = new WidgetArea(width, height).Deflate(FamilySpace.Inset, 0);
         if (!_config.WeekTitles)
         {
-            DrawWeekMarks(width, start, days);
+            DrawWeekMarks(width, height, start, days);
             return;
         }
 
@@ -126,7 +126,7 @@ internal sealed partial class CalendarView
     /// head on the selection fill ([S-2284]), and under the strip the chosen day's events as the agenda's
     /// rows ([S-2285]), the config's rows of them.
     /// </summary>
-    private void DrawWeekMarks(double width, DateOnly start, int days)
+    private void DrawWeekMarks(double width, double height, DateOnly start, int days)
     {
         var zone = TimeZoneInfo.Local;
         var today = Today;
@@ -138,9 +138,14 @@ internal sealed partial class CalendarView
             byDay[c] = CalendarRules.DayItems(_events, _birthdays, start.AddDays(c), zone);
         }
 
-        var rowsShown = CalendarSizing.ClampWeekRows(_config.WeekRows);
+        // [S-11545] [S-14502] The chosen day's rows: as many as the card holds under the strip, to its foot, stretched to fill
+        // it (its WeekRows a new card's).
+        var under = Math.Max(0, height - (CalendarSizing.Strip + FamilySpace.S2));
+        var rowsArea = _area.IsMeasured
+            ? new WidgetArea(width, Math.Max(0, under - FamilySpace.Inset), _area.Cell, XamlRoot?.RasterizationScale ?? 1)
+            : new WidgetArea(width, CalendarSizing.ClampWeekRows(_config.WeekRows) * FamilyShape.Row1);
         var labels = CalendarFit.Weekdays(Math.Max(0, width - (2 * FamilySpace.Inset)) / Math.Max(1, days));
-        var plan = KitPlanner.Plan(new WidgetArea(width, rowsShown * FamilyShape.Row1), AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = new KitRowsChoice(rowsShown, 1) });
+        var plan = KitPlanner.Plan(rowsArea, AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = new KitRowsChoice(CalendarSizing.ClampWeekRows(_config.WeekRows), 1) });
 
         // The strip, the family's gap, then the empty day's sentence: rows of the content, no margins.
         _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -213,7 +218,7 @@ internal sealed partial class CalendarView
         _rowsTop.Height = top;
         _agenda.Visibility = Visibility.Visible;
         _agenda.Page = 0;
-        _agenda.Show(rows, plan, new WidgetArea(width, (rowsShown * FamilyShape.Row1) + FamilySpace.Inset), now);
+        _agenda.Show(rows, plan, rowsArea, now);
     }
 
     /// <summary>[S-2284] A click on a day's head or marks chooses it (the selected day, [S-3620]); its hover lists the day.</summary>
@@ -311,7 +316,7 @@ internal sealed partial class CalendarView
 
         var focusDay = today >= start && today < start.AddDays(days) ? today : start;
         var focus = CalendarFit.FocusHour(all.Where(e => CalendarRules.StartDay(e, zone) >= focusDay), focusDay, today, _clock(), zone);
-        var window = CalendarFit.HoursOf(CalendarSizing.ClampHours(_config.WeekHours), height, earliest, latest, focus);
+        var window = CalendarFit.HoursOf(CalendarSizing.HoursIn(height, _area.Grid(XamlRoot?.RasterizationScale ?? 1)), height, earliest, latest, focus);
 
         var labels = HourLabels(window, long_: true);
         SetRow(labels, body);

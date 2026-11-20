@@ -653,14 +653,14 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidg
     /// <param name="problem">A state the user must know went wrong (an account gone or to sign in again, a failed fetch): the warning leads it.</param>
     private void ShowEmpty(string text, EmptyAction? action, bool problem = false)
     {
-        // [S-14100] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
+        // [S-14500] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
         // A check list's card is its rows and its add row: the state stands in the add row's place (a row of one line),
         // the empty rows under it at the rows' pitch, whether or not the add row shows.
         var rows = _config.RowsShown;
         var cells = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
         var lines = _config.Style == TasksStyle.Compact ? 1 : KitSizing.ClampLines(rows.Lines);
         _state.LineHeight = LineRules.EdgeRow(cells);
-        _state.RowPitch = _area.IsMeasured ? ItemStretch.RowsAbove(_area.Height, KitSizing.ClampRows(rows.Rows), lines, cells).Pitch : ItemStretch.Natural(lines, cells).Pitch;
+        _state.RowPitch = _area.IsMeasured ? ItemStretch.RowsAbove(_area.Height, lines, cells).Pitch : ItemStretch.Natural(lines, cells).Pitch;
         _state.Show(text, action == EmptyAction.Accounts, action: action switch
         {
             EmptyAction.Retry => (TasksStr.Connect_TryAgain.Text(), Refresh),

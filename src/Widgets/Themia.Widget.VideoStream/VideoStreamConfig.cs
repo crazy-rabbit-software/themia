@@ -51,11 +51,8 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
     /// </summary>
     public bool HoverControls { get; set; } = true;
 
-    /// <summary>[S-11208] The picture's shape the card keeps; Free keeps none.</summary>
+    /// <summary>[S-11208] [S-14500] The picture's shape a new card and its least take; Free takes none.</summary>
     public StreamAspect Aspect { get; set; } = StreamAspect.Wide;
-
-    /// <summary>[S-11208] With a shape, the card's width in steps of 32 from 160; the height follows.</summary>
-    public int Span { get; set; } = VideoStreamSizing.DefaultSpan;
 
     [JsonIgnore]
     public StreamAspect EffectiveAspect => Enum.IsDefined(Aspect) ? Aspect : StreamAspect.Wide;
@@ -84,6 +81,5 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
         ShowStatus = ShowStatus,
         HoverControls = HoverControls,
         Aspect = Aspect,
-        Span = Span,
     };
 }

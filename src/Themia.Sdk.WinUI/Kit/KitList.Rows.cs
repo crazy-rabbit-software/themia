@@ -61,11 +61,11 @@ public sealed partial class KitList
         FrameworkElement content;
         if (_plan.Look == KitRowLook.Table)
         {
-            content = TableRow(item, now);
+            content = TableRow(item, index / Math.Max(1, _plan.Columns), now);
         }
         else
         {
-            var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = item.Emphasis, Quiet = _spec.Unread && !item.Emphasis, Height = _plan.RowHeight };
+            var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = item.Emphasis, Quiet = _spec.Unread && !item.Emphasis, Height = _plan.RowAt(index / Math.Max(1, _plan.Columns)) };
             var second = _plan.Subtitle ? SubtitleLine(item) : _plan.Preview ? item.Preview : null;
             var third = _plan.Subtitle && _plan.Preview ? item.Preview : null;
             // [S-7072] A reading stands in the time's place, and is not rewritten on the ticker.
@@ -140,10 +140,10 @@ public sealed partial class KitList
     /// emphasised), the rest secondary, the time end-aligned in its tone. The keyboard's ring is a Row
     /// block's (a table row is one with its cells in the name's place, RowBlock.Cells).
     /// </summary>
-    private RowBlock TableRow(KitItem item, DateTimeOffset now)
+    private RowBlock TableRow(KitItem item, int line, DateTimeOffset now)
     {
         var columns = _plan.Table ?? [];
-        var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = 1, Height = _plan.RowHeight };
+        var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = 1, Height = _plan.RowAt(line) };
         block.Show(string.Empty);
 
         var grid = ColumnGrid(columns);
@@ -199,7 +199,7 @@ public sealed partial class KitList
         }
 
         _columnHeader.ColumnSpacing = template.ColumnSpacing;
-        // [S-14100] The titles' band ends on a grid line, so the rows under it start on one.
+        // [S-14500] The titles' band ends on a grid line, so the rows under it start on one.
         _columnHeader.Height = KitPlanner.TitlesBand(_area.Grid(XamlRoot?.RasterizationScale ?? 1));
         _columnHeader.Padding = new Thickness(FamilySpace.Inset + (_plan.Lead ? RowRules.NameStart(FamilyShape.Icon) : 0), 0, FamilySpace.Inset, 0);
 

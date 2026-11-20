@@ -35,7 +35,7 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
   Rows): `Rows` 1..20 (a new one 5) and `Lines` 1 or 2 (a new one 1) on the kit's rows contract
   (`IKitRows`, [S-2440]): its height is 12 + its day line (24, [S-12481]) + its rows (28, or 40 where its Lines are two and a row has
   figures for the second: `ScreenTimeAppsConfig.RowsShown`) + 12, 220..520 wide (a new one 300 × 188),
-  dragging the bottom edge sets Rows (`KitSizing.SizeSets`). Every row has its icon, its name and its
+  Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]). Every row has its icon, its name and its
   time at every width; the busiest apps fill the rows, the last one Other when apps are left over
   ([S-3351]); fewer apps leave the rows under them empty. No headline, no footer ([S-666]): the total
   is the reading's. Nothing to list (not recording, no activity) is the Status block's one row at the

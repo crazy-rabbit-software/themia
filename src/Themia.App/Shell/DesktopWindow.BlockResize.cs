@@ -181,14 +181,12 @@ internal sealed partial class DesktopWindow
         }
 
         _blockResize = null;
-        var setConfig = false;
         if (session.Stepped)
         {
             for (var i = 0; i < session.Cards.Count; i++)
             {
                 var card = session.Cards[i].Card;
                 card.LandResize(session.Now[i]);
-                setConfig |= card.ResizeSetConfig;
                 PositionCard(card, card.Model.Rect);
             }
         }
@@ -196,15 +194,8 @@ internal sealed partial class DesktopWindow
         JoinCards();
         if (session.Stepped)
         {
-            // [S-2442] A member whose config its size set (a list's rows) is stored with it, one step; [S-13040] a fence is laid again in it.
-            if (setConfig)
-            {
-                _host.Mutate(_ => { }, relayout: true, UndoAction.Resize);
-            }
-            else
-            {
-                _host.LandMoved(this, [.. session.Cards.Select(c => c.Card.Model.Id)], UndoAction.Resize);
-            }
+            // [S-13040] A fence is laid again in the step.
+            _host.LandMoved(this, [.. session.Cards.Select(c => c.Card.Model.Id)], UndoAction.Resize);
         }
 
         PressEnded(session.Cards[0].Card);

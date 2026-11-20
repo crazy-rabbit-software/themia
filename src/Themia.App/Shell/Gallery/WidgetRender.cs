@@ -419,9 +419,9 @@ internal static class WidgetRender
 
     /// <summary>
     /// One labelled card per size, side by side.
-    /// [S-11601] Each size is drawn as a resize to it leaves the widget: the config that size means and the
-    /// box that config is painted at, which replaces the size in <paramref name="tiers"/> (and sizes the
-    /// page). Returns the labels, one per card, for <see cref="Refit"/>.
+    /// [S-11601] Each size is drawn as a resize to it leaves the widget: the box fitted into its sizing, which replaces
+    /// the size in <paramref name="tiers"/> (and sizes the page). Returns the labels, one per card, for
+    /// <see cref="Refit"/>.
     /// </summary>
     internal static List<TextBlock> Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<CheckedSize> tiers, List<WidgetCard> cards)
     {
@@ -454,12 +454,9 @@ internal static class WidgetRender
                 gauge.GraphSpanSeconds = seconds;
             }
 
-            // [S-11601] The box is a size the widget was resized to, so its config is what that size
-            // means, as a resize on the desktop leaves it ([S-2442]): a list's rows, a pick's facts, the
-            // forecast's days; and it is painted where that config is laid out (a camera's height follows
-            // its width). Nothing changes for a kind without the hook.
-            var (config, box) = SizeFit.Resized(model.Config, new SizeDip(tier.Width, tier.Height));
-            model.Config = config;
+            // [S-11601] The box is a size the widget was resized to, fitted into its sizing as a resize on the desktop
+            // leaves it; [S-14502] what it shows of a count that follows its card it reads from that box.
+            var box = SizeFit.Of(model.Config).Fit(new SizeDip(tier.Width, tier.Height));
             tiers[index] = new CheckedSize(tier.Name, box.Width, box.Height);
 
             var card = new WidgetCard(host, model);
@@ -521,15 +518,15 @@ internal static class WidgetRender
     /// <summary>
     /// [S-11603] After the preview states: a card whose state swapped in a config of its own that is
     /// sized otherwise (<see cref="IWidgetPreviewState.DrawnConfig"/>) is drawn at that config's size for
-    /// its tier (its min, natural or max; another box fitted into it), that size's config handed to the
-    /// view as a resize would ([S-2442]), and the page laid out again. Returns the tiers as drawn.
+    /// its tier (its min, natural or max; another box fitted into it), and the page laid out again. Returns the tiers as
+    /// drawn.
     /// </summary>
     internal static List<CheckedSize> Refit(Canvas page, List<WidgetCard> cards, List<TextBlock> labels, List<CheckedSize> tiers)
     {
         var drawn = new List<CheckedSize>(tiers);
         for (var i = 0; i < cards.Count && i < tiers.Count; i++)
         {
-            if (cards[i].View is not IWidgetPreviewState { DrawnConfig: { } config } || cards[i].View is not IWidgetView view)
+            if (cards[i].View is not IWidgetPreviewState { DrawnConfig: { } config } || cards[i].View is not IWidgetView)
             {
                 continue;
             }
@@ -544,12 +541,7 @@ internal static class WidgetRender
                 _ => new SizeDip(tier.Width, tier.Height),
             };
 
-            var (sized, box) = SizeFit.Resized(config, asked);
-            if (!ReferenceEquals(sized, config))
-            {
-                view.ApplyConfig(sized);
-            }
-
+            var box = sizing.Fit(asked);
             drawn[i] = new CheckedSize(tier.Name, box.Width, box.Height);
         }
 
@@ -625,7 +617,7 @@ internal static class WidgetRender
 
     /// <summary>
     /// [S-1917] <c>--sizes 100x100,160x100</c>: several in-between sizes on one page, beside or instead of
-    /// the range. [S-2448] <c>range</c> is the kind's min, natural and max; [S-14100] <c>steps</c> its first height steps.
+    /// the range. [S-2448] <c>range</c> is the kind's min, natural and max; [S-14500] <c>steps</c> the sizes round its natural cell by cell.
     /// </summary>
     private static List<CheckedSize>? Sizes(string? list, WidgetSizing sizing)
     {
@@ -643,10 +635,10 @@ internal static class WidgetRender
                 continue;
             }
 
-            // [S-14100] The kind's first height steps at its natural width (the item check's "every step").
+            // [S-14500] The kind cell by cell round its natural (the item check's "every cell"): the sizes whole-item steps forbade.
             if (item.Equals("steps", StringComparison.OrdinalIgnoreCase))
             {
-                tiers.AddRange(SizeFit.CheckedSteps(sizing));
+                tiers.AddRange(SizeFit.CheckedCells(sizing));
                 continue;
             }
 

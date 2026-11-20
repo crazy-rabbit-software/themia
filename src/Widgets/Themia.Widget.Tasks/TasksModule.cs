@@ -40,7 +40,6 @@ public sealed class TasksModule : IWidgetModule
         Description = TasksStr.WidgetsA_Catalog_Tasks_Description.Local(),
         Glyph = Glyphs.Task,
         Sizing = c => KitSizing.Sizing(((TasksConfig)c).RowsShown, addFooter: true),
-        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((TasksConfig)c).RowsShown, addFooter: true),
         Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
     };

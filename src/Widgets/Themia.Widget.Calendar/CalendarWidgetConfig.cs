@@ -51,9 +51,6 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     [JsonIgnore]
     public override CalendarStyle Layout => Style;
 
-    /// <summary>[S-3637] [S-14410] Week: how many day columns, 1 to 14; the card's width's (a resize sets it).</summary>
-    public int WeekDays { get; set; } = CalendarPeriod.WeekDefaultDays;
-
     /// <summary>[S-3637] Week: where the first column is, the week's first day or today.</summary>
     public WeekFirstDay WeekFrom { get; set; } = WeekFirstDay.Week;
 
@@ -72,26 +69,15 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     /// <summary>[S-11542] Year: the day numbers under the weekday letters, or squares (a new one's); how large is the card's.</summary>
     public bool YearNumbers { get; set; }
 
-    /// <summary>[S-11543] [S-14410] Day: the hours its grid shows, 4..16 (a new one 8); the card's height's (a resize sets it).</summary>
-    public int DayHours { get; set; } = CalendarSizing.DefaultHours;
-
     /// <summary>[S-11544] Month: a day's events as chips (titles) or as dots.</summary>
     public MonthEvents MonthEvents { get; set; } = MonthEvents.Dots;
 
-    /// <summary>[S-11547] [S-14410] Month with titles: the events a day cell lists, 1..6 (a new one 3); the card's height's (a resize sets it).</summary>
-    public int MonthLines { get; set; } = MonthPlan.DefaultLines;
-
-    /// <summary>[S-11545] Week (the day strip): the chosen day's rows, 1..12 (a new one 3); the height follows them.</summary>
+    /// <summary>[S-11545] [S-14500] Week (the day strip): the chosen day's rows a new card stands (its natural height), 1..12; it shows what it holds.</summary>
     public int WeekRows { get; set; } = CalendarSizing.DefaultWeekRows;
 
     /// <summary>[S-11546] Week: titles in the week's columns (each at least 96 wide) instead of the day strip.</summary>
     public bool WeekTitles { get; set; }
 
-    /// <summary>[S-11546] [S-14410] Week with titles: the hours its grid shows, 4..16 (a new one 8); the card's height's (a resize sets it).</summary>
-    public int WeekHours { get; set; } = CalendarSizing.DefaultHours;
-
-    [JsonIgnore]
-    public int EffectiveWeekDays => Math.Clamp(WeekDays, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays);
 
     [JsonIgnore]
     public int EffectiveAgendaCount => Math.Clamp(AgendaCount, 1, 100);
@@ -99,11 +85,14 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
     [JsonIgnore]
     public int EffectiveAgendaDays => Math.Clamp(AgendaDays, CalendarPeriod.AgendaMinDays, CalendarPeriod.AgendaMaxDays);
 
-    /// <summary>[S-568] The style's own lengths only: a month, a day or a year is the week start alone.</summary>
+    /// <summary>
+    /// [S-568] The style's own lengths only: a month, a day or a year is the week start alone. [S-14502] A week's days are
+    /// its card's (<see cref="CalendarSizing.WeekDaysIn"/>): the period read covers the most it may show.
+    /// </summary>
     [JsonIgnore]
     public override CalendarPeriod Period => Style switch
     {
-        CalendarStyle.Week => new(EffectiveWeekStart, EffectiveWeekDays, WeekFrom),
+        CalendarStyle.Week => new(EffectiveWeekStart, CalendarPeriod.WeekMaxDays, WeekFrom),
         CalendarStyle.Agenda => new(EffectiveWeekStart, AgendaDays: EffectiveAgendaDays),
         _ => new(EffectiveWeekStart),
     };
@@ -127,12 +116,6 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
 
     protected override void RepairOwn(List<string> repairs)
     {
-        if (WeekDays != EffectiveWeekDays)
-        {
-            repairs.Add($"calendar week days {WeekDays} was out of range");
-            WeekDays = EffectiveWeekDays;
-        }
-
         if (!Enum.IsDefined(WeekFrom))
         {
             repairs.Add("calendar week first day was not a known one");
@@ -158,13 +141,6 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
             Lines = KitSizing.ClampLines(Lines);
         }
 
-        if (DayHours != CalendarSizing.ClampHours(DayHours) || WeekHours != CalendarSizing.ClampHours(WeekHours))
-        {
-            repairs.Add($"calendar hours {DayHours}, {WeekHours} were out of range");
-            DayHours = CalendarSizing.ClampHours(DayHours);
-            WeekHours = CalendarSizing.ClampHours(WeekHours);
-        }
-
         if (WeekRows != CalendarSizing.ClampWeekRows(WeekRows))
         {
             repairs.Add($"calendar week rows {WeekRows} were out of range");
@@ -176,31 +152,21 @@ public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettin
             repairs.Add("calendar month events were not chips or dots");
             MonthEvents = MonthEvents.Dots;
         }
-
-        if (MonthLines != MonthPlan.Lines(MonthLines))
-        {
-            repairs.Add($"calendar month lines {MonthLines} were out of range");
-            MonthLines = MonthPlan.Lines(MonthLines);
-        }
     }
 
     public override WidgetConfig Clone()
     {
         var copy = CopySharedTo(new CalendarWidgetConfig());
         copy.Style = Style;
-        copy.WeekDays = WeekDays;
         copy.WeekFrom = WeekFrom;
         copy.AgendaCount = AgendaCount;
         copy.AgendaDays = AgendaDays;
         copy.Rows = Rows;
         copy.Lines = Lines;
         copy.YearNumbers = YearNumbers;
-        copy.DayHours = DayHours;
         copy.MonthEvents = MonthEvents;
-        copy.MonthLines = MonthLines;
         copy.WeekRows = WeekRows;
         copy.WeekTitles = WeekTitles;
-        copy.WeekHours = WeekHours;
         return copy;
     }
 }

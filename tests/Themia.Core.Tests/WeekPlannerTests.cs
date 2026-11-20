@@ -89,18 +89,25 @@ public class WeekPlannerTests
     }
 
     [Fact]
-    public void S11410_S14410_the_width_steps_by_a_day_following_the_days_and_the_height_the_rows()
+    public void S11410_S14500_a_new_planner_is_three_days_of_its_rows_and_every_cell_between()
     {
-        // [S-14100] The heading and the rows whole cells (30 each); the width a day's column of whole cells (20 on the default
-        // grid) a step, the days following it ([S-14410]).
-        var three = WeekPlannerRules.Sizing(3, 5);
-        Assert.Equal(new SizeDip(600, 30 + (5 * 30)), three.Natural);
-        Assert.Equal((200d, 1400d), (three.Min.Width, three.Max.Width));
-        Assert.Equal(3, three.WidthSteps!.Count);
-        Assert.Equal(200, three.WidthSteps.Step);
-        Assert.NotNull(three.WidthSteps.Cells);
-        Assert.Equal(1400, WeekPlannerRules.Sizing(7, 5).Natural.Width);
-        Assert.Equal(200, WeekPlannerRules.Sizing(0, 5).Natural.Width);
-        Assert.Empty(three.Problems());
+        // [S-14500] The heading and the rows at their optimal (30 each), a day's column 200 (whole cells on the default grid);
+        // a new one three days, its rows; every cell from one day and one row up ([S-14410]: the days are the card's).
+        var five = WeekPlannerRules.Sizing(5);
+        Assert.Equal(new SizeDip(600, 30 + (5 * 30)), five.Natural);
+        Assert.Equal(new SizeDip(200, 60), five.Min);
+        Assert.Equal(1400, five.Max.Width);
+        Assert.Empty(five.Problems());
+    }
+
+    [Fact]
+    public void S14410_S14502_the_days_are_as_many_as_the_width_holds()
+    {
+        var grid = Themia.Core.Widgets.ItemGrid.Default();
+        Assert.Equal(1, WeekPlannerRules.DaysIn(150, grid));
+        Assert.Equal(1, WeekPlannerRules.DaysIn(399, grid));
+        Assert.Equal(2, WeekPlannerRules.DaysIn(400, grid));
+        Assert.Equal(3, WeekPlannerRules.DaysIn(610, grid));
+        Assert.Equal(WeekPlannerRules.Days, WeekPlannerRules.DaysIn(5000, grid));
     }
 }

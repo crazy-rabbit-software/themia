@@ -27,7 +27,6 @@ public sealed class DeviceBatteriesModule : IWidgetModule
         Description = DeviceBatteriesStr.DeviceBatteries_Desc.Local(),
         Glyph = Glyphs.Devices,
         Sizing = c => KitSizing.Sizing(KitSizing.Choice((DeviceBatteriesConfig)c), addFooter: false),
-        SizeSets = (c, s) => KitSizing.SizeSets(c, s, KitSizing.Choice((DeviceBatteriesConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
         Add = new(AddFolderId.Devices, 1, 2),

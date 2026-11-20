@@ -38,7 +38,6 @@ public sealed class EmailModule : IWidgetModule
         Description = EmailStr.WidgetsA_Catalog_Mail_Description.Local(),
         Glyph = Glyphs.Mail,
         Sizing = c => KitSizing.Sizing(((EmailConfig)c).RowsShown, addFooter: false, ((EmailConfig)c).Widths),
-        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((EmailConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Both(LinkTopicId.HoveredMessage),
         Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),

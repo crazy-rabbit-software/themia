@@ -119,9 +119,9 @@ public sealed class FenceTests
 
         Assert.True(open.Natural.Height > FenceGrid.TitleDip + 100);
         Assert.True(open.Max.Height >= SizeStretch.Ceiling);
-        // [S-14263] Its title bar's whole rows on the default grid, as its picture lays it.
-        var title = Themia.Core.Widgets.ItemGrid.Default().Whole(FenceGrid.TitleDip);
-        Assert.Equal((title, title, title), (rolled.Min.Height, rolled.Natural.Height, rolled.Max.Height));
+        // [S-13012] Rolled up its height is its title bar's alone, a height the relax keeps: no handle makes it taller.
+        Assert.Equal((FenceGrid.TitleDip, FenceGrid.TitleDip, FenceGrid.TitleDip), (rolled.Min.Height, rolled.Natural.Height, rolled.Max.Height));
+        Assert.True(rolled.KeepsHeight && rolled.FixedHeight);
 
         // [S-13040] Grid-fitted on any display (a cell 9.5..10.5 DIPs) the title bar is exactly its rows.
         foreach (var screen in new[] { new ScreenMetrics(1536, 864), new ScreenMetrics(1920, 1080), new ScreenMetrics(1366, 728), new ScreenMetrics(2560, 1392) })

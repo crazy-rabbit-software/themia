@@ -33,21 +33,19 @@ public class QuoteLayoutTests
         // The inset, three Title lines, the attribution's Caption line under, the inset.
         Assert.Equal(12 + (3 * 28) + 16 + 12, sizing.Natural.Height);
         Assert.Equal((200d, 320d, 520d), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
-        Assert.Equal(3, sizing.HeightSteps!.Count);
+        Assert.Equal(12 + (2 * 28) + 16 + 12, sizing.Min.Height);
         Assert.Equal(12 + (6 * 28) + 16 + 12, QuoteLayout.Sizing(new QuoteConfig { Lines = 6 }).Natural.Height);
         Assert.Equal(sizing.Natural.Height - 16, QuoteLayout.Sizing(new QuoteConfig { ShowAuthor = false }).Natural.Height);
     }
 
     [Fact]
-    public void S11306_dragging_its_bottom_edge_sets_its_lines_and_the_given_config_stays()
+    public void S11306_S14500_its_lines_are_a_new_cards_height_and_a_height_takes_every_cell()
     {
-        var config = new QuoteConfig { Lines = 3 };
-        var sizing = QuoteLayout.Sizing(config);
-
-        var five = Assert.IsType<QuoteConfig>(QuoteLayout.SizeSets(config, sizing.Natural with { Height = sizing.Natural.Height + (2 * 28) }));
-        Assert.Equal(5, five.Lines);
-        Assert.Equal(3, config.Lines);
-        Assert.Same(config, QuoteLayout.SizeSets(config, sizing.Natural));
+        var sizing = QuoteLayout.Sizing(new QuoteConfig { Lines = 3 });
+        foreach (var height in new[] { 100.0, 130, 137, 180 })
+        {
+            Assert.Equal(height, sizing.FitHeight(height));
+        }
     }
 
     [Fact]

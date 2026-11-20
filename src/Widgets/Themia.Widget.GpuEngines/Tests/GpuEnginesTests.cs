@@ -16,10 +16,9 @@ public sealed class GpuEnginesTests
     public void S11015_four_rows_under_the_header_one_height()
     {
         var sizing = Kind.SizingOf();
-        // [S-14100] Four rows of whole cells (30) from edge to edge, growing a cell each together.
+        // [S-14500] Four rows at their optimal (30) from edge to edge; every cell taller too, the rows stretched to fill it.
         Assert.Equal(4 * 30, sizing.Natural.Height);
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
-        Assert.Equal(40, sizing.HeightSteps!.Step);
         Assert.True(sizing.Max.Height > 1000);
     }
 

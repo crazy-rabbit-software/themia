@@ -153,7 +153,8 @@ public static class FolderLayout
     /// [S-11203] A folder keeps a free size, as a file browser's window does: 220..800 wide (the details
     /// table from the width its columns need) and 160..640 high (more if what stands over the items needs
     /// it); more room shows more of the folder's entries and the rest scrolls. A new one: the list, the grid
-    /// and the icons 300 × 280; the details table its least width and 60 more, 280 high.
+    /// and the icons 300 × 280; the details table its least width and 60 more, 280 high. [S-14500] Every cell between:
+    /// the list's and the table's rows the card holds stretch to fill it.
     /// </summary>
     public static WidgetSizing Sizing(FolderConfig config)
     {
@@ -161,38 +162,10 @@ public static class FolderLayout
         var leastWidth = config.Style == FolderStyle.Details ? Math.Max(Least.Width, DetailsLeast(config)) : Least.Width;
         var leastHeight = LeastHeight(config);
         var natural = config.Style == FolderStyle.Details ? leastWidth + 60 : 300;
-        var sizing = WidgetSizing.Range(
+        return WidgetSizing.Range(
             new(leastWidth, leastHeight),
             new(Math.Min(natural, Largest.Width), Math.Max(NaturalHeight(config), leastHeight)),
             new(Math.Max(leastWidth, Largest.Width), Math.Max(leastHeight, Largest.Height)));
-        return config.Style is FolderStyle.List or FolderStyle.Details ? sizing.WithHeightSteps(RowSteps(config)) : sizing;
-    }
-
-    /// <summary>[S-14102] The fewest rows a list or a table shows.</summary>
-    public const int LeastRows = 4;
-
-    /// <summary>[S-14102] The most rows a list or a table is made tall for (the rest scrolls).</summary>
-    public const int MostRows = 20;
-
-    /// <summary>
-    /// [S-14102] The list's and the table's height steps (owner, 2026-11-20: "right now all of the widgets have a space on
-    /// the bottom, this means their size steps are not in sync with the item heights"): a row of 28 a step, whole grid
-    /// cells, under what stands over the rows (the inset and the tool line, the path, the search box, the titles, each a
-    /// band of whole cells, <see cref="Over"/>), the rows running to the card's foot edge, so the card is exactly its bands
-    /// and its whole rows. How many rows show is the box's, as a window's, so no count follows the config.
-    /// </summary>
-    public static SizeSteps RowSteps(FolderConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return SizeSteps.InCells(
-            RowHeight,
-            LeastRows,
-            MostRows,
-            null,
-            LineRules.BandOver,
-            config.ShowPath ? BreadcrumbHeight : 0,
-            config.SearchBox ? SearchHeight : 0,
-            config.Style == FolderStyle.Details && config.ColumnTitles ? ColumnHeaderHeight : 0);
     }
 
     /// <summary>
@@ -229,12 +202,12 @@ public static class FolderLayout
     public static int Rows(double height) => Math.Max(1, RowRules.Fit(height, 1));
 
     /// <summary>
-    /// [S-12807] The list's rows in the items' <paramref name="height"/> (<see cref="ItemsHeight"/>, down to the
-    /// foot's inset): the whole rows of 28 there, grown to fill it, touching (the cells of the grid and the icons keep
-    /// the inset: their marks stand inside it).
+    /// [S-12807] [S-14500] The list's rows in the items' <paramref name="height"/> (<see cref="ItemsHeight"/>, down to the
+    /// card's foot): as many rows of 28 as it holds at their optimal, stretched to fill it, touching (the cells of the grid
+    /// and the icons keep the inset: their marks stand inside it).
     /// </summary>
     public static RowReach Reach(double height, ItemGrid grid)
-        => ItemStretch.Reach(height, Rows(height), RowHeight, grid);
+        => ItemStretch.Reach(height, RowHeight, grid);
 
     /// <summary>
     /// [S-1326] The tool line's parts ([S-6710]: at most two buttons): Back and Up in navigate mode, else

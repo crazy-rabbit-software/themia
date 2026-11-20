@@ -397,7 +397,7 @@ public static class BlockResize
                         return null;
                     }
 
-                    // [S-2462] A member that only takes some sizes (fixed, or on steps) decides where an edge it shares lands;
+                    // [S-2462] A member that only takes one size (fixed) decides where an edge it shares lands;
                     // the free ones there take the room it leaves them, so they stay joined to it.
                     var at = near + Want(i, room);
                     if (Rigid(i))
@@ -434,8 +434,8 @@ public static class BlockResize
             return new Laid(length, spans);
         }
 
-        /// <summary>A member that takes only some sizes on this axis: fixed, or on steps (a list's rows).</summary>
-        private bool Rigid(int i) => _fixed[i] || _limits[i] is { Stepped: true };
+        /// <summary>A member that takes only one size on this axis: fixed ([S-14500]: no member steps).</summary>
+        private bool Rigid(int i) => _fixed[i];
 
         /// <summary>The size a member takes in <paramref name="room"/> cells: its sizing's (its own size on a fixed axis).</summary>
         private double Want(int i, double room)
@@ -455,23 +455,12 @@ public static class BlockResize
 
         /// <summary>
         /// The size a member ends at with <paramref name="room"/> cells between its edges: <see cref="Want"/>, never more
-        /// than the room (a stepped member whose nearest step is past it takes the largest step it holds).
+        /// than the room.
         /// </summary>
         private double Fit(int i, double room)
         {
             var want = Want(i, room);
-            if (_fixed[i] || want <= room + Eps)
-            {
-                return want;
-            }
-
-            if (_limits[i] is not { Stepped: true } l)
-            {
-                return room;
-            }
-
-            var held = l.OnGrid ? GridFit.Up(l.Holds(room / Lines), l.Lines) : l.Holds(room / Lines);
-            return Whole(Math.Max(l.Min, held) * Lines);
+            return _fixed[i] || want <= room + Eps ? want : room;
         }
 
         private static double Whole(double cells) => Math.Abs(cells - Math.Round(cells)) < Eps ? Math.Round(cells) : cells;

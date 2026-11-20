@@ -15,52 +15,61 @@ public class WeatherLayoutTests
     public void S11145_a_new_forecast_shows_five_days_on_one_line_rows()
     {
         var config = new WeatherForecastConfig();
-        Assert.Equal((5, 1, ForecastStyle.Rows), (config.Days, config.Lines, config.Style));
+        Assert.Equal((5, 1, ForecastStyle.Rows), (WeatherForecastLayout.DaysIn(default, config), config.Lines, config.Style));
+        Assert.Equal(new SizeDip(300, 5 * 30), Kind.Sizing(config).Natural);
     }
 
     [Fact]
-    public void S11146_rows_are_a_row_a_day_their_height_stepped_by_the_days_220_to_420_wide()
+    public void S11146_S14500_rows_are_a_row_a_day_every_cell_from_one_day_up_220_to_420_wide()
     {
-        var one = Kind.Sizing(new WeatherForecastConfig { Days = 5 });
-        var two = Kind.Sizing(new WeatherForecastConfig { Days = 5, Lines = 2 });
+        var one = Kind.Sizing(new WeatherForecastConfig());
+        var two = Kind.Sizing(new WeatherForecastConfig { Lines = 2 });
 
         Assert.Equal(new SizeDip(300, 5 * 30), one.Natural);
         Assert.Equal(5 * 40, two.Natural.Height);
         Assert.Equal((220.0, Themia.Sdk.SizeStretch.Ceiling), (one.Min.Width, one.Max.Width)); // relaxed, [S-12411]: no practical Max
-        Assert.True(one.HeightSteps!.FollowsConfig);
+        Assert.Equal(30, one.Min.Height);
+        Assert.Equal(137, one.FitHeight(137));
     }
 
     [Fact]
-    public void S11146_columns_are_a_56_column_a_day_the_width_stepped_by_the_days_at_one_height()
+    public void S11146_columns_are_a_56_column_a_day_every_cell_wide_at_one_height_new()
     {
-        var sizing = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5 });
-        var dry = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5, ShowPrecipitation = false });
+        var sizing = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns });
+        var dry = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns, ShowPrecipitation = false });
 
         Assert.Equal(24 + (5 * 56), sizing.Natural.Width);
-        Assert.True(sizing.Min.Height == sizing.Natural.Height && sizing.WidthSteps!.FollowsConfig);
+        Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
+        Assert.Equal(24 + 56, sizing.Min.Width);
         Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height); // relaxed, [S-12411]
         Assert.Equal(12 + WeatherForecastLayout.ColumnHeight(true) + 12, sizing.Natural.Height);
         Assert.Equal(20, sizing.Natural.Height - dry.Natural.Height);
     }
 
     [Fact]
-    public void S11146_dragging_the_rows_taller_or_the_columns_wider_sets_the_days()
+    public void S11146_S14502_the_days_are_as_many_as_the_box_holds_never_stored()
     {
-        var rows = new WeatherForecastConfig { Days = 5 };
-        var columns = new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5 };
+        // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the
+        // card's size": a rows card ten cells and a bit tall (its view 98 under the inset) shows three days, eleven cells
+        // three too, twelve four; a columns card three columns wide three.
+        var rows = new WeatherForecastConfig();
+        var columns = new WeatherForecastConfig { Style = ForecastStyle.Columns };
 
-        Assert.Equal(7, ((WeatherForecastConfig)Kind.SizeSets!(rows, new SizeDip(300, 7 * 30))).Days);
-        Assert.Equal(3, ((WeatherForecastConfig)Kind.SizeSets(columns, new SizeDip(24 + (3 * 56), 200))).Days);
-        Assert.Same(rows, Kind.SizeSets(rows, new SizeDip(400, 5 * 30)));
-        Assert.Equal(5, rows.Days);
+        Assert.Equal(3, WeatherForecastLayout.DaysIn(new WidgetArea(300, 100 - 12), rows));
+        Assert.Equal(3, WeatherForecastLayout.DaysIn(new WidgetArea(300, 110 - 12), rows));
+        Assert.Equal(4, WeatherForecastLayout.DaysIn(new WidgetArea(300, 120 - 12), rows));
+        Assert.Equal(14, WeatherForecastLayout.DaysIn(new WidgetArea(300, 2000), rows));
+        Assert.Equal(3, WeatherForecastLayout.DaysIn(new WidgetArea(24 + (3 * 56) + 20, 200), columns));
+        Assert.Equal(14, rows.ForecastDays);
     }
 
     [Fact]
     public void S725_rows_show_the_configs_days_and_lines_and_the_bar_is_a_share_of_the_row()
     {
-        var plan = WeatherForecastLayout.Rows(new WidgetArea(320, 200), new WeatherForecastConfig { Days = 6, Lines = 2 });
+        var plan = WeatherForecastLayout.Rows(new WidgetArea(320, 200), new WeatherForecastConfig { Lines = 2 });
 
-        Assert.Equal((6, 2, false), (plan.Days, plan.Lines, plan.Compact));
+        // [S-14502] 212 from the card's top edge holds five rows of two lines (40).
+        Assert.Equal((5, 2, false), (plan.Days, plan.Lines, plan.Compact));
         Assert.Equal(Math.Floor((320 - 24) * WeatherForecastLayout.MeterShare), plan.Meter);
         Assert.Equal(WeatherForecastLayout.MeterMax, WeatherForecastLayout.Rows(new WidgetArea(800, 200), new WeatherForecastConfig()).Meter);
     }
@@ -83,7 +92,7 @@ public class WeatherLayoutTests
     [Fact]
     public void S726_columns_share_the_content_and_draw_every_part()
     {
-        var plan = WeatherForecastLayout.Columns(new WidgetArea(304, 180), new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5 });
+        var plan = WeatherForecastLayout.Columns(new WidgetArea(304, 180), new WeatherForecastConfig { Style = ForecastStyle.Columns });
 
         Assert.Equal(56, plan.ColumnWidth, 6);
         Assert.Equal(FamilyShape.IconLarge, plan.Icon);
@@ -91,11 +100,11 @@ public class WeatherLayoutTests
     }
 
     [Fact]
-    public void S11145_days_and_lines_out_of_range_are_repaired_and_a_copy_keeps_them()
+    public void S11145_lines_out_of_range_are_repaired_and_a_copy_keeps_them()
     {
-        var config = new WeatherForecastConfig { Days = 40, Lines = 5 };
-        Assert.Equal(2, config.Repair().Count);
-        Assert.Equal((14, 2), (config.Days, config.Lines));
+        var config = new WeatherForecastConfig { Lines = 5 };
+        Assert.Single(config.Repair());
+        Assert.Equal(2, config.Lines);
         Assert.Equal(2, ((WeatherForecastConfig)config.Clone()).Lines);
     }
 

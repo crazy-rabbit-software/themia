@@ -29,7 +29,6 @@ public sealed class RssModule : IWidgetModule
         Description = RssStr.WidgetsA_Catalog_Feed_Description.Local(),
         Glyph = Glyphs.Rss,
         Sizing = c => KitSizing.Sizing(((RssConfig)c).RowsShown, addFooter: false),
-        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((RssConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems,
         Add = new(AddFolderId.Markets, 1, 0),
     };

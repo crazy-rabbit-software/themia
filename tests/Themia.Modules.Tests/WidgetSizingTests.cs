@@ -44,94 +44,38 @@ public sealed class WidgetSizingTests
         }
     }
 
-    [Theory]
-    [MemberData(nameof(Kinds))]
-    public void S2442_a_kind_whose_size_follows_a_count_answers_with_a_config_whose_sizing_is_that_size(string id)
-    {
-        var kind = ModuleCatalog.Of(new WidgetId(id));
-        static bool Counted(WidgetSizing s) => s.HeightSteps is { FollowsConfig: true } || s.WidthSteps is { FollowsConfig: true };
-
-        // A count with no hook could never change by a resize; a hook with no count (in any style) has nothing to set.
-        Assert.Equal(Configs(kind).Any(c => Counted(kind.Sizing(c))), kind.SizeSets is not null);
-        if (kind.SizeSets is not { } sets)
-        {
-            return;
-        }
-
-        foreach (var config in Configs(kind).Where(c => Counted(kind.Sizing(c))))
-        {
-            Answers(kind, config, sets);
-        }
-    }
-
-    private static void Answers(WidgetDescriptor kind, WidgetConfig config, Func<WidgetConfig, SizeDip, WidgetConfig> sets)
-    {
-        var sizing = kind.Sizing(config);
-        foreach (var wanted in new[] { sizing.Min, sizing.Natural, sizing.Max })
-        {
-            var before = StateJsonOf(config);
-            var next = sets(config, wanted);
-            Assert.Equal(before, StateJsonOf(config));
-            var after = kind.Sizing(next);
-            if (sizing.HeightSteps is { FollowsConfig: true } rows)
-            {
-                Assert.Equal(rows.Snap(wanted.Height), after.Natural.Height);
-            }
-
-            if (sizing.WidthSteps is { FollowsConfig: true } columns)
-            {
-                Assert.Equal(columns.Snap(wanted.Width), after.Natural.Width);
-            }
-        }
-    }
-
-    private static string StateJsonOf(WidgetConfig config)
-        => System.Text.Json.JsonSerializer.Serialize(config, Themia.Core.Storage.StateJson.WidgetConfig);
+    /// <summary>Displays the resize is checked on: whole DIP cells, 1536 × 864's cells of 9.974 × 10.047, 1366 × 768's.</summary>
+    private static readonly ScreenMetrics[] Screens = [new(1920, 1080), new(1536, 864), new(1366, 768)];
 
     private static readonly ScreenMetrics Screen = new(1000, 1000);
 
-    [Fact]
-    public void S2442_a_task_list_dragged_to_five_rows_tall_has_five_rows_and_the_given_config_stays()
-    {
-        var config = new TasksConfig { Rows = 6 };
-        var five = new FracRect(0.1, 0.1, 0.3, (12 + (5 * 28) + 28 + 12) / 1000.0);
-
-        var next = SizeFit.ConfigFor(config, five, Screen, scale: 1, limits: null);
-
-        Assert.Equal(5, Assert.IsType<TasksConfig>(next).Rows);
-        Assert.Equal(6, config.Rows);
-        Assert.Same(config, SizeFit.ConfigFor(config, five with { H = (12 + (6 * 28) + 28 + 12) / 1000.0 }, Screen, 1, limits: null));
-    }
-
     [Theory]
     [MemberData(nameof(Kinds))]
-    public void S11601_a_render_s_min_and_max_boxes_are_drawn_with_the_config_that_size_means(string id)
+    public void S14500_every_kind_resizes_by_one_grid_cell_on_both_axes(string id)
     {
-        var kind = new WidgetId(id);
-        if (ModuleCatalog.Of(kind).SizeSets is null)
+        // Owner, 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps
+        // of one": over every kind and style, on displays of whole and of part DIP cells, each axis that is not fixed lands
+        // a resize on every whole cell from its least, none skipped.
+        var kind = ModuleCatalog.Of(new WidgetId(id));
+        foreach (var config in Configs(kind))
         {
-            return;
-        }
-
-        {
-            var config = WidgetConfig.CreateDefault(kind);
-            var sizing = SizeFit.Of(config);
-            foreach (var box in new[] { sizing.Min, sizing.Natural, sizing.Max })
+            foreach (var screen in Screens)
             {
-                var (drawn, painted) = SizeFit.Resized(config, box);
-                var laidOut = SizeFit.Of(drawn);
-
-                // Painted where its config is laid out (no row cut off, no row's room left empty), and on an
-                // axis that follows a count, at the size asked: the min is the fewest, the max the most.
-                Assert.Equal(painted, laidOut.Fit(painted));
-                if (laidOut.HeightSteps is { FollowsConfig: true })
+                var limits = SizeFit.Limits(kind.Sizing(config), screen, 1)!;
+                var (cols, rows) = GridGeometry.GridDims(screen);
+                foreach (var (axis, lines, name) in new[] { (limits.Width, cols, "width"), (limits.Height, rows, "height") })
                 {
-                    Assert.True(painted.Height == box.Height, $"{id} asked {box}, painted {painted}");
-                }
+                    if (axis.Fixed)
+                    {
+                        continue;
+                    }
 
-                if (laidOut.WidthSteps is { FollowsConfig: true })
-                {
-                    Assert.True(painted.Width == box.Width, $"{id} asked {box}, painted {painted}");
+                    var least = (int)Math.Round(axis.Min * lines);
+                    var most = Math.Min((int)Math.Round(axis.Max * lines), least + 24);
+                    for (var cells = least; cells <= most; cells++)
+                    {
+                        Assert.True(Math.Abs(axis.Range(cells / (double)lines) - (cells / (double)lines)) < 1e-9, $"{id} on {screen.Width:0}: {name} of {cells} cells lands on {axis.Range(cells / (double)lines) * lines:0.##}");
+                    }
                 }
             }
         }
@@ -140,12 +84,14 @@ public sealed class WidgetSizingTests
     [Fact]
     public void S13018_a_widget_added_into_a_lassoed_area_takes_the_box_its_kind_allows_there()
     {
-        // A tall area: a task list takes the rows it holds, as wide as the area, anchored at its corner.
+        // A tall area: a task list as tall as the area (its rows the card holds, [S-14502]), as wide as it allows, anchored
+        // at its corner; its config as it was.
         var area = Themia.Core.Desktop.LassoArea.Offered(new FracRect(0.2, 0.1, 0.3, 0.5), caught: 0, Screen)!.Value;
         var tasks = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0, 0, 0.1, 0.1));
         Themia.Core.Desktop.LassoArea.Fill(tasks, area, Screen, 1);
 
-        Assert.True(Assert.IsType<TasksConfig>(tasks.Config).Rows > 6);
+        Assert.Equal(6, Assert.IsType<TasksConfig>(tasks.Config).Rows);
+        Assert.Equal(area.H, tasks.Rect.H, 9);
         Assert.Equal(area.X, tasks.Rect.X, 9);
         Assert.Equal(area.Y, tasks.Rect.Y, 9);
         Assert.True(tasks.Rect.W <= area.W + 1e-9 && tasks.Rect.H <= area.H + 1e-9);
@@ -158,16 +104,27 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
-    public void S2447_a_config_change_of_rows_refits_the_stored_rect_at_its_top_left()
+    public void S2447_S14503_a_config_change_of_rows_puts_the_card_at_its_new_natural_at_its_top_left()
     {
-        var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, (12 + (6 * 28) + 28 + 12) / 1000.0));
+        // [S-14503] Rows decide a list's natural height: set to three, a card of any height stands at three rows and the add
+        // row ((3 * 30) + 30), its top-left kept; a second refit with nothing changed leaves it.
+        var widget = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, 0.27));
+        var was = SizeFit.Of(widget);
         ((TasksConfig)widget.Config).Rows = 3;
 
-        Assert.True(SizeFit.Refit(widget, Screen, 1));
+        Assert.True(SizeFit.Refit(widget, Screen, 1, was));
         Assert.Equal(0.2, widget.Rect.X, 9);
         Assert.Equal(0.2, widget.Rect.Y, 9);
-        Assert.Equal(0.12, widget.Rect.H, 9); // [S-14100] (3 * 30) + 30: three rows and the add row, whole grid cells each
-        Assert.False(SizeFit.Refit(widget, Screen, 1));
+        Assert.Equal(0.12, widget.Rect.H, 9);
+        Assert.False(SizeFit.Refit(widget, Screen, 1, SizeFit.Of(widget)));
+
+        // A change that moved the least too (two lines a row) only fits the card into its new range: a taller one stays.
+        var tall = WidgetInstance.Create(new WidgetId("tasks"), new FracRect(0.2, 0.2, 0.3, 0.4));
+        var before = SizeFit.Of(tall);
+        ((TasksConfig)tall.Config).Lines = 2;
+        ((TasksConfig)tall.Config).ListId = TaskRules.TodayListId;
+        SizeFit.Refit(tall, Screen, 1, before);
+        Assert.Equal(0.4, tall.Rect.H, 9);
     }
 
     [Fact]
@@ -219,7 +176,7 @@ public sealed class WidgetSizingTests
 
     [Theory]
     [MemberData(nameof(Kinds))]
-    public void S12411_every_kind_has_no_practical_max_on_every_axis_its_config_does_not_step(string id)
+    public void S12411_every_kind_has_no_practical_max_on_every_axis(string id)
     {
         var kind = ModuleCatalog.Of(new WidgetId(id));
         foreach (var config in Configs(kind))
@@ -232,18 +189,14 @@ public sealed class WidgetSizingTests
                 continue;
             }
 
-            void Axis(string name, double max, SizeSteps? steps)
+            void Axis(string name, double max)
+                => Assert.True(max >= SizeStretch.Ceiling - 0.01, $"{id}: {name} max {max} under the ceiling {SizeStretch.Ceiling}");
+
+            Axis("width", sizing.Max.Width);
+            if (!sizing.KeepsHeight)
             {
-                if (steps is not null)
-                {
-                    return;
-                }
-
-                Assert.True(max >= SizeStretch.Ceiling - 0.01, $"{id}: {name} max {max} under the ceiling {SizeStretch.Ceiling}");
+                Axis("height", sizing.Max.Height);
             }
-
-            Axis("width", sizing.Max.Width, sizing.WidthSteps);
-            Axis("height", sizing.Max.Height, sizing.HeightSteps);
         }
     }
 }

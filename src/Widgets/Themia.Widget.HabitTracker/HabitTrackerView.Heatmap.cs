@@ -65,7 +65,10 @@ internal sealed partial class HabitTrackerView
         var periods = HabitHeatmap.Cells(_current, cadence, TimeZoneInfo.Local, plan.Weeks, firstDay);
         var logs = habits.Select(h => HabitRules.Log(h.Log)).ToList();
 
-        var grids = plan.PerHabit ? Math.Min(count, HabitSizing.ClampRows(_config.Rows)) : 1;
+        // [S-14500] A grid per habit: as many as the card holds (its habits' blocks), the config's rows a new one's height.
+        var blockHeight = plan.GridHeight + nameStep.LineHeight + HabitHeatmap.NameGap;
+        var fits = Math.Max(1, (int)Math.Floor((_area.Height - FamilySpace.Inset + HabitHeatmap.BlockGap + LayoutMath.Tolerance) / (blockHeight + HabitHeatmap.BlockGap)));
+        var grids = plan.PerHabit ? Math.Min(count, fits) : 1;
         var shape = (plan.PerHabit, plan.Weeks, plan.Cell, grids);
         if (shape != _heatShape)
         {

@@ -127,6 +127,22 @@ public sealed partial class KitList
                 _rowElements[i] = row;
             }
 
+            // [S-14500] Each line of the page its share of the room on whole device pixels, so the lines end on its foot.
+            for (var k = 0; k < stack.Children.Count; k++)
+            {
+                var height = _plan.RowAt(k);
+                switch (stack.Children[k])
+                {
+                    case Border { Child: RowBlock line }:
+                        line.Height = height;
+                        break;
+                    case Grid head:
+                        head.Height = height;
+                        SectionHeading.Fill(head.Children.OfType<TextBlock>().First(), height);
+                        break;
+                }
+            }
+
             SetColumn(stack, c);
             _page.Children.Add(stack);
             at += count;

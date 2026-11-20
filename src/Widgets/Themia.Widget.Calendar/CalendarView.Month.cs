@@ -53,12 +53,12 @@ internal sealed partial class CalendarView
 
         var grid = new Grid();
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(layout.HeaderHeight) });
+        // [S-14500] The weeks share the room under the weekday line evenly to the card's foot (each its share on whole
+        // device pixels, as the grid lays its stars): nothing left over under the last.
         for (var r = 0; r < layout.Rows; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(layout.RowHeight) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         }
-
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
         var weekdays = CalendarFit.Weekdays(layout.LeastColumn);

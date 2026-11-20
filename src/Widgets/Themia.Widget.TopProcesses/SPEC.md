@@ -20,7 +20,7 @@ is the module host's `DetailHostTests`.
   ([S-11008]): its rows are a setting (`Rows`, 1..20, `IKitRows`), each two lines (the program, the other
   figure under it), the value column as before; every process is in the list and the rows past its
   count scroll inside them. Its height follows the rows (36 + 40 a row + 12, `KitSizing`, 220..520 wide,
-  a new one 300 × 248) and dragging its bottom edge sets them; "Fit" is gone, and no tier ladder is
+  a new one 300 × 248); Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); "Fit" is gone, and no tier ladder is
   left. Its options are on the properties menu ([S-3719]), no settings page: Appearance, Sort by, Rows
   (`KitMenuLines.Rows`, no lines choice), Group by program.
 - **[S-2017]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system

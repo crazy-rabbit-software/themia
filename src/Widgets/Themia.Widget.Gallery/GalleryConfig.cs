@@ -153,17 +153,14 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
 
     public const int MaxCells = 6;
 
-    /// <summary>[S-11207] [S-14410] The grid's columns; its width follows them, and a resize sets them (no line).</summary>
-    public int Columns { get; set; } = 3;
+    /// <summary>[S-11207] [S-14410] A new grid's columns: its natural width's; then as many as the card's width holds, never stored.</summary>
+    public const int DefaultColumns = 3;
 
-    /// <summary>[S-11207] The grid's rows; its height follows them.</summary>
+    /// <summary>[S-11207] [S-14500] The grid's rows a new card stands (its natural height); the card shows as many as it holds.</summary>
     public int Rows { get; set; } = 2;
 
     /// <summary>[S-11207] [S-14410] The most pictures the scatter and the mosaic show: as many as their card holds (<see cref="GalleryPlan.ShownIn"/>).</summary>
     public const int MaxShown = 12;
-
-    [JsonIgnore]
-    public int EffectiveColumns => Math.Clamp(Columns, MinCells, MaxCells);
 
     [JsonIgnore]
     public int EffectiveRows => Math.Clamp(Rows, MinCells, MaxCells);
@@ -297,7 +294,6 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         Outline = Outline,
         OutlineColor = OutlineColor,
         OutlineWidth = OutlineWidth,
-        Columns = Columns,
         Rows = Rows,
     };
 }

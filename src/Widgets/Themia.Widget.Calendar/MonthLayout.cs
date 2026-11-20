@@ -13,9 +13,9 @@ public enum MonthFace
 }
 
 /// <summary>
-/// [S-12832] A month laid on the card: the columns' widths (edge to edge, whole grid cells), the weekday line's height
-/// (ending on a grid line), the week rows shown (whole cells each, all alike) and the first of the six, each cell's face
-/// and its chip lanes, and the number's line (it grows with the cell).
+/// [S-12832] [S-14500] A month laid on the card: the columns' widths (edge to edge, sharing the width), the weekday line's
+/// height (ending on a grid line), the week rows shown (sharing the room under it, all alike) and the first of the six,
+/// each cell's face and its chip lanes, and the number's line (it grows with the cell).
 /// </summary>
 public sealed record MonthLayout(IReadOnlyList<double> Columns, double HeaderHeight, int Rows, int FirstRow, double RowHeight, MonthFace Face, int ChipLanes, double NumberLine)
 {
@@ -43,12 +43,11 @@ public readonly record struct MonthChipRoom(int Lanes, double Column)
 /// <summary>
 /// [S-12832] The month's one layout rule (owner, 2026-11-19: "the calendar does not follow this design philosophy for
 /// example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and the
-/// items dont reach from edge to edge"). The day cells tile the card: seven columns from its left edge to its right, each
-/// whole grid cells (the cells the width has shared as evenly as they go, the last column taking what is not a whole
-/// cell), the weeks from under the weekday line down, each the same whole cells ([S-12830]), as many of the six as hold
-/// a day's number at whole cells (the anchor's week among them), the cells left over at the foot (none at the month's
-/// own size steps, [S-14101]). A cell is filled by its content: its day's events as chips under its number where it has
-/// the room for them (<see cref="MonthChipRoom"/>; Outlook's month view),
+/// items dont reach from edge to edge"). The day cells tile the card: seven columns from its left edge to its right,
+/// sharing the width evenly, the weeks from under the weekday line to the card's foot, as many of the six as hold a day's
+/// number at its optimal (whole cells; the anchor's week among them), sharing that room evenly ([S-14500]: nothing left
+/// over at the foot at any size). A cell is filled by its content: its day's events as chips under its number where it
+/// has the room for them (<see cref="MonthChipRoom"/>; Outlook's month view),
 /// its dots where it does not, its number alone on a day of nothing; the number grows with the cell, as large as what
 /// the chips or dots leave of its height and half its width allow.
 /// </summary>
@@ -70,14 +69,13 @@ public static class MonthLayouts
     {
         var need = chips ?? MonthChipRoom.Dots;
         width = double.IsFinite(width) ? Math.Max(0, width) : 0;
-        var pitch = grid.Pitch;
         var columns = ItemStretch.Columns(width, 7, grid);
 
         var headerEnd = grid.Whole(top + FamilyType.Caption.LineHeight);
         var room = Math.Max(0, cardHeight - headerEnd);
-        var least = grid.Cells(LeastRow);
-        var rows = Math.Clamp(grid.Within(room) / least, 1, CalendarSizing.MonthWeeks);
-        var rowHeight = Math.Max(least, grid.Within(room) / rows) * pitch;
+        var least = ItemStretch.Optimal(LeastRow, grid);
+        var rows = Math.Clamp((int)Math.Floor((room + LayoutMath.Tolerance) / least), 1, CalendarSizing.MonthWeeks);
+        var rowHeight = Math.Max(least, room / rows);
         var first = rows < CalendarSizing.MonthWeeks ? Math.Clamp(anchorRow - ((rows - 1) / 2), 0, CalendarSizing.MonthWeeks - rows) : 0;
 
         var column = columns.Min();

@@ -146,7 +146,7 @@ public sealed class OfficeConfigTests
 
         // [S-3770] No calendar stores a week start: it is the shared regional setting.
         Assert.Equal(
-            [.. new[] { "kind", "style", "accountIds", "calendars", "calendarColors", "showBirthdays", "weekDays", "weekFrom", "agendaCount", "agendaDays", "rows", "lines", "yearNumbers", "dayHours", "monthEvents", "monthLines", "weekRows", "weekTitles", "weekHours" }.Order(StringComparer.Ordinal)],
+            [.. new[] { "kind", "style", "accountIds", "calendars", "calendarColors", "showBirthdays", "weekFrom", "agendaCount", "agendaDays", "rows", "lines", "yearNumbers", "monthEvents", "weekRows", "weekTitles" }.Order(StringComparer.Ordinal)],
             names);
     }
 
@@ -167,13 +167,14 @@ public sealed class OfficeConfigTests
     [Fact]
     public void S3641_a_style_reads_only_its_own_lengths()
     {
-        var config = new CalendarWidgetConfig { WeekDays = 4, WeekFrom = WeekFirstDay.Today, AgendaDays = 2 };
+        var config = new CalendarWidgetConfig { WeekFrom = WeekFirstDay.Today, AgendaDays = 2 };
 
         config.Style = CalendarStyle.Month;
         Assert.Equal(new Themia.Core.Office.CalendarPeriod(config.EffectiveWeekStart), config.Period);
 
+        // [S-14502] A week's days are its card's: the period read covers the most it may show.
         config.Style = CalendarStyle.Week;
-        Assert.Equal(4, config.Period.Days);
+        Assert.Equal(CalendarPeriod.WeekMaxDays, config.Period.Days);
         Assert.Equal(WeekFirstDay.Today, config.Period.WeekFrom);
         Assert.Equal(CalendarPeriod.AgendaDefaultDays, config.Period.AgendaLength);
 

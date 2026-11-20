@@ -18,7 +18,7 @@ public class BluetoothLadderTests
     }
 
     [Fact]
-    public void S11310_the_height_follows_the_rows_220_to_520_wide_and_dragging_sets_them()
+    public void S11310_S14500_its_rows_are_its_natural_height_220_to_520_wide_and_every_cell_between()
     {
         var kind = Themia.Sdk.ModuleCatalog.Of(new Themia.Sdk.WidgetId("bluetooth"));
         var config = new BluetoothConfig();
@@ -28,9 +28,9 @@ public class BluetoothLadderTests
         Assert.Equal(4 * 40, kind.Sizing(new BluetoothConfig { Lines = 2 }).Natural.Height);
         Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
-        var six = Assert.IsType<BluetoothConfig>(kind.SizeSets!(config, sizing.Natural with { Height = 6 * 30 }));
-        Assert.Equal(6, six.Rows);
-        Assert.Equal(4, config.Rows);
+        // [S-14500] A row at least, every cell taller too: the rows the card holds stretch to fill it.
+        Assert.Equal(30, sizing.Min.Height);
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height);
     }
 
     [Theory]

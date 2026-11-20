@@ -301,17 +301,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         PositionCard(card, card.LiveRect);
         JoinCards();
 
-        // [S-2442] A resize that set the config too (a list's rows) is stored with it as one step,
-        // and the surface lays out again so everything that reads the config sees the new one.
-        if (card.ResizeSetConfig)
-        {
-            _host.Mutate(_ => { }, relayout: true, UndoAction.Resize);
-        }
-        else
-        {
-            // [S-13040] A fence resized keeps whole cells: it is laid again in the step.
-            _host.LandMoved(this, [card.Model.Id], UndoAction.Resize);
-        }
+        // [S-13040] A fence resized is laid again in the step.
+        _host.LandMoved(this, [card.Model.Id], UndoAction.Resize);
     }
 
     /// <summary>Where a physical screen point falls on this display, as a fraction of the whole monitor.</summary>

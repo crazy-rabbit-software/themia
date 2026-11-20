@@ -21,8 +21,7 @@ JSON context), `NotificationsConfig.cs` (its rows, lines and app headings, [S-11
   per notification (1: the title with when it came; 2: its body under it, default) and **Under app
   headings** (`AppHeadings`, off by default: one list newest first, each row its app's icon; on: the
   apps' headings of [S-4402], a heading a row of 28 inside the rows). Every row has its icon and its
-  time at every width. 220..520 wide, a new one 300 × 208; the height follows the rows; dragging the
-  bottom edge sets Rows; more scroll inside them (the wheel as before). Nothing appears or disappears
+  time at every width. 220..520 wide, a new one 300 × 208; Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more scroll inside them (the wheel as before). Nothing appears or disappears
   with the size: [S-4404]'s ladder is gone. Tests `NotificationsTests`.
 - **[S-4404]** *(Retired by [S-11404]: lines and headings are the config's.)* The ladder (`NotificationsLayout.Plan`) on the family's rows ([S-6711], [S-6712]): the list
   at every size (the header's neutral count says how many, so the small tile has no bell face of its

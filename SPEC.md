@@ -120,7 +120,7 @@ Sections, grouped by area (file order below; search for the heading).
   rounds to the grid (or lands on a work-area edge within the magnet, [S-6609]), may pass the
   monitor's edge (never a taskbar's: it stops on it, [S-855]), and stops where the widget would outgrow the work area or keep less than the visible
   minimum on it ([S-6608]); an anchored edge never moves. The moved edge also stops at the widget's
-  sizing's Min and Max and lands on its steps, a fixed axis has no handle ([S-2444], [S-2445]). Snapping the whole rect rounded the anchored
+  sizing's Min and Max and lands on any grid line between, a fixed axis has no handle ([S-2444], [S-2445]). Snapping the whole rect rounded the anchored
   edge too, and clamping the whole rect pushed the widget about instead of stopping the moved edge.
 - **[S-31b]** Edit mode draws no outline round a widget. The eight handles are its markers
   (`EditMarkers`): a **square-cornered L-bracket** at each corner (arms 14 DIPs, never rounded, whatever
@@ -4495,7 +4495,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   never converted between zones; a timed one as two instants. Clicking an event opens its provider
   page (CalDAV has none: tooltip only).
 - **[S-561]** Config, one for every calendar style ([S-3601], [S-3641]): `accountIds`, `calendars`,
-  `calendarColors`, `showBirthdays` (on); the week style adds `days` and `firstDay` ([S-3637]), the agenda
+  `calendarColors`, `showBirthdays` (on); the week style adds `weekFrom` ([S-3637]; its days are the card's), the agenda
   `agendaCount` (1–100, 20) and `agendaDays` ([S-3636]). No `layout`: the style is the layout
   ([S-3640]). The context menu offers Refresh.
 - **[S-562]** An empty `accountIds` means every calendar account (later ones too — the Mail
@@ -4572,7 +4572,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   first; `mailto:`/`tel:` values stripped), ORG's first part, TITLE, UID, BDAY (incl. `--MMDD`).
 - **[S-580]** Contacts lists people from Microsoft (`/me/contacts`), Google (People connections) and
   CardDAV (`addressbook-query`) accounts in one list by name; the same person in two accounts once.
-  Config: `accountIds` (empty = every contacts account), `layout`, `columns`, `count`.
+  Config: `accountIds` (empty = every contacts account), `layout`, `count` (the grid's columns are the card's, [S-14502]).
   Clicking selects (the keyboard's ring, [S-1288]), clicking the background clears. With no contacts
   account the card's Set up row says "Add an account to show your contacts" ([S-1862]).
 - **[S-581]** *(The width fallbacks retired by [S-11406]: each layout states its own sizes.)* Layouts: list (monogram, name, role, address/number), compact (name and one field),
@@ -4614,29 +4614,29 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
 Content decides a widget's size; the size no longer decides its content (owner's decision
 2026-11-12: widgets grew without end and filled the room; they get a largest size and are split into
 small widgets instead). Owning files: `Themia.Sdk/Modules/WidgetSizing.cs` (the contract),
-`WidgetDescriptor.Sizing` / `.SizeSets` (each kind's), `Themia.Core/Geometry/SizeFit.cs` (the host's
+`WidgetDescriptor.Sizing` (each kind's), `Themia.Core/Geometry/SizeFit.cs` (the host's
 side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `SizeFitTests`,
 `OnePathSizingTests` (the guard). How a kind is converted: docs/WIDGET-KIT.md 17.
 
 - **[S-2438]** A kind states its sizes as a pure function of its config (`WidgetDescriptor.Sizing`,
   a `WidgetSizing`): `Min`, `Natural` and `Max` (`SizeDip`, a width and a height) in DIPs of the
   card's box, its header included, at widget scale 1 and with the kind's default header. An axis
-  whose Min equals its Max is fixed. A size is fitted into the sizing axis by axis: held to Min..Max,
-  a stepped axis on its nearest step (`WidgetSizing.Fit`).
-- **[S-2439]** An axis may take only steps (`SizeSteps`: `Base + n × Step` for n in
-  `MinCount..MaxCount`; a list's n rows). With `Count` set the axis follows the config: its size is
-  the config's step, whatever is asked of it.
-- **[S-2440]** **A kit list that states its rows** (`IKitRows` on its config: `Rows`, 1..20, default 6;
-  `Lines` per row, 1 or 2): its height is its rows (28 or 40 each, [S-6704]) from the card's top edge to its foot
-  edge, a table's titles over them and the add footer (28) under them where it adds in place, each whole grid cells
-  ([S-14100]: no inset over or under the rows, no cell left over), stepped by a row
-  and following the config's rows; its width 220..520, a new one 300 (`KitSizing`). Dragging its
-  bottom edge sets Rows ([S-2442], `KitSizing.SizeSets`); more items than rows scroll inside them (the
-  wheel as before). Its plan is the same at every size in its range (`KitChoices.Rows`: one column,
-  its lines, every field it has on, the text cut with its ellipsis; a check list's add row and done
-  heading always, its due in the short words). Its menu has Rows and, where its rows can have a second
-  line (`IKitRows.OffersLines`: the config says so, its look's way or never for fixed lines), Lines per
-  row (`KitMenuLines.Rows`). Tests `KitRowsTests`.
+  whose Min equals its Max is fixed. A size is fitted into the sizing axis by axis: held to Min..Max
+  (`WidgetSizing.Fit`); no axis has steps, every one takes every grid cell in its range ([S-14500]).
+- **[S-2439]** *(Retired 2026-11-20 by [S-14500]. Owner: "the widgets should not have the size increments anymore but
+  should be incrementable in steps of one". An axis no longer takes only steps: `SizeSteps` (`Base + n × Step`, a
+  list's n rows) and the axis that followed its config's count are gone.)*
+- **[S-2440]** **A kit list that states its rows** (`IKitRows` on its config: `Rows`, 1..20, default 6; `Lines` per
+  row, 1 or 2): its natural height is its rows at their optimal (each row's 28 or 40, [S-6704], grown to whole grid
+  cells, [S-14500]) from the card's top edge to its foot edge, a table's titles over them and the add footer under
+  them where it adds in place; its least is one row; its width 220..520, a new one 300 (`KitSizing`). The card resizes
+  by one grid cell: it shows as many rows as hold their optimal and they stretch evenly to fill it, the add row and
+  the titles with them ([S-14500]); a resize stores no Rows ([S-14502]), a changed Rows puts the card at its new
+  natural ([S-14503]); more items than the rows shown scroll inside them (the wheel as before). Its plan is the same
+  at every size in its range (`KitChoices.Rows`: one column, its lines, every field it has on, the text cut with its
+  ellipsis; a check list's add row and done heading always, its due in the short words). Its menu has Rows and, where
+  its rows can have a second line (`IKitRows.OffersLines`: the config says so, its look's way or never for fixed
+  lines), Lines per row (`KitMenuLines.Rows`). Tests `KitRowsTests`, `OptimalStretchTests.S14500_`.
 - **[S-11580]** **The kit has one path** (2026-11-12, once the calendar's agenda stated its rows): every
   kit plan is the rows a list states (`KitChoices.Rows`, never null; a list naming none is planned as
   the kit's default six rows of one line), in every look (rich, lined, table, schedule, check). The
@@ -4646,13 +4646,12 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   went with the legacy kinds ([S-11800]). Tests `KitRowsTests`.
 - **[S-11400]** **Three lines, as a setting, and two columns, the card's.** A kit list whose rows have a preview may
   offer three lines a row (the title, the subtitle, the preview; 56 a row, `KitMenuLines.Rows(..,
-  mostLines: 3)`, `KitSizing.ClampLines(lines, most)`); a list that grew columns with its width has
-  **columns** (`IKitColumns`, 1 or 2) that are the card's width (owner, 2026-11-20: "Anything that's just 'how many
-  of the same item' ... follows the card's size", [S-14410]; the Columns line is gone): a width that holds two
-  columns' least (440 for the kit's 220) shows two, split evenly, a narrower one one (`KitSizing.ColumnsFor`, stored
-  by a resize, `KitSizing.SizeSets`); two columns' natural is twice one's (600), the least stays one column's so a
-  narrower drag goes back; its rows count down each column, the height follows them as before. Tests
-  `KitRowsTests.S11400_`.
+  mostLines: 3)`, `KitSizing.ClampLines(lines, most)`); a list that grows columns with its width (RSS) has
+  **columns** that are the card's width (owner, 2026-11-20: "Anything that's just 'how many of the same item' ...
+  follows the card's size", [S-14410]; no Columns line and no stored count, [S-14502]): a width that holds two
+  columns' least (440 for the kit's 220) shows two, split evenly, a narrower one one (`KitSizing.ColumnsFor`, read
+  from the card's box as it is laid out); the least and the natural stay one column's; its rows count down each
+  column, the height follows them as before. Tests `KitRowsTests.S11400_`.
 - **[S-11401]** **A table that states its rows** (`KitRowLook.Table` with `KitChoices.Rows`): one line
   a row, every one of the user's columns in the user's order (`KitPlanner.TableColumns`: the title, the
   time and the badge at their widths, the subtitle and the preview sharing the rest), its column titles
@@ -4667,12 +4666,9 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   second) as chosen; its pages hold the rows its height was made for, a day's
   heading taking a row. Tests `KitRowsTests.S11541_`.
 - **[S-2441]** Every kind's sizing holds, for its defaults and every style: sizes positive and finite,
-  Min ≤ Natural ≤ Max on both axes, a stepped axis's Min, Natural and Max
-  on its steps and its count in range (`WidgetSizing.Problems`, checked over the registry).
-- **[S-2442]** A kind whose size follows a count answers, for its config and a wanted size, with the
-  config that size means (`WidgetDescriptor.SizeSets`: a list dragged to five rows tall has Rows = 5).
-  It returns a copy and never changes the config it is given. A kind has the hook exactly when one of
-  its axes follows its config.
+  Min ≤ Natural ≤ Max on both axes (`WidgetSizing.Problems`, checked over the registry).
+- **[S-2442]** *(Retired 2026-11-20 by [S-14502]: no kind's size follows a count. `WidgetDescriptor.SizeSets`, the
+  config a size meant (a list dragged to five rows tall had Rows = 5), is gone; a resize stores the rect alone.)*
 - **[S-2443]** *(Retired by [S-11800] on 2026-11-12, once every kind was converted: `WidgetSizing.Legacy`,
   `IsLegacy`, `LegacyFloor`, `SizeDip.Unbounded` and the shrink-only list in `WidgetSizingTests` are gone.)*
 - **[S-11800]** **One path.** Every kind states a bounded range ([S-2438], relaxed by [S-12411]), never under the [S-08] floor,
@@ -4696,8 +4692,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   default step, its natural and least size are its content's, and it scales with its card). A count of identical
   items (a forecast's days, a calendar's hours, days and event lines, a week planner's days, a habit's history
   days, a stopwatch's laps, a gallery's columns and pictures, a contacts grid's columns, a list's columns) has no
-  menu line: the axis it repeats along steps by one item (no leftover, WR-6) and a resize stores the count its box
-  holds ([S-2442], `SizeSets`; a free picture layout counts its box instead). What stays a setting: a list's
+  menu line and no stored count: the card shows as many as hold their optimal size along the axis they repeat and
+  they stretch to fill it ([S-14500], [S-14502]; a free picture layout counts its box too). What stays a setting: a list's
   **Rows** (and where a kind's own rows line says Rows), lines per row, which facts or fields, what the items are, a
   chart's span, sort orders, sources, and a mode a count also chose (hours or days stays, its count goes). How many
   items a widget loads or keeps (a feed's articles, an agenda's events, the clipboard's entries, a gallery's
@@ -4711,13 +4707,13 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   with that axis's cursor, and on a widget fixed both ways the corners keep their brackets as marks
   but take no press (`EditMarkers.Moves`, `WidgetCard.ApplyResizable`).
 - **[S-2445]** **Resizing** ([S-31a]): the moved edge also stops at the sizing's Min
-  and Max, and on a stepped axis lands on the nearest step, which replaces the grid as its snap
+  and Max and lands on the grid's nearest line between, one cell at a time on every axis ([S-14500])
   (`GridGeometry.Settle(…, limits)`); a fixed axis does not move. Shift+arrows obey the same, a press
-  on a stepped axis being one step (`KeyboardNudge.Resize(…, limits)`).
+  one cell (`KeyboardNudge.Resize(…, limits)`).
 - **[S-2446]** **Layout on any display.** Geometry stays fractions of the monitor ([S-01], [S-02]).
   Where the stored rect comes out outside the sizing in DIPs on this display (another monitor, DPI or
   scale, a changed config), the card is painted in the stored rect fitted into the sizing, anchored at
-  its top-left (an axis that follows the config at the config's step), then kept in reach as any rect
+  its top-left, then kept in reach as any rect
   ([S-09]) (`SizeFit.Shown`, in `PositionCard`; the card's `LiveRect` is that box, so
   the markers, a move and a resize start from what is seen). Being shown never rewrites the stored
   rect; a gesture (a move, a resize) or a config change does.
@@ -4727,16 +4723,15 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   every `Mutate`; a widget first seen, loaded or brought back by an undo, is noted as it is, and at
   start only after the language, the regional formats and the icon size are in force, which sizings
   read; on a display whose metrics have not settled the refit waits for them, [S-854]). A
-  resize of a kind whose size follows a count stores the config that size means with the rect, in
-  one mutation and one undo step; while it is dragged the view already shows that config
-  (`WidgetCard.LandResize`, `SizeFit.ConfigFor`; the keyboard's run of resizes lands the same way).
+  resize stores the rect alone, no config with it ([S-14502], `WidgetCard.LandResize`; the keyboard's run of resizes
+  lands the same way). A change that moves only the natural size on an axis puts the card at its new natural there
+  ([S-14503]).
 - **[S-11807]** **On the grid, whole cells** (owner's report 2026-11-15: "the widgets should always
   perfectly align to the grid in width and height"). The grid is always on ([S-06]): every widget's cell
   is whole grid cells on both axes, a desktop icon's too ([S-11875]). A kind's sizing stays its content's
   ([S-2438]); the host fits it to the grid (`GridFit.Axis`, through `SizeFit.Limits`): Min rounds up (never under one cell), a free Max down but never under the
-  rounded Min (a range inside one cell becomes one fixed size), a stepped axis keeps its steps each rounded
-  up, a resize landing on the step whose rounded size is nearest and storing the largest step its cells
-  hold (`AxisLimits.Holds`); the config's step stands rounded up. The gap and the content scale are inside
+  rounded Min (a range inside one cell becomes one fixed size), and every whole cell between is a size the axis takes
+  ([S-14500]). The gap and the content scale are inside
   the cells. The content gets the spare room under a cell and lays it out as it lays out any size in its
   range. So the painted box ([S-2446]), a resize, a Shift+arrow, a refit ([S-2447]), a new widget (its Natural rounded up) and a display, DPI or scale change
   all give whole cells; a widget standing on a grid line ends on one. Positions stay the gesture's (the grid,
@@ -4784,66 +4779,85 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   still show exactly the gap), so a card's edge and the grid's line share their pixels at gap 0
   (`GridFit.LineDip`). The box round touching cards (`CardJoins.Frame`) is what Liquid glass draws their one
   shape from ([S-2123]). Tests `CardPaintTests.S11810_the_box_round_several_cards_is_round_their_cells_on_the_grids_lines`.
-- **[S-14100]** **A card holding items is exactly as tall as its whole items** (owner, 2026-11-20: "now the weather
-  forecast widget always has one block space at the bottom. this should obviously not be"; "same for the task widget,
-  there is also a one block space at the bottom now. why is that?"; "right now all of the widgets have a space on the
-  bottom, this means their size steps are not in sync with the item heights. fix this if you are not already fixing
-  it."; docs/WIDGET-RULES.md WR-5, WR-6). The cause: a row is whole grid cells, at least those its natural height takes
-  (a row of 28: three, [S-12830]), while a kind stated its height in DIPs (the inset, the rows of 28, the inset) and the
-  host rounded that sum up to whole cells, so the card held a cell or two more than its whole rows, left at its foot
-  (the forecast's five days: 164, painted 170, its rows 150; the tasks' six and the add row: 220, its rows 210). Now a
-  kind whose content is repeated items states its steps **in whole cells, part by part** (`SizeSteps.InCells`,
-  `WholeCells`): the natural length of its item and of each part that stands with the items (a tool line with the
-  card's inset over it, `LineRules.BandOver`; column titles, `KitPlanner.TitlesOver`; a search box; an add row), each
-  grown to whole cells of the card's grid as its view lays it, the rows from the card's top edge to its foot edge with
-  no inset over or under them; the sizing's DIPs are those on the default grid (a row step 30), and the host lays the
-  axis on its display's grid (`SizeFit.Limits`: the parts and the item counted in cells of the axis's own pitch by the
-  host's one count, [S-14269], each step that many of the screen's lines), so on any pitch the card is exactly its parts and n whole
-  items, and a resize lands only there (`AxisLimits.Range`, `Holds`; the config a resize stores counts the items its
-  cells hold, `SizeFit.ConfigFor`). Items that grow together (a month's weeks and days) step
-  by one cell for each of them (`SizeSteps.Growing`), the month with titles by a chip line in every week
-  (`SizeSteps.Lined`). So: every kit list (`KitSizing.Steps`: its rows, a table's titles, the add row, a kind's own line
-  over its rows, as the screen time apps' day), the single metrics' one row (`MetricRules.HeightSteps`, [S-14600]), the forecast's
-  rows, the contacts (the search box and the titles one part), the habits' rows and add row, the mixer, the week
-  planner (a day's heading and its rows; its width a day's column of whole cells a step, the days following it,
-  [S-14410]), the folder's list and table ([S-14102]) and the
-  month ([S-14101]). Empty stated rows (a list with fewer items than its rows) still stand at the foot as rows ("this is
-  fine if it happens"); a part row or leftover cells never do. Tests `NoLeftoverTests.S14100_` (Core: the steps on
-  pitches 10, 9.974 and 8, every step whole items; a resize's config), the modules' `NoLeftoverTests.S14100_` (the
-  forecast at every day count and lines, tasks, a single metric, a ready-made group), `WidgetSizingTests`; renders judged by
-  `scripts/item-check.py` (its leftover rule and the `steps` size set, `SizeFit.CheckedSteps`).
-- **[S-14269]** **A step in cells is what the host lays, axis by axis** (owner, 2026-11-19, WR-6: "they should be designed
-  so that they are 3 blocks high or wide"; the coordinator, 2026-11-20). One count of an axis's whole cells
-  (`GridCells.Up`: a length over the axis's own pitch, rounded up, float noise forgiven, at least one) is what the host lays
-  a widget's box in (`GridFit.Up`, `GridFit.Cells`) and what a sizing's step in cells takes on that axis on a display
-  (`SizeFit.Limits`: the length over the screen's DIPs along the axis times its lines) and on the default grid (the
-  sizing's DIPs, `WholeCells.On`). Before, both axes of a step were counted in the columns' pitch with a fiftieth of a
-  cell's slack while the host counted each axis in its own with none: on 1536 × 864 a box 100 tall was eleven cells for a
-  step and ten rows for the host, on 1366 × 768 a small icon's 60 across six cells for a step and seven columns for the
-  host, so a fence's whole boxes could not be stated as steps ([S-14263]). Unchanged where the pitches are 10 (1080p, the
-  owner's 2560 × 1440 at 100 %) and on the owner's 2560 × 1440 at 150 % (9.98 across, 10 down) for every kind's parts; a
-  display whose rows are under 10 DIPs (1366 × 768, 1024 × 768, 2880 × 1800 at 175 %: 9.97 to 9.99) lays a row of two
-  lines (40) in five of its rows, as the host lays a box of 40, where it took four. A view still lays its items in its
-  card's one pitch (`ItemGrid`, its width over its columns, `SizeFit.Grid`) with a fiftieth's slack and stretches them to
-  the card's whole cells. Tests `StepCellsTests.S14269_` (the two displays above, the owner's two, 4:3, 16:10 and 3:2,
-  each length a kind steps by against the host's box of it).
-- **[S-14103]** **A loaded card is fitted to its steps** ([S-14100]): a card stored before its kind's steps were whole
-  cells is painted fitted to them ([S-2446]) and, at the first refit on settled metrics after a start, its stored rect
-  is fitted to its nearest step on the display that shows its view (`SizingNotes.NoteAll(state, fit: true)`, the
-  existing refit, [S-2447]), one log line each ("… fitted to its steps: old -> new"); an undo still notes a widget as it
-  is. Tests `SettledMetricsTests.S14103_`.
+- **[S-14100]** *(Retired 2026-11-20 by [S-14500]. Owner, 2026-11-20: "actually, the multiple of its children size
+  should be relaxed, also that the size of the items can only be a defined block size, in general they should try to
+  have a fixed block size but dont have to. for you to understand why i am changing this back again, if the widgets
+  only have steps in increments of four or six for example, you cannot properly align them. lets not limit the user in
+  the alignment. the items should have an optimal size and then they may stretch a little to fill up the remaining
+  space. the widgets should not have the size increments anymore but should be incrementable in steps of one. does
+  this make sense?" A card holding items was made exactly its whole items by steps in whole cells, part by part, so it
+  could only be four or six cells and more; that is gone with what existed for it: `SizeSteps.InCells`, `WholeCells`,
+  `Growing`, `Lined`, `KitSizing.Steps`, `MetricRules.HeightSteps`, `SizeFit.ConfigFor` and `CheckedSteps`, the item
+  check's whole-cell rule and `NoLeftoverTests`. What it fixed stays fixed: the items stretch to fill the card to its
+  foot, nothing left over under the last (WR-5), on any whole cells the card has.)*
+- **[S-14269]** *(Retired 2026-11-20 by [S-14500]: there are no steps in cells left to count. The host's one count of
+  an axis's whole cells stays (`GridCells.Up`: a length over the axis's own pitch, rounded up, float noise forgiven,
+  at least one; `GridFit.Up`, `GridFit.Cells`); `WholeCells.On` and `StepCellsTests` are gone.)*
+- **[S-14103]** *(Retired 2026-11-20 by [S-14500]: a card has no steps to be fitted to. A loaded card of any whole
+  cells keeps its size, painted fitted into its sizing as any ([S-2446]); `SizingNotes.NoteAll(state, fit: true)` and
+  its "fitted to its steps" line are gone. Tests
+  `SettledMetricsTests.S14500_a_loaded_card_of_any_whole_cells_keeps_its_size`.)*
 - **[S-14104]** **A refit keeps joined cards joined** (owner, 2026-11-19: "the items have no spacing between them";
-  [S-2240]: cards whose cells meet join). A refit fits a card at its top-left ([S-2447]), so where its stepped axis
-  shrinks or grows (a loaded card fitted to its whole rows, [S-14103]; a config that changed its rows or days)
-  its bottom or right edge moves: every card of the view whose top (left) edge lay on that edge, overlapping along it,
+  [S-2240]: cards whose cells meet join). A refit fits a card at its top-left ([S-2447]), so where an axis shrinks
+  or grows (a config that changed its least, or its rows and so its natural, [S-14503]) its bottom or right edge
+  moves: every card of the view whose top (left) edge lay on that edge, overlapping along it,
   and every card on the far edge of one of those, along the same axis, moves with it by the same amount, in the same
   mutation and undo step (`RefitJoins.Follow`, from `SizingNotes.Refit`), so what was joined stays joined; nothing else
   moves (a card beside the one that refit keeps its place). The moves are whole grid cells (the edge moved by whole
   cells). A move that would take a card past the view's allowed area (the work area: never under a taskbar, [S-841]) or
   into a card it did not overlap before is kept back whole, the cards staying where they were. One log line a group
   (moved, or kept and why). A desktop icon never joins ([S-11880]) and never follows. Tests `RefitJoinsTests.S14104_`
-  (a clock under a forecast fitted from 170 to 150 moves up 20 and still touches; a card beside the week planner
-  follows its stepped width; a chain of three; a config's rows; a move past the work area or into a card kept back).
+  (a config that takes rows away pulls the card under it up; one that adds rows moves it down with the list's foot,
+  [S-14503]; a chain of three; a move past the work area or into a card kept back).
+- **[S-14500]** **Items have an optimal size and stretch a little; a widget steps by one cell** (owner, 2026-11-20:
+  "actually, the multiple of its children size should be relaxed, also that the size of the items can only be a
+  defined block size, in general they should try to have a fixed block size but dont have to. for you to understand
+  why i am changing this back again, if the widgets only have steps in increments of four or six for example, you
+  cannot properly align them. lets not limit the user in the alignment. the items should have an optimal size and then
+  they may stretch a little to fill up the remaining space. the widgets should not have the size increments anymore
+  but should be incrementable in steps of one. does this make sense?" docs/WIDGET-RULES.md WR-6, which it replaced;
+  [S-14100], [S-14269], [S-14103], [S-2439] and [S-2442] retired). Every axis of every kind resizes by one grid cell
+  between its Min and its Max: a sizing is its Min, Natural and Max, no steps (`WidgetSizing`;
+  `OnePathSizingTests.S14500_` fails on a source naming the steps' vocabulary again). A repeated item (a list's row, a
+  fact row, a forecast's day, a month's week or day, an hour, a tile, a lap) has an **optimal size**: its natural
+  length grown to whole cells of the card's grid (`ItemStretch.Optimal`: a row of 28 is 30 on the default grid, one of
+  40 is 40). Along the axis it repeats the card shows as many items as hold their optimal (`ItemStretch.Count`: the
+  room over the optimal, rounded down, at least one) and they share the room evenly, every edge on a whole device
+  pixel (`RowReach`, `ItemStretch.Reach`, `Rows`, `RowsAbove`, `Columns`), touching, from the card's first edge to its
+  last, never under their optimal and less than one more item over it; what stands with them (an add row, column
+  titles) stretches as they do (`RowsAbove`'s foot); text never stretches. A list with fewer items than the card holds
+  keeps its empty rows at the foot (`ItemStretch.SpareRows`, WR-5). A box short of one item's optimal (a content scale
+  under 1) lays the items at their natural. A kind's natural is its stated count at the optimal (a list's Rows times
+  its row), its least one item. So a list ten cells tall of rows of three shows three rows of ten thirds, one eleven
+  cells tall three of eleven thirds, none left over. A view tells the item check each family row's optimal
+  (`ItemDump`'s `o`). Tests `OptimalStretchTests.S14500_`, `ItemStretchTests.S14500_`, `WidgetSizingTests.S14500_`
+  (Core: every size in range is its own; module host: `S14500_every_kind_resizes_by_one_grid_cell_on_both_axes`),
+  `OptimalStretchKindsTests.S14500_` (tasks, the forecast, a ready-made group), `GridFitTests.S14500_`,
+  `SizeFitTests.S14500_`; renders judged by `scripts/item-check.py` (items alike, touching, edge to edge, nothing left
+  over, none under its optimal; its `steps` size set walks one to five cells either side of the natural on each axis
+  and odd heights of 11, 13 and 17 cells, `SizeFit.CheckedCells`).
+- **[S-14501]** **A fence steps by one cell** ([S-14500]): its box takes any whole cells from its title bar's rows and
+  one icon box down and `MinAcross` boxes across (rolled up, its title bar alone: `WidgetSizing.KeepsHeight`); its
+  boxes stand on the desktop icon grid from the body's start (`FenceGrid.Layout`, `DesktopFences.Lay`, [S-13040]), and
+  the room past the last whole box at the far edge and at the foot stays empty, a desktop icon keeping Windows' look
+  (the owner's exemption in docs/WIDGET-RULES.md). `FenceGrid.Steps` is gone. Tests
+  `FenceGridTests.S14501_a_fence_takes_every_cell_its_title_bar_rows_and_its_boxes_from_the_bodys_start`.
+- **[S-14502]** **A count of identical items follows the card as it is laid out, nothing stored** ([S-14410],
+  [S-14500]). How many days, hours, weeks, laps, columns or tiles stand is read from the card's box while it is laid
+  out (the forecast's days, the week planner's days, the calendar's week days and hours, the stopwatch's laps, the
+  gallery's and contacts grid's cells, RSS's columns, the month's weeks), never stored by a resize: the config fields
+  that only held such a count are gone (the forecast's `Days`, the week planner's `Days`, the calendar's `WeekDays`,
+  `DayHours`, `MonthLines` and `WeekHours`, the contacts' `GridColumns`, the gallery's `Columns`, the stopwatch's
+  `LapRows`, the video stream's `Span`, RSS's `Columns`), and a state file that still has one loads with the key
+  dropped loudly (`AppStateStore.DropUnknownKeys`); no migration. Tests
+  `CalendarHostTests.S11146_S14502_a_stored_count_the_card_now_holds_is_dropped_loudly`, the fixture tests.
+- **[S-14503]** **A list's Rows puts the card at its natural** ([S-2447], [S-14500]): a config change that moves the
+  sizing's Natural on an axis and leaves its Min and Max there as they were (a list's Rows, which decide its natural
+  height) puts the card at its new Natural on that axis, at its top-left (`SizeFit.Refit` with the sizing before, from
+  `SizingNotes`); a card joined under it follows its foot ([S-14104]). Any other change fits the stored rect into the
+  new sizing as before. Tests
+  `WidgetSizingTests.S2447_S14503_a_config_change_of_rows_puts_the_card_at_its_new_natural_at_its_top_left`,
+  `RefitJoinsTests.S14104_S14503_`.
 - **[S-2449]** *(Retired 2026-11-20. Owner: "the size should not be settable, it is set by the size of the widget.
   do this for the other widgets too". The readout size setting is gone with everything that existed for it:
   `ReadoutSize`, `IReadoutSized`, `ReadoutSizes`, the shared setting `readoutSize`, `KitMenuLines.ReadoutSize`, the
@@ -4862,12 +4876,10 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   default, side by side; `--sizes range|WxH,..` picks. The showcase views ([S-1810]) hold a kind at min,
   natural and max; the family render walk (`--family-check`) walks the range, its page sized for the
   largest. A store scene ([S-1074]) paints a kind fitted into its sizing as the desktop does ([S-2446]).
-- **[S-11601]** **A render draws a box as a resize to it leaves the widget** (`SizeFit.Resized`): the
-  config that size means (`SizeFit.ConfigAt`, the kind's `SizeSets`, [S-2442]: a list's rows, a pick's
-  facts, the forecast's days) and the box that config is painted at (an axis that follows the other, as
-  a camera's height its width, takes its config's size). So a count-stepped kind's min is its fewest
-  rows and its max its most, none cut off and none empty, in `--widget-png`, the showcase and the
-  family walk alike. Tests `WidgetSizingTests.S11601_`, `ShowcaseViewsTests.S11601_`.
+- **[S-11601]** **A render draws a box as a resize to it leaves the widget**: the box fitted into its sizing as a
+  resize on the desktop leaves it (`SizeFit.Of(config).Fit`), the config unchanged ([S-14502]: no size means a
+  config). So a kind's min, natural and max are drawn as the desktop draws them, in `--widget-png`, the showcase and
+  the family walk alike. Tests `ShowcaseViewsTests.S11601_`.
 - **[S-11602]** A preview state fills in sample data over the card's own config (its counts, its style),
   never a fresh default one, so it draws what the box was sized for.
 - **[S-11603]** A preview state that swaps in items of its own whose size differs (as the retired Shortcuts
@@ -4924,11 +4936,12 @@ its content. What is left of this section is how a view measures the fixed parts
   the widgets"; 2026-11-16: "relax sizing constraints in general even more. especially maximum sizes should not
   really be a thing as this is for the user to decide"). A kind states the range its content needs ([S-2438]); the
   descriptor hands out that range relaxed (`SizeStretch.Relax`, through `WidgetDescriptor.Sizing`, the one sizing
-  every caller sees): on every axis its config does not step (a fixed one included) Max is raised to
+  every caller sees): on every axis (a fixed one included) Max is raised to
   `SizeStretch.Ceiling` (3840 DIPs, a 4K display's width: finite, so a sizing stays one, [S-2441], and larger than
   any work area at scale 1), never lowered where the kind stated more; the work area is the bound (`SizeFit.Limits`
-  holds a free axis to the screen, the resize stops at it). Min and Natural stay the content's; a stepped axis (a
-  list's rows, a count the config holds) keeps its steps; the room None (the desktop icon's cell) keeps its size.
+  holds a free axis to the screen, the resize stops at it). Min and Natural stay the content's; a height the kind
+  keeps (`WidgetSizing.KeepsHeight`: a fence rolled up to its title bar) and the room None (the desktop icon's cell)
+  keep their size.
   The room's other values (Standard, List, Picture: `WidgetSizing.Room`, set where the sizing is made) say what the
   parts are; how far each part stretches is [S-12410]'s (rows and charts fill, text never). Size still
   never decides what is shown. Tests `WidgetSizingTests.S12411_` (Core: the rule; module host: every kind and style
@@ -5897,8 +5910,8 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   the day or runs past it is squared off with a chevron on that side, and from 200 px names its days
   ("Oct 6 – Oct 9"). Items past the bars share the last line ([S-2706]); a box too short for one bar
   keeps the one shared chip line, and one too short for that has no band (the hover lists them).
-- **[S-2719]** Week days (`CalendarRules.WeekFirst`, `WeekStep`): the week shows `weekDays` columns
-  ([S-3637]) from the first day of the week or from today. Its periods are laid end to end from
+- **[S-2719]** Week days (`CalendarRules.WeekFirst`, `WeekStep`): the week shows as many day columns as its card's
+  width holds ([S-3637], `CalendarSizing.WeekDaysIn`) from the first day of the week or from today. Its periods are laid end to end from
   today (from today) or from the start of today's week, one step apart: its own length from today,
   else whole weeks (5 days step Monday to Monday, 14 days two weeks). The period on screen is the
   one holding the anchor, so following today keeps the next days rolling, a day selected inside the
@@ -5954,13 +5967,12 @@ for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `Offic
   (`CalendarRules.ViewRange`). The menu offers Today, Today and tomorrow, 3, 7 and 30 days, and
   Custom…, which asks for a number of days of its own; the length (`agendaCount`) still caps the entries within
   it. A value out of range is brought inside it at load and logged.
-- **[S-3637]** The week's own days (`CalendarWidgetConfig`): `weekDays` (1–14, 7) and `weekFrom`
-  (`week`, the regional first day of the week, or `today`); a working week is 5 from the week
-  start, the next days any count from today ([S-2719]). Setting: "Starts on" (First day of the week
-  (Monday) or Today); how many days is the card's width (a resize sets `weekDays`, [S-14410]: no "Days shown"
-  line since 2026-11-20). It overrides the regional week start for this widget only and
-  stores no `weekStart`; out-of-range or unknown values fall back at load (days clamped, an unknown
-  first day the week start).
+- **[S-3637]** The week's own days (`CalendarWidgetConfig`): `weekFrom` (`week`, the regional first day of the week,
+  or `today`); how many days (1–14, a new one 7) is the card's width as it is laid out (`CalendarSizing.WeekDaysIn`,
+  [S-14410]: no "Days shown" line since 2026-11-20; [S-14502]: no `weekDays` stored, a state file's is dropped
+  loudly); a working week is 5 from the week start, the next days any count from today ([S-2719]). Setting: "Starts
+  on" (First day of the week (Monday) or Today). It overrides the regional week start for this widget only and
+  stores no `weekStart`; an unknown first day falls back to the week start at load.
 - **[S-3640]** One kind, **Calendar** (`Calendar`, 71, `CalendarWidgetConfig`, discriminator
   `calendar`, 340×260, glyph E787, Popular and Calendar & mail's first row), with five styles
   ([S-6000]; `CalendarStyle`, stored as `"style"`, menu order): **Month** (the default, E787),
@@ -5974,7 +5986,7 @@ for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `Offic
   ([S-3621]) and publishes the new range (an agenda clears its own, [S-3625]); the selected day and
   the hovered event keep working across calendars of any styles on a view ([S-3620]..[S-3624]).
 - **[S-3641]** The config holds what every style shares and the union of the styles' own fields
-  (`weekDays`, `weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
+  (`weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
   (`Period`: a month, day or year is the week start alone). The menu shows only the
   current style's rows (`CalendarWidgetConfig.ShownSettings`, [S-6070]): Week: "Starts on" (its days are the card's, [S-14410]);
   Agenda: its date range and "Agenda events"; Month, Day, Year: none; then birthdays for every style.
@@ -7192,7 +7204,8 @@ single metric of its own (METRICS, [S-14604]). Tests `SystemAtomsTests`
   12 inset on every side; they only grow with the card (`MeterSizing.Columns`, `Tiles`, `Graphs`). A
   graph cell's figure stands over its history's top corner, so every cell draws both at every size.
 - **[S-11006]** **Rows of items** (the GPU's engines): one 28 row per item at a fixed count, 200..420 wide
-  (`MeterSizing.ItemRows`); the height whole cells a row, growing by a cell a row together ([S-14100]).
+  (`MeterSizing.ItemRows`); the height the rows at their optimal, every cell taller too, the rows stretched alike
+  ([S-14500]).
 - **[S-11007]** *(Retired by [S-14604]: a fact is a single metric of its own; no card of picked facts.)* **Facts** keep the header and show fact rows alone, no hero (the reading atom is the
   hero): which of the kind's facts and in what order is the config's pick (`FactsConfig.Facts`, keys;
   a new one the kind's first four). Its height is 36 + 28 a fact + 12, stepped by the count, 200..420
@@ -8244,21 +8257,22 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   its text stands about the inset under it, the same in every list; its rows run touching to the card's foot edge
   (`ItemStretch.Rows`: the view's height and the top inset; `KitPlanner.ListHeight`). Under a tool line, a search box
   or column titles the rows start under them. A list keeps a place for every row its config states ([S-12800]): fewer
-  items leave the foot's rows empty, which is fine; a space at the top never is, nor a part row or leftover cells under
-  the last row ([S-14100]). `scripts/gap-check.py` audits the ink
+  items leave the foot's rows empty, which is fine; a space at the top never is, nor a part row or leftover room under
+  the last row ([S-14500]: the rows stretch to the foot). `scripts/gap-check.py` audits the ink
   ([S-12831] the checks).
-- **[S-12830]** **Items are whole grid cells** (owner, 2026-11-19: "items inside widgets should be designed in a way
+- **[S-12830]** **Items are whole grid cells** *(amended 2026-11-20 by [S-14500]: the whole cells are an item's
+  optimal, from which it stretches to fill the card; the kind's size no longer steps by them)* (owner, 2026-11-19: "items inside widgets should be designed in a way
   that they match the size of the grid on the desktop, for example they should be designed so that they are 3 blocks
   high or wide, that means that a widget that is 10 blocks hight should not show 4 items because then the items would
   have an uneven size which i dont want. do this for all the widgets."; docs/WIDGET-RULES.md WR-6). Every repeated item
   (a list's row, a fact row, a day of a month) is a whole number of the desktop grid's cells along the axis it repeats,
   at least the cells its natural length takes (a row's 28: three), all alike; a view shows as many as its room holds at
   those sizes, never one squeezed in at less; never a cell above the first item or between two (WR-5), and since
-  2026-11-20 none left over under the last either: the kind's size steps are whole items ([S-14100]). The cell is the grid's drawn pitch on the card's display ([S-06b]: screen / columns, about 10,
+  2026-11-20 none left over under the last either: the items stretch to fill it ([S-14500]). The cell is the grid's drawn pitch on the card's display ([S-06b]: screen / columns, about 10,
   `GridGeometry.CellPitch`), in the card's content units: the card hands it to its view in `WidgetArea.Cell` and to
   any part under it (`IGridCellHost`, `ItemGrids.Of`); the one rule is `ItemStretch` on an `ItemGrid` (`Rows`/`Reach`:
-  the pitch and `RowReach.Shown`, the rows the room holds; `SpreadStack`'s growing rows in whole cells too). A kit
-  list's sizing steps by whole-cell rows from the card's edge (`KitSizing.Steps`), an add row is one whole-cell row.
+  the pitch and `RowReach.Shown`, the rows the room holds; `SpreadStack`'s growing rows too). A kit list's natural
+  is its rows at their optimal from the card's edge (`KitSizing`), an add row one row more.
   Tests `ItemStretchTests.S12830_` (10 cells: three rows of three, never four of 2.5; the pitch follows the display;
   the left-over cells at the foot), `KitTests`, `KitRowsTests`, the folder's and removable drives' pitch tests.
 - **[S-12831]** **The item check, the layout dump and the pointer renders** (docs/WIDGET-RULES.md WR-1..WR-6, WR-12,
@@ -8267,10 +8281,9 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   row, a month's day cell) as the box it shows in the card, grouped by the panel that lays it, and the ink outside every
   item. `scripts/item-check.py` judges them for every kind, every state, at its range and at desktop sizes: the items
   of a column reach the card's left and right edges (WR-3), touch along the axis they repeat (WR-2), the first stands
-  on the card's top edge or right under what stands over it (WR-1, WR-5), each is whole cells and all alike (WR-6;
-  across, the card's whole cells shared to a cell, the last taking the part cell), none is cut, and nothing is left
-  over under the lowest item but whole empty rows of its list's pitch ([S-14100], WR-5; drawn at the kind's first
-  height steps too, `--sizes steps`); it writes
+  on the card's top edge or right under what stands over it (WR-1, WR-5), all alike and none under its optimal
+  (WR-6, [S-14500]: a family row's `o` in the dump), none is cut, and nothing is left over under the lowest item but
+  a device pixel's rounding (WR-5; drawn cell by cell round the natural too, `--sizes steps`); it writes
   `items.json` and `items.md` and exits 1 on any finding. `scripts/gap-check.py` judges the ink against the card's
   edges: the band over the first ink and under the last at most the inset (the padding inside an item, WR-3) and the
   4 DIP the measure may be off by, but where the card's items stand on its top edge (their boxes are the item check's);
@@ -8295,11 +8308,10 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day
-  cells tile the card (`MonthLayouts.Plan`): seven columns from the card's left edge to its right, each whole grid cells
-  (the width's whole cells shared as evenly as they go, the last column taking what is not a whole cell), the weekday
-  line ending on a grid line, the weeks under it, whole cells each and alike, as many of the six as hold a day's number
-  at whole cells (the anchor's week among them); the month's size steps by a cell a week and a cell a column, so the
-  weeks fill the card to its foot ([S-14101]). A cell is filled by its content: its
+  cells tile the card (`MonthLayouts.Plan`): seven columns from the card's left edge to its right sharing the width
+  evenly on whole device pixels (`ItemStretch.Columns`), the weekday line ending on a grid line, the weeks under it,
+  alike, as many of the six as hold a day's number at their optimal (the anchor's week among them), stretched to fill
+  the card to its foot at any cell ([S-14101], [S-14500]). A cell is filled by its content: its
   day's events as one-line chips under its number where it has room for a chip line (Outlook's month view: a span a
   bar in its calendar's colour, a meeting its dot, start and title; "+k" on the number's line), its dots where it has
   not, its number alone on a day of nothing; the number grows with the cell (as large as what the chips or dots leave of
@@ -9534,11 +9546,11 @@ times (`src/Widgets/Themia.Widget.<Family>`, each a `ThemiaWidgetFamily`, [S-690
 `MetricRulesTests` (Core), each family's, `SystemStateFixtureTests.S14606_`, `UnknownWidgetTests.S14606_`,
 `ReadyMadeGroupsTests`.
 
-- **[S-14600]** **Its size is its one row.** The card is one fact row in whole grid cells (WR-6) from its top edge to its
-  foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on the default grid), so its top and bottom spacing are
-  a list row's; its height has that one step (`MetricRules.HeightSteps`, never taller: the card hugs its content); a
-  metric drawing Line stands two such rows, its reading's and its line's (`MetricRules.HeightStepsFor`, `Rows`,
-  [S-14220]); its width 200 at least, a new one 240, relaxed past 420 ([S-12411]), each widened by the trend's room beside
+- **[S-14600]** **Its size is its one row.** The card is one fact row at its optimal (WR-6, [S-14500]) from its top
+  edge to its foot edge (`MetricRules.RowHeight`: the 28 row as whole cells, 30 on the default grid), so its top and
+  bottom spacing are a list row's; its natural and least height are that row, every cell taller too, the row stretched
+  to fill it (`MetricRules.SizingFor`); a metric drawing Line stands two such rows, its reading's and its line's
+  (`MetricRules.Rows`, [S-14220]), stretched alike; its width 200 at least, a new one 240, relaxed past 420 ([S-12411]), each widened by the trend's room beside
   the value (an arrow 28, `MetricRules.TrendRoom`; a line none, it is the band under the row, [S-14220]), so the name and
   the value keep theirs. Every kind states `MetricRules.SizingOf` its config; a placed metric switched to Line or back
   refits on the config change, and a ready-made group placed with Line metrics lays them two rows each, still touching
@@ -11784,20 +11796,15 @@ module's `FenceTests`.
   whole boxes across and down, at least one) and stands each item's icon on its cell in the fence's order (reading order,
   as many to a row as the body holds, `FenceGrid.Layout`, the one layout). There is no layout of a fence's items of its own.
   Tests `FenceGridTests.S13040_`, `FenceRulesTests.S13040_`.
-- **[S-14263]** **A fence is its title bar and whole rows of boxes, a picture too** (owner, 2026-11-20, WR-5: "now the
-  weather forecast widget always has one block space at the bottom. this should obviously not be"; 2026-11-19: "no this
-  is fine if it happens, but there should not be a space at the top"; [S-14100]). Its sizing steps by its icon boxes in
-  whole cells (`FenceGrid.Steps`, `SizeSteps.InCells`): across `MinAcross` boxes and more, down the title bar's rows and
-  one box and more (rolled up the title bar alone), the most past `SizeStretch.Ceiling`; counted as the host counts an
-  axis's cells ([S-14269]), every step is the host's whole boxes ([S-13040], `DesktopGrid.IconSize`) on any display. A
-  picture lays its cells on the card's grid as the host lays them on a display (`FenceGrid.OnGrid`: the title bar its
-  rows, a box whole cells), every cell it draws is one of its items (`ItemMark`) and the hairline under its title bar is
-  ink (a shape), so the item check judges a fence by its boxes: nothing over its first row but the title bar, the room
-  under its last row whole rows of boxes. Before, it reported no item and the gap check read a fence holding fewer icons
-  than its body has cells as a band under its ink (456 square: 341); a picture drew the title bar 28 and boxes 76 × 100.
-  Its boxes are desktop icons' cells (Windows' look, [S-13970], the owner's exemption), so a last row it does not fill is
-  Windows' icon grid's. Tests `FenceGridTests.S14263_`, `FenceTests.S10901_`; renders `--widget-png fence --state
-  sample|empty|many|rolledUp --sizes range`, judged by `scripts/item-check.py`.
+- **[S-14263]** **A fence is its title bar and rows of boxes, a picture too** (owner, 2026-11-20, WR-5: "now the
+  weather forecast widget always has one block space at the bottom. this should obviously not be"; 2026-11-19: "no
+  this is fine if it happens, but there should not be a space at the top"; amended 2026-11-20 by [S-14501]: its box
+  steps by one cell, `FenceGrid.Steps` is gone). A picture lays its cells on the card's grid as the host lays them on
+  a display (`FenceGrid.OnGrid`: the title bar its rows, a box whole cells), every cell it draws is one of its items
+  (`ItemMark`) and the hairline under its title bar is ink (a shape), so the item check judges a fence by its boxes:
+  nothing over its first row but the title bar; the room past its last whole box is the icon grid's, left empty
+  ([S-14501]). Before, it reported no item and the gap check read a fence holding fewer icons than its body has cells
+  as a band under its ink (456 square: 341); a picture drew the title bar 28 and boxes 76 × 100.
 - **[S-13041]** **One move, one drop computation** (the same quote): an icon moving over, into or out of a fence is the
   desktop's one move ([S-2008]: the card follows the pointer on the grid, the local grid lights where it lands; the icon's
   picture under the pointer and its whole ghost where it lands, drawn over the fence, [S-13046]); crossing
@@ -13288,11 +13295,11 @@ config, its page, setup and sync); the SDK's rules it is drawn by stay here. Tes
   column a day; nothing stacks and no column drops the start times.)*
 - **[S-11410]** **The planner states its sizes** (owner decision 2026-11-12): `Days` (1..7, default
   3) stand side by side, today first, each a column of 200 (`WeekPlannerRules.ColumnWidth`; its rows
-  carry the card's side inset, so the columns meet), the width stepped by a day's column in whole grid cells ([S-14100]:
-  the columns whole cells and alike) and following them; the days are the card's (2026-11-20, [S-14410]: dragging a
-  side edge sets them, no Days line); `RowsPerDay` (1..12, default 5) rows under each day's heading, the height the
-  heading (28) and the rows (28 each), whole grid cells each, stepped by a row (a new one 600 × 180); dragging the
-  bottom edge sets RowsPerDay (`WeekPlannerModule.SetRows`). Every event row has its start. Its menu has Rows per day
+  carry the card's side inset, so the columns meet), as many as hold a day's column at its optimal, sharing the
+  width alike ([S-14500]); the days are the card's (2026-11-20, [S-14410], [S-14502]: read from its width, no Days
+  line, none stored); `RowsPerDay` (1..12, default 5) rows under each day's heading, the natural height the heading and
+  the rows at their optimal (30 each on the default grid), every cell taller too, the rows stretched to fill it; a
+  resize stores no RowsPerDay ([S-14502]). Every event row has its start. Its menu has Rows per day
   first. Tests `WeekPlannerTests.S11410_`, `WeekPlannerTests.S5320_S14410_`, `WeekPlannerMenuTests`.
 - **[S-5322]** A day's rows (`WeekPlannerRules.Build`), each a Row block of 32 ([S-6711]): its
   events as a calendar day lists them ([S-570]: birthdays, all-day, then timed by start), today

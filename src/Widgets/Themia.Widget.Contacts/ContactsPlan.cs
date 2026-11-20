@@ -15,11 +15,11 @@ namespace Themia.Widget.Contacts;
 /// <param name="Aside">Compact rows carry the one field as their value.</param>
 /// <param name="Icon">The grid: a cell's monogram (48).</param>
 /// <param name="Pitch">A row's (a grid line's) height.</param>
-/// <param name="Rows">How many rows (grid lines) show; the rest is a scroll away.</param>
+/// <param name="Rows">How many rows (grid lines) show: what the card holds; the rest is a scroll away.</param>
 public readonly record struct ContactsLayoutPlan(ContactsLayout Layout, int Columns, double ColumnWidth, int Lines, bool Avatar, bool Aside, double Icon, double Pitch, int Rows)
 {
-    /// <summary>[S-12807] [S-12834] The rows laid as <paramref name="reach"/> says: its pitch, touching, and no more of them than the room holds whole (WR-6).</summary>
-    public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch, Rows = Math.Min(Rows, reach.Shown) };
+    /// <summary>[S-12807] [S-14500] The rows laid as <paramref name="reach"/> says: as many as the room holds at their optimal, its pitch, touching.</summary>
+    public ContactsLayoutPlan With(RowReach reach) => this with { Pitch = reach.Pitch, Rows = reach.Shown };
 }
 
 /// <summary>
@@ -61,28 +61,50 @@ public static class ContactsPlan
 
         return config.EffectiveLayout switch
         {
-            ContactsLayout.Grid => new ContactsLayoutPlan(ContactsLayout.Grid, Math.Clamp(config.GridColumns, 2, ContactsConfig.MaxGrid), CellWidth, 1, false, false, CellIcon, CellHeight + FamilySpace.ColumnGap, Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid)),
-            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, FamilyShape.Row1, rows).With(Reach(area, search + HeaderHeight, rows, 1, scale)),
-            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, FamilyShape.Row1, rows).With(Reach(area, search, rows, 1, scale)),
-            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, lines, true, false, 0, FamilyShape.RowHeight(lines), rows).With(Reach(area, search, rows, lines, scale)),
+            ContactsLayout.Grid => Cells(area, config),
+            ContactsLayout.Details => new ContactsLayoutPlan(ContactsLayout.Details, 1, width, 1, false, false, 0, FamilyShape.Row1, rows).With(Reach(area, search + HeaderHeight, 1, scale)),
+            ContactsLayout.Compact => new ContactsLayoutPlan(ContactsLayout.Compact, 1, width, 1, false, true, 0, FamilyShape.Row1, rows).With(Reach(area, search, 1, scale)),
+            _ => new ContactsLayoutPlan(ContactsLayout.List, 1, width, lines, true, false, 0, FamilyShape.RowHeight(lines), rows).With(Reach(area, search, lines, scale)),
         };
     }
 
     /// <summary>
-    /// [S-12807] [S-12834] The config's rows under <paramref name="over"/> (the search box, the column titles): touching,
-    /// from the card's top edge or right under what stands over them (its whole cells, with the card's inset over it) to
-    /// the card's foot; natural rows before the box is measured.
+    /// [S-11406] [S-14410] [S-14500] The grid in <paramref name="area"/>: as many cells a line as its width holds and as many
+    /// lines as its height holds (2..<see cref="ContactsConfig.MaxGrid"/> a line, one line at least), each cell and line
+    /// stretched to share the room, the gaps kept; before the box is measured, a new one's grid.
     /// </summary>
-    private static RowReach Reach(WidgetArea area, double over, int rows, int lines, double scale)
+    private static ContactsLayoutPlan Cells(WidgetArea area, ContactsConfig config)
+    {
+        var gap = FamilySpace.ColumnGap;
+        if (!area.IsMeasured)
+        {
+            return new ContactsLayoutPlan(ContactsLayout.Grid, ContactsConfig.DefaultGridColumns, CellWidth, 1, false, false, CellIcon, CellHeight + gap, Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid));
+        }
+
+        var across = Math.Max(0, area.Width - (2 * FamilySpace.Inset)) + gap;
+        var columns = Math.Clamp((int)Math.Floor((across + LayoutMath.Tolerance) / (CellWidth + gap)), 2, ContactsConfig.MaxGrid);
+        var down = Math.Max(0, area.Height - (config.SearchBox ? SearchHeight : 0) - FamilySpace.Inset) + gap;
+        var lines = Math.Max(1, (int)Math.Floor((down + LayoutMath.Tolerance) / (CellHeight + gap)));
+        return new ContactsLayoutPlan(ContactsLayout.Grid, columns, Math.Max(CellWidth, (across / columns) - gap), 1, false, false, CellIcon, Math.Max(CellHeight + gap, down / lines), lines);
+    }
+
+    /// <summary>
+    /// [S-12807] [S-14500] The rows under <paramref name="over"/> (the search box, the column titles): as many as the card
+    /// holds at their optimal, touching, from the card's top edge or right under what stands over them (its whole cells,
+    /// with the card's inset over it) to the card's foot, stretched to fill it; one at its optimal before the box is
+    /// measured.
+    /// </summary>
+    private static RowReach Reach(WidgetArea area, double over, int lines, double scale)
         => area.IsMeasured
-            ? ItemStretch.Rows(area.Height, rows, lines, area.Grid(scale), over > 0 ? FamilySpace.Inset + over : 0)
+            ? ItemStretch.Rows(area.Height, lines, area.Grid(scale), over > 0 ? FamilySpace.Inset + over : 0)
             : ItemStretch.Natural(lines, area.Grid(scale));
 
     /// <summary>
     /// [S-11406] Each layout's own sizes, with the search box where it is on: List and Compact the
     /// kit's widths (220..520, a new one 300), their height the rows; Details as wide as its columns
-    /// need (88 a column) to 720, its height the column titles and the rows; the Grid its cells, stepped by a cell
-    /// across (its columns, the card's: [S-14410]) and by a line down (its rows).
+    /// need (88 a column) to 720, its height the column titles and the rows; the Grid its cells, a new one
+    /// <see cref="ContactsConfig.DefaultGridColumns"/> a line (the card's: [S-14410]) and its rows down. [S-14500] Every
+    /// cell between: what the card holds stretches to fill it.
     /// </summary>
     public static WidgetSizing Sizing(ContactsConfig config)
     {
@@ -91,54 +113,19 @@ public static class ContactsPlan
 
         if (config.EffectiveLayout == ContactsLayout.Grid)
         {
-            return WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1))
-                .WithWidthSteps(GridColumnSteps(config.GridColumns))
-                .WithHeightSteps(GridRowSteps(config.GridRows, top));
+            var gap = FamilySpace.ColumnGap;
+            double Across(int n) => (2 * FamilySpace.Inset) + (n * CellWidth) + ((n - 1) * gap);
+            double Down(int n) => top + FamilySpace.Inset + (n * CellHeight) + ((n - 1) * gap);
+            var rows = Math.Clamp(config.GridRows, 1, ContactsConfig.MaxGrid);
+            return WidgetSizing.Range(new(Across(2), Down(1)), new(Across(ContactsConfig.DefaultGridColumns), Down(rows)), new(Across(ContactsConfig.MaxGrid), Down(ContactsConfig.MaxGrid)));
         }
 
         var widths = config.EffectiveLayout == ContactsLayout.Details ? DetailWidths(config.EffectiveColumns.Count) : new KitWidths(KitSizing.MinWidth, KitSizing.NaturalWidth, KitSizing.MaxWidth);
-        return WidgetSizing.Range(new(widths.Min, 1), new(widths.Natural, 1), new(widths.Max, 1)).WithHeightSteps(Steps(config));
-    }
-
-    /// <summary>[S-14410] The grid's width: the inset either side, a 96 cell and its gap a step, 2..<see cref="ContactsConfig.MaxGrid"/> of them.</summary>
-    public static SizeSteps GridColumnSteps(int columns)
-        => new((2 * FamilySpace.Inset) - FamilySpace.ColumnGap, CellWidth + FamilySpace.ColumnGap, 2, ContactsConfig.MaxGrid, Math.Clamp(columns, 2, ContactsConfig.MaxGrid));
-
-    /// <summary>[S-11406] The grid's height: what stands over it and the inset under it, a cell and its gap a line.</summary>
-    public static SizeSteps GridRowSteps(int rows, double top)
-        => new(top + FamilySpace.Inset - FamilySpace.ColumnGap, CellHeight + FamilySpace.ColumnGap, 1, ContactsConfig.MaxGrid, Math.Clamp(rows, 1, ContactsConfig.MaxGrid));
-
-    /// <summary>[S-11406] [S-14410] The rows a height means, and for the Grid the cells a line its width holds: a copy when they change.</summary>
-    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size)
-    {
-        if (config is not ContactsConfig contacts)
-        {
-            return config;
-        }
-
-        if (contacts.EffectiveLayout == ContactsLayout.Grid)
-        {
-            var columns = GridColumnSteps(contacts.GridColumns).Nearest(size.Width);
-            var lines = GridRowSteps(contacts.GridRows, FamilySpace.ContentTop + (contacts.SearchBox ? SearchHeight : 0)).Nearest(size.Height);
-            if (columns == contacts.GridColumns && lines == contacts.GridRows)
-            {
-                return config;
-            }
-
-            var grid = (ContactsConfig)contacts.Clone();
-            (grid.GridColumns, grid.GridRows) = (columns, lines);
-            return grid;
-        }
-
-        var wanted = Steps(contacts).Nearest(size.Height);
-        if (wanted == contacts.Rows)
-        {
-            return config;
-        }
-
-        var copy = (ContactsConfig)contacts.Clone();
-        copy.Rows = wanted;
-        return copy;
+        var (over, row) = Parts(config);
+        return WidgetSizing.Range(
+            new(widths.Min, over + row),
+            new(widths.Natural, over + (KitSizing.ClampRows(config.Rows) * row)),
+            new(widths.Max, over + (KitSizing.MaxRows * row)));
     }
 
     /// <summary>[S-582] A details table reads from two columns of 88 (or its own count) to 720.</summary>
@@ -150,16 +137,16 @@ public static class ContactsPlan
     }
 
     /// <summary>
-    /// [S-14100] The rows' steps in whole grid cells: a row as the step, the config's rows as the count, under what stands
-    /// over them (the search box, the column titles, with the card's inset over them: one part of whole cells from the
-    /// card's top edge, as <see cref="Reach"/> lays it), from the card's top edge to its foot edge.
+    /// [S-14500] What stands over the rows (the search box, the column titles, with the card's inset over them: one part of
+    /// whole cells from the card's top edge, as <see cref="Reach"/> lays it) and a row's optimal, on the default grid.
     /// </summary>
-    private static SizeSteps Steps(ContactsConfig config)
+    private static (double Over, double Row) Parts(ContactsConfig config)
     {
         var layout = config.EffectiveLayout;
+        var grid = ItemGrid.Default();
         var row = layout == ContactsLayout.List ? FamilyShape.RowHeight(KitSizing.ClampLines(config.Lines, KitSizing.MaxLines)) : FamilyShape.Row1;
         var over = (config.SearchBox ? SearchHeight : 0) + (layout == ContactsLayout.Details ? HeaderHeight : 0);
-        return SizeSteps.InCells(row, KitSizing.MinRows, KitSizing.MaxRows, KitSizing.ClampRows(config.Rows), over > 0 ? FamilySpace.Inset + over : 0);
+        return (over > 0 ? ItemStretch.Optimal(FamilySpace.Inset + over, grid) : 0, ItemStretch.Optimal(row, grid));
     }
 
     /// <summary>

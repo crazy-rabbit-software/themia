@@ -59,10 +59,10 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     /// <summary>[S-5324] List the tasks due today (and overdue) under today's events.</summary>
     public bool ShowTasks { get; set; } = true;
 
-    /// <summary>[S-11410] [S-14410] How many days stand side by side, today first: 1 to 7; the card's width's (a resize sets it).</summary>
-    public int Days { get; set; } = 3;
-
-    /// <summary>[S-11410] How many rows each day shows under its heading; more say "+N".</summary>
+    /// <summary>
+    /// [S-11410] [S-14500] How many rows a new card stands under each day's heading (its natural height); the card shows as
+    /// many as it holds, more say "+N". How many days stand side by side is the card's width's ([S-14410]), never stored.
+    /// </summary>
     public int RowsPerDay { get; set; } = 5;
 
     /// <summary>[S-5324] The task account; empty for the first account with tasks, as the Tasks widget's [S-590].</summary>
@@ -81,10 +81,10 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
             repairs.Add("week planner had no task account; the first account with tasks");
         }
 
-        if (Days != Math.Clamp(Days, 1, WeekPlannerRules.Days) || RowsPerDay != Math.Clamp(RowsPerDay, 1, WeekPlannerRules.MaxRows))
+        if (RowsPerDay != Math.Clamp(RowsPerDay, 1, WeekPlannerRules.MaxRows))
         {
-            (Days, RowsPerDay) = (Math.Clamp(Days, 1, WeekPlannerRules.Days), Math.Clamp(RowsPerDay, 1, WeekPlannerRules.MaxRows));
-            repairs.Add("week planner's days or rows were out of range");
+            RowsPerDay = Math.Clamp(RowsPerDay, 1, WeekPlannerRules.MaxRows);
+            repairs.Add("week planner's rows were out of range");
         }
     }
 
@@ -93,7 +93,6 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
         var copy = CopySharedTo(new WeekPlannerConfig());
         copy.ShowTasks = ShowTasks;
         copy.TaskAccountId = TaskAccountId;
-        copy.Days = Days;
         copy.RowsPerDay = RowsPerDay;
         return copy;
     }

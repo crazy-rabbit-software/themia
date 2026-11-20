@@ -20,8 +20,8 @@ public sealed class GridFitTests
     /// <summary>A range whose every end is between grid lines.</summary>
     private static WidgetSizing Ragged => WidgetSizing.Range(new(95, 33), new(143, 77), new(487, 203));
 
-    private static WidgetSizing List(int rows) => WidgetSizing.Range(new(220, 1), new(300, 1), new(520, 1))
-        .WithHeightSteps(new SizeSteps(Base: 76, Step: 28, MinCount: 1, MaxCount: 20, Count: rows));
+    /// <summary>[S-14500] A list's range: a row at least, its rows at natural, twenty at most, every cell between.</summary>
+    private static WidgetSizing List(int rows) => WidgetSizing.Range(new(220, 30), new(300, rows * 30), new(520, 600));
 
     private static void Near(double expected, double actual) => Assert.Equal(expected, actual, 6);
 
@@ -118,39 +118,21 @@ public sealed class GridFitTests
     }
 
     [Fact]
-    public void S11807_a_stepped_axis_keeps_its_steps_each_rounded_up_to_whole_cells()
+    public void S14500_a_lists_height_takes_every_whole_cell_between_its_least_and_its_most()
     {
-        // Rows: 76 + 28 n. One row 104 → 110, twenty 636 → 640; the config's six 244 → 250.
+        // Owner, 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps
+        // of one". A row at least (30: three cells), twenty at most (600), and every cell between.
         var limits = OnGrid(List(rows: 6), Screen);
 
-        Near(0.11, limits.Height.Min);
-        Near(0.64, limits.Height.Max);
-        Near(0.25, limits.Height.Hold(0.9));
-
-        // A drag to 300 DIPs: seven rows (272 → 280) and eight (300 → 300); eight is nearest.
-        Near(0.30, limits.Height.Range(0.300));
-        Near(0.28, limits.Height.Range(0.284));
-        foreach (var n in Enumerable.Range(1, 20))
+        Near(0.03, limits.Height.Min);
+        Near(0.60, limits.Height.Max);
+        foreach (var cells in Enumerable.Range(3, 58))
         {
-            var step = (76 + (28 * n)) / 1000.0;
-            var landed = limits.Height.Range(step);
-            Assert.True(Whole(landed, 100));
-            Assert.True(landed >= step - 1e-9);
+            Near(cells / 100.0, limits.Height.Range(cells / 100.0));
         }
-    }
 
-    [Fact]
-    public void S11807_the_config_a_cell_means_is_the_largest_step_its_whole_cells_hold()
-    {
-        var limits = OnGrid(List(rows: 6), Screen);
-
-        // 250 DIPs (six rows rounded up) holds six rows (244), not seven (272).
-        Near(0.244, limits.Height.Holds(0.25));
-        Near(0.272, limits.Height.Holds(0.28));
-
-        // Steps smaller than a cell: the largest that fits.
-        var fine = new AxisLimits(0.05, 0.2, StepBase: 0.05, Step: 0.004, Lines: 100);
-        Near(0.074, fine.Holds(0.075));
+        // Between two cells a size takes the next whole cell, as every axis does.
+        Near(0.29, limits.Height.Range(0.284));
     }
 
     [Fact]
@@ -310,15 +292,15 @@ public sealed class GridFitTests
 
 
     [Fact]
-    public void S11809_a_pinned_axis_is_laid_at_its_pinned_size_the_desktop_paints()
+    public void S11809_a_member_is_laid_at_the_size_the_desktop_paints()
     {
-        // A list pinned to its rows' height: the block gives it that height, never the box's, so it is painted where it was laid.
+        // A list asked shorter than its least row: the block gives it that row, so it is painted where it was laid.
         var list = SizeFit.Limits(List(4), Screen, 1)!;
-        IReadOnlyList<FracRect> boxes = [new(0, 0, 0.3, 0.05), new(0, 0.05, 0.3, 0.1)];
+        IReadOnlyList<FracRect> boxes = [new(0, 0, 0.3, 0.02), new(0, 0.02, 0.3, 0.1)];
 
         var laid = GridFit.Layout(boxes, [list, null], Screen);
 
-        Near(list.Height.Pinned!.Value, laid[0].H);
+        Near(list.Height.Min, laid[0].H);
         Near(laid[0].Bottom, laid[1].Y);
         Assert.Equal(laid[0], SizeFit.Shown(laid[0], list, Screen));
     }

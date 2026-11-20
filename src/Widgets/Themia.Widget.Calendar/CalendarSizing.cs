@@ -8,8 +8,9 @@ namespace Themia.Widget.Calendar;
 
 /// <summary>
 /// [S-11540]..[S-11546] The calendar's sizes, each style its own and from the config alone, on the
-/// family's tokens (inset 12, the period's line 24 over every style but the agenda, [S-12481], rows 28/40): what a style shows is its settings', never
-/// the card's size. Pure.
+/// family's tokens (inset 12, the period's line 24 over every style but the agenda, [S-12481], rows 28/40): what a style
+/// shows is its settings'; how many of the same item (a week's days, a timeline's hours, the chosen day's rows, a day
+/// cell's chip lines) is what the card holds ([S-14410], [S-14502]). Every axis takes every grid cell ([S-14500]). Pure.
 /// </summary>
 public static class CalendarSizing
 {
@@ -97,13 +98,21 @@ public static class CalendarSizing
     public static DayBandFit DayBand(int items)
         => items <= 0 ? new DayBandFit(0, 0, false) : new DayBandFit(1, CalendarFit.DayBar, items > 1);
 
-    /// <summary>[S-11543] The day's height steps: the inset and the period's line, the band's line and 4, an hour a step, the inset.</summary>
-    public static SizeSteps DaySteps(int hours)
-        => new(ContentTop + CalendarFit.DayBar + FamilySpace.S1 + FamilySpace.Inset, Hour, MinHours, MaxHours, ClampHours(hours));
+    /// <summary>
+    /// [S-11543] [S-14502] The hours a timeline <paramref name="available"/> tall shows: as many as it holds at an hour's
+    /// optimal (a row's, whole cells), <see cref="MinHours"/>..<see cref="MaxHours"/>, each its share of the room.
+    /// </summary>
+    public static int HoursIn(double available, ItemGrid grid) => ItemStretch.Count(available, Hour, grid, MinHours, MaxHours);
 
-    /// <summary>[S-11543] The day: 240..480 wide (a new one 300), its height its hours'.</summary>
-    public static WidgetSizing DaySizing(int hours)
-        => WidgetSizing.Range(new(240, 1), new(300, 1), new(480, 1)).WithHeightSteps(DaySteps(hours));
+    /// <summary>[S-11543] The day's height over its hours: the inset and the period's line, the band's line and 4, the inset.</summary>
+    public static double DayOver => ContentTop + CalendarFit.DayBar + FamilySpace.S1 + FamilySpace.Inset;
+
+    /// <summary>[S-11543] [S-14500] The day: 240..480 wide (a new one 300), its height <see cref="DefaultHours"/> hours, 4..16 at least and most.</summary>
+    public static WidgetSizing DaySizing()
+    {
+        var hour = ItemStretch.Optimal(Hour, ItemGrid.Default());
+        return WidgetSizing.Range(new(240, DayOver + (MinHours * hour)), new(300, DayOver + (DefaultHours * hour)), new(480, DayOver + (MaxHours * hour)));
+    }
 
     // ---- [S-11544] month ------------------------------------------------------------------------------
 
@@ -138,43 +147,35 @@ public static class CalendarSizing
     }
 
     /// <summary>
-    /// [S-12832] [S-14101] What stands over a month's weeks, each part whole grid cells from the card's top edge as the
-    /// month lays it (<see cref="MonthLayouts.Plan"/>): the period's line with the card's inset over it, the weekday line.
+    /// [S-12832] [S-14101] [S-14500] What stands over a month's weeks, each part whole grid cells from the card's top edge
+    /// as the month lays it (<see cref="MonthLayouts.Plan"/>): the period's line with the card's inset over it, the weekday
+    /// line.
     /// </summary>
-    public static double[] MonthOver => [LineRules.BandOver, FamilyType.Caption.LineHeight];
-
-    /// <summary>[S-14101] How many cells more each week (and each day's column) may take than its least: the month's steps.</summary>
-    public const int MonthMostSteps = 40;
-
-    /// <summary>
-    /// [S-11547] [S-14101] The month with titles' height steps: over the weeks their whole cells (<see cref="MonthOver"/>),
-    /// six weeks of a number line and a chip line each a step, every part whole grid cells, so the weeks fill the card
-    /// exactly at every count of lines.
-    /// </summary>
-    public static SizeSteps MonthLineSteps(int lines)
-        => SizeSteps.Lined(MonthNumberLine, CalendarFit.ChipLine, MonthWeeks, MonthPlan.MinLines, MonthPlan.MaxLines, MonthPlan.Lines(lines), MonthOver);
+    public static double MonthOver
+        => ItemStretch.Optimal(LineRules.BandOver, ItemGrid.Default()) + ItemStretch.Optimal(FamilyType.Caption.LineHeight, ItemGrid.Default());
 
     /// <summary>
     /// [S-11544] The month with dots: seven columns of 260 / 7 at least (a new one the least), its weekday letters and six
     /// weeks of 28 at least. [S-11547] With titles: seven columns of 56 at least (a new one 100, where a chip leads with its
-    /// time), the height its lines', dragging the bottom edge sets them. [S-14101] (owner, 2026-11-20: "the calendar does
-    /// not always stretch the contents to the top and bottom although it would be easily possible"): the width in steps of
-    /// one grid cell a column, the dots month's height in steps of one cell a week (<see cref="SizeSteps.Growing"/>), so
-    /// the days' columns and the weeks are whole cells and alike and fill the card at every size, none left over.
+    /// time), six weeks of a number line and a new one's chip lines. [S-14101] [S-14500] (owner, 2026-11-20: "the calendar
+    /// does not always stretch the contents to the top and bottom although it would be easily possible"): every cell
+    /// between, the days' columns and the weeks sharing the card evenly, its chip lines what a week holds.
     /// </summary>
     public static WidgetSizing MonthSizing(CalendarWidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
+        var grid = ItemGrid.Default();
         if (config.MonthEvents == MonthEvents.Chips)
         {
-            return WidgetSizing.Range(new(7 * MonthTitleColumn, 1), new(7 * MonthNaturalColumn, 1), new(7 * MonthWidestColumn, 1))
-                .WithWidthSteps(SizeSteps.Growing(MonthTitleColumn, 7, MonthMostSteps * 4))
-                .WithHeightSteps(MonthLineSteps(config.MonthLines));
+            double Weeks(int lines) => MonthOver + (MonthWeeks * ItemStretch.Optimal(MonthNumberLine + (lines * CalendarFit.ChipLine), grid));
+            return WidgetSizing.Range(
+                new(7 * MonthTitleColumn, Weeks(MonthPlan.MinLines)),
+                new(7 * MonthNaturalColumn, Weeks(MonthPlan.DefaultLines)),
+                new(7 * MonthWidestColumn, Weeks(MonthPlan.MaxLines)));
         }
 
-        return WidgetSizing.Range(new(260, 1), new(300, 1), new(420, 1))
-            .WithWidthSteps(SizeSteps.Growing(260.0 / 7, 7, MonthMostSteps))
-            .WithHeightSteps(SizeSteps.Growing(MonthCell(MonthEvents.Dots), MonthWeeks, MonthMostSteps, MonthOver));
+        var week = MonthOver + (MonthWeeks * ItemStretch.Optimal(MonthCell(MonthEvents.Dots), grid));
+        return WidgetSizing.Range(new(260, week), new(300, week), new(420, week));
     }
 
     // ---- [S-11545] [S-11546] week -------------------------------------------------------------------
@@ -194,36 +195,57 @@ public static class CalendarSizing
     /// <summary>[S-11545] The day strip: the heads over the most the marks take.</summary>
     public static double Strip => WeekHead + MarksRoom;
 
-    /// <summary>[S-11545] The day strip's height steps: the strip and 8 over the chosen day's rows (28 each).</summary>
-    public static SizeSteps WeekRowSteps(int rows)
-        => new(ContentTop + Strip + FamilySpace.S2 + FamilySpace.Inset, FamilyShape.Row1, 1, MaxWeekRows, ClampWeekRows(rows));
+    /// <summary>[S-11545] The day strip's height over the chosen day's rows: the strip and 8, the period's line, the insets.</summary>
+    public static double WeekRowsOver => ContentTop + Strip + FamilySpace.S2 + FamilySpace.Inset;
 
-    /// <summary>[S-11546] The week with titles' height steps: the heads, the band's one line, an hour a step.</summary>
-    public static SizeSteps WeekHourSteps(int hours)
-        => new(ContentTop + WeekHead + CalendarFit.ChipLine + FamilySpace.Inset, Hour, MinHours, MaxHours, ClampHours(hours));
+    /// <summary>[S-11546] The week with titles' height over its hours: the heads, the band's one line, the insets.</summary>
+    public static double WeekHoursOver => ContentTop + WeekHead + CalendarFit.ChipLine + FamilySpace.Inset;
 
     /// <summary>[S-14410] A day's column in the day strip: its weekday's letters over its number and its marks.</summary>
     public const double StripColumn = 40;
 
-    /// <summary>[S-14410] The day strip's width: the inset either side and a 40 column a day.</summary>
-    public static SizeSteps StripSteps(int days)
-        => new(2 * FamilySpace.Inset, StripColumn, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays, Math.Clamp(days, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays));
-
-    /// <summary>[S-14410] The week with titles' width: the inset either side, the hour labels and a 96 column a day.</summary>
-    public static SizeSteps TitleSteps(int days)
-        => new((2 * FamilySpace.Inset) + HourLabels, WeekTitleColumn, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays, Math.Clamp(days, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays));
+    /// <summary>[S-14410] [S-14502] The width a week of <paramref name="days"/> takes: the inset either side, the hour labels with titles, a column a day.</summary>
+    public static double WeekWidth(int days, bool titles)
+        => (2 * FamilySpace.Inset) + (titles ? HourLabels + (days * WeekTitleColumn) : days * StripColumn);
 
     /// <summary>
-    /// [S-11545] [S-11546] [S-14410] The week: the day strip a 40 column a day, or the titles' 96 columns beside the
-    /// hours; the width stepped by a day and following the days, which are the card's (a resize sets them).
+    /// [S-14410] [S-14502] The days a week <paramref name="width"/> wide shows: as many columns (40 in the strip, 96 with
+    /// titles) as it holds, <see cref="CalendarPeriod.WeekMinDays"/>..<see cref="CalendarPeriod.WeekMaxDays"/>, sharing it.
+    /// </summary>
+    public static int WeekDaysIn(double width, bool titles)
+    {
+        var room = width - (2 * FamilySpace.Inset) - (titles ? HourLabels : 0);
+        var column = titles ? WeekTitleColumn : StripColumn;
+        var days = double.IsFinite(room) ? (int)Math.Floor((room + LayoutMath.Tolerance) / column) : CalendarPeriod.WeekDefaultDays;
+        return Math.Clamp(days, CalendarPeriod.WeekMinDays, CalendarPeriod.WeekMaxDays);
+    }
+
+    /// <summary>
+    /// [S-11545] [S-11546] [S-14410] [S-14500] The week: the day strip a 40 column a day, or the titles' 96 columns beside
+    /// the hours, a new one <see cref="CalendarPeriod.WeekDefaultDays"/> days; the strip's height its chosen day's rows (its
+    /// WeekRows a new one's), the titles' its hours (a new one 8); every cell between, the days, rows and hours what the
+    /// card holds.
     /// </summary>
     public static WidgetSizing WeekSizing(CalendarWidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var days = config.EffectiveWeekDays;
-        return config.WeekTitles
-            ? WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1)).WithWidthSteps(TitleSteps(days)).WithHeightSteps(WeekHourSteps(config.WeekHours))
-            : WidgetSizing.Range(new(1, 1), new(1, 1), new(1, 1)).WithWidthSteps(StripSteps(days)).WithHeightSteps(WeekRowSteps(config.WeekRows));
+        var titles = config.WeekTitles;
+        var grid = ItemGrid.Default();
+        double Width(int days) => WeekWidth(days, titles);
+        if (titles)
+        {
+            var hour = ItemStretch.Optimal(Hour, grid);
+            return WidgetSizing.Range(
+                new(Width(CalendarPeriod.WeekMinDays), WeekHoursOver + (MinHours * hour)),
+                new(Width(CalendarPeriod.WeekDefaultDays), WeekHoursOver + (DefaultHours * hour)),
+                new(Width(CalendarPeriod.WeekMaxDays), WeekHoursOver + (MaxHours * hour)));
+        }
+
+        var row = ItemStretch.Optimal(FamilyShape.Row1, grid);
+        return WidgetSizing.Range(
+            new(Width(CalendarPeriod.WeekMinDays), WeekRowsOver + row),
+            new(Width(CalendarPeriod.WeekDefaultDays), WeekRowsOver + (ClampWeekRows(config.WeekRows) * row)),
+            new(Width(CalendarPeriod.WeekMaxDays), WeekRowsOver + (MaxWeekRows * row)));
     }
 
     // ---- the kind ---------------------------------------------------------------------------------
@@ -236,56 +258,9 @@ public static class CalendarSizing
         {
             CalendarStyle.Agenda => KitSizing.Sizing(AgendaShown(config), addFooter: false, AgendaWidths),
             CalendarStyle.Year => YearSizing(config.YearNumbers),
-            CalendarStyle.Day => DaySizing(config.DayHours),
+            CalendarStyle.Day => DaySizing(),
             CalendarStyle.Week => WeekSizing(config),
             _ => MonthSizing(config),
         };
-    }
-
-    /// <summary>[S-2442] The config a card of <paramref name="size"/> means: the rows (or hours) that height holds; a copy when they change.</summary>
-    public static WidgetConfig SizeSets(WidgetConfig config, SizeDip size)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        if (config is not CalendarWidgetConfig calendar)
-        {
-            return config;
-        }
-
-        return calendar.Style switch
-        {
-            CalendarStyle.Agenda => KitSizing.SizeSets(calendar, size, AgendaShown(calendar), addFooter: false),
-            CalendarStyle.Day => Counted(calendar, DaySteps(calendar.DayHours).Nearest(size.Height), calendar.DayHours, (c, n) => c.DayHours = n),
-            CalendarStyle.Week when calendar.WeekTitles => Week(calendar, TitleSteps(calendar.WeekDays).Nearest(size.Width), WeekHourSteps(calendar.WeekHours).Nearest(size.Height), calendar.WeekHours, (c, n) => c.WeekHours = n),
-            CalendarStyle.Week => Week(calendar, StripSteps(calendar.WeekDays).Nearest(size.Width), WeekRowSteps(calendar.WeekRows).Nearest(size.Height), calendar.WeekRows, (c, n) => c.WeekRows = n),
-            CalendarStyle.Month when calendar.MonthEvents == MonthEvents.Chips => Counted(calendar, MonthLineSteps(calendar.MonthLines).Nearest(size.Height), calendar.MonthLines, (c, n) => c.MonthLines = n),
-            _ => config,
-        };
-    }
-
-    /// <summary>[S-14410] A week's copy with the days its width holds and the rows or hours its height holds, else the same config.</summary>
-    private static WidgetConfig Week(CalendarWidgetConfig config, int days, int wanted, int current, Action<CalendarWidgetConfig, int> set)
-    {
-        if (days == config.EffectiveWeekDays && wanted == current)
-        {
-            return config;
-        }
-
-        var copy = (CalendarWidgetConfig)config.Clone();
-        copy.WeekDays = days;
-        set(copy, wanted);
-        return copy;
-    }
-
-    /// <summary>A copy with <paramref name="wanted"/> set where it differs from <paramref name="current"/>, else the same config.</summary>
-    private static WidgetConfig Counted(CalendarWidgetConfig config, int wanted, int current, Action<CalendarWidgetConfig, int> set)
-    {
-        if (wanted == current)
-        {
-            return config;
-        }
-
-        var copy = (CalendarWidgetConfig)config.Clone();
-        set(copy, wanted);
-        return copy;
     }
 }

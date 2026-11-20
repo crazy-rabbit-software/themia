@@ -143,9 +143,9 @@ public sealed partial class KitList : Grid, IStatusRoom
 
             // [S-12834] A new size still lays the rows at its pitch (whole cells): under an editor or a drag nothing is
             // rebuilt, the rows standing take the new height.
-            if (area.IsMeasured && (plan.RowHeight != _plan.RowHeight || plan.HeadingHeight != _plan.HeadingHeight))
+            if (area.IsMeasured && (plan.RowHeight != _plan.RowHeight || plan.HeadingHeight != _plan.HeadingHeight || plan.Reach != _plan.Reach))
             {
-                _plan = _plan with { RowHeight = plan.RowHeight, HeadingHeight = plan.HeadingHeight };
+                _plan = _plan with { RowHeight = plan.RowHeight, HeadingHeight = plan.HeadingHeight, Reach = plan.Reach };
                 _area = area;
                 Repitch();
             }
@@ -375,7 +375,7 @@ public sealed partial class KitList : Grid, IStatusRoom
 
         var lines = (_rowElements.Count + columns - 1) / columns;
         var shown = Math.Max(1, Math.Min(lines, KitPlanner.Fit(_plan, KitPlanner.ListHeight(_area), _area.Grid())));
-        _scroll.Height = shown * _plan.RowHeight;
+        _scroll.Height = _plan.LineStart(shown);
     }
 
     /// <summary>[S-1304] The site's own icon (the host's one cache), with a globe in its place until it arrives or when the site has none.</summary>

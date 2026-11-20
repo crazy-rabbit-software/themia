@@ -34,7 +34,6 @@ public sealed class HabitTrackerModule : IWidgetModule
         Description = HabitTrackerStr.WidgetsA_Catalog_Habits_Description.Local(),
         Glyph = Glyph,
         Sizing = c => HabitSizing.Sizing((HabitTrackerConfig)c),
-        SizeSets = HabitSizing.SizeSets,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate]),
         Add = new(AddFolderId.Notes, 1, 0),

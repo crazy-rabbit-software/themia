@@ -11,7 +11,7 @@ public sealed class KitRowsTests
 
     private static readonly KitSpec Rich = new(KitRowLook.Rich, KitShow.All, () => "Untitled", () => "Empty", MaxColumns: 3);
 
-    /// <summary>[S-2440] [S-14100] The rows and the add footer, each whole grid cells (30 and 40 on the default grid): no inset over or under them.</summary>
+    /// <summary>[S-2440] [S-14500] The rows and the add footer at their optimal (30 and 40 on the default grid): no inset over or under them; every cell from one row up.</summary>
     [Theory]
     [InlineData(6, 1, true, (6 * 30) + 30)]
     [InlineData(6, 2, true, (6 * 40) + 30)]
@@ -24,8 +24,7 @@ public sealed class KitRowsTests
         Assert.Equal(height, sizing.Natural.Height);
         Assert.Equal(KitSizing.MinWidth, sizing.Min.Width);
         Assert.Equal(KitSizing.MaxWidth, sizing.Max.Width);
-        Assert.Equal(Themia.Core.Widgets.ItemGrid.Default().Whole(FamilyShape.RowHeight(lines)), sizing.HeightSteps!.Step);
-        Assert.Equal(rows, sizing.HeightSteps.Count);
+        Assert.Equal(height - ((rows - 1) * Themia.Core.Widgets.ItemGrid.Default().Whole(FamilyShape.RowHeight(lines))), sizing.Min.Height);
         Assert.Empty(sizing.Problems());
     }
 
@@ -68,20 +67,24 @@ public sealed class KitRowsTests
         Assert.Equal(1, KitSizing.ClampLines(-1));
     }
     [Fact]
-    public void S11400_two_columns_double_the_natural_and_largest_width_and_split_the_width()
+    public void S11400_S14502_a_list_of_two_columns_stands_one_column_new_and_splits_a_width_that_holds_two()
     {
         var one = KitSizing.Sizing(new KitRowsChoice(5, 2), addFooter: false);
         var two = KitSizing.Sizing(new KitRowsChoice(5, 2, Columns: 2), addFooter: false);
 
-        // [S-14410] The least stays one column's, so a narrower drag goes back to one.
+        // [S-14410] [S-14502] The columns are the card's width, never stored: a new card is one column's, its least too, so a
+        // narrower drag goes back to one; the largest twice one column's.
         Assert.Equal(one.Min.Width, two.Min.Width);
-        Assert.Equal(2 * one.Natural.Width, two.Natural.Width);
+        Assert.Equal(one.Natural.Width, two.Natural.Width);
         Assert.Equal(2 * one.Max.Width, two.Max.Width);
         Assert.Equal(one.Natural.Height, two.Natural.Height);
 
         var plan = KitPlanner.Plan(new WidgetArea(600, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(5, 2, Columns: 2) });
         Assert.Equal(2, plan.Columns);
         Assert.Equal(300, plan.ColumnWidth);
+
+        // A list that may not stand in two never does, however wide.
+        Assert.Equal(1, KitPlanner.Plan(new WidgetArea(600, 300), Rich, new KitChoices(KitShow.All) { Rows = new KitRowsChoice(5, 2) }).Columns);
     }
 
     [Fact]
@@ -134,11 +137,11 @@ public sealed class KitRowsTests
                 var plan = KitPlanner.Plan(area, schedule, choices);
                 Assert.Equal((1, lines, lines >= 2), (plan.Columns, plan.Lines, plan.Subtitle));
 
-                // [S-12807] [S-12830] Its rows grow with the box in whole cells until they touch and fill it, a heading
-                // with them.
-                var reach = ItemStretch.Rows(area.Height, 6, lines, area.Grid());
+                // [S-12807] [S-14500] Its rows stand as many as the box holds at their optimal and share it to its foot, a
+                // heading with them.
+                var reach = ItemStretch.Rows(area.Height, lines, area.Grid());
                 Assert.Equal(reach.Pitch, plan.RowHeight, 6);
-                Assert.True(area.Grid().IsWhole(plan.RowHeight, 1e-6));
+                Assert.True(plan.RowHeight >= area.Grid().Whole(FamilyShape.RowHeight(lines)) - 1e-6);
                 // [S-12834] A heading is one of the rows that tile the list: as tall as they are, whole cells (WR-6: "all items
                 // of a widget are the same size"), so the rows under it start right under it and touch it (WR-2).
                 Assert.Equal(plan.RowHeight, plan.HeadingHeight, 6);

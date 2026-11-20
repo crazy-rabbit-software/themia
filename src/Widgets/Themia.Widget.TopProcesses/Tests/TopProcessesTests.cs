@@ -33,17 +33,13 @@ public sealed class TopProcessesTests
     }
 
     [Fact]
-    public void S9700_its_height_follows_its_rows_of_two_lines_and_a_dragged_edge_sets_them()
+    public void S9700_S14500_its_rows_of_two_lines_are_its_natural_height_every_cell_from_one_row_up()
     {
         var sizing = Kind.Sizing(new TopProcessesConfig());
         Assert.Empty(sizing.Problems());
         Assert.Equal(5 * 40, sizing.Natural.Height);
-        Assert.Equal(20 * 40, sizing.Max.Height);
-
-        var given = new TopProcessesConfig();
-        var dragged = Assert.IsType<TopProcessesConfig>(Kind.SizeSets!(given, new SizeDip(300, 3 * 40)));
-        Assert.Equal(3, dragged.Rows);
-        Assert.Equal(5, given.Rows);
-        Assert.Same(given, Kind.SizeSets!(given, sizing.Natural));
+        Assert.Equal(40, sizing.Min.Height);
+        Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
+        Assert.Equal(3 * 40, Kind.Sizing(new TopProcessesConfig { Rows = 3 }).Natural.Height);
     }
 }

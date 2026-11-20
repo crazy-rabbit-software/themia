@@ -171,10 +171,11 @@ public sealed class BlockResizeTests
     }
 
     [Fact]
-    public void S2462_a_stepped_member_lands_on_its_step_and_its_neighbour_stays_joined()
+    public void S14500_a_list_member_takes_whole_cells_and_its_neighbour_stays_joined()
     {
-        // A header of 6 cells over a list whose height comes in rows of 4 cells: the list on a row, the header on its top.
-        var list = new SizeLimits(new AxisLimits(4.0 / Cols, 120.0 / Cols, Lines: Cols), new AxisLimits(8.0 / Rows, 80.0 / Rows, StepBase: 8.0 / Rows, Step: 4.0 / Rows, Lines: Rows));
+        // A header of 6 cells over a list of 8 cells at least (its rows stretch to any height, [S-14500]): the list on whole
+        // cells, the header on its top.
+        var list = new SizeLimits(new AxisLimits(4.0 / Cols, 120.0 / Cols, Lines: Cols), new AxisLimits(8.0 / Rows, 80.0 / Rows, Lines: Rows));
         FracRect[] stack = [C(10, 10, 30, 6), C(10, 16, 30, 20)];
 
         foreach (var dy in new[] { 3.0, 6, 9, 14, -5 })
@@ -183,7 +184,7 @@ public sealed class BlockResizeTests
             var (header, rows) = (Cells(grown[0]), Cells(grown[1]));
 
             Assert.Equal(header.Y + header.H, rows.Y);
-            Assert.Equal(0, (rows.H - 8) % 4);
+            Assert.True(rows.H >= 8);
             Assert.Equal(10, header.Y);
         }
     }
@@ -205,11 +206,11 @@ public sealed class BlockResizeTests
     [Fact]
     public void S2462_a_fixed_member_lands_on_exactly_its_own_size_as_the_desktop_paints_it()
     {
-        // A single metric (one row of 3 cells, its height fixed) under the drive's reading, as the Drive group lays them:
-        // grown by the corner, the metric moves down and keeps exactly its 3 cells, bit for bit the size its sizing paints
-        // (it once landed on 3 cells plus float noise, which the desktop painted 3 cells: not where it landed).
+        // A member of 3 cells fixed in height under the drive's reading: grown by the corner, it moves down and keeps exactly
+        // its 3 cells, bit for bit the size its sizing paints (it once landed on 3 cells plus float noise, which the desktop
+        // painted 3 cells: not where it landed).
         FracRect[] column = [C(45, 29, 26, 9), C(45, 38, 26, 3), C(45, 41, 26, 3)];
-        var metric = new SizeLimits(Free(20, 192).Width, new AxisLimits(3.0 / Rows, 3.0 / Rows, 0, 3.0 / Rows, Lines: Rows));
+        var metric = new SizeLimits(Free(20, 192).Width, new AxisLimits(3.0 / Rows, 3.0 / Rows, Rows));
         SizeLimits?[] limits = [Free(), metric, metric];
 
         var grown = Drag(column, ResizeHandle.BottomRight, 10, 4, limits);
@@ -431,16 +432,15 @@ public sealed class BlockResizeTests
     }
 
     [Fact]
-    public void S2464_a_press_that_would_change_nothing_goes_on_to_the_next_step()
+    public void S2464_a_press_on_a_list_under_a_header_changes_the_block_and_keeps_it_joined()
     {
-        // A list in rows of 4 cells under a header: one cell more is no row, so the press takes the next row.
-        var list = new SizeLimits(new AxisLimits(4.0 / Cols, 120.0 / Cols, Lines: Cols), new AxisLimits(8.0 / Rows, 80.0 / Rows, StepBase: 8.0 / Rows, Step: 4.0 / Rows, Lines: Rows));
+        // [S-14500] A list takes every cell: a press grows the block on its common step, the two still joined.
+        var list = new SizeLimits(new AxisLimits(4.0 / Cols, 120.0 / Cols, Lines: Cols), new AxisLimits(8.0 / Rows, 80.0 / Rows, Lines: Rows));
         FracRect[] stack = [C(10, 10, 30, 6), C(10, 16, 30, 20)];
 
         var down = BlockResize.Nudge(stack, [Free(), list], NudgeDirection.Down, NudgeStep.Cell, Screen);
 
         Assert.NotEqual(stack, down);
         Assert.Equal(Cells(down[0]).Y + Cells(down[0]).H, Cells(down[1]).Y);
-        Assert.Equal(0, (Cells(down[1]).H - 8) % 4);
     }
 }

@@ -60,10 +60,10 @@ public sealed class ClipboardTests
     }
 
     [Fact]
-    public void S11405_dragging_sets_rows_and_out_of_range_is_repaired_and_copied()
+    public void S11405_its_rows_are_its_natural_height_and_out_of_range_is_repaired_and_copied()
     {
-        var next = (ClipboardConfig)new ClipboardModule().Descriptor.SizeSets!(new ClipboardConfig(), new Themia.Sdk.SizeDip(300, 8 * 30));
-        Assert.Equal(8, next.Rows);
+        var sizing = new ClipboardModule().Descriptor.Sizing(new ClipboardConfig { Rows = 8 });
+        Assert.Equal((30d, 8 * 30d), (sizing.Min.Height, sizing.Natural.Height));
 
         var wild = new ClipboardConfig { Rows = 50, Lines = 0 };
         Assert.NotEmpty(wild.Repair());

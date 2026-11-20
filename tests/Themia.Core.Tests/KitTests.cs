@@ -286,20 +286,19 @@ public sealed class KitTests
     [InlineData(20, 3)]
     public void S12807_a_lists_rows_touch_and_fill_the_view_down_to_the_foot_s_inset(int rows, int lines)
     {
-        // [S-12830] The rows run from the card's top edge down, whole cells, touching, as many as the card holds at
-        // whole cells (a natural card holds them all where the inset's room covers the cells' round-up); the cells left
-        // over stand under them, fewer than one a row.
+        // [S-14500] The rows run from the card's top edge down, touching, as many as the card holds at their optimal (a
+        // natural card holds its stated rows), sharing it to the foot: nothing left over.
         var choices = new KitChoices(KitShow.All) { Rows = new KitRowsChoice(rows, lines) };
         foreach (var extra in new[] { 0.0, 37, 300 })
         {
-            var height = KitSizing.Steps(choices.Rows, addFooter: false).At(rows) - FamilySpace.ContentTop + extra;
+            var height = KitSizing.Sizing(choices.Rows, addFooter: false).Natural.Height - FamilySpace.ContentTop + extra;
             var plan = KitPlanner.Plan(new WidgetArea(300, height), Rich, choices);
 
             Assert.True(plan.RowHeight >= FamilyShape.RowHeight(lines));
             var room = height + FamilySpace.Inset;
-            var shown = Math.Min(rows, ItemStretch.Rows(height, rows, lines, ItemGrid.Default()).Shown);
-            Assert.True(ItemGrid.Default().IsWhole(plan.RowHeight, 1e-6));
-            Assert.InRange(room - (shown * plan.RowHeight), 0, (shown + 1) * ItemGrid.DefaultCell);
+            var shown = ItemStretch.Rows(height, lines, ItemGrid.Default()).Shown;
+            Assert.True(shown >= (extra == 0 ? rows : 1));
+            Assert.Equal(room, shown * plan.RowHeight, 6);
             Assert.True(KitPlanner.Fit(plan, KitPlanner.ListHeight(new WidgetArea(300, height))) >= shown);
         }
     }

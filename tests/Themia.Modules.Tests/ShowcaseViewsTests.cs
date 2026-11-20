@@ -164,7 +164,7 @@ public sealed class ShowcaseViewsTests
     }
 
     [Fact]
-    public void S11601_a_count_stepped_kind_is_held_at_its_min_and_max_with_the_config_each_size_means()
+    public void S11601_a_kind_is_held_at_its_min_and_max_as_the_desktop_paints_them()
     {
         var facts = new WidgetId("networkAdapters");
         var view = Assert.Single(ShowcaseViews.Build([new(facts, "Network adapters", "x")], FullHd));

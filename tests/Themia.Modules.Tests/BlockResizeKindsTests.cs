@@ -64,10 +64,8 @@ public sealed class BlockResizeKindsTests
                     var r = resized[i];
                     Assert.True(Whole(r.X, cols) && Whole(r.Right, cols) && Whole(r.Y, rows) && Whole(r.Bottom, rows), $"{why}: {widgets[i].Kind.Value} off the lines");
 
-                    // As the resize lands it: the config its size means, and the desktop paints it in that config's sizing.
-                    var config = SizeFit.ConfigFor(widgets[i].Config, r, screen, 1, limits[i]);
-                    var after = SizeFit.Limits(SizeFit.Of(config), screen, 1);
-                    Assert.True(r == SizeFit.Shown(r, after, screen), $"{why}: {widgets[i].Kind.Value} is not painted where it landed");
+                    // As the resize lands it: the desktop paints it where it landed, in its sizing ([S-14502]: no config set).
+                    Assert.True(r == SizeFit.Shown(r, limits[i], screen), $"{why}: {widgets[i].Kind.Value} is not painted where it landed");
 
                     for (var j = i + 1; j < widgets.Count; j++)
                     {

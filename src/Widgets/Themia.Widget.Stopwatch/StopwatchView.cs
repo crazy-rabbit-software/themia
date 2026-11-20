@@ -70,6 +70,37 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         _startButton = _controls.Main(StopwatchStr.Stopwatch_Start.Text(), () => Act(state => state.Act(Now())));
         _lapButton = _controls.Icon(StopwatchModule.LapGlyph, StopwatchStr.Stopwatch_Lap.Text(), () => Act(state => state.Lap(Now())));
         _resetButton = _controls.Icon(Glyphs.Reset, StopwatchStr.Stopwatch_Reset.Text(), () => Act(_ => StopwatchState.None));
+
+        // [S-11302] [S-14500] How many laps it lists is what the card holds under the face: a height that holds another
+        // count lays the face and the laps again.
+        SizeChanged += (_, args) =>
+        {
+            var rows = LapRowsIn(args.NewSize.Height);
+            if (rows != _lapRows)
+            {
+                _lapRows = rows;
+                Lay();
+            }
+        };
+    }
+
+    /// <summary>[S-11302] [S-14500] The lap rows the card lists now: what it holds under its face (none before it is measured).</summary>
+    private int _lapRows;
+
+    /// <summary>
+    /// [S-11302] [S-14500] The lap rows a view <paramref name="height"/> tall holds under the face's band (the face as stated,
+    /// never less than its natural lines, grown to a grid line), the rows at their optimal running to the card's foot.
+    /// </summary>
+    private int LapRowsIn(double height)
+    {
+        if (!double.IsFinite(height) || height <= 0)
+        {
+            return 0;
+        }
+
+        var grid = ItemGrids.Of(this);
+        var band = LineRules.Under(grid, FamilySpace.Inset, Math.Max(StopwatchFace.FaceHeight(_config, Strings.Current), _fit.Natural()));
+        return ItemStretch.Count(height + FamilySpace.Inset - band, FamilyShape.Row1, grid, 0, StopwatchFace.MostLapRows);
     }
 
     /// <summary>The monotonic clock the stopwatch counts on: setting Windows' clock never moves it.</summary>
@@ -239,11 +270,11 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         FillLaps();
     }
 
-    /// <summary>[S-11302] The newest laps, one fact row each ("Lap N" and its length), as many as the config lists; "No laps yet" in the first while there is none.</summary>
+    /// <summary>[S-11302] The newest laps, one fact row each ("Lap N" and its length), as many as the card holds; "No laps yet" in the first while there is none.</summary>
     private void FillLaps()
     {
         var laps = _state.Splits;
-        var rows = StopwatchFace.LapRows(_config);
+        var rows = _lapRows;
 
         var lines = new List<FactLine>();
         if (rows > 0 && laps.Length == 0)
@@ -268,7 +299,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
     /// <summary>[S-11302] The face, its controls and its lap rows.</summary>
     private void Lay()
     {
-        var laps = StopwatchFace.LapRows(_config);
+        var laps = _lapRows;
         _laps.Visibility = laps > 0 ? Visibility.Visible : Visibility.Collapsed;
         _clock.Use(StopwatchFace.Sized(_config).Step, centred: true);
 
@@ -277,8 +308,8 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSurfaceA
         RowDefinitions[0].Height = laps > 0 ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
         RowDefinitions[1].Height = laps > 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
         Render();
-        // [S-14100] The band the sizing counts (the face as stated, never less than its natural lines), so the card is exactly
-        // the band and the lap rows.
+        // [S-14500] The band the sizing counts (the face as stated, never less than its natural lines); the lap rows under it
+        // stretch to the card's foot.
         _fit.Height = laps > 0 ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset, Math.Max(StopwatchFace.FaceHeight(_config, Strings.Current), _fit.Natural())) : double.NaN;
     }
 

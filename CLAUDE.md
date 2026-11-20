@@ -259,22 +259,25 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
 
 - **Widget sizing, one path** (SPEC "Widget sizing (SIZE)", [S-2438]..[S-2449], [S-11800];
   docs/WIDGET-KIT.md 17): **content decides a widget's size; size never decides its content.** A kind
-  states `WidgetDescriptor.Sizing` (a `WidgetSizing`: Min, Natural, Max, optional steps, always bounded)
-  from its config; the host adds it at Natural, stops resizes at Min/Max and on the steps, paints the
+  states `WidgetDescriptor.Sizing` (a `WidgetSizing`: Min, Natural, Max, always bounded, no steps)
+  from its config; the host adds it at Natural, stops resizes at Min/Max (every grid cell between: a widget
+  resizes by one cell on each axis, [S-14500]), paints the
   stored rect fitted into the sizing and refits on a config change; the grid is always on ([S-06]: no
   setting, no Alt, no free path) and it fits every sizing, a desktop icon's too, to whole grid cells first
   (`GridFit`, [S-11807], [S-11875]; a ready-made group, or touching widgets in a picture, as one block, [S-11808], [S-11809]:
   `ReadyMadeGroups.Laid`, never member by member),
-  so a kind states content's DIPs, never grid sizes; a kind whose content is repeated items states its steps in whole
-  cells part by part (`SizeSteps.InCells`, `Growing`, `Lined`; [S-14100]: a card holding items is exactly its whole
-  items, no cell left over under the last, owner 2026-11-20). Inside its range a kind shows the
+  so a kind states content's DIPs, never grid sizes; repeated items have an **optimal size** (their natural in whole
+  cells, `ItemStretch.Optimal`): the card shows as many as hold it and they stretch evenly to fill it, never under it,
+  nothing left over ([S-14500], owner 2026-11-20: "the items should have an optimal size and then they may stretch a
+  little to fill up the remaining space. the widgets should not have the size increments anymore but should be
+  incrementable in steps of one"; no `SizeSteps`, `OnePathSizingTests.S14500_`). Inside its range a kind shows the
   same parts: what it shows is config (rows, lines, facts, what the items are, a chart's span). **Size and item
   counts follow the card** ([S-14410], owner 2026-11-20: "the size should not be settable, it is set by the size of
   the widget"; "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's
   size. What the items are (which facts, which span of time a chart covers) stays a setting."): no widget has a Size
   line ([S-2449] retired; a face scales with its card), and no count line for identical items (days, hours, laps,
-  columns, tiles): their axis steps by one item and a resize stores the count its box holds (`SizeSets`). A list's
-  **Rows** stays a setting (it decides the natural height; the height steps follow it). A kit list states its
+  columns, tiles) and no stored count: the card shows what its box holds, a resize stores the rect alone ([S-14502]).
+  A list's **Rows** stays a setting (it decides the natural height; a changed Rows puts the card there, [S-14503]). A kit list states its
   rows (`IKitRows`, `KitSizing`). A view may measure its box to lay out those fixed parts
   (`IWidgetSizeAware.ApplySize(WidgetArea)`: a graph's length, where a text wraps, a grid's cells;
   `LayoutMath` for whole lines), never to choose them; costs are line heights, worst-case text lengths.
@@ -282,7 +285,7 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   names. Clock, Memory and Tasks are the references. Check a kind at its min, natural and max (renders,
   the showcase views; "max" is the large check, twice the natural, `SizeStretch.Large`). **Relaxed and stretched**
   ([S-12410], [S-12411], docs/WIDGET-KIT.md 17.4): the descriptor relaxes the stated range to no practical
-  maximum (`SizeStretch.Relax`: Max = `SizeStretch.Ceiling` on every axis the config does not step; the work
+  maximum (`SizeStretch.Relax`: Max = `SizeStretch.Ceiling` on every axis; the work
   area is the bound; the user decides how large); in a larger box items
   stretch (`ItemStretch`: rows and charts fill, text never);
   rows and fills run to the card's edge (no content inset; text keeps the item's own); items have no spacing

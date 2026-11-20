@@ -10,7 +10,7 @@ namespace Themia.Core.Widgets;
 /// [S-11302] The stopwatch on the timers' sized face ([S-11300]): the time a one-readout Readout on the
 /// family's one-readout step, centred, the lap under way its line under, the Controls row (Start, Pause or
 /// Resume as the one main action, Lap and Reset as icon buttons) and
-/// under it the newest laps, as many one-line rows as the config lists. The face is sized on the widest
+/// under it the newest laps, as many one-line rows as the card holds ([S-14500]). The face is sized on the widest
 /// the time is drawn: under an hour with its tenth ("88:88.8"), from an hour without it ("88:88:88").
 /// </summary>
 public static class StopwatchFace
@@ -40,31 +40,26 @@ public static class StopwatchFace
         return TimerFace.Sized(Worst());
     }
 
-    /// <summary>[S-11302] The lap rows the config lists, held to 0..<see cref="StopwatchConfig.MostLapRows"/>.</summary>
-    public static int LapRows(StopwatchConfig config)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        return Math.Clamp(config.LapRows, 0, StopwatchConfig.MostLapRows);
-    }
+    /// <summary>[S-11302] The most lap rows it lists, however tall its card.</summary>
+    public const int MostLapRows = 10;
 
     /// <summary>
-    /// [S-11302] The stopwatch's sizing ([S-2438]): its face over the Controls row (the main action at
-    /// its longest label, Lap and Reset), then a one-line row (28) per lap it lists, stepped by a row and
-    /// following <see cref="StopwatchConfig.LapRows"/>; up to half again wider. No header by default.
+    /// [S-11302] [S-14500] The stopwatch's sizing ([S-2438]): its face over the Controls row (the main action at
+    /// its longest label, Lap and Reset) with the card's inset over it, one band of whole cells, a new one no laps; every
+    /// cell taller lists the laps the room under the face holds, one-line rows (28) at their optimal stretched to the
+    /// card's foot, up to <see cref="MostLapRows"/>; up to half again wider. No header by default.
     /// </summary>
     public static WidgetSizing Sizing(StopwatchConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
         var none = Face(config, locale);
-
-        // [S-14100] The face with the card's inset over it, one band of whole cells, then a lap row each, whole cells, to
-        // the card's foot: the card is exactly its face's band and its rows.
-        var rows = SizeSteps.InCells(FamilyShape.Row1, 0, StopwatchConfig.MostLapRows, LapRows(config), FamilySpace.Inset + FaceHeight(config, locale));
+        var grid = ItemGrid.Default();
+        var band = ItemStretch.Optimal(FamilySpace.Inset + FaceHeight(config, locale), grid);
+        var row = ItemStretch.Optimal(FamilyShape.Row1, grid);
         return WidgetSizing.Range(
-                none.Min with { Height = rows.At(0) },
-                none.Natural with { Height = rows.At(LapRows(config)) },
-                none.Max with { Height = rows.At(StopwatchConfig.MostLapRows) })
-            .WithHeightSteps(rows);
+            none.Min with { Height = band },
+            none.Natural with { Height = band },
+            none.Max with { Height = band + (MostLapRows * row) });
     }
 
     /// <summary>[S-11302] The face's card without laps: the reading over its Controls row, the inset round them.</summary>
@@ -77,27 +72,12 @@ public static class StopwatchFace
     }
 
     /// <summary>
-    /// [S-12834] [S-14100] The face's block over the laps as the sizing states it (the reading and its Controls row, the
+    /// [S-12834] [S-14500] The face's block over the laps as the sizing states it (the reading and its Controls row, the
     /// card's inset off its top and foot): the view lays it in that band grown to a grid line, the laps under it.
     /// </summary>
     public static double FaceHeight(StopwatchConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
         return Face(config, locale).Natural.Height - (2 * FamilySpace.Inset);
-    }
-
-    /// <summary>[S-11302] The config a stopwatch dragged to <paramref name="size"/> means: as many lap rows as its height holds.</summary>
-    public static WidgetConfig SizeSets(StopwatchConfig config, SizeDip size)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        var rows = Sizing(config, Strings.Current).HeightSteps!.Nearest(size.Height);
-        if (rows == LapRows(config))
-        {
-            return config;
-        }
-
-        var next = (StopwatchConfig)config.Clone();
-        next.LapRows = rows;
-        return next;
     }
 }

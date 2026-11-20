@@ -49,10 +49,10 @@ public static class LassoArea
     }
 
     /// <summary>
-    /// [S-2444] [S-11807] Lay <paramref name="widget"/> (new) into <paramref name="area"/>: its config is what that box
-    /// means for its kind (rows, columns, Size, <see cref="SizeFit.ConfigFor"/>), then its rect the area fitted into the
+    /// [S-2444] [S-11807] Lay <paramref name="widget"/> (new) into <paramref name="area"/>: its rect the area fitted into the
     /// kind's sizing on the grid, anchored at the area's top-left (<see cref="SizeFit.Refit"/>): as large as the area
-    /// within what the kind allows, never larger.
+    /// within what the kind allows, never larger; [S-14502] what it shows of a count that follows its card it reads from
+    /// that box.
     /// </summary>
     public static void Fill(WidgetInstance widget, FracRect area, ScreenMetrics screen, double scale)
     {
@@ -63,7 +63,6 @@ public static class LassoArea
             return;
         }
 
-        widget.Config = SizeFit.ConfigFor(widget.Config, area, screen, scale, SizeFit.Limits(widget, screen, scale));
         SizeFit.Refit(widget, screen, scale);
     }
 

@@ -53,10 +53,10 @@ releases everything.
   original had no chrome) gates the chip. Only the decode size follows the card's area.
 - **[S-11208]** Converted to the sizing ([S-2438]): the picture keeps its
   **Shape** (a menu line: 16:9, the default, 4:3, 1:1 or Free; a quarter turn of Rotation stands it
-  up): with a shape the width is 160 + n × 32 (the config's `Span`, a new one 320) up to 800 and never
-  past 600 high, the height following the width (`VideoStreamSizing`), so dragging the side sets the
-  span and the card keeps the stream's shape; Free keeps a free 160..800 × 120..600 (a new one
-  320 × 240). The stream's own frame size is not read for it (the sizing is the config's alone): the
+  up): with a shape a new card and its least take the stream's shape (a new one 320 wide, `VideoStreamSizing`);
+  the card then takes every grid cell ([S-14500]: the width no longer steps by 32 and the height no longer follows it;
+  the stored `Span` is gone, [S-14502]) and the picture is fitted in it by its Fit; Free keeps a free range from
+  160 × 120 (a new one 320 × 240). The stream's own frame size is not read for it (the sizing is the config's alone): the
   user picks the shape that matches the camera. No tier shows or hides the strip, the controls or the chip.
 - **[S-1313]** What the chrome says (`StreamChromeRules`): "LIVE" for an open stream, "every 10 s"
   in interval mode, "connecting" before the first frame, "reconnecting n" after the n-th failure in

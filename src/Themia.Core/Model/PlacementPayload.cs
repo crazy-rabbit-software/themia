@@ -329,8 +329,8 @@ public sealed class PlacementPayload
             var (w, h) = (GridFit.Up(cell.W, cols), GridFit.Up(cell.H, rows));
             if (known && SizeFit.Limits(SizeFit.Of(kind), screen, grid.Scale) is { } limits)
             {
-                // [S-14100] An axis that follows the config lands at the config's size (its whole items), as it is painted.
-                (w, h) = (limits.Width.Hold(w), limits.Height.Hold(h));
+                // [S-2446] Its sizing held on the display's whole cells, as it is painted.
+                (w, h) = (limits.Width.Range(w), limits.Height.Range(h));
             }
 
             rect = rect with { W = w, H = h };

@@ -34,8 +34,8 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
 - **[S-11403]** **Rss states its rows** ([S-2440]): `Rows` (1..20, default 5) headlines a column,
   `Lines` per headline (the headline with its age; the site with its icon; the summary), offered up to
   the lines its fields have (Source and Preview off: one), default 2, and its **columns** (1 or 2, [S-11400]):
-  the card's width ([S-14410], no Columns line; a resize stores them): from 440 two, a new two-column one 600 wide.
-  One column is 220..520, a new one 300 × 248. The height follows the rows; dragging the bottom edge sets Rows; more
+  the card's width ([S-14410], no Columns line, none stored, [S-14502]): from 440 two. One column is 220..520, a new
+  one 300 × 248. Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more
   headlines scroll inside them (the wheel as before). Nothing appears or disappears with the size:
   [S-1305]'s ladder is gone. Tests `RssTests.S11403_`, `RssMenuTests`.
 - **[S-1305]** *(Retired by [S-11403]: the lines, the columns and the fields are the config's.)* Rss ladder (the kit's rich look, `KitLadder.Plan` over `RssSpec.Spec` ([S-7031]) on the

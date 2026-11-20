@@ -3,86 +3,104 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Widget.Rss;
 using Xunit;
 
 namespace Themia.Modules.Tests;
 
 /// <summary>
-/// [S-14100] The kinds whose content is repeated rows are exactly as tall as their whole rows (owner, 2026-11-20: "now
-/// the weather forecast widget always has one block space at the bottom. this should obviously not be"; "same for the
-/// task widget, there is also a one block space at the bottom now. why is that?"): at every height a resize may land on,
-/// on displays of several pitches, the rows the view lays (the one rule, <see cref="ItemStretch"/>) end on the card's foot.
+/// [S-14500] The kinds whose content is repeated items, at every cell (owner, 2026-11-20: "the items should have an optimal
+/// size and then they may stretch a little to fill up the remaining space. the widgets should not have the size increments
+/// anymore but should be incrementable in steps of one"): at any height a resize lands on, on displays of several
+/// pitches, the items the view lays (the one rule, <see cref="ItemStretch"/>) are as many as the card holds at their
+/// optimal and end exactly on its foot.
 /// </summary>
-public sealed class NoLeftoverTests
+public sealed class OptimalStretchKindsTests
 {
     /// <summary>A 1080p display, 1920 at 125 % (pitch 9.974 across, 10.047 down) and a content scale of 1.25 (pitch 8).</summary>
     private static readonly (ScreenMetrics Screen, double Scale)[] Displays = [(new(1920, 1080), 1), (new(1536, 864), 1), (new(1920, 1080), 1.25)];
 
-    /// <summary>The card's height, in its content DIPs, a stepped axis gives <paramref name="config"/> on a display.</summary>
-    private static double CardHeight(WidgetConfig config, ScreenMetrics screen, double scale)
+    private static readonly ItemGrid Grid = ItemGrid.Default();
+
+    /// <summary>The heights, in the card's content DIPs, a resize lands a kind's card on: its least and the next 30 cells.</summary>
+    private static IEnumerable<double> Heights(WidgetConfig config, ScreenMetrics screen, double scale)
     {
         var limits = SizeFit.Limits(SizeFit.Of(config), screen, scale)!;
-        return limits.Height.Pinned!.Value * screen.Height / scale;
+        var (_, rows) = GridGeometry.GridDims(screen);
+        var least = (int)Math.Round(limits.Height.Min * rows);
+        // A card is whole device pixels (at 100 %): its height in its content DIPs so.
+        return Enumerable.Range(least, 31).Select(cells => Math.Round(cells / (double)rows * screen.Height) / scale);
     }
 
-    /// <summary>What the screen's rows and columns differ by over a card: under one cell, never a cell.</summary>
-    private static void Exactly(double card, double laid, ItemGrid grid, string what)
-        => Assert.True(Math.Abs(card - laid) < grid.Pitch - 1e-6, $"{what}: {laid:0.##} laid of a {card:0.##} card ({(card - laid) / grid.Pitch:0.##} cells left over)");
-
-    [Fact]
-    public void S14100_the_forecast_is_exactly_its_days_at_every_count_and_lines()
+    private static KitPlan Rss(double cardHeight, int lines = 1)
     {
-        foreach (var (screen, scale) in Displays)
-        {
-            var grid = SizeFit.Grid(screen, scale);
-            for (var lines = 1; lines <= 2; lines++)
-            {
-                for (var days = 1; days <= 14; days++)
-                {
-                    var config = new WeatherForecastConfig { Days = days, Lines = lines };
-                    var card = CardHeight(config, screen, scale);
-
-                    // The rows style's RowStack (SpreadStack): a row a day from the card's top edge, growing to the room.
-                    var slots = ItemStretch.Reach(card, [.. Enumerable.Repeat(StretchItem.Row(lines), days)], grid);
-                    Assert.Equal(grid.Whole(FamilyShape.RowHeight(lines)), slots[0].Length, 6);
-                    Exactly(card, slots[^1].End, grid, $"{days} days of {lines} lines on {screen.Width}x{screen.Height} at {scale}");
-                }
-            }
-        }
+        var config = new RssConfig { Lines = lines, ShowSource = lines >= 2 };
+        return KitPlanner.Plan(new WidgetArea(300, cardHeight - FamilySpace.Inset), RssSpec.Spec, ((IKitConfig)config).Choices);
     }
 
     [Fact]
-    public void S14100_a_resize_of_the_forecast_lands_on_whole_days_and_stores_them()
+    public void S14500_a_list_ten_cells_tall_shows_three_rows_of_ten_thirds_with_nothing_left_over()
     {
-        var screen = new ScreenMetrics(1920, 1080);
-        var config = new WeatherForecastConfig { Days = 5 };
-        var limits = SizeFit.Limits(SizeFit.Of(config), screen, 1)!;
+        // A feed's headlines of one line (28: three cells, their optimal) in a card of ten cells: three, each a third.
+        var plan = Rss(100);
+        var reach = plan.Reach;
 
-        // Dragged to 8.4 rows' height: the eight days its whole cells hold.
-        var cell = new FracRect(0.1, 0.1, 300 / 1920.0, (8.4 * 30) / 1080);
-        var next = Assert.IsType<WeatherForecastConfig>(SizeFit.ConfigFor(config, cell, screen, 1, limits));
-        Assert.Equal(8, next.Days);
-        Assert.Equal(240 / 1080.0, SizeFit.Limits(SizeFit.Of(next), screen, 1)!.Height.Pinned!.Value, 9);
+        Assert.Equal(3, reach.Shown);
+        Assert.Equal(100.0 / 3, plan.RowHeight, 9);
+        Assert.Equal(100, Enumerable.Range(0, 3).Sum(plan.RowAt), 9);
+        Assert.True(Enumerable.Range(0, 3).Select(plan.RowAt).Max() - Enumerable.Range(0, 3).Select(plan.RowAt).Min() <= 1);
     }
 
     [Fact]
-    public void S14100_tasks_are_their_rows_and_the_add_row_at_every_count()
+    public void S14500_a_list_eleven_cells_tall_shows_three_rows_of_eleven_thirds()
+    {
+        var plan = Rss(110);
+
+        Assert.Equal(3, plan.Reach.Shown);
+        Assert.Equal(110.0 / 3, plan.RowHeight, 9);
+        Assert.Equal(110, Enumerable.Range(0, 3).Sum(plan.RowAt), 9);
+    }
+
+    [Fact]
+    public void S14500_the_forecast_shows_the_days_its_card_holds_each_stretched_less_than_a_day_more()
     {
         foreach (var (screen, scale) in Displays)
         {
             var grid = SizeFit.Grid(screen, scale);
             foreach (var lines in new[] { 1, 2 })
             {
-                for (var rows = KitSizing.MinRows; rows <= KitSizing.MaxRows; rows++)
+                var config = new WeatherForecastConfig { Lines = lines };
+                foreach (var card in Heights(config, screen, scale))
                 {
-                    var config = new TasksConfig { Rows = rows, Lines = lines };
-                    var card = CardHeight(config, screen, scale);
+                    // The rows style's RowStack (SpreadStack): a row a day from the card's top edge to its foot.
+                    var days = WeatherForecastLayout.DaysIn(new WidgetArea(300, card - FamilySpace.Inset, grid.Pitch), config);
+                    var slots = ItemStretch.Reach(card, [.. Enumerable.Repeat(StretchItem.Row(lines), days)], grid);
+                    var optimal = grid.Whole(FamilyShape.RowHeight(lines));
+                    var why = $"{days} days of {lines} lines in {card:0.##} on {screen.Width}x{screen.Height} at {scale}";
 
+                    Assert.Equal(card, slots[^1].End, 6);
+                    Assert.All(slots, s => Assert.True(s.Length >= optimal - 1, why));
+                    Assert.True(days == WeatherForecastConfig.MostDays || (days + 1) * optimal > card + 1e-6, why);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void S14500_tasks_rows_and_add_row_fill_the_card_at_every_cell()
+    {
+        foreach (var (screen, scale) in Displays)
+        {
+            var grid = SizeFit.Grid(screen, scale);
+            foreach (var lines in new[] { 1, 2 })
+            {
+                var config = new TasksConfig { Lines = lines, ListId = Themia.Core.Tasks.TaskRules.TodayListId };
+                foreach (var card in Heights(config, screen, scale))
+                {
                     // KitChecks.Plan: the rows over the add row, from the card's top edge (the view less the card's inset).
-                    var choice = config.RowsShown;
-                    var reach = ItemStretch.RowsAbove(card - FamilySpace.Inset, choice.Rows, choice.Lines, grid);
-                    Assert.Equal(choice.Rows, reach.Shown);
-                    Exactly(card, reach.Length(choice.Rows) + grid.Whole(FamilyShape.Row1), grid, $"{rows} tasks of {lines} lines on {screen.Width}x{screen.Height} at {scale}");
+                    var reach = ItemStretch.RowsAbove(card - FamilySpace.Inset, config.RowsShown.Lines, grid);
+                    Assert.Equal(card, reach.Room + reach.Foot, 6);
+                    Assert.True(reach.Pitch >= grid.Whole(FamilyShape.RowHeight(config.RowsShown.Lines)) - 1, $"{card:0.##} on {screen.Width}x{screen.Height} at {scale}");
                 }
             }
         }
@@ -95,74 +113,35 @@ public sealed class NoLeftoverTests
     [InlineData("sunrise")]
     [InlineData("airUv")]
     [InlineData("weatherPressure")]
-    public void S14100_S14600_a_single_metric_is_exactly_its_one_row(string kind)
+    public void S14500_S14600_a_single_metrics_one_row_fills_its_card_at_every_cell(string kind)
     {
-        // The facts lists are single metrics now ([S-14604]): one fact row a card, its height that row's whole cells.
+        // The facts lists are single metrics ([S-14604]): one fact row a card at its optimal new, stretched to any height.
         foreach (var (screen, scale) in Displays)
         {
             var grid = SizeFit.Grid(screen, scale);
-            var sizing = SizeFit.Of(WidgetConfig.CreateDefault(new WidgetId(kind)));
-            Assert.IsType<WholeCells>(sizing.HeightSteps!.Cells);
-            var limits = SizeFit.Limits(sizing, screen, scale)!;
-            Assert.True(limits.Height.Fixed, $"{kind}: its height is its one row");
-            var card = limits.Height.Min * screen.Height / scale;
-
-            // FactList (SpreadStack): its one row from the card's top edge.
-            var slots = ItemStretch.Reach(card, [StretchItem.Row(1)], grid);
-            Exactly(card, slots[^1].End, grid, $"{kind} on {screen.Width}x{screen.Height} at {scale}");
-        }
-    }
-
-    [Theory]
-    [InlineData("rss")]
-    [InlineData("email")]
-    [InlineData("bluetooth")]
-    [InlineData("mixer")]
-    [InlineData("contacts")]
-    [InlineData("screenTimeApps")]
-    public void S14100_every_height_step_of_a_list_is_its_parts_and_whole_rows(string kind)
-    {
-        foreach (var (screen, scale) in Displays)
-        {
-            var grid = SizeFit.Grid(screen, scale);
-            var sizing = SizeFit.Of(WidgetConfig.CreateDefault(new WidgetId(kind)));
-            var steps = sizing.HeightSteps!;
-            var cells = Assert.IsType<WholeCells>(steps.Cells);
-            var limits = SizeFit.Limits(sizing, screen, scale)!;
-            var (_, lines) = GridGeometry.GridDims(screen);
-
-            // Its parts and its rows, each its own whole cells on this display's grid, and nothing else.
-            var (over, row) = cells.Count(grid);
-            Assert.Equal(over + (steps.Count!.Value * row), limits.Height.Pinned!.Value * lines, 6);
-            Assert.Equal(grid.Cells(cells.Item), row);
+            var config = WidgetConfig.CreateDefault(new WidgetId(kind));
+            Assert.Equal(MetricRules.RowHeight, SizeFit.Of(config).Natural.Height);
+            foreach (var card in Heights(config, screen, scale))
+            {
+                // FactList (SpreadStack, its one stated row): from the card's top edge to its foot.
+                var slots = ItemStretch.Reach(card, [StretchItem.Row(1)], grid);
+                Assert.Equal(card, slots[^1].End, 6);
+            }
         }
     }
 
     [Fact]
-    public void S14100_a_ready_made_group_lands_its_forecast_exactly_its_days_and_still_touching()
+    public void S14500_a_ready_made_group_lands_its_forecast_at_its_days_and_still_touching()
     {
         var screen = new ScreenMetrics(1920, 1080);
         var recipe = ReadyMadeGroups.WeatherStation;
         var laid = ReadyMadeGroups.Laid(recipe, screen, new PlacementSizes(1));
         var at = recipe.Widgets.ToList().FindIndex(w => w.Kind == "weatherForecast");
-        var days = new WeatherForecastConfig().Days;
 
-        Assert.Equal(days * 30 / 1080.0, laid[at].H, 9);
+        Assert.True(laid[at].H * 1080 >= WeatherForecastConfig.DefaultDays * 30 - 1e-6);
 
         // The card under it starts where it ends: no cell between them.
         var under = laid.Where((r, i) => i != at && Math.Abs(r.Y - laid[at].Bottom) < 1e-9).ToList();
         Assert.NotEmpty(under);
-    }
-
-    [Fact]
-    public void S14103_a_forecast_stored_a_cell_too_tall_is_fitted_to_its_days_on_refit()
-    {
-        var screen = new ScreenMetrics(1920, 1080);
-
-        // Stored as the old sizing painted it: 164 rounded up to 170, two cells under its five rows of 30.
-        var forecast = WidgetInstance.Create(new WidgetId("weatherForecast"), new FracRect(0.2, 0.2, 300 / 1920.0, 170 / 1080.0));
-        Assert.True(SizeFit.Refit(forecast, screen, 1));
-        Assert.Equal(150 / 1080.0, forecast.Rect.H, 9);
-        Assert.Equal(0.2, forecast.Rect.Y, 9);
     }
 }

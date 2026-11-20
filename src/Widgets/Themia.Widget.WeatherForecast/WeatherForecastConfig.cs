@@ -41,8 +41,9 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
     [JsonIgnore]
     public override bool ReadsWeather => true;
 
+    /// <summary>[S-11145] [S-14502] It asks for every day open-meteo gives: how many it shows is its card's.</summary>
     [JsonIgnore]
-    public override int? ForecastDays => EffectiveDays;
+    public override int? ForecastDays => MostDays;
 
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
@@ -62,8 +63,14 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
     ];
 
 
-    /// <summary>[S-11145] How many days it shows (and asks for), 1 to 14 — open-meteo's own limit; each style's size follows it.</summary>
-    public int Days { get; set; } = 5;
+    /// <summary>
+    /// [S-11145] [S-14410] [S-14502] How many days a new card shows: its natural size's. The days shown after are as many as
+    /// its card holds (1 to <see cref="MostDays"/>, open-meteo's own limit), never stored.
+    /// </summary>
+    public const int DefaultDays = 5;
+
+    /// <summary>[S-11145] The most days it shows and asks for: open-meteo's own limit.</summary>
+    public const int MostDays = 14;
 
     /// <summary>[S-11145] The rows style's lines per row: 1 (the day, its range and figures) or 2 (the sky in words and the rain under the day).</summary>
     public int Lines { get; set; } = 1;
@@ -86,20 +93,10 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
         set => Style = (ForecastStyle)value;
     }
 
-    /// <summary>The day count actually sent, clamped, so a hand-edited 0 or 99 cannot reach the URL.</summary>
-    [JsonIgnore]
-    public int EffectiveDays => Math.Clamp(Days, 1, 14);
-
-    /// <summary>[S-11145] A day count or a line count out of range is held to it, and says so.</summary>
+    /// <summary>[S-11145] A line count out of range is held to it, and says so.</summary>
     public override IReadOnlyList<string> Repair()
     {
         var repairs = new List<string>();
-        if (Days != EffectiveDays)
-        {
-            repairs.Add($"forecast: {Days} days is out of 1..14; {EffectiveDays}");
-            Days = EffectiveDays;
-        }
-
         if (Lines != EffectiveLines)
         {
             repairs.Add($"forecast: {Lines} lines is out of 1..2; {EffectiveLines}");
@@ -113,7 +110,6 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
     {
         var copy = new WeatherForecastConfig
         {
-            Days = Days,
             Lines = Lines,
             ShowPrecipitation = ShowPrecipitation,
             Style = Style,

@@ -31,7 +31,7 @@ public sealed class RssFeed
 /// link and summary that comes back is attacker-controlled text, displayed and never interpreted.
 /// </para>
 /// </summary>
-public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests, IKitRows, IKitColumns
+public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests, IKitRows
 {
     /// <summary>[S-11403] A new feed widget's rows.</summary>
     public const int DefaultRows = 5;
@@ -45,16 +45,16 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests, IKitRows, 
     /// <summary>[S-11403] The lines are the user's where a headline can have more than one.</summary>
     bool IKitRows.OffersLines => MostLines >= 2;
 
-    /// <summary>[S-11403] The headlines in one column or two side by side: the user's, never the width's.</summary>
-    public int Columns { get; set; } = 1;
-
     /// <summary>[S-11403] The most lines a headline has with these fields: the site's line and the summary's where on.</summary>
     [JsonIgnore]
     public int MostLines => 1 + (ShowSource ? 1 : 0) + (ShowPreview ? 1 : 0);
 
-    /// <summary>[S-11403] The rows as drawn: the chosen count in the chosen columns, at most the lines a headline has.</summary>
+    /// <summary>
+    /// [S-11403] [S-14410] The rows as drawn: the chosen count (a new card's height), at most the lines a headline has, in up
+    /// to two columns side by side as the card's width holds them (<see cref="KitSizing.ColumnsFor"/>), never stored.
+    /// </summary>
     [JsonIgnore]
-    public KitRowsChoice RowsShown => new(KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, MostLines), KitSizing.ClampColumns(Columns));
+    public KitRowsChoice RowsShown => new(KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, MostLines), KitSizing.MaxColumns);
 
     KitChoices IKitConfig.Choices => new(Shows) { Rows = RowsShown };
 
@@ -178,10 +178,10 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests, IKitRows, 
             feed.Url ??= string.Empty;
         }
 
-        if (Rows != KitSizing.ClampRows(Rows) || Lines != KitSizing.ClampLines(Lines, KitSizing.MaxLines) || Columns != KitSizing.ClampColumns(Columns))
+        if (Rows != KitSizing.ClampRows(Rows) || Lines != KitSizing.ClampLines(Lines, KitSizing.MaxLines))
         {
-            (Rows, Lines, Columns) = (KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, KitSizing.MaxLines), KitSizing.ClampColumns(Columns));
-            repairs.Add("rss: rows, lines or columns out of range");
+            (Rows, Lines) = (KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, KitSizing.MaxLines));
+            repairs.Add("rss: rows or lines out of range");
         }
 
         return repairs;
@@ -196,6 +196,5 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests, IKitRows, 
         ShowDate = ShowDate,
         Rows = Rows,
         Lines = Lines,
-        Columns = Columns,
     };
 }

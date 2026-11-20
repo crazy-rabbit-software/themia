@@ -74,7 +74,7 @@ internal sealed partial class WidgetCard
     /// uses the device's location, a copy at the device's position (rounded) named "My location".
     /// The stored config is never touched.
     /// </summary>
-    private WidgetConfig ViewConfig => DevicePlaces.Resolve(_resizeConfig ?? Model.Config, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
+    private WidgetConfig ViewConfig => DevicePlaces.Resolve(Model.Config, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
 
     /// <summary>[S-12835] [S-2854] Whether the view runs: set up or not ([S-12835]: it keeps its face), unless it waits for the device's location.</summary>
     private bool Runs(FeatureSet signedIn)
@@ -245,7 +245,7 @@ internal sealed partial class WidgetCard
         // The slot was measured while the view was parked, which it did not hear ([S-1881]).
         if (_view is IWidgetSizeAware sizeAware && _view.ActualWidth > 0 && _view.ActualHeight > 0)
         {
-            sizeAware.ApplySize(new WidgetArea(_view.ActualWidth, _view.ActualHeight, CellPitch));
+            sizeAware.ApplySize(new WidgetArea(_view.ActualWidth, _view.ActualHeight, CellPitch, XamlRoot?.RasterizationScale ?? 1));
         }
     }
 }

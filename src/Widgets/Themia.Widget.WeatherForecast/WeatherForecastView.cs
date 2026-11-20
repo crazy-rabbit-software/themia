@@ -128,8 +128,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         // Only the fields that change what comes back make another forecast. Toggling the
         // precipitation column or the style redraws the days already in hand.
         var placeChanged = previous.Latitude != next.Latitude
-            || previous.Longitude != next.Longitude
-            || previous.EffectiveDays != next.EffectiveDays;
+            || previous.Longitude != next.Longitude;
 
         if (placeChanged)
         {
@@ -237,7 +236,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             // [S-12813] The days stay in the style, "--" and the unknown sky; why is their tooltip (not set up is the
             // card's Set up row, [S-1862]); a status glyph would stand over the first day's "--".
             _forecast = null;
-            _unread = ForecastDefaults.Unread(DateOnly.FromDateTime(DateTime.Now), _config.EffectiveDays);
+            _unread = ForecastDefaults.Unread(DateOnly.FromDateTime(DateTime.Now), WeatherForecastConfig.MostDays);
             _body.Visibility = Visibility.Visible;
             _mark.Clear();
             ToolTipService.SetToolTip(_body, OnlineParts.Caption(_status) is { Length: > 0 } why ? why : null);

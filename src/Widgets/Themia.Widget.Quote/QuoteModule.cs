@@ -29,7 +29,6 @@ public sealed class QuoteModule : IWidgetModule
         Description = QuoteStr.WidgetsA_Catalog_Quote_Description.Local(),
         Glyph = Glyphs.Quote,
         Sizing = c => QuoteLayout.Sizing((QuoteConfig)c).ScalesDown(ScaleFloor.Least(FamilyType.Caption.FontSize)),
-        SizeSets = (c, s) => QuoteLayout.SizeSets((QuoteConfig)c, s),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Notes, 1, 1),
     };

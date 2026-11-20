@@ -17,12 +17,10 @@ public readonly record struct PlacementSizes(double Scale);
 /// <list type="bullet">
 /// <item>Min rounds <b>up</b> to whole cells (content never gets less than it asked for), never under one
 /// cell.</item>
-/// <item>A free axis's Max rounds <b>down</b>, but never under the rounded Min, so a range narrower than a
+/// <item>Max rounds <b>down</b>, but never under the rounded Min, so a range narrower than a
 /// cell becomes one fixed size of whole cells (its content gets up to a cell of spare room, laid out as
 /// the kind lays out spare room).</item>
-/// <item>A stepped axis (a list's rows) keeps its steps, each rounded up to whole cells; a resize lands on
-/// the step whose rounded size is nearest; the config a cell means is the largest step it holds.</item>
-/// <item>An axis that follows the config stands at that step rounded up.</item>
+/// <item>[S-14500] Every whole cell between them is a size a resize lands on: no axis steps.</item>
 /// </list>
 /// The grid is the overlay's ([S-06]): <see cref="GridGeometry.GridDims"/> lines across the screen, so
 /// a cell is <c>1 / lines</c> of the screen, which a card paints whole ([S-11884]).
@@ -43,9 +41,8 @@ public static class GridFit
         => lines > 0 && double.IsFinite(frac) ? Cells(frac, lines) / (double)lines : frac;
 
     /// <summary>
-    /// [S-11807] [S-14269] How many whole cells of <c>1 / lines</c> hold <paramref name="frac"/> of the screen along an axis:
-    /// the grid's one count (<see cref="GridCells.Up"/>), what the host lays a widget's box in (<see cref="Up"/>) and what
-    /// a sizing's step in cells takes on that axis (<c>SizeFit</c>), so a step is exactly what the host lays.
+    /// [S-11807] How many whole cells of <c>1 / lines</c> hold <paramref name="frac"/> of the screen along an axis: the
+    /// grid's one count (<see cref="GridCells.Up"/>), what the host lays a widget's box in (<see cref="Up"/>).
     /// </summary>
     public static int Cells(double frac, int lines) => lines > 0 && double.IsFinite(frac) ? GridCells.Up(frac * lines) : 1;
 
@@ -55,9 +52,8 @@ public static class GridFit
 
     /// <summary>
     /// [S-11807] One axis of a sizing, stated in content (<see cref="SizeFit.Limits(Sdk.WidgetSizing, ScreenMetrics, double, double, bool)"/>
-    /// without the grid), fitted to <paramref name="lines"/> grid lines across the screen: Min up, a free
-    /// Max down but never under Min, a stepped axis's ends and its config's step up. No grid (lines ≤ 0):
-    /// the axis as it is.
+    /// without the grid), fitted to <paramref name="lines"/> grid lines across the screen: Min up, Max down but never
+    /// under Min. No grid (lines ≤ 0): the axis as it is.
     /// </summary>
     public static AxisLimits Axis(AxisLimits content, int lines)
     {
@@ -67,14 +63,7 @@ public static class GridFit
         }
 
         var min = Up(content.Min, lines);
-        var max = content.Stepped ? Math.Max(min, Up(content.Max, lines)) : Math.Max(min, Down(content.Max, lines));
-        return content with
-        {
-            Min = min,
-            Max = max,
-            Pinned = content.Pinned is { } pinned ? Math.Clamp(Up(pinned, lines), min, max) : null,
-            Lines = lines,
-        };
+        return new AxisLimits(min, Math.Max(min, Down(content.Max, lines)), lines);
     }
 
     /// <summary>[S-11807] A sizing's limits on <paramref name="screen"/> fitted to its snap grid, both axes.</summary>
@@ -89,8 +78,8 @@ public static class GridFit
     /// [S-11808] [S-11809] Several widgets laid out together (a ready-made group's boxes, a group's
     /// members) fitted as one block, never box by box: every edge they share stays shared, so cards that
     /// touch still touch ([S-2240], [S-2248]) and none comes to overlap another; each box gets at least
-    /// the size its own limits hold it to (<see cref="AxisLimits.Hold"/>: its range, its steps, its
-    /// pinned size: what the desktop then paints it at, [S-2446]); the order of edges is kept. Every edge
+    /// the size its own limits hold it to (<see cref="AxisLimits.Range"/>: what the desktop then paints it at,
+    /// [S-2446]); the order of edges is kept. Every edge
     /// is a grid line (the limits are on the grid, <see cref="SizeFit.Limits(WidgetInstance, ScreenMetrics, double, double)"/>):
     /// space between boxes keeps its nearest whole cells and the block's top-left corner lands on the
     /// nearest line. <paramref name="asked"/>, when given, is the size (W, H, fractions)
@@ -129,7 +118,7 @@ public static class GridFit
         double Snap(double v) => grid ? Math.Round(v, MidpointRounding.AwayFromZero) : v;
 
         // A box's own size for a span (in fractions), in units: what its limits hold it to.
-        double Own(int i, double span) => Snap((limits[i] is { } l ? l.Hold(span) : grid ? Up(span, lines) : span) * unit);
+        double Own(int i, double span) => Snap((limits[i] is { } l ? l.Range(span) : grid ? Up(span, lines) : span) * unit);
 
         var edges = spans.SelectMany(s => new[] { Key(s.Start), Key(s.End) }).Distinct().Order().ToArray();
         var line = new Dictionary<double, double>(edges.Length) { [edges[0]] = Snap(edges[0] * unit) };

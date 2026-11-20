@@ -39,9 +39,10 @@ public static class QuoteLayout
     }
 
     /// <summary>
-    /// [S-11306] The quote's sizing ([S-2438]): the inset, the mark and its 8 on the Marks style, the
-    /// lines on the Title step, the attribution's line where it is shown, the inset; stepped by a line
-    /// and following <see cref="Model.QuoteConfig.Lines"/>, 200..520 wide.
+    /// [S-11306] [S-14500] The quote's sizing ([S-2438]): the inset, the mark and its 8 on the Marks style, the
+    /// lines on the Title step, the attribution's line where it is shown, the inset; its <see cref="Model.QuoteConfig.Lines"/>
+    /// a new one's height, its least lines the least, every cell between (the block stands in its room, [S-12410]),
+    /// 200..520 wide.
     /// </summary>
     public static Sdk.WidgetSizing Sizing(Model.QuoteConfig config)
     {
@@ -50,27 +51,11 @@ public static class QuoteLayout
         var mark = MarkOf(config);
         var top = FamilySpace.Inset + (mark > 0 ? mark + FamilySpace.S2 : 0);
         var author = config.ShowAuthor ? FamilyType.Under(step).LineHeight : 0;
-        var lines = new Sdk.SizeSteps(top + author + FamilySpace.Inset, step.LineHeight, MinLines, MostLines, LinesOf(config));
+        double Lines(int n) => top + author + FamilySpace.Inset + (n * step.LineHeight);
         return Sdk.WidgetSizing.Range(
-                new Sdk.SizeDip(Narrowest, lines.At(MinLines)),
-                new Sdk.SizeDip(NaturalWidth, lines.At(LinesOf(config))),
-                new Sdk.SizeDip(Widest, lines.At(MostLines)))
-            .WithHeightSteps(lines);
-    }
-
-    /// <summary>[S-11306] The config a quote dragged to <paramref name="size"/> means: as many lines as its height holds.</summary>
-    public static Model.WidgetConfig SizeSets(Model.QuoteConfig config, Sdk.SizeDip size)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        var lines = Sizing(config).HeightSteps!.Nearest(size.Height);
-        if (lines == LinesOf(config))
-        {
-            return config;
-        }
-
-        var next = (Model.QuoteConfig)config.Clone();
-        next.Lines = lines;
-        return next;
+            new Sdk.SizeDip(Narrowest, Lines(MinLines)),
+            new Sdk.SizeDip(NaturalWidth, Lines(LinesOf(config))),
+            new Sdk.SizeDip(Widest, Lines(MostLines)));
     }
 
     /// <summary>

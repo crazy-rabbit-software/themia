@@ -34,13 +34,12 @@ public sealed class StopwatchModule : IWidgetModule
         Description = StopwatchStr.Stopwatch_Desc.Local(),
         Glyph = Glyph,
         Sizing = c => StopwatchFace.Sizing((StopwatchConfig)c, Strings.Current),
-        SizeSets = (c, s) => StopwatchFace.SizeSets((StopwatchConfig)c, s),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 3),
     };
 
-    // [S-11302] [S-14410] No options of its own: how many laps it lists is the card's height (dragging the bottom edge
-    // sets them, StopwatchFace.SizeSets), how big its time is the card's size.
+    // [S-11302] [S-14410] [S-14500] No options of its own: how many laps it lists is what the card's height holds under
+    // its face, how big its time is the card's size.
 
     public FrameworkElement CreateView(IWidgetHost host) => new StopwatchView();
 }

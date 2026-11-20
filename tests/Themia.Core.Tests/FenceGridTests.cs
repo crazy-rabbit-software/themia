@@ -249,29 +249,23 @@ public sealed class FenceGridTests
     }
 
     [Fact]
-    public void S14263_a_fence_steps_by_the_hosts_icon_boxes_under_its_title_rows()
+    public void S14501_a_fence_takes_every_cell_its_title_bar_rows_and_its_boxes_from_the_bodys_start()
     {
-        var cell = new SizeDip(76, 100);
-        var (across, down) = FenceGrid.Steps(cell, rolledUp: false);
-
-        // On the default grid: two boxes of eight cells across and more; the title bar's three rows and boxes of ten down.
-        Assert.Equal((0.0, 80.0, 2), (across.Base, across.Step, across.MinCount));
-        Assert.Equal((30.0, 100.0, 1), (down.Base, down.Step, down.MinCount));
-        Assert.True(across.At(across.MaxCount) >= SizeStretch.Ceiling);
-        Assert.True(down.At(down.MaxCount) >= SizeStretch.Ceiling);
-
-        // On a display whose cells are no whole DIP (9.974 across, 10.047 down): the title bar its rows and every step one of
-        // the host's icon boxes ([S-14269]: counted as the host counts).
-        var sizing = WidgetSizing.Range(new SizeDip(152, 128), new SizeDip(228, 228), new SizeDip(456, 456)).WithWidthSteps(across).WithHeightSteps(down);
+        // Owner, 2026-11-20: "lets not limit the user in the alignment". A fence of any whole cells: on a display whose cells
+        // are no whole DIP (9.974 across, 10.047 down) a resize lands on every cell, its title bar still its three rows and
+        // its icons whole boxes from the body's top-left, the sliver a box does not fill at its far edge and foot empty.
+        var sizing = WidgetSizing.Range(new SizeDip(152, 128), new SizeDip(228, 228), new SizeDip(456, 456));
         var limits = SizeFit.Limits(sizing, Screen, 1)!;
-        Assert.Equal(Title, limits.Height.StepBase, 9);
-        Assert.Equal(Box.H, limits.Height.Step, 9);
-        Assert.Equal(Box.W, limits.Width.Step, 9);
-        Assert.Equal(2 * Box.W, limits.Width.Min, 9);
+        var (cols, rows) = GridGeometry.GridDims(Screen);
+        var least = (int)Math.Round(limits.Height.Min * rows);
+        for (var k = 0; k < 20; k++)
+        {
+            Assert.Equal((least + k) / (double)rows, limits.Height.Range((least + k) / (double)rows), 9);
+        }
 
-        // Rolled up: the title bar alone, its rows.
-        var (_, rolled) = FenceGrid.Steps(cell, rolledUp: true);
-        Assert.Equal((30.0, 30.0), (rolled.At(rolled.MinCount), rolled.At(rolled.MaxCount)));
+        var odd = new FenceGrid.Layout(0, Title, (5.0 / cols) + (2 * Box.W), (3.0 / rows) + Box.H, Box.W, Box.H, 0);
+        Assert.Equal((2, 1), (odd.Columns, odd.Rows));
+        Assert.Equal((0.0, Title), (odd.Cell(0).X, odd.Cell(0).Y));
     }
 
     [Fact]

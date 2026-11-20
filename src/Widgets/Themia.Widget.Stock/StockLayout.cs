@@ -35,21 +35,20 @@ public static class StockLayout
         var height = FamilySpace.ContentTop + FamilyType.Big28.LineHeight
             + FamilyType.Under(FamilyType.Big28).LineHeight
             + (rows > 0 ? FamilySpace.S2 + (rows * FamilyShape.Row1) : 0) + FamilySpace.Inset;
-        var sizing = WidgetSizing.Range(new(Narrowest, height), new(Narrowest, height), new(Widest, height));
+        // [S-12834] [S-14500] Over rows the price stands at its own lines from its first ink on the card's inset, grown to a
+        // grid line (the view's band), and the rows at their optimal from there to the card's foot, every cell taller too:
+        // the rows stretch to fill it.
+        if (rows > 0)
+        {
+            var grid = ItemGrid.Default();
+            height = ItemStretch.Optimal(PriceBand, grid) + (rows * ItemStretch.Optimal(FamilyShape.Row1, grid));
+        }
 
-        // [S-12834] [S-14100] Over rows the price stands at its own lines from its first ink on the card's inset, grown to a
-        // grid line (the view's band), and the rows grow from there to the card's foot together: the height steps by a
-        // cell a row, so the rows fill it whole at every height (a new one the step nearest the stated height).
-        return rows > 0
-            ? sizing.WithHeightSteps(SizeSteps.Growing(FamilyShape.Row1, rows, MostRowSteps, PriceBand))
-            : sizing;
+        return WidgetSizing.Range(new(Narrowest, height), new(Narrowest, height), new(Widest, height));
     }
 
-    /// <summary>[S-14100] How many cells more each row under the price may grow than its least: the height's steps.</summary>
-    public const int MostRowSteps = 30;
-
     /// <summary>
-    /// [S-12834] [S-14100] The price over rows as one length from the card's top edge: the inset less the value's ink over
+    /// [S-12834] [S-14500] The price over rows as one length from the card's top edge: the inset less the value's ink over
     /// its capitals, its line and its line under (the view grows it to a grid line, <c>StockView.Place</c>).
     /// </summary>
     public static double PriceBand => FamilySpace.Inset - LineInk.Of(FamilyType.Big28).Over

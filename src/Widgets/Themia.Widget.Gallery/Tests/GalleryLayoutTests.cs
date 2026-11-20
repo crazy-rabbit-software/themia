@@ -173,7 +173,10 @@ public class GalleryLayoutTests
     {
         var area = new WidgetArea(width, height);
 
-        Assert.Equal((6, 3, 2), (GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Pictures, GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Columns, GalleryPlan.For(area, Of(GalleryStyle.Grid), 24).Rows));
+        // [S-14410] The grid's cells are what its box holds across and down.
+        var grid = GalleryPlan.For(area, Of(GalleryStyle.Grid), 24);
+        Assert.Equal((GalleryPlan.Cells(width, 3), GalleryPlan.Cells(height, 2)), (grid.Columns, grid.Rows));
+        Assert.Equal(Math.Min(24, grid.Columns * grid.Rows), grid.Pictures == 1 ? 1 : grid.Pictures);
 
         // [S-14410] The scatter's and the mosaic's pictures are what their box holds (S11207_S14410_), never a setting.
         Assert.Equal(GalleryPlan.ShownIn(area), GalleryPlan.For(area, Of(GalleryStyle.Scatter), 24).Pictures);
@@ -217,13 +220,13 @@ public class GalleryLayoutTests
     [Fact]
     public void S11207_the_grid_is_its_cells_and_the_other_layouts_a_free_range()
     {
-        // Three columns and two rows of 96, 4 apart, full-bleed.
+        // Three columns and two rows of 96, 4 apart, full-bleed: a new one; [S-14500] one cell at least, every cell between.
         var grid = GalleryPlan.Sizing(Of(GalleryStyle.Grid));
         Assert.Equal(new Themia.Sdk.SizeDip((3 * 96) + (2 * 4), (2 * 96) + 4), grid.Natural);
-        Assert.Equal((3, 2), (grid.WidthSteps!.Count, grid.HeightSteps!.Count));
+        Assert.Equal(new Themia.Sdk.SizeDip(96, 96), grid.Min);
 
-        var wide = new GalleryConfig { Style = GalleryStyle.Grid, Columns = 6, Rows = 1 };
-        Assert.Equal(new Themia.Sdk.SizeDip((6 * 96) + (5 * 4), 96), GalleryPlan.Sizing(wide).Natural);
+        var tall = new GalleryConfig { Style = GalleryStyle.Grid, Rows = 4 };
+        Assert.Equal((4 * 96) + (3 * 4), GalleryPlan.Sizing(tall).Natural.Height);
 
         foreach (var free in new[] { Of(GalleryStyle.Slideshow), Of(GalleryStyle.Scatter), Of(GalleryStyle.Mosaic), new GalleryConfig { Source = GallerySource.Bing, Style = GalleryStyle.Grid } })
         {
@@ -233,16 +236,14 @@ public class GalleryLayoutTests
     }
 
     [Fact]
-    public void S11207_dragging_the_grid_sets_its_columns_and_rows_on_a_copy()
+    public void S11207_S14502_the_grids_cells_are_as_many_as_its_box_holds()
     {
-        var config = Of(GalleryStyle.Grid);
-        var next = Assert.IsType<GalleryConfig>(GalleryPlan.SizeSets(config, new Themia.Sdk.SizeDip((4 * 96) + (3 * 4), (3 * 96) + 8)));
-
-        Assert.Equal((4, 3), (next.Columns, next.Rows));
-        Assert.Equal((3, 2), (config.Columns, config.Rows));
-        Assert.Same(config, GalleryPlan.SizeSets(config, new Themia.Sdk.SizeDip(296, 196)));
-        var slide = Of(GalleryStyle.Slideshow);
-        Assert.Same(slide, GalleryPlan.SizeSets(slide, new Themia.Sdk.SizeDip(500, 500)));
+        // Four cells across and three down hold in that box; a little more still four and three, each stretched.
+        Assert.Equal(4, GalleryPlan.Cells((4 * 96) + (3 * 4), 3));
+        Assert.Equal(4, GalleryPlan.Cells((4 * 96) + (3 * 4) + 50, 3));
+        Assert.Equal(1, GalleryPlan.Cells(20, 3));
+        Assert.Equal(GalleryConfig.MaxCells, GalleryPlan.Cells(5000, 3));
+        Assert.Equal(3, GalleryPlan.Cells(double.NaN, 3));
     }
 
     // -----------------------------------------------------------------------------------------

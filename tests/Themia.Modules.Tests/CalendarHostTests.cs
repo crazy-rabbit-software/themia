@@ -54,17 +54,30 @@ public sealed class CalendarHostTests
     }
 
     [Theory]
-    [InlineData("""{"kind":"calendar","style":"week","weekDays":0,"weekFrom":"today"}""", 1, WeekFirstDay.Today)]
-    [InlineData("""{"kind":"calendar","style":"week","weekDays":99,"weekFrom":"tomorrow"}""", 14, WeekFirstDay.Week)]
-    [InlineData("""{"kind":"calendar","style":"week","weekFrom":7}""", 7, WeekFirstDay.Week)]
-    public void S3637_a_week_length_or_first_day_out_of_bounds_falls_back(string json, int days, WeekFirstDay from)
+    [InlineData("""{"kind":"calendar","style":"week","weekFrom":"today"}""", WeekFirstDay.Today)]
+    [InlineData("""{"kind":"calendar","style":"week","weekFrom":"tomorrow"}""", WeekFirstDay.Week)]
+    [InlineData("""{"kind":"calendar","style":"week","weekFrom":7}""", WeekFirstDay.Week)]
+    public void S3637_a_week_first_day_out_of_bounds_falls_back(string json, WeekFirstDay from)
     {
         var parsed = AppStateStore.Parse(StateWith(new WidgetId("calendar"), json).ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
         var week = ConfigOf<CalendarWidgetConfig>(parsed, new WidgetId("calendar"));
-        Assert.Equal(days, week.WeekDays);
         Assert.Equal(from, week.WeekFrom);
+    }
+
+    [Fact]
+    public void S14502_a_stored_count_the_card_now_holds_is_dropped_loudly()
+    {
+        // [S-14502] How many days, hours or lines a calendar shows is its card's: a file that still stores one loads with the
+        // key dropped, said in the log (AppStateStore.DropUnknownKeys).
+        var parsed = AppStateStore.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"week","weekDays":5,"dayHours":8,"monthLines":3,"weekHours":8}""").ToJsonString());
+
+        Assert.Equal(ParseRefusal.None, parsed.Refusal);
+        foreach (var key in new[] { "weekDays", "dayHours", "monthLines", "weekHours" })
+        {
+            Assert.Contains(parsed.Repairs, r => r.Contains($"unknown config key '{key}'", StringComparison.Ordinal));
+        }
     }
 
     [Fact]
@@ -73,7 +86,7 @@ public sealed class CalendarHostTests
         var state = AppState.CreateDefault();
         var week = WidgetInstance.Create(new WidgetId("calendar"), new FracRect(0.1, 0.1, 0.2, 0.2));
         week.Id = "week";
-        week.Config = new CalendarWidgetConfig { Style = CalendarStyle.Week, WeekDays = 5, WeekFrom = WeekFirstDay.Today };
+        week.Config = new CalendarWidgetConfig { Style = CalendarStyle.Week, WeekFrom = WeekFirstDay.Today };
         var agenda = WidgetInstance.Create(new WidgetId("calendar"), new FracRect(0.4, 0.1, 0.2, 0.2));
         agenda.Id = "agenda";
         agenda.Config = new CalendarWidgetConfig { Style = CalendarStyle.Agenda, AgendaDays = 2 };
@@ -85,9 +98,8 @@ public sealed class CalendarHostTests
 
         var w = Of("week");
         Assert.Equal(CalendarStyle.Week, w.Style);
-        Assert.Equal(5, w.WeekDays);
         Assert.Equal(WeekFirstDay.Today, w.WeekFrom);
-        Assert.Equal(new CalendarPeriod(w.EffectiveWeekStart, 5, WeekFirstDay.Today), w.Period);
+        Assert.Equal(new CalendarPeriod(w.EffectiveWeekStart, CalendarPeriod.WeekMaxDays, WeekFirstDay.Today), w.Period);
         Assert.Equal(2, Of("agenda").AgendaDays);
         Assert.Equal(new CalendarPeriod(w.EffectiveWeekStart, AgendaDays: 2), Of("agenda").Period);
         Assert.DoesNotContain(parsed.Repairs, r => r.Contains("calendar", StringComparison.Ordinal) || r.Contains("agenda", StringComparison.Ordinal));

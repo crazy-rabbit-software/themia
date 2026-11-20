@@ -60,10 +60,10 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   the icons 300, Details 268); its least height holds what stands over the items and one row. No tier
   decides anything: the path at Expanded × Expanded, the columns that fit, the 48 cells and the list's date
   from 180 are gone (`FolderColumns.Fit` with them).
-- **[S-14102]** **The folder's rows reach its foot** ([S-14100]): in the list and the table the path, the search box and
+- **[S-14102]** **The folder's rows reach its foot** ([S-14500]): in the list and the table the path, the search box and
   the titles are bands of whole cells under the tool line (`FolderLayout.CrumbBand`, `SearchBand`, `HeaderBand`,
-  `Over`), the rows run from right under them to the card's foot edge, and the height steps by a row over those bands
-  (`FolderLayout.RowSteps`, 4..20 rows; how many show is the box's, as a window's). The grid's and the icons' cells keep
+  `Over`), the rows run from right under them to the card's foot edge, as many as the room holds at their optimal,
+  stretched to fill it, and the card takes every grid cell (how many show is the box's, as a window's). The grid's and the icons' cells keep
   their inset. Tests the folder's `S14102_`.
 - **[S-6411]** The rightmost column ends at the row's right inset, the same as the tool line's buttons, at
   every width and in every style (user report 2026-10-16: from 400 DIPs the list put Size last, blank for

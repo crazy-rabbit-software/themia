@@ -18,8 +18,7 @@ public sealed class HabitSizingTests
         var sizing = Kind.Sizing(new HabitTrackerConfig());
         Assert.Equal(new SizeDip(300, (4 * 30) + 30), sizing.Natural);
         Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Width); // relaxed, [S-12411]: no practical Max
-        Assert.True(sizing.HeightSteps!.FollowsConfig);
-        Assert.Equal((1, 12), (sizing.HeightSteps.MinCount, sizing.HeightSteps.MaxCount));
+        Assert.Equal((30 + 30, 30 + (12 * 30)), (sizing.Min.Height, Kind.Sizing(new HabitTrackerConfig { Rows = 12 }).Natural.Height));
 
         var two = Kind.Sizing(new HabitTrackerConfig { Rows = 6, Lines = 2 });
         Assert.Equal((6 * 40) + 30, two.Natural.Height);
@@ -80,15 +79,16 @@ public sealed class HabitSizingTests
     }
 
     [Fact]
-    public void S11530_dragging_the_bottom_edge_sets_rows_on_a_copy_and_a_single_grid_keeps_its_config()
+    public void S11530_S14500_a_height_takes_every_cell_and_a_single_grid_one_height_new()
     {
-        var config = new HabitTrackerConfig();
-        var tall = (7 * 30) + 30;
-        Assert.Equal(7, Assert.IsType<HabitTrackerConfig>(Kind.SizeSets!(config, new SizeDip(300, tall))).Rows);
-        Assert.Equal(4, config.Rows);
+        var sizing = Kind.Sizing(new HabitTrackerConfig());
+        foreach (var height in new[] { 60.0, 70, 110, 240, 247 })
+        {
+            Assert.Equal(height, sizing.FitHeight(height));
+        }
 
-        var heat = new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap };
-        Assert.Same(heat, Kind.SizeSets!(heat, new SizeDip(300, 600)));
+        var heat = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap });
+        Assert.Equal(heat.Min.Height, heat.Natural.Height);
     }
 
     [Fact]

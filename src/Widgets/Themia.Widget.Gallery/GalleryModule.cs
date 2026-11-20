@@ -32,7 +32,6 @@ public sealed class GalleryModule : IWidgetModule
         Description = GalleryStr.WidgetsA_Catalog_Gallery_Description.Local(),
         Glyph = Glyph,
         Sizing = c => GalleryPlan.Sizing((GalleryConfig)c),
-        SizeSets = (c, size) => GalleryPlan.SizeSets((GalleryConfig)c, size),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 1, 0),
     };

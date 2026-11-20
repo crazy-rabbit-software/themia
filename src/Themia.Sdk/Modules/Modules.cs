@@ -101,15 +101,6 @@ public sealed record WidgetDescriptor
         }
     }
 
-    /// <summary>
-    /// [S-2442] For a kind whose size follows a count (a list's rows): the config a box of
-    /// <paramref name="size"/> means, given the config it has now (which it must not change: it returns a
-    /// changed copy, or the same instance when nothing changes). The host asks it while a resize is
-    /// dragged (the preview) and on the drop, and stores the config and the rect in one mutation.
-    /// Null for every other kind.
-    /// </summary>
-    public Func<WidgetConfig, SizeDip, WidgetConfig>? SizeSets { get; init; }
-
     /// <summary>[S-2438] The sizing of <paramref name="config"/> (the defaults when null).</summary>
     public WidgetSizing SizingOf(WidgetConfig? config = null) => Sizing(config ?? CreateDefault());
 

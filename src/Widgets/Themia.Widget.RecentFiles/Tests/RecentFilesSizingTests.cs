@@ -25,13 +25,13 @@ public sealed class RecentFilesSizingTests
     }
 
     [Fact]
-    public void S11200_dragging_its_bottom_edge_sets_rows_on_a_copy()
+    public void S11200_S14500_its_rows_are_a_new_cards_height_every_cell_from_one_row_up()
     {
-        var config = new RecentFilesConfig();
-        var next = Kind.SizeSets!(config, new SizeDip(300, 4 * 40));
+        var sizing = Kind.Sizing(new RecentFilesConfig { Rows = 4 });
 
-        Assert.Equal(4, Assert.IsType<RecentFilesConfig>(next).Rows);
-        Assert.Equal(6, config.Rows);
+        Assert.Equal(4 * 40, sizing.Natural.Height);
+        Assert.Equal(40, sizing.Min.Height);
+        Assert.Equal(6, new RecentFilesConfig().Rows);
     }
 
     [Fact]

@@ -54,13 +54,13 @@ public sealed class EmailSizingTests
     }
 
     [Fact]
-    public void S11402_dragging_the_bottom_edge_sets_rows_and_a_copy_keeps_them()
+    public void S11402_S14500_its_rows_are_its_natural_height_and_a_copy_keeps_them()
     {
-        var config = new EmailConfig { Rows = 5 };
-        var next = (EmailConfig)new EmailModule().Descriptor.SizeSets!(config, new SizeDip(300, 3 * 40));
-        Assert.Equal(3, next.Rows);
-        Assert.Equal(5, config.Rows);
-        Assert.Equal(3, ((EmailConfig)next.Clone()).Rows);
+        var config = new EmailConfig { Rows = 3 };
+        var sizing = new EmailModule().Descriptor.Sizing(config);
+        Assert.True(sizing.Natural.Height > sizing.Min.Height);
+        Assert.Equal(Themia.Sdk.SizeStretch.Ceiling, sizing.Max.Height);
+        Assert.Equal(3, ((EmailConfig)config.Clone()).Rows);
     }
 
     [Fact]

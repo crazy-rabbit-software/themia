@@ -32,7 +32,6 @@ public sealed class VideoStreamModule : IWidgetModule
         Description = VideoStreamStr.WidgetsA_Catalog_VideoStream_Description.Local(),
         Glyph = Glyph,
         Sizing = c => VideoStreamSizing.Sizing((VideoStreamConfig)c),
-        SizeSets = (c, size) => VideoStreamSizing.SizeSets((VideoStreamConfig)c, size),
         Traits = WidgetTraits.None,
         Add = new(AddFolderId.Media, 1, 1),
     };

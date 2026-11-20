@@ -46,47 +46,27 @@ public static class MixerLayout
     public static int ClampRows(int rows) => Math.Clamp(rows, MinRows, MaxRows);
 
     /// <summary>
-    /// [S-11309] [S-14100] The height's steps: a row as the step, whole grid cells from the card's top edge to its foot
-    /// edge (<see cref="Sdk.SizeSteps.InCells"/>), the config's rows as the count.
-    /// </summary>
-    public static Sdk.SizeSteps Steps(int rows, int lines)
-        => Sdk.SizeSteps.InCells(FamilyShape.RowHeight(Math.Clamp(lines, 1, 2)), MinRows, MaxRows, ClampRows(rows));
-
-    /// <summary>
-    /// [S-11309] The mixer's sizing ([S-2438]): its rows (one or two lines each) under its header, stepped
-    /// by a row and following the config's rows, 240..520 wide.
+    /// [S-11309] [S-14500] The mixer's sizing ([S-2438]): its rows (one or two lines each) at their optimal from the card's
+    /// top edge to its foot edge, one at least, its config's rows a new one's natural height, every cell between (the rows
+    /// the card holds stretched to fill it), 240..520 wide.
     /// </summary>
     public static Sdk.WidgetSizing Sizing(Model.MixerConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return Sdk.WidgetSizing.Range(new(Narrowest, 1), new(NaturalWidth, 1), new(Widest, 1)).WithHeightSteps(Steps(config.Rows, config.Lines));
-    }
-
-    /// <summary>[S-11309] The config a mixer dragged to <paramref name="size"/> means: the rows that height holds.</summary>
-    public static Model.WidgetConfig SizeSets(Model.MixerConfig config, Sdk.SizeDip size)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        var rows = Steps(config.Rows, config.Lines).Nearest(size.Height);
-        if (rows == ClampRows(config.Rows))
-        {
-            return config;
-        }
-
-        var copy = (Model.MixerConfig)config.Clone();
-        copy.Rows = rows;
-        return copy;
+        var row = Themia.Core.Widgets.ItemStretch.Optimal(FamilyShape.RowHeight(Math.Clamp(config.Lines, 1, 2)), Themia.Core.Widgets.ItemGrid.Default());
+        return Sdk.WidgetSizing.Range(new(Narrowest, row), new(NaturalWidth, ClampRows(config.Rows) * row), new(Widest, MaxRows * row));
     }
 
     /// <summary>
-    /// [S-449] [S-11309] The rows for a view <paramref name="width"/> wide: the config's rows and lines,
-    /// the playing apps first and the quiet ones under them while rows are left (more scroll inside them);
-    /// the slider 0.6 of the room beside the name and the mute button, never under its least travel.
+    /// [S-449] [S-11309] [S-14500] The rows for a view <paramref name="width"/> wide: the <paramref name="rows"/> its card
+    /// holds and the config's lines, the playing apps first and the quiet ones under them while rows are left (more scroll
+    /// inside them); the slider 0.6 of the room beside the name and the mute button, never under its least travel.
     /// </summary>
     public static MixerPlan Plan(double width, bool icons, int lines, int rows, int playing, int quiet)
     {
         var room = (double.IsFinite(width) ? width : Narrowest) - (2 * FamilySpace.Inset) - Fixed(icons);
         var slider = Math.Max(ControlsRules.MinSlider, Math.Floor(room * SliderShare));
-        var shown = ClampRows(rows);
+        var shown = Math.Max(MinRows, rows);
         var quietRows = Math.Max(0, Math.Min(shown - Math.Max(0, playing), quiet));
         return new MixerPlan(Math.Clamp(lines, 1, 2), shown, quietRows, slider, true);
     }

@@ -63,7 +63,7 @@ public sealed partial class KitStatePanel : Grid
     public StatusBlock Row => _row;
 
     /// <summary>
-    /// [S-12835] The pitch of the list's rows the face keeps under the row (unset: a one-line row's whole cells). [S-14100]
+    /// [S-12835] The pitch of the list's rows the face keeps under the row (unset: a one-line row's whole cells). [S-14500]
     /// The state's row stands in the first stated row's place, at that pitch, so the rows under it end on the card's foot
     /// (a row of two lines is four cells, the compact line alone three: one would be left over).
     /// </summary>
@@ -78,7 +78,7 @@ public sealed partial class KitStatePanel : Grid
     }
 
     /// <summary>
-    /// [S-14100] The state's row's own height where it stands in another row's place than the list's first (a check list's
+    /// [S-14500] The state's row's own height where it stands in another row's place than the list's first (a check list's
     /// add row: a row of one line, the card being its rows and that row); unset (NaN): the list's pitch.
     /// </summary>
     public double LineHeight

@@ -75,8 +75,7 @@ internal sealed partial class AppHost : IDisposable
         // [S-854] After the language, the regional formats and the icon size, which sizings read (a
         // clock's AM/PM): noted before them, the first mutation took the formats for a config change
         // and refitted the widgets it found changed.
-        // [S-14103] A loaded card with a stepped axis is fitted to its nearest step at the first refit on settled metrics.
-        _sizings.NoteAll(State, fit: true);
+        _sizings.NoteAll(State);
 
         // [S-820] The appearance engine runs before anything is built from a brush, and first on
         // every state change — subscribed before any surface — so the surfaces relayout against the

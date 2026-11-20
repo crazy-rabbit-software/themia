@@ -114,18 +114,11 @@ public static class MetricRules
     public const int LinePoints = 24;
 
     /// <summary>
-    /// [S-14600] The one row's height: a 28 fact row in whole grid cells (WR-6), three on the default grid, from the card's
-    /// top edge to its foot edge, so the card's top and bottom spacing is a list row's.
+    /// [S-14600] [S-14500] The one row's optimal height: a 28 fact row in whole grid cells, three on the default grid, from
+    /// the card's top edge to its foot edge, so the card's top and bottom spacing is a list row's (owner, 2026-11-20: "the
+    /// individual weather facts like pressure have a way to high height. the contents should also fit to the height").
     /// </summary>
-    public static double RowHeight => ItemGrid.Default().Whole(FamilyShape.Row1);
-
-    /// <summary>
-    /// [S-14600] [S-14100] The height's one step: the card is its one row (owner, 2026-11-20: "the individual weather facts
-    /// like pressure have a way to high height. the contents should also fit to the height"), never taller, so it hugs it;
-    /// the row whole grid cells of the card's own grid from its top edge to its foot edge (<see cref="SizeSteps.InCells"/>),
-    /// so on any pitch the card is exactly its row, no cell left over.
-    /// </summary>
-    public static SizeSteps HeightSteps { get; } = SizeSteps.InCells(FamilyShape.Row1, 1, 1);
+    public static double RowHeight => ItemStretch.Optimal(FamilyShape.Row1, ItemGrid.Default());
 
     /// <summary>[S-14600] The sizing of a single metric drawing no trend: 200..420 wide (relaxed), one row tall.</summary>
     public static WidgetSizing Sizing { get; } = SizingFor(MetricTrend.None);
@@ -140,25 +133,17 @@ public static class MetricRules
     public static int Rows(MetricTrend trend) => trend == MetricTrend.Line ? LineRows : 1;
 
     /// <summary>
-    /// [S-14600] [S-14220] The height's one step for <paramref name="trend"/>: its rows (<see cref="Rows"/>), each a 28 row
-    /// in whole grid cells of the card's own grid (<see cref="SizeSteps.InCells"/>), never taller, so on any pitch the card
-    /// is exactly its rows, no cell left over (WR-6).
-    /// </summary>
-    public static SizeSteps HeightStepsFor(MetricTrend trend)
-        => trend == MetricTrend.Line ? SizeSteps.InCells(FamilyShape.Row1, LineRows, LineRows) : HeightSteps;
-
-    /// <summary>
-    /// [S-14600] [S-14603] The sizing of a single metric drawing <paramref name="trend"/>: its rows tall (one; a line's two,
-    /// [S-14220]); 200..420 wide and, beside the value, the arrow's room with its gap, so the name and the value keep theirs
-    /// (content decides the size, [S-2445]); a line takes none beside it, it is the band under the row.
+    /// [S-14600] [S-14603] [S-14500] The sizing of a single metric drawing <paramref name="trend"/>: its rows tall at their
+    /// optimal (one; a line's two, [S-14220]), every cell taller too, its rows stretched alike to fill it (owner,
+    /// 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps of one");
+    /// 200..420 wide and, beside the value, the arrow's room with its gap, so the name and the value keep theirs (content
+    /// decides the size, [S-2445]); a line takes none beside it, it is the band under the row.
     /// </summary>
     public static WidgetSizing SizingFor(MetricTrend trend)
     {
         var room = TrendRoom(trend);
-        var steps = HeightStepsFor(trend);
-        var height = steps.At(Rows(trend));
-        return WidgetSizing.Range(new(MinWidth + room, height), new(NaturalWidth + room, height), new(MaxWidth + room, height))
-            .WithHeightSteps(steps);
+        var height = Rows(trend) * RowHeight;
+        return WidgetSizing.Range(new(MinWidth + room, height), new(NaturalWidth + room, height), new(MaxWidth + room, height));
     }
 
     /// <summary>

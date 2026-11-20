@@ -7,11 +7,13 @@ using Windows.Foundation;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-12400] [S-12410] [S-12807] A stack of a widget's parts that fills its room
-/// (<see cref="ItemStretch.Reach(double, IReadOnlyList{StretchItem}, double, double)"/>): the parts that grow (a
-/// family row, <see cref="IInked.Grows"/>) share the room their natural lengths leave, so they touch one another and
-/// the stack's ends; a text, a readout or a control line keeps its length; with nothing that grows the parts stand
-/// together, centred. A collapsed child takes no slot and no gap. Short of room it is a plain stack from its start.
+/// [S-12400] [S-12410] [S-12807] [S-14500] A stack of a widget's parts that fills its room
+/// (<see cref="ItemStretch.Reach(double, IReadOnlyList{StretchItem}, ItemGrid, double, bool)"/>): the parts that grow (a
+/// family row, <see cref="IInked.Grows"/>) start at their optimal and share the room their lengths leave, so they touch
+/// one another and the stack's ends; a text, a readout or a control line keeps its length; with nothing that grows the
+/// parts stand together, centred. Rows that are alike leave the room they do not fill as empty rows at the foot, as many
+/// as it holds at their optimal ("this is fine if it happens"), so each stretches less than one row's worth. A collapsed
+/// child takes no slot and no gap. Short of room it is a plain stack from its start.
 /// </summary>
 public partial class SpreadStack : Panel
 {
@@ -47,8 +49,9 @@ public partial class SpreadStack : Panel
     }
 
     /// <summary>
-    /// [S-12807] The rows the config states (0: the shown ones). Fewer shown leave the rest of those rows empty,
-    /// at the foot ([S-12800]): the shown ones keep the places the stated rows reach the ends with.
+    /// [S-12807] [S-14500] The rows the stack stands, stretched to fill it (a single metric's one row, a line's two); 0: as
+    /// many as the room holds at their optimal. Fewer shown leave the rest of those rows empty, at the foot ([S-12800]):
+    /// the shown ones keep the places the stated rows reach the ends with.
     /// </summary>
     public int Rows
     {
@@ -117,14 +120,17 @@ public partial class SpreadStack : Panel
         var shown = Children.Where(c => c.Visibility == Visibility.Visible).ToList();
         var items = shown.Select(Item).ToList();
 
-        // Rows the config states but has nothing for stand in the lay as the shown ones' like, empty.
-        while (items.Count > 0 && items.Count < _rows)
+        // Rows the stack states but has nothing for stand in the lay as the shown ones' like, empty; [S-14500] with none
+        // stated, the rows the room holds past the shown ones at their optimal.
+        var room = Down ? finalSize.Height : finalSize.Width;
+        var grid = ItemGrids.Of(this);
+        var stated = _rows > 0 ? _rows : items.Count + ItemStretch.SpareRows(room, items, grid, _spacing);
+        while (items.Count > 0 && items.Count < stated && items[^1].Grows)
         {
             items.Add(items[^1]);
         }
 
-        var room = Down ? finalSize.Height : finalSize.Width;
-        var slots = ItemStretch.Reach(room, items, ItemGrids.Of(this), _spacing, _justify);
+        var slots = ItemStretch.Reach(room, items, grid, _spacing, _justify);
 
         // [S-12834] WR-6 (owner, 2026-11-19: "a widget that is 10 blocks hight should not show 4 items"): a row the room
         // does not hold whole is not shown, never cut by the card; the cells it would take are the foot's (WR-5). It is

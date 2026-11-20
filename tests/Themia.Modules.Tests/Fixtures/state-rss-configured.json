@@ -27,7 +27,6 @@
             "kind": "rss",
             "rows": 5,
             "lines": 2,
-            "columns": 1,
             "feeds": [
               {
                 "url": "https://news.example/rss"
@@ -67,7 +66,6 @@
             "kind": "rss",
             "rows": 5,
             "lines": 2,
-            "columns": 1,
             "feeds": [
               {
                 "url": "https://only.example/atom.xml"
@@ -101,7 +99,6 @@
             "kind": "rss",
             "rows": 5,
             "lines": 2,
-            "columns": 1,
             "feeds": [
               {
                 "url": "not a url"
@@ -138,7 +135,6 @@
             "kind": "rss",
             "rows": 5,
             "lines": 2,
-            "columns": 1,
             "feeds": [],
             "maxItems": 20,
             "showSource": true,

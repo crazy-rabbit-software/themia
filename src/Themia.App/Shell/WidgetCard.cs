@@ -719,20 +719,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     // Sizing ([S-2444]..[S-2447])
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>[S-2442] The config a resize in progress means, shown by the view before it is stored; null otherwise.</summary>
-    private WidgetConfig? _resizeConfig;
-
-    /// <summary>[S-2442] Whether the last resize that landed changed the config too (the commit then relays the card out).</summary>
-    public bool ResizeSetConfig { get; private set; }
-
     /// <summary>
     /// [S-2444] This card's sizing on its display, as fractions of the screen; null before the display
-    /// is measured. Follows a resize's previewed config. [S-11807] Whole grid cells, every widget (a
-    /// desktop icon too, [S-11875]).
+    /// is measured. [S-11807] Whole grid cells, every widget (a desktop icon too, [S-11875]).
     /// </summary>
     public SizeLimits? Limits
         => _host.Metrics is { IsUsable: true } metrics
-            ? SizeFit.Limits(SizeFit.Of(_resizeConfig ?? Model.Config), metrics, _contentScale)
+            ? SizeFit.Limits(SizeFit.Of(Model.Config), metrics, _contentScale)
             : null;
 
     /// <summary>
@@ -742,57 +735,21 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     public double CellPitch
         => GridGeometry.CellPitch(_host.Metrics) / (_contentScale > 0 && double.IsFinite(_contentScale) ? _contentScale : 1);
 
-    /// <summary>[S-2442] While a resize is dragged, the view shows the config its size means (a list's rows).</summary>
-    private void PreviewResizedConfig(ScreenMetrics metrics)
-    {
-        var current = _resizeConfig ?? Model.Config;
-        var next = SizeFit.ConfigFor(current, LiveRect, metrics, _contentScale, Limits);
-        if (ReferenceEquals(next, current))
-        {
-            return;
-        }
-
-        _resizeConfig = next;
-        ApplyViewConfig();
-    }
-
     /// <summary>
-    /// [S-2460] A step of the selection's resize as a block: the card shows <paramref name="rect"/> and the view the
-    /// config that size means ([S-2442]), nothing stored until it lands (<see cref="LandResize"/>).
+    /// [S-2460] A step of the selection's resize as a block: the card shows <paramref name="rect"/>, nothing stored until it
+    /// lands (<see cref="LandResize"/>). [S-14502] Its view shows what that box holds: counts follow the card live.
     /// </summary>
-    public void PreviewResize(FracRect rect)
-    {
-        LiveRect = rect;
-        if (_host.Metrics is { IsUsable: true } metrics)
-        {
-            PreviewResizedConfig(metrics);
-        }
-    }
+    public void PreviewResize(FracRect rect) => LiveRect = rect;
 
     /// <summary>
-    /// [S-2442] A resize lands on <paramref name="rect"/>: for a kind whose size follows a count the
-    /// config that size means goes on the model with it (the caller stores both in one undo step).
-    /// The pointer's drag and the keyboard's Shift+arrows both land here.
+    /// [S-2445] A resize lands on <paramref name="rect"/> (the caller stores it in one undo step). [S-14502] A resize sets
+    /// the box alone: what the view shows of a count that follows its card (rows, days, columns) it reads from its box,
+    /// never a config a resize stored. The pointer's drag and the keyboard's Shift+arrows both land here.
     /// </summary>
     public void LandResize(FracRect rect)
     {
-        var metrics = _host.Metrics;
-        var config = _resizeConfig ?? Model.Config;
-        if (metrics.IsUsable)
-        {
-            config = SizeFit.ConfigFor(config, rect, metrics, _contentScale, Limits);
-        }
-
-        _resizeConfig = null;
-        ResizeSetConfig = !ReferenceEquals(config, Model.Config);
         Model.Rect = rect;
         LiveRect = rect;
-        if (ResizeSetConfig)
-        {
-            Model.Config = config;
-            ApplyConfig();
-        }
-
         ApplyResizable();
     }
 
@@ -991,9 +948,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         if (_activeHandle is { } handle)
         {
-            // [S-2445] The moved edge stops at the sizing's Min and Max and lands on its steps; [S-06] on the grid.
+            // [S-2445] The moved edge stops at the sizing's Min and Max; [S-06] [S-14500] on every whole cell of the grid.
             LiveRect = GridGeometry.Settle(GridGeometry.Resize(_dragStartRect, handle, dxFrac, dyFrac, metrics), metrics, handle, Limits);
-            PreviewResizedConfig(metrics);
             _host.OnGeometryPreview(this);
         }
         else if (_moved)

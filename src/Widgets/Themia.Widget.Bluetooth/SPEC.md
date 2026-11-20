@@ -42,8 +42,8 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
   enabled and reported).
 - **[S-11310]** **A list atom.** **Rows** (1 to 20, a new one 4) and **Lines** (one or two a row, a
   new one one) are settings on its menu (`IKitRows`, `KitMenuLines.Rows`, after what a row shows); the
-  card follows (`KitSizing`): the inset, the rows and the inset, stepped by a row and following
-  Rows (dragging its bottom edge sets them), 220 to 520 wide. The device cap (`MaxDevices`) is gone:
+  card follows (`KitSizing`): its rows at their optimal from the card's top edge to its foot edge, 220 to 520 wide;
+  Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]). The device cap (`MaxDevices`) is gone:
   every device is listed and more than the rows scroll. No tier ladder is left (the lines by the
   tier, the two columns at the Huge width). Tests `BluetoothLadderTests.S11310_`, `BluetoothMenuTests`.
 - **[S-1256]** `ShowSignal` (default off): RSSI from the association endpoint's

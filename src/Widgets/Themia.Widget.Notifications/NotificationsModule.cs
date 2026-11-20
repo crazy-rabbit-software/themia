@@ -36,7 +36,6 @@ public sealed class NotificationsModule : IWidgetModule
         Description = NotificationsStr.Panels_Notifications_Desc.Local(),
         Glyph = Glyph,
         Sizing = c => KitSizing.Sizing(((NotificationsConfig)c).RowsShown, addFooter: false),
-        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((NotificationsConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
         Add = new(AddFolderId.CalendarMail, 2, 0),

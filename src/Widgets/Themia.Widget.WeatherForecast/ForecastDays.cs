@@ -16,8 +16,8 @@ public sealed record ForecastGridPlan(int Days, int Columns, int Rows, double Ce
 /// <summary>
 /// [S-6171] [S-11146] The forecast's grid: the days as cells (the day, the sky's 32 glyph, the high
 /// beside the low, centred), 12 apart as the family's cells ([S-6713]), in a fixed arrangement by the
-/// day count (<see cref="Arrangement"/>); a 64 cell a step across and a row a step down, the days what the card's
-/// cells hold ([S-14410], <see cref="DaysFor"/>).
+/// day count (<see cref="Arrangement"/>); the days what the card's 64 cells across and cells down hold ([S-14410],
+/// [S-14502], <see cref="DaysFor"/>), the cells sharing the content.
 /// </summary>
 public static class ForecastGrid
 {
@@ -77,13 +77,19 @@ public static class ForecastGrid
     /// <summary>[S-14410] The most rows an arrangement has.</summary>
     public const int MostRows = 3;
 
-    /// <summary>[S-14410] The grid's width: the inset either side and a 64 cell and its gap a step, <paramref name="columns"/> of them.</summary>
-    public static SizeSteps ColumnSteps(int columns)
-        => new((2 * FamilySpace.Inset) - Gap, CellStart + Gap, 1, MostColumns, Math.Clamp(columns, 1, MostColumns));
+    /// <summary>[S-14410] The grid's width: the inset either side and <paramref name="columns"/> 64 cells, 12 apart.</summary>
+    public static double Width(int columns) => (2 * FamilySpace.Inset) + Length(Math.Max(1, columns), CellStart);
 
-    /// <summary>[S-14410] The grid's height: the content top and the inset under, a cell and its gap a step, <paramref name="rows"/> of them.</summary>
-    public static SizeSteps RowSteps(int rows)
-        => new(FamilySpace.ContentTop + FamilySpace.Inset - Gap, CellMinHeight + Gap, 1, MostRows, Math.Clamp(rows, 1, MostRows));
+    /// <summary>[S-14410] The grid's height: the content top and the inset under and <paramref name="rows"/> cells, 12 apart.</summary>
+    public static double Height(int rows) => FamilySpace.ContentTop + FamilySpace.Inset + Length(Math.Max(1, rows), CellMinHeight);
+
+    /// <summary>[S-14502] How many 64 cells, 12 apart, the box's content holds across: 1..<see cref="MostColumns"/>.</summary>
+    public static int CellsAcross(WidgetArea area)
+        => Math.Clamp((int)Math.Floor((WeatherForecastLayout.ContentWidth(area) + Gap + LayoutMath.Tolerance) / (CellStart + Gap)), 1, MostColumns);
+
+    /// <summary>[S-14502] How many cells, 12 apart, the box's content holds down: 1..<see cref="MostRows"/>.</summary>
+    public static int CellsDown(WidgetArea area)
+        => Math.Clamp((int)Math.Floor((WeatherForecastLayout.ContentHeight(area) + Gap + LayoutMath.Tolerance) / (CellMinHeight + Gap)), 1, MostRows);
 
     /// <summary>
     /// [S-14410] The days a grid of <paramref name="columns"/> cells across and <paramref name="rows"/> down holds:
@@ -97,11 +103,11 @@ public static class ForecastGrid
             .ThenByDescending(a => a.Days)
             .First().Days;
 
-    /// <summary>[S-6171] [S-11146] The grid for the box: the config's days in their arrangement, the cells sharing the content, the 32 glyph.</summary>
+    /// <summary>[S-6171] [S-11146] [S-14502] The grid for the box: the days its cells hold in their arrangement, the cells sharing the content, the 32 glyph.</summary>
     public static ForecastGridPlan Plan(WidgetArea area, WeatherForecastConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var days = config.EffectiveDays;
+        var days = WeatherForecastLayout.DaysIn(area, config);
         var (columns, rows) = Arrangement(days);
         var width = WeatherForecastLayout.ContentWidth(area);
         var height = WeatherForecastLayout.ContentHeight(area);

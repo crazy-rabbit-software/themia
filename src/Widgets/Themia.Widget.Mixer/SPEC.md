@@ -37,8 +37,8 @@ volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTe
   Tests `MixerLayoutTests.S11805_`.
 - **[S-11309]** **A list atom.** The mixer's **Rows** (1 to 12, a new one 4) and **Lines** (one or two
   a row, a new one one) are settings on its menu, after App icons; the card follows
-  (`MixerLayout.Sizing`): its rows, whole grid cells each from the card's top edge to its foot ([S-14100]), stepped by a row and following
-  Rows (dragging its bottom edge sets them, `MixerLayout.SizeSets`), 240 to 520 wide (a new one 300),
+  (`MixerLayout.Sizing`): its rows at their optimal from the card's top edge to its foot, Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]),
+  240 to 520 wide (a new one 300),
   where a wider card only gives the sliders more travel. No tier ladder is left (the name given way
   for the slider, the lines by the tier). Tests `MixerLayoutTests.S11309_`, `MixerMenuTests`. The keyboard's cursor is the Row block's ring ([S-1288]); a row
   has the item layer's hover. Render `--state sample` (five apps, Edge's two sessions grouped,

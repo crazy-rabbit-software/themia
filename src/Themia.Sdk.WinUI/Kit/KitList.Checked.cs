@@ -183,7 +183,7 @@ public sealed partial class KitList
 
         panel.ResetOrder();
         FitAddRow(shown: true);
-        CapToWholeLines();
+        Repitch();
     }
 
     /// <summary>
@@ -206,17 +206,22 @@ public sealed partial class KitList
         for (var line = 0; line < lines; line++)
         {
             var heading = panel.Children[line] is not Border;
-            total += heading ? _plan.HeadingHeight : _plan.RowHeight;
+            total += _plan.RowAt(line);
             bottoms.Add(total);
             headings.Add(heading);
         }
 
-        // [S-12807] Less the add row under them, on the foot's inset (ItemStretch.RowsAbove).
-        var room = KitPlanner.ListHeight(_area) - (_addRow?.Element.Visibility == Visibility.Visible ? FamilyShape.Row1 : 0);
-        _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
+        // [S-12807] [S-14500] Less the add row under them, on the foot's inset (ItemStretch.RowsAbove: stretched as they are).
+        var room = KitPlanner.ListHeight(_area) - (_addRow?.Element.Visibility == Visibility.Visible ? _plan.FootHeight : 0);
+        // [S-14500] The lines end on whole device pixels: the cap a hair past its last one, so a layout rounding the bound
+        // down at a fractional scale never cuts that line by a pixel.
+        _scroll.MaxHeight = total <= room + LayoutMath.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings) + 0.1;
     }
 
-    /// <summary>[S-12834] The rows and headings standing take the plan's pitch again (a new size under an editor or a drag).</summary>
+    /// <summary>
+    /// [S-12834] [S-14500] The rows and headings standing take the plan's pitch (built, or a new size under an editor or a
+    /// drag): each line its share of the room on whole device pixels (<see cref="KitPlan.RowAt"/>), the add row the foot's.
+    /// </summary>
     private void Repitch()
     {
         if (_checks is not { } panel)
@@ -224,18 +229,25 @@ public sealed partial class KitList
             return;
         }
 
-        foreach (var child in panel.Children)
+        var columns = Math.Max(1, panel.Columns);
+        for (var k = 0; k < panel.Children.Count; k++)
         {
-            switch (child)
+            var height = _plan.RowAt(k / columns);
+            switch (panel.Children[k])
             {
                 case Border { Child: RowBlock row }:
-                    row.Height = _plan.RowHeight;
+                    row.Height = height;
                     break;
                 case Grid heading:
-                    heading.Height = _plan.HeadingHeight;
-                    SectionHeading.Fill(heading.Children.OfType<TextBlock>().First(), _plan.HeadingHeight);
+                    heading.Height = height;
+                    SectionHeading.Fill(heading.Children.OfType<TextBlock>().First(), height);
                     break;
             }
+        }
+
+        if (_addRow is not null && _plan.FootHeight > 0)
+        {
+            _addRow.Element.Height = _plan.FootHeight;
         }
 
         CapToWholeLines();

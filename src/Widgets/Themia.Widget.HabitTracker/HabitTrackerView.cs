@@ -299,19 +299,24 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         _scroll.Visibility = count == 0 || heat ? Visibility.Collapsed : Visibility.Visible;
         LayHeatmap(count);
 
-        // [S-11530] The config's rows at the top and the add footer under them ([S-3850]); fewer habits
-        // leave their rows empty. Whole rows in the viewport: the rest scroll. [S-12807] The rows reach the
-        // view's top and the add footer, whose text stands on the foot's inset (up to half again their height).
+        // [S-11530] [S-14500] The rows the card holds at the top and the add footer under them ([S-3850]); fewer habits
+        // leave their rows empty. Whole rows in the viewport: the rest scroll. [S-12807] The rows reach the card's top
+        // edge and the add footer on its foot, rows and footer stretched alike to fill it.
         var reach = _area.IsMeasured
-            ? ItemStretch.RowsAbove(_area.Height, plan.Rows, plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            ? ItemStretch.RowsAbove(_area.Height, plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
             : ItemStretch.Natural(plan.Lines, _area.Grid());
-        _scroll.Height = plan.Rows < count ? reach.Length(plan.Rows) : double.NaN;
+        _scroll.Height = _area.IsMeasured && reach.Shown < count ? reach.Room : double.NaN;
         ListEdge.Apply(_scroll);
 
-        foreach (var row in _rows)
+        for (var i = 0; i < _rows.Count; i++)
         {
-            row.SetLayout(plan);
-            row.Host.Height = reach.Pitch;
+            _rows[i].SetLayout(plan);
+            _rows[i].Host.Height = reach.Height(i);
+        }
+
+        if (reach.Foot > 0)
+        {
+            _addRow.Element.Height = reach.Foot;
         }
 
         FitAddRow(plan);

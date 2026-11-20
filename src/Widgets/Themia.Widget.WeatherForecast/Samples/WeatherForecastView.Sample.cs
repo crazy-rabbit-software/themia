@@ -29,6 +29,6 @@ internal sealed partial class WeatherForecastView : IWidgetSample
 
         _applied = (WeatherForecastConfig)_config.Clone();
         _want = null;
-        _forecast = new Fetched<Forecast>(FetchStatus.Ok, new Forecast(SampleWeather.Days(_config.EffectiveDays)), null, SampleDay.MinutesAgo(4));
+        _forecast = new Fetched<Forecast>(FetchStatus.Ok, new Forecast(SampleWeather.Days(WeatherForecastConfig.MostDays)), null, SampleDay.MinutesAgo(4));
     }
 }

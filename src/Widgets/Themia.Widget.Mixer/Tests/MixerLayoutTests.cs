@@ -25,16 +25,19 @@ public sealed class MixerLayoutTests
     }
 
     [Fact]
-    public void S11309_the_rows_and_lines_are_the_configs_and_the_quiet_apps_fill_the_rows_left()
+    public void S11309_the_rows_are_the_cards_the_lines_the_configs_and_the_quiet_apps_fill_the_rows_left()
     {
         var plan = MixerLayout.Plan(300, icons: true, lines: 2, rows: 4, playing: 2, quiet: 5);
         Assert.Equal((2, 4, 2), (plan.Lines, plan.Rows, plan.Quiet));
         Assert.Equal(0, MixerLayout.Plan(300, icons: true, lines: 1, rows: 4, playing: 6, quiet: 5).Quiet);
-        Assert.Equal(12, MixerLayout.Plan(300, true, 1, 40, 1, 0).Rows);
+
+        // The rows a tall card holds, however many (the rows a new card stands are the config's).
+        Assert.Equal(40, MixerLayout.Plan(300, true, 1, 40, 1, 0).Rows);
+        Assert.Equal(1, MixerLayout.Plan(300, true, 1, 0, 1, 0).Rows);
     }
 
     [Fact]
-    public void S11309_the_height_follows_the_rows_and_dragging_sets_them()
+    public void S11309_S14500_its_rows_are_a_new_cards_height_every_cell_from_one_row_up()
     {
         var config = new MixerConfig();
         var sizing = MixerLayout.Sizing(config);
@@ -45,9 +48,8 @@ public sealed class MixerLayoutTests
         Assert.Equal(12 * 30, sizing.Max.Height);
         Assert.Equal(4 * 40, MixerLayout.Sizing(new MixerConfig { Lines = 2 }).Natural.Height);
 
-        var six = Assert.IsType<MixerConfig>(MixerLayout.SizeSets(config, sizing.Natural with { Height = 6 * 30 }));
-        Assert.Equal(6, six.Rows);
-        Assert.Equal(4, config.Rows);
+        Assert.Equal(30, sizing.Min.Height);
+        Assert.Equal(137, sizing.FitHeight(137));
     }
 
     [Fact]

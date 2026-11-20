@@ -45,10 +45,10 @@ public sealed class NotificationsTests
     }
 
     [Fact]
-    public void S11404_dragging_sets_rows_and_out_of_range_is_repaired()
+    public void S11404_its_rows_are_its_natural_height_and_out_of_range_is_repaired()
     {
-        var next = (NotificationsConfig)new NotificationsModule().Descriptor.SizeSets!(new NotificationsConfig(), new SizeDip(300, 6 * 40));
-        Assert.Equal(6, next.Rows);
+        var sizing = new NotificationsModule().Descriptor.Sizing(new NotificationsConfig { Rows = 6, Lines = 2 });
+        Assert.Equal((40d, 6 * 40d), (sizing.Min.Height, sizing.Natural.Height));
 
         var wild = new NotificationsConfig { Rows = 0, Lines = 5 };
         Assert.NotEmpty(wild.Repair());

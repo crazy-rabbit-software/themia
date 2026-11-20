@@ -37,7 +37,6 @@ public sealed class ContactsModule : IWidgetModule
         Description = ContactsStr.WidgetsA_Catalog_Contacts_Description.Local(),
         Glyph = Glyphs.Contact,
         Sizing = c => ContactsPlan.Sizing((ContactsConfig)c),
-        SizeSets = ContactsPlan.SizeSets,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredPerson], [LinkTopicId.HoveredPerson]),
         Add = new(AddFolderId.CalendarMail, 1, 2),

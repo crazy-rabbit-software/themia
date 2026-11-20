@@ -45,7 +45,7 @@ public sealed class SyncHousekeepingTests : IDisposable
     public void S2663_weather_and_stocks_widgets_of_every_view_are_synced_and_unset_ones_ask_nothing()
     {
         var now = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54 };
-        var days = new WeatherForecastConfig { Latitude = 47.37, Longitude = 8.54, Days = 30 };
+        var days = new WeatherForecastConfig { Latitude = 47.37, Longitude = 8.54 };
         var stock = new StockConfig { Symbol = "aapl", Range = QuoteRange.FiveDays };
         var state = State(
             [now, new WeatherNowConfig(), new WeatherNowConfig { Latitude = 120, Longitude = 8 }],

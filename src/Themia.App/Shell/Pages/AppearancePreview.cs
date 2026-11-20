@@ -138,10 +138,6 @@ internal sealed partial class AppearancePreview : Grid, IPagePreview
                 var cell = GridGeometry.ToPixels(rect, _metrics);
                 var model = WidgetInstance.Create(tile.Id, rect);
 
-                // [S-2442] [S-11807] A kind whose size follows a count (the tasks' rows, the forecast's days) shows the
-                // largest step its box holds, as the desktop asks it of a cell.
-                model.Config = SizeFit.ConfigFor(model.Config, rect, _metrics, 1, SizeFit.Limits(model, _metrics, 1));
-
                 var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
                 card.SetLiveRect(rect);
                 card.ApplyEditMode(false);

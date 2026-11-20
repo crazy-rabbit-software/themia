@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>[S-2438]..[S-2443] The sizing contract's own rules: fit, steps, invariants, legacy.</summary>
+/// <summary>[S-2438]..[S-2443] [S-14500] The sizing contract's own rules: fit, invariants, the relax; no axis steps.</summary>
 public sealed class WidgetSizingTests
 {
     private static WidgetSizing Meter => WidgetSizing.Range(new(160, 112), new(220, 144), new(480, 200));
@@ -17,29 +17,18 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
-    public void S2439_a_stepped_axis_lands_on_its_nearest_step_in_range()
+    public void S14500_every_size_in_range_is_its_own_no_axis_steps()
     {
-        var steps = new SizeSteps(Base: 76, Step: 28, MinCount: 1, MaxCount: 20);
-        var list = WidgetSizing.Range(new(220, 1), new(300, 1), new(520, 1)).WithHeightSteps(steps);
+        // Owner, 2026-11-20: "the widgets should not have the size increments anymore but should be incrementable in steps
+        // of one": a list's height is any size from its least up, never a whole number of rows.
+        var list = WidgetSizing.Range(new(220, 30), new(300, 180), new(520, 600));
 
-        Assert.Equal(104, list.Min.Height);
-        Assert.Equal(636, list.Max.Height);
-        Assert.Equal(76 + (28 * 3), list.FitHeight(76 + (28 * 3) + 10));
-        Assert.Equal(76 + (28 * 4), list.FitHeight(76 + (28 * 3) + 15));
-        Assert.Equal(104, list.FitHeight(0));
-        Assert.Empty(list.Problems());
-    }
+        foreach (var height in new[] { 30.0, 40, 50, 100, 110, 177, 600 })
+        {
+            Assert.Equal(height, list.FitHeight(height));
+        }
 
-    [Fact]
-    public void S2439_an_axis_that_follows_the_config_is_the_configs_count_whatever_is_asked()
-    {
-        var steps = new SizeSteps(76, 28, 1, 20, Count: 6);
-        var list = WidgetSizing.Range(new(220, 1), new(300, 1), new(520, 1)).WithHeightSteps(steps);
-
-        Assert.Equal(76 + (6 * 28), list.Natural.Height);
-        Assert.Equal(76 + (6 * 28), list.FitHeight(900));
-        Assert.Equal(76 + (6 * 28), list.FitHeight(10));
-        Assert.Equal(3, steps.Nearest(76 + (3 * 28) + 2));
+        Assert.Equal(30, list.FitHeight(0));
         Assert.Empty(list.Problems());
     }
 
@@ -53,14 +42,11 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
-    public void S2441_a_sizing_out_of_order_or_off_its_steps_says_what_is_wrong()
+    public void S2441_a_sizing_out_of_order_says_what_is_wrong()
     {
         Assert.NotEmpty(WidgetSizing.Range(new(300, 100), new(200, 100), new(400, 100)).Problems());
         Assert.NotEmpty(WidgetSizing.Range(new(100, 100), new(200, 100), new(double.PositiveInfinity, 100)).Problems());
         Assert.NotEmpty(WidgetSizing.Range(new(0, 100), new(200, 100), new(400, 100)).Problems());
-        Assert.NotEmpty((Meter with { HeightSteps = new SizeSteps(76, 28, 1, 20) }).Problems());
-        Assert.NotEmpty(Meter.WithHeightSteps(new SizeSteps(76, 0, 1, 20)).Problems());
-        Assert.NotEmpty(Meter.WithHeightSteps(new SizeSteps(76, 28, 1, 20, Count: 30)).Problems());
         Assert.Empty(Meter.Problems());
     }
 
@@ -96,13 +82,14 @@ public sealed class WidgetSizingTests
     }
 
     [Fact]
-    public void S12411_a_stepped_axis_keeps_its_steps_and_no_room_keeps_its_size()
+    public void S13012_a_kept_height_stays_and_no_room_keeps_its_size()
     {
-        var rows = new SizeSteps(48, 28, 1, 20, 6);
-        var stepped = WidgetSizing.Range(new(220, 1), new(300, 1), new(520, 1)).WithHeightSteps(rows);
-        Assert.Equal(stepped.Max.Height, SizeStretch.Relax(stepped).Max.Height);
-        Assert.Equal(SizeStretch.Ceiling, SizeStretch.Relax(stepped).Max.Width);
-        Assert.Empty(SizeStretch.Relax(stepped).Problems());
+        // A fence rolled up is its title bar: the relax leaves that height, and its width relaxes as any.
+        var rolled = WidgetSizing.Range(new(152, 28), new(228, 28), new(456, 28)) with { KeepsHeight = true };
+        Assert.Equal(28, SizeStretch.Relax(rolled).Max.Height);
+        Assert.True(SizeStretch.Relax(rolled).FixedHeight);
+        Assert.Equal(SizeStretch.Ceiling, SizeStretch.Relax(rolled).Max.Width);
+        Assert.Empty(SizeStretch.Relax(rolled).Problems());
 
         var icon = WidgetSizing.Fixed(new(76, 100)) with { Room = StretchRoom.None };
         Assert.Same(icon, SizeStretch.Relax(icon));

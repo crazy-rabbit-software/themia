@@ -465,11 +465,19 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
     // Navigation
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>[S-568] The days the layout covers, which is what is fetched.</summary>
-    private (DateOnly First, DateOnly Last) Range() => CalendarRules.ViewRange(Layout, _anchor, Today, _config.Period);
+    /// <summary>
+    /// [S-568] [S-14502] What the card shows of its period: a week's days what its width holds
+    /// (<see cref="CalendarSizing.WeekDaysIn"/>), a new one's before it is measured; the config's period else.
+    /// </summary>
+    private CalendarPeriod Shown => Layout == CalendarStyle.Week
+        ? _config.Period with { WeekDays = _area.IsMeasured ? CalendarSizing.WeekDaysIn(_area.Width, _config.WeekTitles) : CalendarPeriod.WeekDefaultDays }
+        : _config.Period;
+
+    /// <summary>[S-568] The days the layout covers, which is what is drawn.</summary>
+    private (DateOnly First, DateOnly Last) Range() => CalendarRules.ViewRange(Layout, _anchor, Today, Shown);
 
     /// <summary>Whether a day is in the period on screen, so the today button can hide when it would do nothing.</summary>
-    private bool InView(DateOnly day) => CalendarRules.InView(Layout, _anchor, Today, _config.Period, day);
+    private bool InView(DateOnly day) => CalendarRules.InView(Layout, _anchor, Today, Shown, day);
 
     /// <summary>Whether the today button would do anything: today is off screen, or the agenda is past its first page.</summary>
     private bool AwayFromToday => Layout == CalendarStyle.Agenda ? _agendaPage > 0 : !InView(Today);
@@ -484,7 +492,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
             return;
         }
 
-        _anchor = CalendarRules.Step(Layout, _anchor, direction, _config.Period);
+        _anchor = CalendarRules.Step(Layout, _anchor, direction, Shown);
 
         // Paging back to the period holding today picks following it up again.
         _followToday = InView(Today);
@@ -610,7 +618,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
             HideAgenda();
         }
         // [S-568] [S-12481] The period is its line's label; the agenda has no line.
-        _line.Label = ShowsLine ? CalendarRules.Title(Layout, _anchor, Today, _config.Period, Strings.Current) : string.Empty;
+        _line.Label = ShowsLine ? CalendarRules.Title(Layout, _anchor, Today, Shown, Strings.Current) : string.Empty;
         UpdateState();
 
         // [S-12832] (owner, 2026-11-19: "even if there is no rain in the next two hours or even if there is no cpu data

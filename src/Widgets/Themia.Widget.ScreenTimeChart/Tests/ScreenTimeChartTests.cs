@@ -20,7 +20,6 @@ public sealed class ScreenTimeChartTests
         Assert.Equal((200d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
         Assert.Equal(sizing.Min.Height, sizing.Natural.Height);
         Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
-        Assert.Null(Kind.SizeSets);
 
         // A month's bars are as tall as a week's.
         Assert.Equal(sizing, Kind.Sizing(new ScreenTimeChartConfig { Period = ScreenTimePeriod.Month }));

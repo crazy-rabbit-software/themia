@@ -52,7 +52,6 @@
           "scale": 1,
           "config": {
             "kind": "weatherForecast",
-            "days": 14,
             "lines": 1,
             "showPrecipitation": false,
             "style": "curve",

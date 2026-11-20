@@ -64,19 +64,16 @@ public sealed class WeekPlannerTests
     }
 
     [Fact]
-    public void S5320_S14410_the_days_are_the_cards_a_side_edge_sets_them_a_bottom_edge_the_rows()
+    public void S5320_S14410_S14502_the_days_are_the_cards_width_and_its_rows_a_new_cards_height()
     {
         // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows
-        // the card's size."
-        var config = new WeekPlannerConfig { Days = 3, RowsPerDay = 5 };
+        // the card's size." A new planner is three days of its rows; the card shows what its box holds, never stored.
+        var config = new WeekPlannerConfig { RowsPerDay = 5 };
         var kind = new WeekPlannerModule().Descriptor;
-        var natural = kind.Sizing(config).Natural;
+        var sizing = kind.Sizing(config);
 
-        var five = Assert.IsType<WeekPlannerConfig>(kind.SizeSets!(config, natural with { Width = 5 * WeekPlannerRules.ColumnWidth }));
-        Assert.Equal((5, 5), (five.Days, five.RowsPerDay));
-        var taller = Assert.IsType<WeekPlannerConfig>(kind.SizeSets(config, natural with { Height = natural.Height + (2 * 28) }));
-        Assert.Equal((3, 7), (taller.Days, taller.RowsPerDay));
-        Assert.Equal((3, 5), (config.Days, config.RowsPerDay));
-        Assert.Same(config, kind.SizeSets(config, natural));
+        Assert.Equal(new SizeDip(3 * WeekPlannerRules.ColumnWidth, 30 + (5 * 30)), sizing.Natural);
+        Assert.Equal(30 + (7 * 30), kind.Sizing(new WeekPlannerConfig { RowsPerDay = 7 }).Natural.Height);
+        Assert.Equal(5, WeekPlannerRules.DaysIn(5 * WeekPlannerRules.ColumnWidth, Themia.Core.Widgets.ItemGrid.Default()));
     }
 }

@@ -15,8 +15,12 @@ public sealed class ContactsPitchTests
 
         // The view at the natural box: the card less its header.
         var natural = ContactsPlan.Of(new WidgetArea(300, sizing.Natural.Height - 12), config);
-        Assert.InRange(natural.Pitch, 40, 44);
-        Assert.True(ContactsPlan.Of(new WidgetArea(300, 2000), config).Pitch > 60);
+        Assert.Equal((40.0, 5), (natural.Pitch, natural.Rows));
+
+        // [S-14500] A tall view shows the rows it holds at their optimal, each stretched less than one more row's worth.
+        var tall = ContactsPlan.Of(new WidgetArea(300, 2000), config);
+        Assert.InRange(tall.Pitch, 40, 80);
+        Assert.Equal(1972, tall.Rows * tall.Pitch, 6);
         Assert.Equal(40, ContactsPlan.Of(default, config).Pitch);
     }
 
@@ -24,10 +28,12 @@ public sealed class ContactsPitchTests
     public void S12450_a_compact_row_stretches_the_same_way_and_the_grid_keeps_its_cells()
     {
         var compact = new ContactsConfig { Layout = ContactsLayout.Compact, Rows = 6, SearchBox = false };
+        // 192 from the card's top edge: six rows of three cells hold, each 32.
         var rows = ContactsPlan.Of(new WidgetArea(300, (6 * 28) + 12), compact);
-        Assert.Equal(30, rows.Pitch);
+        Assert.Equal((32.0, 6), (rows.Pitch, rows.Rows));
 
+        // The grid's lines stretch a little too, its cells' gap kept.
         var grid = new ContactsConfig { Layout = ContactsLayout.Grid };
-        Assert.Equal(ContactsPlan.CellHeight + 12, ContactsPlan.Of(new WidgetArea(300, 2000), grid).Pitch);
+        Assert.InRange(ContactsPlan.Of(new WidgetArea(300, 2000), grid).Pitch, ContactsPlan.CellHeight + 12, 2 * (ContactsPlan.CellHeight + 12));
     }
 }

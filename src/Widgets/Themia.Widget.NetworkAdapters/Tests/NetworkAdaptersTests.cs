@@ -13,12 +13,12 @@ public sealed class NetworkAdaptersTests
     private static WidgetDescriptor Kind => ModuleCatalog.Of(new WidgetId("networkAdapters"));
 
     [Fact]
-    public void S11021_four_rows_of_two_lines_and_a_dragged_edge_sets_them()
+    public void S11021_S14500_four_rows_of_two_lines_a_new_one_and_every_cell_from_one_row_up()
     {
         var sizing = Kind.SizingOf();
         Assert.Equal(4 * 40, sizing.Natural.Height);
-        var three = Assert.IsType<NetworkAdaptersConfig>(Kind.SizeSets!(new NetworkAdaptersConfig(), new SizeDip(300, 3 * 40)));
-        Assert.Equal(3, three.Rows);
+        Assert.Equal(40, sizing.Min.Height);
+        Assert.Equal(3 * 40, Kind.SizingOf(new NetworkAdaptersConfig { Rows = 3 }).Natural.Height);
         Assert.Equal(7, ((NetworkAdaptersConfig)new NetworkAdaptersConfig { Rows = 7 }.Clone()).Rows);
     }
 

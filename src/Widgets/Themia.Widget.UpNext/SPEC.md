@@ -19,7 +19,7 @@ this" moved here from Next meeting with its key, English-only as it was). Tests:
   not today ("Tomorrow, 9:30 AM", `NextMeetingRules.Start`). Its config is a `CalendarConfig` (accounts
   and calendars as every calendar widget chooses them, [S-562], [S-567]; never birthdays) and `Rows`
   (1..20, default 3); its height follows the rows (the kit's [S-2440]), 260..520 wide, a new one
-  320 × 132 (as wide as the Next meeting block it stands under); dragging the bottom edge sets Rows;
+  320 × 132 (as wide as the Next meeting block it stands under); Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]);
   more meetings scroll inside them under the fade. It keeps its header by default, named "After this".
   Nothing after the next meeting is the Status row's "Nothing after this"; no account, loading and a
   problem are as Next meeting's. A click on a row opens that meeting in its calendar ([S-1268]). Its

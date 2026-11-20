@@ -184,9 +184,9 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _scroll.Visibility = Visibility.Collapsed;
         _state.Hide();
 
-        // [S-14100] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
+        // [S-14500] The state's row and the empty rows under it at the list's pitch: they end on the card's foot.
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            ? ItemStretch.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
             : ItemStretch.Natural(_plan.Lines, _area.Grid());
         _state.RowPitch = _reach.Pitch;
 
@@ -212,10 +212,10 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         _scroll.Visibility = Visibility.Visible;
         var now = _clock();
 
-        // [S-12807] The rows the config states reach the view's top and the foot's inset: their pitch, the first
-        // one's band over the top, the gap past their cap; a heading or a fold line is one row of 28 stretched alike.
+        // [S-12807] [S-14500] The rows the card holds at their optimal reach its top and foot edges, stretched to fill it; a
+        // heading or a fold line is one row of 28 stretched alike.
         _reach = _area.IsMeasured
-            ? ItemStretch.Rows(_area.Height, _plan.Rows, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+            ? ItemStretch.Rows(_area.Height, _plan.Lines, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
             : ItemStretch.Natural(_plan.Lines, _area.Grid());
         ListEdge.Apply(_scroll);
 
@@ -262,12 +262,20 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
     /// <summary>[S-12807] A heading's or a fold line's height: one row of 28, stretched as the rows are.</summary>
     private double LinePitch => FamilyShape.Row1 * (_reach.Pitch / _plan.RowHeight);
 
+    /// <summary>[S-14500] A line under the ones before: its edges on whole device pixels, so the lines end on the room's end.</summary>
     private void AddLine(FrameworkElement line, double height, bool heading)
     {
-        line.Height = height;
+        var scale = XamlRoot?.RasterizationScale ?? 1;
+        var top = _lines.Count > 0 ? _lines[^1].Bottom : 0;
+        _laid += height;
+        var bottom = ItemStretch.OnPixels(_laid, scale);
+        line.Height = bottom - top;
         _list.Children.Add(line);
-        _lines.Add(((_lines.Count > 0 ? _lines[^1].Bottom : 0) + height, heading));
+        _lines.Add((bottom, heading));
     }
+
+    /// <summary>[S-14500] The lines' length laid so far, before their edges are put on pixels.</summary>
+    private double _laid;
 
     /// <summary>[S-4403] Access Windows has not given: the state row's sentence and the one button that fixes it.</summary>
     private void ShowAccess(NotificationAccess access)
@@ -429,6 +437,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetSize
         Apps.Clear();
         _rows.Clear();
         _lines.Clear();
+        _laid = 0;
         _list.Children.Clear();
     }
 

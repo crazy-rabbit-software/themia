@@ -258,8 +258,7 @@
             "refreshSeconds": 10,
             "showStatus": true,
             "hoverControls": false,
-            "aspect": "Wide",
-            "span": 5
+            "aspect": "Wide"
           }
         },
         {
@@ -289,8 +288,7 @@
             "refreshSeconds": 0,
             "showStatus": false,
             "hoverControls": true,
-            "aspect": "Wide",
-            "span": 5
+            "aspect": "Wide"
           }
         },
         {

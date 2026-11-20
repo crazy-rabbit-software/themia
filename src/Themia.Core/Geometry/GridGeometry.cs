@@ -311,11 +311,9 @@ public static class GridGeometry
 
         // Each moved edge: snapped, then stopped before the widget outgrows the allowed area or
         // leaves less than the visible minimum on it, and the [S-08] floor last so it always wins.
-        var (snapX, snapY) = (limits is not { Width.Stepped: true }, limits is not { Height.Stepped: true });
-
         if (MovesLeft(handle))
         {
-            left = snapX ? SnapEdge(left, a.X, a.Right, cols, screen.Width) : left;
+            left = SnapEdge(left, a.X, a.Right, cols, screen.Width);
             left = limits is null ? left : right - limits.Width.Range(right - left);
             left = Math.Min(Math.Max(left, right - a.W), a.Right - keepX);
             left = held.Left ? Math.Max(left, a.X) : left;
@@ -324,7 +322,7 @@ public static class GridGeometry
 
         if (MovesRight(handle))
         {
-            right = snapX ? SnapEdge(right, a.X, a.Right, cols, screen.Width) : right;
+            right = SnapEdge(right, a.X, a.Right, cols, screen.Width);
             right = limits is null ? right : left + limits.Width.Range(right - left);
             right = Math.Max(Math.Min(right, left + a.W), a.X + keepX);
             right = held.Right ? Math.Min(right, a.Right) : right;
@@ -333,7 +331,7 @@ public static class GridGeometry
 
         if (MovesTop(handle))
         {
-            top = snapY ? SnapEdge(top, a.Y, a.Bottom, rows, screen.Height) : top;
+            top = SnapEdge(top, a.Y, a.Bottom, rows, screen.Height);
             top = limits is null ? top : bottom - limits.Height.Range(bottom - top);
             top = Math.Min(Math.Max(top, bottom - a.H), a.Bottom - keepY);
             top = held.Top ? Math.Max(top, a.Y) : top;
@@ -342,7 +340,7 @@ public static class GridGeometry
 
         if (MovesBottom(handle))
         {
-            bottom = snapY ? SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height) : bottom;
+            bottom = SnapEdge(bottom, a.Y, a.Bottom, rows, screen.Height);
             bottom = limits is null ? bottom : top + limits.Height.Range(bottom - top);
             bottom = Math.Max(Math.Min(bottom, top + a.H), a.Y + keepY);
             bottom = held.Bottom ? Math.Min(bottom, a.Bottom) : bottom;

@@ -44,7 +44,6 @@ internal sealed partial class CalendarView : IWidgetPreviewState
         if (string.Equals(state, "days", StringComparison.OrdinalIgnoreCase))
         {
             var days = (CalendarWidgetConfig)_config.Clone();
-            days.WeekDays = 4;
             days.WeekFrom = WeekFirstDay.Today;
             days.AgendaDays = 2;
             _config = days;

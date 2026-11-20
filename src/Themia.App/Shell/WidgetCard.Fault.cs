@@ -219,7 +219,7 @@ internal sealed partial class WidgetCard
                 // [S-1881] Only a running view: a parked one was never attached and has nothing to fit.
                 if (_running && ReferenceEquals(_view, sizeAware) && e.NewSize.Width > 0 && e.NewSize.Height > 0)
                 {
-                    sizeAware.ApplySize(new WidgetArea(e.NewSize.Width, e.NewSize.Height, CellPitch));
+                    sizeAware.ApplySize(new WidgetArea(e.NewSize.Width, e.NewSize.Height, CellPitch, XamlRoot?.RasterizationScale ?? 1));
                 }
             };
         }

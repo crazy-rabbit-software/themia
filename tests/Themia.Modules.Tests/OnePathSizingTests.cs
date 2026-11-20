@@ -30,6 +30,15 @@ public sealed partial class OnePathSizingTests
     [GeneratedRegex(@"\b(IsLegacy|LegacyFloor|WidgetSizing\.Legacy|WidgetTiers|WidgetTier|RangeTiers|Disclosure|TakeRows|WholeRows|SecondLines|SizeClass|AreaShape|WidthClass|HeightClass|WidthBreakpoints|HeightBreakpoints|KitLadder|RowRules\.Lines|RowRules\.CellIcon|ReadoutRules\.Ceiling|GlyphStep|DetailShape|DetailFace\.Plan|GaugeReading|RoomyPreviewFromWidth|FlatShedsBelow|SideShedsBelow)\b")]
     private static partial Regex OldWay();
 
+    /// <summary>
+    /// [S-14500] The names of the whole-item steps (owner, 2026-11-20: "the widgets should not have the size increments
+    /// anymore but should be incrementable in steps of one"): an axis that steps by its items, the parts counted in whole
+    /// cells for it, a config a resize stored, and the heights checked for them. Every axis takes every grid cell; no
+    /// count follows a resize.
+    /// </summary>
+    [GeneratedRegex(@"\b(SizeSteps|WholeCells|InCells|HeightSteps|WidthSteps|WithHeightSteps|WithWidthSteps|SizeSets|ConfigFor|CheckedSteps|FollowsConfig|HeightStepsFor|MonthLineSteps|MostRowSteps)\b")]
+    private static partial Regex WholeItemSteps();
+
     /// <summary>Every C# source of the repository: src and tests, build output left out, this guard too.</summary>
     private static IEnumerable<string> Sources()
     {
@@ -61,6 +70,25 @@ public sealed partial class OnePathSizingTests
         }
 
         Assert.True(found.Count == 0, "The old way of sizing is named again ([S-11800]):\n" + string.Join("\n", found));
+    }
+
+    [Fact]
+    public void S14500_no_source_names_the_whole_item_steps()
+    {
+        var found = new List<string>();
+        foreach (var file in Sources())
+        {
+            var lines = File.ReadAllLines(file);
+            for (var i = 0; i < lines.Length; i++)
+            {
+                foreach (Match match in WholeItemSteps().Matches(lines[i]))
+                {
+                    found.Add($"{Path.GetRelativePath(RepoFiles.Root, file).Replace('\\', '/')}:{i + 1}: {match.Value}");
+                }
+            }
+        }
+
+        Assert.True(found.Count == 0, "The whole-item steps are named again ([S-14500]):\n" + string.Join("\n", found));
     }
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

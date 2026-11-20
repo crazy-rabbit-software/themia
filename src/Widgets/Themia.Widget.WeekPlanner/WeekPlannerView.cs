@@ -360,11 +360,11 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     private WidgetArea _area;
 
     /// <summary>
-    /// [S-12807] A row's height (a day's heading's too): 28, the heading's and the config's rows' text from the
-    /// view's top to the foot's inset, at most half again; the first line's band over the top.
+    /// [S-12807] [S-14500] A line's height (a day's heading's too): 28 at its optimal, as many lines as the card holds from
+    /// its top edge to its foot, stretched to fill it; the first line's band over the top.
     /// </summary>
     private RowReach Reach => _area.IsMeasured
-        ? ItemStretch.Rows(_area.Height, Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows) + 1, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
+        ? ItemStretch.Rows(_area.Height, 1, _area.Grid(XamlRoot?.RasterizationScale ?? 1))
         : ItemStretch.Natural(1, _area.Grid());
 
     private void Render()
@@ -404,20 +404,22 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         var today = DateOnly.FromDateTime(now.LocalDateTime);
         var days = WeekPlannerRules.Build(_events, _birthdays, Tasks, today, zone, now, Start(today));
 
-        // [S-11410] The config's days side by side, its rows under each heading; rows carry the card's
-        // side inset, so the columns meet. An empty today still takes a row, to say nothing is planned ([S-5323]).
+        // [S-11410] [S-14502] The days the card's width holds side by side, the rows its height holds under each heading;
+        // rows carry the card's side inset, so the columns meet. An empty today still takes a row, to say nothing is
+        // planned ([S-5323]).
         var counts = days.Select(d => d.Day == today ? Math.Max(1, d.Count) : d.Count).ToList();
-        // The config's rows; a resize being dragged hands the view the config that size means ([S-2447]).
-        var slots = WeekPlannerRules.Columns(counts, _config.Days, _config.RowsPerDay);
+        var reach = Reach;
+        var grid = _area.Grid(XamlRoot?.RasterizationScale ?? 1);
+        var shownDays = _area.IsMeasured ? WeekPlannerRules.DaysIn(_area.Width, grid) : WeekPlannerRules.DefaultDays;
+        var rows = _area.IsMeasured ? Math.Max(1, reach.Shown - 1) : Math.Clamp(_config.RowsPerDay, 1, WeekPlannerRules.MaxRows);
+        var slots = WeekPlannerRules.Columns(counts, shownDays, rows);
         var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
 
-        // [S-12834] The days are columns of one grid of cells (WR-3: "items reach from edge to edge"; WR-6: whole grid
-        // cells): from the card's left edge to its right, each whole cells (the last taking the part cell), every line of
-        // them as tall as the rows' pitch, a day with fewer lines than another holding its place with empty cells, so
-        // every line of the week runs across the card and the lines touch from its top edge down; the room left over is
-        // the foot's (WR-5).
-        var reach = Reach;
-        var widths = _area.IsMeasured ? ItemStretch.Columns(_area.Width, slots.Count, _area.Grid(XamlRoot?.RasterizationScale ?? 1)) : null;
+        // [S-12834] [S-14500] The days are columns of one grid of cells (WR-3: "items reach from edge to edge"): from the
+        // card's left edge to its right, sharing its width evenly, every line of them as tall as the lines' share, a day
+        // with fewer lines than the card holds keeping its place with empty cells, so every line of the week runs across
+        // the card and the lines touch from its top edge to its foot.
+        var widths = _area.IsMeasured ? ItemStretch.Columns(_area.Width, slots.Count, grid) : null;
         for (var c = 0; c < slots.Count; c++)
         {
             _content.ColumnDefinitions.Add(new ColumnDefinition { Width = widths is null ? new GridLength(1, GridUnitType.Star) : new GridLength(widths[c]) });
@@ -431,10 +433,10 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
             columns.Add(stack);
         }
 
-        var lines = Math.Min(columns.Count == 0 ? 0 : columns.Max(c => c.Count), Math.Max(1, reach.Shown));
+        var lines = _area.IsMeasured ? Math.Max(1, reach.Shown) : (columns.Count == 0 ? 0 : columns.Max(c => c.Count));
         for (var l = 0; l < lines; l++)
         {
-            _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(reach.Pitch) });
+            _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(reach.Height(l)) });
         }
 
         for (var c = 0; c < columns.Count; c++)
@@ -442,7 +444,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
             for (var l = 0; l < lines; l++)
             {
                 var cell = l < columns[c].Count ? columns[c][l] : EmptyCell();
-                cell.Height = reach.Pitch;
+                cell.Height = reach.Height(l);
                 SetColumn(cell, c);
                 SetRow(cell, l);
                 _content.Children.Add(cell);

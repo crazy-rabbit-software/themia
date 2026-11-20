@@ -194,7 +194,6 @@ internal sealed partial class DesktopWindow
             else
             {
                 cards[i].LandResize(rects[i]);
-                _nudgeSetConfig |= cards[i].ResizeSetConfig;
             }
 
             PositionCard(cards[i], rects[i]);
@@ -207,9 +206,6 @@ internal sealed partial class DesktopWindow
         return true;
     }
 
-    /// <summary>[S-2442] The run of nudges set a config too (a list's rows).</summary>
-    private bool _nudgeSetConfig;
-
     /// <summary>[S-1972] The run of nudges ends: persist it as one undo step.</summary>
     private void FlushNudge()
     {
@@ -219,14 +215,6 @@ internal sealed partial class DesktopWindow
         }
 
         _nudging = null;
-
-        // [S-2442] A run of resizes that changed a config is stored with it as one step and lays the card out again.
-        if (_nudgeSetConfig)
-        {
-            _nudgeSetConfig = false;
-            _host.Mutate(_ => { }, relayout: true, action);
-            return;
-        }
 
         // [S-13041] Nudged icons land in a fence or out of one as a move's do.
         _host.LandMoved(this, [.. _host.Selection.Ids], action);

@@ -104,8 +104,6 @@ public sealed class FaceFloorTests
         var stated = WidgetSizing.Range(new(40, 40), new(250, 90), new(500, 90)).ScalesDownTo(new(120, 60));
         Assert.Equal(new SizeDip(40, 40), stated.Min);
 
-        var rows = WidgetSizing.Range(new(250, 90), new(250, 90), new(500, 90)).WithHeightSteps(new SizeSteps(20, 28, 1, 6, 2)).ScalesDownTo(new(60, 20));
-        Assert.Equal(new SizeDip(60, rows.HeightSteps!.At(1)), rows.Min);
     }
 
     [Fact]

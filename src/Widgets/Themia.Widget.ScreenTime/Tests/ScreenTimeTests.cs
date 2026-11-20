@@ -26,7 +26,6 @@ public sealed class ScreenTimeTests
         Assert.Equal(Math.Max(Themia.Sdk.WidgetSizing.LeastScaled, Math.Ceiling(least.Height + 24 + ScreenTimeReading.DayLine(ScreenTimePeriod.Week))), sizing.Min.Height);
         Assert.Equal(SizeStretch.Ceiling, sizing.Max.Height);
         Assert.Empty(sizing.Problems());
-        Assert.Null(Kind.SizeSets);
 
         // The widest figure fits its natural width inside the inset (a smaller card draws it scaled down, [S-12833]).
         Assert.True(ReadoutRules.Width(FamilyType.Big28, new ReadoutText(ScreenTimeRules.FormatDuration(ScreenTimeReading.WorstSeconds))) <= sizing.Natural.Width - (2 * FamilySpace.Inset));

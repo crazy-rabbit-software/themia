@@ -36,7 +36,6 @@ public sealed class WeatherForecastModule : IWidgetModule
         Description = WeatherForecastStr.WidgetsA_Catalog_Forecast_Description.Local(),
         Glyph = Glyph,
         Sizing = c => WeatherForecastLayout.Sizing((WeatherForecastConfig)c),
-        SizeSets = WeatherForecastLayout.SizeSets,
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate, LinkTopicId.SelectedDate]),
         Add = new(AddFolderId.Weather, 0, 2, Popular: 2),

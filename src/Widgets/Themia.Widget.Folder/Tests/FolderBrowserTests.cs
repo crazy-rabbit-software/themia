@@ -215,9 +215,11 @@ public sealed class FolderBrowserTests
     public void S11203_a_folder_keeps_a_free_size_in_its_range_and_details_is_as_wide_as_its_columns()
     {
         // [S-12834] Over the items: the card's inset and the tool line's whole-cell band (12 + 28 = 40). [S-14102] The list's
-        // rows are whole cells (30) to the card's foot: four at least, twenty at most, a new one the step nearest 280.
+        // rows run to the card's foot: a new one the whole rows of 28 nearest 280 (on whole cells 280: eight rows of 30), its
+        // range free from 160 to 640 ([S-11203]), every cell between.
         var list = FolderLayout.Sizing(new FolderConfig());
-        Assert.Equal((new SizeDip(220, 40 + (4 * 30)), new SizeDip(300, 40 + (8 * 30)), new SizeDip(800, 40 + (20 * 30))), (list.Min, list.Natural, list.Max));
+        Assert.Equal((new SizeDip(220, 160), new SizeDip(300, 276), new SizeDip(800, 640)), (list.Min, list.Natural, list.Max));
+        Assert.Equal(40 + (8 * 30), Math.Ceiling(list.Natural.Height / 10) * 10);
         Assert.Equal(40 + (4 * 64) - 12 + 12, FolderLayout.Sizing(new FolderConfig { Style = FolderStyle.Grid }).Natural.Height);
         Assert.Empty(list.Problems());
 
@@ -232,9 +234,10 @@ public sealed class FolderBrowserTests
 
         // Everything over the items on: the least height holds them and one row.
         var tall = new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true };
-        // [S-12834] The search box is the family's control of 28, the items right under it. [S-14102] The path, the search box
-        // and the titles each a band of whole cells (30), four rows of 30 under them.
-        Assert.Equal(40 + 30 + 30 + 30 + (4 * 30), FolderLayout.Sizing(tall).Min.Height);
+        // [S-12834] The search box is the family's control of 28, the items right under it; the least holds the tool line, the
+        // path, the box, the titles and one row of 28 in the insets, never under the folder's least (160).
+        Assert.Equal(160, FolderLayout.Sizing(tall).Min.Height);
+        Assert.True(FolderLayout.LeastHeight(tall) >= 12 + 28 + 28 + 28 + 28 + 12);
     }
 
     /// <summary>
@@ -243,22 +246,21 @@ public sealed class FolderBrowserTests
     /// what stands over them (each a band of whole cells) to the card's foot, none left over.
     /// </summary>
     [Fact]
-    public void S14102_the_rows_run_from_under_the_bands_to_the_cards_foot_at_every_step()
+    public void S14102_S14500_the_rows_run_from_under_the_bands_to_the_cards_foot_at_every_cell()
     {
         var grid = ItemGrid.Default();
         foreach (var config in new[] { new FolderConfig(), new FolderConfig { ShowPath = true, SearchBox = true }, new FolderConfig { Style = FolderStyle.Details, SearchBox = true, ShowPath = true } })
         {
             var header = config.Style == FolderStyle.Details && config.ColumnTitles;
-            var steps = FolderLayout.Sizing(config).HeightSteps!;
-            for (var n = steps.MinCount; n <= steps.MaxCount; n++)
+            var least = Math.Ceiling(FolderLayout.Sizing(config).Min.Height / 10) * 10;
+            for (var card = least; card <= least + 300; card += 10)
             {
-                var card = steps.At(n);
                 var area = new WidgetArea(300, card - Themia.Sdk.Kit.FamilySpace.Inset, grid.Pitch);
                 var height = FolderLayout.ItemsHeight(area, config.SearchBox, header, config.ShowPath, rows: true);
                 var reach = FolderLayout.Reach(height, grid);
 
-                Assert.Equal(n, reach.Shown);
-                Assert.Equal(card, FolderLayout.Over(grid, config.SearchBox, header, config.ShowPath) + reach.Length(FolderLayout.Rows(height)), 6);
+                Assert.True(reach.Pitch >= FolderLayout.RowHeight);
+                Assert.Equal(card, FolderLayout.Over(grid, config.SearchBox, header, config.ShowPath) + reach.Room, 6);
             }
         }
     }
