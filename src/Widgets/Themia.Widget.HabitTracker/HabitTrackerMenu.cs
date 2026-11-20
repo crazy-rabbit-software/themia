@@ -53,14 +53,6 @@ internal static class HabitTrackerMenu
             menu.StyleLines.Add(menu.Toggle(null, HabitTrackerStr.HabitTracker_RunWords.Text(), config.RunWords, on => config.RunWords = on));
         }
 
-        if (config.Offers(HabitsSetting.History))
-        {
-            // [S-1426] Zero removes the strip.
-            menu.StyleLines.Add(menu.Number(Glyphs.Count, HabitTrackerStr.WidgetsB_Settings_Habits_History_Label.Text(),
-                config.EffectiveHistoryDots, 0, HabitRules.MaxHistory, 1,
-                KitMenuLines.Days, value => config.HistoryDots = value));
-        }
-
         if (config.Offers(HabitsSetting.Lines))
         {
             // [S-11531] The rate (and the best run) as each row's second line.

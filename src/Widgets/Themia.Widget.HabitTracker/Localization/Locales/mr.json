@@ -48,7 +48,6 @@
     "one": "{count} सवय",
     "other": "{count} सवयी"
   },
-  "widgetsB.settings.habits.history.label": "इतिहास",
   "widgetsB.settings.habits.interval.desc": "प्रति कालखंड मिनिटे, {min} ते {max}",
   "widgetsB.settings.habits.list": "सवय सूची",
   "widgetsB.settings.habits.listsUnavailable": "सवय सूची उपलब्ध नाहीत.",

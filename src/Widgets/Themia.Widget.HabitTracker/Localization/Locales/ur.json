@@ -48,7 +48,6 @@
     "one": "{count} عادت",
     "other": "{count} عادات"
   },
-  "widgetsB.settings.habits.history.label": "سرگزشت",
   "widgetsB.settings.habits.interval.desc": "فی وقفہ منٹ، {min} سے {max}",
   "widgetsB.settings.habits.list": "عادات کی فہرست",
   "widgetsB.settings.habits.listsUnavailable": "عادات کی فہرستیں دستیاب نہیں۔",

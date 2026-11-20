@@ -52,7 +52,6 @@
     "many": "{count} звичок",
     "other": "{count} звички"
   },
-  "widgetsB.settings.habits.history.label": "Історія",
   "widgetsB.settings.habits.interval.desc": "Хвилин на вікно, від {min} до {max}",
   "widgetsB.settings.habits.list": "Список звичок",
   "widgetsB.settings.habits.listsUnavailable": "Списки звичок недоступні.",

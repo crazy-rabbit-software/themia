@@ -52,7 +52,6 @@
     "many": "{count} nawyków",
     "other": "{count} nawyku"
   },
-  "widgetsB.settings.habits.history.label": "Historia",
   "widgetsB.settings.habits.interval.desc": "Minuty na okres, od {min} do {max}",
   "widgetsB.settings.habits.list": "Lista nawyków",
   "widgetsB.settings.habits.listsUnavailable": "Listy nawyków są niedostępne.",

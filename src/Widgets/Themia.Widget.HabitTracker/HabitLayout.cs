@@ -7,7 +7,7 @@ namespace Themia.Core.Habits;
 /// <param name="Count">Habits in the list.</param>
 /// <param name="Writable">Whether a habit can be added (a list is chosen and the pool is writable).</param>
 /// <param name="ShowStreak">The "Show streaks" setting.</param>
-/// <param name="HistoryDots">The configured dot count, already clamped.</param>
+/// <param name="HistoryDots">The dots the card's width holds (<see cref="HabitSizing.HistoryFor"/>).</param>
 /// <param name="Checklist">[S-6410] The checklist style: the current period only, so nothing beside the names.</param>
 /// <param name="Rows">[S-11530] The habits shown; more scroll inside them.</param>
 /// <param name="Lines">[S-11531] Lines per row (1 or 2; a checklist's one).</param>
@@ -79,6 +79,9 @@ public static class HabitLayout
 
     /// <summary>The narrowest a name may get before anything optional is dropped for it.</summary>
     public const double NameMinWidth = 80;
+
+    /// <summary>[S-14410] The room a dots row keeps for its name before the history's dots take the rest of the width.</summary>
+    public const double NameRoom = 120;
 
     /// <summary>Space before each trailing part: the row's name-to-meter and meter-to-value gap.</summary>
     public const double ColumnGap = FamilySpace.ColumnGap;

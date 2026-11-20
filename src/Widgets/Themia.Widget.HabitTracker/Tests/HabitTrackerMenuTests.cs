@@ -31,10 +31,10 @@ public sealed class HabitTrackerMenuTests
     private static ItemMenuEntry Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
 
     [Fact]
-    public void S11531_the_dots_offer_streaks_words_history_and_lines_under_style_and_the_checklist_nothing()
+    public void S11531_S14410_the_dots_offer_streaks_words_and_lines_under_style_never_a_history_count_and_the_checklist_nothing()
     {
         Assert.Equal(
-            [HabitTrackerStr.WidgetsB_Settings_Habits_Streaks_Label.Text(), HabitTrackerStr.HabitTracker_RunWords.Text(), HabitTrackerStr.WidgetsB_Settings_Habits_History_Label.Text(), Str.Kit_Lines.Text()],
+            [HabitTrackerStr.WidgetsB_Settings_Habits_Streaks_Label.Text(), HabitTrackerStr.HabitTracker_RunWords.Text(), Str.Kit_Lines.Text()],
             Build(new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }, Two()).StyleLines.Select(l => l.Text));
         Assert.Empty(Build(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist }, Two()).StyleLines);
     }

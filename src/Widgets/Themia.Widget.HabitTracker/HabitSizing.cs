@@ -40,22 +40,36 @@ public static class HabitSizing
         return config.Style == HabitTrackerStyle.Dots ? Math.Clamp(config.Lines, 1, 2) : 1;
     }
 
-    /// <summary>[S-11531] The least width of a dots row: the check, the name's least, the dots and the run as the config shows them.</summary>
-    public static double DotsWidth(HabitTrackerConfig config)
+    /// <summary>[S-11531] A dots row's parts but its dots: the inset either side, the check, the name's room and the run as the config shows it.</summary>
+    public static double DotsChrome(HabitTrackerConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var width = (2 * FamilySpace.Inset) + HabitLayout.BoxWidth + HabitLayout.NameMinWidth;
-        if (config.EffectiveHistoryDots > 0)
-        {
-            width += HabitLayout.ColumnGap + (config.EffectiveHistoryDots * HabitLayout.DotPitch) - HabitLayout.DotGap;
-        }
-
+        var width = (2 * FamilySpace.Inset) + HabitLayout.BoxWidth + HabitLayout.NameRoom;
         if (config.ShowStreak)
         {
             width += HabitLayout.ColumnGap + (config.RunWords ? HabitLayout.StreakWordsWidth : HabitLayout.StreakNumberWidth);
         }
 
-        return Math.Ceiling(width / FamilySpace.S1) * FamilySpace.S1;
+        return width;
+    }
+
+    /// <summary>
+    /// [S-1426] [S-14410] How many past periods a dots row shows in a card <paramref name="width"/> wide: as many dots as
+    /// the room past the check, the name's room and the run holds, 0..<see cref="HabitRules.MaxHistory"/>; fewer than
+    /// <see cref="HabitLayout.MinDots"/> are no history (none). The card's, never a setting (owner, 2026-11-20:
+    /// "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's size").
+    /// </summary>
+    public static int HistoryFor(HabitTrackerConfig config, double width)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Style != HabitTrackerStyle.Dots || !double.IsFinite(width))
+        {
+            return 0;
+        }
+
+        var room = width - DotsChrome(config) - HabitLayout.ColumnGap + HabitLayout.DotGap;
+        var dots = Math.Clamp((int)Math.Floor((room + LayoutMath.Tolerance) / HabitLayout.DotPitch), 0, HabitRules.MaxHistory);
+        return dots < HabitLayout.MinDots ? 0 : dots;
     }
 
     /// <summary>[S-11532] One habit's block in a grid per habit: its name, 4, its grid of seven rows.</summary>
@@ -79,7 +93,7 @@ public static class HabitSizing
             return WidgetSizing.Range(new(HeatmapNarrowest, 1), new(NaturalWidth, 1), new(Widest, 1)).WithHeightSteps(steps);
         }
 
-        var least = config.Style == HabitTrackerStyle.Dots ? Math.Max(Narrowest, DotsWidth(config)) : Narrowest;
+        var least = config.Style == HabitTrackerStyle.Dots ? Math.Max(Narrowest, Math.Ceiling(DotsChrome(config) / FamilySpace.S1) * FamilySpace.S1) : Narrowest;
         var rowSteps = new SizeSteps(FamilySpace.ContentTop + FamilyShape.Row1 + FamilySpace.Inset, FamilyShape.RowHeight(Lines(config)), MinRows, MaxRows, rows);
         return WidgetSizing.Range(new(least, 1), new(Math.Max(least, NaturalWidth), 1), new(Math.Max(least, Widest), 1)).WithHeightSteps(rowSteps);
     }

@@ -48,7 +48,6 @@
     "one": "{count} ልማድ",
     "other": "{count} ልማዶች"
   },
-  "widgetsB.settings.habits.history.label": "ታሪክ",
   "widgetsB.settings.habits.interval.desc": "ደቂቃዎች በአንድ መስኮት፣ ከ{min} እስከ {max}",
   "widgetsB.settings.habits.list": "የልማድ ዝርዝር",
   "widgetsB.settings.habits.listsUnavailable": "የልማድ ዝርዝሮች አይገኙም።",

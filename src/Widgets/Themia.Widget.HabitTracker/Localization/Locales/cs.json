@@ -51,7 +51,6 @@
     "few": "{count} návyky",
     "other": "{count} návyků"
   },
-  "widgetsB.settings.habits.history.label": "Historie",
   "widgetsB.settings.habits.interval.desc": "Minuty na období, {min} až {max}",
   "widgetsB.settings.habits.list": "Seznam návyků",
   "widgetsB.settings.habits.listsUnavailable": "Seznamy návyků nejsou k dispozici.",

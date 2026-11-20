@@ -48,7 +48,6 @@
     "one": "{count} gawi",
     "other": "{count} gawi"
   },
-  "widgetsB.settings.habits.history.label": "History",
   "widgetsB.settings.habits.interval.desc": "Minuto bawat window, {min} hanggang {max}",
   "widgetsB.settings.habits.list": "Listahan ng gawi",
   "widgetsB.settings.habits.listsUnavailable": "Hindi available ang mga listahan ng gawi.",

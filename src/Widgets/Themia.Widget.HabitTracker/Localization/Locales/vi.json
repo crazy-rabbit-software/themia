@@ -46,7 +46,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} thói quen"
   },
-  "widgetsB.settings.habits.history.label": "Lịch sử",
   "widgetsB.settings.habits.interval.desc": "Số phút mỗi chu kỳ, từ {min} đến {max}",
   "widgetsB.settings.habits.list": "Danh sách thói quen",
   "widgetsB.settings.habits.listsUnavailable": "Danh sách thói quen không khả dụng.",

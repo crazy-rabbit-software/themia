@@ -48,7 +48,6 @@
     "one": "{count} பழக்கம்",
     "other": "{count} பழக்கங்கள்"
   },
-  "widgetsB.settings.habits.history.label": "வரலாறு",
   "widgetsB.settings.habits.interval.desc": "ஒரு சாளரத்துக்கு நிமிடங்கள், {min} முதல் {max} வரை",
   "widgetsB.settings.habits.list": "பழக்கப் பட்டியல்",
   "widgetsB.settings.habits.listsUnavailable": "பழக்கப் பட்டியல்கள் கிடைக்கவில்லை.",

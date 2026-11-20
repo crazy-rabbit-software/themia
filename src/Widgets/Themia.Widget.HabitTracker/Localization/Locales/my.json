@@ -46,7 +46,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "အလေ့အထ {count} ခု"
   },
-  "widgetsB.settings.habits.history.label": "မှတ်တမ်း",
   "widgetsB.settings.habits.interval.desc": "ကြားကာလတစ်ခုလျှင် မိနစ်၊ {min} မှ {max}",
   "widgetsB.settings.habits.list": "အလေ့အထ စာရင်း",
   "widgetsB.settings.habits.listsUnavailable": "အလေ့အထ စာရင်းများ မရနိုင်ပါ။",

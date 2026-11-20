@@ -46,7 +46,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} 个习惯"
   },
-  "widgetsB.settings.habits.history.label": "历史记录",
   "widgetsB.settings.habits.interval.desc": "每个时段的分钟数，{min} 到 {max}",
   "widgetsB.settings.habits.list": "习惯列表",
   "widgetsB.settings.habits.listsUnavailable": "习惯列表不可用。",

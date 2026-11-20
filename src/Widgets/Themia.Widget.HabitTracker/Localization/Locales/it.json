@@ -48,7 +48,6 @@
     "one": "{count} abitudine",
     "other": "{count} abitudini"
   },
-  "widgetsB.settings.habits.history.label": "Cronologia",
   "widgetsB.settings.habits.interval.desc": "Minuti per intervallo, da {min} a {max}",
   "widgetsB.settings.habits.list": "Elenco di abitudini",
   "widgetsB.settings.habits.listsUnavailable": "Gli elenchi di abitudini non sono disponibili.",

@@ -46,7 +46,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} kebiasaan"
   },
-  "widgetsB.settings.habits.history.label": "Riwayat",
   "widgetsB.settings.habits.interval.desc": "Menit per periode, {min} hingga {max}",
   "widgetsB.settings.habits.list": "Daftar kebiasaan",
   "widgetsB.settings.habits.listsUnavailable": "Daftar kebiasaan tidak tersedia.",

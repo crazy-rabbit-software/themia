@@ -48,7 +48,6 @@
     "one": "{count} عادت",
     "other": "{count} عادت"
   },
-  "widgetsB.settings.habits.history.label": "سابقه",
   "widgetsB.settings.habits.interval.desc": "دقیقه برای هر بازه، از {min} تا {max}",
   "widgetsB.settings.habits.list": "فهرست عادت",
   "widgetsB.settings.habits.listsUnavailable": "فهرست‌های عادت در دسترس نیستند.",

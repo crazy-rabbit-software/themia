@@ -48,7 +48,6 @@
     "one": "{count} συνήθεια",
     "other": "{count} συνήθειες"
   },
-  "widgetsB.settings.habits.history.label": "Ιστορικό",
   "widgetsB.settings.habits.interval.desc": "Λεπτά ανά διάστημα, {min} έως {max}",
   "widgetsB.settings.habits.list": "Λίστα συνηθειών",
   "widgetsB.settings.habits.listsUnavailable": "Οι λίστες συνηθειών δεν είναι διαθέσιμες.",

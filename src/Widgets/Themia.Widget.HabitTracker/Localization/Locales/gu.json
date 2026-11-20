@@ -48,7 +48,6 @@
     "one": "{count} આદત",
     "other": "{count} આદતો"
   },
-  "widgetsB.settings.habits.history.label": "ઇતિહાસ",
   "widgetsB.settings.habits.interval.desc": "પ્રતિ વિન્ડો મિનિટ, {min} થી {max}",
   "widgetsB.settings.habits.list": "આદત સૂચિ",
   "widgetsB.settings.habits.listsUnavailable": "આદત સૂચિઓ ઉપલબ્ધ નથી.",

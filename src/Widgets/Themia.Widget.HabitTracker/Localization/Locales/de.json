@@ -48,7 +48,6 @@
     "one": "{count} Gewohnheit",
     "other": "{count} Gewohnheiten"
   },
-  "widgetsB.settings.habits.history.label": "Verlauf",
   "widgetsB.settings.habits.interval.desc": "Minuten pro Zeitraum, {min} bis {max}",
   "widgetsB.settings.habits.list": "Gewohnheitsliste",
   "widgetsB.settings.habits.listsUnavailable": "Gewohnheitslisten sind nicht verfügbar.",

@@ -48,7 +48,6 @@
     "one": "{count} అలవాటు",
     "other": "{count} అలవాట్లు"
   },
-  "widgetsB.settings.habits.history.label": "చరిత్ర",
   "widgetsB.settings.habits.interval.desc": "ప్రతి విండోకు నిమిషాలు, {min} నుండి {max}",
   "widgetsB.settings.habits.list": "అలవాట్ల జాబితా",
   "widgetsB.settings.habits.listsUnavailable": "అలవాట్ల జాబితాలు అందుబాటులో లేవు.",

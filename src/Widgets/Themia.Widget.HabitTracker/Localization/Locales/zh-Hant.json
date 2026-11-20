@@ -46,7 +46,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} 個習慣"
   },
-  "widgetsB.settings.habits.history.label": "歷程記錄",
   "widgetsB.settings.habits.interval.desc": "每個時段的分鐘數，{min} 到 {max}",
   "widgetsB.settings.habits.list": "習慣清單",
   "widgetsB.settings.habits.listsUnavailable": "無法使用習慣清單。",

@@ -48,7 +48,6 @@
     "one": "{count} gewoonte",
     "other": "{count} gewoonten"
   },
-  "widgetsB.settings.habits.history.label": "Geschiedenis",
   "widgetsB.settings.habits.interval.desc": "Minuten per periode, {min} tot {max}",
   "widgetsB.settings.habits.list": "Gewoontelijst",
   "widgetsB.settings.habits.listsUnavailable": "Gewoontelijsten zijn niet beschikbaar.",

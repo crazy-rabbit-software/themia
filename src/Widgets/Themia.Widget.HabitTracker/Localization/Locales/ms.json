@@ -47,7 +47,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} tabiat"
   },
-  "widgetsB.settings.habits.history.label": "Sejarah",
   "widgetsB.settings.habits.interval.desc": "Minit bagi setiap tetingkap masa, {min} hingga {max}",
   "widgetsB.settings.habits.list": "Senarai tabiat",
   "widgetsB.settings.habits.listsUnavailable": "Senarai tabiat tidak tersedia.",

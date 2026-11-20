@@ -48,7 +48,6 @@
     "one": "{count} ಅಭ್ಯಾಸ",
     "other": "{count} ಅಭ್ಯಾಸಗಳು"
   },
-  "widgetsB.settings.habits.history.label": "ಇತಿಹಾಸ",
   "widgetsB.settings.habits.interval.desc": "ಪ್ರತಿ ಅವಧಿಗೆ ನಿಮಿಷಗಳು, {min} ರಿಂದ {max}",
   "widgetsB.settings.habits.list": "ಅಭ್ಯಾಸ ಪಟ್ಟಿ",
   "widgetsB.settings.habits.listsUnavailable": "ಅಭ್ಯಾಸ ಪಟ್ಟಿಗಳು ಲಭ್ಯವಿಲ್ಲ.",

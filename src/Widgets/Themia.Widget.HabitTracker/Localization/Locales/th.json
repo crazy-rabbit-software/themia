@@ -46,7 +46,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} นิสัย"
   },
-  "widgetsB.settings.habits.history.label": "ประวัติ",
   "widgetsB.settings.habits.interval.desc": "นาทีต่อช่วง {min} ถึง {max}",
   "widgetsB.settings.habits.list": "รายการนิสัย",
   "widgetsB.settings.habits.listsUnavailable": "รายการนิสัยไม่พร้อมใช้งาน",

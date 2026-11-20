@@ -48,7 +48,6 @@
     "one": "{count}টি অভ্যাস",
     "other": "{count}টি অভ্যাস"
   },
-  "widgetsB.settings.habits.history.label": "ইতিহাস",
   "widgetsB.settings.habits.interval.desc": "প্রতি ব্যবধানে মিনিট, {min} থেকে {max}",
   "widgetsB.settings.habits.list": "অভ্যাসের তালিকা",
   "widgetsB.settings.habits.listsUnavailable": "অভ্যাসের তালিকা উপলব্ধ নয়।",

@@ -48,7 +48,6 @@
     "one": "{count} ശീലം",
     "other": "{count} ശീലങ്ങൾ"
   },
-  "widgetsB.settings.habits.history.label": "ചരിത്രം",
   "widgetsB.settings.habits.interval.desc": "ഓരോ ജാലകത്തിനും മിനിറ്റുകൾ, {min} മുതൽ {max} വരെ",
   "widgetsB.settings.habits.list": "ശീല ലിസ്റ്റ്",
   "widgetsB.settings.habits.listsUnavailable": "ശീല ലിസ്റ്റുകൾ ലഭ്യമല്ല.",

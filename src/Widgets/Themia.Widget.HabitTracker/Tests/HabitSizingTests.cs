@@ -26,20 +26,45 @@ public sealed class HabitSizingTests
     }
 
     [Fact]
-    public void S11531_the_least_width_holds_the_check_a_name_the_dots_and_the_run()
+    public void S11531_the_least_width_holds_the_check_a_name_and_the_run()
     {
-        var config = new HabitTrackerConfig { HistoryDots = 31, RunWords = true };
-        var least = (2 * FamilySpace.Inset) + HabitLayout.BoxWidth + HabitLayout.NameMinWidth
-            + HabitLayout.ColumnGap + (31 * HabitLayout.DotPitch) - HabitLayout.DotGap
+        var config = new HabitTrackerConfig { RunWords = true };
+        var least = (2 * FamilySpace.Inset) + HabitLayout.BoxWidth + HabitLayout.NameRoom
             + HabitLayout.ColumnGap + HabitLayout.StreakWordsWidth;
         var sizing = Kind.Sizing(config);
         Assert.True(sizing.Min.Width >= least);
         Assert.Empty(sizing.Problems());
 
         // A checklist's rows are one line and need no room for dots or a run.
-        var checklist = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist, Lines = 2, HistoryDots = 31 });
+        var checklist = Kind.Sizing(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist, Lines = 2 });
         Assert.Equal(HabitSizing.Narrowest, checklist.Min.Width);
         Assert.Equal(FamilySpace.ContentTop + (4 * FamilyShape.Row1) + FamilyShape.Row1 + FamilySpace.Inset, checklist.Natural.Height);
+    }
+
+    [Fact]
+    public void S11531_S14410_the_history_is_as_many_dots_as_the_cards_width_holds()
+    {
+        // Owner, 2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows
+        // the card's size": no History line; the dots take the width past the check, the name's room and the run.
+        var config = new HabitTrackerConfig();
+        var chrome = HabitSizing.DotsChrome(config) + HabitLayout.ColumnGap - HabitLayout.DotGap;
+
+        Assert.Equal(7, HabitSizing.HistoryFor(config, chrome + (7 * HabitLayout.DotPitch)));
+        Assert.Equal(7, HabitSizing.HistoryFor(config, chrome + (8 * HabitLayout.DotPitch) - 1));
+        Assert.Equal(HabitRules.MaxHistory, HabitSizing.HistoryFor(config, 4000));
+
+        // Under three dots is no history; a checklist and a heatmap have none at any width.
+        Assert.Equal(0, HabitSizing.HistoryFor(config, chrome + (2 * HabitLayout.DotPitch)));
+        Assert.Equal(3, HabitSizing.HistoryFor(config, chrome + (3 * HabitLayout.DotPitch)));
+        Assert.Equal(0, HabitSizing.HistoryFor(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist }, 4000));
+        Assert.Equal(0, HabitSizing.HistoryFor(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap }, 4000));
+
+        // A new card's natural width holds some history, ten dots' more width ten more.
+        var natural = Kind.Sizing(config).Natural.Width;
+        var shown = HabitSizing.HistoryFor(config, natural);
+        Assert.InRange(shown, HabitLayout.MinDots, 20);
+        Assert.Equal(shown + 10, HabitSizing.HistoryFor(config, natural + (10 * HabitLayout.DotPitch)));
+        Assert.Null(typeof(HabitTrackerConfig).GetProperty("HistoryDots"));
     }
 
     [Fact]

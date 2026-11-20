@@ -45,8 +45,8 @@ module host's `HabitHostTests` and `SettingRulesTests`.
 - **[S-1982]** Space ticks the focused habit as Enter does, and Page Up / Page Down jump ten rows
   (`HabitLayout.Decide`, clamped; from no row, the first).
 - **[S-1429]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Under Style, for the Dots style only ([S-6408]): **Show streaks** (a switch)
-  and **History** (typed, 0–31 periods, 0 hides the strip, [S-3726]). Then Appearance ([S-3723]),
+  has no settings page. Under Style, for the Dots style only ([S-6408]): **Show streaks** (a switch); how many
+  periods of history is the card's ([S-14410]: no History line). Then Appearance ([S-3723]),
   **Habit list** (the list shown at the end of its line; its submenu: the lists on this PC as a
   choice of one, each with its habit count, the pool's problem or "no lists" as a note; then
   Rename… and Delete this list for the list shown, and Add a list, which creates one and shows it;
@@ -59,7 +59,7 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   every widget showing it. (Tests `HabitTrackerMenuTests`.)
 - **[S-6408]** Habits' styles ([S-6000]), `HabitTrackerConfig.Style` (`HabitTrackerStyle`,
   `"style": "dots"`): **Dots** (the rows of [S-1427]), **Heatmap** and **Checklist**, in that
-  order, over the same list, log and cadence. Show streaks and History are the Dots style's own
+  order, over the same list, log and cadence. Show streaks and the history's dots are the Dots style's own
   (`HabitTrackerConfig.ShownSettings`, [S-6070]); the menu offers them for it alone and keeps their values.
 - **[S-6409]** Heatmap (`HabitHeatmap`): GitHub's calendar over the log, columns of seven periods,
   the newest on the right, from the view's top inside the card's inset. Under a daily cadence the
@@ -83,11 +83,14 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   sets Rows (`HabitSizing.SizeSets`); fewer habits leave their rows empty. 300 wide new, at most 520.
   No ladder, no tiers: what a row shows is the config's at every size (`HabitLayout.Plan`).
 - **[S-11531]** **The Dots style's settings**, under Style: Show streaks (the run, a number), **Run in
-  words** (off by default: "12 days" rather than "12", while the run is shown), History (the dots, 0..31,
-  all drawn at every width) and **Lines** (1 or 2: the second the rate, with the streaks "· Best run: 16
-  days" after it, [S-6712]). The card's least width holds the check, an 80 name, the dots and the run
-  as asked (`HabitSizing.DotsWidth`, at least 220); the name takes the rest and ends in an ellipsis. A
-  checklist row is one line at 220..520.
+  words** (off by default: "12 days" rather than "12", while the run is shown) and **Lines** (1 or 2: the second
+  the rate, with the streaks "· Best run: 16 days" after it, [S-6712]). The history is the card's (owner,
+  2026-11-20: "Anything that's just 'how many of the same item' (days, hours, weeks, processes) follows the card's
+  size", [S-14410]; the History count line is gone): past the check, the name's 120 and the run, the row's width
+  holds as many dots as fit, 0..31, fewer than three none (`HabitSizing.HistoryFor`; the view counts its box,
+  `ApplySize`). The card's least width holds the check, the name's room and the run (`HabitSizing.DotsChrome`, at
+  least 220); the name ends in an ellipsis. A checklist row is one line at 220..520. Tests
+  `HabitSizingTests.S11531_S14410_`.
 - **[S-11532]** **The heatmap's sizes**: one grid for the list (cells of 12) is one height, 36 + its
   seven rows + 12 = 144, 200..520 wide; **A grid per habit** (off by default, under Style) draws the
   first Rows habits each over its own grid of 8 cells, the height stepped by a habit (its name line,

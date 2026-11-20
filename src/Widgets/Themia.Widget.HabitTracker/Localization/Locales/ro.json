@@ -50,7 +50,6 @@
     "few": "{count} obiceiuri",
     "other": "{count} de obiceiuri"
   },
-  "widgetsB.settings.habits.history.label": "Istoric",
   "widgetsB.settings.habits.interval.desc": "Minute per fereastră, între {min} și {max}",
   "widgetsB.settings.habits.list": "Listă de obiceiuri",
   "widgetsB.settings.habits.listsUnavailable": "Listele de obiceiuri nu sunt disponibile.",

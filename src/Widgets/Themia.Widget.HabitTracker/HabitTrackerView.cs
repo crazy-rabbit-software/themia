@@ -123,9 +123,20 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 
     public void ApplySize(WidgetArea area)
     {
+        // [S-14410] The history's dots are what the width holds: a width that holds another count draws the rows again.
+        var dots = HistoryDots;
         _area = area;
+        if (HistoryDots != dots)
+        {
+            Render();
+            return;
+        }
+
         Lay();
     }
+
+    /// <summary>[S-1426] [S-14410] The dots a row shows: what the card's width holds (its natural width's before it is measured).</summary>
+    private int HistoryDots => HabitSizing.HistoryFor(_config, _area.IsMeasured ? _area.Width : HabitSizing.Sizing(_config).Natural.Width);
 
     /// <summary>
     /// [S-1420] Find the list this widget shows. With none chosen it takes the device's first list,
@@ -236,7 +247,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             var log = HabitRules.Log(habits[i].Log);
 
             // [S-6410] A checklist is the current period alone: no run and no history to work out.
-            _rows[i].Update(habits[i], log, _current, cadence, checklist ? 0 : _config.EffectiveHistoryDots, !checklist && _config.ShowStreak);
+            _rows[i].Update(habits[i], log, _current, cadence, checklist ? 0 : HistoryDots, !checklist && _config.ShowStreak);
         }
 
         var (kind, sentence) = EmptyState();
@@ -279,7 +290,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         // an empty list, which has nothing to draw and still needs a way to add its first habit.
         var heat = IsHeatmap;
         var plan = HabitLayout.Plan(
-            new HabitLayoutInput(count, Writable, _config.ShowStreak, _config.EffectiveHistoryDots,
+            new HabitLayoutInput(count, Writable, _config.ShowStreak, HistoryDots,
                 Checklist: _config.Style == HabitTrackerStyle.Checklist, Rows: _config.Rows, Lines: _config.Lines, RunWords: _config.RunWords, Heatmap: heat));
 
         _plan = plan;

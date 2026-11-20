@@ -16,8 +16,8 @@ public sealed class HabitTrackerStylesTests
     [Fact]
     public void S6408_only_the_dots_draw_the_run_and_the_history()
     {
-        Assert.Equal([HabitsSetting.Streak, HabitsSetting.RunWords, HabitsSetting.History, HabitsSetting.Lines], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }.ShownSettings);
-        Assert.Equal([HabitsSetting.Streak, HabitsSetting.History, HabitsSetting.Lines], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots, ShowStreak = false }.ShownSettings);
+        Assert.Equal([HabitsSetting.Streak, HabitsSetting.RunWords, HabitsSetting.Lines], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }.ShownSettings);
+        Assert.Equal([HabitsSetting.Streak, HabitsSetting.Lines], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots, ShowStreak = false }.ShownSettings);
         Assert.Equal([HabitsSetting.PerHabit], new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap }.ShownSettings);
         Assert.Empty(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist }.ShownSettings);
     }

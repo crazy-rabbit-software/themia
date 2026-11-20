@@ -31,9 +31,6 @@ public enum HabitsSetting
     /// <summary>The streak: the dots style's run.</summary>
     Streak,
 
-    /// <summary>The history dots: the dots style's strip.</summary>
-    History,
-
     /// <summary>[S-11531] Lines per row: the dots style's (a checklist row is one line).</summary>
     Lines,
 
@@ -104,7 +101,6 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
                     shown.Add(HabitsSetting.RunWords);
                 }
 
-                shown.Add(HabitsSetting.History);
                 shown.Add(HabitsSetting.Lines);
             }
 
@@ -123,9 +119,6 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
     /// <summary>[S-1422] The custom window, in minutes (1–1440). Read through <see cref="Cadence"/>, which clamps.</summary>
     public int CustomMinutes { get; set; } = HabitCadence.DefaultCustomMinutes;
 
-    /// <summary>[S-1426] [S-11531] How many past periods each row shows as dots, at every width. Zero removes the strip.</summary>
-    public int HistoryDots { get; set; } = 7;
-
     /// <summary>Show the current run beside each habit.</summary>
     public bool ShowStreak { get; set; } = true;
 
@@ -142,9 +135,6 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
     public bool PerHabit { get; set; }
 
     [JsonIgnore]
-    public int EffectiveHistoryDots => Math.Clamp(HistoryDots, 0, HabitRules.MaxHistory);
-
-    [JsonIgnore]
     public HabitCadence Cadence => new(Enum.IsDefined(Period) ? Period : HabitPeriod.Daily, CustomMinutes);
 
     /// <summary>[S-1422] 15 s for the short cadences, a minute otherwise: only so a past period's tick clears by itself.</summary>
@@ -157,7 +147,6 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         ListId = ListId,
         Period = Period,
         CustomMinutes = CustomMinutes,
-        HistoryDots = HistoryDots,
         ShowStreak = ShowStreak,
         Rows = Rows,
         Lines = Lines,
@@ -179,12 +168,6 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         {
             repairs.Add($"habit interval {CustomMinutes} min is out of range; clamped to {Cadence.Minutes}");
             CustomMinutes = Cadence.Minutes;
-        }
-
-        if (HistoryDots != EffectiveHistoryDots)
-        {
-            repairs.Add($"habit history {HistoryDots} is out of range; clamped to {EffectiveHistoryDots}");
-            HistoryDots = EffectiveHistoryDots;
         }
 
         if (Rows != HabitSizing.ClampRows(Rows))

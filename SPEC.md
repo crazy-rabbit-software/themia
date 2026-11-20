@@ -5686,7 +5686,7 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
 - **[S-1424]** Best run = longest consecutive run anywhere in the log under the cadence, using the
   same step as the streak.
 - [S-1425], [S-1427], [S-1428], [S-1982], [S-1429], [S-6408], [S-6409], [S-6410], [S-1430]: moved with the Habit tracker widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.HabitTracker/`).
-- **[S-1426]** History dots (0–31, default 7): oldest left, the current period right, from the same
+- **[S-1426]** History dots (0–31, as many as the card's width holds, [S-14410]): oldest left, the current period right, from the same
   step as the streak; each dot's tooltip names its period in the cadence's units ("Week of Monday
   28 Sep 2026", "14:00, …", "September 2026"). A dot is 8 and round, 4 from the next, done in the
   accent and open in the track role (the Chart block's two, [S-6717]); they are the habit row's

@@ -46,7 +46,6 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "습관 {count}개"
   },
-  "widgetsB.settings.habits.history.label": "기록",
   "widgetsB.settings.habits.interval.desc": "기간당 분({min}~{max})",
   "widgetsB.settings.habits.list": "습관 목록",
   "widgetsB.settings.habits.listsUnavailable": "습관 목록을 사용할 수 없습니다.",

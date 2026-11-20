@@ -48,7 +48,6 @@
     "one": "{count} आदत",
     "other": "{count} आदतें"
   },
-  "widgetsB.settings.habits.history.label": "इतिहास",
   "widgetsB.settings.habits.interval.desc": "प्रति अवधि मिनट, {min} से {max}",
   "widgetsB.settings.habits.list": "आदत सूची",
   "widgetsB.settings.habits.listsUnavailable": "आदत सूचियाँ उपलब्ध नहीं हैं।",

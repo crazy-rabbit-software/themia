@@ -48,7 +48,6 @@
     "one": "{count} ਆਦਤ",
     "other": "{count} ਆਦਤਾਂ"
   },
-  "widgetsB.settings.habits.history.label": "ਇਤਿਹਾਸ",
   "widgetsB.settings.habits.interval.desc": "ਹਰ ਵਿੰਡੋ ਦੇ ਮਿੰਟ, {min} ਤੋਂ {max}",
   "widgetsB.settings.habits.list": "ਆਦਤ ਸੂਚੀ",
   "widgetsB.settings.habits.listsUnavailable": "ਆਦਤ ਸੂਚੀਆਂ ਉਪਲਬਧ ਨਹੀਂ ਹਨ।",

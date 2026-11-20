@@ -48,7 +48,6 @@
     "one": "Zoea {count}",
     "other": "Mazoea {count}"
   },
-  "widgetsB.settings.habits.history.label": "Historia",
   "widgetsB.settings.habits.interval.desc": "Dakika kwa kila kipindi, {min} hadi {max}",
   "widgetsB.settings.habits.list": "Orodha ya mazoea",
   "widgetsB.settings.habits.listsUnavailable": "Orodha za mazoea hazipatikani.",

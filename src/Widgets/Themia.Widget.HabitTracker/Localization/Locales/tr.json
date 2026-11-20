@@ -48,7 +48,6 @@
     "one": "{count} alışkanlık",
     "other": "{count} alışkanlık"
   },
-  "widgetsB.settings.habits.history.label": "Geçmiş",
   "widgetsB.settings.habits.interval.desc": "Pencere başına dakika, {min} ile {max} arası",
   "widgetsB.settings.habits.list": "Alışkanlık listesi",
   "widgetsB.settings.habits.listsUnavailable": "Alışkanlık listeleri kullanılamıyor.",

@@ -56,7 +56,6 @@
     "many": "{count} عادة",
     "other": "{count} عادة"
   },
-  "widgetsB.settings.habits.history.label": "السجل",
   "widgetsB.settings.habits.interval.desc": "الدقائق لكل فترة، من {min} إلى {max}",
   "widgetsB.settings.habits.list": "قائمة العادات",
   "widgetsB.settings.habits.listsUnavailable": "قوائم العادات غير متاحة.",

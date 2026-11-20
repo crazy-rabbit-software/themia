@@ -48,7 +48,6 @@
     "one": "{count} habitude",
     "other": "{count} habitudes"
   },
-  "widgetsB.settings.habits.history.label": "Historique",
   "widgetsB.settings.habits.interval.desc": "Minutes par intervalle, de {min} à {max}",
   "widgetsB.settings.habits.list": "Liste d’habitudes",
   "widgetsB.settings.habits.listsUnavailable": "Les listes d’habitudes ne sont pas disponibles.",

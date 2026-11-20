@@ -52,7 +52,6 @@
     "many": "{count} привычек",
     "other": "{count} привычки"
   },
-  "widgetsB.settings.habits.history.label": "История",
   "widgetsB.settings.habits.interval.desc": "Минут в интервале, от {min} до {max}",
   "widgetsB.settings.habits.list": "Список привычек",
   "widgetsB.settings.habits.listsUnavailable": "Списки привычек недоступны.",
