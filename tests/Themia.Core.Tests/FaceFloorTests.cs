@@ -192,4 +192,53 @@ public sealed class FaceFloorTests
         Assert.True(14 * drawn.Scale >= ScaleFloor.Text);
         Assert.Equal(68, Countdown(171).Fit(58, 20).Floor);
     }
+
+    /// <summary>
+    /// [S-14790] Parts of one size give way one at a time in their kind's order (owner, 2026-11-20: "the next meeting clips
+    /// the time into the title"; a meeting's three lines, all one size, went together and left its title alone): stated a
+    /// hair under that size (<see cref="FaceFloor.Before"/>), the first in the order goes first, and each is still judged by
+    /// its own size.
+    /// </summary>
+    [Fact]
+    public void S14790_parts_of_one_size_give_way_one_at_a_time_in_their_order()
+    {
+        // A 20 title (ink 20) over three lines of 12, 24 each: the time (last to go), the place, the organiser (first).
+        var time = 12.0;
+        var place = FaceFloor.Before(time, 1);
+        var organizer = FaceFloor.Before(time, 2);
+        Assert.True(organizer < place && place < time && time - organizer < 1e-5);
+        double[] sizes = [20, time, place, organizer];
+        FacePlan Plan(double floor) => new(200, 20 + (24 * new[] { time, place, organizer }.Count(s => s >= floor - 1e-9)));
+
+        // All three over 0.75 (12 over 9): the ink 92 fits a 70 room.
+        Assert.Equal(0, FaceFloor.Fit(400, 70, sizes, Plan).Floor);
+
+        // At exactly 0.75 the organiser, a hair under 12, is judged by its 12: drawn at 9, it stays (the order's step
+        // dropped it from the owner's 370 x 90, the block filling its room at exactly that scale).
+        Assert.Equal(0, FaceFloor.Fit(400, 69, sizes, Plan).Floor);
+
+        // A little shorter: the organiser alone goes (the two left fit at 0.75 in 51), never the three at once.
+        var one = FaceFloor.Fit(400, 60, sizes, Plan);
+        Assert.Equal(place, one.Floor);
+        Assert.False(one.Draws(organizer));
+        Assert.True(one.Draws(place) && one.Draws(time));
+
+        // Shorter again: the place goes too, the time stays.
+        var two = FaceFloor.Fit(400, 46, sizes, Plan);
+        Assert.Equal(time, two.Floor);
+        Assert.True(two.Draws(time));
+
+        // Each is judged by its own size: none is drawn under the floor.
+        foreach (var room in new[] { 100.0, 70, 69, 60, 51, 46, 33, 20 })
+        {
+            var fit = FaceFloor.Fit(400, room, sizes, Plan);
+            Assert.All(sizes.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-4, $"{size} at {room}"));
+            Assert.True(!fit.Draws(place) || fit.Draws(time));
+            Assert.True(!fit.Draws(organizer) || fit.Draws(place));
+        }
+
+        // Nothing before: the size itself.
+        Assert.Equal(14, FaceFloor.Before(14, 0));
+        Assert.Equal(14, FaceFloor.Before(14, -2));
+    }
 }

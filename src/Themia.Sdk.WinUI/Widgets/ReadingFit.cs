@@ -20,7 +20,8 @@ namespace Themia.App.Widgets;
 /// (<see cref="Face"/>) its main reading sets that floor and its smaller pieces give way first (<see cref="FaceFloor"/>).
 /// [S-14301] Across, where the width does not stop it, each part with a width of its own stands where <see cref="Align"/>
 /// puts it (centred unless its card aligns it); a part that takes the width it is given (a bar, a slider's row, a line it
-/// cuts: <see cref="Span"/>) runs across the whole content.
+/// cuts: <see cref="Span"/>) runs across the whole content. [S-14791] A line it cuts (<see cref="CutLine"/>) never holds it
+/// under its floor, and it never grows past where that line's held text stands whole.
 /// </summary>
 public sealed partial class ReadingFit : Panel
 {
@@ -357,7 +358,7 @@ public sealed partial class ReadingFit : Panel
             Place();
 
             // [S-14243] A text grown since (a longer reading) that would draw a kept piece under the floor: it gives way now.
-            if (_face is { } face && finite && !_hold && Kept(face) * block.Raw < ScaleFloor.Text - 1e-9)
+            if (_face is { } face && finite && !_hold && Kept(face) * block.Raw < ScaleFloor.Text - FaceFloor.Hair)
             {
                 Decide(availableSize, face);
                 Keep(_floor);
@@ -367,7 +368,8 @@ public sealed partial class ReadingFit : Panel
             if (!_hold || _held != availableSize)
             {
                 // [S-12833] Down to its smallest text's floor, up to what fills the room.
-                _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, block.Intrinsic, block.Packed, block.Ink, block.Least);
+                // [S-14791] Never past where a line it cuts would stand whole (a title alone filling the height stood cut at 2.8x).
+                _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, block.Intrinsic, block.Packed, block.Ink, block.Least, block.Most);
                 if (_foot)
                 {
                     // [S-14319] Stood on its foot: where the width stops it, the height left stands over its first ink alone.
@@ -394,8 +396,11 @@ public sealed partial class ReadingFit : Panel
         }
     }
 
-    /// <summary>The block's shown parts at their own size, and the scale that fills the room with them (<see cref="Raw"/>: no floor).</summary>
-    private readonly record struct Block(double Intrinsic, double Packed, LineInk Ink, double Least, double Raw);
+    /// <summary>
+    /// The block's shown parts at their own size, and the scale that fills the room with them (<see cref="Raw"/>: no floor);
+    /// [S-14791] <see cref="Most"/>: the scale its cut lines stand whole at (none: unbounded).
+    /// </summary>
+    private readonly record struct Block(double Intrinsic, double Packed, LineInk Ink, double Least, double Raw, double Most);
 
     /// <summary>Measure the shown parts unbounded: what has a width of its own, the parts packed, their ink.</summary>
     private Block Measured(Size room)
@@ -403,6 +408,7 @@ public sealed partial class ReadingFit : Panel
         var shown = _plan.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
         var intrinsic = 0.0;
         var packed = 0.0;
+        var whole = 0.0;
         foreach (var part in shown)
         {
             part.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -411,7 +417,11 @@ public sealed partial class ReadingFit : Panel
             // Measured unbounded, a bar, a slider or a graph asks for next to no width: only text and icons count, by their
             // ink ([S-14301]: a text's side bearings are no part of the width the block fills).
             var (left, right) = PartInk.Across(part);
-            intrinsic = Math.Max(intrinsic, part.DesiredSize.Width - left - right);
+            var own = part.DesiredSize.Width - left - right;
+            intrinsic = Math.Max(intrinsic, own);
+
+            // [S-14791] The part with the line it cuts standing whole: what it asks, and what that line would ask more.
+            whole = Math.Max(whole, own + Uncut(part));
         }
 
         packed += Math.Max(0, shown.Count - 1) * _plan.Spacing;
@@ -419,7 +429,28 @@ public sealed partial class ReadingFit : Panel
         var ink = shown.Count == 0 ? LineInk.None : new LineInk(PartInk.Of(shown[0]).Over, PartInk.Of(shown[^1]).Under);
         var least = _face is { } stated ? ScaleFloors.Of(shown, stated.Main) : ScaleFloors.Of(shown);
         var raw = BlockFit.Fill(room.Width, room.Height, intrinsic, packed, ink, least: NoFloor).Scale;
-        return new Block(intrinsic, packed, ink, least, raw);
+        var most = whole > intrinsic ? BlockFit.Uncut(room.Width, whole) : double.PositiveInfinity;
+        return new Block(intrinsic, packed, ink, least, raw, most);
+    }
+
+    /// <summary>
+    /// [S-14791] How much wider <paramref name="node"/> would ask to be with the lines it cuts (<see cref="CutLine"/>) standing
+    /// whole: each shown cut line's <see cref="CutLine.Whole"/> over what it asks, added (side by side, the most it can be).
+    /// </summary>
+    private static double Uncut(UIElement node)
+    {
+        if (node.Visibility != Visibility.Visible)
+        {
+            return 0;
+        }
+
+        return node switch
+        {
+            CutLine cut => Math.Max(0, cut.Whole - cut.DesiredSize.Width),
+            Panel panel => panel.Children.Sum(Uncut),
+            Border { Child: { } child } => Uncut(child),
+            _ => 0,
+        };
     }
 
     /// <summary>A least scale so small it never holds the block: the scale the room alone gives it.</summary>

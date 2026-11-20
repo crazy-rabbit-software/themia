@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Themia.Core.Widgets;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -11,7 +12,8 @@ namespace Themia.App.Widgets;
 /// length and leave a band under the block (owner, 2026-11-19, WR-4: "they should stretch if they dont reach all the
 /// way"). Measured unbounded this panel asks for no more than its <see cref="Least"/> (so a block scaled up never squeezes
 /// it to nothing); laid out, it measures its part again at the width it is given, so the part's texts are cut there (their
-/// <see cref="TextTrimming"/>), and keeps that width for the passes after.
+/// <see cref="TextTrimming"/>), and keeps that width for the passes after. [S-14791] The line it <see cref="Holds"/> (a title) still
+/// keeps the block from growing past where it stands whole: its <see cref="Whole"/> width is the fit's most.
 /// </summary>
 public sealed partial class CutLine : Panel
 {
@@ -33,6 +35,18 @@ public sealed partial class CutLine : Panel
     }
 
     private double _least;
+
+    /// <summary>
+    /// [S-14791] The line in the part whose whole width the block never grows past (the meeting's title): the fit scales the
+    /// block no larger than where it stands uncut, and cuts it only at its floor (<see cref="BlockFit.Uncut"/>). Null: none.
+    /// </summary>
+    public FrameworkElement? Holds { get; init; }
+
+    /// <summary>
+    /// [S-14791] The width this panel would ask, unscaled, for <see cref="Holds"/> to stand uncut (never under what it asks):
+    /// as last measured unbounded.
+    /// </summary>
+    public double Whole { get; private set; }
 
     public CutLine(UIElement part)
     {
@@ -58,6 +72,9 @@ public sealed partial class CutLine : Panel
         // was last given (so the scale never feeds back into it); then the part at that width, where its texts are cut.
         part.Measure(new Size(double.PositiveInfinity, availableSize.Height));
         var asked = Math.Min(part.DesiredSize.Width, double.IsFinite(Least) ? Math.Max(0, Least) : 0);
+
+        // [S-14791] Measured unbounded, the held line is its whole width: read before it is cut again below.
+        Whole = Holds is { Visibility: Visibility.Visible } held ? Math.Max(asked, held.DesiredSize.Width) : asked;
         if (double.IsFinite(_width))
         {
             part.Measure(new Size(_width, availableSize.Height));

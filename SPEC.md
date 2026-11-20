@@ -8449,6 +8449,21 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   (320x124). A card far taller than the block is wide still leaves the height the width does not let it fill (WR-7:
   "until its ink fills the height or the width stops it").
   Renders `--widget-png nextMeeting --state sample|running|nolink --sizes range`, judged by `scripts/gap-check.py`.
+- **[S-14791]** **A cut line never lets its block grow past where it stands whole** (owner, 2026-11-20: "the next meeting
+  clips the time into the title"; docs/WIDGET-RULES.md exemption 2026-11-20, a reading that fills one axis may stand
+  centred on the other: "Centred is fine"). A `CutLine` names the line whose whole width holds the block (`Holds`: the
+  meeting's title) and measures it unbounded (`Whole`); `ReadingFit` draws the block no larger than where that row (the
+  line whole, and what stands beside it) fits the room's width (`BlockFit.Uncut`, `BlockFit.Fill`'s `most`) and never
+  under the floor of the parts it draws ([S-12833]), so the line is cut only at the floor ([S-14261]: it still never holds
+  the block under it). Before, the next meeting's title alone in a 370 × 80 card, asking for its least, filled the height at
+  2.8 times and was drawn 56 DIP and cut ("Design re…"); now it stands whole. A kind with no cut line: no change. Tests
+  `BlockFitTests.S14791_`, `NextMeetingJoinTests.S14793_`.
+- **[S-14790]** **Parts of one size give way in their kind's order** ([S-12833]; owner, 2026-11-20: "the next meeting clips
+  the time into the title"). Parts give way smallest first; parts of one size went together, so a meeting's three Body
+  lines left its title alone. A kind that orders them states each a hair under the size (`FaceFloor.Before(size, places)`,
+  a millionth of a DIP a place), so they go one at a time, the first in its order first, and each is judged by its size
+  (`FaceFloor.Hair`: a part within a ten-thousandth of a DIP of the floor is drawn at it, so the order decides which goes,
+  never whether one is legible). Tests `FaceFloorTests.S14790_`.
 - **[S-12815]** **A list's first row stands on the card's top edge, and the gap check** (owner, 2026-11-19: "or the
   stick too. audit all the widgets and make sure that this shit does not happen anywhere. test this properly"; "no
   this is fine if it happens, but there should not be a space at the top"). A list whose rows are the first thing in

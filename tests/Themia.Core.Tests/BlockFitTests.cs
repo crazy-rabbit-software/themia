@@ -331,4 +331,37 @@ public class BlockFitTests
         var one = ItemStretch.Reach(100, [StretchItem.Fixed(36)], ItemGrid.Default(), justify: true);
         Assert.Equal(new ItemSlot(0, 100), one[0]);
     }
+
+    /// <summary>
+    /// [S-14791] A block holding a line it cuts never grows past where that line stands whole (owner, 2026-11-20: "the next
+    /// meeting clips the time into the title"): the meeting's title alone in a 370 x 80 card, 280 wide whole, asked for its
+    /// least 84 and filled the 56 tall room at 2.8 times, drawn 56 DIP and cut to "Design re…". Held by its whole width it
+    /// stands whole at 1.24; a room too narrow for it at the floor cuts it there, never under the floor.
+    /// </summary>
+    [Fact]
+    public void S14791_a_cut_line_never_lets_the_block_grow_past_where_it_stands_whole()
+    {
+        var ink = LineInk.Of(FamilyType.Title);
+        var least = ScaleFloor.Least(20);
+
+        // The regression: asked for its least alone, the title filled the height.
+        var cut = BlockFit.Fill(346, 56, 84, 28, ink, least);
+        Assert.True(cut.Scale > 2.5, $"{cut.Scale}");
+        Assert.True(280 * cut.Scale > 346);
+
+        // Held by its whole width: it stands whole, on both side insets.
+        var whole = BlockFit.Fill(346, 56, 84, 28, ink, least, BlockFit.Uncut(346, 280));
+        Assert.Equal(346 / 280.0, whole.Scale, 6);
+        Assert.True(280 * whole.Scale <= 346 + 1e-9);
+
+        // Where the height stops it first, the height's scale.
+        Assert.Equal(cut.Scale, BlockFit.Fill(346, 56, 84, 28, ink, least, BlockFit.Uncut(346, 50)).Scale, 6);
+
+        // Too narrow even at the floor: the floor, and the line is cut there.
+        Assert.Equal(least, BlockFit.Fill(100, 56, 84, 28, ink, least, BlockFit.Uncut(100, 280)).Scale, 6);
+
+        // Nothing held: no most.
+        Assert.Equal(double.PositiveInfinity, BlockFit.Uncut(346, 0));
+        Assert.Equal(double.PositiveInfinity, BlockFit.Uncut(double.NaN, 280));
+    }
 }

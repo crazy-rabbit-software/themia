@@ -89,6 +89,16 @@ public static class BlockFit
     }
 
     /// <summary>
+    /// [S-14791] The most a block holding a line it cuts is drawn at (<see cref="Fill"/>'s <c>most</c>): the scale at which
+    /// that line, and what stands beside it, stands whole in a room <paramref name="width"/> wide (<paramref name="whole"/>:
+    /// the block's widest row with the line uncut, before the scale). A cut line never holds the block under its floor (it
+    /// is cut there, [S-14261]) and never lets it grow past where it would stand whole (the next meeting's title alone at
+    /// 370 × 80, filling the height at 2.8 times, drawn "Design re…" at 56 DIP). Nothing to hold: no most.
+    /// </summary>
+    public static double Uncut(double width, double whole)
+        => whole > 0 && double.IsFinite(whole) && width > 0 && double.IsFinite(width) ? width / whole : double.PositiveInfinity;
+
+    /// <summary>
     /// [S-12814] The rule for a one-readout block (owner, 2026-11-19: "the drive widget still has a fucking space at the
     /// top, maybe also at the bottom. make sure that this does not happen anywhere"). Only the parts with a width of
     /// their own count against the room's width (<paramref name="intrinsicWidth"/>: the reading, its caption, an icon;
@@ -102,7 +112,8 @@ public static class BlockFit
     /// placed by the ink it draws, as any (WR-1, WR-4: its dashes, lower than capitals, on the top where the height stops it
     /// and its last ink on the foot; sized by the reading it stood for, it left the difference as a band at the foot).
     /// </summary>
-    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, double least = 1)
+    /// <remarks>[S-14791] Never over <paramref name="most"/> (<see cref="Uncut"/>: where a line it cuts stands whole).</remarks>
+    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, double least = 1, double most = double.PositiveInfinity)
     {
         static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
         var over = Room(ink.Over);
@@ -117,7 +128,7 @@ public static class BlockFit
         // room (Across), so the width-held block's ink reaches both side insets.
         var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / intrinsicWidth : double.PositiveInfinity;
         var fill = Math.Min(byWidth, height / span);
-        var scale = Math.Max(ScaleFloor.Clamp(least), fill);
+        var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
 
         // [S-14280] WR-7: laid in its parts' own height, never the room's, so nothing goes between them. The height the
         // scale leaves (the width stopped it) stands alike over the reading's first ink and under its last ([S-12808]);

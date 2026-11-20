@@ -58,7 +58,7 @@ public static class FaceFloor
         foreach (var floor in levels)
         {
             var fill = Scale(width, height, plan(floor));
-            if (floor >= main || floor * fill >= ScaleFloor.Text - 1e-9)
+            if (floor >= main || floor * fill >= ScaleFloor.Text - Hair)
             {
                 return new FaceFit(none ? 0 : floor, Math.Max(least, fill));
             }
@@ -101,6 +101,23 @@ public static class FaceFloor
         var scale = Math.Min(byWidth, byHeight);
         return double.IsFinite(scale) ? scale : 1;
     }
+
+    /// <summary>
+    /// [S-14790] The size a part of text <paramref name="size"/> gives way at when it goes <paramref name="places"/> places
+    /// before the other parts of its size (0: with them). Parts of one size give way together; a kind whose lines of one size
+    /// matter in an order (a meeting's time before its place before its organiser) states each a hair under that size, so
+    /// they go one at a time in its order, each still judged by its own size (to a millionth of a DIP).
+    /// </summary>
+    public static double Before(double size, int places) => size - (Math.Max(0, places) * Order);
+
+    /// <summary>[S-14790] The step between two parts of one size in their order of giving way.</summary>
+    public const double Order = 1e-6;
+
+    /// <summary>
+    /// [S-14790] How near the floor a part is still drawn at it, in DIP: a part an order's step under its size
+    /// (<see cref="Before"/>) is judged by its size, so the order decides which goes first, never whether one is legible.
+    /// </summary>
+    public const double Hair = 1e-4;
 
     /// <summary>The distinct usable sizes, smallest first.</summary>
     private static List<double> Levels(IReadOnlyCollection<double> sizes)
