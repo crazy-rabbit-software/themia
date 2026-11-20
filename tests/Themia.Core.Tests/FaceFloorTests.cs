@@ -1,5 +1,6 @@
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -111,5 +112,64 @@ public sealed class FaceFloorTests
 
         // Never under its least for all that.
         Assert.Equal(0.3, BlockFit.Lay(10, 10, 156, 52, least: 0.3, most: 0.5).Scale, 6);
+
+        // A reading's block likewise.
+        Assert.Equal(0.5, BlockFit.Fill(468, 104, 156, 52, new LineInk(9.2, 4), least: 0.1, most: 0.5).Scale, 6);
+        Assert.Equal(0.3, BlockFit.Fill(10, 10, 156, 52, new LineInk(9.2, 4), least: 0.3, most: 0.5).Scale, 6);
+    }
+
+    [Fact]
+    public void S12833_a_readouts_parts_are_its_value_and_the_pieces_that_give_way()
+    {
+        // A reading on 28 led by its glyph, its unit after it and its line under: the value is the main reading.
+        var step = FamilyType.Big28;
+        var face = FaceParts.Readout(step, new ReadoutText("100", "%", Lead: true, LineUnder: true), underWidth: 120);
+
+        Assert.Equal(28, face.Main);
+        Assert.Equal(new double[] { 28, ScaleFloor.AsText(28), FamilyType.Unit(step).FontSize, FamilyType.Under(step).FontSize }, face.Sizes);
+        Assert.Equal(21, ScaleFloor.AsText(28), 6);
+
+        var all = face.Plan(0);
+        var value = HeroFit.Ems("100") * 28;
+        Assert.Equal(Math.Max(28 + FamilySpace.GlyphGap + value + (HeroFit.Ems("%") * 14), 120), all.Width, 6);
+        Assert.Equal(36 + 16 - ((36 - 28) / 2.0) - LineInk.Of(FamilyType.Caption).Under, all.Ink, 6);
+
+        // The line under goes first (12), then the unit (14), then the lead (21): the value alone, its capitals.
+        var alone = face.Plan(28);
+        Assert.Equal(value, alone.Width, 6);
+        Assert.Equal(28 * LineInk.FaceCap, alone.Ink, 6);
+        var least = face.LeastBox();
+        Assert.Equal(value * 9 / 28, least.Width, 6);
+        Assert.Equal(28 * LineInk.FaceCap * 9 / 28, least.Height, 6);
+    }
+
+    [Fact]
+    public void S12833_a_controls_row_gives_way_at_body_and_a_row_with_nothing_left_takes_no_room()
+    {
+        var face = FaceParts.Readout(FamilyType.Big28, new ReadoutText("100", "%")).Then(ControlsRules.Row(160));
+
+        Assert.Contains(ControlsRules.GivesWayAt, face.Sizes);
+        var with = face.Plan(0);
+        var without = face.Plan(FamilyType.Unit(FamilyType.Big28).FontSize + 1);
+        Assert.Equal(160, with.Width);
+        Assert.Equal(with.Ink - FamilySpace.S2 - FamilyShape.Button - LineInk.Of(FamilyType.Big28).Under, without.Ink, 6);
+        Assert.True(face.Keeps(0, 100) && face.Keeps(28, 100) && !face.Keeps(14, 15));
+    }
+
+    [Fact]
+    public void S12833_a_stated_face_only_gets_smaller_as_its_room_does()
+    {
+        var face = FaceParts.Readout(FamilyType.Big28, new ReadoutText("100", "%", Lead: true, LineUnder: true), 140).Then(ControlsRules.Row(176));
+        var natural = face.Plan(0);
+        double lastScale = double.PositiveInfinity, lastFloor = 0;
+        for (var t = 1.0; t >= 0.05; t -= 0.01)
+        {
+            var fit = face.Fit(natural.Width * t, natural.Ink * t);
+            Assert.True(fit.Scale <= lastScale + 1e-9 && fit.Floor >= lastFloor);
+            Assert.All(face.Sizes.Where(fit.Draws), size => Assert.True(size * fit.Scale >= ScaleFloor.Text - 1e-6));
+            (lastScale, lastFloor) = (fit.Scale, fit.Floor);
+        }
+
+        Assert.Equal(28, lastFloor);
     }
 }

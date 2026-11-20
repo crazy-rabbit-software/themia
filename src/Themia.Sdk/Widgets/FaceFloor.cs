@@ -1,4 +1,5 @@
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -100,4 +101,117 @@ public static class FaceFloor
     /// <summary>The distinct usable sizes, smallest first.</summary>
     private static List<double> Levels(IReadOnlyCollection<double> sizes)
         => [.. sizes.Where(s => s > 0 && double.IsFinite(s)).Distinct().Order()];
+}
+
+/// <summary>
+/// [S-12833] A piece of a face (<see cref="FaceParts"/>): its box at the face's own size, the leading in it over its first
+/// ink and under its last (from its row's top and bottom), and the text size it gives way at (0: never, it is the main
+/// reading or no text: a bar, a ring, a picture).
+/// </summary>
+public readonly record struct FacePiece(double Width, double Height, double Size = 0, double Over = 0, double Under = 0)
+{
+    /// <summary>A text line on <paramref name="step"/>, <paramref name="width"/> wide, giving way at <paramref name="size"/> (0: never).</summary>
+    public static FacePiece Text(TypeStep step, double width, double size = 0)
+    {
+        var ink = LineInk.Of(step);
+        return new FacePiece(width, step.LineHeight, size, ink.Over, ink.Under);
+    }
+
+    /// <summary>A piece that inks its whole box (a bar, a ring, a control row), giving way at <paramref name="size"/> (0: never).</summary>
+    public static FacePiece Box(double width, double height, double size = 0) => new(width, height, size);
+}
+
+/// <summary>[S-12833] A row of a face's pieces side by side, <paramref name="Gap"/> apart, <paramref name="GapOver"/> under the row above it.</summary>
+public sealed record FaceRow(IReadOnlyList<FacePiece> Pieces, double GapOver = 0, double Gap = 0);
+
+/// <summary>
+/// [S-12833] A face as <see cref="FaceFloor"/> reads it, stated by its kind: its main reading's text size and its rows of
+/// pieces, top to bottom. The sizing takes its least box (<see cref="LeastBox"/>), the view's fit what it draws in a room
+/// (<see cref="Fit"/>): the same parts for both.
+/// </summary>
+public sealed record FaceParts(double Main, IReadOnlyList<FaceRow> Rows)
+{
+    /// <summary>The text sizes its pieces give way at, the main reading's the largest.</summary>
+    public IReadOnlyList<double> Sizes => [Main, .. Rows.SelectMany(r => r.Pieces).Select(p => p.Size).Where(s => s > 0 && s < Main)];
+
+    /// <summary>Whether a piece of text <paramref name="size"/> is drawn where the parts of at least <paramref name="floor"/> are.</summary>
+    public bool Keeps(double size, double floor) => size <= 0 || size >= Main || size >= floor - 1e-9;
+
+    /// <summary>Its plan drawing the pieces of at least <paramref name="floor"/>: rows without a piece left go, with their gap.</summary>
+    public FacePlan Plan(double floor)
+    {
+        double width = 0, height = 0, over = 0, under = 0;
+        var first = true;
+        foreach (var row in Rows)
+        {
+            var kept = row.Pieces.Where(p => Keeps(p.Size, floor)).ToList();
+            if (kept.Count == 0)
+            {
+                continue;
+            }
+
+            var tall = kept.Max(p => p.Height);
+            width = Math.Max(width, kept.Sum(p => p.Width) + (row.Gap * (kept.Count - 1)));
+            if (first)
+            {
+                over = kept.Min(p => p.Over);
+            }
+            else
+            {
+                height += row.GapOver;
+            }
+
+            height += tall;
+            under = kept.Min(p => tall - p.Height + p.Under);
+            first = false;
+        }
+
+        return new FacePlan(width, Math.Max(0, height - over - under));
+    }
+
+    /// <summary>What it draws in a room of <paramref name="width"/> × <paramref name="height"/> (the card's content box).</summary>
+    public FaceFit Fit(double width, double height) => FaceFloor.Fit(width, height, Sizes, Plan);
+
+    /// <summary>Its least box (no inset): the main reading alone at the floor.</summary>
+    public SizeDip LeastBox() => FaceFloor.LeastBox(Sizes, Plan);
+
+    /// <summary>
+    /// [S-12833] A Readout on <paramref name="step"/> (<c>ReadoutBlock</c>) as rows: the lead glyph (giving way as the text
+    /// it reads like, <see cref="ScaleFloor.AsText"/>), the value (the main reading), the unit (at its step) and the line
+    /// under (<paramref name="underWidth"/> wide, its estimate: it is cut to the face's width where it is longer).
+    /// </summary>
+    public static FaceParts Readout(TypeStep step, ReadoutText text, double underWidth = 0)
+    {
+        var line = LineInk.Of(step);
+        var pieces = new List<FacePiece>(3);
+        if (text.Lead)
+        {
+            var room = (step.LineHeight - step.FontSize) / 2;
+            pieces.Add(new FacePiece(step.FontSize + FamilySpace.GlyphGap, step.LineHeight, ScaleFloor.AsText(step.FontSize), room, room));
+        }
+
+        pieces.Add(FacePiece.Text(step, HeroFit.Ems(text.Value) * step.FontSize));
+        if (!string.IsNullOrEmpty(text.Unit))
+        {
+            var unit = FamilyType.Unit(step);
+            var cap = (step.LineHeight * LineInk.FaceBaseline) - (unit.FontSize * LineInk.FaceCap);
+            pieces.Add(new FacePiece(HeroFit.Ems(text.Unit) * unit.FontSize, step.LineHeight, unit.FontSize, Math.Max(line.Over, cap), line.Under));
+        }
+
+        List<FaceRow> rows = [new FaceRow(pieces)];
+        if (text.LineUnder)
+        {
+            var under = FamilyType.Under(step);
+            rows.Add(new FaceRow([FacePiece.Text(under, underWidth, under.FontSize)]));
+        }
+
+        return new FaceParts(step.FontSize, rows);
+    }
+
+    /// <summary>These parts and <paramref name="row"/> under them.</summary>
+    public FaceParts Then(FaceRow row) => this with { Rows = [.. Rows, row] };
+
+    /// <summary>These parts with <paramref name="piece"/> before their first row's (a glyph beside a reading).</summary>
+    public FaceParts Led(FacePiece piece)
+        => Rows.Count == 0 ? this with { Rows = [new FaceRow([piece])] } : this with { Rows = [Rows[0] with { Pieces = [piece, .. Rows[0].Pieces] }, .. Rows.Skip(1)] };
 }

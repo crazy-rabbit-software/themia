@@ -15,13 +15,17 @@ namespace Themia.App.Widgets;
 /// taking it all), its first ink on the room's top and its last on its foot, never a band over or under them. A bar,
 /// a slider or a graph spans the width it is given and never limits the scale. The sides' and the foot's insets are
 /// this panel's margin (or its view's padding), so they never scale. [S-12833] A smaller room scales it down as one,
-/// to its smallest text's legibility floor (<see cref="ScaleFloor"/>).
+/// to its smallest drawn text's legibility floor (<see cref="ScaleFloor"/>); with its kind's parts stated
+/// (<see cref="Face"/>) its main reading sets that floor and its smaller pieces give way first (<see cref="FaceFloor"/>).
 /// </summary>
 public sealed partial class ReadingFit : Panel
 {
     private readonly SpreadStack _plan = new() { Justify = true };
     private readonly ScaleTransform _scale = new();
     private BlockFill _fill = new(1, 0, 0);
+    private FaceFit _faceFit = FaceFit.All;
+    private FaceParts? _face;
+    private readonly List<(UIElement Part, Border Holder, double Size)> _givesWay = [];
 
     public ReadingFit()
     {
@@ -54,6 +58,79 @@ public sealed partial class ReadingFit : Panel
     /// <summary>The block's parts, top to bottom.</summary>
     public UIElementCollection Parts => _plan.Children;
 
+    /// <summary>
+    /// [S-12833] The face's parts as its kind states them (the same its sizing's least box is made of): in a room smaller
+    /// than its natural box the pieces under the floor the room draws give way, smallest first (<see cref="FaceParts.Fit"/>):
+    /// a block's own (<see cref="IFacePieces"/>, a Readout's unit, lead and line under) and the parts added with
+    /// <see cref="AddGivesWay"/>; once one went, the block is never drawn larger than it was then. Null: every part is drawn.
+    /// </summary>
+    public FaceParts? Face
+    {
+        get => _face;
+        set
+        {
+            if (!Equals(value, _face))
+            {
+                _face = value;
+                _held = Size.Empty;
+                InvalidateMeasure();
+            }
+        }
+    }
+
+    /// <summary>
+    /// [S-12833] Add a part, after those already in, that gives way as a whole where the room would draw it under the
+    /// floor: a Controls row at Body, a caption. It stands in a box of the fit's own, so its view still shows and hides it.
+    /// </summary>
+    public void AddGivesWay(UIElement part, double size)
+    {
+        ArgumentNullException.ThrowIfNull(part);
+        var holder = new Border { Child = part };
+        _givesWay.Add((part, holder, size));
+        _plan.Children.Add(holder);
+    }
+
+    /// <summary>[S-12833] Show the pieces of at least <paramref name="floor"/>: the parts that give way, and every block's own.</summary>
+    private void Keep(double floor)
+    {
+        foreach (var (part, holder, size) in _givesWay)
+        {
+            var shown = part.Visibility == Visibility.Visible && (_face?.Keeps(size, floor) ?? true) ? Visibility.Visible : Visibility.Collapsed;
+            if (holder.Visibility != shown)
+            {
+                holder.Visibility = shown;
+            }
+        }
+
+        foreach (var part in _plan.Children)
+        {
+            KeepIn(part, floor);
+        }
+    }
+
+    private static void KeepIn(UIElement node, double floor)
+    {
+        switch (node)
+        {
+            case IFacePieces pieces:
+                pieces.Keep(floor);
+                break;
+            case Panel panel:
+                foreach (var child in panel.Children)
+                {
+                    KeepIn(child, floor);
+                }
+
+                break;
+            case Border { Child: { } child }:
+                KeepIn(child, floor);
+                break;
+            case ContentControl { Content: UIElement content }:
+                KeepIn(content, floor);
+                break;
+        }
+    }
+
     /// <summary>The least gap between two parts (a family token).</summary>
     public double Spacing
     {
@@ -81,6 +158,16 @@ public sealed partial class ReadingFit : Panel
 
     protected override Size MeasureOverride(Size availableSize)
     {
+        // [S-12833] What the room draws of the face: the same in every pass for one room, so hiding a piece settles.
+        if (!_hold || _held != availableSize)
+        {
+            _faceFit = _face is { } face && double.IsFinite(availableSize.Width) && double.IsFinite(availableSize.Height)
+                ? face.Fit(availableSize.Width, availableSize.Height)
+                : FaceFit.All;
+        }
+
+        Keep(_faceFit.Floor);
+
         // The parts at their own size: what has a width of its own, and the parts packed.
         var shown = _plan.Children.OfType<FrameworkElement>().Where(c => c.Visibility == Visibility.Visible).ToList();
         var intrinsic = 0.0;
@@ -101,7 +188,7 @@ public sealed partial class ReadingFit : Panel
         if (!_hold || _held != availableSize)
         {
             // [S-12833] Down to its smallest text's floor, up to what fills the room.
-            _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink, ScaleFloors.Of(shown));
+            _fill = BlockFit.Fill(availableSize.Width, availableSize.Height, intrinsic, packed, held, ink, ScaleFloors.Of(shown), _faceFit.Most);
             _held = availableSize;
         }
 

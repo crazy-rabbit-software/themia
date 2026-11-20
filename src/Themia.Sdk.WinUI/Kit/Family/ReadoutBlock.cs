@@ -18,7 +18,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// (<see cref="ReadingFit"/>), reading where its ink stands (<see cref="Ink"/>).
 /// </para>
 /// </summary>
-public sealed partial class ReadoutBlock : SpreadStack, IInked
+public sealed partial class ReadoutBlock : SpreadStack, IInked, IFacePieces
 {
     private readonly FontIcon _lead;
     private readonly TextBlock _line;
@@ -34,6 +34,12 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
     private ColourRole _underRole = ColourRole.TextSecondary;
     private bool _painted;
     private bool _centred;
+
+    /// <summary>[S-12833] The least text size drawn: its unit, delta, lead and line under give way under it (0: all drawn).</summary>
+    private double _floor;
+    private string _unitText = string.Empty;
+    private string _deltaText = string.Empty;
+    private string _leadGlyph = string.Empty;
     private HorizontalAlignment? _align;
 
     public ReadoutBlock()
@@ -99,21 +105,17 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
     public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary, ColourRole leadRole = ColourRole.TextSecondary, ColourRole underRole = ColourRole.TextSecondary)
     {
         Set(_value, value);
-        Set(_unit, unit);
+        _unitText = unit ?? string.Empty;
 
         // An en space before the delta: a run has no margin of its own.
-        Set(_delta, string.IsNullOrEmpty(delta) ? string.Empty : " " + delta);
+        _deltaText = string.IsNullOrEmpty(delta) ? string.Empty : " " + delta;
+        _leadGlyph = lead ?? string.Empty;
         if (_under.Text != (under ?? string.Empty))
         {
             _under.Text = under ?? string.Empty;
-            ShowUnder();
         }
 
-        if (_lead.Glyph != (lead ?? string.Empty))
-        {
-            _lead.Glyph = lead ?? string.Empty;
-            _lead.Visibility = string.IsNullOrEmpty(lead) ? Visibility.Collapsed : Visibility.Visible;
-        }
+        Keep(_floor);
 
         if (deltaRole != _deltaRole || valueRole != _valueRole || leadRole != _leadRole || underRole != _underRole || !_painted)
         {
@@ -167,7 +169,7 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
         _lead.Width = _step.FontSize;
         _lead.Height = _step.FontSize;
         Family.Step(_under, FamilyType.Under(_step));
-        ShowUnder();
+        Keep(_floor);
 
         var align = _align ?? (_centred ? HorizontalAlignment.Center : HorizontalAlignment.Left);
         var text = align switch
@@ -186,7 +188,40 @@ public sealed partial class ReadoutBlock : SpreadStack, IInked
         Paint();
     }
 
-    private void ShowUnder() => _under.Visibility = _under.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+    private void ShowUnder()
+    {
+        var shown = _under.Text.Length > 0 && Draws(FamilyType.Under(_step).FontSize) ? Visibility.Visible : Visibility.Collapsed;
+        if (_under.Visibility != shown)
+        {
+            _under.Visibility = shown;
+        }
+    }
+
+    /// <summary>
+    /// [S-12833] Draw only the pieces of at least <paramref name="floor"/> DIP (<see cref="FaceFit.Floor"/>): the unit, the
+    /// delta, the lead glyph (as the text it reads like, <see cref="ScaleFloor.AsText"/>) and the line under give way, the
+    /// value never. 0 draws them all.
+    /// </summary>
+    public void Keep(double floor)
+    {
+        _floor = double.IsFinite(floor) && floor > 0 ? floor : 0;
+        Set(_unit, Draws(FamilyType.Unit(_step).FontSize) ? _unitText : string.Empty);
+        Set(_delta, Draws(FamilyType.Body.FontSize) ? _deltaText : string.Empty);
+        if (_lead.Glyph != _leadGlyph)
+        {
+            _lead.Glyph = _leadGlyph;
+        }
+
+        var lead = _leadGlyph.Length > 0 && Draws(ScaleFloor.AsText(_step.FontSize)) ? Visibility.Visible : Visibility.Collapsed;
+        if (_lead.Visibility != lead)
+        {
+            _lead.Visibility = lead;
+        }
+
+        ShowUnder();
+    }
+
+    private bool Draws(double size) => size >= _floor - 1e-9;
 
     /// <summary>The roles' brushes: a missing part's unit and line under are disabled with its value.</summary>
     private void Paint()

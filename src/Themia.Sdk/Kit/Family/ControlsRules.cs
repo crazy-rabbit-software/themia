@@ -41,6 +41,16 @@ public static class ControlsRules
     /// <summary>A switch's width: Windows' toggle switch track (the Tile's switch look draws the same).</summary>
     public const double SwitchWidth = TileRules.SwitchWidth;
 
+    /// <summary>
+    /// [S-12833] The text size a Controls row gives way at in a face drawn small (<c>FaceFloor</c>): its words' (Body);
+    /// a 16 glyph on an icon button reads like 12, and a slider or a switch is no smaller to use than a word is to read.
+    /// </summary>
+    public static double GivesWayAt => FamilyType.Body.FontSize;
+
+    /// <summary>[S-12833] The row as a face's piece: <paramref name="width"/> wide, 8 under what stands over it, giving way at Body.</summary>
+    public static Themia.Core.Widgets.FaceRow Row(double width)
+        => new([Themia.Core.Widgets.FacePiece.Box(width, FamilyShape.Button, GivesWayAt)], GapOver: Gap);
+
     /// <summary>Throws unless <paramref name="parts"/> has at most one main action: a row of two accent buttons says nothing is the main one.</summary>
     public static void Check(IReadOnlyList<ControlPart> parts)
     {

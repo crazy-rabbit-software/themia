@@ -60,6 +60,19 @@ public sealed record WidgetSizing
     }
 
     /// <summary>
+    /// [S-12833] This sizing for a face whose parts are <paramref name="face"/>: its Min the face's least box (its main
+    /// reading alone at the legibility floor, <c>FaceParts.LeastBox</c>) in the card's inset, which does not scale, with
+    /// <paramref name="over"/> more over it (a tool line of whole cells), on every axis it does not step.
+    /// </summary>
+    public WidgetSizing ScalesDownTo(Themia.Core.Widgets.FaceParts face, double over = 0)
+    {
+        ArgumentNullException.ThrowIfNull(face);
+        var least = face.LeastBox();
+        var inset = 2 * Kit.FamilySpace.Inset;
+        return ScalesDownTo(new SizeDip(least.Width + inset, least.Height + inset + over));
+    }
+
+    /// <summary>
     /// [S-12833] This sizing for a face that scales down as one to <paramref name="least"/>, the box it states for its main
     /// reading at the legibility floor in the card's inset (<c>FaceFloor.LeastBox</c> plus the inset): its Min that box
     /// (whole DIPs, never under <see cref="LeastScaled"/>, never over the stated Min) on every axis it does not step.

@@ -25,6 +25,12 @@ public static class ScaleFloor
         return least > 0 ? Math.Min(1, least) : 1;
     }
 
+    /// <summary>
+    /// [S-12833] The text size a glyph of <paramref name="glyph"/> gives way at (<c>FaceFloor</c>): the one that reaches the
+    /// text floor at the scale the glyph reaches its own (a 12 glyph reads like 9 text).
+    /// </summary>
+    public static double AsText(double glyph) => glyph > 0 && double.IsFinite(glyph) ? glyph * Text / Glyph : 0;
+
     /// <summary>A least scale held to (0, 1]: a degenerate one is 1 (never shrinks).</summary>
     public static double Clamp(double least) => least > 0 && double.IsFinite(least) ? Math.Min(1, least) : 1;
 }

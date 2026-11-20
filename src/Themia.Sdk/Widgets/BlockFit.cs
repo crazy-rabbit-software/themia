@@ -72,7 +72,8 @@ public static class BlockFit
     /// of the reading it stands for (<paramref name="ink"/>) and placed by the ink it draws (<paramref name="drawn"/>,
     /// the dashes' top lower than capitals): the same size as its readings, its dashes on the top.
     /// </summary>
-    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, LineInk? drawn = null, double least = 1)
+    /// <remarks>[S-12833] Never over <paramref name="most"/> (<see cref="FaceFit.Most"/>: the scale a part of it gave way at).</remarks>
+    public static BlockFill Fill(double width, double height, double intrinsicWidth, double packedHeight, LineInk ink, LineInk? drawn = null, double least = 1, double most = double.PositiveInfinity)
     {
         static double Room(double v) => double.IsFinite(v) ? Math.Max(0, v) : 0;
         var over = Room(ink.Over);
@@ -88,7 +89,8 @@ public static class BlockFit
         // A whole pixel of slack over the parts' width: laid out at exactly their width, layout rounding would trim a
         // text to its ellipsis (the weather's "Can't reach the servi...").
         var byWidth = intrinsicWidth > 0 && double.IsFinite(intrinsicWidth) ? width / (intrinsicWidth + WidthSlack) : double.PositiveInfinity;
-        var scale = Math.Max(ScaleFloor.Clamp(least), Math.Min(byWidth, height / span));
+        var fill = Math.Min(byWidth, height / span);
+        var scale = Math.Max(ScaleFloor.Clamp(least), most > 0 && !double.IsNaN(most) ? Math.Min(most, fill) : fill);
         var laid = Math.Max(packedHeight, (height / scale) + placedOver + placedUnder);
         return new BlockFill(scale, laid, -placedOver * scale);
     }
