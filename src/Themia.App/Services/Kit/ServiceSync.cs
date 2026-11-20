@@ -22,11 +22,11 @@ internal sealed class AccountTransport(AccountService accounts) : IServiceTransp
 /// <summary>
 /// [S-9925] [S-2600] The host's one service sync: the only code that asks a kit service for anything.
 /// The widgets' interests (every view, shown or not, [S-2608]) and the signed-in accounts say which
-/// entries exist (<see cref="ServiceEntries"/>, pure); this runs the due ones through the one client
-/// (<see cref="ServiceClient"/>) on the shared ticker at a minute, wakes them when the network comes
-/// back ([S-2609]), keeps what they hold in each account's sealed <c>service</c> shelf ([S-9926])
-/// and tells the widgets reading them. A sign-out forgets the account here; its shelf is purged with
-/// the rest ([S-2607]).
+/// entries exist (<see cref="ServiceEntries"/>, pure); the one sync engine ([S-2691]) runs the due ones
+/// through the one client (<see cref="ServiceClient"/>) on the shared ticker at a minute, wakes them when the
+/// network comes back ([S-2609]) and cancels what is in flight on dispose; what they hold is kept in each
+/// account's sealed <c>service</c> shelf ([S-9926], read off the UI thread, [S-2693]) and the widgets reading
+/// them are told. A sign-out forgets the account here; its shelf is purged with the rest ([S-2607]).
 /// <para>UI thread: the ticker and the widgets are there, and each fetch resumes there.</para>
 /// </summary>
 internal sealed class ServiceSync : IServiceSources, IDisposable
@@ -35,16 +35,17 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
 
     private readonly SyncHost? _sync;
     private readonly AccountService? _accounts;
-    private readonly Ticker _ticker;
     private readonly IServiceTransport _transport;
     private readonly ServiceMemory _memory = new();
     private readonly ServiceEntries _entries;
+    private readonly SyncEngine<ServiceEntry> _engine;
     private readonly Dictionary<ProviderId, ServiceClient> _clients = [];
     private readonly HashSet<string> _seeded = new(StringComparer.Ordinal);
+
+    /// <summary>[S-2693] Accounts whose shelf is still being read: nothing of theirs is asked before it lands.</summary>
+    private readonly HashSet<string> _loading = new(StringComparer.Ordinal);
     private readonly List<Source> _shown = [];
     private readonly Func<IReadOnlyList<ServiceAccount>> _accountList;
-    private IDisposable? _tick;
-    private bool _disposed;
 
     /// <summary>The desktop's sync, over the account service and the offline store.</summary>
     public ServiceSync(SyncHost sync, AccountService accounts, Ticker ticker)
@@ -62,10 +63,12 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
     /// <summary>A sync over another transport (a debug preview's recorded answers) and accounts of its own; it stores nothing.</summary>
     internal ServiceSync(Ticker ticker, IServiceTransport transport, Func<IReadOnlyList<ServiceAccount>> accounts)
     {
-        _ticker = ticker;
+        ArgumentNullException.ThrowIfNull(ticker);
         _transport = transport;
         _accountList = accounts;
         _entries = new ServiceEntries(id => ProviderCatalog.All.FirstOrDefault(p => p.Id == id)?.Service);
+        _engine = new SyncEngine<ServiceEntry>(_entries.Table, FetchAsync, () => DateTimeOffset.UtcNow, ticker.Subscribe, MayAsk);
+        _engine.Changed += _ => Raise();
     }
 
     /// <summary>Raised on the UI thread when an entry's answer or state changed.</summary>
@@ -84,6 +87,8 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
             .Where(a => ProviderCatalog.All.Any(p => p.Id == a.Provider && p.Service is not null))
             .Select(a => new ServiceAccount(a.Id, a.Provider, a.Label, a.NeedsSignIn))];
 
+    private bool MayAsk(ServiceEntry entry) => _entries.MayAsk(entry) && !(entry.AccountId is { } account && _loading.Contains(account));
+
     private void OnAccountsChanged() => Reconcile();
 
     private void OnSignedOut(string accountId)
@@ -91,13 +96,14 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
         _memory.ForgetAccount(accountId);
         _entries.ForgetAccount(accountId);
         _seeded.Remove(accountId);
+        _loading.Remove(accountId);
         Raise();
     }
 
     /// <summary>[S-2608] What every widget in every view reads, and every widget on screen.</summary>
     private void Reconcile()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
@@ -105,9 +111,9 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
         var wanted = (_sync?.Interests.Services ?? []).Concat(_shown.Select(s => s.Interest)).ToList();
         var now = DateTimeOffset.UtcNow;
         _entries.Reconcile(wanted, _accountList(), Cadence, now);
-        SeedShelves(now);
-        EnsureTicking();
-        Poll();
+        SeedShelves();
+        _engine.EnsureTicking();
+        _engine.Poll();
         Raise();
     }
 
@@ -117,8 +123,8 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
             ? UpdateCadence.Interval(UpdateCadence.Current, descriptor.Cadence)
             : TimeSpan.FromMinutes(15);
 
-    /// <summary>[S-9926] Each account's shelf, once a run, before its first fetch.</summary>
-    private void SeedShelves(DateTimeOffset now)
+    /// <summary>[S-9926] [S-2693] Each account's shelf, once a run, read off the UI thread before its first fetch.</summary>
+    private void SeedShelves()
     {
         if (_sync is null)
         {
@@ -128,62 +134,50 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
         foreach (var account in _entries.All.Select(e => e.AccountId).OfType<string>().Distinct().Where(a => !_seeded.Contains(a)).ToList())
         {
             _seeded.Add(account);
-            var read = _sync.Vault.Load(SyncKind.Service, account, SyncJsonContext.Default.ServiceShelf, ServiceShelf.Version);
-            if (read.Value is not { } shelf)
-            {
-                if (read.Outcome == ShelfReadOutcome.Discarded)
-                {
-                    Log.Warn(Scope, $"an account's service shelf was set aside ({read.Detail}); reading it again");
-                }
+            _loading.Add(account);
+            _ = SeedAsync(_sync, account);
+        }
+    }
 
-                continue;
-            }
+    private async Task SeedAsync(SyncHost sync, string account)
+    {
+        ShelfRead<ServiceShelf> read;
+        try
+        {
+            read = await sync.Vault.LoadAsync(SyncKind.Service, account, SyncJsonContext.Default.ServiceShelf, ServiceShelf.Version).ConfigureAwait(true);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            // The read never throws for bad data; anything here is a bug, and the account syncs from nothing.
+            Log.Error(Scope, "reading an account's service shelf threw", ex);
+            read = new ShelfRead<ServiceShelf>(null, ShelfReadOutcome.Discarded, ex.Message);
+        }
 
+        if (!_loading.Remove(account) || _engine.Disposed)
+        {
+            // Signed out while it was read: nothing of it is used.
+            return;
+        }
+
+        if (read.Value is { } shelf)
+        {
             var repairs = new List<string>();
-            _entries.Seed(shelf, account, now, repairs);
+            _entries.Seed(shelf, account, DateTimeOffset.UtcNow, repairs);
             foreach (var repair in repairs.Distinct())
             {
                 Log.Info(Scope, repair);
             }
         }
+        else if (read.Outcome == ShelfReadOutcome.Discarded)
+        {
+            Log.Warn(Scope, $"an account's service shelf was set aside ({read.Detail}); reading it again");
+        }
+
+        _engine.Poll();
+        Raise();
     }
 
-    private void Wake()
-    {
-        _entries.Wake();
-        Poll();
-    }
-
-    private void EnsureTicking()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (_entries.All.Count > 0)
-        {
-            _tick ??= _ticker.Subscribe(TimeSpan.FromMinutes(1), Poll);
-        }
-        else
-        {
-            _tick?.Dispose();
-            _tick = null;
-        }
-    }
-
-    private void Poll()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        foreach (var entry in _entries.Due(DateTimeOffset.UtcNow))
-        {
-            _ = RunAsync(entry);
-        }
-    }
+    private void Wake() => _engine.Wake();
 
     private ServiceClient Client(ProviderId provider, ServiceDescriptor descriptor)
     {
@@ -196,50 +190,32 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
         return client;
     }
 
-    private async Task RunAsync(ServiceEntry entry)
+    /// <summary>One run of an entry: the query's pages or the replica's sync through the one client, held and shelved.</summary>
+    private async Task<SyncRun> FetchAsync(ServiceEntry entry, bool asked, CancellationToken cancellation)
     {
         if (ProviderCatalog.All.FirstOrDefault(p => p.Id == entry.Provider)?.Service is not { } descriptor)
         {
-            return;
+            return new SyncRun(FetchStatus.NotConfigured, "no such service in this build");
         }
 
-        entry.Schedule.Busy = true;
-        Raise();
+        var client = Client(entry.Provider, descriptor);
+        var fetch = entry.Replica is { } replica && entry.AccountId is { } account
+            ? await client.SyncAsync(account, replica, entry.ReplicaJson, ServiceEntries.TokenToSend(entry, DateTimeOffset.UtcNow), () => DateTimeOffset.UtcNow, cancellation).ConfigureAwait(true)
+            : await client.FetchAsync(entry.AccountId, entry.Query!, entry.Count, () => DateTimeOffset.UtcNow, cancellation).ConfigureAwait(true);
 
-        ServiceFetch fetch;
-        try
-        {
-            var client = Client(entry.Provider, descriptor);
-            fetch = entry.Replica is { } replica && entry.AccountId is { } account
-                ? await client.SyncAsync(account, replica, entry.ReplicaJson, ServiceEntries.TokenToSend(entry, DateTimeOffset.UtcNow), () => DateTimeOffset.UtcNow, CancellationToken.None).ConfigureAwait(true)
-                : await client.FetchAsync(entry.AccountId, entry.Query!, entry.Count, () => DateTimeOffset.UtcNow, CancellationToken.None).ConfigureAwait(true);
-        }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
-        {
-            // The client turns every failure into a status; anything here is a bug, and the entry
-            // backs off instead of retrying every tick.
-            Log.Error(Scope, "a service fetch threw", ex);
-            fetch = ServiceFetch.Failed(FetchStatus.BadResponse, ex.Message);
-        }
+        ServiceEntries.Apply(entry, fetch, DateTimeOffset.UtcNow);
 
-        if (_disposed)
-        {
-            return;
-        }
-
-        _entries.Complete(entry, fetch, DateTimeOffset.UtcNow);
-
-        if (fetch.Status == FetchStatus.Ok && entry.AccountId is { } owner && _sync is not null)
+        if (fetch.Status == FetchStatus.Ok && entry.AccountId is { } owner && _sync is not null && !_engine.Disposed)
         {
             _sync.Vault.SaveSoon(SyncKind.Service, owner, _entries.ToShelf(owner, entry.Provider), SyncJsonContext.Default.ServiceShelf);
         }
 
-        Raise();
+        return new SyncRun(fetch.Status, fetch.Detail, fetch.RetryAt);
     }
 
     private void Raise()
     {
-        if (!_disposed)
+        if (!_engine.Disposed)
         {
             Updated?.Invoke();
         }
@@ -247,14 +223,12 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        if (_engine.Disposed)
         {
             return;
         }
 
-        _disposed = true;
-        _tick?.Dispose();
-        _tick = null;
+        _engine.Dispose();
 
         if (_sync is not null)
         {
@@ -303,7 +277,7 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
             if (refresh)
             {
                 owner._entries.Force(Interest, DateTimeOffset.UtcNow);
-                owner.Poll();
+                owner._engine.Poll();
             }
         }
 

@@ -13417,6 +13417,11 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   typed failure kept or taken back by `WriteQueue.Classify`, anything else kept and logged; the first attempt of a change
   at the head answers whoever queued it ([S-2624]), one queued behind answers at once; an owner that cannot send (its
   account needs signing in) sends nothing; the owner's cancellation stops it with its queue kept.
+- **[S-2693]** A shelf is read off the UI thread (`SyncVault.LoadAsync`: the disk read, the unsealing and the parse
+  on the thread pool; a vault that persists nothing answers at once). Until an owner's shelf lands nothing of it is
+  asked, sent or saved over it (a save then would replace the stored copy with an empty one), a widget's own ask (a
+  calendar's first draw, a menu's list) waits for it, and a Refresh made meanwhile still goes when it lands. Changes
+  queued while it was read stay behind the stored queue.
 - **[S-2694]** One HTTP send under the web's and the accounts' requests (`Services/Net/HttpCore.cs`): the scheme
   check, the hand-followed redirects ([S-519], [S-966]), the body cap (4 MB for the web, 16 MB for accounts), the
   `Retry-After` and one classifier of transport failures; `WebFetch` and `AccountHttp` are its two policies (deadline,

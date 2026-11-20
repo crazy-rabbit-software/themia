@@ -14,20 +14,17 @@ public sealed record ServiceAccount(string Id, ProviderId Provider, string Label
 /// [S-9925] One thing the service sync keeps fresh: a query's answer, or a replica, for one account
 /// (or anonymously), shared by every widget that reads it.
 /// </summary>
-public sealed class ServiceEntry
+public sealed class ServiceEntry : SyncEntry
 {
+    /// <param name="key"><c>provider|account|query</c>: never a token.</param>
     internal ServiceEntry(string key, ProviderId provider, string? accountId, IServiceQuery? query, IServiceReplicaQuery? replica, TimeSpan interval)
+        : base(key, interval)
     {
-        Key = key;
         Provider = provider;
         AccountId = accountId;
         Query = query;
         Replica = replica;
-        Schedule = new SyncSchedule(interval);
     }
-
-    /// <summary><c>provider|account|query</c>: never a token.</summary>
-    public string Key { get; }
 
     public ProviderId Provider { get; }
 
@@ -40,8 +37,6 @@ public sealed class ServiceEntry
 
     /// <summary>The most items any widget reading it shows.</summary>
     public int Count { get; internal set; } = 1;
-
-    public SyncSchedule Schedule { get; }
 
     /// <summary>What it last held (kept through a failure, [S-25]).</summary>
     public IReadOnlyList<KitItem> Items { get; internal set; } = [];
@@ -63,9 +58,8 @@ public sealed class ServiceEntry
     /// <summary>When the bucket it counts against may be asked again, when a block is known.</summary>
     public DateTimeOffset? RetryAt { get; internal set; }
 
-    internal bool Wanted { get; set; }
-
-    internal FetchStatus Reported { get; set; } = FetchStatus.Loading;
+    /// <summary>The log names the provider and whether an account reads it; never the account, a token or a query's text.</summary>
+    public override string Subject => $"{Provider} {(AccountId is null ? "anonymous" : "account")} read";
 
     internal void Retarget(IServiceQuery query) => Query = query;
 }
@@ -74,14 +68,15 @@ public sealed class ServiceEntry
 /// [S-9925] The service sync's state, pure and on one thread: which entries the widgets want (from
 /// their interests and the signed-in accounts), when each is due (the provider's cadence, never below
 /// its floors, never before a block ends, [S-9908]), what each holds, and what a widget reads of them
-/// (<see cref="Read"/>: the accounts' items merged, one outcome per account, [S-9909]). The host runs
-/// the due entries through the one client and hands the results back; it never decides any of this.
+/// (<see cref="Read"/>: the accounts' items merged, one outcome per account, [S-9909]). Its table is
+/// the one sync engine's ([S-2691], <see cref="Table"/>): the host runs the due entries through the one
+/// client on that engine and hands the results back; it never decides any of this.
 /// </summary>
 public sealed class ServiceEntries
 {
     private const string Scope = "service";
 
-    private readonly Dictionary<string, ServiceEntry> _entries = new(StringComparer.Ordinal);
+    private readonly SyncEntries<ServiceEntry> _entries = new(Scope);
     private readonly Func<ProviderId, ServiceDescriptor?> _descriptor;
     private IReadOnlyList<ServiceAccount> _accounts = [];
 
@@ -89,9 +84,12 @@ public sealed class ServiceEntries
     public ServiceEntries(Func<ProviderId, ServiceDescriptor?> descriptor)
         => _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
 
-    public IReadOnlyCollection<ServiceEntry> All => _entries.Values;
+    /// <summary>The table the host's sync engine runs ([S-2691]).</summary>
+    public SyncEntries<ServiceEntry> Table => _entries;
 
-    public ServiceEntry? Find(string key) => _entries.GetValueOrDefault(key);
+    public IReadOnlyCollection<ServiceEntry> All => _entries.All;
+
+    public ServiceEntry? Find(string key) => _entries.Find(key);
 
     /// <summary>The accounts an interest reads ([S-7041]): every account of the provider when it names none, else the named ones still signed in.</summary>
     public IReadOnlyList<ServiceAccount> Targets(ServiceInterest interest)
@@ -127,49 +125,46 @@ public sealed class ServiceEntries
         ArgumentNullException.ThrowIfNull(cadence);
 
         _accounts = accounts;
-        foreach (var entry in _entries.Values)
+        _entries.Reconcile(() =>
         {
-            entry.Wanted = false;
-            entry.Count = 1;
-        }
-
-        foreach (var interest in interests)
-        {
-            if (_descriptor(interest.Provider) is not { } descriptor)
+            foreach (var entry in _entries.All)
             {
-                continue;
+                entry.Count = 1;
             }
 
-            var targets = Targets(interest).Select(a => (string?)a.Id).ToList();
-            if (targets.Count == 0 && interest.AccountIds.Count == 0 && descriptor.Anonymous.PublicReads && interest.Query is not null)
+            foreach (var interest in interests)
             {
-                targets.Add(null);
-            }
-
-            foreach (var account in targets)
-            {
-                var key = KeyOf(interest, account);
-                if (!_entries.TryGetValue(key, out var entry))
+                if (_descriptor(interest.Provider) is not { } descriptor)
                 {
-                    entry = new ServiceEntry(key, interest.Provider, account, interest.Query, interest.View?.Replica, Interval(descriptor, cadence(interest.Provider), account));
-                    entry.Schedule.Seed(null, now);
-                    _entries[key] = entry;
-                }
-                else if (interest.Query is { } query)
-                {
-                    entry.Retarget(query);
+                    continue;
                 }
 
-                entry.Schedule.Interval = Interval(descriptor, cadence(interest.Provider), account);
-                entry.Count = Math.Max(entry.Count, interest.Count);
-                entry.Wanted = true;
-            }
-        }
+                var targets = Targets(interest).Select(a => (string?)a.Id).ToList();
+                if (targets.Count == 0 && interest.AccountIds.Count == 0 && descriptor.Anonymous.PublicReads && interest.Query is not null)
+                {
+                    targets.Add(null);
+                }
 
-        foreach (var key in _entries.Where(e => !e.Value.Wanted && !e.Value.Schedule.Busy).Select(e => e.Key).ToList())
-        {
-            _entries.Remove(key);
-        }
+                foreach (var account in targets)
+                {
+                    var interval = Interval(descriptor, cadence(interest.Provider), account);
+                    var entry = _entries.Want(KeyOf(interest, account), () =>
+                    {
+                        var made = new ServiceEntry(KeyOf(interest, account), interest.Provider, account, interest.Query, interest.View?.Replica, interval);
+                        made.Schedule.Seed(null, now);
+                        return made;
+                    });
+
+                    if (interest.Query is { } query)
+                    {
+                        entry.Retarget(query);
+                    }
+
+                    entry.Schedule.Interval = interval;
+                    entry.Count = Math.Max(entry.Count, interest.Count);
+                }
+            }
+        });
     }
 
     /// <summary>[S-9908] The cadence, never below the service's floor, and its anonymous floor for a read without an account.</summary>
@@ -180,76 +175,71 @@ public sealed class ServiceEntries
     }
 
     /// <summary>The entries due now: not busy, their time come, their account not one only the user can mend.</summary>
-    public IReadOnlyList<ServiceEntry> Due(DateTimeOffset now)
-        => [.. _entries.Values.Where(e => e.Schedule.IsDue(now) && !NeedsSignIn(e.AccountId))];
+    public IReadOnlyList<ServiceEntry> Due(DateTimeOffset now) => _entries.Due(now, MayAsk);
+
+    /// <summary>Whether an entry may be asked: its account is not one only the user can mend.</summary>
+    public bool MayAsk(ServiceEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        return !NeedsSignIn(entry.AccountId);
+    }
 
     private bool NeedsSignIn(string? accountId) => accountId is not null && _accounts.Any(a => a.Id == accountId && a.NeedsSignIn);
 
     /// <summary>The user's Refresh of a widget: its entries go now, past freshness and back-off (not past a provider's "slow down").</summary>
     public void Force(ServiceInterest interest, DateTimeOffset now)
     {
-        foreach (var entry in EntriesOf(interest))
+        foreach (var entry in EntriesOf(interest).ToList())
         {
-            entry.Schedule.Force(now);
+            _entries.Force(entry, now);
         }
     }
 
     /// <summary>[S-2609] The network is back: every wait that was only about the network ends.</summary>
-    public void Wake()
-    {
-        foreach (var entry in _entries.Values)
-        {
-            entry.Schedule.Wake();
-        }
-    }
+    public void Wake() => _entries.Wake();
 
     /// <summary>
-    /// A fetch came back. A success replaces what is held and waits the cadence, or its bucket's block
-    /// when the success spent the budget; a failure keeps what is held and backs off, never before the
-    /// throttle's own time ([S-9901]). One log line per change of state, never one per attempt, and
-    /// no item's text in it. True when what a widget reads changed.
+    /// A fetch came back: what it holds (<see cref="Apply"/>), then its schedule and its one log line per change of
+    /// state through the engine's table ([S-2691]). A success waits the cadence, or its bucket's block when the
+    /// success spent the budget; a failure keeps what is held and backs off, never before the throttle's own time
+    /// ([S-9901]). True when what a widget reads changed.
     /// </summary>
     public bool Complete(ServiceEntry entry, ServiceFetch fetch, DateTimeOffset now)
+    {
+        Apply(entry, fetch, now);
+        _entries.Complete(entry, new SyncRun(fetch.Status, fetch.Detail, fetch.RetryAt), now);
+        return true;
+    }
+
+    /// <summary>What a fetch brings an entry: a success replaces what is held ([S-25]: a failure keeps it).</summary>
+    public static void Apply(ServiceEntry entry, ServiceFetch fetch, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(entry);
         ArgumentNullException.ThrowIfNull(fetch);
 
-        entry.Schedule.Busy = false;
         entry.RetryAt = fetch.RetryAt;
-
-        if (fetch.Status == FetchStatus.Ok)
+        if (fetch.Status != FetchStatus.Ok)
         {
-            entry.Schedule.Succeeded(now);
-            if (fetch.RetryAt is { } block)
-            {
-                entry.Schedule.Hold(block - now, now);
-            }
+            return;
+        }
 
-            if (fetch.Replica is { } replica)
+        if (fetch.Replica is { } replica)
+        {
+            entry.ReplicaJson = replica.Json;
+            entry.SyncToken = replica.SyncToken;
+            if (replica.Full)
             {
-                entry.ReplicaJson = replica.Json;
-                entry.SyncToken = replica.SyncToken;
-                if (replica.Full)
-                {
-                    entry.FullAt = now;
-                }
+                entry.FullAt = now;
             }
-            else
-            {
-                entry.Items = fetch.Items;
-                entry.Summary = fetch.Summary;
-                entry.EmptySentence = fetch.EmptySentence;
-            }
-
-            entry.HeldAt = now;
         }
         else
         {
-            entry.Schedule.Failed(fetch.Status, fetch.Detail, now, fetch.RetryAt);
+            entry.Items = fetch.Items;
+            entry.Summary = fetch.Summary;
+            entry.EmptySentence = fetch.EmptySentence;
         }
 
-        Note(entry, fetch.Status, fetch.Detail);
-        return true;
+        entry.HeldAt = now;
     }
 
     /// <summary>The token a replica entry sends next: none (a full read) when it holds none or its last full read is older than the provider wants.</summary>
@@ -264,42 +254,17 @@ public sealed class ServiceEntries
         return entry.FullAt is { } full && now - full < replica.FullReadEvery ? entry.SyncToken : null;
     }
 
-    private static void Note(ServiceEntry entry, FetchStatus status, string? detail)
-    {
-        if (status == entry.Reported)
-        {
-            return;
-        }
-
-        entry.Reported = status;
-        var what = $"{entry.Provider} {(entry.AccountId is null ? "anonymous" : "account")} read";
-        if (status == FetchStatus.Ok)
-        {
-            Log.Info(Scope, $"{what}: answering");
-        }
-        else
-        {
-            var line = $"{what}: {status} ({detail})";
-            switch (FetchState.LogLevelFor(status))
-            {
-                case LogLevel.Debug: Log.Debug(Scope, line); break;
-                case LogLevel.Info: Log.Info(Scope, line); break;
-                default: Log.Warn(Scope, line); break;
-            }
-        }
-    }
-
     private IEnumerable<ServiceEntry> EntriesOf(ServiceInterest interest)
     {
         foreach (var account in Targets(interest))
         {
-            if (_entries.TryGetValue(KeyOf(interest, account.Id), out var entry))
+            if (_entries.Find(KeyOf(interest, account.Id)) is { } entry)
             {
                 yield return entry;
             }
         }
 
-        if (_entries.TryGetValue(KeyOf(interest, null), out var anonymous))
+        if (_entries.Find(KeyOf(interest, null)) is { } anonymous)
         {
             yield return anonymous;
         }
@@ -325,7 +290,7 @@ public sealed class ServiceEntries
         var accounts = new List<KitAccount>();
         LocalText? empty = null;
 
-        foreach (var (account, entry) in targets.Select(a => (a, _entries.GetValueOrDefault(KeyOf(interest, a.Id)))))
+        foreach (var (account, entry) in targets.Select(a => (a, _entries.Find(KeyOf(interest, a.Id)))))
         {
             var status = entry?.Schedule.Status ?? FetchStatus.Loading;
             accounts.Add(new KitAccount(account.Id, account.Label, account.NeedsSignIn || status == FetchStatus.SignInRequired
@@ -344,7 +309,7 @@ public sealed class ServiceEntries
             outcomes.Add(new KitOutcome(Owner(targets, account), Outcome(entry, page), null, entry.HeldAt, entry.RetryAt));
         }
 
-        if (targets.Count == 0 && _entries.GetValueOrDefault(KeyOf(interest, null)) is { } anonymous)
+        if (targets.Count == 0 && _entries.Find(KeyOf(interest, null)) is { } anonymous)
         {
             var page = View(interest, anonymous, now);
             per.Add(page.Items);
@@ -390,7 +355,7 @@ public sealed class ServiceEntries
     public ServiceShelf ToShelf(string accountId, ProviderId provider)
     {
         var shelf = new ServiceShelf { Owner = accountId, Provider = provider.Value };
-        foreach (var entry in _entries.Values.Where(e => e.AccountId == accountId && e.HeldAt is not null).Take(ServiceShelves.MaxEntries))
+        foreach (var entry in _entries.All.Where(e => e.AccountId == accountId && e.HeldAt is not null).Take(ServiceShelves.MaxEntries))
         {
             if (entry.Replica is { } replica)
             {
@@ -421,7 +386,7 @@ public sealed class ServiceEntries
         ArgumentNullException.ThrowIfNull(shelf);
         ArgumentNullException.ThrowIfNull(repairs);
 
-        foreach (var entry in _entries.Values.Where(e => e.AccountId == accountId && e.HeldAt is null))
+        foreach (var entry in _entries.All.Where(e => e.AccountId == accountId && e.HeldAt is null).ToList())
         {
             if (_descriptor(entry.Provider) is not { } descriptor)
             {
@@ -461,11 +426,5 @@ public sealed class ServiceEntries
     }
 
     /// <summary>[S-2607] An account signed out: its entries go.</summary>
-    public void ForgetAccount(string accountId)
-    {
-        foreach (var key in _entries.Where(e => e.Value.AccountId == accountId).Select(e => e.Key).ToList())
-        {
-            _entries.Remove(key);
-        }
-    }
+    public void ForgetAccount(string accountId) => _entries.RemoveWhere(e => e.AccountId == accountId);
 }

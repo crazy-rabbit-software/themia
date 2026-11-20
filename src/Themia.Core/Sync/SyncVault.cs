@@ -140,6 +140,16 @@ public sealed class SyncVault
 
     private static string Context(SyncKind kind, string owner) => $"{KindName(kind)}|{owner}";
 
+    /// <summary>
+    /// [S-2693] <see cref="Load{T}"/> on the thread pool: a shelf may be megabytes, and the UI thread never waits on its
+    /// disk read, its unsealing or its parse. A vault that persists nothing answers at once.
+    /// </summary>
+    public Task<ShelfRead<T>> LoadAsync<T>(SyncKind kind, string owner, JsonTypeInfo<T> type, int schemaVersion)
+        where T : class, ISyncShelf
+        => _directory is null || _key is null
+            ? Task.FromResult(new ShelfRead<T>(null, ShelfReadOutcome.Absent, null))
+            : Task.Run(() => Load(kind, owner, type, schemaVersion));
+
     /// <summary>Read one shelf. Never throws for bad data.</summary>
     public ShelfRead<T> Load<T>(SyncKind kind, string owner, JsonTypeInfo<T> type, int schemaVersion)
         where T : class, ISyncShelf
