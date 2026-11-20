@@ -242,6 +242,31 @@ internal static partial class DeskSelectCheck
                 host.DesktopBandEnd();
                 Expect("band over the twins", ["twinU", "twinP"]);
 
+                // [S-5540] A key two displays show finds its widget where the user pressed it: F2 (the keys, no widget named)
+                // opens the rename box on that display's icon.
+                if (homeTwin is { } homeOf)
+                {
+                    string? RenamesAfterPressOn(string pressed)
+                    {
+                        host.Press(KeyOf("twinU"), ctrl: false, shift: false, pressed);
+                        host.Release(KeyOf("twinU"));
+
+                        // A press on a card ends the empty desktop's hold on the keys, as the real press does ([S-5550]).
+                        host.DesktopKeysEnd(giveBack: false, keepActive: true);
+                        var began = host.Key(WidgetKey.Rename, shift: false, widgetId: null);
+                        var on = host.RenamingWidget;
+                        host.CancelRename();
+                        return began ? on : null;
+                    }
+
+                    var here = items[Index("twinU")].Widget.Id;
+                    var onHome = RenamesAfterPressOn(homeOf);
+                    var onHere = RenamesAfterPressOn(here);
+                    var renameOk = onHome == homeOf && onHere == here;
+                    failures += renameOk ? 0 : 1;
+                    Say($"{(renameOk ? "ok  " : "FAIL")} F2 on twinU after a press on the other display's copy: box on {(onHome == homeOf ? "that copy" : onHome ?? "none")}; after a press on this one's: {(onHere == here ? "this copy" : onHere ?? "none")}");
+                }
+
                 // [S-13045] The icons before the fence, whatever the gesture.
                 bool Pick(string name, bool ctrl = true, bool shift = false)
                     => surface.CardFor(items[Index(name)].Widget.Id) is { } picked && surface.DeskPick(picked, ctrl, shift);

@@ -48,8 +48,19 @@ internal sealed partial class AppHost : IDesktopDesk
     /// <summary>[S-5591] The last press on empty desktop: where a paste or New › lands.</summary>
     private (DesktopWindow Surface, double X, double Y)? _emptyPress;
 
-    /// <summary>The first widget showing each key (a desktop item's, an own icon's, a card's), and the surface it is on, as last laid out.</summary>
-    private Dictionary<string, (DesktopWindow Surface, WidgetInstance Widget)> _deskWidgets = new(DesktopItemKeys.Comparer);
+    /// <summary>The live surfaces in the desktop's display order, as last laid out: a box's <see cref="DesktopBox.Display"/> is its index here.</summary>
+    private List<DesktopWindow> _deskDisplays = [];
+
+    /// <summary>
+    /// [S-5540] The widget that shows <paramref name="key"/> for the desktop now (a desktop item's, an own icon's, a card's) and
+    /// its surface: on the display of the last gesture when that display shows it, else the first
+    /// (<see cref="DesktopSelection.PlaceOf"/>, the one rule). Null when no widget shows it.
+    /// </summary>
+    private (DesktopWindow Surface, WidgetInstance Widget)? DeskPlace(string? key)
+        => _desk.PlaceOf(key) is { Widget: { } id } box && box.Display >= 0 && box.Display < _deskDisplays.Count
+            && _deskDisplays[box.Display] is { IsAlive: true } surface && State.ViewForMonitor(surface.Monitor.Id).Find(id) is { } widget
+            ? (surface, widget)
+            : null;
 
     /// <summary>
     /// [S-5540] The surface the desktop's last gesture was on (a press, the band, the keys, a menu): an item two displays show
@@ -146,7 +157,7 @@ internal sealed partial class AppHost : IDesktopDesk
     /// <summary>The name type-to-find and a sort read of <paramref name="key"/>: the listing's, an own icon's as drawn, a card's title.</summary>
     private string? DeskName(string key)
         => HostDesktopItems.Instance.Find(key)?.Name
-            ?? (_deskWidgets.TryGetValue(key, out var at)
+            ?? (DeskPlace(key) is { } at
                 ? at.Widget.Config is IDesktopItemConfig { Item.Length: 0 } own ? own.OwnName
                     : at.Widget.Config is not IDesktopItemConfig ? (string.IsNullOrWhiteSpace(at.Widget.Label) ? ModuleCatalog.Of(at.Widget.Kind).Name : at.Widget.Label)
                     : null
@@ -194,7 +205,7 @@ internal sealed partial class AppHost : IDesktopDesk
 
     /// <summary>[S-5580] The icon with <paramref name="key"/> as the desktop's commands see it, or null when no widget shows it.</summary>
     private DeskIcon? DeskIconOf(string? key)
-        => key is not null && _deskWidgets.TryGetValue(key, out var at)
+        => DeskPlace(key) is { } at
             ? at.Widget.Config switch
             {
                 IDesktopItemConfig config => DeskIcon.Of(config, PathExists),
@@ -227,7 +238,7 @@ internal sealed partial class AppHost : IDesktopDesk
     private void LayoutDesk()
     {
         var boxes = new List<DesktopBox>();
-        var widgets = new Dictionary<string, (DesktopWindow, WidgetInstance)>(DesktopItemKeys.Comparer);
+        var displays = new List<DesktopWindow>();
         var display = 0;
         int? gesture = null;
         foreach (var surface in _windows.Where(w => w.IsAlive).OrderBy(w => w.Monitor.Bounds.Left).ThenBy(w => w.Monitor.Bounds.Top))
@@ -237,6 +248,7 @@ internal sealed partial class AppHost : IDesktopDesk
                 gesture = display;
             }
 
+            displays.Add(surface);
             var bounds = surface.Monitor.Bounds;
             foreach (var widget in State.ViewForMonitor(surface.Monitor.Id).Widgets)
             {
@@ -246,15 +258,14 @@ internal sealed partial class AppHost : IDesktopDesk
                 }
 
                 var r = widget.Rect;
-                // [S-13045] A fence gives way to the icons in the selection.
-                boxes.Add(new DesktopBox(key, display, bounds.Left + (r.X * bounds.Width), bounds.Top + (r.Y * bounds.Height), r.W * bounds.Width, r.H * bounds.Height, widget.Config is IHoldsDesktopItems));
-                widgets.TryAdd(key, (surface, widget));
+                // [S-13045] A fence gives way to the icons in the selection; [S-5540] each box knows the widget that shows it.
+                boxes.Add(new DesktopBox(key, display, bounds.Left + (r.X * bounds.Width), bounds.Top + (r.Y * bounds.Height), r.W * bounds.Width, r.H * bounds.Height, widget.Config is IHoldsDesktopItems, widget.Id));
             }
 
             display++;
         }
 
-        _deskWidgets = widgets;
+        _deskDisplays = displays;
         _desk.SetLayout(boxes, DeskName, gesture);
     }
 
@@ -398,7 +409,7 @@ internal sealed partial class AppHost : IDesktopDesk
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var key in keys)
         {
-            if (DesktopItemKeys.IsOwn(key) && _deskWidgets.TryGetValue(key, out var at))
+            if (DesktopItemKeys.IsOwn(key) && DeskPlace(key) is { } at)
             {
                 ids.Add(at.Widget.Id);
             }
@@ -423,7 +434,7 @@ internal sealed partial class AppHost : IDesktopDesk
     /// <summary>[S-5582] Properties of an own icon: edit mode with its widget selected, so its page opens (Target, Name, Icon, Name lines, Open with).</summary>
     private void ShowIconProperties(string key)
     {
-        if (!_deskWidgets.TryGetValue(key, out var at))
+        if (DeskPlace(key) is not { } at)
         {
             return;
         }
@@ -547,7 +558,7 @@ internal sealed partial class AppHost : IDesktopDesk
         {
             if (one.Layout)
             {
-                if (_deskWidgets.TryGetValue(one.Key, out var at) && at.Widget.Config is IDesktopItemConfig config)
+                if (DeskPlace(one.Key) is { } at && at.Widget.Config is IDesktopItemConfig config)
                 {
                     HostAppLayouts.Instance.Launch(config.Layout, at.Surface.Hwnd);
                 }
@@ -692,7 +703,7 @@ internal sealed partial class AppHost : IDesktopDesk
 
     /// <summary>
     /// [S-5543] [S-5584] F2: the focused icon's name becomes a box on its widget (the one the keys came
-    /// from, else the one on the display with the keyboard, else the first). A desktop item is renamed
+    /// from, else the one holding the keyboard, else its widget on the display of the last gesture, [S-5540]). A desktop item is renamed
     /// through the shell, an own icon by its label; shell items are not renamed in place.
     /// </summary>
     private bool BeginRename(string? key, string? widgetId)
@@ -706,7 +717,7 @@ internal sealed partial class AppHost : IDesktopDesk
 
         var widget = widgetId is not null && WidgetShows(widgetId, key) ? widgetId
             : KeyboardHolder?.Model is { Config: IDesktopItemConfig held } holder && DesktopItemKeys.Comparer.Equals(DesktopItemKeys.Of(held), key) ? holder.Id
-            : _deskWidgets.TryGetValue(key, out var first) ? first.Widget.Id
+            : DeskPlace(key) is { } place ? place.Widget.Id
             : null;
         if (widget is null)
         {
@@ -829,7 +840,7 @@ internal sealed partial class AppHost : IDesktopDesk
     /// </summary>
     private void RenameOwnIcon(string key, string typed)
     {
-        if (!_deskWidgets.TryGetValue(key, out var at) || at.Widget.Config is not IDesktopItemConfig config
+        if (DeskPlace(key) is not { } at || at.Widget.Config is not IDesktopItemConfig config
             || at.Widget.Config.Clone() is not IDesktopItemConfig probe || !probe.RenameOwn(typed))
         {
             return;
@@ -944,9 +955,9 @@ internal sealed partial class AppHost : IDesktopDesk
                 + $"{(leaked.Dropped ? "dropped on the desktop" : "no drop on the desktop seen")}, its surface {(leaked.Source is { IsAlive: true } ? "alive" : "gone")})");
         }
 
-        var source = _windows.FirstOrDefault(w => w.IsAlive && w.Hwnd == window) ?? (_deskWidgets.TryGetValue(key, out var at) ? at.Surface : null);
+        var source = _windows.FirstOrDefault(w => w.IsAlive && w.Hwnd == window) ?? DeskPlace(key)?.Surface;
         var widgets = new HashSet<string>(
-            keys.Select(k => _deskWidgets.TryGetValue(k, out var held) ? held.Widget.Id : null).OfType<string>(),
+            keys.Select(k => DeskPlace(k)?.Widget.Id).OfType<string>(),
             StringComparer.Ordinal);
         var drag = DesktopCommands.Drag(DeskIcons(keys));
         var offer = new ItemDragOffer(drag.Paths, DesktopCommands.DragEffects(drag));
@@ -964,7 +975,7 @@ internal sealed partial class AppHost : IDesktopDesk
     public DragPicture? DragPicture(ItemDragOffer drag)
     {
         if (_deskDrag is not { } running || !ReferenceEquals(running.Offer, drag) || running.Source is not { } source || running.Pointer is not { } pointer
-            || !_deskWidgets.TryGetValue(running.Held, out var held))
+            || DeskPlace(running.Held) is not { } held)
         {
             return null;
         }

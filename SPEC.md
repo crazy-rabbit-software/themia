@@ -10588,7 +10588,12 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   display) when that display shows it, else its first, so a Shift range and the arrows run where the user is, and it is
   drawn selected on every display that shows it (the owner, 2026-11-20: "there are two quartus desktop icons and i cannot
   select them together"; the user's Quartus was on Home's display, left of Today's, and Today's copy of it held Home's
-  place: a range on Today ran through Home and the band on Today could not catch it). An item
+  place: a range on Today ran through Home and the band on Today could not catch it). By the same place a key finds
+  "its" widget (`DesktopSelection.PlaceOf`, each box naming the widget that shows it; `AppHost.DeskPlace`, the one
+  lookup): F2's box, Properties, the menu from the keys and its anchor, Hide from this view, a layout opened on its
+  display and a drag's source act on the copy where the user is, and every command acts on the key once (the
+  selection holds it once). Tests `DeskTwinSelectionTests`; `--desk-select-check --twice` (F2 after a press on either
+  copy). An item
   no longer shown (a card that draws nothing, [S-873]) leaves the selection; an icon's look is the SDK's one
   ([S-6627]), inactive while another window has the keyboard ([S-6626]); a card's is its corners ([S-11877]).
 - **[S-5541]** **Arrows by place** (`DesktopNav.Step`): the nearest item that way in the same column
@@ -10601,7 +10606,8 @@ Owning files: `Themia.Core/Desktop/*` (`DeskDragImage` among them), `Themia.Core
   with them ([S-1980]'s `TypeAhead`, the desktop's order, a pause starting over); an own icon's name
   is the one drawn under it (`IDesktopItemConfig.OwnName`).
 - **[S-5543]** **F2 renames in place** (`DesktopRename`, SDK): the focused item's name becomes a box on
-  its widget (the one the keys came from, else the one on the display with the keyboard), holding
+  its widget (the one the keys came from, else the one holding the keyboard, else its widget on the display of the
+  last gesture, [S-5540]), holding
   the name as shown with the part before a shown extension selected (a folder's and an
   extension-hidden name whole); Enter or a click elsewhere commits, Escape reverts. The full name
   puts back a hidden extension and a shortcut's `.lnk`; a name Windows refuses (`FileNames`) or one

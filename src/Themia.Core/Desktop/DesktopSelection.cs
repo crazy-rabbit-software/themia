@@ -7,9 +7,10 @@ namespace Themia.Core.Desktop;
 /// [S-5540] One desktop item widget as it sits on the screen now: its item's key, the display it is on
 /// (left to right, so the order runs over the displays as the eye does) and its box in one coordinate
 /// space shared by every display (the virtual screen's physical pixels). [S-13045] <paramref name="Fence"/>: the widget is
-/// a fence, which gives way to the icons in the selection.
+/// a fence, which gives way to the icons in the selection. [S-5540] <paramref name="Widget"/>: the widget that shows it there
+/// (an item two displays show has a widget on each).
 /// </summary>
-public readonly record struct DesktopBox(string Key, int Display, double X, double Y, double Width, double Height, bool Fence = false)
+public readonly record struct DesktopBox(string Key, int Display, double X, double Y, double Width, double Height, bool Fence = false, string? Widget = null)
 {
     public double CenterX => X + (Width / 2);
 
@@ -184,6 +185,7 @@ public sealed class DesktopSelection
     private IReadOnlyList<DesktopBox> _ordered = [];
     private IReadOnlyList<DesktopBox> _boxes = [];
     private HashSet<string> _fences = new(DesktopItemKeys.Comparer);
+    private Dictionary<string, DesktopBox> _places = new(DesktopItemKeys.Comparer);
     private IReadOnlyList<string> _names = [];
     private string? _pendingKey;
 
@@ -192,6 +194,14 @@ public sealed class DesktopSelection
 
     /// <summary>[S-5544] Every box the displays show, an item two displays show once on each: what a band catches.</summary>
     public IReadOnlyList<DesktopBox> Boxes => _boxes;
+
+    /// <summary>
+    /// [S-5540] Where <paramref name="key"/> stands for the desktop now, or null when it is not shown: of the displays that show
+    /// it, the one the last gesture was on, else the first (<see cref="DesktopNav.Order"/>'s place). The one rule by which a
+    /// key finds "its" widget (<see cref="DesktopBox.Widget"/>): F2's box, Properties, a menu's anchor, a layout opened on its
+    /// display, Hide from this view, a drag's source all act where the user is.
+    /// </summary>
+    public DesktopBox? PlaceOf(string? key) => key is not null && _places.TryGetValue(key, out var box) ? box : null;
 
     /// <summary>The selected keys, in the desktop's order.</summary>
     public IReadOnlyList<string> Selected => _selection.Selected;
@@ -219,6 +229,7 @@ public sealed class DesktopSelection
 
         _boxes = DesktopNav.Shown(boxes);
         _ordered = DesktopNav.Order(_boxes, display);
+        _places = _ordered.ToDictionary(b => b.Key, DesktopItemKeys.Comparer);
         _fences = new HashSet<string>(_boxes.Where(b => b.Fence).Select(b => b.Key), DesktopItemKeys.Comparer);
         _names = [.. _ordered.Select(b => nameOf(b.Key) ?? DesktopItemKeys.FallbackName(b.Key))];
         _selection.SetOrder([.. _ordered.Select(b => b.Key)]);

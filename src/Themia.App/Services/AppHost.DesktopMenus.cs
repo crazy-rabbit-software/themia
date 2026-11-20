@@ -172,7 +172,7 @@ internal sealed partial class AppHost
 
                 break;
             case FileCommand.EditLayout:
-                if (_deskWidgets.TryGetValue(first.Key, out var held) && held.Widget.Config is IDesktopItemConfig layout)
+                if (DeskPlace(first.Key) is { } held && held.Widget.Config is IDesktopItemConfig layout)
                 {
                     HostAppLayouts.Instance.Edit(layout.ItemId);
                 }
@@ -636,9 +636,10 @@ internal sealed partial class AppHost
             return;
         }
 
-        if (_desk.Selected.Count > 0 && _desk.Focus is { } focus && _desk.Ordered.FirstOrDefault(b => DesktopItemKeys.Comparer.Equals(b.Key, focus)) is { Key: not null } box)
+        // [S-5540] The menu stands at the focused icon where the user is: its box and its surface on the display of the last gesture.
+        if (_desk.Selected.Count > 0 && _desk.PlaceOf(_desk.Focus) is { } box)
         {
-            var on = _deskWidgets.TryGetValue(focus, out var at) ? at.Surface : surface;
+            var on = DeskPlace(box.Key)?.Surface ?? surface;
             ShowDeskMenu((int)box.CenterX, (int)box.CenterY, on.Hwnd, classic);
             return;
         }

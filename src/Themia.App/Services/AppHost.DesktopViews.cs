@@ -138,9 +138,12 @@ internal sealed partial class AppHost
     /// <summary>[S-5527] The icon menu's Hide from this view: each desktop item's icon off the view it stands on, one undo step.</summary>
     private void HideDesktopIcons(IReadOnlyList<DeskIcon> icons)
     {
+        // [S-5540] The view of the display the menu was opened on, for an item two displays show.
         var byView = icons
-            .Where(icon => !icon.Own && _deskWidgets.ContainsKey(icon.Key))
-            .GroupBy(icon => _deskWidgets[icon.Key].Surface.CurrentViewId, StringComparer.Ordinal)
+            .Where(icon => !icon.Own)
+            .Select(icon => (Icon: icon, At: DeskPlace(icon.Key)))
+            .Where(one => one.At is not null)
+            .GroupBy(one => one.At!.Value.Surface.CurrentViewId, one => one.Icon, StringComparer.Ordinal)
             .ToList();
         if (byView.Count == 0)
         {

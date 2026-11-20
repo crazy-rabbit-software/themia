@@ -21,16 +21,16 @@ public sealed class DeskTwinSelectionTests
     private const string Shared = Public + "Quartus (Quartus Prime 24.1std).lnk";
 
     /// <summary>A 90 x 110 cell grid: column c, row r on display d (each display 2000 px wide).</summary>
-    private static DesktopBox Box(string key, int column, int row, int display = 0)
-        => new(key, display, (display * 2000) + (column * 90), row * 110, 90, 110);
+    private static DesktopBox Box(string key, int column, int row, int display = 0, string? widget = null)
+        => new(key, display, (display * 2000) + (column * 90), row * 110, 90, 110, Widget: widget);
 
     private static DesktopBox[] TwoViews() =>
     [
         Box(Desk + "home1.txt", 0, 0, display: 0),
-        Box(User, 3, 2, display: 0),
+        Box(User, 3, 2, display: 0, widget: "home-user"),
         Box(Desk + "home2.txt", 4, 0, display: 0),
-        Box(User, 0, 0, display: 1),
-        Box(Shared, 1, 0, display: 1),
+        Box(User, 0, 0, display: 1, widget: "today-user"),
+        Box(Shared, 1, 0, display: 1, widget: "today-shared"),
         Box(Desk + "today.txt", 2, 0, display: 1),
     ];
 
@@ -106,6 +106,32 @@ public sealed class DeskTwinSelectionTests
 
         // The order stays the desktop's: display by display, down each column.
         Assert.Equal([Desk + "home1.txt", Desk + "home2.txt", User, Shared, Desk + "today.txt"], DesktopNav.Order(boxes, display: 1).Select(b => b.Key));
+    }
+
+    [Fact]
+    public void S5540_a_key_finds_its_widget_on_the_display_of_the_gesture()
+    {
+        // F2's box, Properties, a menu's anchor, Hide from this view: the widget where the user is.
+        Assert.Equal("today-user", Laid(TwoViews(), display: 1).PlaceOf(User)?.Widget);
+        Assert.Equal("home-user", Laid(TwoViews(), display: 0).PlaceOf(User)?.Widget);
+
+        // No gesture yet, or on a display that does not show it: the first display's.
+        Assert.Equal("home-user", Laid(TwoViews()).PlaceOf(User)?.Widget);
+        Assert.Equal("today-shared", Laid(TwoViews(), display: 0).PlaceOf(Shared)?.Widget);
+        Assert.Null(Laid(TwoViews(), display: 1).PlaceOf(Desk + "gone.txt"));
+    }
+
+    [Fact]
+    public void S5540_a_band_over_both_displays_holds_the_item_once()
+    {
+        var selection = Laid(TwoViews(), display: 1);
+
+        selection.BeginBand(ctrl: false, shift: false);
+        selection.Band(DesktopBand.Hits(new BandRect(0, 0, 4000, 400), selection.Boxes));
+        selection.EndBand();
+
+        // Every command acts on the selection's keys: the file once, however many displays show it.
+        Assert.Equal([Desk + "home1.txt", Desk + "home2.txt", User, Shared, Desk + "today.txt"], selection.Selected);
     }
 
     [Fact]
