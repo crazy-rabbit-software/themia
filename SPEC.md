@@ -8585,6 +8585,25 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   calendar's weekday letters 4 from the start edge (the month's first column's own padding, [S-12832], left to its
   owner), the Header's caption in a preview strip drawn at the height of one without a caption, and the next meeting's
   "none" sentence in its least card (32 tall).
+- **[S-14313]** **A mark the layout dump reads is kept** (the item check's and the gap check's measure, [S-12831]). An
+  item, a plot and a free field (`ItemMark`, `PlotMark`, `FieldMark`, `HeadMark`) are one table each (`MarkTable`)
+  keyed by the element, the element's managed object held for as long as it lives (a handler of its own): a plain XAML
+  element's object no view holds may be collected and made anew, and the new one was not the key. Was: the screen-time
+  chart's bars' grid lost its plot mark in two of three cards of a render, so its bars were judged as a reading "off
+  centre top/foot" (20 over, 15 under at 350x116).
+- **[S-14314]** **The month's weekday letters are their columns' heads** (WR-3; [S-12832]). The weekday line stands over
+  the seven columns, each letter in a head as wide as its column (`HeadMark`), at the column's own padding (4) where the
+  cells hold their numbers (chips: at the start; dots and numbers: centred), so a letter reads over its numbers. The
+  layout dump writes the heads (`heads`) and the gap check reads a letter in a head against a card edge the head's box
+  stands on as an item's text: the column's padding stands there in the inset's place ([S-14312]). A head is no item: it
+  is not one of the cells that tile the card alike (WR-6) and the item check does not judge it. Was: "text in the inset
+  left 4.0" on every month with chips; moving the letters to 12 would have stood them 8 off their numbers.
+- **[S-14317]** **A mark stands over a text's letters, or not at all** (the item check's marks rule, [S-12831]). The layout
+  dump writes each text in an item with its letters' box (`ink`: its box less its side bearings, `PartInk.Across`, and the
+  leading over and under its line, `PartInk.Of`), and the item check finds a status glyph or ring over an item's text by
+  those letters. A reading placed by its ink at its room's end ([S-14301]) reaches past its letters with its box: the
+  stale UV index's "1", its letters ending where the status glyph's room begins, ran under the glyph by 1 to 10 DIP of
+  side bearing ("a FontIcon at 302,16 stands over an item's text"). A glyph over the letters is still a finding.
 - **[S-12832]** **The month tiles the card** (owner, 2026-11-19: "the calendar does not follow this design philosophy
   for example. fix that"; "Bigger numbers too"; "the calendar does not match the fucking design rules i told you"; "and
   the items dont reach from edge to edge. how did you miss that? you might have missed this for others too."). Its day

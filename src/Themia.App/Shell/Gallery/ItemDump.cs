@@ -62,9 +62,10 @@ internal static class ItemDump
             var fields = new List<Rect>();
             var marks = new List<Rect>();
             var cuts = new List<Rect>();
+            var heads = new List<Rect>();
             if (card.View is { } view)
             {
-                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks, cuts);
+                Walk(card, view, new Rect(0, 0, card.ActualWidth, card.ActualHeight), insideItem: false, items, ink, texts, plots, fields, marks, cuts, heads);
             }
 
             var groups = new Dictionary<DependencyObject, int>();
@@ -109,13 +110,23 @@ internal static class ItemDump
 
             w.WriteEndArray();
 
-            // The texts inside the items, for a mark that stands over one (a status glyph over a row's value).
+            // The texts inside the items, for a mark that stands over one (a status glyph over a row's value). [S-14317] With
+            // each its letters' own box (`ink`: its box less its side bearings and the leading over and under its line), what
+            // a mark may not stand over: a reading placed by its ink reaches past it with its box alone.
             w.WriteStartArray("texts");
             foreach (var (part, box) in texts)
             {
                 w.WriteStartObject();
                 w.WriteString("t", part.GetType().Name);
                 Box(w, box);
+                if (Letters(card, part) is { } letters && Intersect(letters, box) is { } shown)
+                {
+                    w.WritePropertyName("ink");
+                    w.WriteStartObject();
+                    Box(w, shown);
+                    w.WriteEndObject();
+                }
+
                 w.WriteEndObject();
             }
 
@@ -164,6 +175,17 @@ internal static class ItemDump
             }
 
             w.WriteEndArray();
+
+            // [S-14314] Each column's head (the month's weekday letters' box, the column's across).
+            w.WriteStartArray("heads");
+            foreach (var box in heads)
+            {
+                w.WriteStartObject();
+                Box(w, box);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
             w.WriteEndObject();
         }
 
@@ -189,7 +211,7 @@ internal static class ItemDump
     }
 
     /// <summary>The items and the free ink under <paramref name="node"/>, each as it shows inside <paramref name="clip"/> (card coordinates).</summary>
-    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks, List<Rect> cuts)
+    private static void Walk(UIElement card, DependencyObject node, Rect clip, bool insideItem, List<(FrameworkElement, Rect, bool)> items, List<(FrameworkElement, Rect)> ink, List<(FrameworkElement, Rect)> texts, List<Rect> plots, List<Rect> fields, List<Rect> marks, List<Rect> cuts, List<Rect> heads)
     {
         if (node is UIElement { Visibility: not Visibility.Visible } || node is UIElement { Opacity: <= 0 })
         {
@@ -219,6 +241,11 @@ internal static class ItemDump
             if (fe is KitStatus)
             {
                 marks.Add(shown.Value);
+            }
+
+            if (HeadMark.IsHead(fe))
+            {
+                heads.Add(shown.Value);
             }
 
             if (fe is TextBlock { IsTextTrimmed: true })
@@ -251,7 +278,37 @@ internal static class ItemDump
         var n = VisualTreeHelper.GetChildrenCount(node);
         for (var i = 0; i < n; i++)
         {
-            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots, fields, marks, cuts);
+            Walk(card, VisualTreeHelper.GetChild(node, i), clip, insideItem, items, ink, texts, plots, fields, marks, cuts, heads);
+        }
+    }
+
+    /// <summary>
+    /// [S-14317] A text's letters as they show in the card: its box less its side bearings (<see cref="PartInk.Across"/>) and
+    /// the leading over its first ink and under its last (<see cref="PartInk.Of"/>), both read without its margin; null for a
+    /// part that is no plain text.
+    /// </summary>
+    private static Rect? Letters(UIElement card, FrameworkElement part)
+    {
+        if (part is not TextBlock text || !(text.ActualWidth > 0) || !(text.ActualHeight > 0))
+        {
+            return null;
+        }
+
+        var margin = text.Margin;
+        var (left, right) = PartInk.Across(text);
+        var line = PartInk.Of(text);
+        var l = Math.Clamp(left - margin.Left, 0, text.ActualWidth);
+        var r = Math.Clamp(right - margin.Right, 0, text.ActualWidth - l);
+        var o = Math.Clamp(line.Over - margin.Top, 0, text.ActualHeight);
+        var u = Math.Clamp(line.Under - margin.Bottom, 0, text.ActualHeight - o);
+        try
+        {
+            return text.TransformToVisual(card).TransformBounds(new Rect(l, o, text.ActualWidth - l - r, text.ActualHeight - o - u));
+        }
+        catch (ArgumentException)
+        {
+            // ignore: not in the card's tree any more (a closing popup's part); its box stands for it
+            return null;
         }
     }
 

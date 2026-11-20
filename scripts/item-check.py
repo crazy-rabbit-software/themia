@@ -30,7 +30,8 @@ the panel that lays them, and the ink outside every item. For every group of ite
   (the sliver a box does not fill, the boxes no icon stands in) the desktop's empty grid.
 - no item is cut by its card or its list's viewport;
 - no mark outside the items (a status glyph, a busy ring) stands over an item's text (a stale facts list's warning
-  over its first value).
+  over its first value); [S-14317] the text is its letters' box where the dump writes it (`ink`), not the side bearings
+  and leading round them.
 
 Writes <out>/items.json (every kind x state x size x card x group with its findings), <out>/items.md (the findings),
 and exits 1 on any finding. A kind whose face is a picture or a video filling the card (docs/WIDGET-RULES.md
@@ -179,22 +180,50 @@ def judge(card, kind=None):
         if any(i.get('cut') for i in items):
             found.append('an item is cut by its viewport')
         out.append({'group': g, 'axis': axis, 'items': len(items), 'findings': found})
-    # A mark outside the items (a status glyph, a ring) standing over an item's text hides it.
-    marks = [k for k in card.get('ink', []) if k['t'] in ('FontIcon', 'ProgressRing', 'Image')]
-    hidden = []
-    for m in marks:
-        for t in card.get('texts', []):
-            dx = min(m['x'] + m['w'], t['x'] + t['w']) - max(m['x'], t['x'])
-            dy = min(m['y'] + m['h'], t['y'] + t['h']) - max(m['y'], t['y'])
-            if dx > 1 and dy > 1:
-                hidden.append(f"a {m['t']} at {m['x']:.0f},{m['y']:.0f} stands over an item's text")
-                break
+    hidden = covered(card)
     if hidden:
         out.append({'group': 'marks', 'axis': '-', 'items': len(marks), 'findings': hidden})
     left = leftover(card, groups, sliver_of(card, kind)[1])
     if left:
         out.append({'group': 'foot', 'axis': '-', 'items': len(card.get('items', [])), 'findings': [left]})
     return out
+
+
+def covered(card):
+    """A mark outside the items (a status glyph, a ring) standing over an item's text hides it. [S-14317] The text is its
+    letters (`ink`: its box less its side bearings and its line's leading), where the dump has them: a reading placed by its
+    ink at the room's end reaches into the status glyph's corner with its box alone (a stale UV index's "1", whose box ran
+    10 past its letters under the glyph)."""
+    marks = [k for k in card.get('ink', []) if k['t'] in ('FontIcon', 'ProgressRing', 'Image')]
+    hidden = []
+    for m in marks:
+        for text in card.get('texts', []):
+            t = text.get('ink', text)
+            dx = min(m['x'] + m['w'], t['x'] + t['w']) - max(m['x'], t['x'])
+            dy = min(m['y'] + m['h'], t['y'] + t['h']) - max(m['y'], t['y'])
+            if dx > 1 and dy > 1:
+                hidden.append(f"a {m['t']} at {m['x']:.0f},{m['y']:.0f} stands over an item's text")
+                break
+    return hidden
+
+
+def self_test():
+    """[S-14317] The marks rule on made-up cards."""
+    glyph = {'t': 'FontIcon', 'x': 302, 'y': 16, 'w': 16, 'h': 16}
+    box = {'x': 268, 'y': 11, 'w': 50, 'h': 110}
+    cases = [
+        ('a glyph over a text box with no letters known', {'ink': [glyph], 'texts': [dict(box)]}, True),
+        ('a glyph over the box of a reading beside its letters',
+         {'ink': [glyph], 'texts': [dict(box, ink={'x': 280, 'y': 36, 'w': 22, 'h': 70})]}, False),
+        ('a glyph over the letters', {'ink': [glyph], 'texts': [dict(box, ink={'x': 280, 'y': 20, 'w': 30, 'h': 70})]}, True),
+    ]
+    failed = 0
+    for name, card, finds in cases:
+        if bool(covered(card)) != finds:
+            failed += 1
+            print(f'FAIL {name}')
+    print(f'item-check self-test: {len(cases) - failed} of {len(cases)} passed')
+    sys.exit(1 if failed else 0)
 
 
 def leftover(card, groups, sliver=0.0):
@@ -245,6 +274,8 @@ def check(kind, states, drawn, out, sizes):
 
 
 def main():
+    if '--self-test' in sys.argv[1:]:
+        self_test()
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ap = argparse.ArgumentParser()
     renders.add_arguments(ap)

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 
 namespace Themia.App.Widgets;
@@ -11,16 +10,11 @@ namespace Themia.App.Widgets;
 /// </summary>
 public static class FieldMark
 {
-    private static readonly ConditionalWeakTable<FrameworkElement, object> Fields = [];
-    private static readonly object Marker = new();
+    private static readonly MarkTable Fields = new();
 
     /// <summary>Mark <paramref name="element"/> as its widget's free field.</summary>
-    public static void Mark(FrameworkElement element)
-    {
-        ArgumentNullException.ThrowIfNull(element);
-        Fields.AddOrUpdate(element, Marker);
-    }
+    public static void Mark(FrameworkElement element) => Fields.Mark(element);
 
     /// <summary>Whether <paramref name="node"/> is a free field.</summary>
-    public static bool IsField(DependencyObject? node) => node is FrameworkElement element && Fields.TryGetValue(element, out _);
+    public static bool IsField(DependencyObject? node) => Fields.Has(node);
 }

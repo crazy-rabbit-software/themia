@@ -45,7 +45,9 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   and ink closer than the inset less the tolerance to a card edge is a finding ("text in the inset"); a text in a plot or
   a free field, and a picture's or a desktop icon's card, are not judged (the plot, the field, the picture own the edge),
   nor a text in an item against a card edge the item's own box is (its padding stands there in the inset's place, WR-3:
-  the item check judges the box). A text whose box reaches the edge but whose ink does not is fine.
+  the item check judges the box), nor [S-14314] a text in a column's head (`heads`: the month's weekday letters, whose
+  box is their column's across) against a card edge the head's box is. A text whose box reaches the edge but whose ink
+  does not is fine.
 
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
 filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
@@ -294,8 +296,9 @@ def texts_in_inset(path, layouts, kind):
             if any(all(abs(t[k] - g[k]) <= EDGE for k in ('x', 'y', 'w', 'h')) for g in glyphs):
                 continue
             # An item's own box edge on a card edge is the item's: its padding stands there in the inset's place (a row centres
-            # its text in its band, a month's cell holds its number in its corner).
-            held = [i for i in (card.get('items', []) or []) if inside(t, i)]
+            # its text in its band, a month's cell holds its number in its corner). [S-14314] So is a column's head's (the
+            # month's weekday letters, on their column's padding in line with its numbers).
+            held = [i for i in (card.get('items', []) or []) + (card.get('heads', []) or []) if inside(t, i)]
             free = {'left': not any(i['x'] <= EDGE for i in held), 'top': not any(i['y'] <= EDGE for i in held),
                     'right': not any(i['x'] + i['w'] >= card['w'] - EDGE for i in held),
                     'foot': not any(i['y'] + i['h'] >= card['h'] - EDGE for i in held)}
@@ -420,6 +423,9 @@ def self_test():
         ('a row of 30 whose text stands 7 from the top, the row on the edge', [(12, 7, 120, 23, {'top': False, 'foot': False})], False),
         ('a row text 4 from the start, the row short of the start', [(4, 7, 120, 23, {'top': False, 'foot': False})], True),
         ('a month cell number 4 from the start, the cell on the edge', [(4, 7, 20, 23, {'left': False, 'top': False})], False),
+        # [S-14314] A weekday letter in its column's head, the head on the start edge; the same letter in no head.
+        ('a weekday letter 4 from the start in its column head', [(4, 30, 20, 42, {'left': False})], False),
+        ('a weekday letter 4 from the start in no head', [(4, 30, 20, 42)], True),
     ]:
         cases.append((name, None, inks, finds))
     failed = 0

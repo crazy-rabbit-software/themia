@@ -74,6 +74,9 @@ internal sealed partial class CalendarView
                 label.HorizontalAlignment = chipped ? HorizontalAlignment.Left : HorizontalAlignment.Center;
                 label.VerticalAlignment = VerticalAlignment.Bottom;
                 var holder = new Border { Child = label, Padding = new Thickness(chipped ? FamilySpace.S1 : 0, 0, 0, 0) };
+
+                // [S-14314] The letters are their column's head: on the cells' own padding, in line with the numbers under them.
+                HeadMark.Mark(holder);
                 SetColumn(holder, c);
                 header.Children.Add(holder);
             }

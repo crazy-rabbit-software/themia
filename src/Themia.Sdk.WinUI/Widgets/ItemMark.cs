@@ -11,29 +11,41 @@ namespace Themia.App.Widgets;
 /// </summary>
 public static class ItemMark
 {
-    private static readonly ConditionalWeakTable<FrameworkElement, object> Items = [];
-    private static readonly object Marker = new();
+    private static readonly MarkTable Items = new();
 
     /// <summary>Mark <paramref name="element"/> as one of its widget's items.</summary>
-    public static void Mark(FrameworkElement element)
+    public static void Mark(FrameworkElement element) => Items.Mark(element);
+
+    /// <summary>Whether <paramref name="node"/> is an item.</summary>
+    public static bool IsItem(DependencyObject? node) => Items.Has(node);
+}
+
+/// <summary>
+/// [S-12831] [S-14313] Which elements carry a mark the layout dump reads (an item, a plot, a free field): one table per
+/// mark, keyed by the element. A plain XAML element's managed object may be collected and made anew while the element
+/// lives (a list's heading no view holds, the screen-time chart's bars' grid), and the new one is not the key this table
+/// holds: the mark went unseen (tasks' done heading read as a gap of a row; the screen-time chart's plot missing from two
+/// of three cards, its bars then judged as a reading off centre). A handler of the element's own that holds it keeps that
+/// object for as long as the element lives.
+/// </summary>
+internal sealed class MarkTable
+{
+    private static readonly object Marker = new();
+    private readonly ConditionalWeakTable<FrameworkElement, object> _marked = [];
+
+    public void Mark(FrameworkElement element)
     {
         ArgumentNullException.ThrowIfNull(element);
-        if (Items.TryGetValue(element, out _))
+        if (_marked.TryGetValue(element, out _))
         {
             return;
         }
 
-        Items.Add(element, Marker);
-
-        // A plain XAML element's managed object may be collected and made anew while the element lives (a list's heading no
-        // view holds), and the new one is not the key this table holds: the item went unseen (tasks' done heading in a
-        // render of many cards read as a gap of a row). A handler of the element's own that holds it keeps that object for
-        // as long as the element lives.
+        _marked.Add(element, Marker);
         element.Loaded += (_, _) => GC.KeepAlive(element);
     }
 
-    /// <summary>Whether <paramref name="node"/> is an item.</summary>
-    public static bool IsItem(DependencyObject? node) => node is FrameworkElement element && Items.TryGetValue(element, out _);
+    public bool Has(DependencyObject? node) => node is FrameworkElement element && _marked.TryGetValue(element, out _);
 }
 
 /// <summary>
@@ -42,18 +54,31 @@ public static class ItemMark
 /// </summary>
 public static class PlotMark
 {
-    private static readonly ConditionalWeakTable<FrameworkElement, object> Plots = [];
-    private static readonly object Marker = new();
+    private static readonly MarkTable Plots = new();
 
     /// <summary>Mark <paramref name="element"/> as its widget's plot.</summary>
-    public static void Mark(FrameworkElement element)
-    {
-        ArgumentNullException.ThrowIfNull(element);
-        Plots.AddOrUpdate(element, Marker);
-    }
+    public static void Mark(FrameworkElement element) => Plots.Mark(element);
 
     /// <summary>Whether <paramref name="node"/> is a plot.</summary>
-    public static bool IsPlot(DependencyObject? node) => node is FrameworkElement element && Plots.TryGetValue(element, out _);
+    public static bool IsPlot(DependencyObject? node) => Plots.Has(node);
+}
+
+/// <summary>
+/// [S-14314] A column's head over a column of items (the month's weekday letters over its day cells): its box is the
+/// column's across, so the layout dump (<c>--layout-json</c>'s <c>heads</c>) and the gap check read the text in it against
+/// a card edge that box stands on as an item's: the column's own padding stands there in the inset's place (WR-3), the
+/// head's letters on the same line as the numbers in the cells under them. It is no item: it is not one of the items
+/// that tile the card alike (WR-6), takes no pointer and is not judged by the item check.
+/// </summary>
+public static class HeadMark
+{
+    private static readonly MarkTable Heads = new();
+
+    /// <summary>Mark <paramref name="element"/> as a column's head.</summary>
+    public static void Mark(FrameworkElement element) => Heads.Mark(element);
+
+    /// <summary>Whether <paramref name="node"/> is a column's head.</summary>
+    public static bool IsHead(DependencyObject? node) => Heads.Has(node);
 }
 
 /// <summary>
