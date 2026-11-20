@@ -20,7 +20,6 @@ internal static unsafe partial class DesktopNamespace
 {
     private const string Scope = "desktop-items";
 
-    private const int SlotRelease = 2;
     private const int SlotEnumObjects = 4; // IShellFolder: IUnknown (3) + ParseDisplayName
     private const int SlotGetAttributesOf = 9;
     private const int SlotGetDisplayNameOf = 11;
@@ -40,8 +39,6 @@ internal static unsafe partial class DesktopNamespace
     private const uint SfgaoFolder = 0x20000000;
     private const uint SfgaoFileSystem = 0x40000000;
     private const int SOk = 0;
-    private const uint CoInitMultithreaded = 0x0;
-    private const int RpcEChangedMode = unchecked((int)0x80010106);
 
     /// <summary>
     /// The items as the shell lists them now, or null (logged) when the namespace cannot be read: a
@@ -49,18 +46,19 @@ internal static unsafe partial class DesktopNamespace
     /// </summary>
     public static IReadOnlyList<DesktopItem>? Read()
     {
-        var init = CoInitializeEx(0, CoInitMultithreaded);
-        if (init < 0 && init != RpcEChangedMode)
+        using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
+        if (!apartment.Usable)
         {
-            Log.Warn(Scope, $"CoInitializeEx failed (0x{init:X8}); the desktop's items were not read");
+            Log.Warn(Scope, $"CoInitializeEx failed (0x{apartment.Result:X8}); the desktop's items were not read");
             return null;
         }
 
-        nint folder = 0;
-        nint items = 0;
         try
         {
-            var hr = SHGetDesktopFolder(&folder);
+            nint desktop = 0;
+            var hr = SHGetDesktopFolder(&desktop);
+            using var root = new ComPtr(desktop);
+            var folder = root.Pointer;
             if (hr < 0 || folder == 0)
             {
                 Log.Warn(Scope, $"SHGetDesktopFolder failed (0x{hr:X8}); the desktop's items were not read");
@@ -69,8 +67,11 @@ internal static unsafe partial class DesktopNamespace
 
             // [S-5547] Explorer's Hidden items and protected system files, read now.
             var (showHidden, showSuperHidden) = ExplorerHiddenSettings();
-            var enumerate = (delegate* unmanaged[Stdcall]<nint, nint, uint, nint*, int>)(*(nint**)folder)[SlotEnumObjects];
-            hr = enumerate(folder, 0, DesktopViewSettings.EnumFlags(showHidden, showSuperHidden), &items);
+            var enumerate = (delegate* unmanaged[Stdcall]<nint, nint, uint, nint*, int>)ComApi.Slot(folder, SlotEnumObjects);
+            nint listed = 0;
+            hr = enumerate(folder, 0, DesktopViewSettings.EnumFlags(showHidden, showSuperHidden), &listed);
+            using var enumerator = new ComPtr(listed);
+            var items = enumerator.Pointer;
             if (hr < 0)
             {
                 Log.Warn(Scope, $"the desktop's items could not be enumerated (0x{hr:X8})");
@@ -86,7 +87,7 @@ internal static unsafe partial class DesktopNamespace
                 return found;
             }
 
-            var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)(*(nint**)items)[SlotNext];
+            var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)ComApi.Slot(items, SlotNext);
             while (true)
             {
                 nint child = 0;
@@ -96,7 +97,7 @@ internal static unsafe partial class DesktopNamespace
                 {
                     if (child != 0)
                     {
-                        CoTaskMemFree(child);
+                        ComApi.Free(child);
                     }
 
                     if (hr < 0)
@@ -117,7 +118,7 @@ internal static unsafe partial class DesktopNamespace
                 }
                 finally
                 {
-                    CoTaskMemFree(child);
+                    ComApi.Free(child);
                 }
             }
 
@@ -127,15 +128,6 @@ internal static unsafe partial class DesktopNamespace
         {
             Log.Error(Scope, "reading the desktop's items threw", ex);
             return null;
-        }
-        finally
-        {
-            Release(items);
-            Release(folder);
-            if (init >= 0)
-            {
-                CoUninitialize();
-            }
         }
     }
 
@@ -197,7 +189,7 @@ internal static unsafe partial class DesktopNamespace
         }
 
         var attributes = SfgaoLink | SfgaoStream | SfgaoFolder | SfgaoFileSystem | SfgaoHidden;
-        var getAttributes = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)(*(nint**)folder)[SlotGetAttributesOf];
+        var getAttributes = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)ComApi.Slot(folder, SlotGetAttributesOf);
         if (getAttributes(folder, 1, &child, &attributes) < 0)
         {
             attributes = 0;
@@ -214,7 +206,7 @@ internal static unsafe partial class DesktopNamespace
     private static string? DisplayName(nint folder, nint child, uint flags)
     {
         var strret = default(StrRet);
-        var getName = (delegate* unmanaged[Stdcall]<nint, nint, uint, StrRet*, int>)(*(nint**)folder)[SlotGetDisplayNameOf];
+        var getName = (delegate* unmanaged[Stdcall]<nint, nint, uint, StrRet*, int>)ComApi.Slot(folder, SlotGetDisplayNameOf);
         if (getName(folder, child, flags, &strret) < 0)
         {
             return null;
@@ -233,15 +225,7 @@ internal static unsafe partial class DesktopNamespace
         }
         finally
         {
-            CoTaskMemFree((nint)text);
-        }
-    }
-
-    private static void Release(nint unknown)
-    {
-        if (unknown != 0)
-        {
-            ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)unknown)[SlotRelease])(unknown);
+            ComApi.Free(text);
         }
     }
 
@@ -268,7 +252,7 @@ internal static unsafe partial class DesktopNamespace
         }
         finally
         {
-            CoTaskMemFree((nint)text);
+            ComApi.Free(text);
         }
     }
 
@@ -293,13 +277,4 @@ internal static unsafe partial class DesktopNamespace
 
     [LibraryImport("shlwapi.dll")]
     private static partial int StrRetToStrW(StrRet* strret, nint pidl, char** text);
-
-    [LibraryImport("ole32.dll")]
-    private static partial int CoInitializeEx(nint reserved, uint flags);
-
-    [LibraryImport("ole32.dll")]
-    private static partial void CoUninitialize();
-
-    [LibraryImport("ole32.dll")]
-    private static partial void CoTaskMemFree(nint memory);
 }

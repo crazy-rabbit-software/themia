@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using Themia.App.Services.Toggles;
 using Themia.Core.Diagnostics;
 using Themia.Core.Shell;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Focus;
 
@@ -84,7 +85,7 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
         try
         {
             byte supported = 0;
-            var asked = ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ToggleNative.Slot(statics, SlotIsSupported))(statics, &supported);
+            var asked = ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ComApi.Slot(statics, SlotIsSupported))(statics, &supported);
             if (asked < 0 || supported == 0)
             {
                 Log.Info(Scope, $"Windows' focus sessions are not supported here (0x{asked:X8}, {supported})");
@@ -92,7 +93,7 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
             }
 
             nint manager = 0;
-            var made = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)ToggleNative.Slot(statics, SlotGetDefault))(statics, &manager);
+            var made = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)ComApi.Slot(statics, SlotGetDefault))(statics, &manager);
             if (made < 0 || manager == 0)
             {
                 Log.Warn(Scope, $"FocusSessionManager.GetDefault answered 0x{made:X8}");
@@ -101,7 +102,7 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
 
             var handler = Handler.Create(this);
             long token = 0;
-            var added = ((delegate* unmanaged[Stdcall]<nint, Handler*, long*, int>)ToggleNative.Slot(manager, SlotAddChanged))(manager, handler, &token);
+            var added = ((delegate* unmanaged[Stdcall]<nint, Handler*, long*, int>)ComApi.Slot(manager, SlotAddChanged))(manager, handler, &token);
 
             lock (_gate)
             {
@@ -109,11 +110,11 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
                 {
                     if (added >= 0)
                     {
-                        _ = ((delegate* unmanaged[Stdcall]<nint, long, int>)ToggleNative.Slot(manager, SlotRemoveChanged))(manager, token);
+                        _ = ((delegate* unmanaged[Stdcall]<nint, long, int>)ComApi.Slot(manager, SlotRemoveChanged))(manager, token);
                     }
 
                     Handler.Release(handler);
-                    ToggleNative.Release(manager);
+                    ComApi.Release(manager);
                     return;
                 }
 
@@ -133,7 +134,7 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
         }
         finally
         {
-            ToggleNative.Release(statics);
+            ComApi.Release(statics);
         }
     }
 
@@ -149,13 +150,13 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
                 return;
             }
 
-            _ = ((delegate* unmanaged[Stdcall]<nint, uint>)ToggleNative.Slot(manager, 1))(manager);
+            _ = ((delegate* unmanaged[Stdcall]<nint, uint>)ComApi.Slot(manager, 1))(manager);
         }
 
         try
         {
             byte active = 0;
-            var result = ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ToggleNative.Slot(manager, SlotIsFocusActive))(manager, &active);
+            var result = ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ComApi.Slot(manager, SlotIsFocusActive))(manager, &active);
             bool? now = result < 0 ? null : active != 0;
             if (result < 0)
             {
@@ -170,7 +171,7 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
         }
         finally
         {
-            ToggleNative.Release(manager);
+            ComApi.Release(manager);
         }
     }
 
@@ -226,7 +227,7 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
 
         if (manager != 0 && subscribed)
         {
-            var removed = ((delegate* unmanaged[Stdcall]<nint, long, int>)ToggleNative.Slot(manager, SlotRemoveChanged))(manager, token);
+            var removed = ((delegate* unmanaged[Stdcall]<nint, long, int>)ComApi.Slot(manager, SlotRemoveChanged))(manager, token);
             if (removed < 0)
             {
                 Log.Warn(Scope, $"IsFocusActiveChanged could not be unsubscribed (0x{removed:X8})");
@@ -238,7 +239,7 @@ internal sealed unsafe class WindowsFocusWatch : IDisposable
             Handler.Release(handler);
         }
 
-        ToggleNative.Release(manager);
+        ComApi.Release(manager);
     }
 
     /// <summary>

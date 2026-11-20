@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services;
 
@@ -189,7 +190,7 @@ internal static unsafe partial class AudioLoopback
 
         private void Run()
         {
-            var com = CoInitializeEx(0, CoInitMultithreaded);
+            using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
 
             try
             {
@@ -228,11 +229,6 @@ internal static unsafe partial class AudioLoopback
             }
             finally
             {
-                if (com >= 0)
-                {
-                    CoUninitialize();
-                }
-
                 lock (Gate)
                 {
                     if (ReferenceEquals(_worker, this))
@@ -255,9 +251,7 @@ internal static unsafe partial class AudioLoopback
 
             try
             {
-                var clsid = DeviceEnumeratorClass;
-                var iid = DeviceEnumeratorIid;
-                var hr = CoCreateInstance(&clsid, 0, ClsCtxAll, &iid, &enumerator);
+                var hr = ComApi.Create(DeviceEnumeratorClass, DeviceEnumeratorIid, ComApi.ClsCtxAll, out enumerator);
                 if (hr < 0)
                 {
                     return hr;
@@ -266,20 +260,20 @@ internal static unsafe partial class AudioLoopback
                 Interlocked.Exchange(ref _endpointChanged, 0);
                 registered = Call(enumerator, SlotRegisterClient, NotificationClient) >= 0;
 
-                hr = ((delegate* unmanaged[Stdcall]<nint, int, int, nint*, int>)Slot(enumerator, SlotGetDefault))(enumerator, DataFlowRender, RoleConsole, &device);
+                hr = ((delegate* unmanaged[Stdcall]<nint, int, int, nint*, int>)ComApi.Slot(enumerator, SlotGetDefault))(enumerator, DataFlowRender, RoleConsole, &device);
                 if (hr < 0)
                 {
                     return hr;
                 }
 
                 var clientIid = AudioClientIid;
-                hr = ((delegate* unmanaged[Stdcall]<nint, Guid*, uint, void*, nint*, int>)Slot(device, SlotActivate))(device, &clientIid, ClsCtxAll, null, &client);
+                hr = ((delegate* unmanaged[Stdcall]<nint, Guid*, uint, void*, nint*, int>)ComApi.Slot(device, SlotActivate))(device, &clientIid, ComApi.ClsCtxAll, null, &client);
                 if (hr < 0)
                 {
                     return hr;
                 }
 
-                hr = ((delegate* unmanaged[Stdcall]<nint, WaveFormat**, int>)Slot(client, SlotGetMixFormat))(client, &format);
+                hr = ((delegate* unmanaged[Stdcall]<nint, WaveFormat**, int>)ComApi.Slot(client, SlotGetMixFormat))(client, &format);
                 if (hr < 0 || format is null)
                 {
                     return hr < 0 ? hr : NoFormat;
@@ -289,7 +283,7 @@ internal static unsafe partial class AudioLoopback
                 var channels = Math.Max(1, (int)format->Channels);
                 var blockAlign = Math.Max(1, (int)format->BlockAlign);
 
-                hr = ((delegate* unmanaged[Stdcall]<nint, int, uint, long, long, WaveFormat*, Guid*, int>)Slot(client, SlotInitialize))(
+                hr = ((delegate* unmanaged[Stdcall]<nint, int, uint, long, long, WaveFormat*, Guid*, int>)ComApi.Slot(client, SlotInitialize))(
                     client, ShareModeShared, StreamFlagsLoopback, BufferDuration, 0, format, null);
                 if (hr < 0)
                 {
@@ -297,13 +291,13 @@ internal static unsafe partial class AudioLoopback
                 }
 
                 var captureIid = CaptureClientIid;
-                hr = ((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)Slot(client, SlotGetService))(client, &captureIid, &capture);
+                hr = ((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)ComApi.Slot(client, SlotGetService))(client, &captureIid, &capture);
                 if (hr < 0)
                 {
                     return hr;
                 }
 
-                hr = ((delegate* unmanaged[Stdcall]<nint, int>)Slot(client, SlotStart))(client);
+                hr = ((delegate* unmanaged[Stdcall]<nint, int>)ComApi.Slot(client, SlotStart))(client);
                 if (hr < 0)
                 {
                     return hr;
@@ -318,19 +312,16 @@ internal static unsafe partial class AudioLoopback
                 finally
                 {
                     // ignore: stopping a stream on a device that has gone fails, and it is released next either way.
-                    _ = ((delegate* unmanaged[Stdcall]<nint, int>)Slot(client, SlotStop))(client);
+                    _ = ((delegate* unmanaged[Stdcall]<nint, int>)ComApi.Slot(client, SlotStop))(client);
                 }
             }
             finally
             {
-                Release(capture);
-                Release(client);
-                Release(device);
+                _ = ComApi.Release(capture);
+                _ = ComApi.Release(client);
+                _ = ComApi.Release(device);
 
-                if (format is not null)
-                {
-                    CoTaskMemFree(format);
-                }
+                ComApi.Free(format);
 
                 if (registered)
                 {
@@ -338,7 +329,7 @@ internal static unsafe partial class AudioLoopback
                     _ = Call(enumerator, SlotUnregisterClient, NotificationClient);
                 }
 
-                Release(enumerator);
+                _ = ComApi.Release(enumerator);
             }
         }
 
@@ -365,14 +356,14 @@ internal static unsafe partial class AudioLoopback
 
                 var arrived = false;
                 uint packet;
-                var hr = ((delegate* unmanaged[Stdcall]<nint, uint*, int>)Slot(capture, SlotGetNextPacketSize))(capture, &packet);
+                var hr = ((delegate* unmanaged[Stdcall]<nint, uint*, int>)ComApi.Slot(capture, SlotGetNextPacketSize))(capture, &packet);
 
                 while (hr >= 0 && packet > 0)
                 {
                     byte* data;
                     uint frames;
                     uint flags;
-                    hr = ((delegate* unmanaged[Stdcall]<nint, byte**, uint*, uint*, ulong*, ulong*, int>)Slot(capture, SlotGetBuffer))(capture, &data, &frames, &flags, null, null);
+                    hr = ((delegate* unmanaged[Stdcall]<nint, byte**, uint*, uint*, ulong*, ulong*, int>)ComApi.Slot(capture, SlotGetBuffer))(capture, &data, &frames, &flags, null, null);
 
                     if (hr < 0)
                     {
@@ -389,7 +380,7 @@ internal static unsafe partial class AudioLoopback
                     }
                     finally
                     {
-                        hr = ((delegate* unmanaged[Stdcall]<nint, uint, int>)Slot(capture, SlotReleaseBuffer))(capture, frames);
+                        hr = ((delegate* unmanaged[Stdcall]<nint, uint, int>)ComApi.Slot(capture, SlotReleaseBuffer))(capture, frames);
                     }
 
                     if (hr < 0)
@@ -397,7 +388,7 @@ internal static unsafe partial class AudioLoopback
                         return hr;
                     }
 
-                    hr = ((delegate* unmanaged[Stdcall]<nint, uint*, int>)Slot(capture, SlotGetNextPacketSize))(capture, &packet);
+                    hr = ((delegate* unmanaged[Stdcall]<nint, uint*, int>)ComApi.Slot(capture, SlotGetNextPacketSize))(capture, &packet);
                 }
 
                 if (hr < 0)
@@ -579,8 +570,6 @@ internal static unsafe partial class AudioLoopback
         public uint Id;
     }
 
-    private const uint CoInitMultithreaded = 0x0;
-    private const uint ClsCtxAll = 0x17;
     private const int DataFlowRender = 0;
     private const int RoleConsole = 0;
     private const int ShareModeShared = 0;
@@ -600,7 +589,6 @@ internal static unsafe partial class AudioLoopback
     /// <summary>GetMixFormat answered without a format.</summary>
     private const int NoFormat = unchecked((int)0x80004005);
 
-    private const int SlotRelease = 2;
     private const int SlotGetDefault = 4;
     private const int SlotRegisterClient = 6;
     private const int SlotUnregisterClient = 7;
@@ -623,30 +611,8 @@ internal static unsafe partial class AudioLoopback
     private static readonly Guid FloatSubFormat = new("00000003-0000-0010-8000-00AA00389B71");
     private static readonly Guid PcmSubFormat = new("00000001-0000-0010-8000-00AA00389B71");
 
-    private static nint Slot(nint com, int index) => (*(nint**)com)[index];
-
     private static int Call(nint com, int slot, nint arg)
-        => ((delegate* unmanaged[Stdcall]<nint, nint, int>)Slot(com, slot))(com, arg);
-
-    private static void Release(nint com)
-    {
-        if (com != 0)
-        {
-            ((delegate* unmanaged[Stdcall]<nint, uint>)Slot(com, SlotRelease))(com);
-        }
-    }
-
-    [LibraryImport("ole32.dll")]
-    private static partial int CoInitializeEx(nint reserved, uint flags);
-
-    [LibraryImport("ole32.dll")]
-    private static partial void CoUninitialize();
-
-    [LibraryImport("ole32.dll")]
-    private static partial int CoCreateInstance(Guid* clsid, nint outer, uint context, Guid* iid, nint* result);
-
-    [LibraryImport("ole32.dll")]
-    private static partial void CoTaskMemFree(void* memory);
+        => ((delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(com, slot))(com, arg);
 }
 
 /// <summary>[S-6913] The capture a widget asks for (<see cref="Themia.Sdk.WinUI.IWidgetHost.Loopback"/>): the app's one <see cref="AudioLoopback"/>.</summary>

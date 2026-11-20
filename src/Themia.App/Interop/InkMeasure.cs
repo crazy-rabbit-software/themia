@@ -19,8 +19,6 @@ internal static unsafe partial class InkMeasure
     private const string Scope = "ink";
 
     // DirectWrite's v1 interfaces (dwrite.h): the slots this uses.
-    private const int QueryInterface = 0;
-    private const int Release = 2;
     private const int FactoryCreateTextFormat = 15;
     private const int FactoryCreateTextLayout = 18;
     private const int FactoryCreateTypography = 16;
@@ -102,7 +100,7 @@ internal static unsafe partial class InkMeasure
             fixed (char* family = font)
             fixed (char* locale = "en-us")
             {
-                result = ((delegate* unmanaged[Stdcall]<nint, char*, nint, int, int, int, float, char*, nint*, int>)Slot(factory, FactoryCreateTextFormat))(
+                result = ((delegate* unmanaged[Stdcall]<nint, char*, nint, int, int, int, float, char*, nint*, int>)ComApi.Slot(factory, FactoryCreateTextFormat))(
                     factory, family, 0, weight, NormalStyle, NormalStretch, (float)text.FontSize, locale, &format);
             }
 
@@ -112,7 +110,7 @@ internal static unsafe partial class InkMeasure
             }
 
             var wraps = double.IsFinite(text.Width) && text.Width > 0;
-            result = ((delegate* unmanaged[Stdcall]<nint, int, int>)Slot(format, FormatSetWordWrapping))(format, wraps ? Wrap : NoWrap);
+            result = ((delegate* unmanaged[Stdcall]<nint, int, int>)ComApi.Slot(format, FormatSetWordWrapping))(format, wraps ? Wrap : NoWrap);
             if (result < 0)
             {
                 return (Failed($"no word wrapping (0x{result:X8})"), 0);
@@ -120,7 +118,7 @@ internal static unsafe partial class InkMeasure
 
             fixed (char* chars = text.Text)
             {
-                result = ((delegate* unmanaged[Stdcall]<nint, char*, uint, nint, float, float, nint*, int>)Slot(factory, FactoryCreateTextLayout))(
+                result = ((delegate* unmanaged[Stdcall]<nint, char*, uint, nint, float, float, nint*, int>)ComApi.Slot(factory, FactoryCreateTextLayout))(
                     factory, chars, (uint)text.Text.Length, format, wraps ? (float)text.Width : Unbounded, Unbounded, &layout);
             }
 
@@ -147,7 +145,7 @@ internal static unsafe partial class InkMeasure
             if (text.LineHeight > 0 && double.IsFinite(text.LineHeight))
             {
                 TextMetrics laid;
-                result = ((delegate* unmanaged[Stdcall]<nint, TextMetrics*, int>)Slot(layout, LayoutGetMetrics))(layout, &laid);
+                result = ((delegate* unmanaged[Stdcall]<nint, TextMetrics*, int>)ComApi.Slot(layout, LayoutGetMetrics))(layout, &laid);
                 if (result < 0 || laid.LineCount == 0 || laid.LineCount > MaxLines)
                 {
                     return (result < 0 ? Failed($"no text metrics (0x{result:X8})") : null, 0);
@@ -156,7 +154,7 @@ internal static unsafe partial class InkMeasure
                 // Every line's metrics or none: DirectWrite fills nothing into a buffer short of the lines.
                 var lines = stackalloc LineMetrics[(int)laid.LineCount];
                 uint count;
-                result = ((delegate* unmanaged[Stdcall]<nint, LineMetrics*, uint, uint*, int>)Slot(layout, LayoutGetLineMetrics))(layout, lines, laid.LineCount, &count);
+                result = ((delegate* unmanaged[Stdcall]<nint, LineMetrics*, uint, uint*, int>)ComApi.Slot(layout, LayoutGetLineMetrics))(layout, lines, laid.LineCount, &count);
                 if (result < 0 || !(lines[0].Height > 0))
                 {
                     return (Failed($"no line metrics (0x{result:X8})"), 0);
@@ -169,7 +167,7 @@ internal static unsafe partial class InkMeasure
                 }
 
                 var baseline = text.LineHeight * lines[0].Baseline / lines[0].Height;
-                result = ((delegate* unmanaged[Stdcall]<nint, int, float, float, int>)Slot(layout, FormatSetLineSpacing))(
+                result = ((delegate* unmanaged[Stdcall]<nint, int, float, float, int>)ComApi.Slot(layout, FormatSetLineSpacing))(
                     layout, UniformSpacing, (float)text.LineHeight, (float)baseline);
                 if (result < 0)
                 {
@@ -178,21 +176,21 @@ internal static unsafe partial class InkMeasure
             }
 
             TextMetrics metrics;
-            result = ((delegate* unmanaged[Stdcall]<nint, TextMetrics*, int>)Slot(layout, LayoutGetMetrics))(layout, &metrics);
+            result = ((delegate* unmanaged[Stdcall]<nint, TextMetrics*, int>)ComApi.Slot(layout, LayoutGetMetrics))(layout, &metrics);
             if (result < 0 || !(metrics.Height > 0))
             {
                 return (result < 0 ? Failed($"no text metrics (0x{result:X8})") : null, 0);
             }
 
             // The box is the lines' own height: the overhang under it is the room under the last ink, as over it the first's.
-            result = ((delegate* unmanaged[Stdcall]<nint, float, int>)Slot(layout, LayoutSetMaxHeight))(layout, metrics.Height);
+            result = ((delegate* unmanaged[Stdcall]<nint, float, int>)ComApi.Slot(layout, LayoutSetMaxHeight))(layout, metrics.Height);
             if (result < 0)
             {
                 return (Failed($"no layout height (0x{result:X8})"), 0);
             }
 
             Overhang overhang;
-            result = ((delegate* unmanaged[Stdcall]<nint, Overhang*, int>)Slot(layout, LayoutGetOverhangMetrics))(layout, &overhang);
+            result = ((delegate* unmanaged[Stdcall]<nint, Overhang*, int>)ComApi.Slot(layout, LayoutGetOverhangMetrics))(layout, &overhang);
             if (result < 0)
             {
                 return (Failed($"no overhang (0x{result:X8})"), 0);
@@ -216,8 +214,8 @@ internal static unsafe partial class InkMeasure
         }
         finally
         {
-            Free(layout);
-            Free(format);
+            _ = ComApi.Release(layout);
+            _ = ComApi.Release(format);
         }
     }
 
@@ -270,25 +268,16 @@ internal static unsafe partial class InkMeasure
     /// <summary>XAML's <c>CharacterSpacing</c> (thousandths of an em after each character) on the layout (<c>IDWriteTextLayout1</c>).</summary>
     private static bool Track(nint layout, InkText text)
     {
-        nint spaced = 0;
-        try
+        using var spaced = new ComPtr(ComApi.Query(layout, Layout1Iid));
+        if (spaced.IsNull)
         {
-            var iid = Layout1Iid;
-            var result = ((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)Slot(layout, QueryInterface))(layout, &iid, &spaced);
-            if (result < 0 || spaced == 0)
-            {
-                return false;
-            }
+            return false;
+        }
 
-            var trailing = (float)(text.FontSize * text.Tracking / 1000.0);
-            result = ((delegate* unmanaged[Stdcall]<nint, float, float, float, TextRange, int>)Slot(spaced, Layout1SetCharacterSpacing))(
-                spaced, 0f, trailing, 0f, new TextRange { Start = 0, Length = (uint)text.Text.Length });
-            return result >= 0;
-        }
-        finally
-        {
-            Free(spaced);
-        }
+        var trailing = (float)(text.FontSize * text.Tracking / 1000.0);
+        var result = ((delegate* unmanaged[Stdcall]<nint, float, float, float, TextRange, int>)ComApi.Slot(spaced.Pointer, Layout1SetCharacterSpacing))(
+            spaced.Pointer, 0f, trailing, 0f, new TextRange { Start = 0, Length = (uint)text.Text.Length });
+        return result >= 0;
     }
 
     private static nint CreateFactory()
@@ -323,16 +312,6 @@ internal static unsafe partial class InkMeasure
         }
 
         return null;
-    }
-
-    private static nint Slot(nint com, int index) => (*(nint**)com)[index];
-
-    private static void Free(nint com)
-    {
-        if (com != 0)
-        {
-            ((delegate* unmanaged[Stdcall]<nint, uint>)Slot(com, Release))(com);
-        }
     }
 
     [StructLayout(LayoutKind.Sequential)]

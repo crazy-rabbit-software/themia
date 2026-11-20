@@ -73,7 +73,7 @@ internal static class DesktopLayer
             return;
         }
 
-        var region = Win32.CreateRectRgn(area.Left, area.Top, area.Right, area.Bottom);
+        var region = Gdi.CreateRectRgn(area.Left, area.Top, area.Right, area.Bottom);
         if (region == 0)
         {
             Log.Error(Scope, "CreateRectRgn failed; leaving the previous hit region in place");
@@ -83,7 +83,7 @@ internal static class DesktopLayer
         if (Win32.SetWindowRgn(hwnd, region, redraw: true) == 0)
         {
             Log.Warn(Scope, $"SetWindowRgn failed (win32 {Marshal.GetLastWin32Error()})");
-            Win32.DeleteObject(region);
+            Gdi.DeleteObject(region);
         }
 
         // Success: the window owns `region` now. Deleting it here would free a live region.

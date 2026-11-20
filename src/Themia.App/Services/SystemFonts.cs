@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Themia.App.Interop;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
 
@@ -53,10 +54,9 @@ internal static unsafe partial class SystemFonts
     private static InstalledFonts Enumerate()
     {
         var names = new List<(string, bool)>();
-        var dc = GetDC(0);
-        if (dc == 0)
+        using var dc = Gdi.ScreenDc.Get(Scope);
+        if (dc is null)
         {
-            Log.Warn(Scope, "no screen DC; the font list is only the presets");
             return InstalledFonts.None;
         }
 
@@ -65,7 +65,7 @@ internal static unsafe partial class SystemFonts
         {
             var logFont = default(LogFontW);
             logFont.Charset = DefaultCharset;
-            EnumFontFamiliesExW(dc, &logFont, &OnFamily, GCHandle.ToIntPtr(handle), 0);
+            EnumFontFamiliesExW(dc.DangerousGetHandle(), &logFont, &OnFamily, GCHandle.ToIntPtr(handle), 0);
         }
         catch (Exception ex)
         {
@@ -74,7 +74,6 @@ internal static unsafe partial class SystemFonts
         finally
         {
             handle.Free();
-            _ = ReleaseDC(0, dc);
         }
 
         var fonts = InstalledFonts.From(names);
@@ -135,12 +134,6 @@ internal static unsafe partial class SystemFonts
         public byte PitchAndFamily;
         public fixed char FaceName[LfFaceSize];
     }
-
-    [LibraryImport("user32.dll")]
-    private static partial nint GetDC(nint hwnd);
-
-    [LibraryImport("user32.dll")]
-    private static partial int ReleaseDC(nint hwnd, nint dc);
 
     [LibraryImport("gdi32.dll", EntryPoint = "EnumFontFamiliesExW")]
     private static partial int EnumFontFamiliesExW(

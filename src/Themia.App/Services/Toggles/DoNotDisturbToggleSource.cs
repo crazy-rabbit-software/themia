@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Toggles;
 
@@ -93,7 +94,7 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
         }
         finally
         {
-            ToggleNative.Release(settings);
+            ComApi.Release(settings);
         }
 
         Read();
@@ -123,14 +124,14 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
         }
         finally
         {
-            ToggleNative.Release(settings);
+            ComApi.Release(settings);
         }
     }
 
     /// <summary>Windows' own QuietHoursSettings, in WpnUserService; 0 where there is none (Windows 10 before 1903).</summary>
     private static nint Make()
     {
-        var made = ToggleNative.Create(SettingsClass, SettingsInterface, ToggleNative.ClsCtxLocalServer, out var result);
+        var result = ComApi.Create(SettingsClass, SettingsInterface, ComApi.ClsCtxLocalServer, out var made);
         if (made == 0)
         {
             Log.Info("toggles", $"QuietHoursSettings is not there (0x{result:X8})");
@@ -143,7 +144,7 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
     private static string? Text(nint settings, int slot)
     {
         char* text = null;
-        var result = ((delegate* unmanaged[Stdcall]<nint, char**, int>)ToggleNative.Slot(settings, slot))(settings, &text);
+        var result = ((delegate* unmanaged[Stdcall]<nint, char**, int>)ComApi.Slot(settings, slot))(settings, &text);
         try
         {
             return result < 0 || text is null ? null : new string(text);
@@ -152,7 +153,7 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
         {
             if (text is not null)
             {
-                ToggleNative.CoTaskMemFree(text);
+                ComApi.Free(text);
             }
         }
     }
@@ -161,14 +162,14 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
     {
         fixed (char* id = profile)
         {
-            return ((delegate* unmanaged[Stdcall]<nint, char*, int>)ToggleNative.Slot(settings, SlotPutUserSelected))(settings, id);
+            return ((delegate* unmanaged[Stdcall]<nint, char*, int>)ComApi.Slot(settings, SlotPutUserSelected))(settings, id);
         }
     }
 
     private static void TurnOffMoment(nint settings)
     {
         nint moments = 0;
-        var asked = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)ToggleNative.Slot(settings, SlotMoments))(settings, &moments);
+        var asked = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)ComApi.Slot(settings, SlotMoments))(settings, &moments);
         if (asked < 0 || moments == 0)
         {
             Check(asked, "get_QuietMomentsManager");
@@ -177,11 +178,11 @@ internal sealed unsafe class DoNotDisturbToggleSource : ToggleSource
 
         try
         {
-            Check(((delegate* unmanaged[Stdcall]<nint, int>)ToggleNative.Slot(moments, SlotTurnOffMoment))(moments), "TurnOffCurrentlyActiveQuietMoment");
+            Check(((delegate* unmanaged[Stdcall]<nint, int>)ComApi.Slot(moments, SlotTurnOffMoment))(moments), "TurnOffCurrentlyActiveQuietMoment");
         }
         finally
         {
-            ToggleNative.Release(moments);
+            ComApi.Release(moments);
         }
     }
 

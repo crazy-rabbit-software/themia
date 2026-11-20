@@ -22,8 +22,6 @@ internal static unsafe class DesktopFolderView
 {
     private const string Scope = "desktop-icons";
 
-    private const int SlotQueryInterface = 0;
-    private const int SlotRelease = 2;
     private const int SlotFindWindowSw = 15; // IShellWindows: IDispatch (7) + get_Count .. OnActivated (8)
     private const int SlotQueryService = 3; // IServiceProvider
     private const int SlotQueryActiveShellView = 15; // IShellBrowser: IOleWindow (5) + InsertMenusSB .. SendControlMsg (10)
@@ -47,22 +45,18 @@ internal static unsafe class DesktopFolderView
     /// </summary>
     public static void DeselectAll()
     {
-        var init = Win32.CoInitializeEx(0, Win32.CoInitMultithreaded);
-        var uninitialize = init >= 0;
-        if (init < 0 && init != Win32.RpcEChangedMode)
+        using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
+        if (!apartment.Usable)
         {
-            Log.Debug(Scope, $"CoInitializeEx failed (0x{init:X8}); desktop selection left as it is");
+            Log.Debug(Scope, $"CoInitializeEx failed (0x{apartment.Result:X8}); desktop selection left as it is");
             return;
         }
 
-        nint windows = 0, dispatch = 0, provider = 0, browser = 0, view = 0;
-
         try
         {
-            var clsid = ClsidShellWindows;
-            var iid = IidShellWindows;
-            var hr = Win32.CoCreateInstance(&clsid, 0, Win32.ClsCtxLocalServer, &iid, &windows);
-            if (hr < 0 || windows == 0)
+            var hr = ComApi.Create(ClsidShellWindows, IidShellWindows, ComApi.ClsCtxLocalServer, out var made);
+            using var windows = new ComPtr(made);
+            if (hr < 0 || windows.IsNull)
             {
                 Log.Debug(Scope, $"no shell windows (0x{hr:X8})");
                 return;
@@ -71,37 +65,42 @@ internal static unsafe class DesktopFolderView
             var location = new Win32.Variant { Vt = VtI4, Value = CsidlDesktop };
             var root = default(Win32.Variant);
             int desktopHwnd;
-            hr = ((delegate* unmanaged[Stdcall]<nint, Win32.Variant*, Win32.Variant*, int, int*, int, nint*, int>)Slot(windows, SlotFindWindowSw))(
-                windows, &location, &root, SwcDesktop, &desktopHwnd, SwfoNeedDispatch, &dispatch);
-            if (hr < 0 || dispatch == 0)
+            nint found = 0;
+            hr = ((delegate* unmanaged[Stdcall]<nint, Win32.Variant*, Win32.Variant*, int, int*, int, nint*, int>)ComApi.Slot(windows.Pointer, SlotFindWindowSw))(
+                windows.Pointer, &location, &root, SwcDesktop, &desktopHwnd, SwfoNeedDispatch, &found);
+            using var dispatch = new ComPtr(found);
+            if (hr < 0 || dispatch.IsNull)
             {
                 Log.Debug(Scope, $"the desktop's browser was not found (0x{hr:X8})");
                 return;
             }
 
-            var serviceIid = IidServiceProvider;
-            hr = ((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)Slot(dispatch, SlotQueryInterface))(dispatch, &serviceIid, &provider);
-            if (hr < 0 || provider == 0)
+            using var provider = new ComPtr(ComApi.Query(dispatch.Pointer, IidServiceProvider));
+            if (provider.IsNull)
             {
                 return;
             }
 
             var sid = SidTopLevelBrowser;
             var browserIid = IidShellBrowser;
-            hr = ((delegate* unmanaged[Stdcall]<nint, Guid*, Guid*, nint*, int>)Slot(provider, SlotQueryService))(provider, &sid, &browserIid, &browser);
-            if (hr < 0 || browser == 0)
+            nint shown = 0;
+            hr = ((delegate* unmanaged[Stdcall]<nint, Guid*, Guid*, nint*, int>)ComApi.Slot(provider.Pointer, SlotQueryService))(provider.Pointer, &sid, &browserIid, &shown);
+            using var browser = new ComPtr(shown);
+            if (hr < 0 || browser.IsNull)
             {
                 return;
             }
 
-            hr = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)Slot(browser, SlotQueryActiveShellView))(browser, &view);
-            if (hr < 0 || view == 0)
+            nint active = 0;
+            hr = ((delegate* unmanaged[Stdcall]<nint, nint*, int>)ComApi.Slot(browser.Pointer, SlotQueryActiveShellView))(browser.Pointer, &active);
+            using var view = new ComPtr(active);
+            if (hr < 0 || view.IsNull)
             {
                 return;
             }
 
             // A null item with "deselect others" leaves nothing selected.
-            hr = ((delegate* unmanaged[Stdcall]<nint, nint, uint, int>)Slot(view, SlotSelectItem))(view, 0, SvsiDeselectOthers);
+            hr = ((delegate* unmanaged[Stdcall]<nint, nint, uint, int>)ComApi.Slot(view.Pointer, SlotSelectItem))(view.Pointer, 0, SvsiDeselectOthers);
             if (hr < 0)
             {
                 Log.Debug(Scope, $"the desktop declined to clear its selection (0x{hr:X8})");
@@ -110,29 +109,6 @@ internal static unsafe class DesktopFolderView
         catch (Exception ex)
         {
             Log.Debug(Scope, $"clearing the desktop selection threw: {ex.Message}");
-        }
-        finally
-        {
-            Release(view);
-            Release(browser);
-            Release(provider);
-            Release(dispatch);
-            Release(windows);
-
-            if (uninitialize)
-            {
-                Win32.CoUninitialize();
-            }
-        }
-    }
-
-    private static nint Slot(nint com, int slot) => (*(nint**)com)[slot];
-
-    private static void Release(nint com)
-    {
-        if (com != 0)
-        {
-            _ = ((delegate* unmanaged[Stdcall]<nint, uint>)Slot(com, SlotRelease))(com);
         }
     }
 }

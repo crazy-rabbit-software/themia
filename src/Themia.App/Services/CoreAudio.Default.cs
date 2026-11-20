@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services;
 
@@ -131,11 +132,7 @@ internal static unsafe partial class CoreAudio
     /// </summary>
     private static DefaultSwitchResult SwitchDefault(string id)
     {
-        var clsid = PolicyConfig.Class;
-        var iid = PolicyConfig.Interface;
-        nint policy;
-
-        var created = CoCreateInstance(&clsid, 0, ClsCtxInprocServer, &iid, &policy);
+        var created = ComApi.Create(PolicyConfig.Class, PolicyConfig.Interface, ComApi.ClsCtxInprocServer, out var policy);
         if (created < 0 || policy == 0)
         {
             Log.Warn(Scope, $"Windows' policy config is not available, so the default output cannot be changed: 0x{created:X8}");
@@ -150,7 +147,7 @@ internal static unsafe partial class CoreAudio
             {
                 foreach (var role in AudioDefaultRules.Roles)
                 {
-                    var result = ((delegate* unmanaged[Stdcall]<nint, char*, int, int>)Slot(policy, PolicyConfig.SetDefaultEndpoint))(policy, text, (int)role);
+                    var result = ((delegate* unmanaged[Stdcall]<nint, char*, int, int>)ComApi.Slot(policy, PolicyConfig.SetDefaultEndpoint))(policy, text, (int)role);
                     results.Add(result);
 
                     if (result < 0)
@@ -176,7 +173,7 @@ internal static unsafe partial class CoreAudio
         }
         finally
         {
-            ReleaseRaw(policy);
+            _ = ComApi.Release(policy);
         }
     }
 }

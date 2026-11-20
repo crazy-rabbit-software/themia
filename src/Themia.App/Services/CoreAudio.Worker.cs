@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services;
 
@@ -101,13 +102,13 @@ internal static unsafe partial class CoreAudio
 
         private void Run()
         {
-            var initialised = CoInitializeEx(0, CoInitMultithreaded);
+            using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
 
             // RPC_E_CHANGED_MODE would mean this thread is already single-threaded, where session
             // notifications never arrive. A fresh thread cannot be, but the log would say why if so.
-            if (initialised < 0)
+            if (apartment.Result < 0)
             {
-                Log.Error(Scope, $"could not enter the multithreaded apartment: 0x{initialised:X8}");
+                Log.Error(Scope, $"could not enter the multithreaded apartment: 0x{apartment.Result:X8}");
                 foreach (var subscriber in CoreAudio.Snapshot())
                 {
                     subscriber.Deliver(AudioSnapshot.Unavailable);
@@ -155,7 +156,6 @@ internal static unsafe partial class CoreAudio
                 _outputs.Clear();
 
                 ReleaseEnumerator();
-                CoUninitialize();
                 _wake.Dispose();
             }
         }
@@ -292,7 +292,7 @@ internal static unsafe partial class CoreAudio
             }
             finally
             {
-                ReleaseRaw(device);
+                _ = ComApi.Release(device);
             }
         }
 
@@ -315,7 +315,7 @@ internal static unsafe partial class CoreAudio
             }
             finally
             {
-                ReleaseRaw(device);
+                _ = ComApi.Release(device);
             }
         }
 
@@ -332,7 +332,7 @@ internal static unsafe partial class CoreAudio
             if (output.Manager != 0)
             {
                 Call(output.Manager, Slots.ManagerUnregisterSessionNotification, Callbacks.SessionCreated);
-                ReleaseRaw(output.Manager);
+                _ = ComApi.Release(output.Manager);
                 output.Manager = 0;
             }
         }
@@ -344,18 +344,14 @@ internal static unsafe partial class CoreAudio
             if (endpoint.Volume != 0)
             {
                 Call(endpoint.Volume, Slots.EndpointUnregisterNotify, Callbacks.EndpointVolume);
-                ReleaseRaw(endpoint.Volume);
+                _ = ComApi.Release(endpoint.Volume);
                 endpoint.Volume = 0;
             }
         }
 
         private bool OpenEnumerator()
         {
-            var clsid = Iids.DeviceEnumeratorClass;
-            var iid = Iids.DeviceEnumerator;
-            nint enumerator;
-
-            var created = CoCreateInstance(&clsid, 0, ClsCtxInprocServer, &iid, &enumerator);
+            var created = ComApi.Create(Iids.DeviceEnumeratorClass, Iids.DeviceEnumerator, ComApi.ClsCtxInprocServer, out var enumerator);
             if (created < 0)
             {
                 Note(created, "could not open the audio device enumerator");
@@ -383,7 +379,7 @@ internal static unsafe partial class CoreAudio
                 _clientRegistered = false;
             }
 
-            ReleaseRaw(_enumerator);
+            _ = ComApi.Release(_enumerator);
             _enumerator = 0;
         }
 
@@ -425,8 +421,8 @@ internal static unsafe partial class CoreAudio
 
             float level;
             int muted;
-            var gotLevel = ((delegate* unmanaged[Stdcall]<nint, float*, int>)Slot(endpoint.Volume, Slots.EndpointGetScalar))(endpoint.Volume, &level);
-            var gotMute = ((delegate* unmanaged[Stdcall]<nint, int*, int>)Slot(endpoint.Volume, Slots.EndpointGetMute))(endpoint.Volume, &muted);
+            var gotLevel = ((delegate* unmanaged[Stdcall]<nint, float*, int>)ComApi.Slot(endpoint.Volume, Slots.EndpointGetScalar))(endpoint.Volume, &level);
+            var gotMute = ((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(endpoint.Volume, Slots.EndpointGetMute))(endpoint.Volume, &muted);
 
             if (gotLevel < 0 || gotMute < 0)
             {
@@ -446,7 +442,7 @@ internal static unsafe partial class CoreAudio
             }
 
             nint list;
-            if (((delegate* unmanaged[Stdcall]<nint, nint*, int>)Slot(endpoint.Manager, Slots.ManagerGetSessionEnumerator))(endpoint.Manager, &list) < 0)
+            if (((delegate* unmanaged[Stdcall]<nint, nint*, int>)ComApi.Slot(endpoint.Manager, Slots.ManagerGetSessionEnumerator))(endpoint.Manager, &list) < 0)
             {
                 return;
             }
@@ -456,7 +452,7 @@ internal static unsafe partial class CoreAudio
             try
             {
                 int count;
-                if (((delegate* unmanaged[Stdcall]<nint, int*, int>)Slot(list, Slots.ListGetCount))(list, &count) < 0)
+                if (((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(list, Slots.ListGetCount))(list, &count) < 0)
                 {
                     return;
                 }
@@ -469,7 +465,7 @@ internal static unsafe partial class CoreAudio
                 for (var i = 0; i < count; i++)
                 {
                     nint control;
-                    if (((delegate* unmanaged[Stdcall]<nint, int, nint*, int>)Slot(list, Slots.ListGetSession))(list, i, &control) < 0)
+                    if (((delegate* unmanaged[Stdcall]<nint, int, nint*, int>)ComApi.Slot(list, Slots.ListGetSession))(list, i, &control) < 0)
                     {
                         // [S-446] One app exiting mid-enumeration must not blank the whole mixer.
                         continue;
@@ -484,7 +480,7 @@ internal static unsafe partial class CoreAudio
                     }
                     finally
                     {
-                        ReleaseRaw(control);
+                        _ = ComApi.Release(control);
                     }
                 }
 
@@ -499,21 +495,21 @@ internal static unsafe partial class CoreAudio
             }
             finally
             {
-                ReleaseRaw(list);
+                _ = ComApi.Release(list);
             }
         }
 
         private static AudioSessionInfo? ReadSession(Endpoint endpoint, nint control, int index)
         {
             int state;
-            if (((delegate* unmanaged[Stdcall]<nint, int*, int>)Slot(control, Slots.ControlGetState))(control, &state) < 0
+            if (((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(control, Slots.ControlGetState))(control, &state) < 0
                 || state == SessionStateExpired)
             {
                 // Expired: the app is gone and Windows has not reaped the session yet.
                 return null;
             }
 
-            var control2 = Query(control, Iids.SessionControl2);
+            var control2 = ComApi.Query(control, Iids.SessionControl2);
             if (control2 == 0)
             {
                 return null;
@@ -522,10 +518,10 @@ internal static unsafe partial class CoreAudio
             try
             {
                 // S_FALSE is a success code that means "no", so only an exact S_OK is a yes.
-                var isSystem = ((delegate* unmanaged[Stdcall]<nint, int>)Slot(control2, Slots.Control2IsSystemSounds))(control2) == 0;
+                var isSystem = ((delegate* unmanaged[Stdcall]<nint, int>)ComApi.Slot(control2, Slots.Control2IsSystemSounds))(control2) == 0;
 
                 uint pid;
-                if (((delegate* unmanaged[Stdcall]<nint, uint*, int>)Slot(control2, Slots.Control2GetProcessId))(control2, &pid) < 0)
+                if (((delegate* unmanaged[Stdcall]<nint, uint*, int>)ComApi.Slot(control2, Slots.Control2GetProcessId))(control2, &pid) < 0)
                 {
                     pid = 0;
                 }
@@ -557,8 +553,8 @@ internal static unsafe partial class CoreAudio
                 float level;
                 int muted;
                 var volume = tracked.Volume;
-                var gotLevel = ((delegate* unmanaged[Stdcall]<nint, float*, int>)Slot(volume, Slots.SimpleGetMasterVolume))(volume, &level) >= 0;
-                var gotMute = ((delegate* unmanaged[Stdcall]<nint, int*, int>)Slot(volume, Slots.SimpleGetMute))(volume, &muted) >= 0;
+                var gotLevel = ((delegate* unmanaged[Stdcall]<nint, float*, int>)ComApi.Slot(volume, Slots.SimpleGetMasterVolume))(volume, &level) >= 0;
+                var gotMute = ((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(volume, Slots.SimpleGetMute))(volume, &muted) >= 0;
 
                 return new AudioSessionInfo(
                     sessionKey,
@@ -572,20 +568,20 @@ internal static unsafe partial class CoreAudio
             }
             finally
             {
-                ReleaseRaw(control2);
+                _ = ComApi.Release(control2);
             }
         }
 
         /// <summary>Hold a session and listen to it. The control and volume are kept until <see cref="Forget"/>.</summary>
         private static Tracked? Track(nint control, string groupKey)
         {
-            var volume = Query(control, Iids.SimpleAudioVolume);
+            var volume = ComApi.Query(control, Iids.SimpleAudioVolume);
             if (volume == 0)
             {
                 return null;
             }
 
-            ((delegate* unmanaged[Stdcall]<nint, uint>)Slot(control, Slots.AddRef))(control);
+            _ = ComApi.AddRef(control);
             Call(control, Slots.ControlRegisterNotification, Callbacks.SessionEvents);
 
             return new Tracked
@@ -601,13 +597,13 @@ internal static unsafe partial class CoreAudio
             if (tracked.Control != 0)
             {
                 Call(tracked.Control, Slots.ControlUnregisterNotification, Callbacks.SessionEvents);
-                ReleaseRaw(tracked.Control);
+                _ = ComApi.Release(tracked.Control);
                 tracked.Control = 0;
             }
 
             if (tracked.Volume != 0)
             {
-                ReleaseRaw(tracked.Volume);
+                _ = ComApi.Release(tracked.Volume);
                 tracked.Volume = 0;
             }
         }
@@ -631,8 +627,8 @@ internal static unsafe partial class CoreAudio
                 foreach (var target in Targets(selector, key))
                 {
                     var result = target.Endpoint
-                        ? ((delegate* unmanaged[Stdcall]<nint, int, Guid*, int>)Slot(target.Pointer, Slots.EndpointSetMute))(target.Pointer, muted ? 1 : 0, null)
-                        : ((delegate* unmanaged[Stdcall]<nint, int, Guid*, int>)Slot(target.Pointer, Slots.SimpleSetMute))(target.Pointer, muted ? 1 : 0, null);
+                        ? ((delegate* unmanaged[Stdcall]<nint, int, Guid*, int>)ComApi.Slot(target.Pointer, Slots.EndpointSetMute))(target.Pointer, muted ? 1 : 0, null)
+                        : ((delegate* unmanaged[Stdcall]<nint, int, Guid*, int>)ComApi.Slot(target.Pointer, Slots.SimpleSetMute))(target.Pointer, muted ? 1 : 0, null);
 
                     if (result < 0)
                     {
@@ -649,8 +645,8 @@ internal static unsafe partial class CoreAudio
                 foreach (var target in Targets(selector, key))
                 {
                     var result = target.Endpoint
-                        ? ((delegate* unmanaged[Stdcall]<nint, float, Guid*, int>)Slot(target.Pointer, Slots.EndpointSetScalar))(target.Pointer, value, null)
-                        : ((delegate* unmanaged[Stdcall]<nint, float, Guid*, int>)Slot(target.Pointer, Slots.SimpleSetMasterVolume))(target.Pointer, value, null);
+                        ? ((delegate* unmanaged[Stdcall]<nint, float, Guid*, int>)ComApi.Slot(target.Pointer, Slots.EndpointSetScalar))(target.Pointer, value, null)
+                        : ((delegate* unmanaged[Stdcall]<nint, float, Guid*, int>)ComApi.Slot(target.Pointer, Slots.SimpleSetMasterVolume))(target.Pointer, value, null);
 
                     if (result < 0)
                     {
@@ -703,40 +699,17 @@ internal static unsafe partial class CoreAudio
     /// <summary>The selection's page's device list: its own apartment, its own enumerator, all released.</summary>
     private static IReadOnlyList<AudioDevice> ListOutputDevices()
     {
-        var initialised = CoInitializeEx(0, CoInitMultithreaded);
-
-        // S_FALSE (already initialised) still has to be balanced; RPC_E_CHANGED_MODE does not.
-        var balance = initialised >= 0;
-
-        try
+        // S_FALSE (already initialised) is balanced on the way out; RPC_E_CHANGED_MODE is not.
+        using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
+        var created = ComApi.Create(Iids.DeviceEnumeratorClass, Iids.DeviceEnumerator, ComApi.ClsCtxInprocServer, out var made);
+        using var enumerator = new ComPtr(made);
+        if (created < 0)
         {
-            var clsid = Iids.DeviceEnumeratorClass;
-            var iid = Iids.DeviceEnumerator;
-            nint enumerator;
-
-            var created = CoCreateInstance(&clsid, 0, ClsCtxInprocServer, &iid, &enumerator);
-            if (created < 0)
-            {
-                Log.Warn(Scope, $"could not list the output devices: 0x{created:X8}");
-                return [];
-            }
-
-            try
-            {
-                return EnumerateOutputs(enumerator);
-            }
-            finally
-            {
-                ReleaseRaw(enumerator);
-            }
+            Log.Warn(Scope, $"could not list the output devices: 0x{created:X8}");
+            return [];
         }
-        finally
-        {
-            if (balance)
-            {
-                CoUninitialize();
-            }
-        }
+
+        return EnumerateOutputs(enumerator.Pointer);
     }
 
     /// <summary>[S-1221] The active output devices with their friendly names, in Windows' order.</summary>
@@ -745,7 +718,7 @@ internal static unsafe partial class CoreAudio
         var devices = new List<AudioDevice>();
 
         nint collection;
-        var listed = ((delegate* unmanaged[Stdcall]<nint, int, uint, nint*, int>)Slot(enumerator, Slots.EnumeratorEnumEndpoints))(
+        var listed = ((delegate* unmanaged[Stdcall]<nint, int, uint, nint*, int>)ComApi.Slot(enumerator, Slots.EnumeratorEnumEndpoints))(
             enumerator, DataFlowRender, DeviceStateActive, &collection);
 
         if (listed < 0)
@@ -757,7 +730,7 @@ internal static unsafe partial class CoreAudio
         try
         {
             uint count;
-            if (((delegate* unmanaged[Stdcall]<nint, uint*, int>)Slot(collection, Slots.CollectionGetCount))(collection, &count) < 0)
+            if (((delegate* unmanaged[Stdcall]<nint, uint*, int>)ComApi.Slot(collection, Slots.CollectionGetCount))(collection, &count) < 0)
             {
                 return devices;
             }
@@ -765,7 +738,7 @@ internal static unsafe partial class CoreAudio
             for (uint i = 0; i < count; i++)
             {
                 nint device;
-                if (((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)Slot(collection, Slots.CollectionItem))(collection, i, &device) < 0)
+                if (((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)ComApi.Slot(collection, Slots.CollectionItem))(collection, i, &device) < 0)
                 {
                     continue;
                 }
@@ -780,13 +753,13 @@ internal static unsafe partial class CoreAudio
                 }
                 finally
                 {
-                    ReleaseRaw(device);
+                    _ = ComApi.Release(device);
                 }
             }
         }
         finally
         {
-            ReleaseRaw(collection);
+            _ = ComApi.Release(collection);
         }
 
         return devices;
@@ -796,7 +769,7 @@ internal static unsafe partial class CoreAudio
     private static string? DefaultId(nint enumerator, int flow)
     {
         nint device;
-        var found = ((delegate* unmanaged[Stdcall]<nint, int, int, nint*, int>)Slot(enumerator, Slots.EnumeratorGetDefault))(
+        var found = ((delegate* unmanaged[Stdcall]<nint, int, int, nint*, int>)ComApi.Slot(enumerator, Slots.EnumeratorGetDefault))(
             enumerator, flow, RoleConsole, &device);
 
         if (found < 0)
@@ -813,7 +786,7 @@ internal static unsafe partial class CoreAudio
         }
         finally
         {
-            ReleaseRaw(device);
+            _ = ComApi.Release(device);
         }
     }
 
@@ -823,7 +796,7 @@ internal static unsafe partial class CoreAudio
         nint device;
         fixed (char* text = id)
         {
-            var result = ((delegate* unmanaged[Stdcall]<nint, char*, nint*, int>)Slot(enumerator, Slots.EnumeratorGetDevice))(enumerator, text, &device);
+            var result = ((delegate* unmanaged[Stdcall]<nint, char*, nint*, int>)ComApi.Slot(enumerator, Slots.EnumeratorGetDevice))(enumerator, text, &device);
             if (result < 0)
             {
                 Note(result, "could not open an audio device");
@@ -838,8 +811,8 @@ internal static unsafe partial class CoreAudio
     private static nint Activate(nint device, Guid iid)
     {
         nint result;
-        return ((delegate* unmanaged[Stdcall]<nint, Guid*, uint, nint, nint*, int>)Slot(device, Slots.DeviceActivate))(
-            device, &iid, ClsCtxInprocServer, 0, &result) >= 0
+        return ((delegate* unmanaged[Stdcall]<nint, Guid*, uint, nint, nint*, int>)ComApi.Slot(device, Slots.DeviceActivate))(
+            device, &iid, ComApi.ClsCtxInprocServer, 0, &result) >= 0
             ? result
             : 0;
     }
@@ -851,7 +824,7 @@ internal static unsafe partial class CoreAudio
     private static string FriendlyName(nint device)
     {
         nint store;
-        if (((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)Slot(device, Slots.DeviceOpenPropertyStore))(device, StgmRead, &store) < 0)
+        if (((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)ComApi.Slot(device, Slots.DeviceOpenPropertyStore))(device, StgmRead, &store) < 0)
         {
             return string.Empty;
         }
@@ -862,7 +835,7 @@ internal static unsafe partial class CoreAudio
             var value = stackalloc byte[PropVariantSize];
             new Span<byte>(value, PropVariantSize).Clear();
 
-            if (((delegate* unmanaged[Stdcall]<nint, PropertyKey*, void*, int>)Slot(store, Slots.StoreGetValue))(store, &key, value) < 0)
+            if (((delegate* unmanaged[Stdcall]<nint, PropertyKey*, void*, int>)ComApi.Slot(store, Slots.StoreGetValue))(store, &key, value) < 0)
             {
                 return string.Empty;
             }
@@ -880,7 +853,7 @@ internal static unsafe partial class CoreAudio
         }
         finally
         {
-            ReleaseRaw(store);
+            _ = ComApi.Release(store);
         }
     }
 

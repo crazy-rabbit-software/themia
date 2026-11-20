@@ -27,7 +27,7 @@ namespace Themia.App.Shell;
 internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
 {
     private IDisposable? _dropRegistration;
-    private DragDropInterop.ComRef _dropHelper;
+    private ComPtr _dropHelper;
 
     /// <summary>The drag over this surface right now, from entry to its drop or its leaving.</summary>
     private WidgetDrag? _drag;

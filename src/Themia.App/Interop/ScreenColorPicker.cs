@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
 using Themia.Core.Diagnostics;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
@@ -173,18 +172,18 @@ internal static unsafe partial class ScreenColorPicker
         private readonly LoupeMetrics _metrics;
         private readonly double _labelFontDips;
         private readonly TaskCompletionSource<ScreenPickResult> _done = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private readonly Dictionary<uint, GdiObject> _fonts = [];
+        private readonly Dictionary<uint, Gdi.GdiObject> _fonts = [];
 
         private ScreenMonitor[] _monitors = [];
         private PixelBox _capture;
-        private DcHandle? _captureDc;
-        private GdiObject? _captureBitmap;
+        private Gdi.MemoryDc? _captureDc;
+        private Gdi.GdiObject? _captureBitmap;
         private nint _captureOld;
         private byte* _bits;
         private int _bitsLength;
 
-        private GdiObject? _black;
-        private GdiObject? _white;
+        private Gdi.GdiObject? _black;
+        private Gdi.GdiObject? _white;
 
         private nint _previousForeground;
         private int _x;
@@ -223,8 +222,8 @@ internal static unsafe partial class ScreenColorPicker
                 return false;
             }
 
-            _black = GdiObject.Own(CreateSolidBrush(Rgb(0, 0, 0)), "black brush");
-            _white = GdiObject.Own(CreateSolidBrush(Rgb(255, 255, 255)), "white brush");
+            _black = Gdi.GdiObject.Own(Gdi.CreateSolidBrush(Rgb(0, 0, 0)), Scope, "black brush");
+            _white = Gdi.GdiObject.Own(Gdi.CreateSolidBrush(Rgb(255, 255, 255)), Scope, "white brush");
             if (_black is null || _white is null)
             {
                 return false;
@@ -308,32 +307,23 @@ internal static unsafe partial class ScreenColorPicker
                 return false;
             }
 
-            using var screen = ScreenDc.Get();
+            using var screen = Gdi.ScreenDc.Get(Scope);
             if (screen is null)
             {
                 return false;
             }
 
-            _captureDc = DcHandle.Own(CreateCompatibleDC(screen.DangerousGetHandle()), "capture DC");
+            _captureDc = Gdi.MemoryDc.Create(screen.DangerousGetHandle(), Scope, "capture DC");
             if (_captureDc is null)
             {
                 return false;
             }
 
-            var info = new BitmapInfo
-            {
-                Header = new BitmapInfoHeader
-                {
-                    Size = (uint)sizeof(BitmapInfoHeader),
-                    Width = _capture.Width,
-                    Height = -_capture.Height, // negative: top-down, row 0 is the top of the desktop
-                    Planes = 1,
-                    BitCount = 32,
-                },
-            };
+            // Top-down: row 0 is the top of the desktop.
+            var info = Gdi.BitmapInfo.TopDown32(_capture.Width, _capture.Height);
 
             void* bits;
-            _captureBitmap = GdiObject.Own(CreateDIBSection(screen.DangerousGetHandle(), &info, 0, &bits, 0, 0), "capture bitmap");
+            _captureBitmap = Gdi.GdiObject.Own(Gdi.CreateDIBSection(screen.DangerousGetHandle(), &info, 0, &bits, 0, 0), Scope, "capture bitmap");
             if (_captureBitmap is null || bits is null)
             {
                 return false;
@@ -341,17 +331,17 @@ internal static unsafe partial class ScreenColorPicker
 
             _bits = (byte*)bits;
             _bitsLength = (int)length;
-            _captureOld = SelectObject(_captureDc.DangerousGetHandle(), _captureBitmap.DangerousGetHandle());
+            _captureOld = Gdi.SelectObject(_captureDc.DangerousGetHandle(), _captureBitmap.DangerousGetHandle());
 
             // CAPTUREBLT takes layered windows too (the widgets themselves, tooltips), which is what is on screen.
-            if (!BitBlt(_captureDc.DangerousGetHandle(), 0, 0, _capture.Width, _capture.Height, screen.DangerousGetHandle(), _capture.Left, _capture.Top, SrcCopy | CaptureBlt))
+            if (!Gdi.BitBlt(_captureDc.DangerousGetHandle(), 0, 0, _capture.Width, _capture.Height, screen.DangerousGetHandle(), _capture.Left, _capture.Top, SrcCopy | CaptureBlt))
             {
                 Log.Error(Scope, $"BitBlt from the screen failed (win32 {Marshal.GetLastWin32Error()})");
                 return false;
             }
 
             // The DIB's memory is read directly below; GDI may still be writing it.
-            _ = GdiFlush();
+            _ = Gdi.GdiFlush();
             return true;
         }
 
@@ -609,29 +599,29 @@ internal static unsafe partial class ScreenColorPicker
                     return;
                 }
 
-                using var back = DcHandle.Own(CreateCompatibleDC(hdc), "back buffer DC");
-                using var backBitmap = GdiObject.Own(CreateCompatibleBitmap(hdc, width, height), "back buffer");
+                using var back = Gdi.MemoryDc.Create(hdc, Scope, "back buffer DC");
+                using var backBitmap = Gdi.GdiObject.Own(Gdi.CreateCompatibleBitmap(hdc, width, height), Scope, "back buffer");
                 if (back is null || backBitmap is null)
                 {
                     // Draw straight to the window rather than leave it blank.
-                    _ = BitBlt(hdc, area.Left, area.Top, width, height, _captureDc.DangerousGetHandle(), area.Left, area.Top, SrcCopy);
+                    _ = Gdi.BitBlt(hdc, area.Left, area.Top, width, height, _captureDc.DangerousGetHandle(), area.Left, area.Top, SrcCopy);
                     return;
                 }
 
                 var b = back.DangerousGetHandle();
-                using (new Selection(b, backBitmap.DangerousGetHandle()))
+                using (new Gdi.Selected(b, backBitmap.DangerousGetHandle()))
                 {
-                    _ = BitBlt(b, 0, 0, width, height, _captureDc.DangerousGetHandle(), area.Left, area.Top, SrcCopy);
+                    _ = Gdi.BitBlt(b, 0, 0, width, height, _captureDc.DangerousGetHandle(), area.Left, area.Top, SrcCopy);
 
                     // From here the back buffer is addressed in screen pixels, as the layout is.
-                    _ = SetViewportOrgEx(b, -(area.Left + _capture.Left), -(area.Top + _capture.Top), null);
+                    _ = Gdi.SetViewportOrgEx(b, -(area.Left + _capture.Left), -(area.Top + _capture.Top), null);
                     if (_shown is { } layout)
                     {
                         DrawLoupe(b, layout);
                     }
 
-                    _ = SetViewportOrgEx(b, 0, 0, null);
-                    _ = BitBlt(hdc, area.Left, area.Top, width, height, b, 0, 0, SrcCopy);
+                    _ = Gdi.SetViewportOrgEx(b, 0, 0, null);
+                    _ = Gdi.BitBlt(hdc, area.Left, area.Top, width, height, b, 0, 0, SrcCopy);
                 }
             }
             finally
@@ -651,8 +641,8 @@ internal static unsafe partial class ScreenColorPicker
             Fill(dc, layout.Loupe, black);
             if (ScreenPick.Source(_capture, _x, _y, layout, _metrics.Cells) is { } source)
             {
-                _ = SetStretchBltMode(dc, ColorOnColor);
-                _ = StretchBlt(
+                _ = Gdi.SetStretchBltMode(dc, ColorOnColor);
+                _ = Gdi.StretchBlt(
                     dc,
                     source.Destination.Left,
                     source.Destination.Top,
@@ -680,7 +670,7 @@ internal static unsafe partial class ScreenColorPicker
                 return;
             }
 
-            using (var swatch = GdiObject.Own(CreateSolidBrush(Rgb(r, g, bl)), "label brush"))
+            using (var swatch = Gdi.GdiObject.Own(Gdi.CreateSolidBrush(Rgb(r, g, bl)), Scope, "label brush"))
             {
                 Fill(dc, layout.Label, swatch?.DangerousGetHandle() ?? black);
             }
@@ -695,10 +685,10 @@ internal static unsafe partial class ScreenColorPicker
             }
 
             var dark = ScreenPick.WantsDarkInk(r, g, bl);
-            using (new Selection(dc, font))
+            using (new Gdi.Selected(dc, font))
             {
-                _ = SetBkMode(dc, Transparent);
-                _ = SetTextColor(dc, dark ? Rgb(0, 0, 0) : Rgb(255, 255, 255));
+                _ = Gdi.SetBkMode(dc, Transparent);
+                _ = Gdi.SetTextColor(dc, dark ? Rgb(0, 0, 0) : Rgb(255, 255, 255));
                 var box = new Win32.Rect { Left = layout.Label.Left, Top = layout.Label.Top, Right = layout.Label.Right, Bottom = layout.Label.Bottom };
                 fixed (char* text = hex)
                 {
@@ -716,7 +706,7 @@ internal static unsafe partial class ScreenColorPicker
             }
 
             // Negative height: the character height, which is what a DIP font size means.
-            var font = GdiObject.Own(CreateFontW(-ScreenPick.ToPixels(_labelFontDips, dpi), 0, 0, 0, 600, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI"), "label font");
+            var font = Gdi.GdiObject.Own(Gdi.CreateFont(-ScreenPick.ToPixels(_labelFontDips, dpi), 0, 0, 0, 600, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI"), Scope, "label font");
             if (font is null)
             {
                 return 0;
@@ -781,7 +771,7 @@ internal static unsafe partial class ScreenColorPicker
             if (_captureDc is not null && _captureOld != 0)
             {
                 // The bitmap must leave the DC before either is deleted.
-                _ = SelectObject(_captureDc.DangerousGetHandle(), _captureOld);
+                _ = Gdi.SelectObject(_captureDc.DangerousGetHandle(), _captureOld);
             }
 
             _captureBitmap?.Dispose();
@@ -797,111 +787,6 @@ internal static unsafe partial class ScreenColorPicker
 
     private static int HighSigned(nint value) => (short)((value >> 16) & 0xFFFF);
 
-    /// <summary>Selects a GDI object into a DC for a scope and puts the previous one back.</summary>
-    private readonly ref struct Selection
-    {
-        private readonly nint _dc;
-        private readonly nint _old;
-
-        public Selection(nint dc, nint selected)
-        {
-            _dc = dc;
-            _old = SelectObject(dc, selected);
-        }
-
-        public void Dispose()
-        {
-            if (_old != 0)
-            {
-                _ = SelectObject(_dc, _old);
-            }
-        }
-    }
-
-    /// <summary>A memory DC, deleted with <c>DeleteDC</c>.</summary>
-    private sealed class DcHandle : SafeHandleZeroOrMinusOneIsInvalid
-    {
-        private DcHandle(nint handle)
-            : base(ownsHandle: true) => SetHandle(handle);
-
-        public static DcHandle? Own(nint handle, string what)
-        {
-            if (handle == 0)
-            {
-                Log.Error(Scope, $"could not create the {what} (win32 {Marshal.GetLastWin32Error()})");
-                return null;
-            }
-
-            return new DcHandle(handle);
-        }
-
-        protected override bool ReleaseHandle() => DeleteDC(handle);
-    }
-
-    /// <summary>A bitmap, brush or font, deleted with <c>DeleteObject</c>.</summary>
-    private sealed class GdiObject : SafeHandleZeroOrMinusOneIsInvalid
-    {
-        private GdiObject(nint handle)
-            : base(ownsHandle: true) => SetHandle(handle);
-
-        public static GdiObject? Own(nint handle, string what)
-        {
-            if (handle == 0)
-            {
-                Log.Error(Scope, $"could not create the {what} (win32 {Marshal.GetLastWin32Error()})");
-                return null;
-            }
-
-            return new GdiObject(handle);
-        }
-
-        protected override bool ReleaseHandle() => Win32.DeleteObject(handle);
-    }
-
-    /// <summary>The screen's DC, released with <c>ReleaseDC</c>.</summary>
-    private sealed class ScreenDc : SafeHandleZeroOrMinusOneIsInvalid
-    {
-        private ScreenDc(nint handle)
-            : base(ownsHandle: true) => SetHandle(handle);
-
-        public static ScreenDc? Get()
-        {
-            var handle = GetDC(0);
-            if (handle == 0)
-            {
-                Log.Error(Scope, "no screen DC to capture from");
-                return null;
-            }
-
-            return new ScreenDc(handle);
-        }
-
-        protected override bool ReleaseHandle() => ReleaseDC(0, handle) == 1;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct BitmapInfoHeader
-    {
-        public uint Size;
-        public int Width;
-        public int Height;
-        public ushort Planes;
-        public ushort BitCount;
-        public uint Compression;
-        public uint SizeImage;
-        public int XPelsPerMeter;
-        public int YPelsPerMeter;
-        public uint ClrUsed;
-        public uint ClrImportant;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct BitmapInfo
-    {
-        public BitmapInfoHeader Header;
-        public uint Colors;
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     private struct PaintStruct
     {
@@ -912,12 +797,6 @@ internal static unsafe partial class ScreenColorPicker
         public int IncUpdate;
         public fixed byte Reserved[32];
     }
-
-    [LibraryImport("user32.dll")]
-    private static partial nint GetDC(nint hwnd);
-
-    [LibraryImport("user32.dll")]
-    private static partial int ReleaseDC(nint hwnd, nint dc);
 
     [LibraryImport("user32.dll", EntryPoint = "LoadCursorW")]
     private static partial nint LoadCursorW(nint instance, nint name);
@@ -955,67 +834,6 @@ internal static unsafe partial class ScreenColorPicker
 
     [LibraryImport("user32.dll")]
     private static partial int DrawTextW(nint dc, char* text, int length, Win32.Rect* rect, uint format);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    private static partial nint CreateCompatibleDC(nint dc);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool DeleteDC(nint dc);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    private static partial nint CreateCompatibleBitmap(nint dc, int width, int height);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    private static partial nint CreateDIBSection(nint dc, BitmapInfo* info, uint usage, void** bits, nint section, uint offset);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial nint SelectObject(nint dc, nint obj);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool BitBlt(nint dest, int x, int y, int width, int height, nint source, int sx, int sy, uint rop);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool StretchBlt(nint dest, int x, int y, int width, int height, nint source, int sx, int sy, int sw, int sh, uint rop);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial int SetStretchBltMode(nint dc, int mode);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool SetViewportOrgEx(nint dc, int x, int y, Win32.Point* previous);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    private static partial nint CreateSolidBrush(uint color);
-
-    [LibraryImport("gdi32.dll", EntryPoint = "CreateFontW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
-    private static partial nint CreateFontW(
-        int height,
-        int width,
-        int escapement,
-        int orientation,
-        int weight,
-        uint italic,
-        uint underline,
-        uint strikeOut,
-        uint charset,
-        uint outPrecision,
-        uint clipPrecision,
-        uint quality,
-        uint pitchAndFamily,
-        string face);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial int SetBkMode(nint dc, int mode);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial uint SetTextColor(nint dc, uint color);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool GdiFlush();
 
     [LibraryImport("dwmapi.dll")]
     private static partial int DwmFlush();

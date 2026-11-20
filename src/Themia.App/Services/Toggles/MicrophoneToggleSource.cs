@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Toggles;
 
@@ -51,7 +52,7 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
         _current = this;
         OffThread("opening the microphone", () =>
         {
-            var enumerator = ToggleNative.Create(EnumeratorClass, EnumeratorInterface, ToggleNative.ClsCtxAll, out var made);
+            var made = ComApi.Create(EnumeratorClass, EnumeratorInterface, ComApi.ClsCtxAll, out var enumerator);
             if (enumerator == 0)
             {
                 Log.Warn(Scope, $"Core Audio's device enumerator could not be made (0x{made:X8})");
@@ -63,12 +64,12 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
             {
                 if (Disposed)
                 {
-                    ToggleNative.Release(enumerator);
+                    ComApi.Release(enumerator);
                     return;
                 }
 
                 _enumerator = enumerator;
-                _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ToggleNative.Slot(enumerator, SlotRegisterClient))(enumerator, Callbacks.DeviceClient);
+                _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(enumerator, SlotRegisterClient))(enumerator, Callbacks.DeviceClient);
             }
 
             Rebind();
@@ -85,7 +86,7 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
                 return false;
             }
 
-            result = ((delegate* unmanaged[Stdcall]<nint, int, Guid*, int>)ToggleNative.Slot(_volume, SlotSetMute))(_volume, on ? 0 : 1, null);
+            result = ((delegate* unmanaged[Stdcall]<nint, int, Guid*, int>)ComApi.Slot(_volume, SlotSetMute))(_volume, on ? 0 : 1, null);
         }
 
         if (result < 0)
@@ -110,7 +111,7 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
             Unfollow();
 
             nint device = 0;
-            var found = ((delegate* unmanaged[Stdcall]<nint, int, int, nint*, int>)ToggleNative.Slot(_enumerator, SlotGetDefault))(_enumerator, FlowCapture, RoleConsole, &device);
+            var found = ((delegate* unmanaged[Stdcall]<nint, int, int, nint*, int>)ComApi.Slot(_enumerator, SlotGetDefault))(_enumerator, FlowCapture, RoleConsole, &device);
             if (found < 0 || device == 0)
             {
                 if (found != NotFound)
@@ -126,8 +127,8 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
             {
                 var iid = EndpointVolumeInterface;
                 nint volume = 0;
-                var activated = ((delegate* unmanaged[Stdcall]<nint, Guid*, uint, void*, nint*, int>)ToggleNative.Slot(device, SlotActivate))(
-                    device, &iid, ToggleNative.ClsCtxAll, null, &volume);
+                var activated = ((delegate* unmanaged[Stdcall]<nint, Guid*, uint, void*, nint*, int>)ComApi.Slot(device, SlotActivate))(
+                    device, &iid, ComApi.ClsCtxAll, null, &volume);
                 if (activated < 0 || volume == 0)
                 {
                     Log.Warn(Scope, $"the microphone's volume could not be opened (0x{activated:X8})");
@@ -136,11 +137,11 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
                 }
 
                 _volume = volume;
-                _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ToggleNative.Slot(volume, SlotRegisterNotify))(volume, Callbacks.VolumeCallback);
+                _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(volume, SlotRegisterNotify))(volume, Callbacks.VolumeCallback);
             }
             finally
             {
-                ToggleNative.Release(device);
+                ComApi.Release(device);
             }
         }
 
@@ -158,7 +159,7 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
                 return;
             }
 
-            result = ((delegate* unmanaged[Stdcall]<nint, int*, int>)ToggleNative.Slot(_volume, SlotGetMute))(_volume, &muted);
+            result = ((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(_volume, SlotGetMute))(_volume, &muted);
         }
 
         Publish(result >= 0 ? ToggleReading.Of(muted == 0) : ToggleReading.Pending, read);
@@ -169,8 +170,8 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
     {
         if (_volume != 0)
         {
-            _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ToggleNative.Slot(_volume, SlotUnregisterNotify))(_volume, Callbacks.VolumeCallback);
-            ToggleNative.Release(_volume);
+            _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(_volume, SlotUnregisterNotify))(_volume, Callbacks.VolumeCallback);
+            ComApi.Release(_volume);
             _volume = 0;
         }
     }
@@ -197,14 +198,14 @@ internal sealed unsafe class MicrophoneToggleSource : ToggleSource
             {
                 if (volume != 0)
                 {
-                    _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ToggleNative.Slot(volume, SlotUnregisterNotify))(volume, Callbacks.VolumeCallback);
-                    ToggleNative.Release(volume);
+                    _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(volume, SlotUnregisterNotify))(volume, Callbacks.VolumeCallback);
+                    ComApi.Release(volume);
                 }
 
                 if (enumerator != 0)
                 {
-                    _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ToggleNative.Slot(enumerator, SlotUnregisterClient))(enumerator, Callbacks.DeviceClient);
-                    ToggleNative.Release(enumerator);
+                    _ = ((delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(enumerator, SlotUnregisterClient))(enumerator, Callbacks.DeviceClient);
+                    ComApi.Release(enumerator);
                 }
             }
             catch (Exception ex)

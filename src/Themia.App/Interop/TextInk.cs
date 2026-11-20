@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
 
@@ -9,9 +8,10 @@ namespace Themia.App.Interop;
 /// number in the badge of a drag's ghost. XAML can only render text asynchronously and from a live
 /// tree, and a drag's picture has to be there when the drag starts, so the badge's number is drawn here:
 /// white on black into a small bitmap of our own, smoothed in grey (never ClearType, whose colour
-/// fringes are no coverage), and its green channel read back. Every handle is released on every path.
+/// fringes are no coverage), and its green channel read back. Every handle is a <see cref="Gdi"/> SafeHandle, every
+/// selection a scope: released and put back on every path, in reverse order.
 /// </summary>
-internal static unsafe partial class TextInk
+internal static unsafe class TextInk
 {
     private const string Scope = "text-ink";
     private const string Face = "Segoe UI";
@@ -37,46 +37,41 @@ internal static unsafe partial class TextInk
             return default;
         }
 
-        nint dc = 0;
-        nint font = 0;
-        nint bitmap = 0;
-        nint oldFont = 0;
-        nint oldBitmap = 0;
         try
         {
-            dc = CreateCompatibleDC(0);
+            using var dc = Gdi.MemoryDc.Create(0, Scope, "badge's device context");
 
             // Negative height: the character height, which is what a font size means.
-            font = dc == 0 ? 0 : CreateFontW(-pixelHeight, 0, 0, 0, SemiBold, 0, 0, 0, DefaultCharset, 0, 0, AntialiasedQuality, 0, Face);
-            if (dc == 0 || font == 0)
+            using var font = dc is null ? null : Gdi.GdiObject.Own(
+                Gdi.CreateFont(-pixelHeight, 0, 0, 0, SemiBold, 0, 0, 0, DefaultCharset, 0, 0, AntialiasedQuality, 0, Face), Scope, "badge's font");
+            if (dc is null || font is null)
             {
-                Log.Warn(Scope, $"no font or device context for the badge's number (win32 {Marshal.GetLastWin32Error()})");
                 return default;
             }
 
-            oldFont = SelectObject(dc, font);
-            Size size;
+            var hdc = dc.DangerousGetHandle();
+            using var withFont = new Gdi.Selected(hdc, font.DangerousGetHandle());
+            Gdi.Size size;
             fixed (char* chars = text)
             {
-                if (!GetTextExtentPoint32W(dc, chars, text.Length, &size) || size.Width <= 0 || size.Height <= 0 || size.Width > MaxHeight * MaxLength || size.Height > 2 * MaxHeight)
+                if (!Gdi.GetTextExtentPoint32(hdc, chars, text.Length, &size) || size.Width <= 0 || size.Height <= 0 || size.Width > MaxHeight * MaxLength || size.Height > 2 * MaxHeight)
                 {
                     return default;
                 }
 
-                var info = new BitmapInfo { Size = (uint)sizeof(BitmapInfo), Width = size.Width, Height = -size.Height, Planes = 1, BitCount = 32 };
+                var info = Gdi.BitmapInfo.TopDown32(size.Width, size.Height);
                 void* bits = null;
-                bitmap = CreateDIBSection(dc, &info, 0, &bits, 0, 0);
-                if (bitmap == 0 || bits is null)
+                using var bitmap = Gdi.GdiObject.Own(Gdi.CreateDIBSection(hdc, &info, 0, &bits, 0, 0), Scope, "badge's bitmap");
+                if (bitmap is null || bits is null)
                 {
-                    Log.Warn(Scope, $"no bitmap for the badge's number (win32 {Marshal.GetLastWin32Error()})");
                     return default;
                 }
 
-                oldBitmap = SelectObject(dc, bitmap);
+                using var withBitmap = new Gdi.Selected(hdc, bitmap.DangerousGetHandle());
                 new Span<byte>(bits, size.Width * size.Height * 4).Clear();
-                _ = SetBkMode(dc, Transparent);
-                _ = SetTextColor(dc, White);
-                if (!TextOutW(dc, 0, 0, chars, text.Length) || !GdiFlush())
+                _ = Gdi.SetBkMode(hdc, Transparent);
+                _ = Gdi.SetTextColor(hdc, White);
+                if (!Gdi.TextOut(hdc, 0, 0, chars, text.Length) || !Gdi.GdiFlush())
                 {
                     return default;
                 }
@@ -96,106 +91,5 @@ internal static unsafe partial class TextInk
             Log.Warn(Scope, "the badge's number could not be drawn", ex);
             return default;
         }
-        finally
-        {
-            if (dc != 0)
-            {
-                if (oldBitmap != 0)
-                {
-                    _ = SelectObject(dc, oldBitmap);
-                }
-
-                if (oldFont != 0)
-                {
-                    _ = SelectObject(dc, oldFont);
-                }
-            }
-
-            if (bitmap != 0)
-            {
-                _ = Win32.DeleteObject(bitmap);
-            }
-
-            if (font != 0)
-            {
-                _ = Win32.DeleteObject(font);
-            }
-
-            if (dc != 0)
-            {
-                _ = DeleteDC(dc);
-            }
-        }
     }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Size
-    {
-        public int Width;
-        public int Height;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct BitmapInfo
-    {
-        public uint Size;
-        public int Width;
-        public int Height;
-        public ushort Planes;
-        public ushort BitCount;
-        public uint Compression;
-        public uint SizeImage;
-        public int XPelsPerMeter;
-        public int YPelsPerMeter;
-        public uint ClrUsed;
-        public uint ClrImportant;
-    }
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    private static partial nint CreateCompatibleDC(nint dc);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool DeleteDC(nint dc);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    private static partial nint CreateDIBSection(nint dc, BitmapInfo* info, uint usage, void** bits, nint section, uint offset);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial nint SelectObject(nint dc, nint obj);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial int SetBkMode(nint dc, int mode);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial uint SetTextColor(nint dc, uint color);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool GetTextExtentPoint32W(nint dc, char* text, int length, Size* size);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool TextOutW(nint dc, int x, int y, char* text, int length);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool GdiFlush();
-
-    [LibraryImport("gdi32.dll", EntryPoint = "CreateFontW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
-    private static partial nint CreateFontW(
-        int height,
-        int width,
-        int escapement,
-        int orientation,
-        int weight,
-        uint italic,
-        uint underline,
-        uint strikeOut,
-        uint charset,
-        uint outPrecision,
-        uint clipPrecision,
-        uint quality,
-        uint pitchAndFamily,
-        string face);
 }

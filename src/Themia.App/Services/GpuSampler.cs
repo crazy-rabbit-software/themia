@@ -4,6 +4,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services;
 
@@ -303,7 +304,6 @@ internal static partial class GpuSampler
         /// <summary>IID_IDXGIFactory1.</summary>
         private static readonly Guid FactoryInterface = new("770AAE78-F26F-4DBA-A829-253C83D1B387");
 
-        private const int SlotRelease = 2;
         private const int SlotEnumAdapters1 = 12;
         private const int SlotGetDesc1 = 10;
 
@@ -332,79 +332,56 @@ internal static partial class GpuSampler
         public static IReadOnlyList<GpuAdapter> Enumerate()
         {
             var adapters = new List<GpuAdapter>();
-            nint factory = 0;
+            var iid = FactoryInterface;
+            nint made = 0;
+            var created = CreateDXGIFactory1(&iid, &made);
+            using var factory = new ComPtr(made);
 
-            try
+            if (created < 0)
             {
-                var iid = FactoryInterface;
-                var created = CreateDXGIFactory1(&iid, &factory);
-
-                if (created < 0)
-                {
-                    Log.Warn(Scope, $"could not open DXGI: 0x{created:X8}");
-                    return adapters;
-                }
-
-                for (uint i = 0; ; i++)
-                {
-                    nint adapter = 0;
-                    var found = ((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)Slot(factory, SlotEnumAdapters1))(factory, i, &adapter);
-
-                    if (found == NotFound)
-                    {
-                        break;
-                    }
-
-                    if (found < 0)
-                    {
-                        Log.Warn(Scope, $"could not list adapter {i}: 0x{found:X8}");
-                        break;
-                    }
-
-                    try
-                    {
-                        AdapterDesc1 desc;
-                        var described = ((delegate* unmanaged[Stdcall]<nint, AdapterDesc1*, int>)Slot(adapter, SlotGetDesc1))(adapter, &desc);
-
-                        if (described < 0 || (desc.Flags & SoftwareAdapter) != 0)
-                        {
-                            continue;
-                        }
-
-                        var name = new string(desc.Description).TrimEnd('\0').Trim();
-
-                        adapters.Add(new GpuAdapter(
-                            adapters.Count,
-                            name.Length > 0 ? name : "GPU",
-                            GpuRules.LuidKey(unchecked((uint)desc.LuidHigh), desc.LuidLow),
-                            desc.DedicatedVideoMemory,
-                            desc.SharedSystemMemory,
-                            desc.LuidLow,
-                            desc.LuidHigh));
-                    }
-                    finally
-                    {
-                        Release(adapter);
-                    }
-                }
+                Log.Warn(Scope, $"could not open DXGI: 0x{created:X8}");
+                return adapters;
             }
-            finally
+
+            for (uint i = 0; ; i++)
             {
-                Release(factory);
+                nint listed = 0;
+                var found = ((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)ComApi.Slot(factory.Pointer, SlotEnumAdapters1))(factory.Pointer, i, &listed);
+                using var adapter = new ComPtr(listed);
+
+                if (found == NotFound)
+                {
+                    break;
+                }
+
+                if (found < 0)
+                {
+                    Log.Warn(Scope, $"could not list adapter {i}: 0x{found:X8}");
+                    break;
+                }
+
+                AdapterDesc1 desc;
+                var described = ((delegate* unmanaged[Stdcall]<nint, AdapterDesc1*, int>)ComApi.Slot(adapter.Pointer, SlotGetDesc1))(adapter.Pointer, &desc);
+
+                if (described < 0 || (desc.Flags & SoftwareAdapter) != 0)
+                {
+                    continue;
+                }
+
+                var name = new string(desc.Description).TrimEnd('\0').Trim();
+
+                adapters.Add(new GpuAdapter(
+                    adapters.Count,
+                    name.Length > 0 ? name : "GPU",
+                    GpuRules.LuidKey(unchecked((uint)desc.LuidHigh), desc.LuidLow),
+                    desc.DedicatedVideoMemory,
+                    desc.SharedSystemMemory,
+                    desc.LuidLow,
+                    desc.LuidHigh));
             }
 
             return adapters;
         }
-
-        private static void Release(nint com)
-        {
-            if (com != 0)
-            {
-                ((delegate* unmanaged[Stdcall]<nint, uint>)Slot(com, SlotRelease))(com);
-            }
-        }
-
-        private static nint Slot(nint com, int index) => (*(nint**)com)[index];
 
         [LibraryImport("dxgi.dll")]
         private static partial int CreateDXGIFactory1(Guid* riid, nint* factory);

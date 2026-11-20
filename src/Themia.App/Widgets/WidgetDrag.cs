@@ -1,6 +1,7 @@
 using Themia.App.Services.Files;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
+using Themia.App.Interop;
 
 namespace Themia.App.Widgets;
 
@@ -28,13 +29,13 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
 {
     private const string Scope = "surface-drop";
 
-    private DragDropInterop.ComRef _data;
-    private DragDropInterop.ComRef _forward;
+    private ComPtr _data;
+    private ComPtr _forward;
     private string? _forwardFolder;
 
     /// <summary>Whether the drag is one of our own views', and then the shell's data object for its paths once a forward asked for it (null ref: none, or it could not be made).</summary>
     private readonly bool _own;
-    private DragDropInterop.ComRef _ownData;
+    private ComPtr _ownData;
     private bool _ownDataAsked;
 
     /// <param name="own">The offer of the drag when a view of ours started it (<c>ItemDrag.Running</c>), else null: a drag from elsewhere, read from <paramref name="data"/>.</param>
@@ -43,10 +44,10 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
         // 0: a drag of our own that reached the surface through XAML's drop events, which hand no OLE object.
         if (data != 0)
         {
-            DragDropInterop.AddRef(data);
+            ComApi.AddRef(data);
         }
 
-        _data = new DragDropInterop.ComRef(data);
+        _data = new ComPtr(data);
         Update(keys, screenX, screenY, allowed);
 
         if (own is not null)
@@ -231,7 +232,7 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
         }
         finally
         {
-            DragDropInterop.Release(target);
+            ComApi.Release(target);
         }
     }
 

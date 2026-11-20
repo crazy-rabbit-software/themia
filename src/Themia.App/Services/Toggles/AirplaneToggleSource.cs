@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Toggles;
 
@@ -34,7 +35,7 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
 
     public override void Start() => OffThread("finding the radio management service", () =>
     {
-        var manager = ToggleNative.Create(ManagerClass, ManagerInterface, ToggleNative.ClsCtxLocalServer, out var made);
+        var made = ComApi.Create(ManagerClass, ManagerInterface, ComApi.ClsCtxLocalServer, out var manager);
         if (manager == 0)
         {
             Log.Info(Scope, $"the radio management service is not there (0x{made:X8})");
@@ -43,10 +44,10 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
         }
 
         uint supported = 0;
-        var asked = ((delegate* unmanaged[Stdcall]<nint, uint*, int>)ToggleNative.Slot(manager, SlotSupported))(manager, &supported);
+        var asked = ((delegate* unmanaged[Stdcall]<nint, uint*, int>)ComApi.Slot(manager, SlotSupported))(manager, &supported);
         if (asked < 0 || supported == 0)
         {
-            ToggleNative.Release(manager);
+            ComApi.Release(manager);
             Publish(ToggleReading.Blocked(ToggleBlock.NoHardware));
             return;
         }
@@ -57,7 +58,7 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
             if (Disposed)
             {
                 watch?.Dispose();
-                ToggleNative.Release(manager);
+                ComApi.Release(manager);
                 return;
             }
 
@@ -79,7 +80,7 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
             }
 
             // The radios' state, which is airplane mode's opposite.
-            result = ((delegate* unmanaged[Stdcall]<nint, int, int>)ToggleNative.Slot(_manager, SlotSetState))(_manager, on ? 0 : 1);
+            result = ((delegate* unmanaged[Stdcall]<nint, int, int>)ComApi.Slot(_manager, SlotSetState))(_manager, on ? 0 : 1);
         }
 
         if (result < 0)
@@ -104,7 +105,7 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
                 return;
             }
 
-            asked = ((delegate* unmanaged[Stdcall]<nint, int*, int*, int*, int>)ToggleNative.Slot(_manager, SlotGetState))(_manager, &enabled, &hardware, &reason);
+            asked = ((delegate* unmanaged[Stdcall]<nint, int*, int*, int*, int>)ComApi.Slot(_manager, SlotGetState))(_manager, &enabled, &hardware, &reason);
         }
 
         Publish(QuickToggleRules.AirplaneFrom(asked, enabled) is { } on ? ToggleReading.Of(on) : ToggleReading.Pending, read);
@@ -124,7 +125,7 @@ internal sealed unsafe class AirplaneToggleSource : ToggleSource
         if (manager != 0)
         {
             // Let go on the pool: the proxy belongs to the multithreaded apartment it was made in.
-            _ = Task.Run(() => ToggleNative.Release(manager));
+            _ = Task.Run(() => ComApi.Release(manager));
         }
     }
 }

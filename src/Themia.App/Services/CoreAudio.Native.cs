@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
+using Themia.App.Interop;
 
 namespace Themia.App.Services;
 
@@ -15,8 +16,6 @@ namespace Themia.App.Services;
 /// </summary>
 internal static unsafe partial class CoreAudio
 {
-    private const uint ClsCtxInprocServer = 0x1;
-    private const uint CoInitMultithreaded = 0x0;
     private const int DataFlowRender = 0;
 
     /// <summary>eConsole: the device the volume keys, the flyout and Sound settings' "default" act on.</summary>
@@ -105,28 +104,9 @@ internal static unsafe partial class CoreAudio
         public static readonly Guid EndpointVolumeCallback = new("657804FA-D6AD-4496-8A60-352752AF4F89");
     }
 
-    private static nint Slot(nint com, int index) => (*(nint**)com)[index];
-
     /// <summary>A method that takes one interface pointer and returns an HRESULT — every (un)register call here.</summary>
     private static int Call(nint com, int slot, nint arg)
-        => ((delegate* unmanaged[Stdcall]<nint, nint, int>)Slot(com, slot))(com, arg);
-
-    private static void ReleaseRaw(nint com)
-    {
-        if (com != 0)
-        {
-            ((delegate* unmanaged[Stdcall]<nint, uint>)Slot(com, Slots.Release))(com);
-        }
-    }
-
-    /// <summary>QueryInterface, or 0 when the object does not have it.</summary>
-    private static nint Query(nint com, Guid iid)
-    {
-        nint result;
-        return ((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)Slot(com, Slots.QueryInterface))(com, &iid, &result) >= 0
-            ? result
-            : 0;
-    }
+        => ((delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(com, slot))(com, arg);
 
     /// <summary>A string a COM getter allocated with the task allocator, read and freed.</summary>
     private static string TakeString(nint com, int slot)
@@ -135,16 +115,13 @@ internal static unsafe partial class CoreAudio
 
         try
         {
-            return ((delegate* unmanaged[Stdcall]<nint, char**, int>)Slot(com, slot))(com, &text) >= 0 && text is not null
+            return ((delegate* unmanaged[Stdcall]<nint, char**, int>)ComApi.Slot(com, slot))(com, &text) >= 0 && text is not null
                 ? new string(text)
                 : string.Empty;
         }
         finally
         {
-            if (text is not null)
-            {
-                CoTaskMemFree(text);
-            }
+            ComApi.Free(text);
         }
     }
 
@@ -340,17 +317,9 @@ internal static unsafe partial class CoreAudio
         private static int OnNotify(nint self, nint data) => Wake(Change.Sessions);
     }
 
-    [LibraryImport("ole32.dll")]
-    private static partial int CoInitializeEx(nint reserved, uint flags);
 
-    [LibraryImport("ole32.dll")]
-    private static partial void CoUninitialize();
 
-    [LibraryImport("ole32.dll")]
-    private static partial int CoCreateInstance(Guid* clsid, nint outer, uint context, Guid* iid, nint* result);
 
-    [LibraryImport("ole32.dll")]
-    private static partial void CoTaskMemFree(void* memory);
 
     [LibraryImport("ole32.dll")]
     private static partial int PropVariantClear(void* value);

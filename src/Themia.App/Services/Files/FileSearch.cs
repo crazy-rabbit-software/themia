@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Sdk;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -19,9 +20,7 @@ internal static unsafe partial class FileSearch
     private const string Scope = "fence-search";
 
     private const uint SigdnFileSysPath = 0x80058000;
-    private const uint ClsctxInproc = 0x1;
     private const uint LocaleUserDefault = 0x400;
-    private const uint CoInitApartmentThreaded = 0x2;
 
     /// <summary>At most this many answers are read before the rules and the count cut them: a runaway search stops.</summary>
     private const int MostRead = 4 * FenceSearch.MostResults;
@@ -77,64 +76,54 @@ internal static unsafe partial class FileSearch
     private static List<FoundFile> Enumerate(string aqs, string folder, CancellationToken token)
     {
         var found = new List<FoundFile>();
-        var initialised = CoInitializeEx(0, CoInitApartmentThreaded);
-        try
+        using var apartment = ComApi.Apartment.Enter(ComApi.ApartmentThreaded);
+        if (Resolve(aqs) is not { } condition)
         {
-            if (Resolve(aqs) is not { } condition)
-            {
-                return found;
-            }
-
-            using var ownedCondition = new DragDropInterop.ComRef(condition);
-            if (SearchItem(condition, folder) is not { } search)
-            {
-                return found;
-            }
-
-            using var ownedSearch = new DragDropInterop.ComRef(search);
-            nint list;
-            var bhid = BhidEnumItems;
-            var iidEnum = IidEnumShellItems;
-
-            // IShellItem::BindToHandler is slot 3.
-            var hr = ((delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)search)[3])(search, 0, &bhid, &iidEnum, &list);
-            if (hr < 0 || list == 0)
-            {
-                Log.Warn(Scope, $"the search's items could not be listed (0x{hr:X8})");
-                return found;
-            }
-
-            using var ownedList = new DragDropInterop.ComRef(list);
-
-            // IEnumShellItems::Next is slot 3.
-            var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)(*(nint**)list)[3];
-            for (var read = 0; read < MostRead && !token.IsCancellationRequested; read++)
-            {
-                nint item;
-                uint fetched;
-                hr = next(list, 1, &item, &fetched);
-                if (hr != 0 || fetched == 0 || item == 0)
-                {
-                    if (hr < 0)
-                    {
-                        Log.Warn(Scope, $"the search stopped (0x{hr:X8}); what it found is shown");
-                    }
-
-                    break;
-                }
-
-                using var ownedItem = new DragDropInterop.ComRef(item);
-                if (PathOf(item) is { } path && Describe(path) is { } file)
-                {
-                    found.Add(file);
-                }
-            }
+            return found;
         }
-        finally
+
+        using var ownedCondition = new ComPtr(condition);
+        if (SearchItem(condition, folder) is not { } search)
         {
-            if (initialised >= 0)
+            return found;
+        }
+
+        using var ownedSearch = new ComPtr(search);
+        nint list;
+        var bhid = BhidEnumItems;
+        var iidEnum = IidEnumShellItems;
+
+        // IShellItem::BindToHandler is slot 3.
+        var hr = ((delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)ComApi.Slot(search, 3))(search, 0, &bhid, &iidEnum, &list);
+        if (hr < 0 || list == 0)
+        {
+            Log.Warn(Scope, $"the search's items could not be listed (0x{hr:X8})");
+            return found;
+        }
+
+        using var ownedList = new ComPtr(list);
+
+        // IEnumShellItems::Next is slot 3.
+        var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)ComApi.Slot(list, 3);
+        for (var read = 0; read < MostRead && !token.IsCancellationRequested; read++)
+        {
+            nint item;
+            uint fetched;
+            hr = next(list, 1, &item, &fetched);
+            if (hr != 0 || fetched == 0 || item == 0)
             {
-                CoUninitialize();
+                if (hr < 0)
+                {
+                    Log.Warn(Scope, $"the search stopped (0x{hr:X8}); what it found is shown");
+                }
+
+                break;
+            }
+
+            using var ownedItem = new ComPtr(item);
+            if (PathOf(item) is { } path && Describe(path) is { } file)
+            {
+                found.Add(file);
             }
         }
 
@@ -147,20 +136,20 @@ internal static unsafe partial class FileSearch
         nint manager;
         var clsid = ClsidQueryParserManager;
         var iid = IidQueryParserManager;
-        var hr = CoCreateInstance(&clsid, 0, ClsctxInproc, &iid, &manager);
+        var hr = ComApi.Create(clsid, iid, ComApi.ClsCtxInprocServer, out manager);
         if (hr < 0 || manager == 0)
         {
             Log.Warn(Scope, $"no query parser (0x{hr:X8})");
             return null;
         }
 
-        using var ownedManager = new DragDropInterop.ComRef(manager);
+        using var ownedManager = new ComPtr(manager);
         nint parser;
         var iidParser = IidQueryParser;
         fixed (char* catalog = "SystemIndex")
         {
             // IQueryParserManager::CreateLoadedParser is slot 3, InitializeOptions slot 4.
-            hr = ((delegate* unmanaged[Stdcall]<nint, char*, uint, Guid*, nint*, int>)(*(nint**)manager)[3])(manager, catalog, LocaleUserDefault, &iidParser, &parser);
+            hr = ((delegate* unmanaged[Stdcall]<nint, char*, uint, Guid*, nint*, int>)ComApi.Slot(manager, 3))(manager, catalog, LocaleUserDefault, &iidParser, &parser);
         }
 
         if (hr < 0 || parser == 0)
@@ -169,8 +158,8 @@ internal static unsafe partial class FileSearch
             return null;
         }
 
-        using var ownedParser = new DragDropInterop.ComRef(parser);
-        hr = ((delegate* unmanaged[Stdcall]<nint, int, int, nint, int>)(*(nint**)manager)[4])(manager, 0, 1, parser);
+        using var ownedParser = new ComPtr(parser);
+        hr = ((delegate* unmanaged[Stdcall]<nint, int, int, nint, int>)ComApi.Slot(manager, 4))(manager, 0, 1, parser);
         if (hr < 0)
         {
             Log.Warn(Scope, $"the query parser's options could not be set (0x{hr:X8})");
@@ -181,7 +170,7 @@ internal static unsafe partial class FileSearch
         fixed (char* text = aqs)
         {
             // IQueryParser::Parse is slot 3.
-            hr = ((delegate* unmanaged[Stdcall]<nint, char*, nint, nint*, int>)(*(nint**)parser)[3])(parser, text, 0, &solution);
+            hr = ((delegate* unmanaged[Stdcall]<nint, char*, nint, nint*, int>)ComApi.Slot(parser, 3))(parser, text, 0, &solution);
         }
 
         if (hr < 0 || solution == 0)
@@ -190,24 +179,24 @@ internal static unsafe partial class FileSearch
             return null;
         }
 
-        using var ownedSolution = new DragDropInterop.ComRef(solution);
+        using var ownedSolution = new ComPtr(solution);
         nint condition;
 
         // IQuerySolution::GetQuery is slot 7 (after IConditionFactory's MakeNot, MakeAndOr, MakeLeaf, Resolve).
-        hr = ((delegate* unmanaged[Stdcall]<nint, nint*, nint, int>)(*(nint**)solution)[7])(solution, &condition, 0);
+        hr = ((delegate* unmanaged[Stdcall]<nint, nint*, nint, int>)ComApi.Slot(solution, 7))(solution, &condition, 0);
         if (hr < 0 || condition == 0)
         {
             Log.Warn(Scope, $"the query has no condition (0x{hr:X8})");
             return null;
         }
 
-        using var ownedCondition = new DragDropInterop.ComRef(condition);
+        using var ownedCondition = new ComPtr(condition);
         SystemTime now;
         GetLocalTime(&now);
         nint resolved;
 
         // IConditionFactory::Resolve is slot 6.
-        hr = ((delegate* unmanaged[Stdcall]<nint, nint, uint, SystemTime*, nint*, int>)(*(nint**)solution)[6])(solution, condition, 0, &now, &resolved);
+        hr = ((delegate* unmanaged[Stdcall]<nint, nint, uint, SystemTime*, nint*, int>)ComApi.Slot(solution, 6))(solution, condition, 0, &now, &resolved);
         if (hr < 0 || resolved == 0)
         {
             Log.Warn(Scope, $"the query could not be resolved (0x{hr:X8})");
@@ -223,14 +212,14 @@ internal static unsafe partial class FileSearch
         nint factory;
         var clsid = ClsidSearchFolderItemFactory;
         var iid = IidSearchFolderItemFactory;
-        var hr = CoCreateInstance(&clsid, 0, ClsctxInproc, &iid, &factory);
+        var hr = ComApi.Create(clsid, iid, ComApi.ClsCtxInprocServer, out factory);
         if (hr < 0 || factory == 0)
         {
             Log.Warn(Scope, $"no search folder (0x{hr:X8})");
             return null;
         }
 
-        using var ownedFactory = new DragDropInterop.ComRef(factory);
+        using var ownedFactory = new ComPtr(factory);
         nint place;
         var iidItem = IidShellItem;
         hr = SHCreateItemFromParsingName(folder, 0, &iidItem, &place);
@@ -240,7 +229,7 @@ internal static unsafe partial class FileSearch
             return null;
         }
 
-        using var ownedPlace = new DragDropInterop.ComRef(place);
+        using var ownedPlace = new ComPtr(place);
         nint scope;
         var iidArray = IidShellItemArray;
         hr = SHCreateShellItemArrayFromShellItem(place, &iidArray, &scope);
@@ -250,7 +239,7 @@ internal static unsafe partial class FileSearch
             return null;
         }
 
-        using var ownedScope = new DragDropInterop.ComRef(scope);
+        using var ownedScope = new ComPtr(scope);
 
         // ISearchFolderItemFactory: SetScope is slot 11, SetCondition 12, GetShellItem 13.
         var vtable = *(nint**)factory;
@@ -302,7 +291,7 @@ internal static unsafe partial class FileSearch
         char* text;
 
         // IShellItem::GetDisplayName is slot 5.
-        var name = (delegate* unmanaged[Stdcall]<nint, uint, char**, int>)(*(nint**)item)[5];
+        var name = (delegate* unmanaged[Stdcall]<nint, uint, char**, int>)ComApi.Slot(item, 5);
         if (name(item, SigdnFileSysPath, &text) < 0 || text is null)
         {
             return null;
@@ -314,7 +303,7 @@ internal static unsafe partial class FileSearch
         }
         finally
         {
-            CoTaskMemFree((nint)text);
+            ComApi.Free(text);
         }
     }
 
@@ -331,8 +320,6 @@ internal static unsafe partial class FileSearch
         public ushort Milliseconds;
     }
 
-    [LibraryImport("ole32.dll")]
-    private static partial int CoCreateInstance(Guid* clsid, nint outer, uint context, Guid* iid, nint* instance);
 
     [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
     private static partial int SHCreateItemFromParsingName(string path, nint bindContext, Guid* iid, nint* item);
@@ -343,12 +330,6 @@ internal static unsafe partial class FileSearch
     [LibraryImport("kernel32.dll")]
     private static partial void GetLocalTime(SystemTime* time);
 
-    [LibraryImport("ole32.dll")]
-    private static partial int CoInitializeEx(nint reserved, uint flags);
 
-    [LibraryImport("ole32.dll")]
-    private static partial void CoUninitialize();
 
-    [LibraryImport("ole32.dll")]
-    private static partial void CoTaskMemFree(nint memory);
 }

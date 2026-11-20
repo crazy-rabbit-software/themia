@@ -172,12 +172,10 @@ internal sealed unsafe partial class DesktopNotifications : IDisposable
 
         protected override bool ReleaseHandle()
         {
-            CoTaskMemFree(handle);
+            ComApi.Free(handle);
             return true;
         }
 
-        [LibraryImport("ole32.dll")]
-        private static partial void CoTaskMemFree(nint memory);
     }
 
     [LibraryImport("shell32.dll")]

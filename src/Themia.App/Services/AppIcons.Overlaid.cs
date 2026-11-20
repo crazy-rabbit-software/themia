@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml.Media;
 using Themia.Core.Diagnostics;
 using Themia.Sdk;
+using Themia.App.Interop;
 
 namespace Themia.App.Services;
 
@@ -70,8 +71,8 @@ internal static partial class AppIcons
 
     private static unsafe Pixels? ExtractOverlaid(string key, string name, DesktopItemKind kind, int size)
     {
-        var initialised = CoInitializeEx(0, CoInitMultithreaded);
-        nint list = 0;
+        using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
+        var list = default(ComPtr);
         nint icon = 0;
         nint pidl = 0;
 
@@ -142,20 +143,8 @@ internal static partial class AppIcons
                 DestroyIcon(icon);
             }
 
-            if (list != 0)
-            {
-                ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)list)[2])(list);
-            }
-
-            if (pidl != 0)
-            {
-                CoTaskMemFree(pidl);
-            }
-
-            if (initialised >= 0)
-            {
-                CoUninitialize();
-            }
+            list.Dispose();
+            ComApi.Free(pidl);
         }
     }
 
@@ -200,8 +189,8 @@ internal static partial class AppIcons
 
     private static unsafe Pixels? ExtractType(string name, bool folder, int size)
     {
-        var initialised = CoInitializeEx(0, CoInitMultithreaded);
-        nint list = 0;
+        using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
+        var list = default(ComPtr);
         nint icon = 0;
 
         try
@@ -227,15 +216,7 @@ internal static partial class AppIcons
                 DestroyIcon(icon);
             }
 
-            if (list != 0)
-            {
-                ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)list)[2])(list);
-            }
-
-            if (initialised >= 0)
-            {
-                CoUninitialize();
-            }
+            list.Dispose();
         }
     }
 
@@ -243,7 +224,7 @@ internal static partial class AppIcons
     /// [S-5512] One image of a system image list with the overlay composed by the list. The list and
     /// icon handles of an earlier call are released first; the caller releases the last ones.
     /// </summary>
-    private static unsafe Pixels? FromList(int which, int index, int overlay, ref nint list, ref nint icon)
+    private static unsafe Pixels? FromList(int which, int index, int overlay, ref ComPtr list, ref nint icon)
     {
         if (icon != 0)
         {
@@ -251,11 +232,7 @@ internal static partial class AppIcons
             icon = 0;
         }
 
-        if (list != 0)
-        {
-            ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)list)[2])(list);
-            list = 0;
-        }
+        list.Dispose();
 
         var iid = ImageListIid;
         nint got;
@@ -264,11 +241,11 @@ internal static partial class AppIcons
             return null;
         }
 
-        list = got;
+        list = new ComPtr(got);
 
         // INDEXTOOVERLAYMASK: the overlay's one-based number in the flags' second byte.
         nint drawn;
-        var getIcon = (delegate* unmanaged[Stdcall]<nint, int, uint, nint*, int>)(*(nint**)got)[SlotGetIcon];
+        var getIcon = (delegate* unmanaged[Stdcall]<nint, int, uint, nint*, int>)ComApi.Slot(got, SlotGetIcon);
         if (getIcon(got, index, IldTransparent | (uint)(overlay << 8), &drawn) < 0 || drawn == 0)
         {
             return null;
@@ -286,61 +263,42 @@ internal static partial class AppIcons
             return null;
         }
 
-        try
+        // GetIconInfo hands over both bitmaps: owned here, deleted on every path.
+        using var color = parts.Color == 0 ? null : Gdi.GdiObject.Own(parts.Color, Scope, "icon colour bitmap");
+        using var maskBitmap = parts.Mask == 0 ? null : Gdi.GdiObject.Own(parts.Mask, Scope, "icon mask bitmap");
+        if (color is null)
         {
-            if (parts.Color == 0)
-            {
-                return null;
-            }
+            return null;
+        }
 
-            var pixels = Read(parts.Color);
-            if (pixels is null || parts.Mask == 0 || !Opaque(pixels))
-            {
-                return pixels;
-            }
+        var pixels = Read(parts.Color);
+        if (pixels is null || maskBitmap is null || !Opaque(pixels))
+        {
+            return pixels;
+        }
 
-            // No alpha channel: Read made it opaque; the mask says what is transparent.
-            var memory = CreateCompatibleDC(0);
-            if (memory == 0)
-            {
-                return pixels;
-            }
+        // No alpha channel: Read made it opaque; the mask says what is transparent.
+        using var memory = Gdi.MemoryDc.Create(0, Scope, "icon mask's device context");
+        if (memory is null)
+        {
+            return pixels;
+        }
 
-            try
-            {
-                var mask = new byte[pixels.Width * pixels.Height * 4];
-                if (!Bits(memory, parts.Mask, pixels.Width, pixels.Height, mask))
-                {
-                    return pixels;
-                }
+        var mask = new byte[pixels.Width * pixels.Height * 4];
+        if (!Bits(memory.DangerousGetHandle(), parts.Mask, pixels.Width, pixels.Height, mask))
+        {
+            return pixels;
+        }
 
-                for (var i = 0; i < mask.Length; i += 4)
-                {
-                    if (mask[i] != 0 || mask[i + 1] != 0 || mask[i + 2] != 0)
-                    {
-                        pixels.Bgra[i] = pixels.Bgra[i + 1] = pixels.Bgra[i + 2] = pixels.Bgra[i + 3] = 0;
-                    }
-                }
-
-                return pixels;
-            }
-            finally
+        for (var i = 0; i < mask.Length; i += 4)
+        {
+            if (mask[i] != 0 || mask[i + 1] != 0 || mask[i + 2] != 0)
             {
-                DeleteDC(memory);
+                pixels.Bgra[i] = pixels.Bgra[i + 1] = pixels.Bgra[i + 2] = pixels.Bgra[i + 3] = 0;
             }
         }
-        finally
-        {
-            if (parts.Color != 0)
-            {
-                DeleteObject(parts.Color);
-            }
 
-            if (parts.Mask != 0)
-            {
-                DeleteObject(parts.Mask);
-            }
-        }
+        return pixels;
     }
 
     private static bool Opaque(Pixels pixels)
@@ -392,7 +350,4 @@ internal static partial class AppIcons
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool GetIconInfo(nint icon, out IconParts parts);
-
-    [LibraryImport("ole32.dll")]
-    private static partial void CoTaskMemFree(nint memory);
 }

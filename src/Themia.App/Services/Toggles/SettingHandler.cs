@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Themia.Core.Diagnostics;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Toggles;
 
@@ -71,7 +72,7 @@ internal sealed unsafe class SettingHandler
     /// <summary>The item goes on the thread it belongs to.</summary>
     public void Release() => HandlerThread.Post(() =>
     {
-        ToggleNative.Release(_item);
+        ComApi.Release(_item);
         _item = 0;
     });
 
@@ -114,8 +115,8 @@ internal sealed unsafe class SettingHandler
             return null;
         }
 
-        var item = ToggleNative.Query(found, ItemInterface);
-        ToggleNative.Release(found);
+        var item = ComApi.Query(found, ItemInterface);
+        ComApi.Release(found);
         if (item == 0)
         {
             Log.Warn(Scope, $"{id} is not an ISettingItem");
@@ -125,7 +126,7 @@ internal sealed unsafe class SettingHandler
         if (Id(item) != id || Type(item) != SwitchType || Read(item) is null)
         {
             Log.Warn(Scope, $"{id}: the handler is not the switch it was asked for; not used");
-            ToggleNative.Release(item);
+            ComApi.Release(item);
             return null;
         }
 
@@ -135,7 +136,7 @@ internal sealed unsafe class SettingHandler
     private static string? Id(nint item)
     {
         nint text = 0;
-        if (((delegate* unmanaged[Stdcall]<nint, nint*, int>)ToggleNative.Slot(item, SlotId))(item, &text) < 0)
+        if (((delegate* unmanaged[Stdcall]<nint, nint*, int>)ComApi.Slot(item, SlotId))(item, &text) < 0)
         {
             return null;
         }
@@ -153,13 +154,13 @@ internal sealed unsafe class SettingHandler
     private static int Type(nint item)
     {
         var type = -1;
-        return ((delegate* unmanaged[Stdcall]<nint, int*, int>)ToggleNative.Slot(item, SlotType))(item, &type) < 0 ? -1 : type;
+        return ((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(item, SlotType))(item, &type) < 0 ? -1 : type;
     }
 
     private static bool Flag(nint item, int slot)
     {
         byte flag = 0;
-        return ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ToggleNative.Slot(item, slot))(item, &flag) >= 0 && flag != 0;
+        return ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ComApi.Slot(item, slot))(item, &flag) >= 0 && flag != 0;
     }
 
     /// <summary>The item's "Value" as a boolean, or null where it is not one.</summary>
@@ -170,7 +171,7 @@ internal sealed unsafe class SettingHandler
         int asked;
         try
         {
-            asked = ((delegate* unmanaged[Stdcall]<nint, nint, nint*, int>)ToggleNative.Slot(item, SlotGetValue))(item, name, &value);
+            asked = ((delegate* unmanaged[Stdcall]<nint, nint, nint*, int>)ComApi.Slot(item, SlotGetValue))(item, name, &value);
         }
         finally
         {
@@ -182,7 +183,7 @@ internal sealed unsafe class SettingHandler
             return null;
         }
 
-        var property = ToggleNative.Query(value, PropertyValueInterface);
+        var property = ComApi.Query(value, PropertyValueInterface);
         try
         {
             if (property == 0)
@@ -192,8 +193,8 @@ internal sealed unsafe class SettingHandler
 
             var type = -1;
             byte flag = 0;
-            if (((delegate* unmanaged[Stdcall]<nint, int*, int>)ToggleNative.Slot(property, SlotValueType))(property, &type) < 0 || type != BooleanType
-                || ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ToggleNative.Slot(property, SlotGetBoolean))(property, &flag) < 0)
+            if (((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(property, SlotValueType))(property, &type) < 0 || type != BooleanType
+                || ((delegate* unmanaged[Stdcall]<nint, byte*, int>)ComApi.Slot(property, SlotGetBoolean))(property, &flag) < 0)
             {
                 return null;
             }
@@ -202,8 +203,8 @@ internal sealed unsafe class SettingHandler
         }
         finally
         {
-            ToggleNative.Release(property);
-            ToggleNative.Release(value);
+            ComApi.Release(property);
+            ComApi.Release(value);
         }
     }
 
@@ -233,12 +234,12 @@ internal sealed unsafe class SettingHandler
         var name = ToggleNative.HString("Value");
         try
         {
-            if (((delegate* unmanaged[Stdcall]<nint, byte, nint*, int>)ToggleNative.Slot(statics, SlotCreateBoolean))(statics, on ? (byte)1 : (byte)0, &boxed) < 0 || boxed == 0)
+            if (((delegate* unmanaged[Stdcall]<nint, byte, nint*, int>)ComApi.Slot(statics, SlotCreateBoolean))(statics, on ? (byte)1 : (byte)0, &boxed) < 0 || boxed == 0)
             {
                 return false;
             }
 
-            var set = ((delegate* unmanaged[Stdcall]<nint, nint, nint, int>)ToggleNative.Slot(item, SlotSetValue))(item, name, boxed);
+            var set = ((delegate* unmanaged[Stdcall]<nint, nint, nint, int>)ComApi.Slot(item, SlotSetValue))(item, name, boxed);
             if (set < 0)
             {
                 Log.Warn(Scope, $"setting a tile's value answered 0x{set:X8}");
@@ -249,8 +250,8 @@ internal sealed unsafe class SettingHandler
         finally
         {
             _ = ToggleNative.WindowsDeleteString(name);
-            ToggleNative.Release(boxed);
-            ToggleNative.Release(statics);
+            ComApi.Release(boxed);
+            ComApi.Release(statics);
         }
     }
 }

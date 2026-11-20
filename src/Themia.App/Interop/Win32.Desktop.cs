@@ -22,10 +22,6 @@ internal static unsafe partial class Win32
     internal const uint SmtoAbortIfHung = 0x0002;
     internal const uint SmtoBlock = 0x0001;
 
-    internal const uint CoInitMultithreaded = 0x0;
-    internal const uint ClsCtxLocalServer = 0x4;
-    internal const int RpcEChangedMode = unchecked((int)0x80010106);
-
     [StructLayout(LayoutKind.Sequential)]
     internal struct MouseInput
     {
@@ -104,13 +100,4 @@ internal static unsafe partial class Win32
     /// <summary>The shell's attention state. Returns an HRESULT; the state is a <c>QUERY_USER_NOTIFICATION_STATE</c>.</summary>
     [LibraryImport("shell32.dll")]
     internal static partial int SHQueryUserNotificationState(out int state);
-
-    [LibraryImport("ole32.dll")]
-    internal static partial int CoInitializeEx(nint reserved, uint flags);
-
-    [LibraryImport("ole32.dll")]
-    internal static partial void CoUninitialize();
-
-    [LibraryImport("ole32.dll")]
-    internal static partial int CoCreateInstance(Guid* clsid, nint outer, uint context, Guid* iid, nint* result);
 }

@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -18,7 +19,6 @@ namespace Themia.App.Services.Files;
 /// </summary>
 internal static unsafe partial class DragDropInterop
 {
-    private const uint ClsctxInprocServer = 1;
 
     private static readonly Guid BhidSfuiObject = new("3981E225-F559-11D3-8E3A-00C04F6837D5");
     private static readonly Guid ClsidDragDropHelper = new("4657278A-411B-11D2-839A-00C04FD918D0");
@@ -49,7 +49,7 @@ internal static unsafe partial class DragDropInterop
         }
 
         var formatEtc = new FormatEtc { Format = ShellIdListFormat, Aspect = DvAspectContent, Index = -1, Tymed = TymedHGlobal };
-        var query = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, int>)(*(nint**)data)[5];
+        var query = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, int>)ComApi.Slot(data, 5);
         return query(data, &formatEtc) == SOk;
     }
 
@@ -59,7 +59,7 @@ internal static unsafe partial class DragDropInterop
     /// [S-1022] The shell's own <c>IDropTarget</c> for <paramref name="folder"/>, the object Explorer
     /// drops into when the pointer is over that folder. A null ref (logged) when the shell has none.
     /// </summary>
-    public static ComRef FolderDropTarget(string folder)
+    public static ComPtr FolderDropTarget(string folder)
     {
         using var item = CreateItem(folder);
 
@@ -73,7 +73,7 @@ internal static unsafe partial class DragDropInterop
         var iid = IidDropTarget;
 
         // IShellItem::BindToHandler is slot 3.
-        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)item.Pointer)[3];
+        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)ComApi.Slot(item.Pointer, 3);
         var hr = bind(item.Pointer, 0, &bhid, &iid, &target);
 
         if (hr < 0 || target == 0)
@@ -82,14 +82,14 @@ internal static unsafe partial class DragDropInterop
             return default;
         }
 
-        return new ComRef(target);
+        return new ComPtr(target);
     }
 
     /// <summary><c>IDropTarget::DragEnter</c> on a target we hold (slot 3). Returns the effect it answered.</summary>
     public static DropEffect TargetEnter(nint target, nint data, uint keys, int x, int y, DropEffect allowed)
     {
         var effect = (uint)allowed;
-        var call = (delegate* unmanaged[Stdcall]<nint, nint, uint, PointL, uint*, int>)(*(nint**)target)[3];
+        var call = (delegate* unmanaged[Stdcall]<nint, nint, uint, PointL, uint*, int>)ComApi.Slot(target, 3);
         return call(target, data, keys, new PointL { X = x, Y = y }, &effect) < 0 ? DropEffect.None : (DropEffect)effect;
     }
 
@@ -97,14 +97,14 @@ internal static unsafe partial class DragDropInterop
     public static DropEffect TargetOver(nint target, uint keys, int x, int y, DropEffect allowed)
     {
         var effect = (uint)allowed;
-        var call = (delegate* unmanaged[Stdcall]<nint, uint, PointL, uint*, int>)(*(nint**)target)[4];
+        var call = (delegate* unmanaged[Stdcall]<nint, uint, PointL, uint*, int>)ComApi.Slot(target, 4);
         return call(target, keys, new PointL { X = x, Y = y }, &effect) < 0 ? DropEffect.None : (DropEffect)effect;
     }
 
     /// <summary><c>IDropTarget::DragLeave</c> (slot 5).</summary>
     public static void TargetLeave(nint target)
     {
-        var call = (delegate* unmanaged[Stdcall]<nint, int>)(*(nint**)target)[5];
+        var call = (delegate* unmanaged[Stdcall]<nint, int>)ComApi.Slot(target, 5);
         _ = call(target);
     }
 
@@ -112,7 +112,7 @@ internal static unsafe partial class DragDropInterop
     public static DropEffect TargetDrop(nint target, nint data, uint keys, int x, int y, DropEffect allowed)
     {
         var effect = (uint)allowed;
-        var call = (delegate* unmanaged[Stdcall]<nint, nint, uint, PointL, uint*, int>)(*(nint**)target)[6];
+        var call = (delegate* unmanaged[Stdcall]<nint, nint, uint, PointL, uint*, int>)ComApi.Slot(target, 6);
         var hr = call(target, data, keys, new PointL { X = x, Y = y }, &effect);
 
         if (hr < 0)
@@ -131,12 +131,12 @@ internal static unsafe partial class DragDropInterop
     /// thumbnail and caption over a target window. A null ref (logged) when it cannot be made; the
     /// drag then still works, with the plain cursor.
     /// </summary>
-    public static ComRef CreateDropHelper()
+    public static ComPtr CreateDropHelper()
     {
         nint helper;
         var clsid = ClsidDragDropHelper;
         var iid = IidDropTargetHelper;
-        var hr = CoCreateInstance(&clsid, 0, ClsctxInprocServer, &iid, &helper);
+        var hr = ComApi.Create(clsid, iid, ComApi.ClsCtxInprocServer, out helper);
 
         if (hr < 0 || helper == 0)
         {
@@ -144,21 +144,21 @@ internal static unsafe partial class DragDropInterop
             return default;
         }
 
-        return new ComRef(helper);
+        return new ComPtr(helper);
     }
 
     /// <summary><c>IDropTargetHelper::DragEnter</c> (slot 3).</summary>
     public static void HelperEnter(nint helper, nint window, nint data, int x, int y, DropEffect effect)
     {
         var point = new PointL { X = x, Y = y };
-        var call = (delegate* unmanaged[Stdcall]<nint, nint, nint, PointL*, uint, int>)(*(nint**)helper)[3];
+        var call = (delegate* unmanaged[Stdcall]<nint, nint, nint, PointL*, uint, int>)ComApi.Slot(helper, 3);
         _ = call(helper, window, data, &point, (uint)effect);
     }
 
     /// <summary><c>IDropTargetHelper::DragLeave</c> (slot 4).</summary>
     public static void HelperLeave(nint helper)
     {
-        var call = (delegate* unmanaged[Stdcall]<nint, int>)(*(nint**)helper)[4];
+        var call = (delegate* unmanaged[Stdcall]<nint, int>)ComApi.Slot(helper, 4);
         _ = call(helper);
     }
 
@@ -166,7 +166,7 @@ internal static unsafe partial class DragDropInterop
     public static void HelperOver(nint helper, int x, int y, DropEffect effect)
     {
         var point = new PointL { X = x, Y = y };
-        var call = (delegate* unmanaged[Stdcall]<nint, PointL*, uint, int>)(*(nint**)helper)[5];
+        var call = (delegate* unmanaged[Stdcall]<nint, PointL*, uint, int>)ComApi.Slot(helper, 5);
         _ = call(helper, &point, (uint)effect);
     }
 
@@ -174,7 +174,7 @@ internal static unsafe partial class DragDropInterop
     public static void HelperDrop(nint helper, nint data, int x, int y, DropEffect effect)
     {
         var point = new PointL { X = x, Y = y };
-        var call = (delegate* unmanaged[Stdcall]<nint, nint, PointL*, uint, int>)(*(nint**)helper)[6];
+        var call = (delegate* unmanaged[Stdcall]<nint, nint, PointL*, uint, int>)ComApi.Slot(helper, 6);
         _ = call(helper, data, &point, (uint)effect);
     }
 
@@ -187,6 +187,4 @@ internal static unsafe partial class DragDropInterop
     public static void SetDescription(nint data, DropFeedback feedback)
         => SetBytes(data, DescriptionFormat, SurfaceDrops.EncodeDescription(feedback.Image, feedback.Message, feedback.Insert), quiet: true);
 
-    [LibraryImport("ole32.dll")]
-    private static partial int CoCreateInstance(Guid* clsid, nint outer, uint context, Guid* iid, nint* result);
 }

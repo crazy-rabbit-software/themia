@@ -5,6 +5,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Files;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -134,7 +135,7 @@ internal static unsafe partial class ShellFileOps
 
             // MoveItems is slot 15, CopyItems 17: (IUnknown* items, IShellItem* destination).
             var slot = move ? 15 : 17;
-            var call = (delegate* unmanaged[Stdcall]<nint, nint, nint, int>)(*(nint**)op)[slot];
+            var call = (delegate* unmanaged[Stdcall]<nint, nint, nint, int>)ComApi.Slot(op, slot);
             return call(op, items.Pointer, target.Pointer);
         }));
     }
@@ -160,7 +161,7 @@ internal static unsafe partial class ShellFileOps
             }
 
             // DeleteItems is slot 19.
-            var call = (delegate* unmanaged[Stdcall]<nint, nint, int>)(*(nint**)op)[19];
+            var call = (delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(op, 19);
             return call(op, items.Pointer);
         }));
     }
@@ -185,7 +186,7 @@ internal static unsafe partial class ShellFileOps
             // RenameItem is slot 12: (IShellItem*, LPCWSTR, IFileOperationProgressSink*).
             fixed (char* name = newName)
             {
-                var call = (delegate* unmanaged[Stdcall]<nint, nint, char*, nint, int>)(*(nint**)op)[12];
+                var call = (delegate* unmanaged[Stdcall]<nint, nint, char*, nint, int>)ComApi.Slot(op, 12);
                 return call(op, item.Pointer, name, 0);
             }
         }));
@@ -200,7 +201,7 @@ internal static unsafe partial class ShellFileOps
         nint op;
         var clsid = ClsidFileOperation;
         var iid = IidFileOperation;
-        var hr = CoCreateInstance(&clsid, 0, 1 /* CLSCTX_INPROC_SERVER */, &iid, &op);
+        var hr = ComApi.Create(clsid, iid, ComApi.ClsCtxInprocServer, out op);
 
         if (hr < 0 || op == 0)
         {
@@ -208,10 +209,10 @@ internal static unsafe partial class ShellFileOps
             return FileOpOutcome.Failed;
         }
 
-        using var owned = new DragDropInterop.ComRef(op);
+        using var owned = new ComPtr(op);
 
         // SetOperationFlags is slot 5.
-        hr = ((delegate* unmanaged[Stdcall]<nint, uint, int>)(*(nint**)op)[5])(op, flags);
+        hr = ((delegate* unmanaged[Stdcall]<nint, uint, int>)ComApi.Slot(op, 5))(op, flags);
 
         if (hr < 0)
         {
@@ -228,10 +229,10 @@ internal static unsafe partial class ShellFileOps
         }
 
         // PerformOperations is slot 21; GetAnyOperationsAborted 22.
-        hr = ((delegate* unmanaged[Stdcall]<nint, int>)(*(nint**)op)[21])(op);
+        hr = ((delegate* unmanaged[Stdcall]<nint, int>)ComApi.Slot(op, 21))(op);
 
         int aborted = 0;
-        ((delegate* unmanaged[Stdcall]<nint, int*, int>)(*(nint**)op)[22])(op, &aborted);
+        ((delegate* unmanaged[Stdcall]<nint, int*, int>)ComApi.Slot(op, 22))(op, &aborted);
 
         Notify(touched);
 
@@ -488,11 +489,11 @@ internal static unsafe partial class ShellFileOps
             {
                 if (pidl != 0)
                 {
-                    DragDropInterop.CoTaskMemFree(pidl);
+                    ComApi.Free(pidl);
                 }
             }
 
-            DragDropInterop.CoTaskMemFree(folderPidl);
+            ComApi.Free(folderPidl);
         }
     }
 
@@ -535,26 +536,26 @@ internal static unsafe partial class ShellFileOps
         var clsid = ClsidShellLink;
         var iid = IidShellLink;
 
-        if (CoCreateInstance(&clsid, 0, 1, &iid, &link) < 0 || link == 0)
+        if (ComApi.Create(clsid, iid, ComApi.ClsCtxInprocServer, out link) < 0 || link == 0)
         {
             return null;
         }
 
-        using var ownedLink = new DragDropInterop.ComRef(link);
+        using var ownedLink = new ComPtr(link);
         nint file;
         var persistIid = IidPersistFile;
 
-        if (((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)(*(nint**)link)[0])(link, &persistIid, &file) < 0 || file == 0)
+        if (((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)ComApi.Slot(link, 0))(link, &persistIid, &file) < 0 || file == 0)
         {
             return null;
         }
 
-        using var ownedFile = new DragDropInterop.ComRef(file);
+        using var ownedFile = new ComPtr(file);
 
         fixed (char* name = path)
         {
             // IPersistFile::Load is slot 5 (STGM_READ = 0).
-            if (((delegate* unmanaged[Stdcall]<nint, char*, uint, int>)(*(nint**)file)[5])(file, name, 0) < 0)
+            if (((delegate* unmanaged[Stdcall]<nint, char*, uint, int>)ComApi.Slot(file, 5))(file, name, 0) < 0)
             {
                 return null;
             }
@@ -563,7 +564,7 @@ internal static unsafe partial class ShellFileOps
         var buffer = stackalloc char[1024];
 
         // IShellLinkW::GetPath is slot 3: (LPWSTR, int, WIN32_FIND_DATAW*, DWORD flags).
-        if (((delegate* unmanaged[Stdcall]<nint, char*, int, nint, uint, int>)(*(nint**)link)[3])(link, buffer, 1024, 0, 0) != 0)
+        if (((delegate* unmanaged[Stdcall]<nint, char*, int, nint, uint, int>)ComApi.Slot(link, 3))(link, buffer, 1024, 0, 0) != 0)
         {
             return null;
         }
@@ -575,7 +576,7 @@ internal static unsafe partial class ShellFileOps
             // IShellLinkW::GetArguments is slot 10: (LPWSTR, int).
             buffer[0] = '\0';
 
-            if (((delegate* unmanaged[Stdcall]<nint, char*, int, int>)(*(nint**)link)[10])(link, buffer, 1024) < 0)
+            if (((delegate* unmanaged[Stdcall]<nint, char*, int, int>)ComApi.Slot(link, 10))(link, buffer, 1024) < 0)
             {
                 return null;
             }
@@ -586,7 +587,7 @@ internal static unsafe partial class ShellFileOps
             buffer[0] = '\0';
             int index;
 
-            if (((delegate* unmanaged[Stdcall]<nint, char*, int, int*, int>)(*(nint**)link)[16])(link, buffer, 1024, &index) < 0
+            if (((delegate* unmanaged[Stdcall]<nint, char*, int, int*, int>)ComApi.Slot(link, 16))(link, buffer, 1024, &index) < 0
                 || ShortcutLinks.KeepsLinkItself(arguments, new string(buffer)))
             {
                 return null;
@@ -604,8 +605,6 @@ internal static unsafe partial class ShellFileOps
         public uint Flags;
     }
 
-    [LibraryImport("ole32.dll")]
-    private static partial int CoCreateInstance(Guid* clsid, nint outer, uint context, Guid* iid, nint* result);
 
     [LibraryImport("shell32.dll")]
     private static partial int SHOpenWithDialog(nint window, OpenAsInfo* info);

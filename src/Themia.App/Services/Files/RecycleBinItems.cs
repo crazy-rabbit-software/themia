@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -129,13 +130,13 @@ internal static unsafe partial class RecycleBinItems
             return;
         }
 
-        using var ownedBin = new DragDropInterop.ComRef(bin);
+        using var ownedBin = new ComPtr(bin);
         nint list;
         var bhid = BhidEnumItems;
         var iidEnum = IidEnumShellItems;
 
         // IShellItem::BindToHandler is slot 3.
-        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)bin)[3];
+        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)ComApi.Slot(bin, 3);
         hr = bind(bin, 0, &bhid, &iidEnum, &list);
         if (hr < 0 || list == 0)
         {
@@ -143,10 +144,10 @@ internal static unsafe partial class RecycleBinItems
             return;
         }
 
-        using var ownedList = new DragDropInterop.ComRef(list);
+        using var ownedList = new ComPtr(list);
 
         // IEnumShellItems::Next is slot 3.
-        var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)(*(nint**)list)[3];
+        var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)ComApi.Slot(list, 3);
         while (true)
         {
             nint item;
@@ -156,7 +157,7 @@ internal static unsafe partial class RecycleBinItems
                 return;
             }
 
-            using var ownedItem = new DragDropInterop.ComRef(item);
+            using var ownedItem = new ComPtr(item);
             if (PathOf(item) is { } path && visit(path, item))
             {
                 return;
@@ -170,7 +171,7 @@ internal static unsafe partial class RecycleBinItems
         char* text;
 
         // IShellItem::GetDisplayName is slot 5.
-        var name = (delegate* unmanaged[Stdcall]<nint, uint, char**, int>)(*(nint**)item)[5];
+        var name = (delegate* unmanaged[Stdcall]<nint, uint, char**, int>)ComApi.Slot(item, 5);
         if (name(item, SigdnFileSysPath, &text) < 0 || text is null)
         {
             return null;
@@ -182,7 +183,7 @@ internal static unsafe partial class RecycleBinItems
         }
         finally
         {
-            CoTaskMemFree((nint)text);
+            ComApi.Free(text);
         }
     }
 
@@ -198,13 +199,13 @@ internal static unsafe partial class RecycleBinItems
             return false;
         }
 
-        using var ownedArray = new DragDropInterop.ComRef(array);
+        using var ownedArray = new ComPtr(array);
         nint menu;
         var bhid = BhidSfUiObject;
         var iidMenu = IidContextMenu;
 
         // IShellItemArray::BindToHandler is slot 3.
-        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)array)[3];
+        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)ComApi.Slot(array, 3);
         hr = bind(array, 0, &bhid, &iidMenu, &menu);
         if (hr < 0 || menu == 0)
         {
@@ -212,7 +213,7 @@ internal static unsafe partial class RecycleBinItems
             return false;
         }
 
-        using var ownedMenu = new DragDropInterop.ComRef(menu);
+        using var ownedMenu = new ComPtr(menu);
         return ShellContextMenu.InvokeMenuVerb(menu, "undelete", owner, "a Recycle Bin item");
     }
 
@@ -222,6 +223,4 @@ internal static unsafe partial class RecycleBinItems
     [LibraryImport("shell32.dll")]
     private static partial int SHCreateShellItemArrayFromShellItem(nint item, Guid* iid, nint* array);
 
-    [LibraryImport("ole32.dll")]
-    private static partial void CoTaskMemFree(nint memory);
 }

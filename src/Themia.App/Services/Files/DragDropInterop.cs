@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -13,7 +14,7 @@ namespace Themia.App.Services.Files;
 /// <para>
 /// Native AOT: every COM call goes through a function-pointer vtable slot, and the COM object
 /// implemented here is a native block whose vtable points at <c>[UnmanagedCallersOnly]</c> methods —
-/// no runtime-generated COM wrappers. Every interface pointer is a <see cref="ComRef"/> released on
+/// no runtime-generated COM wrappers. Every interface pointer is a <see cref="ComPtr"/> released on
 /// every path, every <c>STGMEDIUM</c> goes back through <c>ReleaseStgMedium</c>, and every PIDL through
 /// <c>CoTaskMemFree</c>. No callback lets a managed exception reach OLE.
 /// </para>
@@ -92,38 +93,6 @@ internal static unsafe partial class DragDropInterop
 
     // ---- references -----------------------------------------------------------------------------
 
-    /// <summary>An owned COM interface pointer: released exactly once, on dispose.</summary>
-    internal struct ComRef : IDisposable
-    {
-        public nint Pointer;
-
-        public ComRef(nint pointer) => Pointer = pointer;
-
-        public readonly bool IsNull => Pointer == 0;
-
-        /// <summary>Hand the pointer on (to OLE, to a caller) without releasing it here.</summary>
-        public nint Detach()
-        {
-            var p = Pointer;
-            Pointer = 0;
-            return p;
-        }
-
-        public void Dispose()
-        {
-            var p = Pointer;
-            Pointer = 0;
-
-            if (p != 0)
-            {
-                Release(p);
-            }
-        }
-    }
-
-    internal static uint Release(nint unknown) => ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)unknown)[2])(unknown);
-
-    internal static uint AddRef(nint unknown) => ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)unknown)[1])(unknown);
 
     // ---- the shell's items and data object -------------------------------------------------------
 
@@ -132,7 +101,7 @@ internal static unsafe partial class DragDropInterop
     /// cannot be parsed — a half set would copy or delete something other than what was selected.
     /// Any COM thread.
     /// </summary>
-    public static ComRef CreateItemArray(IReadOnlyList<string> paths)
+    public static ComPtr CreateItemArray(IReadOnlyList<string> paths)
     {
         ArgumentNullException.ThrowIfNull(paths);
 
@@ -173,7 +142,7 @@ internal static unsafe partial class DragDropInterop
                 }
             }
 
-            return new ComRef(array);
+            return new ComPtr(array);
         }
         finally
         {
@@ -181,14 +150,14 @@ internal static unsafe partial class DragDropInterop
             {
                 if (pidl != 0)
                 {
-                    CoTaskMemFree(pidl);
+                    ComApi.Free(pidl);
                 }
             }
         }
     }
 
     /// <summary>An <c>IShellItem</c> for one path, or a null ref.</summary>
-    public static ComRef CreateItem(string path)
+    public static ComPtr CreateItem(string path)
     {
         nint item;
         var iid = IidShellItem;
@@ -200,14 +169,14 @@ internal static unsafe partial class DragDropInterop
             return default;
         }
 
-        return new ComRef(item);
+        return new ComPtr(item);
     }
 
     /// <summary>
     /// The shell's data object for <paramref name="paths"/>, carrying <paramref name="preferred"/> as
     /// <c>Preferred DropEffect</c> when it is not None. A null ref (logged) on failure.
     /// </summary>
-    public static ComRef CreateDataObject(IReadOnlyList<string> paths, DropEffect preferred)
+    public static ComPtr CreateDataObject(IReadOnlyList<string> paths, DropEffect preferred)
     {
         using var array = CreateItemArray(paths);
 
@@ -221,7 +190,7 @@ internal static unsafe partial class DragDropInterop
         var iid = IidDataObject;
 
         // IShellItemArray::BindToHandler is slot 3.
-        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)array.Pointer)[3];
+        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)ComApi.Slot(array.Pointer, 3);
         var hr = bind(array.Pointer, 0, &bhid, &iid, &data);
 
         if (hr < 0 || data == 0)
@@ -230,7 +199,7 @@ internal static unsafe partial class DragDropInterop
             return default;
         }
 
-        var result = new ComRef(data);
+        var result = new ComPtr(data);
 
         if (preferred != DropEffect.None && !SetBytes(data, PreferredEffectFormat, DropFiles.EncodeEffect(preferred)))
         {
@@ -269,7 +238,7 @@ internal static unsafe partial class DragDropInterop
         var medium = new StgMedium { Tymed = TymedHGlobal, Handle = global };
 
         // IDataObject::SetData is slot 7; fRelease = TRUE hands the global to the object.
-        var setData = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, StgMedium*, int, int>)(*(nint**)data)[7];
+        var setData = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, StgMedium*, int, int>)ComApi.Slot(data, 7);
         var hr = setData(data, &formatEtc, &medium, 1);
 
         if (hr < 0)
@@ -300,7 +269,7 @@ internal static unsafe partial class DragDropInterop
         var medium = default(StgMedium);
 
         // IDataObject::GetData is slot 3.
-        var getData = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, StgMedium*, int>)(*(nint**)data)[3];
+        var getData = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, StgMedium*, int>)ComApi.Slot(data, 3);
 
         if (getData(data, &formatEtc, &medium) < 0)
         {
@@ -400,7 +369,7 @@ internal static unsafe partial class DragDropInterop
     {
         var formatEtc = new FormatEtc { Format = ContentsFormat, Aspect = DvAspectContent, Index = index, Tymed = TymedHGlobal | TymedIStream };
         var medium = default(StgMedium);
-        var getData = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, StgMedium*, int>)(*(nint**)data)[3];
+        var getData = (delegate* unmanaged[Stdcall]<nint, FormatEtc*, StgMedium*, int>)ComApi.Slot(data, 3);
         var hr = getData(data, &formatEtc, &medium);
 
         if (hr < 0)
@@ -438,7 +407,7 @@ internal static unsafe partial class DragDropInterop
 
                 // ISequentialStream::Read is slot 3. A source that over-reports what it read is
                 // clamped to the buffer, never trusted.
-                var read = (delegate* unmanaged[Stdcall]<nint, byte*, uint, uint*, int>)(*(nint**)medium.Handle)[3];
+                var read = (delegate* unmanaged[Stdcall]<nint, byte*, uint, uint*, int>)ComApi.Slot(medium.Handle, 3);
 
                 fixed (byte* b = buffer)
                 {
@@ -751,8 +720,6 @@ internal static unsafe partial class DragDropInterop
     [LibraryImport("ole32.dll")]
     private static partial void ReleaseStgMedium(StgMedium* medium);
 
-    [LibraryImport("ole32.dll")]
-    internal static partial void CoTaskMemFree(nint memory);
 
     [LibraryImport("ole32.dll")]
     private static partial int RegisterDragDrop(nint window, nint target);

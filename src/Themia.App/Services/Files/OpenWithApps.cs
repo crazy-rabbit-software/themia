@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -55,7 +56,7 @@ internal static unsafe partial class OpenWithApps
             if (!data.IsNull)
             {
                 // IAssocHandler::Invoke is slot 8.
-                var invoke = (delegate* unmanaged[Stdcall]<nint, nint, int>)(*(nint**)handler)[8];
+                var invoke = (delegate* unmanaged[Stdcall]<nint, nint, int>)ComApi.Slot(handler, 8);
                 var hr = invoke(handler, data.Pointer);
                 done = hr >= 0;
 
@@ -95,10 +96,10 @@ internal static unsafe partial class OpenWithApps
             return;
         }
 
-        using var owned = new DragDropInterop.ComRef(enumerator);
+        using var owned = new ComPtr(enumerator);
 
         // IEnumAssocHandlers::Next is slot 3.
-        var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)(*(nint**)enumerator)[3];
+        var next = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)ComApi.Slot(enumerator, 3);
 
         for (var guard = 0; guard < 64; guard++)
         {
@@ -110,7 +111,7 @@ internal static unsafe partial class OpenWithApps
                 return;
             }
 
-            using var one = new DragDropInterop.ComRef(handler);
+            using var one = new ComPtr(handler);
 
             if (!each(handler))
             {
@@ -123,7 +124,7 @@ internal static unsafe partial class OpenWithApps
     private static string? Text(nint handler, int slot)
     {
         nint text;
-        var get = (delegate* unmanaged[Stdcall]<nint, nint*, int>)(*(nint**)handler)[slot];
+        var get = (delegate* unmanaged[Stdcall]<nint, nint*, int>)ComApi.Slot(handler, slot);
 
         if (get(handler, &text) < 0 || text == 0)
         {
@@ -137,7 +138,7 @@ internal static unsafe partial class OpenWithApps
         }
         finally
         {
-            DragDropInterop.CoTaskMemFree(text);
+            ComApi.Free(text);
         }
     }
 
@@ -149,7 +150,7 @@ internal static unsafe partial class OpenWithApps
     {
         nint text;
         int index;
-        var get = (delegate* unmanaged[Stdcall]<nint, nint*, int*, int>)(*(nint**)handler)[5];
+        var get = (delegate* unmanaged[Stdcall]<nint, nint*, int*, int>)ComApi.Slot(handler, 5);
 
         if (get(handler, &text, &index) < 0 || text == 0)
         {
@@ -168,7 +169,7 @@ internal static unsafe partial class OpenWithApps
         }
         finally
         {
-            DragDropInterop.CoTaskMemFree(text);
+            ComApi.Free(text);
         }
     }
 

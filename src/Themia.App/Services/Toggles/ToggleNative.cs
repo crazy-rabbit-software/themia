@@ -5,41 +5,10 @@ namespace Themia.App.Services.Toggles;
 
 /// <summary>
 /// [S-3907] The Win32 and COM entry points the quick-setting toggles call. <see cref="LibraryImportAttribute"/>
-/// only (Native AOT), and COM through function-pointer vtables as in <c>CoreAudio.Native.cs</c>.
+/// only (Native AOT); COM through <see cref="Interop.ComApi"/>.
 /// </summary>
 internal static unsafe partial class ToggleNative
 {
-    public const uint ClsCtxLocalServer = 0x4;
-    public const uint ClsCtxAll = 0x17;
-    public const int SlotRelease = 2;
-    public const int SlotQueryInterface = 0;
-
-    /// <summary>The vtable entry <paramref name="slot"/> of a COM object.</summary>
-    public static void* Slot(nint self, int slot) => (*(void***)self)[slot];
-
-    public static void Release(nint self)
-    {
-        if (self != 0)
-        {
-            _ = ((delegate* unmanaged[Stdcall]<nint, uint>)Slot(self, SlotRelease))(self);
-        }
-    }
-
-    /// <summary>QueryInterface, or 0 where the object does not have it.</summary>
-    public static nint Query(nint self, Guid iid)
-    {
-        nint result = 0;
-        return ((delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)Slot(self, SlotQueryInterface))(self, &iid, &result) >= 0 ? result : 0;
-    }
-
-    /// <summary>A COM object out of process (or in, with <paramref name="context"/>), or 0 with the HRESULT.</summary>
-    public static nint Create(Guid clsid, Guid iid, uint context, out int result)
-    {
-        nint made = 0;
-        result = CoCreateInstance(&clsid, 0, context, &iid, &made);
-        return result >= 0 ? made : 0;
-    }
-
     /// <summary>An HSTRING the caller deletes with <see cref="WindowsDeleteString"/>; 0 where it could not be made.</summary>
     public static nint HString(string text)
     {
@@ -58,9 +27,6 @@ internal static unsafe partial class ToggleNative
         return raw is null ? string.Empty : new string(raw, 0, (int)length);
     }
 
-    [LibraryImport("ole32.dll")]
-    private static partial int CoCreateInstance(Guid* clsid, nint outer, uint context, Guid* iid, nint* result);
-
     [LibraryImport("combase.dll")]
     public static partial int WindowsCreateString(char* source, uint length, nint* hstring);
 
@@ -72,9 +38,6 @@ internal static unsafe partial class ToggleNative
 
     [LibraryImport("combase.dll")]
     public static partial int RoGetActivationFactory(nint activatableClassId, Guid* iid, nint* factory);
-
-    [LibraryImport("ole32.dll")]
-    public static partial void CoTaskMemFree(void* memory);
 
     // ---- libraries ---------------------------------------------------------------------------
 

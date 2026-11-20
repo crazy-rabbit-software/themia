@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -85,7 +86,7 @@ internal static unsafe partial class ShellContextMenu
     }
 
     /// <summary>The desktop root's background <c>IContextMenu</c>, or a null ref (logged).</summary>
-    private static DragDropInterop.ComRef DesktopMenu(nint owner)
+    private static ComPtr DesktopMenu(nint owner)
     {
         nint root;
 
@@ -95,12 +96,12 @@ internal static unsafe partial class ShellContextMenu
             return default;
         }
 
-        using var ownedRoot = new DragDropInterop.ComRef(root);
+        using var ownedRoot = new ComPtr(root);
         nint menu;
         var iid = IidContextMenu;
 
         // IShellFolder::CreateViewObject is slot 8.
-        var create = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, nint*, int>)(*(nint**)root)[8];
+        var create = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, nint*, int>)ComApi.Slot(root, 8);
         var hr = create(root, owner, &iid, &menu);
 
         if (hr < 0 || menu == 0)
@@ -109,7 +110,7 @@ internal static unsafe partial class ShellContextMenu
             return default;
         }
 
-        return new DragDropInterop.ComRef(menu);
+        return new ComPtr(menu);
     }
 
     /// <summary>
@@ -146,7 +147,7 @@ internal static unsafe partial class ShellContextMenu
 
         try
         {
-            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)(*(nint**)menu)[3];
+            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)ComApi.Slot(menu, 3);
             var hr = query(menu, popup, 0, FirstCommand, LastCommand, CmfNormal);
             if (hr < 0)
             {
@@ -219,7 +220,7 @@ internal static unsafe partial class ShellContextMenu
         try
         {
             // The handlers fill their commands in on QueryContextMenu; a verb is only known after it.
-            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)(*(nint**)menu)[3];
+            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)ComApi.Slot(menu, 3);
             var hr = query(menu, popup, 0, FirstCommand, LastCommand, flags);
 
             if (hr < 0)
@@ -238,7 +239,7 @@ internal static unsafe partial class ShellContextMenu
             };
 
             // IContextMenu::InvokeCommand is slot 4.
-            var invoke = (delegate* unmanaged[Stdcall]<nint, InvokeInfo*, int>)(*(nint**)menu)[4];
+            var invoke = (delegate* unmanaged[Stdcall]<nint, InvokeInfo*, int>)ComApi.Slot(menu, 4);
             hr = invoke(menu, &info);
 
             if (hr < 0)
@@ -264,7 +265,7 @@ internal static unsafe partial class ShellContextMenu
         => menu != 0 && InvokeVerb(menu, verb, owner, shift: false, CmfNormal, what);
 
     /// <summary>The shell's <c>IContextMenu</c> for <paramref name="paths"/>, or a null ref (logged).</summary>
-    private static DragDropInterop.ComRef ItemsMenu(IReadOnlyList<string> paths)
+    private static ComPtr ItemsMenu(IReadOnlyList<string> paths)
     {
         using var array = DragDropInterop.CreateItemArray(paths);
 
@@ -278,7 +279,7 @@ internal static unsafe partial class ShellContextMenu
         var iid = IidContextMenu;
 
         // IShellItemArray::BindToHandler is slot 3.
-        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)array.Pointer)[3];
+        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)ComApi.Slot(array.Pointer, 3);
         var hr = bind(array.Pointer, 0, &bhid, &iid, &menu);
 
         if (hr < 0 || menu == 0)
@@ -287,7 +288,7 @@ internal static unsafe partial class ShellContextMenu
             return default;
         }
 
-        return new DragDropInterop.ComRef(menu);
+        return new ComPtr(menu);
     }
 
     /// <summary>The shell's menu for the background of <paramref name="folder"/> (New, View, Paste…).</summary>
@@ -305,7 +306,7 @@ internal static unsafe partial class ShellContextMenu
         var iidFolder = IidShellFolder;
 
         // IShellItem::BindToHandler is slot 3.
-        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)(*(nint**)item.Pointer)[3];
+        var bind = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, Guid*, nint*, int>)ComApi.Slot(item.Pointer, 3);
 
         if (bind(item.Pointer, 0, &bhid, &iidFolder, &shellFolder) < 0 || shellFolder == 0)
         {
@@ -313,12 +314,12 @@ internal static unsafe partial class ShellContextMenu
             return;
         }
 
-        using var ownedFolder = new DragDropInterop.ComRef(shellFolder);
+        using var ownedFolder = new ComPtr(shellFolder);
         nint menu;
         var iid = IidContextMenu;
 
         // IShellFolder::CreateViewObject is slot 8.
-        var create = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, nint*, int>)(*(nint**)shellFolder)[8];
+        var create = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, nint*, int>)ComApi.Slot(shellFolder, 8);
         var hr = create(shellFolder, owner, &iid, &menu);
 
         if (hr < 0 || menu == 0)
@@ -327,7 +328,7 @@ internal static unsafe partial class ShellContextMenu
             return;
         }
 
-        using var owned = new DragDropInterop.ComRef(menu);
+        using var owned = new ComPtr(menu);
         Track(menu, CmfNormal, screenX, screenY, owner);
     }
 
@@ -347,7 +348,7 @@ internal static unsafe partial class ShellContextMenu
         try
         {
             // IContextMenu::QueryContextMenu is slot 3.
-            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)(*(nint**)menu)[3];
+            var query = (delegate* unmanaged[Stdcall]<nint, nint, uint, uint, uint, uint, int>)ComApi.Slot(menu, 3);
             var hr = query(menu, popup, 0, FirstCommand, LastCommand, flags);
 
             if (hr < 0)
@@ -406,12 +407,12 @@ internal static unsafe partial class ShellContextMenu
 
             if (menu2 != 0)
             {
-                DragDropInterop.Release(menu2);
+                ComApi.Release(menu2);
             }
 
             if (menu3 != 0)
             {
-                DragDropInterop.Release(menu3);
+                ComApi.Release(menu3);
             }
 
             DestroyMenu(popup);
@@ -508,7 +509,7 @@ internal static unsafe partial class ShellContextMenu
         };
 
         // IContextMenu::InvokeCommand is slot 4.
-        var invoke = (delegate* unmanaged[Stdcall]<nint, InvokeInfo*, int>)(*(nint**)menu)[4];
+        var invoke = (delegate* unmanaged[Stdcall]<nint, InvokeInfo*, int>)ComApi.Slot(menu, 4);
         var hr = invoke(menu, &info);
 
         if (hr < 0)
@@ -525,7 +526,7 @@ internal static unsafe partial class ShellContextMenu
         buffer[0] = (char)0;
 
         // IContextMenu::GetCommandString is slot 5.
-        var get = (delegate* unmanaged[Stdcall]<nint, nuint, uint, uint*, byte*, uint, int>)(*(nint**)menu)[5];
+        var get = (delegate* unmanaged[Stdcall]<nint, nuint, uint, uint*, byte*, uint, int>)ComApi.Slot(menu, 5);
         return get(menu, (nuint)offset, GcsVerbW, null, (byte*)buffer, Capacity) >= 0 && buffer[0] != (char)0
             ? new string(buffer)
             : null;
@@ -534,7 +535,7 @@ internal static unsafe partial class ShellContextMenu
     private static nint QueryInterface(nint unknown, Guid iid)
     {
         nint result;
-        var query = (delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)(*(nint**)unknown)[0];
+        var query = (delegate* unmanaged[Stdcall]<nint, Guid*, nint*, int>)ComApi.Slot(unknown, 0);
         return query(unknown, &iid, &result) >= 0 ? result : 0;
     }
 
@@ -551,7 +552,7 @@ internal static unsafe partial class ShellContextMenu
                     nint result = 0;
 
                     // IContextMenu3::HandleMenuMsg2 is slot 7.
-                    var handle2 = (delegate* unmanaged[Stdcall]<nint, uint, nuint, nint, nint*, int>)(*(nint**)_menu3)[7];
+                    var handle2 = (delegate* unmanaged[Stdcall]<nint, uint, nuint, nint, nint*, int>)ComApi.Slot(_menu3, 7);
 
                     if (handle2(_menu3, message, wParam, lParam, &result) >= 0)
                     {
@@ -561,7 +562,7 @@ internal static unsafe partial class ShellContextMenu
                 else if (_menu2 != 0 && message != WmMenuChar)
                 {
                     // IContextMenu2::HandleMenuMsg is slot 6.
-                    var handle = (delegate* unmanaged[Stdcall]<nint, uint, nuint, nint, int>)(*(nint**)_menu2)[6];
+                    var handle = (delegate* unmanaged[Stdcall]<nint, uint, nuint, nint, int>)ComApi.Slot(_menu2, 6);
 
                     if (handle(_menu2, message, wParam, lParam) >= 0)
                     {

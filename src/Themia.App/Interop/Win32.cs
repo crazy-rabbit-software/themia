@@ -158,13 +158,6 @@ internal static partial class Win32
 
     // ---- regions (the surface cut to its work area) ---------------------------------------------
 
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    internal static partial nint CreateRectRgn(int left, int top, int right, int bottom);
-
-    [LibraryImport("gdi32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool DeleteObject(nint hObject);
-
     [LibraryImport("user32.dll", SetLastError = true)]
     internal static partial int SetWindowRgn(nint hWnd, nint hRgn, [MarshalAs(UnmanagedType.Bool)] bool redraw);
 

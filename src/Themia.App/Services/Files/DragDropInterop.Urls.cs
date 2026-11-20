@@ -3,6 +3,7 @@ using System.Text;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
 using Themia.Core.Widgets;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -74,11 +75,11 @@ internal static unsafe partial class DragDropInterop
             return [];
         }
 
-        using var owned = new ComRef(array);
+        using var owned = new ComPtr(array);
         uint count = 0;
 
         // IShellItemArray::GetCount is slot 7, GetItemAt slot 8.
-        if (((delegate* unmanaged[Stdcall]<nint, uint*, int>)(*(nint**)array)[7])(array, &count) < 0)
+        if (((delegate* unmanaged[Stdcall]<nint, uint*, int>)ComApi.Slot(array, 7))(array, &count) < 0)
         {
             return [];
         }
@@ -89,12 +90,12 @@ internal static unsafe partial class DragDropInterop
         {
             nint item;
 
-            if (((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)(*(nint**)array)[8])(array, i, &item) < 0 || item == 0)
+            if (((delegate* unmanaged[Stdcall]<nint, uint, nint*, int>)ComApi.Slot(array, 8))(array, i, &item) < 0 || item == 0)
             {
                 continue;
             }
 
-            using var ownedItem = new ComRef(item);
+            using var ownedItem = new ComPtr(item);
             var parsing = DisplayName(item, SigdnDesktopAbsoluteParsing);
             var display = DisplayName(item, SigdnNormalDisplay);
 
@@ -119,7 +120,7 @@ internal static unsafe partial class DragDropInterop
     {
         char* name = null;
 
-        if (((delegate* unmanaged[Stdcall]<nint, uint, char**, int>)(*(nint**)item)[5])(item, form, &name) < 0 || name is null)
+        if (((delegate* unmanaged[Stdcall]<nint, uint, char**, int>)ComApi.Slot(item, 5))(item, form, &name) < 0 || name is null)
         {
             return null;
         }
@@ -131,7 +132,7 @@ internal static unsafe partial class DragDropInterop
         }
         finally
         {
-            CoTaskMemFree((nint)name);
+            ComApi.Free(name);
         }
     }
 

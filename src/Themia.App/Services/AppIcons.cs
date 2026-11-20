@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.App.Interop;
 
 namespace Themia.App.Services;
 
@@ -318,56 +319,36 @@ internal static partial class AppIcons
         // message pump; an apartment-threaded icon handler is hosted for us by COM. A thread that is
         // already initialised the other way (RPC_E_CHANGED_MODE) is used as it is and not
         // uninitialised.
-        var initialised = CoInitializeEx(0, CoInitMultithreaded);
-        nint factory = 0;
-        nint bitmap = 0;
-
-        try
+        using var apartment = ComApi.Apartment.Enter(ComApi.MultiThreaded);
+        var iid = ImageFactoryIid;
+        nint made = 0;
+        var hr = SHCreateItemFromParsingName(ShellNameFor(path), 0, &iid, &made);
+        using var factory = new ComPtr(made);
+        if (hr < 0 || factory.IsNull)
         {
-            var iid = ImageFactoryIid;
-
-            if (SHCreateItemFromParsingName(ShellNameFor(path), 0, &iid, &factory) < 0 || factory == 0)
-            {
-                return null;
-            }
-
-            // IShellItemImageFactory::GetImage is slot 3, after IUnknown's three.
-            var getImage = (delegate* unmanaged[Stdcall]<nint, IconSize, int, nint*, int>)(*(nint**)factory)[3];
-
-            var hrImage = getImage(factory, new IconSize(size, size), flags, &bitmap);
-
-            // E_PENDING: the shell is still extracting this icon for an earlier caller. Asked once
-            // more, at once (no wait); a second E_PENDING is an icon this run does without.
-            if (hrImage == EPending)
-            {
-                hrImage = getImage(factory, new IconSize(size, size), flags, &bitmap);
-            }
-
-            if (hrImage < 0 || bitmap == 0)
-            {
-                return null;
-            }
-
-            return Read(bitmap);
+            return null;
         }
-        finally
+
+        // IShellItemImageFactory::GetImage is slot 3, after IUnknown's three.
+        var getImage = (delegate* unmanaged[Stdcall]<nint, IconSize, int, nint*, int>)ComApi.Slot(factory.Pointer, 3);
+
+        nint drawn = 0;
+        var hrImage = getImage(factory.Pointer, new IconSize(size, size), flags, &drawn);
+
+        // E_PENDING: the shell is still extracting this icon for an earlier caller. Asked once
+        // more, at once (no wait); a second E_PENDING is an icon this run does without.
+        if (hrImage == EPending)
         {
-            if (bitmap != 0)
-            {
-                DeleteObject(bitmap);
-            }
-
-            if (factory != 0)
-            {
-                var release = (delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)factory)[2];
-                release(factory);
-            }
-
-            if (initialised >= 0)
-            {
-                CoUninitialize();
-            }
+            hrImage = getImage(factory.Pointer, new IconSize(size, size), flags, &drawn);
         }
+
+        using var bitmap = drawn == 0 ? null : Gdi.GdiObject.Own(drawn, Scope, "icon bitmap");
+        if (hrImage < 0 || bitmap is null)
+        {
+            return null;
+        }
+
+        return Read(bitmap.DangerousGetHandle());
     }
 
     /// <summary>
@@ -410,93 +391,78 @@ internal static partial class AppIcons
     private static unsafe Pixels? Read(nint bitmap)
     {
         BitmapHeader bm;
-        if (GetObject(bitmap, sizeof(BitmapHeader), &bm) == 0 || bm.Width <= 0 || bm.Height <= 0 || bm.Width > 256 || bm.Height > 256)
+        if (Gdi.GetObject(bitmap, sizeof(BitmapHeader), &bm) == 0 || bm.Width <= 0 || bm.Height <= 0 || bm.Width > 256 || bm.Height > 256)
         {
             return null;
         }
 
-        var memory = CreateCompatibleDC(0);
-        if (memory == 0)
+        using var memory = Gdi.MemoryDc.Create(0, Scope, "icon reader's device context");
+        if (memory is null)
         {
             return null;
         }
 
-        try
+        var width = bm.Width;
+        var height = bm.Height;
+        var color = new byte[width * height * 4];
+
+        if (!Bits(memory.DangerousGetHandle(), bitmap, width, height, color))
         {
-            var width = bm.Width;
-            var height = bm.Height;
-            var color = new byte[width * height * 4];
+            return null;
+        }
 
-            if (!Bits(memory, bitmap, width, height, color))
+        var hasAlpha = false;
+        var straight = false;
+
+        for (var i = 0; i < color.Length; i += 4)
+        {
+            var alpha = color[i + 3];
+            hasAlpha |= alpha != 0;
+
+            // A channel brighter than its alpha cannot be premultiplied: the shell handed over
+            // straight alpha (it does for some icons and not others), so it is converted below.
+            straight |= color[i] > alpha || color[i + 1] > alpha || color[i + 2] > alpha;
+        }
+
+        if (!hasAlpha)
+        {
+            // No alpha channel at all: an opaque bitmap.
+            for (var i = 3; i < color.Length; i += 4)
             {
-                return null;
-            }
-
-            var hasAlpha = false;
-            var straight = false;
-
-            for (var i = 0; i < color.Length; i += 4)
-            {
-                var alpha = color[i + 3];
-                hasAlpha |= alpha != 0;
-
-                // A channel brighter than its alpha cannot be premultiplied: the shell handed over
-                // straight alpha (it does for some icons and not others), so it is converted below.
-                straight |= color[i] > alpha || color[i + 1] > alpha || color[i + 2] > alpha;
-            }
-
-            if (!hasAlpha)
-            {
-                // No alpha channel at all: an opaque bitmap.
-                for (var i = 3; i < color.Length; i += 4)
-                {
-                    color[i] = 255;
-                }
-
-                return new Pixels(width, height, color);
-            }
-
-            if (straight)
-            {
-                // XAML wants premultiplied alpha.
-                for (var i = 0; i < color.Length; i += 4)
-                {
-                    var alpha = color[i + 3];
-                    if (alpha == 255)
-                    {
-                        continue;
-                    }
-
-                    color[i] = (byte)(color[i] * alpha / 255);
-                    color[i + 1] = (byte)(color[i + 1] * alpha / 255);
-                    color[i + 2] = (byte)(color[i + 2] * alpha / 255);
-                }
+                color[i] = 255;
             }
 
             return new Pixels(width, height, color);
         }
-        finally
+
+        if (straight)
         {
-            DeleteDC(memory);
+            // XAML wants premultiplied alpha.
+            for (var i = 0; i < color.Length; i += 4)
+            {
+                var alpha = color[i + 3];
+                if (alpha == 255)
+                {
+                    continue;
+                }
+
+                color[i] = (byte)(color[i] * alpha / 255);
+                color[i + 1] = (byte)(color[i + 1] * alpha / 255);
+                color[i + 2] = (byte)(color[i + 2] * alpha / 255);
+            }
         }
+
+        return new Pixels(width, height, color);
     }
 
     private static unsafe bool Bits(nint dc, nint bitmap, int width, int height, byte[] target)
     {
-        var header = new BitmapInfoHeader
-        {
-            Size = (uint)sizeof(BitmapInfoHeader),
-            Width = width,
-
-            // Negative: top-down rows, the order the bitmap wants them in.
-            Height = -height,
-            Planes = 1,
-            BitCount = 32,
-        };
+        // Top-down rows, the order the bitmap wants them in.
+        var info = Gdi.BitmapInfo.TopDown32(width, height);
 
         fixed (byte* bits = target)
         {
-            return GetDIBits(dc, bitmap, 0, (uint)height, bits, &header, 0) == height;
+            return Gdi.GetDIBits(dc, bitmap, 0, (uint)height, bits, &info, 0) == height;
         }
     }
 
@@ -507,8 +473,6 @@ internal static partial class AppIcons
     private const int ThumbnailOnly = 0x8;
 
     private const int EPending = unchecked((int)0x8000000A);
-
-    private const uint CoInitMultithreaded = 0x0;
 
     /// <summary>IID_IShellItemImageFactory.</summary>
     private static readonly Guid ImageFactoryIid = new("bcc18b79-ba16-442f-80c4-8a59c30c463b");
@@ -528,49 +492,6 @@ internal static partial class AppIcons
         public nint Bits;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct BitmapInfoHeader
-    {
-        public uint Size;
-        public int Width;
-        public int Height;
-        public ushort Planes;
-        public ushort BitCount;
-        public uint Compression;
-        public uint SizeImage;
-        public int XPelsPerMeter;
-        public int YPelsPerMeter;
-        public uint ClrUsed;
-        public uint ClrImportant;
-
-        // GetDIBits writes a colour table after the header for some formats; for 32-bit BI_RGB it
-        // writes none, but the documented buffer is a BITMAPINFO, so room for one entry is kept.
-        public uint Palette0;
-    }
-
     [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
     private static unsafe partial int SHCreateItemFromParsingName(string path, nint bindContext, Guid* iid, nint* item);
-
-    [LibraryImport("ole32.dll")]
-    private static partial int CoInitializeEx(nint reserved, uint flags);
-
-    [LibraryImport("ole32.dll")]
-    private static partial void CoUninitialize();
-
-    [LibraryImport("gdi32.dll", EntryPoint = "GetObjectW")]
-    private static unsafe partial int GetObject(nint handle, int size, void* buffer);
-
-    [LibraryImport("gdi32.dll")]
-    private static partial nint CreateCompatibleDC(nint dc);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool DeleteDC(nint dc);
-
-    [LibraryImport("gdi32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool DeleteObject(nint handle);
-
-    [LibraryImport("gdi32.dll")]
-    private static unsafe partial int GetDIBits(nint dc, nint bitmap, uint start, uint lines, void* bits, BitmapInfoHeader* info, uint usage);
 }

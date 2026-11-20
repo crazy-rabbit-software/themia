@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Files;
+using Themia.App.Interop;
 
 namespace Themia.App.Services.Files;
 
@@ -115,7 +116,7 @@ internal static unsafe partial class FileClipboard
             return null;
         }
 
-        using var owned = new DragDropInterop.ComRef(data);
+        using var owned = new ComPtr(data);
         var paths = DragDropInterop.ReadPaths(data);
         var effect = DragDropInterop.ReadPreferredEffect(data);
         var virtualFiles = paths.Count == 0 ? DragDropInterop.ReadVirtualFiles(data).Count : 0;
@@ -138,7 +139,7 @@ internal static unsafe partial class FileClipboard
             return [];
         }
 
-        using var owned = new DragDropInterop.ComRef(data);
+        using var owned = new ComPtr(data);
         return DragDropInterop.SaveVirtualFiles(data, destination);
     }
 
