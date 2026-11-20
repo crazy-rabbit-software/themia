@@ -361,6 +361,10 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
     /// then shows the pressed icon as it is drawn.
     /// </summary>
     public DragPicture? DeskDragPicture(IReadOnlySet<string> widgetIds, string held, int count, int screenX, int screenY)
+        => DeskDragPicture(widgetIds, held, count, ToContent(screenX, screenY));
+
+    /// <summary>[S-13046] The same picture with the pointer at <paramref name="pointer"/>, in the root's DIPs (a move's press).</summary>
+    internal DragPicture? DeskDragPicture(IReadOnlySet<string> widgetIds, string held, int count, Point pointer)
     {
         ArgumentNullException.ThrowIfNull(widgetIds);
         try
@@ -388,7 +392,6 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
 
             // The icon's square on the surface: through the card's content scale ([S-850]) and wherever it sits.
             var square = box.TransformToVisual(_root).TransformBounds(new Rect(0, 0, box.ActualWidth, box.ActualHeight));
-            var pointer = ToContent(screenX, screenY);
             return ItemDrag.Ghost(icons, count, square.Width, new Point(pointer.X - square.X, pointer.Y - square.Y), RasterScale);
         }
         catch (Exception ex)

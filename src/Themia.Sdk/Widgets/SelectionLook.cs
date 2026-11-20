@@ -79,6 +79,12 @@ public static class SelectionLook
     public const double DragOpacity = 0.65;
 
     /// <summary>
+    /// [S-13046] How much of a moving desktop icon shows where it will land: the whole icon (its highlight, icon and name) as
+    /// its ghost, fainter than the see-through picture under the pointer (<see cref="DragOpacity"/>), which is the icon held.
+    /// </summary>
+    public const double Landing = 0.5;
+
+    /// <summary>
     /// [S-13974] How much of the name's shadow colour lies under icon only's name shown on hover, which is drawn over the
     /// neighbouring icons: enough that its light text reads over any icon or wallpaper, while the icons under it still show.
     /// </summary>

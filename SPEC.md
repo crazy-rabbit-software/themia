@@ -11277,7 +11277,8 @@ module's `FenceTests`.
   as many to a row as the body holds, `FenceGrid.Layout`, the one layout). There is no layout of a fence's items of its own.
   Tests `FenceGridTests.S13040_`, `FenceRulesTests.S13040_`.
 - **[S-13041]** **One move, one drop computation** (the same quote): an icon moving over, into or out of a fence is the
-  desktop's one move ([S-2008]: the card follows the pointer on the grid, the local grid lights where it lands); crossing
+  desktop's one move ([S-2008]: the card follows the pointer on the grid, the local grid lights where it lands; the icon's
+  picture under the pointer and its whole ghost where it lands, drawn over the fence, [S-13046]); crossing
   the fence's edge changes nothing (no hand-off to the shell's drag, no preview of the fence's, no re-layout, no size
   change, no glide). Where it lands is `DesktopFences.DropCell` for the free desktop and a fence alike: the grid's landing,
   and on a fence's body the cell under the icon's centre, never past the items that stay (a fence fills its cells in order)
@@ -11315,6 +11316,26 @@ module's `FenceTests`.
   them), so no gesture has a rule of its own. With Lock widgets on a fence is in no selection at all ([S-12953]). Tests
   `FenceSelectionTests.S13045_` (every gesture); `--desk-select-check` (host-level: Ctrl+press the fence, then an icon,
   the fence again, a Shift range, Ctrl+A, the band).
+- **[S-13046]** **An icon's move: the icon under the pointer, the whole icon where it lands** (the owner, 2026-11-19:
+  "when dragging a desktop icon into the fence it only show the icons corners as the ghost preview. it should show the
+  whole icon as the ghost preview. it should also still show the icon that is dragged with the mouse as well, not only in
+  the fence"): a move held by a desktop icon ([S-2008], [S-13041]; both modes, on the free desktop and over or in a fence
+  alike) draws two things. **Under the pointer** the picture Explorer's drag shows (`DragGhost`, [S-5564], [S-5565]: the
+  held icon in front, up to two of the other moving icons behind it, the count badge for several, see-through at
+  `SelectionLook.DragOpacity`), held where the icon was grabbed and moved every frame with the pointer (the surface's ghost
+  layer, as [S-13026]'s; the same picture the shell's drag shows when the move becomes one, [S-11878]). **Where the block
+  lands** (on the grid or a fence's cell, stepping cell by cell, [S-11891], [S-13041]) each moving icon whole, in the icon
+  size and layout in force (its highlight, icon and name: the card itself, [S-13970]), at `SelectionLook.Landing` as its
+  ghost, with its corner marks ([S-11889]) and the local grid ([S-11874]); cards a mixed block carries stay solid. Every
+  moving card is drawn over every other card while it moves (`DesktopWindow.LiftMoving`) and back in the view's paint
+  order ([S-874], [S-13042]) when it lands or the move is undone: before, a free icon moved onto a fence later in the
+  view's order stood under the fence's body, so only its corner marks (on the marker plates above every card) showed
+  there, and nothing followed the pointer. While the block is going to another display ([S-78]) the picture goes and the
+  cards fade as before. Cause and fix in `DesktopWindow.Selection.cs` (`BeginMove`, `StepMove`, `EndMoveLook`) and
+  `WidgetCard.SetGhost`. `--desk-select-check` draws a move into the fence and one on the free desktop mid-move
+  (`<out>.move-fence.png`, `<out>.move-free.png`; `--icon-layout below|beside|icononly`) and checks the ghost, the lift,
+  the picture and where the icon lands. Needs a live check: the real pointer dragging an icon over a fence and back, two
+  displays.
 - **[S-13018]** **A lasso names an area** (the owner, 2026-11-19: "when creating a lasso over a certain area it should
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each

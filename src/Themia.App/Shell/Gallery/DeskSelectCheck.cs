@@ -56,11 +56,21 @@ internal static partial class DeskSelectCheck
             return true;
         }
 
-        _ = RunAsync(app, Path.GetFullPath(args[at + 1]), args.Contains("--locked"), args.Contains("--live"), args.Contains("--twice"), args.Contains("--glass"));
+        // [S-13970] The desktop's icon layout the icons (and the moves' ghosts, [S-13046]) are drawn in.
+        var layoutAt = Array.IndexOf(args, "--icon-layout");
+        var layout = DesktopIconLayout.Below;
+        if (layoutAt >= 0 && (layoutAt + 1 >= args.Length || !Enum.TryParse(args[layoutAt + 1], ignoreCase: true, out layout) || !Enum.IsDefined(layout)))
+        {
+            Log.Error(Scope, $"usage: {Flag} <out.txt> [--icon-layout below|beside|icononly]");
+            app.Exit();
+            return true;
+        }
+
+        _ = RunAsync(app, Path.GetFullPath(args[at + 1]), args.Contains("--locked"), args.Contains("--live"), args.Contains("--twice"), args.Contains("--glass"), layout);
         return true;
     }
 
-    private static async Task RunAsync(Application app, string outPath, bool locked, bool live, bool twice, bool glass)
+    private static async Task RunAsync(Application app, string outPath, bool locked, bool live, bool twice, bool glass, DesktopIconLayout layout)
     {
         var lines = new List<string>();
         var failures = 0;
@@ -80,6 +90,7 @@ internal static partial class DeskSelectCheck
         {
             var state = AppState.CreateDefault();
             state.Preferences.LockWidgets = locked;
+            state.Preferences.DesktopIconLayout = layout;
             if (glass)
             {
                 DesignPresets.Apply(state.Design, DesignPresetId.LiquidGlass);
@@ -111,6 +122,11 @@ internal static partial class DeskSelectCheck
             ((IDesktopItemConfig)items[^2].Widget.Config).Item = twins[0];
             ((IDesktopItemConfig)items[^1].Widget.Config).Item = twins[1];
             view.Widgets.AddRange(items.Select(i => i.Widget));
+
+            // [S-13046] The fence last in the view's paint order, as one made after its icons: an icon moved onto it stood under its body.
+            var fenceWidget = items.First(i => i.Name == "fence").Widget;
+            view.Widgets.Remove(fenceWidget);
+            view.Widgets.Add(fenceWidget);
             state.ShowViewOn(DisplayId, view.Id);
 
             var bounds = live
@@ -248,6 +264,40 @@ internal static partial class DeskSelectCheck
                 host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
                 host.Key(WidgetKey.SelectAll, shift: false, items[Index("iconA")].Widget.Id);
                 Expect("Ctrl+A", Allowed(names));
+
+                // [S-13046] A desktop icon's move: Explorer's picture of it under the pointer, the whole icon where it lands as
+                // its ghost, over every card (a fence included); whole again where it landed. Drawn mid-move.
+                async Task MoveAsync(string name, Func<WidgetCard, Point> to, string tag, Func<bool> landed)
+                {
+                    host.DesktopEmptyPressed(surface, empty, ctrl: false, shift: false);
+                    var held = surface.CardFor(items[Index(name)].Widget.Id)!;
+                    var layer = (UIElement)held.Parent;
+                    var press = held.TransformToVisual(layer).TransformPoint(new Point(held.ActualWidth / 2, held.ActualHeight * 0.3));
+                    var target = to(held);
+                    var others = items.Where(i => i.Widget.Id != held.Model.Id).Select(i => surface.CardFor(i.Widget.Id)).OfType<WidgetCard>().ToList();
+                    surface.BeginMove(held, press);
+                    surface.PreviewMove(held, (target.X - press.X) / metrics.Width, (target.Y - press.Y) / metrics.Height);
+                    surface.FlushMove();
+                    await Task.Delay(500).ConfigureAwait(true);
+                    var ghost = Math.Abs(held.Opacity - Themia.Core.Widgets.SelectionLook.Landing) < 0.001;
+                    var lifted = others.TrueForAll(o => Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(held) > Microsoft.UI.Xaml.Controls.Canvas.GetZIndex(o));
+                    var picture = surface.ShowsDragPicture;
+                    await RenderPng.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, $".move-{tag}.png")).ConfigureAwait(true);
+                    surface.CommitMove(held);
+                    await Task.Delay(400).ConfigureAwait(true);
+                    var after = surface.CardFor(items[Index(name)].Widget.Id);
+                    var whole = after is { Opacity: 1 } && !surface.ShowsDragPicture;
+                    var ok = ghost && lifted && picture && whole && landed();
+                    failures += ok ? 0 : 1;
+                    Say($"{(ok ? "ok  " : "FAIL")} move {name} ({tag}): ghost where it lands {ghost}, over every card {lifted}, picture under the pointer {picture}, whole after {whole}, landed {landed()}");
+                }
+
+                var fenceCard = surface.CardFor(items[Index("fence")].Widget.Id)!;
+                var twinKey = KeyOf("twinP");
+                await MoveAsync("twinP", held => fenceCard.TransformToVisual((UIElement)held.Parent).TransformPoint(new Point(fenceCard.ActualWidth * 0.25, fenceCard.ActualHeight * 0.55)), "fence",
+                    () => Themia.Core.Desktop.DesktopFences.Holding(running.State.Views[0], twinKey) is not null).ConfigureAwait(true);
+                var before = Model(Index("iconA")).Rect;
+                await MoveAsync("iconA", held => new Point(metrics.Width * 0.79, metrics.Height * 0.16), "free", () => Model(Index("iconA")).Rect != before).ConfigureAwait(true);
             }
             else
             {

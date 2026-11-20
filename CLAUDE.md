@@ -57,8 +57,10 @@ Themia.exe --desktop-png <outDir> [--icon-size small|medium|large] [--icon-layou
 Themia.exe --drag-png <outDir>   # the locked desktop: a move with its local grid, icons on the widget grid at each icon
            # size, a mixed lasso selection (icons and cards), both themes [S-11874]..[S-11879]; --icon-layout below|beside|icononly
            # instead: that layout's icons and fences at medium and large [S-13970]..[S-13976]
-Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass]   # the locked desktop's one selection
-           # through a real host and surface: --live drives it with real input (SendInput, over every window), PASS or FAIL [S-12954]
+Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass] [--icon-layout below|beside|icononly]   # the locked
+           # desktop's one selection through a real host and surface: --live drives it with real input (SendInput, over every
+           # window), PASS or FAIL [S-12954]; host-level it also moves an icon into the fence and one on the free desktop, drawn
+           # mid-move to <out>.move-fence.png / .move-free.png [S-13046]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
 Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow]   # the edit bar (editbar-*: nothing,

@@ -1,5 +1,6 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
@@ -47,6 +48,15 @@ internal sealed partial class DesktopWindow
 
         /// <summary>[S-78] Whether the last step showed the block going to another display.</summary>
         public bool Leaving { get; set; }
+
+        /// <summary>[S-13046] Whether a desktop icon holds the move: its icons stand where they land as their ghosts.</summary>
+        public bool HeldByIcon { get; init; }
+
+        /// <summary>[S-13046] Explorer's picture of the moving icons, under the pointer while a desktop icon holds the move; else null.</summary>
+        public Themia.Core.Files.DragPicture? Picture { get; init; }
+
+        /// <summary>[S-13046] Where the pointer pressed, in the root's DIPs: the picture follows it by the move's translation.</summary>
+        public Point Press { get; init; }
     }
 
     private MoveSession? _move;
@@ -98,6 +108,16 @@ internal sealed partial class DesktopWindow
     public void BeginMove(WidgetCard card)
     {
         ArgumentNullException.ThrowIfNull(card);
+        BeginMove(card, card.PressPoint);
+    }
+
+    /// <summary>
+    /// [S-1584] <see cref="BeginMove(WidgetCard)"/> with the pointer's press at <paramref name="press"/> (the widget layer's
+    /// DIPs): [S-13046] held by a desktop icon, the move shows Explorer's picture of its icons there, following the pointer.
+    /// </summary>
+    internal void BeginMove(WidgetCard card, Point press)
+    {
+        ArgumentNullException.ThrowIfNull(card);
 
         var view = ViewForThisMonitor(_host.State);
         var ids = !EditMode
@@ -137,7 +157,17 @@ internal sealed partial class DesktopWindow
         var models = cards.ConvertAll(c => c.Card.Model);
         var cell = _host.DropCellFor(this, models);
         var apart = Design.WidgetCollisions ? Staying(cards.Select(c => c.Card), skipFences: cell is not null) : null;
-        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, apart, cards.FindIndex(c => ReferenceEquals(c.Card, card)), cell));
+
+        // [S-13046] Held by a desktop icon: the picture of the moving icons under the pointer, held where the icon was grabbed.
+        var heldByIcon = card.View is IDesktopIconView;
+        var pressAt = _widgetLayer.TransformToVisual(_root).TransformPoint(press);
+        var icons = heldByIcon ? cards.Where(c => c.Card.View is IDesktopIconView).Select(c => c.Card.Model.Id).ToHashSet(StringComparer.Ordinal) : [];
+        _move = new MoveSession(card, cards, PlacementPayload.FromView(view, ids, PlacementMode.Move, card.Model.Id), Block(cards, apart, cards.FindIndex(c => ReferenceEquals(c.Card, card)), cell))
+        {
+            HeldByIcon = heldByIcon,
+            Picture = heldByIcon ? DeskDragPicture(icons, card.Model.Id, icons.Count, pressAt) : null,
+            Press = pressAt,
+        };
     }
 
     /// <summary>[S-11890] The two translations of a move of <paramref name="cards"/>, on this display as it is now; [S-13041] the held card's landing on the cell of what it lands on.</summary>
@@ -245,6 +275,17 @@ internal sealed partial class DesktopWindow
             // [S-2244] Dragged cards are free; the ones they leave get their corners back at once.
             move.Moved = true;
             JoinCards();
+
+            // [S-13046] What moves is drawn over every other card (an icon over the fence it lands in), and the icons a
+            // desktop icon's move carries stand where they land as their ghosts.
+            LiftMoving(move);
+            if (move.HeldByIcon)
+            {
+                foreach (var (moving, _) in move.Cards.Where(c => c.Card.View is IDesktopIconView))
+                {
+                    moving.SetGhost(true);
+                }
+            }
         }
 
         var leaving = move.Payload is { } payload && _host.PreviewHandOff(this, payload);
@@ -255,6 +296,19 @@ internal sealed partial class DesktopWindow
             foreach (var (moving, _) in move.Cards)
             {
                 moving.SetLeaving(leaving);
+            }
+        }
+
+        // [S-13046] The icon under the pointer, every frame; not while the block goes to another display, which shows its ghost.
+        if (move.Picture is { } picture)
+        {
+            if (leaving)
+            {
+                HideDragPicture();
+            }
+            else
+            {
+                ShowDragPicture(picture, new Point(move.Press.X + (dxFrac * metrics.Width), move.Press.Y + (dyFrac * metrics.Height)));
             }
         }
 
@@ -270,6 +324,32 @@ internal sealed partial class DesktopWindow
             ShowMoveBorders(EditMode ? null : target, move);
             DragProfile.Lap(DragStage.Marks);
         }
+    }
+
+    /// <summary>[S-13046] Every moving card over every other card while it moves, in the order they had among themselves (a fence's icons over it).</summary>
+    private void LiftMoving(MoveSession move)
+    {
+        var top = _cards.Count;
+        foreach (var moving in move.Cards.Select(c => c.Card).OrderBy(c => Canvas.GetZIndex(c)).ToList())
+        {
+            Canvas.SetZIndex(moving, top++);
+        }
+    }
+
+    /// <summary>[S-13046] The move is over (landed, handed off or undone): the picture goes, the icons are whole again and every card back in the view's paint order.</summary>
+    private void EndMoveLook(MoveSession move)
+    {
+        if (move.Picture is not null)
+        {
+            HideDragPicture();
+        }
+
+        foreach (var (moving, _) in move.Cards)
+        {
+            moving.SetGhost(false);
+        }
+
+        ApplyPaintOrder(ViewForThisMonitor(_host.State));
     }
 
     /// <summary>
@@ -357,6 +437,7 @@ internal sealed partial class DesktopWindow
             PositionCard(moving, start);
         }
 
+        EndMoveLook(move);
         JoinCards();
     }
 
@@ -383,6 +464,7 @@ internal sealed partial class DesktopWindow
             moving.SetLeaving(false);
         }
 
+        EndMoveLook(move);
         if (move.Payload is { } payload && TryHandOff(payload))
         {
             return;

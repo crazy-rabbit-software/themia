@@ -257,6 +257,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     private FracRect _dragStartRect;
     private Point _dragStartPoint;
+
+    /// <summary>[S-78] [S-13046] The move's look: going to another display, a ghost where it lands.</summary>
+    private bool _leaving;
+    private bool _ghost;
     private ResizeHandle? _activeHandle;
 
     /// <summary>[S-1593] The press landed on a card of a multi-selection: a click without a drag narrows the selection to it.</summary>
@@ -1126,7 +1130,27 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// [S-78] Fade the card while its drop would land on another display, so the screen it is
     /// leaving says so as clearly as the ghost on the screen it is going to.
     /// </summary>
-    public void SetLeaving(bool leaving) => Opacity = leaving ? 0.35 : 1.0;
+    public void SetLeaving(bool leaving)
+    {
+        _leaving = leaving;
+        ShowMoveOpacity();
+    }
+
+    /// <summary>
+    /// [S-13046] While a move held by a desktop icon carries this icon: it stands where the block lands as the icon's ghost
+    /// (the whole icon, faint), the picture under the pointer being the icon the hand holds.
+    /// </summary>
+    public void SetGhost(bool ghost)
+    {
+        _ghost = ghost;
+        ShowMoveOpacity();
+    }
+
+    /// <summary>[S-78] [S-13046] Faded going to another display, a ghost where it lands, else whole.</summary>
+    private void ShowMoveOpacity() => Opacity = _leaving ? 0.35 : _ghost ? SelectionLook.Landing : 1.0;
+
+    /// <summary>[S-13046] Where the pointer pressed the card, in its parent's (the surface's widget layer's) DIPs.</summary>
+    internal Point PressPoint => _dragStartPoint;
 
     private ResizeHandle? HitHandle(object? source)
         => source is FrameworkElement { Tag: ResizeHandle handle } ? handle : null;
