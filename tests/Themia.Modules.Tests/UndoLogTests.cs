@@ -161,6 +161,27 @@ public sealed class UndoLogTests
     }
 
     [Fact]
+    public void S886_undo_a_delete_brings_the_widget_back_with_its_own_look()
+    {
+        var (state, view, clock) = Desk();
+        clock.Scale = 1.5;
+        clock.ItemBackground = FillChoice.Of("#336699", 0.8);
+        clock.ItemTextColor = "#FFEEDD";
+        clock.Align = ContentAlign.Center;
+        var history = new LayoutHistory(state);
+
+        view.Widgets.Remove(clock);
+        Assert.True(history.Commit(state, UndoAction.Delete));
+        Assert.Equal(UndoAction.Delete, history.Undo(state));
+
+        var back = Assert.Single(state.Views[0].Widgets, w => w.Id == clock.Id);
+        Assert.Equal(1.5, back.Scale);
+        Assert.True(back.ItemBackground.SameAs(FillChoice.Of("#336699", 0.8)));
+        Assert.Equal("#FFEEDD", back.ItemTextColor);
+        Assert.Equal(ContentAlign.Center, back.Align);
+    }
+
+    [Fact]
     public void S885_redo_takes_the_undone_change_again()
     {
         var (state, view, clock) = Desk();

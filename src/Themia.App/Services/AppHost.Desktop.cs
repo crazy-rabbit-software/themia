@@ -218,8 +218,9 @@ internal sealed partial class AppHost
     private (string Key, string Widget)? _renameArrival;
 
     /// <summary>
-    /// [S-5520] After an undo or redo, which may bring back a widget whose item has gone: the held
-    /// listing reconciled in place (the caller rebases and saves).
+    /// [S-5520] After an undo or redo, which may bring back a widget whose item has gone, or an import or a
+    /// reset, which brings its own known set ([S-498]): the held listing reconciled in place (the caller
+    /// rebases and saves).
     /// </summary>
     private void ReconcileDesktopAfterStep()
     {

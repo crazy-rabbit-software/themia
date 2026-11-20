@@ -157,8 +157,9 @@ public sealed class QuickSetTests
         Assert.Equal(a.BackgroundImage, a.Clone().BackgroundImage);
 
         var shape = WidgetShape.Of(a);
-        Assert.Equal(a.BackgroundImage, shape.BackgroundImage);
-        Assert.False(shape.SameLayout(shape with { BackgroundImage = null }));
+        Assert.Equal(a.BackgroundImage, shape.Look.BackgroundImage);
+        a.BackgroundImage = null;
+        Assert.False(shape.SameLayout(WidgetShape.Of(a)));
     }
 
     [Fact]

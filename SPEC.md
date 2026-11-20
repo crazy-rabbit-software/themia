@@ -3688,9 +3688,14 @@ itself is ⚙ › About Themia ([S-3580]). Owning files: `Themia.Core/Storage/Se
 - **[S-497]** On confirm, what the user has now is written beside the state file as
   `state.before-import-<yyyyMMdd-HHmmss>.json` — the in-memory state, since a debounced save may not
   have landed — and if that backup cannot be written nothing is imported.
-- **[S-498]** The import replaces the state **in place** in one mutation, then gives connected
+- **[S-498]** The import replaces the state **in place** in one mutation (`AppState.CopyFrom`: every stored property,
+  `StateCopyGuardTests.S498_` fail on one left out), then gives connected
   displays without an assignment a view as at startup. Start with Windows keeps this PC's value: it
-  is a fact about the registry here, not a preference.
+  is a fact about the registry here, not a preference. The desktop layer's memory (`desktop`: the known set, the
+  stand-ins, the sort, [S-5522]) is replaced with the views it belongs to, and the desktop as it is now is read against
+  it in the same mutation: a reset's empty known set lays every icon on the fresh views, as a new state does. *(Until
+  2026-11-20 it was kept: the known set named every item while the views held none of them, so after a reset no icon
+  arrived again.)*
 - **[S-499]** *(Retired by [S-3585]: there is no settings window and no `--settings-png`; ⚙'s
   sections are drawn by `--editbar-png`, [S-3535], [S-3583], over the same detached store that writes
   nothing.)*
@@ -10573,8 +10578,12 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   shows "Deleted …" with Undo (Delete still asks nothing first). A notice's Undo/Redo acts only while
   the history's `Version` is the one it was offered at; otherwise it says the desktop changed and
   points to Ctrl+Z.
-- **[S-886]** A step restores the arrangement (`LayoutShape`): views (id, name, icon, order, groups)
-  and every widget's kind, geometry, z-order, header, surface, title and group ([S-2456]). Not content: a widget that
+- **[S-886]** A step restores the arrangement (`LayoutShape`): views (id, name, icon, colour, which desktop icons they
+  show, order) and every widget's z-order and whole instance but its config (`WidgetShape`: a copy keeping its id, so its
+  kind, geometry, title and its own look: background, background image, item background, item text colour, scale and
+  alignment; a fence's items, [S-13010]). One copy does it, `WidgetInstance.CopyArrangementFrom` (the snapshot, its
+  restore and `Clone`), and one comparison, `SameArrangement`; `StateCopyGuardTests.S886_` walk the stored properties
+  and fail on one either leaves out. Not content: a widget that
   survives keeps its current config (text typed after a move is not taken back) and its instance
   (its card stays). A widget brought back gets the config it had (held by reference, never copied).
   A view brought back returns to the displays that showed it; every reference to a view that goes is
@@ -10583,7 +10592,7 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
 - **[S-887]** Drift (a layout change made without a commit) is folded into the next step, or recorded
   as its own Change before an undo; never lost under a restore. The view the system assigns to a new
   display ([S-1705]) is adopted without becoming a step. Import and reset clear the history.
-- **[S-888]** Not undone: widget content and settings-page config, appearance, preferences, display
+- **[S-888]** Not undone: widget content and settings-page config, the app-wide appearance, preferences, display
   switches and scales, view-bar settings, which view a display shows, and a view bar's visible-view
   list after a view delete is undone (the view returns hidden from bars that listed it).
 - **[S-890]** Crash-loop guard (`Core/Storage/BootGuard`, `boot_attempts` beside the state file):

@@ -105,22 +105,51 @@ public sealed class WidgetInstance
     public static FillChoice DefaultBackground(WidgetId kind)
         => ModuleCatalog.Of(kind).Traits.HasFlag(WidgetTraits.StartsTransparent) ? FillChoice.Transparent() : new();
 
-    public WidgetInstance Clone() => new()
+    /// <summary>A copy under a new id, its config copied too: a paste, a duplicate.</summary>
+    public WidgetInstance Clone()
     {
-        Id = Guid.NewGuid().ToString("n"),
-        Label = Label,
-        Background = Background.Clone(),
-        BackgroundImage = BackgroundImage,
-        ItemBackground = ItemBackground.Clone(),
-        ItemTextColor = ItemTextColor,
-        Scale = Scale,
-        Align = Align,
-        Config = Config.Clone(),
-        X = X,
-        Y = Y,
-        W = W,
-        H = H,
-    };
+        var copy = new WidgetInstance { Id = Guid.NewGuid().ToString("n"), Config = Config.Clone() };
+        copy.CopyArrangementFrom(this);
+        return copy;
+    }
+
+    /// <summary>
+    /// [S-886] Take every stored property of <paramref name="source"/> but its id and its config: the widget's
+    /// whole arrangement (its place and size, its title and its own look). The one hand-written copy of a widget:
+    /// <see cref="Clone"/>, the undo snapshot and its restore all go through it, and a guard test fails on a stored
+    /// property it leaves out.
+    /// </summary>
+    public void CopyArrangementFrom(WidgetInstance source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        X = source.X;
+        Y = source.Y;
+        W = source.W;
+        H = source.H;
+        Label = source.Label;
+        Background = source.Background.Clone();
+        BackgroundImage = source.BackgroundImage;
+        ItemBackground = source.ItemBackground.Clone();
+        ItemTextColor = source.ItemTextColor;
+        Scale = source.Scale;
+        Align = source.Align;
+    }
+
+    /// <summary>[S-886] Whether the two are arranged alike: every property <see cref="CopyArrangementFrom"/> copies is equal.</summary>
+    public bool SameArrangement(WidgetInstance other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+
+        return X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
+            && string.Equals(Label, other.Label, StringComparison.Ordinal)
+            && Background.SameAs(other.Background)
+            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
+            && ItemBackground.SameAs(other.ItemBackground)
+            && string.Equals(ItemTextColor, other.ItemTextColor, StringComparison.Ordinal)
+            && Scale.Equals(other.Scale)
+            && Align == other.Align;
+    }
 }
 
 /// <summary>A named desktop layout. Views are switched as a whole; each holds its own widgets.</summary>
@@ -360,6 +389,28 @@ public sealed class AppState
             Views = [home, work],
             ActiveViewId = home.Id,
         };
+    }
+
+    /// <summary>
+    /// [S-498] Make this state <paramref name="source"/>'s, in place, so everything holding the live state sees it:
+    /// every stored property taken over (by reference: <paramref name="source"/> is given up). The one hand-written
+    /// copy of the whole state; a guard test fails on a stored property it leaves out.
+    /// </summary>
+    public void CopyFrom(AppState source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        SchemaVersion = source.SchemaVersion;
+        Views = source.Views;
+        ActiveViewId = source.ActiveViewId;
+        MonitorViews = source.MonitorViews;
+        Design = source.Design;
+        Preferences = source.Preferences;
+        DefaultViewForNewDisplays = source.DefaultViewForNewDisplays;
+        DisabledMonitors = source.DisabledMonitors;
+        MonitorScales = source.MonitorScales;
+        ViewBars = source.ViewBars;
+        Desktop = source.Desktop;
     }
 
     public ViewState? FindView(string? id)

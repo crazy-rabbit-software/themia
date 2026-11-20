@@ -188,7 +188,8 @@ public static class SettingsTransfer
 
     /// <summary>
     /// [S-498] Replace <paramref name="target"/>'s contents with <paramref name="incoming"/>'s, in
-    /// place, so everything holding the live state sees the new one.
+    /// place, so everything holding the live state sees the new one: every stored property, the
+    /// desktop layer's memory (<see cref="AppState.Desktop"/>) with the views it belongs to.
     /// <para>
     /// Start with Windows is the exception: it is a fact about this PC's registry rather than a
     /// preference, and importing another machine's answer would leave the setting saying something
@@ -201,18 +202,8 @@ public static class SettingsTransfer
         ArgumentNullException.ThrowIfNull(incoming);
 
         var runAtStartup = target.Design.RunAtStartup;
-
-        target.SchemaVersion = incoming.SchemaVersion;
-        target.Views = incoming.Views;
-        target.ActiveViewId = incoming.ActiveViewId;
-        target.MonitorViews = incoming.MonitorViews;
-        target.Design = incoming.Design;
+        target.CopyFrom(incoming);
         target.Design.RunAtStartup = runAtStartup;
-        target.Preferences = incoming.Preferences;
-        target.DefaultViewForNewDisplays = incoming.DefaultViewForNewDisplays;
-        target.DisabledMonitors = incoming.DisabledMonitors;
-        target.MonitorScales = incoming.MonitorScales;
-        target.ViewBars = incoming.ViewBars;
     }
 
     /// <summary>

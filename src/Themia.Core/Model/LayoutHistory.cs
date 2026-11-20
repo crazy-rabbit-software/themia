@@ -2,47 +2,36 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>One widget as an undo snapshot sees it: where it is and what it is, plus its config by reference.</summary>
-public sealed record WidgetShape(
-    string Id,
-    WidgetId Kind,
-    double X,
-    double Y,
-    double W,
-    double H,
-    string? Label,
-    FillChoice Background,
-    WidgetConfig Config)
+/// <summary>
+/// [S-886] One widget as an undo snapshot sees it: its whole arrangement, a copy of the instance that keeps its id
+/// (<see cref="WidgetInstance.CopyArrangementFrom"/>: place, size, title and its own look), and its config by reference.
+/// </summary>
+/// <param name="Look">The copy: every stored property of the widget, its config the widget's own object.</param>
+/// <param name="Held">
+/// [S-13010] A fence's items as they were (<see cref="IHoldsDesktopItems"/>), copied: which desktop items stand in a
+/// fence and which on the free desktop is the arrangement, so a move into or out of a fence is undone with the icons'
+/// places. Null for every other widget.
+/// </param>
+public sealed record WidgetShape(WidgetInstance Look, IReadOnlyList<string>? Held)
 {
-    /// <summary>[S-6590] The widget's background image, undone with its background.</summary>
-    public string? BackgroundImage { get; init; }
+    public string Id => Look.Id;
 
-    /// <summary>
-    /// [S-13010] A fence's items as they were (<see cref="IHoldsDesktopItems"/>), copied: which desktop items stand in a
-    /// fence and which on the free desktop is the arrangement, so a move into or out of a fence is undone with the icons'
-    /// places. Null for every other widget.
-    /// </summary>
-    public IReadOnlyList<string>? Held { get; init; }
+    public WidgetId Kind => Look.Kind;
 
     public static WidgetShape Of(WidgetInstance widget)
     {
         ArgumentNullException.ThrowIfNull(widget);
-        return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Background.Clone(), widget.Config)
-        {
-            BackgroundImage = widget.BackgroundImage,
-            Held = widget.Config is IHoldsDesktopItems fence ? [.. fence.Items] : null,
-        };
+
+        var look = new WidgetInstance { Id = widget.Id, Config = widget.Config };
+        look.CopyArrangementFrom(widget);
+        return new(look, widget.Config is IHoldsDesktopItems fence ? [.. fence.Items] : null);
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
     public bool SameLayout(WidgetShape other)
     {
         ArgumentNullException.ThrowIfNull(other);
-        return Id == other.Id && Kind == other.Kind
-            && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
-            && Label == other.Label && Background.SameAs(other.Background)
-            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal)
+        return Id == other.Id && Kind == other.Kind && Look.SameArrangement(other.Look)
             && (Held is null ? other.Held is null : other.Held is not null && Held.SequenceEqual(other.Held, StringComparer.Ordinal));
     }
 }
@@ -58,8 +47,8 @@ public sealed record ViewShape(string Id, string Name, string? Icon, IReadOnlyLi
 }
 
 /// <summary>
-/// [S-886] The part of the state an undo restores: the views, their names, icons and order, and every
-/// widget's kind, geometry, z-order, header, background and title.
+/// [S-886] The part of the state an undo restores: the views (name, icon, colour, which desktop icons
+/// they show, order), and every widget's z-order and whole instance but its config (<see cref="WidgetShape"/>).
 /// <para>
 /// <b>Not</b> the widgets' content. A config is the widget's own data — the text of a note, a
 /// timer's state — and is changed by using the widget, not by arranging the
@@ -185,28 +174,12 @@ public sealed class LayoutShape
             {
                 if (widgetsById.TryGetValue(w.Id, out var widget) && widget.Kind == w.Kind)
                 {
-                    widget.X = w.X;
-                    widget.Y = w.Y;
-                    widget.W = w.W;
-                    widget.H = w.H;
-                    widget.Label = w.Label;
-                    widget.Background = w.Background.Clone();
-                    widget.BackgroundImage = w.BackgroundImage;
+                    widget.CopyArrangementFrom(w.Look);
                 }
                 else
                 {
-                    widget = new WidgetInstance
-                    {
-                        Id = w.Id,
-                        X = w.X,
-                        Y = w.Y,
-                        W = w.W,
-                        H = w.H,
-                        Label = w.Label,
-                        Background = w.Background.Clone(),
-                        BackgroundImage = w.BackgroundImage,
-                        Config = w.Config,
-                    };
+                    widget = new WidgetInstance { Id = w.Id, Config = w.Look.Config };
+                    widget.CopyArrangementFrom(w.Look);
                 }
 
                 // [S-13010] A fence's items come back with the arrangement.

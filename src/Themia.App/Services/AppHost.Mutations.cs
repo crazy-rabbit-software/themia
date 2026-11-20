@@ -296,6 +296,10 @@ internal sealed partial class AppHost
             // Displays named in the file that are not connected keep their assignment ([S-18]);
             // the ones that are connected and unnamed get an existing view, as at startup ([S-1705]).
             DisplayPlan.AssignViews(state, DisplayViewKeys());
+
+            // [S-498] [S-5522] The desktop's memory came with the views: the desktop as it is now is read against it in
+            // the same step (a reset's empty known set lays every icon on the fresh views, as a new state does).
+            ReconcileDesktopAfterStep();
         });
 
         // The imported file carries its own per-display switches ([S-845]).
