@@ -210,7 +210,8 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         // under's box reaches the grid line the rows start on.
         var ink = rows ? LineInk.Of(FamilyType.Big28).Over : 0;
         var spare = rows ? LineRules.Under(ItemGrids.Of(this), FamilySpace.Inset - ink, _price.MinHeight) - _price.MinHeight : 0;
-        _price.Margin = Family.SideInset with { Top = -ink };
+        // In the block the fit's own margin is the side inset (WR-3): a second one stood the price twice the inset in, scaled.
+        _price.Margin = rows ? Family.SideInset with { Top = -ink } : default;
         _price.UnderText.Padding = new Thickness(0, 0, 0, spare);
     }
 
