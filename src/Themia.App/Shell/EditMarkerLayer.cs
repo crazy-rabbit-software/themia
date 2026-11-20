@@ -9,10 +9,27 @@ namespace Themia.App.Shell;
 /// one line and no neighbour's halo cuts through a bar. [S-1597] Over the ink, the lift plates: a selected
 /// card's grips and move area, so a selected card under another takes every press on its handles and its
 /// body first (<see cref="Themia.Core.Model.SelectionRules.PressTarget"/>). Every other card keeps its grips.
-/// A card's plates follow it on their own; it takes them off as it detaches.
+/// A card's plates follow it on their own; it takes them off as it detaches. [S-2460] Over them all, the selection's
+/// frame: its halos and bars on the same plates, its grips over every card's.
 /// </summary>
 internal sealed class EditMarkerLayer
 {
+    public EditMarkerLayer()
+    {
+        // [S-2460] The frame's parts over every card's on each plate, whatever joins later.
+        foreach (var (plate, part) in new[] { (Halos, Frame.Halos), (Inks, Frame.Inks), (Lifts, Frame.Grips) })
+        {
+            Canvas.SetZIndex(part, FrameOrder);
+            plate.Children.Add(part);
+        }
+    }
+
+    /// <summary>[S-2460] Where the frame stands on each plate: over a selected card's bars (1) and every lifted grip.</summary>
+    private const int FrameOrder = 2;
+
+    /// <summary>[S-2460] The frame round a selection of several, with its grips.</summary>
+    public SelectionFrame Frame { get; } = new();
+
     /// <summary>Every card's halos, drawn first.</summary>
     public Canvas Halos { get; } = UiLanguage.KeepLeftToRight(new Canvas { IsHitTestVisible = false });
 

@@ -61,10 +61,11 @@ Themia.exe --desk-select-check <out.txt> [--locked] [--live] [--twice] [--glass]
            # through a real host and surface: --live drives it with real input (SendInput, over every window), PASS or FAIL [S-12954]
 Themia.exe --drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
-Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced|follow]   # the edit bar (editbar-*: nothing,
+Themia.exe --editbar-png <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow]   # the edit bar (editbar-*: nothing,
            # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
            # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*); the selection's page
-           # beside real cards (select-*) [S-2328]; a flyout following its page as a card opens and closes (-follow-*, PASS or
+           # beside real cards (select-*) [S-2328]; the edit marks (marks-*) and a block resized by the selection's frame
+           # (marks-*-block*, [S-2460]); a flyout following its page as a card opens and closes (-follow-*, PASS or
            # FAIL, [S-2350]). --picker-png takes --theme too. There is no settings window [S-3585]
 Themia.exe --displays-check <outDir>   # one view on two stand-in displays, the taskbar left on one and right on the other,
            # through a real host and surfaces: every card clear of both taskbars, placement at the far edges, PASS or FAIL [S-855]
@@ -392,7 +393,9 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   group page; a state file that still names them loads with those keys dropped loudly (`AppStateStore.DropUnknownKeys`).
   Edit mode selects widgets (`WidgetSelection`: a press the widget alone or keeps a selection that holds it, a click
   narrows, Ctrl/Shift+click toggles one, the lasso what it touches, Tab one by one, Escape clears); several selected
-  move as one block (snapped, whole device pixels, [S-11873]; kept apart, [S-11959]) and are set together on the page
+  move as one block (snapped, whole device pixels, [S-11873]; kept apart, [S-11959]), resize as one block by the
+  selection's frame round them or Shift+arrows (`BlockResize`: scaled about the opposite edge, every edge on a grid line,
+  on a common step, each member in its own sizing, [S-2460]..[S-2465]) and are set together on the page
   of several ("For all of them" and Appearance, [S-11754], [S-11755]). Every selected card shows its marks; a selected
   card's grips and move area are lifted over every card (`WidgetCard.MarkerLift` on `EditMarkerLayer.Lifts`,
   `SelectionRules.PressTarget`, [S-1597]) so one under another keeps all its handles; the drawing order stays.

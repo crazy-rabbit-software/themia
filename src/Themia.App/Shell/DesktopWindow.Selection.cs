@@ -233,6 +233,9 @@ internal sealed partial class DesktopWindow
                 moving.SetLiveRect(at);
                 moving.FollowMove(GridGeometry.ToPixels(at, metrics, RasterScale));
             }
+
+            // [S-2460] The selection's frame goes with the block.
+            SyncFrame();
         }
 
         DragProfile.Lap(DragStage.Position);

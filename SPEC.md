@@ -137,7 +137,7 @@ Sections, grouped by area (file order below; search for the heading).
   the keyboard resize are unchanged. (Tests `S31b_`.)
 - **[S-31c]** Every widget in edit mode shows its markers: a selected one in the accent
   (`AccentFillColorDefault`), every other one in the neutral strong stroke (`ControlStrongFillColorDefault`).
-  Each widget of a multi-selection shows accent markers. `--editbar-png` writes `marks-<theme>-r4.png`,
+  Each widget of a multi-selection shows accent markers. `--editbar-png` (`--only marks`) writes `marks-<theme>-r4.png`,
   `-r16.png` and `-multi.png`.
 
 ## Defaults & placement
@@ -2133,7 +2133,8 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   way); the selected widgets move together and never hold each other. Touching edges are no overlap, nor an overlap
   thinner than one whole pixel step of the drag ([S-11873]), so a block still lands flush beside a neighbour on a
   display whose grid pitch is not whole steps. Widgets already lying over each other are left as they are, and a
-  moved one may stay over or leave the one it started over, but never comes over another. Resizing, placing, a
+  moved one may stay over or leave the one it started over, but never comes over another. A block's resize by the
+  selection's frame or Shift+arrows is held too ([S-2465]). A single widget's resize, placing, a
   paste, icons dropped back from the shell's drag and a hand-off to another display are not held. Tests
   `WidgetCollisionsTests.S11959_`, `SettingsMenuTests.S11959_`.
 - **[S-2321]** The entry whose flyout is open is lit: the subtle fill and the accent's 16 × 3 pill at
@@ -6755,8 +6756,9 @@ there: Themia never takes a key from the app the user is typing in.
   minimum ([S-6608]), never pulled apart at an edge. An off-grid widget lands
   on the next line in the arrow's direction, never back where it was. Nothing selected, or a ghost
   being placed: the arrows do nothing.
-- **[S-1971]** **Shift** + arrow resizes instead, each selected widget on its own, always by its
-  **right or bottom edge** (Right / Down grow, Left / Up shrink), so the top-left corner stays put.
+- **[S-1971]** **Shift** + arrow resizes instead, always by the **right or bottom edge** (Right / Down grow,
+  Left / Up shrink), so the top-left corner stays put: one widget selected, that widget; several, the block of them
+  as the selection's frame resizes it ([S-2464]).
   Only the moved edge snaps ([S-31a]); the [S-08] floor and the visible minimum ([S-6608]) stop it,
   and it may grow past the work-area edge. Shift was
   chosen over a bigger step because one modifier per meaning (Ctrl = far, Alt = fine) combines.
@@ -8777,8 +8779,8 @@ Tests: `MultiSelectPlacementTests`, `WidgetClipboardTests`, `WidgetTransferTests
   on the work area's ([S-06], [S-6609]), and the move stops where the first of its
   widgets would keep less than the visible minimum on the work area ([S-6608]) — never resized — and
   each rect is then kept in reach ([S-09]). Offsets between the widgets never change. That is where the block
-  **lands**, and while it is dragged it is drawn there, on the grid ([S-11891]). Resizing is per
-  card and narrows the selection to it ([S-2451]).
+  **lands**, and while it is dragged it is drawn there, on the grid ([S-11891]). A card's own grip resizes that card
+  alone and narrows the selection to it ([S-2451]); the selection's frame resizes them all as one block ([S-2460]).
 - **[S-11879]** **A mixed block on the locked desktop** (owner, 2026-11-15: "the widgets in the desktop should also
   be selected with the lasso, and also moved with everything as well then"): outside edit mode a press on any selected
   widget, icon or card, moves **every selected widget of that display's view** as one block
@@ -8877,16 +8879,18 @@ makes a composition one thing. Several widgets selected together are arranged an
   of the selection keeps it so the drag carries all of it, and its click (released without moving) narrows to it
   ([S-1593]); **Ctrl+click** (or Shift) puts one widget in or out; the **rubber band** takes the widgets it touches
   and nothing they only touch; **Ctrl+A** takes everything; **Tab** cycles the widgets in reading order, one at a
-  time ([S-1973]); **Escape** clears the selection. A press on a resize handle selects that widget alone. Tests
+  time ([S-1973]); **Escape** clears the selection. A press on a card's own resize handle selects that widget alone
+  (the selection's frame's resizes the block, [S-2460]). Tests
   `NoGroupsTests.S1593_`, `.S1580_`, `.S1581_`, `.S1973_`.
 - **[S-2452]** **Several selected act as one**: they move as one block, by one translation, snapped and in whole
   device pixels ([S-1584], [S-11873]), kept apart from the cards that stay when Keep widgets from overlapping is on
-  ([S-11959]); they copy, cut, paste, delete and are layered together ([S-1592]); the arrow keys nudge them whole
-  ([S-1970]). Their page is **For all of them** (each shared setting once, [S-11751]) and the Appearance tab, set on
+  ([S-11959]); they are resized together by the selection's frame and Shift+arrows ([S-2460]..[S-2465]); they copy,
+  cut, paste, delete and are layered together ([S-1592]); the arrow keys nudge them whole ([S-1970]). Their page is **For all of them** (each shared setting once, [S-11751]) and the Appearance tab, set on
   every one ([S-11754], [S-11755]). Tests `NoGroupsTests.S1584_`, `BlockMoveTests.S11873_`,
   `WidgetCollisionsTests.S11959_a_selection_moves_as_one_block_its_touching_widgets_never_holding_each_other`.
 - **[S-2453]** **Every selected widget shows its marks**: in edit mode each card draws its eight markers (a
-  selected one in the accent, every other neutral, [S-31c]) and its handles; several selected show theirs each.
+  selected one in the accent, every other neutral, [S-31c]) and its handles; several selected show theirs each, and
+  the selection's frame round them all ([S-2460]).
   *(The group's corners-only marks, [S-2459], are gone with the groups.)*
 - **[S-2459]** *(Retired 2026-11-17 with the groups, [S-2450].)*
 - **[S-2454]** *(Retired 2026-11-17: Group and Ungroup are gone, [S-2450].)*
@@ -8898,6 +8902,57 @@ makes a composition one thing. Several widgets selected together are arranged an
   among themselves while they move, a set of their own free of the cards standing still ([S-2244];
   `CardJoins.Outlines` takes a set per card: two cards join only within one set), with no line between them
   ([S-11870]). Tests `NoGroupsShellTests.S2457_`.
+- **[S-2460]** **Several selected resize as one block** (owner, 2026-11-20: "add the possibility to resize multiple
+  widgets with each other. they should still snap to the grid of course. this means in some cases you need to work
+  with common denominators and stuff" / "when multiple ones are selected and you basically grab the edge of the
+  selection this should be done"). In edit mode two or more selected widgets of a display show **the selection's
+  frame** (`SelectionFrame` on the surface's `EditMarkerLayer`): an accent hairline one device pixel outside the box
+  round all of them, and that box's eight markers and grips in a single card's look ([S-31b]: brackets at the corners,
+  bars at the edges' centres, each over its halo, on the same plates as the cards' marks, so where it meets a member's
+  marks they are one line). Its grips stand over every card's lifted grips ([S-1597]), so a press on the frame's edge or
+  corner is the block's even over a member's own grip; the members keep their own grips elsewhere ([S-2451]). An axis
+  no member may resize (every member fixed on it, desktop icons) has no grip there (`BlockResize.Free`). The frame goes
+  with the block while it moves, follows a resize, and is not drawn while a widget is placed. Dragging a grip
+  **scales the whole block about the opposite edge or corner**: every member's rect, positions and sizes alike, then
+  settled (`BlockResize.Resize`, Core):
+  each axis the handle moves is laid on its own; the members' distinct edges, measured in whole cells from the
+  anchored edge, are scaled by the block's new length over its old, each to its nearest line (whole cells from the
+  anchored edge: grid lines wherever that edge is on one, as a single resize keeps its anchored edge, [S-31a]); a member
+  takes the size its own sizing gives the room between its two edges (`AxisLimits.Range`: its Min, Max and steps), and
+  an edge a member ends on stands where that member's size puts it, so members that touch stay touching. The anchored
+  edges never move. While dragged the cards are drawn where they land, each showing the config its size means
+  ([S-2442]) and joined among themselves ([S-2457]); the page waits until the pointer lets go ([S-2343]). Let go, every
+  member lands, a list's rows with its size, all in **one undo step**. Tests `BlockResizeTests.S2460_`; renders
+  `--editbar-png --only select` (`select-*-two`, `-many`, `-touching`: the frame) and `--only marks` (`marks-*-multi`,
+  `marks-*-block`, `-block-corner`, `-block-left`, `-block-keys`: one block before and after).
+- **[S-2461]** **The common step.** The block's length moves by the fewest whole cells at which every edge of every
+  member (and of every gap between them) scales to a whole cell exactly: the block's length over the greatest common
+  divisor of the edges' distances from the anchored edge (`BlockResize.CommonStep`), when that is at most 8 cells
+  (`MostCommonStep`). Two equal widgets side by side grow a cell each, together (a step of 2); 20 and 30 cells grow 2
+  and 3 cells a step of 5. Where the exact step is coarser (17 and 23 cells: 40) or an edge is off the whole cells (a
+  magnet's flush edge, [S-6609]), the block goes cell by cell and each edge lands on its nearest line, the block's own
+  length exactly the cells dragged. The pointer takes the step nearest it (half a step and more goes on). Tests
+  `BlockResizeTests.S2461_`.
+- **[S-2462]** **Each member's sizing stops the block.** The block stops at the last length at which every member stays
+  inside its own sizing: one member at its Min or Max stops all of them ([S-2445]). A stepped member (a list's rows)
+  lands on its step and its neighbours stay joined to it; a member fixed on an axis (a desktop icon) keeps its size and
+  moves with its nearer edge. The block may go over the screen's edge ([S-2330]) and stops before a member keeps less
+  than the visible minimum on the work area ([S-6608]). A stop lands on the last common step before it where one was
+  passed, else (a limit nearer than one step) on that last length itself. Tests `BlockResizeTests.S2462_`.
+- **[S-2463]** **Order and gaps are kept.** Edges keep their order, and two edges that were apart stay at least a cell
+  apart, however far the block shrinks: members that neither touched nor overlapped never come to, touching ones stay
+  touching, overlapping ones stay overlapping, and side by side keeps its side (a random sweep of blocks, handles and
+  drags pins it). Tests `BlockResizeTests.S2463_`.
+- **[S-2464]** **The keys.** Shift+arrow on a selection of several resizes the block as the frame does, by its right or
+  bottom edge (Right and Down grow, Left and Up shrink; the top-left corner stays), one common step a press (at least
+  one cell; Ctrl ten cells, on the common step); a press that would change nothing (a list between two of its rows)
+  goes on to the next length that changes one. One press-and-hold is one undo step ([S-1972]). Tests
+  `BlockResizeTests.S2464_`.
+- **[S-2465]** **Kept apart.** With Keep widgets from overlapping on ([S-11959]) a block's resize comes over no widget
+  that stays: it stops at the last length clear of them (a corner still grows along the axis that is clear, both
+  orders tried, the one that goes further taken). Tests `BlockResizeTests.S2465_`.
+  Not live-verified: the frame's drag with a real pointer (its grips over a member's own, the cursor shapes, the
+  capture lost to another window), the frame across a hand-off to another display, mixed DPI.
 - **[S-2458]** *(Retired 2026-11-17: a scene has no `group` key and its `edit` block no `group` or `enter`; a scene
   selects widgets by their `selected`, a ready-made group's entry by its own `selected`, [S-11860].)*
 - **[S-1597]** **A selected widget keeps all its handles over the cards above it** (owner, 2026-11-17: "when a

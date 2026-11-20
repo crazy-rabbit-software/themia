@@ -111,6 +111,9 @@ internal sealed partial class DesktopWindow
         // [S-2343] A new selection: its entry on the bar, its flyout opened once.
         SyncProperties();
         ShowToolbar();
+
+        // [S-2460] Several selected: the frame round them.
+        SyncFrame();
     }
 
     private void OnStateChanged()
@@ -153,6 +156,7 @@ internal sealed partial class DesktopWindow
         }
 
         FadeLeaving();
+        SyncFrame();
 
         // [S-802] Edit mode ends a keyboard lease: the keys are the edit shortcuts now.
         if (editing)
@@ -383,15 +387,19 @@ internal sealed partial class DesktopWindow
     private void JoinCards()
     {
         WidgetCard.Join(_cards, Metrics, RasterScale, EditMode, JoinSet);
+
+        // [S-2460] The selection's frame round where its cards now stand.
+        SyncFrame();
     }
 
     /// <summary>
     /// [S-2244] [S-2457] Which cards a card may join: a resized one none (null); the cards a drag carries
-    /// (a selection) one another (1), free of the cards standing still (0).
+    /// (a selection) one another (1), free of the cards standing still (0); [S-2460] so the members of a block resized.
     /// </summary>
     private int? JoinSet(WidgetCard card)
         => card.IsResizing ? null
             : _move is { Moved: true } move && move.Cards.Exists(c => ReferenceEquals(c.Card, card)) ? 1
+            : _blockResize is { Stepped: true } resize && resize.Holds(card) ? 1
             : 0;
 
     /// <summary>

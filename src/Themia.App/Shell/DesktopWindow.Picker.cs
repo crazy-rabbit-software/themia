@@ -361,6 +361,9 @@ internal sealed partial class DesktopWindow
 
         FadeLeaving();
 
+        // [S-2460] No frame while a widget is placed.
+        SyncFrame();
+
         if (placing is not null)
         {
             EndLasso();

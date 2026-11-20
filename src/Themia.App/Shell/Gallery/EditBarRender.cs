@@ -22,7 +22,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-2328] Debug only: draw the real edit bar ([S-2320]) and its flyouts off-screen to PNGs.
-/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|select|unplaced|follow] [--raster 100]</c> writes the bar
+/// <c>Themia.exe --editbar-png &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow] [--raster 100]</c> writes the bar
 /// (<c>editbar-&lt;theme&gt;.png</c>: nothing selected; <c>-widget</c>, one widget; <c>-many</c>, two of a kind;
 /// <c>-mixed</c>, three of several; <c>-errors</c>, the problems' button; <c>-open</c>, General's entry lit;
 /// <c>-narrow</c> and <c>-narrowest</c>, 900- and 640-wide displays; <c>-add</c>, the add menu; <c>-placing</c>,
@@ -79,7 +79,7 @@ internal static partial class EditBarRender
 
         if (at + 1 >= args.Length || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|appearance|select|unplaced|follow] [--raster 100]");
+            Log.Error(Scope, $"usage: {Flag} <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow] [--raster 100]");
             app.Exit();
             return true;
         }
@@ -163,10 +163,13 @@ internal static partial class EditBarRender
                 {
                     ticker = new Ticker(dispatcher);
                     await SelectionShots(screen, ticker, outDir, theme).ConfigureAwait(true);
-                    if (only is null)
-                    {
-                        await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
-                    }
+                }
+
+                // [S-31b] The edit markers; [S-2460] the selection's frame and a block resized by it.
+                if (only is null or "marks")
+                {
+                    ticker ??= new Ticker(dispatcher);
+                    await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
                 }
             }
             catch (Exception ex)
@@ -694,6 +697,9 @@ internal static partial class EditBarRender
         canvas.Children.Add(markers.Halos);
         canvas.Children.Add(markers.Inks);
 
+        // [S-2460] Several selected: the frame round them.
+        FrameRound(markers, [.. cards.Zip(widgets).Where(c => c.Second.Spec.Selected).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], screen);
+
         var page = SelectionPageOf(view, selected, lines);
         var area = new PixelRect(0, 0, ScreenWidth, OpenHeight);
         var flyout = HangFlyout(canvas, page, bar, barRect, null, area);
@@ -779,12 +785,76 @@ internal static partial class EditBarRender
             new(new WidgetId("wifiToggle"), 600, 100, 120, 120, false),
         ];
         await MarkerShot(screen, ticker, neighbours, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-neighbours.png")).ConfigureAwait(true);
+        await BlockShots(screen, ticker, outDir, theme).ConfigureAwait(true);
     }
 
-    private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path)
+    /// <summary>
+    /// [S-2460] A block resized by the selection's frame, through Core's <see cref="BlockResize"/> on the render host's
+    /// screen (1920 × 1080: a cell is 10 DIPs): <c>marks-&lt;theme&gt;-block.png</c> as placed (a clock and a date side by
+    /// side over a countdown as wide as both, each at its natural size in whole cells, one card beside it not selected),
+    /// <c>-block-corner.png</c> after its bottom-right corner is dragged 130 × 70 DIPs out, <c>-block-left.png</c> after
+    /// its left edge is dragged 90 DIPs in, <c>-block-keys.png</c> after three Shift+Right presses. The cells each lands
+    /// on are written to the console.
+    /// </summary>
+    private static async Task BlockShots(Grid screen, Ticker ticker, string outDir, string theme)
+    {
+        var stand = new ScreenMetrics(1920, 1080);
+        static double Up(double dip) => Math.Ceiling(dip / 10) * 10;
+        WidgetId[] kinds = [new("clock"), new("date"), new("countdown")];
+        var natural = kinds.Select(k => SizeFit.Of(k).Natural).Select(n => (W: Up(n.Width), H: Up(n.Height))).ToArray();
+        var top = Math.Max(natural[0].H, natural[1].H);
+        var wide = Math.Max(natural[0].W + natural[1].W, natural[2].W);
+        const double X = 120, Y = 60;
+        PropsCard[] block =
+        [
+            new(kinds[0], X, Y, natural[0].W, top, true),
+            new(kinds[1], X + natural[0].W, Y, wide - natural[0].W, top, true),
+            new(kinds[2], X, Y + top, wide, natural[2].H, true),
+        ];
+        var aside = new PropsCard(new WidgetId("wifiToggle"), X + wide + 260, Y, 120, 120, false);
+
+        var rects = block.Select(s => new FracRect(s.X / stand.Width, s.Y / stand.Height, s.W / stand.Width, s.H / stand.Height)).ToArray();
+        var limits = kinds.Select(k => SizeFit.Limits(SizeFit.Of(k), stand, 1.0)).ToArray();
+        PropsCard[] Laid(IReadOnlyList<FracRect> laid) => [.. block.Select((s, i) => s with { X = laid[i].X * stand.Width, Y = laid[i].Y * stand.Height, W = laid[i].W * stand.Width, H = laid[i].H * stand.Height }), aside];
+
+        var keys = (IReadOnlyList<FracRect>)rects;
+        for (var press = 0; press < 3; press++)
+        {
+            keys = BlockResize.Nudge(keys, limits, Core.Shell.NudgeDirection.Right, Core.Shell.NudgeStep.Cell, stand);
+        }
+
+        foreach (var (name, laid) in new (string, IReadOnlyList<FracRect>)[]
+        {
+            ("block", rects),
+            ("block-corner", BlockResize.Resize(rects, limits, ResizeHandle.BottomRight, 130 / stand.Width, 70 / stand.Height, stand)),
+            ("block-left", BlockResize.Resize(rects, limits, ResizeHandle.Left, 90 / stand.Width, 0, stand)),
+            ("block-keys", keys),
+        })
+        {
+            var cells = string.Join("  ", laid.Select((r, i) => $"{kinds[i].Value} {r.X * 192:0.##},{r.Y * 108:0.##} {r.W * 192:0.##}x{r.H * 108:0.##}"));
+            Console.WriteLine($"editbar: {name} cells (x,y wxh): {cells}");
+            await MarkerShot(screen, ticker, Laid(laid), 8, System.IO.Path.Combine(outDir, $"marks-{theme}-{name}.png"), height: 520).ConfigureAwait(true);
+        }
+    }
+
+    /// <summary>[S-2460] The selection's frame round the selected cards of a shot (their boxes in the shot's DIPs), as the surface draws it: two or more.</summary>
+    private static void FrameRound(EditMarkerLayer markers, IReadOnlyList<(WidgetCard Card, PixelRect Box)> selected, FrameworkElement screen)
+    {
+        if (selected.Count < 2)
+        {
+            markers.Frame.Hide();
+            return;
+        }
+
+        var box = PixelRect.FromEdges(selected.Min(s => s.Box.X), selected.Min(s => s.Box.Y), selected.Max(s => s.Box.X + s.Box.Width), selected.Max(s => s.Box.Y + s.Box.Height));
+        var (width, height) = BlockResize.Free([.. selected.Select(s => s.Card.Limits)], selected.Count);
+        markers.Frame.Show(box, screen.XamlRoot?.RasterizationScale ?? 1, width, height);
+    }
+
+    private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path, double height = 420)
     {
         screen.Children.Clear();
-        screen.Height = 420;
+        screen.Height = height;
 
         var canvas = new Canvas();
         screen.Children.Add(canvas);
@@ -816,6 +886,9 @@ internal static partial class EditBarRender
 
         canvas.Children.Add(markers.Halos);
         canvas.Children.Add(markers.Inks);
+
+        // [S-2460] Several selected: the frame round them.
+        FrameRound(markers, [.. cards.Zip(models).Where(c => c.Second.Spec.Selected).Select(c => (c.First, new PixelRect(c.Second.Spec.X, c.Second.Spec.Y, c.Second.Spec.W, c.Second.Spec.H)))], screen);
 
         await Task.Delay(800).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
