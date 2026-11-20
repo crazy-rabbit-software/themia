@@ -15,8 +15,12 @@ colour), and judges:
   (scripts/item-check.py) judges the boxes instead.
 - WR-4 / WR-7 foot: the band under the last ink is at most the inset and the 4 DIP, but in a card with items: their
   leftover whole cells and empty stated rows may stand at the foot (WR-5), judged by the item check.
-- sides: the band beside the ink, either side, is at most the inset and the 4 DIP where the content spans the width
-  (a card with items: WR-3).
+- sides: the band beside the ink, either side, is at most the inset and the 4 DIP. Where the card's item boxes reach
+  both its edges (a list's rows), the band beside the ink is the items' own padding and a short title's room, and the
+  item check judges the boxes instead (WR-3: "An item's box (its row band, cell, hover area) runs from the card's left
+  edge to its right edge"), as for the foot; the ink rule stays for a card without items and one whose items do not
+  reach both edges (owner, 2026-11-20, of this check flagging list rows whose short titles leave the right band wide:
+  "you should choose what works").
 - [S-6754] a graph's plot (the one chart's box, `plots` in the layout): the plot reaches the card's edges, left, right,
   top and foot (owner, 2026-11-19: "Plot edge to edge": the plot and its fill reach the card's edges, the labels stand
   inside it, over the plot); its top right under the card's compact Set up line where the card shows one ([S-12835],
@@ -87,11 +91,19 @@ def centred(kind):
 
 
 def kinds_in(root):
+    """Every kind the modules declare (`[assembly: ThemiaWidget("id", ...)]`), a family's each (the weather facts' eleven)."""
     names = []
     for d in sorted(glob.glob(os.path.join(root, 'src', 'Widgets', 'Themia.Widget.*'))):
-        if glob.glob(os.path.join(d, '*.csproj')):
+        if not glob.glob(os.path.join(d, '*.csproj')):
+            continue
+        declared = []
+        for f in sorted(glob.glob(os.path.join(d, '*.cs'))):
+            with open(f, encoding='utf-8') as src:
+                declared += re.findall(r'\[assembly: ThemiaWidget\("(\w+)"', src.read())
+        if not declared:
             n = os.path.basename(d)[len('Themia.Widget.'):]
-            names.append(n[0].lower() + n[1:])
+            declared = [n[0].lower() + n[1:]]
+        names += [k for k in declared if k not in names]
     return names
 
 
@@ -187,9 +199,16 @@ def judge(kind, card, layout):
     # the item check.
     if foot > limit and not items and not plot_foot:
         found.append(f'WR-4 foot {foot:.1f}')
-    if items and (left > limit or right > limit):
+    # Item boxes from the card's left edge to its right: the item check's box rule judges them (WR-3), not their ink.
+    width = (layout or {}).get('w', w)
+    if not (items and spans(items, width)) and (left > limit or right > limit):
         found.append(f'WR-3 sides {left:.1f}/{right:.1f}')
     return found
+
+
+def spans(items, width):
+    """Whether the card's item boxes reach both its edges (a list's rows, a row of cells together)."""
+    return any(i['x'] <= 0.5 for i in items) and any(i['x'] + i['w'] >= width - 0.5 for i in items)
 
 
 def check(exe, kind, out, timeout):

@@ -1,6 +1,6 @@
 """[S-12831] The item check: the owner's rules on a widget's items (docs/WIDGET-RULES.md WR-1..WR-6), measured on the
-item boxes the render lays out, every kind, every state its renders offer, at its range and at desktop sizes. Needs a
-Debug build of the app.
+item boxes the render lays out, every kind, every state its renders offer, at its range, at its first height steps
+(`--sizes steps`: what a resize lands on, [S-14100]) and at desktop sizes. Needs a Debug build of the app.
 
 usage: python scripts/item-check.py [--exe <Themia.exe>] [--out <dir>] [--kinds a,b] [--sizes s1;s2] [--jobs 4]
                                     [--timeout 120]
@@ -14,6 +14,12 @@ the panel that lays them, and the ink outside every item. For every group of ite
 - WR-2 touching: along the axis they repeat, each item starts where the one before it ends (no gap, no overlap).
 - WR-1 / WR-5 nothing above the first item: the first item of a column stands on the card's top edge, or directly
   under what stands over it in the card (a tool line, a search box: the ink outside the items right over it).
+- WR-5 nothing left over under the last item (owner, 2026-11-20: "now the weather forecast widget always has one block
+  space at the bottom. this should obviously not be"; "same for the task widget, there is also a one block space at the
+  bottom now. why is that?"): a card holding items is exactly as tall as its whole items. The band between the lowest
+  item (a row, an add row) and the card's foot is none, or whole rows of the list's pitch (its empty stated rows: "this
+  is fine if it happens"), never a part row or leftover cells; what stands under the last item outside every item (a
+  foot line, a control) takes that room as its own.
 - WR-6 whole cells: along the axis a column repeats, every item is a whole number of grid cells and all are alike;
   along a row the items are whole cells and alike to a cell, the last taking what of the card's width is not a whole
   cell (the coordinator's "the last item absorbing the remainder of the card when the card isn't whole cells").
@@ -35,15 +41,23 @@ import subprocess
 import sys
 
 TOL = 0.5  # DIP: layout rounding
-SIZES = ['range', '330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300', '300x100,300x200,300x300']
+SIZES = ['range', 'steps', '330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300', '300x100,300x200,300x300']
 
 
 def kinds_in(root):
+    """Every kind the modules declare (`[assembly: ThemiaWidget("id", ...)]`), a family's each (the weather facts' eleven)."""
     names = []
     for d in sorted(glob.glob(os.path.join(root, 'src', 'Widgets', 'Themia.Widget.*'))):
-        if glob.glob(os.path.join(d, '*.csproj')):
+        if not glob.glob(os.path.join(d, '*.csproj')):
+            continue
+        declared = []
+        for f in sorted(glob.glob(os.path.join(d, '*.cs'))):
+            with open(f, encoding='utf-8') as src:
+                declared += re.findall(r'\[assembly: ThemiaWidget\("(\w+)"', src.read())
+        if not declared:
             n = os.path.basename(d)[len('Themia.Widget.'):]
-            names.append(n[0].lower() + n[1:])
+            declared = [n[0].lower() + n[1:]]
+        names += [k for k in declared if k not in names]
     return names
 
 
@@ -194,14 +208,38 @@ def judge(card):
                 break
     if hidden:
         out.append({'group': 'marks', 'axis': '-', 'items': len(marks), 'findings': hidden})
+    left = leftover(card, groups)
+    if left:
+        out.append({'group': 'foot', 'axis': '-', 'items': len(card.get('items', [])), 'findings': [left]})
     return out
+
+
+def leftover(card, groups):
+    """WR-5 (2026-11-20): the band under the card's lowest item is none or its list's empty stated rows (whole rows of
+    the pitch of a column of items), never leftover cells; ink standing under the last item takes that room."""
+    items = card.get('items', [])
+    if not items:
+        return None
+    h, cell = card['h'], card['cell']
+    last = max(i['y'] + i['h'] for i in items)
+    if any(k['y'] >= last - TOL and k['h'] > TOL for k in card.get('ink', [])):
+        return None
+    band = h - last
+    if band <= TOL:
+        return None
+    pitches = {round(v[0]['h'], 1) for v in groups.values() if axis_of(v) == 'column' and v[0]['h'] > TOL}
+    for p in pitches:
+        rows = round(band / p)
+        if rows >= 1 and abs(band - rows * p) <= TOL:
+            return None
+    return f"WR-5 leftover of {band:.1f} under the last item ({band / cell:.1f} cells of {cell:.2f})"
 
 
 def check(exe, kind, out, sizes, timeout):
     results = []
     for state in states(exe, kind, out, timeout):
         for n, size in enumerate(sizes):
-            label = 'range' if size == 'range' else f'set{n}'
+            label = size if size in ('range', 'steps') else f'set{n}'
             png = os.path.join(out, 'png', f'{kind}.{state or "default"}.{label}.png')
             layout = png + '.layout.json'
             cmd = [exe, '--widget-png', kind, png, '--theme', 'dark', '--sizes', size, '--transparent', '--layout-json', layout]
